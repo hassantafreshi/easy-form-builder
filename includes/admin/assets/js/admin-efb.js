@@ -1691,7 +1691,7 @@ let change_el_edit_Efb = (el) => {
         } else if (el.dataset.tag == 'heading' ||el.dataset.tag == 'link' ||el.dataset.tag == 'textarea') {
           //console.log(valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}_`) );
           c= el.dataset.tag=='textarea' ? sanitize_text_efb(el.value ,true) : sanitize_text_efb(el.value);
-          document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = efb_text_nr(c,0);
+          document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = text_nr_efb(c,0);
           valj_efb[indx].value = c;
         } else {
           //yesNo

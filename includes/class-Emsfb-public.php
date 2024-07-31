@@ -3183,6 +3183,9 @@ class _Public {
 		error_log('$this->pro_efb'.$this->pro_efb);
 		$pro =0;
 		$pro = $this->pro_efb;
+		$classes .= str_replace(',', ' ', $vj->classes) ?? '';
+
+
 		error_log('pro:'.$pro);
 		if (gettype($elementSpecificFields) == 'array') {
 			$ui = $elementSpecificFields['ui'];
@@ -3213,7 +3216,7 @@ class _Public {
 						$corner,
 						$vj->el_text_color,
 						$requiredAttr,
-						str_replace(',', ' ', $vj->classes),
+						'',
 						$element_Id,
 						$form_id,
 						$valueAttr,
@@ -3229,7 +3232,8 @@ class _Public {
 					
 				break;			
 				case 'range':
-					$classes =  'form-range';					
+					$classes =  'form-range';	
+					$classes .=str_replace(',', ' ', $vj->classes) ?? '';
 					$maxlen = isset($vj->mlen) ? $vj->mlen : 100;
 					$minlen = isset($vj->milen) ? $vj->milen : 0;
 					$temp = $vj->value > 0 ? $vj->value : round(($maxlen + $minlen) / 2);
@@ -3246,7 +3250,7 @@ class _Public {
 						$ttip,
 						$vj->el_height,
 						$vj->el_text_color,
-						str_replace(',', ' ', $vj->classes),
+						$classes,
 						$form_id,
 						$elementId,
 						$requiredAttr,
@@ -3267,7 +3271,7 @@ class _Public {
 						%1$s
 						%2$s
 						%3$s
-						<input type="%4$s" class="efb input-efb px-2 py-1 emsFormBuilder_v w-100 %5$s %6$s %7$s form-control efb efbField efb1 %8$s" data-css="%9$s" data-vid="%9$s" data-id="%9$s-el" data-formId="%15$s" id="%9$s_" aria-required="%10$s" aria-label="%11$s" %12$s %13$s>
+						<input type="%4$s" class="efb input-efb px-2 py-1 emsFormBuilder_v w-100 %5$s %6$s %7$s efbField efb1 %8$s %16$s" data-css="%9$s" data-vid="%9$s" data-id="%9$s-el" data-formId="%15$s" id="%9$s_" aria-required="%10$s" aria-label="%11$s" %12$s %13$s>
 						%14$s',
 						$label,
 						$div_f_id,
@@ -3275,7 +3279,7 @@ class _Public {
 						$elementId,
 						($vj->required == 1 ? 'required' : ''),
 						$vj->el_height,
-						$vj->el_border_color,
+						$classes,
 						str_replace(',', ' ', $vj->classes),
 						$element_Id,
 						($vj->required == 1 ? 'true' : 'false'),
@@ -3283,7 +3287,8 @@ class _Public {
 						$aire_describedby,
 						($disabled == "disabled" ? 'readonly' : ''),
 						$desc,
-						$form_id
+						$form_id,
+						$corner
 					);
 					$dataTag = $elementId;
 					break;
@@ -3305,17 +3310,18 @@ class _Public {
 						$vj->el_height,
 						$corner,
 						$vj->el_text_color,
-						$vj->el_border_color,
-						str_replace(',', ' ', $vj->classes),
+						$classes,
+						 '',
 						$vj->value,
 						($vj->required == 1 ? 'true' : 'false'),
 						$vj->name,
 						$aire_describedby,
 						$disabled,
 						$minlen,
-						$this->efb_text_nr($vj->value, 0),
+						$this->text_nr_efb($vj->value, 0),
 						$desc,
 						$form_id
+
 					);
 					$dataTag = "textarea";
 					break;
@@ -3504,7 +3510,7 @@ class _Public {
 		return ['maxlen' => $maxlen, 'minlen' => $minlen];
 	}
 	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id) {
-		$corener = isset($vj->corner) ? $vj->corner : '';
+		$corener = isset($vj->corner) ? $vj->corner : 'efb-square';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$value = !empty($vj->value) ? 'value="' . $vj->value . '"' : '';
 		$aria_required = ($vj->required == 1) ? 'true' : 'false';
@@ -3649,7 +3655,7 @@ class _Public {
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$value = !empty($vj->value) ? 'value="' . $vj->value . '"' : '';
 		$readonly = $previewSate != true ? 'readonly' : '';
-		$classes = str_replace(',', ' ', $vj->classes);
+		$classes = str_replace(',', ' ', $vj->classes) ? '';
 		$onlyCountries = isset($vj->c_c) && count($vj->c_c) > 0 ? $vj->c_c : '';
 	
 		// Call the function to load intlTelInput
@@ -3806,6 +3812,10 @@ class _Public {
 			$ui_ddfile // %8$s
 		);
 	}
+	private function text_nr_efb($text, $type) {
+		$val = $type == 1 ? '<br>' : "\n";
+		return str_replace('@n#', $val, $text);
+	}
 	
 
 	/* new */
@@ -3866,6 +3876,7 @@ class _Public {
 		
 		return false;
 	}
+	
 	/* end sanitize recived object value */
 
 
