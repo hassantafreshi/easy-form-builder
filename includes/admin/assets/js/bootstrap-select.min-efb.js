@@ -145,14 +145,21 @@
                      const v= l.innerHTML.length == (l.innerHTML.indexOf(',')+1) ? default_val_efb :''
                      l.innerHTML =  l.innerHTML.replace(`${e.dataset.name},`,v);
                      if (l.dataset.icon==1) fc.className="bi-square efb";
-                     e.className="efblist"
+                     e.className="efblist";
+                   /*   l.classList.remove("border-info");
+                    l.classList.add("border-success"); */
+                    if(l.dataset.select.length<1){
+                        l.innerHTML=default_val_efb;
+                        l.classList.remove("border-success");
+                    }
                  }else{
                     const s= l.dataset.select.split("@efb!");
                      if((s.length)<=l.dataset.no){
                          if (l.dataset.icon==1) fc.className="bi-check-square text-info efb";
                          l.dataset.select.length<1 ?  l.innerHTML=e.dataset.name+"," :l.innerHTML+=e.dataset.name+","
                          l.dataset.select+=`${e.dataset.row} @efb!`;
-                         e.className += " border-info";
+                         l.classList.remove("border-info");
+                        l.classList.add("border-success");
  
                      }
 
