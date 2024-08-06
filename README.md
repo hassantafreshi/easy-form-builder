@@ -125,7 +125,15 @@ Features:
 
 ## Documentation 📄
 
-The most recent documentation can be found at [https://whitestudio.team/documents](https://whitestudio.team/documents)
+The most recent documentation can be found at :
+
+[English Document Of Easy Form Builder](https://whitestudio.team/documents)
+
+[German Document of Easy Form Builder](https://de.whitestudio.team/documents)
+
+[وثيقة عربية لبرنامج منشئ النماذج السهل](https://ar.whitestudio.team/documents)
+
+[مستندات فرم ساز آسان به زبان فارسی](https://easyformbuilder.ir/documents)
 
 [Version History and Technical Logs](https://github.com/hassantafreshi/easy-form-builder/wiki/Version-History-with-Technical-Changes) 
 

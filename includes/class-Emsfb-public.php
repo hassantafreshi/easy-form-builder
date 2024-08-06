@@ -198,8 +198,8 @@ class _Public {
 		$state="form";		
 		$multi_exist = strpos($value , '"type\":\"multiselect\"');
 		if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.8.3');
-			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,'3.8.3' );
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,EMSFB_PLUGIN_VERSION);
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,EMSFB_PLUGIN_VERSION );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
 		$rp= $this->get_setting_Emsfb('pub');
@@ -229,7 +229,7 @@ class _Public {
 				$smssendefb = new smssendefb() ; 
 			}
 				if($el_pro_load==true){
-					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.8.3');
+					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
 				}
 				if($typeOfForm=="payment"){
 					$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
@@ -247,12 +247,12 @@ class _Public {
 								if($paymentType=="stripe"){ 
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 									wp_enqueue_script('stripe-js');
-									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), '3.8.3', true);
+									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
 									wp_enqueue_script('stripepay_js');
 									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 								}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 									$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), '3.8.3', true);
+									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
 									wp_enqueue_script('parsipay_js');
 								}
 							}
@@ -263,7 +263,7 @@ class _Public {
 					));
 				}
 				if(strpos($value , '\"type\":\"switch\"') || strpos($value , '"type":"switch')){
-					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true,'3.8.3');
+					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true,EMSFB_PLUGIN_VERSION);
 				}
 				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
@@ -287,7 +287,7 @@ class _Public {
 						];
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);	
 					wp_enqueue_script('intlTelInput-js');
-					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.8.3');
+					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
 					wp_enqueue_style('intlTelInput-css');
 				}
 				if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
@@ -451,7 +451,7 @@ class _Public {
 		$this->pro_efb = $valstng->pro;
 		$this->comper_version_efb($pl[1]['version']);
 		if($this->pro_efb==1){
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.8.3');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
 		}
 		//$location = $this->pro_efb==true  ? $this->efbFunction->get_geolocation() :'';
 		$location = '';
@@ -510,19 +510,19 @@ class _Public {
 		return $content; 
 	}
 	function public_scripts_and_css_head(){
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,'3.8.3');
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-style-css');
-		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), '3.8.3', true);				
+		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);				
 		 wp_enqueue_script('Emsfb-core_js');
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), '3.8.3', true);		
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);		
 		$ar_core = array() ;
 		wp_localize_script( 'efb-main-js', 'efb_var',$ar_core);  
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,'3.8.3');
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 		$googleCaptcha=false;
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', true,'3.8.3');
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', true,EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-bootstrap-css');
 	  }
 	  public function get_form_public_efb($data_POST_) {
@@ -2929,16 +2929,31 @@ class _Public {
 		  return $m;
 		}
 		function fun_imgRadio_efb($id ,$link,$row){
+			error_log('fun_imgRadio_efb');
+			error_log($link);
 			$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 			$u = function($url){
-			  $url = preg_replace('/(http:@efb@)+/g', 'http://', $url);
-			  $url = preg_replace('/(https:@efb@)+/g', 'https://', $url);
-			  $url = preg_replace('/(@efb@)+/g', '/', $url);
-			  return $url;
+				$patterns = [
+					'/http:@efb@/',
+					'/https:@efb@/',
+					'/@efb@/'
+				];
+				$replacements = [
+					'http://',
+					'https://',
+					'/'
+				];
+			
+				// Perform the replacements in a single pass using preg_replace
+				
+				$processedLink = preg_replace($patterns, $replacements, $url);
+			
+				// Return or process the result as needed
+				return $processedLink;
 			 };
-			$value = isset($row['value'])  ? $row['value'] : '';
-			$sub_value = isset($row['sub_value']) ? $row['sub_value'] : '';
-			$link =strpos($link,'http')==false ?  $poster : $row['src'];
+			$value = $row->value ?? '';
+			$sub_value = $row->sub_value ?? '';
+			$link =strpos($link,'http')===false  ?  $poster : $row->src;
 			$link = $u($link);
 			return '
 			  <label class="efb  " id="'.$id.'_lab" for="'.$id.'">
@@ -3155,13 +3170,14 @@ class _Public {
 		if ($state == 1) return $this->efbFunction;
 	}
 	public function addNewElement_efb($i, $rndm,$form_id,$texts) {
-		error_log('addNewElement_efb');
-		error_log(json_encode($texts));
 		$element_Id = $this->valj_efb[$i]->id_;
 		$elementId = $this->valj_efb[$i]->type;
 		$pos = array("", "", "", "");
 		$indexVJ = $i;
 		$vj = $this->valj_efb[$indexVJ];
+		error_log($elementId);
+		if(in_array($elementId, ["option"])) return;
+
 		if (!in_array($elementId, ["html", "register", "login", "subscribe", "survey"])) {
 			$pos = $this->get_position_col_el($vj, false);
 		}
@@ -3169,8 +3185,15 @@ class _Public {
 		$pay = 'payefb';
 		$iVJ = $indexVJ;
 		$dataTag = 'text';
+		/*
+		//+ after check functionlity cheange below codes to
+		 $desc =isset($vj->message) && strlen($vj->message)>0 ?$this->generateDescription_efb($element_Id, $vj, $pos) :'<!-- descripton not exist -->';
+		 $label =isset($vj->name) && strlen($vj->name)   ? $this->generateLabel_efb($element_Id, $vj, $pos) :'<!-- label not exist -->';
+
+		*/
 		$desc = $this->generateDescription_efb($element_Id, $vj, $pos);
 		$label = $this->generateLabel_efb($element_Id, $vj, $pos);
+
 		$ttip = $this->generateTooltip_efb($element_Id);
 		$div_f_id = $this->generateDivFId_efb($element_Id, $pos);
 		$aire_describedby = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : "";
@@ -3178,13 +3201,14 @@ class _Public {
 		$ui ='<!--efb ui-->';
 		$dataTag = '<!--efb dataTag-->';
 		$classes = sprintf('form-control %s', $vj->el_border_color) ;
+		$vtype = in_array($elementId ,['imgRadio','chlCheckBox','chlRadio','payMultiselect','paySelect','payRadio','payCheckbox','trmCheckbox']) ? strtolower(substr($elementId,3)) : $elementId;
 		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id);
 		$js_s='<!--JS-->';
 		error_log('$this->pro_efb'.$this->pro_efb);
 		$pro =0;
 		$pro = $this->pro_efb;
 		$classes .= str_replace(',', ' ', $vj->classes) ?? '';
-
+		$currency = isset($this->valj_efb[0]->currency) ? $this->valj_efb[0]->currency : 'USD';
 
 		error_log('pro:'.$pro);
 		if (gettype($elementSpecificFields) == 'array') {
@@ -3371,6 +3395,229 @@ class _Public {
 					);
 					$dataTag = $elementId;
 				break;
+				case 'checkbox':
+					case 'radio':
+					case 'payCheckbox':
+					case 'payRadio':
+					case 'chlCheckBox':
+					case 'chlRadio':
+					case 'imgRadio':
+					case 'trmCheckbox':	
+						/* $dataTag = $elementId;
+						$col = isset($vj->op_style) && $vj->op_style != 1 ? sprintf('col-md-%d', (12 / $vj->op_style)) : '';
+						$pay = in_array($elementId, ["radio", "checkbox", "chlRadio", "chlCheckBox", "imgRadio", "trmCheckbox"]) ? "" : $pay;
+						$temp = $elementId == "imgRadio" ? 'col-md-4 mx-0 px-2' : '';
+						
+						
+						$tp = strtolower($dataTag);
+						$optns_obj =[];
+						error_log('typpppppppppppppppppppppppppppe');
+						error_log(gettype($this->valj_efb));
+						  array_filter($this->valj_efb, function($obj) use ($element_Id,&$optns_obj) {
+							if (isset($obj->parent) && $obj->parent== $element_Id) {
+								$optns_obj[] = $obj;
+							}
+						});
+						error_log('optns_obj=>'.json_encode($optns_obj));
+						$optn = '<!-- options -->';
+						foreach ($optns_obj as $i) {
+							$vlopt ='';
+							$costume =false;
+							if($elementId != 'trmCheckbox'){ 
+								$vlopt=$this->fun_get_links_from_string_Efb($i->value, true); 
+								$costume =true;
+							}
+							else if($elementId == 'imgRadio'){ 
+								$vlopt=$this->fun_imgRadio_efb($i->id_, $i->src, $i);
+								$costume =true;
+							}
+							else if (strpos($elementId, 'chl') !== false ) {
+								$prc = isset($i->price) ? (int)$i->price : 0;
+								$vlopt = sprintf('<input type="text" class="efb %s %s checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="%s" data-type="%s" data-vid="" id="%s_chl" placeholder="%s" disabled>', $vj->el_text_color, $vj->el_height, $i->id_, $dataTag, $i->id_, $vj->pholder_chl_value);
+								if(strpos($elementId, 'pay')){
+
+									$vlopt .=sprintf('<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="%s-price" class="efb efb-crrncy">%s %s</span></span>', $i->id_, number_format($prc, 2), $currency) ;
+								}
+								$costume =true;
+							
+							}
+							$optn_value ='';
+							if($costume==false){
+								$optn_value =sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', 
+									isset($vj->pholder_chl_value) ? 'col-8' : '',
+									$vj->el_text_color ?? '' , 
+									$vj->el_height, 
+									$vj->label_text_size, 
+									$i->id_, 
+									$i->id_, 
+									$vlopt);
+							}else{
+								$optn_value = $vlopt;
+							}
+							
+							error_log('tesssst');
+							$checked = "";
+							if ((strpos($tp, "radio") !== false || (strpos($tp, "select") !== false && strpos($tp, "multi") === false)) && ($vj->value == $i->id_ || (isset($i->id_old) && $vj->value == $i->id_old))) {
+								$checked = "checked";
+							} elseif ((strpos($tp, "multi") !== false || strpos($tp, "checkbox") !== false) && is_array($vj->value) && array_search($i->id_, $vj->value) !== false) {
+								$checked = "checked";
+							}
+							$prc = isset($i->price) ? (int)$i->price : 0;
+							error_log($vtype);
+							error_log($elementId);
+							$optn .= sprintf(
+								'<div class="efb form-check %1$s %2$s %3$s efb1 %4$s mt-1" data-css="%5$s" data-parent="%6$s" data-formId="%7$s" data-id="%8$s" id="%9$s-v">
+									<input class="efb form-check-input emsFormBuilder_v %10$s %11$s" data-tag="%12$s" data-type="%13$s" data-vid="%14$s" type="%15$s" name="%16$s" value="%17$s" id="%18$s" data-id="%19$s-id" data-op="%20$s" %21$s %22$s>
+									%23$s									
+								</div>',
+								$col,              // 1: $col
+								$elementId,        // 2: $elementId
+								$temp,             // 3: $temp
+								str_replace(',', ' ', $vj->classes), // 4: str_replace(',', ' ', $vj->classes)
+								$element_Id,       // 5: $element_Id
+								$i->parent,        // 6: $i->parent
+								$form_id,          // 7: $form_id
+								$i->id_,           // 8: $i->id_
+								$i->id_,           // 9: $i->id_
+								$pay,              // 10: $pay
+								$vj->el_text_size, // 11: $vj->el_text_size
+								$dataTag,          // 12: $dataTag
+								$vtype,            // 13: $vtype
+								$element_Id,       // 14: $element_Id
+								$vtype,            // 15: $vtype
+								$i->parent,        // 16: $i->parent
+								$i->value,         // 17: $i->value
+								$i->id_,           // 18: $i->id_
+								$i->id_,           // 19: $i->id_
+								$i->id_,           // 20: $i->id_
+								$disabled,         // 21: $disabled
+								$checked,          // 22: $checked
+								$optn_value        // 23: $optn_value
+							);
+						}
+						error_log('----->options');
+						error_log($optn);
+						$temp = $elementId == "imgRadio" ? "row justify-content-center" : "";
+						$ui = sprintf(
+							'<!-- checkbox -->
+							%s
+							<div class="efb %s col-sm-12 px-0 mx-0 py-0 my-0 ttEfb show" data-id="%s-el" data-formId="%s" id="%s-f">
+							%s
+							<div class="efb %s %s %s efb1 %s" data-css="%s" %s id="%s_options">
+							%s
+							</div>
+							<div class="efb mb-3">%s</div>
+							<!-- end checkbox -->',
+							$label,
+							$pos[3],
+							$element_Id,
+							$form_id,
+							$element_Id,
+							$ttip,
+							($vj->required == 1 || $vj->required == true) ? 'required' : '',
+							$col != '' ? 'row col-md-12' : '',
+							$temp,
+							str_replace(',', ' ', $vj->classes),
+							$element_Id,
+							$aire_describedby,
+							$element_Id,
+							$optn,
+							$desc
+						); */
+
+						$dataTag = $elementId;
+						$col = isset($vj->op_style) && intval($vj->op_style) != 1 ? sprintf('col-md-%d', 12 / intval($vj->op_style)) : '';
+						$pay = in_array($elementId, ["radio", "checkbox", "chlRadio", "chlCheckBox", "imgRadio", "trmCheckbox"]) ? '' : $pay;
+						$temp = $elementId == "imgRadio" ? 'col-md-4 mx-0 px-2' : '';
+						
+						$tp = strtolower($dataTag);
+						$parent = $vj;
+						$optns_obj =[];
+						error_log('typpppppppppppppppppppppppppppe');
+						error_log(gettype($this->valj_efb));
+						  array_filter($this->valj_efb, function($obj) use ($element_Id,&$optns_obj) {
+							if (isset($obj->parent) && $obj->parent== $element_Id) {
+								$optns_obj[] = $obj;
+							}
+						});
+						$currency = isset($this->valj_efb[0]->currency) ? $this->valj_efb[0]->currency : 'USD';
+						
+						$optn = '';
+						foreach ($optns_obj as $i) {
+							$checked = "";
+							if ((strpos($tp, "radio") !== false || (strpos($tp, "select") !== false && strpos($tp, "multi") === false)) && ($parent->value == $i->id_ || (isset($i->id_old) && $parent->value == $i->id_old))) {
+								$checked = "checked";
+							} elseif ((strpos($tp, "multi") !== false || strpos($tp, "checkbox") !== false) && is_array($parent->value) && array_search($i->id_, $parent->value) !== false) {
+								$checked = "checked";
+							}
+							$prc = isset($i->price) ? intval($i->price) : 0;
+							if($pay!='') $prc = $this->formatPrice_efb($prc, $currency );
+							$optn .= sprintf(
+								'<div class="efb form-check %s %s %s efb1 %s mt-1" data-css="%s" data-parent="%s" data-id="%s" data-formId="%s" id="%s-v">
+									<input class="efb form-check-input emsFormBuilder_v %s %s" data-tag="%s" data-type="%s" data-vid="%s" type="%s" name="%s" value="%s" id="%s" data-id="%s-id" data-formId="%s" data-op="%s" %s %s %s>
+									%s
+									%s
+									%s
+								</div>',
+								$col,
+								$elementId,
+								$temp,
+								str_replace(',', ' ', $vj->classes),
+								$element_Id,
+								$i->parent,
+								$i->id_,
+								$form_id,
+								$i->id_,
+								$pay,
+								$vj->el_text_size,
+								$dataTag,
+								$vtype,
+								$element_Id,
+								$vtype,
+								$i->parent,
+								$i->value,
+								$i->id_,
+								$i->id_,
+								$form_id,
+								$i->id_,
+								'',
+								$disabled,
+								$checked,
+								$elementId != 'imgRadio' ? sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', isset($vj->pholder_chl_value) ? 'col-8' : '', $vj->el_text_color, $vj->el_height, $vj->label_text_size, $i->id_, $i->id_, $this->fun_get_links_from_string_Efb($i->value, true)) : $this->fun_imgRadio_efb($i->id_, $i->src ?? '', $i),
+								strpos($elementId, 'chl') !== false ? sprintf('<input type="text" class="efb %s %s checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="%s" data-type="%s" data-vid="" id="%s_chl" placeholder="%s" disabled>', $vj->el_text_color, $vj->el_height, $i->id_, $dataTag, $i->id_, $vj->pholder_chl_value) : '',
+								strlen($pay) > 2 ? sprintf('<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="%s-price" class="efb efb-crrncy">%s</span></span>', $i->id_, $prc):''
+							);
+						}
+						
+						$temp = $elementId == "imgRadio" ? "row justify-content-center" : "";
+						$ui = sprintf(
+							'<!-- checkbox -->
+							%s
+							<div class="efb %s col-sm-12 px-0 mx-0 py-0 my-0 ttEfb show" data-id="%s-el" id="%s-f">
+								%s
+								<div class="efb %s %s %s efb1 %s" data-css="%s" %s id="%s_options">
+									%s
+								</div>
+								<div class="efb mb-3">%s</div>
+							</div>
+							<!-- end checkbox -->',
+							$label,
+							$pos[3],
+							$element_Id,
+							$element_Id,
+							$ttip,
+							($vj->required == 1 || $vj->required == true) ? 'required' : '',
+							$col != '' ? 'row col-md-12' : '',
+							$temp,
+							str_replace(',', ' ', $vj->classes),
+							$element_Id,
+							$aire_describedby,
+							$element_Id,
+							$optn,
+							$desc
+						);
+						break;
+					
 			
 			}
 		}
@@ -3395,7 +3642,7 @@ class _Public {
 				$stepNo,
 				$vj->amount,
 				$element_Id,
-				$tagId
+				$elementId
 			);
 			
 			if ($elementId != 'option') {
@@ -3414,19 +3661,21 @@ class _Public {
 		}
 	}
 	private function generateDescription_efb($rndm, $vj, $pos) {
-		error_log('generateDescription_efb');
-		error_log($vj->message_align);
-		error_log($pos[1]);
-		$mx = $pos[1] == 'col-md-4' || $vj->message_align != "justify-content-start" ? '' : 'mx-4';
+		// error_log('generateDescription_efb');
+		// error_log($vj->message_align);
+		// error_log($pos[1]);
+		$mx = $pos[1] == 'col-md-4' || (isset($vj->message_align) && $vj->message_align != "justify-content-start") ? '' : 'mx-4';
 		$msg_align = isset($vj->message_align) ? $vj->message_align : '';
 		$msg_txt_color = isset($vj->message_text_color) ? $vj->message_text_color : '';
-		return '<small id="' . $rndm . '-des" class="efb form-text d-flex fs-7 col-sm-12 efb ' . $mx . ' ' . $msg_align . ' ' . $msg_txt_color . ' ' . (isset($vj->message_text_size) ? $vj->message_text_size : '') . ' ">' . $vj->message . '</small>';
+		$msg = isset($vj->message) ? $vj->message : '';
+		return '<small id="' . $rndm . '-des" class="efb form-text d-flex fs-7 col-sm-12 efb ' . $mx . ' ' . $msg_align . ' ' . $msg_txt_color . ' ' . (isset($vj->message_text_size) ? $vj->message_text_size : '') . ' ">' . $msg . '</small>';
 	}
 	private function generateLabel_efb($rndm, $vj, $pos) {
 		$label_align = isset($vj->label_align) ? $vj->label_align : '';
 		$label_text_size = isset($vj->label_text_size) && $vj->label_text_size != "default" ? $vj->label_text_size : '';
 		$required = isset($vj->required) && ( $vj->required == 1 || $vj->required == true) ? '*' : '';
-		return '<label for="' . $rndm . '_" class="efb mx-0 px-0 pt-2 pb-1 ' . $pos[2] . ' col-sm-12 col-form-label ' . (isset($vj->hflabel) && $vj->hflabel == 1 ? 'd-none' : '') . ' ' . $vj->label_text_color . ' ' . $label_align . ' ' . $label_text_size . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size. '">' . $vj->name . '</span><span class="efb mx-1 text-danger" id="' . $rndm . '_req" role="none">' . $required . '</span></label>';
+		$label_color = isset($vj->label_text_color) ? $vj->label_text_color :'';
+		return '<label for="' . $rndm . '_" class="efb mx-0 px-0 pt-2 pb-1 ' . $pos[2] . ' col-sm-12 col-form-label ' . (isset($vj->hflabel) && $vj->hflabel == 1 ? 'd-none' : '') . ' ' . $label_color . ' ' . $label_align . ' ' . $label_text_size . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size. '">' . $vj->name . '</span><span class="efb mx-1 text-danger" id="' . $rndm . '_req" role="none">' . $required . '</span></label>';
 	}
 	private function generateTooltip_efb($rndm) {
 		return '<small id="' . $rndm . '_-message" class="efb py-1 fs-7 tx ttiptext px-2"> ! </small>';
@@ -3655,7 +3904,7 @@ class _Public {
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$value = !empty($vj->value) ? 'value="' . $vj->value . '"' : '';
 		$readonly = $previewSate != true ? 'readonly' : '';
-		$classes = str_replace(',', ' ', $vj->classes) ? '';
+		$classes =  str_replace(',', ' ', $vj->classes) ?? '';
 		$onlyCountries = isset($vj->c_c) && count($vj->c_c) > 0 ? $vj->c_c : '';
 	
 		// Call the function to load intlTelInput
@@ -3816,6 +4065,44 @@ class _Public {
 		$val = $type == 1 ? '<br>' : "\n";
 		return str_replace('@n#', $val, $text);
 	}
+
+	private function fun_get_links_from_string_Efb($str , $handler){
+		 // Define the regular expression pattern for matching links
+		 $pattern = '/\[([^\]]+)\]\(([^)]+)\)/';
+
+		 if ($handler === false) {
+			 // Use preg_match_all to find all matches
+			 $matches = [];
+			 preg_match_all($pattern, $str, $matches, PREG_SET_ORDER);
+	 
+			 $result = [];
+			 $state = !empty($matches);
+	 
+			 foreach ($matches as $match) {
+				 $result[] = [
+					 'text' => $match[1],
+					 'url' => $match[2]
+				 ];
+			 }
+	 
+			 return [$state, $result];
+		 } else {
+			 // Use preg_replace_callback to replace matches with anchor tags
+			 return preg_replace_callback($pattern, function($matches) {
+				 return '<a href="' . htmlspecialchars($matches[2], ENT_QUOTES, 'UTF-8') . '" target="_blank">' . htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8') . '</a>';
+			 }, $str);
+		 }
+	}
+	private function formatPrice_efb($price, $currency) {
+   
+		$locale = get_locale();	
+        $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
+        $formatted_price = $formatter->formatCurrency($price, $currency);
+
+        return $formatted_price;
+    }
+
+	
 	
 
 	/* new */

@@ -1,4 +1,4 @@
-=== Easy Form Builder ===
+=== Easy Form Builder - WordPress plugin form builder: contact form, survey form, payment form, and custom form builder ===
 Contributors: hassantafreshi, mostafas1990, mrlast, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
