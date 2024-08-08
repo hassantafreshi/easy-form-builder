@@ -575,7 +575,7 @@ class _Public {
 		$this->lanText = $this->efbFunction->text_efb($text_);
 		$setting;
 		$cache_plugins = get_option('emsfb_cache_plugins');
-		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id);
+		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id,$cache_plugins);
 		if ($s_sid != 1) {
 			$m = $this->lanText['somethingWentWrongPleaseRefresh'] . '<br>' . esc_html__('Error Code', 'easy-form-builder') . ': 403';
 			$response = ['success' => false, 'm' => $m];
@@ -1729,7 +1729,7 @@ class _Public {
 		wp_send_json_success($response,200);
 		} 
 		$cache_plugins = get_option('emsfb_cache_plugins');
-		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id);
+		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id,$cache_plugins);
         //check validate here
         $vl=null;
 		$have_validate =0;
@@ -1848,7 +1848,7 @@ class _Public {
 			wp_send_json_success($response,200);
 		}
 		$cache_plugins = get_option('emsfb_cache_plugins');		
-		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id);
+		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id ,$cache_plugins);
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 		if(gettype($r)=="string"){
 			$r =str_replace('\\', '', $r);
@@ -3075,45 +3075,79 @@ class _Public {
 		<h3  class="efb fs-5" style="justify-content: center; align-items: center;  text-align: center;">'. $fil.' <br><span class="efb  text-center fs-7">'.$pw.'</span> </h3>
 		';
 	}
-	public function cache_cleaner_Efb($page_id){
+	public function cache_cleaner_Efb($page_id,$plugins){
+		error_log('cache_cleaner_Efb');
 		$page_id = intval($page_id);
-		if (defined('LSCWP_V') || defined('LSCWP_BASENAME' )){
-			//litespeed done			
-			do_action( 'litespeed_purge_post', $page_id );
-		}else if (function_exists('rocket_clean_post')){
-			//wp-rocket done					
-			$r = rocket_clean_post($page_id);			
-		}elseif (function_exists('wp_cache_post_change')){
-			//WP Super Cache done			
-			//Jetpack done
-			$GLOBALS['super_cache_enabled']=1;
-			wp_cache_post_change($page_id);
-		}elseif(function_exists('autoptimize_filter_js_noptimize ')){
-			//auto-Optimize done
-			autoptimize_filter_js_exclude(['jquery.min-efb.js','core-efb.js']);
-			autoptimize_filter_js_noptimize();
-		}elseif(class_exists('WPO_Page_Cache')){
-			//WP-Optimize done
-			\WPO_Page_Cache::delete_single_post_cache($page_id);
-		}elseif(function_exists('w3tc_flush_post')){
-			//W3 Total Cache done			
-			w3tc_flush_post($page_id);
-		}elseif(function_exists('wpfc_clear_post_cache_by_id')){
-			//WP Fastest Cache done
-			wpfc_clear_post_cache_by_id($page_id);
-		}elseif(has_action('wphb_clear_page_cache')){
-			//Hummingbird done			
-			do_action( 'wphb_clear_page_cache', $page_id );
-		}elseif(class_exists('BigScoots_Cache') && method_exists('BigScoots_Cache', 'clear_cache')){
-			// Clear BigScoots Cache - permalink of the given post id only and not it's related pages
-			\BigScoots_Cache::clear_cache((int) $page_id); // Making sure no matter what the $page_id is always an int
-		}elseif(class_exists('SW_CLOUDFLARE_PAGECACHE')){
-			// Clear cache for Super Page Cache for Cloudflare (works for now)
-			do_action('swcfpc_purge_cache', [get_permalink($page_id)]);
-		}elseif(has_action('breeze_clear_all_cache')){
-			//Breeze 
-			do_action('breeze_clear_all_cache');
+		$cache_plugins = json_decode($plugins);
+		foreach($cache_plugins as $plugin){
+			error_log($plugin->slug);
+			switch($plugin->slug){
+				case 'litespeed-cache':
+					//litespeed 			
+					if (defined('LSCWP_V') || defined('LSCWP_BASENAME' )) do_action( 'litespeed_purge_post', $page_id );					
+					break;
+				case 'wp-rocket':
+					//wp-rocket 					
+					if (function_exists('rocket_clean_post'))	$r = rocket_clean_post($page_id);			
+					
+					break;
+				case 'wp-super-cache':
+				case 'jetpack':
+				case 'jetpack-boost':
+					//WP Super Cache			
+					//Jetpack
+					//Jetpack Boost
+					error_log('inside case:'.$plugin->slug);
+					if (isset($GLOBALS['super_cache_enabled']) && $GLOBALS['super_cache_enabled']) {
+						$GLOBALS['super_cache_enabled'] = 1;
+					}
+					if (function_exists('wp_cache_post_change')){
+						wp_cache_post_change($page_id);
+					}
+					break;
+				case 'autoptimize':
+					//auto-Optimize
+					if(function_exists('autoptimize_filter_js_noptimize ')){
+						autoptimize_filter_js_exclude(['jquery.min-efb.js','core-efb.js']);
+						autoptimize_filter_js_noptimize();
+					}
+					break;
+				case 'wp-optimize':
+					//WP-Optimize
+					if(class_exists('WPO_Page_Cache'))	\WPO_Page_Cache::delete_single_post_cache($page_id);
+					
+					break;
+				case 'w3-total-cache':
+					//W3 Total Cache			
+					if(function_exists('w3tc_flush_post'))	w3tc_flush_post($page_id);
+				
+					break;
+				case 'wp-fastest-cache':
+					//WP Fastest Cache 
+					if(function_exists('wpfc_clear_post_cache_by_id'))	wpfc_clear_post_cache_by_id($page_id);				
+					break;
+				case 'hummingbird-performance':
+					//Hummingbird			
+					if(has_action('wphb_clear_page_cache')) do_action( 'wphb_clear_page_cache', $page_id );				
+					break;
+				case 'big-scoots-cache':
+					//slug not sure!
+					// Clear BigScoots Cache - permalink of the given post id only and not it's related pages
+					if(class_exists('BigScoots_Cache') && method_exists('BigScoots_Cache', 'clear_cache')) \BigScoots_Cache::clear_cache((int) $page_id); 
+					break;
+				case 'wp-cloudflare-page-cache':
+					// Clear cache for Super Page Cache for Cloudflare (works for now)
+					if(class_exists('SW_CLOUDFLARE_PAGECACHE')) do_action('swcfpc_purge_cache', [get_permalink($page_id)]);
+					
+					break;
+				case 'breeze':
+					//Breeze 
+					if(has_action('breeze_clear_all_cache')) do_action('breeze_clear_all_cache');
+					
+					break;
+			}
 		}
+		
 	}
 	public function comper_version_efb($v){
 		if(version_compare(EMSFB_PLUGIN_VERSION,$v)!=0 ){

@@ -1739,7 +1739,7 @@ class efbFunction {
 	public function check_for_active_plugins_cache() {
 		
 		$classes = [
-		'Aruba HiSpeed Cache'=>'aruba-hispeed-cache/aruba-hispeed-cache.php',			
+			'Aruba HiSpeed Cache'=>'aruba-hispeed-cache/aruba-hispeed-cache.php',			
 			'Cache Enabler' => 'cache-enabler/cache-enabler.php',						
 			'Hyper Cache'=>'hyper-cache/plugin.php',
 			'NitroPack '=>'nitropack/main.php',
@@ -1875,19 +1875,25 @@ class efbFunction {
 		$plugins = get_plugins();
 		$active_plugins = get_option('active_plugins');
 		$plugin_list = [];
+		$cache_plugins_slug =['wp-optimize','hummingbird-performance', 'big-scoots-cache','wp-cloudflare-page-cache','breeze','jetpack','w3-total-cache','wp-fastest-cache','wp-rocket','comet-cache','hyper-cache','cache-enabler','nitropack','wp-super-cache','litespeed-cache','aruba-hispeed-cache','nitropack','jetpack-boost'];
 		foreach ($plugins as $plugin_file => $plugin_data) {
-			if(strpos($plugin_data['Name'], 'Cache') !== false && in_array($plugin_file, $active_plugins) ){
+			$slug = explode('/', $plugin_file)[0];
+			$exists_cache = in_array($slug, $cache_plugins_slug); 
+			error_log('EFB=>$exists_cache: ' . $exists_cache);
+			if($exists_cache){
+				error_log('EFB=>parsing_plugins_efb: ' . $plugin_data['Name']);
+				error_log('insde cache if');
 				$plugin_list[] = [
 					'name' => $plugin_data['Name'],
-					'version' => $plugin_data['Version'],
-					
-					'slug' => explode('/', $plugin_file)[0]
+					'version' => $plugin_data['Version'],					
+					'slug' => $slug
 				];
 			}
 		}
 
 		//if (empty($plugin_list)) not then add_option('emsfb_cache_plugins') and convert to string with json_encode
 		$val = json_encode($plugin_list);
+		$
 		$val = $val && $val !== '[]' ? $val : 0;
 		update_option('emsfb_cache_plugins', $val );		
 		

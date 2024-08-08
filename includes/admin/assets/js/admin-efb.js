@@ -12,7 +12,7 @@ let form_type_emsFormBuilder = 'form';
 const efb_version =3.7;
 let wpbakery_emsFormBuilder =false;
 let pro_price_efb =19
-let addons_efb;
+
 
 
 
@@ -41,7 +41,8 @@ jQuery(function () {
     timeout=500;
     
     fun_timeout=()=>{
-      setTimeout(() => {        
+      setTimeout(() => {    
+        //addons_efb recived from json file on ws.team    
         if(typeof addons_efb =='undefined'){
           timeout +=100
           
