@@ -3721,6 +3721,12 @@ class _Public {
 		}elseif(has_action('wphb_clear_page_cache')){
 			//Hummingbird done			
 			do_action( 'wphb_clear_page_cache', $page_id );
+		}elseif(class_exists('BigScoots_Cache') && method_exists('BigScoots_Cache', 'clear_cache')){
+			// Clear BigScoots Cache - permalink of the given post id only and not it's related pages
+			\BigScoots_Cache::clear_cache((int) $page_id); // Making sure no matter what the $page_id is always an int
+		}elseif(class_exists('SW_CLOUDFLARE_PAGECACHE')){
+			// Clear cache for Super Page Cache for Cloudflare (works for now)
+			do_action('swcfpc_purge_cache', [get_permalink($page_id)]);
 		}
 
 	}
