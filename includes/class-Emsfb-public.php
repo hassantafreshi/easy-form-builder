@@ -3402,129 +3402,7 @@ class _Public {
 					case 'chlCheckBox':
 					case 'chlRadio':
 					case 'imgRadio':
-					case 'trmCheckbox':	
-						/* $dataTag = $elementId;
-						$col = isset($vj->op_style) && $vj->op_style != 1 ? sprintf('col-md-%d', (12 / $vj->op_style)) : '';
-						$pay = in_array($elementId, ["radio", "checkbox", "chlRadio", "chlCheckBox", "imgRadio", "trmCheckbox"]) ? "" : $pay;
-						$temp = $elementId == "imgRadio" ? 'col-md-4 mx-0 px-2' : '';
-						
-						
-						$tp = strtolower($dataTag);
-						$optns_obj =[];
-						error_log('typpppppppppppppppppppppppppppe');
-						error_log(gettype($this->valj_efb));
-						  array_filter($this->valj_efb, function($obj) use ($element_Id,&$optns_obj) {
-							if (isset($obj->parent) && $obj->parent== $element_Id) {
-								$optns_obj[] = $obj;
-							}
-						});
-						error_log('optns_obj=>'.json_encode($optns_obj));
-						$optn = '<!-- options -->';
-						foreach ($optns_obj as $i) {
-							$vlopt ='';
-							$costume =false;
-							if($elementId != 'trmCheckbox'){ 
-								$vlopt=$this->fun_get_links_from_string_Efb($i->value, true); 
-								$costume =true;
-							}
-							else if($elementId == 'imgRadio'){ 
-								$vlopt=$this->fun_imgRadio_efb($i->id_, $i->src, $i);
-								$costume =true;
-							}
-							else if (strpos($elementId, 'chl') !== false ) {
-								$prc = isset($i->price) ? (int)$i->price : 0;
-								$vlopt = sprintf('<input type="text" class="efb %s %s checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="%s" data-type="%s" data-vid="" id="%s_chl" placeholder="%s" disabled>', $vj->el_text_color, $vj->el_height, $i->id_, $dataTag, $i->id_, $vj->pholder_chl_value);
-								if(strpos($elementId, 'pay')){
-
-									$vlopt .=sprintf('<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="%s-price" class="efb efb-crrncy">%s %s</span></span>', $i->id_, number_format($prc, 2), $currency) ;
-								}
-								$costume =true;
-							
-							}
-							$optn_value ='';
-							if($costume==false){
-								$optn_value =sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', 
-									isset($vj->pholder_chl_value) ? 'col-8' : '',
-									$vj->el_text_color ?? '' , 
-									$vj->el_height, 
-									$vj->label_text_size, 
-									$i->id_, 
-									$i->id_, 
-									$vlopt);
-							}else{
-								$optn_value = $vlopt;
-							}
-							
-							error_log('tesssst');
-							$checked = "";
-							if ((strpos($tp, "radio") !== false || (strpos($tp, "select") !== false && strpos($tp, "multi") === false)) && ($vj->value == $i->id_ || (isset($i->id_old) && $vj->value == $i->id_old))) {
-								$checked = "checked";
-							} elseif ((strpos($tp, "multi") !== false || strpos($tp, "checkbox") !== false) && is_array($vj->value) && array_search($i->id_, $vj->value) !== false) {
-								$checked = "checked";
-							}
-							$prc = isset($i->price) ? (int)$i->price : 0;
-							error_log($vtype);
-							error_log($elementId);
-							$optn .= sprintf(
-								'<div class="efb form-check %1$s %2$s %3$s efb1 %4$s mt-1" data-css="%5$s" data-parent="%6$s" data-formId="%7$s" data-id="%8$s" id="%9$s-v">
-									<input class="efb form-check-input emsFormBuilder_v %10$s %11$s" data-tag="%12$s" data-type="%13$s" data-vid="%14$s" type="%15$s" name="%16$s" value="%17$s" id="%18$s" data-id="%19$s-id" data-op="%20$s" %21$s %22$s>
-									%23$s									
-								</div>',
-								$col,              // 1: $col
-								$elementId,        // 2: $elementId
-								$temp,             // 3: $temp
-								str_replace(',', ' ', $vj->classes), // 4: str_replace(',', ' ', $vj->classes)
-								$element_Id,       // 5: $element_Id
-								$i->parent,        // 6: $i->parent
-								$form_id,          // 7: $form_id
-								$i->id_,           // 8: $i->id_
-								$i->id_,           // 9: $i->id_
-								$pay,              // 10: $pay
-								$vj->el_text_size, // 11: $vj->el_text_size
-								$dataTag,          // 12: $dataTag
-								$vtype,            // 13: $vtype
-								$element_Id,       // 14: $element_Id
-								$vtype,            // 15: $vtype
-								$i->parent,        // 16: $i->parent
-								$i->value,         // 17: $i->value
-								$i->id_,           // 18: $i->id_
-								$i->id_,           // 19: $i->id_
-								$i->id_,           // 20: $i->id_
-								$disabled,         // 21: $disabled
-								$checked,          // 22: $checked
-								$optn_value        // 23: $optn_value
-							);
-						}
-						error_log('----->options');
-						error_log($optn);
-						$temp = $elementId == "imgRadio" ? "row justify-content-center" : "";
-						$ui = sprintf(
-							'<!-- checkbox -->
-							%s
-							<div class="efb %s col-sm-12 px-0 mx-0 py-0 my-0 ttEfb show" data-id="%s-el" data-formId="%s" id="%s-f">
-							%s
-							<div class="efb %s %s %s efb1 %s" data-css="%s" %s id="%s_options">
-							%s
-							</div>
-							<div class="efb mb-3">%s</div>
-							<!-- end checkbox -->',
-							$label,
-							$pos[3],
-							$element_Id,
-							$form_id,
-							$element_Id,
-							$ttip,
-							($vj->required == 1 || $vj->required == true) ? 'required' : '',
-							$col != '' ? 'row col-md-12' : '',
-							$temp,
-							str_replace(',', ' ', $vj->classes),
-							$element_Id,
-							$aire_describedby,
-							$element_Id,
-							$optn,
-							$desc
-						); */
-
+					case 'trmCheckbox':						
 						$dataTag = $elementId;
 						$col = isset($vj->op_style) && intval($vj->op_style) != 1 ? sprintf('col-md-%d', 12 / intval($vj->op_style)) : '';
 						$pay = in_array($elementId, ["radio", "checkbox", "chlRadio", "chlCheckBox", "imgRadio", "trmCheckbox"]) ? '' : $pay;
@@ -3533,8 +3411,6 @@ class _Public {
 						$tp = strtolower($dataTag);
 						$parent = $vj;
 						$optns_obj =[];
-						error_log('typpppppppppppppppppppppppppppe');
-						error_log(gettype($this->valj_efb));
 						  array_filter($this->valj_efb, function($obj) use ($element_Id,&$optns_obj) {
 							if (isset($obj->parent) && $obj->parent== $element_Id) {
 								$optns_obj[] = $obj;
@@ -4093,14 +3969,161 @@ class _Public {
 			 }, $str);
 		 }
 	}
-	private function formatPrice_efb($price, $currency) {
+	private function formatPrice_efb($amount, $currency) {
    
-		$locale = get_locale();	
-        $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-        $formatted_price = $formatter->formatCurrency($price, $currency);
+		$currency_details = $this->get_currency_details_efb($currency);
+    	$formatted_amount = number_format_i18n($amount, $currency_details['d']);
+   	 	return $currency_details['s'] . ' ' . $formatted_amount;
 
-        return $formatted_price;
     }
+
+	function get_currency_details_efb($currency) {
+		$symbols = array(
+			'USD' => array('s' => '$', 'd' => 2),
+			'AED' => array('s' => 'د.إ', 'd' => 2),
+			'AFN' => array('s' => '؋', 'd' => 2),
+			'ALL' => array('s' => 'L', 'd' => 2),
+			'AMD' => array('s' => '֏', 'd' => 2),
+			'ANG' => array('s' => 'ƒ', 'd' => 2),
+			'AOA' => array('s' => 'Kz', 'd' => 2),
+			'ARS' => array('s' => '$', 'd' => 2),
+			'AUD' => array('s' => 'A$', 'd' => 2),
+			'AWG' => array('s' => 'ƒ', 'd' => 2),
+			'AZN' => array('s' => '₼', 'd' => 2),
+			'BAM' => array('s' => 'KM', 'd' => 2),
+			'BBD' => array('s' => '$', 'd' => 2),
+			'BDT' => array('s' => '৳', 'd' => 2),
+			'BGN' => array('s' => 'лв', 'd' => 2),
+			'BIF' => array('s' => 'FBu', 'd' => 0),
+			'BMD' => array('s' => '$', 'd' => 2),
+			'BND' => array('s' => '$', 'd' => 2),
+			'BOB' => array('s' => 'Bs.', 'd' => 2),
+			'BRL' => array('s' => 'R$', 'd' => 2),
+			'BSD' => array('s' => '$', 'd' => 2),
+			'BWP' => array('s' => 'P', 'd' => 2),
+			'BYN' => array('s' => 'Br', 'd' => 2),
+			'BZD' => array('s' => '$', 'd' => 2),
+			'CAD' => array('s' => 'C$', 'd' => 2),
+			'CDF' => array('s' => 'FC', 'd' => 2),
+			'CHF' => array('s' => 'CHF', 'd' => 2),
+			'CLP' => array('s' => '$', 'd' => 0),
+			'CNY' => array('s' => '¥', 'd' => 2),
+			'COP' => array('s' => '$', 'd' => 2),
+			'CRC' => array('s' => '₡', 'd' => 2),
+			'CVE' => array('s' => 'Esc', 'd' => 2),
+			'CZK' => array('s' => 'Kč', 'd' => 2),
+			'DJF' => array('s' => 'Fdj', 'd' => 0),
+			'DKK' => array('s' => 'kr', 'd' => 2),
+			'DOP' => array('s' => 'RD$', 'd' => 2),
+			'DZD' => array('s' => 'د.ج', 'd' => 2),
+			'EGP' => array('s' => '£', 'd' => 2),
+			'ETB' => array('s' => 'Br', 'd' => 2),
+			'EUR' => array('s' => '€', 'd' => 2),
+			'FJD' => array('s' => '$', 'd' => 2),
+			'FKP' => array('s' => '£', 'd' => 2),
+			'GBP' => array('s' => '£', 'd' => 2),
+			'GEL' => array('s' => '₾', 'd' => 2),
+			'GIP' => array('s' => '£', 'd' => 2),
+			'GMD' => array('s' => 'D', 'd' => 2),
+			'GNF' => array('s' => 'FG', 'd' => 0),
+			'GTQ' => array('s' => 'Q', 'd' => 2),
+			'GYD' => array('s' => '$', 'd' => 2),
+			'HKD' => array('s' => '$', 'd' => 2),
+			'HNL' => array('s' => 'L', 'd' => 2),
+			'HTG' => array('s' => 'G', 'd' => 2),
+			'HUF' => array('s' => 'Ft', 'd' => 2),
+			'IDR' => array('s' => 'Rp', 'd' => 2),
+			'ILS' => array('s' => '₪', 'd' => 2),
+			'INR' => array('s' => '₹', 'd' => 2),
+			'IRR' => array('s' => '﷼', 'd' => 0),
+			'ISK' => array('s' => 'kr', 'd' => 0),
+			'JMD' => array('s' => '$', 'd' => 2),
+			'JPY' => array('s' => '¥', 'd' => 0),
+			'KES' => array('s' => 'KSh', 'd' => 2),
+			'KGS' => array('s' => 'лв', 'd' => 2),
+			'KHR' => array('s' => '៛', 'd' => 2),
+			'KMF' => array('s' => 'CF', 'd' => 0),
+			'KRW' => array('s' => '₩', 'd' => 0),
+			'KYD' => array('s' => '$', 'd' => 2),
+			'KZT' => array('s' => '₸', 'd' => 2),
+			'LAK' => array('s' => '₭', 'd' => 2),
+			'LBP' => array('s' => 'ل.ل', 'd' => 0),
+			'LKR' => array('s' => 'Rs', 'd' => 2),
+			'LRD' => array('s' => '$', 'd' => 2),
+			'LSL' => array('s' => 'L', 'd' => 2),
+			'MAD' => array('s' => 'د.م.', 'd' => 2),
+			'MDL' => array('s' => 'L', 'd' => 2),
+			'MGA' => array('s' => 'Ar', 'd' => 2),
+			'MKD' => array('s' => 'ден', 'd' => 2),
+			'MMK' => array('s' => 'K', 'd' => 2),
+			'MNT' => array('s' => '₮', 'd' => 2),
+			'MOP' => array('s' => 'P', 'd' => 2),
+			'MUR' => array('s' => '₨', 'd' => 2),
+			'MVR' => array('s' => 'ރ.', 'd' => 2),
+			'MWK' => array('s' => 'MK', 'd' => 2),
+			'MXN' => array('s' => '$', 'd' => 2),
+			'MYR' => array('s' => 'RM', 'd' => 2),
+			'MZN' => array('s' => 'MT', 'd' => 2),
+			'NAD' => array('s' => '$', 'd' => 2),
+			'NGN' => array('s' => '₦', 'd' => 2),
+			'NIO' => array('s' => 'C$', 'd' => 2),
+			'NOK' => array('s' => 'kr', 'd' => 2),
+			'NPR' => array('s' => '₨', 'd' => 2),
+			'NZD' => array('s' => '$', 'd' => 2),
+			'PAB' => array('s' => 'B/.', 'd' => 2),
+			'PEN' => array('s' => 'S/', 'd' => 2),
+			'PGK' => array('s' => 'K', 'd' => 2),
+			'PHP' => array('s' => '₱', 'd' => 2),
+			'PKR' => array('s' => '₨', 'd' => 2),
+			'PLN' => array('s' => 'zł', 'd' => 2),
+			'PYG' => array('s' => '₲', 'd' => 0),
+			'QAR' => array('s' => 'ر.ق', 'd' => 2),
+			'RON' => array('s' => 'lei', 'd' => 2),
+			'RSD' => array('s' => 'дин', 'd' => 2),
+			'RUB' => array('s' => '₽', 'd' => 2),
+			'RWF' => array('s' => 'FRw', 'd' => 2),
+			'SAR' => array('s' => 'ر.س', 'd' => 2),
+			'SBD' => array('s' => '$', 'd' => 2),
+			'SCR' => array('s' => '₨', 'd' => 2),
+			'SEK' => array('s' => 'kr', 'd' => 2),
+			'SGD' => array('s' => '$', 'd' => 2),
+			'SHP' => array('s' => '£', 'd' => 2),
+			'SLE' => array('s' => 'Le', 'd' => 2),
+			'SOS' => array('s' => 'Sh', 'd' => 2),
+			'SRD' => array('s' => '$', 'd' => 2),
+			'STD' => array('s' => 'Db', 'd' => 2),
+			'SZL' => array('s' => 'L', 'd' => 2),
+			'THB' => array('s' => '฿', 'd' => 2),
+			'TJS' => array('s' => 'ЅМ', 'd' => 2),
+			'TND' => array('s' => 'د.ت', 'd' => 3),
+			'TOP' => array('s' => 'T$', 'd' => 2),
+			'TRY' => array('s' => '₺', 'd' => 2),
+			'TTD' => array('s' => '$', 'd' => 2),
+			'TWD' => array('s' => 'NT$', 'd' => 2),
+			'TZS' => array('s' => 'Sh', 'd' => 2),
+			'UAH' => array('s' => '₴', 'd' => 2),
+			'UGX' => array('s' => 'USh', 'd' => 0),
+			'UYU' => array('s' => '$U', 'd' => 2),
+			'UZS' => array('s' => 'лв', 'd' => 2),
+			'VND' => array('s' => '₫', 'd' => 0),
+			'VUV' => array('s' => 'VT', 'd' => 0),
+			'WST' => array('s' => 'T', 'd' => 2),
+			'XAF' => array('s' => 'FCFA', 'd' => 0),
+			'XCD' => array('s' => '$', 'd' => 2),
+			'XOF' => array('s' => 'CFA', 'd' => 0),
+			'XPF' => array('s' => '₣', 'd' => 0),
+			'YER' => array('s' => '﷼', 'd' => 2),
+			'ZAR' => array('s' => 'R', 'd' => 2),
+			'ZMW' => array('s' => 'ZK', 'd' => 2),
+			'BHD' => array('s' => '.د.ب', 'd' => 3),
+			'JOD' => array('s' => 'د.ا', 'd' => 3),
+			'KWD' => array('s' => 'د.ك', 'd' => 3),
+			'OMR' => array('s' => 'ر.ع.', 'd' => 3),
+			'TND' => array('s' => 'د.ت', 'd' => 3)
+		);
+	
+		return isset($symbols[$currency]) ? $symbols[$currency] : array('s' => $currency, 'd' => 2);
+	}
 
 	
 	

@@ -125,15 +125,16 @@ Features:
 
 ## Documentation 📄
 
-The most recent documentation can be found at :
+The most recent documentation for Easy Form Builder can be found at:
 
-[English Document Of Easy Form Builder](https://whitestudio.team/documents)
+[English Documentation for Easy Form Builder](https://whitestudio.team/documents)
 
 [German Document of Easy Form Builder](https://de.whitestudio.team/documents)
 
-[وثيقة عربية لبرنامج منشئ النماذج السهل](https://ar.whitestudio.team/documents)
+[وثيقة عريية لبرنامج منشئ النماذج السهل](https://ar.whitestudio.team/documents)
 
 [مستندات فرم ساز آسان به زبان فارسی](https://easyformbuilder.ir/documents)
+
 
 [Version History and Technical Logs](https://github.com/hassantafreshi/easy-form-builder/wiki/Version-History-with-Technical-Changes) 
 
@@ -198,7 +199,9 @@ Thanks goes to these wonderful people
   <a href="https://github.com/ArefHam" target="_blank"><img src="https://avatars.githubusercontent.com/u/56312801?v=4" alt="" width="100px;" /><br /><sub><strong>Aref</strong></sub></a><br />
     <a title="Translation" href="#translation">🌍</a></td>
 </td>
-  <td><a href="https://github.com/thaikolja" target="_blank"><img src="https://avatars.githubusercontent.com/u/37884870?v=4=100" alt="" width="100px;" /><br /><sub><strong>Kolja</strong></sub></a><br> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji>
+  <td><a href="https://github.com/isaumya" target="_blank"><img src="https://avatars.githubusercontent.com/u/2124755?v=4" alt="" width="100px;" /><br /><sub><strong>Saumya</strong></sub></a><br> <g-emoji class=" g-emoji" alias="Code" title="code" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">💻</g-emoji>
+  </td>
+   <td><a href="https://github.com/thaikolja" target="_blank"><img src="https://avatars.githubusercontent.com/u/37884870?v=4=100" alt="" width="100px;" /><br /><sub><strong>Kolja</strong></sub></a><br> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji>
   <a title="Translation" href="#translation">🌍</a></td>
   <td>
   <a href="https://github.com/soroushsamadi86" target="_blank"><img src="https://avatars.githubusercontent.com/u/58665580?v=4" alt="" width="100px;" /><br /><sub><strong>Soroush</strong></sub></a><br />

@@ -1413,7 +1413,9 @@ function handle_navbtn_efb(steps, device) {
           send_data_efb();
         }
         if (document.getElementById("body_efb")) {
-          document.getElementById("body_efb").scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+
+          typeof smoothy_scroll_postion_efb === 'function' ?  smoothy_scroll_postion_efb('body_efb') : document.getElementById("body_efb").scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+          
         }
       }, 200);
     });
@@ -1583,7 +1585,7 @@ function previewFormEfb(state) {
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
         head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5  ${value.label_text_color} ">${value.name}</strong></li>`
-        content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="efb my-2 mx-0 px-0 steps-efb efb row">` : `<!-- fieldset!!!? --><div id="step-${Number(step_no)-1}-efb-msg"></div></fieldset><fieldset data-step="step-${step_no}-efb"  class="efb my-2 mx-0 px-0 steps-efb efb row d-none">`
+        content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb" class="efb my-2 mx-0 px-0 steps-efb efb row">` : `<!-- fieldset!!!? --><div id="step-${Number(step_no)-1}-efb-msg"></div></fieldset><fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb"  class="efb my-2 mx-0 px-0 steps-efb efb row d-none">`
         if (valj_efb[0].show_icon == false) { }
         if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == true && state == "run") { document.getElementById('body_efb').classList.remove('card') }
       }
@@ -1727,7 +1729,7 @@ function previewFormEfb(state) {
     show_modal_efb(frame, efb_var.text.mobilePreview, 'bi-phone', 'settingBox');
     ReadyElForViewEfb(content)
   } else {   
-    document.getElementById(id).innerHTML ='<form id="efbform">'+ content + add_buttons_zone_efb(t, id) + '</form>';
+    document.getElementById(id).innerHTML ='<form id="efbform" class="mx-0 px-0 efb">'+ content + add_buttons_zone_efb(t, id) + '</form>';
     if (valj_efb[0].type == "payment") {      
      if (efb_var.paymentGateway == "stripe" && typeof post_api_stripe_apay_efb =="function") post_api_stripe_apay_efb();
     }
@@ -1959,7 +1961,15 @@ function fun_validation_efb() {
       }
     }
   }
-  if (idi != "null") { document.getElementById(idi).scrollIntoView({behavior: "smooth", block: "center", inline: "center"}); }
+  
+  if (state===false && idi != "null") { 
+    if(typeof smoothy_scroll_postion_efb === 'function'){
+      smoothy_scroll_postion_efb(idi)
+    }else{
+      console.log('fun_validation_efb 1972')
+      document.getElementById(idi).scrollIntoView({behavior: "smooth", block: "center", inline: "center"}); 
+    }
+  }
   return state
 }
 function type_validate_efb(type) {
