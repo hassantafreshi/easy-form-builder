@@ -1296,7 +1296,7 @@ function show_setting_window_efb(idset) {
                 ${selectColorEls('label','text')}   
                 ${selectColorEls('description','text')}     
                 ${selectColorEls('icon','text')}                                          
-                ${classesEls}              
+                <!-- {classesEls} -->
                 </div>
             </div>
         </div>
