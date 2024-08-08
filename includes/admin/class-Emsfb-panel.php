@@ -413,12 +413,12 @@ class Panel_edit  {
 	}
 	public function get_efbFunction(){
 			$efbFunctionInstance;
-        if (false === ($efbFunctionInstance = wp_cache_get('efbFunctionInstance', 'emsfb'))) {
+        if (false === ($efbFunctionInstance = wp_cache_get('emsfb_FunctionInstance', 'emsfb'))) {
             if (!class_exists('Emsfb\efbFunction')) {
                 require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
             }
             $efbFunctionInstance = new \Emsfb\efbFunction();
-            wp_cache_set('efbFunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // cache for 1 hour
+            wp_cache_set('emsfb_FunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // cache for 1 hour
         }
         return  $efbFunctionInstance;	
 	}
