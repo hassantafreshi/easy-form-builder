@@ -583,8 +583,8 @@ class _Public {
 		}
 		$user_id = 1;
 		$to_list_admin = [];
-		// استفاده از کش برای تنظیمات
-		if (false === ($setting = wp_cache_get('efb_setting'))) {
+		// Use cache for settings
+		if (false === ($setting = wp_cache_get('emsfb_settings'))) {
 			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : $this->get_setting_Emsfb('setting');
 			$setting = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
 			wp_cache_set('emsfb_settings', $setting);
