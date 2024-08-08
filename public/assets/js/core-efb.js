@@ -238,7 +238,8 @@ function alarm_emsFormBuilder(val) {
       if (-1 == (get_row_sendback_by_id_efb(id))) valueExistsRequired += 1;
     }
   }
-  if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+  //if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+ // smoothy_scroll_postion_efb('body_efb');
   if (countRequired != valueExistsRequired && sendBack_emsFormBuilder_pub.length < 1) {
     let str = ""
     currentTab_emsFormBuilder = 0;
@@ -731,7 +732,8 @@ function validation_before_send_emsFormBuilder() {
   if (((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) && ( (valj_efb[0].hasOwnProperty("logic")== true || valj_efb[0].hasOwnProperty("logic")==false) && valj_efb.logic==false )) {
     document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center fs-2 efb"></i></h1><h3 class="efb fs-3 efb text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 fs-5 efb text-muted"> ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
      <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner:'efb-square'}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
-    if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+    //if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+    smoothy_scroll_postion_efb('efb-final-step')
     for (const v of valueJson_ws) {
       if (v.type != 'file' && v.type != 'dadfile' && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select' && v.type != 'payMultiselect' && v.type != 'paySelect' && v.type != 'payRadio' && v.type != 'payCheckbox' && v.type != 'chlCheckBox') {
         (v.id_ && document.getElementById(v.id_).value.length < 5) ? document.getElementById(`${v.id_}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField : 0
@@ -832,7 +834,9 @@ function response_fill_form_efb(res) {
         localStorage.clear();
         break;
     }
-    if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+    //if (document.getElementById('efb-final-step')) document.getElementById('efb-final-step').scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+      const stps = Number(valj_efb[0].steps);
+      if(stps>1 ){smoothy_scroll_postion_efb('efb-final-step')}
   } else {
     if(document.getElementById('efb-final-step')){document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder text-center'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3  text-center"></i></h1><h3 class="efb  text-center fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
     <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onClick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
@@ -1145,3 +1149,56 @@ document.addEventListener("DOMContentLoaded", function() {
     fun();
   }
 });
+
+
+/* new Codes */
+smoothy_scroll_postion_efb=(id)=>{
+
+  /* debug section JUSt For test */
+  const error = new Error();
+  // استخراج استک از شیء Error
+  const stack = error.stack || '';
+
+  console.log(`smoothy_scroll_postion_efb[${id}]`);
+  console.log('Call stack:', stack);
+
+  /* End debug section JUSt For test */
+
+  const element = document.getElementById(id);
+  if (element) {
+    const elementRect = element.getBoundingClientRect();
+    const elementTop = elementRect.top + window.scrollY; 
+    const offset = 50;
+    const scrollPosition = elementTop - offset;
+
+    window.scrollTo({
+      top: scrollPosition,
+      behavior: 'smooth'
+    });
+  } else {
+    console.log('Element not found');
+  }
+
+}
+
+
+setTimeout(() => {
+  // انتخاب عنصر اصلی
+  const sourceElement = document.getElementById('step-1-efb');
+  // انتخاب عنصر هدف
+  const targetElement = document.getElementById('efb-final-step');
+
+  if (sourceElement && targetElement) {
+    // دریافت ارتفاع منبع
+    const sourceHeight = sourceElement.offsetHeight;
+    console.log('Source Height:', sourceHeight);
+    
+    // تنظیم ارتفاع عنصر هدف
+    targetElement.style.minHeight = `${sourceHeight}px`;
+    if(sourceElement.offsetHeight<300 && sourceElement.offsetWidth<300 ){
+      targetElement.style.overflow='auto'
+    }
+  } else {
+    console.log('One or both elements not found');
+  }
+}, 5000);

@@ -386,8 +386,11 @@ class _Public {
 			$this->valj_efb = json_decode($value, false, 512, JSON_UNESCAPED_UNICODE);
 			$content="<!--efb-->";
 			$count = count($this->valj_efb);
-			$ttt =['dragAndDropA','or','browseFile','tfnapca'];
+			$ttt =['dragAndDropA','or','browseFile','tfnapca','on','off'];
 			$txts = $this->efbFunction->text_efb($ttt);
+			$step_no= 0;
+			$head ='<!--start head efb-->';
+			
 			for( $i=2; $i<$count; $i++){
 				//random unique id
 				error_log($this->valj_efb[$i]->id_);
@@ -399,8 +402,37 @@ class _Public {
 				switch
 				maps
 				 */
+				if($this->valj_efb[$i]->type=="step" ){
+					$valj_efb_first = $this->valj_efb[0];
+					$value = $this->valj_efb[$i];
+					$step_no = intval($this->valj_efb[$i]->step);
+					$content.= $step_no<2
+					? sprintf(
+						'<fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row">',
+						$step_no, $step_no
+					)
+					: sprintf(
+						'<div id="step-%d-efb-msg"></div></fieldset><!-- end fieldset --><fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row d-none">',
+						$step_no - 1, $step_no, $step_no
+					);
+				
+					$head .= sprintf(
+						'<li id="%1$s" data-step="icon-s-%2$d-efb" data-formId="%3$s" class="efb %4$s %5$s %6$s %7$s %8$s"><strong class="efb fs-5 %9$s">%10$s</strong></li>',
+						$value->id_,  // %1$s
+						$step_no,  // %2$d
+						$this->id,  // %3$s
+						$valj_efb_first->steps <= 6 ? 'step-w-' . $valj_efb_first->steps : 'step-w-6',  // %4$s
+						$value->icon_color,  // %5$s
+						$value->icon,  // %6$s
+						$value->step == 1 ? 'active' : '',  // %7$s
+						$value->label_text_color,  // %8$s
+						$value->label_text_color,  // %9$s
+						$value->name  // %10$s
+					);
+					continue;
+				}
 
-				$content .= $this->addNewElement_efb($i,$randomId,$this->id,$txts);
+				if($i>1)$content .= $this->addNewElement_efb($i,$randomId,$this->id,$txts);
 			}
 			 $content="	
 			 ".$this->bootstrap_icon_efb($icons_)."
@@ -3041,6 +3073,9 @@ class _Public {
 		';
 	}
 	public function cache_cleaner_Efb($page_id){
+		
+
+		$page_id = intval($page_id);
 		if (defined('LSCWP_V') || defined('LSCWP_BASENAME' )){
 			//litespeed done			
 			do_action( 'litespeed_purge_post', $page_id );
@@ -3068,6 +3103,15 @@ class _Public {
 		}elseif(has_action('wphb_clear_page_cache')){
 			//Hummingbird done			
 			do_action( 'wphb_clear_page_cache', $page_id );
+		}elseif(class_exists('BigScoots_Cache') && method_exists('BigScoots_Cache', 'clear_cache')){
+			// Clear BigScoots Cache - permalink of the given post id only and not it's related pages
+			\BigScoots_Cache::clear_cache((int) $page_id); // Making sure no matter what the $page_id is always an int
+		}elseif(class_exists('SW_CLOUDFLARE_PAGECACHE')){
+			// Clear cache for Super Page Cache for Cloudflare (works for now)
+			do_action('swcfpc_purge_cache', [get_permalink($page_id)]);
+		}elseif(has_action('breeze_clear_all_cache')){
+			//Breeze 
+			do_action('breeze_clear_all_cache');
 		}
 	}
 	public function comper_version_efb($v){
@@ -3200,15 +3244,16 @@ class _Public {
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$ui ='<!--efb ui-->';
 		$dataTag = '<!--efb dataTag-->';
-		$classes = sprintf('form-control %s', $vj->el_border_color) ;
+		$classes = isset($vj->el_border_color) ?  sprintf('form-control %s', $vj->el_border_color) : 'form-control' ;
 		$vtype = in_array($elementId ,['imgRadio','chlCheckBox','chlRadio','payMultiselect','paySelect','payRadio','payCheckbox','trmCheckbox']) ? strtolower(substr($elementId,3)) : $elementId;
-		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id);
+		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id,$texts);
 		$js_s='<!--JS-->';
 		error_log('$this->pro_efb'.$this->pro_efb);
 		$pro =0;
 		$pro = $this->pro_efb;
 		$classes .= str_replace(',', ' ', $vj->classes) ?? '';
 		$currency = isset($this->valj_efb[0]->currency) ? $this->valj_efb[0]->currency : 'USD';
+
 
 		error_log('pro:'.$pro);
 		if (gettype($elementSpecificFields) == 'array') {
@@ -3396,13 +3441,13 @@ class _Public {
 					$dataTag = $elementId;
 				break;
 				case 'checkbox':
-					case 'radio':
-					case 'payCheckbox':
-					case 'payRadio':
-					case 'chlCheckBox':
-					case 'chlRadio':
-					case 'imgRadio':
-					case 'trmCheckbox':						
+				case 'radio':
+				case 'payCheckbox':
+				case 'payRadio':
+				case 'chlCheckBox':
+				case 'chlRadio':
+				case 'imgRadio':
+				case 'trmCheckbox':						
 						$dataTag = $elementId;
 						$col = isset($vj->op_style) && intval($vj->op_style) != 1 ? sprintf('col-md-%d', 12 / intval($vj->op_style)) : '';
 						$pay = in_array($elementId, ["radio", "checkbox", "chlRadio", "chlCheckBox", "imgRadio", "trmCheckbox"]) ? '' : $pay;
@@ -3492,8 +3537,15 @@ class _Public {
 							$optn,
 							$desc
 						);
-						break;
-					
+				break;
+				case 'esign':
+					/* $ui = '
+					' . $label . '
+					' . $ttip . '
+					' . ($this->pro_efb == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $iVJ, $desc) : $this->public_pro_message());
+					$dataTag = $elementId; */
+				break;	
+			
 			
 			}
 		}
@@ -3559,7 +3611,7 @@ class _Public {
 	private function generateDivFId_efb($rndm, $pos) {
 		return '<div class="efb ' . $pos[3] . ' col-sm-12 px-0 mx-0 ttEfb show" id="' . $rndm . '-f">';
 	}
-	private function generateElementSpecificFields_efb($elementId, $rndm, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id) {
+	private function generateElementSpecificFields_efb($elementId, $rndm, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id,$texts) {
 		$fields = ['ui' => '', 'dataTag' => ''];
 		switch ($elementId) {
 			case 'email':
@@ -3593,10 +3645,48 @@ class _Public {
 				$fields['dataTag'] = $elementId;
 				break;
 			case 'switch':
-			/* 	$vj->on'] = isset($vj->on']) ? $vj->on'] : $this->efb_var['text']['on'];
-				$vj->off'] = isset($vj->off']) ? $vj->off'] : $this->efb_var['text']['off'];
-				$fields['ui'] = $this->generateSwitchInput($vj, $rndm, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled);
-				$fields['dataTag'] = $elementId; */
+				// تنظیم مقادیر 'on' و 'off' در صورت عدم وجود
+				$vj->on = $vj->on ?? $texts['on'];
+				$vj->off = $vj->off ?? $texts['off'];
+
+				// استفاده از sprintf برای ساختن رشته HTML به صورت بهینه
+				$ui = sprintf('
+					%s
+					%s
+					<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" %s>
+						<label class="efb fs-6" id="%s_off">%s</label>
+						
+						<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onClick="fun_switch_efb(this)" data-id="%s-el" data-formId="%s" id="%s_" %s>
+							<div class="efb handle"></div>
+						</button>
+						<label class="efb fs-6" id="%s_on">%s</label>
+						<div class="efb mb-3">%s</div>
+					</div>',
+					$label,
+					$ttip,
+					$pos[3],
+					$rndm,
+					$aire_describedby,
+
+					$rndm, // id for the first label
+					$vj->off,
+
+					$vj->el_height,
+					str_replace(',', ' ', $vj->classes),
+					$rndm,
+					$rndm, // data-vid
+					$rndm, // data-id and id for the button
+					$form_id,
+					$rndm,
+					$disabled,
+					$rndm, // id for the second label
+					$vj->on,
+					$desc
+				);
+
+				$fields['ui']  = $this->pro_efb ? $ui : $this->public_pro_message_efb($texts['tfnapca']);
+				$fields['dataTag'] = $elementId;
+
 				break;
 			// Add other cases as needed
 			default:

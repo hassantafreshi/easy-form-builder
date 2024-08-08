@@ -1869,4 +1869,28 @@ class efbFunction {
 		$this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
 		return true;
 	}
+
+
+	public function parsing_plugins_efb(){
+		$plugins = get_plugins();
+		$active_plugins = get_option('active_plugins');
+		$plugin_list = [];
+		foreach ($plugins as $plugin_file => $plugin_data) {
+			if(strpos($plugin_data['Name'], 'Cache') !== false){
+				$plugin_list[] = [
+					'name' => $plugin_data['Name'],
+					'uri' => $plugin_data['PluginURI'],
+					'version' => $plugin_data['Version'],
+					'active' => in_array($plugin_file, $active_plugins),
+					'slug' => explode('/', $plugin_file)[0]
+				];
+			}
+		}
+
+		//if (empty($plugin_list)) not then add_option('emsfb_cache_plugins') and convert to string with json_encode
+		$val='';
+		if(!empty($plugin_list)){ $val = json_encode($plugin_list);	}
+		add_option('emsfb_cache_plugins', $val );
+		
+	}
 }
