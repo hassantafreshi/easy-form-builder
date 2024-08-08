@@ -102,6 +102,7 @@ class Create {
 		$pro =false;
 		$maps =false;
 		$efbFunction = $this->get_efbFunction();
+		$efbFunction->parsing_plugins_efb();
 		$ac= $efbFunction->get_setting_Emsfb();
 		$addons = ['AdnSPF' => 0,
 		'AdnOF' => 0,
@@ -256,8 +257,8 @@ class Create {
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url" ];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
-	//	
-		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
+	
+
 		$email = '';
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m =$lang['errorCheckInputs'];

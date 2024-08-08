@@ -574,7 +574,8 @@ class _Public {
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $this->id);
 		$this->lanText = $this->efbFunction->text_efb($text_);
 		$setting;
-		$this->cache_cleaner_Efb($page_id);
+		$cache_plugins = get_option('emsfb_cache_plugins');
+		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id);
 		if ($s_sid != 1) {
 			$m = $this->lanText['somethingWentWrongPleaseRefresh'] . '<br>' . esc_html__('Error Code', 'easy-form-builder') . ': 403';
 			$response = ['success' => false, 'm' => $m];
@@ -1727,7 +1728,8 @@ class _Public {
 		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . ": 402"); 
 		wp_send_json_success($response,200);
 		} 
-		$this->cache_cleaner_Efb($page_id);
+		$cache_plugins = get_option('emsfb_cache_plugins');
+		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id);
         //check validate here
         $vl=null;
 		$have_validate =0;
@@ -1845,7 +1847,8 @@ class _Public {
 			$response = array( 'success' => false , "m"=>$this->lanText['nAllowedUseHtml']); 
 			wp_send_json_success($response,200);
 		}
-		$this->cache_cleaner_Efb($page_id);
+		$cache_plugins = get_option('emsfb_cache_plugins');		
+		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id);
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 		if(gettype($r)=="string"){
 			$r =str_replace('\\', '', $r);
@@ -3073,8 +3076,6 @@ class _Public {
 		';
 	}
 	public function cache_cleaner_Efb($page_id){
-		
-
 		$page_id = intval($page_id);
 		if (defined('LSCWP_V') || defined('LSCWP_BASENAME' )){
 			//litespeed done			

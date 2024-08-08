@@ -32,6 +32,7 @@ class Panel_edit  {
 			$efbFunction = $this->get_efbFunction();
 			//$lng =new lng();		
 			$ac= $efbFunction->get_setting_Emsfb();
+			$efbFunction->parsing_plugins_efb();
 			$lang = $efbFunction->text_efb(2);
 			$smtp =false;
 			$captcha =false;
