@@ -1168,7 +1168,8 @@ let add_buttons_zone_efb = (state, id) => {
   </div>
   </div>`;
   const floatEnd = id == "dropZoneEFB" ? 'float-end' : ``;
-  const btnPos = id != "dropZoneEFB" ? ' text-center mx-3' : ''
+  //in the php mx-2 should be mx-3
+  const btnPos = id != "dropZoneEFB" ? ' text-center mx-2' : ''
   let dis = ''
   if (true) {
     let t = valj_efb.findIndex(x => x.type == "stripe");

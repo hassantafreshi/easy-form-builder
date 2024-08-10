@@ -1196,6 +1196,8 @@ setTimeout(() => {
     // تنظیم ارتفاع عنصر هدف
     targetElement.style.minHeight = `${sourceHeight}px`;
     if(sourceElement.offsetHeight<300 && sourceElement.offsetWidth<300 ){
+      console.log('added auto overflow');
+      //+ این تابع بروز شود و وقتی که سایز عنصر اصلی کمتر از 300 است بود به تناسب اندازه های مربوط به استپ آخر کم شود مثل لودینگ یا پاسخ سرور
       targetElement.style.overflow='auto'
     }
   } else {

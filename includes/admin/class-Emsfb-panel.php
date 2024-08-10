@@ -410,6 +410,14 @@ class Panel_edit  {
 				$date_limit
 			)
 		);
+		$table_name = $this->db->prefix . 'emsfb_temp_links';
+		$this->db->query(
+			$this->db->prepare(
+				"DELETE FROM $table_name WHERE created_at < %s",
+				$date_limit
+			)
+		);
+
 	}
 	public function get_efbFunction(){
 			$efbFunctionInstance;

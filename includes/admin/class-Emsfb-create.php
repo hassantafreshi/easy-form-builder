@@ -309,6 +309,9 @@ class Create {
 				$sms_msg_new_noti,
 				$sms_msg_responsed_noti);
 		}
+		if($this->formtype=='login' || $this->formtype=='register'){
+			do_action('create_temporary_links_table_Emsfb');
+		}
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
 		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}

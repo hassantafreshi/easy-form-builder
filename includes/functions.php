@@ -1742,7 +1742,6 @@ class efbFunction {
 			'Aruba HiSpeed Cache'=>'aruba-hispeed-cache/aruba-hispeed-cache.php',			
 			'Cache Enabler' => 'cache-enabler/cache-enabler.php',						
 			'Hyper Cache'=>'hyper-cache/plugin.php',
-			'NitroPack '=>'nitropack/main.php',
 		];
 	
 
@@ -1879,10 +1878,7 @@ class efbFunction {
 		foreach ($plugins as $plugin_file => $plugin_data) {
 			$slug = explode('/', $plugin_file)[0];
 			$exists_cache = in_array($slug, $cache_plugins_slug); 
-			error_log('EFB=>$exists_cache: ' . $exists_cache);
 			if($exists_cache){
-				error_log('EFB=>parsing_plugins_efb: ' . $plugin_data['Name']);
-				error_log('insde cache if');
 				$plugin_list[] = [
 					'name' => $plugin_data['Name'],
 					'version' => $plugin_data['Version'],					

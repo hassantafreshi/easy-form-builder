@@ -66,6 +66,8 @@ class Admin {
             add_action('wp_ajax_read_list_Emsfb', [$this, 'read_list_Emsfb']);      //Remove messages by object
             add_action('wp_ajax_heartbeat_Emsfb' , [$this, 'heartbeat_Emsfb'] );
             add_action('wp_ajax_report_problem_Emsfb' , [$this, 'report_problem_Emsfb'] );
+
+            add_action('create_temporary_links_table_Emsfb' , [$this , 'create_temporary_links_table_Emsfb']);
         } 
     }
     public function add_cap() {
@@ -98,7 +100,7 @@ class Admin {
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
             wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css',true,EMSFB_PLUGIN_VERSION);
             wp_enqueue_style('Emsfb-bootstrap-select-css');
-            $this->check_and_enqueue_font_roboto();
+            $this->check_and_enqueue_font_roboto_Emsfb();
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
                 wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min-efb.js',false,EMSFB_PLUGIN_VERSION);
@@ -1187,7 +1189,7 @@ class Admin {
         }
         wp_send_json_success($response, 200);
     }
-    public function check_and_enqueue_font_roboto() {
+    public function check_and_enqueue_font_roboto_Emsfb() {
         $font_url = 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap';
         $response = wp_remote_head($font_url);
         if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
@@ -1254,5 +1256,31 @@ class Admin {
         }
         return $is_shared_hosting;
     } */
+    function create_temporary_links_table_Emsfb() {
+
+ 
+		global $wpdb;
+	
+		$table_name = $wpdb->prefix . 'emsfb_temp_links';
+		
+		// Check if the table already exists
+		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+			$charset_collate = $wpdb->get_charset_collate();
+	
+			$sql = "CREATE TABLE $table_name (
+				id INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				username VARCHAR(60) NOT NULL,
+				created_at DATETIME NOT NULL,
+				code VARCHAR(60) NOT NULL,
+				ip_address VARCHAR(45) NOT NULL,
+				status_ TINYINT(1) NOT NULL,
+                by_  varchar(12)  NOT NULL ,
+				PRIMARY KEY (id)
+			) $charset_collate;";
+	
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+			dbDelta($sql);
+		}
+	}
 }
 new Admin();
