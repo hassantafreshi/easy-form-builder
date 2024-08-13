@@ -1588,7 +1588,7 @@ function previewFormEfb(state) {
         head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5  ${value.label_text_color} ">${value.name}</strong></li>`
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb" class="efb my-2 mx-0 px-0 steps-efb efb row">` : `<!-- fieldset!!!? --><div id="step-${Number(step_no)-1}-efb-msg"></div></fieldset><fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb"  class="efb my-2 mx-0 px-0 steps-efb efb row d-none">`
         if (valj_efb[0].show_icon == false) { }
-        if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == true && state == "run") { document.getElementById('body_efb').classList.remove('card') }
+        if (valj_efb[0].hasOwnProperty('dShowBg') && Number(valj_efb[0].dShowBg) != 1 && state == "run") { document.getElementById('body_efb').classList.add('card') }
       }
       if (value.type == 'step' && value.type != 'html') {
         steps_index_efb.push(index)
@@ -1686,7 +1686,7 @@ function previewFormEfb(state) {
     content += `
            ${valj_efb[0].hasOwnProperty('logic')==false ||(valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==false)  ? fun_captcha_load_efb() : '<!--logic efb-->'}
            </fieldset>
-          <fieldset data-step="step-${step_no}-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
+          <fieldset data-step="step-${step_no}-efb" class="efb my-5 steps-efb efb row d-none text-center" id="efb-final-step">
             ${valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==true  ? fun_captcha_load_efb() :wv}                
             <!-- fieldset2 -->
             <div id="step-2-efb-msg"></div>
@@ -2152,7 +2152,7 @@ function send_data_efb() {
   }
 }
 function funTnxEfb(val, title, message) {
-  const done = valj_efb[0].thank_you_message.done || efb_var.text.done
+  const done = valj_efb[0].thank_you_message.done || efb_var.text.yad
   const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
   const thankYou = valj_efb[0].thank_you_message.thankYou || efb_var.text.thanksFillingOutform
   const t = title ? title : done;

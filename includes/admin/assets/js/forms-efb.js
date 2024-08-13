@@ -4,14 +4,13 @@ let smail_efb =false;
 document.addEventListener("DOMContentLoaded", function() { smail_efb = efb_var.setting.emailSupporter!=''  ? true :false ;})
 function textThankUEFB(tp){
     
-    let tk ={"thankYou":efb_var.text.thanksFillingOutform,"done":efb_var.text.done,"trackingCode":efb_var.text.trackingCode,"error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields ,'icon': "bi-hand-thumbs-up" };
+    let tk ={"thankYou":efb_var.text.thanksFillingOutform,"done":efb_var.text.yad,"trackingCode":efb_var.text.trackingCode,"error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields ,'icon': "bi-hand-thumbs-up" };
     if (!tp){
         return tk;
     }
     switch (tp) {
         case 'register':
             tk.thankYou=efb_var.text.createAcountDoneM;
-            
             return tk;
             break;
     

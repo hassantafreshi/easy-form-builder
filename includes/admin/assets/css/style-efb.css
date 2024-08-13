@@ -2601,3 +2601,94 @@ div#Listefb-150 {
 .efb.cursor-hand {
    cursor: pointer!important;
  }
+
+
+
+ .efb.fadeIn {
+   animation: fadein 2s;
+   -moz-animation: fadein 2s; /* For Firefox */
+   -webkit-animation: fadein 2s; /* For Safari and Chrome */
+   -o-animation: fadein 2s; /* For Opera */
+}
+
+@keyframes fadein {
+   from {
+       opacity: 0;
+   }
+   to {
+       opacity: 1;
+   }
+}
+
+@-moz-keyframes fadein {
+   from {
+       opacity: 0;
+   }
+   to {
+       opacity: 1;
+   }
+}
+
+@-webkit-keyframes fadein {
+   from {
+       opacity: 0;
+   }
+   to {
+       opacity: 1;
+   }
+}
+
+@-o-keyframes fadein {
+   from {
+       opacity: 0;
+   }
+   to {
+       opacity: 1;
+   }
+}
+
+/* Fade Out Animation */
+.efb.fadeOut {
+   animation: fadeout 2s forwards;
+   -moz-animation: fadeout 2s forwards; /* For Firefox */
+   -webkit-animation: fadeout 2s forwards; /* For Safari and Chrome */
+   -o-animation: fadeout 2s forwards; /* For Opera */
+   
+}
+
+@keyframes fadeout {
+   from {
+       opacity: 1;
+   }
+   to {
+       opacity: 0;
+   }
+}
+
+
+@-moz-keyframes fadeout {
+   from {
+       opacity: 1;
+   }
+   to {
+       opacity: 0;
+   }
+}
+
+@-webkit-keyframes fadeout {
+   from {
+       opacity: 1;
+   }
+   to {
+       opacity: 0;
+   }
+}
+
+@-o-keyframes fadeout {
+   from {
+       opacity: 1;
+   }
+   to {
+       opacity: 0;
+   }
+}

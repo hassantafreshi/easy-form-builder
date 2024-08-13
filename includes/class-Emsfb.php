@@ -22,7 +22,7 @@ class Emsfb {
         $this->includes();
         $this->init_hooks();
        if(is_admin()==false) $this->webhooks();
-       //if(is_admin()==true) $this->checkDbchange();
+       //if(is_admin()==true) $this->checkDbchangeEFB();
     }
 
     /**
@@ -88,7 +88,7 @@ class Emsfb {
     }
 
 
-    public function checkDbchange(){
+    public function checkDbchangeEFB(){
         global $wpdb;
         $test_tabale = $wpdb->prefix . "Emsfb_form";
 		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $test_tabale ) );
@@ -103,12 +103,12 @@ class Emsfb {
                         <p> <?php echo '<b>'.esc_html__('Warning').':</b> '. $message.''; ?> </p>
                     </div>
                 <?php
-            $this->email_send();
+            $this->email_send_efb();
             }
         }
     }
 
-    public static  function email_send(){
+    public static  function email_send_efb(){
 		$message=esc_html__('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice:Please do this act in immediately so forms of your site will available again.','easy-form-builder'); 
 		$usr=get_userdata(1);
 		
@@ -120,7 +120,7 @@ class Emsfb {
 			$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 			$headers = array(
 				'MIME-Version: 1.0\r\n',
-				'"Content-Type: text/html; charset=ISO-8859-1\r\n"',
+				'"Content-Type: text/html; charset=UTF-8\r\n"',
 				'From:'.$from.''
 				);
 			$subject = "Important Warning form ".get_bloginfo('name');			

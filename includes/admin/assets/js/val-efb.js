@@ -524,7 +524,7 @@ function show_setting_window_efb(idset) {
     const thankYouMessageEls = `<div class="efb tnxmsg mt-1  ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageEl" class="efb form-label mt-2 mb-1 efb">${ efb_var.text.thankYouMessage }</label>
     <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.thankYouMessage}" id="thankYouMessageEl" required value="${valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : m_tankYouMessage}"></div>`;
     const thankYouMessageDoneEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageDoneEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.done} ${efb_var.text.message}</label>
-    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.done}" id="thankYouMessageDoneEl" required value="${valj_efb[0].thank_you_message.done ? valj_efb[0].thank_you_message.done : efb_var.text.done}"></div>`;
+    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.done}" id="thankYouMessageDoneEl" required value="${valj_efb[0].thank_you_message.done ? valj_efb[0].thank_you_message.done : efb_var.text.yad}"></div>`;
     const thankYouMessageConfirmationCodeEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageConfirmationCodeEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
     <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="thankYouMessageConfirmationCodeEl" required value="${valj_efb[0].thank_you_message.trackingCode ? valj_efb[0].thank_you_message.trackingCode : efb_var.text.trackingCode}"></div>`;
 
@@ -1586,7 +1586,7 @@ function creator_form_builder_Efb() {
       el_text_color: pub_txt_button_color_efb, message_text_color: pub_message_text_color_efb, icon_color: pub_txt_button_color_efb, el_height: 'h-d-efb', email_to: false, show_icon: true,
       show_pro_bar: true, captcha: false, private: false, sendEmail: false, font: true, stateForm: 0,dShowBg:true, btns_align: btn_pois,
       thank_you: 'msg',
-      thank_you_message: { icon: 'bi-hand-thumbs-up', thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.done, trackingCode: efb_var.text.trackingCode, error: efb_var.text.error, pleaseFillInRequiredFields: efb_var.text.pleaseFillInRequiredFields }, email_temp: '', font: true,
+      thank_you_message: { icon: 'bi-hand-thumbs-up', thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.yad, trackingCode: efb_var.text.trackingCode, error: efb_var.text.error, pleaseFillInRequiredFields: efb_var.text.pleaseFillInRequiredFields }, email_temp: '', font: true,
     });
 
     if (form_type_emsFormBuilder == "payment") {

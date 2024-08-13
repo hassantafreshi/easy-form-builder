@@ -1273,14 +1273,15 @@ class Admin {
 				created_at DATETIME NOT NULL,
 				code VARCHAR(60) NOT NULL,
 				ip_address VARCHAR(45) NOT NULL,
-				status_ TINYINT(1) NOT NULL,
-                by_  varchar(12)  NOT NULL ,
+				status_ TINYINT(1) NOT NULL,               
 				PRIMARY KEY (id)
 			) $charset_collate;";
 	
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 			dbDelta($sql);
 		}
+
+      
 	}
 }
 new Admin();
