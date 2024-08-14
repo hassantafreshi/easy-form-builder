@@ -1089,8 +1089,7 @@ class efbFunction {
 		if(isset($value)==false) return 'null';
 
 		$v =str_replace('\\', '', $value);
-		$rtrn =json_decode($v);
-		
+		$rtrn =json_decode($v);	
 		return $rtrn!=null ? $rtrn :'null';
 	}
 
@@ -1904,9 +1903,91 @@ class efbFunction {
 		update_option('emsfb_cache_plugins', $val );		
 		
 	}
-
-	public function is_efb_pro(){
+	//+Pro
+	public function is_efb_pro($s=1) {
+		// Argument $s can be 1 or activeCode
+		// If $s is 1 then check the activeCode in the database
+		// If $s is activeCode then check the activeCode
 		
-		return true;
+		function validated($s) {
+			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+			return isset($s) && md5($server_name) == $s;
+		}
+		
+		function request_new_($old_ac) {
+			// Here you will implement the API request to get the new active code
+			
+			$new_ac = $old_ac;
+			return $new_ac;
+		}
+		
+		function weekly_check() {
+			$ac_date = get_option('emsfb_pro_ac_date');
+			$ac_date = strtotime($ac_date);
+			$now = strtotime(date('Y-m-d H:i:s'));
+			$diff = ($now - $ac_date) / (60 * 60 * 24);
+	
+			if ($diff > 7) {
+				// Make an API request to check the activeCode
+				// Assume the API request is successful for demonstration
+				// API get a json include activeCode:true or false , smsStatus:true or false, smsDeposited: Number (USD currency)
+				$r = true;
+	
+				if ($r) {
+					update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
+					return true;
+				} else {
+					delete_option('emsfb_pro');
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		function update_pro_status($code) {
+			update_option('emsfb_pro', 1);
+			update_option('emsfb_pro_activeCode', $code);
+			if (!get_option('emsfb_pro_ac_date')) {
+				$r =weekly_check();
+				if ($r) {
+				update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
+				return true;
+				}else{
+					delete_option('emsfb_pro');
+					return false;
+				}
+			}
+		}
+		
+		if ($s == 1) {
+			$activeCode = get_option('emsfb_pro_activeCode');
+			if (strpos($activeCode, '@') !== false) {
+				$ac = explode('@', $activeCode)[0];
+				if (validated($ac)) {
+					update_pro_status($activeCode);
+					return weekly_check();
+				}
+				delete_option('emsfb_pro');
+			} elseif (validated($activeCode)) {
+				update_pro_status($activeCode);
+				// request_new_
+				return true;
+			}
+			return false;
+		} else {
+			if (strpos($s, '@') !== false) {
+				$activeCode = explode('@', $s)[0];
+				if (validated($activeCode)) {
+					return update_pro_status($s);
+					//return true;
+				}
+				delete_option('emsfb_pro');
+			} elseif (validated($s)) {
+				return update_pro_status($s);
+				// request_new_
+				//return true;
+			}
+		}
+		return false;
 	}
 }

@@ -761,12 +761,45 @@ function emsFormBuilder_logout() {
   actionSendData_emsFormBuilder();
 }
 function Show_recovery_pass_efb() {
-  let el = document.getElementById(`recoverySectionemsFormBuilder`);
-  el.style.display = el.style.display == "none" ? "block" : "none";
+  let el = document.getElementById('recoverySectionemsFormBuilder');
+  let elBtnBack = document.getElementById('prev_efb_send');
+  let iconBtn = document.getElementById('icon_btn_Show_recovery_efb');
+  let elMsg = document.getElementById('alertFinalStepEFB');
+  // بررسی وضعیت نمایش عنصر
+  const isHidden = el.classList.contains('d-none');
+  
+  if (isHidden) {
+      
+      el.classList.remove('d-none');
+      el.classList.remove('fadeOut');
+      el.classList.add('fadeIn');
+      iconBtn.className = 'bi bi-chevron-up';
+      el = document.getElementById('btn_recovery_pass_efb');
+      el.disabled = true;
+      elMsg.classList.add('d-none');
+      elBtnBack.classList.add('d-none');
+  } else {
+      el.classList.remove('fadeIn');
+      el.classList.add('fadeOut');
+      
+      iconBtn.className = 'bi bi-chevron-down';
+      
+      // اضافه کردن رویداد فقط یک بار برای پنهان کردن عنصر بعد از انیمیشن
+      el.addEventListener('animationend', function() {
+          el.classList.add('d-none');
+          elBtnBack.classList.remove('d-none');
+          elMsg.classList.remove('d-none');
+      }, { once: true });
+  }
+
+ /*  el.style.display == "none" ? elBtnBack.classList.add('d-none') : elBtnBack.classList.remove('d-none') ;
+  el.style.display = el.style.display == "none" ? "block" : "none"; */
   document.getElementById('recoverySectionemsFormBuilder').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
-  el = document.getElementById('btn_recovery_pass_efb');
-  el.disabled = true;
-  if (el.dataset.id == 1) {
+  
+
+  //check el has not add event listener
+
+  if ( el.dataset.hasOwnProperty('id') &&el.dataset.id == 1) {
     el.dataset.id = 0;
     const us = document.getElementById('username_recovery_pass_efb');
     const format = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -785,6 +818,7 @@ function Show_recovery_pass_efb() {
 }
 function response_fill_form_efb(res) {
   let btn_prev ='';
+  const stps = valj_efb && valj_efb.hasOwnProperty('steps')  ? Number(valj_efb[0].steps) : -123;
   if(valj_efb.length>1) btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   if (res.data.success == true) {
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
@@ -803,7 +837,7 @@ function response_fill_form_efb(res) {
         localStorage.clear();
         break;
       case 'subscribe':
-        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder fs-4'><i class="efb fs-2 bi-hand-thumbs-up text-primary  text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${valj_efb[0].thank_you_message.thankYou}</h3></br> <span class="efb fs-5">${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder fs-4'><i class="efb fs-2 bi-hand-thumbs-up  text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${valj_efb[0].thank_you_message.thankYou}</h3></br> <span class="efb fs-5">${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
         localStorage.clear();
         break;
       case 'register':
@@ -811,19 +845,20 @@ function response_fill_form_efb(res) {
           document.getElementById('efb-final-step').innerHTML = funTnxEfb('','',m );
           break;
       case 'recovery':
-        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder fs-4  text-center'><i class="efb fs-2 bi-envelope text-primary  text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${res.data.m}</h3></br></br></h3>`;
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder fs-4  text-center'><i class="efb fs-2 bi-envelope text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${res.data.m}</h3></br></br></h3>`;
       break;
       case 'login':
         if (res.data.m.state == true) {
           document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(res.data.m);
           location.reload();
         } else {
-          document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5  text-center'><i class="efb fs-2 bi-exclamation-triangle-fill nmsgefb  text-center"></i></h3> <span class="efb fs-7  text-center"> <br>${res.data.m.error}</span>
+          document.getElementById('efb-final-step').innerHTML = `<div id="alertFinalStepEFB" class="efb m-0 p-0"><h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5  text-center' ><i class="efb fs-2 bi-exclamation-triangle-fill nmsgefb  text-center"></i></h3> <span class="efb fs-7  text-center"> <br>${res.data.m.error}</span></div>
            </br>
-           <a  id="btn_Show_recovery_efb" class="efb pointer-efb emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} </a>
-           <div class="efb py-5 px-2 container bg-light mb-3" id="recoverySectionemsFormBuilder" style="display: none;">     
-              <input type="email" id="username_recovery_pass_efb" class="efb px-2 mb-1 emsFormBuilder_v w-100 bg-white  h-d-efb efb-square-1 col-8 border border-dark" placeholder="Email" >
-              <a  id="btn_recovery_pass_efb" class=" efb btn h-d-efb btn-block btn-pinkEfb text-white mb-2 get-emsFormBuilder disabled" data-id="1" >${ajax_object_efm.text.send}</a>
+           <a  id="btn_Show_recovery_efb" class="efb pointer-efb emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} <i id="icon_btn_Show_recovery_efb" class="bi-chevron-down"> </i> </a>
+           <div class="efb py-3 px-4 container bg-light mb-3 card rounded-3 d-none" id="recoverySectionemsFormBuilder" >   
+              <p class="efb fs-6">${ajax_object_efm.text.servpss}</p>  
+              <input type="email" id="username_recovery_pass_efb" class="efb px-2 mb-1 emsFormBuilder_v w-100 bg-white  h-d-efb efb-square-1 col-8 border border-dark rounded-2" placeholder="Email" >
+              <a  id="btn_recovery_pass_efb" class=" efb btn h-d-efb btn-block btn-pinkEfb text-white mb-2 get-emsFormBuilder disabled  rounded-2 w-100" data-id="1" >${ajax_object_efm.text.send}</a>
               </div>
               <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner:'efb-square'}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>
               `;
@@ -835,7 +870,7 @@ function response_fill_form_efb(res) {
         break;
     }
     //if (document.getElementById('efb-final-step')) document.getElementById('efb-final-step').scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
-      const stps = Number(valj_efb[0].steps);
+     
       if(stps>1 ){smoothy_scroll_postion_efb('efb-final-step')}
   } else {
     if(document.getElementById('efb-final-step')){document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder text-center'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3  text-center"></i></h1><h3 class="efb  text-center fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
@@ -1194,11 +1229,11 @@ setTimeout(() => {
     console.log('Source Height:', sourceHeight);
     
     // تنظیم ارتفاع عنصر هدف
-    targetElement.style.minHeight = `${sourceHeight}px`;
+   // targetElement.style.minHeight = `${sourceHeight}px`;
     if(sourceElement.offsetHeight<300 && sourceElement.offsetWidth<300 ){
       console.log('added auto overflow');
       //+ این تابع بروز شود و وقتی که سایز عنصر اصلی کمتر از 300 است بود به تناسب اندازه های مربوط به استپ آخر کم شود مثل لودینگ یا پاسخ سرور
-      targetElement.style.overflow='auto'
+      /* targetElement.style.overflow='auto' */
     }
   } else {
     console.log('One or both elements not found');
