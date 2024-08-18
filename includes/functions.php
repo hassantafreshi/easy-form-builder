@@ -766,7 +766,7 @@ class efbFunction {
 			"tlgmAddon" => $state  &&  isset($ac->text->tlgmAddon) ? $ac->text->tlgmAddon : esc_html__('Telegram notification Addon',$s),
 			"tlgmDAddon" => $state  &&  isset($ac->text->tlgmDAddon) ? $ac->text->tlgmDAddon : esc_html__('The Telegram notification addon lets you get notifications on your Telegram app whenever you receive new messages or responses',$s),				
 			"eln" => $state  &&  isset($ac->text->eln) ? $ac->text->eln : esc_html__('Enter a location name',$s),
-			"alns" => $state  &&  isset($ac->text->alns) ? $ac->text->alns : esc_html__('The %s1 pages are currently unavailable. It looks like another plugin is causing a conflict with %s1 . To fix this issue, %s2 contact %s1 support %s3 for assistance  or try disabling your plugins one at a time to identify the one causing the conflict.',$s),
+			"alns" => $state  &&  isset($ac->text->alns) ? $ac->text->alns : esc_html__('The %s1 pages are currently unavailable. It looks like another plugin is causing a conflict with %s1. To fix this issue, %s2 contact %s1 support%s3 for assistance or try disabling your plugins one at a time to identify the one causing the conflict.',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s)
 			
 		];
