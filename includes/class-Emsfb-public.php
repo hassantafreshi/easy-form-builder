@@ -3216,7 +3216,8 @@ class _Public {
 					if(function_exists('nitropack_clean_post_cache'))	nitropack_clean_post_cache($page_id);
 				break;
 				case 'wp-rest-cache':
-					//\WP_REST_Cache_Plugin\Includes\Caching\Caching::get_instance()->delete_related_caches( $post_id, $object_type );
+					//WP REST Cache
+					//https://wordpress.org/support/topic/does-this-custom-caching-code-interfere-with-wp-rest-cache/#post-17958451
 					$typPage = get_post_type($page_id);
 					if(class_exists('\WP_REST_Cache_Plugin\Includes\Caching\Caching')) \WP_REST_Cache_Plugin\Includes\Caching\Caching::get_instance()->delete_related_caches( $page_id, $typPage );
 				break;
