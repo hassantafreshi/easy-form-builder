@@ -173,7 +173,9 @@ class _Public {
 		$this->public_scripts_and_css_head('');
 		//$this->public_scripts_and_css_head('');
 		$state="";
-		$pro=  $this->pro_efb;
+		//$pro=  error_log('before call function is_efb_pro');
+		$pro = $this->efbFunction->is_efb_pro(1);
+		$this->pro_efb = $pro ;
 		$lanText= $this->efbFunction->text_efb($this->text_);
 		$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
 		$ar_core = array( 'sid'=>$sid);
@@ -240,7 +242,7 @@ class _Public {
 		$refid = isset($_GET['Authority'])  ? sanitize_text_field($_GET['Authority']) : 'not';
 		$Status_pay = isset($_GET['Status'])  ? sanitize_text_field($_GET['Status']) : 'NOK';
 		$img =[];
-		if($this->pro_efb==1){
+		if($pro==1 || $pro==true){
 			$efb_m= "<!--efb-->" ;
 			//smssend : after filed forms check if sms send enable and send sms to admin and users
 			if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
@@ -256,8 +258,8 @@ class _Public {
 					if(gettype($r)=="string"){
 						$setting =str_replace('\\', '', $r);
 						$setting =json_decode($setting);
-						$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-						if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}
+						
+						
 						if(strpos($value , '\"type\":\"stripe\"') || strpos($value , '"type":"stripe"')){$paymentType="stripe";}
 						else if(strpos($value , '\"type\":\"persiaPay\"') || strpos($value , '"type":"persiaPay"')){
 							$paymentType="zarinPal";
@@ -313,7 +315,7 @@ class _Public {
 					wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);	
 					wp_enqueue_script('logic-efb');
 				}
-			}
+		}
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
 				//translate v3
@@ -355,7 +357,7 @@ class _Public {
 					'poster'=> $poster,
 					'rtl' => is_rtl(),
 					'text' =>$lanText ,
-					'pro'=>$this->pro_efb,
+					'pro'=> $pro ? 1 : 0,
 					'wp_lan'=>get_locale(),
 					'location'=> "",
 					'v_efb'=>EMSFB_PLUGIN_VERSION,
@@ -453,7 +455,7 @@ class _Public {
 					continue;
 				}
 
-				if($i>1)$content .= $this->addNewElement_efb($i,$randomId,$this->id,$txts);
+				//	if($i>1)$content .= $this->addNewElement_efb($i,$randomId,$this->id,$txts);
 			}
 			 $content="	
 			 ".$this->bootstrap_icon_efb($icons_)."
@@ -501,12 +503,14 @@ class _Public {
 					}
 				}
 		}
-		$this->pro_efb = $valstng->pro;
+		$pro = intval(get_option('emsfb_pro'));
+		$pro = $pro==1 ? true : false;
+		$this->pro_efb = $pro;
+		
 		$this->comper_version_efb($pl[1]['version']);
-		if($this->pro_efb==1){
+		if($pro==true){
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
-		}
-		//$location = $this->pro_efb==true  ? $this->efbFunction->get_geolocation() :'';
+		}		
 		$location = '';
 		//efb_code_validate_create( $fid, $type, $status, $tc)
 		$sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
@@ -526,7 +530,7 @@ class _Public {
 			   'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
 			   'rtl' => is_rtl(),
 			   'text' =>$text,
-			   'pro'=>$this->pro_efb,
+			   'pro'=>$pro ? 1 : 0,
 			   'wp_lan'=>get_locale(),			   
 			   'location'=>$location,
 			   'sid'=>$sid,
@@ -554,7 +558,7 @@ class _Public {
 			"bi-file-earmark-richtext",
 			"bi-x-lg"
 		];
-		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a>';
+		 $val = $pro==true ? '<!--efb.app-->' : '<a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script>
 		 ".$this->bootstrap_icon_efb($icons_)."
 		".$s_m."
@@ -619,7 +623,8 @@ class _Public {
 		if (isset($setting['emailSupporter'])) {
 			array_push($to_list_admin, $setting['emailSupporter']);
 		}
-		$pro = $this->efbFunction->is_efb_pro(1);
+		$pro = intval(get_option('emsfb_pro'));
+		$pro = $pro == 1 ? true : false;
 		$type = sanitize_text_field($data_POST['type']);
 		$email = get_option('admin_email');
 		$rePage = "null";
@@ -1235,10 +1240,9 @@ class _Public {
 					$email_user[2] = $setting['femail'];
 				}
 				$secretKey = isset($setting['secretKey']) && strlen($setting['secretKey']) > 5 ? $setting['secretKey'] : null;
-				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-				if (isset($setting['activeCode']) && !empty($setting['activeCode']) && md5($server_name) == $setting['activeCode']) {
-					$pro = true;
-				}
+			
+				//$pro = $this->efbFunction->is_efb_pro(1);
+				
 				$response = $data_POST['valid'];
 				$args = ['secret' => $secretKey, 'response' => $response];
 				if (is_array($formObj) && $formObj[0]['type'] != 'payment' && $formObj[0]['captcha'] === true && strlen($response) > 5) {
@@ -1921,7 +1925,8 @@ class _Public {
 			error_log(gettype($setting));
 			$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
 			$email = isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
-			$pro = isset($setting->activeCode) &&  strlen($setting->activeCode)>5 ? $setting->activeCode :null ;
+			$pro = intval(get_option('emsfb_pro')); 
+			$pro = $pro==1 ? true : false;
 			$email_key = isset($setting->email_key) && strlen($setting->email_key)>5 ?$setting->email_key:null ;
 			if($sc!='null' && $email_key==null){
 				$response = array( 'success' => false , "m"=>$this->lanText['error400']); 
@@ -2229,10 +2234,9 @@ class _Public {
 			$r =str_replace('\\', '', $value);
 			$r =json_decode($r);
 			if($state=="pub"){	
-				$this->setting =$value;		
-				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-				$pro = false;
-				if(isset($r->activeCode) &&  md5($server_name) ==$r->activeCode){$pro=true;}			
+				$this->setting =$value;						
+				$pro = intval(get_option('emsfb_pro'));	
+				$pro = $pro==1 ? true : false;		
 				$this->pro_efb = $pro;
 				$trackingCode = isset($r->trackingCode) ? $r->trackingCode : "";
 				$siteKey = isset($r->siteKey) ? $r->siteKey : "";
@@ -3358,8 +3362,7 @@ class _Public {
 		$classes = isset($vj->el_border_color) ?  sprintf('form-control %s', $vj->el_border_color) : 'form-control' ;
 		$vtype = in_array($elementId ,['imgRadio','chlCheckBox','chlRadio','payMultiselect','paySelect','payRadio','payCheckbox','trmCheckbox']) ? strtolower(substr($elementId,3)) : $elementId;
 		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id,$texts);
-		$js_s='<!--JS-->';
-		error_log('$this->pro_efb'.$this->pro_efb);
+		$js_s='<!--JS-->';		
 		$pro =0;
 		$pro = $this->pro_efb;
 		$classes .= str_replace(',', ' ', $vj->classes) ?? '';

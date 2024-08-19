@@ -69,15 +69,12 @@ class Addon {
     </div>
 	<!-- end new code dd -->
 		<?php
-		$pro =false;
+		$pro = intval(get_option('Emsfb_pro')) ;
+		$pro = $pro == 1 ? true : false;
 		$maps =false;
 		$efbFunction = $this->get_efbFunction(); 
 		$ac= $efbFunction->get_setting_Emsfb();
-		if(gettype($ac)!="string"){			
-			if (md5($server_name)==$ac->activeCode){
-				$pro=true;
-			}				
-		}
+		
 		if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){			
 			$efbFunction->setting_version_efb_update($ac ,$pro);
 		}
@@ -151,7 +148,7 @@ class Addon {
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 2,
-			'pro' => $pro,
+			'pro' => $pro ? 1 : 0,
 			'rtl' => is_rtl() ,
 			'text' => $lang	,
 			'images' => $img,

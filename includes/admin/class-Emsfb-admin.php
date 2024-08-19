@@ -689,7 +689,8 @@ class Admin {
         $m        = $lang['messageSent'];
         $response = ['success' => true, "m" => $m];
         //"rescl", "resop",
-        $pro =isset( $ac->activeCode) ? $ac->activeCode : null;
+        $pro =$this->efbFunction->is_efb_pro(1);
+       
         $this->efbFunction->response_to_user_by_msd_id($id ,$pro);
         wp_send_json_success($response, $_POST);
     }
@@ -728,45 +729,38 @@ class Admin {
             $m = $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" =>$m];
             wp_send_json_success($response, $_POST);
-            die();
         }
         foreach ($m as $key => $value) {
             if ($key == "emailSupporter") {
                 $m[$key] = sanitize_text_field($value);
                 $email =  $m[$key];
             }else if ($key == "activeCode" && strlen($value) > 1) {
-                $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-                if (md5($server_name) != $value) {
+               // $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+                $state = $efbFunction->is_efb_pro($value);
+                if ($state==false) {
                     $m = $lang['activationNcorrect'];
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
-                    die();
-                }
-                else {
-                    // یک رکوست سمت سرور ارسال شود که بررسی کند کد وجود دارد یا نه
-                }
+                  
+                }                        
             }
              else if($key == "emailTemp"){
                 if( strlen($value)>5  && (strpos($setting ,'shortcode_message')==false || strpos($setting ,'shortcode_title')==false)){
                     $m = $lang['addSCEmailM'];
                     $response = ['success' => false, "m" =>$m];
-                    wp_send_json_success($response, $_POST);
-                    die();
+                    wp_send_json_success($response, $_POST);                
                 }else if(strlen($value)<6 && strlen($value)>0 ){
                     $m = $lang['emailTemplate'];               
                     $response = ['success' => false, "m" =>$m];
-                    wp_send_json_success($response, $_POST);
-                    die();
+                    wp_send_json_success($response, $_POST);              
                 }else if(strlen($value)>20001){                 
                     $m = $lang['addSCEmailM'];                    
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
-                    die();
                 }else if(strpos($value ,'<script')){
                     $m = $lang['pleaseDoNotAddJsCode'];
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
-                    die();
                 }
             } 
         }
@@ -873,8 +867,8 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-        $pro = "not pro";
-        if(gettype($ac)=="object" && strlen($ac->activeCode)!=0) $pro=$ac->activeCode;  
+        $pro =$this->efbFunction->is_efb_pro(1);
+       
         $con ='';
         $sub='';
         $to ='';

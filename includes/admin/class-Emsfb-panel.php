@@ -28,8 +28,8 @@ class Panel_edit  {
 			'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js',
 			'logoGif'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/efb-256.gif'
 			];
-			$pro =false;
 			$efbFunction = $this->get_efbFunction();
+			$pro =$efbFunction->is_efb_pro(1);;
 			//$lng =new lng();		
 			$ac= $efbFunction->get_setting_Emsfb();
 			$efbFunction->parsing_plugins_efb();
@@ -53,7 +53,7 @@ class Panel_edit  {
 		    }
 			if(gettype($ac)!="string" && isset($ac) ){
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-				if (isset($ac->activeCode)){$pro= md5($server_name)==$ac->activeCode ? true : false;}
+				
 				if(isset($ac->siteKey)){$captcha="true";}	
 				if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
 				/* if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
@@ -195,7 +195,7 @@ class Panel_edit  {
 					$arabicDatePicker = new arabicDatePickerEfb() ; 				
 				}
 			}else{$smtp_m =$lang['goToEFBAddEmailM'];}	
-			//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
+			
 			//$colors = $efbFunction->get_list_colores_template();
 			$colors =[];
 			$location ='';
@@ -205,7 +205,7 @@ class Panel_edit  {
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
-				'pro' => $pro,
+				'pro' => $pro ? 1 : 0,
 				'check' => 0,
 				'rtl' => $rtl,
 				'text' => $lang,
@@ -293,7 +293,7 @@ class Panel_edit  {
 					'response_state' =>$this->get_not_read_response(),
 					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
 					'bootstrap'=>$this->check_temp_is_bootstrap(),
-					'pro'=>$pro									
+					'pro'=>$pro ? 1 : 0,								
 				));
 				$this->delete_old_rows_emsfb_stts_();
 					//smart zone test

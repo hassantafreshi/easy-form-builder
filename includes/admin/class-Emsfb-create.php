@@ -99,9 +99,9 @@ class Create {
 					}, 90000);
 			</script>
 		<?php
-		$pro =false;
 		$maps =false;
 		$efbFunction = $this->get_efbFunction();
+		$pro =$efbFunction->is_efb_pro(1);
 		$efbFunction->parsing_plugins_efb();
 		$ac= $efbFunction->get_setting_Emsfb();
 		$addons = ['AdnSPF' => 0,
@@ -117,11 +117,7 @@ class Create {
 		//v2 translate
 		//write a code for get all colors used in array in template set as active template in wordpress . complate code and use regix to find all colores is used in tamplate
 		$lang = $efbFunction->text_efb(1);
-		if(gettype($ac)!="string"){
-			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-			if (isset($ac->activeCode)==true && strlen($ac->activeCode)>5 && md5($server_name)==$ac->activeCode){
-				$pro=true;
-			}
+		if(gettype($ac)!="string"){			
 			if(isset($ac->osLocationPicker)==true && $ac->osLocationPicker==1){
 			 	$efbFunction->openstreet_map_required_efb(0);
 			}
@@ -221,7 +217,7 @@ class Create {
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,
-			'pro' => $pro,
+			'pro' => $pro ? 1 : 0,
 			'rtl' => is_rtl() ,
 			'text' => $lang	,
 			'images' => $img,
