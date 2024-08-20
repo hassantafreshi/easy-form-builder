@@ -1440,7 +1440,7 @@ class _Public {
 								$state_of_email = ['newMessage',$state_email_user];
 								$msg_content='null';
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-									$msg_content =$this->email_get_content($valobj ,$check);
+									$msg_content =$this->email_get_content_efb($valobj ,$check);
 									$msg_content = str_replace("\"","'",$msg_content);
 									
 								}
@@ -1572,7 +1572,7 @@ class _Public {
 									$state_of_email = ['newMessage',$state_email_user];
 									$msg_content='null';
 									if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-										$msg_content =$this->email_get_content($fs ,$trackId);
+										$msg_content =$this->email_get_content_efb($fs ,$trackId);
 										$msg_content = str_replace("\"","'",$msg_content);
 										
 									}
@@ -1801,7 +1801,7 @@ class _Public {
 								$state_of_email = ['newMessage','subscribe'];
 								$msg_content='null';
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-									$msg_content =$this->email_get_content($valobj ,$check);
+									$msg_content =$this->email_get_content_efb($valobj ,$check);
 									$msg_content = str_replace("\"","'",$msg_content);
 									
 								}
@@ -1827,7 +1827,7 @@ class _Public {
 								$state_of_email = ['newMessage',"survey"];
 								$msg_content='null';
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-									$msg_content =$this->email_get_content($valobj ,$check);
+									$msg_content =$this->email_get_content_efb($valobj ,$check);
 									$msg_content = str_replace("\"","'",$msg_content);
 									
 								}
@@ -3376,7 +3376,7 @@ class _Public {
 	}
 
 
-	function email_get_content($content ,$track){
+	function email_get_content_efb($content ,$track){
 		$m ='<!-- efb-v3 -->';
 		$text_ =['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
 		$list=[];
@@ -3384,7 +3384,6 @@ class _Public {
 		  $s = false;
 		  $checboxs = [];
 		  $total_amount =0;
-
 		  $lst = end($content);
 		  $link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
 		  if(strlen($link_w)>5){
@@ -3403,7 +3402,6 @@ class _Public {
 		});
 		$lanText= $this->efbFunction->text_efb($text_);
 		foreach ($content as $c){
-			
 			if(isset($c['type']) && $c['type'] == "w_link"){
 			 continue;
 			}
@@ -3432,38 +3430,37 @@ class _Public {
 			  $value .= ': <b>' . $c['qty'] . '</b>';
 			}
 			// Check if the current item's value is "@file@"
-
-			  if(isset($c['value']) && $c['value'] == "@file@" && !in_array($c['url'], $list)){
-			  $s = true;
-			  array_push($list, $c['url']);
+			if(isset($c['value']) && $c['value'] == "@file@" && !in_array($c['url'], $list)){
+				$s = true;
+				array_push($list, $c['url']);
+			
+				$name = substr($c['url'], strrpos($c['url'], '/') + 1, strrpos($c['url'], '.') - strrpos($c['url'], '/') - 1);
+			  	// Check the current item's type
 		  
-			  $name = substr($c['url'], strrpos($c['url'], '/') + 1, strrpos($c['url'], '.') - strrpos($c['url'], '/') - 1);
-			  // Check the current item's type
-		  
-			   if(isset($c['type']) && ($c['type'] == "Image" || $c['type'] == "image")){			
-				  $value = '<br><img src="' . $c['url'] . '" alt="' . $c['name'] . '" class="efb img-thumbnail m-1">';
+				if(isset($c['type']) && ($c['type'] == "Image" || $c['type'] == "image")){			
+					$value = '<br><img src="' . $c['url'] . '" alt="' . $c['name'] . '" class="efb img-thumbnail m-1">';
 				}else if(isset($c['type']) && ($c['type'] == "Document" || $c['type'] == "document" || $c['type'] == "allformat")){
-				  $value = '<br><a class="efb btn btn-primary m-1" href="' . $c['url'] . '" target="_blank">' . $c['name'] . '</a>';
+					$value = '<br><a class="efb btn btn-primary m-1" href="' . $c['url'] . '" target="_blank">' . $c['name'] . '</a>';
 				}else if(isset($c['type']) && ($c['type'] == "Media" || $c['type'] == "media")){
-				$audios = ['mp3', 'wav', 'ogg'];
-				$media = "video";
-				foreach ($audios as $aud) {
-				  if (strpos($c['url'], $aud) !== false) {
-					$media = 'audio';
-				  }
-				}
-				if ($media == "video") {
-				  $poster_emsFormBuilder =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';							
-				  $value = $type !== 'avi' ? '<br><div class="efb px-1"><video poster="' . $poster_emsFormBuilder . '" src="' . $c['url'] . '" type="video/' . $type . '" controls></video></div><p class="efb text-center"><a href="' . $c['url'] . '">' . $lanText['videoDownloadLink'] . '</a></p>' : '<p class="efb text-center"><a href="' . $c['url'] . '">' . $lanText['downloadViedo'] . '</a></p>';
-				
+						$audios = ['mp3', 'wav', 'ogg'];
+						$media = "video";
+							foreach ($audios as $aud) {
+								if (strpos($c['url'], $aud) !== false) {
+									$media = 'audio';
+								}
+							}
+						if ($media == "video") {
+						$poster_emsFormBuilder =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';							
+						$value = $type !== 'avi' ? '<br><div class="efb px-1"><video poster="' . $poster_emsFormBuilder . '" src="' . $c['url'] . '" type="video/' . $type . '" controls></video></div><p class="efb text-center"><a href="' . $c['url'] . '">' . $lanText['videoDownloadLink'] . '</a></p>' : '<p class="efb text-center"><a href="' . $c['url'] . '">' . $lanText['downloadViedo'] . '</a></p>';
+						
+						} else {
+						$value = '<div><audio controls><source src="' . $c['url'] . '"></audio></div>';
+						}
+					
 				} else {
-				  $value = '<div><audio controls><source src="' . $c['url'] . '"></audio></div>';
-				}
-				  
-				} else {
-					$value = strlen($c['url']) > 1 ? '<br><a class="efb btn btn-primary m-1" href="' . $c['url'] . '" target="_blank">' . $c['name'] . '</a>' : '<span class="efb fs-5">💤</span>';
-					//$value = strlen($c.url) > 1 ? '<br><a class="efb btn btn-primary" href="' . $c.url . '" target="_blank">' . $c.name . '</a>' : '<span class="efb fs-5">💤</span>';
-				}
+						$value = strlen($c['url']) > 1 ? '<br><a class="efb btn btn-primary m-1" href="' . $c['url'] . '" target="_blank">' . $c['name'] . '</a>' : '<span class="efb fs-5">💤</span>';
+						//$value = strlen($c.url) > 1 ? '<br><a class="efb btn btn-primary" href="' . $c.url . '" target="_blank">' . $c.name . '</a>' : '<span class="efb fs-5">💤</span>';
+					}
 
 			} else if ($c['type'] == "esign") {
 			  $titile =isset($c['name'])? $c['name'] : '';
@@ -3521,8 +3518,20 @@ class _Public {
 				}
 			  }
 			  $m .= $vc;
-			}
+			} else if($c['type'] == "checkbox" && !in_array($c['id_'], $checboxs)){
+				$s = true ;
+				$vc = 'null';
+			
+					$m .= '<p >' . $c['name'] . ':</p>';
+					foreach ($content as $op) {						
+						if ($op['type'] == "checkbox" && $op['id_'] == $c['id_']) {
+							$m .= '<p  style="margin: 0px 10px;">' . $op['value'] . '</p>';
+						}
+					}
 
+				
+				array_push($checboxs, $c['id_']);
+			}
 			if (isset($c['id_']) && $c['id_'] == 'passwordRegisterEFB') {
 			  $m .= $value;
 			  $value = '**********';
