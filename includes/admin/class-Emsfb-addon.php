@@ -48,9 +48,21 @@ class Addon {
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 		wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
         wp_enqueue_script('whiteStudioAddone');
+
+		$efbFunction = $this->get_efbFunction(); 
+		$noti_pro = intval(get_option('Emsfb_pro' ,-1));
+		if ($noti_pro === 0  ){
+			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
+
+		}else{
+			$noti_pro = '<script>const noti_exp_efb="";</script>';
+		}
 	?>
 	<!-- new code ddd -->
+	<?php echo   $noti_pro ?>
 	<div id="alert_efb" class="efb mx-5"></div>
+
+		
 	<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 							<div class="efb modal-content efb " id="settingModalEfb-sections">
@@ -72,7 +84,7 @@ class Addon {
 		$pro = intval(get_option('Emsfb_pro')) ;
 		$pro = $pro == 1 ? true : false;
 		$maps =false;
-		$efbFunction = $this->get_efbFunction(); 
+		
 		$ac= $efbFunction->get_setting_Emsfb();
 		
 		if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){			

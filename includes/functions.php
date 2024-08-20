@@ -535,8 +535,8 @@ class efbFunction {
 			"redirectPage" => $state  &&  isset($ac->text->redirectPage) ? $ac->text->redirectPage : esc_html__('Redirect page',$s),
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : esc_html__('Please wait, you will be redirected shortly.',$s),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : esc_html__('Persia payment',$s),				
-			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : esc_html__('Activate the Pro version.',$s),				
-			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : esc_html__('You are using the free version. Activate the pro version now to get access to more and advanced professional features for only $NN/year.',$s),				
+			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : esc_html__('Unlock Pro Features Today',$s),						
+			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : esc_html__('You are using the free version. Upgrade to Pro for just %1$s%2$s%3$s/year and unlock advanced features to improve your experience and productivity.%4$sView Pro Features%5$s',$s),				
 			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : esc_html__('Add-on',$s),				
 			"addons" => $state  &&  isset($ac->text->addons) ? $ac->text->addons : esc_html__('Add-ons',$s),				
 			"stripeTAddon" => $state  &&  isset($ac->text->stripeTAddon) ? $ac->text->stripeTAddon : esc_html__('Stripe Payment Addon',$s),				
@@ -1911,8 +1911,8 @@ class efbFunction {
 	public function make_post_request_efb( $ac) {
 		error_log('EFB=>make_post_requestefb ac: ' . $ac);
 		$url = 'https://demo.whitestudio.team/wp-json/wl/v1/pro/key';
+		$url = 'http://127.0.0.1/ws/wp-json/wl/v1/pro/key';
 		error_log('EFB=>make_post_requestefb url: ' . $url);
-		//$url = 'http://127.0.0.1/ws/wp-json/wl/v1/pro/key';
 		//write a query paramters key=$ac	
 		$get_list_plugins_active = json_encode(get_option('active_plugins'));
 		$info = array(
@@ -2032,8 +2032,7 @@ class efbFunction {
 		}
 				
 		if ($s == 1) {	
-			//$is_pro = intval(get_option('emsfb_pro'));
-			$is_pro = get_option('emsfb_pro') ? intval(get_option('emsfb_pro')) :2;
+			$is_pro =get_option('Emsfb_pro' ,2);
 			error_log('EFB=>is_efb_pro is_pro: ' . $is_pro);
 			if($is_pro == 0){ return false; }
 
@@ -2080,6 +2079,21 @@ class efbFunction {
 			}
 		}
 		return false;
+	}
+
+
+
+	public function noti_expire_efb() {
+		$url = 'https://demo.whitestudio.team/renew?ac=';
+		$msg = esc_html__('Your Easy Form Builder Pro subscription has expired. To continue enjoying all Pro features and keep your forms running, %1$sRenew your subscription now.%2$s', 'easy-form-builder');
+		$ac = get_option('emsfb_pro_activeCode');	
+		$renew = '<br><a class="efb alert-link fw-bold text-info" href="'.$url.'' . $ac . '" target="_blank">';		
+		$msg = sprintf($msg, $renew, '</a>');	
+		$ativ = esc_html__('Your activation code has expired!', 'easy-form-builder');
+		//$div_noti = '<div class="efb alert alert-danger fade show mt-4 mb-2 alert-dismissible" role="alert">' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+		$div_noti = '<div class="efb mx-3  mt-4 mb-3 pd-5  alert alert-light pointer-efb buy-noti  alert-dismissible bg-danger text-white"><i class="efb bi-diamond text-info mx-1"></i><span class="efb text-light">'.$ativ.'</span><br>' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+	
+		return $div_noti;
 	}
 
 	

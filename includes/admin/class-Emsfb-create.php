@@ -49,6 +49,14 @@ class Create {
 		}
 	}
 	public function render_settings() {
+		$efbFunction = $this->get_efbFunction();
+		$noti_pro = intval(get_option('Emsfb_pro' ,-1));
+		if ($noti_pro === 0  ){
+			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
+
+		}else{
+			$noti_pro = '<script>const noti_exp_efb="";</script>';
+		}
 	?>
 	<!-- new code ddd -->
 	<style>
@@ -69,7 +77,8 @@ class Create {
 				let bdy =document.getElementsByTagName('body');
 				bdy[0].classList.add("bg-color");
 				const sitekye_emsFormBuilder= ""
-			</script>
+				</script>
+				<?php echo $noti_pro; ?>
 			<div id="alert_efb" class="efb mx-5"></div>
 			<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
@@ -100,7 +109,7 @@ class Create {
 			</script>
 		<?php
 		$maps =false;
-		$efbFunction = $this->get_efbFunction();
+		
 		$pro =$efbFunction->is_efb_pro(1);
 		$efbFunction->parsing_plugins_efb();
 		$ac= $efbFunction->get_setting_Emsfb();

@@ -80,6 +80,13 @@ class Panel_edit  {
 				}
 				$lng = get_locale();
 			$k ="";
+			$noti_pro = intval(get_option('Emsfb_pro' ,-1));
+			if ($noti_pro === 0  ){
+				$noti_pro = $efbFunction->noti_expire_efb();
+
+			}else{
+				$noti_pro = '<!--efb-->';
+			}
 			if(gettype($ac)!="string" && isset($ac->siteKey))$k= $ac->siteKey;	
 			if ( strlen( $lng ) > 0 ) {
 				$lng = explode( '_', $lng )[0];
@@ -88,6 +95,7 @@ class Panel_edit  {
 				<style>
 					.efb {font-family: 'Roboto', sans-serif!important;}
 				</style>
+				
 				<!--sideMenu--> <div class="efb sideMenuFEfb efbDW-0" id="sideMenuFEfb">
 				<div class="efb side-menu-efb bg-light bg-gradient border text-dark fade efbDW-0 "  id="sideBoxEfb">
 					<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
@@ -101,6 +109,7 @@ class Panel_edit  {
 				</div>
 				<div class="efb top_circle-efb-1"></div>
 				<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>";</script>
+						<?php echo $noti_pro ?>
 					<nav class="efb navbar navbar-expand-lg navbar-light efb" id="navbar">
 						<div class="efb container">
 							<a class="efb navbar-brand efb" href="admin.php?page=Emsfb_create" >

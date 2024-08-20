@@ -928,13 +928,14 @@ function head_introduce_efb(state) {
   const link = state == "create" ? '#form' : 'admin.php?page=Emsfb_create'
   let text = `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
-
+  let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s','<br><a href="#" class="efb fw-bold">').replace('%5$s','</a>');
   let cont = ``;
   let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti" onclick="Link_emsFormBuilder('price')">
   <i class="efb bi-diamond text-pinkEfb mx-1"></i>
-  <span class="efb text-dark">${efb_var.text.getPro}</span><br>
-  ${efb_var.text.yFreeVEnPro.replace('NN', pro_price_efb)}
+  <span class="efb text-dark fs-7">${efb_var.text.getPro}</span><br><br>
+  <div class="efb ms-3 fs-7">${msgpro}</div>
   </div>`;
+  if(noti_exp_efb!=''){vType='<div class="efb col-lg-4">'+noti_exp_efb+'</div>';}
   if (state != "create") {
     cont = `
     
