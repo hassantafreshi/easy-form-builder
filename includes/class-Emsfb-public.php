@@ -819,6 +819,11 @@ class _Public {
 										}
 										$l = isset($f['c_n']) && count($f['c_n']) >= 1 ? $f['c_n'] : ['all'];
 										array_filter($l, function ($no) use ($item, &$stated) {
+											$pos = strrpos($item['value'], '+');
+											if ($pos !== false) {
+												$item['value'] = substr($item['value'], $pos);
+											}
+											
 											$v = strpos($item['value'], '+' . $no);
 											if (strpos($item['value'], '+' . $no) === 0 || $no == 'all') $stated = 1;
 										});
