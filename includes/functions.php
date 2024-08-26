@@ -1690,7 +1690,8 @@ class efbFunction {
 	}
 
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
-		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
+		$sms_exists =get_option('emsfb_addon_AdnSS',false);
+		if(!$sms_exists){
 			error_log('Easy Form Builder: SMS Addon is not installed');
 			return false;
 		}
@@ -1913,6 +1914,19 @@ class efbFunction {
 		$url = 'https://demo.whitestudio.team/wp-json/wl/v1/pro/key';
 		$url = 'http://127.0.0.1/ws/wp-json/wl/v1/pro/key';
 		error_log('EFB=>make_post_requestefb url: ' . $url);
+
+		//check internet connection
+		/* $connected = @fsockopen("www.whitestudio.team", 80);
+		if (!$connected) { */
+		$connected = wp_remote_post('https://www.whitestudio.team', array('timeout' => 2));
+		if (is_wp_error($connected)) {
+			error_log('not connected');
+			$s = explode('@', $ac)[0];
+			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+			$r= isset($s) && md5($server_name) == $s ? (object)['r' => true , 'state' => 'active','pakcage'=>1]   : (object)['r' => false , 'state' => 'notExists' ];
+			return $r;
+			
+		} 
 		//write a query paramters key=$ac	
 		$get_list_plugins_active = json_encode(get_option('active_plugins'));
 		$info = array(
@@ -1936,12 +1950,13 @@ class efbFunction {
 			),
 		);
 		$response = wp_remote_post($url, $options);
-		error_log('EFB=>make_post_requestefb: ' . json_encode($response));
 		if (is_wp_error($response)) {
+			error_log('EFB=>make_post_requestefb: ' . json_encode($response));
 			return false;
 		}
 		$body = wp_remote_retrieve_body($response);
 		$data = json_decode($body);
+		
 		return $data;
 	}
 
@@ -1962,7 +1977,8 @@ class efbFunction {
 		//if (!get_option('emsfb_pro_ac_date')) {
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));				
 		//}
-		if($json->state=="new") {
+		$state =$json->state;
+		if($state=="new") {
 			error_log('EFB=>update_pro_status_efb state: new');
 			$activeCode = $json->key;
 			update_option('emsfb_pro_activeCode', $activeCode);
@@ -1972,14 +1988,19 @@ class efbFunction {
 			$st->activeCode = $activeCode;
 			$this->setting_version_efb_update($st,1);
 			return true;
-		}elseif($json->state=="active") {
+		}elseif($state=="active") {
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));	
 			error_log('EFB=>update_pro_status_efb state: date='.get_option('emsfb_pro_ac_date'));
 			return true;
-		}else{
+		}elseif ($state=="deactive") {
 			update_option('emsfb_pro' , 0);
 			delete_option('emsfb_pro_ac_date');
 			update_option('emsfb_pro_activeCode' ,$code);
+			return false;
+		}elseif ($state=="notExists") {
+			delete_option('emsfb_pro');
+			delete_option('emsfb_pro_ac_date');
+			delete_option('emsfb_pro_activeCode');
 			return false;
 		}
 	}
@@ -2013,70 +2034,55 @@ class efbFunction {
 		return true;
 	}
 	//+Pro
-	public function is_efb_pro($s=1) {
-		// Argument $s can be 1 or activeCode
-		// If $s is 1 then check the activeCode in the database
-		// If $s is activeCode then check the activeCode
-		//error_log('EFB=>is_efb_pro:====> ' . $s);
-	
+	public function is_efb_pro($s=1) {	
 		function validated($s) {
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 			return isset($s) && md5($server_name) == $s ? true : false;
 		}
-		
-		function request_new_($old_ac) {
-			// Here you will implement the API request to get the new active code
 			
-			$new_ac = $old_ac;
-			return $new_ac;
-		}
-				
 		if ($s == 1) {	
 			$is_pro =get_option('Emsfb_pro' ,2);
 			error_log('EFB=>is_efb_pro is_pro: ' . $is_pro);
 			if($is_pro == 0){ return false; }
 
-			$activeCode = get_option('emsfb_pro_activeCode');
-			$date_ = get_option('emsfb_pro_ac_date');
+			$activeCode = get_option('emsfb_pro_activeCode');	
 			if (empty($activeCode)) {
 				//if the activeCode is empty then check the activeCode in the setting
-				$st = $this->get_setting_Emsfb();
-				$activeCode = $st->activeCode;
-				if(strlen($activeCode)>5){ update_option('emsfb_pro_activeCode', $activeCode);
+				$st = get_option('emsfb_settings');				
+				if($st=='null'){
+					$st = $this->get_setting_Emsfb();
+					$activeCode = $st->activeCode;
+					 
 				}else{
+					$r =str_replace('\\', '', $st);
+					$st = json_decode($r);
+					$activeCode = $st->activeCode;
+				}
+				/* $st = $this->get_setting_Emsfb();
+				$activeCode = $st->activeCode; */
+				if(strlen($activeCode)>5){ 
+					update_option('emsfb_pro_activeCode', $activeCode);
+				}else{
+					delete_option('emsfb_pro');
 					return false;
-					update_option('emsfb_pro', 0);
 				} 
 			}
 
-			if (strpos($activeCode, '@') !== false) {
-				$ac = explode('@', $activeCode)[0];
-				if (validated($ac)) {
-					
-					return $this->weekly_check_pro_efb($activeCode);
-				}
-				delete_option('emsfb_pro');
-			} elseif (validated($activeCode)) {
-				error_log('EFB=>is_efb_pro validated:@ ' . $activeCode);
-				// request_new_
-				
-
+			$ac = explode('@', $activeCode)[0];
+			if(validated($ac)){
+				//error_log('EFB=>is_efb_pro validated: ' . $s);
 				return $this->weekly_check_pro_efb($activeCode);
 			}
+			delete_option('emsfb_pro');
 			return false;
 		} else {
-			if (strpos($s, '@') !== false) {
-				$activeCode = explode('@', $s)[0];
-				if (validated($activeCode)) {
+			error_log('EFB=>is_efb_pro: else ' . $s);
+			$activeCode = explode('@', $s)[0];
+			if (validated($activeCode)) {
 					return $this->update_pro_status_efb($s);
 					//return true;
-				}
-				delete_option('emsfb_pro');
-			} elseif (validated($s)) {
-				return $this->update_pro_status_efb($s);
-				// request_new_
-				//return true;
 			}
+			delete_option('emsfb_pro');
 		}
 		return false;
 	}

@@ -57,6 +57,7 @@ class Addon {
 		}else{
 			$noti_pro = '<script>const noti_exp_efb="";</script>';
 		}
+		
 	?>
 	<!-- new code ddd -->
 	<?php echo   $noti_pro ?>
@@ -196,8 +197,7 @@ class Addon {
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m =$lang['errorCheckInputs'];
 			$response = array( 'success' => false , "m"=>$m); 
-			wp_send_json_success($response,$_POST);
-			die();
+			wp_send_json_success($response, 200);
 		} 
 		if(isset($_POST['email']) ){$email =sanitize_email($_POST['email']);}
 		$this->id_ ="hid";
@@ -207,15 +207,13 @@ class Addon {
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
 			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']); 
-			wp_send_json_success($response,$_POST);
-			die();
+			wp_send_json_success($response, 200);
 		}
 		$this->insert_db();
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
 		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}
-		wp_send_json_success($response,$_POST);
-		die();		
+		wp_send_json_success($response, 200);	
 	}
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){

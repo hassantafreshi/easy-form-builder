@@ -268,7 +268,7 @@ class Create {
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m =$lang['errorCheckInputs'];
 			$response = array( 'success' => false , "m"=>$m); 
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response, 200);
 		} 
 		if(isset($_POST['email']) ){$email =sanitize_email($_POST['email']);}
 		$this->id_ ="hid";
@@ -281,7 +281,7 @@ class Create {
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
 			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']); 
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response, 200);
 		}
 		//check if smsnoti axist then call add_sms_contact_efb
 		$sms_msg_new_noti="";
@@ -304,15 +304,18 @@ class Create {
 		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
 			//$efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
 			//require smsefb.php and call add_sms_contact_efb
-			require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
-			$smsefb = new smssendefb();
-			$smsefb->add_sms_contact_efb(
-				$this->id_,
-				$sms_admins_phoneno,
-				$sms_msg_recived_user,
-				$sms_msg_new_noti,
-				$sms_msg_new_noti,
-				$sms_msg_responsed_noti);
+			$sms_exists = get_option('emsfb_addon_AdnSS', false);
+			if($sms_exists){
+				require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
+				$smsefb = new smssendefb();
+				$smsefb->add_sms_contact_efb(
+					$this->id_,
+					$sms_admins_phoneno,
+					$sms_msg_recived_user,
+					$sms_msg_new_noti,
+					$sms_msg_new_noti,
+					$sms_msg_responsed_noti);
+			}
 		}
 		if($this->formtype=='login' || $this->formtype=='register'){
 			do_action('create_temporary_links_table_Emsfb');
@@ -320,7 +323,7 @@ class Create {
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
 		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}
-		wp_send_json_success($response,$_POST);	
+		wp_send_json_success($response, 200);	
 	}
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){

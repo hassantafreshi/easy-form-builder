@@ -138,13 +138,13 @@ class Admin {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             $m = $lang['error403'];
             $response = ['success' => false, 'm' =>$m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
         if (empty($_POST['id'])) {
             $m = $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die();
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
@@ -161,7 +161,7 @@ class Admin {
             ['%d']
         );
         $response = ['success' => true, 'r' => $r];
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }
     public function delete_message_id_public() {
         $efbFunction = $this->get_efbFunction(1);
@@ -170,13 +170,13 @@ class Admin {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             $m = $lang['error403'];
             $response = ['success' => false, 'm' =>$m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
         if (empty($_POST['id'])) {
             $m = $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die();
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
@@ -187,7 +187,7 @@ class Admin {
             ['%d']
         );
         $response = ['success' => true, 'r' => $r];
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }
     public function update_form_id_Emsfb() {
         $efbFunction = $this->get_efbFunction(1);
@@ -240,7 +240,8 @@ class Admin {
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
 			//$efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
 			//require smsefb.php and call add_sms_contact_efb
-            if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {	
+            $sms_exists = get_option('emsfb_addon_AdnSS',false);
+            if(!$sms_exists) {	
                $m = str_replace('NN', '<b>' . $lang['sms_noti'] . '</b>', $lang['msg_adons']);
                 $response = ['success' => false, 'm' => $m];
                 wp_send_json_success($response, 200);               
@@ -257,7 +258,7 @@ class Admin {
 		}
         $m = $lang['updated'];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }
     public function add_addons_Emsfb() {
         $efbFunction = $this->get_efbFunction(1);
@@ -290,48 +291,52 @@ class Admin {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1 || $dd!="integer") {
             $m = $lang['error403'];
             $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
         }
         if (empty($_POST['value']) ) {
             $m = $lang['invalidRequire'];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
         }
         if ($this->isScript($_POST['value'])) {        
             $m = $lang['nAllowedUseHtml'];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
         }
        if($value!="AdnOF"){
             // اگر لینک دانلود داشت
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+            $name_space ='emsfb_addon_'.$value;
+           error_log($name_space);
             $vwp = get_bloginfo('version');
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
             if(get_locale()=='fa_IR'){
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;       
             }
+            
             $request = wp_remote_get($u);
             if( is_wp_error( $request )) {
                 $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
                 $response = ['success' => false, "m" => $m];
-                wp_send_json_success($response, $_POST);
+                wp_send_json_success($response, 200);
             }
             $body = wp_remote_retrieve_body( $request );
             $data = json_decode( $body );
             if($data==null || $data=='null'){
                 $m = esc_html__('You can not use the Easy Form Builder features right now. Contact whitestudio.team support for help.','easy-form-builder');
                 $response = ['success' => false, "m" => $m];
-                wp_send_json_success($response, $_POST);
+                wp_send_json_success($response, 200);
             }
             if($data->status==false){
                 $response = ['success' => false, "m" => $data->error];
-                wp_send_json_success($response, $_POST);
+                wp_send_json_success($response, 200);
             }
             // Check version of EFB to Addons
-            if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
+            if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {  
+                     
                 $m = $lang['upDMsg'];
                 $response = ['success' => false, "m" => $m];
-                wp_send_json_success($response, $_POST);
+                wp_send_json_success($response, 200);
             }
             if($data->download==true ){
                 $url =$data->link;
@@ -340,7 +345,7 @@ class Admin {
                if($s==false ){
                 $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
                 $response = ['success' => false, "m" => $m];
-                wp_send_json_success($response, $_POST);
+                wp_send_json_success($response, 200);
                }
             }
         }
@@ -396,7 +401,8 @@ class Admin {
         );
         update_option('emsfb_settings', $newAc);
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
-        wp_send_json_success($response, $_POST);
+        update_option($name_space, 1); 
+        wp_send_json_success($response, 200);
     }
     public function remove_addons_Emsfb() {
         $efbFunction = $this->get_efbFunction(1);
@@ -406,23 +412,24 @@ class Admin {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             $m = $lang['error403'];
             $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
         if (empty($_POST['value']) ) {
             $m = $lang['invalidRequire'];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die();
         }
         if ($this->isScript($_POST['value'])) {        
             $m = $lang['nAllowedUseHtml'];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die();
         }
         $value      = $_POST['value'];
         $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+        $name_space ='emsfb_addon_'.$value;
         /*
             AdnSPF == strip payment
             AdnOF == offline form
@@ -470,10 +477,11 @@ class Admin {
                 'date'    => wp_date('Y-m-d H:i:s'),
                 'email'   => $ac->emailSupporter,
             ]
-        );        
+        );      
+        delete_option($name_space);  
         update_option('emsfb_settings', $newAc);
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }
     public function update_message_state_Emsfb() {
         $efbFunction = $this->get_efbFunction(1);
@@ -482,13 +490,13 @@ class Admin {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             $m =   $lang['error403'];
             $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
         if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']),JSON_UNESCAPED_UNICODE)) {            
             $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => esc_html__("Something went wrong, Please refresh the page." ,'easy-form-builder')];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die();
         }
         $id =  ( int ) sanitize_text_field($_POST['id']);
@@ -496,7 +504,7 @@ class Admin {
         $r          = $this->db->update($table_name, ['read_' => 1, 'read_date' => wp_date('Y-m-d H:i:s')], ['msg_id' => $id]);
         $m =   $lang['updated'];
         $response = ['success' => true, 'r' =>"updated"];
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }
     public function get_form_id_Emsfb() {
         $efbFunction = $this->get_efbFunction(1);
@@ -505,13 +513,13 @@ class Admin {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             $m =   $lang['error403'];
             $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
         if (empty($_POST['id'])) {
             $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" =>$m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die();
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
@@ -523,7 +531,8 @@ class Admin {
         if($smsnoti){
             //require smsefb.php and call get_sms_contact_efb
             //check smsefb.php is exists
-            if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")){
+            $sms_exists = get_option('emsfb_addon_AdnSS', false);
+            if($sms_exists) {
                 require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
                 $smsefb = new smssendefb();
                 $sms = $smsefb->get_sms_contact_efb($id);
@@ -531,7 +540,7 @@ class Admin {
             }
         }
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id];
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }
     //stripe
     public function get_messages_id_Emsfb() {
@@ -541,13 +550,13 @@ class Admin {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             $m =   $lang['error403'];
             $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
         if (empty($_POST['id'])) {        
             $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
         }
         $id = sanitize_text_field(($_POST['id']));
         $code = 'efb'. $id;
@@ -556,7 +565,7 @@ class Admin {
         $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id' ORDER BY `$table_name`.date DESC");
         $response   = ['success' => true, 'ajax_value' => $value, 'id' => $id,'nonce_msg'=> $code];
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }
     public function get_all_response_id_Emsfb() {
         $efbFunction = $this->get_efbFunction(1);
@@ -565,13 +574,13 @@ class Admin {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             $m =   $lang['error403'];
             $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
         if (empty($_POST['id'])) {            
             $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
         $table_name = $this->db->prefix . "emsfb_rsp_";
@@ -591,7 +600,7 @@ class Admin {
             }
         }
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id];
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }
     public function set_replyMessage_id_Emsfb() {
          $this->get_efbFunction(0);
@@ -600,16 +609,16 @@ class Admin {
         $lang= $this->efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {                        
             $response = ['success' => false, 'm' => $lang['error403']];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
         if (empty($_POST['message']) || empty($_POST['id'])) {
             $response = ['success' => false, "m" => $lang['somethingWentWrongPleaseRefresh']];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
         }
         if ($this->isHTML(json_encode($_POST['message']))) {
             $response = ['success' => false, "m" => $lang['nAllowedUseHtml']];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
         $id = preg_replace('/[,]+/','',$id);
@@ -658,7 +667,7 @@ class Admin {
 						}
 						if($stated==0){
 							$response = array( 'success' => false  , 'm'=>$lang['error405']); 
-							wp_send_json_success($response,$_POST);
+							wp_send_json_success($response, 200);
 						}
 				}
                 $m = json_encode($message,JSON_UNESCAPED_UNICODE);
@@ -692,7 +701,7 @@ class Admin {
         $pro =$this->efbFunction->is_efb_pro(1);
        
         $this->efbFunction->response_to_user_by_msd_id($id ,$pro);
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }
     public function set_setting_Emsfb() {
         $efbFunction = $this->get_efbFunction(1);  
@@ -728,7 +737,7 @@ class Admin {
         if($m==null || gettype($m)!='array'){
             $m = $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" =>$m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
         }
         foreach ($m as $key => $value) {
             if ($key == "emailSupporter") {
@@ -740,7 +749,7 @@ class Admin {
                 if ($state==false) {
                     $m = $lang['activationNcorrect'];
                     $response = ['success' => false, "m" =>$m];
-                    wp_send_json_success($response, $_POST);
+                    wp_send_json_success($response, 200);
                   
                 }                        
             }
@@ -748,19 +757,19 @@ class Admin {
                 if( strlen($value)>5  && (strpos($setting ,'shortcode_message')==false || strpos($setting ,'shortcode_title')==false)){
                     $m = $lang['addSCEmailM'];
                     $response = ['success' => false, "m" =>$m];
-                    wp_send_json_success($response, $_POST);                
+                    wp_send_json_success($response, 200);                
                 }else if(strlen($value)<6 && strlen($value)>0 ){
                     $m = $lang['emailTemplate'];               
                     $response = ['success' => false, "m" =>$m];
-                    wp_send_json_success($response, $_POST);              
+                    wp_send_json_success($response, 200);              
                 }else if(strlen($value)>20001){                 
                     $m = $lang['addSCEmailM'];                    
                     $response = ['success' => false, "m" =>$m];
-                    wp_send_json_success($response, $_POST);
+                    wp_send_json_success($response, 200);
                 }else if(strpos($value ,'<script')){
                     $m = $lang['pleaseDoNotAddJsCode'];
                     $response = ['success' => false, "m" =>$m];
-                    wp_send_json_success($response, $_POST);
+                    wp_send_json_success($response, 200);
                 }
             } 
         }
@@ -781,7 +790,7 @@ class Admin {
         update_option('emsfb_settings', $setting);
         $m = $lang['messageSent'];            
         $response = ['success' => true, "m" => $m];
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }
     public function get_ajax_track_admin() {
         //اطلاعات ردیف ترک را بر می گرداند
@@ -792,7 +801,7 @@ class Admin {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             $m = $lang['error403'];
             $response = ['success' => false, 'm' =>$m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
         $table_name = $this->db->prefix . "emsfb_msg_";
@@ -807,7 +816,7 @@ class Admin {
             $m = $lang['cCodeNFound'];
             $response = ['success' => false, "m" => $m];
         }
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }//end function
     public function clear_garbeg_admin() {
         //پاک کردن فایل های اضافی
@@ -818,7 +827,7 @@ class Admin {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             $m = $lang['error403'];
             $response = ['success' => false, 'm' =>$m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
         $table_name = $this->db->prefix . "emsfb_msg_";
@@ -853,7 +862,7 @@ class Admin {
         }        
         $m = $lang['fileDeleted'];
         $response = ['success' => true, "m" => $m];
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }//end function
     public function check_email_server_admin() {
         //پاک کردن فایل های اضافی
@@ -864,7 +873,7 @@ class Admin {
         $m = $lang['error403'];
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {     
             $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
         $pro =$this->efbFunction->is_efb_pro(1);
@@ -908,7 +917,7 @@ class Admin {
                     update_option('emsfb_settings', $newAc);
                 }
         $response = ['success' => $check ];
-        wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, 200);
     }
     public function isHTML($str) {
         return preg_match("/\/[a-z]*>/i", $str) != 0;
@@ -989,7 +998,7 @@ class Admin {
         }
 		if (check_ajax_referer('public-nonce','nonce')!=1 && check_ajax_referer($vl,"nonce_msg")!=1){
 			$response = array( 'success' => false  , 'm'=>"403 Forbidden Error"); 
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response, 200);
 			die();
 		} 
 		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
@@ -1012,10 +1021,10 @@ class Admin {
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}            
 			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']); 
-			  wp_send_json_success($response,$_POST);
+			  wp_send_json_success($response, 200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>"File Type Error"); 
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response, 200);
 			die('invalid file '.$_FILES['file']['type']);
 		}
 	}//end function
@@ -1042,9 +1051,12 @@ class Admin {
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
         }
-       require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
-        $smssendefb = new smssendefb();
-        $smssendefb->send_sms_Emsfb($_POST);
+        $sms_exists = get_option('emsfb_addon_AdnSS', false);
+        if($sms_exists) {
+            require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
+            $smssendefb = new smssendefb();
+            $smssendefb->send_sms_Emsfb($_POST);
+        }
     }
     public function fun_duplicate_Emsfb(){
         $efbFunction =$this->get_efbFunction(1);

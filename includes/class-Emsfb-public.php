@@ -245,7 +245,8 @@ class _Public {
 		if($pro==1 || $pro==true){
 			$efb_m= "<!--efb-->" ;
 			//smssend : after filed forms check if sms send enable and send sms to admin and users
-			if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
+			$sms_exists = get_option('emsfb_addon_AdnSS',false);
+			if($sms_exists){
 				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
 				$smssendefb = new smssendefb() ; 
 			}
@@ -609,7 +610,7 @@ class _Public {
 		if ($s_sid != 1) {
 			$m = $this->lanText['sxnlex'];
 			$response = ['success' => false, 'm' => $m];
-			wp_send_json_success($response, $data_POST);
+			wp_send_json_success($response, 200);
 		}
 		$user_id = 1;
 		$to_list_admin = [];
@@ -680,7 +681,7 @@ class _Public {
 				$trackingCode_state = $formObj[0]['trackingCode'] == true || $formObj[0]['trackingCode'] == "true" || $formObj[0]['trackingCode'] == 1 ? 1 : 0;
 				if ($type != $formObj[0]['type']) {
 					$response = ['success' => false, 'm' => $this->lanText['fernvtf']];
-					wp_send_json_success($response, $data_POST);
+					wp_send_json_success($response, 200);
 				}
 				if ($formObj[0]['thank_you'] == "rdrct") {
 					$rePage = $this->string_to_url($formObj[0]['rePage']);
@@ -702,7 +703,7 @@ class _Public {
 				}
 				if ($stated == 0) {
 					$response = ['success' => false, 'm' => $this->lanText['error403']];
-					wp_send_json_success($response, $data_POST);
+					wp_send_json_success($response, 200);
 				}
 				$mr = '';
 				$stated = 1;
@@ -937,7 +938,7 @@ class _Public {
 									if ($item['value'] < 1 || $item['value'] > 5) {
 										$m =  $this->lanText['somethingWentWrongPleaseRefresh'] . '<br>' . esc_html__('Error Code', 'easy-form-builder') . ': 600';
 										$response = array('success' => false, 'm' => $m);
-										wp_send_json_success($response, $data_POST);
+										wp_send_json_success($response, 200);
 									}
 									$stated = 1;
 									$item['name'] = $f['value'];
@@ -1168,7 +1169,7 @@ class _Public {
 				$not_captcha = $type != "payment" ? $formObj[0]['captcha'] : "";
 				if ($stated == 0) {
 					$response = ['success' => false, 'm' => $mr];
-					wp_send_json_success($response, $data_POST);
+					wp_send_json_success($response, 200);
 				}
 				$this->value = json_encode($valobj, JSON_UNESCAPED_UNICODE);
 				$this->value = str_replace('"', '\\"', $this->value);
@@ -1232,7 +1233,7 @@ class _Public {
 			} else if ($fs == '') {
 				$m = "Error 404";
 				$response = ['success' => false, 'm' => $m];
-				wp_send_json_success($response, $data_POST);
+				wp_send_json_success($response, 200);
 			}
 			//if (true) {
 				$captcha_success = "null";			
@@ -1256,7 +1257,7 @@ class _Public {
 						$captcha_success = json_decode($verify['body']);
 					} else {
 						$response = ['success' => false, 'm' => $this->lanText['errorSiteKeyM']];
-						wp_send_json_success($response, $data_POST);
+						wp_send_json_success($response, 200);
 						return;
 					}
 				}
@@ -1268,12 +1269,12 @@ class _Public {
 				if ( ($type != "logout" && $type != "recovery") && $not_captcha && ($captcha_success == "null" || $captcha_success->success != true)) {
 					error_log('after captcha 2: ' . $type);
 					$response = ['success' => false, 'm' => $this->lanText['errorCaptcha']];
-					wp_send_json_success($response, $data_POST);
+					wp_send_json_success($response, 200);
 					die();
 				} else if (!$not_captcha || ($not_captcha &&  isset($captcha_success->success) && $captcha_success->success == true)) {
 					if (empty($data_POST['value']) || empty($data_POST['name']) || empty($data_POST['id'])) {
 						$response = ['success' => false, "m" => $this->lanText['pleaseEnterVaildValue']];
-						wp_send_json_success($response, $data_POST);
+						wp_send_json_success($response, 200);
 						die();
 					}
 					$this->name = sanitize_text_field($data_POST['name']);
@@ -1329,7 +1330,7 @@ class _Public {
 							}
 							$time = microtime(true);
 							error_log('before response: ' . $time);
-							wp_send_json_success($response, $data_POST);
+							wp_send_json_success($response, 200);
 							break;
 						case "payment":
 							$id = sanitize_text_field($data_POST['payid']);
@@ -1338,7 +1339,7 @@ class _Public {
 							$payment_getWay = isset($data_POST['payment']) ? sanitize_text_field($data_POST['payment']) : 'stripe';
 							if (strlen($id) < 7 && $payment_getWay == "zarinPal") {
 								$response = array('success' => false, "m" => "خطای داده های پرداختی ، صفحه را رفرش کنید");
-								wp_send_json_success($response, $data_POST);
+								wp_send_json_success($response, 200);
 							}
 							$value = $this->db->get_results("SELECT content, form_id FROM `$table_name_` WHERE track = '$id' AND read_=2");
 							$trackId = $id;
@@ -1365,7 +1366,7 @@ class _Public {
 									}
 									if ($msg != "ok") {
 										$response = array('success' => false, "m" => $msg);
-										wp_send_json_success($response, $data_POST);
+										wp_send_json_success($response, 200);
 										die();
 									}
 									date_default_timezone_set('Iran');
@@ -1390,7 +1391,7 @@ class _Public {
 								$fs = isset($fs[0]->form_structer) ? json_decode(str_replace('\\', '', $fs[0]->form_structer), true) : '';
 								if ($fs == '') {
 									$response = array('success' => false, 'm' => 'Error 406');
-									wp_send_json_success($response, $data_POST);
+									wp_send_json_success($response, 200);
 									die();
 								}
 								if ($fs[0]['thank_you'] == "rdrct") {
@@ -1421,7 +1422,7 @@ class _Public {
 								}
 							} else {
 								$response = array('success' => false, 'm' => esc_html__('Error Code', 'easy-form-builder') . '</br>' . esc_html__('Payment Form', 'easy-form-builder'));
-								wp_send_json_success($response, $data_POST);
+								wp_send_json_success($response, 200);
 							}
 							$m = "Error 500";
 							$response = $check == 1 ? array('success' => true, 'ID' => $data_POST['id'], 'track' => $this->id, 'nonce' => wp_create_nonce($this->id), 'ip' => $ip) : array('success' => false, 'm' => $m);
@@ -1429,7 +1430,7 @@ class _Public {
 							if ($rePage != "null" && $check == 1) {
 								$response = array('success' => true, 'm' => $rePage);
 							}
-							wp_send_json_success($response, $data_POST);
+							wp_send_json_success($response, 200);
 							break;
 							case "register":
 								$username = '';
@@ -1454,7 +1455,7 @@ class _Public {
 								$r = $this->new_user_validate_efb($username, $email, $password);
 								if (is_string($r)) {
 									$response = ['success' => false, 'm' => $r];
-									wp_send_json_success($response, $data_POST);
+									wp_send_json_success($response, 200);
 								}
 
 
@@ -1517,7 +1518,7 @@ class _Public {
 										$response = ['success' => true, 'm' => $rePage];
 									}
 								}
-								wp_send_json_success($response, $data_POST); 
+								wp_send_json_success($response, 200); 
 								break;
 								case "login":
 									$username = '';
@@ -1565,7 +1566,7 @@ class _Public {
 										if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
 											$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', '');
 										}
-										wp_send_json_success($response, $data_POST);
+										wp_send_json_success($response, 200);
 									} else {
 										// user not login
 										$send = [
@@ -1574,7 +1575,7 @@ class _Public {
 											'error' => $this->lanText['incorrectUP']
 										];
 										$response = ['success' => true, 'm' => $send];
-										wp_send_json_success($response, $data_POST);
+										wp_send_json_success($response, 200);
 									}                                
 								break;
 							
@@ -1599,7 +1600,7 @@ class _Public {
 									$response = array( 'success' => true , 'm' =>$this->lanText['done']); 
 									if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
 									$this->efbFunction->efb_code_validate_update($sid ,'nwltr' ,'nwltr' );
-									wp_send_json_success($response,$data_POST);
+									wp_send_json_success($response, 200);
 								break;
 								case "survey":
 									//$ip = $this->ip;
@@ -1623,19 +1624,19 @@ class _Public {
 									$response = array( 'success' => true , 'm' =>$this->lanText['surveyComplatedM']);
 									if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); } 
 									$this->efbFunction->efb_code_validate_update($sid ,'poll' ,'poll' );
-									wp_send_json_success($response,$data_POST);
+									wp_send_json_success($response, 200);
 								break;
 								case "reservation":
 								break;
 								default:									
 								$response = array( 'success' => false  ,'m'=>$this->lanText['somethingWentWrongPleaseRefresh']); 
-								wp_send_json_success($response,$data_POST);
+								wp_send_json_success($response, 200);
 					}
 				}
 			//}
 		}else{
 			$response = array( 'success' => false , "m"=>$this->lanText['errorSettingNFound']); 
-			wp_send_json_success($response,$data_POST);
+			wp_send_json_success($response, 200);
 		}
 	  }// end function get_form_public_api
 	  public function get_track_public_api($data_POST_) {	
@@ -1648,7 +1649,7 @@ class _Public {
 		if ($s_sid !=1 || $sid==null){
 			$m =  $lanText['sxnlex'];
 		$response = array( 'success' => false  , 'm'=>$m); 
-		wp_send_json_success($response,$data_POST);
+		wp_send_json_success($response, 200);
 		} 
 		$response=$data_POST['valid'];
 		$captcha_success =[];
@@ -1661,12 +1662,12 @@ class _Public {
 		 $strR = json_encode($captcha_success);
 		 if (!empty($captcha_success) &&$captcha_success->success==false &&  $not_captcha==false ) {
 		  $response = array( 'success' => false  , 'm'=> $lanText['errorMRobot']); 
-		  wp_send_json_success($response,$data_POST);
+		  wp_send_json_success($response, 200);
 		 }
 		 else if ((!empty($captcha_success) && $captcha_success->success==true) ||  $not_captcha==true) {
 			if(empty($data_POST['value']) ){
 				$response = array( 'success' => false , "m"=>$lanText['enterVValue']); 
-				wp_send_json_success($response,$data_POST);
+				wp_send_json_success($response, 200);
 				die();
 			}		
 			$id = sanitize_text_field($data_POST['value']);
@@ -1701,7 +1702,7 @@ class _Public {
 			}else{
 				$response = array( 'success' => false  , "m" =>$lanText['cCodeNFound']); 
 			}
-			wp_send_json_success($response,$data_POST);
+			wp_send_json_success($response, 200);
 			}
 			//send_email to admin of page
 	  }//end function get_track_public_api
@@ -1757,7 +1758,7 @@ class _Public {
         }
 		if (check_ajax_referer('public-nonce','nonce')!=1 && check_ajax_referer($vl,"nonce_msg")!=1){
 			$response = array( 'success' => false  , 'm'=>$this->lanText['error403']); 
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response, 200);
 			die();
 		}
 		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
@@ -1780,10 +1781,10 @@ class _Public {
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
 			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']); 
-			  wp_send_json_success($response,$_POST);
+			  wp_send_json_success($response, 200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>$this->lanText['errorFilePer']); 
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response, 200);
 			die('invalid file '.$_FILES['file']['type']);
 		}
 	}//end function 
@@ -2316,7 +2317,7 @@ class _Public {
 		if ($s_sid !=1){
 			$m = esc_html__('error', 'easy-form-builder') . ' 403';
 			$response = array( 'success' => false  , 'm'=>$m); 
-			wp_send_json_success($response,$data_POST);
+			wp_send_json_success($response, 200);
 		} 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 		$Sk ='null';
@@ -2520,7 +2521,7 @@ class _Public {
 		if ($s_sid !=1){
 			$m =  $this->lanText['sxnlex'];
 		$response = array( 'success' => false  , 'm'=>$m); 
-		wp_send_json_success($response,$data_POST);
+		wp_send_json_success($response, 200);
 		} 
 		$Sk ='null';
 		if(gettype($r)=="string"){
