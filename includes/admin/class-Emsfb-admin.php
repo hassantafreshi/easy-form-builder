@@ -794,9 +794,10 @@ class Admin {
     }
     public function get_ajax_track_admin() {
         //اطلاعات ردیف ترک را بر می گرداند
+
         $efbFunction = $this->get_efbFunction(1);
         $ac= $efbFunction->get_setting_Emsfb();
-        $text = ["cCodeNFound","error403"];
+        $text = ["notFound","error403"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             $m = $lang['error403'];
@@ -813,8 +814,20 @@ class Admin {
             $response = ['success' => true, "ajax_value" => $value,'nonce_msg'=> $code , 'id'=>$value[0]->msg_id];
         }
         else {
-            $m = $lang['cCodeNFound'];
+            $search_term = "%$id%";
+            $sql =$this->db->prepare(
+                "SELECT *  FROM {$table_name} WHERE content LIKE %s",
+                $search_term
+            );
+            $value = $this->db->get_results($sql);
+            if(count($value)>0){
+                $code = 'efb'. $value[0]->msg_id;
+                $code =wp_create_nonce($code);
+                $response = ['success' => true, "ajax_value" => $value,'nonce_msg'=> $code , 'id'=>$value[0]->msg_id];
+            }else{
+            $m = $lang['notFound'];
             $response = ['success' => false, "m" => $m];
+            }
         }
         wp_send_json_success($response, 200);
     }//end function
