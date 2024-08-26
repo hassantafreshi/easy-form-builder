@@ -180,11 +180,12 @@ function emsFormBuilder_show_content_message(id) {
   form_type_emsFormBuilder = formType;
   const replayM = function () {
     let r
+    const value = localStorage.getItem('replayM_emsFormBuilder_'+msg_id) ?? '';
     if (form_type_emsFormBuilder != 'subscribe' && form_type_emsFormBuilder != 'register' && form_type_emsFormBuilder != 'survey') {
       r = `   
       <div class="efb mb-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}"  id="replay_section__emsFormBuilder">
         <label for="replayM_emsFormBuilder" class="efb form-label m-2 fs-7" id="label_replyM_efb">${efb_var.text.reply}:</label>
-        <textarea class="efb  form-control efb" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
+        <textarea class="efb  form-control efb" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}">${value}</textarea>
       </div>
      <div class="efb col text-right row mx-1">
      <button type="submit" class="efb btn efb btn-primary btn-sm" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})"><i class="efb  bi-reply mx-1"></i> ${efb_var.text.reply} </button>
@@ -200,10 +201,16 @@ function emsFormBuilder_show_content_message(id) {
      </div></div></div><!-- content body response-->`;
 
 
-
+  
 
   show_modal_efb(body, efb_var.text.response, 'efb bi-chat-square-text mx-2', 'saveBox');
-  setTimeout(() => { reply_attach_efb(msg_id)}, 10);
+  setTimeout(() => { 
+    reply_attach_efb(msg_id)
+    //add event listener for type message on replayM_emsFormBuilder
+    document.getElementById('replayM_emsFormBuilder').addEventListener('input', function (e) {
+      localStorage.setItem('replayM_emsFormBuilder_'+msg_id, e.target.value)      
+    });
+  }, 10);
   state_modal_show_efb(1)
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -726,14 +733,16 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
           // res.data.m
           alert_message_efb(res.data.m,'', 7 , 'info')
         }
-        
+        localStorage.removeItem('replayM_emsFormBuilder_'+id);
         
       } else {
         // alert_message_efb(efb_var.text.error,res.data.m, 7 , 'danger')
         if(document.getElementById('replay_state__emsFormBuilder')){
-        document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
-        document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-        document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply
+          document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
+          document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
+          document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;
+          //delete from local storage
+         
         }else{
           alert_message_efb(res.data.m,'', 12 , 'danger')
         }
@@ -2498,4 +2507,8 @@ function emsFormBuilder_read(state,val){
       }
     })
   });
+}
+
+function efb_test_onchange(){
+  console.log('test');
 }

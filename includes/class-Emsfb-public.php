@@ -3247,6 +3247,11 @@ class _Public {
 					$typPage = get_post_type($page_id);
 					if(class_exists('\WP_REST_Cache_Plugin\Includes\Caching\Caching')) \WP_REST_Cache_Plugin\Includes\Caching\Caching::get_instance()->delete_related_caches( $page_id, $typPage );
 				break;
+				case 'clear-cache-for-widgets':
+					if(function_exists('ccfm_clear_cache_for_me')){
+						ccfm_clear_cache_for_me();
+					}
+				break;
 			}
 		}
 		
