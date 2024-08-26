@@ -1,6 +1,6 @@
 .efb {direction: rtl !important;}
 .wp-menu-name {text-align: initial;}
-.search-form-control.efb {    padding-right: 40px!important;padding-left:0px!important;}
+.search-form-control.efb {    padding-right: 40px!important;padding-left:10px!important;}
 input[type=file].efb {    padding: 3px 14px;}
 input[type="email"]:-moz-placeholder.efb {    text-align: right;}
 input[type="email"]:-ms-input-placeholder.efb {    text-align: right;}
