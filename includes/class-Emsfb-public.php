@@ -3253,6 +3253,9 @@ class _Public {
 						ccfm_clear_cache_for_me();
 					}
 				break;
+				case 'speedycache':
+					if(class_exists('SpeedyCache\Delete')) \SpeedyCache\Delete::cache($page_id);
+				break;
 			}
 		}
 		
