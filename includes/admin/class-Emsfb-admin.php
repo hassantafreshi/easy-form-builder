@@ -532,7 +532,7 @@ class Admin {
             //require smsefb.php and call get_sms_contact_efb
             //check smsefb.php is exists
             $sms_exists = get_option('emsfb_addon_AdnSS', false);
-            if($sms_exists) {
+            if($sms_exists !== false) {
                 require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
                 $smsefb = new smssendefb();
                 $sms = $smsefb->get_sms_contact_efb($id);
@@ -1065,7 +1065,7 @@ class Admin {
             wp_send_json_success($response, 200);
         }
         $sms_exists = get_option('emsfb_addon_AdnSS', false);
-        if($sms_exists) {
+        if($sms_exists !== false) {
             require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
             $smssendefb = new smssendefb();
             $smssendefb->send_sms_Emsfb($_POST);

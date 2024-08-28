@@ -246,7 +246,7 @@ class _Public {
 			$efb_m= "<!--efb-->" ;
 			//smssend : after filed forms check if sms send enable and send sms to admin and users
 			$sms_exists = get_option('emsfb_addon_AdnSS',false);
-			if($sms_exists){
+			if($sms_exists !== false){
 				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
 				$smssendefb = new smssendefb() ; 
 			}
@@ -2269,6 +2269,7 @@ class _Public {
 					AdnPLF == passwordless form
 					AdnMSF == membership form
 					AdnBEF == booking and event form
+					AdnAtF == Atoufilled form
 				*/
 				$addons = ['AdnSPF' => 0,
 				'AdnOF' => 0,

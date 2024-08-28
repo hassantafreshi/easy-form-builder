@@ -46,7 +46,12 @@ class Addon {
 	}
 	public function render_settings() {
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-		wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
+		//demo start
+		//wp_register_script('whiteStudioAddone', 'http://demo.whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
+		wp_register_script('whiteStudioAddone', 'http://127.0.0.1/ws/wp-json/wl/v1/addons.js' .$server_name, null, null, true);	
+		//demo end
+
+		//wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
         wp_enqueue_script('whiteStudioAddone');
 
 		$efbFunction = $this->get_efbFunction(); 
@@ -129,6 +134,7 @@ class Addon {
 			AdnELM == Elemntor 
 			AdnGTB == Gutnberg
 			AdnPFA == Private Form Advanced
+			AdnAtF == Atoufilled form
         */
 		$addons = ['AdnSPF' => 0,
 		'AdnOF' => 0,

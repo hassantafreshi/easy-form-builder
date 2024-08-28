@@ -663,11 +663,17 @@ function add_addons_emsFormBuilder() {
   let value = `<!-- boxs -->`;
   for (let i of addons_efb) {
     //778899 addonTest => change below 
+    let title = i.title;
+    let desc = i.desc;
+    if(title.trim().split(/\s+/).length === 1) {
+      title =efb_var.text[title] ;
+      desc =efb_var.text[desc];
+    }
     
    if(i.state==true) {
     //if(i.state==true || i.state==false) {
       const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
-                 'title':efb_var.text[i.title],'desc':efb_var.text[i.desc],'v_required':i.v_required , 'pro':i.pro}
+                 'title':title,'desc':desc,'v_required':i.v_required , 'pro':i.pro}
     //AdnSPF
      if((efb_var.language!='fa_IR' && (i.name!='AdnPPF') ) || efb_var.language=='fa_IR' ) value += createCardAddoneEfb(v)
     }

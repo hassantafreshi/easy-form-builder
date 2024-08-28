@@ -305,7 +305,7 @@ class Create {
 			//$efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
 			//require smsefb.php and call add_sms_contact_efb
 			$sms_exists = get_option('emsfb_addon_AdnSS', false);
-			if($sms_exists){
+			if($sms_exists !== false){
 				require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
 				$smsefb = new smssendefb();
 				$smsefb->add_sms_contact_efb(
