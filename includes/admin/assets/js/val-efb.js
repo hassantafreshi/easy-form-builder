@@ -932,6 +932,7 @@ function show_setting_window_efb(idset) {
                         ${classesEls}
                         ${disabledEls}
                         ${hiddenEls}
+                        ${efbActiveAutoFillEls ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
                         </div>
                     </div>
                 </div><div class="efb  clearfix"></div>
@@ -1046,7 +1047,8 @@ function show_setting_window_efb(idset) {
                         ${fun_el_select_in_efb(el.dataset.tag) ? selectHeightEls(idset,indx) : ''}               
                         ${classesEls}
                         ${disabledEls}
-                        ${hiddenEls}   
+                        ${hiddenEls}  
+                        ${efbActiveAutoFillEls ? efbActiveAutoFillEls(indx) : '<!--efb-->'} 
                         </div>
                     </div>
                     
@@ -1097,7 +1099,8 @@ function show_setting_window_efb(idset) {
                 ${el.dataset.tag == 'esign' ? btnColorEls(idset,indx) : ''}
                 ${el.dataset.tag == 'esign' ? SingleTextEls('',idset,indx) : ''}
                 ${disabledEls}
-                ${hiddenEls}     
+                ${hiddenEls}    
+                ${efbActiveAutoFillEls ? efbActiveAutoFillEls(indx) : '<!--efb-->'} 
                 </div>
             </div>
         </div><div class="efb  clearfix"></div>
@@ -1231,6 +1234,7 @@ function show_setting_window_efb(idset) {
                 ${classesEls}
                 ${disabledEls}
                 ${hiddenEls}
+                 ${efbActiveAutoFillEls ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
                 </div>
             </div>
         </div><div class="efb  clearfix"></div>
@@ -1404,6 +1408,7 @@ function show_setting_window_efb(idset) {
           ${valj_efb[0].type!="login" ?selectColorEls('clrdoneMessageEfb','text'):''}
           ${thankYouredirectEls}
           ${formTypeEls()}
+          ${efbActiveAutoFillEls ? efbActiveAutoFillEls(0) : '<!--efb-->'}
          <!-- content_colors_setting_efb() -->
           </div>
           </div>        

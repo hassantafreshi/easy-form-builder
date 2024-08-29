@@ -1358,6 +1358,9 @@ let change_el_edit_Efb = (el) => {
             
           }
         break;
+        case 'efbActiveAutoFill':
+          if (typeof fun_autofill_event_efb === 'function') fun_autofill_event_efb(el);
+        break;
       case "requiredEl":
         valj_efb[indx].required = el.classList.contains('active')==true ? 1 :0;
 

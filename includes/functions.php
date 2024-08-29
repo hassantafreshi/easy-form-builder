@@ -775,6 +775,11 @@ class efbFunction {
 			"yad" => $state  &&  isset($ac->text->yad) ? $ac->text->yad : esc_html__('You\'re all done',$s),
 			"servpss" => $state  &&  isset($ac->text->servpss) ? $ac->text->servpss : esc_html__('Enter your email address below, and we\'ll send you a link to reset your password.',$s),
 			"imvpwsy" => $state  &&  isset($ac->text->imvpwsy) ? $ac->text->imvpwsy : esc_html__('If your email is valid, a password reset link has been sent to your email address.',$s),
+			"enbl" => $state  &&  isset($ac->text->enbl) ? $ac->text->enbl : esc_html__('Enable %s',$s),
+			"atfll" => $state  &&  isset($ac->text->atfll) ? $ac->text->atfll : esc_html__('AutoFill',$s),
+			"atflldm" => $state  &&  isset($ac->text->atflldm) ? $ac->text->atflldm : esc_html__('Auto-fill by previously filled form',$s),
+			"atflltm" => $state  &&  isset($ac->text->atflltm) ? $ac->text->atflltm : esc_html__('Enable AutoFill to automatically fill this field',$s),
+
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s),
 			
 
@@ -1748,8 +1753,7 @@ class efbFunction {
 
 	public function check_for_active_plugins_cache() {
 		
-		$classes = [
-			'Aruba HiSpeed Cache'=>'aruba-hispeed-cache/aruba-hispeed-cache.php',			
+		$classes = [		
 			'Cache Enabler' => 'cache-enabler/cache-enabler.php',						
 			'Hyper Cache'=>'hyper-cache/plugin.php',
 		];
@@ -1885,8 +1889,8 @@ class efbFunction {
 		$active_plugins = get_option('active_plugins');
 		$plugin_list = [];
 		$cache_plugins_slug =['wp-optimize','hummingbird-performance', 'big-scoots-cache','wp-cloudflare-page-cache','breeze','jetpack','w3-total-cache','wp-fastest-cache',
-							  'wp-rocket','comet-cache','hyper-cache','cache-enabler','wp-super-cache','litespeed-cache','aruba-hispeed-cache','nitropack','jetpack-boost',
-							  'autoptimize','wp-rest-cache'];
+							  'wp-rocket','comet-cache','hyper-cache','cache-enabler','wp-super-cache','litespeed-cache','nitropack','jetpack-boost',
+							  'autoptimize','wp-rest-cache','speedycache','clear-cache-for-widgets'];
 		foreach ($plugins as $plugin_file => $plugin_data) {
 			$slug = explode('/', $plugin_file)[0];
 			$exists_cache = in_array($slug, $cache_plugins_slug); 
