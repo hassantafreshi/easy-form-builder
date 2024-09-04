@@ -64,6 +64,11 @@ class _Public {
 				'callback'=>  [$this,'set_rMessage_id_Emsfb_api'],
 				'permission_callback' => '__return_true'
 			]); 
+			register_rest_route('Emsfb/v1','autofill/get', [
+				'methods' => 'POST',
+				'callback'=>  [$this,'get_autofilled_list_efb'],
+				'permission_callback' => '__return_true'
+			]); 
 			register_rest_route('Emsfb/v1','forms/file/upload', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'file_upload_api'],
@@ -250,9 +255,16 @@ class _Public {
 				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
 				$smssendefb = new smssendefb() ; 
 			}
-				if($el_pro_load==true){
-					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
-				}
+
+			if($el_pro_load==true){
+				wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
+			}
+			//autofill_id
+			$auto_filled = strpos($value , '\"autofll\":\"1\"');
+			if($auto_filled){
+				wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+			}	
+
 				if($typeOfForm=="payment"){
 					$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 					$r = $this->setting;
@@ -2116,6 +2128,27 @@ class _Public {
 			wp_send_json_success($response,200);	
 		}
 	}//end function
+	
+
+	public function get_autofilled_list_efb($data_POST_) {
+		$data_POST = $data_POST_->get_json_params();
+		$fid = sanitize_text_field($data_POST['id']);
+		$sid = sanitize_text_field($data_POST['sid']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
+		$page_id = sanitize_text_field($data_POST['page_id']);
+		$cache_plugins = get_option('emsfb_cache_plugins');
+		if ($cache_plugins != '0') $this->cache_cleaner_Efb($page_id, $cache_plugins);
+		
+
+		require_once  EMSFB_PLUGIN_DIRECTORY . 'vendor/autofill/autofillefb.php';
+		//check if the class exists
+		$autofill = new autofillefb();
+		/* if (!class_exists('autofillefb')) {
+			$response = array('success' => false, 'm' => 'autofilled add-on not found');
+			wp_send_json_success($response, 200);
+		} */
+		$autofill->get_autofill_api_efb($data_POST ,$s_sid);
+	}	
 	public function send_email_Emsfb_($to, $track, $pro, $state, $link, $content = 'null', $sub = 'null') {
 		$homeUrl = home_url();
 		$blogName = get_bloginfo('name');
@@ -3172,6 +3205,7 @@ class _Public {
 		error_log('cache_cleaner_Efb');
 		$page_id = intval($page_id);
 		$cache_plugins = json_decode($plugins);
+		$page_type = get_post_type($page_id);
 		foreach($cache_plugins as $plugin){
 			error_log($plugin->slug);
 			switch($plugin->slug){
@@ -3245,8 +3279,8 @@ class _Public {
 				case 'wp-rest-cache':
 					//WP REST Cache
 					//https://wordpress.org/support/topic/does-this-custom-caching-code-interfere-with-wp-rest-cache/#post-17958451
-					$typPage = get_post_type($page_id);
-					if(class_exists('\WP_REST_Cache_Plugin\Includes\Caching\Caching')) \WP_REST_Cache_Plugin\Includes\Caching\Caching::get_instance()->delete_related_caches( $page_id, $typPage );
+					
+					if(class_exists('\WP_REST_Cache_Plugin\Includes\Caching\Caching')) \WP_REST_Cache_Plugin\Includes\Caching\Caching::get_instance()->delete_related_caches( $page_id, $page_type );
 				break;
 				case 'clear-cache-for-widgets':
 					if(function_exists('ccfm_clear_cache_for_me')){
@@ -3255,6 +3289,11 @@ class _Public {
 				break;
 				case 'speedycache':
 					if(class_exists('SpeedyCache\Delete')) \SpeedyCache\Delete::cache($page_id);
+				break;
+				case 'nitropack':
+					//nitropack_purge(NULL, “single:$postID”, $reason);
+					//get page type form $page_type
+					if(function_exists('nitropack_purge'))	nitropack_purge(NULL, "single:$page_id", 'Post Updated');
 				break;
 			}
 		}

@@ -2044,11 +2044,26 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
     if (color != "") addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`), color.length>6 ? color.slice(-6) : color, type, indexVJ);
   }
 }
-fun_offline_Efb = () => {
+async function fun_offline_Efb() {
+  console.log('fun_offline_Efb');
+  const find_by_value = (val) => {
+      console.log(val);
+      //remove all space        
+      //find in valj_efb by value
+      const index = valj_efb.findIndex(row => row.value === val);
+      if (index > -1) {
+          return valj_efb[index];
+      } else {
+          return false;
+      }
+  };
   let el = '';
   if(localStorage.hasOwnProperty('sendback')==false) return;
   const values =   JSON.parse(localStorage.getItem('sendback'))
+  console.log(values);
+  let temp, id;
   for (let value of values) {
+    console.log(value);
     sendBack_emsFormBuilder_pub.push(value);
     switch (value.type) {
       case 'email':
@@ -2064,9 +2079,13 @@ fun_offline_Efb = () => {
       case 'lastName':
       case 'prcfld':
         document.getElementById(value.id_ob).value = value.value;
+
+        el=value.type;
         break;
       case 'textarea':
         document.getElementById(value.id_ob).innerHTML = value.value;
+
+        el=value.type;
         break;
       case 'checkbox':
       case 'radio':
@@ -2074,16 +2093,66 @@ fun_offline_Efb = () => {
       case 'payRadio':
       case 'payRadio':
         document.getElementById(value.id_ob).checked = true;
+
+        el=value.type;
         break;
-      case 'paySelect':
-      case 'conturyList':
       case 'stateProvince':
+        if(el=='contury' ||el=='conturyList' ){
+            el = valj_efb.findIndex(x => x.id_ == value.id_);
+            id= valj_efb[el].id_;
+            console.log(id, temp, el, 'pubSelect',true);
+            //idField,iso2_country, indx_state,fieldType,autofilled=false
+            await callFetchStatesPovEfb(id+'_options', temp, el, 'pubSelect',true);
+          }
+        
+        el=value.type;
+        break;
+      case 'cityList':
+      case 'city':
+        if(el=='stateProvince' ||el=='stateProvinceList' ){
+            el = valj_efb.findIndex(x => x.id_ == value.id_);
+            id= valj_efb[el].id_;
+            let iso2_country ='GB';
+            let iso2_statePove = 'ENG';
+          
+            if(typeof autofilled_search_value_efb!== 'undefined'){
+              temp = sendBack_emsFormBuilder_pub.find(x => x.id_ == id);
+              console.log(id, temp, el, 'pubSelect',true);
+              iso2_country = temp.cont_;
+              iso2_statePove = temp.statePrev_;
+            }
+            console.log(id+'_options',iso2_country,iso2_statePove, el)
+            await callFetchCitiesEfb(id+'_options',iso2_country,iso2_statePove, el,'pubSelect',true); 
+            
+          }
+
+       el = value.type
+       break;
+      case 'paySelect':      
       case 'select':
+        
         document.getElementById(value.id_ob).value = value.value;
+
+        el=value.type;
+        break;
+        case 'conturyList':  
+        case 'contury':
+          console.log(value);
+          id = valj_efb.findIndex(x => x.id_ == value.id_);
+          el = find_by_value(value.value);
+          temp = el.id_op
+          
+          console.log(id,el,temp);
+          valj_efb[id].hasOwnProperty('contury') ? valj_efb[id].country = temp : Object.assign(valj_efb[id], { country: temp });
+          document.getElementById(value.id_ob).value = value.value;
+          console.log(valj_efb[id].country ,valj_efb[id] );
+          el=value.type;
         break;
       case 'multiselect':
       case 'payMultiselect':
+
         const op = document.getElementById(`${value.id_}_options`)
+        console.log(op);
         op.innerHTML = value.value.replaceAll('@efb!', ',');
         const vs = value.value.split('@efb!');
         for (let v of vs) {
@@ -2097,6 +2166,8 @@ fun_offline_Efb = () => {
             op.dataset.select = `${el.dataset.row} @efb!`
           }
         }
+
+        el=value.type;
         break;
       case 'esign':
         el = document.getElementById(`${value.id_}_`);
@@ -2106,6 +2177,8 @@ fun_offline_Efb = () => {
           ctx.drawImage(image, 0, 0);
         };
         image.src = value.value
+
+        el=value.type;
         break;
       case 'yesNo':
         el = document.querySelectorAll(`[data-lid='${value.id_}']`)
@@ -2114,9 +2187,12 @@ fun_offline_Efb = () => {
             op.className += 'active';
           }
         }
+
+        el=value.type;
         break;
       case 'switch':
         document.getElementById(value.id_ob).checked = value.value == "On" ? true : false;
+        el=value.type;
         break;
       case 'rating':
         if (value.value >= 1) document.getElementById(`${value.id_}-star1`).checked = true;
@@ -2124,6 +2200,7 @@ fun_offline_Efb = () => {
         if (value.value >= 3) document.getElementById(`${value.id_}-star3`).checked = true;
         if (value.value >= 4) document.getElementById(`${value.id_}-star4`).checked = true;
         if (value.value == 5) document.getElementById(`${value.id_}-star5`).checked = true;
+        el=value.type;
         break;
       case 'document':
         let s = value.url.split('/');
@@ -2132,11 +2209,29 @@ fun_offline_Efb = () => {
         el.className = `efb text-success efb fs-7 fw-bolder`;
         el.innerHTML = `${efb_var.text.uploadedFile}: ${s}`;
         if(!el.classList.contains('show'))el.classList.add('show');
+
+        el=value.type;
         break;
       case 'stripe':
       break;
       case 'persiaPay':
-        break;
+      break;
+      case 'mobile':
+        let v = value.value.split('+');
+        el = document.getElementById(value.id_ob+'_');
+        let storedPhoneNumber =value.value;
+        if(v.length==3){
+          storedPhoneNumber ='+'+ v[2];
+        }
+        const country =efb_var.wp_lan.split('_')[1].toUpperCase();
+        const iti = window.intlTelInput(el, {
+            initialCountry: country,
+            utilsScript:  efb_var.images.utilsJs
+        });
+        iti.setNumber(storedPhoneNumber);
+
+      el=value.type;
+      break;
     }
   }
   if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string"){

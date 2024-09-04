@@ -128,11 +128,32 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
       }
       return optn;
 }
-statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
+statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState,autofilled)=>{
     let optn ='<!--states-->'
     const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
     const iso_con = valj_efb[indx_parent].country;
+    check_autofilled =(id , i ,iso_con)=>{
+      let value = i.value;
+      let s2 = i.s2; 
+      let row= sendBack_emsFormBuilder_pub.findIndex(r=>r.id_==rndm);
+      console.log(id,value,row ,rndm,row.value)
+      //remove space
+      const row_value = sendBack_emsFormBuilder_pub[row].value.replace(/\s/g, '');
+      value = value.replace(/\s/g, '');    
+      let re =false;
+      if(row_value==value){
+        console.log(row_value,value,s2,iso_con)
+        re=true;
+        sendBack_emsFormBuilder_pub[row].hasOwnProperty('statePrev_') ? sendBack_emsFormBuilder_pub[row].statePrev_=s2 : Object.assign(sendBack_emsFormBuilder_pub[row], {statePrev_: s2})
+        sendBack_emsFormBuilder_pub[row].hasOwnProperty('cont_') ? sendBack_emsFormBuilder_pub[row].cont_=iso_con : Object.assign(sendBack_emsFormBuilder_pub[row], {cont_: iso_con})
+        console.log(sendBack_emsFormBuilder_pub[row])
+        if(sendBack_emsFormBuilder_pub[row].type=='cityList'){
+          sendBack_emsFormBuilder_pub[row].hasOwnProperty('city_') ? sendBack_emsFormBuilder_pub[row].city_=s2 : Object.assign(sendBack_emsFormBuilder_pub[row], {city_: s2})
+        }
+      }
+      return re
+    } 
     if (editState != false) {
         for (const i of optns_obj) {
           let value = i.value;
@@ -143,7 +164,13 @@ statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
               value = `<span class="efb">${i.n}</span>`
             }
           }
-          optn += `<option id="${i.id_}" value="${value}" data-iso="${i.s2}" data-isoc='${iso_con}'  data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${value}</option>`
+          //autofilled
+          let autofill_check='' ;
+          if(autofilled==true){ 
+            autofill_check=check_autofilled(i.id_,i,iso_con);
+           }
+          const selected = valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) || (autofill_check ) ? "selected" :''
+          optn += `<option id="${i.id_}" value="${value}" data-iso="${i.s2}" data-isoc='${iso_con}'  data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${selected}>${value}</option>`
         }//end for 
       } else {
           state_local=optns_obj;
@@ -640,7 +667,8 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
       if (iti.isValidNumber()) {
         document.getElementById(rndm+"_").classList.add("border-success");
         const mobile_no = document.getElementById(rndm+"_").value.replace(/^0+/, '')
-          let value = `+${iti.s.dialCode}${mobile_no}`;
+          let value = `+${iti.s.dialCode}${mobile_no}`;          
+          iVJ = valj_efb.findIndex(x=>x.id_==rndm);
           fun_sendBack_emsFormBuilder({ id_: valj_efb[iVJ].id_, name: valj_efb[iVJ].name, id_ob: valj_efb[iVJ].id_, amount: valj_efb[iVJ].amount, type: valj_efb[iVJ].type, value: value, session: sessionPub_emsFormBuilder });
       } else {
         document.getElementById(rndm+"_").classList.add("border-danger");
@@ -722,7 +750,8 @@ fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
   }   
     callFetchCitiesEfb(valj_efb[indx_state].id_+'_options', iso2_country,iso2_statePove, indx_state,'pubSelect');
 }
-async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_state,fieldType ) {
+async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_state,fieldType,autofilled=false) {
+  console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled)
   let state_el= document.getElementById(idField)
   if(state_el!=null){
   state_el.innerHTML = "";
@@ -730,6 +759,23 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
   state_el.classList.add('is-loading');
   state_el.disabled=true;
   }
+
+  if(autofilled){
+    const id_valj = valj_efb[indx_state].id_;
+    const s_index =  sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==id_valj);
+    console.log('s_index',s_index)
+    if(s_index!=-1){
+      const row_sb = sendBack_emsFormBuilder_pub[s_index-1];
+      console.log('s_index',row_sb ,  s_index-1>1 , row_sb.type==='stateProvince')
+        if(s_index-1>1 && row_sb.type==='stateProvince'){ 
+        iso2_country = row_sb.cont_;
+        iso2_statePove = row_sb.statePrev_
+        console.log('iso2_country',iso2_country,iso2_statePove)
+        }
+    }
+
+  }
+  console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled)
   let result = await  fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`)
   if(result.s==false){
     alert_message_efb('',efb_var.text.offlineSend,5,'danger')
@@ -741,6 +787,22 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
       valj_efb.splice(i,1);
       i--;
     }
+  }
+
+  if(autofilled){
+    const id_valj = valj_efb[indx_state].id_;
+    const s_index =  sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==id_valj);
+    console.log('s_index',s_index)
+    if(s_index!=-1){
+      const row_sb = sendBack_emsFormBuilder_pub[s_index-1];
+      console.log('s_index',row_sb ,  s_index-1>1 , row_sb.type==='cityList')
+        if(s_index-1>1 && row_sb.type==='stateProvince'){ 
+        iso2_country = row_sb.cont_;
+        iso2_statePove = row_sb.statePrev_
+        console.log('iso2_country',iso2_country,iso2_statePove)
+        }
+    }
+
   }
   for (const key in result.r) {
     const n = efb_remove_forbidden_chrs(result.r[key].n);
@@ -769,12 +831,14 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
           "l": l,
       });
     }else if(fieldType=="getCitiesEfb"){
-      opt +=`<option value="${id.toLowerCase()}" ${ id.toLowerCase()==valj_efb[indx_state].statePov.toLowerCase() ? `selected` : ''}>${value}</option>`
+      const selected = id.toLowerCase()==valj_efb[indx_state].statePov.toLowerCase()  ? 'selected' : '';
+      opt +=`<option value="${id.toLowerCase()}" ${selected}>${value}</option>`
     }
   }
   if(fieldType=="pubSelect"){
+
     Object.assign(valj_efb[indx_state],{'linked':true});
-     opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true);
+     opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true,autofilled);
   }
   if(state_el!=null){
     state_el.innerHTML='';
@@ -813,7 +877,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
     //console.log('get_states_efb')
     callFetchStatesPovEfb(valj_efb[indx_state].id_+'_options', iso2_country, indx_state,'pubSelect');
 }
-async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType ) {  
+async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,autofilled=false) {  
   let state_el= document.getElementById(idField)
   if(state_el!=null){
   state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
@@ -858,7 +922,7 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
   }
   if(fieldType=="pubSelect"){
      Object.assign(valj_efb[indx_state],{'linked':true});
-     opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true);
+     opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true,autofilled);
   }
   if(state_el!=null){
     state_el.innerHTML=opt;
@@ -874,7 +938,7 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
 
   
  const f= document.getElementById(idField)
- if(f!=null && f.dataset.hasOwnProperty("vid")){
+ if(f!=null && f.dataset.hasOwnProperty("vid") && autofilled==false){
   const id = f.dataset.vid;
   //remove from sendBack_emsFormBuilder_pub if id_ == id
   //check sendBack_emsFormBuilder_pub exist

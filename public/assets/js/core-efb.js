@@ -198,6 +198,8 @@ function fun_sendBack_emsFormBuilder(ob) {
     }else if(ob.type == "r_matrix"){  
       indx = sendBack_emsFormBuilder_pub.findIndex( x => x!=null && x.hasOwnProperty('id_ob') && x.id_ob === ob.id_ob);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub[indx]=ob;
+    }else if(indx != -1 && ob.type == "mobile" ){
+      ob.value= ob.value.replace(/^(\+\d+)\1/, '$1');
     } else {
       if (indx == -1) { sendBack_emsFormBuilder_pub.push(ob) } else {
         if (typeof ob.price != "string") {

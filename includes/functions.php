@@ -1178,35 +1178,20 @@ class efbFunction {
 		
 		foreach ($valp as $key => $val) {
 			$type = $val['type'];
-			foreach ($val as $k => $v) {
+			foreach ($val as $k => $v) {				
 				switch ($k) {
 					case 'value':
 						$type =strtolower($type);
-						
-						
-						
-						
-						
 						if( (gettype($v)!="array" || gettype($v)!="object" ) && preg_match("/multi/i", $type)==false
-						&& (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){
-							    
-								
+						&& (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){	
 							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;	
 						}else if ( preg_match("/checkbox/i", $type)==true || preg_match("/multi/i", $type)==true ||gettype($v)=="array" || gettype($v)=="object"){
-								
-								
-								if(gettype($v)=="string") break;
+							if(gettype($v)=="string") break;
 							foreach ($v as $ki => $va) {
-								# code...
 								$v[$ki]=sanitize_text_field($va);
-								
-								
 							}
 							$valp[$key][$k] =$v;
 						}else{
-							//$valp[$key][$k]=sanitize_text_field($v);
-							
-								
 							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;
 						}
 								
@@ -1234,33 +1219,28 @@ class efbFunction {
 						$valp[$key][$k]['trackingCode']=sanitize_text_field( $v['trackingCode']);
 						$valp[$key][$k]['pleaseFillInRequiredFields']=sanitize_text_field( $v['pleaseFillInRequiredFields']);
 					break;
-					case 'c_c':			
-						
+					case 'autofill_conditions':
 						foreach ($valp[$key][$k] as $kei => $value) {
-							# code...							
+							foreach ($value as $ke => $va) {
+								$ke =sanitize_text_field($ke);
+								$valp[$key][$k][$kei][$ke]=sanitize_text_field($va);								
+							}
+						}						
+					break;
+					case 'c_c':			
+						foreach ($valp[$key][$k] as $kei => $value) {						
 							$valp[$key][$k][$kei] = sanitize_text_field($value);
 						}
-						//$valp[$key][$k]= $key!=0 && $k!="c_c" ||  $valp[$key][$k]= $key!=0 && $k!="c_n" ?
 						break;
-						case 'c_n':
-							
-							
-							foreach ($valp[$key][$k] as $kei => $value) {
-								# code...
-								
-								
-								
+						case 'c_n':														
+							foreach ($valp[$key][$k] as $kei => $value) {								
 								$valp[$key][$k][$kei] = sanitize_text_field($value);
 							}
-							//$valp[$key][$k]= $key!=0 && $k!="c_c" ||  $valp[$key][$k]= $key!=0 && $k!="c_n" ?
 							break;
 					case 'id':
 						$valp[$key][$k]= sanitize_text_field($valp[$key][$k]);
 						if(strlen($valp[$key][$k])<1) break;
-						
-						
-						
-						
+
 						if($valp[$key]['type']=="option"){
 							
 							foreach ($valp as $ki => $vl) {
@@ -1270,33 +1250,15 @@ class efbFunction {
 								if($vl['id_']!=$valp[$key]['parent']){
 									continue;
 								}
-								
-								
-								
-								
 								foreach ($vl as $kii => $vll) {
-									//value
-									
 									if($kii!="value") continue;
-									
 									if(gettype($vll)!="array" && gettype($vll)!="object" ){
 										if($vll==$valp[$key]['id_'])$vll=$valp[$key][$k];
 									}else{
 										foreach ($vll as $ke => $vn) {
-											
-											
-											# code...
-											//$vll[$ke]=sanitize_text_field($va);
-											if($vn==$valp[$key]['id_']) {
-												
-												
-												$valp[$ki][$kii][$ke] =$valp[$key][$k];
-												
-												
+											if($vn==$valp[$key]['id_']) {												
+												$valp[$ki][$kii][$ke] =$valp[$key][$k];												
 											}
-
-											
-											
 										}
 									}
 									
@@ -1314,6 +1276,7 @@ class efbFunction {
 						$valp[$key][$k]=$v;
 					break;
 					default:
+					$k =sanitize_text_field($k);					
 					$valp[$key][$k]=sanitize_text_field($v);
 					
 					break;
@@ -1634,11 +1597,11 @@ class efbFunction {
     public function efb_code_validate_select($sid ,$fid) {
 		
 		
-		 
+		$fid = intval($fid);
 		$table_name = $this->db->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
         $date_now = date('Y-m-d H:i:s');
-        $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s", $sid, $date_now,$fid);
+        $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %d", $sid, $date_now,$fid);
 		
         $result =$this->db->get_var($query);
 		
