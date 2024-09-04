@@ -2468,7 +2468,7 @@ function event_selected_row_emsFormBuilder(state){
       // console.log(foundIndex);
       if (foundIndex != -1) valueJson_ws_messages[foundIndex].read_ = "1";
     }   
-    console.error(valueJson_ws_messages);
+    //console.error(valueJson_ws_messages);
     setTimeout(() => {
       fun_ws_show_list_messages(valueJson_ws_messages)
     }, 1000);

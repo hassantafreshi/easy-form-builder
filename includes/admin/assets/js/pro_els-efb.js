@@ -137,17 +137,17 @@ statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState,autofilled)=>{
       let value = i.value;
       let s2 = i.s2; 
       let row= sendBack_emsFormBuilder_pub.findIndex(r=>r.id_==rndm);
-      console.log(id,value,row ,rndm,row.value)
+      //console.log(id,value,row ,rndm,row.value)
       //remove space
       const row_value = sendBack_emsFormBuilder_pub[row].value.replace(/\s/g, '');
       value = value.replace(/\s/g, '');    
       let re =false;
       if(row_value==value){
-        console.log(row_value,value,s2,iso_con)
+        //console.log(row_value,value,s2,iso_con)
         re=true;
         sendBack_emsFormBuilder_pub[row].hasOwnProperty('statePrev_') ? sendBack_emsFormBuilder_pub[row].statePrev_=s2 : Object.assign(sendBack_emsFormBuilder_pub[row], {statePrev_: s2})
         sendBack_emsFormBuilder_pub[row].hasOwnProperty('cont_') ? sendBack_emsFormBuilder_pub[row].cont_=iso_con : Object.assign(sendBack_emsFormBuilder_pub[row], {cont_: iso_con})
-        console.log(sendBack_emsFormBuilder_pub[row])
+        //console.log(sendBack_emsFormBuilder_pub[row])
         if(sendBack_emsFormBuilder_pub[row].type=='cityList'){
           sendBack_emsFormBuilder_pub[row].hasOwnProperty('city_') ? sendBack_emsFormBuilder_pub[row].city_=s2 : Object.assign(sendBack_emsFormBuilder_pub[row], {city_: s2})
         }
@@ -751,7 +751,7 @@ fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
     callFetchCitiesEfb(valj_efb[indx_state].id_+'_options', iso2_country,iso2_statePove, indx_state,'pubSelect');
 }
 async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_state,fieldType,autofilled=false) {
-  console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled)
+  //console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled)
   let state_el= document.getElementById(idField)
   if(state_el!=null){
   state_el.innerHTML = "";
@@ -763,26 +763,26 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
   if(autofilled){
     const id_valj = valj_efb[indx_state].id_;
     const s_index =  sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==id_valj);
-    console.log('s_index',s_index)
+    //console.log('s_index',s_index)
     if(s_index!=-1){
       const row_sb = sendBack_emsFormBuilder_pub[s_index-1];
-      console.log('s_index',row_sb ,  s_index-1>1 , row_sb.type==='stateProvince')
+      //console.log('s_index',row_sb ,  s_index-1>1 , row_sb.type==='stateProvince')
         if(s_index-1>1 && row_sb.type==='stateProvince'){ 
         iso2_country = row_sb.cont_;
         iso2_statePove = row_sb.statePrev_
-        console.log('iso2_country',iso2_country,iso2_statePove)
+        //console.log('iso2_country',iso2_country,iso2_statePove)
         }
     }
 
   }
-  console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled)
+  //console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled)
   let url = `https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`;
   if(setting_emsFormBuilder.AdnOFc==true){
      url =efb_var.images.plugin_url+ `/vendor/offline/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`;
      //exclude first two duble slashes  
      url =url.replaceAll('//vendor','/vendor');
     }
-   console.log('url',url);
+   //console.log('url',url);
   let result = await  fetch_json_from_url_efb(url)
   if(result.s==false){
     alert_message_efb('',efb_var.text.offlineSend,5,'danger')
@@ -799,14 +799,14 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
   if(autofilled){
     const id_valj = valj_efb[indx_state].id_;
     const s_index =  sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==id_valj);
-    console.log('s_index',s_index)
+    //console.log('s_index',s_index)
     if(s_index!=-1){
       const row_sb = sendBack_emsFormBuilder_pub[s_index-1];
-      console.log('s_index',row_sb ,  s_index-1>1 , row_sb.type==='cityList')
+      //console.log('s_index',row_sb ,  s_index-1>1 , row_sb.type==='cityList')
         if(s_index-1>1 && row_sb.type==='stateProvince'){ 
         iso2_country = row_sb.cont_;
         iso2_statePove = row_sb.statePrev_
-        console.log('iso2_country',iso2_country,iso2_statePove)
+        //console.log('iso2_country',iso2_country,iso2_statePove)
         }
     }
 
@@ -896,7 +896,7 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
     url =efb_var.images.plugin_url+ `/vendor/offline/json/states/${iso2_country.toLowerCase()}.json`;
     url =url.replaceAll('//vendor','/vendor');
    }
-   console.log('url',url);
+   //console.log('url',url);
   let result = await  fetch_json_from_url_efb(url)
   if(result.s==false){
     alert_message_efb('',efb_var.text.offlineSend,5,'danger')

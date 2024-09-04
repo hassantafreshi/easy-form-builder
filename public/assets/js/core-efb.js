@@ -1196,8 +1196,8 @@ smoothy_scroll_postion_efb=(id)=>{
   // استخراج استک از شیء Error
   const stack = error.stack || '';
 
-  console.log(`smoothy_scroll_postion_efb[${id}]`);
-  console.log('Call stack:', stack);
+  //console.log(`smoothy_scroll_postion_efb[${id}]`);
+  //console.log('Call stack:', stack);
 
   /* End debug section JUSt For test */
 
@@ -1213,7 +1213,7 @@ smoothy_scroll_postion_efb=(id)=>{
       behavior: 'smooth'
     });
   } else {
-    console.log('Element not found');
+    //console.log('Element not found');
   }
 
 }
@@ -1228,16 +1228,16 @@ setTimeout(() => {
   if (sourceElement && targetElement) {
     // دریافت ارتفاع منبع
     const sourceHeight = sourceElement.offsetHeight;
-    console.log('Source Height:', sourceHeight);
+    //console.log('Source Height:', sourceHeight);
     
     // تنظیم ارتفاع عنصر هدف
    // targetElement.style.minHeight = `${sourceHeight}px`;
     if(sourceElement.offsetHeight<300 && sourceElement.offsetWidth<300 ){
-      console.log('added auto overflow');
+      //console.log('added auto overflow');
       //+ این تابع بروز شود و وقتی که سایز عنصر اصلی کمتر از 300 است بود به تناسب اندازه های مربوط به استپ آخر کم شود مثل لودینگ یا پاسخ سرور
       /* targetElement.style.overflow='auto' */
     }
   } else {
-    console.log('One or both elements not found');
+    //console.log('One or both elements not found');
   }
 }, 5000);

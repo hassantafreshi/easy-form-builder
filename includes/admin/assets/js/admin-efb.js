@@ -911,7 +911,7 @@ function create_form_by_type_emsfb(id, s) {
   }
  
   formName_Efb = form_type_emsFormBuilder
-  console.log(valj_efb)
+  //console.log(valj_efb)
   if (s == "npreview") {
     creator_form_builder_Efb();
     
@@ -1337,7 +1337,7 @@ let change_el_edit_Efb = (el) => {
             clss = false;
             for(let v of valj_efb){
                 if(v.hasOwnProperty('noti') && Number(v.noti) ==1){
-                  console.log(v.id_)
+                  //console.log(v.id_)
                   valj_efb[0].sendEmail=true;
                   clss=true
                 }
@@ -1434,7 +1434,7 @@ let change_el_edit_Efb = (el) => {
           if(valj_efb[0].email.length<2){
             for(let v of valj_efb){
                 if(v.hasOwnProperty('noti') && Number(v.noti) ==1){
-                  console.log(v.id_)
+                  //console.log(v.id_)
                   valj_efb[0].sendEmail=true;
                   clss=true
                 }else{
@@ -1446,7 +1446,7 @@ let change_el_edit_Efb = (el) => {
           }else{
             clss=true;
           }
-          console.log(`clss[${clss}]`);
+          //console.log(`clss[${clss}]`);
           if(clss==false) valj_efb[0].sendEmail=false;
           
         } else {
@@ -3757,7 +3757,7 @@ fun_efb_add_el = (t) => {
       //show noti alert message 
       const el = valj_efb[indx];
       setTimeout(() => {
-        console.log('error messsage maps',el.id_);
+        //console.log('error messsage maps',el.id_);
         document.getElementById(el.id_+'-f').innerHTML = `
         <div class="efb border border-muted rounded-3 m-2 text-center efb p-3" id="${el.id_}_noCode">
          <h6 class="efb text-darkb">${efb_var.text.aPIkeyGoogleMapsError}</h5>
@@ -4686,20 +4686,20 @@ function efbLatLonLocation(efbMapId, lat, long ,zoom) {
 function heartbeat_Emsfb() {
   // Your code here
   data = {};
-  console.log('Old nonce', efb_var.nonce);
+  //console.log('Old nonce', efb_var.nonce);
   jQuery(function ($) {
     data = {
       action: "heartbeat_Emsfb",
       nonce: efb_var.nonce,
     };
     $.post(ajaxurl, data, function (res) {
-      console.log(res)
+      //console.log(res)
       if (res.success == true) {
         
         efb_var.nonce = res.data.newNonce;
-        console.log('new nonce', efb_var.nonce);
+        //console.log('new nonce', efb_var.nonce);
       } else {
-        console.log(res.data);
+        //console.log(res.data);
       }
     })
 
@@ -4720,7 +4720,7 @@ function report_problem_efb(state ,value){
       if (res.success == true) {
      
       } else {
-        console.log(res.data);
+        //console.log(res.data);
       }
     })
 
@@ -4728,18 +4728,18 @@ function report_problem_efb(state ,value){
 }
 
 fun_observer_state_efb=(mutation)=>{
-  console.log('Child node added or removed');
+  //console.log('Child node added or removed');
   noti_check =()=>{
     for (const el of document.querySelectorAll(".update-nag, .nf-admin-notice, .notice")) {
-      console.log(el);
+      //console.log(el);
       if(!el.classList.contains('efb')) el.remove();
     }
   }
   if (mutation.type === 'childList') {
-    console.log('Child nodes added or removed');
-    console.log('Added nodes:', mutation.addedNodes);
-    console.log('Added nodes:', mutation.addedNodes.classList);
-    console.log('Removed nodes:', mutation.removedNodes);
+    //console.log('Child nodes added or removed');
+    //console.log('Added nodes:', mutation.addedNodes);
+    //console.log('Added nodes:', mutation.addedNodes.classList);
+    //console.log('Removed nodes:', mutation.removedNodes);
     noti_check();
        /*  mutation.addedNodes.forEach(node => {
           
@@ -4756,8 +4756,8 @@ fun_observer_state_efb=(mutation)=>{
       }) */
   }
   if (mutation.type === 'attributes') {
-      console.log('Attribute modified:', mutation.attributeName);
-      console.log('New attribute value:', mutation.target.getAttribute(mutation.attributeName));
+      //console.log('Attribute modified:', mutation.attributeName);
+      //console.log('New attribute value:', mutation.target.getAttribute(mutation.attributeName));
   }
  
 }

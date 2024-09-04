@@ -642,7 +642,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
        optn =valj_efb.findIndex(x=>x.id_=='Antrim_Newtownabbey');
         temp=false
     if (editState==false && optn==-1) { 
-      console.error(optn,valj_efb.findIndex(x=>x.id_=='Antrim_Newtownabbey'));
+      //console.error(optn,valj_efb.findIndex(x=>x.id_=='Antrim_Newtownabbey'));
       valj_efb[iVJ].country = "GB";
       valj_efb[iVJ].statePov = "Antrim_Newtownabbey";
       valj_efb.push(     
@@ -1967,7 +1967,7 @@ function fun_validation_efb() {
     if(typeof smoothy_scroll_postion_efb === 'function'){
       smoothy_scroll_postion_efb(idi)
     }else{
-      console.log('fun_validation_efb 1972')
+      //console.log('fun_validation_efb 1972')
       document.getElementById(idi).scrollIntoView({behavior: "smooth", block: "center", inline: "center"}); 
     }
   }
@@ -2045,9 +2045,9 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
   }
 }
 async function fun_offline_Efb() {
-  console.log('fun_offline_Efb');
+  //console.log('fun_offline_Efb');
   const find_by_value = (val) => {
-      console.log(val);
+      //console.log(val);
       //remove all space        
       //find in valj_efb by value
       const index = valj_efb.findIndex(row => row.value === val);
@@ -2060,10 +2060,10 @@ async function fun_offline_Efb() {
   let el = '';
   if(localStorage.hasOwnProperty('sendback')==false) return;
   const values =   JSON.parse(localStorage.getItem('sendback'))
-  console.log(values);
+  //console.log(values);
   let temp, id;
   for (let value of values) {
-    console.log(value);
+    //console.log(value);
     sendBack_emsFormBuilder_pub.push(value);
     switch (value.type) {
       case 'email':
@@ -2100,7 +2100,7 @@ async function fun_offline_Efb() {
         if(el=='contury' ||el=='conturyList' ){
             el = valj_efb.findIndex(x => x.id_ == value.id_);
             id= valj_efb[el].id_;
-            console.log(id, temp, el, 'pubSelect',true);
+            //console.log(id, temp, el, 'pubSelect',true);
             //idField,iso2_country, indx_state,fieldType,autofilled=false
             await callFetchStatesPovEfb(id+'_options', temp, el, 'pubSelect',true);
           }
@@ -2117,11 +2117,11 @@ async function fun_offline_Efb() {
           
             if(typeof autofilled_search_value_efb!== 'undefined'){
               temp = sendBack_emsFormBuilder_pub.find(x => x.id_ == id);
-              console.log(id, temp, el, 'pubSelect',true);
+              //console.log(id, temp, el, 'pubSelect',true);
               iso2_country = temp.cont_;
               iso2_statePove = temp.statePrev_;
             }
-            console.log(id+'_options',iso2_country,iso2_statePove, el)
+            //console.log(id+'_options',iso2_country,iso2_statePove, el)
             await callFetchCitiesEfb(id+'_options',iso2_country,iso2_statePove, el,'pubSelect',true); 
             
           }
@@ -2137,22 +2137,22 @@ async function fun_offline_Efb() {
         break;
         case 'conturyList':  
         case 'contury':
-          console.log(value);
+          //console.log(value);
           id = valj_efb.findIndex(x => x.id_ == value.id_);
           el = find_by_value(value.value);
           temp = el.id_op
           
-          console.log(id,el,temp);
+          //console.log(id,el,temp);
           valj_efb[id].hasOwnProperty('contury') ? valj_efb[id].country = temp : Object.assign(valj_efb[id], { country: temp });
           document.getElementById(value.id_ob).value = value.value;
-          console.log(valj_efb[id].country ,valj_efb[id] );
+          //console.log(valj_efb[id].country ,valj_efb[id] );
           el=value.type;
         break;
       case 'multiselect':
       case 'payMultiselect':
 
         const op = document.getElementById(`${value.id_}_options`)
-        console.log(op);
+        //console.log(op);
         op.innerHTML = value.value.replaceAll('@efb!', ',');
         const vs = value.value.split('@efb!');
         for (let v of vs) {
@@ -2438,7 +2438,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
         } else {
           const m = data.data.hasOwnProperty('file') ? data.data.file.error : data.data.m;
           const el = document.getElementById(idB);
-          console.error(m);
+          //console.error(m);
           alert_message_efb('', m, 30, 'danger');
           if(el==null) return;
           el.style.width = '0%';
