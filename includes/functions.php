@@ -1419,7 +1419,7 @@ class efbFunction {
 				$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
 				if(is_wp_error($s)){
 				
-					error_log('EFB=>unzip addons error 1:');
+					//error_log('EFB=>unzip addons error 1:');
 					//error_log(json_encode($r));
 					return false;
 				}
@@ -1432,7 +1432,7 @@ class efbFunction {
 				
 					
 					
-					error_log('EFB=>unzip addons error 2:');
+					//error_log('EFB=>unzip addons error 2:');
 					//error_log(json_encode($r));
 					return false;
 				}
@@ -1660,7 +1660,7 @@ class efbFunction {
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
 		$sms_exists =get_option('emsfb_addon_AdnSS',false);
 		if(!$sms_exists){
-			error_log('Easy Form Builder: SMS Addon is not installed');
+			//error_log('Easy Form Builder: SMS Addon is not installed');
 			return false;
 		}
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
@@ -1819,7 +1819,7 @@ class efbFunction {
 			return true;
         } else {
             
-            error_log('recaptcha google URL is not accessible.');
+            //error_log('recaptcha google URL is not accessible.');
 			return false;
         }
     }
@@ -1877,17 +1877,17 @@ class efbFunction {
 
 
 	public function make_post_request_efb( $ac) {
-		error_log('EFB=>make_post_requestefb ac: ' . $ac);
+		//error_log('EFB=>make_post_requestefb ac: ' . $ac);
 		$url = 'https://demo.whitestudio.team/wp-json/wl/v1/pro/key';
 		$url = 'http://127.0.0.1/ws/wp-json/wl/v1/pro/key';
-		error_log('EFB=>make_post_requestefb url: ' . $url);
+		//error_log('EFB=>make_post_requestefb url: ' . $url);
 
 		//check internet connection
 		/* $connected = @fsockopen("www.whitestudio.team", 80);
 		if (!$connected) { */
 		$connected = wp_remote_post('https://www.whitestudio.team', array('timeout' => 2));
 		if (is_wp_error($connected)) {
-			error_log('not connected');
+			//error_log('not connected');
 			$s = explode('@', $ac)[0];
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 			$r= isset($s) && md5($server_name) == $s ? (object)['r' => true , 'state' => 'active','pakcage'=>1]   : (object)['r' => false , 'state' => 'notExists' ];
@@ -1918,7 +1918,7 @@ class efbFunction {
 		);
 		$response = wp_remote_post($url, $options);
 		if (is_wp_error($response)) {
-			error_log('EFB=>make_post_requestefb: ' . json_encode($response));
+			//error_log('EFB=>make_post_requestefb: ' . json_encode($response));
 			return false;
 		}
 		$body = wp_remote_retrieve_body($response);
@@ -1931,10 +1931,10 @@ class efbFunction {
 		update_option('emsfb_pro', 1);
 		update_option('emsfb_pro_activeCode', $code);
 		$json = $this->make_post_request_efb($code);
-		error_log('EFB=>update_pro_status_efb: ' . json_encode($json));
+		//error_log('EFB=>update_pro_status_efb: ' . json_encode($json));
 		//{"r":true,"state":"new","key":"f528764d624db129b32c21fbca0cb8d6@iZPLjo","smsStatus":false,"smsDeposited":0}
 		$r = $json->r;
-		error_log('EFB=>update_pro_status_efb r: ' . $r);
+		//error_log('EFB=>update_pro_status_efb r: ' . $r);
 		if($r===false) {
 			delete_option('emsfb_pro');
 			delete_option('emsfb_pro_ac_date');
@@ -1946,7 +1946,7 @@ class efbFunction {
 		//}
 		$state =$json->state;
 		if($state=="new") {
-			error_log('EFB=>update_pro_status_efb state: new');
+			//error_log('EFB=>update_pro_status_efb state: new');
 			$activeCode = $json->key;
 			update_option('emsfb_pro_activeCode', $activeCode);
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
@@ -1957,7 +1957,7 @@ class efbFunction {
 			return true;
 		}elseif($state=="active") {
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));	
-			error_log('EFB=>update_pro_status_efb state: date='.get_option('emsfb_pro_ac_date'));
+			//error_log('EFB=>update_pro_status_efb state: date='.get_option('emsfb_pro_ac_date'));
 			return true;
 		}elseif ($state=="deactive") {
 			update_option('emsfb_pro' , 0);
@@ -1974,14 +1974,14 @@ class efbFunction {
 
 	public function weekly_check_pro_efb($activeCode) {
 		$ac_date = get_option('emsfb_pro_ac_date');
-		error_log('EFB=>weekly_check_pro_efb: date' . $ac_date);
+		//error_log('EFB=>weekly_check_pro_efb: date' . $ac_date);
 		$ac_date = strtotime($ac_date);
-		error_log('EFB=>weekly_check_pro_efb: ' . $ac_date);
+		//error_log('EFB=>weekly_check_pro_efb: ' . $ac_date);
 		$now = strtotime(date('Y-m-d H:i:s'));
 		$diff = ($now - $ac_date) / (60 * 60 * 24);
-		error_log('EFB=>weekly_check_pro_efb: before if' . $diff);
+		//error_log('EFB=>weekly_check_pro_efb: before if' . $diff);
 		if ($diff > 7) {
-			error_log('EFB=>weekly_check_pro_efb: in if' . $diff);
+			//error_log('EFB=>weekly_check_pro_efb: in if' . $diff);
 			// Make an API request to check the activeCode
 			// Assume the API request is successful for demonstration
 			// API get a json include key:true or false , smsStatus:true or false, smsDeposited: Number (USD currency)
@@ -2009,7 +2009,7 @@ class efbFunction {
 			
 		if ($s == 1) {	
 			$is_pro =get_option('Emsfb_pro' ,2);
-			error_log('EFB=>is_efb_pro is_pro: ' . $is_pro);
+			//error_log('EFB=>is_efb_pro is_pro: ' . $is_pro);
 			if($is_pro == 0){ return false; }
 
 			$activeCode = get_option('emsfb_pro_activeCode');	
@@ -2037,13 +2037,13 @@ class efbFunction {
 
 			$ac = explode('@', $activeCode)[0];
 			if(validated($ac)){
-				//error_log('EFB=>is_efb_pro validated: ' . $s);
+				////error_log('EFB=>is_efb_pro validated: ' . $s);
 				return $this->weekly_check_pro_efb($activeCode);
 			}
 			delete_option('emsfb_pro');
 			return false;
 		} else {
-			error_log('EFB=>is_efb_pro: else ' . $s);
+			//error_log('EFB=>is_efb_pro: else ' . $s);
 			$activeCode = explode('@', $s)[0];
 			if (validated($activeCode)) {
 					return $this->update_pro_status_efb($s);

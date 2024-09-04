@@ -307,7 +307,7 @@ class Admin {
             // اگر لینک دانلود داشت
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $name_space ='emsfb_addon_'.$value;
-           error_log($name_space);
+           //error_log($name_space);
             $vwp = get_bloginfo('version');
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
             if(get_locale()=='fa_IR'){
@@ -976,7 +976,7 @@ class Admin {
                     WP_Filesystem();
                     $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
                     if(is_wp_error($r)){
-                        error_log('error unzip');
+                        //error_log('error unzip');
                         //error_log(json_encode($r));
                         return false;
                     }
@@ -1215,7 +1215,7 @@ class Admin {
             wp_register_style('Font_Roboto', $font_url);
             wp_enqueue_style('Font_Roboto');
         } else {
-            error_log('Font Roboto URL is not accessible.');
+            //error_log('Font Roboto URL is not accessible.');
         }
     }
     public function heartbeat_Emsfb(){
@@ -1232,7 +1232,7 @@ class Admin {
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
         }
-       error_log('report_problem_Emsfb');
+       //error_log('report_problem_Emsfb');
         $state = sanitize_text_field($_POST['state']) ;
         $value = sanitize_text_field($_POST['value']) ;
         $this->get_efbFunction(0);

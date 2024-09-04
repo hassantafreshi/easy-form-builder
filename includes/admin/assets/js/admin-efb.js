@@ -2513,8 +2513,13 @@ let change_el_edit_Efb = (el) => {
           el.classList.add('is-loading');
           
           document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
-          
-          fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${valj_efb[indx].country.toLowerCase()}.json`);
+           //.AdnOF
+           let url = `https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${valj_efb[indx].country.toLowerCase()}.json`;
+           if(efb_var.setting.hasOwnProperty('AdnOF') && efb_var.setting.AdnOF==true){
+            url =efb_var.images.plugin_url+`/vendor/offline/json/states/${valj_efb[indx].country.toLowerCase()}.json`;
+             url = url.replaceAll('//vendor','/vendor');
+          }
+          fetch_json_from_url_efb(url);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
           setTimeout(() => {
@@ -2572,7 +2577,13 @@ let change_el_edit_Efb = (el) => {
           el.classList.add('is-loading');
           
           document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
-          fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${temp}/${valj_efb[indx].statePov}.json`);
+          let url = `https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${temp}/${valj_efb[indx].statePov}.json`;
+          //.AdnOF
+          if(efb_var.setting.hasOwnProperty('AdnOF') && efb_var.setting.AdnOF==true){
+            url =efb_var.images.plugin_url+'/vendor/offline/json/cites/'+temp+'/'+valj_efb[indx].statePov+'.json';
+            url = url.replaceAll('//vendor','/vendor');
+          }
+          fetch_json_from_url_efb(url);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
 

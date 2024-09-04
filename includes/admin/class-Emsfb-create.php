@@ -176,11 +176,15 @@ class Create {
 						return 0;
 					}
 				}
+				$url ='https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js';
+				if(isset($ac->AdnOF) && $ac->AdnOF==1){
+					$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
+				}
 			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),'3.8.1',true);	
 			wp_enqueue_script('jquery-ui-efb');
 			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),'3.8.1',true);	
 			wp_enqueue_script('jquery-dd-efb'); 
-			wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);	
+			wp_register_script('countries-js', $url, null, null, true);	
 			wp_enqueue_script('countries-js');
 			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);	
 			wp_enqueue_script('intlTelInput-js');
@@ -197,6 +201,7 @@ class Create {
 		"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif',
 		'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js',
 		'logoGif'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/efb-256.gif',
+		'plugin_url'=>EMSFB_PLUGIN_URL,
 		];
 		$smtp =-1;
 		$captcha =false;

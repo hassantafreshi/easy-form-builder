@@ -776,7 +776,14 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
 
   }
   console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled)
-  let result = await  fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`)
+  let url = `https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`;
+  if(setting_emsFormBuilder.AdnOFc==true){
+     url =efb_var.images.plugin_url+ `/vendor/offline/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`;
+     //exclude first two duble slashes  
+     url =url.replaceAll('//vendor','/vendor');
+    }
+   console.log('url',url);
+  let result = await  fetch_json_from_url_efb(url)
   if(result.s==false){
     alert_message_efb('',efb_var.text.offlineSend,5,'danger')
     return;
@@ -884,7 +891,13 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
   state_el.classList.add('is-loading');
   state_el.disabled=true;
   }
-  let result = await  fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${iso2_country.toLowerCase()}.json`)
+  let url =`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${iso2_country.toLowerCase()}.json`
+  if(setting_emsFormBuilder.AdnOFc==true){
+    url =efb_var.images.plugin_url+ `/vendor/offline/json/states/${iso2_country.toLowerCase()}.json`;
+    url =url.replaceAll('//vendor','/vendor');
+   }
+   console.log('url',url);
+  let result = await  fetch_json_from_url_efb(url)
   if(result.s==false){
     alert_message_efb('',efb_var.text.offlineSend,5,'danger')
     return;

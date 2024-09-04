@@ -26,7 +26,8 @@ class Panel_edit  {
 			"emailTemplate1"=>''.EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png',
 			"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif',
 			'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js',
-			'logoGif'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/efb-256.gif'
+			'logoGif'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/efb-256.gif',
+			'plugin_url'=>EMSFB_PLUGIN_URL,
 			];
 			$efbFunction = $this->get_efbFunction();
 			$pro =$efbFunction->is_efb_pro(1);;
@@ -259,11 +260,12 @@ class Panel_edit  {
 				wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);	
 				wp_enqueue_script('jquery-dd-efb'); 
 				/*end new code v4 */
-			/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
-			wp_enqueue_script('addsOnLocal-js'); */
-			/* wp_register_script('addsOnLocal-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/'.get_locale().'.js', null, null, true);	
-			wp_enqueue_script('addsOnLocal-js'); */
-			wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);	
+			
+			$url ='https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js';
+			if(isset($ac->AdnOF) && $ac->AdnOF==1){
+				$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
+			}
+			wp_register_script('countries-js', $url, null, null, true);	
 			wp_enqueue_script('countries-js');
 			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);	
 			wp_enqueue_script('intlTelInput-js');
