@@ -138,6 +138,10 @@ class _Public {
 		if(( is_user_logged_in()==false && $admin_form==true && $admin_sc==null)){
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
 		$table_name = $this->db->prefix . "emsfb_form";		
 		$this->id = end($id);
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
@@ -639,6 +643,10 @@ class _Public {
 		$type = sanitize_text_field($data_POST['type']);
 		$email = get_option('admin_email');
 		$rePage = "null";
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results($this->db->prepare("SELECT form_structer, form_type FROM $table_name WHERE form_id = %d", $this->id));
 		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) : '';
@@ -1682,7 +1690,11 @@ class _Public {
 			}		
 			$id = sanitize_text_field($data_POST['value']);
 			$this->ip=$this->get_ip_address();
-			$ip = $this->ip;		
+			$ip = $this->ip;
+			if(empty($this->db)){
+				global $wpdb;
+				$this->db = $wpdb;
+			}		
 			$table_name = $this->db->prefix . "emsfb_msg_";
 			$value = $this->db->get_results( "SELECT content,msg_id,track,date FROM `$table_name` WHERE track = '$id'" );				
 			if($value!=null){
@@ -1719,6 +1731,10 @@ class _Public {
 	public function insert_message_db($read,$uniqid){
 		if(isset($read)==false) $read=0;
 		if($uniqid==false) $uniqid= date("ymd").substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
 		$table_name = $this->db->prefix . "emsfb_msg_";
 		$this->db->insert($table_name, array(
 			'form_title_x' => $this->name, 
@@ -1731,6 +1747,10 @@ class _Public {
 		));    return $uniqid; 
 	}//end function
 	public function update_message_db(){
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
 		$table_name = $this->db->prefix . "emsfb_msg_";
 		return $this->db->update( $table_name, array( 'content' => $this->value , 'read_' =>0,  'ip'=>$this->ip , 'read_date'=>wp_date('Y-m-d H:i:s') ), array( 'track' => $this->id ) );
 		//, '%d' ,'%s'
@@ -1754,6 +1774,10 @@ class _Public {
 		$page_id = sanitize_text_field($_POST['page_id']);
         $vl=null;
 		//validate sid here
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
@@ -1816,6 +1840,10 @@ class _Public {
         $vl=null;
 		$have_validate =0;
 		$temp=0;
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
@@ -2004,6 +2032,10 @@ class _Public {
 				$m = str_replace('"', '\\"', $m);
 				$ip =$this->ip= $this->get_ip_address();
 				$id = preg_replace('/[,]+/','',$id);
+				if(empty($this->db)){
+					global $wpdb;
+					$this->db = $wpdb;
+				}
 				$table_name = $this->db->prefix . "emsfb_msg_";
 				$value=null;
 				$value = $this->db->get_results( "SELECT * FROM `$table_name` WHERE msg_id = '$id'" );
@@ -2256,8 +2288,12 @@ class _Public {
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
 	public function get_setting_Emsfb($state){
 		// تنظیمات  برای عموم بر می گرداند
-		error_log('============================================>get_setting_Emsfb');
+		//error_log('============================================>get_setting_Emsfb');
 		$value = get_option('emsfb_settings');
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
 		if($value==false){
 			$table_name = $this->db->prefix . "emsfb_setting";
 			$value = $this->db->get_var( "SELECT setting,email FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
@@ -2311,7 +2347,8 @@ class _Public {
 				'AdnESZ' => 0,
 				'AdnSE' => 0,
 				'AdnPDP'=>0,
-				'AdnADP'=>0
+				'AdnADP'=>0,
+				'AdnOFc'=>0,
 				];
 				if(isset($r->AdnSPF)==true){
 					//$ac
@@ -2325,6 +2362,7 @@ class _Public {
 					$addons['AdnSE']=$r->AdnSE;
 					$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 					$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
+				
 				}
 				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey, "version"=>$efb_version,"osLocationPicker"=>$osLocationPicker,
 				"scaptcha"=>$scaptcha,"dsupfile"=>$dsupfile,"activeDlBtn"=>$activeDlBtn,"addons"=>$addons);
@@ -2371,6 +2409,10 @@ class _Public {
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
 		$this->id = sanitize_text_field($data_POST['id']);
 		$val_ = sanitize_text_field($data_POST['value']);
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs =str_replace('\\', '', $value_form[0]->form_structer);
@@ -2570,6 +2612,10 @@ class _Public {
 		$this->id = sanitize_text_field($data_POST['id']);
 		$val_ = sanitize_text_field($data_POST['value']);
 		$url = sanitize_url($data_POST['url']);
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs =str_replace('\\', '', $value_form[0]->form_structer);
@@ -2723,6 +2769,10 @@ class _Public {
 		$this->id = sanitize_text_field($_POST['id']);
 		$val_ = sanitize_text_field($_POST['value']);
 		$url = sanitize_url($_POST['url']);
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs =str_replace('\\', '', $value_form[0]->form_structer);
@@ -3368,6 +3418,10 @@ class _Public {
 			$this->setting->email_key = $rand;
 			$setting = json_encode($this->setting,JSON_UNESCAPED_UNICODE);
 			$setting= str_replace('"', '\"', $setting);  
+			if(empty($this->db)){
+				global $wpdb;
+				$this->db = $wpdb;
+			}
 			$table_name = $this->db->prefix . 'emsfb_setting';
 			$email =$this->setting->emailSupporter;
 			$this->db->insert(
@@ -4567,6 +4621,10 @@ class _Public {
 		if ($s_sid !=1 || $sid==null){
 			return '<p style="color:#ff4b93;text-align: center;">'.$lan['sxnlex'].'</p>'.Js_();
 		}
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
 		$sql = $this->db->prepare("SELECT * FROM $table_name WHERE code = %s", $sid);
 		$row = $this->db->get_row($sql);
@@ -4594,6 +4652,10 @@ class _Public {
 	}
 
 	public function fun_get_content_email_register_recovery_efb($userid, $username, $email, $fid ,$type_ ,$page_id){
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
 		$ip = $this->ip ;
 		$text =['udnrtun'];
@@ -4662,6 +4724,10 @@ class _Public {
 			return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder') .' E404')) ;
 		}
 		$password = sanitize_text_field($data['password']);
+		if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
 		$sql = $this->db->prepare("SELECT * FROM $table_name WHERE code = %s", $st);
 		$row = $this->db->get_row($sql);

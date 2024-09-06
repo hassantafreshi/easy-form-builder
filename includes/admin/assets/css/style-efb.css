@@ -462,7 +462,7 @@ i.efb {	font-size: 1.2rem;
    font-size: 30px !important;
 }
 
-.efb.overpage {	position:         absolute !important;
+.efb.overpage {	position:         fixed !important;
    width:            100%;
    height:           100%;
    top:              0;

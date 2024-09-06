@@ -615,7 +615,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       temp=false
        optn =valj_efb.findIndex(x=>x.id_=='EC')
     if (editState==false && optn==-1) { 
-      valj_efb[iVJ].country = "GB";
+     if(valj_efb[iVJ].hasOwnProperty('country')==false || (valj_efb[iVJ].hasOwnProperty('country') && valj_efb[iVJ].country.length==0 ))  valj_efb[iVJ].country = "GB";
       const uk =  fun_state_of_UK(rndm,iVJ);
       for(u of uk){
       valj_efb.push(     
@@ -643,8 +643,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         temp=false
     if (editState==false && optn==-1) { 
       //console.error(optn,valj_efb.findIndex(x=>x.id_=='Antrim_Newtownabbey'));
-      valj_efb[iVJ].country = "GB";
-      valj_efb[iVJ].statePov = "Antrim_Newtownabbey";
+      if(valj_efb[iVJ].hasOwnProperty('country')==false || (valj_efb[iVJ].hasOwnProperty('country') && valj_efb[iVJ].country.length==0 ))  valj_efb[iVJ].country = "GB";
+      if(valj_efb[iVJ].hasOwnProperty('statePov')==false || (valj_efb[iVJ].hasOwnProperty('statePov') && valj_efb[iVJ].statePov.length==0)) valj_efb[iVJ].statePov = "Antrim_Newtownabbey";
       valj_efb.push(     
         {
           "id_": "Antrim_Newtownabbey",
@@ -2707,23 +2707,21 @@ const add_r_matrix_view_select = (idin, value, id_ob, tag, parentsID) => {
     </div>
     `
 }
-async  function  fetch_json_from_url_efb(url){
-  temp_efb="null";
- let r = {s:false ,r:"false"}
- return fetch(url)
-  .then(response => response.json())
-  .then(data => {
-    r.s=true ;
-    r.r =data
-    temp_efb=r;
-    return r;
-  })
-  .catch(error => {
+async function fetch_json_from_url_efb(url) {
+  let r = { s: false, r: "false" };
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    r.s = true;
+    r.r = data;
+  } catch (error) {
     console.error('Error:', error);
-    r.r =error
-    temp_efb=r;
-    return r;
-  });
+    r.r = error.message;
+  }
+  return r;
 }
 fun_captcha_load_efb = ()=>{
   if(valj_efb[0].captcha == true && document.getElementById('dropZoneEFB')) document.getElementById('dropZoneEFB').classList.add('captcha');

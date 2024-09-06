@@ -314,11 +314,19 @@ class Panel_edit  {
 		}
 	}
 	public function get_not_read_message(){
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
 		$table_name = $this->db->prefix . "emsfb_msg_"; 
 		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0 OR read_=3" );
 		return $value;
 	}
 	public function get_not_read_response(){
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
 		$table_name_msg = $this->db->prefix . "emsfb_msg_";
 		$table_name_rsp = $this->db->prefix . "emsfb_rsp_"; 
 		//$table_name = $this->db->prefix . "emsfb_rsp_"; 
@@ -356,6 +364,7 @@ class Panel_edit  {
             //end test 
 	}
 	public function file_upload_api(){
+		
 		$efbFunction = $this->get_efbFunction();
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$_POST['id']=sanitize_text_field($_POST['id']);
@@ -368,6 +377,11 @@ class Panel_edit  {
 		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . " 403"); 
 		wp_send_json_success($response,200);
 		} 
+
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
         //check validate here
         $vl=null;
         if($_POST['pl']!="msg"){
@@ -413,6 +427,10 @@ class Panel_edit  {
 		}
 	}//end function
 	public function delete_old_rows_emsfb_stts_() {		
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
 		$table_name = $this->db->prefix . 'emsfb_stts_';
 		$date_limit = date('Y-m-d', strtotime('-40 days'));
 		$this->db->query(

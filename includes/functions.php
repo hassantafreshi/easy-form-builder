@@ -1085,6 +1085,10 @@ class efbFunction {
 		$value = get_option('emsfb_settings');
 
 		if($value==false){
+			if(empty($this->db)){
+				global $wpdb;
+				$this->db = $wpdb;
+			}
 			$table_name = $this->db->prefix . "emsfb_setting"; 
 			//$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
 			$value = $this->db->get_var( "SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1" );
@@ -1099,7 +1103,10 @@ class efbFunction {
 	}
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
-		
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
 		$text = ['youRecivedNewMessage'];
         $lang= $this->text_efb($text);		
 		
@@ -1534,6 +1541,10 @@ class efbFunction {
 	}
 
 	public function efb_list_form(){
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
 		$table_name = $this->db->prefix . "emsfb_form";
 			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );
 			return $value;
@@ -1541,6 +1552,10 @@ class efbFunction {
 
 	
 	public function efb_code_validate_create($fid, $type, $status, $tc) {
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
 		$table_name = $this->db->prefix . 'emsfb_stts_';
 		$ip = $this->get_ip_address();
 		$date_now = date('Y-m-d H:i:s');
@@ -1578,6 +1593,10 @@ class efbFunction {
 	}
 
     public function efb_code_validate_update($sid ,$status ,$tc ) {
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
 		// $status => visit , send , upd , del => max len 5
 		$table_name = $this->db->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
@@ -1595,7 +1614,10 @@ class efbFunction {
     }
 
     public function efb_code_validate_select($sid ,$fid) {
-		
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
 		
 		$fid = intval($fid);
 		$table_name = $this->db->prefix . 'emsfb_stts_';
@@ -1735,7 +1757,12 @@ class efbFunction {
 	}
 
 	public function setting_version_efb_update($st ,$pro){
-		//error_log('EFB=>setting_version_efb_update: ' . $pro);     
+		//error_log('EFB=>setting_version_efb_update: ' . $pro);   
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
+		  
 		$start_time = microtime(true);
 		if($st=='null'){
 			$st=$this->get_setting_Emsfb();

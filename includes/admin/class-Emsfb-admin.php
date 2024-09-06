@@ -148,6 +148,10 @@ class Admin {
             die();
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $table_name = $this->db->prefix . "emsfb_form";
         $r          = $this->db->delete(
             $table_name,
@@ -180,6 +184,10 @@ class Admin {
             die();
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $table_name = $this->db->prefix . "emsfb_msg_";
         $r          = $this->db->delete(
             $table_name,
@@ -233,6 +241,10 @@ class Admin {
         $value_ =str_replace('"', '\"', $value);
         //$value      = ($_POST['value']); 
         $name       = sanitize_text_field($_POST['name']);
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $table_name = $this->db->prefix . "emsfb_form";
         $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $name ,'form_type'=>$form_type ], ['form_id' => $id]);
         $value_="";
@@ -387,9 +399,13 @@ class Admin {
         $ac->{$value}=1;
         //add efb_version to ac
         $ac->efb_version=EMSFB_PLUGIN_VERSION;
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $table_name = $this->db->prefix . "emsfb_setting";
         $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
-        $newAc= str_replace('"', '\"', $newAc);   
+        $newAc= str_replace('"', '\"', $newAc);         
         $this->db->insert(
             $table_name,
             [
@@ -466,6 +482,10 @@ class Admin {
             $ac->AdnBEF=0;
         }
         $ac->{$value}=0;
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $table_name = $this->db->prefix . "emsfb_setting";
         $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
         $newAc= str_replace('"', '\"', $newAc);   
@@ -500,6 +520,10 @@ class Admin {
             die();
         }
         $id =  ( int ) sanitize_text_field($_POST['id']);
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $table_name = $this->db->prefix . "emsfb_msg_";
         $r          = $this->db->update($table_name, ['read_' => 1, 'read_date' => wp_date('Y-m-d H:i:s')], ['msg_id' => $id]);
         $m =   $lang['updated'];
@@ -523,6 +547,10 @@ class Admin {
             die();
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $table_name = $this->db->prefix . "emsfb_form";
         $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
         //check if smsnoti axist then call get_sms_contact_efb from smsefb.php
@@ -562,6 +590,10 @@ class Admin {
         $code = 'efb'. $id;
         $code =wp_create_nonce($code); 
         $id =  ( int ) sanitize_text_field($id);
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id' ORDER BY `$table_name`.date DESC");
         $response   = ['success' => true, 'ajax_value' => $value, 'id' => $id,'nonce_msg'=> $code];
@@ -583,6 +615,10 @@ class Admin {
             wp_send_json_success($response, 200);
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE msg_id = '$id'");
         $this->db->update($table_name, ['read_' => 1], ['msg_id' => $id, 'read_' => 0]);
@@ -672,6 +708,10 @@ class Admin {
 				}
                 $m = json_encode($message,JSON_UNESCAPED_UNICODE);
 				$m = str_replace('"', '\\"', $m);
+                if(empty($this->db)){
+                    global $wpdb;
+                    $this->db = $wpdb;
+                }
         $table_name = $this->db->prefix . "emsfb_msg_";
         if(strpos($m , '"type\":\"closed\"')){
             $r = $this->db->update($table_name, ['read_' => 4], ['msg_id' => $id]);
@@ -730,6 +770,10 @@ class Admin {
         //$m= $_POST['message'];
         $m = json_decode($m,true);
      //  $setting    = sanitize_text_field($_POST['message']);
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $setting    = $_POST['message'];
         $table_name = $this->db->prefix . "emsfb_setting";
         $email="";
@@ -805,6 +849,10 @@ class Admin {
             wp_send_json_success($response, 200);
             die("secure!");
         }
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $table_name = $this->db->prefix . "emsfb_msg_";
         $id         = sanitize_text_field($_POST['value']);
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE track = '$id'");
@@ -842,6 +890,10 @@ class Admin {
             $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, 200);
             die("secure!");
+        }
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
         }
         $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT content FROM `$table_name`");
@@ -911,6 +963,10 @@ class Admin {
                 $from =$ac->femail ;
             }
         }
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $check = $efbFunction->send_email_state_new([$to , null,$from] ,$sub ,$cont,$pro,'testMailServer',home_url(),$ac);
                 if($check==true){           
                     $ac->smtp = "true";
@@ -947,6 +1003,10 @@ class Admin {
         return $ip;
     }
     public function get_not_read_message() {
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         $table_name = $this->db->prefix . "emsfb_msg_";
         $sql = "SHOW TABLES LIKE %s";
         $exists = $this->db->get_var($this->db->prepare($sql, $table_name));
@@ -996,6 +1056,10 @@ class Admin {
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
         $vl=null;
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
@@ -1086,6 +1150,10 @@ class Admin {
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
         $type = sanitize_text_field($_POST['type']) ;
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         if($type =='form'){
             $table_name = $this->db->prefix . "emsfb_form";
             $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id'");
@@ -1137,6 +1205,10 @@ class Admin {
         $val =  sanitize_text_field($_POST['val']) ;
         $val_  = str_replace('\\', '', $val);
         $val = json_decode($val_ ,true);
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         if($state =='msg'){
             $table_name = $this->db->prefix . "emsfb_msg_";
             $msg_ids ='';
@@ -1180,6 +1252,10 @@ class Admin {
         $val_  = str_replace('\\\\', '', $val);
         $val_  = str_replace('\\', '', $val);
         $val = json_decode($val_ ,true);
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
         if($state =='msg'){
             $table_name = $this->db->prefix . "emsfb_msg_";
             $msg_ids ='';
