@@ -752,7 +752,7 @@ fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
 }
 
 function clean_options_select_efb(id){
-  console.log('clean_options_select_efb',id)
+  //console.log('clean_options_select_efb',id)
   let el = document.getElementById(id+'_options');
   if(el){
     el.innerHTML = `<option value="">${efb_var.text.nothingSelected}</option>`;
@@ -785,7 +785,7 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
         if(s_index-1>1 && row_sb.type==='stateProvince'){ 
         iso2_country = row_sb.cont_;
         iso2_statePove = row_sb.statePrev_
-        console.log('iso2_country',iso2_country,iso2_statePove)
+        //console.log('iso2_country',iso2_country,iso2_statePove)
         }
     }
 
@@ -799,6 +799,7 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
      url =url.replaceAll('//vendor','/vendor');
     }
    //console.log('url',url);
+   clean_options_select_efb(valj_efb[indx_state].id_);
   let result = await  fetch_json_from_url_efb(url)
   if(result.s==false){
     alert_message_efb('',efb_var.text.offlineSend,5,'danger')
@@ -818,7 +819,7 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
     //console.log('s_index',s_index)
     if(s_index!=-1){
       const row_sb = sendBack_emsFormBuilder_pub[s_index-1];
-        console.log('s_index',row_sb ,  s_index-1>1 , row_sb.type==='cityList')
+        //console.log('s_index',row_sb ,  s_index-1>1 , row_sb.type==='cityList')
         if(s_index-1>1 && row_sb.type==='stateProvince'){ 
         iso2_country = row_sb.cont_;
         iso2_statePove = row_sb.statePrev_
@@ -890,7 +891,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
   }
   let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
    //+ condition logic: check if the statement for this element is hide then write the code to return from this function
-   console.log('iso2_country',iso2_country);
+   //console.log('iso2_country',iso2_country);
   valj_efb[indx_state].country=iso2_country;
   for(let i =0; i < valj_efb.length; i++){    
     if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
@@ -915,7 +916,7 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
    }
    //console.log('url',url);
    valj_efb[indx_state].hasOwnProperty('country') ? valj_efb[indx_state].country=iso2_country : Object.assign(valj_efb[indx_state], {country:iso2_country});
-   console.log('url',url,valj_efb[indx_state]);
+   //console.log('url',url,valj_efb[indx_state]);
    clean_options_select_efb(valj_efb[indx_state].id_);
    
    try {
@@ -981,7 +982,7 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
   return state_el!=null ? result : opt;
  }
 } catch (error) {
-  console.error('error',error)
+  console.warn('error',error)
   alert_message_efb('', efb_var.text.offlineSend, 5, 'warning');
 }
  
@@ -1081,7 +1082,6 @@ function efbCreateMap(id ,r ,viewState) {
     }
   }else{
     Object.assign(r ,{mark:r.value.length});
-    console
     for (let i = 0; i < r.value.length; i++) {
       efbAddMarker(r.value[i].lat, r.value[i].lng, efbMap._leaflet_id, i+1 ,r);
     }

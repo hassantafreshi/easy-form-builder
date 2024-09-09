@@ -2042,7 +2042,7 @@ class efbFunction {
 			$activeCode = get_option('emsfb_pro_activeCode');	
 			if (empty($activeCode)) {
 				//if the activeCode is empty then check the activeCode in the setting
-				$st = get_option('emsfb_settings');				
+				$st = get_option('emsfb_settings' , 'null');				
 				if($st=='null'){
 					$st = $this->get_setting_Emsfb();
 					$activeCode = $st->activeCode;

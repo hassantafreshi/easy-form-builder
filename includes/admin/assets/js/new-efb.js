@@ -2064,6 +2064,7 @@ async function fun_offline_Efb() {
   let temp, id;
   for (let value of values) {
     //console.log(value);
+
     sendBack_emsFormBuilder_pub.push(value);
     switch (value.type) {
       case 'email':
@@ -2577,8 +2578,8 @@ state_rply_btn_efb=(t)=>{
       }
    }, t);
 }
-window.addEventListener('offline', (e) => { console.log('offline'); });
-window.addEventListener('online', (e) => { console.log('online'); });
+window.addEventListener('offline', (e) => { console.warn('offline'); });
+window.addEventListener('online', (e) => { console.warn('online'); });
 function check_msg_ext_resp_efb() {
   const replayM_emsFormBuilder = document.querySelector("#replayM_emsFormBuilder");
   replayM_emsFormBuilder.addEventListener("keypress", (event) => {
@@ -2626,19 +2627,55 @@ const preKsesLessThan_efb=(text)=>{
 }
 const preKsesLessThanCallback_efb=(matches)=>{
   if (matches[0].indexOf(">") === -1) {
-    return escHtml(matches[0]);
+    return sanitizeXSS_efb(matches[0]);
   }
   return matches[0];
 }
-function escHtml(unsafe)
-{
-    return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
- }
+function sanitizeXSS_efb(unsafe) {
+  const replacements = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;',
+    '\\': '\\\\',
+    '=': '&#61;',
+    '/': '&#47;',
+    '`': '&#96;',
+    '%': '&#37;',
+    ';': '&#59;',
+    ':': '&#58;',
+    '(': '&#40;',
+    ')': '&#41;',
+    'javascript:': 'javascript&#58;',
+    'data:': 'data&#58;',
+    'vbscript:': 'vbscript&#58;',
+    'livescript:': 'livescript&#58;',
+    'mhtml:': 'mhtml&#58;',
+    'mocha:': 'mocha&#58;',
+    'xss:': 'xss&#58;',
+    '&lt;script': '&lt;scr&#105;pt',
+    '&lt;/script': '&lt;&#47;scr&#105;pt',
+    '&lt;iframe': '&lt;ifr&#97;me',
+    '&lt;/iframe': '&lt;&#47;ifr&#97;me',
+    '&lt;object': '&lt;obj&#101;ct',
+    '&lt;/object': '&lt;&#47;obj&#101;ct',
+    '&lt;embed': '&lt;emb&#101;d',
+    '&lt;/embed': '&lt;&#47;emb&#101;d',
+    '&lt;applet': '&lt;app&#108;et',
+    '&lt;/applet': '&lt;&#47;app&#108;et',
+    '&lt;meta': '&lt;m&#101;ta',
+    '&lt;/meta': '&lt;&#47;m&#101;ta',
+    '&lt;base': '&lt;b&#97;se',
+    '&lt;/base': '&lt;&#47;b&#97;se',
+    '&lt;link': '&lt;l&#105;nk',
+    '&lt;/link': '&lt;&#47;l&#105;nk',
+    '&lt;style': '&lt;styl&#101;',
+    '&lt;/style': '&lt;&#47;styl&#101;'
+  };
+
+  return unsafe.replace(/&|<|>|'|"|\\|=|\/|`|%|;|:|\(|\)|javascript:|data:|vbscript:|livescript:|mhtml:|mocha:|xss:|&lt;script|&lt;\/script|&lt;iframe|&lt;\/iframe|&lt;object|&lt;\/object|&lt;embed|&lt;\/embed|&lt;applet|&lt;\/applet|&lt;meta|&lt;\/meta|&lt;base|&lt;\/base|&lt;link|&lt;\/link|&lt;style|&lt;\/style/g, match => replacements[match]);
+}
 const stripAllTags_efb=(string, removeBreaks = false)=>{
   string = string.replace(/</g, '＜');
   string = string.replace(/>/g, '＞');
