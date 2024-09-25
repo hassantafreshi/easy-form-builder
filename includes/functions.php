@@ -776,10 +776,16 @@ class efbFunction {
 			"servpss" => $state  &&  isset($ac->text->servpss) ? $ac->text->servpss : esc_html__('Enter your email address below, and we\'ll send you a link to reset your password.',$s),
 			"imvpwsy" => $state  &&  isset($ac->text->imvpwsy) ? $ac->text->imvpwsy : esc_html__('If your email is valid, a password reset link has been sent to your email address.',$s),
 			"enbl" => $state  &&  isset($ac->text->enbl) ? $ac->text->enbl : esc_html__('Enable %s',$s),
-			"atfll" => $state  &&  isset($ac->text->atfll) ? $ac->text->atfll : esc_html__('AutoFill',$s),
+			"atfll" => $state  &&  isset($ac->text->atfll) ? $ac->text->atfll : esc_html__('Auto-Fill',$s),
+			"atflls" => $state  &&  isset($ac->text->atflls) ? $ac->text->atflls : esc_html__('Auto-Fills',$s),
 			"atflldm" => $state  &&  isset($ac->text->atflldm) ? $ac->text->atflldm : esc_html__('Auto-fill by previously filled form',$s),
 			"atflltm" => $state  &&  isset($ac->text->atflltm) ? $ac->text->atflltm : esc_html__('Enable AutoFill to automatically fill this field',$s),
-
+			"uplsf" => $state  &&  isset($ac->text->uplsf) ? $ac->text->uplsf : esc_html__('Upload the %s file',$s),
+			"csv" => $state  &&  isset($ac->text->csv) ? $ac->text->csv : esc_html__('CSV',$s),
+			"datas" => $state  &&  isset($ac->text->datas) ? $ac->text->datas : esc_html__('Dataset',$s),
+			"tshbc" => $state  &&  isset($ac->text->tshbc) ? $ac->text->tshbc : esc_html__('The %s has been successfully completed',$s),
+			"rename" => $state  &&  isset($ac->text->rename) ? $ac->text->rename : esc_html__('Rename',$s),
+			"source" => $state  &&  isset($ac->text->source) ? $ac->text->source : esc_html__('Source',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s),
 			
 
@@ -1049,7 +1055,7 @@ class efbFunction {
 			$message = is_string($m) ? "<div style='text-align:center'>$m</div>" : "<div style='text-align:center'><h2>{$lang['WeRecivedUrM']}</h2></div><div style='text-align:$align;color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>{$m[1]}</div><p style='text-align:center'>$dts</p><div style='text-align:center'><a href='$link' target='_blank' style='padding:5px;color:white;background:black;'>{$lang['vmgs']}</a></div>";
 		}
 	
-		$val = "<html xmlns='http://www.w3.org/1999/xhtml'><body style='margin:auto 10px;direction:$d;color:#000000;'><center><table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:$d;'><tr><img src='" . EMSFB_PLUGIN_URL . "public/assets/images/email_template1.png' alt='$title' style='width:36%;'></tr><tr><td><center><table bgcolor='#FFFFFF' width='100%' border='0'><tbody><tr><td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'><h1 style='color:#ff4b93;text-align:center;'>$title</h1></td></tr><tr style='text-align:$align;color:#000000;font-size:14px;'><td><span>$message</span></td></tr><tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td></td></tr></tbody></center></td></tr></table></center><table role='presentation' bgcolor='#F5F8FA' width='100%'><tr><td align='$align' style='padding: 30px 30px; font-size:12px; text-align:center'>$footer</td></tr></table></body></html>";
+		$val = "<html xmlns='http://www.w3.org/1999/xhtml'><body style='margin:auto 10px;direction:$d;color:#000000;'><center><table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:$d;'><tr><img src='" . EMSFB_PLUGIN_URL . "public/assets/images/email_template1.png' alt='New Message' style='width:36%;'></tr><tr><td><center><table bgcolor='#FFFFFF' width='100%' border='0'><tbody><tr><td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'><h1 style='color:#ff4b93;text-align:center;'>$title</h1></td></tr><tr style='text-align:$align;color:#000000;font-size:14px;'><td><span>$message</span></td></tr><tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td></td></tr></tbody></center></td></tr></table></center><table role='presentation' bgcolor='#F5F8FA' width='100%'><tr><td align='$align' style='padding: 30px 30px; font-size:12px; text-align:center'>$footer</td></tr></table></body></html>";
 	
 		if ($temp != "0") {
 			$replacements = [
@@ -2084,14 +2090,15 @@ class efbFunction {
 
 
 	public function noti_expire_efb() {
-		$url = 'https://demo.whitestudio.team/renew?ac=';
+		//$url = 'https://demo.whitestudio.team/register-costumer?renew=';
+		$url = 'http://127.0.0.1/ws/register-costumer?renew=';
 		$msg = esc_html__('Your Easy Form Builder Pro subscription has expired. To continue enjoying all Pro features and keep your forms running, %1$sRenew your subscription now.%2$s', 'easy-form-builder');
 		$ac = get_option('emsfb_pro_activeCode');	
 		$renew = '<br><a class="efb alert-link fw-bold text-info" href="'.$url.'' . $ac . '" target="_blank">';		
 		$msg = sprintf($msg, $renew, '</a>');	
 		$ativ = esc_html__('Your activation code has expired!', 'easy-form-builder');
 		//$div_noti = '<div class="efb alert alert-danger fade show mt-4 mb-2 alert-dismissible" role="alert">' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-		$div_noti = '<div class="efb mx-3  mt-4 mb-3 pd-5  alert alert-light pointer-efb buy-noti  alert-dismissible bg-danger text-white"><i class="efb bi-diamond text-info mx-1"></i><span class="efb text-light">'.$ativ.'</span><br>' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+		$div_noti = '<div class="efb mx-3  mt-4 mb-3 pd-5  alert alert-light pointer-efb buy-noti  alert-dismissible bg-dark text-warning"><i class="efb bi-exclamation-triangle-fill text-warning mx-1"></i><span class="efb text-warning">'.$ativ.'</span><br>' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
 	
 		return $div_noti;
 	}

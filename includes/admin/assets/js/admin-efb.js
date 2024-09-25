@@ -2838,8 +2838,11 @@ function create_form_efb() {
   }
 
   if (content.length > 10) content += `</div>`
+  
+  const bgc = valj_efb[0].hasOwnProperty('prg_bar_color') ?valj_efb[0].prg_bar_color: 'btn-primary'
+ 
   head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center"><div class="efb progress mx-4"><div class="efb  progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div> <br> ` : ``}`
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center"><div class="efb progress mx-4"><div class="efb  progress-bar-efb ${bgc} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div> <br> ` : ``}`
 
 
 
@@ -3920,6 +3923,10 @@ function emsFormBuilder_delete(id, type,value) {
     case 'condlogic':
       val =id;
       break;
+    case 'dataset_autofilled':
+      val =value;
+      type = 'datas';
+    break
   }
   const f = efb_var.text[type].replaceAll('%s1','');
   const m = f ? `${f}  >>`: '';
@@ -3948,6 +3955,11 @@ function emsFormBuilder_delete(id, type,value) {
       
       fun_confirm_remove_all_message_emsFormBuilder(value)
       return;
+    }else if(type=="datas"){
+      console.log(`type:${type} , id:${id} , value:${value}`);
+      if (typeof fun_confirm_remove_dataset_autofilled_emsFormBuilder === 'function') {
+        fun_confirm_remove_dataset_autofilled_emsFormBuilder(id, value);
+      }
     }
     activeEl_efb = 0;
     state_modal_show_efb(0)
@@ -3974,6 +3986,8 @@ function emsFormBuilder_duplicate(id, type,value) {
     case 'condlogic':
       val = id;
       break;
+    case 'dataset_autofilled':
+      val = value;
   }
   // console.log(val);
   const msg = efb_var.text.ausdup.replaceAll('XXX',val);
@@ -4153,37 +4167,47 @@ window.addEventListener("popstate",e=>{
   
   switch(e.state){
     case 'templates':
-      add_dasboard_emsFormBuilder();
+      if(typeof add_dasboard_emsFormBuilder === 'function') add_dasboard_emsFormBuilder();
     break;
     case 'create':
-      add_dasboard_emsFormBuilder();
+      if(typeof add_dasboard_emsFormBuilder === 'function' ){ add_dasboard_emsFormBuilder();}
     break;
     case 'sms':
-      add_sms_emsFormBuilder();
+      if(typeof add_sms_emsFormBuilder === 'function' ){add_sms_emsFormBuilder();}
     break;
     case 'panel':
-      document.getElementById('sideBoxEfb').classList.remove('show');
-      fun_emsFormBuilder_render_view(25);
-      fun_hande_active_page_emsFormBuilder(1);
+      if(typeof fun_emsFormBuilder_render_view === 'function'){
+         fun_emsFormBuilder_render_view(25);
+         document.getElementById('sideBoxEfb').classList.remove('show');
+         fun_hande_active_page_emsFormBuilder(1);
+        }
+     
     break;
     case 'setting':
+      if(typeof fun_show_setting__emsFormBuilder === 'function'){
       fun_show_setting__emsFormBuilder();      
       fun_backButton_efb(0);
       fun_hande_active_page_emsFormBuilder(2);
+      }
       break;
-    case 'help':      
+    case 'help':   
+    if(typeof fun_show_help__emsFormBuilder === 'function'){   
       fun_show_help__emsFormBuilder();
       fun_hande_active_page_emsFormBuilder(4);
+    }
       break;
     case 'search':
-      v = localStorage.getItem("search_efb") ? sanitize_text_efb(localStorage.getItem("search_efb")) : null;
-      if(v==null){
-        
+      if(typeof search_trackingcode_fun_efb === 'function'){
+        v = localStorage.getItem("search_efb") ? sanitize_text_efb(localStorage.getItem("search_efb")) : null;
+        if(v==null){
+          
+        }
+        //console.log(`searchi =>${v}`)
+        search_trackingcode_fun_efb(v)
       }
-      //console.log(`searchi =>${v}`)
-      search_trackingcode_fun_efb(v)
       break;
     case 'show-message':
+      if(typeof fun_get_messages_by_id === 'function'){
       v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
       //if (v==null) console.error('get[id] not found!');
       g_page = sanitize_text_efb(getUrlparams.get('form_type'));
@@ -4193,17 +4217,26 @@ window.addEventListener("popstate",e=>{
       // history.pushState("show-message",null,`page=Emsfb&state=show-messages&id=${id}&form_type=${row.form_type}`);
       fun_get_messages_by_id(Number(v));      
       fun_hande_active_page_emsFormBuilder(1);
+      }
     break;
     case "edit-form":
       //console.log('edit-form')
+      if(typeof fun_get_form_by_id === 'function'){
       v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
       //if (v==null) console.error('get[id] not found!');
       
       fun_get_form_by_id(Number(v));
       fun_backButton_efb();
       fun_hande_active_page_emsFormBuilder(1);
+      }
     break;
-
+    case "edit-dataset":
+      if(typeof emsFormBuilder_edit_dataset_efb === 'function'){
+      v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
+        if (v==null) console.error('get[id] not found!');
+        emsFormBuilder_edit_dataset_efb(Number(v));
+      }
+    break;
   }
 })
 
@@ -4595,6 +4628,8 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
     setTimeout(() => {
       editFormEfb()
     }, td)
+  }else if (type=="dataset_autofilled"){
+    if(typeof fun_dup_dataset_efb ==='function') {fun_dup_dataset_efb(id,type);}
   }
 
 
@@ -4773,3 +4808,15 @@ const observer_efb = new MutationObserver(efb_callback_state);
 observer_efb.observe(targetNode_efb,config_observer_efb);
 
 
+
+efbLoadingCard = (bgColor,size=0)=>{
+  size = size ? size : 3;
+  const w = size<4 ? 'w-50' : 'w-25';
+  return `<div class='efb row justify-content-center card-body text-center efb mt-5 pt-3'>
+  <div class='efb col-12 col-md-4 col-sm-7 mx-0 my-1 d-flex flex-column align-items-center ${bgColor}'> 
+      <img class='efb ${w}' src='${efb_var.images.logoGif}'>
+      <p class='efb fs-${size} text-darkb mb-0'>${efb_var.text.easyFormBuilder}</h4>
+      <p class='efb fs-${size+1} text-dark'>${efb_var.text.pleaseWaiting}</h4>
+  </div>
+</div> `
+}

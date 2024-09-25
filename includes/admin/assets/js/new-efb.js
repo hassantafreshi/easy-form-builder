@@ -2063,7 +2063,7 @@ async function fun_offline_Efb() {
   //console.log(values);
   let temp, id;
   for (let value of values) {
-    //console.log(value);
+
 
     sendBack_emsFormBuilder_pub.push(value);
     switch (value.type) {
@@ -2079,6 +2079,7 @@ async function fun_offline_Efb() {
       case 'firstName':
       case 'lastName':
       case 'prcfld':
+        //console.log(value.id_ob, value.value);
         document.getElementById(value.id_ob).value = value.value;
 
         el=value.type;

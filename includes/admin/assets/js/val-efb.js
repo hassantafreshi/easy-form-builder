@@ -2044,16 +2044,6 @@ const fun_state_of_UK =(rndm,iVJ)=>{
   ];
 }
 
-efbLoadingCard = (bgColor,size)=>{
-  size = size ? size : 3;
-  const w = size<4 ? 'w-50' : 'w-25';
-  return `<div class='efb row justify-content-center card-body text-center efb mt-5 pt-3'>
-  <div class='efb col-12 col-md-4 col-sm-7 mx-0 my-1 d-flex flex-column align-items-center ${bgColor}'> 
-      <img class='efb ${w}' src='${efb_var.images.logoGif}'>
-      <p class='efb fs-${size} text-darkb mb-0'>${efb_var.text.easyFormBuilder}</h4>
-      <p class='efb fs-${size+1} text-dark'>${efb_var.text.pleaseWaiting}</h4>
-  </div>
-</div> `
-}
+
 
   
