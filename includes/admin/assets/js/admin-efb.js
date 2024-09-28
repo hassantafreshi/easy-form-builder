@@ -2271,7 +2271,7 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case 'marksEl':    
-        valj_efb[indx].mark = Number(el.value);
+        valj_efb[indx].mark = el.value!='' ? Number(el.value) :1;
         clss=  document.querySelector(`[data-id="${valj_efb[indx].id_}-contorller"]`);
         clss.classList.add('efb'); 
         c==0 ?  clss.classList.add('d-none')  : clss.classList.remove('d-none') ;
@@ -3072,7 +3072,7 @@ function obj_resort_row(step) {
   if (valj_efb[0].steps == 1) fun_handle_buttons_efb(false);
 }
 let sampleElpush_efb = (rndm, elementId) => {
-  //console.log(`sampleElpush_efb ===> rndm[${rndm}], elementId[${elementId}] amount_el_efb[${amount_el_efb}]`)
+  console.log(`sampleElpush_efb ===> rndm[${rndm}], elementId[${elementId}] amount_el_efb[${amount_el_efb}]`)
   
   const testb = valj_efb.length;
   amount_el_efb = amount_el_efb ?amount_el_efb: (valj_efb[testb-1].amount +1);
@@ -3123,7 +3123,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_text_color: txt_color, message_text_color: pub_message_text_color_efb, el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
       el_align: 'justify-content-start', pro: pro, icon_input: ''
     })
-
+    const indx =(valj_efb.length) - 1;
     if (elementId == "stripe") {
       Object.assign(valj_efb[0], { getway: 'stripe'});
       if(valj_efb[0].hasOwnProperty('currency')==false) Object.assign(valj_efb[0], { currency: 'usd' })
@@ -3138,28 +3138,30 @@ let sampleElpush_efb = (rndm, elementId) => {
       valj_efb[testb].el_text_color ="text-white"
     }else if (elementId == "esign") {
       
-      Object.assign(valj_efb[(valj_efb.length) - 1], {
+      Object.assign(valj_efb[indx], {
         icon: 'bi-save', icon_color: "text-white", button_single_text: efb_var.text.clear,
         button_color: pub_bg_button_color_efb
       })
       //icon: ''
     } else if (elementId == "yesNo") {
-      Object.assign(valj_efb[(valj_efb.length) - 1], { button_1_text: efb_var.text.yes, button_2_text: efb_var.text.no, button_color: pub_bg_button_color_efb })
+      Object.assign(valj_efb[indx], { button_1_text: efb_var.text.yes, button_2_text: efb_var.text.no, button_color: pub_bg_button_color_efb })
     } else if (elementId == "maps") {
-      Object.assign(valj_efb[(valj_efb.length) - 1], { lat: 49.24803870604257, lng: -123.10512829684463, mark: 1, zoom: 12 });
+      console.log(valj_efb.length,elementId);
+      Object.assign(valj_efb[indx], { lat: 49.24803870604257, lng: -123.10512829684463, mark: 1, zoom: 12 });
+     
       setTimeout(() => {
         document.getElementById('maps').draggable = false;
         if (document.getElementById('maps_b')) document.getElementById('maps_b').classList.add('disabled')
       }, valj_efb.length * 5);
     } else if (elementId == "multiselect" || elementId == "payMultiselect") {
       // console.log(valj_efb.length)
-      Object.assign(valj_efb[(valj_efb.length) - 1], {
+      Object.assign(valj_efb[indx], {
         maxSelect: 2,
         minSelect: 0
       })
     }else if (elementId == "chlCheckBox" || elementId == "chlRadio") {
       // console.log(valj_efb.length)
-      Object.assign(valj_efb[(valj_efb.length) - 1], {
+      Object.assign(valj_efb[indx], {
         pholder_chl_value: efb_var.text.qty
       })
     }
@@ -3202,12 +3204,12 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_align: 'justify-content-start', pro: pro
     })
     if (elementId == "dadfile") {
-      //console.log (valj_efb[(valj_efb.length) - 1])
-      Object.assign(valj_efb[(valj_efb.length) - 1], { icon: 'bi-cloud-arrow-up-fill', icon_color:pub_icon_color_efb, button_color: pub_bg_button_color_efb })
+      //console.log (valj_efb[indx])
+      Object.assign(valj_efb[indx], { icon: 'bi-cloud-arrow-up-fill', icon_color:pub_icon_color_efb, button_color: pub_bg_button_color_efb })
       
     }else if(elementId == "file"){
-      valj_efb[(valj_efb.length) - 1].value = 'zip';
-      valj_efb[(valj_efb.length) - 1].file = 'zip';
+      valj_efb[indx].value = 'zip';
+      valj_efb[indx].file = 'zip';
     }
 
   }
@@ -3773,6 +3775,7 @@ fun_efb_add_el = (t) => {
     
      }else{
        setTimeout(() => {
+        console.log(`mark[${valj_efb[indx].mark}]`)
          efbCreateMap(rndm ,valj_efb[indx],false);
        }, 800);
      }

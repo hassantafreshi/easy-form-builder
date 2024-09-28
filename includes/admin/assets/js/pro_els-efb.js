@@ -1081,9 +1081,12 @@ function efbCreateMap(id ,r ,viewState) {
         efbAddInitialMarker(efbInitialLat, efbInitialLng, efbMap._leaflet_id);
     }
   }else{
-    Object.assign(r ,{mark:r.value.length});
-    for (let i = 0; i < r.value.length; i++) {
-      efbAddMarker(r.value[i].lat, r.value[i].lng, efbMap._leaflet_id, i+1 ,r);
+    const len = r.value.length;
+    if(len>0){
+      Object.assign(r ,{mark:len});
+      for (let i = 0; i <len; i++) {
+        efbAddMarker(r.value[i].lat, r.value[i].lng, efbMap._leaflet_id, i+1 ,r);
+      }
     }
   }
 
@@ -1136,7 +1139,6 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
   if(state_efb!='view'){
      efbMarkerNumber = efbAllowAddingMarkers ? maps_efb[efbMapId].markers.length + 1 : '';
      if(Number(r.mark)<efbMarkerNumber) return
-     //console.log(Number(r.mark)<efbMarkerNumber);
   }else{
     efbMarkerNumber = efbAllowAddingMarkers;
     //console.log(efbMarkerNumber);
