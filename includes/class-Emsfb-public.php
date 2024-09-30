@@ -213,7 +213,9 @@ class _Public {
 			"bi-chevron-down",
 			"bi-chevron-up",
 			"bi-check-lg",
-			"bi-crosshair"
+			"bi-crosshair",
+			"bi-search",
+			"bi-trash"
 		]];
 		$pattern = '/bi-[a-zA-Z0-9-]+/';
 		 preg_match_all($pattern, $value, $icons_ );
@@ -3323,6 +3325,7 @@ class _Public {
 				case 'nitropack':
 					//nitropack
 					if(function_exists('nitropack_clean_post_cache'))	nitropack_clean_post_cache($page_id);
+					if(function_exists('nitropack_purge'))	nitropack_purge(NULL, "single:$page_id", 'Post Updated');
 				break;
 				case 'wp-rest-cache':
 					//WP REST Cache
@@ -3338,15 +3341,9 @@ class _Public {
 				case 'speedycache':
 					if(class_exists('SpeedyCache\Delete')) \SpeedyCache\Delete::cache($page_id);
 				break;
-				case 'nitropack':
-					//nitropack_purge(NULL, “single:$postID”, $reason);
-					//get page type form $page_type
-					if(function_exists('nitropack_purge'))	nitropack_purge(NULL, "single:$page_id", 'Post Updated');
-				break;
 				case 'atec-cache-apcu':
 				case 'atec-cache-info':
-					//atec-cache-apcu
-					
+					//atec-cache-apcu					
 					if (function_exists('atec_wpca_delete_page') && function_exists('atec_wpca_settings')){					
 						if (atec_wpca_settings('cache')){						
 							$suffix=($atec_wpca_settings['salt']??'').'_p';					
