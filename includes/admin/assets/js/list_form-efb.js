@@ -1981,24 +1981,31 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
 
 
 function convertToCSV_emsFormBuilder(objArray) {
-  //source code :https://codepen.io/danny_pule/pen/WRgqNx
-  
-  var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
-  var str = '';
-  for (const item of array) {
-    // console.log(item);
-    let line = '';
-    
-   // for (const key in item) {
-    for (var k=0 ; k < item.length ; k++) {
-      if (line !== '') line += ',';
-      line += item[k];
-    }
-    //item.pop();
-    str += line + '\r\n';
-  }  
+  var array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+  var str = array.map(item => {
+    let line = item.map(val => {
+      if (typeof val === 'string') {
+        return val;
+      } else if (typeof val === 'object') {
+        let v = val.map(subVal => {
+          if (typeof subVal === 'object') {
+            let jsonString = JSON.stringify(subVal)
+              .replace(/":\s*/g, ':')
+              .replace(/,"\s*/g, '; ')
+              .replace(/,/g, ' - ');
+            return jsonString.substring(1, jsonString.length - 2);
+          } else if (Array.isArray(subVal)) {
+            return subVal.join(' ; ');
+          } else {
+            return subVal;
+          }
+        }).join(' ; ');
+        return v;
+      }
+    }).join(',');
+    return line;
+  }).join('\r\n');
   return str;
-
 }
 
 
