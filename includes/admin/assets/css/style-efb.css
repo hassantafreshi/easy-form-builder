@@ -1274,6 +1274,12 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
 }
 
 @media screen and (max-width: 782px) {
+
+.custom-control.leaflet-control input[type="text"] {	
+   max-width: 70px!important;
+   min-width: 50px!important;
+}
+
 #steps-efb li:before {
   width: 25px!important;
   height: 25px!important;

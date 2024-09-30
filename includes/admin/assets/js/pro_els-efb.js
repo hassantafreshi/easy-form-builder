@@ -1039,11 +1039,37 @@ function efbCreateMap(id ,r ,viewState) {
       efbDiv.dataset.id = id+'-contorller';
       if (efbAllowAddingMarkers) {
           efbDiv.innerHTML = `
-              <a ${ state_efb == 'view' ?'':`onclick="efbLocateMe(${efbMap._leaflet_id} , '${id}')"`}  class="efb btn btn-sm btn-dark text-light fs-6"><i class=" fs-6   efb bi-crosshair"></i></a>
-              <input type="text" id="efb-search-${efbMap._leaflet_id}" placeholder="${efb_var.text.eln}" class="efb p-1  border-d efb-square fs-6" ${ state_efb == 'view' ?'disabled':''}>
-              <a ${ state_efb == 'view' ?'':`onclick="efbSearchLocation(${efbMap._leaflet_id})"`}  class="efb btn btn-sm btn-secondary text-light fs-6">${efb_var.text.search}</a>
-              <a ${ state_efb == 'view' ?'':`onclick="efbClearMarkers(${efbMap._leaflet_id} , '${id}')"`}  class="efb btn btn-sm btn-danger text-light fs-6">${efb_var.text.deletemarkers}</a>
+             <div class="efb d-flex justify-content-start align-items-center flex-wrap  flex-row">
+              <!-- Locate Me Button -->
+              <a ${state_efb == 'view' ? '' : `onclick="efbLocateMe(${efbMap._leaflet_id}, '${id}')"`}  
+                class="efb btn btn-sm btn-dark text-light fs-6 me-0 me-md-2 mb-md-0">
+                <i class="fs-6 efb bi-crosshair"></i> 
+              </a>
+
+              <!-- Search Input Field -->
+              <input type="text" id="efb-search-${efbMap._leaflet_id}" 
+                placeholder="${efb_var.text.eln}" 
+                class="efb form-control fs-6 me-0 me-md-2  mb-md-0 map-search-input my-0"
+                ${state_efb == 'view' ? 'disabled' : ''} 
+                >
+
+              <!-- Search Button -->
+              <a ${state_efb == 'view' ? '' : `onclick="efbSearchLocation(${efbMap._leaflet_id})"`}  
+                class="efb btn btn-sm btn-secondary text-light fs-6 me-0 me-md-2 mb-md-0">
+                <i class="efb fs-6 bi bi-search d-inline d-md-none"></i> 
+                <span class="efb d-none d-md-inline">${efb_var.text.search}</span> 
+              </a>
+
+              <!-- Clear Markers Button -->
+              <a ${state_efb == 'view' ? '' : `onclick="efbClearMarkers(${efbMap._leaflet_id}, '${id}')"`}  
+                class="efb btn btn-sm btn-danger text-light fs-6">
+                <i class="efb fs-6 bi bi-trash d-inline d-md-none"></i> 
+                <span class="efb d-none d-md-inline">${efb_var.text.deletemarkers}</span> 
+              </a>
+
+              <!-- Error Message (hidden by default) -->
               <div id="efb-error-message-${efbMap._leaflet_id}" class="error-message d-none"></div>
+          </div>
           `;
           efbDiv.classList.remove('d-none');
           
