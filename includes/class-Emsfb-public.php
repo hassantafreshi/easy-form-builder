@@ -3343,6 +3343,19 @@ class _Public {
 					//get page type form $page_type
 					if(function_exists('nitropack_purge'))	nitropack_purge(NULL, "single:$page_id", 'Post Updated');
 				break;
+				case 'atec-cache-apcu':
+				case 'atec-cache-info':
+					//atec-cache-apcu
+					
+					if (function_exists('atec_wpca_delete_page') && function_exists('atec_wpca_settings')){					
+						if (atec_wpca_settings('cache')){						
+							$suffix=($atec_wpca_settings['salt']??'').'_p';					
+							atec_wpca_delete_page($suffix,$page_id);						
+						}
+					
+					}
+					
+				break;
 			}
 		}
 		
