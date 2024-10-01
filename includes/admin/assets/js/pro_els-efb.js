@@ -1037,6 +1037,7 @@ function efbCreateMap(id ,r ,viewState) {
   efbSearchDiv.onAdd = function (efbMap) {
       var efbDiv = L.DomUtil.create('div', 'custom-control');
       efbDiv.dataset.id = id+'-contorller';
+      efbDiv.classList.add('efb-searchbox');
       if (efbAllowAddingMarkers) {
           efbDiv.innerHTML = `
              <div class="efb d-flex justify-content-start align-items-center flex-wrap  flex-row">
@@ -1068,14 +1069,14 @@ function efbCreateMap(id ,r ,viewState) {
               </a>
 
               <!-- Error Message (hidden by default) -->
-              <div id="efb-error-message-${efbMap._leaflet_id}" class="error-message d-none"></div>
+              <div id="efb-error-message-${efbMap._leaflet_id}" class="efb mx-3 error-message d-none"></div>
           </div>
           `;
           efbDiv.classList.remove('d-none');
           
       } else {
           efbDiv.innerHTML = `
-              <div id="efb-error-message-${efbMap._leaflet_id}" class="error-message  d-none"></div>
+              <div id="efb-error-message-${efbMap._leaflet_id}" class="efb mx-3  error-message  d-none"></div>
           `;
           efbDiv.classList.add('d-none');
           efbDiv.classList.add('efb');
@@ -1151,7 +1152,9 @@ function efbSearchLocation(efbMapId) {
               maps_efb[efbMapId].map.setView(efbLatlng, 13);
           } else {
               efbErrorMessageDiv.classList.remove('d-none');
-              efbErrorMessageDiv.textContent = 'Location not found';
+              let val = efb_var.text.slocation.replace('%s', '');
+              val = efb_var.text.snotfound.replace('%s', val);
+              efbErrorMessageDiv.textContent =  val;
           }
       })
       .catch(error => {

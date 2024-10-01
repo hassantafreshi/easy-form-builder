@@ -786,6 +786,8 @@ class efbFunction {
 			"tshbc" => $state  &&  isset($ac->text->tshbc) ? $ac->text->tshbc : esc_html__('The %s has been successfully completed',$s),
 			"rename" => $state  &&  isset($ac->text->rename) ? $ac->text->rename : esc_html__('Rename',$s),
 			"source" => $state  &&  isset($ac->text->source) ? $ac->text->source : esc_html__('Source',$s),
+			"snotfound" => $state  &&  isset($ac->text->snotfound) ? $ac->text->snotfound : esc_html__('%s not found',$s),
+			"slocation" => $state  &&  isset($ac->text->slocation) ? $ac->text->slocation : esc_html__('%s Location',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s),
 			
 
@@ -1886,7 +1888,7 @@ class efbFunction {
 		$plugin_list = [];
 		$cache_plugins_slug =['wp-optimize','hummingbird-performance', 'big-scoots-cache','wp-cloudflare-page-cache','breeze','jetpack','w3-total-cache','wp-fastest-cache',
 							  'wp-rocket','comet-cache','hyper-cache','cache-enabler','wp-super-cache','litespeed-cache','nitropack','jetpack-boost',
-							  'autoptimize','wp-rest-cache','speedycache','clear-cache-for-widgets'];
+							  'autoptimize','wp-rest-cache','speedycache','clear-cache-for-widgets','wp-cache','wp-cache-system','atec-cache-info','atec-cache-apcu'];
 		foreach ($plugins as $plugin_file => $plugin_data) {
 			$slug = explode('/', $plugin_file)[0];
 			$exists_cache = in_array($slug, $cache_plugins_slug); 
