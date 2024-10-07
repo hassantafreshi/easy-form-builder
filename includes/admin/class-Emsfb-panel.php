@@ -306,7 +306,7 @@ class Panel_edit  {
 					'bootstrap'=>$this->check_temp_is_bootstrap(),
 					'pro'=>$pro ? 1 : 0,								
 				));
-				$this->delete_old_rows_emsfb_stts_();
+		
 					//smart zone test
 					//$this->test_smart_zone();
 		}else{
@@ -426,38 +426,8 @@ class Panel_edit  {
 			die('invalid file '.$_FILES['async-upload']['type']);
 		}
 	}//end function
-	public function delete_old_rows_emsfb_stts_() {		
-		if(empty($this->db)){
-			global $wpdb;
-			$this->db = $wpdb;
-		}
-		$table_name = $this->db->prefix . 'emsfb_stts_';
-		$date_limit = date('Y-m-d', strtotime('-40 days'));
-		$this->db->query(
-			$this->db->prepare(
-				"DELETE FROM $table_name WHERE date < %s",
-				$date_limit
-			)
-		);
-
-		$table_name = $this->db->prefix . 'emsfb_temp_links';
-		$table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$table_name}'");
-
-		if ($table_exists == $table_name) {		
-			$this->db->query(
-				$this->db->prepare(
-					"DELETE FROM $table_name WHERE created_at < %s",
-					$date_limit
-				)
-			);
-			return true;
-		} 
-		return false;
 
 
-	
-
-	}
 	public function get_efbFunction(){
 			$efbFunctionInstance;
         if (false === ($efbFunctionInstance = wp_cache_get('emsfb_FunctionInstance', 'emsfb'))) {

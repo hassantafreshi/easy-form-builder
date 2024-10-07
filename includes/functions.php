@@ -1364,53 +1364,170 @@ class efbFunction {
 	}//addon_adds_cron_efb
 
 
-	public function addon_add_efb($value){
-			if($value!="AdnOF"){
+/* public function addon_add_efb($value) {
+    if ($value != "AdnOF") {
 
-		// اگر لینک دانلود داشت
-		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-		$vwp = get_bloginfo('version');
-		$u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-		if(get_locale()=='fa_IR'){
-			$u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-			//error_log('EFB=>addon_add_efb fa_IR');
-		}
-		$request = wp_remote_get($u);
-		
-		if( is_wp_error( $request ) ) {
-			
-			add_action( 'admin_notices', 'admin_notice_msg_efb' );
-			
-			return false;
-		}
-		
-		$body = wp_remote_retrieve_body( $request );
-		$data = json_decode( $body );
+        // اگر لینک دانلود داشت
+        $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+        $vwp = get_bloginfo('version');
+        $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+        
+        if (get_locale() == 'fa_IR') {
+            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+        }
 
-			if($data->status==false){
-			return false;
-			
-		}
+        // تعداد تلاش‌ها را محدود می‌کنیم به 2
+        $max_attempts = 2;
+        $attempt = 0;
+        $success = false;
 
-		// Check version of EFB to Addons
-		if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
-			return false;                
-		} 
+        while ($attempt < $max_attempts && !$success) {
+            $request = wp_remote_get($u);
+            if (is_wp_error($request)) {
+                $attempt++;
+                if ($attempt >= $max_attempts) {                    
+                    add_action('admin_notices', 'admin_notice_msg_efb');
+                    return false;
+                }
+                continue; 
+            }
 
-		if($data->download==true){
-			$url =$data->link;
-			//split the url to get the folder name of the addon , bettwen last / and .zip	
+            $body = wp_remote_retrieve_body($request);
+            $data = json_decode($body);
 
-			$directory_name = substr($url,strrpos($url ,"/")+1,-4);
-			$directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/'.$directory_name;
-			if (!file_exists($directory)) {					
-				$this->fun_addon_new($url);					
+            if ($data->status == false) {
+                return false;
+            }
+
+            // Check version of EFB to Addons
+            if (version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
+                return false;
+            }
+
+            if ($data->download == true) {
+                $url = $data->link;
+                // split the url to get the folder name of the addon , between last / and .zip
+                $directory_name = substr($url, strrpos($url, "/") + 1, -4);
+                $directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/' . $directory_name;
+
+                if (!file_exists($directory)) {
+                    $this->fun_addon_new($url);
+                }
+
+                $success = true; 
+            }
+        }
+
+        return $success;
+    }
+} */
+
+public function addon_add_efb($value) {
+    if ($value != "AdnOF") {
+
+        // If there's a download link
+        $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+        $vwp = get_bloginfo('version');
+        $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+        
+        if (get_locale() == 'fa_IR') {
+            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+        }
+
+        // Limit the number of attempts to 2
+        $max_attempts = 2;
+        $attempt = 0;
+        $success = false;
+        $error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
+		$error_messag = sprintf($error_message, 'whitestudio.team', 'not_success');
+
+        while ($attempt < $max_attempts && !$success) {
+            $request = wp_remote_get($u);
+
+            if (is_wp_error($request)) {
+                $attempt++;
+                $error_message = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
+                
+                if ($attempt >= $max_attempts) {
+                    return array('status' => false, 'message' => $error_message);
+                }
+                continue; 
+            }
+
+            $response_code = wp_remote_retrieve_response_code($request);
+
+            // Check HTTP response code
+            if ($response_code != 200) {
+                $attempt++;
+                $error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
+				$error_message = sprintf($error_message, 'whitestudio.team', $response_code);
+                
+                if ($attempt >= $max_attempts) {
+                    return array('status' => false, 'message' => $error_message);
+                }
+                continue;
+            }
+
+            $body = wp_remote_retrieve_body($request);
+            $data = json_decode($body);
+
+            // Check if the JSON is valid
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $attempt++;
+				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
+				$error_message = sprintf($error_message, 'whitestudio.team', 'invalid_json');
+                
+                if ($attempt >= $max_attempts) {
+                    return array('status' => false, 'message' => $error_message);
+                }
+                continue;
+            }
+			if($data==null){
+				
+				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
+				$error_message = sprintf($error_message, 'whitestudio.team', 'invalid_data');
+				
+				if ($attempt >= $max_attempts) {
+					return array('status' => false, 'message' => $error_message);
+				}
 			}
-			return true;
-		}
-		
-	}
-	}//end function
+
+            // Check the status in the response
+            if ($data->status == false) {
+				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
+				$error_message = sprintf($error_message, 'whitestudio.team', 'invalid_status');
+                return array('status' => false, 'message' => $error_messag);
+            }
+
+            // Check the plugin version
+            if (version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
+                return array('status' => false, 'message' =>  esc_html__('The version of the add-on is not compatible with the version of the Easy Form Builder plugin.','easy-form-builder'));
+            }
+
+            // If there's a download link
+            if ($data->download == true) {
+                $url = $data->link;
+                // Split the URL to get the folder name of the addon, between last / and .zip
+                $directory_name = substr($url, strrpos($url, "/") + 1, -4);
+                $directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/' . $directory_name;
+
+                if (!file_exists($directory)) {
+                    $this->fun_addon_new($url);
+                }
+
+                $success = true;
+            }
+        }
+
+        if ($success) {
+			$message = esc_html__('The %s has been successfully completed','easy-form-builder');
+			$message = sprintf($message,  esc_html__('installation','easy-form-builder'));
+            return array('status' => true, 'message' => $message );
+        } else {
+            return array('status' => false, 'message' => $error_message);
+        }
+    }
+} // end function
 
 	   public function fun_addon_new($url){
 		//download the addon dependency 
@@ -1471,25 +1588,25 @@ class efbFunction {
 	public function download_all_addons_efb(){
 		$state=true;
 		$ac=$this->get_setting_Emsfb();
-		$addons['AdnSPF']=isset($ac->AdnSPF)?$ac->AdnSPF:0;
-		$addons['AdnATC']=isset($ac->AdnATC)?$ac->AdnATC:0;
-		$addons['AdnPPF']=isset($ac->AdnPPF)?$ac->AdnPPF:0;
-		$addons['AdnSS']=isset($ac->AdnSS)?$ac->AdnSS:0;	
-		$addons['AdnESZ']=isset($ac->AdnESZ)?$ac->AdnESZ:0;
-		$addons['AdnSE']=isset($ac->AdnSE)?$ac->AdnSE:0;
-		$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-		$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnADP : 0;
+		$addons['AdnSPF']	=	isset($ac->AdnSPF)	? $ac->AdnSPF	:0;
+		$addons['AdnATC']	=	isset($ac->AdnATC)	? $ac->AdnATC	:0;
+		$addons['AdnPPF']	=	isset($ac->AdnPPF)	? $ac->AdnPPF	:0;
+		$addons['AdnSS']	=	isset($ac->AdnSS)	? $ac->AdnSS	:0;	
+		$addons['AdnESZ']	=	isset($ac->AdnESZ)	? $ac->AdnESZ	:0;
+		$addons['AdnSE']	=	isset($ac->AdnSE)	? $ac->AdnSE	:0;
+		$addons['AdnPDP']	=	isset($ac->AdnPDP)	? $ac->AdnPDP	:0;
+		$addons['AdnADP']	=	isset($ac->AdnADP)	? $ac->AdnADP	:0;
+
+		$error_messag ='';
 		foreach ($addons as $key => $value) {
 			
 			
 			if($value ==1){
 				
 				$r =$this->addon_add_efb($key);
-				if($r==false){					 
-					 $state = false;	
-					 break;															
-				}else{
-					$state = true;
+				if($r['status']==false){
+					$state=false;
+					$error_messag .= $r['message']."<br>";
 				}
 			}
 		}
@@ -1500,7 +1617,7 @@ class efbFunction {
 
 			if($to==null || $to=="null" || $to=="") return false;
 			$sub = esc_html__('Report problem','easy-form-builder') .' ['. esc_html__('Easy Form Builder','easy-form-builder').']';
-			$m =  '<div><p>'.esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder').
+			$m =  '<div><p>'. $error_messag.
 				'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.esc_html__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
 				'</a></p><p>'. esc_html__('Easy Form Builder','easy-form-builder') . '</p>
 					<p><a href="'.home_url().'" target="_blank">'.esc_html__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
@@ -2025,6 +2142,7 @@ class efbFunction {
 			error_log('EFB=>weekly_check_pro_efb r: ' . $r);
 			if ($r==1) {
 				update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
+				$this->delete_old_rows_emsfb_stts_();
 				return true;
 			} else {
 				update_option('emsfb_pro' , 0);
@@ -2103,6 +2221,45 @@ class efbFunction {
 		$div_noti = '<div class="efb mx-3  mt-4 mb-3 pd-5  alert alert-light pointer-efb buy-noti  alert-dismissible bg-dark text-warning"><i class="efb bi-exclamation-triangle-fill text-warning mx-1"></i><span class="efb text-warning">'.$ativ.'</span><br>' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
 	
 		return $div_noti;
+	}
+
+
+	public function delete_old_rows_emsfb_stts_() {
+		if (empty($this->db)) {
+			global $wpdb;
+			$this->db = $wpdb;
+		}
+	
+		$date_limit = date('Y-m-d', strtotime('-40 days'));
+	
+		$table_name_stts = $this->db->prefix . 'emsfb_stts_';
+		$this->db->query(
+			$this->db->prepare(
+				"DELETE FROM $table_name_stts WHERE date < %s",
+				$date_limit
+			)
+		);
+	
+		// استفاده از option وردپرس برای چک کردن وجود جدول 'emsfb_temp_links'
+		$table_name_temp_links = $this->db->prefix . 'emsfb_temp_links';
+		$table_exists = get_option('emsfb_temp_links_table_exists' , false);
+	
+		if ($table_exists === false) {
+			// اگر option هنوز تنظیم نشده، یک بار بررسی وجود جدول را انجام دهید
+			$table_exists = $this->db->get_var("SHOW TABLES LIKE '{$table_name_temp_links}'") == $table_name_temp_links;
+			update_option('emsfb_temp_links_table_exists', $table_exists);
+		}
+		if ($table_exists) {
+			$this->db->query(
+				$this->db->prepare(
+					"DELETE FROM $table_name_temp_links WHERE created_at < %s",
+					$date_limit
+				)
+			);
+			return true;
+		}
+	
+		return false;
 	}
 
 	
