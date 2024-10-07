@@ -36,7 +36,7 @@ class Emsfb {
   
         //register_activation_hook(__FILE__ ,[$this, 'test_fun']);
 
-        add_action('init', [$this, 'load_textdomain']);
+       // add_action('init', [$this, 'load_textdomain']);
     }
 
     /**
