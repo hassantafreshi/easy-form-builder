@@ -3324,8 +3324,9 @@ class _Public {
 					break;
 				case 'nitropack':
 					//nitropack
-					if(function_exists('nitropack_clean_post_cache'))	nitropack_clean_post_cache($page_id);
-					if(function_exists('nitropack_purge'))	nitropack_purge(NULL, "single:$page_id", 'Post Updated');
+					$url = get_permalink($page_id);
+					if(function_exists('nitropack_clean_post_cache'))	nitropack_clean_post_cache($page_id);				
+					if(function_exists('nitropack_sdk_purge'))	nitropack_sdk_purge($url);
 				break;
 				case 'wp-rest-cache':
 					//WP REST Cache
