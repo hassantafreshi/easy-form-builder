@@ -439,13 +439,23 @@ class Panel_edit  {
 				$date_limit
 			)
 		);
+
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
-		$this->db->query(
-			$this->db->prepare(
-				"DELETE FROM $table_name WHERE created_at < %s",
-				$date_limit
-			)
-		);
+		$table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$table_name}'");
+
+		if ($table_exists == $table_name) {		
+			$this->db->query(
+				$this->db->prepare(
+					"DELETE FROM $table_name WHERE created_at < %s",
+					$date_limit
+				)
+			);
+			return true;
+		} 
+		return false;
+
+
+	
 
 	}
 	public function get_efbFunction(){
