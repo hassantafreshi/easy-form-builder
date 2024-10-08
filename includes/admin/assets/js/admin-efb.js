@@ -429,7 +429,9 @@ function actionSendAddons_efb(val) {
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           //show_message_result_form_set_EFB(1, res.data.value)
-          alert_message_efb(efb_var.text.done,'', 30,'info');
+          let m = efb_var.text.tshbc;
+          m =m.replace('%s', `<b>${efb_var.text.installation}</b>`);
+          alert_message_efb(m,'', 40,'info');
           location.reload();
         } else {
           alert(res, "error")
@@ -470,7 +472,10 @@ function actionSendAddonsUn_efb(val) {
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           //show_message_result_form_set_EFB(1, res.data.value)
-          alert_message_efb(efb_var.text.done,'', 30,'info');
+          let m = efb_var.text.tDeleted;
+          const ad = efb_var.text.addon.replace('%s1', ``).toLowerCase();
+          m =m.replace('%s', ad);
+          alert_message_efb(m,'', 30,'info');
           location.reload();
         } else {
           alert(res, "error")

@@ -62,8 +62,9 @@ class Emsfb {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
             $sms_exists =get_option('emsfb_addon_AdnSS',false);
-            if($sms_exists !== false) {require_once EMSFB_PLUGIN_DIRECTORY. '/vendor/smssended/class-Emsfb-sms.php';}
-            require_once EMSFB_PLUGIN_DIRECTORY. '/vendor/autofill/class-Emsfb-autofill.php';
+            if($sms_exists != false && $sms_exists != 0) {require_once EMSFB_PLUGIN_DIRECTORY. '/vendor/smssended/class-Emsfb-sms.php';}
+            $auto_fill_exists =get_option('emsfb_addon_AdnAtF',false);
+            if($auto_fill_exists != false && $auto_fill_exists != 0 ) {require_once EMSFB_PLUGIN_DIRECTORY. '/vendor/autofill/class-Emsfb-autofill.php';}
 
             //check is EMSFB_PLUGIN_DIRECTORY. '/vendor/autofill/class-Emsfb-autofill.php' exist
       

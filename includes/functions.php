@@ -788,6 +788,8 @@ class efbFunction {
 			"source" => $state  &&  isset($ac->text->source) ? $ac->text->source : esc_html__('Source',$s),
 			"snotfound" => $state  &&  isset($ac->text->snotfound) ? $ac->text->snotfound : esc_html__('%s not found',$s),
 			"slocation" => $state  &&  isset($ac->text->slocation) ? $ac->text->slocation : esc_html__('%s Location',$s),
+			"installation" => $state  &&  isset($ac->text->installation) ? $ac->text->installation : esc_html__('installation',$s),
+			"tDeleted" => $state ? $ac->text->tDeleted : esc_html__('The %s have been deleted.',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s),
 			
 
@@ -1090,7 +1092,7 @@ class efbFunction {
 		$rtrn='null';		
 		
 
-		$value = get_option('emsfb_settings');
+		$value = get_option('emsfb_settings' ,false);
 
 		if($value==false){
 			if(empty($this->db)){
@@ -1098,7 +1100,6 @@ class efbFunction {
 				$this->db = $wpdb;
 			}
 			$table_name = $this->db->prefix . "emsfb_setting"; 
-			//$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
 			$value = $this->db->get_var( "SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1" );
 			update_option('emsfb_settings', $value);
 			

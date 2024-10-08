@@ -315,50 +315,55 @@ class Admin {
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
         }
+        $name_space ='emsfb_addon_'.$value;
        if($value!="AdnOF"){
-            // اگر لینک دانلود داشت
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-            $name_space ='emsfb_addon_'.$value;
-           //error_log($name_space);
+            $name_space = 'emsfb_addon_' . $value;
             $vwp = get_bloginfo('version');
-            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-            if(get_locale()=='fa_IR'){
-                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;       
+            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+            if (get_locale() == 'fa_IR') {
+                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
             }
             
-            $request = wp_remote_get($u);
-            if( is_wp_error( $request )) {
-                $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
+            $attempts = 2; 
+            for ($i = 0; $i < $attempts; $i++) {
+                $request = wp_remote_get($u);
+                if (!is_wp_error($request)) {
+                    break; 
+                }
+                if ($i == $attempts - 1) {
+                    $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server', 'easy-form-builder');
+                    $response = ['success' => false, "m" => $m];
+                    wp_send_json_success($response, 200);
+                }
+            }
+            
+            $body = wp_remote_retrieve_body($request);
+            $data = json_decode($body);
+            if ($data == null || $data == 'null') {
+                $m = esc_html__('It looks like you cannot use the Easy Form Builder features right now. Please contact Whitestudio.team support if you need assistance.', 'easy-form-builder');
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, 200);
             }
-            $body = wp_remote_retrieve_body( $request );
-            $data = json_decode( $body );
-            if($data==null || $data=='null'){
-                $m = esc_html__('You can not use the Easy Form Builder features right now. Contact whitestudio.team support for help.','easy-form-builder');
-                $response = ['success' => false, "m" => $m];
-                wp_send_json_success($response, 200);
-            }
-            if($data->status==false){
+            if ($data->status == false) {
                 $response = ['success' => false, "m" => $data->error];
                 wp_send_json_success($response, 200);
             }
             // Check version of EFB to Addons
-            if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {  
-                     
+            if (version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
                 $m = $lang['upDMsg'];
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, 200);
             }
-            if($data->download==true ){
-                $url =$data->link;
+            if ($data->download == true) {
+                $url = $data->link;
                 //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
-               $s= $this->fun_addon_new($url);
-               if($s==false ){
-                $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
-                $response = ['success' => false, "m" => $m];
-                wp_send_json_success($response, 200);
-               }
+                $s = $this->fun_addon_new($url);
+                if ($s == false) {
+                    $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder');
+                    $response = ['success' => false, "m" => $m];
+                    wp_send_json_success($response, 200);
+                }
             }
         }
         /*
