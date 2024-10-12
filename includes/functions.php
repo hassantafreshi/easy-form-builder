@@ -2006,7 +2006,7 @@ public function addon_add_efb($value) {
 		$plugin_list = [];
 		$cache_plugins_slug =['wp-optimize','hummingbird-performance', 'big-scoots-cache','wp-cloudflare-page-cache','breeze','jetpack','w3-total-cache','wp-fastest-cache',
 							  'wp-rocket','comet-cache','hyper-cache','cache-enabler','wp-super-cache','litespeed-cache','nitropack','jetpack-boost',
-							  'autoptimize','wp-rest-cache','speedycache','clear-cache-for-widgets','wp-cache','wp-cache-system','atec-cache-info','atec-cache-apcu'];
+							  'autoptimize','wp-rest-cache','speedycache','clear-cache-for-widgets','wp-cache','wp-cache-system','atec-cache-info','atec-cache-apcu','wpspeed'];
 		foreach ($plugins as $plugin_file => $plugin_data) {
 			$slug = explode('/', $plugin_file)[0];
 			$exists_cache = in_array($slug, $cache_plugins_slug); 

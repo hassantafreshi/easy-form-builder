@@ -3354,6 +3354,15 @@ class _Public {
 					}
 					
 				break;
+				case 'wpspeed':
+					//wpspeed
+					//https://wordpress.org/support/topic/handling-page-caching-8/
+					if (class_exists(‘WPSpeed\Platform\Cache’)) {
+
+						WPSpeed\Platform\Cache::deleteCache();
+						
+						}
+				break;
 			}
 		}
 		
