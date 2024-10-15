@@ -472,7 +472,7 @@ class _Public {
 					continue;
 				}
 
-				//	if($i>1)$content .= $this->addNewElement_efb($i,$randomId,$this->id,$txts);
+				if($i>1)$content .= $this->addNewElement_efb($i,$randomId,$this->id,$txts);
 			}
 			 $content="	
 			 ".$this->bootstrap_icon_efb($icons_)."
@@ -3855,11 +3855,31 @@ class _Public {
 		return '<small id="' . $rndm . '-des" class="efb form-text d-flex fs-7 col-sm-12 efb ' . $mx . ' ' . $msg_align . ' ' . $msg_txt_color . ' ' . (isset($vj->message_text_size) ? $vj->message_text_size : '') . ' ">' . $msg . '</small>';
 	}
 	private function generateLabel_efb($rndm, $vj, $pos) {
+
+
 		$label_align = isset($vj->label_align) ? $vj->label_align : '';
 		$label_text_size = isset($vj->label_text_size) && $vj->label_text_size != "default" ? $vj->label_text_size : '';
-		$required = isset($vj->required) && ( $vj->required == 1 || $vj->required == true) ? '*' : '';
-		$label_color = isset($vj->label_text_color) ? $vj->label_text_color :'';
-		return '<label for="' . $rndm . '_" class="efb mx-0 px-0 pt-2 pb-1 ' . $pos[2] . ' col-sm-12 col-form-label ' . (isset($vj->hflabel) && $vj->hflabel == 1 ? 'd-none' : '') . ' ' . $label_color . ' ' . $label_align . ' ' . $label_text_size . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size. '">' . $vj->name . '</span><span class="efb mx-1 text-danger" id="' . $rndm . '_req" role="none">' . $required . '</span></label>';
+		$required = isset($vj->required) && ($vj->required == 1 || $vj->required == true) ? '<span class="efb mx-1 text-danger" id="' . $rndm . '_req" role="none"> *</span>' : '';
+		$label_color = isset($vj->label_text_color) ? $vj->label_text_color : '';
+
+		$label_classes = [
+			'efb',
+			'mx-0',
+			'px-0',
+			'pt-2',
+			'pb-1',
+			$pos[2],
+			'col-sm-12',
+			'col-form-label',
+			(isset($vj->hflabel) && $vj->hflabel == 1 ? 'd-none' : ''),
+			$label_color,
+			$label_align,
+			$label_text_size
+		];
+		
+		$label_class_str = implode(' ', array_filter($label_classes));
+
+		return '<label for="' . $rndm . '_" class="' . $label_class_str . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size . '">' . $vj->name . '</span>' . $required . '</label>';
 	}
 	private function generateTooltip_efb($rndm) {
 		return '<small id="' . $rndm . '_-message" class="efb py-1 fs-7 tx ttiptext px-2"> ! </small>';
