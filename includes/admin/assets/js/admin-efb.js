@@ -1385,7 +1385,11 @@ let change_el_edit_Efb = (el) => {
         break;
       case "hideLabelEl":
         c = el.classList.contains('active')==true ? 1 :0;
-        valj_efb[indx].hflabel = c;
+        if(valj_efb[indx].hasOwnProperty('hflabel')==false){ 
+          Object.assign(valj_efb[indx],{'hflabel':c}) 
+        }else{
+         valj_efb[indx].hflabel = c;
+        }
         
         clss=document.getElementById(`${el.dataset.id}_lab_g`);
         //console.log(c,clss)
