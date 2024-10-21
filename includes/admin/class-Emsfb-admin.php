@@ -324,7 +324,7 @@ class Admin {
             if (get_locale() == 'fa_IR') {
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
             }
-            
+            error_log($u);
             $attempts = 2; 
             for ($i = 0; $i < $attempts; $i++) {
                 $request = wp_remote_get($u);
@@ -346,6 +346,7 @@ class Admin {
                 wp_send_json_success($response, 200);
             }
             if ($data->status == false) {
+                error_log(json_encode($data));
                 $response = ['success' => false, "m" => $data->error];
                 wp_send_json_success($response, 200);
             }

@@ -3128,7 +3128,8 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_text_color: txt_color, message_text_color: pub_message_text_color_efb, el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
       el_align: 'justify-content-start', pro: pro, icon_input: ''
     })
-    const indx =(valj_efb.length) - 1;
+    
+   
     if (elementId == "stripe") {
       Object.assign(valj_efb[0], { getway: 'stripe'});
       if(valj_efb[0].hasOwnProperty('currency')==false) Object.assign(valj_efb[0], { currency: 'usd' })
@@ -3142,13 +3143,14 @@ let sampleElpush_efb = (rndm, elementId) => {
       form_type_emsFormBuilder = "payment";
       valj_efb[testb].el_text_color ="text-white"
     }else if (elementId == "esign") {
-      
+      const indx =(valj_efb.length) - 1;
       Object.assign(valj_efb[indx], {
         icon: 'bi-save', icon_color: "text-white", button_single_text: efb_var.text.clear,
         button_color: pub_bg_button_color_efb
       })
       //icon: ''
     } else if (elementId == "yesNo") {
+      const indx =(valj_efb.length) - 1;
       Object.assign(valj_efb[indx], { button_1_text: efb_var.text.yes, button_2_text: efb_var.text.no, button_color: pub_bg_button_color_efb })
     } else if (elementId == "maps") {
       console.log(valj_efb.length,elementId);
@@ -3160,12 +3162,14 @@ let sampleElpush_efb = (rndm, elementId) => {
       }, valj_efb.length * 5);
     } else if (elementId == "multiselect" || elementId == "payMultiselect") {
       // console.log(valj_efb.length)
+      const indx =(valj_efb.length) - 1;
       Object.assign(valj_efb[indx], {
         maxSelect: 2,
         minSelect: 0
       })
     }else if (elementId == "chlCheckBox" || elementId == "chlRadio") {
       // console.log(valj_efb.length)
+      const indx =(valj_efb.length) - 1;
       Object.assign(valj_efb[indx], {
         pholder_chl_value: efb_var.text.qty
       })
@@ -3209,10 +3213,11 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_align: 'justify-content-start', pro: pro
     })
     if (elementId == "dadfile") {
-      //console.log (valj_efb[indx])
+      const indx =(valj_efb.length) - 1;
       Object.assign(valj_efb[indx], { icon: 'bi-cloud-arrow-up-fill', icon_color:pub_icon_color_efb, button_color: pub_bg_button_color_efb })
       
     }else if(elementId == "file"){
+      const indx =(valj_efb.length) - 1;
       valj_efb[indx].value = 'zip';
       valj_efb[indx].file = 'zip';
     }

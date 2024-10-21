@@ -426,12 +426,12 @@ class _Public {
 			$this->valj_efb = json_decode($value, false, 512, JSON_UNESCAPED_UNICODE);
 			$content="<!--efb-->";
 			$count = count($this->valj_efb);
-			$ttt =['dragAndDropA','or','browseFile','tfnapca','on','off'];
+			$ttt =['dragAndDropA','or','browseFile','tfnapca','on','off' ,'updateUrbrowser'];
 			$txts = $this->efbFunction->text_efb($ttt);
 			$step_no= 0;
 			$head ='<!--start head efb-->';
 			
-			for( $i=2; $i<$count; $i++){
+			for( $i=1; $i<$count; $i++){
 				//random unique id
 				//error_log($this->valj_efb[$i]->id_);
 				$randomId = wp_unique_id('efb_');
@@ -442,7 +442,9 @@ class _Public {
 				switch
 				maps
 				 */
+				$style ='<style>#teststyleefb{display:none;}';
 				if($this->valj_efb[$i]->type=="step" ){
+					error_log('step->');
 					$valj_efb_first = $this->valj_efb[0];
 					$value = $this->valj_efb[$i];
 					$step_no = intval($this->valj_efb[$i]->step);
@@ -469,11 +471,31 @@ class _Public {
 						$value->label_text_color,  // %9$s
 						$value->name  // %10$s
 					);
+					//ColorNameToHexEfbOfElEfb(color.slice(4),'btn') //slice text=5 bg=2 border=6 btn=3 icon=4
+					/* $color = substr($value->icon_color, 5);
+					error_log($color);
+					$style .= $this->ColorNameToHexEfbOfElEfb($color, 'icon');
+					$color = substr($value->label_text_color, 5);
+					error_log($color);
+					$style .= $this->ColorNameToHexEfbOfElEfb($color, 'text'); */
+					/* $color = substr($value->bg_color, 2);
+					$style .= ColorNameToHexEfbOfElEfb($color, 'bg'); */
+					//ColorNameToHexEfbOfElEfb
 					continue;
 				}
 
-				if($i>1)$content .= $this->addNewElement_efb($i,$randomId,$this->id,$txts);
+				if($i>1){
+
+					error_log($this->valj_efb[$i]->type);
+					$r = $this->addNewElement_efb($i, $randomId, $this->id, $txts);
+					error_log(json_encode($r));
+					$content .= $r[0]; // استفاده صحیح از عملگر الحاق رشته
+					$style .= $r[1]; // استفاده صحیح از عملگر الحاق رشته
+				}
 			}
+			$style = $style.'</style>';
+
+			error_log(	$style);
 			 $content="	
 			 ".$this->bootstrap_icon_efb($icons_)."
 			 <div id='body_efb' class='efb  row pb-3 efb px-2'>
@@ -484,6 +506,7 @@ class _Public {
 			 </div>
 			 </div><div id='alert_efb' class='efb mx-5'></div>
 			 ".$k." 
+			 ".$style."
 			 ";
 		 }
 		return $content;
@@ -3471,6 +3494,9 @@ class _Public {
 		if ($state == 1) return $this->efbFunction;
 	}
 	public function addNewElement_efb($i, $rndm,$form_id,$texts) {
+		error_log('addNewElement_efb');
+		//error_log(json_encode($this->valj_efb[$i]));
+		error_log(json_encode($this->valj_efb[$i]->type));
 		$element_Id = $this->valj_efb[$i]->id_;
 		$elementId = $this->valj_efb[$i]->type;
 		$pos = array("", "", "", "");
@@ -3492,12 +3518,14 @@ class _Public {
 		 $label =isset($vj->name) && strlen($vj->name)   ? $this->generateLabel_efb($element_Id, $vj, $pos) :'<!-- label not exist -->';
 
 		*/
+		$style ='';
 		$desc = $this->generateDescription_efb($element_Id, $vj, $pos);
 		$label = $this->generateLabel_efb($element_Id, $vj, $pos);
 
 		$ttip = $this->generateTooltip_efb($element_Id);
 		$div_f_id = $this->generateDivFId_efb($element_Id, $pos);
 		$aire_describedby = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : "";
+		
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$ui ='<!--efb ui-->';
 		$dataTag = '<!--efb dataTag-->';
@@ -3507,7 +3535,7 @@ class _Public {
 		$js_s='<!--JS-->';		
 		$pro =0;
 		$pro = $this->pro_efb;
-		$classes .= str_replace(',', ' ', $vj->classes) ?? '';
+		$classes .=' '. str_replace(',', ' ', $vj->classes) ?? '';
 		$currency = isset($this->valj_efb[0]->currency) ? $this->valj_efb[0]->currency : 'USD';
 
 
@@ -3556,9 +3584,10 @@ class _Public {
 					$ui = $pro ? $ui : $this->public_pro_message_efb($texts['tfnapca']);
 					
 				break;			
+
 				case 'range':
-					$classes =  'form-range';	
-					$classes .=str_replace(',', ' ', $vj->classes) ?? '';
+					$classes = 'form-range';
+					$classes .= str_replace(',', ' ', $vj->classes) ?? '';
 					$maxlen = isset($vj->mlen) ? $vj->mlen : 100;
 					$minlen = isset($vj->milen) ? $vj->milen : 0;
 					$temp = $vj->value > 0 ? $vj->value : round(($maxlen + $minlen) / 2);
@@ -3566,7 +3595,7 @@ class _Public {
 					$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';
 					$valueAttr = $temp ? sprintf('value="%s"', $temp) : '';
-			
+				
 					$ui = sprintf(
 						'%1$s <div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f"> %4$s <div class="efb slider m-0 p-2 %5$s %6$s efb1 %7$s" data-css="%8$s" id="%3$s-range"> <input type="%9$s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %10$s efbField" data-id="%3$s-el" data-vid="%3$s" data-formId="%8$s" id="%3$s_" oninput="fun_show_val_range_efb(\'%3$s\')" %11$s min="%12$s" max="%13$s" aria-required="%14$s" aria-label="%15$s" %16$s %17$s> <p id="%3$s_rv" class="efb mx-1 py-0 my-1 fs-6 text-darkb">%18$s</p> </div> %19$s',
 						$label,
@@ -3577,7 +3606,8 @@ class _Public {
 						$vj->el_text_color,
 						$classes,
 						$form_id,
-						$elementId,
+						$form_id,
+						'range', // نوع ورودی
 						$requiredAttr,
 						$minlen,
 						$maxlen,
@@ -3588,8 +3618,8 @@ class _Public {
 						$temp ?: 50,
 						$desc
 					);
-			
-					$dataTag = $elementId;
+				
+					$dataTag = $elementId;					
 				break;
 				case 'file':
 					$ui = sprintf('
@@ -3684,9 +3714,9 @@ class _Public {
 					$ui = sprintf('
 						%1$s
 						<div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f">
-							%s
-							%s
-							%s',
+							%4$s
+							%5$s
+							%6$s',
 						$label,
 						$pos[3],
 						$element_Id,
@@ -3795,12 +3825,81 @@ class _Public {
 						);
 				break;
 				case 'esign':
-					/* $ui = '
+					
+					$ui = '
 					' . $label . '
 					' . $ttip . '
-					' . ($this->pro_efb == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $iVJ, $desc) : $this->public_pro_message());
-					$dataTag = $elementId; */
+					' . ($this->pro_efb == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : $this->public_pro_message());
+					//$previewSate, $rndm, $vj, $form_id,$texts
+					$dataTag = $elementId;
 				break;	
+				case 'maps':
+
+					$lat = isset($valj_efb[$randomId]['lat']) ? $valj_efb[$randomId]['lat'] : '0';
+					$lng = isset($valj_efb[$randomId]['lng']) ? $valj_efb[$randomId]['lng'] : '0';
+					$zoom = isset($valj_efb[$randomId]['zoom']) ? $valj_efb[$randomId]['zoom'] : '8';
+					$formId = isset($valj_efb[0]['formId']) ? $valj_efb[0]['formId'] : '';
+					
+					// تولید HTML المان نقشه با استفاده از sprintf و اضافه کردن formId
+					$ui .= sprintf(
+						"<div class='efb col-md-12' id='%s-f' data-formId='%s'>
+							<label for='%s_' class='efb form-label text-labelEfb'>
+								<span>%s</span>
+								<span class='text-danger' role='none'>%s</span>
+							</label>
+							<div class='efb maps-efb maps-os' id='%s-map' style='height: %s;' data-formId='%s' data-lat='%s' data-lng='%s' data-zoom='%s' data-id='%s-el' %s></div>
+							<input type='hidden' name='%s-lat' id='%s_lat' value='%s' class='efb emsFormBuilder_v' data-type='maps' data-vid='%s' %s>
+							<input type='hidden' name='%s-lng' id='%s_lng' value='%s' class='efb emsFormBuilder_v' data-type='maps' data-vid='%s' %s>
+							<small id='%s-des' class='form-text text-muted'>%s</small>
+						</div>",
+						$randomId, $formId, // شناسه بخش و formId به عنوان data-set
+						$randomId, $label, // لیبل نقشه
+						($required ? '*' : ''), // نشانه نیاز به پر شدن
+						$randomId, $el_height, $lat, $lng, $zoom, $randomId, // تنظیمات نقشه
+						$ariaDescribedBy, // توصیف برای دسترسی‌پذیری
+						$randomId, $randomId, $lat, $randomId, $required, // عرض جغرافیایی
+						$randomId, $randomId, $lng, $randomId, $required, // طول جغرافیایی
+						$randomId, $message // پیغام
+					);
+		
+	
+					$ui .= sprintf(
+						"<script>
+							function efbCreateMap_%s() {
+								var map = L.map('%s-map').setView([%s, %s], %s);
+								L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+									attribution: '&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors'
+								}).addTo(map);
+		
+								var marker = L.marker([%s, %s], { draggable: true }).addTo(map);
+								marker.on('dragend', function(event) {
+									var position = marker.getLatLng();
+									document.getElementById('%s_lat').value = position.lat;
+									document.getElementById('%s_lng').value = position.lng;
+								});
+							}
+		
+							document.addEventListener('DOMContentLoaded', function() {
+								efbCreateMap_%s();
+							});
+						</script>",
+						$randomId, // شناسه نقشه برای اطمینان از یکتایی
+						$randomId, $lat, $lng, $zoom, // تنظیمات اولیه نقشه
+						$lat, $lng, // موقعیت اولیه مارکر
+						$randomId, $randomId, // به‌روزرسانی عرض و طول در inputهای مخفی
+						$randomId // شناسه تابع جاوااسکریپت برای بارگذاری نقشه
+					);
+					if ($pro!==true || $pro!==1) {
+						$ui = $this->public_pro_message_efb($texts['locationPicker']);
+					} 
+					break;
+					$dataTag = "maps";
+				break;
+				case 'switch':
+					//switch_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts)
+					$ui = $this->pro_efb == true ? $this->switch_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts)  : $this->public_pro_message();
+					$dataTag = $elementId;
+				break;
 			
 			
 			}
@@ -3840,8 +3939,9 @@ class _Public {
 			}
 			
 			$newElement .= sprintf('<!--endTag %s-->', $elementId);
-			//error_log('newElement: reult'.$newElement);
-			return $newElement;
+			error_log('newElement: reult'.$newElement);
+			error_log('style: reult'.$style);
+			return [$newElement ,$style];
 		}
 	}
 	private function generateDescription_efb($rndm, $vj, $pos) {
@@ -3859,7 +3959,8 @@ class _Public {
 
 		$label_align = isset($vj->label_align) ? $vj->label_align : '';
 		$label_text_size = isset($vj->label_text_size) && $vj->label_text_size != "default" ? $vj->label_text_size : '';
-		$required = isset($vj->required) && ($vj->required == 1 || $vj->required == true) ? '<span class="efb mx-1 text-danger" id="' . $rndm . '_req" role="none"> *</span>' : '';
+		$required  ='<span class="efb mx-1 text-danger" id="' . $rndm . '_req" role="none">';
+		$required .= isset($vj->required) && ($vj->required == 1 || $vj->required == true) ?  '*</span>' : '</span>';
 		$label_color = isset($vj->label_text_color) ? $vj->label_text_color : '';
 
 		$label_classes = [
@@ -3932,7 +4033,7 @@ class _Public {
 					<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" %s>
 						<label class="efb fs-6" id="%s_off">%s</label>
 						
-						<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onClick="fun_switch_efb(this)" data-id="%s-el" data-formId="%s" id="%s_" %s>
+						<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onclick="fun_switch_efb(this)" data-id="%s-el" data-formId="%s" id="%s_" %s>
 							<div class="efb handle"></div>
 						</button>
 						<label class="efb fs-6" id="%s_on">%s</label>
@@ -3994,13 +4095,15 @@ class _Public {
 			$maxlen = isset($vj->mlen) && $vj->mlen > 0 ? sprintf('maxlength="%d"', $vj->mlen) : '';
 			$minlen = isset($vj->milen) ? sprintf('minlength="%d"', $vj->milen) : '';
 		} else {
-			$maxlen = isset($vj->mlen) && $vj->mlen == 1 ? sprintf('max="%s"', $today) : (isset($vj->mlen) ? $vj->mlen : '');
-			$minlen = isset($vj->milen) && $vj->milen == 1 ? sprintf('min="%s"', $today) : (isset($vj->milen) ? $vj->milen : '');
+			$maxlen = isset($vj->mlen) && $vj->mlen == 1 ? sprintf('max="%s"', $today) : (isset($vj->mlen) ? sprintf('max="%s"',$vj->mlen) : '');
+			$minlen = isset($vj->milen) && $vj->milen == 1 ? sprintf('min="%s"', $today) : (isset($vj->milen) ? sprintf('min="%s"', $vj->milen) : '');
 		}
 	
 		return ['maxlen' => $maxlen, 'minlen' => $minlen];
 	}
 	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id) {
+		error_log('generateTextInput_efb');
+		error_log(json_encode($lenAttributes));
 		$corener = isset($vj->corner) ? $vj->corner : 'efb-square';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$value = !empty($vj->value) ? 'value="' . $vj->value . '"' : '';
@@ -4020,7 +4123,7 @@ class _Public {
 		' . $ttip . '
 		<div class="efb ' . $pos[3] . ' col-sm-12 px-0 mx-0 ttEfb show" id ="' . $rndm . '-f" ' . $aire_describedby . '>
 		<label class="efb fs-6" id="' . $rndm . '_off">' . $vj->off . '</label>
-		<button type="button" data-state="off" class="efb btn ' . $vj->el_height . ' btn-toggle efb1 ' . str_replace(',', ' ', $vj->classes) . '" data-css="' . $rndm . '" data-toggle="button" aria-pressed="false" data-vid="' . $rndm .'" data-formId="' . $form_id . '" onClick="fun_switch_efb(this)" data-id="' . $rndm . '-el" id="' . $rndm . '_" ' . $disabled . '>
+		<button type="button" data-state="off" class="efb btn ' . $vj->el_height . ' btn-toggle efb1 ' . str_replace(',', ' ', $vj->classes) . '" data-css="' . $rndm . '" data-toggle="button" aria-pressed="false" data-vid="' . $rndm .'" data-formId="' . $form_id . '" onclick="fun_switch_efb(this)" data-id="' . $rndm . '-el" id="' . $rndm . '_" ' . $disabled . '>
 			<div class="efb handle"></div>
 		</button>
 		<label class="efb fs-6" id="' . $rndm . '_on">' . $vj->on . '</label>
@@ -4231,10 +4334,70 @@ class _Public {
 		return [$inputPhone  . $buttonSubmit ,$js];
 	}
 
-	public function dadfile_el_pro_efb($previewSate, $rndm, $vj, $form_id,$texts) {
-		function ui_dadfile_efb($vj, $previewSate,$form_id,$texts) {
-			$corner = property_exists($vj, 'corner') ? $vj->corner : 'efb-square';
-			$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
+	public function esign_el_pro_efb($previewSate,$pos, $rndm, $vj,$message, $formId,$updateUrbrowser) {
+		//true, $pos, $rndm, $vj, $desc
+		error_log('esign_el_pro_efb');
+		error_log('esign_el_pro_efb: '.json_encode($vj));
+		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
+		$required = $vj->required == 1 || $vj->required == true ? 'required' : '';
+		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
+		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
+		$readonly = $previewSate != true ? 'readonly' : '';
+		$classes =  str_replace(',', ' ', $vj->classes) ?? '';
+		$el_height = isset($vj->el_height) ? $vj->el_height : '';
+		$el_text_color = isset($vj->el_text_color) ? $vj->el_text_color : '';
+		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
+		$randomId =$vj->id_;
+		
+			// ایجاد HTML برای المان esign
+			$ui = sprintf(
+				"<div class='efb %s col-sm-12' id='%s-f' data-form-id='%s'>
+					<canvas class='efb sign-efb bg-white %s %s %s %s efb1 %s' data-css='%s' data-code='%s' data-id='%s-el' id='%s_' %s>
+						%s
+					</canvas>
+					%s
+					<div class='efb mx-1' data-form-id='%s'>%s</div>
+					<div class='efb mb-3' data-form-id='%s'>
+						<button type='button' class='efb btn %s %s efb-btn-lg mt-1 fs-6 %s' id='%s_b' onclick='fun_clear_esign_efb(\"%s\")'>
+							<i class='efb %s mx-2 %s' id='%s_icon'></i>
+							<span id='%s_button_single_text' class='efb %s' %s>%s</span>
+						</button>
+					</div>
+				</div>",
+				$pos[3], // کلاس‌های موقعیت
+				$randomId, $formId, // شناسه و formId
+				$el_height, $corner, $el_text_color, $vj->el_border_color,
+				str_replace(',', ' ', $classes), // کلاس‌های اضافی
+				$randomId, $randomId, $randomId, $randomId, // شناسه و داده‌ها
+				$ariaDescribedBy,
+				$updateUrbrowser, // پیغام به‌روزرسانی مرورگر
+				$previewSate ? sprintf(
+					"<input type='hidden' data-type='esign' data-vid='%s' class='efb emsFormBuilder_v %s' id='%s-sig-data' value='Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==' data-form-id='%s'>",
+					$randomId,$required, $randomId, $formId
+				) : '',
+				$formId, $message, // فرم‌آی‌دی و توضیحات
+				$formId, // فرم‌آی‌دی برای دکمه
+				$corner, $vj->button_color, $disabled, $randomId, $randomId, // دکمه و شناسه‌ها
+				$vj->icon, $vj->icon_color != 'default' ? $vj->icon_color : '',
+				$randomId, $randomId, // شناسه‌های آیکون و متن
+				$vj->icon_color, $disabled, $vj->button_single_text // رنگ و متن دکمه
+			);
+		
+			return $ui;
+	
+		
+
+
+	}
+
+
+	public function dadfile_el_pro_efb($previewSate, $rndm, $vj, $form_id, $texts) {
+		$corner = property_exists($vj, 'corner') ? $vj->corner : 'efb-square';
+		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
+
+		function ui_dadfile_efb($vj, $previewSate, $form_id, $texts, $disabled, $corner) { 
+			
 			
 			$file = property_exists($vj, 'file') ? $vj->file : '';
 			$fileType = $file;
@@ -4244,63 +4407,62 @@ class _Public {
 			
 			$filetype_efb = [
 				'image' => 'image/png, image/jpeg, image/jpg, image/gif, image/heic',
-				'media' => 'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
-				'document' => '.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
-				'zip' => '.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar',
-				'allformat' => 'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text, .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime',
+				'media' => 'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg, video/mpg, audio/mpg, video/mov, video/quicktime',
+				'document' => '.xlsx, .xls, .doc, .docx, .ppt, .pptx, .pptm, .txt, .pdf, .dotx, .rtf, .odt, .ods, .odp, application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template, application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
+				'zip' => '.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar',
+				'allformat' => 'image/png, image/jpeg, image/jpg, image/gif, audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg, video/mpg, audio/mpg, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .pptm, .txt, .pdf, .dotx, .rtf, .odt, .ods, .odp, application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template, application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text, .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime',
 				'customize' => $fileType
 			];
 			
 			$fileTypeAttr = isset($filetype_efb[$vj->value]) ? $filetype_efb[$vj->value] : '';
 			$requiredClass = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 			$readonlyAttr = $previewSate != true ? 'disabled' : '';
-			//error_log('text lanagues');
-			//error_log(json_encode($texts));	
+	
 			return sprintf(
-				'<div class="efb icon efb"><i class="efb fs-3 %1$s %2$s" id="%3$s_icon"></i></div>
-				<h6 id="%3$s_txt" class="efb text-center m-1 fs-6">%4$s %5$s</h6> <span class="efb fs-7">%6$s</span>
+				'<div class="efb icon efb">
+					<i class="efb fs-3 %1$s %2$s" id="%3$s_icon"></i>
+				</div>
+				<h6 id="%3$s_txt" class="efb text-center m-1 fs-6">%4$s %5$s</h6>
+				<span class="efb fs-7">%6$s</span>
 				<button type="button" class="efb btn %7$s efb-btn-lg fs-6" id="%3$s_b" %8$s>
 					<i class="efb bi-upload mx-2 fs-6"></i>%9$s
 				</button>
-				<input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-ID="%3$s"  class="efb emsFormBuilder_v %11$s" id="%3$s_" data-id="%3$s-el" data-formId="%13$s" %12$s %8$s>',
+				<input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s" id="%3$s_" data-id="%3$s-el" data-formId="%13$s" %12$s %8$s>',
 				$vj->icon,
 				$vj->icon_color,
 				$vj->id_,
-				$texts[0],  // Assuming dragAndDropA is part of $vj
+				$texts[0],  //mainText
 				$fileType,
-				$texts[1],  // Assuming orText is part of $vj
+				$texts[1],  //or
 				$vj->button_color,
 				$disabled,
-				$texts[2],  // Assuming browseFile is part of $vj
+				$texts[2],  //browseFile
 				$fileTypeAttr,
 				$requiredClass,
 				$readonlyAttr,
 				$form_id
 			);
 		}
-
-		$corner = property_exists($vj, 'corner') ? $vj->corner : 'efb-square';
-		$disabled = property_exists($vj, 'disabled') && $vj->disabled === true ? 'disabled' : '';
-		$ariaDescribedBy = !empty($vj->message) ? sprintf('aria-describedby="%s-des"', $vj->id_) : '';
-		$classes = str_replace(',', ' ', $vj->classes);
-		$ui_ddfile = ui_dadfile_efb($vj, $previewSate,$form_id,$texts);
-	
+		$ui = ui_dadfile_efb($vj, $previewSate, $form_id, $texts , $disabled, $corner);
 		return sprintf(
-			'<div class="efb mb-3" id="uploadFilePreEfb">
-				<label for="%1$s_" class="efb form-label">
-					<div class="efb dadFile-efb py-0 %2$s %3$s %4$s %5$s efb1 %6$s" data-css="%1$s" id="%1$s_box" %7$s %2$s>
-						%8$s
+			'<div class="efb mb-3" id="uploadFilePreEfb" data-formId="%s">
+				<label for="%s_" class="efb form-label">
+					<div class="efb dadFile-efb py-0 %s %s %s efb1 %s %s"  id="%s_box" aria-describedby="%s" %s>
+						%s
 					</div>
 				</label>
 			</div>',
-			$rndm,               // %1$s
-			$disabled,           // %2$s
-			$vj->el_height,      // %3$s
-			$corner,             // %4$s
-			$vj->el_border_color, // %5$s
-			$classes,            // %6$s
-			$ariaDescribedBy,    // %7$s
-			$ui_ddfile // %8$s
+			$form_id,
+			$rndm,
+			$disabled,
+			$vj->el_height,
+			$corner,
+			$vj->el_border_color,
+			str_replace(',', ' ', $vj->classes),
+			$rndm,
+			!empty($vj->message) ? $vj->id_ . '-des' : '',
+			$disabled,
+			$ui
 		);
 	}
 	private function text_nr_efb($text, $type) {
@@ -4786,6 +4948,94 @@ class _Public {
 		}
 		return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder')));
 	}
+
+
+	//ColorNameToHexEfbOfElEfb(color.slice(4),'btn') //slice text=5 bg=2 border=6 btn=3 icon=4
+	//ColorNameToHexEfbOfElEfb(color.slice(7),'border') //slice text=5 bg=2 border=6 btn=3     
+	public function ColorNameToHexEfbOfElEfb($v, $n) {	
+		error_log('ColorNameToHexEfbOfElEfb v:'.$v .' n:'.$n);
+		$color_map = [
+			"primary" => '#0d6efd',
+			"success" => '#198754',
+			"secondary" => '#6c757d',
+			"danger" => '#ff455f',
+			"warning" => '#e9c31a',
+			"info" => '#31d2f2',
+			"light" => '#fbfbfb',
+			"darkb" => '#202a8d',
+			"labelEfb" => '#898aa9',
+			"d" => '#83859f',
+			"pinkEfb" => '#ff4b93',
+			"white" => '#ffffff',
+			"dark" => '#212529',
+			"muted" => '#777777'
+		];
+			
+		$id_map = [
+			"label" => "style_label_color",
+			"description" => "style_message_text_color",
+			"el" => "style_el_text_color",
+			"btn" => "style_btn_text_color",
+			"icon" => "style_icon_color",
+			"border" => "style_border_color"
+		];
+			
+		$id = isset($id_map[$n]) ? $id_map[$n] : null;
+	
+		if (isset($color_map[$v])) {
+			$r = $color_map[$v];
+		} else {
+			$len = strlen('colorDEfb-');
+			if (strpos($v, 'colorDEfb') !== false) {
+				$r = "#" . substr($v, $len);
+			} else {
+				$r = '';
+			}
+		}
+		error_log($r);
+		return $r;
+	}
+
+
+	public function switch_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts) {
+		$vj->on = property_exists($vj, 'on') ? $vj->on : $texts['on'];
+		$vj->off = property_exists($vj, 'off') ? $vj->off : $texts['off'];
+		
+		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
+		$required = $vj->required == 1 || $vj->required == true ? 'required' : '';
+		$readonly = $previewSate != true ? 'readonly' : '';
+		$classes = str_replace(',', ' ', $vj->classes);
+		$el_height = isset($vj->el_height) ? $vj->el_height : '';
+	
+
+		$ui = sprintf(
+			'%s
+			%s
+			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" %s data-form-id="%s">
+				<label class="efb fs-6" id="%s_off">%s</label>
+				<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onClick="fun_switch_efb(this)" data-id="%s-el" id="%s_" %s %s>
+					<div class="efb handle"></div>
+				</button>
+				<label class="efb fs-6" id="%s_on">%s</label>
+				<div class="efb mb-3">%s</div>
+			</div>',
+			$label,
+			$ttip,
+			$pos[3],  // postion
+			$rndm, $aire_describedby, $formId,
+			$rndm, $vj->off,
+			$el_height, $classes,
+			$rndm, $rndm, $rndm, $rndm,
+			$readonly, $disabled,
+			$rndm, $vj->on,
+			$desc
+		);
+	
+		return $ui;
+	}
+
+
+	
 	
 }
 new _Public();
