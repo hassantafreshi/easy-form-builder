@@ -2805,7 +2805,7 @@ get_list_name_otions_field_efb=(i_op)=>{
   return r;
 }
 
-function create_form_efb() {
+async function create_form_efb() {
   let content = `<!--efb.app-->`
   let step_no = 0;
   let head = ``
@@ -3229,26 +3229,36 @@ let sampleElpush_efb = (rndm, elementId) => {
   }
   
 }
-let optionElpush_efb = (parent, value, rndm, op, tag) => {
-  
+let optionElpush_efb = async (parent, value, rndm, op, tag) => {
+  const u = (url)=>{
+    url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
+    url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
+    url = url.replace(/([/])+/g, '@efb@');
+    return url;
+   }
+  console.log(`optionElpush_efb ===> parent[${parent}], value[${value}], rndm[${rndm}], op[${op}], tag[${tag}] amount_el_efb[${amount_el_efb}]`)
   if (typeof tag == "undefined" || (typeof tag=="string" && tag.includes("pay")==false) || tag.includes("img")==true ) {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
 
-    const u = (url)=>{
-      url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
-      url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
-      url = url.replace(/([/])+/g, '@efb@');
-      return url;
-     }
+    
     if(typeof tag != "undefined"  && tag.includes("img")==true){
-      Object.assign(valj_efb[(valj_efb.length) - 1], {
+      console.log('img==========>'+tag)
+      const ind= (valj_efb.length) - 1;
+      Object.assign(valj_efb[ind], {
         sub_value: efb_var.text.sampleDescription,
         src:u(efb_var.images.head)
       })
+
+      if(tag=='imgRadio'){
+        valj_efb[ind].value = efb_var.text.newOption;       
+      }
+      console.log(valj_efb[ind]);
     }
   } else {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb });
   }
+
+  
   //console.log(valj_efb)
 }
 
@@ -3346,7 +3356,7 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
    document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
 
  }else if(tag == "imgRadio"){
- 
+  console.log('imgRadio')
   document.getElementById(`${parentsID}_options`).innerHTML += add_new_imgRadio_efb(idin, value, id_ob, tag, parentsID);
  }
   for (let el of document.querySelectorAll(`.elEdit`)) {
@@ -3506,7 +3516,7 @@ function show_delete_window_efb(idset,iVJ) {
   } else if (is_step) {
     const el = document.getElementById(idset);
     if (el.dataset.id != 1) {
-      // اگر استپ اول نباشد باید حذف شود و ردیف های بعد از شماره شان عوض شود به آخرین
+    
       state_modal_show_efb(1)
      // myModal.show_efb();
       confirmBtn.dataset.id = idset;
@@ -3534,7 +3544,8 @@ function show_delete_window_efb(idset,iVJ) {
 const obj_delete_row = (dataid, is_step) => {
 
   let step = 0
-  let foundIndex = Object.keys(valj_efb).length > 0 ? valj_efb.findIndex(x => x.dataId == dataid) : -1
+  let foundIndex = Object.keys(valj_efb).length > 0 ? valj_efb.findIndex(x => x.dataId == dataid) : -1;
+  const el_type = valj_efb[foundIndex].type;
   if (foundIndex != -1 && is_step == true) {
     step = Number(valj_efb[foundIndex].step)-1 ;
    step_el_efb =step}
@@ -3550,8 +3561,8 @@ const obj_delete_row = (dataid, is_step) => {
       form_type_emsFormBuilder = "form";
      }
      
-      
-    } else if (fun_el_select_in_efb(valj_efb[foundIndex].type) || valj_efb[foundIndex].type == 'radio' || valj_efb[foundIndex].type == 'checkbox') {
+    
+    } else if (fun_el_select_in_efb(el_type) || fun_el_check_radio_in_efb(el_type)) {
       obj_delete_options(valj_efb[foundIndex].id_)
       //  foundIndex = Object.keys(valj_efb).length > 0 ? valj_efb.findIndex(x => x.dataId == dataid) : -1
     } else if (valj_efb[foundIndex].type == 'email' && valj_efb[0].email_to == valj_efb[foundIndex].id_) {

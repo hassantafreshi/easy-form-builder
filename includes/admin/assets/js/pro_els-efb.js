@@ -686,15 +686,22 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
   });
   },800)
 }
-fun_imgRadio_efb=(id ,link,row)=>{
+fun_imgRadio_efb=(id ,link,row ,state=true)=>{
   const u = (url)=>{
     url = url.replace(/(http:@efb@)+/g, 'http://');
     url = url.replace(/(https:@efb@)+/g, 'https://');
     url = url.replace(/(@efb@)+/g, '/');
     return url;
    }
-  let value = row.hasOwnProperty('value')  ? row.value : efb_var.text.newOption ?? '';
+
+
+   let value = row.hasOwnProperty('value')  ? row.value : efb_var.text.newOption ?? '';
+  
   let sub_value = row.hasOwnProperty('sub_value') ? row.sub_value : efb_var.text.sampleDescription ?? '';
+     if(state==false){
+    value = efb_var.text.newOption ;
+    sub_value = efb_var.text.sampleDescription ;
+   }
   link =link.includes('http')==false ?  efb_var.images.head : row.src;
   link = u(link);
   return `
@@ -708,10 +715,10 @@ fun_imgRadio_efb=(id ,link,row)=>{
     </div>
     </label>`;
 }
-add_new_imgRadio_efb=(idin, value, id_ob, tag, parentsID)=>{
+add_new_imgRadio_efb=(idin, value, id_ob, tag, parentsID)=>{  
  const idx = valj_efb.findIndex(x=>x.id_==id_ob)
  const temp = fun_imgRadio_efb(id_ob,"null",valj_efb[idx]);
-  return`<div class="efb  form-check imgRadio col-md-3" data-parent="${parentsID}" data-id="${id_ob}"  id="${id_ob}-v">
+  return`<div class="efb  form-check imgRadio col-md-4 mx-0 px-2 efb2" data-parent="${parentsID}" data-id="${id_ob}"  id="${id_ob}-v">
   <input class="efb  form-check-input " type="radio" name="${parentsID}"  value="${value}" id="${idin}" data-id="${idin}-id" data-op="${idin}" disabled>
   ${temp}
   </div>`;
