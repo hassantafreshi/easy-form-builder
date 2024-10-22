@@ -561,7 +561,7 @@ function show_setting_window_efb(idset) {
 
 
 
-    const qtyPlcEls = valj_efb[indx].hasOwnProperty('pholder_chl_value')? `<label for="qtyPlclEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label> <input type="number"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1"  placeholder="${efb_var.text.placeholder}" id="qtyPlcEl" required value="${valj_efb[indx].pholder_chl_value ? valj_efb[indx].pholder_chl_value : ''}">` :'';
+    const qtyPlcEls = valj_efb[indx].hasOwnProperty('pholder_chl_value')? `<label for="qtyPlclEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label> <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1"  placeholder="${efb_var.text.placeholder}" id="qtyPlcEl" required value="${valj_efb[indx].pholder_chl_value ? valj_efb[indx].pholder_chl_value : ''}">` :'';
   
   
     const Nadvanced = `
