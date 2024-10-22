@@ -485,7 +485,7 @@ class _Public {
 				}
 
 				if($i>1){
-
+					if($this->valj_efb[$i]->type=="option" ){continue;}
 					error_log($this->valj_efb[$i]->type);
 					$r = $this->addNewElement_efb($i, $randomId, $this->id, $txts);
 					error_log(json_encode($r));
