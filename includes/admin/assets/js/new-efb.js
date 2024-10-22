@@ -66,9 +66,9 @@ function pro_show_efb(state) {
   <h5 class="efb  txt-center">${message}</h5>
   <div class="efb row">
   <div class="efb  col-md-6  text-center">
-  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onClick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr.replace('NN',pro_price_efb)} </button>
+  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onclick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr.replace('NN',pro_price_efb)} </button>
   </div>
-    <div class="efb  text-center col-md-6"><button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onClick ="open_whiteStudio_efb('pro')">
+    <div class="efb  text-center col-md-6"><button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onclick ="open_whiteStudio_efb('pro')">
       <i class="efb  bi-gem mx-1 pro"></i>
         ${efb_var.text.activateProVersion}
       </button></div>
@@ -500,7 +500,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${ttip}
       <div class="efb ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show" id ="${rndm}-f" ${aire_describedby}>
       <label class="efb fs-6" id="${rndm}_off">${valj_efb[iVJ].off}</label>
-      <button type="button"  data-state="off" class="efb btn   ${valj_efb[iVJ].el_height}  btn-toggle efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-toggle="button" aria-pressed="false" data-vid='${rndm}' onClick="fun_switch_efb(this)" data-id="${rndm}-el" id="${rndm}_" ${previewSate != true ? 'disabled' : ''} ${disabled}>
+      <button type="button"  data-state="off" class="efb btn   ${valj_efb[iVJ].el_height}  btn-toggle efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-toggle="button" aria-pressed="false" data-vid='${rndm}' onclick="fun_switch_efb(this)" data-id="${rndm}-el" id="${rndm}_" ${previewSate != true ? 'disabled' : ''} ${disabled}>
         <div class="efb handle"></div>
       </button>
       <label class="efb fs-6" id="${rndm}_on">${valj_efb[iVJ].on}</label>
@@ -1922,7 +1922,7 @@ fun_el_check_radio_in_efb = (el) => {
   }
 function fun_validation_efb() {
   let offsetw = offset_view_efb();
-  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
+  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
   let state = true;
   let idi = "null";
   for (let row in valj_efb) {
@@ -2832,7 +2832,7 @@ function handle_change_event_efb(el){
         el.className = colorBorderChangerEfb(el.className, "border-danger");
         vd = document.getElementById(`${el.id}-message`);
         let m = efb_var.text.mmplen.replace('NN',len);
-        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
               if(vd){
                 if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
                   vd.classList.add('unpx');                
@@ -2847,7 +2847,7 @@ function handle_change_event_efb(el){
         el.className = colorBorderChangerEfb(el.className, "border-danger");
         vd = document.getElementById(`${el.id}-message`);
         let m = efb_var.text.mcplen.replace('NN',len);
-        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
               if(vd){
                 if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
                   vd.classList.add('unpx');                
@@ -2865,7 +2865,7 @@ function handle_change_event_efb(el){
         el.className = colorBorderChangerEfb(el.className, "border-danger");
         vd = document.getElementById(`${el.id}-message`);
         let m = efb_var.text.mmxplen.replace('NN',len);
-        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
               if(vd){
                 if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
                   vd.classList.add('unpx');                
@@ -2880,7 +2880,7 @@ function handle_change_event_efb(el){
         el.className = colorBorderChangerEfb(el.className, "border-danger");
         vd = document.getElementById(`${el.id}-message`);
         let m = efb_var.text.mxcplen.replace('NN',len);
-        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
               if(vd){
                 if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
                   vd.classList.add('unpx');                
@@ -3222,7 +3222,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
       <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
    </div>
-   <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>
+   <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onclick="generatePDF_EFB('resp_efb')"></div>
    </div>
   <hr>
   `;

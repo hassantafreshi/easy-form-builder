@@ -426,7 +426,7 @@ class _Public {
 			$valj_efb = json_decode($value, false, 512, JSON_UNESCAPED_UNICODE);
 			$content="<!--efb-->";
 			$count = count($valj_efb);
-			$ttt =['dragAndDropA','or','browseFile','tfnapca','on','off' ,'updateUrbrowser' ,'stars'];
+			$ttt =['dragAndDropA','or','browseFile','tfnapca','on','off' ,'updateUrbrowser' ,'stars' ,'nothingSelected','availableProVersion','finish','select','up','red','Red','sending','enterYourMessage','add','code','star','form','black','pleaseReporProblem','reportProblem','ddate','serverEmailAble','sMTPNotWork','download','copyTrackingcode','copiedClipboard','browseFile','dragAndDropA','fileIsNotRight','lastName','firstName','contactusForm','registerForm','entrTrkngNo','response','reply','by','youCantUseHTMLTagOrBlank','easyFormBuilder','rnfn','fil','stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound'];
 			$txts = $this->efbFunction->text_efb($ttt);
 			$step_no= 0;
 			$head ='<!--start head efb-->';
@@ -489,7 +489,7 @@ class _Public {
 
 				if($i>1){
 					if($valj_efb[$i]->type=="option" ){continue;}
-					error_log($valj_efb[$i]->type);
+					
 
 					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $this->id, $txts);
 					//$r = $this->addNewElement_efb($i, $randomId, $this->id, $txts);
@@ -3498,6 +3498,7 @@ class _Public {
 		$this->efbFunction = $efbFunctionInstance;
 		if ($state == 1) return $this->efbFunction;
 	}
+
 
 	/* new */
 	/* sanitize */

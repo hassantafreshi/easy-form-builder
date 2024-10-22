@@ -135,13 +135,13 @@ const ElementAlignEls = (side ,indx ,idset) => {
   <div class="efb  row">     
   <label for="labelPostionEl" class="efb  mt-3 col-12 bi-align-center mx-2">${lab} | ${efb_var.text.align}</label>
     <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="ElementAlignEl">    
-      <label class="efb ntb btn-primary bi-align-start ${value == left ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${left}','${side}')">
+      <label class="efb ntb btn-primary bi-align-start ${value == left ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${left}','${side}')">
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="labelPostionEl" value="left" >${efb_var.text.left}</label>
       <span class="efb border-right border border-light "></span>
-      <label class="efb ntb btn-primary bi-align-center ${value == center ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${center}','${side}')">
+      <label class="efb ntb btn-primary bi-align-center ${value == center ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${center}','${side}')">
         <input type="radio" name="options" class="efb opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="center">${efb_var.text.center}</label>
       <span class="efb border-right border border-light "></span>
-      <label class="efb ntb btn-primary bi-align-end ${value == right ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${right}','${side}')">
+      <label class="efb ntb btn-primary bi-align-end ${value == right ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${right}','${side}')">
         <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="right">${efb_var.text.right}</label>
     </div></div>`;
 }
@@ -220,20 +220,20 @@ const cornerEls = (side,indx,idset) => {
     <div class="efb  row">
     <label for="cornerEl" class="efb  mt-3 col-12 bi-bounding-box-circles">${efb_var.text.corners}>${efb_var.text.rounded}</label>
     <div class="efb  btn-group col-12  btn-group-toggle" data-toggle="buttons" data-side="${side}" data-id="${idset}-set" data-tag="${valj_efb[indx].type}" id="cornerEl">    
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' || valj_efb[indx].corner =="0"  ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','rounded-0')">
+      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' || valj_efb[indx].corner =="0"  ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-0')">
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >0</label>
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="1" ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','rounded-1')">
+      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="1" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-1')">
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >1</label>
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="2" ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','rounded-2')">
+      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="2" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-2')">
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >2</label>
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="3" ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','rounded-3')">
+      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="3" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-3')">
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >3</label>
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="4" ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','rounded-4')">
+      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="4" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-4')">
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >4</label>
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'rounded-4' || valj_efb[indx].corner =="5" ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','rounded-5')">
+      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'rounded-4' || valj_efb[indx].corner =="5" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-5')">
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >5</label>
         <!-- <span class="efb  border-right border border-light "></span>
-      <label class="efb  ntb btn-primary bi-diamond ${!valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-square')">
+      <label class="efb  ntb btn-primary bi-diamond ${!valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','efb-square')">
         <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="cornerEl" value="efb-square"> ${efb_var.text.square}</label>-->
     </div></div>`
 }
@@ -314,7 +314,7 @@ const ElcountriesListSelections = (idset,indx) => {
     //console.log(c_c.indexOf(i.s2.trim().toLowerCase())!=-1 ,c_c ,i.s2);
     const v = i.l!=i.n  ? `(${i.l})` :''
     optn += `<tr   class="efb   efblist " data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" data-row="${s2}" data-state="0" data-visible="1">
-    <th scope="row" class="efb ${c_c.indexOf(s2)!=-1 ? 'bi-check-square text-info' : 'bi-square'}" onClick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" ></th><td class="efb ms col-12"  onClick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}">${i.n} ${v}</td>
+    <th scope="row" class="efb ${c_c.indexOf(s2)!=-1 ? 'bi-check-square text-info' : 'bi-square'}" onclick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" ></th><td class="efb ms col-12"  onclick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}">${i.n} ${v}</td>
   </tr>  `
 
   }//end for 
@@ -469,9 +469,9 @@ function show_setting_window_efb(idset) {
     <button type="button" id="SendemailEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('noti') && Number(valj_efb[indx].noti) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
     </button>
-    <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
+    <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
     </div>`;
-    const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}<i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i></label> 
+    const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}<i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('EmailNoti')"> </i></label> 
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
     const FormEmailSubjectEls = () =>{
       //default 
@@ -541,13 +541,13 @@ function show_setting_window_efb(idset) {
     <button type="button" id="smsEnableEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('smsnoti') && Number(valj_efb[indx].smsnoti) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
     </button>
-    <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.esmsno} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('SMSNoti')"> </i>                                            
+    <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.esmsno} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('SMSNoti')"> </i>                                            
     </div>`;
     const enableConEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="enableConEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('logic') && Number(valj_efb[indx].logic) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
     </button>
-    <label class="efb form-check-label pt-1" for="enableConEl">${efb_var.text.condlogic} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('condi')"> </i>                                            
+    <label class="efb form-check-label pt-1" for="enableConEl">${efb_var.text.condlogic} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('condi')"> </i>                                            
     </div>`;
 
     const languageSelectPresentEls = `
@@ -596,7 +596,7 @@ function show_setting_window_efb(idset) {
                        
     const thankYouredirectEls = `<div id="tnxrdrct" class="efb tnxrdrct my-1 ${ valj_efb[0].thank_you == 'rdrct'? 'd-block' :'d-none' }">
     ${pro_efb==true ?"":funProEfb()}
-    <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('redirectPage')"> </i></label> 
+    <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('redirectPage')"> </i></label> 
     <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? valj_efb[0].rePage.replace(/(@efb@)+/g, '/') : ''}"></div>`
     const paymentGetWayEls =()=>{
       return`<label for="paymentGetWayEl" class="efb mt-3 bi-wallet-fill mx-2 efb"> ${efb_var.text.paymentGateway}</label>
@@ -612,10 +612,10 @@ function show_setting_window_efb(idset) {
     <div class="efb row efb">     
     <label for="labelPostionEl" class="efb  mt-3 col-12 bi-arrows-angle-contract mx-2">${efb_var.text.labelPostion}</label>
       <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-id="${idset}"  id="labelPostionEl">    
-        <label class="efb  ntb btn-primary bi-chevron-bar-down ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'up' ? `active` : ''}" onClick="funSetPosElEfb('${idset}','up')">
+        <label class="efb  ntb btn-primary bi-chevron-bar-down ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'up' ? `active` : ''}" onclick="funSetPosElEfb('${idset}','up')">
           <input type="radio" name="options" class="efb  opButtonEfb elEdit "   data-id="${idset}"  id="labelPostionEl" value="up" >${efb_var.text.up}</label>
         <span class="efb  border-right border border-light "></span>
-        <label class="efb  ntb btn-primary bi-chevron-bar-right ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'beside' ? `active` : ''}" onClick="funSetPosElEfb('${idset}','besie')">
+        <label class="efb  ntb btn-primary bi-chevron-bar-right ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'beside' ? `active` : ''}" onclick="funSetPosElEfb('${idset}','besie')">
           <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="beside"> ${efb_var.text.beside}
         </label>
       </div></div>`;
@@ -1005,11 +1005,11 @@ function show_setting_window_efb(idset) {
                 ${ el.dataset.tag == 'multiselect' ||el.dataset.tag == 'payMultiselect'? selectMultiSelectEls :''}
                 <div class="efb m-0 p-0 col-md-12 row">
                 <div for="optionListefb" class="efb  col-md-6">${efb_var.text.options} 
-                <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}"   class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
+                <button type="button" id="addOption" onclick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}"   class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
                 <i class="efb  bi-plus-circle  text-success"></i>
                   </button> 
                 </div>
-                <div class="efb col-md-6 text-darkb align-self-center text-decoration-underline fs-7 show" id="showAtrEls" onClick="funShowAttrElsEfb(this)">${efb_var.text.shwattr}</div>
+                <div class="efb col-md-6 text-darkb align-self-center text-decoration-underline fs-7 show" id="showAtrEls" onclick="funShowAttrElsEfb(this)">${efb_var.text.shwattr}</div>
                 </div>
                
                 <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">
@@ -1463,10 +1463,10 @@ function show_setting_window_efb(idset) {
     
             for (let ob of obj_r_matrix) {
               let cont = ` <div class="efb  btn-edit-holder newop" id="deleteOption" data-parent_id="${ob.parent}">
-                <button type="button" id="deleteOption"  onClick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
+                <button type="button" id="deleteOption"  onclick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
                     <i class="efb  efb bi-x-lg text-danger"></i>
                 </button>
-                <button type="button" id="addOption" onClick="add_r_matrix_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndmm}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
+                <button type="button" id="addOption" onclick="add_r_matrix_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndmm}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
                     <i class="efb  bi-plus-circle  text-success"></i>
                 </button> 
                 
@@ -1606,7 +1606,7 @@ function creator_form_builder_Efb() {
   let disable = "disable";
   let formType = valj_efb[0].type
 
-  const ond = `onClick="alert_message_efb('${efb_var.text.error}','${efb_var.text.thisElemantNotAvailable}',7,'danger')"`
+  const ond = `onclick="alert_message_efb('${efb_var.text.error}','${efb_var.text.thisElemantNotAvailable}',7,'danger')"`
   if (formType == "login") {
     dragab = false;
     disable = ond;
@@ -1620,24 +1620,24 @@ function creator_form_builder_Efb() {
     // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
     if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
       
-      disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
+      disable = `onclick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
       dragab = false;
     }else if(ob.id=="persiaPay" && efb_var.addons.AdnPPF !=1){
       
-      disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
+      disable = `onclick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
       dragab = false;
     }else if (ob.id=="pdate" && (efb_var.addons.hasOwnProperty('AdnPDP')==false || efb_var.addons.AdnPDP !=1)){
       
-      disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonPD}', 20 , 'info')"`
+      disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonPD}', 20 , 'info')"`
       dragab = false;
     }else if (ob.id=="ardate" && (efb_var.addons.hasOwnProperty('AdnADP')==false || efb_var.addons.AdnADP !=1)){
       
-      disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonAD}', 20 , 'info')"`
+      disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonAD}', 20 , 'info')"`
       dragab = false;
     }
     els += `
-    <div class="efb tag efb-col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onClick="add_element_dpz_efb('${ob.id}')"` : ''}>
-     ${ob.pro == true && pro_efb == false ? ` <a type="button"  onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
+    <div class="efb tag efb-col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onclick="add_element_dpz_efb('${ob.id}')"` : ''}>
+     ${ob.pro == true && pro_efb == false ? ` <a type="button"  onclick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
       <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" ${disable}><i class="efb  ${ob.icon}"></i><span class="efb d-block text-capitalize">${ob.name}</span></button>
     </div>
     `
@@ -1657,7 +1657,7 @@ function creator_form_builder_Efb() {
   const st = document.getElementById('navbarSupportedContent') ? 1 :0;
   for (let ob in navs) {
     if( typeof navs[ob] == 'object') {
-      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb nav-link efb btn text-capitalize ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink'}  " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
+      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb nav-link efb btn text-capitalize ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink'}  " ${navs[ob].fun.length > 2 ? `onclick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
     }
   }
 
@@ -1888,10 +1888,10 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
   ${booking}
   ${s==true ? `<label  for="paymentOption" class="efb form-label mx-1 ${l_b} fs-6 col-sm-6 my-0 py-0"">${efb_var.text.price}</label><input type="number" placeholder="$"  value='${typeof price=="string" ? price : 0}' data-value="" min="0" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  ${ mobile_view_efb ? "col-sm-6" :"col-sm-2"} text-muted mb-1 fs-6 border-d rounded-4 elEdit">` :''}
   <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${parentsID}">
-  <button type="button" id="deleteOption"  onClick="delete_option_efb('${idin}')" data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
+  <button type="button" id="deleteOption"  onclick="delete_option_efb('${idin}')" data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
   <i class="efb  efb bi-x-lg text-danger"></i>
   </button>
-  <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${parentsID.trim()}','${tag.trim()}' ,${valj_efb.length})" data-parent="${parentsID}" data-tag="${tag}" data-id="${idin}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
+  <button type="button" id="addOption" onclick="add_option_edit_pro_efb('${parentsID.trim()}','${tag.trim()}' ,${valj_efb.length})" data-parent="${parentsID}" data-tag="${tag}" data-id="${idin}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
   <i class="efb  bi-plus-circle  text-success"></i>
   </button> 
   

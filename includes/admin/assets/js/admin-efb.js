@@ -283,7 +283,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
     const emailItem = valj_efb.find(item => item.type === 'email');
     return emailItem!=undefined && emailItem.hasOwnProperty('noti')  ? emailItem.noti  : false;
 };
-  const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger" onClick="Link_emsFormBuilder('wpbakery')" target="_blank">${efb_var.text.wwpb}</a></p>`
+  const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger" onclick="Link_emsFormBuilder('wpbakery')" target="_blank">${efb_var.text.wwpb}</a></p>`
   const title = `
   <h4 class="efb title-holder efb">
      <img src="${efb_var.images.title}" class="efb title efb">
@@ -296,7 +296,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   if((efb_var.smtp==false || efb_var.smtp==0 || efb_var.smtp==-1) && (e_s==true || e_s==1)) {
     //howActivateAlertEmail
     msg = `<br> <p>${efb_var.text.clickToCheckEmailServer }</p> <p>${efb_var.text.goToEFBAddEmailM }</p> <br> 
-    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block " onClick="Link_emsFormBuilder('EmailNoti')"><i class="efb bi bi-patch-question  mx-1"></i>${efb_var.text.howActivateAlertEmail}</a>
+    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block " onclick="Link_emsFormBuilder('EmailNoti')"><i class="efb bi bi-patch-question  mx-1"></i>${efb_var.text.howActivateAlertEmail}</a>
     `
     e_m = alarm_emsFormBuilder(msg)
   }
@@ -546,7 +546,7 @@ createCardFormEfb = (i) => {
   if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"  
   if(i.tag.search("payment")!=-1 && ( efb_var.addons.AdnSPF==0 && efb_var.addons.AdnPPF==0) ) {
     const fn = `alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')`
-    btn = `<a class="efb float-end btn mb-1 efb btn-primary btn-lg float-end  btn-r" onClick="${fn}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></a>`
+    btn = `<a class="efb float-end btn mb-1 efb btn-primary btn-lg float-end  btn-r" onclick="${fn}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></a>`
   }
   return `
   <div class="efb tag  col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
@@ -582,11 +582,11 @@ createCardAddoneEfb = (i) => {
   ${i.pro == true && efb_var.pro != true ? funProEfb() : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
-  <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
+  <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onclick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
   <a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="Link_emsFormBuilder('${i.name}')"><i class="efb  bi-question-circle mx-1"></i>${efb_var.text.help}</a>
   </div></div></div>`
 }
-funProEfb=()=>{return `<div class="efb  pro-card"><a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
+funProEfb=()=>{return `<div class="efb  pro-card"><a type="button" onclick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
 const boxs_efb = [
   { id: 'form', title: efb_var.text.newForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check2-square', tag: 'all new', pro: false },
  // { id: 'booking', title: efb_var.text.newbkForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check-circle-fill', tag: 'all new', pro: true },
@@ -637,7 +637,7 @@ function add_dasboard_emsFormBuilder() {
           <section id="content-efb">
           ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="efb ${efb_var.rtl == 1 ? "right_circle-efb" : "left_circle-efb"}"><h4 class="efb title-holder efb fs-4"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-arrow-down-circle title-icon mx-1 fs-4"></i>${efb_var.text.forms}</h4>` : ''}
           <div class="efb d-flex justify-content-center ">
-            <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class="efb fs-6 search-form-control rounded-4 efb mx-2"> <a class="efb btn efb btn-outline-pink mx-1" onClick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
+            <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class="efb fs-6 search-form-control rounded-4 efb mx-2"> <a class="efb btn efb btn-outline-pink mx-1" onclick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
             
           </div
             <div class="efb row">
@@ -954,14 +954,14 @@ function head_introduce_efb(state) {
                   <p class="efb card-text  ${state == "create" ? 'card-text' : 'text-dark'} efb pb-3 ${mobile_view_efb ? 'fs-7' : 'fs-6'}">${text}</p>
                   
     <a class="efb btn btn-r btn-primary ${btnSize}" href="${link}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
-    <a class="efb btn mt-1 efb btn-outline-pink ${btnSize}" onClick="Link_emsFormBuilder('tutorial')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>`;
+    <a class="efb btn mt-1 efb btn-outline-pink ${btnSize}" onclick="Link_emsFormBuilder('tutorial')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>`;
   }
   return `<section id="header-efb" class="efb mx-0 px-0  ${state == "create" ? '' : 'card col-12 bg-color'}">
   <div class="efb row ${mobile_view_efb ? 'mx-2' : 'mx-5'}">
               <div class="efb col-lg-7 mt-2 pd-5 col-md-12">
                   <img src="${efb_var.images.logo}" class="efb description-logo  ${mobile_view_efb ? 'm-1' : ''} efb">
-                  <h1 class="efb  pointer-efb mb-0 ${mobile_view_efb ? 'fs-6' : ''}" onClick="Link_emsFormBuilder('efb')" >${efb_var.text.easyFormBuilder}</h1>
-                  <h3 class="efb  pointer-efb  ${state == "create" ? 'card-text ' : 'text-darkb'} ${mobile_view_efb ? 'fs-7' : 'fs-6'}" onClick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
+                  <h1 class="efb  pointer-efb mb-0 ${mobile_view_efb ? 'fs-6' : ''}" onclick="Link_emsFormBuilder('efb')" >${efb_var.text.easyFormBuilder}</h1>
+                  <h3 class="efb  pointer-efb  ${state == "create" ? 'card-text ' : 'text-darkb'} ${mobile_view_efb ? 'fs-7' : 'fs-6'}" onclick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
                   ${cont}
                  
               </div>
@@ -1461,7 +1461,7 @@ let change_el_edit_Efb = (el) => {
         } else {
           // trackingCodeEl.checked=false;
           el.classList.remove('active');
-          const msg =  efb_var.text.sMTPNotWork + '' + `<a class="alert-link" onClick="Link_emsFormBuilder('EmailNoti')"> ${efb_var.text.orClickHere}</a>`;
+          const msg =  efb_var.text.sMTPNotWork + '' + `<a class="alert-link" onclick="Link_emsFormBuilder('EmailNoti')"> ${efb_var.text.orClickHere}</a>`;
           alert_message_efb(efb_var.text.error,msg, 20, "danger")
         }
 
@@ -2978,7 +2978,7 @@ const saveFormEfb = async (stated) => {
         }
 
         if (state == false) {
-          btn = `<button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onClick ="${btnFun}">
+          btn = `<button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onclick ="${btnFun}">
             <i class="efb ${btnIcon} mx-2"></i> ${btnText} </button>`;
           body = `
             <div class="efb pro-version-efb-modal efb"></div>
@@ -3001,7 +3001,7 @@ const saveFormEfb = async (stated) => {
           <div class="efb pro-version-efb-modal efb"></div>
           <h5 class="efb txt-center text-darkb fs-6">${efb_var.text.pleaseReporProblem}</h5>
           <div class="efb text-center">
-            <button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onClick ="fun_report_error('fun_saveFormEfb','${error}')">
+            <button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onclick ="fun_report_error('fun_saveFormEfb','${error}')">
               <i class="efb bi-megaphone mx-2"></i> ${efb_var.text.reportProblem} </button>
           </div>
         `;
@@ -3322,13 +3322,13 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
   let t = "radio";
   if(parent.type.toLowerCase().indexOf("multi")>-1  || parent.type.toLowerCase().includes("checkbox")==true || parent.type.toLowerCase().includes("multiselect")==true  ) t="checkbox"
   const col = ftyp == "payment" || ftyp == "smart" ? 'col-md-7' : 'col-md-12'
-  const fun_add = tag != 'r_matrix' ? `onClick="add_option_edit_pro_efb('${parentsID.trim()}','${tag.trim()}',${valj_efb.length})"` : `onClick="add_r_matrix_edit_pro_efb(${parentsID.trim()},${tag.trim()},${valj_efb.length})"`
+  const fun_add = tag != 'r_matrix' ? `onclick="add_option_edit_pro_efb('${parentsID.trim()}','${tag.trim()}',${valj_efb.length})"` : `onclick="add_r_matrix_edit_pro_efb(${parentsID.trim()},${tag.trim()},${valj_efb.length})"`
 /*   document.getElementById('optionListefb').innerHTML += `
   <div id="${id_ob}-v"  class="efb  col-md-12">
   <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-6 border-d efb-rounded elEdit">
   ${ftyp == "payment" ? `<input type="number" placeholder="$"  value='' data-value="${value}" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-6 border-d efb-rounded elEdit">` : ''}
   <div class="efb  ${ftyp == "payment" || ftyp == "smart" ? 'pay' : 'newop'} btn-edit-holder" id="deleteOption" data-parent_id="${parentsID}">
-    <button type="button" id="deleteOption" onClick="delete_option_efb('${idin}')"  data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}-id"  class="efb  btn btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}" > 
+    <button type="button" id="deleteOption" onclick="delete_option_efb('${idin}')"  data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}-id"  class="efb  btn btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}" > 
         <i class="efb  bi-x-lg text-danger"></i>
     </button>
    <button type="button" id="addOption" ${fun_add}  data-parent="${parentsID}" data-tag="${tag}" data-id="${idin}-id"   class="efb  btn btn-edit btn-sm elEdit " data-bs-toggle="tooltip"   title="${efb_var.text.add}" > 
@@ -3791,7 +3791,7 @@ fun_efb_add_el = (t) => {
         document.getElementById(el.id_+'-f').innerHTML = `
         <div class="efb border border-muted rounded-3 m-2 text-center efb p-3" id="${el.id_}_noCode">
          <h6 class="efb text-darkb">${efb_var.text.aPIkeyGoogleMapsError}</h5>
-         <a class="mt-3 efb btn efb btn-outline-pink efb-btn-lg" onClick="Link_emsFormBuilder('oslp')">${efb_var.text.howToAddGoogleMap}</a>
+         <a class="mt-3 efb btn efb btn-outline-pink efb-btn-lg" onclick="Link_emsFormBuilder('oslp')">${efb_var.text.howToAddGoogleMap}</a>
         </div>
        `
        }, 800);
@@ -4450,7 +4450,7 @@ content_colors_setting_efb=()=>{
     
     for(let i of efb_var.colors){
       const c = d==i ? '#c60000' : '#ccc';
-      r +=`<p id="${name}" data-id="${name}" title="${i}" class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 25px;height: 25px;border-radius: 20%;cursor: pointer; border: 1.5px solid ${c};" onClick="colors_template_picker_efb(this)"></p>`;
+      r +=`<p id="${name}" data-id="${name}" title="${i}" class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 25px;height: 25px;border-radius: 20%;cursor: pointer; border: 1.5px solid ${c};" onclick="colors_template_picker_efb(this)"></p>`;
     }
     //return `<div class="efb row col">${r}</div>`;
     return `<span class="efb ">
@@ -4490,7 +4490,7 @@ msg_colors_from_template = ()=>{
   get_colors =()=>{
     let r =`<!--colors-->`
     for(let i of efb_var.colors){
-      r +=`<div class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 30px;height: 30px;border-radius: 20%;cursor: pointer;" onClick="colors_template_picker_efb(this)"></div>`;
+      r +=`<div class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 30px;height: 30px;border-radius: 20%;cursor: pointer;" onclick="colors_template_picker_efb(this)"></div>`;
     }
     return `<div class="efb row col">${r}</div>`;
   }
@@ -4669,7 +4669,7 @@ colors_from_template = ()=>{
   get_colors =()=>{
     let r =`<!--colors-->`
     for(let i of efb_var.colors){
-      r +=`<div class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 30px;height: 30px;border-radius: 20%;cursor: pointer;" onClick="colors_template_picker_efb(this)"></div>`;
+      r +=`<div class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 30px;height: 30px;border-radius: 20%;cursor: pointer;" onclick="colors_template_picker_efb(this)"></div>`;
     }
     return `<div class="efb row col">${r}</div>`;
   }

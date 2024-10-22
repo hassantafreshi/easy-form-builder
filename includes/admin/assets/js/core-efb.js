@@ -611,7 +611,7 @@ function valid_email_emsFormBuilder(el) {
 
   let offsetw = offset_view_efb();
   
-  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${efb_var.text.enterTheEmail}','',10,'danger');"></div>` : efb_var.text.enterTheEmail;
+  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheEmail}','',10,'danger');"></div>` : efb_var.text.enterTheEmail;
   let check = 0;
   //const format = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
   const format =/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

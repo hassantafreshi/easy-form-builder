@@ -69,7 +69,7 @@ class Create {
 				<div class="efb side-menu-efb bg-light bg-gradient border text-dark fade efbDW-0 pb-5" id="sideBoxEfb">
 				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
 				<span> </span>
-					<a class="efb BtnSideEfb efb close sidemenu text-danger" id="BtnCSideEfb" onClick="sideMenuEfb(0)"><i class="efb bi-x-lg" ></i></a>
+					<a class="efb BtnSideEfb efb close sidemenu text-danger" id="BtnCSideEfb" onclick="sideMenuEfb(0)"><i class="efb bi-x-lg" ></i></a>
 				</div>
 				<div class="efb  mx-3 sideMenu" id="sideMenuConEfb"></div>
 				</div></div>
