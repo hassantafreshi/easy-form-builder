@@ -3849,6 +3849,24 @@ function active_element_efb(el) {
   }
 }
 
+
+function deactive_element_efb() {
+  const ac = document.querySelector(`.field-selected-efb`);
+  if (ac) {
+   ac.classList.remove('field-selected-efb')
+  }else{
+    return;
+  }
+
+  //find child element of ac varible by btn-edit-holder class
+  const el = ac.querySelector('.btn-edit-holder');
+  if (el) {
+    el.classList.add('d-none');
+    activeEl_efb = 0;
+  }
+  
+}
+
 add_element_dpz_efb = (id) => { fun_efb_add_el(id); }
 
 

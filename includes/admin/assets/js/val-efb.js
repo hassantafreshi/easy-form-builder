@@ -1344,6 +1344,7 @@ function show_setting_window_efb(idset) {
         `
         break;
       case 'formSet':
+        deactive_element_efb();
         body = `
           <label for="formNameEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.formName}<span class="efb  mx-1 efb text-danger">*</span></label>
            <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control efb  h-d-efb  mb-1"  placeholder="${efb_var.text.formName}" id="formNameEl" required value="${valj_efb[0].formName}">
