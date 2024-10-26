@@ -138,7 +138,7 @@ class Install {
 							
 
 							 function fun_addon_new($url){
-								//download the addon dependency 
+								// download the addon dependency 
 								$path = preg_replace( '/wp-content(?!.*wp-content).*/', '', __DIR__ );
 								require_once( $path . 'wp-load.php' );
 								require_once (ABSPATH .'wp-admin/includes/admin.php');
@@ -147,7 +147,7 @@ class Install {
 								
 								$r =download_url($url);
 								if(is_wp_error($r)){
-									//show error message
+									// show error message
 									
 								}else{
 									$directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
@@ -159,7 +159,7 @@ class Install {
 										$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
 										if(is_wp_error($s)){										
 											error_log('EFB=>unzip addons error 1:');
-											//error_log(json_encode($r));
+											// error_log(json_encode($r));
 											return false;
 										}
 									}else{
@@ -169,28 +169,27 @@ class Install {
 										$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
 										if(is_wp_error($r)){																															
 											error_log('EFB=>unzip addons error 2:');
-											//error_log(json_encode($r));
+											// error_log(json_encode($r));
 											return false;
 										}
 									} 
 									return true;           
 								}
 							}
-							//echo 'Installing Addons of Easy Form Builder';
+							// echo 'Installing Addons of Easy Form Builder';
 							$setting = json_decode($v_);
 							$adns =['AdnPDP','AdnADP','AdnSS','AdnCPF','AdnESZ','AdnSE','AdnWHS','AdnPAP','AdnWSP','AdnSMF','AdnPLF','AdnMSF','AdnBEF','AdnWPB','AdnELM','AdnGTB','AdnPFA'];
-							//if(isset($setting->AdnSPF)){
+							// if(isset($setting->AdnSPF)){
 								$s_time = false;
 								foreach($adns as $adn){
 									if (isset($setting->$adn) && $setting->$adn) {
-										//error_log('check install-'.$adn.'-'. $setting->$adn);
+										// error_log('check install-'.$adn.'-'. $setting->$adn);
 										if (!$s_time) {
 											$s_time = true;
 											set_time_limit(240);
 											ignore_user_abort(true);
 										}
-										$value = $adn;
-										// اگر لینک دانلود داشت
+										$value = $adn;										
 										$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 										$vwp = get_bloginfo('version');
 										$u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;

@@ -58,12 +58,12 @@ class efbFunction {
 			"areYouSureYouWantDeleteItem" => $state ? $ac->text->areYouSureYouWantDeleteItem : esc_html__('Are you sure you want to delete this?',$s),
 			"no" => $state ? $ac->text->no : esc_html__('NO',$s),
 			"yes" => $state ? $ac->text->yes : esc_html__('Yes',$s),
-			//"numberOfSteps" => $state ? $ac->text->numberOfSteps : esc_html__('Number of steps',$s),
-			//"titleOfStep" => $state ? $ac->text->titleOfStep : esc_html__('Title of step',$s),
+			// "numberOfSteps" => $state ? $ac->text->numberOfSteps : esc_html__('Number of steps',$s),
+			// "titleOfStep" => $state ? $ac->text->titleOfStep : esc_html__('Title of step',$s),
 			"proVersion" => $state ? $ac->text->proVersion : esc_html__('Pro Version',$s),
 			"getProVersion" => $state ? $ac->text->getProVersion : esc_html__('Activate Pro version',$s),					
 			"reCAPTCHA" => $state ? $ac->text->reCAPTCHA : esc_html__('reCAPTCHA',$s),
-			//"protectsYourWebsiteFromFraud" => $state ? $ac->text->protectsYourWebsiteFromFraud : esc_html__('Click here to watch a video tutorial.',$s),
+			// "protectsYourWebsiteFromFraud" => $state ? $ac->text->protectsYourWebsiteFromFraud : esc_html__('Click here to watch a video tutorial.',$s),
 			"enterSITEKEY" => $state ? $ac->text->enterSITEKEY : esc_html__('SECRET KEY',$s),
 			"alertEmail" => $state ? $ac->text->alertEmail : esc_html__('Alert Email',$s),
 			"enterAdminEmail" => $state ? $ac->text->enterAdminEmail : esc_html__('Enter the admin email address to receive email notifications.',$s),
@@ -141,7 +141,7 @@ class efbFunction {
 			"howActivateTracking" => $state ? $ac->text->howActivateTracking : esc_html__('How to activate a Confirmation Code in Easy Form Builder',$s),
 			"howWorkWithPanels" => $state ? $ac->text->howWorkWithPanels : esc_html__('How to work with panels in Easy Form Builder',$s),
 			"points" => $state ? $ac->text->points : esc_html__('points',$s),
-			"howAddTrackingForm" => $state ? $ac->text->howAddTrackingForm : esc_html__('How to add The Confirmation Code Finder to a post, page, or custom post type',$s),//here
+			"howAddTrackingForm" => $state ? $ac->text->howAddTrackingForm : esc_html__('How to add The Confirmation Code Finder to a post, page, or custom post type',$s),// here
 			"howFindResponse" => $state ? $ac->text->howFindResponse : esc_html__('How to find a specific submission using the Confirmation Code',$s),
 			"pleaseEnterVaildValue" => $state ? $ac->text->pleaseEnterVaildValue : esc_html__('Please enter a valid value',$s),
 			"step" => $state ? $ac->text->step : esc_html__('Step',$s),
@@ -272,7 +272,7 @@ class efbFunction {
 			"next" => $state ? $ac->text->next : esc_html__('Next',$s),
 			"noCodeAddedYet" => $state ? $ac->text->noCodeAddedYet : esc_html__('The code has not yet been added. Click on',$s),
 			"andAddingHtmlCode" => $state ? $ac->text->andAddingHtmlCode : esc_html__('and adding HTML code.',$s),
-			//"proMoreStep" => $state ? $ac->text->proMoreStep : esc_html__('When you activate the Pro version, so you can create unlimited form steps.',$s),
+			// "proMoreStep" => $state ? $ac->text->proMoreStep : esc_html__('When you activate the Pro version, so you can create unlimited form steps.',$s),
 			"aPIkeyGoogleMapsError" => $state ? $ac->text->aPIkeyGoogleMapsError : esc_html__('The Location Picker is currently unavailable; please go to Easy Form Builder > Panel > Settings > General Tab, activate the \'Enable Location Picker in Easy Form Builder\' option, and refresh the form builder',$s),
 			"howToAddGoogleMap" => $state ? $ac->text->howToAddGoogleMap : esc_html__('How to Add Location Picker(maps) to Easy form Builder WordPress Plugin',$s),
 			"deletemarkers" => $state ? $ac->text->deletemarkers : esc_html__('Delete markers',$s),
@@ -628,7 +628,7 @@ class efbFunction {
 			"hField" => $state  &&  isset($ac->text->hField) ? $ac->text->hField : esc_html__('Hidden Field',$s),							
 			"sctdlosp" => $state  &&  isset($ac->text->sctdlosp) ? $ac->text->sctdlosp : esc_html__('Select a country to display a list of states/provinces.',$s),				
 			"sctdlocp" => $state  &&  isset($ac->text->sctdlocp) ? $ac->text->sctdlocp : esc_html__('Select a states/provinces to display a list of city.',$s),				
-			//don't remove (used in delete message)						
+			// don't remove (used in delete message)						
 			"AdnOF" => $state  &&  isset($ac->text->AdnOf) ? $ac->text->AdnOf : esc_html__('Offline Forms Addon',$s),
 			"AdnSPF" => $state  &&  isset($ac->text->AdnSPF) ? $ac->text->AdnSPF : esc_html__('Stripe Payment Addon',$s),
 			"AdnPDP" => $state  &&  isset($ac->text->AdnPDP) ? $ac->text->AdnPDP : esc_html__('Jalali date Addon',$s),
@@ -639,7 +639,7 @@ class efbFunction {
 			"wylpfucat" => $state  &&  isset($ac->text->wylpfucat) ? $ac->text->wylpfucat : esc_html__('Would you like to customize the form using the colors of the active template?',$s),
 			"efbmsgctm" => $state  &&  isset($ac->text->efbmsgctm) ? $ac->text->efbmsgctm : esc_html__('Easy Form Builder has utilized the colors of the active template. Please choose a color for each option below to customize the form you are creating based on the colors of your template.By selecting a color for each option below, the color of all form fields associated with that feature will change accordingly.',$s),
 			"btntcs" => $state  &&  isset($ac->text->btntcs) ? $ac->text->btntcs : esc_html__('Buttons text colors',$s),
-			//End don't remove (used in delete message)
+			// End don't remove (used in delete message)
 			"atcfle" => $state  &&  isset($ac->text->atcfle) ? $ac->text->atcfle : esc_html__('attached files',$s),				
 			"dslctd" => $state  &&  isset($ac->text->dslctd) ? $ac->text->dslctd : esc_html__('Default selected',$s),				
 			"shwattr" => $state  &&  isset($ac->text->shwattr) ? $ac->text->shwattr : esc_html__('Show attributes',$s),				
@@ -654,7 +654,7 @@ class efbFunction {
 			"AdnSMF" => $state  &&  isset($ac->text->AdnSMF) ? $ac->text->AdnSMF : esc_html__('Conditional logic Addon',$s),
 			"condATAddon" => $state  &&  isset($ac->text->condATAddon) ? $ac->text->condATAddon : esc_html__('Conditional logic Addon',$s),
 			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : esc_html__('The Conditional Logic Addon enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users unique needs.',$s),			
-			//"condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : esc_html__('Conditional logic',$s),
+			// "condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : esc_html__('Conditional logic',$s),
 			"condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : esc_html__('Enable Conditional',$s),
 			"enableCon" => $state  &&  isset($ac->text->enableCon) ? $ac->text->enableCon : esc_html__('Enable Conditional',$s),
 			"show" => $state  &&  isset($ac->text->show) ? $ac->text->show : esc_html__('Show',$s),
@@ -813,7 +813,7 @@ class efbFunction {
 				$rtrn=$lang;
 			}
 		}
-		//array_push($rtrn);
+		// array_push($rtrn);
 		return $rtrn;
 	}
 
@@ -1147,20 +1147,20 @@ class efbFunction {
 					$email=$val['value'];
 					$subject ="📮 ".$lang['youRecivedNewMessage'];
 					$this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
-					//send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null")
+					// send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null")
 					return 1;
 				}
 			}
 		}
 
-		//send smsnoti
+		// send smsnoti
 		
 		if(isset($data[0]['smsnoti']) && intval($data[0]['smsnoti'])==1){		
 				
 			$phone_numbers=[[],[]];		
 			$setting = $this->get_setting_Emsfb('setting');	
 			
-			//$numbers = isset($setting['phnNo']) ? explode(',',$setting['phnNo']) :[];
+			// $numbers = isset($setting['phnNo']) ? explode(',',$setting['phnNo']) :[];
 			$numbers = isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5  ? explode(',',$setting->phnNo) :[];
 			$phone_numbers[0]= $numbers;
 			
@@ -1184,11 +1184,11 @@ class efbFunction {
 					}
 				}
 			}
-			//$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
+			// $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
 			if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,'respp' ,'wpsms' ,$trackingCode);
 		}
 		return 0;
-	}//end function
+	}// end function
 	
 	public function sanitize_obj_msg_efb ($valp){
 		
@@ -1288,7 +1288,7 @@ class efbFunction {
 						}
 					break;
 					case 'conditions':
-						//$valp[$key][$k]=$v;
+						// $valp[$key][$k]=$v;
 						$valp[$key][$k]=$v;
 					break;
 					default:
@@ -1300,7 +1300,7 @@ class efbFunction {
 			}
 		}
 		return $valp;
-	}//end function
+	}// end function
 
 
 	public function get_geolocation() {		
@@ -1362,7 +1362,7 @@ class efbFunction {
 		wp_schedule_single_event( time() + 1, 'download_all_addons_efb' );
 		}
 		
-	}//addon_adds_cron_efb
+	}// addon_adds_cron_efb
 
 
 /* public function addon_add_efb($value) {
@@ -1540,7 +1540,7 @@ public function addon_add_efb($value) {
 		
 		$r =download_url($url);
 		if(is_wp_error($r)){
-			//show error message
+			// show error message
 			
 		}else{
 			$directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
@@ -1552,8 +1552,8 @@ public function addon_add_efb($value) {
 				$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
 				if(is_wp_error($s)){
 				
-					//error_log('EFB=>unzip addons error 1:');
-					//error_log(json_encode($r));
+					// error_log('EFB=>unzip addons error 1:');
+					// error_log(json_encode($r));
 					return false;
 				}
 			}else{
@@ -1565,8 +1565,8 @@ public function addon_add_efb($value) {
 				
 					
 					
-					//error_log('EFB=>unzip addons error 2:');
-					//error_log(json_encode($r));
+					// error_log('EFB=>unzip addons error 2:');
+					// error_log(json_encode($r));
 					return false;
 				}
 			} 
@@ -1574,7 +1574,7 @@ public function addon_add_efb($value) {
 		}
 
 
-		//run install php of addons
+		// run install php of addons
 		$fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/".$name."/".$name.".php"; 
 				
 		if(file_exists($fl_ex)){         
@@ -1625,7 +1625,7 @@ public function addon_add_efb($value) {
 			$this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
 			return false;
 		}
-		//refresh carrent page by php
+		// refresh carrent page by php
 	
 			
             return true;
@@ -1734,7 +1734,7 @@ public function addon_add_efb($value) {
 	   $sql = "UPDATE $table_name SET status='{$status}', active={$active}, read_date='{$read_date}', tc='{$tc}' WHERE sid='{$sid}' AND active=1";
 
 		$stmt = $this->db->query($sql);
-		//$stmt->bindParam(':date_', $$date_limit);
+		// $stmt->bindParam(':date_', $$date_limit);
 	  
 	   return $stmt > 0;
     }
@@ -1808,7 +1808,7 @@ public function addon_add_efb($value) {
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
 		$sms_exists =get_option('emsfb_addon_AdnSS',false);
 		if(!$sms_exists){
-			//error_log('Easy Form Builder: SMS Addon is not installed');
+			// error_log('Easy Form Builder: SMS Addon is not installed');
 			return false;
 		}
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
@@ -1883,7 +1883,7 @@ public function addon_add_efb($value) {
 	}
 
 	public function setting_version_efb_update($st ,$pro){
-		//error_log('EFB=>setting_version_efb_update: ' . $pro);   
+		// error_log('EFB=>setting_version_efb_update: ' . $pro);   
 		if(empty($this->db)){
 			global $wpdb;
 			$this->db = $wpdb;
@@ -1912,14 +1912,14 @@ public function addon_add_efb($value) {
 			$this->download_all_addons_efb();	
 			$end_time = microtime(true);
 			$execution_time = ($end_time - $start_time);
-			//error_log('EFB=>setting_version_efb_update: ' . $execution_time);
+			// error_log('EFB=>setting_version_efb_update: ' . $execution_time);
 			$request_uri = $_SERVER['REQUEST_URI'];			
 		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') == false ){			
-				//error_log('if execution_time>2');
+				// error_log('if execution_time>2');
 				wp_safe_redirect($_SERVER['REQUEST_URI']);
 				exit;
 			}else{
-				//error_log('else execution_time>2');
+				// error_log('else execution_time>2');
 				?>
 
 				<script>
@@ -1972,7 +1972,7 @@ public function addon_add_efb($value) {
 			return true;
         } else {
             
-            //error_log('recaptcha google URL is not accessible.');
+            // error_log('recaptcha google URL is not accessible.');
 			return false;
         }
     }
@@ -2019,7 +2019,7 @@ public function addon_add_efb($value) {
 			}
 		}
 
-		//if (empty($plugin_list)) not then add_option('emsfb_cache_plugins') and convert to string with json_encode
+		// if (empty($plugin_list)) not then add_option('emsfb_cache_plugins') and convert to string with json_encode
 		$val = json_encode($plugin_list);
 		$
 		$val = $val && $val !== '[]' ? $val : 0;
@@ -2030,24 +2030,24 @@ public function addon_add_efb($value) {
 
 
 	public function make_post_request_efb( $ac) {
-		//error_log('EFB=>make_post_requestefb ac: ' . $ac);
+		// error_log('EFB=>make_post_requestefb ac: ' . $ac);
 		$url = 'https://demo.whitestudio.team/wp-json/wl/v1/pro/key';
 		$url = 'http://127.0.0.1/ws/wp-json/wl/v1/pro/key';
-		//error_log('EFB=>make_post_requestefb url: ' . $url);
+		// error_log('EFB=>make_post_requestefb url: ' . $url);
 
-		//check internet connection
+		// check internet connection
 		/* $connected = @fsockopen("www.whitestudio.team", 80);
 		if (!$connected) { */
 		$connected = wp_remote_post('https://www.whitestudio.team', array('timeout' => 2));
 		if (is_wp_error($connected)) {
-			//error_log('not connected');
+			// error_log('not connected');
 			$s = explode('@', $ac)[0];
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 			$r= isset($s) && md5($server_name) == $s ? (object)['r' => true , 'state' => 'active','pakcage'=>1]   : (object)['r' => false , 'state' => 'notExists' ];
 			return $r;
 			
 		} 
-		//write a query paramters key=$ac	
+		// write a query paramters key=$ac	
 		$get_list_plugins_active = json_encode(get_option('active_plugins'));
 		$info = array(
 			'domain' => $_SERVER['HTTP_HOST'],
@@ -2071,7 +2071,7 @@ public function addon_add_efb($value) {
 		);
 		$response = wp_remote_post($url, $options);
 		if (is_wp_error($response)) {
-			//error_log('EFB=>make_post_requestefb: ' . json_encode($response));
+			// error_log('EFB=>make_post_requestefb: ' . json_encode($response));
 			return false;
 		}
 		$body = wp_remote_retrieve_body($response);
@@ -2084,22 +2084,22 @@ public function addon_add_efb($value) {
 		update_option('emsfb_pro', 1);
 		update_option('emsfb_pro_activeCode', $code);
 		$json = $this->make_post_request_efb($code);
-		//error_log('EFB=>update_pro_status_efb: ' . json_encode($json));
-		//{"r":true,"state":"new","key":"f528764d624db129b32c21fbca0cb8d6@iZPLjo","smsStatus":false,"smsDeposited":0}
+		// error_log('EFB=>update_pro_status_efb: ' . json_encode($json));
+		// {"r":true,"state":"new","key":"f528764d624db129b32c21fbca0cb8d6@iZPLjo","smsStatus":false,"smsDeposited":0}
 		$r = $json->r;
-		//error_log('EFB=>update_pro_status_efb r: ' . $r);
+		// error_log('EFB=>update_pro_status_efb r: ' . $r);
 		if($r===false) {
 			delete_option('emsfb_pro');
 			delete_option('emsfb_pro_ac_date');
 			delete_option('emsfb_pro_activeCode');
 			return false;
 		}
-		//if (!get_option('emsfb_pro_ac_date')) {
+		// if (!get_option('emsfb_pro_ac_date')) {
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));				
-		//}
+		// }
 		$state =$json->state;
 		if($state=="new") {
-			//error_log('EFB=>update_pro_status_efb state: new');
+			// error_log('EFB=>update_pro_status_efb state: new');
 			$activeCode = $json->key;
 			update_option('emsfb_pro_activeCode', $activeCode);
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
@@ -2110,7 +2110,7 @@ public function addon_add_efb($value) {
 			return true;
 		}elseif($state=="active") {
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));	
-			//error_log('EFB=>update_pro_status_efb state: date='.get_option('emsfb_pro_ac_date'));
+			// error_log('EFB=>update_pro_status_efb state: date='.get_option('emsfb_pro_ac_date'));
 			return true;
 		}elseif ($state=="deactive") {
 			update_option('emsfb_pro' , 0);
@@ -2127,14 +2127,14 @@ public function addon_add_efb($value) {
 
 	public function weekly_check_pro_efb($activeCode) {
 		$ac_date = get_option('emsfb_pro_ac_date');
-		//error_log('EFB=>weekly_check_pro_efb: date' . $ac_date);
+		// error_log('EFB=>weekly_check_pro_efb: date' . $ac_date);
 		$ac_date = strtotime($ac_date);
-		//error_log('EFB=>weekly_check_pro_efb: ' . $ac_date);
+		// error_log('EFB=>weekly_check_pro_efb: ' . $ac_date);
 		$now = strtotime(date('Y-m-d H:i:s'));
 		$diff = ($now - $ac_date) / (60 * 60 * 24);
-		//error_log('EFB=>weekly_check_pro_efb: before if' . $diff);
+		// error_log('EFB=>weekly_check_pro_efb: before if' . $diff);
 		if ($diff > 7) {
-			//error_log('EFB=>weekly_check_pro_efb: in if' . $diff);
+			// error_log('EFB=>weekly_check_pro_efb: in if' . $diff);
 			// Make an API request to check the activeCode
 			// Assume the API request is successful for demonstration
 			// API get a json include key:true or false , smsStatus:true or false, smsDeposited: Number (USD currency)
@@ -2154,7 +2154,7 @@ public function addon_add_efb($value) {
 		}
 		return true;
 	}
-	//+Pro
+	// +Pro
 	public function is_efb_pro($s=1) {	
 		function validated($s) {
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
@@ -2163,12 +2163,12 @@ public function addon_add_efb($value) {
 			
 		if ($s == 1) {	
 			$is_pro =get_option('Emsfb_pro' ,2);
-			//error_log('EFB=>is_efb_pro is_pro: ' . $is_pro);
+			// error_log('EFB=>is_efb_pro is_pro: ' . $is_pro);
 			if($is_pro == 0){ return false; }
 
 			$activeCode = get_option('emsfb_pro_activeCode');	
 			if (empty($activeCode)) {
-				//if the activeCode is empty then check the activeCode in the setting
+				// if the activeCode is empty then check the activeCode in the setting
 				$st = get_option('emsfb_settings' , 'null');				
 				if($st=='null'){
 					$st = $this->get_setting_Emsfb();
@@ -2191,17 +2191,17 @@ public function addon_add_efb($value) {
 
 			$ac = explode('@', $activeCode)[0];
 			if(validated($ac)){
-				////error_log('EFB=>is_efb_pro validated: ' . $s);
+				// //error_log('EFB=>is_efb_pro validated: ' . $s);
 				return $this->weekly_check_pro_efb($activeCode);
 			}
 			delete_option('emsfb_pro');
 			return false;
 		} else {
-			//error_log('EFB=>is_efb_pro: else ' . $s);
+			// error_log('EFB=>is_efb_pro: else ' . $s);
 			$activeCode = explode('@', $s)[0];
 			if (validated($activeCode)) {
 					return $this->update_pro_status_efb($s);
-					//return true;
+					// return true;
 			}
 			delete_option('emsfb_pro');
 		}
@@ -2211,14 +2211,14 @@ public function addon_add_efb($value) {
 
 
 	public function noti_expire_efb() {
-		//$url = 'https://demo.whitestudio.team/register-costumer?renew=';
+		// $url = 'https://demo.whitestudio.team/register-costumer?renew=';
 		$url = 'http://127.0.0.1/ws/register-costumer?renew=';
 		$msg = esc_html__('Your Easy Form Builder Pro subscription has expired. To continue enjoying all Pro features and keep your forms running, %1$sRenew your subscription now.%2$s', 'easy-form-builder');
 		$ac = get_option('emsfb_pro_activeCode');	
 		$renew = '<br><a class="efb alert-link fw-bold text-info" href="'.$url.'' . $ac . '" target="_blank">';		
 		$msg = sprintf($msg, $renew, '</a>');	
 		$ativ = esc_html__('Your activation code has expired!', 'easy-form-builder');
-		//$div_noti = '<div class="efb alert alert-danger fade show mt-4 mb-2 alert-dismissible" role="alert">' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+		// $div_noti = '<div class="efb alert alert-danger fade show mt-4 mb-2 alert-dismissible" role="alert">' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
 		$div_noti = '<div class="efb mx-3  mt-4 mb-3 pd-5  alert alert-light pointer-efb buy-noti  alert-dismissible bg-dark text-warning"><i class="efb bi-exclamation-triangle-fill text-warning mx-1"></i><span class="efb text-warning">'.$ativ.'</span><br>' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
 	
 		return $div_noti;

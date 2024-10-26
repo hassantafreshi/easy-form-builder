@@ -3157,6 +3157,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       const indx =(valj_efb.length) - 1;
       Object.assign(valj_efb[indx], { button_1_text: efb_var.text.yes, button_2_text: efb_var.text.no, button_color: pub_bg_button_color_efb })
     } else if (elementId == "maps") {
+      const indx =(valj_efb.length) - 1;
       console.log(valj_efb.length,elementId);
       Object.assign(valj_efb[indx], { lat: 49.24803870604257, lng: -123.10512829684463, mark: 1, zoom: 12 });
      

@@ -46,12 +46,12 @@ class Addon {
 	}
 	public function render_settings() {
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-		//demo start
-		//wp_register_script('whiteStudioAddone', 'http://demo.whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
+		// demo start
+		// wp_register_script('whiteStudioAddone', 'http://demo.whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
 		wp_register_script('whiteStudioAddone', 'http://127.0.0.1/ws/wp-json/wl/v1/addons.js' .$server_name, null, null, true);	
-		//demo end
+		// demo end
 
-		//wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
+		// wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
         wp_enqueue_script('whiteStudioAddone');
 
 		$efbFunction = $this->get_efbFunction(); 
@@ -96,7 +96,7 @@ class Addon {
 		if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){			
 			$efbFunction->setting_version_efb_update($ac ,$pro);
 		}
-		//v2 translate
+		// v2 translate
 		$lang = $efbFunction->text_efb(2);
 			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION, true);	
 			wp_enqueue_script('jquery-ui-efb');
@@ -197,8 +197,7 @@ class Addon {
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
-	//	
-		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
+		//  get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m =$lang['errorCheckInputs'];
@@ -250,7 +249,7 @@ class Addon {
             }
         }
         return  $s;
-    }//end fun
+    }// end fun
 	public function get_efbFunction(){
 		$efbFunctionInstance;
         if (false === ($efbFunctionInstance = wp_cache_get('emsfb_FunctionInstance', 'emsfb'))) {

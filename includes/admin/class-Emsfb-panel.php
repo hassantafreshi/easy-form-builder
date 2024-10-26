@@ -31,7 +31,7 @@ class Panel_edit  {
 			];
 			$efbFunction = $this->get_efbFunction();
 			$pro =$efbFunction->is_efb_pro(1);;
-			//$lng =new lng();		
+			// $lng =new lng();		
 			$ac= $efbFunction->get_setting_Emsfb();
 			$efbFunction->parsing_plugins_efb();
 			$lang = $efbFunction->text_efb(2);
@@ -184,7 +184,7 @@ class Panel_edit  {
 					$addons['AdnSS'] =1;
 				}
 				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
-					//wmaddon
+					// wmaddon
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {	
 						$r = $efbFunction->update_message_admin_side_efb();
 						echo $r; 
@@ -206,10 +206,10 @@ class Panel_edit  {
 				}
 			}else{$smtp_m =$lang['goToEFBAddEmailM'];}	
 			
-			//$colors = $efbFunction->get_list_colores_template();
+			// $colors = $efbFunction->get_list_colores_template();
 			$colors =[];
 			$location ='';
-			//efb_code_validate_create( $fid, $type, $status, $tc)
+			// efb_code_validate_create( $fid, $type, $status, $tc)
 			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
@@ -281,10 +281,10 @@ class Panel_edit  {
 			$lng = get_locale();
 			$ip =0;
 			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-				//check ip from share internet
+				// check ip from share internet
 				$ip = $_SERVER['HTTP_CLIENT_IP'];
 			} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-				//to check ip is pass from proxy
+				// to check ip is pass from proxy
 				$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
 			} else {
 				$ip = $_SERVER['REMOTE_ADDR'];
@@ -307,8 +307,8 @@ class Panel_edit  {
 					'pro'=>$pro ? 1 : 0,								
 				));
 		
-					//smart zone test
-					//$this->test_smart_zone();
+					// smart zone test
+					// $this->test_smart_zone();
 		}else{
 			echo "Easy Form Builder: You don't access this section";
 		}
@@ -329,7 +329,7 @@ class Panel_edit  {
 		}
 		$table_name_msg = $this->db->prefix . "emsfb_msg_";
 		$table_name_rsp = $this->db->prefix . "emsfb_rsp_"; 
-		//$table_name = $this->db->prefix . "emsfb_rsp_"; 
+		// $table_name = $this->db->prefix . "emsfb_rsp_"; 
 		$value = $this->db->get_results( "SELECT t.msg_id, t.form_id
 		FROM `$table_name_msg` AS t 
 		 INNER JOIN `$table_name_rsp` AS tr 
@@ -350,10 +350,10 @@ class Panel_edit  {
             } 
         }
         return  $s;
-    }//end fun
+    }// end fun
 	public function test_smart_zone (){
-			     //=>>>>>>>>>>>>>>>>>Temp Remove <<<<<<<<<<<<<<<<<< 
-            //test code for create database adsone 
+			     // =>>>>>>>>>>>>>>>>>Temp Remove <<<<<<<<<<<<<<<<<< 
+            // test code for create database adsone 
             $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/smartzone/smartzone.php";
             if(file_exists($fl_ex)){
                 $name ='smartzone';
@@ -361,7 +361,7 @@ class Panel_edit  {
                 require_once $fl_ex;
                 $t = new $name();
             }else{}
-            //end test 
+            // end test 
 	}
 	public function file_upload_api(){
 		
@@ -382,7 +382,7 @@ class Panel_edit  {
 			global $wpdb;
 			$this->db = $wpdb;
 		}
-        //check validate here
+        // check validate here
         $vl=null;
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
@@ -393,7 +393,7 @@ class Panel_edit  {
             if($vl!=null){              
                 if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){                   
                     $vl ='efb'.$id;
-                    //'efb'.$this->id
+                    // 'efb'.$this->id
                 }
             }
         }
@@ -410,7 +410,7 @@ class Panel_edit  {
 		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
 		);
 		$_FILES['async-upload']['name'] = sanitize_file_name($_FILES['async-upload']['name']);
-		//error_log($_FILES['async-upload']['name']);
+		// error_log($_FILES['async-upload']['name']);
 		if (in_array($_FILES['async-upload']['type'], $arr_ext)) { 
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
 			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES['async-upload']['name'], PATHINFO_EXTENSION) ;
@@ -425,7 +425,7 @@ class Panel_edit  {
 			wp_send_json_success($response,200);
 			die('invalid file '.$_FILES['async-upload']['type']);
 		}
-	}//end function
+	}// end function
 
 
 	public function get_efbFunction(){

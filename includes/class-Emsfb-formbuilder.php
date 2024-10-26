@@ -5,9 +5,7 @@
        private $pro_efb = false;
         public function __construct( $valj_efb, $pro_efb ) {
             $this->valj_efb =  $valj_efb;
-            $this->pro_efb = $pro_efb;
-            error_log( print_r( $this->valj_efb, true ) );
-            error_log( print_r( $this->pro_efb, true ) );
+            $this->pro_efb = $pro_efb;        
         }
 
 
@@ -15,9 +13,9 @@
         
 	/* field builder */
 	private function generateDescription_efb($rndm, $vj, $pos) {
-		// error_log('generateDescription_efb');
-		// error_log($vj->message_align);
-		// error_log($pos[1]);
+		//  error_log('generateDescription_efb');
+		//  error_log($vj->message_align);
+		//  error_log($pos[1]);
 		$mx = $pos[1] == 'col-md-4' || (isset($vj->message_align) && $vj->message_align != "justify-content-start") ? '' : 'mx-4';
 		$msg_align = isset($vj->message_align) ? $vj->message_align : '';
 		$msg_txt_color = isset($vj->message_text_color) ? $vj->message_text_color : '';
@@ -100,11 +98,11 @@
 				$fields['dataTag'] = $elementId;
 				break;
 			case 'switch':
-				// تنظیم مقادیر 'on' و 'off' در صورت عدم وجود
+				//  تنظیم مقادیر 'on' و 'off' در صورت عدم وجود
 				$vj->on = $vj->on ?? $texts['on'];
 				$vj->off = $vj->off ?? $texts['off'];
 
-				// استفاده از sprintf برای ساختن رشته HTML به صورت بهینه
+				//  استفاده از sprintf برای ساختن رشته HTML به صورت بهینه
 				$ui = sprintf('
 					%s
 					%s
@@ -128,7 +126,7 @@
 
 					$vj->el_height,
 					str_replace(',', ' ', $vj->classes),
-					$rndm,
+					$rndm, //data-css
 					$rndm, // data-vid
 					$rndm, // data-id and id for the button
 					$form_id,
@@ -147,7 +145,7 @@
 			default:
 				return false;
 		}
-		//error_log('fields: '.json_encode($fields));
+		// error_log('fields: '.json_encode($fields));
 		return $fields;
 	}
 
@@ -331,7 +329,7 @@
 			'<div class="efb text-white fs-6 bg-danger px-1 rounded px-2">%s</div>',
 			$text
 		);
-		//error_log('public_pro_message_efb: '.$r);
+		// error_log('public_pro_message_efb: '.$r);
 		return $r;
 	}
 
@@ -430,7 +428,7 @@
 
 	/* field builder */
 	public function esign_el_pro_efb($previewSate,$pos, $rndm, $vj,$message, $formId,$updateUrbrowser) {
-		//true, $pos, $rndm, $vj, $desc
+		// true, $pos, $rndm, $vj, $desc
 		error_log('esign_el_pro_efb');
 		error_log('esign_el_pro_efb: '.json_encode($vj));
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
@@ -526,12 +524,12 @@
 				$vj->icon,
 				$vj->icon_color,
 				$vj->id_,
-				$texts[0],  //mainText
+				$texts[0],  // mainText
 				$fileType,
-				$texts[1],  //or
+				$texts[1],  // or
 				$vj->button_color,
 				$disabled,
-				$texts[2],  //browseFile
+				$texts[2],  // browseFile
 				$fileTypeAttr,
 				$requiredClass,
 				$readonlyAttr,
@@ -757,8 +755,8 @@
 
         /* field builder */
 	public function ColorNameToHexEfbOfElEfb($v, $n) {	
-		//ColorNameToHexEfbOfElEfb(color.slice(4),'btn') //slice text=5 bg=2 border=6 btn=3 icon=4
-		//ColorNameToHexEfbOfElEfb(color.slice(7),'border') //slice text=5 bg=2 border=6 btn=3     
+		// ColorNameToHexEfbOfElEfb(color.slice(4),'btn') // slice text=5 bg=2 border=6 btn=3 icon=4
+		// ColorNameToHexEfbOfElEfb(color.slice(7),'border') // slice text=5 bg=2 border=6 btn=3     
 		error_log('ColorNameToHexEfbOfElEfb v:'.$v .' n:'.$n);
 		$color_map = [
 			"primary" => '#0d6efd',
@@ -802,7 +800,7 @@
 		return $r;
 	}
 
-/* field builder */
+    /* field builder */
 	public function switch_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts) {
 		$vj->on = property_exists($vj, 'on') ? $vj->on : $texts['on'];
 		$vj->off = property_exists($vj, 'off') ? $vj->off : $texts['off'];
@@ -819,7 +817,7 @@
 			%s
 			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" %s data-form-id="%s">
 				<label class="efb fs-6" id="%s_off">%s</label>
-				<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onClick="fun_switch_efb(this)" data-id="%s-el" id="%s_" %s %s>
+				<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onclick="fun_switch_efb(this)" data-id="%s-el" id="%s_" %s %s>
 					<div class="efb handle"></div>
 				</button>
 				<label class="efb fs-6" id="%s_on">%s</label>
@@ -882,16 +880,85 @@
 		return sprintf(
 			'<input type="radio" id="%s-star%s" data-vid="%s" data-type="rating" class="efb" data-star="star" name="%s-star-efb" value="%s" data-name="star" data-id="%s-el" %s %s>
 			<label id="%s_star%s" for="%s-star%s" %s title="%s stars" class="efb %s star %s"> %s %s </label>',
-			$rndm, $starValue, // شناسه و مقدار ستاره
-			$rndm, $rndm, $starValue, // داده‌ها و مقدار ستاره
-			$rndm, // داده‌های ID
-			$previewSate != true ? 'disabled' : '', $disabled, // حالت‌های پیش‌نمایش و غیرفعال
-			$rndm, $starValue, $rndm, $starValue, // شناسه و مقدار ستاره
-			($previewSate == true && $disabled == '') ? sprintf('onClick="fun_get_rating_efb(\'%s\',%s)"', $rndm, $starValue) : '',
-			$starValue, $el_height, $disabled, // عنوان و کلاس‌های المان
-			$starValue, $starText // مقدار ستاره و متن ستاره
+			$rndm, $starValue, 
+			$rndm, $rndm, $starValue, 
+			$rndm, 
+			$previewSate != true ? 'disabled' : '', $disabled, 
+			$rndm, $starValue, $rndm, $starValue, 
+			($previewSate == true && $disabled == '') ? sprintf('onclick="fun_get_rating_efb(\'%s\',%s)"', $rndm, $starValue) : '',
+			$starValue, $el_height, $disabled, 
+			$starValue, $starText 
 		);
 	}
+
+    /* field builder */
+
+    public function generate_select_efb($elementId, $rndm, $vj, $pos, $formId, $texts, $previewSate ,$desc,$label,$ttip,$aire_describedby ) {
+        error_log('>>generate_select_efb');
+        error_log('elementId:'.$elementId);
+        $pay = $elementId != "paySelect" ? '' : 'pay';
+        $options = '';
+        $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
+            return isset($obj->parent) && $obj->parent === $rndm;
+        });
+        error_log('optns_obj:'.json_encode($optns_obj));
+        foreach ($optns_obj as $i) {
+            $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
+            $options .= sprintf(
+                '<option class="efb %s emsFormBuilder_v efb" data-id="%s" data-op="%s" value="%s" %s>%s</option>',
+                $vj->el_text_color,
+                $i->id_,
+                $i->id_,
+                $i->value,
+                $selected,
+                $i->value
+            );
+        }
+    
+        $required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
+        $readonly = $previewSate != true ? 'readonly' : '';
+        $ariaRequired = $vj->required == 1 ? 'true' : 'false';
+        $ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
+        $disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
+        $corner = isset($vj->corner) ? $vj->corner : 'efb-square';
+        $el_height = isset($vj->el_height) ? $vj->el_height : '';
+        $el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
+    
+        $ui = sprintf(
+            '%s
+            <div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-form-id="%s">
+                %s
+                <select class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s %s %s>
+                    <option selected disabled>%s</option>
+                    %s
+                </select>
+                %s
+            </div>',
+            $label,
+            $pos[3],
+            str_replace(',', ' ', $vj->classes),
+            $rndm,
+            $rndm, $rndm, $formId,
+            $ttip,
+            $pay,
+            $required,
+            $el_height,
+            $corner,
+            $el_border_color,
+            $rndm,
+            $rndm,
+            $ariaRequired,
+            $vj->name,
+            $ariaDescribedBy,
+            $readonly,
+            $disabled,
+            $texts['nothingSelected'],
+            $options,
+            $desc
+        );
+    
+        return $ui;
+    }
 
 
 
@@ -939,13 +1006,13 @@
 			'pointr10' => true, 'zarinPal' => true, 'stripe' => ['amount' => true],
 			'yesNo' => true, 'payMultiselect' => true, 'rating' => true, 'text'=>true, 'password'=>true
 		];
-		//error_log('filter_attributes_by_type_efb');
-		//error_log($type);
-		//error_log(json_encode($attribute_map_efb[$type]));
+		// error_log('filter_attributes_by_type_efb');
+		// error_log($type);
+		// error_log(json_encode($attribute_map_efb[$type]));
 
 			if (isset($attribute_map_efb[$type])) {
 				$allowed_attributes_efb_type = is_array($attribute_map_efb[$type]) ?  array_replace($allowed_attributes_efb, $attribute_map_efb[$type]) :$allowed_attributes_efb;
-				//error_log(json_encode($allowed_attributes_efb_type));
+				// error_log(json_encode($allowed_attributes_efb_type));
 				$sanitized_item = $this->filter_and_sanitize_attributes_efb($data, $allowed_attributes_efb_type);
 				foreach ($sanitized_item as $key => $value) {
 					if ($key !== 'value') {
@@ -961,15 +1028,12 @@
 
     	/* field builder */
 	public function addNewElement_efb($i, $rndm,$form_id,$texts) {
-		error_log('addNewElement_efb');
-		//error_log(json_encode($this->valj_efb[$i]));
-		error_log(json_encode($this->valj_efb[$i]->type));
 		$element_Id = $this->valj_efb[$i]->id_;
 		$elementId = $this->valj_efb[$i]->type;
 		$pos = array("", "", "", "");
 		$indexVJ = $i;
 		$vj = $this->valj_efb[$indexVJ];
-		//error_log($elementId);
+		// error_log($elementId);
 		if(in_array($elementId, ["option"])) return;
 
 		if (!in_array($elementId, ["html", "register", "login", "subscribe", "survey"])) {
@@ -980,7 +1044,7 @@
 		$iVJ = $indexVJ;
 		$dataTag = 'text';
 		/*
-		//+ after check functionlity cheange below codes to
+		// + after check functionlity cheange below codes to
 		 $desc =isset($vj->message) && strlen($vj->message)>0 ?$this->generateDescription_efb($element_Id, $vj, $pos) :'<!-- descripton not exist -->';
 		 $label =isset($vj->name) && strlen($vj->name)   ? $this->generateLabel_efb($element_Id, $vj, $pos) :'<!-- label not exist -->';
 
@@ -1004,9 +1068,9 @@
 		$pro = $this->pro_efb;
 		$classes .=' '. str_replace(',', ' ', $vj->classes) ?? '';
 		$currency = isset($this->valj_efb[0]->currency) ? $this->valj_efb[0]->currency : 'USD';
+        $rndm = $this->valj_efb[$i]->id_;
 
-
-		//error_log('pro:'.$pro);
+		// error_log('pro:'.$pro);
 		if (gettype($elementSpecificFields) == 'array') {
 			$ui = $elementSpecificFields['ui'];
 			$dataTag = $elementSpecificFields['dataTag'];
@@ -1046,7 +1110,7 @@
 						$readonlyAttr,
 						$desc
 					);
-					//error_log('element ID:'.$element_Id);
+					// error_log('element ID:'.$element_Id);
 					$dataTag = $elementId;
 					$ui = $pro ? $ui : $this->public_pro_message_efb($texts['tfnapca']);
 					
@@ -1175,8 +1239,8 @@
 				break;			
 				case 'dadfile':
 					$txts = [$texts['dragAndDropA'],$texts['or'],$texts['browseFile']];
-					//error_log('case dadfile');
-					//error_log(json_encode($this->text_));
+					// error_log('case dadfile');
+					// error_log(json_encode($this->text_));
 					$el =$pro ? $this->dadfile_el_pro_efb(true, $element_Id, $vj,$form_id,$txts) : $this->public_pro_message_efb($texts['tfnapca']);
 					$ui = sprintf('
 						%1$s
@@ -1297,7 +1361,7 @@
 					' . $label . '
 					' . $ttip . '
 					' . ($this->pro_efb == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : $this->public_pro_message());
-					//$previewSate, $rndm, $vj, $form_id,$texts
+					// $previewSate, $rndm, $vj, $form_id,$texts
 					$dataTag = $elementId;
 				break;	
 				case 'maps':
@@ -1363,7 +1427,7 @@
 					$dataTag = "maps";
 				break;
 				case 'switch':
-					//switch_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts)
+					// switch_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts)
 					$ui = $this->pro_efb == true ? $this->switch_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts)  : $this->public_pro_message();
 					$dataTag = $elementId;
 				break;
@@ -1372,14 +1436,22 @@
 					$ui = $this->pro_efb == true ? $this->rating_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts) : $this->public_pro_message();
 					$dataTag = $elementId;
 				break;
+                case 'select':
+                case 'paySelect':
+                    // generate_select_efb($elementId, $rndm, $vj, $pos, $formId, $texts, $previewSate=true ,$desc,$label,$ttip,$aire_describedby )
+                    error_log('select');
+  
+                    $ui = $this->generate_select_efb($elementId, $rndm, $vj, $pos, $form_id, $texts, true ,$desc,$label,$ttip,$aire_describedby);
+                    $dataTag = $elementId;
+                break;
 			
 			
 			}
 		}
 
 
-		//error_log('ui=>'.$ui);
-		//error_log('dataTag'. $dataTag);
+		// error_log('ui=>'.$ui);
+		// error_log('dataTag'. $dataTag);
 		if ($vj->type != "form" && $dataTag != "step" && $vj->type != 'option') {
 			$hidden = isset($vj->hidden) && $vj->hidden == 1 ? 'd-none' : '';
 			$tagId = in_array($elementId, ["firstName", "lastName", "address", "address_line", "postalcode"]) ? 'text' : $elementId;

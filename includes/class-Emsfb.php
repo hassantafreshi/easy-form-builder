@@ -22,7 +22,7 @@ class Emsfb {
         $this->includes();
         $this->init_hooks();
        if(is_admin()==false) $this->webhooks();
-       //if(is_admin()==true) $this->checkDbchangeEFB();
+       // if(is_admin()==true) $this->checkDbchangeEFB();
     }
 
     /**
@@ -34,7 +34,7 @@ class Emsfb {
             ['\Emsfb\Install', 'install']
         );
   
-        //register_activation_hook(__FILE__ ,[$this, 'test_fun']);
+        // register_activation_hook(__FILE__ ,[$this, 'test_fun']);
 
        // add_action('init', [$this, 'load_textdomain']);
     }
