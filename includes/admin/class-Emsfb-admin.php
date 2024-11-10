@@ -345,20 +345,19 @@ class Admin {
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, 200);
             }
-            if ($data->status == false) {
+            if (isset($data->status)==true && $data->status == false) {
                 error_log(json_encode($data));
                 $response = ['success' => false, "m" => $data->error];
                 wp_send_json_success($response, 200);
             }
             // Check version of EFB to Addons
-            if (version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
+            if (isset($data->v)==true && version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
                 $m = $lang['upDMsg'];
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, 200);
             }
-            if ($data->download == true) {
-                $url = $data->link;
-                // $url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
+            if ( isset($data->download) && $data->download == true) {
+                $url = $data->link;                
                 $s = $this->fun_addon_new($url);
                 if ($s == false) {
                     $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder');

@@ -215,7 +215,8 @@ class _Public {
 			"bi-check-lg",
 			"bi-crosshair",
 			"bi-search",
-			"bi-trash"
+			"bi-trash",
+			'bi-shield-check',
 		]];
 		$pattern = '/bi-[a-zA-Z0-9-]+/';
 		 preg_match_all($pattern, $value, $icons_ );
@@ -322,6 +323,7 @@ class _Public {
 					$arabicDatePicker = new arabicDatePickerEfb() ; 
 				}// end if custom date
 				if(strpos($value , '\"type\":\"mobile\"') || strpos($value , '"type":"mobile"')){
+					// + remove Just the next line $img ['utilsJs']= EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js';
 					$img ['utilsJs']= EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js';
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);	
 					wp_enqueue_script('intlTelInput-js');
@@ -436,14 +438,36 @@ class _Public {
 			$value =str_replace('\\', '', $value);
 			$valj_efb = json_decode($value, false, 512, JSON_UNESCAPED_UNICODE);
 			$content="<!--efb-->";
+			$head ='<!--start head -->';
 			$count = count($valj_efb);
-			$ttt =['dragAndDropA','or','browseFile','tfnapca','on','off' ,'updateUrbrowser' ,'stars' ,'nothingSelected','availableProVersion','finish','select','up','red','Red','sending','enterYourMessage','add','code','star','form','black','pleaseReporProblem','reportProblem','ddate','serverEmailAble','sMTPNotWork','download','copyTrackingcode','copiedClipboard','browseFile','dragAndDropA','fileIsNotRight','lastName','firstName','contactusForm','registerForm','entrTrkngNo','response','reply','by','youCantUseHTMLTagOrBlank','easyFormBuilder','rnfn','fil','stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound'];
+			$ttt = ['somethingWentWrongPleaseRefresh', 'atcfle', 'cpnnc', 'tfnapca', 'icc', 'cpnts', 'cpntl', 'mcplen', 'mmxplen', 'mxcplen', 'clcdetls', 'vmgs', 'required', 'mmplen', 'offlineSend', 'amount', 'allformat', 'videoDownloadLink', 'downloadViedo', 'removeTheFile', 'pWRedirect', 'eJQ500', 'error400', 'errorCode', 'remove', 'minSelect', 'search', 'MMessageNSendEr', 'formNExist', 'settingsNfound', 'formPrivateM', 'pleaseWaiting', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankFillForm', 'trackNo', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'error403', 'errorSiteKeyM', 'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot', 'enterVValue', 'guest', 'cCodeNFound', 'errorFilePer', 'errorSomthingWrong', 'nAllowedUseHtml', 'messageSent', 'offlineMSend', 'uploadedFile', 'interval', 'dayly', 'weekly', 'monthly', 'yearly', 'nextBillingD', 'proVersion', 'selectOption', 'copy', 'or', 'document', 'error', 'somethingWentWrongTryAgain', 'define', 'loading', 'trackingCode', 'enterThePhone', 'please', 'pleaseMakeSureAllFields', 'enterTheEmail', 'formNotFound', 'errorV01', 'enterValidURL', 'password8Chars', 'registered', 'yourInformationRegistered', 'preview', 'selectOpetionDisabled', 'youNotPermissionUploadFile', 'pleaseUploadA', 'fileSizeIsTooLarge', 'documents', 'image', 'media', 'zip', 'trackingForm', 'trackingCodeIsNotValid', 'checkedBoxIANotRobot', 'messages', 'pleaseEnterTheTracking', 'alert', 'pleaseFillInRequiredFields', 'enterThePhones', 'pleaseWatchTutorial', 'formIsNotShown', 'errorVerifyingRecaptcha', 'orClickHere', 'enterThePassword', 'PleaseFillForm', 'selected', 'selectedAllOption', 'field', 'sentSuccessfully', 'thanksFillingOutform', 'sync', 'enterTheValueThisField', 'thankYou', 'login', 'logout', 'YouSubscribed', 'send', 'subscribe', 'contactUs', 'support', 'register', 'passwordRecovery', 'info', 'areYouSureYouWantDeleteItem', 'noComment', 'waitingLoadingRecaptcha', 'itAppearedStepsEmpty', 'youUseProElements', 'fieldAvailableInProversion', 'thisEmailNotificationReceive', 'activeTrackingCode', 'default', 'defaultValue', 'name', 'latitude', 'longitude', 'previous', 'next', 'invalidEmail', 'aPIkeyGoogleMapsError', 'howToAddGoogleMap', 'deletemarkers', 'updateUrbrowser', 'stars', 'nothingSelected', 'availableProVersion', 'finish', 'select', 'up', 'red', 'Red', 'sending', 'enterYourMessage', 'add', 'code', 'star', 'form', 'black', 'pleaseReporProblem', 'reportProblem', 'ddate', 'serverEmailAble', 'sMTPNotWork', 'aPIkeyGoogleMapsFeild', 'download', 'copyTrackingcode', 'copiedClipboard', 'browseFile', 'dragAndDropA', 'fileIsNotRight', 'on', 'off', 'lastName', 'firstName', 'contactusForm', 'registerForm', 'entrTrkngNo', 'response', 'reply', 'by', 'youCantUseHTMLTagOrBlank', 'easyFormBuilder', 'rnfn', 'fil', 'stf', 'total', 'fetf', 'search', 'jqinl', 'eln', 'servpss', 'slocation', 'snotfound'];
+
+			if($valj_efb[0]->type=='payment'){
+				$ttt = array_merge($ttt, ['onetime', 'payAmount', 'cardNumber', 'cardExpiry', 'cardCVC', 'payNow','payment',"successPayment","emptyCartM","transctionId",]);	
+				
+			}else if (false){
+				$ttt = array_merge($ttt, ['onetime', 'payAmount', 'cardNumber', 'cardExpiry', 'cardCVC', 'payNow']);
+			}
+
 			$txts = $this->efbFunction->text_efb($ttt);
 			$step_no= 0;
 			$head ='<!--start head efb-->';
+		   
+		
+			
 
 			require(EMSFB_PLUGIN_DIRECTORY . '\includes\class-Emsfb-formbuilder.php');
 			$efbFormBuilder = new Formbuilder($valj_efb , $this->pro_efb);
+
+
+			$wv = sprintf(
+				'<div class="efb text-center">
+					%1$s
+					<p class="efb fs-5">%2$s</p>
+				</div>',
+				$efbFormBuilder->loading_message_efb($this->pro_efb,$txts,1), // PHP function equivalent to loading_messge_efb() in JavaScript
+				$txts['stf']  // Accessing efb_var for displaying the text
+			);
 			
 			for( $i=1; $i<$count; $i++){
 				// random unique id
@@ -464,16 +488,16 @@ class _Public {
 					$step_no = intval($valj_efb[$i]->step);
 					$content.= $step_no<2
 					? sprintf(
-						'<fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row">',
-						$step_no, $step_no
+						'<fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row" data-formid="%s">',
+						$step_no, $step_no, $this->id
 					)
 					: sprintf(
-						'<div id="step-%d-efb-msg"></div></fieldset><!-- end fieldset --><fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row d-none">',
-						$step_no - 1, $step_no, $step_no
+						'<div id="step-%d-efb-msg"></div></fieldset><!-- end fieldset --><fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row d-none" data-formid="%s">',
+						$step_no - 1, $step_no, $step_no, $this->id
 					);
 				
 					$head .= sprintf(
-						'<li id="%1$s" data-step="icon-s-%2$d-efb" data-formId="%3$s" class="efb %4$s %5$s %6$s %7$s %8$s"><strong class="efb fs-5 %9$s">%10$s</strong></li>',
+						'<li id="%1$s-f-step-efb" data-step="icon-s-%2$d-efb" data-formId="%3$s" class="efb %4$s %5$s %6$s %7$s %8$s"><strong class="efb fs-5 %9$s">%10$s</strong></li>',
 						$value->id_,  // %1$s
 						$step_no,  // %2$d
 						$this->id,  // %3$s
@@ -481,37 +505,82 @@ class _Public {
 						$value->icon_color,  // %5$s
 						$value->icon,  // %6$s
 						$value->step == 1 ? 'active' : '',  // %7$s
-						$value->label_text_color,  // %8$s
+						'',  // %8$s
 						$value->label_text_color,  // %9$s
 						$value->name  // %10$s
 					);
-					// ColorNameToHexEfbOfElEfb(color.slice(4),'btn') // slice text=5 bg=2 border=6 btn=3 icon=4
-					/* $color = substr($value->icon_color, 5);
-					error_log($color);
-					$style .= $this->ColorNameToHexEfbOfElEfb($color, 'icon');
-					$color = substr($value->label_text_color, 5);
-					error_log($color);
-					$style .= $this->ColorNameToHexEfbOfElEfb($color, 'text'); */
-					/* $color = substr($value->bg_color, 2);
-					$style .= ColorNameToHexEfbOfElEfb($color, 'bg'); */
-					// ColorNameToHexEfbOfElEfb
 					continue;
 				}
 
-				if($i>1){
-					if($valj_efb[$i]->type=="option" ){continue;}
+				if($i>1){		
 					
+					if(in_array($valj_efb[$i]->type, ["option","r_matrix"])) {continue;}
 
 					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $this->id, $txts);
 					// $r = $this->addNewElement_efb($i, $randomId, $this->id, $txts);
 					error_log(json_encode($r));
 					$content .= $r[0]; 
 					$style .= $r[1]; 
+					
 				}
 			}
-			$style = $style.'</style>';
 
-			error_log(	$style);
+			if (strlen($content) > 10) {
+				$step_no++;
+				$content .= "
+					" . ( ($valj_efb[0]->captcha == true && (!isset($valj_efb[0]->logic) || (isset($valj_efb[0]->logic) && $valj_efb[0]->logic === false))) ? $efbFormBuilder->fun_captcha_load_efb($this->pub_stting['siteKey'], $this->id) : '<!--logic efb-->') . "
+					</fieldset>
+					<fieldset data-step='step-{$step_no}-efb' class='efb my-5 steps-efb efb row d-none text-center' id='efb-final-step' data-formId='".$this->id."'>" . (($valj_efb[0]->captcha == true && (isset($valj_efb[0]->logic) && $valj_efb[0]->logic === true)) ? $efbFormBuilder->fun_captcha_load_efb($this->pub_stting['siteKey'], $this->id) : $wv) . "
+						<!-- fieldset2 -->
+						<div step-{$step_no}-efb></div>
+					</fieldset>";
+
+				$head_final_step = "<li id='f-step-efb' data-step='icon-s-{$step_no}-efb' class='efb {$valj_efb[1]->icon_color} " . (($valj_efb[0]->steps <= 6) ? "step-w-{$valj_efb[0]->steps}" : "step-w-6") . " bi-check-lg'>
+					<strong class='efb fs-5 {$valj_efb[1]->label_text_color}'>{$txts['finish']}</strong>
+				</li>";
+
+				$bgc = isset($valj_efb[0]->prg_bar_color) ? $valj_efb[0]->prg_bar_color : 'btn-primary';
+				//$content .= '</div>';
+				$percent = (1 / ($step_no)) * 100;
+				$percent = round($percent, 2);
+				$head = (intval($valj_efb[0]->show_icon) != 1 ? '<ul id="steps-efb" class="efb mb-2 px-2" data-formId="'.$this->id.'">' . $head . $head_final_step.'</ul>' : '') .
+						(intval($valj_efb[0]->show_pro_bar)!= 1 ? 
+							'<div class="efb d-flex justify-content-center" id="f-progress-efb">
+								<div class="efb progress mx-3 w-100 ' . $bgc . '">
+									<div class="efb progress-bar-efb progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100"  style="width: '.$percent.'%;" data-formId="'.$this->id.'"></div>
+								</div>
+							</div><br>' : '');
+
+				$step_no--;
+			}
+
+	
+			$style = $style.'</style>';
+			//add_buttons_zone_efb($state, $id, $valj_efb, $efb_var, $preview_efb, $formId)
+			$stps_state = $step_no>1 ? 1 : 0;
+			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $txts, $this->id);
+			$content_new = $this->bootstrap_icon_efb($icons_).'
+				<!-- start body_efb-->
+				<div id="body_efb_" class="efb  row pb-3 efb px-2 pre-efb">
+					<form id="efbform" class="mx-0 px-0 efb">
+					<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2" id="view-efb">
+					' . (intval($valj_efb[0]->show_icon) != 1 
+						? '<h4 id="title_efb" class="efb fs-3 ' . $valj_efb[1]->label_text_color . ' text-center mt-3 mb-0">' . $valj_efb[1]->name . '</h4>
+						<p id="desc_efb" class="efb ' . $valj_efb[1]->message_text_color . ' text-center fs-6 mb-2">' . $valj_efb[1]->message . '</p>'
+						: '') . '
+						' . $head . '
+						<div class="efb mt-1 px-2">' . $content . '</div> 
+					</div>
+					<!-- end view-efb-->
+					' . $navButton . '
+					</form>
+					<!-- end form-->
+					</div>
+					<!-- end body_efb-->
+					<div id="alert_efb" class="efb mx-5"></div>
+					'.$style.' '.$k;
+
+			error_log($content_new);
 			 $content="	
 			 ".$this->bootstrap_icon_efb($icons_)."
 			 <div id='body_efb' class='efb  row pb-3 efb px-2'>
@@ -523,7 +592,7 @@ class _Public {
 			 </div><div id='alert_efb' class='efb mx-5'></div>
 			 ".$k." 
 			 ".$style."
-			 ";
+			 <br><br>" . $content_new;
 		 }
 		return $content;
 	}
@@ -1969,7 +2038,7 @@ class _Public {
 	}// end function
 	public function set_rMessage_id_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
-		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','atcfle','cpnnc','tfnapca','icc','cpnts','cpntl','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
+		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
         'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex']: $this->text_;
 		$efbFunction =  $this->get_efbFunction(1);
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
