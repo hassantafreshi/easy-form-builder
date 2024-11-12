@@ -66,7 +66,7 @@ class efbFunction {
 			// "protectsYourWebsiteFromFraud" => $state ? $ac->text->protectsYourWebsiteFromFraud : esc_html__('Click here to watch a video tutorial.',$s),
 			"enterSITEKEY" => $state ? $ac->text->enterSITEKEY : esc_html__('SECRET KEY',$s),
 			"alertEmail" => $state ? $ac->text->alertEmail : esc_html__('Alert Email',$s),
-			"enterAdminEmail" => $state ? $ac->text->enterAdminEmail : esc_html__('Enter the admin email address to receive email notifications.',$s),
+			"enterAdminEmail" => $state ? $ac->text->enterAdminEmail : esc_html__('Enter email address to receive notifications',$s),
 			"showTrackingCode" => $state ? $ac->text->showTrackingCode : esc_html__('Show Confirmation Code',$s),
 			"trackingCodeFinder" => $state ? $ac->text->trackingCodeFinder : esc_html__('Confirmation Code Finder',$s),
 			"copyAndPasteBelowShortCodeTrackingCodeFinder" => $state ? $ac->text->copyAndPasteBelowShortCodeTrackingCodeFinder : esc_html__('Copy and paste the following shortcode to add the Confirmation Code finder to any page or post.',$s),
@@ -319,8 +319,8 @@ class efbFunction {
 			"supportForm" => $state ? $ac->text->supportForm : esc_html__('Support Form',$s),
 			"createBlankMultistepsForm" => $state ? $ac->text->createBlankMultistepsForm : esc_html__('Create a blank multisteps form.',$s),
 			"createContactusForm" => $state ? $ac->text->createContactusForm : esc_html__('Create a Contact us form.',$s),
-			"createRegistrationForm" => $state ? $ac->text->createRegistrationForm : esc_html__('Create a user registration(Sign-up) form.',$s),
-			"createLoginForm" => $state ? $ac->text->createLoginForm : esc_html__('Create a user login (Sign-in) form.',$s),
+			"createRegistrationForm" => $state ? $ac->text->createRegistrationForm : esc_html__('Create a form to register new users to your WordPress site\'s user list.',$s),
+			"createLoginForm" => $state ? $ac->text->createLoginForm : esc_html__('Create a login form for users to enter your WordPress site.',$s),
 			"createnewsletterForm" => $state ? $ac->text->createnewsletterForm : esc_html__('Create a newsletter form',$s),
 			"createSupportForm" => $state ? $ac->text->createSupportForm : esc_html__('Create a support contact form.',$s),			
 			"availableSoon" => $state ? $ac->text->availableSoon : esc_html__('Available Soon',$s),
@@ -401,8 +401,8 @@ class efbFunction {
 			"sentBy" => $state ? $ac->text->sentBy : esc_html__("Sent by:",$s),
 			"youRecivedNewMessage" => $state ? $ac->text->youRecivedNewMessage : esc_html__('You have a new message.', $s),
 			"formNExist" => $state ? $ac->text->formNExist : esc_html__('Form does not exist !!',$s),
-			"error403" => $state ? $ac->text->error403 : esc_html__('We are sorry, but there seems to be a security error (403) with your request.',$s),
-			"error400" => $state ? $ac->text->error400 : esc_html__('We are sorry, but there seems to be a security error (400) with your request.',$s),
+			"error403" => $state ? $ac->text->error403 : esc_html__('Your security session has expired or is invalid. Please refresh the page to continue. E403',$s),
+			"error400" => $state ? $ac->text->error400 : esc_html__('Your security session has expired or is invalid. Please refresh the page to continue. E400',$s),
 			"formPrivateM" => $state ? $ac->text->formPrivateM : esc_html__('Private form, please log in.',$s),
 			"errorSiteKeyM" => $state ? $ac->text->errorSiteKeyM : esc_html__('Please check the site key and secret key on Easy Form Builder panel > Settings > Google Keys to resolve the error.',$s),
 			"errorCaptcha" => $state ? $ac->text->errorCaptcha : esc_html__('There seems to be a problem with the Captcha. Please try again.',$s),
@@ -523,7 +523,7 @@ class efbFunction {
 			"offlineMSend" => $state  &&  isset($ac->text->offlineMSend) ? $ac->text->offlineMSend : esc_html__('Your internet connection has been lost, but do not worry, we have saved the information you entered on this form. Once you are reconnected to the internet, you can easily send your information by clicking the submit button.',$s),
 			"offlineSend" => $state  &&  isset($ac->text->offlineSend) ? $ac->text->offlineSend : esc_html__('Please ensure that you have a stable internet connection and try again.',$s),
 			"options" => $state  &&  isset($ac->text->options) ? $ac->text->options : esc_html__('Options',$s),
-			"eJQ500" => $state  &&  isset($ac->text->eJQ500) ? $ac->text->eJQ500 : esc_html__('You are experiencing issues with JQuery. Please contact the administrator for assistance. (Error code: JQ-500)',$s),
+			"eJQ500" => $state  &&  isset($ac->text->eJQ500) ? $ac->text->eJQ500 : esc_html__('Connection to the server was unsuccessful. Please check your internet connection and try again in a moment. If the issue persists, contact support for assistance. Error Code: E500',$s),
 			"basic" => $state  &&  isset($ac->text->basic) ? $ac->text->basic : esc_html__('Basic',$s),
 			"blank" => $state  &&  isset($ac->text->blank) ? $ac->text->blank : esc_html__('Blank',$s),
 			"support" => $state  &&  isset($ac->text->support) ? $ac->text->support : esc_html__('Support',$s),
@@ -1365,63 +1365,7 @@ class efbFunction {
 	}// addon_adds_cron_efb
 
 
-/* public function addon_add_efb($value) {
-    if ($value != "AdnOF") {
 
-        // اگر لینک دانلود داشت
-        $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-        $vwp = get_bloginfo('version');
-        $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
-        
-        if (get_locale() == 'fa_IR') {
-            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
-        }
-
-        // تعداد تلاش‌ها را محدود می‌کنیم به 2
-        $max_attempts = 2;
-        $attempt = 0;
-        $success = false;
-
-        while ($attempt < $max_attempts && !$success) {
-            $request = wp_remote_get($u);
-            if (is_wp_error($request)) {
-                $attempt++;
-                if ($attempt >= $max_attempts) {                    
-                    add_action('admin_notices', 'admin_notice_msg_efb');
-                    return false;
-                }
-                continue; 
-            }
-
-            $body = wp_remote_retrieve_body($request);
-            $data = json_decode($body);
-
-            if ($data->status == false) {
-                return false;
-            }
-
-            // Check version of EFB to Addons
-            if (version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
-                return false;
-            }
-
-            if ($data->download == true) {
-                $url = $data->link;
-                // split the url to get the folder name of the addon , between last / and .zip
-                $directory_name = substr($url, strrpos($url, "/") + 1, -4);
-                $directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/' . $directory_name;
-
-                if (!file_exists($directory)) {
-                    $this->fun_addon_new($url);
-                }
-
-                $success = true; 
-            }
-        }
-
-        return $success;
-    }
-} */
 
 public function addon_add_efb($value) {
     if ($value != "AdnOF") {
@@ -1429,6 +1373,7 @@ public function addon_add_efb($value) {
         // If there's a download link
         $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
         $vwp = get_bloginfo('version');
+		$vwp = substr($vwp,0,3);
         $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
         
         if (get_locale() == 'fa_IR') {

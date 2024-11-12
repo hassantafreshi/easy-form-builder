@@ -110,7 +110,7 @@
 					<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" %s>
 						<label class="efb fs-6" id="%s_off">%s</label>
 						
-						<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onclick="fun_switch_efb(this)" data-id="%s-el" data-formId="%s" id="%s_" %s>
+						<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onclick="fun_switch_efb(this)" data-id="%s-el" data-formid="%s" id="%s_" %s>
 							<div class="efb handle"></div>
 						</button>
 						<label class="efb fs-6" id="%s_on">%s</label>
@@ -197,7 +197,7 @@
 		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 	
 		return sprintf(
-			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formId="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  $vj->name,  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $desc
+			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formid="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  $vj->name,  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $desc
 		);
 	}
 
@@ -208,7 +208,7 @@
 		' . $ttip . '
 		<div class="efb ' . $pos[3] . ' col-sm-12 px-0 mx-0 ttEfb show" id ="' . $rndm . '-f" ' . $aire_describedby . '>
 		<label class="efb fs-6" id="' . $rndm . '_off">' . $vj->off . '</label>
-		<button type="button" data-state="off" class="efb btn ' . $vj->el_height . ' btn-toggle efb1 ' . str_replace(',', ' ', $vj->classes) . '" data-css="' . $rndm . '" data-toggle="button" aria-pressed="false" data-vid="' . $rndm .'" data-formId="' . $form_id . '" onclick="fun_switch_efb(this)" data-id="' . $rndm . '-el" id="' . $rndm . '_" ' . $disabled . '>
+		<button type="button" data-state="off" class="efb btn ' . $vj->el_height . ' btn-toggle efb1 ' . str_replace(',', ' ', $vj->classes) . '" data-css="' . $rndm . '" data-toggle="button" aria-pressed="false" data-vid="' . $rndm .'" data-formid="' . $form_id . '" onclick="fun_switch_efb(this)" data-id="' . $rndm . '-el" id="' . $rndm . '_" ' . $disabled . '>
 			<div class="efb handle"></div>
 		</button>
 		<label class="efb fs-6" id="' . $rndm . '_on">' . $vj->on . '</label>
@@ -396,7 +396,7 @@
 		$type = $vj->type;
        $ui = sprintf(
 			'%s
-			<div data-tag="%s" class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formId="%s">
+			<div data-tag="%s" class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<select class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s data-type="%s" %s %s>
 					<option selected disabled>%s</option>
@@ -447,9 +447,9 @@
 	
 		$ui = sprintf(
 			'%s
-			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formId="%s">
+			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
-				<select data-type="stateProvince" class="efb form-select emsFormBuilder_v w-100 %s %s %s %s" data-vid="%s" id="%s_options" data-formId="%s" aria-required="%s" aria-label="%s" %s %s %s>
+				<select data-type="stateProvince" class="efb form-select emsFormBuilder_v w-100 %s %s %s %s" data-vid="%s" id="%s_options" data-formid="%s" aria-required="%s" aria-label="%s" %s %s %s>
 					<option selected disabled>%s</option>
 					%s
 				</select>
@@ -467,7 +467,7 @@
 			$el_border_color,
 			$rndm,
 			$rndm,
-			$formId, // Added data-formId to the select element
+			$formId, // Added data-formid to the select element
 			$ariaRequired,
 			$vj->name,
 			$ariaDescribedBy,
@@ -495,9 +495,9 @@
 	
 		$ui = sprintf(
 			'%s
-			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formId="%s">
+			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
-				<select data-type="citylist" class="efb form-select emsFormBuilder_v w-100 %s %s %s %s" data-vid="%s" id="%s_options" data-formId="%s" aria-required="%s" aria-label="%s" %s %s %s>
+				<select data-type="citylist" class="efb form-select emsFormBuilder_v w-100 %s %s %s %s" data-vid="%s" id="%s_options" data-formid="%s" aria-required="%s" aria-label="%s" %s %s %s>
 					<option selected disabled>%s</option>
 					%s
 				</select>
@@ -515,7 +515,7 @@
 			$el_border_color,
 			$rndm,
 			$rndm,
-			$formId, // Added data-formId to the select element
+			$formId, // Added data-formid to the select element
 			$ariaRequired,
 			$vj->name,
 			$ariaDescribedBy,
@@ -554,9 +554,9 @@
 			}
 	
 			$optn .= sprintf(
-				'<tr class="efb efblist %s %s" data-id="%s" data-name="%s" data-row="%s" data-formId="%s" data-state="0" data-visible="1">
-					<th scope="row" class="%s" data-formId="%s"></th>
-					<td class="efb ms col-12" data-formId="%s">%s</td>
+				'<tr class="efb efblist %s %s" data-id="%s" data-name="%s" data-row="%s" data-formid="%s" data-state="0" data-visible="1">
+					<th scope="row" class="%s" data-formid="%s"></th>
+					<td class="efb ms col-12" data-formid="%s">%s</td>
 					%s
 				</tr>',
 				$vj->el_text_color,
@@ -564,10 +564,10 @@
 				$rndm,
 				$i->value,
 				$i->id_,
-				$formId, // Added data-formId to the tr tag
+				$formId, // Added data-formid to the tr tag
 				$c,
-				$formId, // Added data-formId to the th tag
-				$formId, // Added data-formId to the td tag
+				$formId, // Added data-formid to the th tag
+				$formId, // Added data-formid to the td tag
 				$i->value,
 				strlen($pay) > 2 ? sprintf(
 					'<td class="efb ms fw-bold text-center"><span id="%s-price" class="efb efb-crrncy">%s</span></td>',
@@ -591,12 +591,12 @@
 		$ui = sprintf(
 			'%s
 			<!--multiselect-->
-			<div class="efb %s col-sm-12 listSelect px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formId="%s">
+			<div class="efb %s col-sm-12 listSelect px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<div class="efb efblist mx-0 inplist %s %s %s %s %s %s bi-chevron-down" data-id="menu-%s" data-no="%s" data-min="%s" data-parent="1" data-icon="1" data-select="%s" data-vid="%s" id="%s_options">
 					%s
 				</div>
-				<div class="efb efblist mx-0 listContent shadow d-none border rounded-bottom bg-light" data-id="menu-%s" data-list="menu-%s" data-formId="%s">
+				<div class="efb efblist mx-0 listContent shadow d-none border rounded-bottom bg-light" data-id="menu-%s" data-list="menu-%s" data-formid="%s">
 					<table class="efb table menu-%s">
 						<thead class="efb efblist">
 							<tr>
@@ -732,7 +732,7 @@
 	
 		// Build the HTML
 		$ui = sprintf(
-			'<div class="efb px-0 mx-0 %s col-sm-12" id="%s-f" data-formId="%s">
+			'<div class="efb px-0 mx-0 %s col-sm-12" id="%s-f" data-formid="%s">
 				<p id="%s_" class="efb px-0 emsFormBuilder_v %s %s efbField efb1 %s" data-css="%s" data-vid="%s" data-id="%s-el">%s</p>
 			</div>',
 			$pos[0],
@@ -764,7 +764,7 @@
 	
 		// Construct the UI HTML structure
 		$ui = sprintf(
-			'<div class="efb %s px-0 mx-0 col-sm-12" id="%s-f" data-formId="%s">
+			'<div class="efb %s px-0 mx-0 col-sm-12" id="%s-f" data-formid="%s">
 				<a id="%s_" target="_blank" class="efb px-0 btn underline emsFormBuilder_v %s %s %s efbField efb1 %s" data-css="%s" data-vid="%s" data-id="%s-el" href="%s">%s</a>
 			</div>',
 			$pos[0], 
@@ -799,21 +799,21 @@
 		$classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 
 		$ui = sprintf(
-			'<div class="efb %1$s col-sm-12 %2$s efb1 %3$s" data-css="%4$s" id="%4$s-f" data-formId="%5$s" %6$s>
+			'<div class="efb %1$s col-sm-12 %2$s efb1 %3$s" data-css="%4$s" id="%4$s-f" data-formid="%5$s" %6$s>
 				<div class="efb btn-group btn-group-toggle w-100 col-md-12 col-sm-12 %7$s" data-toggle="buttons" data-id="%4$s-id" id="%4$s_yn">
 					<label for="%4$s_1" data-lid="%4$s" data-value="%8$s" onclick="yesNoGetEFB(\'%8$s\', \'%4$s\', \'%4$s_b_1\')" class="efb btn %9$s %10$s %11$s %12$s yesno-efb left-efb %13$s %14$s" id="%4$s_b_1">
-						<input type="radio" name="%4$s" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid="%4$s" data-id="%4$s-id" id="%4$s_1" value="%8$s" data-formId="%5$s"><span id="%4$s_1_lab">%8$s</span>
+						<input type="radio" name="%4$s" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid="%4$s" data-id="%4$s-id" id="%4$s_1" value="%8$s" data-formid="%5$s"><span id="%4$s_1_lab">%8$s</span>
 					</label>
 					<span class="efb border-right border border-light efb"></span>
 					<label for="%4$s_2" data-lid="%4$s" data-value="%15$s" onclick="yesNoGetEFB(\'%15$s\', \'%4$s\', \'%4$s_b_2\')" class="efb btn %9$s %10$s %11$s %12$s yesno-efb right-efb %13$s %14$s" id="%4$s_b_2">
-						<input type="radio" name="%4$s" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid="%4$s" data-id="%4$s-id" id="%4$s_2" value="%15$s" data-formId="%5$s"><span id="%4$s_2_lab">%15$s</span>
+						<input type="radio" name="%4$s" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid="%4$s" data-id="%4$s-id" id="%4$s_2" value="%15$s" data-formid="%5$s"><span id="%4$s_2_lab">%15$s</span>
 					</label>
 				</div>
 			</div>',
 			$pos[3],             // %1$s
 			$disabled,           // %2$s
 			$classes,            // %3$s
-			$rndm,               // %4$s (تکرار شده به جای ورودی‌های مشابه)
+			$rndm,               // %4$s
 			$formId,             // %5$s
 			$ariaDescribedBy,    // %6$s
 			$required,           // %7$s
@@ -838,12 +838,12 @@
 		$classes = str_replace(',', ' ', $vj->classes);
 	
 		return sprintf(
-			'<div class="efb d-flex justify-content-right efb1 %s" data-css="%s" id="%s" data-formId="%s" %s>
-				<div class="efb btn btn-secondary emsFormBuilder_v text-white mx-1 %s %s" data-point="1" data-id="%s" data-formId="%s" onclick="fun_point_rating(this)"><i class="efb bi-star-fill"></i></div>
-				<div class="efb btn btn-secondary emsFormBuilder_v text-white mx-1 %s %s" data-point="2" data-id="%s" data-formId="%s" onclick="fun_point_rating(this)"><i class="efb bi-star-fill"></i></div>
-				<div class="efb btn btn-secondary emsFormBuilder_v text-white mx-1 %s %s" data-point="3" data-id="%s" data-formId="%s" onclick="fun_point_rating(this)"><i class="efb bi-star-fill"></i></div>
-				<div class="efb btn btn-secondary emsFormBuilder_v text-white mx-1 %s %s" data-point="4" data-id="%s" data-formId="%s" onclick="fun_point_rating(this)"><i class="efb bi-star-fill"></i></div>
-				<div class="efb btn btn-secondary emsFormBuilder_v text-white mx-1 %s %s" data-point="5" data-id="%s" data-formId="%s" onclick="fun_point_rating(this)"><i class="efb bi-star-fill"></i></div>
+			'<div class="efb d-flex justify-content-right efb1 %s" data-css="%s" id="%s" data-formid="%s" %s>
+				<div class="efb btn btn-secondary emsFormBuilder_v text-white mx-1 %s %s" data-point="1" data-id="%s" data-formid="%s" onclick="fun_point_rating(this)"><i class="efb bi-star-fill"></i></div>
+				<div class="efb btn btn-secondary emsFormBuilder_v text-white mx-1 %s %s" data-point="2" data-id="%s" data-formid="%s" onclick="fun_point_rating(this)"><i class="efb bi-star-fill"></i></div>
+				<div class="efb btn btn-secondary emsFormBuilder_v text-white mx-1 %s %s" data-point="3" data-id="%s" data-formid="%s" onclick="fun_point_rating(this)"><i class="efb bi-star-fill"></i></div>
+				<div class="efb btn btn-secondary emsFormBuilder_v text-white mx-1 %s %s" data-point="4" data-id="%s" data-formid="%s" onclick="fun_point_rating(this)"><i class="efb bi-star-fill"></i></div>
+				<div class="efb btn btn-secondary emsFormBuilder_v text-white mx-1 %s %s" data-point="5" data-id="%s" data-formid="%s" onclick="fun_point_rating(this)"><i class="efb bi-star-fill"></i></div>
 				<input type="hidden" data-vid="%s" data-type="rating" id="%s-point-rating">
 			</div>',
 			$classes,         // %1$s
@@ -869,18 +869,18 @@
 		$classes = str_replace(',', ' ', $vj->classes);
 	
 		return sprintf(
-			'<div class="efb NPS flex-row justify-content-right efb1 %s" data-css="%s" id="%s" data-formId="%s" %s>
-				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="0" data-id="%s" data-formId="%s" onclick="fun_nps_rating(this)">0</div>
-				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="1" data-id="%s" data-formId="%s" onclick="fun_nps_rating(this)">1</div>
-				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="2" data-id="%s" data-formId="%s" onclick="fun_nps_rating(this)">2</div>
-				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="3" data-id="%s" data-formId="%s" onclick="fun_nps_rating(this)">3</div>
-				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="4" data-id="%s" data-formId="%s" onclick="fun_nps_rating(this)">4</div>
-				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="5" data-id="%s" data-formId="%s" onclick="fun_nps_rating(this)">5</div>
-				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="6" data-id="%s" data-formId="%s" onclick="fun_nps_rating(this)">6</div>
-				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="7" data-id="%s" data-formId="%s" onclick="fun_nps_rating(this)">7</div>
-				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="8" data-id="%s" data-formId="%s" onclick="fun_nps_rating(this)">8</div>
-				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="9" data-id="%s" data-formId="%s" onclick="fun_nps_rating(this)">9</div>
-				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="10" data-id="%s" data-formId="%s" onclick="fun_nps_rating(this)">10</div>
+			'<div class="efb NPS flex-row justify-content-right efb1 %s" data-css="%s" id="%s" data-formid="%s" %s>
+				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="0" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">0</div>
+				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="1" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">1</div>
+				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="2" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">2</div>
+				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="3" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">3</div>
+				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="4" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">4</div>
+				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="5" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">5</div>
+				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="6" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">6</div>
+				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="7" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">7</div>
+				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="8" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">8</div>
+				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="9" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">9</div>
+				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="10" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">10</div>
 				<input type="hidden" data-vid="%s" data-type="rating" id="%s-nps-rating">
 			</div>',
 			$classes,    // %1$s: classes for main div
@@ -930,19 +930,19 @@
 				<div class="efb col-sm-12 %1$s row my-1 t-matrix" data-id="%2$s" data-parent="%3$s" id="%2$s-v">
 					<div class="efb mt-2 col-md-8 fs-6 %4$s %5$s %6$s" id="%2$s_lab">%7$s</div>
 					<div class="efb col-md-4 d-flex justify-content-%8$s" %9$s id="%2$s">
-						<div class="efb btn btn-secondary text-white mx-1 %10$s %11$s" data-point="1" data-id="%2$s" data-formId="%12$s" onclick="fun_point_rating(this)">
+						<div class="efb btn btn-secondary text-white mx-1 %10$s %11$s" data-point="1" data-id="%2$s" data-formid="%12$s" onclick="fun_point_rating(this)">
 							<i class="efb bi-star-fill" data-icon="%2$s"></i>
 						</div>
-						<div class="efb btn btn-secondary text-white mx-1 %10$s %11$s" data-point="2" data-id="%2$s" data-formId="%12$s" onclick="fun_point_rating(this)">
+						<div class="efb btn btn-secondary text-white mx-1 %10$s %11$s" data-point="2" data-id="%2$s" data-formid="%12$s" onclick="fun_point_rating(this)">
 							<i class="efb bi-star-fill" data-icon="%2$s"></i>
 						</div>
-						<div class="efb btn btn-secondary text-white mx-1 %10$s %11$s" data-point="3" data-id="%2$s" data-formId="%12$s" onclick="fun_point_rating(this)">
+						<div class="efb btn btn-secondary text-white mx-1 %10$s %11$s" data-point="3" data-id="%2$s" data-formid="%12$s" onclick="fun_point_rating(this)">
 							<i class="efb bi-star-fill" data-icon="%2$s"></i>
 						</div>
-						<div class="efb btn btn-secondary text-white mx-1 %10$s %11$s" data-point="4" data-id="%2$s" data-formId="%12$s" onclick="fun_point_rating(this)">
+						<div class="efb btn btn-secondary text-white mx-1 %10$s %11$s" data-point="4" data-id="%2$s" data-formid="%12$s" onclick="fun_point_rating(this)">
 							<i class="efb bi-star-fill" data-icon="%2$s"></i>
 						</div>
-						<div class="efb btn btn-secondary text-white mx-1 %10$s %11$s" data-point="5" data-id="%2$s" data-formId="%12$s" onclick="fun_point_rating(this)">
+						<div class="efb btn btn-secondary text-white mx-1 %10$s %11$s" data-point="5" data-id="%2$s" data-formid="%12$s" onclick="fun_point_rating(this)">
 							<i class="efb bi-star-fill" data-icon="%2$s"></i>
 						</div>
 						<input type="hidden" class="efb emsFormBuilder_v" data-vid="%2$s" data-parent="%3$s" data-type="rating" id="%2$s-point-rating">
@@ -1079,8 +1079,8 @@
 	
 		// Create the HTML string
 		$inputPhone = sprintf(
-			'<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formId="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s>
-			<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField d-none efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formId="%13$s data-vid="%7$s" id="%7$s-code" placeholder="verify" %11$s %12$s %10$s>',
+			'<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s>
+			<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField d-none efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s data-vid="%7$s" id="%7$s-code" placeholder="verify" %11$s %12$s %10$s>',
 			$vj->el_border_color,
 			$vj->el_height,
 			$corner,
@@ -1123,13 +1123,13 @@
 		
 			// ایجاد HTML برای المان esign
 			$ui = sprintf(
-				"<div class='efb %s col-sm-12' id='%s-f' data-formId='%s'>
+				"<div class='efb %s col-sm-12' id='%s-f' data-formid='%s'>
 					<canvas class='efb sign-efb bg-white %s %s %s %s efb1 %s' data-css='%s' data-code='%s' data-id='%s-el' id='%s_' %s>
 						%s
 					</canvas>
 					%s
-					<div class='efb mx-1' data-formId='%s'>%s</div>
-					<div class='efb mb-3' data-formId='%s'>
+					<div class='efb mx-1' data-formid='%s'>%s</div>
+					<div class='efb mb-3' data-formid='%s'>
 						<button type='button' class='efb btn %s %s efb-btn-lg mt-1 fs-6 %s' id='%s_b' onclick='fun_clear_esign_efb(\"%s\")'>
 							<i class='efb %s mx-2 %s' id='%s_icon'></i>
 							<span id='%s_button_single_text' class='efb %s' %s>%s</span>
@@ -1144,7 +1144,7 @@
 				$ariaDescribedBy,
 				$updateUrbrowser, // پیغام به‌روزرسانی مرورگر
 				$previewSate ? sprintf(
-					"<input type='hidden' data-type='esign' data-vid='%s' class='efb emsFormBuilder_v %s' id='%s-sig-data' value='Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==' data-formId='%s'>",
+					"<input type='hidden' data-type='esign' data-vid='%s' class='efb emsFormBuilder_v %s' id='%s-sig-data' value='Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==' data-formid='%s'>",
 					$randomId,$required, $randomId, $formId
 				) : '',
 				$formId, $message, // فرم‌آی‌دی و توضیحات
@@ -1200,7 +1200,7 @@
 				<button type="button" class="efb btn %7$s efb-btn-lg fs-6" id="%3$s_b" %8$s>
 					<i class="efb bi-upload mx-2 fs-6"></i>%9$s
 				</button>
-				<input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s" id="%3$s_" data-id="%3$s-el" data-formId="%13$s" %12$s %8$s>',
+				<input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s" id="%3$s_" data-id="%3$s-el" data-formid="%13$s" %12$s %8$s>',
 				$vj->icon,
 				$vj->icon_color,
 				$vj->id_,
@@ -1218,7 +1218,7 @@
 		}
 		$ui = ui_dadfile_efb($vj, $previewSate, $form_id, $texts , $disabled, $corner);
 		return sprintf(
-			'<div class="efb mb-3" id="uploadFilePreEfb" data-formId="%s">
+			'<div class="efb mb-3" id="uploadFilePreEfb" data-formid="%s">
 				<label for="%s_" class="efb form-label">
 					<div class="efb dadFile-efb py-0 %s %s %s efb1 %s %s"  id="%s_box" aria-describedby="%s" %s>
 						%s
@@ -1285,10 +1285,10 @@
 			<div class="efb  col-12 text-dark"> '.$texts['payAmount'].'</div>
 			<div class="efb  text-labelEfb mx-2 my-1 fs-7"> <i class="efb mx-1 bi-shield-check"></i><span>Powered by Stripe</span></div>
 		  </div> 
-		  <div class="efb  h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb"  data-formId="'.$form_id.'"> 
-			<span  class="efb  totalpayEfb d-flex justify-content-evenly mx-1"  data-formId="'.$form_id.'">'.number_format(0, 2, '.', ',').'</span>
+		  <div class="efb  h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb"  data-formid="'.$form_id.'"> 
+			<span  class="efb  totalpayEfb d-flex justify-content-evenly mx-1"  data-formid="'.$form_id.'">'.number_format(0, 2, '.', ',').'</span>
 			<!-- <span class="efb currencyPayEfb fs-5" id="currencyPayEfb">'.$this->valj_efb[0]->currency.'</span> -->
-			<span class="efb  text-labelEfb '.$cl.' text-capitalize" id="chargeEfb"  data-formId="'.$form_id.'">'.$sub.'</span>
+			<span class="efb  text-labelEfb '.$cl.' text-capitalize" id="chargeEfb"  data-formid="'.$form_id.'">'.$sub.'</span>
 		  </div>
 		</div>
 		<div id="stripeCardSectionEfb" class="efb ">
@@ -1307,7 +1307,7 @@
 			</div>
 		  </div>
 		</div>
-		<a class="efb  btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end text-decoration-none disabled '.$this->pub_bg_button_color_efb.' text-white" id="btnStripeEfb" data-formId="'.$form_id.'">'.$texts['payNow'].'</a>
+		<a class="efb  btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end text-decoration-none disabled '.$this->pub_bg_button_color_efb.' text-white" id="btnStripeEfb" data-formid="'.$form_id.'">'.$texts['payNow'].'</a>
 		<div class="efb  bg-light border-d rounded-3 p-2 bg-muted" id="statusStripEfb" style="display: none"></div>
 		</div>
 		</div>
@@ -1318,20 +1318,20 @@
 
 	public function add_ui_zp_efb($rndm , $form_id,$texts) {
 		return  '
-		<div class="efb card w-100 col-sm-12 m-0 p-0"  id="'.$rndm.'-f"  data-formId="'.$form_id.'">
+		<div class="efb card w-100 col-sm-12 m-0 p-0"  id="'.$rndm.'-f"  data-formid="'.$form_id.'">
 			<div class="efb  p-3 d-block" id="beforePay">
 				<div class="efb  headpay border-b row col-md-12 mb-3">
 					<div class="efb  h3 col-sm-5">
 						<div class="efb  col-12 text-dark"> '.$texts['payAmount'].':</div>
 						<div class="efb  text-labelEfb mx-2 my-1 fs-7"> <i class="efb mx-1 bi-shield-check"></i>پرداخت توسط <span Class="efb fs-6" id="efbPayBy">زرین پال</span></div>
 					</div>
-					<div class="efb  h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb"  data-formId="'.$form_id.'">
-						<span  class="efb totalpayEfb d-flex justify-content-evenly mx-1" data-formId="'.$form_id.'">'.number_format(0, 2, '.', ',').'</span>
+					<div class="efb  h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb"  data-formid="'.$form_id.'">
+						<span  class="efb totalpayEfb d-flex justify-content-evenly mx-1" data-formid="'.$form_id.'">'.number_format(0, 2, '.', ',').'</span>
 						<!-- <span class="efb currencyPayEfb fs-5" id="currencyPayEfb">تومان</span> -->
 						<!-- <span class="efb  text-labelEfb one" id="chargeEfb">'.$texts['onetime'].'</span>-->
 					</div>
 				</div>
-				<a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onclick="pay_persia_efb()" id="persiaPayEfb"  data-formId="'.$form_id.'">'.$texts['payment'].'</a>
+				<a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onclick="pay_persia_efb()" id="persiaPayEfb"  data-formid="'.$form_id.'">'.$texts['payment'].'</a>
 			</div>
 			<div class="efb p-3 card w-100 d-none" id="afterPayefb">
 			</div>		
@@ -1351,7 +1351,7 @@
 		$amount =$this->formatPrice_efb($amount, $currency);
 		
 		return sprintf(
-			'<label class="efb totalpayEfb %s %s %s mt-1"   data-id="%s-el" id="%s_" data-formId="%s"> 
+			'<label class="efb totalpayEfb %s %s %s mt-1"   data-id="%s-el" id="%s_" data-formid="%s"> 
 				%s
 			</label>',
 			$el_height,
@@ -1585,7 +1585,7 @@
 		$ui = sprintf(
 			'%s
 			%s
-			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" %s data-formId="%s">
+			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" %s data-formid="%s">
 				<label class="efb fs-6" id="%s_off">%s</label>
 				<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onclick="fun_switch_efb(this)" data-id="%s-el" id="%s_" %s %s>
 					<div class="efb handle"></div>
@@ -1619,7 +1619,7 @@
 	
 		// ایجاد HTML برای rating element
 		$ui = sprintf(
-			'<div class="efb %s col-sm-12" id="%s-f" data-formId="%s">
+			'<div class="efb %s col-sm-12" id="%s-f" data-formid="%s">
 				<div class="efb star-efb d-flex justify-content-center %s efb1 %s" data-css="%s" %s>
 					%s
 					%s
@@ -1627,7 +1627,7 @@
 					%s
 					%s
 				</div>
-				<input type="hidden" data-vid="%s" data-type="rating" class="efb emsFormBuilder_v %s" id="%s-stared" data-formId="%s">
+				<input type="hidden" data-vid="%s" data-type="rating" class="efb emsFormBuilder_v %s" id="%s-stared" data-formid="%s">
 			</div>',
 			$pos[3], // موقعیت
 			$rndm, $formId, // شناسه و فرم آی‌دی
@@ -1696,7 +1696,7 @@
     
         $ui = sprintf(
             '%s
-            <div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formId="%s">
+            <div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
                 %s
                 <select class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s %s %s>
                     <option selected disabled>%s</option>
@@ -1811,7 +1811,7 @@
 			// Final HTML structure including formId
 			$ui = sprintf(
 				'%1$s
-				<div id="step-1-efb-msg" data-formId="%2$s"></div>',
+				<div id="step-1-efb-msg" data-formid="%2$s"></div>',
 				$captchaHTML,
 				$formId
 			);
@@ -1820,6 +1820,7 @@
 	}
 
 	public function loading_message_efb($pro ,$texts,$state=0) {
+		$pro = false;
 		// SVG animation for loading indicator
 		$svg = '
 			<svg viewBox="0 0 120 30" height="15px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
@@ -1842,17 +1843,38 @@
 							 repeatCount="indefinite" />
 				</circle>
 			</svg>';
+			//Powered by Easy Form Builder by white studio team
+		$text = esc_html__('Powered by %sEasy Form Builder%s by %swhite studio team%s', 'easy-form-builder');
+		$text = sprintf($text,'<a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank">', '</a>', '<a href="https://whitestudio.team" target="_blank">', '</a>');
 		$copyRight = '<!-- efb copyRight -->';
-		if($state == 1 && $pro == 1){
-			$copyRight = 'Easy Form Builder';
+		$efb = esc_html__('Easy Form Builder', 'easy-form-builder');
+		$wp_text = esc_html__('WordPress', 'easy-form-builder');
+		$fr='<!-- efb copyRight -->';
+		$wr = $state == 1 ? '<p class="efb fs-5">'.$texts[1].'</p>' : '';
+		
+		if (strpos(get_locale(), 'fa') !== false ) {
+			$s ='<a href="https://easyformbuilder.ir" target="_blank">فرم ساز وردپرس</a> <a href="https://fa.wordpress.org/plugins/easy-form-builder/" target="_blank">افزونه فرم ساز وردپرس</a>'.$fr; ;
+		}else if (strpos(get_locale(), 'en') == false){
+			$f = substr(get_locale(), 0, 2);
+			$s = '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank">'.$efb.' '. $wp_text.'</a>'.$fr;
 		}
-		$copyRight ='';
+		//state can be used for user setting to show or hide the copy right
+		error_log('state:'.$state);
+		error_log('pro:'.$pro);
+		if($state == 1 && $pro != 1){
+			$copyRight = '<div class="efb">  <h2 class="efb fs-8">'.$text.'</h2>
+							<h3 class="efb fs-8 d-none">'.$s.'</h3>
+						</div>';
+		}
+	
+
 	
 		// Generate the loading message with SVG animation
 		$loadingMessage = sprintf(
-			'<h3 class="efb fs-3 text-center">%s %s</h3> %s',
-			$texts['pleaseWaiting'], // Accessing translation or variable for "Please wait" text
+			'<h3 class="efb fs-3 text-center">%s %s</h3><p class="efb fs-5">%s</p> %s',
+			$texts[0], // Accessing translation or variable for "Please wait" text
 			$svg,// SVG animation
+			$wr,
 			$copyRight
 		);
 	
@@ -1886,8 +1908,8 @@
 	
 		// Single button display
 		$s = sprintf(
-			'<div class="efb d-flex %s %s text-center efb" id="f_btn_send_efb" data-tag="buttonNav" data-formId="%s">
-				<a id="btn_send_efb" role="button" class="efb text-decoration-none mx-0 btn p-2 %s %s %s %s efb-btn-lg">%s<span id="button_group_button_single_text" class="efb %s">%s</span></a>
+			'<div class="efb d-flex %s %s text-center efb" id="f_btn_send_efb" data-tag="buttonNav" data-formid="%s">
+				<a id="btn_send_efb" role="button" class="efb text-decoration-none mx-0 btn p-2 %s %s %s %s efb-btn-lg" data-formid="%s">%s<span id="button_group_button_single_text" class="efb %s" >%s</span></a>
 			</div>',
 			$btns_align,
 			$state == 0 ? 'd-block' : 'd-none',
@@ -1896,6 +1918,7 @@
 			$valj_efb[0]->button_color,
 			$corner,
 			$valj_efb[0]->el_height,
+			$formId,
 			(strlen($valj_efb[0]->icon) > 3 && $valj_efb[0]->icon != 'bi-undefined' ? sprintf('<i class="efb %s mx-2 %s %s" id="button_group_icon"></i>', $valj_efb[0]->icon, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : ''),
 			$valj_efb[0]->el_text_color,
 			$valj_efb[0]->button_single_text
@@ -1903,9 +1926,9 @@
 	
 		// Navigation buttons
 		$d = sprintf(
-			'<div class="efb d-flex %s %s %s text-center efb" id="f_button_form_np" data-formId="%s">
-				<a id="prev_efb"  data-formId="%s" role="button" class="efb text-decoration-none btn p-2  %s %s %s efb-btn-lg m-1 d-none">%s<span id="button_group_Previous_button_text" class="efb %s">%s</span></a>
-				<a id="next_efb"  data-formId="%s" role="button" class="efb text-decoration-none btn %s p-2 %s %s %s efb-btn-lg m-1"><span id="button_group_Next_button_text" class="efb %s">%s</span>%s</a>
+			'<div class="efb d-flex %s %s %s text-center efb" id="f_button_form_np" data-formid="%s" data-step="1">
+				<a id="prev_efb"  data-formid="%s" data-step="1" role="button" class="efb text-decoration-none btn p-2  %s %s %s efb-btn-lg m-1 d-none">%s<span id="button_group_Previous_button_text" class="efb %s">%s</span></a>
+				<a id="next_efb"  data-formid="%s" data-step="1" role="button" class="efb text-decoration-none btn %s p-2 %s %s %s efb-btn-lg m-1"><span id="button_group_Next_button_text" class="efb %s">%s</span>%s</a>
 			</div>',
 			$btns_align,
 			$state == 1 ? 'd-block' : 'd-none',
@@ -2004,7 +2027,7 @@
 					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';
 
 					$ui = sprintf(
-						'%1$s %2$s %3$s <input type="text" class="%4$s input-efb px-2 mb-0 emsFormBuilder_v w-100 %5$s %6$s %7$s %8$s %9$s efbField efb1 %10$s" data-css="%11$s" data-id="%11$s-el" data-vid="%11$s" data-formId="%12$s" id="%11$s_" %13$s aria-required="%14$s" aria-label="%15$s" %16$s %17$s> %18$s',
+						'%1$s %2$s %3$s <input type="text" class="%4$s input-efb px-2 mb-0 emsFormBuilder_v w-100 %5$s %6$s %7$s %8$s %9$s efbField efb1 %10$s" data-css="%11$s" data-id="%11$s-el" data-vid="%11$s" data-formid="%12$s" id="%11$s_" %13$s aria-required="%14$s" aria-label="%15$s" %16$s %17$s> %18$s',
 						$label,
 						$div_f_id,
 						$ttip,
@@ -2042,7 +2065,7 @@
 					$valueAttr = $temp ? sprintf('value="%s"', $temp) : '';
 				
 					$ui = sprintf(
-						'%1$s <div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f"> %4$s <div class="efb slider m-0 p-2 %5$s %6$s efb1 %7$s" data-css="%8$s" id="%3$s-range"> <input type="%9$s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %10$s efbField" data-id="%3$s-el" data-vid="%3$s" data-formId="%8$s" id="%3$s_" oninput="fun_show_val_range_efb(\'%3$s\')" %11$s min="%12$s" max="%13$s" aria-required="%14$s" aria-label="%15$s" %16$s %17$s> <p id="%3$s_rv" class="efb mx-1 py-0 my-1 fs-6 text-darkb">%18$s</p> </div> %19$s',
+						'%1$s <div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f"> %4$s <div class="efb slider m-0 p-2 %5$s %6$s efb1 %7$s" data-css="%8$s" id="%3$s-range"> <input type="%9$s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %10$s efbField" data-id="%3$s-el" data-vid="%3$s" data-formid="%8$s" id="%3$s_" oninput="fun_show_val_range_efb(\'%3$s\')" %11$s min="%12$s" max="%13$s" aria-required="%14$s" aria-label="%15$s" %16$s %17$s> <p id="%3$s_rv" class="efb mx-1 py-0 my-1 fs-6 text-darkb">%18$s</p> </div> %19$s',
 						$label,
 						$pos[3],
 						$element_Id,
@@ -2071,7 +2094,7 @@
 						%1$s
 						%2$s
 						%3$s
-						<input type="%4$s" class="efb input-efb px-2 py-1 emsFormBuilder_v w-100 %5$s %6$s %7$s efbField efb1 %8$s %16$s" data-css="%9$s" data-vid="%9$s" data-id="%9$s-el" data-formId="%15$s" id="%9$s_" aria-required="%10$s" aria-label="%11$s" %12$s %13$s>
+						<input type="%4$s" class="efb input-efb px-2 py-1 emsFormBuilder_v w-100 %5$s %6$s %7$s efbField efb1 %8$s %16$s" data-css="%9$s" data-vid="%9$s" data-id="%9$s-el" data-formid="%15$s" id="%9$s_" aria-required="%10$s" aria-label="%11$s" %12$s %13$s>
 						%14$s',
 						$label,
 						$div_f_id,
@@ -2099,7 +2122,7 @@
 						%1$s
 						<div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f">
 							%4$s
-							<textarea id="%3$s_" placeholder="%5$s" class="efb px-2 input-efb emsFormBuilder_v form-control w-100 %6$s %7$s %8$s %9$s %10$s efbField efb1 %11$s" data-css="%3$s" data-vid="%3$s" data-id="%3$s-el"  data-formId="%19$s" value="%12$s" aria-required="%13$s" aria-label="%14$s" %15$s rows="5" %16$s %17$s>%18$s</textarea>
+							<textarea id="%3$s_" placeholder="%5$s" class="efb px-2 input-efb emsFormBuilder_v form-control w-100 %6$s %7$s %8$s %9$s %10$s efbField efb1 %11$s" data-css="%3$s" data-vid="%3$s" data-id="%3$s-el"  data-formid="%19$s" value="%12$s" aria-required="%13$s" aria-label="%14$s" %15$s rows="5" %16$s %17$s>%18$s</textarea>
 							%19$s',
 						$label,
 						$pos[3],
@@ -2205,8 +2228,8 @@
 							$prc = isset($i->price) ? intval($i->price) : 0;
 							if($pay!='') $prc = $this->formatPrice_efb($prc, $currency );
 							$optn .= sprintf(
-								'<div class="efb form-check %s %s %s efb1 %s mt-1" data-css="%s" data-parent="%s" data-id="%s" data-formId="%s" id="%s-v">
-									<input class="efb form-check-input emsFormBuilder_v %s %s" data-tag="%s" data-type="%s" data-vid="%s" type="%s" name="%s" value="%s" id="%s" data-id="%s-id" data-formId="%s" data-op="%s" %s %s %s>
+								'<div class="efb form-check %s %s %s efb1 %s mt-1" data-css="%s" data-parent="%s" data-id="%s" data-formid="%s" id="%s-v">
+									<input class="efb form-check-input emsFormBuilder_v %s %s" data-tag="%s" data-type="%s" data-vid="%s" type="%s" name="%s" value="%s" id="%s" data-id="%s-id" data-formid="%s" data-op="%s" %s %s %s>
 									%s
 									%s
 									%s
@@ -2287,12 +2310,12 @@
 					
 					// تولید HTML المان نقشه با استفاده از sprintf و اضافه کردن formId
 					$ui .= sprintf(
-						"<div class='efb col-md-12' id='%s-f' data-formId='%s'>
+						"<div class='efb col-md-12' id='%s-f' data-formid='%s'>
 							<label for='%s_' class='efb form-label text-labelEfb'>
 								<span>%s</span>
 								<span class='text-danger' role='none'>%s</span>
 							</label>
-							<div class='efb maps-efb maps-os' id='%s-map' style='height: %s;' data-formId='%s' data-lat='%s' data-lng='%s' data-zoom='%s' data-id='%s-el' %s></div>
+							<div class='efb maps-efb maps-os' id='%s-map' style='height: %s;' data-formid='%s' data-lat='%s' data-lng='%s' data-zoom='%s' data-id='%s-el' %s></div>
 							<input type='hidden' name='%s-lat' id='%s_lat' value='%s' class='efb emsFormBuilder_v' data-type='maps' data-vid='%s' %s>
 							<input type='hidden' name='%s-lng' id='%s_lng' value='%s' class='efb emsFormBuilder_v' data-type='maps' data-vid='%s' %s>
 							<small id='%s-des' class='form-text text-muted'>%s</small>
@@ -2532,5 +2555,38 @@
 			error_log('style: reult'.$style);
 			return [$newElement ,$style];
 		}
+	}
+
+	function show_user_profile_emsFormBuilder($text_logout, $formId) {
+		// Sanitize and escape output for security
+		$user_login = wp_get_current_user();
+		$display_name = esc_html($user_login->display_name);
+		$user_image = get_avatar_url($user_login->ID);
+		$logout_text = esc_html($text_logout);
+	
+		$user_id =  $user_login->user_login ?? $user_login->user_email;
+	
+
+	
+		// Return the user profile HTML
+		return sprintf(
+			'<div class="efb mt-5" data-formId="%s">
+				<div class="efb card-block text-center text-dark">
+					<div class="efb mb-3 d-flex justify-content-center">
+						<img src="%s" class="efb userProfileImageEFB" alt="%s">
+					</div>
+					<h6 class="efb fs-5 mb-1 d-flex justify-content-center text-dark">%s</h6>
+					<p class="efb fs-6">%s</p>
+					<button type="button" class="efb btn fs-5 btn-lg btn-danger efb mt-1" onclick="emsFormBuilder_logout()"  data-formId="%s">%s</button>
+				</div>
+			</div>',
+			$formId,
+			$user_image,
+			$display_name,
+			$display_name,
+			$user_id,
+			$formId,
+			$logout_text
+		);
 	}
     }

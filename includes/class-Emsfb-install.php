@@ -192,6 +192,7 @@ class Install {
 										$value = $adn;										
 										$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 										$vwp = get_bloginfo('version');
+										$vwp = substr($vwp,0,3);
 										$u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
 										if(get_locale()=='fa_IR'){
 											$u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;

@@ -68,6 +68,7 @@ class Admin {
             add_action('wp_ajax_report_problem_Emsfb' , [$this, 'report_problem_Emsfb'] );
 
             add_action('create_temporary_links_table_Emsfb' , [$this , 'create_temporary_links_table_Emsfb']);
+            
         } 
     }
     public function add_cap() {
@@ -81,6 +82,7 @@ class Admin {
             $role->add_cap('Emsfb_sms_efb');
         }
     }
+
     public function admin_assets($hook) {
         global $current_screen;       
         $hook = $hook ? $hook : http_build_query($_GET);
@@ -320,6 +322,7 @@ class Admin {
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $name_space = 'emsfb_addon_' . $value;
             $vwp = get_bloginfo('version');
+            $vwp = substr($vwp,0,3);
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
             if (get_locale() == 'fa_IR') {
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';

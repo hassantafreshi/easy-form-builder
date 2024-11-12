@@ -83,9 +83,8 @@ const formTypeEls =()=>{
   <option value="payment" ${valj_efb[0].type=='payment' ? 'selected' :''}>${efb_var.text.payment}</option>                                                            
   <option value="survey" ${valj_efb[0].type=='survey' ? 'selected' :''}>${efb_var.text.survey}</option>                                                            
   <option value="login" ${valj_efb[0].type=='login' ? 'selected' :''}>${efb_var.text.login}</option>                                                            
-  <option value="register" ${valj_efb[0].type=='register' ? 'selected' :''}>${efb_var.text.register}</option>                                                            
-  <option value="subscribe" ${valj_efb[0].type=='subscribe' ? 'selected' :''}>${efb_var.text.subscribe}</option>                                                            
-
+  <option value="login" ${valj_efb[0].type=='login' ? 'selected' :''} disabled>${efb_var.text.login}</option>                                                            
+  <option value="register" ${valj_efb[0].type=='register' ? 'selected' :''} disabled>${efb_var.text.register}</option>                                                           
   </select>`;
 } 
 

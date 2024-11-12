@@ -459,14 +459,14 @@ class _Public {
 			require(EMSFB_PLUGIN_DIRECTORY . '\includes\class-Emsfb-formbuilder.php');
 			$efbFormBuilder = new Formbuilder($valj_efb , $this->pro_efb);
 
-
+			$msgs = [$txts['pleaseWaiting'],$txts['stf']];
 			$wv = sprintf(
 				'<div class="efb text-center">
 					%1$s
-					<p class="efb fs-5">%2$s</p>
+					
 				</div>',
-				$efbFormBuilder->loading_message_efb($this->pro_efb,$txts,1), // PHP function equivalent to loading_messge_efb() in JavaScript
-				$txts['stf']  // Accessing efb_var for displaying the text
+				$efbFormBuilder->loading_message_efb($this->pro_efb,$msgs,1), // PHP function equivalent to loading_messge_efb() in JavaScript
+				// Accessing efb_var for displaying the text
 			);
 			
 			for( $i=1; $i<$count; $i++){
@@ -497,7 +497,7 @@ class _Public {
 					);
 				
 					$head .= sprintf(
-						'<li id="%1$s-f-step-efb" data-step="icon-s-%2$d-efb" data-formId="%3$s" class="efb %4$s %5$s %6$s %7$s %8$s"><strong class="efb fs-5 %9$s">%10$s</strong></li>',
+						'<li id="%1$s-f-step-efb" data-step="icon-s-%2$d-efb" data-formid="%3$s" class="efb %4$s %5$s %6$s %7$s %8$s"><strong class="efb fs-5 %9$s">%10$s</strong></li>',
 						$value->id_,  // %1$s
 						$step_no,  // %2$d
 						$this->id,  // %3$s
@@ -530,7 +530,7 @@ class _Public {
 				$content .= "
 					" . ( ($valj_efb[0]->captcha == true && (!isset($valj_efb[0]->logic) || (isset($valj_efb[0]->logic) && $valj_efb[0]->logic === false))) ? $efbFormBuilder->fun_captcha_load_efb($this->pub_stting['siteKey'], $this->id) : '<!--logic efb-->') . "
 					</fieldset>
-					<fieldset data-step='step-{$step_no}-efb' class='efb my-5 steps-efb efb row d-none text-center' id='efb-final-step' data-formId='".$this->id."'>" . (($valj_efb[0]->captcha == true && (isset($valj_efb[0]->logic) && $valj_efb[0]->logic === true)) ? $efbFormBuilder->fun_captcha_load_efb($this->pub_stting['siteKey'], $this->id) : $wv) . "
+					<fieldset data-step='step-{$step_no}-efb' class='efb my-5 steps-efb efb row d-none text-center' id='efb-final-step' data-formid='".$this->id."'>" . (($valj_efb[0]->captcha == true && (isset($valj_efb[0]->logic) && $valj_efb[0]->logic === true)) ? $efbFormBuilder->fun_captcha_load_efb($this->pub_stting['siteKey'], $this->id) : $wv) . "
 						<!-- fieldset2 -->
 						<div step-{$step_no}-efb></div>
 					</fieldset>";
@@ -543,11 +543,11 @@ class _Public {
 				//$content .= '</div>';
 				$percent = (1 / ($step_no)) * 100;
 				$percent = round($percent, 2);
-				$head = (intval($valj_efb[0]->show_icon) != 1 ? '<ul id="steps-efb" class="efb mb-2 px-2" data-formId="'.$this->id.'">' . $head . $head_final_step.'</ul>' : '') .
+				$head = (intval($valj_efb[0]->show_icon) != 1 ? '<ul id="steps-efb" class="efb mb-2 px-2" data-formid="'.$this->id.'">' . $head . $head_final_step.'</ul>' : '') .
 						(intval($valj_efb[0]->show_pro_bar)!= 1 ? 
 							'<div class="efb d-flex justify-content-center" id="f-progress-efb">
 								<div class="efb progress mx-3 w-100 ' . $bgc . '">
-									<div class="efb progress-bar-efb progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100"  style="width: '.$percent.'%;" data-formId="'.$this->id.'"></div>
+									<div class="efb progress-bar-efb progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100"  style="width: '.$percent.'%;" data-formid="'.$this->id.'"></div>
 								</div>
 							</div><br>' : '');
 
@@ -559,9 +559,11 @@ class _Public {
 			//add_buttons_zone_efb($state, $id, $valj_efb, $efb_var, $preview_efb, $formId)
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $txts, $this->id);
+			// if (valj_efb[0].hasOwnProperty('dShowBg') && Number(valj_efb[0].dShowBg) != 1 && state == "run") { document.getElementById('body_efb').classList.add('card') }
+			$dShow = isset($valj_efb[0]->dShowBg) && intval($valj_efb[0]->dShowBg) != 1 ? 'card' : '';
 			$content_new = $this->bootstrap_icon_efb($icons_).'
 				<!-- start body_efb-->
-				<div id="body_efb_" class="efb  row pb-3 efb px-2 pre-efb">
+				<div id="body_efb_" class="efb row pb-3 efb px-2 pre-efb '.$dShow.'">
 					<form id="efbform" class="mx-0 px-0 efb">
 					<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2" id="view-efb">
 					' . (intval($valj_efb[0]->show_icon) != 1 
