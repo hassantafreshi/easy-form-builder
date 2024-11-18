@@ -21,8 +21,8 @@ class Emsfb {
 
         $this->includes();
         $this->init_hooks();
-       if(is_admin()==false) $this->webhooks();
-       // if(is_admin()==true) $this->checkDbchangeEFB();
+        if(is_admin()==false) $this->webhooks();      
+        // if(is_admin()==true) $this->checkDbchangeEFB();
     }
 
     /**
@@ -32,23 +32,7 @@ class Emsfb {
         register_activation_hook(
             EMSFB_PLUGIN_FILE,
             ['\Emsfb\Install', 'install']
-        );
-  
-        // register_activation_hook(__FILE__ ,[$this, 'test_fun']);
-
-       // add_action('init', [$this, 'load_textdomain']);
-    }
-
-    /**
-     * Load plugin textdomain.
-     */
-    public function load_textdomain(): void {
-        
-        load_plugin_textdomain(
-            EMSFB_PLUGIN_TEXTDOMAIN,
-            false,
-            EMSFB_PLUGIN_DIRECTORY . "/languages"
-        );
+        );        
     }
 
     /**
@@ -62,9 +46,23 @@ class Emsfb {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
             $sms_exists =get_option('emsfb_addon_AdnSS',false);
-            if($sms_exists != false && $sms_exists != 0) {require_once EMSFB_PLUGIN_DIRECTORY. '/vendor/smssended/class-Emsfb-sms.php';}
+            if ($sms_exists != false && $sms_exists != 0) {
+                $sms_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/class-Emsfb-sms.php';
+                if (file_exists($sms_file_path)) {
+                    require_once $sms_file_path;
+                } else {
+                    error_log('SMS file does not exist: ' . $sms_file_path);
+                }
+            }
             $auto_fill_exists =get_option('emsfb_addon_AdnAtF',false);
-            if($auto_fill_exists != false && $auto_fill_exists != 0 ) {require_once EMSFB_PLUGIN_DIRECTORY. '/vendor/autofill/class-Emsfb-autofill.php';}
+            if ($auto_fill_exists != false && $auto_fill_exists != 0) {
+                $auto_fill_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/autofill/class-Emsfb-autofill.php';
+                if (file_exists($auto_fill_file_path)) {
+                    require_once $auto_fill_file_path;
+                } else {
+                    error_log('Auto Fill file does not exist: ' . $auto_fill_file_path);
+                }
+            }
 
             //check is EMSFB_PLUGIN_DIRECTORY. '/vendor/autofill/class-Emsfb-autofill.php' exist
       

@@ -28,10 +28,7 @@ if (!defined("EMSFB_PLUGIN_VERSION")) {
 if (!defined("EMSFB_PLUGIN_URL")) {
     define("EMSFB_PLUGIN_URL", plugin_dir_url(__FILE__));
 }
-/** Constant defining the textdomain for localization */
-if (!defined("EMSFB_PLUGIN_TEXTDOMAIN")) {
-    define("EMSFB_PLUGIN_TEXTDOMAIN", "easy-form-builder");
-}
+
 if (!defined("WP_PLUGIN_DIR")) {
     define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '\plugins' );
 }

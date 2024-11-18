@@ -463,6 +463,13 @@ Yes, the WordPress plugin Easy Form Builder allows you to create a single form t
 
 == Changelog ==
 
+= 3.8.5 =
+* Easy Form Builder Plugin is compatible with WordPress version 6.7
+
+= 3.8.4 =
+
+* Fixed issues of UI Easy Form Builder
+
 = 3.8.3 =
 
 * Fixed issues

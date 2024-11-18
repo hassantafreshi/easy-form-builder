@@ -18,7 +18,8 @@ jQuery(function () {
   pro_ws = ajax_object_efm.pro == '1' ? true : false;
   page_state_efb="panel";
   if (ajax_object_efm.setting, ajax_object_efm.setting.length > 0) {
-    valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
+    const ajax_object_efm_setting = ajax_object_efm.setting[0].setting.replace(/[\\]/g, '');
+    valueJson_ws_setting = JSON.parse(ajax_object_efm_setting);
     if (valueJson_ws_setting.bootstrap == 0 && ajax_object_efm.bootstrap == 1) {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
@@ -904,7 +905,8 @@ function fun_show_setting__emsFormBuilder() {
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
     if (valueJson_ws_setting.length == 0) {
-      valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
+      const ajax_object_efm_setting = ajax_object_efm.setting[0].setting.replace(/[\\]/g, '');
+      valueJson_ws_setting = JSON.parse(ajax_object_efm_setting);
     } else if (typeof valueJson_ws_setting == "string") {
       valueJson_ws_setting = (JSON.parse(valueJson_ws_setting.replace(/[\\]/g, '')));
     }
@@ -1263,7 +1265,7 @@ function fun_show_setting__emsFormBuilder() {
                             <!--EmailTemplate-->
                               <div class="efb  col-md-8 bg-back">
                                 <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.editor}</h3>
-                                <textarea class="efb  form-control" id="emailTemp_emsFirmBuilder" rows="50" data-tab="${efb_var.text.emailTemplate}">${emailTemp !== "null" ? emailTemp : ''}</textarea>                        
+                                <textarea class="efb  form-control" id="emailTemp_emsFirmBuilder" rows="50" data-tab="${efb_var.text.emailTemplate}">${emailTemp !== "null" ? efb_url_convert_url(emailTemp) : ''}</textarea>                        
                                 <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
                               </div>
                             <div class="efb col-md-4 mt1 efb guide p-2"> 

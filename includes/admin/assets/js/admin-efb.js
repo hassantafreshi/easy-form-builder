@@ -1088,7 +1088,11 @@ const funSetCornerElEfb = (dataId, co) => {
     if(postId!='null'){ 
       cornEl =document.getElementById(postId)    
       if (cornEl==null &&fun_el_select_in_efb(el.dataset.tag)) cornEl = document.getElementById(`${postId}options`)
-      if (el.dataset.tag == 'esign') cornEl = document.getElementById(`${valj_efb[indx].id_}_b`)     
+      if (el.dataset.tag == 'esign') {
+        cornEl = document.getElementById(`${valj_efb[indx].id_}_b`)
+        let box = document.getElementById(`${valj_efb[indx].id_}_`)
+        box.className = cornerChangerEfb(box.className, co)
+      }     
     }else{
 
 
@@ -1724,20 +1728,22 @@ let change_el_edit_Efb = (el) => {
         break;
       case "classesEl":
         id = valj_efb[indx].id_;
-        for(let d of document.querySelectorAll(`[data-css='${id}']`)){
-          const v = el.value.replace(` `, `,`);
-          
-          clss = d.className;
-          //console.log(d.classList.contains('efb1'))
-          if(d.classList.contains('efb1')==true){
-            c= clss.indexOf('efb1');
-    
-            clss= clss.slice(0,c);
-   
-          }
-          d.className =clss+" efb1 "+ sanitize_text_efb(el.value.replace(`,`, ` `));
-          //console.log(d, id)
-          valj_efb[indx].classes = sanitize_text_efb(v);
+        temp = sanitize_text_efb(el.value.replace(` `, `,`));
+        c = valj_efb[indx].classes.split(' ');
+              
+        postId = document.querySelectorAll(`[data-css='${id}']`);
+
+        for (let i = 0; i < postId.length; i++) {
+            const d = postId[i];
+            let clss = d.className;
+        
+            if (c.length > 0) {               
+                const regex = new RegExp(`\\b(${c.join('|')})\\b`, 'g');
+                clss = clss.replace(regex, '').trim();
+            }
+        
+            d.className = `${clss} ${temp}`.trim();                 
+            valj_efb[indx].classes = temp;
         }
         break;
       case "sizeEl":
@@ -4867,3 +4873,12 @@ efbLoadingCard = (bgColor,size=0)=>{
   </div>
 </div> `
 }
+
+
+const efb_url_convert_url = (url)=>{
+  url = url.replace(/(http:@efb@)+/g, 'http://');
+  url = url.replace(/(https:@efb@)+/g, 'https://');
+  url = url.replace(/(@efb@)+/g, '/');
+  
+  return url;
+ }

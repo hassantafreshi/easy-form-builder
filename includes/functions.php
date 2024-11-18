@@ -1200,7 +1200,7 @@ class efbFunction {
 						$type =strtolower($type);
 						if( (gettype($v)!="array" || gettype($v)!="object" ) && preg_match("/multi/i", $type)==false
 						&& (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){	
-							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;	
+							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $this->sanitize_full_html_efb($v);	
 						}else if ( preg_match("/checkbox/i", $type)==true || preg_match("/multi/i", $type)==true ||gettype($v)=="array" || gettype($v)=="object"){
 							if(gettype($v)=="string") break;
 							foreach ($v as $ki => $va) {
@@ -1208,7 +1208,7 @@ class efbFunction {
 							}
 							$valp[$key][$k] =$v;
 						}else{
-							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;
+							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $this->sanitize_full_html_efb($v);
 						}
 								
 					break;
@@ -1375,11 +1375,11 @@ public function addon_add_efb($value) {
         $vwp = get_bloginfo('version');
 		$vwp = substr($vwp,0,3);
         $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
-        
+        $name_space = 'emsfb_addon_' . $value;
         if (get_locale() == 'fa_IR') {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
         }
-
+		delete_option($name_space);
         // Limit the number of attempts to 2
         $max_attempts = 2;
         $attempt = 0;
@@ -1394,7 +1394,7 @@ public function addon_add_efb($value) {
                 $attempt++;
                 $error_message = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
                 
-                if ($attempt >= $max_attempts) {
+                if ($attempt >= $max_attempts) {					
                     return array('status' => false, 'message' => $error_message);
                 }
                 continue; 
@@ -1460,12 +1460,13 @@ public function addon_add_efb($value) {
                 if (!file_exists($directory)) {
                     $this->fun_addon_new($url);
                 }
-
+				update_option($name_space, 1);
                 $success = true;
             }
         }
 
         if ($success) {
+			update_option($name_space, 1);
 			$message = esc_html__('The %s has been successfully completed','easy-form-builder');
 			$message = sprintf($message,  esc_html__('installation','easy-form-builder'));
             return array('status' => true, 'message' => $message );
@@ -1977,7 +1978,7 @@ public function addon_add_efb($value) {
 	public function make_post_request_efb( $ac) {
 		// error_log('EFB=>make_post_requestefb ac: ' . $ac);
 		$url = 'https://demo.whitestudio.team/wp-json/wl/v1/pro/key';
-		$url = 'http://127.0.0.1/ws/wp-json/wl/v1/pro/key';
+		//$url = 'http://127.0.0.1/ws/wp-json/wl/v1/pro/key';
 		// error_log('EFB=>make_post_requestefb url: ' . $url);
 
 		// check internet connection
@@ -2100,11 +2101,12 @@ public function addon_add_efb($value) {
 		return true;
 	}
 	// +Pro
+	private function validated_pro_efb($s) {
+		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+		return isset($s) && md5($server_name) == $s ? true : false;
+	}
 	public function is_efb_pro($s=1) {	
-		function validated($s) {
-			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-			return isset($s) && md5($server_name) == $s ? true : false;
-		}
+		
 			
 		if ($s == 1) {	
 			$is_pro =get_option('Emsfb_pro' ,2);
@@ -2135,8 +2137,8 @@ public function addon_add_efb($value) {
 			}
 
 			$ac = explode('@', $activeCode)[0];
-			if(validated($ac)){
-				// //error_log('EFB=>is_efb_pro validated: ' . $s);
+			if($this->validated_pro_efb($ac)){
+				
 				return $this->weekly_check_pro_efb($activeCode);
 			}
 			delete_option('emsfb_pro');
@@ -2144,11 +2146,13 @@ public function addon_add_efb($value) {
 		} else {
 			// error_log('EFB=>is_efb_pro: else ' . $s);
 			$activeCode = explode('@', $s)[0];
-			if (validated($activeCode)) {
+			if ($this->validated_pro_efb($activeCode)) {
 					return $this->update_pro_status_efb($s);
 					// return true;
 			}
 			delete_option('emsfb_pro');
+			delete_option('emsfb_pro_ac_date');
+			delete_option('emsfb_pro_activeCode');
 		}
 		return false;
 	}
@@ -2156,8 +2160,8 @@ public function addon_add_efb($value) {
 
 
 	public function noti_expire_efb() {
-		// $url = 'https://demo.whitestudio.team/register-costumer?renew=';
-		$url = 'http://127.0.0.1/ws/register-costumer?renew=';
+		$url = 'https://demo.whitestudio.team/register-costumer?renew=';
+		//$url = 'http://127.0.0.1/ws/register-costumer?renew=';
 		$msg = esc_html__('Your Easy Form Builder Pro subscription has expired. To continue enjoying all Pro features and keep your forms running, %1$sRenew your subscription now.%2$s', 'easy-form-builder');
 		$ac = get_option('emsfb_pro_activeCode');	
 		$renew = '<br><a class="efb alert-link fw-bold text-info" href="'.$url.'' . $ac . '" target="_blank">';		
@@ -2206,6 +2210,193 @@ public function addon_add_efb($value) {
 		}
 	
 		return false;
+	}
+
+
+	public function sanitize_full_html_efb($html) {
+		// General attributes allowed for all tags
+		error_log('EFB=>sanitize_full_html_efb');
+		error_log('EFB=>sanitize_full_html_efb html: ' . $html);
+		$global_attributes = array(
+			'class' => true,       // CSS classes
+			'id' => true,          // HTML ID
+			'style' => true,       // Inline style (will be sanitized separately)
+			'title' => true,       // Tooltip or descriptive text
+			'data-*' => true,      // Custom data attributes
+			'aria-*' => true,      // Accessibility attributes
+		);
+	
+		// List of allowed CSS properties
+		$allowed_properties = array(
+			// Colors and background properties
+			'color', 'background', 'background-color', 'background-image', 'background-position',
+			'background-repeat', 'background-size', 'background-attachment', 'background-clip', 'background-origin',
+			// Font properties
+			'font', 'font-family', 'font-size', 'font-style', 'font-variant', 'font-weight',
+			'letter-spacing', 'line-height', 'text-align', 'text-decoration', 'text-indent',
+			'text-overflow', 'text-shadow', 'text-transform',
+			// Dimensions and layout properties
+			'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
+			'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+			'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+			// Border properties
+			'border', 'border-width', 'border-style', 'border-color', 'border-radius', 'outline',
+			// Box and shadow properties
+			'box-shadow', 'box-sizing',
+			// Positioning and z-index
+			'position', 'top', 'right', 'bottom', 'left', 'z-index', 'float', 'clear',
+			// Flexbox and grid properties
+			'display', 'flex', 'flex-grow', 'flex-shrink', 'flex-basis', 'align-items', 'align-content',
+			'align-self', 'justify-content', 'grid', 'grid-template-rows', 'grid-template-columns',
+			'grid-area', 'row-gap', 'column-gap',
+			// Animation and transition properties
+			'animation', 'animation-name', 'animation-duration', 'animation-timing-function', 'animation-delay',
+			'transition', 'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay',
+			// Miscellaneous
+			'cursor', 'opacity', 'clip-path', 'filter', 'backface-visibility', 'transform',
+			'transform-origin', 'transform-style',
+		);
+	
+		// List of trusted domains for URLs in CSS (e.g., background-image)
+		$current_domain = parse_url(home_url(), PHP_URL_HOST);
+		$allowed_domains = array('google.com', 'gstatic.com', 'googleapis.com', 'googleusercontent.com', 'youtube.com', 'ytimg.com', 'microsoft.com', 'office.com', 'live.com', 'msn.com', 'outlook.com', 'amazonaws.com', 'cloudfront.net', 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com', 'jsdelivr.net', 'unpkg.com', 'facebook.com', 'fbcdn.net', 'twitter.com', 'twimg.com', 'github.com', 'github.io', 'vimeo.com', 'vimeocdn.com', 'wikipedia.org', 'wikimedia.org', 'wikidata.org', 'stripe.com', 'paypal.com', 'braintreepayments.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'use.fontawesome.com', 'dailymotion.com', 'dmcdn.net', 'maps.googleapis.com', 'openstreetmap.org', 'mapbox.com', 'gravatar.com', 'unsplash.com', 'placekitten.com', 'placehold.co', 'akamaihd.net', 'cloudflare.com', 'fastly.net', 'linkedin.com', 'apple.com', 'adobe.com', 'cdn.shopify.com', 'example.com', 'example.org', 'trusted.com', 'cdn.trusted.com');
+
+	
+		// Function to validate URLs in attributes or CSS
+		function validate_url($url) {
+			global $allowed_domains;
+			$parsed_url = parse_url($url);
+	
+			// Check if the domain is in the allowed list
+			if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
+				return esc_url($url);
+			}
+	
+			// Ensure the URL does not contain dangerous schemes like `javascript:` or `data:`
+			if (strpos($url, 'javascript:') === false && strpos($url, 'data:') === false) {
+				return esc_url($url);
+			}
+	
+			return ''; // Invalid URL
+		}
+	
+		// Function to sanitize the `style` attribute
+		function sanitize_style_attribute($style) {
+			global $allowed_properties;
+			$style_rules = explode(';', $style); // Split the style string into individual rules
+			$sanitized_rules = array();
+	
+			foreach ($style_rules as $rule) {
+				if (strpos($rule, ':') !== false) {
+					list($property, $value) = explode(':', $rule, 2);
+					$property = trim($property); // Clean up the property name
+					$value = trim($value);       // Clean up the value
+	
+					// Check if the property is in the allowed list
+					if (in_array($property, $allowed_properties)) {
+						// If the value contains a URL, validate it
+						if (strpos($value, 'url(') !== false) {
+							preg_match('/url\(["\']?([^"\')]+)["\']?\)/i', $value, $matches);
+							if (isset($matches[1]) && validate_url($matches[1])) {
+								$sanitized_rules[] = $property . ': ' . $value;
+							}
+						} else {
+							// Add the rule if it doesn't involve a URL
+							$sanitized_rules[] = $property . ': ' . $value;
+						}
+					}
+				}
+			}
+	
+			// Reassemble the sanitized style attribute
+			return implode('; ', $sanitized_rules);
+		}
+	
+		// Allowed HTML tags and their attributes
+		$allowed_tags = array(
+			'a' => array_merge($global_attributes, array(
+				'href' => true,  // Hyperlinks must be sanitized
+				'title' => true,
+				'rel' => true,
+				'target' => true
+			)),
+			'abbr' => array_merge($global_attributes, array('title' => true)),
+			'address' => $global_attributes,
+			'area' => array_merge($global_attributes, array(
+				'alt' => true,
+				'coords' => true,
+				'href' => true,  // Links must be sanitized
+				'shape' => true,
+				'target' => true,
+			)),
+			'audio' => array_merge($global_attributes, array(
+				'autoplay' => true,
+				'controls' => true,
+				'loop' => true,
+				'muted' => true,
+				'preload' => true,
+				'src' => true,  // Audio source must be sanitized
+			)),
+			'b' => $global_attributes,
+			'blockquote' => array_merge($global_attributes, array('cite' => true)), // Validate cite attribute
+			'br' => $global_attributes,
+			'button' => array_merge($global_attributes, array(
+				'disabled' => true,
+				'name' => true,
+				'type' => true,
+				'value' => true,
+			)),
+			'canvas' => array_merge($global_attributes, array('height' => true, 'width' => true)),
+			'caption' => $global_attributes,
+			'code' => $global_attributes,
+			'col' => array_merge($global_attributes, array('span' => true, 'width' => true)),
+			'data' => array_merge($global_attributes, array('value' => true)),
+			'div' => $global_attributes,
+			'img' => array_merge($global_attributes, array(
+				'src' => true,    // Image source must be sanitized
+				'alt' => true,
+				'width' => true,
+				'height' => true,
+			)),
+			'input' => array_merge($global_attributes, array(
+				'type' => true,
+				'name' => true,
+				'value' => true,
+				'placeholder' => true,
+				'required' => true,
+			)),
+			'meta' => array_merge($global_attributes, array(
+				'name' => true,
+				'content' => true,
+				'charset' => true,
+			)),
+			'p' => $global_attributes,
+			'table' => $global_attributes,
+			'video' => array_merge($global_attributes, array(
+				'autoplay' => true,
+				'controls' => true,
+				'loop' => true,
+				'muted' => true,
+				'preload' => true,
+				'src' => true,  // Video source must be sanitized
+				'width' => true,
+				'height' => true,
+			)),
+		);
+	
+		// Sanitize the HTML using `wp_kses`
+		$sanitized_html = wp_kses($html, $allowed_tags);
+	
+		// Further sanitize the `style` attribute
+		$sanitized_html = preg_replace_callback(
+			'/style=["\']([^"\']+)["\']/i',
+			function ($matches) {
+				return 'style="' . sanitize_style_attribute($matches[1]) . '"';
+			},
+			$sanitized_html
+		);
+	
+		return $sanitized_html;
 	}
 
 	

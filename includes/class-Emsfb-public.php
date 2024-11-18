@@ -21,6 +21,7 @@ class _Public {
 	public $location;
 	public $url;
 	public $efb_uid  ;
+	public $value_forms =[];
 	
 	public function __construct() {
 		global $wpdb;
@@ -142,8 +143,10 @@ class _Public {
             global $wpdb;
             $this->db = $wpdb;
         }
-		$table_name = $this->db->prefix . "emsfb_form";		
+		$table_name = $this->db->prefix . "emsfb_form";	
+		
 		$this->id = end($id);
+		
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		if($value_form!=null){
 			$typeOfForm =$value_form[0]->form_type;
@@ -243,22 +246,27 @@ class _Public {
 		// // error_log('is rp setting array?');
 		// error_log(gettype($rp));
 		$stng= $rp[0];
+
+
 		$el_pro_load = strpos($value , '\"pro\":\"1\"');
 			if($el_pro_load==false){
 					$el_pro_load = strpos($value , '"pro":"1"');
 				}
 		$el_pro_load = $el_pro_load==false ? false : true;
+
 		$this->comper_version_efb($rp[1]['version']);
+
 		$paymentType="null";
 		$paymentKey="null";
 		$refid = isset($_GET['Authority'])  ? sanitize_text_field($_GET['Authority']) : 'not';
 		$Status_pay = isset($_GET['Status'])  ? sanitize_text_field($_GET['Status']) : 'NOK';
 		$img['plugin_url'] = EMSFB_PLUGIN_URL;
+		
 		if($pro==1 || $pro==true){
 			$efb_m= "<!--efb-->" ;
 			// smssend : after filed forms check if sms send enable and send sms to admin and users
 			$sms_exists = get_option('emsfb_addon_AdnSS',false);
-			if($sms_exists !== false){
+			if($sms_exists !== false){				
 				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
 				$smssendefb = new smssendefb() ; 
 			}
@@ -338,19 +346,24 @@ class _Public {
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
 				// translate v3
+			
 				$fs =str_replace('\\', '', $value_form[0]->form_structer);
 				$formObj= json_decode($fs,true);
-				if(($formObj[0]['stateForm']==true || $formObj[0]['stateForm']==1) &&  is_user_logged_in()==false ){
+				$valj_efb = json_decode($fs, false, 512, JSON_UNESCAPED_UNICODE);
+				if(($valj_efb[0]->stateForm==true || $valj_efb[0]->stateForm==1) &&  is_user_logged_in()==false ){
 					$typeOfForm="";
 					$value="";
 					$stng="";
+					$fs= "";
 				}
-				if($formObj[0]['thank_you']=="rdrct"){
-					$formObj[0]['rePage']="";
-					$val_ = json_encode($formObj,JSON_UNESCAPED_UNICODE);
+				if($valj_efb[0]->thank_you=="rdrct"){
+					$valj_efb[0]->rePage="";
+					$val_ = json_encode($valj_efb,JSON_UNESCAPED_UNICODE);
 					$value = str_replace('"', '\\"', $val_);
 				}
-				if (($value_form[0]->form_type=="login" || $value_form[0]->form_type=="register")){
+				$this->value_forms[] = ['id' => $this->id,'type'=>$typeOfForm ,'structure' => $fs , 'sid' => $sid];
+
+				/* if (($value_form[0]->form_type=="login" || $value_form[0]->form_type=="register")){
 					if( is_user_logged_in()){
 						$typeOfForm ="userIsLogin";
 						$user = wp_get_current_user();
@@ -364,13 +377,16 @@ class _Public {
 						$send['user_image']=get_avatar_url(get_current_user_id());
 						$value=$send;
 					}
-				}
+				} */
+			
+				$is_user = is_user_logged_in() ? (current_user_can('administrator') ? 'admin' : 'user') : 'guest';
 				$ar_core = array_merge($ar_core , array(
-					'ajax_value' =>$value,
-					'type' => $typeOfForm,
+					'ajax_value_forms' =>$this->value_forms,
+					'ajax_value' =>$value, //remove this line on v4 
+					'type' => $typeOfForm, //remove this line on v4 
+					'id' => $this->id, //remove this line on v4		  
 					'state' => $state,
 					'language' => $lang,
-					'id' => $this->id,			  
 					'form_setting' => $stng,
 					// 'nonce'=> wp_create_nonce("public-nonce"),
 					'poster'=> $poster,
@@ -384,7 +400,8 @@ class _Public {
 					'images' => $img,
 					'rest_url'=>get_rest_url(null),
 					'page_id'=>get_the_ID(),
-					'page_builder'=>$page_builder
+					'page_builder'=>$page_builder,
+					'is_user'=> $is_user
 				) );
 				wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);  
 		 $k="";
@@ -394,7 +411,7 @@ class _Public {
 		 $stng = $this->pub_stting;
 		 if(gettype($stng)!=="integer" && $lanText['settingsNfound']){
 			// $valstng= json_decode($stng);			
-			 if( ($formObj[0]['captcha']==1) && (isset($this->pub_stting['siteKey'])==true) && strlen($this->pub_stting['siteKey'])>1)
+			 if( ($valj_efb[0]->captcha==1) && (isset($this->pub_stting['siteKey'])==true) && strlen($this->pub_stting['siteKey'])>1)
 			 {					
 				 $k =$this->pub_stting['siteKey'];
 				 $k = "<script>let sitekye_emsFormBuilder='".$k."'</script>";
@@ -422,44 +439,54 @@ class _Public {
                
              }
 		 }	
-		 $width =0;		// $style =$this->bootstrap_icon_efb();
-		 if($formObj[0]['stateForm']==true ){
-			$content ="
-			".$this->bootstrap_icon_efb($icons_)."		 
-			<div id='body_efb' class='efb  row pb-3 efb px-2'> <div class='efb text-center my-5'>
-			<div class='efb bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center fs-5'>". $lanText['formPrivateM']."</h3>
-			 ".$efb_m."
-			 ".$s_m."
-			</div> </div>";
-			return $content; 
-		 }
-		 else{
-			// error_log($value);
+			
+		 	$width =0;			 
 			$value =str_replace('\\', '', $value);
-			$valj_efb = json_decode($value, false, 512, JSON_UNESCAPED_UNICODE);
-			$content="<!--efb-->";
-			$head ='<!--start head -->';
-			$count = count($valj_efb);
-			$ttt = ['somethingWentWrongPleaseRefresh', 'atcfle', 'cpnnc', 'tfnapca', 'icc', 'cpnts', 'cpntl', 'mcplen', 'mmxplen', 'mxcplen', 'clcdetls', 'vmgs', 'required', 'mmplen', 'offlineSend', 'amount', 'allformat', 'videoDownloadLink', 'downloadViedo', 'removeTheFile', 'pWRedirect', 'eJQ500', 'error400', 'errorCode', 'remove', 'minSelect', 'search', 'MMessageNSendEr', 'formNExist', 'settingsNfound', 'formPrivateM', 'pleaseWaiting', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankFillForm', 'trackNo', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'error403', 'errorSiteKeyM', 'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot', 'enterVValue', 'guest', 'cCodeNFound', 'errorFilePer', 'errorSomthingWrong', 'nAllowedUseHtml', 'messageSent', 'offlineMSend', 'uploadedFile', 'interval', 'dayly', 'weekly', 'monthly', 'yearly', 'nextBillingD', 'proVersion', 'selectOption', 'copy', 'or', 'document', 'error', 'somethingWentWrongTryAgain', 'define', 'loading', 'trackingCode', 'enterThePhone', 'please', 'pleaseMakeSureAllFields', 'enterTheEmail', 'formNotFound', 'errorV01', 'enterValidURL', 'password8Chars', 'registered', 'yourInformationRegistered', 'preview', 'selectOpetionDisabled', 'youNotPermissionUploadFile', 'pleaseUploadA', 'fileSizeIsTooLarge', 'documents', 'image', 'media', 'zip', 'trackingForm', 'trackingCodeIsNotValid', 'checkedBoxIANotRobot', 'messages', 'pleaseEnterTheTracking', 'alert', 'pleaseFillInRequiredFields', 'enterThePhones', 'pleaseWatchTutorial', 'formIsNotShown', 'errorVerifyingRecaptcha', 'orClickHere', 'enterThePassword', 'PleaseFillForm', 'selected', 'selectedAllOption', 'field', 'sentSuccessfully', 'thanksFillingOutform', 'sync', 'enterTheValueThisField', 'thankYou', 'login', 'logout', 'YouSubscribed', 'send', 'subscribe', 'contactUs', 'support', 'register', 'passwordRecovery', 'info', 'areYouSureYouWantDeleteItem', 'noComment', 'waitingLoadingRecaptcha', 'itAppearedStepsEmpty', 'youUseProElements', 'fieldAvailableInProversion', 'thisEmailNotificationReceive', 'activeTrackingCode', 'default', 'defaultValue', 'name', 'latitude', 'longitude', 'previous', 'next', 'invalidEmail', 'aPIkeyGoogleMapsError', 'howToAddGoogleMap', 'deletemarkers', 'updateUrbrowser', 'stars', 'nothingSelected', 'availableProVersion', 'finish', 'select', 'up', 'red', 'Red', 'sending', 'enterYourMessage', 'add', 'code', 'star', 'form', 'black', 'pleaseReporProblem', 'reportProblem', 'ddate', 'serverEmailAble', 'sMTPNotWork', 'aPIkeyGoogleMapsFeild', 'download', 'copyTrackingcode', 'copiedClipboard', 'browseFile', 'dragAndDropA', 'fileIsNotRight', 'on', 'off', 'lastName', 'firstName', 'contactusForm', 'registerForm', 'entrTrkngNo', 'response', 'reply', 'by', 'youCantUseHTMLTagOrBlank', 'easyFormBuilder', 'rnfn', 'fil', 'stf', 'total', 'fetf', 'search', 'jqinl', 'eln', 'servpss', 'slocation', 'snotfound'];
+			
 
-			if($valj_efb[0]->type=='payment'){
-				$ttt = array_merge($ttt, ['onetime', 'payAmount', 'cardNumber', 'cardExpiry', 'cardCVC', 'payNow','payment',"successPayment","emptyCartM","transctionId",]);	
-				
-			}else if (false){
-				$ttt = array_merge($ttt, ['onetime', 'payAmount', 'cardNumber', 'cardExpiry', 'cardCVC', 'payNow']);
-			}
-
-			$txts = $this->efbFunction->text_efb($ttt);
-			$step_no= 0;
-			$head ='<!--start head efb-->';
-		   
 		
 			
 
-			require(EMSFB_PLUGIN_DIRECTORY . '\includes\class-Emsfb-formbuilder.php');
-			$efbFormBuilder = new Formbuilder($valj_efb , $this->pro_efb);
+			
+			
+			
+		   
+   
+			   // error_log($value);
+			   require_once(EMSFB_PLUGIN_DIRECTORY . '/includes/class-Emsfb-formbuilder.php');	
+			   error_log('before new Formbuilder');		  
+			   $efbFormBuilder = new Formbuilder($valj_efb , $this->pro_efb);
+			   $content="<!--efb-->";
+			   $head ='<!--start head -->';
 
-			$msgs = [$txts['pleaseWaiting'],$txts['stf']];
+			   if($valj_efb[0]->stateForm==true  && is_user_logged_in()==false ){
+					$content ="
+					".$this->bootstrap_icon_efb($icons_)."		 
+					<div id='body_efb' class='efb row pb-3 efb px-2 v4'> <div class='efb text-center my-5'>
+					<div class='efb bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center fs-5'>". $lanText['formPrivateM']."</h3>
+					".$efb_m."
+					".$s_m."
+					</div> </div>";
+					return $content; 
+				}else if(($value_form[0]->form_type=="login" || $value_form[0]->form_type=="register") && is_user_logged_in()){
+					//show_user_profile_emsFormBuilder($ob, $text_logout, $formId)
+					
+					$content = $efbFormBuilder->show_user_profile_emsFormBuilder( $lanText['logout'], $this->id);
+					return $content;
+				}
+
+
+			   $count = count($valj_efb);
+				$step_no= 0;
+				$head ='<!--start head efb-->';
+		   
+			
+			
+			
+
+		
+
+			$msgs = [$lanText['pleaseWaiting'],$lanText['stf']];
 			$wv = sprintf(
 				'<div class="efb text-center">
 					%1$s
@@ -468,25 +495,48 @@ class _Public {
 				$efbFormBuilder->loading_message_efb($this->pro_efb,$msgs,1), // PHP function equivalent to loading_messge_efb() in JavaScript
 				// Accessing efb_var for displaying the text
 			);
+
 			
-			for( $i=1; $i<$count; $i++){
-				// random unique id
-				// error_log($valj_efb[$i]->id_);
-				$randomId = wp_unique_id('efb_');
-				// error_log($randomId);
-				// error_log($i);
-				// $this->text_
-				/* 
-				switch
-				maps
-				 */
-				$style ='<style>#teststyleefb{display:none;}';
+			
+			$style ='<style>#teststyleefb{display:none;}';
+			$icons_els =[];
+			for( $i=0; $i<$count; $i++){
+				$randomId = wp_unique_id('efb_');			
+				 //parsing every attribute of $valj_efb[$i] to get color and icon
+				 foreach ($valj_efb[$i] as $key => $value) {
+					
+					//check $value content in clude colorDEfb
+					if(is_string($value)){
+						if(strpos($value, 'colorDEfb') !== false){
+							//Get color style
+							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);					
+						}else if(strpos($value, 'bi-') !== false && strpos($key, 'icon') !== false){	
+							//Get icon					
+							$icons_els[] = $value;
+						}
+					}else{
+						foreach ($value as $key2 => $value2) {
+							if(is_string($value2)){
+								if(strpos($value2, 'colorDEfb') !== false){
+									//Get color style									
+									$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value2, $key2, $valj_efb[$i]);								
+								}else if(strpos($value2, 'bi-') !== false && strpos($key2, 'icon') !== false){
+									//Get icon
+									$icons_els[] = $value2;
+								}
+							}
+						}
+					}
+					
+				}
+				 //add form_id to $valj_efb[$i]
+				//$valj_efb[$i]->form_id = $this->id;
 				if($valj_efb[$i]->type=="step" ){
 					error_log('step->');
 					$valj_efb_first = $valj_efb[0];
 					$value = $valj_efb[$i];
 					$step_no = intval($valj_efb[$i]->step);
-					$content.= $step_no<2
+					$fieldset= $step_no<2
 					? sprintf(
 						'<fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row" data-formid="%s">',
 						$step_no, $step_no, $this->id
@@ -495,7 +545,8 @@ class _Public {
 						'<div id="step-%d-efb-msg"></div></fieldset><!-- end fieldset --><fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row d-none" data-formid="%s">',
 						$step_no - 1, $step_no, $step_no, $this->id
 					);
-				
+					error_log('step->'.$fieldset);
+					$content .= $fieldset;
 					$head .= sprintf(
 						'<li id="%1$s-f-step-efb" data-step="icon-s-%2$d-efb" data-formid="%3$s" class="efb %4$s %5$s %6$s %7$s %8$s"><strong class="efb fs-5 %9$s">%10$s</strong></li>',
 						$value->id_,  // %1$s
@@ -516,8 +567,8 @@ class _Public {
 					
 					if(in_array($valj_efb[$i]->type, ["option","r_matrix"])) {continue;}
 
-					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $this->id, $txts);
-					// $r = $this->addNewElement_efb($i, $randomId, $this->id, $txts);
+					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $this->id, $lanText);
+					
 					error_log(json_encode($r));
 					$content .= $r[0]; 
 					$style .= $r[1]; 
@@ -536,7 +587,7 @@ class _Public {
 					</fieldset>";
 
 				$head_final_step = "<li id='f-step-efb' data-step='icon-s-{$step_no}-efb' class='efb {$valj_efb[1]->icon_color} " . (($valj_efb[0]->steps <= 6) ? "step-w-{$valj_efb[0]->steps}" : "step-w-6") . " bi-check-lg'>
-					<strong class='efb fs-5 {$valj_efb[1]->label_text_color}'>{$txts['finish']}</strong>
+					<strong class='efb fs-5 {$valj_efb[1]->label_text_color}'>".$lanText['finish']."</strong>
 				</li>";
 
 				$bgc = isset($valj_efb[0]->prg_bar_color) ? $valj_efb[0]->prg_bar_color : 'btn-primary';
@@ -556,19 +607,20 @@ class _Public {
 
 	
 			$style = $style.'</style>';
+			$script = '<script>let valj_efb_'.$this->id.' = '.json_encode($valj_efb).';</script>';
 			//add_buttons_zone_efb($state, $id, $valj_efb, $efb_var, $preview_efb, $formId)
 			$stps_state = $step_no>1 ? 1 : 0;
-			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $txts, $this->id);
+			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
 			// if (valj_efb[0].hasOwnProperty('dShowBg') && Number(valj_efb[0].dShowBg) != 1 && state == "run") { document.getElementById('body_efb').classList.add('card') }
 			$dShow = isset($valj_efb[0]->dShowBg) && intval($valj_efb[0]->dShowBg) != 1 ? 'card' : '';
 			$content_new = $this->bootstrap_icon_efb($icons_).'
 				<!-- start body_efb-->
-				<div id="body_efb_" class="efb row pb-3 efb px-2 pre-efb '.$dShow.'">
-					<form id="efbform" class="mx-0 px-0 efb">
-					<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2" id="view-efb">
+				<div id="body_efb_" class="efb row pb-3 efb px-2 pre-efb body_efb '.$dShow.'" data-formid="'.$this->id.'">
+					<form id="efbform" class="mx-0 px-0 efb" data-formid="'.$this->id.'">
+					<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2 view-efb" id="view-efb" data-formid="'.$this->id.'">
 					' . (intval($valj_efb[0]->show_icon) != 1 
-						? '<h4 id="title_efb" class="efb fs-3 ' . $valj_efb[1]->label_text_color . ' text-center mt-3 mb-0">' . $valj_efb[1]->name . '</h4>
-						<p id="desc_efb" class="efb ' . $valj_efb[1]->message_text_color . ' text-center fs-6 mb-2">' . $valj_efb[1]->message . '</p>'
+						? '<h4 id="title_efb" class="efb fs-3 ' . $valj_efb[1]->label_text_color . ' text-center mt-3 mb-0 title_efb" data-formid="'.$this->id.'">' . $valj_efb[1]->name . '</h4>
+						<p id="desc_efb" class="efb ' . $valj_efb[1]->message_text_color . ' text-center fs-6 mb-2 desc_efb" data-formid="'.$this->id.'">' . $valj_efb[1]->message . '</p>'
 						: '') . '
 						' . $head . '
 						<div class="efb mt-1 px-2">' . $content . '</div> 
@@ -579,10 +631,16 @@ class _Public {
 					<!-- end form-->
 					</div>
 					<!-- end body_efb-->
-					<div id="alert_efb" class="efb mx-5"></div>
+					<div id="alert_efb" class="efb mx-5 alert_efb" data-formid="'.$this->id.'"></div>
+					<!-- style efb -->
 					'.$style.' '.$k;
 
+
+
+					/* old code: should be removed*/
 			error_log($content_new);
+			//return $content_new;
+
 			 $content="	
 			 ".$this->bootstrap_icon_efb($icons_)."
 			 <div id='body_efb' class='efb  row pb-3 efb px-2'>
@@ -595,7 +653,9 @@ class _Public {
 			 ".$k." 
 			 ".$style."
 			 <br><br>" . $content_new;
-		 }
+
+			 /* old code: should be removed*/
+		 
 		return $content;
 	}
 	public function EMS_Form_Builder_track(){
@@ -645,6 +705,7 @@ class _Public {
 		$usr =wp_get_current_user();
 		$username = '';
 		if(gettype($usr)!='integer') $username = $usr->display_name  ;
+		
 		if($username=='') $username = $sc!='null' ? $text['spprt'] :'' ;
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
@@ -664,6 +725,7 @@ class _Public {
 			   'rest_url'=>get_rest_url(null),
 			   'page_id'=>get_the_ID(),
 			   'sc'=>$sc
+			   
 		 ));  
 		 $icons_ =[
 			'bi-clipboard-check','bi-hand-thumbs-up',
@@ -3012,13 +3074,7 @@ class _Public {
 		}
 		wp_send_json_success($response, 200);
     }
-	public function load_textdomain(): void {
-        load_plugin_textdomain(
-            EMSFB_PLUGIN_TEXTDOMAIN,
-            false,
-            EMSFB_PLUGIN_DIRECTORY . "/languages"
-        );
-    }
+
 	public function string_to_url($string) {
 			$rePage= preg_replace('/(http:@efb@)+/','http://',$string);
 			$rePage= preg_replace('/(https:@efb@)+/','https://',$rePage);

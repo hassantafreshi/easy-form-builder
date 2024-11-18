@@ -2441,7 +2441,8 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
               url: files_emsFormBuilder[indx].url,
               session: sessionPub_emsFormBuilder,
               page_id: page_id,
-            }];            
+            }];    
+            console.log('2445')        
             fun_sendBack_emsFormBuilder(o[0]);
             const el = document.getElementById(idB)
             if(el){
@@ -2825,7 +2826,7 @@ function handle_change_event_efb(el){
       }
       delete_by_id(id);
     }
-    validate_len =()=>{
+    validate_len_efb =()=>{
       let offsetw = offset_view_efb();
       const mi=()=> {return  el.type!="number" ? 2 :0}
       let len = el.hasAttribute('minlength')  ? el.minLength :mi();
@@ -2894,7 +2895,7 @@ function handle_change_event_efb(el){
               return 0;
       }
             return 1;
-    }//end validate_len
+    }//end validate_len_efb
     let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
     let value = ""
     const id_ = el.dataset.vid
@@ -2926,8 +2927,8 @@ function handle_change_event_efb(el){
           value = el.value;
          return;
         }
-        if(validate_len()==0 && (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox")){
-          //console.log('validate_len()==0!!!');
+        if(validate_len_efb()==0 && (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox")){
+          //console.log('validate_len_efb()==0!!!');
           if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
          return;
         }else {
@@ -3072,6 +3073,7 @@ function handle_change_event_efb(el){
           vd.innerHTML="";}
         break;
     }
+    const form_id = el.dataset.hasOwnProperty('formid') ? el.dataset.formid : 0;
     if(state==false && value.length > 0)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
     if (value != "" || value.length > 0) {
       const type = ob.type;
@@ -3087,6 +3089,8 @@ function handle_change_event_efb(el){
           p = price_efb.length > 0 ? { price: price } : { price: q.price }
         }
         Object.assign(o[0], p)
+        console.log('3090');
+        Object.assign(o[0], {form_id:  form_id});
         fun_sendBack_emsFormBuilder(o[0]);
         fun_total_pay_efb()
       }else if(type.includes('chl')){
@@ -3099,10 +3103,16 @@ function handle_change_event_efb(el){
           ob.qty=fun_text_forbiden_convert_efb(qty);
           o[0]="";
         }
+        Object.assign(o[0], {form_id:  form_id});
+        console.log('3102',el);
         fun_sendBack_emsFormBuilder(o[0]);
       }else if (o[0].type=="email"){
+        Object.assign(o[0], {form_id:  form_id});
+        console.log('3105',el);
         fun_sendBack_emsFormBuilder(o[0]);
       }else {
+        console.log('3108',el);
+        Object.assign(o[0], {form_id:  form_id});
         fun_sendBack_emsFormBuilder(o[0]);
       }
     }

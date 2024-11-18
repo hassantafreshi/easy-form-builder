@@ -41,8 +41,6 @@ class Admin {
             if (!function_exists('get_plugin_data')) {
                 require_once(ABSPATH . 'wp-admin/includes/plugin.php');
             }
-            $plugin_data          = get_plugin_data(EMSFB_PLUGIN_FILE);
-            $this->plugin_version = $plugin_data['Version'];
             // $this->get_not_read_message();
             add_action('wp_ajax_remove_id_Emsfb', [$this, 'delete_form_id_public']);                 //Remove a form by id
             add_action('wp_ajax_remove_message_id_Emsfb', [$this, 'delete_message_id_public']);      //Remove a message by id
@@ -321,6 +319,7 @@ class Admin {
        if($value!="AdnOF"){
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $name_space = 'emsfb_addon_' . $value;
+            delete_option($name_space);
             $vwp = get_bloginfo('version');
             $vwp = substr($vwp,0,3);
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
@@ -793,43 +792,42 @@ class Admin {
         }
         foreach ($m as $key => $value) {
             if ($key == "emailSupporter") {
-                $m[$key] = sanitize_text_field($value);
-                $email =  $m[$key];
-            }else if ($key == "activeCode" && strlen($value) > 1) {
-               // $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+                $value = sanitize_text_field($value);
+                $m['emailSupporter'] = sanitize_email($value);
+                $email =  $value;
+            }else if ($key == "activeCode" ) {
                 $state = $efbFunction->is_efb_pro($value);
+                $m['activeCode'] = sanitize_text_field($value);
                 if ($state==false) {
-                    $m = $lang['activationNcorrect'];
-                    $response = ['success' => false, "m" =>$m];
-                    wp_send_json_success($response, 200);
-                  
+                    $response = ['success' => false, "m" =>$lang['activationNcorrect']];
+                    if(strlen($value) > 1){ wp_send_json_success($response, 200);}
                 }                        
-            }
-             else if($key == "emailTemp"){
+            }else if($key == "emailTemp"){
                 if( strlen($value)>5  && (strpos($setting ,'shortcode_message')==false || strpos($setting ,'shortcode_title')==false)){
-                    $m = $lang['addSCEmailM'];
-                    $response = ['success' => false, "m" =>$m];
+                    $response = ['success' => false, "m" =>$lang['addSCEmailM']];
                     wp_send_json_success($response, 200);                
-                }else if(strlen($value)<6 && strlen($value)>0 ){
-                    $m = $lang['emailTemplate'];               
-                    $response = ['success' => false, "m" =>$m];
+                }else if(strlen($value)<6 && strlen($value)>0 ){    
+                    $response = ['success' => false, "m" =>$lang['emailTemplate']];
                     wp_send_json_success($response, 200);              
-                }else if(strlen($value)>20001){                 
-                    $m = $lang['addSCEmailM'];                    
-                    $response = ['success' => false, "m" =>$m];
+                }else if(strlen($value)>20001){                                 
+                    $response = ['success' => false, "m" =>$lang['addSCEmailM']];
                     wp_send_json_success($response, 200);
                 }else if(strpos($value ,'<script')){
-                    $m = $lang['pleaseDoNotAddJsCode'];
-                    $response = ['success' => false, "m" =>$m];
+                    $response = ['success' => false, "m" =>$lang['pleaseDoNotAddJsCode']];
                     wp_send_json_success($response, 200);
                 }
-            } 
+                $m[$key] = $efbFunction->sanitize_full_html_efb($value);
+            }else{
+                $m[$key] = sanitize_text_field($value);
+            }
         }
+
         if(isset($m['efb_version'])==false){
-            $m['efb_version']=EMSFB_PLUGIN_VERSION;
+           array_push($m, ['efb_version'=>EMSFB_PLUGIN_VERSION]);
             $st_ = json_encode($m,JSON_UNESCAPED_UNICODE);
             $setting = str_replace('"', '\"', $st_);
         }
+       
         $this->db->insert(
             $table_name,
             [

@@ -794,7 +794,7 @@ height: 10px;
 
 
 .star-efb:not(:checked)>label {	float: right;
-   width: 0.8em;
+   width: 0.9em;
    overflow: hidden;
    white-space: nowrap;
    cursor: pointer;
@@ -1675,6 +1675,8 @@ thead.efb.efblist,.efb.searchSection {	position: sticky;
    color: #545b6e !important;  
    background: #ffffffe0!important;
    padding: 5px 0;
+   white-space: nowrap;
+   overflow: hidden;
 }
 .efb.searchBox::-webkit-input-placeholder {	font-size: 15px !important;
 }
@@ -2716,3 +2718,11 @@ div#Listefb-150 {
 .efb-searchbox {
    margin-left: -5px!important;
 }
+
+
+.draggable-efb span.efb {
+   overflow: hidden;
+}
+
+
+

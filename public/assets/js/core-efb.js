@@ -126,6 +126,7 @@ function fun_efb_run(){
 setTimeout( fun_efb_run, g_timeout_efb)
 function createStepsOfPublic() {
   for (let el of document.querySelectorAll(`.emsFormBuilder_v`)) {
+    let form_id = el.dataset.formid  || -1;
     let price = '';
     if (el.type != "submit") {
       switch (el.type) {
@@ -133,7 +134,8 @@ function createStepsOfPublic() {
           const ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
           if(((ob.hasOwnProperty("disabled") && ob.disabled!=true ) || ob.hasOwnProperty("disabled")==false )&& 
           ((ob.hasOwnProperty('hidden') && ob.hidden==true) || ob.hasOwnProperty('hidden')==false))
-           files_emsFormBuilder.push({ id_: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder });
+         
+           files_emsFormBuilder.push({ id_: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder, form_id: form_id });
           break;
         case "hidden":
           break;
@@ -160,20 +162,26 @@ function createStepsOfPublic() {
         });
       }
     }else if(el.type=="checkbox" && valj_efb[0].type == "payment" && el.classList.contains('payefb')){
+      console.log('checkbox');
+      console.log('166');
       fun_sendBack_emsFormBuilder(o[0]);
       fun_total_pay_efb()
     }  else if (el.type == "submit") {
       el.addEventListener("click", (e) => {
+        console.log('submit');
         const id_ = el.dataset.vid
+        const form_id = el.dataset.formid || -1;
         const ob = valueJson_ws.find(x => x.id_ === id_);
-        let o = [{ id_: id_, name: ob.name, id_ob: el.id, amount: ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
+        let o = [{ id_: id_, name: ob.name, id_ob: el.id, amount: ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder, form_id: form_id }];
         if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
           let q = valueJson_ws.find(x => x.id_ === el.id);
           const p = price_efb.length > 0 ? { price: price } : { price: q.price }
           Object.assign(o[0], p)
+          console.log('179');
           fun_sendBack_emsFormBuilder(o[0]);
           fun_total_pay_efb()
         } else {
+          console.log('182');
           fun_sendBack_emsFormBuilder(o[0]);
         }
       });
@@ -181,6 +189,9 @@ function createStepsOfPublic() {
   }
 } 
 function fun_sendBack_emsFormBuilder(ob) {
+  const form_id = ob.form_id || -1;
+  console.log(`form_id[${form_id}]`);
+  console.log(ob);
   if(typeof ob=='string' || ob.hasOwnProperty('value')==false ){return}
   remove_ttmsg_efb(ob.id_)
   if(ob.hasOwnProperty('value') && typeof(ob.value)!='number' && typeof(ob.value)!='object') {ob.value=fun_text_forbiden_convert_efb(ob.value);
@@ -609,6 +620,7 @@ setTimeout(() => {
   message=sanitize_text_efb(message);
   const by = ajax_object_efm.user_name.length > 1 ? ajax_object_efm.user_name : efb_var.text.guest;
   const ob = [{id_:'message', name:'message', type:'text', amount:0, value: message, by: by , session: sessionPub_emsFormBuilder}];
+  console.log('620');
   fun_sendBack_emsFormBuilder(ob[0])
   if (message.length < 1 ) {
     check_msg_ext_resp_efb();
@@ -1185,6 +1197,10 @@ document.addEventListener("DOMContentLoaded", function() {
   }else if (elements.length > 1){
     fun();
   }
+
+  //v4 start
+  createStepsOfPublic()
+  //v4 end
 });
 
 

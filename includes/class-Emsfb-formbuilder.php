@@ -99,11 +99,11 @@
 				$fields['dataTag'] = $elementId;
 				break;
 			case 'switch':
-				//  تنظیم مقادیر 'on' و 'off' در صورت عدم وجود
+		
+				
 				$vj->on = $vj->on ?? $texts['on'];
 				$vj->off = $vj->off ?? $texts['off'];
 
-				//  استفاده از sprintf برای ساختن رشته HTML به صورت بهینه
 				$ui = sprintf('
 					%s
 					%s
@@ -115,7 +115,7 @@
 						</button>
 						<label class="efb fs-6" id="%s_on">%s</label>
 						<div class="efb mb-3">%s</div>
-					</div>',
+					',
 					$label,
 					$ttip,
 					$pos[3],
@@ -611,7 +611,7 @@
 					</table>
 				</div>
 				%s
-			</div>',
+			',
 			$label,
 			$pos[3],
 			str_replace(',', ' ', $vj->classes),			
@@ -809,7 +809,7 @@
 						<input type="radio" name="%4$s" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid="%4$s" data-id="%4$s-id" id="%4$s_2" value="%15$s" data-formid="%5$s"><span id="%4$s_2_lab">%15$s</span>
 					</label>
 				</div>
-			</div>',
+			',
 			$pos[3],             // %1$s
 			$disabled,           // %2$s
 			$classes,            // %3$s
@@ -975,7 +975,7 @@
 					%8$s
 				</div>
 				<div class="efb mb-3">%9$s</div>
-			</div>
+			
 			<!-- end table matrix -->',
 			$label,                    // %1$s
 			$pos[3],                   // %2$s
@@ -1010,10 +1010,10 @@
 		$readonly = $previewSate != true ? 'readonly' : '';
 		$classes =  str_replace(',', ' ', $vj->classes) ?? '';
 		$onlyCountries = isset($vj->c_c) && count($vj->c_c) > 0 ? $vj->c_c : '';
-
-		require_once EFB_PLUGIN_DIR . 'includes/efb-functions.php';
+		require_once EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php'; 
+		$efbFunction = new EFBFunction();
 		$tt =[ 'cpnnc', 'icc', 'cpnts', 'cpntl'];
-		$texts = $this->efbFunction->text_efb($tt);
+		$texts = $efbFunction->text_efb($tt);
 
 		
 		// Call the function to load intlTelInput
@@ -1135,7 +1135,7 @@
 							<span id='%s_button_single_text' class='efb %s' %s>%s</span>
 						</button>
 					</div>
-				</div>",
+				",
 				$pos[3], // کلاس‌های موقعیت
 				$randomId, $formId, // شناسه و formId
 				$el_height, $corner, $el_text_color, $vj->el_border_color,
@@ -1196,8 +1196,8 @@
 					<i class="efb fs-3 %1$s %2$s" id="%3$s_icon"></i>
 				</div>
 				<h6 id="%3$s_txt" class="efb text-center m-1 fs-6">%4$s %5$s</h6>
-				<span class="efb fs-7">%6$s</span>
-				<button type="button" class="efb btn %7$s efb-btn-lg fs-6" id="%3$s_b" %8$s>
+				<span class="efb fs-7 my-1">%6$s</span>
+				<button type="button" class="efb btn %7$s efb-btn-lg fs-6 mb-1" id="%3$s_b" %8$s>
 					<i class="efb bi-upload mx-2 fs-6"></i>%9$s
 				</button>
 				<input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s" id="%3$s_" data-id="%3$s-el" data-formid="%13$s" %12$s %8$s>',
@@ -1276,6 +1276,8 @@
 
 	/* field builder */
 	public function add_ui_stripe_efb($rndm , $cl, $sub,$form_id,$texts) {
+		$currency = $this->valj_efb[0]->currency;
+		$amount =$this->formatPrice_efb(0, $currency);
 		return  '
 		<!-- stripe -->
 		<div class="efb  col-sm-12 stripe"  id="'.$rndm.'-f">
@@ -1285,9 +1287,9 @@
 			<div class="efb  col-12 text-dark"> '.$texts['payAmount'].'</div>
 			<div class="efb  text-labelEfb mx-2 my-1 fs-7"> <i class="efb mx-1 bi-shield-check"></i><span>Powered by Stripe</span></div>
 		  </div> 
-		  <div class="efb  h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb"  data-formid="'.$form_id.'"> 
-			<span  class="efb  totalpayEfb d-flex justify-content-evenly mx-1"  data-formid="'.$form_id.'">'.number_format(0, 2, '.', ',').'</span>
-			<!-- <span class="efb currencyPayEfb fs-5" id="currencyPayEfb">'.$this->valj_efb[0]->currency.'</span> -->
+		  <div class="efb  h3 col-sm-7 d-flex justify-content-end payPriceEfb" id="payPriceEfb"  data-formid="'.$form_id.'"> 
+			<span  class="efb  totalpayEfb d-flex justify-content-evenly mx-1"  data-formid="'.$form_id.'">'.$amount.'</span>
+			
 			<span class="efb  text-labelEfb '.$cl.' text-capitalize" id="chargeEfb"  data-formid="'.$form_id.'">'.$sub.'</span>
 		  </div>
 		</div>
@@ -1375,6 +1377,7 @@
 
 	/* field builder */
 	public function get_currency_details_efb($currency) {
+		$currency = strtoupper($currency);
 		$symbols = array(
 			'USD' => array('s' => '$', 'd' => 2),
 			'AED' => array('s' => 'د.إ', 'd' => 2),
@@ -1583,7 +1586,8 @@
 	
 
 		$ui = sprintf(
-			'%s
+			'
+			%s
 			%s
 			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" %s data-formid="%s">
 				<label class="efb fs-6" id="%s_off">%s</label>
@@ -1592,7 +1596,7 @@
 				</button>
 				<label class="efb fs-6" id="%s_on">%s</label>
 				<div class="efb mb-3">%s</div>
-			</div>',
+			',
 			$label,
 			$ttip,
 			$pos[3],  // postion
@@ -1616,10 +1620,13 @@
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$classes = str_replace(',', ' ', $vj->classes);
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
-	
+		$required = $vj->required == 1 ? 'required' : '';
+		
 		// ایجاد HTML برای rating element
 		$ui = sprintf(
-			'<div class="efb %s col-sm-12" id="%s-f" data-formid="%s">
+			'%s
+			%s
+			<div class="efb %s col-sm-12" id="%s-f" data-formid="%s">
 				<div class="efb star-efb d-flex justify-content-center %s efb1 %s" data-css="%s" %s>
 					%s
 					%s
@@ -1628,7 +1635,10 @@
 					%s
 				</div>
 				<input type="hidden" data-vid="%s" data-type="rating" class="efb emsFormBuilder_v %s" id="%s-stared" data-formid="%s">
-			</div>',
+				%s
+			',
+			$ttip,
+			$label, 
 			$pos[3], // موقعیت
 			$rndm, $formId, // شناسه و فرم آی‌دی
 			$disabled, $classes, $rndm, // کلاس‌ها و داده‌ها
@@ -1638,7 +1648,8 @@
 			$this->generate_rating_input($rndm, 3, $previewSate, $disabled, $el_height, $texts['stars']),
 			$this->generate_rating_input($rndm, 2, $previewSate, $disabled, $el_height, $texts['stars']),
 			$this->generate_rating_input($rndm, 1, $previewSate, $disabled, $el_height, $texts['stars']),
-			$rndm, $requiredClass, $rndm, $formId
+			$rndm, $requiredClass, $rndm, $formId,
+			$desc
 		);
 	
 		return $ui;
@@ -1649,7 +1660,7 @@
 	private function generate_rating_input($rndm, $starValue, $previewSate, $disabled, $el_height, $starText) {
 		return sprintf(
 			'<input type="radio" id="%s-star%s" data-vid="%s" data-type="rating" class="efb" data-star="star" name="%s-star-efb" value="%s" data-name="star" data-id="%s-el" %s %s>
-			<label id="%s_star%s" for="%s-star%s" %s title="%s stars" class="efb %s star %s"> %s %s </label>',
+			<label id="%s_star%s" for="%s-star%s" %s title="%s stars" class="efb %s star %s"> </label>',
 			$rndm, $starValue, 
 			$rndm, $rndm, $starValue, 
 			$rndm, 
@@ -1703,7 +1714,7 @@
                     %s
                 </select>
                 %s
-            </div>',
+            ',
             $label,
             $pos[3],
             str_replace(',', ' ', $vj->classes),
@@ -1794,6 +1805,49 @@
 		
 		return false;
 	}
+
+	public function fun_imgRadio_efb($id, $link, $row, $state , $text) {
+		// Define the URL processing function
+		$process_url = function($url) {
+			$url = preg_replace('/(http:@efb@)+/', 'http://', $url);
+			$url = preg_replace('/(https:@efb@)+/', 'https://', $url);
+			$url = str_replace('@efb@', '/', $url);
+			return $url;
+		};
+	
+		// Determine value and sub_value based on the state
+		$value = isset($row->value ) ? $row->value :  '';
+		$sub_value = isset($row->sub_value) ? $row->sub_value :  '';
+		error_log(json_encode($row));
+		error_log('value-------------------------->'.$row->value);
+		error_log('sub_value-------------------------->'.$row->sub_value);
+	
+		// Process the link and set the default if necessary
+		
+		$link = $process_url($link);
+	
+		// Return the constructed HTML
+		return sprintf(
+			'<label class="efb" id="%s_lab" for="%s">
+				<div class="efb card col-md-3 mx-0 my-1 w-100" style="">
+					<img src="%s" alt="%s" style="width: 100%%" id="%s_img">
+					<div class="efb card-body">
+						<h5 class="efb card-title text-dark" id="%s_value">%s</h5>
+						<p class="efb card-text" id="%s_value_sub">%s</p>
+					</div>
+				</div>
+			</label>',
+			$id,
+			$id,
+			$link,
+			$value,
+			$id,
+			$id,
+			$value,
+			$id,
+			$sub_value
+		);
+	}
        
 	public function fun_captcha_load_efb($siteKey, $formId) {
 		$captchaHTML = "";
@@ -1826,44 +1880,47 @@
 			<svg viewBox="0 0 120 30" height="15px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
 				<circle cx="15" cy="15" r="15" fill="#abb8c3">
 					<animate attributeName="r" from="15" to="9"
-							 begin="0s" dur="1s"
-							 values="15;9;15" calcMode="linear"
-							 repeatCount="indefinite" />
+							begin="0s" dur="1s"
+							values="15;9;15" calcMode="linear"
+							repeatCount="indefinite" />
 				</circle>
 				<circle cx="60" cy="15" r="9" fill="#abb8c3">
 					<animate attributeName="r" from="9" to="15"
-							 begin="0.3s" dur="1s"
-							 values="9;15;9" calcMode="linear"
-							 repeatCount="indefinite" />
+							begin="0.3s" dur="1s"
+							values="9;15;9" calcMode="linear"
+							repeatCount="indefinite" />
 				</circle>
 				<circle cx="105" cy="15" r="15" fill="#abb8c3">
 					<animate attributeName="r" from="15" to="9"
-							 begin="0.6s" dur="1s"
-							 values="15;9;15" calcMode="linear"
-							 repeatCount="indefinite" />
+							begin="0.6s" dur="1s"
+							values="15;9;15" calcMode="linear"
+							repeatCount="indefinite" />
 				</circle>
 			</svg>';
-			//Powered by Easy Form Builder by white studio team
+
+		// Powered by Easy Form Builder by white studio team
 		$text = esc_html__('Powered by %sEasy Form Builder%s by %swhite studio team%s', 'easy-form-builder');
-		$text = sprintf($text,'<a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank">', '</a>', '<a href="https://whitestudio.team" target="_blank">', '</a>');
+		$text = sprintf($text, '<a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank">', '</a>', '<a href="https://whitestudio.team" target="_blank">', '</a>');
 		$copyRight = '<!-- efb copyRight -->';
 		$efb = esc_html__('Easy Form Builder', 'easy-form-builder');
 		$wp_text = esc_html__('WordPress', 'easy-form-builder');
-		$fr='<!-- efb copyRight -->';
-		$wr = $state == 1 ? '<p class="efb fs-5">'.$texts[1].'</p>' : '';
-		
-		if (strpos(get_locale(), 'fa') !== false ) {
-			$s ='<a href="https://easyformbuilder.ir" target="_blank">فرم ساز وردپرس</a> <a href="https://fa.wordpress.org/plugins/easy-form-builder/" target="_blank">افزونه فرم ساز وردپرس</a>'.$fr; ;
-		}else if (strpos(get_locale(), 'en') == false){
+		$fr = '<!-- efb copyRight -->';
+		$wr = $state == 1 ? '<p class="efb fs-5">' . $texts[1] . '</p>' : '';
+
+		if (strpos(get_locale(), 'fa') !== false) {
+			$s = '<a href="https://easyformbuilder.ir" target="_blank">فرم ساز وردپرس</a> <a href="https://fa.wordpress.org/plugins/easy-form-builder/" target="_blank">افزونه فرم ساز وردپرس</a>' . $fr;
+		} else if (strpos(get_locale(), 'en') == false) {
 			$f = substr(get_locale(), 0, 2);
-			$s = '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank">'.$efb.' '. $wp_text.'</a>'.$fr;
+			$s = '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank">'.$efb.' '. $wp_text.'</a>' . $fr;
 		}
-		//state can be used for user setting to show or hide the copy right
-		error_log('state:'.$state);
-		error_log('pro:'.$pro);
-		if($state == 1 && $pro != 1){
-			$copyRight = '<div class="efb">  <h2 class="efb fs-8">'.$text.'</h2>
-							<h3 class="efb fs-8 d-none">'.$s.'</h3>
+
+		// state can be used for user setting to show or hide the copy right
+		error_log('state:' . $state);
+		error_log('pro:' . $pro);
+
+		if ($state == 1 && $pro != 1) {
+			$copyRight = '<div class="efb">  <h2 class="efb fs-8">' . $text . '</h2>
+							<h3 class="efb fs-8 d-none">' . $s . '</h3>
 						</div>';
 		}
 	
@@ -1898,8 +1955,7 @@
 		}
 	
 		// Set alignment and corner styles
-		error_log('-===============---->corner');
-		error_log($valj_efb[0]->corner);
+
 		$corner = property_exists($valj_efb[0], 'corner') ? $valj_efb[0]->corner : 'efb-square';
 		$btns_align = property_exists($valj_efb[0], 'btns_align') ? $valj_efb[0]->btns_align . ' mx-3' : 'justify-content-center';
 
@@ -1908,7 +1964,7 @@
 	
 		// Single button display
 		$s = sprintf(
-			'<div class="efb d-flex %s %s text-center efb" id="f_btn_send_efb" data-tag="buttonNav" data-formid="%s">
+			'<div class="efb d-flex %s %s text-center efb mx-3" id="f_btn_send_efb" data-tag="buttonNav" data-formid="%s">
 				<a id="btn_send_efb" role="button" class="efb text-decoration-none mx-0 btn p-2 %s %s %s %s efb-btn-lg" data-formid="%s">%s<span id="button_group_button_single_text" class="efb %s" >%s</span></a>
 			</div>',
 			$btns_align,
@@ -2074,7 +2130,7 @@
 						$vj->el_text_color,
 						$classes,
 						$form_id,
-						$form_id,
+						'range',
 						'range', // نوع ورودی
 						$requiredAttr,
 						$minlen,
@@ -2118,32 +2174,33 @@
 			
 				case "textarea":
 					$minlen = isset($vj->milen) && $vj->milen > 0 ? 'minlength="' . $vj->milen . '"' : '';
+					
 					$ui = sprintf('
 						%1$s
 						<div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f">
 							%4$s
-							<textarea id="%3$s_" placeholder="%5$s" class="efb px-2 input-efb emsFormBuilder_v form-control w-100 %6$s %7$s %8$s %9$s %10$s efbField efb1 %11$s" data-css="%3$s" data-vid="%3$s" data-id="%3$s-el"  data-formid="%19$s" value="%12$s" aria-required="%13$s" aria-label="%14$s" %15$s rows="5" %16$s %17$s>%18$s</textarea>
+							<textarea id="%3$s_" placeholder="%5$s" class="efb px-2 input-efb emsFormBuilder_v form-control w-100 %6$s %7$s %8$s %9$s %10$s efbField efb1 %11$s" data-css="%3$s" data-vid="%3$s" data-id="%3$s-el"  data-formid="%20$s" value="%12$s" aria-required="%13$s" aria-label="%14$s" %15$s rows="5" %16$s %17$s>%18$s</textarea>
 							%19$s',
-						$label,
-						$pos[3],
-						$element_Id,
-						$ttip,
-						$vj->placeholder,
-						($vj->required == 1 ? 'required' : ''),
-						$vj->el_height,
-						$corner,
-						$vj->el_text_color,
-						$classes,
-						 '',
-						$vj->value,
-						($vj->required == 1 ? 'true' : 'false'),
-						$vj->name,
-						$aire_describedby,
-						$disabled,
-						$minlen,
-						$this->text_nr_efb($vj->value, 0),
-						$desc,
-						$form_id
+							$label,  // %1$s
+							$pos[3],  // %2$s
+							$element_Id,  // %3$s
+							$ttip,  // %4$s
+							$vj->placeholder,  // %5$s
+							($vj->required == 1 ? 'required' : ''),  // %6$s
+							$vj->el_height,  // %7$s
+							$corner,  // %8$s
+							$vj->el_text_color,  // %9$s
+							$classes,  // %10$s
+							'',  // %11$s
+							$vj->value,  // %12$s
+							($vj->required == 1 ? 'true' : 'false'),  // %13$s
+							$vj->name,  // %14$s
+							$aire_describedby,  // %15$s
+							$disabled,  // %16$s
+							$minlen,  // %17$s
+							$this->text_nr_efb($vj->value, 0),  // %18$s
+							$desc,  // %19$s
+							$form_id  // %20$s
 
 					);
 					$dataTag = "textarea";
@@ -2216,7 +2273,6 @@
 							}
 						});
 						$currency = isset($this->valj_efb[0]->currency) ? $this->valj_efb[0]->currency : 'USD';
-						
 						$optn = '';
 						foreach ($optns_obj as $i) {
 							$checked = "";
@@ -2225,6 +2281,9 @@
 							} elseif ((strpos($tp, "multi") !== false || strpos($tp, "checkbox") !== false) && is_array($parent->value) && array_search($i->id_, $parent->value) !== false) {
 								$checked = "checked";
 							}
+							error_log(json_encode($i));
+							// $id, $link, $row, $state = true, $text
+							$imageRadio = $elementId == "imgRadio" ? $this->fun_imgRadio_efb($i->id_, $i->src, $i,true, $texts) : '';
 							$prc = isset($i->price) ? intval($i->price) : 0;
 							if($pay!='') $prc = $this->formatPrice_efb($prc, $currency );
 							$optn .= sprintf(
@@ -2258,7 +2317,7 @@
 								'',
 								$disabled,
 								$checked,
-								$elementId != 'imgRadio' ? sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', isset($vj->pholder_chl_value) ? 'col-8' : '', $vj->el_text_color, $vj->el_height, $vj->label_text_size, $i->id_, $i->id_, $this->fun_get_links_from_string_Efb($i->value, true)) : $this->fun_imgRadio_efb($i->id_, $i->src ?? '', $i),
+								$elementId != 'imgRadio' ? sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', isset($vj->pholder_chl_value) ? 'col-8' : '', $vj->el_text_color, $vj->el_height, $vj->label_text_size, $i->id_, $i->id_, $this->fun_get_links_from_string_Efb($i->value, true)) : $imageRadio,
 								strpos($elementId, 'chl') !== false ? sprintf('<input type="text" class="efb %s %s checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="%s" data-type="%s" data-vid="" id="%s_chl" placeholder="%s" disabled>', $vj->el_text_color, $vj->el_height, $i->id_, $dataTag, $i->id_, $vj->pholder_chl_value) : '',
 								strlen($pay) > 2 ? sprintf('<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="%s-price" class="efb efb-crrncy">%s</span></span>', $i->id_, $prc):''
 							);
@@ -2273,8 +2332,7 @@
 								<div class="efb %s %s %s efb1 %s" data-css="%s" %s id="%s_options">
 									%s
 								</div>
-								<div class="efb mb-3">%s</div>
-							</div>
+								<div class="efb mb-3">%s</div>							
 							<!-- end checkbox -->',
 							$label,
 							$pos[3],
@@ -2303,31 +2361,39 @@
 				break;	
 				case 'maps':
 
-					$lat = isset($valj_efb[$randomId]['lat']) ? $valj_efb[$randomId]['lat'] : '0';
-					$lng = isset($valj_efb[$randomId]['lng']) ? $valj_efb[$randomId]['lng'] : '0';
-					$zoom = isset($valj_efb[$randomId]['zoom']) ? $valj_efb[$randomId]['zoom'] : '8';
-					$formId = isset($valj_efb[0]['formId']) ? $valj_efb[0]['formId'] : '';
-					
+					$lat = isset($vj->lat) ? $vj->lat : '0';
+					$lng = isset($vj->lng) ? $vj->lng : '0';
+					$zoom = isset($vj->zoom) ? $vj->zoom : '8';
+					$formId = $form_id;
+					$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
+					$el_height = isset($vj->el_height) ? $vj->el_height : '300px';
+					$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $element_Id . '-des"' : '';
+					$message = $vj->message;
+
 					// تولید HTML المان نقشه با استفاده از sprintf و اضافه کردن formId
+					//1$s
 					$ui .= sprintf(
-						"<div class='efb col-md-12' id='%s-f' data-formid='%s'>
-							<label for='%s_' class='efb form-label text-labelEfb'>
-								<span>%s</span>
-								<span class='text-danger' role='none'>%s</span>
+						"<div class='efb col-md-12' id='%1\$s-f' data-formid='%2\$s'>
+							<label for='%1\$s_' class='efb form-label text-labelEfb'>
+								<span>%3\$s</span>
+								<span class='text-danger' role='none'>%4\$s</span>
 							</label>
-							<div class='efb maps-efb maps-os' id='%s-map' style='height: %s;' data-formid='%s' data-lat='%s' data-lng='%s' data-zoom='%s' data-id='%s-el' %s></div>
-							<input type='hidden' name='%s-lat' id='%s_lat' value='%s' class='efb emsFormBuilder_v' data-type='maps' data-vid='%s' %s>
-							<input type='hidden' name='%s-lng' id='%s_lng' value='%s' class='efb emsFormBuilder_v' data-type='maps' data-vid='%s' %s>
-							<small id='%s-des' class='form-text text-muted'>%s</small>
+							<div class='efb maps-efb maps-os' id='%1\$s-map' style='height: %5\$s;' data-formid='%2\$s' data-lat='%6\$s' data-lng='%7\$s' data-zoom='%8\$s' data-id='%1\$s-el' %9\$s></div>
+							<input type='hidden' name='%1\$s-lat' id='%1\$s_lat' value='%6\$s' class='efb emsFormBuilder_v' data-type='maps' data-vid='%1\$s' %10\$s>
+							<input type='hidden' name='%1\$s-lng' id='%1\$s_lng' value='%7\$s' class='efb emsFormBuilder_v' data-type='maps' data-vid='%1\$s' %10\$s>
+							<small id='%1\$s-des' class='form-text text-muted'>%11\$s</small>
 						</div>",
-						$randomId, $formId, // شناسه بخش و formId به عنوان data-set
-						$randomId, $label, // لیبل نقشه
-						($required ? '*' : ''), // نشانه نیاز به پر شدن
-						$randomId, $el_height, $lat, $lng, $zoom, $randomId, // تنظیمات نقشه
-						$ariaDescribedBy, // توصیف برای دسترسی‌پذیری
-						$randomId, $randomId, $lat, $randomId, $required, // عرض جغرافیایی
-						$randomId, $randomId, $lng, $randomId, $required, // طول جغرافیایی
-						$randomId, $message // پیغام
+						$element_Id,  // %1$s
+						$formId,      // %2$s
+						$label,       // %3$s
+						($required ? '*' : ''), // %4$s
+						$el_height,   // %5$s
+						$lat,         // %6$s
+						$lng,         // %7$s
+						$zoom,        // %8$s
+						$ariaDescribedBy, // %9$s
+						$required,    // %10$s
+						$message      // %11$s
 					);
 		
 	
@@ -2351,11 +2417,11 @@
 								efbCreateMap_%s();
 							});
 						</script>",
-						$randomId, // شناسه نقشه برای اطمینان از یکتایی
-						$randomId, $lat, $lng, $zoom, // تنظیمات اولیه نقشه
+						$element_Id, // شناسه نقشه برای اطمینان از یکتایی
+						$element_Id, $lat, $lng, $zoom, // تنظیمات اولیه نقشه
 						$lat, $lng, // موقعیت اولیه مارکر
-						$randomId, $randomId, // به‌روزرسانی عرض و طول در inputهای مخفی
-						$randomId // شناسه تابع جاوااسکریپت برای بارگذاری نقشه
+						$element_Id, $element_Id, // به‌روزرسانی عرض و طول در inputهای مخفی
+						$element_Id // شناسه تابع جاوااسکریپت برای بارگذاری نقشه
 					);
 					if ($pro!==true &&  $pro!==1) {
 						$ui = $this->public_pro_message_efb($texts['tfnapca']);
@@ -2363,11 +2429,13 @@
 					break;
 					$dataTag = "maps";
 				break;
-				case 'switch':
+			/* 	case 'switch':
 					// switch_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts)
+					$ui ="<!-- switch -->";
 					$ui = $pro == true ? $this->switch_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts)  : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui .="<!-- switch -->";
 					$dataTag = $elementId;
-				break;
+				break; */
 				case 'rating':
 
 					$ui = $pro == true ? $this->rating_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts) : $this->public_pro_message_efb($texts['tfnapca']);
@@ -2474,6 +2542,67 @@
 					$dataTag = $elementId;
 
 				break;
+				case 'prcfld':
+					if($pro!==true && $pro!==1){
+						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						break;
+					}
+					$maxlen = (property_exists($vj, 'mlen') && $vj->mlen > 0) ? 'maxlength="' . $vj->mlen . '"' : '';
+    
+					// Set minlength attribute
+					$minlen = (property_exists($vj, 'milen') && $vj->milen > 0) ? 'minlength="' . $vj->milen . '"' : '';
+					
+					// Determine currency symbol
+					$dataTag = (!property_exists($this->valj_efb[0], 'currency')) ? 'usd' : $this->valj_efb[0]->currency;
+					//convert to up
+					
+					$classes = $this->get_currency_details_efb($dataTag);
+					
+					$dataTagHtml = '<span class="efb input-group-text crrncy-clss">' . $classes['s'] . '</span>';
+					
+					// Set additional classes
+					$classes = 'form-control ' . $vj->el_border_color;
+					
+					// Generate UI
+					$ui = sprintf(
+						'%s
+						<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" data-formId="%s">
+							%s
+							<div class="efb input-group m-0 p-0">
+								%s
+								<input type="number" class="efb input-efb px-2 mb-0 payefb emsFormBuilder_v %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-css="%s" id="%s_" placeholder="%s" %s %s %s %s %s %s>
+								%s
+							</div>
+							%s',
+						$label, // Label for the input
+						$pos[3], // Position
+						$rndm, // Random ID
+						$form_id, // Form ID
+						$ttip, // Tooltip
+						is_rtl() ? '' : $dataTagHtml, // Currency symbol on the left for LTR
+						$classes, // Input classes
+						$vj->el_height, // Element height
+						$corner, // Border radius
+						$vj->el_text_color, // Text color
+						($vj->required == 1 || $vj->required == true) ? 'required' : '', // Required attribute
+						str_replace(',', ' ', $vj->classes), // Additional classes
+						$rndm, // Data ID
+						$rndm, // Data vid
+						$rndm, // CSS ID
+						$rndm, // Element ID
+						htmlspecialchars($vj->placeholder), // Placeholder text
+						($vj->value && strlen($vj->value) > 0) ? 'value="' . htmlspecialchars($vj->value) . '"' : '', // Value attribute
+						$aire_describedby, // Aria described by
+						$maxlen, // Maxlength attribute
+						$minlen, // Minlength attribute
+						'', // Readonly attribute
+						$disabled == 'disabled' ? 'readonly' : '', // Disabled attribute
+						is_rtl() ? $dataTagHtml : '', // Currency symbol on the right for RTL
+						$desc // Description
+					);
+
+					$dataTag = $elementId;
+				break;
 				case 'ttlprc':
 					if($pro!==true && $pro!==1){
 						$ui =$this->public_pro_message_efb($texts['tfnapca']);
@@ -2482,8 +2611,17 @@
 					//totalprice_el_pro_efb($rndm, $vj ,$currency)
 					$currency = isset($this->valj_efb[0]->currency) ? $this->valj_efb[0]->currency : 'USD';
 					$r  = $this->totalprice_el_pro_efb($rndm, $vj ,$currency,$form_id);
+					$class = isset($vj->classes) ? $vj->classes : '';
 				
-					$ui = "" . $label ."<div class='efb $pos[3] col-sm-12 pt-2 pb-1 px-0 mx-0 ttEfb show'  id='$rndm-f'> ". $r  .$desc ;
+					$ui = sprintf(
+						'%s<div class="efb %s col-sm-12 pt-2 pb-1 px-0 mx-0 ttEfb show %s" id="%s-f">%s%s</div>',
+						$label,  // %s
+						$pos[3],  // %s
+						$class,  // %s
+						$rndm,  // %s
+						$r,  // %s
+						$desc  // %s
+					);
 				break;
 				case 'stripe':
 					if($pro!==true && $pro!==1){
@@ -2501,6 +2639,7 @@
 					$ui = $this->add_ui_stripe_efb($rndm , $cl, $sub,$form_id,$texts);
 				
 					$dataTag = $elementId;
+				break;
 				case "persiaPay":
 				case "zarinPal":
 
@@ -2557,7 +2696,7 @@
 		}
 	}
 
-	function show_user_profile_emsFormBuilder($text_logout, $formId) {
+	public function show_user_profile_emsFormBuilder($text_logout, $formId) {
 		// Sanitize and escape output for security
 		$user_login = wp_get_current_user();
 		$display_name = esc_html($user_login->display_name);
@@ -2589,4 +2728,131 @@
 			$logout_text
 		);
 	}
-    }
+
+
+	public function addStyleColorBodyEfb($t, $c, $type, $id, $vj) {
+		// Determine type based on id and default assignment
+		$ttype = ($id == -1) ? $type : $vj->type;
+		
+		// Set the color style for CSS
+		$v = ".$t { color: $c !important; }";
+		$tag = "";
+	
+		// Switch-case to determine the tag type
+		switch ($ttype) {
+			case 'textarea':
+				$tag = "textarea";
+				break;
+			case 'text':
+			case 'password':
+			case 'email':
+			case 'number':
+			case 'image':
+			case 'date':
+			case 'tel':
+			case 'url':
+			case 'range':
+			case 'color':
+			case 'checkbox':
+			case 'radiobutton':
+			case 'prcfld':
+				$tag = "input";
+				break;
+			case 'btn':
+				$tag = "btn";
+				break;
+			default:
+				$tag = "";
+				break;
+		}
+	
+		// Ensure color starts with '#' if not already
+		if ($c[0] != "#") $c = "#$c";
+	
+		// Call helper function to add custom style
+		return $this->efb_add_custom_color($t, $c, $v, $type);
+	}
+	
+	public function efb_add_custom_color($t, $c, $v, $type) {
+		$n = '';
+		if ($c[0] != "#") $c = "#$c";
+	
+		// Determine style class based on type
+		if ($type == "text") {
+			$n = "{$type}-$t";
+			$v = ".$n { color: $c !important; }";
+		} elseif ($type == "icon") {
+			$n = "text-$t";
+			$v = ".$n { color: $c !important; }";
+		} elseif ($type == "border") {
+			$n = "{$type}-$t";
+			$v = ".$n { border-color: $c !important; }";
+		} elseif ($type == "bg") {
+			$n = "{$type}-$t";
+			$v = ".$n { background-color: $c !important; }";
+		} elseif ($type == "btn") {
+			$n = "{$type}-$t";
+			$v = ".$n { background-color: $c !important; }";
+		}
+	
+		// Inject style into the page		
+		return $v;
+	}
+	
+	public function fun_addStyle_customize_efb($val, $key, $vj) {
+		// Check if the value includes 'colorDEfb' and set type and color
+		if (strpos($val, 'colorDEfb') !== false) {
+			$type = "";
+			$color = "";
+	
+			switch ($key) {
+				case 'button_color':
+					$type = "btn";
+					$color = isset($vj->style_btn_color) ? $vj->style_btn_color : '';
+					break;
+				case 'icon_color':
+					$type = "icon";
+					$color = isset($vj->style_icon_color) ? $vj->style_icon_color : '';
+					break;
+				case 'el_text_color':
+					$type = "text";
+					$color = isset($vj->style_el_text_color) ? $vj->style_el_text_color : '';
+					break;
+				case 'label_text_color':
+					$type = "text";
+					$color = isset($vj->style_label_color) ? $vj->style_label_color : '';
+					break;
+				case 'message_text_color':
+					$type = "text";
+					$color = isset($vj->style_message_text_color) ? $vj->style_message_text_color : '';
+					break;
+				case 'el_border_color':
+					$type = "border";
+					$color = isset($vj->style_border_color) ? $vj->style_border_color : '';
+					break;
+				case 'clrdoneTitleEfb':
+					$type = "text";
+					$color = isset($vj->clrdoneTitleEfb) ? substr($vj->clrdoneTitleEfb, -7) : '';
+					break;
+				case 'clrdoniconEfb':
+					$type = "text";
+					$color = isset($vj->clrdoniconEfb) ? substr($vj->clrdoniconEfb, -7) : '';
+					break;
+				case 'clrdoneMessageEfb':
+					$type = "text";
+					$color = isset($vj->clrdoneMessageEfb) ? substr($vj->clrdoneMessageEfb, -7) : '';
+					break;
+				case 'prg_bar_color':
+					$type = "btn";
+					$color = isset($vj->prg_bar_color) ? substr($vj->prg_bar_color, -7) : '';
+					break;
+			}
+	
+			// Call addStyleColorBodyEfb if color is set
+			if ($color != "") {
+				return $this->addStyleColorBodyEfb("colorDEfb-" . substr($color, 1), substr($color, -6), $type, -1, $vj);
+			}
+		}
+	}
+	
+}
