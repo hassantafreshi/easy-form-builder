@@ -587,11 +587,18 @@ function fun_point_rating(el) {
           l.className = btnChangerEfb(l.className, 'btn-secondary');
       }
   }
+  console.log(id, el.dataset.point,el);
   document.getElementById(id + '-point-rating').value = el.dataset.point;
+  let form_id =0;
   if(state_efb=='run'){
+    if(valj_efb_new){
+      console.log(el.dataset)
+        form_id = el.dataset.formid;
+        fun_valj_efb_run(form_id)
+    }
       const v = valj_efb.find(x=>x.id_ ==id);
       if(v.type=="r_matrix"){
-          const o = [{ id_ob: v.id_, name: v.value,id_:v.parent, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
+          const o = [{ id_ob: v.id_, name: v.value,id_:v.parent, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder, form_id: form_id }];
       fun_sendBack_emsFormBuilder(o[0]);
           const l = valj_efb.filter(obj => {
               return obj.parent == v.parent
@@ -607,7 +614,7 @@ function fun_point_rating(el) {
               }, 500);
           }
       }else{
-      const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
+      const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder, form_id: form_id }];
       fun_sendBack_emsFormBuilder(o[0]);
       }
   }
@@ -1373,4 +1380,11 @@ fun_remove_row_sendback_efb=(id)=>{
       }
     }
   }
+}
+
+fun_valj_efb_run=(form_id)=>{
+  console.log(form_id ,valj_efb_new);
+  const r = valj_efb_new.find(x=>x.id ==form_id);
+  console.log('fun_valj_efb_run',r);
+        valj_efb = r.structure;
 }

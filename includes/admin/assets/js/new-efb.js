@@ -1837,10 +1837,11 @@ function previewFormEfb(state) {
   } catch {
     console.error(`Preview of Pc Form has an Error`)
   }
-  if (state != 'mobile') (valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true) ? logic_handle_navbtn_efb(valj_efb[0].steps, 'pc'):  handle_navbtn_efb(valj_efb[0].steps, 'pc')
+  if (state != 'run') (valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true) ? logic_handle_navbtn_efb(valj_efb[0].steps, 'pc'):  handle_navbtn_efb(valj_efb[0].steps, 'pc')
   if (state == 'run') {
     sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';
     createStepsOfPublic()
+    
   }
   else if(state == 'pc'){    
     for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
@@ -1872,7 +1873,7 @@ function previewFormEfb(state) {
   }
   }
 }
-function fun_prev_send() {
+/* function fun_prev_send() {
   var stp = Number(valj_efb[0].steps) + 1;
   document.getElementById('efb-final-step').innerHTML = loading_messge_efb();
   var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
@@ -1899,7 +1900,7 @@ function fun_prev_send() {
   current_s_efb -= 1;
   localStorage.setItem('step', current_s_efb);
   setProgressBar_efb(current_s_efb, stp);
-}
+} */
 function verifyCaptcha(token) {
   if (token.length > 1) {
     const id = valj_efb[0].steps > 1 ? 'next_efb' : 'btn_send_efb'
@@ -1923,6 +1924,7 @@ fun_el_check_radio_in_efb = (el) => {
    // return el == 'radio' || el == 'checkbox' || el == 'payRadio' || el == 'payCheckbox' || el == 'imgRadio' || el == 'chlRadio' || el == 'chlCheckBox' ? true : false 
   }
 function fun_validation_efb() {
+  console.log('fun_validation_efb 1972')
   let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
   let state = true;
@@ -2732,6 +2734,7 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
   if (found) {
     filtered = filtered.trim().replace(/ +/g, ' ');
   }
+  console.log(filtered);
   return filtered;
 }
 valNotFound_efb=()=>{  
@@ -2802,6 +2805,26 @@ lan_subdomain_wsteam_efb=()=>{
   else if(efb_var.language == 'ar' || efb_var.language == 'ary' ||  efb_var.language == 'arq'){ sub = 'ar.'; }
   //console.log(`subdomain => ${sub}`);
   return sub;
+}
+
+sendback_state_handler_efb=(id_,state,step)=>{
+  const indx = sendback_efb_state.findIndex(x=>x.id_==id_);
+  if(indx==-1 && state==false){
+    sendback_efb_state.push({id_:id_,state:state,step:step})
+    if(document.getElementById('btn_send_efb') && document.getElementById('btn_send_efb').classList.contains('disabled')==false )document.getElementById('btn_send_efb').classList.add('disabled');
+    else if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('disabled')==false )document.getElementById('next_efb').classList.add('disabled');
+  }else if(indx>-1 && state==true && sendback_efb_state.length>0){
+    //remove for  sendback_efb_state by id_
+    sendback_efb_state.splice(indx,1);
+    //get sendback_efb_state by step if exists return true else return false
+    setTimeout(() => {
+      const indx_ = sendback_efb_state.findIndex(x=>x.step==step);
+      if(indx_==-1 || sendback_efb_state.length==0){
+        if(document.getElementById('btn_send_efb'))document.getElementById('btn_send_efb').classList.remove('disabled');
+        else if(document.getElementById('next_efb'))document.getElementById('next_efb').classList.remove('disabled');
+      }      
+    }, 200);
+  }
 }
 function handle_change_event_efb(el){  
     slice_sback=(i)=>{
@@ -3076,9 +3099,10 @@ function handle_change_event_efb(el){
     const form_id = el.dataset.hasOwnProperty('formid') ? el.dataset.formid : 0;
     if(state==false && value.length > 0)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
     if (value != "" || value.length > 0) {
+
       const type = ob.type;
       const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
-      let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];      
+      let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder,form_id:  form_id }];      
       if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,true,current_s_efb);
       if (el.classList.contains('payefb')) {
         let q = valueJson_ws.find(x => x.id_ === el.id);
@@ -3090,7 +3114,7 @@ function handle_change_event_efb(el){
         }
         Object.assign(o[0], p)
         console.log('3090');
-        Object.assign(o[0], {form_id:  form_id});
+        
         fun_sendBack_emsFormBuilder(o[0]);
         fun_total_pay_efb()
       }else if(type.includes('chl')){
@@ -3103,16 +3127,16 @@ function handle_change_event_efb(el){
           ob.qty=fun_text_forbiden_convert_efb(qty);
           o[0]="";
         }
-        Object.assign(o[0], {form_id:  form_id});
+        
         console.log('3102',el);
         fun_sendBack_emsFormBuilder(o[0]);
       }else if (o[0].type=="email"){
-        Object.assign(o[0], {form_id:  form_id});
+        
         console.log('3105',el);
         fun_sendBack_emsFormBuilder(o[0]);
       }else {
         console.log('3108',el);
-        Object.assign(o[0], {form_id:  form_id});
+        
         fun_sendBack_emsFormBuilder(o[0]);
       }
     }

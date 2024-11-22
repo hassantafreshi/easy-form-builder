@@ -185,8 +185,8 @@
 
 	/* field builder */
 	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id) {
-		error_log('generateTextInput_efb');
-		error_log(json_encode($lenAttributes));
+		// error_log('generateTextInput_efb');
+		// error_log(json_encode($lenAttributes));
 		$corener = isset($vj->corner) ? $vj->corner : 'efb-square';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$value = !empty($vj->value) ? 'value="' . $vj->value . '"' : '';
@@ -342,9 +342,9 @@
         $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
             return isset($obj->parent) && $obj->parent === $rndm;
         });
-        error_log('optns_obj:'.json_encode($optns_obj));
+        // error_log('optns_obj:'.json_encode($optns_obj));
         foreach ($optns_obj as $i) {
-			error_log('optns_obj:'.json_encode($i));
+			// error_log('optns_obj:'.json_encode($i));
             $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
            /*  $options .= sprintf(
                 '<option class="efb %s emsFormBuilder_v efb" data-id="%s" data-op="%s" value="%s" %s>%s</option>',
@@ -366,7 +366,7 @@
 					$selected,
 					$i->value
 				);
-				error_log('options:'.$options);
+				// error_log('options:'.$options);
         }
 
 				/* 
@@ -543,8 +543,8 @@
 		//$indx_parent = array_search($rndm, array_column($this->valj_efb, 'id_'));
 		$s = isset($vj->value) && count($vj->value) > 0 ? true : false;
 	
-		error_log('type $this->$vj->value:'.gettype($vj->value));
-		error_log('$this->$vj->value:'.json_encode($vj->value));
+		// error_log('type $this->$vj->value:'.gettype($vj->value));
+		// error_log('$this->$vj->value:'.json_encode($vj->value));
 		foreach ($optns_obj as $i) {
 			$c = "efb bi-square efb";
 			if ($s && in_array($i->id_, $vj->value)) {
@@ -586,8 +586,8 @@
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 	
-		error_log('va: '.$va);
-		error_log('sl: '.$sl);
+		// error_log('va: '.$va);
+		// error_log('sl: '.$sl);
 		$ui = sprintf(
 			'%s
 			<!--multiselect-->
@@ -832,7 +832,7 @@
 	
 	public function pointer5_el_pro_efb($previewSate, $vj, $form_id) {
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
-		$previewSate = $previewSate != true ? 'disabled' : '';
+		$previewSate =  '';
 		$id = $vj->id_;
 		$message = $vj->message != '' ? 'aria-describedby="' . $id . '-des"' : '';
 		$classes = str_replace(',', ' ', $vj->classes);
@@ -849,7 +849,7 @@
 			$classes,         // %1$s
 			$id,              //  %2$s
 			$id,              // %3$s
-			$form_id,         // %4$s
+			$form_id,         // %4$s			
 			$message,         // %5$s	
 			$previewSate, $disabled, $id, $form_id, // first star
 			$previewSate, $disabled, $id, $form_id, // second star
@@ -1107,8 +1107,8 @@
 	/* field builder */
 	public function esign_el_pro_efb($previewSate,$pos, $rndm, $vj,$message, $formId,$updateUrbrowser) {
 		// true, $pos, $rndm, $vj, $desc
-		error_log('esign_el_pro_efb');
-		error_log('esign_el_pro_efb: '.json_encode($vj));
+		// error_log('esign_el_pro_efb');
+		// error_log('esign_el_pro_efb: '.json_encode($vj));
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$required = $vj->required == 1 || $vj->required == true ? 'required' : '';
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
@@ -1530,7 +1530,7 @@
 	public function ColorNameToHexEfbOfElEfb($v, $n) {	
 		// ColorNameToHexEfbOfElEfb(color.slice(4),'btn') // slice text=5 bg=2 border=6 btn=3 icon=4
 		// ColorNameToHexEfbOfElEfb(color.slice(7),'border') // slice text=5 bg=2 border=6 btn=3     
-		error_log('ColorNameToHexEfbOfElEfb v:'.$v .' n:'.$n);
+		// error_log('ColorNameToHexEfbOfElEfb v:'.$v .' n:'.$n);
 		$color_map = [
 			"primary" => '#0d6efd',
 			"success" => '#198754',
@@ -1569,7 +1569,7 @@
 				$r = '';
 			}
 		}
-		error_log($r);
+		// error_log($r);
 		return $r;
 	}
 
@@ -1675,14 +1675,14 @@
     /* field builder */
 
     public function generate_select_efb($elementId, $rndm, $vj, $pos, $formId, $texts, $previewSate ,$desc,$label,$ttip,$aire_describedby ) {
-        error_log('>>generate_select_efb');
-        error_log('elementId:'.$elementId);
+        // error_log('>>generate_select_efb');
+        // error_log('elementId:'.$elementId);
         $pay = $elementId != "paySelect" ? '' : 'pay';
         $options = '';
         $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
             return isset($obj->parent) && $obj->parent === $rndm;
         });
-        error_log('optns_obj:'.json_encode($optns_obj));
+        // error_log('optns_obj:'.json_encode($optns_obj));
         foreach ($optns_obj as $i) {
             $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
             $options .= sprintf(
@@ -1818,9 +1818,9 @@
 		// Determine value and sub_value based on the state
 		$value = isset($row->value ) ? $row->value :  '';
 		$sub_value = isset($row->sub_value) ? $row->sub_value :  '';
-		error_log(json_encode($row));
-		error_log('value-------------------------->'.$row->value);
-		error_log('sub_value-------------------------->'.$row->sub_value);
+		// error_log(json_encode($row));
+		// error_log('value-------------------------->'.$row->value);
+		// error_log('sub_value-------------------------->'.$row->sub_value);
 	
 		// Process the link and set the default if necessary
 		
@@ -1915,11 +1915,11 @@
 		}
 
 		// state can be used for user setting to show or hide the copy right
-		error_log('state:' . $state);
-		error_log('pro:' . $pro);
+		// error_log('state:' . $state);
+		// error_log('pro:' . $pro);
 
 		if ($state == 1 && $pro != 1) {
-			$copyRight = '<div class="efb">  <h2 class="efb fs-8">' . $text . '</h2>
+			$copyRight = '<div class="efb d-none" id="copyrightEfb">  <h2 class="efb fs-8">' . $text . '</h2>
 							<h3 class="efb fs-8 d-none">' . $s . '</h3>
 						</div>';
 		}
@@ -1965,7 +1965,7 @@
 		// Single button display
 		$s = sprintf(
 			'<div class="efb d-flex %s %s text-center efb mx-3" id="f_btn_send_efb" data-tag="buttonNav" data-formid="%s">
-				<a id="btn_send_efb" role="button" class="efb text-decoration-none mx-0 btn p-2 %s %s %s %s efb-btn-lg" data-formid="%s">%s<span id="button_group_button_single_text" class="efb %s" >%s</span></a>
+				<a id="btn_send_efb" role="button" class="efb text-decoration-none mx-0 btn p-2 %s %s %s %s efb-btn-lg btn_send_efb" data-formid="%s" data-currentstep="1" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_button_single_text" class="efb %s" >%s</span></a>
 			</div>',
 			$btns_align,
 			$state == 0 ? 'd-block' : 'd-none',
@@ -1975,6 +1975,9 @@
 			$corner,
 			$valj_efb[0]->el_height,
 			$formId,
+			$formId,
+			$valj_efb[0]->type,
+			'btn_send_efb',
 			(strlen($valj_efb[0]->icon) > 3 && $valj_efb[0]->icon != 'bi-undefined' ? sprintf('<i class="efb %s mx-2 %s %s" id="button_group_icon"></i>', $valj_efb[0]->icon, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : ''),
 			$valj_efb[0]->el_text_color,
 			$valj_efb[0]->button_single_text
@@ -1983,8 +1986,8 @@
 		// Navigation buttons
 		$d = sprintf(
 			'<div class="efb d-flex %s %s %s text-center efb" id="f_button_form_np" data-formid="%s" data-step="1">
-				<a id="prev_efb"  data-formid="%s" data-step="1" role="button" class="efb text-decoration-none btn p-2  %s %s %s efb-btn-lg m-1 d-none">%s<span id="button_group_Previous_button_text" class="efb %s">%s</span></a>
-				<a id="next_efb"  data-formid="%s" data-step="1" role="button" class="efb text-decoration-none btn %s p-2 %s %s %s efb-btn-lg m-1"><span id="button_group_Next_button_text" class="efb %s">%s</span>%s</a>
+				<a id="prev_efb"  data-formid="%s" data-currentstep="1" role="button" class="efb text-decoration-none btn p-2  %s %s %s efb-btn-lg m-1 d-none prev_efb" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_Previous_button_text" class="efb %s">%s</span></a>
+				<a id="next_efb"  data-formid="%s" data-currentstep="1" role="button" class="efb text-decoration-none btn %s p-2 %s %s %s efb-btn-lg m-1 next_efb" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)"><span id="button_group_Next_button_text" class="efb %s">%s</span>%s</a>
 			</div>',
 			$btns_align,
 			$state == 1 ? 'd-block' : 'd-none',
@@ -1994,14 +1997,20 @@
 			$valj_efb[0]->button_color,
 			$corner,
 			$valj_efb[0]->el_height,
+			$formId,
+			$valj_efb[0]->type,
+			'prev_efb',
 			$prev_icon,
 			$valj_efb[0]->el_text_color,
 			$valj_efb[0]->button_Previous_text,
-			$formId,
+			$formId,			
 			$dis,
 			$valj_efb[0]->button_color,
 			$corner,
 			$valj_efb[0]->el_height,
+			$formId,
+			$valj_efb[0]->type,
+			'next_efb',
 			$valj_efb[0]->el_text_color,
 			$valj_efb[0]->button_Next_text,
 			$next_icon
@@ -2281,7 +2290,7 @@
 							} elseif ((strpos($tp, "multi") !== false || strpos($tp, "checkbox") !== false) && is_array($parent->value) && array_search($i->id_, $parent->value) !== false) {
 								$checked = "checked";
 							}
-							error_log(json_encode($i));
+							// error_log(json_encode($i));
 							// $id, $link, $row, $state = true, $text
 							$imageRadio = $elementId == "imgRadio" ? $this->fun_imgRadio_efb($i->id_, $i->src, $i,true, $texts) : '';
 							$prc = isset($i->price) ? intval($i->price) : 0;
@@ -2444,14 +2453,14 @@
                 case 'select':
                 case 'paySelect':
                     // generate_select_efb($elementId, $rndm, $vj, $pos, $formId, $texts, $previewSate=true ,$desc,$label,$ttip,$aire_describedby )
-                    error_log('select');
+                    // error_log('select');
   
                     $ui = $this->generate_select_efb($elementId, $rndm, $vj, $pos, $form_id, $texts, true ,$desc,$label,$ttip,$aire_describedby);
                     $dataTag = $elementId;
                 break;
 				case 'conturyList':
 				case 'country':
-					error_log('country');
+					// error_log('country');
 					$ui =$pro == true ? $this->generate_country_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby): $this->public_pro_message_efb($texts['tfnapca']);
 					
 					$dataTag = $elementId;
@@ -2468,8 +2477,8 @@
 				break;
 				case 'multiselect':
 				case 'payMultiselect':
-					error_log('multiselect');
-					error_log($desc);
+					// error_log('multiselect');
+					// error_log($desc);
 					//$elementId, $rndm, $vj, $pos, $formId, $texts, $desc, $label, $ttip, $previewSate
 					$ui = $pro == true ? $this->generate_multiselect_efb($elementId, $rndm, $vj, $pos, $form_id, $texts,$desc,$label,$ttip,$aire_describedby) : $this->public_pro_message_efb($texts['tfnapca']);
 					$dataTag = $elementId;
@@ -2690,8 +2699,8 @@
 			}
 			
 			$newElement .= sprintf('<!--endTag %s-->', $elementId);
-			error_log('newElement: reult'.$newElement);
-			error_log('style: reult'.$style);
+			// error_log('newElement: reult'.$newElement);
+			// error_log('style: reult'.$style);
 			return [$newElement ,$style];
 		}
 	}
@@ -2854,5 +2863,53 @@
 			}
 		}
 	}
+	public function check_error_console_efb(){
+
+
+	$file_text = esc_html__('File', 'easy-form-builder');
+	$line_text = esc_html__('Line', 'easy-form-builder');
+	$column_text = esc_html__('Column', 'easy-form-builder');
+	$error_text = esc_html__('Error Message', 'easy-form-builder');
+	$origin_text = esc_html__('This error originates from the %s', 'easy-form-builder');
+	$plugin_text = esc_html__('plugin', 'easy-form-builder');
+	$theme_text = esc_html__('theme', 'easy-form-builder');
+	$interfere_text = esc_html__('It may interfere with the functionality of the Easy Form Builder plugin.', 'easy-form-builder');
+	$contact_text = esc_html__('For further assistance, please contact support.', 'easy-form-builder');
+	$efb = esc_html__('Easy Form Builder', 'easy-form-builder') .':\n';
+	
+	$value = '
+	window.onerror = function (message, source, lineno, colno, error) {
+		const wpContentRegex = /wp-content\/(plugins|themes)\/([^/]+)\/(.*)/;
+		const wpIncludesRegex = /wp-includes\/(.*)/;
+		let errorMessage = `'.$efb.''.$error_text.': ${message}\n`;
+	
+		if (wpContentRegex.test(source)) {
+			const matches = source.match(wpContentRegex);
+			const type = matches[1];
+			const slug = matches[2];
+			const filePath = matches[3];
+	
+			if (type === "plugins") {
+				errorMessage += `'.$origin_text.': '.$plugin_text.' "${slug}".\n`;
+			} else if (type === "themes") {
+				errorMessage += `'.$origin_text.': '.$theme_text.' "${slug}".\n`;
+			}
+			errorMessage += `'.$file_text.': ${source}\n'.$line_text.': ${lineno}, '.$column_text.': ${colno}\n`;
+			errorMessage += `'.$interfere_text.'\n'.$contact_text.'`;
+		} else if (wpIncludesRegex.test(source)) {
+			const filePath = source.match(wpIncludesRegex)[1];
+			errorMessage += `'.$origin_text.': wp-includes/${filePath} '.$file_text.': ${source}\n'.$line_text.': ${lineno}, '.$column_text.': ${colno}\n'.$contact_text.'`;
+		} else {
+			errorMessage += `'.$file_text.': ${source}\n'.$line_text.': ${lineno}, '.$column_text.': ${colno}\n'.$contact_text.'`;
+		}
+	
+		alert(errorMessage);
+	};';
+	
+	return $value;
+	
+	
+	}
 	
 }
+

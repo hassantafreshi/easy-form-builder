@@ -458,7 +458,7 @@ class _Public {
 			   $efbFormBuilder = new Formbuilder($valj_efb , $this->pro_efb);
 			   $content="<!--efb-->";
 			   $head ='<!--start head -->';
-
+			   $form_id = $this->id;
 			   if($valj_efb[0]->stateForm==true  && is_user_logged_in()==false ){
 					$content ="
 					".$this->bootstrap_icon_efb($icons_)."		 
@@ -538,20 +538,19 @@ class _Public {
 					$step_no = intval($valj_efb[$i]->step);
 					$fieldset= $step_no<2
 					? sprintf(
-						'<fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row" data-formid="%s">',
-						$step_no, $step_no, $this->id
+						'<fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row fieldset" data-formid="%s">',
+						$step_no, $step_no, $form_id
 					)
 					: sprintf(
-						'<div id="step-%d-efb-msg"></div></fieldset><!-- end fieldset --><fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row d-none" data-formid="%s">',
-						$step_no - 1, $step_no, $step_no, $this->id
+						'<div id="step-%d-efb-msg"></div></fieldset><!-- end fieldset --><fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row d-none fieldset" data-formid="%s">',
+						$step_no - 1 , $step_no, $step_no, $form_id
 					);
-					error_log('step->'.$fieldset);
 					$content .= $fieldset;
 					$head .= sprintf(
-						'<li id="%1$s-f-step-efb" data-step="icon-s-%2$d-efb" data-formid="%3$s" class="efb %4$s %5$s %6$s %7$s %8$s"><strong class="efb fs-5 %9$s">%10$s</strong></li>',
+						'<li id="%1$s-f-step-efb-%3$s" data-step="icon-s-%2$d-efb" data-formid="%3$s" class="efb %4$s %5$s %6$s %7$s %8$s"><strong class="efb fs-5 %9$s">%10$s</strong></li>',
 						$value->id_,  // %1$s
 						$step_no,  // %2$d
-						$this->id,  // %3$s
+						$form_id,  // %3$s
 						$valj_efb_first->steps <= 6 ? 'step-w-' . $valj_efb_first->steps : 'step-w-6',  // %4$s
 						$value->icon_color,  // %5$s
 						$value->icon,  // %6$s
@@ -567,7 +566,7 @@ class _Public {
 					
 					if(in_array($valj_efb[$i]->type, ["option","r_matrix"])) {continue;}
 
-					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $this->id, $lanText);
+					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $form_id, $lanText);
 					
 					error_log(json_encode($r));
 					$content .= $r[0]; 
@@ -579,14 +578,14 @@ class _Public {
 			if (strlen($content) > 10) {
 				$step_no++;
 				$content .= "
-					" . ( ($valj_efb[0]->captcha == true && (!isset($valj_efb[0]->logic) || (isset($valj_efb[0]->logic) && $valj_efb[0]->logic === false))) ? $efbFormBuilder->fun_captcha_load_efb($this->pub_stting['siteKey'], $this->id) : '<!--logic efb-->') . "
+					" . ( ($valj_efb[0]->captcha == true && (!isset($valj_efb[0]->logic) || (isset($valj_efb[0]->logic) && $valj_efb[0]->logic === false))) ? $efbFormBuilder->fun_captcha_load_efb($this->pub_stting['siteKey'], $form_id) : '<!--logic efb-->') . "
 					</fieldset>
-					<fieldset data-step='step-{$step_no}-efb' class='efb my-5 steps-efb efb row d-none text-center' id='efb-final-step' data-formid='".$this->id."'>" . (($valj_efb[0]->captcha == true && (isset($valj_efb[0]->logic) && $valj_efb[0]->logic === true)) ? $efbFormBuilder->fun_captcha_load_efb($this->pub_stting['siteKey'], $this->id) : $wv) . "
+					<fieldset data-step='step-{$step_no}-efb' class='efb my-5 steps-efb efb row d-none text-center' id='efb-final-step' data-formid='".$form_id."'>" . (($valj_efb[0]->captcha == true && (isset($valj_efb[0]->logic) && $valj_efb[0]->logic === true)) ? $efbFormBuilder->fun_captcha_load_efb($this->pub_stting['siteKey'], $form_id) : $wv) . "
 						<!-- fieldset2 -->
 						<div step-{$step_no}-efb></div>
 					</fieldset>";
 
-				$head_final_step = "<li id='f-step-efb' data-step='icon-s-{$step_no}-efb' class='efb {$valj_efb[1]->icon_color} " . (($valj_efb[0]->steps <= 6) ? "step-w-{$valj_efb[0]->steps}" : "step-w-6") . " bi-check-lg'>
+				$head_final_step = "<li id='f-step-efb-{$form_id}' data-step='icon-s-{$step_no}-efb' data-formid='{$form_id}' class='efb {$valj_efb[1]->icon_color} " . (($valj_efb[0]->steps <= 6) ? "step-w-{$valj_efb[0]->steps}" : "step-w-6") . " bi-check-lg'>
 					<strong class='efb fs-5 {$valj_efb[1]->label_text_color}'>".$lanText['finish']."</strong>
 				</li>";
 
@@ -594,7 +593,7 @@ class _Public {
 				//$content .= '</div>';
 				$percent = (1 / ($step_no)) * 100;
 				$percent = round($percent, 2);
-				$head = (intval($valj_efb[0]->show_icon) != 1 ? '<ul id="steps-efb" class="efb mb-2 px-2" data-formid="'.$this->id.'">' . $head . $head_final_step.'</ul>' : '') .
+				$head = (intval($valj_efb[0]->show_icon) != 1 ? '<ul id="steps-efb" class="efb mb-2 px-2" data-formid="'.$form_id.'">' . $head . $head_final_step.'</ul>' : '') .
 						(intval($valj_efb[0]->show_pro_bar)!= 1 ? 
 							'<div class="efb d-flex justify-content-center" id="f-progress-efb">
 								<div class="efb progress mx-3 w-100 ' . $bgc . '">
@@ -607,15 +606,17 @@ class _Public {
 
 	
 			$style = $style.'</style>';
-			$script = '<script>let valj_efb_'.$this->id.' = '.json_encode($valj_efb).';</script>';
+			$console_checker = $efbFormBuilder->check_error_console_efb();
+			$script = '<script>'.$console_checker.'</script>';
 			//add_buttons_zone_efb($state, $id, $valj_efb, $efb_var, $preview_efb, $formId)
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
 			// if (valj_efb[0].hasOwnProperty('dShowBg') && Number(valj_efb[0].dShowBg) != 1 && state == "run") { document.getElementById('body_efb').classList.add('card') }
 			$dShow = isset($valj_efb[0]->dShowBg) && intval($valj_efb[0]->dShowBg) != 1 ? 'card' : '';
-			$content_new = $this->bootstrap_icon_efb($icons_).'
+			$content_new = $script.$this->bootstrap_icon_efb($icons_).'
 				<!-- start body_efb-->
-				<div id="body_efb_" class="efb row pb-3 efb px-2 pre-efb body_efb '.$dShow.'" data-formid="'.$this->id.'">
+				
+				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'">
 					<form id="efbform" class="mx-0 px-0 efb" data-formid="'.$this->id.'">
 					<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2 view-efb" id="view-efb" data-formid="'.$this->id.'">
 					' . (intval($valj_efb[0]->show_icon) != 1 
@@ -636,10 +637,10 @@ class _Public {
 					'.$style.' '.$k;
 
 
+					//error_log($content_new);
+					return $content_new;
 
 					/* old code: should be removed*/
-			error_log($content_new);
-			//return $content_new;
 
 			 $content="	
 			 ".$this->bootstrap_icon_efb($icons_)."
@@ -782,7 +783,7 @@ class _Public {
 		$text_ = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM', 'bkFlM', 'mnvvXXX', 'ptrnMmm', 'ptrnMmx', 'payment', 'error403', 'errorSiteKeyM',
 			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound',
-			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex'
+			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response'
 		];
 		$efbFunction = $this->get_efbFunction(1);
 		// if(empty($this->efbFunction)) $this->efbFunction = $efbFunction;
@@ -828,6 +829,15 @@ class _Public {
 		$email_user = [];
 		$this->value = str_replace('\\', '', $data_POST['value']);
 		$valo = json_decode($this->value, true);
+		//check if $valo row has type key
+		if ( empty($valo)) {
+			
+			//$m =$this->['response'] to upper case first letter
+			
+			$msg = sprintf($this->lanText['snotfound'], ucfirst($this->lanText['snotfound']));
+			$response = ['success' => false, 'm' =>$msg];
+			wp_send_json_success($response, 200);
+		}
 		$smsnoti = 0;
 		$phone_numbers = [[], []];
 		$email_array_state = false;
@@ -915,7 +925,6 @@ class _Public {
 						if ($in_loop == false) {
 							return;
 						}
-						
 						if (((isset($f['disabled']) == true &&  $f['disabled'] == 1  && isset($f['hidden']) == false)
 								|| (isset($f['disabled']) == true && $f['disabled'] == 1 && isset($f['hidden']) == true && $f['hidden'] == false))
 							&& ($item['id_'] == $f['id_'] || $f['id_'] == $item['id_'])
@@ -1354,7 +1363,6 @@ class _Public {
 					$stated = 0;
 					if ($mr == '') $mr = $this->lanText['pleaseMakeSureAllFields'];
 				}
-				// error_log(__LINE__);
 				// error_log(json_encode($valobj));
 				array_push($valobj, ['type' => 'w_link', 'value' => $url, 'amount' => -1]);
 				$this->id = $type == "payment" ? sanitize_text_field($data_POST['payid']) : $this->id;

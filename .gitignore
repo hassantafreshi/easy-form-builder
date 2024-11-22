@@ -34,3 +34,4 @@ vendor/composer/*
 .vscode
 .vscode/*
 includes/admin/integrate-elementor.php
+.vscode/settings.json
