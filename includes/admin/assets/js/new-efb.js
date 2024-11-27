@@ -2393,6 +2393,7 @@ function calPLenEfb(len) {
   return p;
 }
 function replaceContentMessageEfb(value){ 
+  if(typeof value !== 'string') return value;
   value = value.replace(/[\\]/g, '');
   value = value.replaceAll(/(\\"|"\\)/g, '"');
   value = value.replaceAll(/(\\\\n|\\\\r)/g, '<br>');

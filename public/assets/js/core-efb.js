@@ -132,34 +132,31 @@ function fun_efb_run(){
 }
 setTimeout( fun_efb_run, g_timeout_efb)
 // v4  start for parsing of elements of forms for add event listener by call function handle_change_event_efb and store value in sendtoback varible by call function fun_sendBack_emsFormBuilder
+
+
 function createStepsOfPublic() {
+ // let form_id= 0;
+ efb_var = ajax_object_efm;
+ setting_emsFormBuilder = typeof ajax_object_efm.form_setting == "string" ? JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, '')) : ajax_object_efm.form_setting;
   for (let el of document.querySelectorAll(`.emsFormBuilder_v`)) {
-    let form_id = el.dataset.formid  || -1;
+    let form_id = el.dataset.formid  || 0;
+    if (el.tagName == "OPTION") continue;
+    // form_id = Number(form_id);
     let price = '';
+    let el_type =''
+    console.log(el,form_id);
+    const valj_efb_ =get_structure_by_form_id_efb(form_id);
+    const id = el.dataset.vid ?? '';
+    const classes = el.classList;
+    //if el is option of select return
     if (el.type != "submit") {
       switch (el.type) {
-        case "file":
-          const ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
-          if(((ob.hasOwnProperty("disabled") && ob.disabled!=true ) || ob.hasOwnProperty("disabled")==false )&& 
-          ((ob.hasOwnProperty('hidden') && ob.hidden==true) || ob.hasOwnProperty('hidden')==false))
-         
-           files_emsFormBuilder.push({ id_: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder, form_id: form_id });
-          break;
-        case "hidden":
-          break;
-        case 'checkbox':
-        case 'radio':
-          document.getElementById(el.id).addEventListener("change", (e) => {
-            if(el.dataset.tag && el.dataset.tag.includes("chl")!=false){
-            }else if(el.classList.contains('payefb') && valj_efb[0].type == "form"){
-            }
-          })
-          break;
-      }
-      el.addEventListener("change", (e) => {
-        handle_change_event_efb_v4(el,form_id);
-      });
-      if(el.type=="text" &&  el.classList.contains("hijri-picker")){
+        case "text":
+        //pdpF2
+        if (classes.contains("pdpF2")) {
+           call_fun_jalali_datepicker_efb_v4();
+        }else if (classes.contains("hijri-picker")) {
+          call_fun_hijri_datapicker_efb_v4();
           $("#"+el.id).on('dp.change', function (arg) {
             if (!arg.date) {
                 $("#selected-date").html('');
@@ -167,9 +164,78 @@ function createStepsOfPublic() {
             };
             let date = arg.date;
             handle_change_event_efb_v4(el,form_id);
+          });
+        }else if (classes.contains("intlPhone") && classes.contains("d-none")==false) {
+          console.log('>>>>>>>>>>phone');
+          //load_intlTelInput_efb(rndm,iVJ)
+          const indx = valj_efb_.findIndex(x => x.id_ === id);
+          valj_efb=valj_efb_;
+          load_intlTelInput_efb(id,indx);
+          /*   let value = valj_efb.find(x => x.id_ === id);
+            if(sendBack_emsFormBuilder_pub.length>0){
+              let indx = get_row_sendback_by_id_efb_v4(id,form_id);
+              if(indx!=-1){
+                value.value = sendBack_emsFormBuilder_pub[indx].value;
+              }
+            }
+            let v = value.value.split('+');
+           
+            let storedPhoneNumber =value.value;
+            if(v.length==3){
+              storedPhoneNumber ='+'+ v[2];
+            }
+            const country =efb_var.wp_lan.split('_')[1].toUpperCase();
+            const iti = window.intlTelInput(el, {
+                initialCountry: country,
+                utilsScript:  efb_var.images.utilsJs
+            });
+            iti.setNumber(storedPhoneNumber); */
+
+        }
+
+        case "file":
+          const ob = valj_efb_.find(x => x.id_ === id);
+          if(((ob.hasOwnProperty("disabled") && ob.disabled!=true ) || ob.hasOwnProperty("disabled")==false )&& 
+          ((ob.hasOwnProperty('hidden') && ob.hidden==true) || ob.hasOwnProperty('hidden')==false))
+         
+           files_emsFormBuilder.push({ id_: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder, form_id: form_id });
+          break;
+        case "hidden":
+          console.log('hidden');
+          console.log(el);
+           el_type = el.dataset.type ?? '';
+           if(el_type=='esign'){
+            const ob = valj_efb_.find(x => x.id_ === id);
+            const disabled = ob.hasOwnProperty("disabled") && ob.disabled==true ? true : false;
+            fun_event_esign_efb(id,form_id,disabled,ob);
+           }
+
+          break;
+        case 'checkbox':
+        case 'radio':
+          document.getElementById(el.id).addEventListener("change", (e) => {
+              if(el.dataset.tag && el.dataset.tag.includes("chl")!=false){
+              }else if(classes.contains('payefb') && valj_efb_[0].type == "form"){
+              }
+            })
+        break;
+        case 'select-one':
+        break;
+        }
+        el.addEventListener("change", async(e) => {
+          await handle_change_event_efb_v4(el,form_id);
         });
-      }
-    }else if(el.type=="checkbox" && valj_efb[0].type == "payment" && el.classList.contains('payefb')){
+       /*  if(el.type=="text" &&  classes.contains("hijri-picker")){
+            $("#"+el.id).on('dp.change', function (arg) {
+              if (!arg.date) {
+                  $("#selected-date").html('');
+                  return;
+              };
+              let date = arg.date;
+              handle_change_event_efb_v4(el,form_id);
+          });
+        } */
+    }else if(el.type=="checkbox" && valj_efb_[0].type == "payment" && classes.contains('payefb')){
       console.log('checkbox');
       console.log('166');
       fun_sendBack_emsFormBuilder(o[0]);
@@ -181,7 +247,7 @@ function createStepsOfPublic() {
         const form_id = el.dataset.formid || -1;
         const ob = valueJson_ws.find(x => x.id_ === id_);
         let o = [{ id_: id_, name: ob.name, id_ob: el.id, amount: ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder, form_id: form_id }];
-        if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
+        if (valj_efb_[0].type == "payment" && classes.contains('payefb')) {
           let q = valueJson_ws.find(x => x.id_ === el.id);
           const p = price_efb.length > 0 ? { price: price } : { price: q.price }
           Object.assign(o[0], p)
@@ -195,7 +261,11 @@ function createStepsOfPublic() {
       });
     }
   }
-  console.log('186');
+  //disable-efb
+ /*  if(form_id>0){
+    document.getElementById(`body_efb_${form_id}`).classList.remove('disable-efb');
+  }
+  console.log('186'); */
 //  fun_create_event_buttons_efb();
 } 
 function fun_sendBack_emsFormBuilder(ob) {
@@ -209,7 +279,7 @@ function fun_sendBack_emsFormBuilder(ob) {
     ob.value=ob.value;
   }
   if (sendBack_emsFormBuilder_pub.length>0) {
-    let indx = get_row_sendback_by_id_efb(ob.id_,form_id);
+    let indx = get_row_sendback_by_id_efb_v4(ob.id_,form_id);
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect" || sendBack_emsFormBuilder_pub[indx].type == "chlCheckBox")) {
       indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
@@ -323,14 +393,16 @@ function alarm_emsFormBuilder(val) {
 }
 async function actionSendData_emsFormBuilder(form_id=0) {
   console.log('actionSendData_emsFormBuilder fomId', form_id);
-  const sendback = [sendBack_emsFormBuilder_pub.find(x=>x.form_id==form_id)];
-
+  const sendback = sendBack_emsFormBuilder_pub.filter(x=>x.form_id==form_id);
+  console.log('sendback', sendback);
+  let formNameEfb = "";
   const fun_sid =(form_id)=>{
     let vj = valj_efb_new.find(x=>x.id==form_id);
     console.log('vj',vj);
     const sid = vj.sid;
     console.log(vj , sid);
     valj_efb = vj.structure;
+    formNameEfb = valj_efb[0].formName;
     return {sid:sid,type:vj.type};
   } 
   console.log('sendback', sendback);
@@ -387,6 +459,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
         };
       }
     }
+    console.log('data',data);
     post_api_forms_efb(data,form_id);
 }
 function valid_email_emsFormBuilder(el) {
@@ -404,7 +477,7 @@ function valid_email_emsFormBuilder(el) {
     }
     document.getElementById(`${el.id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
-    const i = get_row_sendback_by_id_efb(el.dataset.vid,form_id);
+    const i = get_row_sendback_by_id_efb_v4(el.dataset.vid,form_id);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
     sendback_state_handler_efb_v4(el.dataset.vid,false,0,form_id)
   }
@@ -423,7 +496,7 @@ function valid_password_emsFormBuilder(el) {
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${ajax_object_efm.text.enterThePassword}','',10,'danger');"></div>` : efb_var.text.enterThePassword;
   if (el.value.length < 3) {
     el.className = colorBorderChangerEfb(el.className, "border-danger");
-    const i = get_row_sendback_by_id_efb(el.dataset.vid,form_id);
+    const i = get_row_sendback_by_id_efb_v4(el.dataset.vid,form_id);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
     if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
       document.getElementById(`${id}-message`).classList.add('unpx');                
@@ -452,7 +525,7 @@ function valid_phone_emsFormBuilder(el) {
   check += el.value.match(format) ? 0 : 1;
   if (check >0) {
     el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");    
-    const i = get_row_sendback_by_id_efb(el.dataset.vid,form_id);
+    const i = get_row_sendback_by_id_efb_v4(el.dataset.vid,form_id);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
     if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
       msg_el.classList.add('unpx');                
@@ -568,7 +641,7 @@ function fun_get_tracking_code(){
 }
 function fun_vaid_tracker_check_emsFormBuilder() {
   if (!navigator.onLine) {
-    noti_message_efb(efb_var.text.offlineSend , 'danger' , `body_efb-track` );      
+    noti_message_efb_v4(efb_var.text.offlineSend , 'danger' , `body_efb-track`,0 );      
     return;
   }
   const innrBtn = document.getElementById('vaid_check_emsFormBuilder').innerHTML;
@@ -578,14 +651,14 @@ function fun_vaid_tracker_check_emsFormBuilder() {
   if (el.length < 5) {
     document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
     document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
-    noti_message_efb(ajax_object_efm.text.trackingCodeIsNotValid, 'danger' ,'body_efb-track')
+    noti_message_efb_v4(ajax_object_efm.text.trackingCodeIsNotValid, 'danger' ,'body_efb-track',0)
   } else {
     if (currentTab_emsFormBuilder == 0) {
       const response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
       if (response == null) {
         document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
         document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
-        noti_message_efb(ajax_object_efm.text.checkedBoxIANotRobot, 'danger' ,'body_efb-track')
+        noti_message_efb_v4(ajax_object_efm.text.checkedBoxIANotRobot, 'danger' ,'body_efb-track',0)
       }
       else {
         sessionStorage.setItem('track', el);
@@ -669,7 +742,7 @@ setTimeout(() => {
 }
 function fun_send_replayMessage_reast_emsFormBuilder(message) {
   if (!navigator.onLine) {
-    noti_message_efb(efb_var.text.offlineSend , 'danger' , `replay_state__emsFormBuilder` );       
+    noti_message_efb_v4(efb_var.text.offlineSend , 'danger' , `replay_state__emsFormBuilder`,0 );       
     return;
   }
   f_btn =()=>{
@@ -747,7 +820,7 @@ async function validation_before_send_efb(form_id) {
         if(valueJson_ws[indx].hasOwnProperty("disabled") && valueJson_ws[indx].disabled==true && 
            ((valueJson_ws[indx].hasOwnProperty('hidden') && valueJson_ws[indx].hidden==false) || valueJson_ws[indx].hasOwnProperty('hidden')==false)
           ){           
-            const i = get_row_sendback_by_id_efb(valueJson_ws[indx].id_,valueJson_ws[indx].form_id);
+            const i = get_row_sendback_by_id_efb_v4(valueJson_ws[indx].id_,valueJson_ws[indx].form_id);
             sendBack_emsFormBuilder_pub.splice(i,1);
             count[0] -= 1;
             continue 
@@ -1121,15 +1194,15 @@ window.addEventListener("popstate",e=>{
  post_api_forms_efb=async(data,form_id)=>{
   console.log('post_api_forms_efb fomId', form_id,data);
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
-const headers = new Headers({
-  'Content-Type': 'application/json',
-});
-const jsonData = JSON.stringify(data);
-const requestOptions = {
-  method: 'POST',
-  headers,
-  body: jsonData,
-};
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+    });
+    const jsonData = JSON.stringify(data);
+    const requestOptions = {
+      method: 'POST',
+      headers,
+      body: jsonData,
+    };
  /*  fetch(url, requestOptions)
   .then(response => {
     if (!response.ok) {
@@ -1243,7 +1316,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   //v4 start
-  createStepsOfPublic();
+   createStepsOfPublic();
  
   //v4 end
 });
@@ -1337,7 +1410,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
   console.log('title_efb',title_efb)
   fun_handle_header_efb = async(no_step,nav_state)=>{
     console.log('fun_handle_header_efb',valj_efb[0].show_icon);
-    if(!title_efb || !desc_efb || !steps_efb)return false;
+    if(!title_efb || !desc_efb || !steps_efb) return false;
     if(Number(valj_efb[0].show_icon)==1){
       return true;
     }
@@ -1360,11 +1433,6 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     //-f-step-efb
     console.log(`no_step:${no_step} max_step:${max_step}`);
     if(no_step<=max_step){
-        
-    /* let id_active_icon = `${no_step}-f-step-efb-${form_id}`;
-    console.log(`id_active_icon:${id_active_icon}`);
-    const next_active_step_icon = document.getElementById(id_active_icon);
-    if(next_active_step_icon)next_active_step_icon.classList.add('active'); */
     icon_step_handler(no_step,form_id,nav_state);
     const cp = no_step;
     const val = valj_efb.find(x=>x.step==cp);
@@ -1373,20 +1441,8 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
       desc_efb.className = colorTextChangerEfb(desc_efb.className,val["message_text_color"]);
       title_efb.innerHTML = val["name"];
       desc_efb.innerHTML = val["message"]; 
-     /*  id_active_icon = `${(no_step+1)}-f-step-efb-${form_id}`; 
-      if(nav_state=='forward'){
-        id_active_icon = `${(no_step-1)}-f-step-efb-${form_id}`;
-      }
-
-      console.log(id_active_icon) */
       //document.getElementById(id_active_icon).classList.remove('active');
     }else{
-    /*   const next_active_step_icon = document.getElementById(`f-step-efb-${form_id}`);
-      if(next_active_step_icon){
-        next_active_step_icon.classList.add('active');
-        const id_active_icon = `${(no_step-1)}-f-step-efb-${form_id}`;
-        document.getElementById(id_active_icon).classList.remove('active');
-      } */
       icon_step_handler(no_step,form_id,nav_state);
       const val = valj_efb.find(x=>x.step==1);
       title_efb.className = colorTextChangerEfb(title_efb.className,val["label_text_color"]);
@@ -1414,7 +1470,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     }
   }
 
-  const validate = await fun_validation_efb_v4();
+  const validate = await fun_validation_efb_v4(form_id);
         console.log(`validate:${validate}`);
         if (validate == false) {
 
@@ -1467,8 +1523,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     smoothy_scroll_postion_efb(id_body);
   }else if (btn_state=='btn_send_efb'){
     no_step = Number(no_step)+1;
-    const r= await fun_handle_header_efb(no_step,'forward');
-    if(r==false)return
+    
     parent_body.dataset.currentstep = no_step;
     const next_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
     // + befor go to next step check validation of current step
@@ -1476,6 +1531,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     current_fieldset.classList.add('d-none');
     next_fieldset.classList.remove('d-none');
     if(progessbar)fun_progessbar(no_step,max_step);
+    await fun_handle_header_efb(no_step,'forward');
     smoothy_scroll_postion_efb(id_body);
 
     el.classList.add('d-none');
@@ -1491,11 +1547,15 @@ get_structure_by_form_id_efb=(form_id)=>{
 
 // v4
 sendback_state_handler_efb_v4=(id_,state,step,form_id)=>{
+  const id_body = 'body_efb_'+form_id;
+  const body_efb = document.getElementById(id_body);
   const indx = sendback_efb_state.findIndex(x=>x.id_==id_ && x.form_id==form_id);
+  const next_btn = body_efb.querySelector('#next_efb');
+  const send_btn = body_efb.querySelector('#btn_send_efb');
   if(indx==-1 && state==false){
     sendback_efb_state.push({id_:id_,state:state,step:step,form_id:form_id})
-    if(document.getElementById('btn_send_efb') && document.getElementById('btn_send_efb').classList.contains('disabled')==false )document.getElementById('btn_send_efb').classList.add('disabled');
-    else if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('disabled')==false )document.getElementById('next_efb').classList.add('disabled');
+    if(send_btn && send_btn.classList.contains('disabled')==false )send_btn.classList.add('disabled');
+    else if(next_btn && next_btn.classList.contains('disabled')==false )next_btn.classList.add('disabled');
   }else if(indx>-1 && state==true && sendback_efb_state.length>0){
     //remove for  sendback_efb_state by id_
     sendback_efb_state.splice(indx,1);
@@ -1503,8 +1563,8 @@ sendback_state_handler_efb_v4=(id_,state,step,form_id)=>{
     setTimeout(() => {
       const indx_ = sendback_efb_state.findIndex(x=>x.step==step);
       if(indx_==-1 || sendback_efb_state.length==0){
-        if(document.getElementById('btn_send_efb'))document.getElementById('btn_send_efb').classList.remove('disabled');
-        else if(document.getElementById('next_efb'))document.getElementById('next_efb').classList.remove('disabled');
+        if(send_btn)send_btn.classList.remove('disabled');
+        else if(next_btn)next_btn.classList.remove('disabled');
       }      
     }, 200);
   }
@@ -1610,7 +1670,8 @@ fun_prev_send =(form_id =0) =>{
 
 
 //v4 
-function handle_change_event_efb_v4(el ,form_id=0){  
+async function handle_change_event_efb_v4(el ,form_id=0){  
+  valj_efb = get_structure_by_form_id_efb(form_id);
   slice_sback=(i)=>{
     sendBack_emsFormBuilder_pub.splice(i, 1)
   }
@@ -1622,14 +1683,18 @@ function handle_change_event_efb_v4(el ,form_id=0){
     const id_ = id +'_';    
     const s = valj_efb.find(x => x.id_ == id);    
     const el_msg = document.getElementById(id_+'-message');
+    const el = document.getElementById(id_);
     if(Number(s.required)==0){
-      document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, s.el_border_color);
+      if(el !== null) el.className = colorBorderChangerEfb(el.className, s.el_border_color);
       el_msg.classList.remove('show');
      sendback_state_handler_efb_v4(id,true,0,form_id);
     }else{
-      document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, "border-danger");
-      if(el_msg.classList.contains('show')==false)el_msg.classList.add('show');
-      el_msg.innerHTML = efb_var.text.enterTheValueThisField;
+      console.log('el_empty_value',id_);
+      if(el !== null) el.className = colorBorderChangerEfb(el.className, "border-danger");
+      if(el_msg!=null){
+        if(el_msg.classList.contains('show')==false)el_msg.classList.add('show');
+        el_msg.innerHTML = efb_var.text.enterTheValueThisField;
+      }
     }
     delete_by_id(id);
   }
@@ -1703,6 +1768,7 @@ function handle_change_event_efb_v4(el ,form_id=0){
     }
           return 1;
   }//end validate_len_efb
+
   if(form_id==0) form_id = el.dataset.formid;
   valueJson_ws = get_structure_by_form_id_efb(form_id)
   let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
@@ -1715,7 +1781,7 @@ function handle_change_event_efb_v4(el ,form_id=0){
     }
   }
   let vd ;
-  if(valj_efb[0].hasOwnProperty('booking') && Number(valj_efb[0].booking)==1) {
+  if(valj_efb[0].hasOwnProperty('booking')==true && Number(valj_efb[0].booking)==1) {
     const r = fun_booking_avilable(el)
     if(r[0]==false){
       alert_message_efb(r[1],'',150,'danger')
@@ -1815,12 +1881,12 @@ function handle_change_event_efb_v4(el ,form_id=0){
       if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.dataset.vid , el.type);
       if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
         let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
-            fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp)
+           await fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp)
       }else if(el.dataset.hasOwnProperty('type') && el.dataset.type=="stateProvince"){
            let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);       
             iso_con = el.options[el.selectedIndex].dataset.isoc
             iso_state = el.options[el.selectedIndex].dataset.iso        
-            fun_check_link_city_efb(iso_con,iso_state , temp)
+            await fun_check_link_city_efb(iso_con,iso_state , temp)
       }
       break;
     case "range":
@@ -1886,10 +1952,11 @@ function handle_change_event_efb_v4(el ,form_id=0){
     const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
     let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder,form_id:  form_id }];      
      sendback_state_handler_efb_v4(id_,true,0,form_id);
+     console.log(`type[${type}]`,el);
     if (el.classList.contains('payefb')) {
       let q = valueJson_ws.find(x => x.id_ === el.id);
       let p ;
-      if(ob.type =='prcfld'){
+      if(type =='prcfld'){
         p= Object.assign(o[0], {price: el.value});
       }else{ 
         p = price_efb.length > 0 ? { price: price } : { price: q.price }
@@ -1899,15 +1966,23 @@ function handle_change_event_efb_v4(el ,form_id=0){
       
       fun_sendBack_emsFormBuilder(o[0]);
       fun_total_pay_efb()
-    }else if(type.includes('chl')){
+    }else if(type.includes('option')){
       const ch = el.id.includes('_chl')
       const qty = ch  ? document.getElementById(el.id).value :'';
       if(ch==false){
-        Object.assign(o[0], {qty:qty});
+        //Object.assign(o[0], {qty:qty});
       }else{
         el.classList.remove('bg-danger');
-        ob.qty=fun_text_forbiden_convert_efb(qty);
-        o[0]="";
+        const v =fun_text_forbiden_convert_efb(qty);
+        //find in sendBack_emsFormBuilder_pub by id_ and id_ob
+        const vid= el.dataset.vid;
+        const indx = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ob==vid);
+        console.log(el.dataset,vid,sendBack_emsFormBuilder_pub[indx]);
+      
+        if(indx!=-1){
+          sendBack_emsFormBuilder_pub[indx].hasOwnProperty('qty') ? sendBack_emsFormBuilder_pub[indx].qty = v : Object.assign(sendBack_emsFormBuilder_pub[indx], {qty: v});
+          return;
+        }
       }
       
       console.log('3102',el);
@@ -1925,13 +2000,15 @@ function handle_change_event_efb_v4(el ,form_id=0){
 }
 
 
-async function fun_validation_efb_v4() {
+async function fun_validation_efb_v4(form_id) {
   console.log('fun_validation_efb 1972')
   let offsetw = offset_view_efb();
   console.log(efb_var.text.enterTheValueThisField);
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
   let state = true;
-  let idi = "null";
+  let idi = "null"; 
+  let name_field = "";
+  let id_noti_message = valj_efb.steps > 1 ?  `step-${current_s_efb}-efb-msg` : 'alert_efb';
   for (let row in valj_efb) {
     let s =  get_row_sendback_by_id_efb(valj_efb[row].id_);
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
@@ -1942,7 +2019,7 @@ async function fun_validation_efb_v4() {
         s = files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state)==0 || r==-1 ? -1 :1;
       }
       if (s == -1) {
-        if (state == true) { state = false; idi = valj_efb[row].id_ }
+        if (state == true) { state = false; idi = valj_efb[row].id_ , name_field = valj_efb[row].name }
         const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
         if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
           el.classList.add('unpx');                
@@ -1958,6 +2035,7 @@ async function fun_validation_efb_v4() {
         if (type_validate_efb(valj_efb[row].type) == true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-success");
         const v = sendBack_emsFormBuilder_pub.length>0 && valj_efb[row].type == "multiselect" && sendBack_emsFormBuilder_pub[s].hasOwnProperty('value') ? sendBack_emsFormBuilder_pub[s].value.split("@efb!") :"";
         if ((valj_efb[row].type == "multiselect" || valj_efb[row].type == "payMultiselect") && (v.length - 1) < valj_efb[row].minSelect) {
+          name_field = valj_efb[row].name
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");
           el.innerHTML = efb_var.text.minSelect + " " + valj_efb[row].minSelect
           if(!el.classList.contains('show'))el.classList.add('show');
@@ -1965,18 +2043,27 @@ async function fun_validation_efb_v4() {
         }
       }
     }else if (row > 1 && valj_efb[row].type == "chlCheckBox" && current_s_efb == valj_efb[row].step){
+      name_field = valj_efb[row].name;
+     
       for(let em of sendBack_emsFormBuilder_pub){
-        if(em.type=="chlCheckBox" && em.id_==valj_efb[row].id_ && em.qty.length=="")
+        console.log('em:',em)
+        form_id = em.form_id;
+        if(em.type=="chlCheckBox" && em.id_==valj_efb[row].id_ && em.hasOwnProperty('qty')==false)
         {
+         
           const vd = em.id_ob+"_chl";
           document.getElementById(vd).classList.add('bg-danger');
           state = false;
           idi = valj_efb[row].id_;
+          const messag = efb_var.text.sfmcfop.replace('%s',`<b>${name_field}</b>`);
+          //const msg = efb_var.text.enterTheValueThisField + " " + name_field;
+          noti_message_efb_v4(messag, 'danger' ,id_noti_message ,form_id);
+          break;
+        
+         // id_noti_message ='alert_efb';
         }
       }
-      if (state == false) { 
-          noti_message_efb(efb_var.text.enterTheValueThisField, 'danger' , `step-${current_s_efb}-efb-msg` );
-      }
+    
     }
   }
   
@@ -1992,6 +2079,43 @@ async function fun_validation_efb_v4() {
   }
   return state
 }
+
+
+function noti_message_efb_v4(message, alert ,id,form_id=0){
+  alert = alert ? `alert-${alert}` : 'alert-info';
+  console.log(form_id);
+  let d = document.querySelector(`#${id}[data-formid="${form_id}"]`);
+  if(document.getElementById('noti_content_efb')){
+    document.getElementById('noti_content_efb').remove()
+  }
+    d.innerHTML += ` <div id="noti_content_efb" class="efb w-75 mt-0 my-1 alert-dismissible alert ${alert}  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" role="alert">
+    <p class="efb my-0">${message}</p>    
+  </div>`
+}
+
+function call_fun_jalali_datepicker_efb_v4(){
+  console.log('call fun jalali datepicker');
+  if(typeof load_style_persian_data_picker_efb =="function"){ 
+    load_style_persian_data_picker_efb();
+  }else{
+    setTimeout(() => {
+      alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.tfnapca + '(jalali datepicker)', 20 , 'info');        
+    }, 1000);
+  }
+}
+
+function call_fun_hijri_datapicker_efb_v4(){
+  if(typeof  load_hijir_data_picker_efb=="function"){ 
+    load_hijir_data_picker_efb()
+   
+  }else{
+    setTimeout(() => {
+      alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.tfnapca + '(Hijri datepicker)', 20 , 'info')        
+    }, 1000);
+  }
+}
+
+
 
 
 

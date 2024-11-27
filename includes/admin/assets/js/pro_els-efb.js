@@ -498,13 +498,14 @@ function fun_clear_esign_efb(id) {
        fun_sendBack_emsFormBuilder(o[0])
     }
   }
-  function fun_get_rating_efb(v, no) {
+  async function fun_get_rating_efb(v, no,form_id=0) {
     document.getElementById(`${v}-stared`).value = no;
     document.getElementById(`${v}-star${no}`).checked = true;
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
-      const indx = valj_efb.findIndex(x => x.id_ == v)
-      const o = [{ id_: v, name: valj_efb[indx].name, amount: valj_efb[indx].amount, type: "rating", value: no, session: sessionPub_emsFormBuilder }];
-      fun_sendBack_emsFormBuilder(o[0])
+      await fun_valj_efb_run(form_id); 
+      const indx = valj_efb.findIndex(x => x.id_ == v);
+      const o = [{ id_: v, name: valj_efb[indx].name, amount: valj_efb[indx].amount, type: "rating", value: no, session: sessionPub_emsFormBuilder,form_id:form_id }];
+      fun_sendBack_emsFormBuilder(o[0]);
     }
   }
 
@@ -578,7 +579,7 @@ close_resp_efb=(id,s)=>{
   sendBack_emsFormBuilder_pub= ob;
   fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
 }
-function fun_point_rating(el) {
+async function fun_point_rating(el) {
   const id = el.dataset.id;
   for (let l of document.querySelectorAll(`[data-id="${id}"]`)) {
       if (Number(l.dataset.point) <= Number(el.dataset.point)) {
@@ -594,7 +595,7 @@ function fun_point_rating(el) {
     if(valj_efb_new){
       console.log(el.dataset)
         form_id = el.dataset.formid;
-        fun_valj_efb_run(form_id)
+        await fun_valj_efb_run(form_id)
     }
       const v = valj_efb.find(x=>x.id_ ==id);
       if(v.type=="r_matrix"){
@@ -619,7 +620,7 @@ function fun_point_rating(el) {
       }
   }
 }
-function fun_nps_rating(el) {
+async function fun_nps_rating(el){ 
   const id = el.dataset.id;
   el.className = btnChangerEfb(el.className, pub_bg_button_color_efb);
   for (let l of document.querySelectorAll(`[data-id="${id}"]`)) {
@@ -629,8 +630,10 @@ function fun_nps_rating(el) {
   }
   document.getElementById(id + '-nps-rating').value = el.dataset.point;
   if(state_efb=='run'){
+      const form_id = el.dataset.formid;
+      await fun_valj_efb_run(form_id)
       const v = valj_efb.find(x=>x.id_ ==id);
-      const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
+      const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder, form_id: form_id }];
       fun_sendBack_emsFormBuilder(o[0]);
   }
 }
@@ -654,45 +657,130 @@ function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
   <button id="${rndm}-btn" type="submit" class="efb d-none">Submit</button>
  `;
 }
-load_intlTelInput_efb=(rndm,iVJ)=>{
+
+load_intlTelInput_efb = (rndm, iVJ) => {
+  setTimeout(() => {
+    const onlyCountries = valj_efb[iVJ].hasOwnProperty("c_c") && valj_efb[iVJ].c_c.length > 0 ? valj_efb[iVJ].c_c : "";
+    let iti;
+    const el_mobile = document.getElementById(rndm + "_");
+    if(efb_var.length<1) efb_var = ajax_object_efm
+    const ulitisJs = efb_var.images.hasOwnProperty('utilsJs') ? efb_var.images.utilsJs  : el_mobile.dataset.utilsjs;
+    console.log('ulitisJs :', ulitisJs ,el_mobile,onlyCountries);
+      iti = window.intlTelInput(el_mobile, {
+          onlyCountries: onlyCountries,
+          autoHideDialCode: true,
+          placeholderNumberType: "MOBILE",
+          utilsScript: ulitisJs,
+      });
+
+      el_mobile.addEventListener('blur', function () {
+          const errorMap = [
+              efb_var.text.cpnnc,
+              efb_var.text.icc,
+              efb_var.text.cpnts,
+              efb_var.text.cpntl,
+              efb_var.text.cpnnc
+          ];
+
+          // Clear styles and messages
+          el_mobile.classList.remove("border-danger", "border-success");
+          const messageEl = document.getElementById(rndm + "_-message");
+          messageEl.innerHTML = "";
+          messageEl.classList.remove("d-block");
+          messageEl.classList.add("d-none");
+
+          // Check if input value is not empty
+          if (el_mobile.value.trim()) {
+              console.log("Input value:", el_mobile.value);
+              const form_id = el_mobile.dataset.formid ?? 0;
+              // Validate phone number
+              console.log(iti , iti.isValidNumber());
+              if (iti.isValidNumber()) {
+                  el_mobile.classList.add("border-success");
+
+                  // Get the full number including the country code
+                  const value = iti.getNumber();
+                  console.log("Valid number:", value);
+
+                  // Update the value in the array
+                  iVJ = valj_efb.findIndex(x => x.id_ == rndm);
+                  fun_sendBack_emsFormBuilder({
+                      id_: valj_efb[iVJ].id_,
+                      name: valj_efb[iVJ].name,
+                      id_ob: valj_efb[iVJ].id_,
+                      amount: valj_efb[iVJ].amount,
+                      type: valj_efb[iVJ].type,
+                      value: value,
+                      session: sessionPub_emsFormBuilder,
+                      form_id: form_id
+                  });
+              } else {
+                  el_mobile.classList.add("border-danger");
+
+                  // Handle validation errors
+                  let errorCode = iti.getValidationError();
+                  errorCode = errorMap[errorCode] ? errorMap[errorCode] : errorMap[0];
+                  console.log("Error code:", errorCode);
+
+                  // Display the error message
+                  messageEl.innerHTML = errorCode;
+                  messageEl.classList.remove("d-none");
+                  messageEl.classList.add("d-block");
+
+                  // Remove invalid value from the array
+                  let inx = get_row_sendback_by_id_efb(rndm);
+                  if (inx !== -1) {
+                      sendBack_emsFormBuilder_pub.splice(inx, 1);
+                  }
+              }
+          }
+      });
+  }, 800);
+};
+/* load_intlTelInput_efb=(rndm,iVJ)=>{
  const onlyCountries= valj_efb[iVJ].hasOwnProperty("c_c") && valj_efb[iVJ].c_c.length>0 ? valj_efb[iVJ].c_c : "";
+ let iti;
+ const el_mobile = document.getElementById(rndm+"_");
   setTimeout(()=>{
-     const iti= window.intlTelInput(document.getElementById(rndm+"_"), {
+    iti= window.intlTelInput(el_mobile, {
     onlyCountries:onlyCountries,
     autoHideDialCode: true,
     placeholderNumberType:"MOBILE",
     utilsScript: efb_var.images.utilsJs,
   });
-  document.getElementById(rndm+"_").addEventListener('blur', function() {
+  el_mobile.addEventListener('blur', function() {
   const  errorMap = [efb_var.text.cpnnc, efb_var.text.icc,efb_var.text.cpnts,efb_var.text.cpntl, efb_var.text.cpnnc];
-  document.getElementById(rndm+"_").classList.remove("border-danger");
-  document.getElementById(rndm+"_").classList.remove("border-success");
+  el_mobile.classList.remove("border-danger");
+  el_mobile.classList.remove("border-success");
   document.getElementById(rndm+"_-message").innerHTML="";
   document.getElementById(rndm+"_-message").classList.remove("d-block");
   document.getElementById(rndm+"_-message").classList.add("d-none");
-    if (document.getElementById(rndm+"_").value.trim()) {
+    if (el_mobile.value.trim()) {
+      console.log(el_mobile.value ,iti.s)
       if (iti.isValidNumber()) {
-        document.getElementById(rndm+"_").classList.add("border-success");
-        const mobile_no = document.getElementById(rndm+"_").value.replace(/^0+/, '')
+        el_mobile.classList.add("border-success");
+        const mobile_no = el_mobile.value.replace(/^0+/, '')
           let value = `+${iti.s.dialCode}${mobile_no}`;          
           iVJ = valj_efb.findIndex(x=>x.id_==rndm);
           fun_sendBack_emsFormBuilder({ id_: valj_efb[iVJ].id_, name: valj_efb[iVJ].name, id_ob: valj_efb[iVJ].id_, amount: valj_efb[iVJ].amount, type: valj_efb[iVJ].type, value: value, session: sessionPub_emsFormBuilder });
       } else {
-        document.getElementById(rndm+"_").classList.add("border-danger");
+        el_mobile.classList.add("border-danger");
+        console.log(iti)
         let errorCode = iti.getValidationError() 
         errorCode= errorMap[errorCode] ? errorMap[errorCode] :errorMap[0];
         document.getElementById(rndm+"_-message").classList.remove("d-none");
         document.getElementById(rndm+"_-message").classList.add("d-block");
+        console.log(errorCode ,rndm+"_-message");
         document.getElementById(rndm+"_-message").innerHTML=errorCode;        
-        let inx = get_row_sendback_by_id_efb(valj_efb[iVJ].id_);
+        let inx = get_row_sendback_by_id_efb(rndm);
         if (inx != -1) {
           sendBack_emsFormBuilder_pub.splice(inx, 1)
         }
       }
     }
   });
-  },800)
-}
+  },300)
+} */
 fun_imgRadio_efb=(id ,link,row ,state=true)=>{
   const u = (url)=>{
     url = url.replace(/(http:@efb@)+/g, 'http://');
@@ -892,7 +980,7 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
   }
   return state_el!=null ? result : opt;
 }
-fun_check_link_state_efb=(iso2_country , indx)=>{
+fun_check_link_state_efb=async(iso2_country , indx)=>{
  let indx_state =-1;
   for (let i = indx+1; i < valj_efb.length; i++) {
     if(valj_efb[i].type=='option'){
@@ -914,14 +1002,14 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
     }
   }
     //console.log('get_states_efb')
-    callFetchStatesPovEfb(valj_efb[indx_state].id_+'_options', iso2_country, indx_state,'pubSelect');
+   await callFetchStatesPovEfb(valj_efb[indx_state].id_+'_options', iso2_country, indx_state,'pubSelect');
 }
 async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,autofilled=false) {  
   let state_el= document.getElementById(idField)
   if(state_el!=null){
-  state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
-  state_el.classList.add('is-loading');
-  state_el.disabled=true;
+    state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
+    state_el.classList.add('is-loading');
+    state_el.disabled=true;
   }
   let url =`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${iso2_country.toLowerCase()}.json`
   if(setting_emsFormBuilder.addons.AdnOF==true){
@@ -1382,9 +1470,63 @@ fun_remove_row_sendback_efb=(id)=>{
   }
 }
 
-fun_valj_efb_run=(form_id)=>{
+fun_valj_efb_run=async(form_id)=>{
   console.log(form_id ,valj_efb_new);
   const r = valj_efb_new.find(x=>x.id ==form_id);
   console.log('fun_valj_efb_run',r);
         valj_efb = r.structure;
+}
+
+fun_event_esign_efb=(id,form_id,disabled,v)=>{
+  const el_esign = document.getElementById(id+'_');
+  c2d_contex_efb = el_esign.getContext("2d");
+  c2d_contex_efb.lineWidth = 5;
+  c2d_contex_efb.strokeStyle = "#000000";
+  if(disabled)return;
+  el_esign.addEventListener("mousedown", (e) => {
+    draw_mouse_efb = true;
+    c2d_contex_efb = el_esign.getContext("2d");
+    canvas_id_efb = id;
+    lastMousePostion_efb = getmousePostion_efb(el_esign, e);
+  }, false);
+  el_esign.addEventListener("mouseup", (e) => {
+    draw_mouse_efb = false;
+    const el = document.getElementById(`${id}-sig-data`);
+    const value = el.value;
+    document.getElementById(`${id}_-message`).classList.remove('show');
+    const o = [{ id_: id, name: v.name, amount: v.amount, type: v.type, value: value, session: sessionPub_emsFormBuilder, form_id: form_id }];
+    fun_sendBack_emsFormBuilder(o[0]);
+  }, false);
+  el_esign.addEventListener("mousemove", (e) => { mousePostion_efb = getmousePostion_efb(el_esign, e); }, false);
+  el_esign.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    document.body.style.overflow = 'hidden';
+    let touch = e.touches[0];
+    let ms = new MouseEvent("mousemove", { clientY: touch.clientY, clientX: touch.clientX });
+    el_esign.dispatchEvent(ms);
+  }, false);
+  el_esign.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    document.body.style.overflow = 'hidden';
+    canvas_id_efb = id;
+    c2d_contex_efb = el_esign.getContext("2d");
+    mousePostion_efb = getTouchPos_efb(el_esign, e);
+    let touch = e.touches[0];
+    let ms = new MouseEvent("mousedown", {
+      clientY: touch.clientY,
+      clientX: touch.clientX
+    });
+    el_esign.dispatchEvent(ms);
+  }, false);
+  el_esign.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    document.body.style.overflow = 'auto';
+    let ms = new MouseEvent("mouseup", {});
+    el_esign.dispatchEvent(ms);
+    const value = document.getElementById(`${id}-sig-data`).value;
+  }, false);
+  (function drawLoop() {
+    requestAnimFrame(drawLoop);
+    renderCanvas_efb(id);
+  })();
 }

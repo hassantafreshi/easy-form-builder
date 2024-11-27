@@ -100,7 +100,7 @@
 				break;
 			case 'switch':
 		
-				
+				wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true,EMSFB_PLUGIN_VERSION);
 				$vj->on = $vj->on ?? $texts['on'];
 				$vj->off = $vj->off ?? $texts['off'];
 
@@ -398,7 +398,7 @@
 			'%s
 			<div data-tag="%s" class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
-				<select class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s data-type="%s" %s %s>
+				<select class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s data-type="%s" data-formid="%s" %s %s>
 					<option selected disabled>%s</option>
 					%s
 				</select>
@@ -421,6 +421,7 @@
 			$vj->name,
 			$ariaDescribedBy,
 			$type, // اضافه کردن ویژگی data-type
+			$formId,
 			$readonly,
 			$disabled ? 'disabled' : '',
 			$texts['nothingSelected'],
@@ -1079,8 +1080,8 @@
 	
 		// Create the HTML string
 		$inputPhone = sprintf(
-			'<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s>
-			<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField d-none efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s data-vid="%7$s" id="%7$s-code" placeholder="verify" %11$s %12$s %10$s>',
+			'<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s data-utilsjs="%14$s">
+			<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField d-none efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s-code" placeholder="verify" %11$s %12$s %10$s data-utilsjs="%14$s">',
 			$vj->el_border_color,
 			$vj->el_height,
 			$corner,
@@ -1093,7 +1094,8 @@
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
-			$form_id
+			$form_id,
+			EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js'
 		);
 	
 		$buttonSubmit = sprintf(
@@ -1643,11 +1645,11 @@
 			$rndm, $formId, // شناسه و فرم آی‌دی
 			$disabled, $classes, $rndm, // کلاس‌ها و داده‌ها
 			$ariaDescribedBy,
-			$this->generate_rating_input($rndm, 5, $previewSate, $disabled, $el_height, $texts['stars']),
-			$this->generate_rating_input($rndm, 4, $previewSate, $disabled, $el_height, $texts['stars']),
-			$this->generate_rating_input($rndm, 3, $previewSate, $disabled, $el_height, $texts['stars']),
-			$this->generate_rating_input($rndm, 2, $previewSate, $disabled, $el_height, $texts['stars']),
-			$this->generate_rating_input($rndm, 1, $previewSate, $disabled, $el_height, $texts['stars']),
+			$this->generate_rating_input($rndm, 5, $previewSate, $disabled, $el_height, $texts['stars'], $formId),
+			$this->generate_rating_input($rndm, 4, $previewSate, $disabled, $el_height, $texts['stars'], $formId),
+			$this->generate_rating_input($rndm, 3, $previewSate, $disabled, $el_height, $texts['stars'], $formId),
+			$this->generate_rating_input($rndm, 2, $previewSate, $disabled, $el_height, $texts['stars'], $formId),
+			$this->generate_rating_input($rndm, 1, $previewSate, $disabled, $el_height, $texts['stars'], $formId),
 			$rndm, $requiredClass, $rndm, $formId,
 			$desc
 		);
@@ -1657,16 +1659,16 @@
 
 
 	/* field builder */
-	private function generate_rating_input($rndm, $starValue, $previewSate, $disabled, $el_height, $starText) {
+	private function generate_rating_input($rndm, $starValue, $previewSate, $disabled, $el_height, $starText,$form_id) {
 		return sprintf(
-			'<input type="radio" id="%s-star%s" data-vid="%s" data-type="rating" class="efb" data-star="star" name="%s-star-efb" value="%s" data-name="star" data-id="%s-el" %s %s>
+			'<input type="radio" id="%s-star%s" data-vid="%s" data-formid="%s" data-type="rating" class="efb" data-star="star" name="%s-star-efb" value="%s" data-name="star" data-id="%s-el" %s %s>
 			<label id="%s_star%s" for="%s-star%s" %s title="%s stars" class="efb %s star %s"> </label>',
-			$rndm, $starValue, 
+			$rndm, $starValue,$form_id,
 			$rndm, $rndm, $starValue, 
 			$rndm, 
 			$previewSate != true ? 'disabled' : '', $disabled, 
 			$rndm, $starValue, $rndm, $starValue, 
-			($previewSate == true && $disabled == '') ? sprintf('onclick="fun_get_rating_efb(\'%s\',%s)"', $rndm, $starValue) : '',
+			($previewSate == true && $disabled == '') ? sprintf('onclick="fun_get_rating_efb(\'%s\',%s , \'%s\')"', $rndm, $starValue,$form_id) : '',
 			$starValue, $el_height, $disabled, 
 			$starValue, $starText 
 		);
@@ -2115,6 +2117,24 @@
 					// error_log('element ID:'.$element_Id);
 					$dataTag = $elementId;
 					$ui = $pro ? $ui : $this->public_pro_message_efb($texts['tfnapca']);
+
+					if($isPdate){
+						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
+							$this->efbFunction->download_all_addons_efb();
+							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+						}else{
+							require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+							$persianDatePicker = new persianDatePickerEFB() ; 	
+						}
+					}else{
+						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+							$this->efbFunction->download_all_addons_efb();
+							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+						}else{
+							require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+							$arabicDatePicker = new arabicDatePickerEfb() ; 
+						}
+					}
 					
 				break;			
 
@@ -2225,6 +2245,10 @@
 					}else{
 						$optn=$this->public_pro_message_efb($texts['tfnapca']);
 					}	
+					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);	
+					wp_enqueue_script('intlTelInput-js');
+					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
+					wp_enqueue_style('intlTelInput-css');
 					$ui = sprintf('
 						%s
 						%s
@@ -2327,7 +2351,7 @@
 								$disabled,
 								$checked,
 								$elementId != 'imgRadio' ? sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', isset($vj->pholder_chl_value) ? 'col-8' : '', $vj->el_text_color, $vj->el_height, $vj->label_text_size, $i->id_, $i->id_, $this->fun_get_links_from_string_Efb($i->value, true)) : $imageRadio,
-								strpos($elementId, 'chl') !== false ? sprintf('<input type="text" class="efb %s %s checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="%s" data-type="%s" data-vid="" id="%s_chl" placeholder="%s" disabled>', $vj->el_text_color, $vj->el_height, $i->id_, $dataTag, $i->id_, $vj->pholder_chl_value) : '',
+								strpos($elementId, 'chl') !== false ? sprintf('<input type="text" class="efb %s %s checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="%s" data-type="%s"data-formid="%s" data-vid="%s" id="%s_chl"  placeholder="%s" disabled>', $vj->el_text_color, $vj->el_height, $i->id_, $dataTag, $form_id, $i->id_, $i->id_, $vj->pholder_chl_value) : '',
 								strlen($pay) > 2 ? sprintf('<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="%s-price" class="efb efb-crrncy">%s</span></span>', $i->id_, $prc):''
 							);
 						}
@@ -2656,6 +2680,12 @@
 						$ui =$this->public_pro_message_efb($texts['tfnapca']);
 						break;
 					}
+
+					//wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
+					//easy-form-builder\vendor\persiapay\persia_pay-efb.js
+					wp_register_script('parsipay_js', EMSFB_PLUGIN_URL . 'vendor/persiapay/persia_pay-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+					wp_enqueue_script('parsipay_js');
+
 					$ui = $this->add_ui_zp_efb($rndm , $form_id,$texts);
 					$dataTag = $elementId;
 
@@ -2692,14 +2722,14 @@
 				$newElement .= $ui;
 			}
 			
-			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link'])) {
-				$newElement .= '</div></div>';
+			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList'])) {
+				$newElement .= '<!--test2--></div></div>';
 			} else {
-				$newElement .= '</div>';
+				$newElement .= '<!--test--></div>';
 			}
 			
 			$newElement .= sprintf('<!--endTag %s-->', $elementId);
-			// error_log('newElement: reult'.$newElement);
+			 error_log('newElement: reult'.$newElement);
 			// error_log('style: reult'.$style);
 			return [$newElement ,$style];
 		}
