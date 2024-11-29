@@ -1199,9 +1199,9 @@
 				</div>
 				<h6 id="%3$s_txt" class="efb text-center m-1 fs-6">%4$s %5$s</h6>
 				<span class="efb fs-7 my-1">%6$s</span>
-				<button type="button" class="efb btn %7$s efb-btn-lg fs-6 mb-1" id="%3$s_b" %8$s>
+				<div class="efb btn %7$s efb-btn-lg fs-6 mb-1" id="%3$s_b" %8$s>
 					<i class="efb bi-upload mx-2 fs-6"></i>%9$s
-				</button>
+				</div>
 				<input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s" id="%3$s_" data-id="%3$s-el" data-formid="%13$s" %12$s %8$s>',
 				$vj->icon,
 				$vj->icon_color,
@@ -2411,9 +2411,9 @@
 								<span>%3\$s</span>
 								<span class='text-danger' role='none'>%4\$s</span>
 							</label>
-							<div class='efb maps-efb maps-os' id='%1\$s-map' style='height: %5\$s;' data-formid='%2\$s' data-lat='%6\$s' data-lng='%7\$s' data-zoom='%8\$s' data-id='%1\$s-el' %9\$s></div>
-							<input type='hidden' name='%1\$s-lat' id='%1\$s_lat' value='%6\$s' class='efb emsFormBuilder_v' data-type='maps' data-vid='%1\$s' %10\$s>
-							<input type='hidden' name='%1\$s-lng' id='%1\$s_lng' value='%7\$s' class='efb emsFormBuilder_v' data-type='maps' data-vid='%1\$s' %10\$s>
+							<div class='efb maps-efb maps-os emsFormBuilder_v' id='%1\$s-map' data-vid='%1\$s' style='height: %5\$s;' data-formid='%2\$s' data-lat='%6\$s' data-lng='%7\$s' data-zoom='%8\$s' data-id='%1\$s-el' %9\$s></div>
+							<input type='hidden' name='%1\$s-lat' id='%1\$s_lat' value='%6\$s' class='efb emsFormBuilder_v'  data-formid='%2\$s' data-type='maps' data-vid='%1\$s' %10\$s>
+							<input type='hidden' name='%1\$s-lng' id='%1\$s_lng' value='%7\$s' class='efb emsFormBuilder_v'  data-formid='%2\$s' data-type='maps' data-vid='%1\$s' %10\$s>
 							<small id='%1\$s-des' class='form-text text-muted'>%11\$s</small>
 						</div>",
 						$element_Id,  // %1$s
@@ -2683,7 +2683,7 @@
 
 					//wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
 					//easy-form-builder\vendor\persiapay\persia_pay-efb.js
-					wp_register_script('parsipay_js', EMSFB_PLUGIN_URL . 'vendor/persiapay/persia_pay-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+					wp_register_script('parsipay_js', EMSFB_PLUGIN_URL . 'public/assets/js/persia_pay-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 					wp_enqueue_script('parsipay_js');
 
 					$ui = $this->add_ui_zp_efb($rndm , $form_id,$texts);
@@ -2722,7 +2722,7 @@
 				$newElement .= $ui;
 			}
 			
-			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList'])) {
+			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps'])) {
 				$newElement .= '<!--test2--></div></div>';
 			} else {
 				$newElement .= '<!--test--></div>';

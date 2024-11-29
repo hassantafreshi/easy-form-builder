@@ -791,6 +791,7 @@ class efbFunction {
 			"installation" => $state  &&  isset($ac->text->installation) ? $ac->text->installation : esc_html__('installation',$s),
 			"tDeleted" => $state ? $ac->text->tDeleted : esc_html__('The %s have been deleted.',$s),
 			"sfmcfop" => $state  &&  isset($ac->text->sfmcfop) ? $ac->text->sfmcfop : esc_html__('The %s field must be correctly filled out to proceed.',$s),
+			"fform" => $state  &&  isset($ac->text->fform) ? $ac->text->fform : esc_html__('Completed form',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s),
 			
 

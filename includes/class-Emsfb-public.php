@@ -297,7 +297,7 @@ class _Public {
 									wp_enqueue_script('stripe-js');
 									// wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
 									//vendor\stripe\stripe_pay-efb.js
-									wp_register_script('stripepay_js', EMSFB_PLUGIN_URL . 'vendor/stripe/stripe_pay-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+									wp_register_script('stripepay_js', EMSFB_PLUGIN_URL . 'public/assets/js/stripe_pay-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 									wp_enqueue_script('stripepay_js');
 									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 								}else if($paymentType=="zarinPal" || $paymentType=="payping" ){
@@ -368,7 +368,7 @@ class _Public {
 					$val_ = json_encode($valj_efb,JSON_UNESCAPED_UNICODE);
 					$value = str_replace('"', '\\"', $val_);
 				}
-				$this->value_forms[] = ['id' => $this->id,'type'=>$typeOfForm ,'structure' => $fs , 'sid' => $sid];
+				
 
 				/* if (($value_form[0]->form_type=="login" || $value_form[0]->form_type=="register")){
 					if( is_user_logged_in()){
@@ -486,6 +486,7 @@ class _Public {
 			$icons_els =[];
 			$pro_element_exists = false;
 			$auto_filled = false;
+			$is_file_element_exist = false;
 			$list_pro_elements = ['prcfld','dadfile','ttlprc','table_matrix','smartcr','pointr5','pointr10','booking','heading','zarinPal','persiaPay','stripe','paypal','link','yesNo','html','cityList','city','statePro','stateProvince','country','conturyList','paySelect','rating','esign','switch','trmCheckbox','imgRadio','chlRadio','chlCheckBox','payRadio','payCheckbox','mobile','maps','ardate','pdate'];
 			for( $i=0; $i<$count; $i++){
 				$randomId = wp_unique_id('efb_');			
@@ -563,6 +564,10 @@ class _Public {
 						
 					}
 
+					if(in_array($valj_efb[$i]->type, ["file","dadfile"])){
+						$is_file_element_exist = true;
+					}
+
 					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $form_id, $lanText);
 					//check if has autofill
 					if($pro==true && $auto_filled == false &&  isset($valj_efb[$i]->autofll) ){
@@ -611,8 +616,13 @@ class _Public {
 
 				$step_no--;
 			}
-			
-	
+			$row_form_info= ['id' => $this->id, 'type' => $typeOfForm, 'form_structer' => $fs, 'sid' => $sid];
+			if($is_file_element_exist){
+				//nonce_msg = wp_create_nonce($code)
+				$code = 'efb'.$this->id;
+				$row_form_info['nonce_msg'] = wp_create_nonce($code);
+			}
+			$this->value_forms[] = $row_form_info;
 			$style = $style.'</style>';
 			$console_checker = $efbFormBuilder->check_error_console_efb();
 			$script = '<script>'.$console_checker.'</script>';
@@ -816,7 +826,7 @@ class _Public {
 		$text_ = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM', 'bkFlM', 'mnvvXXX', 'ptrnMmm', 'ptrnMmx', 'payment', 'error403', 'errorSiteKeyM',
 			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound',
-			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response'
+			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform'
 		];
 		$efbFunction = $this->get_efbFunction(1);
 		// if(empty($this->efbFunction)) $this->efbFunction = $efbFunction;
@@ -867,7 +877,7 @@ class _Public {
 			
 			//$m =$this->['response'] to upper case first letter
 			
-			$msg = sprintf($this->lanText['snotfound'], ucfirst($this->lanText['snotfound']));
+			$msg = sprintf($this->lanText['snotfound'], ucfirst($this->lanText['fform']));
 			$response = ['success' => false, 'm' =>$msg];
 			wp_send_json_success($response, 200);
 		}
@@ -1284,9 +1294,10 @@ class _Public {
 												$s = 1;
 											}
 										}
+										error_log('s: ' . $s);
 										if ($s == 1) {
-											$stated = 1;											
 											$rt = $item;
+											$stated = 1;											
 										} else {
 											$item = null;
 											$rt = null;
@@ -1385,6 +1396,7 @@ class _Public {
 						}
 					});
 					if (isset($rt)) {
+						error_log('rt: ' . json_encode($rt));
 						array_push($valobj, $rt);
 					};
 				}
@@ -1506,6 +1518,8 @@ class _Public {
 					die();
 				} else if (!$not_captcha || ($not_captcha &&  isset($captcha_success->success) && $captcha_success->success == true)) {
 					if (empty($data_POST['value']) || empty($data_POST['name']) || empty($data_POST['id'])) {
+						error_log(json_encode($data_POST));
+						error_log('empty!!!');
 						$response = ['success' => false, "m" => $this->lanText['pleaseEnterVaildValue']];
 						wp_send_json_success($response, 200);
 						die();
@@ -2044,6 +2058,10 @@ class _Public {
         $fid=sanitize_text_field($_POST['fid']);
 		$sid = sanitize_text_field($_POST['sid']);
 		$page_id = sanitize_text_field($_POST['page_id']);
+		error_log('file_upload_api');
+		error_log('sid: '.$sid);
+		error_log('fid: '.$fid);
+		error_log('page_id: '.$page_id);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
 		if ($s_sid !=1 || $sid==null){
 		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . ": 402"); 

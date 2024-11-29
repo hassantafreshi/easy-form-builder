@@ -1701,7 +1701,7 @@ function creator_form_builder_Efb() {
 
          </div></div></div></div>
       </div>
-  <div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
+  <div class="efb modal fade test" id="settingModalEfb"  aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
       <div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
           <div class="efb modal-content efb " id="settingModalEfb-sections">
                   <div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb fs-3">${efb_var.text.editField}</span></h5></div>

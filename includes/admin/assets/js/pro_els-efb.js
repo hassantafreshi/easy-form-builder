@@ -332,6 +332,7 @@ function viewfileEfb(id, indx ,filed) {
     }
   }
 function viewfileReplyEfb(id, indx) {
+  console.log('viewfileReplyEfb')
     let fileType = fileEfb.type;
     const filename = fileEfb.name;
     if (validExtensions_efb_fun('allformat',fileType,indx)) {
@@ -1096,8 +1097,9 @@ return false;
 
 
 function efbCreateMap(id ,r ,viewState) {
-  var efbInitialLat = viewState==true ? r.value[0].lat : r.lat; 
-  var efbInitialLng = viewState==true ? r.value[0].lng :r.lng; 
+  console.log('efbCreateMap',id ,r ,viewState)
+  var efbInitialLat = viewState==true ? r.value=='' ? r.lat : r.value[0].lat : r.lat; 
+  var efbInitialLng = viewState==true ? r.value=='' ? r.lng : r.value[0].lng :r.lng; 
   var efbInitialZoom = viewState==true ? 18 :r.zoom;
   var efbAllowAddingMarkers = Number(r.mark)>0 ? true :false; 
   if(viewState==true && efbAllowAddingMarkers==true)efbAllowAddingMarkers=false;

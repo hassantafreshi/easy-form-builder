@@ -1314,6 +1314,7 @@ function validExtensions_efb_fun(type, fileType,indx) {
 }
 let steps_len_efb 
 function handle_navbtn_efb(steps, device) {
+  console.log('handle_navbtn_efb')
   var next_s_efb, prev_s_efb; 
   var opacity_efb;
   steps_len_efb = Number(steps) + 1;
@@ -2409,11 +2410,25 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
     return;
   }
   //v3.6.2  updated
+  console.log('fun_upload_file_api_emsFormBuilder 2345')
+  console.log(id , type , tp , file)
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
+  console.log(indx , files_emsFormBuilder)
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;
   let r = ""
-  const nonce_msg = efb_var.nonce_msg ;
+  const form_id = files_emsFormBuilder[indx].hasOwnProperty('form_id') ? files_emsFormBuilder[indx].form_id : 0;
+  let nonce_msg =''
+  let sid =''
+  if(form_id==0){
+    sid = efb_var.sid;
+  }else{
+    const vj =fun_sid_efb(form_id)
+    nonce_msg = vj.nonce_msg;
+    sid = vj.sid;
+  }
+  //const nonce_msg = form_id==0 ? efb_var.nonce_msg : fun_sid_efb(form_id); 
+  console.log(`form_id[${form_id}] nonce_msg[${nonce_msg}]`);
   const page_id = efb_var.page_id ;
   //jQuery(function ($) {
     const fd = new FormData();
@@ -2421,19 +2436,23 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
     //const file = document.getElementById(idn);
     setTimeout(() => {
       //const caption = document.querySelector(idn);
-      uploadFile_api(file, id, tp, nonce_msg ,indx ,idn,page_id)
+      uploadFile_api(file, id, tp, nonce_msg ,indx ,idn,page_id,form_id,sid);
       return true;
     }, 500);
 }
-function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
+function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
   const progressBar = document.querySelector('#progress-bar');
   const idB =id+'-prB';
+  console.log('uploadFile_api 2385')
+  console.log(`uploadFile_api 2385 file[${file}] id[${id}] pl[${pl}] nonce_msg[${nonce_msg}] indx[${indx}] idn[${idn}] page_id[${page_id}]`)
   //setTimeout(() => {
-      fetch_uploadFile(file, id, pl, nonce_msg,page_id).then((data) => {
+      fetch_uploadFile(file, id, pl, nonce_msg,page_id,fid,sid).then((data) => {
+        console.log(data);
         if (data.success === true && data.data.success===true) {
           files_emsFormBuilder[indx].url = data.data.file.url;
             files_emsFormBuilder[indx].state = 2;
             files_emsFormBuilder[indx].id = idn;
+            const form_id = files_emsFormBuilder[indx].hasOwnProperty('form_id') ? files_emsFormBuilder[indx].form_id : 0;
             const ob = valueJson_ws.find(x => x.id_ === id) || 0;
             const o = [{
               id_: files_emsFormBuilder[indx].id_,
@@ -2444,6 +2463,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
               url: files_emsFormBuilder[indx].url,
               session: sessionPub_emsFormBuilder,
               page_id: page_id,
+              form_id: form_id,
             }];    
             console.log('2445')        
             fun_sendBack_emsFormBuilder(o[0]);
@@ -2468,16 +2488,16 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
         console.error(error);
       });
 }
-function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
+function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
   var idB =id+'-prB';
   return new Promise((resolve, reject) => {
     const formData = new FormData();
-    const fid = efb_var.hasOwnProperty('id') ? efb_var.id :0;
+   // const fid = efb_var.hasOwnProperty('id') ? efb_var.id :0;
     formData.append('async-upload', file);
     formData.append('id', id);
     formData.append('pl', pl);
     formData.append('nonce_msg', nonce_msg);
-    formData.append('sid', efb_var.sid);
+    formData.append('sid', sid);
     formData.append('fid', fid);
     formData.append('page_id', efb_var.page_id);
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
