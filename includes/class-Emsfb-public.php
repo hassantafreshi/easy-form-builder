@@ -634,7 +634,7 @@ class _Public {
 			$content_new = $script.$this->bootstrap_icon_efb($icons_).'
 				<!-- start body_efb-->
 				
-				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'">
+				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'">
 					<form id="efbform" class="mx-0 px-0 efb" data-formid="'.$this->id.'">
 					<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2 view-efb" id="view-efb" data-formid="'.$this->id.'">
 					' . (intval($valj_efb[0]->show_icon) != 1 

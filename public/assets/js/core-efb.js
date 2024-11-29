@@ -134,8 +134,9 @@ setTimeout( fun_efb_run, g_timeout_efb)
 // v4  start for parsing of elements of forms for add event listener by call function handle_change_event_efb and store value in sendtoback varible by call function fun_sendBack_emsFormBuilder
 
 
-function createStepsOfPublic() {
+async function createStepsOfPublic() {
  // let form_id= 0;
+
  efb_var = ajax_object_efm;
  setting_emsFormBuilder = typeof ajax_object_efm.form_setting == "string" ? JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, '')) : ajax_object_efm.form_setting;
   for (let el of document.querySelectorAll(`.emsFormBuilder_v`)) {
@@ -1348,7 +1349,7 @@ post_api_r_message_efb=(data,message)=>{
     });
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded",async function() {
   let elements = document.querySelectorAll('#body_efb');
   const msg = `<h3 class="efb fs-5 text-center text-dark bg-warning m-3 p-3">${ajax_object_efm.text.fetf} <div class='efb mt-1 fs-6'> ${ajax_object_efm.text.easyFormBuilder}</div> </h3>`
   fun =()=>{
@@ -1363,8 +1364,23 @@ document.addEventListener("DOMContentLoaded", function() {
     fun();
   }
 
-  //v4 start
-   createStepsOfPublic();
+    //v4 start
+  fun_wait =(state ,speed)=>{
+    if(speed!='fast'){
+      const body_efbs = document.querySelectorAll('.body_efb');
+      body_efbs.forEach((body_efb) => {
+        if(state ==true){
+          body_efb.classList.add('efb-waiting');
+        }else{
+          body_efb.classList.remove('efb-waiting');
+        } 
+        console.log(state,body_efb.classList)
+      })
+    }
+  }
+
+  await createStepsOfPublic();
+  fun_wait(false,'nfast');
  
   //v4 end
 });
@@ -2187,25 +2203,26 @@ const fun_sid_efb =(form_id)=>{
 
 const speed_test_efb=()=>{
   console.log('speed_test_efb');
-  if ('connection' in navigator) {
-    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if ('connection' in navigator) {
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
 
-    console.log('Effective Network Type:', connection.effectiveType); // e.g., '4g', '3g', '2g', 'slow-2g'
+  /*  console.log('Effective Network Type:', connection.effectiveType); // e.g., '4g', '3g', '2g', 'slow-2g'
+      console.log('Downlink Speed (Mbps):', connection.downlink); // Estimated download bandwidth in Mbps
+      console.log('Round-Trip Time (ms):', connection.rtt); // Estimated round-trip latency in milliseconds */
 
-    console.log('Downlink Speed (Mbps):', connection.downlink); // Estimated download bandwidth in Mbps
-
-    console.log('Round-Trip Time (ms):', connection.rtt); // Estimated round-trip latency in milliseconds
-
-    // Event listener to detect changes in the connection
-    connection.addEventListener('change', () => {
-        console.log('Network type changed to:', connection.effectiveType);
-    });
-} else {
-    console.log('Network Information API is not supported by your browser.');
+      if( connection.downlink<1){
+        return 'slow';
+      }else if(connection.downlink>=1 && connection.downlink<2){
+        return 'medium';
+      }else {
+        return 'fast'
+      }
+  } else {
+     return 'notSupported';
+  }
 }
-}
 
-speed_test_efb();
+
 
 
 
