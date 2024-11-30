@@ -435,7 +435,25 @@
 
 
 	public function generate_state_province_efb($rndm, $vj, $pos, $formId, $texts, $desc, $label, $ttip, $aire_describedby) {
-		$optn = '<!--options-->';
+		$options = '';
+        $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
+            return isset($obj->parent) && $obj->parent === $rndm;
+        });
+        foreach ($optns_obj as $i) {
+            $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
+			$options .= sprintf(
+					'<option value="%s" id="%s" data-iso="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" %s>%s</option>',
+					$i->value,
+					$i->id_,
+					$i->id_op,
+					$i->id_,
+					$i->id_,
+					$vj->el_text_color,
+					$selected,
+					$i->value
+				);
+				// error_log('options:'.$options);
+        }
 		
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$readonly = false ? 'readonly' : ''; // Assuming $previewSate is false as not provided
@@ -475,7 +493,7 @@
 			$readonly,
 			$disabled,
 			$texts['nothingSelected'],
-			$optn,
+			$options,
 			$desc
 		);
 	
@@ -483,7 +501,25 @@
 	}
 	
 	public function generate_city_list_efb($rndm, $vj, $pos, $formId, $texts, $desc, $label, $ttip, $aire_describedby) {
-		$optn = '<!--options-->';
+		$options = '';
+        $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
+            return isset($obj->parent) && $obj->parent === $rndm;
+        });
+        foreach ($optns_obj as $i) {
+            $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
+			$options .= sprintf(
+					'<option value="%s" id="%s" data-iso="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" %s>%s</option>',
+					$i->value,
+					$i->id_,
+					$i->id_op,
+					$i->id_,
+					$i->id_,
+					$vj->el_text_color,
+					$selected,
+					$i->value
+				);
+				// error_log('options:'.$options);
+        }
 		
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$readonly = false ? 'readonly' : ''; // Assuming $previewSate is false as not provided
@@ -523,7 +559,7 @@
 			$readonly,
 			$disabled,
 			$texts['nothingSelected'],
-			$optn,
+			$options,
 			$desc
 		);
 	
@@ -1711,7 +1747,7 @@
             '%s
             <div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
                 %s
-                <select class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s %s %s>
+                <select data-formid="%s" class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s %s %s>
                     <option selected disabled>%s</option>
                     %s
                 </select>
@@ -1723,6 +1759,7 @@
             $rndm,
             $rndm, $rndm, $formId,
             $ttip,
+			$formId,
             $pay,
             $required,
             $el_height,

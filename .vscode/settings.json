@@ -1,2 +1,17 @@
 {
+    "codegraphy.connectionType": "Interaction",
+    "codegraphy.nodeSize": "Lines",
+    "codegraphy.showNodeModules": false,
+    "codegraphy.showOrphans": false,
+    "codegraphy.showLabels": false,
+    "codegraphy.showOutlines": true,
+    "codegraphy.showArrows": false,
+    "codegraphy.doCollisions": true,
+    "codegraphy.chargeForce": -100,
+    "codegraphy.linkDistance": 100,
+    "codegraphy.nodeColor": "D3",
+    "codegraphy.selectedD3Color": "Spectral",
+    "codegraphy.selectedNodeColor": "#fff",
+    "codegraphy.favoriteNodeColor": "#ffd700",
+    "codegraphy.outlineColor": "#ffd700"
 }

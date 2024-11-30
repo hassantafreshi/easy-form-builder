@@ -828,6 +828,7 @@ function terms_el_pro_efb(previewSate, rndm,iVJ){
   </div>`;
 }
 fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
+  console.log('fun_check_link_city_efb',iso2_country ,iso2_statePove , indx)
   //const country = country_el.value;
  let indx_state =-1;
   for (let i = indx+1; i < valj_efb.length; i++) {
@@ -869,7 +870,7 @@ function clean_options_select_efb(id){
   }
 }
 async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_state,fieldType,autofilled=false) {
-  //console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled)
+  console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled)
   let state_el= document.getElementById(idField)
   if(state_el!=null){
   state_el.innerHTML = "";
@@ -895,8 +896,10 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
   }
   //console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled)
   let url = `https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`;
-  //console.log(setting_emsFormBuilder.addons.AdnOF);
-  if(setting_emsFormBuilder.addons.AdnOF==true){
+
+
+  const state_check = fun_state_check_addon_AdnOF_setting_efb();
+  if(state_check){
      url =efb_var.images.plugin_url+ `/vendor/offline/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`;
      //exclude first two duble slashes  
      url =url.replaceAll('//vendor','/vendor');
@@ -1013,7 +1016,8 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
     state_el.disabled=true;
   }
   let url =`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${iso2_country.toLowerCase()}.json`
-  if(setting_emsFormBuilder.addons.AdnOF==true){
+  const state_check = fun_state_check_addon_AdnOF_setting_efb();
+  if(state_check){
     url =efb_var.images.plugin_url+ `/vendor/offline/json/states/${iso2_country.toLowerCase()}.json`;
     url =url.replaceAll('//vendor','/vendor');
    }
@@ -1531,4 +1535,12 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
     requestAnimFrame(drawLoop);
     renderCanvas_efb(id);
   })();
+}
+
+fun_state_check_addon_AdnOF_setting_efb =()=>{
+  if(efb_version>3){
+   return  setting_emsFormBuilder.AdnOF==true
+  }else{
+   return setting_emsFormBuilder.addons.hasOwnProperty('AdnOF')==true && setting_emsFormBuilder.addons.AdnOF==true
+  }
 }
