@@ -439,13 +439,15 @@
         $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
             return isset($obj->parent) && $obj->parent === $rndm;
         });
+		$iso_country = $vj->country;
         foreach ($optns_obj as $i) {
             $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
 			$options .= sprintf(
-					'<option value="%s" id="%s" data-iso="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" %s>%s</option>',
+					'<option value="%s" id="%s" data-iso="%s" data-isoc="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" %s>%s</option>',
 					$i->value,
 					$i->id_,
-					$i->id_op,
+					$i->s2,
+					$iso_country,
 					$i->id_,
 					$i->id_,
 					$vj->el_text_color,
@@ -508,10 +510,12 @@
         foreach ($optns_obj as $i) {
             $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
 			$options .= sprintf(
-					'<option value="%s" id="%s" data-iso="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" %s>%s</option>',
+					'<option value="%s" id="%s" data-iso="%s" data-isoc="%s" data-statepov="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" %s>%s</option>',
 					$i->value,
 					$i->id_,
-					$i->id_op,
+					$i->id_,
+					$vj->country,
+					$vj->statePov,
 					$i->id_,
 					$i->id_,
 					$vj->el_text_color,

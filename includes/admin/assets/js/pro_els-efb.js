@@ -1538,7 +1538,7 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
 }
 
 fun_state_check_addon_AdnOF_setting_efb =()=>{
-  if(efb_version>3){
+  if(typeof efb_version!='undefined'){
    return  setting_emsFormBuilder.AdnOF==true
   }else{
    return setting_emsFormBuilder.addons.hasOwnProperty('AdnOF')==true && setting_emsFormBuilder.addons.AdnOF==true
