@@ -1219,9 +1219,11 @@ class efbFunction {
 						$valp[$key][$k]= $key!=0 && $k!="email_to" ?  sanitize_email($v): sanitize_text_field($v);
 					break;
 					case 'file':
+						$valp[$key][$k]=sanitize_text_field($v);
+					break ;
 					case 'href':
-						
-						$valp[$key][$k]=$v;
+						//sanitize url
+						$valp[$key][$k]= sanitize_url($v);
 					break;
 					case 'rePage':
 					case 'src':
@@ -1261,8 +1263,7 @@ class efbFunction {
 
 						if($valp[$key]['type']=="option"){
 							
-							foreach ($valp as $ki => $vl) {
-								$tp = $vl['type'];
+							foreach ($valp as $ki => $vl) {								
 								if(array_key_exists('id_',$vl)==false) continue;
 								
 								if($vl['id_']!=$valp[$key]['parent']){
@@ -1282,6 +1283,7 @@ class efbFunction {
 									
 								}
 							}
+							$valp[$key]['id_'] = sanitize_text_field($valp[$key]['id_']);
 							$valp[$key]['id_old']=$valp[$key]['id_'];
 							$valp[$key]['id_'] = $valp[$key][$k];
 							if(isset($valp[$key]['id_op']))$valp[$key]['id_op']=$valp[$key][$k];
@@ -1291,7 +1293,7 @@ class efbFunction {
 					break;
 					case 'conditions':
 						// $valp[$key][$k]=$v;
-						$valp[$key][$k]=$v;
+						$valp[$key][$k]=sanitize_text_field($v);
 					break;
 					default:
 					$k =sanitize_text_field($k);					
