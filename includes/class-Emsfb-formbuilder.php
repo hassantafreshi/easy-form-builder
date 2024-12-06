@@ -582,7 +582,7 @@
 		});
 	
 		//$indx_parent = array_search($rndm, array_column($this->valj_efb, 'id_'));
-		$s = isset($vj->value) && count($vj->value) > 0 ? true : false;
+		$s = isset($vj->value) && gettype($vj->value)!='string' && count($vj->value) > 0 ? true : false;
 	
 		// error_log('type $this->$vj->value:'.gettype($vj->value));
 		// error_log('$this->$vj->value:'.json_encode($vj->value));
@@ -2250,7 +2250,8 @@
 						<div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f">
 							%4$s
 							<textarea id="%3$s_" placeholder="%5$s" class="efb px-2 input-efb emsFormBuilder_v form-control w-100 %6$s %7$s %8$s %9$s %10$s efbField efb1 %11$s" data-css="%3$s" data-vid="%3$s" data-id="%3$s-el"  data-formid="%20$s" value="%12$s" aria-required="%13$s" aria-label="%14$s" %15$s rows="5" %16$s %17$s>%18$s</textarea>
-							%19$s',
+							%19$s					
+							',
 							$label,  // %1$s
 							$pos[3],  // %2$s
 							$element_Id,  // %3$s
@@ -2644,7 +2645,7 @@
 							%s
 							<div class="efb input-group m-0 p-0">
 								%s
-								<input type="number" class="efb input-efb px-2 mb-0 payefb emsFormBuilder_v %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-css="%s" id="%s_" placeholder="%s" %s %s %s %s %s %s>
+								<input type="number" class="efb input-efb px-2 mb-0 payefb emsFormBuilder_v %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-css="%s" id="%s_" placeholder="%s" data-formid="%s" %s %s %s %s %s %s>
 								%s
 							</div>
 							%s',
@@ -2665,8 +2666,10 @@
 						$rndm, // CSS ID
 						$rndm, // Element ID
 						htmlspecialchars($vj->placeholder), // Placeholder text
+						$form_id,
 						($vj->value && strlen($vj->value) > 0) ? 'value="' . htmlspecialchars($vj->value) . '"' : '', // Value attribute
 						$aire_describedby, // Aria described by
+
 						$maxlen, // Maxlength attribute
 						$minlen, // Minlength attribute
 						'', // Readonly attribute
@@ -2696,6 +2699,7 @@
 						$r,  // %s
 						$desc  // %s
 					);
+					error_log('ui=>'.$ui);
 				break;
 				case 'stripe':
 					if($pro!==true && $pro!==1){
@@ -2763,7 +2767,7 @@
 				$newElement .= $ui;
 			}
 			
-			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps'])) {
+			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc'])) {
 				$newElement .= '<!--test2--></div></div>';
 			} else {
 				$newElement .= '<!--test--></div>';

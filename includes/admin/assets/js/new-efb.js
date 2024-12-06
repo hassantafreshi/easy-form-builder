@@ -3462,3 +3462,16 @@ fun_get_links_from_string_Efb=(str , handler)=>{
  
   
 }
+
+// 3.6.8 start
+function deepFreeze_efb(obj) {
+  Object.keys(obj).forEach((key) => {
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+          deepFreeze_efb(obj[key]);
+      }
+  });
+  return Object.freeze(obj);
+}
+
+//3.6.8 end
+

@@ -192,7 +192,8 @@ class Addon {
 	public function fun_Emsfb_creator()
 	{
 	}
-	public function add_form_structure(){
+
+	/* public function add_form_structure(){
 		$efbFunction = $this->get_efbFunction(); 
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
@@ -219,7 +220,7 @@ class Addon {
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
 		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}
 		wp_send_json_success($response, 200);	
-	}
+	} */
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
 		if(empty($this->db)){

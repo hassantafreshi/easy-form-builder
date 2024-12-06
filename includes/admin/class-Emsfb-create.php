@@ -264,9 +264,17 @@ class Create {
 	}
 	public function add_form_structure(){
 		$efbFunction = $this->get_efbFunction();
-		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url" ];
+		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url",'error403'];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
+
+		// security check
+		$nonce = $_POST['nonce'];
+		if ( ! wp_verify_nonce( $nonce, 'admin-nonce' ) ) {
+            $response = ['success' => false, 'm' =>  $lang['error403']];
+            wp_send_json_success($response, 200);
+		}
+		// end security check
 	
 
 		$email = '';
