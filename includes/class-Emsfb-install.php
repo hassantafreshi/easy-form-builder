@@ -106,128 +106,35 @@ class Install {
 			
 						dbDelta( $sql );
 			
+			
 					
 
-							$user_id = get_current_user_id();
-							$usr =get_user_by('id',$user_id);
-							$eml=$usr->user_email;
-							if($eml==NULL || $eml=='') {
-								$usr =get_user_by('id',1);
-								$eml = $usr ? $usr->user_email :'';								
-							}
-						
-						$s = false; 	
-						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
-						$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
-						if($v===NULL && $s){
-							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
-							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
-							, 'date'=>current_time('mysql') , 'email'=>'' ));
-							
-							dbDelta( $s );			
-							
-						}else if ($v === NULL && !$s) {
-							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":false,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
-							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
-							, 'date'=>current_time('mysql') , 'email'=>'' ));
-
-							dbDelta( $s );
-
-						}else if($v!=NULL ){
-							$v_ =str_replace('\\', '', $v);
-							
-
-							 function fun_addon_new($url){
-								//download the addon dependency 
-								$path = preg_replace( '/wp-content(?!.*wp-content).*/', '', __DIR__ );
-								require_once( $path . 'wp-load.php' );
-								require_once (ABSPATH .'wp-admin/includes/admin.php');
-								
-								$name =substr($url,strrpos($url ,"/")+1,-4);
-								
-								$r =download_url($url);
-								if(is_wp_error($r)){
-									//show error message
-									
-								}else{
-									$directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
-									if (!file_exists($directory)) {
-										mkdir($directory, 0755, true);
-									}
-									$v = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
-									if(is_wp_error($v)){
-										$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
-										if(is_wp_error($s)){										
-											error_log('EFB=>unzip addons error 1:');
-											//error_log(json_encode($r));
-											return false;
-										}
-									}else{
-										
-										require_once(ABSPATH . 'wp-admin/includes/file.php');
-										WP_Filesystem();
-										$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
-										if(is_wp_error($r)){																															
-											error_log('EFB=>unzip addons error 2:');
-											//error_log(json_encode($r));
-											return false;
-										}
-									} 
-									return true;           
-								}
-							}
-							//echo 'Installing Addons of Easy Form Builder';
-							$setting = json_decode($v_);
-							$adns =['AdnPDP','AdnADP','AdnSS','AdnCPF','AdnESZ','AdnSE','AdnWHS','AdnPAP','AdnWSP','AdnSMF','AdnPLF','AdnMSF','AdnBEF','AdnWPB','AdnELM','AdnGTB','AdnPFA'];
-							//if(isset($setting->AdnSPF)){
-								$s_time = false;
-								foreach($adns as $adn){
-									if (isset($setting->$adn) && $setting->$adn) {
-										//error_log('check install-'.$adn.'-'. $setting->$adn);
-										if (!$s_time) {
-											$s_time = true;
-											set_time_limit(240);
-											ignore_user_abort(true);
-										}
-										$value = $adn;
-										// اگر لینک دانلود داشت
-										$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-										$vwp = get_bloginfo('version');
-										$u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-										if(get_locale()=='fa_IR'){
-											$u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-											error_log('EFB=>addon_add_efb fa_IR');
-										}
-										$request = wp_remote_get($u);
-									
-										if( is_wp_error( $request ) ) {
-											
-											add_action( 'admin_notices', 'admin_notice_msg_efb' );
-											
-											return false;
-										}
-										
-										$body = wp_remote_retrieve_body( $request );
-										$data = json_decode( $body );
-
-										if (!$data->status) {
-										  continue;
-										}
-
-										// Check version of EFB to Addons
-										if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
-											continue;                
-										} 
-
-										if($data->download){
-											$url =$data->link;
-											
-											fun_addon_new($url);
-											continue;
-										}
-									}
-								}
+						$user_id = get_current_user_id();
+						$usr =get_user_by('id',$user_id);
+						$eml=$usr->user_email;
+						if($eml==NULL || $eml=='') {
+							$usr =get_user_by('id',1);
+							$eml = $usr ? $usr->user_email :'';								
 						}
+					
+					$s = false; 	
+					$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
+					$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
+					if($v===NULL && $s){
+						$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
+						$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
+						, 'date'=>current_time('mysql') , 'email'=>'' ));
+						
+						dbDelta( $s );			
+						
+					}else if ($v === NULL && !$s) {
+						$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":false,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
+						$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
+						, 'date'=>current_time('mysql') , 'email'=>'' ));
+
+						dbDelta( $s );
+
+					}
 
 		add_option( 'Emsfb_db_version', 1.0 );
 		return $state;

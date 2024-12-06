@@ -348,6 +348,12 @@ class Create {
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
   
+		$nonce = $_POST['nonce'];
+		if ( ! wp_verify_nonce( $nonce, 'admin-nonce' ) ) {
+            $response = ['success' => false, 'm' =>  $lang['error403']];
+            wp_send_json_success($response, 200);
+		}
+		
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m =$lang["errorCheckInputs"];
 			$response = array( 'success' => false , "m"=>$m); 

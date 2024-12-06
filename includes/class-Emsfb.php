@@ -36,20 +36,9 @@ class Emsfb {
   
         //register_activation_hook(__FILE__ ,[$this, 'test_fun']);
 
-        add_action('init', [$this, 'load_textdomain']);
+    
     }
 
-    /**
-     * Load plugin textdomain.
-     */
-    public function load_textdomain(): void {
-        
-        load_plugin_textdomain(
-            EMSFB_PLUGIN_TEXTDOMAIN,
-            false,
-            EMSFB_PLUGIN_DIRECTORY . "/languages"
-        );
-    }
 
     /**
      * Includes classes and functions.

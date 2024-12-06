@@ -59,9 +59,12 @@ function fub_shwBtns_efb() {
     });
   }
 }
+
+// 3.8.6 start
 function pro_show_efb(state) {
-  let message = state;
-  if (typeof state != "string") message = state == 1 ? efb_var.text.proUnlockMsg : efb_var.text.ifYouNeedCreateMoreThan2Steps;
+  let message = sanitize_text_efb(state);
+  if (typeof state != "string") message = state == 1 ? sanitize_text_efb(efb_var.text.proUnlockMsg) : sanitize_text_efb(efb_var.text.ifYouNeedCreateMoreThan2Steps);
+  
   const body = `<div class="efb  pro-version-efb-modal"><i class="efb  bi-gem"></i></div>
   <h5 class="efb  txt-center">${message}</h5>
   <div class="efb row">
@@ -70,12 +73,14 @@ function pro_show_efb(state) {
   </div>
     <div class="efb  text-center col-md-6"><button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onClick ="open_whiteStudio_efb('pro')">
       <i class="efb  bi-gem mx-1 pro"></i>
-        ${efb_var.text.activateProVersion}
+        ${sanitize_text_efb(efb_var.text.activateProVersion)}
       </button></div>
   </div>`
-  show_modal_efb(body, efb_var.text.proVersion, '', 'proBpx')
+  show_modal_efb(body, sanitize_text_efb(efb_var.text.proVersion), '', 'proBpx')
   state_modal_show_efb(1)
 }
+// 3.8.6 end
+
 function move_show_efb() {
   const body = `<div class="efb  pro-version-efb-modal"><i class="efb "></i></div>
   <div class="efb  text-center" dir="rtl">
@@ -3252,3 +3257,16 @@ fun_get_links_from_string_Efb=(str , handler)=>{
  
   
 }
+
+// 3.6.8 start
+function deepFreeze_efb(obj) {
+  Object.keys(obj).forEach((key) => {
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+          deepFreeze_efb(obj[key]);
+      }
+  });
+  return Object.freeze(obj);
+}
+
+//3.6.8 end
+

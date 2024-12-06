@@ -21,6 +21,7 @@ if(sessionStorage.getItem("formId_efb")) sessionStorage.removeItem('formId_efb')
 
 
 jQuery(function () {
+  efb_var= deepFreeze_efb(efb_var);
   state_check_ws_p = Number(efb_var.check);
   setting_emsFormBuilder=efb_var.setting;
   /* if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
@@ -273,7 +274,9 @@ function show_message_result_form_set_EFB(state, m) { //V2
     const emailItem = valj_efb.find(item => item.type === 'email');
     return emailItem!=undefined && emailItem.hasOwnProperty('noti')  ? emailItem.noti  : false;
 };
-  const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger" onClick="Link_emsFormBuilder('wpbakery')" target="_blank">${efb_var.text.wwpb}</a></p>`
+  // 3.8.6 start
+  const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger ec-efb" data-eventform="links" data-linkname="wpbakery">${efb_var.text.wwpb}</a></p>`
+  // 3.8.6 end
   const title = `
   <h4 class="efb title-holder efb">
      <img src="${efb_var.images.title}" class="efb title efb">
@@ -285,9 +288,11 @@ function show_message_result_form_set_EFB(state, m) { //V2
   let e_m ='<div id="alert"></div>';
   if((efb_var.smtp==false || efb_var.smtp==0 || efb_var.smtp==-1) && (e_s==true || e_s==1)) {
     //howActivateAlertEmail
+    // 3.8.6 start
     msg = `<br> <p>${efb_var.text.clickToCheckEmailServer }</p> <p>${efb_var.text.goToEFBAddEmailM }</p> <br> 
-    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block " onClick="Link_emsFormBuilder('EmailNoti')"><i class="efb bi bi-patch-question  mx-1"></i>${efb_var.text.howActivateAlertEmail}</a>
+    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block ec-efb" data-eventform="links" data-linkname="EmailNoti"><i class="efb bi bi-patch-question  mx-1 ec-efb" data-eventform="links" data-linkname="EmailNoti"></i>${efb_var.text.howActivateAlertEmail}</a>
     `
+    // 3.8.6 end
     e_m = alarm_emsFormBuilder(msg)
   }
   let content = ``
@@ -568,7 +573,9 @@ createCardAddoneEfb = (i) => {
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
   <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
-  <a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="Link_emsFormBuilder('${i.name}')"><i class="efb  bi-question-circle mx-1"></i>${efb_var.text.help}</a>
+  <!-- 3.8.6 start -->
+  <a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger ec-efb" data-eventform="links"  data-linkname="${i.name}"><i class="efb  bi-question-circle mx-1 ec-efb" data-eventform="links"  data-linkname="${i.name}"></i>${efb_var.text.help}</a>
+  <!-- 3.8.6 end -->
   </div></div></div>`
 }
 funProEfb=()=>{return `<div class="efb  pro-card"><a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
@@ -913,17 +920,17 @@ function create_form_by_type_emsfb(id, s) {
 }
 
 
-
+// 3.8.6 start
 function head_introduce_efb(state) {
-  //v2
+  
   
   const link = state == "create" ? '#form' : 'admin.php?page=Emsfb_create'
   let text = `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
 
   let cont = ``;
-  let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti" onclick="Link_emsFormBuilder('price')">
-  <i class="efb bi-diamond text-pinkEfb mx-1"></i>
+  let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti ec-efb" data-eventform="links" data-linkname="price">
+  <i class="efb bi-diamond text-pinkEfb mx-1 ec-efb" data-eventform="links" data-linkname="price"></i>
   <span class="efb text-dark">${efb_var.text.getPro}</span><br>
   ${efb_var.text.yFreeVEnPro.replace('NN', pro_price_efb)}
   </div>`;
@@ -934,14 +941,14 @@ function head_introduce_efb(state) {
                   <p class="efb card-text  ${state == "create" ? 'card-text' : 'text-dark'} efb pb-3 ${mobile_view_efb ? 'fs-7' : 'fs-6'}">${text}</p>
                   
     <a class="efb btn btn-r btn-primary ${btnSize}" href="${link}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
-    <a class="efb btn mt-1 efb btn-outline-pink ${btnSize}" onClick="Link_emsFormBuilder('tutorial')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>`;
+    <a class="efb btn mt-1 efb btn-outline-pink ${btnSize} ec-efb" data-eventform="links" data-linkname="tutorial"><i class="efb  bi-info-circle mx-1 ec-efb" data-eventform="links" data-linkname="tutorial"></i>${efb_var.text.tutorial}</a>`;
   }
   return `<section id="header-efb" class="efb mx-0 px-0  ${state == "create" ? '' : 'card col-12 bg-color'}">
   <div class="efb row ${mobile_view_efb ? 'mx-2' : 'mx-5'}">
               <div class="efb col-lg-7 mt-2 pd-5 col-md-12">
                   <img src="${efb_var.images.logo}" class="efb description-logo  ${mobile_view_efb ? 'm-1' : ''} efb">
-                  <h1 class="efb  pointer-efb mb-0 ${mobile_view_efb ? 'fs-6' : ''}" onClick="Link_emsFormBuilder('efb')" >${efb_var.text.easyFormBuilder}</h1>
-                  <h3 class="efb  pointer-efb  ${state == "create" ? 'card-text ' : 'text-darkb'} ${mobile_view_efb ? 'fs-7' : 'fs-6'}" onClick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
+                  <h1 class="efb  pointer-efb mb-0 ${mobile_view_efb ? 'fs-6' : ''} ec-efb" data-eventform="links" data-linkname="efb">${efb_var.text.easyFormBuilder}</h1>
+                  <h3 class="efb  pointer-efb  ${state == "create" ? 'card-text ' : 'text-darkb'} ${mobile_view_efb ? 'fs-7' : 'fs-6'} ec-efb" data-eventform="links" data-linkname="ws" >${efb_var.text.byWhiteStudioTeam}</h3>
                   ${cont}
                  
               </div>
@@ -951,7 +958,7 @@ function head_introduce_efb(state) {
     </div>  
   </section> `
 }
-
+// 3.8.6 end
 
 fun_preview_before_efb = (i, s, pro) => {
 
@@ -1427,7 +1434,9 @@ let change_el_edit_Efb = (el) => {
         } else {
           // trackingCodeEl.checked=false;
           el.classList.remove('active');
-          const msg =  efb_var.text.sMTPNotWork + '' + `<a class="alert-link" onClick="Link_emsFormBuilder('EmailNoti')"> ${efb_var.text.orClickHere}</a>`;
+          // 3.8.6 start
+          const msg =  efb_var.text.sMTPNotWork + '' + `<a class="efb alert-link ec-efb" data-eventform="links" data-linkname="EmailNoti"> ${efb_var.text.orClickHere}</a>`;
+          // 3.8.6 end
           alert_message_efb(efb_var.text.error,msg, 20, "danger")
         }
 
@@ -4445,7 +4454,7 @@ add_new_logic_efb = (newId , step_id) =>{
       const twos = optionSmartforOptionsEls(newId,step_id , 0);
       const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
       const del_btn =`
-      <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete('${newId}','condlogic' ,'${step_id}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
+      <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1 " onclick="emsFormBuilder_delete('${newId}','condlogic' ,'${step_id}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
       `
   document.getElementById("list-logics").innerHTML += `
   <div class="efb mx-0 col-sm-12 row opt" id="${newId}-logics-gs">

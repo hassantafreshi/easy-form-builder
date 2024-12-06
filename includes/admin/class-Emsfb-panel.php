@@ -99,18 +99,19 @@ class Panel_edit  {
 				<style>
 					.efb {font-family: 'Roboto', sans-serif!important;}
 				</style>
+				<!-- 3.8.6 start-->
 				<!--sideMenu--> <div class="efb sideMenuFEfb efbDW-0" id="sideMenuFEfb">
 				<div class="efb side-menu-efb bg-light bg-gradient border text-dark fade efbDW-0 "  id="sideBoxEfb">
 					<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
 					<span> </span>
-						<a class="efb BtnSideEfb efb close sidemenu  text-danger" onClick="sideMenuEfb(0)" ><i class="efb bi-x-lg" ></i></a>
+						<a class="efb BtnSideEfb efb close sidemenu  text-danger ec-efb"  data-eventform='sideMenuEfb' ><i class="efb bi-x-lg" ></i></a>
 					</div>
 					<div class="efb mb-5 mx-2 sideMenu" id="sideMenuConEfb"></div>
 					</div></div>
 				<div id="body_emsFormBuilder" class="efb m-2"> 
 					<div id="msg_emsFormBuilder" class="efb mx-2">
 				</div>
-
+				
 				<div class="efb top_circle-efb-1"></div>
 				<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>";</script>
 					<nav class="efb navbar navbar-expand-lg navbar-light efb" id="navbar">
@@ -123,28 +124,28 @@ class Panel_edit  {
 							</button>
 							<div class="efb collapse navbar-collapse" id="navbarSupportedContent">
 								<ul class="efb navbar-nav me-auto mb-2 mb-lg-0">
-									<li class="efb nav-item"><a class="efb nav-link efb active" id="efb-nav-panel" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?php echo $lang["forms"] ?></a></li>
+									<li class="efb nav-item"><a class="efb nav-link efb active ec-efb" data-eventform='forms' id="efb-nav-panel" aria-current="page"  role="button"><?php echo $lang["forms"] ?></a></li>
 									<li class="efb nav-item">
-										<a class="efb nav-link efb" id="efb-nav-setting" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?php echo $lang["setting"] ?></a>
+										<a class="efb nav-link efb ec-efb" id="efb-nav-setting" data-eventform='setting'  role="button"><?php echo $lang["setting"] ?></a>
 									</li>
 									<li class="efb nav-item">
-										<a class="efb nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?php echo $lang["create"]  ?></a>
+										<a class="efb nav-link efb ec-efb" href="admin.php?page=Emsfb_create" role="button"><?php echo $lang["create"]  ?></a>
 									</li>
 									<li class="efb nav-item">
-										<a class="efb nav-link efb" id="efb-nav-help" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?php echo $lang["help"] ?></a>
+										<a class="efb nav-link efb ec-efb" id="efb-nav-help" data-eventform='help' role="button"><?php echo $lang["help"] ?></a>
 									</li>
 								</ul>
 								<div class="efb d-flex">
 									<form class="efb d-flex">
 										<i class="efb  bi-search search-icon"></i>
 										<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo $lang["trackNo"]  ?>">
-										<a class="efb btn efb btn-outline-pink mx-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?php echo   $lang["search"] ?></a>
+										<a class="efb btn efb btn-outline-pink mx-2 ec-efb" type="submit" id="track_code_btn_emsFormBuilder" data-eventform='searchCC'><?php echo   $lang["search"] ?></a>
 									</form>
 									<div class="efb nav-icon efb mx-2">
 										<a class="efb nav-link efb" href="https://whitestudio.team/login" target="blank"><i class="efb  bi-person"></i></a>
 									</div>
 									<div class="efb nav-icon efb">
-										<a class="efb nav-link efb"  onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><i class="efb  bi-gear"></i></a>
+										<a class="efb nav-link efb ec-efb" data-eventform='setting'  role="button"><i class="efb  bi-gear"></i></a>
 									</div>
 								</div>
 							</div>
@@ -181,6 +182,7 @@ class Panel_edit  {
 						<datalist id="color_list_efb">
 							<option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">
 						</datalist>
+						<!-- 3.8.6 end-->
 				<?php
 
 				if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){

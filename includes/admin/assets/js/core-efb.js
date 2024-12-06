@@ -19,7 +19,9 @@ let test_view__emsFormBuilder = true
 
 jQuery(function () {
   if (typeof ajax_object_efm_core != undefined) {
+    ajax_object_efm_core = deepFreeze_efb(ajax_object_efm_core);
     if (Number(ajax_object_efm_core.check) == 1) {
+      
       fun_render_view_core_emsFormBuilder(ajax_object_efm_core.check);
       validate_edit_mode_emsFormBuilder = true;
     }
@@ -32,6 +34,7 @@ function fun_render_view_core_emsFormBuilder(check) {
   valueJson_ws = JSON.parse(sessionStorage.getItem("valueJson_ws_p"));
   form_type_emsFormBuilder = valueJson_ws && valueJson_ws[0].type ? valueJson_ws[0].type : 'form';
   if (valueJson_ws == undefined) valueJson_ws = "N";
+
   for (let v of valueJson_ws) {
 
     let el = "";

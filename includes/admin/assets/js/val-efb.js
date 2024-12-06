@@ -82,10 +82,9 @@ const formTypeEls =()=>{
   <option value="form" ${valj_efb[0].type=='form' ? 'selected' :''}>${efb_var.text.form}</option>                                                            
   <option value="payment" ${valj_efb[0].type=='payment' ? 'selected' :''}>${efb_var.text.payment}</option>                                                            
   <option value="survey" ${valj_efb[0].type=='survey' ? 'selected' :''}>${efb_var.text.survey}</option>                                                            
-  <option value="login" ${valj_efb[0].type=='login' ? 'selected' :''}>${efb_var.text.login}</option>                                                            
-  <option value="register" ${valj_efb[0].type=='register' ? 'selected' :''}>${efb_var.text.register}</option>                                                            
   <option value="subscribe" ${valj_efb[0].type=='subscribe' ? 'selected' :''}>${efb_var.text.subscribe}</option>                                                            
-
+  <option value="login" ${valj_efb[0].type=='login' ? 'selected' :''} disabled>${efb_var.text.login}</option>                                                            
+  <option value="register" ${valj_efb[0].type=='register' ? 'selected' :''} disabled>${efb_var.text.register}</option>                                                       
   </select>`;
 } 
 
@@ -470,9 +469,9 @@ function show_setting_window_efb(idset) {
     <button type="button" id="SendemailEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('noti') && Number(valj_efb[indx].noti) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
     </button>
-    <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
+    <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="EmailNoti"> </i>                                            
     </div>`;
-    const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}<i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i></label> 
+    const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}<i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="EmailNoti"> </i></label> 
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
     const FormEmailSubjectEls = () =>{
       //default 
@@ -542,13 +541,13 @@ function show_setting_window_efb(idset) {
     <button type="button" id="smsEnableEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('smsnoti') && Number(valj_efb[indx].smsnoti) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
     </button>
-    <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.esmsno} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('SMSNoti')"> </i>                                            
+    <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.esmsno} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="SMSNoti"> </i>                                            
     </div>`;
     const enableConEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="enableConEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('logic') && Number(valj_efb[indx].logic) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
     </button>
-    <label class="efb form-check-label pt-1" for="enableConEl">${efb_var.text.condlogic} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('condi')"> </i>                                            
+    <label class="efb form-check-label pt-1" for="enableConEl">${efb_var.text.condlogic} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="condi"> </i>                                            
     </div>`;
 
     const languageSelectPresentEls = `
@@ -597,7 +596,7 @@ function show_setting_window_efb(idset) {
                        
     const thankYouredirectEls = `<div id="tnxrdrct" class="efb tnxrdrct my-1 ${ valj_efb[0].thank_you == 'rdrct'? 'd-block' :'d-none' }">
     ${pro_efb==true ?"":funProEfb()}
-    <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('redirectPage')"> </i></label> 
+    <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="redirectPage"> </i></label> 
     <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? valj_efb[0].rePage.replace(/(@efb@)+/g, '/') : ''}"></div>`
     const paymentGetWayEls =()=>{
       return`<label for="paymentGetWayEl" class="efb mt-3 bi-wallet-fill mx-2 efb"> ${efb_var.text.paymentGateway}</label>
@@ -763,7 +762,7 @@ function show_setting_window_efb(idset) {
       const file_size = valj_efb[indx].hasOwnProperty('max_fsize') ? valj_efb[indx].max_fsize : 8;
       return`
       <div class="efb  mt-3">
-      <label for="fileSizeMaxEl" class="efb  mt-3 bi-file-earmark-medical mx-2 ">${efb_var.text.maxfs} <small>(MB)</small> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('file_size')"> </i></label>
+      <label for="fileSizeMaxEl" class="efb  mt-3 bi-file-earmark-medical mx-2 ">${efb_var.text.maxfs} <small>(MB)</small> <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="file_size" > </i></label>
       
       <input type="number" min="1" max="300" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" placeholder=""${efb_var.text.exDot} 8" id="fileSizeMaxEl" required value="${file_size}">
       </div>
@@ -1158,7 +1157,7 @@ function show_setting_window_efb(idset) {
         <label for="lonEl" class="efb  form-label  mt-2">${efb_var.text.zoom}</label>
         <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb h-d-efb mb-1" placeholder="13 " id="zoomMapEl" required value="${valj_efb[indx].zoom}">
         <label for="marksEl" class="efb  form-label  mt-2">${efb_var.text.points.toUpperCase()}      
-        <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('pickupByUser')"> </i>
+        <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="pickupByUser"> </i>
         </label>
         <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb h-d-efb mb-1" placeholder=${efb_var.text.exDot}  1" id="marksEl" required value="${valj_efb[indx].mark}">
         <!--  not   advanced-->
@@ -1651,11 +1650,11 @@ function creator_form_builder_Efb() {
   }
 
   let navs = [
-    { name: efb_var.text.save, icon: 'bi-save', fun: `saveFormEfb(1)` },
-    { name: efb_var.text.pcPreview, icon: 'bi-display', fun: `previewFormEfb('pc')` },
-    { name: efb_var.text.formSetting, icon: 'bi-sliders', fun: `show_setting_window_efb('formSet')` },
-    { name: efb_var.text.help, icon: 'bi-question-lg', fun: `Link_emsFormBuilder('createSampleForm')` },
-    { name: efb_var.text.prvnt, icon: 'bi-box-arrow-up-right', fun: `previewFormEfb('new')` }
+    { name: efb_var.text.save, icon: 'bi-save ec-efb', fun: `saveFormEfb(1)` },
+    { name: efb_var.text.pcPreview, icon: 'bi-display ec-efb', fun: `previewFormEfb('pc')` },
+    { name: efb_var.text.formSetting, icon: 'bi-sliders ec-efb', fun: `show_setting_window_efb('formSet')` },
+    { name: efb_var.text.help, icon: 'bi-question-lg ec-efb', fun: `Link_emsFormBuilder('createSampleForm')` },
+    { name: efb_var.text.prvnt, icon: 'bi-box-arrow-up-right ec-efb', fun: `previewFormEfb('new')` }
 
   ]
   let nav = "<!--efb.app-->";

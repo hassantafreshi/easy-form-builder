@@ -21,11 +21,11 @@ class Admin {
     //private $wpdb;
     public function __construct() {
         
+        add_filter('nonce_life', [$this,'extend_nonce_life_efb']);
         $this->init_hooks();
         global $wpdb;
         $this->db = $wpdb;
      
-       
     }
 
     /**
@@ -52,13 +52,7 @@ class Admin {
 
         //$current_user->display_name
         if (is_admin()) {
-        
-           
-            if (!function_exists('get_plugin_data')) {
-                require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-            }
-            $plugin_data          = get_plugin_data(EMSFB_PLUGIN_FILE);
-            $this->plugin_version = $plugin_data['Version'];
+                   
 
            
             //$this->get_not_read_message();
@@ -89,6 +83,8 @@ class Admin {
 
             add_action('wp_ajax_heartbeat_Emsfb' , [$this, 'heartbeat_Emsfb'] );
             add_action('wp_ajax_report_problem_Emsfb' , [$this, 'report_problem_Emsfb'] );
+
+            
         } 
     }
 
@@ -107,6 +103,9 @@ class Admin {
 
     }
 
+    function extend_nonce_life_efb($seconds) {        
+        return 60 * 60 * 24; //  1 day
+    }
     public function admin_assets($hook) {
         global $current_screen;       
         $hook = $hook ? $hook : http_build_query($_GET);
@@ -408,19 +407,23 @@ class Admin {
             // اگر لینک دانلود داشت
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
+            $vwp = substr($vwp,0,3);
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
             if(get_locale()=='fa_IR'){
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;       
             }
-            
+            $attempts = 2; 
+            for ($i = 0; $i < $attempts; $i++) {
             $request = wp_remote_get($u);
             
-            if( is_wp_error( $request )) {
-
-                $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
-                $response = ['success' => false, "m" => $m];
-                wp_send_json_success($response, $_POST);
-               
+                if (!is_wp_error($request)) {
+                    break; 
+                }
+                if ($i == $attempts - 1) {
+                    $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server', 'easy-form-builder');
+                    $response = ['success' => false, "m" => $m];
+                    wp_send_json_success($response, 200);
+                }
             }
 
             

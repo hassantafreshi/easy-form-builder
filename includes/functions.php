@@ -237,7 +237,7 @@ class efbFunction {
 			"cSSClasses" => $state ? $ac->text->cSSClasses : esc_html__('CSS Classes',$s),
 			"defaultValue" => $state ? $ac->text->defaultValue : esc_html__('Default value',$s),
 			"placeholder" => $state ? $ac->text->placeholder : esc_html__('Placeholder',$s),
-			"enterAdminEmailReceiveNoti" => $state ? $ac->text->enterAdminEmailReceiveNoti : esc_html__('Enter admin email for email notifications.',$s),
+			"enterAdminEmailReceiveNoti" => $state ? $ac->text->enterAdminEmailReceiveNoti : esc_html__('Enter email address to receive notifications.',$s),
 			"corners" => $state ? $ac->text->corners : esc_html__('Corners',$s),
 			"rounded" => $state ? $ac->text->rounded : esc_html__('Rounded',$s),
 			"square" => $state ? $ac->text->square : esc_html__('Square',$s),
@@ -319,8 +319,8 @@ class efbFunction {
 			"supportForm" => $state ? $ac->text->supportForm : esc_html__('Support Form',$s),
 			"createBlankMultistepsForm" => $state ? $ac->text->createBlankMultistepsForm : esc_html__('Create a blank multisteps form.',$s),
 			"createContactusForm" => $state ? $ac->text->createContactusForm : esc_html__('Create a Contact us form.',$s),
-			"createRegistrationForm" => $state ? $ac->text->createRegistrationForm : esc_html__('Create a user registration(Sign-up) form.',$s),
-			"createLoginForm" => $state ? $ac->text->createLoginForm : esc_html__('Create a user login (Sign-in) form.',$s),
+			"createRegistrationForm" => $state ? $ac->text->createRegistrationForm : esc_html__('Create a form to register new users to your WordPress site\'s user list.',$s),
+			"createLoginForm" => $state ? $ac->text->createLoginForm : esc_html__('Create a login form for users to enter your WordPress site.',$s),
 			"createnewsletterForm" => $state ? $ac->text->createnewsletterForm : esc_html__('Create a newsletter form',$s),
 			"createSupportForm" => $state ? $ac->text->createSupportForm : esc_html__('Create a support contact form.',$s),			
 			"availableSoon" => $state ? $ac->text->availableSoon : esc_html__('Available Soon',$s),
@@ -401,8 +401,8 @@ class efbFunction {
 			"sentBy" => $state ? $ac->text->sentBy : esc_html__("Sent by:",$s),
 			"youRecivedNewMessage" => $state ? $ac->text->youRecivedNewMessage : esc_html__('You have a new message.', $s),
 			"formNExist" => $state ? $ac->text->formNExist : esc_html__('Form does not exist !!',$s),
-			"error403" => $state ? $ac->text->error403 : esc_html__('We are sorry, but there seems to be a security error (403) with your request.',$s),
-			"error400" => $state ? $ac->text->error400 : esc_html__('We are sorry, but there seems to be a security error (400) with your request.',$s),
+			"error403" => $state ? $ac->text->error403 : esc_html__('Your security session has expired or is invalid. Please refresh the page. E403',$s),
+			"error400" => $state ? $ac->text->error400 : esc_html__('Your security session has expired or is invalid. Please refresh the page. E400',$s),
 			"formPrivateM" => $state ? $ac->text->formPrivateM : esc_html__('Private form, please log in.',$s),
 			"errorSiteKeyM" => $state ? $ac->text->errorSiteKeyM : esc_html__('Please check the site key and secret key on Easy Form Builder panel > Settings > Google Keys to resolve the error.',$s),
 			"errorCaptcha" => $state ? $ac->text->errorCaptcha : esc_html__('There seems to be a problem with the Captcha. Please try again.',$s),
@@ -1134,37 +1134,22 @@ class efbFunction {
 	public function sanitize_obj_msg_efb ($valp){
 		
 		foreach ($valp as $key => $val) {
-			$type = $val["type"];
-			foreach ($val as $k => $v) {
+			$type = $val['type'];
+			foreach ($val as $k => $v) {				
 				switch ($k) {
 					case 'value':
 						$type =strtolower($type);
-						
-						
-						
-						
-						
 						if( (gettype($v)!="array" || gettype($v)!="object" ) && preg_match("/multi/i", $type)==false
-						&& (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){
-							    
-								
-							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;	
+						&& (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){	
+							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $this->sanitize_full_html_efb($v);	
 						}else if ( preg_match("/checkbox/i", $type)==true || preg_match("/multi/i", $type)==true ||gettype($v)=="array" || gettype($v)=="object"){
-								
-								
-								if(gettype($v)=="string") break;
+							if(gettype($v)=="string") break;
 							foreach ($v as $ki => $va) {
-								# code...
 								$v[$ki]=sanitize_text_field($va);
-								
-								
 							}
 							$valp[$key][$k] =$v;
 						}else{
-							//$valp[$key][$k]=sanitize_text_field($v);
-							
-								
-							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;
+							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $this->sanitize_full_html_efb($v);
 						}
 								
 					break;
@@ -1173,9 +1158,11 @@ class efbFunction {
 						$valp[$key][$k]= $key!=0 && $k!="email_to" ?  sanitize_email($v): sanitize_text_field($v);
 					break;
 					case 'file':
+						$valp[$key][$k]=sanitize_text_field($v);
+					break ;
 					case 'href':
-						
-						$valp[$key][$k]=$v;
+						//sanitize url
+						$valp[$key][$k]= sanitize_url($v);
 					break;
 					case 'rePage':
 					case 'src':
@@ -1191,86 +1178,65 @@ class efbFunction {
 						$valp[$key][$k]['trackingCode']=sanitize_text_field( $v['trackingCode']);
 						$valp[$key][$k]['pleaseFillInRequiredFields']=sanitize_text_field( $v['pleaseFillInRequiredFields']);
 					break;
-					case 'c_c':			
-						
+					case 'autofill_conditions':
 						foreach ($valp[$key][$k] as $kei => $value) {
-							# code...							
+							foreach ($value as $ke => $va) {
+								$ke =sanitize_text_field($ke);
+								$valp[$key][$k][$kei][$ke]=sanitize_text_field($va);								
+							}
+						}						
+					break;
+					case 'c_c':			
+						foreach ($valp[$key][$k] as $kei => $value) {						
 							$valp[$key][$k][$kei] = sanitize_text_field($value);
 						}
-						//$valp[$key][$k]= $key!=0 && $k!="c_c" ||  $valp[$key][$k]= $key!=0 && $k!="c_n" ?
 						break;
-						case 'c_n':
-							
-							
-							foreach ($valp[$key][$k] as $kei => $value) {
-								# code...
-								
-								
-								
+						case 'c_n':														
+							foreach ($valp[$key][$k] as $kei => $value) {								
 								$valp[$key][$k][$kei] = sanitize_text_field($value);
 							}
-							//$valp[$key][$k]= $key!=0 && $k!="c_c" ||  $valp[$key][$k]= $key!=0 && $k!="c_n" ?
 							break;
 					case 'id':
 						$valp[$key][$k]= sanitize_text_field($valp[$key][$k]);
 						if(strlen($valp[$key][$k])<1) break;
-						
-						
-						
-						
-						if($valp[$key]["type"]=="option"){
+
+						if($valp[$key]['type']=="option"){
 							
 							foreach ($valp as $ki => $vl) {
-								$tp = $vl["type"];
+								
 								if(array_key_exists('id_',$vl)==false) continue;
 								
-								if($vl['id_']!=$valp[$key]["parent"]){
+								if($vl['id_']!=$valp[$key]['parent']){
 									continue;
 								}
-								
-								
-								
-								
 								foreach ($vl as $kii => $vll) {
-									//value
-									
 									if($kii!="value") continue;
-									
 									if(gettype($vll)!="array" && gettype($vll)!="object" ){
-										if($vll==$valp[$key]["id_"])$vll=$valp[$key][$k];
+										if($vll==$valp[$key]['id_'])$vll=$valp[$key][$k];
 									}else{
 										foreach ($vll as $ke => $vn) {
-											
-											
-											# code...
-											//$vll[$ke]=sanitize_text_field($va);
-											if($vn==$valp[$key]["id_"]) {
-												
-												
-												$valp[$ki][$kii][$ke] =$valp[$key][$k];
-												
-												
+											if($vn==$valp[$key]['id_']) {												
+												$valp[$ki][$kii][$ke] =$valp[$key][$k];												
 											}
-
-											
-											
 										}
 									}
 									
 								}
 							}
-							$valp[$key]["id_old"]=$valp[$key]["id_"];
-							$valp[$key]["id_"] = $valp[$key][$k];
-							if(isset($valp[$key]["id_op"]))$valp[$key]["id_op"]=$valp[$key][$k];
-							if(isset($valp[$key]["dataId"]))$valp[$key]["dataId"]=$valp[$key][$k] ."-id";
-							$valp[$key]["option"] = $valp[$key][$k];
+							$valp[$key]['id_'] = sanitize_text_field($valp[$key]['id_']);
+							$valp[$key]['id_old']=$valp[$key]['id_'];
+							$valp[$key]['id_'] = $valp[$key][$k];
+							if(isset($valp[$key]['id_op']))$valp[$key]['id_op']=$valp[$key][$k];
+							if(isset($valp[$key]['dataId']))$valp[$key]['dataId']=$valp[$key][$k] ."-id";
+							$valp[$key]['option'] = $valp[$key][$k];
 						}
 					break;
 					case 'conditions':
-						//$valp[$key][$k]=$v;
-						$valp[$key][$k]=$v;
+						// $valp[$key][$k]=$v;
+						$valp[$key][$k]=sanitize_text_field($v);
 					break;
 					default:
+					$k =sanitize_text_field($k);					
 					$valp[$key][$k]=sanitize_text_field($v);
 					
 					break;
@@ -1278,7 +1244,193 @@ class efbFunction {
 			}
 		}
 		return $valp;
-	}//end function
+	}// end function
+
+
+
+	public function sanitize_full_html_efb($html) {
+		// General attributes allowed for all tags
+		$global_attributes = array(
+			'class' => true,       // CSS classes
+			'id' => true,          // HTML ID
+			'style' => true,       // Inline style (will be sanitized separately)
+			'title' => true,       // Tooltip or descriptive text
+			'data-*' => true,      // Custom data attributes
+			'aria-*' => true,      // Accessibility attributes
+		);
+	
+		// List of allowed CSS properties
+		$allowed_properties = array(
+			// Colors and background properties
+			'color', 'background', 'background-color', 'background-image', 'background-position',
+			'background-repeat', 'background-size', 'background-attachment', 'background-clip', 'background-origin',
+			// Font properties
+			'font', 'font-family', 'font-size', 'font-style', 'font-variant', 'font-weight',
+			'letter-spacing', 'line-height', 'text-align', 'text-decoration', 'text-indent',
+			'text-overflow', 'text-shadow', 'text-transform',
+			// Dimensions and layout properties
+			'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
+			'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+			'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+			// Border properties
+			'border', 'border-width', 'border-style', 'border-color', 'border-radius', 'outline',
+			// Box and shadow properties
+			'box-shadow', 'box-sizing',
+			// Positioning and z-index
+			'position', 'top', 'right', 'bottom', 'left', 'z-index', 'float', 'clear',
+			// Flexbox and grid properties
+			'display', 'flex', 'flex-grow', 'flex-shrink', 'flex-basis', 'align-items', 'align-content',
+			'align-self', 'justify-content', 'grid', 'grid-template-rows', 'grid-template-columns',
+			'grid-area', 'row-gap', 'column-gap',
+			// Animation and transition properties
+			'animation', 'animation-name', 'animation-duration', 'animation-timing-function', 'animation-delay',
+			'transition', 'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay',
+			// Miscellaneous
+			'cursor', 'opacity', 'clip-path', 'filter', 'backface-visibility', 'transform',
+			'transform-origin', 'transform-style',
+		);
+	
+		// List of trusted domains for URLs in CSS (e.g., background-image)
+		$current_domain = parse_url(home_url(), PHP_URL_HOST);
+		$allowed_domains = array('google.com', 'gstatic.com', 'googleapis.com', 'googleusercontent.com', 'youtube.com', 'ytimg.com', 'microsoft.com', 'office.com', 'live.com', 'msn.com', 'outlook.com', 'amazonaws.com', 'cloudfront.net', 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com', 'jsdelivr.net', 'unpkg.com', 'facebook.com', 'fbcdn.net', 'twitter.com', 'twimg.com', 'github.com', 'github.io', 'vimeo.com', 'vimeocdn.com', 'wikipedia.org', 'wikimedia.org', 'wikidata.org', 'stripe.com', 'paypal.com', 'braintreepayments.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'use.fontawesome.com', 'dailymotion.com', 'dmcdn.net', 'maps.googleapis.com', 'openstreetmap.org', 'mapbox.com', 'gravatar.com', 'unsplash.com', 'placekitten.com', 'placehold.co', 'akamaihd.net', 'cloudflare.com', 'fastly.net', 'linkedin.com', 'apple.com', 'adobe.com', 'cdn.shopify.com', 'example.com', 'example.org', 'trusted.com', 'cdn.trusted.com');
+
+	
+		// Function to validate URLs in attributes or CSS
+		function validate_url($url) {
+			global $allowed_domains;
+			$parsed_url = parse_url($url);
+	
+			// Check if the domain is in the allowed list
+			if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
+				return esc_url($url);
+			}
+	
+			// Ensure the URL does not contain dangerous schemes like `javascript:` or `data:`
+			if (strpos($url, 'javascript:') === false && strpos($url, 'data:') === false) {
+				return esc_url($url);
+			}
+	
+			return ''; // Invalid URL
+		}
+	
+		// Function to sanitize the `style` attribute
+		function sanitize_style_attribute($style) {
+			global $allowed_properties;
+			$style_rules = explode(';', $style); // Split the style string into individual rules
+			$sanitized_rules = array();
+	
+			foreach ($style_rules as $rule) {
+				if (strpos($rule, ':') !== false) {
+					list($property, $value) = explode(':', $rule, 2);
+					$property = trim($property); // Clean up the property name
+					$value = trim($value);       // Clean up the value
+	
+					// Check if the property is in the allowed list
+					if (in_array($property, $allowed_properties)) {
+						// If the value contains a URL, validate it
+						if (strpos($value, 'url(') !== false) {
+							preg_match('/url\(["\']?([^"\')]+)["\']?\)/i', $value, $matches);
+							if (isset($matches[1]) && validate_url($matches[1])) {
+								$sanitized_rules[] = $property . ': ' . $value;
+							}
+						} else {
+							// Add the rule if it doesn't involve a URL
+							$sanitized_rules[] = $property . ': ' . $value;
+						}
+					}
+				}
+			}
+	
+			// Reassemble the sanitized style attribute
+			return implode('; ', $sanitized_rules);
+		}
+	
+		// Allowed HTML tags and their attributes
+		$allowed_tags = array(
+			'a' => array_merge($global_attributes, array(
+				'href' => true,  // Hyperlinks must be sanitized
+				'title' => true,
+				'rel' => true,
+				'target' => true
+			)),
+			'abbr' => array_merge($global_attributes, array('title' => true)),
+			'address' => $global_attributes,
+			'area' => array_merge($global_attributes, array(
+				'alt' => true,
+				'coords' => true,
+				'href' => true,  // Links must be sanitized
+				'shape' => true,
+				'target' => true,
+			)),
+			'audio' => array_merge($global_attributes, array(
+				'autoplay' => true,
+				'controls' => true,
+				'loop' => true,
+				'muted' => true,
+				'preload' => true,
+				'src' => true,  // Audio source must be sanitized
+			)),
+			'b' => $global_attributes,
+			'blockquote' => array_merge($global_attributes, array('cite' => true)), // Validate cite attribute
+			'br' => $global_attributes,
+			'button' => array_merge($global_attributes, array(
+				'disabled' => true,
+				'name' => true,
+				'type' => true,
+				'value' => true,
+			)),
+			'canvas' => array_merge($global_attributes, array('height' => true, 'width' => true)),
+			'caption' => $global_attributes,
+			'code' => $global_attributes,
+			'col' => array_merge($global_attributes, array('span' => true, 'width' => true)),
+			'data' => array_merge($global_attributes, array('value' => true)),
+			'div' => $global_attributes,
+			'img' => array_merge($global_attributes, array(
+				'src' => true,    // Image source must be sanitized
+				'alt' => true,
+				'width' => true,
+				'height' => true,
+			)),
+			'input' => array_merge($global_attributes, array(
+				'type' => true,
+				'name' => true,
+				'value' => true,
+				'placeholder' => true,
+				'required' => true,
+			)),
+			'meta' => array_merge($global_attributes, array(
+				'name' => true,
+				'content' => true,
+				'charset' => true,
+			)),
+			'p' => $global_attributes,
+			'table' => $global_attributes,
+			'video' => array_merge($global_attributes, array(
+				'autoplay' => true,
+				'controls' => true,
+				'loop' => true,
+				'muted' => true,
+				'preload' => true,
+				'src' => true,  // Video source must be sanitized
+				'width' => true,
+				'height' => true,
+			)),
+		);
+	
+		// Sanitize the HTML using `wp_kses`
+		$sanitized_html = wp_kses($html, $allowed_tags);
+	
+		// Further sanitize the `style` attribute
+		$sanitized_html = preg_replace_callback(
+			'/style=["\']([^"\']+)["\']/i',
+			function ($matches) {
+				return 'style="' . sanitize_style_attribute($matches[1]) . '"';
+			},
+			$sanitized_html
+		);
+	
+		return $sanitized_html;
+	}
 
 
 	public function get_geolocation() {		
@@ -1349,27 +1501,35 @@ class efbFunction {
             // اگر لینک دانلود داشت
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
+			//just get version number
+			$vwp = substr($vwp,0,3);
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
 			if(get_locale()=='fa_IR'){
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-				//error_log('EFB=>addon_add_efb fa_IR');
             }
-            $request = wp_remote_get($u);
-           
-            if( is_wp_error( $request ) ) {
-				
-				add_action( 'admin_notices', 'admin_notice_msg_efb' );
-                
-                return false;
-            }
+			$attempts = 2; 
+            for ($i = 0; $i < $attempts; $i++) {           
+				$request = wp_remote_get($u);
+
+				if (!is_wp_error($request)) {
+					break; 
+				}
+			
+				if ($i == $attempts - 1) {
+					
+					add_action( 'admin_notices', 'admin_notice_msg_efb' );
+					return false;
+				}
+			}	
             
             $body = wp_remote_retrieve_body( $request );
             $data = json_decode( $body );
 
-             if($data->status==false){
-              return false;
-               
+			if (isset($data->status)==true && $data->status == false) {
+                $response = ['success' => false, "m" => $data->error];
+                wp_send_json_success($response, 200);
             }
+
 
             // Check version of EFB to Addons
             if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
