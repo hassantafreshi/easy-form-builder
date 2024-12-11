@@ -284,7 +284,11 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
 
  
   const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => x.form_id == id) : -1
-  if (foundIndex != -1) valueJson_ws_form.splice(foundIndex, 1);
+  if (foundIndex != -1){ 
+    valueJson_ws_form = [...valueJson_ws_form];
+    valueJson_ws_form.splice(foundIndex, 1);
+    valueJson_ws_form =deepFreeze_efb(valueJson_ws_form);
+  }
   fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
   //close_overpage_emsFormBuilder();
 
