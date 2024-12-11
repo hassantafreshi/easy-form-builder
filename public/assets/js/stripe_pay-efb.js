@@ -19,12 +19,12 @@
  
         if (typeof document.getElementById('cardnoEfb') != "object") return;
         
-        if (efb_var.hasOwnProperty('paymentKey')) {    
-          if (efb_var.paymentKey == "null") {
+        if (ajax_object_efm.hasOwnProperty('paymentKey')) {    
+          if (ajax_object_efm.paymentKey == "null") {
             alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: Payment->Stripe`, 100, 'danger');
             return;
           }
-          const stripe = Stripe(efb_var.paymentKey, { locale: 'auto' })
+          const stripe = Stripe(ajax_object_efm.paymentKey, { locale: 'auto' })
           
           const elsStripeStyleEfb = {
             base: {
@@ -187,7 +187,7 @@
                         value: JSON.stringify(sendBack_emsFormBuilder_pub),
                         name: formNameEfb,
                         id: efb_var.id,
-                        nonce: efb_var.nonce,
+                        nonce: ajax_object_efm.nonce,
                         token: transStat.token.id,
                         sid:efb_var.sid
                       };
@@ -200,7 +200,7 @@
                     value: JSON.stringify(sendBack_emsFormBuilder_pub),
                     name: formNameEfb,
                     id: efb_var.id,
-                    nonce: efb_var.nonce,
+                    nonce: ajax_object_efm.nonce,
                     sid:efb_var.sid
                   };
                  const transStat="";

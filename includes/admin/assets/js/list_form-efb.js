@@ -250,13 +250,32 @@ function close_overpage_emsFormBuilder(i) {
 
 
 function fun_confirm_remove_emsFormBuilder(id) {
+  // Delete the form from the server
   fun_delete_form_with_id_by_server(parseInt(id));
-  const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => x.form_id == id) : -1
-  if (foundIndex != -1) valueJson_ws_form.splice(foundIndex, 1);
-  fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
-  //close_overpage_emsFormBuilder();
 
+  if (Object.isFrozen(valueJson_ws_form) || Object.isSealed(valueJson_ws_form)) {
+    //refresh the page
+    location.reload();  
+  }
+
+  // Find the index of the element with the given ID in the array
+  const foundIndex = valueJson_ws_form.findIndex(x => parseInt(x.form_id) === parseInt(id));
+
+  // If the element is not found, log a warning and exit
+  if (foundIndex === -1) {
+  
+    return;
+  }
+
+  // Remove the element from the array
+  valueJson_ws_form.splice(foundIndex, 1);
+  // console.log("Element removed successfully:", valueJson_ws_form);
+
+  // Re-render the view
+  fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
+  //close_overpage_emsFormBuilder(); // Uncomment if needed
 }
+
 
 function fun_confirm_remove_message_emsFormBuilder(id) {
 
@@ -401,9 +420,9 @@ function fun_ws_show_list_messages(value) {
          <th scope="row" class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" >${v.track}</th>
            <td class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" >${v.date}</td>
             <td class="efb "> 
-            <a  class="efb  btn btn-comment btn-sm" id="btn-m-${v.msg_id} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}"  >
+            <a  class="efb  btn btn-comment btn-sm ec-efb" id="btn-m-${v.msg_id}" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}"  >
              ${Number(state) != 1 && Number(state) != 4 ? iconNotRead : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}"></i> `}</a>
-             <a class="efb zindex-100  btn btn-delete btn-sm" id="btn-m-d-${v.msg_id} ec-efb" data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}" ><i class="efb  bi-trash ec-efb"  data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}"></i> </a>
+             <a class="efb zindex-100  btn btn-delete btn-sm  ec-efb" id="btn-m-d-${v.msg_id}" data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}" ><i class="efb  bi-trash ec-efb"  data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}"></i> </a>
             </td>                               
             </tr>` ;
       no += 1;
@@ -542,7 +561,7 @@ function emsFormBuilder_messages(id) {
 }
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
-  //console.log(`fun_open_message_emsFormBuilder(${msg_id}, ${state})`)
+  // console.log(`fun_open_message_emsFormBuilder(${msg_id}, ${state})`)
   show_modal_efb(efbLoadingCard(), '', '', 'saveBox');
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   //myModal.show_efb();
@@ -2402,7 +2421,9 @@ function fun_dup_form_server_efb(id,type){
       $.post(ajax_object_efm.ajax_url, data, function (res) {
         if (res.data.success == true) {
           emsFormBuilder_waiting_response();
+          valueJson_ws_form = [...valueJson_ws_form];
           valueJson_ws_form.push({form_id:res.data.form_id, form_name:res.data.form_name, form_create_date:res.data.date,form_type:res.data.form_type});
+          valueJson_ws_form = deepFreeze_efb(valueJson_ws_form);
           //console.log(valueJson_ws_form);
           alert_message_efb(efb_var.text.done, res.data.m, 4, 'success');
           //console.log(valueJson_ws_form.length);
@@ -2534,6 +2555,9 @@ function addClickListenerToElement(element) {
       element.addEventListener("click", function (event) {
           if (!state_event) { 
               const classes = event.target.classList; 
+              setTimeout(() => {
+                state_event = false; 
+              }, 80);
 
               if (classes.contains("ec-efb")) { 
                 const pro = Number(efb_var.pro) === 1;
@@ -2555,7 +2579,6 @@ function addClickListenerToElement(element) {
                           case 'openMessage':
                             temp = Number(dataset.msgid);
                             temp2 = Number(dataset.msgstate);
-                            console.log(temp,temp2);
                             fun_open_message_emsFormBuilder(temp,temp2);
                             break;
                           case 'edit':
@@ -2585,7 +2608,6 @@ function addClickListenerToElement(element) {
                               pro ? event_selected_row_emsFormBuilder('read') : pro_show_efb(efb_var.text.proUnlockMsg);
                               break;                         
                           case 'setting':
-                            console.log('setting');
                               fun_show_content_page_emsFormBuilder('setting');
                               break;
                           case 'help':
@@ -2605,7 +2627,6 @@ function addClickListenerToElement(element) {
                               Link_emsFormBuilder(temp);
                           break;
                           case 'deleteMsg':      
-                            console.log('deleteMsg');
                             temp = sanitize_text_efb(dataset.msgid);
                             temp2 = sanitize_text_efb(dataset.trackid);
                             //`emsFormBuilder_delete(${v.msg_id} ,'message','${v.track}')` : `pro_show_efb('${efb_var.text.availableInProversion}')`}"

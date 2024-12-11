@@ -21,7 +21,7 @@ class Admin {
     //private $wpdb;
     public function __construct() {
         
-        add_filter('nonce_life', [$this,'extend_nonce_life_efb']);
+        // add_filter('nonce_life', [$this,'extend_nonce_life_efb']);
         $this->init_hooks();
         global $wpdb;
         $this->db = $wpdb;
@@ -103,9 +103,9 @@ class Admin {
 
     }
 
-    function extend_nonce_life_efb($seconds) {        
+    /* function extend_nonce_life_efb($seconds) {        
         return 60 * 60 * 24; //  1 day
-    }
+    } */
     public function admin_assets($hook) {
         global $current_screen;       
         $hook = $hook ? $hook : http_build_query($_GET);
