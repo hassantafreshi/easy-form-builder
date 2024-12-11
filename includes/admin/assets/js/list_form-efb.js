@@ -667,7 +667,7 @@ function fun_get_messages_by_id(id) {
       id: id
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      //console.log(res)
+      // console.log(res)
       if (res.success == true) {
         valueJson_ws_messages = res.data.ajax_value;
         efb_var.nonce_msg = res.data.nonce_msg
@@ -675,7 +675,7 @@ function fun_get_messages_by_id(id) {
           efb_var.msg_id = res.data.id
           
         
-        //localStorage.setItem('valueJson_ws_messages', JSON.stringify(valueJson_ws_messages));
+        // localStorage.setItem('valueJson_ws_messages', JSON.stringify(valueJson_ws_messages));
         fun_ws_show_list_messages(valueJson_ws_messages)
       } else {
       }
@@ -1784,7 +1784,7 @@ search_trackingcode_fun_efb =(el)=>{
         
         efb_var.msg_id = res.data.id
         
-        //localStorage.setItem('valueJson_ws_messages', JSON.stringify(valueJson_ws_messages));
+        // localStorage.setItem('valueJson_ws_messages', JSON.stringify(valueJson_ws_messages));
         document.getElementById("more_emsFormBuilder").style.display = "none";
         fun_ws_show_list_messages(valueJson_ws_messages);
         document.getElementById('track_code_emsFormBuilder').disabled = false;
@@ -2561,7 +2561,7 @@ function addClickListenerToElement(element) {
               const classes = event.target.classList; 
               setTimeout(() => {
                 state_event = false; 
-              }, 80);
+              }, 50);
 
               if (classes.contains("ec-efb")) { 
                 const pro = Number(efb_var.pro) === 1;
