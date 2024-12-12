@@ -21,7 +21,7 @@ if(sessionStorage.getItem("formId_efb")) sessionStorage.removeItem('formId_efb')
 
 
 jQuery(function () {
-  efb_var= deepFreeze_efb(efb_var);
+  // efb_var= deepFreeze_efb(efb_var);
   state_check_ws_p = Number(efb_var.check);
   setting_emsFormBuilder=efb_var.setting;
   /* if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){

@@ -12,7 +12,7 @@ let sms_config_efb ='null'
 const colors_efb = ['#0013CB', '#E90056', '#7CEF00', '#FFBA00', '#FF3888', '#526AFF', '#FFC738', '#A6FF38', '#303563', '#7D324E', '#5D8234', '#8F783A', '#FB5D9D', '#FFA938', '#45B2FF', '#A6FF38', '#0011B4', '#8300AD', '#E9FB00', '#FFBA00']
 
 jQuery(function () {
-  //ajax_object_efm =deepFreeze_efb(ajax_object_efm);
+  // ajax_object_efm =deepFreeze_efb(ajax_object_efm);
   valueJson_ws_form = ajax_object_efm.ajax_value;
   poster_emsFormBuilder = ajax_object_efm.poster
   response_state_efb = ajax_object_efm.response_state;

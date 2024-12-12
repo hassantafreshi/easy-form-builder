@@ -19,7 +19,7 @@ let test_view__emsFormBuilder = true
 
 jQuery(function () {
   if (typeof ajax_object_efm_core != undefined) {
-    ajax_object_efm_core = deepFreeze_efb(ajax_object_efm_core);
+  //   ajax_object_efm_core = deepFreeze_efb(ajax_object_efm_core);
     if (Number(ajax_object_efm_core.check) == 1) {      
       fun_render_view_core_emsFormBuilder(ajax_object_efm_core.check);
       validate_edit_mode_emsFormBuilder = true;
