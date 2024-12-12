@@ -1137,7 +1137,7 @@ sendback_state_handler_efb=(id_,state,step)=>{
 }
 document.addEventListener("DOMContentLoaded", function() {
   let elements = document.querySelectorAll('#body_efb');
-  const msg = `<h3 class="efb fs-5 text-center text-dark bg-warning m-3 p-3">${efb_var.text.fetf} <div class='efb mt-1 fs-6'> ${efb_var.text.easyFormBuilder}</div> </h3>`
+  const msg = `<h3 class="efb fs-5 text-center text-dark bg-warning m-3 p-3">${ajax_object_efm.text.fetf} <div class='efb mt-1 fs-6'> ${ajax_object_efm.text.easyFormBuilder}</div> </h3>`
   fun =()=>{
     for (let i = 1; i < elements.length; i++) {
       elements[i].innerHTML = msg;
