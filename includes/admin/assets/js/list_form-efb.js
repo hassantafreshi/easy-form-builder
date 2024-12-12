@@ -2561,7 +2561,7 @@ function addClickListenerToElement(element) {
               const classes = event.target.classList; 
               setTimeout(() => {
                 state_event = false; 
-              }, 50);
+              }, 200);
 
               if (classes.contains("ec-efb")) { 
                 const pro = Number(efb_var.pro) === 1;
@@ -2595,6 +2595,7 @@ function addClickListenerToElement(element) {
                               emsFormBuilder_delete(temp2, 'form', temp);
                               break;
                           case 'duplicate':
+                            console.log('duplicate');
                               temp = sanitize_text_efb(dataset.formname);
                               temp2 = sanitize_text_efb(dataset.id);
                               emsFormBuilder_duplicate(temp2, 'form', temp);
