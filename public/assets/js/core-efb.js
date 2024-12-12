@@ -50,7 +50,6 @@ function fun_render_view_efb(val, check) {
 function check_body_efb_timer (){
   g_timeout_efb -=10;
   if((document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null) && g_timeout_efb>10){
-    ajax_object_efm= deepFreeze_efb(ajax_object_efm);
     setTimeout(() => {
       check_body_efb_timer();
     }, 800);
@@ -72,9 +71,10 @@ function fun_efb_run(){
       //check if the form is private so no need to run the code 
       if(ajax_object_efm.ajax_value=="")return;
       if(document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null) check_body_efb_timer();
-      ajax_object_efm = deepFreeze_efb(ajax_object_efm);
+     // ajax_object_efm = deepFreeze_efb(ajax_object_efm);
       efb_var = ajax_object_efm; 
-      efb_var = deepFreeze_efb(ajax_object_efm);   
+      //  efb_var = deepFreeze_efb(ajax_object_efm);   
+      efb_var = ajax_object_efm;
       poster_emsFormBuilder = ajax_object_efm.poster;
       poster_emsFormBuilder = deepFreeze_efb(poster_emsFormBuilder);
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);

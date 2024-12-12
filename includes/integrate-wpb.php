@@ -31,7 +31,7 @@ function ems_Form_Builders_visual_composer_shortcode() {
 
 
 function ems_Form_Builders_visual_composer_shortcode_css() {
-  wp_enqueue_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', array(), '3.8.7');
+  wp_enqueue_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', array(), '3.8.8');
   // Load CSS per global setting or any additional styles if required.
 }
 add_action( 'vc_load_iframe_jscss', 'ems_Form_Builders_visual_composer_shortcode_css' );

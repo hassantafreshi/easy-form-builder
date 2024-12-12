@@ -12,7 +12,7 @@ let sms_config_efb ='null'
 const colors_efb = ['#0013CB', '#E90056', '#7CEF00', '#FFBA00', '#FF3888', '#526AFF', '#FFC738', '#A6FF38', '#303563', '#7D324E', '#5D8234', '#8F783A', '#FB5D9D', '#FFA938', '#45B2FF', '#A6FF38', '#0011B4', '#8300AD', '#E9FB00', '#FFBA00']
 
 jQuery(function () {
-  ajax_object_efm =deepFreeze_efb(ajax_object_efm);
+  //ajax_object_efm =deepFreeze_efb(ajax_object_efm);
   valueJson_ws_form = ajax_object_efm.ajax_value;
   poster_emsFormBuilder = ajax_object_efm.poster
   response_state_efb = ajax_object_efm.response_state;
@@ -285,9 +285,9 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
  
   const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => x.form_id == id) : -1
   if (foundIndex != -1){ 
-    valueJson_ws_form = [...valueJson_ws_form];
+   // valueJson_ws_form = [...valueJson_ws_form];
     valueJson_ws_form.splice(foundIndex, 1);
-    valueJson_ws_form =deepFreeze_efb(valueJson_ws_form);
+   // valueJson_ws_form =deepFreeze_efb(valueJson_ws_form);
   }
   fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
   //close_overpage_emsFormBuilder();
@@ -2425,9 +2425,9 @@ function fun_dup_form_server_efb(id,type){
       $.post(ajax_object_efm.ajax_url, data, function (res) {
         if (res.data.success == true) {
           emsFormBuilder_waiting_response();
-          valueJson_ws_form = [...valueJson_ws_form];
+         // valueJson_ws_form = [...valueJson_ws_form];
           valueJson_ws_form.push({form_id:res.data.form_id, form_name:res.data.form_name, form_create_date:res.data.date,form_type:res.data.form_type});
-          valueJson_ws_form = deepFreeze_efb(valueJson_ws_form);
+          // valueJson_ws_form = deepFreeze_efb(valueJson_ws_form);
           //console.log(valueJson_ws_form);
           alert_message_efb(efb_var.text.done, res.data.m, 4, 'success');
           //console.log(valueJson_ws_form.length);
