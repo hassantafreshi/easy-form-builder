@@ -1699,22 +1699,33 @@ let change_el_edit_Efb = (el) => {
         break;
       case "classesEl":
         id = valj_efb[indx].id_;
-        for(let d of document.querySelectorAll(`[data-css='${id}']`)){
-          const v = el.value.replace(` `, `,`);
-          
-          clss = d.className;
-          //console.log(d.classList.contains('efb1'))
-          if(d.classList.contains('efb1')==true){
-            c= clss.indexOf('efb1');
-    
-            clss= clss.slice(0,c);
-   
-          }
-          d.className =clss+" efb1 "+ sanitize_text_efb(el.value.replace(`,`, ` `));
-          //console.log(d, id)
-          valj_efb[indx].classes = sanitize_text_efb(v);
+        temp = sanitize_text_efb(el.value.replace(` `, `,`));
+        c = temp.split(',');
+        const old_class = valj_efb[indx].classes.split(',');
+  
+        postId = document.querySelectorAll(`[data-css='${id}']`);
+        // console.log(c,old_class)
+        for (let i = 0; i < postId.length; i++) {
+          // console.log(i)
+            const d = postId[i];
+              let clss = d.classList;
+            // remove old class from clss with es6
+             //  console.log(clss);
+              clss =  Array.from(clss).filter(element => !old_class.includes(element));
+              // console.log(clss);
+              const comp = new Set([...clss,...c]);
+              const array = [...comp];
+              clss = array.join(' ')
+              // console.log(comp);
+              // console.log(array);
+
+            
+           // console.log(`temp[${temp}] clss[${clss}]`);
+            d.className = `${clss}`.trim();                 
+            valj_efb[indx].classes = temp;
         }
         break;
+
       case "sizeEl":
         postId = document.getElementById(`${valj_efb[indx].id_}_labG`)
         if (valj_efb[indx].hasOwnProperty('size')) Object.assign(valj_efb[indx],{size:100});

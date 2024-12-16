@@ -74,7 +74,7 @@ function fun_efb_run(){
      // ajax_object_efm = deepFreeze_efb(ajax_object_efm);
       efb_var = ajax_object_efm; 
       //  efb_var = deepFreeze_efb(ajax_object_efm);   
-      efb_var = ajax_object_efm;
+       // efb_var = ajax_object_efm;
       poster_emsFormBuilder = ajax_object_efm.poster;
       // poster_emsFormBuilder = deepFreeze_efb(poster_emsFormBuilder);
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
