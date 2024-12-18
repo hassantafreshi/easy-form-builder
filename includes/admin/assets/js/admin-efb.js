@@ -1722,7 +1722,7 @@ let change_el_edit_Efb = (el) => {
             
            // console.log(`temp[${temp}] clss[${clss}]`);
             d.className = `${clss}`.trim();                 
-            valj_efb[indx].classes = temp;
+            valj_efb[indx].classes = temp.replace(`,`, ` `);
         }
         break;
 
