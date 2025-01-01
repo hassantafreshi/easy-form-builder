@@ -206,7 +206,7 @@ Thanks goes to these wonderful people
 This project follows the [Easy Form builder](https://whitestudio.team) specification.
 Contributions of any kind are welcome!
 
-## Roadmap for 2024 🎯
+## Roadmap for 2025 🎯
  ### SMS (Text message) Notifications :
   #### Notification System for Form Submissions.
  ✔️ Seamless Integration with [WP-SMS](https://wordpress.org/plugins/wp-sms/).
@@ -220,6 +220,7 @@ Contributions of any kind are welcome!
 
 ### Interactive Quiz Forms .
 ### Smart Forms
+* Auto-Fills
 * Conditional logic.
 ### SMS OTP form login
 ### Booking and calendars Forms
