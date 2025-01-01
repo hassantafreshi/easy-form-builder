@@ -90,7 +90,7 @@ function btnPersiaPayEfb(){
       id : efb_var.id,                      
       product:product,
       name:formNameEfb,
-      nonce: efb_var.nonce,
+      nonce: ajax_object_efm.nonce,
       url :document.URL,
       sid:efb_var.sid
     };

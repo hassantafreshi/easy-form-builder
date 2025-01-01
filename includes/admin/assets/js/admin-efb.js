@@ -1736,24 +1736,32 @@ let change_el_edit_Efb = (el) => {
           el.dataset.no == 1 ? valj_efb[indx].button_1_text = c : valj_efb[indx].button_2_text = c
         }
         break;
-      case "classesEl":
+        case "classesEl":
         id = valj_efb[indx].id_;
         temp = sanitize_text_efb(el.value.replace(` `, `,`));
-        c = valj_efb[indx].classes.split(' ');
-              
+        c = temp.split(',');
+        const old_class = valj_efb[indx].classes.split(',');
+  
         postId = document.querySelectorAll(`[data-css='${id}']`);
-
+        // console.log(c,old_class)
         for (let i = 0; i < postId.length; i++) {
+          // console.log(i)
             const d = postId[i];
-            let clss = d.className;
-        
-            if (c.length > 0) {               
-                const regex = new RegExp(`\\b(${c.join('|')})\\b`, 'g');
-                clss = clss.replace(regex, '').trim();
-            }
-        
-            d.className = `${clss} ${temp}`.trim();                 
-            valj_efb[indx].classes = temp;
+              let clss = d.classList;
+            // remove old class from clss with es6
+             //  console.log(clss);
+              clss =  Array.from(clss).filter(element => !old_class.includes(element));
+              // console.log(clss);
+              const comp = new Set([...clss,...c]);
+              const array = [...comp];
+              clss = array.join(' ')
+              // console.log(comp);
+              // console.log(array);
+
+            
+           // console.log(`temp[${temp}] clss[${clss}]`);
+            d.className = `${clss}`.trim();                 
+            valj_efb[indx].classes = temp.replace(`,`, ` `);
         }
         break;
       case "sizeEl":

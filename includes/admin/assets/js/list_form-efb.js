@@ -408,9 +408,9 @@ function fun_ws_show_list_messages(value) {
          <th scope="row" class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" >${v.track}</th>
            <td class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" >${v.date}</td>
             <td class="efb "> 
-            <a  class="efb  btn btn-comment btn-sm" id="btn-m-${v.msg_id} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}"  >
+            <a  class="efb  btn btn-comment btn-sm  ec-efb" id="btn-m-${v.msg_id}" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}"  >
              ${Number(state) != 1 && Number(state) != 4 ? iconNotRead : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}"></i> `}</a>
-             <a class="efb zindex-100  btn btn-delete btn-sm" id="btn-m-d-${v.msg_id} ec-efb" data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}" ><i class="efb  bi-trash ec-efb"  data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}"></i> </a>
+             <a class="efb zindex-100  btn btn-delete btn-sm  ec-efb" id="btn-m-d-${v.msg_id}" data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}" ><i class="efb  bi-trash ec-efb"  data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}"></i> </a>
             </td>                               
             </tr>` ;
       no += 1;
@@ -2544,7 +2544,9 @@ function addClickListenerToElement(element) {
       element.addEventListener("click", function (event) {
           if (!state_event) { 
               const classes = event.target.classList; 
-
+              setTimeout(() => {
+                state_event = false; 
+              }, 50);
               if (classes.contains("ec-efb")) { 
                 const pro = Number(efb_var.pro) === 1;
                   state_event = true; 
