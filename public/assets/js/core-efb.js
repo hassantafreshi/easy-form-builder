@@ -76,7 +76,9 @@ function fun_efb_run(){
       //  efb_var = deepFreeze_efb(ajax_object_efm);   
        // efb_var = ajax_object_efm;
       poster_emsFormBuilder = ajax_object_efm.poster;
-      // poster_emsFormBuilder = deepFreeze_efb(poster_emsFormBuilder);
+      poster_emsFormBuilder = deepFreeze_efb(poster_emsFormBuilder);
+      ajax_object_efm.text = deepFreeze_efb(ajax_object_efm.text);
+      efb_var.text = deepFreeze_efb(efb_var.text);
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       pro_efb = efb_var.pro == '1' ? true : false;
       page_state_efb="public";
