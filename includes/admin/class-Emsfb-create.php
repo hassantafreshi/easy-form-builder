@@ -36,7 +36,7 @@ class Create {
 		add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
-		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
+		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));
 		
 	}
 
@@ -341,15 +341,15 @@ class Create {
 	public function add_form_structure(){
 		
 		$efbFunction = $this->get_efbFunction();
-		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url" ];
+		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url","error403"];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
-	//	
+		//	
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
   
 		$nonce = $_POST['nonce'];
-		if ( ! wp_verify_nonce( $nonce, 'admin-nonce' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'admin-nonce' )  || !current_user_can('Emsfb')) {
             $response = ['success' => false, 'm' =>  $lang['error403']];
             wp_send_json_success($response, 200);
 		}
