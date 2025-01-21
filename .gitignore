@@ -1,0 +1,2 @@
+vendor/*
+vendor/stripe/stripe-php/lib/Service/Sigma/SigmaServiceFactory.php
