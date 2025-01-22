@@ -335,7 +335,7 @@ class Panel_edit  {
 
 
 
-			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', true,'3.8.8');
+			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', true,'3.8.10');
 			wp_enqueue_script('Emsfb-list_form-efb-js');
 			wp_localize_script( 'Emsfb-list_form-efb-js', 'ajax_object_efm',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			

@@ -1895,8 +1895,16 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
           if (content[c].type == 'payment') {
             const vx = rows[0].findIndex(x => x == "TID");
             rows[parseInt(i_count)][parseInt(vx)] = content[c].paymentIntent;
-          }else if(content[c].type == 'file' || content[c].type == 'media' || content[c].type == 'zip'  || content[c].type == 'image' || content[c].type == 'document' || content[c].type == 'allformat'){
+          }else if(content[c].value == '@file@' || content[c].type == 'file' || content[c].type == 'media' || content[c].type == 'zip'  || content[c].type == 'image' || content[c].type == 'document' || content[c].type == 'allformat'){
             rows[parseInt(i_count)][parseInt(value_col_index)] =content[c].url;
+          }else if (content[c].type == "maps"){
+            let val =''
+            content[c].value.forEach(r => {
+              const address = r.address.replaceAll(',' ,' -');
+              console.log(address)
+              val=='' ? val = `${efb_var.text.latitude}:${r.lat}; ${efb_var.text.longitude}:${r.lng}; ${efb_var.text.address}:${address}`  : val +=`| ${efb_var.text.latitude}:${r.lat}; ${efb_var.text.longitude}:${r.lng}; ${efb_var.text.address}:${address}`
+            });
+            rows[parseInt(i_count)][parseInt(value_col_index)] = val;
           }
         } else if (content[c].type == 'multiselect' || content[c].type == 'payMultiselect') {
           if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
@@ -1930,7 +1938,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value.replaceAll('@efb!', "");;
           }
           //content[c].value.replaceAll('@efb!' , " || ") ;
-        } else {
+        }else {
           //console.log('checkbox',c)
           // if checkbox
           if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
@@ -1973,7 +1981,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     }
   }
 
-
+  console.log('rowss')
   localStorage.setItem('rows_ws_p', JSON.stringify(exp));
   //  localStorage.setItem('head_ws_p', JSON.stringify(head));
 }
@@ -1983,6 +1991,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
   
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
+  console.log(items);
   items.forEach(item => { for (let i in item) { if (item[i] == "notCount@EFB") item[i] = ""; } });
   var jsonObject = JSON.stringify(items);
   var csv = this.convertToCSV_emsFormBuilder(jsonObject);
@@ -2009,11 +2018,11 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
 
 function convertToCSV_emsFormBuilder(objArray) {
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
-  
+  console.log(objArray);
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
   for (const item of array) {
-    // console.log(item);
+    console.log(item);
     let line = '';
     
    // for (const key in item) {
@@ -2031,6 +2040,7 @@ function convertToCSV_emsFormBuilder(objArray) {
 
 function generat_csv_emsFormBuilder() {
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
+  console.log(exp);
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
   exportCSVFile_emsFormBuilder(exp, filename); // create csv file
   //convert_to_dataset_emsFormBuilder(); //create dataset for chart :D
