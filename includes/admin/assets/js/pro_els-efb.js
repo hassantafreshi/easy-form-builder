@@ -1101,7 +1101,7 @@ return false;
 
 
 function efbCreateMap(id ,r ,viewState) {
-  console.log('efbCreateMap',id ,r ,viewState)
+  console.log('efbCreateMap',id ,r ,viewState ,Number(r.mark)>0 ,Number(r.mark))
   var efbInitialLat = viewState==true ? r.value=='' ? r.lat : r.value[0].lat : r.lat; 
   var efbInitialLng = viewState==true ? r.value=='' ? r.lng : r.value[0].lng :r.lng; 
   var efbInitialZoom = viewState==true ? 18 :r.zoom;
@@ -1142,6 +1142,7 @@ function efbCreateMap(id ,r ,viewState) {
   efbMap_dv.dataset.leaflet =efbMap._leaflet_id;
 
   var efbSearchDiv = L.control({ position: 'bottomleft' });
+  console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}] state_efb[${state_efb}]`)
   efbSearchDiv.onAdd = function (efbMap) {
       var efbDiv = L.DomUtil.create('div', 'custom-control');
       efbDiv.dataset.id = id+'-contorller';

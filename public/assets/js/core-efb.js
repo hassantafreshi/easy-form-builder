@@ -84,6 +84,8 @@ function fun_efb_run(){
       
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
       page_state_efb="public";
+  
+      console.log(` state_efb = [${state_efb}]`)
       console.log(ajax_object_efm.form_setting);
       setting_emsFormBuilder=typeof ajax_object_efm.form_settingJSON=='string' ? JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, '')) : ajax_object_efm.form_settingJSON;
       efb_var = ajax_object_efm;
@@ -142,7 +144,7 @@ setTimeout( fun_efb_run, g_timeout_efb)
 
 async function createStepsOfPublic() {
  // let form_id= 0;
-
+ state_efb = "run";
  efb_var = ajax_object_efm;
  setting_emsFormBuilder = typeof ajax_object_efm.form_setting == "string" ? JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, '')) : ajax_object_efm.form_setting;
   for (let el of document.querySelectorAll(`.emsFormBuilder_v`)) {
@@ -238,11 +240,12 @@ async function createStepsOfPublic() {
           break;
           case 'select-one':
           break;
-          case 'maps':
+      /*     case 'maps':
             console.log('maps!');
             const c = valj_efb_.find(x => x.id_ === id);
-            efbCreateMap(id,c,true)
-          break;
+            const points = Number(c.mark);
+            efbCreateMap(id,c,points,false)    
+          break; */
           }
           el.addEventListener("change", async(e) => {
             await handle_change_event_efb_v4(el,form_id);
@@ -279,10 +282,10 @@ async function createStepsOfPublic() {
       }
     }else if (el.classList.contains('maps-efb')){
       
-        console.log('maps!');
+        console.log('maps!!');
         const c = valj_efb_.find(x => x.id_ === id);
-    
-          efbCreateMap(id,c,true)                    
+       
+          efbCreateMap(id,c,false)                    
     }
     el.addEventListener("change", async(e) => {
       await handle_change_event_efb_v4(el,form_id);
