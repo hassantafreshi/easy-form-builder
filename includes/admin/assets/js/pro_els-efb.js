@@ -1336,7 +1336,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r,form_id,
       efbErrorMessageDiv.classList.remove('d-none');
       let v ='<!--efb-->'
       for (let i = 0; i < r.value.length; i++) {
-        v+= `<p>${i+1}- ${r.value[i].address} - <b>${r.value[i].lat}, ${r.value[i].lng}</b></p>`
+        v+= `<p>${i+1}- ${r.value[i].address} - <b> <a href="https://www.openstreetmap.org/?mlat=${r.value[i].lat}&mlon=${r.value[i].lng}#map=17/${r.value[i].lat}/${r.value[i].lng}" target="_blank">${r.value[i].lat}, ${r.value[i].lng}</a></b></p>`
       }
       //console.log(v ,efbMapId);
       setTimeout(() => {
