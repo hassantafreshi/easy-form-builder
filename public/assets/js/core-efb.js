@@ -64,28 +64,37 @@ function check_body_efb_timer (){
     fun_efb_run();
   }
 }
-function fun_efb_run(){
-  g_timeout_efb=100;  
-  if (typeof window.jQuery != "function" || typeof jQuery != "function") {
-    let msg = `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">  <strong>${ajax_object_efm.text.alert} </strong>${ajax_object_efm.text.jqinl}</div>`
-     if(document.getElementById('body_efb')) document.getElementById('body_efb').innerHTML = msg;
-     if(document.getElementById('body_tracker_emsFormBuilder')) document.getElementById('body_tracker_emsFormBuilder').innerHTML = msg;
-  } 
-  (function () {
-    jQuery(function () {
-      if (typeof ajax_object_efm == 'undefined') return;
-      //check if the form is private so no need to run the code 
-      if(ajax_object_efm.ajax_value=="")return;
-      if(document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null) check_body_efb_timer();
-      poster_emsFormBuilder = ajax_object_efm.poster;
-      poster_emsFormBuilder = deepFreeze_efb(poster_emsFormBuilder);
-      ajax_object_efm.text = deepFreeze_efb(ajax_object_efm.text);
-      lan_name_emsFormBuilder =ajax_object_efm.language.slice(0,2);
-      
-      pro_efb = ajax_object_efm.pro == '1' ? true : false;
-      page_state_efb="public";
+  function fun_efb_run() {
+    if (window.efb_initialized) return; 
   
-      console.log(` state_efb = [${state_efb}]`)
+    window.efb_initialized = true;
+  
+    g_timeout_efb = 100;
+    
+    if (typeof window.jQuery != "function" || typeof jQuery != "function") {
+      let msg = `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
+        <strong>${ajax_object_efm.text.alert}</strong> ${ajax_object_efm.text.jqinl}
+      </div>`;
+      
+      if(document.getElementById('body_efb')) document.getElementById('body_efb').innerHTML = msg;
+      if(document.getElementById('body_tracker_emsFormBuilder')) document.getElementById('body_tracker_emsFormBuilder').innerHTML = msg;
+      return;
+    }
+  
+    jQuery(() => {
+      if (typeof ajax_object_efm === 'undefined' || !ajax_object_efm.ajax_value) return;
+  
+      if (!document.getElementById('body_efb') && !document.getElementById('body_tracker_emsFormBuilder')) {
+        check_body_efb_timer();
+      }
+  
+      poster_emsFormBuilder = deepFreeze_efb(ajax_object_efm.poster);
+      ajax_object_efm.text = deepFreeze_efb(ajax_object_efm.text);
+      lan_name_emsFormBuilder = ajax_object_efm.language.slice(0, 2);
+      pro_efb = ajax_object_efm.pro == '1' ? true : false;
+      page_state_efb = "public";
+  
+      console.log(`state_efb = [${state_efb}]`);
       console.log(ajax_object_efm.form_setting);
       setting_emsFormBuilder=typeof ajax_object_efm.form_settingJSON=='string' ? JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, '')) : ajax_object_efm.form_settingJSON;
       efb_var = ajax_object_efm;
@@ -96,48 +105,54 @@ function fun_efb_run(){
           form_type_emsFormBuilder = ajax_object_efm.type;
           const vs = setting_emsFormBuilder;
           addons_emsFormBuilder = vs.addons;
-          if (ajax_object_efm.type != "userIsLogin") {
-            if (Number(ajax_value[0].captcha )== 1) {           
-              if(vs.siteKey.length<3){
-                const vd =  alarm_emsFormBuilder(ajax_object_efm.text.formIsNotShown);
-                // console.log(vd);
-                document.getElementById('body_efb').innerHTML =vd;
+  
+          if (ajax_object_efm.type !== "userIsLogin") {
+            if (Number(ajax_value[0]?.captcha) === 1) {
+              if (vs.siteKey.length < 3) {
+                document.getElementById('body_efb').innerHTML = alarm_emsFormBuilder(ajax_object_efm.text.formIsNotShown);
                 return;
               }
               if(sitekye_emsFormBuilder==2)alert(c_r_efb);
               sitekye_emsFormBuilder = vs.siteKey;
-            } else { sitekye_emsFormBuilder = ""; }
-          } else {
-            form_type_emsFormBuilder = ajax_object_efm.type;
+            } else {
+              sitekye_emsFormBuilder = "";
+            }
           }
         }
-      }  
-      if(ajax_object_efm.hasOwnProperty('ajax_value_forms')==false){  
-        if (ajax_object_efm.state !== 'settingError' ) {
-          if (ajax_object_efm.state == 'form') {
-            fun_render_view_efb(ajax_object_efm.ajax_value, 1);
-          } else if (ajax_object_efm.state == 'tracker') {
-            fun_tracking_show_emsFormBuilder()
-          } else if (ajax_object_efm.state == 'settingError') {
-            fun_show_alert_setting_emsFormBuilder()
-          } else if (ajax_object_efm.state == 'userIsLogin') {
-            document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(ajax_object_efm.ajax_value);
+      }
+  
+      if (!ajax_object_efm.hasOwnProperty('ajax_value_forms')) {
+        if (ajax_object_efm.state !== 'settingError') {
+          switch (ajax_object_efm.state) {
+            case 'form':
+              fun_render_view_efb(ajax_object_efm.ajax_value, 1);
+              break;
+            case 'tracker':
+              fun_tracking_show_emsFormBuilder();
+              break;
+            case 'userIsLogin':
+              document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(ajax_object_efm.ajax_value);
+              break;
+            default:
+              fun_show_alert_setting_emsFormBuilder();
           }
         } else {
-          fun_show_alert_setting_emsFormBuilder()
+          fun_show_alert_setting_emsFormBuilder();
         }
       }
     });
-  })();
-  (function () {
-    var exportObj = {
-      init: function (element, data, selectCb, options) {
-        createMultiselect(element, data, selectCb, options);
-      }
-    };
-    motus_efb.ElementMultiselect = exportObj;
-  })();
-}
+  
+    (function () {
+      var exportObj = {
+        init: function (element, data, selectCb, options) {
+          createMultiselect(element, data, selectCb, options);
+        }
+      };
+      motus_efb.ElementMultiselect = exportObj;
+    })();
+  }
+  
+  
 setTimeout( fun_efb_run, g_timeout_efb)
 // v4  start for parsing of elements of forms for add event listener by call function handle_change_event_efb and store value in sendtoback varible by call function fun_sendBack_emsFormBuilder
 
@@ -284,7 +299,8 @@ async function createStepsOfPublic() {
       
         console.log('maps!!');
         const c = valj_efb_.find(x => x.id_ === id);
-       
+        const parents = el.parentNode
+        if(!c.hasOwnProperty('formid'))Object.assign(c , {'formid':parents.dataset.formid})
           efbCreateMap(id,c,false)                    
     }
     el.addEventListener("change", async(e) => {

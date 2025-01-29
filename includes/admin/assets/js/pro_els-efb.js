@@ -1104,7 +1104,7 @@ function efbCreateMap(id ,r ,viewState) {
   console.log('efbCreateMap',id ,r ,viewState ,Number(r.mark)>0 ,Number(r.mark))
   var efbInitialLat = viewState==true ? r.value=='' ? r.lat : r.value[0].lat : r.lat; 
   var efbInitialLng = viewState==true ? r.value=='' ? r.lng : r.value[0].lng :r.lng; 
-  var efbInitialZoom = viewState==true ? 18 :r.zoom;
+  var efbInitialZoom = viewState==true ? 12 :r.zoom;
   var efbAllowAddingMarkers = Number(r.mark)>0 ? true :false; 
   if(viewState==true && efbAllowAddingMarkers==true)efbAllowAddingMarkers=false;
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2) ;
@@ -1114,7 +1114,10 @@ function efbCreateMap(id ,r ,viewState) {
   efbMapDiv.dataset.id =id+"-mapsdiv"
   efbMapDiv.className = 'map';
   efbMapContainer.appendChild(efbMapDiv);
-  document.getElementById(id+'-f').appendChild(efbMapContainer);
+  let el_maps = document.getElementById(id+'-f');
+  const form_id = el_maps.dataset.formid;
+  console.log(`form_id[${form_id}]`)
+  el_maps.appendChild(efbMapContainer);
 
   var efbMap = L.map(efbMapDiv).setView([efbInitialLat, efbInitialLng], efbInitialZoom);
   var efbOsmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1210,7 +1213,7 @@ function efbCreateMap(id ,r ,viewState) {
 
         efbMap.on('click', function(e) {
             var efbLatlng = e.latlng;
-            efbAddMarker(efbLatlng.lat, efbLatlng.lng, efbMap._leaflet_id , efbAllowAddingMarkers ,r);
+            efbAddMarker(efbLatlng.lat, efbLatlng.lng, efbMap._leaflet_id , efbAllowAddingMarkers ,r,form_id);
         });
     } else {
         
@@ -1221,7 +1224,7 @@ function efbCreateMap(id ,r ,viewState) {
     if(len>0){
       Object.assign(r ,{mark:len});
       for (let i = 0; i <len; i++) {
-        efbAddMarker(r.value[i].lat, r.value[i].lng, efbMap._leaflet_id, i+1 ,r);
+        efbAddMarker(r.value[i].lat, r.value[i].lng, efbMap._leaflet_id, i+1 ,r,form_id);
       }
     }
   }
@@ -1272,7 +1275,7 @@ function efbSearchLocation(efbMapId) {
       });
 }
 
-function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName = '' ) {
+function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r,form_id, efbName = '' ) {
   var efbMarkerNumber ='';
   if(state_efb!='view'){
      efbMarkerNumber = efbAllowAddingMarkers ? maps_efb[efbMapId].markers.length + 1 : '';
@@ -1311,7 +1314,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
               });
              
               if(state_efb!='view'){
-                const o = [{ id_: r.id_, name: r.name, amount: r.amount, type: "maps", value: maps_efb[efbMapId].locationList, session: sessionPub_emsFormBuilder }];
+                const o = [{ id_: r.id_, name: r.name, amount: r.amount, type: "maps", value: maps_efb[efbMapId].locationList, session: sessionPub_emsFormBuilder,form_id:form_id }];
                 fun_sendBack_emsFormBuilder(o[0])
               }
           })
@@ -1333,7 +1336,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
       efbErrorMessageDiv.classList.remove('d-none');
       let v ='<!--efb-->'
       for (let i = 0; i < r.value.length; i++) {
-        v+= `<p>${i+1}- ${r.value[i].address}</p>`
+        v+= `<p>${i+1}- ${r.value[i].address} - <b>${r.value[i].lat}, ${r.value[i].lng}</b></p>`
       }
       //console.log(v ,efbMapId);
       setTimeout(() => {
