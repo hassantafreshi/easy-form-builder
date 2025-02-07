@@ -1900,13 +1900,17 @@ public function addon_add_efb($value) {
 		wp_enqueue_style('leaflet_css_efb');
 		wp_register_script('leaflet_js_efb', $url);
 		wp_enqueue_script('leaflet_js_efb');
+		wp_register_style('leaflet_fullscreen_css_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css');
+		wp_enqueue_style('leaflet_fullscreen_css_efb');
+		wp_register_script('leaflet_fullscreen_js_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js');
+		wp_enqueue_script('leaflet_fullscreen_js_efb');
 		
-		if($s==1 || true){
+		/* if($s==1 || true){
 			wp_register_style('leaflet_fullscreen_css_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css');
 			wp_enqueue_style('leaflet_fullscreen_css_efb');
 			wp_register_script('leaflet_fullscreen_js_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js');
 			wp_enqueue_script('leaflet_fullscreen_js_efb');
-		}
+		} */
 		
 		return true;
 
