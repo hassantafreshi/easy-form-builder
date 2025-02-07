@@ -4788,8 +4788,8 @@ function efbLatLonLocation(efbMapId, lat, long ,zoom) {
   }
 }
 
-
-function heartbeat_Emsfb() {
+let heartbeat_status_efb = false
+async function heartbeat_Emsfb() {
   // Your code here
   data = {};
   //console.log('Old nonce', efb_var.nonce);
@@ -4802,11 +4802,15 @@ function heartbeat_Emsfb() {
       //console.log(res)
       if (res.success == true) {
         
-        efb_var.nonce = res.data.newNonce;
-        console.log('new nonce', efb_var.nonce);
+
+        console.log('heart beat', efb_var.nonce ,res.data.newNonce);
+       
+
       } else {
         console.log(res.data);
+  
       }
+      heartbeat_status_efb=false
     })
 
   });
@@ -4903,6 +4907,22 @@ const efb_url_convert_url = (url)=>{
 
 
  // v3.8.6 start
+
+
+ function  EventClickHeartBeatEFB(element){
+  if (!heartbeat_status_efb) { 
+    //heartbeat_Emsfb
+    
+    element.addEventListener("click", function (event) {
+      if(heartbeat_status_efb==true) return;
+      heartbeat_status_efb=true;
+      heartbeat_Emsfb()
+
+
+    })
+
+  }
+ }
       
 function addClickListenerToElementListEFB(element) {
   if (!element.hasClickListener) { 
@@ -5000,42 +5020,37 @@ function addClickListenerToElementListEFB(element) {
           }
       });
 
-      element.hasClickListener = true; // پرچم برای جلوگیری از اضافه شدن چندباره لیسنر
+      element.hasClickListener = true; 
   }
 }
-
-      // افزودن Listener کلیک به همه المان‌های موجود
+      
       function observeExistingElementsListEFB() {
         console.log('observeExistingElementsListEFB');
         const els = document.querySelectorAll(".ec-efb");
         els.forEach(addClickListenerToElementListEFB);
-        //document.querySelectorAll("*").forEach(addClickListenerToElementListEFB);
       }
 
-      // ایجاد MutationObserver برای نظارت بر اضافه شدن المان‌های جدید
+
       const observer_listefb = new MutationObserver(mutations => {
         mutations.forEach(mutation => {
             mutation.addedNodes.forEach(node => {
-                if (node.nodeType === 1) { // بررسی اینکه المان یک عنصر DOM است                                    
-                    // همچنین به فرزندان این المان نیز نظارت کنیم
-                    
+                if (node.nodeType === 1) { 
+
                     const els = node.querySelectorAll(".ec-efb");
                     els.forEach(addClickListenerToElementListEFB);
 
                     const els_efb = node.querySelectorAll(".efb")
-                    els_efb.forEach(heartbeat_Emsfb)
+                    els_efb.forEach(EventClickHeartBeatEFB)
                 }
             });
         });
       });
 
-      // آغاز نظارت بر تغییرات در کل سند
       observer_listefb.observe(document.body, {
-        childList: true, // نظارت بر تغییرات در فرزندان مستقیم
-        subtree: true    // نظارت بر تغییرات در کل زیرشاخه‌ها
+        childList: true, 
+        subtree: true    
       });
 
-      // نظارت بر المان‌های موجود در لحظه بارگذاری
       observeExistingElementsListEFB();
 // v3.8.6 end
 
