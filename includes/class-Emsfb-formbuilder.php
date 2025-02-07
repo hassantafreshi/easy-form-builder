@@ -1205,60 +1205,63 @@
 	}
 
 	/* field builder */
+
+
+	public function ui_dadfile_efb($vj, $previewSate, $form_id, $texts, $disabled, $corner) { 
+			
+			
+		$fileType = property_exists($vj, 'file') ? $vj->file : '';
+
+		if ($fileType == 'customize') {
+			$name_type_file = $vj->file_ctype;
+		}else{
+			$name_type_file = $texts[$fileType];
+		}
+		
+		$filetype_efb = [
+			'image' => 'image/png, image/jpeg, image/jpg, image/gif, image/heic',
+			'media' => 'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg, video/mpg, audio/mpg, video/mov, video/quicktime',
+			'document' => '.xlsx, .xls, .doc, .docx, .ppt, .pptx, .pptm, .txt, .pdf, .dotx, .rtf, .odt, .ods, .odp, application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template, application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
+			'zip' => '.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar',
+			'allformat' => 'image/png, image/jpeg, image/jpg, image/gif, audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg, video/mpg, audio/mpg, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .pptm, .txt, .pdf, .dotx, .rtf, .odt, .ods, .odp, application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template, application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text, .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime',
+			'customize' => $fileType
+		];
+		
+		$fileTypeAttr = isset($filetype_efb[$vj->value]) ? $filetype_efb[$vj->value] : '';
+		$requiredClass = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
+		$readonlyAttr = $previewSate != true ? 'disabled' : '';
+
+		return sprintf(
+			'<div class="efb icon efb">
+				<i class="efb fs-3 %1$s %2$s" id="%3$s_icon"></i>
+			</div>
+			<h6 id="%3$s_txt" class="efb text-center m-1 fs-6">%4$s %5$s</h6>
+			<span class="efb fs-7 my-1">%6$s</span>
+			<div class="efb btn %7$s efb-btn-lg fs-6 mb-1" id="%3$s_b" %8$s>
+				<i class="efb bi-upload mx-2 fs-6"></i>%9$s
+			</div>
+			<input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s dadfile" id="%3$s_" data-id="%3$s-el" data-formid="%13$s" %12$s %8$s>',
+			$vj->icon,
+			$vj->icon_color,
+			$vj->id_,
+			$texts['dragAndDropA'],  // dragAndDropA
+			$name_type_file ,
+			$texts['or'],  // or
+			$vj->button_color,
+			$disabled,
+			$texts['browseFile'],  // browseFile
+			$fileTypeAttr,
+			$requiredClass,
+			$readonlyAttr,
+			$form_id
+		);
+	}
 	public function dadfile_el_pro_efb($previewSate, $rndm, $vj, $form_id, $texts) {
 		$corner = property_exists($vj, 'corner') ? $vj->corner : 'efb-square';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
 
-		function ui_dadfile_efb($vj, $previewSate, $form_id, $texts, $disabled, $corner) { 
-			
-			
-			$fileType = property_exists($vj, 'file') ? $vj->file : '';
 	
-			if ($fileType == 'customize') {
-				$name_type_file = $vj->file_ctype;
-			}else{
-				$name_type_file = $texts[$fileType];
-			}
-			
-			$filetype_efb = [
-				'image' => 'image/png, image/jpeg, image/jpg, image/gif, image/heic',
-				'media' => 'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg, video/mpg, audio/mpg, video/mov, video/quicktime',
-				'document' => '.xlsx, .xls, .doc, .docx, .ppt, .pptx, .pptm, .txt, .pdf, .dotx, .rtf, .odt, .ods, .odp, application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template, application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
-				'zip' => '.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar',
-				'allformat' => 'image/png, image/jpeg, image/jpg, image/gif, audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg, video/mpg, audio/mpg, .xlsx, .xls, .doc, .docx, .ppt, .pptx, .pptm, .txt, .pdf, .dotx, .rtf, .odt, .ods, .odp, application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template, application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text, .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime',
-				'customize' => $fileType
-			];
-			
-			$fileTypeAttr = isset($filetype_efb[$vj->value]) ? $filetype_efb[$vj->value] : '';
-			$requiredClass = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
-			$readonlyAttr = $previewSate != true ? 'disabled' : '';
-	
-			return sprintf(
-				'<div class="efb icon efb">
-					<i class="efb fs-3 %1$s %2$s" id="%3$s_icon"></i>
-				</div>
-				<h6 id="%3$s_txt" class="efb text-center m-1 fs-6">%4$s %5$s</h6>
-				<span class="efb fs-7 my-1">%6$s</span>
-				<div class="efb btn %7$s efb-btn-lg fs-6 mb-1" id="%3$s_b" %8$s>
-					<i class="efb bi-upload mx-2 fs-6"></i>%9$s
-				</div>
-				<input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s" id="%3$s_" data-id="%3$s-el" data-formid="%13$s" %12$s %8$s>',
-				$vj->icon,
-				$vj->icon_color,
-				$vj->id_,
-				$texts['dragAndDropA'],  // dragAndDropA
-				$name_type_file ,
-				$texts['or'],  // or
-				$vj->button_color,
-				$disabled,
-				$texts['browseFile'],  // browseFile
-				$fileTypeAttr,
-				$requiredClass,
-				$readonlyAttr,
-				$form_id
-			);
-		}
-		$ui = ui_dadfile_efb($vj, $previewSate, $form_id, $texts , $disabled, $corner);
+		$ui = $this->ui_dadfile_efb($vj, $previewSate, $form_id, $texts , $disabled, $corner);
 		return sprintf(
 			'<div class="efb mb-3" id="uploadFilePreEfb" data-formid="%s">
 				<label for="%s_" class="efb form-label">
