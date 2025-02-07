@@ -1305,7 +1305,7 @@ class Admin {
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
         }
-        $new_nonce = wp_create_nonce('admin-nonce');
+        $new_nonce = $_POST['nonce'];
         $response = ['success' => true, "m" =>'heartBeat' , 'newNonce'=>$new_nonce];
         wp_send_json_success($response, 200);
     }
