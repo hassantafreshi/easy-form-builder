@@ -175,7 +175,7 @@ class efbFunction {
 			"general" => $state ? $ac->text->general : esc_html__('General',$s),
 			"dadFieldHere" => $state ? $ac->text->dadFieldHere : esc_html__('Drag & Drop Fields Here',$s),
 			"help" => $state ? $ac->text->help : esc_html__('Help',$s),
-			"setting" => $state ? $ac->text->setting : esc_html__('Setting',$s),
+			"setting" => $state ? $ac->text->setting : esc_html__('Settings',$s),
 			"maps" => $state ? $ac->text->maps : esc_html__('Maps',$s),
 			"youCanFindTutorial" => $state ? $ac->text->youCanFindTutorial : esc_html__('Find video tutorials in the adjacent box and click the document button for tutorials and articles.',$s),
 			"proUnlockMsg" => $state ? $ac->text->proUnlockMsg : esc_html__('Activate Pro version for more features and unlimited access to the all plugin services.',$s),
