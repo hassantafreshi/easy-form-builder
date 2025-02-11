@@ -100,6 +100,7 @@ function check_body_efb_timer (){
       efb_var = ajax_object_efm;
       efb_var.text = deepFreeze_efb(efb_var.text); 
       if (ajax_object_efm.state != 'tracker') {
+        console.log(ajax_object_efm.ajax_value)
         const ajax_value = typeof (ajax_object_efm.ajax_value) == "string" ? JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
         if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
           form_type_emsFormBuilder = ajax_object_efm.type;
@@ -173,6 +174,7 @@ async function createStepsOfPublic() {
     const valj_efb_ =get_structure_by_form_id_efb(form_id);
     const id = el.dataset.vid ?? '';
     const classes = el.classList;
+    let handler_state=true;
     //if el is option of select return
     if ('type' in el) {
       if(el.type=="checkbox" && valj_efb_[0].type == "payment" && classes.contains('payefb')){
@@ -233,6 +235,14 @@ async function createStepsOfPublic() {
             ((ob.hasOwnProperty('hidden') && ob.hidden==true) || ob.hasOwnProperty('hidden')==false))
           
             files_emsFormBuilder.push({ id_: ob.id_, value: "@file@", state: 0, url: "", type: "file",state:0, name: ob.name, session: sessionPub_emsFormBuilder, form_id: form_id });
+
+            if (el.classList.contains('dadfile')){
+              console.log('add dadfile!')
+              const indx = valj_efb_.findIndex(x => x.id_ === id);
+              console.log(`indx[${indx}] id[${id}]`);
+              set_dadfile_fun_efb(id,indx,form_id)
+              handler_state=false;
+            }
           break;
           case "hidden":
             console.log('hidden');
@@ -262,9 +272,12 @@ async function createStepsOfPublic() {
             efbCreateMap(id,c,points,false)    
           break; */
           }
-          el.addEventListener("change", async(e) => {
-            await handle_change_event_efb_v4(el,form_id);
-          });
+          /* if(handler_state){
+            el.addEventListener("change", async(e) => {
+              await handle_change_event_efb_v4(el,form_id);
+            });
+
+          } */
         /*  if(el.type=="text" &&  classes.contains("hijri-picker")){
               $("#"+el.id).on('dp.change', function (arg) {
                 if (!arg.date) {
@@ -302,10 +315,13 @@ async function createStepsOfPublic() {
         const parents = el.parentNode
         if(!c.hasOwnProperty('formid'))Object.assign(c , {'formid':parents.dataset.formid})
           efbCreateMap(id,c,false)                    
+    } 
+    if(handler_state){
+      el.addEventListener("change", async(e) => {
+        await handle_change_event_efb_v4(el,form_id);
+      });
+
     }
-    el.addEventListener("change", async(e) => {
-      await handle_change_event_efb_v4(el,form_id);
-    });
   }
   //disable-efb
  /*  if(form_id>0){
@@ -612,7 +628,13 @@ function valid_phone_emsFormBuilder(el) {
   }
   return check > 0 ? false : true
 }
-function valid_file_emsFormBuilder(id,tp,filed) {
+function valid_file_emsFormBuilder(id,tp,filed,form_id) {
+  let valj_efb
+  if (form_id){
+    valj_efb = get_structure_by_form_id_efb(form_id);
+  }else{
+    valj_efb = valj_efb;
+  }
   console.log('valid_file_emsFormBuilder!!!');
   let msgEl = document.getElementById(`${id}_-message`);
   msgEl.innerHTML = "";
@@ -620,7 +642,7 @@ function valid_file_emsFormBuilder(id,tp,filed) {
   document.getElementById(`${id}_`).classList.remove('border-danger');
   let file = ''
   if (true) {
-    const f = valueJson_ws.find(x => x.id_ === id);
+    const f = valj_efb.find(x => x.id_ === id);
     file = f.file && f.file.length > 3 ? f.file : 'Zip';
     file = file.toLocaleLowerCase();
   }
@@ -863,12 +885,18 @@ function fun_show_alert_setting_emsFormBuilder() {
   }
 }
 async function validation_before_send_efb(form_id) {
+  let valj_efb
+  if (form_id){
+    valj_efb = get_structure_by_form_id_efb(form_id);
+  }else{
+    valj_efb = valj_efb;
+  }
   const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? `logic_fun_prev_send(${form_id})`:`fun_prev_send(${form_id})`;
   const count = [0, 0]
   let fill = 0;
   let require = 0;
   const id_body = form_id == 0 ? 'body_efb' : `body_efb_${form_id}`;
-  for (const v of valueJson_ws) {
+  for (const v of valj_efb) {
     require += v.required == true && v.type !== "file" ? 1 : 0;
     if (v.type == "file") {
       if (document.getElementById(`${v.id_}_`).files[0] == undefined && v.required == true) {
@@ -887,36 +915,36 @@ async function validation_before_send_efb(form_id) {
     }
     count[0] += 1;
     if (row.value == "@file@") {
-      const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
+      const indx = valj_efb.findIndex(x => x.id_ == row.id_);
       console.log('indx',indx);
       if (indx != -1) {
-        if(valueJson_ws[indx].hasOwnProperty("disabled") && valueJson_ws[indx].disabled==true && 
-           ((valueJson_ws[indx].hasOwnProperty('hidden') && valueJson_ws[indx].hidden==false) || valueJson_ws[indx].hasOwnProperty('hidden')==false)
+        if(valj_efb[indx].hasOwnProperty("disabled") && valj_efb[indx].disabled==true && 
+           ((valj_efb[indx].hasOwnProperty('hidden') && valj_efb[indx].hidden==false) || valj_efb[indx].hasOwnProperty('hidden')==false)
           ){    
             console.log('indx',indx);       
-            const i = get_row_sendback_by_id_efb_v4(valueJson_ws[indx].id_,valueJson_ws[indx].form_id);
+            const i = get_row_sendback_by_id_efb_v4(valj_efb[indx].id_,valj_efb[indx].form_id);
 
             sendBack_emsFormBuilder_pub.splice(i,1);
             count[0] -= 1;
             continue 
           }
         if (row.url.length > 5) {
-          fill += valueJson_ws[indx].required == true ? 1 : 0;
+          fill += valj_efb[indx].required == true ? 1 : 0;
           count[1] += 1;
         }
       }
     } else if (row.type != "@file@" && row.type != "payment") {
-      const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
+      const indx = valj_efb.findIndex(x => x.id_ == row.id_);
       if(indx!=-1){
-        if ( (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select"
-        || valueJson_ws[indx].type == "payMultiselect" || valueJson_ws[indx].type == "paySelect")) {
-        const exists = valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "payMultiselect" ? valueJson_ws.findIndex(x => x.parent == valueJson_ws[indx].id_) : valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);
-        fill += valueJson_ws[indx].required == true && exists > -1 ? 1 : 0;
-      }else if(valueJson_ws[indx].type == "chlCheckBox"){
-          const exists = valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_)
-          fill += valueJson_ws[indx].required == true && exists > -1 ? 1 : 0;
+        if ( (valj_efb[indx].type == "multiselect" || valj_efb[indx].type == "option" || valj_efb[indx].type == "Select"
+        || valj_efb[indx].type == "payMultiselect" || valj_efb[indx].type == "paySelect")) {
+        const exists = valj_efb[indx].type == "multiselect" || valj_efb[indx].type == "payMultiselect" ? valj_efb.findIndex(x => x.parent == valj_efb[indx].id_) : valj_efb.findIndex(x => x.parents == valj_efb[indx].id_);
+        fill += valj_efb[indx].required == true && exists > -1 ? 1 : 0;
+      }else if(valj_efb[indx].type == "chlCheckBox"){
+          const exists = valj_efb.findIndex(x => x.parents == valj_efb[indx].id_)
+          fill += valj_efb[indx].required == true && exists > -1 ? 1 : 0;
         }else {
-          fill += valueJson_ws[indx].required == true ? 1 : 0;
+          fill += valj_efb[indx].required == true ? 1 : 0;
         }
       if (row.value.length > 0) count[1] += 1;
       }
@@ -932,7 +960,7 @@ async function validation_before_send_efb(form_id) {
      <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner:'efb-square'}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onclick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
     //if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
     smoothy_scroll_postion_efb(id_body)
-    for (const v of valueJson_ws) {
+    for (const v of valj_efb) {
       if (v.type != 'file' && v.type != 'dadfile' && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select' && v.type != 'payMultiselect' && v.type != 'paySelect' && v.type != 'payRadio' && v.type != 'payCheckbox' && v.type != 'chlCheckBox') {
         (v.id_ && document.getElementById(v.id_).value.length < 5) ? document.getElementById(`${v.id_}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField : 0
         return false;
@@ -1481,7 +1509,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
   const max_step = Number(parent_body.dataset.steps);
   let no_step = Number(parent_body.dataset.currentstep);
   console.log(`max_step:${max_step} no_step${no_step}` , parent_body);
-  valj_efb = get_structure_by_form_id_efb(form_id);
+  let valj_efb = get_structure_by_form_id_efb(form_id);
   console.log(`valj_efb=>`,valj_efb)
   const progessbar = parent_body.querySelector('.progress-bar-efb') ?? null;
   fun_progessbar = (no_step,max_step)=>{
@@ -1688,7 +1716,7 @@ const btnChangerEfb = (classes, value) => { return classes.replace(/\bbtn-outlin
 
 fun_prev_send =(form_id =0) =>{
   console.log(`fun_prev_send[${form_id}]`);
-  valj_efb = get_structure_by_form_id_efb(form_id);
+  let valj_efb = get_structure_by_form_id_efb(form_id);
   var stp = Number(valj_efb[0].steps) + 1;
   //body_efb_119
   const id_body = 'body_efb_'+form_id;
@@ -1762,7 +1790,7 @@ fun_prev_send =(form_id =0) =>{
 //v4 
 async function handle_change_event_efb_v4(el ,form_id=0){  
   console.log('handle_change_event_efb_v4');
-  valj_efb = get_structure_by_form_id_efb(form_id);
+  let valj_efb = get_structure_by_form_id_efb(form_id);
   slice_sback=(i)=>{
     sendBack_emsFormBuilder_pub.splice(i, 1)
   }
@@ -2012,7 +2040,9 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       break;
     case "file":
       console.log('===================================================>file');
-      valid_file_emsFormBuilder(id_,'msg','');
+      if(!el.classList.contains('dadfile')){
+        valid_file_emsFormBuilder(id_,'msg','',form_id);
+      }
       break;
     case "hidden":
       value = sanitize_text_efb(el.value);
