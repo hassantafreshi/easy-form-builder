@@ -882,6 +882,10 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
    object-fit: cover;
    border-radius: 10px;
 }
+
+.dadFile-efb .card {
+   position: static!important;
+}
 /* DAND Section end*/.efbField:disabled {	background-color: #fafafa !important;
    opacity: 1 !important;
 }
@@ -2750,3 +2754,5 @@ div#Listefb-150 {
    background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 120 30" height="15px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><circle cx="15" cy="15" r="15" fill="%23abb8c3"><animate attributeName="r" from="15" to="9" begin="0s" dur="1s" values="15;9;15" calcMode="linear" repeatCount="indefinite"></animate></circle><circle cx="60" cy="15" r="9" fill="%23abb8c3"><animate attributeName="r" from="9" to="15" begin="0.3s" dur="1s" values="9;15;9" calcMode="linear" repeatCount="indefinite"></animate></circle><circle cx="105" cy="15" r="15" fill="%23abb8c3"><animate attributeName="r" from="15" to="9" begin="0.6s" dur="1s" values="15;9;15" calcMode="linear" repeatCount="indefinite"></animate></circle></svg>') no-repeat center center;
    background-size: contain;
 }
+
+
