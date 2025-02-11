@@ -129,7 +129,7 @@ class efbFunction {
 			"registered" => $state ? $ac->text->registered : esc_html__('Registered',$s),
 			"yourInformationRegistered" => $state ? $ac->text->yourInformationRegistered : esc_html__('Your information is successfully registered',$s),
 			"youNotPermissionUploadFile" => $state ? $ac->text->youNotPermissionUploadFile : esc_html__('You do not have permission to upload this file:',$s),
-			"pleaseUploadA" => $state ? $ac->text->pleaseUploadA : esc_html__('Please upload NN file',$s),
+			"pleaseUploadA" => $state ? $ac->text->pleaseUploadA : esc_html__('Please upload NN files',$s),
 			"please" => $state ? $ac->text->please : esc_html__('Please',$s),
 			"trackingForm" => $state ? $ac->text->trackingForm : esc_html__('Tracking Form',$s),
 			"trackingCodeIsNotValid" => $state ? $ac->text->trackingCodeIsNotValid : esc_html__('The confirmation Code is not valid.',$s),
@@ -440,7 +440,7 @@ class efbFunction {
 			"localizationM" => $state ? $ac->text->localizationM : esc_html__('To localize the plugin, simply go to the Panel, click on Setting, and then Localization.',$s),
 			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : esc_html__('We are sorry, but the message was not sent due to a settings error. Please contact the admin for assistance.',$s),
 			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : esc_html__('To ensure compatibility, please go to the Panel and select the < Setting > option. From there, choose the option that states < My template has used Bootstrap framework > and click < Save >. If you encounter any additional issues, please don not hesitate to contact us through our website at whitestudio.team.',$s),
-			"or" => $state  && isset($ac->text->or)? $ac->text->or : esc_html__('OR',$s),
+			"or" => $state  && isset($ac->text->or)? $ac->text->or : esc_html__('or',$s),
 			"emailTemplate" => $state  &&  isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : esc_html__('Email Template',$s),
 			"reset" => $state  &&  isset($ac->text->reset) ? $ac->text->reset : esc_html__('reset',$s),
 			"freefeatureNotiEmail" => $state  &&  isset($ac->text->freefeatureNotiEmail) ? $ac->text->freefeatureNotiEmail : esc_html__('One of the free features of Easy Form Builder is the ability to send a notification email to either the admin or user.',$s),
@@ -2038,7 +2038,7 @@ public function addon_add_efb($value) {
 		update_option('emsfb_pro', 1);
 		update_option('emsfb_pro_activeCode', $code);
 		$json = $this->make_post_request_efb($code);
-		// error_log('EFB=>update_pro_status_efb: ' . json_encode($json));
+		error_log('EFB=>update_pro_status_efb: ' . json_encode($json));
 		// {"r":true,"state":"new","key":"f528764d624db129b32c21fbca0cb8d6@iZPLjo","smsStatus":false,"smsDeposited":0}
 		$r = $json->r;
 		// error_log('EFB=>update_pro_status_efb r: ' . $r);
@@ -2111,6 +2111,7 @@ public function addon_add_efb($value) {
 	// +Pro
 	private function validated_pro_efb($s) {
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+		error_log($server_name);
 		return isset($s) && md5($server_name) == $s ? true : false;
 	}
 	public function is_efb_pro($s=1) {	
@@ -2154,6 +2155,7 @@ public function addon_add_efb($value) {
 		} else {
 			// error_log('EFB=>is_efb_pro: else ' . $s);
 			$activeCode = explode('@', $s)[0];
+			error_log($activeCode);
 			if ($this->validated_pro_efb($activeCode)) {
 					return $this->update_pro_status_efb($s);
 					// return true;
@@ -2235,7 +2237,63 @@ public function addon_add_efb($value) {
 		);
 	
 		// List of allowed CSS properties
+
+		
+
 		$allowed_properties = array(
+			// Colors and background properties
+			'color', 'background', 'background-color', 'background-image', 'background-position', 
+			'background-repeat', 'background-size', 'background-attachment', 'background-clip', 'background-origin',
+			'border-image', 'border-image-source', 'border-image-slice', 'border-image-width', 'border-image-outset', 'border-image-repeat',
+		
+			// Font and text properties
+			'font', 'font-family', 'font-size', 'font-style', 'font-variant', 'font-weight',
+			'letter-spacing', 'line-height', 'text-align', 'text-decoration', 'text-indent',
+			'text-overflow', 'text-shadow', 'text-transform', 'white-space', 'word-break', 'word-spacing',
+			'direction', 'unicode-bidi', 'writing-mode', 'hyphens',
+		
+			// Dimensions and layout properties
+			'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
+			'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+			'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+			'box-sizing', 'overflow', 'overflow-x', 'overflow-y', 'aspect-ratio',
+		
+			// Border properties
+			'border', 'border-width', 'border-style', 'border-color', 'border-top', 'border-right', 'border-bottom', 'border-left',
+			'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width',
+			'border-radius', 'outline', 'outline-width', 'outline-style', 'outline-color',
+			'border-collapse', 'border-spacing', 'border-image', 'border-image-source', 'border-image-slice', 'border-image-width', 'border-image-outset', 'border-image-repeat',
+		
+			// Box and shadow properties
+			'box-shadow', 'box-sizing', 'box-decoration-break',
+		
+			// Positioning and z-index
+			'position', 'top', 'right', 'bottom', 'left', 'z-index',
+			'float', 'clear', 'vertical-align', 'clip',
+		
+			// Flexbox and grid properties
+			'display', 'flex', 'flex-grow', 'flex-shrink', 'flex-basis',
+			'align-items', 'align-content', 'align-self', 'justify-content', 'order',
+			'grid', 'grid-template-rows', 'grid-template-columns', 'grid-template-areas',
+			'grid-area', 'row-gap', 'column-gap', 'gap', 'place-items', 'place-content', 'place-self',
+			
+			// Animation and transition properties
+			'animation', 'animation-name', 'animation-duration', 'animation-timing-function', 'animation-delay',
+			'animation-iteration-count', 'animation-direction', 'animation-fill-mode', 'animation-play-state',
+			'transition', 'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay',
+		
+			// Table properties
+			'border-collapse', 'border-spacing', 'caption-side', 'empty-cells', 'table-layout','collapse',
+		
+			// Miscellaneous
+			'cursor', 'opacity', 'clip-path', 'filter', 'backface-visibility', 'visibility',
+			'transform', 'transform-origin', 'transform-style', 'perspective', 'perspective-origin',
+			'pointer-events', 'resize', 'scroll-behavior', 'user-select', 'will-change',
+			'isolation', 'contain', 'mix-blend-mode', 'object-fit', 'object-position', 'overflow-wrap',
+			'shape-outside', 'shape-margin', 'shape-image-threshold'
+		);
+		
+		/* $allowed_properties = array(
 			// Colors and background properties
 			'color', 'background', 'background-color', 'background-image', 'background-position',
 			'background-repeat', 'background-size', 'background-attachment', 'background-clip', 'background-origin',
@@ -2263,7 +2321,7 @@ public function addon_add_efb($value) {
 			// Miscellaneous
 			'cursor', 'opacity', 'clip-path', 'filter', 'backface-visibility', 'transform',
 			'transform-origin', 'transform-style',
-		);
+		); */
 	
 		// List of trusted domains for URLs in CSS (e.g., background-image)
 		$current_domain = parse_url(home_url(), PHP_URL_HOST);
@@ -2291,6 +2349,24 @@ public function addon_add_efb($value) {
 		// Function to sanitize the `style` attribute
 		function sanitize_style_attribute($style) {
 			global $allowed_properties;
+			$forbidden_css_properties = array(
+				// XSS & Script Execution Risks
+				'expression', 'behavior', '-moz-binding', 'content',
+			
+				// Clickjacking & UI Deception
+				'position:fixed', 'position:absolute', 'top', 'left', 'right', 'bottom',
+				'z-index', 'visibility', 'opacity', 'pointer-events',
+			
+				// Tracking & UI Manipulation
+				'cursor', 'resize', 'scroll-behavior', 'zoom',
+			
+				// Social Engineering & UI Confusion
+				'filter', 'mix-blend-mode', 'clip-path', 'backface-visibility',
+			
+				// Data Theft & Unwanted Effects
+				'shape-outside', 'perspective', 'transform', 'transform-origin',
+				'transition', 'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay'
+			);
 			$style_rules = explode(';', $style); // Split the style string into individual rules
 			$sanitized_rules = array();
 	
@@ -2301,7 +2377,10 @@ public function addon_add_efb($value) {
 					$value = trim($value);       // Clean up the value
 	
 					// Check if the property is in the allowed list
-					if (in_array($property, $allowed_properties)) {
+					error_log($value);
+					error_log($property);
+					error_log(in_array($property, $forbidden_css_properties));
+					if (in_array($property, $forbidden_css_properties)==false) {
 						// If the value contains a URL, validate it
 						if (strpos($value, 'url(') !== false) {
 							preg_match('/url\(["\']?([^"\')]+)["\']?\)/i', $value, $matches);
@@ -2322,6 +2401,123 @@ public function addon_add_efb($value) {
 	
 		// Allowed HTML tags and their attributes
 		$allowed_tags = array(
+			'a' => array_merge($global_attributes, array(
+				'href' => true, // Must be sanitized
+				'title' => true,
+				'rel' => true,
+				'target' => true
+			)),
+			'abbr' => array_merge($global_attributes, array('title' => true)),
+			'address' => $global_attributes,
+			'area' => array_merge($global_attributes, array(
+				'alt' => true,
+				'coords' => true,
+				'href' => true,  // Links must be sanitized
+				'shape' => true,
+				'target' => true,
+			)),
+			'article' => $global_attributes,
+			'aside' => $global_attributes,
+			'audio' => array_merge($global_attributes, array(
+				'autoplay' => true,
+				'controls' => true,
+				'loop' => true,
+				'muted' => true,
+				'preload' => true,
+				'src' => true,  // Audio source must be sanitized
+			)),
+			'b' => $global_attributes,
+			'blockquote' => array_merge($global_attributes, array('cite' => true)), // Validate cite attribute
+			'br' => $global_attributes,
+			'button' => array_merge($global_attributes, array(
+				'disabled' => true,
+				'name' => true,
+				'type' => true,
+				'value' => true,
+			)),
+			'canvas' => array_merge($global_attributes, array('height' => true, 'width' => true)),
+			'caption' => $global_attributes,
+			'code' => $global_attributes,
+			'col' => array_merge($global_attributes, array('span' => true, 'width' => true)),
+			'colgroup' => array_merge($global_attributes, array('span' => true)),
+			'data' => array_merge($global_attributes, array('value' => true)),
+			'datalist' => $global_attributes,
+			'div' => $global_attributes,
+			'em' => $global_attributes,
+			'figure' => $global_attributes,
+			'figcaption' => $global_attributes,
+			'footer' => $global_attributes,
+			'h1' => $global_attributes,
+			'h2' => $global_attributes,
+			'h3' => $global_attributes,
+			'h4' => $global_attributes,
+			'h5' => $global_attributes,
+			'h6' => $global_attributes,
+			'header' => $global_attributes,
+			'hr' => $global_attributes,
+			'i' => $global_attributes,
+			'iframe' => array_merge($global_attributes, array(
+				'src' => true,
+				'width' => true,
+				'height' => true,
+				'frameborder' => true,
+				'allowfullscreen' => true,
+			)),
+			'img' => array_merge($global_attributes, array(
+				'src' => true,    // Image source must be sanitized
+				'alt' => true,
+				'width' => true,
+				'height' => true,
+			)),
+			'label' => array_merge($global_attributes, array('for' => true)),
+			'li' => $global_attributes,
+			'meta' => array_merge($global_attributes, array(
+				'name' => true,
+				'content' => true,
+				'charset' => true,
+			)),
+			'nav' => $global_attributes,
+			'ol' => array_merge($global_attributes, array('start' => true, 'type' => true)),
+			'p' => $global_attributes,
+			'pre' => $global_attributes,
+			'section' => $global_attributes,
+			'span' => $global_attributes,
+			'strong' => $global_attributes,
+			'sub' => $global_attributes,
+			'sup' => $global_attributes,
+			'table' => array_merge($global_attributes, array(
+				'border' => true,
+				'cellpadding' => true,
+				'cellspacing' => true,
+				'width' => true,
+			)),
+			'tbody' => $global_attributes,
+			'td' => array_merge($global_attributes, array('colspan' => true, 'rowspan' => true)),
+			'textarea' => array_merge($global_attributes, array(
+				'name' => true,
+				'rows' => true,
+				'cols' => true,
+				'placeholder' => true,
+				'required' => true,
+			)),
+			'tfoot' => $global_attributes,
+			'th' => array_merge($global_attributes, array('colspan' => true, 'rowspan' => true, 'scope' => true)),
+			'thead' => $global_attributes,
+			'tr' => $global_attributes,
+			'ul' => $global_attributes,
+			'video' => array_merge($global_attributes, array(
+				'autoplay' => true,
+				'controls' => true,
+				'loop' => true,
+				'muted' => true,
+				'preload' => true,
+				'src' => true,  // Video source must be sanitized
+				'width' => true,
+				'height' => true,
+			)),
+		);
+		
+	/* 	$allowed_tags = array(
 			'a' => array_merge($global_attributes, array(
 				'href' => true,  // Hyperlinks must be sanitized
 				'title' => true,
@@ -2379,6 +2575,13 @@ public function addon_add_efb($value) {
 				'charset' => true,
 			)),
 			'p' => $global_attributes,
+			'h1' =>$global_attributes,
+			'h2' =>$global_attributes,
+			'h3' =>$global_attributes,
+			'h4' =>$global_attributes,
+			'h5' =>$global_attributes,
+			'h6' =>$global_attributes,
+			'h7' =>$global_attributes,
 			'table' => $global_attributes,
 			'video' => array_merge($global_attributes, array(
 				'autoplay' => true,
@@ -2390,7 +2593,7 @@ public function addon_add_efb($value) {
 				'width' => true,
 				'height' => true,
 			)),
-		);
+		); */
 	
 		// Sanitize the HTML using `wp_kses`
 		$sanitized_html = wp_kses($html, $allowed_tags);
