@@ -816,7 +816,9 @@ class Admin {
                     $response = ['success' => false, "m" =>$lang['pleaseDoNotAddJsCode']];
                     wp_send_json_success($response, 200);
                 }
-                $m[$key] = $efbFunction->sanitize_full_html_efb($value);
+                  $v = str_replace('@efb@' , '/', $value);
+                  $v = $efbFunction->sanitize_full_html_efb($v);
+                  $m[$key] =str_replace('/' , '@efb@', $value);
             }else{
                 $m[$key] = sanitize_text_field($value);
             }
