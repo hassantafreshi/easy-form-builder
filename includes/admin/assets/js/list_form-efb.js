@@ -1418,10 +1418,10 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     let r = "NotFoundEl"
     if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
       if (id == "emailTemp_emsFirmBuilder") {
-        el.value = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
-        el.value = u(el.value);
-        el.value = el.value.replace(/(["])+/g, `'`);
-        return el.value;
+        let v = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
+        v = u(v);
+        v = v.replace(/(["])+/g, `'`);
+        return v;
       } 
       return el.value;
     } else if (el.type == "checkbox") {
@@ -2228,7 +2228,7 @@ function email_template_efb(s) {
     let c = document.getElementById('emailTemp_emsFirmBuilder').value;
     let ti = efb_var.text.error;
     //c = c.replace(/(http:@efb@|https:@efb@)+/g, '//');
-    c = c.replace(/(@efb@)+/g, '/');
+   // c = c.replace(/(@efb@)+/g, '/');
     if (c.match(/(<script+)/gi)) {
       //show error message you can't use script code
       c = `<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.pleaseDoNotAddJsCode}</p></div>`;
