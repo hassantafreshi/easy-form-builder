@@ -1827,7 +1827,7 @@ function previewFormEfb(state) {
           break;
         case "dadfile":
           if(disabled)return;
-          set_dadfile_fun_efb(v.id_, i)
+          set_dadfile_fun_efb(v.id_, i,0)
           break;
         case 'ardate':
         case 'pdate':
@@ -3091,7 +3091,7 @@ function handle_change_event_efb(el){
         }
         break;
       case "file":
-        valid_file_emsFormBuilder(id_,'msg','');
+        valid_file_emsFormBuilder(id_,'msg','',0);
         break;
       case "hidden":
         value = sanitize_text_efb(el.value);

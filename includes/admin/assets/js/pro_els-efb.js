@@ -259,7 +259,13 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
       }
       return ui;
 }
- function ui_dadfile_efb(indx, previewSate) {
+ function ui_dadfile_efb(indx, previewSate,form_id) {
+    let valj_efb
+    if (form_id){
+      valj_efb = get_structure_by_form_id_efb(form_id);
+    }else{
+      valj_efb = valj_efb;
+    }
     let n = valj_efb[indx].file;
     n = efb_var.text[n];
     if(valj_efb[indx].file=='customize'){
@@ -276,13 +282,15 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
       }
     return `<div class="efb icon efb"><i class="efb  fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
     <h6 id="${valj_efb[indx].id_}_txt" class="efb text-center m-1 fs-6">${efb_var.text.dragAndDropA} ${n} </h6> <span class="efb fs-7">${efb_var.text.or}</span>
-    <button type="button" class="efb  btn ${valj_efb[indx].button_color} efb-btn-lg fs-6" id="${valj_efb[indx].id_}_b" ${disabled}>
+    <div class="efb  btn ${valj_efb[indx].button_color} efb-btn-lg fs-6" id="${valj_efb[indx].id_}_b" ${disabled}>
         <i class="efb  bi-upload mx-2 fs-6"></i>${efb_var.text.browseFile}
-    </button>
+    </div>
    <input type="file" hidden="" accept="${filetype_efb[valj_efb[indx].value]}" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb  emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''} ${disabled}>`
   }
-function viewfileEfb(id, indx ,filed) {
+function viewfileEfb(id, indx ,filed,form_id) {
   //find last dost and slice from that in a string varible
+  console.log('viewfileEfb');
+  const valj_efb = get_structure_by_form_id_efb(form_id);
     if(filed==undefined) {
       document.getElementById(`${valj_efb[indx].id_}_-message`).classList.remove('show')
       return;}
@@ -294,7 +302,7 @@ function viewfileEfb(id, indx ,filed) {
     <text x="50%" y="67%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="4">${filename.slice(filename.lastIndexOf('.') + 1)}</text>
   </svg>`
     let box_v = `<div class="efb ">
-    <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onclick="removeFileEfb('${id}',${indx})"
+    <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onclick="removeFileEfb('${id}',${indx} ,${form_id})"
          aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button> 
          <div class="efb card p-2">
           <i class="efb  ico-file ${valj_efb[indx].icon_color} text-center fs-2">${svg_file}</i>
@@ -309,7 +317,7 @@ function viewfileEfb(id, indx ,filed) {
         const box = document.getElementById(`${id}_box`)
         if (valj_efb[indx].file == "image") {
           box.innerHTML = `<div class="efb ">
-              <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onclick="removeFileEfb('${id}',${indx})"
+              <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onclick="removeFileEfb('${id}',${indx},${form_id})"
                    aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title=${efb_var.text.removeTheFile}"></button> 
               <img src="${fileURL}" alt="image">
               </div>`;
@@ -318,8 +326,10 @@ function viewfileEfb(id, indx ,filed) {
         }
       }
       fileReader.readAsDataURL(fileEfb);
+      console.log(`fileefb`,fileEfb)
       document.getElementById(`${id}_-message`).innerHTML = "";
       document.getElementById(`${id}_-message`).classList.remove('show')
+      
     } else {
       let t_m = valj_efb[indx].file!='customize'? valj_efb[indx].file : valj_efb[indx].file_ctype;
       t_m = t_m.replaceAll(',',` ${efb_var.text.or} `);
@@ -347,18 +357,19 @@ function viewfileReplyEfb(id, indx) {
       fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp',fileEfb);
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
-      const m  = efb_var.text.pleaseUploadA.replace('NN', `${efb_var.text['media']} | ${efb_var.text['document']} | ${efb_var.text['zip']}`);
+      const m  = efb_var.text.pleaseUploadA.replace('NN', `${efb_var.text['media']} , ${efb_var.text['document']} ${efb_var.text['or']} ${efb_var.text['zip']}`);
       alert_message_efb('', m, 4, 'danger')
       fileEfb = [];
     }
   }
-function removeFileEfb(id, indx) {
+function removeFileEfb(id, indx,form_id) {
     fileEfb = "";
-    document.getElementById(`${id}_box`).innerHTML = ui_dadfile_efb(indx)
+    document.getElementById(`${id}_box`).innerHTML = ui_dadfile_efb(indx,true,form_id)
     setTimeout(() => {
-      create_dadfile_efb(id, indx);
+      console.log('removefileEFb',id, indx,form_id)
+      create_dadfile_efb(id, indx,form_id);
       document.getElementById(`${id}_`).addEventListener('change', () => {
-        valid_file_emsFormBuilder(id ,'msg' ,'');
+        valid_file_emsFormBuilder(id ,'msg' ,'',form_id);
       })
     }, 500)
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
@@ -385,23 +396,33 @@ function gm_authFailure() {
     const body = `<p class="efb fs-6 efb">${efb_var.text.aPIkeyGoogleMapsFeild} <a href="https://developers.google.com/maps/documentation/javascript/error-messages" target="blank">${efb_var.text.clickHere}</a> </p>`
     alert_message_efb(efb_var.text.error, body, 15, 'danger')
   }
-set_dadfile_fun_efb = (id, indx) => {
-    setTimeout(() => { create_dadfile_efb(id, indx) }, 50)
+set_dadfile_fun_efb = (id, indx,form_id=0) => {
+    console.log('set_dadfile_fun_efb',id, indx,form_id)
+    setTimeout(() => {
+      create_dadfile_efb(id, indx,form_id)
+      document.getElementById(`${id}_`).addEventListener('change', () => {
+        valid_file_emsFormBuilder(id ,'msg' ,'',form_id);
+      })
+     }, 100)
   }
-  create_dadfile_efb = (id, indx) => {
+  create_dadfile_efb = (id, indx,form_id) => {
+    console.log('create_dadfile_efb');
+    const valj_efb =get_structure_by_form_id_efb(form_id);
     let dropAreaEfb = document.getElementById(`${id}_box`);
     let dragTextEfb = dropAreaEfb.querySelector("h6");
-    let  dragbtntEfb = dropAreaEfb.querySelector("button");
+    let  dragbtntEfb = document.getElementById(`${id}_b`);
     let dragInptEfb = dropAreaEfb.querySelector("input");
     dropAreaEfb.classList.remove("active");
     dragInptEfb.disabled = false;
     dragbtntEfb.onclick = () => {
-      dragInptEfb.click();
+     // dragInptEfb.click();
     }
-    dragInptEfb.addEventListener("change", function () {
+    dragInptEfb.addEventListener("change", function () {    
+      console.log('change file!');
+     // return;
       fileEfb = this.files[0];
       dropAreaEfb.classList.add("active");
-      viewfileEfb(id, indx ,fileEfb);
+      viewfileEfb(id, indx ,fileEfb,form_id);
     });
     dropAreaEfb.addEventListener("dragover", (event) => {
       event.preventDefault();
@@ -409,17 +430,19 @@ set_dadfile_fun_efb = (id, indx) => {
       dragTextEfb.textContent = "Release to Upload File";
     });
     dropAreaEfb.addEventListener("dragleave", () => {
+      
       let n = valj_efb[indx].file;
       n = efb_var.text[n];
       dragTextEfb.textContent = `${efb_var.text.dragAndDropA} ${n}`;
     });
     dropAreaEfb.addEventListener("drop", (event) => {
+      console.log('drop file');
       event.preventDefault();
       fileEfb = event.dataTransfer.files[0];
       document.getElementById(`${id}_`).files=event.dataTransfer.files;
       dropAreaEfb.classList.add("active");      
-      viewfileEfb(id, indx ,fileEfb);
-      valid_file_emsFormBuilder(id ,'msg',fileEfb)     
+      viewfileEfb(id, indx ,fileEfb,form_id);
+      valid_file_emsFormBuilder(id ,'msg',fileEfb,form_id)     
     });
   }
     reply_attach_efb = (id, indx) => {
@@ -515,6 +538,7 @@ function fun_clear_esign_efb(id) {
 
 
   fun_addProgessiveEl_efb=(id,state)=>{
+    console.log('fun_addProgessiveEl_efb');
   let newEl = document.createElement('div');
   const elId = `${id}-prG`;
   newEl.setAttribute("id",elId)
