@@ -377,6 +377,7 @@ function alarm_emsFormBuilder(val) {
 }
  async function endMessage_emsFormBuilder_view(current_step,form_id) {
   console.log(`endMessage_emsFormBuilder_view form_id`, form_id)
+  let valj_efb = get_structure_by_form_id_efb(form_id);
   
   fun_check_upload_files_complate_efb = (form_id) => {
     let checkFile_uploaded = 0;

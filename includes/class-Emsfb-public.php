@@ -426,7 +426,7 @@ class _Public {
 			
 		 	$width =0;			 
 			$value =str_replace('\\', '', $value);
-			
+			$values = $value;
 
 		
 			
@@ -662,9 +662,10 @@ class _Public {
 					'.$style.' '.$k;
 
 
+					error_log('--------------------->value:'.$value);
 					$ar_core = array_merge($ar_core , array(
 						'ajax_value_forms' =>$this->value_forms,
-						'ajax_value' =>$value, //remove this line on v4 
+						'ajax_value' =>$values, //remove this line on v4 
 						'type' => $typeOfForm, //remove this line on v4 
 						'id' => $this->id, //remove this line on v4		  
 						'state' => $state,
@@ -758,6 +759,7 @@ class _Public {
 		if(gettype($usr)!='integer') $username = $usr->display_name  ;
 		
 		if($username=='') $username = $sc!='null' ? $text['spprt'] :'' ;
+		$user_type = (isset($_GET['user']) && $_GET['user'] === 'admin') ? 'admin':'user';
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'state' => $state,
@@ -775,7 +777,8 @@ class _Public {
 			   'sid'=>$sid,
 			   'rest_url'=>get_rest_url(null),
 			   'page_id'=>get_the_ID(),
-			   'sc'=>$sc
+			   'sc'=>$sc,
+			   'user_type'=>$user_type
 			   
 		 ));  
 		 $icons_ =[
@@ -798,12 +801,56 @@ class _Public {
 			"bi-file-earmark-richtext",
 			"bi-x-lg"
 		];
-		 $val = $pro==true ? '<!--efb.app-->' : '<a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a>';
+		$get_track ='';
+		if(isset($_GET['track'])){
+			$get_track = sanitize_text_field($_GET['track']);
+		}
+		
+		$track_content =  sprintf(
+			'<div class="efb %1$s">
+				<div class="efb row mb-3 pb-3 px-1" id="body_efb-track">
+					<h4 class="efb title-holder col-12 mt-4 fs-3">
+						<i class="efb bi-check2-square title-icon mx-1 fs-3"></i> %2$s
+					</h4>
+					<div class="efb row col-md-12">
+						<label for="trackingCodeEfb" class="efb fs-6 form-label mx-2 col-12">
+							%3$s:<span class="efb fs-8 text-danger mx-1">*</span>
+						</label>
+						<div class="efb col-12 text-center mx-2 row">
+							<input type="text" class="efb input-efb form-control border-d rounded-4 text-labelEfb h-l-efb mb-2" 
+								   placeholder="%4$s" id="trackingCodeEfb" value=" %5$s">
+							%6$s
+							
+							<button type="submit" class="efb fs-5 btn btn-pinkEfb col-12 text-white mb-1" id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
+								<i class="efb fs-5 bi-search"></i> %7$s
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="alert_efb" class="efb mx-5"></div>',
+			is_rtl() ? 'rtl-text' : '',
+			$text['pleaseEnterTheTracking'],
+			$text['trackingCode'],
+			$text['entrTrkngNo'],
+			$get_track,
+			isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true ? sprintf(
+				'<div class="efb row mx-3">
+					<div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="%1$s" data-callback="verifyCaptcha"></div>
+					<small class="efb text-danger" id="recaptcha-message"></small>
+				</div>', 
+				$valstng->siteKe
+			) : '',
+			$text['search']
+		);
+		 $val = $pro==true ? '<!--efb.app-->' : '<div class="efb d-none"><a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a></div>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script>
 		 ".$this->bootstrap_icon_efb($icons_)."
 		".$s_m."
 		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5 text-center'></div>
-		".$this->loading_icon_public_efb('',$text['pleaseWaiting'], $text['fil'])."</div>";	
+		".$track_content."</div>" . $val ;	
+
+		$array_varible = ['content'=>$content, 'sid'=>$sid];
 		return $content; 
 	}
 	function public_scripts_and_css_head($state=''){
