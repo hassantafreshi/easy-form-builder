@@ -1491,10 +1491,7 @@ class _Public {
 								if($payment_getWay=="persiaPay"){
 									//zarinPal validation code
 										$amount = $amount;
-									if(gettype($r)=="string" && $fs!=''){
-										$setting =str_replace('\\', '', $r);
-										$setting =json_decode($setting);
-										$r=null;
+									if( $fs!=''){
 										$TokenCode = $setting->payToken;
 										$data = array("merchant_id" => $TokenCode, "authority" => sanitize_text_field($data_POST['auth']), "amount" => $amount);
 										$jsonData = json_encode($data);
