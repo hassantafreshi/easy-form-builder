@@ -2210,10 +2210,13 @@ async function fun_validation_efb_v4(form_id) {
 
 function noti_message_efb_v4(message, alert ,id,form_id=0){
   alert = alert ? `alert-${alert}` : 'alert-info';
-  console.log(form_id);
+  console.log(id,form_id);
   let d = document.querySelector(`#${id}[data-formid="${form_id}"]`);
-  if(document.getElementById('noti_content_efb')){
+ /*  if(document.getElementById('noti_content_efb')){
     document.getElementById('noti_content_efb').remove()
+  } */
+  if(d.querySelector('#noti_content_efb')){
+    d.querySelector('#noti_content_efb').remove()
   }
     d.innerHTML += ` <div id="noti_content_efb" class="efb w-75 mt-0 my-1 alert-dismissible alert ${alert}  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" role="alert">
     <p class="efb my-0">${message}</p>    

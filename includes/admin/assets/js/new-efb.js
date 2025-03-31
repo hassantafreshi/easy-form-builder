@@ -1302,6 +1302,7 @@ function copyCodeEfb(id) {
 }
 function validExtensions_efb_fun(type, fileType,indx) {
   type= type.toLowerCase();
+  console.log(type, fileType,indx)
   const tt = valj_efb.length>1 && valj_efb[indx].hasOwnProperty('file_ctype') ? valj_efb[indx].file_ctype.replaceAll(',',' , ') : '';
   filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif',
   'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg', 
@@ -2467,6 +2468,8 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
             }];    
             console.log('2445')        
             fun_sendBack_emsFormBuilder(o[0]);
+            //remove indx from files_emsFormBuilder
+            files_emsFormBuilder.splice(indx, 1);
             const el = document.getElementById(idB)
             if(el){
               el.style.width = '100%';
@@ -3301,9 +3304,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       list.push(c.url);
       $name = c.url.slice((c.url.lastIndexOf("/") + 1), (c.url.lastIndexOf(".")));
       if (c.type == "Image" || c.type == "image") {
-        value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
+        value = `<img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       } else if (c.type == "Document" || c.type == "document" || c.type == "allformat") {
-        value = `</br><a class="efb btn btn-primary m-1 text-decoration-none" href="${c.url}" target="_blank" >${efb_var.text.download}</a>`
+        value = `<a class="efb btn btn-primary m-1 text-decoration-none" href="${c.url}" target="_blank" >${c.url.split('/').pop()}</a>`
       } else if (c.type == "Media" || c.type == "media") {
         const audios = ['mp3', 'wav', 'ogg'];
         let media = "video";
@@ -3320,21 +3323,21 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
       } else {
-        value = c.url.length > 1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" >${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
+        value = c.url.length > 1 ? `<a class="efb btn btn-primary mb-1" href="${c.url}" target="_blank" >${c.url.split('/').pop()}</a>` : `<span class="efb  fs-5">💤</span>`
       }
     } else if (c.type == "esign") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</span>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
     } else if (c.type == "color") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       s = true;
       //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
-      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}: ${value}</p>`;
     } else if (c.type == "maps") {
       if (typeof (c.value) == "object") {
         s = true;
@@ -3389,7 +3392,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         }else if(c.type.includes('imgRadio')){
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
         } 
-        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${text_nr_efb(q,1)}</p>`
+        m += `<p class="efb fs-6 my-0 efb">${title}: ${text_nr_efb(q,1)}</p>`
        //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
       }
     if (c.type == "payment") {

@@ -237,7 +237,7 @@ class efbFunction {
 			"cSSClasses" => $state ? $ac->text->cSSClasses : esc_html__('CSS Classes',$s),
 			"defaultValue" => $state ? $ac->text->defaultValue : esc_html__('Default value',$s),
 			"placeholder" => $state ? $ac->text->placeholder : esc_html__('Placeholder',$s),
-			"enterAdminEmailReceiveNoti" => $state ? $ac->text->enterAdminEmailReceiveNoti : esc_html__('Enter admin email for email notifications.',$s),
+			"enterAdminEmailReceiveNoti" => $state ? $ac->text->enterAdminEmailReceiveNoti : esc_html__('Admin email for notifications.',$s),
 			"corners" => $state ? $ac->text->corners : esc_html__('Corners',$s),
 			"rounded" => $state ? $ac->text->rounded : esc_html__('Rounded',$s),
 			"square" => $state ? $ac->text->square : esc_html__('Square',$s),
@@ -821,7 +821,7 @@ class efbFunction {
 
 
 	public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null") {
-		
+		error_log('----->send_email_state_new');
 		// تنظیم نوع ایمیل به HTML
 		add_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 		
@@ -845,6 +845,7 @@ class efbFunction {
 	
 		// تابع داخلی برای ارسال ایمیل
 		$sendMail = function($to, $sub, $message, $headers) {
+			error_log('----->sendMail');
 			if (is_string($to)) {
 				return wp_mail($to, $sub, $message, $headers);
 			} else {
