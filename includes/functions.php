@@ -767,8 +767,8 @@ class efbFunction {
 			"tlgmDAddon" => $state  &&  isset($ac->text->tlgmDAddon) ? $ac->text->tlgmDAddon : esc_html__('The Telegram notification addon lets you get notifications on your Telegram app whenever you receive new messages or responses',$s),				
 			"eln" => $state  &&  isset($ac->text->eln) ? $ac->text->eln : esc_html__('Enter a location name',$s),
 			"alns" => $state  &&  isset($ac->text->alns) ? $ac->text->alns : esc_html__('The %s1 pages are currently unavailable. It looks like another plugin is causing a conflict with %s1. To fix this issue, %s2 contact %s1 support%s3 for assistance or try disabling your plugins one at a time to identify the one causing the conflict.',$s),
-			"ecnr" => $state  &&  isset($ac->text->ecnr) ? $ac->text->ecnr : esc_html__('"Hi %s, %sYour account has been successfully created! To get started, Please verify your email address by clicking the link below. This activation link will be valid for 24 hours. If the link expires, you can request a new one through our website. %s %s %s %s"',$s),
-			"ecrp" => $state  &&  isset($ac->text->ecrp) ? $ac->text->ecrp : esc_html__('Hi %s, %sYou have requested to reset your password. To reset your password, please click the link below. This link will be valid for 24 hours. If the link expires, you can request a new one through our website. %s %s %s %s',$s),
+			"ecnr" => $state  &&  isset($ac->text->ecnr) ? $ac->text->ecnr : esc_html__('"Hi %s, %s Your account has been successfully created! To get started, Please verify your email address by clicking the link below. This activation link will be valid for 24 hours. %s %s %s %s"',$s),
+			"ecrp" => $state  &&  isset($ac->text->ecrp) ? $ac->text->ecrp : esc_html__('Hi %s, %s You have requested to reset your password. To reset your password, please click the link below. This link will be valid for 24 hours. If the link expires, you can request a new one through our website. %s %s %s %s',$s),
 			"udnrtun" => $state  &&  isset($ac->text->udnrtun) ? $ac->text->udnrtun : esc_html__('If you did not request this, you don\'t need to do anything further.',$s),
 			"sxnlex" => $state  &&  isset($ac->text->sxnlex) ? $ac->text->sxnlex : esc_html__('Your session has expired or is no longer valid. Please refresh the page to continue.',$s),
 			"uraatn" => $state  &&  isset($ac->text->uraatn) ? $ac->text->uraatn : esc_html__('Your account has been successfully activated. You can now log in and get started!',$s),
@@ -849,8 +849,12 @@ class efbFunction {
 			if (is_string($to)) {
 				return wp_mail($to, $sub, $message, $headers);
 			} else {
-				$to = array_unique($to);
+				$to = array_filter(array_unique($to));
 				foreach ($to as $email) {
+					error_log('email: ' );
+					error_log(json_encode($email));
+					error_log($sub);
+					error_log($message);
 					if (is_email($email)) {
 						wp_mail($email, $sub, $message, $headers);
 					}
@@ -1053,9 +1057,7 @@ class efbFunction {
 		} elseif ($state == "newMessage") {
 			$dts = str_replace('%s', is_string($m) ? $m : $m[0], $dts);
 			$link = strpos($link, "?") !== false ? $link . '&track=' . (is_string($m) ? $m : $m[0]) : $link . '?track=' . (is_string($m) ? $m : $m[0]);
-			$message = is_string($m) ?
-				"<h2 style='text-align:center'>{$lang['newMessageReceived']}</h2><p style='text-align:center'>{$lang['trackingCode']}: $m</p><p style='text-align:center'>$dts</p><div style='text-align:center'><a href='$link' target='_blank' style='padding:5px;color:white;background:black;'>{$lang['vmgs']}</a></div>" :
-				"<div style='text-align:$align;color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>{$m[1]}</div><p style='text-align:center'>$dts</p><div style='text-align:center'><a href='$link' target='_blank' style='padding:5px;color:white;background:black;'>{$lang['vmgs']}</a></div>";
+			$message = is_string($m) ? $m :	"<div style='text-align:$align;color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>{$m[1]}</div><p style='text-align:center'>$dts</p><div style='text-align:center'><a href='$link' target='_blank' style='padding:5px;color:white;background:black;'>{$lang['vmgs']}</a></div>";
 		} else {
 			$title = $lang['hiUser'];
 			$dts = str_replace('%s', is_string($m) ? $m : $m[0], $dts);
@@ -1956,12 +1958,13 @@ public function addon_add_efb($value) {
 
 
 	public function parsing_plugins_efb(){
+		error_log('EFB=>parsing_plugins_efb');
 		$plugins = get_plugins();
 		$active_plugins = get_option('active_plugins');
 		$plugin_list = [];
 		$cache_plugins_slug =['wp-optimize','hummingbird-performance', 'big-scoots-cache','wp-cloudflare-page-cache','breeze','jetpack','w3-total-cache','wp-fastest-cache',
 							  'wp-rocket','comet-cache','hyper-cache','cache-enabler','wp-super-cache','litespeed-cache','nitropack','jetpack-boost',
-							  'autoptimize','wp-rest-cache','speedycache','clear-cache-for-widgets','wp-cache','wp-cache-system','atec-cache-info','atec-cache-apcu','wpspeed'];
+							  'autoptimize','wp-rest-cache','speedycache','clear-cache-for-widgets','wp-cache','wp-cache-system','atec-cache-info','atec-cache-apcu','wpspeed','wp-speed'];
 		foreach ($plugins as $plugin_file => $plugin_data) {
 			$slug = explode('/', $plugin_file)[0];
 			$exists_cache = in_array($slug, $cache_plugins_slug); 
@@ -1975,18 +1978,59 @@ public function addon_add_efb($value) {
 		}
 
 		// if (empty($plugin_list)) not then add_option('emsfb_cache_plugins') and convert to string with json_encode
-		$val = json_encode($plugin_list);
-		$
-		$val = $val && $val !== '[]' ? $val : 0;
-		update_option('emsfb_cache_plugins', $val );		
+		$val = !empty($plugin_list) ? json_encode($plugin_list) : 0;	
+		$old_val = get_option('emsfb_cache_plugins' ,0);	
+		error_log('EFB=>parsing_plugins_efb old_val: ' . $old_val);
+		error_log('EFB=>parsing_plugins_efb val: ' . $val);
+		if($val != $old_val){
+			update_option('emsfb_cache_plugins', $val );
+			$this->send_email_noti_about_cache_plugins($val);
+		}else{
+			update_option('emsfb_cache_plugins', $val );
+		}
 		
+	}
+
+	public function send_email_noti_about_cache_plugins($val){
+		error_log('EFB=>send_email_noti_about_cache_plugins: ' . $val);
+		//$to = get_option('admin_email');
+		error_log('EFB=>send_email_noti_about_cache_plugins: ' . get_option('admin_email'));
+		$to = [];
+		$to[] = get_option('admin_email');
+		$settings = $this->get_setting_Emsfb();
+		if($settings->emailSupporter != null && $settings->emailSupporter != 'null' && $settings->emailSupporter != ''){
+			$to[] = $settings->emailSupporter;
+		}
+		$cache_plugins = json_decode($val ,true);
+		//Important: Caching Plugin May Affect Easy Form Builder
+		$subject = esc_html__('Important: Caching Plugin May Affect Easy Form Builder','easy-form-builder');
+		$message = esc_html__('The following caching plugins are active on your site:','easy-form-builder') . '<br>';
+		foreach ($cache_plugins as $plugin) {
+			$message .= esc_html__('Plugin Name','easy-form-builder') . ': ' . $plugin['name'] . '<br>';
+			$message .= esc_html__('Version','easy-form-builder') . ': ' . $plugin['version'] . '<br>';
+			$message .= esc_html__('Slug','easy-form-builder') . ': ' . $plugin['slug'] . '<br><br>';
+		}
+		$message .= esc_html__('Please note that these plugins may affect the functionality of Easy Form Builder.','easy-form-builder') . '<br>';
+		//If you experience any issues, please exclude the page where your form is published from caching or disable these plugins. For detailed guidance on how to set up this exclusion, please refer to the documentation of the respective caching plugin.
+		$message .= esc_html__('If you experience any issues, please exclude the page where your form is published from caching or disable these plugins. For detailed guidance on how to set up this exclusion, please refer to the documentation of the respective caching plugin.','easy-form-builder') . '<br>';
+		$message .= esc_html__('Easy Form Builder','easy-form-builder') . '<br>';
+		$message .= esc_html__('Sent by','easy-form-builder') . ': ' . get_bloginfo('name') . '<br>';
+		$message .= esc_html__('URL','easy-form-builder') . ': ' . get_site_url() . '<br>';
+		$message .= esc_html__('Date','easy-form-builder') . ': ' . date('Y-m-d H:i:s') . '<br>';
+		
+		//send_email_state_new($to ,$subject ,$message,0,"cache_plugins_noti",'null','null');
+
+		$this->send_email_state_new($to ,$subject ,$message,0,"cache_plugins_noti",'null','null');
+		
+		return true;
 	}
 
 
 
 	public function make_post_request_efb( $ac) {
 		// error_log('EFB=>make_post_requestefb ac: ' . $ac);
-		$url = 'https://demo.whitestudio.team/wp-json/wl/v1/pro/key';
+		//$url = 'https://demo.whitestudio.team/wp-json/wl/v1/pro/key';
+		$url = EMSFB_SERVER_URL . '/wp-json/wl/v1/pro/key';
 		//$url = 'http://127.0.0.1/ws/wp-json/wl/v1/pro/key';
 		// error_log('EFB=>make_post_requestefb url: ' . $url);
 
@@ -2172,6 +2216,7 @@ public function addon_add_efb($value) {
 
 	public function noti_expire_efb() {
 		$url = 'https://demo.whitestudio.team/register-costumer?renew=';
+		$url = EMSFB_SERVER_URL . '/register-costumer?renew=';
 		//$url = 'http://127.0.0.1/ws/register-costumer?renew=';
 		$msg = esc_html__('Your Easy Form Builder Pro subscription has expired. To continue enjoying all Pro features and keep your forms running, %1$sRenew your subscription now.%2$s', 'easy-form-builder');
 		$ac = get_option('emsfb_pro_activeCode');	

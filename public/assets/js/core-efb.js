@@ -1437,6 +1437,8 @@ document.addEventListener("DOMContentLoaded",async function() {
   await createStepsOfPublic();
   fun_wait(false,'nfast');
  
+  // change the size of the final steps to the size of the first steps
+  // setOffsetToFinallsetpEFB()
   //v4 end
 });
 
@@ -2282,6 +2284,28 @@ const speed_test_efb=()=>{
      return 'notSupported';
   }
 }
+
+/* 
+window.addEventListener('resize', () => {
+  
+  setOffsetToFinallsetpEFB()
+})
+
+
+function setOffsetToFinallsetpEFB(){
+  // Get all fieldset with id="step-1-efb" and get data-formid than get the fieldset with data-formid and get the element with id="efb-final-step"
+  const fieldset = document.querySelectorAll('fieldset[id^="step-1-efb"]');
+  fieldset.forEach((el) => {
+    const form_id = el.dataset.formid;
+    const finalStepEl = document.querySelector(`#efb-final-step[data-formid="${form_id}"]`);
+    const offsetHeight = el.offsetHeight;
+    const offsetWidth = el.offsetWidth;
+    finalStepEl.style.height = `${offsetHeight}px`; 
+    finalStepEl.style.width = `${offsetWidth}px`;
+    console.log(`form_id:${form_id} offsetHeight:${offsetHeight} offsetWidth:${offsetWidth}`);
+  });
+} 
+  */
 
 
 

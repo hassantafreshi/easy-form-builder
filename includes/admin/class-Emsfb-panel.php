@@ -83,10 +83,10 @@ class Panel_edit  {
 			$k ="";
 			$noti_pro = intval(get_option('Emsfb_pro' ,-1));
 			if ($noti_pro === 0  ){
-				$noti_pro = $efbFunction->noti_expire_efb();
+				$noti_pro = "<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
 
 			}else{
-				$noti_pro = '<!--efb-->';
+				$noti_pro = '<script>const noti_exp_efb="";</script>';
 			}
 			if(gettype($ac)!="string" && isset($ac->siteKey))$k= $ac->siteKey;	
 			if ( strlen( $lng ) > 0 ) {

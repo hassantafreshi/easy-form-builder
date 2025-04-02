@@ -954,7 +954,7 @@ function head_introduce_efb(state) {
   <span class="efb text-dark fs-7">${efb_var.text.getPro}</span><br>
   <div class="efb ms-3 fs-7">${msgpro}</div>
   </div>`;
-  if(noti_exp_efb!=''){vType='<div class="efb col-lg-4">'+noti_exp_efb+'</div>';}
+  if(noti_exp_efb!='' && noti_exp_efb!='null'){vType='<div class="efb col-lg-4">'+noti_exp_efb+'</div>';}
   if (state != "create") {
     cont = `
     

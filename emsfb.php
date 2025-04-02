@@ -32,6 +32,21 @@ if (!defined("EMSFB_PLUGIN_URL")) {
 if (!defined("WP_PLUGIN_DIR")) {
     define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '\plugins' );
 }
+
+//development mode
+if (!defined("EMSFB_DEV_MODE")) {
+    define("EMSFB_DEV_MODE", true);
+}
+
+//define server 
+//https://demo.whitestudio.team
+if (!defined("EMSFB_SERVER_URL")) {
+    if (EMSFB_DEV_MODE) {
+        define("EMSFB_SERVER_URL", "https://whitestudio.team");
+    } else {
+        define("EMSFB_SERVER_URL", "https://demo.whitestudio.team");
+    }
+}
 /** Load main class */
 require 'includes/class-Emsfb.php';
 /** Main instance of plugin */
