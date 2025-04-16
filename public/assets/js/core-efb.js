@@ -306,7 +306,7 @@ function actionSendData_emsFormBuilder() {
     response_fill_form_efb({ success: false, data: { success: false, m: efb_var.text.offlineMSend } });
     return;
   }
-  form_type_emsFormBuilder = typeof valj_efb.length>2 ? valj_efb[0].type : form_type_emsFormBuilder
+  form_type_emsFormBuilder = typeof valj_efb.length>2 ? valj_efb[0].type : form_type_emsFormBuilder;
   let  data = {
       action: "get_form_Emsfb",
       value: JSON.stringify(sendBack_emsFormBuilder_pub),
@@ -759,7 +759,8 @@ function emsFormBuilder_logout() {
   document.getElementById('body_efb').innerHTML = loading_messge_efb();
   form_type_emsFormBuilder = "logout";
   formNameEfb = "logout";
- // efb_var.type = "logout";
+  efb_var.type = "logout";
+  valj_efb.length>1 &&  valj_efb[0].hasOwnProperty('type')? valj_efb[0].type='logout' : form_type_emsFormBuilder='logout';
   sendBack_emsFormBuilder_pub = { logout: true };
   recaptcha_emsFormBuilder = '';
   actionSendData_emsFormBuilder();

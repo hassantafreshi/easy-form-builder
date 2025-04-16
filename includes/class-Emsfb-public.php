@@ -364,7 +364,7 @@ class _Public {
 					wp_enqueue_script('logic-efb');
 				}
 		
-			}
+		}
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
 				//translate v3
@@ -395,33 +395,34 @@ class _Public {
 						$value=$send;
 					}
 				}
-				$ar_core = array_merge($ar_core , array(
-					'ajax_value' =>$value,
-					'type' => $typeOfForm,
-					'state' => $state,
-					'language' => $lang,
-					'id' => $this->id,			  
-					'form_setting' => $stng,
-					//'nonce'=> wp_create_nonce("public-nonce"),
-					'poster'=> $poster,
-					'rtl' => is_rtl(),
-					'text' =>$lanText ,
-					'pro'=>$this->pro_efb,
-					'wp_lan'=>get_locale(),
-					'location'=> "",
-					'v_efb'=>EMSFB_PLUGIN_VERSION,
-					//'nonce_msg'=> wp_create_nonce($code),
-					'images' => $img,
-					'rest_url'=>get_rest_url(null),
-					'page_id'=>get_the_ID(),
-					'page_builder'=>$page_builder
-				) );
-				wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);  
-		 $k="";
-		// $pro=false;		
-		 //$stng = $this->get_setting_Emsfb('pub');
-		 $stng = $this->pub_stting;
-		 if(gettype($stng)!=="integer" && $lanText["settingsNfound"]){
+
+			$ar_core = array_merge($ar_core , array(
+				'ajax_value' =>$value,
+				'type' => $typeOfForm,
+				'state' => $state,
+				'language' => $lang,
+				'id' => $this->id,			  
+				'form_setting' => $stng,
+				//'nonce'=> wp_create_nonce("public-nonce"),
+				'poster'=> $poster,
+				'rtl' => is_rtl(),
+				'text' =>$lanText ,
+				'pro'=>$this->pro_efb,
+				'wp_lan'=>get_locale(),
+				'location'=> "",
+				'v_efb'=>EMSFB_PLUGIN_VERSION,
+				//'nonce_msg'=> wp_create_nonce($code),
+				'images' => $img,
+				'rest_url'=>get_rest_url(null),
+				'page_id'=>get_the_ID(),
+				'page_builder'=>$page_builder
+			) );
+			wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);  
+			 $k="";
+			// $pro=false;		
+		 	//$stng = $this->get_setting_Emsfb('pub');
+			 $stng = $this->pub_stting;
+		 	if(gettype($stng)!=="integer" && $lanText["settingsNfound"]){
 			// $valstng= json_decode($stng);			
 			 if( ($formObj[0]['captcha']==1) && (isset($this->pub_stting['siteKey'])==true) && strlen($this->pub_stting['siteKey'])>1)
 			 {					
@@ -623,7 +624,6 @@ class _Public {
 	  public function get_form_public_efb($data_POST_){
 		$data_POST = $data_POST_->get_json_params();
 		
-		
 		$text_ =["somethingWentWrongPleaseRefresh","pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm","ptrnMmx",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","clcdetls","vmgs","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","thankFillForm","trackNo",'fernvtf',"msgdml"];
 
 		
@@ -643,7 +643,7 @@ class _Public {
 		
 		
 		if ($s_sid !=1){
-			//error_log('s_sid is not valid!!');
+			//error_log('s_sid is not valid!!');			
 			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
 			$response = array( 'success' => false  , 'm'=>$m); 
 			wp_send_json_success($response,$data_POST);
@@ -1404,7 +1404,7 @@ class _Public {
 					}
 				}
 			}
-			if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
+			if ($type=="logout" || $type=="recovery") {$not_captcha=false; $send_email_to_user_state=false;}
 			if ($not_captcha==true && ( $captcha_success=="null" || $captcha_success->success!=true )  ) {
 			$response = array( 'success' => false  , 'm'=>$this->lanText["errorCaptcha"]); 
 			wp_send_json_success($response,$data_POST);

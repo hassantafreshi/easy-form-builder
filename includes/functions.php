@@ -791,7 +791,7 @@ class efbFunction {
 		//array_push($rtrn);
 		return $rtrn;
 	}
-
+	
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);				
 			   	$mailResult = "n";

@@ -1901,7 +1901,6 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             let val =''
             content[c].value.forEach(r => {
               const address = r.address.replaceAll(',' ,' -');
-              console.log(address)
               val=='' ? val = `${efb_var.text.latitude}:${r.lat}; ${efb_var.text.longitude}:${r.lng}; ${efb_var.text.address}:${address}`  : val +=`| ${efb_var.text.latitude}:${r.lat}; ${efb_var.text.longitude}:${r.lng}; ${efb_var.text.address}:${address}`
             });
             rows[parseInt(i_count)][parseInt(value_col_index)] = val;
