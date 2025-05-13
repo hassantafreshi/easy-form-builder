@@ -1437,7 +1437,7 @@ function prev_btn_efb() {
   } else if (cs == valj_efb[0].steps) {
     var val = `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}" id="button_group_Next_icon"></i>`;
     document.getElementById("next_efb").innerHTML = val;
-    if (sitekye_emsFormBuilder.length > 1 && (valj_efb[0].captcha == 1 || valj_efb[0].captcha == "1")) {
+    if (sitekye_emsFormBuilder.length > 1 && (valj_efb[0].captcha == 1 || valj_efb[0].captcha == "1" ||  valj_efb[0].captcha == 'true')) {
       document.getElementById("next_efb").classList.remove("disabled");
     }
   }
