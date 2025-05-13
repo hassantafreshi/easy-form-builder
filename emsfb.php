@@ -45,3 +45,7 @@ require 'includes/class-Emsfb.php';
 
 /** Main instance of plugin */
 $emsfb = new Emsfb();
+
+
+require_once 'includes/classs-Emsfb-requirement.php';
+register_activation_hook(__FILE__, ['CheckRequirementEmsfb', 'run_and_save_efb']);

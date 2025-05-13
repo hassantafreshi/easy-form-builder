@@ -84,6 +84,8 @@ class Admin {
             add_action('wp_ajax_heartbeat_Emsfb' , [$this, 'heartbeat_Emsfb'] );
             add_action('wp_ajax_report_problem_Emsfb' , [$this, 'report_problem_Emsfb'] );
 
+             add_action('admin_notices', [$this, 'admin_notices_efb']);
+
             
         } 
     }
@@ -984,7 +986,7 @@ class Admin {
                 'email'   => $email
             ]
         );
-
+        update_option('emsfb_settings', $setting);
         $m = $lang["messageSent"];            
         $response = ['success' => true, "m" => $m];
         wp_send_json_success($response, $_POST);
@@ -1539,6 +1541,73 @@ class Admin {
 		
 		if($state==1) return $this->efbFunction;
 	}
+
+        function admin_notices_efb () {
+            error_log('admin_notices_efb');
+           
+            function result_ok () {
+                   $check['status'] = 'ok';
+                   $check['message']['title'] = 'configured';
+                   $check['message']['description'] = 'user configured email settings';
+                   $check['message']['id'] = 'email_settings_configured';
+                   return $check;
+            }
+
+            $check = get_option('emsfb_email_status', false);
+            error_log('check email: ' . json_encode($check));
+            if (!$check || !is_array($check) || $check['status'] === 'ok') return;
+            ///  includes\admin\assets\image\logo.png
+            $settings = get_option('emsfb_settings', false);
+            error_log('settings: ' . json_encode($settings));
+
+         
+            if ($settings!=false){
+                error_log('settings value check admin notices');
+                $s =str_replace('\\', '', $settings);
+                $settings = json_decode($s);
+                //$setting->smtpe value coulde be "1" or "true" or true or 1 for true statment
+                error_log($settings->smtp);
+                if (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true)) {
+                    error_log('update option emsfb_email_status');
+                  /*  $check['status'] = 'ok';
+                   $check['message']['title'] = 'configured';
+                   $check['message']['description'] = 'user configured email settings'; */
+                   // update_option('emsfb_email_status', $check);
+                   update_option('emsfb_email_status', result_ok());
+                   return;                
+                }
+            }else{
+                $efbFunction = $this->get_efbFunction(1);
+                $settings= $efbFunction->get_setting_Emsfb();
+                if($settings!=false){                
+                    if (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true)) {
+                        error_log('update option emsfb_email_status');
+                      /*  $check['status'] = 'ok';
+                       $check['message']['title'] = 'configured';
+                       $check['message']['description'] = 'user configured email settings'; */
+                       // update_option('emsfb_email_status', $check);
+                       update_option('emsfb_email_status', result_ok());
+                       return;                
+                    }
+                }
+            }
+            $logo_url = EMSFB_PLUGIN_URL.'includes/admin/assets/image/logo.png';
+            $help = '<a href="https://whitestudio.team/documents/how-to-fix-email-not-working-issue#'.$check['message']['id'].'" target="_blank" >' . esc_html__('Help','easy-form-builder') . '</a>';
+             ob_start();
+            ?>
+            <div id="notice-email-efb" class="notice notice-error efb-notice-email-error notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;">
+                <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr__('Easy Form Builder', 'easy-form-builder'); ?>" style="width:46px;height:auto;margin-top:4px;" />
+                <div>
+                    <p><strong><?php echo esc_html__('Easy Form Builder Email Warning:', 'easy-form-builder'); ?></strong> <?php echo esc_html($check['message']['title']); ?></p>
+                    <p><?php echo esc_html($check['message']['description']); ?></p>
+                    <p><?= $help ?></p>
+                </div>
+            </div>
+            <?php
+            $output = ob_get_clean();
+
+            echo $output;
+    }
 
 }
 

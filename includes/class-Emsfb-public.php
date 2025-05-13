@@ -738,7 +738,9 @@ class _Public {
 					}else{
 						array_push($email_user[0] ,$email_fa);
 					} */
-					$send_email_to_user_state = true;
+					if(isset($setting['smtp']) && (bool)$setting['smtp'] ){
+						$send_email_to_user_state = true;
+					}
 				}
 
 				//$email_fa = $formObj[0]["email"];
@@ -1375,7 +1377,11 @@ class _Public {
 				//if(!empty($email_fa) && !in_array($email_fa, $email_user[0])) array_push($email_user[0] ,$email_fa);
 				if(!empty($email_fa) ){ 
 					 emails_list($email_user , 0 , $email_fa , $email_array_state);
-					 $send_email_to_user_state = true;
+					
+					 //checl smtp exists on setting and it is true 
+					 if(isset($setting->smtp) && (bool)$setting->smtp ){
+						$send_email_to_user_state = true;
+					 }
 					}
 				if(isset($setting->femail) && is_email($setting->femail)) $email_user[2] = $setting->femail ;
 				//strlen($email_fa)>0 ? $email_fa .=','.$setting->emailSupporter : $email_fa = $setting->emailSupporter;
@@ -2436,7 +2442,7 @@ class _Public {
 					$email_status[1]= "respRecivedMessage";
 					$email_status[0] ='newMessage';
 				}
-				$this->send_email_Emsfb_($user_eamil,$track,$pro,$email_status,$links ,'null','null');
+				if(isset($setting->smtp) && (bool)$setting->smtp ) $this->send_email_Emsfb_($user_eamil,$track,$pro,$email_status,$links ,'null','null');
 				$response = array( 
 				'success' => true , "m"=>$this->lanText["messageSent"] , "by"=>$by,
 				'track'=>$track,
