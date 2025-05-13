@@ -2209,8 +2209,9 @@ function clickToCheckEmailServer() {
          if(el.classList.contains('active')==false) el.classList.add('active') ;
          //fun_set_setting_emsFormBuilder(1);
         } else {
-
-          alert_message_efb(efb_var.text.alert, efb_var.text.PleaseMTPNotWork, 60, 'warning');
+          const label = '<b>'+efb_var.text.hostSupportSmtp+'</b>';
+          const massage = efb_var.text.PleaseMTPNotWork.replace('%s', label);
+          alert_message_efb(efb_var.text.alert, massage, 60, 'warning');
           el.classList.remove('active') ;
         }
         document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
