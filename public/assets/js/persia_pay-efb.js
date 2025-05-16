@@ -79,7 +79,7 @@ function btnPersiaPayEfb(){
     let val=[];
     sendBack_emsFormBuilder_pub.forEach(row => {
       if(row.type.includes('pay')!=false || row.type.includes('prcfld')!=undefined){
-        //console.log(row,row.type.includes('pay'));
+       
         val.push(row);
       }
     });
@@ -97,8 +97,7 @@ function btnPersiaPayEfb(){
     sessionStorage.setItem("id", efb_var.id);
     post_api_persiapay_efb(data);
   }, 300);
-}//end  btnPersiaPayeEfb
-
+}
 
 post_api_persiapay_efb=(data)=>{
   let btnEfb = document.getElementById('persiaPayEfb');
@@ -106,7 +105,7 @@ post_api_persiapay_efb=(data)=>{
   btnEfb.classList.add('disabled');
   
   let PaymentState = document.getElementById('afterPayefb');
-  const url = efb_var.rest_url+'Emsfb/v1/forms/payment/persia/add'; // Replace with your REST API endpoint URL
+  const url = efb_var.rest_url+'Emsfb/v1/forms/payment/persia/add';
 
   const headers = new Headers({
     'Content-Type': 'application/json',
@@ -115,42 +114,11 @@ post_api_persiapay_efb=(data)=>{
 
   const jsonData = JSON.stringify(data);
   const requestOptions = {
-  method: 'POST', // Or any other HTTP method (POST, GET, etc.)
+  method: 'POST',
   headers,
-  body: jsonData, // The JSON data as the request body
+  body: jsonData,
   };
-  /* 
-  fetch(url, requestOptions)
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Network response was not ok (HTTP ${response.status})`);
-    }
-    return response.json();
-  })
-  .then(res => {
-    if (res && res.data && res.data.success === true) {
-      document.getElementById('beforePay').classList.add('d-none');
-      window.open(res.data.url, '_self');
-      PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
-      <h3 class="efb text-dark p-0 m-0 mt-1 text-center fs-5">برای انتقال سریعتر به درگاه بانک <a href="${res.data.url}">اینجا را کلیک کنید</a> </h3></div>`;
-      localStorage.setItem('PayId', res.data.id);
-      sessionStorage.setItem("payId", res.data.id);
-    } else {
-      PaymentState.innerHTML = `<div class="text-danger efb"> ${res.data.m}</div>`;
-      btnEfb.classList.remove('disabled');
-      btnEfb.innerHTML = "پرداخت";
-    }
-    PaymentState.classList.remove('d-none');
-  })
-  .catch(error => {
-    // Handle errors
-    console.error(error.message);
-    btnEfb.classList.remove('disabled');
-    PaymentState.innerHTML = `<p class="h4">${efb_var.text.error}</p> ${error.message}`;
-    btnEfb.innerHTML = "پرداخت";
-    PaymentState.classList.remove('d-none');
-  });
-   */
+  
   fetch(url, requestOptions)
   .then(response => {
     if (!response.ok) {
@@ -174,7 +142,7 @@ post_api_persiapay_efb=(data)=>{
     PaymentState.classList.remove('d-none');
   })
   .catch(error => {
-    // Handle errors
+   
     console.error(error.message);
     btnEfb.classList.remove('disabled');
     PaymentState.innerHTML = `<p class="h4">${efb_var.text.error}</p> ${error.message}`;
@@ -190,13 +158,13 @@ post_api_persiapay_efb=(data)=>{
 fun_after_bankpay_persia_ui =()=>{
   const id = valj_efb[0].steps == 1 ? 'btn_send_efb' : 'next_efb';
   efb_var.id=sanitize_text_efb(efb_var.payId)
-    //console.log(id,document.getElementById(id))
+   
   if ( ((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 && grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha != true) && document.getElementById(id) || valueJson_ws[0].captcha != true && document.getElementById(id) ) 
     {
-      //console.log('done!')
+     
       document.getElementById(id).classList.remove('disabled');
      
-      //console.log(document.getElementById(id));
+     
     }
   fun_disabled_all_pay_efb()
       let o = [{
