@@ -788,7 +788,8 @@ class _Public {
 				$stated = 1;
 				$form_condition = '';
 				if(isset($formObj[0]['booking']) && $formObj[0]['booking']==1) $form_condition='booking';
-				
+				$currency = '';
+				if(isset($formObj[0]['currency']) && strlen($formObj[0]['currency'])>1) $currency = $formObj[0]['currency'];
 				foreach ($formObj as $key =>$f){
 						$rt =null;	
 						$in_loop=true;						
@@ -1329,7 +1330,14 @@ class _Public {
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
 
 				
-
+				if($currency!=''){
+				 	foreach ($valobj as $key => $value) {
+						$t=strpos($value['type'],'pay');
+						if(gettype($t)!='boolean'){
+							$valobj[$key]['currency'] = $currency;
+						}
+					}
+				}
 				$this->id = $type=="payment" ? sanitize_text_field($data_POST['payid']) :$this->id ;
 				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
 				if($stated==0){
@@ -1434,7 +1442,7 @@ class _Public {
 							$ip = $this->ip=$this->get_ip_address();						
 							//$this->location = $efbFunction->iplocation_efb($ip,1);
 					switch($type){
-						case "form":						
+						case "form":
 							$check=	$this->insert_message_db(0,false);
 							$nnc = wp_create_nonce($check);
 																										
@@ -1468,7 +1476,7 @@ class _Public {
 							}
 							wp_send_json_success($response,$data_POST);
 						break;
-						case "payment":								
+						case "payment":
 							$id = sanitize_text_field($data_POST['payid']);
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
@@ -1584,6 +1592,7 @@ class _Public {
 									$state_of_email = ['newMessage',$state_email_user];
 									$msg_content='null';
 									if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
+										error_log('email_noti_type');
 										$msg_content =$this->email_get_content($fs ,$trackId);
 										$msg_content = str_replace("\"","'",$msg_content);
 										
@@ -2685,7 +2694,7 @@ class _Public {
 				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
 				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
 				$iv = $val_[$i];
-				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
+				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){	
 					$filtered = array_filter($fs_, function($item) use ($iv) { 
 						switch ($iv["type"]) {
 							case 'paySelect':
@@ -3400,8 +3409,7 @@ class _Public {
 			$link_w = home_url();
 		}
 	
-		  
-		  $currency = array_key_exists('paymentcurrency', $content[0]) ? $content[0]['paymentcurrency'] : 'usd';
+		  $currency = array_key_exists('paymentcurrency', $content[0]) ? $content[0]['paymentcurrency'] :   'usd';
 		  $this->get_efbFunction(0);
 		
 		usort($content, function($a, $b) {
@@ -3414,7 +3422,9 @@ class _Public {
 			 continue;
 			}
 
-			
+			if(isset($c['currency'])){
+			 $currency = $c['currency'];
+			}
 			// Check if the current item has a value property and is not of type maps
 			if (isset($c['value']) && $c['type'] != "maps") {
 			  $c['value'] = $this->replaceContentMessageEfb($c['value']);
@@ -3582,6 +3592,7 @@ class _Public {
 			
 			
 		  }
+		  error_log($m);
 		  return $m;
 		}
 
