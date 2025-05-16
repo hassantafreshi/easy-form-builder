@@ -95,7 +95,7 @@ const textEls=(id , name ,el_type,value ,attr ,idset) =>{
 }
 
 const currencyTypeEls=(idset)=>{
-  //const c =currency_efb;
+ 
   let op = `<-- options -->`;
   for(let i of currency_efb){    
     op += `<option value="${i.toLowerCase()}" ${valj_efb[0].currency.toUpperCase()==i.slice(0, 3) ? 'selected' :''}>${i}</option>`
@@ -149,13 +149,13 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   
   let opt =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : null;
-  //console.error(country);
+ 
   if (country==null){
     country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
   }
   counstries_list_efb.sort((a, b) => a.n.localeCompare(b.n));
   for (let i of counstries_list_efb) {
-    //console.log(i.s2 ,country ,i.s2.toLowerCase()==country.toLowerCase());
+   
     opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==country.toLowerCase() ? `selected` : ''}>${i.l} (${i.s2})</option>`
   }
   return ` 
@@ -174,11 +174,11 @@ const state_list_el_select=(el_type ,idset,indx)=>{
   let statePov = valj_efb[indx].hasOwnProperty("statePov") ? valj_efb[indx].statePov : 'Antrim_Newtownabbey';
   country= country.toLowerCase();
   
-  //console.error(country);
+ 
   if (country==null){
     country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
   }
-  //console.log(`======================>country:[${country}] statePov:[${statePov}]`)
+ 
   
     if(country=='gb'){
       state_list_efb=fun_state_of_UK(idset,indx) ;
@@ -240,8 +240,8 @@ const cornerEls = (side,indx,idset) => {
 const btnColorEls =(idset,indx) =>{
       
   color = valj_efb[indx].button_color;
-  //console.log(ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') ,color)
-  const hex=ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') //slice text=5 bg=2 border=6 btn=3    
+ 
+  const hex=ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn')
   addColorTolistEfb(hex);
   idset =  valj_efb[indx].type =="esign" ? idset+'-id' :idset;
   return `<label for="btnColorEl" class="efb mt-3 bi-paint-bucket mx-2 efb">${efb_var.text.buttonColor}</label>
@@ -258,7 +258,7 @@ const hrefEls = (idset,indx) => {
 const selectBorderColorEls = (forEl,indx,idset) => {       
   let color = valj_efb[indx].el_border_color;
   let t = ''
-  const hex=ColorNameToHexEfbOfElEfb(color.slice(7),indx,'border') //slice text=5 bg=2 border=6 btn=3       
+  const hex=ColorNameToHexEfbOfElEfb(color.slice(7),indx,'border')
   addColorTolistEfb(hex);
   return `<label for="selectBorderColorEl" class="efb mt-3 bi-paint-bucket mx-2 efb">${efb_var.text.borderColor}</label>
   <input type="color" id="selectBorderColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="${forEl}" data-type="border"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl"  id="${idset}" >
@@ -308,9 +308,9 @@ const ElcountriesListSelections = (idset,indx) => {
  }
   for (const i of counstries_list_efb) {
    
-   //bi-check-square text-info efb
+  
     const s2 = i.s2.trim().toLowerCase();
-    //console.log(c_c.indexOf(i.s2.trim().toLowerCase())!=-1 ,c_c ,i.s2);
+   
     const v = i.l!=i.n  ? `(${i.l})` :''
     optn += `<tr   class="efb   efblist " data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" data-row="${s2}" data-state="0" data-visible="1">
     <th scope="row" class="efb ${c_c.indexOf(s2)!=-1 ? 'bi-check-square text-info' : 'bi-square'}" onClick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" ></th><td class="efb ms col-12"  onClick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}">${i.n} ${v}</td>
@@ -337,7 +337,7 @@ const ElcountriesListSelections = (idset,indx) => {
     `
 }
 function fun_test(t){
-  //console.log(t)
+ 
   const idx = t.dataset.indx;
   const c= t.dataset.name;
   const n= t.dataset.code;
@@ -360,20 +360,20 @@ function fun_test(t){
 
 }
 function show_setting_window_efb(idset) {
-  //console.log(idset)
+ 
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
-    //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
+   
     return};
-    //console.log('show_setting_window_efb',idset,valj_efb)
+   
     state_view_efb=1;
     document.getElementById('sideMenuConEfb').innerHTML=efbLoadingCard();
     sideMenuEfb(1)
-    // document.getElementById('sideBoxEfb').classList.add('show');
+   
      
     let el = idset != "formSet" ? document.querySelector(`[data-id="${idset}"]`) : { dataset: { id: 'formSet', tag: 'formSet' } }
     let body = ``;
-    //const bodySetting = document.getElementById("settingModalEfb-body");
+   
     const indx = idset != "button_group" && idset != "formSet" ? valj_efb.findIndex(x => x.dataId == idset) : 0;
     
     if (indx == 0 && idset != "formSet") el = document.getElementById(`f_btn_send_efb`);
@@ -392,11 +392,11 @@ function show_setting_window_efb(idset) {
     const miLenEls = ()=>{
     let label =  efb_var.text.min;
     let type = "number"
-    // valj_efb[indx].type=="date"  ?  'date limited' : valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.milen :
+   
     if(valj_efb[indx].type=="range" || valj_efb[indx].type=="number") {label = efb_var.text.min}
     else if(valj_efb[indx].type=="date") {
       label = efb_var.text.mindt; ;
-      //'minimum date'
+     
       type =  'text'}
 
     return  `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${label}</label>
@@ -406,7 +406,7 @@ function show_setting_window_efb(idset) {
   const mLenEls = ()=>{
     let label =  efb_var.text.max;
     let type = "number"
-    // valj_efb[indx].type=="date"  ?  'date limited' : valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.mlen :
+   
     if(valj_efb[indx].type=="range" || valj_efb[indx].type=="number") {label = efb_var.text.max}
     else if(valj_efb[indx].type=="date") {
       label = efb_var.text.mxdt;
@@ -414,22 +414,14 @@ function show_setting_window_efb(idset) {
       return `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${label}</label>
       <input type="${type}" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${label}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}" min="0">`
   }
-  /*  const mLenEls = `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.mlen :efb_var.text.max}</label>
-    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.mlen :efb_var.text.max}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}" min="2">` */
+ 
   const requireEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="requiredEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('required') && Number(valj_efb[indx].required) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
     </div>`;
-  /*   const requireEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="requiredEl" ${Number(valj_efb[indx].required) == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
-    </div>`; */
-/*     const disabledEls = `<div class="efb mx-1 my-3 efb">
-    <button type="button" id="disabledEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('disabled') && Number(valj_efb[indx].disabled) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >    
-    <label class="efb form-check-label pt-1" for="disabledEl">${efb_var.text.dFeild}</label>                                            
-    </div>`; */
+  
     const hiddenEls = `<div class="efb mx-0 my-1 efb">
     <button type="button" id="hiddenEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('hidden') && Number(valj_efb[indx].hidden) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
@@ -442,10 +434,7 @@ function show_setting_window_efb(idset) {
     </button>   
     <label class="efb form-check-label" for="disabledEl">${efb_var.text.dField}</label>                                            
     </div>`;
-   /*  const hideLabelEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hidelabel') && Number(valj_efb[indx].hidelabel) == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label pt-1" for="hideLabelEl">${efb_var.text.hflabel}</label>                                            
-    </div>`; */
+   
     const hideLabelEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="hideLabelEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('hflabel') && Number(valj_efb[indx].hflabel) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
         <div class="efb handle"></div>
@@ -474,9 +463,9 @@ function show_setting_window_efb(idset) {
     const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}<i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="EmailNoti"> </i></label> 
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
     const FormEmailSubjectEls = () =>{
-      //default 
+     
       let value = efb_var.text.default 
-      //${valj_efb[0].email ? valj_efb[0].email : ''}
+     
       if(valj_efb[0].hasOwnProperty('email_sub') && valj_efb[0].email_sub!='') value =  valj_efb[0].email_sub;
       return `
       ${pro_efb==true ?"":funProEfb()}
@@ -650,8 +639,7 @@ function show_setting_window_efb(idset) {
     <label for="valueEl" class="efb  mt-3 bi-cursor-text mx-2">${efb_var.text.value}</label>
       <textarea type="text"  data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}  rows="3"></textarea>
       `
-      /* 
-<textarea id="2vcr1vrhx_" placeholder="Long Text" class="efb  px-2 input-efb emsFormBuilder_v form-control   h-d-efb efb-square text-labelEfb border-d  efbField" data-vid="2vcr1vrhx" data-id="2vcr1vrhx-el" value="" rows="5" disabled=""></textarea> */
+      
     const placeholderEls = `
       <label for="placeholderEl" class="efb  mt-3 bi-patch-exclamation mx-2">${efb_var.text.placeholder}</label>
       <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1"id="placeholderEl" placeholder="${efb_var.text.placeholder}" ${valj_efb[indx].placeholder && valj_efb[indx].placeholder.length > 1 ? `value="${valj_efb[indx].placeholder}"` : ''}>
@@ -674,7 +662,7 @@ function show_setting_window_efb(idset) {
       }else {
        idset != "button_group" ? iset=idset=valj_efb[indx].id_: iset=idset="button_group_"
         if(isNumericEfb(iset))idset=iset="step-"+iset;
-       //console.log(iset)
+      
         icon = valj_efb[indx].icon }
       let list =`<tr class="efb efblist text-white" data-id="${iset}" data-name="bi-XXX" data-row="-2" data-state="0" data-visible="1">
       <th scope="row" class="efb bi-XXXXX"></th>
@@ -691,7 +679,7 @@ function show_setting_window_efb(idset) {
       if (icon.length>1){
          iNo =bootstrap_icons.findIndex(x=>x==icon.replace('bi-',''));
       }
-      //check for Nex and previous
+     
 
       return `
       <div class="efb ${ side!="DoneIconEfb"? '' :`tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}` }"> <label for="iconEl" class="efb form-label bi-heptagon mx-2 mt-2 mb-0" id="DoneIconEfb">${t} ${efb_var.text.icon} </label>
@@ -718,7 +706,7 @@ function show_setting_window_efb(idset) {
   
     const smsContentEls=(type)=>{
 
-      //check pro version
+     
     
       if(type=="WeRecivedUrM"){
         if(valj_efb[0].hasOwnProperty('sms_msg_recived_usr')){
@@ -727,9 +715,7 @@ function show_setting_window_efb(idset) {
         if( valj_efb[0].hasOwnProperty('sms_msg_responsed_noti')){value = efb_text_nr(valj_efb[0].sms_msg_responsed_noti,0)}else{value =efb_var.text.newResponse + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_response]`};
       }else if (type == "newMessageReceived"){
       if(valj_efb[0].hasOwnProperty('sms_msg_new_noti')) { value =efb_text_nr(valj_efb[0].sms_msg_new_noti,0) }else{
-       /*  if(valj_efb[0].type=="survey"){ value = efb_var.text.thanksFillingOutform + `\n ${efb_var.text.trackNo}: [confirmation_code] \n ${efb_var.text.url}: [link_response]` ;
-        else if(valj_efb[0].type=="register") {value = efb_var.text.createAcountDoneM + `\n ${efb_var.text.url}: [link_domain]` ;}
-        else {} */
+      
           value = efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n ${efb_var.text.url}: [link_response]`};
       }
       
@@ -742,7 +728,7 @@ function show_setting_window_efb(idset) {
       return content;
     }
 
-    //textinput for mulitple mobile number of admins
+   
     const smsAdminsPhoneNoEls =()=>{
       let value = valj_efb[0].hasOwnProperty('sms_admins_phone_no') ? valj_efb[0].sms_admins_phone_no : '';
       const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled d-none';
@@ -757,7 +743,7 @@ function show_setting_window_efb(idset) {
     }
 
 
-    //file size
+   
     const fileSizeMaxEls =()=>{ 
       const file_size = valj_efb[indx].hasOwnProperty('max_fsize') ? valj_efb[indx].max_fsize : 8;
       return`
@@ -787,7 +773,7 @@ function show_setting_window_efb(idset) {
     const fileCustomizeTypleEls =()=>{
       let value =  'jpg, png, pdf';
       let show = 'd-none';
-      //valj_efb[indx].file
+     
       if(valj_efb[indx].file=="customize"){
         value = valj_efb[indx].file_ctype;
         show = 'd-block';
@@ -803,36 +789,36 @@ function show_setting_window_efb(idset) {
     }
 
     const selectColorEls = (forEl ,f) => {
-      //f ===> text , border,  bg 
-      //console.log(forEl,indx,f)
+     
+     
       let t = ''
       let color = '';
       let hex=''
       let cls="";
       if (forEl == 'icon') {
         color = valj_efb[indx].icon_color;
-        //console.log(color.slice(5));
+       
         t = efb_var.text.icon;
-        if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'icon') //slice text=5 bg=2 border=6 btn=3
+        if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'icon')
       } else if (forEl == 'description') {
         color = valj_efb[indx].message_text_color;
-        //console.log(color,color.slice(5));
+       
         t = efb_var.text.description
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'description')
       } else if (forEl == 'label') {
         color = valj_efb[indx].label_text_color;
-        //console.log(color.slice(5));
+       
         t = efb_var.text.label
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'label')
       } else if (forEl == "el") {
         color = valj_efb[indx].el_text_color;
-        //console.log(color.slice(5));
+       
         t = efb_var.text.field
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
       }
       else if (forEl == "clrdoniconEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"#ff4b93" ;
-        //console.log(color.slice(5));
+       
         t = efb_var.text.icon
         hex = color;
         if(color!="" && color.includes('#')==false)  hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
@@ -840,7 +826,7 @@ function show_setting_window_efb(idset) {
       }
       else if (forEl == "clrdoneMessageEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"#000000";
-        //console.log(color.slice(5));
+       
         t = efb_var.text.message
         cls="tnxmsg";
         hex = color;
@@ -856,7 +842,7 @@ function show_setting_window_efb(idset) {
       } else if (forEl == "progessbar"){
         color = valj_efb[0].hasOwnProperty("prg_bar_color")==true? valj_efb[0].prg_bar_color :"#4636f1";
         
-         //console.log(color);
+        
          t = efb_var.text.pgbar
          hex = color;
        if(color!="" && color.includes('#')==false){
@@ -884,7 +870,7 @@ function show_setting_window_efb(idset) {
     
 
   
-    //console.log(el.dataset.tag)
+   
     switch (el.dataset.tag) {
       case 'email':
       case 'text':
@@ -1144,7 +1130,7 @@ function show_setting_window_efb(idset) {
         `
         break;
       case "maps":
-        // Object.assign(valj_efb[indx], { lat: 49.24803870604257, lon: -123.10512829684463 })
+       
   
         body = `
         <div class="efb  mb-3">
@@ -1272,7 +1258,7 @@ function show_setting_window_efb(idset) {
       case "booking":
         break;
       case "steps":
-        //console.log(`steps[${idset}]` ,Number(idset)>1);
+       
         idset=Number(idset);
         const logic_steps =idset>1 && false ? logic_section(idset) :"<!--efb-->";
         body = `
@@ -1438,23 +1424,23 @@ function show_setting_window_efb(idset) {
           </div>`
         break;
         case "table_matrix":
-          //case "multiselect":
-          //case "conturyList":
-          //case "stateProvince":
-          //case "payCheckbox":
-          //case "payRadio":
-          //case "paySelect":
-          //case "chlCheckBox":
-          //case "chlRadio":
-          //case "payMultiselect":
+         
+         
+         
+         
+         
+         
+         
+         
+         
           const obj_r_matrix = valj_efb.filter(obj => {
             return obj.parent === el.id
           })
-          //let s = el.dataset.tag;
+         
        
           const newRndmm = Math.random().toString(36).substr(2, 9);
           let r_matrixs = `<!-- options --!>`;
-          //const col ='col-md-12'
+         
     
           if (obj_r_matrix.length > 0) {
     
@@ -1478,7 +1464,7 @@ function show_setting_window_efb(idset) {
             }
           }
     
-          //optionElpush_efb
+         
           body = `
                     <div class="efb  mb-3">
                     <!--notAdvanced-->
@@ -1554,13 +1540,13 @@ function show_setting_window_efb(idset) {
     }
   
     
-    //console.log("show_setting_window_efb",body)
-    //show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
-    //sideMenuEfb(1)
-   // document.getElementById('sideBoxEfb').classList.add('show');
+   
+   
+   
+  
     
     document.getElementById('sideMenuConEfb').innerHTML=body;
-    //console.log(document.getElementById('sideMenuConEfb').innerHTML)
+   
     for (const el of document.querySelectorAll(`.elEdit`)) {      
       if(el.tagName!="DIV"){el.addEventListener("change", (e) => { change_el_edit_Efb(el);})}
       else{ }
@@ -1572,7 +1558,7 @@ function show_setting_window_efb(idset) {
 
 function remove_other_noti_Efb(){
   window.onload=(()=>{
-    // remove all notifications from other plugins or wordpress
+   
       setTimeout(() => { 
           for (const el of document.querySelectorAll(".notice")) {
               el.remove()
@@ -1614,14 +1600,14 @@ function creator_form_builder_Efb() {
   if (formType == "login") {
     dragab = false;
     disable = ond;
-    //thisElemantNotAvailable
+   
   }
   
   if( efb_var.language=='fa_IR')fields_efb.push( { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' });
   for (let ob of fields_efb) {
    
     if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
-    // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
+   
     if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
       
       disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
@@ -1724,7 +1710,7 @@ function creator_form_builder_Efb() {
 function funUpdateLisetElEfb(cat){
   change_active_cat_efb(cat);
   change_visible_el_efb(cat);
-  //efb nav-link cat fs-6 efb basic
+ 
   
 }
 
@@ -1788,20 +1774,20 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
  const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-sm-7':'col-sm-12'
  
  let t = "radio";
- //const col = "col-sm-11"
+
  let opetions = `<!-- options --!>`;
  let parent = valj_efb.find(x=>x.id_ == objOptions[0].parent)
  const vl =parent ? parent.value :'';
   let l_b = mobile_view_efb ? 'd-block' : 'd-none';
   const tp = parent.type.toLowerCase();
-  //console.log(`parent lower case=====>[${tp}]`,ftyp)
+ 
  for (let ob of objOptions) {         
    if(parent){
      if(tp.indexOf("multi")>-1  || tp.includes("checkbox")==true || tp.includes("multiselect")==true  ) t="checkbox"
      
    }
     const price = ob.hasOwnProperty("price") ? ob.price : 0;
-    //const id = ob.hasOwnProperty("id") ? ob.id : ob.id_;
+   
     const id = ob.hasOwnProperty('id') ? ob.id : ob.id_;
     const id_old = ob.hasOwnProperty("id_old") ? ob.id_old :'null'
     let checked= "";
@@ -1832,7 +1818,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
     
     if(tag=="imgRadio"){
       let row = valj_efb.find(x=>x.id_==id_value);
-      //console.log(row)
+     
       if (typeof row == "undefined") r ='<!-efb-->';
       const url = u(row.src);
       r =`
@@ -1849,9 +1835,9 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
     
     if(valj_efb[0].hasOwnProperty('booking')==true && valj_efb[0].booking==true && (tag=='radio' || tag=='checkbox' || tag=='select' || tag=='imgRadio')){
       let row = valj_efb.find(x=>x.id_==id_value);
-      //console.log(row)
+     
       if (typeof row == "undefined") r ='<!-efb-->';
-      //dateExp
+     
       const date_v =row.hasOwnProperty('dateExp') && row.dateExp.length>1 ? row.dateExp : '';
       r =`
       <input type="date" placeholder="${efb_var.text.date}" id="bookDateExpEl"  value="${date_v}" data-value="${date_v}" data-id="${row.id_}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d rounded-4 elEdit" >      
@@ -1923,14 +1909,14 @@ function funShowAttrElsEfb(el){
 
   for(let ob of document.querySelectorAll(`.elIds`)){
     ol.idstate=="true" ? ob.classList.remove('d-none') : ob.classList.add('d-none');
-    //console.log(ob,ol.idstate=="true",ol.idstate ) 
+   
   }
 
 }
 
 const optionSmartforOptionsEls = (idset ,fid , s_op)=>{
-  //fid step_ number s_op id of option (one)
-  //(0,fid , 0
+ 
+ 
   let two ="";
   
   if(s_op==0 && valj_efb[0].hasOwnProperty('conditions')){
@@ -1968,7 +1954,7 @@ const optionSmartforOptionsEls = (idset ,fid , s_op)=>{
 
 
 const selectSmartforOptionsEls = (idset ,fid)=>{
-  //console.error("!!!!!!!!",idset ,fid);
+ 
   let c = -1;
   const n = valj_efb[0].hasOwnProperty('conditions')==true ? valj_efb[0].conditions.findIndex(x=>x.id_ ==fid):-1;
 
@@ -1976,7 +1962,7 @@ const selectSmartforOptionsEls = (idset ,fid)=>{
   
   }
   if (typeof c =="undefined") c= valj_efb[0].conditions[n].condition[0];
- // if (c==-1) return `<!-- efb: conditions not exists -->`
+
  let row= get_list_name_selecting_field_efb();
  let op =`<option disabled>${efb_var.text.nothingSelected}</option>`;
 

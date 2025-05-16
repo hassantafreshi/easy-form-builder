@@ -9,7 +9,7 @@ namespace Emsfb;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} // No direct access allow ;)
+}
 
 
 class efbFunction {
@@ -58,12 +58,12 @@ class efbFunction {
 			"areYouSureYouWantDeleteItem" => $state ? $ac->text->areYouSureYouWantDeleteItem : esc_html__('Are you sure you want to delete this?',$s),
 			"no" => $state ? $ac->text->no : esc_html__('NO',$s),
 			"yes" => $state ? $ac->text->yes : esc_html__('Yes',$s),
-			//"numberOfSteps" => $state ? $ac->text->numberOfSteps : esc_html__('Number of steps',$s),
-			//"titleOfStep" => $state ? $ac->text->titleOfStep : esc_html__('Title of step',$s),
+		
+		
 			"proVersion" => $state ? $ac->text->proVersion : esc_html__('Pro Version',$s),
 			"getProVersion" => $state ? $ac->text->getProVersion : esc_html__('Activate Pro version',$s),					
 			"reCAPTCHA" => $state ? $ac->text->reCAPTCHA : esc_html__('reCAPTCHA',$s),
-			//"protectsYourWebsiteFromFraud" => $state ? $ac->text->protectsYourWebsiteFromFraud : esc_html__('Click here to watch a video tutorial.',$s),
+		
 			"enterSITEKEY" => $state ? $ac->text->enterSITEKEY : esc_html__('SECRET KEY',$s),
 			"alertEmail" => $state ? $ac->text->alertEmail : esc_html__('Alert Email',$s),
 			"enterAdminEmail" => $state ? $ac->text->enterAdminEmail : esc_html__('Enter the admin email address to receive email notifications.',$s),
@@ -272,7 +272,7 @@ class efbFunction {
 			"next" => $state ? $ac->text->next : esc_html__('Next',$s),
 			"noCodeAddedYet" => $state ? $ac->text->noCodeAddedYet : esc_html__('The code has not yet been added. Click on',$s),
 			"andAddingHtmlCode" => $state ? $ac->text->andAddingHtmlCode : esc_html__('and adding HTML code.',$s),
-			//"proMoreStep" => $state ? $ac->text->proMoreStep : esc_html__('When you activate the Pro version, so you can create unlimited form steps.',$s),
+		
 			"aPIkeyGoogleMapsError" => $state ? $ac->text->aPIkeyGoogleMapsError : esc_html__('The API key for Google Maps has not been added. Please go to Easy Form Builder > Panel > Setting > Google Keys, add the API key for Google Maps, and try again.',$s),
 			"howToAddGoogleMap" => $state ? $ac->text->howToAddGoogleMap : esc_html__('How to Add Location Picker(maps) to Easy form Builder WordPress Plugin',$s),
 			"deletemarkers" => $state ? $ac->text->deletemarkers : esc_html__('Delete markers',$s),
@@ -628,7 +628,7 @@ class efbFunction {
 			"hField" => $state  &&  isset($ac->text->hField) ? $ac->text->hField : esc_html__('Hidden Field',$s),							
 			"sctdlosp" => $state  &&  isset($ac->text->sctdlosp) ? $ac->text->sctdlosp : esc_html__('Select a country to display a list of states/provinces.',$s),				
 			"sctdlocp" => $state  &&  isset($ac->text->sctdlocp) ? $ac->text->sctdlocp : esc_html__('Select a states/provinces to display a list of city.',$s),				
-			//don't remove (used in delete message)						
+		
 			"AdnOF" => $state  &&  isset($ac->text->AdnOf) ? $ac->text->AdnOf : esc_html__('Offline Forms Addon',$s),
 			"AdnSPF" => $state  &&  isset($ac->text->AdnSPF) ? $ac->text->AdnSPF : esc_html__('Stripe Payment Addon',$s),
 			"AdnPDP" => $state  &&  isset($ac->text->AdnPDP) ? $ac->text->AdnPDP : esc_html__('Jalali date Addon',$s),
@@ -639,7 +639,7 @@ class efbFunction {
 			"wylpfucat" => $state  &&  isset($ac->text->wylpfucat) ? $ac->text->wylpfucat : esc_html__('Would you like to customize the form using the colors of the active template?',$s),
 			"efbmsgctm" => $state  &&  isset($ac->text->efbmsgctm) ? $ac->text->efbmsgctm : esc_html__('Easy Form Builder has utilized the colors of the active template. Please choose a color for each option below to customize the form you are creating based on the colors of your template.By selecting a color for each option below, the color of all form fields associated with that feature will change accordingly.',$s),
 			"btntcs" => $state  &&  isset($ac->text->btntcs) ? $ac->text->btntcs : esc_html__('Buttons text colors',$s),
-			//End don't remove (used in delete message)
+		
 			"atcfle" => $state  &&  isset($ac->text->atcfle) ? $ac->text->atcfle : esc_html__('attached files',$s),				
 			"dslctd" => $state  &&  isset($ac->text->dslctd) ? $ac->text->dslctd : esc_html__('Default selected',$s),				
 			"shwattr" => $state  &&  isset($ac->text->shwattr) ? $ac->text->shwattr : esc_html__('Show attributes',$s),				
@@ -654,7 +654,7 @@ class efbFunction {
 			"AdnSMF" => $state  &&  isset($ac->text->AdnSMF) ? $ac->text->AdnSMF : esc_html__('Conditional logic Addon',$s),
 			"condATAddon" => $state  &&  isset($ac->text->condATAddon) ? $ac->text->condATAddon : esc_html__('Conditional logic Addon',$s),
 			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : esc_html__('The Conditional Logic Addon enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users unique needs.',$s),			
-			//"condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : esc_html__('Conditional logic',$s),
+		
 			"condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : esc_html__('Enable Conditional',$s),
 			"enableCon" => $state  &&  isset($ac->text->enableCon) ? $ac->text->enableCon : esc_html__('Enable Conditional',$s),
 			"show" => $state  &&  isset($ac->text->show) ? $ac->text->show : esc_html__('Show',$s),
@@ -789,7 +789,7 @@ class efbFunction {
 				$rtrn=$lang;
 			}
 		}
-		//array_push($rtrn);
+	
 		return $rtrn;
 	}
 	
@@ -869,7 +869,7 @@ class efbFunction {
 									$mailResult =  wp_mail( $to_,$sub_, $message, $headers ) ;
 									
 								} else {
-									//remove duplicates
+								
 									$to[$i]= array_unique($to[$i]);
 									foreach ($to[$i] as $r) {
 										$sub_ = $sub[$i];
@@ -879,7 +879,7 @@ class efbFunction {
 									
 								}
 								
-								//end loop
+							
 							
 		
 								
@@ -900,7 +900,7 @@ class efbFunction {
 			 if($wp_lan=="fa_IR"){ $l='https://easyformbuilder.ir'  ;}
 			 else if($wp_lan=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team";}
 			 else if ($wp_lan=="de_DE") {$l ="https://de.whitestudio.team";}
-			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
+			
 		$text = ['msgdml','mlntip','msgnml','serverEmailAble','vmgs','getProVersion','sentBy','hiUser','trackingCode','newMessage','createdBy','newMessageReceived','goodJob','createdBy' , 'yFreeVEnPro','WeRecivedUrM'];
         $lang= $this->text_efb($text);				
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
@@ -910,13 +910,13 @@ class efbFunction {
 			$d =  'rtl' ;
 			$align ='right';
 		}
-		//}   
+	
 
 		
 		if($st=='null') $st = $this->get_setting_Emsfb();
 		if($st=="null") return;
-		//serverEmailAble
-		//if(strlen($st->activeCode)<5 ){ $footer .="<br></br><small><a class='efb subtle-link' target='_blank' href='". $l."'>". esc_html__('Created by','easy-form-builder') . " " . esc_html__('Easy Form Builder','easy-form-builder')."</a></small>";	}		
+	
+	
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
 		
 		
@@ -935,16 +935,16 @@ class efbFunction {
 			$dt = $lang['msgnml'];
 			$de = $lang['mlntip'];			
 			$de =preg_replace('/^[^.]*\. /', '', $lang['mlntip']);			
-			//$de = substr($de, 0, strpos($de, '.')+1);
+		
 			$link = "$l/document/send-email-using-smtp-plugin/";
 			if($wp_lan=="fa_IR") $link = "$l/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/";
-			//
+		
 			$de = str_replace('%s1',"<a href='$link' target='_blank'>",$de);
 			$de = str_replace('%s2',"</a>",$de);
 			$de = str_replace('%s3',"<a href='$l/support/' target='_blank'>",$de);
 			$de = str_replace('%s4',"</a>",$de);
 
-			//replace %s1 and %s2 with links to documentation
+		
 			$dt = str_replace('%s1',"<a href='$l/documents/' target='_blank'>",$dt);
 			$dt = str_replace('%s2',"</a>",$dt);
 			$title= $lang["serverEmailAble"];
@@ -966,7 +966,7 @@ class efbFunction {
 			 }
 			
 		}elseif($state=="newMessage"){	
-			//w_link;
+		
 			if(gettype($m)=='string'){
 				$dts = str_replace('%s', $m, $dts);
 				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
@@ -1028,7 +1028,7 @@ class efbFunction {
 				$temp= preg_replace('/(@efb@)+/','/',$temp);
 				$p = strripos($temp, '</body>');
 				
-				//$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
+			
 				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>";
 				if($pro==1){	$temp = substr_replace($temp,$footer,($p),0);}
 		       
@@ -1101,20 +1101,20 @@ class efbFunction {
 					$email=$val["value"];
 					$subject ="📮 ".$lang["youRecivedNewMessage"];
 					if($smtp) $this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
-					//send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null")
+				
 					return 1;
 				}
 			}
 		}
 
-		//send smsnoti
+	
 		
 		if(isset($data[0]['smsnoti']) && intval($data[0]['smsnoti'])==1){		
 				
 			$phone_numbers=[[],[]];		
 			$setting = $this->get_setting_Emsfb('setting');	
 			
-			//$numbers = isset($setting['phnNo']) ? explode(',',$setting['phnNo']) :[];
+		
 			$numbers = isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5  ? explode(',',$setting->phnNo) :[];
 			$phone_numbers[0]= $numbers;
 			
@@ -1138,7 +1138,7 @@ class efbFunction {
 					}
 				}
 			}
-			//$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
+		
 			if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,'respp' ,'wpsms' ,$trackingCode);
 		}
 		return 0;
@@ -1174,7 +1174,7 @@ class efbFunction {
 						$valp[$key][$k]=sanitize_text_field($v);
 					break ;
 					case 'href':
-						//sanitize url
+					
 						$valp[$key][$k]= sanitize_url($v);
 					break;
 					case 'rePage':
@@ -1245,7 +1245,7 @@ class efbFunction {
 						}
 					break;
 					case 'conditions':
-						// $valp[$key][$k]=$v;
+					
 						$valp[$key][$k]=sanitize_text_field($v);
 					break;
 					default:
@@ -1262,106 +1262,106 @@ class efbFunction {
 
 
 	public function sanitize_full_html_efb($html) {
-		// General attributes allowed for all tags
+	
 		$global_attributes = array(
-			'class' => true,       // CSS classes
-			'id' => true,          // HTML ID
-			'style' => true,       // Inline style (will be sanitized separately)
-			'title' => true,       // Tooltip or descriptive text
-			'data-*' => true,      // Custom data attributes
-			'aria-*' => true,      // Accessibility attributes
+			'class' => true,      
+			'id' => true,         
+			'style' => true,      
+			'title' => true,      
+			'data-*' => true,     
+			'aria-*' => true,     
 		);
 	
-		// List of allowed CSS properties
+	
 		$allowed_properties = array(
-			// Colors and background properties
+		
 			'color', 'background', 'background-color', 'background-image', 'background-position',
 			'background-repeat', 'background-size', 'background-attachment', 'background-clip', 'background-origin',
-			// Font properties
+		
 			'font', 'font-family', 'font-size', 'font-style', 'font-variant', 'font-weight',
 			'letter-spacing', 'line-height', 'text-align', 'text-decoration', 'text-indent',
 			'text-overflow', 'text-shadow', 'text-transform',
-			// Dimensions and layout properties
+		
 			'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
 			'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
 			'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
-			// Border properties
+		
 			'border', 'border-width', 'border-style', 'border-color', 'border-radius', 'outline',
-			// Box and shadow properties
+		
 			'box-shadow', 'box-sizing',
-			// Positioning and z-index
+		
 			'position', 'top', 'right', 'bottom', 'left', 'z-index', 'float', 'clear',
-			// Flexbox and grid properties
+		
 			'display', 'flex', 'flex-grow', 'flex-shrink', 'flex-basis', 'align-items', 'align-content',
 			'align-self', 'justify-content', 'grid', 'grid-template-rows', 'grid-template-columns',
 			'grid-area', 'row-gap', 'column-gap',
-			// Animation and transition properties
+		
 			'animation', 'animation-name', 'animation-duration', 'animation-timing-function', 'animation-delay',
 			'transition', 'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay',
-			// Miscellaneous
+		
 			'cursor', 'opacity', 'clip-path', 'filter', 'backface-visibility', 'transform',
 			'transform-origin', 'transform-style',
 		);
 	
-		// List of trusted domains for URLs in CSS (e.g., background-image)
+	
 		$current_domain = parse_url(home_url(), PHP_URL_HOST);
 		$allowed_domains = array('google.com', 'gstatic.com', 'googleapis.com', 'googleusercontent.com', 'youtube.com', 'ytimg.com', 'microsoft.com', 'office.com', 'live.com', 'msn.com', 'outlook.com', 'amazonaws.com', 'cloudfront.net', 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com', 'jsdelivr.net', 'unpkg.com', 'facebook.com', 'fbcdn.net', 'twitter.com', 'twimg.com', 'github.com', 'github.io', 'vimeo.com', 'vimeocdn.com', 'wikipedia.org', 'wikimedia.org', 'wikidata.org', 'stripe.com', 'paypal.com', 'braintreepayments.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'use.fontawesome.com', 'dailymotion.com', 'dmcdn.net', 'maps.googleapis.com', 'openstreetmap.org', 'mapbox.com', 'gravatar.com', 'unsplash.com', 'placekitten.com', 'placehold.co', 'akamaihd.net', 'cloudflare.com', 'fastly.net', 'linkedin.com', 'apple.com', 'adobe.com', 'cdn.shopify.com', 'example.com', 'example.org', 'trusted.com', 'cdn.trusted.com');
 
 	
-		// Function to validate URLs in attributes or CSS
+	
 		function validate_url($url) {
 			global $allowed_domains;
 			$parsed_url = parse_url($url);
 	
-			// Check if the domain is in the allowed list
+		
 			if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
 				return esc_url($url);
 			}
 	
-			// Ensure the URL does not contain dangerous schemes like `javascript:` or `data:`
+		
 			if (strpos($url, 'javascript:') === false && strpos($url, 'data:') === false) {
 				return esc_url($url);
 			}
 	
-			return ''; // Invalid URL
+			return '';
 		}
 	
-		// Function to sanitize the `style` attribute
+	
 		function sanitize_style_attribute($style) {
 			global $allowed_properties;
-			$style_rules = explode(';', $style); // Split the style string into individual rules
+			$style_rules = explode(';', $style);
 			$sanitized_rules = array();
 	
 			foreach ($style_rules as $rule) {
 				if (strpos($rule, ':') !== false) {
 					list($property, $value) = explode(':', $rule, 2);
-					$property = trim($property); // Clean up the property name
-					$value = trim($value);       // Clean up the value
+					$property = trim($property);
+					$value = trim($value);      
 	
-					// Check if the property is in the allowed list
+				
 					if (in_array($property, $allowed_properties)) {
-						// If the value contains a URL, validate it
+					
 						if (strpos($value, 'url(') !== false) {
 							preg_match('/url\(["\']?([^"\')]+)["\']?\)/i', $value, $matches);
 							if (isset($matches[1]) && validate_url($matches[1])) {
 								$sanitized_rules[] = $property . ': ' . $value;
 							}
 						} else {
-							// Add the rule if it doesn't involve a URL
+						
 							$sanitized_rules[] = $property . ': ' . $value;
 						}
 					}
 				}
 			}
 	
-			// Reassemble the sanitized style attribute
+		
 			return implode('; ', $sanitized_rules);
 		}
 	
-		// Allowed HTML tags and their attributes
+	
 		$allowed_tags = array(
 			'a' => array_merge($global_attributes, array(
-				'href' => true,  // Hyperlinks must be sanitized
+				'href' => true, 
 				'title' => true,
 				'rel' => true,
 				'target' => true
@@ -1371,7 +1371,7 @@ class efbFunction {
 			'area' => array_merge($global_attributes, array(
 				'alt' => true,
 				'coords' => true,
-				'href' => true,  // Links must be sanitized
+				'href' => true, 
 				'shape' => true,
 				'target' => true,
 			)),
@@ -1381,10 +1381,10 @@ class efbFunction {
 				'loop' => true,
 				'muted' => true,
 				'preload' => true,
-				'src' => true,  // Audio source must be sanitized
+				'src' => true, 
 			)),
 			'b' => $global_attributes,
-			'blockquote' => array_merge($global_attributes, array('cite' => true)), // Validate cite attribute
+			'blockquote' => array_merge($global_attributes, array('cite' => true)),
 			'br' => $global_attributes,
 			'button' => array_merge($global_attributes, array(
 				'disabled' => true,
@@ -1399,7 +1399,7 @@ class efbFunction {
 			'data' => array_merge($global_attributes, array('value' => true)),
 			'div' => $global_attributes,
 			'img' => array_merge($global_attributes, array(
-				'src' => true,    // Image source must be sanitized
+				'src' => true,   
 				'alt' => true,
 				'width' => true,
 				'height' => true,
@@ -1424,16 +1424,16 @@ class efbFunction {
 				'loop' => true,
 				'muted' => true,
 				'preload' => true,
-				'src' => true,  // Video source must be sanitized
+				'src' => true, 
 				'width' => true,
 				'height' => true,
 			)),
 		);
 	
-		// Sanitize the HTML using `wp_kses`
+	
 		$sanitized_html = wp_kses($html, $allowed_tags);
 	
-		// Further sanitize the `style` attribute
+	
 		$sanitized_html = preg_replace_callback(
 			'/style=["\']([^"\']+)["\']/i',
 			function ($matches) {
@@ -1511,10 +1511,10 @@ class efbFunction {
 	   public function addon_add_efb($value){
 				if($value!="AdnOF"){
 
-            // اگر لینک دانلود داشت
+           
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
-			//just get version number
+		
 			$vwp = substr($vwp,0,3);
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
 			if(get_locale()=='fa_IR'){
@@ -1544,14 +1544,14 @@ class efbFunction {
             }
 
 
-            // Check version of EFB to Addons
+           
             if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
 				return false;                
             } 
 
             if($data->download==true){
                 $url =$data->link;
-				//split the url to get the folder name of the addon , bettwen last / and .zip	
+			
 
                 $directory_name = substr($url,strrpos($url ,"/")+1,-4);
 				$directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/'.$directory_name;
@@ -1565,7 +1565,7 @@ class efbFunction {
 	   }//end function
 
 	   public function fun_addon_new($url){
-		//download the addon dependency 
+	
 		$path = preg_replace( '/wp-content(?!.*wp-content).*/', '', __DIR__ );
 		require_once( $path . 'wp-load.php' );
 		require_once (ABSPATH .'wp-admin/includes/admin.php');
@@ -1574,7 +1574,7 @@ class efbFunction {
 		
 		$r =download_url($url);
 		if(is_wp_error($r)){
-			//show error message
+		
 			
 		}else{
 			$directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
@@ -1586,8 +1586,8 @@ class efbFunction {
 				$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
 				if(is_wp_error($s)){
 				
-					error_log('EFB=>unzip addons error 1:');
-					//error_log(json_encode($r));
+					
+				
 					return false;
 				}
 			}else{
@@ -1599,8 +1599,8 @@ class efbFunction {
 				
 					
 					
-					error_log('EFB=>unzip addons error 2:');
-					//error_log(json_encode($r));
+					
+				
 					return false;
 				}
 			} 
@@ -1608,7 +1608,7 @@ class efbFunction {
 		}
 
 
-		//run install php of addons
+	
 		$fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/".$name."/".$name.".php"; 
 				
 		if(file_exists($fl_ex)){         
@@ -1659,7 +1659,7 @@ class efbFunction {
 			if(isset($ac->smtp) && (bool)$ac->smtp ) $this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
 			return false;
 		}
-		//refresh carrent page by php
+	
 	
 			
             return true;
@@ -1745,7 +1745,7 @@ class efbFunction {
 	}
 
     public function efb_code_validate_update($sid ,$status ,$tc ) {
-		// $status => visit , send , upd , del => max len 5
+	
 		$table_name = $this->db->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
 		$active =0;
@@ -1756,7 +1756,7 @@ class efbFunction {
 	   $sql = "UPDATE $table_name SET status='{$status}', active={$active}, read_date='{$read_date}', tc='{$tc}' WHERE sid='{$sid}' AND active=1";
 
 		$stmt = $this->db->query($sql);
-		//$stmt->bindParam(':date_', $$date_limit);
+	
 	  
 	   return $stmt > 0;
     }
@@ -1826,7 +1826,7 @@ class efbFunction {
 
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
 		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
-			error_log('Easy Form Builder: SMS Addon is not installed');
+			
 			return false;
 		}
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
@@ -1903,7 +1903,7 @@ class efbFunction {
 	}
 
 	public function setting_version_efb_update($st ,$pro){
-		//error_log('EFB=>setting_version_efb_update: ' . $pro);     
+	
 		$start_time = microtime(true);
 		if($st=='null'){
 			$st=$this->get_setting_Emsfb();
@@ -1926,14 +1926,14 @@ class efbFunction {
 			$this->download_all_addons_efb();	
 			$end_time = microtime(true);
 			$execution_time = ($end_time - $start_time);
-			//error_log('EFB=>setting_version_efb_update: ' . $execution_time);
+		
 			$request_uri = $_SERVER['REQUEST_URI'];			
 		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') == false ){			
-				//error_log('if execution_time>2');
+			
 				wp_safe_redirect($_SERVER['REQUEST_URI']);
 				exit;
 			}else{
-				//error_log('else execution_time>2');
+			
 				?>
 
 				<script>
@@ -1986,7 +1986,7 @@ class efbFunction {
 			return true;
         } else {
             
-            error_log('recaptcha google URL is not accessible.');
+            
 			return false;
         }
     }

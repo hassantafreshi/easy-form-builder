@@ -31,7 +31,7 @@
      return r;
  }
  function returnValueSelectedOfIconEfb(dataSetId){
-     //select icon
+    
      const l = document.querySelector(`[data-idset="${dataSetId}"].efb.efblist.inplist`)
      
      let r = l.dataset.select
@@ -63,7 +63,7 @@
  
   document.addEventListener("click", (evnt) => {
 
-    //console.log(evnt.target);
+   
       const d=evnt.target.dataset.id;      
       IsmenuC=(el)=>{
        let id =evnt.target.dataset.id
@@ -76,7 +76,7 @@
          
           id= el!=null && el["id"]!=undefined ? el.id :'no' ;
         }
-        // }else{id="wpbody-content"}
+       
         if(el==null || el["id"]==undefined ) id="no";
         return id;
       }      
@@ -84,7 +84,7 @@
       && evnt.target.id!="efbSetting" &&  evnt.target.id!="BtnCSideEfb" && !evnt.target.classList.contains('BtnSideEfb') && !evnt.target.classList.contains('wp-toolbar')){                 
       
         let id=IsmenuC(evnt.target);
-        //console.log(id , d)
+       
         if(id=="wpbody-content") sideMenuEfb(0)
       }
       
@@ -105,7 +105,7 @@
          
       }else if (evnt.target.tagName=="TD" ||evnt.target.tagName=="TH"  ){
           
-          //console.log(idOfMenu_efb)
+         
        const e =evnt.target.parentNode 
          if(e.classList.contains('efblist')){
             default_val_efb =efb_var.text.selectOption;
@@ -127,7 +127,7 @@
                      }
                      l.dataset.select=e.dataset.row;
                      l.innerHTML=e.dataset.name;
-                     //console.log(l.dataset)
+                    
                      if (l.dataset.icon==1) fc.className="bi-check-square text-info efb";
                      e.className += " border-info";
                  }
@@ -137,8 +137,8 @@
 
                  const r= e.dataset.row;
                  let fc = e.querySelector("TH")
-                 //console.log(r, l.dataSetId)
-                 //778899
+                
+                
                  if(l.dataset.select.includes(r)){
                     
                      l.dataset.select= l.dataset.select.replace(`${r} @efb!`, '');
@@ -185,7 +185,7 @@
                          let ids="";
                          for (let el of el_o){
                              const i= valueJson_ws.findIndex(x=>x.id_ == `${el}`);
-                             //console.log(el,valueJson_ws[i])
+                            
                            if(i!=-1){
                             price += parseFloat(valueJson_ws[i].price);
                             ids +=`${valueJson_ws[i].id_},`;
@@ -205,7 +205,7 @@
                           sendBack_emsFormBuilder_pub.push(o[0]) 
                           
                      }else{ 
-                        //console.log(`[${v.trim()}] , [${ajax_object_efm.text.selectOption.trim()}]` , v.trim()!=efb_var.text.selectOption.trim())
+                       
                         if(v.trim()!=efb_var.text.selectOption.trim()){
                             
                             sendBack_emsFormBuilder_pub[indx].value=v;
@@ -215,7 +215,7 @@
                                };
                         }else{
                             sendBack_emsFormBuilder_pub.splice(indx,1)
-                            //console.log(sendBack_emsFormBuilder_pub , 'Select an Option')
+                           
                         }
                      }
 
@@ -230,7 +230,7 @@
                          if (l.classList.contains('border-danger')) l.classList.remove('border-danger')
                     }else{
                         if (l.classList.contains('border-danger')){
-                            //console.error('add border');
+                           
                         }
                        
                      }
@@ -247,16 +247,16 @@
   });
  
   const c_m_efb=()=>{
-     //hide the list select
+    
         let m = document.querySelector(`[data-list="${idOfMenu_efb}"]`);        
         if(m) m.classList.add("d-none");
         idOfMenu_efb="";
        }
    const a_m_efb=()=>{
-       //Show the list select
+      
        let m = document.querySelector(`[data-list="${idOfMenu_efb}"]`);
        const n =idOfMenu_efb.indexOf('menu-')!=-1 ? idOfMenu_efb.slice(5):idOfMenu_efb;
-       //console.log(idOfMenu_efb ,n ,idOfMenu_efb.indexOf('menu-') );
+      
        let el  = n!=idOfMenu_efb ? document.getElementById(n+"_options") :m;
        let width = el.offsetWidth;
        if(width==0){
@@ -271,29 +271,29 @@
         
         let di = '';
         const idset=el.dataset.idset.includes("step-")?el.dataset.idset.slice(5) : el.dataset.idset;
-        //console.log(el.dataset.idset.includes("step-"), el.dataset,idset)
+       
         const indx = idset!="button_group_" ? valj_efb.findIndex(x=>x.id_ ==idset) : 0
         let icon=""
-        //console.log(idset,indx)
+       
         
         if (el.dataset.side == "undefined" || el.dataset.side == "") {
         di = indx!=0 ? `${valj_efb[indx].id_}_icon`:'button_group_icon'
         const k  = isNumericEfb(idset)  ? 'step-'+idset : idset
         icon= valj_efb[indx].icon = returnValueSelectedOfIconEfb(k);
         }else if(el.dataset.side == "DoneIconEfb"){
-            //di =el.dataset.side ;
+           
             
             icon= valj_efb[0].thank_you_message.icon = returnValueSelectedOfIconEfb(idset);
 
         } else {
         const i = returnValueSelectedOfIconEfb(idset);
         icon=i
-        //console.log(`i====================>${i} ${el.dataset.side}` ,`=========================>${el.dataset.side.includes("Next")}`);
+       
         di = el.dataset.side.includes("Next") ? `button_group_Next_icon` : `button_group_Previous_icon`
         el.dataset.side.includes("Next") ? valj_efb[0].button_Next_icon = i : valj_efb[0].button_Previous_icon = i
         }
         
-        //Bug replace find bi-XXXXX in class
+       
         if(di!=''){
             const r =iconChangerEfb(document.getElementById(`${di}`).className,icon)
             document.getElementById(di).className =r           

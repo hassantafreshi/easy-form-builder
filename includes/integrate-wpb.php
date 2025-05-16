@@ -32,15 +32,15 @@ function ems_Form_Builders_visual_composer_shortcode() {
 
 function ems_Form_Builders_visual_composer_shortcode_css() {
   wp_enqueue_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', array(), '3.8.8');
-  // Load CSS per global setting or any additional styles if required.
+ 
 }
 add_action( 'vc_load_iframe_jscss', 'ems_Form_Builders_visual_composer_shortcode_css' );
 
 function get_available_forms() {
-  // Your logic to retrieve the available forms
-  // You can fetch form names and IDs from your database or any other source
+ 
+ 
   
-  // For example, assuming you have an array of forms with IDs and names
+ 
   $forms = array(
     array('id' => 1, 'name' => 'Form 1'),
     array('id' => 2, 'name' => 'Form 2'),
@@ -65,11 +65,11 @@ function render_ems_Form_Builder($atts) {
     $atts
   );
 
-  // Get the selected form ID from the shortcode attributes
+ 
   $form_id = $atts['id'];
 
-  // Render the form using your preferred method or shortcode handler
-  $form_output = ''; // Add your form rendering logic here
+ 
+  $form_output = '';
 
   return $form_output;
 }

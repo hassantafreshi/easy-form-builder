@@ -4,7 +4,7 @@ namespace Emsfb;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} // No direct access allow ;)
+}
 
 class Addon {
 
@@ -113,7 +113,7 @@ class Addon {
 		if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){			
 			$efbFunction->setting_version_efb_update($ac ,$pro);
 		}
-		//v2 translate
+	
 		
 		$lang = $efbFunction->text_efb(2);
 		
@@ -254,8 +254,8 @@ class Addon {
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
-	//	
-		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
+
+	
 		$email = '';
 
 		if( empty($_POST['name']) || empty($_POST['value']) ){

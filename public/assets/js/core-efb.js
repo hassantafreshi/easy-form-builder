@@ -68,13 +68,13 @@ function fun_efb_run(){
   (function () {
     jQuery(function () {
       if (typeof ajax_object_efm == 'undefined') return;
-      //check if the form is private so no need to run the code 
+     
       if(ajax_object_efm.ajax_value=="")return;
       if(document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null) check_body_efb_timer();
-     // ajax_object_efm = deepFreeze_efb(ajax_object_efm);
+    
       efb_var = ajax_object_efm; 
-      //  efb_var = deepFreeze_efb(ajax_object_efm);   
-       // efb_var = ajax_object_efm;
+     
+      
       poster_emsFormBuilder = ajax_object_efm.poster;
       poster_emsFormBuilder = deepFreeze_efb(poster_emsFormBuilder);
       ajax_object_efm.text = deepFreeze_efb(ajax_object_efm.text);
@@ -94,7 +94,7 @@ function fun_efb_run(){
             if (Number(ajax_value[0].captcha )== 1) {           
               if(vs.siteKey.length<3){
                 const vd =  alarm_emsFormBuilder(ajax_object_efm.text.formIsNotShown);
-                // console.log(vd);
+               
                 document.getElementById('body_efb').innerHTML =vd;
                 return;
               }
@@ -356,7 +356,7 @@ function valid_email_emsFormBuilder(el) {
   let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${efb_var.text.enterTheEmail}','',10,'danger');"></div>` : efb_var.text.enterTheEmail;
   let check = 0;
-  //const format = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+ 
   const format =/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   check += el.value.match(format) ? 0 : 1;
   if (check > 0) {
@@ -571,7 +571,7 @@ function emsFormBuilder_show_content_message(value, content) {
   let m = fun_emsFormBuilder_show_messages(val, '#first' ,'', track, date);
   for (let c of content) {
     const val = JSON.parse(c.content.replace(/[\\]/g, ''));
-    // console.log(c);
+   
     m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by,'', track, c.date)}</div></div>`
   }
   let replayM = `<div class="efb mt-2"><div class="efb form-group mb-3" id="replay_section__emsFormBuilder">
@@ -653,7 +653,7 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     sc:efb_var.sc,
     track: track
   };
-  // console.log(data);
+ 
   post_api_r_message_efb(data,message);
 }
 function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, track, date) {
@@ -692,7 +692,7 @@ function validation_before_send_emsFormBuilder() {
   for (const row of sendBack_emsFormBuilder_pub) {
     count_ += 1;
     if(row==null || typeof(row)!='object' || row.hasOwnProperty('value')==false ) {
-      //slice by count_ on sendBack_emsFormBuilder_pub
+     
       count_ -= 1;
       sendBack_emsFormBuilder_pub.splice(count_,1);
       continue;
@@ -925,17 +925,17 @@ window.addEventListener("popstate",e=>{
     Number(e.state.slice(8)) <= Number(current_s_efb)  ? prev_btn_efb() :jQuery("#next_efb").trigger('click');
  })
  fun_gets_url_efb =()=>{
-   //if(efb_var.pro!=true && efb_var.pro!="true"){console.error(`${efb_var.text.fieldAvailableInProversion}`);return;}
-   //iefb --> id 
-   //hefb --> hidden of element f==show / null or t === hidden
-   //sefb --> selected  t = selected / f=unselected / null == selected
-   //defb --> disabled  t = disabled / f=enabled / null == don't change pro
+  
+  
+  
+  
+  
   const getUrlparams = new URLSearchParams(location.search)
-  const iefb =  getUrlparams.getAll("iefb");  //id field
-  const hefb =  getUrlparams.getAll("hefb"); //hidden field
-  const sefb =  getUrlparams.getAll("sefb"); //selected field
-  const defb =  getUrlparams.getAll("defb"); //disabled field
-  const vefb =  getUrlparams.getAll("vefb"); //value for field
+  const iefb =  getUrlparams.getAll("iefb"); 
+  const hefb =  getUrlparams.getAll("hefb");
+  const sefb =  getUrlparams.getAll("sefb");
+  const defb =  getUrlparams.getAll("defb");
+  const vefb =  getUrlparams.getAll("vefb");
   if(iefb.length>0){
     for(let i in iefb){
       const id =iefb[i];
@@ -968,9 +968,9 @@ window.addEventListener("popstate",e=>{
         }
       }
       if(defb.length>0 && defb.length>i){    
-       //1= disabled
-       //2= enabled
-       //n= don't change pro
+      
+      
+      
        i_p=  i_p!=-1 ? i_p : i_
        if(defb[i]==1){
         valj_efb[i_p].disabled=1          
@@ -979,7 +979,7 @@ window.addEventListener("popstate",e=>{
        }
       }
       if(hefb.length>0 && hefb.length>i){
-        //hidden =1
+       
         i_p=  i_p!=-1 ? i_p : i_
         if(hefb[i]==1){
           valj_efb[i_p].hidden=1            
@@ -989,8 +989,8 @@ window.addEventListener("popstate",e=>{
       }
       if(vefb.length>0 && vefb.length>i && i_p==-1){
         valj_efb[i].value = vefb[i];
-        //vefb =1
-        //vefb == string  added to value
+       
+       
       }
     }
   }
@@ -1092,7 +1092,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
   });
 }
 post_api_r_message_efb=(data,message)=>{
-  // console.log(data);
+ 
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/add';
   const headers = new Headers({
     'Content-Type': 'application/json',
@@ -1126,9 +1126,9 @@ sendback_state_handler_efb=(id_,state,step)=>{
     if(document.getElementById('btn_send_efb') && document.getElementById('btn_send_efb').classList.contains('disabled')==false )document.getElementById('btn_send_efb').classList.add('disabled');
     else if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('disabled')==false )document.getElementById('next_efb').classList.add('disabled');
   }else if(indx>-1 && state==true && sendback_efb_state.length>0){
-    //remove for  sendback_efb_state by id_
+   
     sendback_efb_state.splice(indx,1);
-    //get sendback_efb_state by step if exists return true else return false
+   
     setTimeout(() => {
       const indx_ = sendback_efb_state.findIndex(x=>x.step==step);
       if(indx_==-1 || sendback_efb_state.length==0){

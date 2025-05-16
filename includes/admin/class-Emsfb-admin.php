@@ -18,10 +18,10 @@ class Admin {
     protected $db;
     public $efbFunction;
 
-    //private $wpdb;
+   
     public function __construct() {
         
-        // add_filter('nonce_life', [$this,'extend_nonce_life_efb']);
+       
         $this->init_hooks();
         global $wpdb;
         $this->db = $wpdb;
@@ -32,53 +32,53 @@ class Admin {
      * Initial plugin
      */
     private function init_hooks() {
-        // Check exists require function
+       
         if (!function_exists('wp_get_current_user')) {
             include(ABSPATH . "wp-includes/pluggable.php");
            
         }
        
-       // apply_filters( 'the_content', [$this,'check_shortCode'] );
-        // Add plugin caps to admin role
+      
+       
         if (is_admin() and is_super_admin()) {
             $this->add_cap();
         }
 
-        // Actions.
+       
         add_action('admin_enqueue_scripts', [$this, 'admin_assets']);
         add_action('admin_menu', [$this, 'admin_menu']);
  
         $this->ip = $this->get_ip_address();
 
-        //$current_user->display_name
+       
         if (is_admin()) {
                    
 
            
-            //$this->get_not_read_message();
-            add_action('wp_ajax_remove_id_Emsfb', [$this, 'delete_form_id_public']);                 //Remove a form by id
-            add_action('wp_ajax_remove_message_id_Emsfb', [$this, 'delete_message_id_public']);      //Remove a message by id
-            add_action('wp_ajax_get_form_id_Emsfb', [$this, 'get_form_id_Emsfb']);                   //Get a form by id
-            add_action('wp_ajax_get_messages_id_Emsfb', [$this, 'get_messages_id_Emsfb']);           //Get a message by id
-            add_action('wp_ajax_get_all_response_id_Emsfb', [$this, 'get_all_response_id_Emsfb']);   //Get all response by id
-            add_action('wp_ajax_update_form_Emsfb', [$this, 'update_form_id_Emsfb']);                //Update a form by id
-            add_action('wp_ajax_update_message_state_Emsfb', [$this, 'update_message_state_Emsfb']); //Update a message status by id
-            add_action('wp_ajax_set_replyMessage_id_Emsfb', [$this, 'set_replyMessage_id_Emsfb']);   //Set reply message by id from admin
-            add_action('wp_ajax_set_setting_Emsfb', [$this, 'set_setting_Emsfb']);                   //Set setting
-            add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);               //Get track id
-            add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                 //Clear files is not used
-            add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);       //Check email server    
-            add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);                     //Add new addons
-            add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);               //Remove a addon
+           
+            add_action('wp_ajax_remove_id_Emsfb', [$this, 'delete_form_id_public']);                
+            add_action('wp_ajax_remove_message_id_Emsfb', [$this, 'delete_message_id_public']);     
+            add_action('wp_ajax_get_form_id_Emsfb', [$this, 'get_form_id_Emsfb']);                  
+            add_action('wp_ajax_get_messages_id_Emsfb', [$this, 'get_messages_id_Emsfb']);          
+            add_action('wp_ajax_get_all_response_id_Emsfb', [$this, 'get_all_response_id_Emsfb']);  
+            add_action('wp_ajax_update_form_Emsfb', [$this, 'update_form_id_Emsfb']);               
+            add_action('wp_ajax_update_message_state_Emsfb', [$this, 'update_message_state_Emsfb']);
+            add_action('wp_ajax_set_replyMessage_id_Emsfb', [$this, 'set_replyMessage_id_Emsfb']);  
+            add_action('wp_ajax_set_setting_Emsfb', [$this, 'set_setting_Emsfb']);                  
+            add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);              
+            add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                
+            add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);      
+            add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);                    
+            add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);              
             add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public')); 
             
-            add_action('wp_ajax_send_sms_pnl_efb', [$this, 'send_sms_admin_Emsfb']);                 //Send sms from admin panel                
-            add_action('wp_ajax_dup_efb', [$this, 'fun_duplicate_Emsfb']);                           //Duplicate a form
+            add_action('wp_ajax_send_sms_pnl_efb', [$this, 'send_sms_admin_Emsfb']);                
+            add_action('wp_ajax_dup_efb', [$this, 'fun_duplicate_Emsfb']);                          
             
-            add_action('efb_loading_card', [$this, 'loading_card_efb']);                             //Loading card
+            add_action('efb_loading_card', [$this, 'loading_card_efb']);                            
             
-            add_action('wp_ajax_remove_messages_Emsfb', [$this, 'delete_messages_Emsfb']);      //Remove messages by object
-            add_action('wp_ajax_read_list_Emsfb', [$this, 'read_list_Emsfb']);      //Remove messages by object
+            add_action('wp_ajax_remove_messages_Emsfb', [$this, 'delete_messages_Emsfb']);     
+            add_action('wp_ajax_read_list_Emsfb', [$this, 'read_list_Emsfb']);     
 
 
             add_action('wp_ajax_heartbeat_Emsfb' , [$this, 'heartbeat_Emsfb'] );
@@ -91,7 +91,7 @@ class Admin {
     }
 
     public function add_cap() {
-        // Get administrator role
+       
         $role = get_role('administrator');
 
         $role->add_cap('Emsfb');
@@ -106,7 +106,7 @@ class Admin {
     }
 
     /* function extend_nonce_life_efb($seconds) {        
-        return 60 * 60 * 24; //  1 day
+        return 60 * 60 * 24;
     } */
     public function admin_assets($hook) {
         global $current_screen;       
@@ -114,14 +114,14 @@ class Admin {
         
 
 
-        // if page is edit_forms_Emsfb
+       
         if (strpos($hook, 'Emsfb')==true && is_admin()) {
 
             if (is_rtl()) {
-                //code_v1 start
+               
                 wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true,'3.8.8' );
                 wp_enqueue_style('Emsfb-css-rtl');
-                //code_v1 end
+               
             }
 
             wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css',true,'3.8.8');
@@ -281,10 +281,10 @@ class Admin {
         $valp =str_replace('\\', '', $_POST['value']);
 		$valp = json_decode($valp,true);
 		
-        //,`form_name` =>
+       
 
         
-		//check if smsnoti axist then call add_sms_contact_efb
+	
 		$sms_msg_new_noti="";
 		$sms_msg_responsed_noti="";
 		$sms_msg_recived_user="";
@@ -318,7 +318,7 @@ class Admin {
         
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
         $value_ =str_replace('"', '\"', $value);
-        //$value      = ($_POST['value']); 
+       
         $name       = sanitize_text_field($_POST['name']);
         $table_name = $this->db->prefix . "emsfb_form";
 
@@ -326,8 +326,8 @@ class Admin {
         $value_="";
         $value="";
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
-			//$efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
-			//require smsefb.php and call add_sms_contact_efb
+		
+		
             if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {	
                $m = str_replace('NN', '<b>' . $lang['sms_noti'] . '</b>', $lang['msg_adons']);
                 $response = ['success' => false, 'm' => $m];
@@ -406,7 +406,7 @@ class Admin {
         }
        if($value!="AdnOF"){
 
-            // اگر لینک دانلود داشت
+           
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
             $vwp = substr($vwp,0,3);
@@ -444,7 +444,7 @@ class Admin {
                
             }
 
-            // Check version of EFB to Addons
+           
             if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
                 $m = $lang["upDMsg"];
                 $response = ['success' => false, "m" => $m];
@@ -454,7 +454,7 @@ class Admin {
 
             if($data->download==true ){
                 $url =$data->link;
-                //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
+               
                $s= $this->fun_addon_new($url);
                if($s==false ){
                 $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
@@ -484,7 +484,7 @@ class Admin {
         */
         if(isset($ac->AdnSPF)==false){
 
-            //$ac['AdnSPF=0;
+           
             $ac->AdnSPF=0;
             $ac->AdnOF=0;
             $ac->AdnPPF=0;
@@ -503,7 +503,7 @@ class Admin {
             $ac->AdnBEF=0;
         }
         $ac->{$value}=1;
-        //add efb_version to ac
+       
         $ac->efb_version=EMSFB_PLUGIN_VERSION;
         
         $table_name = $this->db->prefix . "emsfb_setting";
@@ -575,7 +575,7 @@ class Admin {
         */
         if(isset($ac->AdnSPF)==false){
 
-            //$ac['AdnSPF=0;
+           
             $ac->AdnSPF=0;
             $ac->AdnOF=0;
             $ac->AdnPPF=0;
@@ -663,14 +663,14 @@ class Admin {
         $table_name = $this->db->prefix . "emsfb_form";
         $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
          
-        //check if smsnoti axist then call get_sms_contact_efb from smsefb.php
-        //check $value with regix "smsnoti":"1" is exists
+       
+       
         
         $smsnoti = strpos($value,'\"smsnoti\":\"1\"') !==false ? 1 : 0;
         
         if($smsnoti){
-            //require smsefb.php and call get_sms_contact_efb
-            //check smsefb.php is exists
+           
+           
             if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")){
                 require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
                 $smsefb = new smssendefb();
@@ -688,7 +688,7 @@ class Admin {
         wp_send_json_success($response, $_POST);
 
     }
-    //stripe
+   
    
 
     public function get_messages_id_Emsfb() {
@@ -786,7 +786,7 @@ class Admin {
         $id = preg_replace('/[,]+/','',$id);
         $m  = sanitize_text_field($_POST['message']);
 
-        //echo $table_name;
+       
         $m = str_replace("\\","",$m);	        
         $message =json_decode($m);
 				$valobj=[];
@@ -799,8 +799,8 @@ class Admin {
 						switch ($f->type) {											
 							case 'allformat':	
 								$d = $_SERVER['HTTP_HOST'];
-								//$p = strpos($item['url'],'http://'.$d);
-								//don't change value stated because always file is sending 
+							
+							
 								$stated=1;
 								if(isset($f->url) && strlen($f->url)>5 ){
 									$stated=0;
@@ -827,7 +827,7 @@ class Admin {
 									$stated=1;
 									$f->value = sanitize_text_field($f->value);
 								}
-								//$item['value'] =  'test';
+							
 								$in_loop=false;
 							break;
 						}
@@ -853,8 +853,8 @@ class Admin {
         }
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $ip = $this->ip;
-        // 1 read
-        // 0 Nread
+       
+       
         $this->db->insert(
             $table_name,
             [
@@ -872,7 +872,7 @@ class Admin {
         $this->db->update($table_name,array('read_'=>1), array('msg_id' => $id) );
         $m        = $lang["messageSent"];
         $response = ['success' => true, "m" => $m];
-        //"rescl", "resop",
+       
         $pro =isset( $ac->activeCode) ? $ac->activeCode : null;
 
         $this->efbFunction->response_to_user_by_msd_id($id ,$pro);
@@ -908,9 +908,9 @@ class Admin {
         }
         
         $m= str_replace('\\', '', $_POST['message']);
-        //$m= $_POST['message'];
+       
         $m = json_decode($m,true);
-     //  $setting    = sanitize_text_field($_POST['message']);
+    
         $setting    = $_POST['message'];
         $table_name = $this->db->prefix . "emsfb_setting";
         $email="";
@@ -937,7 +937,7 @@ class Admin {
                     die();
                 }
                 else {
-                    // یک رکوست سمت سرور ارسال شود که بررسی کند کد وجود دارد یا نه
+                   
                 }
               
             }
@@ -994,7 +994,7 @@ class Admin {
     }
 
     public function get_ajax_track_admin() {
-        //اطلاعات ردیف ترک را بر می گرداند
+       
         $efbFunction = $this->get_efbFunction(1);
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["cCodeNFound","error403"];
@@ -1028,7 +1028,7 @@ class Admin {
     }//end function
 
     public function clear_garbeg_admin() {
-        //پاک کردن فایل های اضافی
+       
         $efbFunction = $this->get_efbFunction(1);
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["fileDeleted","error403"];
@@ -1066,14 +1066,14 @@ class Admin {
         
         $upload_dir = wp_upload_dir();
         
-        //$arrayFiles=[] ;
+       
         $files    = list_files($upload_dir['basedir']);
         $urlDBStr = json_encode($urlsDB);
         foreach ($files as &$file) {
             if (strpos($file, 'emsfb-PLG-') != false) {
                 $namfile = strrchr($file, '/');
                 if (strpos($urlDBStr, $namfile) == false) {
-                    //array_push($arrayFiles,$file);
+                   
                     wp_delete_file($file);
                 }
 
@@ -1088,7 +1088,7 @@ class Admin {
 
 
     public function check_email_server_admin() {
-        //پاک کردن فایل های اضافی
+       
         $efbFunction = $this->get_efbFunction(1);
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error403","emailServer"];
@@ -1150,7 +1150,7 @@ class Admin {
     }
 
     public function get_ip_address() {
-        //source https://www.wpbeginner.com/wp-tutorials/how-to-display-a-users-ip-address-in-wordpress/
+       
         $ip='1.1.1.1';
 		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -1185,7 +1185,7 @@ class Admin {
 
             $r =download_url($url);
             if(is_wp_error($r)){
-                //show error message
+               
             }else{
                 $directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
                 if (!file_exists($directory)) {
@@ -1201,7 +1201,7 @@ class Admin {
                     $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
                     if(is_wp_error($r)){
                         error_log('error unzip');
-                        //error_log(json_encode($r));
+                       
                         return false;
                     }
                     return true; 
@@ -1209,7 +1209,7 @@ class Admin {
             }
 
 
-            //run install php of addons
+           
             $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/".$name."/".$name.".php"; 
                     
             if(file_exists($fl_ex)){         
@@ -1238,7 +1238,7 @@ class Admin {
             if($vl!=null){              
                 if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') || strpos($vl , '"type":"dadfile"') || strpos($vl , '"type":"file"')){
                     $vl ='efb'.$id;
-                    //'efb'.$this->id
+                   
                 }
                
             }
@@ -1268,9 +1268,9 @@ class Admin {
 
       
 		$_FILES['file']['name'] = sanitize_file_name($_FILES['file']['name']);
-        //error_log($_FILES['file']['name']);
+       
 		if (in_array($_FILES['file']['type'], $arr_ext)) { 
-			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
+		
 						
 			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
 			
@@ -1290,22 +1290,22 @@ class Admin {
 	}//end function
 
     public function custom_ui_plugins(){
-           //// Check if wpbakery available
+          
            if( is_plugin_active('js_composer/js_composer.php')){          
-                //first check wp bakery addons installed or not
-                // if wp bakery is not installed
-                // first install after that call wp bakery function            
+               
+               
+               
                  
                  if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery")){                    
                      
                  }
                  
-                 //require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery/wpb_extend.php");
-                 //require_once(EMSFB_PLUGIN_DIRECTORY."/includes/integrate-wpb.php");
+                
+                
                  
              }
              require_once(EMSFB_PLUGIN_DIRECTORY."/includes/integrate-wpb.php");
-             // Check if Gutenberg editor is available
+            
              if (function_exists('register_block_type')) {
                  
                  if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/gutenberg")){                    
@@ -1366,7 +1366,7 @@ class Admin {
                             
             ));    
             $this->id_  = $this->db->insert_id; 
-            //get inserted value    
+           
             $response = ['success' => true, "m" =>$lang["copy"] , 'form_id'=>$this->id_ , 'form_name'=>$form_name , 
             'date'=>$date , 'form_type'=>$val->form_type];
             wp_send_json_success($response, 200);
@@ -1422,7 +1422,7 @@ class Admin {
             if($msg_ids !=''){
                 $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
                 $r = $this->db->query($sql);
-                //delete  all responses from table emsfb_rsp_ where msg_id in ($msg_ids)
+               
                 if($r>0){
                     $table_name = $this->db->prefix . "emsfb_rsp_";
                     $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
@@ -1435,7 +1435,7 @@ class Admin {
         }
     }
     public function read_list_Emsfb(){
-        // error_log('read_list_Emsfb');
+       
         $efbFunction = $this->get_efbFunction(1);
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error403","somethingWentWrongPleaseRefresh","done"];
@@ -1452,7 +1452,7 @@ class Admin {
         }
         $state = sanitize_text_field($_POST['state']) ;
         $val =  sanitize_text_field($_POST['val']) ;
-        //error_log($val);
+       
         $val_  = str_replace('\\\\', '', $val);
         $val_  = str_replace('\\', '', $val);
         $val = json_decode($val_ ,true);
@@ -1469,18 +1469,18 @@ class Admin {
             $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
             $user_id = get_current_user_id();
             if($msg_ids !='' ){
-                //$sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+               
                 $sql = "UPDATE $table_name SET read_ = 1 WHERE msg_id IN ($msg_ids)";
 
                 $r = $this->db->query($sql);
-                //error_log($r);
-                //delete  all responses from table emsfb_rsp_ where msg_id in ($msg_ids)
+               
+               
                 if($r>0){
                     $table_name = $this->db->prefix . "emsfb_rsp_";
-                    //$sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+                   
                     $sql = "UPDATE $table_name SET read_ = 1 WHERE msg_id IN ($msg_ids)";
                     $r = $this->db->query($sql);       
-                    //error_log('resp'.$r);
+                   
                 }
               
                 $response = ['success' => true, "m" =>$lang["done"]];
@@ -1521,7 +1521,7 @@ class Admin {
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
         }
-       error_log('report_problem_Emsfb');
+       
         $state = sanitize_text_field($_POST['state']) ;
         $value = sanitize_text_field($_POST['value']) ;
         $this->get_efbFunction(0);
@@ -1543,7 +1543,7 @@ class Admin {
 	}
 
         function admin_notices_efb () {
-            error_log('admin_notices_efb');
+            
            
             function result_ok () {
                    $check['status'] = 'ok';
@@ -1554,25 +1554,25 @@ class Admin {
             }
 
             $check = get_option('emsfb_email_status', false);
-            error_log('check email: ' . json_encode($check));
+            
             if (!$check || !is_array($check) || $check['status'] === 'ok') return;
-            ///  includes\admin\assets\image\logo.png
+           
             $settings = get_option('emsfb_settings', false);
-            error_log('settings: ' . json_encode($settings));
+            
 
          
             if ($settings!=false){
-                error_log('settings value check admin notices');
+                
                 $s =str_replace('\\', '', $settings);
                 $settings = json_decode($s);
-                //$setting->smtpe value coulde be "1" or "true" or true or 1 for true statment
-                error_log($settings->smtp);
+               
+                
                 if (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true)) {
-                    error_log('update option emsfb_email_status');
+                    
                   /*  $check['status'] = 'ok';
                    $check['message']['title'] = 'configured';
                    $check['message']['description'] = 'user configured email settings'; */
-                   // update_option('emsfb_email_status', $check);
+                  
                    update_option('emsfb_email_status', result_ok());
                    return;                
                 }
@@ -1581,11 +1581,11 @@ class Admin {
                 $settings= $efbFunction->get_setting_Emsfb();
                 if($settings!=false){                
                     if (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true)) {
-                        error_log('update option emsfb_email_status');
+                        
                       /*  $check['status'] = 'ok';
                        $check['message']['title'] = 'configured';
                        $check['message']['description'] = 'user configured email settings'; */
-                       // update_option('emsfb_email_status', $check);
+                      
                        update_option('emsfb_email_status', result_ok());
                        return;                
                     }

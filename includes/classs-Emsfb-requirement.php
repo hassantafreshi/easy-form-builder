@@ -8,7 +8,7 @@ class CheckRequirementEmsfb {
     
 
     public static function run_and_save_efb() {
-        error_log('Running email capability check...');
+        
         $result = self::check_email_capability_efb();
         update_option(self::OPTION_KEY, $result, false);
     }
@@ -18,7 +18,7 @@ class CheckRequirementEmsfb {
     }
 
     public static function check_email_capability_efb() {
-        error_log('Checking email capability...');
+        
         $results = [
             'status' => 'ok',
             'message' => [
@@ -28,7 +28,7 @@ class CheckRequirementEmsfb {
             ],
             'details' => [],
         ];
-        //Disabling this feature may affect the proper functionality of Easy Form Builder. If you plan to use the %s feature, please ensure it is enabled.
+       
         $email_notifi = sprintf(
             esc_html__('%s notification', 'easy-form-builder'),
             esc_html__('Email', 'easy-form-builder')
@@ -124,7 +124,7 @@ class CheckRequirementEmsfb {
         }
 
        
-        error_log('Test email sent successfully: ' . json_encode($results));
+        
         return $results;
     }
 }

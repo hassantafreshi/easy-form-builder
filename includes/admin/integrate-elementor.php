@@ -3,7 +3,7 @@
 use Elementor\Widget_Base;
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly.
+    exit;
 }
 
 class Emsfb_Form_Widget extends Widget_Base {
@@ -43,9 +43,9 @@ class Emsfb_Form_Widget extends Widget_Base {
     }
 
     private function get_forms() {
-        // Fetch the forms from the database and return them as an associative array
-        // where the keys are the form IDs and the values are the form names.
-        // This is a placeholder and should be replaced with actual code.
+       
+       
+       
         return [];
     }
 }

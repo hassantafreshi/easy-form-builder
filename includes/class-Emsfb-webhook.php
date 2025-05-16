@@ -8,7 +8,7 @@ use WP_REST_Response;
  * @package Emsfb
  */
 
- //require_once('functions.php');
+
 class webhook {
 
 

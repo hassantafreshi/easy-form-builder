@@ -173,7 +173,7 @@ cityList_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
             }
           }
           optn += `<option value="${value}" data-iso="${i.id_}" id="${i.id_}" data-id="${i.id_}"  data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${value}</option>`
-          //if(temp!=true) optionElpush_efb(rndm, i.value, i.id_, i.id_ ,'select')
+         
         }//end for 
       } else {
           state_local=optns_obj;
@@ -253,7 +253,7 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
    <input type="file" hidden="" accept="${filetype_efb[valj_efb[indx].value]}" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb  emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''} ${disabled}>`
   }
 function viewfileEfb(id, indx ,filed) {
-  //find last dost and slice from that in a string varible
+ 
     if(filed==undefined) {
       document.getElementById(`${valj_efb[indx].id_}_-message`).classList.remove('show')
       return;}
@@ -695,7 +695,7 @@ function terms_el_pro_efb(previewSate, rndm,iVJ){
   </div>`;
 }
 fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
-  //const country = country_el.value;
+ 
  let indx_state =-1;
   for (let i = indx+1; i < valj_efb.length; i++) {
     if(valj_efb[i].type=='option'){
@@ -707,11 +707,11 @@ fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
     }
   }
   if(indx_state==-1)return;
-  //let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
-  //+ condition logic: check if the statement for this element is hide then write the code to return from this function
+ 
+ 
   Object.assign(valj_efb[indx_state], {country:iso2_country,statePov:iso2_statePove});
-  //replace options of state_el with `<option value="">${efb_var.text.loading}</option>`
-  //delete all rows from valj_efb if parent == valj_efb[indx_state].id_
+ 
+ 
   for(let i =indx_state; i < valj_efb.length; i++){    
     if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
       valj_efb.splice(i,1);
@@ -800,7 +800,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
     }
   }
   let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
-   //+ condition logic: check if the statement for this element is hide then write the code to return from this function
+  
   valj_efb[indx_state].country=iso2_country;
   for(let i =0; i < valj_efb.length; i++){    
     if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
@@ -808,7 +808,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
       i--;
     }
   }
-    //console.log('get_states_efb')
+   
     callFetchStatesPovEfb(valj_efb[indx_state].id_+'_options', iso2_country, indx_state,'pubSelect');
 }
 async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType ) {  
@@ -874,8 +874,8 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
  const f= document.getElementById(idField)
  if(f!=null && f.dataset.hasOwnProperty("vid")){
   const id = f.dataset.vid;
-  //remove from sendBack_emsFormBuilder_pub if id_ == id
-  //check sendBack_emsFormBuilder_pub exist
+ 
+ 
   fun_remove_row_sendback_efb(id)
   
  }
@@ -923,7 +923,7 @@ function efbCreateMap(id ,r ,viewState) {
 
   L.control.layers(efbBaseLayers, efbOverlays).addTo(efbMap);
 
-  //find el by id+"-mapsdiv"
+ 
   var efbMap_dv = document.querySelector(`[data-id="${id}-mapsdiv"]`);
   efbMap_dv.dataset.leaflet =efbMap._leaflet_id;
 
@@ -1031,14 +1031,14 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
   if(state_efb!='view'){
      efbMarkerNumber = efbAllowAddingMarkers ? maps_efb[efbMapId].markers.length + 1 : '';
      if(Number(r.mark)<efbMarkerNumber) return
-     //console.log(Number(r.mark)<efbMarkerNumber);
+    
   }else{
     efbMarkerNumber = efbAllowAddingMarkers;
-    //console.log(efbMarkerNumber);
+   
   }
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2);
   var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
-  //console.log(`efb-error-message-${efbMapId}`,efbErrorMessageDiv);
+ 
   var efbMarkerIcon = L.divIcon({
       className: 'custom-div-icon',
       html: map_marker_ui_efb(efbMarkerNumber),
@@ -1081,7 +1081,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
           lng: efbLng,
           address: efbName
       });
-      //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+     
   }
 
     if(state_efb=='view'){
@@ -1090,7 +1090,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
       for (let i = 0; i < r.value.length; i++) {
         v+= `<p>${i+1}- ${r.value[i].address}</p>`
       }
-      //console.log(v ,efbMapId);
+     
       setTimeout(() => {
           if(document.getElementById('os-address-efb')==null){
           document.getElementById(r.id_+`-f`).innerHTML +='<div class="efb fs-6  mx-2" id="os-address-efb">'+ v+'</div>';
@@ -1103,7 +1103,7 @@ function efbClearMarkers(efbMapId,indx) {
   maps_efb[efbMapId].markersLayer.clearLayers();
   maps_efb[efbMapId].markers = [];
   maps_efb[efbMapId].locationList = [];
-  //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+ 
 
   if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
     const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.type == "maps");
@@ -1137,7 +1137,7 @@ function efbAddInitialMarker(efbLat, efbLng, efbMapId) {
               lng: efbLng,
               address: efbAddress
           });
-          //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+         
       })
       .catch(error => {
           efbErrorMessageDiv.classList.remove('d-none');
@@ -1177,7 +1177,7 @@ function efbLocateMe(efbMapId) {
 
         var efbMarker = L.marker([efbLat, efbLng], { icon: efbMarkerIcon }).addTo(maps_efb[efbMapId].markersLayer);
         
-        // انتقال نقشه به موقعیت جدید
+       
         var efbLatlng = [efbLat, efbLng];
         maps_efb[efbMapId].map.setView(efbLatlng, 13);
 
@@ -1196,7 +1196,7 @@ function efbLocateMe(efbMapId) {
                     lng: efbLng,
                     address: efbAddress
                 });
-                //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+               
             })
             .catch(error => {
                 efbErrorMessageDiv.classList.remove('d-none');
