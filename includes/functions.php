@@ -1050,7 +1050,6 @@ class efbFunction {
 		// 1. Try to get from transient cache (30 seconds)
 		$transient = get_transient('emsfb_settings_transient');
 		if ($transient !== false && !empty($transient)) {
-			error_log("get_transient: " . $transient);
 			if (is_string($transient)) {
 				$transient = str_replace('\\', '', $transient);
 				$decoded = json_decode($transient);
@@ -1070,10 +1069,10 @@ class efbFunction {
 		$rtrn = json_decode($v);
 		$rtrn = $rtrn != null ? $rtrn : 'null';
 
-		update_option('emsfb_settings', $rtrn);
+		update_option('emsfb_settings', $value);
 		// 3. Save to transient for next time (30 seconds)
 		if ($rtrn != 'null') {
-			set_transient('emsfb_settings_transient', $value, 30);
+			set_transient('emsfb_settings_transient', $value, 1440);
 		}
 
 		return $rtrn;

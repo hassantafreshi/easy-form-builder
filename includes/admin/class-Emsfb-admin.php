@@ -509,7 +509,6 @@ class Admin {
         $table_name = $this->db->prefix . "emsfb_setting";
         $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
         $newAc= str_replace('"', '\"', $newAc);
-
         $this->db->insert(
             $table_name,
             [
@@ -520,6 +519,7 @@ class Admin {
             ]
         );
 
+        set_transient('emsfb_settings_transient', $newAc, 1440);
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
     }
@@ -609,6 +609,7 @@ class Admin {
         );
 
 
+        set_transient('emsfb_settings_transient', $newAc, 1440);
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
     }
@@ -986,6 +987,8 @@ class Admin {
                 'email'   => $email
             ]
         );
+
+        set_transient('emsfb_settings_transient', $setting, 1440);
         update_option('emsfb_settings', $setting);
         $m = $lang["messageSent"];
         $response = ['success' => true, "m" => $m];
@@ -1141,6 +1144,8 @@ class Admin {
                             'email'   => $to,
                         ]
                     );
+
+                    set_transient('emsfb_settings_transient', $newAc, 1440);
                 }
         $response = ['success' => $check ];
         wp_send_json_success($response, $_POST);
@@ -1598,7 +1603,7 @@ class Admin {
 
             if ($settings!=false){
 
-                $s =str_replace('\\', '', $settings);
+                $s = str_replace('\\', '', $settings);
                 $settings = json_decode($s);
 
 
