@@ -64,7 +64,7 @@ function fub_shwBtns_efb() {
 function pro_show_efb(state) {
   let message = sanitize_text_efb(state);
   if (typeof state != "string") message = state == 1 ? sanitize_text_efb(efb_var.text.proUnlockMsg) : sanitize_text_efb(efb_var.text.ifYouNeedCreateMoreThan2Steps);
-  
+
   const body = `<div class="efb  pro-version-efb-modal"><i class="efb  bi-gem"></i></div>
   <h5 class="efb  txt-center">${message}</h5>
   <div class="efb row">
@@ -103,7 +103,7 @@ const show_modal_efb = (body, title, icon, type) => {
     <div class="efb  modal-footer" id="modal-footer-efb">
       <a type="button" class="efb  btn btn-danger" data-bs-dismiss="modal"  id="modalConfirmBtnEfb">
           ${efb_var.text.yes}
-      </a> 
+      </a>
     </div>`
   } else if (type == "saveBox") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
@@ -128,7 +128,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
   let tagtype= tag;
   const $pv = 0;
   const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
-  if (tag.includes("pay")!=false){ 
+  if (tag.includes("pay")!=false){
     tagtype = tag.slice(3);
     price =`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${idin}-price" class="efb efb-crrncy">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></span>`;
   }
@@ -153,7 +153,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let pos = [``, ``, ``, ``]
   const shwBtn = previewSate != true ? 'showBtns' : '';
   let indexVJ = editState != false ? valj_efb.findIndex(x => x.id_ == rndm) : 0;
-  if (previewSate == true && elementId != "html" && elementId != "register" && elementId != "login" && elementId != "subscribe" && elementId != "survey") pos = get_position_col_el(valj_efb[indexVJ].dataId, false)  
+  if (previewSate == true && elementId != "html" && elementId != "register" && elementId != "login" && elementId != "subscribe" && elementId != "survey") pos = get_position_col_el(valj_efb[indexVJ].dataId, false)
   amount_el_efb = editState == false ?  Number(amount_el_efb) + 1 : valj_efb[indexVJ].amount;
   element_name = editState == false ? elementId : valj_efb[indexVJ].name;
   let optn = '<!-- options -->';
@@ -182,7 +182,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         });
         indexVJ = valj_efb.length - 1;
         const sort = indexVJ<=1 ? 'unsortable'  : 'sortable';
-        newElement = ` 
+        newElement = `
         <section class="efb  ${sort} list   row my-2  efbField stepNavEfb stepNo" data-step="${step_el_efb}" data-amount="${step_el_efb}" data-id="${step_el_efb}" id="${step_el_efb}" data-tag="steps">
             <div class="efb  row my-2  ${shwBtn} efbField stepNavEfb" data-step="${step_el_efb}" data-amount="${step_el_efb}" data-id="${step_el_efb}" id="${step_el_efb}" data-tag="steps">
             <h2 class="efb  col-10 mx-2 my-0"><i class="efb  ${valj_efb[indexVJ].icon} ${valj_efb[indexVJ].label_text_size != "default" ? valj_efb[indexVJ].label_text_size : 'fs-5'}  ${valj_efb[indexVJ].icon_color}"
@@ -273,7 +273,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'url':
     case "date":
     case 'color':
-   
+
     case 'number':
     case 'firstName':
     case 'lastName':
@@ -282,36 +282,36 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'address_line':
       const type = elementId == "firstName" || elementId == "lastName" || elementId == "postalcode" || elementId == "address_line" ? 'text' : elementId;
       const autocomplete = elementId == "email" ? 'email' : elementId == "tel" ? 'tel' : elementId == "url" ? 'url' : elementId == "password" ? 'current-password' : elementId == "firstName" ? 'given-name' : elementId == "lastName" ? 'family-name' : elementId == "postalcode" ? 'postal-code' : elementId == "address_line" ? 'street-address' : 'off';
-     
+
       const placeholder =  elementId != 'color'  && elementId != 'range' &&  elementId != 'password' &&  elementId != 'date' ? `placeholder="${valj_efb[iVJ].placeholder}"` : '';
-     
+
       if(elementId != 'date'){
         maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
-       
+
         maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
-        minlen = valj_efb[iVJ].hasOwnProperty('milen')  ? valj_efb[iVJ].milen :0;    
+        minlen = valj_efb[iVJ].hasOwnProperty('milen')  ? valj_efb[iVJ].milen :0;
         minlen = Number(minlen)!=0  ? `minlength="${minlen}"`:``;
       }else{
         maxlen = valj_efb[iVJ].hasOwnProperty('mlen')  ? valj_efb[iVJ].mlen :'';
-        minlen = valj_efb[iVJ].hasOwnProperty('milen')  ? valj_efb[iVJ].milen :'';  
+        minlen = valj_efb[iVJ].hasOwnProperty('milen')  ? valj_efb[iVJ].milen :'';
           const today = new Date();
           const dd = String(today.getDate()).padStart(2, '0');
           const mm = String(today.getMonth() + 1).padStart(2, '0');
           const yyyy = today.getFullYear();
         if(maxlen==1) {
-         
+
           maxlen = `${yyyy}-${mm}-${dd}`;
         }
         if (minlen==1) {
-         
+
           minlen = `${yyyy}-${mm}-${dd}`;
         }
 
-        maxlen = Number(maxlen)!=0 && maxlen!='' ? `max="${maxlen}"`:``;        
+        maxlen = Number(maxlen)!=0 && maxlen!='' ? `max="${maxlen}"`:``;
         minlen = Number(minlen)!=0 && minlen !='' ? `min="${minlen}"`:``;
       }
-      
-     
+
+
       classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range';
       ui = `
       ${label}
@@ -345,7 +345,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'range':
          maxlen = valj_efb[iVJ].hasOwnProperty('mlen') ? valj_efb[iVJ].mlen :100;
-        minlen = valj_efb[iVJ].hasOwnProperty('milen')  ? valj_efb[iVJ].milen :0;    
+        minlen = valj_efb[iVJ].hasOwnProperty('milen')  ? valj_efb[iVJ].milen :0;
         temp =valj_efb[iVJ].value>0 ? valj_efb[iVJ].value :Math.round((Number(valj_efb[iVJ].mlen)+Number(valj_efb[iVJ].milen))/2) ;
         ui = `
         ${label}
@@ -371,13 +371,13 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
        ${label}
         <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
-          ${ttip}        
+          ${ttip}
           <input type="${elementId}" class="efb  input-efb px-2 py-1 emsFormBuilder_v w-100  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_"  aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
           ${desc}`
       dataTag = elementId;
       break;
     case "textarea":
-      minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;  
+      minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;
       minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
       ui = `
                 ${label}
@@ -403,7 +403,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show" id='${rndm}-f'>
-      ${desc}      
+      ${desc}
       ${ttip}
       ${typeof dadfile_el_pro_efb =="function" ?  dadfile_el_pro_efb(previewSate, rndm,iVJ) : public_pro_message()}
       `
@@ -427,11 +427,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm });
         const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
         for (const i of optns_obj) {
-          let checked ="";          
+          let checked ="";
           if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && ( parent.value == i.id_ || (i.hasOwnProperty("id_old") && parent.value == i.id_old) )  ){ checked="checked";
           }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==i.id_ || x==i.id_old)!=-1 ){checked="checked"}
           const prc = i.hasOwnProperty('price') ? Number(i.price):0;
-         
+
           optn += `<div class="efb  form-check ${col} ${elementId} ${temp} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)} mt-1" data-css="${rndm}" data-parent="${i.parent}" data-id="${i.id_}" id="${i.id_}-v">
           <input class="efb  form-check-input emsFormBuilder_v ${pay}  ${valj_efb[iVJ].el_text_size} " data-tag="${dataTag}" data-type="${vtype}" data-vid='${rndm}' type="${vtype}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}"${previewSate != true ? 'readonly' : ''} ${disabled} ${checked}>
           ${elementId!='imgRadio'?` <label class="efb ${valj_efb[iVJ].hasOwnProperty('pholder_chl_value') ? 'col-8' :''}  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${fun_get_links_from_string_Efb(i.value,true)}</label>`: fun_imgRadio_efb(i.id_,i.src,i)}
@@ -478,8 +478,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${op_2}-price" class="efb efb-crrncy">${pv.toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></span>` :''}
       </div> `;
      }
-      
-       
+
+
       }
       temp = elementId=="imgRadio" ?  "row  justify-content-center" :"";
       ui = `
@@ -547,7 +547,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         valj_efb[0].steps = editState == false ? step_el_efb : valj_efb[0].steps;
         const clss = valj_efb[iVJ].classes!="" ? 'efb1 '+valj_efb[iVJ].classes.replace(`,`, ` `) : "";
         const sort = iVJ<3 ? 'unsortable'  : 'sortable';
-        newElement += ` 
+        newElement += `
         <setion class="efb ${sort}  row my-2  ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
        <!-- <div class="efb  row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes.replace(`,`, ` `)} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}"> -->
         <h2 class="efb  col-md-10 col-sm-12 mx-2 my-0"><i class="efb  ${valj_efb[iVJ].icon} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].icon_color} "
@@ -618,11 +618,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'statePro':
       temp=false
        optn =valj_efb.findIndex(x=>x.id_=='EC')
-    if (editState==false && optn==-1) { 
+    if (editState==false && optn==-1) {
       valj_efb[iVJ].country = "GB";
       const uk =  fun_state_of_UK(rndm,iVJ);
       for(u of uk){
-      valj_efb.push(     
+      valj_efb.push(
         u
       );}
       temp=true;
@@ -645,11 +645,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'cityList':
        optn =valj_efb.findIndex(x=>x.id_=='Antrim_Newtownabbey');
         temp=false
-    if (editState==false && optn==-1) { 
+    if (editState==false && optn==-1) {
       console.error(optn,valj_efb.findIndex(x=>x.id_=='Antrim_Newtownabbey'));
       valj_efb[iVJ].country = "GB";
       valj_efb[iVJ].statePov = "Antrim_Newtownabbey";
-      valj_efb.push(     
+      valj_efb.push(
         {
           "id_": "Antrim_Newtownabbey",
           "dataId": "Antrim_Newtownabbey-id",
@@ -793,8 +793,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           let c = "efb bi-square efb"
           if(s==true && valj_efb[indx_parent].value.findIndex(x=>x==i.id_)!=-1){
              c = "bi-check-square text-info efb"
-             va+= i.value+',' 
-             sl +=i.id_ +' @efb!'}            
+             va+= i.value+','
+             sl +=i.id_ +' @efb!'}
           optn += `<tr class="efb  efblist ${valj_efb[indx_parent].el_text_color}  ${pay}" data-id="${rndm}" data-name="${i.value}" data-row="${i.id_}" data-state="0" data-visible="1">
           <th scope="row" class="${c}"></th><td class="efb  ms col-12">${i.value}</td>
           ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${i.id_}-price" class="efb efb-crrncy">${Number(i.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></td>` :''}
@@ -807,43 +807,43 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_3}-price" class="efb efb-crrncy">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></td>` :''}
         </tr>
       <tr class="efb list  ${pay}" data-id="menu-${rndm}" data-name="${efb_var.text.Red}" data-row="${op_4}" data-state="0" data-visible="1">
-        <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-12">${efb_var.text.Red}</td>                  
+        <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-12">${efb_var.text.Red}</td>
         ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_4}-price" class="efb efb-crrncy">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></td>` :''}
       </tr>
       <tr class="efb list  ${pay}" data-id="menu-${rndm}" data-name="${efb_var.text.yellow}" data-row="${op_5}" data-state="0" data-visible="1">
         <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-12">${efb_var.text.yellow}</td>
         ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_5}-price" class="efb efb-crrncy">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></td>` :''}
-      </tr>  
+      </tr>
        `
         const id = `menu-${rndm}`;
         optionElpush_efb(rndm, `${efb_var.text.blue}`, `${op_3}`, op_3 ,dataTag);
         optionElpush_efb(rndm, `${efb_var.text.Red}`, `${op_4}`, op_4 ,dataTag);
         optionElpush_efb(rndm, `${efb_var.text.yellow}`, `${op_5}`, op_5 ,dataTag);
       }
-      ui = ` 
+      ui = `
       ${label}
-      <!--multiselect-->      
+      <!--multiselect-->
       <div class="efb  ${pos[3]} col-sm-12 listSelect px-0 mx-0 ttEfb show efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}"   id='${rndm}-f' data-id="${rndm}-el" >
         ${ttip}
         <div class="efb efblist  mx-0  inplist ${pay}  ${previewSate != true ? 'disabled' : ''} ${disabled}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color} bi-chevron-down" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select="${sl}"  data-vid='${rndm}' id="${rndm}_options" > ${va.length==0 ? efb_var.text.selectOption : va}</div>
         <div class="efb efblist mx-0  listContent shadow d-none border rounded-bottom bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
         <table class="efb table menu-${rndm}">
          <thead class="efb efblist">
-           <tr> <div class="efb searchSection efblist p-2 bg-light"> 
+           <tr> <div class="efb searchSection efblist p-2 bg-light">
            <!-- <i class="efb efblist searchIcon  bi-search text-primary "></i> -->
                <input type="text" class="efb efblist search searchBox my-1 col-12 rounded " data-id="menu-${rndm}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('menu-${rndm}')" > </div>
          </tr> </thead>
-         <tbody class="efb fs-7">                  
+         <tbody class="efb fs-7">
           ${optn}
          </tbody>
        </table>
-      </div>            
+      </div>
       ${desc}
        `;
       dataTag = elementId;
       break;
     case 'html':
-      dataTag = elementId;      
+      dataTag = elementId;
       ui = typeof html_el_pro_efb =="function" ? html_el_pro_efb(previewSate, rndm,iVJ) : public_pro_message()
       break;
     case 'yesNo':
@@ -932,7 +932,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'table_matrix':
         type_field_efb = elementId;
-        dataTag = elementId;      
+        dataTag = elementId;
          col = valj_efb[iVJ].hasOwnProperty('op_style') && Number(valj_efb[iVJ].op_style) != 1 ? 'col-md-' + (12 / Number(valj_efb[iVJ].op_style)) : ''
         if (elementId == "radio" || elementId == "checkbox" || elementId == "chlRadio" || elementId == "chlCheckBox") pay = "";
         if (editState != false) {
@@ -943,15 +943,15 @@ function addNewElement(elementId, rndm, editState, previewSate) {
             <!-- start r_matrix -->
             <div class="efb  col-sm-12 ${col} row my-1   t-matrix" data-id="${i.id_}" data-parent="${i.parent}" id="${i.id_}-v">
               <div class="efb my-2  col-md-8 fs-6  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size}" id="${i.id_}_lab">${i.value}</div>
-              <div class="efb col-md-4  d-flex justify-content-${position_l_efb} " ${aire_describedby} id="${i.id_}" > 
+              <div class="efb col-md-4  d-flex justify-content-${position_l_efb} " ${aire_describedby} id="${i.id_}" >
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="1"  data-id="${i.id_}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill" data-icon="${i.id_}"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="2"  data-id="${i.id_}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill" data-icon="${i.id_}"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="3"  data-id="${i.id_}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill" data-icon="${i.id_}"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="4"  data-id="${i.id_}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill" data-icon="${i.id_}"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="5"  data-id="${i.id_}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill" data-icon="${i.id_}"></i></div>
                   <input type="hidden" class="efb emsFormBuilder_v" data-vid="${i.id_}" data-parent="${i.parent} data-type="rating"  id="${i.id_}-point-rating" >
-              </div>                
-              <hr class="efb t-matrix my-1">                                       
+              </div>
+              <hr class="efb t-matrix my-1">
           </div>
           <!-- end r_matrix -->
             `
@@ -963,27 +963,27 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           optn = `
           <div class="efb   col-sm-12 row my-1  t-matrix" data-id="${op_1}" data-parent="${rndm}" id="${op_1}-v">
               <div class="efb my-2 col-md-8 fs-6 ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size}" id="${op_1}_lab">${efb_var.text.newOption}</div>
-              <div class="efb col-md-4 d-flex justify-content-${position_l_efb} "  id="${op_1}" > 
+              <div class="efb col-md-4 d-flex justify-content-${position_l_efb} "  id="${op_1}" >
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="1"  data-id="${op_1}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="2"  data-id="${op_1}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="3"  data-id="${op_1}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="4"  data-id="${op_1}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="5"  data-id="${op_1}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
                   <input type="hidden" data-vid="${op_1}" data-parent="${rndm} data-type="rating"  id="${op_1}-point-rating" >
-              </div>  
-              <hr class="efb t-matrix my-1">                                          
+              </div>
+              <hr class="efb t-matrix my-1">
           </div>
           <div class="efb col-md-12    col-sm-12 row my-1  t-matrix" data-id="${op_2}" data-parent="${rndm}" id="${op_2}-v">
               <div class="efb my-2 col-md-8 fs-6 ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size}" id="${op_2}_lab">${efb_var.text.newOption}</div>
-              <div class="efb col-md-4  d-flex justify-content-${position_l_efb} " id="${op_2}" > 
+              <div class="efb col-md-4  d-flex justify-content-${position_l_efb} " id="${op_2}" >
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="1"  data-id="${op_2}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="2"  data-id="${op_2}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="3"  data-id="${op_2}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="4"  data-id="${op_2}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''} ${disabled}"  data-point="5"  data-id="${op_2}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
                   <input type="hidden" data-vid="${op_2}" data-parent="${rndm} data-type="rating"  id="${op_2}-point-rating" >
-              </div> 
-              <hr class="efb t-matrix my-1">                                           
+              </div>
+              <hr class="efb t-matrix my-1">
           </div>`
           r_matrix_push_efb(rndm, efb_var.text.newOption, op_1, op_1);
           r_matrix_push_efb(rndm, efb_var.text.newOption, op_2, op_2);
@@ -1004,7 +1004,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'prcfld':
         maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
         maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
-        minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
+        minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;
         minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
         dataTag = valj_efb[0].hasOwnProperty('currency')==false ? 'usd' : valj_efb[0].currency;
         classes = new Intl.NumberFormat(lan_name_emsFormBuilder, { style: 'currency', currency: dataTag, currencyDisplay: 'narrowSymbol' }).formatToParts(0).find(part => part.type === 'currency').value;
@@ -1029,13 +1029,13 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ${label}
         <div class="efb  ${pos[3]} col-sm-12  pt-2 pb-1 px-0 mx-0 ttEfb show" id='${rndm}-f'>
         ${typeof add_ui_totalprice_efb =="function" ? add_ui_totalprice_efb(rndm,iVJ): public_pro_message()}
-        ${desc}      
+        ${desc}
         `
         form_type_emsFormBuilder=valj_efb[0].type;
       break;
   }
   const addDeleteBtnState = (formName_Efb == "login" && (valj_efb[iVJ].id_ == "emaillogin" || valj_efb[iVJ].id_ == "passwordlogin")) || (formName_Efb == "register" && (valj_efb[iVJ].id_ == "usernameRegisterEFB" || valj_efb[iVJ].id_ == "passwordRegisterEFB" || valj_efb[iVJ].id_ == "emailRegisterEFB")) ? true : false;
-  if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) 
+  if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true))
     {
     const pro_el = valj_efb[iVJ].hasOwnProperty('pro') ? valj_efb[iVJ].pro :false ;
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
@@ -1050,11 +1050,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     `
     const proActiv = `
     <div class="efb btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">
-    <button type="button" class="efb btn efb pro-bg btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(1)"> 
+    <button type="button" class="efb btn efb pro-bg btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(1)">
     <i class="efb  bi-gem pro"> ${efb_var.text.pro}</i>`;
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
     const tagId = elementId == "firstName" || elementId == "lastName" || elementId == "address" || elementId == "address_line" || elementId == "postalcode" ? 'text' : elementId;
-    const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'   
+    const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'
     newElement += `
     ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
@@ -1289,13 +1289,13 @@ const loading_messge_efb = () => {
                repeatCount="indefinite" />
   </circle>
 </svg>`
-  return ` 
+  return `
 <h3 class="efb fs-3 text-center">${efb_var.text.pleaseWaiting} ${svg}</h3>`
 }
 function copyCodeEfb(id) {
   var copyText = document.getElementById(id);
   copyText.select();
-  copyText.setSelectionRange(0, 99999); 
+  copyText.setSelectionRange(0, 99999);
   document.execCommand("copy");
   alert_message_efb(efb_var.text.copiedClipboard, '', 6)
 }
@@ -1303,7 +1303,7 @@ function validExtensions_efb_fun(type, fileType,indx) {
   type= type.toLowerCase();
   const tt = valj_efb.length>1 && valj_efb[indx].hasOwnProperty('file_ctype') ? valj_efb[indx].file_ctype.replaceAll(',',' , ') : '';
   filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif',
-  'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg', 
+  'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg',
   'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
   'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar',
   'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, image/heic, video/mov, .mov, video/quicktime',
@@ -1311,9 +1311,9 @@ function validExtensions_efb_fun(type, fileType,indx) {
   }
   return filetype_efb[type].includes(fileType) ;
 }
-let steps_len_efb 
+let steps_len_efb
 function handle_navbtn_efb(steps, device) {
-  var next_s_efb, prev_s_efb; 
+  var next_s_efb, prev_s_efb;
   var opacity_efb;
   steps_len_efb = Number(steps) + 1;
   current_s_efb = 1;
@@ -1411,7 +1411,7 @@ function handle_navbtn_efb(steps, device) {
           next_s_efb = current_s.nextElementSibling;
           current_s.classList.add('d-none');
           if(next_s_efb)next_s_efb.classList.remove('d-none');
-          if(document.getElementById('gRecaptcha'))document.getElementById('gRecaptcha').classList.add('d-none');     
+          if(document.getElementById('gRecaptcha'))document.getElementById('gRecaptcha').classList.add('d-none');
           current_s_efb += 1;
           setProgressBar_efb(current_s_efb, steps_len_efb);
           send_data_efb();
@@ -1492,7 +1492,7 @@ function ReadyElForViewEfb(content) {
     <head>
     <script>
     valj_efb = ${JSON.stringify(valj_efb)};
-    </script>   
+    </script>
   </head>
     <body>
     ${content}
@@ -1530,7 +1530,7 @@ function alert_message_efb(title, message, sec, alert) {
       document.getElementById("alert_efb").innerHTML = "";
     }
   }, sec);
- 
+
 }
 function close_msg_efb(){
   const v=document.getElementById('alert_content_efb')
@@ -1545,7 +1545,7 @@ function noti_message_efb(message, alert ,id) {
     document.getElementById('noti_content_efb').remove()
   }
     d.innerHTML += ` <div id="noti_content_efb" class="efb w-75 mt-0 my-1 alert-dismissible alert ${alert}  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" role="alert">
-    <p class="efb my-0">${message}</p>    
+    <p class="efb my-0">${message}</p>
   </div>`
 }
 function previewFormEfb(state) {
@@ -1648,7 +1648,7 @@ function previewFormEfb(state) {
           }
               o=[{
                 id_: value.id_,
-                name: value.name,              
+                name: value.name,
                 amount: value.amount,
                 type: value.type,
                 value: val,
@@ -1683,12 +1683,12 @@ function previewFormEfb(state) {
   <p class="efb fs-5">${efb_var.text.stf}</p>
   </div>
   `;
- 
+
     content += `
            ${valj_efb[0].hasOwnProperty('logic')==false ||(valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==false)  ? fun_captcha_load_efb() : '<!--logic efb--!>'}
            </fieldset>
           <fieldset data-step="step-${step_no}-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
-            ${valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==true  ? fun_captcha_load_efb() :wv}                
+            ${valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==true  ? fun_captcha_load_efb() :wv}
             <!-- fieldset2 -->
             <div id="step-2-efb-msg"></div>
             </fieldset>`
@@ -1704,10 +1704,10 @@ function previewFormEfb(state) {
     `}
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
   document.getElementById(id).classList.add(idn)
-  content = `  
+  content = `
     <div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2" id="view-efb">
     ${Number(valj_efb[0].show_icon)!=1 ? `<h4 id="title_efb" class="efb fs-3 ${valj_efb[1].label_text_color} text-center mt-3 mb-0">${valj_efb[1].name}</h4><p id="desc_efb" class="efb ${valj_efb[1].message_text_color} text-center  fs-6 mb-2">${valj_efb[1].message}</p>` : ``}
-      ${head} <div class="efb mt-1 px-2">${content}</div> 
+      ${head} <div class="efb mt-1 px-2">${content}</div>
     </div>
     `
   const t = valj_efb[0].steps == 1 ? 0 : 1;
@@ -1730,9 +1730,9 @@ function previewFormEfb(state) {
       </div> `
     show_modal_efb(frame, efb_var.text.mobilePreview, 'bi-phone', 'settingBox');
     ReadyElForViewEfb(content)
-  } else {   
+  } else {
     document.getElementById(id).innerHTML ='<form id="efbform">'+ content + add_buttons_zone_efb(t, id) + '</form>';
-    if (valj_efb[0].type == "payment") {      
+    if (valj_efb[0].type == "payment") {
      if (efb_var.paymentGateway == "stripe" && typeof post_api_stripe_apay_efb =="function") post_api_stripe_apay_efb();
     }
   }
@@ -1817,7 +1817,7 @@ function previewFormEfb(state) {
               }
             }, len);
           }
-          mutlselect(len);          
+          mutlselect(len);
           break;
         case "rating":
           break;
@@ -1839,7 +1839,7 @@ function previewFormEfb(state) {
     sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';
     createStepsOfPublic()
   }
-  else if(state == 'pc'){    
+  else if(state == 'pc'){
     for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
       valueJson_ws = valj_efb;
       el.addEventListener("change", (e) => {
@@ -1848,23 +1848,23 @@ function previewFormEfb(state) {
     }
   }
   step_el_efb = Number(valj_efb[0].steps);
-  if ( state == 'run' && 
-  ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ) || (valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string") ) { fun_offline_Efb() 
+  if ( state == 'run' &&
+  ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ) || (valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string") ) { fun_offline_Efb()
   }
   if (ttype=='ardate'){
-    if(typeof  load_hijir_data_picker_efb=="function"){ 
+    if(typeof  load_hijir_data_picker_efb=="function"){
       load_hijir_data_picker_efb()
     }else{
       setTimeout(() => {
-        alert_message_efb(efb_var.text.iaddon, efb_var.text.IMAddonAD, 20 , 'info')        
+        alert_message_efb(efb_var.text.iaddon, efb_var.text.IMAddonAD, 20 , 'info')
       }, 1000);
     }
   }else if(ttype=='pdate'){
-    if(typeof load_style_persian_data_picker_efb =="function"){ 
+    if(typeof load_style_persian_data_picker_efb =="function"){
     load_style_persian_data_picker_efb();
   }else{
     setTimeout(() => {
-      alert_message_efb(efb_var.text.iaddon, efb_var.text.IMAddonPD, 20 , 'info');        
+      alert_message_efb(efb_var.text.iaddon, efb_var.text.IMAddonPD, 20 , 'info');
     }, 1000);
   }
   }
@@ -1929,7 +1929,7 @@ function fun_validation_efb() {
         if (state == true) { state = false; idi = valj_efb[row].id_ }
         const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
         if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-          el.classList.add('unpx');                
+          el.classList.add('unpx');
         }
         el.innerHTML = msg;
         if(!el.classList.contains('show'))el.classList.add('show');
@@ -1958,7 +1958,7 @@ function fun_validation_efb() {
           idi = valj_efb[row].id_;
         }
       }
-      if (state == false) { 
+      if (state == false) {
           noti_message_efb(efb_var.text.enterTheValueThisField, 'danger' , `step-${current_s_efb}-efb-msg` );
       }
     }
@@ -2246,13 +2246,13 @@ let get_position_col_el = (dataId, state) => {
     label_col = `col-md-12`;
     input_col = `col-md-12`;
     if (state == true) {
-     
+
     }
   } else {
     parent_row = 'row';
     if (state == true) {
-     
-     
+
+
     }
   }
   if (state == true) {
@@ -2274,7 +2274,7 @@ function calPLenEfb(len) {
   else { p = 1.1 }
   return p;
 }
-function replaceContentMessageEfb(value){ 
+function replaceContentMessageEfb(value){
   value = value.replace(/[\\]/g, '');
   value = value.replaceAll(/(\\"|"\\)/g, '"');
   value = value.replaceAll(/(\\\\n|\\\\r)/g, '<br>');
@@ -2286,22 +2286,22 @@ function replaceContentMessageEfb(value){
 }
 function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
   if (!navigator.onLine) {
-    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
     return;
   }
- 
+
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;
   let r = ""
   const nonce_msg = efb_var.nonce_msg ;
   const page_id = efb_var.page_id ;
- 
+
     const fd = new FormData();
     const idn =  id + '_';
-   
+
     setTimeout(() => {
-     
+
       uploadFile_api(file, id, tp, nonce_msg ,indx ,idn,page_id)
       return true;
     }, 500);
@@ -2309,7 +2309,7 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
 function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
   const progressBar = document.querySelector('#progress-bar');
   const idB =id+'-prB';
- 
+
       fetch_uploadFile(file, id, pl, nonce_msg,page_id).then((data) => {
         if (data.success === true && data.data.success===true) {
           files_emsFormBuilder[indx].url = data.data.file.url;
@@ -2325,7 +2325,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
               url: files_emsFormBuilder[indx].url,
               session: sessionPub_emsFormBuilder,
               page_id: page_id,
-            }];            
+            }];
             fun_sendBack_emsFormBuilder(o[0]);
             const el = document.getElementById(idB)
             if(el){
@@ -2387,7 +2387,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
     xhr.send(formData);
   });
 }
-function generatePDF_EFB(id) 
+function generatePDF_EFB(id)
 {
   const fonts_name =[{loc:'am', font:'Noto Serif Ethiopic'},{loc:'ar', font:'Noto Sans Arabic'},{loc:'fa_IR', font:'Noto Sans Arabic'},{loc:'arq', font:'Alegreya Sans SC'},{loc:'az_TR', font:'Noto Sans'},{loc:'bn_BD', font:'Noto Sans Bengali'},{loc:'cs_CZ', font:'Signika'},{loc:'hat', font:'Tinos'},{loc:'he_IL', font:'Noto Sans Hebrew'},{loc:'hr', font:'Noto Sans'},{loc:'hy', font:'Noto Sans Armenian'},{loc:'id_ID', font:'Noto Sans'},{loc:'ja', font:'Noto Sans JP'},{loc:'ka_GE', font:'Noto Sans Georgian'},{loc:'km', font:'Noto Sans Khmer'},{loc:'ko_KR', font:'Noto Sans KR'},{loc:'lt_LT', font:'Noto Sans'},{loc:'ml_IN', font:'Noto Sans'},{loc:'ms_MY', font:'Noto Sans'},{loc:'ne_NP', font:'Noto Sans'},{loc:'ru_RU', font:'Noto Sans'},{loc:'sw', font:'Noto Sans'},{loc:'th', font:'Noto Sans Thai'},{loc:'ur', font:'Noto Nastaliq Urdu'},{loc:'uz_UZ', font:'Noto Sans'},{loc:'vi', font:'Noto Sans'},{loc:'zh_CN', font:'Noto Sans SC'},{loc:'zh_HK', font:'Noto Sans HK'},{loc:'zh_TW', font:'Noto Sans TC'}]
   const indx = fonts_name.findIndex(x=>x.loc==efb_var.wp_lan);
@@ -2441,7 +2441,7 @@ function generatePDF_EFB(id)
   n_win.document.close();
   },100);
 }
-santize_string_efb=(str)=>{ 
+santize_string_efb=(str)=>{
   const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
   return  str.replaceAll(regexp,'do not use HTML tags');
 }
@@ -2581,7 +2581,7 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
   }
   return filtered;
 }
-valNotFound_efb=()=>{  
+valNotFound_efb=()=>{
         alert_message_efb(efb_var.text.error,efb_var.text.empty, 30,'danger');
 }
 const add_r_matrix_view_select = (idin, value, id_ob, tag, parentsID) => {
@@ -2593,15 +2593,15 @@ const add_r_matrix_view_select = (idin, value, id_ob, tag, parentsID) => {
     <!---here r_matrix-->
       <div class="efb  col-sm-12 row my-1   t-matrix" data-id="${idin}" data-parent="${parentsID}" id="${idin}-v">
         <div class="efb my-2 col-md-8 fs-6 ${valj_efb[indxP].el_text_color}  ${valj_efb[indxP].el_height} ${valj_efb[indxP].label_text_size}" id="${idin}_lab">${efb_var.text.newOption}</div>
-        <div class="efb col-md-4 d-flex justify-content-${position_l_efb}" id="${idin}" > 
+        <div class="efb col-md-4 d-flex justify-content-${position_l_efb}" id="${idin}" >
             <div class="efb btn btn-secondary text-white mx-1 disabled"  data-point="5"  data-id="${idin}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
             <div class="efb btn btn-secondary text-white mx-1 disabled"  data-point="4"  data-id="${idin}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
             <div class="efb btn btn-secondary text-white mx-1 disabled"  data-point="3"  data-id="${idin}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
             <div class="efb btn btn-secondary text-white mx-1 disabled"  data-point="2"  data-id="${idin}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
             <div class="efb btn btn-secondary text-white mx-1 disabled"  data-point="1"  data-id="${idin}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
             <input type="hidden" data-vid="${idin}" data-parent="${parentsID} data-type="rating"  id="${idin}-point-rating" >
-        </div>    
-        <hr class="efb t-matrix my-1">                                        
+        </div>
+        <hr class="efb t-matrix my-1">
     </div>
     `
 }
@@ -2626,7 +2626,7 @@ async  function  fetch_json_from_url_efb(url){
 fun_captcha_load_efb = ()=>{
   if(valj_efb[0].captcha == true && document.getElementById('dropZoneEFB')) document.getElementById('dropZoneEFB').classList.add('captcha');
   return ` ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
-            <!-- fieldset1 --> 
+            <!-- fieldset1 -->
             ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
             <div id="step-1-efb-msg"></div>`
  }
@@ -2644,25 +2644,25 @@ return`<span class="efb ${classes}"><svg version="1.1" id="L9" xmlns="http://www
   <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="1s" from="0 50 50" to="360 50 50" repeatCount="indefinite"></animateTransform>
 </path>
 </svg><span>`
-} 
+}
 lan_subdomain_wsteam_efb=()=>{
-  let sub =''; 
+  let sub ='';
   if(efb_var.language == 'de_DE' || efb_var.language == 'de_AT' ){ sub = 'de.'; }
   else if(efb_var.language == 'ar' || efb_var.language == 'ary' ||  efb_var.language == 'arq'){ sub = 'ar.'; }
- 
+
   return sub;
 }
-function handle_change_event_efb(el){  
+function handle_change_event_efb(el){
     slice_sback=(i)=>{
       sendBack_emsFormBuilder_pub.splice(i, 1)
     }
-    delete_by_id=(id)=>{    
+    delete_by_id=(id)=>{
       const i = get_row_sendback_by_id_efb(id);
       if (i != -1) { slice_sback(i) }
     }
     el_empty_value=(id)=>{
-      const id_ = id +'_';    
-      const s = valj_efb.find(x => x.id_ == id);    
+      const id_ = id +'_';
+      const s = valj_efb.find(x => x.id_ == id);
       const el_msg = document.getElementById(id_+'-message');
       if(Number(s.required)==0){
         document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, s.el_border_color);
@@ -2687,7 +2687,7 @@ function handle_change_event_efb(el){
         let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
               if(vd){
                 if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                  vd.classList.add('unpx');                
+                  vd.classList.add('unpx');
                 }
                 vd.innerHTML =msg;
                 vd.classList.add('show');
@@ -2702,7 +2702,7 @@ function handle_change_event_efb(el){
         let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
               if(vd){
                 if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                  vd.classList.add('unpx');                
+                  vd.classList.add('unpx');
                 }
                 vd.innerHTML =msg;
                 vd.classList.add('show');
@@ -2720,7 +2720,7 @@ function handle_change_event_efb(el){
         let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
               if(vd){
                 if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                  vd.classList.add('unpx');                
+                  vd.classList.add('unpx');
                 }
                 vd.innerHTML =msg;
                 vd.classList.add('show');
@@ -2735,7 +2735,7 @@ function handle_change_event_efb(el){
         let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
               if(vd){
                 if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                  vd.classList.add('unpx');                
+                  vd.classList.add('unpx');
                 }
                 vd.innerHTML =msg;
                 vd.classList.add('show');
@@ -2777,7 +2777,7 @@ function handle_change_event_efb(el){
          return;
         }
         if(validate_len()==0 && (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox")){
-         
+
           if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
          return;
         }else {
@@ -2804,7 +2804,7 @@ function handle_change_event_efb(el){
           delete_by_id(id_);
         } else {
           valid = true;
-          value = el.value;         
+          value = el.value;
           vd.classList.remove('show');
            vd.innerHTML="";
           el.className = colorBorderChangerEfb(el.className, "border-success");
@@ -2824,7 +2824,7 @@ function handle_change_event_efb(el){
         }
         if( el.checked == false && el.type =="checkbox") {
           const indx= sendBack_emsFormBuilder_pub.findIndex(x=>x!=null && x.hasOwnProperty('id_ob')==true && x.id_ob ==el.id);
-          if(indx!=-1) {         
+          if(indx!=-1) {
             slice_sback(indx)
             if(ob.type=="payCheckbox") fun_total_pay_efb();
             if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
@@ -2861,9 +2861,9 @@ function handle_change_event_efb(el){
           let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
               fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp)
         }else if(el.dataset.hasOwnProperty('type') && el.dataset.type=="stateProvince"){
-             let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);       
+             let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
               iso_con = el.options[el.selectedIndex].dataset.isoc
-              iso_state = el.options[el.selectedIndex].dataset.iso        
+              iso_state = el.options[el.selectedIndex].dataset.iso
               fun_check_link_city_efb(iso_con,iso_state , temp)
         }
         break;
@@ -2926,14 +2926,14 @@ function handle_change_event_efb(el){
     if (value != "" || value.length > 0) {
       const type = ob.type;
       const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
-      let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];      
+      let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
       if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,true,current_s_efb);
       if (el.classList.contains('payefb')) {
         let q = valueJson_ws.find(x => x.id_ === el.id);
         let p ;
         if(ob.type =='prcfld'){
           p= Object.assign(o[0], {price: el.value});
-        }else{ 
+        }else{
           p = price_efb.length > 0 ? { price: price } : { price: q.price }
         }
         Object.assign(o[0], p)
@@ -2975,7 +2975,7 @@ get_row_sendback_by_id_efb=(id_)=>{
 function fun_total_pay_efb() {
   let total = 0;
   updateTotal = (i) => {
-   
+
     for (const l of document.querySelectorAll(".totalpayEfb")) {
       l.innerHTML = Number(i).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
     }
@@ -2986,7 +2986,7 @@ function fun_total_pay_efb() {
   setTimeout(() => { updateTotal(total); }, 800);
   if(valj_efb[0].getway=="persiaPay" && typeof fun_total_pay_persiaPay_efn=="function"){ fun_total_pay_persiaPay_efn(total)}
   else if(valj_efb[0].getway=="persiaPay"){
-   
+
   }
 }
 fun_currency_no_convert_efb = (currency, number) => {
@@ -2996,18 +2996,18 @@ fun_disabled_all_pay_efb = () => {
   let type = '';
   if(valj_efb[0].getway!="persiaPay")document.getElementById('stripeCardSectionEfb').classList.add('d-none');
   for (let o of valj_efb) {
-   
+
     if (o.hasOwnProperty('price')==true || (o.hasOwnProperty('type') && o.type=='prcfld')) {
-     
-     
+
+
       if (o.hasOwnProperty('parent')) {
         const p = valj_efb.findIndex(x => x.id_ == o.parent);
         if (p==-1) continue;
         if(valj_efb[p].hasOwnProperty('type')==false) continue;
         type = valj_efb[p].type.toLowerCase();
-       
+
         if(type.includes('pay')==false) continue;
-       
+
         let ov = document.querySelector(`[data-vid="${o.parent}"]`);
         ov.classList.remove('payefb');
         ov.classList.add('disabled');
@@ -3022,11 +3022,11 @@ fun_disabled_all_pay_efb = () => {
             ov.classList.remove('payefb');
             ov.disabled = true;
           }//end for
-        }//end if multiselect 
+        }//end if multiselect
       }else{
         let ov = document.querySelector(`[data-vid="${o.id_}"]`);
-       
-        ov.classList.add('disabled');        
+
+        ov.classList.add('disabled');
         ov.disabled = true;
         ov.classList.remove('payefb');
       }
@@ -3034,35 +3034,35 @@ fun_disabled_all_pay_efb = () => {
   }
 }
 add_ui_totalprice_efb = (rndm ,iVJ) => {
- 
+
   return  `
   <!-- total Price -->
-    <label class="efb totalpayEfb  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].classes.replace(`,`, ` `)}  mt-1"   data-id="${rndm}-el" id="${rndm}_"> 
+    <label class="efb totalpayEfb  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].classes.replace(`,`, ` `)}  mt-1"   data-id="${rndm}-el" id="${rndm}_">
      ${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })}
     </label>
   <!-- end total Price -->
   `
 }
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
- 
+
   stock_state_efb=false;
   let totalpaid =0;
   if(content[(content.length)- 1].type=="w_link")content.pop();
-  
+
   const ipSection = userIp!='' ? `<p class="efb small fs-7 mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>` :''
   if (by == 1) {
-     by = 'Admin'; by=`<span>${efb_var.text.by}:</span> ${by}`; } 
-  else if (by ==''  && (efb_var.hasOwnProperty('user_name') &&  efb_var.user_name.length > 1)){ 
-   
+     by = 'Admin'; by=`<span>${efb_var.text.by}:</span> ${by}`; }
+  else if (by ==''  && (efb_var.hasOwnProperty('user_name') &&  efb_var.user_name.length > 1)){
+
     by = efb_var.hasOwnProperty('user_name') &&  efb_var.user_name.length > 1 ? `<span>${efb_var.text.by}:</span> ${efb_var.user_name}`  : `<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`;
   }else if(by==-1){
     by = 'Admin';
     by=`<span>${efb_var.text.by}:</span> ${by}`;
   }else if (by==undefined ||by == 0 || by.length == 0 || by.length == -1) {
-    by=`<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`; 
+    by=`<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`;
   }else if(by=='#first'){
 
-  }else {     
+  }else {
     by = `<span>${efb_var.text.by}:</span> ${by}`;
    }
    by = by=='#first' ? `` : `<p class="efb small fs-7 mb-0">${by}</p>`;
@@ -3072,7 +3072,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       ${by}
       ${ipSection}
       ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
-      <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
+      <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>
    </div>
    <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>
    </div>
@@ -3083,9 +3083,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let s = false;
   let checboxs=[];
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
- 
+
   for (const c of content) {
-    console.log(c);
     if (c.hasOwnProperty('price')){ totalpaid +=Number(c.price)}
     if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
@@ -3129,15 +3128,15 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       s = true;
-     
+
       value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
       m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
     } else if (c.type == "maps") {
       if (typeof (c.value) == "object") {
         s = true;
-       
-        value = maps_os_pro_efb(false, '', c.id_,'') 
-        
+
+        value = maps_os_pro_efb(false, '', c.id_,'')
+
         marker_maps_efb = c.value;
         m += value;
         setTimeout(() => {
@@ -3154,10 +3153,10 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
       value += "</div>";
       m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p><p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
-     
+
     } else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
       s = true;
-     
+
       let vc ='null';
       checboxs.push(c.id_);
       for(let op of content){
@@ -3168,7 +3167,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
     }else if (c.type=="r_matrix"){
       s = true;
-     
+
       vc =`${c.hasOwnProperty('label') ? `<p class=efb fs-6 my-0 efb"">${c.label}</p>`:''}<p class="efb my-1 mx-3 fs-7 test form-check"> ${c.name} :${c.value} </p>`
       m += `${vc}`;
     }
@@ -3179,15 +3178,15 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')) {
-         
+
           q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }else if(c.type.includes('checkbox')){
-         
+
         }else if(c.type.includes('imgRadio')){
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
-        } 
+        }
         m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${efb_text_nr(q,1)}</p>`
-      
+
       }
     if (c.type == "payment") {
       if(c.paymentGateway == "stripe"){
@@ -3227,11 +3226,11 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
 //end payment functions
 
 fun_get_links_from_string_Efb=(str , handler)=>{
-  /* 
+  /*
   handler : false mean return export link and anchor text
   handler : true mean return string with anchor tag
   */
- 
+
   if(handler==false){
     let regex = /\[([^\]]+)\]\(([^)]+)\)/g;
     let match;
@@ -3243,21 +3242,21 @@ fun_get_links_from_string_Efb=(str , handler)=>{
         let url = match[2];
         r.push({text:anchorText,url:url})
     }
-   
+
     return [state,r]
   }else{
-  
+
 
     str= str.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(_, anchorText, url) {
           state=true;
         return `<a href="${url}" target="_blank")>${anchorText}</a>`;
     });
 
-   
+
     return str;
   }
- 
-  
+
+
 }
 
 // 3.6.8 start
