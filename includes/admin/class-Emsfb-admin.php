@@ -1565,7 +1565,7 @@ class Admin {
             $messages = [
                 'mail_function_ok' => [
                     'title' => esc_html__('Email system is working properly.', 'easy-form-builder'),
-                    'description' => esc_html__('Your server is able to send emails using the default PHP mail system.', 'easy-form-builder') . $warning,
+                    'description' => esc_html__('Your server is able to send emails using the default PHP mail system.', 'easy-form-builder'),
                 ],
                 'mail_function_missing' => [
                     'title' => esc_html__('Email system is not available.', 'easy-form-builder'),
