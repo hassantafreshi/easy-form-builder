@@ -1565,23 +1565,23 @@ class Admin {
             $messages = [
                 'mail_function_ok' => [
                     'title' => esc_html__('Email system is working properly.', 'easy-form-builder'),
-                    'description' => esc_html__('Your server is able to send emails using the default PHP mail system.', 'easy-form-builder'),
+                    'description' => esc_html__('Your server is able to send emails using the default PHP mail system.', 'easy-form-builder') . $warning,
                 ],
                 'mail_function_missing' => [
                     'title' => esc_html__('Email system is not available.', 'easy-form-builder'),
-                    'description' => esc_html__('The PHP mail() function is missing. Your server cannot send emails.', 'easy-form-builder'),
+                    'description' => esc_html__('The PHP mail() function is missing. Your server cannot send emails.', 'easy-form-builder') . $warning,
                 ],
                 'mail_function_disabled' => [
                     'title' => esc_html__('Email sending is blocked by server settings.', 'easy-form-builder'),
-                    'description' => esc_html__('The mail() function is disabled in your server PHP configuration (php.ini).', 'easy-form-builder'),
+                    'description' => esc_html__('The mail() function is disabled in your server PHP configuration (php.ini).', 'easy-form-builder') . $warning,
                 ],
                 'wp_mail_function_missing' => [
                     'title' => esc_html__('WordPress mail function not found.', 'easy-form-builder'),
-                    'description' => esc_html__('The wp_mail() function is missing or not available. WordPress email features may be broken.', 'easy-form-builder'),
+                    'description' => esc_html__('The wp_mail() function is missing or not available. WordPress email features may be broken.', 'easy-form-builder') . $warning,
                 ],
                 'smtp_sendmail_empty' => [
                     'title' => esc_html__('No email handler configured.', 'easy-form-builder'),
-                    'description' => esc_html__('Your server has no SMTP host or sendmail path set. Emails may not be delivered.', 'easy-form-builder') . $warning,
+                    'description' => esc_html__('Your server has no SMTP host or sendmail path set. Emails may not be delivered.', 'easy-form-builder') ,
                 ],
                 'mail_function_failed' => [
                     'title' => esc_html__('Test email could not be sent.', 'easy-form-builder'),
