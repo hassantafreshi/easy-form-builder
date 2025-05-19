@@ -512,8 +512,8 @@ class efbFunction {
 			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : esc_html__('It is not possible to include reCAPTCHA on payment forms.',$s),
 			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : esc_html__('Easy Form Builder could not confirm if your service is able to send emails. Please check your email inbox (or spam folder) to see if you have received an email with the subject line: Email server [Easy Form Builder]. If you have received the email, please select the option < I confirm that this host supports SMTP > and save the changes.',$s),
 			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : esc_html__('I confirm that this host supports SMTP',$s),
-			"PleaseMTPNotWork2" => $state &&  isset($ac->text->PleaseMTPNotWork2) ? $ac->text->PleaseMTPNotWork : esc_html__('Easy Form Builder could not confirm that your server can send emails. Please check your inbox or spam folder for an email with the subject: "Email server [Easy Form Builder]". If you received it, please enable the "%s" toggle and save your changes.',$s),
-			"hostSupportSmtp2" => $state  &&  isset($ac->text->hostSupportSmtp2) ? $ac->text->hostSupportSmtp : esc_html__('I confirm that this WordPress site is able to send emails properly',$s),
+			"PleaseMTPNotWork2" => $state &&  isset($ac->text->PleaseMTPNotWork2) ? $ac->text->PleaseMTPNotWork2 : esc_html__('Easy Form Builder could not confirm that your server can send emails. Please check your inbox or spam folder for an email with the subject: "Email server [Easy Form Builder]". If you received it, please enable the "%s" toggle and save your changes.',$s),
+			"hostSupportSmtp2" => $state  &&  isset($ac->text->hostSupportSmtp2) ? $ac->text->hostSupportSmtp2 : esc_html__('I confirm that this WordPress site is able to send emails properly',$s),
 			"interval" => $state  &&  isset($ac->text->interval) ? $ac->text->interval : esc_html__('Interval',$s),
 			"nextBillingD" => $state  &&  isset($ac->text->nextBillingD) ? $ac->text->nextBillingD : esc_html__('Next Billing Date',$s),
 			"dayly" => $state  &&  isset($ac->text->dayly) ? $ac->text->dayly : esc_html__('Daily',$s),
@@ -1047,26 +1047,36 @@ class efbFunction {
 
 	public function get_setting_Emsfb()
 	{
-		$rtrn='null';
-
-
-		$value = get_option('emsfb_settings' ,false);
-
-		if($value==false){
-			if(empty($this->db)){
-				global $wpdb;
-				$this->db = $wpdb;
+		// 1. Try to get from transient cache (30 seconds)
+		$transient = get_transient('emsfb_settings_transient');
+		if ($transient !== false && !empty($transient)) {
+			error_log("get_transient: " . $transient);
+			if (is_string($transient)) {
+				$transient = str_replace('\\', '', $transient);
+				$decoded = json_decode($transient);
+				if ($decoded !== null) return $decoded;
+			} elseif (is_object($transient) || is_array($transient)) {
+				return $transient;
 			}
-			$table_name = $this->db->prefix . "emsfb_setting";
-			$value = $this->db->get_var( "SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1" );
-			update_option('emsfb_settings', $value);
-
 		}
-		if(isset($value)==false) return 'null';
 
-		$v =str_replace('\\', '', $value);
-		$rtrn =json_decode($v);
-		return $rtrn!=null ? $rtrn :'null';
+		// 2. If not found in transient, get from DB
+		$table_name = $this->db->prefix . "emsfb_setting";
+		$value = $this->db->get_var("SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1");
+		if (!isset($value) || empty($value)) {
+			return 'null';
+		}
+		$v = str_replace('\\', '', $value);
+		$rtrn = json_decode($v);
+		$rtrn = $rtrn != null ? $rtrn : 'null';
+
+		update_option('emsfb_settings', $rtrn);
+		// 3. Save to transient for next time (30 seconds)
+		if ($rtrn != 'null') {
+			set_transient('emsfb_settings_transient', $value, 30);
+		}
+
+		return $rtrn;
 	}
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
