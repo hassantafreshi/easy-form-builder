@@ -533,7 +533,7 @@ class efbFunction {
 			"advance" => $state  &&  isset($ac->text->advance) ? $ac->text->advance : esc_html__('Advance',$s),
 			"all" => $state  &&  isset($ac->text->all) ? $ac->text->all : esc_html__('All',$s),
 			"new" => $state  &&  isset($ac->text->new) ? $ac->text->new : esc_html__('New',$s),
-			"landingTnx" => $state  &&  isset($ac->text->landingTnx) ? $ac->text->landingTnx : esc_html__('Landing of thank you section',$s),
+			"landingTnx" => $state  &&  isset($ac->text->landingTnx) ? $ac->text->landingTnx : esc_html__('Thank you Page',$s),
 			"redirectPage" => $state  &&  isset($ac->text->redirectPage) ? $ac->text->redirectPage : esc_html__('Redirect page',$s),
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : esc_html__('Please wait, you will be redirected shortly.',$s),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : esc_html__('Persia payment',$s),
@@ -1933,6 +1933,8 @@ class efbFunction {
                 'email'   => $email
             ]
         );
+		set_transient('emsfb_settings_transient', $setting, 1440);
+		update_option('emsfb_settings', $setting);
 		if($pro == true || $pro ==1){
 			$this->download_all_addons_efb();
 			$end_time = microtime(true);

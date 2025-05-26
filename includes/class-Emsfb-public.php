@@ -3843,6 +3843,8 @@ class _Public {
 					'email'   => $email
 				]
 			);
+			set_transient('emsfb_settings_transient', $setting, 1440);
+			update_option('emsfb_settings', $setting);
 
 		}
 		return g($track , $this->setting->email_key);

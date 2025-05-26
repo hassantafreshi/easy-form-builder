@@ -976,7 +976,7 @@ window.onload = (() => {
 
   setTimeout(() => {
     for (const el of document.querySelectorAll(".notice")) {
-      el.remove()
+      if(!el.classList.contains('efb'))el.remove()
     }
 
   }, 50)

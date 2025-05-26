@@ -518,7 +518,7 @@ class Admin {
                 'email'   => $ac->emailSupporter,
             ]
         );
-
+        update_option('emsfb_settings', $newAc);
         set_transient('emsfb_settings_transient', $newAc, 1440);
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
@@ -608,7 +608,7 @@ class Admin {
             ]
         );
 
-
+        update_option('emsfb_settings', $newAc);
         set_transient('emsfb_settings_transient', $newAc, 1440);
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
@@ -1146,6 +1146,7 @@ class Admin {
                     );
 
                     set_transient('emsfb_settings_transient', $newAc, 1440);
+                    update_option('emsfb_settings', $newAc);
                 }
         $response = ['success' => $check ];
         wp_send_json_success($response, $_POST);
@@ -1549,6 +1550,11 @@ class Admin {
 
         function admin_notices_efb () {
 
+            if (get_option('emsfb_email_status') === false) {
+                require_once (EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-requirement.php');
+                $efbRequirement = new \CheckRequirementEmsfb();
+                $efbRequirement->run_and_save_efb();
+            }
 
             function result_ok () {
                    $check['status'] = 'ok';

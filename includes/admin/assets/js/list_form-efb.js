@@ -107,24 +107,24 @@ function fun_emsFormBuilder_render_view(x) {
 
 
     document.getElementById('content-efb').innerHTML = `
-   <h4 class="efb title-holder efb fs-4"> <img src="${efb_var.images.title}" class="efb title efb">
-                <i class="efb  bi-archive title-icon  mx-1 fs-4"></i>${efb_var.text.forms}
-            </h4>
-    <div class="efb card efb">
-    <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
-        <thead class="efb">
-            <tr class="efb">
-            <th scope="col" class="efb">${efb_var.text.formCode}</th>
-            <th scope="col" class="efb">${efb_var.text.formName}</th>
-            <th scope="col" class="efb">${efb_var.text.createDate}</th>
-            <th scope="col" class="efb">${efb_var.text.advanced}</th>
-            </tr>
-        </thead>
-        <tbody class="efb">${rows}</tbody>
-    </table>
- </div>
- ${efb_powered_by()}
- `
+    <h4 class="efb title-holder efb fs-4"> <img src="${efb_var.images.title}" class="efb title efb">
+                  <i class="efb  bi-archive title-icon  mx-1 fs-4"></i>${efb_var.text.forms}
+              </h4>
+      <div class="efb card efb">
+      <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
+          <thead class="efb">
+              <tr class="efb">
+              <th scope="col" class="efb">${efb_var.text.formCode}</th>
+              <th scope="col" class="efb">${efb_var.text.formName}</th>
+              <th scope="col" class="efb">${efb_var.text.createDate}</th>
+              <th scope="col" class="efb">${efb_var.text.advanced}</th>
+              </tr>
+          </thead>
+          <tbody class="efb">${rows}</tbody>
+      </table>
+  </div>
+  ${efb_powered_by()}
+  `
 
   } else {
     fun_backButton_efb(1);
@@ -2232,7 +2232,7 @@ window.onload = (() => {
 
   setTimeout(() => {
     for (const el of document.querySelectorAll(".notice")) {
-      el.remove()
+      if(!el.classList.contains('efb'))el.remove()
 
     }
 

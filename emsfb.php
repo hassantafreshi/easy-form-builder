@@ -14,7 +14,7 @@
 if (!defined('ABSPATH')) {
     die("Direct access of plugin files is not allowed.");
 }
- 
+
 /** Define EMSFB_PLUGIN_FILE */
 if (!defined('EMSFB_PLUGIN_FILE')) {
     define('EMSFB_PLUGIN_FILE', __FILE__);
@@ -47,5 +47,5 @@ require 'includes/class-Emsfb.php';
 $emsfb = new Emsfb();
 
 
-require_once 'includes/classs-Emsfb-requirement.php';
+require_once 'includes/class-Emsfb-requirement.php';
 register_activation_hook(__FILE__, ['CheckRequirementEmsfb', 'run_and_save_efb']);
