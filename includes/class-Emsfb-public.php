@@ -3485,72 +3485,79 @@ class _Public {
 
 				}
 
-			} else if ($c['type'] == "esign") {
-			  $titile =isset($c['name'])? $c['name'] : '';
+			 } else if ($c['type'] == "esign") {
+					$titile =isset($c['name'])? $c['name'] : '';
 
-			  $title =  $c['name'];
-			  $s = true;
-			  $value = '<img src="' . $c['value'] . '" alt="' . $c['name'] . '" class="efb img-thumbnail">';
+					$title =  $c['name'];
+					$s = true;
+					$value = '<img src="' . $c['value'] . '" alt="' . $c['name'] . '" class="efb img-thumbnail">';
 
-			  $m.= '<p >' . $title . ':</p><p style="margin: 0px 10px;">' . $value . '</span>';
-			} else if ($c['type'] == "color") {
-			  $title =isset($c['name'])? $c['name'] : '';
+					$m.= '<p >' . $title . ':</p><p style="margin: 0px 10px;">' . $value . '</span>';
+			  } else if ($c['type'] == "color") {
+				$title =isset($c['name'])? $c['name'] : '';
 
-			  $title =  $c['name'];
-			  $s = true;
-			  $value = '<div class="efb img-thumbnail" style="background-color:' . $c['value'] . '; height: 50px;">' . $c['value'] . '</div>';
-
-			  $m .= '<p >' . $title . ':</p><p style="margin: 0px 10px;">' . $value . '</p>';
-			} else if ($c['type'] == "maps") {
-
-
-			  if (is_array($c['value'])) {
+				$title =  $c['name'];
 				$s = true;
+				$value = '<div class="efb img-thumbnail" style="background-color:' . $c['value'] . '; height: 50px;">' . $c['value'] . '</div>';
 
-				$value = '<a style="margin: 0px 10px;" href='.$link_w.'>'.$lanText['msgemlmp'].'</a>';
-				$m .= $value;
-			  }
+				$m .= '<p >' . $title . ':</p><p style="margin: 0px 10px;">' . $value . '</p>';
+			  } else if ($c['type'] == "maps") {
+
+
+				if (is_array($c['value'])) {
+					$s = true;
+
+					$value = '<a style="margin: 0px 10px;" href='.$link_w.'>'.$lanText['msgemlmp'].'</a>';
+					$m .= $value;
+				}
 
 
 			  } else if ($c['type'] == "rating") {
-			  $s = true;
+				$s = true;
 
-			  $title =isset($c['name'])? $c['name'] : '';
-			  $value = '<div class="efb fs-4 star-checked star-efb mx-1>';
-			  for ($i = 0; $i < intval($c['value']); $i++) {
-				$value .= '⭐';
-			  }
-			  $value .= '</div>';
-			  $m .= '<p >' . $title . ':</p><p  style="margin: 0px 10px;">' . $value . '</p>';
-			} else if ($c['type'] == "payCheckbox" || $c['type'] == "payRadio") {
-			  $s = true;
-			  $vc = null;
-			  $total_amount = $total_amount+ intval( $c['price']);
-			  array_push($checboxs, $c['id_']);
-			 if (is_null($vc)) {
-				$vc = '<p><b>' . $c['price'];
-			} else {
-				$vc .= '<p style="margin: 0px 10px;"><b>' . $c['price'];
-			}
-			$m .= '<p>' . $c['name'] . ':</p>' . $vc . ' ' . strtoupper($currency) . '</b></p>';
+				$title =isset($c['name'])? $c['name'] : '';
+				$value = '<div class="efb fs-4 star-checked star-efb mx-1>';
+				for ($i = 0; $i < intval($c['value']); $i++) {
+					$value .= '⭐';
+				}
+				$value .= '</div>';
+				$m .= '<p >' . $title . ':</p><p  style="margin: 0px 10px;">' . $value . '</p>';
+			  } else if ($c['type'] == "payCheckbox" || $c['type'] == "payRadio") {
+				$s = true;
+				$vc = null;
+				$total_amount = $total_amount+ intval( $c['price']);
+				array_push($checboxs, $c['id_']);
+				if (is_null($vc)) {
+					$vc = '<p><b>' . $c['price'];
+				} else {
+					$vc .= '<p style="margin: 0px 10px;"><b>' . $c['price'];
+				}
+				$numberformat = $this->formatPrice_efb(number_format($c['price'], 0, '.', ','), $currency);
+				$m .= '<p>' . $c['name'] . ': <b>' .$numberformat  . '</b></p>';
+
+
+			  }else if($c['type'] == "prcfld") {
+				$s = true;
+				$numberformat = $this->formatPrice_efb(number_format($c['price'], 0, '.', ','), $currency);
+				$m .= '<p class="efb mb-1">' . $c['name'] . ': <b>' .$numberformat  . '</b></p>';;
 
 
 			  } else if ($c['type'] == "r_matrix" && !in_array($c['id_'], $checboxs)) {
-			  $s = true;
-			  $vc = 'null';
-			  array_push($checboxs, $c['id_']);
-			  foreach ($content as $op) {
-				if ($op['type'] == "r_matrix" && $op['id_'] == $c['id_']) {
-				  $vc == 'null' ? $vc = '<p ><b>' . $op['value'] . '</b></p>' : $vc .= '<p  style="margin: 0px 10px;"><b>' . $op['value'] . '</b></p>';
-				}
+				$s = true;
+				$vc = 'null';
+				array_push($checboxs, $c['id_']);
+				foreach ($content as $op) {
+					if ($op['type'] == "r_matrix" && $op['id_'] == $c['id_']) {
+					$vc == 'null' ? $vc = '<p ><b>' . $op['value'] . '</b></p>' : $vc .= '<p  style="margin: 0px 10px;"><b>' . $op['value'] . '</b></p>';
+					}
 			  }
 			  $m .= $vc;
 			}
 
-			if (isset($c['id_']) && $c['id_'] == 'passwordRegisterEFB') {
-			  $m .= $value;
-			  $value = '**********';
-			}
+				if (isset($c['id_']) && $c['id_'] == 'passwordRegisterEFB') {
+				$m .= $value;
+				$value = '**********';
+				}
 
 			if (((($s == true && $c['value'] == "@file@") || ($s == false && $c['value'] != "@file@")) && (isset($c['id_']) &&  $c['id_'] != "payment") && $c['type'] != "checkbox")) {
 
@@ -3565,7 +3572,7 @@ class _Public {
 			  if (strpos($c['type'], 'pay')) {
 				$vc = 'null';
 				$total_amount = $total_amount+ intval( $c['price']);
-				$q = '<b >'. number_format($c['price'], 0, '.', ',') . ' ' . ($currency) . '</b>';
+				$q = '<b >'. number_format($c['price'], 0, '.', ',')  . ($currency) . '</b>';
 				$title =$c['value'] ;
 			  } else if (strpos($c['type'], 'checkbox') !== false) {
 
@@ -3579,10 +3586,11 @@ class _Public {
 			if ($c['type'] == "payment") {
 
 			  if ($c['paymentGateway'] == "stripe") {
+				  $numberformat = $this->formatPrice_efb(number_format($c['paymentAmount'], 0, '.', ','), $c['paymentcurrency']);
 				  $m .= '<div style="margin: 10px 0px;">
 				  <p style="margin:5px;">' . $lanText['payment'] . ' ' . $lanText['id'] . ':<span > ' . $c['paymentIntent'] . '</span></p>
 				  <p style="margin: 5px;">' . $lanText['methodPayment'] . ':<span > ' . $c['paymentmethod'] . '</p>' . ($c['paymentmethod'] != 'charge' ? '<p style="margin: 5px;">' . $lanText['interval'] . ':<span class="efb mb-1 text-capitalize"> ' . $c['interval'] . '</span></p>' : '') . '</div>
-				  <p style="margin: 5px;">' . $lanText['payAmount'] . ':<span > ' . number_format($c['paymentAmount'], 0, '.', ',') .' '. strtoupper($c['paymentcurrency']). '</span></p>
+				  <p style="margin: 5px;">' . $lanText['payAmount'] . ':<span > ' .$numberformat. '</span></p>
 				  <p style="margin: 5px;">' . $lanText['ddate']  . ':<span > ' . $c['paymentCreated'] . '</span></p>
 				  </div>
 
@@ -3861,6 +3869,163 @@ class _Public {
 
 
 		if($state==1) return $this->efbFunction;
+	}
+
+
+		public function formatPrice_efb($amount, $currency) {
+
+		$currency_details = $this->get_currency_details_efb($currency);
+    	$formatted_amount = number_format_i18n($amount, $currency_details['d']);
+   	 	return $currency_details['s'] . ' ' . $formatted_amount;
+
+    }
+	public function get_currency_details_efb($currency) {
+		$currency = strtoupper($currency);
+		$symbols = array(
+			'USD' => array('s' => '$', 'd' => 2),
+			'AED' => array('s' => 'د.إ', 'd' => 2),
+			'AFN' => array('s' => '؋', 'd' => 2),
+			'ALL' => array('s' => 'L', 'd' => 2),
+			'AMD' => array('s' => '֏', 'd' => 2),
+			'ANG' => array('s' => 'ƒ', 'd' => 2),
+			'AOA' => array('s' => 'Kz', 'd' => 2),
+			'ARS' => array('s' => '$', 'd' => 2),
+			'AUD' => array('s' => 'A$', 'd' => 2),
+			'AWG' => array('s' => 'ƒ', 'd' => 2),
+			'AZN' => array('s' => '₼', 'd' => 2),
+			'BAM' => array('s' => 'KM', 'd' => 2),
+			'BBD' => array('s' => '$', 'd' => 2),
+			'BDT' => array('s' => '৳', 'd' => 2),
+			'BGN' => array('s' => 'лв', 'd' => 2),
+			'BIF' => array('s' => 'FBu', 'd' => 0),
+			'BMD' => array('s' => '$', 'd' => 2),
+			'BND' => array('s' => '$', 'd' => 2),
+			'BOB' => array('s' => 'Bs.', 'd' => 2),
+			'BRL' => array('s' => 'R$', 'd' => 2),
+			'BSD' => array('s' => '$', 'd' => 2),
+			'BWP' => array('s' => 'P', 'd' => 2),
+			'BYN' => array('s' => 'Br', 'd' => 2),
+			'BZD' => array('s' => '$', 'd' => 2),
+			'CAD' => array('s' => 'C$', 'd' => 2),
+			'CDF' => array('s' => 'FC', 'd' => 2),
+			'CHF' => array('s' => 'CHF', 'd' => 2),
+			'CLP' => array('s' => '$', 'd' => 0),
+			'CNY' => array('s' => '¥', 'd' => 2),
+			'COP' => array('s' => '$', 'd' => 2),
+			'CRC' => array('s' => '₡', 'd' => 2),
+			'CVE' => array('s' => 'Esc', 'd' => 2),
+			'CZK' => array('s' => 'Kč', 'd' => 2),
+			'DJF' => array('s' => 'Fdj', 'd' => 0),
+			'DKK' => array('s' => 'kr', 'd' => 2),
+			'DOP' => array('s' => 'RD$', 'd' => 2),
+			'DZD' => array('s' => 'د.ج', 'd' => 2),
+			'EGP' => array('s' => '£', 'd' => 2),
+			'ETB' => array('s' => 'Br', 'd' => 2),
+			'EUR' => array('s' => '€', 'd' => 2),
+			'FJD' => array('s' => '$', 'd' => 2),
+			'FKP' => array('s' => '£', 'd' => 2),
+			'GBP' => array('s' => '£', 'd' => 2),
+			'GEL' => array('s' => '₾', 'd' => 2),
+			'GIP' => array('s' => '£', 'd' => 2),
+			'GMD' => array('s' => 'D', 'd' => 2),
+			'GNF' => array('s' => 'FG', 'd' => 0),
+			'GTQ' => array('s' => 'Q', 'd' => 2),
+			'GYD' => array('s' => '$', 'd' => 2),
+			'HKD' => array('s' => '$', 'd' => 2),
+			'HNL' => array('s' => 'L', 'd' => 2),
+			'HTG' => array('s' => 'G', 'd' => 2),
+			'HUF' => array('s' => 'Ft', 'd' => 2),
+			'IDR' => array('s' => 'Rp', 'd' => 2),
+			'ILS' => array('s' => '₪', 'd' => 2),
+			'INR' => array('s' => '₹', 'd' => 2),
+			'IRR' => array('s' => '﷼', 'd' => 0),
+			'ISK' => array('s' => 'kr', 'd' => 0),
+			'JMD' => array('s' => '$', 'd' => 2),
+			'JPY' => array('s' => '¥', 'd' => 0),
+			'KES' => array('s' => 'KSh', 'd' => 2),
+			'KGS' => array('s' => 'лв', 'd' => 2),
+			'KHR' => array('s' => '៛', 'd' => 2),
+			'KMF' => array('s' => 'CF', 'd' => 0),
+			'KRW' => array('s' => '₩', 'd' => 0),
+			'KYD' => array('s' => '$', 'd' => 2),
+			'KZT' => array('s' => '₸', 'd' => 2),
+			'LAK' => array('s' => '₭', 'd' => 2),
+			'LBP' => array('s' => 'ل.ل', 'd' => 0),
+			'LKR' => array('s' => 'Rs', 'd' => 2),
+			'LRD' => array('s' => '$', 'd' => 2),
+			'LSL' => array('s' => 'L', 'd' => 2),
+			'MAD' => array('s' => 'د.م.', 'd' => 2),
+			'MDL' => array('s' => 'L', 'd' => 2),
+			'MGA' => array('s' => 'Ar', 'd' => 2),
+			'MKD' => array('s' => 'ден', 'd' => 2),
+			'MMK' => array('s' => 'K', 'd' => 2),
+			'MNT' => array('s' => '₮', 'd' => 2),
+			'MOP' => array('s' => 'P', 'd' => 2),
+			'MUR' => array('s' => '₨', 'd' => 2),
+			'MVR' => array('s' => 'ރ.', 'd' => 2),
+			'MWK' => array('s' => 'MK', 'd' => 2),
+			'MXN' => array('s' => '$', 'd' => 2),
+			'MYR' => array('s' => 'RM', 'd' => 2),
+			'MZN' => array('s' => 'MT', 'd' => 2),
+			'NAD' => array('s' => '$', 'd' => 2),
+			'NGN' => array('s' => '₦', 'd' => 2),
+			'NIO' => array('s' => 'C$', 'd' => 2),
+			'NOK' => array('s' => 'kr', 'd' => 2),
+			'NPR' => array('s' => '₨', 'd' => 2),
+			'NZD' => array('s' => '$', 'd' => 2),
+			'PAB' => array('s' => 'B/.', 'd' => 2),
+			'PEN' => array('s' => 'S/', 'd' => 2),
+			'PGK' => array('s' => 'K', 'd' => 2),
+			'PHP' => array('s' => '₱', 'd' => 2),
+			'PKR' => array('s' => '₨', 'd' => 2),
+			'PLN' => array('s' => 'zł', 'd' => 2),
+			'PYG' => array('s' => '₲', 'd' => 0),
+			'QAR' => array('s' => 'ر.ق', 'd' => 2),
+			'RON' => array('s' => 'lei', 'd' => 2),
+			'RSD' => array('s' => 'дин', 'd' => 2),
+			'RUB' => array('s' => '₽', 'd' => 2),
+			'RWF' => array('s' => 'FRw', 'd' => 2),
+			'SAR' => array('s' => 'ر.س', 'd' => 2),
+			'SBD' => array('s' => '$', 'd' => 2),
+			'SCR' => array('s' => '₨', 'd' => 2),
+			'SEK' => array('s' => 'kr', 'd' => 2),
+			'SGD' => array('s' => '$', 'd' => 2),
+			'SHP' => array('s' => '£', 'd' => 2),
+			'SLE' => array('s' => 'Le', 'd' => 2),
+			'SOS' => array('s' => 'Sh', 'd' => 2),
+			'SRD' => array('s' => '$', 'd' => 2),
+			'STD' => array('s' => 'Db', 'd' => 2),
+			'SZL' => array('s' => 'L', 'd' => 2),
+			'THB' => array('s' => '฿', 'd' => 2),
+			'TJS' => array('s' => 'ЅМ', 'd' => 2),
+			'TND' => array('s' => 'د.ت', 'd' => 3),
+			'TOP' => array('s' => 'T$', 'd' => 2),
+			'TRY' => array('s' => '₺', 'd' => 2),
+			'TTD' => array('s' => '$', 'd' => 2),
+			'TWD' => array('s' => 'NT$', 'd' => 2),
+			'TZS' => array('s' => 'Sh', 'd' => 2),
+			'UAH' => array('s' => '₴', 'd' => 2),
+			'UGX' => array('s' => 'USh', 'd' => 0),
+			'UYU' => array('s' => '$U', 'd' => 2),
+			'UZS' => array('s' => 'лв', 'd' => 2),
+			'VND' => array('s' => '₫', 'd' => 0),
+			'VUV' => array('s' => 'VT', 'd' => 0),
+			'WST' => array('s' => 'T', 'd' => 2),
+			'XAF' => array('s' => 'FCFA', 'd' => 0),
+			'XCD' => array('s' => '$', 'd' => 2),
+			'XOF' => array('s' => 'CFA', 'd' => 0),
+			'XPF' => array('s' => '₣', 'd' => 0),
+			'YER' => array('s' => '﷼', 'd' => 2),
+			'ZAR' => array('s' => 'R', 'd' => 2),
+			'ZMW' => array('s' => 'ZK', 'd' => 2),
+			'BHD' => array('s' => '.د.ب', 'd' => 3),
+			'JOD' => array('s' => 'د.ا', 'd' => 3),
+			'KWD' => array('s' => 'د.ك', 'd' => 3),
+			'OMR' => array('s' => 'ر.ع.', 'd' => 3),
+			'TND' => array('s' => 'د.ت', 'd' => 3)
+		);
+
+		return isset($symbols[$currency]) ? $symbols[$currency] : array('s' => $currency, 'd' => 2);
 	}
 
 }
