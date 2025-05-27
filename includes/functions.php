@@ -1107,13 +1107,15 @@ class efbFunction {
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){
 			$ac=$this->get_setting_Emsfb();
 			$smtp =(isset($ac->smtp) && (bool)$ac->smtp ) ? true : false;
-			foreach($user_res as $key=>$val){
-				if(isset($user_res[$key]["id_"]) && $user_res[$key]["id_"]==$data[0]["email_to"]){
-					$email=$val["value"];
-					$subject ="📮 ".$lang["youRecivedNewMessage"];
-					if($smtp) $this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
+			if($smtp) {
+				foreach($user_res as $key=>$val){
+					if(isset($user_res[$key]["id_"]) && $user_res[$key]["id_"]==$data[0]["email_to"]){
+						$email=$val["value"];
+						$subject ="📮 ".$lang["youRecivedNewMessage"];
+						$this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
 
-					return 1;
+
+					}
 				}
 			}
 		}
