@@ -3177,11 +3177,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         if(title=="file") title ="atcfle"
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
-        if(c.type.includes('pay')) {
+        if(c.type.includes('pay') || c.type == 'prcfld'){
 
           q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
-        }else if(c.type.includes('checkbox')){
-
         }else if(c.type.includes('imgRadio')){
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
         }
@@ -3217,7 +3215,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   }
   if(totalpaid>0){
     m +=`<div class="efb my-2 fs7 bg-dark text-light">
-    <p class="efb p-2">${efb_var.text.ttlprc}:<span class="efb mb-1"> ${Number(totalpaid)}</span></p>
+    <p class="efb p-2">${efb_var.text.ttlprc}:<span class="efb mb-1"> ${Number(totalpaid).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></p>
     </div>`
   }
   m += '</div>';

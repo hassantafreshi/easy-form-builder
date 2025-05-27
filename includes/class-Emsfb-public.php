@@ -3872,17 +3872,21 @@ class _Public {
 	}
 
 
-		public function formatPrice_efb($amount, $currency) {
+	public function formatPrice_efb($amount, $currency) {
 
 		$currency_details = $this->get_currency_details_efb($currency);
     	$formatted_amount = number_format_i18n($amount, $currency_details['d']);
-   	 	return $currency_details['s'] . ' ' . $formatted_amount;
+		if (is_rtl()) {
+			return $formatted_amount . ' ' . $currency_details['s'];
+		} else {
+			return $currency_details['s'] . '' . $formatted_amount;
+		}
 
     }
 	public function get_currency_details_efb($currency) {
 		$currency = strtoupper($currency);
 		$symbols = array(
-			'USD' => array('s' => '$', 'd' => 2),
+			'USD' => array('s' => '$', 'd' => 2, ),
 			'AED' => array('s' => 'د.إ', 'd' => 2),
 			'AFN' => array('s' => '؋', 'd' => 2),
 			'ALL' => array('s' => 'L', 'd' => 2),
