@@ -182,7 +182,7 @@ class Addon {
 
 		if(gettype($ac)!="string"){
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
-			if(isset($ac->smtp) && $ac->smtp=="true" || $ac->smtp=="1" ){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}
+			if(isset($ac->smtp) && $ac->smtp=="true" ){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}
 			if(isset($ac->AdnSPF)==true){
 
 				$addons["AdnSPF"]=$ac->AdnSPF;
