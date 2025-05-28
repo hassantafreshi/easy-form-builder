@@ -1552,9 +1552,18 @@ class Admin {
 
             if (get_option('emsfb_email_status') === false) {
                 require_once (EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-requirement.php');
-                $efbRequirement = new \CheckRequirementEmsfb();
+                $efbRequirement = new CheckRequirementEmsfb();
                 $efbRequirement->run_and_save_efb();
             }
+
+
+            $check = get_option('emsfb_email_status', false);
+            if (!$check || !is_array($check) || $check['status'] === 'ok') return;
+                $email_notifi = sprintf(
+                esc_html__('%s notification', 'easy-form-builder'),
+                esc_html__('Email', 'easy-form-builder')
+            );
+
 
             function result_ok () {
                    $check['status'] = 'ok';
@@ -1564,16 +1573,13 @@ class Admin {
                    return $check;
             }
 
-            $email_notifi = sprintf(
-            esc_html__('%s notification', 'easy-form-builder'),
-            esc_html__('Email', 'easy-form-builder')
-            );
             $warning =' '. sprintf(
                 esc_html__('Disabling this feature may affect the proper functionality of Easy Form Builder. If you plan to use the %s feature, please ensure it is enabled.', 'easy-form-builder'),
                 $email_notifi
             );
 
-            $messages = [
+
+             $messages = [
                 'mail_function_ok' => [
                     'title' => esc_html__('Email system is working properly.', 'easy-form-builder'),
                     'description' => esc_html__('Your server is able to send emails using the default PHP mail system.', 'easy-form-builder'),
@@ -1599,9 +1605,6 @@ class Admin {
                     'description' => esc_html__('It seems that your WordPress site could not send a test email. To manually test your email system, go to Easy Form Builder > Settings > Email Settings tab and click the "Check Email Server" button.', 'easy-form-builder') . $warning,
                 ],
             ];
-
-            $check = get_option('emsfb_email_status', false);
-            if (!$check || !is_array($check) || $check['status'] === 'ok') return;
 
             $settings = get_option('emsfb_settings', false);
 
@@ -1639,7 +1642,7 @@ class Admin {
             }
             $logo_url = EMSFB_PLUGIN_URL.'includes/admin/assets/image/logo.png';
             $msg_id = isset($check['message']['id']) ? $check['message']['id'] : '';
-            $help = '<a href="https://whitestudio.team/documents/how-to-fix-email-not-working-issue#'.$msg_id.'" target="_blank" >' . esc_html__('Help','easy-form-builder') . '</a>';
+            $help = '<a href="https://whitestudio.team/documents/how-to-fix-email-not-working-issue#'.$msg_id.'" target="_blank" >' . esc_html__('Click here for more details','easy-form-builder') . '</a>';
             $title = isset($messages[$msg_id]['title']) ? $messages[$msg_id]['title'] : esc_html__('Email Issue', 'easy-form-builder');
             $description = isset($messages[$msg_id]['description']) ? $messages[$msg_id]['description'] : '';
             ob_start();

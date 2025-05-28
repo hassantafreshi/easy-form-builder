@@ -4,7 +4,7 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
 Requires at least: 4.7
 Tested up to: 6.8.1
-Stable tag: 3.8.12
+Stable tag: 3.8.13
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -145,7 +145,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - *5 Points Scale* : The 5-point scale is a popular method for creating survey forms and poll forms. With Easy Form Builder's 5 Points Scale fields, you can easily create beautiful forms, collect responses, and analyze results.
 
-- *Net Promoter Score* : The Net Promoter Score (NPS) question is a powerful tool for creating effective survey forms and poll forms in Easy Form Builder. 
+- *Net Promoter Score* : The Net Promoter Score (NPS) question is a powerful tool for creating effective survey forms and poll forms in Easy Form Builder.
 
 - With Easy Form Builder, you get a free feature that sends you an email when someone fills out a form on your website. It includes a link to see the response, helping you communicate, engage users, and improve your site's search engine rankings.
 
@@ -417,7 +417,7 @@ Yes, in Easy Form Builder, we use Google reCAPTCHA version 2 checkbox technology
 
 Yes, Easy Form Builder features the capability of sending email notifications after form submission or receiving new responses. With just a few clicks in its settings, you can configure the forms you create to send email notifications.
 
-= IS Easy Form Builder GDPR compliant? = 
+= IS Easy Form Builder GDPR compliant? =
 
 Easy Form Builder is GDPR compliant, considering this aspect both during form creation and forms management. It especially ensures the administrator's right to delete forms and submitted entries is preserved. Most importantly, all this data is stored exclusively on your website.
 
@@ -425,7 +425,7 @@ Easy Form Builder is GDPR compliant, considering this aspect both during form cr
 
  Form Builder has tried to add necessary standards to the forms, making them accessible to individuals with disabilities during form display.
 
-= Which languages are the documentation for the Easy Form Builder available in? = 
+= Which languages are the documentation for the Easy Form Builder available in? =
 
 The Documentation for the Easy Form Builder is fully available in English and German, covering form creation, form management, form settings, and more. Additionally, documentation in Arabic is currently being completed.
 
@@ -437,7 +437,7 @@ Report bugs and improve Easy Form Builder by [create a ticket on GitHub](https:/
 
 We've got a dedicated team ready to support you with any form-related questions or issues you may come across. Our assistance is available every day, and we're committed to addressing all customer form requests within 24 hours.
 
-= Does the WordPress plugin Easy Form Builder support creating forms to capture Geolocation data without needing a map API key? = 
+= Does the WordPress plugin Easy Form Builder support creating forms to capture Geolocation data without needing a map API key? =
 
 Yes, the WordPress plugin Easy Form Builder allows you to create a single form to capture Geolocation without requiring an API key for map usage. This form integrates a location picker, enabling users to specify points using LeafletJs and OpenStreetMap, making it simple and convenient. Each form, such as a Contact Us form, can feature a location picker to precisely gather user coordinates on your WordPress site without the need for additional map keys.
 
@@ -463,7 +463,7 @@ Yes, the WordPress plugin Easy Form Builder allows you to create a single form t
 
 == Changelog ==
 
-=3.8.12=
+=3.8.13=
 
 * Improved Email notification configuration in Easy Form Builder.
 
@@ -484,7 +484,7 @@ Yes, the WordPress plugin Easy Form Builder allows you to create a single form t
 
 * Fixed issues
 
-= 3.8.6 = 
+= 3.8.6 =
 * Enhanced Security Features in the Easy Form Builder WordPress Plugin
 
 = 3.8.5 =
@@ -512,7 +512,7 @@ Yes, the WordPress plugin Easy Form Builder allows you to create a single form t
 
 * Fixed issues
 
-= 3.7.35 = 
+= 3.7.35 =
 
 * Fixed issues of loading time of Easy Form Builder
 
@@ -520,23 +520,23 @@ Yes, the WordPress plugin Easy Form Builder allows you to create a single form t
 
 
 
-= 3.7.34 = 
+= 3.7.34 =
 * Fixed issues of loading time of Easy Form Builder
 * Fixed issues
-= 3.7.33 = 
+= 3.7.33 =
 
 * Fixed issues
 
-= 3.7.31 = 
+= 3.7.31 =
 
 * Resolved issues related to sending email notifications for forms.
 
-= 3.7.30 = 
+= 3.7.30 =
 * Improved Security of Easy Form Builder
 * Change the default response state by the admin to require admin login.
 
-= 3.7.29 = 
-= 3.7.28 = 
+= 3.7.29 =
+= 3.7.28 =
 
 * Resolved issues related to sending email notifications for forms.
 
@@ -551,15 +551,15 @@ Yes, the WordPress plugin Easy Form Builder allows you to create a single form t
 = 3.7.25 =
 * Fixed issues of UI Easy Form Builder
 
-= 3.7.24 = 
+= 3.7.24 =
 * Fixed issues of UI Easy Form Builder
 * Resolved Google ReCaptcha loading issues in Easy Form Builder's forms.
 
 
-= 3.7.21 = 
+= 3.7.21 =
 * CAPTCHA Issue Present Resolved on Edit Form on Easy Form Builder Panel page
 * Admins Can Now Add Responses Without Logging In
-* "Select All" Checkbox Added for Messages Section on Easy Form Builder Panel 
+* "Select All" Checkbox Added for Messages Section on Easy Form Builder Panel
 * Delete Button Added to Message Section on Easy Form Builder Panel 
 * "Read" Button Added to Message Section on Easy Form Builder Panel 
 * Resolved issues with changing phone number in settings.
@@ -606,7 +606,7 @@ Yes, the WordPress plugin Easy Form Builder allows you to create a single form t
 
 * Fixed issues
 
-= 3.7.10 = 
+= 3.7.10 =
 
 * The link to documents in German and Arabic has been added to the Easy Form Builder.
 
@@ -729,7 +729,7 @@ The Easy Form Builder plugin now includes a new email content selector feature, 
 
 =3.6.7=
 
-* email structer of easy form builder is improved  
+* email structer of easy form builder is improved
 
 * Improved UX of Easy Form Builder
 
@@ -828,7 +828,7 @@ The Easy Form Builder plugin now includes a new email content selector feature, 
 
 =3.5.12=
 * Improved UX of Easy Form Builder
-* Improved UI of Easy Form Builder 
+* Improved UI of Easy Form Builder
 * Fixed issues of UI Easy Form Builder
 * Added backward features for forms and Easy Form Builder Plugin.
 

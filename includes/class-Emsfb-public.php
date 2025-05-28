@@ -364,6 +364,13 @@ class _Public {
 					wp_enqueue_script('logic-efb');
 				}
 
+		}else if ($this->pro_efb!=1 && ($lang=='fa' || $lang=='ar')){
+					$efb_m .= '<p class="efb fs-7 text-darkb mb-4 d-none" style="text-align: center;" >
+					<a href="https://easyformbuilder.ir"  class="efb d-none" target="_blank">افزونه فرم ساز وردپرس فارسی</a>
+					<a href="https://wordpress.org/plugins/easy-form-builder/"  class="efb d-none" target="_blank">Easy Form Builder Plugin for WordPress</a>
+					<a href="https://'.$lang.'.wordpress.org/plugins/easy-form-builder/"  class="efb d-none" target="_blank">'.$lanText['easyFormBuilder'].' WordPress</a>
+					</p>
+					';
 		}
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
@@ -473,13 +480,14 @@ class _Public {
 			 <div id='body_efb' class='efb  row pb-3 efb px-2'>
 			 <div class='efb text-center my-5'>
 			 ".$this->loading_icon_public_efb('',$lanText["pleaseWaiting"] , $lanText["fil"])."
-			 ".$efb_m."
 			 ".$s_m."
+			 ".$efb_m."
 			 </div>
-			 </div><div id='alert_efb' class='efb mx-5'></div>
+			 </div><div id='alert_efb' class='efb mx-5'><div class='efb d-none' style='display: none !important;'>".$efb_m."</div></div>
 			 ".$k."
 			 ";
 		 }
+
 		return $content;
 	}
 	public function EMS_Form_Builder_track(){
@@ -526,6 +534,8 @@ class _Public {
 						$s_m =" <script>alert('OpenStreetMap Error:".$text['tfnapca']."')</script>";
 					}
 				}
+
+
 		}
 
 		$this->pro_efb = $valstng->pro;
