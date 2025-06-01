@@ -64,7 +64,7 @@ function fun_emsFormBuilder_render_view(x) {
   let count = 0;
   fun_backButton_efb(2);
 
-  function creatRow(i, newM) {
+  function creatRowsFormsEFB(i, newM) {
     // v3.8.6 start
     return ` <tr class="efb pointer-efb efb" id="emsFormBuilder-tr-${Number(i.form_id)}" >                    
    <th scope="row" class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" >
@@ -89,13 +89,14 @@ function fun_emsFormBuilder_render_view(x) {
     
     for (let i of valueJson_ws_form) {
       if (x > count) {
+        if(i.status!=1) continue;
         let newM = false;
         const d = ajax_object_efm.messages_state.findIndex(x => x.form_id == i.form_id)
         if (d != -1) { newM = true; }
         const b = ajax_object_efm.response_state.findIndex(x => x.form_id == i.form_id)
         if (b != -1) { newM = true; }
         //response
-        newM != true ? o_rows += creatRow(i, newM) : rows += creatRow(i, newM);
+        newM != true ? o_rows += creatRowsFormsEFB(i, newM) : rows += creatRowsFormsEFB(i, newM);
         count += 1;
       }
     }
@@ -394,7 +395,8 @@ function fun_ws_show_list_messages(value) {
     let no =1;
     for (const v of value) {
       let state = Number(v.read_);
-     
+    
+
       iconNotRead = `<div class="efb nmsgefb bi-envelope-fill"></div>`;
       if(state==2){
          iconRead = 'bi-bag-x';

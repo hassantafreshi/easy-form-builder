@@ -167,7 +167,11 @@ class _Public {
 			$is_track= $this->EMS_Form_Builder_track();
 	
 		}else{
-			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div>
+			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger efb text-center display-1 my-2'>
+				<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-exclamation-triangle-fill' viewBox='0 0 16 16'>
+				<path d='M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2'/>
+				</svg>
+			</div>
 			<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
 			<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 		}
@@ -213,7 +217,6 @@ class _Public {
 			"bi-chat-square-text",
 			"bi-download",
 			"bi-star-fill",
-			"bi-hourglass-split",
 			"bi-hand-thumbs-up",
 			"bi-envelope",
 			"bi-arrow-right",
@@ -231,19 +234,29 @@ class _Public {
 			"bi-trash",
 			'bi-shield-check',
 			'bi-chat-square-text',	
-			'bi-paperclip'
+			'bi-paperclip'	
 		]];
+		$bootstrap_icons ='';
 		if($is_track==null){		
 			$value = $value_form[0]->form_structer;
 			$pattern = '/bi-[a-zA-Z0-9-]+/';
-			error_log('value:'.$value);
+			// error_log('value:'.$value);
 			preg_match_all($pattern, $value, $icons_ );
+			// error_log('icons_:'.json_encode($icons_));
 			//marge icons and icons_
 			$iconsd = array_merge($icons_[0] , $icons[0]);
+			// error_log('iconsd:'.json_encode($iconsd));
 			$icons_ = array_unique($iconsd);
-		   $value = preg_replace('/\\\"email\\\":\\\"(.*?)\\\"/', '\"email\":\"\"', $value);
-   
+		   	$value = preg_replace('/\\\"email\\\":\\\"(.*?)\\\"/', '\"email\":\"\"', $value);
+			   $bootstrap_icons = $this->bootstrap_icon_efb($icons_);   
+		}else{
+			
+			$bootstrap_icons = $this->bootstrap_icon_efb( $icons[0]);
+			// error_log(json_encode($is_track));
+			//$is_track = $bootstrap_icons . $is_track;
+			$is_track['content'] = $bootstrap_icons . $is_track['content'];
 		}
+		// error_log('bootstrap_icons:'.$bootstrap_icons);
 		//marge icons and icons_
 		//$iconsd = array_merge($icons_[0] , $icons[0]);
 		$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';	
@@ -424,14 +437,14 @@ class _Public {
    
 			   // error_log($value);
 			   require_once(EMSFB_PLUGIN_DIRECTORY . '/includes/class-Emsfb-formbuilder.php');	
-			   error_log('before new Formbuilder');		  
+			   error_log('before new Formbuilder');		
 			   $efbFormBuilder = new Formbuilder($valj_efb , $this->pro_efb);
 			   $content="<!--efb-->";
 			   $head ='<!--start head -->';
 			   $form_id = $this->id;
 			   if($valj_efb[0]->stateForm==true  && is_user_logged_in()==false ){
 					$content ="
-					".$this->bootstrap_icon_efb($icons_)."		 
+					".$bootstrap_icons."		 
 					<div id='body_efb' class='efb row pb-3 efb px-2 v4'> <div class='efb text-center my-5'>
 					<div class='efb bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center fs-5'>". $lanText['formPrivateM']."</h3>
 					".$efb_m."
@@ -624,7 +637,7 @@ class _Public {
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
 			// if (valj_efb[0].hasOwnProperty('dShowBg') && Number(valj_efb[0].dShowBg) != 1 && state == "run") { document.getElementById('body_efb').classList.add('card') }
 			$dShow = isset($valj_efb[0]->dShowBg) && intval($valj_efb[0]->dShowBg) != 1 ? 'card' : '';
-			$content_new = $script.$this->bootstrap_icon_efb($icons_).'
+			$content_new = $script.$bootstrap_icons.'
 				<!-- start body_efb-->
 				
 				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'">
@@ -876,6 +889,7 @@ class _Public {
 		$cache_plugins = get_option('emsfb_cache_plugins');
 		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id,$cache_plugins);
 		if ($s_sid != 1) {
+			$this->efbFunction->send_email_noti_sid_plugins_efb('loadScriptsEvent');
 			$m = $this->lanText['sxnlex'];
 			$response = ['success' => false, 'm' => $m];
 			wp_send_json_success($response, 200);
@@ -1923,17 +1937,20 @@ class _Public {
 			wp_send_json_success($response, 200);
 		}
 	  }// end function get_form_public_api
-	  public function get_track_public_api($data_POST_) {	
+	  public function get_track_public_api($data_POST_) {
+		// error_log('get_track_public_api');	
 		$data_POST = $data_POST_->get_json_params();
 		$this->get_efbFunction(0);
 		$text_ = ['spprt','sxnlex','error403','errorMRobot','enterVValue','guest','cCodeNFound'];
 		$lanText= $this->efbFunction->text_efb($text_);
 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
-		if ($s_sid !=1 || $sid==null){
+		if (($s_sid !=1 || $sid==null ) || true){
+			// error_log('error 403: ' . $sid . ' ' . $s_sid);
+			$this->efbFunction->send_email_noti_sid_plugins_efb('getTrackEvent');
 			$m =  $lanText['sxnlex'];
-		$response = array( 'success' => false  , 'm'=>$m); 
-		wp_send_json_success($response, 200);
+			$response = array( 'success' => false  , 'm'=>$m); 
+			wp_send_json_success($response, 200);
 		} 
 		$response=$data_POST['valid'];
 		$captcha_success =[];
@@ -2209,9 +2226,10 @@ class _Public {
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 		$page_id = sanitize_text_field($data_POST['page_id']);
 		if ($s_sid !=1 || $sid==null){
+			$this->efbFunction->send_email_noti_sid_plugins_efb;('replyMessageAction');
 			$m = '<b>'. $this->lanText['sxnlex'];
-		$response = array( 'success' => false  , 'm'=>$m ); 
-		wp_send_json_success($response,200);
+			$response = array( 'success' => false  , 'm'=>$m ); 
+			wp_send_json_success($response,200);
 		} 
 		$this->id =sanitize_text_field($data_POST['id']);
 		$by ="";
@@ -2434,6 +2452,7 @@ class _Public {
 		$data_POST = $data_POST_->get_json_params();
 		$fid = sanitize_text_field($data_POST['id']);
 		$sid = sanitize_text_field($data_POST['sid']);
+		$this->get_efbFunction(0);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
 		$page_id = sanitize_text_field($data_POST['page_id']);
 		$cache_plugins = get_option('emsfb_cache_plugins');
@@ -2654,8 +2673,11 @@ class _Public {
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
 		$this->id =sanitize_text_field($data_POST['id']);
 		$sid = sanitize_text_field($data_POST['sid']);	
+		$this->get_efbFunction(0);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		if ($s_sid !=1){
+			//efb_code_validate_select
+			$this->efbFunction->send_email_noti_sid_plugins_efb('StripePaymentEvent');
 			$m = esc_html__('error', 'easy-form-builder') . ' 403';
 			$response = array( 'success' => false  , 'm'=>$m); 
 			wp_send_json_success($response, 200);
@@ -2864,9 +2886,10 @@ class _Public {
 		$text_=['sxnlex'];
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		if ($s_sid !=1){
+			$this->efbFunction->send_email_noti_sid_plugins_efb('PersiaPaymentEvent');
 			$m =  $this->lanText['sxnlex'];
-		$response = array( 'success' => false  , 'm'=>$m); 
-		wp_send_json_success($response, 200);
+			$response = array( 'success' => false  , 'm'=>$m); 
+			wp_send_json_success($response, 200);
 		} 
 		$Sk ='null';
 		if(gettype($r)=="string"){
@@ -3002,6 +3025,7 @@ class _Public {
 						$this->name = sanitize_text_field($data_POST['name']);
 						$check=	$this->insert_message_db(2,$clientRefId);
 						if(isset($check)!=true){
+							$this->efbFunction->send_email_noti_sid_plugins_efb('PersianPaymentEvent');
 							$response = array('success' => false, 'm' => 'خطا در ارتباط با دیتابیس ، شماره خطا DB-403');
 						}
 				}else{
@@ -3017,8 +3041,9 @@ class _Public {
 		}
 		wp_send_json_success($response, 200);
 	}
-	public function persia_pay_Emsfb() {		
+	/* public function persia_pay_Emsfb() {		
         if (check_ajax_referer('public-nonce', 'nonce') != 1) {
+			//$this->efbFunction->send_email_noti_sid_plugins_efb('PersianPayNonceEvent');
             $m = esc_html__('error', 'easy-form-builder') . ' 403';
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, 200);
@@ -3170,7 +3195,7 @@ class _Public {
 			$response = array( 'success' => false  , 'm'=>esc_html__('Error Code:V01','easy-form-builder'));		
 		}
 		wp_send_json_success($response, 200);
-    }
+    } */
 
 	public function string_to_url($string) {
 			$rePage= preg_replace('/(http:@efb@)+/','http://',$string);
@@ -3799,6 +3824,7 @@ class _Public {
 	public function fun_present_others_action_efb($state, $username, $sid,$fid){
 		// error_log('fun_present_others_action_efb');
 		// state 1:register 0:recovery
+		$this->get_efbFunction(0);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
 		$texts =['sxnlex','uraatn'];
 		$lan =$this->efbFunction->text_efb($texts);
@@ -3900,6 +3926,7 @@ class _Public {
 			return '<p text-align: center;">'.$lan['uraatn'].'</p>' . Js_();
 		}
 		if ($s_sid !=1 || $sid==null){
+			$this->efbFunction->send_email_noti_sid_plugins_efb('userActionEvent');
 			return '<p style="color:#ff4b93;text-align: center;">'.$lan['sxnlex'].'</p>'.Js_();
 		}
 		if(empty($this->db)){
@@ -3999,9 +4026,11 @@ class _Public {
 		// error_log(json_encode($data));
 		$st = sanitize_text_field($data['st']);
 		$fid = sanitize_text_field($data['fid']);
+		$this->get_efbFunction(0);
 		$s_sid = $this->efbFunction->efb_code_validate_select($st, $fid);
 		// error_log('sid===>'.$s_sid);
 		if ($s_sid !=1){
+			$this->efbFunction->send_email_noti_sid_plugins_efb('passwordActionEvent');
 			return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder') .' E404')) ;
 		}
 		$password = sanitize_text_field($data['password']);

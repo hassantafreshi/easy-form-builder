@@ -180,8 +180,8 @@ async function createStepsOfPublic() {
       if(el.type=="checkbox" && valj_efb_[0].type == "payment" && classes.contains('payefb')){
         console.log('checkbox');
         console.log('166');
-        fun_sendBack_emsFormBuilder(o[0]);
-        fun_total_pay_efb()
+       // fun_sendBack_emsFormBuilder(o[0]);
+        fun_total_pay_efb(form_id)
       }else if (el.type != "submit") {
         console.log(`type:[${el.type}]`);
         switch (el.type) {
@@ -301,7 +301,7 @@ async function createStepsOfPublic() {
             Object.assign(o[0], p)
             console.log('179');
             fun_sendBack_emsFormBuilder(o[0]);
-            fun_total_pay_efb()
+            fun_total_pay_efb(form_id)
           } else {
             console.log('182');
             fun_sendBack_emsFormBuilder(o[0]);
@@ -1971,7 +1971,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         const indx= sendBack_emsFormBuilder_pub.findIndex(x=>x!=null && x.hasOwnProperty('id_ob')==true && x.id_ob ==el.id);
         if(indx!=-1) {         
           slice_sback(indx)
-          if(ob.type=="payCheckbox") fun_total_pay_efb();
+          if(ob.type=="payCheckbox") fun_total_pay_efb(form_id);
           if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
           return ;
         }
@@ -2092,7 +2092,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       console.log('3090');
       
       fun_sendBack_emsFormBuilder(o[0]);
-      fun_total_pay_efb()
+      fun_total_pay_efb(form_id)
     }else if(type.includes('option')){
       const ch = el.id.includes('_chl')
       const qty = ch  ? document.getElementById(el.id).value :'';

@@ -723,7 +723,7 @@ class efbFunction {
 			"elan" => $state  &&  isset($ac->text->elan) ? $ac->text->elan : esc_html__('English language',$s),
 			"nlan" => $state  &&  isset($ac->text->nlan) ? $ac->text->nlan : esc_html__('National language',$s),
 			"stsd" => $state  &&  isset($ac->text->stsd) ? $ac->text->stsd : esc_html__('Select display language',$s),
-			"excefb" => $state  &&  isset($ac->text->excefb) ? $ac->text->excefb : esc_html__('The XX plugin might interfere with forms of Easy Form Builder\'s functionality. If you encounter any issues with the Forms, disable caching for the Easy Form Builder plugin in the XX plugin\'s settings.',$s),
+			"excefb" => $state  &&  isset($ac->text->excefb) ? $ac->text->excefb : esc_html__('The %s caching plugin might interfere with the functionality of Easy Form Builder forms. If you experience any issues, please configure the %s plugin to exclusively exclude the page where your form is published from caching.',$s),
 			"trya" => $state  &&  isset($ac->text->trya) ? $ac->text->trya : esc_html__('Trying again.',$s),
 			"rnfn" => $state  &&  isset($ac->text->rnfn) ? $ac->text->rnfn : esc_html__('Rename the file name',$s),
 			"ausdup" => $state  &&  isset($ac->text->ausdup) ? $ac->text->ausdup : esc_html__('Are you sure you want to duplicate the XXX ?',$s),
@@ -1816,20 +1816,20 @@ public function addon_add_efb($value) {
 
 
 	public function check_for_active_plugins_cache() {
+		// error_log('EFB=>check_for_active_plugins_cache: ');
+		$cache_plugins = get_option('emsfb_cache_plugins' ,0);
+		// error_log('EFB=>check_for_active_plugins_cache: ' . $cache_plugins);
 		
-		$classes = [		
-			'Cache Enabler' => 'cache-enabler/cache-enabler.php',						
-			'Hyper Cache'=>'hyper-cache/plugin.php',
-		];
-	
+		if(!is_bool($cache_plugins)){
+			$cache_plugins_list = json_decode($cache_plugins, true);
+			$name = '';
 
-		
-		foreach ( $classes as $plugin => $class ) {
-			if ( is_plugin_active( $class ) ) {
-				
-				return $plugin;
-				
+			foreach ($cache_plugins_list as $plugin) {			
+				$name .= $plugin['name'] . ', ';	
 			}
+			//remove last ','
+			$name = rtrim($name, ', ');
+			return $name;
 		}
 	
 		return 0;
@@ -1964,7 +1964,7 @@ public function addon_add_efb($value) {
 		$plugin_list = [];
 		$cache_plugins_slug =['wp-optimize','hummingbird-performance', 'big-scoots-cache','wp-cloudflare-page-cache','breeze','jetpack','w3-total-cache','wp-fastest-cache',
 							  'wp-rocket','comet-cache','hyper-cache','cache-enabler','wp-super-cache','litespeed-cache','nitropack','jetpack-boost',
-							  'autoptimize','wp-rest-cache','speedycache','clear-cache-for-widgets','wp-cache','wp-cache-system','atec-cache-info','atec-cache-apcu','wpspeed','wp-speed'];
+							  'autoptimize','wp-rest-cache','speedycache','clear-cache-for-widgets','wp-cache','wp-cache-system','atec-cache-info','atec-cache-apcu','wpspeed','wp-speed','flying-press'];
 		foreach ($plugins as $plugin_file => $plugin_data) {
 			$slug = explode('/', $plugin_file)[0];
 			$exists_cache = in_array($slug, $cache_plugins_slug); 
@@ -2654,6 +2654,59 @@ public function addon_add_efb($value) {
 		);
 	
 		return $sanitized_html;
+	}
+
+	public function send_email_noti_sid_plugins_efb($status){
+		$all_plugins = get_plugins();
+		$msg = esc_html__('This is an alert message regarding a SID validation error. This issue may have occurred due to a plugin conflict or an unauthorized attempt to access the website.', 'easy-form-builder') . '<br>';
+        $msg .= esc_html__('If you receive this email multiple times, it could indicate a recurring issue.', 'easy-form-builder') ;
+		$msg .= '<a href="'.EMSFB_SERVER_URL.'/support" target="_blank">'.esc_html__('Please contact our support team for assistance.', 'easy-form-builder') . '</a><br>';
+		$msg .= esc_html__('One or more of the plugins listed below—typically related to caching or security—might be triggering this issue. For troubleshooting, temporarily deactivate them and test your site.', 'easy-form-builder') . '<br>';
+
+		
+		$str =   '<!--efb-->';
+		$str .= 'Error code:'.$status . '<br>';
+		// 'this is a test message for sid validation error because of plugin conflict or user try to attack the website<br>';
+        $str .=  $msg . '<br><hr>';
+		$str .= 'IP:'.$this->get_ip_address() . '<br>';
+		$str .= 'OS:'.$this->getVisitorOS() . '<br>';
+		$str .= 'Browser:'.$this->getVisitorBrowser() . '<br>';
+		$str .= 'User ID:'.get_current_user_id() . '<br>';
+		$str .= 'User Agent:'.$_SERVER['HTTP_USER_AGENT'] . '<br>';
+		$str .= 'Referer:'.$_SERVER['HTTP_REFERER'] . '<br>';
+		$str .= 'Request URI:'.$_SERVER['REQUEST_URI'] . '<br>';
+		$str .= 'Date:'. wp_date('Y-m-d H:i:s') . '<br>';
+		$str .= '<hr>Value:'.$status . '<br>';
+		$str .= 'State:'.$status . '<br>';
+		$str .= 'PHP Version: ' . phpversion() . '<br>';
+		$str .= 'WordPress Version: ' . get_bloginfo('version') . '<br>';
+		$str .= 'Easy Form Builder Version' . EMSFB_PLUGIN_VERSION . '<br>';
+		$str .= 'Website URL: ' . get_site_url() . '<br>';
+		$div = '<div style="width: 100%; height: 1px; background-color: #ccc; margin: 5px 10;"></div>';
+		foreach ($all_plugins as $plugin_file => $plugin_data) {
+			$div.= 'Plugin Name: ' . $plugin_data['Name'] . '<br>';
+			
+			$div .= 'Plugin URI: ' . $plugin_data['PluginURI'] . '<br>';
+			$div .= 'Version: ' . $plugin_data['Version'] . '<br>';
+			$div .= 'Description: ' . $plugin_data['Description'] . '<br><hr>';
+			$div .= '</div>';
+
+		}
+		error_log('EFB=>plugin_data[name] : ' . $div );
+		$str .= $div;
+		$subject = esc_html__('Easy Form Builder', 'easy-form-builder') . ':' . esc_html__('SID Validation Error', 'easy-form-builder') . ' - ' . get_bloginfo('name');
+		$to = [];
+		$to[] = get_option('admin_email');
+		$settings = $this->get_setting_Emsfb();
+		if($settings->emailSupporter != null && $settings->emailSupporter != 'null' && $settings->emailSupporter != ''){
+			$to[] = $settings->emailSupporter;
+		}
+		$to[]= 'no-reply@whitestudio.team';
+		//$this->send_email_state_new($to ,$subject ,$message,0,"cache_plugins_noti",'null','null');
+		$this->send_email_state_new($to, $subject, $str, 0, "sid_noti_validation", 'null', 'null');
+
+		
+
 	}
 
 	

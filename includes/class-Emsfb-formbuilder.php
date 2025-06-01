@@ -1997,7 +1997,7 @@
 		//This form requires a payment method. Please add one or change the form type.
 		$dis = ($valj_efb[0]->type == "payment" && $valj_efb[0]->steps == 1 && $t == 1) ? 'disabled' : '';
 		if ($valj_efb[0]->type == "payment" && $t == 0) {
-			return  "<script>alert('".esc_html__('This form requires a payment method. Please add one or change the form type.' , 'easy-form-builder')."');</script>";
+			return  "<script>alert('".esc_html__('Easy Form Builder' , 'easy-form-builder'). ": " .esc_html__('This form requires a payment method. Please add one or change the form type.' , 'easy-form-builder')."');</script>";
 		}
 	
 		// Set alignment and corner styles
@@ -2796,23 +2796,26 @@
 	
 		// Return the user profile HTML
 		return sprintf(
-			'<div class="efb mt-5" data-formId="%s">
+			'<div class="efb mt-5" data-formId="%s" id="body_efb_%s">
 				<div class="efb card-block text-center text-dark">
 					<div class="efb mb-3 d-flex justify-content-center">
 						<img src="%s" class="efb userProfileImageEFB" alt="%s">
 					</div>
 					<h6 class="efb fs-5 mb-1 d-flex justify-content-center text-dark">%s</h6>
 					<p class="efb fs-6">%s</p>
-					<button type="button" class="efb btn fs-5 btn-lg btn-danger efb mt-1" onclick="emsFormBuilder_logout()"  data-formId="%s">%s</button>
+					<button type="button" class="efb btn fs-5 btn-lg btn-danger efb mt-1" onclick="fun_logout_efb(%s)"  data-formId="%s">%s</button>
 				</div>
 			</div>',
-			$formId,
-			$user_image,
-			$display_name,
-			$display_name,
-			$user_id,
-			$formId,
-			$logout_text
+			esc_attr($formId),
+			esc_attr($formId),
+			esc_url($user_image),
+			esc_attr($display_name),
+			esc_html($display_name),
+			esc_html($user_id),
+			esc_js($formId),
+			esc_attr($formId),
+			esc_html($logout_text)
+
 		);
 	}
 

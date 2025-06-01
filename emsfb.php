@@ -24,6 +24,9 @@ if (!defined("EMSFB_PLUGIN_DIRECTORY")) {
 if (!defined("EMSFB_PLUGIN_VERSION")) {
     define("EMSFB_PLUGIN_VERSION", "4.0.0");
 }
+if (!defined("EMSFB_DB_VERSION")) {
+    define("EMSFB_DB_VERSION", 1.1);
+}
 /** Constant pointing to the root directory URL of the plugin */
 if (!defined("EMSFB_PLUGIN_URL")) {
     define("EMSFB_PLUGIN_URL", plugin_dir_url(__FILE__));
@@ -38,16 +41,19 @@ if (!defined("EMSFB_DEV_MODE")) {
     define("EMSFB_DEV_MODE", true);
 }
 
-//define server 
+//define server
 //https://demo.whitestudio.team
 if (!defined("EMSFB_SERVER_URL")) {
     if (EMSFB_DEV_MODE) {
-        define("EMSFB_SERVER_URL", "https://whitestudio.team");
-    } else {
         define("EMSFB_SERVER_URL", "https://demo.whitestudio.team");
+    } else {
+        define("EMSFB_SERVER_URL", "https://whitestudio.team");
     }
 }
 /** Load main class */
 require 'includes/class-Emsfb.php';
 /** Main instance of plugin */
 $emsfb = new Emsfb();
+
+/* require_once 'includes/class-Emsfb-requirement.php';
+register_activation_hook(__FILE__, ['CheckRequirementEmsfb', 'run_and_save_efb']); */

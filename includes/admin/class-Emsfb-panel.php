@@ -242,8 +242,9 @@ class Panel_edit  {
 			$lng_ = explode( '_', $lng_ )[0];
 			}
 			if("fa_IR"==get_locale()){
-				wp_register_script('persia_pay-efb.js',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION , true);
-				wp_enqueue_script('persia_pay-efb.js');
+				/* wp_register_script('persia_pay-efb.js',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION , true);
+				wp_enqueue_script('persia_pay-efb.js'); */
+				$efbFunction->include_persia_efb();
 			}
 			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION , true);
 			wp_enqueue_script('stripe_js');

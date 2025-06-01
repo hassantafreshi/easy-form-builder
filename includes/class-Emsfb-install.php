@@ -135,7 +135,7 @@ class Install {
 
 						}
 
-		add_option( 'Emsfb_db_version', 1.0 );
+		add_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
 		return $state;
 	}
 

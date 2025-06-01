@@ -58,8 +58,12 @@ jQuery(function () {
 
   //cache message alert section start
   let count_show_efb_cache = localStorage.hasOwnProperty('efb_cache') ? Number(localStorage.getItem('efb_cache'))+1 : 0;
-  if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && count_show_efb_cache<6){
-    $val_noti = efb_var.text.excefb.replaceAll('XX', `<b>${efb_var.plugins.cache} </b>`);
+  if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && count_show_efb_cache<2){
+    
+    $val_noti = efb_var.text.excefb.replaceAll('%s', `<b>${efb_var.plugins.cache} </b>`);
+    //clcdetls
+    $val_noti += `<br><a class="efb text-danger ec-efb" data-eventform="links" data-linkname="cachePlugin">${efb_var.text.clcdetls}</a>`
+    //$val_noti = efb_var.text.excefb.replaceAll('XX', `<b>${efb_var.plugins.cache} </b>`);
     alert_message_efb('' ,$val_noti,  120 ,'warning' )
    
     localStorage.setItem('efb_cache',count_show_efb_cache);
@@ -189,7 +193,11 @@ function Link_emsFormBuilder(state) {
         link += `s/send-email-using-smtp-plugin/`;
         break;
       case 'oslp':
-        link += `s/how-to-add-location-pickergeolocation-within-your-form/`;
+        link += `/how-to-add-location-pickergeolocation-within-your-form/`;
+        break;
+      case 'cachePlugin':
+        //How to Exclude easy form builder Forms from Caching Plugins
+        link += `/exclude-easy-form-builder-froms-cache/`;
         break;
       
     }
@@ -270,6 +278,10 @@ function Link_emsFormBuilder(state) {
         break;
         case 'oslp':
         link += `چگونه-مکانیاب-انتخاب-گر-نقشه-فرم-افزون/`;
+        break;
+      case 'cachePlugin':    
+      //جلوگیری-از-کش-شدن-فرم-ساخته-توسط-فرم-ساز
+        link + `جلوگیری-از-کش-شدن-فرم-ساخته-توسط-فرم-ساز/`
         break;
     }
   }
@@ -5003,6 +5015,9 @@ function addClickListenerToElementListEFB(element) {
                             temp = sanitize_text_efb(dataset.linkname);
                               Link_emsFormBuilder(temp);
                           break;
+                          case 'cachePlugin':
+                          Link_emsFormBuilder('cachePlugin');
+                          break;  
                           case 'deleteMsg':      
                             console.log('deleteMsg');
                             temp = sanitize_text_efb(dataset.msgid);

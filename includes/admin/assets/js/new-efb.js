@@ -3140,7 +3140,7 @@ function handle_change_event_efb(el){
         console.log('3090');
         
         fun_sendBack_emsFormBuilder(o[0]);
-        fun_total_pay_efb()
+        fun_total_pay_efb(form_id)
       }else if(type.includes('chl')){
         const ch = el.id.includes('_chl')
         const qty = ch  ? document.getElementById(el.id).value :'';
@@ -3180,8 +3180,13 @@ get_row_sendback_by_id_efb=(id_)=>{
  return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)
 }
 //end payment functions
-function fun_total_pay_efb() {
+function fun_total_pay_efb(form_id) {
   let total = 0;
+  if(valj_efb==undefined || valj_efb==null || valj_efb.length==0){
+    console.error('valj_efb not found!')
+    valj_efb = valj_efb = get_structure_by_form_id_efb(form_id);
+    return 0;
+  }
   updateTotal = (i) => {
     //totalpayEfb
     for (const l of document.querySelectorAll(".totalpayEfb")) {
