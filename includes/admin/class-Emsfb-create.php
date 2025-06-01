@@ -212,8 +212,8 @@ class Create {
 			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}			
 		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		if("fa_IR"==get_locale()){
-			wp_register_script('persia_pay-efb.js',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay-efb.js', array('jquery'),'3.8.1',true);
-			wp_enqueue_script('persia_pay-efb.js');
+			
+			$efbFunction->include_persia_efb();
 		}
 		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),'3.8.1',true);
 		wp_enqueue_script('stripe_js');
