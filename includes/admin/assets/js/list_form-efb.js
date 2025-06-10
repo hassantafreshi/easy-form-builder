@@ -2016,24 +2016,44 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
 
 
 function convertToCSV_emsFormBuilder(objArray) {
-
-  console.log(objArray);
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
-  for (const item of array) {
-    console.log(item);
+  const separators = [',',';', '|', '^', '~', '=', ':', '#', '\t'];
+  let foundSeparators = {};
+  let separator = ',';
+  for (let i = 0; i < array.length; i++) {
     let line = '';
-
-
-    for (var k=0 ; k < item.length ; k++) {
-      if (line !== '') line += ',';
-      line += item[k];
+    for (let k = 0; k < array[i].length; k++) {
+      for (let s = 0; s < separators.length; s++) {
+        let val = array[i][k];
+        if (typeof val === 'object' && val !== null) {
+          val = JSON.stringify(val);
+        }
+        if (typeof val === 'string' && val.includes(separators[s])) {
+          foundSeparators[separators[s]] = true;
+        }
+      }
+      let val = array[i][k];
+      if (typeof val === 'object' && val !== null) {
+        val = JSON.stringify(val);
+      }
+      if (line !== '') line += '@emsfb@';
+      line += val;
     }
-
     str += line + '\r\n';
   }
-  return str;
 
+  for (let s = 0; s < separators.length; s++) {
+    if (!foundSeparators[separators[s]]) {
+      separator = separators[s];
+      break;
+    }
+  }
+
+  str = str.replace(/@emsfb@/g, separator);
+  str = str.slice(0, -2);
+
+  return str;
 }
 
 
