@@ -1558,8 +1558,9 @@ class Admin {
 
 
             $check = get_option('emsfb_email_status', false);
-            if (!$check || !is_array($check) || $check['status'] === 'ok') return;
-                $email_notifi = sprintf(
+            if (!$check || !is_array($check) || $check['status'] === 'ok' || $check['message']['id'] == 'mail_function_failed' ) return;
+
+            $email_notifi = sprintf(
                 esc_html__('%s notification', 'easy-form-builder'),
                 esc_html__('Email', 'easy-form-builder')
             );
@@ -1647,7 +1648,10 @@ class Admin {
             $description = isset($messages[$msg_id]['description']) ? $messages[$msg_id]['description'] : '';
             ob_start();
             ?>
-            <div id="notice-email-efb" class="notice notice-error efb-notice-email-error notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;">
+            <div id="notice-email-efb" class="notice notice-error efb-notice-email-error notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;position:relative;">
+               <button type="button" id="efb-close-notice-btn"
+            style="position:absolute;top:8px;right:8px;background:transparent;border:none;font-size:20px;cursor:pointer;"
+            aria-label="Close">&times;</button>
                 <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr__('Easy Form Builder', 'easy-form-builder'); ?>" style="width:46px;height:auto;margin-top:4px;" />
                 <div>
                     <p><strong><?php echo esc_html__('Easy Form Builder Email Warning:', 'easy-form-builder'); ?></strong> <?php echo esc_html($title); ?></p>
@@ -1655,6 +1659,22 @@ class Admin {
                     <p><?= $help ?></p>
                 </div>
             </div>
+            <script>
+                if (window.sessionStorage.getItem('efb_hide_notice') === '1') {
+                    var efbNotice = document.getElementById('notice-email-efb');
+                    if (efbNotice) efbNotice.style.display = 'none';
+                }
+                var efbCloseBtn = document.getElementById('efb-close-notice-btn');
+
+                if (efbCloseBtn) {
+                    efbCloseBtn.addEventListener('click', function () {
+                        console.log('Notice closed');
+                        var efbNotice = document.getElementById('notice-email-efb');
+                        if (efbNotice) efbNotice.style.display = 'none';
+                        window.sessionStorage.setItem('efb_hide_notice', '1');
+                    });
+                }
+            </script>
             <?php
             $output = ob_get_clean();
 
