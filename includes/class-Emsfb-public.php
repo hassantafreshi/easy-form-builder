@@ -697,11 +697,12 @@ class _Public {
 			}
 			if(!isset($email_user[$pointer])) $email_user[$pointer] = $state_array ? [] : '';
 			if($state_array){
-				if (strpos($email, ',') !== false){
+				if (strpos($email, ',') != -1){
 					$emails = explode(',', $email);
-					foreach ($emails as $email) {
-						if(!in_array($email, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email); return true;}
+					foreach ($emails as $email_) {
+						if(!in_array($email_, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email_); }
 					}
+					return true;
 				}else{
 					if(!in_array($email, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email); return true;}
 				}
@@ -739,7 +740,9 @@ class _Public {
 				if( !isset($valo['logout']) && !isset($valo['recovery']) ){
 				$email_fa = $formObj[0]["email"];
 				if(!empty($email_fa)){
-					emails_list($email_user , 0 , $email_fa ,$email_array_state);
+					error_log('emails_list: '.$email_fa);
+					$is_multipleEmail = strpos($email_fa, ',') !== false;
+					emails_list($email_user , 0 , $email_fa ,$is_multipleEmail);
 					/* if (strpos($email_fa, ',') !== false){
 						$emails = explode(',', $formObj[0]["email"]);
 						foreach ($emails as $email) {
@@ -2229,6 +2232,35 @@ class _Public {
 			$response = array( 'success' => false , "m"=>$this->lanText["nAllowedUseHtml"]);
 			wp_send_json_success($response,200);
 		}
+		 function emails_list( &$email_user , $pointer , $email , $state_array){
+			$state_array= true;
+			if(empty($email)){
+			 return false;
+			}
+			if(!isset($email_user[$pointer])) $email_user[$pointer] = $state_array ? [] : '';
+			if($state_array){
+				if (strpos($email, ',') != -1){
+					$emails = explode(',', $email);
+					foreach ($emails as $email_) {
+						if(!in_array($email_, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email_); }
+					}
+					return true;
+				}else{
+					if(!in_array($email, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email); return true;}
+				}
+			}else{
+
+
+
+
+				$pos = strpos($email_user[$pointer],$email);
+
+				if($pos===false){
+					!empty($email_user[$pointer]) ? $email_user[$pointer] .= ' , '.$email : $email_user[$pointer] =$email;
+					return true;
+				}
+			}
+		}
 
 		$this->cache_cleaner_Efb($page_id);
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
@@ -2436,21 +2468,27 @@ class _Public {
 				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
 
 
-					array_push($user_eamil[0],$setting->emailSupporter);
+					// array_push($user_eamil[0],$setting->emailSupporter);
+					$is_multipleEmail = strpos($setting->emailSupporter,',')!==false ? true : false;
+					emails_list($user_eamil , 0 , $setting->emailSupporter ,$is_multipleEmail);
 				}
-				if(isset($setting->femail)) $user_eamil[2]=$setting->femail;
+				if(isset($setting->femail)){
+					// emails_list($user_eamil , 2 , $setting->femail ,fa);
+					$user_eamil[2]=$setting->femail;
+				}
 
 				$email_fa = $valn[0]["email"];
 
 				if (isset($email_fa) && strlen($email_fa)>5){
-
-					array_push($user_eamil[0],$email_fa);
+					$is_multipleEmail = strpos($email_fa,',')!==false ? true : false;
+					emails_list($user_eamil , 0 , $email_fa ,$is_multipleEmail);
+					// array_push($user_eamil[0],$email_fa);
 				}
 
 				$links=$link_w;
 
 
-				$email_status =["",""];
+				// $email_status =["",""];
 			    !empty($users_email) ? $user_eamil[1]= $users_email : 0;
 
 				if($rsp_by=='admin'){
