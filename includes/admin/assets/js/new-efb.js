@@ -3176,7 +3176,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
         if(title=="file") title ="atcfle"
         title = efb_var.text[title] || c.name ;
-        let q =value !== '<b>@file@</b>' ? value : '';;
+        let q =value !== '<b>@file@</b>' ? value : '';
         if(c.type.includes('pay') || c.type == 'prcfld'){
 
           q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
