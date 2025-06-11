@@ -2466,14 +2466,10 @@ class _Public {
 				}
 				$user_eamil=[[],[],null];
 				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
-
-
-					// array_push($user_eamil[0],$setting->emailSupporter);
 					$is_multipleEmail = strpos($setting->emailSupporter,',')!==false ? true : false;
 					emails_list($user_eamil , 0 , $setting->emailSupporter ,$is_multipleEmail);
 				}
 				if(isset($setting->femail)){
-					// emails_list($user_eamil , 2 , $setting->femail ,fa);
 					$user_eamil[2]=$setting->femail;
 				}
 
@@ -2482,13 +2478,11 @@ class _Public {
 				if (isset($email_fa) && strlen($email_fa)>5){
 					$is_multipleEmail = strpos($email_fa,',')!==false ? true : false;
 					emails_list($user_eamil , 0 , $email_fa ,$is_multipleEmail);
-					// array_push($user_eamil[0],$email_fa);
 				}
 
 				$links=$link_w;
 
-
-				// $email_status =["",""];
+				$email_status =["",""];
 			    !empty($users_email) ? $user_eamil[1]= $users_email : 0;
 
 				if($rsp_by=='admin'){
