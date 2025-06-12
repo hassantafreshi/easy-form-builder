@@ -770,6 +770,7 @@ class efbFunction {
 			"eln" => $state  &&  isset($ac->text->eln) ? $ac->text->eln : esc_html__('Enter a location name',$s),
 			"alns" => $state  &&  isset($ac->text->alns) ? $ac->text->alns : esc_html__('The %s1 pages are currently unavailable. It looks like another plugin is causing a conflict with %s1 . To fix this issue, %s2 contact %s1 support %s3 for assistance  or try disabling your plugins one at a time to identify the one causing the conflict.',$s),
 			"notis" => $state  &&  isset($ac->text->noti) ? $ac->text->noti : esc_html__('%s notification',$s),
+			"settings" => $state  &&  isset($ac->text->settings) ? $ac->text->settings : esc_html__('Settings',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s)
 
 		];
