@@ -740,7 +740,6 @@ class _Public {
 				if( !isset($valo['logout']) && !isset($valo['recovery']) ){
 				$email_fa = $formObj[0]["email"];
 				if(!empty($email_fa)){
-					error_log('emails_list: '.$email_fa);
 					$is_multipleEmail = strpos($email_fa, ',') !== false;
 					emails_list($email_user , 0 , $email_fa ,$is_multipleEmail);
 					/* if (strpos($email_fa, ',') !== false){

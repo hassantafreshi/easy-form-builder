@@ -986,7 +986,6 @@ class Admin {
     }
 
     private function database_set_emsfb_settings($setting, $email) {
-        error_log("Setting Emsfb: " . $email);
         global $wpdb;
         $table_name = $wpdb->prefix . "emsfb_setting";
         $wpdb->insert(
@@ -1565,19 +1564,12 @@ class Admin {
 
             $check = get_option('emsfb_email_status', false);
 
-            // test section
-            if ($check['status']=='error'){
-                $check['status'] = 'ok';
-            }
-            // test section end
 
-            error_log(json_encode($check));
             if(!$check || is_array($check)){
 
                     if($check['status'] === 'ok_set_smtp') {
                         return; // No issues found or already configured
                     }else if ($check['status'] === 'ok' ) {
-                        error_log('emsfb_email_status is ok');
                         $efbFunction = $this->get_efbFunction(1);
                         $settings= $efbFunction->get_setting_Emsfb();
                         if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
