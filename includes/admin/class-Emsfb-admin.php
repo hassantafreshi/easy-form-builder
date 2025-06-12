@@ -978,7 +978,18 @@ class Admin {
             $setting = str_replace('"', '\"', $st_);
         }
 
-        $this->db->insert(
+        $this->database_set_emsfb_settings($setting, $email);
+        $m = $lang["messageSent"];
+        $response = ['success' => true, "m" => $m];
+        wp_send_json_success($response, $_POST);
+
+    }
+
+    private function database_set_emsfb_settings($setting, $email) {
+        error_log("Setting Emsfb: " . $email);
+        global $wpdb;
+        $table_name = $wpdb->prefix . "emsfb_setting";
+        $wpdb->insert(
             $table_name,
             [
                 'setting' => $setting,
@@ -987,13 +998,8 @@ class Admin {
                 'email'   => $email
             ]
         );
-
         set_transient('emsfb_settings_transient', $setting, 1440);
         update_option('emsfb_settings', $setting);
-        $m = $lang["messageSent"];
-        $response = ['success' => true, "m" => $m];
-        wp_send_json_success($response, $_POST);
-
     }
 
     public function get_ajax_track_admin() {
@@ -1555,10 +1561,42 @@ class Admin {
                 $efbRequirement = new CheckRequirementEmsfb();
                 $efbRequirement->run_and_save_efb();
             }
-
+            $settings =false;
 
             $check = get_option('emsfb_email_status', false);
-            if (!$check || !is_array($check) || $check['status'] === 'ok' || $check['message']['id'] == 'mail_function_failed' ) return;
+
+            // test section
+            if ($check['status']=='error'){
+                $check['status'] = 'ok';
+            }
+            // test section end
+
+            error_log(json_encode($check));
+            if(!$check || is_array($check)){
+
+                    if($check['status'] === 'ok_set_smtp') {
+                        return; // No issues found or already configured
+                    }else if ($check['status'] === 'ok' ) {
+                        error_log('emsfb_email_status is ok');
+                        $efbFunction = $this->get_efbFunction(1);
+                        $settings= $efbFunction->get_setting_Emsfb();
+                        if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
+                            $settings->smtp = true;
+                            $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
+                            $st_ = json_encode($settings,JSON_UNESCAPED_UNICODE);
+                            $setting = str_replace('"', '\"', $st_);
+                            $this->database_set_emsfb_settings($setting, $email);
+                            $check['status'] = 'ok_set_smtp';
+                            $check['message']['title'] = 'configured';
+                            update_option('emsfb_email_status', $check);
+                        }
+
+                        return; // No issues found or already configured
+                    }else if ( $check['message']['id'] == 'mail_function_failed'){
+                        return;
+                    }
+
+            }
 
             $email_notifi = sprintf(
                 esc_html__('%s notification', 'easy-form-builder'),
