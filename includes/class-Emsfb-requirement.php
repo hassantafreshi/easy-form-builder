@@ -16,7 +16,7 @@ class CheckRequirementEmsfb {
 
 
     public static function run_and_save_efb() {
-        error_log('CheckRequirementEmsfb::run_and_save_efb() called');
+       // error_log('CheckRequirementEmsfb::run_and_save_efb() called');
         $result = self::check_email_capability_efb();
         update_option(self::OPTION_KEY, $result, false);
     }

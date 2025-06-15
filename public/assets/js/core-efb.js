@@ -19,7 +19,10 @@ let price_efb ="";
 let sendback_efb_state= [];
 let valj_efb_new = [];
 //+ let valj_efb = [];
-
+if (window.React || window.react) {
+  reactJs_active_efb = true;
+  console.log('reactJs_active_efb');
+}
 console.log(ajax_object_efm);
 if (typeof(ajax_object_efm)=='object' && ajax_object_efm.hasOwnProperty('ajax_value') && typeof ajax_object_efm.ajax_value == "string") {
   g_timeout_efb = (g_timeout_efb, ajax_object_efm.ajax_value.match(/id_/g) || []).length;
