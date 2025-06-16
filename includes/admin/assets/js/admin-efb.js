@@ -1290,8 +1290,7 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       case "adminFormEmailEl":
-
-        if (efb_var.smtp == "1") {
+        if (efb_var.smtp == "1" || efb_var.smtp == true) {
           // if el.value have , then split it and check all of them
            if(el.value.includes(',')){
 
@@ -1435,7 +1434,7 @@ let change_el_edit_Efb = (el) => {
           // trackingCodeEl.checked=false;
           el.classList.remove('active');
           // 3.8.6 start
-          const msg =  efb_var.text.sMTPNotWork + '' + `<a class="efb alert-link ec-efb" data-eventform="links" data-linkname="EmailNoti"> ${efb_var.text.orClickHere}</a>`;
+          const msg =  efb_var.text.sMTPNotWork + '' + `<a class="efb alert-link ec-efb" onclick="Link_emsFormBuilder('EmailNoti')"> ${efb_var.text.orClickHere}</a>`;
           // 3.8.6 end
           alert_message_efb(efb_var.text.error,msg, 20, "danger")
         }
@@ -4734,4 +4733,141 @@ function report_problem_efb(state ,value){
 
   });
 }
+
+
+
+// v3.8.6 start
+
+function addClickListenerToElement(element) {
+  console.log('addClickListenerToElement');
+  if (!element.hasClickListener) {
+      let state_event = false;
+
+      element.addEventListener("click", function (event) {
+          if (!state_event) {
+              const classes = event.target.classList;
+              setTimeout(() => {
+                state_event = false;
+              }, 200);
+
+              if (classes.contains("ec-efb")) {
+                const pro = Number(efb_var.pro) === 1;
+                  state_event = true;
+
+                  const dataset = event.target.dataset;
+
+
+                  const eventform = dataset.hasOwnProperty('eventform') ? sanitize_text_efb(dataset.eventform) : false;
+                  let temp ='';
+                  let temp2='';
+                  console.log(dataset);
+                  if (eventform) {
+
+                      switch (eventform) {
+                          case 'message':
+                            temp2 = sanitize_text_efb(dataset.id);
+                              emsFormBuilder_messages(temp2);
+                              break;
+                          case 'openMessage':
+                            temp = Number(dataset.msgid);
+                            temp2 = Number(dataset.msgstate);
+                            fun_open_message_emsFormBuilder(temp,temp2);
+                            break;
+                          case 'edit':
+                              temp2 = sanitize_text_efb(dataset.id);
+                              emsFormBuilder_get_edit_form(temp2);
+                              break;
+                          case 'delete':
+                              temp = sanitize_text_efb(dataset.formname);
+                              temp2 = sanitize_text_efb(dataset.id);
+                              emsFormBuilder_delete(temp2, 'form', temp);
+                              break;
+                          case 'duplicate':
+                            console.log('duplicate');
+                              temp = sanitize_text_efb(dataset.formname);
+                              temp2 = sanitize_text_efb(dataset.id);
+                              emsFormBuilder_duplicate(temp2, 'form', temp);
+                              break;
+                          case 'generateCSV':
+                              pro ? generat_csv_emsFormBuilder() : pro_show_efb(efb_var.text.proUnlockMsg);
+                              break;
+                          case 'generateChart':
+                              convert_to_dataset_emsFormBuilder();
+                              break;
+                          case 'deleteSelectedRow':
+                              event_selected_row_emsFormBuilder('delete');
+                              break;
+                          case 'readSelectedRow':
+                              pro ? event_selected_row_emsFormBuilder('read') : pro_show_efb(efb_var.text.proUnlockMsg);
+                              break;
+                          case 'setting':
+                              fun_show_content_page_emsFormBuilder('setting');
+                              break;
+                          case 'help':
+                              fun_show_content_page_emsFormBuilder('help');
+                              break;
+                          case 'forms':
+                              fun_show_content_page_emsFormBuilder('forms');
+                              break;
+                          case 'searchCC':
+                              fun_find_track_emsFormBuilder();
+                              break;
+                          case 'sideMenuEfb':
+                              sideMenuEfb(0);
+                              break;
+                          case 'links':
+                            temp = sanitize_text_efb(dataset.linkname);
+                              Link_emsFormBuilder(temp);
+                          break;
+                          case 'deleteMsg':
+                            temp = sanitize_text_efb(dataset.msgid);
+                            temp2 = sanitize_text_efb(dataset.trackid);
+
+                            pro ? emsFormBuilder_delete(temp ,'message',temp2) : pro_show_efb(efb_var.text.proUnlockMsg);
+
+
+                          break;
+                          default:
+                              console.log("Unknown eventform action.");
+                      }
+                  }
+              }
+          }
+      });
+
+      element.hasClickListener = true;
+  }
+}
+
+
+      function observeExistingElements() {
+        console.log('observeExistingElements');
+        const els = document.querySelectorAll(".ec-efb");
+        els.forEach(addClickListenerToElement);
+
+      }
+
+
+      const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === 1) {
+
+
+                    const els = node.querySelectorAll(".ec-efb");
+                    els.forEach(addClickListenerToElement);
+                }
+            });
+        });
+      });
+
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+
+
+      observeExistingElements();
+// v3.8.6 end
 
