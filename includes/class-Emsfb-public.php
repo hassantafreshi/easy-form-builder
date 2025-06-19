@@ -1447,7 +1447,7 @@ class _Public {
 				  array_filter($valobj, function($item) use($formObj ,&$emailuser){
 					if(isset($item['id_']) && $item['id_']==$formObj[0]["email_to"]){
 						$emailuser = $item["value"];
-						return true;}
+					}
 				});
 				emails_list($email_user , 1 , $emailuser , $email_array_state);
 			}
