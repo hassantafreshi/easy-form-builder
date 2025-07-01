@@ -446,7 +446,7 @@ class efbFunction {
 			"freefeatureNotiEmail" => $state  &&  isset($ac->text->freefeatureNotiEmail) ? $ac->text->freefeatureNotiEmail : esc_html__('One of the free features of Easy Form Builder is the ability to send a notification email to either the admin or user.',$s),
 			"notFound" => $state  &&  isset($ac->text->notFound) ? $ac->text->notFound : esc_html__('Not Found',$s),
 			"editor" => $state  &&  isset($ac->text->editor) ? $ac->text->editor : esc_html__('Editor',$s),
-			"addSCEmailM" => $state  &&  isset($ac->text->addSCEmailM) ? $ac->text->addSCEmailM : esc_html__('Please add these shortcodes shortcode_message and shortcode_title to the email template.',$s),
+			"addSCEmailM" => $state  &&  isset($ac->text->addSCEmailM) ? $ac->text->addSCEmailM : esc_html__('Please add the shortcode_message shortcode to the email template.',$s),
 			"ChrlimitEmail" => $state  &&  isset($ac->text->ChrlimitEmail) ? $ac->text->ChrlimitEmail : esc_html__('Your Email Template cannot exceed 10,000 characters.',$s),
 			"pleaseEnterVaildEtemp" => $state  &&  isset($ac->text->pleaseEnterVaildEtemp) ? $ac->text->pleaseEnterVaildEtemp : esc_html__('Please use HTML tags to create your email template.',$s),
 			"infoEmailTemplates" => $state  &&  isset($ac->text->infoEmailTemplates) ? $ac->text->infoEmailTemplates : esc_html__('To create an email template using HTML2, use the following shortcodes. Please note that the shortcodes marked with an asterisk (*) should be included in the email template.',$s),
@@ -707,8 +707,8 @@ class efbFunction {
 			"sms_dnoti" => $state  &&  isset($ac->text->sms_dnoti) ? $ac->text->sms_dnoti : esc_html__('To send informational text messages, such as notifications or new messages, please enter the mobile numbers of the administrators here.',$s),
 			"sms_ndnoti" => $state  &&  isset($ac->text->sms_ndnoti) ? $ac->text->sms_ndnoti : esc_html__(' Note that by entering mobile numbers, all notification messages for all forms and other informational texts will be sent to the provided numbers.',$s),
 			"emlc" => $state  &&  isset($ac->text->emlc) ? $ac->text->emlc : esc_html__('Choose Email notification content',$s),
-			"emlacl" => $state  &&  isset($ac->text->emlacl) ? $ac->text->emlacl : esc_html__('The email includes the confirmation code and link',$s),
-			"emlml" => $state  &&  isset($ac->text->emlml) ? $ac->text->emlml : esc_html__('The email includes the filled form and link',$s),
+			"emlacl" => $state  &&  isset($ac->text->emlacl) ? $ac->text->emlacl : esc_html__('Send email with confirmation code and link',$s),
+			"emlml" => $state  &&  isset($ac->text->emlml) ? $ac->text->emlml : esc_html__('Send email with submitted form content and link',$s),
 			"msgemlmp" => $state  &&  isset($ac->text->msgemlmp) ? $ac->text->msgemlmp : esc_html__('To view the map and selected points, simply click here to navigate to the received message page',$s),
 			"msgchckvt" => $state  &&  isset($ac->text->msgchckvt) ? $ac->text->msgchckvt : esc_html__('Review the entered values in the XXX tab.this message appeared because an error is detected.',$s),
 
@@ -771,6 +771,7 @@ class efbFunction {
 			"alns" => $state  &&  isset($ac->text->alns) ? $ac->text->alns : esc_html__('The %s1 pages are currently unavailable. It looks like another plugin is causing a conflict with %s1 . To fix this issue, %s2 contact %s1 support %s3 for assistance  or try disabling your plugins one at a time to identify the one causing the conflict.',$s),
 			"notis" => $state  &&  isset($ac->text->noti) ? $ac->text->noti : esc_html__('%s notification',$s),
 			"settings" => $state  &&  isset($ac->text->settings) ? $ac->text->settings : esc_html__('Settings',$s),
+			"emlcc" => $state  &&  isset($ac->text->emlcc) ? $ac->text->emlcc : esc_html__('Send email with submitted form content only',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s)
 
 		];
@@ -800,6 +801,7 @@ class efbFunction {
 				error_log('----->_email_state_new');
 				error_log('to: ' . json_encode($to));
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
+				$email_content_type = isset($state[2]) ? $state[2]  : 'traking_link' ;
 			   	$mailResult = "n";
 				if(gettype($to) == 'array')ksort($to);
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
@@ -820,7 +822,7 @@ class efbFunction {
 
 				);
 				if(gettype($sub)=='string'){
-					$message = $this->email_template_efb($pro,$state,$cont,$link,$st);
+					$message = $this->email_template_efb($pro,$state,$cont,$link,$email_content_type,$st);
 					if( $state!="reportProblem"){
 						$to_;$mailResult;
 						if (gettype($to) == 'string') {
@@ -865,7 +867,9 @@ class efbFunction {
 				}else{
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
-							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st);
+							// state[2] hold message type
+							error_log(json_encode($state));
+							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$email_content_type,$st);
 							if( $state!="reportProblem"){
 								$to_;$mailResult;
 								$to_ = $to[$i];
@@ -898,8 +902,10 @@ class efbFunction {
 			   return $mailResult;
 	}
 
-	public function email_template_efb($pro, $state, $m,$link ,$st="null"){
-
+	public function email_template_efb($pro, $state, $m,$link ,$email_content_type,$st="null"){
+		error_log('----->_email_template_efb');
+		error_log(json_encode( $state));
+		error_log($email_content_type);
 		$l ='https://whitestudio.team';
 		$wp_lan = get_locale();
 			 if($wp_lan=="fa_IR"){ $l='https://easyformbuilder.ir'  ;}
@@ -935,7 +941,8 @@ class efbFunction {
 
 
 		$dts =  $lang['msgdml'];
-
+		$tracking_section = $email_content_type=='just_message' ? "" : "<div id='sectionTracking'><p style='text-align:center'>".$dts." </p><div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div></div>";;
+		error_log('----->_email_template_efb: tracking_section: ' . $tracking_section);
 		if($state=="testMailServer"){
 			$dt = $lang['msgnml'];
 			$de = $lang['mlntip'];
@@ -972,20 +979,17 @@ class efbFunction {
 
 		}elseif($state=="newMessage"){
 
+
 			if(gettype($m)=='string'){
 				$dts = str_replace('%s', $m, $dts);
 				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
 				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
-				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>
-				<p style='text-align:center'>".$dts." </p>
-				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
+				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>".$tracking_section ;
 			}else{
 				$dts = str_replace('%s', $m[0], $dts);
 				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
 				$message ="
-				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<p style='text-align:center'>".$dts." </p>
-				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
+				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>".$tracking_section;
 			}
 		}else{
 			if(gettype($m)=='string'){
@@ -997,10 +1001,7 @@ class efbFunction {
 				$dts = str_replace('%s', $m[0], $dts);
 				$message="
 				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
-				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<p style='text-align:center'>".$dts." </p>
-				<div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div>
-				";
+				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>". $tracking_section;
 			}
 		}
 

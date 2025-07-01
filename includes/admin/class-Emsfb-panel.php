@@ -406,7 +406,7 @@ class Panel_edit  {
 	public function file_upload_api(){
 		$efbFunction = $this->get_efbFunction();
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
-		$_POST['id']=sanitize_text_field($_POST['id']);
+		$_POST['id']=intval($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['fid']=sanitize_text_field($_POST['fid']);
 		$sid = sanitize_text_field($_POST['sid']);

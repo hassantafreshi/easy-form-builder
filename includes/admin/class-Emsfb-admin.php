@@ -662,8 +662,7 @@ class Admin {
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
 
         $table_name = $this->db->prefix . "emsfb_form";
-        $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
-
+        $value = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
 
 
 
@@ -1018,7 +1017,7 @@ class Admin {
 
         $table_name = $this->db->prefix . "emsfb_msg_";
         $id         = sanitize_text_field($_POST['value']);
-        $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE track = '$id'");
+        $value      = $this->db->get_results($this->db->prepare("SELECT * FROM `$table_name` WHERE track = %s", $id));
 
 
         if (count($value)>0) {
@@ -1234,7 +1233,7 @@ class Admin {
     public function file_upload_public(){
 
 
-        $_POST['id']=sanitize_text_field($_POST['id']);
+        $_POST['id']=intval($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
         $vl=null;

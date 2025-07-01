@@ -481,6 +481,7 @@ function show_setting_window_efb(idset) {
                         <select  class="efb elEdit form-select efb border-d rounded-4 mb-1" data-id="${idset}"  id="emailNotiContainsEl" >
                             <option value="cc" ${val == 'cc' ? `selected` : ''}>${efb_var.text.emlacl}</option>
                             <option value="msg" ${val == 'msg' ? `selected` : ''}>${efb_var.text.emlml}</option>
+                            <option value="just_msg" ${val == 'just_msg' ? `selected` : ''}>${efb_var.text.emlcc}</option>
                         </select>
 
     `};

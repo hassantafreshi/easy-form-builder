@@ -944,6 +944,7 @@ function fun_show_setting__emsFormBuilder() {
     bootstrap = f('bootstrap');
     osLocationPicker = f('osLocationPicker') == 'null' ? false : Boolean(f('osLocationPicker'));
     emailTemp = f('emailTemp');
+    emailTemp = emailTemp!='null' ? emailTemp.replace(/(@efb@)+/g, '/') : ''
     sms_config_efb= sms_method = f('sms_config')=='null' ? 'null' :f('sms_config');
 
     scaptcha = f('scaptcha')=='null' ? false :f('scaptcha') ;
@@ -1288,7 +1289,7 @@ function fun_show_setting__emsFormBuilder() {
                             <!--EmailTemplate-->
                               <div class="efb  col-md-8 bg-back">
                                 <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.editor}</h3>
-                                <textarea class="efb  form-control" id="emailTemp_emsFirmBuilder" rows="50" data-tab="${efb_var.text.emailTemplate}">${emailTemp !== "null" ? emailTemp : ''}</textarea>
+                                <textarea class="efb  form-control" id="emailTemp_emsFirmBuilder" rows="50" data-tab="${efb_var.text.emailTemplate}">${emailTemp}</textarea>
                                 <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
                               </div>
                             <div class="efb col-md-4 mt1 efb guide p-2">
@@ -1298,9 +1299,9 @@ function fun_show_setting__emsFormBuilder() {
                               </br></br>
                               <span class="efb  fs-7"> ${efb_var.text.noticeEmailContent}</span>
                               </br></br>
-                              <span class="efb  fs-7">shortcode_title <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeTitleInfo}
-                              </br></br>
                               <span class="efb  fs-7">shortcode_message <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeMessageInfo}
+                              </br></br>
+                              <span class="efb  fs-7">shortcode_title <span class="efb  text-danger d-none">*</span> :</span> ${efb_var.text.shortcodeTitleInfo}
                               </br></br>
                               <span class="efb  fs-7">shortcode_website_name :</span> ${efb_var.text.shortcodeWebsiteNameInfo}
                               </br></br>
@@ -1495,7 +1496,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
         } else if (el.value.length > 10000) {
           st = 0;
           c = `<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>`;
-        } else if (el.value.length > 1 && el.value.indexOf('shortcode_message') == -1 && el.value.indexOf('shortcode_title') == -1) {
+        } else if (el.value.length > 1 && el.value.indexOf('shortcode_message') == -1) {
           c = `<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.addSCEmailM}</p></div>`;
           st = 0;
         }
@@ -2274,7 +2275,7 @@ function email_template_efb(s) {
 
     } else if (c.length > 2 && c.length < 2000) {
       ti = efb_var.text.preview;
-      if (!c.includes('shortcode_message') && !c.includes('shortcode_title')) {
+      if (!c.includes('shortcode_message')) {
         c = `<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.addSCEmailM}</p></div>`;
         ti = efb_var.text.error;
       }
