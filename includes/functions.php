@@ -1074,7 +1074,6 @@ class efbFunction {
 		$rtrn = $rtrn != null ? $rtrn : 'null';
 
 		update_option('emsfb_settings', $value);
-		// 3. Save to transient for next time (30 seconds)
 		if ($rtrn != 'null') {
 			set_transient('emsfb_settings_transient', $value, 1440);
 		}

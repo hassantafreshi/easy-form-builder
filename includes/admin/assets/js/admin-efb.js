@@ -1421,7 +1421,7 @@ let change_el_edit_Efb = (el) => {
             for(let v of valj_efb){
                 if(v.hasOwnProperty('noti') && Number(v.noti) ==1){
                   valj_efb[0].sendEmail=true;
-
+                  valj_efb[0].email_to=v.id_;
                 }else{
                   if(valj_efb[0].email_to==v.id_){
                     valj_efb[0].email_to="";
@@ -3520,27 +3520,32 @@ const obj_delete_row = (dataid, is_step) => {
       obj_delete_options(valj_efb[foundIndex].id_)
       //  foundIndex = Object.keys(valj_efb).length > 0 ? valj_efb.findIndex(x => x.dataId == dataid) : -1
     } else if (valj_efb[foundIndex].type == 'email' && valj_efb[0].email_to == valj_efb[foundIndex].id_) {
-      //valj_efb[0].sendEmail = 0
-    // const vnoti = valj_efb.finda(x => x.noti == 1);
-     const vnoti = valj_efb.filter(obj => {
-      return obj.noti == 1
-    })
+      // valj_efb[0].sendEmail = 0
+     // const vnoti = valj_efb.finda(x => x.noti == 1);
+      const vnoti = valj_efb.filter(obj => {
+        return obj.noti == 1
+      })
 
-     let count =0;
-     if (Object.keys(vnoti).length === 0){
-      //console.log('vd',typeof(vnoti),Object.keys(vnoti).length);
-      valj_efb[0].email_to = ''
-      valj_efb[0].sendEmail =0
-     }else{
-      //console.log('vd',typeof(vnoti),Object.keys(vnoti).length ,vnoti);
-       for(let i in vnoti){
+      let count =0;
+      let id = ''
+      if (Object.keys(vnoti).length === 0){
+        // console.log('vd',typeof(vnoti),Object.keys(vnoti).length);
+        valj_efb[0].email_to = ''
+        valj_efb[0].sendEmail =0
+      }else{
+        // console.log('vd',typeof(vnoti),Object.keys(vnoti).length ,vnoti);
+        for(let i in vnoti){
 
-        if(vnoti[i].hasOwnProperty('id_') && vnoti[i].id_!= valj_efb[foundIndex].id_ && Number(vnoti[i].noti)==1 )count+=1;
-       }
+          if(vnoti[i].hasOwnProperty('id_') && vnoti[i].id_!= valj_efb[foundIndex].id_ && Number(vnoti[i].noti)==1 ){
+            count+=1;
+            id = vnoti[i].id_;
+          }
+        }
 
-     }
-     valj_efb[0].sendEmail =count>0 ? 1 : 0;
-     valj_efb[0].email_to = ''
+      }
+
+      valj_efb[0].sendEmail =count>0 ? 1 : 0;
+      valj_efb[0].email_to = id
 
     }
 
