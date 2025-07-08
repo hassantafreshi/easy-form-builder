@@ -1365,11 +1365,16 @@ function handle_navbtn_efb(steps, device) {
               document.getElementById("title_efb").className = val["label_text_color"];
               document.getElementById("desc_efb").className = val["message_text_color"];
               document.getElementById("title_efb").textContent = val["name"];
-              document.getElementById("desc_efb").textContent = val["message"];
+              document.getElementById("desc_efb").textContent = val["message"]=='' ? val["name"] : val["message"];
               document.getElementById("title_efb").classList.add("text-center", "efb", "mt-1");
               document.getElementById("desc_efb").classList.add("text-center", "efb", "fs-7");
             }
             document.getElementById("prev_efb").classList.remove("d-none");
+          }else{
+            //efb_var.text.finish
+             document.getElementById("title_efb").textContent = efb_var.text.finish;
+            document.getElementById("desc_efb").textContent = efb_var.text.finish;
+
           }
           if (current_s_efb == steps_len_efb - 1) {
             if (sitekye_emsFormBuilder && sitekye_emsFormBuilder.length > 1 && valj_efb[0].captcha == true) {
@@ -1458,7 +1463,7 @@ function prev_btn_efb() {
       document.getElementById("title_efb").className = val["label_text_color"];
       document.getElementById("desc_efb").className = val["message_text_color"];
       document.getElementById("title_efb").textContent = val["name"];
-      document.getElementById("desc_efb").textContent = val["message"];
+      document.getElementById("desc_efb").textContent = val["message"]!= '' ? val["message"] : val["name"];
       document.getElementById("title_efb").classList.add("text-center", "efb", "mt-1");
       document.getElementById("desc_efb").classList.add("text-center", "efb", "fs-7");
   }
@@ -1589,7 +1594,9 @@ function previewFormEfb(state) {
         head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5  ${value.label_text_color} ">${value.name}</strong></li>`
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="efb my-2 mx-0 px-0 steps-efb efb row">` : `<!-- fieldset!!!? --><div id="step-${Number(step_no)-1}-efb-msg"></div></fieldset><fieldset data-step="step-${step_no}-efb"  class="efb my-2 mx-0 px-0 steps-efb efb row d-none">`
         if (valj_efb[0].show_icon == false) { }
-        if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == true && state == "run") { document.getElementById('body_efb').classList.remove('card') }
+        if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == true  && state == "run") {
+          document.getElementById('body_efb').classList.add('card')
+         }
       }
       if (value.type == 'step' && value.type != 'html') {
         steps_index_efb.push(index)
@@ -1692,7 +1699,7 @@ function previewFormEfb(state) {
             <!-- fieldset2 -->
             <div id="step-2-efb-msg"></div>
             </fieldset>`
-    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg mx-0" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch (error) {
     console.error(`Preview of Pc Form has an Error`, error)
   }
@@ -1888,7 +1895,7 @@ function fun_prev_send() {
     document.getElementById("title_efb").className = val['label_text_color'] + ' efb text-center mt-1';
     document.getElementById("desc_efb").className = val['message_text_color'] + " efb text-center fs-6";
     document.getElementById("title_efb").textContent = val['name'];
-    document.getElementById("desc_efb").textContent = val['message'];
+    document.getElementById("desc_efb").textContent = val['message'] != '' ? val['message'] : val['name'];
   }
   if(document.getElementById("prev_efb"))document.getElementById("prev_efb").classList.toggle("d-none");
   current_s.classList.add('d-none');
