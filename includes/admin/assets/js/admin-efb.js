@@ -1336,14 +1336,16 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case "cardEl":
-        valj_efb[0].dShowBg ? valj_efb[0].dShowBg =  el.classList.contains('active') : Object.assign(valj_efb[0], { dShowBg:  el.classList.contains('active') });
+        indx =  el.classList.contains('active')
+        valj_efb[0].hasOwnProperty('dShowBg') ? valj_efb[0].dShowBg =  indx==false : Object.assign(valj_efb[0], { dShowBg:  indx==false });
         break;
         case "offLineEl":
           if(efb_var.addons.AdnOF!=0 ){
-            valj_efb[0].AfLnFrm ? valj_efb[0].AfLnFrm = el.classList.contains('active') : Object.assign(valj_efb[0], { AfLnFrm: el.classList.contains('active') });
+            indx = el.classList.contains('active')
+            valj_efb[0].hasOwnProperty('AfLnFrm') ? valj_efb[0].AfLnFrm = indx : Object.assign(valj_efb[0], { AfLnFrm: indx });
           }else{
             el.checked=false;
-              el.classList.remove('active');
+            el.classList.remove('active');
             alert_message_efb(efb_var.text.error, `${efb_var.text.IMAddons} ${efb_var.text.offlineTAddon}`, 20, "danger")
 
           }
@@ -2816,7 +2818,7 @@ function create_form_efb() {
                 ${efbLoadingCard()}
                 <!-- fieldset formNew 2 --> </fieldset>
       `
-    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg mx-0" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch (error) {
     console.error(`Preview of Pc Form has an Error`, error)
   }
