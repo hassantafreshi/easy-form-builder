@@ -1083,8 +1083,8 @@ function fun_show_setting__emsFormBuilder() {
                                             <input type="text"  class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="shortCode_emsFormBuilder" value="[Easy_Form_Builder_confirmation_code_finder]" readonly>
                                             <span id="shortCode_emsFormBuilder-message" class="efb text-danger"></span>
                                           </div>
-                                            <button type="button" class="efb btn col-md-4 efb btn-r h-d-efb btn-outline-pink my-1" onclick="copyCodeEfb('shortCode_emsFormBuilder')">
-                                                <i class="efb  bi-clipboard-check mx-1"></i> ${efb_var.text.copy}
+                                            <button type="button" class="efb btn col-md-4 efb btn-r h-d-efb btn-outline-pink my-1" onclick="copyCodeEfb('shortCode_emsFormBuilder' ,'copyshortCodeEfb')">
+                                                <i class="efb  bi-clipboard-check mx-1"></i><span id="copyshortCodeEfb">${efb_var.text.copy}</span>
                                             </button>
                                         </div>
                               </div>

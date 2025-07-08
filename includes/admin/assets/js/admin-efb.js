@@ -303,8 +303,8 @@ function show_message_result_form_set_EFB(state, m) { //V2
   <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
   ${e_m}
-  <a  class="efb btn-r btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb')">
-      <i class="efb  bi-clipboard-check mx-1"></i>${efb_var.text.copyShortcode}
+  <a  class="efb btn-r btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb','textTractingCode')">
+      <i class="efb  bi-clipboard-check mx-1"></i><span id="textTractingCode">${efb_var.text.copyShortcode}</span>
   </a>
   <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')">
       <i class="efb  bi-question mx-1"></i>${efb_var.text.help}
@@ -1337,7 +1337,8 @@ let change_el_edit_Efb = (el) => {
         break;
       case "cardEl":
         indx =  el.classList.contains('active')
-        valj_efb[0].hasOwnProperty('dShowBg') ? valj_efb[0].dShowBg =  indx==false : Object.assign(valj_efb[0], { dShowBg:  indx==false });
+        console.log(indx, el.classList.contains('active'))
+        valj_efb[0].hasOwnProperty('dShowBg') ? valj_efb[0].dShowBg =  indx : Object.assign(valj_efb[0], { dShowBg:  indx });
         break;
         case "offLineEl":
           if(efb_var.addons.AdnOF!=0 ){

@@ -403,7 +403,7 @@ class efbFunction {
 			"formNExist" => $state ? $ac->text->formNExist : esc_html__('Form does not exist !!',$s),
 			"error403" => $state ? $ac->text->error403 : esc_html__('Your security session has expired or is invalid. Please refresh the page. E403',$s),
 			"error400" => $state ? $ac->text->error400 : esc_html__('Your security session has expired or is invalid. Please refresh the page. E400',$s),
-			"formPrivateM" => $state ? $ac->text->formPrivateM : esc_html__('Private form, please log in.',$s),
+			"formPrivateM" => $state ? $ac->text->formPrivateM && isset($ac->text->formPrivateM) : esc_html__('This is a private form. Please log in to access it.',$s),
 			"errorSiteKeyM" => $state ? $ac->text->errorSiteKeyM : esc_html__('Please check the site key and secret key on Easy Form Builder panel > Settings > Google Keys to resolve the error.',$s),
 			"errorCaptcha" => $state ? $ac->text->errorCaptcha : esc_html__('There seems to be a problem with the Captcha. Please try again.',$s),
 			"createAcountDoneM" => $state ? $ac->text->createAcountDoneM : esc_html__('Your account has been successfully created! You will receive an email containing your information',$s),
@@ -772,6 +772,7 @@ class efbFunction {
 			"notis" => $state  &&  isset($ac->text->noti) ? $ac->text->noti : esc_html__('%s notification',$s),
 			"settings" => $state  &&  isset($ac->text->settings) ? $ac->text->settings : esc_html__('Settings',$s),
 			"emlcc" => $state  &&  isset($ac->text->emlcc) ? $ac->text->emlcc : esc_html__('Send email with submitted form content only',$s),
+			"copied" => $state  &&  isset($ac->text->copied) ? $ac->text->copied : esc_html__('copied!',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s)
 
 		];
@@ -1108,16 +1109,21 @@ class efbFunction {
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){
+			$userEmails =[];
+			$emailsId=[];
+			foreach($data as $key=>$val){
+				if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
+					$emailsId[]=$val['id_'];
+				}
+			}
 			$ac=$this->get_setting_Emsfb();
 			$smtp =(isset($ac->smtp) && (bool)$ac->smtp ) ? true : false;
 			if($smtp) {
 				foreach($user_res as $key=>$val){
-					if(isset($user_res[$key]["id_"]) && $user_res[$key]["id_"]==$data[0]["email_to"]){
+					if(isset($user_res[$key]["id_"]) && in_array($user_res[$key]["id_"],$emailsId,true) && isset($val["value"]) && is_email($val["value"]) ){
 						$email=$val["value"];
 						$subject ="📮 ".$lang["youRecivedNewMessage"];
 						$this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
-
-
 					}
 				}
 			}

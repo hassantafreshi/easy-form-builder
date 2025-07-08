@@ -1292,12 +1292,17 @@ const loading_messge_efb = () => {
   return `
 <h3 class="efb fs-3 text-center">${efb_var.text.pleaseWaiting} ${svg}</h3>`
 }
-function copyCodeEfb(id) {
+function copyCodeEfb(id , tagid = '') {
   var copyText = document.getElementById(id);
+  console.log(tagid)
   copyText.select();
   copyText.setSelectionRange(0, 99999);
   document.execCommand("copy");
-  alert_message_efb(efb_var.text.copiedClipboard, '', 6)
+  if (tagid != '') {
+    const tag = document.getElementById(tagid);
+    tag.innerHTML = efb_var.text.copied;
+  }
+  // alert_message_efb(efb_var.text.copiedClipboard, '', 6)
 }
 function validExtensions_efb_fun(type, fileType,indx) {
   type= type.toLowerCase();
@@ -1359,6 +1364,7 @@ function handle_navbtn_efb(steps, device) {
           current_s_efb += 1;
           localStorage.setItem("step", current_s_efb);
           setProgressBar_efb(current_s_efb, steps_len_efb);
+          console.log("current_s_efb", current_s_efb, steps_len_efb,steps);
           if (current_s_efb <= steps) {
             var val = valj_efb.find(x => x.step == nxt);
             if(Number(valj_efb[0].show_icon)!=1){
@@ -1594,7 +1600,7 @@ function previewFormEfb(state) {
         head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5  ${value.label_text_color} ">${value.name}</strong></li>`
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="efb my-2 mx-0 px-0 steps-efb efb row">` : `<!-- fieldset!!!? --><div id="step-${Number(step_no)-1}-efb-msg"></div></fieldset><fieldset data-step="step-${step_no}-efb"  class="efb my-2 mx-0 px-0 steps-efb efb row d-none">`
         if (valj_efb[0].show_icon == false) { }
-        if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == true  && state == "run") {
+        if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == false  && state == "run") {
           document.getElementById('body_efb').classList.add('card')
          }
       }
@@ -2165,8 +2171,8 @@ function funTnxEfb(val, title, message) {
   <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
-               <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb')">
-                   <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i>${efb_var.text.copy}
+               <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb' ,'trackingCodeEfb2')">
+                   <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i><span id="trackingCodeEfb2">${efb_var.text.copy}</span>
                </button></div>`
   return `
                     <h4 class="efb  my-1 fs-2 ${doneTrackEfb} text-center" id="doneTitleEfb">
