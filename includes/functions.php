@@ -403,7 +403,7 @@ class efbFunction {
 			"formNExist" => $state ? $ac->text->formNExist : esc_html__('Form does not exist !!',$s),
 			"error403" => $state ? $ac->text->error403 : esc_html__('Your security session has expired or is invalid. Please refresh the page. E403',$s),
 			"error400" => $state ? $ac->text->error400 : esc_html__('Your security session has expired or is invalid. Please refresh the page. E400',$s),
-			"formPrivateM" => $state ? $ac->text->formPrivateM && isset($ac->text->formPrivateM) : esc_html__('This is a private form. Please log in to access it.',$s),
+			"formPrivateM" => $state  && isset($ac->text->formPrivateM) ? $ac->text->formPrivateM : esc_html__('This is a private form. Please log in to access it.',$s),
 			"errorSiteKeyM" => $state ? $ac->text->errorSiteKeyM : esc_html__('Please check the site key and secret key on Easy Form Builder panel > Settings > Google Keys to resolve the error.',$s),
 			"errorCaptcha" => $state ? $ac->text->errorCaptcha : esc_html__('There seems to be a problem with the Captcha. Please try again.',$s),
 			"createAcountDoneM" => $state ? $ac->text->createAcountDoneM : esc_html__('Your account has been successfully created! You will receive an email containing your information',$s),

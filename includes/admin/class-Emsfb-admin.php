@@ -1583,8 +1583,6 @@ class Admin {
 
     function admin_notices_efb () {
              $check = get_option('emsfb_email_status', false);
-
-
             function result_ok ($ok) {
                    $r['status'] = $ok;
                    $r['message']['title'] = 'configured';
@@ -1595,12 +1593,10 @@ class Admin {
             $efbFunction = $this->get_efbFunction(1);
             $settings= $efbFunction->get_setting_Emsfb();
 
-
             if(is_array($check)){
                     if($check['status'] === 'ok_set_smtp') {
                         return; // No issues found or already configured
                     }else if ($check['status'] === 'ok' ) {
-
                         if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
                             $settings->smtp = true;
                             $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
@@ -1610,7 +1606,7 @@ class Admin {
                         }
 
                         return; // No issues found or already configured
-                    }else if ($check['status'] !== 'ok' || $check['status'] !== 'ok_set_smtp' && (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true))) {
+                    }else if (($check['status'] !== 'ok' || $check['status'] !== 'ok_set_smtp') && (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true))) {
                             update_option('emsfb_email_status',  result_ok('ok_set_smtp'));
                             return; // No issues found or already configured
                     }
