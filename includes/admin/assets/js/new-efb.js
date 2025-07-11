@@ -1227,7 +1227,7 @@ const sub =lan_subdomain_wsteam_efb();
       link = `https://${sub}whitestudio.team/#price`
       break;
     case 'publishForm':
-      link = `https://www.youtube.com/watch?v=XjBPQExEvPE`
+      link = `https://www.youtube.com/watch?v=RJRe7p6yPCI`
       break;
     case 'emptyStep':
       link += `how-to-create-your-first-form-with-easy-form-builder#empty-step-alert`
