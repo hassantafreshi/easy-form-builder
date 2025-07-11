@@ -170,34 +170,42 @@ class _Public {
 
 
 		$page_builder="";
-		if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) )){
+		$action_post = isset($_GET['action']) ? $_GET['action'] :'';
 
+		if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) || $action_post=='elementor' || isset($_GET['elementor-preview'])  )){
 
+			error_log('inside if');
 
-				if(isset($_GET['vc_editable'])) $page_builder='vc_editable';
-				else if(isset($_GET['vc_editable'])) $page_builder = 'wpbakery';
-				else if (isset($_GET['action']) && $_GET['action']=='elementor'){
+				if(isset($_GET['vc_editable'])){ $page_builder='vc_editable';}
+				else if(isset($_GET['vc_editable'])) {$page_builder = 'wpbakery';}
+				else if ( ( isset($_GET['action']) && $_GET['action']=='elementor') || isset($_GET['elementor-preview']) ){
 					$page_builder='elementor';
 
 
 
 				}
+				//Click here to edit your Easy Form Builder shortcode.
 			$content="
-
-
-			<div id='body_efb' class='efb  row pb-3 efb px-2'>
-			<div style='width:100%;text-align: center;'>
-				<img src=".EMSFB_PLUGIN_URL . "includes/admin/assets/image/logo-easy-form-builder.svg' alt='Easy Form Builder' style='height: 80px;'>
-				</div><h4 style='color:#202a8d;text-align: center;'>".esc_html__('The form will be displayed in publication or preview modes.', 'easy-form-builder')."</h4>
-				<h3 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h3>
-			</div>
+			<div id='body_efb' class='efb row pb-3 efb px-2'>
+				<div style='width:100%;text-align: center;'>
+					<img src=". EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg'." alt='Easy Form Builder' style='height: 80px'>
+					</div>
+					<h4 style='color:#202a8d;text-align: center;'>
+					".esc_html__('You can only see the form in Preview or Publish mode.', 'easy-form-builder')."
+					</h4>
+					<p style='text-align: center; font-size:12px'>
+					". esc_html__('Click here to edit your Easy Form Builder shortcode.', 'easy-form-builder') ."
+					</p>
+					<h3 style='color:#ff4b93;text-align: center;'>
+						".esc_html__('Easy Form Builder', 'easy-form-builder')."
+					</h3>
 			</div>
 			";
 
 			return $content;
 		}
 
-
+		error_log(json_encode($_GET));
 
 		$this->public_scripts_and_css_head();
 
