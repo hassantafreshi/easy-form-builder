@@ -510,8 +510,8 @@ class efbFunction {
 			"submit" => $state  &&  isset($ac->text->submit) ? $ac->text->submit : esc_html__('Submit',$s),
 			"purchaseOrder" => $state  &&  isset($ac->text->purchaseOrder) ? $ac->text->purchaseOrder : esc_html__('Purchase Order',$s),
 			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : esc_html__('It is not possible to include reCAPTCHA on payment forms.',$s),
-			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : esc_html__('Easy Form Builder could not confirm if your service is able to send emails. Please check your email inbox (or spam folder) to see if you have received an email with the subject line: Email server [Easy Form Builder]. If you have received the email, please select the option < I confirm that this host supports SMTP > and save the changes.',$s),
-			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : esc_html__('I confirm that this host supports SMTP',$s),
+			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : esc_html__('Easy Form Builder could not confirm if your service is able to send emails. Please check your email inbox (or spam folder) to see if you have received an email with the subject line: Email server [Easy Form Builder]. If you have received the email, please select the option < This site can send emails > and save the changes.',$s),
+			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : esc_html__('This site can send emails',$s),
 			"PleaseMTPNotWork2" => $state &&  isset($ac->text->PleaseMTPNotWork2) ? $ac->text->PleaseMTPNotWork2 : esc_html__('Easy Form Builder could not confirm that your server can send emails. Please check your inbox or spam folder for an email with the subject: "Email server [Easy Form Builder]". If you received it, please enable the "%s" toggle and save your changes.',$s),
 			"hostSupportSmtp2" => $state  &&  isset($ac->text->hostSupportSmtp2) ? $ac->text->hostSupportSmtp2 : esc_html__('I confirm that this WordPress site is able to send emails properly',$s),
 			"interval" => $state  &&  isset($ac->text->interval) ? $ac->text->interval : esc_html__('Interval',$s),
@@ -824,6 +824,7 @@ class efbFunction {
 				);
 				if(gettype($sub)=='string'){
 					$message = $this->email_template_efb($pro,$state,$cont,$link,$email_content_type,$st);
+					error_log('message: ' . $message);
 					if( $state!="reportProblem"){
 						$to_;$mailResult;
 						if (gettype($to) == 'string') {
@@ -871,6 +872,7 @@ class efbFunction {
 							// state[2] hold message type
 							error_log(json_encode($state));
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$email_content_type,$st);
+							error_log('message2: ' . $message);
 							if( $state!="reportProblem"){
 								$to_;$mailResult;
 								$to_ = $to[$i];
@@ -942,6 +944,13 @@ class efbFunction {
 
 
 		$dts =  $lang['msgdml'];
+		$track_id = '';
+		if(gettype($m)=='string'){
+			$track_id =$m;
+		}else{
+			$track_id=$m[0];
+		}
+		$dts = str_replace('%s', $track_id, $dts);
 		$tracking_section = $email_content_type=='just_message' ? "" : "<div id='sectionTracking'><p style='text-align:center'>".$dts." </p><div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div></div>";;
 		error_log('----->_email_template_efb: tracking_section: ' . $tracking_section);
 		if($state=="testMailServer"){
@@ -1109,15 +1118,17 @@ class efbFunction {
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){
-			$userEmails =[];
+
 			$emailsId=[];
 			foreach($data as $key=>$val){
+				error_log('-----> data: ' . json_encode($val));
 				if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
 					$emailsId[]=$val['id_'];
 				}
 			}
 			$ac=$this->get_setting_Emsfb();
 			$smtp =(isset($ac->smtp) && (bool)$ac->smtp ) ? true : false;
+			error_log('-----> smtp: ' . json_encode($smtp));
 			if($smtp) {
 				foreach($user_res as $key=>$val){
 					if(isset($user_res[$key]["id_"]) && in_array($user_res[$key]["id_"],$emailsId,true) && isset($val["value"]) && is_email($val["value"]) ){
@@ -1331,56 +1342,6 @@ class efbFunction {
 
 
 
-		function validate_url($url) {
-			global $allowed_domains;
-			$parsed_url = parse_url($url);
-
-
-			if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
-				return esc_url($url);
-			}
-
-
-			if (strpos($url, 'javascript:') === false && strpos($url, 'data:') === false) {
-				return esc_url($url);
-			}
-
-			return '';
-		}
-
-
-		function sanitize_style_attribute($style) {
-			global $allowed_properties;
-			$style_rules = explode(';', $style);
-			$sanitized_rules = array();
-
-			foreach ($style_rules as $rule) {
-				if (strpos($rule, ':') !== false) {
-					list($property, $value) = explode(':', $rule, 2);
-					$property = trim($property);
-					$value = trim($value);
-
-
-					if (in_array($property, $allowed_properties)) {
-
-						if (strpos($value, 'url(') !== false) {
-							preg_match('/url\(["\']?([^"\')]+)["\']?\)/i', $value, $matches);
-							if (isset($matches[1]) && validate_url($matches[1])) {
-								$sanitized_rules[] = $property . ': ' . $value;
-							}
-						} else {
-
-							$sanitized_rules[] = $property . ': ' . $value;
-						}
-					}
-				}
-			}
-
-
-			return implode('; ', $sanitized_rules);
-		}
-
-
 		$allowed_tags = array(
 			'a' => array_merge($global_attributes, array(
 				'href' => true,
@@ -1450,6 +1411,15 @@ class efbFunction {
 				'width' => true,
 				'height' => true,
 			)),
+			'iframe' => array_merge($global_attributes, array(
+				'src' => true,
+				'width' => true,
+				'height' => true,
+				'frameborder' => true,
+				'scrolling' => true,
+				'allowscriptaccess' => true,
+				'allowfullscreen' => true,
+			)),
 		);
 
 
@@ -1459,7 +1429,7 @@ class efbFunction {
 		$sanitized_html = preg_replace_callback(
 			'/style=["\']([^"\']+)["\']/i',
 			function ($matches) {
-				return 'style="' . sanitize_style_attribute($matches[1]) . '"';
+				return 'style="' . $this->sanitize_style_attribute_efb($matches[1]) . '"';
 			},
 			$sanitized_html
 		);
@@ -2036,4 +2006,57 @@ class efbFunction {
 		$this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
 		return true;
 	}
+
+	public function validate_url_efb($url) {
+			global $allowed_domains;
+			$parsed_url = parse_url($url);
+			error_log('-----> validate_url_efb: ' . $url);
+
+			if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
+				return esc_url($url);
+			}
+
+
+			if (strpos($url, 'javascript:') === false && strpos($url, 'data:') === false) {
+				return esc_url($url);
+			}
+
+			return '';
+		}
+
+
+public function sanitize_style_attribute_efb($style) {
+			global $allowed_properties;
+			$style_rules = explode(';', $style);
+			$sanitized_rules = array();
+
+			foreach ($style_rules as $rule) {
+				if (strpos($rule, ':') !== false) {
+					list($property, $value) = explode(':', $rule, 2);
+					$property = trim($property);
+					$value = trim($value);
+
+
+					if (in_array($property, $allowed_properties)) {
+
+						if (strpos($value, 'url(') !== false) {
+							preg_match('/url\(["\']?([^"\')]+)["\']?\)/i', $value, $matches);
+							if (isset($matches[1]) && $this->validate_url_efb($matches[1])) {
+								$sanitized_rules[] = $property . ': ' . $value;
+							}
+						} else {
+
+							$sanitized_rules[] = $property . ': ' . $value;
+						}
+					}
+				}
+			}
+
+
+			return implode('; ', $sanitized_rules);
+		}
+
 }
+
+
+

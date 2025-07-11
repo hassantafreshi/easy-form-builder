@@ -36,7 +36,6 @@ class CheckRequirementEmsfb {
 
 
 
-
         if (!function_exists('mail')) {
             return [
                 'status' => 'error',

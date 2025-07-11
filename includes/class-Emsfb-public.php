@@ -359,7 +359,9 @@ class _Public {
 				}// end if custom date
 				if(strpos($value , '\"type\":\"mobile\"') || strpos($value , '"type":"mobile"')){
 					$img = [
-						'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js'
+						'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js',
+						"logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
+						"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 						];
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
 					wp_enqueue_script('intlTelInput-js');
@@ -2417,7 +2419,25 @@ class _Public {
 
 				$users_email =array();
 
-				if(isset($id)){
+				/*
+
+				$emailsId=[];
+			foreach($data as $key=>$val){
+				error_log('-----> data: ' . json_encode($val));
+				if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
+					$emailsId[]=$val['id_'];
+				}
+			}
+
+				*/
+				$emailsId = [];
+				foreach($valn as $key=>$val){
+					if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
+						$emailsId[]=$val['id_'];
+					}
+				}
+
+			/* 	if(isset($id)){
 					foreach ($msg_obj as $key => $value) {
 
 						if(isset($value['id_']) && $value['id_']==$valn[0]["email_to"]){
@@ -2426,7 +2446,16 @@ class _Public {
 						}
 					}
 
+				} */
+
+				if(!empty($emailsId)){
+					foreach ($msg_obj as $value) {
+						if(isset($value['id_']) && in_array($value['id_'],$emailsId)){
+							array_push($users_email,$value["value"]);
+						}
+					}
 				}
+
 				$smsnoti = (isset($valn[0]['smsnoti']) && intval($valn[0]['smsnoti'])==1) ? 1 :0;
 				if($smsnoti){
 
@@ -2544,7 +2573,9 @@ class _Public {
 
 
 			$dt =  $this->lanText['msgdml'];
+			error_log($track);
 			$dt = str_replace('%s', $track, $dt);
+			error_log($dt);
 			$subject[$i] ="📮 " . $this->lanText["youRecivedNewMessage"] .' ['.$track.']';
 			if($state[$i]=="notiToUserFormFilled_TrackingCode"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];
@@ -4103,8 +4134,8 @@ class _Public {
 			$msg_content='null';
 			$msg_type ='traking_link';
 			$msg_sub = 'null';
-			error_log($formObj[0]["email_noti_type"]);
-			if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg' || $formObj[0]["email_noti_type"]=='just_msg' ){
+
+			if(isset($formObj[0]["email_noti_type"]) && ( $formObj[0]["email_noti_type"]=='msg' || $formObj[0]["email_noti_type"]=='just_msg' )){
 				$msg_content =$this->email_get_content($valobj ,$check);
 				$msg_content = str_replace("\"","'",$msg_content);
 				$msg_type = $formObj[0]["email_noti_type"]=='msg' ? 'message_link' : 'just_message';
