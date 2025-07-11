@@ -174,7 +174,6 @@ class _Public {
 
 		if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) || $action_post=='elementor' || isset($_GET['elementor-preview'])  )){
 
-			error_log('inside if');
 
 				if(isset($_GET['vc_editable'])){ $page_builder='vc_editable';}
 				else if(isset($_GET['vc_editable'])) {$page_builder = 'wpbakery';}
@@ -204,8 +203,6 @@ class _Public {
 
 			return $content;
 		}
-
-		error_log(json_encode($_GET));
 
 		$this->public_scripts_and_css_head();
 
@@ -2581,9 +2578,7 @@ class _Public {
 
 
 			$dt =  $this->lanText['msgdml'];
-			error_log($track);
 			$dt = str_replace('%s', $track, $dt);
-			error_log($dt);
 			$subject[$i] ="📮 " . $this->lanText["youRecivedNewMessage"] .' ['.$track.']';
 			if($state[$i]=="notiToUserFormFilled_TrackingCode"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];

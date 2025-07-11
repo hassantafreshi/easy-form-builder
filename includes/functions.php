@@ -799,8 +799,6 @@ class efbFunction {
 	}
 
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){
-				error_log('----->_email_state_new');
-				error_log('to: ' . json_encode($to));
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 				$email_content_type = isset($state[2]) ? $state[2]  : 'traking_link' ;
 			   	$mailResult = "n";
@@ -824,7 +822,6 @@ class efbFunction {
 				);
 				if(gettype($sub)=='string'){
 					$message = $this->email_template_efb($pro,$state,$cont,$link,$email_content_type,$st);
-					error_log('message: ' . $message);
 					if( $state!="reportProblem"){
 						$to_;$mailResult;
 						if (gettype($to) == 'string') {
@@ -870,9 +867,7 @@ class efbFunction {
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
 							// state[2] hold message type
-							error_log(json_encode($state));
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$email_content_type,$st);
-							error_log('message2: ' . $message);
 							if( $state!="reportProblem"){
 								$to_;$mailResult;
 								$to_ = $to[$i];
@@ -906,9 +901,6 @@ class efbFunction {
 	}
 
 	public function email_template_efb($pro, $state, $m,$link ,$email_content_type,$st="null"){
-		error_log('----->_email_template_efb');
-		error_log(json_encode( $state));
-		error_log($email_content_type);
 		$l ='https://whitestudio.team';
 		$wp_lan = get_locale();
 			 if($wp_lan=="fa_IR"){ $l='https://easyformbuilder.ir'  ;}
@@ -951,8 +943,7 @@ class efbFunction {
 			$track_id=$m[0];
 		}
 		$dts = str_replace('%s', $track_id, $dts);
-		$tracking_section = $email_content_type=='just_message' ? "" : "<div id='sectionTracking'><p style='text-align:center'>".$dts." </p><div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div></div>";;
-		error_log('----->_email_template_efb: tracking_section: ' . $tracking_section);
+		$tracking_section = $email_content_type=='just_message' ? "" : "<div id='sectionTracking'><p style='text-align:center'>".$dts." </p><div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div></div>";
 		if($state=="testMailServer"){
 			$dt = $lang['msgnml'];
 			$de = $lang['mlntip'];
@@ -1121,14 +1112,12 @@ class efbFunction {
 
 			$emailsId=[];
 			foreach($data as $key=>$val){
-				error_log('-----> data: ' . json_encode($val));
 				if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
 					$emailsId[]=$val['id_'];
 				}
 			}
 			$ac=$this->get_setting_Emsfb();
 			$smtp =(isset($ac->smtp) && (bool)$ac->smtp ) ? true : false;
-			error_log('-----> smtp: ' . json_encode($smtp));
 			if($smtp) {
 				foreach($user_res as $key=>$val){
 					if(isset($user_res[$key]["id_"]) && in_array($user_res[$key]["id_"],$emailsId,true) && isset($val["value"]) && is_email($val["value"]) ){
@@ -2010,7 +1999,6 @@ class efbFunction {
 	public function validate_url_efb($url) {
 			global $allowed_domains;
 			$parsed_url = parse_url($url);
-			error_log('-----> validate_url_efb: ' . $url);
 
 			if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
 				return esc_url($url);

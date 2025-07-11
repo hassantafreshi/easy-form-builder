@@ -996,7 +996,6 @@ class Admin {
             $st_ = json_encode($m,JSON_UNESCAPED_UNICODE);
             $setting = str_replace('"', '\"', $st_);
         }
-        error_log("set_setting_Emsfb: ".json_encode($m,JSON_UNESCAPED_UNICODE));
         $email = isset($m['emailSupporter']) ? $m['emailSupporter'] : '';
         $this->database_set_emsfb_settings($setting, $email);
         $m = $lang["messageSent"];
@@ -1006,7 +1005,6 @@ class Admin {
     }
 
     private function database_set_emsfb_settings($setting, $email) {
-        error_log("database_set_emsfb_settings: ".json_encode($setting,JSON_UNESCAPED_UNICODE));
         global $wpdb;
         $table_name = $wpdb->prefix . "emsfb_setting";
         $wpdb->insert(
@@ -1601,7 +1599,6 @@ class Admin {
                         if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
                             $settings->smtp = true;
                             $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
-                            error_log('Email supporter: ' . $email);
                             $st_ = json_encode($settings,JSON_UNESCAPED_UNICODE);
                             $setting = str_replace('"', '\"', $st_);
                             $this->database_set_emsfb_settings($setting, $email);
@@ -1622,12 +1619,9 @@ class Admin {
                     $efbRequirement->run_and_save_efb();
                     $check = get_option('emsfb_email_status', false);
                     if(is_array($check)  && isset($check['status']) && ($check['status'] == 'ok_set_smtp' || $check['status'] == 'ok')) {
-                        error_log('Email system is configured correctly.');
                         if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
-                            error_log('Updating email settings to enable SMTP.');
                             $settings->smtp = true;
                             $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
-                            error_log('Email supporter: ' . $email);
                             $st_ = json_encode($settings,JSON_UNESCAPED_UNICODE);
                             $setting = str_replace('"', '\"', $st_);
                             $this->database_set_emsfb_settings($setting, $email);
