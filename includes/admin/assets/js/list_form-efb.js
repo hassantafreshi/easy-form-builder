@@ -1981,7 +1981,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     }
   }
 
-  console.log('rowss')
+  // console.log('rowss')
   localStorage.setItem('rows_ws_p', JSON.stringify(exp));
 
 }
@@ -1991,7 +1991,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
 
 
-  console.log(items);
+  // console.log(items);
   items.forEach(item => { for (let i in item) { if (item[i] == "notCount@EFB") item[i] = ""; } });
   var jsonObject = JSON.stringify(items);
   var csv = this.convertToCSV_emsFormBuilder(jsonObject);
@@ -2060,7 +2060,7 @@ function convertToCSV_emsFormBuilder(objArray) {
 
 function generat_csv_emsFormBuilder() {
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
-  console.log(exp);
+  // console.log(exp);
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
   exportCSVFile_emsFormBuilder(exp, filename);
 

@@ -1294,7 +1294,7 @@ const loading_messge_efb = () => {
 }
 function copyCodeEfb(id , tagid = '') {
   var copyText = document.getElementById(id);
-  console.log(tagid)
+  // console.log(tagid)
   copyText.select();
   copyText.setSelectionRange(0, 99999);
   document.execCommand("copy");
@@ -1364,7 +1364,7 @@ function handle_navbtn_efb(steps, device) {
           current_s_efb += 1;
           localStorage.setItem("step", current_s_efb);
           setProgressBar_efb(current_s_efb, steps_len_efb);
-          console.log("current_s_efb", current_s_efb, steps_len_efb,steps);
+          // console.log("current_s_efb", current_s_efb, steps_len_efb,steps);
           if (current_s_efb <= steps) {
             var val = valj_efb.find(x => x.step == nxt);
             if(Number(valj_efb[0].show_icon)!=1){

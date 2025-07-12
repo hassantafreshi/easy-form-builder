@@ -12,6 +12,7 @@ let form_type_emsFormBuilder = 'form';
 const efb_version =3.7;
 let wpbakery_emsFormBuilder =false;
 let pro_price_efb =19
+let heartbeat_efb_active =false;
 
 
 
@@ -1337,7 +1338,7 @@ let change_el_edit_Efb = (el) => {
         break;
       case "cardEl":
         indx =  el.classList.contains('active')
-        console.log(indx, el.classList.contains('active'))
+       // console.log(indx, el.classList.contains('active'))
         valj_efb[0].hasOwnProperty('dShowBg') ? valj_efb[0].dShowBg =  indx : Object.assign(valj_efb[0], { dShowBg:  indx });
         break;
         case "offLineEl":
@@ -4700,6 +4701,10 @@ function efbLatLonLocation(efbMapId, lat, long ,zoom) {
 
 function heartbeat_Emsfb() {
   // Your code here
+  console.log(`heartbeat_efb_active[${heartbeat_efb_active}]`);
+  if (heartbeat_efb_active) return;
+  heartbeat_efb_active = true;
+
   data = {};
   console.log('Old nonce', efb_var.nonce);
   jQuery(function ($) {
@@ -4708,15 +4713,29 @@ function heartbeat_Emsfb() {
       nonce: efb_var.nonce,
     };
     $.post(ajaxurl, data, function (res) {
+
       console.log(res)
       if (res.success == true) {
 
         efb_var.nonce = res.data.newNonce;
+        heartbeat_efb_active = false;
         console.log('new nonce', efb_var.nonce);
       } else {
+        heartbeat_efb_active = false;
+
         console.log(res.data);
       }
-    })
+    }
+  ).fail(function(jqXHR, textStatus, errorThrown) {
+    heartbeat_efb_active = false;
+    alert_message_efb(
+      '<i class="efb  bi-wifi-off mx-1"></i>'+efb_var.text.error,
+      `<p class="efb fs-6">${efb_var.text.srvnrsp}</p>`,
+      500,
+      'danger'
+    );
+    console.error("Heartbeat AJAX failed:", textStatus, errorThrown);
+  });
 
   });
 }
@@ -4768,7 +4787,7 @@ function addClickListenerToElement(element) {
                   const eventform = dataset.hasOwnProperty('eventform') ? sanitize_text_efb(dataset.eventform) : false;
                   let temp ='';
                   let temp2='';
-                  console.log(dataset);
+                  // console.log(dataset);
                   if (eventform) {
 
                       switch (eventform) {
@@ -4791,7 +4810,7 @@ function addClickListenerToElement(element) {
                               emsFormBuilder_delete(temp2, 'form', temp);
                               break;
                           case 'duplicate':
-                            console.log('duplicate');
+                            // console.log('duplicate');
                               temp = sanitize_text_efb(dataset.formname);
                               temp2 = sanitize_text_efb(dataset.id);
                               emsFormBuilder_duplicate(temp2, 'form', temp);
@@ -4845,6 +4864,7 @@ function addClickListenerToElement(element) {
 
       element.hasClickListener = true;
   }
+  heartbeat_Emsfb();
 }
 
 
@@ -4862,7 +4882,7 @@ function addClickListenerToElement(element) {
                 if (node.nodeType === 1) {
 
 
-                    const els = node.querySelectorAll(".ec-efb");
+                    const els = node.querySelectorAll(".ec-efb, .btn, .elEdit, .btn-toggle, .ec-efb ");
                     els.forEach(addClickListenerToElement);
                 }
             });
