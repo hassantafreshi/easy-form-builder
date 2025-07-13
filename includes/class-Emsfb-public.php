@@ -1491,7 +1491,7 @@ class _Public {
 								$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 								$status_email = $this->email_status_efb($formObj,$valobj,$check);
 								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
-								$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] ,$status_email['type'] );
+								$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
 							}
 							wp_send_json_success($response,$data_POST);
 						break;
@@ -2088,7 +2088,6 @@ class _Public {
 
             $id = $_POST['id'];
             $table_name = $this->db->prefix . "emsfb_form";
-           // $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$fid'");
 			$vl = $this->db->get_var( $this->db->prepare(
 				"SELECT form_structer FROM `$table_name` WHERE form_id = %d",
 				$fid
