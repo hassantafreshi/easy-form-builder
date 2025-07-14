@@ -833,6 +833,7 @@ class efbFunction {
 	public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null") {
 		error_log('----->_email_state_new');
 		error_log('to: ' . json_encode($to));
+		$email_content_type = isset($state[2]) ? $state[2]  : 'traking_link' ;
 		// تنظیم نوع ایمیل به HTML
 		add_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 
@@ -874,7 +875,7 @@ class efbFunction {
 		};
 
 		if (is_string($sub)) {
-			$message = $this->email_template_efb($pro, $state, $cont, $link, $st);
+			$message = $this->email_template_efb($pro,$state,$cont,$link,$email_content_type,$st);
 			if ($state != "reportProblem") {
 				$mailResult = $sendMail($to, $sub, $message, $headers);
 			}
@@ -889,7 +890,7 @@ class efbFunction {
 		} else {
 			for ($i = 0; $i < 2; $i++) {
 				if (!empty($to[$i]) && $to[$i] != "null") {
-					$message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $st);
+					$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$email_content_type,$st);
 					if ($state != "reportProblem") {
 						$mailResult = $sendMail($to[$i], $sub[$i], $message, $headers);
 					}
@@ -1010,7 +1011,7 @@ class efbFunction {
 	} */
 
 
-	public function email_template_efb($pro, $state, $m, $link, $st = "null") {
+	public function email_template_efb($pro, $state, $m,$link ,$email_content_type,$st="null"){
 		$l = 'https://whitestudio.team';
 		$wp_lan = get_locale();
 		$locale_map = [
@@ -1040,6 +1041,14 @@ class efbFunction {
 		$adminEmail = $user ? $user->user_email : '';
 		$blogURL = home_url();
 		$dts = $lang['msgdml'];
+		$track_id = '';
+		if(gettype($m)=='string'){
+			$track_id =$m;
+		}else{
+			$track_id=$m[0];
+		}
+		$dts = str_replace('%s', $track_id, $dts);
+		$tracking_section = $email_content_type=='just_message' ? "" : "<div id='sectionTracking'><p style='text-align:center'>".$dts." </p><div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div></div>";
 
 		if ($state == "testMailServer") {
 			$dt = $lang['msgnml'];
@@ -1066,13 +1075,23 @@ class efbFunction {
 				$message = "<h2 style='text-align:center'>$p</h2><div style='text-align:center'><a href='$l' target='_blank' style='padding:5px;color:white;background:#202a8d;'>{$lang['getProVersion']}</a></div><h3 style='padding:5px;color: #021623;'>$de</h3><h4 style='padding:5px;color: #021623;'>$dt</h4><div style='text-align:center'><p style='text-align:center'>{$lang['createdBy']} WhiteStudio.team</p></div>";
 			}
 		} elseif ($state == "newMessage") {
-			$dts = str_replace('%s', is_string($m) ? $m : $m[0], $dts);
-			$link = strpos($link, "?") !== false ? $link . '&track=' . (is_string($m) ? $m : $m[0]) : $link . '?track=' . (is_string($m) ? $m : $m[0]);
-			$message = is_string($m) ? $m :	"<div style='text-align:$align;color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>{$m[1]}</div><p style='text-align:center'>$dts</p><div style='text-align:center'><a href='$link' target='_blank' style='padding:5px;color:white;background:black;'>{$lang['vmgs']}</a></div>";
+			if(gettype($m)=='string'){
+				$dts = str_replace('%s', $m, $dts);
+				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
+				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
+				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>".$tracking_section ;
+			}else{
+				$dts = str_replace('%s', $m[0], $dts);
+				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
+				$message ="
+				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>".$tracking_section;
+			}
 		} else {
 			$title = $lang['hiUser'];
 			$dts = str_replace('%s', is_string($m) ? $m : $m[0], $dts);
-			$message = is_string($m) ? "<div style='text-align:center'>$m</div>" : "<div style='text-align:center'><h2>{$lang['WeRecivedUrM']}</h2></div><div style='text-align:$align;color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>{$m[1]}</div><p style='text-align:center'>$dts</p><div style='text-align:center'><a href='$link' target='_blank' style='padding:5px;color:white;background:black;'>{$lang['vmgs']}</a></div>";
+			$message="
+				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
+				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>". $tracking_section;
 		}
 
 		$val = "<html xmlns='http://www.w3.org/1999/xhtml'><body style='margin:auto 10px;direction:$d;color:#000000;'><center><table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:$d;'><tr><img src='" . EMSFB_PLUGIN_URL . "public/assets/images/email_template1.png' alt='New Message' style='width:36%;'></tr><tr><td><center><table bgcolor='#FFFFFF' width='100%' border='0'><tbody><tr><td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'><h1 style='color:#ff4b93;text-align:center;'>$title</h1></td></tr><tr style='text-align:$align;color:#000000;font-size:14px;'><td><span>$message</span></td></tr><tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td></td></tr></tbody></center></td></tr></table></center><table role='presentation' bgcolor='#F5F8FA' width='100%'><tr><td align='$align' style='padding: 30px 30px; font-size:12px; text-align:center'>$footer</td></tr></table></body></html>";
@@ -1162,7 +1181,7 @@ class efbFunction {
 
 		$response_msg = json_decode($response_msg,true);
 		$lst = end($response_msg);
-		$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+		$link_w = $lst['type']=="w_link" ? $lst['value'].'?track='.$trackingCode : 'null';
 
 
 		$table_name =  $wpdb->prefix . "emsfb_form";
@@ -1171,6 +1190,16 @@ class efbFunction {
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
 		if(($data[0]['sendEmail']=="true"|| $data[0]['sendEmail']==true ) &&   strlen($data[0]['email_to'])>2 ){
+			$emailsId=[];
+			$email_to = $data[0]["email_to"];
+
+			foreach($data as $key=>$val){
+				if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
+					$emailsId[]=$val['id_'];
+				}else if ($val['type']=="email" &&  $val['id_']==$email_to){
+					$emailsId[]=$val['id_'];
+				}
+			}
 
 			$settings = $this->get_setting_Emsfb();
 			error_log(json_encode($settings ));
@@ -1181,7 +1210,7 @@ class efbFunction {
 				$rtrn = false;
 				$emails =[];
 				foreach($data as $key=>$val){
-					if(isset($val['type']) &&  $val['type']=='email' && isset($val['noti']) == true && intval($val['noti']) == 1){
+					if(isset($user_res[$key]["id_"]) && in_array($user_res[$key]["id_"],$emailsId,true) && isset($val["value"]) && is_email($val["value"]) ){
 						$emails[] = $val['id_'];
 					}
 				}
@@ -2420,77 +2449,6 @@ public function addon_add_efb($value) {
 		$allowed_domains = array('google.com', 'gstatic.com', 'googleapis.com', 'googleusercontent.com', 'youtube.com', 'ytimg.com', 'microsoft.com', 'office.com', 'live.com', 'msn.com', 'outlook.com', 'amazonaws.com', 'cloudfront.net', 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com', 'jsdelivr.net', 'unpkg.com', 'facebook.com', 'fbcdn.net', 'twitter.com', 'twimg.com', 'github.com', 'github.io', 'vimeo.com', 'vimeocdn.com', 'wikipedia.org', 'wikimedia.org', 'wikidata.org', 'stripe.com', 'paypal.com', 'braintreepayments.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'use.fontawesome.com', 'dailymotion.com', 'dmcdn.net', 'maps.googleapis.com', 'openstreetmap.org', 'mapbox.com', 'gravatar.com', 'unsplash.com', 'placekitten.com', 'placehold.co', 'akamaihd.net', 'cloudflare.com', 'fastly.net', 'linkedin.com', 'apple.com', 'adobe.com', 'cdn.shopify.com', 'example.com', 'example.org', 'trusted.com', 'cdn.trusted.com');
 
 
-		// Function to validate URLs in attributes or CSS
-		function validate_url($url) {
-			global $allowed_domains;
-			$parsed_url = parse_url($url);
-
-			// Check if the domain is in the allowed list
-			if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
-				return esc_url($url);
-			}
-
-			// Ensure the URL does not contain dangerous schemes like `javascript:` or `data:`
-			if (strpos($url, 'javascript:') === false && strpos($url, 'data:') === false) {
-				return esc_url($url);
-			}
-
-			return ''; // Invalid URL
-		}
-
-		// Function to sanitize the `style` attribute
-		function sanitize_style_attribute($style) {
-			global $allowed_properties;
-			$forbidden_css_properties = array(
-				// XSS & Script Execution Risks
-				'expression', 'behavior', '-moz-binding', 'content',
-
-				// Clickjacking & UI Deception
-				'position:fixed', 'position:absolute', 'top', 'left', 'right', 'bottom',
-				'z-index', 'visibility', 'opacity', 'pointer-events',
-
-				// Tracking & UI Manipulation
-				'cursor', 'resize', 'scroll-behavior', 'zoom',
-
-				// Social Engineering & UI Confusion
-				'filter', 'mix-blend-mode', 'clip-path', 'backface-visibility',
-
-				// Data Theft & Unwanted Effects
-				'shape-outside', 'perspective', 'transform', 'transform-origin',
-				'transition', 'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay'
-			);
-			$style_rules = explode(';', $style); // Split the style string into individual rules
-			$sanitized_rules = array();
-
-			foreach ($style_rules as $rule) {
-				if (strpos($rule, ':') !== false) {
-					list($property, $value) = explode(':', $rule, 2);
-					$property = trim($property); // Clean up the property name
-					$value = trim($value);       // Clean up the value
-
-					// Check if the property is in the allowed list
-					error_log($value);
-					error_log($property);
-					error_log(in_array($property, $forbidden_css_properties));
-					if (in_array($property, $forbidden_css_properties)==false) {
-						// If the value contains a URL, validate it
-						if (strpos($value, 'url(') !== false) {
-							preg_match('/url\(["\']?([^"\')]+)["\']?\)/i', $value, $matches);
-							if (isset($matches[1]) && validate_url($matches[1])) {
-								$sanitized_rules[] = $property . ': ' . $value;
-							}
-						} else {
-							// Add the rule if it doesn't involve a URL
-							$sanitized_rules[] = $property . ': ' . $value;
-						}
-					}
-				}
-			}
-
-			// Reassemble the sanitized style attribute
-			return implode('; ', $sanitized_rules);
-		}
-
 		// Allowed HTML tags and their attributes
 		$allowed_tags = array(
 			'a' => array_merge($global_attributes, array(
@@ -2607,94 +2565,24 @@ public function addon_add_efb($value) {
 				'width' => true,
 				'height' => true,
 			)),
+			'iframe' => array_merge($global_attributes, array(
+				'src' => true,
+				'width' => true,
+				'height' => true,
+				'frameborder' => true,
+				'scrolling' => true,
+				'allowscriptaccess' => true,
+				'allowfullscreen' => true,
+			)),
 		);
 
-	/* 	$allowed_tags = array(
-			'a' => array_merge($global_attributes, array(
-				'href' => true,  // Hyperlinks must be sanitized
-				'title' => true,
-				'rel' => true,
-				'target' => true
-			)),
-			'abbr' => array_merge($global_attributes, array('title' => true)),
-			'address' => $global_attributes,
-			'area' => array_merge($global_attributes, array(
-				'alt' => true,
-				'coords' => true,
-				'href' => true,  // Links must be sanitized
-				'shape' => true,
-				'target' => true,
-			)),
-			'audio' => array_merge($global_attributes, array(
-				'autoplay' => true,
-				'controls' => true,
-				'loop' => true,
-				'muted' => true,
-				'preload' => true,
-				'src' => true,  // Audio source must be sanitized
-			)),
-			'b' => $global_attributes,
-			'blockquote' => array_merge($global_attributes, array('cite' => true)), // Validate cite attribute
-			'br' => $global_attributes,
-			'button' => array_merge($global_attributes, array(
-				'disabled' => true,
-				'name' => true,
-				'type' => true,
-				'value' => true,
-			)),
-			'canvas' => array_merge($global_attributes, array('height' => true, 'width' => true)),
-			'caption' => $global_attributes,
-			'code' => $global_attributes,
-			'col' => array_merge($global_attributes, array('span' => true, 'width' => true)),
-			'data' => array_merge($global_attributes, array('value' => true)),
-			'div' => $global_attributes,
-			'img' => array_merge($global_attributes, array(
-				'src' => true,    // Image source must be sanitized
-				'alt' => true,
-				'width' => true,
-				'height' => true,
-			)),
-			'input' => array_merge($global_attributes, array(
-				'type' => true,
-				'name' => true,
-				'value' => true,
-				'placeholder' => true,
-				'required' => true,
-			)),
-			'meta' => array_merge($global_attributes, array(
-				'name' => true,
-				'content' => true,
-				'charset' => true,
-			)),
-			'p' => $global_attributes,
-			'h1' =>$global_attributes,
-			'h2' =>$global_attributes,
-			'h3' =>$global_attributes,
-			'h4' =>$global_attributes,
-			'h5' =>$global_attributes,
-			'h6' =>$global_attributes,
-			'h7' =>$global_attributes,
-			'table' => $global_attributes,
-			'video' => array_merge($global_attributes, array(
-				'autoplay' => true,
-				'controls' => true,
-				'loop' => true,
-				'muted' => true,
-				'preload' => true,
-				'src' => true,  // Video source must be sanitized
-				'width' => true,
-				'height' => true,
-			)),
-		); */
-
-		// Sanitize the HTML using `wp_kses`
 		$sanitized_html = wp_kses($html, $allowed_tags);
 
 		// Further sanitize the `style` attribute
 		$sanitized_html = preg_replace_callback(
 			'/style=["\']([^"\']+)["\']/i',
 			function ($matches) {
-				return 'style="' . sanitize_style_attribute($matches[1]) . '"';
+				return 'style="' . $this->sanitize_style_attribute_efb($matches[1]) . '"';
 			},
 			$sanitized_html
 		);
@@ -2802,6 +2690,59 @@ public function addon_add_efb($value) {
 		$wpdb->query( $sql );
 
 	}
+
+	public function validate_url_efb($url) {
+			global $allowed_domains;
+			$parsed_url = parse_url($url);
+
+			if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
+				return esc_url($url);
+			}
+
+
+			if (strpos($url, 'javascript:') === false && strpos($url, 'data:') === false) {
+				return esc_url($url);
+			}
+
+			return '';
+		}
+
+
+	public function sanitize_style_attribute_efb($style) {
+				global $allowed_properties;
+				$style_rules = explode(';', $style);
+				$sanitized_rules = array();
+
+				foreach ($style_rules as $rule) {
+					if (strpos($rule, ':') !== false) {
+						list($property, $value) = explode(':', $rule, 2);
+						$property = trim($property);
+						$value = trim($value);
+
+
+						if (in_array($property, $allowed_properties)) {
+
+							if (strpos($value, 'url(') !== false) {
+								preg_match('/url\(["\']?([^"\')]+)["\']?\)/i', $value, $matches);
+								if (isset($matches[1]) && $this->validate_url_efb($matches[1])) {
+									$sanitized_rules[] = $property . ': ' . $value;
+								}
+							} else {
+
+								$sanitized_rules[] = $property . ': ' . $value;
+							}
+						}
+					}
+				}
+
+
+				return implode('; ', $sanitized_rules);
+			}
+
+	}
+
+
+
 
 
 }
