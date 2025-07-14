@@ -2,7 +2,7 @@
 namespace Emsfb;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} 
+}
 class Panel_edit  {
 	public $nounce;
 	protected $db;
@@ -10,14 +10,14 @@ class Panel_edit  {
 		global $wpdb;
 		$this->db = $wpdb;
 		if ( is_admin() ) {
-			$rtl = is_rtl();		
+			$rtl = is_rtl();
 			$plugins =['wpsms' => 0,'wpbaker' => 0,'elemntor'=> 0 , 'cache'=>0];
 			$plugins_get = get_plugins();
 			if (is_plugin_active('wp-sms/wp-sms.php')) {
 				$plugins['wpsms']=1;
 			}
 			$plugins_get =null;
-			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);	
+			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);
 			wp_enqueue_script('gchart-js');
 			$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 			"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
@@ -31,7 +31,7 @@ class Panel_edit  {
 			];
 			$efbFunction = $this->get_efbFunction();
 			$pro =$efbFunction->is_efb_pro(1);;
-			// $lng =new lng();		
+			// $lng =new lng();
 			$ac= $efbFunction->get_setting_Emsfb();
 			$efbFunction->parsing_plugins_efb();
 			$lang = $efbFunction->text_efb(2);
@@ -54,17 +54,17 @@ class Panel_edit  {
 		    }
 			if(gettype($ac)!="string" && isset($ac) ){
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-				
-				if(isset($ac->siteKey)){$captcha="true";}	
-				if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
+
+				if(isset($ac->siteKey)){$captcha="true";}
+				if(isset($ac->smtp) && (bool)$ac->smtp){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
 				/* if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 					$k= $ac->apiKeyMap;
 					$maps =true;
-					$lng = strval(get_locale());					
+					$lng = strval(get_locale());
 						if ( strlen($lng) > 0 ) {
 						$lng = explode( '_', $lng )[0];
 						}
-					wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
+					wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);
 					wp_enqueue_script('googleMaps-js');
 				} */
 				if(isset($ac->AdnSPF)==true){
@@ -88,7 +88,7 @@ class Panel_edit  {
 			}else{
 				$noti_pro = '<script>const noti_exp_efb="";</script>';
 			}
-			if(gettype($ac)!="string" && isset($ac->siteKey))$k= $ac->siteKey;	
+			if(gettype($ac)!="string" && isset($ac->siteKey))$k= $ac->siteKey;
 			if ( strlen( $lng ) > 0 ) {
 				$lng = explode( '_', $lng )[0];
 				}
@@ -96,7 +96,7 @@ class Panel_edit  {
 				<style>
 					.efb {font-family: 'Roboto', sans-serif!important;}
 				</style>
-				
+
 				<!--sideMenu--> <div class="efb sideMenuFEfb efbDW-0" id="sideMenuFEfb">
 				<div class="efb side-menu-efb bg-light bg-gradient border text-dark fade efbDW-0 "  id="sideBoxEfb">
 					<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
@@ -105,7 +105,7 @@ class Panel_edit  {
 					</div>
 					<div class="efb mb-5 mx-2 sideMenu" id="sideMenuConEfb"></div>
 					</div></div>
-				<div id="body_emsFormBuilder" class="efb m-2"> 
+				<div id="body_emsFormBuilder" class="efb m-2">
 					<div id="msg_emsFormBuilder" class="efb mx-2">
 				</div>
 				<div class="efb top_circle-efb-1"></div>
@@ -123,7 +123,7 @@ class Panel_edit  {
 								<ul class="efb navbar-nav me-auto mb-2 mb-lg-0">
 									<li class="efb nav-item"><a class="efb nav-link efb active ec-efb" data-eventform='forms' id="efb-nav-panel" aria-current="page"  role="button"><?php echo $lang["forms"] ?></a></li>
 									<li class="efb nav-item">
-										<a class="efb nav-link efb ec-efb" id="efb-nav-setting" data-eventform='setting'  role="button"><?php echo $lang["setting"] ?></a>
+										<a class="efb nav-link efb ec-efb" id="efb-nav-setting" data-eventform='setting'  role="button"><?php echo $lang["settings"] ?></a>
 									</li>
 									<li class="efb nav-item">
 										<a class="efb nav-link efb ec-efb" href="admin.php?page=Emsfb_create" role="button"><?php echo $lang["create"]  ?></a>
@@ -142,7 +142,7 @@ class Panel_edit  {
 										<a class="efb nav-link efb" href="https://whitestudio.team/login" target="blank"><i class="efb  bi-person"></i></a>
 									</div>
 									<div class="efb nav-icon efb">
-										<a class="efb nav-link efb ec-efb" data-eventform='setting'  role="button"><i class="efb  bi-gear"></i></a>
+										<a class="efb nav-link efb ec-efb" href="https://whitestudio.team/documents" target="blank"><i class="efb  bi-file-earmark-richtext"></i></a>
 									</div>
 								</div>
 							</div>
@@ -153,7 +153,7 @@ class Panel_edit  {
 						<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 							<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 								<div class="efb modal-content efb " id="settingModalEfb-sections">
-										<div class="efb modal-header efb"> 
+										<div class="efb modal-header efb">
 											<h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5>
 										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?php echo  is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button"><i class="efb bi-x-lg"></i></a>
 										</div>
@@ -162,7 +162,7 @@ class Panel_edit  {
 											<?php echo    do_action('efb_loading_card') ?>
 										</div></div><!-- settingModalEfb-body-->
 						</div></div></div>
-						<div class="efb row mb-2">					
+						<div class="efb row mb-2">
 						<button type="button" class="efb btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="efb fa fa-home"></i></button>
 						</div>
 						<div class="efb row m-0 p-0" id ="content-efb">
@@ -185,27 +185,27 @@ class Panel_edit  {
 				}
 				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
 					// wmaddon
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {	
-						$r = $efbFunction->update_message_admin_side_efb();
-						echo $r; 
-						$efbFunction->download_all_addons_efb();
-						return 0;
-					}
-					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
-					$persianDatePicker = new persianDatePickerEFB() ; 
-				}
-				if(isset($ac->AdnPDP) && $ac->AdnADP==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {	
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
 						$r = $efbFunction->update_message_admin_side_efb();
 						echo $r;
 						$efbFunction->download_all_addons_efb();
 						return 0;
-					}	
-					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
-					$arabicDatePicker = new arabicDatePickerEfb() ; 				
+					}
+					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+					$persianDatePicker = new persianDatePickerEFB() ;
 				}
-			}else{$smtp_m =$lang['goToEFBAddEmailM'];}	
-			
+				if(isset($ac->AdnPDP) && $ac->AdnADP==1){
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+						$r = $efbFunction->update_message_admin_side_efb();
+						echo $r;
+						$efbFunction->download_all_addons_efb();
+						return 0;
+					}
+					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+					$arabicDatePicker = new arabicDatePickerEfb() ;
+				}
+			}else{$smtp_m =$lang['goToEFBAddEmailM'];}
+
 			// $colors = $efbFunction->get_list_colores_template();
 			$colors =[];
 			$location ='';
@@ -256,24 +256,24 @@ class Panel_edit  {
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false ,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,EMSFB_PLUGIN_VERSION);
 				/* new code v4 */
-				wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);	
+				wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);
 				wp_enqueue_script('jquery-ui-efb');
-				wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);	
-				wp_enqueue_script('jquery-dd-efb'); 
+				wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);
+				wp_enqueue_script('jquery-dd-efb');
 				/*end new code v4 */
-			
+
 			$url ='https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js';
 			if(isset($ac->AdnOF) && $ac->AdnOF==1){
 				$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
 			}
-			wp_register_script('countries-js', $url, null, null, true);	
+			wp_register_script('countries-js', $url, null, null, true);
 			wp_enqueue_script('countries-js');
-			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);	
+			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
 			wp_enqueue_script('intlTelInput-js');
 			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_style('intlTelInput-css');
 			if( false){
-				wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);	
+				wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);
 				wp_enqueue_script('logic-efb');
 			}
 			$value = $efbFunction->efb_list_form();
@@ -293,7 +293,7 @@ class Panel_edit  {
 			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', true,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_script('Emsfb-list_form-efb-js');
 			wp_localize_script( 'Emsfb-list_form-efb-js', 'ajax_object_efm',
-				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
+				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),
 					'ajax_value' => $value,
 					'language' => $lng_,
 					'text' => $lang,
@@ -305,9 +305,9 @@ class Panel_edit  {
 					'response_state' =>$this->get_not_read_response(),
 					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
 					'bootstrap'=>$this->check_temp_is_bootstrap(),
-					'pro'=>$pro ? 1 : 0,								
+					'pro'=>$pro ? 1 : 0,
 				));
-		
+
 					// smart zone test
 					// $this->test_smart_zone();
 		}else{
@@ -319,7 +319,7 @@ class Panel_edit  {
 			global $wpdb;
 			$this->db = $wpdb;
 		}
-		$table_name = $this->db->prefix . "emsfb_msg_"; 
+		$table_name = $this->db->prefix . "emsfb_msg_";
 		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0 OR read_=3" );
 		return $value;
 	}
@@ -329,32 +329,32 @@ class Panel_edit  {
 			$this->db = $wpdb;
 		}
 		$table_name_msg = $this->db->prefix . "emsfb_msg_";
-		$table_name_rsp = $this->db->prefix . "emsfb_rsp_"; 
-		// $table_name = $this->db->prefix . "emsfb_rsp_"; 
+		$table_name_rsp = $this->db->prefix . "emsfb_rsp_";
+		// $table_name = $this->db->prefix . "emsfb_rsp_";
 		$value = $this->db->get_results( "SELECT t.msg_id, t.form_id
-		FROM `$table_name_msg` AS t 
-		 INNER JOIN `$table_name_rsp` AS tr 
+		FROM `$table_name_msg` AS t
+		 INNER JOIN `$table_name_rsp` AS tr
 		 ON t.msg_id = tr.msg_id AND tr.read_ = 0" );
 		return $value;
 	}
 	public function check_temp_is_bootstrap (){
-        $it = list_files(get_template_directory()); 
+        $it = list_files(get_template_directory());
         $s = false;
         foreach($it as $path) {
-			if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
-            {			
+			if (preg_match("/\bbootstrap+.+.css+/i", $path))
+            {
                 $f = file_get_contents($path);
                 if(preg_match("/col-md-12/i", $f)){
                     $s= true;
                     break;
                 }
-            } 
+            }
         }
         return  $s;
     }// end fun
 	public function test_smart_zone (){
-			     // =>>>>>>>>>>>>>>>>>Temp Remove <<<<<<<<<<<<<<<<<< 
-            // test code for create database adsone 
+			     // =>>>>>>>>>>>>>>>>>Temp Remove <<<<<<<<<<<<<<<<<<
+            // test code for create database adsone
             $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/smartzone/smartzone.php";
             if(file_exists($fl_ex)){
                 $name ='smartzone';
@@ -362,22 +362,22 @@ class Panel_edit  {
                 require_once $fl_ex;
                 $t = new $name();
             }else{}
-            // end test 
+            // end test
 	}
 	public function file_upload_api(){
-		
+
 		$efbFunction = $this->get_efbFunction();
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
-		$_POST['id']=sanitize_text_field($_POST['id']);
+		$_POST['id']=intval($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['fid']=sanitize_text_field($_POST['fid']);
 		$sid = sanitize_text_field($_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
 		if ($s_sid !=1 || $sid==null){
 			error_log('s_sid is not valid!! Panel');
-		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . " 403"); 
+		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . " 403");
 		wp_send_json_success($response,200);
-		} 
+		}
 
 		if(empty($this->db)){
 			global $wpdb;
@@ -391,8 +391,8 @@ class Panel_edit  {
             $id = $_POST['id'];
             $table_name = $this->db->prefix . "emsfb_form";
             $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
-            if($vl!=null){              
-                if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){                   
+            if($vl!=null){
+                if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){
                     $vl ='efb'.$id;
                     // 'efb'.$this->id
                 }
@@ -412,17 +412,17 @@ class Panel_edit  {
 		);
 		$_FILES['async-upload']['name'] = sanitize_file_name($_FILES['async-upload']['name']);
 		// error_log($_FILES['async-upload']['name']);
-		if (in_array($_FILES['async-upload']['type'], $arr_ext)) { 
+		if (in_array($_FILES['async-upload']['type'], $arr_ext)) {
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
 			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES['async-upload']['name'], PATHINFO_EXTENSION) ;
-			$upload = wp_upload_bits($name, null, file_get_contents($_FILES['async-upload']['tmp_name']));				
+			$upload = wp_upload_bits($name, null, file_get_contents($_FILES['async-upload']['tmp_name']));
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['async-upload']['type']); 
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['async-upload']['type']);
 			  wp_send_json_success($response,200);
 		}else{
-			$response = array( 'success' => false  ,'error'=>$this->lanText['errorFilePer']); 
+			$response = array( 'success' => false  ,'error'=>$this->lanText['errorFilePer']);
 			wp_send_json_success($response,200);
 			die('invalid file '.$_FILES['async-upload']['type']);
 		}
@@ -438,6 +438,6 @@ class Panel_edit  {
             $efbFunctionInstance = new \Emsfb\efbFunction();
             wp_cache_set('emsfb_FunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // cache for 1 hour
         }
-        return  $efbFunctionInstance;	
+        return  $efbFunctionInstance;
 	}
 }

@@ -24,9 +24,9 @@ class efbFunction {
 		register_activation_hook( __FILE__, [$this ,'download_all_addons_efb'] );
 		add_action( 'load-index.php', [$this ,'addon_adds_cron_efb'] );
 		//Emsfb_db_version
-		$db_version = get_option( 'emsfb_db_version' );
-		if($db_version<EMSFB_DB_VERSION) {
-		 $this->fun_update_db_efb();
+		$db_version = get_option( 'emsfb_db_version' ,false );
+		if($db_version<EMSFB_DB_VERSION && $db_version!=false) {
+			 $this->fun_update_db_efb();
 		}
 
 
@@ -799,6 +799,7 @@ class efbFunction {
 			"sfmcfop" => $state  &&  isset($ac->text->sfmcfop) ? $ac->text->sfmcfop : esc_html__('The %s field must be correctly filled out to proceed.',$s),
 			"fform" => $state  &&  isset($ac->text->fform) ? $ac->text->fform : esc_html__('Submitted Form',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s),
+			"settings" => $state  &&  isset($ac->text->settings) ? $ac->text->settings : esc_html__('Settings',$s),
 			"notis" => $state  &&  isset($ac->text->noti) ? $ac->text->noti : esc_html__('%s notification',$s),
 
 
@@ -829,6 +830,7 @@ class efbFunction {
 
 	public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null") {
 		error_log('----->_email_state_new');
+		error_log('to: ' . json_encode($to));
 		// تنظیم نوع ایمیل به HTML
 		add_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 
@@ -1113,9 +1115,13 @@ class efbFunction {
 			}
 		}
 
+		global $wpdb;
+
 		// 2. If not found in transient, get from DB
-		$table_name = $this->db->prefix . "emsfb_setting";
-		$value = $this->db->get_var("SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1");
+		$table_name = $wpdb->prefix . "emsfb_setting";
+		error_log('----->get_setting_Emsfb');
+		error_log('table_name: ' . $table_name);
+		$value = $wpdb->get_var("SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1");
 		if (!isset($value) || empty($value)) {
 			return 'null';
 		}
@@ -1133,48 +1139,67 @@ class efbFunction {
 	}
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
-		if(empty($this->db)){
+		/* if(empty($this->db)){
 			global $wpdb;
 			$this->db = $wpdb;
-		}
+		} */
+		global $wpdb;
 		$text = ['youRecivedNewMessage'];
         $lang= $this->text_efb($text);
 
 		$msg_id = preg_replace('/[,]+/','',$msg_id);
 		$email="null";
-		$table_name = $this->db->prefix . "emsfb_msg_";
-		$data = $this->db->get_results("SELECT content ,form_id,track FROM `$table_name` WHERE msg_id = '$msg_id' ORDER BY msg_id DESC LIMIT 1");
+		$table_name =  $wpdb->prefix . "emsfb_msg_";
+		$data =  $wpdb->get_results("SELECT content ,form_id,track FROM `$table_name` WHERE msg_id = '$msg_id' ORDER BY msg_id DESC LIMIT 1");
 
 		$form_id = $data[0]->form_id;
-		$user_res = $data[0]->content;
+		$response_msg = $data[0]->content;
 		$trackingCode = $data[0]->track;
-		$user_res  = str_replace('\\', '', $user_res);
+		$response_msg  = str_replace('\\', '', $response_msg);
 
 
-		$user_res = json_decode($user_res,true);
-		$lst = end($user_res);
+		$response_msg = json_decode($response_msg,true);
+		$lst = end($response_msg);
 		$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
 
 
-		$table_name = $this->db->prefix . "emsfb_form";
-		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
+		$table_name =  $wpdb->prefix . "emsfb_form";
+		$data =  $wpdb->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
 
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
 		if(($data[0]['sendEmail']=="true"|| $data[0]['sendEmail']==true ) &&   strlen($data[0]['email_to'])>2 ){
 
-			$setting = $this->get_setting_Emsfb();
+			$settings = $this->get_setting_Emsfb();
+			error_log(json_encode($settings ));
 			$smtp = (isset($settings->smtp) && (bool)$settings->smtp ) ? true : false;
+			error_log('smtpe is exist=>'. $smtp . ' ' .$settings->smtp);
 			if($smtp) {
-				foreach($user_res as $key=>$val){
-					if(isset($user_res[$key]['id_']) && $user_res[$key]['id_']==$data[0]['email_to']){
-						$email=$val['value'];
-						$subject ="📮 ".$lang['youRecivedNewMessage'];
-						$this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
-						return 1;
+				//$data
+				$rtrn = false;
+				$emails =[];
+				foreach($data as $key=>$val){
+					if(isset($val['type']) &&  $val['type']=='email' && isset($val['noti']) == true && intval($val['noti']) == 1){
+						$emails[] = $val['id_'];
 					}
 				}
+				error_log('=>>>>emails');
+				error_log(json_encode($emails));
+				foreach($response_msg as $key=>$val){
+					error_log(json_encode($val));
+					if(isset($val['type']) &&  $val['type']=='email' && in_array( $val['id_'] , $emails)){
+						$email=$val['value'];
+						error_log('====> email response');
+						error_log($email);
+						$subject ="📮 ".$lang['youRecivedNewMessage'];
+						$rtrn = $this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
+						// write a log for here if cannot send email
+
+					}
+				}
+				return $rtrn;
 			}
+			return false;
 		}
 
 		// send smsnoti
@@ -1197,7 +1222,7 @@ class efbFunction {
 				}
 			}
 			if(!empty($have_noti_id)){
-				foreach ($user_res as $value) {
+				foreach ($response_msg as $value) {
 
 
 
@@ -1640,22 +1665,20 @@ public function addon_add_efb($value) {
 	}
 
 	public function efb_list_form(){
-		if(empty($this->db)){
+		global $wpdb;
+		/* if(empty($this->db)){
 			global $wpdb;
 			$this->db = $wpdb;
-		}
-		$table_name = $this->db->prefix . "emsfb_form";
-		$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date,form_type,status FROM `$table_name`" );
+		} */
+		$table_name = $wpdb->prefix . "emsfb_form";
+		$value = $wpdb->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );
 		return $value;
 	}
 
 
 	public function efb_code_validate_create($fid, $type, $status, $tc) {
-		if(empty($this->db)){
-			global $wpdb;
-			$this->db = $wpdb;
-		}
-		$table_name = $this->db->prefix . 'emsfb_stts_';
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'emsfb_stts_';
 		$ip = $this->get_ip_address();
 		$date_now = date('Y-m-d H:i:s');
 		$date_limit = date('Y-m-d H:i:s', strtotime('+24 hours'));
@@ -1680,24 +1703,25 @@ public function addon_add_efb($value) {
 			'read_date' => $date_limit
 		);
 
-		$sql = $this->db->prepare(
+		$sql = $wpdb->prepare(
 			"INSERT INTO {$table_name} (`sid`, `fid`, `type_`, `status`, `ip`, `os`, `browser`, `uid`, `tc`, `active`, `date`, `read_date`)
 			VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %d, %s, %s)
 			ON DUPLICATE KEY UPDATE `type_` = VALUES(`type_`), `ip` = VALUES(`ip`), `status` = VALUES(`status`), `uid` = VALUES(`uid`), `active` = VALUES(`active`)",
 			$sid, $fid, $type, $status, $ip, $os, $browser, $uid, $tc, 1, $date_now, $date_limit
 		);
 
-		$this->db->query($sql);
+		$wpdb->query($sql);
 		return $sid;
 	}
 
     public function efb_code_validate_update($sid ,$status ,$tc ) {
-		if(empty($this->db)){
+		global $wpdb;
+		/* if(empty($this->db)){
 			global $wpdb;
 			$this->db = $wpdb;
-		}
+		} */
 		// $status => visit , send , upd , del => max len 5
-		$table_name = $this->db->prefix . 'emsfb_stts_';
+		$table_name = $wpdb->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
 		$active =0;
 		$read_date =date('Y-m-d H:i:s');
@@ -1706,25 +1730,26 @@ public function addon_add_efb($value) {
 
 	   $sql = "UPDATE $table_name SET status='{$status}', active={$active}, read_date='{$read_date}', tc='{$tc}' WHERE sid='{$sid}' AND active=1";
 
-		$stmt = $this->db->query($sql);
+		$stmt = $wpdb->query($sql);
 		// $stmt->bindParam(':date_', $$date_limit);
 
 	   return $stmt > 0;
     }
 
     public function efb_code_validate_select($sid ,$fid) {
-		if(empty($this->db)){
+		/* if(empty($this->db)){
 			global $wpdb;
 			$this->db = $wpdb;
-		}
+		} */
+		global $wpdb;
 
 		$fid = intval($fid);
-		$table_name = $this->db->prefix . 'emsfb_stts_';
+		$table_name = $wpdb->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
         $date_now = date('Y-m-d H:i:s');
-        $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %d", $sid, $date_now,$fid);
+        $query =$wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %d", $sid, $date_now,$fid);
 
-        $result =$this->db->get_var($query);
+        $result =$wpdb->get_var($query);
 
         return $result === '1';
     }
@@ -1857,21 +1882,18 @@ public function addon_add_efb($value) {
 
 	public function setting_version_efb_update($st ,$pro){
 		// error_log('EFB=>setting_version_efb_update: ' . $pro);
-		if(empty($this->db)){
-			global $wpdb;
-			$this->db = $wpdb;
-		}
+		global $wpdb;
 
 		$start_time = microtime(true);
 		if($st=='null'){
 			$st=$this->get_setting_Emsfb();
 		}
 		$st->efb_version=EMSFB_PLUGIN_VERSION;
-		$table_name = $this->db->prefix . "emsfb_setting";
+		$table_name = $wpdb->prefix . "emsfb_setting";
 		$st_ = json_encode($st,JSON_UNESCAPED_UNICODE);
         $setting = str_replace('"', '\"', $st_);
 		$email = $st->emailSupporter;
-		$this->db->insert(
+		$wpdb->insert(
             $table_name,
             [
                 'setting' => $setting,
@@ -2256,33 +2278,30 @@ public function addon_add_efb($value) {
 
 
 	public function delete_old_rows_emsfb_stts_() {
-		if (empty($this->db)) {
-			global $wpdb;
-			$this->db = $wpdb;
-		}
+		global $wpdb;
 
 		$date_limit = date('Y-m-d', strtotime('-40 days'));
 
-		$table_name_stts = $this->db->prefix . 'emsfb_stts_';
-		$this->db->query(
-			$this->db->prepare(
+		$table_name_stts =  $wpdb->prefix . 'emsfb_stts_';
+		 $wpdb->query(
+			 $wpdb->prepare(
 				"DELETE FROM $table_name_stts WHERE date < %s",
 				$date_limit
 			)
 		);
 
 		// استفاده از option وردپرس برای چک کردن وجود جدول 'emsfb_temp_links'
-		$table_name_temp_links = $this->db->prefix . 'emsfb_temp_links';
+		$table_name_temp_links =  $wpdb->prefix . 'emsfb_temp_links';
 		$table_exists = get_option('emsfb_temp_links_table_exists' , false);
 
 		if ($table_exists === false) {
 			// اگر option هنوز تنظیم نشده، یک بار بررسی وجود جدول را انجام دهید
-			$table_exists = $this->db->get_var("SHOW TABLES LIKE '{$table_name_temp_links}'") == $table_name_temp_links;
+			$table_exists =  $wpdb->get_var("SHOW TABLES LIKE '{$table_name_temp_links}'") == $table_name_temp_links;
 			update_option('emsfb_temp_links_table_exists', $table_exists);
 		}
 		if ($table_exists) {
-			$this->db->query(
-				$this->db->prepare(
+			 $wpdb->query(
+				 $wpdb->prepare(
 					"DELETE FROM $table_name_temp_links WHERE created_at < %s",
 					$date_limit
 				)
@@ -2777,7 +2796,7 @@ public function addon_add_efb($value) {
 		) {$charset_collate};";
 		$wpdb->query( $sql );
 
-		$sql = "ALTER TABLE {$table_name} ADD `status` TINYINT NOT NULL DEFAULT '1'";
+		$sql = "ALTER TABLE {$table_name} ADD `status` TINYINT NOT NULL DEFAULT 1";
 		$wpdb->query( $sql );
 
 	}

@@ -73,7 +73,7 @@ class Create {
 				</div>
 				<div class="efb  mx-3 sideMenu" id="sideMenuConEfb"></div>
 				</div></div>
-			<script>		
+			<script>
 				let bdy =document.getElementsByTagName('body');
 				bdy[0].classList.add("bg-color");
 				const sitekye_emsFormBuilder= ""
@@ -83,7 +83,7 @@ class Create {
 			<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 							<div class="efb modal-content efb " id="settingModalEfb-sections">
-									<div class="efb modal-header efb"> 
+									<div class="efb modal-header efb">
 										<h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5>
 										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?php echo is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button"><i class="efb bi-x-lg"></i></a>
 									</div>
@@ -94,7 +94,7 @@ class Create {
             <div id="tab_container_efb">
 				<div class="efb card-body text-center efb mt-5 pt-3">
 				<?php echo   do_action('efb_loading_card'); ?>
-				</div>	
+				</div>
         	</div>
 			<datalist id="color_list_efb">
 			<option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">
@@ -109,10 +109,10 @@ class Create {
 			</script>
 		<?php
 		$maps =false;
-		
+
 		$pro =$efbFunction->is_efb_pro(1);
 		$efbFunction->parsing_plugins_efb();
-		$ac= $efbFunction->get_setting_Emsfb();
+		$settings= $efbFunction->get_setting_Emsfb();
 		$addons = ['AdnSPF' => 0,
 		'AdnOF' => 0,
 		'AdnPPF' => 0,
@@ -126,72 +126,72 @@ class Create {
 		// v2 translate
 		// write a code for get all colors used in array in template set as active template in wordpress . complate code and use regix to find all colores is used in tamplate
 		$lang = $efbFunction->text_efb(1);
-		if(gettype($ac)!="string"){			
-			if(isset($ac->osLocationPicker)==true && $ac->osLocationPicker==1){
+		if(gettype($settings)!="string"){
+			if(isset($settings->osLocationPicker)==true && $settings->osLocationPicker==1){
 			 	$efbFunction->openstreet_map_required_efb(0);
 			}
-			if(isset($ac->AdnSPF)==true){
-				// $ac
-				$addons['AdnSPF']=$ac->AdnSPF;
-				$addons['AdnOF']=$ac->AdnOF;
-				$addons['AdnATC']=$ac->AdnATC;
-				$addons['AdnPPF']=$ac->AdnPPF;
-				$addons['AdnSS']=$ac->AdnSS;
-				$addons['AdnSPF']=$ac->AdnSPF;
-				$addons['AdnESZ']=$ac->AdnESZ;
-				$addons['AdnSE']=$ac->AdnSE;
-				$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-				$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnADP : 0;
+			if(isset($settings->AdnSPF)==true){
+				// $settings
+				$addons['AdnSPF']=$settings->AdnSPF;
+				$addons['AdnOF']=$settings->AdnOF;
+				$addons['AdnATC']=$settings->AdnATC;
+				$addons['AdnPPF']=$settings->AdnPPF;
+				$addons['AdnSS']=$settings->AdnSS;
+				$addons['AdnSPF']=$settings->AdnSPF;
+				$addons['AdnESZ']=$settings->AdnESZ;
+				$addons['AdnSE']=$settings->AdnSE;
+				$addons['AdnPDP']=isset($settings->AdnPDP) ? $settings->AdnPDP : 0;
+				$addons['AdnADP']=isset($settings->AdnADP) ? $settings->AdnADP : 0;
 			}
-			if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0 ){
-				$efbFunction->setting_version_efb_update($ac ,$pro);
+			if(isset($settings->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$settings->efb_version)!=0 ){
+				$efbFunction->setting_version_efb_update($settings ,$pro);
 			}
 		}
-				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
+				if(isset($settings->AdnPDP) && $settings->AdnPDP==1){
 					// wmaddon
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {	
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
 						$r = $efbFunction->update_message_admin_side_efb();
-						// echo $r; 
+						// echo $r;
 						$efbFunction->download_all_addons_efb();
 						return 0;
 					}
 					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
-					$persianDatePicker = new persianDatePickerEFB() ; 		
+					$persianDatePicker = new persianDatePickerEFB() ;
 				}
-				if(isset($ac->AdnPDP) && $ac->AdnADP==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {	
+				if(isset($settings->AdnPDP) && $settings->AdnADP==1){
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
 						$r = $efbFunction->update_message_admin_side_efb();
-						// echo $r; 
+						// echo $r;
 						$efbFunction->download_all_addons_efb();
 						return 0;
 					}
 					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
-					$arabicDatePicker = new arabicDatePickerEfb() ; 
+					$arabicDatePicker = new arabicDatePickerEfb() ;
 				}
-				if(isset($ac->AdnSS) && $ac->AdnSS==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {	
+				if(isset($settings->AdnSS) && $settings->AdnSS==1){
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
 						$r = $efbFunction->update_message_admin_side_efb();
-						// echo $r; 
+						// echo $r;
 						$efbFunction->download_all_addons_efb();
 						return 0;
 					}
 				}
 				$url ='https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js';
-				if(isset($ac->AdnOF) && $ac->AdnOF==1){
+				if(isset($settings->AdnOF) && $settings->AdnOF==1){
 					$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
 				}
-			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),'3.8.1',true);	
+			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),'3.8.1',true);
 			wp_enqueue_script('jquery-ui-efb');
-			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),'3.8.1',true);	
-			wp_enqueue_script('jquery-dd-efb'); 
-			wp_register_script('countries-js', $url, null, null, true);	
+			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),'3.8.1',true);
+			wp_enqueue_script('jquery-dd-efb');
+			wp_register_script('countries-js', $url, null, null, true);
 			wp_enqueue_script('countries-js');
-			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);	
+			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
 			wp_enqueue_script('intlTelInput-js');
 			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.8.1');
 			wp_enqueue_style('intlTelInput-css');
 		if( false){
-			wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);	
+			wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);
 			wp_enqueue_script('logic-efb');
 		}
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
@@ -207,12 +207,14 @@ class Create {
 		$captcha =false;
 		$smtp_m = "";
 		$stng_pdate = true;
-		if(gettype($ac)!="string"){
-			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
-			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}			
+		error_log(gettype($settings));
+		error_log($settings->smtp);
+		if(gettype($settings)!="string"){
+			if( isset($settings->siteKey)&& strlen($settings->siteKey)>5){$captcha="true";}
+			if(isset($settings->smtp) && (bool)$settings->smtp){$smtp=1;}else if(isset($settings->smtp) && (bool)$settings->smtp==false){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
 		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		if("fa_IR"==get_locale()){
-			
+
 			$efbFunction->include_persia_efb();
 		}
 		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),'3.8.1',true);
@@ -245,7 +247,7 @@ class Create {
 			'wp_lan'=>get_locale(),
 			'location'=>$location,
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
-			'setting'=>$ac,
+			'setting'=>$settings,
 			'colors'=>$colors,
 			'plugins'=>$plugins
 		));
@@ -275,14 +277,14 @@ class Create {
             wp_send_json_success($response, 200);
 		}
 		// end security check
-	
+
 
 		$email = '';
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m =$lang['errorCheckInputs'];
-			$response = array( 'success' => false , "m"=>$m); 
+			$response = array( 'success' => false , "m"=>$m);
 			wp_send_json_success($response, 200);
-		} 
+		}
 		if(isset($_POST['email']) ){$email =sanitize_email($_POST['email']);}
 		$this->id_ ="hid";
 		$this->name =  sanitize_text_field($_POST['name']);
@@ -292,8 +294,8 @@ class Create {
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		$this->formtype =  sanitize_text_field($_POST['type']);
-		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
-			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']); 
+		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
+			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']);
 			wp_send_json_success($response, 200);
 		}
 		// check if smsnoti axist then call add_sms_contact_efb
@@ -334,9 +336,9 @@ class Create {
 			do_action('create_temporary_links_table_Emsfb');
 		}
 		if($this->id_ !=0){
-			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
+			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_);
 		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}
-		wp_send_json_success($response, 200);	
+		wp_send_json_success($response, 200);
 	}
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
@@ -346,20 +348,20 @@ class Create {
 		}
 		$table_name = $this->db->prefix . "emsfb_form";
 		$r =$this->db->insert($table_name, array(
-			'form_name' => $this->name, 
-			'form_structer' => $this->value, 
-			'form_email' => $this->email, 
-			'form_created_by' => $this->userId, 
-			'form_type'=>$this->formtype, 			
-			'form_create_date' => wp_date('Y-m-d H:i:s'), 
-		));    $this->id_  = $this->db->insert_id; 
+			'form_name' => $this->name,
+			'form_structer' => $this->value,
+			'form_email' => $this->email,
+			'form_created_by' => $this->userId,
+			'form_type'=>$this->formtype,
+			'form_create_date' => wp_date('Y-m-d H:i:s'),
+		));    $this->id_  = $this->db->insert_id;
 	}
 	public function check_temp_is_bootstrap (){
-        $it = list_files(get_template_directory()); 
+        $it = list_files(get_template_directory());
         $s = false;
         foreach($it as $path) {
-            if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
-            {				
+            if (preg_match("/\bbootstrap+.+.css+/i", $path))
+            {
                 $f = file_get_contents($path);
                 if(preg_match("/col-md-12/i", $f)){
                     $s= true;
@@ -378,7 +380,7 @@ class Create {
             $efbFunctionInstance = new \Emsfb\efbFunction();
             wp_cache_set('emsfb_FunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // 1 hour cache
         }
-        return  $efbFunctionInstance;				
+        return  $efbFunctionInstance;
 	}
 }
 new Create();

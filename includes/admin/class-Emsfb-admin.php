@@ -651,8 +651,8 @@ class Admin {
         wp_send_json_success($response, 200);
     }
     public function set_replyMessage_id_Emsfb() {
+        error_log('set_replyMessage_id_Emsfb');
          $this->get_efbFunction(0);
-        $ac= $this->efbFunction->get_setting_Emsfb();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
         $lang= $this->efbFunction->text_efb($text);
         if (!check_ajax_referer('admin-nonce', 'nonce') || !current_user_can('Emsfb')) {
@@ -835,7 +835,15 @@ class Admin {
             $setting = str_replace('"', '\"', $st_);
         }
 
-        $this->db->insert(
+        $this->database_set_emsfb_settings($setting, $email);
+        $m = $lang['messageSent'];
+        $response = ['success' => true, "m" => $m];
+        wp_send_json_success($response, 200);
+    }
+    private function database_set_emsfb_settings($setting, $email) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . "emsfb_setting";
+        $wpdb->insert(
             $table_name,
             [
                 'setting' => $setting,
@@ -846,9 +854,6 @@ class Admin {
         );
         set_transient('emsfb_settings_transient', $setting, 1440);
         update_option('emsfb_settings', $setting);
-        $m = $lang['messageSent'];
-        $response = ['success' => true, "m" => $m];
-        wp_send_json_success($response, 200);
     }
     public function get_ajax_track_admin() {
         // اطلاعات ردیف ترک را بر می گرداند
@@ -869,7 +874,7 @@ class Admin {
         }
         $table_name = $this->db->prefix . "emsfb_msg_";
         $id         = sanitize_text_field($_POST['value']);
-        $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE track = '$id'");
+        $value      = $this->db->get_results($this->db->prepare("SELECT * FROM `$table_name` WHERE track = %s", $id));
         if (count($value)>0) {
             $code = 'efb'. $value[0]->msg_id;
 			$code =wp_create_nonce($code);
@@ -1067,7 +1072,7 @@ class Admin {
             }
         }
     public function file_upload_public(){
-        $_POST['id']=sanitize_text_field($_POST['id']);
+        $_POST['id']=intval($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
         $vl=null;
@@ -1395,18 +1400,44 @@ class Admin {
 
 	}
 
-         function admin_notices_efb () {
+    function admin_notices_efb () {
 
             if (get_option('emsfb_email_status') === false) {
                 require_once (EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-requirement.php');
                 $efbRequirement = new CheckRequirementEmsfb();
                 $efbRequirement->run_and_save_efb();
             }
-
+            $settings =false;
 
             $check = get_option('emsfb_email_status', false);
-            if (!$check || !is_array($check) || $check['status'] === 'ok') return;
-                $email_notifi = sprintf(
+
+
+            if(!$check || is_array($check)){
+
+                    if($check['status'] === 'ok_set_smtp') {
+                        return; // No issues found or already configured
+                    }else if ($check['status'] === 'ok' ) {
+                        $efbFunction = $this->get_efbFunction(1);
+                        $settings= $efbFunction->get_setting_Emsfb();
+                        if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
+                            $settings->smtp = true;
+                            $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
+                            $st_ = json_encode($settings,JSON_UNESCAPED_UNICODE);
+                            $setting = str_replace('"', '\"', $st_);
+                            $this->database_set_emsfb_settings($setting, $email);
+                            $check['status'] = 'ok_set_smtp';
+                            $check['message']['title'] = 'configured';
+                            update_option('emsfb_email_status', $check);
+                        }
+
+                        return; // No issues found or already configured
+                    }else if ( $check['message']['id'] == 'mail_function_failed'){
+                        return;
+                    }
+
+            }
+
+            $email_notifi = sprintf(
                 esc_html__('%s notification', 'easy-form-builder'),
                 esc_html__('Email', 'easy-form-builder')
             );
@@ -1494,7 +1525,10 @@ class Admin {
             $description = isset($messages[$msg_id]['description']) ? $messages[$msg_id]['description'] : '';
             ob_start();
             ?>
-            <div id="notice-email-efb" class="notice notice-error efb-notice-email-error notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;">
+            <div id="notice-email-efb" class="notice notice-error efb-notice-email-error notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;position:relative;">
+               <button type="button" id="efb-close-notice-btn"
+            style="position:absolute;top:8px;right:8px;background:transparent;border:none;font-size:20px;cursor:pointer;"
+            aria-label="Close">&times;</button>
                 <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr__('Easy Form Builder', 'easy-form-builder'); ?>" style="width:46px;height:auto;margin-top:4px;" />
                 <div>
                     <p><strong><?php echo esc_html__('Easy Form Builder Email Warning:', 'easy-form-builder'); ?></strong> <?php echo esc_html($title); ?></p>
@@ -1502,6 +1536,22 @@ class Admin {
                     <p><?= $help ?></p>
                 </div>
             </div>
+            <script>
+                if (window.sessionStorage.getItem('efb_hide_notice') === '1') {
+                    var efbNotice = document.getElementById('notice-email-efb');
+                    if (efbNotice) efbNotice.style.display = 'none';
+                }
+                var efbCloseBtn = document.getElementById('efb-close-notice-btn');
+
+                if (efbCloseBtn) {
+                    efbCloseBtn.addEventListener('click', function () {
+                        console.log('Notice closed');
+                        var efbNotice = document.getElementById('notice-email-efb');
+                        if (efbNotice) efbNotice.style.display = 'none';
+                        window.sessionStorage.setItem('efb_hide_notice', '1');
+                    });
+                }
+            </script>
             <?php
             $output = ob_get_clean();
 

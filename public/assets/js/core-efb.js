@@ -500,13 +500,14 @@ async function actionSendData_emsFormBuilder(form_id=0) {
   const vj =  fun_sid_efb(form_id);
   let formNameEfb = vj.formName;
   console.log(vj )
+  let recaptcha_emsFormBuilder_row =''
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendback));
    if( vj.captcah){
     // find captcha in sendback
     const indx = sendback.findIndex(x => x.id_ == 'captcha_v2');
     console.log('captcha',indx,sendback[indx],sendback);
-    recaptcha_emsFormBuilder_row =''
+
     if (indx != -1) {
       recaptcha_emsFormBuilder_row = sendback[indx].value;
       // splice captcha from sendback

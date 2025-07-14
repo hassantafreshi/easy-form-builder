@@ -316,7 +316,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
     //howActivateAlertEmail
     // 3.8.6 start
     msg = `<br> <p>${efb_var.text.clickToCheckEmailServer }</p> <p>${efb_var.text.goToEFBAddEmailM }</p> <br>
-    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block " onClick="Link_emsFormBuilder('EmailNoti')"><i class="efb bi bi-patch-question  mx-1 " ></i>${efb_var.text.howActivateAlertEmail}</a>
+    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block ec-efb" data-eventform="links" data-linkname="EmailNoti"><i class="efb bi bi-patch-question  mx-1 ec-efb" data-eventform="links" data-linkname="EmailNoti"></i>${efb_var.text.howActivateAlertEmail}</a>
     `
     // 3.8.6 end
     e_m = alarm_emsFormBuilder(msg)
@@ -1322,7 +1322,7 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       case "adminFormEmailEl":
-
+        console.log('adminFormEmailEl',el.value,efb_var.smtp)
         if (efb_var.smtp == "1") {
           // if el.value have , then split it and check all of them
            if(el.value.includes(',')){
