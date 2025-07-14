@@ -906,7 +906,7 @@ function fun_show_alert_setting_emsFormBuilder() {
   const m = `<div class="efb alert alert-danger" role="alert"> <h2 class="efb font-weight-bold">
             ${ajax_object_efm.text.error}</br>
             ${ajax_object_efm.text.formIsNotShown}</br>
-            <a href="https://www.youtube.com/embed/a1jbMqunzkQ"  target="_blank" class="efb font-weight-normal">${ajax_object_efm.text.pleaseWatchTutorial}</a> </h2> </div>`
+            <a href="https://www.youtube.com/embed/JI7RojBgU_o"  target="_blank" class="efb font-weight-normal">${ajax_object_efm.text.pleaseWatchTutorial}</a> </h2> </div>`
   if (document.getElementById('body_emsFormBuilder')) {
     document.getElementById('body_emsFormBuilder').innerHTML = m;
   } else if (document.getElementById('body_tracker_emsFormBuilder')) {

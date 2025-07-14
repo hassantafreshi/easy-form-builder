@@ -1127,7 +1127,7 @@ function fun_show_setting__emsFormBuilder() {
                              <h5 class="efb  card-title mt-3 mobile-title">
                                 <i class="efb  bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
                             </h5>
-                            <p class="efb ${mxCSize}"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a>  <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
+                            <p class="efb ${mxCSize}"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a>  <a target="_blank" href="https://youtu.be/JI7RojBgU_o">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.siteKey}</label>
                                 <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.googleKeys}">
