@@ -13,5 +13,25 @@
     "codegraphy.selectedD3Color": "Spectral",
     "codegraphy.selectedNodeColor": "#fff",
     "codegraphy.favoriteNodeColor": "#ffd700",
-    "codegraphy.outlineColor": "#ffd700"
+    "codegraphy.outlineColor": "#ffd700",
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#28693c",
+        "activityBar.background": "#28693c",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#35235c",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#e7e7e799",
+        "sash.hoverBorder": "#28693c",
+        "statusBar.background": "#1a4427",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#28693c",
+        "statusBarItem.remoteBackground": "#1a4427",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#1a4427",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#1a442799",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "#1a4427"
 }
