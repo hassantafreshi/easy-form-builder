@@ -598,9 +598,9 @@ class _Public {
 
 					}
 					$img['logo']= EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg';
-					$img['head']= EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png'
+					$img['head']= EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png';
 
-					if(in_array($valj_efb[$i]->type, ["file","dadfile"])){
+					if(in_array($valj_efb[$i]->type, ["file","dadfile"],true)){
 						$is_file_element_exist = true;
 					}
 
@@ -2625,14 +2625,14 @@ class _Public {
 		$micr = microtime(true);
 		// error_log('send_email_Emsfb_ Before create contet email: ' . $micr);
 		// ایجاد لینک پایه
-		$link_base = (strlen($link) > 5) ? (strpos($link, '?') !== false ? $link . '&track=' . $track : $link . '?track=' . $track) : $homeUrl;
+/* 		$link_base = (strlen($link) > 5) ? (strpos($link, '?') !== false ? $link . '&track=' . $track : $link . '?track=' . $track) : $homeUrl;
 		// error_log('send_email_Emsfb_ link_base: ' . $link_base);
 		$link_w[0] = $link_base . '&user=admin';
 		$link_w[1] = $link_base;
     // افزودن پارامتر امنیتی در صورت نیاز
     if (isset($this->setting->adminSN) && intval($this->setting->adminSN) !== 1) {
         $link_w[0] .= '&sc=' . $this->genrate_sacure_code_admin_email($track);
-    }
+    } */
     // ایجاد الگوی پیام پیش‌فرض
     $default_message = "<h2>%s</h2><div style='text-align:center'><a href='%s' target='_blank' style='padding:5px;color:white;background:black;'>%s</a></div>";
     // کش کردن مقادیر ثابت برای پیام‌ها
@@ -2651,6 +2651,23 @@ class _Public {
     //  حلقه برای تنظیم پیام‌ها و موضوع‌ها بر اساس حالت‌ها
 	// error_log(json_encode($state));
     for ($i = 0; $i < 2; $i++) {
+		if(strlen($link)>5){
+			$link_w[$i] =strpos($link,'?')!=false  ? $link.'&track='.$track : $link.'?track='.$track;
+			if($i==0){
+					$s= isset($this->setting->adminSN) ? $this->setting->adminSN : 0 ;
+
+					error_log('send_email_Emsfb_ adminSN: ' . $s);
+				if( $s== false || ($s==true && intval($this->setting->adminSN)==1)){
+					$link_w[$i] .='&user=admin';
+				}else{
+					$sc = $this->genrate_sacure_code_admin_email($track);
+					$link_w[$i] .='&user=admin&sc='.$sc;
+				}
+			}
+		}else{
+			$link_w[$i] = $homeUrl;
+		}
+
         $cont[$i] = $track;
         switch ($state[$i]) {
 			case "newMessage":
