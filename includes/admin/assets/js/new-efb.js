@@ -1228,7 +1228,7 @@ const sub =lan_subdomain_wsteam_efb();
       link = `https://${sub}whitestudio.team/#price`
       break;
     case 'publishForm':
-      link = `https://www.youtube.com/watch?v=XjBPQExEvPE`
+      link = `https://www.youtube.com/watch?v=RJRe7p6yPCI`
       break;
     case 'emptyStep':
       link += `how-to-create-your-first-form-with-easy-form-builder#empty-step-alert`
@@ -1293,12 +1293,17 @@ const loading_messge_efb = () => {
   return `
 <h3 class="efb fs-3 text-center">${efb_var.text.pleaseWaiting} ${svg}</h3>`
 }
-function copyCodeEfb(id) {
+function copyCodeEfb(id , tagid = '') {
   var copyText = document.getElementById(id);
+
   copyText.select();
   copyText.setSelectionRange(0, 99999);
   document.execCommand("copy");
-  alert_message_efb(efb_var.text.copiedClipboard, '', 6)
+  if (tagid != '') {
+    const tag = document.getElementById(tagid);
+    tag.innerHTML = efb_var.text.copied;
+  }
+
 }
 function validExtensions_efb_fun(type, fileType,indx) {
   type= type.toLowerCase();
@@ -1370,11 +1375,16 @@ function handle_navbtn_efb(steps, device) {
               document.getElementById("title_efb").className = val["label_text_color"];
               document.getElementById("desc_efb").className = val["message_text_color"];
               document.getElementById("title_efb").textContent = val["name"];
-              document.getElementById("desc_efb").textContent = val["message"];
+              document.getElementById("desc_efb").textContent = val["message"]=='' ? val["name"] : val["message"];
               document.getElementById("title_efb").classList.add("text-center", "efb", "mt-1");
               document.getElementById("desc_efb").classList.add("text-center", "efb", "fs-7");
             }
             document.getElementById("prev_efb").classList.remove("d-none");
+          }else{
+            //efb_var.text.finish
+             document.getElementById("title_efb").textContent = efb_var.text.finish;
+            document.getElementById("desc_efb").textContent = efb_var.text.finish;
+
           }
           if (current_s_efb == steps_len_efb - 1) {
             if (sitekye_emsFormBuilder && sitekye_emsFormBuilder.length > 1 && valj_efb[0].captcha == true) {
@@ -1474,7 +1484,7 @@ function prev_btn_efb() {
       document.getElementById("title_efb").className = val["label_text_color"];
       document.getElementById("desc_efb").className = val["message_text_color"];
       document.getElementById("title_efb").textContent = val["name"];
-      document.getElementById("desc_efb").textContent = val["message"];
+      document.getElementById("desc_efb").textContent = val['message'] != '' ? val['message'] : val['name'];
       document.getElementById("title_efb").classList.add("text-center", "efb", "mt-1");
       document.getElementById("desc_efb").classList.add("text-center", "efb", "fs-7");
   }
@@ -1605,7 +1615,9 @@ function previewFormEfb(state) {
         head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5  ${value.label_text_color} ">${value.name}</strong></li>`
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb" class="efb my-2 mx-0 px-0 steps-efb efb row">` : `<!-- fieldset!!!? --><div id="step-${Number(step_no)-1}-efb-msg"></div></fieldset><fieldset data-step="step-${step_no}-efb" id="step-${step_no}-efb"  class="efb my-2 mx-0 px-0 steps-efb efb row d-none">`
         if (valj_efb[0].show_icon == false) { }
-        if (valj_efb[0].hasOwnProperty('dShowBg') && Number(valj_efb[0].dShowBg) != 1 && state == "run") { document.getElementById('body_efb').classList.add('card') }
+        if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == false  && state == "run") {
+          document.getElementById('body_efb').classList.add('card')
+         }
       }
       if (value.type == 'step' && value.type != 'html') {
         steps_index_efb.push(index)
@@ -1708,7 +1720,7 @@ function previewFormEfb(state) {
             <!-- fieldset2 -->
             <div id="step-2-efb-msg"></div>
             </fieldset>`
-    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg mx-0" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch (error) {
     console.error(`Preview of Pc Form has an Error`, error)
   }
@@ -2291,8 +2303,8 @@ function funTnxEfb(val, title, message) {
   <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
-               <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb')">
-                   <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i>${efb_var.text.copy}
+               <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb' ,'trackingCodeEfb2')">
+                   <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i><span id="trackingCodeEfb2">${efb_var.text.copy}</span>
                </button></div>`
   return `
                     <h4 class="efb  my-1 fs-2 ${doneTrackEfb} text-center" id="doneTitleEfb">

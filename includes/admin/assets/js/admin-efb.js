@@ -11,7 +11,8 @@ let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
 const efb_version = 4;
 let wpbakery_emsFormBuilder =false;
-let pro_price_efb =19
+let pro_price_efb =19;
+let heartbeat_efb_active =false;
 
 
 
@@ -329,8 +330,8 @@ function show_message_result_form_set_EFB(state, m) { //V2
   <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
   ${e_m}
-  <a  class="efb btn-r btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb')">
-      <i class="efb  bi-clipboard-check mx-1"></i>${efb_var.text.copyShortcode}
+  <a  class="efb btn-r btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb','textTractingCode')">
+      <i class="efb  bi-clipboard-check mx-1"></i><span id="textTractingCode">${efb_var.text.copyShortcode}</span>
   </a>
   <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')">
       <i class="efb  bi-question mx-1"></i>${efb_var.text.help}
@@ -1378,14 +1379,16 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case "cardEl":
-        valj_efb[0].dShowBg ? valj_efb[0].dShowBg =  el.classList.contains('active') : Object.assign(valj_efb[0], { dShowBg:  el.classList.contains('active') });
+        indx =  el.classList.contains('active')
+        valj_efb[0].hasOwnProperty('dShowBg') ? valj_efb[0].dShowBg =  indx : Object.assign(valj_efb[0], { dShowBg:  indx });
         break;
         case "offLineEl":
           if(efb_var.addons.AdnOF!=0 ){
-            valj_efb[0].AfLnFrm ? valj_efb[0].AfLnFrm = el.classList.contains('active') : Object.assign(valj_efb[0], { AfLnFrm: el.classList.contains('active') });
+            indx = el.classList.contains('active')
+            valj_efb[0].hasOwnProperty('AfLnFrm') ? valj_efb[0].AfLnFrm = indx : Object.assign(valj_efb[0], { AfLnFrm: indx });
           }else{
             el.checked=false;
-              el.classList.remove('active');
+            el.classList.remove('active');
             alert_message_efb(efb_var.text.error, `${efb_var.text.IMAddons} ${efb_var.text.offlineTAddon}`, 20, "danger")
 
           }
@@ -1472,6 +1475,7 @@ let change_el_edit_Efb = (el) => {
                 if(v.hasOwnProperty('noti') && Number(v.noti) ==1){
                   //console.log(v.id_)
                   valj_efb[0].sendEmail=true;
+                   valj_efb[0].email_to=v.id_;
                   clss=true
                 }else{
                   if(valj_efb[0].email_to==v.id_){
@@ -3613,6 +3617,7 @@ const obj_delete_row = (dataid, is_step) => {
     })
 
      let count =0;
+     let id = ''
      if (Object.keys(vnoti).length === 0){
       //console.log('vd',typeof(vnoti),Object.keys(vnoti).length);
       valj_efb[0].email_to = ''
@@ -3621,12 +3626,15 @@ const obj_delete_row = (dataid, is_step) => {
       //console.log('vd',typeof(vnoti),Object.keys(vnoti).length ,vnoti);
        for(let i in vnoti){
 
-        if(vnoti[i].hasOwnProperty('id_') && vnoti[i].id_!= valj_efb[foundIndex].id_ && Number(vnoti[i].noti)==1 )count+=1;
+         if(vnoti[i].hasOwnProperty('id_') && vnoti[i].id_!= valj_efb[foundIndex].id_ && Number(vnoti[i].noti)==1 ){
+            count+=1;
+            id = vnoti[i].id_;
+          }
        }
 
      }
      valj_efb[0].sendEmail =count>0 ? 1 : 0;
-     valj_efb[0].email_to = ''
+     valj_efb[0].email_to = id
 
     }
 
@@ -4805,28 +4813,42 @@ function efbLatLonLocation(efbMapId, lat, long ,zoom) {
 
 let heartbeat_status_efb = false
 async function heartbeat_Emsfb() {
-  // Your code here
+
+  console.log(`heartbeat_efb_active[${heartbeat_efb_active}]`);
+  if (heartbeat_efb_active) return;
+  heartbeat_efb_active = true;
+
   data = {};
-  //console.log('Old nonce', efb_var.nonce);
+  console.log('Old nonce', efb_var.nonce);
   jQuery(function ($) {
     data = {
       action: "heartbeat_Emsfb",
       nonce: efb_var.nonce,
     };
     $.post(ajaxurl, data, function (res) {
-      //console.log(res)
+
+      console.log(res)
       if (res.success == true) {
 
-
-        console.log('heart beat', efb_var.nonce ,res.data.newNonce);
-
-
+        efb_var.nonce = res.data.newNonce;
+        heartbeat_efb_active = false;
+        console.log('new nonce', efb_var.nonce);
       } else {
-        console.log(res.data);
+        heartbeat_efb_active = false;
 
+        console.log(res.data);
       }
-      heartbeat_status_efb=false
-    })
+    }
+  ).fail(function(jqXHR, textStatus, errorThrown) {
+    heartbeat_efb_active = false;
+    alert_message_efb(
+      '<i class="efb  bi-wifi-off mx-1"></i>'+efb_var.text.error,
+      `<p class="efb fs-6">${efb_var.text.srvnrsp}</p>`,
+      500,
+      'danger'
+    );
+    console.error("Heartbeat AJAX failed:", textStatus, errorThrown);
+  });
 
   });
 }
@@ -5040,6 +5062,7 @@ function addClickListenerToElementListEFB(element) {
 
       element.hasClickListener = true;
   }
+  heartbeat_Emsfb();
 }
 
       function observeExistingElementsListEFB() {
@@ -5054,7 +5077,7 @@ function addClickListenerToElementListEFB(element) {
             mutation.addedNodes.forEach(node => {
                 if (node.nodeType === 1) {
 
-                    const els = node.querySelectorAll(".ec-efb");
+                    const els = node.querySelectorAll(".ec-efb, .btn, .elEdit, .btn-toggle, .ec-efb ");
                     els.forEach(addClickListenerToElementListEFB);
 
                     const els_efb = node.querySelectorAll(".efb")
