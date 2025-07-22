@@ -2343,25 +2343,8 @@ public function addon_add_efb($value) {
 		return false;
 	}
 
-
-	public function sanitize_full_html_efb($html) {
-		// General attributes allowed for all tags
-		error_log('EFB=>sanitize_full_html_efb');
-		error_log('EFB=>sanitize_full_html_efb html: ' . $html);
-		$global_attributes = array(
-			'class' => true,       // CSS classes
-			'id' => true,          // HTML ID
-			'style' => true,       // Inline style (will be sanitized separately)
-			'title' => true,       // Tooltip or descriptive text
-			'data-*' => true,      // Custom data attributes
-			'aria-*' => true,      // Accessibility attributes
-		);
-
-		// List of allowed CSS properties
-
-
-
-		$allowed_properties = array(
+	public function allowed_properties_thml_efb(){
+		return array(
 			// Colors and background properties
 			'color', 'background', 'background-color', 'background-image', 'background-position',
 			'background-repeat', 'background-size', 'background-attachment', 'background-clip', 'background-origin',
@@ -2413,36 +2396,27 @@ public function addon_add_efb($value) {
 			'isolation', 'contain', 'mix-blend-mode', 'object-fit', 'object-position', 'overflow-wrap',
 			'shape-outside', 'shape-margin', 'shape-image-threshold'
 		);
+	}
 
-		/* $allowed_properties = array(
-			// Colors and background properties
-			'color', 'background', 'background-color', 'background-image', 'background-position',
-			'background-repeat', 'background-size', 'background-attachment', 'background-clip', 'background-origin',
-			// Font properties
-			'font', 'font-family', 'font-size', 'font-style', 'font-variant', 'font-weight',
-			'letter-spacing', 'line-height', 'text-align', 'text-decoration', 'text-indent',
-			'text-overflow', 'text-shadow', 'text-transform',
-			// Dimensions and layout properties
-			'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
-			'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
-			'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
-			// Border properties
-			'border', 'border-width', 'border-style', 'border-color', 'border-radius', 'outline',
-			// Box and shadow properties
-			'box-shadow', 'box-sizing',
-			// Positioning and z-index
-			'position', 'top', 'right', 'bottom', 'left', 'z-index', 'float', 'clear',
-			// Flexbox and grid properties
-			'display', 'flex', 'flex-grow', 'flex-shrink', 'flex-basis', 'align-items', 'align-content',
-			'align-self', 'justify-content', 'grid', 'grid-template-rows', 'grid-template-columns',
-			'grid-area', 'row-gap', 'column-gap',
-			// Animation and transition properties
-			'animation', 'animation-name', 'animation-duration', 'animation-timing-function', 'animation-delay',
-			'transition', 'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay',
-			// Miscellaneous
-			'cursor', 'opacity', 'clip-path', 'filter', 'backface-visibility', 'transform',
-			'transform-origin', 'transform-style',
-		); */
+	public function sanitize_full_html_efb($html) {
+		// General attributes allowed for all tags
+		error_log('EFB=>sanitize_full_html_efb');
+		error_log('EFB=>sanitize_full_html_efb html: ' . $html);
+		$global_attributes = array(
+			'class' => true,       // CSS classes
+			'id' => true,          // HTML ID
+			'style' => true,       // Inline style (will be sanitized separately)
+			'title' => true,       // Tooltip or descriptive text
+			'data-*' => true,      // Custom data attributes
+			'aria-*' => true,      // Accessibility attributes
+		);
+
+		// List of allowed CSS properties
+
+		$allowed_properties = $this->allowed_properties_thml_efb();
+
+
+
 
 		// List of trusted domains for URLs in CSS (e.g., background-image)
 		$current_domain = parse_url(home_url(), PHP_URL_HOST);
@@ -2709,7 +2683,7 @@ public function addon_add_efb($value) {
 
 
 	public function sanitize_style_attribute_efb($style) {
-				global $allowed_properties;
+				$allowed_properties = $this->allowed_properties_thml_efb();
 				$style_rules = explode(';', $style);
 				$sanitized_rules = array();
 
@@ -2720,8 +2694,8 @@ public function addon_add_efb($value) {
 						$value = trim($value);
 
 
-						if (in_array($property, $allowed_properties)) {
-
+						if ( !is_null($property) && in_array($property, $allowed_properties)) {
+							error_log('EFB=>sanitize_style_attribute_efb property: ' . $property);
 							if (strpos($value, 'url(') !== false) {
 								preg_match('/url\(["\']?([^"\')]+)["\']?\)/i', $value, $matches);
 								if (isset($matches[1]) && $this->validate_url_efb($matches[1])) {
@@ -2745,4 +2719,4 @@ public function addon_add_efb($value) {
 
 
 
-}
+

@@ -2036,7 +2036,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       break;
     case 'url':
       vd = document.getElementById(`${el.id}-message`)
-      const che = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/g);
+      const che = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?!&\/=;',]*)$/g);
       if(el.value.length==0){
         el_empty_value(id_);
       } else if (che == null) {

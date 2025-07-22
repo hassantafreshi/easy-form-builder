@@ -798,7 +798,7 @@ class Admin {
         foreach ($m as $key => $value) {
              if (in_array($key ,['emailSupporter','femail'])) {
                 $value = sanitize_text_field($value);
-                $m['emailSupporter'] = sanitize_email($value);
+                $m[$key] = sanitize_email($value);
                 $email =  $value;
             }else if ($key == "activeCode" ) {
                 $state = $efbFunction->is_efb_pro($value);
