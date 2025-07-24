@@ -391,7 +391,7 @@ class _Public {
 				// translate v3
 			$content_new="";
 			$values ="";
-			$is_user = is_user_logged_in() ? (current_user_can('administrator') ? 'admin' : 'user') : 'guest';
+			$is_user = is_user_logged_in() || ( $admin_form && $state == "track") ? (current_user_can('administrator') ? 'admin' : 'user') : 'guest';
 			$username = is_user_logged_in() ? wp_get_current_user()->user_login : 'guest';
 			if ($is_track==null){
 
@@ -1013,6 +1013,8 @@ class _Public {
 		}
 		$smsnoti = 0;
 		$phone_numbers = [[], []];
+		$email_array_state = false;
+		$send_email_to_user_state = false;
 
 		if (isset($setting['sms_config']) && $setting['sms_config'] == "wpsms") {
 			$numbers = isset($setting['phnNo']) ? $setting['phnNo'] : [];
@@ -1022,13 +1024,21 @@ class _Public {
 		$smsnoti = strpos($fs, '\"smsnoti\":\"1\"') !== false || $smsnoti == 1 ? 1 : 0;
 		if ($fs != '') {
 			$formObj = json_decode($fs, true);
+			$fs = null;
+			$email_array_state = isset($formObj[0]["email_send_type"]) ? $formObj[0]["email_send_type"] : false;
 			error_log(json_encode($formObj[0]));
 			// $is_multipleEmail = strpos($email_fa, ',') !== false;
 			// $email_array_state = strpos($email_fa, ',') !== false;
 
 			if (!isset($valo['logout']) && !isset($valo['recovery'])) {
+				if(isset($setting['smtp']) && (bool)$setting['smtp'] ){
+						$send_email_to_user_state = true;
+				}
 				$email_fa = $formObj[0]['email'];
-
+				if($send_email_to_user_state && !empty($email_fa)){
+					$is_multipleEmail = strpos($email_fa, ',') !== false;
+					$this->email_list_efb($email_user , 0 , $email_fa ,$is_multipleEmail);
+				}
 				$trackingCode_state = $formObj[0]['trackingCode'] == true || $formObj[0]['trackingCode'] == "true" || $formObj[0]['trackingCode'] == 1 ? 1 : 0;
 				if ($type != $formObj[0]['type']) {
 					$response = ['success' => false, 'm' => $this->lanText['fernvtf']];
@@ -1060,7 +1070,6 @@ class _Public {
 				$stated = 1;
 				$form_condition = '';
 				if (isset($formObj[0]['booking']) && $formObj[0]['booking'] == 1) $form_condition = 'booking';
-				$start_time = microtime(true);
 				$currency = '';
 				if(isset($formObj[0]['currency']) && strlen($formObj[0]['currency'])>1) $currency = $formObj[0]['currency'];
 				// error_log('start_time: ' . $start_time);
@@ -1069,9 +1078,7 @@ class _Public {
 					$rt = null;
 					$in_loop = true;
 					if ($key < 2) continue;
-					if ($stated == 0) {
-						break;
-					}
+					if ($stated == 0) {break;}
 					$it = array_filter($valo, function ($item) use ($f, $key, &$stated, &$email_user, &$rt, &$formObj, &$in_loop, &$mr, $form_condition, &$smsnoti, &$phone_numbers) {
 						if ($in_loop == false) {
 							return;
@@ -1101,6 +1108,7 @@ class _Public {
 									$stated = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+										$item['value'] = sanitize_email($item['value']);
 										$stated = 1;
 										$rt = $item;
 										$l = strlen($item['value']);
@@ -1122,6 +1130,7 @@ class _Public {
 									$stated = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+										$item['value'] = sanitize_text_field($item['value']);
 										$v = explode("-", $item['value']);
 										if (count($v) == 3 && checkdate($v[1], $v[2], $v[0])) {
 											$stated = 1;
@@ -1150,6 +1159,7 @@ class _Public {
 									$stated = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+										$item['value'] = sanitize_url($item['value']);
 										$stated = 1;
 										$l = strlen($item['value']);
 										if ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l)) {
@@ -1164,6 +1174,7 @@ class _Public {
 									$stated = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+										$item['value'] = sanitize_text_field($item['value']);
 										$stated = 0;
 										$item['value'] = preg_replace('/\s+/', '', $item['value']);
 										if (isset($f['smsnoti']) && intval($f['smsnoti']) == 1) {
@@ -1191,6 +1202,7 @@ class _Public {
 									$stated = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+										$item['value'] = sanitize_text_field($item['value']);
 										array_filter($formObj, function ($fr, $ki) use (&$item, &$rt, &$stated, &$formObj, $form_condition, &$mr) {
 											if (isset($fr['id_']) && isset($item['id_ob']) && $fr['id_'] == $item['id_ob']) {
 												$item['value'] = $fr['value'];
@@ -1233,6 +1245,7 @@ class _Public {
 									$stated = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+										$item['value'] = sanitize_text_field($item['value']);
 										array_filter($formObj, function ($fr) use ($item, &$rt, &$stated) {
 											if (isset($fr['id_']) && isset($item['id_']) && $fr['id_'] == $item['id_']) {
 												$item['value'] = $item['value'] == '1' ?   $fr['on'] : $fr['off'];
@@ -1251,6 +1264,7 @@ class _Public {
 									$stated = 0;
 									if (isset($item['value'])) {
 										// error_log('optionssssssssssss' . $f['type']);
+										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										if ((isset($f['id_']) && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
 											|| (isset($f['id_']) && isset($item['id_']) && $f['type'] == "chlCheckBox"  && $f['id_'] == $item['id_ob'])
@@ -1286,6 +1300,7 @@ class _Public {
 									break;
 								case 'r_matrix':
 									$stated = 0;
+									$item['value'] = sanitize_text_field($item['value']);
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									if ($item['value'] < 1 || $item['value'] > 5) {
 										$m =  $this->lanText['somethingWentWrongPleaseRefresh'] . '<br>' . esc_html__('Error Code', 'easy-form-builder') . ': 600';
@@ -1307,6 +1322,7 @@ class _Public {
 								case 'multiselect':
 									$stated = 0;
 									if (isset($item['value'])) {
+										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$rt = null;
 										$rs = explode("@efb!", $item['value']);
@@ -1327,6 +1343,7 @@ class _Public {
 								case 'paySelect':
 									$stated = 0;
 									if (isset($item['value'])) {
+										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										array_filter($formObj, function ($fr, $ki) use ($item, &$rt, &$stated, &$formObj, $form_condition, &$mr) {
 											if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($item['value']) && $fr['value'] == $item['value'] &&  $fr['parent'] == $item['id_']) {
@@ -1367,6 +1384,7 @@ class _Public {
 									$stated = 0;
 									if (isset($item['value'])) {
 										$stated = 1;
+										$item['value']= sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$rt = $item;
 									}
@@ -1380,7 +1398,11 @@ class _Public {
 								case 'persiapay':
 								case 'payment':
 									if ($formObj[0]['type'] == 'payment') {
+										$item['amount'] = sanitize_text_field($item['amount']);
+										$item['id_'] = sanitize_text_field($item['id_']);
+										$item['name'] = sanitize_text_field($item['name']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+
 										$rt = $item;
 										$in_loop = false;
 										$stated = 1;
@@ -1404,6 +1426,7 @@ class _Public {
 										}
 										error_log('s: ' . $s);
 										if ($s == 1) {
+											$item['url'] = sanitize_url($item['url']);
 											$rt = $item;
 											$stated = 1;
 										} else {
@@ -1448,6 +1471,7 @@ class _Public {
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									$l = strlen($item['value']);
 									if (isset($item['value']) && strpos($item['value'], '#') == 0 && $l == 7) {
+										$item['value'] = sanitize_text_field($item['value']);
 										$stated = 1;
 										$rt = $item;
 									}
@@ -1458,6 +1482,7 @@ class _Public {
 								case 'prcfld':
 									$stated = 0;
 									if (isset($item['value']) && is_numeric($item['value'])) {
+										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$stated = 1;
 										$rt = $item;
@@ -1481,6 +1506,7 @@ class _Public {
 									}
 									if (isset($item['value'])) {
 										$stated = 1;
+										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$l = mb_strlen($item['value'], 'UTF-8');
 										if (isset($f['milen']) != true  &&   isset($f['mlen']) != true) {
@@ -1602,28 +1628,25 @@ class _Public {
 			// if (true) {
 				$captcha_success = "null";
 				$email_fa = $setting['emailSupporter'] ?? null;
-				if (!empty($email_fa)) {
+
 					if(isset($setting['smtp']) && (bool)$setting['smtp'] ){
 						// $email_array_state = strpos($email_fa, ',') !== false;
-						error_log('>supportEmail');
-						error_log(json_encode($email_fa));
-						error_log('before test!');
-						$this->email_list_efb($email_user, 0, $email_fa, true);
-						error_log('after submited!!!');
 						$send_email_to_user_state = true;
 					}
-				}
-				if (isset($setting['femail']) && is_email($setting['femail'])) {
-					$email_user[2] = $setting['femail'];
-					if(isset($setting['smtp']) && (bool)$setting['smtp'] ){
-						$send_email_to_user_state = true;
+
+					if($send_email_to_user_state && !empty($email_fa)){
+							$this->email_list_efb($email_user, 0, $email_fa, true);
 					}
-				}
+
+					if(isset($setttting['femail']) && is_email($setting['femail'])){
+						$email_user[2] = $setting->femail ;
+					}
+
+
 				$secretKey = isset($setting['secretKey']) && strlen($setting['secretKey']) > 5 ? $setting['secretKey'] : null;
-
-				// $pro = $this->efbFunction->is_efb_pro(1);
-
+				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST'])
 				$response = sanitize_text_field($data_POST['valid']);
+
 				error_log('>>>>>>>>>>> response: ' . $response);
 				$args = ['secret' => $secretKey, 'response' => $response];
 				error_log($secretKey);
@@ -2330,6 +2353,7 @@ class _Public {
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$sid = sanitize_text_field($data_POST['sid']);
 		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :  'guest';
+		error_log('user_type: ' . $rsp_by);
 		$sc = isset($data_POST['sc']) ? sanitize_text_field($data_POST['sc']) : 'null';
 		$track = sanitize_text_field($data_POST['track']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
