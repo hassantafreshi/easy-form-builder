@@ -1179,8 +1179,8 @@ class efbFunction {
 		$response_msg  = str_replace('\\', '', $response_msg);
 
 
-		$response_msg = json_decode($response_msg,true);
-		$lst = end($response_msg);
+		$user_res = json_decode($response_msg,true);
+		$lst = end($user_res);
 		$link_w = $lst['type']=="w_link" ? $lst['value'].'?track='.$trackingCode : 'null';
 
 
@@ -1209,23 +1209,26 @@ class efbFunction {
 				//$data
 				$rtrn = false;
 				$emails =[];
-				foreach($data as $key=>$val){
-					if(isset($user_res[$key]["id_"]) && in_array($user_res[$key]["id_"],$emailsId,true) && isset($val["value"]) && is_email($val["value"]) ){
+				/* foreach($data as $key=>$val){
+					error_log(json_encode($val));
+					if(isset($data[$key]["id_"]) && in_array($data[$key]["id_"],$emailsId,true) && isset($val["value"]) && is_email($val["value"]) ){
 						$emails[] = $val['id_'];
 					}
 				}
 				error_log('=>>>>emails');
 				error_log(json_encode($emails));
-				foreach($response_msg as $key=>$val){
-					error_log(json_encode($val));
-					if(isset($val['type']) &&  $val['type']=='email' && in_array( $val['id_'] , $emails)){
-						$email=$val['value'];
-						error_log('====> email response');
-						error_log($email);
-						$subject ="📮 ".$lang['youRecivedNewMessage'];
-						$rtrn = $this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
-						// write a log for here if cannot send email
+				/*
+				foreach($user_res as $key=>$val){
+					if(isset($user_res[$key]["id_"]) && in_array($user_res[$key]["id_"],$emailsId,true) && isset($val["value"]) && is_email($val["value"]) ){
+						$email=$val["value"];
+				 */
 
+				foreach($user_res as $key=>$val){
+					if(isset($user_res[$key]["id_"]) && in_array($user_res[$key]["id_"],$emailsId,true) && isset($val["value"]) && is_email($val["value"]) ){
+						$email=$val["value"];
+						error_log('email is: '.$email);
+						$subject ="📮 ".$lang["youRecivedNewMessage"];
+						$rtrn =$this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
 					}
 				}
 				return $rtrn;
@@ -1253,7 +1256,7 @@ class efbFunction {
 				}
 			}
 			if(!empty($have_noti_id)){
-				foreach ($response_msg as $value) {
+				foreach ($user_res as $value) {
 
 
 

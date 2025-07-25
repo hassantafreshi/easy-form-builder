@@ -166,7 +166,31 @@ div.section {	margin-top: 4% !important;
 100% {		transform: scale(1);
 }
 }
-
+.fadeIn {	animation:         fadein 2s;
+	-moz-animation:    fadein 2s;
+ 	-webkit-animation: fadein 2s;
+ 	-o-animation:      fadein 2s;
+ }
+@keyframes fadein {	from {		opacity: 0;
+	}
+	to {		opacity: 1;
+	}
+}
+@-moz-keyframes fadein { 	from {		opacity: 0;
+	}
+	to {		opacity: 1;
+	}
+}
+@-webkit-keyframes fadein { 	from {		opacity: 0;
+	}
+	to {		opacity: 1;
+	}
+}
+@-o-keyframes fadein { 	from {		opacity: 0;
+	}
+	to {		opacity: 1;
+	}
+}
 label.emsFormBuilder {	margin:      0 3px;
 	font-weight: 500;
 }
@@ -191,7 +215,17 @@ input[type=radio].emsFormBuilder,input[type=checkbox].emsFormBuilder {	width:  1
 select option.emsFormBuilder {	border: 1px solid #a39ea9}
 .choices {	width: -webkit-fill-available;
 }
-
+.overpage {	position:         absolute !important;
+ 	width:            100%;
+ 	height:           100%;
+ 	top:              0;
+	left:             0;
+	right:            0;
+	bottom:           0;
+	background-color: rgba(0, 0, 0, 0.5) !important;
+ 	z-index:          10000 !important;
+ 	cursor:           pointer;
+ }
 .overpage-chart {	position:         absolute !important;
  	width:            100%;
  	height:           100%;
@@ -276,9 +310,9 @@ a.emsFormBuilder {    background-color: #633a82;
 .efblist.inplist{
 	padding-top: 10px!important;
  }
-  
 
 
- 
+
+
 
 
