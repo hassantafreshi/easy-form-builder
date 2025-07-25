@@ -18,6 +18,7 @@ let g_timeout_efb = 100
 let price_efb ="";
 let sendback_efb_state= [];
 let valj_efb_new = [];
+let hold_id_valj_efb =0;
 //+ let valj_efb = [];
 if (window.React || window.react) {
   reactJs_active_efb = true;
@@ -35,7 +36,7 @@ if (typeof(ajax_object_efm)=='object' && ajax_object_efm.hasOwnProperty('ajax_va
 }
 g_timeout_efb = typeof ajax_object_efm == "object" && typeof ajax_object_efm.ajax_value == "string" ? g_timeout_efb : 1100;
 function fun_render_view_efb(val, check) {
-
+  console.log('fun_render_view_efb');
   var url = new URL(window.location);
   history.replaceState("EFBstep-1",null,url);
   exportView_emsFormBuilder = [];
@@ -176,6 +177,7 @@ async function createStepsOfPublic() {
     let el_type =''
     console.log(el,el.type,form_id ,el.id);
     const valj_efb_ =get_structure_by_form_id_efb(form_id);
+    hold_id_valj_efb = parseInt(form_id);
     const id = el.dataset.vid ?? '';
     const classes = el.classList;
     let handler_state=true;
@@ -567,6 +569,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
     post_api_forms_efb(data,form_id);
 }
 function valid_email_emsFormBuilder(el) {
+  console.log('valid_email_emsFormBuilder 572');
   let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${ajax_object_efm.text.enterTheEmail}','',10,'danger');"></div>` : ajax_object_efm.text.enterTheEmail;
   let check = 0;
@@ -717,7 +720,7 @@ function valid_file_emsFormBuilder(id,tp,filed,form_id) {
 function fun_tracking_show_emsFormBuilder() {
   const time = pro_efb==true ? 10 :900;
   const getUrlparams = new URLSearchParams(location.search);
-  efb_var.user_type = location.href.includes("user=admin") ? 'admin' : 'user';
+
   let get_track = getUrlparams.get('track') !=null ? sanitize_text_efb(getUrlparams.get('track')) :null;
   if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
 setTimeout(() => {
@@ -880,6 +883,7 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     return;
   }
   const track = sessionStorage.getItem('track') ?? 'null';
+  const is_user_track = location.href.includes("user=admin") ? 'admin' : 'user';
   data = {
     action: "set_rMessage_id_Emsfb",
     type: "POST",
@@ -888,7 +892,7 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     message: JSON.stringify(message),
     type: form_type_emsFormBuilder,
     sid:efb_var.sid,
-    user_type : efb_var.user_type,
+    user_type : is_user_track,
     page_id: ajax_object_efm.page_id,
     sc:ajax_object_efm.sc,
     track: track
@@ -1920,7 +1924,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     delete_by_id(id);
   }
   validate_len_efb_v4 =()=>{
-    console.log('validate_len_efb_v4!!!');
+    console.error('validate_len_efb_v4!!!');
     let offsetw = offset_view_efb();
     const mi=()=> {return  el.type!="number" ? 2 :0}
     let len = el.hasAttribute('minlength')  ? el.minLength :mi();
@@ -2238,7 +2242,6 @@ async function fun_validation_efb_v4(form_id) {
   console.log('valj_efb:',valj_efb);
   let id_noti_message = valj_efb.steps > 1 ?  `step-${current_s_efb}-efb-msg` : 'alert_efb';
   for (let row in valj_efb) {
-     // console.log('row:',valj_efb[row]);
     let s =  get_row_sendback_by_id_efb(valj_efb[row].id_);
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
@@ -2274,25 +2277,37 @@ async function fun_validation_efb_v4(form_id) {
       }
     }else if (row > 1 && valj_efb[row].type == "chlCheckBox" && current_s_efb == valj_efb[row].step){
       name_field = valj_efb[row].name;
-
-      for(let em of sendBack_emsFormBuilder_pub){
-        console.log('em:',em)
-        form_id = em.form_id;
-        if(em.type=="chlCheckBox" && em.id_==valj_efb[row].id_ && em.hasOwnProperty('qty')==false)
-        {
-
-          const vd = em.id_ob+"_chl";
-          document.getElementById(vd).classList.add('bg-danger');
+      idi = valj_efb[row].id_;
+      fun_noti_chlcheckbox = (idi,name_field,id_noti_message,form_id) => {
+         const vd = idi+"_chl";
+          // document.getElementById(vd).classList.add('bg-danger');
           state = false;
-          idi = valj_efb[row].id_;
+
           const messag = efb_var.text.sfmcfop.replace('%s',`<b>${name_field}</b>`);
           //const msg = efb_var.text.enterTheValueThisField + " " + name_field;
           noti_message_efb_v4(messag, 'danger' ,id_noti_message ,form_id);
-          break;
 
-         // id_noti_message ='alert_efb';
-        }
       }
+        let state_of_ch = true;;
+        const em = sendBack_emsFormBuilder_pub.find(x => x.id_ob == idi);
+        console.log('em:',typeof em);
+        if(em==undefined || em==null ){
+            // el.innerHTML = msg;
+            console.log(`idi:${idi} em is undefined or null`);
+            document.getElementById(idi+'_-message').innerHTML = msg;
+            document.getElementById(idi+'_-message').classList.add('show');
+            //add bg-warning to element
+
+            document.getElementById(idi).classList.add('bg-warning');
+
+        }else if(em.id_ob =idi && em.hasOwnProperty('qty')==false && em.qty == "" && em.value.length == 0 ) {
+          fun_noti_chlcheckbox(idi,name_field,id_noti_message,form_id);
+
+        }else{
+            document.getElementById(idi+'_-message').innerHTML = "";
+            document.getElementById(idi+'_-message').classList.remove('show');
+             document.getElementById(idi).classList.remove('bg-warning');
+        }
 
     }
   }
