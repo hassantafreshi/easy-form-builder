@@ -773,7 +773,7 @@ class efbFunction {
 			"settings" => $state  &&  isset($ac->text->settings) ? $ac->text->settings : esc_html__('Settings',$s),
 			"emlcc" => $state  &&  isset($ac->text->emlcc) ? $ac->text->emlcc : esc_html__('Send email with submitted form content only',$s),
 			"copied" => $state  &&  isset($ac->text->copied) ? $ac->text->copied : esc_html__('copied!',$s),
-			"srvnrsp" => $state  &&  isset($ac->text->srvnrsp) ? $ac->text->srvnrsp : esc_html__('The website is not responding; please refresh and try again-saving or submitting is not available until it is restored.',$s),
+			"srvnrsp" => $state  &&  isset($ac->text->srvnrsp) ? $ac->text->srvnrsp : esc_html__('The website is not responding; please refresh and try again—saving or submitting is not available until it is restored.',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s)
 
 		];
@@ -800,6 +800,7 @@ class efbFunction {
 	}
 
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){
+
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 				$email_content_type = isset($state[2]) ? $state[2]  : 'traking_link' ;
 			   	$mailResult = "n";
@@ -823,6 +824,7 @@ class efbFunction {
 				);
 				if(gettype($sub)=='string'){
 					$message = $this->email_template_efb($pro,$state,$cont,$link,$email_content_type,$st);
+
 					if( $state!="reportProblem"){
 						$to_;$mailResult;
 						if (gettype($to) == 'string') {
@@ -867,8 +869,9 @@ class efbFunction {
 				}else{
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
-							// state[2] hold message type
+
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$email_content_type,$st);
+
 							if( $state!="reportProblem"){
 								$to_;$mailResult;
 								$to_ = $to[$i];
@@ -1008,7 +1011,18 @@ class efbFunction {
 		}
 
 		$val ="
-		<html xmlns='http://www.w3.org/1999/xhtml'> <body style='margin:auto 10px;direction:".$d.";color:#000000;'><center>
+		<html xmlns='http://www.w3.org/1999/xhtml'>
+		<head>
+		<style type='text/css'>
+			@media only screen and (max-width:600px){
+			.containerEmailEfb{width:100% !important; max-width:100% !important;}
+			.containerEmailEfb .columnEmailEfb{display:block !important; width:100% !important; max-width:100% !important;}
+			.containerEmailEfb .columnEmailEfb p{text-align:right !important;}
+			.containerEmailEfb img{max-width:100% !important; height:auto !important; display:block !important;}
+			}
+			</style>
+		</head>
+		<body style='margin:auto 10px;direction:".$d.";color:#000000;'><center>
 			<table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
 				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' alt='$title' style='width:36%;'>
 				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='100%' border='0'>  <tbody> <tr>
@@ -1053,7 +1067,7 @@ class efbFunction {
 
 	public function get_setting_Emsfb()
 	{
-		// 1. Try to get from transient cache (30 seconds)
+
 		$transient = get_transient('emsfb_settings_transient');
 		if ($transient !== false && !empty($transient)) {
 			if (is_string($transient)) {
@@ -1065,7 +1079,7 @@ class efbFunction {
 			}
 		}
 
-		// 2. If not found in transient, get from DB
+
 		$table_name = $this->db->prefix . "emsfb_setting";
 		$value = $this->db->get_var("SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1");
 		if (!isset($value) || empty($value)) {
@@ -1101,7 +1115,8 @@ class efbFunction {
 
 		$user_res = json_decode($user_res,true);
 		$lst = end($user_res);
-		$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+		error_log("response_to_user_by_msd_id: ".print_r($lst,true));
+		$link_w = $lst['type']=="w_link" ? $lst['value'].'?track='.$trackingCode : 'null';
 
 
 		$table_name = $this->db->prefix . "emsfb_form";
@@ -1112,8 +1127,12 @@ class efbFunction {
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){
 
 			$emailsId=[];
+			$email_to = $data[0]["email_to"];
+
 			foreach($data as $key=>$val){
 				if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
+					$emailsId[]=$val['id_'];
+				}else if ($val['type']=="email" && $val['id_']==$email_to ){
 					$emailsId[]=$val['id_'];
 				}
 			}
@@ -1280,8 +1299,7 @@ class efbFunction {
 			}
 		}
 		return $valp;
-	}// end function
-
+	}
 
 
 	public function sanitize_full_html_efb($html) {
@@ -1296,35 +1314,7 @@ class efbFunction {
 		);
 
 
-		$allowed_properties = array(
-
-			'color', 'background', 'background-color', 'background-image', 'background-position',
-			'background-repeat', 'background-size', 'background-attachment', 'background-clip', 'background-origin',
-
-			'font', 'font-family', 'font-size', 'font-style', 'font-variant', 'font-weight',
-			'letter-spacing', 'line-height', 'text-align', 'text-decoration', 'text-indent',
-			'text-overflow', 'text-shadow', 'text-transform',
-
-			'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
-			'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
-			'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
-
-			'border', 'border-width', 'border-style', 'border-color', 'border-radius', 'outline',
-
-			'box-shadow', 'box-sizing',
-
-			'position', 'top', 'right', 'bottom', 'left', 'z-index', 'float', 'clear',
-
-			'display', 'flex', 'flex-grow', 'flex-shrink', 'flex-basis', 'align-items', 'align-content',
-			'align-self', 'justify-content', 'grid', 'grid-template-rows', 'grid-template-columns',
-			'grid-area', 'row-gap', 'column-gap',
-
-			'animation', 'animation-name', 'animation-duration', 'animation-timing-function', 'animation-delay',
-			'transition', 'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay',
-
-			'cursor', 'opacity', 'clip-path', 'filter', 'backface-visibility', 'transform',
-			'transform-origin', 'transform-style',
-		);
+		$allowed_properties = $this->allowed_properties_thml_efb();
 
 
 		$current_domain = parse_url(home_url(), PHP_URL_HOST);
@@ -1599,7 +1589,7 @@ class efbFunction {
 			$t = new $name();
 		}
 
-	}// end function
+	}
 
 
 	public function download_all_addons_efb(){
@@ -2012,10 +2002,63 @@ class efbFunction {
 
 			return '';
 		}
+	public function allowed_properties_thml_efb(){
+		return array(
+			// Colors and background properties
+			'color', 'background', 'background-color', 'background-image', 'background-position',
+			'background-repeat', 'background-size', 'background-attachment', 'background-clip', 'background-origin',
+			'border-image', 'border-image-source', 'border-image-slice', 'border-image-width', 'border-image-outset', 'border-image-repeat',
 
+			// Font and text properties
+			'font', 'font-family', 'font-size', 'font-style', 'font-variant', 'font-weight',
+			'letter-spacing', 'line-height', 'text-align', 'text-decoration', 'text-indent',
+			'text-overflow', 'text-shadow', 'text-transform', 'white-space', 'word-break', 'word-spacing',
+			'direction', 'unicode-bidi', 'writing-mode', 'hyphens',
+
+			// Dimensions and layout properties
+			'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
+			'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+			'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+			'box-sizing', 'overflow', 'overflow-x', 'overflow-y', 'aspect-ratio',
+
+			// Border properties
+			'border', 'border-width', 'border-style', 'border-color', 'border-top', 'border-right', 'border-bottom', 'border-left',
+			'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width',
+			'border-radius', 'outline', 'outline-width', 'outline-style', 'outline-color',
+			'border-collapse', 'border-spacing', 'border-image', 'border-image-source', 'border-image-slice', 'border-image-width', 'border-image-outset', 'border-image-repeat',
+
+			// Box and shadow properties
+			'box-shadow', 'box-sizing', 'box-decoration-break',
+
+			// Positioning and z-index
+			'position', 'top', 'right', 'bottom', 'left', 'z-index',
+			'float', 'clear', 'vertical-align', 'clip',
+
+			// Flexbox and grid properties
+			'display', 'flex', 'flex-grow', 'flex-shrink', 'flex-basis',
+			'align-items', 'align-content', 'align-self', 'justify-content', 'order',
+			'grid', 'grid-template-rows', 'grid-template-columns', 'grid-template-areas',
+			'grid-area', 'row-gap', 'column-gap', 'gap', 'place-items', 'place-content', 'place-self',
+
+			// Animation and transition properties
+			'animation', 'animation-name', 'animation-duration', 'animation-timing-function', 'animation-delay',
+			'animation-iteration-count', 'animation-direction', 'animation-fill-mode', 'animation-play-state',
+			'transition', 'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay',
+
+			// Table properties
+			'border-collapse', 'border-spacing', 'caption-side', 'empty-cells', 'table-layout','collapse',
+
+			// Miscellaneous
+			'cursor', 'opacity', 'clip-path', 'filter', 'backface-visibility', 'visibility',
+			'transform', 'transform-origin', 'transform-style', 'perspective', 'perspective-origin',
+			'pointer-events', 'resize', 'scroll-behavior', 'user-select', 'will-change',
+			'isolation', 'contain', 'mix-blend-mode', 'object-fit', 'object-position', 'overflow-wrap',
+			'shape-outside', 'shape-margin', 'shape-image-threshold'
+		);
+	}
 
 public function sanitize_style_attribute_efb($style) {
-			global $allowed_properties;
+			$allowed_properties = $this->allowed_properties_thml_efb();
 			$style_rules = explode(';', $style);
 			$sanitized_rules = array();
 
@@ -2026,7 +2069,7 @@ public function sanitize_style_attribute_efb($style) {
 					$value = trim($value);
 
 
-					if (in_array($property, $allowed_properties)) {
+					if ( !is_null($property) && in_array($property, $allowed_properties)) {
 
 						if (strpos($value, 'url(') !== false) {
 							preg_match('/url\(["\']?([^"\')]+)["\']?\)/i', $value, $matches);
@@ -2045,7 +2088,38 @@ public function sanitize_style_attribute_efb($style) {
 			return implode('; ', $sanitized_rules);
 		}
 
+			function ensure_trailing_colon_efb(string $s, string $colon = ':'): string
+	{
+		// هر علامت پایان جمله/پایان عبارت در زبان‌های مختلف (به‌اضافه «:»)
+		$punctClass = '[:：\.\!\?\…‥。！？｡．؟\x{06D4}؛;;‽‼⁇⁈⁉⸮።፧။។៕։\x{0964}\x{0965}\x{0589}\x{1362}\x{104B}\x{17D4}\x{17D5}\x{05C3}]';
+
+		// اگر هر کدام از این‌ها هرجای متن باشد، چیزی اضافه نکن
+		if (preg_match('/' . $punctClass . '/u', $s)) {
+			return $s;
+		}
+
+		// کلوزرهای انتهایی (مثل ” ) ] …) و فاصله‌های آخر را جدا کنیم تا کولون قبل از آن‌ها بنشیند
+		$closersRe = '(?:\p{Pe}|\p{Pf}|["\'»”’）\)\]】］｝〉》」』〕〗])*';
+		if (preg_match('/(?P<closers>' . $closersRe . ')(?P<spaces>[\s\x{00A0}\x{202F}]*)$/u', $s, $m)) {
+			$endClosers = $m['closers'];
+			$endSpaces  = $m['spaces'];
+			// حذف بخش انتهایی برای درج کولون قبل از آن
+			$s = preg_replace('/' . $closersRe . '[\s\x{00A0}\x{202F}]*$/u', '', $s);
+		} else {
+			$endClosers = '';
+			$endSpaces  = '';
+		}
+
+		// یک فاصله قبل از کولون (سبک فارسی/فرانسوی «نام خانوادگی :»)
+		if (!preg_match('/\s$/u', $s)) {
+			$s .= ' ';
+		}
+
+		return $s . $colon . $endClosers . $endSpaces;
+	}
+
 }
+
 
 
 

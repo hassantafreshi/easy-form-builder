@@ -9,17 +9,10 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
 .search-icon.efb {    position: relative;    right: 45px;left: 0px!important;;}
 .description-logo.efb{float: right!important;}
 @media screen and (min-width: 1000px) {
-  
-    
-    /*  .col-md-12 .efb.ttiptext.show {
-        margin: -30px +92px 0 0!important;
-    
-    }  */
-  
+
+
   }
-/* .efb.ttiptext.show {
-    width: fit-content!important;
-} */
+
 
 .col-md-6 .efb.btn-edit-holder {
     float: left!important;
@@ -34,7 +27,7 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
 
  .efb.form-check-inline .efb.form-check-input {
     float: right;
-} 
+}
 .efb.listContent{margin-right: 4px!important;}
 
 .efblist::before {
@@ -46,11 +39,11 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
      .efb.listContent{		width: max-content!important;}
 
      .efb.def.col-md-12 .efb.ttiptext ,
-     .efb.def.col-md-8 .efb.ttiptext, 
-     .efb.def.col-md-6 .efb.ttiptext, 
+     .efb.def.col-md-8 .efb.ttiptext,
+     .efb.def.col-md-6 .efb.ttiptext,
      .efb.def.col-md-4 .efb.ttiptext {	margin: -30px 70px 0px 0px!important;font-size: 12px!important; };
  }
- 
+
  .efb.unpx {
     margin: -32px -54px 0px 0!important;
     font-size: 10px!important;
@@ -58,8 +51,6 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
  .efb.esign .ttiptext { margin: -25px 10px 0px 0px}
  .efb.yesNo.row .ttiptext { margin: -25px 20px 0px 0px!important}
  .efb.yesNo .ttiptext { margin: -35px 20px 0px 0px}
-/*  .efb.esign.col-md-6 .ttiptext {	margin:-25px 10px 0px 0px}
- .efb.esign.col-md-4 .ttiptext {	margin: -25px 10px 0px 0px;font-size: 12px!important; }; */
 
 .efb.def.col-md-12 .efb.ttiptext { margin: -25px 50px 0px 0px!important}
 .efb.def.col-md-6 .efb.ttiptext,.efb.def.col-md-10 .efb.ttiptext,.efb.def.col-md-8 .efb.ttiptext {	margin:-25px 50px 0px 0px!important}
@@ -77,9 +68,9 @@ div#gRecaptcha {
 
 
 .iti__country-list{
-	/* text-align: inherit!important; */
+
 	position: relative!important;
-} 
+}
 
 .iti__country{
 	direction: ltr;

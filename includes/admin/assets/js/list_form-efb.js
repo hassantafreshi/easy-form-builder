@@ -362,7 +362,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 
 }
 
-// 3.8.6 start
+
 function fun_ws_show_list_messages(value) {
 
   let rows = '';
@@ -463,7 +463,7 @@ function fun_ws_show_list_messages(value) {
   if (form_type_emsFormBuilder != 'login') fun_export_rows_for_Subscribe_emsFormBuilder(value);
 
 }
-// 3.8.6 end
+
 
 
 
@@ -1656,8 +1656,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
         } , state_auto);
   }
 
-  /* document.getElementById('save-stng-efb').innerHTML = nnrhtml
-  document.getElementById('save-stng-efb').classList.remove('disabled'); */
+
 }
 
 function fun_State_btn_set_setting_emsFormBuilder($state) {
@@ -1981,7 +1980,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     }
   }
 
-  // console.log('rowss')
+
   localStorage.setItem('rows_ws_p', JSON.stringify(exp));
 
 }
@@ -1991,7 +1990,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
 
 
-  // console.log(items);
+
   items.forEach(item => { for (let i in item) { if (item[i] == "notCount@EFB") item[i] = ""; } });
   var jsonObject = JSON.stringify(items);
   var csv = this.convertToCSV_emsFormBuilder(jsonObject);
@@ -2060,7 +2059,7 @@ function convertToCSV_emsFormBuilder(objArray) {
 
 function generat_csv_emsFormBuilder() {
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
-  // console.log(exp);
+
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
   exportCSVFile_emsFormBuilder(exp, filename);
 
@@ -2193,7 +2192,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
 
       }
 
-    }// end for 1
+    }
 
 
   }, 1000);

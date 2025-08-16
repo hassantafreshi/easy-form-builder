@@ -336,7 +336,7 @@ class _Public {
 							}
 
 
-					}// end if payment
+					}
 					$ar_core = array_merge($ar_core , array(
 						'paymentGateway' =>$paymentType,
 						'paymentKey' => $paymentKey
@@ -361,7 +361,7 @@ class _Public {
 					}
 					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
 					$arabicDatePicker = new arabicDatePickerEfb() ;
-				}// end if custom date
+				}
 				if(strpos($value , '\"type\":\"mobile\"') || strpos($value , '"type":"mobile"')){
 					$img = [
 						'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js',
@@ -1394,7 +1394,7 @@ class _Public {
 		if(true){
 
 
-
+// here comper!
 
 					$captcha_success="null";
 					$r= $this->setting ;
@@ -2282,7 +2282,7 @@ class _Public {
 			}else{
 
 			}
-			$response=$data_POST['valid'];
+			$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
 			$id;
 				$id=number_format(sanitize_text_field($data_POST['id']));
 				$m=sanitize_text_field($data_POST['message']);
@@ -2422,35 +2422,15 @@ class _Public {
 
 
 				$users_email =array();
-
-				/*
-
-				$emailsId=[];
-			foreach($data as $key=>$val){
-				error_log('-----> data: ' . json_encode($val));
-				if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
-					$emailsId[]=$val['id_'];
-				}
-			}
-
-				*/
+				$email_to = isset($valn[0]["email_to"]) ? $valn[0]["email_to"] : '';
 				$emailsId = [];
 				foreach($valn as $key=>$val){
 					if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
 						$emailsId[]=$val['id_'];
+					}else if ($val['type']=="email" &&  $val['id_']==$email_to ){
+						$emailsId[]=$val['id_'];
 					}
 				}
-
-			/* 	if(isset($id)){
-					foreach ($msg_obj as $key => $value) {
-
-						if(isset($value['id_']) && $value['id_']==$valn[0]["email_to"]){
-
-							array_push($users_email,$value["value"]);
-						}
-					}
-
-				} */
 
 				if(!empty($emailsId)){
 					foreach ($msg_obj as $value) {
@@ -2967,7 +2947,7 @@ class _Public {
 				wp_send_json_success($response, 200);
 				die("secure!");
 		}
-		// $this->id = sanitize_text_field($data_POST['id']);
+
 		$this->id = intval($data_POST['id']);
 		$val_ = sanitize_text_field($data_POST['value']);
 		$url = sanitize_url($data_POST['url']);
@@ -3130,7 +3110,7 @@ class _Public {
 				wp_send_json_success($response, 200);
 				die("secure!");
 		}
-		// $this->id = sanitize_text_field($_POST['id']);
+
 		$this->id = intval($_POST['id']);
 		$val_ = sanitize_text_field($_POST['value']);
 		$url = sanitize_url($_POST['url']);
@@ -3492,221 +3472,233 @@ class _Public {
 	}
 
 
-	function email_get_content($content ,$track){
-		$m ='<!-- efb-v3 -->';
-		$text_ =['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
-		$list=[];
 
-		  $s = false;
-		  $checboxs = [];
-		  $total_amount =0;
 
-		  $lst = end($content);
-		  $link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
-		  if(strlen($link_w)>5){
+	function email_get_content_efb($content, $track){
+		$m  = '<table border="0" cellpadding="0" cellspacing="0" width="100%" class="container containerEmailEfb" >';
 
-			$link_w =strpos($link_w,'?')!=false ? $link.'&track='.$track : $link_w.'?track='.$track;
-		}else{
-			$link_w = home_url();
-		}
+			// ترجمه‌ها و متغیرها
+			$text_     = ['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
+			$list      = [];
+			$checboxs  = [];
+			$total_amount = 0;
 
-		  $currency = array_key_exists('paymentcurrency', $content[0]) ? $content[0]['paymentcurrency'] :   'usd';
-		  $this->get_efbFunction(0);
-
-		usort($content, function($a, $b) {
-			return $a['amount'] <=> $b['amount'];
-		});
-		$lanText= $this->efbFunction->text_efb($text_);
-		foreach ($content as $c){
-
-			if(isset($c['type']) && $c['type'] == "w_link"){
-			 continue;
+			// لینک پیگیری/نقشه
+			$lst    = end($content);
+			$link_w = (isset($lst['type']) && $lst['type']==="w_link") ? ($lst['value'] ?? '') : '';
+			if (strlen($link_w)>5){
+				$link_w = (strpos($link_w,'?')!==false) ? ($link_w.'&track='.$track) : ($link_w.'?track='.$track);
+			} else {
+				$link_w = home_url();
 			}
 
-			if(isset($c['currency'])){
-			 $currency = $c['currency'];
-			}
+			// ارز پیش‌فرض
+			$currency = (isset($content[0]['paymentcurrency'])) ? $content[0]['paymentcurrency'] : 'usd';
 
-			if (isset($c['value']) && $c['type'] != "maps") {
-			  $c['value'] = $this->replaceContentMessageEfb($c['value']);
-			}
+			// دسترسی به متن‌ها
+			$this->get_efbFunction(0);
+			$lanText = $this->efbFunction->text_efb($text_);
 
-			if (isset($c['qty']) != false) {
+			// در صورت وجود amount مرتب‌سازی ملایم
+			usort($content, function($a,$b){
+				$aa = isset($a['amount']) ? $a['amount'] : 0;
+				$bb = isset($b['amount']) ? $b['amount'] : 0;
+				return $aa <=> $bb;
+			});
 
-			  $c['qty'] = $this->replaceContentMessageEfb($c['qty']);
-			}
+			// افزودن یک جفت عنوان/مقدار به دو ستون
+			$addPair = function($title, $value) use (&$m){
+				$title = $this->efbFunction->ensure_trailing_colon_efb($title);
+				if($title==='' && $value===''){ return; }
+				$m .= '<tr>';
+				$m .= '<td valign="top" width="50%" class="columnEmailEfb" style="padding:5px; line-height:20px;">';
+				$m .= '<p style="margin:0 0 10px 0;font-weight: bold;font-size:16px;">'.$title.'</p>';
+				$m .= '</td>';
+				$m .= '<td valign="top" width="50%" class="columnEmailEfb" style="padding:5px; line-height:20px;">';
+				$m .= '<p style="margin:0 0 10px 0;font-size:14px;">'.$value.'</p>';
+				$m .= '</td>';
+				$m .= '</tr>';
+
+			};
+
+			foreach ($content as $c){
+				// If the type is "w_link", skip it
+				if (isset($c['type']) && $c['type']==="w_link"){ continue; }
 
 
-			$s = false;
-			$value = '';
-
-			if (is_string($c['value'])) {
-			  $value = '<b>' . str_replace('@efb!', ',', $c['value']) . '</b>';
-			  $value = str_replace('@n#', '<br>', $c['value']);
-			}
-
-			  if(isset($c['qty']) != false){
-			  $value .= ': <b>' . $c['qty'] . '</b>';
-			}
+				if (isset($c['currency'])) { $currency = $c['currency']; }
 
 
-			  if(isset($c['value']) && $c['value'] == "@file@" && !in_array($c['url'], $list)){
-			  $s = true;
-			  array_push($list, $c['url']);
-
-			  $name = substr($c['url'], strrpos($c['url'], '/') + 1, strrpos($c['url'], '.') - strrpos($c['url'], '/') - 1);
-
-
-			   if(isset($c['type']) && ($c['type'] == "Image" || $c['type'] == "image")){
-				  $value = '<br><img src="' . $c['url'] . '" alt="' . $c['name'] . '" class="efb img-thumbnail m-1">';
-				}else if(isset($c['type']) && ($c['type'] == "Document" || $c['type'] == "document" || $c['type'] == "allformat")){
-				  $value = '<br><a class="efb btn btn-primary m-1" href="' . $c['url'] . '" target="_blank">' . $c['name'] . '</a>';
-				}else if(isset($c['type']) && ($c['type'] == "Media" || $c['type'] == "media")){
-				$audios = ['mp3', 'wav', 'ogg'];
-				$media = "video";
-				foreach ($audios as $aud) {
-				  if (strpos($c['url'], $aud) !== false) {
-					$media = 'audio';
-				  }
+				if (isset($c['value']) && $c['type']!=="maps") {
+					$c['value'] = $this->replaceContentMessageEfb($c['value']);
 				}
-				if ($media == "video") {
-				  $poster_emsFormBuilder =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
-				  $value = $type !== 'avi' ? '<br><div class="efb px-1"><video poster="' . $poster_emsFormBuilder . '" src="' . $c['url'] . '" type="video/' . $type . '" controls></video></div><p class="efb text-center"><a href="' . $c['url'] . '">' . $lanText['videoDownloadLink'] . '</a></p>' : '<p class="efb text-center"><a href="' . $c['url'] . '">' . $lanText['downloadViedo'] . '</a></p>';
-
-				} else {
-				  $value = '<div><audio controls><source src="' . $c['url'] . '"></audio></div>';
+				if (isset($c['qty'])) {
+					$c['qty']  = $this->replaceContentMessageEfb($c['qty']);
 				}
 
-				} else {
-					$value = strlen($c['url']) > 1 ? '<br><a class="efb btn btn-primary m-1" href="' . $c['url'] . '" target="_blank">' . $c['name'] . '</a>' : '<span class="efb fs-5">💤</span>';
+				$title = isset($c['name']) ? $c['name'] : '';
+				$q     = '';
 
+				// Replace special characters in title
+				if (isset($c['value']) && is_string($c['value'])) {
+					$q = str_replace('@efb!', ',', $c['value']);
+					$q = str_replace('@n#', '<br>', $q);
+					if ($q !== '@file@') { $q = '<b>'.$q.'</b>'; }
+				}
+				if (isset($c['qty'])) {
+					$q .= ($q ? ' ' : '') . ': <b>'.$c['qty'].'</b>';
 				}
 
-			 } else if ($c['type'] == "esign") {
-					$titile =isset($c['name'])? $c['name'] : '';
+				// If is a file url
+				if (isset($c['value']) && $c['value']==='@file@' && !in_array(($c['url'] ?? ''), $list)) {
+					$url = $c['url'] ?? '';
+					$nm  = $c['name'] ?? (substr($url, strrpos($url,'/')+1));
+					$t   = strtolower($c['type'] ?? '');
 
-					$title =  $c['name'];
-					$s = true;
-					$value = '<img src="' . $c['value'] . '" alt="' . $c['name'] . '" class="efb img-thumbnail">';
+					$list[] = $url;
 
-					$m.= '<p >' . $title . ':</p><p style="margin: 0px 10px;">' . $value . '</span>';
-			  } else if ($c['type'] == "color") {
-				$title =isset($c['name'])? $c['name'] : '';
-
-				$title =  $c['name'];
-				$s = true;
-				$value = '<div class="efb img-thumbnail" style="background-color:' . $c['value'] . '; height: 50px;">' . $c['value'] . '</div>';
-
-				$m .= '<p >' . $title . ':</p><p style="margin: 0px 10px;">' . $value . '</p>';
-			  } else if ($c['type'] == "maps") {
-
-
-				if (is_array($c['value'])) {
-					$s = true;
-
-					$value = '<a style="margin: 0px 10px;" href='.$link_w.'>'.$lanText['msgemlmp'].'</a>';
-					$m .= $value;
-				}
-
-
-			  } else if ($c['type'] == "rating") {
-				$s = true;
-
-				$title =isset($c['name'])? $c['name'] : '';
-				$value = '<div class="efb fs-4 star-checked star-efb mx-1>';
-				for ($i = 0; $i < intval($c['value']); $i++) {
-					$value .= '⭐';
-				}
-				$value .= '</div>';
-				$m .= '<p >' . $title . ':</p><p  style="margin: 0px 10px;">' . $value . '</p>';
-			  } else if ($c['type'] == "payCheckbox" || $c['type'] == "payRadio") {
-				$s = true;
-				$vc = null;
-				$total_amount = $total_amount+ intval( $c['price']);
-				array_push($checboxs, $c['id_']);
-				if (is_null($vc)) {
-					$vc = '<p><b>' . $c['price'];
-				} else {
-					$vc .= '<p style="margin: 0px 10px;"><b>' . $c['price'];
-				}
-				$numberformat = $this->formatPrice_efb(number_format($c['price'], 0, '.', ','), $currency);
-				$m .= '<p>' . $c['name'] . ': <b>' .$numberformat  . '</b></p>';
-
-
-			  }else if($c['type'] == "prcfld") {
-				$s = true;
-				$numberformat = $this->formatPrice_efb(number_format($c['price'], 0, '.', ','), $currency);
-				$m .= '<p class="efb mb-1">' . $c['name'] . ': <b>' .$numberformat  . '</b></p>';;
-
-
-			  } else if ($c['type'] == "r_matrix" && !in_array($c['id_'], $checboxs)) {
-				$s = true;
-				$vc = 'null';
-				array_push($checboxs, $c['id_']);
-				foreach ($content as $op) {
-					if ($op['type'] == "r_matrix" && $op['id_'] == $c['id_']) {
-					$vc == 'null' ? $vc = '<p ><b>' . $op['value'] . '</b></p>' : $vc .= '<p  style="margin: 0px 10px;"><b>' . $op['value'] . '</b></p>';
+					if ($t==='image') {
+						$q = '<img src="'.$url.'" alt="'.htmlspecialchars($nm).'" style="display:block;max-width:100%;height:auto;border:0;">';
+					} elseif ($t==='document' || $t==='allformat') {
+						$q = '<a href="'.$url.'" target="_blank" style="text-decoration:none;">'.$nm.'</a>';
+					} elseif ($t==='media') {
+						// ایمیل‌ها غالباً ویدیو را پخش نمی‌کنند → لینک دانلود
+						$audios = ['mp3','wav','ogg'];
+						$isAudio = false;
+						foreach($audios as $a){ if(strpos($url,$a)!==false){ $isAudio=true; break; } }
+						if ($isAudio){
+							$q = '<a href="'.$url.'" target="_blank" style="text-decoration:none;">'.$nm.'</a>';
+						} else {
+							$q = '<a href="'.$url.'" target="_blank" style="text-decoration:none;">'.$lanText['videoDownloadLink'].'</a>';
+						}
+					} else {
+						$q = strlen($url)>1 ? '<a href="'.$url.'" target="_blank" style="text-decoration:none;">'.$nm.'</a>' : '<span>💤</span>';
 					}
-			  }
-			  $m .= $vc;
-			}
-
-				if (isset($c['id_']) && $c['id_'] == 'passwordRegisterEFB') {
-				$m .= $value;
-				$value = '**********';
+					$addPair($title ?: 'file', $q);
+					continue;
 				}
 
-			if (((($s == true && $c['value'] == "@file@") || ($s == false && $c['value'] != "@file@")) && (isset($c['id_']) &&  $c['id_'] != "payment") && $c['type'] != "checkbox")) {
+				// signature
+				if (isset($c['type']) && $c['type']==='esign'){
+					$q = '<img src="'.($c['value'] ?? '').'" alt="'.htmlspecialchars($title).'" style="display:block;max-width:100%;height:auto;border:0;">';
+					$addPair($title, $q);
+					continue;
+				}
 
-			  $title =isset($c['name'])? $c['name'] : '';
-			  if ($title == "file") {
-				$title = "atcfle";
-			  }
+				// color
+				if (isset($c['type']) && $c['type']==='color'){
+					$q = '<span style="display:inline-block;width:50px;height:20px;vertical-align:middle;background:'.($c['value'] ?? '#000').'"></span> '
+					. '<span style="vertical-align:middle;">'.($c['value'] ?? '').'</span>';
+					$addPair($title, $q);
+					continue;
+				}
 
+				// maps
+				if (isset($c['type']) && $c['type']==='maps'){
+					if (is_array($c['value'] ?? null)){
+						$q = '<a href="'.$link_w.'" style="text-decoration:none;">'.$lanText['msgemlmp'].'</a>';
+						$addPair($title ?: 'Location', $q);
+					}
+					continue;
+				}
 
-			  $q = $value !== '<b>@file@</b>' ? $value : '';
-			  if($q=='<b>@file@</b>') continue;
-			  if (strpos($c['type'], 'pay')) {
-				$vc = 'null';
-				$total_amount = $total_amount+ intval( $c['price']);
-				$q = '<b >'. number_format($c['price'], 0, '.', ',')  . ($currency) . '</b>';
-				$title =$c['value'] ;
-			  } else if (strpos($c['type'], 'checkbox') !== false) {
+				// Rating
+				if (isset($c['type']) && $c['type']==='rating'){
+					$stars = intval($c['value'] ?? 0);
+					$q = str_repeat('⭐', $stars);
+					$addPair($title ?: 'Rating', $q);
+					continue;
+				}
 
+				// Payment Fields
+				if (isset($c['type']) && ($c['type']==='payCheckbox' || $c['type']==='payRadio')){
+					$price = intval($c['price'] ?? 0);
+					$total_amount += $price;
+					$numberformat = $this->formatPrice_efb(number_format($price,0,'.',','), $currency);
+					$addPair($c['name'] ?? 'Item', '<b>'.$numberformat.'</b>');
+					$checboxs[] = $c['id_'] ?? '';
+					continue;
+				}
 
-			  } else if (strpos($c['type'], 'imgRadio') !== false) {
-				$q= $c['value'];
-			  }
-			  $m .= '<p >' . $title . ':</p><p  style="margin: 0px 10px;">' . $q . '</p>';
+				// Price Field
+				if (isset($c['type']) && $c['type']==='prcfld'){
+					$numberformat = $this->formatPrice_efb(number_format(intval($c['price'] ?? 0),0,'.',','), $currency);
+					$addPair($c['name'] ?? 'Price', '<b>'.$numberformat.'</b>');
+					continue;
+				}
+
+				// Matriz field
+				if (isset($c['type']) && $c['type']==='r_matrix' && !in_array(($c['id_'] ?? ''), $checboxs)){
+					$checboxs[] = $c['id_'] ?? '';
+					$vals = [];
+					foreach($content as $op){
+						if (($op['type'] ?? '')==='r_matrix' && ($op['id_'] ?? '')===($c['id_'] ?? '')){
+							$vals[] = '<b>'.($op['value'] ?? '').'</b>';
+						}
+					}
+					$addPair($title ?: 'Options', implode('<br>', $vals));
+					continue;
+				}
+
+				// Payment
+				if (isset($c['type']) && $c['type']==='payment'){
+					if (($c['paymentGateway'] ?? '')==='stripe'){
+						$numberformat = $this->formatPrice_efb(number_format(intval($c['paymentAmount'] ?? 0),0,'.',','), ($c['paymentcurrency'] ?? $currency));
+						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.($c['paymentIntent'] ?? '').'</span>');
+						$addPair($lanText['methodPayment'], '<span>'.($c['paymentmethod'] ?? '').'</span>');
+						if (($c['paymentmethod'] ?? '')!=='charge'){
+							$addPair($lanText['interval'], '<span>'.($c['interval'] ?? '').'</span>');
+						}
+						$addPair($lanText['payAmount'], '<span>'.$numberformat.'</span>');
+						$addPair($lanText['ddate'], '<span>'.($c['paymentCreated'] ?? '').'</span>');
+					} else {
+						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.($c['paymentIntent'] ?? '').'</span>');
+						$addPair($lanText['payAmount'], '<span>'.number_format(intval($c['total'] ?? 0),0,'.',',').' ریال</span>');
+					}
+					continue;
+				}
+
+				// Handling password register
+				if (isset($c['id_']) && $c['id_']==='passwordRegisterEFB'){
+					$q = '**********';
+				}
+
+				// Handling other fields
+				if (
+					(!isset($c['type']) || $c['type']!=='checkbox') &&
+					(!isset($c['value']) || $c['value']!=='@file@') &&
+					(!isset($c['id_'])   || $c['id_']!=='payment')
+				){
+
+					if (isset($c['type']) && strpos($c['type'],'pay')!==false && isset($c['price'])){
+						$total_amount += intval($c['price']);
+						$title = $c['value'] ?? ($title ?: 'Item');
+						$q = '<b>'.number_format(intval($c['price']),0,'.',',').' '.$currency.'</b>';
+						$addPair($title, $q);
+					}
+
+					// imgRadio
+					if (isset($c['type']) && strpos($c['type'],'imgRadio')!==false){
+						$q = '<b>'.($c['value'] ?? '').'</b>';
+					}else if (isset($c['value']) && strpos($c['type'],'imgRadio')){
+							// + imgRadio
+						$q = $this->fun_imgRadio_efb($c['id_'], $c['src'] ?? '', $c);
+						$addPair('', $q);
+					}
+
+					if ($title==='file'){ $title = 'atcfle'; }
+
+					if ($title!=='' || $q!==''){
+						$addPair($title, $q);
+					}
+				}else if (isset($c['type']) && $c['type']==='checkbox' && isset($c['value']) && $c['value']!=='@file@') {
+					$addPair($title, '<b>'.$c['value'].'</b>');
+				}
 			}
 
-			if ($c['type'] == "payment") {
 
-			  if ($c['paymentGateway'] == "stripe") {
-				  $numberformat = $this->formatPrice_efb(number_format($c['paymentAmount'], 0, '.', ','), $c['paymentcurrency']);
-				  $m .= '<div style="margin: 10px 0px;">
-				  <p style="margin:5px;">' . $lanText['payment'] . ' ' . $lanText['id'] . ':<span > ' . $c['paymentIntent'] . '</span></p>
-				  <p style="margin: 5px;">' . $lanText['methodPayment'] . ':<span > ' . $c['paymentmethod'] . '</p>' . ($c['paymentmethod'] != 'charge' ? '<p style="margin: 5px;">' . $lanText['interval'] . ':<span class="efb mb-1 text-capitalize"> ' . $c['interval'] . '</span></p>' : '') . '</div>
-				  <p style="margin: 5px;">' . $lanText['payAmount'] . ':<span > ' .$numberformat. '</span></p>
-				  <p style="margin: 5px;">' . $lanText['ddate']  . ':<span > ' . $c['paymentCreated'] . '</span></p>
-				  </div>
-
-				  ';
-			  } else {
-
-				$m .= '<div style="margin: 10px 0px;">
-				  <p style="margin: 5px;">' . $lanText['payment'] . ' ' .  $lanText['id'] . ':<span > ' . $c['paymentIntent'] . '</p>
-				  <p style="margin: 5px;">' . $lanText['payAmount'] . ':<span > ' . number_format($c['total'], 0, '.', ',') . ' ریال</p>
-				  </div>';
-
-			  }
-			}
-
-
-
-		  }
-
-		  return $m;
+			$m .= '</table>';
+			return $m;
 		}
 
 
@@ -3734,7 +3726,9 @@ class _Public {
 			  </div>
 			  </div>
 			  </label>';
-		  }
+		}
+
+
 
 
 

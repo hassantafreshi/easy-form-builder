@@ -48,7 +48,7 @@ const fields_efb = [
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true, tag:'advance all' },
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true, tag:'advance all' },
   { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true, tag:'advance all' },
- /*  { name: efb_var.text.smartcr, icon: 'bi-globe', id: 'smartcr', pro: true, tag:'advance all' }, */
+
   { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
   { name: efb_var.text.nps_, icon: 'bi-square', id: 'pointr10', pro: true, tag: 'advance all' },
   { name: efb_var.text.imgRadio, icon: 'bi-images', id: 'imgRadio', pro: true, tag:'advance all' },
@@ -56,7 +56,7 @@ const fields_efb = [
   { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
 
   //{ name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
-  /* { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
+
   { name: efb_var.text.terms, icon: 'bi-shield-check', id: 'trmCheckbox', pro: true, tag:'advance all' },
 
   { name: efb_var.text.nps_tm, icon: ' bi-table', id: 'table_matrix', pro: true, tag: 'advance all' },
@@ -1079,7 +1079,7 @@ function show_setting_window_efb(idset) {
                 ${el.dataset.tag == 'rating' ? '' : widthEls}
                 ${el.dataset.tag != 'range' ? selectHeightEls(idset,indx) :''}
                 ${el.dataset.tag == 'rating' || el.dataset.tag == 'switch' || el.dataset.tag == 'range' ? '' : cornerEls('',indx,idset)}
-                ${/* el.dataset.tag == 'esign' ? selectColorEls('icon') : '' */ ''}
+                ${ ''}
                 ${el.dataset.tag == 'esign' ? iconEls('') : ''}
                 ${el.dataset.tag == 'esign' ? btnColorEls(idset,indx) : ''}
                 ${el.dataset.tag == 'esign' ? SingleTextEls('',idset,indx) : ''}

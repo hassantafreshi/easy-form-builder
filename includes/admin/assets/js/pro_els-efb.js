@@ -665,9 +665,9 @@ fun_imgRadio_efb=(id ,link,row)=>{
    }
   let value = row.hasOwnProperty('value')  ? row.value : efb_var.text.newOption ?? '';
   let sub_value = row.hasOwnProperty('sub_value') ? row.sub_value : efb_var.text.sampleDescription ?? '';
-  // console.log(efb_var.images )
-  link = link.includes('http')==false || link.length <5 ?  efb_var.images.head : row.src;
-  // link = u(link);
+
+  link = link.includes('http')==false || link.length <5 ?  u(efb_var.images.head) : u(row.src);
+
   return `
     <label class="efb  " id="${id}_lab" for="${id}">
     <div class="efb card col-md-3 mx-0 my-1 w-100" style="">
@@ -885,7 +885,7 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
 }
 
 
-/* maps function start */
+
 
 
 function efbCreateMap(id ,r ,viewState) {
@@ -1211,7 +1211,7 @@ function efbLocateMe(efbMapId) {
 }
 }
 
-/* maps function end */
+
 
 
 

@@ -964,7 +964,7 @@ class Admin {
                 }
 
             }else if($key == 'smtp'){
-                //check in value  [1,true ,'true','1'] with array function
+
                 function result_ok() {
                     return [
                         'status' => 'ok_set_smtp',
@@ -976,7 +976,7 @@ class Admin {
                     ];
                 }
                 if(isset($value) && in_array($value,[1,true,'true','1']) ){
-                    // emsfb_email_status
+
                   $check =  get_option('emsfb_email_status',false);
                     if($check==false || $check==null){
                          update_option('emsfb_email_status', result_ok());
@@ -1594,7 +1594,7 @@ class Admin {
 
             if(is_array($check)){
                     if($check['status'] === 'ok_set_smtp') {
-                        return; // No issues found or already configured
+                        return;
                     }else if ($check['status'] === 'ok' ) {
                         if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
                             $settings->smtp = true;
@@ -1604,10 +1604,10 @@ class Admin {
                             $this->database_set_emsfb_settings($setting, $email);
                         }
 
-                        return; // No issues found or already configured
+                        return;
                     }else if (($check['status'] !== 'ok' || $check['status'] !== 'ok_set_smtp') && (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true))) {
                             update_option('emsfb_email_status',  result_ok('ok_set_smtp'));
-                            return; // No issues found or already configured
+                            return;
                     }
             }else{
                 if (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true)) {

@@ -3,8 +3,8 @@ Contributors: hassantafreshi, mostafas1990, mrlast, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
 Requires at least: 4.7
-Tested up to: 6.8.1
-Stable tag: 3.8.16
+Tested up to: 6.8.2
+Stable tag: 3.8.18
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -465,7 +465,15 @@ Yes, the WordPress plugin Easy Form Builder allows you to create a single form t
 
 == Changelog ==
 
-= 3.8.16 =
+= 3.6.19 =
+
+* Improved UX of Easy Form Builder
+
+=3.6.18=
+
+* Fixed issues
+
+= 3.8.17 =
 
 * Fixed issues
 

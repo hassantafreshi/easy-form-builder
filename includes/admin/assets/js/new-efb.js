@@ -60,7 +60,7 @@ function fub_shwBtns_efb() {
   }
 }
 
-// 3.8.6 start
+
 function pro_show_efb(state) {
   let message = sanitize_text_efb(state);
   if (typeof state != "string") message = state == 1 ? sanitize_text_efb(efb_var.text.proUnlockMsg) : sanitize_text_efb(efb_var.text.ifYouNeedCreateMoreThan2Steps);
@@ -79,7 +79,7 @@ function pro_show_efb(state) {
   show_modal_efb(body, sanitize_text_efb(efb_var.text.proVersion), '', 'proBpx')
   state_modal_show_efb(1)
 }
-// 3.8.6 end
+
 
 function move_show_efb() {
   const body = `<div class="efb  pro-version-efb-modal"><i class="efb "></i></div>
@@ -1294,7 +1294,7 @@ const loading_messge_efb = () => {
 }
 function copyCodeEfb(id , tagid = '') {
   var copyText = document.getElementById(id);
-  // console.log(tagid)
+
   copyText.select();
   copyText.setSelectionRange(0, 99999);
   document.execCommand("copy");
@@ -1302,7 +1302,7 @@ function copyCodeEfb(id , tagid = '') {
     const tag = document.getElementById(tagid);
     tag.innerHTML = efb_var.text.copied;
   }
-  // alert_message_efb(efb_var.text.copiedClipboard, '', 6)
+
 }
 function validExtensions_efb_fun(type, fileType,indx) {
   type= type.toLowerCase();
@@ -1364,7 +1364,7 @@ function handle_navbtn_efb(steps, device) {
           current_s_efb += 1;
           localStorage.setItem("step", current_s_efb);
           setProgressBar_efb(current_s_efb, steps_len_efb);
-          // console.log("current_s_efb", current_s_efb, steps_len_efb,steps);
+
           if (current_s_efb <= steps) {
             var val = valj_efb.find(x => x.step == nxt);
             if(Number(valj_efb[0].show_icon)!=1){
@@ -1378,7 +1378,7 @@ function handle_navbtn_efb(steps, device) {
             document.getElementById("prev_efb").classList.remove("d-none");
           }else{
             //efb_var.text.finish
-             document.getElementById("title_efb").textContent = efb_var.text.finish;
+            document.getElementById("title_efb").textContent = efb_var.text.finish;
             document.getElementById("desc_efb").textContent = efb_var.text.finish;
 
           }
@@ -3237,10 +3237,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
 //end payment functions
 
 fun_get_links_from_string_Efb=(str , handler)=>{
-  /*
-  handler : false mean return export link and anchor text
-  handler : true mean return string with anchor tag
-  */
+
 
   if(handler==false){
     let regex = /\[([^\]]+)\]\(([^)]+)\)/g;
@@ -3270,7 +3267,7 @@ fun_get_links_from_string_Efb=(str , handler)=>{
 
 }
 
-// 3.6.8 start
+
 function deepFreeze_efb(obj) {
   Object.keys(obj).forEach((key) => {
       if (typeof obj[key] === "object" && obj[key] !== null) {

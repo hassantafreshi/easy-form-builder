@@ -275,13 +275,13 @@ class Panel_edit  {
 			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,EMSFB_PLUGIN_VERSION);
 
 
-				/* new code v4 */
+
 
 				wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);
 				wp_enqueue_script('jquery-ui-efb');
 				wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);
 				wp_enqueue_script('jquery-dd-efb');
-				/*end new code v4 */
+
 
 
 			wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);
@@ -471,7 +471,7 @@ class Panel_edit  {
 			die('invalid file '.$_FILES['async-upload']['type']);
 		}
 
-	}// end function
+	}
 
 
 	public function delete_old_rows_emsfb_stts_() {
