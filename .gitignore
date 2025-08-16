@@ -1,3 +1,6 @@
 vendor/*
 vendor/stripe/stripe-php/lib/Service/Sigma/SigmaServiceFactory.php
 temp/temp.zip
+vendor/composer/autoload_classmap.php
+vendor/composer/autoload_static.php
+vendor/composer/autoload_static.php
