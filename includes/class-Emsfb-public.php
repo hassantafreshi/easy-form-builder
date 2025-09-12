@@ -4132,7 +4132,7 @@ class _Public {
 			$msg_sub = 'null';
 
 			if(isset($formObj[0]["email_noti_type"]) && ( $formObj[0]["email_noti_type"]=='msg' || $formObj[0]["email_noti_type"]=='just_msg' )){
-				$msg_content =$this->email_get_content($valobj ,$check);
+				$msg_content =$this->email_get_content_efb($valobj ,$check);
 				$msg_content = str_replace("\"","'",$msg_content);
 				$msg_type = $formObj[0]["email_noti_type"]=='msg' ? 'message_link' : 'just_message';
 

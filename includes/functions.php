@@ -1115,7 +1115,6 @@ class efbFunction {
 
 		$user_res = json_decode($user_res,true);
 		$lst = end($user_res);
-		error_log("response_to_user_by_msd_id: ".print_r($lst,true));
 		$link_w = $lst['type']=="w_link" ? $lst['value'].'?track='.$trackingCode : 'null';
 
 
@@ -1125,10 +1124,8 @@ class efbFunction {
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){
-
 			$emailsId=[];
 			$email_to = $data[0]["email_to"];
-
 			foreach($data as $key=>$val){
 				if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
 					$emailsId[]=$val['id_'];
@@ -2089,34 +2086,34 @@ public function sanitize_style_attribute_efb($style) {
 		}
 
 			function ensure_trailing_colon_efb(string $s, string $colon = ':'): string
-	{
-		// هر علامت پایان جمله/پایان عبارت در زبان‌های مختلف (به‌اضافه «:»)
-		$punctClass = '[:：\.\!\?\…‥。！？｡．؟\x{06D4}؛;;‽‼⁇⁈⁉⸮።፧။។៕։\x{0964}\x{0965}\x{0589}\x{1362}\x{104B}\x{17D4}\x{17D5}\x{05C3}]';
+			{
+				// هر علامت پایان جمله/پایان عبارت در زبان‌های مختلف (به‌اضافه «:»)
+				$punctClass = '[:：\.\!\?\…‥。！？｡．؟\x{06D4}؛;;‽‼⁇⁈⁉⸮።፧။។៕։\x{0964}\x{0965}\x{0589}\x{1362}\x{104B}\x{17D4}\x{17D5}\x{05C3}]';
 
-		// اگر هر کدام از این‌ها هرجای متن باشد، چیزی اضافه نکن
-		if (preg_match('/' . $punctClass . '/u', $s)) {
-			return $s;
-		}
+				// اگر هر کدام از این‌ها هرجای متن باشد، چیزی اضافه نکن
+				if (preg_match('/' . $punctClass . '/u', $s)) {
+					return $s;
+				}
 
-		// کلوزرهای انتهایی (مثل ” ) ] …) و فاصله‌های آخر را جدا کنیم تا کولون قبل از آن‌ها بنشیند
-		$closersRe = '(?:\p{Pe}|\p{Pf}|["\'»”’）\)\]】］｝〉》」』〕〗])*';
-		if (preg_match('/(?P<closers>' . $closersRe . ')(?P<spaces>[\s\x{00A0}\x{202F}]*)$/u', $s, $m)) {
-			$endClosers = $m['closers'];
-			$endSpaces  = $m['spaces'];
-			// حذف بخش انتهایی برای درج کولون قبل از آن
-			$s = preg_replace('/' . $closersRe . '[\s\x{00A0}\x{202F}]*$/u', '', $s);
-		} else {
-			$endClosers = '';
-			$endSpaces  = '';
-		}
+				// کلوزرهای انتهایی (مثل ” ) ] …) و فاصله‌های آخر را جدا کنیم تا کولون قبل از آن‌ها بنشیند
+				$closersRe = '(?:\p{Pe}|\p{Pf}|["\'»”’）\)\]】］｝〉》」』〕〗])*';
+				if (preg_match('/(?P<closers>' . $closersRe . ')(?P<spaces>[\s\x{00A0}\x{202F}]*)$/u', $s, $m)) {
+					$endClosers = $m['closers'];
+					$endSpaces  = $m['spaces'];
+					// حذف بخش انتهایی برای درج کولون قبل از آن
+					$s = preg_replace('/' . $closersRe . '[\s\x{00A0}\x{202F}]*$/u', '', $s);
+				} else {
+					$endClosers = '';
+					$endSpaces  = '';
+				}
 
-		// یک فاصله قبل از کولون (سبک فارسی/فرانسوی «نام خانوادگی :»)
-		if (!preg_match('/\s$/u', $s)) {
-			$s .= ' ';
-		}
+				// یک فاصله قبل از کولون (سبک فارسی/فرانسوی «نام خانوادگی :»)
+				if (!preg_match('/\s$/u', $s)) {
+					$s .= ' ';
+				}
 
-		return $s . $colon . $endClosers . $endSpaces;
-	}
+				return $s . $colon . $endClosers . $endSpaces;
+			}
 
 }
 
