@@ -15,7 +15,7 @@ jQuery(function () {
   valueJson_ws_form = ajax_object_efm.ajax_value;
   poster_emsFormBuilder = ajax_object_efm.poster
   response_state_efb = ajax_object_efm.response_state;
-  pro_ws = ajax_object_efm.pro == '1' ? true : false;
+  pro_ws_efb = ajax_object_efm.pro == '1' ? true : false;
   page_state_efb="panel";
   if (ajax_object_efm.setting, ajax_object_efm.setting.length > 0) {
     const ajax_object_efm_setting = ajax_object_efm.setting[0].setting.replace(/[\\]/g, '');
@@ -46,8 +46,10 @@ let count_row_emsFormBuilder = 0;
 
 
 function fun_emsFormBuilder_render_view(x) {
-  // v2
+  //v4
+  restore_auto_save_efb();
 
+  // v2
   if(!document.getElementById('alert_efb')){
     const currentUrl = window.location.href;
     const txt = fun_create_content_nloading_efb();
@@ -189,7 +191,7 @@ function emsFormBuilder_show_content_message(id) {
       r = `
       <div class="efb mb-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}"  id="replay_section__emsFormBuilder">
         <label for="replayM_emsFormBuilder" class="efb form-label m-2 fs-7" id="label_replyM_efb">${efb_var.text.reply}:</label>
-        <textarea class="efb  form-control efb" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}">${value}</textarea>
+        <textarea class="efb  form-control efb" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}" >${value}</textarea>
       </div>
      <div class="efb col text-right row mx-1">
      <button type="submit" class="efb btn efb btn-primary btn-sm" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})"><i class="efb  bi-reply mx-1"></i> ${efb_var.text.reply} </button>
@@ -330,7 +332,7 @@ function fun_ws_show_edit_form(id) {
 function fun_send_replayMessage_emsFormBuilder(id) {
   document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
-
+  localStorage.removeItem('replayM_emsFormBuilder_'+id)
   let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
   message=message ? sanitize_text_efb(message) : null;
   if (message==null) return  valNotFound_efb()
@@ -356,8 +358,8 @@ function fun_ws_show_list_messages(value) {
   let head = `<!-- rows -->`;
   let iconRead = 'bi-envelope-open';
   let iconNotRead = ' <path  d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555zM0 4.697v7.104l5.803-3.558L0 4.697zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757zm3.436-.586L16 11.801V4.697l-5.803 3.546z"/>';
-  const fun = pro_ws == true ? "generat_csv_emsFormBuilder()" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
-  const fun1 = pro_ws == true ? "event_selected_row_emsFormBuilder('read')" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
+  const fun = pro_ws_efb == true ? "generat_csv_emsFormBuilder()" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
+  const fun1 = pro_ws_efb == true ? "event_selected_row_emsFormBuilder('read')" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
 
 
 
@@ -387,8 +389,8 @@ function fun_ws_show_list_messages(value) {
   }
    head +=`
   <div class="efb" id="selectedBtnlistEfb">
-  <button  class="efb  btn efb btn-danger text-white mt-2 ec-efb" data-eventform="deleteSelectedRow"  title="${efb_var.text.delete}" >  <i class="efb  bi-trash mx-2 ec-efb" data-eventform="deleteSelectedRow" data-pro="${pro_ws}"></i></button >
-  <button  class="efb  btn efb btn-secondary text-white mt-2 ec-efb" data-eventform="readSelectedRow" title="${efb_var.text.mread}" >  <i class="efb  mx-2 ${iconRead} ec-efb"  data-eventform="readSelectedRow" data-pro="${pro_ws}"></i></button >
+  <button  class="efb  btn efb btn-danger text-white mt-2 ec-efb" data-eventform="deleteSelectedRow"  title="${efb_var.text.delete}" >  <i class="efb  bi-trash mx-2 ec-efb" data-eventform="deleteSelectedRow" data-pro="${pro_ws_efb}"></i></button >
+  <button  class="efb  btn efb btn-secondary text-white mt-2 ec-efb" data-eventform="readSelectedRow" title="${efb_var.text.mread}" >  <i class="efb  mx-2 ${iconRead} ec-efb"  data-eventform="readSelectedRow" data-pro="${pro_ws_efb}"></i></button >
   </div>
   </div>
   `
@@ -597,6 +599,8 @@ function fun_get_form_by_id(id) {
             const edit = { id: res.data.id, edit: true };
             sessionStorage.setItem('Edit_ws_form', JSON.stringify(edit))
             fun_ws_show_edit_form(id);
+            state_page_efb = 'edit';
+            localStorage.setItem('efb_auto_save', 0);
           }, len * p)
         } catch (error) {
 

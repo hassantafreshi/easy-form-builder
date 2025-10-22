@@ -101,7 +101,8 @@ class Panel_edit  {
 				<div class="efb side-menu-efb bg-light bg-gradient border text-dark fade efbDW-0 "  id="sideBoxEfb">
 					<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
 					<span> </span>
-						<a class="efb BtnSideEfb efb close sidemenu  text-danger ec-efb"  data-eventform='sideMenuEfb' ><i class="efb bi-x-lg" ></i></a>
+						<a class="efb BtnSideEfb efb close sidemenu  text-danger ec-efb"  data-eventform='sideMenuEfb' onclick="sideMenuEfb(0)" title="<?php echo esc_html__('Close', 'easy-form-builder' )?>"><i class="efb bi-x-lg" ></i></a>
+						<a class="efb BtnSideEfb efb close sidemenu px-1  text-success ec-efb"  data-eventform='sideMenuEfbSave' onclick="sideMenuEfb(2)" title="<?php echo esc_html__('Save', 'easy-form-builder' )?>"><i class="bi bi-check2" ></i></a>
 					</div>
 					<div class="efb mb-5 mx-2 sideMenu" id="sideMenuConEfb"></div>
 					</div></div>
@@ -262,7 +263,7 @@ class Panel_edit  {
 				wp_enqueue_script('jquery-dd-efb');
 				/*end new code v4 */
 
-			$url ='https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js';
+			$url =CDN_ZONE_AREA.'js/wp/countries.js';
 			if(isset($ac->AdnOF) && $ac->AdnOF==1){
 				$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
 			}
@@ -304,6 +305,7 @@ class Panel_edit  {
 					'messages_state' =>$this->get_not_read_message(),
 					'response_state' =>$this->get_not_read_response(),
 					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
+					'zone_area'=>CDN_ZONE_AREA,
 					'bootstrap'=>$this->check_temp_is_bootstrap(),
 					'pro'=>$pro ? 1 : 0,
 				));

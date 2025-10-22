@@ -146,6 +146,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
   return op;
 }
 function addNewElement(elementId, rndm, editState, previewSate) {
+  console.log('addNewElement',elementId, rndm, editState, previewSate,valj_efb);
   let pos = [``, ``, ``, ``]
   const shwBtn = previewSate != true ? 'showBtns' : '';
   let indexVJ = editState != false ? valj_efb.findIndex(x => x.id_ == rndm) : 0;
@@ -2164,7 +2165,7 @@ async function fun_offline_Efb() {
               iso2_country = temp.cont_;
               iso2_statePove = temp.statePrev_;
             }
-            //console.log(id+'_options',iso2_country,iso2_statePove, el)
+            console.log(id+'_options',iso2_country,iso2_statePove, el)
             await callFetchCitiesEfb(id+'_options',iso2_country,iso2_statePove, el,'pubSelect',true);
 
           }
@@ -2260,6 +2261,7 @@ async function fun_offline_Efb() {
       case 'persiaPay':
       break;
       case 'mobile':
+        console.log('mobile', value);
         let v = value.value.split('+');
         el = document.getElementById(value.id_ob+'_');
         let storedPhoneNumber =value.value;
@@ -3083,12 +3085,12 @@ function handle_change_event_efb(el){
         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.dataset.vid , el.type);
         if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
           let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
-              fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp)
+              fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp,form_id)
         }else if(el.dataset.hasOwnProperty('type') && el.dataset.type=="stateProvince"){
              let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
               iso_con = el.options[el.selectedIndex].dataset.isoc
               iso_state = el.options[el.selectedIndex].dataset.iso
-              fun_check_link_city_efb(iso_con,iso_state , temp)
+             // fun_check_link_city_efb(iso_con,iso_state , temp,form_id)
         }
         break;
       case "range":
@@ -3506,6 +3508,16 @@ function deepFreeze_efb(obj) {
       }
   });
   return Object.freeze(obj);
+}
+
+fun_valj_efb_run=async(form_id)=>{
+  console.log(form_id ,valj_efb_new);
+  form_id = isNaN(form_id) ? form_id : parseInt(form_id);
+  form_ID_emsFormBuilder = form_id;
+  const r = valj_efb_new.find(x=>x.id ==form_id);
+  console.log('fun_valj_efb_run',r);
+  valj_efb = r.structure;
+  return  valj_efb ;
 }
 
 //3.6.8 end

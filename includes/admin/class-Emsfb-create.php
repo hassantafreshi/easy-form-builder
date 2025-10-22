@@ -69,7 +69,8 @@ class Create {
 				<div class="efb side-menu-efb bg-light bg-gradient border text-dark fade efbDW-0 pb-5" id="sideBoxEfb">
 				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
 				<span> </span>
-					<a class="efb BtnSideEfb efb close sidemenu text-danger" id="BtnCSideEfb" onclick="sideMenuEfb(0)"><i class="efb bi-x-lg" ></i></a>
+					<a class="efb BtnSideEfb efb close sidemenu text-danger" id="BtnCSideEfb" onclick="sideMenuEfb(0)" title="<?php echo esc_html__('Close', 'easy-form-builder' )?>"><i class="efb bi-x-lg" ></i></a>
+					<a class="efb BtnSideEfb efb close sidemenu px-1  text-success ec-efb"  onclick="sideMenuEfb(2)" title="<?php echo esc_html__('Save', 'easy-form-builder' )?>" ><i class="bi bi-check2" ></i></a>
 				</div>
 				<div class="efb  mx-3 sideMenu" id="sideMenuConEfb"></div>
 				</div></div>
@@ -176,7 +177,7 @@ class Create {
 						return 0;
 					}
 				}
-				$url ='https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js';
+				$url =CDN_ZONE_AREA.'js/wp/countries.js';
 				if(isset($settings->AdnOF) && $settings->AdnOF==1){
 					$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
 				}
@@ -249,6 +250,7 @@ class Create {
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
 			'setting'=>$settings,
 			'colors'=>$colors,
+			'zone_area'=>CDN_ZONE_AREA,
 			'plugins'=>$plugins
 		));
 		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,'3.8.1');

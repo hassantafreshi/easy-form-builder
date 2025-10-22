@@ -6,14 +6,14 @@
 let state_check_ws_p = 1;
 let valueJson_ws_p = [];
 let exportJson_ws = [];
-let pro_ws = false;
+let pro_ws_efb = false;
 let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
 const efb_version = 4;
 let wpbakery_emsFormBuilder =false;
 let pro_price_efb =19;
 let heartbeat_efb_active =false;
-
+let state_page_efb='';
 
 
 
@@ -33,13 +33,14 @@ jQuery(function () {
     localStorage.setItem('v_efb',efb_var.v_efb);
     location.reload(true);
   } */
-  pro_ws = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
-  if (typeof pro_whitestudio !== 'undefined') { pro_ws = pro_whitestudio; } else { pro_ws = false; }
+  pro_ws_efb = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
+  if (typeof pro_whitestudio !== 'undefined') { pro_ws_efb = pro_whitestudio; } else { pro_ws_efb = false; }
   //historyload 1
 
   if (state_check_ws_p==1) {
     history.replaceState("templates",null,'?page=Emsfb_create');
     add_dasboard_emsFormBuilder();
+
   }else if(state_check_ws_p==2){
     timeout=500;
 
@@ -71,6 +72,8 @@ jQuery(function () {
 
     localStorage.setItem('efb_cache',count_show_efb_cache);
   }
+    console.log('localStorage efb_auto_save',localStorage.getItem('efb_auto_save'));
+   restore_auto_save_efb();
   //cache message alert section end
 })
 
@@ -353,7 +356,7 @@ console.info('Easy Form Builder WhiteStudio.team');
 
 
 async function  actionSendData_emsFormBuilder() {
-  //console.log('actionSendData_emsFormBuilder')
+  console.log('actionSendData_emsFormBuilder')
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
     return;
@@ -404,6 +407,7 @@ async function  actionSendData_emsFormBuilder() {
           form_ID_emsFormBuilder = parseInt(res.data.id)
 
           show_message_result_form_set_EFB(1, res.data.value);
+          localStorage.setItem('efb_auto_save', 0);
           fun_pr(1);
         } else {
           alert(res, "error")
@@ -426,6 +430,7 @@ async function  actionSendData_emsFormBuilder() {
         }
       }
     })
+    console.log(data)
     return true;
   });
 
@@ -674,6 +679,8 @@ function add_dasboard_emsFormBuilder() {
   for (const n of newform_) {
     n.addEventListener("click", (e) => {
       form_type_emsFormBuilder = n.id;
+
+      //add session page
       create_form_by_type_emsfb(n.id, 'npreview');
     })
   }
@@ -797,7 +804,8 @@ function FunfindCardAddonEFB() {
 function create_form_by_type_emsfb(id, s) {
 
   //v2
-
+  state_page_efb = 'create';
+  localStorage.setItem('efb_auto_save', 0);
   const adminEmail = efb_var.setting.emailSupporter  ;
   const smail =adminEmail!=''  ? true :false
   sessionStorage.removeItem('valj_efb');
@@ -944,7 +952,7 @@ function create_form_by_type_emsfb(id, s) {
   if (s == "npreview") {
     creator_form_builder_Efb();
 
-    if (id != "form" && id != "payment" && id != "smart") { setTimeout(() => { editFormEfb() }, 100) }
+    if (id != "form" && id != "payment" && id != "smart") { setTimeout(() => { editFormEfb() }, 200) }
   } else if ("pre") {
     //console.log("pre")
     previewFormEfb('pre');
@@ -1083,18 +1091,47 @@ addColorTolistEfb = (color) => {
 
 function sideMenuEfb(s) {
   let el = document.getElementById('sideBoxEfb');
-  if (s == 0) {
+  side_hide =(el)=>{
+    console.log('sideMenuEfb hide')
     el.classList.remove('show');
     document.getElementById('childsSideMenuConEfb').classList.add('d-none');
     document.getElementById('sideMenuFEfb').classList.add('efbDW-0');
     el.classList.add('efbDW-0');
-    // jQuery("#sideBoxEfb").fadeIn('slow');
-  } else {
-    document.getElementById('sideBoxEfb').classList.remove('efbDW-0');
+  }
+
+  side_show =(el)=>{
+    console.log('sideMenuEfb show')
+    el.classList.remove('efbDW-0');
     document.getElementById('sideMenuFEfb').classList.remove('efbDW-0');
     const ch = document.getElementById('childsSideMenuConEfb');
     if(ch)ch.classList.add('d-none');
     el.classList.add('show');
+  }
+  if (s == 0) {
+    side_hide(el)
+       setTimeout(() => {
+      saveFormEfb(-1);
+    }, 2000);
+  } else if( s == 1) {
+   side_show(el)
+  } else if (s == 2) {
+    //show waiting for 2 seconds after that hide it
+    setTimeout(() => {
+      saveFormEfb(-1);
+    }, 2000);
+    console.log('sideMenuEfb',s)
+    const lenV = valj_efb.length
+    const timeout = lenV < 100 ? 800 : lenV<500 ? 3000 : 5000;
+    console.log('sideMenuEfb timeout',timeout)
+    let over_page = document.getElementById("overlay_efb");
+    over_page.classList.remove("d-none");
+    over_page.classList.add("d-block")
+    setTimeout(() => {
+          side_hide(el)
+          over_page.classList.add("d-none")
+          over_page.classList.remove("d-block")
+    }, timeout);
+
   }
 }
 
@@ -1318,7 +1355,7 @@ let change_el_edit_Efb = (el) => {
             }
 
           }
-          if(valj_efb[indx].type!="range" || alj_efb[indx].type!="date")valj_efb[indx].required=1;
+          if(valj_efb[indx].type!="range" || valj_efb[indx].type!="date")valj_efb[indx].required=1;
 
         }
         break;
@@ -1736,11 +1773,15 @@ let change_el_edit_Efb = (el) => {
       case "valueEl":
 
         if (el.dataset.tag != 'yesNo' && el.dataset.tag != 'heading' && el.dataset.tag != 'textarea' && el.dataset.tag != 'link') {
-
+            console.log(el)
           //document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
           c= sanitize_text_efb(el.value);
           document.getElementById(`${valj_efb[indx].id_}_`).value = c;
           valj_efb[indx].value = c;
+           if(valj_efb[indx].type=='range'){
+            console.log(c);
+            document.getElementById(`${valj_efb[indx].id_}_rv`).innerHTML = c;
+           }
         } else if (el.dataset.tag == 'heading' ||el.dataset.tag == 'link' ||el.dataset.tag == 'textarea') {
           //console.log(valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}_`) );
           c= el.dataset.tag=='textarea' ? sanitize_text_efb(el.value ,true) : sanitize_text_efb(el.value);
@@ -1748,11 +1789,13 @@ let change_el_edit_Efb = (el) => {
           valj_efb[indx].value = c;
         } else {
           //yesNo
+          console.log(el)
           c= sanitize_text_efb(el.value);
           id = `${valj_efb[indx].id_}_${el.dataset.no}`
           document.getElementById(id).value = c;
           document.getElementById(`${id}_lab`).innerHTML =c;
           el.dataset.no == 1 ? valj_efb[indx].button_1_text = c : valj_efb[indx].button_2_text = c
+
         }
         break;
         case "classesEl":
@@ -2406,32 +2449,69 @@ let change_el_edit_Efb = (el) => {
       case 'ElvalueOptions':
 
         clss =el.dataset.parent
+        console.log('ElvalueOptions',el);
         c = valj_efb.findIndex(x=>x.id_==clss)
+        console.log(el.dataset.id);
         indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-        //console.log(`indx[${indx}]`) ;
+        // console.log(`indx[${indx}]`) ;
 
         color = valj_efb[c].type.toLowerCase();
         const oi = valj_efb[c].value
-        //console.log(`type change [${color}]`,color.includes("stateProvince"));
+        // console.log(`type change [${color}]`,color.includes("stateProvince"));
         if(color.includes("radio")==true || (color.includes("select")==true &&  color.includes("multi")==false)
-        || color.includes("conturylist")==true || color.includes("stateprovince")==true ){
+        || color.includes("conturylist")==true || color.includes("stateprovince")==true || color.includes("citylist")==true){
           // c = valj_efb.findIndex(x=>x.id_==clss)
-
           valj_efb[c].value =valj_efb[indx].id_
 
-          //console.error(`selected [${valj_efb[indx].id_}]`)
-          //console.log(c ,valj_efb[c].value) ;
+          // console.error(`selected [${valj_efb[indx].id_}]`)
+          // console.log(c ,valj_efb[c].value) ;
+          console.log(`oi[${oi}]`,document.querySelector(`[data-id="${oi}"]`));
           if(oi.length>0 && color.includes("radio")==true){
 
-            //document.getElementById(oi+'-g').removeAttribute("checked");
+            // document.getElementById(oi+'-g').removeAttribute("checked");
             document.querySelector(`[data-id="${oi}"]`).removeAttribute("checked");
-            //console.log(document.querySelector(`[data-id="${oi}"]`))
+            // document.querySelector(`[data-id="${oi}"]`);
             document.getElementById(oi).removeAttribute("checked");
           }
 
              clss =valj_efb[indx].id_;
+             console.log(`id_[${clss}] type el[${color}]`);
              el.setAttribute("checked",true)
-         if(color.includes("radio")==true) {document.getElementById(clss).setAttribute("checked",true);}
+
+         if(color.includes("radio")==true) {
+           document.getElementById(clss).setAttribute("checked",true);
+          }else if((color.includes("select")==true || color.includes('citylist') || color.includes("stateprovince") || color.includes("conturylist")) && color.includes("multi")==false){
+             const optionEl = document.getElementById(clss);
+              // console.log(`optionEl[${optionEl}]`,clss);
+            if (optionEl) {
+              optionEl.selected = true;
+              console.log(`optionEl.selected[${optionEl.selected}]`);
+              // اگر می‌خواهید رویداد change هم اجرا شود:
+              const selectEl = optionEl.parentElement;
+              if (selectEl) {
+                selectEl.value = optionEl.value;
+                console.log(`selectEl.value[${selectEl.value}]`);
+                selectEl.dispatchEvent(new Event('change'));
+              }
+            }else{
+              const parent = valj_efb[indx].parent;
+              const selectEl = document.getElementById(parent+'_options');
+              console.log(`selectEl[${selectEl}]`);
+              if (selectEl) {
+                //remove existing options
+                selectEl.innerHTML = '';
+                const option = document.createElement('option');
+                // console.log(valj_efb[indx].value);
+                const value =valj_efb[indx].value;
+                option.value = value;
+                option.textContent = value;
+                selectEl.appendChild(option);
+                // selectEl.value = clss;
+                selectEl.dispatchEvent(new Event('change'));
+              }
+            }
+
+          }
         /*  c = valj_efb.findIndex(x=>x.id_==clss)
          valj_efb[c].value =valj_efb[indx].id_ */
         }else{
@@ -2566,7 +2646,8 @@ let change_el_edit_Efb = (el) => {
 
           document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
            //.AdnOF
-           let url = `https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${valj_efb[indx].country.toLowerCase()}.json`;
+           let url = efb_var.zone_area ?? ajax_object_efm.zone_area
+           url= url +`json/states/${valj_efb[indx].country.toLowerCase()}.json`;
            if(efb_var.setting.hasOwnProperty('AdnOF') && efb_var.setting.AdnOF==true){
             url =efb_var.images.plugin_url+`/vendor/offline/json/states/${valj_efb[indx].country.toLowerCase()}.json`;
              url = url.replaceAll('//vendor','/vendor');
@@ -2608,7 +2689,10 @@ let change_el_edit_Efb = (el) => {
 
             opetions= efb_add_opt_setting(objOptions, el ,false ,newRndm ,"")
             el.classList.remove('is-loading');
-            if(document.getElementById('optionListefb')) document.getElementById('optionListefb').innerHTML=opetions
+            if(document.getElementById('optionListefb')){
+              document.getElementById('optionListefb').innerHTML=opetions;
+              update_event_elmants_settings('.elEdit.newElOp')
+            }
           }, 4000);
 
           valj_efb[indx].country =  el.options[el.selectedIndex].value
@@ -2629,7 +2713,8 @@ let change_el_edit_Efb = (el) => {
           el.classList.add('is-loading');
 
           document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
-          let url = `https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${temp}/${valj_efb[indx].statePov}.json`;
+          let url = efb_var.zone_area ?? ajax_object_efm.zone_area
+          url = url + `json/cites/${temp}/${valj_efb[indx].statePov}.json`;
           //.AdnOF
           if(efb_var.setting.hasOwnProperty('AdnOF') && efb_var.setting.AdnOF==true){
             url =efb_var.images.plugin_url+'/vendor/offline/json/cites/'+temp+'/'+valj_efb[indx].statePov+'.json';
@@ -2674,7 +2759,10 @@ let change_el_edit_Efb = (el) => {
 
             opetions= efb_add_opt_setting(objOptions, el ,false ,newRndm ,"")
             el.classList.remove('is-loading');
-            if(document.getElementById('optionListefb')) document.getElementById('optionListefb').innerHTML=opetions
+            if(document.getElementById('optionListefb')) {
+              document.getElementById('optionListefb').innerHTML=opetions;
+              update_event_elmants_settings('.elEdit.newElOp')
+            }
 
         }
         valj_efb[indx].statePov =  el.options[el.selectedIndex].value
@@ -3039,6 +3127,8 @@ const saveFormEfb = async (stated) => {
            state_modal_show_efb(0);}
         resolve(returnn);
       } catch (error) {
+        store_form_efb();
+        console.error('Error', error);
         btnIcon = 'bi-bug';
         body = `
           <div class="efb pro-version-efb-modal efb"></div>
@@ -3057,7 +3147,7 @@ const saveFormEfb = async (stated) => {
   });
 };//end function
 
-let editFormEfb = () => {
+let editFormEfb =async () => {
   valueJson_ws_p = 0; // set ajax to edit mode
   let dropZoneEFB = document.getElementById('dropZoneEFB');
   dropZoneEFB.innerHTML = efbLoadingCard('',4);
@@ -4336,7 +4426,6 @@ window.addEventListener("popstate",e=>{
 
 
 function efb_check_el_pro(el){
-  //console.log(efb_var.pro , pro_ws)
   f_b=()=>{
     el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
   }
@@ -4780,8 +4869,7 @@ function form_preview_efb(val) {
 
 
 preview_form_new_efb = async ()=>{
-  let form_id = sessionStorage.getItem('form_id') ??  form_ID_emsFormBuilder == 0 ?  null :`[EMS_Form_Builder id=${form_ID_emsFormBuilder}]`;
-
+      const form_id = sessionStorage.getItem('form_id') ??  form_ID_emsFormBuilder == 0 ?  null :`[EMS_Form_Builder id=${form_ID_emsFormBuilder}]`;
       if(form_id == null ){
         //show message about first save form
         show_modal_efb(`<div class="text-center text-darkb efb"><div class=" fs-4 efb"></div><p class="fs-4 efb">${efb_var.text.prsm}</p></div>`,efb_var.text.warning, '', 'saveBox');
@@ -4812,45 +4900,110 @@ function efbLatLonLocation(efbMapId, lat, long ,zoom) {
 }
 
 let heartbeat_status_efb = false
+let hold_time_last_beat_efb = Date.now();
+let hold_time_last_update_form_beat_efb = Date.now();
+
+store_form_efb =()=>{
+   console.log('store form due to local~!');
+   localStorage.setItem('efb_auto_save', 1);
+          localStorage.setItem('efb_auto_save_form_id', form_ID_emsFormBuilder);
+          //store valj_efb in session
+          localStorage.setItem('efb_auto_save_valj_efb', JSON.stringify(valj_efb));
+}
 async function heartbeat_Emsfb() {
 
-  console.log(`heartbeat_efb_active[${heartbeat_efb_active}]`);
+call_beat = async () => {
+  return new Promise((resolve) => {
+    jQuery(function ($) {
+      const data = {
+        action: "heartbeat_Emsfb",
+        nonce: efb_var.nonce,
+      };
+
+      $.post(ajaxurl, data, function (res) {
+        if (res.success === true) {
+          hold_time_last_beat_efb = Date.now();
+          efb_var.nonce = res.data.newNonce;
+          heartbeat_efb_active = false;
+          console.log("new nonce", efb_var.nonce);
+          resolve(1);
+        } else {
+          heartbeat_efb_active = false;
+          hold_time_last_beat_efb = Date.now();
+          console.log(res.data);
+          resolve(-1);
+        }
+      }).fail(function (jqXHR, textStatus, errorThrown) {
+        heartbeat_efb_active = false;
+        let text = efb_var.text.srvnrsp;
+        if (( state_page_efb == 'create' || state_page_efb == 'edit') ){
+          efb_var.text.srvnsave;
+          store_form_efb();
+        }
+        alert_message_efb(
+          '<i class="efb bi-wifi-off mx-1"></i>' + efb_var.text.error,
+          `<p class="efb fs-6">${text}</p>`,
+          500,
+          "danger"
+        );
+        console.error("Heartbeat AJAX failed:", textStatus, errorThrown);
+        resolve(0);
+      });
+    });
+  });
+};
+  // console.log(`heartbeat_efb_active[${heartbeat_efb_active}]`);
   if (heartbeat_efb_active) return;
   heartbeat_efb_active = true;
 
   data = {};
   console.log('Old nonce', efb_var.nonce);
-  jQuery(function ($) {
-    data = {
-      action: "heartbeat_Emsfb",
-      nonce: efb_var.nonce,
-    };
-    $.post(ajaxurl, data, function (res) {
+  //check if state_page_efb is equal to 'create'
+  const len = typeof valj_efb !== "undefined" ? valj_efb.length :0;
 
-      console.log(res)
-      if (res.success == true) {
+   if(( state_page_efb == 'create' || state_page_efb == 'edit') && len>4){
+      const currentTime = Date.now();
+      const timeDiff = currentTime - hold_time_last_beat_efb;
+      console.log(`Time since last beat: ${timeDiff / 1000} seconds`);
+      if (timeDiff > 3 * 60 * 1000) {
+        // if more than 2  minutes, save the form
+        console.log('call heartbeat1...');
+        const r= await call_beat();
+        console.log('result call heartbeat1...',r);
+        hold_time_last_update_form_beat_efb = Date.now();
+        if(r!=1){
+          console.error('error in heartbeat...');
+          //store_form_efb();
+          //call a function for showing message to user
+         // alert_message_efb(efb_var.text.error, efb_var.text.srvnrsp, 30, 'danger');
+          heartbeat_efb_active = false;
+          return;
+        }else{
+            console.error('update form due to heartbeat');
+            await saveFormEfb(-1);
+            heartbeat_efb_active = false;
+            return;
+        }
 
-        efb_var.nonce = res.data.newNonce;
-        heartbeat_efb_active = false;
-        console.log('new nonce', efb_var.nonce);
-      } else {
-        heartbeat_efb_active = false;
-
-        console.log(res.data);
-      }
     }
-  ).fail(function(jqXHR, textStatus, errorThrown) {
-    heartbeat_efb_active = false;
-    alert_message_efb(
-      '<i class="efb  bi-wifi-off mx-1"></i>'+efb_var.text.error,
-      `<p class="efb fs-6">${efb_var.text.srvnrsp}</p>`,
-      500,
-      'danger'
-    );
-    console.error("Heartbeat AJAX failed:", textStatus, errorThrown);
-  });
+    /*   const timeDiff2 = currentTime - hold_time_last_update_form_beat_efb;
+      if (timeDiff2 >  2 * 60 * 1000) {
+        // if more than 2 minutes, update the form
+          console.error('update form due to inactivity...');
+          hold_time_last_update_form_beat_efb = Date.now();
+          await saveFormEfb(-1);
+          heartbeat_efb_active = false;
+          return;
 
-  });
+      }else{
+         console.log('No need to update form yet...');
+         call_beat();
+         return;
+      } */
+   }
+    console.log('call heartbeat2...');
+    call_beat();
+    // heartbeat_efb_active = false;
 }
 
 
@@ -4981,8 +5134,8 @@ function addClickListenerToElementListEFB(element) {
                   const eventform = dataset.hasOwnProperty('eventform') ? sanitize_text_efb(dataset.eventform) : false;
                   let temp ='';
                   let temp2='';
+                  state_page_efb = 'nform';
                   if (eventform) {
-
                       switch (eventform) {
                           case 'message':
                             temp2 = sanitize_text_efb(dataset.id);
@@ -4997,6 +5150,8 @@ function addClickListenerToElementListEFB(element) {
                           case 'edit':
                               temp2 = sanitize_text_efb(dataset.id);
                               emsFormBuilder_get_edit_form(temp2);
+                              state_page_efb = 'edit';
+                              localStorage.setItem('efb_auto_save', 0);
                               break;
                           case 'delete':
                               temp = sanitize_text_efb(dataset.formname);
@@ -5035,6 +5190,9 @@ function addClickListenerToElementListEFB(element) {
                               break;
                           case 'sideMenuEfb':
                               sideMenuEfb(0);
+                              break;
+                          case 'sideMenuEfbSave':
+                            console.log('sideMenuEfbSave');
                               break;
                           case 'links':
                             temp = sanitize_text_efb(dataset.linkname);
@@ -5094,4 +5252,77 @@ function addClickListenerToElementListEFB(element) {
 
       observeExistingElementsListEFB();
 // v3.8.6 end
+
+
+
+function restore_auto_save_efb(){
+  console.log('check auto save form...');
+  const auto_save = Number(localStorage.getItem('efb_auto_save')) === 1;
+  console.log('auto save form...',auto_save);
+  if(auto_save==false) return;
+
+  const valj_efb_str = localStorage.getItem('efb_auto_save_valj_efb');
+  if(valj_efb_str!=null){
+    const context =`<div class="text-center text-darkb efb"><div class=" fs-4 efb"></div><p class="fs-4 efb">${efb_var.text.rasfmb}</p>
+      <div class="d-flex justify-content-center gap-3 mt-3">
+    <a class="btn btn-darkb text-white efb px-4" id="restore_auto_save_efb_btn" onclick="restore_auto_save_efb_btn()">
+      ${efb_var.text.yes}
+    </a>
+    <a class="btn btn-outline-danger efb px-4" id="restore_auto_no_efb_btn" onclick="restore_auto_no_efb_btn()">
+      ${efb_var.text.no}
+    </a>
+  </div>
+      </div>`;
+    show_modal_efb(context,efb_var.text.warning, ``, 'saveBox');
+    state_modal_show_efb(1)
+  }
+}
+
+ async function restore_auto_save_efb_btn(){
+   // check curront url if  is Emsfb_create
+    state_page_Efb = 'edit';
+   if(window.location.href.includes('page=Emsfb_create')){
+    state_page_Efb = 'create';
+   }
+   localStorage.setItem('efb_auto_save', 0);
+   console.log('restore auto save form...',state_page_Efb);
+    const id = Number(localStorage.getItem('efb_auto_save_form_id'));
+    const valj_efb_str = localStorage.getItem('efb_auto_save_valj_efb');
+    console.log('restore auto save form...',id);
+    // valj_efb = JSON.parse(valj_efb_str); convert this code to wait first this line complated
+    let valj_efb = [];
+    try {
+      valj_efb = JSON.parse(valj_efb_str);
+      sessionStorage.setItem('valj_efb', valj_efb_str);
+      valueJson_ws_p=valj_efb;
+      console.log('restore auto save form...',valj_efb);
+      formName_Efb = valj_efb[0].formName;
+      form_type_emsFormBuilder=valj_efb[0].type
+      form_ID_emsFormBuilder = id;
+      if (id !== 0) {state_check_ws_p =0;}
+
+      // show waiting message
+      creator_form_builder_Efb();
+      setTimeout(() => { editFormEfb() }, 200)
+      state_modal_show_efb(0)
+    /*  setTimeout(() => {
+      state_modal_show_efb(0)
+    }, 4000); */
+    } catch (error) {
+      return;
+    }
+
+
+    localStorage.removeItem('efb_auto_save_valj_efb');
+    localStorage.removeItem('efb_auto_save_form_id');
+
+}
+
+
+  function restore_auto_no_efb_btn(){
+    localStorage.setItem('efb_auto_save', 0);
+    localStorage.removeItem('efb_auto_save_valj_efb');
+    localStorage.removeItem('efb_auto_save_form_id');
+    state_modal_show_efb(0)
+  }
 

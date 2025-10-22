@@ -802,7 +802,9 @@ class efbFunction {
 			"emlcc" => $state  &&  isset($ac->text->emlcc) ? $ac->text->emlcc : esc_html__('Send email with submitted form content only',$s),
 			"copied" => $state  &&  isset($ac->text->copied) ? $ac->text->copied : esc_html__('copied!',$s),
 			"srvnrsp" => $state  &&  isset($ac->text->srvnrsp) ? $ac->text->srvnrsp : esc_html__('The website is not responding; please refresh and try again-saving or submitting is not available until it is restored.',$s),
+			"srvnsave" => $state  &&  isset($ac->text->srvnsave) ? $ac->text->srvnsave : esc_html__('The connection was interrupted, but don’t worry—your edits are safely stored in your browser. Refresh the page to continue working.',$s),
 			"notis" => $state  &&  isset($ac->text->noti) ? $ac->text->noti : esc_html__('%s notification',$s),
+			"rasfmb" => $state  &&  isset($ac->text->rasfmb) ? $ac->text->rasfmb : esc_html__('There is an auto-saved version of the form avilable. Do you want to restore it?',$s),
 
 
 
@@ -1094,7 +1096,18 @@ class efbFunction {
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>". $tracking_section;
 		}
 
-		$val = "<html xmlns='http://www.w3.org/1999/xhtml'><body style='margin:auto 10px;direction:$d;color:#000000;'><center><table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:$d;'><tr><img src='" . EMSFB_PLUGIN_URL . "public/assets/images/email_template1.png' alt='New Message' style='width:36%;'></tr><tr><td><center><table bgcolor='#FFFFFF' width='100%' border='0'><tbody><tr><td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'><h1 style='color:#ff4b93;text-align:center;'>$title</h1></td></tr><tr style='text-align:$align;color:#000000;font-size:14px;'><td><span>$message</span></td></tr><tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td></td></tr></tbody></center></td></tr></table></center><table role='presentation' bgcolor='#F5F8FA' width='100%'><tr><td align='$align' style='padding: 30px 30px; font-size:12px; text-align:center'>$footer</td></tr></table></body></html>";
+		$val = "<html xmlns='http://www.w3.org/1999/xhtml'>
+		<head>
+		<style type='text/css'>
+			@media only screen and (max-width:600px){
+			.containerEmailEfb{width:100% !important; max-width:100% !important;}
+			.containerEmailEfb .columnEmailEfb{display:block !important; width:100% !important; max-width:100% !important;}
+			.containerEmailEfb .columnEmailEfb p{text-align:right !important;}
+			.containerEmailEfb img{max-width:100% !important; height:auto !important; display:block !important;}
+			}
+			</style>
+		</head>
+		<body style='margin:auto 10px;direction:$d;color:#000000;'><center><table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:$d;'><tr><img src='" . EMSFB_PLUGIN_URL . "public/assets/images/email_template1.png' alt='New Message' style='width:36%;'></tr><tr><td><center><table bgcolor='#FFFFFF' width='100%' border='0'><tbody><tr><td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'><h1 style='color:#ff4b93;text-align:center;'>$title</h1></td></tr><tr style='text-align:$align;color:#000000;font-size:14px;'><td><span>$message</span></td></tr><tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td></td></tr></tbody></center></td></tr></table></center><table role='presentation' bgcolor='#F5F8FA' width='100%'><tr><td align='$align' style='padding: 30px 30px; font-size:12px; text-align:center'>$footer</td></tr></table></body></html>";
 
 		if ($temp != "0") {
 			$replacements = [
@@ -2714,9 +2727,39 @@ public function addon_add_efb($value) {
 
 
 				return implode('; ', $sanitized_rules);
-			}
-
 	}
+
+	function ensure_trailing_colon_efb(string $s, string $colon = ':'): string
+	{
+		// هر علامت پایان جمله/پایان عبارت در زبان‌های مختلف (به‌اضافه «:»)
+		$punctClass = '[:：\.\!\?\…‥。！？｡．؟\x{06D4}؛;;‽‼⁇⁈⁉⸮።፧။។៕։\x{0964}\x{0965}\x{0589}\x{1362}\x{104B}\x{17D4}\x{17D5}\x{05C3}]';
+
+		// اگر هر کدام از این‌ها هرجای متن باشد، چیزی اضافه نکن
+		if (preg_match('/' . $punctClass . '/u', $s)) {
+			return $s;
+		}
+
+		// کلوزرهای انتهایی (مثل ” ) ] …) و فاصله‌های آخر را جدا کنیم تا کولون قبل از آن‌ها بنشیند
+		$closersRe = '(?:\p{Pe}|\p{Pf}|["\'»”’）\)\]】］｝〉》」』〕〗])*';
+		if (preg_match('/(?P<closers>' . $closersRe . ')(?P<spaces>[\s\x{00A0}\x{202F}]*)$/u', $s, $m)) {
+			$endClosers = $m['closers'];
+			$endSpaces  = $m['spaces'];
+			// حذف بخش انتهایی برای درج کولون قبل از آن
+			$s = preg_replace('/' . $closersRe . '[\s\x{00A0}\x{202F}]*$/u', '', $s);
+		} else {
+			$endClosers = '';
+			$endSpaces  = '';
+		}
+
+		// یک فاصله قبل از کولون (سبک فارسی/فرانسوی «نام خانوادگی :»)
+		if (!preg_match('/\s$/u', $s)) {
+			$s .= ' ';
+		}
+
+		return $s . $colon . $endClosers . $endSpaces;
+	}
+
+}
 
 
 

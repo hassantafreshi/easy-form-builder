@@ -342,10 +342,12 @@
         $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
             return isset($obj->parent) && $obj->parent === $rndm;
         });
+		$is_selected =false;
         // error_log('optns_obj:'.json_encode($optns_obj));
         foreach ($optns_obj as $i) {
 			// error_log('optns_obj:'.json_encode($i));
             $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
+			if($selected == 'selected') $is_selected = true;
            /*  $options .= sprintf(
                 '<option class="efb %s emsFormBuilder_v efb" data-id="%s" data-op="%s" value="%s" %s>%s</option>',
                 $vj->el_text_color,
@@ -356,13 +358,14 @@
                 $i->value
             ); */
 			$options .= sprintf(
-					'<option value="%s" id="%s" data-iso="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" %s>%s</option>',
+					'<option value="%s" id="%s" data-iso="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" data-formid="%s"  %s>%s</option>',
 					$i->value,
 					$i->id_,
 					$i->id_op,
 					$i->id_,
 					$i->id_,
 					$vj->el_text_color,
+					$formId,
 					$selected,
 					$i->value
 				);
@@ -399,7 +402,7 @@
 			<div data-tag="%s" class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<select class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s data-type="%s" data-formid="%s" %s %s>
-					<option selected disabled>%s</option>
+					<option disabled %s>%s</option>
 					%s
 				</select>
 				%s
@@ -424,6 +427,7 @@
 			$formId,
 			$readonly,
 			$disabled ? 'disabled' : '',
+			$is_selected ? '': 'selected',
 			$texts['nothingSelected'],
 			$options,
 			$desc
@@ -440,10 +444,12 @@
             return isset($obj->parent) && $obj->parent === $rndm;
         });
 		$iso_country = $vj->country;
+		$is_selected = false;
         foreach ($optns_obj as $i) {
             $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
+			if($selected == 'selected') $is_selected = true;
 			$options .= sprintf(
-					'<option value="%s" id="%s" data-iso="%s" data-isoc="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" %s>%s</option>',
+					'<option value="%s" id="%s" data-iso="%s" data-isoc="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb"  data-formid="%s" %s>%s</option>',
 					$i->value,
 					$i->id_,
 					$i->s2,
@@ -451,6 +457,7 @@
 					$i->id_,
 					$i->id_,
 					$vj->el_text_color,
+					$formId,
 					$selected,
 					$i->value
 				);
@@ -471,7 +478,7 @@
 			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<select data-type="stateProvince" class="efb form-select emsFormBuilder_v w-100 %s %s %s %s" data-vid="%s" id="%s_options" data-formid="%s" aria-required="%s" aria-label="%s" %s %s %s>
-					<option selected disabled>%s</option>
+					<option disabled %s>%s</option>
 					%s
 				</select>
 				%s
@@ -494,6 +501,7 @@
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
+			$is_selected ? '' : 'selected',
 			$texts['nothingSelected'],
 			$options,
 			$desc
@@ -507,10 +515,14 @@
         $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
             return isset($obj->parent) && $obj->parent === $rndm;
         });
+		$is_selected = false;
         foreach ($optns_obj as $i) {
-            $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
+			error_log('optns_obj:'.json_encode($i));
+			error_log('vj->value:'.$vj->value .' i->id_:'.$i->id_);
+            $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_op') && $vj->value == $i->id_op)) ? 'selected' : '';
+			if($selected == 'selected') $is_selected = true;
 			$options .= sprintf(
-					'<option value="%s" id="%s" data-iso="%s" data-isoc="%s" data-statepov="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" %s>%s</option>',
+					'<option value="%s" id="%s" data-iso="%s" data-isoc="%s" data-statepov="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" data-formid="%s" %s>%s</option>',
 					$i->value,
 					$i->id_,
 					$i->id_,
@@ -519,6 +531,7 @@
 					$i->id_,
 					$i->id_,
 					$vj->el_text_color,
+					$formId,
 					$selected,
 					$i->value
 				);
@@ -539,7 +552,7 @@
 			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<select data-type="citylist" class="efb form-select emsFormBuilder_v w-100 %s %s %s %s" data-vid="%s" id="%s_options" data-formid="%s" aria-required="%s" aria-label="%s" %s %s %s>
-					<option selected disabled>%s</option>
+					<option disabled %s>%s</option>
 					%s
 				</select>
 				%s
@@ -562,6 +575,7 @@
 			$ariaDescribedBy,
 			$readonly,
 			$disabled,
+			$is_selected ? '' : 'selected',
 			$texts['nothingSelected'],
 			$options,
 			$desc
@@ -1055,21 +1069,26 @@
 		$efbFunction = new EFBFunction();
 		$tt =[ 'cpnnc', 'icc', 'cpnts', 'cpntl'];
 		$texts = $efbFunction->text_efb($tt);
-
+		if(gettype($onlyCountries) == 'array') {
+			$onlyCountries = json_encode($onlyCountries);
+		} else {
+			$onlyCountries = '[]';
+		}
 
 		// Call the function to load intlTelInput
 		$js =sprintf(
 			'
+			let el_emsfb_%1$s = document.getElementById("%1$s_");
 			setTimeout(function() {
-				const iti = window.intlTelInput(document.getElementById("%1$s_"), {
-					onlyCountries: onlyCountries,
+				const iti = window.intlTelInput(el_emsfb_%1$s, {
+					onlyCountries: %11$s,
 					autoHideDialCode: true,
 					placeholderNumberType: "MOBILE",
-					utilsScript: %10$s,
+					utilsScript: "%10$s",
 				});
-				document.getElementById("%1$s_").addEventListener("blur", function() {
-					const errorMap = ["%6$s, %7$s,%8$s,%9$s, "%6$s];
-					const elem = document.getElementById("%1$s_");
+				el_emsfb_%1$s.addEventListener("blur", function() {
+					const errorMap = [`%6$s`, `%7$s`,`%8$s`,`%9$s`, `%6$s`];
+					const elem = el_emsfb_%1$s;
 					const messageElem = document.getElementById("%1$s_-message");
 					elem.classList.remove("border-danger");
 					elem.classList.remove("border-success");
@@ -1104,7 +1123,7 @@
 						}
 					}
 				});
-			}, 80);',
+			}, 1000);',
 			$rndm,
 			$vj->id_,
 			$vj->name,
@@ -1114,14 +1133,15 @@
 			$texts['icc'],
 			$texts['cpnts'],
 			$texts['cpntl'],
-			EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js'
+			EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js',
+			$onlyCountries
 
     	);
 
 		// Create the HTML string
 		$inputPhone = sprintf(
-			'<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s data-utilsjs="%14$s">
-			<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField d-none efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s-code" placeholder="verify" %11$s %12$s %10$s data-utilsjs="%14$s">',
+			'<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s data-utilsjs="%14$s" %15$s>
+			<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField d-none efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s-code" placeholder="verify" %11$s %12$s %10$s data-utilsjs="%14$s"  %15$s>',
 			$vj->el_border_color,
 			$vj->el_height,
 			$corner,
@@ -1135,9 +1155,31 @@
 			$readonly,
 			$disabled,
 			$form_id,
-			EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js'
+			EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js',
+			$value,
 		);
-
+		if($value != '') {
+			$js .= sprintf(
+				'
+				setTimeout(() => {
+					fun_sendBack_emsFormBuilder({
+						id_: "%1$s",
+						name: "%3$s",
+						id_ob: "%2$s",
+						amount: "%4$s",
+						type: "%5$s",
+						value: %6$s,
+						session: sessionPub_emsFormBuilder
+					});
+				}, 4000);',
+				$vj->id_,
+				$vj->id_,
+				$vj->name,
+				$vj->amount,
+				$vj->type,
+				$value
+			);
+		}
 		$buttonSubmit = sprintf(
 			'<button id="%1$s-btn" type="submit" class="efb d-none">Submit</button>',
 			$rndm
@@ -1731,9 +1773,13 @@
         $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
             return isset($obj->parent) && $obj->parent === $rndm;
         });
+		$is_selected = false;
         // error_log('optns_obj:'.json_encode($optns_obj));
         foreach ($optns_obj as $i) {
             $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
+			if ($selected == 'selected') {
+				$is_selected = true;
+			}
             $options .= sprintf(
                 '<option class="efb %s emsFormBuilder_v efb" data-id="%s" data-op="%s" value="%s" %s>%s</option>',
                 $vj->el_text_color,
@@ -1759,7 +1805,7 @@
             <div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
                 %s
                 <select data-formid="%s" class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s %s %s>
-                    <option selected disabled>%s</option>
+                    <option disabled %s>%s</option>
                     %s
                 </select>
                 %s
@@ -1783,6 +1829,7 @@
             $ariaDescribedBy,
             $readonly,
             $disabled,
+			$is_selected ? '': 'selected',
             $texts['nothingSelected'],
             $options,
             $desc
@@ -2124,7 +2171,7 @@
 		$classes = isset($vj->el_border_color) ?  sprintf('form-control %s', $vj->el_border_color) : 'form-control' ;
 		$vtype = in_array($elementId ,['imgRadio','chlCheckBox','chlRadio','payMultiselect','paySelect','payRadio','payCheckbox','trmCheckbox']) ? strtolower(substr($elementId,3)) : $elementId;
 		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id,$texts);
-		$js_s='<!--JS-->';
+		$js_s='';
 		if(isset($vj->classes)) $classes .=' '. str_replace(',', ' ', $vj->classes) ?? '';
 		}
 
@@ -2310,7 +2357,8 @@
 						%s
 						%s
 						%s
-						%s',
+						%s
+						',
 						$label,
 						$div_f_id,
 						$ttip,
@@ -2560,7 +2608,7 @@
 					// error_log('multiselect');
 					// error_log($desc);
 					//$elementId, $rndm, $vj, $pos, $formId, $texts, $desc, $label, $ttip, $previewSate
-					$ui = $pro == true ? $this->generate_multiselect_efb($elementId, $rndm, $vj, $pos, $form_id, $texts,$desc,$label,$ttip,$aire_describedby) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $this->generate_multiselect_efb($elementId, $rndm, $vj, $pos, $form_id, $texts,$desc,$label,$ttip,$aire_describedby) ;
 					$dataTag = $elementId;
 				break;
 
@@ -2794,7 +2842,9 @@
 			$newElement .= sprintf('<!--endTag %s-->', $elementId);
 			 error_log('newElement: reult'.$newElement);
 			// error_log('style: reult'.$style);
-			return [$newElement ,$style];
+			//check if js_s have value
+			error_log('jsssssssssssssssssssss============> '.$js_s);
+			return [$newElement ,$style ,$js_s];
 		}
 	}
 

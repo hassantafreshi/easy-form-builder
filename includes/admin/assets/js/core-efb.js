@@ -609,7 +609,7 @@ function stepName_emsFormBuilder_view(i) {
 
 
 function valid_email_emsFormBuilder(el) {
-
+  console.log('valid_email_emsFormBuilder 612');
   let offsetw = offset_view_efb();
 
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheEmail}','',10,'danger');"></div>` : efb_var.text.enterTheEmail;
