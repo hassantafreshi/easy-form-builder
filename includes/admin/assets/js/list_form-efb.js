@@ -91,12 +91,13 @@ function fun_emsFormBuilder_render_view(x) {
 
     for (let i of valueJson_ws_form) {
       console.log(i);
+      const id_form = Number(i.form_id);
       if (x > count) {
         if(i.hasOwnProperty('status') &&  i.status!=1 ) continue;
         let newM = false;
-        const d = ajax_object_efm.messages_state.findIndex(x => x.form_id == i.form_id)
+        const d = ajax_object_efm.messages_state.findIndex(x => Number(x.form_id) == id_form)
         if (d != -1) { newM = true; }
-        const b = ajax_object_efm.response_state.findIndex(x => x.form_id == i.form_id)
+        const b = ajax_object_efm.response_state.findIndex(x => Number(x.form_id) == id_form)
         if (b != -1) { newM = true; }
         //response
         newM != true ? o_rows += creatRowsFormsEFB(i, newM) : rows += creatRowsFormsEFB(i, newM);
@@ -262,7 +263,7 @@ function close_overpage_emsFormBuilder(i) {
 
 function fun_confirm_remove_emsFormBuilder(id) {
   fun_delete_form_with_id_by_server(parseInt(id));
-  const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => x.form_id == id) : -1
+  const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => Number(x.form_id) == Number(id)) : -1
   if (foundIndex != -1) valueJson_ws_form.splice(foundIndex, 1);
   fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
   //close_overpage_emsFormBuilder();
@@ -275,7 +276,7 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
   fun_delete_message_with_id_by_server(parseInt(id));
 
 
-  const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => x.form_id == id) : -1
+  const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => Number(x.form_id) == Number(id)) : -1
   if (foundIndex != -1) valueJson_ws_form.splice(foundIndex, 1);
   fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
   //close_overpage_emsFormBuilder();
@@ -544,7 +545,8 @@ function fun_delete_all_message_by_server(val) {
 
 
 function emsFormBuilder_messages(id) {
-  const row = ajax_object_efm.ajax_value.find(x => x.form_id == id)
+  id = Number(id);
+  const row = ajax_object_efm.ajax_value.find(x => Number(x.form_id) == id)
   efb_var.msg_id =id;
   form_type_emsFormBuilder = row.form_type;
   history.pushState("show-message",null,`?page=Emsfb&state=show-messages&id=${id}&form_type=${row.form_type}`);
