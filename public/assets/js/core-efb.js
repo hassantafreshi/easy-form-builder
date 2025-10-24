@@ -1495,8 +1495,9 @@ window.addEventListener("popstate",e=>{
     console.error(error);
     await response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } }, form_id);
   }
-  if(document.getElementById('prev_efb') && document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
-  if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
+  bdy = document.getElementById('body_efb_'+form_id);
+  if(bdy.getElementById('prev_efb') && bdy.getElementById('prev_efb').classList.contains('d-none')==false)bdy.getElementById('prev_efb').classList.add('d-none')
+  if(bdy.getElementById('next_efb') && bdy.getElementById('next_efb').classList.contains('d-none')==false)bdy.getElementById('next_efb').classList.add('d-none')
 }
 post_api_tracker_check_efb=(data,innrBtn)=>{
   console.log('post_api_tracker_check_efb',data,innrBtn);
