@@ -529,7 +529,7 @@ function alarm_emsFormBuilder(val) {
 }
 async function actionSendData_emsFormBuilder(form_id=0) {
   console.log('actionSendData_emsFormBuilder fomId', form_id);
-  const sendback = sendBack_emsFormBuilder_pub.filter(x=>x.form_id==form_id);
+  const sendback = sendBack_emsFormBuilder_pub.filter(x=>Number(x.form_id)==Number(form_id));
   console.log('sendback', sendback);
 
   console.log('sendback', sendback);
@@ -802,7 +802,7 @@ function fun_vaid_tracker_check_emsFormBuilder() {
     noti_message_efb_v4(ajax_object_efm.text.trackingCodeIsNotValid, 'danger' ,'body_efb-track',0)
   } else {
     if (currentTab_emsFormBuilder == 0) {
-        const captcha = sendBack_emsFormBuilder_pub.filter(x=>x.form_id==-1 && x.id_=='captcha_v2');
+        const captcha = sendBack_emsFormBuilder_pub.filter(x=>Number(x.form_id)==-1 && x.id_=='captcha_v2');
         console.log('captcha',captcha);
         recaptcha_emsFormBuilder = '';
         if(captcha.length>0){
@@ -895,7 +895,7 @@ setTimeout(() => {
     if(setting_emsFormBuilder.hasOwnProperty('dsupfile')==true && setting_emsFormBuilder.dsupfile !=true) {
       for(const s in sendBack_emsFormBuilder_pub ){ if(sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)  }
     }
-    let messages = sendBack_emsFormBuilder_pub.filter(x=>x.form_id==-1 && x.id_!='captcha_v2');
+    let messages = sendBack_emsFormBuilder_pub.filter(x=>Number(x.form_id)==-1 && x.id_!='captcha_v2');
     console.log('messages',messages);
     fun_send_replayMessage_reast_emsFormBuilder(messages);
   }
@@ -1200,7 +1200,7 @@ function response_Valid_tracker_efb(res) {
     }, 50);
     document.getElementById('body_efb-track').classList.add('card');
   } else {
-    document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3  text-center'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted  text-center">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-1">${ajax_object_efm.text.somethingWentWrongTryAgain} </br></br> ${res.data.m} </br></span>
+    document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3  text-center'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted  text-center">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-1"> ${res.data.m}</span>
      <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5 text-white" onclick="(() => {  location.reload(); })()" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
   }
 }
@@ -1220,28 +1220,67 @@ function response_rMessage_id(res, message) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger bg-warning p-2">${res.data.m}</p>`;
   }
 }
-function loadCaptcha_efb(timer =20) {
-  let sitekye_emsFormBuilder =  ajax_object_efm.form_setting.siteKey;
-  if(sitekye_emsFormBuilder == undefined || sitekye_emsFormBuilder == null || sitekye_emsFormBuilder == '') return;
-   console.log('loadCaptcha_efb',sitekye_emsFormBuilder)
+  function loadCaptcha_efb(timer = 20) {
+  let sitekye_emsFormBuilder = ajax_object_efm?.form_setting?.siteKey;
+  if (!sitekye_emsFormBuilder) return;
+
+  console.log('loadCaptcha_efb', sitekye_emsFormBuilder);
+
   if (!window.grecaptcha || !window.grecaptcha.render) {
     setTimeout(() => {
-      this.loadCaptcha_efb(timer+100);
+      loadCaptcha_efb(timer + 100);
     }, timer);
   } else {
-    /* if (valj_efb.length!=0  && valj_efb[0].steps == 1)  document.getElementById('btn_send_efb').classList.toggle('disabled');
-    grecaptcha.render('gRecaptcha', {
-      'sitekey': sitekye_emsFormBuilder
-    }); */
     document.querySelectorAll('.g-recaptcha').forEach(el => {
+      if (el.dataset.grecaptchaWidgetId) return;
+      const formId = el.dataset.formid ?? -1;
       const widgetId = grecaptcha.render(el, {
         sitekey: sitekye_emsFormBuilder,
-        callback: (token) => recaptchaSuccessEfb(token, el.dataset.formid),
+        callback: (token) => recaptchaSuccessEfb(token, formId),
+        'expired-callback': () => recaptchaExpiredEfb(formId),
+        'error-callback': () => recaptchaErrorEfb?.(formId),
       });
+      el.dataset.grecaptchaWidgetId = String(widgetId);
     });
-
   }
 };
+
+
+recaptchaExpiredEfb = (formId)=>{
+  console.log(`recaptchaExpiredEfb${formId}`)
+  //remove recaptcha from sendBack_emsFormBuilder_pub
+  formId = formId==-1 ? -1 : Number(formId);
+  const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == 'captcha_v2' && x.form_id == formId);
+  if(i!=-1) sendBack_emsFormBuilder_pub.splice(i,1);
+  console.log('sendBack_emsFormBuilder_pub after expired',sendBack_emsFormBuilder_pub);
+
+  if(formId==0 || formId==-1){
+    //vaid_check_emsFormBuilder
+    const bdy = document.getElementById('body_tracker_emsFormBuilder');
+    if(bdy){
+      const btn = bdy.querySelector('#vaid_check_emsFormBuilder');
+      if(btn){
+        btn.classList.add('disabled');
+      }
+    }
+  }else{
+    if(Number(form_id)!=Number(form_ID_emsFormBuilder)) {valj_efb = get_structure_by_form_id_efb(form_id);}else{valj_efb = valj_efb;}
+    const steps =valj_efb[0].steps ? Number(valj_efb[0].steps) : 1;
+    const bdy = document.getElementById(`body_efb_${formId}`);
+    console.log('steps',steps,formId,bdy)
+    if(steps==1){
+      const btn = bdy.querySelector(`#btn_send_efb`);
+      if(btn) btn.classList.add('disabled');
+    }else{
+      const btn = document.querySelector(`#next_efb`);
+      if(btn) btn.classList.add('disabled');
+    }
+  }
+}
+
+recaptchaErrorEfb = (formId) =>{
+  console.log(`recaptchaExpiredEfb${formId}`)
+}
 
 recaptchaSuccessEfb = (token, formid) => {
   console.log('recaptchaSuccessEfb',token,formid)
@@ -1251,7 +1290,14 @@ recaptchaSuccessEfb = (token, formid) => {
   //add to sendBack_emsFormBuilder_pub
   fun_sendBack_emsFormBuilder({ id_: 'captcha_v2', name: 'recaptcha', value: token ,form_id:formid, type:'captcha_v2' });
   console.log('sendBack_emsFormBuilder_pub',sendBack_emsFormBuilder_pub)
-  if(formid==0) {
+  if(formid==0 || formid==-1){
+    const bdy = document.getElementById('body_tracker_emsFormBuilder');
+    if(bdy){
+      const btn = bdy.querySelector('#vaid_check_emsFormBuilder');
+      if(btn){
+        btn.classList.remove('disabled');
+      }
+    }
   }else{
     const indx = valj_efb_new.findIndex(x => x.id == formid);
     if(indx!=-1) {
@@ -1645,7 +1691,25 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     console.log(`percent_progess:${percent_progess}`);
     progessbar.style.width = percent_progess;
   }
+  fun_check_step_has_necessary_fields_efb=(no_step ,valj_efb)=>{
+    //check all fields in step no_step has necessary true
+    sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(Boolean);
+    console.log(`fun_check_step_has_necessary_fields_efb no_step:${no_step}`);
+    const result = (valj_efb ?? []).filter(x =>
+      Number(x.step) === Number(no_step) && Number(x.required) === 1
+    );
+    console.log('result',result);
+    if (result.length==0) return 0;
 
+    for (let i = 0; i < result.length; i++) {
+      const field_id = result[i].id_;
+      // findindex in sendBack_emsFormBuilder_pub by id_
+      const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === field_id && Number(x.form_id) === Number(form_id));
+      console.log(`field_id:${field_id} indx:${indx}`);
+      if (indx == -1) { return 1;  }
+    }
+    return 0;
+  }
   step_payment_exists = -1;
 
   const title_efb = parent_body.querySelector('#title_efb') ?? null;
@@ -1746,11 +1810,28 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
          endMessage_emsFormBuilder_view(no_step+1,form_id);
        }else if(no_step==max_step){
         const grecaptcha= parent_body.querySelector('#gRecaptcha')
+        const r = await fun_check_step_has_necessary_fields_efb(no_step ,valj_efb);
+
+        //const g_result = grecaptcha.getResponse(site_key) ?? null;
+        console.log('site_key' ,grecaptcha)
+        let next_btn = parent_body.querySelector('#next_efb');
+        let state_captcha = false;
         if(grecaptcha){
+          state_captcha = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_=='captcha_v2' && Number(x.form_id)===Number(form_id))!=-1 ? true : false;
+        }
+        console.log(`r:${r} state_captcha:${state_captcha}`);
+        if (r==0 && state_captcha ){
+          // activete next button
+          if(next_btn)next_btn.classList.remove('disabled');
+        } else{
+          // deactivate next button
+          if(next_btn)next_btn.classList.add('disabled');
+        }
+      /*   if(grecaptcha){
           console.log(`captacha~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
           let next_btn = parent_body.querySelector('#next_efb');
           if(next_btn)next_btn.classList.add('disabled');
-        }
+        } */
        }
        smoothy_scroll_postion_efb(id_body);
        // check if payment exists and current step is equal to paymant step then disable the button
@@ -1773,11 +1854,20 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     current_fieldset.classList.add('d-none');
 
 
-
     if(prev_fieldset)prev_fieldset.classList.remove('d-none');
     if(progessbar) fun_progessbar(no_step,max_step);
     smoothy_scroll_postion_efb(id_body);
     await fun_handle_header_efb(no_step,'backward');
+    const r = await fun_check_step_has_necessary_fields_efb(no_step ,valj_efb);
+    next_efb_btn = parent_body.querySelector('#next_efb');
+    console.log(`r:${r}`);
+    if (r==1){
+      // activete next button
+      next_efb_btn.classList.add('disabled');
+    } else{
+      // deactivate next button
+      next_efb_btn.classList.remove('disabled');
+    }
   }else if (btn_state=='btn_send_efb'){
     no_step = Number(no_step)+1;
 
@@ -1799,14 +1889,16 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
 // v4
 get_structure_by_form_id_efb=(form_id)=>{
   let ob = valj_efb_new.find(x => x.id == form_id);
-  return ob.form_structer;
+  const form_structer = ob.form_structer;
+  form_ID_emsFormBuilder = form_id;
+  return form_structer.filter(Boolean);
 }
 
 // v4
 sendback_state_handler_efb_v4=(id_,state,step,form_id)=>{
   const id_body = 'body_efb_'+form_id;
   const body_efb = document.getElementById(id_body);
-  const indx = sendback_efb_state.findIndex(x=>x.id_==id_ && x.form_id==form_id);
+  const indx = sendback_efb_state.findIndex(x=>x.id_==id_ && Number(x.form_id)==Number(form_id));
   const next_btn = body_efb.querySelector('#next_efb');
   const send_btn = body_efb.querySelector('#btn_send_efb');
   if(indx==-1 && state==false){
@@ -1833,7 +1925,7 @@ get_row_sendback_by_id_efb_v4=(id_,form_id=0)=>{
     return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)
 
   }else{
-    return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_ && x.form_id==form_id)
+    return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_ && Number(x.form_id)==Number(form_id))
   }
  }
 
@@ -2286,7 +2378,7 @@ async function fun_validation_efb_v4(form_id) {
   let state = true;
   let idi = "null";
   let name_field = "";
-  valj_efb = get_structure_by_form_id_efb(form_id);
+  if(Number(form_id)!=Number(form_ID_emsFormBuilder)) {valj_efb = get_structure_by_form_id_efb(form_id);}
   console.log('valj_efb:',valj_efb);
   let id_noti_message = valj_efb.steps > 1 ?  `step-${current_s_efb}-efb-msg` : 'alert_efb';
   for (let row in valj_efb) {

@@ -3212,7 +3212,7 @@ function fun_total_pay_efb(form_id) {
   let total = 0;
   if(valj_efb==undefined || valj_efb==null || valj_efb.length==0){
     console.error('valj_efb not found!')
-    valj_efb = valj_efb = get_structure_by_form_id_efb(form_id);
+    if(Number(form_id)!=Number(form_ID_emsFormBuilder)) valj_efb = get_structure_by_form_id_efb(form_id);
     return 0;
   }
   updateTotal = (i) => {
