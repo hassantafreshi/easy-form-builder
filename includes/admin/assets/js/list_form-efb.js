@@ -1148,7 +1148,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <i class="efb  bi-geo-alt m-3"></i> ${efb_var.text.maps}
                             </h5>
                              <a href="#" class="efb d-none">${efb_var.text.clickHereWatchVideoTutorial}</a>
-                            <p class="efb ${mxCSize}">${efb_var.text.youNeedAPIgMaps}</p>
+                            <p class="efb ${mxCSize} d-none">${efb_var.text.youNeedAPIgMaps}</p>
                             <div class="efb  d-none card-body mx-0 py-1 ${mxCSize4}">
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.aPIKey}</label>
                                 <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${proChckEvent} data-tab="${efb_var.text.googleKeys}">
