@@ -13,6 +13,40 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 class efbFunction {
+
+    // In-request cache container for language and other small memoizations
+    protected static $req_cache = [];
+
+    /** invalidate caches when settings option changes */
+    public function invalidate_settings_cache($old, $new, $option) {
+        wp_cache_delete('settings:decoded', 'efb');
+        delete_transient('emsfb_settings_transient');
+        update_option('emsfb_text_version', time()); // bump text dictionary version
+    }
+
+    /** detect current language slug (WPML/Polylang/locale) */
+    private function detect_current_lang_slug() {
+        if (function_exists('icl_object_id') && defined('ICL_LANGUAGE_CODE')) {
+            return ICL_LANGUAGE_CODE;
+        }
+        if (function_exists('pll_current_language')) {
+            $pll = pll_current_language('slug');
+            if (!empty($pll)) return $pll;
+        }
+        return function_exists('get_locale') ? get_locale() : 'en_US';
+    }
+
+    /** compute text version used for cache key */
+    private function get_text_version($settingsObj) {
+        $v = get_option('emsfb_text_version', 0);
+        if (!empty($v)) return (string)$v;
+        $raw = '';
+        if (is_object($settingsObj) && isset($settingsObj->text) && is_object($settingsObj->text)) {
+            $raw = json_encode($settingsObj->text);
+        }
+        return substr(md5((string)$raw), 0, 12);
+    }
+
 		// === Added: per-request language cache & TTL for object cache ===
 	protected static $lang_cache = []; // in-request cache
 	private const EFB_LANG_CACHE_TTL = 21600; // 6 hours
@@ -42,6 +76,32 @@ class efbFunction {
 
 
 	public function text_efb($inp){
+        // === EFB full-caching prelude (i18n-aware, subset-safe) ===
+        $__efb_settings = $this->get_setting_Emsfb();
+        $__efb_lang     = $this->detect_current_lang_slug();
+        $__efb_needX    = ($inp === 1);
+        $__efb_ver      = $this->get_text_version($__efb_settings);
+
+        $__efb_subset   = 'all';
+        if (is_array($inp)) {
+            $tmp = array_values(array_unique($inp));
+            sort($tmp);
+            $__efb_subset = 'subset:' . substr(md5(json_encode($tmp)), 0, 12);
+        } elseif ($__efb_needX) {
+            $__efb_subset = 'with-extra';
+        }
+
+        $__efb_ck_final = "langfinal:$__efb_lang:$__efb_ver:$__efb_subset";
+
+        if (isset(self::$req_cache[$__efb_ck_final])) {
+            return self::$req_cache[$__efb_ck_final];
+        }
+        $__efb_cached_final = wp_cache_get($__efb_ck_final, 'efb');
+        if ($__efb_cached_final !== false) {
+            self::$req_cache[$__efb_ck_final] = $__efb_cached_final;
+            return $__efb_cached_final;
+        }
+        // === /prelude ===
 
 		$ac= $this->get_setting_Emsfb();
 		$state= $ac!=='null' && isset($ac->text) && gettype($ac->text)!='string' ? true : false ;
@@ -838,6 +898,8 @@ class efbFunction {
 			}
 		}
 		// array_push($rtrn);
+		wp_cache_set($__efb_ck_final, $rtrn, 'efb', 7200);
+		self::$req_cache[$__efb_ck_final] = $rtrn;
 		return $rtrn;
 	}
 
@@ -1145,46 +1207,61 @@ class efbFunction {
 	}
 
 
-	public function get_setting_Emsfb()
-	{
-		// === Fast path: decoded settings object from object cache ===
-		$__efb_settings_obj = wp_cache_get('emsfb_settings_obj', 'efb');
-		if ($__efb_settings_obj !== false) { wp_cache_set('emsfb_settings_obj', $__efb_settings_obj, 'efb', 30);
-		return $__efb_settings_obj; }
-		// 1. Try to get from transient cache (30 seconds)
-		$transient = get_transient('emsfb_settings_transient');
-		if ($transient !== false && !empty($transient)) {
-			if (is_string($transient)) {
-				$transient = str_replace('\\', '', $transient);
-				$decoded = json_decode($transient);
-				if ($decoded !== null) return $decoded;
-			} elseif (is_object($transient) || is_array($transient)) {
-				return $transient;
-			}
-		}
+	public function get_setting_Emsfb() {
+    // 0) in-request static cache
+    static $staticDecoded = null;
+    if ($staticDecoded !== null) {
+        return $staticDecoded;
+    }
 
-		global $wpdb;
+    // 1) wp object cache (1 hour)
+    $decoded = wp_cache_get('settings:decoded', 'efb');
+    if ($decoded !== false && !empty($decoded)) {
+        $staticDecoded = $decoded;
+        return $decoded;
+    }
 
-		// 2. If not found in transient, get from DB
-		$table_name = $wpdb->prefix . "emsfb_setting";
-		error_log('----->get_setting_Emsfb');
-		error_log('table_name: ' . $table_name);
-		$value = $wpdb->get_var("SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1");
-		if (!isset($value) || empty($value)) {
-			return 'null';
-		}
-		$v = str_replace('\\', '', $value);
-		$rtrn = json_decode($v);
-		$rtrn = $rtrn != null ? $rtrn : 'null';
+    // 2) transient fallback (30 minutes)
+    $transient = get_transient('emsfb_settings_transient');
+    if ($transient !== false && !empty($transient)) {
+        if (is_string($transient)) {
+            $transient = str_replace('\\', '', $transient);
+            $decoded = json_decode($transient);
+            if ($decoded !== null) {
+                $staticDecoded = $decoded;
+                wp_cache_set('settings:decoded', $decoded, 'efb', 3600);
+                return $decoded;
+            }
+        } elseif (is_object($transient) || is_array($transient)) {
+            $staticDecoded = $transient;
+            wp_cache_set('settings:decoded', $transient, 'efb', 3600);
+            return $transient;
+        }
+    }
 
-		update_option('emsfb_settings', $value);
-		// 3. Save to transient for next time (30 seconds)
-		if ($rtrn != 'null') {
-			set_transient('emsfb_settings_transient', $value, 1440);
-		}
+    // 3) DB query (last resort)
+    global $wpdb;
+    $table_name = $wpdb->prefix . "emsfb_setting";
+    $value = $wpdb->get_var("SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1");
+    if (!isset($value) || $value === '' || $value === null) {
+        return 'null';
+    }
 
-		return $rtrn;
-	}
+    $v = is_string($value) ? str_replace('\\', '', $value) : $value;
+    $decoded = json_decode($v);
+    $decoded = ($decoded !== null) ? $decoded : 'null';
+
+    // Preserve previous behavior
+    update_option('emsfb_settings', $value);
+
+    if ($decoded !== 'null') {
+        set_transient('emsfb_settings_transient', $value, 1800);   // 30m
+        wp_cache_set('settings:decoded', $decoded, 'efb', 3600);   // 60m
+    }
+
+    $staticDecoded = $decoded;
+    return $decoded;
+}
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
 		/* if(empty($this->db)){
@@ -2774,15 +2851,6 @@ public function addon_add_efb($value) {
 	}
 
 
-	/**
-	 * Compute a stable version hash from settings->text to version cache keys.
-	 */
-	private function get_text_version($settings): string {
-		if (is_object($settings) && isset($settings->text)) {
-			return md5(json_encode($settings->text, JSON_UNESCAPED_UNICODE));
-		}
-		return '0';
-	}
 
 	/**
 	 * Clear in-request lang cache when settings option updates.
