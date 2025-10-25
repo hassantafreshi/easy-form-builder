@@ -42,23 +42,6 @@ class efbFunction {
 
 
 	public function text_efb($inp){
-			// === Cache prelude: versioned by locale and settings->text ===
-		$__efb_ac = $this->get_setting_Emsfb();
-		$__efb_locale = function_exists('get_locale') ? get_locale() : 'en_US';
-		$__efb_need_extra = ($inp === 1);
-		$__efb_ver = $this->get_text_version($__efb_ac);
-		$__efb_ck = "efb_lang:$__efb_locale:" . (int)$__efb_need_extra . ':' . $__efb_ver;
-
-		if (isset(self::$lang_cache[$__efb_ck])) {
-			$lang = self::$lang_cache[$__efb_ck];
-			goto __efb_cached_return;
-		}
-		$__efb_cached = wp_cache_get($__efb_ck, 'efb');
-		if ($__efb_cached !== false) {
-			$lang = $__efb_cached;
-			self::$lang_cache[$__efb_ck] = $lang;
-			goto __efb_cached_return;
-		}
 
 		$ac= $this->get_setting_Emsfb();
 		$state= $ac!=='null' && isset($ac->text) && gettype($ac->text)!='string' ? true : false ;
