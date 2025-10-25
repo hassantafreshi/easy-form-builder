@@ -13,10 +13,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 class efbFunction {
+		// === Added: per-request language cache & TTL for object cache ===
+	protected static $lang_cache = []; // in-request cache
+	private const EFB_LANG_CACHE_TTL = 21600; // 6 hours
+
 	protected $db;
 
 
 	public function __construct() {
+				// === Added: clear in-request lang cache when settings option updates ===
+		if (function_exists('add_action')) {
+			add_action('update_option_emsfb_settings', [ $this, 'invalidate_lang_cache_on_settings_update' ], 10, 2);
+		}
 
 		global $wpdb;
 		$this->db = $wpdb;
@@ -34,6 +42,24 @@ class efbFunction {
 
 
 	public function text_efb($inp){
+			// === Cache prelude: versioned by locale and settings->text ===
+		$__efb_ac = $this->get_setting_Emsfb();
+		$__efb_locale = function_exists('get_locale') ? get_locale() : 'en_US';
+		$__efb_need_extra = ($inp === 1);
+		$__efb_ver = $this->get_text_version($__efb_ac);
+		$__efb_ck = "efb_lang:$__efb_locale:" . (int)$__efb_need_extra . ':' . $__efb_ver;
+
+		if (isset(self::$lang_cache[$__efb_ck])) {
+			$lang = self::$lang_cache[$__efb_ck];
+			goto __efb_cached_return;
+		}
+		$__efb_cached = wp_cache_get($__efb_ck, 'efb');
+		if ($__efb_cached !== false) {
+			$lang = $__efb_cached;
+			self::$lang_cache[$__efb_ck] = $lang;
+			goto __efb_cached_return;
+		}
+
 		$ac= $this->get_setting_Emsfb();
 		$state= $ac!=='null' && isset($ac->text) && gettype($ac->text)!='string' ? true : false ;
 		$s= 'easy-form-builder';
@@ -798,11 +824,12 @@ class efbFunction {
 			"sfmcfop" => $state  &&  isset($ac->text->sfmcfop) ? $ac->text->sfmcfop : esc_html__('The %s field must be correctly filled out to proceed.',$s),
 			"fform" => $state  &&  isset($ac->text->fform) ? $ac->text->fform : esc_html__('Submitted Form',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s),
+			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : esc_html__('You can\'t add reCAPTCHA to payment forms.',$s),
 			"settings" => $state  &&  isset($ac->text->settings) ? $ac->text->settings : esc_html__('Settings',$s),
 			"emlcc" => $state  &&  isset($ac->text->emlcc) ? $ac->text->emlcc : esc_html__('Send email with submitted form content only',$s),
 			"copied" => $state  &&  isset($ac->text->copied) ? $ac->text->copied : esc_html__('copied!',$s),
 			"srvnrsp" => $state  &&  isset($ac->text->srvnrsp) ? $ac->text->srvnrsp : esc_html__('The website is not responding; please refresh and try again-saving or submitting is not available until it is restored.',$s),
-			"srvnsave" => $state  &&  isset($ac->text->srvnsave) ? $ac->text->srvnsave : esc_html__('The connection was interrupted, but don’t worry—your edits are safely stored in your browser. Refresh the page to continue working.',$s),
+			"srvnsave" => $state  &&  isset($ac->text->srvnsave) ? $ac->text->srvnsave : esc_html__('The connection was interrupted, but don\'t worry—your edits are safely stored in your browser. Refresh the page to continue working.',$s),
 			"notis" => $state  &&  isset($ac->text->noti) ? $ac->text->noti : esc_html__('%s notification',$s),
 			"rasfmb" => $state  &&  isset($ac->text->rasfmb) ? $ac->text->rasfmb : esc_html__('There is an auto-saved version of the form avilable. Do you want to restore it?',$s),
 
@@ -1137,6 +1164,10 @@ class efbFunction {
 
 	public function get_setting_Emsfb()
 	{
+		// === Fast path: decoded settings object from object cache ===
+		$__efb_settings_obj = wp_cache_get('emsfb_settings_obj', 'efb');
+		if ($__efb_settings_obj !== false) { wp_cache_set('emsfb_settings_obj', $__efb_settings_obj, 'efb', 30);
+		return $__efb_settings_obj; }
 		// 1. Try to get from transient cache (30 seconds)
 		$transient = get_transient('emsfb_settings_transient');
 		if ($transient !== false && !empty($transient)) {
@@ -2632,7 +2663,7 @@ public function addon_add_efb($value) {
 
 	}
 
-	function include_persia_efb(){
+	public function include_persia_efb(){
 		$st = $this->get_setting_Emsfb();
 		//$st->AdnPPF=0;
 		if(isset($st->AdnPPF) && $st->AdnPPF==1){
@@ -2649,7 +2680,7 @@ public function addon_add_efb($value) {
 		}
 	}
 
-	function fun_update_db_efb(){
+	public function fun_update_db_efb(){
 		// 'emsfb_db_version' update to 2
 		error_log('EFB=>fun_update_db_efb====================================> ' . get_option('emsfb_db_version'));
 		update_option('emsfb_db_version', EMSFB_DB_VERSION);
@@ -2759,6 +2790,23 @@ public function addon_add_efb($value) {
 		return $s . $colon . $endClosers . $endSpaces;
 	}
 
+
+	/**
+	 * Compute a stable version hash from settings->text to version cache keys.
+	 */
+	private function get_text_version($settings): string {
+		if (is_object($settings) && isset($settings->text)) {
+			return md5(json_encode($settings->text, JSON_UNESCAPED_UNICODE));
+		}
+		return '0';
+	}
+
+	/**
+	 * Clear in-request lang cache when settings option updates.
+	 */
+	public function invalidate_lang_cache_on_settings_update($old_value, $value){
+		self::$lang_cache = [];
+	}
 }
 
 

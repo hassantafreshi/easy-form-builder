@@ -4,6 +4,7 @@
        public $valj_efb;
        private $pro_efb = false;
 	   public $pub_bg_button_color_efb='btn-primary';
+	   public $efbFunction;
         public function __construct( $valj_efb, $pro_efb ) {
             $this->valj_efb =  $valj_efb;
             $this->pro_efb = $pro_efb;
@@ -2138,6 +2139,7 @@
 		$indexVJ = $i;
 		$position_l_efb = is_rtl() ? "end" : "start";
 		$vj = $this->valj_efb[$indexVJ];
+
 		// error_log($elementId);
 		if(in_array($elementId, ["option","r_matrix"])) return;
 
@@ -2222,6 +2224,7 @@
 
 					if($isPdate){
 						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
+							$this->get_efbFunction(0);
 							$this->efbFunction->download_all_addons_efb();
 							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 						}else{
@@ -2230,6 +2233,7 @@
 						}
 					}else{
 						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+							$this->get_efbFunction(0);
 							$this->efbFunction->download_all_addons_efb();
 							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 						}else{
@@ -2795,6 +2799,7 @@
 					/*
 					include_persia_efb
 					 */
+					$this->get_efbFunction(0);
 					$this->efbFunction->include_persia_efb();
 
 					$ui = $this->add_ui_zp_efb($rndm , $form_id,$texts);
@@ -3064,6 +3069,37 @@
 	return $value;
 
 
+	}
+
+/* 		public function get_efbFunction($state) {
+		if(isset($this->efbFunction)) return $this->efbFunction;
+		$efbFunctionInstance;
+		if (false === ($efbFunctionInstance = wp_cache_get('emsfb_FunctionInstance', 'emsfb'))) {
+			if (!class_exists('Emsfb\efbFunction')) {
+				require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
+			}
+			$efbFunctionInstance = new \Emsfb\efbFunction();
+			wp_cache_set('emsfb_FunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // 1 hour cache
+		}
+		$this->efbFunction = $efbFunctionInstance;
+		if ($state == 1) return $this->efbFunction;
+	} */
+	public function get_efbFunction(int $state = 0): \Emsfb\efbFunction {
+		// کش درونِ همین ریکوئست
+		static $instance = null;
+
+		if ($instance instanceof \Emsfb\efbFunction) {
+			return $instance; // هیت سریع (≈0.05–0.2ms)
+		}
+
+		// اگر کلاس لود نشده، فقط هم‌اکنون لودش کن (بدون اتولود ناخواسته)
+		if (!class_exists('Emsfb\\efbFunction', false)) {
+			require_once EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
+		}
+
+		$instance = new \Emsfb\efbFunction();
+		$this->efbFunction = $instance;
+		return $instance;
 	}
 
 }

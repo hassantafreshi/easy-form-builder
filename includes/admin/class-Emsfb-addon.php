@@ -47,14 +47,14 @@ class Addon {
 	public function render_settings() {
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 		// demo start
-		// wp_register_script('whiteStudioAddone', 'http://demo.whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
-		wp_register_script('whiteStudioAddone', 'http://127.0.0.1/ws/wp-json/wl/v1/addons.js' .$server_name, null, null, true);	
+		// wp_register_script('whiteStudioAddone', 'http://demo.whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
+		wp_register_script('whiteStudioAddone', 'http://127.0.0.1/ws/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
 		// demo end
 
-		// wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
+		// wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
         wp_enqueue_script('whiteStudioAddone');
 
-		$efbFunction = $this->get_efbFunction(); 
+		$efbFunction = $this->get_efbFunction();
 		$noti_pro = intval(get_option('Emsfb_pro' ,-1));
 		if ($noti_pro === 0  ){
 			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
@@ -62,19 +62,19 @@ class Addon {
 		}else{
 			$noti_pro = '<script>const noti_exp_efb="";</script>';
 		}
-		
+
 	?>
 	<!-- new code ddd -->
 	<?php echo   $noti_pro ?>
 	<div id="alert_efb" class="efb mx-5"></div>
 
-		
+
 	<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 							<div class="efb modal-content efb " id="settingModalEfb-sections">
-									<div class="efb modal-header efb"> 
+									<div class="efb modal-header efb">
 										<h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5>
-										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?php echo is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button" role="button"><i class="efb bi-x-lg"></i></a> 
+										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?php echo is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button" role="button"><i class="efb bi-x-lg"></i></a>
 									</div>
 									<div class="efb modal-body row" id="settingModalEfb-body">
 										<?php echo   do_action('efb_loading_card'); ?>
@@ -83,25 +83,25 @@ class Addon {
 	<div id="tab_container_efb">
 			<div class="efb card-body text-center efb">
 				<?php echo   do_action('efb_loading_card'); ?>
-			</div>	
+			</div>
     </div>
 	<!-- end new code dd -->
 		<?php
 		$pro = intval(get_option('Emsfb_pro')) ;
 		$pro = $pro == 1 ? true : false;
 		$maps =false;
-		
+
 		$ac= $efbFunction->get_setting_Emsfb();
-		
-		if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){			
+
+		if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){
 			$efbFunction->setting_version_efb_update($ac ,$pro);
 		}
 		// v2 translate
 		$lang = $efbFunction->text_efb(2);
-			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION, true);	
+			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('jquery-ui-efb');
-			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION , true);	
-			wp_enqueue_script('jquery-dd-efb'); 
+			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION , true);
+			wp_enqueue_script('jquery-dd-efb');
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 		"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
@@ -131,7 +131,7 @@ class Addon {
             AdnMSF == membership form
             AdnBEF == booking and event form
 			AdnWPB == WP Bakery
-			AdnELM == Elemntor 
+			AdnELM == Elemntor
 			AdnGTB == Gutnberg
 			AdnPFA == Private Form Advanced
 			AdnAtF == Atoufilled form
@@ -149,7 +149,7 @@ class Addon {
 		];
 		if(gettype($ac)!="string"){
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
-			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}			
+			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
 			if(isset($ac->AdnSPF)==true){
 				$addons['AdnSPF']=$ac->AdnSPF;
 				$addons['AdnOF']=$ac->AdnOF;
@@ -194,7 +194,7 @@ class Addon {
 	}
 
 	/* public function add_form_structure(){
-		$efbFunction = $this->get_efbFunction(); 
+		$efbFunction = $this->get_efbFunction();
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
@@ -202,24 +202,24 @@ class Addon {
 		$email = '';
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m =$lang['errorCheckInputs'];
-			$response = array( 'success' => false , "m"=>$m); 
+			$response = array( 'success' => false , "m"=>$m);
 			wp_send_json_success($response, 200);
-		} 
+		}
 		if(isset($_POST['email']) ){$email =sanitize_email($_POST['email']);}
 		$this->id_ ="hid";
 		$this->name =  sanitize_text_field($_POST['name']);
 		$this->email =  $email;
 		$this->value = $_POST['value'];
 		$this->formtype =  sanitize_text_field($_POST['type']);
-		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
-			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']); 
+		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
+			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']);
 			wp_send_json_success($response, 200);
 		}
 		$this->insert_db();
 		if($this->id_ !=0){
-			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
+			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_);
 		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}
-		wp_send_json_success($response, 200);	
+		wp_send_json_success($response, 200);
 	} */
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
@@ -229,19 +229,19 @@ class Addon {
         }
 		$table_name = $this->db->prefix . "emsfb_form";
 		$r =$this->db->insert($table_name, array(
-			'form_name' => $this->name, 
-			'form_structer' => $this->value, 
-			'form_email' => $this->email, 
-			'form_created_by' => $this->userId, 
-			'form_type'=>$this->formtype, 			
-		));    $this->id_  = $this->db->insert_id; 
+			'form_name' => $this->name,
+			'form_structer' => $this->value,
+			'form_email' => $this->email,
+			'form_created_by' => $this->userId,
+			'form_type'=>$this->formtype,
+		));    $this->id_  = $this->db->insert_id;
 	}
 	public function check_temp_is_bootstrap (){
-        $it = list_files(get_template_directory()); 
+        $it = list_files(get_template_directory());
         $s = false;
         foreach($it as $path) {
-            if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
-            {				
+            if (preg_match("/\bbootstrap+.+.css+/i", $path))
+            {
                 $f = file_get_contents($path);
                 if(preg_match("/col-md-12/i", $f)){
                     $s= true;
@@ -251,7 +251,7 @@ class Addon {
         }
         return  $s;
     }// end fun
-	public function get_efbFunction(){
+/* 	public function get_efbFunction(){
 		$efbFunctionInstance;
         if (false === ($efbFunctionInstance = wp_cache_get('emsfb_FunctionInstance', 'emsfb'))) {
             if (!class_exists('Emsfb\efbFunction')) {
@@ -261,6 +261,22 @@ class Addon {
             wp_cache_set('emsfb_FunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // 1 hour cache
         }
         return  $efbFunctionInstance;
+	} */
+	public function get_efbFunction(): \Emsfb\efbFunction {
+		// کش درونِ همین ریکوئست
+		static $instance = null;
+
+		if ($instance instanceof \Emsfb\efbFunction) {
+			return $instance; // هیت سریع (≈0.05–0.2ms)
+		}
+
+		// اگر کلاس لود نشده، فقط هم‌اکنون لودش کن (بدون اتولود ناخواسته)
+		if (!class_exists('Emsfb\\efbFunction', false)) {
+			require_once EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
+		}
+
+		$instance = new \Emsfb\efbFunction();
+		return $instance;
 	}
 }
 new Addon();

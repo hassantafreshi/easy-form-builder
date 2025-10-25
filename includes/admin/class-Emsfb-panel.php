@@ -431,7 +431,7 @@ class Panel_edit  {
 	}// end function
 
 
-	public function get_efbFunction(){
+/* 	public function get_efbFunction(){
 			$efbFunctionInstance;
         if (false === ($efbFunctionInstance = wp_cache_get('emsfb_FunctionInstance', 'emsfb'))) {
             if (!class_exists('Emsfb\efbFunction')) {
@@ -441,5 +441,21 @@ class Panel_edit  {
             wp_cache_set('emsfb_FunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // cache for 1 hour
         }
         return  $efbFunctionInstance;
+	} */
+	public function get_efbFunction(): \Emsfb\efbFunction {
+		// کش درونِ همین ریکوئست
+		static $instance = null;
+
+		if ($instance instanceof \Emsfb\efbFunction) {
+			return $instance; // هیت سریع (≈0.05–0.2ms)
+		}
+
+		// اگر کلاس لود نشده، فقط هم‌اکنون لودش کن (بدون اتولود ناخواسته)
+		if (!class_exists('Emsfb\\efbFunction', false)) {
+			require_once EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
+		}
+
+		$instance = new \Emsfb\efbFunction();
+		return $instance;
 	}
 }
