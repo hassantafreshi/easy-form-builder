@@ -183,13 +183,24 @@ async function createStepsOfPublic() {
     const id = el.dataset.vid ?? '';
     const classes = el.classList;
     let handler_state=true;
+    const form_type = valj_efb_[0].hasOwnProperty('type') ? valj_efb_[0].type : 'form';
     //if el is option of select return
     let o =[{ id_: id, name: el.name, id_ob: el.id, amount: 0, type: el.type, value: el.value, session: sessionPub_emsFormBuilder, form_id: form_id }];
     if ('type' in el) {
-      if(el.type=="checkbox" && valj_efb_[0].type == "payment" && classes.contains('payefb')){
-        console.log('checkbox');
+      if(false && ( el.type=="checkbox" || el.type=="radio" )&& valj_efb_[0].type == "payment" && classes.contains('payefb')){
+        let indx = valj_efb.findIndex(x => x.id_ === id);
+        const row = valj_efb[indx];
+        const parent_id= row.hasOwnProperty('parent_id') ? row.parent_id : -1;
+        if(parent_id!=-1){
+          let indx_parent = valj_efb.findIndex(x => x.id_ === parent_id);
+          const row_parent = valj_efb[indx_parent];
+          if (row.value.length > 0 || el.checked == true) {
+            price = row_parent.hasOwnProperty('price') ? row_parent.price : 0;
+
+          }
+        }
+        console.log('checkbox',el,id,parent_id);
         console.log('166');
-       // fun_sendBack_emsFormBuilder(o[0]);
         fun_total_pay_efb(form_id)
       }else if (el.type != "submit") {
         console.log(`type:[${el.type}]`);
@@ -348,6 +359,13 @@ async function createStepsOfPublic() {
         const parents = el.parentNode
         if(!c.hasOwnProperty('formid'))Object.assign(c , {'formid':parents.dataset.formid})
           efbCreateMap(id,c,false)
+    }else if(form_type=="payment"){
+      /*  if (valj_efb[0].type == "payment") {
+     if (efb_var.paymentGateway == "stripe" && typeof post_api_stripe_apay_efb =="function") post_api_stripe_apay_efb();
+    } */
+      const getway = valj_efb_[0].hasOwnProperty('getway') ? valj_efb_[0].getway : '';
+      console.log(`'form_type payment '[${getway}]`,getway );
+      if (getway == "stripe" && typeof post_api_stripe_apay_efb =="function") post_api_stripe_apay_efb(form_id);
     }
     if(handler_state){
       el.addEventListener("change", async(e) => {
@@ -355,6 +373,7 @@ async function createStepsOfPublic() {
       });
 
     }
+
   }
 
 
@@ -2187,6 +2206,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     case "checkbox":
     case "radio":
       value = sanitize_text_efb(el.value);
+      console.log('checkbox/radio value:',value);
       if (ob.type == "switch") value = el.checked == true ? efb_var.text.on : efb_var.text.off;
       vd =document.getElementById(`${ob.id_}_-message`)
       if (el.value.length > 1 || el.checked == true) {
@@ -2541,6 +2561,10 @@ const speed_test_efb=()=>{
   } else {
      return 'notSupported';
   }
+}
+
+const check_form_payment_filled_efb = (form_id=0) =>{
+  console.log('check_form_payment_filled_efb',form_id);
 }
 
 /*

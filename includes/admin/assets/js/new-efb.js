@@ -3215,8 +3215,9 @@ function fun_total_pay_efb(form_id) {
     if(Number(form_id)!=Number(form_ID_emsFormBuilder)) valj_efb = get_structure_by_form_id_efb(form_id);
     return 0;
   }
-  updateTotal = (i) => {
+  updateTotal_efb = (i ,form_id) => {
     //totalpayEfb
+     if(Number(form_id)!=Number(form_ID_emsFormBuilder)) valj_efb = get_structure_by_form_id_efb(form_id);
     for (const l of document.querySelectorAll(".totalpayEfb")) {
       l.innerHTML = Number(i).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
     }
@@ -3224,7 +3225,7 @@ function fun_total_pay_efb(form_id) {
   for (let r of sendBack_emsFormBuilder_pub) {
     if (r.hasOwnProperty('price') ) total += Math.abs(parseFloat(r.price));
   }
-  setTimeout(() => { updateTotal(total); }, 800);
+  setTimeout(() => { updateTotal_efb(total,form_id); }, 800);
   if(valj_efb[0].getway=="persiaPay" && typeof fun_total_pay_persiaPay_efn=="function"){ fun_total_pay_persiaPay_efn(total)}
   else if(valj_efb[0].getway=="persiaPay"){
     //console.error('pyament persia not loaded (fun_total_pay_persiaPay_efn)')

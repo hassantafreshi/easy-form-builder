@@ -3077,7 +3077,23 @@ class _Public {
 		}
 	}
 	public function pay_persia_sub_Emsfb_api($data_POST_){
-		$data_POST = $data_POST_->get_json_params();
+
+		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
+		$persiapay = new zarinPalEFB() ;
+		if(gettype($persiapay)=="object"){
+			error_log('pay_persia_sub_Emsfb_api called');
+			$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
+			$persiapay->pay_persia_sub_Emsfb_api($data_POST_ ,$this);
+		}else{
+			error_log('pay_persia_sub_Emsfb_api error 406');
+			$m = esc_html__('persiaPayment', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 406';
+			$response = ['success' => false, 'm' => $m];
+			wp_send_json_success($response, 200);
+		}
+
+
+
+		/* $data_POST = $data_POST_->get_json_params();
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 		$efbFunction =  $this->get_efbFunction(1);
 		$sid = sanitize_text_field($data_POST['sid']);
@@ -3236,7 +3252,9 @@ class _Public {
 							$response = array('success' => false, 'm' => 'خطا در ارتباط با دیتابیس ، شماره خطا DB-403');
 						}
 				}else{
-					$response = array( 'success' => false  , 'm'=>'اختلال در ارتباط با زرین پال. این اختلال ممکن است از طرف سرور زرین پال باشد');
+					$check =-1;
+					$message = isset($response['re']) ? $response['re'] :'';
+					$response = array( 'success' => false  , 'm'=>'اختلال در ارتباط با زرین پال. این اختلال ممکن است از طرف سرور زرین پال باشد. پیام دریافتی از زرین پال:</br>' . $message);
 				}
 			}
 			// array_push($filtered,$ar);
@@ -3246,7 +3264,7 @@ class _Public {
 		}else{
 			$response = array( 'success' => false  , 'm'=>esc_html__('Error Code:V01','easy-form-builder'));
 		}
-		wp_send_json_success($response, 200);
+		wp_send_json_success($response, 200); */
 	}
 	/* public function persia_pay_Emsfb() {
         if (check_ajax_referer('public-nonce', 'nonce') != 1) {

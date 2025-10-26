@@ -1368,7 +1368,7 @@
 		$amount =$this->formatPrice_efb(0, $currency);
 		return  '
 		<!-- stripe -->
-		<div class="efb  col-sm-12 stripe"  id="'.$rndm.'-f">
+		<div class="efb  col-sm-12 stripe emsFormBuilder_v"  id="'.$rndm.'-f" data-formid="'.$form_id.'">
 		<div class="efb  stripe-bg  p-3 card w-100">
 		<div class="efb  headpay border-b row col-md-12 mb-3">
 		  <div class="efb  h3 col-sm-5">

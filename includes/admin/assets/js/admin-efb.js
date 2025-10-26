@@ -1686,16 +1686,17 @@ let change_el_edit_Efb = (el) => {
           if(document.getElementById('recaptcha_efb')) el.classList.contains('active') == true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
 
         } else if (valj_efb[0].type == "payment") {
-          document.getElementById("captchaEl").checked = false;
+          el.classList.remove('active');
           fun_add_Class_captcha(false);
-          alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.paymentNcaptcha, 20, "danger")
-        } else {
+          alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.paymentNcaptcha, 20, "danger");
+          return;
+        } /* else {
           // trackingCodeEl.checked=false;
-          document.getElementById("captchaEl").checked = false;
+          el.classList.remove('active');
           fun_add_Class_captcha(false);
           alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger")
 
-        }
+        } */
         //console.log(`[${efb_var.captcha }]`)
         if (efb_var.captcha !=true && efb_var.captcha !="true" ){
           el.classList.remove('active');
@@ -3000,7 +3001,7 @@ async function create_form_efb() {
 
 
 const saveFormEfb = async (stated) => {
-
+  console.log('saveFormEfb called', stated);
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       let proState = true;
@@ -3124,7 +3125,11 @@ const saveFormEfb = async (stated) => {
         if(( returnn==false && stated==0) ||  stated==1 ){
            state_modal_show_efb(1);
         } else if(returnn==true && stated==0){
-           state_modal_show_efb(0);}
+           state_modal_show_efb(0);
+        }else if (stated==-1){
+          return;
+        }
+
         resolve(returnn);
       } catch (error) {
         store_form_efb();

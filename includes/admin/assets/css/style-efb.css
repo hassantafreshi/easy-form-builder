@@ -1836,7 +1836,7 @@ a.efb.btn {	text-decoration: none;
 #sideBoxEfb::-webkit-scrollbar-thumb {	background-color: slategrey;
    outline: 1px solid #545b6e;
 }
-.stripe .h-d-efb {	min-height: 35px !important;
+.stripe .h-d-efb {	min-height: 45px !important;
    background-color: #fafafa !important;
 }
 .efb .hr {	padding: 1px;
