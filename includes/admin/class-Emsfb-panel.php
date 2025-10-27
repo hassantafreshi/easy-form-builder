@@ -369,12 +369,11 @@ class Panel_edit  {
 	public function file_upload_api(){
 
 		$efbFunction = $this->get_efbFunction();
-		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$_POST['id']=intval($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['fid']=sanitize_text_field($_POST['fid']);
 		$sid = sanitize_text_field($_POST['sid']);
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
+		$s_sid = $efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
 		if ($s_sid !=1 || $sid==null){
 			error_log('s_sid is not valid!! Panel');
 		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . " 403");
@@ -401,7 +400,7 @@ class Panel_edit  {
             }
         }
 		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
-		$this->lanText= $this->efbFunction->text_efb($this->text_);
+		$this->lanText= $efbFunction->text_efb($this->text_);
 		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
 		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
 		 'text/plain' ,

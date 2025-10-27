@@ -12,7 +12,7 @@ class Admin {
     public $ip;
     public $plugin_version;
     protected $db;
-    public $efbFunction;
+
 
     // private $wpdb;
     public function __construct() {
@@ -654,7 +654,8 @@ class Admin {
         error_log('set_replyMessage_id_Emsfb');
          $this->get_efbFunction(0);
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
-        $lang= $this->efbFunction->text_efb($text);
+        $efbFunction = $this->get_efbFunction(1);
+        $lang= $efbFunction->text_efb($text);
         if (!check_ajax_referer('admin-nonce', 'nonce') || !current_user_can('Emsfb')) {
             $response = ['success' => false, 'm' => $lang['error403']];
             wp_send_json_success($response, 200);
@@ -750,9 +751,9 @@ class Admin {
         $m        = $lang['messageSent'];
         $response = ['success' => true, "m" => $m];
         // "rescl", "resop",
-        $pro =$this->efbFunction->is_efb_pro(1);
+        $pro =$efbFunction->is_efb_pro(1);
 
-        $this->efbFunction->response_to_user_by_msd_id($id ,$pro);
+        $efbFunction->response_to_user_by_msd_id($id ,$pro);
         wp_send_json_success($response, 200);
     }
     public function set_setting_Emsfb() {
@@ -985,7 +986,7 @@ class Admin {
             wp_send_json_success($response, 200);
             die("secure!");
         }
-        $pro =$this->efbFunction->is_efb_pro(1);
+        $pro = $efbFunction->is_efb_pro(1);
 
         $con ='';
         $sub='';
@@ -1362,27 +1363,16 @@ class Admin {
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
         }
+         $efbFunction = $this->get_efbFunction(1);
        // error_log('report_problem_Emsfb');
         $state = sanitize_text_field($_POST['state']) ;
         $value = sanitize_text_field($_POST['value']) ;
         $this->get_efbFunction(0);
-        $this->efbFunction->report_problem_efb($state , $value);
+        $efbFunction->report_problem_efb($state , $value);
         $response = ['success' => true, "m" =>'report_problem_done'];
         wp_send_json_success($response, 200);
     }
- /*    public function get_efbFunction($state) {
-        if(isset($this->efbFunction)) return $this->efbFunction;
-        $efbFunctionInstance;
-        if (false === ($efbFunctionInstance = wp_cache_get('emsfb_FunctionInstance', 'emsfb'))) {
-            if (!class_exists('Emsfb\efbFunction')) {
-                require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
-            }
-            $efbFunctionInstance = new \Emsfb\efbFunction();
-            wp_cache_set('emsfb_FunctionInstance', $efbFunctionInstance, 'emsfb', 3600); //  1 hour cache
-        }
-        $this->efbFunction = $efbFunctionInstance;
-        if ($state == 1) return $this->efbFunction;
-    } */
+
    	public function get_efbFunction(int $state = 0): \Emsfb\efbFunction {
 		// کش درونِ همین ریکوئست
 		static $instance = null;
@@ -1397,7 +1387,6 @@ class Admin {
 		}
 
 		$instance = new \Emsfb\efbFunction();
-		$this->efbFunction = $instance;
 		return $instance;
 	}
   /*   function efb_check_shared_hosting_and_store() {
