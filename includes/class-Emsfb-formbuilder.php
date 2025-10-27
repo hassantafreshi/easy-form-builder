@@ -1420,7 +1420,7 @@
 						<!-- <span class="efb  text-labelEfb one" id="chargeEfb">'.$texts['onetime'].'</span>-->
 					</div>
 				</div>
-				<a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onclick="pay_persia_efb()" id="persiaPayEfb"  data-formid="'.$form_id.'">'.$texts['payment'].'</a>
+				<a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onclick="pay_persia_efb('.$form_id.')" id="persiaPayEfb"  data-formid="'.$form_id.'">'.$texts['payment'].'</a>
 			</div>
 			<div class="efb p-3 card w-100 d-none" id="afterPayefb">
 			</div>

@@ -1338,6 +1338,7 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
  }
 .nmsgefb{	transform-origin: 50% 50%;
    animation:nmsgefb 1.5s alternate infinite;
+   cursor: pointer;
  }
 .efb.navbar {	z-index: 10;
 }

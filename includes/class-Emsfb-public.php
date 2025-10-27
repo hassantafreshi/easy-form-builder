@@ -1843,7 +1843,7 @@ class _Public {
 									$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 									$status_email = $this->email_status_efb($formObj,$valobj,$check);
 									$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
-									 $this->send_email_Emsfb_( $email_user,$trackId ,$pro,$state_of_email,$url,$state_of_email['content'],$state_of_email['subject'] );
+									 $this->send_email_Emsfb_( $email_user,$trackId ,$pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 								}
 								if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
 									$this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms', $check);
@@ -2757,9 +2757,9 @@ class _Public {
 	// error_log(json_encode($subject));
     $micr = microtime(true);
     error_log('send_email_Emsfb_ after create contet email: ' . $micr);
-	error_log(json_encode($to));
-	error_log(json_encode($subject));
-	error_log(json_encode($cont));
+	error_log("to:".json_encode($to));
+	error_log("subject:".json_encode($subject));
+	error_log('cont'.json_encode($cont));
 	error_log(json_encode($pro));
 	error_log(json_encode($state));
 	error_log(json_encode($link_w));
@@ -2917,71 +2917,11 @@ class _Public {
 		$price_f=0;
 		$email ='';
 		$valobj=[];
-		for ($i=0; $i <count($val_) ; $i++) {
-			$a=-1;
-			if(isset($val_[$i]['price'])){
-				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
-				if($val_[$i]['type']=="email" ) $email = $val_[$i]['value'];
-				$iv = $val_[$i];
-				if($iv['type']=="paySelect" || $iv['type']=="payRadio" || $iv['type']=="payCheckbox"){
-					$filtered = array_filter($fs_, function($item) use ($iv) {
-						switch ($iv['type']) {
-							case 'paySelect':
-								if(isset($item['parent']))	return $item['id_'] == $iv['id_ob'] &&  $item['value']==$iv['value'] ? $item['value'] :false ;
-							break;
-							case 'payRadio':
-								if(isset($item['price']))	return $item['id_'] == $iv['id_ob'] &&  $item['value']==$iv['value'] ? $item['value'] :false;
-							break;
-							case 'payCheckbox':
-								if(isset($item['price']))	return $item['id_'] == $iv['id_ob'] &&  $item['parent']==$iv['id_'] ? $item['value'] :false;
-							break;
-						}
-					});
-					if($filtered==false){
-						$m = esc_html__('error', 'easy-form-builder') . ' 405';
-						$response = ['success' => false, 'm' => $m];
-						wp_send_json_success($response, 200);
-					}
-					 $iv = array_keys($filtered);
-					 $a = isset( $iv[0])? $iv[0] :-1;
-				}else if ($iv['type']=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
-					$rows = explode( ',', $iv['ids'] );
-					foreach ($rows as $key => $value) {
-						$filtered = array_filter($fs_, function($item) use ($value) {
-							if(isset($item['id_']))return $item['id_'] == $value ;
-						});
-						$iv = array_keys($filtered);
-						$price_f += $fs_[$a]['price'];
-					}
-					$a=-1;
-				}else if($iv['type']=="prcfld" ){
-					   $a=-1;
-					   $price_f += $iv['price'];
-				}
-				if($a !=-1){
-					if($fs_[$a]['type']!="payMultiselect"){
-						$price_f+=$fs_[$a]['price'];
-					}
-						$fs_[$a]['name'] = $val_[$i]['name'];
-						$fs_[$a]['type'] = "option_payment";
-						array_push($valobj,$fs_[$a]);
-				}
-			}
-		}
-		$ip =$this->get_ip_address();
-		$this->ip = $ip;
-		if($price_c != $price_f) {
-			$t=time();
-			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
-				$headers = array(
-				   'MIME-Version: 1.0\r\n',
-				   'From:'.$from.'',
-				);
-			$to =get_option('admin_email');
-			$message="This message from Easy Form Builder, This IP:".$this->ip.
-			" try to enter invalid value like fee of the service of the form id:" .$this->id. " at :".date("Y-m-d-h:i:s",$t) ;
-			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
-		}
+		$obj = $this->fun_validation_pay_elements_efb($val_ , $fs_);
+
+		$price_f = $obj['price_total'];
+		$email = $obj['email'];
+		$valobj = $obj['valobj'];
 		$price_f = $price_f*100;
 		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
 		if($price_f>0){
@@ -3072,7 +3012,8 @@ class _Public {
 			$response=array_merge($response , ['id'=>$check]);
 			wp_send_json_success($response, 200);
 		}else{
-			$response = array( 'success' => false  , 'm'=>esc_html__('Error Code:V02','easy-form-builder'));
+			$msg = esc_html__('No payment amount detected. Please review your selected items and try again. If the problem persists, contact support.', 'easy-form-builder');
+			$response = array( 'success' => false  , 'm'=>$msg);
 			wp_send_json_success($response, 200);
 		}
 	}
@@ -4040,6 +3981,7 @@ function email_get_content_efb($content, $track){
 			static $instance = null;
 
 			if ($instance instanceof \Emsfb\efbFunction) {
+				$this->efbFunction = $instance;
 				return $instance; // هیت سریع (≈0.05–0.2ms)
 			}
 
@@ -4479,7 +4421,90 @@ function email_get_content_efb($content, $track){
 				$msg_sub = $formObj[0]["email_sub"];
 			}
 			return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type];
+	}
+
+
+	public function fun_validation_pay_elements_efb($val_ ,$fs_){
+		$price_c =0;
+		$price_f =0;
+		$email ='';
+		$valobj =[];
+		for ($i=0; $i <count($val_) ; $i++) {
+			$a=-1;
+			error_log('validation_pay_elements_efb val_ '.$i.':'.json_encode($val_[$i]));
+			if(isset($val_[$i]['price'])){
+				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
+				if($val_[$i]['type']=="email" ) $email = $val_[$i]['value'];
+				$iv = $val_[$i];
+				if($iv['type']=="paySelect" || $iv['type']=="payRadio" || $iv['type']=="payCheckbox"){
+					$filtered = array_filter($fs_, function($item) use ($iv) {
+						error_log('validation_pay_elements_efb filter item:'.json_encode($item));
+						switch ($iv['type']) {
+							case 'paySelect':
+								if(isset($item['parent']))	return $item['id_'] == $iv['id_ob'] &&  $item['value']==$iv['value'] ? $item['value'] :false ;
+							break;
+							case 'payRadio':
+								if(isset($item['price'])){
+									return $item['id_'] == $iv['id_ob'] &&  $item['value']==$iv['value'] ? $item['value'] :false;
+								}
+							break;
+							case 'payCheckbox':
+								if(isset($item['price']))	return $item['id_'] == $iv['id_ob'] &&  $item['parent']==$iv['id_'] ? $item['value'] :false;
+							break;
+						}
+					});
+					if($filtered==false){
+						$msg = esc_html__('Invalid payment selection. Please review your choices and try again. If the problem persists, contact the site administrator.', 'easy-form-builder');
+						$response = ['success' => false, 'm' => $msg];
+						wp_send_json_success($response, 200);
+					}
+					 $iv = array_keys($filtered);
+					 $a = isset( $iv[0])? $iv[0] :-1;
+				}else if ($iv['type']=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
+					$rows = explode( ',', $iv['ids'] );
+					foreach ($rows as $key => $value) {
+						$filtered = array_filter($fs_, function($item) use ($value) {
+							if(isset($item['id_']))return $item['id_'] == $value ;
+						});
+						$iv = array_keys($filtered);
+						$price_f += $fs_[$a]['price'];
+					}
+					$a=-1;
+				}else if($iv['type']=="prcfld" ){
+					   $a=-1;
+					   $price_f += $iv['price'];
+				}
+				if($a !=-1){
+					if($fs_[$a]['type']!="payMultiselect"){
+						$price_f+=$fs_[$a]['price'];
+					}
+						$fs_[$a]['name'] = $val_[$i]['name'];
+						$fs_[$a]['type'] = "option_payment";
+						array_push($valobj,$fs_[$a]);
+				}
+			}
 		}
+		$ip =$this->get_ip_address();
+		$this->ip = $ip;
+		if($price_c != $price_f) {
+			$t=time();
+			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
+				$headers = array(
+				   'MIME-Version: 1.0\r\n',
+				   'From:'.$from.'',
+				);
+			$to =get_option('admin_email');
+			$message="This message from Easy Form Builder, This IP:".$this->ip.
+			" try to enter invalid value like fee of the service of the form id:" .$this->id. " at :".date("Y-m-d-h:i:s",$t) ;
+			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
+		}
+		$obj = array(
+			'price_total'=>$price_f,
+			'valobj'=>$valobj,
+			'email'=>$email
+		);
+		return $obj;
+	}
 
 
 
