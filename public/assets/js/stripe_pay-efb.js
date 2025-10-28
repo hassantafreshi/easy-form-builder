@@ -2,7 +2,7 @@
 
 
 
-  post_api_stripe_apay_efb=()=>{
+  post_api_stripe_apay_efb=(form_id)=>{
     console.log('post_api_stripe_apay_efb')
     if (!navigator.onLine) {
       alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
@@ -16,8 +16,9 @@
 
 
 
-
-        if (typeof document.getElementById('cardnoEfb') != "object") return;
+        const bdy = document.getElementById('body_efb_'+form_id);
+        const cardnoEfb = bdy.querySelector('#cardnoEfb')
+        if (typeof cardnoEfb != "object") return;
 
         if (ajax_object_efm.hasOwnProperty('paymentKey')) {
           if (ajax_object_efm.paymentKey == "null") {
@@ -44,13 +45,12 @@
           }
 
 
-          const cardnoEfb = document.getElementById('cardnoEfb')
-          const cardexpEfb = document.getElementById('cardexpEfb')
-          const cardcvcEfb = document.getElementById('cardcvcEfb')
-          const btnStripeEfb = document.getElementById('btnStripeEfb')
-          const stsStripeEfb = document.getElementById('statusStripEfb')
-          /* console.log(valj_efb[0].currency ,document.getElementById('currencyPayEfb'));
-          document.getElementById('currencyPayEfb').innerHTML=valj_efb[0].currency; */
+
+          const cardnoEfb = bdy.querySelector('#cardnoEfb')
+          const cardexpEfb = bdy.querySelector('#cardexpEfb')
+          const cardcvcEfb = bdy.querySelector('#cardcvcEfb')
+          const btnStripeEfb = bdy.querySelector('#btnStripeEfb')
+          const stsStripeEfb = bdy.querySelector('#statusStripEfb')
           const elements = stripe.elements()
           const numElm = elements.create('cardNumber', { showIcon: true, iconStyle: 'solid', style: elsStripeStyleEfb })
           numElm.mount(cardnoEfb)
@@ -141,6 +141,8 @@
         fun_trans_efb(transStat, res.data.transStat, res.data.id);
       }
     } else {
+      // Handle unsuccessful response
+      console.error('Payment failed:', res);
       stsStripeEfb.innerHTML = `<div class="text-danger"><strong>${efb_var.text.error}</strong></div>`;
       btnStripeEfb.classList.remove('disabled');
       btnStripeEfb.innerHTML = efb_var.text.payNow;
@@ -227,8 +229,11 @@
 
 
               if (((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 &&
-                grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha == false)) document.getElementById(id).classList.remove('disabled')
-              fun_disabled_all_pay_efb()
+                grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha == false)) {
+                  // document.getElementById(id).classList.remove('disabled')
+                  bdy.querySelector('#' + id).classList.remove('disabled');
+                }
+                fun_disabled_all_pay_efb()
               // efb_var.id = data.uid;
               val = `
 
@@ -244,7 +249,7 @@
                      <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.nextBillingD}</b> : ${data.nextDate}</p>`
               }
 
-              document.getElementById('statusStripEfb').innerHTML = `
+              statusStripEfb.innerHTML = `
                   <h3 class="efb  text-darkb p-0 m-0 mt-1 text-center"><i class="efb bi-check2-circle"></i> ${efb_var.text.successPayment}</h3>
                   <p class="efb  text-muted p-0  m-0 mb-2 text-center">${data.description}</p>
                   <div class="m-3">${val}</div>`;
@@ -277,7 +282,7 @@
               //active next or send button !!
               //disable button
             }
-            document.getElementById('statusStripEfb').style.display = 'block'
+           statusStripEfb.style.display = 'block'
           }
 
     }//end  post_api_persiapay_efb
