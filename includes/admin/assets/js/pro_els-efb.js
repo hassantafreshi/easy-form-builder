@@ -567,6 +567,8 @@ function fun_clear_esign_efb(id) {
        <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"} fs-6" onclick="closed_resp_emsFormBuilder(${msg_id})" data-state="${stock_state_efb ==true ? 1 :0}" id="respStateEfb" disabled>
            ${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}
       </button></div>`
+      const attach_efb = document.getElementById('attach_efb');
+      if(attach_efb) return '';
       if(setting_emsFormBuilder.hasOwnProperty('dsupfile')  && setting_emsFormBuilder.dsupfile==false && efb_var.hasOwnProperty('setting')==false) return '';
       return  `<div class="efb form-check">
       <div class="efb btn btn-light text-dark fs-6 cursor-hand" id="attach_efb">

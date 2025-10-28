@@ -8,6 +8,7 @@ let state_seting_emsFormBuilder = false;
 let poster_emsFormBuilder = '';
 let response_state_efb;
 let sms_config_efb ='null'
+let files_emsFormBuilder = [];
 
 const colors_efb = ['#0013CB', '#E90056', '#7CEF00', '#FFBA00', '#FF3888', '#526AFF', '#FFC738', '#A6FF38', '#303563', '#7D324E', '#5D8234', '#8F783A', '#FB5D9D', '#FFA938', '#45B2FF', '#A6FF38', '#0011B4', '#8300AD', '#E9FB00', '#FFBA00']
 
@@ -401,10 +402,10 @@ function fun_ws_show_list_messages(value) {
       let state = Number(v.read_);
 
 
-      iconNotRead = `<div class="efb nmsgefb bi-envelope-fill"></div>`;
+      iconNotRead = `<div class="efb bi-envelope-fill ec-efb nmsgefb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" ></div>`;
       if(state==2){
          iconRead = 'bi-bag-x';
-         iconNotRead = `<div class="efb nmsgefb bi-bag-x"></div>`;
+         iconNotRead = `<div class="efb bi-bag-x ec-efb nmsgefb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}"></div>`;
       }
       $txtColor = state == 2 ? 'text-danger' : '';
       if (response_state_efb.findIndex(x => x.msg_id == v.msg_id) != -1) { state = 0 }
