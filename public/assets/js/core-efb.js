@@ -400,6 +400,7 @@ async function fun_sendBack_emsFormBuilder(ob) {
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect" || sendBack_emsFormBuilder_pub[indx].type == "chlCheckBox")) {
       indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
+      console.log('sendBack_emsFormBuilder_pub?',sendBack_emsFormBuilder_pub[indx]);
     }
     else if(indx != -1 && ob.value == "@file@" ){
       sendBack_emsFormBuilder_pub[indx]=ob;
@@ -418,6 +419,10 @@ async function fun_sendBack_emsFormBuilder(ob) {
         } else {
           sendBack_emsFormBuilder_pub[indx].value = ob.value;
           sendBack_emsFormBuilder_pub[indx].price = ob.price;
+          if(ob.type == "payRadio"){
+            sendBack_emsFormBuilder_pub[indx].id_ob = ob.id_ob;
+          }
+
         }
       }
     }
@@ -475,7 +480,7 @@ function alarm_emsFormBuilder(val) {
     if (el.required == true) {
       const id = el.id_;
       countRequired += 1;
-      if (-1 == (get_row_sendback_by_id_efb(id))) valueExistsRequired += 1;
+      if (-1 == (get_row_sendback_by_id_efb_v4(id,form_id))) valueExistsRequired += 1;
     }
   }
   const id_body ='body_efb_'+form_id
@@ -504,7 +509,7 @@ function alarm_emsFormBuilder(val) {
     if (checkFile == 0) {
       if (files_emsFormBuilder.length > 0) {
         for (const file of files_emsFormBuilder) {
-          if (get_row_sendback_by_id_efb(file.id_) == -1) {
+          if (get_row_sendback_by_id_efb_v(file.id_,form_id) == -1) {
              sendBack_emsFormBuilder_pub.push(file);
              localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub)); }
         }
@@ -1515,8 +1520,14 @@ window.addEventListener("popstate",e=>{
     await response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } }, form_id);
   }
   bdy = document.getElementById('body_efb_'+form_id);
-  if(bdy.getElementById('prev_efb') && bdy.getElementById('prev_efb').classList.contains('d-none')==false)bdy.getElementById('prev_efb').classList.add('d-none')
-  if(bdy.getElementById('next_efb') && bdy.getElementById('next_efb').classList.contains('d-none')==false)bdy.getElementById('next_efb').classList.add('d-none')
+  if(bdy){
+    const steps = bdy.dataset.steps ? Number(bdy.dataset.steps) : 1;
+    if(steps==1){ return; }
+    const prev_efb = bdy.querySelector('#prev_efb');
+    const next_efb = bdy.querySelector('next_efb');
+    if(prev_efb && prev_efb.classList.contains('d-none')==false){prev_efb.classList.add('d-none')}
+    if(next_efb && next_efb.classList.contains('d-none')==false){next_efb.classList.add('d-none')}
+  }
 }
 post_api_tracker_check_efb=(data,innrBtn)=>{
   console.log('post_api_tracker_check_efb',data,innrBtn);
@@ -1789,12 +1800,15 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
   if(form_type == 'payment'){
     //check in valj_efb_new payment exists which step
     //if not found payment method show a message to user that payment method not exist so the form can't be submitted
-    const payment_method = ['stripe','persiaPay','paypal'];
-    if(false){
+    const payment_method = ['paypal','stripe','persiapay' ,'zarinpal'];
+    const payment_complated = get_row_sendback_by_id_efb_v4('payment',form_id);
+    console.log(`payment_complated:${payment_complated}`);
+    if(payment_complated){
 
     }else{
       step_payment_exists = -1;
-      alert('The form(form id:'+form_id+') cannot be submitted because it requires a payment method, which is currently missing. If you are the admin, please add a payment method to the form or change the form type to "Form" or "Survey".');
+      alert('The form(form id:'+form_id+') cannot be submitted because it requires a payment method, which is currently missing. If you are the Admin, please add a payment method to the form or change the form type to "Form" or "Survey".');
+      return false;
     }
   }
 
@@ -2046,7 +2060,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     sendBack_emsFormBuilder_pub.splice(i, 1)
   }
   delete_by_id=(id)=>{
-    const i = get_row_sendback_by_id_efb(id);
+    const i = get_row_sendback_by_id_efb_v4(id,form_id);
     if (i != -1) { slice_sback(i) }
   }
   el_empty_value=(id)=>{
@@ -2403,7 +2417,7 @@ async function fun_validation_efb_v4(form_id) {
   console.log('valj_efb:',valj_efb);
   let id_noti_message = valj_efb.steps > 1 ?  `step-${current_s_efb}-efb-msg` : 'alert_efb';
   for (let row in valj_efb) {
-    let s =  get_row_sendback_by_id_efb(valj_efb[row].id_);
+    let s =  get_row_sendback_by_id_efb_v4(valj_efb[row].id_,form_id);
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
       let el =document.getElementById(`${valj_efb[row].id_}_-message`);
@@ -2565,7 +2579,69 @@ const speed_test_efb=()=>{
 
 const check_form_payment_filled_efb = (form_id=0) =>{
   console.log('check_form_payment_filled_efb',form_id);
+  // if form type is payment and last row of valj_efb is paymentget way like paypal stripe then
+  // check sendBack_emsFormBuilder_pub if has payment complated and status is success
+  // check filled necessary fields of forms and added to sendBack_emsFormBuilder_pub
+  // then post sendBack_emsFormBuilder_pub to server
+  // else show alert message to user
+  const payment_method =['paypal','stripe','persiapay' ,'zarinpal'];
+  let valj_efb = get_structure_by_form_id_efb(form_id);
+  if(valj_efb[0].type != 'payment') return true;
+  console.log('valj_efb payment:',valj_efb);
+  let necessary_fields_filed = [];
+  let is_getway_last_filed = false;
+  last_row_index = valj_efb.length - 1;
+  const steps = Number(valj_efb[0].steps);
+  // check last row is on the payment_method
+  const peyment_type = valj_efb[last_row_index].type.toLowerCase();
+  if(payment_method.includes(peyment_type)){
+    is_getway_last_filed = true;
+    console.log('is_getway_last_filed:',is_getway_last_filed);
+  }else{
+    // +show alert message
+    return false;
+  }
+
+  for (let row in valj_efb) {
+
+    if (valj_efb[row].hasOwnProperty('required') && valj_efb[row].required == true) {
+      necessary_fields_filed.push(valj_efb[row].id_);
+    }
+  }
+   // check necessary_fields_filed in sendBack_emsFormBuilder_pub
+   console.log('necessary_fields_filed:',necessary_fields_filed);
+    for(let i=0; i<necessary_fields_filed.length; i++){
+      const field_id = necessary_fields_filed[i];
+      const s =  get_row_sendback_by_id_efb_v4(field_id, form_id);
+      if(s == -1){
+        console.log(`field_id:${field_id} is not filled`);
+        // +show alert message
+        return false;
+      }
+    }
+    const bdy = document.getElementById(`body_efb_${form_id}`);
+    console.log('bdy:',bdy);
+    if(!bdy) return false;
+    if(steps==1){
+      //for one steps btn_navigate_handle_efb
+      const btn_el =bdy.querySelector('#btn_send_efb');
+      //btn_navigate_handle_efb(form_id , form_type , btn_state,el)
+      btn_navigate_handle_efb(form_id , 'payment' , 'btn_send_efb' , btn_el);
+
+    }else{
+      //for multi steps btn_navigate_handle_efb
+      bdy.dataset.currentstep = steps;
+      current_s_efb = steps;
+      const btn_el =bdy.querySelector('#next_efb');
+      //btn_navigate_handle_efb(form_id , form_type , btn_state,el)
+      btn_navigate_handle_efb(form_id , 'payment' , 'next_efb' , btn_el);
+
+
+    }
+
 }
+
+
 
 /*
 window.addEventListener('resize', () => {
