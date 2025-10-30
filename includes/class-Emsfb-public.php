@@ -945,7 +945,7 @@ class _Public {
 		$text_ = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM', 'bkFlM', 'mnvvXXX', 'ptrnMmm', 'ptrnMmx', 'payment', 'error403', 'errorSiteKeyM',
 			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound',
-			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform'
+			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN'
 		];
 		$efbFunction = $this->get_efbFunction(1);
 		// if(empty($this->efbFunction)) $this->efbFunction = $efbFunction;
@@ -1707,6 +1707,7 @@ class _Public {
 					}
 					$ip = $this->ip = $this->get_ip_address();
 					$time = microtime(true);
+					$smsSendResult =true;
 					// error_log('before switech: ' . $time);
 					switch ($type) {
 						case "form":
@@ -1721,8 +1722,19 @@ class _Public {
 							}
 							$time = microtime(true);
 							// error_log('before sms: ' . $time);
+							error_log('smsnoti: ' . json_encode($formObj[0]['smsnoti']));
 							if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
-								$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $check);
+								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $check);
+								error_log('smsnoti smsSendResult: ' . json_encode($smsSendResult));
+								if($smsSendResult !== true) {
+
+									// 'msgSndBut','smsWPN' in lantexts but %$s1 is used in the message
+									$m =  $this->lanText['msgSndBut'];
+									$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , ''.$this->lanText['trackNo'] . '(' .$check.')' );
+									error_log('smsnoti error: ' . $m);
+									$response = ['success' => false, 'm' => $m];
+									wp_send_json_success($response, 200);
+								}
 							}
 							$time = microtime(true);
 							error_log('before email: ' . $time);
@@ -1840,7 +1852,14 @@ class _Public {
 									 $this->send_email_Emsfb_( $email_user,$trackId ,$pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 								}
 								if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
-									$this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms', $check);
+									$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms', $check);
+									if($smsSendResult !== true) {
+										// 'msgSndBut','smsWPN' in lantexts but %$s1 is used in the message
+										$m =  $this->lanText['msgSndBut'];
+										$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , ''.$this->lanText['trackNo'] . '(' .$check.')' );
+										$response = ['success' => false, 'm' => $smsSendResult];
+										wp_send_json_success($response, 200);
+									}
 								}
 							} else {
 								$response = array('success' => false, 'm' => esc_html__('Error Code', 'easy-form-builder') . '</br>' . esc_html__('Payment Form', 'easy-form-builder'));
@@ -1932,7 +1951,14 @@ class _Public {
 											$this->send_email_Emsfb_($email_user, $ms, $pro, $state_of_email, $url, 'null', $msg_sub);
 										}
 										if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
-											$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $check);
+											$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $check);
+											if($smsSendResult !== true) {
+												// 'msgSndBut','smsWPN' in lantexts but %$s1 is used in the message
+												$m =  $this->lanText['msgSndBut'];
+												$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
+												$response = ['success' => false, 'm' => $m];
+												wp_send_json_success($response, 200);
+											}
 										}
 										$this->efbFunction->efb_code_validate_update($sid, 'register', $check);
 									}
@@ -1987,7 +2013,13 @@ class _Public {
 										}
 										$this->efbFunction->efb_code_validate_update($sid, 'login', 'login');
 										if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
-											$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', '');
+											$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', '');
+											if($smsSendResult !== true) {
+												$m =  $this->lanText['msgSndBut'];
+												$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
+												$response = ['success' => false, 'm' => $m];
+												wp_send_json_success($response, 200);
+											}
 										}
 										wp_send_json_success($response, 200);
 									} else {
@@ -2024,7 +2056,15 @@ class _Public {
 
 										$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
-									if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
+									if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) {
+										$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
+										if($smsSendResult !== true) {
+											$m =  $this->lanText['msgSndBut'];
+											$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
+											$response = ['success' => false, 'm' => $m];
+											wp_send_json_success($response, 200);
+										}
+									}
 									$response = array( 'success' => true , 'm' =>$this->lanText['surveyComplatedM']);
 									if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
 									$this->efbFunction->efb_code_validate_update($sid ,'poll' ,'poll' );
@@ -2353,7 +2393,7 @@ class _Public {
 		error_log('data_POST_: ' . json_encode($data_POST_));
 		$data_POST = $data_POST_->get_json_params();
 		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
-        'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex']: $this->text_;
+        'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
 		$efbFunction =  $this->get_efbFunction(1);
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$sid = sanitize_text_field($data_POST['sid']);
@@ -2583,7 +2623,15 @@ class _Public {
 						}
 					}
 				$tt = $rsp_by=='admin' ? 'respadmin' : 'resppa';
-				if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,$setting->sms_config ,$track);
+				if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) {
+					$smsSendResult = $efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,$setting->sms_config ,$track);
+					if($smsSendResult !== true) {
+						$m =  $this->lanText['msgSndBut'];
+						$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
+						$response = ['success' => false, 'm' => $m];
+						wp_send_json_success($response, 200);
+					}
+				}
 				// parsing from_Structer for find type="mobile" and smsnoti=1
 				}
 				$user_eamil=[[],[],null];
