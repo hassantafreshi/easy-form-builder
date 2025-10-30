@@ -1015,13 +1015,7 @@ class _Public {
 			wp_send_json_success($response, 200);
 		}else{
 			//remove duplicate v["id_"] form $valo
-			foreach ($valo as $row) {
-				if (!isset($unique[$row['id_']])) {
-					$unique[$row['id_']] = true;
-					$result[] = $row;
-				}
-			}
-			$valo = $result;
+			$valo = $this->dedupe_by_id_and_ob_efb($valo);
 		}
 		$smsnoti = 0;
 		$phone_numbers = [[], []];
@@ -4505,6 +4499,33 @@ function email_get_content_efb($content, $track){
 		);
 		return $obj;
 	}
+
+
+	public function dedupe_by_id_and_ob_efb(array $rows): array {
+    $seen = [];
+    $out  = [];
+
+    foreach ($rows as $row) {
+        $id  = isset($row['id_'])   ? (string)$row['id_']   : '';
+        $ob  = isset($row['id_ob']) ? (string)$row['id_ob'] : '';
+
+        // entity with neither id_ nor id_ob
+        if ($id === '' && $ob === '') {
+            $out[] = $row;
+            continue;
+        }
+
+        // create a unique key based on id_ and id_ob
+        $key = $id . '|' . $ob;
+
+        if (!isset($seen[$key])) {
+            $seen[$key] = true;
+            $out[] = $row;
+        }
+    }
+
+    return $out;
+}
 
 
 
