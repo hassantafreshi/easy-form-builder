@@ -875,6 +875,8 @@ class efbFunction {
 			"srvnsave" => $state  &&  isset($ac->text->srvnsave) ? $ac->text->srvnsave : esc_html__('The connection was interrupted, but don\'t worry—your edits are safely stored in your browser. Refresh the page to continue working.',$s),
 			"notis" => $state  &&  isset($ac->text->noti) ? $ac->text->noti : esc_html__('%s notification',$s),
 			"rasfmb" => $state  &&  isset($ac->text->rasfmb) ? $ac->text->rasfmb : esc_html__('There is an auto-saved version of the form avilable. Do you want to restore it?',$s),
+			"smsWPN" => $state  &&  isset($ac->text->smsWPN) ? $ac->text->smsWPN : esc_html__('SMS notification could not be sent. Please check SMS plugin installed and configured properly.',$s),
+			"msgSndBut" => $state && isset($ac->text->msgSndBut) ? $ac->text->msgSndBut : esc_html__('Your request was completed successfully. %1$s %2$s', $s),
 
 
 
@@ -1372,7 +1374,8 @@ class efbFunction {
 				}
 			}
 			// $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
-			if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,'respp' ,'wpsms' ,$trackingCode);
+			$smsSendResult =true;
+			if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $smsSendResult = $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,'respp' ,'wpsms' ,$trackingCode);
 		}
 		return 0;
 	}// end function
@@ -1970,30 +1973,30 @@ public function addon_add_efb($value) {
 		$recived_your_message = str_replace($rp[0],$rp[1],$recived_your_message);
 		$new_message = str_replace($rp[0],$rp[1],$new_message);
 		$news_response = str_replace($rp[0],$rp[1],$news_response);
-
+		$resukt_send_message = false;
 		if($state=="fform"){
 			if(!empty($numbers[1]) && $new_message){
 				$smssendefb->send_sms_efb($numbers[1],$recived_your_message,$form_id,$severType);
 			}
 			if(!empty($numbers[0]) && $new_message){
 				$new_message = str_replace($page_url."?track=".$tracking_code,$page_url."?track=".$tracking_code.'&user=admin',$new_message);
-				$smssendefb->send_sms_efb($numbers[0],$new_message,$form_id,$severType);
+				$resukt_send_message = $smssendefb->send_sms_efb($numbers[0],$new_message,$form_id,$severType);
 			}
-			return true;
+			return $resukt_send_message==false ? false : true;
 		}else if($state=="resppa"){
 			if(!empty($numbers[1]) && $recived_your_message){
-				$smssendefb->send_sms_efb($numbers[1],$recived_your_message,$form_id,$severType);
+				$resukt_send_message =  $smssendefb->send_sms_efb($numbers[1],$recived_your_message,$form_id,$severType);
 			}
 			if(!empty($numbers[0]) && $news_response){
 				$news_response = str_replace($page_url, $page_url."?track=".$tracking_code.'&user=admin',$news_response);
-				$smssendefb->send_sms_efb($numbers[0],$news_response,$form_id,$severType);
+				$resukt_send_message =  $smssendefb->send_sms_efb($numbers[0],$news_response,$form_id,$severType);
 			}
-			return true;
+			return $resukt_send_message==false ? false : true;
 		}else if ($state=="respp" || $state=="respadmin"){
 			if(!empty($numbers[1]) && $news_response){
-				$smssendefb->send_sms_efb($numbers[1],$news_response,$form_id,$severType);
+				$resukt_send_message = $smssendefb->send_sms_efb($numbers[1],$news_response,$form_id,$severType);
 			}
-			return true;
+			return $resukt_send_message==false ? false : true;
 		}
 	}
 
@@ -2858,6 +2861,57 @@ public function addon_add_efb($value) {
 	public function invalidate_lang_cache_on_settings_update($old_value, $value){
 		self::$lang_cache = [];
 	}
+
+
+			function fun_is_plugin_active_by_slug( $slug ) {
+			// Ensure core plugin functions are available (front-end contexts may not load them)
+			if ( ! function_exists( 'is_plugin_active' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
+
+			static $all_plugins = null;
+			if ( $all_plugins === null ) {
+				// Returns array: [ 'dir/main-file.php' => [ 'Name' => ... ], ... ]
+				$all_plugins = get_plugins();
+			}
+
+			// 1) Scan regular plugins and match by folder name or sanitized plugin name
+			foreach ( $all_plugins as $plugin_file => $data ) {
+				// $plugin_file examples: 'woocommerce/woocommerce.php' or 'hello.php'
+				$dir = ( strpos( $plugin_file, '/' ) !== false )
+					? substr( $plugin_file, 0, strpos( $plugin_file, '/' ) )
+					: basename( $plugin_file, '.php' );
+
+				// Match by directory (common “slug”) or by sanitized plugin display name
+				if ( $dir === $slug || sanitize_title( $data['Name'] ) === $slug ) {
+					// Network-activated on multisite?
+					if ( is_multisite() && is_plugin_active_for_network( $plugin_file ) ) {
+						return true;
+					}
+					// Active on the current site?
+					if ( is_plugin_active( $plugin_file ) ) {
+						return true;
+					}
+				}
+			}
+
+			// 2) Check MU plugins: presence equals active (no activation step for MU)
+			// get_mu_plugins() is also in wp-admin/includes/plugin.php (already required above)
+			$mu_plugins = function_exists( 'get_mu_plugins' ) ? get_mu_plugins() : [];
+			foreach ( $mu_plugins as $mu_file => $data ) {
+				// $mu_file examples: '/path/wp-content/mu-plugins/my-mu.php' or 'mu-dir/my-mu.php'
+				$base   = basename( $mu_file, '.php' );   // e.g., 'my-mu'
+				$folder = basename( dirname( $mu_file ) );// e.g., 'mu-plugins' or a subfolder
+
+				// Consider matches by folder, file base name, or sanitized display name
+				if ( $folder === $slug || $base === $slug || sanitize_title( $data['Name'] ) === $slug ) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 }
 
 
