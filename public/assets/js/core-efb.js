@@ -76,12 +76,17 @@ function check_body_efb_timer (){
 
     g_timeout_efb = 100;
 
+    const docBodyEfb = document.querySelector('.body_efb');
     if (typeof window.jQuery != "function" || typeof jQuery != "function") {
       let msg = `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
         <strong>${ajax_object_efm.text.alert}</strong> ${ajax_object_efm.text.jqinl}
       </div>`;
+      if(docBodyEfb){
+        for (const el of docBodyEfb) {
+          el.innerHTML = msg;
+        }
 
-      if(document.getElementById('body_efb')) document.getElementById('body_efb').innerHTML = msg;
+        }
       if(document.getElementById('body_tracker_emsFormBuilder')) document.getElementById('body_tracker_emsFormBuilder').innerHTML = msg;
       return;
     }
@@ -89,7 +94,7 @@ function check_body_efb_timer (){
     jQuery(() => {
       if (typeof ajax_object_efm === 'undefined' || !ajax_object_efm.ajax_value) return;
 
-      if (!document.getElementById('body_efb') && !document.getElementById('body_tracker_emsFormBuilder')) {
+      if (!docBodyEfb && !document.getElementById('body_tracker_emsFormBuilder')) {
         check_body_efb_timer();
       }
 
@@ -2406,7 +2411,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
 
 
 async function fun_validation_efb_v4(form_id) {
-  console.log('fun_validation_efb_v4')
+  console.log('fun_validation_efb_v4',form_id)
   let offsetw = offset_view_efb();
   console.log(efb_var.text.enterTheValueThisField);
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
