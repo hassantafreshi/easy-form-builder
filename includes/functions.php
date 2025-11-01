@@ -2863,54 +2863,54 @@ public function addon_add_efb($value) {
 	}
 
 
-			function fun_is_plugin_active_by_slug( $slug ) {
-			// Ensure core plugin functions are available (front-end contexts may not load them)
-			if ( ! function_exists( 'is_plugin_active' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			}
+	function fun_is_plugin_active_by_slug( $slug ) {
+		// Ensure core plugin functions are available (front-end contexts may not load them)
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
 
-			static $all_plugins = null;
-			if ( $all_plugins === null ) {
-				// Returns array: [ 'dir/main-file.php' => [ 'Name' => ... ], ... ]
-				$all_plugins = get_plugins();
-			}
+		static $all_plugins = null;
+		if ( $all_plugins === null ) {
+			// Returns array: [ 'dir/main-file.php' => [ 'Name' => ... ], ... ]
+			$all_plugins = get_plugins();
+		}
 
-			// 1) Scan regular plugins and match by folder name or sanitized plugin name
-			foreach ( $all_plugins as $plugin_file => $data ) {
-				// $plugin_file examples: 'woocommerce/woocommerce.php' or 'hello.php'
-				$dir = ( strpos( $plugin_file, '/' ) !== false )
-					? substr( $plugin_file, 0, strpos( $plugin_file, '/' ) )
-					: basename( $plugin_file, '.php' );
+		// 1) Scan regular plugins and match by folder name or sanitized plugin name
+		foreach ( $all_plugins as $plugin_file => $data ) {
+			// $plugin_file examples: 'woocommerce/woocommerce.php' or 'hello.php'
+			$dir = ( strpos( $plugin_file, '/' ) !== false )
+				? substr( $plugin_file, 0, strpos( $plugin_file, '/' ) )
+				: basename( $plugin_file, '.php' );
 
-				// Match by directory (common “slug”) or by sanitized plugin display name
-				if ( $dir === $slug || sanitize_title( $data['Name'] ) === $slug ) {
-					// Network-activated on multisite?
-					if ( is_multisite() && is_plugin_active_for_network( $plugin_file ) ) {
-						return true;
-					}
-					// Active on the current site?
-					if ( is_plugin_active( $plugin_file ) ) {
-						return true;
-					}
+			// Match by directory (common “slug”) or by sanitized plugin display name
+			if ( $dir === $slug || sanitize_title( $data['Name'] ) === $slug ) {
+				// Network-activated on multisite?
+				if ( is_multisite() && is_plugin_active_for_network( $plugin_file ) ) {
+					return true;
 				}
-			}
-
-			// 2) Check MU plugins: presence equals active (no activation step for MU)
-			// get_mu_plugins() is also in wp-admin/includes/plugin.php (already required above)
-			$mu_plugins = function_exists( 'get_mu_plugins' ) ? get_mu_plugins() : [];
-			foreach ( $mu_plugins as $mu_file => $data ) {
-				// $mu_file examples: '/path/wp-content/mu-plugins/my-mu.php' or 'mu-dir/my-mu.php'
-				$base   = basename( $mu_file, '.php' );   // e.g., 'my-mu'
-				$folder = basename( dirname( $mu_file ) );// e.g., 'mu-plugins' or a subfolder
-
-				// Consider matches by folder, file base name, or sanitized display name
-				if ( $folder === $slug || $base === $slug || sanitize_title( $data['Name'] ) === $slug ) {
+				// Active on the current site?
+				if ( is_plugin_active( $plugin_file ) ) {
 					return true;
 				}
 			}
-
-			return false;
 		}
+
+		// 2) Check MU plugins: presence equals active (no activation step for MU)
+		// get_mu_plugins() is also in wp-admin/includes/plugin.php (already required above)
+		$mu_plugins = function_exists( 'get_mu_plugins' ) ? get_mu_plugins() : [];
+		foreach ( $mu_plugins as $mu_file => $data ) {
+			// $mu_file examples: '/path/wp-content/mu-plugins/my-mu.php' or 'mu-dir/my-mu.php'
+			$base   = basename( $mu_file, '.php' );   // e.g., 'my-mu'
+			$folder = basename( dirname( $mu_file ) );// e.g., 'mu-plugins' or a subfolder
+
+			// Consider matches by folder, file base name, or sanitized display name
+			if ( $folder === $slug || $base === $slug || sanitize_title( $data['Name'] ) === $slug ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 }
 
