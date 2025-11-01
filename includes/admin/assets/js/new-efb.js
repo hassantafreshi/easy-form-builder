@@ -3325,7 +3325,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let s = false;
   let checboxs=[];
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
-  //console.error(content[0].paymentcurrency,content);
+  let last_type ='';
   for (const c of content) {
     if (c.hasOwnProperty('price')){ totalpaid +=Number(c.price)}
     if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
@@ -3410,7 +3410,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     }else if (c.type=="r_matrix"){
       s = true;
       //console.log(390 ,checboxs.includes(c.id_));
-      vc =`${c.hasOwnProperty('label') ? `<p class=efb fs-6 my-0 efb"">${c.label}</p>`:''}<p class="efb my-1 mx-3 fs-7 test form-check"> ${c.name} :${c.value} </p>`
+      vc =`${c.hasOwnProperty('label') && last_type!='r_matrix' ? `<p class="efb fs-6 my-0 efb"">${c.label}</p>` : '' }<p class="efb my-1 mx-3 fs-7 test form-check"> ${c.name} :${c.value} </p>`
       m += `${vc}`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
@@ -3456,6 +3456,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     }else if (c.type =="opened"){
       stock_state_efb=false;
     }
+    last_type = c.hasOwnProperty('type') ? c.type :'';
   }
   if(totalpaid>0){
     m +=`<div class="efb my-2 fs7 bg-dark text-light">
@@ -3517,7 +3518,7 @@ fun_valj_efb_run=async(form_id)=>{
   form_ID_emsFormBuilder = form_id;
   const r = valj_efb_new.find(x=>x.id ==form_id);
   console.log('fun_valj_efb_run',r);
-  valj_efb = r.structure;
+  valj_efb = r.form_structer;
   return  valj_efb ;
 }
 
