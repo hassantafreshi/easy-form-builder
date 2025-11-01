@@ -30,6 +30,8 @@ class _Public {
 		$this->pro_efb =false;
 		add_action('rest_api_init',  @function(){
 			$this->efb_uid  = get_current_user_id();
+			$this->get_efbFunction(0);
+			$settings = $this->get_setting_Emsfb('setting');
 			register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
 				'method'=> 'POST',
 				'callback'=>  [$this,'test_fun'],
@@ -55,6 +57,14 @@ class _Public {
 				'callback'=>  [$this,'pay_stripe_sub_Emsfb_api'],
 				'permission_callback' => '__return_true'
 			]);
+
+			register_rest_route('Emsfb/v1','forms/payment/paypal/card/add', [
+				'methods' => 'POST',
+				'callback'=>  [$this,'pay_paypal_sub_Emsfb_api'],
+				'permission_callback' => '__return_true'
+			]);
+
+
 			register_rest_route('Emsfb/v1','forms/response/get', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'get_track_public_api'],
@@ -85,7 +95,6 @@ class _Public {
 		//add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) );
 		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EFB_Form_Builder' ) );
 		// add_action( 'email_recived_new_message_hook_efb', array($this, 'corn_email_new_message_recived_Emsfb' ) ); //send email by cron wordpress
-		$this->get_efbFunction(0);
 		add_shortcode( 'EMS_Form_Builder',  array( $this, 'EFB_Form_Builder' ) );
 		add_shortcode( 'ems_form_builder',  array( $this, 'EFB_Form_Builder' ) );
 		add_action('init',  array($this, 'hide_toolmenu'));
@@ -353,6 +362,15 @@ class _Public {
 							else if(strpos($value , '\"type\":\"persiaPay\"') || strpos($value , '"type":"persiaPay"')){
 								$paymentType="zarinPal";
 							}else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
+							}else if($paymentType=="paypal"){
+								$paymentType="zarinPal";
+								$paymentKey=isset($setting->paypalPKey)  ? $setting->paypalPKey:'null';
+								$currency ='USD';
+								/* wp_register_script('paypal_js', 'https://www.paypal.com/sdk/js?client-id='.$paymentKey.'&currency='.$currency, null, null, true);
+								wp_enqueue_script('paypal_js'); */
+								wp_register_script('paypalefb-js', EMSFB_PLUGIN_URL . 'vendor/paypal/assets/js/paypal_efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
+								wp_enqueue_script('paypalefb-js');
+							}
 								if($paymentType!="null" && $pro==true){
 									if($paymentType=="stripe"){
 										wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);
@@ -2847,6 +2865,7 @@ class _Public {
 				$activeDlBtn = isset($r->activeDlBtn) ? $r->activeDlBtn : true;
 				$efb_version = isset($r->efb_version) ? $r->efb_version : "1.0.0";
 				$osLocationPicker = isset($r->osLocationPicker) ? $r->osLocationPicker : false;
+				$paypalPkey = isset($r->paypalPkey) ? $r->paypalPkey : "";
 				/*
 					AdnSPF == stripe payment
 					AdnOF == offline form
@@ -2876,6 +2895,7 @@ class _Public {
 				'AdnPDP'=>0,
 				'AdnADP'=>0,
 				'AdnOFc'=>0,
+				'AdnPAP' => 0
 				];
 				if(isset($r->AdnSPF)==true){
 					// $ac
@@ -2889,10 +2909,11 @@ class _Public {
 					$addons['AdnSE']=$r->AdnSE;
 					$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 					$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
+					$addons['AdnPAP']=isset($ac->AdnPAP) ? $ac->AdnPAP : 0;
 
 				}
 				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey, "version"=>$efb_version,"osLocationPicker"=>$osLocationPicker,
-				"scaptcha"=>$scaptcha,"dsupfile"=>$dsupfile,"activeDlBtn"=>$activeDlBtn,"addons"=>$addons);
+				"scaptcha"=>$scaptcha,"dsupfile"=>$dsupfile,"activeDlBtn"=>$activeDlBtn,"addons"=>$addons,,"paypalPkey"=>$paypalPkey);
 				$rtrn =json_encode($this->pub_stting,JSON_UNESCAPED_UNICODE);
 				return [$rtrn ,$this->pub_stting];
 			}else{
@@ -4574,6 +4595,235 @@ function email_get_content_efb($content, $track){
 
     return $out;
 }
+
+
+	public function pay_paypal_sub_Emsfb_api($data_POST_) {
+		// error_log("pay_paypal_sub_Emsfb_api");
+		// error_log(print_r($data_POST_, true));
+		$data_POST = $data_POST_->get_json_params();
+		$user = wp_get_current_user();
+		$uid = $user->exists() ? $user->user_nicename : esc_html__('Guest', 'easy-form-builder');
+
+		$this->id = sanitize_text_field($data_POST['id']);
+		$amount = sanitize_text_field($data_POST['amount']);
+		$paymentType = sanitize_text_field($data_POST['paymentType']);
+		$val_ = sanitize_text_field($data_POST['value']);
+		$table_name = $this->db->prefix . "emsfb_form";
+		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
+		$fs =str_replace('\\', '', $value_form[0]->form_structer);
+		$fs_ = json_decode($fs,true);
+		$val =str_replace('\\', '', $val_);
+		$val_ = json_decode($val,true);
+		$paymentmethod = isset($fs_[0]['paymentmethod']) ? $fs_[0]['paymentmethod'] : 'one-time';
+		$paymentmethod = $paymentmethod=='charge' ? 'one-time' : sanitize_text_field($paymentmethod);
+
+
+		$price_c =0;
+		$price_f=0;
+		$email ='';
+		$valobj=[];
+		$obj = $this->fun_validation_pay_elements_efb($val_ , $fs_);
+
+		$price_f = $obj['price_total'];
+		$email = $obj['email'];
+		$valobj = $obj['valobj'];
+
+		/* $price_c =0;
+		$price_f=0;
+		$email ='';
+		$valobj=[];
+		for ($i=0; $i <count($val_) ; $i++) {
+			$a=-1;
+			if(isset($val_[$i]['price'])){
+				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
+				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
+				$iv = $val_[$i];
+				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
+					$filtered = array_filter($fs_, function($item) use ($iv) {
+						switch ($iv["type"]) {
+							case 'paySelect':
+								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false ;
+							break;
+							case 'payRadio':
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false;
+							break;
+							case 'payCheckbox':
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false;
+							break;
+
+						}
+					});
+					if($filtered==false){
+						$m = esc_html__('error', 'easy-form-builder') . ' 405';
+						$response = ['success' => false, 'm' => $m];
+						wp_send_json_success($response, 200);
+					}
+					 $iv = array_keys($filtered);
+					 $a = isset( $iv[0])? $iv[0] :-1;
+				}else if ($iv["type"]=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
+					$rows = explode( ',', $iv["ids"] );
+					foreach ($rows as $key => $value) {
+						$filtered = array_filter($fs_, function($item) use ($value) {
+							if(isset($item['id_']))return $item['id_'] == $value ;
+						});
+						$iv = array_keys($filtered);
+						$price_f += $fs_[$a]["price"];
+					}
+					$a=-1;
+				}else if($iv["type"]=="prcfld" ){
+					   $a=-1;
+					   $price_f += $iv["price"];
+				}
+				if($a !=-1){
+					if($fs_[$a]["type"]!="payMultiselect"){
+						$price_f+=$fs_[$a]["price"];
+					}
+						$fs_[$a]["name"] = $val_[$i]["name"];
+						$fs_[$a]["type"] = "option_payment";
+						array_push($valobj,$fs_[$a]);
+				}
+			}
+		}
+		$ip =$this->get_ip_address();
+		$this->ip = $ip;
+		if($price_c != $price_f) {
+			$t=time();
+			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
+				$headers = array(
+				   'MIME-Version: 1.0\r\n',
+				   'From:'.$from.'',
+				);
+			$to =get_option('admin_email');
+			$message="This message from Easy Form Builder, This IP:".$this->ip.
+			" try to enter invalid value like fee of the service of the form id:" .$this->id. " at :".date("Y-m-d-h:i:s",$t) ;
+			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
+		}
+		$price_f = $price_f*100;
+
+ */
+
+		if (!$amount || !is_numeric($amount) || !$paymentType) {
+			$amount_not_found = esc_html__('% not found', 'easy-form-builder');
+			$amount_not_found = str_replace('%', esc_html__('amount', 'easy-form-builder'), $amount_not_found);
+			$error_msg =  esc_html__('error', 'easy-form-builder') . ':' . $amount_not_found;
+			$response = ['success' => false, 'm' =>$error_msg];
+			wp_send_json_success($response, 400);
+			return;
+		}
+
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
+		$Sk ='null';
+		if(gettype($r)=="string"){
+			$setting =str_replace('\\', '', $r);
+			$setting =json_decode($setting);
+			$Sk = isset($setting->paypalSKey) && strlen($setting->paypalSKey)>5  ? $setting->paypalSKey :'null';
+		}
+		if ($Sk=="null"){
+				$key_not_found = esc_html__('%s not found', 'easy-form-builder');
+				$key_not_found = str_replace('%s', esc_html__('SECRET KEY', 'easy-form-builder'), $key_not_found);
+				$m = esc_html__('PayPal', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ': ' . $key_not_found;
+				$response = ['success' => false, 'm' => $m];
+				wp_send_json_success($response, 200);
+				die("secure!");
+		}
+		$server = EMSFB_DEV_MODE ==false ? 'https://api-m.paypal.com/' : 'https://api-m.sandbox.paypal.com/';
+	/* 	$clientId = "Af0WrF3JU-_07SPGt2-Sda8ZyXtlxWhtQh4KCLES_goq32jrqHPZLLnmk4ArWFqMOmf6Md8AB0ODswXv";
+		$secret = "EDKJtPYSv55z22vgxrPLFezk4Ua0uXXP2nqKbmlGguY9A8T_bnsP8elgDLsUDoCkw5apIAccZ0ydGCP2"; */
+		$secret = $Sk;
+		$clientId =$setting->paypalPKey;
+		// ("server: " . $server);
+		// error_log("clientId: " . $clientId);
+		// error_log("secret: " . $secret);
+		if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")){
+			$efbFunction =  $this->get_efbFunction(1);
+			$efbFunction->download_all_addons_efb();
+		}
+		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/class-Emsfb-paypal.php");
+		$paypal = new paypal();
+		$accessToken = $paypal->get_paypal_access_token($server, $clientId, $secret);
+		if (!$accessToken) {
+			$response = ['success' => false, 'm' => esc_html__('Failed to get access token', 'easy-form-builder')];
+			wp_send_json_success($response, 400);
+			return;
+		}
+
+		$url = $paymentType === 'one-time' ? $server . "v2/checkout/orders" : $server . "v1/billing/subscriptions";
+
+		/*
+		$data = $paymentType === 'one-time'
+			? [
+				'intent' => 'CAPTURE',
+				'purchase_units' => [[
+					'amount' => [
+						'value' => $amount,
+						'currency_code' => 'USD',
+					],
+				]],
+			]
+			: [
+				'product_id' => 'YOUR_PRODUCT_ID',
+				'name' => ucfirst($paymentType) . " Subscription Plan",
+				'billing_cycles' => [[
+					'frequency' => [
+						'interval_unit' => strtoupper($paymentType),
+						'interval_count' => 1,
+					],
+					'pricing_scheme' => [
+						'fixed_price' => [
+							'value' => $amount,
+							'currency_code' => 'USD',
+						],
+					],
+				]],
+			];
+		*/
+		$data = [
+			'intent' => 'CAPTURE',
+			'purchase_units' => [[
+				'amount' => [
+					'value' => $amount,
+					'currency_code' => 'USD',
+				],
+			]],
+		] ;
+
+		$filtered = array_filter($valobj, function($item) {
+			if(isset($item['price']))	return $item;
+		});
+		$response = $paypal->make_paypal_request($url, $accessToken, $data);
+
+		// error_log("response: " . json_encode($response));
+				$currency =$fs_[0]['currency'];
+				$payA =  $amount  . ' '. $currency;
+				$created = date("Y-m-d-h:i:s");
+				$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
+				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder') ,'type'=>'payment',
+				'value'=> $payA , 'paymentIntent'=>$response['id'] , 'paymentGateway'=>'paypal' , 'paymentmethod'=>'paypal',
+				'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$currency , 'gateway'=>'paypal'
+				,'uid'=>$uid ,'status'=>'active','updatetime'=>$created,'description'=>$description,'total'=>$amount,'interval'=>'One-time' ];
+				 $filtered=array_merge($filtered , array($ar));
+
+
+			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);
+			$this->value = str_replace('"', '\\"', $val_);
+			// error_log("value: " . $this->value);
+			$this->name = sanitize_text_field($data_POST['name']);
+			$check=	$this->insert_message_db(2,false);
+
+
+		if (isset($response['id'])) {
+			$response = ['success' => true, 'id' => $response['id'],'uid'=> $uid,'trackid'=>$check];
+		} else {
+			$response = ['success' => false, 'm' => esc_html__('PayPal API error', 'easy-form-builder')];
+		}
+
+		wp_send_json_success($response, 200);
+	}
+
+
+
+
+
 
 
 

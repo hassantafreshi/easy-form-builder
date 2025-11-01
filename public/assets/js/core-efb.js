@@ -626,6 +626,22 @@ async function actionSendData_emsFormBuilder(form_id=0) {
           sid:vj.sid ,
           page_id: ajax_object_efm.page_id
         };
+      } else if (valj_efb[0].getway=="paypal"){
+        console.log('paypal!');
+        data = {
+          action: "get_form_Emsfb",
+          value: JSON.stringify(sendBack_emsFormBuilder_pub),
+          name: formNameEfb,
+          id: efb_var.id,
+          payid: efb_var.payId,
+          valid: recaptcha_emsFormBuilder,
+          type: form_type_emsFormBuilder,
+          payment: 'paypal',
+          url:location.href.split('?')[0],
+          sid:efb_var.sid,
+          page_id: ajax_object_efm.page_id
+        };
+        console.log(data);
       }
     }
     console.log('data',data);

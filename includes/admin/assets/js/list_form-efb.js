@@ -897,6 +897,8 @@ function fun_show_setting__emsFormBuilder() {
   let secretkey = 'null';
   let stripeSKey = 'null';
   let stripePKey = 'null';
+  let paypalSKey = 'null';
+  let paypalPKey = 'null';
   let email = 'null';
   let trackingcode = 'null';
   let apiKeyMap = 'null';
@@ -937,6 +939,10 @@ function fun_show_setting__emsFormBuilder() {
     apiKeyMap = f(`apiKeyMap`);
     stripeSKey = f(`stripeSKey`);
     stripePKey = f(`stripePKey`);
+    paypalSKey =  f(`paypalSKey`);
+    paypalSKey = paypalSKey == 'null' ? '' : paypalSKey;
+    paypalPKey = f(`paypalPKey`);
+    paypalPKey = paypalPKey == 'null' ? '' : paypalPKey;
     smtp = f('smtp') == 'null' ? false : Boolean(f('smtp'));
     bootstrap = f('bootstrap');
     osLocationPicker = f('osLocationPicker') == 'null' ? false : Boolean(f('osLocationPicker'));
@@ -991,6 +997,11 @@ function fun_show_setting__emsFormBuilder() {
   let msg_email = efb_var.text.mlntip.replace('%s1', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="EmailSpam" >`).replace('%s2', '</a>').replace('%s3', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="support" >`).replace('%s4', '</a>');
   // 3.8.6 end
   const proChckEvent =efb_var.pro!=true && efb_var.pro!="true" ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
+
+  const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment).replace('%2$s', efb_var.text.stripe);
+  const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment).replace('%2$s', efb_var.text.paypal);
+
+
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
             <h4 class="efb title-holder efb fs-4">
@@ -1228,7 +1239,7 @@ function fun_show_setting__emsFormBuilder() {
                                  <i class="efb  bi-stripe m-3"></i>${efb_var.text.stripe}
                                </h5>
                                <!-- 3.8.6 start -->
-                               <p class="efb ${mxCSize}">${efb_var.text.stripeMP} <a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="stripe" >${efb_var.text.help}</a></p>
+                               <p class="efb ${mxCSize}">${stripemessage} <a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="stripe" >${efb_var.text.help}</a></p>
                                 <!-- 3.8.6 end -->
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                   <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
@@ -1239,7 +1250,19 @@ function fun_show_setting__emsFormBuilder() {
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
 
                               </div>
+                                <h5 class="efb  card-title mt-3 mobile-title">
+                                 <i class="efb  bi-paypal m-3"></i>${efb_var.text.paypal}
+                               </h5>
+                               <p class="efb ${mxCSize}">${paypalmessage} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('paypal')" >${efb_var.text.help}</a></p>
+                                <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                                  <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
+                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                  <span id="paypalPKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+                                  <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
+                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                  <span id="paypalSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
 
+                              </div>
                               ${persianPayToken()}
 
 
@@ -1566,7 +1589,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     }
     return true;
   }
-  const ids = ['stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder','osLocationPicker_emsFormBuilder'];
+  const ids = ['paypalSKey_emsFormBuilder', 'paypalPKey_emsFormBuilder', 'stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder','osLocationPicker_emsFormBuilder'];
   let state = true
 
   for (let id of ids) {
@@ -1585,6 +1608,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const secretkey = f(`secretkey_emsFormBuilder`);
     const stripeSKey = f(`stripeSKey_emsFormBuilder`);
     const stripePKey = f(`stripePKey_emsFormBuilder`);
+    const paypalSKey = f(`paypalSKey_emsFormBuilder`);
+    const paypalPKey = f(`paypalPKey_emsFormBuilder`);
     const email = f(`email_emsFormBuilder`);
     let femail = f(`femail_emsFormBuilder`);
     if(femail.length<6){ femail = 'no-reply@'+window.location.hostname;}
@@ -1645,6 +1670,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     fun_send_setting_emsFormBuilder(
       { activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email,
          apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp,
+         paypalPKey: paypalPKey, paypalSKey: paypalSKey,
          stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken, act_local_efb:act_local_efb,
           scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ,

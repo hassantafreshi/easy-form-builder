@@ -76,8 +76,9 @@ class Panel_edit  {
 					$addons['AdnSPF']=$ac->AdnSPF;
 					$addons['AdnESZ']=$ac->AdnESZ;
 					$addons['AdnSE']=$ac->AdnSE;
-					$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-					$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnADP : 0;
+					$addons['AdnPDP'] = isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
+					$addons['AdnADP'] = isset($ac->AdnADP) ? $ac->AdnADP : 0;
+					$addons["AdnPAP"] = isset($ac->AdnPAP) ? $ac->AdnPAP : 0;
 				}
 				$lng = get_locale();
 			$k ="";
@@ -183,6 +184,18 @@ class Panel_edit  {
 				}
 				if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")){
 					$addons['AdnSS'] =1;
+				}
+				//AdnPAP
+				if(isset($ac->AdnPAP) && $ac->AdnPAP==1){
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
+						$r = $efbFunction->update_message_admin_side_efb();
+						//echo $r;
+						$efbFunction->download_all_addons_efb();
+						return 0;
+					}
+
+					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php");
+					$paypalefb = new paypalefb() ;
 				}
 				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
 					// wmaddon

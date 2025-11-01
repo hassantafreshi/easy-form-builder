@@ -863,7 +863,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       if(addons_emsFormBuilder.AdnSPF ==1){
         let sub = efb_var.text.onetime;
         let cl = `one`;
-        if (valj_efb[0].paymentmethod != 'charge') {
+        if (valj_efb[0].hasOwnProperty('paymentmethod') && valj_efb[0].paymentmethod != 'charge') {
           const n = `${valj_efb[0].paymentmethod}ly`
           sub = efb_var.text[n];
           cl = valj_efb[0].paymentmethod;
@@ -879,6 +879,35 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         return 'null';
       }
       break;
+        case 'paypal':
+      // console.log('paypal');
+      // console.log(addons_emsFormBuilder.AdnPAP);
+      if(addons_emsFormBuilder.AdnPAP ==1){
+        let sub = efb_var.text.onetime;
+        let cl = `one`;
+       // v3.8.6 start
+       if (valj_efb[0].hasOwnProperty('paymentmethod') && valj_efb[0].paymentmethod != 'charge') {
+        const n = `${valj_efb[0].paymentmethod}ly`
+        sub = efb_var.text[n];
+        cl = valj_efb[0].paymentmethod;
+      }
+      // v3.8.6 end
+        valj_efb[0].type = "payment";
+        valj_efb[0].hasOwnProperty('getway') ?  valj_efb[0].getway='paypal' : Object.assign(valj_efb[0], {getway: 'paypal'});
+        form_type_emsFormBuilder=valj_efb[0].type;
+        dataTag = elementId;
+        // console.log(rndm,cl,sub);
+
+        ui =typeof add_ui_paypal_efb =="function" ? add_ui_paypal_efb(rndm,cl,sub): public_pro_message();
+       // console.log(ui);
+      }else{
+        dataTag = efb_var.text.IMAddonPMsg.replace('%s',`<b>${efb_var.text.paypal}</b>`) + ' '+ efb_var.text.INAddonMsg.replace('%s',`<b>${efb_var.text.paypal}</b>`).toLowerCase()
+        alert_message_efb(efb_var.text.iaddon, dataTag, 20 , 'danger');
+        const l = valj_efb.length -1;
+        valj_efb.splice(l,1);
+        return 'null';
+      }
+    break;
     case "persiaPay":
     case "zarinPal":
         if(  addons_emsFormBuilder.AdnPPF ==1 ){
@@ -1179,6 +1208,7 @@ let add_buttons_zone_efb = (state, id) => {
   if (true) {
     let t = valj_efb.findIndex(x => x.type == "stripe");
      t = t==-1 ? valj_efb.findIndex(x => x.type == "persiaPay") : t;
+     t = t==-1 ? valj_efb.findIndex(x => x.type == "paypal") : t;
     t = t != -1 ? valj_efb[t].step : 0;
     dis = (valj_efb[0].type == "payment" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
   }
@@ -3229,7 +3259,7 @@ function fun_total_pay_efb(form_id) {
   if(valj_efb[0].getway=="persiaPay" && typeof fun_total_pay_persiaPay_efn=="function"){ fun_total_pay_persiaPay_efn(total)}
   else if(valj_efb[0].getway=="persiaPay"){
     //console.error('pyament persia not loaded (fun_total_pay_persiaPay_efn)')
-  }
+  }else if(valj_efb[0].getway=="paypal" && typeof fun_total_pay_paypal_efn=="function"){ fun_total_pay_paypal_efn(total)}
 }
 fun_currency_no_convert_efb = (currency, number) => {
   return new Intl.NumberFormat('us', { style: 'currency', currency: currency }).format(number)
@@ -3431,7 +3461,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
        //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
       }
     if (c.type == "payment") {
-      if(c.paymentGateway == "stripe"){
+      if(c.paymentGateway == "stripe" || c.paymentGateway == "paypal"){
         m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
             <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
             <p class="efb  my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${Number(c.total).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></p>

@@ -32,7 +32,8 @@ const fields_efb = [
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
   /* { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'payment all' },
   { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' },  */
-  { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true, tag:'payment all' },
+  { name: efb_var.text.stripe, icon: 'bi-stripe', id: 'stripe', pro: true, tag:'payment all' },
+  { name: efb_var.text.paypal, icon: 'bi-paypal', id: 'paypal', pro: true, tag:'payment all' },
   { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false, tag:'basic all' },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true, tag:'advance all' },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true, tag:'advance all' },
@@ -1456,6 +1457,18 @@ function show_setting_window_efb(idset) {
         </div>`
 
         break;
+        case 'paypal':
+
+
+          body = `<div class="efb  mb-3">
+          <!--  not   advanced-->
+            <h2 class="efb  text-muted">${efb_var.text.paypal}</h2>
+          <!--   valj_efb[0].type=="payment" ? currencyTypeEls(idset) :''
+            valj_efb[0].type=="payment" ? paymentMethodEls(idset) :'' -->
+          <div class="efb  clearfix"></div>
+          </div>`
+
+        break;
         case 'persiaPay':
           body = `<div class="efb  mb-3">
           <h2 class="efb  text-muted">${efb_var.text.paymentGateway}</h2>
@@ -1644,12 +1657,12 @@ function creator_form_builder_Efb() {
     if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
     // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
     if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
-
-      disable = `onclick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
+      const msg =efb_var.text.IMAddonPMsg.replace('%s',`<b>${efb_var.text.stripe}</b>`) + ' '+ efb_var.text.INAddonMsg.replace('%s',`<b>${efb_var.text.stripe}</b>`).toLowerCase()
+      disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${msg}', 20 , 'info')"`
       dragab = false;
     }else if(ob.id=="persiaPay" && efb_var.addons.AdnPPF !=1){
 
-      disable = `onclick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
+      disable = `onclick="alert_message_efb('${efb_var.text.iaddons}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
       dragab = false;
     }else if (ob.id=="pdate" && (efb_var.addons.hasOwnProperty('AdnPDP')==false || efb_var.addons.AdnPDP !=1)){
 
@@ -1658,6 +1671,10 @@ function creator_form_builder_Efb() {
     }else if (ob.id=="ardate" && (efb_var.addons.hasOwnProperty('AdnADP')==false || efb_var.addons.AdnADP !=1)){
 
       disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonAD}', 20 , 'info')"`
+      dragab = false;
+    }else if (ob.id =='paypal' && (efb_var.addons.hasOwnProperty('AdnPAP')==false || efb_var.addons.AdnPAP !=1)){
+      const msg =efb_var.text.IMAddonPMsg.replace('%s',`<b>${efb_var.text.paypal}</b>`) + ' '+ efb_var.text.INAddonMsg.replace('%s',`<b>${efb_var.text.paypal}</b>`).toLowerCase()
+      disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${msg}', 20 , 'info')"`
       dragab = false;
     }
     els += `

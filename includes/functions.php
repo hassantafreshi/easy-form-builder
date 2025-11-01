@@ -877,6 +877,11 @@ class efbFunction {
 			"rasfmb" => $state  &&  isset($ac->text->rasfmb) ? $ac->text->rasfmb : esc_html__('There is an auto-saved version of the form avilable. Do you want to restore it?',$s),
 			"smsWPN" => $state  &&  isset($ac->text->smsWPN) ? $ac->text->smsWPN : esc_html__('SMS notification could not be sent. Please check SMS plugin installed and configured properly.',$s),
 			"msgSndBut" => $state && isset($ac->text->msgSndBut) ? $ac->text->msgSndBut : esc_html__('Your request was completed successfully. %1$s %2$s', $s),
+			"paypal" => $state  &&  isset($ac->text->paypal) ? $ac->text->paypal : esc_html__('PayPal',$s),
+			"ufinyf" => $state  &&  isset($ac->text->ufinyf) ? $ac->text->ufinyf : esc_html__('To use %1$s features in your forms, you need to get your %2$s keys.',$s),
+			"payment" => $state  &&  isset($ac->text->payment) ? $ac->text->payment : esc_html__('Payment',$s),
+			"INAddonMsg" => $state  &&  isset($ac->text->INAddonMsg) ? $ac->text->INAddonMsg : esc_html__('Go to the Add-ons page in the Easy Form Builder plugin, install the %s add-on, and try again.',$s),
+			"IMAddonPMsg" => $state && isset($ac->text->IMAddonPMsg) ? $ac->text->IMAddonPMsg  : esc_html__('To create a payment form, install a payment add-on such as the  %s Add-on first.', $s),
 
 
 

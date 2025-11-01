@@ -143,6 +143,7 @@ class Create {
 				$addons['AdnSE']=$settings->AdnSE;
 				$addons['AdnPDP']=isset($settings->AdnPDP) ? $settings->AdnPDP : 0;
 				$addons['AdnADP']=isset($settings->AdnADP) ? $settings->AdnADP : 0;
+				$addons["AdnPAP"]= isset($settings->AdnPAP) ? $settings->AdnPAP : 0;
 			}
 			if(isset($settings->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$settings->efb_version)!=0 ){
 				$efbFunction->setting_version_efb_update($settings ,$pro);
@@ -176,6 +177,18 @@ class Create {
 						$efbFunction->download_all_addons_efb();
 						return 0;
 					}
+				}
+				// AdnPAP
+				if(isset($settings->AdnPAP) && $settings->AdnPAP==1){
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
+						$r = $efbFunction->update_message_admin_side_efb();
+						//echo $r;
+						$efbFunction->download_all_addons_efb();
+						return 0;
+					}
+					error_log('paypal!');
+					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php");
+					$paypalefb = new paypalefb() ;
 				}
 				$url =CDN_ZONE_AREA.'js/wp/countries.js';
 				if(isset($settings->AdnOF) && $settings->AdnOF==1){

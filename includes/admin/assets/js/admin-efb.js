@@ -206,6 +206,9 @@ function Link_emsFormBuilder(state) {
         //How to Exclude easy form builder Forms from Caching Plugins
         link += `/exclude-easy-form-builder-froms-cache/`;
         break;
+      case 'paypal':
+        link += `s/how-to-setup-paypal-payment-in-easy-form-builder/`;
+      break;
 
     }
   }else{
@@ -290,6 +293,9 @@ function Link_emsFormBuilder(state) {
       //جلوگیری-از-کش-شدن-فرم-ساخته-توسط-فرم-ساز
         link + `جلوگیری-از-کش-شدن-فرم-ساخته-توسط-فرم-ساز/`
         break;
+      case 'paypal':
+        link = `https://whitestudio.team/documents/how-to-setup-paypal-payment-in-easy-form-builder/`;
+      break;
     }
   }
 

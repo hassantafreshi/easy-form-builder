@@ -161,6 +161,7 @@ class Addon {
 				$addons['AdnSE']=$ac->AdnSE;
 				$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 				$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnADP : 0;
+				$addons["AdnPAP"]=  isset($ac->AdnPAP) ? $ac->AdnPAP : 0;
 			}
 		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
