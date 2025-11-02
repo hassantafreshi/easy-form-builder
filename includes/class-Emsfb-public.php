@@ -4728,8 +4728,6 @@ function email_get_content_efb($content, $track){
 				die("secure!");
 		}
 		$server = EMSFB_DEV_MODE ==false ? 'https://api-m.paypal.com/' : 'https://api-m.sandbox.paypal.com/';
-	/* 	$clientId = "Af0WrF3JU-_07SPGt2-Sda8ZyXtlxWhtQh4KCLES_goq32jrqHPZLLnmk4ArWFqMOmf6Md8AB0ODswXv";
-		$secret = "EDKJtPYSv55z22vgxrPLFezk4Ua0uXXP2nqKbmlGguY9A8T_bnsP8elgDLsUDoCkw5apIAccZ0ydGCP2"; */
 		$secret = $Sk;
 		$clientId =$setting->paypalPKey;
 		// ("server: " . $server);
