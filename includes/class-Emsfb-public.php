@@ -134,6 +134,7 @@ class _Public {
 			$is_track = null;
 			$state="form";
 			$rgister_captcha_url = false;
+			$this->get_efbFunction(0);
 			if(isset($_GET['track'])){
 				$state_form =  sanitize_text_field($_GET['track']) ;
 				$state="track";
@@ -403,7 +404,7 @@ class _Public {
 						wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);
 						wp_enqueue_script('logic-efb');
 					}
-			}
+
 
 				$send=array();
 				// translate v3
@@ -2913,7 +2914,7 @@ class _Public {
 
 				}
 				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey, "version"=>$efb_version,"osLocationPicker"=>$osLocationPicker,
-				"scaptcha"=>$scaptcha,"dsupfile"=>$dsupfile,"activeDlBtn"=>$activeDlBtn,"addons"=>$addons,,"paypalPkey"=>$paypalPkey);
+				"scaptcha"=>$scaptcha,"dsupfile"=>$dsupfile,"activeDlBtn"=>$activeDlBtn,"addons"=>$addons,"paypalPkey"=>$paypalPkey);
 				$rtrn =json_encode($this->pub_stting,JSON_UNESCAPED_UNICODE);
 				return [$rtrn ,$this->pub_stting];
 			}else{

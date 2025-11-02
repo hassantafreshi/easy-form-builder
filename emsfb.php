@@ -53,7 +53,7 @@ if (!defined("EMSFB_SERVER_URL")) {
 //check language is fa_IR
 if (!defined("EMSFB_IS_FARSI")) {
     if (get_locale() == 'fa_IR') {
-        define("CDN_ZONE_AREA", "https://cdn.easyformbuilder.ir/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world-main/");
+        define("CDN_ZONE_AREA", "https://cdn.easyformbuilder.ir/gh/Json-List-of-countries-states-and-cities-in-the-world-main/");
     } else {
         define("CDN_ZONE_AREA", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
     }
