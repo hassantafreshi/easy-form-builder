@@ -352,6 +352,7 @@ class _Public {
 						wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
 					}	 */
 
+					$setting;
 					if($typeOfForm=="payment"){
 						$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 						$r = $this->setting;
@@ -359,46 +360,13 @@ class _Public {
 							$setting =str_replace('\\', '', $r);
 							$setting =json_decode($setting);
 
-							if(strpos($value , '\"type\":\"stripe\"') || strpos($value , '"type":"stripe"')){$paymentType="stripe";}
-							else if(strpos($value , '\"type\":\"persiaPay\"') || strpos($value , '"type":"persiaPay"')){
-								$paymentType="zarinPal";
-							}else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
-							}else if($paymentType=="paypal"){
-								$paymentType="zarinPal";
-								$paymentKey=isset($setting->paypalPKey)  ? $setting->paypalPKey:'null';
-								$currency ='USD';
-								/* wp_register_script('paypal_js', 'https://www.paypal.com/sdk/js?client-id='.$paymentKey.'&currency='.$currency, null, null, true);
-								wp_enqueue_script('paypal_js'); */
-								wp_register_script('paypalefb-js', EMSFB_PLUGIN_URL . 'vendor/paypal/assets/js/paypal_efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
-								wp_enqueue_script('paypalefb-js');
-							}
-								if($paymentType!="null" && $pro==true){
-									if($paymentType=="stripe"){
-										wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);
-										wp_enqueue_script('stripe-js');
-										// wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
-										//vendor\stripe\stripe_pay-efb.js
-										wp_register_script('stripepay_js', EMSFB_PLUGIN_URL . 'public/assets/js/stripe_pay-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
-										wp_enqueue_script('stripepay_js');
-										$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
-									}else if($paymentType=="zarinPal" || $paymentType=="payping" ){
-										$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-									}else if ($paymentType=="paypal"){
-
-									}
-
-									/* else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
-										$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-										wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
-										wp_enqueue_script('parsipay_js');
-									} */
-								}
 						}// end if payment
 						$ar_core = array_merge($ar_core , array(
 							'paymentGateway' =>$paymentType,
 							'paymentKey' => $paymentKey
 						));
-					}
+					} // end if
+				} // end if pro
 
 					if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
 						wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);
@@ -636,6 +604,33 @@ class _Public {
 							}
 							wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
 						}
+					}else if ($pro==true && $valj_efb[$i]->type =='stripe' && $typeOfForm=="payment" ){
+
+							wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);
+							wp_enqueue_script('stripe-js');
+							// wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
+							//vendor\stripe\stripe_pay-efb.js
+							!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe") ? $this->efbFunction->download_all_addons_efb() : '';
+							wp_register_script('stripepay_js', EMSFB_PLUGIN_URL . 'vendorstripe/stripe_pay-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+							wp_enqueue_script('stripepay_js');
+							$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
+							$ar_core = array_merge($ar_core , array(
+							'paymentGateway' =>'stripe',
+							'paymentKey' => $paymentKey
+						));
+					}else if($pro==true && $valj_efb[$i]->type =='paypal' &&  $typeOfForm=="payment" ){
+								$paymentType="paypal";
+								$paymentKey=isset($setting->paypalPKey)  ? $setting->paypalPKey:'null';
+								$currency ='USD';
+								/* wp_register_script('paypal_js', 'https://www.paypal.com/sdk/js?client-id='.$paymentKey.'&currency='.$currency, null, null, true);
+								wp_enqueue_script('paypal_js'); */
+								!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal") ? $this->efbFunction->download_all_addons_efb() : '';
+								wp_register_script('paypalefb-js', EMSFB_PLUGIN_URL . 'vendor/paypal/assets/js/paypal_efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
+								wp_enqueue_script('paypalefb-js');
+								$ar_core = array_merge($ar_core , array(
+									'paymentGateway' =>'paypal',
+									'paymentKey_paypal' => $paymentKey
+								));
 					}
 					error_log(json_encode($r));
 					$content .= $r[0];

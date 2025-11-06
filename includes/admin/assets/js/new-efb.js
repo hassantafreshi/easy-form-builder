@@ -3250,6 +3250,13 @@ function fun_total_pay_efb(form_id) {
      if(Number(form_id)!=Number(form_ID_emsFormBuilder)) valj_efb = get_structure_by_form_id_efb(form_id);
     for (const l of document.querySelectorAll(".totalpayEfb")) {
       l.innerHTML = Number(i).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
+      if(l.classList.contains('paypal')){
+        const paypal_btn = document.querySelectorAll(`.paypalEfb[data-formid="${form_id}"]`);
+        console.log('paypal_btn',paypal_btn);
+        if (paypal_btn.length) {
+          Number(i) > 0 ? paypal_btn.forEach(p => p.classList.remove('disabled')) : paypal_btn.forEach(p => p.classList.add('disabled'));
+        }
+      }
     }
   }
   for (let r of sendBack_emsFormBuilder_pub) {
