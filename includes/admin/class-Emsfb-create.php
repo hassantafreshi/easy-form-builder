@@ -114,36 +114,13 @@ class Create {
 		$pro =$efbFunction->is_efb_pro(1);
 		$efbFunction->parsing_plugins_efb();
 		$settings= $efbFunction->get_setting_Emsfb();
-		$addons = ['AdnSPF' => 0,
-		'AdnOF' => 0,
-		'AdnPPF' => 0,
-		'AdnATC' => 0,
-		'AdnSS' => 0,
-		'AdnCPF' => 0,
-		'AdnESZ' => 0,
-		'AdnSE' => 0,
-		'AdnPDP'=>0,
-		'AdnADP'=>0];
+		$addons = $efbFunction->fun_get_addons_list_efb($settings);
 		// v2 translate
 		// write a code for get all colors used in array in template set as active template in wordpress . complate code and use regix to find all colores is used in tamplate
 		$lang = $efbFunction->text_efb(1);
 		if(gettype($settings)!="string"){
 			if(isset($settings->osLocationPicker)==true && $settings->osLocationPicker==1){
 			 	$efbFunction->openstreet_map_required_efb(0);
-			}
-			if(isset($settings->AdnSPF)==true){
-				// $settings
-				$addons['AdnSPF']=$settings->AdnSPF;
-				$addons['AdnOF']=$settings->AdnOF;
-				$addons['AdnATC']=$settings->AdnATC;
-				$addons['AdnPPF']=$settings->AdnPPF;
-				$addons['AdnSS']=$settings->AdnSS;
-				$addons['AdnSPF']=$settings->AdnSPF;
-				$addons['AdnESZ']=$settings->AdnESZ;
-				$addons['AdnSE']=$settings->AdnSE;
-				$addons['AdnPDP']=isset($settings->AdnPDP) ? $settings->AdnPDP : 0;
-				$addons['AdnADP']=isset($settings->AdnADP) ? $settings->AdnADP : 0;
-				$addons["AdnPAP"]= isset($settings->AdnPAP) ? $settings->AdnPAP : 0;
 			}
 			if(isset($settings->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$settings->efb_version)!=0 ){
 				$efbFunction->setting_version_efb_update($settings ,$pro);
@@ -335,7 +312,8 @@ class Create {
 			// $efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
 			// require smsefb.php and call add_sms_contact_efb
 			$sms_exists = get_option('emsfb_addon_AdnSS', false);
-			if($sms_exists !== false){
+			$sms_files_exists = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
+			if($sms_exists !== false && $sms_exists != 0 && $sms_files_exists){
 				require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
 				$smsefb = new smssendefb();
 				$smsefb->add_sms_contact_efb(

@@ -338,7 +338,8 @@ class _Public {
 					$efb_m= "<!--efb-->" ;
 					// smssend : after filed forms check if sms send enable and send sms to admin and users
 					$sms_exists = get_option('emsfb_addon_AdnSS',false);
-					if($sms_exists !== false){
+					$sms_files_exists = is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended");
+					if($sms_exists !== false && $sms_files_exists){
 						require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
 						$smssendefb = new smssendefb() ;
 					}
@@ -611,8 +612,8 @@ class _Public {
 							// wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
 							//vendor\stripe\stripe_pay-efb.js
 							!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe") ? $this->efbFunction->download_all_addons_efb() : '';
-							wp_register_script('stripepay_js', EMSFB_PLUGIN_URL . 'vendorstripe/stripe_pay-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
-							wp_enqueue_script('stripepay_js');
+							wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),'3.8.1',true);
+							wp_enqueue_script('stripe_js');
 							$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
 							$ar_core = array_merge($ar_core , array(
 							'paymentGateway' =>'stripe',
@@ -793,20 +794,9 @@ class _Public {
 		// if($this->id!=-1){return esc_html__('Easy Form Builder' , 'easy-form-builder');}
 
 		$this->id=0;
-		/*
-		$this->public_scripts_and_css_head('');
-		// Confirmation Code show
-		$lang = get_locale();
-		$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
-		$this->get_efbFunction(0);
-		*/
-				// translate v2
-				/* v4 comment
-				$text=["spprt","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","mmplen","offlineSend","message","clsdrspn","createdBy","easyFormBuilder","payAmount","payment","id","methodPayment","ddate","updated","methodPayment","interval","file","videoDownloadLink","downloadViedo","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","rnfn","fil",'stf','total','ttlprc','fetf','jqinl','eln'];
-				$text= $this->efbFunction->text_efb($text) ;
-				*/
-				$text=['pleaseEnterTheTracking','pleaseWaiting','fil','trackingCode','entrTrkngNo','search','easyFormBuilder','tfnapca'];
-				$text= $this->efbFunction->text_efb($text) ;
+		if($this->efbFunction===null) $this->get_efbFunction(0);
+		$text=['pleaseEnterTheTracking','pleaseWaiting','fil','trackingCode','entrTrkngNo','search','easyFormBuilder','tfnapca'];
+		$text= $this->efbFunction->text_efb($text) ;
 		$state="tracker";
 		$pl= $this->get_setting_Emsfb('pub');
 		$stng= $pl[0];
@@ -2265,7 +2255,7 @@ class _Public {
 			die();
 		}
 		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
-		$efbFunction =  $this->get_efbFunction(1);
+		if($this->efbFunction===null) $this->get_efbFunction(0);
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
 		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
@@ -2292,7 +2282,7 @@ class _Public {
 		}
 	}// end function
 	public function file_upload_api(){
-		$efbFunction =  $this->get_efbFunction(1);
+		if($this->efbFunction===null) $this->get_efbFunction(0);
 		$_POST['id']=intval($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $fid=intval($_POST['fid']);
@@ -2408,7 +2398,7 @@ class _Public {
 		$data_POST = $data_POST_->get_json_params();
 		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
         'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
-		$efbFunction =  $this->get_efbFunction(1);
+		if($this->efbFunction===null) $this->get_efbFunction(0);
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$sid = sanitize_text_field($data_POST['sid']);
 		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :  'guest';
@@ -2686,7 +2676,7 @@ class _Public {
 		$data_POST = $data_POST_->get_json_params();
 		$fid = sanitize_text_field($data_POST['id']);
 		$sid = sanitize_text_field($data_POST['sid']);
-		$this->get_efbFunction(0);
+		if($this->efbFunction===null) $this->get_efbFunction(0);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
 		$page_id = sanitize_text_field($data_POST['page_id']);
 		$cache_plugins = get_option('emsfb_cache_plugins');
@@ -2714,16 +2704,8 @@ class _Public {
 		$message = ['',''];
 		// محاسبه زمان قبل از ایجاد محتوای ایمیل
 		$micr = microtime(true);
-		// error_log('send_email_Emsfb_ Before create contet email: ' . $micr);
-		// ایجاد لینک پایه
-/* 		$link_base = (strlen($link) > 5) ? (strpos($link, '?') !== false ? $link . '&track=' . $track : $link . '?track=' . $track) : $homeUrl;
-		// error_log('send_email_Emsfb_ link_base: ' . $link_base);
-		$link_w[0] = $link_base . '&user=admin';
-		$link_w[1] = $link_base;
-    // افزودن پارامتر امنیتی در صورت نیاز
-    if (isset($this->setting->adminSN) && intval($this->setting->adminSN) !== 1) {
-        $link_w[0] .= '&sc=' . $this->genrate_sacure_code_admin_email($track);
-    } */
+		if($this->efbFunction===null) $this->get_efbFunction(0);
+
     // ایجاد الگوی پیام پیش‌فرض
     $default_message = "<h2>%s</h2><div style='text-align:center'><a href='%s' target='_blank' style='padding:5px;color:white;background:black;'>%s</a></div>";
     // کش کردن مقادیر ثابت برای پیام‌ها
@@ -2821,6 +2803,7 @@ class _Public {
 	error_log(json_encode($link_w));
 	// error_log(json_encode($this->setting));
     // ارسال ایمیل
+
     $check = $this->efbFunction->send_email_state_new($to, $subject, $cont, $pro, $state, $link_w, $this->setting);
     // محاسبه زمان بعد از ارسال ایمیل
     $micr = microtime(true);
@@ -2862,52 +2845,8 @@ class _Public {
 				$efb_version = isset($r->efb_version) ? $r->efb_version : "1.0.0";
 				$osLocationPicker = isset($r->osLocationPicker) ? $r->osLocationPicker : false;
 				$paypalPkey = isset($r->paypalPkey) ? $r->paypalPkey : "";
-				/*
-					AdnSPF == stripe payment
-					AdnOF == offline form
-					AdnPPF == persia payment
-					AdnATC == advance tracking code
-					AdnSS == sms service
-					AdnCPF == crypto payment
-					AdnESZ == zone picker
-					AdnSE == email service
-					AdnWHS == webhook
-					AdnPAP == paypal
-					AdnWSP == whitestudio pay
-					AdnSMF == smart form
-					AdnPLF == passwordless form
-					AdnMSF == membership form
-					AdnBEF == booking and event form
-					AdnAtF == Atoufilled form
-				*/
-				$addons = ['AdnSPF' => 0,
-				'AdnOF' => 0,
-				'AdnPPF' => 0,
-				'AdnATC' => 0,
-				'AdnSS' => 0,
-				'AdnCPF' => 0,
-				'AdnESZ' => 0,
-				'AdnSE' => 0,
-				'AdnPDP'=>0,
-				'AdnADP'=>0,
-				'AdnOFc'=>0,
-				'AdnPAP' => 0
-				];
-				if(isset($r->AdnSPF)==true){
-					// $ac
-					$addons['AdnSPF']=$r->AdnSPF;
-					$addons['AdnOF']=$r->AdnOF;
-					$addons['AdnATC']=$r->AdnATC;
-					$addons['AdnPPF']=$r->AdnPPF;
-					$addons['AdnSS']=$r->AdnSS;
-					$addons['AdnCPF']=$r->AdnCPF;
-					$addons['AdnESZ']=$r->AdnESZ;
-					$addons['AdnSE']=$r->AdnSE;
-					$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-					$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
-					$addons['AdnPAP']=isset($ac->AdnPAP) ? $ac->AdnPAP : 0;
-
-				}
+				if($this->efbFunction===null) $this->get_efbFunction(0);
+				$addons = $this->efbFunction->fun_get_addons_list_efb($r);
 				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey, "version"=>$efb_version,"osLocationPicker"=>$osLocationPicker,
 				"scaptcha"=>$scaptcha,"dsupfile"=>$dsupfile,"activeDlBtn"=>$activeDlBtn,"addons"=>$addons,"paypalPkey"=>$paypalPkey);
 				$rtrn =json_encode($this->pub_stting,JSON_UNESCAPED_UNICODE);
@@ -2927,7 +2866,7 @@ class _Public {
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
 		$this->id =sanitize_text_field($data_POST['id']);
 		$sid = sanitize_text_field($data_POST['sid']);
-		$this->get_efbFunction(0);
+		if($this->efbFunction===null) $this->get_efbFunction(0);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		if ($s_sid !=1){
 			//efb_code_validate_select
@@ -3496,7 +3435,7 @@ function email_get_content_efb($content, $track){
 			$currency = (isset($content[0]['paymentcurrency'])) ? $content[0]['paymentcurrency'] : 'usd';
 
 			// دسترسی به متن‌ها
-			$this->get_efbFunction(0);
+			if($this->efbFunction===null) $this->get_efbFunction(0);
 			$lanText = $this->efbFunction->text_efb($text_);
 
 			// در صورت وجود amount مرتب‌سازی ملایم
@@ -4022,19 +3961,6 @@ function email_get_content_efb($content, $track){
 		}
 		return g($track , $this->setting->email_key);
 	}
-/* 	public function get_efbFunction($state) {
-		if(isset($this->efbFunction)) return $this->efbFunction;
-		$efbFunctionInstance;
-		if (false === ($efbFunctionInstance = wp_cache_get('emsfb_FunctionInstance', 'emsfb'))) {
-			if (!class_exists('Emsfb\efbFunction')) {
-				require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
-			}
-			$efbFunctionInstance = new \Emsfb\efbFunction();
-			wp_cache_set('emsfb_FunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // 1 hour cache
-		}
-		$this->efbFunction = $efbFunctionInstance;
-		if ($state == 1) return $this->efbFunction;
-	} */
 	   	public function get_efbFunction(int $state = 0): \Emsfb\efbFunction {
 			// کش درونِ همین ریکوئست
 			static $instance = null;

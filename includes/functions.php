@@ -77,29 +77,29 @@ class efbFunction {
 
 	public function text_efb($inp){
         // === EFB full-caching prelude (i18n-aware, subset-safe) ===
-        $__efb_settings = $this->get_setting_Emsfb();
-        $__efb_lang     = $this->detect_current_lang_slug();
-        $__efb_needX    = ($inp === 1);
-        $__efb_ver      = $this->get_text_version($__efb_settings);
+        $efb_settings = $this->get_setting_Emsfb();
+        $efb_lang     = $this->detect_current_lang_slug();
+        $efb_needX    = ($inp === 1);
+        $efb_ver      = $this->get_text_version($efb_settings);
 
-        $__efb_subset   = 'all';
+        $efb_subset   = 'all';
         if (is_array($inp)) {
             $tmp = array_values(array_unique($inp));
             sort($tmp);
-            $__efb_subset = 'subset:' . substr(md5(json_encode($tmp)), 0, 12);
-        } elseif ($__efb_needX) {
-            $__efb_subset = 'with-extra';
+            $efb_subset = 'subset:' . substr(md5(json_encode($tmp)), 0, 12);
+        } elseif ($efb_needX) {
+            $efb_subset = 'with-extra';
         }
 
-        $__efb_ck_final = "langfinal:$__efb_lang:$__efb_ver:$__efb_subset";
+        $efb_ck_final = "langfinal:$efb_lang:$efb_ver:$efb_subset";
 
-        if (isset(self::$req_cache[$__efb_ck_final])) {
-            return self::$req_cache[$__efb_ck_final];
+        if (isset(self::$req_cache[$efb_ck_final])) {
+            return self::$req_cache[$efb_ck_final];
         }
-        $__efb_cached_final = wp_cache_get($__efb_ck_final, 'efb');
-        if ($__efb_cached_final !== false) {
-            self::$req_cache[$__efb_ck_final] = $__efb_cached_final;
-            return $__efb_cached_final;
+        $efb_cached_final = wp_cache_get($efb_ck_final, 'efb');
+        if ($efb_cached_final !== false) {
+            self::$req_cache[$efb_ck_final] = $efb_cached_final;
+            return $efb_cached_final;
         }
         // === /prelude ===
 
@@ -905,8 +905,8 @@ class efbFunction {
 			}
 		}
 		// array_push($rtrn);
-		wp_cache_set($__efb_ck_final, $rtrn, 'efb', 7200);
-		self::$req_cache[$__efb_ck_final] = $rtrn;
+		wp_cache_set($efb_ck_final, $rtrn, 'efb', 7200);
+		self::$req_cache[$efb_ck_final] = $rtrn;
 		return $rtrn;
 	}
 
@@ -1955,7 +1955,12 @@ public function addon_add_efb($value) {
 			// error_log('Easy Form Builder: SMS Addon is not installed');
 			return false;
 		}
-		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
+		$path = EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php";
+		if(!file_exists($path)){
+			// error_log('Easy Form Builder: SMS Addon file not found');
+			return false;
+		}
+		require_once($path);
 		$smssendefb = new smssendefb();
 		$sms_content = $smssendefb->get_sms_contact_efb($form_id);
 
@@ -2915,6 +2920,63 @@ public function addon_add_efb($value) {
 		}
 
 		return false;
+	}
+
+
+	function fun_get_addons_list_efb($ac = null){
+					/*
+					AdnSPF == stripe payment
+					AdnOF == offline form
+					AdnPPF == persia payment
+					AdnATC == advance tracking code
+					AdnSS == sms service
+					AdnCPF == crypto payment
+					AdnESZ == zone picker
+					AdnSE == email service
+					AdnWHS == webhook
+					AdnPAP == paypal
+					AdnWSP == whitestudio pay
+					AdnSMF == smart form
+					AdnMSF == membership form
+					AdnBEF == booking and event form
+					AdnAtF == Atoufilled form
+					AdnPDP == persia data picker
+					AdnADP == arabic data picker
+					AdnPLF == passwordless form
+					AdnWPB == WP Bakery
+					AdnELM == Elemntor
+					AdnGTB == Gutnberg
+					AdnPFA == Private Form Advanced
+
+				*/
+		$addons = [
+			'AdnSPF' => 0,
+			'AdnOF' => 0,
+			'AdnPPF' => 0,
+			'AdnATC' => 0,
+			'AdnSS' => 0,
+			'AdnCPF' => 0,
+			'AdnESZ' => 0,
+			'AdnSE' => 0,
+			'AdnPDP' => 0,
+			'AdnADP' => 0,
+			'AdnPAP' => 0,
+		];
+		if($ac!=null && isset($ac->AdnSPF)==true){
+			$addons['AdnSPF'] = intval($ac->AdnSPF);
+			$addons["AdnOF"] = intval($ac->AdnOF);
+			$addons["AdnPPF"] = intval($ac->AdnPPF);
+			$addons["AdnATC"] = intval($ac->AdnATC);
+			$addons["AdnSS"] = intval($ac->AdnSS);
+			$addons["AdnCPF"] = intval($ac->AdnCPF);
+			$addons["AdnESZ"] = intval($ac->AdnESZ);
+			$addons["AdnSE"] = intval($ac->AdnSE);
+			$addons["AdnPDP"] = isset($ac->AdnPDP) ? intval($ac->AdnPDP) : 0;
+			$addons["AdnADP"] = isset($ac->AdnADP) ? intval($ac->AdnADP) : 0;
+			$addons["AdnPAP"]=  isset($ac->AdnPAP) ? intval($ac->AdnPAP) : 0;
+		}
+
+		return $addons;
 	}
 
 }

@@ -4163,7 +4163,17 @@ function emsFormBuilder_delete(id, type,value) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function emsFormBuilder_duplicate(id, type,value) {
+  const local_id = localStorage.getItem('efb_duplicate_id') || '';
+  const local_type = localStorage.getItem('efb_duplicate_type') || '';
+  if (local_id != id && local_type != type) {
+    localStorage.removeItem('efb_duplicate_id');
+    localStorage.removeItem('efb_duplicate_type');
+  }else{
+    return;
+  }
 
+  localStorage.setItem('efb_duplicate_id', id);
+  localStorage.setItem('efb_duplicate_type', type);
   //v2
   let val =id;
 

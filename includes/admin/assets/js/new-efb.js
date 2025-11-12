@@ -861,6 +861,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'stripe':
       if(addons_emsFormBuilder.AdnSPF ==1){
+        console.log('test 864')
         let sub = efb_var.text.onetime;
         let cl = `one`;
         if (valj_efb[0].hasOwnProperty('paymentmethod') && valj_efb[0].paymentmethod != 'charge') {
@@ -870,6 +871,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         }
         dataTag = elementId;
         ui =typeof add_ui_stripe_efb =="function" ? add_ui_stripe_efb(rndm,cl,sub): public_pro_message();
+        console.log(ui);
         valj_efb[0].type = "payment";
         form_type_emsFormBuilder=valj_efb[0].type;
       }else{
@@ -881,7 +883,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
         case 'paypal':
       // console.log('paypal');
-      // console.log(addons_emsFormBuilder.AdnPAP);
+       console.log(addons_emsFormBuilder);
       if(addons_emsFormBuilder.AdnPAP ==1){
         let sub = efb_var.text.onetime;
         let cl = `one`;
@@ -905,7 +907,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         alert_message_efb(efb_var.text.iaddon, dataTag, 20 , 'danger');
         const l = valj_efb.length -1;
         valj_efb.splice(l,1);
-        return 'null';
+        return dataTag;
       }
     break;
     case "persiaPay":

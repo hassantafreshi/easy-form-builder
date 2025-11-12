@@ -1463,8 +1463,8 @@ function show_setting_window_efb(idset) {
           body = `<div class="efb  mb-3">
           <!--  not   advanced-->
             <h2 class="efb  text-muted">${efb_var.text.paypal}</h2>
-          <!--   valj_efb[0].type=="payment" ? currencyTypeEls(idset) :''
-            valj_efb[0].type=="payment" ? paymentMethodEls(idset) :'' -->
+            ${valj_efb[0].type=="payment" ? currencyTypeEls(idset) :''}
+            ${valj_efb[0].type=="payment" ? paymentMethodEls(idset) :''}
           <div class="efb  clearfix"></div>
           </div>`
 

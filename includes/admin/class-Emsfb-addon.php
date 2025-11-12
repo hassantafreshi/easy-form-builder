@@ -112,57 +112,10 @@ class Addon {
 		$smtp =-1;
 		$captcha =false;
 		$smtp_m = "";
-			/*
-            AdnSPF == stripe payment
-            AdnOF == offline form
-            AdnPPF == persia payment
-			AdnPDP == persia data picker
-			AdnADP == arabic data picker
-            AdnATC == advance tracking code
-            AdnSS == sms service
-            AdnCPF == crypto payment
-            AdnESZ == zone picker
-            AdnSE == email service
-            AdnWHS == webhook
-            AdnPAP == paypal
-            AdnWSP == whitestudio pay
-            AdnSMF == smart form
-            AdnPLF == passwordless form
-            AdnMSF == membership form
-            AdnBEF == booking and event form
-			AdnWPB == WP Bakery
-			AdnELM == Elemntor
-			AdnGTB == Gutnberg
-			AdnPFA == Private Form Advanced
-			AdnAtF == Atoufilled form
-        */
-		$addons = ['AdnSPF' => 0,
-		'AdnOF' => 0,
-		'AdnPPF' => 0,
-		'AdnATC' => 0,
-		'AdnSS' => 0,
-		'AdnCPF' => 0,
-		'AdnESZ' => 0,
-		'AdnSE' => 0,
-		'AdnPDP'=>0,
-		'AdnADP'=>0
-		];
+		$addons = $efbFunction->fun_get_addons_list_efb($ac);
 		if(gettype($ac)!="string"){
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
 			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
-			if(isset($ac->AdnSPF)==true){
-				$addons['AdnSPF']=$ac->AdnSPF;
-				$addons['AdnOF']=$ac->AdnOF;
-				$addons['AdnATC']=$ac->AdnATC;
-				$addons['AdnPPF']=$ac->AdnPPF;
-				$addons['AdnSS']=$ac->AdnSS;
-				$addons['AdnSPF']=$ac->AdnSPF;
-				$addons['AdnESZ']=$ac->AdnESZ;
-				$addons['AdnSE']=$ac->AdnSE;
-				$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-				$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnADP : 0;
-				$addons["AdnPAP"]=  isset($ac->AdnPAP) ? $ac->AdnPAP : 0;
-			}
 		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
 		wp_localize_script('Emsfb-admin-js','efb_var',array(

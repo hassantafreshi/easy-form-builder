@@ -32,23 +32,14 @@ class Panel_edit  {
 			$efbFunction = $this->get_efbFunction();
 			$pro =$efbFunction->is_efb_pro(1);;
 			// $lng =new lng();
-			$ac= $efbFunction->get_setting_Emsfb();
+			$ac = $efbFunction->get_setting_Emsfb();
 			$efbFunction->parsing_plugins_efb();
 			$lang = $efbFunction->text_efb(2);
 			$smtp =false;
 			$captcha =false;
 			$maps=false;
 			$mdtest = "15f57cc603c2ea64721ae0d0b5983136";
-			$addons = ['AdnSPF' => 0,
-			'AdnOF' => 0,
-			'AdnPPF' => 0,
-			'AdnATC' => 0,
-			'AdnSS' => 0,
-			'AdnCPF' => 0,
-			'AdnESZ' => 0,
-			'AdnSE' => 0,
-			'AdnPDP'=>0,
-			'AdnADP'=>0];
+			$addons = $efbFunction->fun_get_addons_list_efb($ac);
 			if(isset($ac->osLocationPicker)==true && $ac->osLocationPicker==1){
 				$efbFunction->openstreet_map_required_efb(0);
 		    }
@@ -67,19 +58,6 @@ class Panel_edit  {
 					wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);
 					wp_enqueue_script('googleMaps-js');
 				} */
-				if(isset($ac->AdnSPF)==true){
-					$addons['AdnSPF']=$ac->AdnSPF;
-					$addons['AdnOF']=$ac->AdnOF;
-					$addons['AdnATC']=$ac->AdnATC;
-					$addons['AdnPPF']=$ac->AdnPPF;
-					$addons['AdnSS']=$ac->AdnSS;
-					$addons['AdnSPF']=$ac->AdnSPF;
-					$addons['AdnESZ']=$ac->AdnESZ;
-					$addons['AdnSE']=$ac->AdnSE;
-					$addons['AdnPDP'] = isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-					$addons['AdnADP'] = isset($ac->AdnADP) ? $ac->AdnADP : 0;
-					$addons["AdnPAP"] = isset($ac->AdnPAP) ? $ac->AdnPAP : 0;
-				}
 				$lng = get_locale();
 			$k ="";
 			$noti_pro = intval(get_option('Emsfb_pro' ,-1));
