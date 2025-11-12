@@ -415,9 +415,10 @@ class Admin {
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
             }
             $attempts = 2;
+            error_log($u);
             for ($i = 0; $i < $attempts; $i++) {
             $request = wp_remote_get($u);
-
+                error_log(print_r($request,true));
                 if (!is_wp_error($request)) {
                     break;
                 }
@@ -1667,7 +1668,6 @@ class Admin {
                     'description' => esc_html__('It seems that your WordPress site could not send a test email. To manually test your email system, go to Easy Form Builder > Settings > Email Settings tab and click the "Check Email Server" button.', 'easy-form-builder') . $warning,
                 ],
             ];
-
 
 
 
