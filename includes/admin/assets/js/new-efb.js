@@ -38,16 +38,23 @@ const mobile_view_efb = document.getElementsByTagName('body')[0].classList.conta
 efb_var_waitng = (time) => {
   setTimeout(() => {
     if (typeof (efb_var) == "object" && efb_var.hasOwnProperty('text')) {
-      formName_Efb = efb_var.text.form
-      default_val_efb = efb_var.text.selectOption
+      formName_Efb = efb_var.text.form || 'form'
+      default_val_efb = efb_var.text.selectOption || 'Select Option'
       pro_efb = efb_var.pro == "1" || efb_var.pro == 1 ? true : false;
       position_l_efb = efb_var.rtl == 1 ? "end" : "start";
-      lan_name_emsFormBuilder =efb_var.language.slice(0,2);
+      lan_name_emsFormBuilder = efb_var.language && typeof efb_var.language === 'string' ? efb_var.language.slice(0,2) : 'en';
       if(efb_var.hasOwnProperty('addons')  && typeof(efb_var.addons)== "object") addons_emsFormBuilder =efb_var.addons
       return;
     } else {
       time += 50;
-      time != 30000 ? efb_var_waitng(time) : alert_message_efb(efb_var.text.error, "Please Hard Refresh", 60)
+      if (time != 30000) {
+        efb_var_waitng(time);
+      } else {
+        const errorMsg = (typeof efb_var !== 'undefined' && efb_var && efb_var.text && efb_var.text.error)
+          ? efb_var.text.error
+          : 'Error';
+        alert_message_efb(errorMsg, "Please Hard Refresh", 60);
+      }
     }
   }, time)
 }
@@ -1560,11 +1567,13 @@ function noti_message_efb(message, alert ,id) {
   </div>`
 }
 function previewFormEfb(state) {
+  let form_id = '';
   if (state != "run") {
     state_efb = "view";
     preview_efb = true;
     activeEl_efb = 0;
-  }
+  }else {
+    form_id= ajax_object_efm.id }
   let content = `<!--efb.app-->`
   let step_no = 0;
   let head = ``
@@ -1862,7 +1871,8 @@ function previewFormEfb(state) {
   }
   step_el_efb = Number(valj_efb[0].steps);
   if ( state == 'run' &&
-  ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ) || (valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string") ) { fun_offline_Efb()
+  ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ) || (valj_efb[0].getway=="persiaPay" && get_authority_efb !==null) ) {
+    fun_offline_Efb()
   }
   if (ttype=='ardate'){
     if(typeof  load_hijir_data_picker_efb=="function"){
@@ -1880,6 +1890,10 @@ function previewFormEfb(state) {
       alert_message_efb(efb_var.text.iaddon, efb_var.text.IMAddonPD, 20 , 'info');
     }, 1000);
   }
+  }
+  if (state == 'run') {
+    ajax_object_efm.id = form_id;
+    efb_var.hasOwnProperty('id') ? ajax_object_efm.id = efb_var.id : 0;
   }
 }
 function fun_prev_send() {
@@ -2052,8 +2066,16 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
 }
 fun_offline_Efb = () => {
   let el = '';
-  if(localStorage.hasOwnProperty('sendback')==false) return;
-  const values =   JSON.parse(localStorage.getItem('sendback'))
+  if(localStorage.hasOwnProperty('sendback')==false  || get_authority_efb===null) return;
+  let values =  '';
+  if(efb_var.type=='payment' && get_authority_efb!==null){
+    const form_name_session = "efb_form_name_"+efb_var.id;
+    console.log(`form_name_session`, form_name_session)
+    values = JSON.parse(sessionStorage.getItem(form_name_session)) ?? values;
+  }else{
+     values = JSON.parse(localStorage.getItem('sendback'));
+  }
+  console.log(`offline_Efb called UI`, values)
   for (let value of values) {
     sendBack_emsFormBuilder_pub.push(value);
     switch (value.type) {

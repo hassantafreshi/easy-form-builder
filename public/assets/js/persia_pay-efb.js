@@ -2,8 +2,8 @@
 const getUrlback_efb = location.search;
 
 const getUrlparam_efb = new URLSearchParams(getUrlback_efb);
-const get_authority_efb = getUrlparam_efb.get('Authority');
-const get_Status_efb =  getUrlparam_efb.get('Status');
+const get_authority_efb = getUrlparam_efb.get('Authority') ?? null;
+const get_Status_efb =  getUrlparam_efb.get('Status') ?? null;
 fun_total_pay_persiaPay_efn=(total)=>{
     const el = document.getElementById("persiaPayEfb");
     if(el){
@@ -13,9 +13,10 @@ fun_total_pay_persiaPay_efn=(total)=>{
 
 
 pay_persia_efb=()=>{
-    
     const gateWay = valj_efb[0].persiaPay;
-    
+    const form_name_session = "efb_form_name_"+efb_var.id;
+    const json_send= JSON.stringify(sendBack_emsFormBuilder_pub);
+    sessionStorage.setItem(form_name_session, json_send);
     if(gateWay=="zarinPal"){
       fun_pay_pp_efb();
     }else if(gateWay=="efb"){
@@ -45,7 +46,7 @@ add_ui_persiaPay_efb=(rndm)=>{
     </div>
     <div class="efb p-3 card w-100 d-none" id="afterPayefb">
     </div>
-  ` 
+  `
   if(get_Status_efb=='OK'){
     r=`
     <div class="efb   card w-100 col-sm-12"  id='${rndm}-f'>
@@ -53,9 +54,9 @@ add_ui_persiaPay_efb=(rndm)=>{
       <div class="efb  headpay border-b row col-md-12 mb-3">
           <div class="efb fs-4 text-darkb text-center">پرداخت با موفقیت انجام شد</div>
           <div class="efb fs-5 text-dark text-center">کد پیگیری پرداخت <br> ${get_authority_efb}</div>
-          
+
         </div>
-    ` 
+    `
     change_url_back_persia_pay_efb()
   }
     return r;
@@ -64,30 +65,30 @@ add_ui_persiaPay_efb=(rndm)=>{
 
 function btnPersiaPayEfb(){
   if (!navigator.onLine) {
-    
+
     noti_message_efb(efb_var.text.offlineSend , 'danger' , `beforePay` );
     return;
   }
-  
 
 
-  
-  
+
+
+
   product = localStorage.getItem('pay_efb')==null ? 2 : sanitize_text_efb(localStorage.getItem('pay_efb'));
-  
+
   setTimeout(() => {
     let val=[];
     sendBack_emsFormBuilder_pub.forEach(row => {
       if(row.type.includes('pay')!=false || row.type.includes('prcfld')!=undefined){
-       
+
         val.push(row);
       }
     });
-    
+
     data = {
       action: "pay_IRBank_payEfb",
       value: JSON.stringify(val),
-      id : efb_var.id,                      
+      id : efb_var.id,
       product:product,
       name:formNameEfb,
       nonce: ajax_object_efm.nonce,
@@ -103,7 +104,7 @@ post_api_persiapay_efb=(data)=>{
   let btnEfb = document.getElementById('persiaPayEfb');
   btnEfb.innerHTML="لطفا صبر کنید";
   btnEfb.classList.add('disabled');
-  
+
   let PaymentState = document.getElementById('afterPayefb');
   const url = efb_var.rest_url+'Emsfb/v1/forms/payment/persia/add';
 
@@ -118,7 +119,7 @@ post_api_persiapay_efb=(data)=>{
   headers,
   body: jsonData,
   };
-  
+
   fetch(url, requestOptions)
   .then(response => {
     if (!response.ok) {
@@ -142,15 +143,15 @@ post_api_persiapay_efb=(data)=>{
     PaymentState.classList.remove('d-none');
   })
   .catch(error => {
-   
+
     console.error(error.message);
     btnEfb.classList.remove('disabled');
     PaymentState.innerHTML = `<p class="h4">${efb_var.text.error}</p> ${error.message}`;
     btnEfb.innerHTML = "پرداخت";
     PaymentState.classList.remove('d-none');
   });
- 
-  
+
+
 }
 
 
@@ -158,13 +159,13 @@ post_api_persiapay_efb=(data)=>{
 fun_after_bankpay_persia_ui =()=>{
   const id = valj_efb[0].steps == 1 ? 'btn_send_efb' : 'next_efb';
   efb_var.id=sanitize_text_efb(efb_var.payId)
-   
-  if ( ((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 && grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha != true) && document.getElementById(id) || valueJson_ws[0].captcha != true && document.getElementById(id) ) 
+
+  if ( ((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 && grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha != true) && document.getElementById(id) || valueJson_ws[0].captcha != true && document.getElementById(id) )
     {
-     
+
       document.getElementById(id).classList.remove('disabled');
-     
-     
+
+
     }
   fun_disabled_all_pay_efb()
       let o = [{
