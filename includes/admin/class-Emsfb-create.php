@@ -412,8 +412,11 @@ class Create {
 		$valx =json_encode($valp,JSON_UNESCAPED_UNICODE);
 		$this->value=str_replace('"', '\\"', $valx);
 		$this->insert_db();
-
-		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
+		$sms_file_exist=false;
+		if (file_exists(EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php')) {
+			$sms_file_exist=true;
+		}
+		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 && $sms_file_exist){
 
 
 

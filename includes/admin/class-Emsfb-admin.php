@@ -1354,13 +1354,18 @@ class Admin {
     }
     public function send_sms_admin_Emsfb(){
 
-       if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
+       if(check_ajax_referer('admin-nonce', 'nonce') != 1) {
 
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
         }
+        $path = EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php";
+        if(!file_exists($path)){
+            $response = ['success' => false, 'm' =>'SMS Add-on Not Installed'];
+            wp_send_json_success($response, 200);
+        }
 
-       require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
+        require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
         $smssendefb = new smssendefb();
         $smssendefb->send_sms_Emsfb($_POST);
 

@@ -1733,7 +1733,7 @@ class efbFunction {
 
     public function efb_code_validate_select($sid ,$fid) {
 
-
+		error_log("efb_code_validate_select called with sid: $sid, fid: $fid");
 
 		$table_name = $this->db->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
