@@ -17,6 +17,9 @@ pay_persia_efb=()=>{
     const form_name_session = "efb_form_name_"+efb_var.id;
     const json_send= JSON.stringify(sendBack_emsFormBuilder_pub);
     sessionStorage.setItem(form_name_session, json_send);
+    //files_emsFormBuilder
+    const files_emsFormBuilder_ = JSON.stringify(files_emsFormBuilder);
+    sessionStorage.setItem('files_'+form_name_session, files_emsFormBuilder_);
     if(gateWay=="zarinPal"){
       fun_pay_pp_efb();
     }else if(gateWay=="efb"){
@@ -187,4 +190,187 @@ fun_after_bankpay_persia_ui =()=>{
 if(get_Status_efb=="NOK"){
   change_url_back_persia_pay_efb();
   window.alert('پرداخت انجام نشد ، لطفا صفحه را رفرش کنید و دوباره تلاش کنید');
+}else{
+  setTimeout(() => {
+    if(state_efb!=='run') return;
+    const steps = valj_efb[0].steps ?? 0;
+    if(steps==1){
+      const btn_send_efb = document.getElementById('btn_send_efb');
+      if(btn_send_efb){
+        btn_send_efb.classList.remove('disabled');
+      }
+    }else{
+      const next_efb = document.getElementById('next_efb');
+      if(next_efb){
+        next_efb.classList.remove('disabled');
+      }
+    }
+  }, 1000);
+}
+
+
+fun_after_bankpay_persia_ui_efb=()=>{
+ if(state_efb!=='run') return;
+ const last_step = valj_efb[0].steps ?? 0;
+ const _index = valj_efb.findIndex(x=>x.type=='persiaPay') ;
+ const last_el_amount = valj_efb.slice().reverse().find(x=>x.hasOwnProperty('type') && x.hasOwnProperty('amount'));
+ const paymeny_amount = valj_efb[_index].hasOwnProperty('amount') ? valj_efb[_index].amount : 0;
+ current_s_efb = Number(last_step);
+  if(_index==-1)return;
+  const step_pp = valj_efb[_index].step;
+  const showPaymentLoadingAndProceed = (is_multiStep) => {
+     console.log('Payment successful - showing loading overlay');
+
+     // Create loading overlay
+     const loadingOverlay = document.createElement('div');
+     loadingOverlay.id = 'efb-payment-loading';
+     loadingOverlay.style.cssText = `
+       position: fixed;
+       top: 0;
+       left: 0;
+       width: 100vw;
+       height: 100vh;
+       background: rgba(0, 0, 0, 0.8);
+       z-index: 9999;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       color: white;
+       font-family: Arial, sans-serif;
+     `;
+
+     loadingOverlay.innerHTML = `
+       <div style="text-align: center;">
+         <div style="
+           width: 50px;
+           height: 50px;
+           border: 5px solid #f3f3f3;
+           border-top: 5px solid #3498db;
+           border-radius: 50%;
+           animation: spin 1s linear infinite;
+           margin: 0 auto 20px;
+         "></div>
+         <h3 style="margin: 0; font-size: 24px;">پرداخت موفق بود!</h3>
+         <p style="margin: 10px 0; font-size: 16px;">در حال انتقال به مرحله آخر...</p>
+         <div id="countdown" style="font-size: 20px; font-weight: bold;">3</div>
+       </div>
+       <style>
+         @keyframes spin {
+           0% { transform: rotate(0deg); }
+           100% { transform: rotate(360deg); }
+         }
+       </style>
+     `;
+
+     document.body.appendChild(loadingOverlay);
+     console.log('Loading overlay added to page');
+
+     // Countdown timer
+     let countdown = 3;
+     const countdownEl = document.getElementById('countdown');
+     const countdownTimer = setInterval(() => {
+       countdown--;
+       if(countdownEl) {
+         countdownEl.textContent = countdown;
+       }
+
+       if(countdown <= 0) {
+         clearInterval(countdownTimer);
+         console.log('Countdown finished - performing simple click to go to final step');
+
+         // Remove loading overlay
+         if(loadingOverlay && loadingOverlay.parentNode) {
+           loadingOverlay.parentNode.removeChild(loadingOverlay);
+           console.log('Loading overlay removed');
+         }
+
+         // Simple click to next button to reach final step
+         setTimeout(() => {
+           if(is_multiStep==true) {
+             // Multi-step: Click next_efb button
+            if (files_emsFormBuilder.length > 0) {
+              for (const file of files_emsFormBuilder) {
+                if (get_row_sendback_by_id_efb(file.id_) == -1) { sendBack_emsFormBuilder_pub.push(file); localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub)); }
+              }
+            }
+            if (validation_before_send_emsFormBuilder() == true){ actionSendData_emsFormBuilder(); }
+             const nextBtn = document.getElementById('next_efb');
+             if(nextBtn) {
+               console.log('Multi-step: Clicking next_efb button');
+
+               // Enable button first
+               nextBtn.disabled = false;
+               nextBtn.classList.remove('disabled');
+
+               // Create and dispatch real click event for addEventListener
+               const realClickEvent = new MouseEvent('click', {
+                 bubbles: true,
+                 cancelable: true,
+                 view: window
+               });
+
+               nextBtn.dispatchEvent(realClickEvent);
+
+               console.log('Multi-step: Click dispatched to next_efb');
+             } else {
+               console.log('Multi-step: next_efb button not found');
+             }
+           } else {
+             // Single-step: Click btn_send_efb button
+               var state = true;
+                if (preview_efb == false && fun_validation_efb() == false) {
+                  state = false;
+                  return false;
+                }
+                setTimeout(function () {
+                  if (state == true) {
+                  if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').classList.add("active");
+                    document.querySelector('[data-step="step-' + (current_s_efb + 1) + '-efb"]').classList.toggle("d-none");
+                    document.getElementById("btn_send_efb").classList.toggle("d-none");
+                    var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
+                    next_s_efb = current_s.nextElementSibling;
+                    current_s.classList.add('d-none');
+                    if(next_s_efb)next_s_efb.classList.remove('d-none');
+                    if(document.getElementById('gRecaptcha'))document.getElementById('gRecaptcha').classList.add('d-none');
+                    current_s_efb += 1;
+                    setProgressBar_efb(current_s_efb, steps_len_efb);
+                    send_data_efb();
+                  }
+                  if (document.getElementById("body_efb")) {
+                    document.getElementById("body_efb").scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+                  }
+                }, 200);
+           }
+
+           // Hide all fieldsets except last one for visual effect
+           const efb_docs = document.getElementById('view-efb');
+           const fieldsets = efb_docs ? efb_docs.getElementsByTagName('fieldset') : [];
+           for(let i=0; i<fieldsets.length-1; i++){
+             console.log('Hiding fieldset index:', i);
+             fieldsets[i].classList.add('d-none');
+           }
+           if(fieldsets.length > 0) {
+             fieldsets[fieldsets.length-1].classList.remove('d-none');
+           }
+         }, 100);
+       }
+     }, 1000);
+  };
+  if(Number(last_step)==1){
+
+     if(Number(last_el_amount.amount)==Number(paymeny_amount)){
+      console.log('Enable next button for persia pay',last_step);
+      showPaymentLoadingAndProceed(false);
+    }
+  }else{
+    //get last row of valj_efb and has type and amount attributes
+    if(Number(last_el_amount.amount)==Number(paymeny_amount)){
+      console.log('Enable next button for persia pay',last_step);
+      showPaymentLoadingAndProceed(true);
+    }
+    console.log('last_el_amount:', last_el_amount.amount);
+    console.log('paymeny_amount:', paymeny_amount);
+
+  }
+
 }

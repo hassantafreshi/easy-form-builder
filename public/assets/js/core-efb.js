@@ -43,6 +43,9 @@ function fun_render_view_efb(val, check) {
     setTimeout(() => {
       fun_total_pay_efb()
     }, valj_efb.length *2);
+    if(get_authority_efb!==null){
+      if(typeof fun_after_bankpay_persia_ui_efb === "function") fun_after_bankpay_persia_ui_efb();
+    }
   }
 }
 
@@ -225,6 +228,7 @@ function alarm_emsFormBuilder(val) {
     </div>`
 }
  function endMessage_emsFormBuilder_view() {
+  console.log('endMessage_emsFormBuilder_view called');
   let counter = 0;
   const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   const stepMax = currentTab_emsFormBuilder + 1;
@@ -296,6 +300,7 @@ function alarm_emsFormBuilder(val) {
   }
 }
 function actionSendData_emsFormBuilder() {
+  console.log('actionSendData_emsFormBuilder called');
   if (efb_var.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
   recaptcha_emsFormBuilder = valueJson_ws.length > 1 && valueJson_ws[0].hasOwnProperty('captcha') == true && valueJson_ws[0].captcha == true && typeof grecaptcha == "object" ? grecaptcha.getResponse() : "";
@@ -1008,6 +1013,7 @@ window.addEventListener("popstate",e=>{
   return  r;
  }
  post_api_forms_efb=(data)=>{
+  console.log(data);
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
 const headers = new Headers({
   'Content-Type': 'application/json',
@@ -1131,3 +1137,5 @@ document.addEventListener("DOMContentLoaded", function() {
     fun();
   }
 });
+
+

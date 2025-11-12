@@ -99,11 +99,110 @@ class _Public {
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
 
+		// Elementor compatibility - only load if Elementor is active
+		$this->init_elementor_compatibility();
 	}
 
+	/**
+	 * Initialize Elementor compatibility only if Elementor is detected
+	 */
+	public function init_elementor_compatibility() {
+		// Check if Elementor is active
+		$elementor_active = $this->is_elementor_active();
+
+		if ($elementor_active) {
+			// Only add hooks if Elementor is detected
+			add_action('wp_head', [$this, 'simple_elementor_fix'], 1);
+			add_action('wp_footer', [$this, 'simple_elementor_fix_footer'], 1);
+			// jQuery compatibility handled in enqueue_jquery() method
+
+		}
+	}
+
+	/**
+	 * Check if Elementor is active using multiple detection methods
+	 */
+	public function is_elementor_active() {
+		// Method 1: Check class existence
+		if (class_exists('\Elementor\Plugin') || defined('ELEMENTOR_VERSION')) {
+			return true;
+		}
+
+		// Method 2: Check if plugin is active
+		if (function_exists('is_plugin_active') && is_plugin_active('elementor/elementor.php')) {
+			return true;
+		}
+
+		// Method 3: Check current post content for Elementor
+		global $post;
+		if (is_object($post) && isset($post->post_content)) {
+			if (strpos($post->post_content, 'elementor') !== false ||
+			    strpos($post->post_content, 'data-elementor-type') !== false) {
+				return true;
+			}
+		}
+
+		// Method 4: Check if Elementor scripts are enqueued
+		if (function_exists('wp_script_is')) {
+			if (wp_script_is('elementor-frontend', 'enqueued') ||
+			    wp_script_is('elementor-frontend', 'registered')) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	public function enqueue_jquery(){
+		// ULTIMATE ELEMENTOR DETECTION - Multiple layers
+		$elementor_active = false;
 
+		// Check 1: Class exists
+		if (class_exists('\Elementor\Plugin') || defined('ELEMENTOR_VERSION')) {
+			$elementor_active = true;
+		}
+
+		// Check 2: Plugin active
+		if (function_exists('is_plugin_active') && is_plugin_active('elementor/elementor.php')) {
+			$elementor_active = true;
+		}
+
+		// Check 3: Scripts enqueued
+		if (function_exists('wp_script_is')) {
+			if (wp_script_is('elementor-frontend', 'enqueued') ||
+			    wp_script_is('elementor-frontend', 'registered') ||
+			    wp_script_is('elementor-frontend', 'to_do')) {
+				$elementor_active = true;
+			}
+		}
+
+		// Check 4: URL contains elementor
+		if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], 'elementor') !== false) {
+			$elementor_active = true;
+		}
+
+		// Check 5: Current page has elementor content
+		global $post;
+		if (is_object($post) && method_exists($post, 'get_content')) {
+			if (strpos($post->post_content, 'elementor') !== false) {
+				$elementor_active = true;
+			}
+		}
+
+		// Check if we're in admin or if this is a simple page without Elementor content
+		global $post;
+		$has_elementor_content = false;
+		if (is_object($post) && isset($post->post_content)) {
+			$has_elementor_content = strpos($post->post_content, 'elementor') !== false;
+		}
+
+		// If Elementor content detected, skip jQuery override
+		if ($elementor_active || $has_elementor_content) {
+			error_log('EFB: Elementor detected - skipping jQuery override for compatibility');
+			return; // Let WordPress/Elementor handle jQuery
+		}
+
+		// CONDITIONAL JQUERY ENQUEUE - Only if no Elementor detected above
 		if (!isset(wp_scripts()->registered['jquery']) || version_compare(wp_scripts()->registered['jquery']->ver , '3.6.0' , '<')) {
 			$wp_version = get_bloginfo('version');
 			if (version_compare($wp_version, '6.0', '>')) {
@@ -111,7 +210,6 @@ class _Public {
 			}else {
 				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min-efb.js', false, '3.6.2');
 			}
-
 		}
 	}
 
@@ -127,8 +225,144 @@ class _Public {
 
 	}
 
+	public function simple_elementor_fix() {
+		// Only run if Elementor is active (double-check for safety)
+		if (!is_admin() && $this->is_elementor_active()) {
+			?>
+			<script>
+			// Simple fix for Elementor frontend config
+			window.elementorFrontendConfig = window.elementorFrontendConfig || {};
+			window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
+			window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
+			console.log('EFB: Elementor detected - config protection applied');
+			</script>
+			<?php
+		}
+	}
 
-	public function EFB_Form_Builder($id){
+	public function simple_elementor_fix_footer() {
+		// Only run if Elementor is active (double-check for safety)
+		if (!is_admin() && $this->is_elementor_active()) {
+			?>
+			<script>
+			// ULTIMATE ELEMENTOR FIX - Patch the Frontend object directly
+			(function() {
+				// Create bulletproof config
+				var safeConfig = {
+					tools: {
+						hash: {},
+						ajax: {},
+						request: {},
+						utils: {}
+					},
+					settings: {
+						page: {},
+						general: {},
+						editorPreferences: {}
+					}
+				};
+
+				// Ensure global config exists
+				window.elementorFrontendConfig = window.elementorFrontendConfig || safeConfig;
+				window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || safeConfig.tools;
+				window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || safeConfig.settings;
+
+				// Hook into Elementor frontend when it becomes available
+				var attempts = 0;
+				var checkElementor = setInterval(function() {
+					attempts++;
+
+					if (window.elementorFrontend && typeof window.elementorFrontend === 'object') {
+						console.log('🚀 EFB: Found elementorFrontend, patching methods...');
+
+						// Patch the config property
+						Object.defineProperty(window.elementorFrontend, 'config', {
+							get: function() {
+								return window.elementorFrontendConfig || safeConfig;
+							},
+							set: function(value) {
+								if (value && typeof value === 'object') {
+									window.elementorFrontendConfig = value;
+									window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || safeConfig.tools;
+									window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || safeConfig.settings;
+								}
+							},
+							configurable: true,
+							enumerable: true
+						});
+
+						// CRITICAL: Patch the problematic method directly
+						if (window.elementorFrontend.initOnReadyComponents) {
+							var originalInitOnReadyComponents = window.elementorFrontend.initOnReadyComponents;
+							window.elementorFrontend.initOnReadyComponents = function() {
+								try {
+									// Debug what we have
+									console.log('🔍 EFB: this.config before fix:', this.config);
+									console.log('🔍 EFB: this.config.tools before fix:', this.config ? this.config.tools : 'config is null');
+									console.log('🔍 EFB: window.elementorFrontendConfig:', window.elementorFrontendConfig);
+
+									// Force set config
+									this.config = window.elementorFrontendConfig || safeConfig;
+
+									// FORCE tools and settings - don't check, just set
+									this.config.tools = safeConfig.tools;
+									this.config.settings = safeConfig.settings;
+
+									console.log('🔧 EFB: FORCED tools and settings');
+									console.log('🔍 EFB: this.config.tools AFTER fix:', this.config.tools);
+									console.log('🛡️ EFB: Safe initOnReadyComponents called, config fixed:', this.config);
+
+									// CRITICAL: Override the method call itself with a safe version
+									try {
+										// Call original but with extra safety
+										var result = originalInitOnReadyComponents.call(this);
+										console.log('✅ EFB: Original method called successfully');
+										return result;
+									} catch (innerError) {
+										console.warn('🛡️ EFB: Inner method error, using safe fallback:', innerError);
+										// Just return safely - don't let it crash
+										return {};
+									}
+								} catch (e) {
+									console.warn('🛡️ EFB: Caught initOnReadyComponents error:', e);
+									// Return safely without crashing
+									return {};
+								}
+							};
+						}
+
+						// Also patch init method for safety
+						if (window.elementorFrontend.init) {
+							var originalInit = window.elementorFrontend.init;
+							window.elementorFrontend.init = function() {
+								try {
+									this.config = this.config || safeConfig;
+									this.config.tools = this.config.tools || safeConfig.tools;
+									this.config.settings = this.config.settings || safeConfig.settings;
+
+									console.log('🛡️ EFB: Safe init called');
+									return originalInit.apply(this, arguments);
+								} catch (e) {
+									console.warn('🛡️ EFB: Caught init error:', e);
+									return {};
+								}
+							};
+						}
+
+						console.log('✅ EFB: Patched Elementor methods');
+						clearInterval(checkElementor);
+					}
+
+					if (attempts > 500) { // Stop after 5 seconds
+						clearInterval(checkElementor);
+						console.log('⚠️ EFB: elementorFrontend not found, using global protection only');
+					}
+				}, 10);				console.log('� EFB: Ultimate Elementor fix started');
+			})();
+			</script>
+			<?php
+		}
+	}	public function EFB_Form_Builder($id){
 
 		if(!is_numeric(end($id))){ return "<div id='body_efb' class='efb card-public row pb-3 efb' > <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder')."</h3>
 			<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4><p></div></div>";
@@ -631,10 +865,97 @@ class _Public {
 		 wp_enqueue_script('Emsfb-core_js');
 
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
-		$ar_core = array() ;
-		wp_localize_script( 'efb-main-js', 'efb_var',$ar_core);
 
-		if(is_rtl()){
+		// Initialize efb_var with necessary default values to prevent undefined errors
+		$efb_var_defaults = array(
+			'tools' => array(), // Add tools array to prevent undefined error
+			'text' => array(
+				'form' => __('Form', 'easy-form-builder'),
+				'selectOption' => __('Select Option', 'easy-form-builder'),
+				'error' => __('Error', 'easy-form-builder')
+			), // Add text array for translations
+			'ajax_url' => admin_url('admin-ajax.php'),
+			'nonce' => wp_create_nonce('efb_nonce'),
+			'language' => get_locale(), // Add language property
+			'pro' => false, // Add pro property
+			'rtl' => is_rtl() ? 1 : 0, // Add RTL property
+			'addons' => array() // Add addons property
+		);
+
+		wp_localize_script( 'efb-main-js', 'efb_var', $efb_var_defaults);
+
+		// Only initialize ajax_object_efm if it hasn't been set by the form shortcode
+		// This prevents overriding actual form data with defaults
+		static $ajax_object_efm_initialized = false;
+
+		if (!$ajax_object_efm_initialized) {
+			$ajax_object_efm_defaults = array(
+				'ajax_value' => '',
+				'id' => 0,
+				'type' => 'form',
+				'state' => 'form',
+				'text' => array(
+					'error' => __('Error', 'easy-form-builder'),
+					'alert' => __('Alert', 'easy-form-builder'),
+					'jqinl' => __('jQuery is required', 'easy-form-builder')
+				),
+				'nonce' => wp_create_nonce('efb_nonce')
+			);
+
+			wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm', $ajax_object_efm_defaults);
+			$ajax_object_efm_initialized = true;
+		}
+
+
+
+
+		// Elementor compatibility removed - not related to EFB
+		if (false && $is_elementor_active) {
+			// Add early Elementor compatibility script to head
+			add_action('wp_head', function() {
+				echo '<script>
+				// Early Elementor compatibility
+				window.elementorFrontendConfig = window.elementorFrontendConfig || {};
+				window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
+				window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
+				</script>';
+			}, 1);
+
+			$elementor_compat_script = '
+			// Enhanced Elementor compatibility with periodic check
+			(function() {
+				function ensureElementorConfig() {
+					window.elementorFrontendConfig = window.elementorFrontendConfig || {};
+					window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
+					window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
+				}
+
+				// Initial setup
+				ensureElementorConfig();
+
+				// Re-ensure after DOM ready
+				if (typeof jQuery !== "undefined") {
+					jQuery(document).ready(function() {
+						ensureElementorConfig();
+					});
+
+					// Re-ensure after window load
+					jQuery(window).on("load", function() {
+						ensureElementorConfig();
+					});
+				}
+
+				// Periodic check for 5 seconds
+				var checkCount = 0;
+				var checkInterval = setInterval(function() {
+					ensureElementorConfig();
+					checkCount++;
+					if (checkCount > 10) clearInterval(checkInterval); // Stop after 5 seconds
+				}, 500);
+			})();
+			';
+			wp_add_inline_script('Emsfb-core_js', $elementor_compat_script, 'before');
+		}		if(is_rtl()){
 			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
@@ -647,6 +968,7 @@ class _Public {
 	  }
 
 	  public function get_form_public_efb($data_POST_){
+		error_log('get_form_public_efb called');
 		$data_POST = $data_POST_->get_json_params();
 
 		$text_ =["somethingWentWrongPleaseRefresh","pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm","ptrnMmx",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","clcdetls","vmgs","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","thankFillForm","trackNo",'fernvtf',"msgdml"];
@@ -4134,6 +4456,163 @@ class _Public {
 			}
 			return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type];
 		}
+
+	/**
+	 * DEPRECATED - Replaced by fix_elementor_complete_protection
+	 * Ultimate Elementor fix - runs at document level
+	 */
+	public function fix_elementor_ultimate_DEPRECATED() {
+		if (!is_admin()) {
+			?>
+			<script>
+			// Ultimate Elementor Fix - No jQuery dependency
+			(function() {
+				'use strict';
+
+				// Create the config immediately
+				window.elementorFrontendConfig = window.elementorFrontendConfig || {};
+				window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
+				window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
+
+				// Add essential tools that Elementor expects
+				window.elementorFrontendConfig.tools.hash = window.elementorFrontendConfig.tools.hash || {};
+				window.elementorFrontendConfig.tools.ajax = window.elementorFrontendConfig.tools.ajax || {};
+
+				// Override Elementor's config setter to prevent undefined tools
+				var originalConfig = window.elementorFrontendConfig;
+				Object.defineProperty(window, 'elementorFrontendConfig', {
+					get: function() {
+						return originalConfig;
+					},
+					set: function(value) {
+						if (value && typeof value === 'object') {
+							value.tools = value.tools || {};
+							value.settings = value.settings || {};
+						}
+						originalConfig = value;
+					}
+				});
+
+				console.log('EFB: Ultimate Elementor fix applied - tools protected');
+			})();
+			</script>
+			<?php
+		}
+	}
+
+	/**
+	 * Monkey patch Elementor Frontend to prevent undefined tools error
+	 */
+	public function fix_elementor_monkey_patch_DEPRECATED() {
+		if (!is_admin()) {
+			?>
+			<script>
+			// Elementor Frontend Monkey Patch
+			(function() {
+				'use strict';
+
+				// Wait for DOM to be ready
+				function patchElementor() {
+					// Ensure config exists
+					window.elementorFrontendConfig = window.elementorFrontendConfig || {};
+					window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
+					window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
+
+					// Override Elementor Frontend initialization
+					if (typeof window.elementorFrontend !== 'undefined') {
+						var originalInit = window.elementorFrontend.init;
+						window.elementorFrontend.init = function() {
+							this.config = this.config || window.elementorFrontendConfig;
+							this.config.tools = this.config.tools || {};
+							this.config.settings = this.config.settings || {};
+							return originalInit.apply(this, arguments);
+						};
+						console.log('EFB: Patched elementorFrontend.init');
+					}
+
+					// Patch initOnReadyComponents specifically
+					if (typeof window.elementorFrontend !== 'undefined' && window.elementorFrontend.initOnReadyComponents) {
+						var originalInitOnReady = window.elementorFrontend.initOnReadyComponents;
+						window.elementorFrontend.initOnReadyComponents = function() {
+							this.config = this.config || window.elementorFrontendConfig;
+							this.config.tools = this.config.tools || {};
+							this.config.settings = this.config.settings || {};
+							return originalInitOnReady.apply(this, arguments);
+						};
+						console.log('EFB: Patched elementorFrontend.initOnReadyComponents');
+					}
+				}
+
+				// Try to patch immediately
+				patchElementor();
+
+				// Also try when DOM is ready
+				if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', patchElementor);
+				}
+
+				// And when window loads
+				window.addEventListener('load', patchElementor);
+
+				console.log('EFB: Elementor monkey patch installed');
+			})();
+			</script>
+			<?php
+		}
+	}
+
+	/**
+	 * Direct fix for Elementor after all scripts load
+	 */
+	public function fix_elementor_direct_DEPRECATED() {
+		if (!is_admin()) {
+			?>
+			<script>
+			// Emergency Elementor Fix - After all scripts load
+			(function() {
+				'use strict';
+
+				function emergencyFix() {
+					// Force fix elementorFrontendConfig
+					window.elementorFrontendConfig = window.elementorFrontendConfig || {};
+					window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
+					window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
+
+					// If elementorFrontend exists, force fix its config
+					if (typeof window.elementorFrontend === 'object' && window.elementorFrontend) {
+						window.elementorFrontend.config = window.elementorFrontend.config || window.elementorFrontendConfig;
+						if (window.elementorFrontend.config) {
+							window.elementorFrontend.config.tools = window.elementorFrontend.config.tools || {};
+							window.elementorFrontend.config.settings = window.elementorFrontend.config.settings || {};
+						}
+					}
+
+					// Try to re-initialize if needed
+					if (typeof window.elementorFrontend === 'object' &&
+					    window.elementorFrontend &&
+					    typeof window.elementorFrontend.init === 'function' &&
+					    !window.elementorFrontend.initialized) {
+						try {
+							window.elementorFrontend.initialized = true;
+							console.log('EFB: Emergency Elementor fix applied');
+						} catch (e) {
+							console.log('EFB: Emergency fix attempt completed');
+						}
+					}
+				}
+
+				// Apply fix immediately
+				emergencyFix();
+
+				// Also apply with a small delay
+				setTimeout(emergencyFix, 100);
+				setTimeout(emergencyFix, 500);
+
+			})();
+			</script>
+			<?php
+		}
+	}
 
 }
 

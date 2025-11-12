@@ -334,7 +334,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
-        <input type="text"   class="efb pdpF2 input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}'  id="${rndm}_"   ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''}>
+        <input type="text" placeholder="1366-02-16"   class="efb pdpF2 input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}'  id="${rndm}_"   ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''}>
         ${desc}`
       dataTag = elementId;
       typeof rating_el_pro_efb =="function" ? 0 : ui=public_pro_message()
@@ -1325,6 +1325,7 @@ function validExtensions_efb_fun(type, fileType,indx) {
 }
 let steps_len_efb
 function handle_navbtn_efb(steps, device) {
+  console.log('handle_navbtn_efb', steps, device);
   var next_s_efb, prev_s_efb;
   var opacity_efb;
   steps_len_efb = Number(steps) + 1;
@@ -1415,6 +1416,7 @@ function handle_navbtn_efb(steps, device) {
     });
   } else {
     document.getElementById("btn_send_efb").addEventListener("click", function () {
+      console.log('click btn_send_efb');
       var state = true;
       if (preview_efb == false && fun_validation_efb() == false) {
         state = false;
@@ -1448,6 +1450,7 @@ function handle_navbtn_efb(steps, device) {
 }
 function prev_btn_efb() {
   var cs = current_s_efb;
+
   if (cs == 2) {
     var val = `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}" id="button_group_Next_icon"></i>`;
     document.getElementById("next_efb").innerHTML = val;
@@ -2070,8 +2073,9 @@ fun_offline_Efb = () => {
   let values =  '';
   if(efb_var.type=='payment' && get_authority_efb!==null){
     const form_name_session = "efb_form_name_"+efb_var.id;
-    console.log(`form_name_session`, form_name_session)
+    console.log(`form_name_session`, form_name_session);
     values = JSON.parse(sessionStorage.getItem(form_name_session)) ?? values;
+    files_emsFormBuilder = JSON.parse(sessionStorage.getItem("files_"+form_name_session)) ?? files_emsFormBuilder;
   }else{
      values = JSON.parse(localStorage.getItem('sendback'));
   }
