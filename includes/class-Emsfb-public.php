@@ -2062,19 +2062,11 @@ class _Public {
         $fid=intval($_POST['fid']);
 		$sid = sanitize_text_field($_POST['sid']);
 		$page_id = sanitize_text_field($_POST['page_id']);
-
-
-
-
-
-
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
 
 		if ($s_sid !=1 || $sid==null){
-
-
-		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . ": 402");
-		wp_send_json_success($response,200);
+			$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . ": 402");
+			wp_send_json_success($response,200);
 		}
 
 		$this->cache_cleaner_Efb($page_id);

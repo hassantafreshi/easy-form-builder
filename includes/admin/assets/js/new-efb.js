@@ -2395,6 +2395,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
     });
     xhr.addEventListener('error', () => {
     reject(xhr.statusText);
+    console.error('Upload failed.' + xhr.statusText);
     });
     xhr.open('POST', url, true);
     xhr.send(formData);
