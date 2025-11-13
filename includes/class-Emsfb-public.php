@@ -99,23 +99,29 @@ class _Public {
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
 
-		// Elementor compatibility - only load if Elementor is active
-		$this->init_elementor_compatibility();
+		// Elementor compatibility - only load if Elementor is active and not in admin
+		if (!is_admin()) {
+			$this->init_elementor_compatibility();
+		}
 	}
 
 	/**
 	 * Initialize Elementor compatibility only if Elementor is detected
 	 */
 	public function init_elementor_compatibility() {
+		// Only run on frontend, not in admin panel to avoid conflicts
+		if (is_admin()) {
+			return;
+		}
+
 		// Check if Elementor is active
 		$elementor_active = $this->is_elementor_active();
 
 		if ($elementor_active) {
-			// Only add hooks if Elementor is detected
+			// Only add hooks if Elementor is detected on frontend
 			add_action('wp_head', [$this, 'simple_elementor_fix'], 1);
 			add_action('wp_footer', [$this, 'simple_elementor_fix_footer'], 1);
 			// jQuery compatibility handled in enqueue_jquery() method
-
 		}
 	}
 
@@ -123,6 +129,11 @@ class _Public {
 	 * Check if Elementor is active using multiple detection methods
 	 */
 	public function is_elementor_active() {
+		// Never return true in admin to prevent conflicts
+		if (is_admin()) {
+			return false;
+		}
+
 		// Method 1: Check class existence
 		if (class_exists('\Elementor\Plugin') || defined('ELEMENTOR_VERSION')) {
 			return true;
@@ -154,6 +165,11 @@ class _Public {
 	}
 
 	public function enqueue_jquery(){
+		// Only run on frontend, not in admin panel to avoid conflicts
+		if (is_admin()) {
+			return;
+		}
+
 		// ULTIMATE ELEMENTOR DETECTION - Multiple layers
 		$elementor_active = false;
 
@@ -226,8 +242,8 @@ class _Public {
 	}
 
 	public function simple_elementor_fix() {
-		// Only run if Elementor is active (double-check for safety)
-		if (!is_admin() && $this->is_elementor_active()) {
+		// Only run if Elementor is active and NOT in admin panel (triple-check for safety)
+		if (!is_admin() && !current_user_can('edit_posts') && $this->is_elementor_active()) {
 			?>
 			<script>
 			// Simple fix for Elementor frontend config
@@ -241,8 +257,8 @@ class _Public {
 	}
 
 	public function simple_elementor_fix_footer() {
-		// Only run if Elementor is active (double-check for safety)
-		if (!is_admin() && $this->is_elementor_active()) {
+		// Only run if Elementor is active and NOT in admin panel (triple-check for safety)
+		if (!is_admin() && !current_user_can('edit_posts') && $this->is_elementor_active()) {
 			?>
 			<script>
 			// ULTIMATE ELEMENTOR FIX - Patch the Frontend object directly
