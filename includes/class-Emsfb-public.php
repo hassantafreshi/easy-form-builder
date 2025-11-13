@@ -100,6 +100,11 @@ class _Public {
 		add_action('init',  array($this, 'hide_toolmenu'));
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
+
+		// Elementor compatibility - only load if Elementor is active and not in admin
+		if (!is_admin()) {
+			$this->init_elementor_compatibility();
+		}
 	}
 	public function enqueue_jquery(){
 		if (!isset(wp_scripts()->registered['jquery']) || version_compare(wp_scripts()->registered['jquery']->ver , '3.6.0' , '<')) {
@@ -4739,6 +4744,119 @@ function email_get_content_efb($content, $track){
 
 		wp_send_json_success($response, 200);
 	}
+
+	/**
+     * Initialize Elementor compatibility for all EFB admin pages
+     */
+    public function init_elementor_compatibility() {
+        // Only apply if Elementor is actually installed
+        if (!$this->is_elementor_admin_active()) {
+            return;
+        }
+
+        // Check if we're on any EFB admin page
+        if (isset($_GET['page']) && (
+            $_GET['page'] === 'Emsfb' ||
+            $_GET['page'] === 'Emsfb_create' ||
+            $_GET['page'] === 'Emsfb_addon' ||
+            $_GET['page'] === 'Emsfb_sms_efb'
+        )) {
+            add_action('admin_enqueue_scripts', array($this, 'apply_elementor_admin_fixes'), 1);
+        }
+    }
+
+    /**
+     * Apply Elementor admin compatibility fixes to prevent conflicts
+     */
+    public function apply_elementor_admin_fixes() {
+        // Add JavaScript to prevent Elementor admin conflicts
+        add_action('admin_footer', array($this, 'elementor_admin_conflict_prevention'));
+    }
+
+    /**
+     * Check if Elementor is active in admin context
+     */
+    public function is_elementor_admin_active() {
+        // Check if Elementor plugin is active
+        if (class_exists('\Elementor\Plugin') || defined('ELEMENTOR_VERSION')) {
+            return true;
+        }
+
+        // Check via WordPress plugin functions
+        if (function_exists('is_plugin_active') && is_plugin_active('elementor/elementor.php')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Add JavaScript to prevent Elementor admin conflicts
+     */
+    public function elementor_admin_conflict_prevention() {
+        $current_page = isset($_GET['page']) ? $_GET['page'] : '';
+        ?>
+        <script type="text/javascript">
+        // Prevent Elementor admin conflicts with EFB Admin Pages
+        (function($) {
+            'use strict';
+
+            // Store original methods before any modifications
+            if (typeof window.efb_global_elementor_protection === 'undefined') {
+                window.efb_global_elementor_protection = true;
+
+                console.log('EFB Global: Initializing Elementor compatibility layer for <?php echo esc_js($current_page); ?>');
+
+                // Prevent Elementor admin errors
+                if (typeof elementorFrontend !== 'undefined') {
+                    try {
+                        // Safely check and initialize elementorFrontend.tools
+                        if (!elementorFrontend.tools) {
+                            elementorFrontend.tools = {};
+                            console.log('EFB Global: Initialized missing elementorFrontend.tools');
+                        }
+                    } catch (e) {
+                        console.log('EFB Global: Prevented Elementor frontend error:', e.message);
+                    }
+                }
+
+                // Global error handling for dispatchEvent issues
+                $(document).ready(function() {
+                    // Prevent jQuery Deferred errors
+                    $(window).on('error', function(e) {
+                        if (e.originalEvent && e.originalEvent.message) {
+                            var errorMessage = e.originalEvent.message.toLowerCase();
+                            if (errorMessage.includes('dispatchevent') ||
+                                errorMessage.includes('elementor') ||
+                                errorMessage.includes('tools') ||
+                                errorMessage.includes('cannot read properties of undefined')) {
+                                console.log('EFB Global: Suppressed Elementor admin error on <?php echo esc_js($current_page); ?>:', errorMessage);
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                    });
+
+                    // Protect Event.dispatchEvent calls
+                    if (window.Event && Event.prototype.dispatchEvent) {
+                        var originalDispatchEvent = Event.prototype.dispatchEvent;
+                        Event.prototype.dispatchEvent = function(event) {
+                            try {
+                                if (typeof this.dispatchEvent === 'function') {
+                                    return originalDispatchEvent.call(this, event);
+                                }
+                            } catch (e) {
+                                console.log('EFB Global: Prevented dispatchEvent error on <?php echo esc_js($current_page); ?>:', e.message);
+                                return false;
+                            }
+                        };
+                    }
+                });
+            }
+        })(jQuery);
+        </script>
+        <?php
+    }
 
 
 
