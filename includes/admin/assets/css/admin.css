@@ -310,9 +310,84 @@ a.emsFormBuilder {    background-color: #633a82;
 .efblist.inplist{
 	padding-top: 10px!important;
  }
-  
 
+/* Mobile touch compatibility improvements */
+@media (hover: none) and (pointer: coarse) {
+    .btn-edit, .BtnSideEfb {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
+    }
 
- 
+    .btn-edit-holder {
+        touch-action: manipulation;
+    }
 
+    .btn-edit::before, .BtnSideEfb::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: inherit;
+        background: transparent;
+    }
 
+    .btn-edit:active, .BtnSideEfb:active,
+    .efb-touch-active {
+        transform: scale(0.95);
+        transition: transform 0.1s ease-in-out;
+        background-color: rgba(108, 117, 125, 0.2) !important;
+    }
+
+    /* Improve icon visibility on mobile */
+    .btn-edit i, .BtnSideEfb i {
+        pointer-events: none;
+        font-size: 16px !important;
+    }
+
+    .icon-container {
+        pointer-events: none;
+    }
+
+    /* Mobile field selection improvements */
+    .showBtns, .efbField.ttEfb {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .efbField.ttEfb.efb-touch-active,
+    .showBtns.efb-touch-active {
+        background-color: rgba(99, 58, 130, 0.1) !important;
+        transform: scale(0.99);
+        transition: all 0.1s ease-in-out;
+    }
+
+    /* Enhance field-selected-efb visibility on mobile */
+    .field-selected-efb {
+        border: 2px solid #633a82 !important;
+        background-color: rgba(99, 58, 130, 0.05) !important;
+    }
+}
+
+/* General mobile improvements */
+@media (max-width: 768px) {
+    .btn-edit-holder {
+        gap: 8px !important;
+        padding: 5px;
+    }
+
+    .btn-edit, .BtnSideEfb {
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        border-radius: 6px !important;
+    }
+
+    /* Ensure proper spacing between buttons on mobile */
+    .btn-edit + .btn-edit {
+        margin-left: 5px;
+    }
+}

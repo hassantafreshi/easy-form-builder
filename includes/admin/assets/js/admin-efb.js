@@ -61,14 +61,108 @@ jQuery(function () {
     localStorage.setItem('efb_cache',count_show_efb_cache);
   }
   //cache message alert section end
+
+  // Mobile compatibility enhancements (non-intrusive)
+  enhanceMobileCompatibility();
 })
 
 
 
 
-document.getElementById('wpfooter').remove();
+document.getElementById('wpfooter').remove();/**
+ * Non-intrusive mobile compatibility enhancements
+ * Works alongside existing event system without conflicts
+ */
+function enhanceMobileCompatibility() {
+  // Ensure proper viewport settings for mobile
+  ensureMobileViewport();
 
+  // Disable iOS zoom on double tap for form elements
+  document.addEventListener('gesturestart', function(e) {
+    e.preventDefault();
+  }, { passive: false });
 
+  // Prevent iOS safari zoom on focus
+  if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+    document.addEventListener('focusin', function(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+        document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1');
+      }
+    });
+
+    document.addEventListener('focusout', function(e) {
+      document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1');
+    });
+  }
+
+  // Only add visual touch feedback, not event handling
+  document.addEventListener('touchstart', function(e) {
+    const target = e.target.closest('.btn-edit, .BtnSideEfb');
+    if (target) {
+      target.classList.add('efb-touch-active');
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    const target = e.target.closest('.btn-edit, .BtnSideEfb');
+    if (target) {
+      target.classList.remove('efb-touch-active');
+    }
+  }, { passive: true });
+}/**
+ * Ensure proper mobile viewport configuration
+ */
+function ensureMobileViewport() {
+  let viewport = document.querySelector('meta[name=viewport]');
+  if (!viewport) {
+    viewport = document.createElement('meta');
+    viewport.name = 'viewport';
+    viewport.content = 'width=device-width, initial-scale=1, user-scalable=yes';
+    document.getElementsByTagName('head')[0].appendChild(viewport);
+  } else {
+    // Update existing viewport to ensure proper mobile behavior
+    const content = viewport.getAttribute('content');
+    if (!content.includes('width=device-width')) {
+      viewport.setAttribute('content', 'width=device-width, initial-scale=1, user-scalable=yes');
+    }
+  }
+}
+
+/**
+ * Test function to verify mobile touch functionality
+ * Call this from browser console to test: efb_test_mobile_touch()
+ */
+window.efb_test_mobile_touch = function() {
+  const testResults = {
+    touchEventsSupported: 'ontouchstart' in window,
+    mobileUserAgent: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+    buttonsFound: document.querySelectorAll('.btn-edit, .BtnSideEfb').length,
+    buttonsWithMobileSupport: document.querySelectorAll('.btn-edit[hasMobileTouchSupport], .BtnSideEfb[hasMobileTouchSupport]').length,
+    fieldsFound: document.querySelectorAll('.showBtns, .efbField.ttEfb').length,
+    fieldsWithMobileSupport: document.querySelectorAll('.showBtns[hasFieldEventListeners], .efbField[hasFieldEventListeners]').length,
+    buttonsWithActions: document.querySelectorAll('[data-action]').length,
+    selectedField: document.querySelector('.field-selected-efb') ? 'Found' : 'None',
+    viewport: document.querySelector('meta[name=viewport]') ? document.querySelector('meta[name=viewport]').getAttribute('content') : 'Not found',
+    observerActive: typeof observer !== 'undefined'
+  };
+
+  console.log('EFB Mobile Touch Test Results (Non-Intrusive):', testResults);
+
+  // Test if functions are available
+  const functionsTest = {
+    show_setting_window_efb: typeof show_setting_window_efb === 'function',
+    show_duplicate_fun: typeof show_duplicate_fun === 'function',
+    show_delete_window_efb: typeof show_delete_window_efb === 'function',
+    move_show_efb: typeof move_show_efb === 'function',
+    addMobileTouchSupport: typeof addMobileTouchSupport === 'function',
+    addFieldSelectionSupport: typeof addFieldSelectionSupport === 'function',
+    fub_shwBtns_efb: typeof fub_shwBtns_efb === 'function'
+  };
+
+  console.log('EFB Function Availability:', functionsTest);
+
+  return { ...testResults, functions: functionsTest };
+};
 function saveLocalStorage_emsFormBuilder() {
 
   sessionStorage.setItem('valueJson_ws_p', JSON.stringify(valueJson_ws_p));
@@ -4618,7 +4712,14 @@ function addClickListenerToElement(element) {
   if (!element.hasClickListener) {
       let state_event = false;
 
-      element.addEventListener("click", function (event) {
+      // Enhanced mobile touch support
+      if ('ontouchstart' in window) {
+        element.addEventListener("touchend", handleElementClick, { passive: false });
+      }
+
+      element.addEventListener("click", handleElementClick);
+
+      function handleElementClick(event) {
           if (!state_event) {
               const classes = event.target.classList;
               setTimeout(() => {
@@ -4708,19 +4809,126 @@ function addClickListenerToElement(element) {
                   }
               }
           }
-      });
+      }
+
+      // Add mobile touch feedback
+      if ('ontouchstart' in window) {
+        element.addEventListener('touchstart', function() {
+          if (element.classList.contains('btn-edit') || element.classList.contains('BtnSideEfb')) {
+            element.classList.add('efb-touch-active');
+          }
+        }, { passive: true });
+
+        element.addEventListener('touchend', function() {
+          if (element.classList.contains('btn-edit') || element.classList.contains('BtnSideEfb')) {
+            element.classList.remove('efb-touch-active');
+          }
+        }, { passive: true });
+      }
 
       element.hasClickListener = true;
   }
   heartbeat_Emsfb();
 }
 
+/**
+ * Add mobile touch support for field selection
+ * Handles showBtns, efbField, and ttEfb elements
+ */
+function addFieldSelectionSupport(element) {
+  if (!element.hasFieldEventListeners && ('ontouchstart' in window)) {
+    // Check if element has the required classes
+    const hasShowBtns = element.classList.contains('showBtns');
+    const hasEfbField = element.classList.contains('efbField');
+    const hasTtEfb = element.classList.contains('ttEfb');
+
+    if (hasShowBtns || (hasEfbField && hasTtEfb)) {
+      // Add touch event for field selection
+      element.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        if (typeof active_element_efb === 'function') {
+          active_element_efb(element);
+        }
+      }, { passive: false });
+
+      // Add visual feedback
+      element.addEventListener('touchstart', function() {
+        element.classList.add('efb-touch-active');
+      }, { passive: true });
+
+      element.addEventListener('touchend', function() {
+        setTimeout(() => {
+          element.classList.remove('efb-touch-active');
+        }, 150);
+      }, { passive: true });
+
+      element.hasFieldEventListeners = true;
+    }
+  }
+}
+
+/**
+ * Add mobile touch support to button elements
+ * Works with existing event system without conflicts
+ */
+function addMobileTouchSupport(element) {
+  if (!element.hasMobileTouchSupport && ('ontouchstart' in window)) {
+    // Add touch visual feedback
+    element.addEventListener('touchstart', function() {
+      element.classList.add('efb-touch-active');
+    }, { passive: true });
+
+    element.addEventListener('touchend', function() {
+      element.classList.remove('efb-touch-active');
+    }, { passive: true });
+
+    // Enhance onclick events for mobile compatibility
+    const onclickAttr = element.getAttribute('onclick');
+    if (onclickAttr) {
+      let touchHandled = false;
+
+      element.addEventListener('touchend', function(e) {
+        if (!touchHandled) {
+          touchHandled = true;
+          // Reset flag after a short delay
+          setTimeout(() => { touchHandled = false; }, 300);
+
+          // Prevent default to avoid double execution
+          e.preventDefault();
+          e.stopPropagation();
+
+          try {
+            eval(onclickAttr);
+          } catch (error) {
+            console.warn('EFB Mobile: Error executing onclick on touchend:', error);
+          }
+        }
+      }, { passive: false });
+    }
+
+    // Also add click event as fallback for mobile
+    element.addEventListener('click', function(e) {
+      // Small delay to prevent conflicts with touchend
+      if (element.hasMobileTouchSupport) {
+        e.stopPropagation();
+      }
+    });    element.hasMobileTouchSupport = true;
+  }
+}
 
       function observeExistingElements() {
         // console.log('observeExistingElements');
         const els = document.querySelectorAll(".ec-efb");
         els.forEach(addClickListenerToElement);
 
+        // Add mobile support to existing button elements
+        const mobileButtons = document.querySelectorAll(".btn-edit, .BtnSideEfb, button[onclick], span[onclick]");
+        console.log('EFB Mobile: Found', mobileButtons.length, 'buttons to process');
+        mobileButtons.forEach(addMobileTouchSupport);
+
+        // Add mobile support to existing field elements
+        const fieldElements = document.querySelectorAll(".showBtns, .efbField, .ttEfb");
+        fieldElements.forEach(addFieldSelectionSupport);
       }
 
 
@@ -4728,10 +4936,20 @@ function addClickListenerToElement(element) {
         mutations.forEach(mutation => {
             mutation.addedNodes.forEach(node => {
                 if (node.nodeType === 1) {
-
-
+                    // Handle existing elements
                     const els = node.querySelectorAll(".ec-efb, .btn, .elEdit, .btn-toggle, .ec-efb ");
                     els.forEach(addClickListenerToElement);
+
+                    // Handle mobile-specific button elements
+                    const mobileButtons = node.querySelectorAll(".btn-edit, .BtnSideEfb");
+                    if (mobileButtons.length > 0) {
+                      console.log('EFB Mobile: Processing', mobileButtons.length, 'mobile buttons');
+                    }
+                    mobileButtons.forEach(addMobileTouchSupport);
+
+                    // Handle field selection elements for mobile
+                    const fieldElements = node.querySelectorAll(".showBtns, .efbField, .ttEfb");
+                    fieldElements.forEach(addFieldSelectionSupport);
                 }
             });
         });
@@ -4746,4 +4964,88 @@ function addClickListenerToElement(element) {
 
       observeExistingElements();
 
+/**
+ * Force apply mobile touch support to all elements
+ * Call this if elements are added dynamically: efb_force_mobile_support()
+ */
+window.efb_force_mobile_support = function() {
+  // Re-apply mobile support to all relevant elements (more comprehensive)
+  const buttons = document.querySelectorAll('.btn-edit, .BtnSideEfb, button[onclick], span[onclick], [data-action]');
+  console.log('EFB Force: Processing', buttons.length, 'buttons');
 
+  // Reset flags to force reprocessing
+  buttons.forEach(button => {
+    button.hasMobileTouchSupport = false;
+  });
+
+  buttons.forEach(addMobileTouchSupport);
+
+  const fields = document.querySelectorAll('.showBtns, .efbField, .ttEfb');
+  fields.forEach(addFieldSelectionSupport);
+
+  // Re-run the field button initialization
+  if (typeof fub_shwBtns_efb === 'function') {
+    fub_shwBtns_efb();
+  }
+
+  console.log('EFB: Force applied mobile support to all elements');
+  return {
+    buttonsProcessed: buttons.length,
+    fieldsProcessed: fields.length
+  };
+};
+
+/**
+ * Direct mobile button fix for specific problematic buttons
+ * Call this function to fix buttons immediately: efb_fix_buttons_now()
+ */
+window.efb_fix_buttons_now = function() {
+  const problematicButtons = document.querySelectorAll('button[data-action], span[data-action]');
+  let fixed = 0;
+
+  problematicButtons.forEach(button => {
+    const onclickAttr = button.getAttribute('onclick');
+    const action = button.getAttribute('data-action');
+
+    if (onclickAttr || action) {
+      // Remove existing listeners to avoid duplicates
+      button.removeEventListener('touchend', button._mobileHandler);
+
+      // Create new handler
+      button._mobileHandler = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.log('EFB Mobile: Button touched', action || 'unknown', button);
+
+        if (onclickAttr) {
+          try {
+            eval(onclickAttr);
+            fixed++;
+          } catch (error) {
+            console.error('EFB Mobile: Error executing onclick:', error, onclickAttr);
+          }
+        }
+      };
+
+      // Add touch handler
+      button.addEventListener('touchend', button._mobileHandler, { passive: false });
+
+      // Visual feedback
+      button.addEventListener('touchstart', function() {
+        button.style.transform = 'scale(0.95)';
+        button.style.backgroundColor = 'rgba(108, 117, 125, 0.2)';
+      }, { passive: true });
+
+      button.addEventListener('touchend', function() {
+        setTimeout(() => {
+          button.style.transform = '';
+          button.style.backgroundColor = '';
+        }, 150);
+      }, { passive: true });
+    }
+  });
+
+  console.log('EFB: Fixed', fixed, 'buttons directly');
+  return { buttonsFixed: fixed, totalButtons: problematicButtons.length };
+};

@@ -61,9 +61,33 @@ efb_var_waitng = (time) => {
 efb_var_waitng(50)
 function fub_shwBtns_efb() {
   for (const el of document.querySelectorAll(".showBtns")) {
-    el.addEventListener("click", (e) => {
-      active_element_efb(el);
-    });
+    if (!el.hasFieldEventListeners) {
+      // Add click event
+      el.addEventListener("click", (e) => {
+        active_element_efb(el);
+      });
+
+      // Add mobile touch support
+      if ('ontouchstart' in window) {
+        el.addEventListener("touchend", (e) => {
+          e.preventDefault();
+          active_element_efb(el);
+        }, { passive: false });
+
+        // Add visual feedback for mobile
+        el.addEventListener('touchstart', function() {
+          el.classList.add('efb-touch-active');
+        }, { passive: true });
+
+        el.addEventListener('touchend', function() {
+          setTimeout(() => {
+            el.classList.remove('efb-touch-active');
+          }, 150);
+        }, { passive: true });
+      }
+
+      el.hasFieldEventListeners = true;
+    }
   }
 }
 
@@ -199,7 +223,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
                 <div class="efb  btn-edit-holder btnSetting d-none " id="btnSetting-${step_el_efb}">
                     <button type="button" class="efb  btn  btn-edit  btn-sm BtnSideEfb" id="settingElEFb"
                         data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
-                        onclick="show_setting_window_efb('${step_el_efb}')">
+                        onclick="show_setting_window_efb('${step_el_efb}')" data-action="setting" data-target="${step_el_efb}">
                         <div class="icon-container efb"><i class="efb   bi-gear-wide-connected text-success" id="efbSetting"></i></div>
                     </button>
                 </div>
@@ -546,7 +570,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         del = `
           <button type="button" class="efb  btn btn-edit btn-sm" id="${valj_efb[iVJ].id_}"
           data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.delete}"
-          onclick="show_delete_window_efb('${valj_efb[iVJ].id_}' ,${iVJ})">
+          onclick="show_delete_window_efb('${valj_efb[iVJ].id_}' ,${iVJ})" data-action="delete" data-target="${valj_efb[iVJ].id_}" data-index="${iVJ}">
           <i class="efb  bi-x-lg text-danger"></i>
           </button>`
       }
@@ -564,7 +588,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         <div class="efb  btn-edit-holder d-none" id="btnSetting-${valj_efb[iVJ].id_}">
         <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"
         data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
-        onclick="show_setting_window_efb('${valj_efb[iVJ].id_}')">
+        onclick="show_setting_window_efb('${valj_efb[iVJ].id_}')" data-action="setting" data-target="${valj_efb[iVJ].id_}">
         <div class="icon-container efb"><i class="efb bi-gear-wide-connected  text-success BtnSideEfb" ></i></div>
         </button>
           ${del}
@@ -1046,14 +1070,14 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     {
     const pro_el = valj_efb[iVJ].hasOwnProperty('pro') ? valj_efb[iVJ].pro :false ;
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
-    <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
+    <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')" data-action="setting" data-target="${rndm}-id">
     <div class="icon-container efb"><i class="efb bi-gear-wide-connected  text-success BtnSideEfb"></i></div>
     </button>
-    <button type="button" class="efb  btn btn-edit btn-sm" id="dupElEFb-${rndm}" data-id="${rndm}-id"  data-bs-toggle="tooltip"  title="${efb_var.text.duplicate}" onclick="show_duplicate_fun('${rndm}','${valj_efb[iVJ].name}')">
+    <button type="button" class="efb  btn btn-edit btn-sm" id="dupElEFb-${rndm}" data-id="${rndm}-id"  data-bs-toggle="tooltip"  title="${efb_var.text.duplicate}" onclick="show_duplicate_fun('${rndm}','${valj_efb[iVJ].name}')" data-action="duplicate" data-target="${rndm}" data-field-name="${valj_efb[iVJ].name}">
     <i class="efb  bi-clipboard-plus text-muted"></i>
     </button>
-    ${addDeleteBtnState ? '' : `<button type="button" class="efb  btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id' ,${iVJ})"> <i class="efb  bi-x-lg text-danger"></i></button>`}
-    <span class="efb  btn btn-edit btn-sm "  id="moveElEFb" onclick="move_show_efb()"><i class="efb text-dark bi-arrows-move"></i></span>
+    ${addDeleteBtnState ? '' : `<button type="button" class="efb  btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id' ,${iVJ})" data-action="delete" data-target="${rndm}-id" data-index="${iVJ}"> <i class="efb  bi-x-lg text-danger"></i></button>`}
+    <span class="efb  btn btn-edit btn-sm "  id="moveElEFb" onclick="move_show_efb()" data-action="move"><i class="efb text-dark bi-arrows-move"></i></span>
     `
     const proActiv = `
     <div class="efb btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">

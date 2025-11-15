@@ -220,7 +220,7 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
             <div class="efb noCode-efb m-5 text-center efb" id="${rndm}_noCode">
               ${efb_var.text.noCodeAddedYet} <button type="button" class="efb BtnSideEfb btn efb btn-edit efb btn-sm" id="settingElEFb"
               data-id="${rndm}-id" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
-              onclick="show_setting_window_efb('${rndm}-id')">
+              onclick="show_setting_window_efb('${rndm}-id')" data-action="setting" data-target="${rndm}-id">
               <div class="icon-container efb"><i class="efb   bi-gear-wide-connected text-success" id="efbSetting"></i></div></button>${efb_var.text.andAddingHtmlCode}
           </div></div></div>`;
       } else {
