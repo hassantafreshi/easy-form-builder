@@ -1961,7 +1961,7 @@ class _Public {
 									$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
 									 $this->send_email_Emsfb_( $email_user,$trackId ,$pro,$state_of_email,$url,$state_of_email['content'],$state_of_email['subject'] );
 								}
-								 if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
+								 if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$url,'fform' ,'wpsms' ,$trackId);
 								 $fs=[];
 
 
