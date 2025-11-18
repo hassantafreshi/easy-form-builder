@@ -1025,6 +1025,7 @@ window.addEventListener("popstate",e=>{
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
 const headers = new Headers({
   'Content-Type': 'application/json',
+  'X-WP-Nonce': efb_var.nonce,
 });
 const jsonData = JSON.stringify(data);
 const requestOptions = {
@@ -1034,6 +1035,9 @@ const requestOptions = {
 };
   fetch(url, requestOptions)
   .then(response => {
+    if (response.status === 403) {
+      throw new Error('NONCE_EXPIRED');
+    }
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
@@ -1046,7 +1050,12 @@ const requestOptions = {
   })
   .catch(error => {
     console.error(error);
-    response_fill_form_efb({ success: false, data: { success: false, m: efb_var.text.eJQ500 }});
+    if (error.message === 'NONCE_EXPIRED') {
+      const nonceMsg = efb_var.text.nonceExpired;
+      response_fill_form_efb({ success: false, data: { success: false, m: nonceMsg }});
+    } else {
+      response_fill_form_efb({ success: false, data: { success: false, m: efb_var.text.eJQ500 }});
+    }
   });
   if(document.getElementById('prev_efb') && document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
   if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
@@ -1055,6 +1064,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/get';
   const headers = new Headers({
     'Content-Type': 'application/json',
+    'X-WP-Nonce': efb_var.nonce,
   });
   const jsonData = JSON.stringify(data);
   const requestOptions = {
@@ -1064,6 +1074,9 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
   };
   fetch(url, requestOptions)
   .then(response => {
+    if (response.status === 403) {
+      throw new Error('NONCE_EXPIRED');
+    }
     if (!response.ok) {
       throw new Error(`Network response was not ok (HTTP ${response.status})`);
     }
@@ -1084,13 +1097,19 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
       document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn;
       document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled');
     }
-    response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
+    if (error.message === 'NONCE_EXPIRED') {
+      const nonceMsg = efb_var.text.nonceExpired || 'Your session has expired. Please refresh the page and try again.';
+      response_Valid_tracker_efb({ success: false, data: { success: false, m: nonceMsg } });
+    } else {
+      response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
+    }
   });
 }
 post_api_r_message_efb=(data,message)=>{
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/add';
   const headers = new Headers({
     'Content-Type': 'application/json',
+    'X-WP-Nonce': efb_var.nonce,
   });
   const jsonData = JSON.stringify(data);
   const requestOptions = {
@@ -1100,6 +1119,9 @@ post_api_r_message_efb=(data,message)=>{
   };
     fetch(url, requestOptions)
     .then(response => {
+      if (response.status === 403) {
+        throw new Error('NONCE_EXPIRED');
+      }
       if (!response.ok) {
         throw new Error(`Network response was not ok (HTTP ${response.status})`);
       }
@@ -1111,7 +1133,12 @@ post_api_r_message_efb=(data,message)=>{
     })
     .catch(error => {
       console.error(error.message);
-      response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
+      if (error.message === 'NONCE_EXPIRED') {
+        const nonceMsg = efb_var.text.nonceExpired || 'Your session has expired. Please refresh the page and try again.';
+        response_Valid_tracker_efb({ success: false, data: { success: false, m: nonceMsg } });
+      } else {
+        response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
+      }
     });
 }
 sendback_state_handler_efb=(id_,state,step)=>{
