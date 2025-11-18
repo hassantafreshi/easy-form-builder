@@ -1915,7 +1915,7 @@ class _Public {
 										'total' => $amount,
 										'type' => "payment",
 										"paymentGateway"=>$payment_getWay,
-										"paymentCreated"=>wp_date( __( 'Y/m/d \a\t g:ia', 'textdomain' ) ),
+										"paymentCreated"=>wp_date( __( 'Y/m/d \a\t g:ia', 'easy-form-builder' ) ),
 										"paymentmethod"=>'کارت',
 										"paymentIntent"=>sanitize_text_field($data_POST['auth']),
 										"paymentCard"=>$result['data']['card_pan'],

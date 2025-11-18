@@ -164,7 +164,8 @@ class Admin {
         $noti_count = count($this->get_not_read_message());
         $icon       = EMSFB_PLUGIN_URL . '/includes/admin/assets/image/logo-gray.png';
         add_menu_page(
-            esc_html__('Panel', 'Emsfb'),
+            esc_html__('Panel', 'easy-form-builder'),
+            /* translators: %d is the number of unread notifications */
             $noti_count ? sprintf(esc_html__('Easy Form Builder', 'easy-form-builder') . ' <span id="efbCountM" class="efb awaiting-mod">%d</span>', $noti_count) : esc_html__('Easy Form Builder', 'easy-form-builder'),
 
             'Emsfb',
@@ -1022,6 +1023,9 @@ class Admin {
         );
         set_transient('emsfb_settings_transient', $setting, 1440);
         update_option('emsfb_settings', $setting);
+
+        // Clear object cache when settings are updated
+        wp_cache_delete('emsfb_settings_latest', 'emsfb');
     }
 
     public function get_ajax_track_admin() {
@@ -1642,11 +1646,13 @@ class Admin {
                 }
 
             }
+            /* translators: %s is the notification type (e.g., Email) */
             $email_notifi = sprintf(
                 esc_html__('%s notification', 'easy-form-builder'),
                 esc_html__('Email', 'easy-form-builder')
             );
 
+            /* translators: %s is the notification feature name */
             $warning =' '. sprintf(
                 esc_html__('Disabling this feature may affect the proper functionality of Easy Form Builder. If you plan to use the %s feature, please ensure it is enabled.', 'easy-form-builder'),
                 $email_notifi

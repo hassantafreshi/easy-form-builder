@@ -512,6 +512,7 @@ class efbFunction {
 			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : esc_html__('It is not possible to include reCAPTCHA on payment forms.','easy-form-builder'),
 			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : esc_html__('Easy Form Builder could not confirm if your service is able to send emails. Please check your email inbox (or spam folder) to see if you have received an email with the subject line: Email server [Easy Form Builder]. If you have received the email, please select the option < This site can send emails > and save the changes.','easy-form-builder'),
 			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : esc_html__('This site can send emails','easy-form-builder'),
+			/* translators: %s is the toggle button name */
 			"PleaseMTPNotWork2" => $state &&  isset($ac->text->PleaseMTPNotWork2) ? $ac->text->PleaseMTPNotWork2 : esc_html__('Easy Form Builder could not confirm that your server can send emails. Please check your inbox or spam folder for an email with the subject: "Email server [Easy Form Builder]". If you received it, please enable the "%s" toggle and save your changes.','easy-form-builder'),
 			"hostSupportSmtp2" => $state  &&  isset($ac->text->hostSupportSmtp2) ? $ac->text->hostSupportSmtp2 : esc_html__('I confirm that this WordPress site is able to send emails properly','easy-form-builder'),
 			"interval" => $state  &&  isset($ac->text->interval) ? $ac->text->interval : esc_html__('Interval','easy-form-builder'),
@@ -743,9 +744,12 @@ class efbFunction {
 			"fernvtf" => $state  &&  isset($ac->text->fernvtf) ? $ac->text->fernvtf : esc_html__('The entered data does not match the form type. If you are an admin, please review the form type.','easy-form-builder'),
 			"fetf" => $state  &&  isset($ac->text->fetf) ? $ac->text->fetf : esc_html__('Error: Please ensure there is only one form per page.','easy-form-builder'),
 			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : esc_html__('The activation code has been successfully verified. Enjoy Pro features and utilize the Easy Form Builder.','easy-form-builder'),
+			/* translators: %s is the confirmation code */
 			"msgdml" => $state  &&  isset($ac->text->msgdml) ? $ac->text->msgdml : esc_html__('The confirmation code for this message is %s. By clicking the button below, you will be able to track messages and view received responses. If needed, you can also send a new reply.','easy-form-builder'),
-			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : esc_html__('To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation %s2 .','easy-form-builder'),
-			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : esc_html__('Make sure to check your spam folder for test emails. If your emails are being marked as spam or not being sent, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %s1 click here %s2 or %s3 contact Easy Form Builder support %s4.','easy-form-builder'),
+			/* translators: %1$s and %2$s are opening and closing link tags for documentation */
+			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : esc_html__('To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %1$s documentation %2$s .','easy-form-builder'),
+			/* translators: %1$s, %2$s, %3$s, %4$s are opening and closing link tags for help resources */
+			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : esc_html__('Make sure to check your spam folder for test emails. If your emails are being marked as spam or not being sent, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %1$s click here %2$s or %3$s contact Easy Form Builder support %4$s.','easy-form-builder'),
 			"from" => $state  &&  isset($ac->text->from) ? $ac->text->from : esc_html__('From Address','easy-form-builder'),
 			"msgfml" => $state  &&  isset($ac->text->msgfml) ? $ac->text->msgfml : esc_html__('To avoid emails going to spam or not being sent, make sure the email address here matches the one in the SMTP settings.','easy-form-builder'),
 			"prsm" => $state  &&  isset($ac->text->prsm) ? $ac->text->prsm : esc_html__('To preview the form, you need to save the built form and try again.','easy-form-builder'),
@@ -753,22 +757,27 @@ class efbFunction {
 			"spprt" => $state  &&  isset($ac->text->spprt) ? $ac->text->spprt : esc_html__('Support','easy-form-builder'),
 			"mread" => $state  &&  isset($ac->text->mread) ? $ac->text->mread : esc_html__('Mark as Read','easy-form-builder'),
 			"admines" => $state  &&  isset($ac->text->admines) ? $ac->text->admines : esc_html__('Form admins can access the response box after logging in.','easy-form-builder'),
-			"trmcn" => $state  &&  isset($ac->text->trmcn) ? $ac->text->trmcn : esc_html__('I have read and agree to %s1the terms and conditions%s2','easy-form-builder'),
+			/* translators: %1$s and %2$s are opening and closing link tags for terms and conditions */
+			"trmcn" => $state  &&  isset($ac->text->trmcn) ? $ac->text->trmcn : esc_html__('I have read and agree to %1$sthe terms and conditions%2$s','easy-form-builder'),
 			"trmCheckbox" => $state  &&  isset($ac->text->trmCheckbox) ? $ac->text->trmCheckbox : esc_html__('Terms','easy-form-builder'),
 			"prvnt" => $state  &&  isset($ac->text->prvnt) ? $ac->text->prvnt : esc_html__('Preview in new tab','easy-form-builder'),
 			"mxdt" => $state  &&  isset($ac->text->mxdt) ? $ac->text->mxdt : esc_html__('Maximum date','easy-form-builder'),
 			"mindt" => $state  &&  isset($ac->text->mindt) ? $ac->text->mindt : esc_html__('Minimum date','easy-form-builder'),
+			/* translators: %s is the list of valid file formats */
 			"ivf" => $state  &&  isset($ac->text->ivf) ? $ac->text->ivf : esc_html__('Valid formats: %s','easy-form-builder'),
 			"zoom" => $state  &&  isset($ac->text->zoom) ? $ac->text->zoom : esc_html__('Zoom','easy-form-builder'),
 			"lpds" => $state  &&  isset($ac->text->lpds) ? $ac->text->lpds : esc_html__('To enable the Location Picker field, Easy Form Builder loads JavaScript files from the unpkg.com CDN for the leafletjs.com service, but only on pages using this feature.','easy-form-builder'),
 			"elpo" => $state  &&  isset($ac->text->elpo) ? $ac->text->elpo : esc_html__('Enable Location Picker in Easy Form Builder','easy-form-builder'),
 			"jqinl" => $state  &&  isset($ac->text->jqinl) ? $ac->text->jqinl : esc_html__('Easy Form Builder cannot display the form because jQuery is not properly loaded. This issue might be due to incorrect jQuery invocation by another plugin or the current website theme.','easy-form-builder'),
-			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : esc_html__('%s1 Addon','easy-form-builder'),
+			/* translators: %1$s is the name of the addon */
+			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : esc_html__('%1$s Addon','easy-form-builder'),
 			'tlgm' => $state  &&  isset($ac->text->tlgm) ? $ac->text->tlgm : esc_html__('Telegram','easy-form-builder'),
 			"tlgmAddon" => $state  &&  isset($ac->text->tlgmAddon) ? $ac->text->tlgmAddon : esc_html__('Telegram notification Addon','easy-form-builder'),
 			"tlgmDAddon" => $state  &&  isset($ac->text->tlgmDAddon) ? $ac->text->tlgmDAddon : esc_html__('The Telegram notification addon lets you get notifications on your Telegram app whenever you receive new messages or responses','easy-form-builder'),
 			"eln" => $state  &&  isset($ac->text->eln) ? $ac->text->eln : esc_html__('Enter a location name','easy-form-builder'),
-			"alns" => $state  &&  isset($ac->text->alns) ? $ac->text->alns : esc_html__('The %s1 pages are currently unavailable. It looks like another plugin is causing a conflict with %s1 . To fix this issue, %s2 contact %s1 support %s3 for assistance  or try disabling your plugins one at a time to identify the one causing the conflict.','easy-form-builder'),
+			/* translators: %1$s is the plugin name, %2$s and %3$s are opening and closing link tags for support */
+			"alns" => $state  &&  isset($ac->text->alns) ? $ac->text->alns : esc_html__('The %1$s pages are currently unavailable. It looks like another plugin is causing a conflict with %1$s . To fix this issue, %2$s contact %1$s support %3$s for assistance  or try disabling your plugins one at a time to identify the one causing the conflict.','easy-form-builder'),
+			/* translators: %s is the notification type */
 			"notis" => $state  &&  isset($ac->text->noti) ? $ac->text->noti : esc_html__('%s notification','easy-form-builder'),
 			"settings" => $state  &&  isset($ac->text->settings) ? $ac->text->settings : esc_html__('Settings','easy-form-builder'),
 			"emlcc" => $state  &&  isset($ac->text->emlcc) ? $ac->text->emlcc : esc_html__('Send email with submitted form content only','easy-form-builder'),
@@ -956,14 +965,14 @@ class efbFunction {
 			$link = "$l/document/send-email-using-smtp-plugin/";
 			if($wp_lan=="fa_IR") $link = "$l/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/";
 
-			$de = str_replace('%s1',"<a href='$link' target='_blank'>",$de);
-			$de = str_replace('%s2',"</a>",$de);
-			$de = str_replace('%s3',"<a href='$l/support/' target='_blank'>",$de);
-			$de = str_replace('%s4',"</a>",$de);
+			$de = str_replace('%1$s',"<a href='$link' target='_blank'>",$de);
+			$de = str_replace('%2$s',"</a>",$de);
+			$de = str_replace('%3$s',"<a href='$l/support/' target='_blank'>",$de);
+			$de = str_replace('%4$s',"</a>",$de);
 
 
-			$dt = str_replace('%s1',"<a href='$l/documents/' target='_blank'>",$dt);
-			$dt = str_replace('%s2',"</a>",$dt);
+			$dt = str_replace('%1$s',"<a href='$l/documents/' target='_blank'>",$dt);
+			$dt = str_replace('%2$s',"</a>",$dt);
 			$title= $lang["serverEmailAble"];
 			$message ="<div style='text-align:center'> <p>".  $footer ."</p></div>
 			<h3 style='padding:5px 5px 5px 5px;color: #021623;'>". $de ."</h3> <h4 style='padding:5px 5px 5px 5px;color: #021623;'>". $dt ."</h4>
@@ -1079,6 +1088,13 @@ class efbFunction {
 			}
 		}
 
+		// Check WordPress object cache first
+		$cache_key = 'emsfb_settings_latest';
+		$cached_value = wp_cache_get($cache_key, 'emsfb');
+
+		if (false !== $cached_value) {
+			return $cached_value;
+		}
 
 		$table_name = $this->db->prefix . "emsfb_setting";
 		$value = $this->db->get_var("SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1");
@@ -1092,6 +1108,8 @@ class efbFunction {
 		update_option('emsfb_settings', $value);
 		if ($rtrn != 'null') {
 			set_transient('emsfb_settings_transient', $value, 1440);
+			// Cache the decoded object for 1 hour
+			wp_cache_set($cache_key, $rtrn, 'emsfb', 3600);
 		}
 
 		return $rtrn;
@@ -1735,14 +1753,26 @@ class efbFunction {
 
 		error_log("efb_code_validate_select called with sid: $sid, fid: $fid");
 
+		// Check cache first
+		$cache_key = 'emsfb_validate_' . md5($sid . '_' . $fid);
+		$cached_result = wp_cache_get($cache_key, 'emsfb');
+
+		if (false !== $cached_result) {
+			return $cached_result;
+		}
+
 		$table_name = $this->db->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
         $date_now = date('Y-m-d H:i:s');
         $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s", $sid, $date_now,$fid);
 
         $result =$this->db->get_var($query);
+        $is_valid = $result === '1';
 
-        return $result === '1';
+        // Cache result for 5 minutes
+        wp_cache_set($cache_key, $is_valid, 'emsfb', 300);
+
+        return $is_valid;
     }
 
 
@@ -1894,6 +1924,10 @@ class efbFunction {
         );
 		set_transient('emsfb_settings_transient', $setting, 1440);
 		update_option('emsfb_settings', $setting);
+
+		// Clear object cache when settings are updated
+		wp_cache_delete('emsfb_settings_latest', 'emsfb');
+
 		if($pro == true || $pro ==1){
 			$this->download_all_addons_efb();
 			$end_time = microtime(true);

@@ -4186,7 +4186,7 @@ let r_matrix_push_efb = (parent, value, rndm, op) => {
 }
 
 fun_create_content_nloading_efb = () => {
-  let txt = efb_var.text.alns.replaceAll('%s1', `<b>${efb_var.text.easyFormBuilder}</b>`).replaceAll('%s2', `<a href="https://whitestudio.team/contact-us" target="_blank">`).replaceAll('%s3', `</a>`);
+  let txt = efb_var.text.alns.replaceAll('%1$s', `<b>${efb_var.text.easyFormBuilder}</b>`).replaceAll('%2$s', `<a href="https://whitestudio.team/contact-us" target="_blank">`).replaceAll('%3$s', `</a>`);
   return txt;
 }
 
