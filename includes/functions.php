@@ -805,7 +805,8 @@ class efbFunction {
 				$email_content_type = isset($state[2]) ? $state[2]  : 'traking_link' ;
 			   	$mailResult = "n";
 				if(gettype($to) == 'array')ksort($to);
-				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+				$server_name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
+				$from =get_bloginfo('name')." <no-reply@".$server_name.">";
 				if(gettype($to) == 'array' && isset($to[2]) && is_email($to[2]) ){
 					$f = array_pop($to);
 					if(gettype($f)=="array"){
@@ -852,18 +853,17 @@ class efbFunction {
 						$name ="";
 						$mail="";
 						$role ="";
-						if($id){
-							$usr = get_user_by('id',$id);
-							$mail= $usr->user_email;
-							$name = $usr->display_name;
-							$role = $usr->roles[0];
-						}
-
-						$cont .="<hr><br> website:[". $_SERVER['SERVER_NAME'] . "]<br> Pro state:[".$pro . "]<br> email:[".$mail .
-						"]<br> role:[".$role."]<br> name:[".$name."]<br> state:[".$state."]";
-						$mailResult = wp_mail( $support,$state, $cont, $headers ) ;
-
+					if($id){
+						$usr = get_user_by('id',$id);
+						$mail= $usr->user_email;
+						$name = $usr->display_name;
+						$role = $usr->roles[0];
 					}
+
+					$server_name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
+					$cont .="<hr><br> website:[" . $server_name . "]<br> Pro state:[".$pro . "]<br> email:[".$mail .
+					"]<br> role:[".$role."]<br> name:[".$name."]<br> state:[".$state."]";
+					$mailResult = wp_mail( $support,$state, $cont, $headers ) ;					}
 
 					return $mailResult;
 				}else{
@@ -1422,9 +1422,9 @@ class efbFunction {
 
 	  public function get_ip_address() {
         $ip='1.1.1.1';
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {$ip = $_SERVER['REMOTE_ADDR'];}
+		if (isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } elseif (isset($_SERVER['REMOTE_ADDR'])) {$ip = $_SERVER['REMOTE_ADDR'];}
         $ip = strval($ip);
         $check =strpos($ip,',');
         if($check!=false){$ip = substr($ip,0,$check);}
@@ -1436,7 +1436,7 @@ class efbFunction {
 		$url = "https://api.iplocation.net/?ip=".$ip."";
 		$cURL = curl_init();
 		$ua ;
-		if(empty($_SERVER['HTTP_USER_AGENT'])){
+		if(!isset($_SERVER['HTTP_USER_AGENT']) || empty($_SERVER['HTTP_USER_AGENT'])){
 
 			$ua = array(
 				'name' => 'unrecognized',
@@ -1446,7 +1446,7 @@ class efbFunction {
 			);
 		}else{
 
-			$ua =$_SERVER['HTTP_USER_AGENT'];
+			$ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 		}
 		curl_setopt($cURL, CURLOPT_URL, $url);
 		curl_setopt($cURL, CURLOPT_HTTPGET, true);
@@ -1481,7 +1481,7 @@ class efbFunction {
 				if($value!="AdnOF"){
 
 
-            $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+            $server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']) : '';
             $vwp = get_bloginfo('version');
 
 			$vwp = substr($vwp,0,3);
@@ -1899,10 +1899,10 @@ class efbFunction {
 			$end_time = microtime(true);
 			$execution_time = ($end_time - $start_time);
 
-			$request_uri = $_SERVER['REQUEST_URI'];
+			$request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') == false ){
 
-				wp_safe_redirect($_SERVER['REQUEST_URI']);
+				wp_safe_redirect($request_uri);
 				exit;
 			}else{
 

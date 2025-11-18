@@ -68,7 +68,7 @@ class Addon {
 
 
 	public function render_settings() {
-		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+		$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']) : '';
 
 		wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
         wp_enqueue_script('whiteStudioAddone');
@@ -261,20 +261,20 @@ class Addon {
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m =$lang["errorCheckInputs"];
 			$response = array( 'success' => false , "m"=>$m);
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response,200);
 			die();
 		}
 
 		if(isset($_POST['email']) ){$email =sanitize_email($_POST['email']);}
 		$this->id_ ="hid";
-		$this->name =  sanitize_text_field($_POST['name']);
+		$this->name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
 		$this->email =  $email;
-		$this->value = $_POST['value'];
+		$this->value = isset($_POST['value']) ? $_POST['value'] : '';
 
-		$this->formtype =  sanitize_text_field($_POST['type']);
-		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
+		$this->formtype = isset($_POST['type']) ? sanitize_text_field($_POST['type']) : '';
+		if($this->isScript($this->value) ||$this->isScript($this->formtype)){
 			$response = array( 'success' => false , "m"=> $lang["NAllowedscriptTag"]);
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response,200);
 			die();
 		}
 
@@ -283,7 +283,7 @@ class Addon {
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_);
 		}else{$response = array( 'success' => false , "m"=> $lang["formNcreated"]);}
-		wp_send_json_success($response,$_POST);
+		wp_send_json_success($response,200);
 		die();
 	}
 

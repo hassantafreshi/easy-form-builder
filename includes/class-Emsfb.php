@@ -112,8 +112,8 @@ class Emsfb {
 		foreach ($users as $key => $value) {
 			$user =get_user_by('login',$value);
 			$to = $usr ->data->user_email;
-
-			$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+            $SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'yourdomain.com';
+			$from =get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
 			$headers = array(
 				'MIME-Version: 1.0\r\n',
 				'"Content-Type: text/html; charset=ISO-8859-1\r\n"',

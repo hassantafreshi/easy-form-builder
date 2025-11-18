@@ -576,7 +576,7 @@ class _Public {
 					if(gettype($r)=="string"){
 						$setting =str_replace('\\', '', $r);
 						$setting =json_decode($setting);
-						$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+						$server_name =isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']) : '';
 
 						if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}
 						if(strpos($value , '\"type\":\"stripe\"') || strpos($value , '"type":"stripe"')){$paymentType="stripe";}
@@ -1021,7 +1021,7 @@ class _Public {
 			error_log('Invalid SID: ' . $sid);
 			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
 			$response = array( 'success' => false  , 'm'=>$m);
-			wp_send_json_success($response,$data_POST);
+			wp_send_json_success($response,200);
 		}
 		$user_id = 1;
 		$to_list_admin=[];
@@ -1133,7 +1133,7 @@ class _Public {
 				if($type!=$formObj[0]["type"]){
 
 					$response = array( 'success' => false  , 'm'=>$this->lanText["fernvtf"]);
-					wp_send_json_success($response,$data_POST);
+					wp_send_json_success($response,200);
 				}
 				if($formObj[0]["thank_you"]=="rdrct"){
 					$rePage= $this->string_to_url($formObj[0]["rePage"]);
@@ -1144,7 +1144,8 @@ class _Public {
 				$rt;
 
 				if(isset($data_POST['url']) && strlen($data_POST['url'])>5 ){
-					$ar = ['http://wwww.'.$_SERVER['HTTP_HOST'] , 'https://wwww.'.$_SERVER['HTTP_HOST'] ,'http://'.$_SERVER['HTTP_HOST'], 'https://'.$_SERVER['HTTP_HOST']];
+					$http_host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] :'';
+					$ar =  ['http://wwww.'.$http_host , 'https://wwww.'.$http_host ,'http://'.$http_host, 'https://'.$http_host];
 					foreach ($ar as  $r) {
 						$c=strpos($data_POST['url'],$r);
 						if(gettype($c)!='boolean' && $c==0){
@@ -1158,7 +1159,7 @@ class _Public {
 				}
 				if($stated==0){
 					$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]);
-					wp_send_json_success($response,$data_POST);
+					wp_send_json_success($response,200);
 				}
 				$mr='';
 				$stated = 1;
@@ -1445,7 +1446,7 @@ class _Public {
 									if($item['value']<1 || $item['value']>5){
 										$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 600';
 										$response = array( 'success' => false  , 'm'=>$m);
-										wp_send_json_success($response,$data_POST);
+										wp_send_json_success($response,200);
 									}
 									$stated=1;
 									$item['name'] = $f['value'];
@@ -1577,7 +1578,7 @@ class _Public {
 									break;
 								case 'file':
 								case 'dadfile':
-									$d = $_SERVER['HTTP_HOST'];
+									$d = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] :'';
 
 
 									if(isset($item['url']) && strlen($item['url'])>5 ){
@@ -1719,7 +1720,7 @@ class _Public {
 				if($stated==0){
 
 					$response = array( 'success' => false  , 'm'=>$mr);
-					wp_send_json_success($response,$data_POST);
+					wp_send_json_success($response,200);
 				}
 
 
@@ -1739,7 +1740,7 @@ class _Public {
 		}else if ($fs==''){
 			$m = "Error 404 ";
 			$response = array( 'success' => false  , 'm'=>$m);
-			wp_send_json_success($response,$data_POST);
+			wp_send_json_success($response,200);
 		}
 		if(true){
 
@@ -1771,7 +1772,7 @@ class _Public {
 
 
 						$secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : null;
-						$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+						$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']);: '';
 						if(isset($setting->activeCode) &&!empty($setting->activeCode) && md5($server_name) ==$setting->activeCode){
 							$pro=true;
 						}
@@ -1789,7 +1790,7 @@ class _Public {
 							}else{
 
 								$response = array( 'success' => false  , 'm'=>$this->lanText["errorSiteKeyM"]);
-								wp_send_json_success($response,$data_POST);
+								wp_send_json_success($response,200);
 								return;
 							}
 						}
@@ -1800,12 +1801,12 @@ class _Public {
 					}
 					if ($not_captcha==true && ( $captcha_success=="null" || $captcha_success->success!=true )  ) {
 					$response = array( 'success' => false  , 'm'=>$this->lanText["errorCaptcha"]);
-					wp_send_json_success($response,$data_POST);
+					wp_send_json_success($response,200);
 					die();
 					}else if ($not_captcha==false || ($not_captcha==true &&  $captcha_success->success==true)) {
 					if(empty($data_POST['value']) || empty($data_POST['name']) || empty($data_POST['id']) ){
 						$response = array( 'success' => false , "m"=>$this->lanText["pleaseEnterVaildValue"]);
-						wp_send_json_success($response,$data_POST);
+						wp_send_json_success($response,200);
 						die();
 					}
 					$this->name = sanitize_text_field($data_POST['name']);
@@ -1844,7 +1845,7 @@ class _Public {
 								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
 								$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
 							}
-							wp_send_json_success($response,$data_POST);
+							wp_send_json_success($response,200);
 						break;
 						case "payment":
 							error_log("type payment");
@@ -1854,7 +1855,7 @@ class _Public {
 							$payment_getWay =isset($data_POST['payment']) ? sanitize_text_field($data_POST['payment']) :'stripe';
 							if( strlen($id)<7 && $payment_getWay=="zarinPal"){
 								$response = array( 'success' => false , "m"=>"خطای داده های پرداختی ، صفحه را رفرش کنید");
-								wp_send_json_success($response,$data_POST);
+								wp_send_json_success($response,200);
 								die();
 							}
 							$sql = $this->db->prepare(
@@ -1903,7 +1904,7 @@ class _Public {
 									}
 									if($msg!="ok"){
 										$response = array( 'success' => false , "m"=>$this->$msg);
-										wp_send_json_success($response,$data_POST);
+										wp_send_json_success($response,200);
 										die();
 									}
 									date_default_timezone_set('Iran');
@@ -1934,7 +1935,7 @@ class _Public {
 								$fs = isset($fs[0]->form_structer) ? str_replace('\\', '', $fs[0]->form_structer) :'';
 								if($fs==''){
 									$response = array( 'success' => false  ,'m'=>'Error 406');
-									wp_send_json_success($response,$data_POST);
+									wp_send_json_success($response,200);
 									die();
 								}
 								$fs = json_decode ($fs,true);
@@ -1981,14 +1982,14 @@ class _Public {
 
 							}else{
 								$response = array( 'success' => false  ,'m'=>esc_html__('Error Code','easy-form-builder').'</br>'. esc_html__('Payment Form','easy-form-builder'));
-								wp_send_json_success($response,$data_POST);
+								wp_send_json_success($response,200);
 							}
 
 							$m = "Error 500";
 							$response = $check == 1 ? array( 'success' => true  ,'ID'=>$data_POST['id'] , 'track'=>$this->id ,'nonce'=>wp_create_nonce($this->id)  , 'ip'=>$ip) :  array( 'success' => false  ,'m'=>$m);
 							$this->efbFunction->efb_code_validate_update($sid ,'pay' ,$check );
 							if($rePage!="null" && $check == 1){$response = array( 'success' => true  ,'m'=>$rePage); }
-							wp_send_json_success($response,$data_POST);
+							wp_send_json_success($response,200);
 
 						break;
 						case "register":
@@ -2013,7 +2014,7 @@ class _Public {
 							$r =$this->new_user_validate_efb($username,$email,$password);
 							if(gettype($r)=="string"){
 								$response = array( 'success' => false , 'm' =>$r);
-								wp_send_json_success($response,$data_POST);
+								wp_send_json_success($response,200);
 							}
 							$this->value=json_encode($registerValues,JSON_UNESCAPED_UNICODE);
 							$creds = array();
@@ -2079,7 +2080,7 @@ class _Public {
 								if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
 							}
 
-							wp_send_json_success($response,$data_POST);
+							wp_send_json_success($response,200);
 						break;
 						case "login":
 							$username ;
@@ -2127,7 +2128,7 @@ class _Public {
 								}
 								$this->efbFunction->efb_code_validate_update($sid ,'login' ,'login' );
 								if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,'');
-								wp_send_json_success($response,$data_POST);
+								wp_send_json_success($response,200);
 							}else{
 
 								$send=array();
@@ -2136,14 +2137,14 @@ class _Public {
 								$send['error']=$this->lanText["incorrectUP"];
 								$response = array( 'success' => true , 'm' =>$send);
 
-								wp_send_json_success($response,$data_POST);
+								wp_send_json_success($response,200);
 							}
 						break;
 						case "logout":
 							$this->efbFunction->efb_code_validate_update($sid ,'logout' ,'logout' );
 							wp_logout();
 							$response = array( 'success' => true  );
-							wp_send_json_success($response,$data_POST);
+							wp_send_json_success($response,200);
 						break;
 						case "recovery":
 							$m = str_replace("\\","",$this->value);
@@ -2166,7 +2167,8 @@ class _Public {
 									$efb ='<p> '. $this->lanText["sentBy"] . home_url(). '</p>';
 									if($pro==false) $efb ='<p> '. esc_html__("from").''. home_url(). ' '. $this->lanText["sentBy"] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
 									$subject ="". esc_html__("Password recovery")."[".get_bloginfo('name')."]";
-									$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+									$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'yourdomain.com';
+									$from =get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
 									if(isset($email_user[2]) && is_email($email_user[2])) $from =  blog_info('name')." <".$email_user[2].">";
 									$message ='<!DOCTYPE html> <html> <body><h3>'.  esc_html__('New Password')  .':'.$newpass.'</h3>
 									<p> '.$efb. '</p>
@@ -2182,7 +2184,7 @@ class _Public {
 							$m=		$this->lanText["newPassM"];
 							$response = array( 'success' => true , 'm' =>$m);
 							$this->efbFunction->efb_code_validate_update($sid ,'repass' ,'repass' );
-							wp_send_json_success($response,$data_POST);
+							wp_send_json_success($response,200);
 						break;
 						case "subscribe":
 							$check=	$this->insert_message_db(0,false);
@@ -2196,7 +2198,7 @@ class _Public {
 							$response = array( 'success' => true , 'm' =>$this->lanText["done"]);
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
 							$this->efbFunction->efb_code_validate_update($sid ,'nwltr' ,'nwltr' );
-							wp_send_json_success($response,$data_POST);
+							wp_send_json_success($response,200);
 						break;
 						case "survey":
 
@@ -2213,19 +2215,19 @@ class _Public {
 							$response = array( 'success' => true , 'm' =>$this->lanText["surveyComplatedM"]);
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
 							$this->efbFunction->efb_code_validate_update($sid ,'poll' ,'poll' );
-							wp_send_json_success($response,$data_POST);
+							wp_send_json_success($response,200);
 						break;
 						case "reservation":
 						break;
 						default:
 						$response = array( 'success' => false  ,'m'=>$this->lanText["somethingWentWrongPleaseRefresh"]);
-						wp_send_json_success($response,$data_POST);
+						wp_send_json_success($response,200);
 					}
 		}
 
 		}else{
 			$response = array( 'success' => false , "m"=>$this->lanText["errorSettingNFound"]);
-			wp_send_json_success($response,$data_POST);
+			wp_send_json_success($response,200);
 		}
 	  }
 	  public function get_track_public_api($data_POST_) {
@@ -2242,7 +2244,7 @@ class _Public {
 		if ($s_sid !=1 || $sid==null){
 			$m =  $lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
 		$response = array( 'success' => false  , 'm'=>$m);
-		wp_send_json_success($response,$data_POST);
+		wp_send_json_success($response,200);
 		}
 		$response=$data_POST['valid'];
 		$captcha_success =[];
@@ -2255,12 +2257,12 @@ class _Public {
 		 $strR = json_encode($captcha_success);
 		 if (!empty($captcha_success) &&$captcha_success->success==false &&  $not_captcha==false ) {
 		  $response = array( 'success' => false  , 'm'=> $lanText["errorMRobot"]);
-		  wp_send_json_success($response,$data_POST);
+		  wp_send_json_success($response,200);
 		 }
 		 else if ((!empty($captcha_success) && $captcha_success->success==true) ||  $not_captcha==true) {
 			if(empty($data_POST['value']) ){
 				$response = array( 'success' => false , "m"=>$lanText["enterVValue"]);
-				wp_send_json_success($response,$data_POST);
+				wp_send_json_success($response,200);
 				die();
 			}
 			$id = sanitize_text_field($data_POST['value']);
@@ -2308,7 +2310,7 @@ class _Public {
 			}else{
 				$response = array( 'success' => false  , "m" =>$lanText["cCodeNFound"]);
 			}
-			wp_send_json_success($response,$data_POST);
+			wp_send_json_success($response,200);
 			}
 
 	  }
@@ -2374,7 +2376,7 @@ class _Public {
         }
 		if (check_ajax_referer('public-nonce','nonce')!=1 && check_ajax_referer($vl,"nonce_msg")!=1){
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]);
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response,200);
 			die();
 		}
 		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
@@ -2399,10 +2401,10 @@ class _Public {
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
 			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']);
-			  wp_send_json_success($response,$_POST);
+			  wp_send_json_success($response,200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]);
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response,200);
 			die('invalid file '.$_FILES['file']['type']);
 		}
 	}
@@ -2982,7 +2984,7 @@ class _Public {
 			$r =json_decode($r);
 			if($state=="pub"){
 				$this->setting =$value;
-				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+				$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '');
 				$pro = false;
 				if(isset($r->activeCode) &&  md5($server_name) ==$r->activeCode){$pro=true;}
 				$this->pro_efb = $pro;
@@ -3063,7 +3065,7 @@ class _Public {
 		if ($s_sid !=1){
 			$m = esc_html__('error', 'easy-form-builder') . ' 403';
 			$response = array( 'success' => false  , 'm'=>$m);
-			wp_send_json_success($response,$data_POST);
+			wp_send_json_success($response,200);
 		}
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 		$Sk ='null';
@@ -3157,7 +3159,8 @@ class _Public {
 		$this->ip = $ip;
 		if($price_c != $price_f) {
 			$t=time();
-			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
+			$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'yourdomain.com';
+			$from =get_bloginfo('name')." <Alert@".$SERVER_NAME.">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from.'',
@@ -3277,7 +3280,7 @@ class _Public {
 
 			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
 		$response = array( 'success' => false  , 'm'=>$m);
-		wp_send_json_success($response,$data_POST);
+		wp_send_json_success($response,200);
 		}
 		$Sk ='null';
 		if(gettype($r)=="string"){
@@ -3372,7 +3375,8 @@ class _Public {
 		$ip = $this->ip;
 		if($price_c != $price_f) {
 			$t=time();
-			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
+			$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'yourdomain.com';
+			$from =get_bloginfo('name')." <Alert@".$SERVER_NAME.">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from.'',
@@ -3455,9 +3459,9 @@ class _Public {
 				die("secure!");
 		}
 
-		$this->id = intval($_POST['id']);
-		$val_ = sanitize_text_field($_POST['value']);
-		$url = sanitize_url($_POST['url']);
+		$this->id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+		$val_ = isset($_POST['value']) ? sanitize_text_field($_POST['value']) : '';
+		$url = isset($_POST['url']) ? sanitize_url($_POST['url']) : '';
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results(
 			$this->db->prepare(
@@ -3530,7 +3534,8 @@ class _Public {
 		$ip = $this->ip;
 		if($price_c != $price_f) {
 			$t=time();
-			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
+			$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'yourdomain.com';
+			$from =get_bloginfo('name')." <Alert@".$SERVER_NAME.">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from.'',
@@ -3574,7 +3579,7 @@ class _Public {
 					$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);
 
 						$this->value = str_replace('"', '\\"', $val_);
-						$this->name = sanitize_text_field($_POST['name']);
+						$this->name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
 						$check=	$this->insert_message_db(2,$clientRefId);
 						if(isset($check)!=true){
 							$response = array('success' => false, 'm' => 'خطا در ارتباط با دیتابیس ، شماره خطا DB-403');

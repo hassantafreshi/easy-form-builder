@@ -146,7 +146,7 @@ class Create {
 
 		$lang = $efbFunction->text_efb(1);
 		if(gettype($ac)!="string"){
-			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+			$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']) : '';
 
 			if (isset($ac->activeCode)==true && strlen($ac->activeCode)>5 && md5($server_name)==$ac->activeCode){
 				$pro=true;
@@ -348,7 +348,7 @@ class Create {
 
 		$email = '';
 
-		$nonce = $_POST['nonce'];
+		$nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
 		if ( !wp_verify_nonce( $nonce, 'admin-nonce' )  || !current_user_can('Emsfb')) {
             $response = ['success' => false, 'm' =>  $lang['error403']];
             wp_send_json_success($response, 200);
@@ -357,16 +357,16 @@ class Create {
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m =$lang["errorCheckInputs"];
 			$response = array( 'success' => false , "m"=>$m);
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response,200);
 		}
 
 		if(isset($_POST['email']) ){$email =sanitize_email($_POST['email']);}
 		$this->id_ ="hid";
-		$this->name =  sanitize_text_field($_POST['name']);
+		$this->name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
 		$this->email =  $email;
 
 
-		$valp =str_replace('\\', '', $_POST['value']);
+		$valp = isset($_POST['value']) ? str_replace('\\', '', $_POST['value']) : '';
 
 
 		$valp = json_decode($valp,true);
@@ -381,7 +381,7 @@ class Create {
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
 			$response = array( 'success' => false , "m"=> $lang["NAllowedscriptTag"]);
-			wp_send_json_success($response,$_POST);
+			wp_send_json_success($response,200);
 		}
 
 
@@ -438,7 +438,7 @@ class Create {
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_);
 		}else{$response = array( 'success' => false , "m"=> $lang["formNcreated"]);}
-		wp_send_json_success($response,$_POST);
+		wp_send_json_success($response,200);
 	}
 
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }

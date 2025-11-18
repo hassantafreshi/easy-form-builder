@@ -58,7 +58,7 @@ class Panel_edit  {
 			$efbFunction->openstreet_map_required_efb(0);
 
 			if(gettype($ac)!="string" && isset($ac) ){
-				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+				$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']) : '';
 				if (isset($ac->activeCode)){$pro= md5($server_name)==$ac->activeCode ? true : false;}
 				if(isset($ac->siteKey)){$captcha="true";}
 				if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else{$smtp_m =$lang["sMTPNotWork"];}
@@ -310,12 +310,12 @@ class Panel_edit  {
 			$ip =0;
 			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
 
-				$ip = $_SERVER['HTTP_CLIENT_IP'];
+				$ip = isset($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_CLIENT_IP'] : '0.0.0.0';
 			} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
 
-				$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+				$ip = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : '0.0.0.0';
 			} else {
-				$ip = $_SERVER['REMOTE_ADDR'];
+				$ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
 			}
 
 
@@ -406,10 +406,10 @@ class Panel_edit  {
 	public function file_upload_api(){
 		$efbFunction = $this->get_efbFunction();
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
-		$_POST['id']=intval($_POST['id']);
-        $_POST['pl']=sanitize_text_field($_POST['pl']);
-        $_POST['fid']=sanitize_text_field($_POST['fid']);
-		$sid = sanitize_text_field($_POST['sid']);
+		$_POST['id']= isset($_POST['id']) ? intval($_POST['id']) : 0;
+        $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field($_POST['pl']) : '';
+        $_POST['fid']= isset($_POST['fid']) ? sanitize_text_field($_POST['fid']) : '';
+		$sid = isset($_POST['sid']) ? sanitize_text_field($_POST['sid']) : '';
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
 		if ($s_sid !=1 || $sid==null){
 
@@ -423,7 +423,7 @@ class Panel_edit  {
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
-            $id = $_POST['id'];
+            $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
             $table_name = $this->db->prefix . "emsfb_form";
             $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
             if($vl!=null){
@@ -451,6 +451,12 @@ class Panel_edit  {
 		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
 		);
 
+
+		if (!isset($_FILES['async-upload']) || !isset($_FILES['async-upload']['name']) || !isset($_FILES['async-upload']['type']) || !isset($_FILES['async-upload']['tmp_name'])) {
+			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]);
+			wp_send_json_success($response,200);
+			return;
+		}
 
 		$_FILES['async-upload']['name'] = sanitize_file_name($_FILES['async-upload']['name']);
 
