@@ -2166,11 +2166,11 @@ class _Public {
 									$to = $email;
 									$efb ='<p> '. $this->lanText["sentBy"] . home_url(). '</p>';
 									if($pro==false) $efb ='<p> '. esc_html__("from").''. home_url(). ' '. $this->lanText["sentBy"] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
-									$subject ="". esc_html__("Password recovery")."[".get_bloginfo('name')."]";
+									$subject ="". esc_html__("Password recovery" , 'easy-form-builder')."[".get_bloginfo('name')."]";
 									$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'yourdomain.com';
 									$from =get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
 									if(isset($email_user[2]) && is_email($email_user[2])) $from =  blog_info('name')." <".$email_user[2].">";
-									$message ='<!DOCTYPE html> <html> <body><h3>'.  esc_html__('New Password')  .':'.$newpass.'</h3>
+									$message ='<!DOCTYPE html> <html> <body><h3>'.  esc_html__('New Password', 'easy-form-builder')  .':'.$newpass.'</h3>
 									<p> '.$efb. '</p>
 									</body> </html>';
 									$headers = array(
