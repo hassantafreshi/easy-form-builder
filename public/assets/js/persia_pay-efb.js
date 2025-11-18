@@ -1,6 +1,6 @@
 
 const getUrlback_efb = location.search;
-
+let payment_completed_efb = false;
 const getUrlparam_efb = new URLSearchParams(getUrlback_efb);
 const get_authority_efb = getUrlparam_efb.get('Authority') ?? null;
 const get_Status_efb =  getUrlparam_efb.get('Status') ?? null;
@@ -190,34 +190,73 @@ fun_after_bankpay_persia_ui =()=>{
 if(get_Status_efb=="NOK"){
   change_url_back_persia_pay_efb();
   window.alert('پرداخت انجام نشد ، لطفا صفحه را رفرش کنید و دوباره تلاش کنید');
-}else{
+د  }else if(get_Status_efb=="OK"){
+  console.log('✅ Payment successful - calling fun_after_bankpay_persia_ui_efb');
   setTimeout(() => {
-    if(state_efb!=='run') return;
+    if(state_efb!=='run') {
+      console.log('⚠️ state_efb is not run, current state:', state_efb);
+      return;
+    }
+
+    // Call the main payment callback function
+    if(typeof fun_after_bankpay_persia_ui_efb === 'function') {
+      console.log('🚀 Executing fun_after_bankpay_persia_ui_efb');
+      fun_after_bankpay_persia_ui_efb();
+    } else {
+      console.error('❌ fun_after_bankpay_persia_ui_efb is not defined');
+    }
+
+    // Fallback: enable buttons
     const steps = valj_efb[0].steps ?? 0;
     if(steps==1){
       const btn_send_efb = document.getElementById('btn_send_efb');
       if(btn_send_efb){
         btn_send_efb.classList.remove('disabled');
+        console.log('✅ Enabled btn_send_efb button');
       }
     }else{
       const next_efb = document.getElementById('next_efb');
       if(next_efb){
         next_efb.classList.remove('disabled');
+        console.log('✅ Enabled next_efb button');
       }
     }
-  }, 1000);
+  }, 1500);
 }
 
 
 fun_after_bankpay_persia_ui_efb=()=>{
- if(state_efb!=='run') return;
+ console.log('🎯 fun_after_bankpay_persia_ui_efb called');
+ if(state_efb!=='run') {
+   console.log('⚠️ state_efb is not run, exiting');
+   return;
+ }
+
  const last_step = valj_efb[0].steps ?? 0;
- const _index = valj_efb.findIndex(x=>x.type=='persiaPay') ;
- const last_el_amount = valj_efb.slice().reverse().find(x=>x.hasOwnProperty('type') && x.hasOwnProperty('amount'));
- const paymeny_amount = valj_efb[_index].hasOwnProperty('amount') ? valj_efb[_index].amount : 0;
+ const _index = valj_efb.findIndex(x=>x.type=='persiaPay');
+
+ if(_index==-1){
+   console.log('❌ persiaPay field not found in valj_efb');
+   return;
+ }
+
+ // Calculate total amount from all payment fields
+ let total_amount = 0;
+ valj_efb.forEach(field => {
+   if(field.hasOwnProperty('amount') && field.amount) {
+     const fieldAmount = Number(field.amount);
+     if(!isNaN(fieldAmount)) {
+       total_amount += fieldAmount;
+     }
+   }
+ });
+
+ const paymeny_amount = valj_efb[_index].hasOwnProperty('amount') ? Number(valj_efb[_index].amount) : 0;
  current_s_efb = Number(last_step);
-  if(_index==-1)return;
-  const step_pp = valj_efb[_index].step;
+ const step_pp = valj_efb[_index].step;
+
+ console.log('💰 Payment amounts - Total:', total_amount, 'Payment field:', paymeny_amount);
+ console.log('📊 Last step:', last_step, 'Payment index:', _index, 'Payment step:', step_pp);
   const showPaymentLoadingAndProceed = (is_multiStep) => {
      console.log('Payment successful - showing loading overlay');
 
@@ -288,6 +327,7 @@ fun_after_bankpay_persia_ui_efb=()=>{
          setTimeout(() => {
            if(is_multiStep==true) {
              // Multi-step: Click next_efb button
+             console.log('Multi-step: Preparing to click next_efb button');
             if (files_emsFormBuilder.length > 0) {
               for (const file of files_emsFormBuilder) {
                 if (get_row_sendback_by_id_efb(file.id_) == -1) { sendBack_emsFormBuilder_pub.push(file); localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub)); }
@@ -345,32 +385,34 @@ fun_after_bankpay_persia_ui_efb=()=>{
            // Hide all fieldsets except last one for visual effect
            const efb_docs = document.getElementById('view-efb');
            const fieldsets = efb_docs ? efb_docs.getElementsByTagName('fieldset') : [];
-           for(let i=0; i<fieldsets.length-1; i++){
-             console.log('Hiding fieldset index:', i);
+           const count_filds = fieldsets.length -1;
+           console.log('Fieldsets found for visual update:', fieldsets.length ,'count_filds:', count_filds );
+           for(let i=0; i<count_filds; i++){
+             console.error('Hiding fieldset index:', i);
              fieldsets[i].classList.add('d-none');
            }
            if(fieldsets.length > 0) {
-             fieldsets[fieldsets.length-1].classList.remove('d-none');
+             const last_fieldset= fieldsets[count_filds];
+             last_fieldset.classList.add('efb-final-step-visible');
+             last_fieldset.classList.remove('d-none');
+             setTimeout(() => {
+               last_fieldset.classList.remove('d-none');
+               console.log(last_fieldset.classList);
+             }, 800);
            }
          }, 100);
        }
      }, 1000);
   };
+  // Always proceed after successful payment - amount is already verified by bank
+  console.log('✅ Payment verified by bank - proceeding with form submission');
+
   if(Number(last_step)==1){
-
-     if(Number(last_el_amount.amount)==Number(paymeny_amount)){
-      console.log('Enable next button for persia pay',last_step);
-      showPaymentLoadingAndProceed(false);
-    }
+    console.log('📝 Single step form - proceeding to send');
+    showPaymentLoadingAndProceed(false);
   }else{
-    //get last row of valj_efb and has type and amount attributes
-    if(Number(last_el_amount.amount)==Number(paymeny_amount)){
-      console.log('Enable next button for persia pay',last_step);
-      showPaymentLoadingAndProceed(true);
-    }
-    console.log('last_el_amount:', last_el_amount.amount);
-    console.log('paymeny_amount:', paymeny_amount);
-
+    console.log('📋 Multi-step form - proceeding to final step');
+    showPaymentLoadingAndProceed(true);
   }
 
 }

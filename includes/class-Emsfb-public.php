@@ -99,9 +99,9 @@ class _Public {
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
 
-		// Elementor compatibility - only load if Elementor is active and not in admin
+		// Elementor compatibility - defer to after wp_enqueue_scripts to avoid warnings
 		if (!is_admin()) {
-			$this->init_elementor_compatibility();
+			add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
 		}
 	}
 
@@ -123,6 +123,22 @@ class _Public {
 			add_action('wp_footer', [$this, 'simple_elementor_fix_footer'], 1);
 			// jQuery compatibility handled in enqueue_jquery() method
 		}
+	}
+
+	/**
+	 * Safe wrapper for wp_script_is that respects WordPress hooks
+	 */
+	private function safe_wp_script_is($handle, $list = 'enqueued') {
+		// Only check scripts after wp_enqueue_scripts hook has fired
+		if (!did_action('wp_enqueue_scripts') && !did_action('admin_enqueue_scripts') && !did_action('login_enqueue_scripts')) {
+			return false;
+		}
+
+		if (function_exists('wp_script_is')) {
+			return wp_script_is($handle, $list);
+		}
+
+		return false;
 	}
 
 	/**
@@ -153,12 +169,10 @@ class _Public {
 			}
 		}
 
-		// Method 4: Check if Elementor scripts are enqueued
-		if (function_exists('wp_script_is')) {
-			if (wp_script_is('elementor-frontend', 'enqueued') ||
-			    wp_script_is('elementor-frontend', 'registered')) {
-				return true;
-			}
+		// Method 4: Check if Elementor scripts are enqueued (safe wrapper)
+		if ($this->safe_wp_script_is('elementor-frontend', 'enqueued') ||
+		    $this->safe_wp_script_is('elementor-frontend', 'registered')) {
+			return true;
 		}
 
 		return false;
@@ -183,13 +197,11 @@ class _Public {
 			$elementor_active = true;
 		}
 
-		// Check 3: Scripts enqueued
-		if (function_exists('wp_script_is')) {
-			if (wp_script_is('elementor-frontend', 'enqueued') ||
-			    wp_script_is('elementor-frontend', 'registered') ||
-			    wp_script_is('elementor-frontend', 'to_do')) {
-				$elementor_active = true;
-			}
+		// Check 3: Scripts enqueued (safe wrapper)
+		if ($this->safe_wp_script_is('elementor-frontend', 'enqueued') ||
+		    $this->safe_wp_script_is('elementor-frontend', 'registered') ||
+		    $this->safe_wp_script_is('elementor-frontend', 'to_do')) {
+			$elementor_active = true;
 		}
 
 		// Check 4: URL contains elementor
@@ -1006,7 +1018,7 @@ class _Public {
 
 
 		if ($s_sid !=1){
-
+			error_log('Invalid SID: ' . $sid);
 			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
 			$response = array( 'success' => false  , 'm'=>$m);
 			wp_send_json_success($response,$data_POST);
@@ -1810,6 +1822,7 @@ class _Public {
 
 					switch($type){
 						case "form":
+							error_log("type form");
 							$check=	$this->insert_message_db(0,false);
 							$nnc = wp_create_nonce($check);
 
@@ -1834,6 +1847,7 @@ class _Public {
 							wp_send_json_success($response,$data_POST);
 						break;
 						case "payment":
+							error_log("type payment");
 							$id = sanitize_text_field($data_POST['payid']);
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');

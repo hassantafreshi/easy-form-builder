@@ -343,6 +343,18 @@ a.emsFormBuilder {    background-color: #633a82;
         background-color: rgba(108, 117, 125, 0.2) !important;
     }
 
+    /* Mobile touch feedback for btn-toggle elements */
+    .btn-toggle.efb-toggle-touching {
+        transform: scale(0.95) !important;
+        background-color: rgba(99, 58, 130, 0.3) !important;
+        transition: all 0.1s ease-in-out !important;
+        box-shadow: 0 0 0 2px rgba(99, 58, 130, 0.3) !important;
+    }
+
+    .btn-toggle:active {
+        transform: scale(0.95) !important;
+    }
+
     /* Improve icon visibility on mobile */
     .btn-edit i, .BtnSideEfb i {
         pointer-events: none;

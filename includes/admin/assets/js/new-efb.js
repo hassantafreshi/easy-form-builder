@@ -1387,17 +1387,18 @@ function handle_navbtn_efb(steps, device) {
           current_s.classList.add("d-none");
           next_s_efb = current_s.nextElementSibling;
           var nxt = "" + (current_s_efb + 1) + "";
-          if(Number(valj_efb[0].show_icon)!=1){
-            document.querySelector('[data-step="icon-s-' + nxt + '-efb"]').classList.add("active");
-          }
-          document.querySelector('[data-step="step-' + nxt + '-efb"]').classList.toggle("d-none");
-          if(next_s_efb)next_s_efb.classList.remove('d-none');
-          if(document.getElementById('gRecaptcha'))document.getElementById('gRecaptcha').classList.add('d-none');
-          current_s_efb += 1;
-          localStorage.setItem("step", current_s_efb);
-          setProgressBar_efb(current_s_efb, steps_len_efb);
+
 
           if (current_s_efb <= steps) {
+            if(Number(valj_efb[0].show_icon)!=1){
+              document.querySelector('[data-step="icon-s-' + nxt + '-efb"]').classList.add("active");
+            }
+            document.querySelector('[data-step="step-' + nxt + '-efb"]').classList.toggle("d-none");
+            if(next_s_efb)next_s_efb.classList.remove('d-none');
+            if(document.getElementById('gRecaptcha'))document.getElementById('gRecaptcha').classList.add('d-none');
+            current_s_efb += 1;
+            localStorage.setItem("step", current_s_efb);
+            setProgressBar_efb(current_s_efb, steps_len_efb);
             var val = valj_efb.find(x => x.step == nxt);
             if(Number(valj_efb[0].show_icon)!=1){
               document.getElementById("title_efb").className = val["label_text_color"];

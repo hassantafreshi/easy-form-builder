@@ -63,13 +63,46 @@ jQuery(function () {
   //cache message alert section end
 
   // Mobile compatibility enhancements (non-intrusive)
+  // Set debug mode (can be controlled via console: window.efb_debug = true/false)
+  if (typeof window.efb_debug === 'undefined') {
+    window.efb_debug = false; // Set to false for production
+  }
+
   enhanceMobileCompatibility();
+
+  // Initialize mobile support for existing btn-toggle elements
+  if ('ontouchstart' in window) {
+    const existingToggleButtons = document.querySelectorAll('.btn-toggle[onclick]');
+    if (existingToggleButtons.length > 0) {
+      existingToggleButtons.forEach(addToggleMobileTouchSupport);
+      if (window.efb_debug) {
+        console.log('EFB: Initialized mobile support for', existingToggleButtons.length, 'existing toggle buttons');
+      }
+    }
+  }
 })
 
 
 
 
 document.getElementById('wpfooter').remove();/**
+ * Safe eval wrapper to prevent conflicts with WordPress AJAX/heartbeat
+ */
+function safeEvalEfb(code) {
+  try {
+    // Don't execute if code might interfere with WordPress AJAX
+    if (typeof code === 'string' && code.length > 0 && !code.includes('wp.heartbeat')) {
+      return eval(code);
+    }
+  } catch (error) {
+    if (window.efb_debug) {
+      console.warn('EFB: Safe eval error:', error, code);
+    }
+    return false;
+  }
+}
+
+/**
  * Non-intrusive mobile compatibility enhancements
  * Works alongside existing event system without conflicts
  */
@@ -143,7 +176,9 @@ window.efb_test_mobile_touch = function() {
     buttonsWithActions: document.querySelectorAll('[data-action]').length,
     selectedField: document.querySelector('.field-selected-efb') ? 'Found' : 'None',
     viewport: document.querySelector('meta[name=viewport]') ? document.querySelector('meta[name=viewport]').getAttribute('content') : 'Not found',
-    observerActive: typeof observer !== 'undefined'
+    observerActive: typeof observer !== 'undefined',
+    toggleButtonsFound: document.querySelectorAll('.btn-toggle[onclick]').length,
+    toggleButtonsWithMobileSupport: document.querySelectorAll('.btn-toggle[hasToggleMobileTouchSupport]').length
   };
 
   console.log('EFB Mobile Touch Test Results (Non-Intrusive):', testResults);
@@ -155,13 +190,45 @@ window.efb_test_mobile_touch = function() {
     show_delete_window_efb: typeof show_delete_window_efb === 'function',
     move_show_efb: typeof move_show_efb === 'function',
     addMobileTouchSupport: typeof addMobileTouchSupport === 'function',
+    addToggleMobileTouchSupport: typeof addToggleMobileTouchSupport === 'function',
     addFieldSelectionSupport: typeof addFieldSelectionSupport === 'function',
-    fub_shwBtns_efb: typeof fub_shwBtns_efb === 'function'
+    fub_shwBtns_efb: typeof fub_shwBtns_efb === 'function',
+    fun_switch_form_efb: typeof fun_switch_form_efb === 'function'
   };
 
   console.log('EFB Function Availability:', functionsTest);
 
   return { ...testResults, functions: functionsTest };
+};
+
+/**
+ * Test function specifically for btn-toggle elements
+ * Call this from browser console: efb_test_toggle_buttons()
+ */
+window.efb_test_toggle_buttons = function() {
+  const toggleButtons = document.querySelectorAll('.btn-toggle');
+  const testResults = {
+    totalToggleButtons: toggleButtons.length,
+    toggleButtonsWithOnclick: document.querySelectorAll('.btn-toggle[onclick]').length,
+    toggleButtonsWithMobileSupport: document.querySelectorAll('.btn-toggle[hasToggleMobileTouchSupport]').length,
+    touchEventsSupported: 'ontouchstart' in window,
+    functionAvailable: typeof fun_switch_form_efb === 'function'
+  };
+
+  console.log('EFB Toggle Buttons Test Results:', testResults);
+
+  // Log individual toggle button details
+  toggleButtons.forEach((btn, index) => {
+    console.log(`Toggle Button ${index + 1}:`, {
+      id: btn.id,
+      hasOnclick: !!btn.getAttribute('onclick'),
+      hasMobileSupport: !!btn.hasToggleMobileTouchSupport,
+      classes: btn.className,
+      dataState: btn.dataset.state
+    });
+  });
+
+  return testResults;
 };
 function saveLocalStorage_emsFormBuilder() {
 
@@ -4897,11 +4964,8 @@ function addMobileTouchSupport(element) {
           e.preventDefault();
           e.stopPropagation();
 
-          try {
-            eval(onclickAttr);
-          } catch (error) {
-            console.warn('EFB Mobile: Error executing onclick on touchend:', error);
-          }
+          // Use safe eval to prevent WordPress AJAX conflicts
+          safeEvalEfb(onclickAttr);
         }
       }, { passive: false });
     }
@@ -4916,6 +4980,65 @@ function addMobileTouchSupport(element) {
   }
 }
 
+/**
+ * Add mobile touch support specifically for btn-toggle elements
+ * Handles Bootstrap toggle buttons on mobile devices
+ */
+function addToggleMobileTouchSupport(element) {
+  if (!element.hasToggleMobileTouchSupport && ('ontouchstart' in window)) {
+    let touchHandled = false;
+
+    // Add enhanced touch visual feedback for toggles
+    element.addEventListener('touchstart', function(e) {
+      element.style.transform = 'scale(0.95)';
+      element.style.transition = 'transform 0.1s ease';
+      element.classList.add('efb-toggle-touching');
+    }, { passive: true });
+
+    element.addEventListener('touchend', function(e) {
+      if (!touchHandled) {
+        touchHandled = true;
+        setTimeout(() => { touchHandled = false; }, 300);
+
+        // Reset visual feedback
+        element.style.transform = '';
+        element.classList.remove('efb-toggle-touching');
+
+        // Prevent default click behavior
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Execute the toggle function directly
+        setTimeout(() => {
+          if (typeof window.fun_switch_form_efb === 'function') {
+            window.fun_switch_form_efb(element);
+          } else {
+            // Fallback: execute onclick if function not available
+            const onclickAttr = element.getAttribute('onclick');
+            if (onclickAttr) {
+              safeEvalEfb(onclickAttr);
+            }
+          }
+        }, 50);
+      }
+    }, { passive: false });
+
+    // Override click events on mobile to prevent double execution
+    element.addEventListener('click', function(e) {
+      if (('ontouchstart' in window) && element.hasToggleMobileTouchSupport) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, { passive: false });
+
+    element.hasToggleMobileTouchSupport = true;
+
+    if (window.efb_debug) {
+      console.log('EFB: Added mobile touch support to toggle button:', element.id || element.className);
+    }
+  }
+}
+
       function observeExistingElements() {
         // console.log('observeExistingElements');
         const els = document.querySelectorAll(".ec-efb");
@@ -4923,7 +5046,6 @@ function addMobileTouchSupport(element) {
 
         // Add mobile support to existing button elements
         const mobileButtons = document.querySelectorAll(".btn-edit, .BtnSideEfb, button[onclick], span[onclick]");
-        console.log('EFB Mobile: Found', mobileButtons.length, 'buttons to process');
         mobileButtons.forEach(addMobileTouchSupport);
 
         // Add mobile support to existing field elements
@@ -4942,14 +5064,15 @@ function addMobileTouchSupport(element) {
 
                     // Handle mobile-specific button elements
                     const mobileButtons = node.querySelectorAll(".btn-edit, .BtnSideEfb");
-                    if (mobileButtons.length > 0) {
-                      console.log('EFB Mobile: Processing', mobileButtons.length, 'mobile buttons');
-                    }
                     mobileButtons.forEach(addMobileTouchSupport);
 
                     // Handle field selection elements for mobile
                     const fieldElements = node.querySelectorAll(".showBtns, .efbField, .ttEfb");
                     fieldElements.forEach(addFieldSelectionSupport);
+
+                    // Handle btn-toggle elements for mobile
+                    const toggleButtons = node.querySelectorAll(".btn-toggle[onclick]");
+                    toggleButtons.forEach(addToggleMobileTouchSupport);
                 }
             });
         });
@@ -4971,27 +5094,34 @@ function addMobileTouchSupport(element) {
 window.efb_force_mobile_support = function() {
   // Re-apply mobile support to all relevant elements (more comprehensive)
   const buttons = document.querySelectorAll('.btn-edit, .BtnSideEfb, button[onclick], span[onclick], [data-action]');
-  console.log('EFB Force: Processing', buttons.length, 'buttons');
-
   // Reset flags to force reprocessing
   buttons.forEach(button => {
     button.hasMobileTouchSupport = false;
   });
 
-  buttons.forEach(addMobileTouchSupport);
-
-  const fields = document.querySelectorAll('.showBtns, .efbField, .ttEfb');
+  buttons.forEach(addMobileTouchSupport);  const fields = document.querySelectorAll('.showBtns, .efbField, .ttEfb');
   fields.forEach(addFieldSelectionSupport);
+
+  // Apply mobile touch support to btn-toggle elements
+  const toggleButtons = document.querySelectorAll('.btn-toggle[onclick]');
+  toggleButtons.forEach(button => {
+    button.hasToggleMobileTouchSupport = false; // Reset flag
+  });
+  toggleButtons.forEach(addToggleMobileTouchSupport);
 
   // Re-run the field button initialization
   if (typeof fub_shwBtns_efb === 'function') {
     fub_shwBtns_efb();
   }
 
-  console.log('EFB: Force applied mobile support to all elements');
+  if (window.efb_debug) {
+    console.log('EFB: Force applied mobile support to all elements');
+    console.log('EFB: Processed', toggleButtons.length, 'btn-toggle elements');
+  }
   return {
     buttonsProcessed: buttons.length,
-    fieldsProcessed: fields.length
+    fieldsProcessed: fields.length,
+    toggleButtonsProcessed: toggleButtons.length
   };
 };
 
@@ -5019,11 +5149,8 @@ window.efb_fix_buttons_now = function() {
         console.log('EFB Mobile: Button touched', action || 'unknown', button);
 
         if (onclickAttr) {
-          try {
-            eval(onclickAttr);
+          if (safeEvalEfb(onclickAttr) !== false) {
             fixed++;
-          } catch (error) {
-            console.error('EFB Mobile: Error executing onclick:', error, onclickAttr);
           }
         }
       };
@@ -5046,6 +5173,8 @@ window.efb_fix_buttons_now = function() {
     }
   });
 
-  console.log('EFB: Fixed', fixed, 'buttons directly');
+  if (window.efb_debug) {
+    console.log('EFB: Fixed', fixed, 'buttons directly');
+  }
   return { buttonsFixed: fixed, totalButtons: problematicButtons.length };
 };

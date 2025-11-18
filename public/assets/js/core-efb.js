@@ -308,6 +308,13 @@ function actionSendData_emsFormBuilder() {
     response_fill_form_efb({ success: false, data: { success: false, m: efb_var.text.offlineMSend } });
     return;
   }
+
+  // Check if payment_completed_efb exists and is true
+  if(typeof payment_completed_efb !== 'undefined' && payment_completed_efb === true) {
+    console.log('Payment already completed, skipping actionSendData_emsFormBuilder');
+    return;
+  }
+
   form_type_emsFormBuilder = typeof valj_efb.length>2 ? valj_efb[0].type : form_type_emsFormBuilder;
   let  data = {
       action: "get_form_Emsfb",
@@ -322,6 +329,7 @@ function actionSendData_emsFormBuilder() {
     };
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('type') && valj_efb[0].type=="payment" ){
       if(valj_efb[0].getway=="persiaPay"){
+        payment_completed_efb=true;
         data = {
           action: "get_form_Emsfb",
           value: JSON.stringify(sendBack_emsFormBuilder_pub),
@@ -1032,6 +1040,7 @@ const requestOptions = {
     return response.json();
   })
   .then(responseData => {
+    console.log(responseData);
     response_fill_form_efb(responseData);
     if(localStorage.getItem('sendback'))localStorage.removeItem('sendback')
   })
