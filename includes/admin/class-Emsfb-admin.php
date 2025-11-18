@@ -1233,11 +1233,23 @@ class Admin {
             if(is_wp_error($r)){
 
             }else{
-                $directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
-                if (!file_exists($directory)) {
-                    mkdir($directory, 0755, true);
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+                if (WP_Filesystem()) {
+                    global $wp_filesystem;
+
+                    $directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
+                    if (!$wp_filesystem->exists($directory)) {
+                        $wp_filesystem->mkdir($directory, 0755);
+                    }
+                    $r = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip', true);
+                } else {
+                    // Fallback: If WP_Filesystem fails, use direct PHP functions
+                    $directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
+                    if (!file_exists($directory)) {
+                        @mkdir($directory, 0755, true);
+                    }
+                    $r = @rename($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip');
                 }
-                $r = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
                 if(is_wp_error($r)){
                     return false;
                 }else{

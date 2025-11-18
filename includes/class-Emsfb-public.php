@@ -114,8 +114,8 @@ public function check_nonce_permission($request) {
 		header('Access-Control-Allow-Origin: ' . $origin);
 	} else {
 		// Fallback for same-origin requests or when origin matches current site
-		$parsed_origin = parse_url($origin);
-		$parsed_home = parse_url(home_url());
+		$parsed_origin = wp_parse_url($origin);
+		$parsed_home = wp_parse_url(home_url());
 
 		if (isset($parsed_origin['host']) && isset($parsed_home['host']) &&
 		    $parsed_origin['host'] === $parsed_home['host']) {
@@ -2218,7 +2218,7 @@ public function check_nonce_permission($request) {
 									 '"Content-Type: text/html; charset=ISO-8859-1\r\n"',
 									 'From:'.$from.''
 									 );
-									$sent = wp_mail($to, $subject, strip_tags($message), $headers);
+									$sent = wp_mail($to, $subject, wp_kses_post($message), $headers);
 								}
 							}
 							$m=		$this->lanText["newPassM"];

@@ -2437,7 +2437,12 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
     }
     });
     xhr.addEventListener('load', () => {
-    if (xhr.status >= 200 && xhr.status < 300) {
+      console.log(`xhr`, xhr);
+    if (xhr.status === 403) {
+      const nonceMsg = efb_var.text.nonceExpired || 'Your session has expired. Please refresh the page and try again.';
+      noti_message_efb(nonceMsg, 'danger', `step-${current_s_efb}-efb-msg`);
+      reject('NONCE_EXPIRED');
+    } else if (xhr.status >= 200 && xhr.status < 300) {
       const response = JSON.parse(xhr.responseText);
       resolve(response);
     } else {
@@ -2449,6 +2454,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
     console.error('Upload failed.' + xhr.statusText);
     });
     xhr.open('POST', url, true);
+    xhr.setRequestHeader('X-WP-Nonce', efb_var.nonce);
     xhr.send(formData);
   });
 }

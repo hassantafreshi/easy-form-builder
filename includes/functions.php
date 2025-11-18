@@ -1330,13 +1330,12 @@ class efbFunction {
 		);
 
 
-		$allowed_properties = $this->allowed_properties_thml_efb();
+
+	$allowed_properties = $this->allowed_properties_thml_efb();
 
 
-		$current_domain = parse_url(home_url(), PHP_URL_HOST);
-		$allowed_domains = array('google.com', 'gstatic.com', 'googleapis.com', 'googleusercontent.com', 'youtube.com', 'ytimg.com', 'microsoft.com', 'office.com', 'live.com', 'msn.com', 'outlook.com', 'amazonaws.com', 'cloudfront.net', 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com', 'jsdelivr.net', 'unpkg.com', 'facebook.com', 'fbcdn.net', 'twitter.com', 'twimg.com', 'github.com', 'github.io', 'vimeo.com', 'vimeocdn.com', 'wikipedia.org', 'wikimedia.org', 'wikidata.org', 'stripe.com', 'paypal.com', 'braintreepayments.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'use.fontawesome.com', 'dailymotion.com', 'dmcdn.net', 'maps.googleapis.com', 'openstreetmap.org', 'mapbox.com', 'gravatar.com', 'unsplash.com', 'placekitten.com', 'placehold.co', 'akamaihd.net', 'cloudflare.com', 'fastly.net', 'linkedin.com', 'apple.com', 'adobe.com', 'cdn.shopify.com', 'example.com', 'example.org', 'trusted.com', 'cdn.trusted.com');
-
-
+	$current_domain = wp_parse_url(home_url(), PHP_URL_HOST);
+	$allowed_domains = array('google.com', 'gstatic.com', 'googleapis.com', 'googleusercontent.com', 'youtube.com', 'ytimg.com', 'microsoft.com', 'office.com', 'live.com', 'msn.com', 'outlook.com', 'amazonaws.com', 'cloudfront.net', 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com', 'jsdelivr.net', 'unpkg.com', 'facebook.com', 'fbcdn.net', 'twitter.com', 'twimg.com', 'github.com', 'github.io', 'vimeo.com', 'vimeocdn.com', 'wikipedia.org', 'wikimedia.org', 'wikidata.org', 'stripe.com', 'paypal.com', 'braintreepayments.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'use.fontawesome.com', 'dailymotion.com', 'dmcdn.net', 'maps.googleapis.com', 'openstreetmap.org', 'mapbox.com', 'gravatar.com', 'unsplash.com', 'placekitten.com', 'placehold.co', 'akamaihd.net', 'cloudflare.com', 'fastly.net', 'linkedin.com', 'apple.com', 'adobe.com', 'cdn.shopify.com', 'example.com', 'example.org', 'trusted.com', 'cdn.trusted.com');
 
 		$allowed_tags = array(
 			'a' => array_merge($global_attributes, array(
@@ -1436,7 +1435,7 @@ class efbFunction {
 
 	public function get_geolocation() {
 		  $ip = $this->get_ip_address();
-		 return $this->iplocation_efb($ip,1);
+
 	  }
 
 	  public function get_ip_address() {
@@ -1450,40 +1449,6 @@ class efbFunction {
         return $ip;
     }
 
-	public function iplocation_efb($ip , $state){
-
-		$url = "https://api.iplocation.net/?ip=".$ip."";
-		$cURL = curl_init();
-		$ua ;
-		if(!isset($_SERVER['HTTP_USER_AGENT']) || empty($_SERVER['HTTP_USER_AGENT'])){
-
-			$ua = array(
-				'name' => 'unrecognized',
-				'version' => 'unknown',
-				'platform' => 'unrecognized',
-				'userAgent' => ''
-			);
-		}else{
-
-			$ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-		}
-		curl_setopt($cURL, CURLOPT_URL, $url);
-		curl_setopt($cURL, CURLOPT_HTTPGET, true);
-		curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($cURL, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-			'Accept: application/json',
-			'User-Agent: '.$ua
-		));
-		$location = json_decode(curl_exec($cURL), true);
-
-		if(isset($location)){
-			return $state==1 ? $location["country_code2"] :$location  ;
-		}else{
-			return 0;
-		}
-
-	}
 
 
 	   public function addon_adds_cron_efb(){
@@ -1566,11 +1531,23 @@ class efbFunction {
 
 
 		}else{
-			$directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
-			if (!file_exists($directory)) {
-				mkdir($directory, 0755, true);
+			require_once(ABSPATH . 'wp-admin/includes/file.php');
+			if (WP_Filesystem()) {
+				global $wp_filesystem;
+
+				$directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
+				if (!$wp_filesystem->exists($directory)) {
+					$wp_filesystem->mkdir($directory, 0755);
+				}
+				$v = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip', true);
+			} else {
+				// Fallback: If WP_Filesystem fails, use direct PHP functions
+				$directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
+				if (!file_exists($directory)) {
+					@mkdir($directory, 0755, true);
+				}
+				$v = @rename($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip');
 			}
-			$v = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
 			if(is_wp_error($v)){
 				$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
 				if(is_wp_error($s)){
@@ -2017,18 +1994,16 @@ class efbFunction {
 			$str .= 'Version: ' . $plugin_data['Version'] . '<br><br>';
 		}
 		$this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
-		return true;
-	}
+	return true;
+}
 
-	public function validate_url_efb($url) {
-			global $allowed_domains;
-			$parsed_url = parse_url($url);
+public function validate_url_efb($url) {
+		global $allowed_domains;
+		$parsed_url = wp_parse_url($url);
 
-			if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
-				return esc_url($url);
-			}
-
-
+		if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
+			return esc_url($url);
+		}
 			if (strpos($url, 'javascript:') === false && strpos($url, 'data:') === false) {
 				return esc_url($url);
 			}
