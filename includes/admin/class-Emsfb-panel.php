@@ -101,34 +101,34 @@ class Panel_edit  {
 					<div id="msg_emsFormBuilder" class="efb mx-2">
 				</div>
 
-				<div class="efb top_circle-efb-1"></div>
-				<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>";</script>
+			<div class="efb top_circle-efb-1"></div>
+			<script>let sitekye_emsFormBuilder="<?php echo esc_js($k);  ?>";</script>
 					<nav class="efb navbar navbar-expand-lg navbar-light efb" id="navbar">
 						<div class="efb container">
-							<a class="efb navbar-brand efb" href="admin.php?page=Emsfb_create" >
-								<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo-easy-form-builder.svg' ?>" class="efb logo efb">
+					<a class="efb navbar-brand efb" href="admin.php?page=Emsfb_create" >
+						<img src="<?php echo esc_url(EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo-easy-form-builder.svg') ?>" class="efb logo efb">
 								<?php echo esc_html__('Easy Form Builder','easy-form-builder') ?></a>
 							<button class="efb navbar-toggler efb" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 								<span class="efb navbar-toggler-icon efb"></span>
 							</button>
 							<div class="efb collapse navbar-collapse" id="navbarSupportedContent">
-								<ul class="efb navbar-nav me-auto mb-2 mb-lg-0">
-									<li class="efb nav-item"><a class="efb nav-link efb active ec-efb" data-eventform='forms' id="efb-nav-panel" aria-current="page"  role="button"><?php echo $lang["forms"] ?></a></li>
-									<li class="efb nav-item">
-										<a class="efb nav-link efb ec-efb" id="efb-nav-setting" data-eventform='setting'  role="button"><?php echo $lang["settings"] ?></a>
-									</li>
-									<li class="efb nav-item">
-										<a class="efb nav-link efb ec-efb" href="admin.php?page=Emsfb_create" role="button"><?php echo $lang["create"]  ?></a>
-									</li>
-									<li class="efb nav-item">
-										<a class="efb nav-link efb ec-efb" id="efb-nav-help" data-eventform='help' role="button"><?php echo $lang["help"] ?></a>
+							<ul class="efb navbar-nav me-auto mb-2 mb-lg-0">
+								<li class="efb nav-item"><a class="efb nav-link efb active ec-efb" data-eventform='forms' id="efb-nav-panel" aria-current="page"  role="button"><?php echo esc_html($lang["forms"]); ?></a></li>
+								<li class="efb nav-item">
+									<a class="efb nav-link efb ec-efb" id="efb-nav-setting" data-eventform='setting'  role="button"><?php echo esc_html($lang["settings"]); ?></a>
+								</li>
+								<li class="efb nav-item">
+									<a class="efb nav-link efb ec-efb" href="admin.php?page=Emsfb_create" role="button"><?php echo esc_html($lang["create"]); ?></a>
+								</li>
+								<li class="efb nav-item">
+									<a class="efb nav-link efb ec-efb" id="efb-nav-help" data-eventform='help' role="button"><?php echo esc_html($lang["help"]); ?></a>
 									</li>
 								</ul>
 								<div class="efb d-flex">
-									<form class="efb d-flex">
-										<i class="efb  bi-search search-icon"></i>
-										<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo $lang["trackNo"]  ?>">
-										<a class="efb btn efb btn-outline-pink mx-2 ec-efb" type="submit" id="track_code_btn_emsFormBuilder" data-eventform='searchCC'><?php echo   $lang["search"] ?></a>
+								<form class="efb d-flex">
+									<i class="efb  bi-search search-icon"></i>
+									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo esc_attr($lang["trackNo"]); ?>">
+									<a class="efb btn efb btn-outline-pink mx-2 ec-efb" type="submit" id="track_code_btn_emsFormBuilder" data-eventform='searchCC'><?php echo esc_html($lang["search"]); ?></a>
 									</form>
 									<div class="efb nav-icon efb mx-2">
 										<a class="efb nav-link efb" href="https://whitestudio.team/login" target="blank"><i class="efb  bi-person"></i></a>
@@ -186,7 +186,7 @@ class Panel_edit  {
 
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
 						$r = $efbFunction->update_message_admin_side_efb();
-						echo $r;
+						echo wp_kses_post($r);
 						$efbFunction->download_all_addons_efb();
 						return 0;
 					}
@@ -197,7 +197,7 @@ class Panel_edit  {
 				if(isset($ac->AdnPDP) && $ac->AdnADP==1){
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
 						$r = $efbFunction->update_message_admin_side_efb();
-						echo $r;
+						echo wp_kses_post($r);
 						$efbFunction->download_all_addons_efb();
 
 						return 0;
@@ -469,7 +469,7 @@ class Panel_edit  {
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['async-upload']['type']);
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>sanitize_text_field($_FILES['async-upload']['type']));
 			  wp_send_json_success($response,200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]);

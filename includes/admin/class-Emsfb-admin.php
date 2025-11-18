@@ -1326,7 +1326,7 @@ class Admin {
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']);
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>sanitize_text_field($_FILES['file']['type']));
 			  wp_send_json_success($response,200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>"File Type Error");
@@ -1702,7 +1702,7 @@ class Admin {
                 <div>
                     <p><strong><?php echo esc_html__('Easy Form Builder Email Warning:', 'easy-form-builder'); ?></strong> <?php echo esc_html($title); ?></p>
                     <p><?php echo esc_html($description); ?></p>
-                    <p><?= $help ?></p>
+                    <p><?php echo wp_kses_post($help); ?></p>
                 </div>
             </div>
             <script>
@@ -1731,7 +1731,7 @@ class Admin {
             <?php
             $output = ob_get_clean();
 
-            echo $output;
+            echo wp_kses_post($output);
     }
 
 }
