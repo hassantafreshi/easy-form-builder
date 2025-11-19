@@ -1950,7 +1950,7 @@ public function check_nonce_permission($request) {
 										wp_send_json_success($response,200);
 										die();
 									}
-									date_default_timezone_set('Iran');
+									// WordPress timezone is used automatically by wp_date()
 									$result=[
 										'id_' =>"payment",
 										'name' => "payment",
