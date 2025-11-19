@@ -1944,15 +1944,15 @@ class efbFunction {
 		}
 		if($s==false) return false;
 
-		wp_register_style('leaflet_css_efb', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css');
+		wp_register_style('leaflet_css_efb', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css', array(), '1.7.1');
 		wp_enqueue_style('leaflet_css_efb');
-		wp_register_script('leaflet_js_efb', $url);
+		wp_register_script('leaflet_js_efb', $url, array(), '1.7.1', true);
 		wp_enqueue_script('leaflet_js_efb');
 
 		if($s==1 || true){
-			wp_register_style('leaflet_fullscreen_css_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css');
+			wp_register_style('leaflet_fullscreen_css_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css', array(), '1.0');
 			wp_enqueue_style('leaflet_fullscreen_css_efb');
-			wp_register_script('leaflet_fullscreen_js_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js');
+			wp_register_script('leaflet_fullscreen_js_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js', array(), '1.0', true);
 			wp_enqueue_script('leaflet_fullscreen_js_efb');
 		}
 
@@ -1965,7 +1965,7 @@ class efbFunction {
         $url = 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload';
         $response = wp_remote_head($url);
         if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
-            wp_register_script('recaptcha', $url, null , null, true);
+            wp_register_script('recaptcha', $url, array() , '3.0', true);
             wp_enqueue_script('recaptcha');
 			return true;
         } else {

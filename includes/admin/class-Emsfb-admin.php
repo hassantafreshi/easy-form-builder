@@ -146,13 +146,13 @@ class Admin {
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
-                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min-efb.js',false,EMSFB_PLUGIN_VERSION);
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 
 
-                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ),true,EMSFB_PLUGIN_VERSION);
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true, EMSFB_PLUGIN_VERSION, true);
 
 
-                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon-efb.js',false,EMSFB_PLUGIN_VERSION);
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 
         }
     }
@@ -1560,7 +1560,7 @@ class Admin {
         $font_url = 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap';
         $response = wp_remote_head($font_url);
         if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
-            wp_register_style('Font_Roboto', $font_url);
+            wp_register_style('Font_Roboto', $font_url, array(), null);
             wp_enqueue_style('Font_Roboto');
         } else {
 

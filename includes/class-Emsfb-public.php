@@ -275,9 +275,9 @@ public function check_nonce_permission($request) {
 		if (!isset(wp_scripts()->registered['jquery']) || version_compare(wp_scripts()->registered['jquery']->ver , '3.6.0' , '<')) {
 			$wp_version = get_bloginfo('version');
 			if (version_compare($wp_version, '6.0', '>')) {
-				wp_enqueue_script('jquery', includes_url('/js/jquery/jquery.js') , false ,'3.7.1');
+				wp_enqueue_script('jquery', includes_url('/js/jquery/jquery.js') , false, '3.7.1', true);
 			}else {
-				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min-efb.js', false, '3.6.2');
+				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min-efb.js', false, '3.6.2', true);
 			}
 		}
 	}
@@ -567,7 +567,7 @@ public function check_nonce_permission($request) {
 		$state="form";
 		$multi_exist = strpos($value , '"type\":\"multiselect\"');
 		if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,EMSFB_PLUGIN_VERSION);
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 
 			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,EMSFB_PLUGIN_VERSION );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
@@ -607,7 +607,7 @@ public function check_nonce_permission($request) {
 
 
 				if($el_pro_load==true){
-					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
+					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 
 				}
 
@@ -626,7 +626,7 @@ public function check_nonce_permission($request) {
 						}else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
 							if($paymentType!="null" && $pro==true){
 								if($paymentType=="stripe"){
-									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);
+									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', array(), '3.0', true);
 									wp_enqueue_script('stripe-js');
 									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
 									wp_enqueue_script('stripepay_js');
@@ -646,7 +646,7 @@ public function check_nonce_permission($request) {
 					));
 				}
 				if(strpos($value , '\"type\":\"switch\"') || strpos($value , '"type":"switch')){
-					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true,EMSFB_PLUGIN_VERSION);
+					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true, EMSFB_PLUGIN_VERSION, true);
 
 				}
 				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
@@ -671,13 +671,13 @@ public function check_nonce_permission($request) {
 						"logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 						"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 						];
-					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
+					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
 					wp_enqueue_script('intlTelInput-js');
 					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
 					wp_enqueue_style('intlTelInput-css');
 				}
 				if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
-					wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);
+					wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', array(), EMSFB_PLUGIN_VERSION, true);
 					wp_enqueue_script('logic-efb');
 				}
 
@@ -842,7 +842,7 @@ public function check_nonce_permission($request) {
 
 
 			   if(isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true){
-				   wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
+				   wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', array() , '3.0', true);
 				   wp_enqueue_script('recaptcha');
 				}
 
@@ -863,7 +863,7 @@ public function check_nonce_permission($request) {
 
 		if($this->pro_efb==1){
 
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 
 		}
 
