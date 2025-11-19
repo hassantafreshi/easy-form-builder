@@ -360,13 +360,13 @@ class Create {
 			wp_send_json_success($response,200);
 		}
 
-		if(isset($_POST['email']) ){$email =sanitize_email($_POST['email']);}
+		if(isset($_POST['email']) ){$email =sanitize_email(wp_unslash($_POST['email']));}
 		$this->id_ ="hid";
-		$this->name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+		$this->name = isset($_POST['name']) ? sanitize_text_field(wp_unslash($_POST['name'])) : '';
 		$this->email =  $email;
 
 
-		$valp = isset($_POST['value']) ? str_replace('\\', '', $_POST['value']) : '';
+		$valp = isset($_POST['value']) ? str_replace('\\', '', wp_unslash($_POST['value'])) : '';
 
 
 		$valp = json_decode($valp,true);
@@ -378,7 +378,7 @@ class Create {
 
 
 
-		$this->formtype =  sanitize_text_field($_POST['type']);
+		$this->formtype =  sanitize_text_field(wp_unslash($_POST['type']));
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
 			$response = array( 'success' => false , "m"=> $lang["NAllowedscriptTag"]);
 			wp_send_json_success($response,200);

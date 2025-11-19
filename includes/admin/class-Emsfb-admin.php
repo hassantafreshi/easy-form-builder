@@ -204,7 +204,7 @@ class Admin {
             wp_send_json_success($response, 200);
             die();
         }
-        $id = isset($_POST['id']) ? (int) sanitize_text_field($_POST['id']) : 0;
+        $id = isset($_POST['id']) ? (int) sanitize_text_field( wp_unslash($_POST['id'])) : 0;
 
         $table_name = $this->db->prefix . "emsfb_form";
         $r          = $this->db->delete(
@@ -239,7 +239,7 @@ class Admin {
             wp_send_json_success($response, 200);
             die();
         }
-        $id = isset($_POST['id']) ? (int) sanitize_text_field($_POST['id']) : 0;
+        $id = isset($_POST['id']) ? (int) sanitize_text_field( wp_unslash($_POST['id'])) : 0;
 
         $table_name = $this->db->prefix . "emsfb_msg_";
         $r          = $this->db->delete(
@@ -277,9 +277,9 @@ class Admin {
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
         }
-        $id = isset($_POST['id']) ? (int) sanitize_text_field($_POST['id']) : 0;
+        $id = isset($_POST['id']) ? (int) sanitize_text_field( wp_unslash($_POST['id'])) : 0;
 
-        $valp = isset($_POST['value']) ? str_replace('\\', '', $_POST['value']) : '';
+        $valp = isset($_POST['value']) ? str_replace('\\', '', wp_unslash($_POST['value'])) : '';
 		$valp = json_decode($valp,true);
 
 
@@ -320,7 +320,7 @@ class Admin {
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
         $value_ =str_replace('"', '\"', $value);
 
-        $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+        $name = isset($_POST['name']) ? sanitize_text_field( wp_unslash($_POST['name'])) : '';
         $table_name = $this->db->prefix . "emsfb_form";
 
         $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $name ,'form_type'=>$form_type ], ['form_id' => $id]);
@@ -379,7 +379,7 @@ class Admin {
 			'AdnADP'=>0
         */
 
-        $value      = isset($_POST['value']) ? sanitize_text_field($_POST['value']) : '';
+        $value      = isset($_POST['value']) ? sanitize_text_field( wp_unslash($_POST['value'])) : '';
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
                  "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP"];
 
@@ -636,7 +636,7 @@ class Admin {
             die();
         }
 
-        $id = isset($_POST['id']) ? (int) sanitize_text_field($_POST['id']) : 0;
+        $id = isset($_POST['id']) ? (int) sanitize_text_field( wp_unslash($_POST['id'])) : 0;
 
         $table_name = $this->db->prefix . "emsfb_msg_";
         $r          = $this->db->update($table_name, ['read_' => 1, 'read_date' => wp_date('Y-m-d H:i:s')], ['msg_id' => $id]);
@@ -664,7 +664,7 @@ class Admin {
             wp_send_json_success($response, 200);
             die();
         }
-        $id = isset($_POST['id']) ? (int) sanitize_text_field($_POST['id']) : 0;
+        $id = isset($_POST['id']) ? (int) sanitize_text_field( wp_unslash($_POST['id'])) : 0;
 
         $table_name = $this->db->prefix . "emsfb_form";
         $value = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
@@ -712,7 +712,7 @@ class Admin {
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
         }
-        $id = isset($_POST['id']) ? sanitize_text_field($_POST['id']) : '';
+        $id = isset($_POST['id']) ? sanitize_text_field( wp_unslash($_POST['id'])) : '';
         $code = 'efb'. $id;
 
         $code =wp_create_nonce($code);
@@ -743,7 +743,7 @@ class Admin {
             wp_send_json_success($response, 200);
         }
 
-        $id = isset($_POST['id']) ? (int) sanitize_text_field($_POST['id']) : 0;
+        $id = isset($_POST['id']) ? (int) sanitize_text_field( wp_unslash($_POST['id'])) : 0;
 
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE msg_id = '$id'");
@@ -788,9 +788,9 @@ class Admin {
             $response = ['success' => false, "m" => $lang["nAllowedUseHtml"]];
             wp_send_json_success($response, 200);
         }
-        $id = isset($_POST['id']) ? (int) sanitize_text_field($_POST['id']) : 0;
+        $id = isset($_POST['id']) ? (int) sanitize_text_field( wp_unslash($_POST['id'])) : 0;
         $id = preg_replace('/[,]+/','',$id);
-        $m  = sanitize_text_field($post_message);
+        $m  = sanitize_text_field( wp_unslash($post_message));
 
 
         $m = str_replace("\\","",$m);
@@ -829,7 +829,7 @@ class Admin {
 								$stated=0;
 								if(isset($f->value) && $f->id_=="message"){
 									$stated=1;
-									$f->value = sanitize_text_field($f->value);
+									$f->value = sanitize_text_field( wp_unslash($f->value));
 								}
 
 								$in_loop=false;
@@ -930,7 +930,7 @@ class Admin {
 
         foreach ($m as $key => $value) {
             if (in_array($key ,['emailSupporter','femail'])) {
-                $m[$key] = sanitize_text_field($value);
+                $m[$key] = sanitize_text_field( wp_unslash($value));
                 $email =  $m[$key];
 
             }else if ($key == "activeCode" && strlen($value) > 1) {
@@ -1044,7 +1044,7 @@ class Admin {
 
 
         $table_name = $this->db->prefix . "emsfb_msg_";
-        $id         = isset($_POST['value']) ? sanitize_text_field($_POST['value']) : '';
+        $id         = isset($_POST['value']) ? sanitize_text_field( wp_unslash($_POST['value'])) : '';
         $value      = $this->db->get_results($this->db->prepare("SELECT * FROM `$table_name` WHERE track = %s", $id));
 
 
@@ -1282,8 +1282,8 @@ class Admin {
 
 
         $_POST['id'] = isset($_POST['id']) ? intval($_POST['id']) : 0;
-        $_POST['pl'] = isset($_POST['pl']) ? sanitize_text_field($_POST['pl']) : '';
-        $_POST['nonce_msg'] = isset($_POST['nonce_msg']) ? sanitize_text_field($_POST['nonce_msg']) : '';
+        $_POST['pl'] = isset($_POST['pl']) ? sanitize_text_field( wp_unslash($_POST['pl'])) : '';
+        $_POST['nonce_msg'] = isset($_POST['nonce_msg']) ? sanitize_text_field( wp_unslash($_POST['nonce_msg'])) : '';
         $vl=null;
 
 
@@ -1338,7 +1338,7 @@ class Admin {
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>sanitize_text_field($_FILES['file']['type']));
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>sanitize_text_field( wp_unslash($_FILES['file']['type'])));
 			  wp_send_json_success($response,200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>"File Type Error");
@@ -1409,8 +1409,8 @@ class Admin {
             $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
             wp_send_json_success($response,200);
         }
-        $id = isset($_POST['id']) ? (int) sanitize_text_field($_POST['id']) : 0;
-        $type = isset($_POST['type']) ? sanitize_text_field($_POST['type']) : '';
+        $id = isset($_POST['id']) ? (int) sanitize_text_field( wp_unslash($_POST['id'])) : 0;
+        $type = isset($_POST['type']) ? sanitize_text_field( wp_unslash($_POST['type'])) : '';
         if($type =='form'){
             $table_name = $this->db->prefix . "emsfb_form";
             $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id'");
@@ -1467,8 +1467,8 @@ class Admin {
             $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
             wp_send_json_success($response,200);
         }
-        $state = isset($_POST['state']) ? sanitize_text_field($_POST['state']) : '';
-        $val = isset($_POST['val']) ? sanitize_text_field($_POST['val']) : '';
+        $state = isset($_POST['state']) ? sanitize_text_field( wp_unslash($_POST['state'])) : '';
+        $val = isset($_POST['val']) ? sanitize_text_field( wp_unslash($_POST['val'])) : '';
         $val_  = str_replace('\\', '', $val);
         $val = json_decode($val_ ,true);
 
@@ -1515,8 +1515,8 @@ class Admin {
             $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
             wp_send_json_success($response,200);
         }
-        $state = isset($_POST['state']) ? sanitize_text_field($_POST['state']) : '';
-        $val = isset($_POST['val']) ? sanitize_text_field($_POST['val']) : '';
+        $state = isset($_POST['state']) ? sanitize_text_field( wp_unslash($_POST['state'])) : '';
+        $val = isset($_POST['val']) ? sanitize_text_field( wp_unslash($_POST['val'])) : '';
 
         $val_  = str_replace('\\\\', '', $val);
         $val_  = str_replace('\\', '', $val);
@@ -1587,8 +1587,8 @@ class Admin {
             wp_send_json_success($response, 200);
         }
 
-        $state = isset($_POST['state']) ? sanitize_text_field($_POST['state']) : '';
-        $value = isset($_POST['value']) ? sanitize_text_field($_POST['value']) : '';
+        $state = isset($_POST['state']) ? sanitize_text_field( wp_unslash($_POST['state'])) : '';
+        $value = isset($_POST['value']) ? sanitize_text_field( wp_unslash($_POST['value'])) : '';
         $this->get_efbFunction(0);
         $this->efbFunction->report_problem_efb($state , $value);
         $response = ['success' => true, "m" =>'report_problem_done'];

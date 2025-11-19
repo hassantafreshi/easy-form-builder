@@ -1,7 +1,6 @@
-﻿<?php
+<?php
 
 namespace Emsfb;
-
 use WP_REST_Response;
 /**
  * Class _Public
@@ -442,11 +441,11 @@ public function check_nonce_permission($request) {
 		$admin_form = false;
 		$admin_sc = null;
 		if(isset($_GET['track'])){
-			$state_form =  sanitize_text_field($_GET['track']) ;
+			$state_form =  sanitize_text_field(wp_unslash($_GET['track']) );
 
 
 			if(isset($_GET['user'])  && $_GET['user']=="admin" ) $admin_form = true;
-			if(isset($_GET['sc'])) $admin_sc = sanitize_text_field($_GET['sc']);
+			if(isset($_GET['sc'])) $admin_sc = sanitize_text_field(wp_unslash($_GET['sc']));
 		}
 
 
@@ -593,8 +592,8 @@ public function check_nonce_permission($request) {
 
 		$paymentType="null";
 		$paymentKey="null";
-		$refid = isset($_GET['Authority'])  ? sanitize_text_field($_GET['Authority']) : 'not';
-		$Status_pay = isset($_GET['Status'])  ? sanitize_text_field($_GET['Status']) : 'NOK';
+		$refid = isset($_GET['Authority'])  ? sanitize_text_field(wp_unslash($_GET['Authority'])) : 'not';
+		$Status_pay = isset($_GET['Status'])  ? sanitize_text_field(wp_unslash($_GET['Status'])) : 'NOK';
 		$img =[];
 
 		if($this->pro_efb==1){
@@ -871,7 +870,8 @@ public function check_nonce_permission($request) {
 		$location = '';
 
 		$sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
-		$sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : 'null';
+        $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field(wp_unslash($_POST['pl'])) : '';
+		$sc = isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : 'null';
 		$usr =wp_get_current_user();
 		$username = '';
 		if(gettype($usr)!='integer') $username = $usr->display_name  ;
@@ -1048,9 +1048,9 @@ public function check_nonce_permission($request) {
 		$efbFunction =  $this->get_efbFunction(1);
 
 		if(empty($this->efbFunction)) $this->efbFunction =$efbFunction;
-		$sid = sanitize_text_field($data_POST['sid']);
-		$this->id = sanitize_text_field($data_POST['id']);
-		$page_id = sanitize_text_field($data_POST['page_id']);
+		$sid = sanitize_text_field(wp_unslash($data_POST['sid']));
+		$this->id = sanitize_text_field(wp_unslash($data_POST['id']));
+		$page_id = sanitize_text_field(wp_unslash($data_POST['page_id']));
 		$data_POST['url']= $url = sanitize_url($data_POST['url']);
 
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
@@ -1081,7 +1081,7 @@ public function check_nonce_permission($request) {
 		if( isset($setting["emailSupporter"])) array_push($to_list_admin ,$setting["emailSupporter"] );
 
 		$pro = false;
-		$type =sanitize_text_field($data_POST['type']);
+		$type =sanitize_text_field(wp_unslash($data_POST['type']));
 		$email=get_option('admin_email');
 
 		$rePage ="null";
@@ -1269,7 +1269,7 @@ public function check_nonce_permission($request) {
 								case "date":
 									$stated=0;
 									if(isset($item['value'])){
-										$item['value'] = sanitize_text_field($item['value']);
+										$item['value'] = sanitize_text_field(wp_unslash($item['value']));
 										$v = explode("-", $item['value']);
 										if(count($v)==3 && checkdate($v[1],$v[2],$v[0]) ){
 
@@ -1317,7 +1317,7 @@ public function check_nonce_permission($request) {
 
 									if(isset($item['value'])){
 										$stated=0;
-										$item['value'] = sanitize_text_field($item['value']);
+										$item['value'] = sanitize_text_field(wp_unslash($item['value']));
 										$item['value'] = preg_replace('/\s+/', '', $item['value']);
 
 										if(isset($f['smsnoti']) && intval($f['smsnoti'])==1 ){
@@ -1354,7 +1354,7 @@ public function check_nonce_permission($request) {
 								case 'imgRadio':
 									$stated=0;
 									if(isset($item['value'])){
-										$item['value'] = sanitize_text_field($item['value']);
+										$item['value'] = sanitize_text_field(wp_unslash($item['value']));
 										array_filter($formObj, function($fr,$ki ) use(&$item,&$rt,&$stated,&$formObj,$form_condition ,&$mr) {
 											if(isset($fr['id_']) && isset($item['id_ob']) && $fr['id_']==$item['id_ob']){
 												$item['value']=$fr['value'];
@@ -1413,7 +1413,7 @@ public function check_nonce_permission($request) {
 								case 'switch':
 									$stated=0;
 									if(isset($item['value'])){
-										$item['value'] = sanitize_text_field($item['value']);
+										$item['value'] = sanitize_text_field(wp_unslash($item['value']));
 										array_filter($formObj, function($fr) use($item,&$rt,&$stated) {
 											if(isset($fr['id_']) && isset($item['id_']) && $fr['id_']==$item['id_']){
 												$item['value']= $item['value']=='1' ?   $fr['on'] : $fr['off'];
@@ -1431,7 +1431,7 @@ public function check_nonce_permission($request) {
 									}
 									$stated=0;
 									if(isset($item['value'])){
-										$item['value'] = sanitize_text_field($item['value']);
+										$item['value'] = sanitize_text_field(wp_unslash($item['value']));
 
 											if((isset($f['id_']) && isset($item['id_ob']) && $f['id_']==$item['id_ob'] )
 											||(isset($f['id_']) && isset($item['id_']) && $f['type']=="chlCheckBox"  && $f['id_']==$item['id_ob']) ){
@@ -1485,7 +1485,7 @@ public function check_nonce_permission($request) {
 								case 'r_matrix':
 
 									$stated=0;
-									$item['value'] = sanitize_text_field($item['value']);
+									$item['value'] = sanitize_text_field(wp_unslash($item['value']));
 									if($item['value']<1 || $item['value']>5){
 										$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 600';
 										$response = array( 'success' => false  , 'm'=>$m);
@@ -1509,7 +1509,7 @@ public function check_nonce_permission($request) {
 								case 'multiselect':
 									$stated=0;
 									if(isset($item['value'])){
-										$item['value'] = sanitize_text_field($item['value']);
+										$item['value'] = sanitize_text_field(wp_unslash($item['value']));
 										$rt=null;
 										$rs = explode("@efb!", $item['value']);
 										array_filter($formObj, function($fr) use($item,&$rt,$rs) {
@@ -1532,7 +1532,7 @@ public function check_nonce_permission($request) {
 
 									$stated=0;
 									if(isset($item['value'])){
-										$item['value'] = sanitize_text_field($item['value']);
+										$item['value'] = sanitize_text_field(wp_unslash($item['value']));
 
 
 
@@ -1594,7 +1594,7 @@ public function check_nonce_permission($request) {
 											$stated=0;
 											if(isset($item['value'])){
 												$stated=1;
-											$item['value']= sanitize_text_field($item['value']);
+											$item['value']= sanitize_text_field(wp_unslash($item['value']));
 											$rt=$item;
 											}
 
@@ -1609,9 +1609,9 @@ public function check_nonce_permission($request) {
 								case 'persiapay':
 								case 'payment':
 									if($formObj[0]["type"]=='payment'){
-										$item['amount'] = sanitize_text_field($item['amount']);
-										$item['id_'] = sanitize_text_field($item['id_']);
-										$item['name'] = sanitize_text_field($item['name']);
+										$item['amount'] = sanitize_text_field( wp_unslash($item['amount']));
+										$item['id_'] = sanitize_text_field(wp_unslash($item['id_']));
+										$item['name'] = sanitize_text_field(wp_unslash($item['name']));
 										$rt= $item;
 										$in_loop=false;
 										$stated=1;
@@ -1681,7 +1681,7 @@ public function check_nonce_permission($request) {
 										$l=strlen($item['value']);
 										if(isset($item['value']) && strpos($item['value'],'#')==0 && $l==7){
 											$stated=1;
-											$item['value'] = sanitize_text_field($item['value']);
+											$item['value'] = sanitize_text_field( wp_unslash($item['value']));
 											$rt= $item;
 										}
 										$in_loop=false;
@@ -1692,7 +1692,7 @@ public function check_nonce_permission($request) {
 										$stated=0;
 										if(isset($item['value']) && is_numeric($item['value'])){
 											$stated=1;
-											$item['value'] = sanitize_text_field($item['value']);
+											$item['value'] = sanitize_text_field(wp_unslash($item['value']));
 											$rt= $item;
 											$l=strlen($item['value']);
 											if(strcmp($f['type'],"range")!==0 && ((isset($f['milen']) && $f['milen']> $l)||( isset($f['mlen']) && $f['mlen']< $l))  ) {
@@ -1714,7 +1714,7 @@ public function check_nonce_permission($request) {
 									}
 									if(isset($item['value']) ){
 										$stated=1;
-										$item['value'] = sanitize_text_field($item['value']);
+										$item['value'] = sanitize_text_field(wp_unslash($item['value']));
 										$l=mb_strlen($item['value'], 'UTF-8');
 										if(isset($f['milen'])!=true  &&   isset($f['mlen'])!=true){	$stated=1;	}
 										else if((isset($f['milen'])==true && $f['milen']>0 && $f['milen']> $l)) {
@@ -1758,7 +1758,7 @@ public function check_nonce_permission($request) {
 						}
 					}
 				}
-				$this->id = $type=="payment" ? sanitize_text_field($data_POST['payid']) :$this->id ;
+				$this->id = $type=="payment" ? sanitize_text_field(wp_unslash($data_POST['payid'])) :$this->id ;
 				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
 				if($stated==0){
 
@@ -1772,7 +1772,7 @@ public function check_nonce_permission($request) {
 					if($form_condition=='booking'){
 						$table_name = $this->db->prefix . "emsfb_form";
 
-						$id = sanitize_text_field($data_POST['id']);
+						$id = sanitize_text_field( wp_unslash($data_POST['id']));
 						$value =json_encode($formObj,JSON_UNESCAPED_UNICODE);
 
 						$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
@@ -1852,8 +1852,8 @@ public function check_nonce_permission($request) {
 						wp_send_json_success($response,200);
 						die();
 					}
-					$this->name = sanitize_text_field($data_POST['name']);
-					$this->id = sanitize_text_field($data_POST['id']);
+					$this->name = sanitize_text_field(wp_unslash($data_POST['name']));
+					$this->id = sanitize_text_field(wp_unslash($data_POST['id']));
 					if($send_email_to_user_state){
 						array_filter($valobj, function($item) use($formObj ,&$emailuser){
 							if(isset($item['id_']) && $item['id_']==$formObj[0]["email_to"]){
@@ -1892,10 +1892,10 @@ public function check_nonce_permission($request) {
 						break;
 						case "payment":
 							error_log("type payment");
-							$id = sanitize_text_field($data_POST['payid']);
+							$id = sanitize_text_field(wp_unslash($data_POST['payid']));
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = wp_date('Y-m-d H');
-							$payment_getWay =isset($data_POST['payment']) ? sanitize_text_field($data_POST['payment']) :'stripe';
+							$payment_getWay =isset($data_POST['payment']) ? sanitize_text_field(wp_unslash($data_POST['payment'])) :'stripe';
 							if( strlen($id)<7 && $payment_getWay=="zarinPal"){
 								$response = array( 'success' => false , "m"=>"خطای داده های پرداختی ، صفحه را رفرش کنید");
 								wp_send_json_success($response,200);
@@ -1928,7 +1928,7 @@ public function check_nonce_permission($request) {
 										$amount = $amount;
 									if( $fs!=''){
 										$TokenCode = $setting->payToken;
-										$data = array("merchant_id" => $TokenCode, "authority" => sanitize_text_field($data_POST['auth']), "amount" => $amount);
+										$data = array("merchant_id" => $TokenCode, "authority" => sanitize_text_field(wp_unslash($data_POST['auth'])), "amount" => $amount);
 										$jsonData = json_encode($data);
 										$msg="ok";
 										if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/")) {
@@ -1960,7 +1960,7 @@ public function check_nonce_permission($request) {
 										"paymentGateway"=>$payment_getWay,
 										"paymentCreated"=>wp_date( __( 'Y/m/d \a\t g:ia', 'easy-form-builder' ) ),
 										"paymentmethod"=>'کارت',
-										"paymentIntent"=>sanitize_text_field($data_POST['auth']),
+										"paymentIntent"=>sanitize_text_field(wp_unslash($data_POST['auth'])),
 										"paymentCard"=>$result['data']['card_pan'],
 										"refId"=>$result['data']['ref_id'],
 										"paymentcurrency"=>'IRR'
@@ -2006,8 +2006,8 @@ public function check_nonce_permission($request) {
 								array_push($fs,array('type'=>'w_link' , 'id_'=>'w_link' , 'id'=>'w_link','value'=>$url,'amount'=>-1));
 								$filtered=json_encode($fs ,JSON_UNESCAPED_UNICODE);
 								$fss=str_replace('"', '\\"', $filtered);
-								$this->value = sanitize_text_field($fss);
-								$this->id = sanitize_text_field($data_POST['payid']);
+								$this->value = sanitize_text_field(wp_unslash($fss));
+								$this->id = sanitize_text_field(wp_unslash($data_POST['payid']));
 								$check=$this->update_message_db();
 
 
@@ -2275,7 +2275,7 @@ public function check_nonce_permission($request) {
 		$this->get_efbFunction(0);
 		$text_ = ["spprt","somethingWentWrongPleaseRefresh",'error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
 		$lanText= $this->efbFunction->text_efb($text_);
-		$sid = sanitize_text_field($data_POST['sid']);
+		$sid = sanitize_text_field(wp_unslash($data_POST['sid']));
 
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 
@@ -2303,7 +2303,7 @@ public function check_nonce_permission($request) {
 				wp_send_json_success($response,200);
 				die();
 			}
-			$id = sanitize_text_field($data_POST['value']);
+			$id = sanitize_text_field(wp_unslash($data_POST['value']));
 			$this->ip=$this->get_ip_address();
 			$ip = $this->ip;
 
@@ -2389,9 +2389,9 @@ public function check_nonce_permission($request) {
 	public function file_upload_public(){
 
         $_POST['id']=intval($_POST['id']);
-        $_POST['pl']=sanitize_text_field($_POST['pl']);
-        $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
-		$page_id = sanitize_text_field($_POST['page_id']);
+        $_POST['pl']=sanitize_text_field(wp_unslash($_POST['pl']));
+        $_POST['nonce_msg']=sanitize_text_field(wp_unslash($_POST['nonce_msg']));
+		$page_id = sanitize_text_field(wp_unslash($_POST['page_id']));
         $vl=null;
 
         if($_POST['pl']!="msg"){
@@ -2450,10 +2450,10 @@ public function check_nonce_permission($request) {
 	public function file_upload_api(){
 		$efbFunction =  $this->get_efbFunction(1);
 		$_POST['id']=intval($_POST['id']);
-        $_POST['pl']=sanitize_text_field($_POST['pl']);
+        $_POST['pl']=sanitize_text_field(wp_unslash($_POST['pl']));
         $fid=intval($_POST['fid']);
-		$sid = sanitize_text_field($_POST['sid']);
-		$page_id = sanitize_text_field($_POST['page_id']);
+		$sid = sanitize_text_field(wp_unslash($_POST['sid']));
+		$page_id = sanitize_text_field(wp_unslash($_POST['page_id']));
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
 
 		if ($s_sid !=1 || $sid==null){
@@ -2593,19 +2593,19 @@ public function check_nonce_permission($request) {
 
 
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
-		$sid = sanitize_text_field($data_POST['sid']);
-		$rsp_by = sanitize_text_field($data_POST['user_type']);
-		$sc = isset($data_POST['sc']) ? sanitize_text_field($data_POST['sc']) : 'null';
-		$track = sanitize_text_field($data_POST['track']);
+		$sid = sanitize_text_field( wp_unslash($data_POST['sid']));
+		$rsp_by = sanitize_text_field(wp_unslash($data_POST['user_type']));
+		$sc = isset($data_POST['sc']) ? sanitize_text_field(wp_unslash($data_POST['sc'])) : 'null';
+		$track = sanitize_text_field(wp_unslash($data_POST['track']));
 
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
-		$page_id = sanitize_text_field($data_POST['page_id']);
+		$page_id = sanitize_text_field( wp_unslash($data_POST['page_id']));
 		if ($s_sid !=1 || $sid==null){
 			$m = '<b>'. $this->lanText["somethingWentWrongPleaseRefresh"]. '<br> '. esc_html__('Error Code','easy-form-builder') .': 403 </br></b>';
 		$response = array( 'success' => false  , 'm'=>$m );
 		wp_send_json_success($response,200);
 		}
-		$this->id =sanitize_text_field($data_POST['id']);
+		$this->id =sanitize_text_field( wp_unslash($data_POST['id']));
 		$by ="";
 		if(empty($data_POST['message']) ){
 			$response = array( 'success' => false , "m"=>$this->lanText["pleaseEnterVaildValue"]);
@@ -2666,10 +2666,10 @@ public function check_nonce_permission($request) {
 			}else{
 
 			}
-			$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
+			$response = isset($data_POST['valid']) ? sanitize_text_field(wp_unslash($data_POST['valid'])) : '';
 			$id;
-				$id=number_format(sanitize_text_field($data_POST['id']));
-				$m=sanitize_text_field($data_POST['message']);
+				$id=number_format(sanitize_text_field(wp_unslash($data_POST['id'])));
+				$m=sanitize_text_field(wp_unslash($data_POST['message']));
 				$m = str_replace("\\","",$m);
 				$message =json_decode($m);
 				$valobj=[];
@@ -2708,7 +2708,7 @@ public function check_nonce_permission($request) {
 								$stated=0;
 								if(isset($f->value) && $f->id_=="message"){
 									$stated=1;
-									$f->value = sanitize_text_field($f->value);
+									$f->value = sanitize_text_field( wp_unslash($f->value));
 								}
 
 								$in_loop=false;
@@ -3097,8 +3097,8 @@ public function check_nonce_permission($request) {
 		$data_POST = $data_POST_->get_json_params();
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
-		$this->id =sanitize_text_field($data_POST['id']);
-		$sid = sanitize_text_field($data_POST['sid']);
+		$this->id =sanitize_text_field( wp_unslash($data_POST['id']));
+		$sid = sanitize_text_field( wp_unslash($data_POST['sid']));
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		if ($s_sid !=1){
 			$m = esc_html__('error', 'easy-form-builder') . ' 403';
@@ -3123,8 +3123,8 @@ public function check_nonce_permission($request) {
 			 return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
-		$this->id = intval($data_POST['id']);
-		$val_ = sanitize_text_field($data_POST['value']);
+		$this->id = intval(wp_unslash($data_POST['id']));
+		$val_ = sanitize_text_field( wp_unslash($data_POST['value']));
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results(
 			$this->db->prepare(
@@ -3231,7 +3231,7 @@ public function check_nonce_permission($request) {
 				$created= wp_date("Y-m-d H:i:s",$paymentIntent->created);
 				$val = $paymentIntent->amount/100 . ' ' . $paymentIntent->currency;
 			}else{
-				$token= sanitize_text_field($data_POST['token']);
+				$token= sanitize_text_field( wp_unslash($data_POST['token']));
 
 
 				$product = $stripe->products->create([
@@ -3291,7 +3291,7 @@ public function check_nonce_permission($request) {
 			$ip = $this->ip;
 			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);
 			$this->value = str_replace('"', '\\"', $val_);
-			$this->name = sanitize_text_field($data_POST['name']);
+			$this->name = sanitize_text_field( wp_unslash($data_POST['name']));
 			$check=	$this->insert_message_db(2,false);
 
 
@@ -3309,8 +3309,8 @@ public function check_nonce_permission($request) {
 
 		$efbFunction =  $this->get_efbFunction(1);
 
-		$sid = sanitize_text_field($data_POST['sid']);
-		$this->id = sanitize_text_field($data_POST['id']);
+		$sid = sanitize_text_field( wp_unslash($data_POST['sid']));
+		$this->id = sanitize_text_field(wp_unslash($data_POST['id']));
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$text_=['somethingWentWrongPleaseRefresh'];
 		$this->lanText= $this->efbFunction->text_efb($text_);
@@ -3333,8 +3333,8 @@ public function check_nonce_permission($request) {
 				die("secure!");
 		}
 
-		$this->id = intval($data_POST['id']);
-		$val_ = sanitize_text_field($data_POST['value']);
+		$this->id = intval(wp_unslash($data_POST['id']));
+		$val_ = sanitize_text_field( wp_unslash($data_POST['value']));
 		$url = sanitize_url($data_POST['url']);
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results(
@@ -3458,7 +3458,7 @@ public function check_nonce_permission($request) {
 					$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);
 
 						$this->value = str_replace('"', '\\"', $val_);
-						$this->name = sanitize_text_field($data_POST['name']);
+						$this->name = sanitize_text_field( wp_unslash($data_POST['name']));
 						$check=	$this->insert_message_db(2,$clientRefId);
 						if(isset($check)!=true){
 							$response = array('success' => false, 'm' => 'خطا در ارتباط با دیتابیس ، شماره خطا DB-403');
@@ -3497,9 +3497,9 @@ public function check_nonce_permission($request) {
 				die("secure!");
 		}
 
-		$this->id = isset($_POST['id']) ? intval($_POST['id']) : 0;
-		$val_ = isset($_POST['value']) ? sanitize_text_field($_POST['value']) : '';
-		$url = isset($_POST['url']) ? sanitize_url($_POST['url']) : '';
+		$this->id = isset($_POST['id']) ? intval(wp_unslash($_POST['id'])) : 0;
+		$val_ = isset($_POST['value']) ? sanitize_text_field( wp_unslash($_POST['value'])) : '';
+		$url = isset($_POST['url']) ? sanitize_url(wp_unslash($_POST['url'])) : '';
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results(
 			$this->db->prepare(
@@ -3617,7 +3617,7 @@ public function check_nonce_permission($request) {
 					$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);
 
 						$this->value = str_replace('"', '\\"', $val_);
-						$this->name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+						$this->name = isset($_POST['name']) ? sanitize_text_field( wp_unslash($_POST['name'])) : '';
 						$check=	$this->insert_message_db(2,$clientRefId);
 						if(isset($check)!=true){
 							$response = array('success' => false, 'm' => 'خطا در ارتباط با دیتابیس ، شماره خطا DB-403');
@@ -4254,7 +4254,7 @@ public function check_nonce_permission($request) {
 
 		$current_user = get_current_user_id();
 		if(!isset($_POST['id'])) return;
-		$id = sanitize_text_field($_POST['id']);
+		$id = sanitize_text_field(wp_unslash($_POST['id']));
 
 		$r = 'preview@'. str_replace([' ', '[', ']', '='], '', $id);
 		$r = strtolower($r);

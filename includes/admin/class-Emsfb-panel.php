@@ -407,9 +407,9 @@ class Panel_edit  {
 		$efbFunction = $this->get_efbFunction();
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$_POST['id']= isset($_POST['id']) ? intval($_POST['id']) : 0;
-        $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field($_POST['pl']) : '';
-        $_POST['fid']= isset($_POST['fid']) ? sanitize_text_field($_POST['fid']) : '';
-		$sid = isset($_POST['sid']) ? sanitize_text_field($_POST['sid']) : '';
+        $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field(wp_unslash($_POST['pl'])) : '';
+        $_POST['fid']= isset($_POST['fid']) ? sanitize_text_field(wp_unslash($_POST['fid'])) : '';
+		$sid = isset($_POST['sid']) ? sanitize_text_field(wp_unslash($_POST['sid'])) : '';
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
 		if ($s_sid !=1 || $sid==null){
 

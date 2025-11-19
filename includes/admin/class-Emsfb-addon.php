@@ -265,13 +265,13 @@ class Addon {
 			die();
 		}
 
-		if(isset($_POST['email']) ){$email =sanitize_email($_POST['email']);}
+		if(isset($_POST['email']) ){$email =sanitize_email( wp_unslash($_POST['email']));}
 		$this->id_ ="hid";
-		$this->name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+		$this->name = isset($_POST['name']) ? sanitize_text_field( wp_unslash($_POST['name'])) : '';
 		$this->email =  $email;
-		$this->value = isset($_POST['value']) ? $_POST['value'] : '';
+		$this->value = isset($_POST['value']) ? wp_unslash($_POST['value']) : '';
 
-		$this->formtype = isset($_POST['type']) ? sanitize_text_field($_POST['type']) : '';
+		$this->formtype = isset($_POST['type']) ? sanitize_text_field( wp_unslash($_POST['type'])) : '';
 		if($this->isScript($this->value) ||$this->isScript($this->formtype)){
 			$response = array( 'success' => false , "m"=> $lang["NAllowedscriptTag"]);
 			wp_send_json_success($response,200);
