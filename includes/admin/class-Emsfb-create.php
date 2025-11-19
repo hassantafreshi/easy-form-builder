@@ -348,7 +348,7 @@ class Create {
 
 		$email = '';
 
-		$nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+		$nonce = isset($_POST['nonce']) ? wp_unslash($_POST['nonce']) : '';
 		if ( !wp_verify_nonce( $nonce, 'admin-nonce' )  || !current_user_can('Emsfb')) {
             $response = ['success' => false, 'm' =>  $lang['error403']];
             wp_send_json_success($response, 200);

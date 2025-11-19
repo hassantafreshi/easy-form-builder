@@ -174,7 +174,7 @@ class Emsfb {
      * Add JavaScript to prevent Elementor admin conflicts
      */
     public function elementor_admin_conflict_prevention() {
-        $current_page = isset($_GET['page']) ? $_GET['page'] : '';
+        $current_page = isset($_GET['page']) ? wp_unslash($_GET['page']) : '';
         ?>
         <script type="text/javascript">
         // Prevent Elementor admin conflicts with EFB Admin Pages
