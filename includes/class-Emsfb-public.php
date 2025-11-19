@@ -1861,7 +1861,7 @@ class _Public {
 									 $this->send_email_Emsfb_( $email_user,$trackId ,$pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 								}
 								if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
-									$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms', $check);
+									$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms',$trackId);
 									if($smsSendResult !== true) {
 										// 'msgSndBut','smsWPN' in lantexts but %$s1 is used in the message
 										$m =  $this->lanText['msgSndBut'];
