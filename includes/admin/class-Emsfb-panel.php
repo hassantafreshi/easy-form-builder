@@ -463,7 +463,7 @@ class Panel_edit  {
 		if (in_array($_FILES['async-upload']['type'], $arr_ext)) {
 
 
-			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["async-upload"]["name"], PATHINFO_EXTENSION) ;
+			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["async-upload"]["name"], PATHINFO_EXTENSION) ;
 
 			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["async-upload"]["tmp_name"]));
 			if(is_ssl()==true){
@@ -482,7 +482,7 @@ class Panel_edit  {
 
 	public function delete_old_rows_emsfb_stts_() {
 		$table_name = $this->db->prefix . 'emsfb_stts_';
-		$date_limit = date('Y-m-d', strtotime('-40 days'));
+		$date_limit = wp_date('Y-m-d', strtotime('-40 days'));
 
 		$this->db->query(
 			$this->db->prepare(

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Emsfb;
 
@@ -1275,7 +1275,7 @@ public function check_nonce_permission($request) {
 
 											$stated=1;
 											$rt= $item;
-											$current_date = date('Y-m-d');
+											$current_date = wp_date('Y-m-d');
 											if(isset($f['milen']) && $f['milen']!=''){
 												$f['milen'] = intval($f['milen'])==1 ? $current_date :$f['milen'];
 												if($f['milen']!='' && (strtotime($f['milen'])>strtotime($item['value']) || strtotime($f['milen'])>strtotime($item['value'])) ){
@@ -1894,7 +1894,7 @@ public function check_nonce_permission($request) {
 							error_log("type payment");
 							$id = sanitize_text_field($data_POST['payid']);
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
-							$currentDateTime = date('Y-m-d H');
+							$currentDateTime = wp_date('Y-m-d H');
 							$payment_getWay =isset($data_POST['payment']) ? sanitize_text_field($data_POST['payment']) :'stripe';
 							if( strlen($id)<7 && $payment_getWay=="zarinPal"){
 								$response = array( 'success' => false , "m"=>"خطای داده های پرداختی ، صفحه را رفرش کنید");
@@ -2356,7 +2356,7 @@ public function check_nonce_permission($request) {
 
 	public function insert_message_db($read,$uniqid){
 		if(isset($read)==false) $read=0;
-		if($uniqid==false) $uniqid= date("ymd").substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
+		if($uniqid==false) $uniqid= wp_date("ymd").substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
 		$table_name = $this->db->prefix . "emsfb_msg_";
 		$this->db->insert($table_name, array(
 			'form_title_x' => $this->name,
@@ -2433,7 +2433,7 @@ public function check_nonce_permission($request) {
 		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
 		);
 		if (in_array($_FILES['file']['type'], $arr_ext)) {
-			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
+			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
 			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
@@ -2569,7 +2569,7 @@ public function check_nonce_permission($request) {
 
 		if ($valid) {
 
-			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["async-upload"]["name"], PATHINFO_EXTENSION) ;
+			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["async-upload"]["name"], PATHINFO_EXTENSION) ;
 			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["async-upload"]["tmp_name"]));
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
@@ -3205,7 +3205,7 @@ public function check_nonce_permission($request) {
 				);
 			$to =get_option('admin_email');
 			$message="This message from Easy Form Builder, This IP:".$this->ip.
-			" try to enter invalid value like fee of the service of the form id:" .$this->id. " at :".date("Y-m-d-h:i:s",$t) ;
+			" try to enter invalid value like fee of the service of the form id:" .$this->id. " at :".wp_date("Y-m-d H:i:s",$t) ;
 			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
 		}
 		$price_f = $price_f*100;
@@ -3228,7 +3228,7 @@ public function check_nonce_permission($request) {
 				if(strlen($email)>1){$newPay=array_merge($newPay , array('receipt_email'=>$email));}
 				$paymentIntent = $stripe->paymentIntents->create($newPay);
 				$amount = $paymentIntent->amount/100;
-				$created= date("Y-m-d-h:i:s",$paymentIntent->created);
+				$created= wp_date("Y-m-d H:i:s",$paymentIntent->created);
 				$val = $paymentIntent->amount/100 . ' ' . $paymentIntent->currency;
 			}else{
 				$token= sanitize_text_field($data_POST['token']);
@@ -3257,18 +3257,18 @@ public function check_nonce_permission($request) {
 						],
 					  ]);
 					  $amount = $paymentIntent->plan->amount/100;
-					  $created= date("Y-m-d-h:i:s",$paymentIntent->created);
+					  $created= wp_date("Y-m-d H:i:s",$paymentIntent->created);
 					  $val =  $amount . ' ' . $paymentIntent->currency;
 			}
 			$filtered = array_filter($valobj, function($item) {
 				if(isset($item['price']))	return $item;
 			});
-			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
+			$created= wp_date("Y-m-d H:i:s",$paymentIntent->created);
 			$response;
 			if($paymentmethod!='charge'){
 				$amount = $price->unit_amount/100;
 				$payA =  $amount  . ' '. $price->currency;
-				$nextdate = date("Y-m-d-h:i:s",$paymentIntent->current_period_end);
+				$nextdate = wp_date("Y-m-d H:i:s",$paymentIntent->current_period_end);
 				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder') ,'type'=>'payment',
 				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' ,
 				'paymentAmount'=>$amount,'paymentCreated'=>$created ,'paymentcurrency' =>$price->currency, 'gateway'=>'stripe',
@@ -3421,7 +3421,7 @@ public function check_nonce_permission($request) {
 				);
 			$to =get_option('admin_email');
 			$message="This message from Easy Form Builder, This IP:".$this->ip.
-			" try to enter invalid value like fee of the service of a form at :".date("Y-m-d-h:i:s",$t) ;
+			" try to enter invalid value like fee of the service of a form at :".wp_date("Y-m-d H:i:s",$t) ;
 			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
 		}
 		$price_f = $price_f;
@@ -3580,7 +3580,7 @@ public function check_nonce_permission($request) {
 				);
 			$to =get_option('admin_email');
 			$message="This message from Easy Form Builder, This IP:".$this->ip.
-			" try to enter invalid value like fee of the service of a form at :".date("Y-m-d-h:i:s",$t) ;
+			" try to enter invalid value like fee of the service of a form at :".wp_date("Y-m-d H:i:s",$t) ;
 			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
 		}
 		$price_f = $price_f;

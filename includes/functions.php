@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Emsfb;
 
@@ -1676,10 +1676,10 @@ class efbFunction {
 	public function efb_code_validate_create($fid, $type, $status, $tc) {
 		$table_name = $this->db->prefix . 'emsfb_stts_';
 		$ip = $this->get_ip_address();
-		$date_now = date('Y-m-d H:i:s');
-		$date_limit = date('Y-m-d H:i:s', strtotime('+24 hours'));
+		$date_now = wp_date('Y-m-d H:i:s');
+		$date_limit = wp_date('Y-m-d H:i:s', strtotime('+24 hours'));
 
-		$sid = date("ymdHis") . substr(bin2hex(openssl_random_pseudo_bytes(5)), 0, 9);
+		$sid = wp_date("ymdHis") . substr(bin2hex(openssl_random_pseudo_bytes(5)), 0, 9);
 		$uid = get_current_user_id() ?? 0;
 		$os = $this->getVisitorOS();
 		$browser = $this->getVisitorBrowser();
@@ -1713,9 +1713,9 @@ class efbFunction {
     public function efb_code_validate_update($sid ,$status ,$tc ) {
 
 		$table_name = $this->db->prefix . 'emsfb_stts_';
-        $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
+        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
 		$active =0;
-		$read_date =date('Y-m-d H:i:s');
+		$read_date = wp_date('Y-m-d H:i:s');
 		if($status=="rsp" || $status=="ppay")  $active =1;
 
 
@@ -1740,8 +1740,8 @@ class efbFunction {
 		}
 
 		$table_name = $this->db->prefix . 'emsfb_stts_';
-        $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
-        $date_now = date('Y-m-d H:i:s');
+        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
+        $date_now = wp_date('Y-m-d H:i:s');
         $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s", $sid, $date_now,$fid);
 
         $result =$this->db->get_var($query);
