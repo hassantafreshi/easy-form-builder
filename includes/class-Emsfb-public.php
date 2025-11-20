@@ -35,7 +35,6 @@ class _Public {
 		add_action('rest_api_init',  @function(){
 			$this->efb_uid  = get_current_user_id();
 
-		error_log('EFB: Registering REST API routes');
 		register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
 			'method'=> 'POST',
 			'callback'=>  [$this,'test_fun'],

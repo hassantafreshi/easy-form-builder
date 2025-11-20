@@ -977,7 +977,6 @@ function efbCreateMap(id ,r ,viewState) {
     }
   }else{
     Object.assign(r ,{mark:r.value.length});
-    console
     for (let i = 0; i < r.value.length; i++) {
       efbAddMarker(r.value[i].lat, r.value[i].lng, efbMap._leaflet_id, i+1 ,r);
     }

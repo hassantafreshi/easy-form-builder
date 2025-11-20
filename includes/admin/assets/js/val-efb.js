@@ -1146,7 +1146,7 @@ function show_setting_window_efb(idset) {
         <label for="marksEl" class="efb  form-label  mt-2">${efb_var.text.points.toUpperCase()}
         <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="pickupByUser"> </i>
         </label>
-        <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb h-d-efb mb-1" placeholder=${efb_var.text.exDot}  1" id="marksEl" required value="${valj_efb[indx].mark}">
+        <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb h-d-efb mb-1" placeholder=${efb_var.text.exDot}  1" id="marksEl" required value="${valj_efb[indx].hasOwnProperty('mark') ? valj_efb[indx].mark : '1'}">
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
           <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
