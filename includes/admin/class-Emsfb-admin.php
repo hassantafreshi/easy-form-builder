@@ -1704,6 +1704,16 @@ class Admin {
             $help = '<a href="https://whitestudio.team/documents/how-to-fix-email-not-working-issue#'.$msg_id.'" target="_blank" >' . esc_html__('Click here for more details','easy-form-builder') . '</a>';
             $title = isset($messages[$msg_id]['title']) ? $messages[$msg_id]['title'] : esc_html__('Email Issue', 'easy-form-builder');
             $description = isset($messages[$msg_id]['description']) ? $messages[$msg_id]['description'] : '';
+
+            $allowed_html = array(
+                'div' => array('id' => array(), 'class' => array(), 'style' => array()),
+                'button' => array('type' => array(), 'id' => array(), 'style' => array(), 'aria-label' => array()),
+                'img' => array('src' => array(), 'alt' => array(), 'style' => array()),
+                'p' => array(),
+                'strong' => array(),
+                'a' => array('href' => array(), 'target' => array()),
+            );
+
             ob_start();
             ?>
             <div id="notice-email-efb" class="notice notice-error efb-notice-email-error notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;position:relative;">
@@ -1717,33 +1727,36 @@ class Admin {
                     <p><?php echo wp_kses_post($help); ?></p>
                 </div>
             </div>
-            <script>
-                var efbNotice = document.getElementById('notice-email-efb');
-                if (window.sessionStorage.getItem('efb_hide_notice') === '3') {
-                    if (efbNotice) efbNotice.style.display = 'none';
-                }
-                var efbCloseBtn = document.getElementById('efb-close-notice-btn');
-
-                if (efbCloseBtn) {
-                    //look for efb classes on the elements of page
-                    const page = document.querySelector('.sideMenuFEfb');
-                    if (page) {
-                        efbNotice.style.display = 'none';
-                    }
-                    efbCloseBtn.addEventListener('click', function () {
-                        console.log('Notice closed');
-                        var efbNotice = document.getElementById('notice-email-efb');
-                        if (efbNotice) efbNotice.style.display = 'none';
-                        let count = window.sessionStorage.getItem('efb_hide_notice') ?? 0
-                        count = parseInt(count) + 1;
-                        window.sessionStorage.setItem('efb_hide_notice', count);
-                    });
-                }
-            </script>
             <?php
             $output = ob_get_clean();
+            echo wp_kses($output, $allowed_html);
+            ?>
+            <script>
+                (function() {
+                    var efbNotice = document.getElementById('notice-email-efb');
+                    if (window.sessionStorage.getItem('efb_hide_notice') === '3') {
+                        if (efbNotice) efbNotice.style.display = 'none';
+                    }
+                    var efbCloseBtn = document.getElementById('efb-close-notice-btn');
 
-            echo wp_kses_post($output);
+                    if (efbCloseBtn) {
+                        //look for efb classes on the elements of page
+                        const page = document.querySelector('.sideMenuFEfb');
+                        if (page) {
+                            efbNotice.style.display = 'none';
+                        }
+                        efbCloseBtn.addEventListener('click', function () {
+                            console.log('Notice closed');
+                            var efbNotice = document.getElementById('notice-email-efb');
+                            if (efbNotice) efbNotice.style.display = 'none';
+                            let count = window.sessionStorage.getItem('efb_hide_notice') ?? 0
+                            count = parseInt(count) + 1;
+                            window.sessionStorage.setItem('efb_hide_notice', count);
+                        });
+                    }
+                })();
+            </script>
+            <?php
     }
 
 }

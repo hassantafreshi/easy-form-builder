@@ -314,15 +314,15 @@ class Panel_edit  {
 			} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
 
 				$ip = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : '0.0.0.0';
-			} else {
-				$ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
-			}
+		} else {
+			$ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+		}
 
 
 
-			true, EMSFB_PLUGIN_VERSION, true);
-			wp_enqueue_script('Emsfb-list_form-efb-js');
-			wp_localize_script( 'Emsfb-list_form-efb-js', 'ajax_object_efm',
+		wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
+		wp_enqueue_script('Emsfb-list_form-efb-js');
+		wp_localize_script( 'Emsfb-list_form-efb-js', 'ajax_object_efm',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),
 					'ajax_value' => $value,
 					'language' => $lng_,
