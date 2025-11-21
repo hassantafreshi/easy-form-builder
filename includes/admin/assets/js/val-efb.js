@@ -1582,6 +1582,7 @@ function creator_form_builder_Efb() {
       el_text_color: pub_txt_button_color_efb, message_text_color: pub_message_text_color_efb, icon_color: pub_txt_button_color_efb, el_height: 'h-d-efb', email_to: false, show_icon: true,
       show_pro_bar: true, captcha: false, private: false, sendEmail: smail, font: true, stateForm: 0,dShowBg:true, btns_align: btn_pois,
       thank_you: 'msg',
+      email_noti_type:'msg',
       thank_you_message: { icon: 'bi-hand-thumbs-up', thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.done, trackingCode: efb_var.text.trackingCode, error: efb_var.text.error, pleaseFillInRequiredFields: efb_var.text.pleaseFillInRequiredFields }, email_temp: '', font: true,
     });
 
