@@ -165,7 +165,7 @@ class Admin {
         $icon       = EMSFB_PLUGIN_URL . '/includes/admin/assets/image/logo-gray.png';
         add_menu_page(
             esc_html__('Panel', 'easy-form-builder'),
-            /* translators: %d is the number of unread notifications */
+
             $noti_count ? sprintf(esc_html__('Easy Form Builder', 'easy-form-builder') . ' <span id="efbCountM" class="efb awaiting-mod">%d</span>', $noti_count) : esc_html__('Easy Form Builder', 'easy-form-builder'),
 
             'Emsfb',
@@ -417,7 +417,7 @@ class Admin {
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
             }
             $attempts = 2;
-            error_log($u);
+
             for ($i = 0; $i < $attempts; $i++) {
             $request = wp_remote_get($u);
                 error_log(print_r($request,true));
@@ -1024,7 +1024,7 @@ class Admin {
         set_transient('emsfb_settings_transient', $setting, 1440);
         update_option('emsfb_settings', $setting);
 
-        // Clear object cache when settings are updated
+
         wp_cache_delete('emsfb_settings_latest', 'emsfb');
     }
 
@@ -1060,7 +1060,7 @@ class Admin {
 
         wp_send_json_success($response, 200);
 
-    }//end function
+    }
 
     public function clear_garbeg_admin() {
 
@@ -1119,7 +1119,7 @@ class Admin {
 
         wp_send_json_success($response, 200);
 
-    }//end function
+    }
 
 
     public function check_email_server_admin() {
@@ -1243,7 +1243,7 @@ class Admin {
                     }
                     $r = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip', true);
                 } else {
-                    // Fallback: If WP_Filesystem fails, use direct PHP functions
+
                     $directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
                     if (!file_exists($directory)) {
                         @mkdir($directory, 0755, true);
@@ -1347,7 +1347,7 @@ class Admin {
 		}
 
 
-	}//end function
+	}
 
     public function custom_ui_plugins(){
 
@@ -1658,13 +1658,13 @@ class Admin {
                 }
 
             }
-            /* translators: %s is the notification type (e.g., Email) */
+
             $email_notifi = sprintf(
                 esc_html__('%s notification', 'easy-form-builder'),
                 esc_html__('Email', 'easy-form-builder')
             );
 
-            /* translators: %s is the notification feature name */
+
             $warning =' '. sprintf(
                 esc_html__('Disabling this feature may affect the proper functionality of Easy Form Builder. If you plan to use the %s feature, please ensure it is enabled.', 'easy-form-builder'),
                 $email_notifi
@@ -1746,7 +1746,7 @@ class Admin {
                             efbNotice.style.display = 'none';
                         }
                         efbCloseBtn.addEventListener('click', function () {
-                            console.log('Notice closed');
+
                             var efbNotice = document.getElementById('notice-email-efb');
                             if (efbNotice) efbNotice.style.display = 'none';
                             let count = window.sessionStorage.getItem('efb_hide_notice') ?? 0

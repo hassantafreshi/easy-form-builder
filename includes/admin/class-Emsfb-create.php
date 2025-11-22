@@ -471,7 +471,7 @@ class Create {
             }
         }
         return  $s;
-    }//end fun
+    }
 
 
 	public function get_efbFunction(){

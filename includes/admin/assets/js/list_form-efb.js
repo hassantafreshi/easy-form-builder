@@ -1759,7 +1759,7 @@ function fun_find_track_emsFormBuilder() {
 
 
   }
-}//end function
+}
 
 
 search_trackingcode_fun_efb =(el)=>{
@@ -1961,7 +1961,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 
 
 
-        }//end else
+        }
 
       }
 
@@ -2012,7 +2012,7 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
     }
   }
 
-}//end function
+}
 
 
 function convertToCSV_emsFormBuilder(objArray) {
@@ -2163,7 +2163,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
 
         rows[r][0] = colname[t][r];
         rows[r][1] = colvalue[t][r];
-      }//end for 2
+      }
 
       rowsOfCharts[t] = rows;
 
@@ -2198,7 +2198,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   }, 1000);
 
 
-}//end function
+}
 
 function googleCloudOffer() { return `<p>${efb_var.text.offerGoogleCloud} <a href="https://gcpsignup.page.link/8cwn" target="blank">${efb_var.text.getOfferTextlink}</a> </p> ` }
 

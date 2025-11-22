@@ -43,7 +43,7 @@ function fun_render_view_efb(val, check) {
     setTimeout(() => {
       fun_total_pay_efb()
     }, valj_efb.length *2);
-    if(get_authority_efb!==null){
+    if(typeof get_authority_efb !== 'undefined' && get_authority_efb!==null){
       if(typeof fun_after_bankpay_persia_ui_efb === "function") fun_after_bankpay_persia_ui_efb();
     }
   }
@@ -1023,10 +1023,10 @@ window.addEventListener("popstate",e=>{
  post_api_forms_efb=(data)=>{
   console.log(data);
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
-const headers = new Headers({
-  'Content-Type': 'application/json',
-  'X-WP-Nonce': efb_var.nonce,
-});
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': efb_var.nonce,
+    });
 const jsonData = JSON.stringify(data);
 const requestOptions = {
   method: 'POST',
@@ -1173,5 +1173,3 @@ document.addEventListener("DOMContentLoaded", function() {
     fun();
   }
 });
-
-

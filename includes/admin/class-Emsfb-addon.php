@@ -313,7 +313,7 @@ class Addon {
             }
         }
         return  $s;
-    }//end fun
+    }
 
 	public function get_efbFunction(){
 			if(!class_exists('Emsfb\efbFunction')){

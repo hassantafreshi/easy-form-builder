@@ -383,7 +383,7 @@ class Panel_edit  {
         }
 
         return  $s;
-    }//end fun
+    }
 
 
 	public function test_smart_zone (){

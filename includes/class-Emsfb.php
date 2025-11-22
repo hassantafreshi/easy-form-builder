@@ -21,12 +21,9 @@ class Emsfb {
 
         $this->includes();
         $this->init_hooks();
-
-
         if(is_admin()==false){
             $this->webhooks();
         }else{
-           // Initialize Elementor compatibility for all admin pages
             $this->init_elementor_compatibility();
        }
 

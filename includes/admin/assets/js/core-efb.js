@@ -430,7 +430,7 @@ function createStepsOfPublic() {
 
     i == 1 ? document.getElementById('emsFormBuilder-firstStepIcon-view').innerHTML = `<i class="efb ${icon}"></i>` : document.getElementById('emsFormBuilder-addStep-view').innerHTML += `<span class="efb emsFormBuilder-step-view" id="stepIcon-${i - 1}"><i class="efb ${icon}"></i></span>`
 
-  }//end for
+  }
 
 
   for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
@@ -483,8 +483,8 @@ function createStepsOfPublic() {
         fun_sendBack_emsFormBuilder(o[0]);
       });
     }
-  }//end for
-}//end function createStepsOfPublic
+  }
+}
 
 
 function fun_sendBack_emsFormBuilder(ob) {
