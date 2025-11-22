@@ -650,7 +650,7 @@ i.efb {	font-size: 1.2rem;
 }
 
 
-@media (hover: none) and (pointer: coarse) {
+/* @media (hover: none) and (pointer: coarse) {
     .btn-edit, .BtnSideEfb {
         min-height: 44px !important;
         min-width: 44px !important;
@@ -681,16 +681,21 @@ i.efb {	font-size: 1.2rem;
         background-color: rgba(108, 117, 125, 0.2) !important;
     }
 
-    /* Mobile touch feedback for btn-toggle elements */
+    /* Mobile touch feedback for btn-toggle elements - separate from btn-edit */
+    .btn-toggle {
+        transition: all 0.2s ease-out !important;
+    }
+
     .btn-toggle.efb-toggle-touching {
-        transform: scale(0.95) !important;
-        background-color: rgba(99, 58, 130, 0.3) !important;
-        transition: all 0.1s ease-in-out !important;
-        box-shadow: 0 0 0 2px rgba(99, 58, 130, 0.3) !important;
+        transform: scale(0.88) !important;
+        background-color: rgba(99, 58, 130, 0.6) !important;
+        box-shadow: 0 0 0 4px rgba(99, 58, 130, 0.5), inset 0 4px 8px rgba(0,0,0,0.3) !important;
+        filter: brightness(0.85) !important;
+        border-color: rgba(99, 58, 130, 0.8) !important;
     }
 
     .btn-toggle:active {
-        transform: scale(0.95) !important;
+        transform: scale(0.88) !important;
     }
 
     .btn-edit i, .BtnSideEfb i {
@@ -702,7 +707,7 @@ i.efb {	font-size: 1.2rem;
         pointer-events: none;
     }
 
-    /* Mobile field selection improvements */
+    /* Mobile field selection improvements/*
     .showBtns, .efbField.ttEfb {
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
@@ -719,7 +724,7 @@ i.efb {	font-size: 1.2rem;
         border: 2px solid #633a82 !important;
         background-color: rgba(99, 58, 130, 0.05) !important;
     }
-}
+} */
 
 /* General mobile improvements */
 @media (max-width: 768px) {

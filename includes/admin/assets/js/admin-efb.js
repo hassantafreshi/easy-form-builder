@@ -215,11 +215,11 @@ window.efb_test_toggle_buttons = function() {
     functionAvailable: typeof fun_switch_form_efb === 'function'
   };
 
-  console.log('EFB Toggle Buttons Test Results:', testResults);
+  console.log('%c🔍 EFB Toggle Buttons Test Results:', 'background: #633a82; color: white; padding: 5px; font-weight: bold;', testResults);
 
   // Log individual toggle button details
   toggleButtons.forEach((btn, index) => {
-    console.log(`Toggle Button ${index + 1}:`, {
+    console.log(`🔘 Toggle Button ${index + 1}:`, {
       id: btn.id,
       hasOnclick: !!btn.getAttribute('onclick'),
       hasMobileSupport: !!btn.hasToggleMobileTouchSupport,
@@ -230,6 +230,91 @@ window.efb_test_toggle_buttons = function() {
 
   return testResults;
 };
+
+/**
+ * Live debug toggle button clicks
+ * Call this from console: efb_debug_toggle_live()
+ */
+window.efb_debug_toggle_live = function() {
+  console.log('%c🎯 Live Debug Mode Activated for btn-toggle', 'background: #ff6b6b; color: white; padding: 5px; font-weight: bold;');
+  console.log('Touch any toggle button and watch the console...');
+
+  const toggleButtons = document.querySelectorAll('.btn-toggle');
+  toggleButtons.forEach(btn => {
+    if (!btn.hasDebugListener) {
+      // Test if it has mobile support
+      console.log(`📍 Button ${btn.id}:`, {
+        hasMobileSupport: !!btn.hasToggleMobileTouchSupport,
+        currentClasses: btn.className
+      });
+
+      btn.addEventListener('touchstart', function(e) {
+        console.log('%c👆 TOUCHSTART', 'background: #4CAF50; color: white;', btn.id, 'Classes:', btn.className);
+      }, { passive: true, capture: true });
+
+      btn.addEventListener('touchend', function(e) {
+        console.log('%c👆 TOUCHEND', 'background: #2196F3; color: white;', btn.id, 'Classes after:', btn.className);
+      }, { passive: true, capture: true });
+
+      btn.addEventListener('click', function(e) {
+        console.log('%c🖱️ CLICK', 'background: #FF9800; color: white;', btn.id, 'Classes:', btn.className);
+      }, { passive: true, capture: true });
+
+      btn.hasDebugListener = true;
+    }
+  });
+};
+
+/**
+ * Check if CSS for btn-toggle is loaded and working
+ * Call this from console: efb_check_toggle_css()
+ */
+window.efb_check_toggle_css = function() {
+  console.log('%c🎨 Checking btn-toggle CSS...', 'background: #9c27b0; color: white; padding: 5px; font-weight: bold;');
+
+  const testBtn = document.querySelector('.btn-toggle');
+  if (!testBtn) {
+    console.error('❌ No .btn-toggle elements found!');
+    return;
+  }
+
+  // Get computed styles
+  const styles = window.getComputedStyle(testBtn);
+  console.log('📋 Current .btn-toggle styles:', {
+    transition: styles.transition,
+    transform: styles.transform,
+    backgroundColor: styles.backgroundColor
+  });
+
+  // Temporarily add the touching class to test
+  testBtn.classList.add('efb-toggle-touching');
+  const touchingStyles = window.getComputedStyle(testBtn);
+
+  console.log('📋 .efb-toggle-touching styles:', {
+    transform: touchingStyles.transform,
+    backgroundColor: touchingStyles.backgroundColor,
+    boxShadow: touchingStyles.boxShadow,
+    filter: touchingStyles.filter,
+    borderColor: touchingStyles.borderColor
+  });
+
+  // Check if styles are actually different
+  const hasEffect = touchingStyles.transform !== styles.transform ||
+                    touchingStyles.backgroundColor !== styles.backgroundColor;
+
+  if (hasEffect) {
+    console.log('%c✅ CSS is working! Styles change when class is added.', 'color: green; font-weight: bold;');
+  } else {
+    console.error('%c❌ CSS NOT WORKING! Styles are the same with or without class.', 'color: red; font-weight: bold;');
+    console.log('💡 Try: Hard refresh (Ctrl+Shift+R) or clear cache');
+  }
+
+  // Remove test class
+  testBtn.classList.remove('efb-toggle-touching');
+
+  return { working: hasEffect, element: testBtn };
+};
+
 function saveLocalStorage_emsFormBuilder() {
 
   sessionStorage.setItem('valueJson_ws_p', JSON.stringify(valueJson_ws_p));
@@ -4969,22 +5054,42 @@ function addMobileTouchSupport(element) {
 function addToggleMobileTouchSupport(element) {
   if (!element.hasToggleMobileTouchSupport && ('ontouchstart' in window)) {
     let touchHandled = false;
+    const debugMode = window.efb_debug || false;
+
+    if (debugMode) console.log('🟢 EFB Toggle: Adding mobile support to', element.id || element.className);
 
     // Add enhanced touch visual feedback for toggles
     element.addEventListener('touchstart', function(e) {
-      element.style.transform = 'scale(0.95)';
-      element.style.transition = 'transform 0.1s ease';
+      if (debugMode) console.log('👆 EFB Toggle: touchstart on', element.id);
       element.classList.add('efb-toggle-touching');
+      element.setAttribute('data-efb-touching', 'true');
+
+      // Apply inline styles with !important using RAF for proper timing
+      requestAnimationFrame(() => {
+        element.style.setProperty('transform', 'scale(0.85)', 'important');
+        element.style.setProperty('background-color', 'rgba(99, 58, 130, 0.7)', 'important');
+        element.style.setProperty('box-shadow', '0 0 0 4px rgba(99, 58, 130, 0.6), inset 0 4px 8px rgba(0,0,0,0.4)', 'important');
+        element.style.setProperty('filter', 'brightness(0.8)', 'important');
+        element.style.setProperty('border-color', 'rgba(99, 58, 130, 0.9)', 'important');
+
+        if (debugMode) {
+          requestAnimationFrame(() => {
+            const s = window.getComputedStyle(element);
+            console.log('🔍 RAF styles:', {transform: s.transform, bg: s.backgroundColor});
+          });
+        }
+      });
+
+      if (debugMode) console.log('✅ Class added:', element.className);
     }, { passive: true });
 
     element.addEventListener('touchend', function(e) {
       if (!touchHandled) {
         touchHandled = true;
-        setTimeout(() => { touchHandled = false; }, 300);
+        if (debugMode) console.log('👆 EFB Toggle: touchend on', element.id);
+        if (debugMode) console.log('📋 Classes at touchend:', element.className);
 
-        // Reset visual feedback
-        element.style.transform = '';
-        element.classList.remove('efb-toggle-touching');
+        setTimeout(() => { touchHandled = false; }, 300);
 
         // Prevent default click behavior
         e.preventDefault();
@@ -4992,16 +5097,57 @@ function addToggleMobileTouchSupport(element) {
 
         // Execute the toggle function directly
         setTimeout(() => {
+          if (debugMode) {
+            console.log('⚡ EFB Toggle: Executing function for', element.id);
+            console.log('📋 Classes before toggle:', element.className);
+          }
+
+          // Toggle the 'active' class
+          if (element.classList.contains('active')) {
+            element.classList.remove('active');
+          } else {
+            element.classList.add('active');
+          }
+
+          if (debugMode) console.log('📋 Classes after toggle:', element.className);
+
+          // Execute the form switch function
           if (typeof window.fun_switch_form_efb === 'function') {
             window.fun_switch_form_efb(element);
+
+            // Re-add visual feedback class if it was removed
+            if (element.getAttribute('data-efb-touching') === 'true' && !element.classList.contains('efb-toggle-touching')) {
+              if (debugMode) console.log('⚠️ Visual class was removed! Re-adding...');
+              element.classList.add('efb-toggle-touching');
+            }
           } else {
             // Fallback: execute onclick if function not available
             const onclickAttr = element.getAttribute('onclick');
             if (onclickAttr) {
+              if (debugMode) console.log('⚡ EFB Toggle: Using onclick attribute');
               safeEvalEfb(onclickAttr);
             }
           }
         }, 50);
+
+        // Reset visual feedback with delay so user can see the effect
+        setTimeout(() => {
+          if (debugMode) {
+            console.log('🔄 EFB Toggle: Removing visual feedback from', element.id);
+            console.log('📋 Classes before removal:', element.className);
+          }
+          element.classList.remove('efb-toggle-touching');
+          element.removeAttribute('data-efb-touching');
+
+          // Reset inline styles by removing the properties
+          element.style.removeProperty('transform');
+          element.style.removeProperty('background-color');
+          element.style.removeProperty('box-shadow');
+          element.style.removeProperty('filter');
+          element.style.removeProperty('border-color');
+
+          if (debugMode) console.log('📋 Classes after removal:', element.className);
+        }, 300);
       }
     }, { passive: false });
 
