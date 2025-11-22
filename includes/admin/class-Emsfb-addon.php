@@ -202,7 +202,7 @@ class Addon {
 
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
-			'nonce'=> wp_create_nonce("admin-nonce"),
+			'nonce'=> wp_create_nonce("wp_rest"),
 			'check' => 2,
 			'pro' => $pro,
 			'rtl' => is_rtl() ,
@@ -226,7 +226,7 @@ class Addon {
 
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
-			'nonce'=> wp_create_nonce("admin-nonce"),
+			'nonce'=> wp_create_nonce("wp_rest"),
 			'check' => 1		));
 
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', false, EMSFB_PLUGIN_VERSION, true);

@@ -101,8 +101,6 @@ class _Public {
 // REST API nonce verification
 public function check_nonce_permission($request) {
 	// Send CORS headers - only allow requests from the same domain or explicitly allowed origins
-	error_log('EFB: Checking CORS and nonce for REST API request');
-	error_log('EFB: Request Origin: ' . (isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : 'None'));
 	$allowed_origins = apply_filters('efb_allowed_cors_origins', array(
 		home_url(),
 		site_url()
@@ -4257,7 +4255,7 @@ public function check_nonce_permission($request) {
 
 	public function form_preview_efb(){
 
-		if (  check_ajax_referer('admin-nonce', 'nonce') != 1) {
+		if (  check_ajax_referer('wp_rest', 'nonce') != 1) {
 			die();
 		}
 		$new_page_id = 0;

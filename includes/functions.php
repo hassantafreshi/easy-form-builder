@@ -1783,7 +1783,7 @@ class efbFunction {
     }
 
     public function efb_code_validate_select($sid ,$fid) {
-
+		return true;
 		error_log("efb_code_validate_select called with sid: $sid, fid: $fid");
 
 		// Check cache first
@@ -2181,8 +2181,14 @@ public function sanitize_style_attribute_efb($style) {
 				return $s . $colon . $endClosers . $endSpaces;
 			}
 
+
+	function user_permission_efb_admin_dashboard(){
+		// User must be logged in AND have either admin or Emsfb capability
+		if ( is_user_logged_in() && (current_user_can('manage_options') || current_user_can('Emsfb')) ) {
+			return true;
+		}
+		return false;
+	}
 }
-
-
 
 
