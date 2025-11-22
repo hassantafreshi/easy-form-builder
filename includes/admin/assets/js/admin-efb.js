@@ -4012,10 +4012,10 @@ function emsFormBuilder_delete(id, type,value) {
   const m = efb_var.text[tiltle] ? `${efb_var.text[tiltle]}  >>`: '';
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}<br><b>${m} ${val} </b></div></div>`
   show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
-  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
 
-  //myModal.show_efb();
+
   state_modal_show_efb(1)
   confirmBtn.addEventListener("click", (e) => {
 
@@ -4039,12 +4039,12 @@ function emsFormBuilder_delete(id, type,value) {
     activeEl_efb = 0;
     state_modal_show_efb(0)
   })
-  //myModal.show_efb();
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function emsFormBuilder_duplicate(id, type,value) {
 
-  //v2
+  // v2
   let val =id;
 
 
@@ -4066,10 +4066,9 @@ function emsFormBuilder_duplicate(id, type,value) {
   const msg = efb_var.text.ausdup.replaceAll('XXX',val);
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${msg}</div></div>`
   show_modal_efb(body, efb_var.text.duplicate, 'efb bi-clipboard-plus mx-2', 'duplicateBox')
-  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
 
-  //myModal.show_efb();
+
   state_modal_show_efb(1)
   confirmBtn.addEventListener("click", (e) => {
     fun_confirm_dup_emsFormBuilder(id,type)
@@ -4077,7 +4076,7 @@ function emsFormBuilder_duplicate(id, type,value) {
     state_modal_show_efb(0)
   })
 
-  //myModal.show_efb();
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -4145,11 +4144,11 @@ state_modal_show_efb=(i)=>{
 
     }
     if (jQuery('#settingModalEfb_').hasClass('pre-efb')) {
-      //document.getElementById('dropZoneEFB').innerHTML = editFormEfb()
+
       jQuery('#dropZoneEFB').empty().append(editFormEfb());
       jQuery('#settingModalEfb_').removeClass('pre-efb');
 
-      //fub_shwBtns_efb()
+
     } else if (jQuery('#settingModalEfb_').hasClass('pre-form-efb')) {
       jQuery('#settingModalEfb_').removeClass('pre-form-efb');
     }
@@ -4206,15 +4205,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (els.children[i].tagName != 'SCRIPT' && els.children[i].tagName != 'STYLE' && ( els.children[i].id.toLowerCase().indexOf('efb') == -1 && els.children[i].id.indexOf('_emsFormBuilder') == -1)) {
       document.getElementById('wpbody-content').children[i].remove()
     }
-    //check if the element have updated wpb-notice class
     if(els.children[i]!=undefined && (els.children[i].hasAttribute('class') && els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated'))){
       document.getElementById('wpbody-content').children[i].remove()
     }
 
-    //setInterval(heartbeat_Emsfb, 100000);
-
   }
-  //remove all el included updated
 
 
 
@@ -4282,7 +4277,6 @@ window.addEventListener("popstate",e=>{
       break;
     case 'show-message':
       v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
-      //if (v==null) console.error('get[id] not found!');
       g_page = sanitize_text_efb(getUrlparams.get('form_type'));
 
       efb_var.msg_id =v;
@@ -4296,7 +4290,7 @@ window.addEventListener("popstate",e=>{
     case "edit-form":
 
       v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
-      //if (v==null) console.error('get[id] not found!');
+
 
       fun_get_form_by_id(Number(v));
       fun_backButton_efb();
@@ -4335,7 +4329,7 @@ function efb_check_el_pro(el){
 function colors_template_picker_efb(el){
 
 
-  //create for valj_efb and switch label , icon , button ,
+
   const t = `colorDEfb-${el.dataset.color.slice(1)}`
   const c = el.dataset.color;
   let type = "text"
@@ -4358,7 +4352,7 @@ function colors_template_picker_efb(el){
       pub_icon_color_efb = r;
       break;
     case 'btntc':
-      //رنگ متن روی دکمه و آیکون روی دکمه
+
 
       type = "text";
       r=  efb_add_costum_color(t, c ,"" , type)
@@ -4405,10 +4399,6 @@ function colors_template_picker_efb(el){
               valj_efb[i][k]=pub_icon_color_efb;
               break;
             case 'btntc':
-              //رنگ متن روی دکمه و آیکون روی دکمه
-
-
-
               pub_txt_button_color_efb;
               break;
             case 'button_color':
@@ -4425,9 +4415,7 @@ function colors_template_picker_efb(el){
 
 
       }
-  //c #000e24
-  //v = ""
-  //type = text, border , bg , btn
+
 
 
 
@@ -4442,7 +4430,6 @@ function open_setting_colors_efb(alert){
 
 if(document.getElementById('sideBoxEfb').classList.contains('show')){
   sideMenuEfb(0);
-  //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
   return};
 
 state_view_efb=1;
@@ -4479,7 +4466,6 @@ msg_colors_from_template = ()=>{
 
 }
 add_new_logic_efb = (newId , step_id) =>{
-  //add_new_logic_efb('${rndm_no}','${fid}')
   newId = Math.random().toString(36).substr(2, 9);
   const row = valj_efb[0].conditions.findIndex(x=>x.id_ == step_id);
   if (row==-1) return;
@@ -4565,15 +4551,11 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
     new_el.amount =amount + 1;
     new_el.id_ = new_id;
     new_el.dataId= new_id+'-id';
-    //add after index  don't remove index
-
-
-
     const el_options =[ 'select' ,'paySelect', 'radio' , 'checkbox' , 'multiselect' , 'payMultiselect',
      'table_matrix','cityList','city','stateProvince','statePro' , 'country' ,
       'conturyList' ,'imgRadio','chlRadio','chlCheckBox','payRadio','payCheckbox' ];
 
-    //check type of new_el.type == el_options
+
     if(el_options.includes(new_el.type)){
 
       let index_ops = valj_efb.filter(x => x.parent == id);
@@ -4592,7 +4574,7 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
         new_el_ops[i].amount = amount + 1;
 
         new_el_ops[i].dataId= new_id_op+'-id';
-        //valj_efb.splice(index+1, 0, new_el_ops[i]);
+
       }
 
 
@@ -4609,10 +4591,10 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
     }else{
       valj_efb.splice(index+1, 0, new_el);
     }
-    //sort valj_efb by amount
+
     sort_obj_efb()
     sessionStorage.setItem('valj_efb' , JSON.stringify(valj_efb));
-    //get duplicated for options like select/radio/checkbox/city/state/country/net /rate/star/NPS
+
     const len =valj_efb.length;
     let p = calPLenEfb(len)
     const td = len < 50 ? 200 : (len + Math.log(len)) * p
@@ -4678,7 +4660,6 @@ preview_form_new_efb = async ()=>{
   let form_id = sessionStorage.getItem('form_id') ??  form_ID_emsFormBuilder == 0 ?  null :`[EMS_Form_Builder id=${form_ID_emsFormBuilder}]`;
 
       if(form_id == null ){
-        //show message about first save form
         show_modal_efb(`<div class="text-center text-darkb efb"><div class=" fs-4 efb"></div><p class="fs-4 efb">${efb_var.text.prsm}</p></div>`,efb_var.text.warning, '', 'saveBox');
         state_modal_show_efb(1)
         return;
