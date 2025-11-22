@@ -11,9 +11,9 @@
     const url = efb_var.rest_url+'Emsfb/v1/forms/payment/stripe/card/add';
     const headers = new Headers({
       'Content-Type': 'application/json',
-
-      });
-
+      'X-WP-Nonce': efb_var.nonce,
+    });
+    console.log(headers);
 
 
 

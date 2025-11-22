@@ -113,7 +113,7 @@ post_api_persiapay_efb=(data)=>{
 
   const headers = new Headers({
     'Content-Type': 'application/json',
-
+    'X-WP-Nonce': efb_var.nonce,
     });
 
   const jsonData = JSON.stringify(data);
@@ -363,11 +363,13 @@ fun_after_bankpay_persia_ui_efb=()=>{
                   return false;
                 }
                 setTimeout(function () {
+                  current_s_efb =2;
+                  console.log(`current_s_efb[${current_s_efb}]`);
                   if (state == true) {
-                  if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').classList.add("active");
-                    document.querySelector('[data-step="step-' + (current_s_efb + 1) + '-efb"]').classList.toggle("d-none");
+                  if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + (current_s_efb ) + '-efb"]').classList.add("active");
+                    document.querySelector('[data-step="step-' + (current_s_efb) + '-efb"]').classList.toggle("d-none");
                     document.getElementById("btn_send_efb").classList.toggle("d-none");
-                    var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
+                    var current_s = document.querySelector('[data-step="step-' + (current_s_efb-1) + '-efb"]');
                     next_s_efb = current_s.nextElementSibling;
                     current_s.classList.add('d-none');
                     if(next_s_efb)next_s_efb.classList.remove('d-none');
