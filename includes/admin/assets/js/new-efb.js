@@ -2417,7 +2417,6 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
 }
 function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
   var idB =id+'-prB';
-  console.log('nonce_msg', nonce_msg ,' page_id', page_id);
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     const fid = efb_var.hasOwnProperty('id') ? efb_var.id :0;
