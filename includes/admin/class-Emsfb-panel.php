@@ -214,7 +214,8 @@ class Panel_edit  {
 			$colors =[];
 			$location ='';
 
-			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
+			// 			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
+			$sid = '';
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
 
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js', false, EMSFB_PLUGIN_VERSION, true);
@@ -409,15 +410,9 @@ class Panel_edit  {
 		$_POST['id']= isset($_POST['id']) ? intval($_POST['id']) : 0;
         $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field(wp_unslash($_POST['pl'])) : '';
         $_POST['fid']= isset($_POST['fid']) ? sanitize_text_field(wp_unslash($_POST['fid'])) : '';
-		$sid = isset($_POST['sid']) ? sanitize_text_field(wp_unslash($_POST['sid'])) : '';
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
-		if ($s_sid !=1 || $sid==null){
+		// $sid = isset($_POST['sid']) ? sanitize_text_field(wp_unslash($_POST['sid'])) : '';
+		// $s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
 
-
-
-		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . " 403");
-		wp_send_json_success($response,200);
-		}
 
         $vl=null;
         if($_POST['pl']!="msg"){

@@ -1587,6 +1587,9 @@ function close_msg_efb(){
 function noti_message_efb(message, alert ,id) {
   alert = alert ? `alert-${alert}` : 'alert-info';
   let d = document.getElementById(id);
+  if(!d){
+    d = document.getElementById('msg_emsFormBuilder')
+  }
   if(document.getElementById('noti_content_efb')){
     document.getElementById('noti_content_efb').remove()
   }
@@ -2359,7 +2362,7 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
   files_emsFormBuilder[indx].type = type;
   let r = ""
   const nonce_msg = efb_var.nonce_msg ;
-  const page_id = efb_var.page_id ;
+  const page_id = efb_var.page_id ?? -1 ;
 
     const fd = new FormData();
     const idn =  id + '_';
@@ -2414,6 +2417,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
 }
 function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
   var idB =id+'-prB';
+  console.log('nonce_msg', nonce_msg ,' page_id', page_id);
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     const fid = efb_var.hasOwnProperty('id') ? efb_var.id :0;
@@ -2423,7 +2427,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
     formData.append('nonce_msg', nonce_msg);
     formData.append('sid', efb_var.sid);
     formData.append('fid', fid);
-    formData.append('page_id', efb_var.page_id);
+    formData.append('page_id', page_id);
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
     const xhr = new XMLHttpRequest();
     xhr.upload.addEventListener('progress', (event) => {

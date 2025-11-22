@@ -78,8 +78,8 @@ class _Public {
 			register_rest_route('Emsfb/v1','forms/file/upload', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'file_upload_api'],
-			'permission_callback' => [$this, 'check_nonce_permission']
-		]);
+				'permission_callback' => [$this, 'check_nonce_permission']
+			]);
 	});
 
 	add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) );
@@ -101,6 +101,8 @@ class _Public {
 // REST API nonce verification
 public function check_nonce_permission($request) {
 	// Send CORS headers - only allow requests from the same domain or explicitly allowed origins
+	error_log('EFB: Checking CORS and nonce for REST API request');
+	error_log('EFB: Request Origin: ' . (isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : 'None'));
 	$allowed_origins = apply_filters('efb_allowed_cors_origins', array(
 		home_url(),
 		site_url()
@@ -513,7 +515,8 @@ public function check_nonce_permission($request) {
 		$state="";
 		$pro=  $this->pro_efb;
 		$lanText= $this->efbFunction->text_efb($this->text_);
-		$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
+		//		$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
+		$sid = '';
 		$ar_core = array( 'sid'=>$sid);
 
 
@@ -868,7 +871,8 @@ public function check_nonce_permission($request) {
 
 		$location = '';
 
-		$sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
+		// $sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
+		$sid = '';
         $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field(wp_unslash($_POST['pl'])) : '';
 		$sc = isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : 'null';
 		$usr =wp_get_current_user();
@@ -1047,7 +1051,7 @@ public function check_nonce_permission($request) {
 		$efbFunction =  $this->get_efbFunction(1);
 
 		if(empty($this->efbFunction)) $this->efbFunction =$efbFunction;
-		$sid = sanitize_text_field(wp_unslash($data_POST['sid']));
+		$sid = '';
 		$this->id = sanitize_text_field(wp_unslash($data_POST['id']));
 		$page_id = sanitize_text_field(wp_unslash($data_POST['page_id']));
 		$data_POST['url']= $url = sanitize_url($data_POST['url']);
@@ -2274,7 +2278,7 @@ public function check_nonce_permission($request) {
 		$this->get_efbFunction(0);
 		$text_ = ["spprt","somethingWentWrongPleaseRefresh",'error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
 		$lanText= $this->efbFunction->text_efb($text_);
-		$sid = sanitize_text_field(wp_unslash($data_POST['sid']));
+		$sid = '';
 
 		// $s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 
@@ -2451,14 +2455,9 @@ public function check_nonce_permission($request) {
 		$_POST['id']=intval($_POST['id']);
         $_POST['pl']=sanitize_text_field(wp_unslash($_POST['pl']));
         $fid=intval($_POST['fid']);
-		$sid = sanitize_text_field(wp_unslash($_POST['sid']));
+		$sid = '';
 		$page_id = sanitize_text_field(wp_unslash($_POST['page_id']));
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
-
-		if ($s_sid !=1 || $sid==null){
-			$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . ": 402");
-			wp_send_json_success($response,200);
-		}
 
 		$this->cache_cleaner_Efb($page_id);
 
@@ -2592,7 +2591,7 @@ public function check_nonce_permission($request) {
 
 
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
-		$sid = sanitize_text_field( wp_unslash($data_POST['sid']));
+		$sid = '';
 		$rsp_by = sanitize_text_field(wp_unslash($data_POST['user_type']));
 		$sc = isset($data_POST['sc']) ? sanitize_text_field(wp_unslash($data_POST['sc'])) : 'null';
 		$track = sanitize_text_field(wp_unslash($data_POST['track']));
@@ -3001,6 +3000,7 @@ public function check_nonce_permission($request) {
 
 			}
 		}
+		error_log('EFB Email Send State: '.json_encode($cont, JSON_UNESCAPED_UNICODE));
 		$check =  $this->efbFunction->send_email_state_new( $to,$subject ,$cont,$pro,$state,$link_w,$this->setting);
 	}
 
@@ -3097,7 +3097,7 @@ public function check_nonce_permission($request) {
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
 		$this->id =sanitize_text_field( wp_unslash($data_POST['id']));
-		$sid = sanitize_text_field( wp_unslash($data_POST['sid']));
+		$sid = '';
 		// $s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 	/* 	if ($s_sid !=1){
 			$m = esc_html__('error', 'easy-form-builder') . ' 403';
@@ -3308,7 +3308,7 @@ public function check_nonce_permission($request) {
 
 		$efbFunction =  $this->get_efbFunction(1);
 
-		$sid = sanitize_text_field( wp_unslash($data_POST['sid']));
+		$sid = '';
 		$this->id = sanitize_text_field(wp_unslash($data_POST['id']));
 		// $s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$text_=['somethingWentWrongPleaseRefresh'];
@@ -3864,7 +3864,7 @@ public function check_nonce_permission($request) {
 		$m  = '<table border="0" cellpadding="0" cellspacing="0" width="100%" class="container containerEmailEfb" >';
 
 			// ترجمه‌ها و متغیرها
-			$text_     = ['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
+			$text_     = ['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval','atcfle'];
 			$list      = [];
 			$checboxs  = [];
 			$total_amount = 0;
@@ -3894,7 +3894,9 @@ public function check_nonce_permission($request) {
 
 			// افزودن یک جفت عنوان/مقدار به دو ستون
 			$addPair = function($title, $value) use (&$m){
+				error_log('Adding pair: ' . $title . ' => ' . $value);
 				$title = $this->efbFunction->ensure_trailing_colon_efb($title);
+				error_log('Formatted title: ' . $title);
 				if($title==='' && $value===''){ return; }
 				$m .= '<tr>';
 				$m .= '<td valign="top" width="50%" class="columnEmailEfb" style="padding:5px; line-height:20px;">';
@@ -4072,7 +4074,7 @@ public function check_nonce_permission($request) {
 						$addPair('', $q);
 					}
 
-					if ($title==='file'){ $title = 'atcfle'; }
+					if ($title==='file'){ $title = $lanText['atcfle']; }
 
 					if ($title!=='' || $q!==''){
 						$addPair($title, $q);
@@ -4082,7 +4084,7 @@ public function check_nonce_permission($request) {
 				}
 			}
 
-
+			error_log('Total Amount Calculated: '.$m);
 			$m .= '</table>';
 			return $m;
 		}
