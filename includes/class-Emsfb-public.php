@@ -54,13 +54,13 @@ class _Public {
 			register_rest_route('Emsfb/v1','forms/payment/persia/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'pay_persia_sub_Emsfb_api'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 
 			register_rest_route('Emsfb/v1','forms/payment/stripe/card/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'pay_stripe_sub_Emsfb_api'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 
 			register_rest_route('Emsfb/v1','forms/response/get', [
@@ -1052,19 +1052,19 @@ public function check_nonce_permission($request) {
 		$page_id = sanitize_text_field(wp_unslash($data_POST['page_id']));
 		$data_POST['url']= $url = sanitize_url($data_POST['url']);
 
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
+		// $s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$setting;
 
 		$this->cache_cleaner_Efb($page_id);
 
 
-		if ($s_sid !=1){
+		/* if ($s_sid !=1){
 			error_log('Invalid SID: ' . $sid);
 			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
 			$response = array( 'success' => false  , 'm'=>$m);
 			wp_send_json_success($response,200);
-		}
+		} */
 		$user_id = 1;
 		$to_list_admin=[];
 		$r=  $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
@@ -2276,13 +2276,13 @@ public function check_nonce_permission($request) {
 		$lanText= $this->efbFunction->text_efb($text_);
 		$sid = sanitize_text_field(wp_unslash($data_POST['sid']));
 
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
+		// $s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 
-		if ($s_sid !=1 || $sid==null){
+		/* if ($s_sid !=1 || $sid==null){
 			$m =  $lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
 		$response = array( 'success' => false  , 'm'=>$m);
 		wp_send_json_success($response,200);
-		}
+		} */
 		$response=$data_POST['valid'];
 		$captcha_success =[];
 		$not_captcha=true;
@@ -2597,13 +2597,13 @@ public function check_nonce_permission($request) {
 		$sc = isset($data_POST['sc']) ? sanitize_text_field(wp_unslash($data_POST['sc'])) : 'null';
 		$track = sanitize_text_field(wp_unslash($data_POST['track']));
 
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
+		// $s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 		$page_id = sanitize_text_field( wp_unslash($data_POST['page_id']));
-		if ($s_sid !=1 || $sid==null){
+		/* if ($s_sid !=1 || $sid==null){
 			$m = '<b>'. $this->lanText["somethingWentWrongPleaseRefresh"]. '<br> '. esc_html__('Error Code','easy-form-builder') .': 403 </br></b>';
 		$response = array( 'success' => false  , 'm'=>$m );
 		wp_send_json_success($response,200);
-		}
+		} */
 		$this->id =sanitize_text_field( wp_unslash($data_POST['id']));
 		$by ="";
 		if(empty($data_POST['message']) ){
@@ -3098,12 +3098,12 @@ public function check_nonce_permission($request) {
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
 		$this->id =sanitize_text_field( wp_unslash($data_POST['id']));
 		$sid = sanitize_text_field( wp_unslash($data_POST['sid']));
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
-		if ($s_sid !=1){
+		// $s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
+	/* 	if ($s_sid !=1){
 			$m = esc_html__('error', 'easy-form-builder') . ' 403';
 			$response = array( 'success' => false  , 'm'=>$m);
 			wp_send_json_success($response,200);
-		}
+		} */
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 		$Sk ='null';
 		if(gettype($r)=="string"){
@@ -3310,15 +3310,15 @@ public function check_nonce_permission($request) {
 
 		$sid = sanitize_text_field( wp_unslash($data_POST['sid']));
 		$this->id = sanitize_text_field(wp_unslash($data_POST['id']));
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
+		// $s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$text_=['somethingWentWrongPleaseRefresh'];
 		$this->lanText= $this->efbFunction->text_efb($text_);
-		if ($s_sid !=1){
+		/* if ($s_sid !=1){
 
 			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
 		$response = array( 'success' => false  , 'm'=>$m);
 		wp_send_json_success($response,200);
-		}
+		} */
 		$Sk ='null';
 		if(gettype($r)=="string"){
 			$setting =str_replace('\\', '', $r);
@@ -4231,8 +4231,17 @@ public function check_nonce_permission($request) {
 		}elseif(has_action('wphb_clear_page_cache')){
 
 			do_action( 'wphb_clear_page_cache', $page_id );
-		}
+		}elseif(function_exists('sg_cachepress_purge_post')){
 
+			sg_cachepress_purge_post( $page_id );
+		}if ( class_exists( '\LiteSpeed_Cache_API' ) ) {
+			error_log( 'Litespeed cache cleared for page ID: ' . $page_id );
+            \LiteSpeed_Cache_API::set_nocache();
+        } elseif ( has_action( 'litespeed_control_set_nocache' ) ) {
+			error_log( 'litespeed_control_set_nocache Litespeed cache cleared for page ID: ' . $page_id );
+			do_action( 'litespeed_control_set_nocache', 'This The Form Page[Easy Form Builder]' );
+        }
+		//litespeed-cache
 	}
 
 	public function comper_version_efb($v){
