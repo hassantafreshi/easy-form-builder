@@ -220,7 +220,7 @@ class Panel_edit  {
 
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
-				'nonce'=> wp_create_nonce("admin-nonce"),
+				'nonce'=> wp_create_nonce("wp_rest"),
 				'pro' => $pro,
 				'check' => 0,
 				'rtl' => $rtl,
@@ -240,6 +240,7 @@ class Panel_edit  {
 				'sid'=>$sid,
 				'rest_url'=>get_rest_url(null),
 				'plugins'=>$plugins,
+				'none_mesge'=> wp_create_nonce("wp-rest")
 
 			));
 
@@ -267,8 +268,9 @@ class Panel_edit  {
 
 			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
-					'nonce'=> wp_create_nonce("admin-nonce"),
-					'check' => 0
+					'nonce'=> wp_create_nonce("wp_rest"),
+					'check' => 0,
+					'none_mesge'=> wp_create_nonce("wp-rest")
 					));
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 
@@ -336,7 +338,8 @@ class Panel_edit  {
 					'response_state' =>$this->get_not_read_response(),
 					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
 					'bootstrap'=>$this->check_temp_is_bootstrap(),
-					'pro'=>$pro
+					'pro'=>$pro,
+					'none_mesge'=> wp_create_nonce("wp-rest")
 				));
 
 
