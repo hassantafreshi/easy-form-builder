@@ -1269,7 +1269,7 @@ class Admin {
 
                     require_once(ABSPATH . 'wp-admin/includes/file.php');
                     WP_Filesystem();
-                    $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
+                    $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '/vendor/');
                     if(is_wp_error($r)){
                         error_log('error unzip');
 
