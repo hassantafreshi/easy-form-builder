@@ -4204,44 +4204,85 @@ public function check_nonce_permission($request) {
 		';
 	}
 	public function cache_cleaner_Efb($page_id){
-		if (defined('LSCWP_V') || defined('LSCWP_BASENAME' )){
-
-			do_action( 'litespeed_purge_post', $page_id );
-		}else if (function_exists('rocket_clean_post')){
-
-			$r = rocket_clean_post($page_id);
-		}elseif (function_exists('wp_cache_post_change')){
-
-
-			$GLOBALS["super_cache_enabled"]=1;
-			wp_cache_post_change($page_id);
-		}elseif(function_exists('autoptimize_filter_js_noptimize ')){
-
-			autoptimize_filter_js_exclude(['jquery.min-efb.js','core-efb.js']);
-			autoptimize_filter_js_noptimize();
-		}elseif(class_exists('WPO_Page_Cache')){
-
-			\WPO_Page_Cache::delete_single_post_cache($page_id);
-		}elseif(function_exists('w3tc_flush_post')){
-
+		$page_id = intval($page_id);
+		error_log('Cache cleaner triggered for page ID: ' . $page_id);
+		// LiteSpeed Cache
+		if (defined('LSCWP_V') || defined('LSCWP_BASENAME')) {
+			error_log('Litespeed cache purge for page ID: ' . $page_id);
+			do_action('litespeed_purge_post', $page_id);
+		}
+		// WP Rocket
+		elseif (function_exists('rocket_clean_post')) {
+			error_log('WP Rocket cache purge for page ID: ' . $page_id);
+			rocket_clean_post($page_id);
+		}
+		// W3 Total Cache
+		elseif (function_exists('w3tc_flush_post')) {
+			error_log('W3 Total Cache purge for page ID: ' . $page_id);
 			w3tc_flush_post($page_id);
-		}elseif(function_exists('wpfc_clear_post_cache_by_id')){
-
+		}
+		// WP Super Cache or jetpack
+		elseif (function_exists('wp_cache_post_change')) {
+			error_log('WP Super Cache purge for page ID: ' . $page_id);
+			$GLOBALS["super_cache_enabled"] = 1;
+			wp_cache_post_change($page_id);
+		}
+		// WP Optimize
+		elseif (class_exists('WPO_Page_Cache')) {
+			error_log('WP Optimize cache purge for page ID: ' . $page_id);
+			\WPO_Page_Cache::delete_single_post_cache($page_id);
+		}
+		// WP Fastest Cache
+		elseif (function_exists('wpfc_clear_post_cache_by_id')) {
+			error_log('WP Fastest Cache purge for page ID: ' . $page_id);
 			wpfc_clear_post_cache_by_id($page_id);
-		}elseif(has_action('wphb_clear_page_cache')){
-
-			do_action( 'wphb_clear_page_cache', $page_id );
-		}elseif(function_exists('sg_cachepress_purge_post')){
-
-			sg_cachepress_purge_post( $page_id );
-		}if ( class_exists( '\LiteSpeed_Cache_API' ) ) {
-			error_log( 'Litespeed cache cleared for page ID: ' . $page_id );
-            \LiteSpeed_Cache_API::set_nocache();
-        } elseif ( has_action( 'litespeed_control_set_nocache' ) ) {
-			error_log( 'litespeed_control_set_nocache Litespeed cache cleared for page ID: ' . $page_id );
-			do_action( 'litespeed_control_set_nocache', 'This The Form Page[Easy Form Builder]' );
-        }
-		//litespeed-cache
+		}
+		// Hummingbird
+		elseif (has_action('wphb_clear_page_cache')) {
+			error_log('Hummingbird cache purge for page ID: ' . $page_id);
+			do_action('wphb_clear_page_cache', $page_id);
+		}
+		// SG Optimizer (SiteGround)
+		elseif (function_exists('sg_cachepress_purge_post')) {
+			error_log('SG Optimizer cache purge for page ID: ' . $page_id);
+			sg_cachepress_purge_post($page_id);
+		}
+		// Breeze Cache (Cloudways)
+		elseif (class_exists('Breeze_PurgeCache')) {
+			error_log('Breeze Cache purge for page ID: ' . $page_id);
+			do_action('breeze_clear_all_cache');
+		}
+		// Cache Enabler
+		elseif (class_exists('Cache_Enabler')) {
+			error_log('Cache Enabler purge for page ID: ' . $page_id);
+			if (method_exists('Cache_Enabler', 'clear_page_cache_by_post_id')) {
+				\Cache_Enabler::clear_page_cache_by_post_id($page_id);
+			} else {
+				\Cache_Enabler::clear_total_cache();
+			}
+		}
+		// Swift Performance
+		elseif (function_exists('swift_performance_clear_post_cache')) {
+			swift_performance_clear_post_cache($page_id);
+		}
+		// Comet Cache
+		elseif (class_exists('\\comet_cache\\plugin')) {
+			if (function_exists('comet_cache_clear_cache')) {
+				comet_cache_clear_cache();
+			}
+		}
+		// Autoptimize
+		elseif (class_exists('autoptimizeCache')) {
+			\autoptimizeCache::clearall();
+		}
+		// Powered Cache
+		elseif (function_exists('powered_cache_flush_page_cache')) {
+			powered_cache_flush_page_cache($page_id);
+		}
+		// Hyper Cache
+		elseif (function_exists('hyper_cache_flush')) {
+			hyper_cache_flush();
+		}
 	}
 
 	public function comper_version_efb($v){
