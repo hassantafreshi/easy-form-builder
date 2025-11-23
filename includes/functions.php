@@ -1495,9 +1495,9 @@ class efbFunction {
 
 	  public function get_ip_address() {
         $ip='1.1.1.1';
-		if (isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } elseif (isset($_SERVER['REMOTE_ADDR'])) {$ip = $_SERVER['REMOTE_ADDR'];}
+		if (isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+        } elseif (isset($_SERVER['REMOTE_ADDR'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
         $ip = strval($ip);
         $check =strpos($ip,',');
         if($check!=false){$ip = substr($ip,0,$check);}
@@ -1520,7 +1520,7 @@ class efbFunction {
 				if($value!="AdnOF"){
 
 
-            $server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']) : '';
+            $server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
             $vwp = get_bloginfo('version');
 
 			$vwp = substr($vwp,0,3);
@@ -1810,7 +1810,7 @@ class efbFunction {
 
 
 	public function getVisitorOS() {
-		$ua = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : null;
+		$ua = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) : null;
 		$os = "Unknown";
 
 		if ($ua) {
@@ -1831,7 +1831,7 @@ class efbFunction {
 	}
 
 	public function getVisitorBrowser() {
-	    $ua = isset($_SERVER['HTTP_USER_AGENT'] )? strtolower($_SERVER['HTTP_USER_AGENT']) : null;
+	    $ua = isset($_SERVER['HTTP_USER_AGENT'] )? strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) : null;
 	    $b = "Unknown";
 
 	    if ($ua) {

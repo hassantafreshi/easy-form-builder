@@ -109,7 +109,7 @@ class Emsfb {
 		foreach ($users as $key => $value) {
 			$user =get_user_by('login',$value);
 			$to = $usr ->data->user_email;
-            $SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'yourdomain.com';
+            $SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
 			$from =get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
 			$headers = array(
 				'MIME-Version: 1.0\r\n',
@@ -133,10 +133,10 @@ class Emsfb {
 
         // Check if we're on any EFB admin page
         if (isset($_GET['page']) && (
-            $_GET['page'] === 'Emsfb' ||
-            $_GET['page'] === 'Emsfb_create' ||
-            $_GET['page'] === 'Emsfb_addon' ||
-            $_GET['page'] === 'Emsfb_sms_efb'
+            sanitize_key( $_GET['page'] ) === 'Emsfb' ||
+            sanitize_key( $_GET['page'] ) === 'Emsfb_create' ||
+            sanitize_key( $_GET['page'] ) === 'Emsfb_addon' ||
+            sanitize_key( $_GET['page'] ) === 'Emsfb_sms_efb'
         )) {
             add_action('admin_enqueue_scripts', array($this, 'apply_elementor_admin_fixes'), 1);
         }
@@ -171,7 +171,7 @@ class Emsfb {
      * Add JavaScript to prevent Elementor admin conflicts
      */
     public function elementor_admin_conflict_prevention() {
-        $current_page = isset($_GET['page']) ? wp_unslash($_GET['page']) : '';
+        $current_page = isset($_GET['page']) ? sanitize_key( $_GET['page'] ) : '';
         ?>
         <script type="text/javascript">
         // Prevent Elementor admin conflicts with EFB Admin Pages

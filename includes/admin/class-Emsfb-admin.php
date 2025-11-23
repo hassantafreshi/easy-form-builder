@@ -403,7 +403,7 @@ class Admin {
 
         }
 
-        $post_value = isset($_POST['value']) ? $_POST['value'] : '';
+        $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         if ($this->isScript($post_value)) {
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
@@ -412,7 +412,7 @@ class Admin {
        if($value!="AdnOF"){
 
 
-            $server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']) : '';
+            $server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
             $vwp = get_bloginfo('version');
             $vwp = substr($vwp,0,3);
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;

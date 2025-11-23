@@ -58,7 +58,7 @@ class Panel_edit  {
 			$efbFunction->openstreet_map_required_efb(0);
 
 			if(gettype($ac)!="string" && isset($ac) ){
-				$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']) : '';
+				$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
 				if (isset($ac->activeCode)){$pro= md5($server_name)==$ac->activeCode ? true : false;}
 				if(isset($ac->siteKey)){$captcha="true";}
 				if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else{$smtp_m =$lang["sMTPNotWork"];}
@@ -313,12 +313,12 @@ class Panel_edit  {
 			$ip =0;
 			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
 
-				$ip = isset($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_CLIENT_IP'] : '0.0.0.0';
+				$ip = isset($_SERVER['HTTP_CLIENT_IP']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) ) : '0.0.0.0';
 			} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
 
-				$ip = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : '0.0.0.0';
+				$ip = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) : '0.0.0.0';
 		} else {
-			$ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+			$ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
 		}
 
 

@@ -106,7 +106,7 @@ public function check_nonce_permission($request) {
 		site_url()
 	));
 
-	$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+	$origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ) : '';
 
 	if ($origin && in_array($origin, $allowed_origins)) {
 		header('Access-Control-Allow-Origin: ' . $origin);
@@ -138,7 +138,7 @@ public function check_nonce_permission($request) {
 	}
 
 	// Verify nonce
-	$verify = wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'], 'wp_rest');
+	$verify = wp_verify_nonce( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ), 'wp_rest');
 
 	if (!$verify) {
 		return new \WP_Error('rest_forbidden', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
@@ -241,15 +241,13 @@ public function check_nonce_permission($request) {
 		if ($this->safe_wp_script_is('elementor-frontend', 'enqueued') ||
 		    $this->safe_wp_script_is('elementor-frontend', 'registered') ||
 		    $this->safe_wp_script_is('elementor-frontend', 'to_do')) {
-			$elementor_active = true;
-		}
+		$elementor_active = true;
+	}
 
-		// Check 4: URL contains elementor
-		if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], 'elementor') !== false) {
-			$elementor_active = true;
-		}
-
-		// Check 5: Current page has elementor content
+	// Check 4: URL contains elementor
+	if (isset($_SERVER['REQUEST_URI']) && strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'elementor') !== false) {
+		$elementor_active = true;
+	}		// Check 5: Current page has elementor content
 		global $post;
 		if (is_object($post) && method_exists($post, 'get_content')) {
 			if (strpos($post->post_content, 'elementor') !== false) {
@@ -471,12 +469,10 @@ public function check_nonce_permission($request) {
 		$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln','copied',"nonceExpired"];
 
 
-		$page_builder="";
-		$action_post = isset($_GET['action']) ? $_GET['action'] :'';
+	$page_builder="";
+	$action_post = isset($_GET['action']) ? sanitize_key( $_GET['action'] ) :'';
 
-		if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) || $action_post=='elementor' || isset($_GET['elementor-preview'])  )){
-
-
+	if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) || $action_post=='elementor' || isset($_GET['elementor-preview'])  )){
 				if(isset($_GET['vc_editable'])){ $page_builder='vc_editable';}
 				else if(isset($_GET['vc_editable'])) {$page_builder = 'wpbakery';}
 				else if ( ( isset($_GET['action']) && $_GET['action']=='elementor') || isset($_GET['elementor-preview']) ){
@@ -614,11 +610,10 @@ public function check_nonce_permission($request) {
 				if($typeOfForm=="payment"){
 					$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 					$r = $this->setting;
-					if(gettype($r)=="string"){
-						$setting =str_replace('\\', '', $r);
-						$setting =json_decode($setting);
-						$server_name =isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']) : '';
-
+				if(gettype($r)=="string"){
+					$setting =str_replace('\\', '', $r);
+					$setting =json_decode($setting);
+					$server_name =isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
 						if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}
 						if(strpos($value , '\"type\":\"stripe\"') || strpos($value , '"type":"stripe"')){$paymentType="stripe";}
 						else if(strpos($value , '\"type\":\"persiaPay\"') || strpos($value , '"type":"persiaPay"')){
@@ -736,15 +731,15 @@ public function check_nonce_permission($request) {
 				'location'=> "",
 				'v_efb'=>EMSFB_PLUGIN_VERSION,
 
-				'images' => $img,
-				'rest_url'=> str_replace('127.0.0.1', $_SERVER['HTTP_HOST'], get_rest_url(null)),
-				'page_id'=>get_the_ID(),
-				'page_builder'=>$page_builder,
-				'nonce' => wp_create_nonce('wp_rest')
-			) );
-			wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
-			 $k="";
 
+			'images' => $img,
+			'rest_url'=> str_replace('127.0.0.1', isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '', get_rest_url(null)),
+			'page_id'=>get_the_ID(),
+			'page_builder'=>$page_builder,
+			'nonce' => wp_create_nonce('wp_rest')
+		) );
+		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
+		 $k="";
 
 			 $stng = $this->pub_stting;
 		 	if(gettype($stng)!=="integer" && $lanText["settingsNfound"]){
@@ -1188,7 +1183,7 @@ public function check_nonce_permission($request) {
 				$rt;
 
 				if(isset($data_POST['url']) && strlen($data_POST['url'])>5 ){
-					$http_host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] :'';
+					$http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
 					$ar =  ['http://wwww.'.$http_host , 'https://wwww.'.$http_host ,'http://'.$http_host, 'https://'.$http_host];
 					foreach ($ar as  $r) {
 						$c=strpos($data_POST['url'],$r);
@@ -2379,9 +2374,9 @@ public function check_nonce_permission($request) {
 	public function get_ip_address() {
 
         $ip='1.1.1.1';
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {$ip = $_SERVER['REMOTE_ADDR'];}
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+        } else {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
         $ip = strval($ip);
         $check =strpos($ip,',');
         if($check!=false){$ip = substr($ip,0,$check);}

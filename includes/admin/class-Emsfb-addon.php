@@ -68,7 +68,7 @@ class Addon {
 
 
 	public function render_settings() {
-		$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']) : '';
+		$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
 
 		wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, array(), '1.0', true);
         wp_enqueue_script('whiteStudioAddone');
@@ -269,7 +269,7 @@ class Addon {
 		$this->id_ ="hid";
 		$this->name = isset($_POST['name']) ? sanitize_text_field( wp_unslash($_POST['name'])) : '';
 		$this->email =  $email;
-		$this->value = isset($_POST['value']) ? wp_unslash($_POST['value']) : '';
+		$this->value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
 
 		$this->formtype = isset($_POST['type']) ? sanitize_text_field( wp_unslash($_POST['type'])) : '';
 		if($this->isScript($this->value) ||$this->isScript($this->formtype)){

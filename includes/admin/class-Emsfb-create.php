@@ -146,7 +146,7 @@ class Create {
 
 		$lang = $efbFunction->text_efb(1);
 		if(gettype($ac)!="string"){
-			$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']) : '';
+			$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
 
 			if (isset($ac->activeCode)==true && strlen($ac->activeCode)>5 && md5($server_name)==$ac->activeCode){
 				$pro=true;
@@ -350,7 +350,7 @@ class Create {
 
 		$email = '';
 
-		$nonce = isset($_POST['nonce']) ? wp_unslash($_POST['nonce']) : '';
+		$nonce = isset($_POST['nonce']) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
 		$currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
 		if ( !wp_verify_nonce( $nonce, 'wp_rest' )  && !$currrent_user_can) {
             $response = ['success' => false, 'm' =>  $lang['error403']];
