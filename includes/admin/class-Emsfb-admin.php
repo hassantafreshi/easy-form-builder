@@ -1259,9 +1259,9 @@ class Admin {
 
                     $directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
                     if (!file_exists($directory)) {
-                        @mkdir($directory, 0755, true);
+                        mkdir($directory, 0755, true);
                     }
-                    $r = @rename($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip');
+                    $r = rename($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip');
                 }
                 if(is_wp_error($r)){
                     return false;

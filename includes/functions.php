@@ -1599,9 +1599,9 @@ class efbFunction {
 				// Fallback: If WP_Filesystem fails, use direct PHP functions
 				$directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
 				if (!file_exists($directory)) {
-					@mkdir($directory, 0755, true);
+					mkdir($directory, 0755, true);
 				}
-				$v = @rename($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip');
+				$v = rename($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip');
 			}
 			if(is_wp_error($v)){
 				$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
@@ -1615,7 +1615,7 @@ class efbFunction {
 
 				require_once(ABSPATH . 'wp-admin/includes/file.php');
 				WP_Filesystem();
-				$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
+				$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '/vendor/');
 				if(is_wp_error($r)){
 
 
