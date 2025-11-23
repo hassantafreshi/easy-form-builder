@@ -4205,82 +4205,131 @@ public function check_nonce_permission($request) {
 	}
 	public function cache_cleaner_Efb($page_id){
 		$page_id = intval($page_id);
+
+		if ($page_id <= 0) {
+			error_log('Cache cleaner: invalid page ID.');
+			return;
+		}
+
 		error_log('Cache cleaner triggered for page ID: ' . $page_id);
+
 		// LiteSpeed Cache
 		if (defined('LSCWP_V') || defined('LSCWP_BASENAME')) {
-			error_log('Litespeed cache purge for page ID: ' . $page_id);
+			error_log('LiteSpeed Cache purge for page ID: ' . $page_id);
 			do_action('litespeed_purge_post', $page_id);
 		}
+
 		// WP Rocket
-		elseif (function_exists('rocket_clean_post')) {
+		if (function_exists('rocket_clean_post')) {
 			error_log('WP Rocket cache purge for page ID: ' . $page_id);
 			rocket_clean_post($page_id);
 		}
+
 		// W3 Total Cache
-		elseif (function_exists('w3tc_flush_post')) {
+		if (function_exists('w3tc_flush_post')) {
 			error_log('W3 Total Cache purge for page ID: ' . $page_id);
 			w3tc_flush_post($page_id);
 		}
-		// WP Super Cache or jetpack
-		elseif (function_exists('wp_cache_post_change')) {
+
+		// WP Super Cache / Jetpack (core API)
+		if (function_exists('wp_cache_post_change')) {
 			error_log('WP Super Cache purge for page ID: ' . $page_id);
-			$GLOBALS["super_cache_enabled"] = 1;
+			$GLOBALS['super_cache_enabled'] = 1;
 			wp_cache_post_change($page_id);
 		}
-		// WP Optimize
-		elseif (class_exists('WPO_Page_Cache')) {
+
+		// WP Optimize (Page Cache)
+		if (class_exists('WPO_Page_Cache')) {
 			error_log('WP Optimize cache purge for page ID: ' . $page_id);
-			\WPO_Page_Cache::delete_single_post_cache($page_id);
+
+			if (method_exists('WPO_Page_Cache', 'delete_single_post_cache')) {
+				\WPO_Page_Cache::delete_single_post_cache($page_id);
+			} else {
+				do_action('wpo_purge_all');
+			}
 		}
+
 		// WP Fastest Cache
-		elseif (function_exists('wpfc_clear_post_cache_by_id')) {
+		if (function_exists('wpfc_clear_post_cache_by_id')) {
 			error_log('WP Fastest Cache purge for page ID: ' . $page_id);
 			wpfc_clear_post_cache_by_id($page_id);
+		} elseif (function_exists('wpfc_clear_all_cache')) {
+			error_log('WP Fastest Cache full purge (fallback) for page ID: ' . $page_id);
+			wpfc_clear_all_cache();
 		}
+
 		// Hummingbird
-		elseif (has_action('wphb_clear_page_cache')) {
+		if (has_action('wphb_clear_page_cache')) {
 			error_log('Hummingbird cache purge for page ID: ' . $page_id);
 			do_action('wphb_clear_page_cache', $page_id);
+		} elseif (has_action('wphb_clear_cache')) {
+			error_log('Hummingbird full cache purge (fallback) for page ID: ' . $page_id);
+			do_action('wphb_clear_cache');
 		}
+
 		// SG Optimizer (SiteGround)
-		elseif (function_exists('sg_cachepress_purge_post')) {
+		if (function_exists('sg_cachepress_purge_post')) {
 			error_log('SG Optimizer cache purge for page ID: ' . $page_id);
 			sg_cachepress_purge_post($page_id);
+		} elseif (function_exists('sg_cachepress_purge_cache')) {
+			error_log('SG Optimizer full cache purge (fallback) for page ID: ' . $page_id);
+			sg_cachepress_purge_cache();
 		}
+
 		// Breeze Cache (Cloudways)
-		elseif (class_exists('Breeze_PurgeCache')) {
-			error_log('Breeze Cache purge for page ID: ' . $page_id);
+		if (class_exists('Breeze_PurgeCache') || has_action('breeze_clear_all_cache')) {
+			error_log('Breeze Cache full purge for page ID: ' . $page_id);
 			do_action('breeze_clear_all_cache');
 		}
+
 		// Cache Enabler
-		elseif (class_exists('Cache_Enabler')) {
+		if (class_exists('Cache_Enabler')) {
 			error_log('Cache Enabler purge for page ID: ' . $page_id);
+
 			if (method_exists('Cache_Enabler', 'clear_page_cache_by_post_id')) {
 				\Cache_Enabler::clear_page_cache_by_post_id($page_id);
+			} elseif (method_exists('Cache_Enabler', 'clear_cache')) {
+				\Cache_Enabler::clear_cache();
 			} else {
 				\Cache_Enabler::clear_total_cache();
 			}
 		}
+
 		// Swift Performance
-		elseif (function_exists('swift_performance_clear_post_cache')) {
+		if (function_exists('swift_performance_clear_post_cache')) {
+			error_log('Swift Performance cache purge for page ID: ' . $page_id);
 			swift_performance_clear_post_cache($page_id);
 		}
+
 		// Comet Cache
-		elseif (class_exists('\\comet_cache\\plugin')) {
-			if (function_exists('comet_cache_clear_cache')) {
+		if (class_exists('\\comet_cache\\plugin')) {
+			error_log('Comet Cache purge for page ID: ' . $page_id);
+
+			if (class_exists('comet_cache') && method_exists('comet_cache', 'clear')) {
+				\comet_cache::clear();
+			} elseif (function_exists('comet_cache_clear_cache')) {
 				comet_cache_clear_cache();
 			}
 		}
-		// Autoptimize
-		elseif (class_exists('autoptimizeCache')) {
+
+		// Autoptimize (CSS/JS cache)
+		if (class_exists('autoptimizeCache')) {
+			error_log('Autoptimize cache purge.');
 			\autoptimizeCache::clearall();
 		}
+
 		// Powered Cache
-		elseif (function_exists('powered_cache_flush_page_cache')) {
+		if (function_exists('powered_cache_flush_page_cache')) {
+			error_log('Powered Cache purge for page ID: ' . $page_id);
 			powered_cache_flush_page_cache($page_id);
+		} elseif (function_exists('powered_cache_flush')) {
+			error_log('Powered Cache full purge (fallback) for page ID: ' . $page_id);
+			powered_cache_flush();
 		}
+
 		// Hyper Cache
-		elseif (function_exists('hyper_cache_flush')) {
+		if (function_exists('hyper_cache_flush')) {
+			error_log('Hyper Cache purge.');
 			hyper_cache_flush();
 		}
 	}
