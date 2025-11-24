@@ -33,7 +33,6 @@ class Panel_edit  {
 			$pro =$efbFunction->is_efb_pro(1);;
 			// $lng =new lng();
 			$ac = $efbFunction->get_setting_Emsfb();
-			$efbFunction->parsing_plugins_efb();
 			$lang = $efbFunction->text_efb(2);
 			$smtp =false;
 			$captcha =false;

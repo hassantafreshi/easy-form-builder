@@ -1519,7 +1519,6 @@ class efbFunction {
 
 	public function get_geolocation() {
 		  $ip = $this->get_ip_address();
-		 return $this->iplocation_efb($ip,1);
 	  }
 
 	  public function get_ip_address() {
@@ -1533,42 +1532,6 @@ class efbFunction {
         if($check!=false){$ip = substr($ip,0,$check);}
         return $ip;
     }
-
-	public function iplocation_efb($ip , $state){
-
-		$url = "https://api.iplocation.net/?ip=".$ip."";
-		$cURL = curl_init();
-		$ua ;
-		$_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : null;
-		if(empty($_HTTP_USER_AGENT)){
-
-			$ua = array(
-				'name' => 'unrecognized',
-				'version' => 'unknown',
-				'platform' => 'unrecognized',
-				'userAgent' => ''
-			);
-		}else{
-
-			$ua =$_HTTP_USER_AGENT;
-		}
-		curl_setopt($cURL, CURLOPT_URL, $url);
-		curl_setopt($cURL, CURLOPT_HTTPGET, true);
-		curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($cURL, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-			'Accept: application/json',
-			'User-Agent: '.$ua
-		));
-		$location = json_decode(curl_exec($cURL), true);
-
-		if(isset($location)){
-			return $state==1 ? $location['country_code2'] :$location  ;
-		}else{
-			return 0;
-		}
-
-	}
 
 
 	public function addon_adds_cron_efb(){
@@ -1706,17 +1669,29 @@ public function addon_add_efb($value) {
 			// show error message
 
 		}else{
-			$directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
-			if (!file_exists($directory)) {
-				mkdir($directory, 0755, true);
+			require_once(ABSPATH . 'wp-admin/includes/file.php');
+			if (WP_Filesystem()) {
+				global $wp_filesystem;
+
+				$directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
+				if (!$wp_filesystem->exists($directory)) {
+					$wp_filesystem->mkdir($directory, 0755);
+				}
+				$v = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip', true);
+			} else {
+
+				$directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
+				if (!file_exists($directory)) {
+					mkdir($directory, 0755, true);
+				}
+				$v = rename($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip');
 			}
-			$v = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
 			if(is_wp_error($v)){
 				$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
 				if(is_wp_error($s)){
 
-					// error_log('EFB=>unzip addons error 1:');
-					// error_log(json_encode($r));
+
+
 					return false;
 				}
 			}else{
@@ -1725,11 +1700,6 @@ public function addon_add_efb($value) {
 				WP_Filesystem();
 				$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
 				if(is_wp_error($r)){
-
-
-
-					// error_log('EFB=>unzip addons error 2:');
-					// error_log(json_encode($r));
 					return false;
 				}
 			}
@@ -1846,10 +1816,10 @@ public function addon_add_efb($value) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
 		$ip = $this->get_ip_address();
-		$date_now = date('Y-m-d H:i:s');
-		$date_limit = date('Y-m-d H:i:s', strtotime('+24 hours'));
+		$date_now = wp_date('Y-m-d H:i:s');
+		$date_limit = wp_date('Y-m-d H:i:s', strtotime('+24 hours'));
 
-		$sid = date("ymdHis") . substr(bin2hex(openssl_random_pseudo_bytes(5)), 0, 9);
+		$sid = wp_date("ymdHis") . substr(bin2hex(openssl_random_pseudo_bytes(5)), 0, 9);
 		$uid = get_current_user_id() ?? 0;
 		$os = $this->getVisitorOS();
 		$browser = $this->getVisitorBrowser();
@@ -1888,9 +1858,9 @@ public function addon_add_efb($value) {
 		} */
 		// $status => visit , send , upd , del => max len 5
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
-        $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
+        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
 		$active =0;
-		$read_date =date('Y-m-d H:i:s');
+		$read_date = wp_date('Y-m-d H:i:s');
 		if($status=="rsp" || $status=="ppay")  $active =1;
 
 
@@ -2036,10 +2006,8 @@ public function addon_add_efb($value) {
 
 
 	public function check_for_active_plugins_cache() {
-		// error_log('EFB=>check_for_active_plugins_cache: ');
-		$cache_plugins = get_option('emsfb_cache_plugins' ,0);
-		// error_log('EFB=>check_for_active_plugins_cache: ' . $cache_plugins);
 
+		$cache_plugins = get_option('emsfb_cache_plugins' ,0);
 		if(!is_bool($cache_plugins)){
 			$cache_plugins_list = json_decode($cache_plugins, true);
 			$name = '';
@@ -2050,6 +2018,8 @@ public function addon_add_efb($value) {
 			//remove last ','
 			$name = rtrim($name, ', ');
 			return $name;
+		}else{
+
 		}
 
 		return 0;

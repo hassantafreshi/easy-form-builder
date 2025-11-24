@@ -112,7 +112,6 @@ class Create {
 		$maps =false;
 
 		$pro =$efbFunction->is_efb_pro(1);
-		$efbFunction->parsing_plugins_efb();
 		$settings= $efbFunction->get_setting_Emsfb();
 		$addons = $efbFunction->fun_get_addons_list_efb($settings);
 		// v2 translate

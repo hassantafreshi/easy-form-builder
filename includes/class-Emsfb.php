@@ -39,6 +39,12 @@ class Emsfb {
             EMSFB_PLUGIN_FILE,
             ['\Emsfb\Install', 'install']
         );
+
+        // Hook برای تشخیص نصب افزونه جدید
+        add_action('activated_plugin', [$this, 'handle_new_plugin_activation_efb'], 10, 2);
+
+        // Hook برای به‌روزرسانی لیست افزونه‌های کش
+        add_action('emsfb_update_cache_plugins_list', [$this, 'update_cache_plugins_list']);
     }
 
     /**
@@ -79,6 +85,8 @@ class Emsfb {
         require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
        // require_once $this->plugin_path . 'includes/class-Emsfb-webhook.php';
 
+       //write a filter for activate new plugin after that call the function activated_plugin
+       // add_filter('activate_new_plugin', [$this, 'handle_new_plugin_activation_efb'], 10, 2);
     }
 
 
@@ -137,6 +145,86 @@ class Emsfb {
 		}
 
 	}
+
+    public function handle_new_plugin_activation_efb($plugin, $network_wide = false) {
+    error_log('EFB: New plugin activated - ' . $plugin);
+        // لیست افزونه‌های کش
+        $cache_plugins_slug = array(
+            'wp-optimize', 'hummingbird-performance', 'big-scoots-cache', 'wp-cloudflare-page-cache',
+            'breeze', 'jetpack', 'w3-total-cache', 'wp-fastest-cache',
+            'wp-rocket', 'comet-cache', 'hyper-cache', 'cache-enabler',
+            'wp-super-cache', 'litespeed-cache', 'nitropack', 'jetpack-boost',
+            'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
+            'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
+            'wpspeed', 'wp-speed', 'flying-press',
+            'sg-optimizer', 'swift-performance', 'powered-cache'
+        );
+
+        // استخراج slug از مسیر افزونه (مثال: wp-rocket/wp-rocket.php -> wp-rocket)
+        $plugin_slug = dirname($plugin);
+
+        // اگر افزونه فعال‌شده یک افزونه کش است
+        if (in_array($plugin_slug, $cache_plugins_slug)) {
+           do_action('emsfb_update_cache_plugins_list');
+        }
+    }
+
+
+    public function update_cache_plugins_list() {
+        error_log('EFB: Updating cache plugins list on demand');
+        // لیست افزونه‌های کش
+        $cache_plugins_slug = array(
+            'wp-optimize', 'hummingbird-performance', 'big-scoots-cache', 'wp-cloudflare-page-cache',
+            'breeze', 'jetpack', 'w3-total-cache', 'wp-fastest-cache',
+            'wp-rocket', 'comet-cache', 'hyper-cache', 'cache-enabler',
+            'wp-super-cache', 'litespeed-cache', 'nitropack', 'jetpack-boost',
+            'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
+            'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
+            'wpspeed', 'wp-speed', 'flying-press',
+            'sg-optimizer', 'swift-performance', 'powered-cache'
+        );
+
+
+        $cache_plugins_slug = apply_filters('emsfb_cache_plugins_slug', $cache_plugins_slug);
+
+        // دریافت تمام افزونه‌ها
+        if (!function_exists('get_plugins')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        $plugins = get_plugins();
+        $active_plugins = get_option('active_plugins', array());
+        $plugin_list = array();
+
+        foreach ($plugins as $plugin_file => $plugin_data) {
+            // فقط افزونه‌های فعال
+            if (!in_array($plugin_file, $active_plugins)) {
+                continue;
+            }
+
+            $slug = explode('/', $plugin_file)[0];
+            $exists_cache = in_array($slug, $cache_plugins_slug);
+
+            if ($exists_cache) {
+                $plugin_list[] = array(
+                    'name' => $plugin_data['Name'],
+                    'version' => $plugin_data['Version'],
+                    'slug' => $slug
+                );
+            }
+        }
+
+        // ذخیره یا به‌روزرسانی
+        $val = !empty($plugin_list) ? json_encode($plugin_list) : 0;
+        $old_val = get_option('emsfb_cache_plugins', 0);
+
+        if ($val != $old_val) {
+            update_option('emsfb_cache_plugins', $val);
+        }
+
+        return $plugin_list;
+    }
+
 
 
 
