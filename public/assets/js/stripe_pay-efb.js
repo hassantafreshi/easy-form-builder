@@ -11,7 +11,7 @@
     const url = efb_var.rest_url+'Emsfb/v1/forms/payment/stripe/card/add'; // Replace with your REST API endpoint URL
     const headers = new Headers({
       'Content-Type': 'application/json',
-
+      'X-WP-Nonce': efb_var.nonce,
       });
 
 
@@ -93,34 +93,6 @@
             headers,
             body: jsonData, // The JSON data as the request body
             };
-             /*  fetch(url, requestOptions)
-              .then(response => response.json())
-              .then(res => {
-                if(res.data.success==true){
-                  if(valj_efb[0].paymentmethod == "charge"){
-                    stripe.confirmCardPayment(res.data.client_secret, {
-                      payment_method: { card: numElm }
-                    }).then(transStat => {
-                      fun_trans_efb(transStat, res.data.transStat, res.data.id);
-                    })
-                  }else{
-                    fun_trans_efb(transStat, res.data.transStat, res.data.id);
-                  }
-                  fun_trans_efb(transStat, res.data.transStat, res.data.id);
-              }else{
-                stsStripeEfb.innerHTML = `<div clss"text-danger"><strong>${efb_var.text.error}</strong></div>`;
-                btnStripeEfb.classList.remove('disabled');
-                btnStripeEfb.innerHTML = efb_var.text.payNow;
-              }
-              })
-              .catch(res => {
-                // Handle errors
-                btnStripeEfb.classList.remove('disabled');
-                const m = `<p class="efb h4">${efb_var.text.error} ${res.status}</p> ${res.statusText} </br> ${res.responseText}`
-
-                alert_message_efb('Stripe', m, 120, 'danger')
-                btnStripeEfb.innerHTML = efb_var.text.payNow;
-              }); */
 
   fetch(url, requestOptions)
   .then(response => {
