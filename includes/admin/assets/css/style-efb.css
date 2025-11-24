@@ -8,6 +8,21 @@
 }
 
 
+#body_emsFormBuilder, #tab_container_efb {
+	-webkit-user-select: none !important;
+	-moz-user-select: none !important;
+	-ms-user-select: none !important;
+	user-select: none !important;
+	-webkit-touch-callout: none !important;
+}
+#body_emsFormBuilder img, #tab_container_efb img {
+   -webkit-user-drag: none !important;
+   -khtml-user-drag: none !important;
+   -moz-user-drag: none !important;
+   -o-user-drag: none !important;
+   pointer-events: none !important;
+}
+
 /*   .entry-content{
   width: 500px;
 } */
@@ -75,6 +90,96 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 }
 .header.efb {	width: 100%;
    margin-top: -100px;
+}
+
+
+@media (hover: none) and (pointer: coarse) {
+    .btn-edit, .BtnSideEfb {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
+    }
+
+    .btn-edit-holder {
+        touch-action: manipulation;
+    }
+
+    .btn-edit::before, .BtnSideEfb::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: inherit;
+        background: transparent;
+    }
+
+    .btn-edit:active, .BtnSideEfb:active,
+    .efb-touch-active {
+        transform: scale(0.95);
+        transition: transform 0.1s ease-in-out;
+        background-color: rgba(108, 117, 125, 0.2) !important;
+    }
+
+    /* Mobile touch feedback for btn-toggle elements */
+    .btn-toggle.efb-toggle-touching {
+        transform: scale(0.95) !important;
+        background-color: rgba(99, 58, 130, 0.3) !important;
+        transition: all 0.1s ease-in-out !important;
+        box-shadow: 0 0 0 2px rgba(99, 58, 130, 0.3) !important;
+    }
+
+    .btn-toggle:active {
+        transform: scale(0.95) !important;
+    }
+
+    .btn-edit i, .BtnSideEfb i {
+        pointer-events: none;
+        font-size: 16px !important;
+    }
+
+    .icon-container {
+        pointer-events: none;
+    }
+
+    /* Mobile field selection improvements */
+    .showBtns, .efbField.ttEfb {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .efbField.ttEfb.efb-touch-active,
+    .showBtns.efb-touch-active {
+        background-color: rgba(99, 58, 130, 0.1) !important;
+        transform: scale(0.99);
+        transition: all 0.1s ease-in-out;
+    }
+
+    .field-selected-efb {
+        border: 2px solid #633a82 !important;
+        background-color: rgba(99, 58, 130, 0.05) !important;
+    }
+}
+
+/* General mobile improvements */
+@media (max-width: 768px) {
+    .btn-edit-holder {
+        gap: 8px !important;
+        padding: 5px;
+    }
+
+    .btn-edit, .BtnSideEfb {
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        border-radius: 6px !important;
+    }
+
+    .btn-edit + .btn-edit {
+        margin-left: 5px;
+    }
 }
 
 #wpwrap h1.efb {	color: #202a8d ;

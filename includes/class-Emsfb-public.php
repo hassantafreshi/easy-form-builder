@@ -3759,122 +3759,246 @@ function email_get_content_efb($content, $track){
 		<h3  class="efb fs-5" style="justify-content: center; align-items: center;  text-align: center;">'. $fil.' <br><span class="efb  text-center fs-7">'.$pw.'</span> </h3>
 		';
 	}
-	public function cache_cleaner_Efb($page_id,$plugins){
-		// error_log('cache_cleaner_Efb');
+
+
+	public function cache_cleaner_Efb($page_id, $plugins = null) {
 		$page_id = intval($page_id);
-		$cache_plugins = json_decode($plugins);
+
+		if ($page_id <= 0) {
+			return false;
+		}
+
+		// محاسبه یکبار برای کل فرآیند - بهینه‌سازی
 		$page_type = get_post_type($page_id);
-		foreach($cache_plugins as $plugin){
-			// error_log($plugin->slug);
-			switch($plugin->slug){
-				case 'litespeed-cache':
-					// litespeed
-					if (defined('LSCWP_V') || defined('LSCWP_BASENAME' )) do_action( 'litespeed_purge_post', $page_id );
-					break;
-				case 'wp-rocket':
-					// wp-rocket
-					if (function_exists('rocket_clean_post'))	$r = rocket_clean_post($page_id);
+		$page_url = get_permalink($page_id);
+		$page_post = get_post($page_id);
 
-					break;
-				case 'wp-super-cache':
-				case 'jetpack':
-				case 'jetpack-boost':
-					// WP Super Cache
-					// Jetpack
-					// Jetpack Boost
-					// error_log('inside case:'.$plugin->slug);
-					if (isset($GLOBALS['super_cache_enabled']) && $GLOBALS['super_cache_enabled']) {
-						$GLOBALS['super_cache_enabled'] = 1;
-					}
-					if (function_exists('wp_cache_post_change')){
-						wp_cache_post_change($page_id);
-					}
-					break;
-				case 'autoptimize':
-					// auto-Optimize
-					if(function_exists('autoptimize_filter_js_noptimize ')){
-						autoptimize_filter_js_exclude(['jquery.min-efb.js','core-efb.js']);
-						autoptimize_filter_js_noptimize();
-					}
-					break;
-				case 'wp-optimize':
-					// WP-Optimize
-					if(class_exists('WPO_Page_Cache'))	\WPO_Page_Cache::delete_single_post_cache($page_id);
+		static $cache_handlers = null;
 
-					break;
-				case 'w3-total-cache':
-					// W3 Total Cache
-					if(function_exists('w3tc_flush_post'))	w3tc_flush_post($page_id);
-
-					break;
-				case 'wp-fastest-cache':
-					// WP Fastest Cache
-					if(function_exists('wpfc_clear_post_cache_by_id'))	wpfc_clear_post_cache_by_id($page_id);
-					break;
-				case 'hummingbird-performance':
-					// Hummingbird
-					if(has_action('wphb_clear_page_cache')) do_action( 'wphb_clear_page_cache', $page_id );
-					break;
-				case 'big-scoots-cache':
-					// slug not sure!
-					// Clear BigScoots Cache - permalink of the given post id only and not it's related pages
-					if(class_exists('BigScoots_Cache') && method_exists('BigScoots_Cache', 'clear_cache')) \BigScoots_Cache::clear_cache((int) $page_id);
-					break;
-				case 'wp-cloudflare-page-cache':
-					// Clear cache for Super Page Cache for Cloudflare (works for now)
-					if(class_exists('SW_CLOUDFLARE_PAGECACHE')) do_action('swcfpc_purge_cache', [get_permalink($page_id)]);
-
-					break;
-				case 'breeze':
-					// Breeze
-					if(has_action('breeze_clear_all_cache')) do_action('breeze_clear_all_cache');
-
-					break;
-				case 'nitropack':
-					// nitropack
-					$url = get_permalink($page_id);
-					if(function_exists('nitropack_clean_post_cache'))	nitropack_clean_post_cache($page_id);
-					if(function_exists('nitropack_sdk_purge'))	nitropack_sdk_purge($url);
-				break;
-				case 'wp-rest-cache':
-					// WP REST Cache
-					// https://wordpress.org/support/topic/does-this-custom-caching-code-interfere-with-wp-rest-cache/#post-17958451
-
-					if(class_exists('\WP_REST_Cache_Plugin\Includes\Caching\Caching')) \WP_REST_Cache_Plugin\Includes\Caching\Caching::get_instance()->delete_related_caches( $page_id, $page_type );
-				break;
-				case 'clear-cache-for-widgets':
-					if(function_exists('ccfm_clear_cache_for_me')){
-						ccfm_clear_cache_for_me();
-					}
-				break;
-				case 'speedycache':
-					if(class_exists('SpeedyCache\Delete')) \SpeedyCache\Delete::cache($page_id);
-				break;
-				case 'atec-cache-apcu':
-				case 'atec-cache-info':
-					// atec-cache-apcu
-					if (function_exists('atec_wpca_delete_page') && function_exists('atec_wpca_settings')){
-						if (atec_wpca_settings('cache')){
-							$suffix=($atec_wpca_settings['salt']??'').'_p';
-							atec_wpca_delete_page($suffix,$page_id);
+		if ($cache_handlers === null) {
+			$cache_handlers = array(
+				'litespeed-cache' => array(
+					'check' => function() { return (defined('LSCWP_V') || defined('LSCWP_BASENAME')); },
+					'clear' => function($p) { do_action('litespeed_purge_post', $p); }
+				),
+				'wp-rocket' => array(
+					'check' => function() { return function_exists('rocket_clean_post'); },
+					'clear' => function($p) { rocket_clean_post($p); }
+				),
+				'w3-total-cache' => array(
+					'check' => function() { return function_exists('w3tc_flush_post'); },
+					'clear' => function($p) { w3tc_flush_post($p); }
+				),
+				'wp-super-cache' => array(
+					'check' => function() { return function_exists('wp_cache_post_change'); },
+					'clear' => function($p) { $GLOBALS['super_cache_enabled'] = 1; wp_cache_post_change($p); }
+				),
+				'jetpack' => array(
+					'check' => function() { return function_exists('wp_cache_post_change'); },
+					'clear' => function($p) { $GLOBALS['super_cache_enabled'] = 1; wp_cache_post_change($p); }
+				),
+				'jetpack-boost' => array(
+					'check' => function() { return function_exists('wp_cache_post_change'); },
+					'clear' => function($p) { $GLOBALS['super_cache_enabled'] = 1; wp_cache_post_change($p); }
+				),
+				'wp-optimize' => array(
+					'check' => function() { return class_exists('WPO_Page_Cache'); },
+					'clear' => function($p) {
+						if (method_exists('WPO_Page_Cache', 'delete_single_post_cache')) {
+							\WPO_Page_Cache::delete_single_post_cache($p);
+						} else {
+							do_action('wpo_purge_all');
 						}
-
 					}
-
-				break;
-				case 'wpspeed':
-					// wpspeed
-					// https://wordpress.org/support/topic/handling-page-caching-8/
-					if (class_exists(‘WPSpeed\Platform\Cache’)) {
-
-						WPSpeed\Platform\Cache::deleteCache();
-
+				),
+				'wp-fastest-cache' => array(
+					'check' => function() { return function_exists('wpfc_clear_post_cache_by_id'); },
+					'clear' => function($p) { wpfc_clear_post_cache_by_id($p); }
+				),
+				'hummingbird-performance' => array(
+					'check' => function() { return has_action('wphb_clear_page_cache'); },
+					'clear' => function($p) { do_action('wphb_clear_page_cache', $p); }
+				),
+				'sg-optimizer' => array(
+					'check' => function() { return function_exists('sg_cachepress_purge_post'); },
+					'clear' => function($p) { sg_cachepress_purge_post($p); }
+				),
+				'breeze' => array(
+					'check' => function() { return has_action('breeze_clear_all_cache'); },
+					'clear' => function($p) { do_action('breeze_clear_all_cache'); }
+				),
+				'cache-enabler' => array(
+					'check' => function() { return class_exists('Cache_Enabler'); },
+					'clear' => function($p) {
+						if (method_exists('Cache_Enabler', 'clear_page_cache_by_post_id')) {
+							\Cache_Enabler::clear_page_cache_by_post_id($p);
+						} elseif (method_exists('Cache_Enabler', 'clear_cache')) {
+							\Cache_Enabler::clear_cache();
+						} else {
+							\Cache_Enabler::clear_total_cache();
+						}
 					}
-				break;
+				),
+				'swift-performance' => array(
+					'check' => function() { return (class_exists('Swift_Performance_Cache') && method_exists('Swift_Performance_Cache', 'clear_all_cache')); },
+					'clear' => function($p) { \Swift_Performance_Cache::clear_all_cache(); }
+				),
+				'comet-cache' => array(
+					'check' => function() { return (class_exists('comet_cache') || function_exists('comet_cache_clear_cache')); },
+					'clear' => function($p) {
+						if (class_exists('comet_cache') && method_exists('comet_cache', 'clear')) {
+							\comet_cache::clear();
+						} elseif (function_exists('comet_cache_clear_cache')) {
+							comet_cache_clear_cache();
+						}
+					}
+				),
+				'autoptimize' => array(
+					'check' => function() { return class_exists('autoptimizeCache'); },
+					'clear' => function($p) {
+						\autoptimizeCache::clearall();
+						if (function_exists('autoptimize_filter_js_noptimize')) {
+							autoptimize_filter_js_exclude(['jquery.min-efb.js','core-efb.js']);
+							autoptimize_filter_js_noptimize();
+						}
+					}
+				),
+				'powered-cache' => array(
+					'check' => function() { return function_exists('powered_cache_flush_page_cache'); },
+					'clear' => function($p) { powered_cache_flush_page_cache($p); }
+				),
+				'hyper-cache' => array(
+					'check' => function() { return function_exists('hyper_cache_flush'); },
+					'clear' => function($p) { hyper_cache_flush(); }
+				),
+				'big-scoots-cache' => array(
+					'check' => function() { return (class_exists('BigScoots_Cache') && method_exists('BigScoots_Cache', 'clear_cache')); },
+					'clear' => function($p) { \BigScoots_Cache::clear_cache((int) $p); }
+				),
+				'speedycache' => array(
+					'check' => function() { return class_exists('SpeedyCache\\Delete'); },
+					'clear' => function($p) { \SpeedyCache\Delete::cache($p); }
+				),
+				'clear-cache-for-widgets' => array(
+					'check' => function() { return function_exists('ccfm_clear_cache_for_me'); },
+					'clear' => function($p) { ccfm_clear_cache_for_me(); }
+				),
+				'atec-cache-apcu' => array(
+					'check' => function() { return (function_exists('atec_wpca_delete_page') && function_exists('atec_wpca_settings')); },
+					'clear' => function($p) {
+						$settings = atec_wpca_settings('cache');
+						if ($settings) {
+							$suffix = (isset($settings['salt']) ? $settings['salt'] : '') . '_p';
+							atec_wpca_delete_page($suffix, $p);
+						}
+					}
+				),
+				'atec-cache-info' => array(
+					'check' => function() { return (function_exists('atec_wpca_delete_page') && function_exists('atec_wpca_settings')); },
+					'clear' => function($p) {
+						$settings = atec_wpca_settings('cache');
+						if ($settings) {
+							$suffix = (isset($settings['salt']) ? $settings['salt'] : '') . '_p';
+							atec_wpca_delete_page($suffix, $p);
+						}
+					}
+				),
+				'wpspeed' => array(
+					'check' => function() { return class_exists('WPSpeed\\Platform\\Cache'); },
+					'clear' => function($p) { \WPSpeed\Platform\Cache::deleteCache(); }
+				),
+				'flying-press' => array(
+					'check' => function() { return (function_exists('flying_press_purge_post') || has_action('flying_press_purge_everything')); },
+					'clear' => function($p) {
+						if (function_exists('flying_press_purge_post')) {
+							flying_press_purge_post($p);
+						} elseif (has_action('flying_press_purge_everything')) {
+							do_action('flying_press_purge_everything');
+						}
+					}
+				),
+			);
+		}
+
+		// Handlers که نیاز به متغیرهای محلی دارند
+		$dynamic_handlers = array(
+			'wp-cloudflare-page-cache' => array(
+				'check' => class_exists('SW_CLOUDFLARE_PAGECACHE'),
+				'clear' => $page_url ? function($p) use ($page_url) { do_action('swcfpc_purge_cache', array($page_url)); } : null
+			),
+			'nitropack' => array(
+				'check' => (function_exists('nitropack_sdk_purge') || function_exists('nitropack_clean_post_cache')),
+				'clear' => function($p) use ($page_url, $page_post) {
+					if (function_exists('nitropack_sdk_purge') && $page_url) {
+						nitropack_sdk_purge($page_url);
+					} elseif (function_exists('nitropack_clean_post_cache') && $page_post) {
+						nitropack_clean_post_cache($page_post);
+					}
+				}
+			),
+			'wp-rest-cache' => array(
+				'check' => class_exists('\\WP_REST_Cache_Plugin\\Includes\\Caching\\Caching'),
+				'clear' => function($p) use ($page_type) {
+					\WP_REST_Cache_Plugin\Includes\Caching\Caching::get_instance()->delete_related_caches($p, $page_type);
+				}
+			),
+		);
+
+		// دریافت لیست افزونه‌های فعال - بهینه‌سازی شده
+		$active_plugins = array();
+
+		if ($plugins !== null) {
+			$cache_plugins = json_decode($plugins);
+			if (!empty($cache_plugins) && is_array($cache_plugins)) {
+				foreach ($cache_plugins as $plugin) {
+					if (isset($plugin->slug)) {
+						$active_plugins[$plugin->slug] = true;
+					}
+				}
 			}
 		}
 
+		// اگر لیست خالی است، تشخیص خودکار
+		if (empty($active_plugins)) {
+			// بررسی static handlers
+			foreach ($cache_handlers as $slug => $handler) {
+				if ($handler['check']()) {
+					$active_plugins[$slug] = true;
+				}
+			}
+			// بررسی dynamic handlers
+			foreach ($dynamic_handlers as $slug => $handler) {
+				if ($handler['check'] && $handler['clear']) {
+					$active_plugins[$slug] = true;
+				}
+			}
+		}
+
+		if (empty($active_plugins)) {
+			return false;
+		}
+
+		// پاکسازی کش - error handling استاندارد WordPress
+		$cleared = 0;
+
+		foreach ($active_plugins as $slug => $val) {
+			// بررسی static handlers
+			if (isset($cache_handlers[$slug]) && is_callable($cache_handlers[$slug]['check']) && $cache_handlers[$slug]['check']()) {
+				if (is_callable($cache_handlers[$slug]['clear'])) {
+					$cache_handlers[$slug]['clear']($page_id);
+					$cleared++;
+				}
+			}
+			// بررسی dynamic handlers
+			elseif (isset($dynamic_handlers[$slug]) && $dynamic_handlers[$slug]['check'] && is_callable($dynamic_handlers[$slug]['clear'])) {
+				$dynamic_handlers[$slug]['clear']($page_id);
+				$cleared++;
+			}
+		}
+
+		return $cleared > 0;
 	}
+
 	public function comper_version_efb($v){
 		if(version_compare(EMSFB_PLUGIN_VERSION,$v)!=0 ){
 			$efbFunction =  $this->get_efbFunction(1) ;
