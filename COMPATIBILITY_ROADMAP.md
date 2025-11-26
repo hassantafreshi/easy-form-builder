@@ -142,6 +142,58 @@ $tmp_name = isset($_FILES['file']['tmp_name']) ? sanitize_text_field( wp_unslash
 
 ---
 
+#### Understanding the `yourdomain.com` Fallback
+
+**When does `yourdomain.com` appear instead of the actual website address?**
+
+The fallback value `'yourdomain.com'` is displayed in the following scenarios:
+
+**1. Server Variable Not Set:**
+- When `$_SERVER['SERVER_NAME']` or `$_SERVER['HTTP_HOST']` is not available
+- This can happen in CLI (Command Line Interface) environments
+- During WP-CLI operations or cron jobs running outside web context
+
+**2. Email Generation Context:**
+- When sending emails from background processes
+- During WordPress cron jobs that don't have HTTP context
+- When using WP-CLI to send administrative emails
+
+**3. Development/Testing Environments:**
+- Local development without proper server configuration
+- Docker containers with incomplete environment variables
+- Unit testing environments where server variables are mocked
+
+**4. Security Sanitization:**
+- After sanitization, if the server variable contains invalid characters
+- If the value becomes empty after `sanitize_text_field()` processing
+- When the server name fails validation checks
+
+**Example Implementation:**
+```php
+// Proper fallback pattern used throughout the codebase
+$SERVER_NAME = isset($_SERVER['SERVER_NAME'])
+    ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) )
+    : 'yourdomain.com';
+
+// Usage in email "From" header
+$from = get_bloginfo('name') . " <Alert@" . $SERVER_NAME . ">";
+```
+
+**Common Scenarios:**
+
+| Context | Behavior | Expected Result |
+|---------|----------|-----------------|
+| Production Web Request | Uses actual domain | `example.com` |
+| WP-CLI Command | Shows fallback | `yourdomain.com` |
+| WordPress Cron Jobs | Shows fallback | `yourdomain.com` |
+| Email Alerts (Web) | Uses actual domain | `example.com` |
+| Email Alerts (CLI) | Shows fallback | `yourdomain.com` |
+| Local Development | May show fallback if misconfigured | `yourdomain.com` or `localhost` |
+
+**Best Practice:** In production environments, this fallback should rarely appear in user-facing content. If you see `yourdomain.com` in live emails or logs, verify your server configuration and ensure that `$_SERVER['SERVER_NAME']` is properly set.
+
+---
+
 #### Additional Fixes in This Update
 
 **Path Syntax Correction:**

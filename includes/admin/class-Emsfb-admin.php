@@ -267,27 +267,24 @@ class Admin {
 
         }
 
-
-        if (empty($_POST['value']) || empty($_POST['id']) || empty($_POST['name'])) {
+        $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
+        $post_id = isset($_POST['id']) ? sanitize_text_field( wp_unslash( $_POST['id'] ) ) : '';
+        $post_name = isset($_POST['name']) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
+        if (empty($post_value) || empty($post_id) || empty($post_name)) {
             $m = $lang["invalidRequire"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
 
         }
 
-        if ($this->isScript(json_encode($_POST['value']),JSON_UNESCAPED_UNICODE) || $this->isScript(json_encode($_POST['name']),JSON_UNESCAPED_UNICODE)) {
+        if ($this->isScript(json_encode($post_value),JSON_UNESCAPED_UNICODE) || $this->isScript(json_encode($_POST['name']),JSON_UNESCAPED_UNICODE)) {
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
         }
-        $id = isset($_POST['id']) ? (int) sanitize_text_field( wp_unslash($_POST['id'])) : 0;
 
-        $valp = isset($_POST['value']) ? str_replace('\\', '', wp_unslash($_POST['value'])) : '';
+        $valp = isset($post_value) ? str_replace('\\', '', wp_unslash($post_value)) : '';
 		$valp = json_decode($valp,true);
-
-
-
-
 
 		$sms_msg_new_noti="";
 		$sms_msg_responsed_noti="";
@@ -323,10 +320,10 @@ class Admin {
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
         $value_ =str_replace('"', '\"', $value);
 
-        $name = isset($_POST['name']) ? sanitize_text_field( wp_unslash($_POST['name'])) : '';
+
         $table_name = $this->db->prefix . "emsfb_form";
 
-        $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $name ,'form_type'=>$form_type ], ['form_id' => $id]);
+        $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $post_name ,'form_type'=>$form_type ], ['form_id' => $post_id]);
         $value_="";
         $value="";
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
@@ -344,7 +341,7 @@ class Admin {
 
 
 			$smsefb->add_sms_contact_efb(
-                $id,
+                $post_id,
 				$sms_admins_phoneno,
 				$sms_msg_recived_user,
 				$sms_msg_new_noti,
@@ -352,7 +349,7 @@ class Admin {
 				$sms_msg_responsed_noti);
 		}
         $m = $lang["updated"];
-        $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
+        $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$post_id]"];
         wp_send_json_success($response, 200);
     }
     public function add_addons_Emsfb() {
@@ -382,11 +379,12 @@ class Admin {
 			'AdnADP'=>0
         */
 
-        $value      = isset($_POST['value']) ? sanitize_text_field( wp_unslash($_POST['value'])) : '';
+
+        $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
                  "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP"];
 
-        $dd =gettype(array_search($value, $allw));
+        $dd =gettype(array_search($post_value, $allw));
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         if (check_ajax_referer('wp_rest', 'nonce') != 1 || $dd!="integer" && !$currrent_user_can) {
 
@@ -396,28 +394,28 @@ class Admin {
 
         }
 
-        if (empty($_POST['value']) ) {
+        if (empty($post_value) ) {
             $m = $lang["invalidRequire"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
 
         }
 
-        $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
+
         if ($this->isScript($post_value)) {
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
         }
-       if($value!="AdnOF"){
+       if($post_value!="AdnOF"){
 
 
             $server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
             $vwp = get_bloginfo('version');
             $vwp = substr($vwp,0,3);
-            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$post_value .'/'.$vwp.'/' ;
             if(get_locale()=='fa_IR'){
-                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$post_value .'/'.$vwp.'/' ;
             }
 
             $attempts = 2;
@@ -508,7 +506,7 @@ class Admin {
             $ac->AdnMSF=0;
             $ac->AdnBEF=0;
         }
-        $ac->{$value}=1;
+        $ac->{$post_value}=1;
 
         $ac->efb_version=EMSFB_PLUGIN_VERSION;
 
@@ -551,7 +549,7 @@ class Admin {
             die();
         }
 
-        $post_value = isset($_POST['value']) ? $_POST['value'] : '';
+        $post_value  = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         if ($this->isScript($post_value)) {
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
@@ -559,8 +557,7 @@ class Admin {
             die();
         }
 
-        $value      = isset($_POST['value']) ? $_POST['value'] : '';
-        $server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '');
+        $server_name =  str_replace("www.", "",  isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
 
 
         /*
@@ -600,7 +597,7 @@ class Admin {
             $ac->AdnMSF=0;
             $ac->AdnBEF=0;
         }
-        $ac->{$value}=0;
+        $ac->{$post_value}=0;
 
         $table_name = $this->db->prefix . "emsfb_setting";
         $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
@@ -633,7 +630,7 @@ class Admin {
             wp_send_json_success($response, 200);
             die("secure!");
         }
-        $post_value = isset($_POST['value']) ? $_POST['value'] : '';
+        $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         if (empty($_POST['id']) && $this->isHTML(json_encode($post_value),JSON_UNESCAPED_UNICODE)) {
             $m =   $lang["somethingWentWrongPleaseRefresh"];
             $response = ['success' => false, "m" => esc_html__("Something went wrong, Please refresh the page." ,'easy-form-builder')];
@@ -787,17 +784,17 @@ class Admin {
             die("secure!");
         }
 
-        if (empty($_POST['message']) || empty($_POST['id'])) {
+        $post_message = isset($_POST['message']) ? sanitize_text_field( wp_unslash( $_POST['message'] ) ) : '';
+        $id = isset($_POST['id']) ? (int) sanitize_text_field( wp_unslash($_POST['id'])) : 0;
+        if (empty($post_message) || empty($id)) {
             $response = ['success' => false, "m" => $lang["somethingWentWrongPleaseRefresh"]];
             wp_send_json_success($response, 200);
         }
 
-        $post_message = isset($_POST['message']) ? $_POST['message'] : '';
         if ($this->isHTML(json_encode($post_message))) {
             $response = ['success' => false, "m" => $lang["nAllowedUseHtml"]];
             wp_send_json_success($response, 200);
         }
-        $id = isset($_POST['id']) ? (int) sanitize_text_field( wp_unslash($_POST['id'])) : 0;
         $id = preg_replace('/[,]+/','',$id);
         $m  = sanitize_text_field( wp_unslash($post_message));
 
@@ -813,7 +810,7 @@ class Admin {
 				if($stated==0){break;}
 					switch ($f->type) {
 						case 'allformat':
-							$d = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+							   $d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : 'yourdomain.com';
 								$stated=1;
 								if(isset($f->url) && strlen($f->url)>5 ){
 									$stated=0;
@@ -914,7 +911,7 @@ class Admin {
             wp_send_json_success($response, 200);
             die();
         }
-        $post_message = isset($_POST['message']) ? $_POST['message'] : '';
+        $post_message = isset($_POST['message']) ? sanitize_text_field( wp_unslash( $_POST['message'] ) ) : '';
         if ($this->isHTML(json_encode($post_message))) {
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" =>$m];
@@ -944,7 +941,8 @@ class Admin {
                 $email =  $m[$key];
 
             }else if ($key == "activeCode" && strlen($value) > 1) {
-                $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+
+                $server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
                 if (md5($server_name) != $value) {
                     $m = $lang["activationNcorrect"];
                     $response = ['success' => false, "m" =>$m];
@@ -1154,7 +1152,9 @@ class Admin {
         $con ='';
         $sub='';
         $to ='';
-        if(isset($_POST['value']) && 'testMailServer'==$_POST['value']){
+        $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
+
+        if('testMailServer'==$post_value){
             if(isset($_POST['email']) && is_email($_POST['email'])){
                 $to = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
             }
@@ -1166,7 +1166,8 @@ class Admin {
                     $to="null";
                 }
             }
-            $from = "no-reply@".$_SERVER['SERVER_NAME'];
+            $server_name =  str_replace("www.", "",  isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : 'yourdomain.com');
+            $from = "no-reply@".$server_name;
             if(isset($ac->femail) && strlen($ac->femail)>5){
                 $from =$ac->femail ;
             }
@@ -1211,9 +1212,9 @@ class Admin {
     public function get_ip_address() {
 
         $ip='1.1.1.1';
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } elseif (isset($_SERVER['REMOTE_ADDR'])) {$ip = $_SERVER['REMOTE_ADDR'];}
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+        } elseif (isset($_SERVER['REMOTE_ADDR'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
         $ip = strval($ip);
         $check =strpos($ip,',');
         if($check!=false){$ip = substr($ip,0,$check);}
@@ -1300,8 +1301,10 @@ class Admin {
         $vl=null;
 
 
-        if($_POST['pl']!="msg"){
-            $vl ='efb'. $_POST['id'];
+        $post_pl = isset($_POST['pl']) ? sanitize_text_field( wp_unslash( $_POST['pl'] ) ) : '';
+        if($post_pl != "msg"){
+            $post_id = isset($_POST['id']) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
+            $vl ='efb'. $post_id;
         }else{
             $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
             $table_name = $this->db->prefix . "emsfb_form";
@@ -1345,13 +1348,15 @@ class Admin {
 		if (isset($_FILES['file']['type']) && in_array($_FILES['file']['type'], $arr_ext)) {
 
 
-			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
-
-			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));
+            $file_name = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
+            $file_tmp = isset($_FILES['file']['tmp_name']) ? sanitize_text_field( wp_unslash( $_FILES['file']['tmp_name'] ) ) : '';
+            $file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
+            $name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("..."), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
+            $upload = wp_upload_bits($name, null, file_get_contents($file_tmp));
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>sanitize_text_field( wp_unslash($_FILES['file']['type'])));
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=> $file_type);
 			  wp_send_json_success($response,200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>"File Type Error");
