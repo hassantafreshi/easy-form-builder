@@ -470,12 +470,12 @@ public function check_nonce_permission($request) {
 
 
 	$page_builder="";
-	$action_post = isset($_GET['action']) ? sanitize_key( $_GET['action'] ) :'';
+	$action_post = isset($_GET['action']) ? sanitize_key( wp_unslash( $_GET['action'] ) ) :'';
 
 	if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) || $action_post=='elementor' || isset($_GET['elementor-preview'])  )){
 				if(isset($_GET['vc_editable'])){ $page_builder='vc_editable';}
 				else if(isset($_GET['vc_editable'])) {$page_builder = 'wpbakery';}
-				else if ( ( isset($_GET['action']) && sanitize_key( $_GET['action'] ) == 'elementor') || isset($_GET['elementor-preview']) ){
+				else if ( ( isset($_GET['action']) && sanitize_key( wp_unslash( $_GET['action'] ) ) == 'elementor') || isset($_GET['elementor-preview']) ){
 					$page_builder='elementor';
 
 
@@ -2384,7 +2384,7 @@ public function check_nonce_permission($request) {
     }
 	public function file_upload_public(){
 
-        $_POST['id']=intval($_POST['id']);
+        $_POST['id']=intval( wp_unslash( $_POST['id'] ) );
         $_POST['pl']=sanitize_text_field(wp_unslash($_POST['pl']));
         $_POST['nonce_msg']=sanitize_text_field(wp_unslash($_POST['nonce_msg']));
 		$page_id = sanitize_text_field(wp_unslash($_POST['page_id']));
@@ -2448,9 +2448,9 @@ public function check_nonce_permission($request) {
 
 	public function file_upload_api(){
 		$efbFunction =  $this->get_efbFunction(1);
-		$_POST['id']=intval($_POST['id']);
+		$_POST['id']=intval( wp_unslash( $_POST['id'] ) );
         $_POST['pl']=sanitize_text_field(wp_unslash($_POST['pl']));
-        $fid=intval($_POST['fid']);
+        $fid=intval( wp_unslash( $_POST['fid'] ) );
 		$sid = '';
 		$page_id = sanitize_text_field(wp_unslash($_POST['page_id']));
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
@@ -2506,7 +2506,7 @@ public function check_nonce_permission($request) {
             }
         }
 		$valid=false;
-		$_FILES['async-upload']['name'] = sanitize_file_name($_FILES['async-upload']['name']);
+		$_FILES['async-upload']['name'] = sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) );
 
 
 			$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
