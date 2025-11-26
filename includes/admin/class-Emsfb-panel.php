@@ -151,7 +151,7 @@ class Panel_edit  {
 										</div>
 										<div class="efb modal-body row" id="settingModalEfb-body">
 											<div class="efb card-body text-center">
-											<?php echo    do_action('efb_loading_card') ?>
+											<?php    do_action('efb_loading_card') ?>
 										</div></div><!-- settingModalEfb-body-->
 						</div></div></div>
 
@@ -160,7 +160,7 @@ class Panel_edit  {
 						</div>
 						<div class="efb row m-0 p-0" id ="content-efb">
 						<div class="efb card-body text-center my-5">
-							<?php echo    do_action('efb_loading_card'); ?>
+							<?php    do_action('efb_loading_card'); ?>
 						</div>
 
 
@@ -408,9 +408,14 @@ class Panel_edit  {
 	}
 
 	public function file_upload_api(){
+
+		if ( ! check_ajax_referer( 'wp_rest', '_wpnonce', false ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid nonce' ) );
+			return;
+		}
 		$efbFunction = $this->get_efbFunction();
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
-		$_POST['id']= isset($_POST['id']) ? intval($_POST['id']) : 0;
+		$_POST['id']= isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
         $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field(wp_unslash($_POST['pl'])) : '';
         $_POST['fid']= isset($_POST['fid']) ? sanitize_text_field(wp_unslash($_POST['fid'])) : '';
 		// $sid = isset($_POST['sid']) ? sanitize_text_field(wp_unslash($_POST['sid'])) : '';
@@ -456,23 +461,24 @@ class Panel_edit  {
 			return;
 		}
 
-		$_FILES['async-upload']['name'] = sanitize_file_name($_FILES['async-upload']['name']);
+		$file_name = isset($_FILES['async-upload']['name']) ? sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) ) : '';
+		$file_type = isset($_FILES['async-upload']['type']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['type'] ) ) : '';
+		$file_tmp = isset($_FILES['async-upload']['tmp_name']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['tmp_name'] ) ) : '';
 
-		if (in_array($_FILES['async-upload']['type'], $arr_ext)) {
+		if (in_array($file_type, $arr_ext)) {
 
+			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
 
-			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["async-upload"]["name"], PATHINFO_EXTENSION) ;
-
-			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["async-upload"]["tmp_name"]));
+			$upload = wp_upload_bits($name, null, file_get_contents($file_tmp));
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>sanitize_text_field($_FILES['async-upload']['type']));
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$file_type);
 			  wp_send_json_success($response,200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]);
 			wp_send_json_success($response,200);
-			die('invalid file '.$_FILES['async-upload']['type']);
+			die('invalid file ' . esc_html( $file_type ));
 		}
 
 	}
