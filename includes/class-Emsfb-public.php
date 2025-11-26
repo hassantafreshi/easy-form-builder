@@ -2828,19 +2828,9 @@ public function check_nonce_permission($request) {
 					global $wpdb;
 					$this->db = $wpdb;
 				}
-				$table_name = $this->db->prefix . "emsfb_msg_";
+
 				$value=null;
 				$id = intval($id);
-				$value = $this->db->get_results($this->db->prepare(
-						"SELECT * FROM `$table_name` WHERE msg_id = %d",
-						$id
-					)
-				);
-				if($value==null|| $value[0]->read_==4){
-					$response = array( 'success' => false  , 'm'=>$this->lanText['error405']);
-					wp_send_json_success($response,200);
-					die();
-				}
 				$valn =str_replace('\\', '', $value[0]->content);
 				$msg_obj = json_decode($valn,true);
 				$vv_="";
@@ -2849,6 +2839,22 @@ public function check_nonce_permission($request) {
 				$table_name = $this->db->prefix . "emsfb_rsp_";
 				$read_s = $rsp_by=='admin' ? 1 :0;
 				$by=$this->lanText['guest'];
+				$table_emsfb_msg_ = $this->db->prefix . "emsfb_msg_";
+
+				$exists = (int) $this->db->get_var(
+					$this->db->prepare(
+						"SELECT EXISTS(SELECT 1 FROM `$table_emsfb_msg_` WHERE msg_id = %d AND track = %s LIMIT 1)",
+						$id,
+						$track
+					)
+				);
+
+				if (!$exists) {
+					wp_send_json_success(
+						array('success' => false, 'm' => esc_html__('Not allowed to respond to this message.', 'easy-form-builder')),
+						200
+					);
+				}
 				if($read_s==1){
 					$by = get_user_by('id',$this->efb_uid);
 				}
