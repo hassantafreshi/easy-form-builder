@@ -1617,7 +1617,7 @@ public function check_nonce_permission($request) {
 									break;
 								case 'file':
 								case 'dadfile':
-									$d = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] :'';
+									$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
 
 
 									if(isset($item['url']) && strlen($item['url'])>5 ){
@@ -1811,7 +1811,7 @@ public function check_nonce_permission($request) {
 
 
 						$secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : null;
-						$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", $_SERVER['HTTP_HOST']): '';
+						$server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ): '';
 						if(isset($setting->activeCode) &&!empty($setting->activeCode) && md5($server_name) ==$setting->activeCode){
 							$pro=true;
 						}
@@ -2203,7 +2203,7 @@ public function check_nonce_permission($request) {
 									$efb ='<p> '. $this->lanText["sentBy"] . home_url(). '</p>';
 									if($pro==false) $efb ='<p> '. esc_html__("from").''. home_url(). ' '. $this->lanText["sentBy"] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
 									$subject ="". esc_html__("Password recovery" , 'easy-form-builder')."[".get_bloginfo('name')."]";
-									$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'yourdomain.com';
+									$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
 									$from =get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
 									if(isset($email_user[2]) && is_email($email_user[2])) $from =  blog_info('name')." <".$email_user[2].">";
 									$message ='<!DOCTYPE html> <html> <body><h3>'.  esc_html__('New Password', 'easy-form-builder')  .':'.$newpass.'</h3>
@@ -2670,7 +2670,7 @@ public function check_nonce_permission($request) {
 					if($stated==0){break;}
 						switch ($f->type) {
 							case 'allformat':
-								$d = $_SERVER['HTTP_HOST'];
+								$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 
 
 								$stated=1;
@@ -3204,7 +3204,7 @@ public function check_nonce_permission($request) {
 		$this->ip = $ip;
 		if($price_c != $price_f) {
 			$t=time();
-			$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'yourdomain.com';
+			$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
 			$from =get_bloginfo('name')." <Alert@".$SERVER_NAME.">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
@@ -3420,7 +3420,7 @@ public function check_nonce_permission($request) {
 		$ip = $this->ip;
 		if($price_c != $price_f) {
 			$t=time();
-			$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'yourdomain.com';
+			$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
 			$from =get_bloginfo('name')." <Alert@".$SERVER_NAME.">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
@@ -3579,7 +3579,7 @@ public function check_nonce_permission($request) {
 		$ip = $this->ip;
 		if($price_c != $price_f) {
 			$t=time();
-			$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'yourdomain.com';
+			$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
 			$from =get_bloginfo('name')." <Alert@".$SERVER_NAME.">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
