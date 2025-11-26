@@ -277,13 +277,14 @@ class Admin {
 
         }
 
-        if ($this->isScript(json_encode($post_value),JSON_UNESCAPED_UNICODE) || $this->isScript(json_encode($_POST['name']),JSON_UNESCAPED_UNICODE)) {
+        $post_name = isset($_POST['name']) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
+if ($this->isScript(json_encode($post_value),JSON_UNESCAPED_UNICODE) || $this->isScript(json_encode($post_name),JSON_UNESCAPED_UNICODE)) {
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
         }
 
-        $valp = isset($post_value) ? str_replace('\\', '', wp_unslash($post_value)) : '';
+        $valp = isset($post_value) ? str_replace('\\', '', $post_value) : '';
 		$valp = json_decode($valp,true);
 
 		$sms_msg_new_noti="";
@@ -1306,7 +1307,7 @@ class Admin {
             $post_id = isset($_POST['id']) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
             $vl ='efb'. $post_id;
         }else{
-            $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+            $id = isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
             $table_name = $this->db->prefix . "emsfb_form";
             $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
             if($vl!=null){
@@ -1361,7 +1362,7 @@ class Admin {
 		}else{
 			$response = array( 'success' => false  ,'error'=>"File Type Error");
 			wp_send_json_success($response,200);
-			die('invalid file '.$_FILES['file']['type']);
+			die('invalid file '. $file_type);
 		}
 
 
