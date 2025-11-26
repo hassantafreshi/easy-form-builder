@@ -138,7 +138,7 @@ class Panel_edit  {
 										</div>
 										<div class="efb modal-body row" id="settingModalEfb-body">
 											<div class="efb card-body text-center">
-											<?php echo    do_action('efb_loading_card') ?>
+											<?php  do_action('efb_loading_card') ?>
 										</div></div><!-- settingModalEfb-body-->
 						</div></div></div>
 						<div class="efb row mb-2">
@@ -146,7 +146,7 @@ class Panel_edit  {
 						</div>
 						<div class="efb row m-0 p-0" id ="content-efb">
 						<div class="efb card-body text-center my-5">
-							<?php echo    do_action('efb_loading_card'); ?>
+							<?php  do_action('efb_loading_card'); ?>
 						</div>
 						</div>
 						<div class="efb mt-3 d-flex justify-content-center align-items-center ">
@@ -274,12 +274,12 @@ class Panel_edit  {
 			$ip =0;
 			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
 				// check ip from share internet
-				$ip = $_SERVER['HTTP_CLIENT_IP'];
+				$ip = isset($_SERVER['HTTP_CLIENT_IP']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) ) : '0.0.0.0';
 			} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
 				// to check ip is pass from proxy
-				$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+				$ip = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) : '0.0.0.0';
 			} else {
-				$ip = $_SERVER['REMOTE_ADDR'];
+				$ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
 			}
 			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', true,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_script('Emsfb-list_form-efb-js');
@@ -358,11 +358,17 @@ class Panel_edit  {
 	}
 	public function file_upload_api(){
 		error_log('file upload api panel called');
+
+		   if ( ! check_ajax_referer( 'wp_rest', '_wpnonce', false ) ) {
+				wp_send_json_error( array( 'message' => 'Invalid nonce' ) );
+				return;
+			}
+
 		$efbFunction = $this->get_efbFunction();
-		$_POST['id']=intval($_POST['id']);
-        $_POST['pl']=sanitize_text_field($_POST['pl']);
-        $_POST['fid']=sanitize_text_field($_POST['fid']);
-		$sid = sanitize_text_field($_POST['sid']);
+		$_POST['id']= isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+        $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field( wp_unslash( $_POST['pl'] ) ) : '';
+        $_POST['fid']= isset($_POST['fid']) ? sanitize_text_field( wp_unslash( $_POST['fid'] ) ) : '';
+		$sid = isset($_POST['sid']) ? sanitize_text_field( wp_unslash( $_POST['sid'] ) ) : '';
 		$s_sid = $efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
 		if ($s_sid !=1 || $sid==null){
 			error_log('s_sid is not valid!! Panel');
@@ -401,21 +407,24 @@ class Panel_edit  {
 		 'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
 		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
 		);
-		$_FILES['async-upload']['name'] = sanitize_file_name($_FILES['async-upload']['name']);
-		// error_log($_FILES['async-upload']['name']);
-		if (in_array($_FILES['async-upload']['type'], $arr_ext)) {
-			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
-			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES['async-upload']['name'], PATHINFO_EXTENSION) ;
-			$upload = wp_upload_bits($name, null, file_get_contents($_FILES['async-upload']['tmp_name']));
+		$file_name = isset($_FILES['async-upload']['name']) ? sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) ) : '';
+		$file_type = isset($_FILES['async-upload']['type']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['type'] ) ) : '';
+		$file_tmp = isset($_FILES['async-upload']['tmp_name']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['tmp_name'] ) ) : '';
+
+		if (in_array($file_type, $arr_ext)) {
+
+			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
+
+			$upload = wp_upload_bits($name, null, file_get_contents($file_tmp));
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['async-upload']['type']);
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$file_type);
 			  wp_send_json_success($response,200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>$this->lanText['errorFilePer']);
 			wp_send_json_success($response,200);
-			die('invalid file '.$_FILES['async-upload']['type']);
+			die('invalid file ' . esc_html( $file_type ));
 		}
 	}// end function
 
