@@ -452,8 +452,8 @@ public function check_nonce_permission($request) {
 				$state="track";
 				// $admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
 				// $admin_sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : null;
-				if(isset($_GET['user'])  && $_GET['user']=="admin" ) $admin_form = true;
-							if(isset($_GET['sc'])) $admin_sc = sanitize_text_field(wp_unslash($_GET['sc']));
+				if(isset($_GET['user'])  && sanitize_text_field( wp_unslash( $_GET['user'] ) ) == "admin" ) $admin_form = true;
+				if(isset($_GET['sc'])) $admin_sc = sanitize_text_field(wp_unslash($_GET['sc']));
 			}elseif (isset($_GET['state'])){
 				$admin_sc = sanitize_text_field(wp_unslash($_GET['sc']));
 				$username =isset($_GET['username']) ?  sanitize_text_field(wp_unslash($_GET['username'])) : 'null';
@@ -500,14 +500,14 @@ public function check_nonce_permission($request) {
 			}
 			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound','sfmcfop','notFound','file','copied','nonceExpired'];
 			$page_builder="";
-			$action_post = isset($_GET['action']) ? sanitize_key( $_GET['action'] ) :'';
+			$action_post = isset($_GET['action']) ? sanitize_key( wp_unslash( $_GET['action'] ) ) :'';
 
 			if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) || $action_post=='elementor' || isset($_GET['elementor-preview'])  )){
 
 
 				if(isset($_GET['vc_editable'])){ $page_builder='vc_editable';}
 				else if(isset($_GET['vc_editable'])) {$page_builder = 'wpbakery';}
-				else if ( ( isset($_GET['action']) && $_GET['action']=='elementor') || isset($_GET['elementor-preview']) ){
+				else if ( ( isset($_GET['action']) && sanitize_key( wp_unslash( $_GET['action'] ) ) == 'elementor') || isset($_GET['elementor-preview']) ){
 					$page_builder='elementor';
 
 
@@ -1373,7 +1373,8 @@ public function check_nonce_permission($request) {
 				$stated = 0;
 				$rt;
 				if (isset($data_POST['url']) && strlen($data_POST['url']) > 5) {
-					$ar = ['http://wwww.' . $_SERVER['HTTP_HOST'], 'https://wwww.' . $_SERVER['HTTP_HOST'], 'http://' . $_SERVER['HTTP_HOST'], 'https://' . $_SERVER['HTTP_HOST']];
+					$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
+					$ar = ['http://wwww.' .$d, 'https://wwww.' . $d, 'http://' . $d, 'https://' . $d];
 					foreach ($ar as $r) {
 						$c = strpos($data_POST['url'], $r);
 						if (gettype($c) != 'boolean' && $c == 0) {
@@ -1735,7 +1736,7 @@ public function check_nonce_permission($request) {
 									break;
 								case 'file':
 								case 'dadfile':
-									$d = $_SERVER['HTTP_HOST'];
+									$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									if (isset($item['url']) && strlen($item['url']) > 5) {
 										$stated = 0;
@@ -1918,9 +1919,8 @@ public function check_nonce_permission($request) {
 							$efb ='<p> '. $this->lanText['sentBy'] . home_url(). '</p>';
 							if($pro==false) $efb ='<p> '. esc_html__("from").''. home_url(). ' '. $this->lanText['sentBy'] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
 							$subject ="". esc_html__("Password recovery")."[".get_bloginfo('name')."]";
-
-							$from = isset($setting['femail']) && is_email($setting['femail']) ? get_bloginfo('name')." <no-reply@".$setting['femail'] .">" : get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
-							// $from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+							$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
+							$from = isset($setting['femail']) && is_email($setting['femail']) ? get_bloginfo('name')." <no-reply@".$setting['femail'] .">" : get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
 							$message ='<!DOCTYPE html> <html> <body><div>'.$ms.'</div><p> '.$efb. '</p> </body> </html>';
 							$headers = array(
 							 'MIME-Version: 1.0\r\n',
@@ -1965,7 +1965,8 @@ public function check_nonce_permission($request) {
 
 
 				$secretKey = isset($setting['secretKey']) && strlen($setting['secretKey']) > 5 ? $setting['secretKey'] : null;
-				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+				$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
+				$server_name = str_replace("www.", "", $d);
 				$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : null;
 
 
@@ -2534,7 +2535,7 @@ public function check_nonce_permission($request) {
         return $ip;
     }
 	public function file_upload_public(){
-        $_POST['id']=intval($_POST['id']);
+        $_POST['id']=intval( wp_unslash( $_POST['id'] ) );
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
 		$page_id = sanitize_text_field($_POST['page_id']);
@@ -2579,25 +2580,28 @@ public function check_nonce_permission($request) {
 		 'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
 		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
 		);
-		if (in_array($_FILES['file']['type'], $arr_ext)) {
-			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION) ;
-			$upload = wp_upload_bits($name, null, file_get_contents($_FILES['file']['tmp_name']));
+		$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
+		if (in_array($file_type, $arr_ext)) {
+			$file_name_raw = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
+			$file_tmp = isset($_FILES['file']['tmp_name']) ? sanitize_text_field( wp_unslash( $_FILES['file']['tmp_name'] ) ) : '';
+			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
+			$upload = wp_upload_bits($name, null, file_get_contents($file_tmp));
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']);
+			 $response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$file_type);
 			  wp_send_json_success($response, 200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>$this->lanText['errorFilePer']);
 			wp_send_json_success($response, 200);
-			die('invalid file '.$_FILES['file']['type']);
+			die('invalid file '.$file_type);
 		}
 	}// end function
 	public function file_upload_api(){
 		if($this->efbFunction===null) $this->get_efbFunction(0);
-		$_POST['id']=intval($_POST['id']);
+		$_POST['id']=intval( wp_unslash( $_POST['id'] ) );
         $_POST['pl']=sanitize_text_field($_POST['pl']);
-        $fid=intval($_POST['fid']);
+        $fid=intval( wp_unslash( $_POST['fid'] ) );
 		$sid = sanitize_text_field($_POST['sid']);
 		$page_id = sanitize_text_field($_POST['page_id']);
 		error_log('file_upload_api');
@@ -2652,7 +2656,7 @@ public function check_nonce_permission($request) {
             }
         }
 		$valid=false;
-		$_FILES['async-upload']['name'] = sanitize_file_name($_FILES['async-upload']['name']);
+		$_FILES['async-upload']['name'] = sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) );
 			$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
 			$this->lanText= $this->efbFunction->text_efb($this->text_);
 			if($have_validate!=1){
@@ -2667,7 +2671,8 @@ public function check_nonce_permission($request) {
 				'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip', 'rar', 'zip', 'tar', 'gzip', 'gz', '7z', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mp3', 'wav', 'gif', 'png', 'jpg', 'jpeg', 'rar',
 			     'gz', 'tgz', 'tar.gz', 'tar.gzip', 'tar.z', 'tar.Z', 'tar.bz2', 'tar.bz', 'tar.bzip2', 'tar.bzip', 'tbz2', 'tbz', 'bz2', 'bz', 'bzip2', 'bzip', 'tz2', 'tz', 'z', 'war', 'jar', 'ear', 'sar'
 				);
-				$valid = in_array($_FILES['async-upload']['type'], $arr_ext);
+				$async_file_type = isset($_FILES['async-upload']['type']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['type'] ) ) : '';
+				$valid = in_array($async_file_type, $arr_ext);
 			}
 		if($have_validate==1){
 			if(gettype($vl)=="string"){
@@ -2678,7 +2683,7 @@ public function check_nonce_permission($request) {
 					$val->file_ctype = strtolower($val->file_ctype);
 					$valid_types = explode(',', str_replace(' ', '', $val->file_ctype));
 					// error_log(json_encode($valid_types));
-					$file_name = $_FILES['async-upload']['name'];
+					$file_name = isset($_FILES['async-upload']['name']) ? sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) ) : '';
 					$ext = strtolower(substr($file_name, strrpos($file_name, '.') + 1));
 					foreach($valid_types as $val){
 						if($val==$ext){
@@ -2691,17 +2696,19 @@ public function check_nonce_permission($request) {
 			}
 		}
 		if ($valid) {
-			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES['async-upload']['name'], PATHINFO_EXTENSION) ;
-			$upload = wp_upload_bits($name, null, file_get_contents($_FILES['async-upload']['tmp_name']));
+			$async_file_name = isset($_FILES['async-upload']['name']) ? sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) ) : '';
+			$async_file_tmp = isset($_FILES['async-upload']['tmp_name']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['tmp_name'] ) ) : '';
+			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;
+			$upload = wp_upload_bits($name, null, file_get_contents($async_file_tmp));
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['async-upload']['type']);
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$async_file_type);
 			  wp_send_json_success($response,200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>$this->lanText['errorFilePer']);
 			wp_send_json_success($response,200);
-			die('invalid file '.$_FILES['async-upload']['type']);
+			die('invalid file '.$async_file_type);
 		}
 	}// end function
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
@@ -2780,7 +2787,7 @@ public function check_nonce_permission($request) {
 					}
 						switch ($f->type) {
 							case 'allformat':
-								$d = $_SERVER['HTTP_HOST'];
+								$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
 								// don't change value stated because always file is sending
 								$stated=1;
 								$stated=$setting->dsupfile==false ? 0:1;
@@ -4915,7 +4922,8 @@ function email_get_content_efb($content, $track){
 		$this->ip = $ip;
 		if($price_c != $price_f) {
 			$t=time();
-			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
+			$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
+			$from =get_bloginfo('name')." <Alert@".$SERVER_NAME.">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from.'',
