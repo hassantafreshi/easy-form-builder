@@ -869,7 +869,7 @@ class efbFunction {
 				$email_content_type = isset($state[2]) ? $state[2]  : 'traking_link' ;
 			   	$mailResult = "n";
 				if(gettype($to) == 'array')ksort($to);
-				$server_name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
+				$server_name = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
 				$from =get_bloginfo('name')." <no-reply@".$server_name.">";
 				if(gettype($to) == 'array' && isset($to[2]) && is_email($to[2]) ){
 					$f = array_pop($to);
@@ -924,7 +924,7 @@ class efbFunction {
 						$role = $usr->roles[0];
 					}
 
-					$server_name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
+					$server_name = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
 					$cont .="<hr><br> website:[" . $server_name . "]<br> Pro state:[".$pro . "]<br> email:[".$mail .
 					"]<br> role:[".$role."]<br> name:[".$name."]<br> state:[".$state."]";
 					$mailResult = wp_mail( $support,$state, $cont, $headers ) ;					}
@@ -1966,7 +1966,7 @@ class efbFunction {
 			$end_time = microtime(true);
 			$execution_time = ($end_time - $start_time);
 
-			$request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+			$request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') == false ){
 
 				wp_safe_redirect($request_uri);
