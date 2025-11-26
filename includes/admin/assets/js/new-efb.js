@@ -2484,9 +2484,10 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
     sid = efb_var.sid;
   }else{
     const vj =fun_sid_efb(form_id)
-    nonce_msg = vj.nonce_msg;
+
     sid = vj.sid;
   }
+    nonce_msg = efb_var.nonce ?? '';
   //const nonce_msg = form_id==0 ? efb_var.nonce_msg : fun_sid_efb(form_id);
   console.log(`form_id[${form_id}] nonce_msg[${nonce_msg}]`);
   const page_id = efb_var.page_id ;
@@ -2555,6 +2556,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
    // const fid = efb_var.hasOwnProperty('id') ? efb_var.id :0;
+    console.log(nonce_msg);
     formData.append('async-upload', file);
     formData.append('id', id);
     formData.append('pl', pl);

@@ -35,12 +35,12 @@ class _Public {
 			register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
 				'method'=> 'POST',
 				'callback'=>  [$this,'test_fun'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 			register_rest_route('Emsfb/v1','forms/message/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'get_form_public_efb'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 			/* register_rest_route('Emsfb/v1','forms/email/send', [
 				'methods' => 'POST',
@@ -50,46 +50,46 @@ class _Public {
 			register_rest_route('Emsfb/v1','forms/payment/persia/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'pay_persia_sub_Emsfb_api'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 			register_rest_route('Emsfb/v1','forms/payment/stripe/card/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'pay_stripe_sub_Emsfb_api'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 
 			register_rest_route('Emsfb/v1','forms/payment/paypal/card/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'pay_paypal_sub_Emsfb_api'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 
 
 			register_rest_route('Emsfb/v1','forms/response/get', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'get_track_public_api'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 			register_rest_route('Emsfb/v1','forms/response/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'set_rMessage_id_Emsfb_api'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 			register_rest_route('Emsfb/v1','autofill/get', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'get_autofilled_list_efb'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 			register_rest_route('Emsfb/v1','forms/file/upload', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'file_upload_api'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 			// rest api for set password
 			register_rest_route('Emsfb/v1','forms/recovery/efb_set_password', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'set_password_efb_api'],
-				'permission_callback' => '__return_true'
+				'permission_callback' => [$this, 'check_nonce_permission']
 			]);
 		});
 		//add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) );
@@ -103,19 +103,190 @@ class _Public {
 
 		// Elementor compatibility - only load if Elementor is active and not in admin
 		if (!is_admin()) {
-			$this->init_elementor_compatibility();
+			add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
 		}
 	}
+
+public function check_nonce_permission($request) {
+
+	$allowed_origins = apply_filters('efb_allowed_cors_origins', array(
+		home_url(),
+		site_url()
+	));
+
+	$origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ) : '';
+
+	if ($origin && in_array($origin, $allowed_origins)) {
+		header('Access-Control-Allow-Origin: ' . $origin);
+	} else {
+
+		$parsed_origin = wp_parse_url($origin);
+		$parsed_home = wp_parse_url(home_url());
+
+		if (isset($parsed_origin['host']) && isset($parsed_home['host']) &&
+		    $parsed_origin['host'] === $parsed_home['host']) {
+			header('Access-Control-Allow-Origin: ' . $origin);
+		}
+	}
+
+	header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+	header('Access-Control-Allow-Credentials: true');
+	header('Access-Control-Allow-Headers: Content-Type, X-WP-Nonce, Authorization');
+	header('Access-Control-Max-Age: 86400');
+
+
+	if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+		status_header(200);
+		exit();
+	}
+
+
+	if (!isset($_SERVER['HTTP_X_WP_NONCE'])) {
+		return new \WP_Error('rest_forbidden', __('X-WP-Nonce header is missing', 'easy-form-builder'), array('status' => 403));
+	}
+
+
+	$verify = wp_verify_nonce( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ), 'wp_rest');
+
+	if (!$verify) {
+		return new \WP_Error('rest_forbidden', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
+	}
+
+	return true;
+}	/**
+	 * Initialize Elementor compatibility only if Elementor is detected
+	 */
+	public function init_elementor_compatibility() {
+
+		if (is_admin()) {
+			return;
+		}
+
+
+		$elementor_active = $this->is_elementor_active();
+
+		if ($elementor_active) {
+
+			add_action('wp_head', [$this, 'simple_elementor_fix'], 1);
+			add_action('wp_footer', [$this, 'simple_elementor_fix_footer'], 1);
+
+		}
+	}
+
+	/**
+	 * Safe wrapper for wp_script_is that respects WordPress hooks
+	 */
+	private function safe_wp_script_is($handle, $list = 'enqueued') {
+
+		if (!did_action('wp_enqueue_scripts') && !did_action('admin_enqueue_scripts') && !did_action('login_enqueue_scripts')) {
+			return false;
+		}
+
+		if (function_exists('wp_script_is')) {
+			return wp_script_is($handle, $list);
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if Elementor is active using multiple detection methods
+	 */
+	public function is_elementor_active() {
+
+		if (is_admin()) {
+			return false;
+		}
+
+
+		if (class_exists('\Elementor\Plugin') || defined('ELEMENTOR_VERSION')) {
+			return true;
+		}
+
+
+		if (function_exists('is_plugin_active') && is_plugin_active('elementor/elementor.php')) {
+			return true;
+		}
+
+
+		global $post;
+		if (is_object($post) && isset($post->post_content)) {
+			if (strpos($post->post_content, 'elementor') !== false ||
+			    strpos($post->post_content, 'data-elementor-type') !== false) {
+				return true;
+			}
+		}
+
+
+		if ($this->safe_wp_script_is('elementor-frontend', 'enqueued') ||
+		    $this->safe_wp_script_is('elementor-frontend', 'registered')) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public function enqueue_jquery(){
+
+		if (is_admin()) {
+			return;
+		}
+
+
+		$elementor_active = false;
+
+
+		if (class_exists('\Elementor\Plugin') || defined('ELEMENTOR_VERSION')) {
+			$elementor_active = true;
+		}
+
+
+		if (function_exists('is_plugin_active') && is_plugin_active('elementor/elementor.php')) {
+			$elementor_active = true;
+		}
+
+
+		if ($this->safe_wp_script_is('elementor-frontend', 'enqueued') ||
+		    $this->safe_wp_script_is('elementor-frontend', 'registered') ||
+		    $this->safe_wp_script_is('elementor-frontend', 'to_do')) {
+		$elementor_active = true;
+	}
+
+
+	if (isset($_SERVER['REQUEST_URI']) && strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'elementor') !== false) {
+		$elementor_active = true;
+	}
+		global $post;
+		if (is_object($post) && method_exists($post, 'get_content')) {
+			if (strpos($post->post_content, 'elementor') !== false) {
+				$elementor_active = true;
+			}
+		}
+
+
+		global $post;
+		$has_elementor_content = false;
+		if (is_object($post) && isset($post->post_content)) {
+			$has_elementor_content = strpos($post->post_content, 'elementor') !== false;
+		}
+
+
+		if ($elementor_active || $has_elementor_content) {
+
+			return;
+		}
+
 		if (!isset(wp_scripts()->registered['jquery']) || version_compare(wp_scripts()->registered['jquery']->ver , '3.6.0' , '<')) {
 			$wp_version = get_bloginfo('version');
 			if (version_compare($wp_version, '6.0', '>')) {
-				wp_enqueue_script('jquery', includes_url('/js/jquery/jquery.js') , false ,'3.7.1');
+				wp_enqueue_script('jquery', includes_url('/js/jquery/jquery.js') , false, '3.7.1', true);
 			}else {
-				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min-efb.js', false, '3.6.2');
+				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min-efb.js', false, '3.6.2', true);
 			}
 		}
 	}
+
+
 	public function hide_toolmenu(){
 		// this function hide admin bar in bublic side for subscribers user
 		if(is_user_logged_in()){
@@ -126,10 +297,146 @@ class _Public {
 			}
 		}
 	}
+
+	public function simple_elementor_fix() {
+
+		if (!is_admin() && !current_user_can('edit_posts') && $this->is_elementor_active()) {
+			?>
+			<script>
+
+			window.elementorFrontendConfig = window.elementorFrontendConfig || {};
+			window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
+			window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
+			console.log('EFB: Elementor detected - config protection applied');
+			</script>
+			<?php
+		}
+	}
+
+	public function simple_elementor_fix_footer() {
+
+		if (!is_admin() && !current_user_can('edit_posts') && $this->is_elementor_active()) {
+			?>
+			<script>
+
+			(function() {
+
+				var safeConfig = {
+					tools: {
+						hash: {},
+						ajax: {},
+						request: {},
+						utils: {}
+					},
+					settings: {
+						page: {},
+						general: {},
+						editorPreferences: {}
+					}
+				};
+
+
+				window.elementorFrontendConfig = window.elementorFrontendConfig || safeConfig;
+				window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || safeConfig.tools;
+				window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || safeConfig.settings;
+
+
+				var attempts = 0;
+				var checkElementor = setInterval(function() {
+					attempts++;
+
+					if (window.elementorFrontend && typeof window.elementorFrontend === 'object') {
+						console.log('🚀 EFB: Found elementorFrontend, patching methods...');
+
+
+						Object.defineProperty(window.elementorFrontend, 'config', {
+							get: function() {
+								return window.elementorFrontendConfig || safeConfig;
+							},
+							set: function(value) {
+								if (value && typeof value === 'object') {
+									window.elementorFrontendConfig = value;
+									window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || safeConfig.tools;
+									window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || safeConfig.settings;
+								}
+							},
+							configurable: true,
+							enumerable: true
+						});
+
+
+						if (window.elementorFrontend.initOnReadyComponents) {
+							var originalInitOnReadyComponents = window.elementorFrontend.initOnReadyComponents;
+							window.elementorFrontend.initOnReadyComponents = function() {
+								try {
+
+									console.log('🔍 EFB: this.config before fix:', this.config);
+									console.log('🔍 EFB: this.config.tools before fix:', this.config ? this.config.tools : 'config is null');
+									console.log('🔍 EFB: window.elementorFrontendConfig:', window.elementorFrontendConfig);
+
+
+									this.config = window.elementorFrontendConfig || safeConfig;
+
+
+									this.config.tools = safeConfig.tools;
+									this.config.settings = safeConfig.settings;
+
+									console.log('🔧 EFB: FORCED tools and settings');
+									console.log('🔍 EFB: this.config.tools AFTER fix:', this.config.tools);
+									console.log('🛡️ EFB: Safe initOnReadyComponents called, config fixed:', this.config);
+
+
+									try {
+
+										var result = originalInitOnReadyComponents.call(this);
+										console.log('✅ EFB: Original method called successfully');
+										return result;
+									} catch (innerError) {
+										console.warn('🛡️ EFB: Inner method error, using safe fallback:', innerError);
+
+										return {};
+									}
+								} catch (e) {
+									console.warn('🛡️ EFB: Caught initOnReadyComponents error:', e);
+
+									return {};
+								}
+							};
+						}
+
+
+						if (window.elementorFrontend.init) {
+							var originalInit = window.elementorFrontend.init;
+							window.elementorFrontend.init = function() {
+								try {
+									this.config = this.config || safeConfig;
+									this.config.tools = this.config.tools || safeConfig.tools;
+									this.config.settings = this.config.settings || safeConfig.settings;
+
+									console.log('🛡️ EFB: Safe init called');
+									return originalInit.apply(this, arguments);
+								} catch (e) {
+									console.warn('🛡️ EFB: Caught init error:', e);
+									return {};
+								}
+							};
+						}
+
+						console.log('✅ EFB: Patched Elementor methods');
+						clearInterval(checkElementor);
+					}
+
+					if (attempts > 500) {
+						clearInterval(checkElementor);
+						console.log('⚠️ EFB: elementorFrontend not found, using global protection only');
+					}
+				}, 10);				console.log('� EFB: Ultimate Elementor fix started');
+			})();
+			</script>
+			<?php
+		}
+	}
 	public function EFB_Form_Builder($id){
-			/* if(!is_numeric(end($id))){ return "<div id='body_efb' class='efb card-public row pb-3 efb' > <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder')."</h3>
-				<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4><p></div></div>";
-			} */
 			error_log('EFB_Form_Builder');
 			error_log('id:'.end($id));
 			$this->enqueue_jquery();
@@ -141,17 +448,17 @@ class _Public {
 			$rgister_captcha_url = false;
 			$this->get_efbFunction(0);
 			if(isset($_GET['track'])){
-				$state_form =  sanitize_text_field($_GET['track']) ;
+				$state_form =  sanitize_text_field(wp_unslash($_GET['track']) );
 				$state="track";
 				// $admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
 				// $admin_sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : null;
 				if(isset($_GET['user'])  && $_GET['user']=="admin" ) $admin_form = true;
-				if(isset($_GET['sc'])) $admin_sc = sanitize_text_field($_GET['sc']);
+							if(isset($_GET['sc'])) $admin_sc = sanitize_text_field(wp_unslash($_GET['sc']));
 			}elseif (isset($_GET['state'])){
-				$admin_sc = sanitize_text_field($_GET['sc']);
-				$username =isset($_GET['username']) ?  sanitize_text_field($_GET['username']) : 'null';
-				$state = sanitize_text_field($_GET['state']);
-				$fid = sanitize_text_field($_GET['fid']);
+				$admin_sc = sanitize_text_field(wp_unslash($_GET['sc']));
+				$username =isset($_GET['username']) ?  sanitize_text_field(wp_unslash($_GET['username'])) : 'null';
+				$state = sanitize_text_field(wp_unslash($_GET['state']));
+				$fid = sanitize_text_field(wp_unslash($_GET['fid']));
 				// error_log('fid get:'.$fid);
 
 				$val = $this->fun_present_others_action_efb( $state, $username, $admin_sc, $fid);
@@ -191,9 +498,9 @@ class _Public {
 				<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
 				<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 			}
-			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound','sfmcfop','notFound','file','copied'];
+			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound','sfmcfop','notFound','file','copied','nonceExpired'];
 			$page_builder="";
-			$action_post = isset($_GET['action']) ? $_GET['action'] :'';
+			$action_post = isset($_GET['action']) ? sanitize_key( $_GET['action'] ) :'';
 
 			if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) || $action_post=='elementor' || isset($_GET['elementor-preview'])  )){
 
@@ -309,7 +616,7 @@ class _Public {
 			$state="form";
 			$multi_exist = strpos($value , '"type\":\"multiselect\"');
 			if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-				wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,EMSFB_PLUGIN_VERSION);
+				wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,EMSFB_PLUGIN_VERSION, true );
 				wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,EMSFB_PLUGIN_VERSION );
 				wp_enqueue_style('Emsfb-bootstrap-select-css');
 			}
@@ -335,8 +642,8 @@ class _Public {
 
 			$paymentType="null";
 			$paymentKey="null";
-			$refid = isset($_GET['Authority'])  ? sanitize_text_field($_GET['Authority']) : 'not';
-			$Status_pay = isset($_GET['Status'])  ? sanitize_text_field($_GET['Status']) : 'NOK';
+			$refid = isset($_GET['Authority'])  ? sanitize_text_field(wp_unslash($_GET['Authority'])) : 'not';
+			$Status_pay = isset($_GET['Status'])  ? sanitize_text_field(wp_unslash($_GET['Status'])) : 'NOK';
 			$img['plugin_url'] = EMSFB_PLUGIN_URL;
 
 			if($pro==1 || $pro==true){
@@ -375,7 +682,7 @@ class _Public {
 				} // end if pro
 
 					if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
-						wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);
+						wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', array(), EMSFB_PLUGIN_VERSION, true);
 						wp_enqueue_script('logic-efb');
 					}
 
@@ -4007,7 +4314,7 @@ function email_get_content_efb($content, $track){
 	}
 	public function form_preview_efb(){
 		// check request is ajax and nonce
-		if (  check_ajax_referer('admin-nonce', 'nonce') != 1) {
+		if (  check_ajax_referer('wp_rest', 'nonce') != 1) {
 			die();
 		}
 		$new_page_id = 0;
@@ -4679,80 +4986,6 @@ function email_get_content_efb($content, $track){
 		$email = $obj['email'];
 		$valobj = $obj['valobj'];
 
-		/* $price_c =0;
-		$price_f=0;
-		$email ='';
-		$valobj=[];
-		for ($i=0; $i <count($val_) ; $i++) {
-			$a=-1;
-			if(isset($val_[$i]['price'])){
-				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
-				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
-				$iv = $val_[$i];
-				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
-					$filtered = array_filter($fs_, function($item) use ($iv) {
-						switch ($iv["type"]) {
-							case 'paySelect':
-								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false ;
-							break;
-							case 'payRadio':
-								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false;
-							break;
-							case 'payCheckbox':
-								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false;
-							break;
-
-						}
-					});
-					if($filtered==false){
-						$m = esc_html__('error', 'easy-form-builder') . ' 405';
-						$response = ['success' => false, 'm' => $m];
-						wp_send_json_success($response, 200);
-					}
-					 $iv = array_keys($filtered);
-					 $a = isset( $iv[0])? $iv[0] :-1;
-				}else if ($iv["type"]=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
-					$rows = explode( ',', $iv["ids"] );
-					foreach ($rows as $key => $value) {
-						$filtered = array_filter($fs_, function($item) use ($value) {
-							if(isset($item['id_']))return $item['id_'] == $value ;
-						});
-						$iv = array_keys($filtered);
-						$price_f += $fs_[$a]["price"];
-					}
-					$a=-1;
-				}else if($iv["type"]=="prcfld" ){
-					   $a=-1;
-					   $price_f += $iv["price"];
-				}
-				if($a !=-1){
-					if($fs_[$a]["type"]!="payMultiselect"){
-						$price_f+=$fs_[$a]["price"];
-					}
-						$fs_[$a]["name"] = $val_[$i]["name"];
-						$fs_[$a]["type"] = "option_payment";
-						array_push($valobj,$fs_[$a]);
-				}
-			}
-		}
-		$ip =$this->get_ip_address();
-		$this->ip = $ip;
-		if($price_c != $price_f) {
-			$t=time();
-			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
-				$headers = array(
-				   'MIME-Version: 1.0\r\n',
-				   'From:'.$from.'',
-				);
-			$to =get_option('admin_email');
-			$message="This message from Easy Form Builder, This IP:".$this->ip.
-			" try to enter invalid value like fee of the service of the form id:" .$this->id. " at :".date("Y-m-d-h:i:s",$t) ;
-			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
-		}
-		$price_f = $price_f*100;
-
- */
-
 		if (!$amount || !is_numeric($amount) || !$paymentType) {
 			$amount_not_found = esc_html__('% not found', 'easy-form-builder');
 			$amount_not_found = str_replace('%', esc_html__('amount', 'easy-form-builder'), $amount_not_found);
@@ -4868,126 +5101,162 @@ function email_get_content_efb($content, $track){
 
 		wp_send_json_success($response, 200);
 	}
+	/**
+	 * DEPRECATED - Replaced by fix_elementor_complete_protection
+	 * Ultimate Elementor fix - runs at document level
+	 */
+	public function fix_elementor_ultimate_DEPRECATED() {
+		if (!is_admin()) {
+			?>
+			<script>
+
+			(function() {
+				'use strict';
+
+
+				window.elementorFrontendConfig = window.elementorFrontendConfig || {};
+				window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
+				window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
+
+
+				window.elementorFrontendConfig.tools.hash = window.elementorFrontendConfig.tools.hash || {};
+				window.elementorFrontendConfig.tools.ajax = window.elementorFrontendConfig.tools.ajax || {};
+
+
+				var originalConfig = window.elementorFrontendConfig;
+				Object.defineProperty(window, 'elementorFrontendConfig', {
+					get: function() {
+						return originalConfig;
+					},
+					set: function(value) {
+						if (value && typeof value === 'object') {
+							value.tools = value.tools || {};
+							value.settings = value.settings || {};
+						}
+						originalConfig = value;
+					}
+				});
+
+				console.log('EFB: Ultimate Elementor fix applied - tools protected');
+			})();
+			</script>
+			<?php
+		}
+	}
 
 	/**
-     * Initialize Elementor compatibility for all EFB admin pages
-     */
-    public function init_elementor_compatibility() {
-        // Only apply if Elementor is actually installed
-        if (!$this->is_elementor_admin_active()) {
-            return;
-        }
+	 * Monkey patch Elementor Frontend to prevent undefined tools error
+	 */
+	public function fix_elementor_monkey_patch_DEPRECATED() {
+		if (!is_admin()) {
+			?>
+			<script>
 
-        // Check if we're on any EFB admin page
-        if (isset($_GET['page']) && (
-            $_GET['page'] === 'Emsfb' ||
-            $_GET['page'] === 'Emsfb_create' ||
-            $_GET['page'] === 'Emsfb_addon' ||
-            $_GET['page'] === 'Emsfb_sms_efb'
-        )) {
-            add_action('admin_enqueue_scripts', array($this, 'apply_elementor_admin_fixes'), 1);
-        }
-    }
-
-    /**
-     * Apply Elementor admin compatibility fixes to prevent conflicts
-     */
-    public function apply_elementor_admin_fixes() {
-        // Add JavaScript to prevent Elementor admin conflicts
-        add_action('admin_footer', array($this, 'elementor_admin_conflict_prevention'));
-    }
-
-    /**
-     * Check if Elementor is active in admin context
-     */
-    public function is_elementor_admin_active() {
-        // Check if Elementor plugin is active
-        if (class_exists('\Elementor\Plugin') || defined('ELEMENTOR_VERSION')) {
-            return true;
-        }
-
-        // Check via WordPress plugin functions
-        if (function_exists('is_plugin_active') && is_plugin_active('elementor/elementor.php')) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Add JavaScript to prevent Elementor admin conflicts
-     */
-    public function elementor_admin_conflict_prevention() {
-        $current_page = isset($_GET['page']) ? $_GET['page'] : '';
-        ?>
-        <script type="text/javascript">
-        // Prevent Elementor admin conflicts with EFB Admin Pages
-        (function($) {
-            'use strict';
-
-            // Store original methods before any modifications
-            if (typeof window.efb_global_elementor_protection === 'undefined') {
-                window.efb_global_elementor_protection = true;
-
-                console.log('EFB Global: Initializing Elementor compatibility layer for <?php echo esc_js($current_page); ?>');
-
-                // Prevent Elementor admin errors
-                if (typeof elementorFrontend !== 'undefined') {
-                    try {
-                        // Safely check and initialize elementorFrontend.tools
-                        if (!elementorFrontend.tools) {
-                            elementorFrontend.tools = {};
-                            console.log('EFB Global: Initialized missing elementorFrontend.tools');
-                        }
-                    } catch (e) {
-                        console.log('EFB Global: Prevented Elementor frontend error:', e.message);
-                    }
-                }
-
-                // Global error handling for dispatchEvent issues
-                $(document).ready(function() {
-                    // Prevent jQuery Deferred errors
-                    $(window).on('error', function(e) {
-                        if (e.originalEvent && e.originalEvent.message) {
-                            var errorMessage = e.originalEvent.message.toLowerCase();
-                            if (errorMessage.includes('dispatchevent') ||
-                                errorMessage.includes('elementor') ||
-                                errorMessage.includes('tools') ||
-                                errorMessage.includes('cannot read properties of undefined')) {
-                                console.log('EFB Global: Suppressed Elementor admin error on <?php echo esc_js($current_page); ?>:', errorMessage);
-                                e.preventDefault();
-                                return false;
-                            }
-                        }
-                    });
-
-                    // Protect Event.dispatchEvent calls
-                    if (window.Event && Event.prototype.dispatchEvent) {
-                        var originalDispatchEvent = Event.prototype.dispatchEvent;
-                        Event.prototype.dispatchEvent = function(event) {
-                            try {
-                                if (typeof this.dispatchEvent === 'function') {
-                                    return originalDispatchEvent.call(this, event);
-                                }
-                            } catch (e) {
-                                console.log('EFB Global: Prevented dispatchEvent error on <?php echo esc_js($current_page); ?>:', e.message);
-                                return false;
-                            }
-                        };
-                    }
-                });
-            }
-        })(jQuery);
-        </script>
-        <?php
-    }
+			(function() {
+				'use strict';
 
 
+				function patchElementor() {
+
+					window.elementorFrontendConfig = window.elementorFrontendConfig || {};
+					window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
+					window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
 
 
+					if (typeof window.elementorFrontend !== 'undefined') {
+						var originalInit = window.elementorFrontend.init;
+						window.elementorFrontend.init = function() {
+							this.config = this.config || window.elementorFrontendConfig;
+							this.config.tools = this.config.tools || {};
+							this.config.settings = this.config.settings || {};
+							return originalInit.apply(this, arguments);
+						};
+						console.log('EFB: Patched elementorFrontend.init');
+					}
 
 
+					if (typeof window.elementorFrontend !== 'undefined' && window.elementorFrontend.initOnReadyComponents) {
+						var originalInitOnReady = window.elementorFrontend.initOnReadyComponents;
+						window.elementorFrontend.initOnReadyComponents = function() {
+							this.config = this.config || window.elementorFrontendConfig;
+							this.config.tools = this.config.tools || {};
+							this.config.settings = this.config.settings || {};
+							return originalInitOnReady.apply(this, arguments);
+						};
+						console.log('EFB: Patched elementorFrontend.initOnReadyComponents');
+					}
+				}
 
+
+				patchElementor();
+
+
+				if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', patchElementor);
+				}
+
+
+				window.addEventListener('load', patchElementor);
+
+				console.log('EFB: Elementor monkey patch installed');
+			})();
+			</script>
+			<?php
+		}
+	}
+
+		/**
+	 * Direct fix for Elementor after all scripts load
+	 */
+	public function fix_elementor_direct_DEPRECATED() {
+		if (!is_admin()) {
+			?>
+			<script>
+
+			(function() {
+				'use strict';
+
+				function emergencyFix() {
+
+					window.elementorFrontendConfig = window.elementorFrontendConfig || {};
+					window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
+					window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
+
+
+					if (typeof window.elementorFrontend === 'object' && window.elementorFrontend) {
+						window.elementorFrontend.config = window.elementorFrontend.config || window.elementorFrontendConfig;
+						if (window.elementorFrontend.config) {
+							window.elementorFrontend.config.tools = window.elementorFrontend.config.tools || {};
+							window.elementorFrontend.config.settings = window.elementorFrontend.config.settings || {};
+						}
+					}
+
+
+					if (typeof window.elementorFrontend === 'object' &&
+					    window.elementorFrontend &&
+					    typeof window.elementorFrontend.init === 'function' &&
+					    !window.elementorFrontend.initialized) {
+						try {
+							window.elementorFrontend.initialized = true;
+							console.log('EFB: Emergency Elementor fix applied');
+						} catch (e) {
+							console.log('EFB: Emergency fix attempt completed');
+						}
+					}
+				}
+
+
+				emergencyFix();
+
+
+				setTimeout(emergencyFix, 100);
+				setTimeout(emergencyFix, 500);
+
+			})();
+			</script>
+			<?php
+		}
+	}
 
 
 

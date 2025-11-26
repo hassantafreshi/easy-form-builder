@@ -2087,9 +2087,9 @@ public function addon_add_efb($value) {
 		}
 		if($s==false) return false;
 
-		wp_register_style('leaflet_css_efb', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css');
+		wp_register_style('leaflet_css_efb', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css', array(), '1.7.1');
 		wp_enqueue_style('leaflet_css_efb');
-		wp_register_script('leaflet_js_efb', $url);
+		wp_register_script('leaflet_js_efb', $url, array(), '1.7.1', true);
 		wp_enqueue_script('leaflet_js_efb');
 		wp_register_style('leaflet_fullscreen_css_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css');
 		wp_enqueue_style('leaflet_fullscreen_css_efb');
@@ -2112,7 +2112,7 @@ public function addon_add_efb($value) {
         $url = 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload';
         $response = wp_remote_head($url);
         if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
-            wp_register_script('recaptcha', $url, null , null, true);
+            wp_register_script('recaptcha', $url, array() , '2.0', true);
             wp_enqueue_script('recaptcha');
 			return true;
         } else {
@@ -2542,7 +2542,7 @@ public function addon_add_efb($value) {
 
 
 		// List of trusted domains for URLs in CSS (e.g., background-image)
-		$current_domain = parse_url(home_url(), PHP_URL_HOST);
+		$current_domain = wp_parse_url(home_url(), PHP_URL_HOST);
 		$allowed_domains = array('google.com', 'gstatic.com', 'googleapis.com', 'googleusercontent.com', 'youtube.com', 'ytimg.com', 'microsoft.com', 'office.com', 'live.com', 'msn.com', 'outlook.com', 'amazonaws.com', 'cloudfront.net', 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com', 'jsdelivr.net', 'unpkg.com', 'facebook.com', 'fbcdn.net', 'twitter.com', 'twimg.com', 'github.com', 'github.io', 'vimeo.com', 'vimeocdn.com', 'wikipedia.org', 'wikimedia.org', 'wikidata.org', 'stripe.com', 'paypal.com', 'braintreepayments.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'use.fontawesome.com', 'dailymotion.com', 'dmcdn.net', 'maps.googleapis.com', 'openstreetmap.org', 'mapbox.com', 'gravatar.com', 'unsplash.com', 'placekitten.com', 'placehold.co', 'akamaihd.net', 'cloudflare.com', 'fastly.net', 'linkedin.com', 'apple.com', 'adobe.com', 'cdn.shopify.com', 'example.com', 'example.org', 'trusted.com', 'cdn.trusted.com');
 
 
@@ -2793,7 +2793,7 @@ public function addon_add_efb($value) {
 
 	public function validate_url_efb($url) {
 			global $allowed_domains;
-			$parsed_url = parse_url($url);
+			$parsed_url = wp_parse_url($url);
 
 			if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
 				return esc_url($url);
@@ -2985,6 +2985,13 @@ public function addon_add_efb($value) {
 		return $addons;
 	}
 
+	function user_permission_efb_admin_dashboard(){
+
+		if ( is_user_logged_in() && (current_user_can('manage_options') || current_user_can('Emsfb')) ) {
+			return true;
+		}
+		return false;
+	}
 }
 
 

@@ -221,7 +221,7 @@ class Create {
 		$location ='';
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,'3.8.1');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
-			'nonce'=> wp_create_nonce("admin-nonce"),
+			'nonce'=> wp_create_nonce("wp_rest"),
 			'check' => 1,
 			'pro' => $pro ? 1 : 0,
 			'rtl' => is_rtl() ,
@@ -247,7 +247,7 @@ class Create {
 		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js',false,'3.8.1');
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js',false,'3.8.1');
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
-			'nonce'=> wp_create_nonce("admin-nonce"),
+			'nonce'=> wp_create_nonce("wp_rest"),
 			'check' => 1		));
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,'3.8.1');
 		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.8.1');
@@ -263,7 +263,7 @@ class Create {
 
 		// security check
 		$nonce = $_POST['nonce'];
-		if ( !wp_verify_nonce( $nonce, 'admin-nonce' ) || !current_user_can('Emsfb') ) {
+		if ( !wp_verify_nonce( $nonce, 'wp_rest' ) || !current_user_can('Emsfb') ) {
             $response = ['success' => false, 'm' =>  $lang['error403']];
             wp_send_json_success($response, 200);
 		}

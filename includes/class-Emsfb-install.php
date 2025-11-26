@@ -109,32 +109,35 @@ class Install {
 
 
 
-							$user_id = get_current_user_id();
-							$usr =get_user_by('id',$user_id);
-							$eml=$usr->user_email;
-							if($eml==NULL || $eml=='') {
-								$usr =get_user_by('id',1);
-								$eml = $usr ? $usr->user_email :'';
-							}
+				$user_id = get_current_user_id();
+				$usr =get_user_by('id',$user_id);
+				$eml=$usr->user_email;
+				if($eml==NULL || $eml=='') {
+					$usr =get_user_by('id',1);
+					$eml = $usr ? $usr->user_email :'';
+				}
 
-						$s = false;
-						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
-						$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
-						if($v===NULL && $s){
-							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
-							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id()
-							, 'date'=>current_time('mysql') , 'email'=>'' ));
+			$s = false;
 
-							dbDelta( $s );
+			$v = $wpdb->get_var( $wpdb->prepare( "SELECT setting FROM %i ORDER BY id DESC LIMIT 1", $table_name_stng ) );
+			$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
+			if($v===NULL && $s){
+				$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
 
-						}else if ($v === NULL && !$s) {
-							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":false,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
-							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id()
-							, 'date'=>current_time('mysql') , 'email'=>'' ));
+				$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id()
+				, 'date'=>current_time('mysql') , 'email'=>'' ));
 
-							dbDelta( $s );
+				dbDelta( $s );
 
-						}
+			}else if ($v === NULL && !$s) {
+				$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":false,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
+
+				$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id()
+				, 'date'=>current_time('mysql') , 'email'=>'' ));
+
+				dbDelta( $s );
+
+			}
 
 		add_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
 		return $state;

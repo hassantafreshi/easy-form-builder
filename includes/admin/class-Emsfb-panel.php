@@ -205,7 +205,7 @@ class Panel_edit  {
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
-				'nonce'=> wp_create_nonce("admin-nonce"),
+				'nonce'=> wp_create_nonce("wp_rest"),
 				'pro' => $pro ? 1 : 0,
 				'check' => 0,
 				'rtl' => $rtl,
@@ -241,7 +241,7 @@ class Panel_edit  {
 			wp_enqueue_script('stripe_js');
 			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js',false,EMSFB_PLUGIN_VERSION );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
-					'nonce'=> wp_create_nonce("admin-nonce"),
+					'nonce'=> wp_create_nonce("wp_rest"),
 					'check' => 0
 					));
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false ,EMSFB_PLUGIN_VERSION);
@@ -288,7 +288,7 @@ class Panel_edit  {
 					'ajax_value' => $value,
 					'language' => $lng_,
 					'text' => $lang,
-					'nonce'=>wp_create_nonce("public-nonce"),
+					'nonce'=>wp_create_nonce("wp_rest"),
 					'user_name'=> wp_get_current_user()->display_name,
 					'user_ip'=> $ip,
 					'setting'=>$stng,
@@ -357,7 +357,7 @@ class Panel_edit  {
             // end test
 	}
 	public function file_upload_api(){
-
+		error_log('file upload api panel called');
 		$efbFunction = $this->get_efbFunction();
 		$_POST['id']=intval($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
