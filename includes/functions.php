@@ -936,7 +936,7 @@ class efbFunction {
 
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$email_content_type,$st);
 
-							error_log("sending email loop ". json_encode($cont[$i], JSON_UNESCAPED_UNICODE)  );
+							// error_log("sending email loop ". json_encode($cont[$i], JSON_UNESCAPED_UNICODE)  );
 							if( $state!="reportProblem"){
 								$to_;$mailResult;
 								$to_ = $to[$i];

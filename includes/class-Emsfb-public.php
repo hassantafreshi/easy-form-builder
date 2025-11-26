@@ -264,7 +264,7 @@ public function check_nonce_permission($request) {
 
 		// If Elementor content detected, skip jQuery override
 		if ($elementor_active || $has_elementor_content) {
-			error_log('EFB: Elementor detected - skipping jQuery override for compatibility');
+			// error_log('EFB: Elementor detected - skipping jQuery override for compatibility');
 			return; // Let WordPress/Elementor handle jQuery
 		}
 
@@ -2740,7 +2740,22 @@ public function check_nonce_permission($request) {
 				$vv_="";
 				$lst = end($msg_obj);
 				$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+				//check if track and id match from emsfb_msg_
+				$table_emsfb_msg_ = $this->db->prefix . "emsfb_msg_";
+				$exists = (int) $this->db->get_var(
+					$this->db->prepare(
+						"SELECT EXISTS(SELECT 1 FROM `$table_emsfb_msg_` WHERE msg_id = %d AND track = %s LIMIT 1)",
+						$id,
+						$track
+					)
+				);
 
+				if (!$exists) {
+					wp_send_json_success(
+						array('success' => false, 'm' => esc_html__('Not allowed to respond to this message.', 'easy-form-builder')),
+						200
+					);
+				}
 
 				$table_name = $this->db->prefix . "emsfb_rsp_";
 
@@ -2771,8 +2786,8 @@ public function check_nonce_permission($request) {
 					'date'=>wp_date('Y-m-d H:i:s'),
 				));
 				$track = $value[0]->track;
-				$table_name = $this->db->prefix . "emsfb_msg_";
-				$this->db->update($table_name,array('read_'=>$read_s), array('msg_id' => $id) );
+
+				$this->db->update($table_emsfb_msg_,array('read_'=>$read_s), array('msg_id' => $id ,'track' => $track) );
 
 				$email_usr ="";
 
@@ -2993,7 +3008,7 @@ public function check_nonce_permission($request) {
 
 			}
 		}
-		error_log('EFB Email Send State: '.json_encode($cont, JSON_UNESCAPED_UNICODE));
+		// error_log('EFB Email Send State: '.json_encode($cont, JSON_UNESCAPED_UNICODE));
 		$check =  $this->efbFunction->send_email_state_new( $to,$subject ,$cont,$pro,$state,$link_w,$this->setting);
 	}
 
@@ -3887,9 +3902,9 @@ public function check_nonce_permission($request) {
 
 			// افزودن یک جفت عنوان/مقدار به دو ستون
 			$addPair = function($title, $value) use (&$m){
-				error_log('Adding pair: ' . $title . ' => ' . $value);
+				// error_log('Adding pair: ' . $title . ' => ' . $value);
 				$title = $this->efbFunction->ensure_trailing_colon_efb($title);
-				error_log('Formatted title: ' . $title);
+				// error_log('Formatted title: ' . $title);
 				if($title==='' && $value===''){ return; }
 				$m .= '<tr>';
 				$m .= '<td valign="top" width="50%" class="columnEmailEfb" style="padding:5px; line-height:20px;">';
@@ -4077,7 +4092,7 @@ public function check_nonce_permission($request) {
 				}
 			}
 
-			error_log('Total Amount Calculated: '.$m);
+			// error_log('Total Amount Calculated: '.$m);
 			$m .= '</table>';
 			return $m;
 		}
