@@ -681,7 +681,7 @@ i.efb {	font-size: 1.2rem;
         background-color: rgba(108, 117, 125, 0.2) !important;
     }
 
-    /* Mobile touch feedback for btn-toggle elements - separate from btn-edit */
+
     .btn-toggle {
         transition: all 0.2s ease-out !important;
     }

@@ -118,12 +118,12 @@ class Install {
 				}
 
 			$s = false;
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			//phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$v = $wpdb->get_var( $wpdb->prepare( "SELECT setting FROM %i ORDER BY id DESC LIMIT 1", $table_name_stng ) );
 			$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
 			if($v===NULL && $s){
 				$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			//phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 				$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id()
 				, 'date'=>current_time('mysql') , 'email'=>'' ));
 
@@ -131,7 +131,7 @@ class Install {
 
 			}else if ($v === NULL && !$s) {
 				$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":false,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				//phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 				$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id()
 				, 'date'=>current_time('mysql') , 'email'=>'' ));
 

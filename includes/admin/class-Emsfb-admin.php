@@ -278,7 +278,7 @@ class Admin {
         }
 
         $post_name = isset($_POST['name']) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
-if ($this->isScript(json_encode($post_value),JSON_UNESCAPED_UNICODE) || $this->isScript(json_encode($post_name),JSON_UNESCAPED_UNICODE)) {
+        if ($this->isScript(json_encode($post_value),JSON_UNESCAPED_UNICODE) || $this->isScript(json_encode($post_name),JSON_UNESCAPED_UNICODE)) {
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
@@ -1261,8 +1261,10 @@ if ($this->isScript(json_encode($post_value),JSON_UNESCAPED_UNICODE) || $this->i
 
                     $directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
                     if (!file_exists($directory)) {
+                        //phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- Fallback when WP_Filesystem fails
                         mkdir($directory, 0755, true);
                     }
+                    //phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Fallback when WP_Filesystem fails
                     $r = rename($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip');
                 }
                 if(is_wp_error($r)){
@@ -1769,7 +1771,7 @@ if ($this->isScript(json_encode($post_value),JSON_UNESCAPED_UNICODE) || $this->i
                     var efbCloseBtn = document.getElementById('efb-close-notice-btn');
 
                     if (efbCloseBtn) {
-                        //look for efb classes on the elements of page
+                        // look for efb classes on the elements of page
                         const page = document.querySelector('.sideMenuFEfb');
                         if (page) {
                             efbNotice.style.display = 'none';

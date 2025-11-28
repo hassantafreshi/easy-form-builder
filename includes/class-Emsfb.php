@@ -85,6 +85,7 @@ class Emsfb {
         global $wpdb;
         $test_tabale = $wpdb->prefix . "Emsfb_form";
 		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $test_tabale ) );
+		//phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name is properly escaped
 		$check_test_table = $wpdb->get_var( $query );
         $table_name = $wpdb->prefix . "emsfb_form";
 

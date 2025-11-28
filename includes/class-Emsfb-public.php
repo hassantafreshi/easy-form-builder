@@ -981,7 +981,6 @@ public function check_nonce_permission($request) {
 			// Add early Elementor compatibility script to head
 			add_action('wp_head', function() {
 				echo '<script>
-				// Early Elementor compatibility
 				window.elementorFrontendConfig = window.elementorFrontendConfig || {};
 				window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
 				window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
@@ -1035,6 +1034,7 @@ public function check_nonce_permission($request) {
 	  }
 
 	  public function get_form_public_efb($data_POST_){
+		//phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified via permission_callback in REST API route registration
 		error_log('get_form_public_efb called');
 		$data_POST = $data_POST_->get_json_params();
 
@@ -2265,7 +2265,7 @@ public function check_nonce_permission($request) {
 		}
 	  }
 	  public function get_track_public_api($data_POST_) {
-
+		//phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified via permission_callback in REST API route registration
 		$data_POST = $data_POST_->get_json_params();
 
 		$this->get_efbFunction(0);
@@ -2384,16 +2384,16 @@ public function check_nonce_permission($request) {
     }
 	public function file_upload_public(){
 
-        $_POST['id']=intval( wp_unslash( $_POST['id'] ) );
-        $_POST['pl']=sanitize_text_field(wp_unslash($_POST['pl']));
-        $_POST['nonce_msg']=sanitize_text_field(wp_unslash($_POST['nonce_msg']));
-		$page_id = sanitize_text_field(wp_unslash($_POST['page_id']));
+        $_POST['id']= isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+        $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field(wp_unslash($_POST['pl'])) : '';
+        $_POST['nonce_msg']= isset($_POST['nonce_msg']) ? sanitize_text_field(wp_unslash($_POST['nonce_msg'])) : '';
+		$page_id = isset($_POST['page_id']) ? sanitize_text_field(wp_unslash($_POST['page_id'])) : '';
         $vl=null;
 
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
-            $id = $_POST['id'];
+            $id = isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
             $table_name = $this->db->prefix . "emsfb_form";
             $vl = $this->db->get_var(
 				$this->db->prepare(
@@ -2442,17 +2442,18 @@ public function check_nonce_permission($request) {
 		}else{
 			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]);
 			wp_send_json_success($response,200);
-			die('invalid file '.$file_type);
+			die('invalid file ' . esc_html( $file_type ) );
 		}
 	}
 
 	public function file_upload_api(){
+		//phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified via permission_callback in REST API route registration
 		$efbFunction =  $this->get_efbFunction(1);
-		$_POST['id']=intval( wp_unslash( $_POST['id'] ) );
-        $_POST['pl']=sanitize_text_field(wp_unslash($_POST['pl']));
-        $fid=intval( wp_unslash( $_POST['fid'] ) );
+		$_POST['id']= isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+        $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field(wp_unslash($_POST['pl'])) : '';
+        $fid= isset($_POST['fid']) ? intval( wp_unslash( $_POST['fid'] ) ) : 0;
 		$sid = '';
-		$page_id = sanitize_text_field(wp_unslash($_POST['page_id']));
+		$page_id = isset($_POST['page_id']) ? sanitize_text_field(wp_unslash($_POST['page_id'])) : '';
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
 
 		$this->cache_cleaner_Efb($page_id);
@@ -2464,7 +2465,7 @@ public function check_nonce_permission($request) {
             $vl ='efb'. $_POST['id'];
         }else{
 
-            $id = $_POST['id'];
+            $id = isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
             $table_name = $this->db->prefix . "emsfb_form";
 			$vl = $this->db->get_var( $this->db->prepare(
 				"SELECT form_structer FROM `$table_name` WHERE form_id = %d",
@@ -2575,11 +2576,12 @@ public function check_nonce_permission($request) {
 		}else{
 			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]);
 			wp_send_json_success($response,200);
-			die('invalid file '.$async_file_type);
+			die('invalid file ' . esc_html( $async_file_type ) );
 		}
 	}
 
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
+		//phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified via permission_callback in REST API route registration
 		$data_POST = $data_POST_->get_json_params();
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["error400","somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","vmgs","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo","pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr",
 		"youRecivedNewMessage","trackNo","WeRecivedUrM","thankFillForm","msgdml","spprt"];
@@ -3106,6 +3108,7 @@ public function check_nonce_permission($request) {
 	 return $rtrn;
 	}
 	public function pay_stripe_sub_Emsfb_api($data_POST_) {
+		//phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified via permission_callback in REST API route registration
 		$data_POST = $data_POST_->get_json_params();
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
@@ -3316,6 +3319,7 @@ public function check_nonce_permission($request) {
 		}
 	}
 	public function pay_persia_sub_Emsfb_api($data_POST_){
+		//phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified via permission_callback in REST API route registration
 		$data_POST = $data_POST_->get_json_params();
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 

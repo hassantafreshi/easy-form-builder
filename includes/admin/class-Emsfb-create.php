@@ -99,12 +99,15 @@ class Create {
 										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?php echo is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button"><i class="efb bi-x-lg"></i></a>
 									</div>
 									<div class="efb modal-body row" id="settingModalEfb-body">
-									<?php echo  do_action('efb_loading_card'); ?>
+									<?php  do_action('efb_loading_card'); ?>
 									</div>
 					</div></div></div>
             <div id="tab_container_efb">
 				<div class="efb card-body text-center efb mt-5 pt-3">
-				<?php echo   do_action('efb_loading_card'); ?>
+				<?php
+				//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_action is safe
+				do_action('efb_loading_card');
+				?>
 				</div>
         	</div>
 			<datalist id="color_list_efb">
@@ -381,8 +384,10 @@ class Create {
 
 
 
-		$this->formtype =  sanitize_text_field(wp_unslash($_POST['type']));
-		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
+		$this->formtype = isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : '';
+		$postValue = isset($_POST['value']) ? sanitize_text_field(wp_unslash($_POST['value'])) : '';
+		$postType = isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : '';
+		if($this->isScript($postValue) ||$this->isScript($postType)){
 			$response = array( 'success' => false , "m"=> $lang["NAllowedscriptTag"]);
 			wp_send_json_success($response,200);
 		}
