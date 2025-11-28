@@ -40,7 +40,7 @@ const fields_efb = [
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true, tag:'advance all' },
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' },
   { name: efb_var.text.chlCheckBox, icon: 'bi-card-checklist', id: 'chlCheckBox', pro: true, tag:'advance all' },
-  //{ name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
+  // { name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
   { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true, tag:'advance all' },
 
   { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true, tag:'basic all' },
@@ -55,7 +55,7 @@ const fields_efb = [
   { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'advance all' },
   { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
 
-  //{ name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
+  // { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
 
   { name: efb_var.text.terms, icon: 'bi-shield-check', id: 'trmCheckbox', pro: true, tag:'advance all' },
 
@@ -316,7 +316,7 @@ const ElcountriesListSelections = (idset,indx) => {
     <th scope="row" class="efb ${c_c.indexOf(s2)!=-1 ? 'bi-check-square text-info' : 'bi-square'}" onClick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" ></th><td class="efb ms col-12"  onClick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}">${i.n} ${v}</td>
   </tr>  `
 
-  }//end for
+  }// end for
    return `
     <label for="${rndm}-f" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.scdnmi}</label>
     <div class="efb col-sm-12 listSelect mx-0 ttEfb show"   id='${rndm}-f' data-id="${rndm}-el" >

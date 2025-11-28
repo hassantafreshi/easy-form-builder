@@ -2101,13 +2101,13 @@ fun_offline_Efb = () => {
   let values =  '';
   if(efb_var.type=='payment' && get_authority_efb!==null){
     const form_name_session = "efb_form_name_"+efb_var.id;
-    console.log(`form_name_session`, form_name_session);
+    // console.log(`form_name_session`, form_name_session);
     values = JSON.parse(sessionStorage.getItem(form_name_session)) ?? values;
     files_emsFormBuilder = JSON.parse(sessionStorage.getItem("files_"+form_name_session)) ?? files_emsFormBuilder;
   }else{
      values = JSON.parse(localStorage.getItem('sendback'));
   }
-  console.log(`offline_Efb called UI`, values)
+ // console.log(`offline_Efb called UI`, values)
   for (let value of values) {
     sendBack_emsFormBuilder_pub.push(value);
     switch (value.type) {
@@ -2440,7 +2440,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
     }
     });
     xhr.addEventListener('load', () => {
-      console.log(`xhr`, xhr);
+     // console.log(`xhr`, xhr);
     if (xhr.status === 403) {
       const nonceMsg = efb_var.text.nonceExpired || 'Your session has expired. Please refresh the page and try again.';
       noti_message_efb(nonceMsg, 'danger', `step-${current_s_efb}-efb-msg`);
@@ -2818,7 +2818,7 @@ function handle_change_event_efb(el){
               return 0;
       }
             return 1;
-    }//end validate_len
+    }// end validate_len
     let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
     let value = ""
     const id_ = el.dataset.vid
@@ -3045,7 +3045,7 @@ offset_view_efb=()=>{
 get_row_sendback_by_id_efb=(id_)=>{
  return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)
 }
-//end payment functions
+// end payment functions
 function fun_total_pay_efb() {
   let total = 0;
   updateTotal = (i) => {
@@ -3095,8 +3095,8 @@ fun_disabled_all_pay_efb = () => {
             ov.classList.add('disabled');
             ov.classList.remove('payefb');
             ov.disabled = true;
-          }//end for
-        }//end if multiselect
+          }// end for
+        }// end if multiselect
       }else{
         let ov = document.querySelector(`[data-vid="${o.id_}"]`);
 
@@ -3295,7 +3295,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   m += '</div>';
   return m;
 }
-//end payment functions
+// end payment functions
 
 fun_get_links_from_string_Efb=(str , handler)=>{
 
@@ -3338,5 +3338,5 @@ function deepFreeze_efb(obj) {
   return Object.freeze(obj);
 }
 
-//3.6.8 end
+// 3.6.8 end
 
