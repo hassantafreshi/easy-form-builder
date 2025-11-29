@@ -1,4 +1,4 @@
-# 📱 Mobile Compatibility Roadmap - Easy Form Builder
+# Compatibility Roadmap - Easy Form Builder
 
 ## 🎯 Project Overview
 
