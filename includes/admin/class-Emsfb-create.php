@@ -322,8 +322,7 @@ class Create {
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("wp_rest"),
-			'check' => 1,
-			'none_mesge'=> wp_create_nonce("wp-rest")		));
+			'check' => 1	));
 
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', false, EMSFB_PLUGIN_VERSION, true);
 

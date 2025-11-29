@@ -9,7 +9,7 @@
  let default_val_efb ="Select an option";
  let inputSearch_efb;
  let ArrSearch_efb = Array.prototype;
- // data-id va data=setid bari baghi bejoz Elicon iki bashad va id bashad
+
 
  function returnValueSelectedOfListEfb(dataSetId){
 
