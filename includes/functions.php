@@ -777,7 +777,7 @@ class efbFunction {
 			"tlgmDAddon" => $state  &&  isset($ac->text->tlgmDAddon) ? $ac->text->tlgmDAddon : esc_html__('The Telegram notification addon lets you get notifications on your Telegram app whenever you receive new messages or responses','easy-form-builder'),
 			"eln" => $state  &&  isset($ac->text->eln) ? $ac->text->eln : esc_html__('Enter a location name','easy-form-builder'),
 			/* translators: %1$s is the plugin name, %2$s and %3$s are opening and closing link tags for support */
-			"alns" => $state  &&  isset($ac->text->alns) ? $ac->text->alns : esc_html__('The %1$s pages are currently unavailable. It looks like another plugin is causing a conflict with %1$s . To fix this issue, %2$s contact %1$s support %3$s for assistance  or try disabling your plugins one at a time to identify the one causing the conflict.','easy-form-builder'),
+			"alns" => $state  &&  isset($ac->text->alns) ? $ac->text->alns : esc_html__('The %1$s pages are currently unavailable. It looks like another plugin is causing a conflict with %1$s. To fix this issue, %2$s contact %1$s support %3$s for assistance or try disabling your plugins one at a time to identify the one causing the conflict.','easy-form-builder'),
 
 			"notis" => $state  &&  isset($ac->text->noti) ? $ac->text->noti : esc_html__('%s notification','easy-form-builder'),
 			"settings" => $state  &&  isset($ac->text->settings) ? $ac->text->settings : esc_html__('Settings','easy-form-builder'),
@@ -814,7 +814,7 @@ class efbFunction {
 
 			"srvnsave" => $state  &&  isset($ac->text->srvnsave) ? $ac->text->srvnsave : esc_html__('The connection was interrupted, but don\'t worry—your edits are safely stored in your browser. Refresh the page to continue working.','easy-form-builder'),
 
-			"rasfmb" => $state  &&  isset($ac->text->rasfmb) ? $ac->text->rasfmb : esc_html__('There is an auto-saved version of the form avilable. Do you want to restore it?','easy-form-builder'),
+			"rasfmb" => $state  &&  isset($ac->text->rasfmb) ? $ac->text->rasfmb : esc_html__('There is an auto-saved version of the form available. Do you want to restore it?','easy-form-builder'),
 			"smsWPN" => $state  &&  isset($ac->text->smsWPN) ? $ac->text->smsWPN : esc_html__('SMS notification could not be sent. Please check SMS plugin installed and configured properly.','easy-form-builder'),
 			"msgSndBut" => $state && isset($ac->text->msgSndBut) ? $ac->text->msgSndBut : esc_html__('Your request was completed successfully. %1$s %2$s', 'easy-form-builder'),
 			"paypal" => $state  &&  isset($ac->text->paypal) ? $ac->text->paypal : esc_html__('PayPal','easy-form-builder'),
@@ -823,7 +823,7 @@ class efbFunction {
 		/* translators: %s: Add-on name */
 		"INAddonMsg" => $state  &&  isset($ac->text->INAddonMsg) ? $ac->text->INAddonMsg : esc_html__('Go to the Add-ons page in the Easy Form Builder plugin, install the %s add-on, and try again.','easy-form-builder'),
 		/* translators: %s: Payment add-on name */
-		"IMAddonPMsg" => $state && isset($ac->text->IMAddonPMsg) ? $ac->text->IMAddonPMsg  : esc_html__('To create a payment form, install a payment add-on such as the  %s Add-on first.', 'easy-form-builder'),
+		"IMAddonPMsg" => $state && isset($ac->text->IMAddonPMsg) ? $ac->text->IMAddonPMsg  : esc_html__('To create a payment form, install a payment add-on such as the %s Add-on first.', 'easy-form-builder'),
 		"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank','easy-form-builder'),			//fixed typos
 			"excefb_" => $state  &&  isset($ac->text->excefb_) ? $ac->text->excefb_ : esc_html__('The %s plugin might interfere with forms of Easy Form Builder\'s functionality. If you encounter any issues with the Forms, disable caching for the Easy Form Builder plugin in the %s plugin\'s settings.','easy-form-builder'),
 			"ptrnMmm_" => $state  &&  isset($ac->text->ptrnMmm_) ? $ac->text->ptrnMmm_ : esc_html__('The value of the %1$s field does not match the pattern and must be at least %2$s characters.','easy-form-builder'),
