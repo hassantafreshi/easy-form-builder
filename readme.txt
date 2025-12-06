@@ -3,8 +3,8 @@ Contributors: hassantafreshi, mostafas1990, mrlast, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
 Requires at least: 4.7
-Tested up to: 6.8
-Stable tag: 3.9.0
+Tested up to: 6.9
+Stable tag: 3.9.01
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
