@@ -328,7 +328,7 @@ class Admin {
 
         // Clear form cache after update
         if (class_exists('Emsfb_public')) {
-            Emsfb_public::clear_form_cache($post_id);
+            Emsfb_public::clear_form_cache_efb($post_id);
         }
 
         $value_="";

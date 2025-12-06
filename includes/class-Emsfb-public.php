@@ -40,12 +40,12 @@ class _Public {
 		register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
 			'method'=> 'POST',
 			'callback'=>  [$this,'test_fun'],
-			'permission_callback' => [$this, 'check_nonce_permission']
+			'permission_callback' => [$this, 'check_nonce_permission_efb']
 		]);
 			register_rest_route('Emsfb/v1','forms/message/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'get_form_public_efb'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 			/* register_rest_route('Emsfb/v1','forms/email/send', [
 				'methods' => 'POST',
@@ -56,31 +56,31 @@ class _Public {
 			register_rest_route('Emsfb/v1','forms/payment/persia/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'pay_persia_sub_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
 			register_rest_route('Emsfb/v1','forms/payment/stripe/card/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'pay_stripe_sub_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
 			register_rest_route('Emsfb/v1','forms/response/get', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'get_track_public_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
 			register_rest_route('Emsfb/v1','forms/response/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'set_rMessage_id_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
 			register_rest_route('Emsfb/v1','forms/file/upload', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'file_upload_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 	});
 
@@ -96,13 +96,13 @@ class _Public {
 
 	// Elementor compatibility - defer to after wp_enqueue_scripts to avoid warnings
 	if (!is_admin()) {
-		add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
+		add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility_efb'], 1);
 	}
 
 }
 
 // REST API nonce verification
-public function check_nonce_permission($request) {
+public function check_nonce_permission_efb($request) {
 	// Send CORS headers - only allow requests from the same domain or explicitly allowed origins
 	$allowed_origins = apply_filters('efb_allowed_cors_origins', array(
 		home_url(),
@@ -151,27 +151,27 @@ public function check_nonce_permission($request) {
 }	/**
 	 * Initialize Elementor compatibility only if Elementor is detected
 	 */
-	public function init_elementor_compatibility() {
+	public function init_elementor_compatibility_efb() {
 		// Only run on frontend, not in admin panel to avoid conflicts
 		if (is_admin()) {
 			return;
 		}
 
 		// Check if Elementor is active
-		$elementor_active = $this->is_elementor_active();
+		$elementor_active = $this->is_elementor_active_efb();
 
 		if ($elementor_active) {
 			// Only add hooks if Elementor is detected on frontend
-			add_action('wp_head', [$this, 'simple_elementor_fix'], 1);
-			add_action('wp_footer', [$this, 'simple_elementor_fix_footer'], 1);
-			// jQuery compatibility handled in enqueue_jquery() method
+			add_action('wp_head', [$this, 'simple_elementor_fix_efb'], 1);
+			add_action('wp_footer', [$this, 'simple_elementor_fix_footer_efb'], 1);
+			// jQuery compatibility handled in enqueue_jquery_efb() method
 		}
 	}
 
 	/**
 	 * Safe wrapper for wp_script_is that respects WordPress hooks
 	 */
-	private function safe_wp_script_is($handle, $list = 'enqueued') {
+	private function safe_wp_script_is_efb($handle, $list = 'enqueued') {
 		// Only check scripts after wp_enqueue_scripts hook has fired
 		if (!did_action('wp_enqueue_scripts') && !did_action('admin_enqueue_scripts') && !did_action('login_enqueue_scripts')) {
 			return false;
@@ -187,7 +187,7 @@ public function check_nonce_permission($request) {
 	/**
 	 * Check if Elementor is active using multiple detection methods
 	 */
-	public function is_elementor_active() {
+	public function is_elementor_active_efb() {
 		// Never return true in admin to prevent conflicts
 		if (is_admin()) {
 			return false;
@@ -213,15 +213,15 @@ public function check_nonce_permission($request) {
 		}
 
 		// Method 4: Check if Elementor scripts are enqueued (safe wrapper)
-		if ($this->safe_wp_script_is('elementor-frontend', 'enqueued') ||
-		    $this->safe_wp_script_is('elementor-frontend', 'registered')) {
+		if ($this->safe_wp_script_is_efb('elementor-frontend', 'enqueued') ||
+		    $this->safe_wp_script_is_efb('elementor-frontend', 'registered')) {
 			return true;
 		}
 
 		return false;
 	}
 
-	public function enqueue_jquery(){
+	public function enqueue_jquery_efb(){
 		// جلوگیری از چک مکرر - فقط یک بار بررسی شود
 		static $jquery_checked = false;
 		if ($jquery_checked) {
@@ -248,9 +248,9 @@ public function check_nonce_permission($request) {
 		}
 
 		// Check 3: Scripts enqueued (safe wrapper)
-		if ($this->safe_wp_script_is('elementor-frontend', 'enqueued') ||
-		    $this->safe_wp_script_is('elementor-frontend', 'registered') ||
-		    $this->safe_wp_script_is('elementor-frontend', 'to_do')) {
+		if ($this->safe_wp_script_is_efb('elementor-frontend', 'enqueued') ||
+		    $this->safe_wp_script_is_efb('elementor-frontend', 'registered') ||
+		    $this->safe_wp_script_is_efb('elementor-frontend', 'to_do')) {
 		$elementor_active = true;
 	}
 
@@ -295,7 +295,7 @@ public function check_nonce_permission($request) {
 	 * @param array $fields Fields to retrieve (default: ['form_structer', 'form_type'])
 	 * @return object|null Form data or null if not found
 	 */
-	private function get_form_data($form_id, $fields = array('form_structer', 'form_type')) {
+	private function get_form_data_efb($form_id, $fields = array('form_structer', 'form_type')) {
 		$form_id = intval($form_id);
 		$cache_key = $form_id . '_' . md5(implode('_', $fields));
 
@@ -337,7 +337,7 @@ public function check_nonce_permission($request) {
 	 * Clear form cache
 	 * @param int $form_id Form ID to clear cache for
 	 */
-	public static function clear_form_cache($form_id) {
+	public static function clear_form_cache_efb($form_id) {
 		$form_id = intval($form_id);
 		// Clear all possible cache variations for this form
 		$field_combinations = array(
@@ -363,9 +363,9 @@ public function check_nonce_permission($request) {
 
 	}
 
-	public function simple_elementor_fix() {
+	public function simple_elementor_fix_efb() {
 		// Only run if Elementor is active and NOT in admin panel (triple-check for safety)
-		if (!is_admin() && !current_user_can('edit_posts') && $this->is_elementor_active()) {
+		if (!is_admin() && !current_user_can('edit_posts') && $this->is_elementor_active_efb()) {
 			?>
 			<script>
 			// Simple fix for Elementor frontend config
@@ -378,9 +378,9 @@ public function check_nonce_permission($request) {
 		}
 	}
 
-	public function simple_elementor_fix_footer() {
+	public function simple_elementor_fix_footer_efb() {
 		// Only run if Elementor is active and NOT in admin panel (triple-check for safety)
-		if (!is_admin() && !current_user_can('edit_posts') && $this->is_elementor_active()) {
+		if (!is_admin() && !current_user_can('edit_posts') && $this->is_elementor_active_efb()) {
 			?>
 			<script>
 			// ULTIMATE ELEMENTOR FIX - Patch the Frontend object directly
@@ -505,7 +505,7 @@ public function check_nonce_permission($request) {
 		if(!is_numeric(end($id))){ return "<div id='body_efb' class='efb card-public row pb-3 efb' > <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder')."</h3>
 			<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4><p></div></div>";
 		}
-		$this->enqueue_jquery();
+		$this->enqueue_jquery_efb();
 		$state_form = 'not';
 		$admin_form = false;
 		$admin_sc = null;
@@ -524,7 +524,7 @@ public function check_nonce_permission($request) {
 
 		$this->id = end($id);
 		$this->id = intval($this->id);
-		$value_form_data = $this->get_form_data($this->id, array('form_structer', 'form_type'));
+		$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
 		$value_form = $value_form_data ? array($value_form_data) : null;
 
 		if($value_form!=null){
@@ -536,12 +536,12 @@ public function check_nonce_permission($request) {
 
 			}
 		}else{
-			$this->output_bootstrap_icons_style($this->id, 'private');
+			$this->output_bootstrap_icons_style_efb($this->id, 'private');
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div>
 			<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
 			<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 		}
-		$this->output_bootstrap_icons_style($this->id, 'normal');
+		$this->output_bootstrap_icons_style_efb($this->id, 'normal');
 		$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln','copied',"nonceExpired"];
 
 
@@ -578,7 +578,7 @@ public function check_nonce_permission($request) {
 			return $content;
 		}
 
-		$this->public_scripts_and_css_head();
+		$this->public_scripts_and_css_head_efb();
 
 
 
@@ -628,7 +628,7 @@ public function check_nonce_permission($request) {
 		 $icons_ = array_unique($iconsd);
 		 $value = preg_replace('/\\\"email\\\":\\\"(.*?)\\\"/', '\"email\":\"\"', $value);
 
-		 // Icons preload removed - handled by output_bootstrap_icons_style() in wp_head
+		 // Icons preload removed - handled by output_bootstrap_icons_style_efb() in wp_head
 		 $iconst_html_preload = '';
 
 		$lang = get_locale();
@@ -875,11 +875,11 @@ public function check_nonce_permission($request) {
 	}
 	public function EMS_Form_Builder_track(){
 
-		$this->enqueue_jquery();
+		$this->enqueue_jquery_efb();
 
 		$this->id=0;
-		$this->public_scripts_and_css_head();
-		$this->output_bootstrap_icons_style(0, 'tracker');
+		$this->public_scripts_and_css_head_efb();
+		$this->output_bootstrap_icons_style_efb(0, 'tracker');
 
 
 
@@ -992,7 +992,7 @@ public function check_nonce_permission($request) {
 		".$this->loading_icon_public_efb('',$text["pleaseWaiting"], $text['fil'])."</div>";
 		return $content;
 	}
-	function public_scripts_and_css_head(){
+	function public_scripts_and_css_head_efb(){
 		// جلوگیری از تکرار بارگذاری
 		static $scripts_loaded = false;
 		if ($scripts_loaded) {
@@ -1052,7 +1052,7 @@ public function check_nonce_permission($request) {
 
 
 		// Elementor compatibility removed - not related to EFB
-		if (false && $is_elementor_active) {
+		if (false && $is_elementor_active_efb) {
 			// Add early Elementor compatibility script to head
 			add_action('wp_head', function() {
 				echo '<script>
@@ -1157,7 +1157,7 @@ public function check_nonce_permission($request) {
 
 		$rePage ="null";
 		$this->id = intval($this->id);
-		$value_form_data = $this->get_form_data($this->id, array('form_structer', 'form_type'));
+		$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
 		$value_form = $value_form_data ? array($value_form_data) : null;
 		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) :'';
 		$not_captcha=$formObj= $trackingCode_state = $send_email_to_user_state =  $check = "";
@@ -1844,7 +1844,7 @@ public function check_nonce_permission($request) {
 					$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
 
 					// Clear form cache after update
-					self::clear_form_cache($id);
+					self::clear_form_cache_efb($id);
 
 				}			}
 		}else if ($fs==''){
@@ -2466,7 +2466,7 @@ public function check_nonce_permission($request) {
         }else{
             $id = isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
             $id = intval($id);
-            $vl_data = $this->get_form_data($id, array('form_structer'));
+            $vl_data = $this->get_form_data_efb($id, array('form_structer'));
             $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
                 if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){
@@ -2547,7 +2547,7 @@ public function check_nonce_permission($request) {
 
             $id = isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
             $fid = intval($fid);
-            $vl_data = $this->get_form_data($fid, array('form_structer'));
+            $vl_data = $this->get_form_data_efb($fid, array('form_structer'));
             $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
 				if(gettype($vl)=="string"){
@@ -2896,7 +2896,7 @@ public function check_nonce_permission($request) {
 				}
 				$form_id = intval($value[0]->form_id);
 				$form_id = intval($form_id);
-				$vald_data = $this->get_form_data($form_id, array('form_structer', 'form_type'));
+				$vald_data = $this->get_form_data_efb($form_id, array('form_structer', 'form_type'));
 				$valb = $vald_data ? str_replace('\\', '', $vald_data->form_structer) : '';
 				$valn= json_decode($valb,true);
 
@@ -3227,7 +3227,7 @@ public function check_nonce_permission($request) {
 		$this->id = intval(wp_unslash($data_POST['id']));
 		$val_ = sanitize_text_field( wp_unslash($data_POST['value']));
 		$this->id = intval($this->id);
-		$value_form_data = $this->get_form_data($this->id, array('form_structer', 'form_type'));
+		$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
 		$fs = $value_form_data ? str_replace('\\', '', $value_form_data->form_structer) : '';
 		$fs_ = json_decode($fs,true);
 		$val =str_replace('\\', '', $val_);
@@ -3434,7 +3434,7 @@ public function check_nonce_permission($request) {
 		$val_ = sanitize_text_field( wp_unslash($data_POST['value']));
 		$url = sanitize_url($data_POST['url']);
 		$this->id = intval($this->id);
-		$value_form_data = $this->get_form_data($this->id, array('form_structer', 'form_type'));
+		$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
 		$fs = $value_form_data ? str_replace('\\', '', $value_form_data->form_structer) : '';
 		$fs_ = json_decode($fs,true);
 		$val =str_replace('\\', '', $val_);
@@ -3593,7 +3593,7 @@ public function check_nonce_permission($request) {
 		$val_ = isset($_POST['value']) ? sanitize_text_field( wp_unslash($_POST['value'])) : '';
 		$url = isset($_POST['url']) ? sanitize_url(wp_unslash($_POST['url'])) : '';
 		$this->id = intval($this->id);
-		$value_form_data = $this->get_form_data($this->id, array('form_structer', 'form_type'));
+		$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
 		$fs = $value_form_data ? str_replace('\\', '', $value_form_data->form_structer) : '';
 		$fs_ = json_decode($fs,true);
 		$val =str_replace('\\', '', $val_);
@@ -4231,7 +4231,7 @@ public function check_nonce_permission($request) {
 	';
 	}
 
-	public function output_bootstrap_icons_style($form_id = null, $state = 'normal') {
+	public function output_bootstrap_icons_style_efb($form_id = null, $state = 'normal') {
 		// اگر قبلاً آیکون‌ها چاپ شده‌اند، از تکرار جلوگیری می‌کنیم
 		if (self::$icons_rendered === true) {
 			return;
@@ -4343,7 +4343,7 @@ public function check_nonce_permission($request) {
 
 	private function get_form_icons($form_id) {
 		$form_id = intval($form_id);
-		$data_cached = $this->get_form_data($form_id, array('form_structer'));
+		$data_cached = $this->get_form_data_efb($form_id, array('form_structer'));
 
 		if (!$data_cached) return array();
 
@@ -4967,165 +4967,8 @@ public function check_nonce_permission($request) {
 			}
 			if(isset($formObj[0]["email_sub"]) && $formObj[0]["email_sub"]!=''){
 				$msg_sub = $formObj[0]["email_sub"];
-			}
-			return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type];
 		}
-
-	/**
-	 * DEPRECATED - Replaced by fix_elementor_complete_protection
-	 * Ultimate Elementor fix - runs at document level
-	 */
-	public function fix_elementor_ultimate_DEPRECATED() {
-		if (!is_admin()) {
-			?>
-			<script>
-			// Ultimate Elementor Fix - No jQuery dependency
-			(function() {
-				'use strict';
-
-				// Create the config immediately
-				window.elementorFrontendConfig = window.elementorFrontendConfig || {};
-				window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
-				window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
-
-				// Add essential tools that Elementor expects
-				window.elementorFrontendConfig.tools.hash = window.elementorFrontendConfig.tools.hash || {};
-				window.elementorFrontendConfig.tools.ajax = window.elementorFrontendConfig.tools.ajax || {};
-
-				// Override Elementor's config setter to prevent undefined tools
-				var originalConfig = window.elementorFrontendConfig;
-				Object.defineProperty(window, 'elementorFrontendConfig', {
-					get: function() {
-						return originalConfig;
-					},
-					set: function(value) {
-						if (value && typeof value === 'object') {
-							value.tools = value.tools || {};
-							value.settings = value.settings || {};
-						}
-						originalConfig = value;
-					}
-				});
-
-				console.log('EFB: Ultimate Elementor fix applied - tools protected');
-			})();
-			</script>
-			<?php
-		}
-	}
-
-	/**
-	 * Monkey patch Elementor Frontend to prevent undefined tools error
-	 */
-	public function fix_elementor_monkey_patch_DEPRECATED() {
-		if (!is_admin()) {
-			?>
-			<script>
-			// Elementor Frontend Monkey Patch
-			(function() {
-				'use strict';
-
-				// Wait for DOM to be ready
-				function patchElementor() {
-					// Ensure config exists
-					window.elementorFrontendConfig = window.elementorFrontendConfig || {};
-					window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
-					window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
-
-					// Override Elementor Frontend initialization
-					if (typeof window.elementorFrontend !== 'undefined') {
-						var originalInit = window.elementorFrontend.init;
-						window.elementorFrontend.init = function() {
-							this.config = this.config || window.elementorFrontendConfig;
-							this.config.tools = this.config.tools || {};
-							this.config.settings = this.config.settings || {};
-							return originalInit.apply(this, arguments);
-						};
-						console.log('EFB: Patched elementorFrontend.init');
-					}
-
-					// Patch initOnReadyComponents specifically
-					if (typeof window.elementorFrontend !== 'undefined' && window.elementorFrontend.initOnReadyComponents) {
-						var originalInitOnReady = window.elementorFrontend.initOnReadyComponents;
-						window.elementorFrontend.initOnReadyComponents = function() {
-							this.config = this.config || window.elementorFrontendConfig;
-							this.config.tools = this.config.tools || {};
-							this.config.settings = this.config.settings || {};
-							return originalInitOnReady.apply(this, arguments);
-						};
-						console.log('EFB: Patched elementorFrontend.initOnReadyComponents');
-					}
-				}
-
-				// Try to patch immediately
-				patchElementor();
-
-				// Also try when DOM is ready
-				if (document.readyState === 'loading') {
-					document.addEventListener('DOMContentLoaded', patchElementor);
-				}
-
-				// And when window loads
-				window.addEventListener('load', patchElementor);
-
-				console.log('EFB: Elementor monkey patch installed');
-			})();
-			</script>
-			<?php
-		}
-	}
-
-	/**
-	 * Direct fix for Elementor after all scripts load
-	 */
-	public function fix_elementor_direct_DEPRECATED() {
-		if (!is_admin()) {
-			?>
-			<script>
-			// Emergency Elementor Fix - After all scripts load
-			(function() {
-				'use strict';
-
-				function emergencyFix() {
-					// Force fix elementorFrontendConfig
-					window.elementorFrontendConfig = window.elementorFrontendConfig || {};
-					window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
-					window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
-
-					// If elementorFrontend exists, force fix its config
-					if (typeof window.elementorFrontend === 'object' && window.elementorFrontend) {
-						window.elementorFrontend.config = window.elementorFrontend.config || window.elementorFrontendConfig;
-						if (window.elementorFrontend.config) {
-							window.elementorFrontend.config.tools = window.elementorFrontend.config.tools || {};
-							window.elementorFrontend.config.settings = window.elementorFrontend.config.settings || {};
-						}
-					}
-
-					// Try to re-initialize if needed
-					if (typeof window.elementorFrontend === 'object' &&
-					    window.elementorFrontend &&
-					    typeof window.elementorFrontend.init === 'function' &&
-					    !window.elementorFrontend.initialized) {
-						try {
-							window.elementorFrontend.initialized = true;
-							console.log('EFB: Emergency Elementor fix applied');
-						} catch (e) {
-							console.log('EFB: Emergency fix attempt completed');
-						}
-					}
-				}
-
-				// Apply fix immediately
-				emergencyFix();
-
-				// Also apply with a small delay
-				setTimeout(emergencyFix, 100);
-				setTimeout(emergencyFix, 500);
-
-			})();
-			</script>
-			<?php
-		}
+		return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type];
 	}
 
 }

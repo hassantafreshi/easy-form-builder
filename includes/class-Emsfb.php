@@ -24,7 +24,7 @@ class Emsfb {
         if(is_admin()==false){
             $this->webhooks();
         }else{
-            $this->init_elementor_compatibility();
+            $this->init_elementor_compatibility_efb();
        }
 
     }
@@ -126,7 +126,7 @@ class Emsfb {
     /**
      * Initialize Elementor compatibility for all EFB admin pages
      */
-    public function init_elementor_compatibility() {
+    public function init_elementor_compatibility_efb() {
         // Only apply if Elementor is actually installed
         if (!$this->is_elementor_admin_active()) {
             return;
