@@ -325,6 +325,12 @@ class Admin {
         $table_name = $this->db->prefix . "emsfb_form";
 
         $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $post_name ,'form_type'=>$form_type ], ['form_id' => $post_id]);
+
+        // Clear form cache after update
+        if (class_exists('Emsfb_public')) {
+            Emsfb_public::clear_form_cache($post_id);
+        }
+
         $value_="";
         $value="";
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){

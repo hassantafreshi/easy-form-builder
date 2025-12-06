@@ -23,6 +23,8 @@ class _Public {
 	public $location;
 	public $url;
 	public $efb_uid  ;
+	private $form_cache = array(); // Cache for form data
+	private static $icons_rendered = false; // Track if icons have been rendered
 	public function __construct() {
 
 		global $wpdb;
@@ -96,6 +98,7 @@ class _Public {
 	if (!is_admin()) {
 		add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
 	}
+
 }
 
 // REST API nonce verification
@@ -219,6 +222,13 @@ public function check_nonce_permission($request) {
 	}
 
 	public function enqueue_jquery(){
+		// جلوگیری از چک مکرر - فقط یک بار بررسی شود
+		static $jquery_checked = false;
+		if ($jquery_checked) {
+			return;
+		}
+		$jquery_checked = true;
+
 		// Only run on frontend, not in admin panel to avoid conflicts
 		if (is_admin()) {
 			return;
@@ -276,6 +286,68 @@ public function check_nonce_permission($request) {
 			}else {
 				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min-efb.js', false, '3.6.2', true);
 			}
+		}
+	}
+
+	/**
+	 * Get form data with caching
+	 * @param int $form_id Form ID
+	 * @param array $fields Fields to retrieve (default: ['form_structer', 'form_type'])
+	 * @return object|null Form data or null if not found
+	 */
+	private function get_form_data($form_id, $fields = array('form_structer', 'form_type')) {
+		$form_id = intval($form_id);
+		$cache_key = $form_id . '_' . md5(implode('_', $fields));
+
+		// Check if data is already cached in memory
+		if (isset($this->form_cache[$cache_key])) {
+			return $this->form_cache[$cache_key];
+		}
+
+		// Check WordPress object cache
+		$cache_data = wp_cache_get('efb_form_' . $cache_key, 'emsfb');
+		if ($cache_data !== false) {
+			$this->form_cache[$cache_key] = $cache_data;
+			return $cache_data;
+		}
+
+		// Query database
+		$table_name = $this->db->prefix . "emsfb_form";
+		$fields_str = implode(', ', array_map('esc_sql', $fields));
+
+		$result = $this->db->get_results(
+			$this->db->prepare(
+				"SELECT {$fields_str} FROM `{$table_name}` WHERE form_id = %d ORDER BY form_id DESC LIMIT 1",
+				$form_id
+			)
+		);
+
+		if (!$result || empty($result)) {
+			return null;
+		}
+
+		// Cache the result
+		$this->form_cache[$cache_key] = $result[0];
+		wp_cache_set('efb_form_' . $cache_key, $result[0], 'emsfb', 3600); // Cache for 1 hour
+
+		return $result[0];
+	}
+
+	/**
+	 * Clear form cache
+	 * @param int $form_id Form ID to clear cache for
+	 */
+	public static function clear_form_cache($form_id) {
+		$form_id = intval($form_id);
+		// Clear all possible cache variations for this form
+		$field_combinations = array(
+			array('form_structer', 'form_type'),
+			array('form_structer')
+		);
+
+		foreach ($field_combinations as $fields) {
+			$cache_key = $form_id . '_' . md5(implode('_', $fields));
+			wp_cache_delete('efb_form_' . $cache_key, 'emsfb');
 		}
 	}
 
@@ -450,22 +522,26 @@ public function check_nonce_permission($request) {
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
 
-		$table_name = $this->db->prefix . "emsfb_form";
 		$this->id = end($id);
 		$this->id = intval($this->id);
-		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
+		$value_form_data = $this->get_form_data($this->id, array('form_structer', 'form_type'));
+		$value_form = $value_form_data ? array($value_form_data) : null;
+
 		if($value_form!=null){
 			$typeOfForm =$value_form[0]->form_type;
 			if($state_form!='not' && strlen($state_form)>7
 			&& ($typeOfForm!="register" || $typeOfForm!="login")){
 				$this->id =-1;
 				return $this->EMS_Form_Builder_track();
+
 			}
 		}else{
+			$this->output_bootstrap_icons_style($this->id, 'private');
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div>
 			<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
 			<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 		}
+		$this->output_bootstrap_icons_style($this->id, 'normal');
 		$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln','copied',"nonceExpired"];
 
 
@@ -552,11 +628,8 @@ public function check_nonce_permission($request) {
 		 $icons_ = array_unique($iconsd);
 		 $value = preg_replace('/\\\"email\\\":\\\"(.*?)\\\"/', '\"email\":\"\"', $value);
 
-		 $iconst_html_preload ='<div style="display:none;">';
-		 foreach($iconsd as $icon){
-			$iconst_html_preload .= "<i class='bi $icon'></i>";
-		 }
-		 $iconst_html_preload .='</div>';
+		 // Icons preload removed - handled by output_bootstrap_icons_style() in wp_head
+		 $iconst_html_preload = '';
 
 		$lang = get_locale();
 		$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
@@ -778,7 +851,6 @@ public function check_nonce_permission($request) {
 
 		 if($formObj[0]["stateForm"]==true ){
 			$content ="
-			".$this->bootstrap_icon_efb($icons_)."
 			<div id='body_efb' class='efb  row pb-3 efb px-2'> <div class='efb text-center my-5'>
 			<div class='efb bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center fs-5'>". $lanText["formPrivateM"]."</h3>
 			 ".$efb_m."
@@ -788,9 +860,6 @@ public function check_nonce_permission($request) {
 		 }else{
 
 			 $content="
-
-			 ".$this->bootstrap_icon_efb($icons_)."
-			 ".$iconst_html_preload."
 			 <div id='body_efb' class='efb  row pb-3 efb px-2'>
 			 <div class='efb text-center my-5'>
 			 ".$this->loading_icon_public_efb('',$lanText["pleaseWaiting"] , $lanText["fil"])."
@@ -808,9 +877,9 @@ public function check_nonce_permission($request) {
 
 		$this->enqueue_jquery();
 
-
 		$this->id=0;
 		$this->public_scripts_and_css_head();
+		$this->output_bootstrap_icons_style(0, 'tracker');
 
 
 
@@ -918,13 +987,19 @@ public function check_nonce_permission($request) {
 
 		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script>
-		 ".$this->bootstrap_icon_efb($icons_)."
 		".$s_m."
 		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5 text-center'></div>
 		".$this->loading_icon_public_efb('',$text["pleaseWaiting"], $text['fil'])."</div>";
 		return $content;
 	}
 	function public_scripts_and_css_head(){
+		// جلوگیری از تکرار بارگذاری
+		static $scripts_loaded = false;
+		if ($scripts_loaded) {
+			return;
+		}
+		$scripts_loaded = true;
+
 		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-style-css');
 
@@ -1081,14 +1156,9 @@ public function check_nonce_permission($request) {
 		$email=get_option('admin_email');
 
 		$rePage ="null";
-		$table_name = $this->db->prefix . "emsfb_form";
 		$this->id = intval($this->id);
-		$value_form = $this->db->get_results(
-			$this->db->prepare(
-				"SELECT form_structer, form_type FROM `$table_name` WHERE form_id = %d",
-				$this->id
-			)
-		);
+		$value_form_data = $this->get_form_data($this->id, array('form_structer', 'form_type'));
+		$value_form = $value_form_data ? array($value_form_data) : null;
 		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) :'';
 		$not_captcha=$formObj= $trackingCode_state = $send_email_to_user_state =  $check = "";
 		$email_user= array();
@@ -1766,16 +1836,17 @@ public function check_nonce_permission($request) {
 					$this->value = json_encode($valobj,JSON_UNESCAPED_UNICODE);
 					$this->value = str_replace('"', '\\"', $this->value);
 					if($form_condition=='booking'){
-						$table_name = $this->db->prefix . "emsfb_form";
+					$table_name = $this->db->prefix . "emsfb_form";
 
-						$id = sanitize_text_field( wp_unslash($data_POST['id']));
-						$value =json_encode($formObj,JSON_UNESCAPED_UNICODE);
+					$id = sanitize_text_field( wp_unslash($data_POST['id']));
+					$value =json_encode($formObj,JSON_UNESCAPED_UNICODE);
 
-						$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
+					$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
 
-					}
+					// Clear form cache after update
+					self::clear_form_cache($id);
 
-			}
+				}			}
 		}else if ($fs==''){
 			$m = "Error 404 ";
 			$response = array( 'success' => false  , 'm'=>$m);
@@ -2394,13 +2465,9 @@ public function check_nonce_permission($request) {
             $vl ='efb'. $_POST['id'];
         }else{
             $id = isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
-            $table_name = $this->db->prefix . "emsfb_form";
-            $vl = $this->db->get_var(
-				$this->db->prepare(
-					"SELECT form_structer FROM `$table_name` WHERE form_id = %d",
-					$id
-				)
-			);
+            $id = intval($id);
+            $vl_data = $this->get_form_data($id, array('form_structer'));
+            $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
                 if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){
                     $vl ='efb'.$id;
@@ -2479,11 +2546,9 @@ public function check_nonce_permission($request) {
         }else{
 
             $id = isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
-            $table_name = $this->db->prefix . "emsfb_form";
-			$vl = $this->db->get_var( $this->db->prepare(
-				"SELECT form_structer FROM `$table_name` WHERE form_id = %d",
-				$fid
-			));
+            $fid = intval($fid);
+            $vl_data = $this->get_form_data($fid, array('form_structer'));
+            $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
 				if(gettype($vl)=="string"){
 					$temp = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') ? true : false;
@@ -2830,14 +2895,9 @@ public function check_nonce_permission($request) {
 					$email_usr = $usr->user_email;
 				}
 				$form_id = intval($value[0]->form_id);
-				$table_name = $this->db->prefix . "emsfb_form";
-				$vald = $this->db->get_results(
-					$this->db->prepare(
-						"SELECT form_structer ,form_type FROM `$table_name` WHERE form_id = %d",
-						$form_id
-					)
-				);
-				$valb =str_replace('\\', '', $vald[0]->form_structer);
+				$form_id = intval($form_id);
+				$vald_data = $this->get_form_data($form_id, array('form_structer', 'form_type'));
+				$valb = $vald_data ? str_replace('\\', '', $vald_data->form_structer) : '';
 				$valn= json_decode($valb,true);
 
 				$usr;
@@ -3166,14 +3226,9 @@ public function check_nonce_permission($request) {
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
 		$this->id = intval(wp_unslash($data_POST['id']));
 		$val_ = sanitize_text_field( wp_unslash($data_POST['value']));
-		$table_name = $this->db->prefix . "emsfb_form";
-		$value_form = $this->db->get_results(
-			$this->db->prepare(
-				"SELECT form_structer ,form_type FROM `$table_name` WHERE form_id = %d",
-				$this->id
-			)
-		);
-		$fs =str_replace('\\', '', $value_form[0]->form_structer);
+		$this->id = intval($this->id);
+		$value_form_data = $this->get_form_data($this->id, array('form_structer', 'form_type'));
+		$fs = $value_form_data ? str_replace('\\', '', $value_form_data->form_structer) : '';
 		$fs_ = json_decode($fs,true);
 		$val =str_replace('\\', '', $val_);
 		$val_ = json_decode($val,true);
@@ -3378,14 +3433,9 @@ public function check_nonce_permission($request) {
 		$this->id = intval(wp_unslash($data_POST['id']));
 		$val_ = sanitize_text_field( wp_unslash($data_POST['value']));
 		$url = sanitize_url($data_POST['url']);
-		$table_name = $this->db->prefix . "emsfb_form";
-		$value_form = $this->db->get_results(
-			$this->db->prepare(
-				"SELECT form_structer ,form_type FROM `$table_name` WHERE form_id = %d",
-				$this->id
-			)
-		);
-		$fs =str_replace('\\', '', $value_form[0]->form_structer);
+		$this->id = intval($this->id);
+		$value_form_data = $this->get_form_data($this->id, array('form_structer', 'form_type'));
+		$fs = $value_form_data ? str_replace('\\', '', $value_form_data->form_structer) : '';
 		$fs_ = json_decode($fs,true);
 		$val =str_replace('\\', '', $val_);
 		$val_ = json_decode($val,true);
@@ -3542,14 +3592,9 @@ public function check_nonce_permission($request) {
 		$this->id = isset($_POST['id']) ? intval(wp_unslash($_POST['id'])) : 0;
 		$val_ = isset($_POST['value']) ? sanitize_text_field( wp_unslash($_POST['value'])) : '';
 		$url = isset($_POST['url']) ? sanitize_url(wp_unslash($_POST['url'])) : '';
-		$table_name = $this->db->prefix . "emsfb_form";
-		$value_form = $this->db->get_results(
-			$this->db->prepare(
-				"SELECT form_structer ,form_type FROM `$table_name` WHERE form_id = %d",
-				$this->id
-			)
-		);
-		$fs =str_replace('\\', '', $value_form[0]->form_structer);
+		$this->id = intval($this->id);
+		$value_form_data = $this->get_form_data($this->id, array('form_structer', 'form_type'));
+		$fs = $value_form_data ? str_replace('\\', '', $value_form_data->form_structer) : '';
 		$fs_ = json_decode($fs,true);
 		$val =str_replace('\\', '', $val_);
 		$val_ = json_decode($val,true);
@@ -4185,6 +4230,132 @@ public function check_nonce_permission($request) {
 			</style>
 	';
 	}
+
+	public function output_bootstrap_icons_style($form_id = null, $state = 'normal') {
+		// اگر قبلاً آیکون‌ها چاپ شده‌اند، از تکرار جلوگیری می‌کنیم
+		if (self::$icons_rendered === true) {
+			return;
+		}
+
+		// اگر مستقیم فراخوانی شده (با پارامتر)، از پارامترها استفاده می‌کنیم
+		if ($form_id !== null) {
+			// حالت مستقیم: form_id و state مشخص هستند
+			// state می‌تواند: 'normal', 'private', 'tracker' باشد
+		} else {
+			// حالت wp_head hook: از post content استفاده می‌کنیم
+			global $post;
+
+			// Try to get post from query if not available globally
+			if (!$post && is_singular()) {
+				$post = get_post();
+			}
+
+			if (!$post) {
+				// Check if any EFB shortcode exists in the current page content
+				$queried_object = get_queried_object();
+				if ($queried_object && isset($queried_object->post_content)) {
+					$post_content = $queried_object->post_content;
+				} else {
+					return; // No post content available
+				}
+			} else {
+				$post_content = $post->post_content;
+			}
+
+			// Check if the post contains EFB shortcodes
+			if (!has_shortcode($post_content, 'emsfb') && !has_shortcode($post_content, 'emsfb_t')) {
+				return;
+			}
+		}
+
+		// Default icons always needed (from line 611-633)
+		$default_icons = array(
+			'bi-clipboard-check',
+			'bi-shield-lock-fill',
+			'bi-exclamation-triangle-fill', // Used in line 528 for "Form does not exist"
+			'bi-exclamation-diamond-fill',
+			'bi-check2-square',
+			'bi-hourglass-split',
+			'bi-chat-square-text',
+			'bi-download',
+			'bi-star-fill',
+			'bi-hand-thumbs-up',
+			'bi-envelope',
+			'bi-arrow-right',
+			'bi-arrow-left',
+			'bi-upload',
+			'bi-x-lg',
+			'bi-file-earmark-richtext',
+			'bi-check-square',
+			'bi-square',
+			'bi-chevron-down',
+			'bi-check-lg',
+			'bi-crosshair'
+		);
+
+		$custom_icons = array();
+
+		// Get custom icons based on state
+		if ($form_id !== null) {
+			// حالت مستقیم: از form_id استفاده می‌کنیم
+			if ($state === 'tracker') {
+				// برای tracker از form_id = 0 استفاده می‌شود
+				$custom_icons = $this->get_form_icons(0);
+			} elseif ($state === 'private') {
+				// برای فرم خصوصی که وجود ندارد
+				// فقط آیکون‌های پیش‌فرض نیاز است
+				$custom_icons = array();
+			} else {
+				// حالت عادی: از form_id داده شده استفاده می‌کنیم
+				$custom_icons = $this->get_form_icons($form_id);
+			}
+		} else {
+			// حالت wp_head hook: از post content استفاده می‌کنیم
+			$custom_icons = $this->get_icons_from_post($post_content);
+		}
+
+		// Merge default and custom icons
+		$all_icons = array_unique(array_merge($default_icons, $custom_icons));
+
+		if (!empty($all_icons)) {
+			echo $this->bootstrap_icon_efb($all_icons);
+			// علامت‌گذاری که آیکون‌ها چاپ شده‌اند تا از تکرار جلوگیری شود
+			self::$icons_rendered = true;
+		}
+	}
+
+	private function get_icons_from_post($post_content) {
+		// Extract form IDs from shortcodes
+		preg_match_all('/\[emsfb[^\]]*\sid=["\']?(\d+)["\']?[^\]]*\]/i', $post_content, $matches);
+
+		$icons = array();
+		if (!empty($matches[1])) {
+			foreach ($matches[1] as $form_id) {
+				$form_icons = $this->get_form_icons($form_id);
+				if ($form_icons) {
+					$icons = array_merge($icons, $form_icons);
+				}
+			}
+		}
+
+		return array_unique($icons);
+	}
+
+	private function get_form_icons($form_id) {
+		$form_id = intval($form_id);
+		$data_cached = $this->get_form_data($form_id, array('form_structer'));
+
+		if (!$data_cached) return array();
+
+		$form_structure = str_replace('\\', '', $data_cached->form_structer);
+
+		// Extract icons using regex pattern (same as line 635)
+		$pattern = '/bi-[a-zA-Z0-9-]+/';
+		preg_match_all($pattern, $form_structure, $matches);
+
+		return isset($matches[0]) ? $matches[0] : array();
+	}
+
 	public function bootstrap_style_efb($w){
 
 		return "
