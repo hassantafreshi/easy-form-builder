@@ -98,7 +98,7 @@ function fun_efb_run(){
                 document.getElementById('body_efb').innerHTML =vd;
                 return;
               }
-              if(sitekye_emsFormBuilder==2)alert(c_r_efb);
+              if(typeof sitekye_emsFormBuilder !== 'undefined' &&sitekye_emsFormBuilder==2)alert(c_r_efb);
               sitekye_emsFormBuilder = vs.siteKey;
             } else { sitekye_emsFormBuilder = ""; }
           } else {
@@ -549,7 +549,7 @@ function fun_vaid_tracker_check_emsFormBuilder() {
     noti_message_efb(efb_var.text.trackingCodeIsNotValid, 'danger' ,'body_efb-track')
   } else {
     if (currentTab_emsFormBuilder == 0) {
-      const response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
+      const response = typeof sitekye_emsFormBuilder !== 'undefined' && sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
       if (response == null) {
         document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
         document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
@@ -589,7 +589,7 @@ function emsFormBuilder_show_content_message(value, content) {
   <div class="efb col text-right row my-2 mx-1">
   <button type="submit" class="efb btn fs-5 round-2 btn-primary btn-lg" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${efb_var.text.reply} </button>
   <!-- recaptcha  -->
-  ${sitekye_emsFormBuilder ? `<div class="efb row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" id="recaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
+  ${typeof sitekye_emsFormBuilder !== 'undefined' && sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" id="recaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
   <!-- recaptcha end  -->
   <p class="efb mx-2 my-1 text-pinkEfb efb fs-7" id="replay_state__emsFormBuilder">  </p>
   </div></div>

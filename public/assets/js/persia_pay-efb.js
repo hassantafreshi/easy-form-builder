@@ -163,7 +163,7 @@ fun_after_bankpay_persia_ui =()=>{
   const id = valj_efb[0].steps == 1 ? 'btn_send_efb' : 'next_efb';
   efb_var.id=sanitize_text_efb(efb_var.payId)
 
-  if ( ((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 && grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha != true) && document.getElementById(id) || valueJson_ws[0].captcha != true && document.getElementById(id) )
+  if ( ((valueJson_ws[0].captcha == true && typeof sitekye_emsFormBuilder !== 'undefined' && sitekye_emsFormBuilder.length > 1 && grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha != true) && document.getElementById(id) || valueJson_ws[0].captcha != true && document.getElementById(id) )
     {
 
       document.getElementById(id).classList.remove('disabled');

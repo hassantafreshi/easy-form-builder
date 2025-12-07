@@ -196,7 +196,7 @@
               const id = valj_efb[0].steps == 1 ? 'btn_send_efb' : 'next_efb';
 
 
-              if (((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 &&
+              if (((valueJson_ws[0].captcha == true && typeof sitekye_emsFormBuilder !== 'undefined' && sitekye_emsFormBuilder.length > 1 &&
                 grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha == false)) document.getElementById(id).classList.remove('disabled')
               fun_disabled_all_pay_efb()
 

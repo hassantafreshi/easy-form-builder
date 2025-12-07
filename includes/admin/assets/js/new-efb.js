@@ -1416,7 +1416,7 @@ function handle_navbtn_efb(steps, device) {
 
           }
           if (current_s_efb == steps_len_efb - 1) {
-            if (sitekye_emsFormBuilder && sitekye_emsFormBuilder.length > 1 && valj_efb[0].captcha == true) {
+            if (typeof sitekye_emsFormBuilder !== 'undefined' && sitekye_emsFormBuilder.length > 1 && valj_efb[0].captcha == true) {
               document.getElementById("next_efb").classList.toggle("disabled");
               document.getElementById("gRecaptcha").classList.remove("d-none");
             }
@@ -1483,7 +1483,7 @@ function prev_btn_efb() {
   } else if (cs == valj_efb[0].steps) {
     var val = `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}" id="button_group_Next_icon"></i>`;
     document.getElementById("next_efb").innerHTML = val;
-    if (sitekye_emsFormBuilder.length > 1 && (valj_efb[0].captcha == 1 || valj_efb[0].captcha == "1" ||  valj_efb[0].captcha == 'true')) {
+    if (typeof sitekye_emsFormBuilder !== 'undefined' && sitekye_emsFormBuilder.length > 1 && (valj_efb[0].captcha == 1 || valj_efb[0].captcha == "1" ||  valj_efb[0].captcha == 'true')) {
       document.getElementById("next_efb").classList.remove("disabled");
     }
   }
@@ -1889,7 +1889,7 @@ function previewFormEfb(state) {
   }
   if (state != 'mobile') (valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true) ? logic_handle_navbtn_efb(valj_efb[0].steps, 'pc'):  handle_navbtn_efb(valj_efb[0].steps, 'pc')
   if (state == 'run') {
-    sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';
+    typeof sitekye_emsFormBuilder !== 'undefined' && sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';
     createStepsOfPublic()
   }
   else if(state == 'pc'){
@@ -2699,7 +2699,7 @@ async  function  fetch_json_from_url_efb(url){
 }
 fun_captcha_load_efb = ()=>{
   if(valj_efb[0].captcha == true && document.getElementById('dropZoneEFB')) document.getElementById('dropZoneEFB').classList.add('captcha');
-  return ` ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
+  return ` ${typeof sitekye_emsFormBuilder !== 'undefined' && sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
             <!-- fieldset1 -->
             ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
             <div id="step-1-efb-msg"></div>`
