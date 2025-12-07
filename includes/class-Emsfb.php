@@ -81,7 +81,7 @@ class Emsfb {
     }
 
 
-    public function checkDbchange(){
+    public function check_db_change_efb(){
         global $wpdb;
         $test_tabale = $wpdb->prefix . "Emsfb_form";
 		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $test_tabale ) );
@@ -97,12 +97,12 @@ class Emsfb {
                         <p> <?php echo '<b>'.esc_html__('Warning', 'easy-form-builder').':</b> '. wp_kses_post($message); ?> </p>
                     </div>
                 <?php
-            $this->email_send();
+            $this->email_send_efb();
             }
         }
     }
 
-    public static  function email_send(){
+    public static  function email_send_efb(){
 		$message=esc_html__('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice:Please do this act in immediately so forms of your site will available again.','easy-form-builder');
 		$usr=get_userdata(1);
 
@@ -128,7 +128,7 @@ class Emsfb {
      */
     public function init_elementor_compatibility_efb() {
         // Only apply if Elementor is actually installed
-        if (!$this->is_elementor_admin_active()) {
+        if (!$this->is_elementor_admin_active_efb()) {
             return;
         }
 
@@ -139,22 +139,22 @@ class Emsfb {
             sanitize_key( $_GET['page'] ) === 'Emsfb_addon' ||
             sanitize_key( $_GET['page'] ) === 'Emsfb_sms_efb'
         )) {
-            add_action('admin_enqueue_scripts', array($this, 'apply_elementor_admin_fixes'), 1);
+            add_action('admin_enqueue_scripts', array($this, 'apply_elementor_admin_fixes_efb'), 1);
         }
     }
 
     /**
      * Apply Elementor admin compatibility fixes to prevent conflicts
      */
-    public function apply_elementor_admin_fixes() {
+    public function apply_elementor_admin_fixes_efb() {
         // Add JavaScript to prevent Elementor admin conflicts
-        add_action('admin_footer', array($this, 'elementor_admin_conflict_prevention'));
+        add_action('admin_footer', array($this, 'elementor_admin_conflict_prevention_efb'));
     }
 
     /**
      * Check if Elementor is active in admin context
      */
-    public function is_elementor_admin_active() {
+    public function is_elementor_admin_active_efb() {
         // Check if Elementor plugin is active
         if (class_exists('\Elementor\Plugin') || defined('ELEMENTOR_VERSION')) {
             return true;
@@ -171,7 +171,7 @@ class Emsfb {
     /**
      * Add JavaScript to prevent Elementor admin conflicts
      */
-    public function elementor_admin_conflict_prevention() {
+    public function elementor_admin_conflict_prevention_efb() {
         $current_page = isset($_GET['page']) ? sanitize_key( $_GET['page'] ) : '';
         ?>
         <script type="text/javascript">
@@ -208,23 +208,25 @@ class Emsfb {
                                 errorMessage.includes('elementor') ||
                                 errorMessage.includes('tools') ||
                                 errorMessage.includes('cannot read properties of undefined')) {
-                                console.log('EFB Global: Suppressed Elementor admin error on <?php echo esc_js($current_page); ?>:', errorMessage);
+                                if (window.console && window.console.log && typeof window.efb_debug !== 'undefined' && window.efb_debug) {
+                                    console.log('EFB: Suppressed Elementor error:', errorMessage);
+                                }
                                 e.preventDefault();
                                 return false;
                             }
                         }
                     });
 
-                    // Protect Event.dispatchEvent calls
-                    if (window.Event && Event.prototype.dispatchEvent) {
-                        var originalDispatchEvent = Event.prototype.dispatchEvent;
-                        Event.prototype.dispatchEvent = function(event) {
+                    // Fix dispatchEvent errors - use EventTarget instead of Event
+                    if (window.EventTarget && window.EventTarget.prototype && EventTarget.prototype.dispatchEvent) {
+                        var originalDispatchEvent = EventTarget.prototype.dispatchEvent;
+                        EventTarget.prototype.dispatchEvent = function(event) {
                             try {
-                                if (typeof this.dispatchEvent === 'function') {
-                                    return originalDispatchEvent.call(this, event);
-                                }
+                                return originalDispatchEvent.call(this, event);
                             } catch (e) {
-                                console.log('EFB Global: Prevented dispatchEvent error on <?php echo esc_js($current_page); ?>:', e.message);
+                                if (window.console && typeof window.efb_debug !== 'undefined' && window.efb_debug) {
+                                    console.log('EFB: dispatchEvent error caught:', e.message);
+                                }
                                 return false;
                             }
                         };

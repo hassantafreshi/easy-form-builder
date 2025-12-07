@@ -1,4 +1,4 @@
-// Multi step form wizard builder (core)
+
 // Created by: Hassan Tafreshi
 // Email: hasan.tafreshi@gmail.com
 // WhiteStudio.team
@@ -31,7 +31,7 @@ jQuery(function () {
 
   pro_ws = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
   if (typeof pro_whitestudio !== 'undefined') { pro_ws = pro_whitestudio; } else { pro_ws = false; }
-  //historyload 1
+
 
   if (state_check_ws_p==1) {
     history.replaceState("templates",null,'?page=Emsfb_create');
@@ -52,7 +52,7 @@ jQuery(function () {
     fun_timeout();
   }
 
-  //cache message alert section start
+
   let count_show_efb_cache = localStorage.hasOwnProperty('efb_cache') ? Number(localStorage.getItem('efb_cache'))+1 : 0;
   if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && count_show_efb_cache<6){
     $val_noti = efb_var.text.excefb.replaceAll('XX', `<b>${efb_var.plugins.cache} </b>`);
@@ -60,17 +60,17 @@ jQuery(function () {
 
     localStorage.setItem('efb_cache',count_show_efb_cache);
   }
-  //cache message alert section end
 
-  // Mobile compatibility enhancements (non-intrusive)
-  // Set debug mode (can be controlled via console: window.efb_debug = true/false)
+
+
+
   if (typeof window.efb_debug === 'undefined') {
-    window.efb_debug = false; // Set to false for production
+    window.efb_debug = false;
   }
 
   enhanceMobileCompatibility();
 
-  // Initialize mobile support for existing btn-toggle elements
+
   if ('ontouchstart' in window) {
     const existingToggleButtons = document.querySelectorAll('.btn-toggle[onclick]');
     if (existingToggleButtons.length > 0) {
@@ -90,7 +90,7 @@ document.getElementById('wpfooter').remove();/**
  */
 function safeEvalEfb(code) {
   try {
-    // Don't execute if code might interfere with WordPress AJAX
+
     if (typeof code === 'string' && code.length > 0 && !code.includes('wp.heartbeat')) {
       return eval(code);
     }
@@ -107,15 +107,15 @@ function safeEvalEfb(code) {
  * Works alongside existing event system without conflicts
  */
 function enhanceMobileCompatibility() {
-  // Ensure proper viewport settings for mobile
+
   ensureMobileViewport();
 
-  // Disable iOS zoom on double tap for form elements
+
   document.addEventListener('gesturestart', function(e) {
     e.preventDefault();
   }, { passive: false });
 
-  // Prevent iOS safari zoom on focus
+
   if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
     document.addEventListener('focusin', function(e) {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
@@ -128,7 +128,7 @@ function enhanceMobileCompatibility() {
     });
   }
 
-  // Only add visual touch feedback, not event handling
+
   document.addEventListener('touchstart', function(e) {
     const target = e.target.closest('.btn-edit, .BtnSideEfb');
     if (target) {
@@ -153,7 +153,7 @@ function ensureMobileViewport() {
     viewport.content = 'width=device-width, initial-scale=1, user-scalable=yes';
     document.getElementsByTagName('head')[0].appendChild(viewport);
   } else {
-    // Update existing viewport to ensure proper mobile behavior
+
     const content = viewport.getAttribute('content');
     if (!content.includes('width=device-width')) {
       viewport.setAttribute('content', 'width=device-width, initial-scale=1, user-scalable=yes');
@@ -183,7 +183,7 @@ window.efb_test_mobile_touch = function() {
 
   console.log('EFB Mobile Touch Test Results (Non-Intrusive):', testResults);
 
-  // Test if functions are available
+
   const functionsTest = {
     show_setting_window_efb: typeof show_setting_window_efb === 'function',
     show_duplicate_fun: typeof show_duplicate_fun === 'function',
@@ -217,7 +217,7 @@ window.efb_test_toggle_buttons = function() {
 
   console.log('%c🔍 EFB Toggle Buttons Test Results:', 'background: #633a82; color: white; padding: 5px; font-weight: bold;', testResults);
 
-  // Log individual toggle button details
+
   toggleButtons.forEach((btn, index) => {
     console.log(`🔘 Toggle Button ${index + 1}:`, {
       id: btn.id,
@@ -242,7 +242,7 @@ window.efb_debug_toggle_live = function() {
   const toggleButtons = document.querySelectorAll('.btn-toggle');
   toggleButtons.forEach(btn => {
     if (!btn.hasDebugListener) {
-      // Test if it has mobile support
+
       console.log(`📍 Button ${btn.id}:`, {
         hasMobileSupport: !!btn.hasToggleMobileTouchSupport,
         currentClasses: btn.className
@@ -278,7 +278,7 @@ window.efb_check_toggle_css = function() {
     return;
   }
 
-  // Get computed styles
+
   const styles = window.getComputedStyle(testBtn);
   console.log('📋 Current .btn-toggle styles:', {
     transition: styles.transition,
@@ -286,7 +286,7 @@ window.efb_check_toggle_css = function() {
     backgroundColor: styles.backgroundColor
   });
 
-  // Temporarily add the touching class to test
+
   testBtn.classList.add('efb-toggle-touching');
   const touchingStyles = window.getComputedStyle(testBtn);
 
@@ -298,7 +298,7 @@ window.efb_check_toggle_css = function() {
     borderColor: touchingStyles.borderColor
   });
 
-  // Check if styles are actually different
+
   const hasEffect = touchingStyles.transform !== styles.transform ||
                     touchingStyles.backgroundColor !== styles.backgroundColor;
 
@@ -309,7 +309,7 @@ window.efb_check_toggle_css = function() {
     console.log('💡 Try: Hard refresh (Ctrl+Shift+R) or clear cache');
   }
 
-  // Remove test class
+
   testBtn.classList.remove('efb-toggle-touching');
 
   return { working: hasEffect, element: testBtn };
@@ -354,7 +354,7 @@ function Link_emsFormBuilder(state) {
         link += valj_efb.length < 1 || valj_efb[0].type != "s/payment" ? "s/how-to-create-your-first-form-with-easy-form-builde" : "How-to-Create-a-Payment-Form-in-Easy-Form-Builder";
         break;
       case 'stripe':
-        //stripe
+
         link = `https://${lan}whitestudio.team/documents/how-to-setup-and-use-the-stripe-on-easy-form-builder`;
         break;
       case 'ws':
@@ -376,26 +376,26 @@ function Link_emsFormBuilder(state) {
         link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
       break;
       case 'AdnSPF':
-        //AdnSPF == strip payment
+
         link += 's/how-to-setup-and-use-the-stripe-on-easy-form-builder/';
         break;
         case 'AdnOF':
-          //AdnOF == offline form
+
           link += "s/offline-forms-addon/";
 
         break;
         case 'AdnADP':
-          //AdnADP == Hijiri date
+
           link += "s/how-to-install-islamic-date-in-easy-form-builder-plugin/";
 
         break;
       case 'wpbakery':
-        //AdnOF == offline form
+
         link += 's/wpbakery-easy-form-builder-v34/';
-        //link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
+
         break;
       case 'AdnPPF':
-        //AdnPPF == persia payment
+
         link = `https://${lan}whitestudio.team`;
         break;
       case 'AdnATC':
@@ -404,16 +404,16 @@ function Link_emsFormBuilder(state) {
       case 'AdnSS':
       case 'smsconfig':
         link += "/settingup-sms-notifications-wordpress-easy-form-builder/";
-        //AdnSS == sms service
+
         break;
       case 'AdnCPF':
 
        break;
       case 'AdnESZ':
-       //AdnESZ == zone picker
+
        break;
       case 'AdnSE':
-        //AdnSE == email service
+
 
         link = 'https://whitestudio.team/addons';
         break;
@@ -421,7 +421,7 @@ function Link_emsFormBuilder(state) {
         link ='https://wordpress.org/plugins/wp-sms/';
         break;
       case 'file_size':
-        //https://whitestudio.team/document/guide-advanced-file-upload-forms-wordpress/
+
         link += "/guide-advanced-file-upload-forms-wordpress/"
         break;
       case 'support':
@@ -443,7 +443,7 @@ function Link_emsFormBuilder(state) {
         link += "%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/";
         break;
       case 'stripe':
-        //stripe
+
         link = "https://whitestudio.team/documents/how-to-setup-and-use-the-stripe-on-easy-form-builder";
         break;
       case 'ws':
@@ -467,17 +467,17 @@ function Link_emsFormBuilder(state) {
       case 'AdnSPF':
         link = 'https://easyformbuilder.ir/documents/';
         break;
-        //AdnSPF == strip payment
+
       case 'AdnOF':
-        //AdnOF == offline form
+
         link += '%d9%81%d8%b9%d8%a7%d9%84-%da%a9%d8%b1%d8%af%d9%86-%d8%ad%d8%a7%d9%84%d8%aa-%d8%a2%d9%81%d9%84%d8%a7%db%8c%d9%86-%d9%81%d8%b1%d9%85/';
         break;
       case 'AdnPPF':
-        //AdnPPF == persia payment
+
         link += "%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%db%8c%d8%b1%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%a8%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
         break;
         case 'wpbakery':
-          //AdnOF == offline form
+
           link += '%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%db%8c%da%a9%d8%b1%db%8c-%d8%a7%d8%b3%d8%aa%d9%81/';
           break;
       case 'AdnATC':
@@ -486,19 +486,19 @@ function Link_emsFormBuilder(state) {
       case 'smsconfig':
         link +=`تنظیم-اطلاع-رسانی-پیامک-وردپرس-فرم-ساز/`;
          break;
-        //AdnSS == sms service
+
       case 'AdnCPF':
 
       case 'AdnESZ':
-     //AdnESZ == zone picker
+
       case 'AdnSE':
-        //AdnSE == email service
+
 
         link = 'https://easyformbuilder.ir/';
-        //"AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF"
+
         break;
       case 'file_size':
-        //https://whitestudio.team/document/guide-advanced-file-upload-forms-wordpress/
+
         link += "/ایجاد-فرم-آپلود-فایل-پیشرفته-وردپرس";
         break;
       case 'support':
@@ -515,7 +515,7 @@ function Link_emsFormBuilder(state) {
 }
 
 
-function show_message_result_form_set_EFB(state, m) { //V2
+function show_message_result_form_set_EFB(state, m) {
 
   const cet = () => {
     const emailItem = valj_efb.find(item => item.type === 'email');
@@ -534,7 +534,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   const e_s = cet();
   let e_m ='<div id="alert"></div>';
   if((efb_var.smtp==false || efb_var.smtp==0 || efb_var.smtp==-1) && (e_s==true || e_s==1)) {
-    //howActivateAlertEmail
+
 
     msg = `<br> <p>${efb_var.text.clickToCheckEmailServer }</p> <p>${efb_var.text.goToEFBAddEmailM }</p> <br>
     <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block " onClick="Link_emsFormBuilder('EmailNoti')"><i class="efb bi bi-patch-question  mx-1 " ></i>${efb_var.text.howActivateAlertEmail}</a>
@@ -566,8 +566,8 @@ function show_message_result_form_set_EFB(state, m) { //V2
 
 
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`;
-  //if(state == 0) state_modal_show_efb(1);
-}//END show_message_result_form_set_EFB
+
+}
 
 console.info('Easy Form Builder WhiteStudio.team');
 
@@ -670,12 +670,12 @@ function actionSendAddons_efb(val) {
     $.post(ajaxurl, data, function (res) {
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
-          // show_message_result_form_set_EFB(1, res.data.value)
+
           alert_message_efb(efb_var.text.done,'', 30,'info');
           location.reload();
         } else {
           alert(res, "error")
-          // show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
+
           alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
 
         }
@@ -685,7 +685,7 @@ function actionSendAddons_efb(val) {
 
          alert_message_efb(efb_var.text.error, res.data.m, 30, "danger");
         } else {
-          // show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
+
           alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-2`, 30, "danger");
         }
       }
@@ -711,12 +711,12 @@ function actionSendAddonsUn_efb(val) {
     $.post(ajaxurl, data, function (res) {
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
-          // show_message_result_form_set_EFB(1, res.data.value)
+
           alert_message_efb(efb_var.text.done,'', 30,'info');
           location.reload();
         } else {
           alert(res, "error")
-          // show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
+
           alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
 
         }
@@ -726,7 +726,7 @@ function actionSendAddonsUn_efb(val) {
 
          alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
         } else {
-          // show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
+
           alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
         }
       }
@@ -843,11 +843,11 @@ const boxs_efb = [
   { id: 'login', title: efb_var.text.loginForm, desc: efb_var.text.createLoginForm, status: true, icon: 'bi-box-arrow-in-right', tag: 'all signInUp', pro: false },
   { id: 'subscription', title: efb_var.text.subscriptionForm, desc: efb_var.text.createnewsletterForm, status: true, icon: 'bi-bell', tag: 'all', pro: false },
 
-]// supportTicketF
+]
 let tag_efb=[];
 function add_dasboard_emsFormBuilder() {
 
-  // v2
+
 
   let value = `<!-- boxs -->`;
   for (let i of boxs_efb) {
@@ -903,7 +903,7 @@ function add_dasboard_emsFormBuilder() {
 }
 function add_addons_emsFormBuilder() {
 
-  // v2
+
   let value = `<!-- boxs -->`;
   for (let i of addons_efb) {
 
@@ -912,7 +912,7 @@ function add_addons_emsFormBuilder() {
 
       const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
                  'title':efb_var.text[i.title],'desc':efb_var.text[i.desc],'v_required':i.v_required , 'pro':i.pro}
-    // AdnSPF
+
      if((efb_var.language!='fa_IR' && (i.name!='AdnPPF') ) || efb_var.language=='fa_IR' ) value += createCardAddoneEfb(v)
     }
   }
@@ -1005,7 +1005,7 @@ function FunfindCardAddonEFB() {
 
 function create_form_by_type_emsfb(id, s) {
 
-  // v2
+
 
   const adminEmail = efb_var.setting.emailSupporter  ;
   const smail =adminEmail!=''  ? true :false
@@ -1021,7 +1021,7 @@ function create_form_by_type_emsfb(id, s) {
     valj_efb = [];
 
   } else if (id === "contact") {
-    // contactUs v2
+
     form_type_emsFormBuilder = "form";
     const json = [{ "type": "form", "steps": 1, "formName": efb_var.text.contactUs, "email":adminEmail, 'sendEmail': smail, "trackingCode": true, "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "2jpzt59do", "show_icon": true, "show_pro_bar": true, "captcha": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "stateForm": false, "dShowBg": true,"email_noti_type":"msg" },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.contactusForm, "icon": "bi-chat-right-fill", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-muted", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
@@ -1033,32 +1033,32 @@ function create_form_by_type_emsfb(id, s) {
 
     valj_efb = json;
   } else if (id === "contactTemplate") {
-    // contactUs v2
+
     form_type_emsFormBuilder = "form";
     const json = contact_us_template_efb()
     sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "multipleStepContactTemplate") {
-    // contactUs v2
+
     form_type_emsFormBuilder = "form";
     const json = multiple_step_contact_us_template_efb()
     sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "privateContactTemplate") {
-    // contactUs v2
+
     form_type_emsFormBuilder = "form";
     const json = private_contact_us_template_efb()
     sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "curvedContactTemplate") {
-    // contactUs v2
+
     form_type_emsFormBuilder = "form";
     const json = curved_contact_us_template_efb()
     sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "register") {
     form_type_emsFormBuilder = "register";
-    // register v2
+
     json = [{ "type": "register", "steps": 1, "formName": efb_var.text.register, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.register, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "emailRegisterEFB", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message":textThankUEFB('register'), "email_temp": "", "stateForm": false },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.registerForm, "icon": "bi-box-arrow-in-right", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
     { "id_": "usernameRegisterEFB", "dataId": "usernameRegisterEFB-id", "type": "text", "placeholder": efb_var.text.username, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.username, "required": true, "amount": 3, "step": 1,  "label_text_size": "fs-6", "label_position": "besie",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
@@ -1207,9 +1207,9 @@ function head_introduce_efb(state) {
 fun_preview_before_efb = (i, s, pro) => {
 
   valj_efb = [];
-  // const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+
   show_modal_efb("", efb_var.text.preview, "bi-check2-circle", "saveLoadingBox")
-  // myModal.show_efb();
+
   state_modal_show_efb(1);
   if (s == "local") {
     create_form_by_type_emsfb(i, 'pre')
@@ -1671,7 +1671,7 @@ let change_el_edit_Efb = (el) => {
         break;
       case "smsEnableEl":
 
-       //check pro version activate
+
        if(pro_efb!=true){
           pro_show_efb(1);
           document.getElementById("smsEnableEl").checked = false;
@@ -1704,7 +1704,7 @@ let change_el_edit_Efb = (el) => {
          }
         if(indx==0){
           if (c==1){
-            // remove disabled class from all input has sms-efb
+
 
             const smsEls = document.querySelectorAll('.smsmsg')
             smsEls.forEach((el)=>{
@@ -1714,7 +1714,7 @@ let change_el_edit_Efb = (el) => {
               el.classList.remove('d-none');
             })
           }else{
-            // add disabled class from all input has sms-efb
+
 
             const smsEls = document.querySelectorAll('.smsmsg')
             smsEls.forEach((el)=>{
@@ -1726,7 +1726,7 @@ let change_el_edit_Efb = (el) => {
           }
 
           if(valj_efb[0].hasOwnProperty('smsnoti')!=false){
-            // get document by dataset.id
+
 
             c= document.querySelector(`[data-id="newMessageReceived`).value
             c= sanitize_text_efb(c ,true);
@@ -1750,14 +1750,14 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case "smsAdminsPhoneNoEl":
-        // validate el.value for international phone number and seprate them by comma
+
 
         if(el.value.includes(',')){
           let phones=el.value.split(',');
           let isPhone=true;
             phones.forEach((phone)=>{
               phone=phone.trim();
-              // start with + and have 8 to 15 digit
+
               if (phone.match(/^\+[0-9]{8,15}$/)==null) isPhone=false;
               if(isPhone==false) {
                 alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue + ` (${phone})`, 10, "danger");
@@ -1874,7 +1874,7 @@ let change_el_edit_Efb = (el) => {
             if(clss!=-1){
               valj_efb[0].conditions[clss].state=c;
               if (c==false){
-                // logic_options
+
                 document.getElementById('logic_options').classList.remove('d-block');
                 document.getElementById('logic_options').classList.add('d-none');
               }else{
@@ -1907,7 +1907,7 @@ let change_el_edit_Efb = (el) => {
 
         if (el.dataset.tag != 'yesNo' && el.dataset.tag != 'heading' && el.dataset.tag != 'textarea' && el.dataset.tag != 'link') {
 
-          // document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
+
           c= sanitize_text_efb(el.value);
           document.getElementById(`${valj_efb[indx].id_}_`).value = c;
           valj_efb[indx].value = c;
@@ -1917,7 +1917,7 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = efb_text_nr(c,0);
           valj_efb[indx].value = c;
         } else {
-          // yesNo
+
           c= sanitize_text_efb(el.value);
           id = `${valj_efb[indx].id_}_${el.dataset.no}`
           document.getElementById(id).value = c;
@@ -1970,7 +1970,7 @@ let change_el_edit_Efb = (el) => {
           let cornEl = document.getElementById(postId);
 
           if (fun_el_select_in_efb(el.dataset.tag)) cornEl = el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'cityList' || el.dataset.tag == 'select' ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
-          // efb-square
+
 
           cornEl.classList.toggle('efb-square')
           if (el.dataset.tag == 'dadfile' || el.dataset.tag == 'esign') document.getElementById(`${valj_efb[indx].id_}_b`).classList.toggle('efb-square')
@@ -1980,7 +1980,7 @@ let change_el_edit_Efb = (el) => {
           valj_efb[0].corner = co;
           postId = document.getElementById('btn_send_efb');
 
-          // postId.classList.toggle('efb-square')
+
           document.getElementById('next_efb').classList.toggle('efb-square')
           document.getElementById('prev_efb').classList.toggle('efb-square')
         }
@@ -1999,7 +1999,7 @@ let change_el_edit_Efb = (el) => {
         if(valj_efb[indx].op_style!="1"){
           if(!c.classList.contains('row')) c.className += ' row col-md-12';
 
-          // colMReplaceEfb
+
           clss = valj_efb[indx].op_style=="2" ? 'col-md-6' : 'col-md-4'
           for (let v of document.querySelectorAll(`[data-parent='${valj_efb[indx].id_}'].form-check`)){
             v.className = colMdRemoveEfb(v.className);
@@ -2040,11 +2040,11 @@ let change_el_edit_Efb = (el) => {
           el.classList.add('d-none');
         }
          if(pro_efb!=true){
-          // pro_show_efb(1);
+
           valj_efb[0].thank_you ='msg';
           valj_efb[0].rePage = '';
         }
-        // const el_ = document.querySelectorAll(``)
+
         break;
       case "thankYouredirectEl":
 
@@ -2086,7 +2086,7 @@ let change_el_edit_Efb = (el) => {
         if (valj_efb[0].paymentmethod == 'charge') {
           el.innerHTML = efb_var.text.onetime;
           if (el.classList.contains('one') == false) el.classList.add('one')
-          // el.
+
         } else {
           id = `${valj_efb[0].paymentmethod}ly`;
 
@@ -2103,7 +2103,7 @@ let change_el_edit_Efb = (el) => {
       case "currencyTypeEl":
         if(valj_efb[0].hasOwnProperty('currency')==false) Object.assign(valj_efb[0],{'currency':'USD '})
         valj_efb[0].currency = el.options[el.selectedIndex].value.slice(0, 3);
-        // document.getElementById('currencyPayEfb').innerHTML = valj_efb[0].currency.toUpperCase()
+
         for (const l of document.querySelectorAll(".totalpayEfb")) {
          if(l.classList.contains('ir')==false) l.innerHTML = Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
         }
@@ -2153,7 +2153,7 @@ let change_el_edit_Efb = (el) => {
           }
         }
 
-        // check last chracters is comma remove it
+
 
         valj_efb[indx].hasOwnProperty('file_ctype')==false ? Object.assign(valj_efb[indx],{'file_ctype':c}) : valj_efb[indx].file_ctype = c;
 
@@ -2163,7 +2163,7 @@ let change_el_edit_Efb = (el) => {
 
       case "btnColorEl":
         color = el.value;
-        // valj_efb[indx].button_color = el.options[el.selectedIndex].value;
+
 
         clss = switch_color_efb(color);
         if (clss.includes('colorDEfb')) { addStyleColorBodyEfb(clss, color, "btn", indx); }
@@ -2188,7 +2188,7 @@ let change_el_edit_Efb = (el) => {
 
         if (clss.includes('colorDEfb')) {
           valj_efb[indx].style_btn_color ? valj_efb[indx].style_btn_color = color : Object.assign(valj_efb[indx], { style_btn_color: color });
-          // addColorTolistEfb(color)
+
         }
 
         break;
@@ -2224,18 +2224,18 @@ let change_el_edit_Efb = (el) => {
          else if (el.dataset.el == "clrdoneTitleEfb") {
           valj_efb[0].clrdoneTitleEfb = "text-" + c;
           return;
-          // postId = '_'
+
         }
          else if (el.dataset.el == "clrdoniconEfb") {
           valj_efb[0].clrdoniconEfb = "text-" + c;
           return;
-          // postId = '_'
+
         }
          else if (el.dataset.el == "progessbar") {
           valj_efb[0].hasOwnProperty('prg_bar_color')==false ?  Object.assign(valj_efb[0],{'prg_bar_color':"btn-" + c}) : valj_efb[0].prg_bar_color = "btn-" + c;
 
           return;
-          // postId = '_'
+
         }
 
         if (el.dataset.tag != "form" && el.dataset.tag != "payment" &&
@@ -2273,7 +2273,7 @@ let change_el_edit_Efb = (el) => {
 
 
           }
-          // button_group_button_single_text
+
         } else if (el.dataset.tag == "checkbox" || el.dataset.tag == "radio" || el.dataset.tag == "chlCheckBox") {
           const objOptions = valj_efb.filter(obj => {
             return obj.parent === valj_efb[indx].id_
@@ -2331,7 +2331,7 @@ let change_el_edit_Efb = (el) => {
             default:
               break;
           }
-          // addColorTolistEfb(color)
+
         }
         break;
       case "selectBorderColorEl":
@@ -2356,7 +2356,7 @@ let change_el_edit_Efb = (el) => {
 
         if (c.includes('colorDEfb')) {
           valj_efb[indx].style_border_color ? valj_efb[indx].style_border_color = color : Object.assign(valj_efb[indx], { style_border_color: color });
-          // addColorTolistEfb(color)
+
         }
         break;
       case "fontSizeEl":
@@ -2395,7 +2395,7 @@ let change_el_edit_Efb = (el) => {
               clslabel = inputHeightChangerEfb(clslabel, el.options[el.selectedIndex].value)
               clslabel = inputHeightChangerEfb(clslabel, fsize)
               document.getElementById(obj.id_).className = inputHeightChangerEfb(document.getElementById(obj.id_).className, fsize)
-              // document.querySelector(`[data-id="${obj.dataId}"]`).className = fontSizeChangerEfb(document.querySelector(`[data-id='${obj.dataId}']`).className, )
+
             }
           }, objOptions.length * len_Valj);
           break;
@@ -2415,10 +2415,10 @@ let change_el_edit_Efb = (el) => {
 
           postId = `${valj_efb[indx].id_}_box`;
         } else if (c == "multiselect" || c == "payMultiselect") {
-          // h-xxl-efb
+
           postId = `${valj_efb[indx].id_}_options`;
           let msel = document.getElementById(postId);
-          // const iconDD = document.getElementById(`iconDD-${valj_efb[indx].id_}`)
+
           msel.className.match(/h-+\w+-efb/g) ? msel.className = inputHeightChangerEfb(msel.className, valj_efb[indx].el_height) : msel.classList.add(valj_efb[indx].el_height)
 
           msel.className = fontSizeChangerEfb(msel.className, fsize)
@@ -2437,7 +2437,7 @@ let change_el_edit_Efb = (el) => {
           break;
         } else if (c == "switch") {
           postId = `${valj_efb[indx].id_}_`;
-          // fsize
+
           document.getElementById(`${valj_efb[indx].id_}_off`).className = fontSizeChangerEfb(document.getElementById(`${valj_efb[indx].id_}_off`).className, fsize);
           document.getElementById(`${valj_efb[indx].id_}_on`).className = fontSizeChangerEfb(document.getElementById(`${valj_efb[indx].id_}_on`).className, fsize);
         } else if (c == "yesNo") {
@@ -2497,7 +2497,7 @@ let change_el_edit_Efb = (el) => {
         clss=  document.querySelector(`[data-id="${valj_efb[indx].id_}-contorller"]`);
         clss.classList.add('efb');
         c==0 ?  clss.classList.add('d-none')  : clss.classList.remove('d-none') ;
-          // query data-id="${valj_efb[indx].id_}-control"
+
 
           clss.innerHTML= `
               <a  class="efb btn btn-sm btn-dark text-light"><i class=" fs-6   efb bi-crosshair"></i></a>
@@ -2506,7 +2506,7 @@ let change_el_edit_Efb = (el) => {
               <a   class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
               <div id="efb-error-message-${valj_efb[indx].id_}" class="error-message d-none"></div>`
 
-        // not clickable clss
+
 
 
         break;
@@ -2545,7 +2545,7 @@ let change_el_edit_Efb = (el) => {
           valj_efb[iindx].value = el.value;
           if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList' ||  el.dataset.tag == 'cityList' ) {
 
-            // Select
+
 
             let vl = document.querySelector(`[data-op="${el.dataset.id}"]`);
             if (vl) vl.innerHTML = el.value;
@@ -2563,10 +2563,10 @@ let change_el_edit_Efb = (el) => {
 
             document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
           } else if (el.dataset.tag != "multiselect" && el.dataset.tag != 'payMultiselect') {
-            // radio || checkbox
+
              document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
-            // document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
-            // document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
+
+
             document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = fun_get_links_from_string_Efb(el.value,true);
           }
           el.setAttribute('value', valj_efb[iindx].value);
@@ -2593,7 +2593,7 @@ let change_el_edit_Efb = (el) => {
 
           if(oi.length>0 && color.includes("radio")==true){
 
-            // document.getElementById(oi+'-g').removeAttribute("checked");
+
             document.querySelector(`[data-id="${oi}"]`).removeAttribute("checked");
 
             document.getElementById(oi).removeAttribute("checked");
@@ -2611,7 +2611,7 @@ let change_el_edit_Efb = (el) => {
             if(color.includes("checkbox")==true) {
               document.getElementById(clss).removeAttribute("checked");
               el.removeAttribute("checked");
-              // document.getElementById(clss).setAttribute("checked",false);
+
             }
             clss= valj_efb[c].value.findIndex(x=>x ==clss)
             valj_efb[c].value.splice(clss,1);
@@ -2749,7 +2749,7 @@ let change_el_edit_Efb = (el) => {
 
               }
               valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue.replaceAll(' ','_'), step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n ,s2:value.s});
-              // optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
+
 
 
             }
@@ -2764,7 +2764,7 @@ let change_el_edit_Efb = (el) => {
 
           valj_efb[indx].country =  el.options[el.selectedIndex].value
         }else if(el.dataset.tag =="cityList" && document.getElementById('optionListefb')!=null){
-          // document.getElementById('optionListefb').classList.add('is-loading');
+
           document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
             callFetchStatesPovEfb('statePovListEl', valj_efb[indx].country, indx,'getStatesPovEfb');
             valj_efb[indx].country =  el.options[el.selectedIndex].value
@@ -2796,7 +2796,7 @@ let change_el_edit_Efb = (el) => {
 
               const value = temp_efb.r[key];
               const nValue = value.n.trim();
-              // const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
+
               const sValue = nValue.replaceAll(' ','_') +newRndm;
 
               let rowValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
@@ -2809,7 +2809,7 @@ let change_el_edit_Efb = (el) => {
 
               }
               valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue, step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n,s2:value.s});
-              // optionElpush_efb(valj_efb[indx].id_, lValue, sValue, nValue.replaceAll('','_'));
+
 
 
             }
@@ -2861,7 +2861,7 @@ let change_el_edit_Efb = (el) => {
             const idset = (el.options[el.selectedIndex].dataset.idset);
             const s_op = sanitize_text_efb(el.options[el.selectedIndex].value);
             valj_efb[0].conditions[n].condition[c].two="";
-            // idset ,fid , s_op
+
             document.querySelector(`[data-id='oso-${idset}'`).innerHTML= optionSmartforOptionsEls(fid , idset ,s_op);
           }
         }
@@ -2878,7 +2878,7 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case 'smsContentEl':
-         // check pro version
+
          if(pro_efb!=true){
            pro_show_efb(1);
            return;
@@ -2972,7 +2972,7 @@ get_list_name_selecting_field_efb=()=>{
   return r;
 }
 get_list_name_otions_field_efb=(i_op)=>{
-  // i_op parent id  , if i_op ==0 first select;
+
   let r =[];
   if(i_op==0){
     for(let i in valj_efb){
@@ -3011,7 +3011,7 @@ function create_form_efb() {
       }
       if (value.type == 'step') {
         steps_index_efb.push(index)
-        // steps_index_efb.length<2 ? content =`<div data-step="${step_no}" class="efb m-2 content-efb row">` : content +=`</div><div data-step="${step_no}"  class="efb m-2 content-efb row">`
+
       } else if (value.type != 'step' && value.type != 'form' && value.type != 'option') {
 
         content += addNewElement(value.type, value.id_, true, true);
@@ -3196,7 +3196,7 @@ const saveFormEfb = async (stated) => {
       }
     }, 100);
   });
-};//end function
+};
 
 let editFormEfb = () => {
   valueJson_ws_p = 0;
@@ -3240,11 +3240,11 @@ let editFormEfb = () => {
     }
 
     fub_shwBtns_efb()
-    // enableDragSort('dropZoneEFB');
+
   }, len);
 
 
-}//editFormEfb end
+}
 
 
 function obj_resort_row(step) {
@@ -3254,7 +3254,7 @@ function obj_resort_row(step) {
     if (v.step == step) {
       v.step = step;
       if (v.dataId) {
-        // document.querySelector(`[data-id="${v.dataId}"]`).dataset.step = step;
+
 
         if (document.getElementById(v.id_)) document.getElementById(v.id_).dataset.step = step;
       }
@@ -3335,7 +3335,7 @@ let sampleElpush_efb = (rndm, elementId) => {
         icon: 'bi-save', icon_color: "text-white", button_single_text: efb_var.text.clear,
         button_color: pub_bg_button_color_efb
       })
-      // icon: ''
+
     } else if (elementId == "yesNo") {
       Object.assign(valj_efb[(valj_efb.length) - 1], { button_1_text: efb_var.text.yes, button_2_text: efb_var.text.no, button_color: pub_bg_button_color_efb })
     } else if (elementId == "maps") {
@@ -3396,7 +3396,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_align: 'justify-content-start', pro: pro
     })
     if (elementId == "dadfile") {
-      // console.log (valj_efb[(valj_efb.length) - 1])
+
       Object.assign(valj_efb[(valj_efb.length) - 1], { icon: 'bi-cloud-arrow-up-fill', icon_color:pub_icon_color_efb, button_color: pub_bg_button_color_efb })
 
     }else if(elementId == "file"){
@@ -3468,7 +3468,7 @@ function create_dargAndDrop_el() {
 
 
 
-    // enableDragSort('dropZoneEFB');
+
   });
 
 
@@ -3502,7 +3502,7 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
    els.forEach(l => {
      document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(l.id_, l.value, l.id_, 'radio', l.parent);
    });
-   // add_new_option_view_select("random"+valj_efb[indx].id_, efb_var.text.otherTxt, "random"+valj_efb[indx].id_, "radio", valj_efb[indx].id_);
+
    document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select("random" + parentsID, efb_var.text.otherTxt, "random" + parentsID, 'radio', parentsID);
  } else if (tag == "table_matrix") {
 
@@ -3569,7 +3569,7 @@ const sort_obj_el_efb_ = () => {
   }
 
   if (len > 20) {
-    // show loading message full screen
+
     sort_obj_efb()
     const p = calPLenEfb(len)
     wating_sort_complate_efb((len * (Math.log(len)) * p))
@@ -3580,7 +3580,7 @@ const sort_obj_el_efb_ = () => {
 
   if (state) fub_shwBtns_efb();
 
-}//enf fun obj
+}
 
 const sort_obj_el_efb = () => {
   let amount = 1;
@@ -3647,10 +3647,10 @@ function show_delete_window_efb(idset,iVJ) {
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem} ${v}</div></div>`
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
   show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
-  // const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
   if (is_step == false) {
-   // myModal.show_efb();
+
    state_modal_show_efb(1);
    confirmBtn.dataset.id =idset.slice(0,-3);
 
@@ -3660,7 +3660,7 @@ function show_delete_window_efb(idset,iVJ) {
       activeEl_efb = 0;
       state_modal_show_efb(0)
     })
-    // myModal.show_efb();
+
   } else if (is_step) {
     const el = document.getElementById(idset);
     if (el.dataset.id != 1) {
@@ -3758,7 +3758,7 @@ const obj_delete_options = (parentId) => {
   valj_efb = valj_efb_;
 }
 const obj_delete_the_option = (id) => {
-  // Just Delete the option with ID
+
   let foundIndex = Object.keys(valj_efb).length > 0 ? valj_efb.findIndex(x => x.id_op == id) : -1;
   if (foundIndex != -1) valj_efb.splice(foundIndex, 1);
 }
@@ -3767,7 +3767,7 @@ function show_duplicate_fun(id,fild_name) {
 
 
   emsFormBuilder_duplicate(id,'input' ,fild_name)
-  // از آبجکت خروجی بگیرد و بعد اینجا تولید کند
+
 
 }
 
@@ -3786,7 +3786,7 @@ let enableDragItem = (item) => {
   if (!item.classList.contains('stepNavEfb')) {
 
     item.setAttribute('draggable', true)
-    // item.ondrag = handleDrag;
+
 
   }
 }
@@ -3846,7 +3846,7 @@ const sort_obj_efb = () => {
   const len = valj_efb.length;
 
   let p = calPLenEfb(len)
-  // let =valj_efb_
+
   setTimeout(() => {
    const  valj_efb_ = valj_efb.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : ((Number(b.amount) > Number(a.amount)) ? -1 : 0))
      valj_efb= valj_efb_;
@@ -3863,7 +3863,7 @@ const sort_obj_efb = () => {
 
 
 const delete_option_efb = (id) => {
-  // حذف آپشن ها مولتی سلکت و درایو
+
   document.getElementById(`${id}-gs`).remove();
   if (document.getElementById(`${id}-v`)) document.getElementById(`${id}-v`).remove();
   const indx = valj_efb.findIndex(x => x.id_op == id)
@@ -3901,7 +3901,7 @@ fun_efb_add_el = (t) => {
       { n: 'address', t: "conturyList" }, { n: 'address', t: "stateProvince" } , { n: 'address', t: "cityList" }, { n: 'address', t: "address_line" }  ,{ n: 'address', t: "postalcode" }
 
     ]
-    // if(t=="address") olist = [{ n: 'address', t: "country" }, { n: 'address', t: "statePro" } , { n: 'address', t: "city" }  ]
+
     for (const ob of olist) {
 
       if (ob.n == t) {
@@ -3930,7 +3930,7 @@ fun_efb_add_el = (t) => {
 
   if (t == 'maps') {
 
-     // find a row from valj_efb by id_
+
       const indx = valj_efb.findIndex(x => x.id_ == rndm);
       setTimeout(() => {
         efbCreateMap(rndm ,valj_efb[indx],false);
@@ -3949,7 +3949,7 @@ fun_efb_add_el = (t) => {
 function active_element_efb(el) {
 
 
-  // show config buttons
+
  if (el.id != activeEl_efb ) {
 
 
@@ -3967,7 +3967,7 @@ function active_element_efb(el) {
     if (ac) {
      ac.classList.remove('field-selected-efb')
     }
-    // state_view_efb=0
+
     activeEl_efb = el.dataset.id
     const eld = document.getElementById(`btnSetting-${activeEl_efb}`);
     if (eld.classList.contains('d-none')) eld.classList.remove('d-none');
@@ -4021,7 +4021,7 @@ funBTNAddOnsEFB=(val,v_required)=>{
 
   }
  }else{
-  // efb_var.text.upDMsg
+
 
   alert_message_efb(efb_var.text.error, efb_var.text.upDMsg,30,'warning');
   setTimeout(() => {
@@ -4050,7 +4050,7 @@ function emsFormBuilder_delete(id, type,value) {
     });
    return r;
   }
-  // v2
+
   let val =id;
 
 
@@ -4072,7 +4072,7 @@ function emsFormBuilder_delete(id, type,value) {
 
         for(let i in value){
           if(value[i].hasOwnProperty('checked') && value[i].checked==true && value[i].hasOwnProperty('content')){
-            // remove content attrebute
+
             value[i].content='';
           }
         }
@@ -4105,7 +4105,7 @@ function emsFormBuilder_delete(id, type,value) {
       fun_remove_condition_efb(id , value);
     }else if(type=="messagelist"){
 
-      // +here
+
 
       fun_confirm_remove_all_message_emsFormBuilder(value)
       return;
@@ -4118,7 +4118,7 @@ function emsFormBuilder_delete(id, type,value) {
 }
 function emsFormBuilder_duplicate(id, type,value) {
 
-  // v2
+
   let val =id;
 
 
@@ -4766,12 +4766,12 @@ function efbLatLonLocation(efbMapId, lat, long ,zoom) {
 
 function heartbeat_Emsfb() {
 
-  // console.log(`heartbeat_efb_active[${heartbeat_efb_active}]`);
+
   if (heartbeat_efb_active) return;
   heartbeat_efb_active = true;
 
   data = {};
-  // console.log('Old nonce', efb_var.nonce);
+
   jQuery(function ($) {
     data = {
       action: "heartbeat_Emsfb",
@@ -4779,16 +4779,16 @@ function heartbeat_Emsfb() {
     };
     $.post(ajaxurl, data, function (res) {
 
-      // console.log(res)
+
       if (res.success == true) {
 
         efb_var.nonce = res.data.newNonce;
         heartbeat_efb_active = false;
-        // console.log('new nonce', efb_var.nonce);
+
       } else {
         heartbeat_efb_active = false;
 
-        // console.log(res.data);
+
       }
     }
   ).fail(function(jqXHR, textStatus, errorThrown) {
@@ -4831,11 +4831,11 @@ function report_problem_efb(state ,value){
 
 
 function addClickListenerToElement(element) {
-  // console.log('addClickListenerToElement');
+
   if (!element.hasClickListener) {
       let state_event = false;
 
-      // Enhanced mobile touch support
+
       if ('ontouchstart' in window) {
         element.addEventListener("touchend", handleElementClick, { passive: false });
       }
@@ -4934,7 +4934,7 @@ function addClickListenerToElement(element) {
           }
       }
 
-      // Add mobile touch feedback
+
       if ('ontouchstart' in window) {
         element.addEventListener('touchstart', function() {
           if (element.classList.contains('btn-edit') || element.classList.contains('BtnSideEfb')) {
@@ -4960,13 +4960,13 @@ function addClickListenerToElement(element) {
  */
 function addFieldSelectionSupport(element) {
   if (!element.hasFieldEventListeners && ('ontouchstart' in window)) {
-    // Check if element has the required classes
+
     const hasShowBtns = element.classList.contains('showBtns');
     const hasEfbField = element.classList.contains('efbField');
     const hasTtEfb = element.classList.contains('ttEfb');
 
     if (hasShowBtns || (hasEfbField && hasTtEfb)) {
-      // Add touch event for field selection
+
       element.addEventListener('touchend', function(e) {
         e.preventDefault();
         if (typeof active_element_efb === 'function') {
@@ -4974,7 +4974,7 @@ function addFieldSelectionSupport(element) {
         }
       }, { passive: false });
 
-      // Add visual feedback
+
       element.addEventListener('touchstart', function() {
         element.classList.add('efb-touch-active');
       }, { passive: true });
@@ -4996,7 +4996,7 @@ function addFieldSelectionSupport(element) {
  */
 function addMobileTouchSupport(element) {
   if (!element.hasMobileTouchSupport && ('ontouchstart' in window)) {
-    // Add touch visual feedback
+
     element.addEventListener('touchstart', function() {
       element.classList.add('efb-touch-active');
     }, { passive: true });
@@ -5005,7 +5005,7 @@ function addMobileTouchSupport(element) {
       element.classList.remove('efb-touch-active');
     }, { passive: true });
 
-    // Enhance onclick events for mobile compatibility
+
     const onclickAttr = element.getAttribute('onclick');
     if (onclickAttr) {
       let touchHandled = false;
@@ -5013,22 +5013,22 @@ function addMobileTouchSupport(element) {
       element.addEventListener('touchend', function(e) {
         if (!touchHandled) {
           touchHandled = true;
-          // Reset flag after a short delay
+
           setTimeout(() => { touchHandled = false; }, 300);
 
-          // Prevent default to avoid double execution
+
           e.preventDefault();
           e.stopPropagation();
 
-          // Use safe eval to prevent WordPress AJAX conflicts
+
           safeEvalEfb(onclickAttr);
         }
       }, { passive: false });
     }
 
-    // Also add click event as fallback for mobile
+
     element.addEventListener('click', function(e) {
-      // Small delay to prevent conflicts with touchend
+
       if (element.hasMobileTouchSupport) {
         e.stopPropagation();
       }
@@ -5047,13 +5047,13 @@ function addToggleMobileTouchSupport(element) {
 
     if (debugMode) console.log('🟢 EFB Toggle: Adding mobile support to', element.id || element.className);
 
-    // Add enhanced touch visual feedback for toggles
+
     element.addEventListener('touchstart', function(e) {
       if (debugMode) console.log('👆 EFB Toggle: touchstart on', element.id);
       element.classList.add('efb-toggle-touching');
       element.setAttribute('data-efb-touching', 'true');
 
-      // Apply inline styles with !important using RAF for proper timing
+
       requestAnimationFrame(() => {
         element.style.setProperty('transform', 'scale(0.85)', 'important');
         element.style.setProperty('background-color', 'rgba(99, 58, 130, 0.7)', 'important');
@@ -5080,18 +5080,18 @@ function addToggleMobileTouchSupport(element) {
 
         setTimeout(() => { touchHandled = false; }, 300);
 
-        // Prevent default click behavior
+
         e.preventDefault();
         e.stopPropagation();
 
-        // Execute the toggle function directly
+
         setTimeout(() => {
           if (debugMode) {
             console.log('⚡ EFB Toggle: Executing function for', element.id);
             console.log('📋 Classes before toggle:', element.className);
           }
 
-          // Toggle the 'active' class
+
           if (element.classList.contains('active')) {
             element.classList.remove('active');
           } else {
@@ -5100,17 +5100,17 @@ function addToggleMobileTouchSupport(element) {
 
           if (debugMode) console.log('📋 Classes after toggle:', element.className);
 
-          // Execute the form switch function
+
           if (typeof window.fun_switch_form_efb === 'function') {
             window.fun_switch_form_efb(element);
 
-            // Re-add visual feedback class if it was removed
+
             if (element.getAttribute('data-efb-touching') === 'true' && !element.classList.contains('efb-toggle-touching')) {
               if (debugMode) console.log('⚠️ Visual class was removed! Re-adding...');
               element.classList.add('efb-toggle-touching');
             }
           } else {
-            // Fallback: execute onclick if function not available
+
             const onclickAttr = element.getAttribute('onclick');
             if (onclickAttr) {
               if (debugMode) console.log('⚡ EFB Toggle: Using onclick attribute');
@@ -5119,7 +5119,7 @@ function addToggleMobileTouchSupport(element) {
           }
         }, 50);
 
-        // Reset visual feedback with delay so user can see the effect
+
         setTimeout(() => {
           if (debugMode) {
             console.log('🔄 EFB Toggle: Removing visual feedback from', element.id);
@@ -5128,7 +5128,7 @@ function addToggleMobileTouchSupport(element) {
           element.classList.remove('efb-toggle-touching');
           element.removeAttribute('data-efb-touching');
 
-          // Reset inline styles by removing the properties
+
           element.style.removeProperty('transform');
           element.style.removeProperty('background-color');
           element.style.removeProperty('box-shadow');
@@ -5140,7 +5140,7 @@ function addToggleMobileTouchSupport(element) {
       }
     }, { passive: false });
 
-    // Override click events on mobile to prevent double execution
+
     element.addEventListener('click', function(e) {
       if (('ontouchstart' in window) && element.hasToggleMobileTouchSupport) {
         e.preventDefault();
@@ -5157,15 +5157,15 @@ function addToggleMobileTouchSupport(element) {
 }
 
       function observeExistingElements() {
-        // console.log('observeExistingElements');
+
         const els = document.querySelectorAll(".ec-efb");
         els.forEach(addClickListenerToElement);
 
-        // Add mobile support to existing button elements
+
         const mobileButtons = document.querySelectorAll(".btn-edit, .BtnSideEfb, button[onclick], span[onclick]");
         mobileButtons.forEach(addMobileTouchSupport);
 
-        // Add mobile support to existing field elements
+
         const fieldElements = document.querySelectorAll(".showBtns, .efbField, .ttEfb");
         fieldElements.forEach(addFieldSelectionSupport);
       }
@@ -5175,19 +5175,19 @@ function addToggleMobileTouchSupport(element) {
         mutations.forEach(mutation => {
             mutation.addedNodes.forEach(node => {
                 if (node.nodeType === 1) {
-                    // Handle existing elements
+
                     const els = node.querySelectorAll(".ec-efb, .btn, .elEdit, .btn-toggle, .ec-efb ");
                     els.forEach(addClickListenerToElement);
 
-                    // Handle mobile-specific button elements
+
                     const mobileButtons = node.querySelectorAll(".btn-edit, .BtnSideEfb");
                     mobileButtons.forEach(addMobileTouchSupport);
 
-                    // Handle field selection elements for mobile
+
                     const fieldElements = node.querySelectorAll(".showBtns, .efbField, .ttEfb");
                     fieldElements.forEach(addFieldSelectionSupport);
 
-                    // Handle btn-toggle elements for mobile
+
                     const toggleButtons = node.querySelectorAll(".btn-toggle[onclick]");
                     toggleButtons.forEach(addToggleMobileTouchSupport);
                 }
@@ -5209,9 +5209,9 @@ function addToggleMobileTouchSupport(element) {
  * Call this if elements are added dynamically: efb_force_mobile_support()
  */
 window.efb_force_mobile_support = function() {
-  // Re-apply mobile support to all relevant elements (more comprehensive)
+
   const buttons = document.querySelectorAll('.btn-edit, .BtnSideEfb, button[onclick], span[onclick], [data-action]');
-  // Reset flags to force reprocessing
+
   buttons.forEach(button => {
     button.hasMobileTouchSupport = false;
   });
@@ -5219,14 +5219,14 @@ window.efb_force_mobile_support = function() {
   buttons.forEach(addMobileTouchSupport);  const fields = document.querySelectorAll('.showBtns, .efbField, .ttEfb');
   fields.forEach(addFieldSelectionSupport);
 
-  // Apply mobile touch support to btn-toggle elements
+
   const toggleButtons = document.querySelectorAll('.btn-toggle[onclick]');
   toggleButtons.forEach(button => {
-    button.hasToggleMobileTouchSupport = false; // Reset flag
+    button.hasToggleMobileTouchSupport = false;
   });
   toggleButtons.forEach(addToggleMobileTouchSupport);
 
-  // Re-run the field button initialization
+
   if (typeof fub_shwBtns_efb === 'function') {
     fub_shwBtns_efb();
   }
@@ -5255,10 +5255,10 @@ window.efb_fix_buttons_now = function() {
     const action = button.getAttribute('data-action');
 
     if (onclickAttr || action) {
-      // Remove existing listeners to avoid duplicates
+
       button.removeEventListener('touchend', button._mobileHandler);
 
-      // Create new handler
+
       button._mobileHandler = function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -5272,10 +5272,10 @@ window.efb_fix_buttons_now = function() {
         }
       };
 
-      // Add touch handler
+
       button.addEventListener('touchend', button._mobileHandler, { passive: false });
 
-      // Visual feedback
+
       button.addEventListener('touchstart', function() {
         button.style.transform = 'scale(0.95)';
         button.style.backgroundColor = 'rgba(108, 117, 125, 0.2)';

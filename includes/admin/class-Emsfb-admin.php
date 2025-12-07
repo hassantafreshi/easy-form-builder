@@ -918,18 +918,17 @@ class Admin {
             wp_send_json_success($response, 200);
             die();
         }
-        $post_message = isset($_POST['message']) ? sanitize_text_field( wp_unslash( $_POST['message'] ) ) : '';
-        if ($this->isHTML(json_encode($post_message))) {
+
+
+        $post_message = isset($_POST['message']) ? wp_unslash( $_POST['message'] ) : '';
+        if ($this->isHTML($post_message)) {
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" =>$m];
             wp_send_json_success($response, 200);
             die();
         }
-
-        $m= str_replace('\\', '', $post_message);
-
-        $m = json_decode($m,true);
-
+        //convert to array
+        $m = json_decode($post_message, true);
         $setting = $post_message;
         $table_name = $this->db->prefix . "emsfb_setting";
         $email="";

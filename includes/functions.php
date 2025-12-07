@@ -940,18 +940,31 @@ class efbFunction {
 			/* translators: %s: Payment add-on name */
 			"IMAddonPMsg" => $state && isset($ac->text->IMAddonPMsg) ? $ac->text->IMAddonPMsg  : esc_html__('To create a payment form, install a payment add-on such as the  %s Add-on first.', 'easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank','easy-form-builder'),
+			/* translators: %s is the caching plugin name */
 			"excefb_" => $state  &&  isset($ac->text->excefb_) ? $ac->text->excefb_ : esc_html__('The %s plugin might interfere with forms of Easy Form Builder\'s functionality. If you encounter any issues with the Forms, disable caching for the Easy Form Builder plugin in the %s plugin\'s settings.','easy-form-builder'),
+			/* translators: %1$s is the field name, %2$s is the minimum character count */
 			"ptrnMmm_" => $state  &&  isset($ac->text->ptrnMmm_) ? $ac->text->ptrnMmm_ : esc_html__('The value of the %1$s field does not match the pattern and must be at least %2$s characters.','easy-form-builder'),
+			/* translators: %1$s is the field name, %2$s is the maximum character count */
 			"ptrnMmx_" => $state  &&  isset($ac->text->ptrnMmx_) ? $ac->text->ptrnMmx_ : esc_html__('The value of the %1$s field does not match the pattern and must be at most %2$s characters.','easy-form-builder'),
+			/* translators: %s is the field name[Label name of the field] */
 			"mnvvXXX_" => $state  &&  isset($ac->text->mnvvXXX_) ? $ac->text->mnvvXXX_ : esc_html__('Please enter valid value for the %s field.','easy-form-builder'),
+			/* translators: %s is the list name */
 			"list_" => $state  &&  isset($ac->text->list_) ? $ac->text->list_ : esc_html__('%s list','easy-form-builder'),
+			/* translators: %s is the file size in MB */
 			"fSiz_l_dy_" => $state &&  isset($ac->text->fSiz_l_dy_) ? $ac->text->fSiz_l_dy_ : esc_html__('The uploaded file exceeds the allowable limit of %s MB.','easy-form-builder'),
+			/* translators: %s is the file size in MB */
 			"fSiz_s_dy_" => $state &&  isset($ac->text->fSiz_s_dy_) ? $ac->text->fSiz_s_dy_ : esc_html__('The uploaded file is below the required minimum size of %s MB.','easy-form-builder'),
+			/* translators: %s is the tab name of the settings in the panel Easy Form Builder */
 			"msgchckvt_" => $state  &&  isset($ac->text->msgchckvt_) ? $ac->text->msgchckvt_ : esc_html__('Review the entered values in the %s tab.this message appeared because an error is detected.','easy-form-builder'),
+			/* translators: %s is the item being duplicated (e.g., form, field) */
 			"ausdup_" => $state  &&  isset($ac->text->ausdup_) ? $ac->text->ausdup_ : esc_html__('Are you sure you want to duplicate the %s ?','easy-form-builder'),
+			/* translators: %s is the option name */
 			"bkXpM_" => $state  &&  isset($ac->text->bkXpM_) ? $ac->text->bkXpM_ : esc_html__('We are sorry, the booking time for the %s option has expired. Please choose from the other available options.','easy-form-builder'),
+			/* translators: %s is the option name */
 			"bkFlM_" => $state  &&  isset($ac->text->bkFlM_) ? $ac->text->bkFlM_ : esc_html__('We are sorry, the %s option is currently at full capacity. Please choose from the other available options.','easy-form-builder'),
+			/* translators: %s is the payment add-on name like Stripe and Paypal */
 			"sSTAddon" => $state  &&  isset($ac->text->sSTAddon) ? $ac->text->sSTAddon : esc_html__('%s Payment Addon','easy-form-builder'),
+			/* translators: %1$s is the payment add-on name, %2$s is the payment processor name */
 			"sSTDAddon" => $state  &&  isset($ac->text->sSTDAddon) ? $ac->text->sSTDAddon : esc_html__('The %s add-on for Easy Form Builder enables you to integrate your WordPress site with %s for payment processing, donations, and online orders.','easy-form-builder'),
 
 
