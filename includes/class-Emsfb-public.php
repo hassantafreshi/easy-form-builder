@@ -505,7 +505,8 @@ public function check_nonce_permission_efb($request) {
 						clearInterval(checkElementor);
 						console.log('⚠️ EFB: elementorFrontend not found, using global protection only');
 					}
-				}, 10);				console.log('� EFB: Ultimate Elementor fix started');
+				}, 10);
+				console.log('� EFB: Ultimate Elementor fix started');
 			})();
 			</script>
 			<?php

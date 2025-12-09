@@ -214,7 +214,7 @@ class Panel_edit  {
 			$colors =[];
 			$location ='';
 
-			// 			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
+
 			$sid = '';
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
 
@@ -418,8 +418,8 @@ class Panel_edit  {
 		$_POST['id']= isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
         $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field(wp_unslash($_POST['pl'])) : '';
         $_POST['fid']= isset($_POST['fid']) ? sanitize_text_field(wp_unslash($_POST['fid'])) : '';
-		// $sid = isset($_POST['sid']) ? sanitize_text_field(wp_unslash($_POST['sid'])) : '';
-		// $s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
+
+
 
 
         $vl=null;
