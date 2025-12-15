@@ -1714,7 +1714,15 @@ class efbFunction {
 
 
 		}else{
-			require_once(ABSPATH . 'wp-admin/includes/file.php');
+			$path= ABSPATH . 'wp-admin/includes/file.php';
+			if ( ! file_exists( $path ) ) {
+				error_log( 'The file does not exist: ' . $path );
+				return false;
+			}else{
+				require_once( ABSPATH . 'wp-admin/includes/file.php' );
+			}
+
+
 			if (WP_Filesystem()) {
 				global $wp_filesystem;
 

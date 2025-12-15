@@ -341,7 +341,12 @@ class Admin {
                 $response = ['success' => false, 'm' => $m];
                 wp_send_json_success($response, 200);
             }
-
+            $pth = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php';
+            if(!file_exists($pth)) {
+                $m = str_replace('NN', '<b>' . $lang['sms_noti'] . '</b>', $lang['msg_adons']);
+                $response = ['success' => false, 'm' => $m];
+                wp_send_json_success($response, 200);
+            }
 			require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
 			$smsefb = new smssendefb();
 
@@ -1253,7 +1258,12 @@ class Admin {
             if(is_wp_error($r)){
 
             }else{
-                require_once(ABSPATH . 'wp-admin/includes/file.php');
+                $path = ABSPATH . 'wp-admin/includes/file.php';
+                if ( ! file_exists( $path ) ) {
+                    return false;
+                }
+
+                require_once($path );
                 if (WP_Filesystem()) {
                     global $wp_filesystem;
 
@@ -1275,8 +1285,12 @@ class Admin {
                 if(is_wp_error($r)){
                     return false;
                 }else{
+                $path = ABSPATH . 'wp-admin/includes/file.php';
+                if ( ! file_exists( $path ) ) {
+                    return false;
+                }
 
-                    require_once(ABSPATH . 'wp-admin/includes/file.php');
+                require_once($path );
                     WP_Filesystem();
                     $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '/vendor/');
                     if(is_wp_error($r)){
@@ -1390,7 +1404,6 @@ class Admin {
 
 
              }
-             require_once(EMSFB_PLUGIN_DIRECTORY."/includes/integrate-wpb.php");
 
              if (function_exists('register_block_type')) {
 
@@ -1677,8 +1690,15 @@ class Admin {
                        update_option('emsfb_email_status', result_ok('ok_set_smtp'));
                        return;
                 }else{
-                    require_once (EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-requirement.php');
-                    $efbRequirement = new CheckRequirementEmsfb();
+                    $path = EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-requirement.php';
+                    if (!file_exists($path)) {
+                        return;
+                    }
+                    require_once ($path);
+                    if (!class_exists('Emsfb\CheckRequirementEmsfb')) {
+                        return;
+                    }
+                    $efbRequirement = new \Emsfb\CheckRequirementEmsfb();
                     $efbRequirement->run_and_save_efb();
                     $check = get_option('emsfb_email_status', false);
                     if(is_array($check)  && isset($check['status']) && ($check['status'] == 'ok_set_smtp' || $check['status'] == 'ok')) {
