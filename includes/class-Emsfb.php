@@ -108,7 +108,7 @@ class Emsfb {
  /**
      * Send email notification to all super admins about database changes
      *
-     * @since 3.9.3
+     * @since 3.9.4
      * @return void
      */
     public static function email_send_efb() {
@@ -277,7 +277,7 @@ class Emsfb {
     /**
      * Check version and run upgrade tasks if needed
      *
-     * @since 3.9.3
+     * @since 3.9.4
      * @return void
      */
     public function check_version_and_upgrade_efb() {
@@ -294,7 +294,7 @@ class Emsfb {
     /**
      * Run upgrade tasks after plugin update
      *
-     * @since 3.9.3
+     * @since 3.9.4
      * @param string $old_version Old plugin version
      * @param string $new_version New plugin version
      * @return void
@@ -327,7 +327,7 @@ class Emsfb {
     /**
      * Hook that runs when plugin is updated via WordPress admin
      *
-     * @since 3.9.3
+     * @since 3.9.4
      * @param object $upgrader_object Plugin upgrader object
      * @param array $options Update options
      * @return void

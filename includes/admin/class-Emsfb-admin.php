@@ -191,7 +191,7 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $m = $lang["error403"];
             $response = ['success' => false, 'm' =>$m];
@@ -227,7 +227,7 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $m = $lang["error403"];
             $response = ['success' => false, 'm' =>$m];
@@ -259,7 +259,7 @@ class Admin {
         $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
@@ -398,7 +398,7 @@ class Admin {
 
         $dd =gettype(array_search($post_value, $allw));
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (check_ajax_referer('wp_rest', 'nonce') != 1 || $dd!="integer" && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || $dd!="integer" && !$currrent_user_can) {
 
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
@@ -545,7 +545,7 @@ class Admin {
         $lang= $efbFunction->text_efb($text);
         $ac= $efbFunction->get_setting_Emsfb();
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (check_ajax_referer('wp_rest', 'nonce') != 1 && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
@@ -636,7 +636,7 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh","updated"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
             $m =   $lang["error403"];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, 200);
@@ -666,7 +666,7 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $m =   $lang["error403"];
             $response = ['success' => false, 'm' => $m];
@@ -717,7 +717,7 @@ class Admin {
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
 
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
             $m =   $lang["error403"];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, 200);
@@ -747,7 +747,7 @@ class Admin {
         $text = ["spprt","error403","somethingWentWrongPleaseRefresh" ,"guest"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $m =   $lang["error403"];
             $response = ['success' => false, 'm' => $m];
@@ -790,7 +790,7 @@ class Admin {
         $lang= $this->efbFunction->text_efb($text);
         $currrent_user_can = $this->efbFunction->user_permission_efb_admin_dashboard();
 
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
             $response = ['success' => false, 'm' => $lang["error403"]];
             wp_send_json_success($response, 200);
             die("secure!");
@@ -910,7 +910,7 @@ class Admin {
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
 
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, 200);
@@ -1054,7 +1054,7 @@ class Admin {
         $text = ["cCodeNFound","error403"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $m = $lang["error403"];
             $response = ['success' => false, 'm' =>$m];
@@ -1089,7 +1089,7 @@ class Admin {
         $text = ["fileDeleted","error403"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $m = $lang["error403"];
             $response = ['success' => false, 'm' =>$m];
@@ -1151,7 +1151,7 @@ class Admin {
         $lang= $efbFunction->text_efb($text);
         $m = $lang["error403"];
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, 200);
             die("secure!");
@@ -1416,7 +1416,7 @@ class Admin {
 
         $efbFunction = $this->get_efbFunction(1);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-       if(check_ajax_referer('wp_rest', 'nonce') != 1 && !$currrent_user_can) {
+       if(!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
@@ -1441,7 +1441,7 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh","copy"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $response = ['success' => false, 'm' =>$lang["error403"]];
             wp_send_json_success($response, 200);
@@ -1500,7 +1500,7 @@ class Admin {
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
 
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $response = ['success' => false, 'm' =>$lang["error403"]];
             wp_send_json_success($response, 200);
@@ -1549,7 +1549,7 @@ class Admin {
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
 
-        if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $response = ['success' => false, 'm' =>$lang["error403"]];
             wp_send_json_success($response, 200);
@@ -1616,7 +1616,7 @@ class Admin {
         $efbFunction = $this->get_efbFunction(1);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
 
-        if (check_ajax_referer('wp_rest', 'nonce') != 1 && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
@@ -1630,7 +1630,7 @@ class Admin {
         $efbFunction = $this->get_efbFunction(1);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
 
-        if (check_ajax_referer('wp_rest', 'nonce') != 1 && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
