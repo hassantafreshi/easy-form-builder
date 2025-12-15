@@ -3202,11 +3202,6 @@ public function check_nonce_permission_efb($request) {
 		$this->id =sanitize_text_field( wp_unslash($data_POST['id']));
 		$sid = '';
 
-	/* 	if ($s_sid !=1){
-			$m = esc_html__('error', 'easy-form-builder') . ' 403';
-			$response = array( 'success' => false  , 'm'=>$m);
-			wp_send_json_success($response,200);
-		} */
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 		$Sk ='null';
 		if(gettype($r)=="string"){
@@ -3412,12 +3407,7 @@ public function check_nonce_permission_efb($request) {
 
 		$text_=['somethingWentWrongPleaseRefresh'];
 		$this->lanText= $this->efbFunction->text_efb($text_);
-		/* if ($s_sid !=1){
 
-			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
-		$response = array( 'success' => false  , 'm'=>$m);
-		wp_send_json_success($response,200);
-		} */
 		$Sk ='null';
 		if(gettype($r)=="string"){
 			$setting =str_replace('\\', '', $r);

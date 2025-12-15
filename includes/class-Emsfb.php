@@ -38,8 +38,11 @@ class Emsfb {
             ['\Emsfb\Install', 'install']
         );
 
+         // Hook to run after plugin update
+        add_action('upgrader_process_complete', [$this, 'plugin_update_completed_efb'], 10, 2);
 
-
+        // Check version and run upgrade tasks if needed
+        add_action('plugins_loaded', [$this, 'check_version_and_upgrade_efb']);
 
     }
 
@@ -102,26 +105,59 @@ class Emsfb {
         }
     }
 
-    public static  function email_send_efb(){
-		$message=esc_html__('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice:Please do this act in immediately so forms of your site will available again.','easy-form-builder');
-		$usr=get_userdata(1);
+ /**
+     * Send email notification to all super admins about database changes
+     *
+     * @since 3.9.3
+     * @return void
+     */
+    public static function email_send_efb() {
+        $message = esc_html__( 'The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice: Please do this act immediately so forms of your site will be available again.', 'easy-form-builder' );
 
-		$users = get_super_admins();
-		foreach ($users as $key => $value) {
-			$user =get_user_by('login',$value);
-			$to = $usr ->data->user_email;
-            $SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
-			$from =get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
-			$headers = array(
-				'MIME-Version: 1.0\r\n',
-				'"Content-Type: text/html; charset=ISO-8859-1\r\n"',
-			'From:'.$from.''
-			);
-		$subject = "Important Warning form ".get_bloginfo('name');
-		$to = wp_mail($to, $subject, wp_kses_post($message), $headers);
-		}
+        // Get all super admin users
+        $super_admins = get_super_admins();
 
-	}
+        if ( empty( $super_admins ) ) {
+            return;
+        }
+
+        // Collect all valid email addresses
+        $recipients = array();
+
+        foreach ( $super_admins as $admin_login ) {
+            $user = get_user_by( 'login', $admin_login );
+
+            if ( $user && is_email( $user->user_email ) ) {
+                $recipients[] = sanitize_email( $user->user_email );
+            }
+        }
+
+        // If no valid recipients found, exit
+        if ( empty( $recipients ) ) {
+            return;
+        }
+
+        // Prepare email headers following WordPress standards
+        $server_name = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
+        $from_email  = 'no-reply@' . $server_name;
+        $from_name   = get_bloginfo( 'name' );
+
+        $headers = array(
+            'Content-Type: text/html; charset=UTF-8',
+            sprintf( 'From: %s <%s>', $from_name, $from_email ),
+        );
+
+        // Prepare subject with proper translation
+        $subject = sprintf(
+            /* translators: %s: Site name */
+            esc_html__( 'Important Warning from %s', 'easy-form-builder' ),
+            get_bloginfo( 'name' )
+        );
+
+        // Send email to all recipients at once (WordPress will handle BCC automatically)
+        // This sends ONE email with all admins as recipients, not multiple emails
+        wp_mail( $recipients, $subject, wp_kses_post( $message ), $headers );
+    }
 
     /**
      * Initialize Elementor compatibility for all EFB admin pages
@@ -236,6 +272,87 @@ class Emsfb {
         })(jQuery);
         </script>
         <?php
+    }
+
+    /**
+     * Check version and run upgrade tasks if needed
+     *
+     * @since 3.9.3
+     * @return void
+     */
+    public function check_version_and_upgrade_efb() {
+        $installed_version = get_option('emsfb_version', '0.0.0');
+        $current_version = EMSFB_PLUGIN_VERSION;
+
+        // If version has changed, run upgrade tasks
+        if (version_compare($installed_version, $current_version, '<')) {
+            $this->run_upgrade_tasks_efb($installed_version, $current_version);
+            update_option('emsfb_version', $current_version);
+        }
+    }
+
+    /**
+     * Run upgrade tasks after plugin update
+     *
+     * @since 3.9.3
+     * @param string $old_version Old plugin version
+     * @param string $new_version New plugin version
+     * @return void
+     */
+    private function run_upgrade_tasks_efb($old_version, $new_version) {
+        // Clear all WordPress caches
+        if (function_exists('wp_cache_flush')) {
+            wp_cache_flush();
+        }
+
+        // Clear object cache (Redis, Memcached, etc.)
+        if (function_exists('wp_cache_flush_group')) {
+            wp_cache_flush_group('emsfb');
+        }
+
+        // Clear all form-related transients
+        global $wpdb;
+        $wpdb->query(
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_efb_%' OR option_name LIKE '_transient_timeout_efb_%'"
+        );
+
+        // Log upgrade completion
+        error_log(sprintf(
+            'Easy Form Builder upgraded from %s to %s - All caches cleared',
+            $old_version,
+            $new_version
+        ));
+    }
+
+    /**
+     * Hook that runs when plugin is updated via WordPress admin
+     *
+     * @since 3.9.3
+     * @param object $upgrader_object Plugin upgrader object
+     * @param array $options Update options
+     * @return void
+     */
+    public function plugin_update_completed_efb($upgrader_object, $options) {
+        // Check if this is a plugin update
+        if ($options['action'] !== 'update' || $options['type'] !== 'plugin') {
+            return;
+        }
+
+        // Check if our plugin was updated
+        $our_plugin = plugin_basename(EMSFB_PLUGIN_FILE);
+
+        if (isset($options['plugins'])) {
+            foreach ($options['plugins'] as $plugin) {
+                if ($plugin === $our_plugin) {
+                    // Our plugin was updated, clear caches
+                    $this->run_upgrade_tasks_efb(
+                        get_option('emsfb_version', '0.0.0'),
+                        EMSFB_PLUGIN_VERSION
+                    );
+                    break;
+                }
+            }
+        }
     }
 
 }
