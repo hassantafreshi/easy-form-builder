@@ -1,3 +1,67 @@
+# Changelog - نسخه 3.9.3
+
+## تاریخ: دسامبر 2025
+
+---
+
+## 🔐 رفع آسیب‌پذیری‌های امنیتی (Security Fixes)
+
+### ⚠️ CVE: Privilege Escalation - دسترسی غیرمجاز کاربران با نقش Subscriber
+
+**فایل:** `includes/admin/class-Emsfb-admin.php`
+
+#### آسیب‌پذیری رفع‌شده:
+کاربران با نقش Subscriber می‌توانستند تنظیمات پلاگین را از طریق AJAX تغییر دهند.
+
+#### تغییرات امنیتی:
+
+**1. رفع آسیب‌پذیری در `set_setting_Emsfb` (خط ~906)**
+- **قبل از رفع:**
+  ```php
+  if (!check_ajax_referer('wp_rest', 'nonce', false)) { ... }
+  ```
+- **بعد از رفع:**
+  ```php
+  $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
+  if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) { ... }
+  ```
+- **تأثیر:** جلوگیری از تغییر تنظیمات `emailSupporter` و `smtp` توسط کاربران غیرمجاز
+
+**2. رفع آسیب‌پذیری در `add_addons_Emsfb` (خط ~400)**
+- **قبل از رفع:**
+  ```php
+  if (!check_ajax_referer('wp_rest', 'nonce', false) || $dd!="integer" && !$currrent_user_can) { ... }
+  ```
+  - **مشکل:** به دلیل اولویت عملگرها، منطق به این صورت ارزیابی می‌شد:
+    ```
+    (!nonce_valid) || ($dd!="integer" && !has_capability)
+    ```
+  - **آسیب‌پذیری:** Subscriber ها با nonce معتبر می‌توانستند add-on نصب کنند
+
+- **بعد از رفع:**
+  ```php
+  if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can || $dd!="integer") { ... }
+  ```
+  - **منطق جدید:** هر سه شرط به صورت مستقل بررسی می‌شوند
+  - **تأثیر:** جلوگیری از نصب add-on توسط کاربران غیرمجاز (خطر اجرای کد از راه دور)
+
+**3. بررسی امنیتی تمام AJAX Handler ها**
+- ✅ 19 از 21 handler دارای security check صحیح بودند
+- ✅ 2 آسیب‌پذیری شناسایی و رفع شد
+- ✅ تمام handler ها از dual validation (nonce + capability) استفاده می‌کنند
+
+#### سطح دسترسی مورد نیاز:
+تابع `user_permission_efb_admin_dashboard()` فقط برای کاربران با این دسترسی‌ها `true` برمی‌گرداند:
+- `manage_options` (Administrator)
+- `Emsfb` (دسترسی سفارشی پلاگین)
+
+#### نتیجه:
+- ✅ **رفع CVE privilege escalation**
+- ✅ **جلوگیری از دسترسی غیرمجاز به AJAX actions**
+- ✅ **امنیت بیشتر در برابر حملات Remote Code Execution**
+
+---
+
 # Changelog - نسخه 3.9.1
 
 ## تاریخ: دسامبر 2025

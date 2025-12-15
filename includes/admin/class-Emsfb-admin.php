@@ -398,7 +398,7 @@ class Admin {
 
         $dd =gettype(array_search($post_value, $allw));
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce', false) || $dd!="integer" && !$currrent_user_can) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can || $dd!="integer") {
 
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
