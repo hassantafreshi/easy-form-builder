@@ -6,7 +6,7 @@ use WP_REST_Response;
  * Class _Public
  * @package Emsfb
  */
-require_once('functions.php');
+require_once(__DIR__ . '/functions.php');
 
 class _Public {
 	public $value;
