@@ -98,7 +98,7 @@ function fun_efb_run(){
                 document.getElementById('body_efb').innerHTML =vd;
                 return;
               }
-              if(typeof sitekye_emsFormBuilder !== 'undefined' &&sitekye_emsFormBuilder==2)alert(c_r_efb);
+              if(typeof sitekye_emsFormBuilder !== 'undefined' && sitekye_emsFormBuilder==2)alert(c_r_efb);
               sitekye_emsFormBuilder = vs.siteKey;
             } else { sitekye_emsFormBuilder = ""; }
           } else {
