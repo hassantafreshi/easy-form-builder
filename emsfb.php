@@ -7,7 +7,7 @@
  * Author:              WhiteStudio
  * Author URI:          https://whitestudio.team
  * Text Domain:         easy-form-builder
- *  * License:             GPL v2 or later
+ * License:             GPL v2 or later
  * License URI:         https://www.gnu.org/licenses/gpl-2.0.html
  * Domain Path:         /languages
  */

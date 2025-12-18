@@ -1919,7 +1919,7 @@ public function check_nonce_permission($request) {
 							$efb ='<p> '. $this->lanText['sentBy'] . home_url(). '</p>';
 							if($pro==false) $efb ='<p> '. esc_html__("from").''. home_url(). ' '. $this->lanText['sentBy'] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
 							$subject ="". esc_html__("Password recovery")."[".get_bloginfo('name')."]";
-							$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
+							$SERVER_NAME  = apply_filters('emsfb_get_server_host', 'yourdomain.com');
 							$from = isset($setting['femail']) && is_email($setting['femail']) ? get_bloginfo('name')." <no-reply@".$setting['femail'] .">" : get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
 							$message ='<!DOCTYPE html> <html> <body><div>'.$ms.'</div><p> '.$efb. '</p> </body> </html>';
 							$headers = array(
@@ -4922,7 +4922,7 @@ function email_get_content_efb($content, $track){
 		$this->ip = $ip;
 		if($price_c != $price_f) {
 			$t=time();
-			$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
+			$SERVER_NAME = apply_filters('emsfb_get_server_host', 'yourdomain.com');
 			$from =get_bloginfo('name')." <Alert@".$SERVER_NAME.">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
