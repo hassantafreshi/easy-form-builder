@@ -284,7 +284,7 @@ class Admin {
         $efbFunction = $this->get_efbFunction(1);
         $text = ["error403","done","invalidRequire","upDMsg"];
         $lang= $efbFunction->text_efb($text);
-        $ac= $efbFunction->get_setting_Emsfb();
+        $ac= Emsfb::get_setting_Emsfb('decoded');
         	/*
             AdnSPF == stripe payment
             AdnOF == offline form
@@ -441,7 +441,7 @@ class Admin {
         $efbFunction = $this->get_efbFunction(1);
         $text = ["error403","done","invalidRequire"];
         $lang= $efbFunction->text_efb($text);
-        $ac= $efbFunction->get_setting_Emsfb();
+        $ac= Emsfb::get_setting_Emsfb('decoded');
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         if (!check_ajax_referer('wp_rest', 'nonce') && !$currrent_user_can) {
             $m = $lang['error403'];
@@ -772,7 +772,7 @@ class Admin {
     }
     public function set_setting_Emsfb() {
         $efbFunction = $this->get_efbFunction(1);
-        $ac= $efbFunction->get_setting_Emsfb();
+        $ac= Emsfb::get_setting_Emsfb('decoded');
         $text = ["pleaseDoNotAddJsCode","emailTemplate","addSCEmailM","messageSent","activationNcorrect","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","PEnterMessage"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -899,7 +899,7 @@ class Admin {
         // اطلاعات ردیف ترک را بر می گرداند
 
         $efbFunction = $this->get_efbFunction(1);
-        $ac= $efbFunction->get_setting_Emsfb();
+        $ac= Emsfb::get_setting_Emsfb('decoded');
         $text = ["notFound","error403"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -942,7 +942,7 @@ class Admin {
     public function clear_garbeg_admin() {
         // پاک کردن فایل های اضافی
         $efbFunction = $this->get_efbFunction(1);
-        $ac= $efbFunction->get_setting_Emsfb();
+        $ac= Emsfb::get_setting_Emsfb('decoded');
         $text = ["fileDeleted","error403"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -993,7 +993,7 @@ class Admin {
     public function check_email_server_admin() {
         // پاک کردن فایل های اضافی
         $efbFunction = $this->get_efbFunction(1);
-        $ac= $efbFunction->get_setting_Emsfb();
+        $ac= Emsfb::get_setting_Emsfb('decoded');
         $text = ["error403","emailServer"];
         $lang= $efbFunction->text_efb($text);
         $m = $lang['error403'];
@@ -1217,7 +1217,7 @@ class Admin {
     }
     public function fun_duplicate_Emsfb(){
         $efbFunction =$this->get_efbFunction(1);
-        $ac= $efbFunction->get_setting_Emsfb();
+        $ac= Emsfb::get_setting_Emsfb('decoded');
         $text = ["error403","somethingWentWrongPleaseRefresh","copy"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1273,7 +1273,7 @@ class Admin {
     }
     public function delete_messages_Emsfb(){
         $efbFunction = $this->get_efbFunction(1);
-        $ac= $efbFunction->get_setting_Emsfb();
+        $ac= Emsfb::get_setting_Emsfb('decoded');
         $text = ["error403","somethingWentWrongPleaseRefresh","delete"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1319,7 +1319,7 @@ class Admin {
     public function read_list_Emsfb(){
         // error_log('read_list_Emsfb');
         $efbFunction = $this->get_efbFunction(1);
-        $ac= $efbFunction->get_setting_Emsfb();
+        $ac= Emsfb::get_setting_Emsfb('decoded');
         $text = ["error403","somethingWentWrongPleaseRefresh","done"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1481,7 +1481,7 @@ function admin_notices_efb () {
                    return $r;
             }
             $efbFunction = $this->get_efbFunction(1);
-            $settings= $efbFunction->get_setting_Emsfb();
+            $settings= Emsfb::get_setting_Emsfb('decoded');
 
             if(is_array($check)){
                     if($check['status'] === 'ok_set_smtp') {

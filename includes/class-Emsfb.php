@@ -301,6 +301,135 @@ public static function email_send_efb() {
     }
 
     /**
+     * Centralized settings getter with multi-layer caching
+     * Replaces all get_setting_Emsfb() methods across the plugin
+     *
+     * @since 3.9.5
+     * @param string $mode Return mode: 'decoded' (default), 'pub', 'raw'
+     * @return mixed Settings object, array, or string based on mode
+     */
+    public static function get_setting_Emsfb($mode = 'decoded')
+    {
+        // Layer 1: Static cache (fastest - in-request memory)
+        static $staticCache = [];
+
+        if (isset($staticCache[$mode])) {
+            return $staticCache[$mode];
+        }
+
+        // Layer 2: WordPress object cache (Redis/Memcached compatible)
+        $cacheKey = 'settings:' . $mode;
+        $cached = wp_cache_get($cacheKey, 'emsfb');
+        if ($cached !== false && !empty($cached)) {
+            $staticCache[$mode] = $cached;
+            return $cached;
+        }
+
+        // Layer 3: Transient cache (database, 30 minutes)
+        $transient = get_transient('emsfb_settings_transient');
+
+        // Layer 4: Direct database query (slowest fallback)
+        if ($transient === false || empty($transient)) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . "emsfb_setting";
+            $raw = $wpdb->get_var("SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1");
+
+            if (empty($raw)) {
+                return $mode === 'pub' ? [0, []] : 0;
+            }
+
+            // Save to option and transient
+            update_option('emsfb_settings', $raw);
+            set_transient('emsfb_settings_transient', $raw, 1800); // 30 minutes
+        } else {
+            $raw = $transient;
+        }
+
+        // Decode JSON
+        $cleaned = str_replace('\\', '', $raw);
+        $decoded = json_decode($cleaned);
+
+        if ($decoded === null) {
+            return $mode === 'pub' ? [0, []] : 'null';
+        }
+
+        // Handle different return modes
+        $result = null;
+
+        switch ($mode) {
+            case 'pub':
+                // Public settings with addons info
+                $pro = intval(get_option('emsfb_pro')) === 1;
+                $pubSettings = [
+                    'pro' => $pro,
+                    'trackingCode' => $decoded->trackingCode ?? '',
+                    'siteKey' => $decoded->siteKey ?? '',
+                    'mapKey' => $decoded->apiKeyMap ?? '',
+                    'paymentKey' => $decoded->stripePKey ?? '',
+                    'version' => $decoded->efb_version ?? '1.0.0',
+                    'osLocationPicker' => $decoded->osLocationPicker ?? false,
+                    'scaptcha' => $decoded->scaptcha ?? false,
+                    'dsupfile' => $decoded->dsupfile ?? false,
+                    'activeDlBtn' => $decoded->activeDlBtn ?? true,
+                    'paypalPkey' => $decoded->paypalPkey ?? '',
+                    'addons' => self::get_addons_list_efb($decoded),
+                ];
+                $result = [json_encode($pubSettings, JSON_UNESCAPED_UNICODE), $pubSettings];
+                break;
+
+            case 'raw':
+                // Raw JSON string
+                $result = $raw;
+                break;
+
+            case 'decoded':
+            default:
+                // Decoded object
+                $result = $decoded;
+                break;
+        }
+
+        // Save to all cache layers
+        $staticCache[$mode] = $result;
+        wp_cache_set($cacheKey, $result, 'emsfb', 3600); // 1 hour
+
+        return $result;
+    }
+
+    /**
+     * Get addons list from settings
+     *
+     * @param object $settings Decoded settings object
+     * @return array Addons information
+     */
+    private static function get_addons_list_efb($settings)
+    {
+        $addons = [];
+
+        // Check each addon
+        $addonKeys = [
+            'AdnSS' => 'SMS',
+            'AdnAtF' => 'AutoFill',
+            'AdnTlg' => 'Telegram',
+            'AdnPPl' => 'PayPal',
+            'AdnStripe' => 'Stripe',
+        ];
+
+        foreach ($addonKeys as $key => $name) {
+            $optionValue = get_option('emsfb_addon_' . $key, false);
+            if ($optionValue != false && $optionValue != 0) {
+                $addons[$key] = [
+                    'name' => $name,
+                    'active' => true,
+                    'version' => $optionValue,
+                ];
+            }
+        }
+
+        return $addons;
+    }
+
+    /**
      * Clean up plugin cache options on deactivation
      * Removes temporary cache data when plugin is deactivated
      *

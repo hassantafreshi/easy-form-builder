@@ -91,7 +91,7 @@ class Addon {
 		$pro = $pro == 1 ? true : false;
 		$maps =false;
 
-		$ac= $efbFunction->get_setting_Emsfb();
+		$ac= Emsfb::get_setting_Emsfb('decoded');
 
 		if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){
 			$efbFunction->setting_version_efb_update($ac ,$pro);

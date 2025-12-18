@@ -112,7 +112,7 @@ class Create {
 		$maps =false;
 
 		$pro =$efbFunction->is_efb_pro(1);
-		$settings= $efbFunction->get_setting_Emsfb();
+		$settings= Emsfb::get_setting_Emsfb('decoded');
 		$addons = $efbFunction->fun_get_addons_list_efb($settings);
 		// v2 translate
 		// write a code for get all colors used in array in template set as active template in wordpress . complate code and use regix to find all colores is used in tamplate
