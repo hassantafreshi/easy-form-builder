@@ -1720,9 +1720,9 @@ function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
   data = JSON.stringify(data);
   jQuery(function ($) {
     data = {
-      action: "set_setting_Emsfb",
+      action: "set_settings_Emsfb",
       type: "POST",
-      nonce: ajax_object_efm_core.nonce,
+      nonce: ajax_object_efm.nonce,
       contentType: "application/x-www-form-urlencoded;charset=utf-8",
       message: data
     };

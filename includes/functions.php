@@ -77,7 +77,7 @@ class efbFunction {
 
 	public function text_efb($inp){
         // === EFB full-caching prelude (i18n-aware, subset-safe) ===
-        $ac = Emsfb::get_setting_Emsfb('decoded');
+        $ac = \Emsfb::get_setting_Emsfb('decoded');
         $efb_lang     = $this->detect_current_lang_slug();
         $efb_needX    = ($inp === 1);
         $efb_ver      = $this->get_text_version($ac);
@@ -103,7 +103,7 @@ class efbFunction {
         }
         // === /prelude ===
 
-		$ac= Emsfb::get_setting_Emsfb('decoded');
+		$ac= \Emsfb::get_setting_Emsfb('decoded');
 		$state= $ac!=='null' && isset($ac->text) && gettype($ac->text)!='string' ? true : false ;
 		$s= 'easy-form-builder';
 		$lang = [
@@ -1141,7 +1141,7 @@ class efbFunction {
 		$align = is_rtl() ? 'right' : 'left';
 		$d = is_rtl() ? 'rtl' : 'ltr';
 
-		if ($st == 'null') $st = Emsfb::get_setting_Emsfb('decoded');
+		if ($st == 'null') $st = \Emsfb::get_setting_Emsfb('decoded');
 		if ($st == "null") return;
 
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp) > 10 ? $st->emailTemp : "0";
@@ -1287,7 +1287,7 @@ class efbFunction {
 				}
 			}
 
-			$settings = Emsfb::get_setting_Emsfb('decoded');
+			$settings = \Emsfb::get_setting_Emsfb('decoded');
 			error_log(json_encode($settings ));
 			$smtp = (isset($settings->smtp) && (bool)$settings->smtp ) ? true : false;
 			error_log('smtpe is exist=>'. $smtp . ' ' .$settings->smtp);
@@ -1313,7 +1313,7 @@ class efbFunction {
 		if(isset($data[0]['smsnoti']) && intval($data[0]['smsnoti'])==1){
 
 			$phone_numbers=[[],[]];
-			$setting = Emsfb::get_setting_Emsfb('decoded');
+			$setting = \Emsfb::get_setting_Emsfb('decoded');
 
 			// $numbers = isset($setting['phnNo']) ? explode(',',$setting['phnNo']) :[];
 			$numbers = isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5  ? explode(',',$setting->phnNo) :[];
@@ -1665,7 +1665,7 @@ public function addon_add_efb($value) {
 
 	public function download_all_addons_efb(){
 		$state=true;
-		$settings=Emsfb::get_setting_Emsfb('decoded');
+		$settings=\Emsfb::get_setting_Emsfb('decoded');
 		$addons['AdnSPF']	=	isset($settings->AdnSPF)	? $settings->AdnSPF	:0;
 		$addons['AdnATC']	=	isset($settings->AdnATC)	? $settings->AdnATC	:0;
 		$addons['AdnPPF']	=	isset($settings->AdnPPF)	? $settings->AdnPPF	:0;
@@ -1975,13 +1975,14 @@ public function addon_add_efb($value) {
 
 		$start_time = microtime(true);
 		if($st=='null'){
-			$st=Emsfb::get_setting_Emsfb('decoded');
+			$st=\Emsfb::get_setting_Emsfb('decoded');
 		}
 		$st->efb_version=EMSFB_PLUGIN_VERSION;
-		$table_name = $wpdb->prefix . "emsfb_setting";
 		$st_ = json_encode($st,JSON_UNESCAPED_UNICODE);
+		// $table_name = $wpdb->prefix . "emsfb_setting";
         $setting = str_replace('"', '\"', $st_);
-		$email = $st->emailSupporter;
+		\Emsfb::set_setting_Emsfb($setting,$st->emailSupporter);
+		/* $email = $st->emailSupporter;
 		$wpdb->insert(
             $table_name,
             [
@@ -1992,7 +1993,7 @@ public function addon_add_efb($value) {
             ]
         );
 		set_transient('emsfb_settings_transient', $setting, 1440);
-		update_option('emsfb_settings', $setting);
+		update_option('emsfb_settings', $setting); */
 		if($pro == true || $pro ==1){
 			$this->download_all_addons_efb();
 			$end_time = microtime(true);
@@ -2084,7 +2085,7 @@ public function addon_add_efb($value) {
 			$str .= 'Plugin URI: ' . $plugin_data['PluginURI'] . '<br>';
 			$str .= 'Version: ' . $plugin_data['Version'] . '<br><br>';
 		}
-		$settings = Emsfb::get_setting_Emsfb('decoded');
+		$settings = \Emsfb::get_setting_Emsfb('decoded');
 		if(isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
 		return true;
 	}
@@ -2137,7 +2138,7 @@ public function addon_add_efb($value) {
 		error_log('EFB=>send_email_noti_about_cache_plugins: ' . get_option('admin_email'));
 		$to = [];
 		$to[] = get_option('admin_email');
-		$settings = Emsfb::get_setting_Emsfb('decoded');
+		$settings = \Emsfb::get_setting_Emsfb('decoded');
 		if($settings->emailSupporter != null && $settings->emailSupporter != 'null' && $settings->emailSupporter != ''){
 			$to[] = $settings->emailSupporter;
 		}
@@ -2180,11 +2181,11 @@ public function addon_add_efb($value) {
 		error_log('EFB=>make_post_requestefb: not connected');
 		error_log($ac);
 		error_log($url);
+		$_http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
 		$connected = wp_remote_post('https://www.whitestudio.team', array('timeout' => 2));
 		if (is_wp_error($connected)) {
 			// error_log('not connected');
 			$s = explode('@', $ac)[0];
-			$_http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
 			$server_name = str_replace("www.", "", $_http_host);
 			$r= isset($s) && md5($server_name) == $s ? (object)['r' => true , 'state' => 'active','pakcage'=>1]   : (object)['r' => false , 'state' => 'notExists' ];
 			return $r;
@@ -2228,8 +2229,8 @@ public function addon_add_efb($value) {
 		update_option('emsfb_pro_activeCode', $code);
 		$json = $this->make_post_request_efb($code);
 		error_log('EFB=>update_pro_status_efb: ' . json_encode($json));
-		// {"r":true,"state":"new","key":"f528764d624db129b32c21fbca0cb8d6@iZPLjo","smsStatus":false,"smsDeposited":0}
-		$r = $json->r;
+
+		$r = isset($json->r) ? $json->r : false;
 		// error_log('EFB=>update_pro_status_efb r: ' . $r);
 		if($r===false) {
 			delete_option('emsfb_pro');
@@ -2240,14 +2241,14 @@ public function addon_add_efb($value) {
 		// if (!get_option('emsfb_pro_ac_date')) {
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
 		// }
-		$state =$json->state;
+		$state = isset($json->state) ? $json->state : '';
 		if($state=="new") {
 			// error_log('EFB=>update_pro_status_efb state: new');
 			$activeCode = $json->key;
 			update_option('emsfb_pro_activeCode', $activeCode);
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
 			update_option('emsfb_pro', 1);
-			$st = Emsfb::get_setting_Emsfb('decoded');
+			$st = \Emsfb::get_setting_Emsfb('decoded');
 			$st->activeCode = $activeCode;
 			$this->setting_version_efb_update($st,1);
 			return true;
@@ -2317,7 +2318,7 @@ public function addon_add_efb($value) {
 				// if the activeCode is empty then check the activeCode in the setting
 				$st = get_option('emsfb_settings' , 'null');
 				if($st=='null'){
-					$st = Emsfb::get_setting_Emsfb('decoded');
+					$st = \Emsfb::get_setting_Emsfb('decoded');
 					$activeCode = $st->activeCode;
 
 				}else{
@@ -2675,7 +2676,7 @@ public function addon_add_efb($value) {
 		$subject = esc_html__('Easy Form Builder', 'easy-form-builder') . ':' . esc_html__('SID Validation Error', 'easy-form-builder') . ' - ' . get_bloginfo('name');
 		$to = [];
 		$to[] = get_option('admin_email');
-		$settings = Emsfb::get_setting_Emsfb('decoded');
+		$settings = \Emsfb::get_setting_Emsfb('decoded');
 		if($settings->emailSupporter != null && $settings->emailSupporter != 'null' && $settings->emailSupporter != ''){
 			$to[] = $settings->emailSupporter;
 		}
@@ -2687,7 +2688,7 @@ public function addon_add_efb($value) {
 	}
 
 	public function include_persia_efb(){
-		$st = Emsfb::get_setting_Emsfb('decoded');
+		$st = \Emsfb::get_setting_Emsfb('decoded');
 		//$st->AdnPPF=0;
 		if(isset($st->AdnPPF) && $st->AdnPPF==1){
 			error_log("persia_pay-efb.js loaded?");

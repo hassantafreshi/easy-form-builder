@@ -32,7 +32,7 @@ class Panel_edit  {
 			$efbFunction = $this->get_efbFunction();
 			$pro =$efbFunction->is_efb_pro(1);;
 			// $lng =new lng();
-			$ac = Emsfb::get_setting_Emsfb('decoded');
+			$ac = \Emsfb::get_setting_Emsfb('decoded');
 			$lang = $efbFunction->text_efb(2);
 			$smtp =false;
 			$captcha =false;

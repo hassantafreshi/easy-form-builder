@@ -396,6 +396,47 @@ public static function email_send_efb() {
         return $result;
     }
 
+    public static function set_setting_Emsfb ($newSettings, $email = '')
+    {
+        error_log('type of newSettings: ' . gettype($newSettings));
+        if (empty($newSettings)) {
+            return false;
+        }
+
+        $json = '';
+        if(is_object($newSettings) || is_array($newSettings)){
+            $json = json_encode($newSettings, JSON_UNESCAPED_UNICODE);
+        }else{
+            $json = $newSettings;
+        }
+
+        error_log('EFB: New Settings JSON: ' . $json);
+        if ($json === false) {
+            return false;
+        }
+
+        // Save to database
+        global $wpdb;
+        $table_name = $wpdb->prefix . "emsfb_setting";
+        $wpdb->insert(
+            $table_name,
+            [
+            'setting' => $json,
+            'edit_by' => get_current_user_id(),
+            'date'    => wp_date('Y-m-d H:i:s'),
+            'email'   => $email
+        ],
+            ['%s', '%d', '%s', '%s']
+        );
+
+        error_log('EFB: Settings updated by user ' . get_current_user_id());
+        error_log('EFB: New Settings: ' . $json);
+        update_option('emsfb_settings', $json);
+        set_transient('emsfb_settings_transient', $json, 1800); // 30 minutes
+
+        return true;
+    }
+
     /**
      * Get addons list from settings
      *

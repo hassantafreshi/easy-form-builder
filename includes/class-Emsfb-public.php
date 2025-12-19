@@ -31,7 +31,7 @@ class _Public {
 		add_action('rest_api_init',  @function(){
 			$this->efb_uid  = get_current_user_id();
 			$this->get_efbFunction(0);
-			$settings = Emsfb::get_setting_Emsfb('raw');
+			$settings = \Emsfb::get_setting_Emsfb('raw');
 			register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
 				'method'=> 'POST',
 				'callback'=>  [$this,'test_fun'],
@@ -620,7 +620,7 @@ public function check_nonce_permission($request) {
 				wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,EMSFB_PLUGIN_VERSION );
 				wp_enqueue_style('Emsfb-bootstrap-select-css');
 			}
-			$rp= Emsfb::get_setting_Emsfb('pub');
+			$rp= \Emsfb::get_setting_Emsfb('pub');
 			$efb_m = "<p class='efb fs-7 text-center my-1'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</p> ";
 			if(gettype($rp)=="integer" && $rp==0){
 				$stng=$lanText['settingsNfound'];
@@ -667,7 +667,7 @@ public function check_nonce_permission($request) {
 
 					$setting;
 					if($typeOfForm=="payment"){
-						$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  Emsfb::get_setting_Emsfb('raw');
+						$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
 						$r = $this->setting;
 						if(gettype($r)=="string"){
 							$setting =str_replace('\\', '', $r);
@@ -1110,7 +1110,7 @@ public function check_nonce_permission($request) {
 		$text=['pleaseEnterTheTracking','pleaseWaiting','fil','trackingCode','entrTrkngNo','search','easyFormBuilder','tfnapca'];
 		$text= $this->efbFunction->text_efb($text) ;
 		$state="tracker";
-		$pl= Emsfb::get_setting_Emsfb('pub');
+		$pl= \Emsfb::get_setting_Emsfb('pub');
 		$stng= $pl[0];
 		$s_m ='<!--efb-->';
 		if(gettype($stng)=="integer" && $stng==0){
@@ -1284,7 +1284,7 @@ public function check_nonce_permission($request) {
 		$to_list_admin = [];
 		// Use cache for settings
 		if (false === ($setting = wp_cache_get('emsfb_settings' , 'emsfb'))) {
-			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : Emsfb::get_setting_Emsfb('raw');
+			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : \Emsfb::get_setting_Emsfb('raw');
 			$setting = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
 			wp_cache_set('emsfb_settings', $setting , 'emsfb');
 		}
@@ -2419,7 +2419,7 @@ public function check_nonce_permission($request) {
 		$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
 		$captcha_success =[];
 		$not_captcha=true;
-		$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : Emsfb::get_setting_Emsfb('raw');
+		$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : \Emsfb::get_setting_Emsfb('raw');
 		$setting = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
 		if(gettype($this->setting)=="string"){
 			$r=str_replace('\\', '', $this->setting);
@@ -2749,7 +2749,7 @@ public function check_nonce_permission($request) {
 		}
 		$cache_plugins = get_option('emsfb_cache_plugins');
 		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id ,$cache_plugins);
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: Emsfb::get_setting_Emsfb('raw');
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: \Emsfb::get_setting_Emsfb('raw');
 
 		if(gettype($r)=="string"){
 			$r =str_replace('\\', '', $r);
@@ -3150,7 +3150,7 @@ public function check_nonce_permission($request) {
 			$response = array( 'success' => false  , 'm'=>$m);
 			wp_send_json_success($response, 200);
 		}
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  Emsfb::get_setting_Emsfb('raw');
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
 		$Sk ='null';
 		if(gettype($r)=="string"){
 			$setting =str_replace('\\', '', $r);
@@ -3296,7 +3296,7 @@ public function check_nonce_permission($request) {
 		$persiapay = new zarinPalEFB() ;
 		if(gettype($persiapay)=="object"){
 			error_log('pay_persia_sub_Emsfb_api called');
-			$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  Emsfb::get_setting_Emsfb('raw');
+			$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
 			$persiapay->pay_persia_sub_Emsfb_api($data_POST_ ,$this);
 		}else{
 			error_log('pay_persia_sub_Emsfb_api error 406');
@@ -3308,7 +3308,7 @@ public function check_nonce_permission($request) {
 
 
 		/* $data_POST = $data_POST_->get_json_params();
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  Emsfb::get_setting_Emsfb('raw');
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
 		$efbFunction =  $this->get_efbFunction(1);
 		$sid = sanitize_text_field($data_POST['sid']);
 		$this->id = sanitize_text_field($data_POST['id']);
@@ -3488,7 +3488,7 @@ public function check_nonce_permission($request) {
             wp_send_json_success($response, 200);
             die("secure!");
         }
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  Emsfb::get_setting_Emsfb('raw');
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
 		$Sk ='null';
 		if(gettype($r)=="string"){
 			$setting =str_replace('\\', '', $r);
@@ -4959,7 +4959,7 @@ function email_get_content_efb($content, $track){
 			return;
 		}
 
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  Emsfb::get_setting_Emsfb('raw');
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
 		$Sk ='null';
 		if(gettype($r)=="string"){
 			$setting =str_replace('\\', '', $r);
@@ -5228,3 +5228,4 @@ function email_get_content_efb($content, $track){
 
 }
 new _Public();
+
