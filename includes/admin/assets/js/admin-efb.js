@@ -977,7 +977,8 @@ function head_introduce_efb(state) {
   const link = state == "create" ? '#form' : 'admin.php?page=Emsfb_create'
   let text = `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
-  let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s','<br><a href="#" class="efb fw-bold">').replace('%5$s','</a>');
+  const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/pricing' : 'https://whitestudioteam.com/pricing';
+  let msgpro = efb_var.text.yFreeVEnPro.replace('%$2s', pro_price_efb +'$').replace('%$1s','<span class="efb fw-bold text-pinkEfb">').replace('%$3s','</span>').replace('%$4s',`<br><a href="${domain}" class="efb fw-bold">`).replace('%$5s','</a>');
   let cont = ``;
   let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti ec-efb" data-eventform="links" data-linkname="price">
   <i class="efb bi-diamond text-pinkEfb mx-1 ec-efb" data-eventform="links" data-linkname="price"></i>

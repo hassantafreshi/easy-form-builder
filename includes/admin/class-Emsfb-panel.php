@@ -200,6 +200,19 @@ class Panel_edit  {
 			// $colors = $efbFunction->get_list_colores_template();
 			$colors =[];
 			$location ='';
+
+			// Set domain based on language
+			$current_locale = get_locale();
+			if (strpos($current_locale, 'de_') === 0) {
+				$wsteam_domain = 'de.whitestudio.team';
+			} elseif (strpos($current_locale, 'ar') === 0) {
+				$wsteam_domain = 'ar.whitestudio.team';
+			} elseif (strpos($current_locale, 'fa_') === 0) {
+				$wsteam_domain = 'easyformbuilder.ir';
+			} else {
+				$wsteam_domain = 'whitestudio.team';
+			}
+
 			// efb_code_validate_create( $fid, $type, $status, $tc)
 			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
@@ -225,6 +238,7 @@ class Panel_edit  {
 				'sid'=>$sid,
 				'rest_url'=>get_rest_url(null),
 				'plugins'=>$plugins,
+				'wsteam'=> $wsteam_domain,
 			));
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);

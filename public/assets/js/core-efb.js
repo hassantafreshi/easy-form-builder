@@ -1503,6 +1503,7 @@ window.addEventListener("popstate",e=>{
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
     const headers = new Headers({
       'Content-Type': 'application/json',
+      'X-WP-Nonce': efb_var.nonce,
     });
     const jsonData = JSON.stringify(data);
     const requestOptions = {
@@ -1529,6 +1530,7 @@ window.addEventListener("popstate",e=>{
 
   try {
     const response = await fetch(url, requestOptions);
+    console.log('response', response);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
@@ -1555,6 +1557,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/get';
   const headers = new Headers({
     'Content-Type': 'application/json',
+    'X-WP-Nonce': efb_var.nonce,
   });
   const jsonData = JSON.stringify(data);
   const requestOptions = {
@@ -1593,6 +1596,7 @@ post_api_r_message_efb=(data,message)=>{
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/add';
   const headers = new Headers({
     'Content-Type': 'application/json',
+    'X-WP-Nonce': efb_var.nonce,
   });
   const jsonData = JSON.stringify(data);
   const requestOptions = {

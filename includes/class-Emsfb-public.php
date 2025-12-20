@@ -35,12 +35,12 @@ class _Public {
 			register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
 				'method'=> 'POST',
 				'callback'=>  [$this,'test_fun'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 			register_rest_route('Emsfb/v1','forms/message/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'get_form_public_efb'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 			/* register_rest_route('Emsfb/v1','forms/email/send', [
 				'methods' => 'POST',
@@ -50,46 +50,46 @@ class _Public {
 			register_rest_route('Emsfb/v1','forms/payment/persia/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'pay_persia_sub_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 			register_rest_route('Emsfb/v1','forms/payment/stripe/card/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'pay_stripe_sub_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
 			register_rest_route('Emsfb/v1','forms/payment/paypal/card/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'pay_paypal_sub_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
 
 			register_rest_route('Emsfb/v1','forms/response/get', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'get_track_public_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 			register_rest_route('Emsfb/v1','forms/response/add', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'set_rMessage_id_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 			register_rest_route('Emsfb/v1','autofill/get', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'get_autofilled_list_efb'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 			register_rest_route('Emsfb/v1','forms/file/upload', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'file_upload_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 			// rest api for set password
 			register_rest_route('Emsfb/v1','forms/recovery/efb_set_password', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'set_password_efb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission']
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 		});
 		//add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) );
@@ -101,13 +101,24 @@ class _Public {
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
 
+		// AJAX handler for background processing test
+		add_action('wp_ajax_efb_test_background', [$this, 'test_background_processing']);
+		add_action('wp_ajax_nopriv_efb_test_background', [$this, 'test_background_processing']);
+
+		// AJAX handler for real background processing (email/SMS)
+		add_action('wp_ajax_efb_process_background', [$this, 'process_background_task']);
+		add_action('wp_ajax_nopriv_efb_process_background', [$this, 'process_background_task']);
+
+		// Cron handler for background processing (بهتر و سریع‌تر)
+		add_action('efb_process_background_cron', [$this, 'process_background_cron'], 10, 1);
+
 		// Elementor compatibility - only load if Elementor is active and not in admin
 		if (!is_admin()) {
 			add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
 		}
 	}
 
-public function check_nonce_permission($request) {
+public function check_nonce_permission_efb($request) {
 
 	$allowed_origins = apply_filters('efb_allowed_cors_origins', array(
 		home_url(),
@@ -140,12 +151,27 @@ public function check_nonce_permission($request) {
 		exit();
 	}
 
-
+	// Allow public form submissions from valid origins without nonce
 	if (!isset($_SERVER['HTTP_X_WP_NONCE'])) {
+		// Check if origin is valid
+		if ($origin) {
+			if (in_array($origin, $allowed_origins)) {
+				return true;
+			}
+
+			$parsed_origin = wp_parse_url($origin);
+			$parsed_home = wp_parse_url(home_url());
+
+			if (isset($parsed_origin['host']) && isset($parsed_home['host']) &&
+			    $parsed_origin['host'] === $parsed_home['host']) {
+				return true;
+			}
+		}
+
 		return new \WP_Error('rest_forbidden', __('X-WP-Nonce header is missing', 'easy-form-builder'), array('status' => 403));
 	}
 
-
+	// Verify nonce if provided
 	$verify = wp_verify_nonce( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ), 'wp_rest');
 
 	if (!$verify) {
@@ -437,6 +463,39 @@ public function check_nonce_permission($request) {
 		}
 	}
 	public function EFB_Form_Builder($id){
+
+			$page_builder="";
+			$action_post = isset($_GET['action']) ? sanitize_key( wp_unslash( $_GET['action'] ) ) :'';
+
+			if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) || $action_post=='elementor' || isset($_GET['elementor-preview'])  )){
+					if(isset($_GET['vc_editable'])){ $page_builder='vc_editable';}
+					else if(isset($_GET['vc_editable'])) {$page_builder = 'wpbakery';}
+					else if ( ( isset($_GET['action']) && sanitize_key( wp_unslash( $_GET['action'] ) ) == 'elementor') || isset($_GET['elementor-preview']) ){
+						$page_builder='elementor';
+
+
+
+					}
+
+				$content="
+				<div id='body_efb' class='efb row pb-3 efb px-2'>
+					<div style='width:100%;text-align: center;'>
+						<img src=". EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg'." alt='Easy Form Builder' style='height: 80px'>
+						</div>
+						<h4 style='color:#202a8d;text-align: center;'>
+						".esc_html__('You can only see the form in Preview or Publish mode.', 'easy-form-builder')."
+						</h4>
+						<p style='text-align: center; font-size:12px'>
+						". esc_html__('Click here to edit your Easy Form Builder shortcode.', 'easy-form-builder') ."
+						</p>
+						<h3 style='color:#ff4b93;text-align: center;'>
+							".esc_html__('Easy Form Builder', 'easy-form-builder')."
+						</h3>
+				</div>
+				";
+
+				return $content;
+			}
 			error_log('EFB_Form_Builder');
 			error_log('id:'.end($id));
 			$this->enqueue_jquery();
@@ -499,40 +558,7 @@ public function check_nonce_permission($request) {
 				<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 			}
 			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound','sfmcfop','notFound','file','copied','nonceExpired'];
-			$page_builder="";
-			$action_post = isset($_GET['action']) ? sanitize_key( wp_unslash( $_GET['action'] ) ) :'';
 
-			if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) || $action_post=='elementor' || isset($_GET['elementor-preview'])  )){
-
-
-				if(isset($_GET['vc_editable'])){ $page_builder='vc_editable';}
-				else if(isset($_GET['vc_editable'])) {$page_builder = 'wpbakery';}
-				else if ( ( isset($_GET['action']) && sanitize_key( wp_unslash( $_GET['action'] ) ) == 'elementor') || isset($_GET['elementor-preview']) ){
-					$page_builder='elementor';
-
-
-
-				}
-				//Click here to edit your Easy Form Builder shortcode.
-				$content="
-				<div id='body_efb' class='efb row pb-3 efb px-2'>
-					<div style='width:100%;text-align: center;'>
-						<img src=". EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg'." alt='Easy Form Builder' style='height: 80px'>
-						</div>
-						<h4 style='color:#202a8d;text-align: center;'>
-						".esc_html__('You can only see the form in Preview or Publish mode.', 'easy-form-builder')."
-						</h4>
-						<p style='text-align: center; font-size:12px'>
-						". esc_html__('Click here to edit your Easy Form Builder shortcode.', 'easy-form-builder') ."
-						</p>
-						<h3 style='color:#ff4b93;text-align: center;'>
-							".esc_html__('Easy Form Builder', 'easy-form-builder')."
-						</h3>
-				</div>
-				";
-
-				return $content;
-			}
 			$this->public_scripts_and_css_head('');
 			// $this->public_scripts_and_css_head('');
 			$state="";
@@ -1047,7 +1073,7 @@ public function check_nonce_permission($request) {
 			$content_new =$is_track['content'];
 		}
 
-					error_log('--------------------->value:'.$value);
+
 
 					$this->ajax_object_efm_efb($ar_core ,$values ,$typeOfForm ,$state ,$lang,$poster ,$img ,$pro ,$page_builder ,$is_user ,$username,$lanText);
 					/* $ar_core = array_merge($ar_core , array(
@@ -1255,6 +1281,293 @@ public function check_nonce_permission($request) {
 		wp_enqueue_script('Emsfb-core_js');
 	    wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
 	  }
+
+	/**
+	 * Send JSON response to client and continue processing in background
+	 * این تابع در تمام محیط‌ها کار می‌کند: Apache, Nginx, PHP-FPM, Hostinger, DirectAdmin, cPanel
+	 *
+	 * @param array $response Response data to send
+	 * @param int $status_code HTTP status code
+	 * @return bool True if background processing is enabled
+	 */
+	private function efb_send_json_and_continue($response, $status_code = 200) {
+		// 1. Configuration for background processing
+		@ini_set('zlib.output_compression', 0);
+		@ini_set('implicit_flush', 1);
+		ignore_user_abort(true);
+		set_time_limit(300);
+
+		// Log environment for debugging
+		$environment_method = 'Unknown';
+		$start_time = microtime(true);
+
+		// 2. Close session early - مهم برای تمام محیط‌ها
+		if (session_id()) {
+			session_write_close();
+		}
+
+		// 3. Prepare response
+		if ($status_code >= 200 && $status_code < 300) {
+			$json_response = array(
+				'success' => true,
+				'data'    => $response,
+			);
+		} else {
+			$json_response = array(
+				'success' => false,
+				'data'    => $response,
+			);
+		}
+
+		$output = wp_json_encode($json_response);
+		$content_length = strlen($output);
+
+		// 4. Clear any existing output buffers
+		while (ob_get_level() > 0) {
+			ob_end_clean();
+		}
+
+		// 5. Start new output buffer for precise control
+		ob_start();
+
+		// 6. Send headers optimized for all environments
+		header('Content-Type: application/json; charset=utf-8');
+		header('Content-Length: ' . $content_length);
+		header('Connection: close');
+		header('Content-Encoding: none');
+
+		// Remove any caching headers
+		header('Cache-Control: no-cache, no-store, must-revalidate');
+		header('Pragma: no-cache');
+		header('Expires: 0');
+
+		// 7. Send the response
+		echo $output;
+
+		// 8. Flush everything
+		if (ob_get_level() > 0) {
+			ob_end_flush();
+		}
+
+		// Multiple flush for compatibility
+		@ob_flush();
+		flush();
+
+		// 9. Method 1: PHP-FPM (Nginx, DirectAdmin, cPanel with PHP-FPM)
+		if (function_exists('fastcgi_finish_request')) {
+			$environment_method = 'PHP-FPM (fastcgi_finish_request)';
+			fastcgi_finish_request();
+			$this->log_background_method($environment_method, $start_time);
+			return true;
+		}
+
+		// 10. Method 2: Apache with mod_fcgid
+		if (function_exists('apache_setenv')) {
+			@apache_setenv('no-gzip', '1');
+		}
+
+		// 11. Method 3: LiteSpeed
+		if (function_exists('litespeed_finish_request')) {
+			$environment_method = 'LiteSpeed (litespeed_finish_request)';
+			litespeed_finish_request();
+			$this->log_background_method($environment_method, $start_time);
+			return true;
+		}
+
+		// 12. Method 4: Generic fallback - send extra padding
+		// این روش در Apache و محیط‌های دیگر کمک می‌کند که browser response را سریع‌تر ببیند
+		if (ob_get_level() == 0) {
+			ob_start();
+		}
+
+		// Send padding to force browser to render
+		echo str_repeat(' ', 4096);
+
+		if (ob_get_level() > 0) {
+			ob_end_flush();
+		}
+		flush();
+
+		// 13. Final flush without delay
+		// حذف usleep برای کاهش تاخیر - فقط اطمینان از flush
+		if (function_exists('apache_setenv')) {
+			$environment_method = 'Apache (fallback with padding)';
+		} else {
+			$environment_method = 'Generic (padding fallback)';
+		}
+
+		$this->log_background_method($environment_method, $start_time);
+		return true; // Background processing enabled with fallback
+	}
+
+	/**
+	 * ثبت روش background processing استفاده شده
+	 * برای debugging و اطمینان از عملکرد صحیح
+	 */
+	private function log_background_method($method, $start_time) {
+		$elapsed = round((microtime(true) - $start_time) * 1000, 2);
+		$log_message = sprintf(
+			'[EFB Background] Method: %s | Response Time: %sms | Server: %s | PHP: %s',
+			$method,
+			$elapsed,
+			$_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
+			PHP_SAPI
+		);
+		error_log($log_message);
+	}
+
+	/**
+	 * ارسال background request برای پردازش ایمیل/SMS
+	 * این تابع یک HTTP request جدید ایجاد می‌کند که به صورت non-blocking اجرا می‌شود
+	 */
+	private function trigger_background_processing($data) {
+		// ذخیره داده‌ها در transient برای استفاده در background request
+		$transient_key = 'efb_bg_' . $data['track_id'];
+		set_transient($transient_key, $data, 300); // 5 دقیقه اعتبار
+
+		// روش 1: سعی در استفاده از wp_schedule_single_event (سریع‌ترین)
+		if (function_exists('wp_schedule_single_event')) {
+			wp_schedule_single_event(time(), 'efb_process_background_cron', [$data['track_id']]);
+			spawn_cron(); // اجرای فوری cron
+			error_log('[EFB Background] Scheduled cron event for track: ' . $data['track_id']);
+			return;
+		}
+
+		// روش 2: fallback - استفاده از wp_remote_post با timeout خیلی کم
+		$url = admin_url('admin-ajax.php');
+
+		wp_remote_post($url, [
+			'timeout'   => 0.01,
+			'blocking'  => false,
+			'sslverify' => false,
+			'body'      => [
+				'action'   => 'efb_process_background',
+				'track_id' => $data['track_id']
+			]
+		]);
+
+		error_log('[EFB Background] Triggered background processing for track: ' . $data['track_id']);
+	}
+
+	/**
+	 * پردازش background request (ایمیل/SMS)
+	 * این تابع از طریق AJAX فراخوانی می‌شود
+	 */
+	public function process_background_task() {
+		// دریافت track_id
+		$track_id = isset($_POST['track_id']) ? sanitize_text_field($_POST['track_id']) : '';
+
+		if (empty($track_id)) {
+			error_log('[EFB Background] No track_id provided');
+			exit;
+		}
+
+		// دریافت داده‌ها از transient
+		$transient_key = 'efb_bg_' . $track_id;
+		$data = get_transient($transient_key);
+
+		if (!$data) {
+			error_log('[EFB Background] No data found for track: ' . $track_id);
+			exit;
+		}
+
+		// حذف transient
+		delete_transient($transient_key);
+
+		$timing_start = microtime(true);
+
+		// ارسال SMS
+		$timing_sms_start = microtime(true);
+		if ($data['send_sms'] && !empty($data['phone_numbers'])) {
+			$smsSendResult = $this->efbFunction->sms_ready_for_send_efb(
+				$data['form_id'],
+				$data['phone_numbers'],
+				$data['url'],
+				'fform',
+				'wpsms',
+				$data['track_id']
+			);
+
+			if ($smsSendResult !== true) {
+				error_log('[EFB Background] SMS sending failed for track: ' . $data['track_id']);
+			}
+		}
+		$timing_sms = round((microtime(true) - $timing_sms_start) * 1000, 2);
+
+		// ارسال Email
+		$timing_email_start = microtime(true);
+		if ($data['send_email']) {
+			$this->email_list_efb($data['email_user'], 0, $data['email_fa'], true);
+
+			$state_email_user = $data['trackingCode_state'] == 1
+				? 'notiToUserFormFilled_TrackingCode'
+				: 'notiToUserFormFilled';
+
+			$msg_content = 'null';
+			if (isset($data['formObj'][0]['email_noti_type']) && $data['formObj'][0]['email_noti_type'] == 'msg') {
+				$msg_content = $this->email_get_content_efb($data['valobj'], $data['track_id']);
+				$msg_content = str_replace("\"", "'", $msg_content);
+			}
+
+			$status_email = $this->email_status_efb($data['formObj'], $data['valobj'], $data['track_id']);
+			$state_of_email = ['newMessage', $state_email_user, $status_email['type']];
+
+			$this->send_email_Emsfb_(
+				$data['email_user'],
+				$data['track_id'],
+				$data['pro'],
+				$state_of_email,
+				$data['url'],
+				$status_email['content'],
+				$status_email['subject']
+			);
+		}
+		$timing_email = round((microtime(true) - $timing_email_start) * 1000, 2);
+
+		$timing_total = round((microtime(true) - $timing_start) * 1000, 2);
+
+		// لاگ زمان‌بندی
+		error_log(sprintf(
+			'[EFB Background] Track: %s | SMS: %sms | Email: %sms | Total: %sms',
+			$data['track_id'],
+			$timing_sms,
+			$timing_email,
+			$timing_total
+		));
+
+		exit;
+	}
+
+	/**
+	 * تست عملکرد background processing
+	 * این تابع برای تست صفحه test-background-efb.php استفاده می‌شود
+	 */
+	public function test_background_processing() {
+		// شبیه‌سازی یک درخواست فرم
+		$response = [
+			'message' => 'Response ارسال شد!',
+			'time' => current_time('mysql'),
+			'background_enabled' => function_exists('fastcgi_finish_request')
+		];
+
+		// ارسال response و ادامه در background
+		$background_enabled = $this->efb_send_json_and_continue($response, 200);
+
+		// عملیات background - این بعد از ارسال response انجام می‌شود
+		error_log('=== EFB Background Test Start ===');
+		error_log('Time: ' . current_time('mysql'));
+		error_log('Background enabled: ' . ($background_enabled ? 'Yes' : 'No'));
+
+		// شبیه‌سازی عملیات زمان‌بر (مثل ارسال ایمیل)
+		sleep(2);
+
+		error_log('Background task completed after 2 seconds');
+		error_log('=== EFB Background Test End ===');
+
+		// پایان script
+		exit;
+	}
+
 	  public function get_form_public_efb($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
 
@@ -2028,19 +2341,22 @@ public function check_nonce_permission($request) {
 					// error_log('before switech: ' . $time);
 					switch ($type) {
 						case "form":
+							$timing_start = microtime(true);
 							$check = $this->insert_message_db(0, false);
-							$time = microtime(true);
-							// error_log('before validate: ' . $time);
+							$timing_db_insert = round((microtime(true) - $timing_start) * 1000, 2);
+
 							$nnc = wp_create_nonce($check);
 							$this->efbFunction->efb_code_validate_update($sid, 'send', $check);
 							$response = ['success' => true, 'ID' => $data_POST['id'], 'track' => $check, 'ip' => $ip, 'nonce' => $nnc];
 							if ($rePage != "null") {
 								$response = ['success' => true, 'm' => $rePage];
 							}
-							$time = microtime(true);
-							// error_log('before sms: ' . $time);
-							error_log('smsnoti: ' . json_encode($formObj[0]['smsnoti']));
-							if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
+
+						// ارسال response و ادامه background processing
+					 	 $this->efb_send_json_and_continue($response, 200);
+
+						// Background: SMS
+						if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
 								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $check);
 								error_log('smsnoti smsSendResult: ' . json_encode($smsSendResult));
 								if($smsSendResult !== true) {
@@ -2069,11 +2385,11 @@ public function check_nonce_permission($request) {
 								$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
 							    // error_log('after send email: ' . $time);
 							}
-							$time = microtime(true);
-							// error_log('before response: ' . $time);
-							wp_send_json_success($response, 200);
-							break;
-						case "payment":
+						// wp_send_json_success($response, 200);
+						error_log('[EFB] Completed: ' . $check);
+						exit;
+					break;
+					case "payment":
 							$id = sanitize_text_field($data_POST['payid']);
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
@@ -2406,7 +2722,7 @@ public function check_nonce_permission($request) {
 		$this->get_efbFunction(0);
 		$text_ = ['spprt','sxnlex','error403','errorMRobot','enterVValue','guest','cCodeNFound'];
 		$lanText= $this->efbFunction->text_efb($text_);
-		$sid = sanitize_text_field($data_POST['sid']);
+/* 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 		error_log('s_sid: ' . $s_sid);
 		if ($s_sid !=1 || $sid==null ){
@@ -2415,7 +2731,7 @@ public function check_nonce_permission($request) {
 			$m =  $lanText['sxnlex'];
 			$response = array( 'success' => false  , 'm'=>$m);
 			wp_send_json_success($response, 200);
-		}
+		} */
 		$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
 		$captcha_success =[];
 		$not_captcha=true;
@@ -2602,8 +2918,8 @@ public function check_nonce_permission($request) {
 		$_POST['id']=intval( wp_unslash( $_POST['id'] ) );
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $fid=intval( wp_unslash( $_POST['fid'] ) );
-		$sid = sanitize_text_field($_POST['sid']);
 		$page_id = sanitize_text_field($_POST['page_id']);
+	/* 	$sid = sanitize_text_field($_POST['sid']);
 		error_log('file_upload_api');
 		error_log('sid: '.$sid);
 		error_log('fid: '.$fid);
@@ -2612,7 +2928,7 @@ public function check_nonce_permission($request) {
 		if ($s_sid !=1 || $sid==null){
 		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . ": 402");
 		wp_send_json_success($response,200);
-		}
+		} */
 		$cache_plugins = get_option('emsfb_cache_plugins');
 		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id,$cache_plugins);
         // check validate here
@@ -2719,11 +3035,11 @@ public function check_nonce_permission($request) {
         'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
 		if($this->efbFunction===null) $this->get_efbFunction(0);
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
-		$sid = sanitize_text_field($data_POST['sid']);
 		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :  'guest';
 		error_log('user_type: ' . $rsp_by);
 		$sc = isset($data_POST['sc']) ? sanitize_text_field($data_POST['sc']) : 'null';
 		$track = sanitize_text_field($data_POST['track']);
+/* 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 		$page_id = sanitize_text_field($data_POST['page_id']);
 		$email_actived = false;
@@ -2732,7 +3048,7 @@ public function check_nonce_permission($request) {
 			$m = '<b>'. $this->lanText['sxnlex'];
 			$response = array( 'success' => false  , 'm'=>$m );
 			wp_send_json_success($response,200);
-		}
+		} */
 		$this->id =sanitize_text_field($data_POST['id']);
 		$by ="";
 		if(empty($data_POST['message']) ){
@@ -3000,9 +3316,9 @@ public function check_nonce_permission($request) {
 	public function get_autofilled_list_efb($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
 		$fid = sanitize_text_field($data_POST['id']);
-		$sid = sanitize_text_field($data_POST['sid']);
 		if($this->efbFunction===null) $this->get_efbFunction(0);
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
+/* 		$sid = sanitize_text_field($data_POST['sid']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid); */
 		$page_id = sanitize_text_field($data_POST['page_id']);
 		$cache_plugins = get_option('emsfb_cache_plugins');
 		if ($cache_plugins != '0') $this->cache_cleaner_Efb($page_id, $cache_plugins);
@@ -3140,8 +3456,8 @@ public function check_nonce_permission($request) {
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
 		$this->id =sanitize_text_field($data_POST['id']);
-		$sid = sanitize_text_field($data_POST['sid']);
 		if($this->efbFunction===null) $this->get_efbFunction(0);
+/* 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		if ($s_sid !=1){
 			//efb_code_validate_select
@@ -3149,7 +3465,7 @@ public function check_nonce_permission($request) {
 			$m = esc_html__('error', 'easy-form-builder') . ' 403';
 			$response = array( 'success' => false  , 'm'=>$m);
 			wp_send_json_success($response, 200);
-		}
+		} */
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
 		$Sk ='null';
 		if(gettype($r)=="string"){
@@ -4751,6 +5067,7 @@ function email_get_content_efb($content, $track){
 			'page_builder'=>$page_builder,
 			'is_user'=> $is_user,
 			'user_name' => $username,
+			'nonce' => wp_create_nonce('wp_rest')
 		) );
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
 	}

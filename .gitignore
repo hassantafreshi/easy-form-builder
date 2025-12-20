@@ -36,3 +36,6 @@ vendor/composer/*
 includes/admin/integrate-elementor.php
 .vscode/settings.json
 
+docs/BACKGROUND-PROCESSING.md
+.gitignore
+.gitignore
