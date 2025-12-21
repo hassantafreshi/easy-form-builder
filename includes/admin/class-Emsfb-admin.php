@@ -1516,9 +1516,7 @@ function admin_notices_efb () {
                         if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
                             $settings->smtp = true;
                             $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
-                            $st_ = json_encode($settings,JSON_UNESCAPED_UNICODE);
-                            $setting = str_replace('"', '\"', $st_);
-                            $this->database_set_emsfb_settings($setting, $email);
+                            \Emsfb::set_setting_Emsfb($settings, $email);
                         }
 
                         return;
@@ -1539,9 +1537,7 @@ function admin_notices_efb () {
                         if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
                             $settings->smtp = true;
                             $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
-                            $st_ = json_encode($settings,JSON_UNESCAPED_UNICODE);
-                            $setting = str_replace('"', '\"', $st_);
-                            $this->database_set_emsfb_settings($setting, $email);
+                            \Emsfb::set_setting_Emsfb($settings, $email);
                         }
                         return;
                     }
