@@ -978,7 +978,7 @@ function head_introduce_efb(state) {
   let text = `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
   const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/pricing' : 'https://whitestudioteam.com/pricing';
-  let msgpro = efb_var.text.yFreeVEnPro.replace('%$2s', pro_price_efb +'$').replace('%$1s','<span class="efb fw-bold text-pinkEfb">').replace('%$3s','</span>').replace('%$4s',`<br><a href="${domain}" class="efb fw-bold">`).replace('%$5s','</a>');
+  let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="${domain}" class="efb fw-bold">`).replace('%5$s','</a>');
   let cont = ``;
   let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti ec-efb" data-eventform="links" data-linkname="price">
   <i class="efb bi-diamond text-pinkEfb mx-1 ec-efb" data-eventform="links" data-linkname="price"></i>
@@ -4320,7 +4320,7 @@ let r_matrix_push_efb = (parent, value, rndm, op) => {
 }
 
 fun_create_content_nloading_efb = () => {
-  let txt = efb_var.text.alns.replaceAll('%s1', `<b>${efb_var.text.easyFormBuilder}</b>`).replaceAll('%s2', `<a href="https://whitestudio.team/contact-us" target="_blank">`).replaceAll('%s3', `</a>`);
+  let txt = efb_var.text.alns.replaceAll('%1$s', `<b>${efb_var.text.easyFormBuilder}</b>`).replaceAll('%2$s', `<a href="https://whitestudio.team/contact-us" target="_blank">`).replaceAll('%3$s', `</a>`);
   return txt;
 }
 

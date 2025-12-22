@@ -456,8 +456,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         optionElpush_efb(rndm, `${efb_var.text.newOption} ${t2}`, op_2, op_2 ,dataTag);
       }else{
         opt_label = efb_var.text.trmcn;
-        opt_label = opt_label.replace('%s1', "[");
-        opt_label = opt_label.replace('%s2', "](https://whitestudio.team/privacy-policy-terms)");
+        opt_label = opt_label.replace('%1$s', "[");
+        opt_label = opt_label.replace('%2$s', "](https://whitestudio.team/privacy-policy-terms)");
         optionElpush_efb(rndm, `${opt_label}`, op_1, op_1 ,dataTag);
         opt_label = fun_get_links_from_string_Efb(opt_label,true);
       }
