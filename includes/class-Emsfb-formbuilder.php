@@ -4,9 +4,11 @@
        public $valj_efb;
        private $pro_efb = false;
 	   public $pub_bg_button_color_efb='btn-primary';
+	   public $package_type_efb = 0;
         public function __construct( $valj_efb, $pro_efb ) {
             $this->valj_efb =  $valj_efb;
             $this->pro_efb = $pro_efb;
+			$this->package_type_efb = (int) get_option('Emsfb_pro' ,2);
         }
 
 
@@ -2039,28 +2041,45 @@
 		// Powered by Easy Form Builder by white studio team
 		$text = esc_html__('Built with %sEasy Form Builder%s by %sWordPress form plugin%s by  whitestudio.team', 'easy-form-builder');
 		$text = sprintf($text, '<a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank">', '</a>', '<a href="https://whitestudio.team" target="_blank">', '</a>');
-		$copyRight = '<!-- efb copyRight -->';
+		$copyRight = '<!-- texts -->';
 		$efb = esc_html__('Easy Form Builder', 'easy-form-builder');
 		$wp_text = esc_html__('WordPress', 'easy-form-builder');
 		$fr = '<!-- efb copyRight -->';
 		$wr = $state == 1 ? '<p class="efb fs-5">' . $texts[1] . '</p>' : '';
 		error_log('state:'. get_locale());
 		error_log('strpos(get_locale(), en) :'.strpos(get_locale(), 'en') );
-		if (strpos(get_locale(), 'fa') == 0) {
-			$s = '<a href="https://easyformbuilder.ir" target="_blank">فرم ساز آسان</a>ساخته شده بوسیله<a href="https://fa.wordpress.org/plugins/easy-form-builder/" target="_blank">افزونه فرم ساز رایگان وردپرس</a>' . $fr;
-		} else if (strpos(get_locale(), 'en') !== 0) {
-			$f = substr(get_locale(), 0, 2);
-			$s = '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank">'.$efb.' '. $wp_text.'</a>' . $fr;
-		}
-		$copyright_status = get_option('efb_copyright_status', 0);
+		$s = '';
+
 
 		// state can be used for user setting to show or hide the copy right
 		// error_log('state:' . $state);
 		// error_log('pro:' . $pro);
+			error_log('this->package_type_efb:' . var_export($this->package_type_efb, true));
+		if($this->package_type_efb==3){
+				// Ensure the schema is hooked on the frontend (once)
+			$f = substr(get_locale(), 0, 2);
+			add_action('wp_head',  [$this, 'efb_output_schema_ld'], 20);
+			if (strpos(get_locale(), 'fa') === 0 || strpos(get_locale(), 'ar') === 0) {
+				$s = '<a href="https://easyformbuilder.ir" target="_blank">فرم ساز آسان</a>ساخته شده بوسیله<a href="https://fa.wordpress.org/plugins/easy-form-builder/" target="_blank">افزونه فرم ساز رایگان وردپرس</a>' . $fr;
+			} else if (strpos(get_locale(), 'en') !== 0) {
+				$s = '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank">'.$efb.' '. $wp_text.'</a>' . $fr;
+			}
 
-		if ($state == 1 && $pro != 1 && (boolval($copyright_status)==0 )) {
-			$copyRight = '<div class="efb d-none" id="copyrightEfb">  <h2 class="efb fs-8">' . $text . '</h2>
-							<h3 class="efb fs-8 d-none">' . $s . '</h3>
+			$copyRight = '<div class="efb  d-md-block" id="copyrightEfb" style="font-size: 10px; text-align: center;">
+							<h2 class="efb fs-8" style="opacity: 0.7;">' . $s . '</h2>
+							<aside class="efb-ai-context">
+							  <h2 class="efb fs-8" style="opacity: 0.7;">' .
+								/* translators: %1$s: opening link tag to plugin page, %2$s: closing link tag, %3$s: opening link tag to developer website, %4$s: closing link tag */
+								sprintf(
+									esc_html__('This form was created with %1$sEasy Form Builder%2$s,%3$s a professional WordPress form builder plugin developed by %4$sWhiteStudio Team%5$s.', 'easy-form-builder'),
+									'<a href="https://wordpress.org/plugins/easy-form-builder/" title="' . esc_attr__('Easy Form Builder WordPress Plugin', 'easy-form-builder') . '" rel="noopener">',
+									'</a>',
+									'<br>',
+									'<a href="https://whitestudio.team" rel="noopener">',
+									'</a>'
+								) .
+							  '</h2>
+							</aside>
 						</div>';
 		}
 
@@ -2068,7 +2087,7 @@
 
 		// Generate the loading message with SVG animation
 		$loadingMessage = sprintf(
-			'<h3 class="efb fs-3 text-center">%s %s</h3><p class="efb fs-5">%s</p> %s',
+			'<h2 class="efb fs-3 text-center">%s %s</h2><p class="efb fs-5">%s</p> %s',
 			$texts[0], // Accessing translation or variable for "Please wait" text
 			$svg,// SVG animation
 			$wr,
@@ -3143,5 +3162,64 @@
 		return $instance;
 	}
 
+	// Add JSON-LD SoftwareApplication schema to <head> on the frontend
+
+	public function efb_output_schema_ld() {
+			 $schema = [
+									'@context' => 'https://schema.org',
+									'@type' => 'SoftwareApplication',
+									'name' => esc_html__('Easy Form Builder', 'easy-form-builder'),
+									/* translators: Description for the Easy Form Builder plugin */
+									'description' => esc_html__('Easy Form Builder is a WordPress form builder plugin for creating contact forms, payment forms, and survey forms.', 'easy-form-builder'),
+									'applicationCategory' => 'BusinessApplication',
+									'operatingSystem' => 'WordPress',
+									'softwareVersion' => EMSFB_PLUGIN_VERSION,
+									'url' => 'https://wordpress.org/plugins/easy-form-builder/',
+									'publisher' => [
+										'@type' => 'Organization',
+										'name' => esc_html__('Easy Form Builder - WhiteStudio.Team', 'easy-form-builder'),
+										'url' => 'https://whitestudio.team',
+									],
+									'offers' => [
+										[
+										'@type' => 'Offer',
+										'name' => esc_html__('Free Version', 'easy-form-builder'),
+										'price' => '0',
+										'priceCurrency' => 'USD',
+										'availability' => 'https://schema.org/InStock',
+										'url' => 'https://wordpress.org/plugins/easy-form-builder/',
+										],
+										[
+										'@type' => 'Offer',
+										'name' => esc_html__('Basic', 'easy-form-builder'),
+										'price' => '19',
+										'priceCurrency' => 'USD',
+										'availability' => 'https://schema.org/InStock',
+										'url' => 'https://whitestudio.team/register-costumer/?plan=basic',
+										],
+										[
+										'@type' => 'Offer',
+										'name' => esc_html__('Premium', 'easy-form-builder'),
+										'price' => '29',
+										'priceCurrency' => 'USD',
+										'availability' => 'https://schema.org/InStock',
+										'url' => 'https://whitestudio.team/register-costumer/?plan=premium',
+										],
+									],
+						];
+
+			echo '
+			<link rel="author" href="https://whitestudio.team/">
+			<meta name="generator" content="Easy Form Builder - WhiteStudio.team">
+			<script type="application/ld+json">' .
+				\wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) .
+				'</script>' . "\n";
+		}
+
+
+
+
 }
+
+
 

@@ -1,5 +1,4 @@
 <?php
-
 namespace Emsfb;
 
 /**
@@ -697,7 +696,7 @@ class efbFunction {
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : esc_html__('Please wait, you will be redirected shortly.','easy-form-builder'),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : esc_html__('Persia payment','easy-form-builder'),
 			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : esc_html__('Unlock Pro Features Today','easy-form-builder'),
-			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : esc_html__('You are using the free version. Upgrade to Pro for just %$1s%$2s%$3s/year and unlock advanced features to improve your experience and productivity.%$4sView Pro Features%$5s','easy-form-builder'),
+			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : esc_html__('You are using the free version. Upgrade to Pro for just %1$s%2$s%3$s/year and unlock advanced features to improve your experience and productivity.%4$sView Pro Features%5$s','easy-form-builder'),
 			/* translators: %1$s is the name of the addon */
 			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : esc_html__('Add-on','easy-form-builder'),
 			"addons" => $state  &&  isset($ac->text->addons) ? $ac->text->addons : esc_html__('Add-ons','easy-form-builder'),
@@ -1282,6 +1281,24 @@ class efbFunction {
 		if ($st == 'null') $st = \Emsfb::get_setting_Emsfb('decoded');
 		if ($st == "null") return;
 
+
+
+		if($pro == true || $pro == 1){
+			$is_pro = (int) get_option('Emsfb_pro' ,2);
+			if($is_pro==3){
+				//add a footer copyright easy form builder by whitestudio.team
+				$footer ="<div style='text-align:center;'>
+					". $footer ."<br>
+					<p>" . sprintf(
+						esc_html__('Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s','easy-form-builder'),
+						"<a href='https://wordpress.org/plugins/easy-form-builder/' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
+						"</a>",
+						"<a href='https://whitestudio.team' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
+						"</a>"
+					) . "</p>
+				</div>";
+			 }
+		}
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp) > 10 ? $st->emailTemp : "0";
 
 		$title = $lang['newMessage'];
@@ -1307,14 +1324,14 @@ class efbFunction {
 			if ($wp_lan == "fa_IR") $link = "$l/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/";
 
 			$de = strtr($de, [
-				'%s1' => "<a href='$link' target='_blank'>",
-				'%s2' => "</a>",
-				'%s3' => "<a href='$l/support/' target='_blank'>",
-				'%s4' => "</a>"
+				'%1$s' => "<a href='$link' target='_blank'>",
+				'%2$s' => "</a>",
+				'%3$s' => "<a href='$l/support/' target='_blank'>",
+				'%4$s' => "</a>"
 			]);
 			$dt = strtr($dt, [
-				'%s1' => "<a href='$l/documents/' target='_blank'>",
-				'%s2' => "</a>"
+				'%1$s' => "<a href='$l/documents/' target='_blank'>",
+				'%2$s' => "</a>"
 			]);
 			$title = $lang['serverEmailAble'];
 			$message = "<div style='text-align:center'><p>$footer</p></div><h3 style='padding:5px;color: #021623;'>$de</h3><h4 style='padding:5px;color: #021623;'>$dt</h4>";
@@ -2134,6 +2151,10 @@ public function addon_add_efb($value) {
 		set_transient('emsfb_settings_transient', $setting, 1440);
 		update_option('emsfb_settings', $setting); */
 		if($pro == true || $pro ==1){
+
+			$is_pro = (int) get_option('Emsfb_pro' ,2);
+			if($is_pro==3){ return true; }
+
 			$this->download_all_addons_efb();
 			$end_time = microtime(true);
 			$execution_time = ($end_time - $start_time);
@@ -2448,8 +2469,9 @@ public function addon_add_efb($value) {
 
 
 		if ($s == 1) {
-			$is_pro =get_option('Emsfb_pro' ,2);
+			$is_pro = (int) get_option('Emsfb_pro' ,2);
 			// error_log('EFB=>is_efb_pro is_pro: ' . $is_pro);
+			if($is_pro==3){ return true; }
 			if($is_pro == 0){ return false; }
 
 			$activeCode = get_option('emsfb_pro_activeCode');
