@@ -410,6 +410,74 @@ class efbFunction {
 			"next" => $state ? $ac->text->next : esc_html__('Next','easy-form-builder'),
 			"noCodeAddedYet" => $state ? $ac->text->noCodeAddedYet : esc_html__('The code has not yet been added. Click on','easy-form-builder'),
 			"andAddingHtmlCode" => $state ? $ac->text->andAddingHtmlCode : esc_html__('and adding HTML code.','easy-form-builder'),
+
+			// Setup Modal Strings
+			/* translators: Essential Features = basic/core features of the plugin */
+			"essentialFeatures" => $state ? $ac->text->essentialFeatures : esc_html__('Essential Features','easy-form-builder'),
+			/* translators: Getting started message */
+			"perfectForGettingStarted" => $state ? $ac->text->perfectForGettingStarted : esc_html__('Perfect for getting started with simple forms.','easy-form-builder'),
+			/* translators: Core form fields = basic input fields like text, email, etc */
+			"coreFormFields" => $state ? $ac->text->coreFormFields : esc_html__('Core form fields','easy-form-builder'),
+			/* translators: Email notifications = automatic email alerts */
+			"emailNotifications" => $state ? $ac->text->emailNotifications : esc_html__('Email notifications','easy-form-builder'),
+			/* translators: Advanced form fields = complex input types like file upload, date picker */
+			"advancedFormFields" => $state ? $ac->text->advancedFormFields : esc_html__('Advanced form fields','easy-form-builder'),
+			/* translators: Built-in advanced features = integrated advanced functionality */
+			"builtInAdvancedFeatures" => $state ? $ac->text->builtInAdvancedFeatures : esc_html__('Built-in advanced features','easy-form-builder'),
+			/* translators: Add-ons & extensions = additional plugins or modules */
+			"addonsExtensions" => $state ? $ac->text->addonsExtensions : esc_html__('Add-ons & extensions','easy-form-builder'),
+			/* translators: Start with Free = button text for free plan */
+			"startWithFree" => $state ? $ac->text->startWithFree : esc_html__('Start with Free','easy-form-builder'),
+			/* translators: Free Plus = plan name for enhanced free version */
+			"freePlus" => $state ? $ac->text->freePlus : esc_html__('Free Plus','easy-form-builder'),
+			/* translators: Recommended = label for suggested plan */
+			"recommended" => $state ? $ac->text->recommended : esc_html__('Recommended','easy-form-builder'),
+			/* translators: Best Value = label indicating the best price/value ratio */
+			"bestValue" => $state ? $ac->text->bestValue : esc_html__('Best Value','easy-form-builder'),
+			/* translators: Unlock advanced features message */
+			"unlockAdvancedFeatures" => $state ? $ac->text->unlockAdvancedFeatures : esc_html__('Unlock advanced features - supported by a credit line.','easy-form-builder'),
+			/* translators: Core & advanced form fields = both basic and complex input types */
+			"coreAdvancedFormFields" => $state ? $ac->text->coreAdvancedFormFields : esc_html__('Core & advanced form fields','easy-form-builder'),
+			/* translators: Powered by credit line message */
+			"poweredByCredit" => $state ? $ac->text->poweredByCredit : esc_html__('Lightweight "Powered by Easy Form Builder" credit','easy-form-builder'),
+			/* translators: Continue with Free Plus = button text */
+			"continueWithFreePlus" => $state ? $ac->text->continueWithFreePlus : esc_html__('Continue with Free Plus','easy-form-builder'),
+			/* translators: Pro = professional/premium plan name */
+			"pro" => $state ? $ac->text->pro : esc_html__('Pro','easy-form-builder'),
+			/* translators: Advanced  = plan features description */
+			"advancedAdFree" => $state ? $ac->text->advancedAdFree : esc_html__('Advanced','easy-form-builder'),
+			/* translators: free = no-cost plan */
+			"free" => $state ? $ac->text->advancedAdFree : esc_html__('Free','easy-form-builder'),
+			/* translators: Complete clean experience message */
+			"completeCleanExperience" => $state ? $ac->text->completeCleanExperience : esc_html__('For professionals who want the complete, clean experience.','easy-form-builder'),
+			/* translators: Everything in Free Plus = includes all features from lower plan */
+			"everythingInFreePlus" => $state ? $ac->text->everythingInFreePlus : esc_html__('Everything in Free Plus','easy-form-builder'),
+			/* translators: Advanced integrations = complex third-party connections */
+			"advancedIntegrations" => $state ? $ac->text->advancedIntegrations : esc_html__('Advanced integrations','easy-form-builder'),
+			/* translators: Add-ons included = extensions are part of the package */
+			"addonsIncluded" => $state ? $ac->text->addonsIncluded : esc_html__('Add-ons included','easy-form-builder'),
+			/* translators: No promotional messages = ad-free experience */
+			"noCreditsPromo" => $state ? $ac->text->noCreditsPromo : esc_html__('No credits or promotional messages','easy-form-builder'),
+			/* translators: Premium experience = high-quality, professional experience */
+			"premiumExperience" => $state ? $ac->text->premiumExperience : esc_html__('premium experience','easy-form-builder'),
+			/* translators: Upgrade to Pro = button text for upgrading */
+			"upgradeToPro" => $state ? $ac->text->upgradeToPro : esc_html__('Upgrade to Pro','easy-form-builder'),
+			/* translators: Most Popular = label indicating most chosen plan */
+			"mostPopular" => $state ? $ac->text->mostPopular : esc_html__('Most Popular','easy-form-builder'),
+			/* translators: Information about plan changeability */
+			"canChangeAnytime" => $state ? $ac->text->canChangeAnytime : esc_html__('You can change this at any time from the panel settings menu. No data is lost when you upgrade.','easy-form-builder'),
+			/* translators: Maybe later = postpone action button */
+			"maybeLater" => $state ? $ac->text->maybeLater : esc_html__('Maybe later','easy-form-builder'),
+			/* translators: Build professional forms message */
+			"buildProfessionalForms" => $state ? $ac->text->buildProfessionalForms : esc_html__('Build professional WordPress forms in minutes. Choose how you\'d like to get started.','easy-form-builder'),
+
+			// Additional strings for setup modal functionality
+			/* translators: Selected = indicates something has been chosen */
+			"selected" => $state ? $ac->text->selected : esc_html__('selected','easy-form-builder'),
+			/* translators: Setup reminder message */
+			"setupReminder" => $state ? $ac->text->setupReminder : esc_html__('You can access setup from plugin settings anytime.','easy-form-builder'),
+			/* translators: Welcome modal title for new users */
+			"welcomeToEasyFormBuilder" => $state ? $ac->text->welcomeToEasyFormBuilder : esc_html__('Welcome to Easy Form Builder','easy-form-builder'),
 // "proMoreStep" => $state ? $ac->text->proMoreStep : esc_html__('When you activate the Pro version, so you can create unlimited form steps.',$s),
 			"aPIkeyGoogleMapsError" => $state ? $ac->text->aPIkeyGoogleMapsError : esc_html__('The API key for Google Maps has not been added. Please go to Easy Form Builder > Panel > Setting > Google Keys, add the API key for Google Maps, and try again.','easy-form-builder'),
 			"howToAddGoogleMap" => $state ? $ac->text->howToAddGoogleMap : esc_html__('How to Add Location Picker(maps) to Easy form Builder WordPress Plugin','easy-form-builder'),

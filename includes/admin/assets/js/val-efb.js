@@ -2089,3 +2089,1431 @@ function update_event_elmants_settings(classes){
       el.addEventListener("change", (e) => { change_el_edit_Efb(el);})
     }
 }
+
+
+function show_setting_up_easy_form_builder_Efb() {
+
+  const body = `
+    <div class="efb-setup-container">
+      <!-- Header Content -->
+      <div class="efb-setup-header">
+        <div class="efb-header-content">
+          <h3 class="efb-main-title">
+            <i class="bi bi-heart-fill"></i>
+            ${efb_var.text.easyFormBuilder}
+          </h3>
+          <p class="efb-subtitle">
+            ${efb_var.text.buildProfessionalForms}
+          </p>
+        </div>
+      </div>
+
+      <!-- Plans Grid -->
+      <div class="efb-plans-grid">
+
+        <!-- Free Plan -->
+        <div class="efb-plan-card">
+          <div class="efb-card-content">
+            <div class="efb-plan-header">
+              <h6 class="efb-plan-title">${efb_var.text.free}</h6>
+              <span class="efb-plan-badge efb-badge-light">${efb_var.text.essentialFeatures}</span>
+            </div>
+
+            <p class="efb-plan-description">${efb_var.text.perfectForGettingStarted}</p>
+
+            <ul class="efb-features-list">
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill"></i>
+                ${efb_var.text.coreFormFields}
+              </li>
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill"></i>
+                ${efb_var.text.emailNotifications}
+              </li>
+              <li class="efb-feature-item efb-feature-locked">
+                <i class="bi bi-lock-fill"></i>
+                ${efb_var.text.advancedFormFields}
+              </li>
+              <li class="efb-feature-item efb-feature-locked">
+                <i class="bi bi-lock-fill"></i>
+                ${efb_var.text.builtInAdvancedFeatures}
+              </li>
+              <li class="efb-feature-item efb-feature-locked">
+                <i class="bi bi-lock-fill"></i>
+                ${efb_var.text.addonsExtensions}
+              </li>
+            </ul>
+
+            <div class="efb-plan-action">
+              <button class="efb-btn efb-btn-outline" onclick="handle_setup_modal_action('free')">
+                ${efb_var.text.startWithFree}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Free Plus Plan (Recommended) -->
+        <div class="efb-plan-card efb-recommended">
+          <div class="efb-card-content">
+
+          <div class="efb-plan-header">
+          <h6 class="efb-plan-title">${efb_var.text.freePlus}</h6>
+          <span class="efb-recommended-badge">${efb_var.text.recommended}</span>
+
+            </div>
+
+            <p class="efb-plan-description">${efb_var.text.unlockAdvancedFeatures}</p>
+
+            <ul class="efb-features-list">
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill"></i>
+                ${efb_var.text.coreAdvancedFormFields}
+              </li>
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill"></i>
+                ${efb_var.text.emailNotifications}
+              </li>
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill"></i>
+                ${efb_var.text.builtInAdvancedFeatures}
+              </li>
+              <li class="efb-feature-item efb-feature-locked">
+                <i class="bi bi-lock-fill"></i>
+                ${efb_var.text.addonsExtensions}
+              </li>
+              <li class="efb-feature-item efb-feature-info">
+                <i class="bi bi-info-circle-fill"></i>
+                ${efb_var.text.poweredByCredit}
+              </li>
+            </ul>
+
+            <div class="efb-plan-action">
+              <button class="efb-btn efb-btn-primary" onclick="handle_setup_modal_action('free_plus')">
+                ${efb_var.text.continueWithFreePlus}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pro Plan (Premium) -->
+        <div class="efb-plan-card efb-pro-highlighted">
+          <div class="efb-card-content">
+            <span class="efb-pro-badge">${efb_var.text.mostPopular || 'Most Popular'}</span>
+
+            <div class="efb-plan-header">
+              <h6 class="efb-plan-title">${efb_var.text.pro}</h6>
+              <span class="efb-plan-badge efb-badge-premium">${efb_var.text.advancedAdFree}</span>
+            </div>
+
+            <p class="efb-plan-description">${efb_var.text.completeCleanExperience}</p>
+
+            <ul class="efb-features-list">
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill"></i>
+                ${efb_var.text.everythingInFreePlus}
+              </li>
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill"></i>
+                ${efb_var.text.advancedIntegrations}
+              </li>
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill"></i>
+                ${efb_var.text.addonsIncluded}
+              </li>
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill"></i>
+                ${efb_var.text.noCreditsPromo}
+              </li>
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill"></i>
+                ${efb_var.text.premiumExperience}
+              </li>
+            </ul>
+
+            <div class="efb-plan-action">
+              <button class="efb-btn efb-btn-premium" onclick="handle_setup_modal_action('pro')">
+                ${efb_var.text.upgradeToPro}
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Info -->
+      <div class="efb-setup-footer">
+        <div class="efb-footer-info">
+          <i class="bi bi-info-circle"></i>
+          <p>${efb_var.text.canChangeAnytime}</p>
+        </div>
+
+        <div class="efb-footer-actions">
+          <button class="efb-btn efb-btn-link" onclick="handle_setup_modal_action('later')">
+            ${efb_var.text.maybeLater}
+          </button>
+        </div>
+      </div>
+    </div>
+    <style>
+      /* EFB Setup Container Styles */
+      .efb-setup-container {
+        padding: 30px;
+        max-width: 100%;
+        margin: 0 auto;
+      }
+
+      .efb-setup-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .efb-header-content {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .efb-main-title {
+        color: #202a8d;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .efb-main-title i {
+        color: #633a82;
+        font-size: 2rem;
+      }
+
+      .efb-subtitle {
+        color: #666;
+        font-size: 1.1rem;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      /* Plans Grid */
+      .efb-plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+        align-items: stretch;
+      }
+
+      .efb-plan-card {
+        background: white;
+        border-radius: 1.2rem;
+        border: 2px solid rgba(32, 42, 141, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        position: relative;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .efb-plan-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(32, 42, 141, 0.15);
+        border-color: rgba(32, 42, 141, 0.25);
+      }
+
+      .efb-recommended {
+        background: linear-gradient(135deg, rgba(32, 42, 141, 0.05) 0%, rgba(99, 58, 130, 0.08) 100%);
+        border: 2px solid rgba(32, 42, 141, 0.3);
+        box-shadow: 0 10px 30px rgba(32, 42, 141, 0.1);
+      }
+
+
+      /* Pro Plan Highlighted Styles */
+      .efb-pro-highlighted {
+        background: linear-gradient(145deg, rgba(255, 215, 0, 0.05) 0%, rgba(255, 193, 7, 0.08) 100%);
+        border: 3px solid #8f8f8f;
+        box-shadow: 0 15px 40px rgba(255, 193, 7, 0.2);
+        transform: scale(1.05);
+        position: relative;
+        animation: proGlow 2s ease-in-out infinite alternate;
+      }
+
+      .efb-pro-highlighted::before {
+        content: '';
+        position: absolute;
+        top: -3px;
+        left: -3px;
+        right: -3px;
+        bottom: -3px;
+        background: linear-gradient(45deg, #cbc8c0, #cadce1, #e0eaef, #fbfbf9);
+        background-size: 300% 300%;
+        border-radius: 1.2rem;
+        z-index: -1;
+        animation: gradientShift 7s ease infinite;
+      }
+
+      .efb-pro-highlighted:hover {
+        transform: translateY(-12px) scale(1.08);
+        box-shadow: 0 25px 60px rgba(255, 193, 7, 0.3);
+      }
+
+      .efb-pro-badge {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #3F51B5, #2196F3);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+        border: 2px solid white;
+        z-index: 10;
+      }
+
+
+      .efb-card-content {
+        padding: 30px 25px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 450px;
+      }
+
+      .efb-recommended-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, #202a8d, #633a82);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .efb-plan-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+
+      .efb-plan-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #202a8d;
+        margin: 0;
+      }
+
+      .efb-plan-badge {
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .efb-badge-light {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+      }
+
+      .efb-badge-primary {
+        background: rgba(32, 42, 141, 0.1);
+        color: #202a8d;
+      }
+
+      .efb-badge-dark {
+        background: rgba(99, 58, 130, 0.1);
+        color: #633a82;
+      }
+
+      .efb-plan-description {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 25px;
+        flex-shrink: 0;
+        padding: 0;
+        margin: 0 0 30px 0;
+        flex-grow: 1;
+      }
+
+      .efb-feature-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .efb-feature-item i {
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+
+      .efb-feature-included {
+        color: #333;
+      }
+
+      .efb-feature-included i {
+        color: #28a745;
+      }
+
+      .efb-feature-locked {
+        color: #999;
+      }
+
+      .efb-feature-locked i {
+        color: #999;
+      }
+
+      .efb-feature-info {
+        color: #666;
+      }
+
+      .efb-feature-info i {
+        color: #17a2b8;
+      }
+
+      /* Plan Action Area */
+      .efb-plan-action {
+        margin-top: auto;
+        flex-shrink: 0;
+        padding-top: 20px;
+        width: 100%;
+      }
+
+      /* Buttons */
+      .efb-btn {
+        width: 100%;
+        padding: 15px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: 2px solid;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        display: block;
+        text-align: center;
+        box-sizing: border-box;
+      }
+
+      .efb-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(32, 42, 141, 0.2);
+      }
+
+      .efb-btn-primary {
+        background: linear-gradient(135deg, #202a8d 0%, #633a82 100%);
+        border-color: #202a8d;
+        color: white;
+      }
+
+      .efb-btn-primary:hover {
+        background: linear-gradient(135deg, #1a2478 0%, #552d70 100%);
+        color: white;
+      }
+
+      .efb-btn-outline {
+        background: transparent;
+        border-color: rgba(32, 42, 141, 0.3);
+        color: #202a8d;
+      }
+
+      .efb-btn-outline:hover {
+        background: linear-gradient(135deg, #202a8d 0%, #633a82 100%);
+        color: white;
+        border-color: #202a8d;
+      }
+
+      .efb-btn-dark {
+        background: transparent;
+        border-color: rgba(99, 58, 130, 0.4);
+        color: #633a82;
+      }
+
+      .efb-btn-dark:hover {
+        background: linear-gradient(135deg, #633a82 0%, #202a8d 100%);
+        color: white;
+        border-color: #633a82;
+      }
+
+      .efb-btn-link {
+        background: transparent;
+        border: none;
+        color: #6c757d;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+
+      .efb-btn-link:hover {
+        color: #202a8d;
+        transform: none;
+        box-shadow: none;
+        text-decoration: underline;
+      }
+
+      .efb-btn-dark:hover {
+        background: linear-gradient(135deg, #633a82 0%, #202a8d 100%);
+        color: white;
+        border-color: #633a82;
+      }
+
+      .efb-btn-link {
+        background: transparent;
+        border: none;
+        color: #6c757d;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+
+      .efb-btn-link:hover {
+        color: #202a8d;
+        transform: none;
+        box-shadow: none;
+        text-decoration: underline;
+      }
+
+      /* Footer */
+      .efb-setup-footer {
+        border-top: 1px solid rgba(32, 42, 141, 0.1);
+        padding-top: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .efb-footer-info {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        flex: 1;
+      }
+
+      .efb-footer-info i {
+        color: #202a8d;
+        margin-top: 3px;
+        flex-shrink: 0;
+      }
+
+      .efb-footer-info p {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .efb-setup-container {
+          padding: 20px 15px;
+        }
+
+        .efb-plans-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+          margin-bottom: 30px;
+        }
+
+        .efb-main-title {
+          font-size: 1.8rem;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .efb-main-title i {
+          font-size: 1.6rem;
+        }
+
+        .efb-subtitle {
+          font-size: 1rem;
+        }
+
+        .efb-card-content {
+          padding: 25px 20px;
+        }
+
+        .efb-plan-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .efb-setup-footer {
+          flex-direction: column;
+          text-align: center;
+          gap: 15px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .efb-setup-container {
+          padding: 15px 10px;
+        }
+
+        .efb-plans-grid {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+
+        .efb-main-title {
+          font-size: 1.5rem;
+        }
+
+        .efb-card-content {
+          padding: 20px 15px;
+        }
+
+        .efb-btn {
+          padding: 12px 15px;
+          font-size: 0.85rem;
+        }
+      }
+
+
+      .badge {
+        font-size: 0.7rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .badge.bg-primary {
+        background: linear-gradient(135deg, #202a8d 0%, #633a82 100%) !important;
+      }
+
+      .badge.text-bg-primary-subtle {
+        background: rgba(32, 42, 141, 0.1) !important;
+        color: #202a8d !important;
+      }
+
+      .badge.text-bg-light {
+        background: rgba(162, 176, 213, 0.2) !important;
+        color: #633a82 !important;
+      }
+
+      .badge.text-bg-dark {
+        background: linear-gradient(135deg, #633a82 0%, #202a8d 100%) !important;
+        color: white !important;
+      }
+
+      /* Change cursor to pointer for text elements */
+      .efb p, .efb span, .efb h1, .efb h2, .efb h3, .efb h4, .efb h5, .efb h6, .efb li, .efb .text-muted, .efb .badge, .efb .modal-title, .efb .lead {
+        cursor: pointer;
+      }
+
+      /* Prevent text selection for better UX */
+      .efb .modal-title, .efb .badge, .efb .card-body h6 {
+        user-select: none;
+      }
+
+      /* Selectable card styles */
+      .efb-selectable-card {
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+      }
+
+      .efb-selectable-card:hover {
+        transform: translateY(-10px) scale(1.03);
+        box-shadow: 0 25px 50px rgba(32, 42, 141, 0.2);
+      }
+
+      .efb-selectable-card.selected {
+        border: 3px solid #202a8d !important;
+        box-shadow: 0 20px 40px rgba(32, 42, 141, 0.3) !important;
+        transform: translateY(-8px) scale(1.02);
+        background: rgba(32, 42, 141, 0.02) !important;
+      }
+
+      .efb-selectable-card.selected::after {
+        content: '✓';
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: linear-gradient(135deg, #202a8d 0%, #633a82 100%);
+        color: white;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 16px;
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(32, 42, 141, 0.3);
+      }
+
+      .efb-selectable-card.selected .efb-plan-btn {
+        background: linear-gradient(135deg, #202a8d 0%, #633a82 100%) !important;
+        border-color: #202a8d !important;
+        color: white !important;
+        box-shadow: 0 6px 20px rgba(32, 42, 141, 0.3);
+      }
+
+      /* Icons styling */
+      .bi-heart-fill {
+        color: #633a82 !important;
+      }
+
+      .bi-check-circle-fill {
+        color: #28a745 !important;
+      }
+
+      .bi-lock-fill {
+        color: #898aa9 !important;
+      }
+
+      .bi-info-circle-fill, .bi-info-circle {
+        color: #202a8d !important;
+      }
+
+      /* Text colors */
+      .text-muted {
+        color: #898aa9 !important;
+      }
+
+      .text-primary {
+        color: #202a8d !important;
+      }
+
+      /* Notification styles */
+      .efb-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        padding: 18px 24px;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(32, 42, 141, 0.15);
+        background: white;
+        border: 1px solid rgba(32, 42, 141, 0.1);
+        border-left: 4px solid #28a745;
+        animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .efb-notification-success {
+        border-left-color: #28a745;
+      }
+
+      .efb-notification-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .efb-notification-content i {
+        color: #28a745;
+        font-size: 18px;
+      }
+
+      /* Enhanced modal header */
+      .modal-header {
+        background: linear-gradient(135deg, rgba(32, 42, 141, 0.03) 0%, rgba(99, 58, 130, 0.05) 100%);
+        border-bottom: 1px solid rgba(32, 42, 141, 0.1);
+        border-radius: 1.25rem 1.25rem 0 0;
+      }
+
+      .modal-title {
+        color: #202a8d !important;
+        font-weight: 700;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%) scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0) scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .card {
+        animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+      }
+
+      .card:nth-child(1) { animation-delay: 0.1s; }
+      .card:nth-child(2) { animation-delay: 0.2s; }
+      .card:nth-child(3) { animation-delay: 0.3s; }
+
+      /* Premium Button Styling */
+      .efb-btn-premium {
+        background: linear-gradient(135deg, #3F51B5 0%, #2196F3 100%);
+        border: 2px solid #2196F3;
+        color: #f0f0f0;
+        font-weight: 700;
+        text-shadow: none;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .efb-btn-premium:hover {
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        border-color: #1976D2;
+        color: white;
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(33, 150, 243, 0.4);
+      }
+
+      .efb-btn-premium::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s;
+      }
+
+      .efb-btn-premium:hover::before {
+        left: 100%;
+      }
+
+      /* Pro Box Animations */
+      @keyframes proGlow {
+        0% {
+          box-shadow: 0 15px 40px rgba(63, 81, 181, 0.2);
+        }
+        100% {
+          box-shadow: 0 15px 40px rgba(63, 81, 181, 0.4), 0 0 30px rgba(33, 150, 243, 0.3);
+        }
+      }
+
+      @keyframes gradientShift {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      /* Selected Plan Styling */
+      .efb-plan-selected {
+        border: 3px solid #28a745 !important;
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(40, 167, 69, 0.08) 100%) !important;
+        box-shadow: 0 15px 40px rgba(40, 167, 69, 0.2) !important;
+        position: relative;
+      }
+
+      .efb-plan-selected::after {
+        content: '';
+        position: absolute;
+        top: -3px;
+        left: -3px;
+        right: -3px;
+        bottom: -3px;
+        background: linear-gradient(45deg, #28a745, #20c997, #28a745);
+        background-size: 300% 300%;
+        border-radius: 1.2rem;
+        z-index: -1;
+        animation: selectedGlow 2s ease infinite;
+      }
+
+      .efb-plan-checkmark {
+        margin-top: 15px;
+        padding: 10px 15px;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .efb-plan-checkmark i {
+        font-size: 1.1rem;
+      }
+
+      @keyframes selectedGlow {
+        0%, 100% {
+          background-position: 0% 50%;
+          opacity: 0.7;
+        }
+        50% {
+          background-position: 100% 50%;
+          opacity: 1;
+        }
+      }
+    </style>
+    `;
+
+    return body;
+
+}
+
+/**
+ * Handle setup modal actions based on selected plan
+ * @param {string} plan - The selected plan: 'free', 'free_plus', 'pro', or 'later'
+ */
+function handle_setup_modal_action(plan) {
+    console.log('Setup modal action:', plan);
+
+    try {
+        // Handle different plan selections
+        switch(plan) {
+            case 'free':
+                console.log('User selected Free plan');
+                // ذخیره‌سازی در localStorage
+                savePlanSelection_efb('free', {
+                    plan_name: 'Free Plan',
+                    features: ['core_form_fields', 'email_notifications'],
+                    selected_at: Date.now()
+                });
+                // تنظیم پیکربندی طرح رایگان
+                setupFreePlan_efb();
+                show_success_notification_efb(efb_var.text.startWithFree + ' ' + efb_var.text.selected);
+                closeSetupOverlay_efb();
+                break;
+
+            case 'free_plus':
+                console.log('User selected Free Plus plan');
+                // ذخیره‌سازی در localStorage
+                savePlanSelection_efb('free_plus', {
+                    plan_name: 'Free Plus Plan',
+                    features: ['core_form_fields', 'advanced_form_fields', 'email_notifications', 'built_in_features'],
+                    show_credit: true,
+                    selected_at: Date.now()
+                });
+                // فعال‌سازی ویژگی‌های پیشرفته با کردیت
+                enable_advanced_features_with_credit_efb();
+                show_success_notification_efb(efb_var.text.freePlus + ' ' + efb_var.text.selected);
+                closeSetupOverlay_efb();
+                break;
+
+            case 'pro':
+                console.log('User selected Pro plan');
+                // ذخیره‌سازی انتخاب Pro در localStorage
+                savePlanSelection_efb('pro', {
+                    plan_name: 'Pro Plan',
+                    features: ['all_features', 'no_credit', 'premium_support'],
+                    selected_at: Date.now()
+                });
+                // هدایت به صفحه خرید Pro
+                redirectToProUpgrade_efb();
+                break;
+
+            case 'later':
+                console.log('User chose "Maybe later"');
+                // ذخیره‌سازی یادآوری
+                localStorage.setItem('efb_setup_reminder', JSON.stringify({
+                    remind_at: Date.now() + (7 * 24 * 60 * 60 * 1000), // 1 هفته بعد
+                    skipped_at: Date.now()
+                }));
+                show_info_notification_efb(efb_var.text.setupReminder || 'You can access setup from plugin settings anytime.');
+                closeSetupOverlay_efb();
+                break;
+
+            default:
+                console.warn('Unknown plan selected:', plan);
+                break;
+        }
+
+        // Update UI based on selection
+        update_ui_based_on_plan_efb(plan);
+
+        // Send analytics event (if analytics is enabled)
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'plan_selected', {
+                'event_category': 'easy_form_builder',
+                'event_label': plan,
+                'value': 1
+            });
+        }
+
+    } catch (error) {
+        console.error('Error handling setup modal action:', error);
+        show_error_notification_efb('An error occurred. Please try again.');
+    }
+}
+
+/**
+ * Enable advanced features with credit line for Free Plus plan
+ */
+function enable_advanced_features_with_credit_efb() {
+    console.log('Enabling advanced features with credit line...');
+    // Enable advanced form fields
+    // Enable conditional logic
+    // Enable file uploads
+    // Add "Powered by Easy Form Builder" credit
+
+    // You can add specific feature enablement logic here
+    if (typeof efb_var !== 'undefined') {
+        efb_var.advanced_features = true;
+        efb_var.show_credit = true;
+    }
+}
+
+/**
+ * ذخیره‌سازی انتخاب plan در localStorage
+ * @param {string} plan - نام plan انتخاب شده
+ * @param {object} planData - اطلاعات تکمیلی plan
+ */
+function savePlanSelection_efb(plan, planData) {
+    try {
+        const selectionData = {
+            selected_plan: plan,
+            plan_data: planData,
+            timestamp: Date.now()
+        };
+        localStorage.setItem('efb_selected_plan', JSON.stringify(selectionData));
+        console.log('Plan selection saved:', selectionData);
+
+        // ارسال به AJAX برای ذخیره در دیتابیس (برای آینده)
+        // sendPlanSelectionToServer_efb(selectionData);
+
+    } catch (error) {
+        console.error('Error saving plan selection:', error);
+    }
+}
+
+/**
+ * دریافت انتخاب قبلی کاربر از localStorage
+ * @returns {object|null} اطلاعات plan انتخاب شده
+ */
+function getSelectedPlan_efb() {
+    try {
+        const savedPlan = localStorage.getItem('efb_selected_plan');
+        return savedPlan ? JSON.parse(savedPlan) : null;
+    } catch (error) {
+        console.error('Error getting selected plan:', error);
+        return null;
+    }
+}
+
+/**
+ * نمایش plan انتخاب شده در overlay
+ */
+function highlightSelectedPlan_efb() {
+    const selectedPlanData = getSelectedPlan_efb();
+    if (!selectedPlanData) return;
+
+    const selectedPlan = selectedPlanData.selected_plan;
+    console.log('Highlighting previously selected plan:', selectedPlan);
+
+    // پیدا کردن card مربوط به plan انتخاب شده
+    const planCards = document.querySelectorAll('.efb-plan-card');
+    planCards.forEach((card, index) => {
+        const isSelected = (
+            (selectedPlan === 'free' && index === 0) ||
+            (selectedPlan === 'free_plus' && index === 1) ||
+            (selectedPlan === 'pro' && index === 2)
+        );
+
+        if (isSelected) {
+            card.classList.add('efb-plan-selected');
+            // اضافه کردن علامت انتخاب
+            const checkmark = document.createElement('div');
+            checkmark.className = 'efb-plan-checkmark';
+            checkmark.innerHTML = '<i class="bi bi-check-circle-fill"></i> انتخاب شده';
+            card.querySelector('.efb-card-content').appendChild(checkmark);
+        }
+    });
+}
+
+/**
+ * تنظیم طرح رایگان
+ */
+function setupFreePlan_efb() {
+    console.log('Setting up Free Plan...');
+    // تنظیمات طرح رایگان
+    if (typeof efb_var !== 'undefined') {
+        efb_var.current_plan = 'free';
+        efb_var.advanced_features = false;
+        efb_var.show_credit = false;
+    }
+}
+
+/**
+ * هدایت به صفحه خرید Pro
+ */
+function redirectToProUpgrade_efb() {
+    console.log('Redirecting to Pro upgrade page...');
+    // URL سایت فروش Pro
+    const proUrl = 'https://your-website.com/pro-upgrade';
+
+    // نمایش پیام تأیید قبل از هدایت
+    if (confirm('شما به صفحه خرید نسخه Pro هدایت خواهید شد. آیا مطمئن هستید؟')) {
+        window.open(proUrl, '_blank');
+    }
+    closeSetupOverlay();
+}
+
+/**
+ * ارسال انتخاب plan به سرور (برای آینده)
+ * @param {object} selectionData - اطلاعات انتخاب
+ */
+function sendPlanSelectionToServer_efb(selectionData) {
+    // این تابع برای ارسال AJAX به سرور آماده است
+    /*
+    jQuery.ajax({
+        url: efb_var.ajax_url,
+        type: 'POST',
+        data: {
+            action: 'efb_save_plan_selection',
+            plan_data: selectionData,
+            nonce: efb_var.nonce
+        },
+        success: function(response) {
+            console.log('Plan selection saved to server:', response);
+        },
+        error: function(error) {
+            console.error('Error saving plan to server:', error);
+        }
+    });
+    */
+    console.log('Server sync ready for:', selectionData);
+}
+
+/**
+ * Update UI based on selected plan
+ * @param {string} plan - Selected plan
+ */
+function update_ui_based_on_plan_efb(plan) {
+    console.log('Updating UI for plan:', plan);
+
+    // Update navigation or admin interface based on plan
+    const planElement = document.querySelector('.efb-current-plan');
+    if (planElement) {
+        planElement.textContent = plan.replace('_', ' ').toUpperCase();
+    }
+
+    // Show/hide features based on plan
+    const advancedFeatures = document.querySelectorAll('.efb-advanced-feature');
+    if (plan === 'free') {
+        advancedFeatures.forEach(el => el.style.display = 'none');
+    } else {
+        advancedFeatures.forEach(el => el.style.display = 'block');
+    }
+}
+
+/**
+ * Show success notification
+ * @param {string} message - Success message
+ */
+function show_success_notification_efb(message) {
+    // Create and show success notification
+    const notification = document.createElement('div');
+    notification.className = 'efb-notification efb-notification-success';
+    notification.innerHTML = `
+        <div class="efb-notification-content">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>${message}</span>
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+/**
+ * Show info notification
+ * @param {string} message - Info message
+ */
+function show_info_notification_efb(message) {
+    console.log('Info:', message);
+    // You can implement a toast/notification system here
+}
+
+/**
+ * Show error notification
+ * @param {string} message - Error message
+ */
+function show_error_notification_efb(message) {
+    console.error('Error:', message);
+    // You can implement an error notification system here
+}
+
+/**
+ * Show setup as responsive overlay page
+ */
+function showSetupAsOverlayPage() {
+    // Get the setup content
+    const setupContent = show_setting_up_easy_form_builder_Efb();
+
+    // Create overlay page
+    const overlayPage = document.createElement('div');
+    overlayPage.id = 'efb-setup-overlay';
+    overlayPage.className = 'efb-setup-overlay';
+
+    overlayPage.innerHTML = `
+        <div class="efb-overlay-container packages">
+            <div class="efb-overlay-content">
+                ${setupContent}
+            </div>
+            <button class="efb-overlay-close" onclick="closeSetupOverlay_efb()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <style>
+        .efb-setup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            animation: overlayFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .efb-overlay-container {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 80px rgba(32, 42, 141, 0.25);
+            max-width: 1200px;
+            width: 100%;
+            max-height: none;
+            overflow: visible;
+            position: relative;
+            border: 2px solid rgba(32, 42, 141, 0.1);
+            animation: overlaySlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .efb-overlay-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #633a82;
+            font-size: 1.2rem;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .efb-overlay-close:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+            color: #202a8d;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .efb-overlay-content {
+            padding: 0;
+            width: 100%;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .efb-setup-overlay {
+                padding: 10px;
+            }
+
+            .efb-overlay-container {
+                max-height: none;
+                border-radius: 1rem;
+            }
+
+            .efb-overlay-close {
+                top: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .efb-setup-overlay {
+                padding: 5px;
+            }
+
+            .efb-overlay-close {
+                top: 10px;
+                right: 10px;
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animation keyframes */
+        @keyframes overlayFadeIn {
+            from {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+            to {
+                opacity: 1;
+                backdrop-filter: blur(10px);
+            }
+        }
+
+        @keyframes overlayFadeOut {
+            from {
+                opacity: 1;
+                backdrop-filter: blur(10px);
+            }
+            to {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+        }
+        </style>
+    `;
+
+    // Add to document
+    document.body.appendChild(overlayPage);
+
+    // نمایش انتخاب قبلی کاربر
+    highlightSelectedPlan_efb();
+
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+
+    // Add escape key listener
+    document.addEventListener('keydown', handleOverlayEscape_efb);
+}
+
+/**
+ * Close setup overlay page
+ */
+function closeSetupOverlay_efb() {
+    const overlay = document.getElementById('efb-setup-overlay');
+    if (overlay) {
+        // Add fade out animation
+        overlay.style.animation = 'overlayFadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+
+        // Remove after animation
+        setTimeout(() => {
+            overlay.remove();
+            // Restore body scroll
+            document.body.style.overflow = '';
+            // Remove escape key listener
+            document.removeEventListener('keydown', handleOverlayEscape);
+        }, 300);
+    }
+}
+
+/**
+ * Handle escape key for overlay
+ */
+function handleOverlayEscape_efb(event) {
+    if (event.key === 'Escape') {
+        closeSetupOverlay_efb();
+    }
+}
+
+
+
+// Show setup overlay page when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if we're on the form builder page and setup should be shown
+
+
+    // Check if this is first time or setup is needed
+    const shouldShowSetup = () => {
+      // Show if never shown before, or if explicitly requested
+
+      return true; // Always show for testing
+      const neverShown = !localStorage.getItem('efb_setup_modal_shown');
+      const forceShow = sessionStorage.getItem('efb_force_setup_modal') === 'true';
+      const isFormBuilder = document.getElementById('dropZoneEFB') !== null;
+
+      return (neverShown || forceShow) && isFormBuilder;
+    };
+
+    if (shouldShowSetup()) {
+      // Small delay to ensure all elements are loaded
+      setTimeout(() => {
+        try {
+          // Show setup as responsive overlay page
+          showSetupAsOverlayPage();
+
+          // Mark as shown
+          localStorage.setItem('efb_setup_modal_shown', 'true');
+          sessionStorage.removeItem('efb_force_setup_modal');
+
+          console.log('Setup overlay page displayed successfully');
+
+        } catch (error) {
+          console.error('Error displaying setup overlay page:', error);
+        }
+      }, 500); // 1.5 seconds delay to ensure everything is loaded
+    }
+
+});
+
+
+
+// Function to force setup modal on next page load
+function forceSetupModalOnNextLoad() {
+  sessionStorage.setItem('efb_force_setup_modal', 'true');
+}
+
+// Optional: Function to reset and show setup modal again (for testing)
+function resetSetupModal() {
+  localStorage.removeItem('efb_setup_modal_shown');
+  sessionStorage.setItem('efb_force_setup_modal', 'true');
+  location.reload(); // Reload page to trigger setup modal again
+}

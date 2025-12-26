@@ -3131,13 +3131,40 @@ public function check_nonce_permission_efb($request) {
 					$this->db = $wpdb;
 				}
 
-				$value=null;
+				// خواندن محتوای پیام از دیتابیس
 				$id = intval($id);
-				$valn =str_replace('\\', '', $value[0]->content);
-				$msg_obj = json_decode($valn,true);
-				$vv_="";
-				$lst = end($msg_obj);
-				$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+				error_log('Reading message content for ID: ' . $id . ' and track: ' . $track);
+
+				$table_msg = $this->db->prefix . "emsfb_msg_";
+				$sql = $this->db->prepare(
+					"SELECT content, track, form_id FROM `$table_msg` WHERE msg_id = %d AND track = %s LIMIT 1",
+					$id,
+					$track
+				);
+				$value = $this->db->get_results($sql);
+				error_log('Query result: ' . json_encode($value));
+
+				// بررسی وجود داده
+				if (empty($value) || !isset($value[0]) || !isset($value[0]->content)) {
+					error_log('Message content not found for ID: ' . $id);
+					$response = array('success' => false, 'm' => esc_html__('Not allowed to respond to this message.', 'easy-form-builder') . ' E400');
+					wp_send_json_success($response, 200);
+				}
+
+				$valn = str_replace('\\', '', $value[0]->content);
+				$msg_obj = json_decode($valn, true);
+				error_log('Decoded message object: ' . json_encode($msg_obj));
+
+				$vv_ = "";
+				// بررسی وجود آرایه قبل از استفاده از end()
+				if (empty($msg_obj) || !is_array($msg_obj)) {
+					error_log('Invalid message object format');
+					$lst = null;
+					$link_w = 'null';
+				} else {
+					$lst = end($msg_obj);
+					$link_w = (is_array($lst) && isset($lst['type']) && $lst['type'] == "w_link") ? $lst['value'] : 'null';
+				}
 				$table_name = $this->db->prefix . "emsfb_rsp_";
 				$read_s = $rsp_by=='admin' ? 1 :0;
 				$by=$this->lanText['guest'];
@@ -3153,7 +3180,7 @@ public function check_nonce_permission_efb($request) {
 
 				if (!$exists) {
 					wp_send_json_success(
-						array('success' => false, 'm' => esc_html__('Not allowed to respond to this message.', 'easy-form-builder')),
+						array('success' => false, 'm' => esc_html__('Not allowed to respond to this message.' . ' E500', 'easy-form-builder')),
 						200
 					);
 				}
@@ -3181,7 +3208,14 @@ public function check_nonce_permission_efb($request) {
 					'read_' => $read_s,
 					'date'=>wp_date('Y-m-d H:i:s'),
 				));
-				$track = $value[0]->track;
+				// استفاده ایمن از $value برای track و form_id
+				$track = isset($value[0]->track) ? $value[0]->track : null;
+				if (empty($track)) {
+					error_log('Track not found in message data');
+					$response = array('success' => false, 'm' => 'Track not found');
+					wp_send_json_success($response, 200);
+				}
+				
 				$table_name = $this->db->prefix . "emsfb_msg_";
 				$this->db->update($table_name,array('read_'=>$read_s), array('msg_id' => $id) );
 				$email_usr ="";
@@ -3190,7 +3224,13 @@ public function check_nonce_permission_efb($request) {
 					$by = $usr->user_nicename;
 					$email_usr = $usr->user_email;
 				}
-				$form_id = intval($value[0]->form_id);
+				
+				$form_id = isset($value[0]->form_id) ? intval($value[0]->form_id) : 0;
+				if (empty($form_id)) {
+					error_log('Form ID not found in message data');
+					$response = array('success' => false, 'm' => 'Form ID not found');
+					wp_send_json_success($response, 200);
+				}
 				$table_name = $this->db->prefix . "emsfb_form";
 				$vald = $this->db->get_results(
 					$this->db->prepare(

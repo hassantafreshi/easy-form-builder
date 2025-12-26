@@ -2038,6 +2038,24 @@
 				</circle>
 			</svg>';
 
+
+
+		$copyRight = $this->free_plus_efb_powered_by($texts);
+
+		// Generate the loading message with SVG animation
+		$loadingMessage = sprintf(
+			'<h2 class="efb fs-3 text-center">%s %s</h2><p class="efb fs-5">%s</p> %s',
+			$texts[0], // Accessing translation or variable for "Please wait" text
+			$svg,// SVG animation
+			$state == 1 ? '<p class="efb fs-5">' . $texts[1] . '</p>' : '',
+			$copyRight
+		);
+
+		return $loadingMessage;
+	}
+
+
+	function  free_plus_efb_powered_by($texts) {
 		// Powered by Easy Form Builder by white studio team
 		$text = esc_html__('Built with %sEasy Form Builder%s by %sWordPress form plugin%s by  whitestudio.team', 'easy-form-builder');
 		$text = sprintf($text, '<a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank">', '</a>', '<a href="https://whitestudio.team" target="_blank">', '</a>');
@@ -2045,7 +2063,6 @@
 		$efb = esc_html__('Easy Form Builder', 'easy-form-builder');
 		$wp_text = esc_html__('WordPress', 'easy-form-builder');
 		$fr = '<!-- efb copyRight -->';
-		$wr = $state == 1 ? '<p class="efb fs-5">' . $texts[1] . '</p>' : '';
 		error_log('state:'. get_locale());
 		error_log('strpos(get_locale(), en) :'.strpos(get_locale(), 'en') );
 		$s = '';
@@ -2059,11 +2076,7 @@
 				// Ensure the schema is hooked on the frontend (once)
 			$f = substr(get_locale(), 0, 2);
 			add_action('wp_head',  [$this, 'efb_output_schema_ld'], 20);
-			if (strpos(get_locale(), 'fa') === 0 || strpos(get_locale(), 'ar') === 0) {
-				$s = '<a href="https://easyformbuilder.ir" target="_blank">فرم ساز آسان</a>ساخته شده بوسیله<a href="https://fa.wordpress.org/plugins/easy-form-builder/" target="_blank">افزونه فرم ساز رایگان وردپرس</a>' . $fr;
-			} else if (strpos(get_locale(), 'en') !== 0) {
-				$s = '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank">'.$efb.' '. $wp_text.'</a>' . $fr;
-			}
+
 
 			$copyRight = '<div class="efb  d-md-block" id="copyrightEfb" style="font-size: 10px; text-align: center;">
 							<h2 class="efb fs-8" style="opacity: 0.7;">' . $s . '</h2>
@@ -2071,30 +2084,24 @@
 							  <h2 class="efb fs-8" style="opacity: 0.7;">' .
 								/* translators: %1$s: opening link tag to plugin page, %2$s: closing link tag, %3$s: opening link tag to developer website, %4$s: closing link tag */
 								sprintf(
-									esc_html__('This form was created with %1$sEasy Form Builder%2$s,%3$s a professional WordPress form builder plugin developed by %4$sWhiteStudio Team%5$s.', 'easy-form-builder'),
-									'<a href="https://wordpress.org/plugins/easy-form-builder/" title="' . esc_attr__('Easy Form Builder WordPress Plugin', 'easy-form-builder') . '" rel="noopener">',
+									esc_html__('Powered by %1$sEasy Form Builder%2$s . %3$sWhiteStudio.team%4$s.', 'easy-form-builder'),
+									'<a href="https://wordpress.org/plugins/easy-form-builder/" title="' . esc_attr__('Easy Form Builder WordPress Plugin', 'easy-form-builder') . '" rel="sponsored noopener">',
 									'</a>',
-									'<br>',
-									'<a href="https://whitestudio.team" rel="noopener">',
+									'<a href="https://whitestudio.team" rel="sponsored noopener">',
 									'</a>'
 								) .
 							  '</h2>
 							</aside>
 						</div>';
+
+			if (strpos(get_locale(), 'fa') === 0 || strpos(get_locale(), 'ar') === 0) {
+				$copyRight .= '<a href="https://easyformbuilder.ir" target="_blank" rel="sponsored noopener">فرم ساز آسان</a>ساخته شده بوسیله<a href="https://fa.wordpress.org/plugins/easy-form-builder/" target="_blank">افزونه فرم ساز رایگان وردپرس</a>' . $fr;
+			} else if (strpos(get_locale(), 'en') !== 0) {
+				$copyRight .= '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank" rel="sponsored noopener">'.$efb.' '. $wp_text.'</a>' . $fr;
+			}
+			return $copyRight;
 		}
-
-
-
-		// Generate the loading message with SVG animation
-		$loadingMessage = sprintf(
-			'<h2 class="efb fs-3 text-center">%s %s</h2><p class="efb fs-5">%s</p> %s',
-			$texts[0], // Accessing translation or variable for "Please wait" text
-			$svg,// SVG animation
-			$wr,
-			$copyRight
-		);
-
-		return $loadingMessage;
+		return '<!--efb-->';
 	}
 
 
