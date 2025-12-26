@@ -65,5 +65,33 @@ require 'includes/class-Emsfb.php';
 /** Main instance of plugin */
 $emsfb = new Emsfb();
 
-/* require_once 'includes/class-Emsfb-requirement.php';
-register_activation_hook(__FILE__, ['CheckRequirementEmsfb', 'run_and_save_efb']); */
+/**
+ * Global function for Easy Form Builder settings access
+ * Simple and fast direct call to static method
+ */
+if (!function_exists('get_setting_Emsfb')) {
+    /**
+     * Get Easy Form Builder settings globally
+     * @param string $mode Return mode: 'decoded', 'pub', 'raw'
+     * @return mixed Settings data
+     */
+    function get_setting_Emsfb($mode = 'decoded') {
+        return Emsfb::get_setting_Emsfb($mode);
+    }
+
+    /**
+     * Global function get_efbFunction
+     * Simple and fast direct call to instance method
+     */
+    if (!function_exists('get_efbFunction')) {
+            /**
+             * Get instance of EfbFunction class globally
+             * @return EfbFunction Instance of EfbFunction
+             */
+            function get_efbFunction() {
+                return Emsfb::get_efbFunction();
+            }
+    }
+}
+
+

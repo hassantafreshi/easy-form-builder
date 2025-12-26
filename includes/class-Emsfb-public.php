@@ -30,8 +30,8 @@ class _Public {
 		$this->pro_efb =false;
 		add_action('rest_api_init',  @function(){
 			$this->efb_uid  = get_current_user_id();
-			$this->get_efbFunction(0);
-			$settings = \Emsfb::get_setting_Emsfb('raw');
+			$this->efbFunction = get_efbFunction();
+			$settings = get_setting_Emsfb('raw');
 			register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
 				'method'=> 'POST',
 				'callback'=>  [$this,'test_fun'],
@@ -109,7 +109,7 @@ class _Public {
 		add_action('wp_ajax_efb_process_background', [$this, 'process_background_task']);
 		add_action('wp_ajax_nopriv_efb_process_background', [$this, 'process_background_task']);
 
-		// Cron handler for background processing (بهتر و سریع‌تر)
+		// Cron handler for background processing (better and faster)
 		add_action('efb_process_background_cron', [$this, 'process_background_cron'], 10, 1);
 
 		// Elementor compatibility - only load if Elementor is active and not in admin
@@ -505,7 +505,7 @@ public function check_nonce_permission_efb($request) {
 			$is_track = null;
 			$state="form";
 			$rgister_captcha_url = false;
-			$this->get_efbFunction(0);
+			$this->efbFunction = get_efbFunction();
 			if(isset($_GET['track'])){
 				$state_form =  sanitize_text_field(wp_unslash($_GET['track']) );
 				$state="track";
@@ -646,7 +646,7 @@ public function check_nonce_permission_efb($request) {
 				wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,EMSFB_PLUGIN_VERSION );
 				wp_enqueue_style('Emsfb-bootstrap-select-css');
 			}
-			$rp= \Emsfb::get_setting_Emsfb('pub');
+			$rp= get_setting_Emsfb('pub');
 			$efb_m = "<p class='efb fs-7 text-center my-1'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</p> ";
 			if(gettype($rp)=="integer" && $rp==0){
 				$stng=$lanText['settingsNfound'];
@@ -693,7 +693,7 @@ public function check_nonce_permission_efb($request) {
 
 					$setting;
 					if($typeOfForm=="payment"){
-						$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
+						$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
 						$r = $this->setting;
 						if(gettype($r)=="string"){
 							$setting =str_replace('\\', '', $r);
@@ -950,7 +950,7 @@ public function check_nonce_permission_efb($request) {
 							// wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
 							//vendor\stripe\stripe_pay-efb.js
 							!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe") ? $this->efbFunction->download_all_addons_efb() : '';
-							wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),'3.8.1',true);
+							wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
 							wp_enqueue_script('stripe_js');
 							$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
 							$ar_core = array_merge($ar_core , array(
@@ -1132,11 +1132,11 @@ public function check_nonce_permission_efb($request) {
 		// if($this->id!=-1){return esc_html__('Easy Form Builder' , 'easy-form-builder');}
 
 		$this->id=0;
-		if($this->efbFunction===null) $this->get_efbFunction(0);
+		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$text=['pleaseEnterTheTracking','pleaseWaiting','fil','trackingCode','entrTrkngNo','search','easyFormBuilder','tfnapca'];
 		$text= $this->efbFunction->text_efb($text) ;
 		$state="tracker";
-		$pl= \Emsfb::get_setting_Emsfb('pub');
+		$pl= get_setting_Emsfb('pub');
 		$stng= $pl[0];
 		$s_m ='<!--efb-->';
 		if(gettype($stng)=="integer" && $stng==0){
@@ -1538,36 +1538,6 @@ public function check_nonce_permission_efb($request) {
 		exit;
 	}
 
-	/**
-	 * تست عملکرد background processing
-	 * این تابع برای تست صفحه test-background-efb.php استفاده می‌شود
-	 */
-	public function test_background_processing() {
-		// شبیه‌سازی یک درخواست فرم
-		$response = [
-			'message' => 'Response ارسال شد!',
-			'time' => current_time('mysql'),
-			'background_enabled' => function_exists('fastcgi_finish_request')
-		];
-
-		// ارسال response و ادامه در background
-		$background_enabled = $this->efb_send_json_and_continue($response, 200);
-
-		// عملیات background - این بعد از ارسال response انجام می‌شود
-		error_log('=== EFB Background Test Start ===');
-		error_log('Time: ' . current_time('mysql'));
-		error_log('Background enabled: ' . ($background_enabled ? 'Yes' : 'No'));
-
-		// شبیه‌سازی عملیات زمان‌بر (مثل ارسال ایمیل)
-		sleep(2);
-
-		error_log('Background task completed after 2 seconds');
-		error_log('=== EFB Background Test End ===');
-
-		// پایان script
-		exit;
-	}
-
 	  public function get_form_public_efb($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
 
@@ -1576,7 +1546,7 @@ public function check_nonce_permission_efb($request) {
 			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN'
 		];
-		$efbFunction = $this->get_efbFunction(1);
+		$efbFunction = get_efbFunction();
 		// if(empty($this->efbFunction)) $this->efbFunction = $efbFunction;
 		$sid = sanitize_text_field($data_POST['sid']);
 		$this->id = sanitize_text_field($data_POST['id']);
@@ -1597,7 +1567,7 @@ public function check_nonce_permission_efb($request) {
 		$to_list_admin = [];
 		// Use cache for settings
 		if (false === ($setting = wp_cache_get('emsfb_settings' , 'emsfb'))) {
-			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : \Emsfb::get_setting_Emsfb('raw');
+			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
 			$setting = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
 			wp_cache_set('emsfb_settings', $setting , 'emsfb');
 		}
@@ -2352,8 +2322,8 @@ public function check_nonce_permission_efb($request) {
 								$response = ['success' => true, 'm' => $rePage];
 							}
 
-						// ارسال response و ادامه background processing
-					 	 $this->efb_send_json_and_continue($response, 200);
+							// Send response and continue background processing
+							$this->efb_send_json_and_continue($response, 200);
 
 						// Background: SMS
 						if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
@@ -2719,7 +2689,7 @@ public function check_nonce_permission_efb($request) {
 	  public function get_track_public_api($data_POST_) {
 		// error_log('get_track_public_api');
 		$data_POST = $data_POST_->get_json_params();
-		$this->get_efbFunction(0);
+		$this->efbFunction = get_efbFunction();
 		$text_ = ['spprt','sxnlex','error403','errorMRobot','enterVValue','guest','cCodeNFound'];
 		$lanText= $this->efbFunction->text_efb($text_);
 /* 		$sid = sanitize_text_field($data_POST['sid']);
@@ -2735,7 +2705,7 @@ public function check_nonce_permission_efb($request) {
 		$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
 		$captcha_success =[];
 		$not_captcha=true;
-		$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : \Emsfb::get_setting_Emsfb('raw');
+		$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
 		$setting = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
 		if(gettype($this->setting)=="string"){
 			$r=str_replace('\\', '', $this->setting);
@@ -2884,7 +2854,7 @@ public function check_nonce_permission_efb($request) {
 			die();
 		}
 		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
-		if($this->efbFunction===null) $this->get_efbFunction(0);
+		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
 		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
@@ -2914,7 +2884,7 @@ public function check_nonce_permission_efb($request) {
 		}
 	}// end function
 	public function file_upload_api(){
-		if($this->efbFunction===null) $this->get_efbFunction(0);
+		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$_POST['id']=intval( wp_unslash( $_POST['id'] ) );
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $fid=intval( wp_unslash( $_POST['fid'] ) );
@@ -3033,7 +3003,7 @@ public function check_nonce_permission_efb($request) {
 		$data_POST = $data_POST_->get_json_params();
 		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
         'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
-		if($this->efbFunction===null) $this->get_efbFunction(0);
+		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :  'guest';
 		error_log('user_type: ' . $rsp_by);
@@ -3065,7 +3035,7 @@ public function check_nonce_permission_efb($request) {
 		}
 		$cache_plugins = get_option('emsfb_cache_plugins');
 		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id ,$cache_plugins);
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: \Emsfb::get_setting_Emsfb('raw');
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: get_setting_Emsfb('raw');
 
 		if(gettype($r)=="string"){
 			$r =str_replace('\\', '', $r);
@@ -3316,7 +3286,7 @@ public function check_nonce_permission_efb($request) {
 	public function get_autofilled_list_efb($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
 		$fid = sanitize_text_field($data_POST['id']);
-		if($this->efbFunction===null) $this->get_efbFunction(0);
+		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 /* 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid); */
 		$page_id = sanitize_text_field($data_POST['page_id']);
@@ -3345,7 +3315,7 @@ public function check_nonce_permission_efb($request) {
 		$message = ['',''];
 		// محاسبه زمان قبل از ایجاد محتوای ایمیل
 		$micr = microtime(true);
-		if($this->efbFunction===null) $this->get_efbFunction(0);
+		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 
     // ایجاد الگوی پیام پیش‌فرض
     $default_message = "<h2>%s</h2><div style='text-align:center'><a href='%s' target='_blank' style='padding:5px;color:white;background:black;'>%s</a></div>";
@@ -3456,7 +3426,7 @@ public function check_nonce_permission_efb($request) {
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
 		$this->id =sanitize_text_field($data_POST['id']);
-		if($this->efbFunction===null) $this->get_efbFunction(0);
+		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 /* 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		if ($s_sid !=1){
@@ -3466,7 +3436,7 @@ public function check_nonce_permission_efb($request) {
 			$response = array( 'success' => false  , 'm'=>$m);
 			wp_send_json_success($response, 200);
 		} */
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
 		$Sk ='null';
 		if(gettype($r)=="string"){
 			$setting =str_replace('\\', '', $r);
@@ -3612,7 +3582,7 @@ public function check_nonce_permission_efb($request) {
 		$persiapay = new zarinPalEFB() ;
 		if(gettype($persiapay)=="object"){
 			error_log('pay_persia_sub_Emsfb_api called');
-			$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
+			$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
 			$persiapay->pay_persia_sub_Emsfb_api($data_POST_ ,$this);
 		}else{
 			error_log('pay_persia_sub_Emsfb_api error 406');
@@ -3624,8 +3594,8 @@ public function check_nonce_permission_efb($request) {
 
 
 		/* $data_POST = $data_POST_->get_json_params();
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
-		$efbFunction =  $this->get_efbFunction(1);
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
+		$efbFunction =  get_efbFunction();
 		$sid = sanitize_text_field($data_POST['sid']);
 		$this->id = sanitize_text_field($data_POST['id']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
@@ -3804,7 +3774,7 @@ public function check_nonce_permission_efb($request) {
             wp_send_json_success($response, 200);
             die("secure!");
         }
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
 		$Sk ='null';
 		if(gettype($r)=="string"){
 			$setting =str_replace('\\', '', $r);
@@ -4026,7 +3996,7 @@ function email_get_content_efb($content, $track){
 			$currency = (isset($content[0]['paymentcurrency'])) ? $content[0]['paymentcurrency'] : 'usd';
 
 			// دسترسی به متن‌ها
-			if($this->efbFunction===null) $this->get_efbFunction(0);
+			if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 			$lanText = $this->efbFunction->text_efb($text_);
 
 			// در صورت وجود amount مرتب‌سازی ملایم
@@ -4587,7 +4557,7 @@ function email_get_content_efb($content, $track){
 
 	public function comper_version_efb($v){
 		if(version_compare(EMSFB_PLUGIN_VERSION,$v)!=0 ){
-			$efbFunction =  $this->get_efbFunction(1) ;
+			$efbFunction =  get_efbFunction();
 			$efbFunction->setting_version_efb_update('null' ,$this->pro_efb);
 		}
 	}
@@ -4676,24 +4646,6 @@ function email_get_content_efb($content, $track){
 		}
 		return g($track , $this->setting->email_key);
 	}
-	   	public function get_efbFunction(int $state = 0): \Emsfb\efbFunction {
-			// کش درونِ همین ریکوئست
-			static $instance = null;
-
-			if ($instance instanceof \Emsfb\efbFunction) {
-				$this->efbFunction = $instance;
-				return $instance; // هیت سریع (≈0.05–0.2ms)
-			}
-
-			// اگر کلاس لود نشده، فقط هم‌اکنون لودش کن (بدون اتولود ناخواسته)
-			if (!class_exists('Emsfb\\efbFunction', false)) {
-				require_once EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
-			}
-
-			$instance = new \Emsfb\efbFunction();
-			$this->efbFunction = $instance;
-			return $instance;
-		}
 
 
 
@@ -4761,7 +4713,7 @@ function email_get_content_efb($content, $track){
 	public function fun_present_others_action_efb($state, $username, $sid,$fid){
 		// error_log('fun_present_others_action_efb');
 		// state 1:register 0:recovery
-		$this->get_efbFunction(0);
+		$this->efbFunction = get_efbFunction();
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
 		$texts =['sxnlex','uraatn'];
 		$lan =$this->efbFunction->text_efb($texts);
@@ -4963,7 +4915,7 @@ function email_get_content_efb($content, $track){
 		// error_log(json_encode($data));
 		$st = sanitize_text_field($data['st']);
 		$fid = sanitize_text_field($data['fid']);
-		$this->get_efbFunction(0);
+		$this->efbFunction = get_efbFunction();
 		$s_sid = $this->efbFunction->efb_code_validate_select($st, $fid);
 		// error_log('sid===>'.$s_sid);
 		if ($s_sid !=1){
@@ -5276,7 +5228,7 @@ function email_get_content_efb($content, $track){
 			return;
 		}
 
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  \Emsfb::get_setting_Emsfb('raw');
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
 		$Sk ='null';
 		if(gettype($r)=="string"){
 			$setting =str_replace('\\', '', $r);
@@ -5298,7 +5250,7 @@ function email_get_content_efb($content, $track){
 		// error_log("clientId: " . $clientId);
 		// error_log("secret: " . $secret);
 		if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")){
-			$efbFunction =  $this->get_efbFunction(1);
+			$efbFunction =  get_efbFunction();
 			$efbFunction->download_all_addons_efb();
 		}
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/class-Emsfb-paypal.php");

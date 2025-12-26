@@ -39,3 +39,6 @@ includes/admin/integrate-elementor.php
 docs/BACKGROUND-PROCESSING.md
 .gitignore
 .gitignore
+docs/TESTING-GUIDE.md
+includes/functions.php.backup_20251222_221754
+.gitignore

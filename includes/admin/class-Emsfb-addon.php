@@ -54,7 +54,7 @@ class Addon {
 		// wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
         wp_enqueue_script('whiteStudioAddone');
 
-		$efbFunction = $this->get_efbFunction();
+		$efbFunction = get_efbFunction();
 		$noti_pro = intval(get_option('Emsfb_pro' ,-1));
 		if ($noti_pro === 0  ){
 			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
@@ -91,7 +91,7 @@ class Addon {
 		$pro = $pro == 1 ? true : false;
 		$maps =false;
 
-		$ac= \Emsfb::get_setting_Emsfb('decoded');
+		$ac= get_setting_Emsfb('decoded');
 
 		if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){
 			$efbFunction->setting_version_efb_update($ac ,$pro);
@@ -147,34 +147,7 @@ class Addon {
 	{
 	}
 
-	/* public function add_form_structure(){
-		$efbFunction = $this->get_efbFunction();
-		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
-		$lang = $efbFunction->text_efb($creat);
-		$this->userId =get_current_user_id();
-		//  get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
-		$email = '';
-		if( empty($_POST['name']) || empty($_POST['value']) ){
-			$m =$lang['errorCheckInputs'];
-			$response = array( 'success' => false , "m"=>$m);
-			wp_send_json_success($response, 200);
-		}
-		if(isset($_POST['email']) ){$email =sanitize_email($_POST['email']);}
-		$this->id_ ="hid";
-		$this->name =  sanitize_text_field($_POST['name']);
-		$this->email =  $email;
-		$this->value = $_POST['value'];
-		$this->formtype =  sanitize_text_field($_POST['type']);
-		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
-			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']);
-			wp_send_json_success($response, 200);
-		}
-		$this->insert_db();
-		if($this->id_ !=0){
-			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_);
-		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}
-		wp_send_json_success($response, 200);
-	} */
+
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
 		if(empty($this->db)){
@@ -205,32 +178,5 @@ class Addon {
         }
         return  $s;
     }// end fun
-/* 	public function get_efbFunction(){
-		$efbFunctionInstance;
-        if (false === ($efbFunctionInstance = wp_cache_get('emsfb_FunctionInstance', 'emsfb'))) {
-            if (!class_exists('Emsfb\efbFunction')) {
-                require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
-            }
-            $efbFunctionInstance = new \Emsfb\efbFunction();
-            wp_cache_set('emsfb_FunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // 1 hour cache
-        }
-        return  $efbFunctionInstance;
-	} */
-	public function get_efbFunction(): \Emsfb\efbFunction {
-		// کش درونِ همین ریکوئست
-		static $instance = null;
-
-		if ($instance instanceof \Emsfb\efbFunction) {
-			return $instance; // هیت سریع (≈0.05–0.2ms)
-		}
-
-		// اگر کلاس لود نشده، فقط هم‌اکنون لودش کن (بدون اتولود ناخواسته)
-		if (!class_exists('Emsfb\\efbFunction', false)) {
-			require_once EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
-		}
-
-		$instance = new \Emsfb\efbFunction();
-		return $instance;
-	}
 }
 new Addon();

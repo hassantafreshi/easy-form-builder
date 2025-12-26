@@ -1179,8 +1179,59 @@ let state_el= document.getElementById(idField)
 /* maps function start */
 
 
+// Fallback function to load Leaflet dynamically
+function efbLoadLeafletFallback(callback) {
+  // Check if already loading
+  if (window.efbLeafletLoading) {
+    return;
+  }
+  window.efbLeafletLoading = true;
+
+  console.log('Attempting to load Leaflet dynamically...');
+
+  // Load CSS first
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css';
+  document.head.appendChild(link);
+
+  // Load JavaScript
+  var script = document.createElement('script');
+  script.src = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js';
+  script.onload = function() {
+    console.log('Leaflet loaded successfully via fallback');
+    window.efbLeafletLoading = false;
+    if (callback && typeof callback === 'function') {
+      setTimeout(callback, 100); // Small delay to ensure initialization
+    }
+  };
+  script.onerror = function() {
+    console.error('Failed to load Leaflet via fallback');
+    window.efbLeafletLoading = false;
+    // Show error message
+    let containers = document.querySelectorAll('[id$="-f"]');
+    containers.forEach(el => {
+      if (el) {
+        el.innerHTML = '<div style="padding: 20px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; margin: 10px 0;"><strong>Map Error:</strong> Cannot load map library. Please check your internet connection and refresh the page.</div>';
+      }
+    });
+  };
+  document.head.appendChild(script);
+}
+
 function efbCreateMap(id ,r ,viewState) {
   console.log('efbCreateMap',id ,r ,viewState ,Number(r.mark)>0 ,Number(r.mark))
+
+  // Check if Leaflet is loaded
+  if (typeof L === 'undefined') {
+    console.error('Leaflet library (L) is not loaded. Maps cannot be initialized.');
+    // Try to load Leaflet dynamically as fallback
+    efbLoadLeafletFallback(() => {
+      efbCreateMap(id, r, viewState); // Retry after loading
+    });
+    return;
+  }
+
   var efbInitialLat = viewState==true ? r.value=='' ? r.lat : r.value[0].lat : r.lat;
   var efbInitialLng = viewState==true ? r.value=='' ? r.lng : r.value[0].lng :r.lng;
   var efbInitialZoom = viewState==true ? 12 :r.zoom;

@@ -1,6 +1,4 @@
-<?php
-namespace Emsfb;
-
+﻿<?php
 /**
  * Class _Public
  * @package Emsfb
@@ -15,6 +13,10 @@ class efbFunction {
 
     // In-request cache container for language and other small memoizations
     protected static $req_cache = [];
+
+    // Cache for settings and language to avoid repeated calls
+    protected static $cached_settings = null;
+    protected static $cached_lang = null;
 
     /** invalidate caches when settings option changes */
     public function invalidate_settings_cache($old, $new, $option) {
@@ -75,9 +77,13 @@ class efbFunction {
 
 
 	public function text_efb($inp){
-        // === EFB full-caching prelude (i18n-aware, subset-safe) ===
-        $ac = \Emsfb::get_setting_Emsfb('decoded');
-        $efb_lang     = $this->detect_current_lang_slug();
+
+         if (static::$cached_settings === null) {
+            static::$cached_settings = get_setting_Emsfb();
+            static::$cached_lang = $this->detect_current_lang_slug();
+        }
+        $ac = static::$cached_settings;
+        $efb_lang = static::$cached_lang;
         $efb_needX    = ($inp === 1);
         $efb_ver      = $this->get_text_version($ac);
 
@@ -102,7 +108,7 @@ class efbFunction {
         }
         // === /prelude ===
 
-		$ac= \Emsfb::get_setting_Emsfb('decoded');
+		$ac= get_setting_Emsfb();
 		$state= $ac!=='null' && isset($ac->text) && gettype($ac->text)!='string' ? true : false ;
 		$s= 'easy-form-builder';
 		$lang = [
@@ -1081,7 +1087,7 @@ class efbFunction {
 		error_log('----->_email_state_new');
 		error_log('to: ' . json_encode($to));
 		$email_content_type = isset($state[2]) ? $state[2]  : 'traking_link' ;
-		// تنظیم نوع ایمیل به HTML
+		// Set email content type to HTML
 		add_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 
 		$mailResult = "n";
@@ -1278,7 +1284,7 @@ class efbFunction {
 		$align = is_rtl() ? 'right' : 'left';
 		$d = is_rtl() ? 'rtl' : 'ltr';
 
-		if ($st == 'null') $st = \Emsfb::get_setting_Emsfb('decoded');
+		if ($st == 'null') $st = get_setting_Emsfb();
 		if ($st == "null") return;
 
 
@@ -1443,7 +1449,7 @@ class efbFunction {
 				}
 			}
 
-			$settings = \Emsfb::get_setting_Emsfb('decoded');
+			$settings = get_setting_Emsfb();
 			error_log(json_encode($settings ));
 			$smtp = (isset($settings->smtp) && (bool)$settings->smtp ) ? true : false;
 			error_log('smtpe is exist=>'. $smtp . ' ' .$settings->smtp);
@@ -1469,7 +1475,7 @@ class efbFunction {
 		if(isset($data[0]['smsnoti']) && intval($data[0]['smsnoti'])==1){
 
 			$phone_numbers=[[],[]];
-			$setting = \Emsfb::get_setting_Emsfb('decoded');
+			$setting = get_setting_Emsfb();
 
 			// $numbers = isset($setting['phnNo']) ? explode(',',$setting['phnNo']) :[];
 			$numbers = isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5  ? explode(',',$setting->phnNo) :[];
@@ -1821,7 +1827,7 @@ public function addon_add_efb($value) {
 
 	public function download_all_addons_efb(){
 		$state=true;
-		$settings=\Emsfb::get_setting_Emsfb('decoded');
+		$settings=get_setting_Emsfb();
 		$addons['AdnSPF']	=	isset($settings->AdnSPF)	? $settings->AdnSPF	:0;
 		$addons['AdnATC']	=	isset($settings->AdnATC)	? $settings->AdnATC	:0;
 		$addons['AdnPPF']	=	isset($settings->AdnPPF)	? $settings->AdnPPF	:0;
@@ -2131,13 +2137,13 @@ public function addon_add_efb($value) {
 
 		$start_time = microtime(true);
 		if($st=='null'){
-			$st=\Emsfb::get_setting_Emsfb('decoded');
+			$st=get_setting_Emsfb();
 		}
 		$st->efb_version=EMSFB_PLUGIN_VERSION;
 		$st_ = json_encode($st,JSON_UNESCAPED_UNICODE);
 		// $table_name = $wpdb->prefix . "emsfb_setting";
         $setting = str_replace('"', '\"', $st_);
-		\Emsfb::set_setting_Emsfb($setting,$st->emailSupporter);
+		$this->set_setting_Emsfb($setting,$st->emailSupporter);
 		/* $email = $st->emailSupporter;
 		$wpdb->insert(
             $table_name,
@@ -2245,7 +2251,7 @@ public function addon_add_efb($value) {
 			$str .= 'Plugin URI: ' . $plugin_data['PluginURI'] . '<br>';
 			$str .= 'Version: ' . $plugin_data['Version'] . '<br><br>';
 		}
-		$settings = \Emsfb::get_setting_Emsfb('decoded');
+		$settings = get_setting_Emsfb('decoded');
 		if(isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
 		return true;
 	}
@@ -2298,7 +2304,7 @@ public function addon_add_efb($value) {
 		error_log('EFB=>send_email_noti_about_cache_plugins: ' . get_option('admin_email'));
 		$to = [];
 		$to[] = get_option('admin_email');
-		$settings = \Emsfb::get_setting_Emsfb('decoded');
+		$settings = get_setting_Emsfb('decoded');
 		if($settings->emailSupporter != null && $settings->emailSupporter != 'null' && $settings->emailSupporter != ''){
 			$to[] = $settings->emailSupporter;
 		}
@@ -2408,7 +2414,7 @@ public function addon_add_efb($value) {
 			update_option('emsfb_pro_activeCode', $activeCode);
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
 			update_option('emsfb_pro', 1);
-			$st = \Emsfb::get_setting_Emsfb('decoded');
+			$st = emsfb_get_settings();
 			$st->activeCode = $activeCode;
 			$this->setting_version_efb_update($st,1);
 			return true;
@@ -2479,7 +2485,7 @@ public function addon_add_efb($value) {
 				// if the activeCode is empty then check the activeCode in the setting
 				$st = get_option('emsfb_settings' , 'null');
 				if($st=='null'){
-					$st = \Emsfb::get_setting_Emsfb('decoded');
+					$st = get_setting_Emsfb();
 					$activeCode = $st->activeCode;
 
 				}else{
@@ -2837,7 +2843,7 @@ public function addon_add_efb($value) {
 		$subject = esc_html__('Easy Form Builder', 'easy-form-builder') . ':' . esc_html__('SID Validation Error', 'easy-form-builder') . ' - ' . get_bloginfo('name');
 		$to = [];
 		$to[] = get_option('admin_email');
-		$settings = \Emsfb::get_setting_Emsfb('decoded');
+		$settings = get_setting_Emsfb('decoded');
 		if($settings->emailSupporter != null && $settings->emailSupporter != 'null' && $settings->emailSupporter != ''){
 			$to[] = $settings->emailSupporter;
 		}
@@ -2849,7 +2855,7 @@ public function addon_add_efb($value) {
 	}
 
 	public function include_persia_efb(){
-		$st = \Emsfb::get_setting_Emsfb('decoded');
+		$st = get_setting_Emsfb('decoded');
 		//$st->AdnPPF=0;
 		if(isset($st->AdnPPF) && $st->AdnPPF==1){
 			error_log("persia_pay-efb.js loaded?");
@@ -3098,6 +3104,257 @@ public function addon_add_efb($value) {
 		}
 		return false;
 	}
+
+	/**
+	 * Smart notification dispatcher - only processes active notification types
+	 * @param string $form_type Form type: form, register, login, subscribe, survey
+	 * @param string $track_id Tracking ID for the submission
+	 * @param int $form_id Form ID
+	 * @param array $form_obj Form configuration object
+	 * @param array $form_values Submitted form values
+	 * @param object $public_instance Instance of Public class (only if needed)
+	 */
+	public function dispatch_notifications_efb($form_type, $track_id, $form_id, $form_obj = null, $form_values = null, $public_instance = null) {
+		$timing_start = microtime(true);
+		$notifications_sent = 0;
+
+		// Early validation
+		if (empty($track_id)) {
+			error_log('[EFB] Missing track_id for notifications');
+			return false;
+		}
+
+		// Get settings
+		$settings = get_setting_Emsfb('decoded');
+		if (!$settings) {
+			error_log('[EFB] Settings not available for notifications');
+			return false;
+		}
+
+		// Smart SMS Check and Send
+		if ($this->should_send_sms_efb($form_obj, $settings, $form_type)) {
+			$sms_result = $this->send_smart_sms_efb($form_type, $track_id, $form_id, $form_obj, $settings);
+			if ($sms_result) $notifications_sent++;
+		}
+
+		// Smart Email Check and Send
+		if ($this->should_send_email_efb($form_obj, $settings, $form_type)) {
+			$email_result = $this->send_smart_email_efb($form_type, $track_id, $form_id, $form_obj, $form_values, $public_instance, $settings);
+			if ($email_result) $notifications_sent++;
+		}
+
+		$timing_total = round((microtime(true) - $timing_start) * 1000, 2);
+		error_log(sprintf('[EFB Notifications] %s | Track: %s | Sent: %d | %sms', $form_type, substr($track_id, 0, 8), $notifications_sent, $timing_total));
+
+		return $notifications_sent > 0;
+	}
+
+	/**
+	 * Smart check for SMS notification
+	 */
+	private function should_send_sms_efb($form_obj, $settings, $form_type) {
+		// Check if SMS is globally enabled
+		if (!isset($settings->sms_config) || $settings->sms_config !== 'wpsms') {
+			return false;
+		}
+
+		// Check admin phone numbers
+		if (!isset($settings->phnNo) || strlen(trim($settings->phnNo)) < 5) {
+			return false;
+		}
+
+		// Form-specific checks
+		if ($form_obj && is_array($form_obj) && isset($form_obj[0])) {
+			// For normal forms, check SMS notification setting
+			if (isset($form_obj[0]['smsnoti']) && $form_obj[0]['smsnoti'] != 1) {
+				return false;
+			}
+		}
+
+		// Always allow for login/register (if globally enabled)
+		if (in_array($form_type, ['login', 'register'])) {
+			return true;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Smart check for Email notification
+	 */
+	private function should_send_email_efb($form_obj, $settings, $form_type) {
+		// Check if SMTP is enabled
+		if (!isset($settings->smtp) || !$settings->smtp) {
+			return false;
+		}
+
+		// Check email configuration
+		if (!isset($settings->emailSupporter) || strlen(trim($settings->emailSupporter)) < 5) {
+			return false;
+		}
+
+		// For login forms, usually no email is sent
+		if ($form_type === 'login') {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Smart SMS sender - only processes when needed
+	 */
+	private function send_smart_sms_efb($form_type, $track_id, $form_id, $form_obj, $settings) {
+		try {
+			$phone_numbers = [explode(',', trim($settings->phnNo)), []];
+			$sms_type = $this->get_sms_type_by_form_type_efb($form_type);
+			$page_url = isset($_POST['current_url']) ? sanitize_url($_POST['current_url']) : home_url();
+
+			$result = $this->sms_ready_for_send_efb(
+				$form_id,
+				$phone_numbers,
+				$page_url,
+				$sms_type,
+				'wpsms',
+				$track_id
+			);
+
+			if ($result === true) {
+				return true;
+			} else {
+				error_log('[EFB SMS] Send failed: ' . print_r($result, true));
+				return false;
+			}
+
+		} catch (Exception $e) {
+			error_log('[EFB SMS] Exception: ' . $e->getMessage());
+			return false;
+		}
+	}
+
+	/**
+	 * Smart Email sender - uses correct parameters and logic
+	 */
+	private function send_smart_email_efb($form_type, $track_id, $form_id, $form_obj, $form_values, $public_instance, $settings) {
+		try {
+			// Must have public instance for email
+			if (!$public_instance) {
+				error_log('[EFB Email] Public instance required');
+				return false;
+			}
+
+			// Prepare email data
+			$email_user = [];
+			$public_instance->email_list_efb($email_user, 0, $settings->emailSupporter, true);
+
+			// Get email configuration
+			$email_config = $this->get_email_config_by_type_efb($form_type, ['formObj' => $form_obj]);
+			$state_of_email = [$email_config['state_of_email']];
+
+			// Generate email status if we have form data
+			$status_email = null;
+			if ($form_obj && $form_values && is_array($form_obj) && is_array($form_values)) {
+				$status_email = $public_instance->email_status_efb($form_obj, $form_values, $track_id);
+			}
+
+			// Use the correct send_email_Emsfb_ signature
+			$result = $public_instance->send_email_Emsfb_(
+				$form_obj,           // formObj
+				$form_values,        // valobj
+				$settings->emailSupporter, // email_fa
+				$email_user,         // email_user
+				$status_email,       // status_email
+				$state_of_email,     // state_of_email
+				$track_id            // track_id
+			);
+
+			return true;
+
+		} catch (Exception $e) {
+			error_log('[EFB Email] Exception: ' . $e->getMessage());
+			return false;
+		}
+	}
+
+	/**
+	 * Determine SMS type based on form type
+	 */
+	public function get_sms_type_by_form_type_efb($type) {
+		$sms_types = [
+			'form' => 'fform',
+			'register' => 'register',
+			'login' => 'login',
+			'subscribe' => 'subscribe',
+			'survey' => 'survey'
+		];
+
+		return $sms_types[$type] ?? 'fform';
+	}
+
+	/**
+	 * Determine Email configuration based on form type
+	 */
+	public function get_email_config_by_type_efb($type, $data) {
+		switch ($type) {
+			case 'register':
+				return ['state_of_email' => 'regf'];
+
+			case 'login':
+				return ['state_of_email' => 'loginf'];
+
+			case 'subscribe':
+				return ['state_of_email' => 'subf'];
+
+			case 'survey':
+				return ['state_of_email' => 'survey'];
+
+			case 'form':
+			default:
+				$email_status_data = isset($data['formObj'][0]['emailStatus']) ? $data['formObj'][0]['emailStatus'] : 'auto';
+				return ['state_of_email' => $email_status_data];
+		}
+	}
+
+	public static function set_setting_Emsfb ($newSettings, $email = '')
+    {
+        error_log('type of newSettings: ' . gettype($newSettings));
+        if (empty($newSettings)) {
+            return false;
+        }
+
+        $json = '';
+        if(is_object($newSettings) || is_array($newSettings)){
+            $json = json_encode($newSettings, JSON_UNESCAPED_UNICODE);
+        }else{
+            $json = $newSettings;
+        }
+
+        error_log('EFB: New Settings JSON: ' . $json);
+        if ($json === false) {
+            return false;
+        }
+
+        // Save to database
+        global $wpdb;
+        $table_name = $wpdb->prefix . "emsfb_setting";
+        $wpdb->insert(
+            $table_name,
+            [
+            'setting' => $json,
+            'edit_by' => get_current_user_id(),
+            'date'    => wp_date('Y-m-d H:i:s'),
+            'email'   => $email
+        ],
+            ['%s', '%d', '%s', '%s']
+        );
+
+        error_log('EFB: Settings updated by user ' . get_current_user_id());
+        error_log('EFB: New Settings: ' . $json);
+        update_option('emsfb_settings', $json);
+        set_transient('emsfb_settings_transient', $json, 1800); // 30 minutes
+
+        return true;
+    }
 }
 
 

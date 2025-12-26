@@ -3932,29 +3932,14 @@ fun_efb_add_el = (t) => {
 
   if (t == 'maps') {
     const indx = valj_efb.findIndex(x => x.id_ == rndm);
-     //find a row from valj_efb by id_
-     if(!efb_var.setting.hasOwnProperty('osLocationPicker') || efb_var.setting.osLocationPicker==false){
-      //show noti alert message
-      const el = valj_efb[indx];
       setTimeout(() => {
-        //console.log('error messsage maps',el.id_);
-        document.getElementById(el.id_+'-f').innerHTML = `
-        <div class="efb border border-muted rounded-3 m-2 text-center efb p-3" id="${el.id_}_noCode">
-         <h6 class="efb text-darkb">${efb_var.text.aPIkeyGoogleMapsError}</h5>
-         <a class="mt-3 efb btn efb btn-outline-pink efb-btn-lg" onclick="Link_emsFormBuilder('oslp')">${efb_var.text.howToAddGoogleMap}</a>
-        </div>
-       `
-       }, 800);
-
-       return;
-
-     }else{
-       setTimeout(() => {
-        console.log(`mark[${valj_efb[indx].mark}]`)
-         efbCreateMap(rndm ,valj_efb[indx],false);
-       }, 800);
-     }
-
+        // Check if map function is available
+        if (typeof efbCreateMap === 'function') {
+          efbCreateMap(rndm ,valj_efb[indx],false);
+        } else {
+          console.error('efbCreateMap function not available. Map scripts may not be loaded.');
+        }
+      }, 800);
 
   }
   setTimeout(() => {

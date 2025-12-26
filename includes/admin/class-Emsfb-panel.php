@@ -29,10 +29,10 @@ class Panel_edit  {
 			'logoGif'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/efb-256.gif',
 			'plugin_url'=>EMSFB_PLUGIN_URL,
 			];
-			$efbFunction = $this->get_efbFunction();
+			$efbFunction = get_efbFunction();
 			$pro =$efbFunction->is_efb_pro(1);;
 			// $lng =new lng();
-			$ac = \Emsfb::get_setting_Emsfb('decoded');
+			$ac = get_setting_Emsfb('decoded');
 			$lang = $efbFunction->text_efb(2);
 			$smtp =false;
 			$captcha =false;
@@ -378,7 +378,7 @@ class Panel_edit  {
 				return;
 			}
 
-		$efbFunction = $this->get_efbFunction();
+		$efbFunction = get_efbFunction();
 		$_POST['id']= isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
         $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field( wp_unslash( $_POST['pl'] ) ) : '';
         $_POST['fid']= isset($_POST['fid']) ? sanitize_text_field( wp_unslash( $_POST['fid'] ) ) : '';
@@ -441,33 +441,4 @@ class Panel_edit  {
 			die('invalid file ' . esc_html( $file_type ));
 		}
 	}// end function
-
-
-/* 	public function get_efbFunction(){
-			$efbFunctionInstance;
-        if (false === ($efbFunctionInstance = wp_cache_get('emsfb_FunctionInstance', 'emsfb'))) {
-            if (!class_exists('Emsfb\efbFunction')) {
-                require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
-            }
-            $efbFunctionInstance = new \Emsfb\efbFunction();
-            wp_cache_set('emsfb_FunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // cache for 1 hour
-        }
-        return  $efbFunctionInstance;
-	} */
-	public function get_efbFunction(): \Emsfb\efbFunction {
-		// کش درونِ همین ریکوئست
-		static $instance = null;
-
-		if ($instance instanceof \Emsfb\efbFunction) {
-			return $instance; // هیت سریع (≈0.05–0.2ms)
-		}
-
-		// اگر کلاس لود نشده، فقط هم‌اکنون لودش کن (بدون اتولود ناخواسته)
-		if (!class_exists('Emsfb\\efbFunction', false)) {
-			require_once EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
-		}
-
-		$instance = new \Emsfb\efbFunction();
-		return $instance;
-	}
 }

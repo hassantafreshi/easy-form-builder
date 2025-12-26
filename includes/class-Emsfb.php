@@ -396,46 +396,45 @@ public static function email_send_efb() {
         return $result;
     }
 
-    public static function set_setting_Emsfb ($newSettings, $email = '')
-    {
-        error_log('type of newSettings: ' . gettype($newSettings));
-        if (empty($newSettings)) {
-            return false;
+
+    public static function get_efbFunction(): efbFunction {
+        // Thread-safe cache با unique key برای multisite
+        static $instances = [];
+        $cache_key = 'efb_function_' . (function_exists('get_current_blog_id') ? get_current_blog_id() : '1');
+
+        // بررسی کش موجود
+        if (isset($instances[$cache_key]) && $instances[$cache_key] instanceof efbFunction) {
+            return $instances[$cache_key];
         }
 
-        $json = '';
-        if(is_object($newSettings) || is_array($newSettings)){
-            $json = json_encode($newSettings, JSON_UNESCAPED_UNICODE);
-        }else{
-            $json = $newSettings;
+        // بررسی و لود کردن کلاس با error handling
+        try {
+            if (!class_exists('efbFunction', false)) {
+                $functions_file = EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
+                if (!is_readable($functions_file)) {
+                    throw new \Exception('Functions file not readable: ' . $functions_file);
+                }
+                require_once $functions_file;
+            }
+
+            // بررسی دوباره وجود کلاس بعد از require
+            if (!class_exists('efbFunction')) {
+                throw new \Exception('efbFunction class not found after require');
+            }
+
+            $instances[$cache_key] = new efbFunction();
+            return $instances[$cache_key];
+
+        } catch (\Exception $e) {
+            // Log error برای debugging
+            if (function_exists('error_log')) {
+                error_log('EFB get_efbFunction error: ' . $e->getMessage());
+            }
+
+            throw $e; // در صورت شکست کامل
         }
-
-        error_log('EFB: New Settings JSON: ' . $json);
-        if ($json === false) {
-            return false;
-        }
-
-        // Save to database
-        global $wpdb;
-        $table_name = $wpdb->prefix . "emsfb_setting";
-        $wpdb->insert(
-            $table_name,
-            [
-            'setting' => $json,
-            'edit_by' => get_current_user_id(),
-            'date'    => wp_date('Y-m-d H:i:s'),
-            'email'   => $email
-        ],
-            ['%s', '%d', '%s', '%s']
-        );
-
-        error_log('EFB: Settings updated by user ' . get_current_user_id());
-        error_log('EFB: New Settings: ' . $json);
-        update_option('emsfb_settings', $json);
-        set_transient('emsfb_settings_transient', $json, 1800); // 30 minutes
-
-        return true;
     }
+
 
     /**
      * Get addons list from settings
@@ -816,9 +815,6 @@ public static function email_send_efb() {
             }
         }
     }
-
-
-
 
 
 }

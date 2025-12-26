@@ -2225,6 +2225,7 @@
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$ui ='<!--efb ui-->';
 		$dataTag = '<!--efb dataTag-->';
+		$efbFunction = null;
 		$classes = isset($vj->el_border_color) ?  sprintf('form-control %s', $vj->el_border_color) : 'form-control' ;
 		$vtype = in_array($elementId ,['imgRadio','chlCheckBox','chlRadio','payMultiselect','paySelect','payRadio','payCheckbox','trmCheckbox']) ? strtolower(substr($elementId,3)) : $elementId;
 		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id,$texts);
@@ -2279,7 +2280,7 @@
 
 					if($isPdate){
 						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
-							$efbFunction = $this->get_efbFunction(1);
+							if($efbFunction === null)$efbFunction = get_efbFunction();
 							$efbFunction->download_all_addons_efb();
 							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 						}else{
@@ -2288,7 +2289,7 @@
 						}
 					}else{
 						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
-							$efbFunction = $this->get_efbFunction(1);
+							if($efbFunction === null)$efbFunction = get_efbFunction();
 							$efbFunction->download_all_addons_efb();
 							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 						}else{
@@ -2619,11 +2620,13 @@
 						$element_Id, $element_Id, // به‌روزرسانی عرض و طول در inputهای مخفی
 						$element_Id // شناسه تابع جاوااسکریپت برای بارگذاری نقشه
 					);
+					if($efbFunction === null)$efbFunction = get_efbFunction();
+					$efbFunction->openstreet_map_required_efb(0);
 					if ($pro!==true &&  $pro!==1) {
 						$ui = $this->public_pro_message_efb($texts['tfnapca']);
 					}
-					break;
 					$dataTag = "maps";
+					break;
 				break;
 			/* 	case 'switch':
 					// switch_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts)
@@ -2866,15 +2869,8 @@
 						break;
 					}
 
-					//wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
-					//easy-form-builder\vendor\persiapay\persia_pay-efb.js
-					/* wp_register_script('parsipay_js', EMSFB_PLUGIN_URL . 'public/assets/js/persia_pay-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
-					wp_enqueue_script('parsipay_js'); */
-					/*
-					include_persia_efb
-					 */
-					// $this->get_efbFunction(0);
-					$efbFunction = $this->get_efbFunction(1);
+
+					if($efbFunction === null)$efbFunction = get_efbFunction();
 					$efbFunction->include_persia_efb();
 
 					$ui = $this->add_ui_zp_efb($rndm , $form_id,$texts);
@@ -3146,21 +3142,6 @@
 
 	}
 
-	public function get_efbFunction(int $state = 0): \Emsfb\efbFunction {
-		// کش درونِ همین ریکوئست
-		static $instance = null;
-
-		if ($instance instanceof \Emsfb\efbFunction) {
-			return $instance; // هیت سریع (≈0.05–0.2ms)
-		}
-
-		// اگر کلاس لود نشده، فقط هم‌اکنون لودش کن (بدون اتولود ناخواسته)
-		if (!class_exists('Emsfb\\efbFunction', false)) {
-			require_once EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
-		}
-		$instance = new \Emsfb\efbFunction();
-		return $instance;
-	}
 
 	// Add JSON-LD SoftwareApplication schema to <head> on the frontend
 

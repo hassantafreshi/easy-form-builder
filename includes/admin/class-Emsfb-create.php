@@ -49,7 +49,7 @@ class Create {
 		}
 	}
 	public function render_settings() {
-		$efbFunction = $this->get_efbFunction();
+		$efbFunction = get_efbFunction();
 		$noti_pro = intval(get_option('Emsfb_pro' ,-1));
 		if ($noti_pro === 0  ){
 			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
@@ -112,16 +112,19 @@ class Create {
 		$maps =false;
 
 		$pro =$efbFunction->is_efb_pro(1);
-		$settings= \Emsfb::get_setting_Emsfb('decoded');
+		$settings= get_setting_Emsfb('decoded');
 		$addons = $efbFunction->fun_get_addons_list_efb($settings);
-		// v2 translate
-		// write a code for get all colors used in array in template set as active template in wordpress . complate code and use regix to find all colores is used in tamplate
-		$lang = $efbFunction->text_efb(1);
+
+		// Load map scripts if location picker is enabled
 		if(gettype($settings)!="string"){
 			if(isset($settings->osLocationPicker)==true && $settings->osLocationPicker==1){
 			 	$efbFunction->openstreet_map_required_efb(0);
 			}
-			if(isset($settings->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$settings->efb_version)!=0 ){
+
+		// v2 translate
+		$lang = $efbFunction->text_efb(1);
+
+		if(gettype($settings)!="string"){
 				$efbFunction->setting_version_efb_update($settings ,$pro);
 			}
 		}
@@ -170,15 +173,15 @@ class Create {
 				if(isset($settings->AdnOF) && $settings->AdnOF==1){
 					$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
 				}
-			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),'3.8.1',true);
+			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
 			wp_enqueue_script('jquery-ui-efb');
-			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),'3.8.1',true);
+			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
 			wp_enqueue_script('jquery-dd-efb');
 			wp_register_script('countries-js', $url, null, null, true);
 			wp_enqueue_script('countries-js');
 			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
 			wp_enqueue_script('intlTelInput-js');
-			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.8.1');
+			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_style('intlTelInput-css');
 		if( false){
 			wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);
@@ -207,7 +210,7 @@ class Create {
 
 			$efbFunction->include_persia_efb();
 		}
-		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),'3.8.1',true);
+		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
 		wp_enqueue_script('stripe_js');
 		// $colors = $efbFunction->get_list_colores_template();
 		$colors =[];
@@ -219,7 +222,7 @@ class Create {
 			}
 		$plugins['cache'] =$efbFunction->check_for_active_plugins_cache();
 		$location ='';
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,'3.8.1');
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("wp_rest"),
 			'check' => 1,
@@ -242,21 +245,21 @@ class Create {
 			'zone_area'=>CDN_ZONE_AREA,
 			'plugins'=>$plugins
 		));
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,'3.8.1');
-		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.8.1');
-		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js',false,'3.8.1');
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js',false,'3.8.1');
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,EMSFB_PLUGIN_VERSION);
+		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
+		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js',false,EMSFB_PLUGIN_VERSION);
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js',false,EMSFB_PLUGIN_VERSION);
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("wp_rest"),
 			'check' => 1		));
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,'3.8.1');
-		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.8.1');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,EMSFB_PLUGIN_VERSION);
+		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,EMSFB_PLUGIN_VERSION);
 	}
 	public function fun_Emsfb_creator()
 	{
 	}
 	public function add_form_structure(){
-		$efbFunction = $this->get_efbFunction();
+		$efbFunction = get_efbFunction();
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url",'error403'];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
@@ -363,33 +366,5 @@ class Create {
         }
         return  $s;
     }// end fun
-
-/* 	public function get_efbFunction(){
-		$efbFunctionInstance;
-        if (false === ($efbFunctionInstance = wp_cache_get('emsfb_FunctionInstance', 'emsfb'))) {
-            if (!class_exists('Emsfb\efbFunction')) {
-                require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
-            }
-            $efbFunctionInstance = new \Emsfb\efbFunction();
-            wp_cache_set('emsfb_FunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // 1 hour cache
-        }
-        return  $efbFunctionInstance;
-	} */
-	public function get_efbFunction(): \Emsfb\efbFunction {
-		// کش درونِ همین ریکوئست
-		static $instance = null;
-
-		if ($instance instanceof \Emsfb\efbFunction) {
-			return $instance; // هیت سریع (≈0.05–0.2ms)
-		}
-
-		// اگر کلاس لود نشده، فقط هم‌اکنون لودش کن (بدون اتولود ناخواسته)
-		if (!class_exists('Emsfb\\efbFunction', false)) {
-			require_once EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
-		}
-
-		$instance = new \Emsfb\efbFunction();
-		return $instance;
-	}
 }
 new Create();
