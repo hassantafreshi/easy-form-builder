@@ -363,7 +363,7 @@ async function createStepsOfPublic() {
         const c = valj_efb_.find(x => x.id_ === id);
         const parents = el.parentNode
         if(!c.hasOwnProperty('formid'))Object.assign(c , {'formid':parents.dataset.formid})
-          efbCreateMap(id,c,false)
+        //  efbCreateMap(id,c,false)
     }else if(form_type=="payment"){
       /*  if (valj_efb[0].type == "payment") {
      if (efb_var.paymentGateway == "stripe" && typeof post_api_stripe_apay_efb =="function") post_api_stripe_apay_efb();

@@ -807,6 +807,9 @@ public function check_nonce_permission_efb($request) {
 
 					$content = $efbFormBuilder->show_user_profile_emsFormBuilder( $lanText['logout'], $this->id);
 					// $row_form_info= ['id' => $this->id, 'type' => $typeOfForm, 'form_structer' => $fs, 'sid' => $sid];
+					if(empty( $this->pub_stting)){
+						$this->pub_stting = get_setting_Emsfb('pub')[1];
+					}
 					$this->value_forms[] = ['id' => $this->id, 'type' => $typeOfForm, 'form_structer' => $fs, 'sid' => $sid];
 					$this->ajax_object_efm_efb($ar_core ,$values ,$typeOfForm ,$state ,$lang ,$poster ,$img ,$pro ,$page_builder ,$is_user ,$username,$lanText);
 					return $content;
@@ -1072,7 +1075,9 @@ public function check_nonce_permission_efb($request) {
 			}
 			$content_new =$is_track['content'];
 		}
-
+					if(empty( $this->pub_stting)){
+					$this->pub_stting = get_setting_Emsfb('pub')[1];
+					}
 
 
 					$this->ajax_object_efm_efb($ar_core ,$values ,$typeOfForm ,$state ,$lang,$poster ,$img ,$pro ,$page_builder ,$is_user ,$username,$lanText);
@@ -1128,6 +1133,7 @@ public function check_nonce_permission_efb($request) {
 
 	}
 	public function EMS_Form_Builder_track(){
+		error_log('in track shortcode');
 		$this->enqueue_jquery();
 		// if($this->id!=-1){return esc_html__('Easy Form Builder' , 'easy-form-builder');}
 
@@ -1148,6 +1154,7 @@ public function check_nonce_permission_efb($request) {
 				 /*   wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
 				   wp_enqueue_script('recaptcha'); */
 				}
+
 				if(isset($valstng->osLocationPicker) && $valstng->osLocationPicker==true){
 					$sm = $this->efbFunction->openstreet_map_required_efb(1);
 					if($sm==false){
@@ -1157,13 +1164,15 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$pro = intval(get_option('emsfb_pro'));
-		$pro = $pro==1 ? true : false;
+
+		$pro = $pro==1 || $pro == 3 ? true : false;
 		$this->pro_efb = $pro;
+		error_log('pro track:'.($pro ? 'true' : 'false') .''.$pro . 'type:'.gettype($pro));
 
 		$this->comper_version_efb($pl[1]['version']);
-		/* if($pro==true){
+		if($pro==true){
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
-		} */
+		}
 
 		$location = '';
 		// efb_code_validate_create( $fid, $type, $status, $tc)
@@ -1581,7 +1590,7 @@ public function check_nonce_permission_efb($request) {
 						$send_email_to_user_state = true;
 		}
 		$pro = intval(get_option('emsfb_pro'));
-		$pro = $pro == 1 ? true : false;
+		$pro = $pro == 1 || $pro == 3 ? true : false;
 		$this->pro_efb = $pro;
 		$type = sanitize_text_field($data_POST['type']);
 		$email = get_option('admin_email');
@@ -2692,7 +2701,7 @@ public function check_nonce_permission_efb($request) {
 		$this->efbFunction = get_efbFunction();
 		$text_ = ['spprt','sxnlex','error403','errorMRobot','enterVValue','guest','cCodeNFound'];
 		$lanText= $this->efbFunction->text_efb($text_);
-/* 		$sid = sanitize_text_field($data_POST['sid']);
+		/* 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 		error_log('s_sid: ' . $s_sid);
 		if ($s_sid !=1 || $sid==null ){
@@ -3047,7 +3056,7 @@ public function check_nonce_permission_efb($request) {
 			$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
 			$email = isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
 			$pro = intval(get_option('emsfb_pro'));
-			$pro = $pro==1 ? true : false;
+			$pro = $pro==1 || $pro == 3 ? true : false;
 			$email_key = isset($setting->email_key) && strlen($setting->email_key)>5 ?$setting->email_key:null ;
 			if($sc!='null' && $email_key==null){
 				$response = array( 'success' => false , "m"=>$this->lanText['error400']);
@@ -4995,6 +5004,8 @@ function email_get_content_efb($content, $track){
 	}
 
 	private function ajax_object_efm_efb($ar_core ,$values ,$typeOfForm ,$state ,$lang,$poster ,$img ,$pro ,$page_builder ,$is_user ,$username,$lanText){
+
+		$json_settings= get_setting_Emsfb('pub')[0];
 		$ar_core = array_merge($ar_core , array(
 			'ajax_value_forms' =>$this->value_forms,
 			'ajax_value' =>$values, //remove this line on v4
@@ -5019,7 +5030,7 @@ function email_get_content_efb($content, $track){
 			'page_builder'=>$page_builder,
 			'is_user'=> $is_user,
 			'user_name' => $username,
-			'nonce' => wp_create_nonce('wp_rest')
+			'nonce' => wp_create_nonce('wp_rest'),
 		) );
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
 	}

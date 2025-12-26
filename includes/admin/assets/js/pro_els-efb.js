@@ -7,15 +7,7 @@ maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
       </div>
     `
  }
- maps_os_pro_efb =(previewSate, pos , rndm,iVJ)=>{
-    return `
-    <!--maps-->
-    <div class="efb  ${previewSate == true ? pos[3] : `col-md-12`} col-sm-12 maps-os "  id='${rndm}-f'>
 
-      </div>
-      <!--maps end-->
-    `
- }
  dadfile_el_pro_efb =(previewSate , rndm,iVJ)=>{
   const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square'
   let disabled =  valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==true? 'disabled' : ''
@@ -1359,20 +1351,24 @@ function efbCreateMap(id ,r ,viewState) {
     }
   }
 
+  // Add fullscreen control if available
+  if (typeof L.control.fullscreen === 'function') {
+    var efbFullscreenControl = L.control.fullscreen({
+        title: {
+            'false': 'Go Fullscreen',
+            'true': 'Exit Fullscreen'
+        }
+    });
+    efbMap.addControl(efbFullscreenControl);
 
-  var efbFullscreenControl = L.control.fullscreen({
-      title: {
-          'false': 'Go Fullscreen',
-          'true': 'Exit Fullscreen'
-      }
-  });
-  efbMap.addControl(efbFullscreenControl);
+    efbMap.on('enterFullscreen', function(){
+    });
 
-  efbMap.on('enterFullscreen', function(){
-  });
-
-  efbMap.on('exitFullscreen', function(){
-  });
+    efbMap.on('exitFullscreen', function(){
+    });
+  } else {
+    console.warn('Leaflet fullscreen control plugin is not loaded');
+  }
 }
 
 

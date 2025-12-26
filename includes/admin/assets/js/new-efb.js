@@ -3565,3 +3565,14 @@ fun_valj_efb_run=async(form_id)=>{
 
 //3.6.8 end
 
+
+ maps_os_pro_efb =(previewSate, pos , rndm,iVJ)=>{
+    return `
+    <!--maps-->
+    <div class="efb  ${previewSate == true ? pos[3] : `col-md-12`} col-sm-12 maps-os "  id='${rndm}-f'>
+
+      </div>
+      <!--maps end-->
+    `
+ }
+

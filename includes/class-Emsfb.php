@@ -359,7 +359,8 @@ public static function email_send_efb() {
         switch ($mode) {
             case 'pub':
                 // Public settings with addons info
-                $pro = intval(get_option('emsfb_pro')) === 1;
+                $pro = absint(get_option('emsfb_pro'));
+                $pro = $pro == 1 || $pro == 2 ? true : false;
                 $pubSettings = [
                     'pro' => $pro,
                     'trackingCode' => $decoded->trackingCode ?? '',
