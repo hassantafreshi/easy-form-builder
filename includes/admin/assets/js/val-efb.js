@@ -3039,9 +3039,6 @@ function handle_setup_modal_action(plan) {
                     features: ['all_features', 'no_credit', 'premium_support'],
                     selected_at: Date.now()
                 });
-                // هدایت به صفحه خرید Pro
-                redirectToProUpgrade_efb();
-                break;
 
             case 'later':
                 console.log('User chose "Maybe later"');
@@ -3109,8 +3106,8 @@ function savePlanSelection_efb(plan, planData) {
         localStorage.setItem('efb_selected_plan', JSON.stringify(selectionData));
         console.log('Plan selection saved:', selectionData);
 
-        // ارسال به AJAX برای ذخیره در دیتابیس (برای آینده)
-        // sendPlanSelectionToServer_efb(selectionData);
+        // ارسال به AJAX برای ذخیره در دیتابیس
+        sendPlanSelectionToServer_efb(selectionData);
 
     } catch (error) {
         console.error('Error saving plan selection:', error);
@@ -3145,9 +3142,9 @@ function highlightSelectedPlan_efb() {
     const planCards = document.querySelectorAll('.efb-plan-card');
     planCards.forEach((card, index) => {
         const isSelected = (
-            (selectedPlan === 'free' && index === 0) ||
-            (selectedPlan === 'free_plus' && index === 1) ||
-            (selectedPlan === 'pro' && index === 2)
+            (selectedPlan === 'free' && index === 0)
+            || (selectedPlan === 'free_plus' && index === 1)
+         // || (selectedPlan === 'pro' && index === 2)
         );
 
         if (isSelected) {
@@ -3177,16 +3174,12 @@ function setupFreePlan_efb() {
 /**
  * هدایت به صفحه خرید Pro
  */
-function redirectToProUpgrade_efb() {
+function redirectToProUpgrade_efb($proUrl) {
     console.log('Redirecting to Pro upgrade page...');
-    // URL سایت فروش Pro
-    const proUrl = 'https://your-website.com/pro-upgrade';
 
-    // نمایش پیام تأیید قبل از هدایت
-    if (confirm('شما به صفحه خرید نسخه Pro هدایت خواهید شد. آیا مطمئن هستید؟')) {
-        window.open(proUrl, '_blank');
-    }
+
     closeSetupOverlay();
+    window.open(proUrl, '_blank');
 }
 
 /**
@@ -3194,24 +3187,55 @@ function redirectToProUpgrade_efb() {
  * @param {object} selectionData - اطلاعات انتخاب
  */
 function sendPlanSelectionToServer_efb(selectionData) {
-    // این تابع برای ارسال AJAX به سرور آماده است
-    /*
+    console.log('Sending plan selection to server:', selectionData);
+    console.log('Using AJAX URL:', efb_var.ajax_url);
+    console.log('Using nonce:', efb_var.nonce);
+
+    // ارسال AJAX به سرور
     jQuery.ajax({
         url: efb_var.ajax_url,
         type: 'POST',
+        dataType: 'json',
         data: {
             action: 'efb_save_plan_selection',
-            plan_data: selectionData,
+            plan_data: JSON.stringify(selectionData),
             nonce: efb_var.nonce
         },
         success: function(response) {
             console.log('Plan selection saved to server:', response);
+            if (response.success && response.data) {
+                console.log('Server response message:', response.data.message);
+                console.log('Saved plan:', response.data.plan);
+                console.log('Action performed:', response.data.action);
+
+                // Handle redirect for Pro plan
+                if (response.data.redirect_url) {
+                    console.log('Redirecting to:', response.data.redirect_url);
+                    // Show user notification before redirect
+                    window.open(response.data.redirect_url, '_blank');
+                }
+
+                // Show success message to user
+                if (response.data.action) {
+                    // You can add a toast notification here if you have a notification system
+                    console.log('Plan action completed:', response.data.action);
+                }
+
+            } else if (response.success === false && response.data) {
+                console.error('Server returned error:', response.data.message);
+            }
         },
-        error: function(error) {
-            console.error('Error saving plan to server:', error);
+        error: function(xhr, status, error) {
+            console.error('Error saving plan to server:', {
+                status: status,
+                error: error,
+                response: xhr.responseText,
+                readyState: xhr.readyState,
+                statusText: xhr.statusText
+            });
         }
     });
-    */
+
     console.log('Server sync ready for:', selectionData);
 }
 
@@ -3324,8 +3348,8 @@ function showSetupAsOverlayPage() {
             box-shadow: 0 25px 80px rgba(32, 42, 141, 0.25);
             max-width: 1200px;
             width: 100%;
-            max-height: none;
-            overflow: visible;
+            max-height: 90vh;
+            overflow-y: auto;
             position: relative;
             border: 2px solid rgba(32, 42, 141, 0.1);
             animation: overlaySlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -3361,39 +3385,244 @@ function showSetupAsOverlayPage() {
         .efb-overlay-content {
             padding: 0;
             width: 100%;
+            overflow-x: hidden;
         }
 
-        /* Responsive Design */
+        /* Enhanced Responsive Design */
+        @media (max-width: 1024px) {
+            .efb-overlay-container {
+                max-width: 95%;
+                margin: 20px auto;
+            }
+        }
+
         @media (max-width: 768px) {
             .efb-setup-overlay {
-                padding: 10px;
+                padding: 15px;
+                align-items: flex-start;
+                padding-top: 30px;
             }
 
             .efb-overlay-container {
-                max-height: none;
+                max-width: 100%;
+                max-height: 85vh;
                 border-radius: 1rem;
+                margin: 0;
+                box-shadow: 0 15px 40px rgba(32, 42, 141, 0.2);
             }
 
             .efb-overlay-close {
-                top: 15px;
-                right: 15px;
-                width: 40px;
-                height: 40px;
+                top: 12px;
+                right: 12px;
+                width: 38px;
+                height: 38px;
                 font-size: 1rem;
+                background: rgba(255, 255, 255, 0.95);
+            }
+
+            /* Mobile plan card adjustments */
+            .efb-overlay-content .efb-plan-card {
+                margin-bottom: 15px !important;
+                padding: 15px !important;
+            }
+
+            .efb-overlay-content .efb-plans-grid {
+                display: flex !important;
+                overflow-x: auto !important;
+                overflow-y: visible !important;
+                gap: 15px !important;
+                padding: 10px 5px 20px 5px !important;
+                scroll-behavior: smooth !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: thin !important;
+                position: relative !important;
+            }
+
+            /* Add scroll hint */
+            .efb-overlay-content .efb-plans-grid::after {
+                content: '← Swipe to see more plans →' !important;
+                position: absolute !important;
+                bottom: 0 !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                font-size: 0.7rem !important;
+                color: rgba(32, 42, 141, 0.6) !important;
+                text-align: center !important;
+                animation: fadeInOut 3s ease-in-out !important;
+            }
+
+            @keyframes fadeInOut {
+                0%, 100% { opacity: 0; }
+                50% { opacity: 1; }
+            }
+
+            .efb-overlay-content .efb-plans-grid::-webkit-scrollbar {
+                height: 6px !important;
+            }
+
+            .efb-overlay-content .efb-plans-grid::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.1) !important;
+                border-radius: 3px !important;
+            }
+
+            .efb-overlay-content .efb-plans-grid::-webkit-scrollbar-thumb {
+                background: rgba(32, 42, 141, 0.5) !important;
+                border-radius: 3px !important;
+            }
+
+            .efb-overlay-content .efb-plan-card {
+                flex: 0 0 280px !important;
+                margin-bottom: 0 !important;
+            }
+
+            .efb-overlay-content .modal-header {
+                padding: 20px 15px 15px 15px !important;
+                text-align: center;
+            }
+
+            .efb-overlay-content .modal-body {
+                padding: 15px !important;
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 576px) {
             .efb-setup-overlay {
-                padding: 5px;
+                padding: 10px;
+                padding-top: 20px;
+            }
+
+            .efb-overlay-container {
+                max-height: 90vh;
+                border-radius: 0.8rem;
+                box-shadow: 0 10px 30px rgba(32, 42, 141, 0.15);
             }
 
             .efb-overlay-close {
-                top: 10px;
-                right: 10px;
-                width: 35px;
-                height: 35px;
+                top: 8px;
+                right: 8px;
+                width: 32px;
+                height: 32px;
                 font-size: 0.9rem;
+            }
+
+            /* Mobile plan card adjustments */
+            .efb-overlay-content .efb-plan-card {
+                padding: 12px !important;
+                margin-bottom: 12px !important;
+                border-radius: 8px !important;
+            }
+
+            .efb-overlay-content .efb-plans-grid {
+                gap: 12px !important;
+                padding: 8px 3px !important;
+            }
+
+            .efb-overlay-content .efb-plan-card {
+                flex: 0 0 260px !important;
+            }
+
+            .efb-overlay-content .modal-header {
+                padding: 15px 10px 10px 10px !important;
+            }
+
+            .efb-overlay-content .modal-header h4 {
+                font-size: 1.1rem !important;
+                line-height: 1.3;
+            }
+
+            .efb-overlay-content .modal-body {
+                padding: 10px !important;
+            }
+
+            /* Button responsive sizing */
+            .efb-overlay-content .efb-setup-button {
+                padding: 8px 16px !important;
+                font-size: 0.9rem !important;
+                margin: 5px 0 !important;
+            }
+
+            /* Text size adjustments */
+            .efb-overlay-content .efb-plan-title {
+                font-size: 1.1rem !important;
+            }
+
+            .efb-overlay-content .efb-plan-description {
+                font-size: 0.85rem !important;
+                line-height: 1.4;
+            }
+
+            .efb-overlay-content .efb-plan-features li {
+                font-size: 0.8rem !important;
+                margin-bottom: 3px !important;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .efb-setup-overlay {
+                padding: 5px;
+                padding-top: 15px;
+            }
+
+            .efb-overlay-container {
+                max-height: 95vh;
+                border-radius: 0.5rem;
+            }
+
+            .efb-overlay-close {
+                top: 5px;
+                right: 5px;
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+
+            .efb-overlay-content .modal-header {
+                padding: 10px 8px 8px 8px !important;
+            }
+
+            .efb-overlay-content .modal-header h4 {
+                font-size: 1rem !important;
+            }
+
+            .efb-overlay-content .modal-body {
+                padding: 8px !important;
+            }
+
+            .efb-overlay-content .efb-plan-card {
+                padding: 10px !important;
+                margin-bottom: 10px !important;
+            }
+
+            .efb-overlay-content .efb-plans-grid {
+                gap: 10px !important;
+                padding: 6px 2px !important;
+            }
+
+            .efb-overlay-content .efb-plan-card {
+                flex: 0 0 240px !important;
+            }
+
+            .efb-overlay-content .efb-setup-button {
+                padding: 6px 12px !important;
+                font-size: 0.85rem !important;
+                width: 100% !important;
+                margin: 3px 0 !important;
+            }
+        }
+
+        /* Landscape orientation adjustments */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .efb-overlay-container {
+                max-height: 95vh;
+                overflow-y: auto;
+            }
+
+            .efb-overlay-content .modal-header {
+                padding: 10px 15px !important;
+            }
+
+            .efb-overlay-content .modal-body {
+                padding: 10px 15px !important;
             }
         }
 
@@ -3428,6 +3657,31 @@ function showSetupAsOverlayPage() {
     // نمایش انتخاب قبلی کاربر
     highlightSelectedPlan_efb();
 
+    // Auto scroll to Free Plus on mobile devices
+    setTimeout(() => {
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            const plansGrid = document.querySelector('.efb-plans-grid');
+            const freePlusCard = document.querySelector('.efb-plan-card.efb-recommended');
+
+            if (plansGrid && freePlusCard) {
+                const cardOffsetLeft = freePlusCard.offsetLeft;
+                const gridWidth = plansGrid.clientWidth;
+                const cardWidth = freePlusCard.clientWidth;
+
+                // Center the Free Plus card
+                const scrollPosition = cardOffsetLeft - (gridWidth - cardWidth) / 2;
+
+                plansGrid.scrollTo({
+                    left: Math.max(0, scrollPosition),
+                    behavior: 'smooth'
+                });
+
+                console.log('Auto-scrolled to Free Plus plan on mobile');
+            }
+        }
+    }, 300);
+
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
 
@@ -3450,7 +3704,7 @@ function closeSetupOverlay_efb() {
             // Restore body scroll
             document.body.style.overflow = '';
             // Remove escape key listener
-            document.removeEventListener('keydown', handleOverlayEscape);
+            document.removeEventListener('keydown', handleOverlayEscape_efb);
         }, 300);
     }
 }
@@ -3470,20 +3724,7 @@ function handleOverlayEscape_efb(event) {
 document.addEventListener('DOMContentLoaded', function() {
   // Check if we're on the form builder page and setup should be shown
 
-
-    // Check if this is first time or setup is needed
-    const shouldShowSetup = () => {
-      // Show if never shown before, or if explicitly requested
-
-      return true; // Always show for testing
-      const neverShown = !localStorage.getItem('efb_setup_modal_shown');
-      const forceShow = sessionStorage.getItem('efb_force_setup_modal') === 'true';
-      const isFormBuilder = document.getElementById('dropZoneEFB') !== null;
-
-      return (neverShown || forceShow) && isFormBuilder;
-    };
-
-    if (shouldShowSetup()) {
+    if (getSelectedPlan_efb()===null) {
       // Small delay to ensure all elements are loaded
       setTimeout(() => {
         try {
@@ -3491,8 +3732,7 @@ document.addEventListener('DOMContentLoaded', function() {
           showSetupAsOverlayPage();
 
           // Mark as shown
-          localStorage.setItem('efb_setup_modal_shown', 'true');
-          sessionStorage.removeItem('efb_force_setup_modal');
+
 
           console.log('Setup overlay page displayed successfully');
 

@@ -1028,7 +1028,7 @@ function fun_show_setting__emsFormBuilder() {
                             <!--General-->
                             <div class="efb m-3">
                                 <h5 class="efb  card-title mt-3 mobile-title">
-                                    <i class="efb  bi-gem m-3"></i>${efb_var.text.proVersion}
+                                    <i class="efb  bi-gem m-3"></i>${efb_var.text.activationCode}
                                 </h5>
                                 <!-- 3.8.6 start -->
                                 ${efb_var.pro == true ||  efb_var.pro == 1 ? '' :`<a class="efb ${mxCSize} efb pointer-efb ec-efb" data-eventform="links" data-linkname="price">${efb_var.text.clickHereGetActivateCode}</a>`}
@@ -1037,6 +1037,17 @@ function fun_show_setting__emsFormBuilder() {
                                 <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.pro == true ||  efb_var.pro == 1 ? 'is-valid bg-light' : ''}" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""} data-tab="${efb_var.text.general}">
                                 ${efb_var.pro == true ||  efb_var.pro == 1 ? `<p class="efb text-darkb fs-6 mx-1 ">${efb_var.text.actvtcmsg}</p>` : '' }
                                     <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
+                                </div>
+
+                                <h5 class="efb  card-title mt-3 mobile-title">
+                                    <i class="efb  bi-layers m-3"></i>Plan Management
+                                </h5>
+                                <p class="efb  ${mxCSize} mobile-text">Choose your plan or upgrade to unlock advanced features</p>
+                                <div class="efb card-body text-center py-1">
+                                    <button type="button" class="efb btn efb btn-outline-primary btn-lg" onclick="showSetupAsOverlayPage()" id="changePlanBtn">
+                                        <i class="efb  bi-gear mx-1 efb mobile-text"></i>Change Plan
+                                    </button>
+                                    <p class="efb text-muted fs-7 mt-2">Switch between Free, Free Plus, or Pro plans</p>
                                 </div>
 
                                 <h5 class="efb  card-title mt-3 mobile-title">

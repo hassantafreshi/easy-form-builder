@@ -218,6 +218,7 @@ class Panel_edit  {
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
+				'ajax_url' => admin_url('admin-ajax.php'),
 				'nonce'=> wp_create_nonce("wp_rest"),
 				'pro' => $pro ? 1 : 0,
 				'check' => 0,

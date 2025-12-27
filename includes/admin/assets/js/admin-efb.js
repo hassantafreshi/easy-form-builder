@@ -661,7 +661,7 @@ function add_dasboard_emsFormBuilder() {
   }
 
  cardtitles = `
-    <ul class="efb mt-4 mb-3 p-0 d-flex justify-content-center row" id="listCardTitleEfb">${cardtitles}
+    <ul class="efb mt-4 mb-3 p-0 justify-content-center row d-none d-md-flex" id="listCardTitleEfb">${cardtitles}
     <hr class="efb hr">
     </ul>
     `
@@ -5185,6 +5185,10 @@ function addClickListenerToElementListEFB(element) {
                           case 'setting':
                             console.log('setting');
                               fun_show_content_page_emsFormBuilder('setting');
+                              const efbNotice = document.getElementById('notice-email-efb');
+                              if(efbNotice) {
+                                  efbNotice.style.display = 'flex';
+                              }
                               break;
                           case 'help':
                               fun_show_content_page_emsFormBuilder('help');

@@ -65,6 +65,7 @@ class Admin {
             add_action('wp_ajax_read_list_Emsfb', [$this, 'read_list_Emsfb']);      //Remove messages by object
             add_action('wp_ajax_heartbeat_Emsfb' , [$this, 'heartbeat_Emsfb'] );
             add_action('wp_ajax_report_problem_Emsfb' , [$this, 'report_problem_Emsfb'] );
+            add_action('wp_ajax_efb_save_plan_selection', [$this, 'efb_save_plan_selection']);        //Save plan selection
 
             add_action('create_temporary_links_table_Emsfb' , [$this , 'create_temporary_links_table_Emsfb']);
 
@@ -1574,7 +1575,7 @@ function admin_notices_efb () {
             $description = isset($messages[$msg_id]['description']) ? $messages[$msg_id]['description'] : '';
             ob_start();
             ?>
-            <div id="notice-email-efb" class="notice notice-error efb-notice-email-error notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;position:relative;">
+            <div id="notice-email-efb" class="notice notice-error efb-notice-email-error notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;position:relative;z-index:1000;">
                <button type="button" id="efb-close-notice-btn"
             style="position:absolute;top:8px;right:8px;background:transparent;border:none;font-size:20px;cursor:pointer;"
             aria-label="Close">&times;</button>
@@ -1587,7 +1588,8 @@ function admin_notices_efb () {
             </div>
             <script>
                 var efbNotice = document.getElementById('notice-email-efb');
-                if (window.sessionStorage.getItem('efb_hide_notice') === '3') {
+                // Check if notice has been dismissed permanently
+                if (window.localStorage.getItem('efb_email_notice_dismissed') === 'true') {
                     if (efbNotice) efbNotice.style.display = 'none';
                 }
                 var efbCloseBtn = document.getElementById('efb-close-notice-btn');
@@ -1599,12 +1601,11 @@ function admin_notices_efb () {
                         efbNotice.style.display = 'none';
                     }
                     efbCloseBtn.addEventListener('click', function () {
-                        console.log('Notice closed');
+                        console.log('Notice closed permanently');
                         var efbNotice = document.getElementById('notice-email-efb');
                         if (efbNotice) efbNotice.style.display = 'none';
-                        let count = window.sessionStorage.getItem('efb_hide_notice') ?? 0
-                        count = parseInt(count) + 1;
-                        window.sessionStorage.setItem('efb_hide_notice', count);
+                        // Mark notice as permanently dismissed
+                        window.localStorage.setItem('efb_email_notice_dismissed', 'true');
                     });
                 }
             </script>
@@ -1612,6 +1613,116 @@ function admin_notices_efb () {
             $output = ob_get_clean();
 
             echo $output;
+    }
+
+    /**
+     * Handle plan selection save via AJAX
+     */
+    public function efb_save_plan_selection() {
+        error_log('[EFB] Plan selection handler called');
+
+        // Verify nonce for security
+        $efbFunction = get_efbFunction();
+        $text = ["error403","somethingWentWrongPleaseRefresh"];
+        $lang= $efbFunction->text_efb($text);
+        $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
+
+        // Check nonce
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
+        error_log('[EFB] Nonce check: ' . $nonce);
+        error_log('[EFB] User can: ' . ($currrent_user_can ? 'true' : 'false'));
+
+        if (!wp_verify_nonce($nonce, 'wp_rest') || !$currrent_user_can) {
+            error_log('[EFB] Security check failed');
+            $response = ['success' => false, 'm' => $lang['error403']];
+            wp_send_json_error($response, 403);
+            die("secure!");
+        }
+
+        // Check if plan_data is provided
+        if (!isset($_POST['plan_data'])) {
+            error_log('[EFB] Plan data missing from POST: ' . print_r($_POST, true));
+            wp_send_json_error(array(
+                'message' => __('Plan data is missing.', 'easy-form-builder')
+            ), 400);
+            return;
+        }
+
+        // Get and validate plan data
+        $plan_data_raw = sanitize_textarea_field($_POST['plan_data']);
+        error_log('[EFB] Raw plan data received: ' . $plan_data_raw);
+
+        $plan_data = json_decode(stripslashes($plan_data_raw), true);
+
+        if (!is_array($plan_data)) {
+            error_log('[EFB] Invalid plan data format - not an array');
+            wp_send_json_error(array(
+                'message' => __('Invalid plan data format.', 'easy-form-builder')
+            ), 400);
+            return;
+        }
+
+        // Extract plan information
+        $selected_plan = isset($plan_data['selected_plan']) ? sanitize_text_field(wp_unslash($plan_data['selected_plan'])) : '';
+        $timestamp = isset($plan_data['timestamp']) ? intval($plan_data['timestamp']) : time();
+
+        // Validate plan type
+        $valid_plans = array('free', 'free_plus', 'pro');
+        if (!in_array($selected_plan, $valid_plans)) {
+            wp_send_json_error(array(
+                'message' => __('Invalid plan type.', 'easy-form-builder')
+            ), 400);
+            return;
+        }
+
+        // Process plan selection based on type
+        $redirect_url = null;
+        $action_performed = null;
+
+        switch($selected_plan) {
+            case 'free':
+                // free = 0 (no action required)
+                update_option('emsfb_pro', 3);
+                $action_performed = __('Free plan activated - no additional features.', 'easy-form-builder');
+                break;
+
+            case 'free_plus':
+                // free_plus = 3 (set option to 3)
+                update_option('emsfb_pro', 3);
+                $action_performed = __('Free Plus plan activated with enhanced features.', 'easy-form-builder');
+                break;
+
+            case 'pro':
+                // pro => redirect to whitestudio.team/#price
+                $redirect_url = 'https://whitestudio.team/#price';
+                // Check if site language is Persian (Farsi)
+                if (get_locale() == 'fa_IR') {
+                    $redirect_url = 'https://easyformbuilder.ir/#price';
+                }
+                $action_performed = __('Redirecting to Pro plan purchase page.', 'easy-form-builder');
+                // Optionally set pro option as well
+                // update_option('emsfb_pro', 1);
+                break;
+        }
+
+        // Create response data
+        $response_data = array(
+            'success' => true,
+            'message' => sprintf(__('Plan "%s" has been successfully processed.', 'easy-form-builder'), $selected_plan),
+            'plan' => $selected_plan,
+            'action' => $action_performed,
+            'redirect_url' => $redirect_url,
+            'timestamp' => $timestamp,
+            'saved_at' => current_time('mysql')
+        );
+
+
+
+        // Log plan selection for admin reference
+        error_log(sprintf('[EFB] Plan selected: %s by user ID: %d', $selected_plan, get_current_user_id()));
+
+        // Send success response
+        wp_send_json_success($response_data);
     }
 
 

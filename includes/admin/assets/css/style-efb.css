@@ -426,6 +426,14 @@ i.efb {	font-size: 1.2rem;
   .top_circle-efb-1, .top_circle-efb-2 {		display: none !important;}
    #alert_content_efb {		position: absolute;margin: 15% 5%;z-index: 1070 !important;width: 70%;}
    .efb.listContent{		width: max-content!important;}
+
+   #wpwrap h1.efb {
+    margin-top: 10px;
+    font-size: 25px !important;
+   }
+   #wpwrap h3.efb, .modal-content .h3.efb {
+    font-size: 15px !important;
+   }
 }
 .top_circle-efb-1 {	height: 800px;
    width: 800px;
@@ -1629,8 +1637,9 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
 .mobile .btn-select-form.efb {	font-size: 10px;
    height: 100px;
 }
-.mobile .description-logo.efb {	height: 80px;
-   width: 80px;
+.mobile .description-logo.efb {
+   height: 65px;
+   width: 65px;
    float: left;
    margin: 0px;
 }
