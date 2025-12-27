@@ -464,7 +464,7 @@ i.efb {	font-size: 1.2rem;
 }
 .form-control.efb:focus {	border: 1px solid #bbc2d5;
 }
-.form-control.efb textarea {}
+
 #track_code_emsFormBuilder {	padding-left: 40px;
 }
 .search-icon.efb {	position: relative;
@@ -654,7 +654,7 @@ i.efb {	font-size: 1.2rem;
 }
 .dropZoneEFB .text-labelEfb {	color: #657096 !important;
 }
-.text-labelEfb {}
+
 .btn-labelEfb {	background-color: #657096 !important;
 }
 .bg-labelEfb {	background-color: #657096 !important;
@@ -663,7 +663,7 @@ i.efb {	font-size: 1.2rem;
 }
 .text-pinkEfb.efb,.text-pinkEfb {	color: #ff4b93 !important;
 }
-.text-colorDEfb {}
+
 .efb.btn-sm i {	font-size: 18px !important;
 }
 #settingElEFb.efb.btn-sm i {	font-size: 24px !important;
@@ -1207,7 +1207,7 @@ textarea.h-xxxl-efb {	min-height: 250px !important;
 input[type="text"].efb-rounded,input[type="password"].efb-rounded,input[type="email"].efb-rounded,input[type="tel"].efb-rounded,input[type="number"].efb-rounded,input[type="url"].efb-rounded,input[type="textarea"].efb-rounded {	padding: 0px 10px !important;
 }
 input[type="text"].efb-rounded.h-d-efb,input[type="password"].efb-rounded.h-d-efb,input[type="email"].efb-rounded.h-d-efb,input[type="tel"].efb-rounded.h-d-efb,input[type="number"].efb-rounded.h-d-efb,input[type="url"].efb-rounded.h-d-efb {height: 30px!important;;}
-.colorDEf,.text-colorDEf,.border-colorDEf,.bg-colorDEf,.btn-colorDEf {}
+
 
 input[type=range].efb {	border: transparent !important;
 }
