@@ -2382,7 +2382,7 @@ let change_el_edit_Efb = (el) => {
           //query data-id="${valj_efb[indx].id_}-control"
 
           clss.innerHTML= `
-              <a  class="efb btn btn-sm btn-dark text-light"><i class=" fs-6   efb bi-crosshair"></i></a>
+              <a  class="efb btn btn-sm btn-dark text-light"><i class="efb bi-crosshair ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'} fs-7"></i></a>
               <input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="${efb_var.text.eln}" class="efb p-1 border-d efb-square fs-6">
               <a   class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
               <a   class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
@@ -2619,7 +2619,7 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(idhtml).innerHTML = `
             <div class="efb  noCode-efb m-5 text-center" id="${el.dataset.id}_noCode">
             ${efb_var.text.noCodeAddedYet}  <button type="button" class="efb  btn btn-edit btn-sm" id="settingElEFb" data-id="${el.dataset.id}-id" data-bs-toggle="tooltip" title="Edit" onclick="show_setting_window_efb('${el.dataset.id}-id')">
-            <div class="icon-container efb"><i class="efb   bi-gear-wide-connected text-success" id="efbSetting" ></i></div></button> ${efb_var.text.andAddingHtmlCode}
+            <div class="icon-container efb"><i class="efb bi-gear-wide-connected text-success ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'} fs-7" id="efbSetting" ></i></div></button> ${efb_var.text.andAddingHtmlCode}
             </div>`
           valj_efb[postId].value = '';
 
@@ -2981,7 +2981,7 @@ async function create_form_efb() {
                 ${efbLoadingCard('', 4)}
                 <!-- fieldset formNew 2 --> </fieldset>
       `
-    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`}" ><i class="efb bi-check-lg ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'} fs-7"></i><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch (error) {
     console.error(`Preview of Pc Form has an Error`, error)
   }
@@ -3148,7 +3148,7 @@ const saveFormEfb = async (stated) => {
           <h5 class="efb txt-center text-darkb fs-6">${efb_var.text.pleaseReporProblem}</h5>
           <div class="efb text-center">
             <button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onclick ="fun_report_error('fun_saveFormEfb','${error}')">
-              <i class="efb bi-megaphone mx-2"></i> ${efb_var.text.reportProblem} </button>
+              <i class="efb bi-megaphone ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'}"></i> ${efb_var.text.reportProblem} </button>
           </div>
         `;
         show_modal_efb(body, efb_var.text.error, btnIcon, 'error');

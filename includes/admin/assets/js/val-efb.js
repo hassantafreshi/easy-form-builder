@@ -1,5 +1,8 @@
 
 
+// Global variable for RTL margin optimization
+const iconMarginGlobal = efb_var.rtl == 1 ? 'ms-2' : 'me-2';
+
 const currency_efb = ["USD (United State dollar)","AED (United Arab Emirates dirham, درهم إماراتي)","AFN (Afghan afghani)","ALL (Albania Lek)","AMD (Armenian dram, Հայկական Դրամ)","ANG (Netherlands Antillean guilder, Antilliaanse gulden)","AOA (Angolan kwanza)","ARS (Argentine peso,Peso argentino)","AUD (Australian dollar)","AWG (Aruban florin, Arubaanse florin)","AZN (Azerbaijani manat, Azərbaycan manatı)","BAM (Bosnia and Herzegovina convertible mark, Конвертибилна марка)","BBD (Barbadian dollar)","BDT (Bangladeshi taka, টাকা)","BGN (Bulgarian lev, Български лев)","BIF (franc burundais)","BMD (Bermudian dollar)","BND (Brunei dollar, ringgit Brunei)","BOB  (Bolivian boliviano, boliviano)","BRL  (Brazilian real, Real brasileiro)","BSD (Bahamian dollar)","BWP (Botswana pula)","BYN (Belarusian ruble, беларускі рубель)","BZD (Belize dollar)","CAD (Canadian dollar, dollar canadien)","CDF (Congolese franc, franc congolais)","CHF (Swiss franc)","CLP  (Chilean peso, Peso chileno)","CNY (Renminbi, 人民币)","COP  (Colombian peso, peso colombiano)","CRC  (Costa Rican colón, colón costarricense)","CVE  (Cape Verdean escudo, escudo cabo-verdiano)","CZK (Czech koruna, koruna česká)","DJF  (Djiboutian franc, الفرنك الجيبوتي)","DKK (Danish krone, dansk krone)","DOP (Dominican peso, peso dominicano)","DZD (Algerian dinar, دينار جزائري)","EGP (Egyptian pound, جنيه مصرى)","ETB (Ethiopian birr)","EUR (Euro)","FJD (Fijian dollar)","FKP  (Falkland Islands pound)","GBP (Pound sterling)","GEL (Georgian lari,  ქართული ლარი)","GIP (Gibraltar pound)","GMD (Gambian dalasi)","GNF  (Guinean franc, franc guinéen)","GTQ  (Guatemalan quetzal,  quetzal guatemalteco)","GYD (Guyanese dollar)","HKD (Hong Kong dollar, 港元)","HNL  (Honduran lempira, lempira hondureño)","HRK (Croatian kuna, hrvatska kuna)","HTG (Haitian gourde, gourde haïtienne)","HUF (Hungarian forint, Magyar forint)","IDR (Indonesian rupiah)","ILS (Israeli new shekel, שקל חדש)","INR (Indian rupee)","ISK (Icelandic krona, króna)","JMD (Jamaican dollar)","JPY (Japanese yen, 日本円)","KES (Kenyan shilling, Kenyan shilling)","KGS (Kyrgyzstani som, Кыргыз сому)","KHR (Cambodian riel, រៀលកម្ពុជា/រៀលខ្មែរ)","KMF (Comorian franc)","KRW (South Korean won, 대한민국 원)","KYD (Cayman Islands dollar)","KZT (Kazakhstani tenge, Қазақстан теңгесі)","LAK (Lao kip,ເງີນກີບລາວ)","LBP (Lebanese pound, Livre libanaise)","LKR (Sri Lankan rupee, ශ්‍රී ලංකා රුපියල්)","LRD (Liberian dollar)","LSL (Lesotho loti)","MAD (Moroccan dirham, ⴰⴷⵔⵀⵎ ⵏ ⵍⵎⵖⵔⵉⴱ)","MDL (Moldovan leu, leu moldovenesc)","MGA (Malagasy ariary,ariary malgache)","MKD (Macedonian denar,денар)","MMK (Myanmar kyat)","MNT (Mongolian tögrög, Монгол төгрөг)","MOP (Macanese pataca)","MRO (Mauritanian ouguiya, أوقية موريتانية)","MUR (Mauritian rupee, Roupie mauricienne)","MVR (Maldivian rufiyaa)","MWK (Malawian kwacha)","MXN (Mexican peso, Peso Mexicano)","MYR (Malaysian ringgit, Ringgit Malaysia)","MZN (Mozambican metical, Metical moçambicano)","NAD (Namibian dollar)","NGN (Nigerian naira)","NIO (Nicaraguan córdoba, córdoba nicaragüense)","NOK (Norwegian krone, norsk krone)","NPR (Nepalese rupee, रुपैयाँ)","NZD (New Zealand dollar)","PAB (Panamanian balboa, Balboa panameño)","PEN (Peruvian sol, sol peruano)","PGK (Papua New Guinean kina)","PHP (Philippine peso, Piso ng Pilipinas)","PKR (Pakistani rupee)","PLN (Polish złoty, Polski złoty)","PYG (Paraguayan guaraní, Guaraní paraguayo)","QAR (Qatari riyal, ريال قطري)","RON (Romanian leu, Leu românesc)","RSD (Serbian dinar, Cрпски динар)","RUB (Russian ruble, Российский рубль)","RWF (Rwandan franc, franc rwandais)","SAR (Saudi riyalSaudi riyal, ريال سعودي)","SBD (Solomon Islands dollar)","SCR (Seychellois rupee, roupie seychelloise)","SEK (Swedish krona, svensk krona )","SGD (Singapore dollar, Dolar Singapura)","SHP (Saint Helena pound)","SLL (Sierra Leonean leone)","SOS (Somali shilling, Shilin Soomaali)","SRD (Surinamese, Surinamese )","STD (São Tomé and Príncipe dobra, dobra são-tomense)","SZL (Swazi lilangeni)","THB (Thai baht, บาทไทย)","TJS (Tajikistani somoni, Сомонӣ)","TOP (Tonga Pa'anga)","TRY (Turkish New Lira)","TTD (Trinidad/Tobago Dollar)","TWD (Taiwan Dollar)","TZS (Tanzania Shilling)","UAH (Ukraine Hryvnia)","UGX (Uganda Shilling)","UYU (Uruguay Peso)","UZS (Uzbekistani soʻm, Oʻzbek soʻmi)","VND (Vietnam Dong)","VUV (Vanuatu Vatu)","WST (Samoa Tala)","XAF (CFA Franc BEAC)","XCD (East Caribbean Dollar)","XOF (CFA Franc BCEAO)","XPF (CFP Franc)","YER (Yemen Rial)","ZAR (South Africa Rand)","ZMW (Zambian kwacha)"];
 const lan_con_efb = {af:"ZA",ak:"AK",sq:"AL",hy:"AM",rup_MK:"en",as:"as",az_TR:"AZ",ba:"RU",eu:"ES",bel:"BY",bn_BD:"BD",bs_BA:"BA",my_MM:"MM",ca:"ES",bal:"ES",co:"FR",hr:"HR",dv:"MV",nl_NL:"NL",eo:"EO",fo:"FO",fr_BE:"FR",fy:"NL",fuc:"CM",gl_ES:"ES",ka_GE:"GE",gn:"BO",gu_IN:"IN",haw_US:"US",haz:"AF",is_IS:"IS",ido:"FI",jv_ID:"ID",kn:"IN",km:"KH",kin:"RW",ky_KY:"KG",ckb:"IQ",lo:"LA",li:"BE",lin:"CG",lb_LU:"LU",mk_MK:"MK",mg_MG:"MG",ml_IN:"IN",mr:"IN",xmf:"GA",mn:"MN",me_ME:"ME",ne_NP:"NP",nn_NO:"NO",ory:"IN",os:"IR",ps:"PK",fa_AF:"AF",pa_IN:"IN",rhg:"BD",ro_RO:"RO",ru_UA:"UA",rue:"SK",sah:"RU",sa_IN:"IN",srd:"IT",gd:"GB",sr_RS:"CS",sd_PK:"IN",si_LK:"LK ",sl_SI:"SI ",so_SO:"SO",azb:"IR",es_AR:"AR",es_CL:"CL",es_CO:"CO",es_MX:"MX",es_PE:"PE",es_PR:"PR ",es_ES:"ES",es_VE:"VE",su_ID:"SD",sw:"KE",sv_SE:"SE",gsw:"CH",tl:"PH",tg:"TJ ",tzm:"MA",ta_IN:"IN",ta_LK:"LK",tt_RU:"RU",te:"IN",th:"TH",bo:"CH",tir:"ET",tr_TR:"TR",tuk:"TM",ug_CN:"CN",uk:"UA",ur:"PK",uz_UZ:"UZ",vi:"VN",wa:"BE",cy:"GB ",yor:"NG",en_AU:"AU",en_CA:"CA",en_GB:"GB",en_NZ:"NZ",en_US:"US",en_ZA:"ZA",cs_CZ:"CZ",da_DK:"DK",de_AT:"AT",de_CH_informal:"CH",de_DE:"DE",ar:"SA",fa_IR:"IR",ja:"JA",zh_CN:"CN",zh_HK:"HK",zh_SG:"SG",zh_TW:"TW",pl_PL:"PL",pt_AO:"AO",pt_BR:"BR",pt_PT:"PT",ro_RO:"RO",ru_RU:"RU",sk_SK:"SK",ms_MY:"MY",nb_NO:"NO",nl_BE:"BE",ko_KR:"KR",he_IL:"IL",hi_IN:"IN",hu_HU:"HU",id_ID:"ID",it_IT:"IT",fi:"fi",fr_CA:"CA",fr_FR:"FR"};
 const fields_efb = [
@@ -66,7 +69,7 @@ const fields_efb = [
 
 const paymentMethodEls =(idset)=>{
 
-  return`<label for="paymentMethodEl" class="efb mt-3 bi-wallet2 mx-2 efb"> ${efb_var.text.methodPayment}</label>
+  return`<label for="paymentMethodEl" class="efb mt-3 efb"><i class="efb bi-wallet2 fs-7 ${iconMarginGlobal}"></i>${efb_var.text.methodPayment}</label>
   <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">
   <option value="charge" ${valj_efb[0].paymentmethod=='charge' ? 'selected' :''}>${efb_var.text.onetime}</option>
   <option value="day" ${valj_efb[0].paymentmethod=='day' ? 'selected' :''}>${efb_var.text.dayly}</option>
@@ -102,7 +105,7 @@ const currencyTypeEls=(idset)=>{
     op += `<option value="${i.toLowerCase()}" ${valj_efb[0].currency.toUpperCase()==i.slice(0, 3) ? 'selected' :''}>${i}</option>`
   }
   return `
-  <label for="currencyTypeEl" class="efb mt-3 bi-cash mx-2 efb"> ${efb_var.text.currency}</label>
+  <label for="currencyTypeEl" class="efb mt-3 efb"><i class="efb bi-cash fs-7 ${iconMarginGlobal}"></i>${efb_var.text.currency}</label>
                     <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="currencyTypeEl"  data-tag="${valj_efb[0].currency}">
                        ${op}
                     </select>
@@ -112,7 +115,7 @@ const currencyTypeEls=(idset)=>{
 
 const paymentPersianPayEls =(idset)=>{
 
-  return`<label for="paymentPersianPayEl" class="efb mt-3 bi-wallet2 mx-2 efb">درگاه</label>
+  return`<label for="paymentPersianPayEl" class="efb mt-3 efb"><i class="efb bi-wallet2 fs-7 ${iconMarginGlobal}"></i>درگاه</label>
   <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">
   <option value="zarinPal" ${valj_efb[0].persiaPay=='zarinPal' ? 'selected' :''}>زرین پال</option>
   <option disabled value="efb" ${valj_efb[0].persiaPay=='efb' ? 'selected' :''}>وایت استادیو</option>
@@ -133,15 +136,15 @@ const ElementAlignEls = (side ,indx ,idset) => {
   const lab = efb_var.text[side] || side;
   return `
   <div class="efb  row">
-  <label for="labelPostionEl" class="efb  mt-3 col-12 bi-align-center mx-2">${lab} | ${efb_var.text.align}</label>
+  <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>${lab} | ${efb_var.text.align}</label>
     <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="ElementAlignEl">
-      <label class="efb ntb btn-primary bi-align-start ${value == left ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${left}','${side}')">
+      <label class="efb ntb btn-primary ${value == left ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${left}','${side}')"><i class="efb bi-align-start fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="labelPostionEl" value="left" >${efb_var.text.left}</label>
       <span class="efb border-right border border-light "></span>
-      <label class="efb ntb btn-primary bi-align-center ${value == center ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${center}','${side}')">
+      <label class="efb ntb btn-primary ${value == center ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${center}','${side}')"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="center">${efb_var.text.center}</label>
       <span class="efb border-right border border-light "></span>
-      <label class="efb ntb btn-primary bi-align-end ${value == right ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${right}','${side}')">
+      <label class="efb ntb btn-primary ${value == right ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${right}','${side}')"><i class="efb bi-align-end fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="right">${efb_var.text.right}</label>
     </div></div>`;
 }
@@ -161,7 +164,7 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   }
   return `
   <div class="efb mx-1 mt-3">
-  <label for="countriesListEl" class="efb mt-3 bi-aspect-ratio mx-2 efb"> ${efb_var.text.sctdlosp}</label>
+  <label for="countriesListEl" class="efb mt-3 efb"><i class="efb bi-aspect-ratio fs-7 ${iconMarginGlobal}"></i>${efb_var.text.sctdlosp}</label>
   <select  data-id="${idset}" data-type="${el_type}" class="efb elEdit form-select efb border-d rounded-4"  id="countriesListEl"  data-tag="${valj_efb[indx].type}">
   ${opt}
   </select>
@@ -222,7 +225,7 @@ const state_list_el_select=(el_type ,idset,indx)=>{
     }
   return `
   <div class="efb mx-1 mt-1">
-  <label for="statePovListEl" class="efb mt-3 bi-aspect-ratio mx-2 efb"> ${efb_var.text.sctdlocp}</label>
+  <label for="statePovListEl" class="efb mt-3 efb"><i class="efb bi-aspect-ratio fs-7 ${iconMarginGlobal}"></i>${efb_var.text.sctdlocp}</label>
   <select  data-id="${idset}" data-type="${el_type}" class="efb elEdit form-select efb border-d rounded-4"  id="statePovListEl"  data-tag="${valj_efb[indx].type}">
   ${opt}
   </select>
@@ -245,22 +248,22 @@ const cornerEls = (side,indx,idset) => {
 
   return `
     <div class="efb  row">
-    <label for="cornerEl" class="efb  mt-3 col-12 bi-bounding-box-circles">${efb_var.text.corners}>${efb_var.text.rounded}</label>
+    <label for="cornerEl" class="efb  mt-3 col-12"><i class="efb bi-bounding-box-circles fs-7 ${iconMarginGlobal}"></i>${efb_var.text.corners}>${efb_var.text.rounded}</label>
     <div class="efb  btn-group col-12  btn-group-toggle" data-toggle="buttons" data-side="${side}" data-id="${idset}-set" data-tag="${valj_efb[indx].type}" id="cornerEl">
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' || valj_efb[indx].corner =="0"  ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-0')">
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' || valj_efb[indx].corner =="0"  ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-0')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >0</label>
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="1" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-1')">
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="1" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-1')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >1</label>
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="2" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-2')">
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="2" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-2')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >2</label>
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="3" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-3')">
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="3" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-3')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >3</label>
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="4" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-4')">
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="4" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-4')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >4</label>
-      <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'rounded-4' || valj_efb[indx].corner =="5" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-5')">
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'rounded-4' || valj_efb[indx].corner =="5" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-5')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >5</label>
         <!-- <span class="efb  border-right border border-light "></span>
-      <label class="efb  ntb btn-primary bi-diamond ${!valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','efb-square')">
+      <label class="efb  ntb btn-primary ${!valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','efb-square')"><i class="efb bi-diamond fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="cornerEl" value="efb-square"> ${efb_var.text.square}</label>-->
     </div></div>`
 }
@@ -272,13 +275,13 @@ const btnColorEls =(idset,indx) =>{
   const hex=ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn')
   addColorTolistEfb(hex);
   idset =  valj_efb[indx].type =="esign" ? idset+'-id' :idset;
-  return `<label for="btnColorEl" class="efb mt-3 bi-paint-bucket mx-2 efb">${efb_var.text.buttonColor}</label>
+  return `<label for="btnColorEl" class="efb mt-3 efb"><i class="efb bi-paint-bucket fs-7 ${iconMarginGlobal}"></i>${efb_var.text.buttonColor}</label>
   <input type="color" id="btnColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="button" data-type="button"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="btnColorEl"  id="${idset}" >
   `
 }
 
 const hrefEls = (idset,indx) => {
-  return `<label for="hrefEl" class="efb mt-3 bi-box-arrow-up-right mx-2 efb">${efb_var.text.link}</label>
+  return `<label for="hrefEl" class="efb mt-3 efb"><i class="efb bi-box-arrow-up-right fs-7 ${iconMarginGlobal}"></i>${efb_var.text.link}</label>
   <input type="url" id="hrefEl" class="efb  elEdit text-muted form-control border-d rounded-4 efb mb-3 mb-1" data-id="${idset}" data-el="link" data-type="border" placeholder="https://"  data-tag="${valj_efb[indx].type}" value="${valj_efb[indx].href}" name="hrefEls"  id="${idset}" >
   `
 }
@@ -288,13 +291,13 @@ const selectBorderColorEls = (forEl,indx,idset) => {
   let t = ''
   const hex=ColorNameToHexEfbOfElEfb(color.slice(7),indx,'border');
   addColorTolistEfb(hex);
-  return `<label for="selectBorderColorEl" class="efb mt-3 bi-paint-bucket mx-2 efb">${efb_var.text.borderColor}</label>
+  return `<label for="selectBorderColorEl" class="efb mt-3 efb"><i class="efb bi-paint-bucket fs-7 ${iconMarginGlobal}"></i>${efb_var.text.borderColor}</label>
   <input type="color" id="selectBorderColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="${forEl}" data-type="border"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl"  id="${idset}" >
   `
 }
 const fontSizeEls = (idset,indx) => {
   return `
-    <label for="fontSizeEl" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.height}</label>
+    <label for="fontSizeEl" class="efb  mt-3"><i class="efb bi-arrow-down-up fs-7 ${iconMarginGlobal}"></i>${efb_var.text.height}</label>
     <select  data-id="${idset}" class="efb  rounded-4 elEdit form-select"  id="fontSizeEl" data-tag="${valj_efb[indx].type}">
     <option value="display-1"  ${valj_efb[indx].el_text_size ==  'display-1' ? `selected` : ''}>${efb_var.text.xxxlarge}</option>
     <option value="display-2"  ${valj_efb[indx].el_text_size == 'display-2' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
@@ -310,7 +313,7 @@ const fontSizeEls = (idset,indx) => {
 const selectHeightEls = (idset,indx) => {
 
   return `
-    <label for="selectHeightEl" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.height}</label>
+    <label for="selectHeightEl" class="efb  mt-3"><i class="efb bi-arrow-down-up fs-7 ${iconMarginGlobal}"></i>${efb_var.text.height}</label>
     <select  data-id="${idset}" class="efb  rounded-4 elEdit form-select"  id="selectHeightEl" data-tag="${valj_efb[indx].type}">
     <option value="h-d-efb" ${ valj_efb[indx].el_height == 'h-d-efb' ? `selected` : ''}>${efb_var.text.default}</option>
     <option value="h-l-efb"  ${ valj_efb[indx].el_height == 'h-l-efb' ? `selected` : ''} >${efb_var.text.large}</option>
@@ -346,7 +349,7 @@ const ElcountriesListSelections = (idset,indx) => {
 
   }
    return `
-    <label for="${rndm}-f" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.scdnmi}</label>
+    <label for="${rndm}-f" class="efb  mt-3"><i class="efb bi-arrow-down-up fs-7 ${iconMarginGlobal}"></i>${efb_var.text.scdnmi}</label>
     <div class="efb col-sm-12 listSelect mx-0 ttEfb show"   id='${rndm}-f' data-id="${rndm}-el" >
     <div class="efb efblist  mx-0  inplist  h-d-efb rounded-4 border-d bi-chevron-down" data-id="menu-${rndm}"   data-no="145" data-min="" data-parent="1" data-icon="1" data-select="${selectData}"  data-vid='${rndm}' id="${rndm}_options" > ${value.length>1 ? value :efb_var.text.selectOption}</div>
 
@@ -578,7 +581,7 @@ function show_setting_window_efb(idset) {
     </div>`;
 
     const languageSelectPresentEls = `
-                     <label for="languageSelectPresentEl" class="efb mt-3 px-1 bi-translate mx-2 efb"> ${efb_var.text.stsd}</label>
+                     <label for="languageSelectPresentEl" class="efb mt-3 px-1 efb"><i class="efb bi-translate fs-7 ${iconMarginGlobal}"></i>${efb_var.text.stsd}</label>
                       <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="languageSelectPresentEl"  data-tag="${valj_efb[indx].type}">
                       <option value="1" ${ valj_efb[indx].hasOwnProperty('stylish')==false || valj_efb[indx].stylish == 1 ? `selected` : ''} >${efb_var.text.nlan} (${efb_var.text.elan})</option>
                       <option value="2" ${ valj_efb[indx].stylish == 2 ? `selected` : ''}>${efb_var.text.nlan}</option>
@@ -598,7 +601,7 @@ function show_setting_window_efb(idset) {
     ${el.dataset.tag != 'ttlprc' ? requireEls : ''}
     ${desEls}`
     const labelFontSizeEls = `
-      <label for="labelFontSizeEl" class="efb mt-3 bi-aspect-ratio mx-2 efb">${efb_var.text.labelSize}</label>
+      <label for="labelFontSizeEl" class="efb mt-3 efb"><i class="efb bi-aspect-ratio fs-7 ${iconMarginGlobal}"></i>${efb_var.text.labelSize}</label>
                         <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="labelFontSizeEl"  data-tag="${valj_efb[indx].type}">
                             <option value="fs-6" ${ valj_efb[indx].label_text_size == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
                             <option value="fs-7" ${ valj_efb[indx].label_text_size == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
@@ -607,7 +610,7 @@ function show_setting_window_efb(idset) {
                             <option value="fs-3" ${ valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
                         </select>`;
     const optnsStyleEls = `
-      <label for="optnsStyleEl" class="efb mt-3 bi-layout-split mx-2 efb">${efb_var.text.cols}</label>
+      <label for="optnsStyleEl" class="efb mt-3 efb"><i class="efb bi-layout-split fs-7 ${iconMarginGlobal}"></i>${efb_var.text.cols}</label>
                         <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="optnsStyleEl"  data-tag="${valj_efb[indx].type}">
                             <option value="1" ${ !valj_efb[indx].hasOwnProperty('op_style') || valj_efb[indx].op_style == '1' ? `selected` : ''}>${efb_var.text.default}</option>
                             <option value="2" ${ valj_efb[indx].op_style == '2' ? `selected` : ''}>${efb_var.text.col} 2</option>
@@ -626,18 +629,18 @@ function show_setting_window_efb(idset) {
     <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('redirectPage')"> </i></label>
     <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? valj_efb[0].rePage.replace(/(@efb@)+/g, '/') : ''}"></div>`
     const paymentGetWayEls =()=>{
-      return`<label for="paymentGetWayEl" class="efb mt-3 bi-wallet-fill mx-2 efb"> ${efb_var.text.paymentGateway}</label>
+      return`<label for="paymentGetWayEl" class="efb mt-3 efb"><i class="efb bi-wallet-fill fs-7 ${iconMarginGlobal}"></i>${efb_var.text.paymentGateway}</label>
       <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="paymentGetWayEl"  data-tag="${valj_efb[0].type}">
           <option value="stripe" selected>${efb_var.text.stripe}</option>
       </select>`;
     }
 
-     const currencyPersianPayEls= `<p for="currencyTypeEl" class="efb text-labelEfb fs-5 mt-3 bi-cash mx-2 efb"> ${efb_var.text.currency}: تومان</p>
+     const currencyPersianPayEls= `<p for="currencyTypeEl" class="efb text-labelEfb fs-5 mt-3 efb"><i class="efb bi-cash fs-7 ${iconMarginGlobal}"></i>${efb_var.text.currency}: تومان</p>
       `;
 
     const labelPostionEls = `
     <div class="efb row efb">
-    <label for="labelPostionEl" class="efb  mt-3 col-12 bi-arrows-angle-contract mx-2">${efb_var.text.labelPostion}</label>
+    <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-arrows-angle-contract fs-7 ${iconMarginGlobal}"></i>${efb_var.text.labelPostion}</label>
       <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-id="${idset}"  id="labelPostionEl">
         <label class="efb  ntb btn-primary bi-chevron-bar-down ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'up' ? `active` : ''}" onclick="funSetPosElEfb('${idset}','up')">
           <input type="radio" name="options" class="efb  opButtonEfb elEdit "   data-id="${idset}"  id="labelPostionEl" value="up" >${efb_var.text.up}</label>
@@ -649,7 +652,7 @@ function show_setting_window_efb(idset) {
 
 
     const widthEls = `
-      <label for="sizeEl" class="efb  mt-3 bi-arrow-left-right mx-2">${efb_var.text.width}</label>
+      <label for="sizeEl" class="efb  mt-3"><i class="efb bi-arrow-left-right fs-7 ${iconMarginGlobal}"></i>${efb_var.text.width}</label>
       <select  data-id="${idset}" class="efb  rounded-4 elEdit form-select"  id="sizeEl" >
           <option value="8" ${valj_efb[indx].size == 8.3 ? `selected` : ''}>8%</option>
           <option value="17" ${valj_efb[indx].size == 17 ? `selected` : ''}>17%</option>
@@ -666,20 +669,20 @@ function show_setting_window_efb(idset) {
       </select>
       `
     const classesEls = `
-      <label for="cssClasses" class="efb  mt-3 bi-journal-code mx-2">${efb_var.text.cSSClasses}</label>
+      <label for="cssClasses" class="efb  mt-3"><i class="efb bi-journal-code fs-7 ${iconMarginGlobal}"></i>${efb_var.text.cSSClasses}</label>
       <input type="text"  data-id="${idset}" class="efb  elEdit text-muted form-control border-d rounded-4 efb mb-3 mb-1" id="classesEl" placeholder="${efb_var.text.cSSClasses}"  ${valj_efb[indx].classes && valj_efb[indx].classes.length > 1 ? `value="${valj_efb[indx].classes}"` : ''}>
       `
     const valueEls = `
-    <label for="valueEl" class="efb  mt-3 bi-cursor-text mx-2">${efb_var.text.value}</label>
+    <label for="valueEl" class="efb  mt-3"><i class="efb bi-cursor-text fs-7 ${iconMarginGlobal}"></i>${efb_var.text.value}</label>
       <input type="${valj_efb[indx].type!="range" ? "text" :'number' }"  data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}>
       `
     const valueTextereaEls = `
-    <label for="valueEl" class="efb  mt-3 bi-cursor-text mx-2">${efb_var.text.value}</label>
+    <label for="valueEl" class="efb  mt-3"><i class="efb bi-cursor-text fs-7 ${iconMarginGlobal}"></i>${efb_var.text.value}</label>
       <textarea type="text"  data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}  rows="3"></textarea>
       `
 
     const placeholderEls = `
-      <label for="placeholderEl" class="efb  mt-3 bi-patch-exclamation mx-2">${efb_var.text.placeholder}</label>
+      <label for="placeholderEl" class="efb  mt-3"><i class="efb bi-patch-exclamation fs-7 ${iconMarginGlobal}"></i>${efb_var.text.placeholder}</label>
       <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1"id="placeholderEl" placeholder="${efb_var.text.placeholder}" ${valj_efb[indx].placeholder && valj_efb[indx].placeholder.length > 1 ? `value="${valj_efb[indx].placeholder}"` : ''}>
       `
 
@@ -720,7 +723,7 @@ function show_setting_window_efb(idset) {
       // check for Nex and previous
 
       return `
-      <div class="efb ${ side!="DoneIconEfb"? '' :`tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}` }"> <label for="iconEl" class="efb form-label bi-heptagon mx-2 mt-2 mb-0" id="DoneIconEfb">${t} ${efb_var.text.icon} </label>
+      <div class="efb ${ side!="DoneIconEfb"? '' :`tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}` }"> <label for="iconEl" class="efb form-label mt-2 mb-0" id="DoneIconEfb"><i class="efb bi-heptagon fs-7 ${iconMarginGlobal}"></i>${t} ${efb_var.text.icon} </label>
           <div class="efb  listSelect my-2">
             <div class="efb  efblist mx-1  p-2 inplist  h-d-efb elEdit border efb border-d rounded-4 bi-chevron-down" id="iconEl"
             data-id="${iset}" data-idset="${idset}" data-side="${side}"  data-no="1" data-parent="1" data-iconset="${iNo}"
@@ -788,7 +791,7 @@ function show_setting_window_efb(idset) {
       const file_size = valj_efb[indx].hasOwnProperty('max_fsize') ? valj_efb[indx].max_fsize : 8;
       return`
       <div class="efb  mt-3">
-      <label for="fileSizeMaxEl" class="efb  mt-3 bi-file-earmark-medical mx-2 ">${efb_var.text.maxfs} <small>(MB)</small> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('file_size')"> </i></label>
+      <label for="fileSizeMaxEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.maxfs} <small>(MB)</small> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('file_size')"> </i></label>
 
       <input type="number" min="1" max="300" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" placeholder=""${efb_var.text.exDot} 8" id="fileSizeMaxEl" required value="${file_size}">
       </div>
@@ -799,7 +802,7 @@ function show_setting_window_efb(idset) {
 
 
     const fileTypeEls = `
-          <label for="fileTypeEl" class="efb  mt-3 bi-file-earmark-medical mx-2 ">${efb_var.text.fileType}</label>
+          <label for="fileTypeEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.fileType}</label>
           <select  data-id="${idset}" class="efb  elEdit form-select border-d rounded-4"  id="fileTypeEl" data-tag="${valj_efb[indx].type}">
           <option value="allformat" ${!valj_efb[indx].hasOwnProperty('file') || valj_efb[indx].file == 'allformat' ? `selected` : ''} >${efb_var.text.allformat}</option>
           <option value="document" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'document' ? `selected` : ''} >${efb_var.text.documents}</option>
@@ -821,7 +824,7 @@ function show_setting_window_efb(idset) {
 
       return`
       <div class="efb mt-3 ${show}" id="fileCustomizeTypleEls">
-      <label for="fileCustomizeTypleEl" class="efb  mt-3 bi-file-earmark-medical mx-2 ">${efb_var.text.file_cstm}</label>
+      <label for="fileCustomizeTypleEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.file_cstm}</label>
       <input type="text" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" placeholder="${efb_var.text.exDot} jpg, png, pdf" id="fileCustomizeTypleEl" required value="${value}">
       </div>
       `
@@ -893,7 +896,7 @@ function show_setting_window_efb(idset) {
 
       }
       addColorTolistEfb(hex);
-      return `<span class="efb ${cls}"> <label for="selectColorEl" class="efb mt-3 bi-paint-bucket mx-2 efb">${t} ${efb_var.text.clr}</label>
+      return `<span class="efb ${cls}"> <label for="selectColorEl" class="efb mt-3 efb"><i class="efb bi-paint-bucket fs-7 ${iconMarginGlobal}"></i>${t} ${efb_var.text.clr}</label>
       <input type="color" id="selectColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="${forEl}" data-type="${f}"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl"  id="${idset}" ></span>
       `
     }
@@ -1220,7 +1223,7 @@ function show_setting_window_efb(idset) {
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->
-        <label for="htmlCodeEl" class="efb  form-label mt-2 mb-1"><i class="efb  bi-code-square mx-2" ></i>${efb_var.text.code}</label>
+        <label for="htmlCodeEl" class="efb  form-label mt-2 mb-1"><i class="efb  bi-code-square fs-7 ${iconMarginGlobal}" ></i>${efb_var.text.code}</label>
         <small class="efb text-info text-danger bg-muted  efb">${efb_var.text.pleaseDoNotAddJsCode}</small>
         <textarea placeholder="${efb_var.text.htmlCode}"
         class="efb elEdit form-control efb  h-d-efb   mb-1"
@@ -1253,9 +1256,9 @@ function show_setting_window_efb(idset) {
                 ${widthEls}
                 ${selectHeightEls(idset,indx)}
                 ${cornerEls('yesNo',indx,idset)}
-                <label for="valueEl" class="efb  mt-3 mb-0 bi-cursor-text mx-2">${efb_var.text.button1Value}</label>
+                <label for="valueEl" class="efb  mt-3 mb-0"><i class="efb bi-cursor-text fs-7 ${iconMarginGlobal}"></i>${efb_var.text.button1Value}</label>
                 <input type="text"  data-id="${idset}" class="efb elEdit border-d rounded-4 text-muted form-control efb mb-3" id="valueEl" data-tag="yesNo" data-no="1" placeholder="${efb_var.text.exDot} ${efb_var.text.yes}" value="${valj_efb[indx].button_1_text}">
-                <label for="valueEl" class="efb  mt-0 mb-1 bi-cursor-text mx-2">${efb_var.text.button2Value}</label>
+                <label for="valueEl" class="efb  mt-0 mb-1"><i class="efb bi-cursor-text fs-7 ${iconMarginGlobal}"></i>${efb_var.text.button2Value}</label>
                 <input type="text"  data-id="${idset}" class="efb elEdit border-d rounded-4 text-muted form-control efb mb-3" id="valueEl" data-tag="yesNo" data-no="2" placeholder="${efb_var.text.exDot} ${efb_var.text.no}" value="${valj_efb[indx].button_2_text}">
                 ${classesEls}
                 ${disabledEls}
@@ -1691,7 +1694,7 @@ function creator_form_builder_Efb() {
     els += `
     <div class="efb tag efb-col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onclick="add_element_dpz_efb('${ob.id}')"` : ''}>
      ${ob.pro == true && pro_efb == false ? ` <a type="button"  onclick='pro_show_efb(3)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
-      <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" title="${ob.name}" ${disable}><i class="efb  ${ob.icon}"></i><span class="efb d-block text-capitalize">${ob.name}</span></button>
+      <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" title="${ob.name}" ${disable}><i class="efb bi tag  ${ob.icon}"></i><span class="efb d-block text-capitalize">${ob.name}</span></button>
     </div>
     `
     dragab = true;
@@ -1757,7 +1760,7 @@ function creator_form_builder_Efb() {
   <div class="efb modal fade test" id="settingModalEfb"  aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
       <div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
           <div class="efb modal-content efb " id="settingModalEfb-sections">
-                  <div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb fs-3">${efb_var.text.editField}</span></h5></div>
+                  <div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks fs-7 ${iconMarginGlobal}" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb fs-3">${efb_var.text.editField}</span></h5></div>
                   <div class="efb modal-body" id="settingModalEfb-body">
                      ${efbLoadingCard('',4)}
                   </div>

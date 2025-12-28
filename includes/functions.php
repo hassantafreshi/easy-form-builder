@@ -191,8 +191,8 @@ class efbFunction {
 			"file" => $state ? $ac->text->file : esc_html__('File Upload','easy-form-builder'),
 			/* translators: Tel = Telephone/Phone number */
 			"tel" => $state ? $ac->text->tel : esc_html__('Tel','easy-form-builder'),
-			/* translators: Textarea = input field for long text[textarea] */
-			"textarea" => $state ? $ac->text->textarea : esc_html__('Long Text','easy-form-builder'),
+			/* translators: Textarea = input field for text[textarea] */
+			"textarea" => $state ? $ac->text->textarea : esc_html__('Text','easy-form-builder'),
 			/* translators: Checkbox = input field for selecting options */
 			"checkbox" => $state ? $ac->text->checkbox : esc_html__('Check Box','easy-form-builder'),
 			/* translators: Radio Button = input field for selecting one option from many */
