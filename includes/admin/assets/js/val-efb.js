@@ -1651,6 +1651,10 @@ function creator_form_builder_Efb() {
     // thisElemantNotAvailable
   }
 
+  // Check if pro is not active and package type is 2 - restrict dragging
+  const isPackageTypeLimited = pro_efb == false && Number(setting_emsFormBuilder.package_type) == 2;
+  const packageLimitMessage = `onclick='pro_show_efb(3)'`
+
   if( efb_var.language=='fa_IR')fields_efb.push( { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' });
   for (let ob of fields_efb) {
 
@@ -1677,9 +1681,16 @@ function creator_form_builder_Efb() {
       disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${msg}', 20 , 'info')"`
       dragab = false;
     }
+
+    // Apply package type 2 limitations for pro fields when pro is not active
+    if (isPackageTypeLimited && ob.pro == true) {
+      disable = packageLimitMessage;
+      dragab = false;
+    }
+
     els += `
     <div class="efb tag efb-col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onclick="add_element_dpz_efb('${ob.id}')"` : ''}>
-     ${ob.pro == true && pro_efb == false ? ` <a type="button"  onclick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
+     ${ob.pro == true && pro_efb == false ? ` <a type="button"  onclick='pro_show_efb(3)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
       <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" title="${ob.name}" ${disable}><i class="efb  ${ob.icon}"></i><span class="efb d-block text-capitalize">${ob.name}</span></button>
     </div>
     `
@@ -2188,7 +2199,7 @@ function show_setting_up_easy_form_builder_Efb() {
             </ul>
 
             <div class="efb-plan-action">
-              <button class="efb-btn efb-btn-primary" onclick="handle_setup_modal_action('free_plus')">
+              <button class="efb-btn efb-btn-primary" onclick="handle_setup_modal_action('free_plus_guide')">
                 ${efb_var.text.continueWithFreePlus}
               </button>
             </div>

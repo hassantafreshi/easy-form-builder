@@ -61,18 +61,51 @@ function fub_shwBtns_efb() {
 }
 function pro_show_efb(state) {
   let message = state;
-  if (typeof state != "string") message = state == 1 ? efb_var.text.proUnlockMsg : efb_var.text.ifYouNeedCreateMoreThan2Steps;
+  let buttons = '';
+
+  if (typeof state != "string") {
+    if (state == 1) {
+      message = efb_var.text.proUnlockMsg;
+    } else if (state == 2) {
+      message = efb_var.text.ifYouNeedCreateMoreThan2Steps;
+    } else if (state == 3) {
+      message = "This feature is available in Free Plus or Pro version";
+    }
+  }
+
+  // Generate buttons based on state
+  if (state == 3) {
+    buttons = `
+    <div class="efb row">
+      <div class="efb  col-md-6  text-center">
+        <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-info "  onclick ="open_whiteStudio_efb('free_plus_guide')">${efb_var.text.freePlusActivation || 'Free Plus Activation'} </button>
+      </div>
+      <div class="efb  text-center col-md-6">
+        <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onclick ="open_whiteStudio_efb('pro')">
+          <i class="efb  bi-gem mx-1 pro"></i>
+          ${efb_var.text.activateProVersion}
+        </button>
+      </div>
+    </div>`;
+  } else {
+    buttons = `
+    <div class="efb row">
+      <div class="efb  col-md-6  text-center">
+        <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onclick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr.replace('NN',pro_price_efb)} </button>
+      </div>
+      <div class="efb  text-center col-md-6">
+        <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onclick ="open_whiteStudio_efb('pro')">
+          <i class="efb  bi-gem mx-1 pro"></i>
+          ${efb_var.text.activateProVersion}
+        </button>
+      </div>
+    </div>`;
+  }
+
   const body = `<div class="efb  pro-version-efb-modal"><i class="efb  bi-gem"></i></div>
   <h5 class="efb  txt-center">${message}</h5>
-  <div class="efb row">
-  <div class="efb  col-md-6  text-center">
-  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onclick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr.replace('NN',pro_price_efb)} </button>
-  </div>
-    <div class="efb  text-center col-md-6"><button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onclick ="open_whiteStudio_efb('pro')">
-      <i class="efb  bi-gem mx-1 pro"></i>
-        ${efb_var.text.activateProVersion}
-      </button></div>
-  </div>`
+  ${buttons}`
+
   show_modal_efb(body, efb_var.text.proVersion, '', 'proBpx')
   state_modal_show_efb(1)
 }
@@ -1274,6 +1307,9 @@ const sub =lan_subdomain_wsteam_efb();
       break;
     case 'paymentform':
       link = `How-to-Create-a-Payment-Form-in-Easy-Form-Builder`
+      break;
+    case 'free_plus_guide':
+      link = 'easy-form-builder-free-plus-activation-guide'
       break;
   }
 }else{

@@ -50,6 +50,12 @@ class Create {
 	}
 	public function render_settings() {
 		$efbFunction = get_efbFunction();
+		// 0 expired
+ 		// 1 pro
+		// 2 free plan
+		// 3 free plus
+
+
 		$noti_pro = intval(get_option('Emsfb_pro' ,-1));
 		if ($noti_pro === 0  ){
 			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";

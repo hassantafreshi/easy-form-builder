@@ -870,11 +870,13 @@ function fun_show_help__emsFormBuilder() {
       <img src="${efb_var.images.title}" class="efb title efb">
       <i class="efb  bi-info-circle title-icon mx-2"></i>${efb_var.text.help}
   </h4>
-  <div class="efb crd efb col-md-7"><div class="efb card-body"> <div class="efb d-grid gap-2">${str}</div></div></div>
+  <div class="efb crd efb col-md-7 d-none d-md-block"><div class="efb card-body"> <div class="efb d-grid gap-2">${str}</div></div></div>
   <div class="efb col-md-4 mx-1 py-5 crd efb">
+              <div class="efb mt-2 pd-5 col-md-12">
                   <img src="${efb_var.images.logo}"  class="efb description-logo efb">
-                  <h1 class="efb  pointer-efb ec-efb" data-eventform="links" data-linkname="ws" ><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">${efb_var.text.easyFormBuilder}</font></font></h1>
-                  <h3 class="efb  pointer-efb  card-text ec-efb" data-eventform="links" data-linkname="ws">${efb_var.text.byWhiteStudioTeam}</h3>
+                  <h1 class="efb  pointer-efb ec-efb fs-5" data-eventform="links" data-linkname="ws" ><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">${efb_var.text.easyFormBuilder}</font></font></h1>
+                  <h2 class="efb  pointer-efb  card-text ec-efb fs-7" data-eventform="links" data-linkname="ws">${efb_var.text.byWhiteStudioTeam}</h2>
+              </div>
                   <div class="efb clearfix"></div>
                   <p class="efb  card-text efb pb-3 fs-6">
                   ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}

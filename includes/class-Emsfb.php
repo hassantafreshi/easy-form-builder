@@ -386,11 +386,16 @@ public static function email_send_efb() {
             case 'decoded':
             default:
                 // Decoded object
+                // Append package type
+                // 0 = expired, 1 = pro, 2 = free plan, 3 = free plus
+                $package_type = get_option('emsfb_pro', 2);
+                $decoded->package_type = $package_type;
                 $result = $decoded;
                 break;
         }
 
         // Save to all cache layers
+
         $staticCache[$mode] = $result;
         wp_cache_set($cacheKey, $result, 'emsfb', 3600); // 1 hour
 

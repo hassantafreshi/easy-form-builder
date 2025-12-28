@@ -1682,7 +1682,7 @@ function admin_notices_efb () {
         switch($selected_plan) {
             case 'free':
                 // free = 0 (no action required)
-                update_option('emsfb_pro', 3);
+                update_option('emsfb_pro', 2);
                 $action_performed = __('Free plan activated - no additional features.', 'easy-form-builder');
                 break;
 
@@ -1702,7 +1702,8 @@ function admin_notices_efb () {
                 $action_performed = __('Redirecting to Pro plan purchase page.', 'easy-form-builder');
                 // Optionally set pro option as well
                 // update_option('emsfb_pro', 1);
-                break;
+
+            break;
         }
 
         // Create response data
