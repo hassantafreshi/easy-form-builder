@@ -1,0 +1,178 @@
+/*
+ * CSS Responsive Rules for Easy Form Builder
+ * For screens smaller than 1320px but larger than mobile sizes
+ * Copyright 2021 ~ 2024 EFB.APP - WhiteStudio.team
+ */
+
+/* For screens smaller than 1320px - Large tablets and smaller desktops */
+@media (max-width: 1320px) and (min-width: 992px) {
+    /* Form builder elements - change from 4 columns to 3 columns */
+    .efb.efb-col-3.draggable-efb {
+        width: 33.333333% !important;
+        flex: 0 0 33.333333% !important;
+        margin-bottom: 15px;
+    }
+
+    /* Ensure proper spacing and wrapping */
+    .efb.row .efb.efb-col-3 {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    /* Button text adjustments */
+    .efb.btn-select-form .efb.d-block {
+        font-size: 0.85rem !important;
+        line-height: 1.2 !important;
+    }
+
+    /* Icon sizing adjustments */
+    .efb.btn-select-form .efb.bi {
+        font-size: 1.1rem !important;
+        margin-bottom: 4px !important;
+    }
+}
+
+/* For screens smaller than 1200px - Tablets */
+@media (max-width: 1200px) and (min-width: 768px) {
+    /* Form builder elements - change to 2 columns */
+    .efb.efb-col-3.draggable-efb {
+        width: 50% !important;
+        flex: 0 0 50% !important;
+        margin-bottom: 15px;
+    }
+
+    /* Adjust button sizing for smaller screens */
+    .efb.btn-select-form {
+        min-height: 75px !important;
+        padding: 10px 8px !important;
+    }
+
+    /* Text adjustments */
+    .efb.btn-select-form .efb.d-block {
+        font-size: 0.8rem !important;
+        margin-top: 3px;
+    }
+
+    /* Pro version badge adjustments */
+    .efb.pro-version-efb {
+        top: 5px !important;
+        right: 5px !important;
+        font-size: 0.7rem !important;
+    }
+}
+
+/* For screens between 992px and 1024px - Small tablets/large phones landscape */
+@media (max-width: 1024px) and (min-width: 992px) {
+    /* Ensure buttons don't get too cramped */
+    .efb.btn-select-form .efb.d-block {
+        font-size: 0.75rem !important;
+        line-height: 1.1 !important;
+    }
+
+    /* Reduce padding slightly */
+    .efb.row .efb.efb-col-3 {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+}
+
+/* General improvements for medium screens */
+@media (max-width: 1320px) and (min-width: 768px) {
+    /* Improve container spacing */
+    .efb.col-md-4#listElEfb {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    /* Ensure drag and drop area remains accessible */
+    .efb.col-md-8.body-dpz-efb {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    /* Category navigation adjustments */
+    .efb.row#listCatEfb .efb.efb-col-3 {
+        padding: 2px 4px !important;
+    }
+
+    .efb.nav-link.cat {
+        padding: 8px 6px !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Tooltip adjustments for smaller screens */
+    .efb[data-bs-toggle="tooltip"] {
+        font-size: 0.8rem !important;
+    }
+
+    /* Form elements container improvements */
+    .efb.crd.drag-box {
+        padding: 15px 10px !important;
+    }
+
+    /* Navbar improvements for medium screens */
+    .efb.navbar-expand-lg .efb.navbar-nav .efb.nav-link {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Modal dialog adjustments */
+    .efb.modal-dialog {
+        max-width: 90% !important;
+        margin: 1.75rem auto !important;
+    }
+
+    /* Side menu adjustments */
+    #sideMenuConEfb {
+        padding: 10px 8px !important;
+    }
+
+    /* Form setting panel improvements */
+    .efb.form-control.border-d.rounded-4 {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Improvements for landscape orientation on tablets */
+@media (max-width: 1024px) and (min-width: 768px) and (orientation: landscape) {
+    .efb.efb-col-3.draggable-efb {
+        width: 33.333333% !important;
+        flex: 0 0 33.333333% !important;
+    }
+
+    .efb.btn-select-form {
+        min-height: 70px !important;
+        padding: 8px 6px !important;
+    }
+
+    .efb.btn-select-form .efb.d-block {
+        font-size: 0.75rem !important;
+    }
+}
+
+/* Additional fixes for specific breakpoints */
+@media (max-width: 1100px) and (min-width: 992px) {
+    /* Ensure three columns layout stays consistent */
+    .efb.efb-col-3.draggable-efb {
+        max-width: 33.333333% !important;
+    }
+
+    /* Adjust button height for consistency */
+    .efb.btn-select-form {
+        min-height: 85px !important;
+        padding: 12px 10px !important;
+    }
+}
+
+/* Ensure proper display on smaller desktop screens */
+@media (max-width: 1366px) and (min-width: 1200px) {
+    .efb.efb-col-3.draggable-efb {
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+    }
+
+    .efb.btn-select-form {
+        padding: 12px 8px !important;
+    }
+}

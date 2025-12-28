@@ -32,6 +32,7 @@ function ems_Form_Builders_visual_composer_shortcode() {
 
 function ems_Form_Builders_visual_composer_shortcode_css() {
   wp_enqueue_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', array(), EMSFB_PLUGIN_VERSION);
+  wp_enqueue_style('Emsfb-responsive-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/min-1200-style.css', array(), EMSFB_PLUGIN_VERSION);
   // Load CSS per global setting or any additional styles if required.
 }
 add_action( 'vc_load_iframe_jscss', 'ems_Form_Builders_visual_composer_shortcode_css' );
@@ -39,20 +40,20 @@ add_action( 'vc_load_iframe_jscss', 'ems_Form_Builders_visual_composer_shortcode
 function get_available_forms() {
   // Your logic to retrieve the available forms
   // You can fetch form names and IDs from your database or any other source
-  
+
   // For example, assuming you have an array of forms with IDs and names
   $forms = array(
     array('id' => 1, 'name' => 'Form 1'),
     array('id' => 2, 'name' => 'Form 2'),
     array('id' => 3, 'name' => 'Form 3'),
   );
-  
+
   $options = array();
-  
+
   foreach ($forms as $form) {
     $options[$form['name']] = $form['id'];
   }
-  
+
   return $options;
 }
 
