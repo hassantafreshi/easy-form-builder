@@ -2199,7 +2199,7 @@ function show_setting_up_easy_form_builder_Efb() {
             </ul>
 
             <div class="efb-plan-action">
-              <button class="efb-btn efb-btn-primary" onclick="handle_setup_modal_action('free_plus_guide')">
+              <button class="efb-btn efb-btn-primary" onclick="handle_setup_modal_action('free_plus')">
                 ${efb_var.text.continueWithFreePlus}
               </button>
             </div>

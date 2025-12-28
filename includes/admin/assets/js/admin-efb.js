@@ -587,7 +587,7 @@ createCardFormEfb = (i) => {
   ${i.pro == true && efb_var.pro != 1 ? funProEfb() : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
-  ${(i.pro == true && setting_emsFormBuilder.package_type != 2) || i.pro==false ? btn : ''}
+  ${(i.pro == true && Number(setting_emsFormBuilder.package_type) != 2) || i.pro==false ? btn : ''}
   ${prw}
   </div></div></div>`
 }
@@ -599,8 +599,8 @@ createCardAddoneEfb = (i) => {
   let nameNtn = efb_var.text.install;
   let iconNtn = 'bi-download';
   let colorNtn = 'btn-primary';
-  if (i.pro == true &&  efb_var.pro != 1) {
-    funNtn=`pro_show_efb(1)`;
+  if (i.pro == true &&   Number(setting_emsFormBuilder.package_type) === 2) {
+    funNtn=`pro_show_efb(3)`;
     nameNtn = efb_var.text.pro;
     iconNtn ='bi-gem';
     colorNtn = 'btn-warning';
