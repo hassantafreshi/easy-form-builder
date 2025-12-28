@@ -1,6 +1,55 @@
 
 
 
+// Phone number input filter functions
+function allowOnlyPhoneChars_efb(event) {
+  const allowedChars = /[0-9\+\(\)\-\s]/;
+  const key = String.fromCharCode(event.which || event.keyCode);
+
+  // Allow special keys (backspace, delete, tab, enter, etc.)
+  if (event.ctrlKey || event.metaKey ||
+      [8, 9, 13, 27, 46, 37, 38, 39, 40].indexOf(event.keyCode) !== -1) {
+    return true;
+  }
+
+  // Check if the character is allowed
+  if (!allowedChars.test(key)) {
+    event.preventDefault();
+    // Show brief feedback for invalid character
+    const input = event.target;
+    input.classList.add('is-invalid');
+    setTimeout(() => {
+      input.classList.remove('is-invalid');
+    }, 300);
+    return false;
+  }
+
+  return true;
+}
+
+function filterPhoneNumberInput_efb(input) {
+  // Remove any characters that are not allowed
+  const allowedPattern = /[^0-9\+\(\)\-\s]/g;
+  const cursorPosition = input.selectionStart;
+  const oldValue = input.value;
+  const newValue = oldValue.replace(allowedPattern, '');
+
+  if (oldValue !== newValue) {
+    input.value = newValue;
+    // Restore cursor position adjusted for removed characters
+    const removedChars = oldValue.length - newValue.length;
+    const newCursorPosition = Math.max(0, cursorPosition - removedChars);
+    input.setSelectionRange(newCursorPosition, newCursorPosition);
+
+    // Clear any previous validation messages when user starts typing valid characters
+    const messageEl = document.getElementById(input.id + '-message');
+    if (messageEl && newValue.length > 0) {
+      messageEl.innerHTML = '';
+      input.classList.remove('invalid');
+    }
+  }
+}
+
 let valueJson_ws_form = [];
 let valueJson_ws_messages = [];
 let valueJson_ws_setting = []
@@ -1383,7 +1432,7 @@ function fun_show_setting__emsFormBuilder() {
                           <p class="efb ${mxCSize}">${efb_var.text.sms_dnoti}</p>
                           <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                           <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_admn_no}</label>
-                            <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^\+\d{11,14}$" placeholder="+11234567890" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}">
+                            <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^[\+0-9\(\)\-\s]+$" placeholder="+12(345)678-90" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}" oninput="filterPhoneNumberInput_efb(this)" onkeypress="allowOnlyPhoneChars_efb(event)" title="Only numbers, +, (), -, and spaces are allowed">
                             <span id="pno_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             <p class="efb m-2">${efb_var.text.sms_ndnoti}</p>
                           </div>
@@ -1567,8 +1616,10 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           let phoneNoArrLen=phoneNoArr.length;
         //write a foreach for check phoneNoArr
           for(let i=0;i<phoneNoArrLen;i++){
-            //use regix for validation phone number
-            if( !phoneNoArr[i].match(/^\+\d{8,14}$/)){
+            // Clean the phone number by removing spaces, parentheses, and dashes
+            let cleanPhone = phoneNoArr[i].replace(/[\s\(\)\-]/g, '');
+            //use regex for validation phone number (allows +, numbers, and formatting characters)
+            if( !cleanPhone.match(/^\+\d{8,14}$/)){
               returnError(`<b>${el.dataset.tab}</b>`);
               el.classList.add('invalid');
               const msg = efb_var.text.pleaseEnterVaildValue +`(${phoneNoArr[i]})`
