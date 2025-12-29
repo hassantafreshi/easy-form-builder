@@ -114,7 +114,7 @@ class Panel_edit  {
 								<div class="efb d-flex">
 									<form class="efb d-flex">
 										<i class="efb  bi-search search-icon"></i>
-										<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo $lang["trackNo"]  ?>">
+									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo $lang["search"]  ?> ..."  aria-label="<?php echo $lang["search"]  ?>">
 										<a class="efb btn efb btn-outline-pink mx-2 ec-efb" type="submit" id="track_code_btn_emsFormBuilder" data-eventform='searchCC'><?php echo   $lang["search"] ?></a>
 									</form>
 									<div class="efb nav-icon efb mx-2">

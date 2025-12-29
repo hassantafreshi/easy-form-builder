@@ -1134,6 +1134,33 @@ class efbFunction {
 
 			/* translators: Button text for Free Plus Guide  (link to https://easyformbuilder.com/document/easy-form-builder-free-plus-activation-guide/) */
 			'freePlusActivation' => $state && isset($ac->text->freePlusActivation) ? $ac->text->freePlusActivation : esc_html__('Free Plus Guide','easy-form-builder'),
+
+			/* translators: Search Details - header for detailed search information */
+			'searchDetails' => $state && isset($ac->text->searchDetails) ? $ac->text->searchDetails : esc_html__('Search Details','easy-form-builder'),
+
+			/* translators: Search Results - header for search results */
+			'searchResults' => $state && isset($ac->text->searchResults) ? $ac->text->searchResults : esc_html__('Search Results','easy-form-builder'),
+
+			/* translators: Text for search result count message */
+			'foundResultsFor' => $state && isset($ac->text->foundResultsFor) ? $ac->text->foundResultsFor : esc_html__('Found %s %s for: "%s"','easy-form-builder'),
+
+			/* translators: Single result text */
+			'result' => $state && isset($ac->text->result) ? $ac->text->result : esc_html__('result','easy-form-builder'),
+
+			/* translators: Multiple results text */
+			'results' => $state && isset($ac->text->results) ? $ac->text->results : esc_html__('results','easy-form-builder'),
+
+			/* translators: No results found message */
+			'noResultsFound' => $state && isset($ac->text->noResultsFound) ? $ac->text->noResultsFound : esc_html__('No results found for:','easy-form-builder'),
+
+			/* translators: Forbidden characters error message */
+			'forbiddenCharacters' => $state && isset($ac->text->forbiddenCharacters) ? $ac->text->forbiddenCharacters : esc_html__('Forbidden characters:','easy-form-builder'),
+
+			/* translators: Search details modal title */
+			'searchDetailsTitle' => $state && isset($ac->text->searchDetailsTitle) ? $ac->text->searchDetailsTitle : esc_html__('Search Details','easy-form-builder'),
+
+			/* translators: Template for found results text with placeholders - %1$s is result count, %2$s is result/results text */
+			'foundResultsText' => $state && isset($ac->text->foundResultsText) ? $ac->text->foundResultsText : esc_html__('Found %1$s %2$s for','easy-form-builder'),
 		];
 
 

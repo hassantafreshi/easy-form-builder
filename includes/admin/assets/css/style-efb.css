@@ -2777,4 +2777,57 @@ div#Listefb-150 {
    background-size: contain;
 }
 
+/* Enhanced Search Functionality Styles */
+.efb.search-highlight {
+   background-color: #fff3cd !important;
+   color: #856404 !important;
+   padding: 2px 4px !important;
+   border-radius: 3px !important;
+   font-weight: 600 !important;
+   animation: highlight-fade 2s ease-in-out !important;
+}
+
+@keyframes highlight-fade {
+   0% { background-color: #ffd700; }
+   100% { background-color: #fff3cd; }
+}
+
+/* Search form enhancements */
+.efb.search-form-control:focus {
+   border-color: #633a82 !important;
+   box-shadow: 0 0 0 0.2rem rgba(99, 58, 130, 0.25) !important;
+}
+
+.efb.search-form-control::placeholder {
+   color: #6c757d !important;
+   opacity: 0.8 !important;
+}
+
+/* Search results counter badge */
+.search-results-badge {
+   display: inline-block;
+   padding: 0.25rem 0.5rem;
+   font-size: 0.75rem;
+   font-weight: 600;
+   line-height: 1;
+   color: #fff;
+   background-color: #633a82;
+   border-radius: 0.375rem;
+   margin-left: 0.5rem;
+}
+
+/* Search loading state */
+.search-loading .efb.search-form-control {
+   background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%236c757d' d='M8 16c-2.137 0-4.146-.832-5.657-2.343S0 10.137 0 8s.832-4.146 2.343-5.657S5.863 0 8 0s4.146.832 5.657 2.343S16 5.863 16 8s-.832 4.146-2.343 5.657S10.137 16 8 16zm0-14C4.691 2 2 4.691 2 8s2.691 6 6 6 6-2.691 6-6-2.691-6-6-6z'/%3E%3C/svg%3E");
+   background-repeat: no-repeat;
+   background-position: right 0.75rem center;
+   background-size: 1rem;
+   animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+   0% { transform: rotate(0deg); }
+   100% { transform: rotate(360deg); }
+}
+
 

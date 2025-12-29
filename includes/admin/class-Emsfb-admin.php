@@ -895,7 +895,9 @@ class Admin {
     }
 
     public function get_ajax_track_admin() {
-        // اطلاعات ردیف ترک را بر می گرداند
+        // جستجوی جامع در دو جدول: wp_emsfb_msg_ و wp_emsfb_rsp_
+        // Search in: track, content (JSON) fields from msg table
+        // AND content (JSON) field from response table with JOIN
 
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
@@ -913,27 +915,48 @@ class Admin {
             $this->db = $wpdb;
         }
         $table_name = $this->db->prefix . "emsfb_msg_";
+        $table_name_rsp = $this->db->prefix . "emsfb_rsp_";
         $id = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
-        $value      = $this->db->get_results($this->db->prepare("SELECT * FROM `$table_name` WHERE track = %s", $id));
-        if (count($value)>0) {
+        
+        // First try exact match in track field
+        $value = $this->db->get_results($this->db->prepare("SELECT * FROM `$table_name` WHERE track = %s", $id));
+        
+        if (count($value) > 0) {
             $code = 'efb'. $value[0]->msg_id;
-			$code =wp_create_nonce($code);
+			$code = wp_create_nonce($code);
             $response = ['success' => true, "ajax_value" => $value,'nonce_msg'=> $code , 'id'=>$value[0]->msg_id];
         }
         else {
+            // Enhanced search: search in both tables with JSON content support
             $search_term = "%$id%";
-            $sql =$this->db->prepare(
-                "SELECT *  FROM {$table_name} WHERE content LIKE %s",
+            
+            // Search in messages table (track and content fields)
+            $sql_msg = $this->db->prepare(
+                "SELECT DISTINCT m.* FROM {$table_name} m 
+                 WHERE m.track LIKE %s OR m.content LIKE %s",
+                $search_term, $search_term
+            );
+            
+            // Search in responses table (content field) and join with messages
+            $sql_rsp = $this->db->prepare(
+                "SELECT DISTINCT m.* FROM {$table_name} m 
+                 INNER JOIN {$table_name_rsp} r ON m.msg_id = r.msg_id 
+                 WHERE r.content LIKE %s",
                 $search_term
             );
-            $value = $this->db->get_results($sql);
-            if(count($value)>0){
+            
+            // Combine both queries and remove duplicates
+            $combined_sql = "($sql_msg) UNION ($sql_rsp) ORDER BY date DESC";
+            
+            $value = $this->db->get_results($combined_sql);
+            
+            if(count($value) > 0){
                 $code = 'efb'. $value[0]->msg_id;
-                $code =wp_create_nonce($code);
+                $code = wp_create_nonce($code);
                 $response = ['success' => true, "ajax_value" => $value,'nonce_msg'=> $code , 'id'=>$value[0]->msg_id];
-            }else{
-            $m = $lang['notFound'];
-            $response = ['success' => false, "m" => $m];
+            } else {
+                $m = $lang['notFound'];
+                $response = ['success' => false, "m" => $m];
             }
         }
         wp_send_json_success($response, 200);

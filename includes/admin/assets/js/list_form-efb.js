@@ -50,6 +50,90 @@ function filterPhoneNumberInput_efb(input) {
   }
 }
 
+// Search functionality with real-time suggestions and highlighting
+function highlightSearchResults_efb(text, searchTerm) {
+  if (!searchTerm || searchTerm.trim() === '') return text;
+
+  // Parse JSON content if it's a JSON string
+  let displayText = text;
+  try {
+    const parsed = JSON.parse(text);
+    if (typeof parsed === 'object') {
+      displayText = JSON.stringify(parsed, null, 2);
+    }
+  } catch (e) {
+    // Not JSON, use as is
+  }
+
+  const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return displayText.replace(regex, '<mark class="efb search-highlight">$1</mark>');
+}
+
+function setupSearchSuggestions_efb() {
+  const searchInput = document.getElementById('track_code_emsFormBuilder');
+  if (!searchInput) return;
+
+  // Add search suggestions on input
+  searchInput.addEventListener('input', function(e) {
+    const searchTerm = e.target.value;
+    if (searchTerm.length >= 2) {
+      // Store search term for highlighting in results
+      window.lastSearchTerm_efb = searchTerm;
+    }
+  });
+
+  // Allow Enter key to trigger search
+  searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      fun_find_track_emsFormBuilder();
+    }
+  });
+}
+
+// Enhanced search functionality with better user experience for JSON content
+function enhanceSearchResults_efb(messages, searchTerm) {
+  if (!searchTerm || !messages) return messages;
+
+  // Sort results by relevance (exact matches first, then partial matches)
+  return messages.sort((a, b) => {
+    // Convert content to searchable text (handle JSON)
+    const getSearchableContent = (msg) => {
+      let content = msg.content || '';
+      try {
+        const parsed = JSON.parse(content);
+        if (typeof parsed === 'object') {
+          content = JSON.stringify(parsed);
+        }
+      } catch (e) {
+        // Keep original content
+      }
+      return JSON.stringify(msg).toLowerCase();
+    };
+
+    const aContent = getSearchableContent(a);
+    const bContent = getSearchableContent(b);
+    const lowerSearchTerm = searchTerm.toLowerCase();
+
+    // Check for exact matches in track field (highest priority)
+    const aTrackExact = (a.track || '').toLowerCase() === lowerSearchTerm;
+    const bTrackExact = (b.track || '').toLowerCase() === lowerSearchTerm;
+
+    if (aTrackExact && !bTrackExact) return -1;
+    if (!aTrackExact && bTrackExact) return 1;
+
+    // Check for partial matches
+    const aMatch = aContent.includes(lowerSearchTerm);
+    const bMatch = bContent.includes(lowerSearchTerm);
+
+    if (aMatch && !bMatch) return -1;
+    if (!aMatch && bMatch) return 1;
+
+    // Sort by date if relevance is same
+    return new Date(b.date) - new Date(a.date);
+  });
+}
+
 let valueJson_ws_form = [];
 let valueJson_ws_messages = [];
 let valueJson_ws_setting = []
@@ -89,6 +173,11 @@ jQuery(function () {
 
   fun_show_content_page_emsFormBuilder(state)
  }
+
+ // Initialize search functionality
+ setTimeout(() => {
+   setupSearchSuggestions_efb();
+ }, 500);
 });
 
 let count_row_emsFormBuilder = 0;
@@ -1836,23 +1925,20 @@ function fun_find_track_emsFormBuilder() {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
     return;
   }
-  //function find track code
+  //function find track code and search in all message content
   const el = document.getElementById("track_code_emsFormBuilder").value;
   localStorage.setItem('search_efb',`${el}`)
   history.pushState("search",null,'?page=Emsfb&state=search');
-  if (el.length < -1) {
-    alert_message_efb(efb_var.text.error, efb_var.text.trackingCodeIsNotValid, 7, 'warning');
-
+  if (el.length < 1) {
+    alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue, 7, 'warning');
+    return;
   } else {
-
-    search_trackingcode_fun_efb(el)
-
-
+    search_comprehensive_efb(el)
   }
 }//end function
 
 
-search_trackingcode_fun_efb =(el)=>{
+search_comprehensive_efb =(el)=>{
   document.getElementById('track_code_emsFormBuilder').disabled = true;
     document.getElementById('track_code_btn_emsFormBuilder').disabled = true;
     const btnValue = document.getElementById('track_code_btn_emsFormBuilder').innerHTML;
@@ -1874,14 +1960,57 @@ search_trackingcode_fun_efb =(el)=>{
 
         efb_var.msg_id = res.data.id
 
+        // Enhance search results with sorting and highlighting
+        valueJson_ws_messages = enhanceSearchResults_efb(valueJson_ws_messages, el);
+
         //localStorage.setItem('valueJson_ws_messages', JSON.stringify(valueJson_ws_messages));
         document.getElementById("more_emsFormBuilder").style.display = "none";
         fun_ws_show_list_messages(valueJson_ws_messages);
+
+        // Show search results count with better messaging
+        const resultCount = valueJson_ws_messages.length;
+        const searchTerm = el;
+        const resultText = resultCount === 1 ? (efb_var.text.result || 'result') : (efb_var.text.results || 'results');
+
+        // Use foundResultsText template if available
+        let searchInfo;
+        if (efb_var.text.foundResultsText) {
+          searchInfo = efb_var.text.foundResultsText
+            .replace('%1$s', resultCount)
+            .replace('%2$s', resultText) + `: "${searchTerm}"`;
+        } else if (efb_var.text.foundResultsFor) {
+          searchInfo = efb_var.text.foundResultsFor.replace('%s', resultCount).replace('%s', resultText).replace('%s', searchTerm);
+        } else {
+          searchInfo = `Found ${resultCount} ${resultText} for: "${searchTerm}"`;
+        }
+
+
+
+        alert_message_efb(
+          efb_var.text.searchResults || 'Search Results',
+          searchInfo ,
+          8,
+          'success'
+        );
+
         document.getElementById('track_code_emsFormBuilder').disabled = false;
         document.getElementById('track_code_btn_emsFormBuilder').disabled = false;
         document.getElementById('track_code_btn_emsFormBuilder').innerHTML = btnValue;
+
+        // Additional search info message with optimized text
+      /*   setTimeout(() => {
+          alert_message_efb(
+            efb_var.text.searchDetails || 'Search Details',
+            efb_var.text.searchedInTablesInfo || 'Searched in: Messages Content (JSON), Tracking Codes, and Response Content (JSON) from both tables',
+            6,
+            'info'
+          );
+        }, 2000); */
       } else {
-        alert_message_efb(efb_var.text.error, res.data.m, 4, 'warning');
+        const noResultsMsg = efb_var.text.noResultsFound
+          ? `${efb_var.text.noResultsFound} "${el}"`
+          : `No results found for: "${el}"`;
+        alert_message_efb(efb_var.text.error, res.data.m + ` - ${noResultsMsg}`, 6, 'warning');
         document.getElementById('track_code_emsFormBuilder').disabled = false;
         document.getElementById('track_code_btn_emsFormBuilder').disabled = false;
         document.getElementById('track_code_btn_emsFormBuilder').innerHTML = btnValue
