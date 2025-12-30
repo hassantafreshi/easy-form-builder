@@ -1188,9 +1188,16 @@ class efbFunction {
 
 
 	public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null") {
-		error_log('----->_email_state_new');
-		error_log('to: ' . json_encode($to));
+		error_log('===== send_email_state_new START =====');
+		error_log('send_email_state_new - to: ' . json_encode($to));
+		error_log('send_email_state_new - sub: ' . json_encode($sub));
+		error_log('send_email_state_new - cont: ' . json_encode($cont));
+		error_log('send_email_state_new - pro: ' . json_encode($pro));
+		error_log('send_email_state_new - state: ' . json_encode($state));
+		error_log('send_email_state_new - link: ' . json_encode($link));
+		error_log('send_email_state_new - st: ' . json_encode($st));
 		$email_content_type = isset($state[2]) ? $state[2]  : 'traking_link' ;
+		error_log('send_email_state_new - email_content_type: ' . $email_content_type);
 		// Set email content type to HTML
 		add_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 
@@ -1198,7 +1205,7 @@ class efbFunction {
 		$server_name = apply_filters('emsfb_get_server_host', 'yourdomain.com');
 		$from =get_bloginfo('name')." <no-reply@".$server_name.">";
 
-		// تنظیم متغیر $from براساس نوع $to و اعتبارسنجی ایمیل
+		// Handle $from setup based on $to type and email validation
 		if (is_array($to) && isset($to[2]) && is_email($to[2])) {
 			$fromEmail = is_array($to[2]) ? array_pop($to[2]) : $to[2];
 			$from = get_bloginfo('name') . " <" . $fromEmail . ">";
@@ -1213,43 +1220,116 @@ class efbFunction {
 			'From:' . $from,
 		];
 
-		// تابع داخلی برای ارسال ایمیل
+		// Add wp_mail error logging
+		add_action('wp_mail_failed', function($wp_error) {
+			error_log('===== WP_MAIL FAILED =====');
+			error_log('wp_mail error: ' . $wp_error->get_error_message());
+			error_log('wp_mail error data: ' . json_encode($wp_error->get_error_data()));
+		});
+
+		// Check mail configuration
+		error_log('===== MAIL CONFIGURATION CHECK =====');
+		error_log('PHP mail function available: ' . (function_exists('mail') ? 'YES' : 'NO'));
+		error_log('sendmail_path: ' . ini_get('sendmail_path'));
+		error_log('SMTP: ' . ini_get('SMTP'));
+		error_log('smtp_port: ' . ini_get('smtp_port'));
+		error_log('sendmail_from: ' . ini_get('sendmail_from'));
+
+		// Simple test email to verify mail system works
+		if (rand(1, 10) == 1) { // Only 10% chance to avoid spam
+			error_log('===== SIMPLE MAIL TEST =====');
+			$test_result = wp_mail('test@example.com', 'EFB Test', 'Test message from EFB', ['Content-Type: text/html; charset=UTF-8']);
+			error_log('Simple test email result: ' . json_encode($test_result));
+
+			// Also test PHP mail function
+			$php_test = mail('test@example.com', 'EFB PHP Test', 'Test message from EFB using PHP mail', 'Content-Type: text/html; charset=UTF-8');
+			error_log('PHP mail test result: ' . json_encode($php_test));
+		}
+
+		// Internal function for sending emails
 		$sendMail = function($to, $sub, $message, $headers) {
-			error_log('----->sendMail');
+			error_log('===== sendMail function START =====');
+			error_log('sendMail - to: ' . json_encode($to));
+			error_log('sendMail - subject: ' . $sub);
+			error_log('sendMail - message length: ' . strlen($message));
+			error_log('sendMail - message preview: ' . substr($message, 0, 300) . '...');
+			error_log('sendMail - headers: ' . json_encode($headers));
+
+			// Add PHPMailer debugging hook
+			add_action('phpmailer_init', function($phpmailer) {
+				error_log('===== PHPMAILER INIT =====');
+				error_log('PHPMailer Mailer: ' . $phpmailer->Mailer);
+				error_log('PHPMailer Host: ' . $phpmailer->Host);
+				error_log('PHPMailer Port: ' . $phpmailer->Port);
+				error_log('PHPMailer Username: ' . $phpmailer->Username);
+				error_log('PHPMailer From: ' . $phpmailer->From);
+				error_log('PHPMailer FromName: ' . $phpmailer->FromName);
+				$phpmailer->SMTPDebug = 2;
+				$phpmailer->Debugoutput = function($str, $level) {
+					error_log('PHPMailer Debug: ' . $str);
+				};
+			});
+
 			if (is_string($to)) {
-				return wp_mail($to, $sub, $message, $headers);
+				error_log('sendMail - Single recipient mode');
+				$result = wp_mail($to, $sub, $message, $headers);
+				error_log('sendMail - wp_mail result: ' . json_encode($result));
+				if (!$result) {
+					error_log('sendMail - wp_mail FAILED for single recipient: ' . $to);
+					// Try alternative method
+					error_log('sendMail - Trying PHP mail() function as fallback');
+					$alt_result = mail($to, $sub, $message, implode("\r\n", $headers));
+					error_log('sendMail - PHP mail() result: ' . json_encode($alt_result));
+				}
+				return $result;
 			} else {
+				error_log('sendMail - Multiple recipients mode');
 				$to = array_filter(array_unique($to));
+				$success = true;
 				foreach ($to as $email) {
-					error_log('email: ' );
-					error_log(json_encode($email));
-					error_log($sub);
-					error_log($message);
+					error_log('sendMail - Processing email: ' . json_encode($email));
 					if (is_email($email)) {
-						wp_mail($email, $sub, $message, $headers);
+						$result = wp_mail($email, $sub, $message, $headers);
+						error_log('sendMail - wp_mail result for ' . $email . ': ' . json_encode($result));
+						if (!$result) {
+							$success = false;
+							error_log('sendMail - wp_mail FAILED for: ' . $email);
+							// Try alternative method
+							error_log('sendMail - Trying PHP mail() function as fallback for: ' . $email);
+							$alt_result = mail($email, $sub, $message, implode("\r\n", $headers));
+							error_log('sendMail - PHP mail() result for ' . $email . ': ' . json_encode($alt_result));
+						}
+					} else {
+						error_log('sendMail - Invalid email format: ' . $email);
 					}
 				}
+				error_log('sendMail - Final success status: ' . json_encode($success));
+				return $success;
 			}
 		};
 
+		// Handle single email sending
 		if (is_string($sub)) {
-			$message = $this->email_template_efb($pro,$state,$cont,$link,$email_content_type,$st);
+			error_log('send_email_state_new - Single email mode, calling email_template_efb');
+			$message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
+			error_log('send_email_state_new - email_template_efb returned: ' . substr($message, 0, 200) . '...');
 			if ($state != "reportProblem") {
 				$mailResult = $sendMail($to, $sub, $message, $headers);
 			}
 
+			// Handle special support emails
 			if (in_array($state, ["reportProblem", "testMailServer", "addonsDlProblem"])) {
-				$support = implode('', array_map('chr', [101, 97, 115, 121, 102, 111, 114, 109, 98, 117, 105, 108, 100, 101, 114, 64, 103, 109, 97, 105, 108, 46, 99, 111, 109]));
-				$id = function_exists('get_current_user_id') ? get_current_user_id() : null;
-				$usr = $id ? get_user_by('id', $id) : null;
-				$server_name = apply_filters('emsfb_get_server_host', 'yourdomain.com');
-				$cont .= "<hr><br> website:[" . $server_name . "]<br> Pro state:[" . $pro . "]<br> email:[" . ($usr->user_email ?? '') . "]<br> role:[" . ($usr->roles[0] ?? '') . "]<br> name:[" . ($usr->display_name ?? '') . "]<br> state:[" . $state . "]";
-				$mailResult = wp_mail($support, $state, $cont, $headers);
+				// For these states, use the same template but with proper structure
+				$message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
+				$mailResult = $sendMail($to, $sub, $message, $headers);
 			}
 		} else {
+			// Handle multiple emails
 			for ($i = 0; $i < 2; $i++) {
 				if (!empty($to[$i]) && $to[$i] != "null") {
-					$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$email_content_type,$st);
+					error_log('send_email_state_new - Multiple email mode [' . $i . '], calling email_template_efb');
+					$message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $email_content_type, $st);
+					error_log('send_email_state_new - email_template_efb [' . $i . '] returned: ' . substr($message, 0, 200) . '...');
 					if ($state != "reportProblem") {
 						$mailResult = $sendMail($to[$i], $sub[$i], $message, $headers);
 					}
@@ -1257,120 +1337,37 @@ class efbFunction {
 			}
 		}
 
-		// حذف فیلتر نوع ایمیل
+		// Remove email content type filter
 		remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 
 		return $mailResult;
 	}
 
 
-	/* public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){
-		$microtime = microtime(true);
-		error_log("_email_state_new: ".$microtime);
-				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
-			   	$mailResult = "n";
-				if(gettype($to) == 'array')ksort($to);
-				$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
-				$from =get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
-				if(gettype($to) == 'array' && isset($to[2]) && is_email($to[2]) ){
-					$f = array_pop($to);
-					if(gettype($f)=="array"){
-						$f = array_pop($f);
-					}
-					$from =get_bloginfo('name')." <".$f.">";
-				}else if (gettype($to) == 'object' && isset($to[2]) && is_email($to[2]) ){
-					$f = $to[2];
-					unset($to[2]);
-					$from =get_bloginfo('name')." <".$f.">";
-				}
-				$headers = array(
-				   'MIME-Version: 1.0\r\n',
-				   'From:'.$from,
 
-				);
-				if(gettype($sub)=='string'){
-					$message = $this->email_template_efb($pro,$state,$cont,$link,$st);
-					if( $state!="reportProblem"){
-						$to_;$mailResult;
-						if (gettype($to) == 'string') {
-							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
-						} else {
-							$to= array_unique($to);
-							foreach ($to as $r) {
-							  if(isset($r) && is_email($r)){$mailResult = wp_mail($r, $sub, $message, $headers);}
-							}
+	public function email_template_efb($pro, $state, $m, $link, $email_content_type, $st = "null") {
+		// === LOGGING: تمام پارامترهای ورودی ===
+		error_log('===== email_template_efb START =====');
+		error_log('email_template_efb - pro: ' . json_encode($pro));
+		error_log('email_template_efb - state: ' . json_encode($state));
+		error_log('email_template_efb - m: ' . json_encode($m));
+		error_log('email_template_efb - link: ' . json_encode($link));
+		error_log('email_template_efb - email_content_type: ' . json_encode($email_content_type));
+		error_log('email_template_efb - st: ' . json_encode($st));
+		error_log('email_template_efb - m type: ' . gettype($m));
+		error_log('email_template_efb - m length: ' . (is_string($m) ? strlen($m) : (is_array($m) ? count($m) : 'not string/array')));
+		if (is_array($m)) {
+			error_log('email_template_efb - m array length: ' . count($m));
+			foreach ($m as $index => $value) {
+				error_log('email_template_efb - m[' . $index . ']: ' . json_encode($value));
+				error_log('email_template_efb - m[' . $index . '] type: ' . gettype($value));
+			}
+		} else if (is_string($m)) {
+			error_log('email_template_efb - m string preview: ' . substr($m, 0, 100) . '...');
+			error_log('email_template_efb - m contains HTML tags: ' . (preg_match('/<[^>]+>/', $m) ? 'YES' : 'NO'));
+		}
 
-						}
-
-
-					}
-
-
-
-					if($state=="reportProblem" || $state =="testMailServer" || $state=='addonsDlProblem' ){
-						$support="";
-
-						$a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
-						foreach($a as $i){$support .=chr($i);}
-
-						$id = function_exists('get_current_user_id') ? get_current_user_id(): null;
-						$name ="";
-						$mail="";
-						$role ="";
-						if($id){
-							$usr = get_user_by('id',$id);
-							$mail= $usr->user_email;
-							$name = $usr->display_name;
-						$role = $usr->roles[0];
-					}
-
-					$SERVER_NAME = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'yourdomain.com';
-					$cont .="<hr><br> website:[". $SERVER_NAME . "]<br> Pro state:[".$pro . "]<br> email:[".$mail .
-					"]<br> role:[".$role."]<br> name:[".$name."]<br> state:[".$state."]";
-					$mailResult = wp_mail( $support,$state, $cont, $headers ) ;					}
-
-					return $mailResult;
-				}else{
-					for($i=0 ; $i<2 ; $i++){
-						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
-							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st);
-							if( $state!="reportProblem"){
-								$to_;$mailResult;
-								$to_ = $to[$i];
-								if (gettype($to_) == 'string' && is_email($to_)) {
-									$sub_ = $sub[$i];
-									$mailResult =  wp_mail( $to_,$sub_, $message, $headers ) ;
-
-								} else {
-									//remove duplicates
-									$to[$i]= array_unique($to[$i]);
-									foreach ($to[$i] as $r) {
-										$sub_ = $sub[$i];
-										$to_ = $r;
-										if(is_email($to_)) $mailResult = wp_mail($to_, $sub_, $message, $headers);
-									}
-
-								}
-
-								//end loop
-
-
-
-							}
-						}
-					}
-
-
-				}
-				    remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-
-				$microtime = microtime(true);
-				error_log("_email_state_new: ".$microtime);
-			   return $mailResult;
-	} */
-
-
-	public function email_template_efb($pro, $state, $m,$link ,$email_content_type,$st="null"){
+		// Website locale and URL setup
 		$l = 'https://whitestudio.team';
 		$wp_lan = get_locale();
 		$locale_map = [
@@ -1384,30 +1381,32 @@ class efbFunction {
 		$text = ['msgdml', 'mlntip', 'msgnml', 'serverEmailAble', 'vmgs', 'getProVersion', 'sentBy', 'hiUser', 'trackingCode', 'newMessage', 'createdBy', 'newMessageReceived', 'goodJob', 'createdBy', 'yFreeVEnPro', 'WeRecivedUrM'];
 		$lang = $this->text_efb($text);
 
+		// translators: this is the automatic email disclaimer
+		$automatic_email_disclaimer ='📧 ' . esc_html__('This email was sent automatically. Please do not reply.', 'easy-form-builder');
+
 		$footer = "<a class='efb subtle-link' target='_blank' href='" . home_url() . "'>" . $lang['sentBy'] . " " . get_bloginfo('name') . "</a>";
 		$align = is_rtl() ? 'right' : 'left';
 		$d = is_rtl() ? 'rtl' : 'ltr';
 
+		// Get settings
 		if ($st == 'null') $st = get_setting_Emsfb();
 		if ($st == "null") return;
 
-
-
-		if($pro == true || $pro == 1){
-			$is_pro = (int) get_option('Emsfb_pro' ,2);
-			if($is_pro==3){
-				//add a footer copyright easy form builder by whitestudio.team
-				$footer ="<div style='text-align:center;'>
-					". $footer ."<br>
+		// Pro version footer handling
+		if ($pro == true || $pro == 1) {
+			$is_pro = (int) get_option('Emsfb_pro', 2);
+			if ($is_pro == 3) {
+				$footer = "<div style='text-align:center;'>
+					" . $footer . "<br>
 					<p>" . sprintf(
-						esc_html__('Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s','easy-form-builder'),
+						esc_html__('Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s', 'easy-form-builder'),
 						"<a href='https://wordpress.org/plugins/easy-form-builder/' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
 						"</a>",
 						"<a href='https://whitestudio.team' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
 						"</a>"
 					) . "</p>
 				</div>";
-			 }
+			}
 		}
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp) > 10 ? $st->emailTemp : "0";
 
@@ -1424,8 +1423,32 @@ class efbFunction {
 		}else{
 			$track_id=$m[0];
 		}
-		$dts = str_replace('%s', $track_id, $dts);
-		$tracking_section = $email_content_type=='just_message' ? "" : "<div id='sectionTracking'><p style='text-align:center'>".$dts." </p><div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div></div>";
+		//$dts = str_replace('%s', $track_id, $dts);
+// ایجاد دکمه استاندارد سازگار با همه email clients با رنگ و استایل شبیه Pro
+		$button_style = "display: inline-block; padding: 16px 32px; background: transparent; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; cursor: pointer;";
+		$button_hover_bg = "#1e3a8a";
+
+		$tracking_section = $email_content_type=='just_message' ? "" : "
+			<!--[if mso]>
+			<v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='".$link."' style='height:50px;v-text-anchor:middle;width:220px;' arcsize='12%' strokecolor='#202a8d' fillcolor='#202a8d'>
+				<w:anchorlock/>
+				<center style='color:#ffffff;font-family:sans-serif;font-size:18px;font-weight:bold;'>".$lang['vmgs']."</center>
+			</v:roundrect>
+			<![endif]-->
+			<!--[if !mso]><!-- -->
+			<div style='text-align:center; margin: 30px 0;'>
+				<table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 0 auto;'>
+					<tr>
+						<td style='background: linear-gradient(135deg, #202a8d 0%, #1e3a8a 100%); border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(32, 42, 141, 0.3);'>
+							<a href='".$link."' target='_blank' style='".$button_style."'>
+								".$lang['vmgs']."
+							</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<!--<![endif]-->
+		";
 
 		if ($state == "testMailServer") {
 			$dt = $lang['msgnml'];
@@ -1434,58 +1457,351 @@ class efbFunction {
 			if ($wp_lan == "fa_IR") $link = "$l/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/";
 
 			$de = strtr($de, [
-				'%1$s' => "<a href='$link' target='_blank'>",
+				'%1$s' => "<a href='$link' target='_blank' style='color: #667eea; text-decoration: none; font-weight: 600;'>",
 				'%2$s' => "</a>",
-				'%3$s' => "<a href='$l/support/' target='_blank'>",
+				'%3$s' => "<a href='$l/support/' target='_blank' style='color: #667eea; text-decoration: none; font-weight: 600;'>",
 				'%4$s' => "</a>"
 			]);
 			$dt = strtr($dt, [
-				'%1$s' => "<a href='$l/documents/' target='_blank'>",
+				'%1$s' => "<a href='$l/documents/' target='_blank' style='color: #667eea; text-decoration: none; font-weight: 600;'>",
 				'%2$s' => "</a>"
 			]);
 			$title = $lang['serverEmailAble'];
-			$message = "<div style='text-align:center'><p>$footer</p></div><h3 style='padding:5px;color: #021623;'>$de</h3><h4 style='padding:5px;color: #021623;'>$dt</h4>";
+
+			// ساختار email-friendly بدون CSS3 features برای سازگاری کامل
+			$improved_message = "
+				<!--[if mso]>
+				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
+					<tr>
+						<td style='background-color: #f0f9ff; padding: 25px; border: 2px solid #0ea5e9; text-align: center;'>
+							<h2 style='color: #0c4a6e; margin: 0 0 15px 0; font-size: 24px; font-weight: 700;'>
+								✅ ". esc_html__('Congratulations! Email System Working', 'easy-form-builder') ."
+							</h2>
+							<p style='color: #075985; font-size: 16px; line-height: 1.6; margin: 0;'>
+								". esc_html__('Your server has successfully sent this test email. The email delivery system is properly configured and functioning.', 'easy-form-builder') ."
+							</p>
+						</td>
+					</tr>
+				</table>
+				<![endif]-->
+				<!--[if !mso]><!-->
+				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0; border-collapse: collapse;'>
+					<tr>
+						<td style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 25px; border-left: 5px solid #0ea5e9; border-radius: 12px; text-align: center;'>
+							<h2 style='color: #0c4a6e; margin: 0 0 15px 0; font-size: 24px; font-weight: 700;'>
+								✅ ". esc_html__('Congratulations! Email System Working', 'easy-form-builder') ."
+							</h2>
+							<p style='color: #075985; font-size: 16px; line-height: 1.6; margin: 0;'>
+								". esc_html__('Your server has successfully sent this test email. The email delivery system is properly configured and functioning.', 'easy-form-builder') ."
+							</p>
+						</td>
+					</tr>
+				</table>
+				<!--<![endif]-->
+
+				<!--[if mso]>
+				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
+					<tr>
+						<td style='background-color: #fefce8; padding: 20px; border: 2px solid #eab308;'>
+							<h3 style='color: #a16207; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;'>
+								💡 ". esc_html__('Email Delivery Tips', 'easy-form-builder') ."
+							</h3>
+							<div style='color: #713f12; font-size: 14px; line-height: 1.6;'>
+								$de
+							</div>
+						</td>
+					</tr>
+				</table>
+				<![endif]-->
+				<!--[if !mso]><!-->
+				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0; border-collapse: collapse;'>
+					<tr>
+						<td style='background-color: #fefce8; padding: 20px; border-left: 4px solid #eab308; border-radius: 10px;'>
+							<h3 style='color: #a16207; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;'>
+								💡 ". esc_html__('Email Delivery Tips', 'easy-form-builder') ."
+							</h3>
+							<div style='color: #713f12; font-size: 14px; line-height: 1.6;'>
+								$de
+							</div>
+						</td>
+					</tr>
+				</table>
+				<!--<![endif]-->
+
+				<!--[if mso]>
+				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
+					<tr>
+						<td style='background-color: #f0f9ff; padding: 20px; border: 2px solid #0ea5e9;'>
+							<h3 style='color: #0c4a6e; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;'>
+								📚 ". esc_html__('Learn More', 'easy-form-builder') ."
+							</h3>
+							<div style='color: #075985; font-size: 14px; line-height: 1.6;'>
+								$dt
+							</div>
+						</td>
+					</tr>
+				</table>
+				<![endif]-->
+				<!--[if !mso]><!-->
+				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0; border-collapse: collapse;'>
+					<tr>
+						<td style='background-color: #f0f9ff; padding: 20px; border-left: 4px solid #0ea5e9; border-radius: 10px;'>
+							<h3 style='color: #0c4a6e; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;'>
+								📚 ". esc_html__('Learn More', 'easy-form-builder') ."
+							</h3>
+							<div style='color: #075985; font-size: 14px; line-height: 1.6;'>
+								$dt
+							</div>
+						</td>
+					</tr>
+				</table>
+				<!--<![endif]-->";
+
+			$message = $improved_message;
 
 			if (strlen($st->activeCode) < 5) {
 				//esc_html__('You are using the free version. Upgrade to Pro for just %$1s%$2s%$3s/year and unlock advanced features to improve your experience and productivity.%$4sView Pro Features%$5s','easy-form-builder')
 				$price = ($wp_lan == "de_DE") ? '€19' : '$19';
 				$p = sprintf($lang['yFreeVEnPro'], '<strong>', $price, '</strong>', '<a href="'.$l.'" target="_blank">', '</a>');
-				$message = "<h2 style='text-align:center'>$p</h2><div style='text-align:center'><a href='$l' target='_blank' style='padding:5px;color:white;background:#202a8d;'>{$lang['getProVersion']}</a></div><h3 style='padding:5px;color: #021623;'>$de</h3><h4 style='padding:5px;color: #021623;'>$dt</h4><div style='text-align:center'><p style='text-align:center'>{$lang['createdBy']} WhiteStudio.team</p></div>";
+
+				// دکمه Pro version استاندارد
+				$pro_button = "
+					<!--[if mso]>
+					<v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='$l' style='height:50px;v-text-anchor:middle;width:220px;' arcsize='12%' strokecolor='#202a8d' fillcolor='#202a8d'>
+						<w:anchorlock/>
+						<center style='color:#ffffff;font-family:sans-serif;font-size:18px;font-weight:bold;'>{$lang['getProVersion']}</center>
+					</v:roundrect>
+					<![endif]-->
+					<!--[if !mso]><!-- -->
+					<div style='text-align:center; margin: 30px 0;'>
+						<table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 0 auto;'>
+							<tr>
+								<td style='background: linear-gradient(135deg, #202a8d 0%, #1e3a8a 100%); border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(32, 42, 141, 0.3);'>
+									<a href='$l' target='_blank' style='display: inline-block; padding: 16px 32px; background: transparent; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; cursor: pointer;'>
+										{$lang['getProVersion']}
+									</a>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<!--<![endif]-->
+				";
+
+				// پیام Pro version بهبود یافته
+				$pro_upgrade_section = "
+					<div style='background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); border-radius: 12px; padding: 25px; margin: 25px 0; border-left: 5px solid #a855f7;'>
+						<h2 style='color: #7c2d92; margin: 0 0 15px 0; font-size: 20px; font-weight: 700; text-align: center;'>
+							🚀 ". esc_html__('Unlock Advanced Features', 'easy-form-builder') ."
+						</h2>
+						<p style='color: #86198f; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0; text-align: center;'>
+							$p
+						</p>
+						$pro_button
+					</div>
+				";
+
+				$message = $improved_message . $pro_upgrade_section . "
+					<div style='text-align:center; margin: 30px 0; padding: 20px; background: #f8fafc; border-radius: 8px;'>
+						<p style='color: #64748b; font-size: 14px; margin: 0; font-style: italic;'>
+							". esc_html__('Created with ❤️ by', 'easy-form-builder') ." <strong style='color: #334155;'>WhiteStudio.team</strong>
+						</p>
+					</div>
+				";
 			}
 		} elseif ($state == "newMessage") {
+			error_log('email_template_efb - Processing newMessage state');
 			if(gettype($m)=='string'){
-				$dts = str_replace('%s', $m, $dts);
-				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
-				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
-				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>".$tracking_section ;
+				error_log('email_template_efb - newMessage: m is string, value: ' . $m);
+				error_log('email_template_efb - newMessage: checking if m contains HTML tags');
+				if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
+					error_log('email_template_efb - newMessage: m contains HTML content, using as message directly');
+					$message = $m;
+				} else {
+					error_log('email_template_efb - newMessage: m is plain text, creating message template');
+					// $dts = str_replace('%s', $m, $dts);
+					$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
+					$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
+					<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>".$tracking_section ;
+				}
+				error_log('email_template_efb - newMessage string final message: ' . $message);
 			}else{
-				$dts = str_replace('%s', $m[0], $dts);
+				error_log('email_template_efb - newMessage: m is array');
+				error_log('email_template_efb - newMessage: m[0] = ' . json_encode($m[0]));
+				error_log('email_template_efb - newMessage: m[1] = ' . json_encode($m[1]));
+				// $dts = str_replace('%s', $m[0], $dts);
 				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
 				$message ="
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>".$tracking_section;
+				error_log('email_template_efb - newMessage array final message: ' . $message);
 			}
 		} else {
-			$title = $lang['hiUser'];
-			$dts = str_replace('%s', is_string($m) ? $m : $m[0], $dts);
-			$message="
-				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
-				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>". $tracking_section;
+			error_log('email_template_efb - Processing other state: ' . $state);
+			error_log('email_template_efb - m type: ' . gettype($m));
+
+			// تشخیص نوع محتوای ورودی برای تمام حالت‌ها
+			if (is_string($m)) {
+				error_log('email_template_efb - m is string, value: ' . substr($m, 0, 100) . '...');
+
+				// بررسی اینکه آیا محتوا HTML کامل است یا tracking code ساده
+				if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false) {
+					error_log('email_template_efb - String contains HTML content, using directly');
+					$message = $m;
+				} else {
+					error_log('email_template_efb - String is plain text (tracking code), creating template');
+					// برای tracking code ساده
+					$track_id = $m;
+					$title = $lang['hiUser'];
+					$message = "
+						<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
+						<p style='text-align:center'>". $lang["trackingCode"].": ".$track_id." </p>". $tracking_section;
+				}
+			} elseif (is_array($m) && count($m) >= 2) {
+				error_log('email_template_efb - m is array with ' . count($m) . ' elements');
+				error_log('email_template_efb - m[0] (track): ' . json_encode($m[0]));
+				error_log('email_template_efb - m[1] (content): ' . json_encode(substr($m[1], 0, 100)) . '...');
+
+				$track_id = $m[0];
+				$content = $m[1];
+				$title = $lang['hiUser'];
+
+				// بررسی اینکه آیا محتوای آرایه HTML است یا متن ساده
+				if (strpos($content, '<') !== false && strpos($content, '>') !== false) {
+					error_log('email_template_efb - Array content contains HTML');
+					$message = "
+						<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
+						<div style='text-align:".$align.";color:#252526;font-size:14px;'>".$content." </div>". $tracking_section;
+				} else {
+					error_log('email_template_efb - Array content is plain text');
+					$message = "
+						<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
+						<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$content." </div>". $tracking_section;
+				}
+			} else {
+				error_log('email_template_efb - Unexpected m format: ' . json_encode($m));
+				// fallback برای حالت‌های غیرمنتظره
+				$title = $lang['hiUser'];
+				$track_id = is_string($m) ? $m : (is_array($m) ? $m[0] : 'Unknown');
+				$message = "
+					<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
+					<p style='text-align:center'>". $lang["trackingCode"].": ".$track_id." </p>". $tracking_section;
+			}
+
+			error_log('email_template_efb - other state final message: ' . substr($message, 0, 200) . '...');
 		}
 
-		$val = "<html xmlns='http://www.w3.org/1999/xhtml'>
-		<head>
-		<style type='text/css'>
-			@media only screen and (max-width:600px){
-			.containerEmailEfb{width:100% !important; max-width:100% !important;}
-			.containerEmailEfb .columnEmailEfb{display:block !important; width:100% !important; max-width:100% !important;}
-			.containerEmailEfb .columnEmailEfb p{text-align:right !important;}
-			.containerEmailEfb img{max-width:100% !important; height:auto !important; display:block !important;}
-			}
-			</style>
-		</head>
-		<body style='margin:auto 10px;direction:$d;color:#000000;'><center><table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:$d;'><tr><img src='" . EMSFB_PLUGIN_URL . "public/assets/images/email_template1.png' alt='New Message' style='width:36%;'></tr><tr><td><center><table bgcolor='#FFFFFF' width='100%' border='0'><tbody><tr><td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'><h1 style='color:#ff4b93;text-align:center;'>$title</h1></td></tr><tr style='text-align:$align;color:#000000;font-size:14px;'><td><span>$message</span></td></tr><tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td></td></tr></tbody></center></td></tr></table></center><table role='presentation' bgcolor='#F5F8FA' width='100%'><tr><td align='$align' style='padding: 30px 30px; font-size:12px; text-align:center'>$footer</td></tr></table></body></html>";
+		error_log('email_template_efb - Before HTML template creation:');
+		error_log('email_template_efb - title: ' . $title);
+		error_log('email_template_efb - message: ' . $message);
+		error_log('email_template_efb - temp: ' . $temp);
+
+		$val = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
+<html xmlns=\"http://www.w3.org/1999/xhtml\">
+<head>
+	<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
+	<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+	<title>$title</title>
+	<!--[if mso]>
+	<style type=\"text/css\">
+		table, td, th {border-collapse: collapse;}
+		.mso-hide {display: none !important;}
+	</style>
+	<![endif]-->
+	<style type=\"text/css\">
+		/* Reset styles */
+		body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+		table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+		img { -ms-interpolation-mode: bicubic; }
+
+		/* Remove default spacing */
+		body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+		table { border-collapse: collapse !important; }
+
+		/* Responsive styles */
+		@media only screen and (max-width: 600px) {
+			.email-container { width: 100% !important; margin: 0 !important; }
+			.content-wrapper { padding: 15px !important; }
+			.header-image { width: 80% !important; max-width: 200px !important; }
+			.message-content { padding: 20px 15px !important; font-size: 16px !important; }
+			.footer-content { padding: 20px 15px !important; }
+		}
+	</style>
+</head>
+<body style=\"margin: 0; padding: 0; width: 100%; background-color: #f8f9fa; direction: $d; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;\">
+	<!-- Email Container -->
+	<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 0; padding: 0; background-color: #f8f9fa;\">
+		<tr>
+			<td align=\"center\" style=\"padding: 20px 0;\">
+				<!-- Main Email Content -->
+				<table class=\"email-container\" role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;\">
+
+					<!-- Header Section -->
+					<tr>
+						<td align=\"center\" style=\"padding: 40px 30px 30px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\">
+							<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
+								<tr>
+									<td align=\"center\">
+										<img src=\"" . EMSFB_PLUGIN_URL . "public/assets/images/email_template1.png\" alt=\"Easy Form Builder\" class=\"header-image\" style=\"width: 120px; height: auto; display: block; margin: 0 auto 20px auto; border: none;\" />
+									</td>
+								</tr>
+								<tr>
+									<td align=\"center\">
+										<h1 style=\"margin: 0; padding: 0; color: #ffffff; font-size: 28px; font-weight: 600; line-height: 1.3; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">$title</h1>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+
+					<!-- Content Section -->
+					<tr>
+						<td class=\"content-wrapper\" style=\"padding: 40px 30px;\">
+							<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
+								<tr>
+									<td class=\"message-content\" align=\"center\" style=\"color: #333333; font-size: 16px; line-height: 1.6; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
+										$message
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+
+					<!-- Spacer -->
+					<tr>
+						<td style=\"height: 20px; background-color: #ffffff;\"></td>
+					</tr>
+
+				</table>
+
+				<!-- Footer Section -->
+				<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 20px auto 0 auto;\">
+					<tr>
+						<td class=\"footer-content\" align=\"center\" style=\"padding: 30px; color: #6b7280; font-size: 14px; line-height: 1.5; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
+							$footer
+						</td>
+					</tr>
+					<tr>
+						<td align=\"center\" style=\"padding-bottom: 20px;\">
+							<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
+								<tr>
+									<td style=\"border-radius: 20px; background-color: #f1f5f9; padding: 15px 25px;\">
+										<p style=\"margin: 0; color: #64748b; font-size: 12px; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
+											$automatic_email_disclaimer
+										</p>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+
+			</td>
+		</tr>
+	</table>
+</body>
+</html>";
 
 		if ($temp != "0") {
+			error_log('email_template_efb - Using custom template, temp length: ' . strlen($temp));
 			$replacements = [
 				'shortcode_message' => $message,
 				'shortcode_title' => $title,
@@ -1493,15 +1809,88 @@ class efbFunction {
 				'shortcode_website_url' => $blogURL,
 				'shortcode_admin_email' => $adminEmail
 			];
+			error_log('email_template_efb - Template replacements: ' . json_encode($replacements));
 			$temp = strtr($temp, $replacements);
+			error_log('email_template_efb - After template replacements, length: ' . strlen($temp));
 			$temp = preg_replace(['/http:@efb@+/', '/https:@efb@+/', '/@efb@+/'], ['http://', 'https://', '/'], $temp);
 
 			$p = strripos($temp, '</body>');
-			$footer = "<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr><td align='$align' style='padding: 30px 30px; font-size:12px; text-align:center'>$footer</td></tr></table>";
+			error_log('email_template_efb - Found </body> position: ' . $p);
+			$footer = "
+			<!-- Custom Footer Section -->
+			<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 20px auto 0 auto;\">
+				<tr>
+					<td align=\"center\" style=\"padding: 30px; color: #6b7280; font-size: 14px; line-height: 1.5; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; background-color: #f8f9fa; border-radius: 8px;\">
+						$footer
+					</td>
+				</tr>
+				<tr>
+					<td align=\"center\" style=\"padding: 15px 30px;\">
+						<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
+							<tr>
+								<td style=\"border-radius: 20px; background-color: #f1f5f9; padding: 12px 20px;\">
+									<p style=\"margin: 0; color: #64748b; font-size: 11px; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
+										$automatic_email_disclaimer
+									</p>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+			";
 			$temp = substr_replace($temp, $footer, $p, 0);
+			error_log('email_template_efb - After footer injection, final length: ' . strlen($temp));
 
 			$val = $temp;
 		}
+		error_log('email_template_efb - Final output length: ' . strlen($val));
+		error_log('email_template_efb - Final output preview: ' . substr($val, 0, 300) . '...');
+
+		// === لاگ کامل بدنه ایمیل قبل از خروجی ===
+		error_log('============================================');
+		error_log('=== COMPLETE EMAIL BODY LOG - START ===');
+		error_log('============================================');
+		error_log('EMAIL_TEMPLATE_EFB - FULL EMAIL BODY CONTENT:');
+		error_log('State: ' . $state);
+		error_log('Email Type: ' . $email_content_type);
+		error_log('Body Length: ' . strlen($val) . ' characters');
+		error_log('');
+		error_log('========== EMAIL HTML BODY START ==========');
+
+		// کل بدنه ایمیل را خط به خط چاپ کنیم
+		$email_lines = explode("\n", $val);
+		foreach ($email_lines as $line_num => $line) {
+			error_log('LINE ' . ($line_num + 1) . ': ' . $line);
+		}
+
+		error_log('========== EMAIL HTML BODY END ==========');
+		error_log('');
+		error_log('Content Structure Analysis:');
+		error_log('  ✓ Total Lines: ' . count($email_lines));
+		error_log('  ✓ Total Characters: ' . strlen($val));
+		error_log('  ✓ Contains <!DOCTYPE: ' . (strpos($val, '<!DOCTYPE') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains <html>: ' . (strpos($val, '<html') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains <head>: ' . (strpos($val, '<head') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains <body>: ' . (strpos($val, '<body') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains <h1>: ' . (strpos($val, '<h1') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains <h2>: ' . (strpos($val, '<h2') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains <p>: ' . (strpos($val, '<p') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains <div>: ' . (strpos($val, '<div') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains <table>: ' . (strpos($val, '<table') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains tracking: ' . (strpos($val, 'MTRFN') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains "New Message": ' . (strpos($val, 'New Message') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains "submitted successfully": ' . (strpos($val, 'submitted successfully') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Contains "confirmation": ' . (stripos($val, 'confirmation') !== false ? 'YES' : 'NO'));
+		error_log('  ✓ Valid HTML structure: ' . (strpos($val, '<html') !== false && strpos($val, '</html>') !== false ? 'YES' : 'NO'));
+		error_log('============================================');
+		error_log('=== Email Content start ===');
+		error_log($val);
+		error_log('=== Email Content end ===');
+		error_log('=== COMPLETE EMAIL BODY LOG - END ===');
+		error_log('============================================');
+
+		error_log('===== email_template_efb END =====');
 		return $val;
 	}
 

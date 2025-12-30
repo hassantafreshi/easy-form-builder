@@ -3215,7 +3215,7 @@ public function check_nonce_permission_efb($request) {
 					$response = array('success' => false, 'm' => 'Track not found');
 					wp_send_json_success($response, 200);
 				}
-				
+
 				$table_name = $this->db->prefix . "emsfb_msg_";
 				$this->db->update($table_name,array('read_'=>$read_s), array('msg_id' => $id) );
 				$email_usr ="";
@@ -3224,7 +3224,7 @@ public function check_nonce_permission_efb($request) {
 					$by = $usr->user_nicename;
 					$email_usr = $usr->user_email;
 				}
-				
+
 				$form_id = isset($value[0]->form_id) ? intval($value[0]->form_id) : 0;
 				if (empty($form_id)) {
 					error_log('Form ID not found in message data');
@@ -3366,8 +3366,29 @@ public function check_nonce_permission_efb($request) {
 		$micr = microtime(true);
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 
-    // ایجاد الگوی پیام پیش‌فرض
-    $default_message = "<h2>%s</h2><div style='text-align:center'><a href='%s' target='_blank' style='padding:5px;color:white;background:black;'>%s</a></div>";
+    // ایجاد الگوی پیام پیش‌فرض با دکمه استاندارد email-friendly
+    $modern_button_template = "
+        <!--[if mso]>
+        <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='%s' style='height:50px;v-text-anchor:middle;width:220px;' arcsize='12%%' strokecolor='#202a8d' fillcolor='#202a8d'>
+            <w:anchorlock/>
+            <center style='color:#ffffff;font-family:sans-serif;font-size:18px;font-weight:bold;'>%s</center>
+        </v:roundrect>
+        <![endif]-->
+        <!--[if !mso]><!-- -->
+        <div style='text-align:center; margin: 30px 0;'>
+            <table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 0 auto;'>
+                <tr>
+                    <td style='background: linear-gradient(135deg, #202a8d 0%%, #1e3a8a 100%%); border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(32, 42, 141, 0.3);'>
+                        <a href='%s' target='_blank' style='display: inline-block; padding: 16px 32px; background: transparent; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; cursor: pointer;'>
+                            %s
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!--<![endif]-->
+    ";
+    $default_message = "<h2>%s</h2>" . $modern_button_template;
     // کش کردن مقادیر ثابت برای پیام‌ها
     $dt = str_replace('%s', $track, $this->lanText['msgdml']);
     $thankFillForm = $this->lanText['thankFillForm'];
@@ -3404,41 +3425,60 @@ public function check_nonce_permission_efb($request) {
         $cont[$i] = $track;
         switch ($state[$i]) {
 			case "newMessage":
+				error_log('send_email_Emsfb_ - newMessage case processing');
 				$subject[$i] = $this->lanText['youRecivedNewMessage'] .' ['.$track.']';
-				$message[$i] = "<h2>$newMassageReciver</h2><p>$trackNo:<br> $track </p><p>$dt </p><div style='text-align:center'><a href='$link_w[$i]' target='_blank' style='padding:5px;color:white;background:black;'>$vmgs</a></div>";
+				$message[$i] = "<h2>$newMassageReciver</h2><p>$trackNo:<br> $track </p><p>$dt </p>" . sprintf($modern_button_template, $link_w[$i], $vmgs, $link_w[$i], $vmgs);
+				error_log('send_email_Emsfb_ - newMessage: subject[' . $i . '] = ' . $subject[$i]);
+				error_log('send_email_Emsfb_ - newMessage: message[' . $i . '] = ' . $message[$i]);
 				break;
             case "notiToUserFormFilled_TrackingCode":
+                error_log('send_email_Emsfb_ - notiToUserFormFilled_TrackingCode case processing');
                 $subject[$i] = $weRecivedUrM;
-                $message[$i] = "<h2>$thankFillForm</h2><p>$trackNo:<br> $track </p><p>$dt </p><div style='text-align:center'><a href='$link_w[$i]' target='_blank' style='padding:5px;color:white;background:black;'>$vmgs</a></div>";
+                $message[$i] = "<h2>$thankFillForm</h2><p>$trackNo:<br> $track </p><p>$dt </p>" . sprintf($modern_button_template, $link_w[$i], $vmgs, $link_w[$i], $vmgs);
+                error_log('send_email_Emsfb_ - notiToUserFormFilled_TrackingCode: message[' . $i . '] = ' . $message[$i]);
                 break;
             case "notiToUserFormFilled":
+                error_log('send_email_Emsfb_ - notiToUserFormFilled case processing');
                 $subject[$i] = $weRecivedUrM;
-                $message[$i] = sprintf($default_message, $thankFillForm, $homeUrl, $blogName);
+                $message[$i] = sprintf($default_message, $thankFillForm, $homeUrl, $blogName, $homeUrl, $blogName);
+                error_log('send_email_Emsfb_ - notiToUserFormFilled: message[' . $i . '] = ' . $message[$i]);
                 break;
             case "respRecivedMessage":
+                error_log('send_email_Emsfb_ - respRecivedMessage case processing');
                 $subject[$i] = "$weRecivedUrM [$track]";
-                $message[$i] = "<h2>$weRecivedUrM</h2><p>$trackNo:<br> $track </p><p>$dt </p><div style='text-align:center'><a href='$link_w[$i]' target='_blank' style='padding:5px;color:white;background:black;'>$vmgs</a></div>";
+                $message[$i] = "<h2>$weRecivedUrM</h2><p>$trackNo:<br> $track </p><p>$dt </p>" . sprintf($modern_button_template, $link_w[$i], $vmgs, $link_w[$i], $vmgs);
+                error_log('send_email_Emsfb_ - respRecivedMessage: message[' . $i . '] = ' . $message[$i]);
                 break;
             case "register":
+                error_log('send_email_Emsfb_ - register case processing');
                 $subject[$i] = $thankRegistering;
-                $message[$i] = "<h2>$welcome</h2>$cont[$i]<div style='text-align:center'><a href='$homeUrl' target='_blank' style='padding:5px;color:white;background:black;'>$blogName</a></div>";
+                $message[$i] = "<h2>$welcome</h2>$cont[$i]" . sprintf($modern_button_template, $homeUrl, $blogName, $homeUrl, $blogName);
+                error_log('send_email_Emsfb_ - register: message[' . $i . '] = ' . $message[$i]);
                 break;
             case "subscribe":
             case "survey":
+                error_log('send_email_Emsfb_ - subscribe/survey case processing: ' . $state[$i]);
                 $subject[$i] = $welcome;
                 $message[$i] = sprintf($default_message, ($state[$i] == "subscribe") ? $thankSubscribing : $thankDonePoll, $homeUrl, $blogName);
+                error_log('send_email_Emsfb_ - subscribe/survey: message[' . $i . '] = ' . $message[$i]);
                 break;
             case "newUser":
+                error_log('send_email_Emsfb_ - newUser case processing');
                 $start = strpos($cont[$i], '<p>') + 3;
                 $end = strpos($cont[$i], '</p>');
                 $slicedStr = substr($cont[$i], $start, $end - $start);
                 $subject[$i] = $newUserRegistration;
                 $message[$i] = "<p>$newUserRegistration</p><p>$slicedStr </p>";
+                error_log('send_email_Emsfb_ - newUser: message[' . $i . '] = ' . $message[$i]);
                 break;
         }
         $cont[$i] = $message[$i];
+        error_log('send_email_Emsfb_ - After switch: cont[' . $i . '] set to message = ' . json_encode($cont[$i]));
+        error_log('send_email_Emsfb_ - Before content check [' . $i . ']: cont=' . json_encode($cont[$i]));
         if ($content != "null") {
+            error_log('send_email_Emsfb_ - Content is not null, replacing cont[' . $i . '] with [track, content]');
             $cont[$i] = [$track, $content];
+            error_log('send_email_Emsfb_ - After content assignment [' . $i . ']: cont=' . json_encode($cont[$i]));
         }
         if ($sub != "null") {
             $rp = [
@@ -3463,8 +3503,12 @@ public function check_nonce_permission_efb($request) {
 	error_log(json_encode($link_w));
 	// error_log(json_encode($this->setting));
     // ارسال ایمیل
+    error_log('send_email_Emsfb_ - Before send_email_state_new call');
+    error_log('send_email_Emsfb_ - Final cont array: ' . json_encode($cont));
+    error_log('send_email_Emsfb_ - Final subject array: ' . json_encode($subject));
 
     $check = $this->efbFunction->send_email_state_new($to, $subject, $cont, $pro, $state, $link_w, $this->setting);
+    error_log('send_email_Emsfb_ - send_email_state_new result: ' . json_encode($check));
     // محاسبه زمان بعد از ارسال ایمیل
     $micr = microtime(true);
     // error_log('send_email_Emsfb_ after email: ' . $micr);
@@ -5120,6 +5164,10 @@ function email_get_content_efb($content, $track){
 				$msg_content = str_replace("\"","'",$msg_content);
 				$msg_type = $formObj[0]["email_noti_type"]=='msg' ? 'message_link' : 'just_message';
 
+			}else if (!isset($formObj[0]["email_noti_type"])){
+				$msg_content =$this->email_get_content_efb($valobj ,$check);
+				$msg_content = str_replace("\"","'",$msg_content);
+				$msg_type ='message_link';
 			}
 			if(isset($formObj[0]["email_sub"]) && $formObj[0]["email_sub"]!=''){
 				$msg_sub = $formObj[0]["email_sub"];
