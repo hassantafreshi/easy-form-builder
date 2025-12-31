@@ -1561,10 +1561,11 @@ class efbFunction {
 
 			if (strlen($st->activeCode) < 5) {
 				//esc_html__('You are using the free version. Upgrade to Pro for just %$1s%$2s%$3s/year and unlock advanced features to improve your experience and productivity.%$4sView Pro Features%$5s','easy-form-builder')
-				$price = ($wp_lan == "de_DE") ? '€19' : '$19';
+				$price = ($wp_lan == "de_DE") ? esc_html__('€19','easy-form-builder') : esc_html__('$19','easy-form-builder');
+
 				$p = sprintf($lang['yFreeVEnPro'], '<strong>', $price, '</strong>', '<a href="'.$l.'" target="_blank">', '</a>');
 
-				// دکمه Pro version استاندارد
+				// دکمه Pro version با ساختار proper conditional برای email clients
 				$pro_button = "
 					<!--[if mso]>
 					<v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='$l' style='height:50px;v-text-anchor:middle;width:220px;' arcsize='12%' strokecolor='#202a8d' fillcolor='#202a8d'>
@@ -1572,41 +1573,77 @@ class efbFunction {
 						<center style='color:#ffffff;font-family:sans-serif;font-size:18px;font-weight:bold;'>{$lang['getProVersion']}</center>
 					</v:roundrect>
 					<![endif]-->
-					<!--[if !mso]><!-- -->
-					<div style='text-align:center; margin: 30px 0;'>
-						<table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 0 auto;'>
-							<tr>
-								<td style='background: linear-gradient(135deg, #202a8d 0%, #1e3a8a 100%); border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(32, 42, 141, 0.3);'>
-									<a href='$l' target='_blank' style='display: inline-block; padding: 16px 32px; background: transparent; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; cursor: pointer;'>
-										{$lang['getProVersion']}
-									</a>
-								</td>
-							</tr>
-						</table>
-					</div>
+					<!--[if !mso]><!-->
+					<table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 30px auto 0 auto;'>
+						<tr>
+							<td style='background: linear-gradient(135deg, #202a8d 0%, #1e3a8a 100%); border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(32, 42, 141, 0.3);'>
+								<a href='$l' target='_blank' style='display: inline-block; padding: 16px 32px; background: transparent; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; cursor: pointer;'>
+									{$lang['getProVersion']}
+								</a>
+							</td>
+						</tr>
+					</table>
 					<!--<![endif]-->
 				";
 
-				// پیام Pro version بهبود یافته
+				// پیام Pro version بهبود یافته با ساختار proper MSO/Non-MSO conditional
 				$pro_upgrade_section = "
-					<div style='background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); border-radius: 12px; padding: 25px; margin: 25px 0; border-left: 5px solid #a855f7;'>
-						<h2 style='color: #7c2d92; margin: 0 0 15px 0; font-size: 20px; font-weight: 700; text-align: center;'>
-							🚀 ". esc_html__('Unlock Advanced Features', 'easy-form-builder') ."
-						</h2>
-						<p style='color: #86198f; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0; text-align: center;'>
-							$p
-						</p>
-						$pro_button
-					</div>
+					<!--[if mso]>
+					<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 25px 0;'>
+						<tr>
+							<td style='background-color: #fdf4ff; padding: 25px; border: 3px solid #a855f7; text-align: center;'>
+								<h2 style='color: #7c2d92; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;'>
+									🚀 ". esc_html__('Unlock Advanced Features', 'easy-form-builder') ."
+								</h2>
+								<p style='color: #86198f; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;'>
+									$p
+								</p>
+							</td>
+						</tr>
+					</table>
+					<![endif]-->
+					<!--[if !mso]><!-->
+					<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 25px 0; border-collapse: collapse;'>
+						<tr>
+							<td style='background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); border-radius: 12px; padding: 25px; border-left: 5px solid #a855f7; text-align: center;'>
+								<h2 style='color: #7c2d92; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;'>
+									🚀 ". esc_html__('Unlock Advanced Features', 'easy-form-builder') ."
+								</h2>
+								<p style='color: #86198f; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;'>
+									$p
+								</p>
+							</td>
+						</tr>
+					</table>
+					<!--<![endif]-->
+
+					$pro_button
+
+					<!--[if mso]>
+					<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0 0 0;'>
+						<tr>
+							<td style='text-align: center; padding: 20px; background-color: #f8fafc;'>
+								<p style='color: #64748b; font-size: 14px; margin: 0; font-style: italic;'>
+									". esc_html__('Created with ❤️ by', 'easy-form-builder') ." <strong style='color: #334155;'>WhiteStudio.team</strong>
+								</p>
+							</td>
+						</tr>
+					</table>
+					<![endif]-->
+					<!--[if !mso]><!-->
+					<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0 0 0; border-collapse: collapse;'>
+						<tr>
+							<td style='text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;'>
+								<p style='color: #64748b; font-size: 14px; margin: 0; font-style: italic;'>
+									". esc_html__('Created with ❤️ by', 'easy-form-builder') ." <strong style='color: #334155;'>WhiteStudio.team</strong>
+								</p>
+							</td>
+						</tr>
+					</table>
+					<!--<![endif]-->
 				";
 
-				$message = $improved_message . $pro_upgrade_section . "
-					<div style='text-align:center; margin: 30px 0; padding: 20px; background: #f8fafc; border-radius: 8px;'>
-						<p style='color: #64748b; font-size: 14px; margin: 0; font-style: italic;'>
-							". esc_html__('Created with ❤️ by', 'easy-form-builder') ." <strong style='color: #334155;'>WhiteStudio.team</strong>
-						</p>
-					</div>
-				";
+				$message = $improved_message . $pro_upgrade_section;
 			}
 		} elseif ($state == "newMessage") {
 			error_log('email_template_efb - Processing newMessage state');
@@ -1648,12 +1685,19 @@ class efbFunction {
 					$message = $m;
 				} else {
 					error_log('email_template_efb - String is plain text (tracking code), creating template');
-					// برای tracking code ساده
+					// برای tracking code ساده - table structure
 					$track_id = $m;
 					$title = $lang['hiUser'];
 					$message = "
-						<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
-						<p style='text-align:center'>". $lang["trackingCode"].": ".$track_id." </p>". $tracking_section;
+						<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
+							<tr>
+								<td style='text-align: center; padding: 20px;'>
+									<h2>".$lang["WeRecivedUrM"]."</h2>
+									<p>". $lang["trackingCode"].": ".$track_id." </p>
+									". $tracking_section ."
+								</td>
+							</tr>
+						</table>";
 				}
 			} elseif (is_array($m) && count($m) >= 2) {
 				error_log('email_template_efb - m is array with ' . count($m) . ' elements');
@@ -1668,22 +1712,43 @@ class efbFunction {
 				if (strpos($content, '<') !== false && strpos($content, '>') !== false) {
 					error_log('email_template_efb - Array content contains HTML');
 					$message = "
-						<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
-						<div style='text-align:".$align.";color:#252526;font-size:14px;'>".$content." </div>". $tracking_section;
+						<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
+							<tr>
+								<td style='text-align: center; padding: 20px;'>
+									<h2>".$lang["WeRecivedUrM"]."</h2>
+									<div style='text-align:".$align.";color:#252526;font-size:14px;'>".$content." </div>
+									". $tracking_section ."
+								</td>
+							</tr>
+						</table>";
 				} else {
 					error_log('email_template_efb - Array content is plain text');
 					$message = "
-						<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
-						<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$content." </div>". $tracking_section;
+						<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
+							<tr>
+								<td style='text-align: center; padding: 20px;'>
+									<h2>".$lang["WeRecivedUrM"]."</h2>
+									<div style='text-align:".$align.";color:#252526;font-size:14px;background:#f9f9f9;padding:10px;margin:20px 5px;border-radius:8px;'>".$content." </div>
+									". $tracking_section ."
+								</td>
+							</tr>
+						</table>";
 				}
 			} else {
 				error_log('email_template_efb - Unexpected m format: ' . json_encode($m));
-				// fallback برای حالت‌های غیرمنتظره
+				// fallback برای حالت‌های غیرمنتظره - table structure
 				$title = $lang['hiUser'];
 				$track_id = is_string($m) ? $m : (is_array($m) ? $m[0] : 'Unknown');
 				$message = "
-					<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
-					<p style='text-align:center'>". $lang["trackingCode"].": ".$track_id." </p>". $tracking_section;
+					<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
+						<tr>
+							<td style='text-align: center; padding: 20px;'>
+								<h2>".$lang["WeRecivedUrM"]."</h2>
+								<p>". $lang["trackingCode"].": ".$track_id." </p>
+								". $tracking_section ."
+							</td>
+						</tr>
+					</table>";
 			}
 
 			error_log('email_template_efb - other state final message: ' . substr($message, 0, 200) . '...');
@@ -1695,11 +1760,17 @@ class efbFunction {
 		error_log('email_template_efb - temp: ' . $temp);
 
 		$val = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
-<html xmlns=\"http://www.w3.org/1999/xhtml\">
+<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">
 <head>
 	<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
 	<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
 	<title>$title</title>
+	<!--[if gte mso 9]><xml>
+		<o:OfficeDocumentSettings>
+			<o:AllowPNG/>
+			<o:PixelsPerInch>96</o:PixelsPerInch>
+		</o:OfficeDocumentSettings>
+	</xml><![endif]-->
 	<!--[if mso]>
 	<style type=\"text/css\">
 		table, td, th {border-collapse: collapse;}

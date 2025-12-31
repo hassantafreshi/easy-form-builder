@@ -388,7 +388,7 @@ public static function email_send_efb() {
                 // Decoded object
                 // Append package type
                 // 0 = expired, 1 = pro, 2 = free plan, 3 = free plus
-                $package_type = get_option('emsfb_pro', 2);
+                $package_type = get_option('emsfb_pro', 10);
                 $decoded->package_type = $package_type;
                 $result = $decoded;
                 break;

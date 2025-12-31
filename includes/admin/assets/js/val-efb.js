@@ -3013,6 +3013,7 @@ function show_setting_up_easy_form_builder_Efb() {
 function handle_setup_modal_action(plan) {
     console.log('Setup modal action:', plan);
 
+    plan = (typeof plan === 'string') ? plan.replace(/[^A-Za-z_]/g, '') : '';
     try {
         // Handle different plan selections
         switch(plan) {
@@ -3117,9 +3118,13 @@ function savePlanSelection_efb(plan, planData) {
             plan_data: planData,
             timestamp: Date.now()
         };
-        localStorage.setItem('efb_selected_plan', JSON.stringify(selectionData));
-        console.log('Plan selection saved:', selectionData);
 
+        console.log('Plan selection saved:', selectionData);
+        if (selected_plan ==='pro' || selected_plan ==='null' || selected_plan ==='free') {
+          efb_var.setting.package_type = 2;
+        }else if (selected_plan ==='free_plus') {
+          efb_var.setting.package_type = 3;
+        }
         // ارسال به AJAX برای ذخیره در دیتابیس
         sendPlanSelectionToServer_efb(selectionData);
 
@@ -3133,12 +3138,16 @@ function savePlanSelection_efb(plan, planData) {
  * @returns {object|null} اطلاعات plan انتخاب شده
  */
 function getSelectedPlan_efb() {
-    try {
-        const savedPlan = localStorage.getItem('efb_selected_plan');
-        return savedPlan ? JSON.parse(savedPlan) : null;
-    } catch (error) {
-        console.error('Error getting selected plan:', error);
-        return null;
+  console.log(efb_var.setting.package_type);
+    const package_type = Number(efb_var.setting.package_type);
+    if (package_type === 10) {
+      return { selected_plan: 'null', plan_data: {} };
+    }else if (package_type === 1) {
+      return { selected_plan: 'pro', plan_data: {} };
+    }else if (package_type === 2) {
+      return { selected_plan: 'free', plan_data: {} };
+    }else if (package_type === 3) {
+      return { selected_plan: 'free_plus', plan_data: {} };
     }
 }
 
@@ -3737,23 +3746,20 @@ function handleOverlayEscape_efb(event) {
 // Show setup overlay page when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   // Check if we're on the form builder page and setup should be shown
-
-    if (getSelectedPlan_efb()===null) {
+    const getPlan = getSelectedPlan_efb();
+    console.log('Current selected plan:', getPlan);
+    if (getPlan.selected_plan === 'null') {
       // Small delay to ensure all elements are loaded
       setTimeout(() => {
         try {
           // Show setup as responsive overlay page
           showSetupAsOverlayPage();
-
-          // Mark as shown
-
-
+          // Mark as sho
           console.log('Setup overlay page displayed successfully');
-
         } catch (error) {
           console.error('Error displaying setup overlay page:', error);
         }
-      }, 500); // 1.5 seconds delay to ensure everything is loaded
+      }, 1.5); // 0.8 seconds delay to ensure everything is loaded
     }
 
 });
