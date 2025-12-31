@@ -56,16 +56,51 @@ class Addon {
 
 		$efbFunction = get_efbFunction();
 		$noti_pro = intval(get_option('Emsfb_pro' ,-1));
+		$addon_status = null; // Initialize addon_status
 		if ($noti_pro === 0  ){
 			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
 
 		}else{
 			$noti_pro = '<script>const noti_exp_efb="";</script>';
+			$addon_status = emsfb_get_file_access_status_efb();
 		}
 
 	?>
 	<!-- new code ddd -->
 	<?php echo   $noti_pro ?>
+
+	<!-- Addon Directory Status Check - Only for Pro version -->
+	<?php if ($noti_pro !== 0 && $addon_status): ?>
+		<?php if (!$addon_status['status']): ?>
+			<div class="notice notice-error efb" style="margin: 20px 0;">
+				<p><strong><?php echo esc_html__('Addon Installation Issue', 'easy-form-builder'); ?>:</strong></p>
+				<p><?php echo esc_html($addon_status['current_message']); ?></p>
+				<?php if (!empty($addon_status['error_codes'])): ?>
+					<details style="margin-top: 10px;">
+						<summary><?php echo esc_html__('Technical Details', 'easy-form-builder'); ?></summary>
+						<ul style="margin: 10px 0;">
+							<?php foreach ($addon_status['error_codes'] as $error_code): ?>
+								<li><code><?php echo esc_html($error_code); ?></code></li>
+							<?php endforeach; ?>
+						</ul>
+					</details>
+				<?php endif; ?>
+				<p><em><?php echo sprintf(esc_html__('Checked %s ago', 'easy-form-builder'), human_time_diff(strtotime($addon_status['checked_at']), current_time('timestamp'))); ?></em></p>
+			</div>
+		<?php else: ?>
+			<div class="notice notice-success efb" style="margin: 20px 0;">
+				<p><strong><?php echo esc_html__('System Ready', 'easy-form-builder'); ?>:</strong> <?php echo esc_html($addon_status['current_message']); ?></p>
+				<p><em><?php echo sprintf(esc_html__('Checked %s ago', 'easy-form-builder'), human_time_diff(strtotime($addon_status['checked_at']), current_time('timestamp'))); ?></em></p>
+			</div>
+		<?php endif; ?>
+	<?php elseif ($noti_pro !== 0 && !$addon_status): ?>
+		<div class="notice notice-info efb" style="margin: 20px 0;">
+			<p><?php echo esc_html__('Checking addon installation capabilities...', 'easy-form-builder'); ?></p>
+			<p><em><?php echo esc_html__('This check runs once after plugin activation. Please refresh the page in a few moments.', 'easy-form-builder'); ?></em></p>
+		</div>
+	<?php endif; ?>
+	<!-- End Addon Directory Status Check -->
+
 	<div id="alert_efb" class="efb mx-5"></div>
 
 
