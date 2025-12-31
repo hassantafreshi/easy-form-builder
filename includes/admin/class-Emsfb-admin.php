@@ -12,6 +12,7 @@ class Admin {
     public $ip;
     public $plugin_version;
     protected $db;
+    private $form_cache = [];
 
 
     // private $wpdb;
@@ -51,7 +52,7 @@ class Admin {
             add_action('wp_ajax_update_form_Emsfb', [$this, 'update_form_id_Emsfb']);                //Update a form by id
             add_action('wp_ajax_update_message_state_Emsfb', [$this, 'update_message_state_Emsfb']); //Update a message status by id
             add_action('wp_ajax_set_replyMessage_id_Emsfb', [$this, 'set_replyMessage_id_Emsfb']);   //Set reply message by id from admin
-            add_action('wp_ajax_set_settings_Emsfb', [$this, 'set_settings_Emsfb']);                   //Set setting
+            add_action('wp_ajax_set_settings_Emsfb', [$this, 'set_settings_Emsfb']);                  //Set setting
             add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);               //Get track id
             add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                 //Clear files is not used
             add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);       //Check email server
@@ -61,8 +62,8 @@ class Admin {
             add_action('wp_ajax_send_sms_pnl_efb', [$this, 'send_sms_admin_Emsfb']);                 //Send sms from admin panel
             add_action('wp_ajax_dup_efb', [$this, 'fun_duplicate_Emsfb']);                           //Duplicate a form
             add_action('efb_loading_card', [$this, 'loading_card_efb']);                             //Loading card
-            add_action('wp_ajax_remove_messages_Emsfb', [$this, 'delete_messages_Emsfb']);      //Remove messages by object
-            add_action('wp_ajax_read_list_Emsfb', [$this, 'read_list_Emsfb']);      //Remove messages by object
+            add_action('wp_ajax_remove_messages_Emsfb', [$this, 'delete_messages_Emsfb']);          //Remove messages by object
+            add_action('wp_ajax_read_list_Emsfb', [$this, 'read_list_Emsfb']);                      //Remove messages by object
             add_action('wp_ajax_heartbeat_Emsfb' , [$this, 'heartbeat_Emsfb'] );
             add_action('wp_ajax_report_problem_Emsfb' , [$this, 'report_problem_Emsfb'] );
             add_action('wp_ajax_efb_save_plan_selection', [$this, 'efb_save_plan_selection']);        //Save plan selection
@@ -165,6 +166,12 @@ class Admin {
             ['form_id' => $id],
             ['%d']
         );
+
+
+        if ($r !== false) {
+            $this->clear_form_cache_efb($id);
+        }
+
         $table_name = $this->db->prefix . "emsfb_msg_";
          $this->db->delete(
             $table_name,
@@ -256,6 +263,16 @@ class Admin {
         }
         $table_name = $this->db->prefix . "emsfb_form";
         $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $name ,'form_type'=>$form_type ], ['form_id' => $id]);
+
+        if ($r !== false) {
+            $cache_data = (object) array(
+                'form_structer' => $value_,
+                'form_name' => $name,
+                'form_type' => $form_type
+            );
+            $this->update_form_cache_efb($id, $cache_data, array('form_structer', 'form_type'));
+        }
+
         $value_="";
         $value="";
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
@@ -917,10 +934,10 @@ class Admin {
         $table_name = $this->db->prefix . "emsfb_msg_";
         $table_name_rsp = $this->db->prefix . "emsfb_rsp_";
         $id = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
-        
+
         // First try exact match in track field
         $value = $this->db->get_results($this->db->prepare("SELECT * FROM `$table_name` WHERE track = %s", $id));
-        
+
         if (count($value) > 0) {
             $code = 'efb'. $value[0]->msg_id;
 			$code = wp_create_nonce($code);
@@ -929,27 +946,27 @@ class Admin {
         else {
             // Enhanced search: search in both tables with JSON content support
             $search_term = "%$id%";
-            
+
             // Search in messages table (track and content fields)
             $sql_msg = $this->db->prepare(
-                "SELECT DISTINCT m.* FROM {$table_name} m 
+                "SELECT DISTINCT m.* FROM {$table_name} m
                  WHERE m.track LIKE %s OR m.content LIKE %s",
                 $search_term, $search_term
             );
-            
+
             // Search in responses table (content field) and join with messages
             $sql_rsp = $this->db->prepare(
-                "SELECT DISTINCT m.* FROM {$table_name} m 
-                 INNER JOIN {$table_name_rsp} r ON m.msg_id = r.msg_id 
+                "SELECT DISTINCT m.* FROM {$table_name} m
+                 INNER JOIN {$table_name_rsp} r ON m.msg_id = r.msg_id
                  WHERE r.content LIKE %s",
                 $search_term
             );
-            
+
             // Combine both queries and remove duplicates
             $combined_sql = "($sql_msg) UNION ($sql_rsp) ORDER BY date DESC";
-            
+
             $value = $this->db->get_results($combined_sql);
-            
+
             if(count($value) > 0){
                 $code = 'efb'. $value[0]->msg_id;
                 $code = wp_create_nonce($code);
@@ -1749,6 +1766,198 @@ function admin_notices_efb () {
 
         // Send success response
         wp_send_json_success($response_data);
+    }
+
+    /**
+     * Update form cache with new data
+     * این تابع برای بروزرسانی cache بدون نیاز به دیتابیس استفاده می‌شود
+     *
+     * @param int $form_id Form ID
+     * @param array $form_data Form data to cache
+     * @param array $fields Fields being cached (optional)
+     * @return bool Success status
+     */
+    public function update_form_cache_efb($form_id, $form_data, $fields = array('form_structer', 'form_type')) {
+        $form_id = intval($form_id);
+
+        if ($form_id <= 0 || empty($form_data)) {
+            return false;
+        }
+
+        // Ensure database connection for compatibility
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
+
+        $cache_key = $form_id . '_' . md5(implode('_', $fields));
+
+        // Convert array to object if needed (to match database result format)
+        $cache_data = is_array($form_data) ? (object) $form_data : $form_data;
+
+        // Update memory cache
+        $this->form_cache[$cache_key] = $cache_data;
+
+        // Update WordPress object cache
+        wp_cache_set('efb_form_' . $cache_key, $cache_data, 'emsfb', 3600);
+
+        // Log cache update for debugging
+        error_log(sprintf(
+            '[EFB Cache] Updated cache for form_id: %d, fields: %s, cache_key: %s',
+            $form_id,
+            implode(',', $fields),
+            $cache_key
+        ));
+
+        return true;
+    }
+
+    /**
+     * Bulk update multiple form caches
+     * برای بروزرسانی چندین فرم به صورت یکجا
+     *
+     * @param array $forms_data Array of form data: [form_id => form_data]
+     * @param array $fields Fields being cached
+     * @return array Results: [form_id => success_status]
+     */
+    public function bulk_update_form_cache_efb($forms_data, $fields = array('form_structer', 'form_type')) {
+        $results = array();
+
+        foreach ($forms_data as $form_id => $form_data) {
+            $results[$form_id] = $this->update_form_cache_efb($form_id, $form_data, $fields);
+        }
+
+        return $results;
+    }
+
+    /**
+     * Clear form cache for specific form or all forms
+     * پاک کردن cache مخصوص فرم خاص یا همه فرم‌ها
+     *
+     * @param int|null $form_id Form ID (null for all forms)
+     * @param array $fields Specific fields to clear (empty for all)
+     * @return bool Success status
+     */
+    public function clear_form_cache_efb($form_id = null, $fields = array()) {
+        // Clear all memory cache if no specific form
+        if ($form_id === null) {
+            $this->form_cache = array();
+
+            // Clear WordPress object cache group
+            wp_cache_flush_group('emsfb');
+
+            error_log('[EFB Cache] Cleared all form caches');
+            return true;
+        }
+
+        $form_id = intval($form_id);
+
+        // Clear specific form cache
+        if (empty($fields)) {
+            // Clear all field combinations for this form
+            $fields_to_clear = array(
+                array('form_structer', 'form_type'),
+                array('form_structer'),
+                array('form_type'),
+                array('form_name'),
+                array('form_name', 'form_structer')
+            );
+        } else {
+            $fields_to_clear = array($fields);
+        }
+
+        foreach ($fields_to_clear as $field_set) {
+            $cache_key = $form_id . '_' . md5(implode('_', $field_set));
+
+            // Clear memory cache
+            unset($this->form_cache[$cache_key]);
+
+            // Clear WordPress object cache
+            wp_cache_delete('efb_form_' . $cache_key, 'emsfb');
+        }
+
+        error_log(sprintf(
+            '[EFB Cache] Cleared cache for form_id: %d, fields: %s',
+            $form_id,
+            empty($fields) ? 'all' : implode(',', $fields)
+        ));
+
+        return true;
+    }
+
+    /**
+     * Get form cache status and statistics
+     * اطلاعات و آمار cache فرم‌ها
+     *
+     * @return array Cache statistics
+     */
+    public function get_form_cache_stats_efb() {
+        $memory_cache_count = count($this->form_cache);
+        $memory_size_estimate = strlen(serialize($this->form_cache));
+
+        return array(
+            'memory_cache_items' => $memory_cache_count,
+            'memory_size_bytes' => $memory_size_estimate,
+            'memory_size_mb' => round($memory_size_estimate / 1024 / 1024, 2),
+            'cache_keys' => array_keys($this->form_cache)
+        );
+    }
+
+    /**
+     * Validate and refresh cache for specific form
+     *
+     * @param int $form_id Form ID
+     * @param array $fields Fields to validate
+     * @param bool $force_refresh Force refresh even if cache exists
+     * @return object|null Form data or null if not found
+     */
+    public function validate_and_refresh_cache_efb($form_id, $fields = array('form_structer', 'form_type'), $force_refresh = false) {
+        $form_id = intval($form_id);
+        $cache_key = $form_id . '_' . md5(implode('_', $fields));
+
+        // Clear existing cache if force refresh
+        if ($force_refresh) {
+            unset($this->form_cache[$cache_key]);
+            wp_cache_delete('efb_form_' . $cache_key, 'emsfb');
+        }
+
+        // Check if cache exists and is valid
+        if (!$force_refresh && isset($this->form_cache[$cache_key])) {
+            return $this->form_cache[$cache_key];
+        }
+
+        // Ensure database connection
+        if(empty($this->db)){
+            global $wpdb;
+            $this->db = $wpdb;
+        }
+
+        // Fetch fresh data from database
+        $table_name = $this->db->prefix . "emsfb_form";
+        $fields_str = implode(', ', array_map('esc_sql', $fields));
+
+        $result = $this->db->get_results(
+            $this->db->prepare(
+                "SELECT {$fields_str} FROM `{$table_name}` WHERE form_id = %d ORDER BY form_id DESC LIMIT 1",
+                $form_id
+            )
+        );
+
+        if (!$result || empty($result)) {
+            return null;
+        }
+
+        // Update cache with fresh data
+        $this->form_cache[$cache_key] = $result[0];
+        wp_cache_set('efb_form_' . $cache_key, $result[0], 'emsfb', 3600);
+
+        error_log(sprintf(
+            '[EFB Cache] Refreshed cache for form_id: %d, fields: %s',
+            $form_id,
+            implode(',', $fields)
+        ));
+
+        return $result[0];
     }
 
 

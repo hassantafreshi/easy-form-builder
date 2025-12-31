@@ -22,6 +22,7 @@ class _Public {
 	public $url;
 	public $efb_uid  ;
 	public $value_forms =[];
+	private $form_cache = [];
 
 	public function __construct() {
 		global $wpdb;
@@ -537,13 +538,12 @@ public function check_nonce_permission_efb($request) {
 				global $wpdb;
 				$this->db = $wpdb;
 			}
-			$table_name = $this->db->prefix . "emsfb_form";
 
 			$this->id = end($id);
 			$this->id = intval($this->id);
-			$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
-			if($value_form!=null){
-				$typeOfForm =$value_form[0]->form_type;
+			$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
+			if($value_form_data != null){
+				$typeOfForm = $value_form_data->form_type;
 				if($state_form!='not' && strlen($state_form)>7
 				&& ($typeOfForm!="register" || $typeOfForm!="login")){
 					$this->id =-1;
@@ -1605,15 +1605,9 @@ public function check_nonce_permission_efb($request) {
             global $wpdb;
             $this->db = $wpdb;
         }
-		$table_name = $this->db->prefix . "emsfb_form";
 		$this->id = intval($this->id);
-		$value_form = $this->db->get_results(
-			$this->db->prepare(
-				"SELECT form_structer, form_type FROM `$table_name` WHERE form_id = %d",
-				$this->id
-			)
-		);
-		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) : '';
+		$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
+		$fs = isset($value_form_data) ? str_replace('\\', '', $value_form_data->form_structer) : '';
 		$not_captcha = $formObj = $trackingCode_state  = $check = "";
 		$send_email_to_user_state=false;
 		$email_user = [];
@@ -2850,13 +2844,8 @@ public function check_nonce_permission_efb($request) {
             $vl ='efb'. $_POST['id'];
         }else{
             $id = $_POST['id'];
-            $table_name = $this->db->prefix . "emsfb_form";
-              $vl = $this->db->get_var(
-				$this->db->prepare(
-					"SELECT form_structer FROM `$table_name` WHERE form_id = %d",
-					$id
-				)
-			);
+            $vl_data = $this->get_form_data_efb($id, array('form_structer'));
+            $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
                 if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){
                     $vl ='efb'.$id;
@@ -2909,6 +2898,11 @@ public function check_nonce_permission_efb($request) {
 		$form_id = intval($form_id);
 		$cache_key = $form_id . '_' . md5(implode('_', $fields));
 
+		// Ensure database connection
+		if(empty($this->db)){
+			global $wpdb;
+			$this->db = $wpdb;
+		}
 
 		if (isset($this->form_cache[$cache_key])) {
 			return $this->form_cache[$cache_key];
