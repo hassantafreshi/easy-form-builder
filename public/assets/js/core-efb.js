@@ -934,7 +934,9 @@ setTimeout(() => {
   fun_sendBack_emsFormBuilder(ob[0])
   if (message.length < 1 ) {
     check_msg_ext_resp_efb();
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-6"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}${efb_var.text.pleaseEnterVaildValue}</h6>`;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb fs-6"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i> ${efb_var.text.error}: ${efb_var.text.pleaseEnterVaildValue}</p>`;
+    document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
+     document.getElementById('replayB_emsFormBuilder').innerHTML = efb_var.text.reply;
     return;
   } else {
     if(setting_emsFormBuilder.hasOwnProperty('dsupfile')==true && setting_emsFormBuilder.dsupfile !=true) {

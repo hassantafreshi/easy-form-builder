@@ -93,11 +93,6 @@ class _Public {
 				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
-			register_rest_route('Emsfb/v1','forms/file/upload', [
-				'methods' => 'POST',
-				'callback'=>  [$this,'file_upload_api'],
-				'permission_callback' => [$this, 'check_nonce_permission_efb']
-			]);
 		});
 		//add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) );
 		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EFB_Form_Builder' ) );
@@ -607,7 +602,7 @@ public function check_nonce_permission_efb($request) {
 			$bootstrap_icons ='';
 			 $iconst_html_preload ='<div style="display:none;">';
 			if($is_track==null){
-				$value = $value_form[0]->form_structer;
+				$value = $value_form_data->form_structer;
 				$pattern = '/bi-[a-zA-Z0-9-]+/';
 				// error_log('value:'.$value);
 				preg_match_all($pattern, $value, $icons_ );
@@ -643,8 +638,8 @@ public function check_nonce_permission_efb($request) {
 			$lang = get_locale();
 			$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
 
-			$typeOfForm =$value_form[0]->form_type ?? 'track';
-			$value = $value_form[0]->form_structer ?? 'track';
+			$typeOfForm =$value_form_data->form_type ?? 'track';
+			$value = $value_form_data->form_structer ?? 'track';
 			$state="form";
 			$multi_exist = strpos($value , '"type\":\"multiselect\"');
 			if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
@@ -727,7 +722,7 @@ public function check_nonce_permission_efb($request) {
 			$username = is_user_logged_in() ? wp_get_current_user()->user_login : 'guest';
 			if ($is_track==null){
 
-					$fs =str_replace('\\', '', $value_form[0]->form_structer);
+					$fs =str_replace('\\', '', $value_form_data->form_structer);
 					$formObj= json_decode($fs,true);
 					$valj_efb = json_decode($fs, false, 512, JSON_UNESCAPED_UNICODE);
 					if(($valj_efb[0]->stateForm==true || $valj_efb[0]->stateForm==1) &&  is_user_logged_in()==false ){
@@ -747,7 +742,7 @@ public function check_nonce_permission_efb($request) {
 
 
 				$k="";
-				if(($value_form[0]->form_type=="login" || $value_form[0]->form_type=="register"))$value= $value_form[0]->form_structer;
+				if(($value_form_data->form_type=="login" || $value_form_data->form_type=="register"))$value= $value_form_data->form_structer;
 				$stng = $this->pub_stting;
 				if(gettype($stng)!=="integer" && $lanText['settingsNfound']){
 				// $valstng= json_decode($stng);
@@ -808,7 +803,7 @@ public function check_nonce_permission_efb($request) {
 					".$s_m."
 					</div> </div>";
 					return $content;
-				}else if(($value_form[0]->form_type=="login" || $value_form[0]->form_type=="register") && is_user_logged_in()){
+				}else if(($value_form_data->form_type=="login" || $value_form_data->form_type=="register") && is_user_logged_in()){
 					// show_user_profile_emsFormBuilder($ob, $text_logout, $formId)
 
 					$content = $efbFormBuilder->show_user_profile_emsFormBuilder( $lanText['logout'], $this->id);
@@ -1572,12 +1567,12 @@ public function check_nonce_permission_efb($request) {
 		$setting;
 		$cache_plugins = get_option('emsfb_cache_plugins');
 		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id,$cache_plugins);
-		if ($s_sid != 1) {
+		/* 	if ($s_sid != 1) {
 			$this->efbFunction->send_email_noti_sid_plugins_efb('loadScriptsEvent');
 			$m = $this->lanText['sxnlex'];
 			$response = ['success' => false, 'm' => $m];
 			wp_send_json_success($response, 200);
-		}
+		} */
 		$user_id = 1;
 		$to_list_admin = [];
 		// Use cache for settings
@@ -2945,7 +2940,7 @@ public function check_nonce_permission_efb($request) {
         $fid= isset($_POST['fid']) ? intval( wp_unslash( $_POST['fid'] ) ) : 0;
 		$sid = '';
 		$page_id = isset($_POST['page_id']) ? sanitize_text_field(wp_unslash($_POST['page_id'])) : '';
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
+		// $s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
 
 		$this->cache_cleaner_Efb($page_id);
 
@@ -5084,12 +5079,12 @@ function email_get_content_efb($content, $track){
 		$st = sanitize_text_field($data['st']);
 		$fid = sanitize_text_field($data['fid']);
 		$this->efbFunction = get_efbFunction();
-		$s_sid = $this->efbFunction->efb_code_validate_select($st, $fid);
+		 $s_sid = $this->efbFunction->efb_code_validate_select($st, $fid);
 		// error_log('sid===>'.$s_sid);
-		if ($s_sid !=1){
+		/*if ($s_sid !=1){
 			$this->efbFunction->send_email_noti_sid_plugins_efb('passwordActionEvent');
 			return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder') .' E404')) ;
-		}
+		} */
 		$password = sanitize_text_field($data['password']);
 		if(empty($this->db)){
             global $wpdb;

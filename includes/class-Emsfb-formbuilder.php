@@ -2057,7 +2057,7 @@
 
 	function  free_plus_efb_powered_by($texts) {
 		// Powered by Easy Form Builder by white studio team
-		$text = esc_html__('Built with %sEasy Form Builder%s by %sWordPress form plugin%s by  whitestudio.team', 'easy-form-builder');
+		$text = esc_html__('Built with %sEasy Form Builder%s by %sWordPress form plugin by whitestudio.team%s', 'easy-form-builder');
 		$text = sprintf($text, '<a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank">', '</a>', '<a href="https://whitestudio.team" target="_blank">', '</a>');
 		$copyRight = '<!-- texts -->';
 		$efb = esc_html__('Easy Form Builder', 'easy-form-builder');
