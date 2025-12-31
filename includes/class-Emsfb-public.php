@@ -91,6 +91,12 @@ class _Public {
 				'callback'=>  [$this,'set_password_efb_api'],
 				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
+
+			register_rest_route('Emsfb/v1','forms/file/upload', [
+				'methods' => 'POST',
+				'callback'=>  [$this,'file_upload_api'],
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
+			]);
 		});
 		//add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) );
 		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EFB_Form_Builder' ) );
@@ -2892,49 +2898,90 @@ public function check_nonce_permission_efb($request) {
 			die('invalid file '.$file_type);
 		}
 	}// end function
+
+	/**
+	 * Get form data with caching
+	 * @param int $form_id Form ID
+	 * @param array $fields Fields to retrieve (default: ['form_structer', 'form_type'])
+	 * @return object|null Form data or null if not found
+	 */
+	private function get_form_data_efb($form_id, $fields = array('form_structer', 'form_type')) {
+		$form_id = intval($form_id);
+		$cache_key = $form_id . '_' . md5(implode('_', $fields));
+
+
+		if (isset($this->form_cache[$cache_key])) {
+			return $this->form_cache[$cache_key];
+		}
+
+
+		$cache_data = wp_cache_get('efb_form_' . $cache_key, 'emsfb');
+		if ($cache_data !== false) {
+			$this->form_cache[$cache_key] = $cache_data;
+			return $cache_data;
+		}
+
+
+		$table_name = $this->db->prefix . "emsfb_form";
+		$fields_str = implode(', ', array_map('esc_sql', $fields));
+
+		$result = $this->db->get_results(
+			$this->db->prepare(
+				"SELECT {$fields_str} FROM `{$table_name}` WHERE form_id = %d ORDER BY form_id DESC LIMIT 1",
+				$form_id
+			)
+		);
+
+		if (!$result || empty($result)) {
+			return null;
+		}
+
+
+		$this->form_cache[$cache_key] = $result[0];
+		wp_cache_set('efb_form_' . $cache_key, $result[0], 'emsfb', 3600);
+
+		return $result[0];
+	}
+
 	public function file_upload_api(){
+		//phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified via permission_callback in REST API route registration
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
-		$_POST['id']=intval( wp_unslash( $_POST['id'] ) );
-        $_POST['pl']=sanitize_text_field($_POST['pl']);
-        $fid=intval( wp_unslash( $_POST['fid'] ) );
-		$page_id = sanitize_text_field($_POST['page_id']);
-	/* 	$sid = sanitize_text_field($_POST['sid']);
-		error_log('file_upload_api');
-		error_log('sid: '.$sid);
-		error_log('fid: '.$fid);
-		error_log('page_id: '.$page_id);
+		$_POST['id']= isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+        $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field(wp_unslash($_POST['pl'])) : '';
+        $fid= isset($_POST['fid']) ? intval( wp_unslash( $_POST['fid'] ) ) : 0;
+		$sid = '';
+		$page_id = isset($_POST['page_id']) ? sanitize_text_field(wp_unslash($_POST['page_id'])) : '';
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
-		if ($s_sid !=1 || $sid==null){
-		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . ": 402");
-		wp_send_json_success($response,200);
-		} */
-		$cache_plugins = get_option('emsfb_cache_plugins');
-		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id,$cache_plugins);
-        // check validate here
+
+		$this->cache_cleaner_Efb($page_id);
+
         $vl=null;
 		$have_validate =0;
 		$temp=0;
-		if(empty($this->db)){
-            global $wpdb;
-            $this->db = $wpdb;
-        }
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
-            $id = $_POST['id'];
-            $table_name = $this->db->prefix . "emsfb_form";
-            $vl = $this->db->get_var( $this->db->prepare(
-				"SELECT form_structer FROM `$table_name` WHERE form_id = %d",
-				$fid
-			));
+
+            $id = isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+            $fid = intval($fid);
+            $vl_data = $this->get_form_data_efb($fid, array('form_structer'));
+            $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
 				if(gettype($vl)=="string"){
 					$temp = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') ? true : false;
 				}
+
+
                 if($temp==false){
+
                     $response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . ": 601");
 					wp_send_json_success($response,200);
                 }
+
+
+
+
+
 				if(strpos($vl , '\"value\":\"customize\"')!=false){
 					$val_ = str_replace('\\', '', $vl);
 					$vl = json_decode($val_);
@@ -2945,13 +2992,19 @@ public function check_nonce_permission_efb($request) {
 							break;
 						}
 					}
+
 				}else{
 					$have_validate=0;
 				}
+
+
+
             }
         }
 		$valid=false;
 		$_FILES['async-upload']['name'] = sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) );
+
+
 			$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
 			$this->lanText= $this->efbFunction->text_efb($this->text_);
 			if($have_validate!=1){
@@ -2965,47 +3018,75 @@ public function check_nonce_permission_efb($request) {
 				'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
 				'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip', 'rar', 'zip', 'tar', 'gzip', 'gz', '7z', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mp3', 'wav', 'gif', 'png', 'jpg', 'jpeg', 'rar',
 			     'gz', 'tgz', 'tar.gz', 'tar.gzip', 'tar.z', 'tar.Z', 'tar.bz2', 'tar.bz', 'tar.bzip2', 'tar.bzip', 'tbz2', 'tbz', 'bz2', 'bz', 'bzip2', 'bzip', 'tz2', 'tz', 'z', 'war', 'jar', 'ear', 'sar'
+
 				);
 				$async_file_type = isset($_FILES['async-upload']['type']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['type'] ) ) : '';
 				$valid = in_array($async_file_type, $arr_ext);
 			}
+
+
+
 		if($have_validate==1){
 			if(gettype($vl)=="string"){
 				$val_ = str_replace('\\', '', $vl);
 				$vl = json_decode($val_);}
+
 			foreach($vl as $key=>$val){
+
 				if($key>1 && ($val->type=="dadfile" || $val->type=="file") && $val->id_==$_POST['id']){
+
 					$val->file_ctype = strtolower($val->file_ctype);
+
 					$valid_types = explode(',', str_replace(' ', '', $val->file_ctype));
-					// error_log(json_encode($valid_types));
+
 					$file_name = isset($_FILES['async-upload']['name']) ? sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) ) : '';
+
 					$ext = strtolower(substr($file_name, strrpos($file_name, '.') + 1));
+
+
 					foreach($valid_types as $val){
+
 						if($val==$ext){
 							$valid=true;
 							break;
 						}
 					}
+
 					break;
 				}
 			}
+
 		}
+
 		if ($valid) {
 			$async_file_name = isset($_FILES['async-upload']['name']) ? sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) ) : '';
-			$async_file_tmp = isset($_FILES['async-upload']['tmp_name']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['tmp_name'] ) ) : '';
+
+			$async_file_tmp = isset($_FILES['async-upload']['tmp_name']) ? $_FILES['async-upload']['tmp_name'] : '';
+
+
+			if (empty($async_file_tmp) || !is_uploaded_file($async_file_tmp) || !is_readable($async_file_tmp)) {
+				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
+				wp_send_json_success($response,200);
+			}
+
 			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;
-			$upload = wp_upload_bits($name, null, file_get_contents($async_file_tmp));
+			$file_contents = file_get_contents($async_file_tmp);
+			if ($file_contents === false) {
+				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
+				wp_send_json_success($response,200);
+			}
+			$upload = wp_upload_bits($name, null, $file_contents);
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
 			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$async_file_type);
 			  wp_send_json_success($response,200);
 		}else{
-			$response = array( 'success' => false  ,'error'=>$this->lanText['errorFilePer']);
+			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]);
 			wp_send_json_success($response,200);
-			die('invalid file '.$async_file_type);
+			die('invalid file ' . esc_html( $async_file_type ) );
 		}
-	}// end function
+	}
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
 		error_log('set_rMessage_id_Emsfb_api');
 		error_log('data_POST_: ' . json_encode($data_POST_));

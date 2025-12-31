@@ -2,6 +2,18 @@
 //Easy Form Builder
 //WhiteStudio.team
 //EFB.APP
+
+// Define deepFreeze_efb at the top for availability
+function deepFreeze_efb(obj) {
+  if (typeof obj !== "object" || obj === null) return obj;
+  Object.keys(obj).forEach((key) => {
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+          deepFreeze_efb(obj[key]);
+      }
+  });
+  return Object.freeze(obj);
+}
+
 let activeEl_efb = 0;
 let amount_el_efb = 1;
 let step_el_efb = 0;
@@ -35,7 +47,7 @@ let pub_txt_button_color_efb='text-white';
 let sendBack_emsFormBuilder_pub = [];
 const getUrlparams_efb = new URLSearchParams(location.search);
 const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
-efb_var_waitng = (time) => {
+function efb_var_waitng(time) {
   setTimeout(() => {
     if (typeof (efb_var) == "object" && efb_var.hasOwnProperty('text')) {
       formName_Efb = efb_var.text.form
@@ -2009,12 +2021,12 @@ function timeOutCaptcha() {
   document.getElementById(id).classList.add('disabled');
   alert_message_efb(efb_var.text.error, efb_var.text.errorVerifyingRecaptcha, 7, 'warning');
 }
-fun_el_select_in_efb = (el) => {
+function fun_el_select_in_efb(el) {
   const validSelectElements = new Set(['select', 'multiselect', 'conturyList', 'stateProvince','statePro','country','city', 'cityList', 'paySelect', 'payMultiselect']);
   return validSelectElements.has(el);
   //return  el == 'select' || el == 'multiselect' || el == 'conturyList' || el == 'stateProvince' || el == 'cityList'||  el == 'paySelect' || el == 'payMultiselect' ? true : false
  }
-fun_el_check_radio_in_efb = (el) => {
+function fun_el_check_radio_in_efb(el) {
   const validElements = new Set(['radio', 'checkbox', 'payRadio', 'payCheckbox', 'imgRadio', 'chlRadio', 'chlCheckBox']);
   return  validElements.has(el);
    // return el == 'radio' || el == 'checkbox' || el == 'payRadio' || el == 'payCheckbox' || el == 'imgRadio' || el == 'chlRadio' || el == 'chlCheckBox' ? true : false
@@ -2086,7 +2098,7 @@ async function fun_validation_efb() {
 function type_validate_efb(type) {
   return type == "select" || type == "multiselect" || type == "text" || type == "password" || type == "email" || type == "conturyList" || type == "stateProvince" || type == "file" || type == "url" || type == "color" || type == "date" || type == "textarea" || type == "tel" || type == "number" ? true : false;
 }
-addStyleColorBodyEfb = (t, c, type, id) => {
+function addStyleColorBodyEfb(t, c, type, id) {
   let ttype = "text";
   if(id==-1){
     ttype =type;
@@ -2124,7 +2136,7 @@ addStyleColorBodyEfb = (t, c, type, id) => {
   c=c[0]!="#" ? "#"+c : c
   efb_add_costum_color(t, c ,v , type)
 }
-efb_add_costum_color=(t, c ,v , type)=>{
+function efb_add_costum_color(t, c, v, type){
   let n =''
   c=c[0]!="#" ? "#"+c : c
   if (type == "text") {       n=`${type}-${t}`;         v = `.${n}{color:${c}!important;}` }
@@ -2135,7 +2147,7 @@ efb_add_costum_color=(t, c ,v , type)=>{
   document.body.appendChild(Object.assign(document.createElement("style"), { textContent: `${v}` }))
   return n;
 }
-fun_addStyle_costumize_efb = (val, key, indexVJ) => {
+function fun_addStyle_costumize_efb(val, key, indexVJ) {
   if (val.toString().includes('colorDEfb')) {
     let type = ""
     let color = ""
@@ -2384,7 +2396,7 @@ function funTnxEfb(val, title, message) {
                   <span class="efb text-center" ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}</span>
   `
 }
-let get_position_col_el = (dataId, state) => {
+function get_position_col_el(dataId, state) {
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   let el_parent = document.getElementById(valj_efb[indx].id_) ?? "null";
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`) ?? "null";
@@ -2544,39 +2556,57 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
   console.log(`uploadFile_api 2385 file[${file}] id[${id}] pl[${pl}] nonce_msg[${nonce_msg}] indx[${indx}] idn[${idn}] page_id[${page_id}]`)
   //setTimeout(() => {
       fetch_uploadFile(file, id, pl, nonce_msg,page_id,fid,sid).then((data) => {
-        console.log(data);
-        if (data.success === true && data.data.success===true) {
-          files_emsFormBuilder[indx].url = data.data.file.url;
-            files_emsFormBuilder[indx].state = 2;
-            files_emsFormBuilder[indx].id = idn;
-            const form_id = files_emsFormBuilder[indx].hasOwnProperty('form_id') ? files_emsFormBuilder[indx].form_id : 0;
-            const ob = valueJson_ws.find(x => x.id_ === id) || 0;
-            const o = [{
-              id_: files_emsFormBuilder[indx].id_,
-              name: files_emsFormBuilder[indx].name,
-              amount: ob.amount,
-              type: files_emsFormBuilder[indx].type,
-              value: '@file@',
-              url: files_emsFormBuilder[indx].url,
-              session: sessionPub_emsFormBuilder,
-              page_id: page_id,
-              form_id: form_id,
-            }];
-            console.log('2445')
-            fun_sendBack_emsFormBuilder(o[0]);
-            //remove indx from files_emsFormBuilder
-            files_emsFormBuilder.splice(indx, 1);
-            const el = document.getElementById(idB)
-            if(el){
-              el.style.width = '100%';
-              el.textContent = '100% = ' + file.name;
-            }
-            if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
+        console.log('Upload response:', data);
+
+        // بررسی ساختار response
+        var responseData = data;
+        if (data.hasOwnProperty('data')) {
+          responseData = data.data;
+        }
+
+        if (data.success === true && responseData.success === true) {
+          files_emsFormBuilder[indx].url = responseData.file.url;
+          files_emsFormBuilder[indx].state = 2;
+          files_emsFormBuilder[indx].id = idn;
+          const form_id = files_emsFormBuilder[indx].hasOwnProperty('form_id') ? files_emsFormBuilder[indx].form_id : 0;
+          const ob = valueJson_ws.find(x => x.id_ === id) || 0;
+          const o = [{
+            id_: files_emsFormBuilder[indx].id_,
+            name: files_emsFormBuilder[indx].name,
+            amount: ob.amount,
+            type: files_emsFormBuilder[indx].type,
+            value: '@file@',
+            url: files_emsFormBuilder[indx].url,
+            session: sessionPub_emsFormBuilder,
+            page_id: page_id,
+            form_id: form_id,
+          }];
+          console.log('File uploaded successfully');
+          fun_sendBack_emsFormBuilder(o[0]);
+          //remove indx from files_emsFormBuilder
+          files_emsFormBuilder.splice(indx, 1);
+          const el = document.getElementById(idB)
+          if(el){
+            el.style.width = '100%';
+            el.textContent = '100% = ' + file.name;
+          }
+          if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
         } else {
-          const m = data.data.hasOwnProperty('file') ? data.data.file.error : data.data.m;
+          // بررسی منابع مختلف پیام خطا
+          var errorMessage = 'Upload failed';
+          if (responseData.hasOwnProperty('file') && responseData.file.hasOwnProperty('error')) {
+            errorMessage = responseData.file.error;
+          } else if (responseData.hasOwnProperty('m')) {
+            errorMessage = responseData.m;
+          } else if (responseData.hasOwnProperty('error')) {
+            errorMessage = responseData.error;
+          } else if (data.hasOwnProperty('m')) {
+            errorMessage = data.m;
+          }
+
           const el = document.getElementById(idB);
-          //console.error(m);
-          alert_message_efb('', m, 30, 'danger');
+          console.error('Upload error:', errorMessage, 'Full response:', data);
+          alert_message_efb('', errorMessage, 30, 'danger');
           if(el==null) return;
           el.style.width = '0%';
           el.textContent = '0% = ' + file.name;
@@ -2584,7 +2614,26 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
         }
       })
       .catch((error) => {
-        console.error(error);
+        const el = document.getElementById(idB);
+        console.error('Upload fetch error:', error);
+
+        // بررسی نوع خطا
+        var errorMessage = 'Network error or upload failed';
+        if (typeof error === 'string') {
+          errorMessage = error;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        alert_message_efb('', errorMessage, 30, 'danger');
+
+        if(el) {
+          el.style.width = '0%';
+          el.textContent = '0% = Error: ' + file.name;
+        }
+
+        // Reset file state
+        files_emsFormBuilder[indx].state = 0;
       });
 }
 function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
@@ -2614,8 +2663,30 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
     });
     xhr.addEventListener('load', () => {
     if (xhr.status >= 200 && xhr.status < 300) {
-      const response = JSON.parse(xhr.responseText);
-      resolve(response);
+      try {
+        // Clean response text از whitespace و HTML tags اضافی
+        var cleanResponseText = xhr.responseText.trim();
+
+        // بررسی اینکه response با { شروع می‌شود (JSON valid)
+        if (!cleanResponseText.startsWith('{') && !cleanResponseText.startsWith('[')) {
+          // اگر response HTML error است، سعی کن JSON را extract کن
+          var jsonMatch = cleanResponseText.match(/\{.*\}/s);
+          if (jsonMatch) {
+            cleanResponseText = jsonMatch[0];
+          } else {
+            console.error('Invalid JSON response:', cleanResponseText);
+            reject('Server returned invalid JSON: ' + cleanResponseText.substring(0, 100));
+            return;
+          }
+        }
+
+        const response = JSON.parse(cleanResponseText);
+        resolve(response);
+      } catch (parseError) {
+        console.error('JSON Parse Error:', parseError);
+        console.error('Original Response:', xhr.responseText);
+        reject('Invalid JSON response from server. Check console for details.');
+      }
     } else {
       reject(xhr.statusText);
     }
@@ -2627,130 +2698,475 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
     xhr.send(formData);
   });
 }
+// Polyfill برای findIndex در IE
+if (!Array.prototype.findIndex) {
+  Array.prototype.findIndex = function(predicate) {
+    if (this == null) {
+      throw new TypeError('Array.prototype.findIndex called on null or undefined');
+    }
+    if (typeof predicate !== 'function') {
+      throw new TypeError('predicate must be a function');
+    }
+    var list = Object(this);
+    var length = parseInt(list.length) || 0;
+    var thisArg = arguments[1];
+    for (var i = 0; i < length; i++) {
+      if (predicate.call(thisArg, list[i], i, list)) {
+        return i;
+      }
+    }
+    return -1;
+  };
+}
+
+// Helper function برای تشخیص پشتیبانی از ویژگی‌ها
+function checkBrowserSupport_efb() {
+  return {
+    templateLiterals: (function() {
+      try {
+        eval('`test`');
+        return true;
+      } catch (e) {
+        return false;
+      }
+    })(),
+    urlConstructor: typeof URL !== 'undefined',
+    popupAllowed: true, // Will be tested dynamically
+    isMobile: (function() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+             (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(navigator.platform));
+    })(),
+    isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent),
+    isAndroid: /Android/.test(navigator.userAgent),
+    touchSupport: 'ontouchstart' in window || navigator.maxTouchPoints > 0
+  };
+}
+
+// Function برای تشخیص دسترسی به Google Fonts
+function checkGoogleFontsAccess_efb(callback) {
+  var testLink = document.createElement('link');
+  testLink.rel = 'stylesheet';
+  testLink.href = 'https://fonts.googleapis.com/css2?family=Open+Sans&display=swap';
+  testLink.style.position = 'absolute';
+  testLink.style.left = '-9999px';
+
+  var timeoutId = setTimeout(function() {
+    callback(false);
+  }, 3000);
+
+  testLink.onload = function() {
+    clearTimeout(timeoutId);
+    callback(true);
+  };
+
+  testLink.onerror = function() {
+    clearTimeout(timeoutId);
+    callback(false);
+  };
+
+  document.head.appendChild(testLink);
+}
+
+// Fallback fonts برای کشورهای مختلف
+function getFallbackFont_efb(locale) {
+  var fallbackFonts = {
+    'am': 'serif',
+    'ar': 'Tahoma, Arial, sans-serif',
+    'fa_IR': 'Tahoma, Arial, sans-serif',
+    'arq': 'Arial, sans-serif',
+    'az_TR': 'Arial, sans-serif',
+    'bn_BD': 'Arial Unicode MS, sans-serif',
+    'cs_CZ': 'Arial, sans-serif',
+    'hat': 'Times New Roman, serif',
+    'he_IL': 'David, Arial, sans-serif',
+    'hr': 'Arial, sans-serif',
+    'hy': 'Arial, sans-serif',
+    'id_ID': 'Arial, sans-serif',
+    'ja': 'MS Gothic, sans-serif',
+    'ka_GE': 'Arial, sans-serif',
+    'km': 'Arial Unicode MS, sans-serif',
+    'ko_KR': 'Malgun Gothic, sans-serif',
+    'lt_LT': 'Arial, sans-serif',
+    'ml_IN': 'Arial Unicode MS, sans-serif',
+    'ms_MY': 'Arial, sans-serif',
+    'ne_NP': 'Arial Unicode MS, sans-serif',
+    'ru_RU': 'Arial, sans-serif',
+    'sw': 'Arial, sans-serif',
+    'th': 'Tahoma, Arial, sans-serif',
+    'ur': 'Tahoma, Arial, sans-serif',
+    'uz_UZ': 'Arial, sans-serif',
+    'vi': 'Arial, sans-serif',
+    'zh_CN': 'SimSun, serif',
+    'zh_HK': 'SimSun, serif',
+    'zh_TW': 'SimSun, serif'
+  };
+
+  return fallbackFonts[locale] || 'Arial, sans-serif';
+}
+
 function generatePDF_EFB(id)
 {
-  const fonts_name =[{loc:'am', font:'Noto Serif Ethiopic'},{loc:'ar', font:'Noto Sans Arabic'},{loc:'fa_IR', font:'Noto Sans Arabic'},{loc:'arq', font:'Alegreya Sans SC'},{loc:'az_TR', font:'Noto Sans'},{loc:'bn_BD', font:'Noto Sans Bengali'},{loc:'cs_CZ', font:'Signika'},{loc:'hat', font:'Tinos'},{loc:'he_IL', font:'Noto Sans Hebrew'},{loc:'hr', font:'Noto Sans'},{loc:'hy', font:'Noto Sans Armenian'},{loc:'id_ID', font:'Noto Sans'},{loc:'ja', font:'Noto Sans JP'},{loc:'ka_GE', font:'Noto Sans Georgian'},{loc:'km', font:'Noto Sans Khmer'},{loc:'ko_KR', font:'Noto Sans KR'},{loc:'lt_LT', font:'Noto Sans'},{loc:'ml_IN', font:'Noto Sans'},{loc:'ms_MY', font:'Noto Sans'},{loc:'ne_NP', font:'Noto Sans'},{loc:'ru_RU', font:'Noto Sans'},{loc:'sw', font:'Noto Sans'},{loc:'th', font:'Noto Sans Thai'},{loc:'ur', font:'Noto Nastaliq Urdu'},{loc:'uz_UZ', font:'Noto Sans'},{loc:'vi', font:'Noto Sans'},{loc:'zh_CN', font:'Noto Sans SC'},{loc:'zh_HK', font:'Noto Sans HK'},{loc:'zh_TW', font:'Noto Sans TC'}]
-  const indx = fonts_name.findIndex(x=>x.loc==efb_var.wp_lan);
-  const fontname = indx!=-1 ? fonts_name[indx].font : 'Noto Sans';
-  const fontStyle=`
-        <link href="https://fonts.googleapis.com/css2?family=${fontname}" rel="stylesheet">
-        <style>
-           html{ font-family: '${fontname}', sans-serif;}
-            .bg-response.efb {
-              padding: 10px 19px;
-              margin: 15px 20px;
-              border-radius: 15px !important;
-              background-color: #fcfcfc !important;
-              box-shadow: 0px 1px 0px 2px rgb(0 7 17) !important;
-          }
-          img{width: 200px;}
-          img.emoji{ width: 40px;}
-          p {margin: 0px;}
-          a {
-            color: #0066cc !important;
-            text-decoration: underline !important;
-          }
-          a:hover {
-            color: #004499 !important;
-          }
-          button[href], .btn[href] {
-            color: inherit !important;
-            text-decoration: none !important;
-            border: 1px solid #ccc !important;
-            padding: 5px 10px !important;
-            display: inline-block !important;
-          }
-          #watermark {
-            margin: 0% 24%;
-            font-size: 28px;
-            position: absolute;
-            color: #a8bde085;
-            transform: rotate(-45deg);
-            align-items: center;
-            align-items: center;
-            text-align: center;
-            font-weight: bold;
-        }
-        @media print {
-          a {
-            color: #0066cc !important;
-            text-decoration: underline !important;
-          }
-          a[href]:after {
-            content: " (" attr(href) ")" !important;
-            font-size: 0.8em !important;
-            color: #666 !important;
-          }
-          button[href]:after, .btn[href]:after {
-            content: " [" attr(href) "]" !important;
-            font-size: 0.8em !important;
-            color: #666 !important;
-          }
-        }
-        </style>
-  `
-  const divPrint=document.getElementById(id);
+  var browserSupport = checkBrowserSupport_efb();
+  var fonts_name = [
+    {loc:'am', font:'Noto Serif Ethiopic'},
+    {loc:'ar', font:'Noto Sans Arabic'},
+    {loc:'fa_IR', font:'Noto Sans Arabic'},
+    {loc:'arq', font:'Alegreya Sans SC'},
+    {loc:'az_TR', font:'Noto Sans'},
+    {loc:'bn_BD', font:'Noto Sans Bengali'},
+    {loc:'cs_CZ', font:'Signika'},
+    {loc:'hat', font:'Tinos'},
+    {loc:'he_IL', font:'Noto Sans Hebrew'},
+    {loc:'hr', font:'Noto Sans'},
+    {loc:'hy', font:'Noto Sans Armenian'},
+    {loc:'id_ID', font:'Noto Sans'},
+    {loc:'ja', font:'Noto Sans JP'},
+    {loc:'ka_GE', font:'Noto Sans Georgian'},
+    {loc:'km', font:'Noto Sans Khmer'},
+    {loc:'ko_KR', font:'Noto Sans KR'},
+    {loc:'lt_LT', font:'Noto Sans'},
+    {loc:'ml_IN', font:'Noto Sans'},
+    {loc:'ms_MY', font:'Noto Sans'},
+    {loc:'ne_NP', font:'Noto Sans'},
+    {loc:'ru_RU', font:'Noto Sans'},
+    {loc:'sw', font:'Noto Sans'},
+    {loc:'th', font:'Noto Sans Thai'},
+    {loc:'ur', font:'Noto Nastaliq Urdu'},
+    {loc:'uz_UZ', font:'Noto Sans'},
+    {loc:'vi', font:'Noto Sans'},
+    {loc:'zh_CN', font:'Noto Sans SC'},
+    {loc:'zh_HK', font:'Noto Sans HK'},
+    {loc:'zh_TW', font:'Noto Sans TC'}
+  ];
 
-  // Function to process content and ensure links are properly formatted
-  const processLinksForPDF = (element) => {
-    const clonedElement = element.cloneNode(true);
+  var indx = fonts_name.findIndex(function(x) { return x.loc === efb_var.wp_lan; });
+  var googleFontName = indx !== -1 ? fonts_name[indx].font : 'Noto Sans';
+  var fallbackFontName = getFallbackFont_efb(efb_var.wp_lan);
 
-    // Find all elements with href attributes (links and buttons)
-    const elementsWithHref = clonedElement.querySelectorAll('[href]');
+  // Function برای ایجاد style با یا بدون Google Fonts
+  function createFontStyle_efb(useGoogleFonts, fontName, fallbackFont) {
+    var googleFontLink = useGoogleFonts ?
+      '<link href="https://fonts.googleapis.com/css2?family=' + fontName.replace(' ', '+') + '&display=swap" rel="stylesheet">' : '';
 
-    elementsWithHref.forEach(el => {
-      // Ensure the href is absolute URL for better PDF compatibility
-      if (el.href && !el.href.startsWith('http') && !el.href.startsWith('mailto') && !el.href.startsWith('tel')) {
-        try {
-          el.href = new URL(el.href, window.location.origin).href;
-        } catch (e) {
-          // If URL construction fails, keep original href
+    var fontFamily = useGoogleFonts ?
+      "'" + fontName + "', " + fallbackFont :
+      fallbackFont;
+
+    var mobileStyles = browserSupport.isMobile ?
+      '@media screen and (max-width: 768px) {' +
+        'body { font-size: 14px !important; line-height: 1.4 !important; }' +
+        '.bg-response.efb { padding: 8px 12px !important; margin: 10px 15px !important; }' +
+        'img { max-width: 100% !important; height: auto !important; width: auto !important; }' +
+        'img.emoji { width: 32px !important; height: 32px !important; }' +
+        '#watermark { font-size: 20px !important; margin: 0% 10% !important; }' +
+        'table { width: 100% !important; }' +
+        'td, th { padding: 4px !important; }' +
+      '}' +
+      '@media screen and (max-width: 480px) {' +
+        'body { font-size: 12px !important; }' +
+        '.bg-response.efb { padding: 5px 8px !important; margin: 5px 10px !important; }' +
+        '#watermark { font-size: 16px !important; margin: 0% 5% !important; }' +
+      '}' : '';
+
+    var touchStyles = browserSupport.touchSupport ?
+      'a, button { min-height: 44px !important; padding: 8px 12px !important; }' +
+      'button[href], .btn[href] { padding: 8px 12px !important; touch-action: manipulation !important; }' : '';
+
+    var styleContent = '<!DOCTYPE html><html><head>' +
+      '<meta charset="utf-8">' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+      googleFontLink +
+      '<style>' +
+      'html { font-family: ' + fontFamily + '; }' +
+      'body { margin: 0; padding: 10px; }' +
+      '.bg-response.efb {' +
+        'padding: 10px 19px;' +
+        'margin: 15px 20px;' +
+        'border-radius: 15px !important;' +
+        'background-color: #fcfcfc !important;' +
+        'box-shadow: 0px 1px 0px 2px rgb(0 7 17) !important;' +
+      '}' +
+      'img { width: 200px; max-width: 100%; height: auto; }' +
+      'img.emoji { width: 40px; height: 40px; }' +
+      'p { margin: 0px; }' +
+      'a {' +
+        'color: #0066cc !important;' +
+        'text-decoration: underline !important;' +
+      '}' +
+      'a:hover { color: #004499 !important; }' +
+      'button[href], .btn[href] {' +
+        'color: inherit !important;' +
+        'text-decoration: none !important;' +
+        'border: 1px solid #ccc !important;' +
+        'padding: 5px 10px !important;' +
+        'display: inline-block !important;' +
+        'cursor: pointer !important;' +
+      '}' +
+      touchStyles +
+      '#watermark {' +
+        'margin: 0% 24%;' +
+        'font-size: 28px;' +
+        'position: absolute;' +
+        'color: #a8bde085;' +
+        'transform: rotate(-45deg);' +
+        'text-align: center;' +
+        'font-weight: bold;' +
+      '}' +
+      mobileStyles +
+      '@media print {' +
+        'body { font-size: 12pt !important; }' +
+        'a {' +
+          'color: #0066cc !important;' +
+          'text-decoration: underline !important;' +
+        '}' +
+        'a[href]:after {' +
+          'content: " (" attr(href) ")" !important;' +
+          'font-size: 0.8em !important;' +
+          'color: #666 !important;' +
+        '}' +
+        'button[href]:after, .btn[href]:after {' +
+          'content: " [" attr(href) "]" !important;' +
+          'font-size: 0.8em !important;' +
+          'color: #666 !important;' +
+        '}' +
+      '}' +
+      '</style></head>';
+
+    return styleContent;
+  }
+
+  var divPrint = document.getElementById(id);
+  if (!divPrint) {
+    console.error('Element with id "' + id + '" not found');
+    return;
+  }
+
+  // Function برای پردازش لینک‌ها با پشتیبانی از مرورگرهای قدیمی
+  function processLinksForPDF_efb(element) {
+    var clonedElement = element.cloneNode(true);
+    var elementsWithHref = clonedElement.querySelectorAll ?
+      clonedElement.querySelectorAll('[href]') :
+      clonedElement.getElementsByTagName('a');
+
+    for (var i = 0; i < elementsWithHref.length; i++) {
+      var el = elementsWithHref[i];
+
+      // بررسی URL برای مرورگرهای قدیمی
+      if (el.href &&
+          el.href.indexOf('http') !== 0 &&
+          el.href.indexOf('mailto') !== 0 &&
+          el.href.indexOf('tel') !== 0) {
+
+        if (browserSupport.urlConstructor) {
+          try {
+            el.href = new URL(el.href, window.location.origin).href;
+          } catch (e) {
+            // Keep original href if URL constructor fails
+          }
+        } else {
+          // Fallback برای IE
+          if (el.href.indexOf('/') === 0) {
+            el.href = window.location.protocol + '//' + window.location.host + el.href;
+          } else if (el.href.indexOf('./') === 0 || el.href.indexOf('../') === 0) {
+            // Keep relative URLs as is for IE compatibility
+          }
         }
       }
 
-      // Add title attribute if not present for better accessibility in PDF
       if (!el.title && el.href) {
         el.title = el.href;
       }
 
-      // Ensure target attribute is set for external links
-      if (el.href && (el.href.startsWith('http') || el.href.startsWith('mailto') || el.href.startsWith('tel'))) {
+      if (el.href && (el.href.indexOf('http') === 0 || el.href.indexOf('mailto') === 0 || el.href.indexOf('tel') === 0)) {
         el.target = '_blank';
         el.rel = 'noopener noreferrer';
       }
-    });
+    }
 
     return clonedElement.innerHTML;
-  };
+  }
 
-  const processedContent = processLinksForPDF(divPrint);
+  // Function برای تولید PDF با fallback
+  function generatePDFContent_efb(useGoogleFonts) {
+    var processedContent = processLinksForPDF_efb(divPrint);
+    var fontStyle = createFontStyle_efb(useGoogleFonts, googleFontName, fallbackFontName);
 
-  let n_win=window.open('','Print-Window');
-  const text=`<a href="${window.location.origin}" target="_blank">${window.location.hostname}</a></h2>
-  ${efb_var.pro!=1 ?`<h2>${efb_var.text.createdBy} <a href="https://whitestudio.team" target="_blank">${efb_var.text.easyFormBuilder}</a>`:''}`;
-  const div=` <div style="text-align:center">
-  <h2>${text}</h2>
-</div>`
-  val =`<html style="direction:${efb_var.rtl==0?'ltr':'rtl'}"><head>${fontStyle}</head>
-  <title>${window.location.hostname}</title>
-  <body onload='winprint()'>
-  <script>
-  function winprint(){setTimeout(()=>{window.print()},100);}
-  </script>
-  ${div}
-  ${processedContent}
-  </body></html>`;
-  n_win.document.open();
-  n_win.document.write(val);
-  setTimeout(()=>{
-  n_win.document.close();
-  },100);
+    var websiteUrl = window.location.protocol + '//' + window.location.hostname;
+    var text = '<a href="' + websiteUrl + '" target="_blank">' + window.location.hostname + '</a>';
+
+    if (efb_var.pro !== 1) {
+      text += '<h2>' + efb_var.text.createdBy + ' <a href="https://whitestudio.team" target="_blank">' +
+              efb_var.text.easyFormBuilder + '</a></h2>';
+    }
+
+    var div = '<div style="text-align:center"><h2>' + text + '</h2></div>';
+    var direction = efb_var.rtl === 0 ? 'ltr' : 'rtl';
+
+    var htmlContent = fontStyle +
+      '<title>' + window.location.hostname + '</title>' +
+      '<body onload="winprint()" style="direction:' + direction + '">' +
+      '<script>' +
+      'function winprint() {' +
+        'setTimeout(function() {' +
+          'if (window.print) { window.print(); }' +
+        '}, 100);' +
+      '}' +
+      '</script>' +
+      div +
+      processedContent +
+      '</body></html>';
+
+    return htmlContent;
+  }
+
+  // تلاش برای باز کردن popup با fallback
+  function openPrintWindow_efb(content) {
+    var printWindow = null;
+
+    // تشخیص موبایل و مدیریت خاص
+    if (browserSupport.isMobile) {
+      // روش‌های خاص موبایل
+      if (browserSupport.isIOS) {
+        // iOS Safari نیاز به رویکرد متفاوت دارد
+        var printContent = content.replace(
+          'function winprint() {',
+          'function winprint() { ' +
+          'if (typeof window.print === "undefined") { ' +
+            'alert("Please use Share > Print option from your browser menu"); return; ' +
+          '} '
+        );
+
+        try {
+          printWindow = window.open('', '_blank', 'width=device-width,initial-scale=1');
+          if (printWindow) {
+            printWindow.document.open();
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            return;
+          }
+        } catch (e) {
+          console.warn('iOS popup failed:', e);
+        }
+      } else if (browserSupport.isAndroid) {
+        // Android Chrome handling
+        try {
+          printWindow = window.open('', 'Print-Window-EFB', 'width=device-width,initial-scale=1,user-scalable=yes');
+          if (printWindow) {
+            printWindow.document.open();
+            printWindow.document.write(content);
+            printWindow.document.close();
+
+            // Android میتواند کمی وقت بیشتری نیاز داشته باشد
+            setTimeout(function() {
+              if (printWindow && !printWindow.closed) {
+                printWindow.focus();
+              }
+            }, 500);
+            return;
+          }
+        } catch (e) {
+          console.warn('Android popup failed:', e);
+        }
+      }
+
+      // Fallback برای موبایل: استفاده از blob URL
+      try {
+        var blob = new Blob([content], { type: 'text/html' });
+        var url = window.URL.createObjectURL(blob);
+        printWindow = window.open(url, '_blank');
+
+        if (printWindow) {
+          // پاک کردن blob URL پس از استفاده
+          setTimeout(function() {
+            window.URL.revokeObjectURL(url);
+          }, 5000);
+          return;
+        }
+      } catch (e) {
+        console.warn('Mobile blob fallback failed:', e);
+      }
+
+      // آخرین fallback برای موبایل: نمایش محتوا در صفحه جدید
+      var mobileAlert = confirm(
+        'Print popup was blocked. Would you like to open content in a new tab for manual printing?'
+      );
+
+      if (mobileAlert) {
+        var newWindow = window.open('about:blank', '_blank');
+        if (newWindow) {
+          newWindow.document.write(content);
+          newWindow.document.close();
+        } else {
+          alert('Unable to open new window. Please enable popups and try again.');
+        }
+      }
+
+      return;
+    }
+
+    // کد اصلی برای دسکتاپ
+    try {
+      printWindow = window.open('', 'Print-Window-EFB', 'width=800,height=600,scrollbars=yes,resizable=yes');
+
+      if (!printWindow) {
+        throw new Error('Popup blocked');
+      }
+
+      printWindow.document.open();
+      printWindow.document.write(content);
+
+      setTimeout(function() {
+        if (printWindow && !printWindow.closed) {
+          printWindow.document.close();
+        }
+      }, 100);
+
+    } catch (e) {
+      console.warn('Desktop popup blocked or error:', e);
+
+      // Fallback: درخواست از کاربر برای اجازه popup
+      if (confirm('Popup blocked. Allow popups for this site and try again?')) {
+        // تلاش مجدد
+        setTimeout(function() {
+          generatePDF_EFB(id);
+        }, 1000);
+      } else {
+        // Alternative: ساخت iframe موقت
+        var iframe = document.createElement('iframe');
+        iframe.style.position = 'absolute';
+        iframe.style.left = '-9999px';
+        iframe.style.width = '1px';
+        iframe.style.height = '1px';
+        document.body.appendChild(iframe);
+
+        iframe.contentDocument.open();
+        iframe.contentDocument.write(content);
+        iframe.contentDocument.close();
+
+        setTimeout(function() {
+          if (iframe.contentWindow && iframe.contentWindow.print) {
+            iframe.contentWindow.print();
+          }
+          document.body.removeChild(iframe);
+        }, 500);
+      }
+    }
+  }
+
+  // اجرای اصلی با تشخیص Google Fonts
+  checkGoogleFontsAccess_efb(function(hasGoogleFontsAccess) {
+    var content = generatePDFContent_efb(hasGoogleFontsAccess);
+    openPrintWindow_efb(content);
+  });
 }
-santize_string_efb=(str)=>{
+
+function santize_string_efb(str){
+  if(str==undefined || str==null) return null;
   const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
   return  str.replaceAll(regexp,'do not use HTML tags');
 }
-state_rply_btn_efb=(t)=>{
+
+function state_rply_btn_efb(t){
     if(pro_efb ==false){return};
    setTimeout(() => {
      if(stock_state_efb==true){
@@ -2923,7 +3339,7 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
   console.log(filtered);
   return filtered;
 }
-valNotFound_efb=()=>{
+function valNotFound_efb(){
         alert_message_efb(efb_var.text.error,efb_var.text.empty, 30,'danger');
 }
 const add_r_matrix_view_select = (idin, value, id_ob, tag, parentsID) => {
@@ -2978,14 +3394,14 @@ function text_nr_efb(text , type){
 function efb_remove_forbidden_chrs(text){
 return text.replaceAll(/[!@#$%^&*()_,+}{?><":<=\][';/.\\|}]/g, '-');
 }
-svg_loading_efb=(classes)=>{
+function svg_loading_efb(classes){
 return`<span class="efb ${classes}"><svg version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve">
 <path  d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50">
   <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="1s" from="0 50 50" to="360 50 50" repeatCount="indefinite"></animateTransform>
 </path>
 </svg><span>`
 }
-lan_subdomain_wsteam_efb=()=>{
+function lan_subdomain_wsteam_efb(){
   let sub ='';
   console.log(`efb_var.language => ${efb_var.language}`);
   if(efb_var.language == 'de_DE' || efb_var.language == 'de_AT' ){ sub = 'de.'; }
@@ -2994,7 +3410,7 @@ lan_subdomain_wsteam_efb=()=>{
   return sub;
 }
 
-sendback_state_handler_efb=(id_,state,step)=>{
+function sendback_state_handler_efb(id_, state, step){
   const indx = sendback_efb_state.findIndex(x=>x.id_==id_);
   if(indx==-1 && state==false){
     sendback_efb_state.push({id_:id_,state:state,step:step})
@@ -3644,17 +4060,9 @@ fun_get_links_from_string_Efb=(str , handler)=>{
 
 }
 
-// 3.6.8 start
-function deepFreeze_efb(obj) {
-  Object.keys(obj).forEach((key) => {
-      if (typeof obj[key] === "object" && obj[key] !== null) {
-          deepFreeze_efb(obj[key]);
-      }
-  });
-  return Object.freeze(obj);
-}
 
-fun_valj_efb_run=async(form_id)=>{
+
+async function fun_valj_efb_run(form_id){
   console.log(form_id ,valj_efb_new);
   form_id = isNaN(form_id) ? form_id : parseInt(form_id);
   form_ID_emsFormBuilder = form_id;
@@ -3667,13 +4075,13 @@ fun_valj_efb_run=async(form_id)=>{
 //3.6.8 end
 
 
- maps_os_pro_efb =(previewSate, pos , rndm,iVJ)=>{
+function maps_os_pro_efb(previewSate, pos, rndm, iVJ){
     return `
     <!--maps-->
-    <div class="efb  ${previewSate == true ? pos[3] : `col-md-12`} col-sm-12 maps-os "  id='${rndm}-f'>
+    <div class="efb  ${previewSate == true ? pos[3] : 'col-md-12'} col-sm-12 maps-os" id='${rndm}-f'>
 
       </div>
       <!--maps end-->
-    `
- }
+    `;
+}
 
