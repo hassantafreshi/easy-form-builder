@@ -2876,9 +2876,9 @@
 						break;
 					}
 
-
-					if($efbFunction === null)$efbFunction = get_efbFunction();
-					$efbFunction->include_persia_efb();
+					if (has_action('efb_enqueue_persia')){
+						do_action('efb_enqueue_persia');
+					}
 
 					$ui = $this->add_ui_zp_efb($rndm , $form_id,$texts);
 					$dataTag = $elementId;
