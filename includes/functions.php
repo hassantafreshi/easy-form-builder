@@ -66,17 +66,17 @@ class efbFunction {
 
 		register_activation_hook( __FILE__, [$this ,'download_all_addons_efb'] );
 		add_action( 'load-index.php', [$this ,'addon_adds_cron_efb'] );
-		//Emsfb_db_version
-		$db_version = get_option( 'emsfb_db_version' ,false );
-		if($db_version<EMSFB_DB_VERSION && $db_version!=false) {
-			 $this->fun_update_db_efb();
-		}
-
 
     }
 
 
-	public function text_efb($inp){
+	/**
+	 * Check database version and update if necessary
+	 * Called during admin_init hook for better performance
+	 */
+
+
+	public function text_efb($inp,$page_request = 'default') {
 
          if (static::$cached_settings === null) {
             static::$cached_settings = get_setting_Emsfb();
@@ -260,6 +260,7 @@ class efbFunction {
 			/* translators: Instruction to check the reCAPTCHA checkbox - 'I am not a robot' */
 			"checkedBoxIANotRobot" => $state ? $ac->text->checkedBoxIANotRobot : esc_html__('Please Checked Box of I am Not robot','easy-form-builder'),
 			"howConfigureEFB" => $state ? $ac->text->howConfigureEFB : esc_html__('How to configure Easy Form Builder','easy-form-builder'),
+
 			"howGetGooglereCAPTCHA" => $state ? $ac->text->howGetGooglereCAPTCHA : esc_html__('How to get Google reCAPTCHA and implement it into Easy Form Builder','easy-form-builder'),
 			"howActivateAlertEmail" => $state ? $ac->text->howActivateAlertEmail : esc_html__('How to activate the alert email for new form submission','easy-form-builder'),
 			"howCreateAddForm" => $state ? $ac->text->howCreateAddForm : esc_html__('How to create and add a form with Easy Form Builder','easy-form-builder'),
@@ -1161,6 +1162,322 @@ class efbFunction {
 
 			/* translators: Template for found results text with placeholders - %1$s is result count, %2$s is result/results text */
 			'foundResultsText' => $state && isset($ac->text->foundResultsText) ? $ac->text->foundResultsText : esc_html__('Found %1$s %2$s for','easy-form-builder'),
+
+			// === Telegram Notification System ===
+
+			/* translators: Telegram = the messaging platform Telegram */
+			"telegram" => $state ? $ac->text->telegram : esc_html__('Telegram','easy-form-builder'),
+
+			/* translators: Bot Token = authentication token for Telegram bot */
+			"botToken" => $state ? $ac->text->botToken : esc_html__('Bot Token','easy-form-builder'),
+
+			/* translators: Bot Username = username of the Telegram bot */
+			"botUsername" => $state ? $ac->text->botUsername : esc_html__('Bot Username','easy-form-builder'),
+
+			/* translators: Chat ID = unique identifier for a Telegram chat */
+			"chatId" => $state ? $ac->text->chatId : esc_html__('Chat ID','easy-form-builder'),
+
+			/* translators: Verify Token = action to validate a bot token */
+			"verifyToken" => $state ? $ac->text->verifyToken : esc_html__('Verify Token','easy-form-builder'),
+
+			/* translators: Send Test Message = action to send a test notification */
+			"sendTestMessage" => $state ? $ac->text->sendTestMessage : esc_html__('Send Test Message','easy-form-builder'),
+
+			/* translators: Test Message = a sample notification for testing purposes */
+			"testMessage" => $state ? $ac->text->testMessage : esc_html__('Test message from Easy Form Builder','easy-form-builder'),
+
+			/* translators: Generate Link = action to create an onboarding URL */
+			"generateLink" => $state ? $ac->text->generateLink : esc_html__('Generate Admin Registration Link','easy-form-builder'),
+
+			/* translators: Bot Settings = configuration options for Telegram bot */
+			"botSettings" => $state ? $ac->text->botSettings : esc_html__('Bot Settings','easy-form-builder'),
+
+			/* translators: Admin Chat Registration = process to register admin's chat ID */
+			"adminChatRegistration" => $state ? $ac->text->adminChatRegistration : esc_html__('Admin Chat Registration','easy-form-builder'),
+
+			/* translators: Quick Guide = brief instructions for setup */
+			"quickGuide" => $state ? $ac->text->quickGuide : esc_html__('Quick Guide','easy-form-builder'),
+
+			/* translators: Create Bot Steps = instructions for creating a Telegram bot */
+			"createBotSteps" => $state ? $ac->text->createBotSteps : esc_html__('Bot Creation Steps:','easy-form-builder'),
+
+			/* translators: Get Chat ID Steps = instructions for obtaining chat ID */
+			"getChatIdSteps" => $state ? $ac->text->getChatIdSteps : esc_html__('Admin Chat ID Registration:','easy-form-builder'),
+
+			/* translators: Message History = log of sent Telegram notifications */
+			"messageHistory" => $state ? $ac->text->messageHistory : esc_html__('Sent Message History','easy-form-builder'),
+
+			/* translators: Status = current state of a message or operation */
+			"status" => $state ? $ac->text->status : esc_html__('Status','easy-form-builder'),
+
+			/* translators: Sent = status indicating successful message delivery */
+			"sent" => $state ? $ac->text->sent : esc_html__('Sent','easy-form-builder'),
+
+			/* translators: Failed = status indicating unsuccessful operation */
+			"failed" => $state ? $ac->text->failed : esc_html__('Failed','easy-form-builder'),
+
+			/* translators: Bot Token Valid = confirmation that the bot token is working */
+			"botTokenValid" => $state ? $ac->text->botTokenValid : esc_html__('Bot Token is valid','easy-form-builder'),
+
+			/* translators: User Not Found = Telegram user not found by phone number */
+			"telegramUserNotFound" => $state ? $ac->text->telegramUserNotFound : esc_html__('Telegram user not found for this phone number','easy-form-builder'),
+
+			/* translators: User Not Verified = Telegram user has not verified their account */
+			"telegramUserNotVerified" => $state ? $ac->text->telegramUserNotVerified : esc_html__('Telegram user account is not verified','easy-form-builder'),
+
+			/* translators: Send Error = error occurred while sending Telegram message */
+			"telegramSendError" => $state ? $ac->text->telegramSendError : esc_html__('Error occurred while sending Telegram message','easy-form-builder'),
+
+			/* translators: Phone Registration = phone number registration for Telegram */
+			"phoneRegistration" => $state ? $ac->text->phoneRegistration : esc_html__('Phone Number Registration','easy-form-builder'),
+
+			/* translators: Verification Code = code sent for phone verification */
+			"verificationCodeSent" => $state ? $ac->text->verificationCodeSent : esc_html__('Verification code sent to your Telegram','easy-form-builder'),
+
+			/* translators: Code Verified = confirmation that verification was successful */
+			"codeVerified" => $state ? $ac->text->codeVerified : esc_html__('Verification code confirmed successfully','easy-form-builder'),
+
+			/* translators: Business Notification = message sent via business feature */
+			"businessNotification" => $state ? $ac->text->businessNotification : esc_html__('Business notification sent','easy-form-builder'),
+
+			/* translators: User Management = admin interface for managing users */
+			"userManagement" => $state ? $ac->text->userManagement : esc_html__('Telegram User Management','easy-form-builder'),
+
+			/* translators: Bot Token Invalid = error message for invalid bot token */
+			"botTokenInvalid" => $state ? $ac->text->botTokenInvalid : esc_html__('Bot Token is invalid','easy-form-builder'),
+
+			/* translators: Please Enter Bot Token = prompt to input the bot authentication token */
+			"pleaseEnterBotToken" => $state ? $ac->text->pleaseEnterBotToken : esc_html__('Please enter Bot Token','easy-form-builder'),
+
+			/* translators: Please Fill All Fields = prompt to complete all required inputs */
+			"pleaseFillAllFields" => $state ? $ac->text->pleaseFillAllFields : esc_html__('Please fill all fields','easy-form-builder'),
+
+			/* translators: Copy Link = action to copy URL to clipboard */
+			"copyLink" => $state ? $ac->text->copyLink : esc_html__('Link copied to clipboard','easy-form-builder'),
+
+			/* translators: Enter Without @ = instruction to input username without @ symbol */
+			"enterWithoutAt" => $state ? $ac->text->enterWithoutAt : esc_html__('Enter without @','easy-form-builder'),
+
+			/* translators: Get From BotFather = instruction to obtain token from @BotFather */
+			"getFromBotFather" => $state ? $ac->text->getFromBotFather : esc_html__('Get from @BotFather on Telegram','easy-form-builder'),
+
+			/* translators: Chat ID Receiver = recipient of the test message */
+			"chatIdReceiver" => $state ? $ac->text->chatIdReceiver : esc_html__('Chat ID of recipient','easy-form-builder'),
+
+			/* translators: Your Test Message = placeholder for test notification content */
+			"yourTestMessage" => $state ? $ac->text->yourTestMessage : esc_html__('Your test message...','easy-form-builder'),
+
+			/* translators: Admin Registration Note = important notice about admin role */
+			"adminRegistrationNote" => $state ? $ac->text->adminRegistrationNote : esc_html__('Note: As the bot owner, you will receive form notifications.','easy-form-builder'),
+
+			/* translators: Telegram Setup Complete = success message for completed setup */
+			"telegramSetupComplete" => $state ? $ac->text->telegramSetupComplete : esc_html__('Telegram notifications activated successfully!','easy-form-builder'),
+
+			/* translators: Telegram Setup Error = error message for setup failure */
+			"telegramSetupError" => $state ? $ac->text->telegramSetupError : esc_html__('Error in Telegram setup','easy-form-builder'),
+
+			/* translators: New Form Submission = notification for new form data */
+			"newFormSubmission" => $state ? $ac->text->newFormSubmission : esc_html__('New form submission received','easy-form-builder'),
+
+			/* translators: Form Response = reply to form submission */
+			"formResponse" => $state ? $ac->text->formResponse : esc_html__('New response to your form','easy-form-builder'),
+
+			/* translators: Enable Telegram Notification = checkbox label to activate Telegram notifications */
+			"etelegramno" => $state ? $ac->text->etelegramno : esc_html__('Enable Telegram Notification','easy-form-builder'),
+
+			// === Telegram Error Messages ===
+
+			/* translators: Invalid Security Nonce = error for invalid security token */
+			"invalidSecurityNonce" => $state ? $ac->text->invalidSecurityNonce : esc_html__('Invalid security nonce','easy-form-builder'),
+
+			/* translators: Invalid Form ID = error for invalid form identifier */
+			"invalidFormId" => $state ? $ac->text->invalidFormId : esc_html__('Invalid form ID','easy-form-builder'),
+
+			/* translators: Telegram File Not Found = error when Telegram addon file is missing */
+			"telegramFileNotFound" => $state ? $ac->text->telegramFileNotFound : esc_html__('Telegram addon file not found','easy-form-builder'),
+
+			/* translators: Telegram Bot Not Configured = error when bot token is not set */
+			"telegramBotNotConfigured" => $state ? $ac->text->telegramBotNotConfigured : esc_html__('Telegram bot is not configured','easy-form-builder'),
+
+			/* translators: Telegram Activation Success = success message for telegram setup */
+			"telegramActivationSuccess" => $state ? $ac->text->telegramActivationSuccess : esc_html__('Telegram notifications activated successfully','easy-form-builder'),
+
+			/* translators: Bot Token Empty = error when bot token is not provided */
+			"botTokenEmpty" => $state ? $ac->text->botTokenEmpty : esc_html__('Bot token is empty','easy-form-builder'),
+
+			/* translators: Invalid Token = error for invalid bot token */
+			"invalidToken" => $state ? $ac->text->invalidToken : esc_html__('Invalid token','easy-form-builder'),
+
+			/* translators: Unknown Error = generic error message */
+			"unknownError" => $state ? $ac->text->unknownError : esc_html__('Unknown error','easy-form-builder'),
+
+			/* translators: Telegram Server Connection Error = error when can't connect to Telegram API */
+			"telegramConnectionError" => $state ? $ac->text->telegramConnectionError : esc_html__('Error connecting to Telegram server','easy-form-builder'),
+
+			/* translators: Invalid Response From Telegram = error for invalid API response */
+			"invalidTelegramResponse" => $state ? $ac->text->invalidTelegramResponse : esc_html__('Invalid response from Telegram server','easy-form-builder'),
+
+			// === Extended Telegram UI Translation ===
+			/* translators: Telegram = messaging service and platform */
+			"telegram" => $state && isset($ac->text->telegram) ? $ac->text->telegram : esc_html__('Telegram','easy-form-builder'),
+			/* translators: Bot Settings = configuration options for a Telegram bot */
+			"botSettings" => $state && isset($ac->text->botSettings) ? $ac->text->botSettings : esc_html__('Bot Settings','easy-form-builder'),
+			/* translators: Bot Token = unique authentication key for a Telegram bot */
+			"botToken" => $state && isset($ac->text->botToken) ? $ac->text->botToken : esc_html__('Bot Token','easy-form-builder'),
+			/* translators: Get from BotFather on Telegram = instruction to obtain bot token from @BotFather */
+			"getFromBotFather" => $state && isset($ac->text->getFromBotFather) ? $ac->text->getFromBotFather : esc_html__('Get from @BotFather on Telegram','easy-form-builder'),
+			/* translators: Bot Username = the username for a Telegram bot (without @ symbol) */
+			"botUsername" => $state && isset($ac->text->botUsername) ? $ac->text->botUsername : esc_html__('Bot Username','easy-form-builder'),
+			/* translators: Enter without @ = instruction to enter username without @ symbol */
+			"enterWithoutAt" => $state && isset($ac->text->enterWithoutAt) ? $ac->text->enterWithoutAt : esc_html__('Enter without @','easy-form-builder'),
+			/* translators: Verify Token = action to check if bot token is valid */
+			"verifyToken" => $state && isset($ac->text->verifyToken) ? $ac->text->verifyToken : esc_html__('Verify Token','easy-form-builder'),
+			/* translators: Send Test Message = action to send a test message via Telegram */
+			"sendTestMessage" => $state && isset($ac->text->sendTestMessage) ? $ac->text->sendTestMessage : esc_html__('Send Test Message','easy-form-builder'),
+			/* translators: Chat ID = unique identifier for Telegram chat conversation */
+			"chatId" => $state && isset($ac->text->chatId) ? $ac->text->chatId : esc_html__('Chat ID','easy-form-builder'),
+			/* translators: Chat ID of recipient = explanation that this is the recipient's chat ID */
+			"chatIdReceiver" => $state && isset($ac->text->chatIdReceiver) ? $ac->text->chatIdReceiver : esc_html__('Chat ID of recipient','easy-form-builder'),
+			/* translators: Message = text content to be sent */
+			"message" => $state && isset($ac->text->message) ? $ac->text->message : esc_html__('Message','easy-form-builder'),
+			/* translators: Test message from Easy Form Builder = default text for test messages */
+			"testMessage" => $state && isset($ac->text->testMessage) ? $ac->text->testMessage : esc_html__('Test message from Easy Form Builder','easy-form-builder'),
+			/* translators: Generate Admin Registration Link = action to create link for admin chat ID registration */
+			"generateAdminLink" => $state && isset($ac->text->generateAdminLink) ? $ac->text->generateAdminLink : esc_html__('Generate Admin Registration Link','easy-form-builder'),
+			/* translators: Quick Guide = brief instructions or help section */
+			"quickGuide" => $state && isset($ac->text->quickGuide) ? $ac->text->quickGuide : esc_html__('Quick Guide','easy-form-builder'),
+			/* translators: Bot Creation Steps = steps to create a Telegram bot */
+			"botCreationSteps" => $state && isset($ac->text->botCreationSteps) ? $ac->text->botCreationSteps : esc_html__('Bot Creation Steps:','easy-form-builder'),
+			/* translators: Admin Chat ID Registration = process to register admin chat ID */
+			"adminChatIdRegistration" => $state && isset($ac->text->adminChatIdRegistration) ? $ac->text->adminChatIdRegistration : esc_html__('Admin Chat ID Registration:','easy-form-builder'),
+			/* translators: Message History = history of sent messages */
+			"messageHistory" => $state && isset($ac->text->messageHistory) ? $ac->text->messageHistory : esc_html__('Message History','easy-form-builder'),
+			/* translators: Status = current state or condition */
+			"status" => $state && isset($ac->text->status) ? $ac->text->status : esc_html__('Status','easy-form-builder'),
+			/* translators: Date = calendar date */
+			"ddate" => $state && isset($ac->text->ddate) ? $ac->text->ddate : esc_html__('Date','easy-form-builder'),
+			/* translators: Please enter Bot Token = instruction to input bot token */
+			"pleaseEnterBotToken" => $state && isset($ac->text->pleaseEnterBotToken) ? $ac->text->pleaseEnterBotToken : esc_html__('Please enter Bot Token','easy-form-builder'),
+			/* translators: Bot Token is valid = confirmation message for valid token */
+			"botTokenValid" => $state && isset($ac->text->botTokenValid) ? $ac->text->botTokenValid : esc_html__('Bot Token is valid','easy-form-builder'),
+			/* translators: Please fill all fields = instruction to complete all required fields */
+			"pleaseFillAllFields" => $state && isset($ac->text->pleaseFillAllFields) ? $ac->text->pleaseFillAllFields : esc_html__('Please fill all fields','easy-form-builder'),
+			/* translators: Connection error = network or server connection problem */
+			"connectionError" => $state && isset($ac->text->connectionError) ? $ac->text->connectionError : esc_html__('Connection error','easy-form-builder'),
+			/* translators: Message sent successfully = confirmation of successful message delivery */
+			"messageSentSuccessfully" => $state && isset($ac->text->messageSentSuccessfully) ? $ac->text->messageSentSuccessfully : esc_html__('Message sent successfully','easy-form-builder'),
+			/* translators: Failed to send message = error message for failed message delivery */
+			"failedToSendMessage" => $state && isset($ac->text->failedToSendMessage) ? $ac->text->failedToSendMessage : esc_html__('Failed to send message','easy-form-builder'),
+			/* translators: Verifying token = status message while checking token validity */
+			"verifyingToken" => $state && isset($ac->text->verifyingToken) ? $ac->text->verifyingToken : esc_html__('Verifying token...','easy-form-builder'),
+			/* translators: Sending message = status message while sending message */
+			"sendingMessage" => $state && isset($ac->text->sendingMessage) ? $ac->text->sendingMessage : esc_html__('Sending message...','easy-form-builder'),
+			/* translators: Admin link copied = confirmation that admin registration link was copied */
+			"adminLinkCopied" => $state && isset($ac->text->adminLinkCopied) ? $ac->text->adminLinkCopied : esc_html__('Admin link copied','easy-form-builder'),
+			/* translators: This link is for registering your Chat ID as admin = explanation of admin link purpose */
+			"adminLinkDescription" => $state && isset($ac->text->adminLinkDescription) ? $ac->text->adminLinkDescription : esc_html__('This link is for registering your Chat ID as admin','easy-form-builder'),
+			/* translators: Important Note: As the bot owner, you will receive notifications = warning about notification delivery */
+			"botOwnerNotification" => $state && isset($ac->text->botOwnerNotification) ? $ac->text->botOwnerNotification : esc_html__('Important Note: As the bot owner, you will receive notifications','easy-form-builder'),
+			/* translators: No messages yet = empty state message when no messages exist */
+			"noMessagesYet" => $state && isset($ac->text->noMessagesYet) ? $ac->text->noMessagesYet : esc_html__('No messages yet','easy-form-builder'),
+			/* translators: Sent = message delivery status indicating successful delivery */
+			"sent" => $state && isset($ac->text->sent) ? $ac->text->sent : esc_html__('Sent','easy-form-builder'),
+			/* translators: Failed = message delivery status indicating failed delivery */
+			"failed" => $state && isset($ac->text->failed) ? $ac->text->failed : esc_html__('Failed','easy-form-builder'),
+			/* translators: Never = indicating something has never happened or occurred */
+			"never" => $state && isset($ac->text->never) ? $ac->text->never : esc_html__('Never','easy-form-builder'),
+
+			// === Enhanced Telegram UI Translation ===
+			/* translators: Telegram Notifications = title for telegram notification settings */
+			"telegramNotifications" => $state && isset($ac->text->telegramNotifications) ? $ac->text->telegramNotifications : esc_html__('Telegram Notifications','easy-form-builder'),
+			/* translators: Configure your Telegram bot to receive form notifications = description for telegram settings */
+			"telegramNotificationsDesc" => $state && isset($ac->text->telegramNotificationsDesc) ? $ac->text->telegramNotificationsDesc : esc_html__('Configure your Telegram bot to receive form notifications','easy-form-builder'),
+			/* translators: Bot Settings = configuration panel for telegram bot */
+			"telegramBotSettings" => $state && isset($ac->text->telegramBotSettings) ? $ac->text->telegramBotSettings : esc_html__('Bot Settings','easy-form-builder'),
+			/* translators: Bot Token = unique authentication key for telegram bot */
+			"telegramBotToken" => $state && isset($ac->text->telegramBotToken) ? $ac->text->telegramBotToken : esc_html__('Bot Token','easy-form-builder'),
+			/* translators: 1234567890:ABCdefGHIjklMNOpqrSTUvwxYZ123456789 = placeholder for bot token */
+			"telegramBotTokenPlaceholder" => $state && isset($ac->text->telegramBotTokenPlaceholder) ? $ac->text->telegramBotTokenPlaceholder : esc_html__('1234567890:ABCdefGHIjklMNOpqrSTUvwxYZ123456789','easy-form-builder'),
+			/* translators: Obtain this token from @BotFather on Telegram = help text for bot token */
+			"telegramBotTokenHelp" => $state && isset($ac->text->telegramBotTokenHelp) ? $ac->text->telegramBotTokenHelp : esc_html__('Obtain this token from @BotFather on Telegram','easy-form-builder'),
+			/* translators: Chat ID = unique identifier for telegram chat */
+			"telegramChatId" => $state && isset($ac->text->telegramChatId) ? $ac->text->telegramChatId : esc_html__('Chat ID','easy-form-builder'),
+			/* translators: 123456789 or @username = placeholder for chat ID */
+			"telegramChatIdPlaceholder" => $state && isset($ac->text->telegramChatIdPlaceholder) ? $ac->text->telegramChatIdPlaceholder : esc_html__('123456789 or @username','easy-form-builder'),
+			/* translators: Chat ID where messages will be sent = help text for chat ID */
+			"telegramChatIdHelp" => $state && isset($ac->text->telegramChatIdHelp) ? $ac->text->telegramChatIdHelp : esc_html__('Chat ID where messages will be sent','easy-form-builder'),
+			/* translators: Test Connection = button to test telegram connection */
+			"telegramTestConnection" => $state && isset($ac->text->telegramTestConnection) ? $ac->text->telegramTestConnection : esc_html__('Test Connection','easy-form-builder'),
+			/* translators: Notification Settings = configuration for telegram notifications */
+			"telegramNotificationSettings" => $state && isset($ac->text->telegramNotificationSettings) ? $ac->text->telegramNotificationSettings : esc_html__('Notification Settings','easy-form-builder'),
+			/* translators: Enable Notifications = toggle to enable/disable telegram notifications */
+			"telegramEnableNotifications" => $state && isset($ac->text->telegramEnableNotifications) ? $ac->text->telegramEnableNotifications : esc_html__('Enable Notifications','easy-form-builder'),
+			/* translators: Receive notifications when forms are submitted = description for enable notifications */
+			"telegramEnableNotificationsDesc" => $state && isset($ac->text->telegramEnableNotificationsDesc) ? $ac->text->telegramEnableNotificationsDesc : esc_html__('Receive notifications when forms are submitted','easy-form-builder'),
+			/* translators: Send Form Data = option to include form data in messages */
+			"telegramSendFormData" => $state && isset($ac->text->telegramSendFormData) ? $ac->text->telegramSendFormData : esc_html__('Send Form Data','easy-form-builder'),
+			/* translators: Include form submission data in notifications = description for send form data */
+			"telegramSendFormDataDesc" => $state && isset($ac->text->telegramSendFormDataDesc) ? $ac->text->telegramSendFormDataDesc : esc_html__('Include form submission data in notifications','easy-form-builder'),
+			/* translators: Message Template = customizable template for telegram messages */
+			"telegramMessageTemplate" => $state && isset($ac->text->telegramMessageTemplate) ? $ac->text->telegramMessageTemplate : esc_html__('Message Template','easy-form-builder'),
+			/* translators: Custom Template = user-defined message template */
+			"telegramCustomTemplate" => $state && isset($ac->text->telegramCustomTemplate) ? $ac->text->telegramCustomTemplate : esc_html__('Custom Template','easy-form-builder'),
+			/* translators: New form submission from {site_name}: {form_name} {form_data} = example template */
+			"telegramTemplateExample" => $state && isset($ac->text->telegramTemplateExample) ? $ac->text->telegramTemplateExample : esc_html__('New form submission from {site_name}:\n\nForm: {form_name}\nDate: {submission_date}\n\n{form_data}','easy-form-builder'),
+			/* translators: Use variables like {form_name}, {form_data}, {site_name} to customize = help text for template */
+			"telegramTemplateHelp" => $state && isset($ac->text->telegramTemplateHelp) ? $ac->text->telegramTemplateHelp : esc_html__('Use variables like {form_name}, {form_data}, {site_name} to customize','easy-form-builder'),
+			/* translators: Available Variables = list of template variables */
+			"telegramAvailableVariables" => $state && isset($ac->text->telegramAvailableVariables) ? $ac->text->telegramAvailableVariables : esc_html__('Available Variables','easy-form-builder'),
+			/* translators: Form Name = the name of the form */
+			"telegramVarFormName" => $state && isset($ac->text->telegramVarFormName) ? $ac->text->telegramVarFormName : esc_html__('Form Name','easy-form-builder'),
+			/* translators: Form Data = submitted form data */
+			"telegramVarFormData" => $state && isset($ac->text->telegramVarFormData) ? $ac->text->telegramVarFormData : esc_html__('Form Data','easy-form-builder'),
+			/* translators: Site Name = website name */
+			"telegramVarSiteName" => $state && isset($ac->text->telegramVarSiteName) ? $ac->text->telegramVarSiteName : esc_html__('Site Name','easy-form-builder'),
+			/* translators: Submission Date = when form was submitted */
+			"telegramVarSubmissionDate" => $state && isset($ac->text->telegramVarSubmissionDate) ? $ac->text->telegramVarSubmissionDate : esc_html__('Submission Date','easy-form-builder'),
+			/* translators: User IP = user's IP address */
+			"telegramVarUserIp" => $state && isset($ac->text->telegramVarUserIp) ? $ac->text->telegramVarUserIp : esc_html__('User IP','easy-form-builder'),
+			/* translators: Submission ID = unique identifier for submission */
+			"telegramVarSubmissionId" => $state && isset($ac->text->telegramVarSubmissionId) ? $ac->text->telegramVarSubmissionId : esc_html__('Submission ID','easy-form-builder'),
+			/* translators: All sensitive data is encrypted and stored securely = security note */
+			"telegramSecurityNote" => $state && isset($ac->text->telegramSecurityNote) ? $ac->text->telegramSecurityNote : esc_html__('All sensitive data is encrypted and stored securely','easy-form-builder'),
+			/* translators: Activity Log = history of telegram activity */
+			"telegramActivityLog" => $state && isset($ac->text->telegramActivityLog) ? $ac->text->telegramActivityLog : esc_html__('Activity Log','easy-form-builder'),
+			/* translators: Please fill both Bot Token and Chat ID fields = validation message */
+			"telegramFillBothFields" => $state && isset($ac->text->telegramFillBothFields) ? $ac->text->telegramFillBothFields : esc_html__('Please fill both Bot Token and Chat ID fields','easy-form-builder'),
+			/* translators: Testing connection = status while testing */
+			"telegramTesting" => $state && isset($ac->text->telegramTesting) ? $ac->text->telegramTesting : esc_html__('Testing','easy-form-builder'),
+			/* translators: Connection test failed = error message */
+			"telegramConnectionFailed" => $state && isset($ac->text->telegramConnectionFailed) ? $ac->text->telegramConnectionFailed : esc_html__('Connection test failed','easy-form-builder'),
+			/* translators: Connection successful! Your bot is configured correctly. = success message */
+			"telegramConnectionSuccess" => $state && isset($ac->text->telegramConnectionSuccess) ? $ac->text->telegramConnectionSuccess : esc_html__('Connection successful! Your bot is configured correctly.','easy-form-builder'),
+			/* translators: Connection error. Please try again. = generic error message */
+			"telegramConnectionError" => $state && isset($ac->text->telegramConnectionError) ? $ac->text->telegramConnectionError : esc_html__('Connection error. Please try again.','easy-form-builder'),
+			/* translators: Unknown error occurred = fallback error message */
+			"telegramUnknownError" => $state && isset($ac->text->telegramUnknownError) ? $ac->text->telegramUnknownError : esc_html__('Unknown error occurred','easy-form-builder'),
+			/* translators: Test message from Easy Form Builder plugin = default test message */
+			"telegramTestMessage" => $state && isset($ac->text->telegramTestMessage) ? $ac->text->telegramTestMessage : esc_html__('🚀 Test message from Easy Form Builder plugin','easy-form-builder'),
+			/* translators: No activity found = empty state for activity log */
+			"telegramNoActivity" => $state && isset($ac->text->telegramNoActivity) ? $ac->text->telegramNoActivity : esc_html__('No activity found','easy-form-builder'),
+			/* translators: ID = identifier column header */
+			"telegramLogId" => $state && isset($ac->text->telegramLogId) ? $ac->text->telegramLogId : esc_html__('ID','easy-form-builder'),
+			/* translators: Chat ID = chat identifier column header */
+			"telegramLogChatId" => $state && isset($ac->text->telegramLogChatId) ? $ac->text->telegramLogChatId : esc_html__('Chat ID','easy-form-builder'),
+			/* translators: Form ID = form identifier column header */
+			"telegramLogFormId" => $state && isset($ac->text->telegramLogFormId) ? $ac->text->telegramLogFormId : esc_html__('Form ID','easy-form-builder'),
+			/* translators: Status = delivery status column header */
+			"telegramLogStatus" => $state && isset($ac->text->telegramLogStatus) ? $ac->text->telegramLogStatus : esc_html__('Status','easy-form-builder'),
+			/* translators: Date = date column header */
+			"telegramLogDate" => $state && isset($ac->text->telegramLogDate) ? $ac->text->telegramLogDate : esc_html__('Date','easy-form-builder'),
+			/* translators: Actions = action buttons column header */
+			"telegramLogActions" => $state && isset($ac->text->telegramLogActions) ? $ac->text->telegramLogActions : esc_html__('Actions','easy-form-builder'),
+			/* translators: Failed to load activity log = error loading log */
+			"telegramLoadError" => $state && isset($ac->text->telegramLoadError) ? $ac->text->telegramLoadError : esc_html__('Failed to load activity log','easy-form-builder'),
+			/* translators: Settings saved successfully! = success message after saving */
+			"telegramSettingsSaved" => $state && isset($ac->text->telegramSettingsSaved) ? $ac->text->telegramSettingsSaved : esc_html__('Settings saved successfully!','easy-form-builder'),
+			/* translators: New form submission from {site_name} = default message template */
+			"telegramDefaultTemplate" => $state && isset($ac->text->telegramDefaultTemplate) ? $ac->text->telegramDefaultTemplate : esc_html__('📋 New form submission from {site_name}\n\n📝 Form: {form_name}\n🕒 Date: {submission_date}\n\n{form_data}','easy-form-builder'),
 		];
 
 
@@ -1186,789 +1503,23 @@ class efbFunction {
 		return $rtrn;
 	}
 
-
 	public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null") {
-		error_log('===== send_email_state_new START =====');
-		error_log('send_email_state_new - to: ' . json_encode($to));
-		error_log('send_email_state_new - sub: ' . json_encode($sub));
-		error_log('send_email_state_new - cont: ' . json_encode($cont));
-		error_log('send_email_state_new - pro: ' . json_encode($pro));
-		error_log('send_email_state_new - state: ' . json_encode($state));
-		error_log('send_email_state_new - link: ' . json_encode($link));
-		error_log('send_email_state_new - st: ' . json_encode($st));
-		$email_content_type = isset($state[2]) ? $state[2]  : 'traking_link' ;
-		error_log('send_email_state_new - email_content_type: ' . $email_content_type);
-		// Set email content type to HTML
-		add_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
-
-		$mailResult = "n";
-		$server_name = apply_filters('emsfb_get_server_host', 'yourdomain.com');
-		$from =get_bloginfo('name')." <no-reply@".$server_name.">";
-
-		// Handle $from setup based on $to type and email validation
-		if (is_array($to) && isset($to[2]) && is_email($to[2])) {
-			$fromEmail = is_array($to[2]) ? array_pop($to[2]) : $to[2];
-			$from = get_bloginfo('name') . " <" . $fromEmail . ">";
-			unset($to[2]);
-		} elseif (is_object($to) && isset($to[2]) && is_email($to[2])) {
-			$from = get_bloginfo('name') . " <" . $to[2] . ">";
-			unset($to[2]);
-		}
-
-		$headers = [
-			'MIME-Version: 1.0\r\n',
-			'From:' . $from,
-		];
-
-		// Add wp_mail error logging
-		add_action('wp_mail_failed', function($wp_error) {
-			error_log('===== WP_MAIL FAILED =====');
-			error_log('wp_mail error: ' . $wp_error->get_error_message());
-			error_log('wp_mail error data: ' . json_encode($wp_error->get_error_data()));
-		});
-
-		// Check mail configuration
-		error_log('===== MAIL CONFIGURATION CHECK =====');
-		error_log('PHP mail function available: ' . (function_exists('mail') ? 'YES' : 'NO'));
-		error_log('sendmail_path: ' . ini_get('sendmail_path'));
-		error_log('SMTP: ' . ini_get('SMTP'));
-		error_log('smtp_port: ' . ini_get('smtp_port'));
-		error_log('sendmail_from: ' . ini_get('sendmail_from'));
-
-		// Simple test email to verify mail system works
-		if (rand(1, 10) == 1) { // Only 10% chance to avoid spam
-			error_log('===== SIMPLE MAIL TEST =====');
-			$test_result = wp_mail('test@example.com', 'EFB Test', 'Test message from EFB', ['Content-Type: text/html; charset=UTF-8']);
-			error_log('Simple test email result: ' . json_encode($test_result));
-
-			// Also test PHP mail function
-			$php_test = mail('test@example.com', 'EFB PHP Test', 'Test message from EFB using PHP mail', 'Content-Type: text/html; charset=UTF-8');
-			error_log('PHP mail test result: ' . json_encode($php_test));
-		}
-
-		// Internal function for sending emails
-		$sendMail = function($to, $sub, $message, $headers) {
-			error_log('===== sendMail function START =====');
-			error_log('sendMail - to: ' . json_encode($to));
-			error_log('sendMail - subject: ' . $sub);
-			error_log('sendMail - message length: ' . strlen($message));
-			error_log('sendMail - message preview: ' . substr($message, 0, 300) . '...');
-			error_log('sendMail - headers: ' . json_encode($headers));
-
-			// Add PHPMailer debugging hook
-			add_action('phpmailer_init', function($phpmailer) {
-				error_log('===== PHPMAILER INIT =====');
-				error_log('PHPMailer Mailer: ' . $phpmailer->Mailer);
-				error_log('PHPMailer Host: ' . $phpmailer->Host);
-				error_log('PHPMailer Port: ' . $phpmailer->Port);
-				error_log('PHPMailer Username: ' . $phpmailer->Username);
-				error_log('PHPMailer From: ' . $phpmailer->From);
-				error_log('PHPMailer FromName: ' . $phpmailer->FromName);
-				$phpmailer->SMTPDebug = 2;
-				$phpmailer->Debugoutput = function($str, $level) {
-					error_log('PHPMailer Debug: ' . $str);
-				};
-			});
-
-			if (is_string($to)) {
-				error_log('sendMail - Single recipient mode');
-				$result = wp_mail($to, $sub, $message, $headers);
-				error_log('sendMail - wp_mail result: ' . json_encode($result));
-				if (!$result) {
-					error_log('sendMail - wp_mail FAILED for single recipient: ' . $to);
-					// Try alternative method
-					error_log('sendMail - Trying PHP mail() function as fallback');
-					$alt_result = mail($to, $sub, $message, implode("\r\n", $headers));
-					error_log('sendMail - PHP mail() result: ' . json_encode($alt_result));
-				}
-				return $result;
+		// Lazy load email handler class
+		if (!class_exists('EmsfbEmailHandler')) {
+			$email_handler_file = EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
+			if (file_exists($email_handler_file)) {
+				require_once $email_handler_file;
 			} else {
-				error_log('sendMail - Multiple recipients mode');
-				$to = array_filter(array_unique($to));
-				$success = true;
-				foreach ($to as $email) {
-					error_log('sendMail - Processing email: ' . json_encode($email));
-					if (is_email($email)) {
-						$result = wp_mail($email, $sub, $message, $headers);
-						error_log('sendMail - wp_mail result for ' . $email . ': ' . json_encode($result));
-						if (!$result) {
-							$success = false;
-							error_log('sendMail - wp_mail FAILED for: ' . $email);
-							// Try alternative method
-							error_log('sendMail - Trying PHP mail() function as fallback for: ' . $email);
-							$alt_result = mail($email, $sub, $message, implode("\r\n", $headers));
-							error_log('sendMail - PHP mail() result for ' . $email . ': ' . json_encode($alt_result));
-						}
-					} else {
-						error_log('sendMail - Invalid email format: ' . $email);
-					}
-				}
-				error_log('sendMail - Final success status: ' . json_encode($success));
-				return $success;
-			}
-		};
-
-		// Handle single email sending
-		if (is_string($sub)) {
-			error_log('send_email_state_new - Single email mode, calling email_template_efb');
-			$message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
-			error_log('send_email_state_new - email_template_efb returned: ' . substr($message, 0, 200) . '...');
-			if ($state != "reportProblem") {
-				$mailResult = $sendMail($to, $sub, $message, $headers);
-			}
-
-			// Handle special support emails
-			if (in_array($state, ["reportProblem", "testMailServer", "addonsDlProblem"])) {
-				// For these states, use the same template but with proper structure
-				$message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
-				$mailResult = $sendMail($to, $sub, $message, $headers);
-			}
-		} else {
-			// Handle multiple emails
-			for ($i = 0; $i < 2; $i++) {
-				if (!empty($to[$i]) && $to[$i] != "null") {
-					error_log('send_email_state_new - Multiple email mode [' . $i . '], calling email_template_efb');
-					$message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $email_content_type, $st);
-					error_log('send_email_state_new - email_template_efb [' . $i . '] returned: ' . substr($message, 0, 200) . '...');
-					if ($state != "reportProblem") {
-						$mailResult = $sendMail($to[$i], $sub[$i], $message, $headers);
-					}
-				}
+				error_log('EFB: Email handler file not found: ' . $email_handler_file);
+				return false;
 			}
 		}
 
-		// Remove email content type filter
-		remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
-
-		return $mailResult;
+		$emailHandler = new EmsfbEmailHandler();
+		return $emailHandler->send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st);
 	}
 
 
-
-	public function email_template_efb($pro, $state, $m, $link, $email_content_type, $st = "null") {
-		// === LOGGING: تمام پارامترهای ورودی ===
-		error_log('===== email_template_efb START =====');
-		error_log('email_template_efb - pro: ' . json_encode($pro));
-		error_log('email_template_efb - state: ' . json_encode($state));
-		error_log('email_template_efb - m: ' . json_encode($m));
-		error_log('email_template_efb - link: ' . json_encode($link));
-		error_log('email_template_efb - email_content_type: ' . json_encode($email_content_type));
-		error_log('email_template_efb - st: ' . json_encode($st));
-		error_log('email_template_efb - m type: ' . gettype($m));
-		error_log('email_template_efb - m length: ' . (is_string($m) ? strlen($m) : (is_array($m) ? count($m) : 'not string/array')));
-		if (is_array($m)) {
-			error_log('email_template_efb - m array length: ' . count($m));
-			foreach ($m as $index => $value) {
-				error_log('email_template_efb - m[' . $index . ']: ' . json_encode($value));
-				error_log('email_template_efb - m[' . $index . '] type: ' . gettype($value));
-			}
-		} else if (is_string($m)) {
-			error_log('email_template_efb - m string preview: ' . substr($m, 0, 100) . '...');
-			error_log('email_template_efb - m contains HTML tags: ' . (preg_match('/<[^>]+>/', $m) ? 'YES' : 'NO'));
-		}
-
-		// Website locale and URL setup
-		$l = 'https://whitestudio.team';
-		$wp_lan = get_locale();
-		$locale_map = [
-			'fa_IR' => 'https://easyformbuilder.ir',
-			'ar' => 'https://ar.whitestudio.team',
-			'arq' => 'https://ar.whitestudio.team',
-			'de_DE' => 'https://de.whitestudio.team'
-		];
-		$l = $locale_map[$wp_lan] ?? $l;
-
-		$text = ['msgdml', 'mlntip', 'msgnml', 'serverEmailAble', 'vmgs', 'getProVersion', 'sentBy', 'hiUser', 'trackingCode', 'newMessage', 'createdBy', 'newMessageReceived', 'goodJob', 'createdBy', 'yFreeVEnPro', 'WeRecivedUrM'];
-		$lang = $this->text_efb($text);
-
-		// translators: this is the automatic email disclaimer
-		$automatic_email_disclaimer ='📧 ' . esc_html__('This email was sent automatically. Please do not reply.', 'easy-form-builder');
-
-		$footer = "<a class='efb subtle-link' target='_blank' href='" . home_url() . "'>" . $lang['sentBy'] . " " . get_bloginfo('name') . "</a>";
-		$align = is_rtl() ? 'right' : 'left';
-		$d = is_rtl() ? 'rtl' : 'ltr';
-
-		// Get settings
-		if ($st == 'null') $st = get_setting_Emsfb();
-		if ($st == "null") return;
-
-		// Pro version footer handling
-		if ($pro == true || $pro == 1) {
-			$is_pro = (int) get_option('Emsfb_pro', 2);
-			if ($is_pro == 3) {
-				$footer = "<div style='text-align:center;'>
-					" . $footer . "<br>
-					<p>" . sprintf(
-						esc_html__('Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s', 'easy-form-builder'),
-						"<a href='https://wordpress.org/plugins/easy-form-builder/' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
-						"</a>",
-						"<a href='https://whitestudio.team' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
-						"</a>"
-					) . "</p>
-				</div>";
-			}
-		}
-		$temp = isset($st->emailTemp) && strlen($st->emailTemp) > 10 ? $st->emailTemp : "0";
-
-		$title = $lang['newMessage'];
-		$message = is_string($m) ? "<h3>$m</h3>" : "<h3>{$m[0]}</h3>";
-		$blogName = get_bloginfo('name');
-		$user = function_exists("get_user_by") ? get_user_by('id', 1) : false;
-		$adminEmail = $user ? $user->user_email : '';
-		$blogURL = home_url();
-		$dts = $lang['msgdml'];
-		$track_id = '';
-		if(gettype($m)=='string'){
-			$track_id =$m;
-		}else{
-			$track_id=$m[0];
-		}
-		//$dts = str_replace('%s', $track_id, $dts);
-// ایجاد دکمه استاندارد سازگار با همه email clients با رنگ و استایل شبیه Pro
-		$button_style = "display: inline-block; padding: 16px 32px; background: transparent; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; cursor: pointer;";
-		$button_hover_bg = "#1e3a8a";
-
-		$tracking_section = $email_content_type=='just_message' ? "" : "
-			<!--[if mso]>
-			<v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='".$link."' style='height:50px;v-text-anchor:middle;width:220px;' arcsize='12%' strokecolor='#202a8d' fillcolor='#202a8d'>
-				<w:anchorlock/>
-				<center style='color:#ffffff;font-family:sans-serif;font-size:18px;font-weight:bold;'>".$lang['vmgs']."</center>
-			</v:roundrect>
-			<![endif]-->
-			<!--[if !mso]><!-- -->
-			<div style='text-align:center; margin: 30px 0;'>
-				<table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 0 auto;'>
-					<tr>
-						<td style='background: linear-gradient(135deg, #202a8d 0%, #1e3a8a 100%); border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(32, 42, 141, 0.3);'>
-							<a href='".$link."' target='_blank' style='".$button_style."'>
-								".$lang['vmgs']."
-							</a>
-						</td>
-					</tr>
-				</table>
-			</div>
-			<!--<![endif]-->
-		";
-
-		if ($state == "testMailServer") {
-			$dt = $lang['msgnml'];
-			$de = preg_replace('/^[^.]*\. /', '', $lang['mlntip']);
-			$link = "$l/document/send-email-using-smtp-plugin/";
-			if ($wp_lan == "fa_IR") $link = "$l/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/";
-
-			$de = strtr($de, [
-				'%1$s' => "<a href='$link' target='_blank' style='color: #667eea; text-decoration: none; font-weight: 600;'>",
-				'%2$s' => "</a>",
-				'%3$s' => "<a href='$l/support/' target='_blank' style='color: #667eea; text-decoration: none; font-weight: 600;'>",
-				'%4$s' => "</a>"
-			]);
-			$dt = strtr($dt, [
-				'%1$s' => "<a href='$l/documents/' target='_blank' style='color: #667eea; text-decoration: none; font-weight: 600;'>",
-				'%2$s' => "</a>"
-			]);
-			$title = $lang['serverEmailAble'];
-
-			// ساختار email-friendly بدون CSS3 features برای سازگاری کامل
-			$improved_message = "
-				<!--[if mso]>
-				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
-					<tr>
-						<td style='background-color: #f0f9ff; padding: 25px; border: 2px solid #0ea5e9; text-align: center;'>
-							<h2 style='color: #0c4a6e; margin: 0 0 15px 0; font-size: 24px; font-weight: 700;'>
-								✅ ". esc_html__('Congratulations! Email System Working', 'easy-form-builder') ."
-							</h2>
-							<p style='color: #075985; font-size: 16px; line-height: 1.6; margin: 0;'>
-								". esc_html__('Your server has successfully sent this test email. The email delivery system is properly configured and functioning.', 'easy-form-builder') ."
-							</p>
-						</td>
-					</tr>
-				</table>
-				<![endif]-->
-				<!--[if !mso]><!-->
-				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0; border-collapse: collapse;'>
-					<tr>
-						<td style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 25px; border-left: 5px solid #0ea5e9; border-radius: 12px; text-align: center;'>
-							<h2 style='color: #0c4a6e; margin: 0 0 15px 0; font-size: 24px; font-weight: 700;'>
-								✅ ". esc_html__('Congratulations! Email System Working', 'easy-form-builder') ."
-							</h2>
-							<p style='color: #075985; font-size: 16px; line-height: 1.6; margin: 0;'>
-								". esc_html__('Your server has successfully sent this test email. The email delivery system is properly configured and functioning.', 'easy-form-builder') ."
-							</p>
-						</td>
-					</tr>
-				</table>
-				<!--<![endif]-->
-
-				<!--[if mso]>
-				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
-					<tr>
-						<td style='background-color: #fefce8; padding: 20px; border: 2px solid #eab308;'>
-							<h3 style='color: #a16207; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;'>
-								💡 ". esc_html__('Email Delivery Tips', 'easy-form-builder') ."
-							</h3>
-							<div style='color: #713f12; font-size: 14px; line-height: 1.6;'>
-								$de
-							</div>
-						</td>
-					</tr>
-				</table>
-				<![endif]-->
-				<!--[if !mso]><!-->
-				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0; border-collapse: collapse;'>
-					<tr>
-						<td style='background-color: #fefce8; padding: 20px; border-left: 4px solid #eab308; border-radius: 10px;'>
-							<h3 style='color: #a16207; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;'>
-								💡 ". esc_html__('Email Delivery Tips', 'easy-form-builder') ."
-							</h3>
-							<div style='color: #713f12; font-size: 14px; line-height: 1.6;'>
-								$de
-							</div>
-						</td>
-					</tr>
-				</table>
-				<!--<![endif]-->
-
-				<!--[if mso]>
-				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
-					<tr>
-						<td style='background-color: #f0f9ff; padding: 20px; border: 2px solid #0ea5e9;'>
-							<h3 style='color: #0c4a6e; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;'>
-								📚 ". esc_html__('Learn More', 'easy-form-builder') ."
-							</h3>
-							<div style='color: #075985; font-size: 14px; line-height: 1.6;'>
-								$dt
-							</div>
-						</td>
-					</tr>
-				</table>
-				<![endif]-->
-				<!--[if !mso]><!-->
-				<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0; border-collapse: collapse;'>
-					<tr>
-						<td style='background-color: #f0f9ff; padding: 20px; border-left: 4px solid #0ea5e9; border-radius: 10px;'>
-							<h3 style='color: #0c4a6e; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;'>
-								📚 ". esc_html__('Learn More', 'easy-form-builder') ."
-							</h3>
-							<div style='color: #075985; font-size: 14px; line-height: 1.6;'>
-								$dt
-							</div>
-						</td>
-					</tr>
-				</table>
-				<!--<![endif]-->";
-
-			$message = $improved_message;
-
-			if (strlen($st->activeCode) < 5) {
-				//esc_html__('You are using the free version. Upgrade to Pro for just %$1s%$2s%$3s/year and unlock advanced features to improve your experience and productivity.%$4sView Pro Features%$5s','easy-form-builder')
-				$price = ($wp_lan == "de_DE") ? esc_html__('€19','easy-form-builder') : esc_html__('$19','easy-form-builder');
-
-				$p = sprintf($lang['yFreeVEnPro'], '<strong>', $price, '</strong>', '<a href="'.$l.'" target="_blank">', '</a>');
-
-				// دکمه Pro version با ساختار proper conditional برای email clients
-				$pro_button = "
-					<!--[if mso]>
-					<v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='$l' style='height:50px;v-text-anchor:middle;width:220px;' arcsize='12%' strokecolor='#202a8d' fillcolor='#202a8d'>
-						<w:anchorlock/>
-						<center style='color:#ffffff;font-family:sans-serif;font-size:18px;font-weight:bold;'>{$lang['getProVersion']}</center>
-					</v:roundrect>
-					<![endif]-->
-					<!--[if !mso]><!-->
-					<table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 30px auto 0 auto;'>
-						<tr>
-							<td style='background: linear-gradient(135deg, #202a8d 0%, #1e3a8a 100%); border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(32, 42, 141, 0.3);'>
-								<a href='$l' target='_blank' style='display: inline-block; padding: 16px 32px; background: transparent; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; cursor: pointer;'>
-									{$lang['getProVersion']}
-								</a>
-							</td>
-						</tr>
-					</table>
-					<!--<![endif]-->
-				";
-
-				// پیام Pro version بهبود یافته با ساختار proper MSO/Non-MSO conditional
-				$pro_upgrade_section = "
-					<!--[if mso]>
-					<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 25px 0;'>
-						<tr>
-							<td style='background-color: #fdf4ff; padding: 25px; border: 3px solid #a855f7; text-align: center;'>
-								<h2 style='color: #7c2d92; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;'>
-									🚀 ". esc_html__('Unlock Advanced Features', 'easy-form-builder') ."
-								</h2>
-								<p style='color: #86198f; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;'>
-									$p
-								</p>
-							</td>
-						</tr>
-					</table>
-					<![endif]-->
-					<!--[if !mso]><!-->
-					<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 25px 0; border-collapse: collapse;'>
-						<tr>
-							<td style='background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); border-radius: 12px; padding: 25px; border-left: 5px solid #a855f7; text-align: center;'>
-								<h2 style='color: #7c2d92; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;'>
-									🚀 ". esc_html__('Unlock Advanced Features', 'easy-form-builder') ."
-								</h2>
-								<p style='color: #86198f; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;'>
-									$p
-								</p>
-							</td>
-						</tr>
-					</table>
-					<!--<![endif]-->
-
-					$pro_button
-
-					<!--[if mso]>
-					<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0 0 0;'>
-						<tr>
-							<td style='text-align: center; padding: 20px; background-color: #f8fafc;'>
-								<p style='color: #64748b; font-size: 14px; margin: 0; font-style: italic;'>
-									". esc_html__('Created with ❤️ by', 'easy-form-builder') ." <strong style='color: #334155;'>WhiteStudio.team</strong>
-								</p>
-							</td>
-						</tr>
-					</table>
-					<![endif]-->
-					<!--[if !mso]><!-->
-					<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0 0 0; border-collapse: collapse;'>
-						<tr>
-							<td style='text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;'>
-								<p style='color: #64748b; font-size: 14px; margin: 0; font-style: italic;'>
-									". esc_html__('Created with ❤️ by', 'easy-form-builder') ." <strong style='color: #334155;'>WhiteStudio.team</strong>
-								</p>
-							</td>
-						</tr>
-					</table>
-					<!--<![endif]-->
-				";
-
-				$message = $improved_message . $pro_upgrade_section;
-			}
-		} elseif ($state == "newMessage") {
-			error_log('email_template_efb - Processing newMessage state');
-			if(gettype($m)=='string'){
-				error_log('email_template_efb - newMessage: m is string, value: ' . $m);
-				error_log('email_template_efb - newMessage: checking if m contains HTML tags');
-				if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
-					error_log('email_template_efb - newMessage: m contains HTML content, using as message directly');
-					$message = $m;
-				} else {
-					error_log('email_template_efb - newMessage: m is plain text, creating message template');
-					// $dts = str_replace('%s', $m, $dts);
-					$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
-					$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
-					<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>".$tracking_section ;
-				}
-				error_log('email_template_efb - newMessage string final message: ' . $message);
-			}else{
-				error_log('email_template_efb - newMessage: m is array');
-				error_log('email_template_efb - newMessage: m[0] = ' . json_encode($m[0]));
-				error_log('email_template_efb - newMessage: m[1] = ' . json_encode($m[1]));
-				// $dts = str_replace('%s', $m[0], $dts);
-				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
-				$message ="
-				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>".$tracking_section;
-				error_log('email_template_efb - newMessage array final message: ' . $message);
-			}
-		} else {
-			error_log('email_template_efb - Processing other state: ' . $state);
-			error_log('email_template_efb - m type: ' . gettype($m));
-
-			// تشخیص نوع محتوای ورودی برای تمام حالت‌ها
-			if (is_string($m)) {
-				error_log('email_template_efb - m is string, value: ' . substr($m, 0, 100) . '...');
-
-				// بررسی اینکه آیا محتوا HTML کامل است یا tracking code ساده
-				if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false) {
-					error_log('email_template_efb - String contains HTML content, using directly');
-					$message = $m;
-				} else {
-					error_log('email_template_efb - String is plain text (tracking code), creating template');
-					// برای tracking code ساده - table structure
-					$track_id = $m;
-					$title = $lang['hiUser'];
-					$message = "
-						<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
-							<tr>
-								<td style='text-align: center; padding: 20px;'>
-									<h2>".$lang["WeRecivedUrM"]."</h2>
-									<p>". $lang["trackingCode"].": ".$track_id." </p>
-									". $tracking_section ."
-								</td>
-							</tr>
-						</table>";
-				}
-			} elseif (is_array($m) && count($m) >= 2) {
-				error_log('email_template_efb - m is array with ' . count($m) . ' elements');
-				error_log('email_template_efb - m[0] (track): ' . json_encode($m[0]));
-				error_log('email_template_efb - m[1] (content): ' . json_encode(substr($m[1], 0, 100)) . '...');
-
-				$track_id = $m[0];
-				$content = $m[1];
-				$title = $lang['hiUser'];
-
-				// بررسی اینکه آیا محتوای آرایه HTML است یا متن ساده
-				if (strpos($content, '<') !== false && strpos($content, '>') !== false) {
-					error_log('email_template_efb - Array content contains HTML');
-					$message = "
-						<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
-							<tr>
-								<td style='text-align: center; padding: 20px;'>
-									<h2>".$lang["WeRecivedUrM"]."</h2>
-									<div style='text-align:".$align.";color:#252526;font-size:14px;'>".$content." </div>
-									". $tracking_section ."
-								</td>
-							</tr>
-						</table>";
-				} else {
-					error_log('email_template_efb - Array content is plain text');
-					$message = "
-						<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
-							<tr>
-								<td style='text-align: center; padding: 20px;'>
-									<h2>".$lang["WeRecivedUrM"]."</h2>
-									<div style='text-align:".$align.";color:#252526;font-size:14px;background:#f9f9f9;padding:10px;margin:20px 5px;border-radius:8px;'>".$content." </div>
-									". $tracking_section ."
-								</td>
-							</tr>
-						</table>";
-				}
-			} else {
-				error_log('email_template_efb - Unexpected m format: ' . json_encode($m));
-				// fallback برای حالت‌های غیرمنتظره - table structure
-				$title = $lang['hiUser'];
-				$track_id = is_string($m) ? $m : (is_array($m) ? $m[0] : 'Unknown');
-				$message = "
-					<table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
-						<tr>
-							<td style='text-align: center; padding: 20px;'>
-								<h2>".$lang["WeRecivedUrM"]."</h2>
-								<p>". $lang["trackingCode"].": ".$track_id." </p>
-								". $tracking_section ."
-							</td>
-						</tr>
-					</table>";
-			}
-
-			error_log('email_template_efb - other state final message: ' . substr($message, 0, 200) . '...');
-		}
-
-		error_log('email_template_efb - Before HTML template creation:');
-		error_log('email_template_efb - title: ' . $title);
-		error_log('email_template_efb - message: ' . $message);
-		error_log('email_template_efb - temp: ' . $temp);
-
-		$val = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
-<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">
-<head>
-	<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
-	<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
-	<title>$title</title>
-	<!--[if gte mso 9]><xml>
-		<o:OfficeDocumentSettings>
-			<o:AllowPNG/>
-			<o:PixelsPerInch>96</o:PixelsPerInch>
-		</o:OfficeDocumentSettings>
-	</xml><![endif]-->
-	<!--[if mso]>
-	<style type=\"text/css\">
-		table, td, th {border-collapse: collapse;}
-		.mso-hide {display: none !important;}
-	</style>
-	<![endif]-->
-	<style type=\"text/css\">
-		/* Reset styles */
-		body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-		table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-		img { -ms-interpolation-mode: bicubic; }
-
-		/* Remove default spacing */
-		body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
-		table { border-collapse: collapse !important; }
-
-		/* Responsive styles */
-		@media only screen and (max-width: 600px) {
-			.email-container { width: 100% !important; margin: 0 !important; }
-			.content-wrapper { padding: 15px !important; }
-			.header-image { width: 80% !important; max-width: 200px !important; }
-			.message-content { padding: 20px 15px !important; font-size: 16px !important; }
-			.footer-content { padding: 20px 15px !important; }
-		}
-	</style>
-</head>
-<body style=\"margin: 0; padding: 0; width: 100%; background-color: #f8f9fa; direction: $d; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;\">
-	<!-- Email Container -->
-	<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 0; padding: 0; background-color: #f8f9fa;\">
-		<tr>
-			<td align=\"center\" style=\"padding: 20px 0;\">
-				<!-- Main Email Content -->
-				<table class=\"email-container\" role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;\">
-
-					<!-- Header Section -->
-					<tr>
-						<td align=\"center\" style=\"padding: 40px 30px 30px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\">
-							<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
-								<tr>
-									<td align=\"center\">
-										<img src=\"" . EMSFB_PLUGIN_URL . "public/assets/images/email_template1.png\" alt=\"Easy Form Builder\" class=\"header-image\" style=\"width: 120px; height: auto; display: block; margin: 0 auto 20px auto; border: none;\" />
-									</td>
-								</tr>
-								<tr>
-									<td align=\"center\">
-										<h1 style=\"margin: 0; padding: 0; color: #ffffff; font-size: 28px; font-weight: 600; line-height: 1.3; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">$title</h1>
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-
-					<!-- Content Section -->
-					<tr>
-						<td class=\"content-wrapper\" style=\"padding: 40px 30px;\">
-							<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
-								<tr>
-									<td class=\"message-content\" align=\"center\" style=\"color: #333333; font-size: 16px; line-height: 1.6; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
-										$message
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-
-					<!-- Spacer -->
-					<tr>
-						<td style=\"height: 20px; background-color: #ffffff;\"></td>
-					</tr>
-
-				</table>
-
-				<!-- Footer Section -->
-				<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 20px auto 0 auto;\">
-					<tr>
-						<td class=\"footer-content\" align=\"center\" style=\"padding: 30px; color: #6b7280; font-size: 14px; line-height: 1.5; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
-							$footer
-						</td>
-					</tr>
-					<tr>
-						<td align=\"center\" style=\"padding-bottom: 20px;\">
-							<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
-								<tr>
-									<td style=\"border-radius: 20px; background-color: #f1f5f9; padding: 15px 25px;\">
-										<p style=\"margin: 0; color: #64748b; font-size: 12px; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
-											$automatic_email_disclaimer
-										</p>
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-				</table>
-
-			</td>
-		</tr>
-	</table>
-</body>
-</html>";
-
-		if ($temp != "0") {
-			error_log('email_template_efb - Using custom template, temp length: ' . strlen($temp));
-			$replacements = [
-				'shortcode_message' => $message,
-				'shortcode_title' => $title,
-				'shortcode_website_name' => $blogName,
-				'shortcode_website_url' => $blogURL,
-				'shortcode_admin_email' => $adminEmail
-			];
-			error_log('email_template_efb - Template replacements: ' . json_encode($replacements));
-			$temp = strtr($temp, $replacements);
-			error_log('email_template_efb - After template replacements, length: ' . strlen($temp));
-			$temp = preg_replace(['/http:@efb@+/', '/https:@efb@+/', '/@efb@+/'], ['http://', 'https://', '/'], $temp);
-
-			$p = strripos($temp, '</body>');
-			error_log('email_template_efb - Found </body> position: ' . $p);
-			$footer = "
-			<!-- Custom Footer Section -->
-			<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 20px auto 0 auto;\">
-				<tr>
-					<td align=\"center\" style=\"padding: 30px; color: #6b7280; font-size: 14px; line-height: 1.5; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; background-color: #f8f9fa; border-radius: 8px;\">
-						$footer
-					</td>
-				</tr>
-				<tr>
-					<td align=\"center\" style=\"padding: 15px 30px;\">
-						<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
-							<tr>
-								<td style=\"border-radius: 20px; background-color: #f1f5f9; padding: 12px 20px;\">
-									<p style=\"margin: 0; color: #64748b; font-size: 11px; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
-										$automatic_email_disclaimer
-									</p>
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
-			";
-			$temp = substr_replace($temp, $footer, $p, 0);
-			error_log('email_template_efb - After footer injection, final length: ' . strlen($temp));
-
-			$val = $temp;
-		}
-		error_log('email_template_efb - Final output length: ' . strlen($val));
-		error_log('email_template_efb - Final output preview: ' . substr($val, 0, 300) . '...');
-
-		// === لاگ کامل بدنه ایمیل قبل از خروجی ===
-		error_log('============================================');
-		error_log('=== COMPLETE EMAIL BODY LOG - START ===');
-		error_log('============================================');
-		error_log('EMAIL_TEMPLATE_EFB - FULL EMAIL BODY CONTENT:');
-		error_log('State: ' . $state);
-		error_log('Email Type: ' . $email_content_type);
-		error_log('Body Length: ' . strlen($val) . ' characters');
-		error_log('');
-		error_log('========== EMAIL HTML BODY START ==========');
-
-		// کل بدنه ایمیل را خط به خط چاپ کنیم
-		$email_lines = explode("\n", $val);
-		foreach ($email_lines as $line_num => $line) {
-			error_log('LINE ' . ($line_num + 1) . ': ' . $line);
-		}
-
-		error_log('========== EMAIL HTML BODY END ==========');
-		error_log('');
-		error_log('Content Structure Analysis:');
-		error_log('  ✓ Total Lines: ' . count($email_lines));
-		error_log('  ✓ Total Characters: ' . strlen($val));
-		error_log('  ✓ Contains <!DOCTYPE: ' . (strpos($val, '<!DOCTYPE') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains <html>: ' . (strpos($val, '<html') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains <head>: ' . (strpos($val, '<head') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains <body>: ' . (strpos($val, '<body') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains <h1>: ' . (strpos($val, '<h1') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains <h2>: ' . (strpos($val, '<h2') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains <p>: ' . (strpos($val, '<p') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains <div>: ' . (strpos($val, '<div') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains <table>: ' . (strpos($val, '<table') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains tracking: ' . (strpos($val, 'MTRFN') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains "New Message": ' . (strpos($val, 'New Message') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains "submitted successfully": ' . (strpos($val, 'submitted successfully') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Contains "confirmation": ' . (stripos($val, 'confirmation') !== false ? 'YES' : 'NO'));
-		error_log('  ✓ Valid HTML structure: ' . (strpos($val, '<html') !== false && strpos($val, '</html>') !== false ? 'YES' : 'NO'));
-		error_log('============================================');
-		error_log('=== Email Content start ===');
-		error_log($val);
-		error_log('=== Email Content end ===');
-		error_log('=== COMPLETE EMAIL BODY LOG - END ===');
-		error_log('============================================');
-
-		error_log('===== email_template_efb END =====');
-		return $val;
-	}
-
-
-	public function wpdocs_set_html_mail_content_type() {
-		return 'text/html';
-	}
 
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
@@ -2068,6 +1619,15 @@ class efbFunction {
 			// $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
 			$smsSendResult =true;
 			if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $smsSendResult = $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,'respp' ,'wpsms' ,$trackingCode);
+		}
+
+		// Send Telegram notification for form submission
+		if(isset($data[0]['telegramnoti']) && intval($data[0]['telegramnoti'])==1){
+			if (has_action('efb_send_telegram_notification')) {
+				do_action('efb_send_telegram_notification', $form_id, $link_w, 'respp', $trackingCode);
+			} else {
+				error_log('[EFB] Telegram addon not active for notification');
+			}
 		}
 		return 0;
 	}// end function
@@ -2698,7 +2258,6 @@ public function addon_add_efb($value) {
 			return $resukt_send_message==false ? false : true;
 		}
 	}
-
 
 	public function check_for_active_plugins_cache() {
 
@@ -3389,108 +2948,25 @@ public function addon_add_efb($value) {
 	}
 
 	public function send_email_noti_sid_plugins_efb($status){
-		$all_plugins = get_plugins();
-		$msg = esc_html__('This is an alert message regarding a SID validation error. This issue may have occurred due to a plugin conflict or an unauthorized attempt to access the website.', 'easy-form-builder') . '<br>';
-        $msg .= esc_html__('If you receive this email multiple times, it could indicate a recurring issue.', 'easy-form-builder') ;
-		$msg .= '<a href="'.EMSFB_SERVER_URL.'/support" target="_blank">'.esc_html__('Please contact our support team for assistance.', 'easy-form-builder') . '</a><br>';
-		$msg .= esc_html__('One or more of the plugins listed below—typically related to caching or security—might be triggering this issue. For troubleshooting, temporarily deactivate them and test your site.', 'easy-form-builder') . '<br>';
-
-
-		$str =   '<!--efb-->';
-		$str .= 'Error code:'.$status . '<br>';
-		// 'this is a test message for sid validation error because of plugin conflict or user try to attack the website<br>';
-        $str .=  $msg . '<br><hr>';
-		$str .= 'IP:'.$this->get_ip_address() . '<br>';
-		$str .= 'OS:'.$this->getVisitorOS() . '<br>';
-		$str .= 'Browser:'.$this->getVisitorBrowser() . '<br>';
-		$str .= 'User ID:'.get_current_user_id() . '<br>';
-		$_http_user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
-		$str .= 'User Agent:'.$_http_user_agent . '<br>';
-		$_http_referer = isset($_SERVER['HTTP_REFERER']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_REFERER'])) : '';
-		$str .= 'Referer:'.$_http_referer . '<br>';
-		$_request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
-		$str .= 'Request URI:'.$_request_uri . '<br>';
-		$str .= 'Date:'. wp_date('Y-m-d H:i:s') . '<br>';
-		$str .= '<hr>Value:'.$status . '<br>';
-		$str .= 'State:'.$status . '<br>';
-		$str .= 'PHP Version: ' . phpversion() . '<br>';
-		$str .= 'WordPress Version: ' . get_bloginfo('version') . '<br>';
-		$str .= 'Easy Form Builder Version' . EMSFB_PLUGIN_VERSION . '<br>';
-		$str .= 'Website URL: ' . get_site_url() . '<br>';
-		$div = '<div style="width: 100%; height: 1px; background-color: #ccc; margin: 5px 10;"></div>';
-		foreach ($all_plugins as $plugin_file => $plugin_data) {
-			$div.= 'Plugin Name: ' . $plugin_data['Name'] . '<br>';
-
-			$div .= 'Plugin URI: ' . $plugin_data['PluginURI'] . '<br>';
-			$div .= 'Version: ' . $plugin_data['Version'] . '<br>';
-			$div .= 'Description: ' . $plugin_data['Description'] . '<br><hr>';
-			$div .= '</div>';
-
-		}
-		error_log('EFB=>plugin_data[name] : ' . $div );
-		$str .= $div;
-		$subject = esc_html__('Easy Form Builder', 'easy-form-builder') . ':' . esc_html__('SID Validation Error', 'easy-form-builder') . ' - ' . get_bloginfo('name');
-		$to = [];
-		$to[] = get_option('admin_email');
-		$settings = get_setting_Emsfb('decoded');
-		if($settings->emailSupporter != null && $settings->emailSupporter != 'null' && $settings->emailSupporter != ''){
-			$to[] = $settings->emailSupporter;
-		}
-		$to[]= 'no-reply@whitestudio.team';
-		if(isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new($to, $subject, $str, 0, "sid_noti_validation", 'null', 'null');
-
-
-
-	}
-
-	public function include_persia_efb(){
-		$st = get_setting_Emsfb('decoded');
-		//$st->AdnPPF=0;
-		if(isset($st->AdnPPF) && $st->AdnPPF==1){
-			error_log("persia_pay-efb.js loaded?");
-			// wmaddon
-			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay")) {
-				$r = $this->update_message_admin_side_efb();
-				// echo $r;
-				$this->download_all_addons_efb();
-				return 0;
+				// Lazy load email handler class
+		if (!class_exists('EmsfbEmailHandler')) {
+			$email_handler_file = EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
+			if (file_exists($email_handler_file)) {
+				require_once $email_handler_file;
+			} else {
+				error_log('EFB: Email handler file not found: ' . $email_handler_file);
+				return false;
 			}
-			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/persiapayefb.php");
-			$persiapay = new persiapayEFB() ;
 		}
-	}
 
-	public function fun_update_db_efb(){
-		// 'emsfb_db_version' update to 2
-		error_log('EFB=>fun_update_db_efb====================================> ' . get_option('emsfb_db_version'));
-		update_option('emsfb_db_version', EMSFB_DB_VERSION);
-
-		//v1.1
-		global $wpdb;
-		$table_name = $wpdb->prefix . "emsfb_form";
-
-
-
-		$charset_collate = $wpdb->get_charset_collate();
-
-		$table_ftemp = $wpdb->prefix . "emsfb_form_temp";
-		$sql = "CREATE TABLE IF NOT EXISTS {$table_ftemp} (
-			`form_id` int(11) NOT NULL AUTO_INCREMENT,
-			`form_name` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
-			`form_structer` MEDIUMTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-			`form_email` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
-			`form_type` varchar(15) COLLATE utf8mb4_unicode_ci NULL DEFAULT  'form',
-			`form_created_by` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,
-			`form_access_by` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-			`form_create_date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,
-			PRIMARY KEY  (form_id)
-		) {$charset_collate};";
-		$wpdb->query( $sql );
-
-		$sql = "ALTER TABLE {$table_name} ADD `status` TINYINT NOT NULL DEFAULT 1";
-		$wpdb->query( $sql );
+		$emailHandler = new EmsfbEmailHandler();
+		return $emailHandler->send_email_noti_sid_plugins_efb($status);
 
 	}
+
+
+
+
 
 	public function validate_url_efb($url) {
 			global $allowed_domains;
@@ -3654,6 +3130,7 @@ public function addon_add_efb($value) {
 					AdnELM == Elemntor
 					AdnGTB == Gutnberg
 					AdnPFA == Private Form Advanced
+					AdnTlg == Telegram
 
 				*/
 		$addons = [
@@ -3668,6 +3145,7 @@ public function addon_add_efb($value) {
 			'AdnPDP' => 0,
 			'AdnADP' => 0,
 			'AdnPAP' => 0,
+			'AdnTlg' => 0,
 		];
 		if($ac!=null && isset($ac->AdnSPF)==true){
 			$addons['AdnSPF'] = intval($ac->AdnSPF);
@@ -3681,6 +3159,7 @@ public function addon_add_efb($value) {
 			$addons["AdnPDP"] = isset($ac->AdnPDP) ? intval($ac->AdnPDP) : 0;
 			$addons["AdnADP"] = isset($ac->AdnADP) ? intval($ac->AdnADP) : 0;
 			$addons["AdnPAP"]=  isset($ac->AdnPAP) ? intval($ac->AdnPAP) : 0;
+			$addons["AdnTlg"]=  isset($ac->AdnTlg) ? intval($ac->AdnTlg) : 0;
 		}
 
 		return $addons;
@@ -3694,215 +3173,6 @@ public function addon_add_efb($value) {
 		return false;
 	}
 
-	/**
-	 * Smart notification dispatcher - only processes active notification types
-	 * @param string $form_type Form type: form, register, login, subscribe, survey
-	 * @param string $track_id Tracking ID for the submission
-	 * @param int $form_id Form ID
-	 * @param array $form_obj Form configuration object
-	 * @param array $form_values Submitted form values
-	 * @param object $public_instance Instance of Public class (only if needed)
-	 */
-	public function dispatch_notifications_efb($form_type, $track_id, $form_id, $form_obj = null, $form_values = null, $public_instance = null) {
-		$timing_start = microtime(true);
-		$notifications_sent = 0;
-
-		// Early validation
-		if (empty($track_id)) {
-			error_log('[EFB] Missing track_id for notifications');
-			return false;
-		}
-
-		// Get settings
-		$settings = get_setting_Emsfb('decoded');
-		if (!$settings) {
-			error_log('[EFB] Settings not available for notifications');
-			return false;
-		}
-
-		// Smart SMS Check and Send
-		if ($this->should_send_sms_efb($form_obj, $settings, $form_type)) {
-			$sms_result = $this->send_smart_sms_efb($form_type, $track_id, $form_id, $form_obj, $settings);
-			if ($sms_result) $notifications_sent++;
-		}
-
-		// Smart Email Check and Send
-		if ($this->should_send_email_efb($form_obj, $settings, $form_type)) {
-			$email_result = $this->send_smart_email_efb($form_type, $track_id, $form_id, $form_obj, $form_values, $public_instance, $settings);
-			if ($email_result) $notifications_sent++;
-		}
-
-		$timing_total = round((microtime(true) - $timing_start) * 1000, 2);
-		error_log(sprintf('[EFB Notifications] %s | Track: %s | Sent: %d | %sms', $form_type, substr($track_id, 0, 8), $notifications_sent, $timing_total));
-
-		return $notifications_sent > 0;
-	}
-
-	/**
-	 * Smart check for SMS notification
-	 */
-	private function should_send_sms_efb($form_obj, $settings, $form_type) {
-		// Check if SMS is globally enabled
-		if (!isset($settings->sms_config) || $settings->sms_config !== 'wpsms') {
-			return false;
-		}
-
-		// Check admin phone numbers
-		if (!isset($settings->phnNo) || strlen(trim($settings->phnNo)) < 5) {
-			return false;
-		}
-
-		// Form-specific checks
-		if ($form_obj && is_array($form_obj) && isset($form_obj[0])) {
-			// For normal forms, check SMS notification setting
-			if (isset($form_obj[0]['smsnoti']) && $form_obj[0]['smsnoti'] != 1) {
-				return false;
-			}
-		}
-
-		// Always allow for login/register (if globally enabled)
-		if (in_array($form_type, ['login', 'register'])) {
-			return true;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Smart check for Email notification
-	 */
-	private function should_send_email_efb($form_obj, $settings, $form_type) {
-		// Check if SMTP is enabled
-		if (!isset($settings->smtp) || !$settings->smtp) {
-			return false;
-		}
-
-		// Check email configuration
-		if (!isset($settings->emailSupporter) || strlen(trim($settings->emailSupporter)) < 5) {
-			return false;
-		}
-
-		// For login forms, usually no email is sent
-		if ($form_type === 'login') {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Smart SMS sender - only processes when needed
-	 */
-	private function send_smart_sms_efb($form_type, $track_id, $form_id, $form_obj, $settings) {
-		try {
-			$phone_numbers = [explode(',', trim($settings->phnNo)), []];
-			$sms_type = $this->get_sms_type_by_form_type_efb($form_type);
-			$page_url = isset($_POST['current_url']) ? sanitize_url($_POST['current_url']) : home_url();
-
-			$result = $this->sms_ready_for_send_efb(
-				$form_id,
-				$phone_numbers,
-				$page_url,
-				$sms_type,
-				'wpsms',
-				$track_id
-			);
-
-			if ($result === true) {
-				return true;
-			} else {
-				error_log('[EFB SMS] Send failed: ' . print_r($result, true));
-				return false;
-			}
-
-		} catch (Exception $e) {
-			error_log('[EFB SMS] Exception: ' . $e->getMessage());
-			return false;
-		}
-	}
-
-	/**
-	 * Smart Email sender - uses correct parameters and logic
-	 */
-	private function send_smart_email_efb($form_type, $track_id, $form_id, $form_obj, $form_values, $public_instance, $settings) {
-		try {
-			// Must have public instance for email
-			if (!$public_instance) {
-				error_log('[EFB Email] Public instance required');
-				return false;
-			}
-
-			// Prepare email data
-			$email_user = [];
-			$public_instance->email_list_efb($email_user, 0, $settings->emailSupporter, true);
-
-			// Get email configuration
-			$email_config = $this->get_email_config_by_type_efb($form_type, ['formObj' => $form_obj]);
-			$state_of_email = [$email_config['state_of_email']];
-
-			// Generate email status if we have form data
-			$status_email = null;
-			if ($form_obj && $form_values && is_array($form_obj) && is_array($form_values)) {
-				$status_email = $public_instance->email_status_efb($form_obj, $form_values, $track_id);
-			}
-
-			// Use the correct send_email_Emsfb_ signature
-			$result = $public_instance->send_email_Emsfb_(
-				$form_obj,           // formObj
-				$form_values,        // valobj
-				$settings->emailSupporter, // email_fa
-				$email_user,         // email_user
-				$status_email,       // status_email
-				$state_of_email,     // state_of_email
-				$track_id            // track_id
-			);
-
-			return true;
-
-		} catch (Exception $e) {
-			error_log('[EFB Email] Exception: ' . $e->getMessage());
-			return false;
-		}
-	}
-
-	/**
-	 * Determine SMS type based on form type
-	 */
-	public function get_sms_type_by_form_type_efb($type) {
-		$sms_types = [
-			'form' => 'fform',
-			'register' => 'register',
-			'login' => 'login',
-			'subscribe' => 'subscribe',
-			'survey' => 'survey'
-		];
-
-		return $sms_types[$type] ?? 'fform';
-	}
-
-	/**
-	 * Determine Email configuration based on form type
-	 */
-	public function get_email_config_by_type_efb($type, $data) {
-		switch ($type) {
-			case 'register':
-				return ['state_of_email' => 'regf'];
-
-			case 'login':
-				return ['state_of_email' => 'loginf'];
-
-			case 'subscribe':
-				return ['state_of_email' => 'subf'];
-
-			case 'survey':
-				return ['state_of_email' => 'survey'];
-
-			case 'form':
-			default:
-				$email_status_data = isset($data['formObj'][0]['emailStatus']) ? $data['formObj'][0]['emailStatus'] : 'auto';
-				return ['state_of_email' => $email_status_data];
-		}
-	}
 
 	public static function set_setting_Emsfb ($newSettings, $email = '')
     {
@@ -3944,6 +3214,9 @@ public function addon_add_efb($value) {
 
         return true;
     }
+
+
+
 }
 
 

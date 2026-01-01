@@ -5086,10 +5086,29 @@ const efb_callback_state = function(mutationsList, observer) {
           fun_observer_state_efb(mutation);
   }
 };
-const targetNode_efb = document.getElementById('wpbody-content');
-const config_observer_efb = { childList: true, attributes: true, subtree: true };
-const observer_efb = new MutationObserver(efb_callback_state);
-observer_efb.observe(targetNode_efb,config_observer_efb);
+
+// Check if the target element exists before creating observer
+function initMutationObserver() {
+    const targetNode_efb = document.getElementById('wpbody-content');
+    const config_observer_efb = { childList: true, attributes: true, subtree: true };
+
+    if (targetNode_efb) {
+        const observer_efb = new MutationObserver(efb_callback_state);
+        observer_efb.observe(targetNode_efb, config_observer_efb);
+        console.log('EFB: MutationObserver initialized successfully');
+    } else {
+        console.warn('EFB: wpbody-content element not found, MutationObserver not initialized');
+        // Try again after a short delay
+        setTimeout(initMutationObserver, 500);
+    }
+}
+
+// Initialize observer when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMutationObserver);
+} else {
+    initMutationObserver();
+}
 
 
 
@@ -5268,12 +5287,26 @@ function addClickListenerToElementListEFB(element) {
         });
       });
 
-      observer_listefb.observe(document.body, {
-        childList: true,
-        subtree: true
-      });
-
-      observeExistingElementsListEFB();
+      // Initialize list observer safely
+      if (document.body) {
+          observer_listefb.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+          observeExistingElementsListEFB();
+      } else {
+          console.warn('EFB: document.body not available, list observer not initialized');
+          // Try again when DOM is ready
+          document.addEventListener('DOMContentLoaded', function() {
+              if (document.body) {
+                  observer_listefb.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                  });
+                  observeExistingElementsListEFB();
+              }
+          });
+      }
 // v3.8.6 end
 
 

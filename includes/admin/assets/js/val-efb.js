@@ -522,6 +522,7 @@ function show_setting_window_efb(idset) {
                         <select  class="efb elEdit form-select efb border-d rounded-4 mb-1" data-id="${idset}"  id="emailNotiContainsEl" >
                             <option value="cc" ${val == 'cc' ? `selected` : ''}>${efb_var.text.emlacl}</option>
                             <option value="msg" ${val == 'msg' ? `selected` : ''}>${efb_var.text.emlml}</option>
+                            <option value="just_msg" ${val == 'just_msg' ? `selected` : ''}>${efb_var.text.emlcc}</option>
                         </select>
 
     `};
@@ -572,6 +573,13 @@ function show_setting_window_efb(idset) {
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.esmsno} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="SMSNoti"> </i>
+    </div>`;
+
+    const telegramEnableEls = `<div class="efb mx-1 my-3 efb">
+    <button type="button" id="telegramEnableEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('telegramnoti') && Number(valj_efb[indx].telegramnoti) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label pt-1" for="telegramEnableEl">${efb_var.text.etelegramno || 'فعال‌سازی اطلاع‌رسانی تلگرام'} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="TelegramNoti"> </i>
     </div>`;
     const enableConEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="enableConEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('logic') && Number(valj_efb[indx].logic) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >
@@ -781,7 +789,56 @@ function show_setting_window_efb(idset) {
       <input type="text" data-id="smsAdminsPhoneNoEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb sms-efb" placeholder="+11234567890, +11234567891" id="smsAdminsPhoneNoEl" required value="${value}" >
       </div>
       `
+      return content;
+    }
 
+    // Telegram Content Elements
+    const telegramContentEls=(type)=>{
+      let value = '';
+
+      if(type=="WeRecivedUrM"){
+        if(valj_efb[0].hasOwnProperty('telegram_msg_recived_usr')){
+           value = text_nr_efb(valj_efb[0].telegram_msg_recived_usr,0) }else{ value = efb_var.text.WeRecivedUrM + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_response]`};
+      }else if(type == 'responsedMessage'){
+        if( valj_efb[0].hasOwnProperty('telegram_msg_responsed_noti')){value = text_nr_efb(valj_efb[0].telegram_msg_responsed_noti,0)}else{value =efb_var.text.newResponse + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_response]`};
+      }else if (type == "newMessageReceived"){
+      if(valj_efb[0].hasOwnProperty('telegram_msg_new_noti')) { value =text_nr_efb(valj_efb[0].telegram_msg_new_noti,0) }else{
+          value = efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n ${efb_var.text.url}: [link_response]`};
+      }
+
+      const disable = valj_efb[0].hasOwnProperty('telegramnoti') && Number(valj_efb[0].telegramnoti) == 1 ? '' : 'disabled d-none';
+      const content =`
+      <div class="efb telegrammsg ${disable}">
+      <textarea type="text" data-id="${type}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb  telegram-efb" placeholder="${value}" id="telegramContentEl" required >${value}</textarea>
+      </div>
+      `
+      return content;
+    }
+
+    // Telegram Bot Token and Chat IDs
+    const telegramBotTokenEls =()=>{
+      let bot_token = valj_efb[0].hasOwnProperty('telegram_bot_token') ? valj_efb[0].telegram_bot_token : '';
+      const disable = valj_efb[0].hasOwnProperty('telegramnoti') && Number(valj_efb[0].telegramnoti) == 1 ? '' : 'disabled d-none';
+      const content =`
+      <div class="efb telegrammsg ${disable}">
+      <label for="telegramBotTokenEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.telegram_bot_token || 'Bot Token'}</label>
+      <input type="text" data-id="telegramBotTokenEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb telegram-efb" placeholder="1234567890:ABCDEF..." id="telegramBotTokenEl" required value="${bot_token}" >
+      <small class="efb text-muted">از @BotFather دریافت کنید</small>
+      </div>
+      `
+      return content;
+    }
+
+    const telegramChatIdsEls =()=>{
+      let chat_ids = valj_efb[0].hasOwnProperty('telegram_admin_chat_ids') ? valj_efb[0].telegram_admin_chat_ids : '';
+      const disable = valj_efb[0].hasOwnProperty('telegramnoti') && Number(valj_efb[0].telegramnoti) == 1 ? '' : 'disabled d-none';
+      const content =`
+      <div class="efb telegrammsg ${disable}">
+      <label for="telegramChatIdsEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.telegram_chat_ids || 'Chat IDs ادمین‌ها'}</label>
+      <input type="text" data-id="telegramChatIdsEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb telegram-efb" placeholder="123456789, 987654321" id="telegramChatIdsEl" required value="${chat_ids}" >
+      <small class="efb text-muted">Chat ID های ادمین‌ها را با کاما جدا کنید</small>
+      </div>
+      `
       return content;
     }
 
@@ -932,6 +989,7 @@ function show_setting_window_efb(idset) {
                 ${Nadvanced}
                 ${placeholderEls}
                 ${el.dataset.tag == "mobile" ? smsEnableEls : ''}
+                ${el.dataset.tag == "mobile" ? telegramEnableEls : ''}
                 ${el.dataset.tag == "email" ? emailEls : ''}
                 ${el.dataset.tag == "mobile" ? ElcountriesListSelections(idset,indx) : ''}
                 <!--  not   advanced-->
@@ -1408,6 +1466,25 @@ function show_setting_window_efb(idset) {
             </div>
           </div>
         <!-- sms section end -->
+
+          <!-- telegram section -->
+          <div class="efb d-grid gap-2">
+            <button class="efb btn btn-outline-light mt-3" id="telegram_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTelegram" aria-expanded="false" aria-controls="collapseTelegram">
+              <i class="efb bi-telegram me-1" id="telegram_collapse_id"></i>${efb_var.text.telegram || 'Telegram'}
+            </button>
+          </div>
+          <div class="efb mb-3 mt-3 collapse" id="collapseTelegram">
+            <div class="efb mb-3 px-3 row">
+              ${telegramEnableEls}
+              ${telegramBotTokenEls()}
+              ${telegramChatIdsEls()}
+              ${`<span class="efb my-3 fs-7 telegrammsg ${valj_efb[0].hasOwnProperty('telegramnoti') && Number(valj_efb[0].telegramnoti) == 1 ? '' : 'd-none'}">${efb_var.text.messages || 'Messages'}</span>`}
+              ${telegramContentEls('newMessageReceived')}
+              ${valj_efb[0].type != "login" && valj_efb[0].type != "register" ? telegramContentEls('WeRecivedUrM') : ''}
+              ${valj_efb[0].type != "login" && valj_efb[0].type != "register" ? telegramContentEls('responsedMessage') : ''}
+            </div>
+          </div>
+        <!-- telegram section end -->
           <!-- condi section
           <div class="efb d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="login_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLogic" aria-expanded="false" aria-controls="collapseLogic">

@@ -1977,7 +1977,8 @@ a.efb.btn {	text-decoration: none;
 */}
 .efb.text-center {	text-align: center !important;
 }
-.efb.card {	position: relative;
+.efb.card {
+   position: relative;
    display: flex;
    flex-direction: column;
    min-width: 0;
@@ -1986,6 +1987,7 @@ a.efb.btn {	text-decoration: none;
    background-clip: border-box;
    border: 1px solid rgba(0, 0, 0, .125);
    border-radius: 0.25rem;
+   max-width: 100%;
 }
 .efb.my-5 {	margin-top: 3rem !important;
    margin-bottom: 3rem !important;

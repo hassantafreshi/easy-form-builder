@@ -243,6 +243,14 @@ class Admin {
 		$sms_msg_responsed_noti="";
 		$sms_msg_recived_user="";
 		$sms_admins_phoneno="";
+
+        // پردازش تنظیمات تلگرام
+        $telegram_msg_new_noti = "";
+        $telegram_msg_responsed_noti = "";
+        $telegram_msg_recived_user = "";
+        $telegram_bot_token = "";
+        $telegram_admin_chat_ids = "";
+
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
 			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
 			$sms_msg_responsed_noti = isset($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
@@ -253,6 +261,22 @@ class Admin {
 			unset($valp[0]['sms_msg_recived_user']);
 			if(isset($valp[0]['sms_admins_phone_no'])){unset($valp[0]['sms_admins_phone_no']);}
 		}
+
+        // پردازش تنظیمات تلگرام
+        if(isset($valp[0]['telegramnoti']) && intval($valp[0]['telegramnoti'])==1){
+            $telegram_msg_new_noti = isset($valp[0]['telegram_msg_new_noti']) ? $valp[0]['telegram_msg_new_noti'] : $lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+            $telegram_msg_responsed_noti = isset($valp[0]['telegram_msg_responsed_noti']) ? $valp[0]['telegram_msg_responsed_noti'] : $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+            $telegram_msg_recived_user = isset($valp[0]['telegram_msg_recived_usr']) ? $valp[0]['telegram_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+            $telegram_bot_token = isset($valp[0]['telegram_bot_token']) ? $valp[0]['telegram_bot_token'] : "";
+            $telegram_admin_chat_ids = isset($valp[0]['telegram_admin_chat_ids']) ? $valp[0]['telegram_admin_chat_ids'] : "";
+
+            // حذف پارامترهای تلگرام از آرایه اصلی
+            unset($valp[0]['telegram_msg_new_noti']);
+            unset($valp[0]['telegram_msg_responsed_noti']);
+            unset($valp[0]['telegram_msg_recived_user']);
+            unset($valp[0]['telegram_bot_token']);
+            unset($valp[0]['telegram_admin_chat_ids']);
+        }
         $valp = $efbFunction->sanitize_obj_msg_efb($valp);
         $form_type = $valp[0]['type'];
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
@@ -295,6 +319,30 @@ class Admin {
 				$sms_msg_new_noti,
 				$sms_msg_new_noti,
 				$sms_msg_responsed_noti);
+		}
+
+        // ذخیره تنظیمات تلگرام
+        if(isset($valp[0]['telegramnoti']) && intval($valp[0]['telegramnoti'])==1 ){
+            $telegram_exists = get_option('emsfb_addon_AdnTG', false);
+            $telegram_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
+
+            if(!$telegram_exists || !$telegram_file_exist) {
+                $m = str_replace('NN', '<b>Telegram Notification</b>', $lang['msg_adons']);
+                $response = ['success' => false, 'm' => $m];
+                wp_send_json_success($response, 200);
+            }
+
+            require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
+            $telegramsendefb = new telegramsendefb();
+            $telegramsendefb->add_telegram_contact_efb(
+                $id,
+                $telegram_admin_chat_ids,
+                $telegram_bot_token,
+                $telegram_msg_recived_user,
+                $telegram_msg_new_noti,
+                $telegram_msg_new_noti,
+                $telegram_msg_responsed_noti
+            );
 		}
         $m = $lang['updated'];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
@@ -608,6 +656,21 @@ class Admin {
                 $smsefb = new smssendefb();
                 $sms = $smsefb->get_sms_contact_efb($id);
                 $value = str_replace('\"smsnoti\":\"1\"', '\"smsnoti\":\"1\",\"sms_msg_new_noti\":\"'.$sms->new_message_noti_user.'\",\"sms_msg_responsed_noti\":\"'.$sms->new_response_noti.'\",\"sms_msg_recived_usr\":\"'.$sms->recived_message_noti_user.'\",\"sms_admins_phone_no\":\"'.$sms->admin_numbers.'\"',$value);
+            }
+        }
+
+        // بررسی وجود تنظیمات تلگرام
+        $telegramnoti = strpos($value,'\"telegramnoti\":\"1\"') !==false ? 1 : 0;
+        if($telegramnoti){
+            $telegram_exists = get_option('emsfb_addon_AdnTG', false);
+            $telegram_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
+            if($telegram_exists !== false && $telegram_file_exist) {
+                require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
+                $telegramsendefb = new telegramsendefb();
+                $telegram = $telegramsendefb->get_telegram_contact_efb($id);
+                if($telegram) {
+                    $value = str_replace('\"telegramnoti\":\"1\"', '\"telegramnoti\":\"1\",\"telegram_msg_new_noti\":\"'.$telegram->new_message_noti_user.'\",\"telegram_msg_responsed_noti\":\"'.$telegram->new_response_noti.'\",\"telegram_msg_recived_usr\":\"'.$telegram->received_message_noti_user.'\",\"telegram_bot_token\":\"'.$telegram->bot_token.'\",\"telegram_admin_chat_ids\":\"'.$telegram->admin_chat_ids.'\"',$value);
+                }
             }
         }
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id];
@@ -1959,7 +2022,6 @@ function admin_notices_efb () {
 
         return $result[0];
     }
-
 
 
 }
