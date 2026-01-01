@@ -55,6 +55,9 @@ class Emsfb {
         // Filter for getting server host with cache
         add_filter('emsfb_get_server_host', [$this, 'get_cached_server_host_efb']);
 
+        // Hook for file access check after activation
+        add_action('emsfb_file_access_check_after_activation', 'emsfb_check_file_access_efb');
+
                  // Hook to run after plugin update
         add_action('upgrader_process_complete', [$this, 'plugin_update_completed_efb'], 10, 2);
 
@@ -72,8 +75,12 @@ class Emsfb {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
-            $sms_exists =get_option('emsfb_addon_AdnSS',false);
-            if ($sms_exists != false && $sms_exists != 0) {
+            $ac = $this->get_setting_Emsfb('decoded');
+            error_log(json_encode($ac));
+           // $sms_exists =get_option('emsfb_addon_AdnSS',false);
+           error_log($ac->AdnSS);
+            $sms_exists = isset($ac->AdnSS) ? (int) $ac->AdnSS : 0;
+            if ($sms_exists === 1) {
                 $sms_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/class-Emsfb-sms.php';
                 if (file_exists($sms_file_path)) {
                     require_once $sms_file_path;
@@ -81,8 +88,9 @@ class Emsfb {
                     error_log('SMS file does not exist: ' . $sms_file_path);
                 }
             }
-            $auto_fill_exists =get_option('emsfb_addon_AdnAtF',false);
-            if ($auto_fill_exists != false && $auto_fill_exists != 0) {
+            $auto_fill_exists = isset($ac->AdnAtF) ? (int) $ac->AdnAtF : 0;
+           // $auto_fill_exists =get_option('emsfb_addon_AdnAtF',false);
+            if ($auto_fill_exists === 1) {
                 $auto_fill_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/autofill/class-Emsfb-autofill.php';
                 if (file_exists($auto_fill_file_path)) {
                     require_once $auto_fill_file_path;
@@ -90,7 +98,19 @@ class Emsfb {
                     error_log('Auto Fill file does not exist: ' . $auto_fill_file_path);
                 }
             }
-
+            $telegram_exists = isset($ac->AdnTlg) ? (int) $ac->AdnTlg : 0;
+            error_log('telegram_exists value:' . $telegram_exists);
+              if ($telegram_exists === 1) {
+                //vendor\telegram\class-Emsfb-telegram.php
+                  $telegram_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/class-Emsfb-telegram.php';
+                  error_log('Checking Telegram file path: ' . $telegram_file_path);
+                  error_log('File exists: ' . (file_exists($telegram_file_path) ? 'Yes' : 'No'));
+                  if (file_exists($telegram_file_path)) {
+                      require_once $telegram_file_path;
+                  } else {
+                      error_log('Telegram file does not exist: ' . $telegram_file_path);
+                  }
+              }
             // Check if EMSFB_PLUGIN_DIRECTORY . '/vendor/autofill/class-Emsfb-autofill.php' exists
 
 
@@ -457,8 +477,9 @@ public static function email_send_efb() {
             'AdnSS' => 'SMS',
             'AdnAtF' => 'AutoFill',
             'AdnTlg' => 'Telegram',
-            'AdnPPl' => 'PayPal',
-            'AdnStripe' => 'Stripe',
+            'AdnPAP' => 'PayPal',
+            'AdnSPF' => 'Stripe',
+
         ];
 
         foreach ($addonKeys as $key => $name) {
@@ -750,13 +771,17 @@ public static function email_send_efb() {
     public function check_version_and_upgrade_efb() {
         $installed_version = get_option('emsfb_version', '0.0.0');
         $current_version = EMSFB_PLUGIN_VERSION;
-
+	    if (!is_admin()) {
+			return;
+		}
         // If version has changed, run upgrade tasks
         if (version_compare($installed_version, $current_version, '<')) {
             $this->run_upgrade_tasks_efb($installed_version, $current_version);
             update_option('emsfb_version', $current_version);
         }
+
     }
+
 
     /**
      * Run upgrade tasks after plugin update

@@ -2219,6 +2219,18 @@ class efbFunction {
 public function addon_add_efb($value) {
     if ($value != "AdnOF") {
 
+        // Check if addon installation is ready using global function
+        if (!emsfb_is_addon_install_ready_efb()) {
+            $status = emsfb_get_file_access_status_efb();
+            if ($status) {
+                $message = $status['error_message'] ?? $status['current_message'];
+                return array('status' => false, 'message' => $message);
+            } else {
+                $message = esc_html__('File access status not checked yet. Please wait.', 'easy-form-builder');
+                return array('status' => false, 'message' => $message);
+            }
+        }
+
         // If there's a download link
         $_server_name = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : 'localhost';
         $server_name = str_replace("www.", "", $_server_name);
@@ -2553,9 +2565,22 @@ public function addon_add_efb($value) {
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
         $date_now = date('Y-m-d H:i:s');
-        $query =$wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %d", $sid, $date_now,$fid);
+
+        // Add detailed logging
+        error_log('[EFB Nonce] SID validation details:');
+        error_log('[EFB Nonce] - SID: ' . $sid);
+        error_log('[EFB Nonce] - FID: ' . $fid);
+        error_log('[EFB Nonce] - Table: ' . $table_name);
+        error_log('[EFB Nonce] - Date limit: ' . $date_limit);
+
+        $query =$wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %d", $sid, $date_limit,$fid);
+
+        error_log('[EFB Nonce] - Query: ' . $query);
 
         $result =$wpdb->get_var($query);
+
+        error_log('[EFB Nonce] - Query result: ' . $result);
+        error_log('[EFB Nonce] - wpdb error: ' . $wpdb->last_error);
 
         return $result === '1';
     }

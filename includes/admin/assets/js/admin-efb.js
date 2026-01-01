@@ -22,7 +22,18 @@ let state_page_efb='';
 if (sessionStorage.getItem("valueJson_ws_p")) sessionStorage.removeItem('valueJson_ws_p');
 if(sessionStorage.getItem("formId_efb")) sessionStorage.removeItem('formId_efb');
 
-
+//chcek if deepFreeze function is not defined then define it
+if (typeof deepFreeze_efb !== 'function') {
+  function deepFreeze_efb(obj) {
+    if (typeof obj !== "object" || obj === null) return obj;
+    Object.keys(obj).forEach((key) => {
+        if (typeof obj[key] === "object" && obj[key] !== null) {
+            deepFreeze_efb(obj[key]);
+        }
+    });
+    return Object.freeze(obj);
+  }
+}
 
 jQuery(function () {
   efb_var= deepFreeze_efb(efb_var);
@@ -79,8 +90,8 @@ jQuery(function () {
 
 
 
-
-document.getElementById('wpfooter').remove();
+const wpfooter = document.getElementById('wpfooter');
+if(wpfooter)wpfooter.remove();
 
 
 function saveLocalStorage_emsFormBuilder() {
