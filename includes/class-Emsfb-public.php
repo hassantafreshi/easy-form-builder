@@ -87,12 +87,6 @@ class _Public {
 				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
-			// Refresh nonce endpoint using existing SID system
-			register_rest_route('Emsfb/v1','forms/nonce/refresh', [
-				'methods' => 'POST',
-				'callback'=>  [$this,'refresh_nonce_efb'],
-				'permission_callback' => [$this, 'check_sid_permission_efb']
-			]);
 
 			// rest api for set password
 			register_rest_route('Emsfb/v1','forms/recovery/efb_set_password', [
@@ -185,170 +179,47 @@ public function check_nonce_permission_efb($request) {
 	$verify = wp_verify_nonce( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ), 'wp_rest');
 
 	if (!$verify) {
+		// Fallback: Try SID validation if nonce failed
+		$data = $request->get_json_params();
+		$sid = sanitize_text_field($data['sid'] ?? '');
+		$fid = intval($data['id'] ?? 0);
+
+		if($data['fid']){
+			$fid = intval($data['fid']);
+		}
+
+		error_log('[EFB Nonce] Nonce verification failed, attempting SID fallback - SID: ' . substr($sid, 0, 8) . '... | FID: ' . $fid);
+
+		// Only try SID fallback if we have both sid and fid
+		if (!empty($sid) && !empty($fid)) {
+			if (!$this->efbFunction) {
+				$this->efbFunction = get_efbFunction();
+			}
+
+			// Validate SID
+			$sid_valid = $this->efbFunction->efb_code_validate_select($sid, $fid);
+
+			if ($sid_valid) {
+
+				if ($recent_check === '1') {
+					error_log('[EFB Nonce] ✅ SID fallback successful for SID: ' . substr($sid, 0, 8) . '...');
+					return true; // Allow access via SID validation
+				} else {
+					error_log('[EFB Nonce] ❌ SID fallback failed - session too old or inactive');
+				}
+			} else {
+				error_log('[EFB Nonce] ❌ SID fallback failed - invalid SID');
+			}
+		} else {
+			error_log('[EFB Nonce] ❌ SID fallback skipped - missing sid or fid');
+		}
+
 		return new \WP_Error('rest_forbidden', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
 	}
 
 	return true;
 }
 
-	/**
-	 * Permission callback using SID validation for enhanced security
-	 * Used for nonce refresh endpoint to prevent abuse
-	 */
-	public function check_sid_permission_efb($request) {
-
-		// Same CORS handling as nonce permission
-		$allowed_origins = apply_filters('efb_allowed_cors_origins', array(
-			home_url(),
-			site_url()
-		));
-
-		$origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ) : '';
-
-		if ($origin && in_array($origin, $allowed_origins)) {
-			header('Access-Control-Allow-Origin: ' . $origin);
-		} else {
-			$parsed_origin = wp_parse_url($origin);
-			$parsed_home = wp_parse_url(home_url());
-
-			if (isset($parsed_origin['host']) && isset($parsed_home['host']) &&
-			    $parsed_origin['host'] === $parsed_home['host']) {
-				header('Access-Control-Allow-Origin: ' . $origin);
-			}
-		}
-
-		header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-		header('Access-Control-Allow-Credentials: true');
-		header('Access-Control-Allow-Headers: Content-Type, X-WP-Nonce, Authorization, X-SID-Token');
-		header('Access-Control-Max-Age: 86400');
-
-		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-			status_header(200);
-			exit();
-		}
-
-		// Get request data
-		$data = $request->get_json_params();
-		$sid = sanitize_text_field($data['sid'] ?? '');
-		$fid = intval($data['fid'] ?? 0);
-
-		error_log('[EFB Nonce] === SID PERMISSION CHECK START ===');
-		error_log('[EFB Nonce] Request data - SID: ' . substr($sid, 0, 8) . '... | FID: ' . $fid);
-
-		// Require SID and Form ID
-		if (empty($sid) || empty($fid)) {
-			error_log('[EFB Nonce] ❌ Missing required data - SID: ' . (empty($sid) ? 'empty' : 'ok') . ' | FID: ' . (empty($fid) ? 'empty' : 'ok'));
-			return new \WP_Error('invalid_request', 'Missing SID or Form ID', array('status' => 403));
-		}
-
-		// Rate limiting: Check if this IP has made too many requests
-		$ip = $this->get_ip_address();
-		$rate_limit_key = 'efb_nonce_refresh_' . md5($ip);
-		$attempts = get_transient($rate_limit_key);
-
-		error_log('[EFB Nonce] Rate limit check - IP: ' . $ip . ' | Attempts: ' . ($attempts ?: 0));
-
-		if ($attempts !== false && $attempts >= 5) {
-			error_log('[EFB Nonce] ❌ Rate limit exceeded for IP: ' . $ip);
-			return new \WP_Error('rate_limit_exceeded', 'Too many requests', array('status' => 429));
-		}
-
-		// Validate SID using existing function
-		if (!$this->efbFunction) {
-			$this->efbFunction = get_efbFunction();
-		}
-
-		error_log('[EFB Nonce] Validating SID with efb_code_validate_select...');
-		$sid_valid = $this->efbFunction->efb_code_validate_select($sid, $fid);
-
-		if (!$sid_valid) {
-			error_log('[EFB Nonce] ❌ SID validation failed for SID: ' . substr($sid, 0, 8) . '... | FID: ' . $fid);
-			// Increment rate limit counter
-			$attempts = $attempts ? $attempts + 1 : 1;
-			set_transient($rate_limit_key, $attempts, 300); // 5 minutes
-
-			return new \WP_Error('invalid_session', 'Invalid session', array('status' => 403));
-		}
-
-		error_log('[EFB Nonce] ✅ SID validation passed');
-
-		// Additional security: Check if SID is recent enough (within last 72 hours for refresh)
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'emsfb_stts_';
-		$recent_check = $wpdb->get_var($wpdb->prepare(
-			"SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND date > %s AND active = 1",
-			$sid,
-			date('Y-m-d H:i:s', strtotime('-72 hours'))
-		));
-
-		error_log('[EFB Nonce] Recent SID check result: ' . $recent_check);
-
-		if ($recent_check !== '1') {
-			error_log('[EFB Nonce] ❌ SID too old or inactive');
-			return new \WP_Error('session_expired', 'Session too old for refresh', array('status' => 403));
-		}
-
-		error_log('[EFB Nonce] ✅ SID permission check passed');
-		return true;
-	}
-
-
-	/**
-	 * Refresh nonce endpoint - provides fresh nonce for long-running forms
-	 * Uses SID validation for enhanced security
-	 */
-	public function refresh_nonce_efb($request) {
-		try {
-			error_log('[EFB Nonce] === NONCE REFRESH START ===');
-
-			$data = $request->get_json_params();
-			$sid = sanitize_text_field($data['sid'] ?? '');
-			$fid = intval($data['fid'] ?? 0);
-
-			error_log('[EFB Nonce] Refresh request - SID: ' . substr($sid, 0, 8) . '... | FID: ' . $fid);
-
-			// Check SID permission first
-			$permission_check = $this->check_sid_permission_efb($request);
-			if (is_wp_error($permission_check)) {
-				error_log('[EFB Nonce] ❌ Permission check failed');
-				return $permission_check; // Return the error directly
-			}
-
-			// Update SID status to mark this refresh
-			if (!$this->efbFunction) {
-				$this->efbFunction = get_efbFunction();
-			}
-
-			error_log('[EFB Nonce] Updating SID status...');
-			// Update SID with 'refresh' status
-			$update_result = $this->efbFunction->efb_code_validate_update($sid, 'nfsh', 'nonce_refresh');
-			error_log('[EFB Nonce] SID update result: ' . ($update_result ? 'success' : 'failed'));
-
-			// Generate new nonce
-			error_log('[EFB Nonce] Generating new nonce...');
-			$new_nonce = wp_create_nonce('wp_rest');
-			error_log('[EFB Nonce] ✅ New nonce generated: ' . substr($new_nonce, 0, 10) . '...');
-
-			// Log successful refresh
-			do_action('efb_nonce_refreshed', $sid, $fid, $this->get_ip_address());
-
-			$response = array(
-				'success' => true,
-				'nonce' => $new_nonce,
-				'expires' => time() + (24 * HOUR_IN_SECONDS), // 24 hours from now
-				'sid' => $sid // Echo back for client verification
-			);
-
-			error_log('[EFB Nonce] ✅ Refresh successful - Response prepared');
-			error_log('[EFB Nonce] === NONCE REFRESH END ===');
-
-			return new WP_REST_Response($response, 200);
-
-		} catch (Exception $e) {
-			error_log('[EFB Nonce] ❌ Exception in refresh_nonce_efb: ' . $e->getMessage());
-			return new \WP_Error('refresh_failed', 'Nonce refresh failed', array('status' => 500));
-		}
-	}
 
 	/**
 	 * Initialize Elementor compatibility only if Elementor is detected
@@ -1346,7 +1217,7 @@ public function check_nonce_permission_efb($request) {
 
 		$location = '';
 		// efb_code_validate_create( $fid, $type, $status, $tc)
-		// $sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
+		$sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
 		$sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : 'null';
 		/*
 		$usr =wp_get_current_user();

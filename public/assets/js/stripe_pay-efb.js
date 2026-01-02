@@ -8,6 +8,7 @@
       alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
       return;
     }
+
     const url = efb_var.rest_url+'Emsfb/v1/forms/payment/stripe/card/add'; // Replace with your REST API endpoint URL
     const headers = new Headers({
       'Content-Type': 'application/json',
@@ -160,7 +161,7 @@
                         action: "pay_stripe_sub_efb",
                         value: JSON.stringify(sendBack_emsFormBuilder_pub),
                         name: formNameEfb,
-                        id: efb_var.id,
+                        id: form_id,
                         nonce: efb_var.nonce,
                         token: transStat.token.id,
                         sid:efb_var.sid
@@ -173,7 +174,7 @@
                     action: "pay_stripe_sub_efb",
                     value: JSON.stringify(sendBack_emsFormBuilder_pub),
                     name: formNameEfb,
-                    id: efb_var.id,
+                    id: form_id,
                     nonce: efb_var.nonce,
                     sid:efb_var.sid
                   };

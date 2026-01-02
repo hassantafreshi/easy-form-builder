@@ -514,7 +514,7 @@ function alarm_emsFormBuilder(val) {
     if (checkFile == 0) {
       if (files_emsFormBuilder.length > 0) {
         for (const file of files_emsFormBuilder) {
-          if (get_row_sendback_by_id_efb_v(file.id_,form_id) == -1) {
+          if (get_row_sendback_by_id_efb_v4(file.id_,form_id) == -1) {
              sendBack_emsFormBuilder_pub.push(file);
              localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub)); }
         }
@@ -632,7 +632,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
           action: "get_form_Emsfb",
           value: JSON.stringify(sendBack_emsFormBuilder_pub),
           name: formNameEfb,
-          id: efb_var.id,
+          id: form_id,
           payid: efb_var.payId,
           valid: recaptcha_emsFormBuilder,
           type: form_type_emsFormBuilder,
@@ -873,7 +873,8 @@ function fun_vaid_tracker_check_emsFormBuilder() {
           name: formNameEfb,
           valid: recaptcha_emsFormBuilder,
           nonce: ajax_object_efm.nonce,
-          sid:efb_var.sid
+          sid:efb_var.sid,
+          id: 0,
         };
         post_api_tracker_check_efb(data,innrBtn);
 
@@ -975,7 +976,8 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     user_type : is_user_track,
     page_id: ajax_object_efm.page_id,
     sc:ajax_object_efm.sc,
-    track: track
+    track: track,
+    id:0
   };
   // console.log(data);
   post_api_r_message_efb(data,message);
@@ -2691,6 +2693,7 @@ function setOffsetToFinallsetpEFB(){
   });
 }
   */
+
 
 
 
