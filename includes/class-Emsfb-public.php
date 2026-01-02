@@ -29,7 +29,7 @@ class _Public {
 		$this->db = $wpdb;
 		$this->id =-1;
 		$this->pro_efb =false;
-		add_action('rest_api_init',  @function(){
+		add_action('rest_api_init',  function(){
 			$this->efb_uid  = get_current_user_id();
 			$this->efbFunction = get_efbFunction();
 			$settings = get_setting_Emsfb('raw');
@@ -1315,8 +1315,6 @@ public function check_nonce_permission_efb($request) {
 		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-style-css');
 
-		$ar_core = array() ;
-		wp_localize_script( 'efb-main-js', 'efb_var',$ar_core);
 		if(is_rtl()){
 			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_style('Emsfb-css-rtl');
@@ -1330,6 +1328,13 @@ public function check_nonce_permission_efb($request) {
 		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('Emsfb-core_js');
 	    wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
+
+	    // Localize script after scripts are registered and enqueued
+		$ar_core = array(
+			'ajax_url' => admin_url('admin-ajax.php'),
+			'nonce' => wp_create_nonce('wp_rest'),
+		);
+		wp_localize_script( 'Emsfb-core_js', 'efb_var', $ar_core);
 	  }
 
 	/**
@@ -1602,6 +1607,12 @@ public function check_nonce_permission_efb($request) {
 		$this->id = sanitize_text_field($data_POST['id']);
 		$page_id = sanitize_text_field($data_POST['page_id']);
 		$data_POST['url'] = $url = sanitize_url($data_POST['url']);
+
+		// Ensure efbFunction is available
+		if(empty($this->efbFunction)) {
+			$this->efbFunction = $efbFunction;
+		}
+
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $this->id);
 		$this->lanText = $this->efbFunction->text_efb($text_);
 		$setting;
@@ -1642,6 +1653,18 @@ public function check_nonce_permission_efb($request) {
         }
 		$this->id = intval($this->id);
 		$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
+
+		// Check if form exists
+		if (empty($value_form_data)) {
+			error_log('[EFB Error] Form not found in database - ID: ' . $this->id);
+			$msg = 'Form not found.';
+			if (isset($this->lanText) && isset($this->lanText['snotfound']) && isset($this->lanText['fform'])) {
+				$msg = sprintf($this->lanText['snotfound'], ucfirst($this->lanText['fform']));
+			}
+			$response = ['success' => false, 'm' => $msg];
+			wp_send_json_success($response, 200);
+		}
+
 		$fs = isset($value_form_data) ? str_replace('\\', '', $value_form_data->form_structer) : '';
 		$not_captcha = $formObj = $trackingCode_state  = $check = "";
 		$send_email_to_user_state=false;
@@ -1652,8 +1675,11 @@ public function check_nonce_permission_efb($request) {
 		if ( empty($valo)) {
 
 			//$m =$this->['response'] to upper case first letter
+			$msg = 'Form data not found.';
+			if (isset($this->lanText) && isset($this->lanText['snotfound']) && isset($this->lanText['fform'])) {
+				$msg = sprintf($this->lanText['snotfound'], ucfirst($this->lanText['fform']));
+			}
 
-			$msg = sprintf($this->lanText['snotfound'], ucfirst($this->lanText['fform']));
 			$response = ['success' => false, 'm' =>$msg];
 			wp_send_json_success($response, 200);
 		}else{

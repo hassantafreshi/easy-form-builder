@@ -8,6 +8,12 @@ let formNameEfb = ""
 let files_emsFormBuilder = [];
 let addons_emsFormBuilder =""
 let recaptcha_emsFormBuilder = [];
+
+// Debug: Check if efb_var is available
+console.log('[EFB DEBUG] efb_var available?', typeof efb_var !== 'undefined');
+if (typeof efb_var !== 'undefined') {
+    console.log('[EFB DEBUG] efb_var content:', efb_var);
+}
 let poster_emsFormBuilder = '';
 const fileSizeLimite_emsFormBuilder = 8300000;
 let select_options_emsFormBuilder = [];
