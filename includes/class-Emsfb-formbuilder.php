@@ -3471,7 +3471,7 @@
 		public function field_mobile_style_efb(){
 			return '
 					.iti--inline-dropdown .iti__dropdown-content{
-					z-index: 10000;
+					z-index: 10000!important;
 					}
 
 					.mobile .btn-select-form.efb {	font-size: 10px;
