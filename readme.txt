@@ -1,4 +1,4 @@
-=== WhiteStudio Easy Form Builder — Drag & Drop Form Builder ===
+=== Easy Form Builder by WhiteStudio — Drag & Drop Form Builder ===
 Contributors: hassantafreshi, mostafas1990, mrlast, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, survey form, payment form
@@ -12,18 +12,18 @@ Create flexible contact forms, survey forms, payment forms, and user authenticat
 
 == Description ==
 
-WhiteStudio Easy Form Builder is a comprehensive WordPress form plugin designed to help website owners create, manage, and maintain a wide variety of forms using a visual drag-and-drop form builder interface. The plugin is suitable for users who want to build professional forms without writing code, while still keeping full control over form data, submissions, and communication workflows.
+ Easy Form Builder is a comprehensive WordPress form plugin designed to help website owners create, manage, and maintain a wide variety of forms using a visual drag-and-drop form builder interface. The plugin is suitable for users who want to build professional forms without writing code, while still keeping full control over form data, submissions, and communication workflows.
 
 This form builder plugin can be used to create contact forms, support request forms, survey and feedback forms, payment forms using Stripe, subscription forms and custom login or registration forms for WordPress users. All form data is stored directly on your WordPress website, ensuring transparency, data ownership, and predictable behavior.
 
 [youtube https://www.youtube.com/watch?v=m92rq2X1Rv4]
 
-WhiteStudio Easy Form Builder focuses on clarity, extensibility, and usability. The plugin does not rely on external form services by default and does not send form submissions to third-party servers. This makes it suitable for websites that require clear data handling policies and on-site form management.
+ Easy Form Builder focuses on clarity, extensibility, and usability. The plugin does not rely on external form services by default and does not send form submissions to third-party servers. This makes it suitable for websites that require clear data handling policies and on-site form management.
 
 
 == What Can This Form Plugin Do? ==
 
-With WhiteStudio Easy Form Builder, you can use a single form plugin to build and manage multiple types of forms and form-based workflows:
+With  Easy Form Builder, you can use a single form plugin to build and manage multiple types of forms and form-based workflows:
 
 - Contact forms for general inquiries
 - Support and feedback forms with message tracking
@@ -64,7 +64,7 @@ Multi-step forms allow long forms to be divided into multiple sections. This imp
 
 == Form Entry & Message Management Dashboard ==
 
-WhiteStudio Easy Form Builder includes a dedicated **Form Entry & Message Management Dashboard** that allows administrators to manage all form submissions directly from the WordPress admin area. This dashboard acts as a centralized system for reviewing messages, tracking requests, and communicating with users without relying solely on email.
+ Easy Form Builder includes a dedicated **Form Entry & Message Management Dashboard** that allows administrators to manage all form submissions directly from the WordPress admin area. This dashboard acts as a centralized system for reviewing messages, tracking requests, and communicating with users without relying solely on email.
 
 Through this dashboard, administrators can read submitted messages, respond directly from the WordPress backend, and attach files to replies when needed. This approach helps keep communication organized and ensures that conversations related to form submissions remain accessible in one place.
 
@@ -89,7 +89,7 @@ Survey forms can be used for customer feedback, research, evaluations, and inter
 
 == Payment Forms with Stripe ==
 
-WhiteStudio Easy Form Builder supports Stripe payment fields, allowing you to collect online payments securely through your WordPress forms.
+ Easy Form Builder supports Stripe payment fields, allowing you to collect online payments securely through your WordPress forms.
 
 You can use Stripe payment fields to create:
 
@@ -111,7 +111,7 @@ Login and registration forms integrate with WordPress user management and allow 
 
 == Advanced Form Fields ==
 
-WhiteStudio Easy Form Builder provides a wide collection of advanced form fields, including:
+ Easy Form Builder provides a wide collection of advanced form fields, including:
 
 - Drag and drop file upload fields
 - Signature (e-signature) fields
@@ -129,7 +129,7 @@ These fields allow you to build complex, region-aware, and structured forms with
 
 == Integrations and Add-ons ==
 
-WhiteStudio Easy Form Builder supports optional integrations and add-ons that extend the functionality of the form plugin:
+ Easy Form Builder supports optional integrations and add-ons that extend the functionality of the form plugin:
 
 - SMS notification add-on for sending text messages on form submission
 
@@ -144,7 +144,7 @@ WhiteStudio Easy Form Builder supports optional integrations and add-ons that ex
 
 == Available Versions ==
 
-WhiteStudio Easy Form Builder is available in multiple versions to support different usage needs. Each version is designed to provide a clear and predictable set of features.
+ Easy Form Builder is available in multiple versions to support different usage needs. Each version is designed to provide a clear and predictable set of features.
 
 = Free Version =
 The Free version provides essential form-building tools. It is suitable for users who need reliable form creation with email notifications, confirmation codes, entry management, file uploads, and basic surveys fields.
@@ -154,7 +154,7 @@ This version is suitable for personal websites, blogs, and small business sites.
 = Free Plus Version =
 The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder, while excluding external add-ons.
 
-This version is suitable for users who need advanced form layouts and surveys without add-on-based extensions. A small “Powered by WhiteStudio Easy Form Builder” credit is displayed on the form output.
+This version is suitable for users who need advanced form layouts and surveys without add-on-based extensions. A small “Powered by  Easy Form Builder” credit is displayed on the form output.
 
 = Pro Version =
 The Pro version includes all Free Plus features and adds support for official add-ons and integrations.
@@ -164,10 +164,10 @@ This version is suitable for professional websites, service platforms, and proje
 
 == Frequently Asked Questions ==
 
-= What is WhiteStudio Easy Form Builder used for? =
+= What is  Easy Form Builder used for? =
 It is a WordPress form plugin used to create contact forms, survey forms, payment forms,subscription forms and login or registration forms using a drag-and-drop form builder.
 
-= Is WhiteStudio Easy Form Builder WCAG(ADA) compliant? =
+= Is  Easy Form Builder WCAG(ADA) compliant? =
 Form Builder has tried to add necessary standards to the forms, making them accessible to individuals with disabilities during form display.
 
  = Is my form data sent to external services? =
@@ -201,7 +201,7 @@ Yes. Stripe payment fields are supported.
 Yes. The form builder includes survey and poll fields such as rating stars and NPS.
 
 = Do the country, state, and city fields load data from an external source? =
-Yes. The country, state/province, and city lists used in WhiteStudio Easy Form Builder are automatically loaded from an external CDN-hosted JSON source maintained on GitHub.
+Yes. The country, state/province, and city lists used in  Easy Form Builder are automatically loaded from an external CDN-hosted JSON source maintained on GitHub.
 
 These lists are fetched from the following public repository:
 https://github.com/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world
@@ -213,7 +213,7 @@ If you notice any missing entries, incorrect names, or data issues related to co
 No personal or form submission data is sent to this external source. The CDN is used only to retrieve static geographic lists required for form fields.
 
 = Where can I find documentation and support? =
-For full setup instructions, and guides visit [WhiteStudio Easy Form Builder Documentation](https://whitestudio.team/documents)
+For full setup instructions, and guides visit [ Easy Form Builder Documentation](https://whitestudio.team/documents)
 
 
 == Installation ==
