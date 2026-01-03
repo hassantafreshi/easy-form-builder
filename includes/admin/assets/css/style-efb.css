@@ -95,11 +95,11 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 
 @media (hover: none) and (pointer: coarse) {
     .btn-edit, .BtnSideEfb {
-        min-height: 44px !important;
-        min-width: 44px !important;
+        min-height: 20px !important;
+        min-width: 20px !important;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
-        position: relative;
+        position: relative!important;
     }
 
     .btn-edit-holder {
@@ -169,6 +169,7 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
     .btn-edit-holder {
         gap: 8px !important;
         padding: 5px;
+        margin-left: 20%!important;
     }
 
     .btn-edit, .BtnSideEfb {
@@ -179,6 +180,10 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 
     .btn-edit + .btn-edit {
         margin-left: 5px;
+    }
+
+    .btn-edit::before, .BtnSideEfb::before {
+       height: 0;
     }
 }
 
