@@ -1855,56 +1855,127 @@ function previewFormEfb(state) {
           efbCreateMap(v.id_ ,v,false)
           break;
         case "esign":
-          c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
+          const canvas = document.getElementById(`${v.id_}_`);
+          c2d_contex_efb = canvas.getContext("2d");
           c2d_contex_efb.lineWidth = 5;
           c2d_contex_efb.strokeStyle = "#000000";
-          if(disabled)return;
-          document.getElementById(`${v.id_}_`).addEventListener("mousedown", (e) => {
+          c2d_contex_efb.lineCap = "round";
+          c2d_contex_efb.lineJoin = "round";
+
+          if(disabled) return;
+
+          // تابع محاسبه دقیق مختصات
+          function getCanvasCoordinates(canvas, event) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            let clientX, clientY;
+            if (event.touches && event.touches[0]) {
+              clientX = event.touches[0].clientX;
+              clientY = event.touches[0].clientY;
+            } else {
+              clientX = event.clientX;
+              clientY = event.clientY;
+            }
+
+            return {
+              x: (clientX - rect.left) * scaleX,
+              y: (clientY - rect.top) * scaleY
+            };
+          }
+
+          canvas.addEventListener("mousedown", (e) => {
             draw_mouse_efb = true;
-            c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
             canvas_id_efb = v.id_;
-            lastMousePostion_efb = getmousePostion_efb(document.getElementById(`${v.id_}_`), e);
+            lastMousePostion_efb = getCanvasCoordinates(canvas, e);
+
+            // شروع مسیر جدید دقیقاً از نقطه کلیک
+            c2d_contex_efb.beginPath();
+            c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
+
+            // رسم یک نقطه کوچک در نقطه شروع
+            c2d_contex_efb.fillStyle = "#000000";
+            c2d_contex_efb.beginPath();
+            c2d_contex_efb.arc(lastMousePostion_efb.x, lastMousePostion_efb.y, 2, 0, 2 * Math.PI);
+            c2d_contex_efb.fill();
           }, false);
-          document.getElementById(`${v.id_}_`).addEventListener("mouseup", (e) => {
+
+          canvas.addEventListener("mouseup", (e) => {
+            if (!draw_mouse_efb) return;
             draw_mouse_efb = false;
+
+            // ذخیره تصویر
+            const data = canvas.toDataURL();
+            document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
+
             const el = document.getElementById(`${v.id_}-sig-data`);
             const value = el.value;
             document.getElementById(`${v.id_}_-message`).classList.remove('show');
             const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: value, session: sessionPub_emsFormBuilder }];
             fun_sendBack_emsFormBuilder(o[0]);
           }, false);
-          document.getElementById(`${v.id_}_`).addEventListener("mousemove", (e) => { mousePostion_efb = getmousePostion_efb(document.getElementById(`${v.id_}_`), e); }, false);
-          document.getElementById(`${v.id_}_`).addEventListener("touchmove", (e) => {
-            e.preventDefault();
-            document.body.style.overflow = 'hidden';
-            let touch = e.touches[0];
-            let ms = new MouseEvent("mousemove", { clientY: touch.clientY, clientX: touch.clientX });
-            document.getElementById(`${v.id_}_`).dispatchEvent(ms);
+
+          canvas.addEventListener("mousemove", (e) => {
+            if (!draw_mouse_efb) return;
+
+            const currentPos = getCanvasCoordinates(canvas, e);
+
+            // رسم خط روان
+            c2d_contex_efb.beginPath();
+            c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
+            c2d_contex_efb.lineTo(currentPos.x, currentPos.y);
+            c2d_contex_efb.stroke();
+
+            lastMousePostion_efb = currentPos;
           }, false);
-          document.getElementById(`${v.id_}_`).addEventListener("touchstart", (e) => {
+
+          canvas.addEventListener("touchstart", (e) => {
             e.preventDefault();
             document.body.style.overflow = 'hidden';
+            draw_mouse_efb = true;
             canvas_id_efb = v.id_;
-            c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
-            mousePostion_efb = getTouchPos_efb(document.getElementById(`${v.id_}_`), e);
-            let touch = e.touches[0];
-            let ms = new MouseEvent("mousedown", {
-              clientY: touch.clientY,
-              clientX: touch.clientX
-            });
-            document.getElementById(`${v.id_}_`).dispatchEvent(ms);
+            lastMousePostion_efb = getCanvasCoordinates(canvas, e);
+
+            // شروع مسیر جدید دقیقاً از نقطه تاچ
+            c2d_contex_efb.beginPath();
+            c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
+
+            // رسم یک نقطه کوچک در نقطه شروع
+            c2d_contex_efb.fillStyle = "#000000";
+            c2d_contex_efb.beginPath();
+            c2d_contex_efb.arc(lastMousePostion_efb.x, lastMousePostion_efb.y, 2, 0, 2 * Math.PI);
+            c2d_contex_efb.fill();
           }, false);
-          document.getElementById(`${v.id_}_`).addEventListener("touchend", (e) => {
+
+          canvas.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+            document.body.style.overflow = 'hidden';
+            if (!draw_mouse_efb) return;
+
+            const currentPos = getCanvasCoordinates(canvas, e);
+
+            // رسم خط روان برای تاچ
+            c2d_contex_efb.beginPath();
+            c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
+            c2d_contex_efb.lineTo(currentPos.x, currentPos.y);
+            c2d_contex_efb.stroke();
+
+            lastMousePostion_efb = currentPos;
+          }, false);
+
+          canvas.addEventListener("touchend", (e) => {
             e.preventDefault();
             document.body.style.overflow = 'auto';
-            let ms = new MouseEvent("mouseup", {});
-            document.getElementById(`${v.id_}_`).dispatchEvent(ms);
+            if (!draw_mouse_efb) return;
+            draw_mouse_efb = false;
+
+            // ذخیره تصویر برای تاچ
+            const data = canvas.toDataURL();
+            document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
+
             const value = document.getElementById(`${v.id_}-sig-data`).value;
           }, false);
-          (function drawLoop() {
-            requestAnimFrame(drawLoop);
-            renderCanvas_efb(v.id_);
-          })();
           break;
         case "multiselect":
         case "payMultiselect":

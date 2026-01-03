@@ -457,14 +457,9 @@ set_dadfile_fun_efb = (id, indx,form_id=0) => {
         }, lenV);
       }
   function renderCanvas_efb() {
-    if (draw_mouse_efb) {
-      c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
-      c2d_contex_efb.lineTo(mousePostion_efb.x, mousePostion_efb.y);
-      c2d_contex_efb.stroke();
-      lastMousePostion_efb = mousePostion_efb;
-      const data = document.getElementById(`${canvas_id_efb}_`).toDataURL();
-      document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
-    }
+    // این تابع دیگر مورد نیاز نیست زیرا رسم مستقیماً در event handler ها انجام می‌شود
+    // ولی برای سازگاری با کدهای قدیمی نگه داشته می‌شود
+    return;
   }
 function fun_clear_esign_efb(id) {
     const canvas = document.getElementById(`${id}_`);
@@ -1595,57 +1590,127 @@ fun_remove_row_sendback_efb=(id)=>{
 
 
 fun_event_esign_efb=(id,form_id,disabled,v)=>{
-  const el_esign = document.getElementById(id+'_');
-  c2d_contex_efb = el_esign.getContext("2d");
+  const canvas = document.getElementById(id+'_');
+  c2d_contex_efb = canvas.getContext("2d");
   c2d_contex_efb.lineWidth = 5;
   c2d_contex_efb.strokeStyle = "#000000";
-  if(disabled)return;
-  el_esign.addEventListener("mousedown", (e) => {
+  c2d_contex_efb.lineCap = "round";
+  c2d_contex_efb.lineJoin = "round";
+
+  if(disabled) return;
+
+  // تابع محاسبه دقیق مختصات
+  function getCanvasCoordinates(canvas, event) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    let clientX, clientY;
+    if (event.touches && event.touches[0]) {
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    } else {
+      clientX = event.clientX;
+      clientY = event.clientY;
+    }
+
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  }
+
+  canvas.addEventListener("mousedown", (e) => {
     draw_mouse_efb = true;
-    c2d_contex_efb = el_esign.getContext("2d");
     canvas_id_efb = id;
-    lastMousePostion_efb = getmousePostion_efb(el_esign, e);
+    lastMousePostion_efb = getCanvasCoordinates(canvas, e);
+
+    // شروع مسیر جدید دقیقاً از نقطه کلیک
+    c2d_contex_efb.beginPath();
+    c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
+
+    // رسم یک نقطه کوچک در نقطه شروع
+    c2d_contex_efb.fillStyle = "#000000";
+    c2d_contex_efb.beginPath();
+    c2d_contex_efb.arc(lastMousePostion_efb.x, lastMousePostion_efb.y, 2, 0, 2 * Math.PI);
+    c2d_contex_efb.fill();
   }, false);
-  el_esign.addEventListener("mouseup", (e) => {
+
+  canvas.addEventListener("mouseup", (e) => {
+    if (!draw_mouse_efb) return;
     draw_mouse_efb = false;
+
+    // ذخیره تصویر
+    const data = canvas.toDataURL();
+    document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
+
     const el = document.getElementById(`${id}-sig-data`);
     const value = el.value;
     document.getElementById(`${id}_-message`).classList.remove('show');
     const o = [{ id_: id, name: v.name, amount: v.amount, type: v.type, value: value, session: sessionPub_emsFormBuilder, form_id: form_id }];
     fun_sendBack_emsFormBuilder(o[0]);
   }, false);
-  el_esign.addEventListener("mousemove", (e) => { mousePostion_efb = getmousePostion_efb(el_esign, e); }, false);
-  el_esign.addEventListener("touchmove", (e) => {
-    e.preventDefault();
-    document.body.style.overflow = 'hidden';
-    let touch = e.touches[0];
-    let ms = new MouseEvent("mousemove", { clientY: touch.clientY, clientX: touch.clientX });
-    el_esign.dispatchEvent(ms);
+
+  canvas.addEventListener("mousemove", (e) => {
+    if (!draw_mouse_efb) return;
+
+    const currentPos = getCanvasCoordinates(canvas, e);
+
+    // رسم خط روان
+    c2d_contex_efb.beginPath();
+    c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
+    c2d_contex_efb.lineTo(currentPos.x, currentPos.y);
+    c2d_contex_efb.stroke();
+
+    lastMousePostion_efb = currentPos;
   }, false);
-  el_esign.addEventListener("touchstart", (e) => {
+
+  canvas.addEventListener("touchstart", (e) => {
     e.preventDefault();
     document.body.style.overflow = 'hidden';
+    draw_mouse_efb = true;
     canvas_id_efb = id;
-    c2d_contex_efb = el_esign.getContext("2d");
-    mousePostion_efb = getTouchPos_efb(el_esign, e);
-    let touch = e.touches[0];
-    let ms = new MouseEvent("mousedown", {
-      clientY: touch.clientY,
-      clientX: touch.clientX
-    });
-    el_esign.dispatchEvent(ms);
+    lastMousePostion_efb = getCanvasCoordinates(canvas, e);
+
+    // شروع مسیر جدید دقیقاً از نقطه تاچ
+    c2d_contex_efb.beginPath();
+    c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
+
+    // رسم یک نقطه کوچک در نقطه شروع
+    c2d_contex_efb.fillStyle = "#000000";
+    c2d_contex_efb.beginPath();
+    c2d_contex_efb.arc(lastMousePostion_efb.x, lastMousePostion_efb.y, 2, 0, 2 * Math.PI);
+    c2d_contex_efb.fill();
   }, false);
-  el_esign.addEventListener("touchend", (e) => {
+
+  canvas.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    document.body.style.overflow = 'hidden';
+    if (!draw_mouse_efb) return;
+
+    const currentPos = getCanvasCoordinates(canvas, e);
+
+    // رسم خط روان برای تاچ
+    c2d_contex_efb.beginPath();
+    c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
+    c2d_contex_efb.lineTo(currentPos.x, currentPos.y);
+    c2d_contex_efb.stroke();
+
+    lastMousePostion_efb = currentPos;
+  }, false);
+
+  canvas.addEventListener("touchend", (e) => {
     e.preventDefault();
     document.body.style.overflow = 'auto';
-    let ms = new MouseEvent("mouseup", {});
-    el_esign.dispatchEvent(ms);
+    if (!draw_mouse_efb) return;
+    draw_mouse_efb = false;
+
+    // ذخیره تصویر برای تاچ
+    const data = canvas.toDataURL();
+    document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
+
     const value = document.getElementById(`${id}-sig-data`).value;
   }, false);
-  (function drawLoop() {
-    requestAnimFrame(drawLoop);
-    renderCanvas_efb(id);
-  })();
 }
 
 fun_state_check_addon_AdnOF_setting_efb =()=>{

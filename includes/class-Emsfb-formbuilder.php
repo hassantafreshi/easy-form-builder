@@ -2577,6 +2577,23 @@
 					' . $ttip . '
 					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : $this->public_pro_message_efb($texts['tfnapca']));
 					// $previewSate, $rndm, $vj, $form_id,$texts
+					 /*
+					 const disabled = ob.hasOwnProperty("disabled") && ob.disabled==true ? true : false;
+            		  fun_event_esign_efb(id,form_id,disabled,ob);
+					  */
+					$ui.= sprintf(
+						"<script>
+							document.addEventListener('DOMContentLoaded', function() {
+								setTimeout(() => {
+									fun_event_esign_efb('%s','%s',%s,%s);
+								}, 1000);
+							});
+						</script>",
+						$element_Id,
+						$form_id,
+						($disabled == "disabled" ? 'true' : 'false'),
+						json_encode($vj)
+					);
 					$dataTag = $elementId;
 				break;
 				case 'maps':
