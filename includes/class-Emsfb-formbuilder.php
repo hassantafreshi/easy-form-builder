@@ -1101,21 +1101,21 @@
 					if (elem.value.trim()) {
 						if (iti.isValidNumber()) {
 							elem.classList.add("border-success");
-							
+
 							// Get country data using new API
 							const countryData = iti.getSelectedCountryData();
 							const countryCode = countryData.dialCode;
 							const iso2 = countryData.iso2;
 							const countryName = countryData.name;
-							
+
 							// Get the full number including country code using new API
 							const value = iti.getNumber();
-							
+
 							console.log("Mobile Valid number:", value);
 							console.log("Mobile Country code:", countryCode);
 							console.log("Mobile ISO2:", iso2);
 							console.log("Mobile Country name:", countryName);
-							
+
 							fun_sendBack_emsFormBuilder({
 								id_: "%2$s",
 								name: "%3$s",
@@ -2590,6 +2590,7 @@
 					$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $element_Id . '-des"' : '';
 					$message = $vj->message;
 
+
 					// تولید HTML المان نقشه با استفاده از sprintf و اضافه کردن formId
 					//1$s
 					$ui .= sprintf(
@@ -2598,7 +2599,7 @@
 								<span>%3\$s</span>
 								<span class='text-danger' role='none'>%4\$s</span>
 							</label>
-							<div class='efb maps-efb maps-os emsFormBuilder_v' id='%1\$s-map' data-vid='%1\$s' style='height: %5\$s;' data-formid='%2\$s' data-lat='%6\$s' data-lng='%7\$s' data-zoom='%8\$s' data-id='%1\$s-el' %9\$s></div>
+							<div class='efb maps-efb maps-os emsFormBuilder_v  %5\$s %12\$s' id='%1\$s-map' data-vid='%1\$s' data-formid='%2\$s' data-lat='%6\$s' data-lng='%7\$s' data-zoom='%8\$s' data-id='%1\$s-el' %9\$s></div>
 							<input type='hidden' name='%1\$s-lat' id='%1\$s_lat' value='%6\$s' class='efb emsFormBuilder_v'  data-formid='%2\$s' data-type='maps' data-vid='%1\$s' %10\$s>
 							<input type='hidden' name='%1\$s-lng' id='%1\$s_lng' value='%7\$s' class='efb emsFormBuilder_v'  data-formid='%2\$s' data-type='maps' data-vid='%1\$s' %10\$s>
 							<small id='%1\$s-des' class='form-text text-muted'>%11\$s</small>
@@ -2613,36 +2614,55 @@
 						$zoom,        // %8$s
 						$ariaDescribedBy, // %9$s
 						$required,    // %10$s
-						$message      // %11$s
+						$message,      // %11$s
+						isset($vj->mark) && (int)$vj->mark>1 ? 'd-none' : '' // %12$s
 					);
 
-
-					$ui .= sprintf(
-						"<script>
-							function efbCreateMap_%s() {
-								var map = L.map('%s-map').setView([%s, %s], %s);
-								L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-									attribution: '&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors'
-								}).addTo(map);
-
-								var marker = L.marker([%s, %s], { draggable: true }).addTo(map);
-								marker.on('dragend', function(event) {
-									var position = marker.getLatLng();
-									document.getElementById('%s_lat').value = position.lat;
-									document.getElementById('%s_lng').value = position.lng;
+					if(isset($vj->mark) && (int)$vj->mark>1 ){
+						//
+						$ui .=sprintf(
+							"<script>
+								document.addEventListener('DOMContentLoaded', function() {
+									setTimeout(() => {
+										%s
+									}, 1000);
 								});
-							}
+							</script>",
+							$this->map_search_section_efb($element_Id,$vj,$form_id),
 
-							document.addEventListener('DOMContentLoaded', function() {
-								efbCreateMap_%s();
-							});
-						</script>",
-						$element_Id, // شناسه نقشه برای اطمینان از یکتایی
-						$element_Id, $lat, $lng, $zoom, // تنظیمات اولیه نقشه
-						$lat, $lng, // موقعیت اولیه مارکر
-						$element_Id, $element_Id, // به‌روزرسانی عرض و طول در inputهای مخفی
-						$element_Id // شناسه تابع جاوااسکریپت برای بارگذاری نقشه
-					);
+
+						);
+						}else{
+						$ui .= sprintf(
+							"<script>
+								function efbCreateMap_%s() {
+									var map = L.map('%s-map').setView([%s, %s], %s);
+									L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+										attribution: '&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors'
+									}).addTo(map);
+
+									var marker = L.marker([%s, %s], { draggable: true }).addTo(map);
+									marker.on('dragend', function(event) {
+										var position = marker.getLatLng();
+										document.getElementById('%s_lat').value = position.lat;
+										document.getElementById('%s_lng').value = position.lng;
+									});
+
+								}
+
+								document.addEventListener('DOMContentLoaded', function() {
+									efbCreateMap_%s();
+									<!--code new maps -->
+								});
+							</script>",
+							$element_Id,
+							$element_Id, $lat, $lng, $zoom,
+							$lat, $lng,
+							$element_Id, $element_Id,
+							$element_Id,
+						);
+					}
+
 					if($efbFunction === null)$efbFunction = get_efbFunction();
 					$efbFunction->openstreet_map_required_efb(0);
 					if ($pro!==true &&  $pro!==1) {
@@ -3109,7 +3129,199 @@
 		}
 	}
 
+	public function map_search_section_efb($element_Id, $vj, $form_id) {
+		// متن‌های مورد نیاز برای نقشه
+		// efbCreateMap(id ,r ,viewState)
+		 return sprintf('efbCreateMap("%1$s", %2$s, %3$s);',
+			$element_Id,
+			json_encode($vj),
+			'false'
+		);
+		/*
+		$lang = get_locale();
+		$lang = strpos($lang,'_') != false ? explode('_', $lang)[0] : $lang;
+		$search_placeholder = esc_html__('Enter Location', 'easy-form-builder');
+		$search_text = esc_html__('Search', 'easy-form-builder');
+		$delete_markers_text = esc_html__('Clear Markers', 'easy-form-builder');
+		$map_id = esc_js($element_Id);
 
+		// تولید کد JavaScript کامل براساس الگوی JavaScript ارائه شده
+		return sprintf('
+		function efbCreateMap_%1$s(id, r, viewState) {
+			console.log("efbCreateMap", id, r, viewState, Number(r.mark)>0, Number(r.mark));
+
+			// Check if Leaflet is loaded
+			if (typeof L === "undefined") {
+				console.error("Leaflet library (L) is not loaded. Maps cannot be initialized.");
+				// Try to load Leaflet dynamically as fallback
+				efbLoadLeafletFallback(() => {
+					efbCreateMap_%1$s(id, r, viewState); // Retry after loading
+				});
+				return;
+			}
+
+			var efbInitialLat = viewState==true ? r.value=="" ? r.lat : r.value[0].lat : r.lat;
+			var efbInitialLng = viewState==true ? r.value=="" ? r.lng : r.value[0].lng : r.lng;
+			var efbInitialZoom = viewState==true ? 12 : r.zoom;
+			var efbAllowAddingMarkers = Number(r.mark)>0 ? true : false;
+			if(viewState==true && efbAllowAddingMarkers==true) efbAllowAddingMarkers=false;
+			let efbLanguage = "%5$s";
+			efbLanguage = efbLanguage.length==2 ? efbLanguage : efbLanguage.slice(0,2);
+
+			// Create map container and div
+			var efbMapContainer = document.createElement("div");
+			efbMapContainer.className = "map-container";
+			var efbMapDiv = document.createElement("div");
+			efbMapDiv.dataset.id = id + "-mapsdiv";
+			efbMapDiv.className = "map";
+			efbMapContainer.appendChild(efbMapDiv);
+			let el_maps = document.getElementById(id + "-f");
+			console.log("el_maps", el_maps, id);
+			const form_id = el_maps.dataset.formid;
+			console.log(`form_id[${form_id}]`);
+			el_maps.appendChild(efbMapContainer);
+
+			// Initialize map
+			var efbMap = L.map(efbMapDiv).setView([efbInitialLat, efbInitialLng], efbInitialZoom);
+			var efbOsmLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+				attribution: "&copy; OpenStreetMap contributors"
+			}).addTo(efbMap);
+
+			var efbSatelliteLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+				attribution: "&copy; OpenStreetMap contributors"
+			});
+
+			var efbBaseLayers = {
+				"OSM 1": efbOsmLayer,
+				"OSM 2": efbSatelliteLayer
+			};
+
+			var efbMarkersLayer = L.layerGroup().addTo(efbMap);
+			var efbOverlays = {
+				"Markers": efbMarkersLayer
+			};
+
+			L.control.layers(efbBaseLayers, efbOverlays).addTo(efbMap);
+
+			// Find element by id+"-mapsdiv"
+			var efbMap_dv = document.querySelector(`[data-id="${id}-mapsdiv"]`);
+			if (efbMap_dv) efbMap_dv.dataset.leaflet = efbMap._leaflet_id;
+
+			var efbSearchDiv = L.control({ position: "bottomleft" });
+
+
+			efbSearchDiv.onAdd = function (efbMap) {
+				var efbDiv = L.DomUtil.create("div", "custom-control");
+				efbDiv.dataset.id = id + "-controller";
+				efbDiv.classList.add("efb-searchbox");
+
+				if (efbAllowAddingMarkers) {
+					efbDiv.innerHTML = `
+						<div class="efb d-flex justify-content-start align-items-center flex-wrap flex-row">
+							<!-- Locate Me Button -->
+							<a onclick="efbLocateMe(${efbMap._leaflet_id}, \'${id}\')"
+								class="efb btn btn-sm btn-dark text-light fs-6 me-0 me-md-2 mb-md-0">
+								<i class="fs-6 efb bi-crosshair"></i>
+							</a>
+
+							<!-- Search Input Field -->
+							<input type="text" id="efb-search-${efbMap._leaflet_id}"
+								placeholder="%2$s"
+								class="efb form-control fs-6 me-0 me-md-2 mb-md-0 map-search-input my-0 locationpicker"
+							>
+
+							<!-- Search Button -->
+							<a onclick="efbSearchLocation(${efbMap._leaflet_id})"
+								class="efb btn btn-sm btn-secondary text-light fs-6 me-0 me-md-2 mb-md-0">
+								<i class="efb fs-6 bi bi-search d-inline d-md-none"></i>
+								<span class="efb d-none d-md-inline">%3$s</span>
+							</a>
+
+							<!-- Clear Markers Button -->
+							<a onclick="efbClearMarkers(${efbMap._leaflet_id}, \'${id}\')"
+								class="efb btn btn-sm btn-danger text-light fs-6">
+								<i class="efb fs-6 bi bi-trash d-inline d-md-none"></i>
+								<span class="efb d-none d-md-inline">%4$s</span>
+							</a>
+
+							<!-- Error Message (hidden by default) -->
+							<div id="efb-error-message-${efbMap._leaflet_id}" class="efb mx-3 error-message d-none"></div>
+						</div>
+					`;
+					efbDiv.classList.remove("d-none");
+				} else {
+					efbDiv.innerHTML = `
+						<div id="efb-error-message-${efbMap._leaflet_id}" class="efb mx-3 error-message d-none"></div>
+					`;
+					efbDiv.classList.add("d-none");
+					efbDiv.classList.add("efb");
+				}
+
+				L.DomEvent.disableClickPropagation(efbDiv);
+				L.DomEvent.disableScrollPropagation(efbDiv);
+
+				return efbDiv;
+			};
+
+			efbSearchDiv.addTo(efbMap);
+
+			// Initialize maps storage
+			maps_efb[efbMap._leaflet_id] = {
+				map: efbMap,
+				markersLayer: efbMarkersLayer,
+				markers: [],
+				locationList: []
+			};
+
+			// Handle map interactions based on state
+			if((typeof state_efb === "undefined" || state_efb != "view") && viewState==false) {
+				if (efbAllowAddingMarkers) {
+					efbMap.on("click", function(e) {
+						var efbLatlng = e.latlng;
+						efbAddMarker(efbLatlng.lat, efbLatlng.lng, efbMap._leaflet_id, efbAllowAddingMarkers, r, form_id);
+					});
+				} else {
+					efbAddInitialMarker(efbInitialLat, efbInitialLng, efbMap._leaflet_id);
+				}
+			} else {
+				const len = r.value ? r.value.length : 0;
+				if(len > 0) {
+					Object.assign(r, {mark: len});
+					for (let i = 0; i < len; i++) {
+						efbAddMarker(r.value[i].lat, r.value[i].lng, efbMap._leaflet_id, i+1, r, form_id);
+					}
+				}
+			}
+
+			// Add fullscreen control if available
+			if (typeof L.control.fullscreen === "function") {
+				var efbFullscreenControl = L.control.fullscreen({
+					title: {
+						"false": "Go Fullscreen",
+						"true": "Exit Fullscreen"
+					}
+				});
+				efbMap.addControl(efbFullscreenControl);
+
+				efbMap.on("enterFullscreen", function(){
+					console.log("Map entered fullscreen");
+				});
+
+				efbMap.on("exitFullscreen", function(){
+					console.log("Map exited fullscreen");
+				});
+			} else {
+				console.warn("Leaflet fullscreen control plugin is not loaded");
+			}
+		}',
+		$map_id,
+		$search_placeholder,
+		$search_text,
+		$delete_markers_text,
+		$lang
+		);
+		*/
+	}
 
 	/* public function fun_captcha_load_efb($public_key, $form_id) {
 		// Return the captcha HTML
@@ -3164,6 +3376,8 @@
 
 
 	}
+
+
 
 
 	// Add JSON-LD SoftwareApplication schema to <head> on the frontend

@@ -690,12 +690,12 @@ load_intlTelInput_efb = (rndm, iVJ) => {
     if(efb_var.length<1) efb_var = ajax_object_efm
     const ulitisJs = efb_var.images.hasOwnProperty('utilsJs') ? efb_var.images.utilsJs  : el_mobile.dataset.utilsjs;
     console.log('ulitisJs :', ulitisJs ,el_mobile,onlyCountries);
-      
+
       // Updated for intl-tel-input v25.14.0
       iti = window.intlTelInput(el_mobile, {
           onlyCountries: onlyCountries,
           nationalMode: true,
-          autoPlaceholder: "polite", 
+          autoPlaceholder: "polite",
           placeholderNumberType: "MOBILE",
           loadUtils: () => import(ulitisJs),
       });
@@ -735,7 +735,7 @@ load_intlTelInput_efb = (rndm, iVJ) => {
 
                   // Get the full number including the country code using new API
                   const value = iti.getNumber();
-                  // Get national format using new API  
+                  // Get national format using new API
                   const nationalNumber = iti.getNumber(window.intlTelInput?.utils?.numberFormat?.NATIONAL || 1);
 
                   console.log("Mobile Valid number:", value);
@@ -1212,6 +1212,7 @@ function efbCreateMap(id ,r ,viewState) {
   efbMapDiv.className = 'map';
   efbMapContainer.appendChild(efbMapDiv);
   let el_maps = document.getElementById(id+'-f');
+  console.log('el_maps',el_maps,id)
   const form_id = el_maps.dataset.formid;
   console.log(`form_id[${form_id}]`)
   el_maps.appendChild(efbMapContainer);
@@ -1259,7 +1260,7 @@ function efbCreateMap(id ,r ,viewState) {
               <!-- Search Input Field -->
               <input type="text" id="efb-search-${efbMap._leaflet_id}"
                 placeholder="${efb_var.text.eln}"
-                class="efb form-control fs-6 me-0 me-md-2  mb-md-0 map-search-input my-0"
+                class="efb form-control fs-6 me-0 me-md-2 mb-md-0 map-search-input my-0 locationpicker"
                 ${state_efb == 'view' ? 'disabled' : ''}
                 >
 

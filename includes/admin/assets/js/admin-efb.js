@@ -2393,10 +2393,10 @@ let change_el_edit_Efb = (el) => {
           //query data-id="${valj_efb[indx].id_}-control"
 
           clss.innerHTML= `
-              <a  class="efb btn btn-sm btn-dark text-light"><i class="efb bi-crosshair ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'} fs-7"></i></a>
-              <input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="${efb_var.text.eln}" class="efb p-1 border-d efb-square fs-6">
-              <a   class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
-              <a   class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
+              <a class="efb btn btn-sm btn-dark text-light"><i class="efb bi-crosshair ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'} fs-7"></i></a>
+              <input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="${efb_var.text.eln}" class="efb p-1 border-d efb-square locationpicker fs-6">
+              <a class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
+              <a class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
               <div id="efb-error-message-${valj_efb[indx].id_}" class="error-message d-none"></div>`
 
         //not clickable clss

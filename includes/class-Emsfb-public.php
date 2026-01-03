@@ -5487,7 +5487,7 @@ function email_get_content_efb($content, $track){
 		}
 		if ($Sk=="null"){
 				$key_not_found = esc_html__('%s not found', 'easy-form-builder');
-				$key_not_found = str_replace('%s', esc_html__('SECRET KEY', 'easy-form-builder'), $key_not_found);
+				$key_not_found = str_replace('%s', esc_html__('Secret Key', 'easy-form-builder'), $key_not_found);
 				$m = esc_html__('PayPal', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ': ' . $key_not_found;
 				$response = ['success' => false, 'm' => $m];
 				wp_send_json_success($response, 200);

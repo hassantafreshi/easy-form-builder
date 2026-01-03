@@ -1006,7 +1006,7 @@ function fun_show_help__emsFormBuilder() {
   <div class="efb container row">
   <h4 class="efb title-holder efb fs-4">
       <img src="${efb_var.images.title}" class="efb title efb">
-      <i class="efb  bi-info-circle title-icon mx-2"></i>${efb_var.text.help}
+      <i class="efb  bi-info-circle title-icon mx-2"></i>${efb_var.text.lrnmrs.replace('%s', '')}
   </h4>
   <div class="efb crd efb col-md-7 d-none d-md-block"><div class="efb card-body"> <div class="efb d-grid gap-2">${str}</div></div></div>
   <div class="efb col-md-4 mx-1 py-5 crd efb">
@@ -1139,8 +1139,8 @@ function fun_show_setting__emsFormBuilder() {
   // 3.8.6 end
   const proChckEvent =efb_var.pro!=true && efb_var.pro!="true" ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
 
-  const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment).replace('%2$s', efb_var.text.stripe);
-  const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment).replace('%2$s', efb_var.text.paypal);
+  const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.stripe);
+  const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
 
 
   document.getElementById('content-efb').innerHTML = `
@@ -1154,7 +1154,7 @@ function fun_show_setting__emsFormBuilder() {
                         <nav>
                             <div class="efb nav nav-tabs" id="nav-tab" role="tablist">
                             <button class="efb  nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i class="efb  bi bi-gear mx-2"></i>${efb_var.text.general}</button>
-                            <button class="efb  nav-link " id="nav-response-tab" data-bs-toggle="tab" data-bs-target="#nav-response" type="button" role="tab" aria-controls="nav-respons" aria-selected="true"><i class="efb  bi bi-chat-left-text mx-2"></i>${efb_var.text.response}</button>
+                            <button class="efb  nav-link " id="nav-response-tab" data-bs-toggle="tab" data-bs-target="#nav-response" type="button" role="tab" aria-controls="nav-respons" aria-selected="true"><i class="efb  bi bi-chat-left-text mx-2"></i>${efb_var.text.rspcon}</button>
                             <button class="efb  nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><i class="efb  bi bi-google mx-2"></i>${efb_var.text.googleKeys}</button>
                             <button class="efb  nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><i class="efb  bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
                             <button class="efb  nav-link" id="nav-contact-tab " data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb  bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button>
@@ -1182,12 +1182,12 @@ function fun_show_setting__emsFormBuilder() {
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-layers m-3"></i>Plan Management
                                 </h5>
-                                <p class="efb  ${mxCSize} mobile-text">Choose your plan or upgrade to unlock advanced features</p>
+                                <p class="efb  ${mxCSize} mobile-text">CChoose a plan or upgrade to unlock advanced features.</p>
                                 <div class="efb card-body text-center py-1">
                                     <button type="button" class="efb btn efb btn-outline-primary btn-lg" onclick="showSetupAsOverlayPage()" id="changePlanBtn">
                                         <i class="efb  bi-gear mx-1 efb mobile-text"></i>Change Plan
                                     </button>
-                                    <p class="efb text-muted fs-7 mt-2">Switch between Free, Free Plus, or Pro plans</p>
+                                    <p class="efb text-muted fs-7 mt-2">Switch between Free, Free Plus, and Pro plans.</p>
                                 </div>
 
                                 <h5 class="efb  card-title mt-3 mobile-title">
@@ -1298,7 +1298,7 @@ function fun_show_setting__emsFormBuilder() {
                              <h5 class="efb  card-title mt-3 mobile-title">
                                 <i class="efb  bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
                             </h5>
-                            <p class="efb ${mxCSize}"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a>  <a target="_blank" href="https://youtu.be/JI7RojBgU_o">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
+                            <p class="efb ${mxCSize}"><a target="_blank" href="https://youtu.be/JI7RojBgU_o">${efb_var.text.lmavt.replace('%s',efb_var.text.grecaptcha)}</a></p>
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.siteKey}</label>
                                 <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.googleKeys}">
@@ -1391,7 +1391,7 @@ function fun_show_setting__emsFormBuilder() {
                                  <i class="efb  bi-stripe m-3"></i>${efb_var.text.stripe}
                                </h5>
                                <!-- 3.8.6 start -->
-                               <p class="efb ${mxCSize}">${stripemessage} <a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="stripe" >${efb_var.text.help}</a></p>
+                               <p class="efb ${mxCSize}">${stripemessage} <a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="stripe" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
                                 <!-- 3.8.6 end -->
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                   <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
@@ -1402,10 +1402,11 @@ function fun_show_setting__emsFormBuilder() {
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
 
                               </div>
+                              <!-- paypal
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                  <i class="efb  bi-paypal m-3"></i>${efb_var.text.paypal}
                                </h5>
-                               <p class="efb ${mxCSize}">${paypalmessage} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('paypal')" >${efb_var.text.help}</a></p>
+                               <p class="efb ${mxCSize}">${paypalmessage} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('paypal')" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                   <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
                                   <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
@@ -1413,8 +1414,8 @@ function fun_show_setting__emsFormBuilder() {
                                   <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
                                   <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
                                   <span id="paypalSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-
-                              </div>
+                                </div>
+                              -->
                               ${persianPayToken()}
 
 
@@ -1442,7 +1443,7 @@ function fun_show_setting__emsFormBuilder() {
                                         <!-- 3.8.6 start -->
                                         <a class="efb nav-link efb btn ec-efb " data-eventform="links" data-linkname="wiki">
                                         <!-- 3.8.6 end -->
-                                        <i class="efb bi-question mx-1 "></i>${efb_var.text.help}</a>
+                                        <i class="efb bi-question mx-1 "></i>${efb_var.text.lrnmrs.replace('%s', '')}</a>
                                     </li>
 
                                     <li class="efb dropdown">
@@ -1497,7 +1498,7 @@ function fun_show_setting__emsFormBuilder() {
                             <h5 class="efb  card-title mt-3 ">
                               <i class="efb  bi-chat-left-dots m-3"></i>${efb_var.text.sms_config}
                             </h5>
-                            <p class="efb ${mxCSize}">${efb_var.text.sms_mp} <a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="smsconfig" >${efb_var.text.help}</a></p>
+                            <p class="efb ${mxCSize}">${efb_var.text.sms_mp} <a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="smsconfig" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
                               <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_ct}</label>
                                 <div class="efb  col-md-12 col-sm-12 px-0 mx-0 py-0 my-0 ttEfb show" data-id="sms_config_select" id="sms_config_select" >
@@ -1521,7 +1522,7 @@ function fun_show_setting__emsFormBuilder() {
                           <p class="efb ${mxCSize}">${efb_var.text.sms_dnoti}</p>
                           <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                           <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_admn_no}</label>
-                            <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^[\+0-9\(\)\-\s]+$" placeholder="+12(345)678-90" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}" oninput="filterPhoneNumberInput_efb(this)" onkeypress="allowOnlyPhoneChars_efb(event)" title="Only numbers, +, (), -, and spaces are allowed">
+                            <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^[\+0-9\(\)\-\s]+$" placeholder="+12345678900" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}" oninput="filterPhoneNumberInput_efb(this)" onkeypress="allowOnlyPhoneChars_efb(event)" title="Only numbers, +, (), -, and spaces are allowed">
                             <span id="pno_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             <p class="efb m-2">${efb_var.text.sms_ndnoti}</p>
                           </div>
