@@ -1,0 +1,277 @@
+/* maps field styles start */
+.map-container {
+width: 100%;
+height: 350px;
+margin-top: 10px;
+}
+.map {
+width: 100%;
+height: 100%;
+}
+.leaflet-control-container .leaflet-control-layers {
+background: white;
+padding: 10px;
+}
+.leaflet-control-container .custom-control {
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(248, 249, 250, 0.95);
+    padding: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    border-radius: 8px;
+}
+
+.leaflet-control-container .custom-control .d-flex {
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.leaflet-control-container .custom-control input,
+.leaflet-control-container .custom-control button,
+.leaflet-control-container .custom-control a {
+    margin: 2px;
+    border-radius: 6px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.leaflet-control-container .custom-control a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.leaflet-control-container .custom-control input[type="text"] {
+    flex: 1;
+    min-width: 150px;
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    background: white;
+}
+
+@media (max-width: 576px) {
+    .leaflet-control-container .custom-control {
+        padding: 6px;
+        width: calc(100% - 10px);
+        margin: 5px;
+    }
+
+    .leaflet-control-container .custom-control .d-flex {
+        gap: 4px;
+    }
+
+    .leaflet-control-container .custom-control input[type="text"] {
+        min-width: 120px;
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+
+    .leaflet-control-container .custom-control .btn {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+
+    .leaflet-control-container .custom-control .btn i {
+        font-size: 16px;
+    }
+
+    .leaflet-control-container .custom-control .d-none.d-md-inline {
+        display: none !important;
+    }
+
+    .leaflet-control-container .custom-control .d-inline.d-md-none {
+        display: inline !important;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 992px) {
+    .leaflet-control-container .custom-control {
+        width: calc(100% - 10px);
+        margin: 5px;
+    }
+
+    .leaflet-control-container .custom-control input[type="text"] {
+        min-width: 180px;
+    }
+}
+@media (min-width: 993px) {
+    .leaflet-control-container .custom-control {
+        width: auto;
+        max-width: 90%;
+    }
+
+    .leaflet-control-container .custom-control input[type="text"] {
+        min-width: 200px;
+    }
+}
+.leaflet-control-container .error-message {
+color: red;
+margin: 5px;
+}
+#efb-create-map-btn {
+margin: 10px;
+}
+
+
+.custom-control.leaflet-control {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.custom-control.leaflet-control .efb {
+margin: 0 5px;
+}
+
+.custom-control.leaflet-control input[type="text"] {
+flex: 1;
+min-width: 200px;
+}
+
+.custom-control.leaflet-control a,
+.custom-control.leaflet-control input[type="text"] {
+margin: 0;
+}
+
+.custom-control.leaflet-control .error-message {
+margin-top: 10px;
+}
+.efb-searchbox .btn {
+    transition: all 0.2s ease-in-out;
+    border: none;
+    font-weight: 500;
+}
+
+.efb-searchbox .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.efb-searchbox .btn:active {
+    transform: translateY(0);
+}
+
+.efb-searchbox .form-control {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.efb-searchbox .form-control:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Map control responsive styles */
+.efb .map-control-container {
+display: flex !important;
+flex-wrap: nowrap !important;
+align-items: center !important;
+justify-content: flex-start !important;
+gap: 4px !important;
+position: relative !important;
+}
+
+.efb .map-control-container .flex-shrink-0 {
+min-width: 32px !important;
+height: 32px !important;
+padding: 0 !important;
+flex-shrink: 0 !important;
+}
+
+.efb .map-control-container .form-control {
+min-width: 100px !important;
+height: 32px !important;
+font-size: 13px !important;
+padding: 4px 8px !important;
+flex-grow: 1 !important;
+}
+
+@media (max-width: 576px) {
+    .efb .map-control-container {
+        gap: 2px !important;
+    }
+
+    .efb .map-control-container .flex-shrink-0 {
+        min-width: 30px !important;
+        height: 30px !important;
+    }
+
+    .efb .map-control-container .form-control {
+        font-size: 12px !important;
+        padding: 3px 6px !important;
+        height: 30px !important;
+    }
+}
+
+/* maps field styles end */
+
+/* Mobile styles for admin panel */
+.mobile .efb.btn-edit-holder {	margin-left: 0;
+   margin-right: 0;
+}
+
+.mobile div#dropZoneEFB, .mobile #dropZoneEFB.pb{
+   padding-bottom: 22%;
+}
+.mobile div#dropZoneEFB.captcha,#dropZoneEFB.pb.captcha  {	padding-bottom: 25%!important;
+}
+
+.mobile div#dropZoneEFB.captcha, .mobile #dropZoneEFB.pb.captcha{
+   padding-bottom: 55%!important;
+}
+
+body.mobile.modal-open #wpwrap {	position: relative !important;
+}
+
+.mobile div#listElEfb {	max-height: 300px;
+   overflow: auto;
+   margin-bottom: 3%;
+}
+.mobile .btn-select-form.efb {	font-size: 10px;
+   height: 100px;
+}
+.mobile .description-logo.efb {
+   height: 65px;
+   width: 65px;
+   float: left;
+   margin: 0px;
+}
+.mobile .title-holder.efb {	margin: 0px 0 12px 0;
+   font-size: 32px !important;
+}
+.mobile .title-icon.efb {	font-size: 32px !important;
+}
+.mobile #efb-dd {	margin-top: 20%;
+   margin-bottom: 20%;
+}
+.mobile .mobile-title.efb {	font-size: 20px !important;
+}
+.mobile .mobile-text.efb {	font-size: 14px !important;
+}
+
+.mobile .efblist.inplist.h-d-efb {	font-size: 15px !important;
+}
+
+
+.mobile div#sideBoxEfb {	height: 100vh;
+   width: 70%}
+.mobile #content-efb {	margin-top: 10px;
+}
+.mobile .pro-version-efb {	position: inherit;
+   height: 30px;
+   width: 95%;
+   border-radius: 6px;
+   margin: 10px 2px 0px 2px;
+}
+
+.mobile #sideBoxEfb {	width: 80%;
+}
+
+.efb.mobile input#EditOption {	width: 100% !important;
+}
+/* Mobile styles for admin panel end */

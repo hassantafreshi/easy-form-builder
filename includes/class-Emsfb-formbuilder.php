@@ -2030,7 +2030,7 @@
 	}
 
 	public function loading_message_efb($pro ,$texts,$state=0) {
-		$pro = false;
+
 		// SVG animation for loading indicator
 		$svg = '
 			<svg viewBox="0 0 120 30" height="15px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
@@ -2448,7 +2448,7 @@
 						$optn,
 						$desc
 					);
-
+					$style = $this->field_mobile_style_efb();
 					$dataTag = "textarea";
 				break;
 				case 'dadfile':
@@ -2615,10 +2615,10 @@
 						$ariaDescribedBy, // %9$s
 						$required,    // %10$s
 						$message,      // %11$s
-						isset($vj->mark) && (int)$vj->mark>1 ? 'd-none' : '' // %12$s
+						isset($vj->mark) && (int)$vj->mark>0 ? 'd-none' : '' // %12$s
 					);
 
-					if(isset($vj->mark) && (int)$vj->mark>1 ){
+					if(isset($vj->mark) && (int)$vj->mark>0 ){
 						//
 						$ui .=sprintf(
 							"<script>
@@ -2668,6 +2668,8 @@
 					if ($pro!==true &&  $pro!==1) {
 						$ui = $this->public_pro_message_efb($texts['tfnapca']);
 					}
+
+					$style = $this->field_maps_style_efb();
 					$dataTag = "maps";
 					break;
 				break;
@@ -3137,190 +3139,7 @@
 			json_encode($vj),
 			'false'
 		);
-		/*
-		$lang = get_locale();
-		$lang = strpos($lang,'_') != false ? explode('_', $lang)[0] : $lang;
-		$search_placeholder = esc_html__('Enter Location', 'easy-form-builder');
-		$search_text = esc_html__('Search', 'easy-form-builder');
-		$delete_markers_text = esc_html__('Clear Markers', 'easy-form-builder');
-		$map_id = esc_js($element_Id);
 
-		// تولید کد JavaScript کامل براساس الگوی JavaScript ارائه شده
-		return sprintf('
-		function efbCreateMap_%1$s(id, r, viewState) {
-			console.log("efbCreateMap", id, r, viewState, Number(r.mark)>0, Number(r.mark));
-
-			// Check if Leaflet is loaded
-			if (typeof L === "undefined") {
-				console.error("Leaflet library (L) is not loaded. Maps cannot be initialized.");
-				// Try to load Leaflet dynamically as fallback
-				efbLoadLeafletFallback(() => {
-					efbCreateMap_%1$s(id, r, viewState); // Retry after loading
-				});
-				return;
-			}
-
-			var efbInitialLat = viewState==true ? r.value=="" ? r.lat : r.value[0].lat : r.lat;
-			var efbInitialLng = viewState==true ? r.value=="" ? r.lng : r.value[0].lng : r.lng;
-			var efbInitialZoom = viewState==true ? 12 : r.zoom;
-			var efbAllowAddingMarkers = Number(r.mark)>0 ? true : false;
-			if(viewState==true && efbAllowAddingMarkers==true) efbAllowAddingMarkers=false;
-			let efbLanguage = "%5$s";
-			efbLanguage = efbLanguage.length==2 ? efbLanguage : efbLanguage.slice(0,2);
-
-			// Create map container and div
-			var efbMapContainer = document.createElement("div");
-			efbMapContainer.className = "map-container";
-			var efbMapDiv = document.createElement("div");
-			efbMapDiv.dataset.id = id + "-mapsdiv";
-			efbMapDiv.className = "map";
-			efbMapContainer.appendChild(efbMapDiv);
-			let el_maps = document.getElementById(id + "-f");
-			console.log("el_maps", el_maps, id);
-			const form_id = el_maps.dataset.formid;
-			console.log(`form_id[${form_id}]`);
-			el_maps.appendChild(efbMapContainer);
-
-			// Initialize map
-			var efbMap = L.map(efbMapDiv).setView([efbInitialLat, efbInitialLng], efbInitialZoom);
-			var efbOsmLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-				attribution: "&copy; OpenStreetMap contributors"
-			}).addTo(efbMap);
-
-			var efbSatelliteLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-				attribution: "&copy; OpenStreetMap contributors"
-			});
-
-			var efbBaseLayers = {
-				"OSM 1": efbOsmLayer,
-				"OSM 2": efbSatelliteLayer
-			};
-
-			var efbMarkersLayer = L.layerGroup().addTo(efbMap);
-			var efbOverlays = {
-				"Markers": efbMarkersLayer
-			};
-
-			L.control.layers(efbBaseLayers, efbOverlays).addTo(efbMap);
-
-			// Find element by id+"-mapsdiv"
-			var efbMap_dv = document.querySelector(`[data-id="${id}-mapsdiv"]`);
-			if (efbMap_dv) efbMap_dv.dataset.leaflet = efbMap._leaflet_id;
-
-			var efbSearchDiv = L.control({ position: "bottomleft" });
-
-
-			efbSearchDiv.onAdd = function (efbMap) {
-				var efbDiv = L.DomUtil.create("div", "custom-control");
-				efbDiv.dataset.id = id + "-controller";
-				efbDiv.classList.add("efb-searchbox");
-
-				if (efbAllowAddingMarkers) {
-					efbDiv.innerHTML = `
-						<div class="efb d-flex justify-content-start align-items-center flex-wrap flex-row">
-							<!-- Locate Me Button -->
-							<a onclick="efbLocateMe(${efbMap._leaflet_id}, \'${id}\')"
-								class="efb btn btn-sm btn-dark text-light fs-6 me-0 me-md-2 mb-md-0">
-								<i class="fs-6 efb bi-crosshair"></i>
-							</a>
-
-							<!-- Search Input Field -->
-							<input type="text" id="efb-search-${efbMap._leaflet_id}"
-								placeholder="%2$s"
-								class="efb form-control fs-6 me-0 me-md-2 mb-md-0 map-search-input my-0 locationpicker"
-							>
-
-							<!-- Search Button -->
-							<a onclick="efbSearchLocation(${efbMap._leaflet_id})"
-								class="efb btn btn-sm btn-secondary text-light fs-6 me-0 me-md-2 mb-md-0">
-								<i class="efb fs-6 bi bi-search d-inline d-md-none"></i>
-								<span class="efb d-none d-md-inline">%3$s</span>
-							</a>
-
-							<!-- Clear Markers Button -->
-							<a onclick="efbClearMarkers(${efbMap._leaflet_id}, \'${id}\')"
-								class="efb btn btn-sm btn-danger text-light fs-6">
-								<i class="efb fs-6 bi bi-trash d-inline d-md-none"></i>
-								<span class="efb d-none d-md-inline">%4$s</span>
-							</a>
-
-							<!-- Error Message (hidden by default) -->
-							<div id="efb-error-message-${efbMap._leaflet_id}" class="efb mx-3 error-message d-none"></div>
-						</div>
-					`;
-					efbDiv.classList.remove("d-none");
-				} else {
-					efbDiv.innerHTML = `
-						<div id="efb-error-message-${efbMap._leaflet_id}" class="efb mx-3 error-message d-none"></div>
-					`;
-					efbDiv.classList.add("d-none");
-					efbDiv.classList.add("efb");
-				}
-
-				L.DomEvent.disableClickPropagation(efbDiv);
-				L.DomEvent.disableScrollPropagation(efbDiv);
-
-				return efbDiv;
-			};
-
-			efbSearchDiv.addTo(efbMap);
-
-			// Initialize maps storage
-			maps_efb[efbMap._leaflet_id] = {
-				map: efbMap,
-				markersLayer: efbMarkersLayer,
-				markers: [],
-				locationList: []
-			};
-
-			// Handle map interactions based on state
-			if((typeof state_efb === "undefined" || state_efb != "view") && viewState==false) {
-				if (efbAllowAddingMarkers) {
-					efbMap.on("click", function(e) {
-						var efbLatlng = e.latlng;
-						efbAddMarker(efbLatlng.lat, efbLatlng.lng, efbMap._leaflet_id, efbAllowAddingMarkers, r, form_id);
-					});
-				} else {
-					efbAddInitialMarker(efbInitialLat, efbInitialLng, efbMap._leaflet_id);
-				}
-			} else {
-				const len = r.value ? r.value.length : 0;
-				if(len > 0) {
-					Object.assign(r, {mark: len});
-					for (let i = 0; i < len; i++) {
-						efbAddMarker(r.value[i].lat, r.value[i].lng, efbMap._leaflet_id, i+1, r, form_id);
-					}
-				}
-			}
-
-			// Add fullscreen control if available
-			if (typeof L.control.fullscreen === "function") {
-				var efbFullscreenControl = L.control.fullscreen({
-					title: {
-						"false": "Go Fullscreen",
-						"true": "Exit Fullscreen"
-					}
-				});
-				efbMap.addControl(efbFullscreenControl);
-
-				efbMap.on("enterFullscreen", function(){
-					console.log("Map entered fullscreen");
-				});
-
-				efbMap.on("exitFullscreen", function(){
-					console.log("Map exited fullscreen");
-				});
-			} else {
-				console.warn("Leaflet fullscreen control plugin is not loaded");
-			}
-		}',
-		$map_id,
-		$search_placeholder,
-		$search_text,
-		$delete_markers_text,
-		$lang
-		);
-		*/
 	}
 
 	/* public function fun_captcha_load_efb($public_key, $form_id) {
@@ -3432,6 +3251,259 @@
 			<script type="application/ld+json">' .
 				\wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) .
 				'</script>' . "\n";
+		}
+
+
+		public function field_maps_style_efb(){
+			return '
+					.map-container {
+					width: 100%;
+					height: 350px;
+					margin-top: 10px;
+					}
+					.map {
+					width: 100%;
+					height: 100%;
+					}
+					.leaflet-control-container .leaflet-control-layers {
+					background: white;
+					padding: 10px;
+					}
+					.leaflet-control-container .custom-control {
+						position: relative;
+						bottom: 0;
+						left: 0;
+						width: 100%;
+						background: rgba(248, 249, 250, 0.95);
+						padding: 8px;
+						box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+						z-index: 1000;
+						border-radius: 8px;
+					}
+
+					.leaflet-control-container .custom-control .d-flex {
+						gap: 6px;
+						flex-wrap: wrap;
+					}
+
+					.leaflet-control-container .custom-control input,
+					.leaflet-control-container .custom-control button,
+					.leaflet-control-container .custom-control a {
+						margin: 2px;
+						border-radius: 6px;
+						border: none;
+						box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+						transition: all 0.2s ease;
+					}
+
+					.leaflet-control-container .custom-control a:hover {
+						transform: translateY(-1px);
+						box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+					}
+
+					.leaflet-control-container .custom-control input[type="text"] {
+						flex: 1;
+						min-width: 150px;
+						padding: 6px 12px;
+						border: 1px solid #dee2e6;
+						background: white;
+					}
+
+					@media (max-width: 576px) {
+						.leaflet-control-container .custom-control {
+							padding: 6px;
+							width: calc(100% - 10px);
+							margin: 5px;
+						}
+
+						.leaflet-control-container .custom-control .d-flex {
+							gap: 4px;
+						}
+
+						.leaflet-control-container .custom-control input[type="text"] {
+							min-width: 120px;
+							font-size: 14px;
+							padding: 8px 10px;
+						}
+
+						.leaflet-control-container .custom-control .btn {
+							padding: 8px 10px;
+							font-size: 14px;
+						}
+
+						.leaflet-control-container .custom-control .btn i {
+							font-size: 16px;
+						}
+
+						.leaflet-control-container .custom-control .d-none.d-md-inline {
+							display: none !important;
+						}
+
+						.leaflet-control-container .custom-control .d-inline.d-md-none {
+							display: inline !important;
+						}
+					}
+
+					@media (min-width: 577px) and (max-width: 992px) {
+						.leaflet-control-container .custom-control {
+							width: calc(100% - 10px);
+							margin: 5px;
+						}
+
+						.leaflet-control-container .custom-control input[type="text"] {
+							min-width: 180px;
+						}
+					}
+					@media (min-width: 993px) {
+						.leaflet-control-container .custom-control {
+							width: auto;
+							max-width: 90%;
+						}
+
+						.leaflet-control-container .custom-control input[type="text"] {
+							min-width: 200px;
+						}
+					}
+					.leaflet-control-container .error-message {
+					color: red;
+					margin: 5px;
+					}
+					#efb-create-map-btn {
+					margin: 10px;
+					}
+
+
+					.custom-control.leaflet-control {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+					}
+
+					.custom-control.leaflet-control .efb {
+					margin: 0 5px;
+					}
+
+					.custom-control.leaflet-control input[type="text"] {
+					flex: 1;
+					min-width: 200px;
+					}
+
+					.custom-control.leaflet-control a,
+					.custom-control.leaflet-control input[type="text"] {
+					margin: 0;
+					}
+
+					.custom-control.leaflet-control .error-message {
+					margin-top: 10px;
+					}
+					.efb-searchbox .btn {
+						transition: all 0.2s ease-in-out;
+						border: none;
+						font-weight: 500;
+					}
+
+					.efb-searchbox .btn:hover {
+						transform: translateY(-1px);
+						box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+					}
+
+					.efb-searchbox .btn:active {
+						transform: translateY(0);
+					}
+
+					.efb-searchbox .form-control {
+						border: 1px solid #dee2e6;
+						border-radius: 6px;
+						transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+					}
+
+					.efb-searchbox .form-control:focus {
+						border-color: #86b7fe;
+						outline: 0;
+						box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+					}
+
+					/* Map control responsive styles */
+					.efb .map-control-container {
+					display: flex !important;
+					flex-wrap: nowrap !important;
+					align-items: center !important;
+					justify-content: flex-start !important;
+					gap: 4px !important;
+					position: relative !important;
+					}
+
+					.efb .map-control-container .flex-shrink-0 {
+					min-width: 32px !important;
+					height: 32px !important;
+					padding: 0 !important;
+					flex-shrink: 0 !important;
+					}
+
+					.efb .map-control-container .form-control {
+					min-width: 100px !important;
+					height: 32px !important;
+					font-size: 13px !important;
+					padding: 4px 8px !important;
+					flex-grow: 1 !important;
+					}
+
+					@media (max-width: 576px) {
+					.efb .map-control-container {
+						gap: 2px !important;
+					}
+
+					.efb .map-control-container .flex-shrink-0 {
+						min-width: 30px !important;
+						height: 30px !important;
+					}
+
+					.efb .map-control-container .form-control {
+						font-size: 12px !important;
+						padding: 3px 6px !important;
+						height: 30px !important;
+					}
+					}
+					';
+		}
+
+
+		public function field_mobile_style_efb(){
+			return '
+					.iti--inline-dropdown .iti__dropdown-content{
+					z-index: 10000;
+					}
+
+					.mobile .btn-select-form.efb {	font-size: 10px;
+					height: 100px;
+					}
+					.mobile .description-logo.efb {
+					height: 65px;
+					width: 65px;
+					float: left;
+					margin: 0px;
+					}
+					.mobile .title-holder.efb {	margin: 0px 0 12px 0;
+					font-size: 32px !important;
+					}
+					.mobile .title-icon.efb {	font-size: 32px !important;
+					}
+					.mobile #efb-dd {	margin-top: 20%;
+					margin-bottom: 20%;
+					}
+					.mobile .mobile-title.efb {	font-size: 20px !important;
+					}
+					.mobile .mobile-text.efb {	font-size: 14px !important;
+					}
+
+					.mobile .efblist.inplist.h-d-efb {	font-size: 15px !important;
+					}
+
+
+					.mobile div#sideBoxEfb {	height: 100vh;
+					width: 70%}
+					.mobile #content-efb {	margin-top: 10px;
+					}';
 		}
 
 

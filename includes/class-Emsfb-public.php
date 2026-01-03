@@ -1088,6 +1088,9 @@ public function check_nonce_permission_efb($request) {
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
 			// if (valj_efb[0].hasOwnProperty('dShowBg') && Number(valj_efb[0].dShowBg) != 1 && state == "run") { document.getElementById('body_efb').classList.add('card') }
 			$dShow = isset($valj_efb[0]->dShowBg) && intval($valj_efb[0]->dShowBg) != 1 ? 'card' : '';
+			add_action('wp_head', function() use ($style) {
+				echo $style;
+			}, 1);
 			$content_new = $script.$bootstrap_icons.''.$iconst_html_preload.'
 				<!-- start body_efb-->
 
@@ -1109,7 +1112,7 @@ public function check_nonce_permission_efb($request) {
 					<!-- end body_efb-->
 					<div id="alert_efb" class="efb mx-5 alert_efb" data-formid="'.$this->id.'"></div>
 					<!-- style efb -->
-					'.$style.' '.$k . $jss;
+					 '.$k . $jss;
 		}else{
 			if(  $is_track['captcha'] == true && $rgister_captcha_url==false){
 				$rgister_captcha_url = $this->efbFunction->check_and_enqueue_google_captcha_efb($lang);

@@ -1250,43 +1250,53 @@ function efbCreateMap(id ,r ,viewState) {
       efbDiv.classList.add('efb-searchbox');
       if (efbAllowAddingMarkers) {
           efbDiv.innerHTML = `
-             <div class="efb d-flex justify-content-start align-items-center flex-wrap  flex-row">
+             <div class="efb d-flex justify-content-start align-items-center flex-nowrap flex-row" style="gap: 4px; position: relative;">
               <!-- Locate Me Button -->
               <a ${state_efb == 'view' ? '' : `onclick="efbLocateMe(${efbMap._leaflet_id}, '${id}')"`}
-                class="efb btn btn-sm btn-dark text-light fs-6 me-0 me-md-2 mb-md-0">
-                <i class="fs-6 efb bi-crosshair"></i>
+                class="efb btn btn-sm btn-dark text-light d-flex align-items-center justify-content-center flex-shrink-0"
+                title="Locate Me"
+                style="min-width: 32px; height: 32px; padding: 0;">
+                <i class="efb bi-crosshair" style="font-size: 14px;"></i>
               </a>
 
               <!-- Search Input Field -->
               <input type="text" id="efb-search-${efbMap._leaflet_id}"
                 placeholder="${efb_var.text.eln}"
-                class="efb form-control fs-6 me-0 me-md-2 mb-md-0 map-search-input my-0 locationpicker"
-                ${state_efb == 'view' ? 'disabled' : ''}
-                >
+                class="efb form-control flex-grow-1"
+                style="min-width: 100px; height: 32px; font-size: 13px; padding: 4px 8px;"
+                ${state_efb == 'view' ? 'disabled' : ''}>
 
               <!-- Search Button -->
               <a ${state_efb == 'view' ? '' : `onclick="efbSearchLocation(${efbMap._leaflet_id})"`}
-                class="efb btn btn-sm btn-secondary text-light fs-6 me-0 me-md-2 mb-md-0">
-                <i class="efb fs-6 bi bi-search d-inline d-md-none"></i>
-                <span class="efb d-none d-md-inline">${efb_var.text.search}</span>
+                class="efb btn btn-sm btn-secondary text-light d-flex align-items-center justify-content-center flex-shrink-0"
+                title="${efb_var.text.search}"
+                style="min-width: 32px; height: 32px; padding: 0;">
+                <i class="efb bi-search d-block d-md-none" style="font-size: 14px;"></i>
+                <span class="efb d-none d-md-block" style="font-size: 11px; white-space: nowrap; padding: 0 4px;">${efb_var.text.search}</span>
               </a>
 
               <!-- Clear Markers Button -->
               <a ${state_efb == 'view' ? '' : `onclick="efbClearMarkers(${efbMap._leaflet_id}, '${id}')"`}
-                class="efb btn btn-sm btn-danger text-light fs-6">
-                <i class="efb fs-6 bi bi-trash d-inline d-md-none"></i>
-                <span class="efb d-none d-md-inline">${efb_var.text.deletemarkers}</span>
+                class="efb btn btn-sm btn-danger text-light d-flex align-items-center justify-content-center flex-shrink-0"
+                title="${efb_var.text.deletemarkers}"
+                style="min-width: 32px; height: 32px; padding: 0;">
+                <i class="efb bi-trash d-block d-md-none" style="font-size: 14px;"></i>
+                <span class="efb d-none d-md-block" style="font-size: 11px; white-space: nowrap; padding: 0 4px;">${efb_var.text.deletemarkers}</span>
               </a>
 
               <!-- Error Message (hidden by default) -->
-              <div id="efb-error-message-${efbMap._leaflet_id}" class="efb mx-3 error-message d-none"></div>
+              <div id="efb-error-message-${efbMap._leaflet_id}"
+                class="efb position-absolute error-message text-danger d-none"
+                style="font-size: 12px; top: 100%; left: 0; right: 0; background: rgba(248, 249, 250, 0.95); padding: 4px 8px; border-radius: 4px; margin-top: 2px; z-index: 1001;"></div>
           </div>
           `;
           efbDiv.classList.remove('d-none');
 
       } else {
           efbDiv.innerHTML = `
-              <div id="efb-error-message-${efbMap._leaflet_id}" class="efb mx-3  error-message  d-none"></div>
+              <div id="efb-error-message-${efbMap._leaflet_id}"
+                class="efb w-100 error-message text-danger d-none"
+                style="font-size: 12px; padding: 8px;"></div>
           `;
           efbDiv.classList.add('d-none');
           efbDiv.classList.add('efb');
