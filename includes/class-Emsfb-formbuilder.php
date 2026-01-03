@@ -1067,8 +1067,8 @@
 		$readonly = $previewSate != true ? 'readonly' : '';
 		$classes =  str_replace(',', ' ', $vj->classes) ?? '';
 		$onlyCountries = isset($vj->c_c) && count($vj->c_c) > 0 ? $vj->c_c : '';
-		require_once EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
-		$efbFunction = new EFBFunction();
+
+		$efbFunction = get_efbFunction();
 		$tt =[ 'cpnnc', 'icc', 'cpnts', 'cpntl'];
 		$texts = $efbFunction->text_efb($tt);
 		if(gettype($onlyCountries) == 'array') {

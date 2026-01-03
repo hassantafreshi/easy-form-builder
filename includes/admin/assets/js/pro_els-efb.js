@@ -720,10 +720,24 @@ load_intlTelInput_efb = (rndm, iVJ) => {
               console.log(iti , iti.isValidNumber());
               if (iti.isValidNumber()) {
                   el_mobile.classList.add("border-success");
+                  console.log(el_mobile)
+                  console.log(iti)
+
+                  // Get different country information
+                  const countryData = iti.getSelectedCountryData();
+                  const countryCode = countryData.dialCode; // کد کشور (مثل: "98" برای ایران)
+                  const iso2 = countryData.iso2; // کد ISO2 (مثل: "ir" برای ایران)
+                  const countryName = countryData.name; // نام کشور (مثل: "Iran")
 
                   // Get the full number including the country code
                   const value = iti.getNumber();
-                  console.log("Valid number:", value);
+                  const nationalNumber = iti.getNumber(intlTelInputUtils.numberFormat.NATIONAL); // شماره ملی
+
+                  console.log("Mobile Valid number:", value);
+                  console.log("Mobile Country code:", countryCode);
+                  console.log("Mobile ISO2:", iso2);
+                  console.log("Mobile Country name:", countryName);
+                  console.log("Mobile National number:", nationalNumber);
 
                   // Update the value in the array
                   iVJ = valj_efb.findIndex(x => x.id_ == rndm);

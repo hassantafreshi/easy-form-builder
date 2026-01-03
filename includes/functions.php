@@ -1166,158 +1166,158 @@ class efbFunction {
 			// === Telegram Notification System ===
 
 			/* translators: Telegram = the messaging platform Telegram */
-			"telegram" => $state ? $ac->text->telegram : esc_html__('Telegram','easy-form-builder'),
+			"telegram" => $state && isset($ac->text->telegram) ? $ac->text->telegram : esc_html__('Telegram','easy-form-builder'),
 
 			/* translators: Bot Token = authentication token for Telegram bot */
-			"botToken" => $state ? $ac->text->botToken : esc_html__('Bot Token','easy-form-builder'),
+			"botToken" => $state && isset($ac->text->botToken) ? $ac->text->botToken : esc_html__('Bot Token','easy-form-builder'),
 
 			/* translators: Bot Username = username of the Telegram bot */
-			"botUsername" => $state ? $ac->text->botUsername : esc_html__('Bot Username','easy-form-builder'),
+			"botUsername" => $state && isset($ac->text->botUsername) ? $ac->text->botUsername : esc_html__('Bot Username','easy-form-builder'),
 
 			/* translators: Chat ID = unique identifier for a Telegram chat */
-			"chatId" => $state ? $ac->text->chatId : esc_html__('Chat ID','easy-form-builder'),
+			"chatId" => $state && isset($ac->text->chatId) ? $ac->text->chatId : esc_html__('Chat ID','easy-form-builder'),
 
 			/* translators: Verify Token = action to validate a bot token */
-			"verifyToken" => $state ? $ac->text->verifyToken : esc_html__('Verify Token','easy-form-builder'),
+			"verifyToken" => $state && isset($ac->text->verifyToken) ? $ac->text->verifyToken : esc_html__('Verify Token','easy-form-builder'),
 
 			/* translators: Send Test Message = action to send a test notification */
-			"sendTestMessage" => $state ? $ac->text->sendTestMessage : esc_html__('Send Test Message','easy-form-builder'),
+			"sendTestMessage" => $state && isset($ac->text->sendTestMessage) ? $ac->text->sendTestMessage : esc_html__('Send Test Message','easy-form-builder'),
 
 			/* translators: Test Message = a sample notification for testing purposes */
-			"testMessage" => $state ? $ac->text->testMessage : esc_html__('Test message from Easy Form Builder','easy-form-builder'),
+			"testMessage" => $state && isset($ac->text->testMessage) ? $ac->text->testMessage : esc_html__('Test message from Easy Form Builder','easy-form-builder'),
 
 			/* translators: Generate Link = action to create an onboarding URL */
-			"generateLink" => $state ? $ac->text->generateLink : esc_html__('Generate Admin Registration Link','easy-form-builder'),
+			"generateLink" => $state && isset($ac->text->generateLink) ? $ac->text->generateLink : esc_html__('Generate Admin Registration Link','easy-form-builder'),
 
 			/* translators: Bot Settings = configuration options for Telegram bot */
-			"botSettings" => $state ? $ac->text->botSettings : esc_html__('Bot Settings','easy-form-builder'),
+			"botSettings" => $state && isset($ac->text->botSettings) ? $ac->text->botSettings : esc_html__('Bot Settings','easy-form-builder'),
 
 			/* translators: Admin Chat Registration = process to register admin's chat ID */
-			"adminChatRegistration" => $state ? $ac->text->adminChatRegistration : esc_html__('Admin Chat Registration','easy-form-builder'),
+			"adminChatRegistration" => $state && isset($ac->text->adminChatRegistration) ? $ac->text->adminChatRegistration : esc_html__('Admin Chat Registration','easy-form-builder'),
 
 			/* translators: Quick Guide = brief instructions for setup */
-			"quickGuide" => $state ? $ac->text->quickGuide : esc_html__('Quick Guide','easy-form-builder'),
+			"quickGuide" => $state && isset($ac->text->quickGuide) ? $ac->text->quickGuide : esc_html__('Quick Guide','easy-form-builder'),
 
 			/* translators: Create Bot Steps = instructions for creating a Telegram bot */
-			"createBotSteps" => $state ? $ac->text->createBotSteps : esc_html__('Bot Creation Steps:','easy-form-builder'),
+			"createBotSteps" => $state && isset($ac->text->createBotSteps) ? $ac->text->createBotSteps : esc_html__('Bot Creation Steps:','easy-form-builder'),
 
 			/* translators: Get Chat ID Steps = instructions for obtaining chat ID */
-			"getChatIdSteps" => $state ? $ac->text->getChatIdSteps : esc_html__('Admin Chat ID Registration:','easy-form-builder'),
+			"getChatIdSteps" => $state && isset($ac->text->getChatIdSteps) ? $ac->text->getChatIdSteps : esc_html__('Admin Chat ID Registration:','easy-form-builder'),
 
 			/* translators: Message History = log of sent Telegram notifications */
-			"messageHistory" => $state ? $ac->text->messageHistory : esc_html__('Sent Message History','easy-form-builder'),
+			"messageHistory" => $state && isset($ac->text->messageHistory) ? $ac->text->messageHistory : esc_html__('Sent Message History','easy-form-builder'),
 
 			/* translators: Status = current state of a message or operation */
-			"status" => $state ? $ac->text->status : esc_html__('Status','easy-form-builder'),
+			"status" => $state && isset($ac->text->status) ? $ac->text->status : esc_html__('Status','easy-form-builder'),
 
 			/* translators: Sent = status indicating successful message delivery */
-			"sent" => $state ? $ac->text->sent : esc_html__('Sent','easy-form-builder'),
+			"sent" => $state && isset($ac->text->sent) ? $ac->text->sent : esc_html__('Sent','easy-form-builder'),
 
 			/* translators: Failed = status indicating unsuccessful operation */
-			"failed" => $state ? $ac->text->failed : esc_html__('Failed','easy-form-builder'),
+			"failed" => $state && isset($ac->text->failed) ? $ac->text->failed : esc_html__('Failed','easy-form-builder'),
 
 			/* translators: Bot Token Valid = confirmation that the bot token is working */
-			"botTokenValid" => $state ? $ac->text->botTokenValid : esc_html__('Bot Token is valid','easy-form-builder'),
+			"botTokenValid" => $state && isset($ac->text->botTokenValid) ? $ac->text->botTokenValid : esc_html__('Bot Token is valid','easy-form-builder'),
 
 			/* translators: User Not Found = Telegram user not found by phone number */
-			"telegramUserNotFound" => $state ? $ac->text->telegramUserNotFound : esc_html__('Telegram user not found for this phone number','easy-form-builder'),
+			"telegramUserNotFound" => $state && isset($ac->text->telegramUserNotFound) ? $ac->text->telegramUserNotFound : esc_html__('Telegram user not found for this phone number','easy-form-builder'),
 
 			/* translators: User Not Verified = Telegram user has not verified their account */
-			"telegramUserNotVerified" => $state ? $ac->text->telegramUserNotVerified : esc_html__('Telegram user account is not verified','easy-form-builder'),
+			"telegramUserNotVerified" => $state && isset($ac->text->telegramUserNotVerified) ? $ac->text->telegramUserNotVerified : esc_html__('Telegram user account is not verified','easy-form-builder'),
 
 			/* translators: Send Error = error occurred while sending Telegram message */
-			"telegramSendError" => $state ? $ac->text->telegramSendError : esc_html__('Error occurred while sending Telegram message','easy-form-builder'),
+			"telegramSendError" => $state && isset($ac->text->telegramSendError) ? $ac->text->telegramSendError : esc_html__('Error occurred while sending Telegram message','easy-form-builder'),
 
 			/* translators: Phone Registration = phone number registration for Telegram */
-			"phoneRegistration" => $state ? $ac->text->phoneRegistration : esc_html__('Phone Number Registration','easy-form-builder'),
+			"phoneRegistration" => $state && isset($ac->text->phoneRegistration) ? $ac->text->phoneRegistration : esc_html__('Phone Number Registration','easy-form-builder'),
 
 			/* translators: Verification Code = code sent for phone verification */
-			"verificationCodeSent" => $state ? $ac->text->verificationCodeSent : esc_html__('Verification code sent to your Telegram','easy-form-builder'),
+			"verificationCodeSent" => $state && isset($ac->text->verificationCodeSent) ? $ac->text->verificationCodeSent : esc_html__('Verification code sent to your Telegram','easy-form-builder'),
 
 			/* translators: Code Verified = confirmation that verification was successful */
-			"codeVerified" => $state ? $ac->text->codeVerified : esc_html__('Verification code confirmed successfully','easy-form-builder'),
+			"codeVerified" => $state && isset($ac->text->codeVerified) ? $ac->text->codeVerified : esc_html__('Verification code confirmed successfully','easy-form-builder'),
 
 			/* translators: Business Notification = message sent via business feature */
-			"businessNotification" => $state ? $ac->text->businessNotification : esc_html__('Business notification sent','easy-form-builder'),
+			"businessNotification" => $state && isset($ac->text->businessNotification) ? $ac->text->businessNotification : esc_html__('Business notification sent','easy-form-builder'),
 
 			/* translators: User Management = admin interface for managing users */
-			"userManagement" => $state ? $ac->text->userManagement : esc_html__('Telegram User Management','easy-form-builder'),
+			"userManagement" => $state && isset($ac->text->userManagement) ? $ac->text->userManagement : esc_html__('Telegram User Management','easy-form-builder'),
 
 			/* translators: Bot Token Invalid = error message for invalid bot token */
-			"botTokenInvalid" => $state ? $ac->text->botTokenInvalid : esc_html__('Bot Token is invalid','easy-form-builder'),
+			"botTokenInvalid" => $state && isset($ac->text->botTokenInvalid) ? $ac->text->botTokenInvalid : esc_html__('Bot Token is invalid','easy-form-builder'),
 
 			/* translators: Please Enter Bot Token = prompt to input the bot authentication token */
-			"pleaseEnterBotToken" => $state ? $ac->text->pleaseEnterBotToken : esc_html__('Please enter Bot Token','easy-form-builder'),
+			"pleaseEnterBotToken" => $state && isset($ac->text->pleaseEnterBotToken) ? $ac->text->pleaseEnterBotToken : esc_html__('Please enter Bot Token','easy-form-builder'),
 
 			/* translators: Please Fill All Fields = prompt to complete all required inputs */
-			"pleaseFillAllFields" => $state ? $ac->text->pleaseFillAllFields : esc_html__('Please fill all fields','easy-form-builder'),
+			"pleaseFillAllFields" => $state && isset($ac->text->pleaseFillAllFields) ? $ac->text->pleaseFillAllFields : esc_html__('Please fill all fields','easy-form-builder'),
 
 			/* translators: Copy Link = action to copy URL to clipboard */
-			"copyLink" => $state ? $ac->text->copyLink : esc_html__('Link copied to clipboard','easy-form-builder'),
+			"copyLink" => $state && isset($ac->text->copyLink) ? $ac->text->copyLink : esc_html__('Link copied to clipboard','easy-form-builder'),
 
 			/* translators: Enter Without @ = instruction to input username without @ symbol */
-			"enterWithoutAt" => $state ? $ac->text->enterWithoutAt : esc_html__('Enter without @','easy-form-builder'),
+			"enterWithoutAt" => $state && isset($ac->text->enterWithoutAt) ? $ac->text->enterWithoutAt : esc_html__('Enter without @','easy-form-builder'),
 
 			/* translators: Get From BotFather = instruction to obtain token from @BotFather */
-			"getFromBotFather" => $state ? $ac->text->getFromBotFather : esc_html__('Get from @BotFather on Telegram','easy-form-builder'),
+			"getFromBotFather" => $state && isset($ac->text->getFromBotFather) ? $ac->text->getFromBotFather : esc_html__('Get from @BotFather on Telegram','easy-form-builder'),
 
 			/* translators: Chat ID Receiver = recipient of the test message */
-			"chatIdReceiver" => $state ? $ac->text->chatIdReceiver : esc_html__('Chat ID of recipient','easy-form-builder'),
+			"chatIdReceiver" => $state && isset($ac->text->chatIdReceiver) ? $ac->text->chatIdReceiver : esc_html__('Chat ID of recipient','easy-form-builder'),
 
 			/* translators: Your Test Message = placeholder for test notification content */
-			"yourTestMessage" => $state ? $ac->text->yourTestMessage : esc_html__('Your test message...','easy-form-builder'),
+			"yourTestMessage" => $state && isset($ac->text->yourTestMessage) ? $ac->text->yourTestMessage : esc_html__('Your test message...','easy-form-builder'),
 
 			/* translators: Admin Registration Note = important notice about admin role */
-			"adminRegistrationNote" => $state ? $ac->text->adminRegistrationNote : esc_html__('Note: As the bot owner, you will receive form notifications.','easy-form-builder'),
+			"adminRegistrationNote" => $state && isset($ac->text->adminRegistrationNote) ? $ac->text->adminRegistrationNote : esc_html__('Note: As the bot owner, you will receive form notifications.','easy-form-builder'),
 
 			/* translators: Telegram Setup Complete = success message for completed setup */
-			"telegramSetupComplete" => $state ? $ac->text->telegramSetupComplete : esc_html__('Telegram notifications activated successfully!','easy-form-builder'),
+			"telegramSetupComplete" => $state && isset($ac->text->telegramSetupComplete) ? $ac->text->telegramSetupComplete : esc_html__('Telegram notifications activated successfully!','easy-form-builder'),
 
 			/* translators: Telegram Setup Error = error message for setup failure */
-			"telegramSetupError" => $state ? $ac->text->telegramSetupError : esc_html__('Error in Telegram setup','easy-form-builder'),
+			"telegramSetupError" => $state && isset($ac->text->telegramSetupError) ? $ac->text->telegramSetupError : esc_html__('Error in Telegram setup','easy-form-builder'),
 
 			/* translators: New Form Submission = notification for new form data */
-			"newFormSubmission" => $state ? $ac->text->newFormSubmission : esc_html__('New form submission received','easy-form-builder'),
+			"newFormSubmission" => $state && isset($ac->text->newFormSubmission) ? $ac->text->newFormSubmission : esc_html__('New form submission received','easy-form-builder'),
 
 			/* translators: Form Response = reply to form submission */
-			"formResponse" => $state ? $ac->text->formResponse : esc_html__('New response to your form','easy-form-builder'),
+			"formResponse" => $state && isset($ac->text->formResponse) ? $ac->text->formResponse : esc_html__('New response to your form','easy-form-builder'),
 
 			/* translators: Enable Telegram Notification = checkbox label to activate Telegram notifications */
-			"etelegramno" => $state ? $ac->text->etelegramno : esc_html__('Enable Telegram Notification','easy-form-builder'),
+			"etelegramno" => $state && isset($ac->text->etelegramno) ? $ac->text->etelegramno : esc_html__('Enable Telegram Notification','easy-form-builder'),
 
 			// === Telegram Error Messages ===
 
 			/* translators: Invalid Security Nonce = error for invalid security token */
-			"invalidSecurityNonce" => $state ? $ac->text->invalidSecurityNonce : esc_html__('Invalid security nonce','easy-form-builder'),
+			"invalidSecurityNonce" => $state && isset($ac->text->invalidSecurityNonce) ? $ac->text->invalidSecurityNonce : esc_html__('Invalid security nonce','easy-form-builder'),
 
 			/* translators: Invalid Form ID = error for invalid form identifier */
-			"invalidFormId" => $state ? $ac->text->invalidFormId : esc_html__('Invalid form ID','easy-form-builder'),
+			"invalidFormId" => $state && isset($ac->text->invalidFormId) ? $ac->text->invalidFormId : esc_html__('Invalid form ID','easy-form-builder'),
 
 			/* translators: Telegram File Not Found = error when Telegram addon file is missing */
-			"telegramFileNotFound" => $state ? $ac->text->telegramFileNotFound : esc_html__('Telegram addon file not found','easy-form-builder'),
+			"telegramFileNotFound" => $state && isset($ac->text->telegramFileNotFound) ? $ac->text->telegramFileNotFound : esc_html__('Telegram addon file not found','easy-form-builder'),
 
 			/* translators: Telegram Bot Not Configured = error when bot token is not set */
-			"telegramBotNotConfigured" => $state ? $ac->text->telegramBotNotConfigured : esc_html__('Telegram bot is not configured','easy-form-builder'),
+			"telegramBotNotConfigured" => $state && isset($ac->text->telegramBotNotConfigured) ? $ac->text->telegramBotNotConfigured : esc_html__('Telegram bot is not configured','easy-form-builder'),
 
 			/* translators: Telegram Activation Success = success message for telegram setup */
-			"telegramActivationSuccess" => $state ? $ac->text->telegramActivationSuccess : esc_html__('Telegram notifications activated successfully','easy-form-builder'),
+			"telegramActivationSuccess" => $state && isset($ac->text->telegramActivationSuccess) ? $ac->text->telegramActivationSuccess : esc_html__('Telegram notifications activated successfully','easy-form-builder'),
 
 			/* translators: Bot Token Empty = error when bot token is not provided */
-			"botTokenEmpty" => $state ? $ac->text->botTokenEmpty : esc_html__('Bot token is empty','easy-form-builder'),
+			"botTokenEmpty" => $state && isset($ac->text->botTokenEmpty) ? $ac->text->botTokenEmpty : esc_html__('Bot token is empty','easy-form-builder'),
 
 			/* translators: Invalid Token = error for invalid bot token */
-			"invalidToken" => $state ? $ac->text->invalidToken : esc_html__('Invalid token','easy-form-builder'),
+			"invalidToken" => $state && isset($ac->text->invalidToken) ? $ac->text->invalidToken : esc_html__('Invalid token','easy-form-builder'),
 
 			/* translators: Unknown Error = generic error message */
-			"unknownError" => $state ? $ac->text->unknownError : esc_html__('Unknown error','easy-form-builder'),
+			"unknownError" => $state && isset($ac->text->unknownError) ? $ac->text->unknownError : esc_html__('Unknown error','easy-form-builder'),
 
 			/* translators: Telegram Server Connection Error = error when can't connect to Telegram API */
-			"telegramConnectionError" => $state ? $ac->text->telegramConnectionError : esc_html__('Error connecting to Telegram server','easy-form-builder'),
+			"telegramConnectionError" => $state && isset($ac->text->telegramConnectionError) ? $ac->text->telegramConnectionError : esc_html__('Error connecting to Telegram server','easy-form-builder'),
 
 			/* translators: Invalid Response From Telegram = error for invalid API response */
-			"invalidTelegramResponse" => $state ? $ac->text->invalidTelegramResponse : esc_html__('Invalid response from Telegram server','easy-form-builder'),
+			"invalidTelegramResponse" => $state && isset($ac->text->invalidTelegramResponse) ? $ac->text->invalidTelegramResponse : esc_html__('Invalid response from Telegram server','easy-form-builder'),
 
-			// === Extended Telegram UI Translation ===
+
 			/* translators: Telegram = messaging service and platform */
 			"telegram" => $state && isset($ac->text->telegram) ? $ac->text->telegram : esc_html__('Telegram','easy-form-builder'),
 			/* translators: Bot Settings = configuration options for a Telegram bot */
