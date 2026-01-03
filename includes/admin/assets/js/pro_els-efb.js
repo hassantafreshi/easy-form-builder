@@ -674,9 +674,10 @@ function fun_switch_efb(el){
 function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : '';
   load_intlTelInput_efb(rndm,iVJ)
+  const formId = valj_efb[iVJ].form_id || 0; // Add form_id support
   return `
-  <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}"  ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""}  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
-  <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField d-none efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}-code" placeholder="verify"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
+  <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-formid="${formId}" data-vid='${rndm}' id="${rndm}_" aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}"  ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""}  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
+  <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField d-none efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-formid="${formId}" data-vid='${rndm}' id="${rndm}-code" placeholder="verify"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
   <button id="${rndm}-btn" type="submit" class="efb d-none">Submit</button>
  `;
 }
@@ -689,11 +690,14 @@ load_intlTelInput_efb = (rndm, iVJ) => {
     if(efb_var.length<1) efb_var = ajax_object_efm
     const ulitisJs = efb_var.images.hasOwnProperty('utilsJs') ? efb_var.images.utilsJs  : el_mobile.dataset.utilsjs;
     console.log('ulitisJs :', ulitisJs ,el_mobile,onlyCountries);
+      
+      // Updated for intl-tel-input v25.14.0
       iti = window.intlTelInput(el_mobile, {
           onlyCountries: onlyCountries,
-          autoHideDialCode: true,
+          nationalMode: true,
+          autoPlaceholder: "polite", 
           placeholderNumberType: "MOBILE",
-          utilsScript: ulitisJs,
+          loadUtils: () => import(ulitisJs),
       });
 
       el_mobile.addEventListener('blur', function () {
@@ -723,15 +727,16 @@ load_intlTelInput_efb = (rndm, iVJ) => {
                   console.log(el_mobile)
                   console.log(iti)
 
-                  // Get different country information
+                  // Get different country information using new API
                   const countryData = iti.getSelectedCountryData();
                   const countryCode = countryData.dialCode; // کد کشور (مثل: "98" برای ایران)
                   const iso2 = countryData.iso2; // کد ISO2 (مثل: "ir" برای ایران)
                   const countryName = countryData.name; // نام کشور (مثل: "Iran")
 
-                  // Get the full number including the country code
+                  // Get the full number including the country code using new API
                   const value = iti.getNumber();
-                  const nationalNumber = iti.getNumber(intlTelInputUtils.numberFormat.NATIONAL); // شماره ملی
+                  // Get national format using new API  
+                  const nationalNumber = iti.getNumber(window.intlTelInput?.utils?.numberFormat?.NATIONAL || 1);
 
                   console.log("Mobile Valid number:", value);
                   console.log("Mobile Country code:", countryCode);
@@ -774,50 +779,6 @@ load_intlTelInput_efb = (rndm, iVJ) => {
       });
   }, 800);
 };
-/* load_intlTelInput_efb=(rndm,iVJ)=>{
- const onlyCountries= valj_efb[iVJ].hasOwnProperty("c_c") && valj_efb[iVJ].c_c.length>0 ? valj_efb[iVJ].c_c : "";
- let iti;
- const el_mobile = document.getElementById(rndm+"_");
-  setTimeout(()=>{
-    iti= window.intlTelInput(el_mobile, {
-    onlyCountries:onlyCountries,
-    autoHideDialCode: true,
-    placeholderNumberType:"MOBILE",
-    utilsScript: efb_var.images.utilsJs,
-  });
-  el_mobile.addEventListener('blur', function() {
-  const  errorMap = [efb_var.text.cpnnc, efb_var.text.icc,efb_var.text.cpnts,efb_var.text.cpntl, efb_var.text.cpnnc];
-  el_mobile.classList.remove("border-danger");
-  el_mobile.classList.remove("border-success");
-  document.getElementById(rndm+"_-message").innerHTML="";
-  document.getElementById(rndm+"_-message").classList.remove("d-block");
-  document.getElementById(rndm+"_-message").classList.add("d-none");
-    if (el_mobile.value.trim()) {
-      console.log(el_mobile.value ,iti.s)
-      if (iti.isValidNumber()) {
-        el_mobile.classList.add("border-success");
-        const mobile_no = el_mobile.value.replace(/^0+/, '')
-          let value = `+${iti.s.dialCode}${mobile_no}`;
-          iVJ = valj_efb.findIndex(x=>x.id_==rndm);
-          fun_sendBack_emsFormBuilder({ id_: valj_efb[iVJ].id_, name: valj_efb[iVJ].name, id_ob: valj_efb[iVJ].id_, amount: valj_efb[iVJ].amount, type: valj_efb[iVJ].type, value: value, session: sessionPub_emsFormBuilder });
-      } else {
-        el_mobile.classList.add("border-danger");
-        console.log(iti)
-        let errorCode = iti.getValidationError()
-        errorCode= errorMap[errorCode] ? errorMap[errorCode] :errorMap[0];
-        document.getElementById(rndm+"_-message").classList.remove("d-none");
-        document.getElementById(rndm+"_-message").classList.add("d-block");
-        console.log(errorCode ,rndm+"_-message");
-        document.getElementById(rndm+"_-message").innerHTML=errorCode;
-        let inx = get_row_sendback_by_id_efb(rndm);
-        if (inx != -1) {
-          sendBack_emsFormBuilder_pub.splice(inx, 1)
-        }
-      }
-    }
-  });
-  },300)
-} */
 fun_imgRadio_efb=(id ,link,row ,state=true)=>{
   const u = (url)=>{
     url = url.replace(/(http:@efb@)+/g, 'http://');

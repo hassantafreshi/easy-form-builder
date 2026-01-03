@@ -250,25 +250,7 @@ async function createStepsOfPublic() {
               const indx = valj_efb_.findIndex(x => x.id_ === id);
               valj_efb=valj_efb_;
               load_intlTelInput_efb(id,indx);
-              /*   let value = valj_efb.find(x => x.id_ === id);
-                if(sendBack_emsFormBuilder_pub.length>0){
-                  let indx = get_row_sendback_by_id_efb_v4(id,form_id);
-                  if(indx!=-1){
-                    value.value = sendBack_emsFormBuilder_pub[indx].value;
-                  }
-                }
-                let v = value.value.split('+');
 
-                let storedPhoneNumber =value.value;
-                if(v.length==3){
-                  storedPhoneNumber ='+'+ v[2];
-                }
-                const country =efb_var.wp_lan.split('_')[1].toUpperCase();
-                const iti = window.intlTelInput(el, {
-                    initialCountry: country,
-                    utilsScript:  efb_var.images.utilsJs
-                });
-                iti.setNumber(storedPhoneNumber); */
 
             }
           break;

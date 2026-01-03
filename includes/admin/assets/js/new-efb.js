@@ -2351,7 +2351,7 @@ async function fun_offline_Efb() {
         const country =efb_var.wp_lan.split('_')[1].toUpperCase();
         const iti = window.intlTelInput(el, {
             initialCountry: country,
-            utilsScript:  efb_var.images.utilsJs
+            loadUtils: () => import(efb_var.images.utilsJs)
         });
         iti.setNumber(storedPhoneNumber);
 

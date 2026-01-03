@@ -1077,16 +1077,17 @@
 			$onlyCountries = '[]';
 		}
 
-		// Call the function to load intlTelInput
+		// Call the function to load intlTelInput (Updated for v25.14.0)
 		$js =sprintf(
 			'
 			let el_emsfb_%1$s = document.getElementById("%1$s_");
 			setTimeout(function() {
 				const iti = window.intlTelInput(el_emsfb_%1$s, {
 					onlyCountries: %11$s,
-					autoHideDialCode: true,
+					nationalMode: true,
+					autoPlaceholder: "polite",
 					placeholderNumberType: "MOBILE",
-					utilsScript: "%10$s",
+					loadUtils: () => import("%10$s"),
 				});
 				el_emsfb_%1$s.addEventListener("blur", function() {
 					const errorMap = [`%6$s`, `%7$s`,`%8$s`,`%9$s`, `%6$s`];
@@ -1100,8 +1101,21 @@
 					if (elem.value.trim()) {
 						if (iti.isValidNumber()) {
 							elem.classList.add("border-success");
-							const mobile_no = elem.value.replace(/^0+/, "");
-							const value = `+${iti.s.dialCode}${mobile_no}`;
+							
+							// Get country data using new API
+							const countryData = iti.getSelectedCountryData();
+							const countryCode = countryData.dialCode;
+							const iso2 = countryData.iso2;
+							const countryName = countryData.name;
+							
+							// Get the full number including country code using new API
+							const value = iti.getNumber();
+							
+							console.log("Mobile Valid number:", value);
+							console.log("Mobile Country code:", countryCode);
+							console.log("Mobile ISO2:", iso2);
+							console.log("Mobile Country name:", countryName);
+							
 							fun_sendBack_emsFormBuilder({
 								id_: "%2$s",
 								name: "%3$s",
@@ -1109,7 +1123,8 @@
 								amount: "%4$s",
 								type: "%5$s",
 								value: value,
-								session: sessionPub_emsFormBuilder
+								session: sessionPub_emsFormBuilder,
+								form_id: "%12$s"
 							});
 						} else {
 							elem.classList.add("border-danger");
@@ -1136,7 +1151,8 @@
 			$texts['cpnts'],
 			$texts['cpntl'],
 			EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js',
-			$onlyCountries
+			$onlyCountries,
+			$form_id
 
     	);
 

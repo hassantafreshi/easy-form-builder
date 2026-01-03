@@ -14,7 +14,7 @@ Create flexible contact forms, survey forms, payment forms, and user authenticat
 
 WhiteStudio Easy Form Builder is a comprehensive WordPress form plugin designed to help website owners create, manage, and maintain a wide variety of forms using a visual drag-and-drop form builder interface. The plugin is suitable for users who want to build professional forms without writing code, while still keeping full control over form data, submissions, and communication workflows.
 
-This form builder plugin can be used to create contact forms, support request forms, survey and feedback forms, payment forms using Stripe, and custom login or registration forms for WordPress users. All form data is stored directly on your WordPress website, ensuring transparency, data ownership, and predictable behavior.
+This form builder plugin can be used to create contact forms, support request forms, survey and feedback forms, payment forms using Stripe, subscription forms and custom login or registration forms for WordPress users. All form data is stored directly on your WordPress website, ensuring transparency, data ownership, and predictable behavior.
 
 [youtube https://www.youtube.com/watch?v=m92rq2X1Rv4]
 
@@ -100,7 +100,7 @@ You can use Stripe payment fields to create:
 Payment entries are handled alongside other form submissions and can be reviewed through the form management dashboard.
 
 For a step-by-step guide, see:
-[How to create a payment form in Easy Form Builder](https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/)
+[How to Create a payment form to collect online payments in Easy Form Builder](https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/)
 
 
 == Login and Registration Forms ==
@@ -132,10 +132,13 @@ These fields allow you to build complex, region-aware, and structured forms with
 WhiteStudio Easy Form Builder supports optional integrations and add-ons that extend the functionality of the form plugin:
 
 - SMS notification add-on for sending text messages on form submission
+
 - Stripe add-on for extended payment workflows
+
 - Offline forms add-on for collecting data without an active internet connection
-- Autocomplete add-on for faster form completion
+
 - Hijri (Qamari) date picker add-on
+
 - Jalali (Shamsi) date picker add-on
 
 
@@ -162,7 +165,7 @@ This version is suitable for professional websites, service platforms, and proje
 == Frequently Asked Questions ==
 
 = What is WhiteStudio Easy Form Builder used for? =
-It is a WordPress form plugin used to create contact forms, survey forms, payment forms, and login or registration forms using a drag-and-drop form builder.
+It is a WordPress form plugin used to create contact forms, survey forms, payment forms,subscription forms and login or registration forms using a drag-and-drop form builder.
 
 = Is WhiteStudio Easy Form Builder WCAG(ADA) compliant? =
 Form Builder has tried to add necessary standards to the forms, making them accessible to individuals with disabilities during form display.
@@ -192,7 +195,7 @@ Yes. Users can upload files through forms, and administrators can attach files i
 
 = Can I create payment forms with Stripe? =
 Yes. Stripe payment fields are supported.
-[How to create a payment form in Easy Form Builder](https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/)
+[How to Create a payment form to collect online payments in Easy Form Builder](https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/)
 
 = Does Easy Form Builder support survey forms? =
 Yes. The form builder includes survey and poll fields such as rating stars and NPS.
@@ -253,7 +256,7 @@ https://whitestudio.team
 6. Setting of Easy Form Builder
 7. Present chart of poll
 8. Form submitted and Confirmation Code (tracking pixels)
-9. Create a contact-us form
+9. Create a contact us form
 10. Localization Easy Form Builder to your language
 11. Email template Editor of Easy Form Builder
 12. Order payment forms
