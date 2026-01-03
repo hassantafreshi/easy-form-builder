@@ -87,7 +87,7 @@
           })
 
 
-          fun_fetch_api=(data ,transStat)=>{
+          fun_fetch_api_efb=(data ,transStat)=>{
             const jsonData = JSON.stringify(data);
             const requestOptions = {
             method: 'POST', // Or any other HTTP method (POST, GET, etc.)
@@ -131,7 +131,7 @@
   });
 
 
-            }//end fun fetch api
+}//end fun fetch api
 
 
           //=================>
@@ -166,7 +166,7 @@
                         token: transStat.token.id,
                         sid:efb_var.sid
                       };
-                      fun_fetch_api(data,transStat);
+                      fun_fetch_api_efb(data,transStat);
                     }
                   });
                 }else{
@@ -179,7 +179,7 @@
                     sid:efb_var.sid
                   };
                  const transStat="";
-                  fun_fetch_api(data,transStat);
+                  fun_fetch_api_efb(data,transStat);
                 }
 
               }
@@ -259,7 +259,7 @@
           }
 
     }//end  post_api_persiapay_efb
-  add_ui_stripe_efb = (rndm ,cl,sub) => {
+  add_ui_stripe_efb = (rndm ,cl,sub,form_id) => {
     if(!valj_efb[0].hasOwnProperty('currency')){ Object.assign(valj_efb[0], {currency: 'USD'}); }
     return  `
     <!-- stripe -->

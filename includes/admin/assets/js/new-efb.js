@@ -915,7 +915,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           cl = valj_efb[0].paymentmethod;
         }
         dataTag = elementId;
-        ui =typeof add_ui_stripe_efb =="function" ? add_ui_stripe_efb(rndm,cl,sub): public_pro_message();
+        ui =typeof add_ui_stripe_efb =="function" ? add_ui_stripe_efb(rndm,cl,sub,0): public_pro_message();
         console.log(ui);
         valj_efb[0].type = "payment";
         form_type_emsFormBuilder=valj_efb[0].type;

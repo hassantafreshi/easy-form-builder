@@ -471,7 +471,25 @@ public static function email_send_efb() {
     private static function get_addons_list_efb($settings)
     {
         $addons = [];
-
+                	/*
+            AdnSPF == stripe payment
+            AdnOF == offline form
+            AdnPPF == persia payment
+            AdnATC == advance tracking code
+            AdnSS == sms service
+            AdnCPF == crypto payment
+            AdnESZ == zone picker
+            AdnSE == email service
+             AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
+            'AdnPDP'=>0,
+			'AdnADP'=>0
+        */
         // Check each addon
         $addonKeys = [
             'AdnSS' => 'SMS',
@@ -479,6 +497,8 @@ public static function email_send_efb() {
             'AdnTlg' => 'Telegram',
             'AdnPAP' => 'PayPal',
             'AdnSPF' => 'Stripe',
+            'AdnPPF' => 'Persia Payment',
+            'AdnOF' => 'offline form',
 
         ];
 
