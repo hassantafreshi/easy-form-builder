@@ -327,9 +327,9 @@ class Admin {
         $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $post_name ,'form_type'=>$form_type ], ['form_id' => $post_id]);
 
 
-        if (class_exists('Emsfb_public')) {
-            Emsfb_public::clear_form_cache_efb($post_id);
-        }
+
+         $this->clear_form_cache_efb($post_id);
+
 
         $value_="";
         $value="";
@@ -1814,6 +1814,20 @@ class Admin {
             </script>
             <?php
     }
+
+    	public function clear_form_cache_efb($form_id) {
+		$form_id = intval($form_id);
+
+		$field_combinations = array(
+			array('form_structer', 'form_type'),
+			array('form_structer')
+		);
+
+		foreach ($field_combinations as $fields) {
+			$cache_key = $form_id . '_' . md5(implode('_', $fields));
+			wp_cache_delete('efb_form_' . $cache_key, 'emsfb');
+		}
+	}
 
 }
 

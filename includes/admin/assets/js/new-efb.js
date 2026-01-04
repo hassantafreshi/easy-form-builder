@@ -2480,6 +2480,20 @@ function generatePDF_EFB(id)
           img{width: 200px;}
           img.emoji{ width: 40px;}
           p {margin: 0px;}
+          a {
+            color: #0066cc !important;
+            text-decoration: underline !important;
+          }
+          a:hover {
+            color: #004499 !important;
+          }
+          button[href], .btn[href] {
+            color: inherit !important;
+            text-decoration: none !important;
+            border: 1px solid #ccc !important;
+            padding: 5px 10px !important;
+            display: inline-block !important;
+          }
           #watermark {
             margin: 0% 24%;
             font-size: 28px;
@@ -2491,9 +2505,60 @@ function generatePDF_EFB(id)
             text-align: center;
             font-weight: bold;
         }
+        @media print {
+          a {
+            color: #0066cc !important;
+            text-decoration: underline !important;
+          }
+          a[href]:after {
+            content: " (" attr(href) ")" !important;
+            font-size: 0.8em !important;
+            color: #666 !important;
+          }
+          button[href]:after, .btn[href]:after {
+            content: " [" attr(href) "]" !important;
+            font-size: 0.8em !important;
+            color: #666 !important;
+          }
+        }
         </style>
   `
   const divPrint=document.getElementById(id);
+
+  // Function to process content and ensure links are properly formatted
+  const processLinksForPDF = (element) => {
+    const clonedElement = element.cloneNode(true);
+
+    // Find all elements with href attributes (links and buttons)
+    const elementsWithHref = clonedElement.querySelectorAll('[href]');
+
+    elementsWithHref.forEach(el => {
+      // Ensure the href is absolute URL for better PDF compatibility
+      if (el.href && !el.href.startsWith('http') && !el.href.startsWith('mailto') && !el.href.startsWith('tel')) {
+        try {
+          el.href = new URL(el.href, window.location.origin).href;
+        } catch (e) {
+          // If URL construction fails, keep original href
+        }
+      }
+
+      // Add title attribute if not present for better accessibility in PDF
+      if (!el.title && el.href) {
+        el.title = el.href;
+      }
+
+      // Ensure target attribute is set for external links
+      if (el.href && (el.href.startsWith('http') || el.href.startsWith('mailto') || el.href.startsWith('tel'))) {
+        el.target = '_blank';
+        el.rel = 'noopener noreferrer';
+      }
+    });
+
+    return clonedElement.innerHTML;
+  };
+
+  const processedContent = processLinksForPDF(divPrint);
+
   let n_win=window.open('','Print-Window');
   const text=`<a href="${window.location.origin}" target="_blank">${window.location.hostname}</a></h2>
   ${efb_var.pro!=1 ?`<h2>${efb_var.text.createdBy} <a href="https://whitestudio.team" target="_blank">${efb_var.text.easyFormBuilder}</a>`:''}`;
@@ -2507,7 +2572,7 @@ function generatePDF_EFB(id)
   function winprint(){setTimeout(()=>{window.print()},100);}
   </script>
   ${div}
-  ${divPrint.innerHTML}
+  ${processedContent}
   </body></html>`;
   n_win.document.open();
   n_win.document.write(val);

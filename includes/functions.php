@@ -1,5 +1,4 @@
 <?php
-
 namespace Emsfb;
 
 /**
@@ -887,7 +886,7 @@ class efbFunction {
 			"settings" => $state  &&  isset($ac->text->settings) ? $ac->text->settings : esc_html__('Settings','easy-form-builder'),
 			"emlcc" => $state  &&  isset($ac->text->emlcc) ? $ac->text->emlcc : esc_html__('Send email with submitted form content only','easy-form-builder'),
 			"copied" => $state  &&  isset($ac->text->copied) ? $ac->text->copied : esc_html__('copied!','easy-form-builder'),
-			"srvnrsp" => $state  &&  isset($ac->text->srvnrsp) ? $ac->text->srvnrsp : esc_html__('The website is not responding; please refresh and try again—saving or submitting is not available until it is restored.','easy-form-builder'),
+			"srvnrsp" => $state  &&  isset($ac->text->srvnrsp) ? $ac->text->srvnrsp : esc_html__('The website is not responding; please refresh and try againâ€”saving or submitting is not available until it is restored.','easy-form-builder'),
 
 			"ecnr" => $state  &&  isset($ac->text->ecnr) ? $ac->text->ecnr : esc_html__('"Hi %s, %s Your account has been successfully created! To get started, Please verify your email address by clicking the link below. This activation link will be valid for 24 hours. %s %s %s %s"','easy-form-builder'),
 			"ecrp" => $state  &&  isset($ac->text->ecrp) ? $ac->text->ecrp : esc_html__('Hi %s, %s You have requested to reset your password. To reset your password, please click the link below. This link will be valid for 24 hours. If the link expires, you can request a new one through our website. %s %s %s %s','easy-form-builder'),
@@ -925,7 +924,7 @@ class efbFunction {
 			"fform" => $state  &&  isset($ac->text->fform) ? $ac->text->fform : esc_html__('Submitted Form','easy-form-builder'),
 			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : esc_html__('You can\'t add reCAPTCHA to payment forms.','easy-form-builder'),
 
-			"srvnsave" => $state  &&  isset($ac->text->srvnsave) ? $ac->text->srvnsave : esc_html__('The connection was interrupted, but don\'t worry—your edits are safely stored in your browser. Refresh the page to continue working.','easy-form-builder'),
+			"srvnsave" => $state  &&  isset($ac->text->srvnsave) ? $ac->text->srvnsave : esc_html__('The connection was interrupted, but don\'t worryâ€”your edits are safely stored in your browser. Refresh the page to continue working.','easy-form-builder'),
 
 			"rasfmb" => $state  &&  isset($ac->text->rasfmb) ? $ac->text->rasfmb : esc_html__('There is an auto-saved version of the form available. Do you want to restore it?','easy-form-builder'),
 			"smsWPN" => $state  &&  isset($ac->text->smsWPN) ? $ac->text->smsWPN : esc_html__('SMS notification could not be sent. Please check SMS plugin installed and configured properly.','easy-form-builder'),
@@ -1147,7 +1146,7 @@ class efbFunction {
 			$de =preg_replace('/^[^.]*\. /', '', $lang['mlntip']);
 
 			$link = "$l/document/send-email-using-smtp-plugin/";
-			if($wp_lan=="fa_IR") $link = "$l/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/";
+			if($wp_lan=="fa_IR") $link = "$l/Ø¯Ø§Ú©ÛŒÙˆÙ…Ù†Øª/Ø§Ø±Ø³Ø§Ù„-Ø§ÛŒÙ…ÛŒÙ„-Ø¨ÙˆØ³ÛŒÙ„Ù‡-Ø§ÙØ²ÙˆÙ†Ù‡-smtp/";
 
 			$de = str_replace('%1$s',"<a href='$link' target='_blank'>",$de);
 			$de = str_replace('%2$s',"</a>",$de);
@@ -1163,7 +1162,7 @@ class efbFunction {
 			";
 			 if(strlen($st->activeCode)<5){
 				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);
-				if($wp_lan=="de_DE") $p = str_replace('$'  ,'€' ,$lang["yFreeVEnPro"]);
+				if($wp_lan=="de_DE") $p = str_replace('$'  ,'â‚¬' ,$lang["yFreeVEnPro"]);
 				$message ="<h2 style='text-align:center'>"
 				. $p ."</h2>
 				<div style='text-align:center'>
@@ -1341,7 +1340,7 @@ class efbFunction {
 				foreach($user_res as $key=>$val){
 					if(isset($user_res[$key]["id_"]) && in_array($user_res[$key]["id_"],$emailsId,true) && isset($val["value"]) && is_email($val["value"]) ){
 						$email=$val["value"];
-						$subject ="📮 ".$lang["youRecivedNewMessage"];
+						$subject ="ðŸ“® ".$lang["youRecivedNewMessage"];
 						$this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
 					}
 				}
@@ -2291,27 +2290,27 @@ public function sanitize_style_attribute_efb($style) {
 
 			function ensure_trailing_colon_efb(string $s, string $colon = ':'): string
 			{
-				// هر علامت پایان جمله/پایان عبارت در زبان‌های مختلف (به‌اضافه «:»)
-				$punctClass = '[:：\.\!\?\…‥。！？｡．؟\x{06D4}؛;;‽‼⁇⁈⁉⸮።፧။។៕։\x{0964}\x{0965}\x{0589}\x{1362}\x{104B}\x{17D4}\x{17D5}\x{05C3}]';
+				// Ù‡Ø± Ø¹Ù„Ø§Ù…Øª Ù¾Ø§ÛŒØ§Ù† Ø¬Ù…Ù„Ù‡/Ù¾Ø§ÛŒØ§Ù† Ø¹Ø¨Ø§Ø±Øª Ø¯Ø± Ø²Ø¨Ø§Ù†â€ŒÙ‡Ø§ÛŒ Ù…Ø®ØªÙ„Ù (Ø¨Ù‡â€ŒØ§Ø¶Ø§ÙÙ‡ Â«:Â»)
+				$punctClass = '[:ï¼š\.\!\?\â€¦â€¥ã€‚ï¼ï¼Ÿï½¡ï¼ŽØŸ\x{06D4}Ø›;Í¾â€½â€¼â‡âˆâ‰â¸®á¢á§á‹áŸ”áŸ•Ö‰\x{0964}\x{0965}\x{0589}\x{1362}\x{104B}\x{17D4}\x{17D5}\x{05C3}]';
 
-				// اگر هر کدام از این‌ها هرجای متن باشد، چیزی اضافه نکن
+				// Ø§Ú¯Ø± Ù‡Ø± Ú©Ø¯Ø§Ù… Ø§Ø² Ø§ÛŒÙ†â€ŒÙ‡Ø§ Ù‡Ø±Ø¬Ø§ÛŒ Ù…ØªÙ† Ø¨Ø§Ø´Ø¯ØŒ Ú†ÛŒØ²ÛŒ Ø§Ø¶Ø§ÙÙ‡ Ù†Ú©Ù†
 				if (preg_match('/' . $punctClass . '/u', $s)) {
 					return $s;
 				}
 
-				// کلوزرهای انتهایی (مثل ” ) ] …) و فاصله‌های آخر را جدا کنیم تا کولون قبل از آن‌ها بنشیند
-				$closersRe = '(?:\p{Pe}|\p{Pf}|["\'»”’）\)\]】］｝〉》」』〕〗])*';
+				// Ú©Ù„ÙˆØ²Ø±Ù‡Ø§ÛŒ Ø§Ù†ØªÙ‡Ø§ÛŒÛŒ (Ù…Ø«Ù„ â€ ) ] â€¦) Ùˆ ÙØ§ØµÙ„Ù‡â€ŒÙ‡Ø§ÛŒ Ø¢Ø®Ø± Ø±Ø§ Ø¬Ø¯Ø§ Ú©Ù†ÛŒÙ… ØªØ§ Ú©ÙˆÙ„ÙˆÙ† Ù‚Ø¨Ù„ Ø§Ø² Ø¢Ù†â€ŒÙ‡Ø§ Ø¨Ù†Ø´ÛŒÙ†Ø¯
+				$closersRe = '(?:\p{Pe}|\p{Pf}|["\'Â»â€â€™ï¼‰\)\]ã€‘ï¼½ï½ã€‰ã€‹ã€ã€ã€•ã€—])*';
 				if (preg_match('/(?P<closers>' . $closersRe . ')(?P<spaces>[\s\x{00A0}\x{202F}]*)$/u', $s, $m)) {
 					$endClosers = $m['closers'];
 					$endSpaces  = $m['spaces'];
-					// حذف بخش انتهایی برای درج کولون قبل از آن
+					// Ø­Ø°Ù Ø¨Ø®Ø´ Ø§Ù†ØªÙ‡Ø§ÛŒÛŒ Ø¨Ø±Ø§ÛŒ Ø¯Ø±Ø¬ Ú©ÙˆÙ„ÙˆÙ† Ù‚Ø¨Ù„ Ø§Ø² Ø¢Ù†
 					$s = preg_replace('/' . $closersRe . '[\s\x{00A0}\x{202F}]*$/u', '', $s);
 				} else {
 					$endClosers = '';
 					$endSpaces  = '';
 				}
 
-				// یک فاصله قبل از کولون (سبک فارسی/فرانسوی «نام خانوادگی :»)
+				// ÛŒÚ© ÙØ§ØµÙ„Ù‡ Ù‚Ø¨Ù„ Ø§Ø² Ú©ÙˆÙ„ÙˆÙ† (Ø³Ø¨Ú© ÙØ§Ø±Ø³ÛŒ/ÙØ±Ø§Ù†Ø³ÙˆÛŒ Â«Ù†Ø§Ù… Ø®Ø§Ù†ÙˆØ§Ø¯Ú¯ÛŒ :Â»)
 				if (!preg_match('/\s$/u', $s)) {
 					$s .= ' ';
 				}

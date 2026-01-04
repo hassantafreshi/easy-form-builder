@@ -34,7 +34,7 @@ class _Public {
 
 
 
-		add_action('rest_api_init',  @function(){
+		add_action('rest_api_init',  function(){
 			$this->efb_uid  = get_current_user_id();
 
 		register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
@@ -337,7 +337,7 @@ public function check_nonce_permission_efb($request) {
 	 * Clear form cache
 	 * @param int $form_id Form ID to clear cache for
 	 */
-	public static function clear_form_cache_efb($form_id) {
+	public function clear_form_cache_efb($form_id) {
 		$form_id = intval($form_id);
 
 		$field_combinations = array(
@@ -741,13 +741,6 @@ public function check_nonce_permission_efb($request) {
 					wp_enqueue_script('logic-efb');
 				}
 
-		}else if ($this->pro_efb!=1 && ($lang=='fa' || $lang=='ar')){
-					$efb_m .= '<p class="efb fs-7 text-darkb mb-4 d-none" style="text-align: center;" >
-					<a href="https://easyformbuilder.ir"  class="efb d-none" target="_blank">افزونه فرم ساز وردپرس فارسی</a>
-					<a href="https://wordpress.org/plugins/easy-form-builder/"  class="efb d-none" target="_blank">Easy Form Builder Plugin for WordPress</a>
-					<a href="https://'.$lang.'.wordpress.org/plugins/easy-form-builder/"  class="efb d-none" target="_blank">'.$lanText['easyFormBuilder'].' WordPress</a>
-					</p>
-					';
 		}
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
@@ -1845,7 +1838,7 @@ public function check_nonce_permission_efb($request) {
 					$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
 
 
-					self::clear_form_cache_efb($id);
+					$this->clear_form_cache_efb($id);
 
 				}			}
 		}else if ($fs==''){
@@ -1887,6 +1880,7 @@ public function check_nonce_permission_efb($request) {
 						if(isset($setting->activeCode) &&!empty($setting->activeCode) && md5($server_name) ==$setting->activeCode){
 							$pro=true;
 						}
+						update_option('emsfb_pro', $pro ? '1' : '2');
 						$response=$data_POST['valid'];
 						$args = array(
 							'secret'        => $secretKey,
@@ -3127,6 +3121,7 @@ public function check_nonce_permission_efb($request) {
 				$pro = false;
 				if(isset($r->activeCode) &&  md5($server_name) ==$r->activeCode){$pro=true;}
 				$this->pro_efb = $pro;
+				update_option('emsfb_pro', $pro ? '1' : '2');
 				$trackingCode = isset($r->trackingCode) ? $r->trackingCode : "";
 				$siteKey = isset($r->siteKey) ? $r->siteKey : "";
 				$mapKey = isset($r->apiKeyMap) ? $r->apiKeyMap : "";
