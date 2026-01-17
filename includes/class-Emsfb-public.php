@@ -146,7 +146,7 @@ public function check_nonce_permission_efb($request) {
 
 	header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 	header('Access-Control-Allow-Credentials: true');
-	header('Access-Control-Allow-Headers: Content-Type, X-WP-Nonce, Authorization');
+	header('Access-Control-Allow-Headers: Content-Type, X-WP-Nonce, Authorization, sid, form_id');
 	header('Access-Control-Max-Age: 86400');
 
 
@@ -174,24 +174,24 @@ public function check_nonce_permission_efb($request) {
 
 		return new \WP_Error('rest_forbidden', __('X-WP-Nonce header is missing', 'easy-form-builder'), array('status' => 403));
 	}
+	error_log('[EFB Nonce] Verifying nonce from header');
+	error_log('[EFB Nonce] X-WP-Nonce: ' . substr(sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ), 0, 8) . '...');
+	error_log('[EFB Nonce] HTTP_sid: ' . substr(sanitize_text_field( wp_unslash( $_SERVER['HTTP_SID'] ?? '!!!') ), 0, 8) . '...');
+	error_log('[EFB Nonce] HTTP_form_id: ' . sanitize_text_field( wp_unslash( $_SERVER['HTTP_FORM_ID'] ?? '!!!') ) . '...');
 
-	// Verify nonce if provided
 	$verify = wp_verify_nonce( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ), 'wp_rest');
 
-	if (!$verify) {
+	if (!$verify || true) {
 		// Fallback: Try SID validation if nonce failed
-		$data = $request->get_json_params();
-		$sid = sanitize_text_field($data['sid'] ?? '');
-		$fid = intval($data['id'] ?? 0);
 
-		if($data['fid']){
-			$fid = intval($data['fid']);
-		}
+		$sid = sanitize_text_field( wp_unslash($_SERVER['HTTP_SID'] ?? ''));
+		$fid = sanitize_text_field( wp_unslash($_SERVER['HTTP_FORM_ID'] ?? ''));
 
-		error_log('[EFB Nonce] Nonce verification failed, attempting SID fallback - SID: ' . substr($sid, 0, 8) . '... | FID: ' . $fid);
+
+		error_log('[EFB Nonce] Nonce verification failed, attempting SID fallback - SID: ' . $sid . '... | FID: ' . $fid);
 
 		// Only try SID fallback if we have both sid and fid
-		if (!empty($sid) && !empty($fid)) {
+		if (!empty($sid) && $fid !== '') {
 			if (!$this->efbFunction) {
 				$this->efbFunction = get_efbFunction();
 			}
@@ -200,18 +200,14 @@ public function check_nonce_permission_efb($request) {
 			$sid_valid = $this->efbFunction->efb_code_validate_select($sid, $fid);
 
 			if ($sid_valid) {
-
-				if ($recent_check === '1') {
-					error_log('[EFB Nonce] ✅ SID fallback successful for SID: ' . substr($sid, 0, 8) . '...');
+					error_log('[EFB Nonce] ✅ SID fallback successful for SID: ' . $sid . '...');
 					return true; // Allow access via SID validation
-				} else {
-					error_log('[EFB Nonce] ❌ SID fallback failed - session too old or inactive');
-				}
 			} else {
 				error_log('[EFB Nonce] ❌ SID fallback failed - invalid SID');
 			}
 		} else {
 			error_log('[EFB Nonce] ❌ SID fallback skipped - missing sid or fid');
+			return new \WP_Error('rest_forbidden', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
 		}
 
 		return new \WP_Error('rest_forbidden', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
@@ -505,6 +501,7 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 	public function EFB_Form_Builder($id){
+			error_log('EFB_Form_Builder start');
 
 			$page_builder="";
 			$action_post = isset($_GET['action']) ? sanitize_key( wp_unslash( $_GET['action'] ) ) :'';
@@ -607,6 +604,7 @@ public function check_nonce_permission_efb($request) {
 			$pro = $this->efbFunction->is_efb_pro(1);
 			$this->pro_efb = $pro ;
 			$lanText= $this->efbFunction->text_efb($this->text_);
+			error_log('>>before function efb_code_validate_create');
 			$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
 			$ar_core = array( 'sid'=>$sid);
 
@@ -4791,7 +4789,7 @@ function email_get_content_efb($content, $track){
 	public function comper_version_efb($v){
 		if(version_compare(EMSFB_PLUGIN_VERSION,$v)!=0 ){
 			$efbFunction =  get_efbFunction();
-			$efbFunction->setting_version_efb_update('null' ,$this->pro_efb);
+			$efbFunction->setting_version_efb_update('null' ,$this->pro_efb );
 		}
 	}
 	public function form_preview_efb(){

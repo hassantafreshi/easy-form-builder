@@ -22,11 +22,17 @@ class Create {
 		if ( empty( $this->options ) ) {
 			update_option( $this->setting_name, array() );
 		}
+		//chek if update_option('emsfb_pro' exists
+		if ( false == get_option( 'emsfb_pro' ) ) {
+			add_option( 'emsfb_pro', -1 );
+		}
 		add_action( 'admin_menu', array( $this, 'add_Create_menu' ), 11 );
 		add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
 		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));// ساخت فرم
+
+
 	}
 	public function add_Create_menu() {
 		add_submenu_page( 'Emsfb', esc_html__('Create', 'easy-form-builder' ), esc_html__('Create', 'easy-form-builder' ), 'Emsfb_create', 'Emsfb_create', array(
@@ -58,7 +64,7 @@ class Create {
 
 		$noti_pro = intval(get_option('Emsfb_pro' ,-1));
 		if ($noti_pro === 0  ){
-			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
+			$noti_pro ="<script>console.log('test');const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
 
 		}else{
 			$noti_pro = '<script>const noti_exp_efb="";</script>';
@@ -115,80 +121,83 @@ class Create {
 					}, 90000);
 			</script>
 		<?php
+
 		$maps =false;
 
 		$pro =$efbFunction->is_efb_pro(1);
 		$settings= get_setting_Emsfb('decoded');
 		$addons = $efbFunction->fun_get_addons_list_efb($settings);
-
 		// Load map scripts if location picker is enabled
-		if(gettype($settings)!="string"){
-			if(isset($settings->osLocationPicker)==true && $settings->osLocationPicker==1){
-			 	$efbFunction->openstreet_map_required_efb(0);
-			}
+
+		if(isset($settings->osLocationPicker)==true && $settings->osLocationPicker==1){
+			$efbFunction->openstreet_map_required_efb(0);
+		}
 
 		// v2 translate
 		$lang = $efbFunction->text_efb(1);
 
-		if(gettype($settings)!="string"){
-				$efbFunction->setting_version_efb_update($settings ,$pro);
+		$efbFunction->setting_version_efb_update($settings, $pro, true);
+
+
+
+
+		if(isset($settings->AdnPDP) && $settings->AdnPDP==1){
+			// wmaddon
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
+				$r = $efbFunction->update_message_admin_side_efb();
+				// echo $r;
+				$efbFunction->download_all_addons_efb();
+				return 0;
+			}
+			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+			$persianDatePicker = new persianDatePickerEFB() ;
+		}
+
+		if(isset($settings->AdnPDP) && $settings->AdnADP==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+				$r = $efbFunction->update_message_admin_side_efb();
+				// echo $r;
+				$efbFunction->download_all_addons_efb();
+				return 0;
+			}
+			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+			$arabicDatePicker = new arabicDatePickerEfb() ;
+		}
+
+		if(isset($settings->AdnSS) && $settings->AdnSS==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
+				$r = $efbFunction->update_message_admin_side_efb();
+				// echo $r;
+				$efbFunction->download_all_addons_efb();
+				return 0;
 			}
 		}
-				if(isset($settings->AdnPDP) && $settings->AdnPDP==1){
-					// wmaddon
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
-						$r = $efbFunction->update_message_admin_side_efb();
-						// echo $r;
-						$efbFunction->download_all_addons_efb();
-						return 0;
-					}
-					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
-					$persianDatePicker = new persianDatePickerEFB() ;
-				}
-				if(isset($settings->AdnPDP) && $settings->AdnADP==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
-						$r = $efbFunction->update_message_admin_side_efb();
-						// echo $r;
-						$efbFunction->download_all_addons_efb();
-						return 0;
-					}
-					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
-					$arabicDatePicker = new arabicDatePickerEfb() ;
-				}
-				if(isset($settings->AdnSS) && $settings->AdnSS==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
-						$r = $efbFunction->update_message_admin_side_efb();
-						// echo $r;
-						$efbFunction->download_all_addons_efb();
-						return 0;
-					}
-				}
-				// AdnPAP
-				if(isset($settings->AdnPAP) && $settings->AdnPAP==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
-						$r = $efbFunction->update_message_admin_side_efb();
-						//echo $r;
-						$efbFunction->download_all_addons_efb();
-						return 0;
-					}
-					error_log('paypal!');
-					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php");
-					$paypalefb = new paypalefb() ;
-				}
-				$url =CDN_ZONE_AREA.'js/wp/countries.js';
-				if(isset($settings->AdnOF) && $settings->AdnOF==1){
-					$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
-				}
-			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
-			wp_enqueue_script('jquery-ui-efb');
-			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
-			wp_enqueue_script('jquery-dd-efb');
-			wp_register_script('countries-js', $url, null, null, true);
-			wp_enqueue_script('countries-js');
-			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
-			wp_enqueue_script('intlTelInput-js');
-			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
-			wp_enqueue_style('intlTelInput-css');
+		// AdnPAP
+		if(isset($settings->AdnPAP) && $settings->AdnPAP==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
+				$r = $efbFunction->update_message_admin_side_efb();
+				//echo $r;
+				$efbFunction->download_all_addons_efb();
+				return 0;
+			}
+			error_log('paypal!');
+			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php");
+			$paypalefb = new paypalefb() ;
+		}
+		$url =CDN_ZONE_AREA.'js/wp/countries.js';
+		if(isset($settings->AdnOF) && $settings->AdnOF==1){
+			$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
+		}
+		wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
+		wp_enqueue_script('jquery-ui-efb');
+		wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
+		wp_enqueue_script('jquery-dd-efb');
+		wp_register_script('countries-js', $url, null, null, true);
+		wp_enqueue_script('countries-js');
+		wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
+		wp_enqueue_script('intlTelInput-js');
+		wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
+		wp_enqueue_style('intlTelInput-css');
 		if( false){
 			wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);
 			wp_enqueue_script('logic-efb');

@@ -602,7 +602,7 @@ class efbFunction {
 			"translateLocal" => $state ? $ac->text->translateLocal : esc_html__('You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.','easy-form-builder'),
 			"enterValidURL" => $state ? $ac->text->enterValidURL : esc_html__('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 			"emailOrUsername" => $state ? $ac->text->emailOrUsername : esc_html__('Email or Username','easy-form-builder'),
-			"contactusForm" => $state ? $ac->text->contactusForm : esc_html__('Contact U	s Form','easy-form-builder'),
+			"contactusForm" => $state ? $ac->text->contactusForm : esc_html__('Contact Us Form','easy-form-builder'),
 			"clear" => $state ? $ac->text->clear : esc_html__('Clear','easy-form-builder'),
 			"entrTrkngNo" => $state ? $ac->text->entrTrkngNo : esc_html__('Enter the Confirmation Code','easy-form-builder'),
 			"search" => $state ? $ac->text->search : esc_html__('Search','easy-form-builder'),
@@ -2068,6 +2068,7 @@ public function addon_add_efb($value) {
 
 
 	public function efb_code_validate_create($fid, $type, $status, $tc) {
+		error_log('[EFB SID] Creating validation code for FID: ' . $fid . ', Type: ' . $type . ', Status: ' . $status . ', TC: ' . $tc);
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
 		$ip = $this->get_ip_address();
@@ -2093,7 +2094,7 @@ public function addon_add_efb($value) {
 			'date' => $date_now,
 			'read_date' => $date_limit
 		);
-
+		error_log('[EFB SID] Inserting validation code into database: ' . print_r($data, true));
 		$sql = $wpdb->prepare(
 			"INSERT INTO {$table_name} (`sid`, `fid`, `type_`, `status`, `ip`, `os`, `browser`, `uid`, `tc`, `active`, `date`, `read_date`)
 			VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %d, %s, %s)
@@ -2101,7 +2102,9 @@ public function addon_add_efb($value) {
 			$sid, $fid, $type, $status, $ip, $os, $browser, $uid, $tc, 1, $date_now, $date_limit
 		);
 
-		$wpdb->query($sql);
+		$state = $wpdb->query($sql);
+		if(!$state) error_log('[EFB SID] Database insertion failed: ' . $wpdb->last_error);
+
 		return $sid;
 	}
 
@@ -2147,14 +2150,8 @@ public function addon_add_efb($value) {
         error_log('[EFB Nonce] - Date limit: ' . $date_limit);
 
         $query =$wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %d", $sid, $date_limit,$fid);
-
-        error_log('[EFB Nonce] - Query: ' . $query);
-
         $result =$wpdb->get_var($query);
-
-        error_log('[EFB Nonce] - Query result: ' . $result);
-        error_log('[EFB Nonce] - wpdb error: ' . $wpdb->last_error);
-
+		error_log('[EFB Nonce] SID validation result: ' . $result);
         return $result === '1';
     }
 
@@ -2292,7 +2289,7 @@ public function addon_add_efb($value) {
 		return 0;
 	}
 
-	public function setting_version_efb_update($st ,$pro){
+	public function setting_version_efb_update($st ,$pro, $skip_redirect = false){
 		// error_log('EFB=>setting_version_efb_update: ' . $pro);
 		global $wpdb;
 
@@ -2326,6 +2323,12 @@ public function addon_add_efb($value) {
 			$end_time = microtime(true);
 			$execution_time = ($end_time - $start_time);
 			// error_log('EFB=>setting_version_efb_update: ' . $execution_time);
+
+			// Skip redirect/reload if requested
+			if($skip_redirect === true) {
+				return true;
+			}
+
 			$request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : null;
 		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') == false ){
 				// error_log('if execution_time>2');

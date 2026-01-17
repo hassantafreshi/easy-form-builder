@@ -487,8 +487,8 @@ public static function email_send_efb() {
             AdnPLF == passwordless form
             AdnMSF == membership form
             AdnBEF == booking and event form
-            'AdnPDP'=>0,
-			'AdnADP'=>0
+            'AdnPDP'=> persian data picker,
+			'AdnADP'=> arabic data picker
         */
         // Check each addon
         $addonKeys = [

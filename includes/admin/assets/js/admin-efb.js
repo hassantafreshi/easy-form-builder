@@ -47,7 +47,7 @@ jQuery(function () {
   pro_ws_efb = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
   if (typeof pro_whitestudio !== 'undefined') { pro_ws_efb = pro_whitestudio; } else { pro_ws_efb = false; }
   //historyload 1
-
+  console.log(`state_check_ws_p==1:${state_check_ws_p}`);
   if (state_check_ws_p==1) {
     history.replaceState("templates",null,'?page=Emsfb_create');
     add_dasboard_emsFormBuilder();
@@ -83,8 +83,14 @@ jQuery(function () {
 
     localStorage.setItem('efb_cache',count_show_efb_cache);
   }
-    console.log('localStorage efb_auto_save',localStorage.getItem('efb_auto_save'));
-   restore_auto_save_efb();
+
+  console.log('localStorage efb_auto_save',localStorage.getItem('efb_auto_save'));
+
+  // Delay auto-save restore to prevent apparent reload
+  setTimeout(() => {
+    restore_auto_save_efb();
+  }, 3000); // Wait 3 seconds for everything to load properly
+
   //cache message alert section end
 })
 
@@ -5318,19 +5324,25 @@ function restore_auto_save_efb(){
   if(auto_save==false) return;
 
   const valj_efb_str = localStorage.getItem('efb_auto_save_valj_efb');
-  if(valj_efb_str!=null){
-    const context =`<div class="text-center text-darkb efb"><div class=" fs-4 efb"></div><p class="fs-4 efb">${efb_var.text.rasfmb}</p>
-      <div class="d-flex justify-content-center gap-3 mt-3">
-    <a class="btn btn-darkb text-white efb px-4" id="restore_auto_save_efb_btn" onclick="restore_auto_save_efb_btn()">
-      ${efb_var.text.yes}
-    </a>
-    <a class="btn btn-outline-danger efb px-4" id="restore_auto_no_efb_btn" onclick="restore_auto_no_efb_btn()">
-      ${efb_var.text.no}
-    </a>
-  </div>
-      </div>`;
-    show_modal_efb(context,efb_var.text.warning, ``, 'saveBox');
-    state_modal_show_efb(1)
+  if(valj_efb_str!=null && typeof efb_var !== 'undefined' && efb_var.text){
+    // Delay showing modal to prevent apparent reload
+    setTimeout(() => {
+      const context =`<div class="text-center text-darkb efb"><div class=" fs-4 efb"></div><p class="fs-4 efb">${efb_var.text.rasfmb}</p>
+        <div class="d-flex justify-content-center gap-3 mt-3">
+      <a class="btn btn-darkb text-white efb px-4" id="restore_auto_save_efb_btn" onclick="restore_auto_save_efb_btn()">
+        ${efb_var.text.yes}
+      </a>
+      <a class="btn btn-outline-danger efb px-4" id="restore_auto_no_efb_btn" onclick="restore_auto_no_efb_btn()">
+        ${efb_var.text.no}
+      </a>
+    </div>
+        </div>`;
+      show_modal_efb(context,efb_var.text.warning, ``, 'saveBox');
+      state_modal_show_efb(1)
+    }, 1000); // Wait 2 seconds for page to fully load
+  } else {
+    // If no valid auto-save data, clear the flag
+    localStorage.setItem('efb_auto_save', 0);
   }
 }
 

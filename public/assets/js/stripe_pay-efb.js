@@ -13,6 +13,8 @@
     const headers = new Headers({
       'Content-Type': 'application/json',
       'X-WP-Nonce': efb_var.nonce,
+      'form-id': form_id ? form_id : 0,
+      'sid':efb_var.sid ? efb_var.sid : '',
       });
 
 

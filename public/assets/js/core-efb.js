@@ -1496,7 +1496,11 @@ window.addEventListener("popstate",e=>{
     const headers = new Headers({
       'Content-Type': 'application/json',
       'X-WP-Nonce': efb_var.nonce,
+      'form-id': data.id ? data.id : 0,
+      'sid':data.sid ? data.sid : '',
     });
+
+    console.log('headers',headers);
     const jsonData = JSON.stringify(data);
     const requestOptions = {
       method: 'POST',
@@ -1550,6 +1554,8 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
   const headers = new Headers({
     'Content-Type': 'application/json',
     'X-WP-Nonce': efb_var.nonce,
+    'form-id': data.id ? data.id : 0,
+    'sid':efb_var.sid ? efb_var.sid : '',
   });
   const jsonData = JSON.stringify(data);
   const requestOptions = {
@@ -1589,6 +1595,8 @@ post_api_r_message_efb=(data,message)=>{
   const headers = new Headers({
     'Content-Type': 'application/json',
     'X-WP-Nonce': efb_var.nonce,
+    'form-id': data.id ? data.id : 0,
+    'sid':data.sid ? data.sid : '',
   });
   const jsonData = JSON.stringify(data);
   const requestOptions = {
@@ -1598,12 +1606,14 @@ post_api_r_message_efb=(data,message)=>{
   };
     fetch(url, requestOptions)
     .then(response => {
+      console.log('response', response);
       if (!response.ok) {
         throw new Error(`Network response was not ok (HTTP ${response.status})`);
       }
       return response.json();
     })
     .then(responseData => {
+      console.log('responseData', responseData);
       response_rMessage_id(responseData, message);
       sendBack_emsFormBuilder_pub = [];
     })
