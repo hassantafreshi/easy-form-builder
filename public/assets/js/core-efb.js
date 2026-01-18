@@ -963,9 +963,7 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     sid:efb_var.sid,
     user_type : is_user_track,
     page_id: ajax_object_efm.page_id,
-    sc:ajax_object_efm.sc,
     track: track,
-    id:0
   };
   // console.log(data);
   post_api_r_message_efb(data,message);
@@ -1595,10 +1593,12 @@ post_api_r_message_efb=(data,message)=>{
   const headers = new Headers({
     'Content-Type': 'application/json',
     'X-WP-Nonce': efb_var.nonce,
-    'form-id': data.id ? data.id : 0,
+    'form-id': 0,
     'sid':data.sid ? data.sid : '',
   });
   const jsonData = JSON.stringify(data);
+  console.log(data);
+  console.log(jsonData);
   const requestOptions = {
     method: 'POST',
     headers,

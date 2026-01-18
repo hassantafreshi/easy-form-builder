@@ -181,7 +181,7 @@ public function check_nonce_permission_efb($request) {
 
 	$verify = wp_verify_nonce( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ), 'wp_rest');
 
-	if (!$verify || true) {
+	if (!$verify) {
 		// Fallback: Try SID validation if nonce failed
 
 		$sid = sanitize_text_field( wp_unslash($_SERVER['HTTP_SID'] ?? ''));
@@ -573,6 +573,7 @@ public function check_nonce_permission_efb($request) {
 
 			$this->id = end($id);
 			$this->id = intval($this->id);
+			$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
 			$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
 			if($value_form_data != null){
 				$typeOfForm = $value_form_data->form_type;
@@ -604,8 +605,7 @@ public function check_nonce_permission_efb($request) {
 			$pro = $this->efbFunction->is_efb_pro(1);
 			$this->pro_efb = $pro ;
 			$lanText= $this->efbFunction->text_efb($this->text_);
-			error_log('>>before function efb_code_validate_create');
-			$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
+
 			$ar_core = array( 'sid'=>$sid);
 
 			$icons=[[
@@ -1617,8 +1617,9 @@ public function check_nonce_permission_efb($request) {
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $this->id);
 		$this->lanText = $this->efbFunction->text_efb($text_);
 		$setting;
-		$cache_plugins = get_option('emsfb_cache_plugins');
-		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id,$cache_plugins);
+		$cache_plugins = get_option('emsfb_cache_plugins','0');
+		error_log('Cache plugins option: ' . $cache_plugins);
+		if($cache_plugins!='0') $this->cache_cleaner_Efb($page_id,$cache_plugins);
 		/* 	if ($s_sid != 1) {
 			$this->efbFunction->send_email_noti_sid_plugins_efb('loadScriptsEvent');
 			$m = $this->lanText['sxnlex'];
@@ -3145,7 +3146,6 @@ public function check_nonce_permission_efb($request) {
 	}
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
 		error_log('set_rMessage_id_Emsfb_api');
-		error_log('data_POST_: ' . json_encode($data_POST_));
 		$data_POST = $data_POST_->get_json_params();
 		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
         'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
@@ -3179,7 +3179,7 @@ public function check_nonce_permission_efb($request) {
 			$response = array( 'success' => false , "m"=>$this->lanText['nAllowedUseHtml']);
 			wp_send_json_success($response,200);
 		}
-		$cache_plugins = get_option('emsfb_cache_plugins');
+		$cache_plugins = get_option('emsfb_cache_plugins','0');
 		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id ,$cache_plugins);
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: get_setting_Emsfb('raw');
 
@@ -3281,7 +3281,6 @@ public function check_nonce_permission_efb($request) {
 				$value = $this->db->get_results($sql);
 				error_log('Query result: ' . json_encode($value));
 
-				// بررسی وجود داده
 				if (empty($value) || !isset($value[0]) || !isset($value[0]->content)) {
 					error_log('Message content not found for ID: ' . $id);
 					$response = array('success' => false, 'm' => esc_html__('Not allowed to respond to this message.', 'easy-form-builder') . ' E400');
@@ -3293,7 +3292,6 @@ public function check_nonce_permission_efb($request) {
 				error_log('Decoded message object: ' . json_encode($msg_obj));
 
 				$vv_ = "";
-				// بررسی وجود آرایه قبل از استفاده از end()
 				if (empty($msg_obj) || !is_array($msg_obj)) {
 					error_log('Invalid message object format');
 					$lst = null;
@@ -3476,7 +3474,7 @@ public function check_nonce_permission_efb($request) {
 /* 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid); */
 		$page_id = sanitize_text_field($data_POST['page_id']);
-		$cache_plugins = get_option('emsfb_cache_plugins');
+		$cache_plugins = get_option('emsfb_cache_plugins','0');
 		if ($cache_plugins != '0') $this->cache_cleaner_Efb($page_id, $cache_plugins);
 
 
@@ -4194,7 +4192,7 @@ public function check_nonce_permission_efb($request) {
         return new WP_REST_Response($response, 200);
        // return $fs;
     }
-	function replaceContentMessageEfb($value) {
+	public function replaceContentMessageEfb($value) {
 		$value = preg_replace('/[\\\\]/', '', $value);
 		$value = preg_replace('/(\\"|"\\\\)/', '"', $value);
 		$value = preg_replace('/(\\\\\\\\n|\\\\\\\\r)/', '<br>', $value);
@@ -4205,7 +4203,7 @@ public function check_nonce_permission_efb($request) {
 		$value = str_replace('@efb@nq#', "<br>", $value);
 		return $value;
 	}
-function email_get_content_efb($content, $track){
+	public function email_get_content_efb($content, $track){
 		$m  = '<table border="0" cellpadding="0" cellspacing="0" width="100%" class="container containerEmailEfb" >';
 
 			// ترجمه‌ها و متغیرها
@@ -4772,16 +4770,28 @@ function email_get_content_efb($content, $track){
 			// بررسی static handlers
 			if (isset($cache_handlers[$slug]) && is_callable($cache_handlers[$slug]['check']) && $cache_handlers[$slug]['check']()) {
 				if (is_callable($cache_handlers[$slug]['clear'])) {
-					$cache_handlers[$slug]['clear']($page_id);
-					$cleared++;
+					try {
+						$cache_handlers[$slug]['clear']($page_id);
+						$cleared++;
+						error_log('Emsfb: Successfully cleared cache for plugin: ' . $slug . ' (page ID: ' . $page_id . ')');
+					} catch (Exception $e) {
+						error_log('Emsfb: Failed to clear cache for plugin: ' . $slug . ' - Error: ' . $e->getMessage());
+					}
 				}
 			}
 			// بررسی dynamic handlers
 			elseif (isset($dynamic_handlers[$slug]) && $dynamic_handlers[$slug]['check'] && is_callable($dynamic_handlers[$slug]['clear'])) {
-				$dynamic_handlers[$slug]['clear']($page_id);
-				$cleared++;
+				try {
+					$dynamic_handlers[$slug]['clear']($page_id);
+					$cleared++;
+					error_log('Emsfb: Successfully cleared cache for plugin: ' . $slug . ' (page ID: ' . $page_id . ')');
+				} catch (Exception $e) {
+					error_log('Emsfb: Failed to clear cache for plugin: ' . $slug . ' - Error: ' . $e->getMessage());
+				}
 			}
 		}
+
+		error_log('Emsfb: Cache cleaner completed. Total plugins cleared: ' . $cleared . ' out of ' . count($active_plugins) . ' active plugins.');
 
 		return $cleared > 0;
 	}

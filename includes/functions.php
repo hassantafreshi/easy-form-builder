@@ -2095,16 +2095,34 @@ public function addon_add_efb($value) {
 			'read_date' => $date_limit
 		);
 		error_log('[EFB SID] Inserting validation code into database: ' . print_r($data, true));
-		$sql = $wpdb->prepare(
-			"INSERT INTO {$table_name} (`sid`, `fid`, `type_`, `status`, `ip`, `os`, `browser`, `uid`, `tc`, `active`, `date`, `read_date`)
-			VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %d, %s, %s)
-			ON DUPLICATE KEY UPDATE `type_` = VALUES(`type_`), `ip` = VALUES(`ip`), `status` = VALUES(`status`), `uid` = VALUES(`uid`), `active` = VALUES(`active`)",
-			$sid, $fid, $type, $status, $ip, $os, $browser, $uid, $tc, 1, $date_now, $date_limit
-		);
+
+		// First check if record exists to handle sid properly
+		$existing = $wpdb->get_var($wpdb->prepare(
+			"SELECT sid FROM {$table_name} WHERE fid = %d AND uid = %d AND ip = %s AND active = 1",
+			$fid, $uid, $ip
+		));
+
+		if ($existing) {
+			// Update existing record and return existing sid
+			$wpdb->query($wpdb->prepare(
+				"UPDATE {$table_name} SET `type_` = %d, `status` = %s, `date` = %s, `read_date` = %s WHERE fid = %d AND uid = %d AND ip = %s AND active = 1",
+				$type, $status, $date_now, $date_limit, $fid, $uid, $ip
+			));
+			error_log('[EFB SID] Updated existing record, returning existing SID: ' . $existing);
+			return $existing;
+		} else {
+			// Insert new record with new sid
+			$sql = $wpdb->prepare(
+				"INSERT INTO {$table_name} (`sid`, `fid`, `type_`, `status`, `ip`, `os`, `browser`, `uid`, `tc`, `active`, `date`, `read_date`)
+				VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %d, %s, %s)",
+				$sid, $fid, $type, $status, $ip, $os, $browser, $uid, $tc, 1, $date_now, $date_limit
+			);
+		}
 
 		$state = $wpdb->query($sql);
 		if(!$state) error_log('[EFB SID] Database insertion failed: ' . $wpdb->last_error);
 
+		error_log('[EFB SID] Created new SID: ' . $sid);
 		return $sid;
 	}
 
@@ -2139,20 +2157,35 @@ public function addon_add_efb($value) {
 
 		$fid = intval($fid);
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
-        $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
-        $date_now = date('Y-m-d H:i:s');
+        $date_now = wp_date('Y-m-d H:i:s');
 
         // Add detailed logging
         error_log('[EFB Nonce] SID validation details:');
         error_log('[EFB Nonce] - SID: ' . $sid);
         error_log('[EFB Nonce] - FID: ' . $fid);
         error_log('[EFB Nonce] - Table: ' . $table_name);
-        error_log('[EFB Nonce] - Date limit: ' . $date_limit);
+        error_log('[EFB Nonce] - Current date: ' . $date_now);
 
-        $query =$wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %d", $sid, $date_limit,$fid);
-        $result =$wpdb->get_var($query);
-		error_log('[EFB Nonce] SID validation result: ' . $result);
-        return $result === '1';
+        // Get the latest valid record instead of counting
+        // If fid is 0 or empty, ignore fid check for backward compatibility
+        if(empty($fid) || $fid == 0) {
+            $query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 ORDER BY date DESC LIMIT 1", $sid, $date_now);
+        } else {
+            $query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $date_now, $fid);
+        }
+
+        $result = $wpdb->get_row($query, ARRAY_A);
+
+        // Additional logging for debugging
+        error_log('[EFB Nonce] Query: ' . $query);
+        error_log('[EFB Nonce] Latest record result: ' . print_r($result, true));
+
+        // Debug: Also check what records exist for this SID
+        $debug_query = $wpdb->prepare("SELECT fid, active, read_date, status FROM {$table_name} WHERE sid = %s ORDER BY date DESC", $sid);
+        $debug_result = $wpdb->get_results($debug_query, ARRAY_A);
+        error_log('[EFB Nonce] Debug - All records for SID: ' . print_r($debug_result, true));
+
+        return !empty($result);
     }
 
 
