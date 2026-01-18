@@ -158,7 +158,7 @@ class Emsfb {
         }
     }
 
-public static function email_send_efb() {
+    public static function email_send_efb() {
         $message = esc_html__( 'The Easy Form Builder had Important update and require to deactivate and activate the plugin manually. Notice: Please do this act immediately so forms of your site will be available again.', 'easy-form-builder' );
 
         // Get all super admin users
@@ -207,7 +207,6 @@ public static function email_send_efb() {
     }
 
     public function handle_new_plugin_activation_efb($plugin, $network_wide = false) {
-    error_log('EFB: New plugin activated - ' . $plugin);
         // List of cache plugins
         $cache_plugins_slug = array(
             'wp-optimize', 'hummingbird-performance', 'big-scoots-cache', 'wp-cloudflare-page-cache',

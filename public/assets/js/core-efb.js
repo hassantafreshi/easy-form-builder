@@ -1494,7 +1494,7 @@ window.addEventListener("popstate",e=>{
     const headers = new Headers({
       'Content-Type': 'application/json',
       'X-WP-Nonce': efb_var.nonce,
-      'form-id': data.id ? data.id : 0,
+      'form-id': form_id ? form_id : 0,
       'sid':data.sid ? data.sid : '',
     });
 

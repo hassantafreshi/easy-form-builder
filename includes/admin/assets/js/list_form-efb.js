@@ -1048,6 +1048,7 @@ function fun_show_setting__emsFormBuilder() {
   let bootstrap = false;
   let emailTemp = "null"
   let payToken="null";
+  let sessionDuration = 1; // Default 1 day
   let act_local_efb =scaptcha =false;
   let dsupfile= showIp =activeDlBtn =scaptcha=act_local_efb =false;
   let phoneNumbers=sms_method = 'null';
@@ -1097,6 +1098,7 @@ function fun_show_setting__emsFormBuilder() {
     dsupfile = f('dsupfile') =='null' ? true :f('dsupfile');
     phoneNumbers = f('phnNo');
     adminSN  = f('adminSN') =='null' ? true :f('adminSN');
+    sessionDuration = f('sessionDuration') == 'null' ? 1 : parseInt(f('sessionDuration'));
 
 
     //console.log(`dsupfile[${dsupfile}]` ,f('dsupfile'));
@@ -1248,6 +1250,29 @@ function fun_show_setting__emsFormBuilder() {
                                             </button>
                                         </div>
                               </div>
+
+                              <h5 class="efb  card-title mt-3 mobile-title">
+                                <i class="efb  bi-clock m-3"></i>${efb_var.text.sessionDuration}
+                              </h5>
+                              <p class="efb ${mxCSize}">${efb_var.text.sessionDurationDesc}</p>
+                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                                      <div class="efb row efb col-12">
+                                          <div class="efb  col-md-8">
+                                            <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="sessionDuration_emsFormBuilder" data-tab="${efb_var.text.rspcon}">
+                                                <option value="">${efb_var.text.selectDuration}</option>
+                                                <option value="1" ${sessionDuration == 1 ? 'selected' : ''}>${efb_var.text.sessionDurationDay.replace('%s', '1')}</option>
+                                                <option value="2" ${sessionDuration == 2 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '2')}</option>
+                                                <option value="3" ${sessionDuration == 3 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '3')}</option>
+                                                <option value="4" ${sessionDuration == 4 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '4')}</option>
+                                                <option value="5" ${sessionDuration == 5 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '5')}</option>
+                                                <option value="6" ${sessionDuration == 6 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '6')}</option>
+                                                <option value="7" ${sessionDuration == 7 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '7')}</option>
+                                            </select>
+                                            <span id="sessionDuration_emsFormBuilder-message" class="efb text-danger"></span>
+                                          </div>
+                                        </div>
+                              </div>
+
                               <h5 class="efb  card-title mt-3 mobile-title">
                                 <i class="efb  bi-chat-left-text m-3"></i>${efb_var.text.rbox}
                               </h5>
@@ -1402,20 +1427,20 @@ function fun_show_setting__emsFormBuilder() {
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
 
                               </div>
-                              <!-- paypal
-                                <h5 class="efb  card-title mt-3 mobile-title">
-                                 <i class="efb  bi-paypal m-3"></i>${efb_var.text.paypal}
-                               </h5>
-                               <p class="efb ${mxCSize}">${paypalmessage} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('paypal')" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
-                                <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                  <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
-                                  <span id="paypalPKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                                  <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
-                                  <span id="paypalSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                                </div>
-                              -->
+                              <div class="efb d-none">
+                                  <h5 class="efb  card-title mt-3 mobile-title">
+                                  <i class="efb  bi-paypal m-3"></i>${efb_var.text.paypal}
+                                </h5>
+                                <p class="efb ${mxCSize}">${paypalmessage} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('paypal')" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
+                                  <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                                    <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
+                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                    <span id="paypalPKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+                                    <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
+                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                    <span id="paypalSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+                                  </div>
+                              </div>
                               ${persianPayToken()}
 
 
@@ -1617,12 +1642,15 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     }else if (el.type == "button"){
       //console.log(el.classList.contains)
       return el.classList.contains('active')
+    }else if (el.tagName === "SELECT" || el.type == "select-one") {
+      return el.value;
     }
     return "NotFoundEl"
   }
   const v = (id) => {
 
     let el = document.getElementById(id);
+    console.log(el);
     if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){
       if(el.type!='email'){
         el.value = sanitize_text_efb(el.value);
@@ -1632,13 +1660,12 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
         const vs = value.split(',');
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         for(let i=0;i<vs.length;i++){
-          //console.log(vs ,regex.test(vs[i]));
-          if(!regex.test(vs[i])){
+          console.log(vs ,regex.test(vs[i]),el.id==='activeCode_emsFormBuilder');
+          if(el.id==='activeCode_emsFormBuilder' && !regex.test(vs[i]) ){
             //console.log(el.value);
             el.className = colorBorderChangerEfb(el.className, "border-danger")
             document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue
             returnError(`<b>${el.dataset.tab}</b>`);
-
             value=false;
            break;
           }
@@ -1653,7 +1680,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     if (id == 'smtp_emsFormBuilder') { return true }
     if (el.type !== "checkbox") {
 
-      if (el.value.length > 0 && el.value.length < 10 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder" && id !== "bootstrap_emsFormBuilder" && id !== "emailTemp_emsFirmBuilder" && id !== "pno_emsFormBuilder") {
+      if (el.value.length > 0 && el.value.length < 10 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder" && id !== "bootstrap_emsFormBuilder" && id !== "emailTemp_emsFirmBuilder" && id !== "pno_emsFormBuilder" && id !== "sessionDuration_emsFormBuilder") {
         document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue
         el.classList.add('invalid');
         window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
@@ -1722,6 +1749,29 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
 
         }
 
+      } else if(id=="sessionDuration_emsFormBuilder"){
+        // Validate session duration selection for select element
+        console.log('sessionDuration_emsFormBuilder:' + el.value);
+        if (el.value === "" || el.selectedIndex === 0) {
+          el.classList.add('invalid');
+          document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue;
+          returnError(`<b>${el.dataset.tab}</b>`);
+          return false;
+        }
+        const durationValue = parseInt(el.value);
+        if (isNaN(durationValue) || durationValue < 1 || durationValue > 7) {
+          el.classList.add('invalid');
+          document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue;
+          returnError(`<b>${el.dataset.tab}</b>`);
+          return false;
+        }
+
+        // Clear any previous error messages
+        if (el.classList.contains("invalid") == true) {
+          el.classList.remove('invalid');
+          document.getElementById(`${el.id}-message`).innerHTML = '';
+        }
+
       } else {
 
         if (el.classList.contains("invalid") == true) {
@@ -1744,11 +1794,11 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     }
     return true;
   }
-  const ids = ['paypalSKey_emsFormBuilder', 'paypalPKey_emsFormBuilder', 'stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder','osLocationPicker_emsFormBuilder'];
+  const ids = ['paypalSKey_emsFormBuilder', 'paypalPKey_emsFormBuilder', 'stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder','osLocationPicker_emsFormBuilder', 'sessionDuration_emsFormBuilder'];
   let state = true
 
   for (let id of ids) {
-
+     console.log(id);
     if (v(id) === false) {
       state = false;
       // fun_state_loading_message_emsFormBuilder(1);
@@ -1780,6 +1830,12 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const adminSN  = f('adminSN_emsFormBuilder');
     //const showIp = f('showIp_emsFormBuilder');
     const showIp=false;
+
+    // Validate and get sessionDuration
+    const sessionDurationEl = document.getElementById('sessionDuration_emsFormBuilder');
+    if (!v('sessionDuration_emsFormBuilder')) return false;
+    const sessionDuration = f('sessionDuration_emsFormBuilder');
+
     smtp = f('hostSupportSmtp_emsFormBuilder');
     act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
@@ -1830,7 +1886,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ,
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
-         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb,showIp:showIp,adminSN:adminSN,osLocationPicker:osLocationPicker
+         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb,showIp:showIp,adminSN:adminSN,osLocationPicker:osLocationPicker,sessionDuration:sessionDuration
         } , state_auto);
   }
 

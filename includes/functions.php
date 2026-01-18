@@ -1491,6 +1491,29 @@ class efbFunction {
 			"telegramSettingsSaved" => $state && isset($ac->text->telegramSettingsSaved) ? $ac->text->telegramSettingsSaved : esc_html__('Settings saved successfully!','easy-form-builder'),
 			/* translators: New form submission from {site_name} = default message template */
 			"telegramDefaultTemplate" => $state && isset($ac->text->telegramDefaultTemplate) ? $ac->text->telegramDefaultTemplate : esc_html__('📋 New form submission from {site_name}\n\n📝 Form: {form_name}\n🕒 Date: {submission_date}\n\n{form_data}','easy-form-builder'),
+
+
+
+			// === Session & Security Settings ===
+
+			/* translators: Session Duration = title for nonce/session expiration settings */
+			"sessionDuration" => $state && isset($ac->text->sessionDuration) ? $ac->text->sessionDuration : esc_html__('Session Duration','easy-form-builder'),
+
+			/* translators: Nonce Expiration = subtitle for form security token expiration */
+			"nonceExpiration" => $state && isset($ac->text->nonceExpiration) ? $ac->text->nonceExpiration : esc_html__('Form Security Token Expiration','easy-form-builder'),
+
+			/* translators: Session Duration Description = explanation of session duration setting */
+			"sessionDurationDesc" => $state && isset($ac->text->sessionDurationDesc) ? $ac->text->sessionDurationDesc : esc_html__('Set how long form security tokens remain valid. Longer durations provide better user experience but may reduce security.','easy-form-builder'),
+
+			/* translators: %s Day = singular form for day count in session duration (e.g., "1 Day") */
+			"sessionDurationDay" => $state && isset($ac->text->sessionDurationDay) ? $ac->text->sessionDurationDay : esc_html__('%s Day','easy-form-builder'),
+
+			/* translators: %s Days = plural form for day count in session duration (e.g., "2 Days") */
+			"sessionDurationDays" => $state && isset($ac->text->sessionDurationDays) ? $ac->text->sessionDurationDays : esc_html__('%s Days','easy-form-builder'),
+
+			/* translators: Select Duration = placeholder text for session duration dropdown */
+			"selectDuration" => $state && isset($ac->text->selectDuration) ? $ac->text->selectDuration : esc_html__('Select Duration','easy-form-builder'),
+
 		];
 
 
@@ -2073,7 +2096,13 @@ public function addon_add_efb($value) {
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
 		$ip = $this->get_ip_address();
 		$date_now = wp_date('Y-m-d H:i:s');
-		$date_limit = wp_date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+		// Get session duration from settings (default 1 day)
+		$settings = get_setting_Emsfb();
+		$sessionDuration = isset($settings->sessionDuration) && is_numeric($settings->sessionDuration) ? intval($settings->sessionDuration) : 1;
+		$date_limit = wp_date('Y-m-d H:i:s', strtotime("+{$sessionDuration} days"));
+
+		error_log('[EFB SID] Session duration set to: ' . $sessionDuration . ' days, expires: ' . $date_limit);
 
 		$sid = wp_date("ymdHis") . substr(bin2hex(openssl_random_pseudo_bytes(5)), 0, 9);
 		$uid = get_current_user_id() ?? 0;
@@ -3261,8 +3290,13 @@ public function addon_add_efb($value) {
         update_option('emsfb_settings', $json);
         set_transient('emsfb_settings_transient', $json, 1800); // 30 minutes
 
+        // Clear all cache layers to ensure fresh data is loaded
+        wp_cache_delete('settings:decoded', 'emsfb');
+        wp_cache_delete('settings:pub', 'emsfb');
+        wp_cache_delete('settings:raw', 'emsfb');
+
         return true;
-    }
+       }
 
 
 
