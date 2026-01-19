@@ -75,10 +75,10 @@ class Emsfb {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
-            $ac = $this->get_setting_Emsfb('decoded');
+            $ac = self::get_setting_Emsfb('decoded');
             error_log(json_encode($ac));
            // $sms_exists =get_option('emsfb_addon_AdnSS',false);
-           error_log($ac->AdnSS);
+
             $sms_exists = isset($ac->AdnSS) ? (int) $ac->AdnSS : 0;
             if ($sms_exists === 1) {
                 $sms_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/class-Emsfb-sms.php';
@@ -99,7 +99,7 @@ class Emsfb {
                 }
             }
             $telegram_exists = isset($ac->AdnTlg) ? (int) $ac->AdnTlg : 0;
-            error_log('telegram_exists value:' . $telegram_exists);
+            error_log('telegram_exists value:' . ($telegram_exists ? 'True' : 'false'));
               if ($telegram_exists === 1) {
                 //vendor\telegram\class-Emsfb-telegram.php
                   $telegram_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/class-Emsfb-telegram.php';
@@ -346,7 +346,6 @@ class Emsfb {
 
         // Layer 3: Transient cache (database, 30 minutes)
         $transient = get_transient('emsfb_settings_transient');
-
         // Layer 4: Direct database query (slowest fallback)
         if ($transient === false || empty($transient)) {
             global $wpdb;
@@ -369,7 +368,7 @@ class Emsfb {
         $decoded = json_decode($cleaned);
 
         if ($decoded === null) {
-            return $mode === 'pub' ? [0, []] : 'null';
+            error_log('Decoded settings is null');
         }
 
         // Handle different return modes

@@ -328,7 +328,7 @@ class Admin {
 
         // ذخیره تنظیمات تلگرام
         if(isset($valp[0]['telegramnoti']) && intval($valp[0]['telegramnoti'])==1 ){
-            $telegram_exists = get_option('emsfb_addon_AdnTG', false);
+            $telegram_exists = get_option('emsfb_addon_AdnTlg', false);
             $telegram_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
 
             if(!$telegram_exists || !$telegram_file_exist) {
@@ -667,7 +667,7 @@ class Admin {
         // بررسی وجود تنظیمات تلگرام
         $telegramnoti = strpos($value,'\"telegramnoti\":\"1\"') !==false ? 1 : 0;
         if($telegramnoti){
-            $telegram_exists = get_option('emsfb_addon_AdnTG', false);
+            $telegram_exists = get_option('emsfb_addon_AdnTlg', false);
             $telegram_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
             if($telegram_exists !== false && $telegram_file_exist) {
                 require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
