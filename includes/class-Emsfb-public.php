@@ -3542,16 +3542,19 @@ public function check_nonce_permission_efb($request) {
 	// error_log(json_encode($state));
     for ($i = 0; $i < 2; $i++) {
 		if(strlen($link)>5){
-			$link_w[$i] =strpos($link,'?')!=false  ? $link.'&track='.$track : $link.'?track='.$track;
+			// For newUser/register states, don't add HTML content to URL - use empty track or skip
+			$isRegistrationState = in_array($state[$i], ['newUser', 'register']) || (isset($state[0]) && $state[0] === 'newUser');
+			$trackParam = $isRegistrationState ? '' : urlencode($track);
+			$link_w[$i] = strpos($link,'?')!=false ? $link . ($trackParam ? '&track='.$trackParam : '') : $link . ($trackParam ? '?track='.$trackParam : '');
 			if($i==0){
 					$s= isset($this->setting->adminSN) ? $this->setting->adminSN : 0 ;
 
 					error_log('send_email_Emsfb_ adminSN: ' . $s);
 				if( $s== false || ($s==true && intval($this->setting->adminSN)==1)){
-					$link_w[$i] .='&user=admin';
+					$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'user=admin';
 				}else{
 					$sc = $this->genrate_sacure_code_admin_email($track);
-					$link_w[$i] .='&user=admin&sc='.$sc;
+					$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'user=admin&sc='.$sc;
 				}
 			}
 		}else{
@@ -3588,7 +3591,8 @@ public function check_nonce_permission_efb($request) {
             case "register":
                 error_log('send_email_Emsfb_ - register case processing');
                 $subject[$i] = $thankRegistering;
-                $message[$i] = "<h2>$welcome</h2>$cont[$i]" . sprintf($modern_button_template, $homeUrl, $blogName, $homeUrl, $blogName);
+                // Don't add extra button - the verification link is already in $cont[$i]
+                $message[$i] = "<h2>$welcome</h2>" . $cont[$i];
                 error_log('send_email_Emsfb_ - register: message[' . $i . '] = ' . $message[$i]);
                 break;
             case "subscribe":
@@ -3600,11 +3604,10 @@ public function check_nonce_permission_efb($request) {
                 break;
             case "newUser":
                 error_log('send_email_Emsfb_ - newUser case processing');
-                $start = strpos($cont[$i], '<p>') + 3;
-                $end = strpos($cont[$i], '</p>');
-                $slicedStr = substr($cont[$i], $start, $end - $start);
                 $subject[$i] = $newUserRegistration;
-                $message[$i] = "<p>$newUserRegistration</p><p>$slicedStr </p>";
+                // $cont[$i] contains the full registration message from fun_get_content_email_register_recovery_efb
+                // Just use it directly without slicing
+                $message[$i] = "<p>$newUserRegistration</p>" . $cont[$i];
                 error_log('send_email_Emsfb_ - newUser: message[' . $i . '] = ' . $message[$i]);
                 break;
         }

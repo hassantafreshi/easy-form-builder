@@ -1570,7 +1570,7 @@ class Admin {
 		$table_name = $wpdb->prefix . 'emsfb_temp_links';
 		$table_exists = get_option('emsfb_temp_links_table_exists', false);
 		// Check if the table already exists
-		if (!$table_exists===false) {
+		if ($table_exists===false) {
 			$charset_collate = $wpdb->get_charset_collate();
 
 			$sql = "CREATE TABLE $table_name (

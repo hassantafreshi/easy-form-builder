@@ -344,6 +344,7 @@ class Create {
 			}
 		}
 		if($this->formtype=='login' || $this->formtype=='register'){
+			error_log('Creating temporary links table for form ID: ' . $this->id_);
 			do_action('create_temporary_links_table_Emsfb');
 		}
 		if($this->id_ !=0){

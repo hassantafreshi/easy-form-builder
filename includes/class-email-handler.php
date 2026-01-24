@@ -114,6 +114,88 @@ class EmsfbEmailHandler {
     }
 
     /**
+     * Get visitor IP address
+     *
+     * @return string IP address
+     */
+    public function get_ip_address() {
+        $ip = '1.1.1.1';
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = sanitize_text_field(wp_unslash($_SERVER['HTTP_CLIENT_IP']));
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = sanitize_text_field(wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']));
+        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+            $ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));
+        }
+        $ip = strval($ip);
+        $check = strpos($ip, ',');
+        if ($check !== false) {
+            $ip = substr($ip, 0, $check);
+        }
+        return $ip;
+    }
+
+    /**
+     * Get visitor operating system
+     *
+     * @return string OS name
+     */
+    public function getVisitorOS() {
+        $_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : null;
+        $ua = strtolower($_HTTP_USER_AGENT);
+        $os = "Unknown";
+
+        if ($ua) {
+            if (strpos($ua, 'windows') !== false) {
+                $os = "Windows";
+            } elseif (strpos($ua, 'linux') !== false) {
+                $os = "Linux";
+            } elseif (strpos($ua, 'macintosh') !== false || strpos($ua, 'mac os x') !== false) {
+                $os = "Mac";
+            } elseif (strpos($ua, 'android') !== false) {
+                $os = "Android";
+            } elseif (strpos($ua, 'ios') !== false) {
+                $os = "iOS";
+            }
+        }
+
+        return $os;
+    }
+
+    /**
+     * Get visitor browser
+     *
+     * @return string Browser name
+     */
+    public function getVisitorBrowser() {
+        $_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : null;
+        $ua = strtolower($_HTTP_USER_AGENT);
+        $b = "Unknown";
+
+        if ($ua) {
+            if (strpos($ua, 'firefox') !== false) {
+                $b = "Mozilla Firefox";
+            } elseif (strpos($ua, 'chrome') !== false) {
+                if (strpos($ua, 'edg') !== false) {
+                    $b = "Microsoft Edge";
+                } elseif (strpos($ua, 'brave') !== false) {
+                    $b = "Brave";
+                } else {
+                    $b = "Google Chrome";
+                }
+            } elseif (strpos($ua, 'safari') !== false) {
+                $b = "Apple Safari";
+            } elseif (strpos($ua, 'opera') !== false) {
+                $b = "Opera";
+            } elseif (strpos($ua, 'msie') !== false || strpos($ua, 'trident') !== false) {
+                $b = "Internet Explorer";
+            }
+        }
+
+        return $b;
+    }
+
+    /**
      * Send email with state and template
      *
      * @param string|array $to Recipient(s)
@@ -328,7 +410,9 @@ class EmsfbEmailHandler {
         if($email_content_type == 'message_link'){
 
         }
-        $tracking_section = $email_content_type == 'just_message' ? "" : "
+        // For newUser/register states, no tracking section needed - the verification link is in the content
+        $isRegistrationState = in_array($state, ['newUser', 'register']);
+        $tracking_section = ($email_content_type == 'just_message' || $isRegistrationState) ? "" : "
             <div style='text-align:center; margin: 30px 0;'>
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 0 auto;'>
                     <tr>
@@ -341,6 +425,11 @@ class EmsfbEmailHandler {
                 </table>
             </div>
         ";
+
+        // Set appropriate title based on state
+        if ($isRegistrationState) {
+            $title = __('Welcome!', 'easy-form-builder');
+        }
 
         // Handle different email states based on content type
         if ($state == "testMailServer") {
@@ -355,13 +444,13 @@ class EmsfbEmailHandler {
                     error_log('EmailHandler - Generating message_link content');
                     $message = $this->generate_message_link_content($m, $lang, $link, $tracking_section, $state);
                     break;
-                
+
                 case 'just_message':
                     // just_message: فقط فرم پر شده (بدون لینک)
                     error_log('EmailHandler - Generating just_message content');
                     $message = $this->generate_just_message_content($m, $lang, $align);
                     break;
-                
+
                 case 'traking_link':
                 default:
                     // traking_link: تأیید پیام + لینک (بدون جزئیات فرم)
@@ -519,7 +608,7 @@ class EmsfbEmailHandler {
             $track_id = $m[0];
             $form_content = $m[1];
             $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
-            
+
             return "
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
                     <tr>
@@ -532,7 +621,7 @@ class EmsfbEmailHandler {
                     </tr>
                 </table>";
         }
-        
+
         return "";
     }
 
@@ -549,7 +638,7 @@ class EmsfbEmailHandler {
             }
         } elseif (is_array($m) && count($m) >= 2) {
             $form_content = $m[1];
-            
+
             return "
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
                     <tr>
@@ -560,7 +649,7 @@ class EmsfbEmailHandler {
                     </tr>
                 </table>";
         }
-        
+
         return "";
     }
 
@@ -568,20 +657,36 @@ class EmsfbEmailHandler {
      * Generate traking_link content: تأیید پیام + لینک (بدون جزئیات فرم)
      */
     private function generate_tracking_link_content($m, $lang, $link, $tracking_section, $state) {
+        // For newUser/register states, the message already contains the verification link
+        // Just clean up &quot; entities and return the content without additional tracking section
+        $isRegistrationState = in_array($state, ['newUser', 'register']);
+
         if (is_string($m)) {
-            if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
-                return $m;
+            // Clean &quot; entities from content for all states
+            $m = str_replace(['&quot;', '&amp;quot;'], '', $m);
+
+            // If content already has formatted HTML structure, return it
+            if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false) {
+                // For registration states, don't add tracking section (verification link is in content)
+                return $isRegistrationState ? $m : ($m . $tracking_section);
             } else {
+                // Plain text tracking code - format it properly
                 $track_id = $m;
                 $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
                 return "<h2 style='text-align:center'>" . $title . "</h2>
                 <p style='text-align:center'>" . $lang["trackingCode"] . ": " . $track_id . " </p>" . $tracking_section;
             }
         } elseif (is_array($m) && count($m) >= 2) {
-            // برای traking_link محتوای فرم نمایش داده نمی‌شود فقط تأیید + لینک
+            // Array format: [tracking_code, content]
             $track_id = $m[0];
+            $content = str_replace(['&quot;', '&amp;quot;'], '', $m[1]);
             $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
-            
+
+            // For registration states with array content
+            if ($isRegistrationState && (strpos($content, '<') !== false)) {
+                return $content; // Return content as-is without tracking section
+            }
+
             return "
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
                     <tr>
@@ -594,7 +699,7 @@ class EmsfbEmailHandler {
                     </tr>
                 </table>";
         }
-        
+
         return "";
     }
 

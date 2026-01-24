@@ -1054,7 +1054,7 @@ class efbFunction {
 			"copied" => $state  &&  isset($ac->text->copied) ? $ac->text->copied : esc_html__('copied!','easy-form-builder'),
 			"srvnrsp" => $state  &&  isset($ac->text->srvnrsp) ? $ac->text->srvnrsp : esc_html__('The website is not responding; please refresh and try again—saving or submitting is not available until it is restored.','easy-form-builder'),
 
-			"ecnr" => $state  &&  isset($ac->text->ecnr) ? $ac->text->ecnr : esc_html__('"Hi %s, %s Your account has been successfully created! To get started, Please verify your email address by clicking the link below. This activation link will be valid for 24 hours. %s %s %s %s"','easy-form-builder'),
+			"ecnr" => $state  &&  isset($ac->text->ecnr) ? $ac->text->ecnr : esc_html__('Hi %s, %s Your account has been successfully created! To get started, Please verify your email address by clicking the link below. This activation link will be valid for 24 hours. %s %s %s %s','easy-form-builder'),
 			"ecrp" => $state  &&  isset($ac->text->ecrp) ? $ac->text->ecrp : esc_html__('Hi %s, %s You have requested to reset your password. To reset your password, please click the link below. This link will be valid for 24 hours. If the link expires, you can request a new one through our website. %s %s %s %s','easy-form-builder'),
 			"udnrtun" => $state  &&  isset($ac->text->udnrtun) ? $ac->text->udnrtun : esc_html__('If you did not request this, you don\'t need to do anything further.','easy-form-builder'),
 			"sxnlex" => $state  &&  isset($ac->text->sxnlex) ? $ac->text->sxnlex : esc_html__('Your session has expired or is no longer valid. Please refresh the page to continue.','easy-form-builder'),
@@ -1904,6 +1904,22 @@ public function addon_add_efb($value) {
 
         $result = $wpdb->get_row($query, ARRAY_A);
 
+		if(empty($result)){
+			//check type of form
+
+			error_log('Form type is sid: '.$sid);
+			$query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE sid = %s  AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $fid);
+			$result = $wpdb->get_row($query, ARRAY_A);
+
+			$valid = ['regis','login','reset'];
+			if(empty($result) || !in_array($result['status'], $valid)){
+				error_log('No form record found for SID: '.$sid);
+				//update status to inact
+				return false;
+			}
+			$wpdb->query($wpdb->prepare("UPDATE {$table_name} SET status = %s WHERE sid = %s", 'inact', $sid));
+		}
+
         // Additional logging for debugging
         error_log('[EFB Nonce] Query: ' . $query);
         error_log('[EFB Nonce] Latest record result: ' . print_r($result, true));
@@ -1912,6 +1928,7 @@ public function addon_add_efb($value) {
         $debug_query = $wpdb->prepare("SELECT fid, active, read_date, status FROM {$table_name} WHERE sid = %s ORDER BY date DESC", $sid);
         $debug_result = $wpdb->get_results($debug_query, ARRAY_A);
         error_log('[EFB Nonce] Debug - All records for SID: ' . print_r($debug_result, true));
+		error_log('[EFB Nonce] Validation result: ' . (!empty($result) ? 'Valid' : 'Invalid'));
 
         return !empty($result);
     }
