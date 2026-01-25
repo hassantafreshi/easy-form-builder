@@ -120,8 +120,94 @@ class Emsfb {
         require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
        // require_once $this->plugin_path . 'includes/class-Emsfb-webhook.php';
 
+       // Load page builder integrations (available for both admin and frontend)
+       $this->load_page_builder_integrations();
+
        //write a filter for activate new plugin after that call the function activated_plugin
        // add_filter('activate_new_plugin', [$this, 'handle_new_plugin_activation_efb'], 10, 2);
+    }
+
+    /**
+     * Load page builder integrations (Gutenberg, Elementor, WPBakery, Divi, Beaver Builder, Brizy, Oxygen)
+     *
+     * @since 4.0.0
+     */
+    private function load_page_builder_integrations(): void {
+        // Load shared widgets helper class first
+        require_once $this->plugin_path . 'includes/class-Emsfb-widgets-helper.php';
+
+        // Load Gutenberg block (always available as it's core WordPress)
+        if (function_exists('register_block_type')) {
+            require_once $this->plugin_path . 'includes/page-builders/gutenberg/class-Emsfb-gutenberg-block.php';
+        }
+
+        // Load Elementor integration (if Elementor is active)
+        if (did_action('elementor/loaded') || class_exists('\Elementor\Plugin')) {
+            require_once $this->plugin_path . 'includes/page-builders/elementor/class-Emsfb-elementor.php';
+        } else {
+            // Hook for later loading if Elementor is loaded after this plugin
+            add_action('elementor/loaded', function() {
+                if (!class_exists('Emsfb_Elementor_Integration')) {
+                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/elementor/class-Emsfb-elementor.php';
+                }
+            });
+        }
+
+        // Load WPBakery integration (if WPBakery is active)
+        if (defined('WPB_VC_VERSION') || class_exists('Vc_Manager')) {
+            require_once $this->plugin_path . 'includes/page-builders/wpbakery/class-Emsfb-wpbakery.php';
+        } else {
+            // Hook for later loading if WPBakery is loaded after this plugin
+            add_action('vc_before_init', function() {
+                if (!class_exists('Emsfb_WPBakery_Integration')) {
+                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/wpbakery/class-Emsfb-wpbakery.php';
+                }
+            }, 5);
+        }
+
+        // Load Divi Builder integration (if Divi is active)
+        if (defined('ET_BUILDER_VERSION') || class_exists('ET_Builder_Module')) {
+            require_once $this->plugin_path . 'includes/page-builders/divi/class-Emsfb-divi.php';
+        } else {
+            add_action('et_builder_ready', function() {
+                if (!class_exists('Emsfb_Divi_Integration')) {
+                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/divi/class-Emsfb-divi.php';
+                }
+            }, 5);
+        }
+
+        // Load Beaver Builder integration (if Beaver Builder is active)
+        if (defined('FL_BUILDER_VERSION') || class_exists('FLBuilder')) {
+            require_once $this->plugin_path . 'includes/page-builders/beaver-builder/class-Emsfb-beaver-builder.php';
+        } else {
+            add_action('fl_builder_activated', function() {
+                if (!class_exists('Emsfb_Beaver_Integration')) {
+                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/beaver-builder/class-Emsfb-beaver-builder.php';
+                }
+            });
+        }
+
+        // Load Brizy Builder integration (if Brizy is active)
+        if (defined('BRIZY_VERSION') || class_exists('Brizy_Editor')) {
+            require_once $this->plugin_path . 'includes/page-builders/brizy/class-Emsfb-brizy.php';
+        } else {
+            add_action('brizy_loaded', function() {
+                if (!class_exists('Emsfb_Brizy_Integration')) {
+                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/brizy/class-Emsfb-brizy.php';
+                }
+            });
+        }
+
+        // Load Oxygen Builder integration (if Oxygen is active)
+        if (defined('CT_VERSION') || class_exists('OxygenElement')) {
+            require_once $this->plugin_path . 'includes/page-builders/oxygen/class-Emsfb-oxygen.php';
+        } else {
+            add_action('oxygen_enqueue_ui_scripts', function() {
+                if (!class_exists('Emsfb_Oxygen_Integration')) {
+                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/oxygen/class-Emsfb-oxygen.php';
+                }
+            });
+        }
     }
 
 

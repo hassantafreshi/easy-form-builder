@@ -1,0 +1,94 @@
+/**
+ * Easy Form Builder - Gutenberg Block Editor Styles
+ *
+ * @package EasyFormBuilder
+ * @since 4.0.0
+ */
+
+/* Block wrapper */
+.efb-gutenberg-block {
+    margin: 20px 0;
+}
+
+/* Placeholder styling */
+.efb-gutenberg-block .components-placeholder {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #202a8d;
+    border-radius: 12px;
+    padding: 30px;
+}
+
+.efb-gutenberg-block .components-placeholder__label {
+    color: #202a8d;
+    font-weight: 600;
+}
+
+.efb-gutenberg-block .components-placeholder__instructions {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+/* Preview styles */
+.efb-block-preview {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(32, 42, 141, 0.15);
+    transition: box-shadow 0.3s ease;
+}
+
+.efb-block-preview:hover {
+    box-shadow: 0 6px 25px rgba(32, 42, 141, 0.2);
+}
+
+.efb-block-preview-header {
+    position: relative;
+}
+
+.efb-block-preview-header::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path d="M14 2v6h6" fill="rgba(255,255,255,0.5)"/><path d="M16 13H8v-1h8v1zm0 3H8v-1h8v1zm-6-6H8V9h2v1z" fill="%23202a8d"/></svg>');
+    background-size: contain;
+    opacity: 0.5;
+}
+
+/* Inspector panel styling */
+.editor-styles-wrapper .efb-gutenberg-block .components-panel__body-title {
+    color: #202a8d;
+}
+
+/* Select control in placeholder */
+.efb-gutenberg-block .components-placeholder .components-select-control__input {
+    min-width: 250px;
+    border-color: #202a8d;
+    border-radius: 6px;
+}
+
+.efb-gutenberg-block .components-placeholder .components-select-control__input:focus {
+    border-color: #ff4b93;
+    box-shadow: 0 0 0 1px #ff4b93;
+}
+
+/* Loading state */
+.efb-gutenberg-block .components-spinner {
+    margin: 10px auto;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .efb-gutenberg-block .components-placeholder {
+        padding: 20px;
+    }
+
+    .efb-block-preview-header {
+        padding: 15px !important;
+    }
+
+    .efb-block-preview-content {
+        padding: 15px !important;
+    }
+}

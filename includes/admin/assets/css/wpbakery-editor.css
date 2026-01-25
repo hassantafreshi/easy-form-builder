@@ -1,0 +1,50 @@
+/**
+ * Easy Form Builder - WPBakery Editor Styles
+ *
+ * Styles for WPBakery iframe editor
+ *
+ * @package EasyFormBuilder
+ * @since 4.0.0
+ */
+
+/* Form wrapper */
+.efb-wpbakery-form-wrapper {
+    margin: 15px 0;
+}
+
+/* Form title */
+.efb-wpbakery-form-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #202a8d;
+    margin-bottom: 20px;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+}
+
+/* Placeholder styling */
+.efb-wpbakery-placeholder {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(32, 42, 141, 0.2);
+}
+
+.efb-wpbakery-placeholder:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(32, 42, 141, 0.3);
+}
+
+/* WPBakery element outline */
+.vc_efb_wpbakery_form {
+    border-left: 3px solid #ff4b93;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .efb-wpbakery-placeholder {
+        padding: 25px 15px !important;
+    }
+
+    .efb-wpbakery-form-title {
+        font-size: 20px;
+    }
+}

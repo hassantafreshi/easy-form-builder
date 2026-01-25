@@ -1,0 +1,72 @@
+/**
+ * Easy Form Builder - WPBakery Admin Panel Styles
+ *
+ * Styles for WPBakery admin panel
+ *
+ * @package EasyFormBuilder
+ * @since 4.0.0
+ */
+
+/* Element in WPBakery panel */
+.wpb_efb_wpbakery_form {
+    position: relative;
+}
+
+.wpb_efb_wpbakery_form::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #202a8d 0%, #ff4b93 100%);
+}
+
+/* Element icon */
+.wpb_efb_wpbakery_form .vc_element-icon {
+    background-size: contain !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+/* Element title */
+.wpb_efb_wpbakery_form .wpb_element_title {
+    color: #202a8d;
+    font-weight: 600;
+}
+
+/* Admin label (form name display) */
+.wpb_efb_wpbakery_form .admin_label_form_id {
+    background: linear-gradient(135deg, #202a8d 0%, #ff4b93 100%);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-top: 8px;
+    display: inline-block;
+}
+
+/* Panel element hover */
+.wpb-layout-element-button[data-element="efb_wpbakery_form"]:hover {
+    background-color: rgba(255, 75, 147, 0.1);
+    border-color: #ff4b93;
+}
+
+/* Settings panel */
+.vc_ui-panel-content-container .vc_shortcode-param[data-param_name="form_id"] select {
+    border-color: #202a8d;
+}
+
+.vc_ui-panel-content-container .vc_shortcode-param[data-param_name="form_id"] select:focus {
+    border-color: #ff4b93;
+    box-shadow: 0 0 0 1px #ff4b93;
+}
+
+/* Group tabs */
+.vc_ui-tabs-line-trigger[data-vc-ui-element-target*="Form Settings"] {
+    color: #202a8d !important;
+}
+
+.vc_ui-tabs-line-trigger[data-vc-ui-element-target*="Form Settings"].vc_active {
+    border-bottom-color: #ff4b93 !important;
+}

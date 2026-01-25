@@ -1,0 +1,34 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "easy-form-builder/form",
+    "version": "4.0.0",
+    "title": "Easy Form Builder",
+    "category": "widgets",
+    "icon": "feedback",
+    "description": "Display an Easy Form Builder form with drag and drop simplicity.",
+    "keywords": ["form", "contact", "easy form builder", "efb", "forms", "survey", "questionnaire"],
+    "textdomain": "easy-form-builder",
+    "attributes": {
+        "formId": {
+            "type": "string",
+            "default": ""
+        },
+        "formName": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "supports": {
+        "html": false,
+        "align": ["wide", "full"],
+        "className": true,
+        "customClassName": true
+    },
+    "editorScript": "file:./editor.js",
+    "editorStyle": "file:./editor.css"
+}

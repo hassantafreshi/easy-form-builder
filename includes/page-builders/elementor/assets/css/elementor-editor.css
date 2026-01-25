@@ -1,0 +1,43 @@
+/**
+ * Easy Form Builder - Elementor Editor Styles
+ *
+ * @package EasyFormBuilder
+ * @since 4.0.0
+ */
+
+/* Widget icon in panel */
+.elementor-element .elementor-widget-emsfb_form .icon {
+    background: linear-gradient(135deg, #202a8d 0%, #ff4b93 100%);
+    border-radius: 4px;
+}
+
+/* Placeholder styling */
+.efb-elementor-placeholder {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.efb-elementor-placeholder:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(32, 42, 141, 0.3);
+}
+
+/* Form wrapper */
+.efb-elementor-form-wrapper {
+    transition: box-shadow 0.3s ease;
+}
+
+.efb-elementor-form-wrapper:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Form title */
+.efb-elementor-form-title {
+    margin-bottom: 20px;
+    color: #202a8d;
+    font-weight: 600;
+}
+
+/* Category icon */
+.elementor-panel .elementor-element-wrapper .elementor-element[data-element_type="widget"][data-widget_type^="emsfb_"] .icon {
+    background: linear-gradient(135deg, #202a8d 0%, #ff4b93 100%);
+}

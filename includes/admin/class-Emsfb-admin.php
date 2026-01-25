@@ -1317,9 +1317,9 @@ class Admin {
                  if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery")){
                  }
                  // require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery/wpb_extend.php");
-                 // require_once(EMSFB_PLUGIN_DIRECTORY."/includes/integrate-wpb.php");
+                 // require_once(EMSFB_PLUGIN_DIRECTORY."/includes/page-builders/wpbakery/class-Emsfb-wpbakery.php");
              }
-             require_once(EMSFB_PLUGIN_DIRECTORY."/includes/integrate-wpb.php");
+             // WPBakery integration is now loaded via class-Emsfb.php load_page_builder_integrations()
              // Check if Gutenberg editor is available
              if (function_exists('register_block_type')) {
                  if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/gutenberg")){

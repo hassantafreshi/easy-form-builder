@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Class _Public
  * @package Emsfb

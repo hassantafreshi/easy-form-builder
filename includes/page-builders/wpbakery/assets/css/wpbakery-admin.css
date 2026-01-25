@@ -1,0 +1,21 @@
+/**
+ * Easy Form Builder - WPBakery Admin Styles
+ *
+ * @package EasyFormBuilder
+ * @since 4.0.0
+ */
+
+/* Element icon in panel */
+.vc_el-container[data-element="efb_wpbakery_form"] .vc_element-icon {
+    background-image: url('../../../admin/assets/image/logo.svg');
+    background-size: 24px 24px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Element styling */
+.wpb_efb_wpbakery_form {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #202a8d;
+    border-radius: 8px;
+}
