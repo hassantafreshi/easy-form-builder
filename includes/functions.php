@@ -1061,7 +1061,7 @@ class efbFunction {
 			"uraatn" => $state  &&  isset($ac->text->uraatn) ? $ac->text->uraatn : esc_html__('Your account has been successfully activated. You can now log in and get started!','easy-form-builder'),
 			/* translators: Success message indicating completion */
 			"yad" => $state  &&  isset($ac->text->yad) ? $ac->text->yad : esc_html__('You\'re all done','easy-form-builder'),
-			"servpss" => $state  &&  isset($ac->text->servpss) ? $ac->text->servpss : esc_html__('Enter your email address below, and we\'ll send you a link to reset your password.','easy-form-builder'),
+			"servpss" => $state  &&  isset($ac->text->servpss) ? $ac->text->servpss : esc_html__('Enter your email to reset your password','easy-form-builder'),
 			"imvpwsy" => $state  &&  isset($ac->text->imvpwsy) ? $ac->text->imvpwsy : esc_html__('If your email is valid, a password reset link has been sent to your email address.','easy-form-builder'),
 			/* translators: %s is the feature name being enabled (e.g., SMS, Email, Auto-fill) */
 			"enbl" => $state  &&  isset($ac->text->enbl) ? $ac->text->enbl : esc_html__('Enable %s','easy-form-builder'),
@@ -1910,8 +1910,8 @@ public function addon_add_efb($value) {
 			error_log('Form type is sid: '.$sid);
 			$query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE sid = %s  AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $fid);
 			$result = $wpdb->get_row($query, ARRAY_A);
-
-			$valid = ['regis','login','reset'];
+			error_log('Latest record for SID: ' . $sid . ' is: ' . print_r($result, true));
+			$valid = ['regis','login','reset','recov','logou'];
 			if(empty($result) || !in_array($result['status'], $valid)){
 				error_log('No form record found for SID: '.$sid);
 				//update status to inact

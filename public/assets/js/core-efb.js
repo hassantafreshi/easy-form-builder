@@ -1127,7 +1127,7 @@ function Show_recovery_pass_efb() {
       el.classList.remove('d-none');
       el.classList.remove('fadeOut');
       el.classList.add('fadeIn');
-      iconBtn.className = 'bi bi-chevron-up';
+      iconBtn.className = 'bi bi-chevron-up mx-2';
       el = document.getElementById('btn_recovery_pass_efb');
       el.disabled = true;
       elMsg.classList.add('d-none');
@@ -1167,8 +1167,16 @@ function Show_recovery_pass_efb() {
       actionSendData_emsFormBuilder(form_id)
     })
     us.addEventListener("keyup", (e) => {
-      const check = us.value.match(format) ? 0 : 1;
-      if (check == 0) { el.classList.remove('disabled') } else { el.classList.contains('disabled') != true ? el.classList.add('disabled') : 0 }
+      const isValid = us.value.match(format);
+      if (isValid) {
+        el.classList.remove('disabled');
+        el.disabled = false;
+      } else {
+        if (!el.classList.contains('disabled')) {
+          el.classList.add('disabled');
+        }
+        el.disabled = true;
+      }
     })
   }
 }
@@ -1230,16 +1238,58 @@ async function response_fill_form_efb(res ,form_id=0) {
         } else {
           // Login failed - show error with recovery option
           const errorMsg = res.data.m && res.data.m.error ? res.data.m.error : (res.data.m || ajax_object_efm.text.error);
-          efb_final_step.innerHTML = `<div id="alertFinalStepEFB" class="efb m-0 p-0"><h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5  text-center' ><i class="efb fs-2 bi-exclamation-triangle-fill nmsgefb  text-center"></i></h3> <span class="efb fs-7  text-center"> <br>${errorMsg}</span></div>
-           </br>
-           <a  id="btn_Show_recovery_efb" class="efb pointer-efb emsFormBuilder " onclick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} <i id="icon_btn_Show_recovery_efb" class="bi-chevron-down"> </i> </a>
-           <div class="efb py-3 px-4 container bg-light mb-3 card rounded-3 d-none" id="recoverySectionemsFormBuilder" >
-              <p class="efb fs-6">${ajax_object_efm.text.servpss}</p>
-              <input type="email" id="username_recovery_pass_efb" class="efb px-2 mb-1 emsFormBuilder_v w-100 bg-white  h-d-efb efb-square-1 col-8 border border-dark rounded-2" placeholder="Email" >
-              <a  id="btn_recovery_pass_efb" class=" efb btn h-d-efb btn-block btn-pinkEfb text-white mb-2 get-emsFormBuilder disabled  rounded-2 w-100" data-id="1" >${ajax_object_efm.text.send}</a>
+          efb_final_step.innerHTML = `
+            <div class="efb mx-auto" style="max-width: 400px;">
+              <div class="efb card-body text-center py-4 px-3">
+                <!-- Error Icon & Message -->
+                <div id="alertFinalStepEFB" class="efb mb-4">
+                  <div class="efb mb-3">
+                    <i class="efb bi-shield-exclamation fs-1 text-warning"></i>
+                  </div>
+                  <h5 class="efb fs-5 text-dark mb-2">${ajax_object_efm.text.error}</h5>
+                  <p class="efb fs-6 text-muted mb-0">${errorMsg}</p>
+                </div>
+
+                <!-- Recovery Link -->
+                <div class="efb pt-3 mt-3">
+                  <button id="btn_Show_recovery_efb" type="button"
+                    class="efb btn btn-outline-secondary ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'rounded-2'} ${valj_efb[0].el_height}   px-4 py-2 d-inline-flex align-items-center"
+                    onclick="Show_recovery_pass_efb()">
+                    <span>${ajax_object_efm.text.passwordRecovery}</span>
+                    <i id="icon_btn_Show_recovery_efb" class="efb bi-chevron-down mx-2"></i>
+                  </button>
+                </div>
+
+                <!-- Recovery Form Section -->
+                <div class="efb bg-light rounded-3 p-3 mt-3 d-none" id="recoverySectionemsFormBuilder">
+                  <div class="efb mb-3">
+                    <i class="efb bi-envelope fs-3 text-muted"></i>
+                  </div>
+                  <p class="efb fs-7 text-muted mb-3">${ajax_object_efm.text.servpss}</p>
+                  <div class="efb mb-3">
+                    <input type="email" id="username_recovery_pass_efb"
+                      class="efb form-control h-d-efb rounded-2 border text-center"
+                      placeholder="${ajax_object_efm.text.email || 'Email'}"
+                      autocomplete="email">
+                  </div>
+                  <button id="btn_recovery_pass_efb"
+                    class="efb btn  ${valj_efb[0].button_color} ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'rounded-2'} ${valj_efb[0].el_text_color} w-100 h-d-efb disabled"
+                    data-id="1">
+                    <i class="efb bi-send me-2"></i>${ajax_object_efm.text.send}
+                  </button>
+                </div>
+
+                <!-- Back Button -->
+                <div class="efb mt-4">
+                  <button id="prev_efb_send" type="button"
+                    class="efb btn ${valj_efb[0].button_color} ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'rounded-2'} ${valj_efb[0].el_height} px-4"
+                    onclick="fun_prev_send(${form_id})">
+                    <i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} me-2"></i>
+                    <span class="efb ${valj_efb[0].el_text_color}">${valj_efb[0].button_Previous_text}</span>
+                  </button>
+                </div>
               </div>
-              <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner:'efb-square'}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onclick="fun_prev_send(${form_id})"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>
-              `;
+            </div>`;
         }
         break;
       case "logout":

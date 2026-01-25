@@ -2281,13 +2281,14 @@ public function check_nonce_permission_efb($request) {
 							$subject ="". esc_html__("Password recovery")."[".get_bloginfo('name')."]";
 							$SERVER_NAME  = apply_filters('emsfb_get_server_host', 'yourdomain.com');
 							$from = isset($setting['femail']) && is_email($setting['femail']) ? get_bloginfo('name')." <no-reply@".$setting['femail'] .">" : get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
-							$message ='<!DOCTYPE html> <html> <body><div>'.$ms.'</div><p> '.$efb. '</p> </body> </html>';
+							$message = $this->generate_recovery_email_template($ms, $efb);
 							$headers = array(
 							 'MIME-Version: 1.0\r\n',
 							 '"Content-Type: text/html; charset=UTF-8\r\n"',
 							 'From:'.$from.''
 							 );
 							error_log('send mail to:'. $email);
+							error_log($message);
 							$sent = wp_mail($email, $subject, $message, $headers);
 							$this->efbFunction->efb_code_validate_update($sid ,'recovery' ,'recovery' );
 						}
@@ -4974,9 +4975,29 @@ public function check_nonce_permission_efb($request) {
 		function Js_setpassword(){
 			return "<script>
 			const efb_url = '".get_rest_url(null)."Emsfb/v1/forms/recovery/efb_set_password';
+
+			// SVG paths for eye icons
+			const eyeOpenSvg = '<path d=\"M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z\"/><path d=\"M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0\"/>';
+			const eyeClosedSvg = '<path d=\"M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z\"/><path d=\"M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829\"/><path d=\"M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z\"/>';
+
+			// Toggle password visibility
+			document.addEventListener('click', function(e) {
+				if (e.target && (e.target.id === 'togglePasswordEfb' || e.target.closest('#togglePasswordEfb'))) {
+					const passwordInput = document.getElementById('passwordefb');
+					const icon = document.getElementById('togglePasswordIcon');
+					if (passwordInput.type === 'password') {
+						passwordInput.type = 'text';
+						icon.innerHTML = eyeClosedSvg;
+					} else {
+						passwordInput.type = 'password';
+						icon.innerHTML = eyeOpenSvg;
+					}
+				}
+			});
+
 			document.addEventListener('click', function(e) {
 				if (e.target) {
-					if (e.target.id=='submitnewpass') {
+					if (e.target.id=='submitnewpass' || e.target.closest('#submitnewpass')) {
 						let password = document.getElementById('passwordefb').value;
 						let alert = document.getElementById('alert-efb');
 						if (password.length < 8) {
@@ -5006,7 +5027,7 @@ public function check_nonce_permission_efb($request) {
 							fid: fid
 						};
 
-						body_efb_rpass.innerHTML = '".esc_html__("Please Wait" , 'easy-form-builder')."';
+						body_efb_rpass.innerHTML = '<div class=\"efb text-center p-4\"><i class=\"efb bi-hourglass-split fs-1 text-primary\"></i><p class=\"efb mt-2\">".esc_html__("Please Wait" , 'easy-form-builder')."</p></div>';
 						fetch(efb_url, {
 							method: 'POST',
 							headers: {
@@ -5028,21 +5049,41 @@ public function check_nonce_permission_efb($request) {
 			</script>";
 		}
 		function create_content_setpassword($st,$fid){
-			$html = '<div class="efb card efb my-3 efb p-3"  id="body_efb_rpass">
+			$html = '<div class="efb card efb my-3 efb p-4" id="body_efb_rpass" style="max-width: 400px; margin: 0 auto;">
 
-					<h5 class="efb card-title efb text-center">Set Password</h5>
+					<!-- Header with icon -->
+					<div class="efb text-center mb-4">
+						<div class="efb mb-3">
+							<i class="efb bi-key-fill fs-1 text-primary"></i>
+						</div>
+						<h5 class="efb card-title efb text-center mb-1">'.esc_html__("Create New Password", "easy-form-builder").'</h5>
+						<p class="efb text-muted fs-7">'.esc_html__("Create a secure password for your account", "easy-form-builder").'</p>
+					</div>
 
+					<!-- Password field with eye toggle -->
 					<div class="efb mb-3 efb">
-						<label for="passwordefb" class="efb form-label">New Password</label>
-
-						<input type="password" class="efb form-control  rounded-2" id="passwordefb" name="password">
+						<label for="passwordefb" class="efb form-label fs-7 m-0">
+							<i class="efb bi-lock me-1"></i>'.esc_html__("New Password", "easy-form-builder").'
+						</label>
+						<div class="efb input-group">
+							<input type="password" class="efb form-control border border-dark rounded-start-2 border-end-0" id="passwordefb" name="password" placeholder="'.esc_html__("Enter your new password", "easy-form-builder").'">
+							<button class="efb btn btn-outline-dark border-start-0 rounded-end-2" type="button" id="togglePasswordEfb">
+								<svg id="togglePasswordIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+									<path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+									<path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+								</svg>
+							</button>
+						</div>
 					</div>
 
 					<input type="hidden" name="stefb" id="stefb" value="'.$st.'">
-					<input type="hidden" name="stefb" id="fidfb" value="'.$fid.'">
+					<input type="hidden" name="fidfb" id="fidfb" value="'.$fid.'">
 
-					<p class="efb text-danger efb" id="alert-efb"></p>
-					<a type="submit" class="efb btn efb w-100  rounded-2 btn-dark" id="submitnewpass">Submit</a>
+					<p class="efb text-danger efb fs-7" id="alert-efb"></p>
+
+					<button type="button" class="efb btn efb w-100 rounded-2 btn-dark h-d-efb" id="submitnewpass">
+						<i class="efb bi-check-lg me-2"></i>'.esc_html__("Set Password", "easy-form-builder").'
+					</button>
 				</div>
 					' .Js_() . Js_setpassword() ;
 				return $html;
@@ -5096,6 +5137,81 @@ public function check_nonce_permission_efb($request) {
 
 	}
 
+	/**
+	 * Generate professional HTML email template for recovery/registration
+	 */
+	private function generate_recovery_email_template($content, $footer) {
+		$site_name = get_bloginfo('name');
+		$site_url = home_url();
+		$year = date('Y');
+		$logo_url = defined('EMSFB_PLUGIN_URL') ? EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png' : '';
+
+		$copyright = '<p></p>';
+		$pro = $this->efbFunction->is_efb_pro(1);
+
+
+            $is_pro = (int) get_option('Emsfb_pro', 2);
+            if ($is_pro == 3 || !$pro || $is_pro ==2 ) {
+                $copyright = "<div style='text-align:center;'>
+                    <p>" . sprintf(
+                        __('Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s', 'easy-form-builder'),
+                        "<a href='https://wordpress.org/plugins/easy-form-builder/' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
+                        "</a>",
+                        "<a href='https://whitestudio.team' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
+                        "</a>"
+                    ) . "</p>
+                </div>";
+            }
+
+			return '<!DOCTYPE html>
+				<html lang="en">
+				<head>
+					<meta charset="UTF-8">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<title>' . esc_html($site_name) . '</title>
+				</head>
+				<body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f7; line-height: 1.6;">
+					<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f7; padding: 30px 0;">
+						<tr>
+							<td align="center">
+								<table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+									<!-- Header -->
+									<tr>
+										<td align="center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px;">
+											<h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">🔐 ' . esc_html__('Password Reset', 'easy-form-builder') . '</h1>
+										</td>
+									</tr>
+									<!-- Content -->
+									<tr>
+										<td style="padding: 40px 30px;">
+											<div style="color: #333333; font-size: 16px; line-height: 1.8;">
+												' . $content . '
+											</div>
+										</td>
+									</tr>
+									<!-- Divider -->
+									<tr>
+										<td style="padding: 0 30px;">
+											<hr style="border: none; border-top: 1px solid #e8e8e8; margin: 0;">
+										</td>
+									</tr>
+									<!-- Footer -->
+									<tr>
+										<td style="padding: 30px; background-color: #f9fafb;">
+											<p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px; text-align: center;">
+												' . $footer . '
+											</p>
+											'.$copyright.'
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</body>
+				</html>';
+	}
+
 	public function fun_get_content_email_register_recovery_efb($userid, $username, $email, $fid ,$type_ ,$page_id){
 		if(empty($this->db)){
             global $wpdb;
@@ -5143,13 +5259,51 @@ public function check_nonce_permission_efb($request) {
 		$url = get_permalink($page_id) . '?sc=' . $sid . '&state=' . $status_ . '&username=' . $username . '&fid=' . $fid;
 		if($type_ =='register'){
 			$m =$lan['ecnr'];
+			$button_text = esc_html__('Verify Email', 'easy-form-builder');
+			$button_color = '#22c55e'; // green
 		}elseif($type_ =='recovery'){
-			$m =$lan['ecrp'];;
+			$m =$lan['ecrp'];
+			$button_text = esc_html__('Reset Password', 'easy-form-builder');
+			$button_color = '#667eea'; // purple/blue
 		}
-		$link = sprintf('<a href="%s">%s</a>', $url, $url);
-		$nr= $lan['udnrtun'];;
-		$message = sprintf($m, $username ,'<br>','<br>', $link ,' <br>',$nr);
-		// error_log($message);
+
+		// Create styled button link
+		$button = sprintf(
+			'<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 25px auto;">
+				<tr>
+					<td style="border-radius: 6px; background-color: %s;">
+						<a href="%s" target="_blank" style="display: inline-block; padding: 14px 35px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 6px;">%s</a>
+					</td>
+				</tr>
+			</table>',
+			$button_color,
+			esc_url($url),
+			$button_text
+		);
+
+		// Alternative text link
+		$link_text = sprintf(
+			'<p style="margin: 20px 0 0 0; font-size: 13px; color: #6b7280; word-break: break-all;">%s<br><a href="%s" style="color: #667eea;">%s</a></p>',
+			esc_html__('Or copy and paste this link:', 'easy-form-builder'),
+			esc_url($url),
+			esc_url($url)
+		);
+
+		$nr = '<p style="margin: 20px 0 0 0; padding: 15px; background-color: #fef3c7; border-radius: 6px; font-size: 13px; color: #92400e;">⚠️ ' . $lan['udnrtun'] . '</p>';
+
+		// Build message with proper HTML
+		$greeting = sprintf('<p style="margin: 0 0 20px 0; font-size: 18px;">%s <strong>%s</strong>,</p>', esc_html__('Hi', 'easy-form-builder'), esc_html($username));
+
+		if($type_ =='register'){
+			$main_text = '<p style="margin: 0 0 10px 0;">' . esc_html__('Your account has been successfully created!', 'easy-form-builder') . '</p>';
+			$main_text .= '<p style="margin: 0;">' . esc_html__('Please verify your email address by clicking the button below. This activation link will be valid for 24 hours.', 'easy-form-builder') . '</p>';
+		} else {
+			$main_text = '<p style="margin: 0 0 10px 0;">' . esc_html__('You have requested to reset your password.', 'easy-form-builder') . '</p>';
+			$main_text .= '<p style="margin: 0;">' . esc_html__('Click the button below to set a new password. This link will be valid for 24 hours.', 'easy-form-builder') . '</p>';
+		}
+
+		$message = $greeting . $main_text . $button . $link_text . $nr;
+
 		return $message;
 
 
