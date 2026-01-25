@@ -3593,7 +3593,9 @@ function handle_change_event_efb(el){
       }
             return 1;
     }//end validate_len_efb
-    let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
+    const formid = el.dataset.hasOwnProperty('formid') ? el.dataset.formid : -1;
+    valj_efb =  get_structure_by_form_id_efb(formid);
+    let ob = valj_efb.find(x => x.id_ === el.dataset.vid);
     let value = ""
     const id_ = el.dataset.vid
     let state
@@ -3610,6 +3612,8 @@ function handle_change_event_efb(el){
         return
       }
     }
+    console.log(el);
+    console.log(ob);
     switch (el.type) {
       case "text":
       case "color":
@@ -3623,6 +3627,21 @@ function handle_change_event_efb(el){
           el.value = el.value.replace(/\s/g, '');
           value = el.value;
          return;
+        }else if(el.classList.contains("pdpF2")==true){
+          //1404-11-13
+          //check value format dddd-dd-dd
+          const pdp_regex = /^\d{4}-\d{2}-\d{2}$/;
+          if(!pdp_regex.test(el.value)){
+            el.className = colorBorderChangerEfb(el.className, "border-danger");
+            vd = document.getElementById(`${el.id}-message`);
+            vd.innerHTML = efb_var.text.enterValidDate;
+            if(vd.classList.contains('show')==false)vd.classList.add('show');
+            if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
+            delete_by_id(id_);
+            return;
+          }
+          valid = true;
+          value = el.value;
         }
         if(validate_len_efb()==0 && (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox")){
           //console.log('validate_len_efb()==0!!!');
@@ -3773,7 +3792,7 @@ function handle_change_event_efb(el){
     const form_id = el.dataset.hasOwnProperty('formid') ? el.dataset.formid : 0;
     if(state==false && value.length > 0)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
     if (value != "" || value.length > 0) {
-
+      console.log('ob',ob);
       const type = ob.type;
       const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
       let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder,form_id:  form_id }];
