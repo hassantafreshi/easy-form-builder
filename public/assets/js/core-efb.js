@@ -546,7 +546,15 @@ function alarm_emsFormBuilder(val) {
 }
 async function actionSendData_emsFormBuilder(form_id=0) {
   console.log('actionSendData_emsFormBuilder fomId', form_id);
-  const sendback = sendBack_emsFormBuilder_pub.filter(x=>Number(x.form_id)==Number(form_id));
+  let sendback = [];
+  if(form_type_emsFormBuilder =='recovery'){
+    console.log('recovery');
+    console.log(sendBack_emsFormBuilder_pub);
+    sendback = sendBack_emsFormBuilder_pub;
+  }else{
+    sendback = sendBack_emsFormBuilder_pub.filter(x=>Number(x.form_id)==Number(form_id));
+  }
+
   console.log('sendback', sendback);
 
   console.log('sendback', sendback);
@@ -555,8 +563,15 @@ async function actionSendData_emsFormBuilder(form_id=0) {
   console.log(vj )
   let recaptcha_emsFormBuilder_row =''
   if (ajax_object_efm.type == "userIsLogin") return 0;
-  if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendback));
-   if( vj.captcah){
+  if (form_type_emsFormBuilder != 'login'){
+     localStorage.setItem('sendback', JSON.stringify(sendback));
+     if(form_type_emsFormBuilder =='recovery'){
+      vj.type ='recovery';
+     }
+     // don't remove this line!
+     sendBack_emsFormBuilder_pub = [];
+  }
+  if( vj.captcah){
     // find captcha in sendback
     const indx = sendback.findIndex(x => x.id_ == 'captcha_v2');
     console.log('captcha',indx,sendback[indx],sendback);
@@ -618,7 +633,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
         console.log('paypal!');
         data = {
           action: "get_form_Emsfb",
-          value: JSON.stringify(sendBack_emsFormBuilder_pub),
+          value: JSON.stringify(sendback),
           name: formNameEfb,
           id: form_id,
           payid: efb_var.payId,
@@ -1074,6 +1089,9 @@ async function validation_before_send_efb(form_id) {
   }
 }
 function show_user_profile_emsFormBuilder(ob) {
+  console.log('show_user_profile_emsFormBuilder',ob ,ob.hasOwnProperty('m'));
+
+
   return `<div class="efb mt-5"><div class="efb card-block text-center text-dark ">
               <div class="efb mb-3 d-flex justify-content-center"> <img src="${ob.user_image}" class="efb userProfileImageEFB" alt="${ob.display_name}"> </div>
               <h6 class="efb  fs-5 mb-1 d-flex justify-content-center text-dark">${ob.display_name}</h6> <p class="efb  fs-6">${ob.user_login}</p>
@@ -1142,9 +1160,11 @@ function Show_recovery_pass_efb() {
     el.addEventListener("click", (e) => {
       form_type_emsFormBuilder = "recovery";
       formNameEfb = form_type_emsFormBuilder;
-      sendBack_emsFormBuilder_pub = { email: us.value ,'recovery':true};
       document.getElementById('efb-final-step').innerHTML = `<h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3 class="efb text-center">${ajax_object_efm.text.pleaseWaiting}<h3>`
-      actionSendData_emsFormBuilder()
+      const valj = valj_efb_new.find(x => x.type ==  'login');
+      const form_id = valj ? valj.id : 0;
+      sendBack_emsFormBuilder_pub = { email: us.value ,'recovery':true , form_id: form_id};
+      actionSendData_emsFormBuilder(form_id)
     })
     us.addEventListener("keyup", (e) => {
       const check = us.value.match(format) ? 0 : 1;
@@ -1194,11 +1214,23 @@ async function response_fill_form_efb(res ,form_id=0) {
         efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder fs-4  text-center'><i class="efb fs-2 bi-envelope text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${res.data.m}</h3></br></br></h3>`;
       break;
       case 'login':
-        if (res.data.m.state == true) {
-          document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(res.data.m);
+        console.log('login response',res,res.data.m );
+        // Check if m is an object with state (successful login with user data)
+        if (res.data.m && typeof res.data.m === 'object' && res.data.m.state == true) {
+          document.getElementById('body_efb_'+form_id).innerHTML = show_user_profile_emsFormBuilder(res.data.m);
           location.reload();
+        // Check if m is a string message (recovery success)
+        } else if(typeof res.data.m === 'string' && res.data.success == true){
+          document.getElementById('body_efb_'+form_id).innerHTML = `
+          <div class="efb mt-5"><div class="efb card-block text-center text-dark ">
+              <div class="efb mb-3 d-flex justify-content-center"><i class="efb fs-1 bi-envelope-check text-success"></i></div>
+              <p class="efb fs-6">${res.data.m}</p>
+          </div>
+          `
         } else {
-          efb_final_step.innerHTML = `<div id="alertFinalStepEFB" class="efb m-0 p-0"><h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5  text-center' ><i class="efb fs-2 bi-exclamation-triangle-fill nmsgefb  text-center"></i></h3> <span class="efb fs-7  text-center"> <br>${res.data.m.error}</span></div>
+          // Login failed - show error with recovery option
+          const errorMsg = res.data.m && res.data.m.error ? res.data.m.error : (res.data.m || ajax_object_efm.text.error);
+          efb_final_step.innerHTML = `<div id="alertFinalStepEFB" class="efb m-0 p-0"><h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5  text-center' ><i class="efb fs-2 bi-exclamation-triangle-fill nmsgefb  text-center"></i></h3> <span class="efb fs-7  text-center"> <br>${errorMsg}</span></div>
            </br>
            <a  id="btn_Show_recovery_efb" class="efb pointer-efb emsFormBuilder " onclick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} <i id="icon_btn_Show_recovery_efb" class="bi-chevron-down"> </i> </a>
            <div class="efb py-3 px-4 container bg-light mb-3 card rounded-3 d-none" id="recoverySectionemsFormBuilder" >
@@ -1982,6 +2014,7 @@ sendback_state_handler_efb_v4=(id_,state,step,form_id)=>{
 
 // v4
 get_row_sendback_by_id_efb_v4=(id_,form_id=0)=>{
+
   if(form_id==0){
     return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)
 

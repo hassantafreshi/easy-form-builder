@@ -1692,22 +1692,24 @@ public function check_nonce_permission_efb($request) {
 		$phone_numbers = [[], []];
 		$email_array_state = false;
 		$send_email_to_user_state = false;
-
+		error_log('Form structure: ' . $fs);
 		if (isset($setting['sms_config']) && $setting['sms_config'] == "wpsms") {
 			$numbers = isset($setting['phnNo']) ? $setting['phnNo'] : [];
 			if (strlen($numbers) > 5) $phone_numbers[0] = explode(',', $numbers);
 			$smsnoti = 1;
 		}
 		$smsnoti = strpos($fs, '\"smsnoti\":\"1\"') !== false || $smsnoti == 1 ? 1 : 0;
+		error_log('SMS Notification State: ' . $smsnoti);
 		if ($fs != '') {
 			$formObj = json_decode($fs, true);
 			$fs = null;
 			$email_array_state = isset($formObj[0]["email_send_type"]) ? $formObj[0]["email_send_type"] : false;
-			error_log(json_encode($formObj[0]));
+			error_log('formObj:'.json_encode($formObj[0]));
 			// $is_multipleEmail = strpos($email_fa, ',') !== false;
 			// $email_array_state = strpos($email_fa, ',') !== false;
-
-			if (!isset($valo['logout']) && !isset($valo['recovery'])) {
+			$form_type = $formObj[0]['type'] ?? 'form';
+			error_log('form type: ' . $form_type);
+			if (!isset($valo['logout']) && !isset($valo['recovery']) && $form_type!='register' && $form_type!='login') {
 				if(isset($setting['smtp']) && (bool)$setting['smtp'] ){
 						$send_email_to_user_state = true;
 				}
@@ -2246,21 +2248,24 @@ public function check_nonce_permission_efb($request) {
 					$value = json_encode($formObj, JSON_UNESCAPED_UNICODE);
 					$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
 				}
-			}elseif($formObj[0]['type']=='register' || $formObj[0]['type']=='login'){
+			}elseif($form_type=='register' || $form_type=='login'){
 
+				error_log('register or login:'.$type);
+
+				// end
 				if($type=='logout'){
 					$this->efbFunction->efb_code_validate_update($sid ,'logout' ,'logout' );
 					wp_logout();
 					$response = array( 'success' => true , 'm' =>'logout');
 					wp_send_json_success($response,200);
+					return;
 				}
 				if($type=='recovery'){
-					$val = $data_POST['value'];
-					$valobj = str_replace('\"', '"', $val);
-					$valobj = json_decode($valobj, true);
-
-					$email = isset($valobj['email']) ? sanitize_email($valobj['email']) : null;
+					error_log('recovery start');
+					error_log('valo:'. json_encode($valo,true));
+					$email = isset($valo[0]) ? sanitize_email($valo[0]) : null;
 					// error_log(json_encode($valobj));
+					error_log('>>>>>>>>>>>>>email:'. $email);
 					$response = ['success' => false, 'm' =>'Email is not valid'];
 					if ($email!==null) {
 
@@ -2282,14 +2287,12 @@ public function check_nonce_permission_efb($request) {
 							 '"Content-Type: text/html; charset=UTF-8\r\n"',
 							 'From:'.$from.''
 							 );
-							 // error_log('email=>' . $email);
-							 // error_log('subject=>' . $subject);
-							 // error_log('message=>' . $message);
-							 // error_log('headers=>' . json_encode($headers));
+							error_log('send mail to:'. $email);
 							$sent = wp_mail($email, $subject, $message, $headers);
 							$this->efbFunction->efb_code_validate_update($sid ,'recovery' ,'recovery' );
 						}
-						$response = array( 'success' => true , 'm' =>$lanTextReg['imvpwsy']);
+						// For recovery, JavaScript expects res.data.m to be a string (displayed directly in UI)
+						$response = array( 'success' => true, 'm' => $lanTextReg['imvpwsy']);
 					}
 					wp_send_json_success($response,200);
 
@@ -2363,7 +2366,7 @@ public function check_nonce_permission_efb($request) {
 					$this->name = sanitize_text_field($data_POST['name']);
 					$this->id = sanitize_text_field($data_POST['id']);
 					if ($send_email_to_user_state) {
-						array_filter($valobj, function ($item) use ($formObj, &$emailuser) {
+						array_filter($valo, function ($item) use ($formObj, &$emailuser) {
 							error_log('email_to');
 							error_log($formObj[0]['email_to']);
 							error_log(json_encode($item));
@@ -2419,10 +2422,10 @@ public function check_nonce_permission_efb($request) {
 								$state_email_user = $trackingCode_state == 1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 								$msg_content = 'null';
 								if (isset($formObj[0]['email_noti_type']) && $formObj[0]['email_noti_type'] == 'msg') {
-									$msg_content = $this->email_get_content_efb($valobj, $check);
+									$msg_content = $this->email_get_content_efb($valo, $check);
 									$msg_content = str_replace("\"", "'", $msg_content);
 								}
-								$status_email = $this->email_status_efb($formObj,$valobj,$check);
+								$status_email = $this->email_status_efb($formObj,$valo,$check);
 								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
 								$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
 							    // error_log('after send email: ' . $time);
@@ -2450,8 +2453,8 @@ public function check_nonce_permission_efb($request) {
 							$trackId = $id;
 							if ($value != null) {
 								$vv = json_decode(str_replace('\\', '', $value[0]->content), true);
-								$valobj = $valo;
-								$filtered = array_filter($valobj, function ($item) use ($vv) {
+								$valo = $valo;
+								$filtered = array_filter($valo, function ($item) use ($vv) {
 									return strpos($item['type'], 'pay') === false;
 								});
 								$amount = array_reduce($vv, function ($carry, $item) {
@@ -2552,7 +2555,7 @@ public function check_nonce_permission_efb($request) {
 								$username = '';
 								$password = '';
 								$email = 'null';
-								foreach ($valobj as &$rv) {
+								foreach ($valo as &$rv) {
 									if (isset($rv['id_'])) {
 										switch ($rv['id_']) {
 											case 'passwordRegisterEFB':
@@ -2645,12 +2648,13 @@ public function check_nonce_permission_efb($request) {
 								wp_send_json_success($response, 200);
 								break;
 								case "login":
+
 									$username = '';
 									$password = '';
 									/* $m = str_replace("\\", "", $this->value);
 									$loginValue = json_decode($m, true); */
 
-									foreach ($valobj as $value) {
+									foreach ($valo as $value) {
 										if (isset($value['id_']) && isset($value['value'])) {
 											switch ($value['id_']) {
 												case 'emaillogin':
@@ -2713,7 +2717,7 @@ public function check_nonce_permission_efb($request) {
 								case "subscribe":
 									$check=	$this->insert_message_db(0,false);
 									if($send_email_to_user_state){
-										$status_email = $this->email_status_efb($formObj,$valobj,$check);
+										$status_email = $this->email_status_efb($formObj,$valo,$check);
 										$state_of_email = ['newMessage','subscribe',$status_email['type']];
 										$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
@@ -2726,7 +2730,7 @@ public function check_nonce_permission_efb($request) {
 									// $ip = $this->ip;
 									$check=	$this->insert_message_db(0,false);
 									if($send_email_to_user_state){
-										$status_email = $this->email_status_efb($formObj,$valobj,$check);
+										$status_email = $this->email_status_efb($formObj,$valo,$check);
 										$state_of_email = ['newMessage',"survey",$status_email['type']];
 
 										$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
