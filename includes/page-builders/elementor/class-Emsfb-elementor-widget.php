@@ -215,7 +215,22 @@ class Emsfb_Elementor_Widget extends Widget_Base {
         $form_id = $settings['form_id'];
 
         if (empty($form_id)) {
-            if (\Elementor\Plugin::$instance->editor->is_edit_mode()) {
+            // Safely check Elementor edit mode
+            $is_edit_mode = false;
+            if (class_exists('\Elementor\Plugin')) {
+                try {
+                    $elementor = \Elementor\Plugin::$instance;
+                    if ($elementor && isset($elementor->editor) && $elementor->editor && method_exists($elementor->editor, 'is_edit_mode')) {
+                        $is_edit_mode = $elementor->editor->is_edit_mode();
+                    }
+                } catch (\Exception $e) {
+                    $is_edit_mode = false;
+                } catch (\Error $e) {
+                    $is_edit_mode = false;
+                }
+            }
+            
+            if ($is_edit_mode) {
                 // Show placeholder in editor
                 echo $this->render_editor_placeholder();
             }

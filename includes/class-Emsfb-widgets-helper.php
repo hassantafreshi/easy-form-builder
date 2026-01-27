@@ -294,10 +294,22 @@ class Emsfb_Widgets_Helper {
     public static function is_builder_active($builder) {
         switch ($builder) {
             case 'elementor':
-                return defined('ELEMENTOR_VERSION') && class_exists('\Elementor\Plugin');
+                try {
+                    return defined('ELEMENTOR_VERSION') && class_exists('\Elementor\Plugin');
+                } catch (\Exception $e) {
+                    return false;
+                } catch (\Error $e) {
+                    return false;
+                }
 
             case 'wpbakery':
-                return defined('WPB_VC_VERSION') && function_exists('vc_map');
+                try {
+                    return defined('WPB_VC_VERSION') && function_exists('vc_map');
+                } catch (\Exception $e) {
+                    return false;
+                } catch (\Error $e) {
+                    return false;
+                }
 
             case 'gutenberg':
                 // Gutenberg is part of WordPress core since 5.0
@@ -318,8 +330,19 @@ class Emsfb_Widgets_Helper {
         if (isset($_GET['action']) && $_GET['action'] === 'elementor') {
             return 'elementor';
         }
-        if (class_exists('\Elementor\Plugin') && \Elementor\Plugin::$instance->editor && \Elementor\Plugin::$instance->editor->is_edit_mode()) {
-            return 'elementor';
+        
+        // Safely check Elementor edit mode
+        if (class_exists('\Elementor\Plugin')) {
+            try {
+                $elementor = \Elementor\Plugin::$instance;
+                if ($elementor && isset($elementor->editor) && $elementor->editor && method_exists($elementor->editor, 'is_edit_mode') && $elementor->editor->is_edit_mode()) {
+                    return 'elementor';
+                }
+            } catch (\Exception $e) {
+                // Elementor not properly initialized
+            } catch (\Error $e) {
+                // Elementor not properly initialized
+            }
         }
 
         // WPBakery editor

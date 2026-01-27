@@ -506,32 +506,115 @@ public function check_nonce_permission_efb($request) {
 			$page_builder="";
 			$action_post = isset($_GET['action']) ? sanitize_key( wp_unslash( $_GET['action'] ) ) :'';
 
-			if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) || $action_post=='elementor' || isset($_GET['elementor-preview'])  )){
-					if(isset($_GET['vc_editable'])){ $page_builder='vc_editable';}
-					else if(isset($_GET['vc_editable'])) {$page_builder = 'wpbakery';}
-					else if ( ( isset($_GET['action']) && sanitize_key( wp_unslash( $_GET['action'] ) ) == 'elementor') || isset($_GET['elementor-preview']) ){
-						$page_builder='elementor';
+			// Check if we're in any page builder editor mode
+			// Safely check Beaver Builder - use try-catch to prevent fatal errors
+			$is_beaver_active = false;
+			if (class_exists('\FLBuilderModel') && method_exists('\FLBuilderModel', 'is_builder_active')) {
+				try {
+					$is_beaver_active = \FLBuilderModel::is_builder_active();
+				} catch (\Exception $e) {
+					$is_beaver_active = false;
+				} catch (\Error $e) {
+					$is_beaver_active = false;
+				}
+			}
 
+			// Safely check Divi Builder constant
+			$is_divi_enabled = false;
+			if (defined('ET_FB_ENABLED')) {
+				try {
+					$is_divi_enabled = ET_FB_ENABLED;
+				} catch (\Exception $e) {
+					$is_divi_enabled = false;
+				} catch (\Error $e) {
+					$is_divi_enabled = false;
+				}
+			}
+			
+			// Safely check Oxygen Builder constant
+			$is_oxygen_enabled = false;
+			if (defined('SHOW_CT_BUILDER')) {
+				try {
+					$is_oxygen_enabled = SHOW_CT_BUILDER;
+				} catch (\Exception $e) {
+					$is_oxygen_enabled = false;
+				} catch (\Error $e) {
+					$is_oxygen_enabled = false;
+				}
+			}
 
+			$is_editor_mode = (
+				is_admin() ||
+				isset($_GET['vc_editable']) ||
+				isset($_GET['vcv-ajax']) ||
+				isset($_GET['vcv-action']) ||
+				$action_post == 'elementor' ||
+				isset($_GET['elementor-preview']) ||
+				// Divi Builder
+				isset($_GET['et_fb']) ||
+				isset($_GET['et_bfb']) ||
+				$is_divi_enabled ||
+				// Beaver Builder
+				isset($_GET['fl_builder']) ||
+				$is_beaver_active ||
+				// Brizy Builder
+				isset($_GET['brizy-edit']) ||
+				isset($_GET['brizy-edit-iframe']) ||
+				// Oxygen Builder
+				isset($_GET['ct_builder']) ||
+				isset($_GET['oxygen_iframe']) ||
+				$is_oxygen_enabled
+			);
 
-					}
+			if($is_editor_mode){
+				// Detect specific page builder
+				if(isset($_GET['vc_editable']) || isset($_GET['vcv-ajax']) || isset($_GET['vcv-action'])) {
+					$page_builder = 'Visual Composer';
+				} else if ($action_post == 'elementor' || isset($_GET['elementor-preview'])) {
+					$page_builder = 'Elementor';
+				} else if (isset($_GET['et_fb']) || isset($_GET['et_bfb']) || $is_divi_enabled) {
+					$page_builder = 'Divi Builder';
+				} else if (isset($_GET['fl_builder']) || $is_beaver_active) {
+					$page_builder = 'Beaver Builder';
+				} else if (isset($_GET['brizy-edit']) || isset($_GET['brizy-edit-iframe'])) {
+					$page_builder = 'Brizy';
+				} else if (isset($_GET['ct_builder']) || isset($_GET['oxygen_iframe']) || $is_oxygen_enabled) {
+					$page_builder = 'Oxygen';
+				} else {
+					$page_builder = 'Editor';
+				}
 
-				$content="
-				<div id='body_efb' class='efb row pb-3 efb px-2'>
-					<div style='width:100%;text-align: center;'>
-						<img src=". EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg'." alt='Easy Form Builder' style='height: 80px'>
-						</div>
-						<h4 style='color:#202a8d;text-align: center;'>
-						".esc_html__('You can only see the form in Preview or Publish mode.', 'easy-form-builder')."
-						</h4>
-						<p style='text-align: center; font-size:12px'>
-						". esc_html__('Click here to edit your Easy Form Builder shortcode.', 'easy-form-builder') ."
-						</p>
-						<h3 style='color:#ff4b93;text-align: center;'>
-							".esc_html__('Easy Form Builder', 'easy-form-builder')."
-						</h3>
+				// Get form ID for display
+				$form_id = is_array($id) ? end($id) : $id;
+				$form_info = '';
+				if (!empty($form_id)) {
+					$form_info = '<div style="margin-top: 15px; padding: 10px 20px; background: rgba(255,255,255,0.2); border-radius: 6px; display: inline-block; font-size: 13px;">
+						<span style="opacity: 0.8;">'.esc_html__('Form ID:', 'easy-form-builder').'</span>
+						<strong>' . esc_html($form_id) . '</strong>
+					</div>';
+				}
+
+				$content = '
+				<div style="
+					padding: 40px 30px;
+					background: linear-gradient(135deg, #202a8d 0%, #ff4b93 100%);
+					border-radius: 12px;
+					text-align: center;
+					color: #fff;
+					font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;
+					margin: 10px 0;
+				">
+					<div style="margin-bottom: 15px;">
+						<img src="'. esc_url(EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg') .'" alt="Easy Form Builder" style="width: 60px; height: 60px; border-radius: 10px;" onerror="this.style.display=\'none\'">
+					</div>
+					<div style="font-size: 20px; font-weight: 700; margin-bottom: 10px;">Easy Form Builder</div>
+					<div style="font-size: 14px; opacity: 0.9;">'.esc_html__('The form will be displayed on the frontend.', 'easy-form-builder').'</div>
+					'.$form_info.'
+					<div style="margin-top: 15px; font-size: 12px; opacity: 0.7;">
+						<span style="background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 4px;">📝 ' . esc_html($page_builder) . '</span>
+					</div>
 				</div>
-				";
+				';
 
 				return $content;
 			}
@@ -4603,10 +4686,14 @@ public function check_nonce_permission_efb($request) {
 				'wp-optimize' => array(
 					'check' => function() { return class_exists('WPO_Page_Cache'); },
 					'clear' => function($p) {
-						if (method_exists('WPO_Page_Cache', 'delete_single_post_cache')) {
-							\WPO_Page_Cache::delete_single_post_cache($p);
-						} else {
-							do_action('wpo_purge_all');
+						try {
+							if (method_exists('\WPO_Page_Cache', 'delete_single_post_cache')) {
+								\WPO_Page_Cache::delete_single_post_cache($p);
+							} else {
+								do_action('wpo_purge_all');
+							}
+						} catch (\Exception $e) {
+						} catch (\Error $e) {
 						}
 					}
 				),
@@ -4629,36 +4716,56 @@ public function check_nonce_permission_efb($request) {
 				'cache-enabler' => array(
 					'check' => function() { return class_exists('Cache_Enabler'); },
 					'clear' => function($p) {
-						if (method_exists('Cache_Enabler', 'clear_page_cache_by_post_id')) {
-							\Cache_Enabler::clear_page_cache_by_post_id($p);
-						} elseif (method_exists('Cache_Enabler', 'clear_cache')) {
-							\Cache_Enabler::clear_cache();
-						} else {
-							\Cache_Enabler::clear_total_cache();
+						try {
+							if (method_exists('\Cache_Enabler', 'clear_page_cache_by_post_id')) {
+								\Cache_Enabler::clear_page_cache_by_post_id($p);
+							} elseif (method_exists('\Cache_Enabler', 'clear_cache')) {
+								\Cache_Enabler::clear_cache();
+							} elseif (method_exists('\Cache_Enabler', 'clear_total_cache')) {
+								\Cache_Enabler::clear_total_cache();
+							}
+						} catch (\Exception $e) {
+							// Cache plugin error - ignore
+						} catch (\Error $e) {
+							// Cache plugin error - ignore
 						}
 					}
 				),
 				'swift-performance' => array(
 					'check' => function() { return (class_exists('Swift_Performance_Cache') && method_exists('Swift_Performance_Cache', 'clear_all_cache')); },
-					'clear' => function($p) { \Swift_Performance_Cache::clear_all_cache(); }
+					'clear' => function($p) {
+						try {
+							\Swift_Performance_Cache::clear_all_cache();
+						} catch (\Exception $e) {
+						} catch (\Error $e) {
+						}
+					}
 				),
 				'comet-cache' => array(
 					'check' => function() { return (class_exists('comet_cache') || function_exists('comet_cache_clear_cache')); },
 					'clear' => function($p) {
-						if (class_exists('comet_cache') && method_exists('comet_cache', 'clear')) {
-							\comet_cache::clear();
-						} elseif (function_exists('comet_cache_clear_cache')) {
-							comet_cache_clear_cache();
+						try {
+							if (class_exists('comet_cache') && method_exists('comet_cache', 'clear')) {
+								\comet_cache::clear();
+							} elseif (function_exists('comet_cache_clear_cache')) {
+								comet_cache_clear_cache();
+							}
+						} catch (\Exception $e) {
+						} catch (\Error $e) {
 						}
 					}
 				),
 				'autoptimize' => array(
 					'check' => function() { return class_exists('autoptimizeCache'); },
 					'clear' => function($p) {
-						\autoptimizeCache::clearall();
-						if (function_exists('autoptimize_filter_js_noptimize')) {
-							autoptimize_filter_js_exclude(['jquery.min-efb.js','core-efb.js']);
-							autoptimize_filter_js_noptimize();
+						try {
+							\autoptimizeCache::clearall();
+							if (function_exists('autoptimize_filter_js_noptimize')) {
+								autoptimize_filter_js_exclude(['jquery.min-efb.js','core-efb.js']);
+								autoptimize_filter_js_noptimize();
+							}
+						} catch (\Exception $e) {
+						} catch (\Error $e) {
 						}
 					}
 				),
@@ -4672,11 +4779,23 @@ public function check_nonce_permission_efb($request) {
 				),
 				'big-scoots-cache' => array(
 					'check' => function() { return (class_exists('BigScoots_Cache') && method_exists('BigScoots_Cache', 'clear_cache')); },
-					'clear' => function($p) { \BigScoots_Cache::clear_cache((int) $p); }
+					'clear' => function($p) {
+						try {
+							\BigScoots_Cache::clear_cache((int) $p);
+						} catch (\Exception $e) {
+						} catch (\Error $e) {
+						}
+					}
 				),
 				'speedycache' => array(
 					'check' => function() { return class_exists('SpeedyCache\\Delete'); },
-					'clear' => function($p) { \SpeedyCache\Delete::cache($p); }
+					'clear' => function($p) {
+						try {
+							\SpeedyCache\Delete::cache($p);
+						} catch (\Exception $e) {
+						} catch (\Error $e) {
+						}
+					}
 				),
 				'clear-cache-for-widgets' => array(
 					'check' => function() { return function_exists('ccfm_clear_cache_for_me'); },
@@ -4704,7 +4823,13 @@ public function check_nonce_permission_efb($request) {
 				),
 				'wpspeed' => array(
 					'check' => function() { return class_exists('WPSpeed\\Platform\\Cache'); },
-					'clear' => function($p) { \WPSpeed\Platform\Cache::deleteCache(); }
+					'clear' => function($p) {
+						try {
+							\WPSpeed\Platform\Cache::deleteCache();
+						} catch (\Exception $e) {
+						} catch (\Error $e) {
+						}
+					}
 				),
 				'flying-press' => array(
 					'check' => function() { return (function_exists('flying_press_purge_post') || has_action('flying_press_purge_everything')); },
@@ -4738,7 +4863,11 @@ public function check_nonce_permission_efb($request) {
 			'wp-rest-cache' => array(
 				'check' => class_exists('\\WP_REST_Cache_Plugin\\Includes\\Caching\\Caching'),
 				'clear' => function($p) use ($page_type) {
-					\WP_REST_Cache_Plugin\Includes\Caching\Caching::get_instance()->delete_related_caches($p, $page_type);
+					try {
+						\WP_REST_Cache_Plugin\Includes\Caching\Caching::get_instance()->delete_related_caches($p, $page_type);
+					} catch (\Exception $e) {
+					} catch (\Error $e) {
+					}
 				}
 			),
 		);
