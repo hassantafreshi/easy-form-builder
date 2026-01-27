@@ -23,7 +23,7 @@ This form builder plugin can be used to create contact forms, support request fo
 
 == What Can This Form Plugin Do? ==
 
-With  Easy Form Builder, you can use a single form plugin to build and manage multiple types of forms and form-based workflows:
+With Easy Form Builder, you can use a single form plugin to build and manage multiple types of forms and form-based workflows:
 
 - Contact forms for general inquiries
 - Support and feedback forms with message tracking
@@ -154,7 +154,7 @@ This version is suitable for personal websites, blogs, and small business sites.
 = Free Plus Version =
 The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder, while excluding external add-ons.
 
-This version is suitable for users who need advanced form layouts and surveys without add-on-based extensions. A small “Powered by  Easy Form Builder” credit is displayed on the form output.
+This version is suitable for users who need advanced form layouts and surveys without add-on-based extensions. A small “Powered by Easy Form Builder” credit is displayed on the form output.
 
 = Pro Version =
 The Pro version includes all Free Plus features and adds support for official add-ons and integrations.
@@ -164,10 +164,10 @@ This version is suitable for professional websites, service platforms, and proje
 
 == Frequently Asked Questions ==
 
-= What is  Easy Form Builder used for? =
+= What is Easy Form Builder used for? =
 It is a WordPress form plugin used to create contact forms, survey forms, payment forms,subscription forms and login or registration forms using a drag-and-drop form builder.
 
-= Is  Easy Form Builder WCAG(ADA) compliant? =
+= Is Easy Form Builder WCAG(ADA) compliant? =
 Form Builder has tried to add necessary standards to the forms, making them accessible to individuals with disabilities during form display.
 
  = Is my form data sent to external services? =
@@ -201,7 +201,7 @@ Yes. Stripe payment fields are supported.
 Yes. The form builder includes survey and poll fields such as rating stars and NPS.
 
 = Do the country, state, and city fields load data from an external source? =
-Yes. The country, state/province, and city lists used in  Easy Form Builder are automatically loaded from an external CDN-hosted JSON source maintained on GitHub.
+Yes. The country, state/province, and city lists used in Easy Form Builder are automatically loaded from an external CDN-hosted JSON source maintained on GitHub.
 
 These lists are fetched from the following public repository:
 https://github.com/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world
@@ -222,7 +222,7 @@ For full setup instructions, and guides visit [ Easy Form Builder Documentation]
 If your theme uses Bootstrap, go to “Easy Form Builder” → “Settings” and enable the Bootstrap option.
 
 1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
-2. Navigate to Dashboard → “Plugins” → “Add New” → “Upload Plugin” → select  *Easy Form Builder* zip file then “Activate”.
+2. Navigate to Dashboard → “Plugins” → “Add New” → “Upload Plugin” → select *Easy Form Builder* zip file then “Activate”.
 3. In the menu bar, navigate to “Easy Form Builder” → “Settings'' → “Add Google recaptcha keys”
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
 
