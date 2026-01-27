@@ -1079,8 +1079,14 @@ public function check_nonce_permission_efb($request) {
 			$this->value_forms[] = $row_form_info;
 			$style = $style.'</style>';
 			$jss = $jss.'</script>';
-			$console_checker = $efbFormBuilder->check_error_console_efb();
-			$script = '<script>'.$console_checker.'</script>';
+
+			// Only load error monitor for administrators
+			$script = '';
+			if (current_user_can('manage_options')) {
+				$console_checker = $efbFormBuilder->check_error_console_efb();
+				$script = '<script>'.$console_checker.'</script>';
+			}
+
 			//add_buttons_zone_efb($state, $id, $valj_efb, $efb_var, $preview_efb, $formId)
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);

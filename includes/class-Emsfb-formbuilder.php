@@ -3165,53 +3165,584 @@
 	} */
 
 
-	public function check_error_console_efb(){
+public function check_error_console_efb(){
 
-
-	$file_text = esc_html__('File', 'easy-form-builder');
-	$line_text = esc_html__('Line', 'easy-form-builder');
-	$column_text = esc_html__('Column', 'easy-form-builder');
-	$error_text = esc_html__('Error Message', 'easy-form-builder');
-	$origin_text = esc_html__('This error originates from the %s', 'easy-form-builder');
-	$plugin_text = esc_html__('plugin', 'easy-form-builder');
-	$theme_text = esc_html__('theme', 'easy-form-builder');
-	$interfere_text = esc_html__('It may interfere with the functionality of the Easy Form Builder plugin.', 'easy-form-builder');
-	$contact_text = esc_html__('For further assistance, please contact support.', 'easy-form-builder');
-	$efb = esc_html__('Easy Form Builder', 'easy-form-builder') .':\n';
+	// Translations
+	$t = [
+		'title'       => esc_html__('Error Monitor', 'easy-form-builder'),
+		'plugin'      => esc_html__('Plugin', 'easy-form-builder'),
+		'theme'       => esc_html__('Theme', 'easy-form-builder'),
+		'wpCore'      => esc_html__('WordPress Core', 'easy-form-builder'),
+		'external'    => esc_html__('External', 'easy-form-builder'),
+		'unknown'     => esc_html__('Unknown', 'easy-form-builder'),
+		'line'        => esc_html__('Line', 'easy-form-builder'),
+		'file'        => esc_html__('File', 'easy-form-builder'),
+		'clear'       => esc_html__('Clear All', 'easy-form-builder'),
+		'noErrors'    => esc_html__('No errors detected', 'easy-form-builder'),
+		'warning'     => esc_html__('These errors may interfere with forms built using Easy Form Builder.', 'easy-form-builder'),
+		'adminOnly'   => esc_html__('This panel is only visible to site administrators.', 'easy-form-builder'),
+	];
 
 	$value = '
-	window.onerror = function (message, source, lineno, colno, error) {
-		const wpContentRegex = /wp-content\/(plugins|themes)\/([^/]+)\/(.*)/;
-		const wpIncludesRegex = /wp-includes\/(.*)/;
-		let errorMessage = `'.$efb.''.$error_text.': ${message}\n`;
+	(function() {
+		"use strict";
 
-		if (wpContentRegex.test(source)) {
-			const matches = source.match(wpContentRegex);
-			const type = matches[1];
-			const slug = matches[2];
-			const filePath = matches[3];
+		const EFB_ERROR_PANEL = {
+			errors: [],
+			isOpen: false,
+			panel: null,
+			badge: null,
 
-			if (type === "plugins") {
-				errorMessage += `'.$origin_text.': '.$plugin_text.' "${slug}".\n`;
-			} else if (type === "themes") {
-				errorMessage += `'.$origin_text.': '.$theme_text.' "${slug}".\n`;
+			t: ' . wp_json_encode($t) . ',
+
+			// Parse source to get plugin/theme name
+			parseSource(source) {
+				if (!source) return { type: "unknown", name: this.t.unknown, file: "", fullPath: "" };
+
+				let file = "";
+				let fullPath = "";
+				try {
+					const url = new URL(source);
+					const pathname = url.pathname;
+					// Extract full path from wp-content onwards
+					const wpContentIdx = pathname.indexOf("/wp-content/");
+					if (wpContentIdx !== -1) {
+						fullPath = pathname.substring(wpContentIdx + 1); // Remove leading slash
+					} else {
+						fullPath = pathname.split("/").slice(-4).join("/");
+					}
+					file = pathname.split("/").slice(-2).join("/");
+				} catch(e) {
+					const wpContentIdx = source.indexOf("/wp-content/");
+					if (wpContentIdx !== -1) {
+						fullPath = source.substring(wpContentIdx + 1);
+					} else {
+						fullPath = source.split("/").slice(-4).join("/");
+					}
+					file = source.split("/").slice(-2).join("/");
+				}
+
+				// WordPress plugins
+				const pluginMatch = source.match(/wp-content\/plugins\/([^\/]+)/);
+				if (pluginMatch) {
+					const name = pluginMatch[1].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+					return {
+						type: "plugin",
+						slug: pluginMatch[1],
+						name: name,
+						file: file,
+						fullPath: fullPath,
+						isEFB: pluginMatch[1].includes("easy-form")
+					};
+				}
+
+				// WordPress themes
+				const themeMatch = source.match(/wp-content\/themes\/([^\/]+)/);
+				if (themeMatch) {
+					const name = themeMatch[1].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+					return { type: "theme", slug: themeMatch[1], name: name, file: file, fullPath: fullPath, isEFB: false };
+				}
+
+				// WordPress core
+				if (source.match(/wp-(includes|admin)/)) {
+					return { type: "wpCore", name: this.t.wpCore, file: file, fullPath: fullPath, isEFB: false };
+				}
+
+				// External (CDN, etc.)
+				if (source.startsWith("http")) {
+					try {
+						const url = new URL(source);
+						if (!source.includes(window.location.hostname)) {
+							return { type: "external", name: url.hostname, file: file, fullPath: source, isEFB: false };
+						}
+					} catch(e) {}
+				}
+
+				return { type: "unknown", name: this.t.unknown, file: file, fullPath: fullPath || source, isEFB: false };
+			},
+
+			// Create UI
+			createUI() {
+				// Badge button
+				this.badge = document.createElement("div");
+				this.badge.id = "efb-error-badge";
+				this.badge.innerHTML = `
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+						<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+						<line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+					</svg>
+					<span class="efb-error-count">0</span>
+				`;
+				this.badge.style.cssText = `
+					position: fixed; bottom: 20px; right: 20px; z-index: 999999;
+					background: #dc3545;
+					color: #fff; padding: 12px 18px; border-radius: 50px;
+					cursor: pointer; display: flex; align-items: center; gap: 10px;
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+					font-size: 13px; font-weight: 600; box-shadow: 0 4px 15px rgba(220,53,69,0.4);
+					transition: all 0.3s ease; opacity: 0; pointer-events: none;
+				`;
+				this.badge.onclick = () => this.togglePanel();
+				document.body.appendChild(this.badge);
+
+				// Panel
+				this.panel = document.createElement("div");
+				this.panel.id = "efb-error-panel";
+				this.panel.innerHTML = `
+					<div class="efb-panel-header">
+						<div class="efb-panel-title">
+							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+							</svg>
+							<span>Easy Form Builder - ${this.t.title}</span>
+						</div>
+						<div class="efb-panel-actions">
+							<button class="efb-btn-clear" onclick="EFB_ERROR_PANEL.clearErrors()">${this.t.clear}</button>
+							<button class="efb-btn-close" onclick="EFB_ERROR_PANEL.togglePanel()">×</button>
+						</div>
+					</div>
+
+					<div class="efb-panel-warning">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+						</svg>
+
+						<span>${this.t.warning}</span>
+					</div>
+					<div class="efb-admin-notice">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+						</svg>
+						<span>${this.t.adminOnly}</span>
+						<span class="efb-admin-badge">ADMIN</span>
+					</div>
+					<div class="efb-panel-body" id="efb-error-list">
+						<div class="efb-no-errors">✓ ${this.t.noErrors}</div>
+					</div>
+					<div class="efb-panel-footer">
+						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+						</svg>
+						<span>${this.t.adminOnly}</span>
+					</div>
+				`;
+				this.panel.style.cssText = `
+					position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
+					z-index: 1000000; width: 92%; max-width: 520px; max-height: 80vh;
+					background: #fff; border-radius: 16px; box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+					display: none; opacity: 0; transition: all 0.3s ease; overflow: hidden;
+				`;
+				document.body.appendChild(this.panel);
+
+				// Overlay
+				this.overlay = document.createElement("div");
+				this.overlay.id = "efb-error-overlay";
+				this.overlay.style.cssText = `
+					position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+					background: rgba(0,0,0,0.6); z-index: 999998; backdrop-filter: blur(2px);
+					display: none; opacity: 0; transition: opacity 0.3s ease;
+				`;
+				this.overlay.onclick = () => this.togglePanel();
+				document.body.appendChild(this.overlay);
+
+				// Styles
+				const style = document.createElement("style");
+				style.textContent = `
+					@keyframes efb-badge-pulse {
+						0%, 100% { box-shadow: 0 4px 15px rgba(220,53,69,0.4), 0 0 0 0 rgba(220,53,69,0.5); }
+						50% { box-shadow: 0 4px 20px rgba(220,53,69,0.5), 0 0 0 8px rgba(220,53,69,0); }
+					}
+					@keyframes efb-badge-shake {
+						0%, 100% { transform: translateX(0); }
+						10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+						20%, 40%, 60%, 80% { transform: translateX(4px); }
+					}
+					@keyframes efb-badge-bounce {
+						0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+						40% { transform: translateY(-8px); }
+						60% { transform: translateY(-4px); }
+					}
+					@keyframes efb-count-pop {
+						0% { transform: scale(1); }
+						50% { transform: scale(1.3); }
+						100% { transform: scale(1); }
+					}
+					@keyframes efb-glow {
+						0%, 100% { filter: brightness(1); }
+						50% { filter: brightness(1.2); }
+					}
+					#efb-error-badge {
+						animation: efb-badge-pulse 2s ease-in-out infinite !important;
+					}
+					#efb-error-badge.efb-new-error {
+						animation: efb-badge-shake 0.6s ease-in-out, efb-badge-pulse 2s ease-in-out infinite !important;
+					}
+					#efb-error-badge:hover {
+						transform: scale(1.05) !important;
+						background: #c82333 !important;
+						box-shadow: 0 6px 25px rgba(220,53,69,0.5) !important;
+						animation: none !important;
+					}
+					#efb-error-badge .efb-error-count {
+						background: #fff; color: #dc3545; padding: 3px 10px; border-radius: 12px;
+						font-size: 12px; min-width: 22px; text-align: center;
+						font-weight: 700;
+					}
+					#efb-error-badge .efb-error-count.efb-count-updated {
+						animation: efb-count-pop 0.3s ease-out;
+					}
+					#efb-error-badge::before {
+						content: ""; position: absolute; inset: 0;
+						background: transparent;
+						border-radius: 50px; z-index: -1;
+					}
+					.efb-panel-header {
+						background: linear-gradient(135deg, #202a8d, #ff4b93);
+						color: #fff; padding: 16px 20px;
+						display: flex; justify-content: space-between; align-items: center;
+					}
+					.efb-panel-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+					.efb-panel-actions { display: flex; gap: 8px; align-items: center; }
+					.efb-btn-clear {
+						background: rgba(255,255,255,0.2); border: none; color: #fff;
+						padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
+						transition: background 0.2s;
+					}
+					.efb-btn-clear:hover { background: rgba(255,255,255,0.3); }
+					.efb-btn-close {
+						background: none; border: none; color: #fff; font-size: 26px;
+						cursor: pointer; line-height: 1; padding: 0 4px; opacity: 0.8;
+						transition: opacity 0.2s;
+					}
+					.efb-btn-close:hover { opacity: 1; }
+					.efb-panel-warning {
+						background: #fff8e6; border-bottom: 1px solid #ffe0a0;
+						padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+						color: #8a6d3b; font-size: 13px; line-height: 1.4;
+					}
+					.efb-panel-warning svg { flex-shrink: 0; color: #f0ad4e; }
+					.efb-admin-notice {
+						background: linear-gradient(135deg, #e8f4fd 0%, #d1e9ff 100%);
+						border-bottom: 1px solid #b8daff;
+						padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+						color: #004085; font-size: 12px; line-height: 1.4;
+						position: relative; overflow: hidden;
+					}
+					.efb-admin-notice::before {
+						content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+						background: linear-gradient(90deg, #007bff, #00d4ff, #007bff);
+						background-size: 200% 100%;
+						animation: efb-admin-shine 2s linear infinite;
+					}
+					@keyframes efb-admin-shine {
+						0% { background-position: 200% 0; }
+						100% { background-position: -200% 0; }
+					}
+					.efb-admin-notice svg { flex-shrink: 0; color: #007bff; }
+					.efb-admin-notice span:not(.efb-admin-badge) { flex: 1; }
+					.efb-admin-badge {
+						background: linear-gradient(135deg, #007bff, #0056b3);
+						color: #fff; font-size: 9px; font-weight: 700;
+						padding: 4px 10px; border-radius: 20px;
+						text-transform: uppercase; letter-spacing: 1px;
+						box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+						animation: efb-badge-glow 2s ease-in-out infinite;
+					}
+					@keyframes efb-badge-glow {
+						0%, 100% { box-shadow: 0 2px 8px rgba(0,123,255,0.3); }
+						50% { box-shadow: 0 2px 15px rgba(0,123,255,0.6); }
+					}
+					.efb-panel-body { max-height: 45vh; overflow-y: auto; padding: 16px; }
+					.efb-panel-footer {
+						background: #f8f9fa; border-top: 1px solid #e9ecef;
+						padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+						color: #6c757d; font-size: 11px;
+					}
+					.efb-panel-footer svg { opacity: 0.6; }
+					.efb-no-errors {
+						text-align: center; color: #28a745; padding: 40px 20px;
+						font-size: 15px; font-weight: 500;
+					}
+					.efb-error-item {
+						background: #f8f9fa; border-radius: 10px; padding: 14px;
+						margin-bottom: 12px; border-left: 4px solid #dc3545;
+						transition: transform 0.2s, box-shadow 0.2s;
+					}
+					.efb-error-item:hover { transform: translateX(2px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+					.efb-error-item:last-child { margin-bottom: 0; }
+					.efb-error-item.is-efb { border-left-color: #ff4b93; background: #fff5f8; }
+					.efb-error-item.is-theme { border-left-color: #28a745; }
+					.efb-error-item.is-core { border-left-color: #007bff; }
+					.efb-error-item.is-external { border-left-color: #6c757d; }
+					.efb-error-source {
+						display: flex; align-items: center; gap: 8px;
+						font-weight: 600; font-size: 14px; margin-bottom: 8px;
+					}
+					.efb-error-source .type-badge {
+						font-size: 9px; padding: 3px 8px; border-radius: 4px;
+						text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;
+					}
+					.efb-error-source .type-plugin { background: #fff3cd; color: #856404; }
+					.efb-error-source .type-theme { background: #d4edda; color: #155724; }
+					.efb-error-source .type-wpCore { background: #cce5ff; color: #004085; }
+					.efb-error-source .type-external { background: #e2e3e5; color: #383d41; }
+					.efb-error-source .type-unknown { background: #f5c6cb; color: #721c24; }
+					.efb-error-msg { color: #333; font-size: 13px; line-height: 1.5; word-break: break-word; margin-bottom: 8px; }
+					.efb-error-file {
+						background: #1e1e2e; padding: 8px 12px; border-radius: 6px;
+						font-family: "SF Mono", Monaco, Consolas, monospace;
+						font-size: 11px; color: #a6e3a1; word-break: break-all;
+						display: flex; align-items: flex-start; gap: 8px;
+						line-height: 1.5;
+					}
+					.efb-error-file svg { flex-shrink: 0; opacity: 0.7; margin-top: 2px; color: #89b4fa; }
+					.efb-error-file .efb-full-path { color: #cdd6f4; }
+					.efb-stack-trace {
+						margin-top: 10px; background: #1e1e2e; border-radius: 8px;
+						overflow: hidden; border: 1px solid #313244;
+					}
+					.efb-stack-title {
+						background: #313244; color: #cdd6f4; padding: 8px 12px;
+						font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px;
+					}
+					.efb-stack-title svg { color: #89b4fa; }
+					.efb-stack-items { padding: 8px 0; }
+					.efb-stack-item {
+						display: flex; align-items: flex-start; gap: 10px; padding: 6px 12px;
+						font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 11px;
+						transition: background 0.15s;
+					}
+					.efb-stack-item:hover { background: #313244; }
+					.efb-stack-item.is-efb { background: rgba(255,75,147,0.1); }
+					.efb-stack-item.is-efb:hover { background: rgba(255,75,147,0.2); }
+					.efb-stack-num {
+						color: #6c7086; min-width: 18px; text-align: right;
+						font-size: 10px; padding-top: 2px;
+					}
+					.efb-stack-content { flex: 1; min-width: 0; }
+					.efb-stack-func { color: #f9e2af; display: block; margin-bottom: 2px; }
+					.efb-stack-loc { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+					.efb-stack-source {
+						font-size: 9px; padding: 2px 6px; border-radius: 3px;
+						text-transform: uppercase; font-weight: 600;
+					}
+					.efb-stack-source.plugin { background: #fff3cd; color: #856404; }
+					.efb-stack-source.theme { background: #d4edda; color: #155724; }
+					.efb-stack-source.wpCore { background: #cce5ff; color: #004085; }
+					.efb-stack-source.external { background: #e2e3e5; color: #383d41; }
+					.efb-stack-source.unknown { background: #f5c6cb; color: #721c24; }
+					.efb-stack-path { color: #a6adc8; word-break: break-all; }
+					.efb-error-meta { color: #6c757d; font-size: 11px; margin-top: 8px; }
+				`;
+				document.head.appendChild(style);
+			},
+
+			// Toggle panel
+			togglePanel() {
+				this.isOpen = !this.isOpen;
+				if (this.isOpen) {
+					this.panel.style.display = "block";
+					this.overlay.style.display = "block";
+					setTimeout(() => {
+						this.panel.style.opacity = "1";
+						this.panel.style.transform = "translate(-50%, -50%) scale(1)";
+						this.overlay.style.opacity = "1";
+					}, 10);
+				} else {
+					this.panel.style.opacity = "0";
+					this.panel.style.transform = "translate(-50%, -50%) scale(0.9)";
+					this.overlay.style.opacity = "0";
+					setTimeout(() => {
+						this.panel.style.display = "none";
+						this.overlay.style.display = "none";
+					}, 300);
+				}
+			},
+
+			// Show badge with animation
+			showBadge() {
+				this.badge.style.opacity = "1";
+				this.badge.style.pointerEvents = "auto";
+
+				// Trigger shake animation on new error
+				this.badge.classList.remove("efb-new-error");
+				void this.badge.offsetWidth; // Force reflow
+				this.badge.classList.add("efb-new-error");
+			},
+
+			// Update error count with animation
+			updateCount() {
+				const countEl = this.badge.querySelector(".efb-error-count");
+				countEl.textContent = this.errors.length;
+
+				// Trigger pop animation
+				countEl.classList.remove("efb-count-updated");
+				void countEl.offsetWidth; // Force reflow
+				countEl.classList.add("efb-count-updated");
+			},
+
+			// Add error to panel
+			addError(errorData) {
+				const { message, source, lineno, stack = [] } = errorData;
+				const parsed = this.parseSource(source);
+				const time = new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+
+				// Use first stack item as the real source if available
+				const realSource = stack.length > 0 ? stack[0].parsed : parsed;
+				const realPath = stack.length > 0 ? stack[0].parsed.fullPath + ":" + stack[0].line : (parsed.fullPath + (lineno ? ":" + lineno : ""));
+
+				// Store
+				this.errors.push({ message, source, lineno, parsed, stack, time });
+
+				// Show badge
+				this.showBadge();
+				this.updateCount();
+
+				// Update list
+				const list = document.getElementById("efb-error-list");
+				const noErrors = list.querySelector(".efb-no-errors");
+				if (noErrors) noErrors.remove();
+
+				const typeClass = realSource.isEFB ? "is-efb" :
+					realSource.type === "theme" ? "is-theme" :
+					realSource.type === "wpCore" ? "is-core" :
+					realSource.type === "external" ? "is-external" : "";
+
+				// Build stack trace HTML
+				let stackHtml = "";
+				if (stack.length > 0) {
+					stackHtml = `<div class="efb-stack-trace">
+						<div class="efb-stack-title">
+							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+							</svg>
+							Stack Trace
+						</div>
+						<div class="efb-stack-items">
+							${stack.map((s, i) => `
+								<div class="efb-stack-item ${s.parsed.isEFB ? "is-efb" : ""}">
+									<span class="efb-stack-num">${i + 1}</span>
+									<div class="efb-stack-content">
+										<span class="efb-stack-func">${this.escapeHtml(s.func)}</span>
+										<span class="efb-stack-loc">
+											<span class="efb-stack-source ${s.parsed.type}">${s.parsed.name}</span>
+											<span class="efb-stack-path">${s.parsed.fullPath}:${s.line}</span>
+										</span>
+									</div>
+								</div>
+							`).join("")}
+						</div>
+					</div>`;
+				}
+
+				const item = document.createElement("div");
+				item.className = "efb-error-item " + typeClass;
+				item.innerHTML = `
+					<div class="efb-error-source">
+						<span class="type-badge type-${realSource.type}">${this.t[realSource.type] || realSource.type}</span>
+						<span>${realSource.name}</span>
+					</div>
+					<div class="efb-error-msg">${this.escapeHtml(message)}</div>
+					<div class="efb-error-file">
+						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+						</svg>
+						<span class="efb-full-path">${realPath}</span>
+					</div>
+					${stackHtml}
+					<div class="efb-error-meta">${time}</div>
+				`;
+				list.insertBefore(item, list.firstChild);
+			},
+
+			// Clear errors
+			clearErrors() {
+				this.errors = [];
+				this.updateCount();
+				const list = document.getElementById("efb-error-list");
+				list.innerHTML = "<div class=\"efb-no-errors\">✓ " + this.t.noErrors + "</div>";
+			},
+
+			// Escape HTML
+			escapeHtml(text) {
+				const div = document.createElement("div");
+				div.textContent = text;
+				return div.innerHTML;
+			},
+
+			// Parse stack trace
+			parseStack(stackString) {
+				if (!stackString) return [];
+				const lines = stackString.split("\n");
+				const stack = [];
+
+				for (const line of lines) {
+					// Match patterns like "at Function.name (url:line:col)" or "at url:line:col"
+					const match = line.match(/at\s+(.+?)\s*\(?(https?:\/\/[^)\s]+):(\d+):(\d+)\)?/);
+					if (match) {
+						const [, funcName, url, lineNo, colNo] = match;
+						const parsed = this.parseSource(url);
+						stack.push({
+							func: funcName.trim(),
+							url: url,
+							line: lineNo,
+							col: colNo,
+							parsed: parsed
+						});
+					}
+				}
+				return stack;
+			},
+
+			// Initialize
+			init() {
+				const self = this;
+
+				// Create UI after DOM ready
+				if (document.readyState === "loading") {
+					document.addEventListener("DOMContentLoaded", () => self.createUI());
+				} else {
+					self.createUI();
+				}
+
+				// Global error handler
+				window.addEventListener("error", function(event) {
+					let stack = [];
+					if (event.error && event.error.stack) {
+						stack = self.parseStack(event.error.stack);
+					}
+					self.addError({
+						message: event.message,
+						source: event.filename,
+						lineno: event.lineno,
+						stack: stack
+					});
+				}, true);
+
+				// Promise rejections
+				window.addEventListener("unhandledrejection", function(event) {
+					let source = "";
+					let stack = [];
+					let message = event.reason instanceof Error ? event.reason.message : String(event.reason);
+
+					if (event.reason && event.reason.stack) {
+						const match = event.reason.stack.match(/https?:\/\/[^\s]+/);
+						source = match ? match[0] : "";
+						stack = self.parseStack(event.reason.stack);
+					}
+
+					self.addError({ message, source, lineno: null, stack });
+				});
 			}
-			errorMessage += `'.$file_text.': ${source}\n'.$line_text.': ${lineno}, '.$column_text.': ${colno}\n`;
-			errorMessage += `'.$interfere_text.'\n'.$contact_text.'`;
-		} else if (wpIncludesRegex.test(source)) {
-			const filePath = source.match(wpIncludesRegex)[1];
-			errorMessage += `'.$origin_text.': wp-includes/${filePath} '.$file_text.': ${source}\n'.$line_text.': ${lineno}, '.$column_text.': ${colno}\n'.$contact_text.'`;
-		} else {
-			errorMessage += `'.$file_text.': ${source}\n'.$line_text.': ${lineno}, '.$column_text.': ${colno}\n'.$contact_text.'`;
-		}
+		};
 
-		alert(errorMessage);
-	};';
+		EFB_ERROR_PANEL.init();
+		window.EFB_ERROR_PANEL = EFB_ERROR_PANEL;
+	})();';
 
 	return $value;
-
-
-	}
+}
 
 
 
