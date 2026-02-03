@@ -2001,6 +2001,28 @@ let change_el_edit_Efb = (el) => {
         form_type_emsFormBuilder = valj_efb[0].type;
 
         break;
+      case "loadingTypeEl":
+        if(pro_efb!=true){
+          pro_show_efb(1);
+          valj_efb[0].loading_type ='bars';
+          updateLoadingPreview();
+          break;
+        }
+        if (!valj_efb[0].hasOwnProperty('loading_type')) {
+          Object.assign(valj_efb[0], { loading_type: 'bars' });
+        }
+        valj_efb[0].loading_type = el.options[el.selectedIndex].value;
+        updateLoadingPreview();
+        break;
+      case "loadingColorEl":
+        if (!valj_efb[0].hasOwnProperty('loading_color')) {
+          Object.assign(valj_efb[0], { loading_color: '#abb8c3' });
+        }
+        valj_efb[0].loading_color = el.value;
+        const colorTextEl = document.getElementById('loadingColorTextEl');
+        if (colorTextEl) colorTextEl.value = el.value;
+        updateLoadingPreview();
+        break;
       case "currencyTypeEl":
         if(valj_efb[0].hasOwnProperty('currency')==false) Object.assign(valj_efb[0],{'currency':'USD '})
         valj_efb[0].currency = el.options[el.selectedIndex].value.slice(0, 3);
@@ -4169,16 +4191,15 @@ function emsFormBuilder_delete(id, type,value) {
 function emsFormBuilder_duplicate(id, type,value) {
   const local_id = localStorage.getItem('efb_duplicate_id') || '';
   const local_type = localStorage.getItem('efb_duplicate_type') || '';
-  if (local_id != id && local_type != type) {
-    localStorage.removeItem('efb_duplicate_id');
-    localStorage.removeItem('efb_duplicate_type');
-  }else{
+
+  if (local_id === id && local_type === type) {
     return;
   }
+  localStorage.removeItem('efb_duplicate_id');
+  localStorage.removeItem('efb_duplicate_type');
 
   localStorage.setItem('efb_duplicate_id', id);
   localStorage.setItem('efb_duplicate_type', type);
-  //v2
   let val =id;
 
 
@@ -4840,7 +4861,8 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
     if(typeof fun_dup_dataset_efb ==='function') {fun_dup_dataset_efb(id,type);}
   }
 
-
+  localStorage.removeItem('efb_duplicate_id');
+  localStorage.removeItem('efb_duplicate_type');
 }
 
 
@@ -5393,4 +5415,3 @@ function restore_auto_save_efb(){
     localStorage.removeItem('efb_auto_save_form_id');
     state_modal_show_efb(0)
   }
-

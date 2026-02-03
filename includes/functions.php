@@ -441,7 +441,7 @@ class efbFunction {
 			/* translators: Core & advanced form fields = both basic and complex input types */
 			"coreAdvancedFormFields" => $state && isset($ac->text->coreAdvancedFormFields) ? $ac->text->coreAdvancedFormFields : esc_html__('Core & advanced form fields','easy-form-builder'),
 			/* translators: Powered by credit line message */
-			"poweredByCredit" => $state && isset($ac->text->poweredByCredit) ? $ac->text->poweredByCredit : esc_html__('Lightweight "Powered by Easy Form Builder" credit','easy-form-builder'),
+			"poweredByCredit" => $state && isset($ac->text->poweredByCredit) ? $ac->text->poweredByCredit : esc_html__('Lightweight “Powered by Easy Form Builder” credit & link (loading)','easy-form-builder'),
 			/* translators: Continue with Free Plus = button text */
 			"continueWithFreePlus" => $state && isset($ac->text->continueWithFreePlus) ? $ac->text->continueWithFreePlus : esc_html__('Continue with Free Plus','easy-form-builder'),
 			/* translators: Pro = professional/premium plan name */
@@ -999,6 +999,17 @@ class efbFunction {
 			"total" => $state  &&  isset($ac->text->total) ? $ac->text->total : esc_html__('Total','easy-form-builder'),
 			"mlsbjt" => $state  &&  isset($ac->text->mlsbjt) ? $ac->text->mlsbjt : esc_html__('Email Subject','easy-form-builder'),
 			"frmtype" => $state  &&  isset($ac->text->frmtype) ? $ac->text->frmtype : esc_html__('Form type','easy-form-builder'),
+			"loadingType" => $state  &&  isset($ac->text->loadingType) ? $ac->text->loadingType : esc_html__('Loading Animation','easy-form-builder'),
+			"loadingColor" => $state  &&  isset($ac->text->loadingColor) ? $ac->text->loadingColor : esc_html__('Loading Color','easy-form-builder'),
+			"dots" => $state  &&  isset($ac->text->dots) ? $ac->text->dots : esc_html__('Dots','easy-form-builder'),
+			"spinner" => $state  &&  isset($ac->text->spinner) ? $ac->text->spinner : esc_html__('Spinner','easy-form-builder'),
+			"pulse" => $state  &&  isset($ac->text->pulse) ? $ac->text->pulse : esc_html__('Pulse','easy-form-builder'),
+			"bars" => $state  &&  isset($ac->text->bars) ? $ac->text->bars : esc_html__('Bars','easy-form-builder'),
+			"ripple" => $state  &&  isset($ac->text->ripple) ? $ac->text->ripple : esc_html__('Ripple','easy-form-builder'),
+			"bounce" => $state  &&  isset($ac->text->bounce) ? $ac->text->bounce : esc_html__('Bounce','easy-form-builder'),
+			"orbit" => $state  &&  isset($ac->text->orbit) ? $ac->text->orbit : esc_html__('Orbit','easy-form-builder'),
+			"wave" => $state  &&  isset($ac->text->wave) ? $ac->text->wave : esc_html__('Wave','easy-form-builder'),
+			"hourglass" => $state  &&  isset($ac->text->hourglass) ? $ac->text->hourglass : esc_html__('Hourglass','easy-form-builder'),
 			"fernvtf" => $state  &&  isset($ac->text->fernvtf) ? $ac->text->fernvtf : esc_html__('The entered data does not match the form type. If you are an admin, please review the form type.','easy-form-builder'),
 			"fetf" => $state  &&  isset($ac->text->fetf) ? $ac->text->fetf : esc_html__('Error: Please ensure there is only one form per page.','easy-form-builder'),
 			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : esc_html__('Your activation code has been verified. Enjoy all Pro features of Easy Form Builder.','easy-form-builder'),
@@ -2916,7 +2927,7 @@ public function addon_add_efb($value) {
 					AdnSMF == smart form
 					AdnMSF == membership form
 					AdnBEF == booking and event form
-					AdnAtF == Atoufilled form
+					AdnATF == Atoufilled form
 					AdnPDP == persia data picker
 					AdnADP == arabic data picker
 					AdnPLF == passwordless form
@@ -3017,9 +3028,3 @@ public function addon_add_efb($value) {
 
 
 }
-
-
-
-
-
-

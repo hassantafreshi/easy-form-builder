@@ -2088,10 +2088,11 @@
 		// error_log('state:' . $state);
 		// error_log('pro:' . $pro);
 			error_log('this->package_type_efb:' . var_export($this->package_type_efb, true));
+		//free plus version
 		if($this->package_type_efb==3){
 				// Ensure the schema is hooked on the frontend (once)
 			$f = substr(get_locale(), 0, 2);
-			add_action('wp_head',  [$this, 'efb_output_schema_ld'], 20);
+			add_action('wp_head',  [$this, 'efb_output_schema_free_plus'], 20);
 
 
 			$copyRight = '<div class="efb  d-md-block" id="copyrightEfb" style="font-size: 10px; text-align: center;">
@@ -2116,6 +2117,9 @@
 				$copyRight .= '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank" rel="sponsored noopener">'.$efb.' '. $wp_text.'</a>' . $fr;
 			}
 			return $copyRight;
+		}else if($this->package_type_efb==2){
+			//free version
+			add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);;
 		}
 		return '<!--efb-->';
 	}
@@ -3745,60 +3749,209 @@ public function check_error_console_efb(){
 }
 
 
+	/**
+	 * Register head output hooks
+	 * Should be called once during plugin init
+	 */
+	public function efb_register_head_hooks() {
+		// Author link via wp_head action
+		add_action( 'wp_head', [ $this, 'efb_print_author_link' ], 1 );
+
+		// Generator meta via WordPress filter
+		add_filter( 'the_generator', [ $this, 'efb_filter_generator' ], 10, 2 );
+	}
+
+	/**
+	 * Print author link tag via wp_head hook
+	 */
+	public function efb_print_author_link() {
+		$enabled = apply_filters( 'efb_author_link_enabled', true );
+		if ( ! $enabled ) { return; }
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Hardcoded safe URL
+		printf( '<link rel="author" href="%s">' . "\n", esc_url( 'https://whitestudio.team/' ) );
+	}
+
+	/**
+	 * Filter WordPress generator meta tag
+	 *
+	 * @param string $generator The generator output
+	 * @param string $type The type of generator (xhtml, html, etc)
+	 * @return string Modified generator output
+	 */
+	public function efb_filter_generator( $generator, $type ) {
+		$enabled = apply_filters( 'efb_generator_meta_enabled', true );
+		if ( ! $enabled ) { return $generator; }
+
+		return '<meta name="generator" content="'. esc_html__( 'Easy Form Builder', 'easy-form-builder' ). ' - ' . esc_html__( 'WhiteStudio.team', 'easy-form-builder' ).'" />' . "\n";
+	}
+
+	/**
+	 * Print JSON-LD schema using WordPress native function
+	 *
+	 * @param array $schema Schema data array
+	 */
+	private function efb_print_schema_ld( $schema ) {
+		$enabled = apply_filters( 'efb_schema_ld_enabled', true );
+		if ( ! $enabled ) { return; }
+		if ( empty( $schema ) ) { return; }
+
+		wp_print_inline_script_tag(
+			wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+			[ 'type' => 'application/ld+json' ]
+		);
+	}
 
 
 	// Add JSON-LD SoftwareApplication schema to <head> on the frontend
 
-	public function efb_output_schema_ld() {
-			 $schema = [
-									'@context' => 'https://schema.org',
-									'@type' => 'SoftwareApplication',
-									'name' => esc_html__('Easy Form Builder', 'easy-form-builder'),
-									/* translators: Description for the Easy Form Builder plugin */
-									'description' => esc_html__('Easy Form Builder is a WordPress form builder plugin for creating contact forms, payment forms, and survey forms.', 'easy-form-builder'),
-									'applicationCategory' => 'BusinessApplication',
-									'operatingSystem' => 'WordPress',
-									'softwareVersion' => EMSFB_PLUGIN_VERSION,
-									'url' => 'https://wordpress.org/plugins/easy-form-builder/',
-									'publisher' => [
-										'@type' => 'Organization',
-										'name' => esc_html__('Easy Form Builder - WhiteStudio.Team', 'easy-form-builder'),
-										'url' => 'https://whitestudio.team',
-									],
-									'offers' => [
-										[
-										'@type' => 'Offer',
-										'name' => esc_html__('Free Version', 'easy-form-builder'),
-										'price' => '0',
-										'priceCurrency' => 'USD',
-										'availability' => 'https://schema.org/InStock',
-										'url' => 'https://wordpress.org/plugins/easy-form-builder/',
-										],
-										[
-										'@type' => 'Offer',
-										'name' => esc_html__('Basic', 'easy-form-builder'),
-										'price' => '19',
-										'priceCurrency' => 'USD',
-										'availability' => 'https://schema.org/InStock',
-										'url' => 'https://whitestudio.team/register-costumer/?plan=basic',
-										],
-										[
-										'@type' => 'Offer',
-										'name' => esc_html__('Premium', 'easy-form-builder'),
-										'price' => '29',
-										'priceCurrency' => 'USD',
-										'availability' => 'https://schema.org/InStock',
-										'url' => 'https://whitestudio.team/register-costumer/?plan=premium',
-										],
-									],
-						];
+	public function efb_output_schema_free_plus() {
+    $home = home_url('/');
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@graph'   => [
+            [
+                '@type' => 'SoftwareApplication',
+                '@id'   => $home . '#efb-softwareapplication',
 
-			echo '
-			<link rel="author" href="https://whitestudio.team/">
-			<meta name="generator" content="Easy Form Builder - WhiteStudio.team">
-			<script type="application/ld+json">' .
-				\wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) .
-				'</script>' . "\n";
+                'name'          => esc_html__( 'Easy Form Builder', 'easy-form-builder' ),
+                'alternateName' => esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ),
+                'description'   => esc_html__( 'Easy Form Builder is a WordPress form builder plugin for creating contact forms, payment forms, and survey forms.', 'easy-form-builder' ),
+
+                'applicationCategory' => 'WebApplication',
+                'operatingSystem'     => 'WordPress',
+                'softwareVersion'     => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '',
+                'url'                 => 'https://wordpress.org/plugins/easy-form-builder/',
+                'isAccessibleForFree' => true,
+                'inLanguage'          => get_locale(),
+
+                'publisher' => [
+                    '@id' => $home . '#efb-publisher',
+                ],
+
+                // free offer only (clean)
+                'offers' => [
+                    [
+                        '@type'         => 'Offer',
+                        '@id'           => $home . '#efb-offer-free',
+                        'name'          =>  sprintf( esc_html__( 'Easy Form Builder - %s', 'easy-form-builder' ), esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ) ),
+                        'price'         => '0',
+                        'priceCurrency' => 'USD',
+                        'availability'  => 'https://schema.org/InStock',
+                        'url'           => 'https://wordpress.org/plugins/easy-form-builder/',
+                        'seller'        => [
+                            '@id' => $home . '#efb-publisher',
+                        ],
+                    ],
+                ],
+            ],
+
+            // Optional: pricing catalog for Free Plus
+            [
+                '@type' => 'OfferCatalog',
+                '@id'   => $home . '#efb-offer-catalog',
+                'name'  => esc_html__( 'Easy Form Builder Plans', 'easy-form-builder' ),
+                'itemListElement' => [
+                    [
+                        '@type'         => 'Offer',
+                        '@id'           => $home . '#efb-offer-basic',
+                        'name'          =>  sprintf( esc_html__( 'Easy Form Builder - %s', 'easy-form-builder' ), esc_html__( 'Basic (1 Site)', 'easy-form-builder' ) ),
+                        'price'         => '19',
+                        'priceCurrency' => 'USD',
+                        'availability'  => 'https://schema.org/InStock',
+                        'url'           => 'https://whitestudio.team/register-costumer/?plan=basic',
+                        'seller'        => [ '@id' => $home . '#efb-publisher' ],
+                    ],
+                    [
+                        '@type'         => 'Offer',
+                        '@id'           => $home . '#efb-offer-premium',
+                        'name'          =>  sprintf( esc_html__( 'Easy Form Builder - %s', 'easy-form-builder' ), esc_html__( 'Premium (3 Sites)', 'easy-form-builder' ) ),
+								'price'         => '29',
+								'priceCurrency' => 'USD',
+								'availability'  => 'https://schema.org/InStock',
+								'url'           => 'https://whitestudio.team/register-costumer/?plan=premium',
+								'seller'        => [ '@id' => $home . '#efb-publisher' ],
+							],
+						],
+					],
+
+					[
+						'@type' => 'Organization',
+						'@id'   => $home . '#efb-publisher',
+						'name'  => esc_html__( 'Easy Form Builder - WhiteStudio.Team', 'easy-form-builder' ),
+						'url'   => 'https://whitestudio.team',
+					],
+				],
+			];
+
+			$this->efb_print_schema_ld( $schema );
+			$this->efb_register_head_hooks();
+		}
+
+
+		public function efb_output_schema_free () {
+
+			//check language
+			$ws_url = 'https://whitestudio.team';
+			if(get_locale() == 'fa_IR' || get_locale() == 'fa'){
+				$ws_url = 'https://easyformbuilder.ir';
+			}
+			$home = home_url('/');
+			$schema = [
+				'@context' => 'https://schema.org',
+				'@graph'   => [
+					[
+						'@type' => 'SoftwareApplication',
+						'@id'   => $home . '#efb-softwareapplication-free',
+
+						'name' => esc_html__( 'Easy Form Builder', 'easy-form-builder' ),
+						'alternateName' => esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ),
+
+						/* translators: Description for the Easy Form Builder plugin */
+						'description' => esc_html__(
+							'Easy Form Builder is a WordPress form builder plugin for creating contact forms, payment forms, and survey forms.',
+							'easy-form-builder'
+						),
+
+						'applicationCategory' => 'WebApplication',
+						'operatingSystem'     => 'WordPress',
+						'softwareVersion'     => defined( 'EMSFB_PLUGIN_VERSION' ) ? EMSFB_PLUGIN_VERSION : '',
+						'url'                 => 'https://wordpress.org/plugins/easy-form-builder/',
+
+						// Reference publisher via @id to avoid duplication
+						'publisher' => [
+							'@id' => $home . '#efb-publisher',
+						],
+
+						// Free version offer only
+						'offers' => [
+							[
+								'@type'         => 'Offer',
+								'@id'           => $home . '#efb-offer-free',
+								'name'          => esc_html__( 'Free WordPress Easy Form Builder', 'easy-form-builder' ),
+								'price'         => '0',
+								'priceCurrency' => 'USD',
+								'availability'  => 'https://schema.org/InStock',
+								'url'           => 'https://wordpress.org/plugins/easy-form-builder/',
+								'seller'        => [
+									'@id' => $home . '#efb-publisher',
+								],
+							],
+						],
+					],
+
+					// Publisher entity (clean & reusable)
+					[
+						'@type' => 'Organization',
+						'@id'   => $home . '#efb-publisher',
+						'name'  => esc_html__( 'Easy Form Builder - Free WordPress Form Builder Plugin', 'easy-form-builder' )
+						'url'   => $ws_url,
+					],
+				],
+			];
+
+			$this->efb_print_schema_ld( $schema );
+			$this->efb_register_head_hooks();
 		}
 
 
@@ -4056,8 +4209,135 @@ public function check_error_console_efb(){
 
 
 
+		public function efb_selected_loading_svg($state ,$color='#abb8c3'){
+			switch($state){
+				case 'loading':
+					return '<svg class="efb-loading-spinner" width="24" height="24" viewBox="0 0 50 50">
+								<circle class="efb-path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+							</svg>';
+				case 'check':
+					return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<polyline points="20 6 9 17 4 12"/>
+							</svg>';
+				case 'error':
+					return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<line x1="18" y1="6" x2="6" y2="18"/>
+								<line x1="6" y1="6" x2="18" y2="18"/>
+							</svg>';
+				case 'cloud':
+					return '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-cloud-arrow-down" viewBox="0 0 16 16" style="width: 60%;">
+							<path fill-rule="evenodd" d="M7.646 10.854a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 9.293V5.5a.5.5 0 0 0-1 0v3.793L6.354 8.146a.5.5 0 1 0-.708.708l2 2z"/>
+							<path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z">
+								<animate attributeName="opacity" values="1;0;1" dur="2s" repeatCount="indefinite" />
+							</path>
+							</svg>';
+				case 'spinner':
+					return '<svg class="efb-autofill-spinner" width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<circle cx="12" cy="12" r="10" stroke="'.$color.'" stroke-width="3" fill="none" stroke-linecap="round">
+							<animate attributeName="stroke-dasharray" values="0 63;32 63;63 63" dur="1s" repeatCount="indefinite"/>
+							<animate attributeName="stroke-dashoffset" values="0;-20;-63" dur="1s" repeatCount="indefinite"/>
+							</circle>
+						</svg>';
+				case 'dots':
+					return '<svg viewBox="0 0 120 30" height="15px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+							<circle cx="15" cy="15" r="15" fill="'.$color.'">
+								<animate attributeName="r" from="15" to="9" begin="0s" dur="1s" values="15;9;15" calcMode="linear" repeatCount="indefinite"/>
+							</circle>
+							<circle cx="60" cy="15" r="9" fill="'.$color.'">
+								<animate attributeName="r" from="9" to="15" begin="0.3s" dur="1s" values="9;15;9" calcMode="linear" repeatCount="indefinite"/>
+							</circle>
+							<circle cx="105" cy="15" r="15" fill="'.$color.'">
+								<animate attributeName="r" from="15" to="9" begin="0.6s" dur="1s" values="15;9;15" calcMode="linear" repeatCount="indefinite"/>
+							</circle>
+						</svg>';
+				case 'pulse':
+					return '<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<circle cx="12" cy="12" r="8" fill="none" stroke="'.$color.'" stroke-width="2">
+								<animate attributeName="r" values="8;11;8" dur="1.5s" repeatCount="indefinite"/>
+								<animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
+							</circle>
+							<circle cx="12" cy="12" r="4" fill="'.$color.'">
+								<animate attributeName="r" values="4;6;4" dur="1.5s" repeatCount="indefinite"/>
+							</circle>
+						</svg>';
+				case 'ripple':
+					return '<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<circle cx="12" cy="12" r="0" fill="none" stroke="'.$color.'" stroke-width="2">
+								<animate attributeName="r" values="0;10" dur="1.5s" repeatCount="indefinite"/>
+								<animate attributeName="opacity" values="1;0" dur="1.5s" repeatCount="indefinite"/>
+							</circle>
+							<circle cx="12" cy="12" r="0" fill="none" stroke="'.$color.'" stroke-width="2">
+								<animate attributeName="r" values="0;10" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+								<animate attributeName="opacity" values="1;0" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+							</circle>
+							<circle cx="12" cy="12" r="3" fill="'.$color.'"/>
+						</svg>';
+				case 'bounce':
+					return '<svg width="60" height="20" viewBox="0 0 60 20" xmlns="http://www.w3.org/2000/svg">
+							<circle cx="10" cy="10" r="5" fill="'.$color.'">
+								<animate attributeName="cy" values="10;4;10" dur="0.6s" repeatCount="indefinite"/>
+							</circle>
+							<circle cx="30" cy="10" r="5" fill="'.$color.'">
+								<animate attributeName="cy" values="10;4;10" dur="0.6s" begin="0.15s" repeatCount="indefinite"/>
+							</circle>
+							<circle cx="50" cy="10" r="5" fill="'.$color.'">
+								<animate attributeName="cy" values="10;4;10" dur="0.6s" begin="0.3s" repeatCount="indefinite"/>
+							</circle>
+						</svg>';
+				case 'orbit':
+					return '<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<circle cx="12" cy="12" r="3" fill="'.$color.'"/>
+							<circle cx="12" cy="4" r="2" fill="'.$color.'">
+								<animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+							</circle>
+							<circle cx="12" cy="4" r="1.5" fill="'.$color.'">
+								<animateTransform attributeName="transform" type="rotate" from="180 12 12" to="540 12 12" dur="1.5s" repeatCount="indefinite"/>
+							</circle>
+						</svg>';
+				case 'wave':
+					return '<svg width="40" height="20" viewBox="0 0 40 20" xmlns="http://www.w3.org/2000/svg">
+							<circle cx="5" cy="10" r="3" fill="'.$color.'">
+								<animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite"/>
+							</circle>
+							<circle cx="15" cy="10" r="3" fill="'.$color.'">
+								<animate attributeName="opacity" values="0.3;1;0.3" dur="1s" begin="0.2s" repeatCount="indefinite"/>
+							</circle>
+							<circle cx="25" cy="10" r="3" fill="'.$color.'">
+								<animate attributeName="opacity" values="0.3;1;0.3" dur="1s" begin="0.4s" repeatCount="indefinite"/>
+							</circle>
+							<circle cx="35" cy="10" r="3" fill="'.$color.'">
+								<animate attributeName="opacity" values="0.3;1;0.3" dur="1s" begin="0.6s" repeatCount="indefinite"/>
+							</circle>
+						</svg>';
+				case 'hourglass':
+					return '<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2z" fill="none" stroke="'.$color.'" stroke-width="2" stroke-linejoin="round">
+								<animateTransform attributeName="transform" type="rotate" from="0 12 12" to="180 12 12" dur="1.5s" repeatCount="indefinite"/>
+							</path>
+						</svg>';
+
+				default:
+				case 'bars':
+					return '<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<rect x="2" y="6" width="4" height="12" fill="'.$color.'">
+								<animate attributeName="height" values="12;20;12" dur="0.8s" repeatCount="indefinite"/>
+								<animate attributeName="y" values="6;2;6" dur="0.8s" repeatCount="indefinite"/>
+							</rect>
+							<rect x="10" y="6" width="4" height="12" fill="'.$color.'">
+								<animate attributeName="height" values="12;20;12" dur="0.8s" begin="0.2s" repeatCount="indefinite"/>
+								<animate attributeName="y" values="6;2;6" dur="0.8s" begin="0.2s" repeatCount="indefinite"/>
+							</rect>
+							<rect x="18" y="6" width="4" height="12" fill="'.$color.'">
+								<animate attributeName="height" values="12;20;12" dur="0.8s" begin="0.4s" repeatCount="indefinite"/>
+								<animate attributeName="y" values="6;2;6" dur="0.8s" begin="0.4s" repeatCount="indefinite"/>
+							</rect>
+						</svg>';
+
+			}
+
+		}
+
+
+
 
 }
-
-
-

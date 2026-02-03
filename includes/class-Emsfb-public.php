@@ -530,7 +530,7 @@ public function check_nonce_permission_efb($request) {
 					$is_divi_enabled = false;
 				}
 			}
-			
+
 			// Safely check Oxygen Builder constant
 			$is_oxygen_enabled = false;
 			if (defined('SHOW_CT_BUILDER')) {
@@ -965,6 +965,24 @@ public function check_nonce_permission_efb($request) {
 			$icons_els =[];
 			$pro_element_exists = false;
 			$auto_filled = false;
+
+			// Get loading type and color from form settings
+			$loading_type = isset($valj_efb[0]->loading_type) ? $valj_efb[0]->loading_type : 'dots';
+			$loading_color = isset($valj_efb[0]->loading_color) ? $valj_efb[0]->loading_color : '#abb8c3';
+			$loading_svg = $efbFormBuilder->efb_selected_loading_svg($loading_type, $loading_color);
+
+			// Create loading UI script - will be added to content start
+			// Use window object to make variable globally accessible
+			$efb_loading_ui_script = '<script>window.efb_loading_ui_' . intval($form_id) . ' = ' . json_encode($loading_svg) . ';</script>';
+
+			// Create efb-waiting-{form_id} style with selected loading SVG (same pattern as .efb-waiting in CSS)
+			// Properly encode SVG for use in CSS url() - use rawurlencode for proper encoding
+			$loading_svg_encoded = rawurlencode($loading_svg);
+			$form_id_int = intval($form_id);
+			$style .= ' .efb-waiting-' . $form_id_int . ' { position: relative; }';
+			$style .= ' .efb-waiting-' . $form_id_int . ' * { pointer-events: none; opacity: 0.9; }';
+			$style .= ' .efb-waiting-' . $form_id_int . '::after { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 30px; background: url("data:image/svg+xml,' . $loading_svg_encoded . '") no-repeat center center; background-size: contain; z-index: 9999; }';
+
 			$is_file_element_exist = false;
 			$list_pro_elements = ['prcfld','dadfile','ttlprc','table_matrix','smartcr','pointr5','pointr10','booking','heading','zarinPal','persiaPay','stripe','paypal','link','yesNo','html','cityList','city','statePro','stateProvince','country','conturyList','paySelect','rating','esign','switch','trmCheckbox','imgRadio','chlRadio','chlCheckBox','payRadio','payCheckbox','mobile','maps','ardate','pdate'];
 			for( $i=0; $i<$count; $i++){
@@ -1173,15 +1191,13 @@ public function check_nonce_permission_efb($request) {
 			//add_buttons_zone_efb($state, $id, $valj_efb, $efb_var, $preview_efb, $formId)
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
-			// if (valj_efb[0].hasOwnProperty('dShowBg') && Number(valj_efb[0].dShowBg) != 1 && state == "run") { document.getElementById('body_efb').classList.add('card') }
+			// if (valj_efb[0].hasOwnProperty('dShowBg') && Number(valj_efb[0]->dShowBg) != 1 && state == "run") { document.getElementById('body_efb').classList.add('card') }
 			$dShow = isset($valj_efb[0]->dShowBg) && intval($valj_efb[0]->dShowBg) != 1 ? 'card' : '';
-			add_action('wp_head', function() use ($style) {
-				echo $style;
-			}, 1);
-			$content_new = $script.$bootstrap_icons.''.$iconst_html_preload.'
+			// Style is added directly to content, not via wp_head (because shortcode runs after wp_head)
+			$content_new = $style.$efb_loading_ui_script.$script.$bootstrap_icons.''.$iconst_html_preload.'
 				<!-- start body_efb-->
 
-				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'">
+				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting-'.$this->id.' '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'">
 					<form id="efbform" class="mx-0 px-0 efb" data-formid="'.$this->id.'">
 						<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2 view-efb" id="view-efb" data-formid="'.$this->id.'">
 						' . (intval($valj_efb[0]->show_icon) != 1
@@ -3565,21 +3581,31 @@ public function check_nonce_permission_efb($request) {
 		$data_POST = $data_POST_->get_json_params();
 		$fid = sanitize_text_field($data_POST['id']);
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
-/* 		$sid = sanitize_text_field($data_POST['sid']);
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid); */
+		$sid = sanitize_text_field($data_POST['sid']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
+		if ($s_sid !=1 || $sid==null){
+			$this->efbFunction->send_email_noti_sid_plugins_efb;('replyMessageAction');
+			$m = $this->lanText['sxnlex'];
+			$response = array( 'success' => false  , 'm'=>$m );
+			wp_send_json_success($response,200);
+		}
 		$page_id = sanitize_text_field($data_POST['page_id']);
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
 		if ($cache_plugins != '0') $this->cache_cleaner_Efb($page_id, $cache_plugins);
 
+		$path =  EMSFB_PLUGIN_DIRECTORY . 'vendor/autofill/autofillefb.php';
+		$path_exists = file_exists($path);
+		error_log('path:'. ($path_exists ? 'Path is valid' : 'Path is not valid'));
+		if($path_exists){
 
-		require_once  EMSFB_PLUGIN_DIRECTORY . 'vendor/autofill/autofillefb.php';
-		// check if the class exists
-		$autofill = new autofillefb();
-		/* if (!class_exists('autofillefb')) {
+			require_once $path;
+			$autofill = new autofillefb();
+		}else{
 			$response = array('success' => false, 'm' => 'autofilled add-on not found');
 			wp_send_json_success($response, 200);
-		} */
-		$autofill->get_autofill_api_efb($data_POST ,$s_sid);
+		}
+
+		$autofill->get_autofill_api_efb($data_POST);
 	}
 	public function send_email_Emsfb_($to, $track, $pro, $state, $link, $content = 'null', $sub = 'null') {
 		error_log('------->send_email_Emsfb_');
@@ -6054,4 +6080,3 @@ public function check_nonce_permission_efb($request) {
 
 }
 new _Public();
-

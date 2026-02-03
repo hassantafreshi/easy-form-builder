@@ -1721,14 +1721,15 @@ document.addEventListener("DOMContentLoaded",async function() {
   }
 
     //v4 start
-  fun_wait =(state ,speed)=>{
+  fun_wait_form_load_efb =(state ,speed)=>{
     if(speed!='fast'){
       const body_efbs = document.querySelectorAll('.body_efb');
       body_efbs.forEach((body_efb) => {
+        const form_id = body_efb.dataset.formid;
         if(state ==true){
-          body_efb.classList.add('efb-waiting');
+          body_efb.classList.add(`efb-waiting-${form_id}`);
         }else{
-          body_efb.classList.remove('efb-waiting');
+          body_efb.classList.remove(`efb-waiting-${form_id}`);
         }
         console.log(state,body_efb.classList)
       })
@@ -1736,7 +1737,7 @@ document.addEventListener("DOMContentLoaded",async function() {
   }
 
   await createStepsOfPublic();
-  fun_wait(false,'nfast');
+  fun_wait_form_load_efb(false,'nfast');
   //valj_efb_new
   let captcha = false ;
   valj_efb_new.forEach((valj_efb) => {
@@ -2774,15 +2775,3 @@ function setOffsetToFinallsetpEFB(){
   });
 }
   */
-
-
-
-
-
-
-
-
-
-
-
-

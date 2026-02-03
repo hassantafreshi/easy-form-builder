@@ -92,6 +92,170 @@ const formTypeEls =()=>{
   </select>`;
 }
 
+/**
+ * تابع انتخاب نوع لودینگ برای فرم
+ * Loading Type Selector for Form
+ */
+const loadingTypeEls = () => {
+  // مقدار پیش‌فرض برای loading_type و loading_color
+  if (!valj_efb[0].hasOwnProperty('loading_type')) {
+    Object.assign(valj_efb[0], { loading_type: 'dots' });
+  }
+  if (!valj_efb[0].hasOwnProperty('loading_color')) {
+    Object.assign(valj_efb[0], { loading_color: '#abb8c3' });
+  }
+
+  const loadingTypes = [
+    { value: 'dots', name: efb_var.text.dots || 'Dots', icon: '●●●' },
+    { value: 'spinner', name: efb_var.text.spinner || 'Spinner', icon: '◐' },
+    { value: 'pulse', name: efb_var.text.pulse || 'Pulse', icon: '◉' },
+    { value: 'bars', name: efb_var.text.bars || 'Bars', icon: '▮▮▮' },
+    { value: 'ripple', name: efb_var.text.ripple || 'Ripple', icon: '◎' },
+    { value: 'bounce', name: efb_var.text.bounce || 'Bounce', icon: '⚫⚫⚫' },
+    { value: 'orbit', name: efb_var.text.orbit || 'Orbit', icon: '◌' },
+    { value: 'wave', name: efb_var.text.wave || 'Wave', icon: '〰' },
+    { value: 'hourglass', name: efb_var.text.hourglass || 'Hourglass', icon: '⧗' }
+  ];
+
+  let options = '';
+  console.error(`valj_efb[0].loading_type: ${valj_efb[0].loading_type}`);
+  for (let type of loadingTypes) {
+    options += `<option value="${type.value}" ${valj_efb[0].loading_type === type.value ? 'selected' : ''}>${type.icon} ${type.name}</option>`;
+  }
+
+  return `
+  <div class="efb mt-3 mb-2">
+    <label for="loadingTypeEl" class="efb mb-2"><i class="efb bi-arrow-repeat fs-7 ${iconMarginGlobal}"></i>${efb_var.text.loadingType || 'Loading Animation'}</label>
+    <select data-id="formSet" class="efb elEdit form-select efb border-d rounded-4" id="loadingTypeEl">
+      ${options}
+    </select>
+  </div>
+  <div class="efb mt-2 mb-2">
+    <label for="loadingColorEl" class="efb mb-2"><i class="efb bi-palette fs-7 ${iconMarginGlobal}"></i>${efb_var.text.loadingColor || 'Loading Color'}</label>
+    <div class="efb d-flex align-items-center gap-2">
+      <input type="color" data-id="formSet" class="efb elEdit form-control form-control-color border-d rounded-4" id="loadingColorEl" value="${valj_efb[0].loading_color}" style="width: 60px; height: 38px;">
+      <input type="text" class="efb form-control border-d rounded-4 h-d-efb" id="loadingColorTextEl" value="${valj_efb[0].loading_color}" style="width: 100px;" readonly>
+    </div>
+  </div>
+  <div class="efb mt-3 mb-3 p-3 border rounded-4 bg-light" id="loadingPreviewContainer">
+    <label class="efb mb-2 text-muted"><i class="efb bi-eye fs-7 ${iconMarginGlobal}"></i>${efb_var.text.preview || 'Preview'}</label>
+    <div class="efb d-flex justify-content-center align-items-center p-3" id="loadingPreviewEl" style="min-height: 60px; background: rgba(255,255,255,0.8); border-radius: 8px;">
+      ${getLoadingSvgPreview(valj_efb[0].loading_type, valj_efb[0].loading_color)}
+    </div>
+  </div>`;
+}
+
+/**
+ * تولید SVG لودینگ برای پیش‌نمایش
+ * Generate Loading SVG for Preview
+ */
+const getLoadingSvgPreview = (type, color = '#abb8c3') => {
+  const svgMap = {
+    'dots': `<svg viewBox="0 0 120 30" height="30px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      <circle cx="15" cy="15" r="15" fill="${color}">
+        <animate attributeName="r" from="15" to="9" begin="0s" dur="1s" values="15;9;15" calcMode="linear" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="60" cy="15" r="9" fill="${color}">
+        <animate attributeName="r" from="9" to="15" begin="0.3s" dur="1s" values="9;15;9" calcMode="linear" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="105" cy="15" r="15" fill="${color}">
+        <animate attributeName="r" from="15" to="9" begin="0.6s" dur="1s" values="15;9;15" calcMode="linear" repeatCount="indefinite"/>
+      </circle>
+    </svg>`,
+    'spinner': `<svg class="efb-autofill-spinner" width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="${color}" stroke-width="3" fill="none" stroke-linecap="round">
+        <animate attributeName="stroke-dasharray" values="0 63;32 63;63 63" dur="1s" repeatCount="indefinite"/>
+        <animate attributeName="stroke-dashoffset" values="0;-20;-63" dur="1s" repeatCount="indefinite"/>
+      </circle>
+    </svg>`,
+    'pulse': `<svg width="48" height="48" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="8" fill="none" stroke="${color}" stroke-width="2">
+        <animate attributeName="r" values="8;11;8" dur="1.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="12" cy="12" r="4" fill="${color}">
+        <animate attributeName="r" values="4;6;4" dur="1.5s" repeatCount="indefinite"/>
+      </circle>
+    </svg>`,
+    'bars': `<svg width="48" height="48" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="6" width="4" height="12" fill="${color}">
+        <animate attributeName="height" values="12;20;12" dur="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="6;2;6" dur="0.8s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="10" y="6" width="4" height="12" fill="${color}">
+        <animate attributeName="height" values="12;20;12" dur="0.8s" begin="0.2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="6;2;6" dur="0.8s" begin="0.2s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="18" y="6" width="4" height="12" fill="${color}">
+        <animate attributeName="height" values="12;20;12" dur="0.8s" begin="0.4s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="6;2;6" dur="0.8s" begin="0.4s" repeatCount="indefinite"/>
+      </rect>
+    </svg>`,
+    'ripple': `<svg width="48" height="48" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="0" fill="none" stroke="${color}" stroke-width="2">
+        <animate attributeName="r" values="0;10" dur="1.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="1;0" dur="1.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="12" cy="12" r="0" fill="none" stroke="${color}" stroke-width="2">
+        <animate attributeName="r" values="0;10" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="1;0" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="12" cy="12" r="3" fill="${color}"/>
+    </svg>`,
+    'bounce': `<svg width="120" height="40" viewBox="0 0 60 20" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="10" cy="10" r="5" fill="${color}">
+        <animate attributeName="cy" values="10;4;10" dur="0.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="30" cy="10" r="5" fill="${color}">
+        <animate attributeName="cy" values="10;4;10" dur="0.6s" begin="0.15s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="50" cy="10" r="5" fill="${color}">
+        <animate attributeName="cy" values="10;4;10" dur="0.6s" begin="0.3s" repeatCount="indefinite"/>
+      </circle>
+    </svg>`,
+    'orbit': `<svg width="48" height="48" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="3" fill="${color}"/>
+      <circle cx="12" cy="4" r="2" fill="${color}">
+        <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="12" cy="4" r="1.5" fill="${color}" opacity="0.6">
+        <animateTransform attributeName="transform" type="rotate" from="180 12 12" to="540 12 12" dur="1.5s" repeatCount="indefinite"/>
+      </circle>
+    </svg>`,
+    'wave': `<svg width="80" height="40" viewBox="0 0 40 20" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="5" cy="10" r="3" fill="${color}">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="15" cy="10" r="3" fill="${color}">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" begin="0.2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="25" cy="10" r="3" fill="${color}">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" begin="0.4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="35" cy="10" r="3" fill="${color}">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" begin="0.6s" repeatCount="indefinite"/>
+      </circle>
+    </svg>`,
+    'hourglass': `<svg width="48" height="48" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2z" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round">
+        <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="180 12 12" dur="1.5s" repeatCount="indefinite"/>
+      </path>
+    </svg>`
+  };
+  return svgMap[type] || svgMap['dots'];
+}
+
+/**
+ * به‌روزرسانی پیش‌نمایش لودینگ
+ * Update Loading Preview
+ */
+const updateLoadingPreview = () => {
+  const previewEl = document.getElementById('loadingPreviewEl');
+  if (previewEl) {
+    previewEl.innerHTML = getLoadingSvgPreview(valj_efb[0].loading_type, valj_efb[0].loading_color);
+  }
+}
+
 const textEls=(id , name ,el_type,value ,attr ,idset) =>{
 
   return`<div id="${idset}_lab_g" class="efb m-0 p-0"><label for="textEl" class="efb form-label mt-2 mb-1 efb">${name}<span class="efb  mx-1 efb text-danger">*</span></label>
@@ -1515,6 +1679,7 @@ function show_setting_window_efb(idset) {
           ${valj_efb[0].type!="login" ?selectColorEls('clrdoneMessageEfb','text'):''}
           ${thankYouredirectEls}
           ${formTypeEls()}
+          ${loadingTypeEls()}
           ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(0) : '<!--efb-->'}
          <!-- content_colors_setting_efb() -->
           </div>

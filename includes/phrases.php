@@ -65,6 +65,9 @@ class EfbAddonPhrases {
         // Register Telegram addon phrases
         self::register_addon('telegram', [__CLASS__, 'get_telegram_phrases']);
 
+        // Register Autofill addon phrases
+        self::register_addon('Autofill', [__CLASS__, 'get_autofill_phrases']);
+
         /* // Register SMS addon phrases
         self::register_addon('sms', [__CLASS__, 'get_sms_phrases']);
 
@@ -255,7 +258,7 @@ class EfbAddonPhrases {
             "enter_test_message" => $state && isset($ac->text->enter_test_message) ? $ac->text->enter_test_message : esc_html__('Enter your test message here...', 'easy-form-builder'),
 
             /* translators: Default test message content */
-            "default_test_message" => $state && isset($ac->text->default_test_message) ? $ac->text->default_test_message : esc_html__("🎯 Test Message\n\nThis is a test message from Easy Form Builder.\n\n✅ If you receive this message, your Telegram integration is working correctly!", 'easy-form-builder'),
+            "default_test_message" => $state && isset($ac->text->default_test_message) ? $ac->text->default_test_message : esc_html__("ðŸŽ¯ Test Message\n\nThis is a test message from Easy Form Builder.\n\nâœ… If you receive this message, your Telegram integration is working correctly!", 'easy-form-builder'),
 
             /* translators: Test Information = info section title */
             "test_info" => $state && isset($ac->text->test_info) ? $ac->text->test_info : esc_html__('Test Information', 'easy-form-builder'),
@@ -442,6 +445,210 @@ class EfbAddonPhrases {
             // Stripe phrases will be added here when needed
         ];
     }
+    // ========================================
+    // AUTOFILL ADDON PHRASES
+    // ========================================
+
+    /**
+     * Get Autofill addon phrases
+     *
+     * @param object|null $ac Settings object
+     * @param bool $state Whether custom texts are available
+     * @return array
+     */
+    public static function get_autofill_phrases($ac = null, $state = false) {
+        return [
+            // === Menu & Navigation ===
+            /* translators: Autofill Dataset = menu title for dataset management */
+            "autofill_dataset" => $state && isset($ac->text->autofill_dataset) ? $ac->text->autofill_dataset : esc_html__('Autofill Dataset', 'easy-form-builder'),
+
+            /* translators: Autofill Integrations = menu title for API integrations */
+            "autofill_integrations" => $state && isset($ac->text->autofill_integrations) ? $ac->text->autofill_integrations : esc_html__('Autofill Integrations', 'easy-form-builder'),
+
+            // === External API Section ===
+            /* translators: External API Connections = section header */
+            "external_api" => $state && isset($ac->text->external_api) ? $ac->text->external_api : esc_html__('External API Connections', 'easy-form-builder'),
+
+            /* translators: Add New API Connection = button text */
+            "add_new_api" => $state && isset($ac->text->add_new_api) ? $ac->text->add_new_api : esc_html__('Add New API Connection', 'easy-form-builder'),
+
+            /* translators: Edit API Connection = modal title */
+            "edit_api_connection" => $state && isset($ac->text->edit_api_connection) ? $ac->text->edit_api_connection : esc_html__('Edit API Connection', 'easy-form-builder'),
+
+            // === Connection Settings ===
+            /* translators: Connection Name = field label */
+            "connection_name" => $state && isset($ac->text->connection_name) ? $ac->text->connection_name : esc_html__('Connection Name', 'easy-form-builder'),
+
+            /* translators: Connection Name placeholder */
+            "connection_name_placeholder" => $state && isset($ac->text->connection_name_placeholder) ? $ac->text->connection_name_placeholder : esc_html__('e.g., Customer Lookup API', 'easy-form-builder'),
+
+            /* translators: HTTP Method = field label */
+            "http_method" => $state && isset($ac->text->http_method) ? $ac->text->http_method : esc_html__('HTTP Method', 'easy-form-builder'),
+
+            /* translators: API Endpoint URL = field label */
+            "endpoint_url" => $state && isset($ac->text->endpoint_url) ? $ac->text->endpoint_url : esc_html__('API Endpoint URL', 'easy-form-builder'),
+
+            /* translators: Endpoint URL help text */
+            "endpoint_url_help" => $state && isset($ac->text->endpoint_url_help) ? $ac->text->endpoint_url_help : esc_html__('Use {{field_id}} placeholders for dynamic values from form fields', 'easy-form-builder'),
+
+            // === Authentication ===
+            /* translators: Authentication = section title */
+            "authentication" => $state && isset($ac->text->authentication) ? $ac->text->authentication : esc_html__('Authentication', 'easy-form-builder'),
+
+            /* translators: Authentication Type = field label */
+            "auth_type" => $state && isset($ac->text->auth_type) ? $ac->text->auth_type : esc_html__('Authentication Type', 'easy-form-builder'),
+
+            /* translators: No Authentication = auth option */
+            "no_auth" => $state && isset($ac->text->no_auth) ? $ac->text->no_auth : esc_html__('No Authentication', 'easy-form-builder'),
+
+            /* translators: Custom Header = auth option */
+            "custom_header" => $state && isset($ac->text->custom_header) ? $ac->text->custom_header : esc_html__('Custom Header', 'easy-form-builder'),
+
+            /* translators: Authentication Value = field label */
+            "auth_value" => $state && isset($ac->text->auth_value) ? $ac->text->auth_value : esc_html__('Authentication Value', 'easy-form-builder'),
+
+            /* translators: Auth Value placeholder */
+            "auth_value_placeholder" => $state && isset($ac->text->auth_value_placeholder) ? $ac->text->auth_value_placeholder : esc_html__('Enter token or credentials', 'easy-form-builder'),
+
+            /* translators: Bearer token help */
+            "bearer_help" => $state && isset($ac->text->bearer_help) ? $ac->text->bearer_help : esc_html__('Enter your Bearer token without "Bearer " prefix', 'easy-form-builder'),
+
+            /* translators: Basic auth help */
+            "basic_help" => $state && isset($ac->text->basic_help) ? $ac->text->basic_help : esc_html__('Enter as username:password', 'easy-form-builder'),
+
+            /* translators: API key help */
+            "api_key_help" => $state && isset($ac->text->api_key_help) ? $ac->text->api_key_help : esc_html__('Enter your API key', 'easy-form-builder'),
+
+            /* translators: Custom auth help */
+            "custom_auth_help" => $state && isset($ac->text->custom_auth_help) ? $ac->text->custom_auth_help : esc_html__('Enter as Header-Name: value', 'easy-form-builder'),
+
+            // === Headers & Parameters ===
+            /* translators: Custom Headers = section title */
+            "custom_headers" => $state && isset($ac->text->custom_headers) ? $ac->text->custom_headers : esc_html__('Custom Headers', 'easy-form-builder'),
+
+            /* translators: No custom headers message */
+            "no_custom_headers" => $state && isset($ac->text->no_custom_headers) ? $ac->text->no_custom_headers : esc_html__('No custom headers', 'easy-form-builder'),
+
+            /* translators: Query Parameters = section title */
+            "query_params" => $state && isset($ac->text->query_params) ? $ac->text->query_params : esc_html__('Query Parameters', 'easy-form-builder'),
+
+            /* translators: No query params message */
+            "no_query_params" => $state && isset($ac->text->no_query_params) ? $ac->text->no_query_params : esc_html__('No query parameters', 'easy-form-builder'),
+
+            // === Request Body ===
+            /* translators: Request Body Template = field label */
+            "request_body" => $state && isset($ac->text->request_body) ? $ac->text->request_body : esc_html__('Request Body Template (JSON)', 'easy-form-builder'),
+
+            /* translators: Body template help */
+            "body_template_help" => $state && isset($ac->text->body_template_help) ? $ac->text->body_template_help : esc_html__('JSON template for POST/PUT/PATCH requests. Use {{field_id}} for dynamic values.', 'easy-form-builder'),
+
+            // === Response Mapping ===
+            /* translators: Response Mapping = section title */
+            "response_mapping" => $state && isset($ac->text->response_mapping) ? $ac->text->response_mapping : esc_html__('Response Mapping', 'easy-form-builder'),
+
+            /* translators: Response Data Path = field label */
+            "response_path" => $state && isset($ac->text->response_path) ? $ac->text->response_path : esc_html__('Response Data Path', 'easy-form-builder'),
+
+            /* translators: Response path help */
+            "response_path_help" => $state && isset($ac->text->response_path_help) ? $ac->text->response_path_help : esc_html__('Dot notation path to the data array in response. e.g., data.results or items', 'easy-form-builder'),
+
+            /* translators: Field Mappings = section title */
+            "field_mappings" => $state && isset($ac->text->field_mappings) ? $ac->text->field_mappings : esc_html__('Field Mappings', 'easy-form-builder'),
+
+            /* translators: No field mappings message */
+            "no_field_mappings" => $state && isset($ac->text->no_field_mappings) ? $ac->text->no_field_mappings : esc_html__('No field mappings', 'easy-form-builder'),
+
+            /* translators: Field mappings help */
+            "field_mappings_help" => $state && isset($ac->text->field_mappings_help) ? $ac->text->field_mappings_help : esc_html__('Map API response fields to form field IDs', 'easy-form-builder'),
+
+            // === Cache Settings ===
+            /* translators: Cache Settings = section title */
+            "cache_settings" => $state && isset($ac->text->cache_settings) ? $ac->text->cache_settings : esc_html__('Cache Settings', 'easy-form-builder'),
+
+            /* translators: Cache Duration = field label */
+            "cache_duration" => $state && isset($ac->text->cache_duration) ? $ac->text->cache_duration : esc_html__('Cache Duration (minutes)', 'easy-form-builder'),
+
+            /* translators: Cache duration help */
+            "cache_duration_help" => $state && isset($ac->text->cache_duration_help) ? $ac->text->cache_duration_help : esc_html__('0 = no caching', 'easy-form-builder'),
+
+            // === Testing & Actions ===
+            /* translators: Basic Information = section title */
+            "basic_info" => $state && isset($ac->text->basic_info) ? $ac->text->basic_info : esc_html__('Basic Information', 'easy-form-builder'),
+
+            /* translators: Test Connection = button text */
+            "test_connection" => $state && isset($ac->text->test_connection) ? $ac->text->test_connection : esc_html__('Test Connection', 'easy-form-builder'),
+
+            /* translators: Test Result = section title */
+            "test_result" => $state && isset($ac->text->test_result) ? $ac->text->test_result : esc_html__('Test Result', 'easy-form-builder'),
+
+            /* translators: Testing connection message */
+            "testing" => $state && isset($ac->text->testing) ? $ac->text->testing : esc_html__('Testing connection...', 'easy-form-builder'),
+
+            /* translators: Endpoint = column header */
+            "endpoint" => $state && isset($ac->text->endpoint) ? $ac->text->endpoint : esc_html__('Endpoint', 'easy-form-builder'),
+
+            /* translators: Actions = column header */
+            "actions" => $state && isset($ac->text->actions) ? $ac->text->actions : esc_html__('Actions', 'easy-form-builder'),
+
+            /* translators: Saving message */
+            "saving" => $state && isset($ac->text->saving) ? $ac->text->saving : esc_html__('Saving...', 'easy-form-builder'),
+
+            // === Empty States & Confirmations ===
+            /* translators: No API connections message */
+            "no_api_connections" => $state && isset($ac->text->no_api_connections) ? $ac->text->no_api_connections : esc_html__('No API connections yet. Click "Add New API Connection" to create one.', 'easy-form-builder'),
+
+            /* translators: Confirm delete message */
+            "confirm_delete" => $state && isset($ac->text->confirm_delete) ? $ac->text->confirm_delete : esc_html__('Are you sure you want to delete', 'easy-form-builder'),
+
+            // === Error Messages ===
+            /* translators: Security check failed = error message */
+            "security_check_failed" => $state && isset($ac->text->security_check_failed) ? $ac->text->security_check_failed : esc_html__('Security check failed', 'easy-form-builder'),
+
+            /* translators: Permission denied = error message */
+            "permission_denied" => $state && isset($ac->text->permission_denied) ? $ac->text->permission_denied : esc_html__('Permission denied', 'easy-form-builder'),
+
+            /* translators: Connection name required = error message */
+            "connection_name_required" => $state && isset($ac->text->connection_name_required) ? $ac->text->connection_name_required : esc_html__('Connection name is required', 'easy-form-builder'),
+
+            /* translators: API endpoint required = error message */
+            "api_endpoint_required" => $state && isset($ac->text->api_endpoint_required) ? $ac->text->api_endpoint_required : esc_html__('API endpoint URL is required', 'easy-form-builder'),
+
+            /* translators: Connection ID required = error message */
+            "connection_id_required" => $state && isset($ac->text->connection_id_required) ? $ac->text->connection_id_required : esc_html__('Connection ID is required', 'easy-form-builder'),
+
+            /* translators: Connection not found = error message */
+            "connection_not_found" => $state && isset($ac->text->connection_not_found) ? $ac->text->connection_not_found : esc_html__('Connection not found', 'easy-form-builder'),
+
+            /* translators: API connection not found = error message */
+            "api_connection_not_found" => $state && isset($ac->text->api_connection_not_found) ? $ac->text->api_connection_not_found : esc_html__('API connection not found or disabled', 'easy-form-builder'),
+
+            /* translators: Rate limit exceeded = error message */
+            "rate_limit_exceeded" => $state && isset($ac->text->rate_limit_exceeded) ? $ac->text->rate_limit_exceeded : esc_html__('Rate limit exceeded. Please try again later.', 'easy-form-builder'),
+
+            /* translators: Invalid request format = error message */
+            "invalid_request_format" => $state && isset($ac->text->invalid_request_format) ? $ac->text->invalid_request_format : esc_html__('Invalid request format', 'easy-form-builder'),
+
+            /* translators: Failed to parse API response = error message */
+            "parse_error" => $state && isset($ac->text->parse_error) ? $ac->text->parse_error : esc_html__('Failed to parse API response', 'easy-form-builder'),
+
+            // === Success Messages ===
+            /* translators: API connection saved = success message */
+            "api_connection_saved" => $state && isset($ac->text->api_connection_saved) ? $ac->text->api_connection_saved : esc_html__('API connection saved successfully', 'easy-form-builder'),
+
+            /* translators: Connection test successful = success message */
+            "connection_test_successful" => $state && isset($ac->text->connection_test_successful) ? $ac->text->connection_test_successful : esc_html__('Connection test successful', 'easy-form-builder'),
+
+            /* translators: API connection deleted = success message */
+            "api_connection_deleted" => $state && isset($ac->text->api_connection_deleted) ? $ac->text->api_connection_deleted : esc_html__('API connection deleted successfully', 'easy-form-builder'),
+
+            /* translators: Connection enabled = status message */
+            "connection_enabled" => $state && isset($ac->text->connection_enabled) ? $ac->text->connection_enabled : esc_html__('Connection enabled', 'easy-form-builder'),
+
+            /* translators: Connection disabled = status message */
+            "connection_disabled" => $state && isset($ac->text->connection_disabled) ? $ac->text->connection_disabled : esc_html__('Connection disabled', 'easy-form-builder'),
+        ];
+    }
+
 
     // ========================================
     // PAYPAL ADDON PHRASES (Placeholder)
@@ -501,3 +708,4 @@ function efb_register_addon_phrases($addon_key, $callback) {
     EfbAddonPhrases::get_instance();
     EfbAddonPhrases::register_addon($addon_key, $callback);
 }
+

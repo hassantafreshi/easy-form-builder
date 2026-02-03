@@ -88,8 +88,8 @@ class Emsfb {
                     error_log('SMS file does not exist: ' . $sms_file_path);
                 }
             }
-            $auto_fill_exists = isset($ac->AdnAtF) ? (int) $ac->AdnAtF : 0;
-           // $auto_fill_exists =get_option('emsfb_addon_AdnAtF',false);
+            $auto_fill_exists = isset($ac->AdnATF) ? (int) $ac->AdnATF : 0;
+           // $auto_fill_exists =get_option('emsfb_addon_AdnATF',false);
             if ($auto_fill_exists === 1) {
                 $auto_fill_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/autofill/class-Emsfb-autofill.php';
                 if (file_exists($auto_fill_file_path)) {
@@ -545,7 +545,7 @@ class Emsfb {
         // Check each addon
         $addonKeys = [
             'AdnSS' => 'SMS',
-            'AdnAtF' => 'AutoFill',
+            'AdnATF' => 'AutoFill',
             'AdnTlg' => 'Telegram',
             'AdnPAP' => 'PayPal',
             'AdnSPF' => 'Stripe',
