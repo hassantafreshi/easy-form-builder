@@ -140,6 +140,10 @@ class Install {
 			}
 
 		add_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
+
+		// Check for active cache plugins on first activation
+		do_action('emsfb_update_cache_plugins_list');
+
 		return $state;
 	}
 

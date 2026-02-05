@@ -106,10 +106,10 @@ const loadingTypeEls = () => {
   }
 
   const loadingTypes = [
+    { value: 'bars', name: efb_var.text.bars || 'Bars', icon: '▮▮▮' },
     { value: 'dots', name: efb_var.text.dots || 'Dots', icon: '●●●' },
     { value: 'spinner', name: efb_var.text.spinner || 'Spinner', icon: '◐' },
     { value: 'pulse', name: efb_var.text.pulse || 'Pulse', icon: '◉' },
-    { value: 'bars', name: efb_var.text.bars || 'Bars', icon: '▮▮▮' },
     { value: 'ripple', name: efb_var.text.ripple || 'Ripple', icon: '◎' },
     { value: 'bounce', name: efb_var.text.bounce || 'Bounce', icon: '⚫⚫⚫' },
     { value: 'orbit', name: efb_var.text.orbit || 'Orbit', icon: '◌' },
@@ -118,7 +118,6 @@ const loadingTypeEls = () => {
   ];
 
   let options = '';
-  console.error(`valj_efb[0].loading_type: ${valj_efb[0].loading_type}`);
   for (let type of loadingTypes) {
     options += `<option value="${type.value}" ${valj_efb[0].loading_type === type.value ? 'selected' : ''}>${type.icon} ${type.name}</option>`;
   }

@@ -1616,33 +1616,68 @@ function ReadyElForViewEfb(content) {
   }, 1000)
 }
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
-function alert_message_efb(title, message, sec, alert) {
-  sec = sec * 1000
-  alert = alert ? `alert-${alert}` : 'alert-info';
-  const id_ = document.getElementById(`step-${current_s_efb}-efb-msg`) ? `step-${current_s_efb}-efb-msg` : `body_efb`
-  let id = document.getElementById('body_efb')  ? id_ : 'alert_efb';
-  if (id=="body_efb" && Number(document.getElementById('body_efb').offsetWidth)<380) id='alert_content_efb'
-  if (document.getElementById('alert_efb')==null){
-    document.getElementById("body_efb").innerHTML += `<div id='alert_efb' class='efb mx-5'></div>`;
+
+const alertStyles_efb = {
+  danger: { bg: 'linear-gradient(135deg, #c00751 0%, #f95e5e 100%)', icon: 'bi-x-octagon', color: '#fff' },
+  warning: { bg: 'linear-gradient(135deg, #ffc107 0%, #ffb300 100%)', icon: 'bi-exclamation-triangle-fill', color: '#333' },
+  success: { bg: 'linear-gradient(135deg, #065518  0%, #108f69 100%)', icon: 'bi-check-lg', color: '#fff' },
+  info: { bg: 'linear-gradient(135deg, #202a8d 0%, #667eea 100%)', icon: 'bi-info-lg', color: '#fff' }
+};
+
+let alertCounter_efb = 0;
+
+function alert_message_efb(title, message, sec, alertType) {
+  sec = sec * 1000;
+  const alertId = `alert_item_efb_${++alertCounter_efb}`;
+  const style = alertStyles_efb[alertType] || alertStyles_efb.info;
+  const isRtl = efb_var.text.rtl == 1;
+  const rtl = isRtl ? 'rtl-text' : '';
+  const isMobile = window.innerWidth < 768;
+
+  // Create fixed container if not exists
+  if (!document.getElementById('alert_container_efb')) {
+    const container = document.createElement('div');
+    container.id = 'alert_container_efb';
+    container.className = 'efb';
+    container.style.cssText = `position:fixed; top:80px; ${isRtl ? 'right' : 'left'}:20px; z-index:99999; width:${isMobile ? 'calc(100vw - 40px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
+    document.body.appendChild(container);
   }
-  document.getElementById(id).innerHTML += ` <div id="alert_content_efb" class="efb alert_efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
-    <h5 class="efb alert-heading fs-4">${title}</h5>
-    <div>${String(message)}</div>
-    <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close" onclick="close_msg_efb()"></button>
-  </div>`
-  document.getElementById(id).scrollIntoView({behavior: "smooth", block: "center", inline: "center"}, true);
+
+  const alertHtml = `
+    <div id="${alertId}" class="efb alert_item_efb ${rtl}" style="background:${style.bg}; border-radius:12px; padding:14px 16px; box-shadow:0 4px 20px rgba(0,0,0,0.2); animation:slideIn_efb .3s ease; transition:all .3s ease; pointer-events:auto;">
+      <div class="efb d-flex align-items-center">
+        <div class="efb" style="background:rgba(255,255,255,0.2); border-radius:50%; padding:8px; margin-${isRtl ? 'left' : 'right'}:12px; flex-shrink:0;">
+          <i class="efb bi ${style.icon}" style="font-size:1.2rem; color:${style.color};"></i>
+        </div>
+        <div class="efb flex-grow-1" style="min-width:0;">
+          ${title ? `<h6 class="efb mb-0" style="color:${style.color}; font-weight:600; font-size:0.9rem;">${title}</h6>` : ''}
+          ${message ? `<p class="efb mb-0" style="color:${style.color}; opacity:0.95; font-size:0.8rem; line-height:1.4;">${message}</p>` : ''}
+        </div>
+        <button type="button" class="efb" onclick="close_msg_efb('${alertId}')" style="background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px;">
+          <i class="efb bi bi-x" style="color:${style.color}; font-size:1rem;"></i>
+        </button>
+      </div>
+    </div>`;
+
+  document.getElementById('alert_container_efb').insertAdjacentHTML('beforeend', alertHtml);
+
   setTimeout(() => {
-    if(document.querySelector(".alert_efb")){
-      document.querySelector(".alert_efb").style.display = "none";
-      document.getElementById("alert_efb").innerHTML = "";
+    const el = document.getElementById(alertId);
+    if (el) {
+      el.style.opacity = '0';
+      el.style.transform = `translateX(${isRtl ? '' : '-'}20px)`;
+      setTimeout(() => el.remove(), 300);
     }
   }, sec);
-  //window.scrollTo({ top: document.getElementById(id).scrollHeight, behavior: 'smooth' });
 }
-function close_msg_efb(){
-  const v=document.getElementById('alert_content_efb')
-  if (v) {
-    v.remove();
+
+function close_msg_efb(alertId) {
+  const el = alertId ? document.getElementById(alertId) : document.querySelector('.alert_item_efb');
+  if (el) {
+    const isRtl = efb_var.text.rtl == 1;
+    el.style.opacity = '0';
+    el.style.transform = `translateX(${isRtl ? '' : '-'}20px)`;
+    setTimeout(() => el.remove(), 200);
   }
 }
 function noti_message_efb(message, alert ,id) {
@@ -4174,4 +4209,3 @@ function maps_os_pro_efb(previewSate, pos, rndm, iVJ){
       <!--maps end-->
     `;
 }
-

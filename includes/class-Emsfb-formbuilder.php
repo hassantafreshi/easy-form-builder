@@ -3944,7 +3944,7 @@ public function check_error_console_efb(){
 					[
 						'@type' => 'Organization',
 						'@id'   => $home . '#efb-publisher',
-						'name'  => esc_html__( 'Easy Form Builder - Free WordPress Form Builder Plugin', 'easy-form-builder' )
+						'name'  => esc_html__( 'Easy Form Builder - Free WordPress Form Builder Plugin', 'easy-form-builder' ),
 						'url'   => $ws_url,
 					],
 				],
