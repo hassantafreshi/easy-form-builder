@@ -97,9 +97,8 @@ class Emsfb_Widgets_Helper {
 
         if ($table_exists) {
             $results = $wpdb->get_results(
-                "SELECT form_id, form_name, form_type, status
+                "SELECT form_id, form_name, form_type
                  FROM {$table_name}
-                 WHERE status = 1
                  ORDER BY form_id DESC",
                 ARRAY_A
             );
@@ -330,7 +329,7 @@ class Emsfb_Widgets_Helper {
         if (isset($_GET['action']) && $_GET['action'] === 'elementor') {
             return 'elementor';
         }
-        
+
         // Safely check Elementor edit mode
         if (class_exists('\Elementor\Plugin')) {
             try {
