@@ -804,14 +804,6 @@ public function check_nonce_permission_efb($request) {
 						$smssendefb = new smssendefb() ;
 					}
 
-					/* if($el_pro_load==true){
-						wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
-					} */
-					// autofill_id
-					/* $auto_filled = strpos($value , '\"autofll\":\"1\"');
-					if($auto_filled){
-						wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
-					}	 */
 
 					$setting;
 					if($typeOfForm=="payment"){
@@ -1076,17 +1068,38 @@ public function check_nonce_permission_efb($request) {
 
 					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $form_id, $lanText);
 					//check if has autofill
-					if($pro==true && $auto_filled == false &&  isset($valj_efb[$i]->autofll) ){
-						$auto_filled =in_array($valj_efb[$i]->autofll, [1, '1', true], true);
-						//first check autofill directory exists
-						if($auto_filled){
-							if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
-								$this->efbFunction->download_all_addons_efb();
-								return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.','easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
-							}
-							wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+					if($pro==true && $auto_filled == false &&  isset($valj_efb[0]->autofill_id) ){
+						$autofill_id = intval($valj_efb[0]->autofill_id);
+
+						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
+							$this->efbFunction->download_all_addons_efb();
+							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.','easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 						}
-					}else if ($pro==true && $valj_efb[$i]->type =='stripe' && $typeOfForm=="payment" ){
+						//first check autofill directory exists
+						if($autofill_id >0){
+							wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+						}else if($autofill_id == 0){
+							// بررسی autofill_api برای External API AutoFill
+							// Check autofill_api for External API AutoFill
+							$autofill_api = isset($valj_efb[0]->autofill_api) ? $valj_efb[0]->autofill_api : false;
+							$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
+							if($autofill_api && !empty($autofill_api_id)){
+								wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+							}
+						}
+					}
+					// بررسی مستقل autofill_api (زمانی که autofill_id تنظیم نشده)
+					// Independent check for autofill_api (when autofill_id is not set)
+					else if($pro==true && $auto_filled == false && !isset($valj_efb[0]->autofill_id) && isset($valj_efb[0]->autofill_api) && $valj_efb[0]->autofill_api){
+						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
+							$this->efbFunction->download_all_addons_efb();
+						}
+						$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
+						if(!empty($autofill_api_id)){
+							wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+						}
+					}
+					else if ($pro==true && $valj_efb[$i]->type =='stripe' && $typeOfForm=="payment" ){
 
 							wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);
 							wp_enqueue_script('stripe-js');
@@ -5338,7 +5351,7 @@ public function check_nonce_permission_efb($request) {
 								<table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
 									<!-- Header -->
 									<tr>
-										<td align="center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px;">
+										<td align="center" style="background: linear-gradient(135deg, #667eea 0%, #202a8d 100%); padding: 40px 30px;">
 											<h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">🔐 ' . esc_html__('Password Reset', 'easy-form-builder') . '</h1>
 										</td>
 									</tr>

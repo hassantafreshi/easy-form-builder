@@ -485,9 +485,9 @@ class EmsfbEmailHandler {
         if ($wp_lan == "fa_IR") $link = "$l/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/";
 
         $de = strtr($de, [
-            '%1$s' => "<a href='$link' target='_blank' style='color: #667eea; text-decoration: none; font-weight: 600;'>",
+            '%1$s' => "<a href='$link' target='_blank' style='color: #202a8d; text-decoration: none; font-weight: 600;'>",
             '%2$s' => "</a>",
-            '%3$s' => "<a href='$l/support/' target='_blank' style='color: #667eea; text-decoration: none; font-weight: 600;'>",
+            '%3$s' => "<a href='$l/support/' target='_blank' style='color: #202a8d; text-decoration: none; font-weight: 600;'>",
             '%4$s' => "</a>"
         ]);
 
@@ -734,7 +734,7 @@ class EmsfbEmailHandler {
             <td align=\"center\" style=\"padding: 20px 0;\">
                 <table class=\"email-container\" role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;\">
                     <tr>
-                        <td align=\"center\" style=\"padding: 40px 30px 30px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\">
+                        <td align=\"center\" style=\"padding: 40px 30px 30px 30px; background: linear-gradient(135deg, #667eea 0%, #202a8d 100%);\">
                             <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
                                 <tr>
                                     <td align=\"center\">
