@@ -1215,11 +1215,11 @@ const funSetCornerElEfb = (dataId, co) => {
 let change_el_edit_Efb = (el) => {
   let lenV = valj_efb.length
    //console.log("=================>change_el_edit_Efb",el.id , el.value)
-  if (el.value.length > 0 && (el.value.search(/(")+/g) != -1 || el.value.search(/(>)+/g) != -1 || el.value.search(/(<)+/g) != -1) && el.id !="htmlCodeEl") {
+  if (el.value && el.value.length > 0 && (el.value.search(/(")+/g) != -1 || el.value.search(/(>)+/g) != -1 || el.value.search(/(<)+/g) != -1) && el.id !="htmlCodeEl") {
     el.value = el.value.replaceAll(`"`, '');
     alert_message_efb(efb_var.text.error, `Don't use forbidden characters like: ["][<][>]`, 10, "danger");
     return;
-  }else if (el.id =="htmlCodeEl"){
+  }else if (el.id =="htmlCodeEl" && el.value){
     el.value = el.value.replaceAll(`"`, `'`);
   }
 
@@ -1256,7 +1256,9 @@ let change_el_edit_Efb = (el) => {
 
       el.value = el.type!="url" ? sanitize_text_efb(el.value) :el.value.replace(/[<>()[\ ]]/g, '');
     }
-      if (el.value==null) return  valNotFound_efb()
+      // برای دکمه‌های toggle که از کلاس active استفاده می‌کنند، value نیاز نیست
+      const isToggleButton = el.classList && el.classList.contains('btn-toggle');
+      if (el.value==null && !isToggleButton) return  valNotFound_efb()
     //console.log(el.id)
 
     switch (el.id) {
@@ -1518,6 +1520,15 @@ let change_el_edit_Efb = (el) => {
           c==1 ? clss.add('disabled') : clss.remove('disabled');
           valj_efb[indx].disabled=c ;
           //console.log(c ,document.getElementById(c).classList )
+          break;
+        // Survey Public Results Toggle Handler - ذخیره وضعیت نمایش در نتایج عمومی
+        case "showInPublicResultsEl":
+          c = el.classList.contains('active') == true ? 1 : 0;
+          if (!valj_efb[indx].hasOwnProperty('showInPublicResults')) {
+            Object.assign(valj_efb[indx], { 'showInPublicResults': c });
+          } else {
+            valj_efb[indx].showInPublicResults = c;
+          }
           break;
       case "SendemailEl":
 
@@ -1999,7 +2010,30 @@ let change_el_edit_Efb = (el) => {
       case "formTypeEl":
         valj_efb[0].type = el.options[el.selectedIndex].value;
         form_type_emsFormBuilder = valj_efb[0].type;
-
+        // نمایش/مخفی کردن گزینه‌های نمودار نظرسنجی
+        const surveyChartWrapper = document.getElementById('surveyChartOptionsWrapper');
+        if (surveyChartWrapper) {
+          if (valj_efb[0].type === 'survey') {
+            surveyChartWrapper.classList.remove('d-none');
+          } else {
+            surveyChartWrapper.classList.add('d-none');
+          }
+        }
+        // نمایش/مخفی کردن toggle های showInPublicResults برای تمام فیلدها
+        const publicResultsToggles = document.querySelectorAll('.survey-public-results-toggle');
+        publicResultsToggles.forEach(toggle => {
+          if (valj_efb[0].type === 'survey') {
+            toggle.classList.remove('d-none');
+          } else {
+            toggle.classList.add('d-none');
+          }
+        });
+        break;
+      case "surveyChartTypeEl":
+        if (!valj_efb[0].hasOwnProperty('survey_chart_type')) {
+          Object.assign(valj_efb[0], { survey_chart_type: 'none' });
+        }
+        valj_efb[0].survey_chart_type = el.options[el.selectedIndex].value;
         break;
       case "loadingTypeEl":
         if(pro_efb!=true){
@@ -3049,6 +3083,18 @@ async function create_form_efb() {
 
 const saveFormEfb = async (stated) => {
   console.log('saveFormEfb called', stated);
+
+  // بررسی اتوسیو: اگر مودالی باز است، اتوسیو را لغو کن
+  // Autosave check: if a modal is open, cancel autosave
+  const isAutoSave = stated === -1;
+  const modalElement = document.getElementById('settingModalEfb');
+  const isModalOpen = modalElement && modalElement.classList.contains('show');
+  console.log('isAutoSave:', isAutoSave, 'isModalOpen:', isModalOpen);
+  if (isAutoSave && isModalOpen) {
+    console.log('Autosave skipped: modal is open');
+    return Promise.resolve(false);
+  }
+
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       let proState = true;
@@ -3074,7 +3120,7 @@ const saveFormEfb = async (stated) => {
         }
       }
 
-      show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox");
+        show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox");
 
       let timeout = 1000;
       check_show_box = () => {
@@ -3083,7 +3129,8 @@ const saveFormEfb = async (stated) => {
             check_show_box();
             timeout = 500;
           } else {
-            show_modal_efb(body, title, icon, box);
+              show_modal_efb(body, title, icon, box);
+
           }
         }, timeout);
       };
@@ -3172,8 +3219,11 @@ const saveFormEfb = async (stated) => {
         if(( returnn==false && stated==0) ||  stated==1 ){
            state_modal_show_efb(1);
         } else if(returnn==true && stated==0){
-           state_modal_show_efb(0);
+          state_modal_show_efb(0);
         }else if (stated==-1){
+          // اتوسیو: فقط resolve کن بدون نمایش مودال
+          // Autosave: just resolve without showing modal
+          resolve(returnn);
           return;
         }
 
@@ -3192,7 +3242,7 @@ const saveFormEfb = async (stated) => {
         `;
         show_modal_efb(body, efb_var.text.error, btnIcon, 'error');
 
-         state_modal_show_efb(1);
+        state_modal_show_efb(1);
         reject(error);
       }
     }, 100);
@@ -5026,7 +5076,7 @@ call_beat = async () => {
           heartbeat_efb_active = false;
           return;
         }else{
-            console.error('update form due to heartbeat');
+            console.log('Autosave: saving form silently due to heartbeat');
             await saveFormEfb(-1);
             heartbeat_efb_active = false;
             return;

@@ -93,6 +93,42 @@ const formTypeEls =()=>{
 }
 
 /**
+ * Survey Chart Display Type Selector
+ * تابع انتخاب نوع نمایش نمودار نظرسنجی
+ */
+const surveyChartTypeEls = () => {
+  // مقدار پیش‌فرض برای survey_chart_type
+  if (!valj_efb[0].hasOwnProperty('survey_chart_type')) {
+    Object.assign(valj_efb[0], { survey_chart_type: 'none' });
+  }
+
+  const chartTypes = [
+    { value: 'none', name: efb_var.text.surveyNoChart || 'Do not show results', icon: 'bi-eye-slash' },
+    { value: 'bar', name: efb_var.text.surveyBarChart || 'Show results with bar chart', icon: 'bi-bar-chart-fill' },
+    { value: 'pie', name: efb_var.text.surveyPieChart || 'Show results with pie chart', icon: 'bi-pie-chart-fill' }
+  ];
+
+  let options = '';
+  for (let type of chartTypes) {
+    options += `<option value="${type.value}" ${valj_efb[0].survey_chart_type === type.value ? 'selected' : ''}><i class="bi ${type.icon}"></i> ${type.name}</option>`;
+  }
+
+  return `
+  <div class="efb mt-3 mb-2 survey-chart-options ${valj_efb[0].type !== 'survey' ? 'd-none' : ''}" id="surveyChartOptionsWrapper">
+    <label for="surveyChartTypeEl" class="efb mb-2">
+      <i class="efb bi-bar-chart-line fs-7 ${iconMarginGlobal}"></i>
+      ${efb_var.text.surveyResultsDisplay || 'Survey Results Display'}
+    </label>
+    <select data-id="formSet" class="efb elEdit form-select efb border-d rounded-4" id="surveyChartTypeEl">
+      ${options}
+    </select>
+    <small class="efb text-muted mt-1 d-block fs-7">
+      <i class="bi bi-info-circle"></i> ${efb_var.text.surveyChartHelp || 'After submission, visitors can see aggregate survey results'}
+    </small>
+  </div>`;
+}
+
+/**
  * تابع انتخاب نوع لودینگ برای فرم
  * Loading Type Selector for Form
  */
@@ -634,6 +670,13 @@ function show_setting_window_efb(idset) {
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label" for="disabledEl">${efb_var.text.dField}</label>
+    </div>`;
+    // Survey Public Results Toggle - نمایش در نتایج عمومی نظرسنجی
+    const showInPublicResultsEls = `<div class="efb mx-0 my-1 efb survey-public-results-toggle ${valj_efb[0].type !== 'survey' ? 'd-none' : ''}" id="showInPublicResultsWrapper-${indx}">
+    <button type="button" id="showInPublicResultsEl" data-state="off" data-name="showInPublicResults" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('showInPublicResults') && Number(valj_efb[indx].showInPublicResults) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label" for="showInPublicResultsEl">${efb_var.text.showInPublicResults || 'Show in public results'}</label>
     </div>`;
    /*  const hideLabelEls = `<div class="efb mx-1 my-3 efb">
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hidelabel') && Number(valj_efb[indx].hidelabel) == 1 ? 'checked' : ''}>
@@ -1182,6 +1225,7 @@ function show_setting_window_efb(idset) {
                         ${classesEls}
                         ${disabledEls}
                         ${hiddenEls}
+                        ${showInPublicResultsEls}
                         ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
                         </div>
                     </div>
@@ -1298,6 +1342,7 @@ function show_setting_window_efb(idset) {
                         ${classesEls}
                         ${disabledEls}
                         ${hiddenEls}
+                        ${showInPublicResultsEls}
                         ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
                         </div>
                     </div>
@@ -1350,6 +1395,7 @@ function show_setting_window_efb(idset) {
                 ${el.dataset.tag == 'esign' ? SingleTextEls('',idset,indx) : ''}
                 ${disabledEls}
                 ${hiddenEls}
+                ${showInPublicResultsEls}
                 ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
                 </div>
             </div>
@@ -1484,6 +1530,7 @@ function show_setting_window_efb(idset) {
                 ${classesEls}
                 ${disabledEls}
                 ${hiddenEls}
+                ${showInPublicResultsEls}
                  ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
                 </div>
             </div>
@@ -1678,6 +1725,7 @@ function show_setting_window_efb(idset) {
           ${valj_efb[0].type!="login" ?selectColorEls('clrdoneMessageEfb','text'):''}
           ${thankYouredirectEls}
           ${formTypeEls()}
+          ${surveyChartTypeEls()}
           ${loadingTypeEls()}
           ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(0) : '<!--efb-->'}
          <!-- content_colors_setting_efb() -->
@@ -1788,7 +1836,7 @@ function show_setting_window_efb(idset) {
                         <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
                       </button>
                     </div>
-                    <div class="efb mb-3 mt-3 collapse  d-none" id="collapseAdvanced">
+                    <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                             <div class="efb  mb-3 px-3 row">
 
                             ${labelFontSizeEls}
@@ -1799,9 +1847,10 @@ function show_setting_window_efb(idset) {
                             ${labelPostionEls}
                             ${ElementAlignEls('label',indx,idset)}
                             ${ElementAlignEls('description',indx,idset)}
-                            ${widthEls}
+                            <!-- ${widthEls} -->
 
                             ${classesEls}
+                            ${showInPublicResultsEls}
                             </div>
                         </div>
 
@@ -1822,13 +1871,14 @@ function show_setting_window_efb(idset) {
                            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
                           </button>
                         </div>
-                        <div class="efb mb-3 mt-3 collapse  d-none" id="collapseAdvanced">
+                        <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                                 <div class="efb  mb-3 px-3 row">
                                 ${labelPostionEls}
                                 ${ElementAlignEls('label',indx,idset)}
                                 ${ElementAlignEls('description',indx,idset)}
-                                ${widthEls}
+                                <!-- ${widthEls} -->
                                 ${classesEls}
+                                ${showInPublicResultsEls}
                                 </div>
                             </div>
                         </div><div class="efb  clearfix"></div>
