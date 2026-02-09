@@ -1146,7 +1146,7 @@ class efbFunction {
 			/* translators: %s: Add-on name */
 			"INAddonMsg" => $state  &&  isset($ac->text->INAddonMsg) ? $ac->text->INAddonMsg : esc_html__('Go to the Add-ons page in the Easy Form Builder plugin, install the %s add-on, and try again.','easy-form-builder'),
 			/* translators: %s: Payment add-on name */
-			"IMAddonPMsg" => $state && isset($ac->text->IMAddonPMsg) ? $ac->text->IMAddonPMsg  : esc_html__('To Create a payment form to collect online payments, install a payment add-on such as the  %s Add-on first.', 'easy-form-builder'),
+			"IMAddonPMsg" => $state && isset($ac->text->IMAddonPMsg) ? $ac->text->IMAddonPMsg  : esc_html__('To Create a payment form to collect online payments, install a payment add-on such as the %s Add-on first.', 'easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank','easy-form-builder'),
 
 
