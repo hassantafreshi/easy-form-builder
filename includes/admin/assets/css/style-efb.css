@@ -16,6 +16,17 @@
    -webkit-touch-callout: none !important;
 }
 
+/* Allow text selection inside .efb.guide blocks even in builder containers */
+#body_emsFormBuilder .efb.guide,
+#body_emsFormBuilder #resp_efb,
+#tab_container_efb .efb.guide {
+   -webkit-user-select: text !important;
+   -moz-user-select: text !important;
+   -ms-user-select: text !important;
+   user-select: text !important;
+   -webkit-touch-callout: default !important;
+}
+
 /* Fix horizontal scroll inside Create Forms tab container
    Bootstrap's .row.efb adds negative horizontal margins; in WP admin layout
    this can push content outside viewport and cause overflow-x. Limit it here. */
@@ -335,10 +346,11 @@ i.efb {	font-size: 1.2rem;
    transition: 0.5s !important;
    color: white !important;
 }
-.btn-darkb.efb:hover {	background-color: #4757e7;
+.btn-darkb.efb:hover {
+   background-color: #4757e7;
    background-image: linear-gradient(65deg, #4757e7 0, #202a8d 100%);
    border: none;
-   transition: 0.5s;
+   transition: background-color 0.5s, background-image 0.5s, color 0.5s;
    color: white;
 }
 .btn-darkb {	background-color: #202a8d !important;color: white;
@@ -347,11 +359,14 @@ i.efb {	font-size: 1.2rem;
 }
 .btn-pinkEfb {	background-color: #ff4b93 !important;
 }
-.btn-darkb.efb {	background-color: #202a8d;
+.btn-darkb.efb {
+   background-color: #202a8d;
    background-image: linear-gradient(65deg, #202a8d 0, #4757e7 100%);
    border: none;
-   transition: 0.5s;
+   transition: background-color 0.5s, background-image 0.5s, color 0.5s;
   color: white;
+  padding: .5rem 1rem;
+  line-height: 1.5;
 }
 .btn-pinkEfb {	background-color: #ff4b93;
 }

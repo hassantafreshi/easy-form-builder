@@ -2623,7 +2623,8 @@ function replaceContentMessageEfb(value){
 }
 function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
   if (!navigator.onLine) {
-    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
+	const msg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
+	alert_message_efb('', msg, 17, 'danger');
     return;
   }
   //v3.6.2  updated
@@ -2715,7 +2716,9 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
 
           const el = document.getElementById(idB);
           console.error('Upload error:', errorMessage, 'Full response:', data);
-          alert_message_efb('', errorMessage, 30, 'danger');
+		  const baseMsg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
+		  const fullMsg = errorMessage ? `${baseMsg}<br>${errorMessage}` : baseMsg;
+		  alert_message_efb('', fullMsg, 300, 'danger');
           if(el==null) return;
           el.style.width = '0%';
           el.textContent = '0% = ' + file.name;
@@ -2734,7 +2737,9 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
           errorMessage = error.message;
         }
 
-        alert_message_efb('', errorMessage, 30, 'danger');
+        const baseMsg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
+        const fullMsg = errorMessage ? `${baseMsg}<br>${errorMessage}` : baseMsg;
+        alert_message_efb('', fullMsg, 30, 'danger');
 
         if(el) {
           el.style.width = '0%';
