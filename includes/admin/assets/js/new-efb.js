@@ -129,7 +129,9 @@ function move_show_efb() {
   show_modal_efb(body, '','bi-arrows-move', 'saveBox')
   state_modal_show_efb(1)
 }
+let last_show_modal_efb = '';
 const show_modal_efb = (body, title, icon, type) => {
+  last_show_modal_efb =type;
   document.getElementById("settingModalEfb-title").innerHTML = title;
   document.getElementById("settingModalEfb-icon").className = icon + ` mx-2`;
   document.getElementById("settingModalEfb-body").innerHTML = body;

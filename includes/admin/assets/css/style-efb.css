@@ -9,12 +9,21 @@
 
 
 #body_emsFormBuilder, #tab_container_efb {
-	-webkit-user-select: none !important;
-	-moz-user-select: none !important;
-	-ms-user-select: none !important;
-	user-select: none !important;
-	-webkit-touch-callout: none !important;
+   -webkit-user-select: none !important;
+   -moz-user-select: none !important;
+   -ms-user-select: none !important;
+   user-select: none !important;
+   -webkit-touch-callout: none !important;
 }
+
+/* Fix horizontal scroll inside Create Forms tab container
+   Bootstrap's .row.efb adds negative horizontal margins; in WP admin layout
+   this can push content outside viewport and cause overflow-x. Limit it here. */
+#tab_container_efb .row.efb {
+   margin-right: 0 !important;
+   margin-left: 0 !important;
+}
+
 #body_emsFormBuilder img, #tab_container_efb img {
    -webkit-user-drag: none !important;
    -khtml-user-drag: none !important;

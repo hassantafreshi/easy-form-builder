@@ -590,19 +590,21 @@ function getOS_emsFormBuilder() {
 }
 
 createCardFormEfb = (i) => {
+  const rtl = efb_var.rtl == 1 ? true: false;
+  const m_space = rtl ? 'ms-1' : 'me-1';
   tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);
   const package_type = setting_emsFormBuilder.package_type != undefined ? Number(setting_emsFormBuilder.package_type) : 0;
-  let prw = `<a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb  bi-eye mx-1"></i>${efb_var.text.preview}</a>`;
-  let btn = `<button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>`;
+  let prw = `<a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb  bi-eye ${m_space}"></i>${efb_var.text.preview}</a>`;
+  let btn = `<button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle ${m_space}"></i>${efb_var.text.create}</b></button>`;
   if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"
   if(i.tag.search("payment")!=-1 && ( efb_var.addons.AdnSPF==0 && efb_var.addons.AdnPPF==0) ) {
     const fn = `alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')`
-    btn = `<a class="efb float-end btn mb-1 efb btn-primary btn-lg float-end  btn-r" onclick="${fn}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></a>`
+    btn = `<a class="efb float-end btn mb-1 efb btn-primary btn-lg float-end  btn-r" onclick="${fn}"><i class="efb  bi-plus-circle ${m_space}"></i>${efb_var.text.create}</b></a>`
   }
   return `
-  <div class="efb tag  col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
+  <div class="efb tag  col ${rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
   ${i.pro == true && efb_var.pro != 1 ? funProEfb() : ''}
-  <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
+  <h5 class="efb card-title efb"><i class="efb ${m_space} ${i.icon} "></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
   ${(i.pro == true && Number(setting_emsFormBuilder.package_type) != 2) || i.pro==false ? btn : ''}
   ${prw}
@@ -4239,17 +4241,17 @@ function emsFormBuilder_delete(id, type,value) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function emsFormBuilder_duplicate(id, type,value) {
-  const local_id = localStorage.getItem('efb_duplicate_id') || '';
-  const local_type = localStorage.getItem('efb_duplicate_type') || '';
+  const local_id = sessionStorage.getItem('efb_duplicate_id') || '';
+  const local_type = sessionStorage.getItem('efb_duplicate_type') || '';
 
   if (local_id === id && local_type === type) {
     return;
   }
-  localStorage.removeItem('efb_duplicate_id');
-  localStorage.removeItem('efb_duplicate_type');
+  sessionStorage.removeItem('efb_duplicate_id');
+  sessionStorage.removeItem('efb_duplicate_type');
 
-  localStorage.setItem('efb_duplicate_id', id);
-  localStorage.setItem('efb_duplicate_type', type);
+  sessionStorage.setItem('efb_duplicate_id', id);
+  sessionStorage.setItem('efb_duplicate_type', type);
   let val =id;
 
 
@@ -4326,7 +4328,6 @@ funRefreshPricesEfb=()=>{
    }
 }
 state_modal_show_efb=(i)=>{
-
   const el = document.getElementById('settingModalEfb');
   function Respond(e) {if(e.target == el) state_modal_show_efb(0)}
    show =()=>{
@@ -4344,11 +4345,14 @@ state_modal_show_efb=(i)=>{
    el.classList.remove('show');
    el.style.cssText='';
    el.removeAttribute("aria-hidden");
+   if(last_show_modal_efb =='duplicateBox'){
+      sessionStorage.removeItem('efb_duplicate_id');
+      sessionStorage.removeItem('efb_duplicate_type');
+   }
    jQuery('#regTitle').empty().append(loadingShow_efb());
     // document.getElementById(`settingModalEfb`).innerHTML=loadingShow_efb();
     if (jQuery('#settingModalEfb_').hasClass('save-efb')) {
       jQuery('#settingModalEfb_').removeClass('save-efb')
-
 
     }
     if (jQuery('#settingModalEfb_').hasClass('pre-efb')) {
