@@ -1184,7 +1184,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-layers m-3"></i>Plan Management
                                 </h5>
-                                <p class="efb  ${mxCSize} mobile-text">CChoose a plan or upgrade to unlock advanced features.</p>
+                                <p class="efb  ${mxCSize} mobile-text">Choose a plan or upgrade to unlock advanced features.</p>
                                 <div class="efb card-body text-center py-1">
                                     <button type="button" class="efb btn efb btn-outline-primary btn-lg" onclick="showSetupAsOverlayPage()" id="changePlanBtn">
                                         <i class="efb  bi-gear mx-1 efb mobile-text"></i>Change Plan
@@ -2845,5 +2845,3 @@ function emsFormBuilder_read(state,val){
 function efb_test_onchange(){
   console.log('test');
 }
-
-

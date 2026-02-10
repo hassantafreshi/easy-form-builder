@@ -586,7 +586,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           <button type="button" class="efb  btn btn-edit btn-sm" id="${valj_efb[iVJ].id_}"
           data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.delete}"
           onclick="show_delete_window_efb('${valj_efb[iVJ].id_}' ,${iVJ})">
-          <i class="efb  bi-x-lg text-danger"></i>
+          <i class="efb bi-trash text-danger"></i>
           </button>`
       }
       if (step_el_efb <= 2 || (step_el_efb > 2 && pro_efb == true)) {
@@ -1124,7 +1124,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     <button type="button" class="efb  btn btn-edit btn-sm" id="dupElEFb-${rndm}" data-id="${rndm}-id"  data-bs-toggle="tooltip"  title="${efb_var.text.duplicate}" onclick="show_duplicate_fun('${rndm}','${valj_efb[iVJ].name}')">
     <i class="efb  bi-clipboard-plus text-muted"></i>
     </button>
-    ${addDeleteBtnState ? '' : `<button type="button" class="efb  btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id' ,${iVJ})"> <i class="efb  bi-x-lg text-danger"></i></button>`}
+    ${addDeleteBtnState ? '' : `<button type="button" class="efb  btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id' ,${iVJ})"> <i class="efb  bi-trash text-danger"></i></button>`}
     <span class="efb  btn btn-edit btn-sm "  id="moveElEFb" onclick="move_show_efb()"><i class="efb text-dark bi-arrows-move"></i></span>
     `
     const proActiv = `
@@ -2494,7 +2494,7 @@ function funTnxEfb(val, title, message) {
   <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb ${show_track ? 'd-block' : 'd-none'} " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
-               <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color}  ${show_track ? 'd-block' : 'd-none'} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb' ,'trackingCodeEfb2')">
+           <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color}  ${show_track ? 'd-block mx-auto' : 'd-none mx-auto'} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb' ,'trackingCodeEfb2')">
                    <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i><span id="trackingCodeEfb2">${efb_var.text.copy}</span>
                </button></div>`
   return `

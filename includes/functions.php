@@ -502,7 +502,7 @@ class efbFunction {
 			"select" => $state ? $ac->text->select : esc_html__('Select','easy-form-builder'),
 			"up" => $state ? $ac->text->up : esc_html__('Up','easy-form-builder'),
 			"sending" => $state ? $ac->text->sending : esc_html__('Sending','easy-form-builder'),
-			"enterYourMessage" => $state ? $ac->text->enterYourMessage : esc_html__('Please Enter your message','easy-form-builder'),
+			"enterYourMessage" => $state ? $ac->text->enterYourMessage : esc_html__('Please enter your message','easy-form-builder'),
 			"add" => $state ? $ac->text->add : esc_html__('Add','easy-form-builder'),
 			"code" => $state ? $ac->text->code : esc_html__('Code','easy-form-builder'),
 			"star" => $state ? $ac->text->star : esc_html__('Star','easy-form-builder'),
@@ -631,6 +631,22 @@ class efbFunction {
 			"incorrectUP" => $state ? $ac->text->incorrectUP : esc_html__('This username or password combination is incorrect.','easy-form-builder'),
 			"newPassM" => $state ? $ac->text->newPassM : esc_html__('If your email is valid, a new password will send to your email.','easy-form-builder'),
 			"surveyComplatedM" => $state ? $ac->text->surveyComplatedM : esc_html__('The survey has been successfully completed.','easy-form-builder'),
+			/* translators: Survey Results Display = option to configure how survey results are shown to users after submission */
+			"surveyResultsDisplay" => $state && isset($ac->text->surveyResultsDisplay) ? $ac->text->surveyResultsDisplay : esc_html__('Survey Results Display','easy-form-builder'),
+			/* translators: Do not show results = option to hide survey results from users */
+			"surveyNoChart" => $state && isset($ac->text->surveyNoChart) ? $ac->text->surveyNoChart : esc_html__('Do not show results','easy-form-builder'),
+			/* translators: Show results with bar chart = option to display survey results as a bar chart */
+			"surveyBarChart" => $state && isset($ac->text->surveyBarChart) ? $ac->text->surveyBarChart : esc_html__('Show results with bar chart','easy-form-builder'),
+			/* translators: Show results with pie chart = option to display survey results as a pie chart */
+			"surveyPieChart" => $state && isset($ac->text->surveyPieChart) ? $ac->text->surveyPieChart : esc_html__('Show results with pie chart','easy-form-builder'),
+			/* translators: Help text explaining survey chart feature */
+			"surveyChartHelp" => $state && isset($ac->text->surveyChartHelp) ? $ac->text->surveyChartHelp : esc_html__('After submission, visitors can see aggregate survey results','easy-form-builder'),
+			/* translators: Show in public results = field-level option to include field in public survey results */
+			"showInPublicResults" => $state && isset($ac->text->showInPublicResults) ? $ac->text->showInPublicResults : esc_html__('Show in public results','easy-form-builder'),
+			/* translators: Survey Results = title for survey results section */
+			"surveyResults" => $state && isset($ac->text->surveyResults) ? $ac->text->surveyResults : esc_html__('Survey Results','easy-form-builder'),
+			/* translators: Responses = number of survey responses */
+			"responses" => $state && isset($ac->text->responses) ? $ac->text->responses : esc_html__('Responses','easy-form-builder'),
 			/* translators: E405 = Error code 405 - security error */
 			"error405" => $state ? $ac->text->error405 : esc_html__('We are sorry, but there seems to be a security error (405) with your request.','easy-form-builder'),
 			"errorSettingNFound" => $state ? $ac->text->errorSettingNFound : esc_html__('Error, Setting not Found','easy-form-builder'),
@@ -672,7 +688,6 @@ class efbFunction {
 			"reset" => $state  &&  isset($ac->text->reset) ? $ac->text->reset : esc_html__('reset','easy-form-builder'),
 			/* translators: Message explaining email notification is a free feature - shown on form cards on the creation pages */
 			"freefeatureNotiEmail" => $state && isset($ac->text->freefeatureNotiEmail) ? $ac->text->freefeatureNotiEmail : esc_html__('Email notifications are available in all versions, including Free, Free Plus, and Pro.','easy-form-builder'),
-			"freefeatureNotiEmail" => $state  &&  isset($ac->text->freefeatureNotiEmail) ? $ac->text->freefeatureNotiEmail : esc_html__('Send notification emails to admins or users (Free).','easy-form-builder'),
 			"notFound" => $state  &&  isset($ac->text->notFound) ? $ac->text->notFound : esc_html__('Not Found','easy-form-builder'),
 			"editor" => $state  &&  isset($ac->text->editor) ? $ac->text->editor : esc_html__('Editor','easy-form-builder'),
 			"addSCEmailM" => $state  &&  isset($ac->text->addSCEmailM) ? $ac->text->addSCEmailM : esc_html__('Please add the shortcode_message shortcode to the email template.','easy-form-builder'),
@@ -1167,7 +1182,7 @@ class efbFunction {
 			/* translators: %s is the tab name of the settings in the panel Easy Form Builder */
 			"msgchckvt_" => $state  &&  isset($ac->text->msgchckvt_) ? $ac->text->msgchckvt_ : esc_html__('Review the entered values in the %s tab.this message appeared because an error is detected.','easy-form-builder'),
 			/* translators: %s is the item being duplicated (e.g., form, field) */
-			"ausdup_" => $state  &&  isset($ac->text->ausdup_) ? $ac->text->ausdup_ : esc_html__('Are you sure you want to duplicate the %s ?','easy-form-builder'),
+			"ausdup_" => $state  &&  isset($ac->text->ausdup_) ? $ac->text->ausdup_ : esc_html__('Are you sure you want to duplicate the "%s" ?','easy-form-builder'),
 			/* translators: %s is the option name */
 			"bkXpM_" => $state  &&  isset($ac->text->bkXpM_) ? $ac->text->bkXpM_ : esc_html__('We are sorry, the booking time for the %s option has expired. Please choose from the other available options.','easy-form-builder'),
 			/* translators: %s is the option name */

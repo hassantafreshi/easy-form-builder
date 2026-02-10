@@ -66,6 +66,7 @@ class Panel_edit  {
 			}else{
 				$noti_pro = '<script>const noti_exp_efb="";</script>';
 			}
+			$is_rtl = is_rtl();
 			if(gettype($ac)!="string" && isset($ac->siteKey))$k= $ac->siteKey;
 			if ( strlen( $lng ) > 0 ) {
 				$lng = explode( '_', $lng )[0];
@@ -84,7 +85,7 @@ class Panel_edit  {
 					</div>
 					<div class="efb mb-5 mx-2 sideMenu" id="sideMenuConEfb"></div>
 					</div></div>
-				<div id="body_emsFormBuilder" class="efb m-2">
+				<div id="body_emsFormBuilder" class="efb my-2 <?php echo $is_rtl ? 'ms-3' : 'me-3' ?>">
 					<div id="msg_emsFormBuilder" class="efb mx-2">
 				</div>
 				<div class="efb top_circle-efb-1"></div>

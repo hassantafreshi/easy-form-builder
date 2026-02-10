@@ -582,7 +582,7 @@ function fun_clear_esign_efb(id) {
 }
 function closed_resp_emsFormBuilder(msg_id){
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${stock_state_efb==false ? efb_var.text.clsdrspnsM : efb_var.text.clsdrspnsMo }</div></div>`
-  show_modal_efb(body, efb_var.text.close, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
+  show_modal_efb(body, efb_var.text.close, 'efb bi-trash mx-2', 'deleteBox')
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
   state_modal_show_efb(1)
   confirmBtn.addEventListener("click", (e) => {

@@ -1205,10 +1205,25 @@ async function response_fill_form_efb(res ,form_id=0) {
     }
     switch (t.type) {
       case 'form':
-      case 'survey':
       case 'payment':
         efb_final_step.innerHTML = funTnxEfb(res.data.track)
         localStorage.clear();
+        break;
+      case 'survey':
+        localStorage.clear();
+        // نمایش نمودار نتایج نظرسنجی اگر فعال باشد
+        console.log('Survey response data:', res.data);
+        efb_final_step.innerHTML = funTnxEfb('','',res.data.m);
+        if (res.data.survey_chart_type && res.data.survey_chart_type !== 'none' && res.data.survey_results && res.data.survey_results.length > 0) {
+          console.log('Rendering survey chart:', res.data.survey_chart_type, res.data.survey_results);
+          if (typeof renderSurveyResultsChart === 'function') {
+            renderSurveyResultsChart(res.data, efb_final_step, form_id);
+          } else {
+            console.warn('renderSurveyResultsChart function is not available');
+          }
+        } else {
+          console.log('Survey chart not rendered. chart_type:', res.data.survey_chart_type, 'results:', res.data.survey_results);
+        }
         break;
       case 'subscribe':
         efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder fs-4'><i class="efb fs-2 bi-hand-thumbs-up  text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${valj_efb[0].thank_you_message.thankYou}</h3></br> <span class="efb fs-5">${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
@@ -1819,6 +1834,13 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
   console.log(id_body,el);
   let parent_body = document.getElementById(id_body)
   console.log(parent_body)
+
+  // Safety guard: if form body is not found, stop to prevent JS errors
+  if (!parent_body) {
+    console.error(`btn_navigate_handle_efb: parent body not found for form_id=${form_id}`);
+    return false;
+  }
+
   const max_step = Number(parent_body.dataset.steps);
   let no_step = Number(parent_body.dataset.currentstep);
   console.log(`max_step:${max_step} no_step${no_step}` , parent_body);
@@ -1830,7 +1852,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     console.log(`fun_progessbar no_step:${no_step} max_step:${max_step}`);
     const percent_progess = ((no_step)/(max_step))*100+'%';
     console.log(`percent_progess:${percent_progess}`);
-    progessbar.style.width = percent_progess;
+    if (progessbar) progessbar.style.width = percent_progess;
   }
   fun_check_step_has_necessary_fields_efb=(no_step ,valj_efb)=>{
     //check all fields in step no_step has necessary true
@@ -1851,6 +1873,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     }
     return 0;
   }
+  // Track which step contains the payment field (if any)
   step_payment_exists = -1;
 
   const title_efb = parent_body.querySelector('#title_efb') ?? null;
@@ -1907,6 +1930,11 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
   // update this line to get the first row of valj_efb by search form_id and get form_structer of form
   const first_row = valj_efb[0];
   const current_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
+
+  if (!current_fieldset) {
+    console.error(`btn_navigate_handle_efb: current fieldset not found for step=${no_step}, form_id=${form_id}`);
+    return false;
+  }
   if(form_type == 'payment'){
     //check in valj_efb_new payment exists which step
     //if not found payment method show a message to user that payment method not exist so the form can't be submitted
@@ -1914,7 +1942,11 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     const payment_complated = get_row_sendback_by_id_efb_v4('payment',form_id);
     console.log(`payment_complated:${payment_complated}`);
     if(payment_complated){
-
+      // detect which step(s) host the payment element for later button handling
+      const payment_rows = (valj_efb ?? []).filter(x => payment_method.includes(String(x.type)) && x.hasOwnProperty('step'));
+      if (payment_rows.length > 0) {
+        step_payment_exists = Number(payment_rows[0].step);
+      }
     }else{
       step_payment_exists = -1;
       alert('The form(form id:'+form_id+') cannot be submitted because it requires a payment method, which is currently missing. If you are the Admin, please add a payment method to the form or change the form type to "Form" or "Survey".');
@@ -1941,7 +1973,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         await fun_handle_header_efb(no_step,'forward');
         current_fieldset.classList.add('d-none');
         const next_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
-        next_fieldset.classList.remove('d-none');
+        if (next_fieldset) next_fieldset.classList.remove('d-none');
 
        parent_body.dataset.currentstep = no_step;
        if(progessbar)fun_progessbar(no_step,max_step);
@@ -1951,25 +1983,32 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
        if(no_step>max_step){
          el.classList.add('d-none');
          prev_btn.classList.add('d-none');
-         endMessage_emsFormBuilder_view(no_step+1,form_id);
+         // Pass logical last content step to endMessage handler
+         endMessage_emsFormBuilder_view(max_step,form_id);
        }else if(no_step==max_step){
-        const grecaptcha= parent_body.querySelector('#gRecaptcha')
+        const grecaptcha = parent_body.querySelector('#gRecaptcha');
         const r = await fun_check_step_has_necessary_fields_efb(no_step ,valj_efb);
 
-        //const g_result = grecaptcha.getResponse(site_key) ?? null;
-        console.log('site_key' ,grecaptcha)
+        // اگر کپچا روی فرم نیست، فقط وضعیت فیلدهای required مهم است
+        console.log('gRecaptcha element:' ,grecaptcha)
         let next_btn = parent_body.querySelector('#next_efb');
-        let state_captcha = false;
-        if(grecaptcha){
-          state_captcha = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_=='captcha_v2' && Number(x.form_id)===Number(form_id))!=-1 ? true : false;
+        let captcha_ok = true;
+
+        if (grecaptcha) {
+          // وقتی کپچا هست، باید ردیف captcha_v2 هم در sendBack_emsFormBuilder_pub ثبت شده باشد
+          const hasCaptchaRow = sendBack_emsFormBuilder_pub.findIndex(
+            x => x.id_=='captcha_v2' && Number(x.form_id)===Number(form_id)
+          ) !== -1;
+          captcha_ok = hasCaptchaRow;
         }
-        console.log(`r:${r} state_captcha:${state_captcha}`);
-        if (r==0 && state_captcha ){
-          // activete next button
-          if(next_btn)next_btn.classList.remove('disabled');
-        } else{
-          // deactivate next button
-          if(next_btn)next_btn.classList.add('disabled');
+
+        console.log(`r:${r} captcha_ok:${captcha_ok}`);
+        if (r === 0 && captcha_ok){
+          // همه فیلدهای ضروری این استپ پر شده‌اند و (در صورت وجود) کپچا هم کامل است
+          if(next_btn) next_btn.classList.remove('disabled');
+        } else {
+          // یا فیلد ضروری خالی داریم، یا کپچا کامل نشده است
+          if(next_btn) next_btn.classList.add('disabled');
         }
       /*   if(grecaptcha){
           console.log(`captacha~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
@@ -1996,7 +2035,6 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     parent_body.dataset.currentstep =  no_step;
     const prev_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
     current_fieldset.classList.add('d-none');
-
 
     if(prev_fieldset)prev_fieldset.classList.remove('d-none');
     if(progessbar) fun_progessbar(no_step,max_step);

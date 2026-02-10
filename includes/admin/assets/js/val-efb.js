@@ -81,7 +81,7 @@ const paymentMethodEls =(idset)=>{
 }
 const formTypeEls =()=>{
 
-  return`<label for="formTypeEl" class="efb mt-3 mx-2 efb">${efb_var.text.frmtype}</label>
+  return`<span class="efb"><label for="formTypeEl" class="efb mt-3 mx-2 efb">${efb_var.text.frmtype}</label>
   <select data-id="formSet" class="efb elEdit form-select efb border-d rounded-4"  id="formTypeEl"  data-tag="${valj_efb[0].type}">
   <option value="form" ${valj_efb[0].type=='form' ? 'selected' :''}>${efb_var.text.form}</option>
   <option value="payment" ${valj_efb[0].type=='payment' ? 'selected' :''}>${efb_var.text.payment}</option>
@@ -89,7 +89,7 @@ const formTypeEls =()=>{
   <option value="login" ${valj_efb[0].type=='login' ? 'selected' :''}>${efb_var.text.login}</option>
   <option value="login" ${valj_efb[0].type=='login' ? 'selected' :''} disabled>${efb_var.text.login}</option>
   <option value="register" ${valj_efb[0].type=='register' ? 'selected' :''} disabled>${efb_var.text.register}</option>
-  </select>`;
+  </select></span>`;
 }
 
 /**
@@ -490,8 +490,8 @@ const selectBorderColorEls = (forEl,indx,idset) => {
   let t = ''
   const hex=ColorNameToHexEfbOfElEfb(color.slice(7),indx,'border');
   addColorTolistEfb(hex);
-  return `<label for="selectBorderColorEl" class="efb mt-3 efb"><i class="efb bi-paint-bucket fs-7 ${iconMarginGlobal}"></i>${efb_var.text.borderColor}</label>
-  <input type="color" id="selectBorderColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="${forEl}" data-type="border"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl"  id="${idset}" >
+  return `<span class="efb"><label for="selectBorderColorEl" class="efb mt-3 efb"><i class="efb bi-paint-bucket fs-7 ${iconMarginGlobal}"></i>${efb_var.text.borderColor}</label>
+  <input type="color" id="selectBorderColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="${forEl}" data-type="border"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl"  id="${idset}" ></span>
   `
 }
 const fontSizeEls = (idset,indx) => {
