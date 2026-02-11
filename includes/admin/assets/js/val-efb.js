@@ -676,7 +676,7 @@ function show_setting_window_efb(idset) {
     <button type="button" id="showInPublicResultsEl" data-state="off" data-name="showInPublicResults" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('showInPublicResults') && Number(valj_efb[indx].showInPublicResults) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
     </button>
-    <label class="efb form-check-label" for="showInPublicResultsEl">${efb_var.text.showInPublicResults || 'Show in public results'}</label>
+    <label class="efb form-check-label" for="showInPublicResultsEl">${efb_var.text.showInPublicResults || 'Show this field in public survey results'}</label>
     </div>`;
    /*  const hideLabelEls = `<div class="efb mx-1 my-3 efb">
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hidelabel') && Number(valj_efb[indx].hidelabel) == 1 ? 'checked' : ''}>
@@ -2121,7 +2121,7 @@ items_dd_refresh_efb = () => {
 
 efb_powered_by=()=>{
   const ws = efb_var.language != "fa_IR" ? "https://whitestudio.team/" : 'https://easyformbuilder.ir';
-  return `<div class="efb fs-8 p-0  m-0 text-muted btn" id="wpfooter"><a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank" class="efb nounderline">Easy Form Builder</a> Powered by <a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank" class="efb nounderline">WordPress</a>, <a href="https://getbootstrap.com/" target="_blank" class="efb nounderline">Bootstrap</a> and Bootstrap Icon. Created by <a href="${ws}" target="_blank" class="efb nounderline">Whitestudio.team</a></div>`;
+  return `<div class="efb fs-8 p-0  m-0 text-muted btn" id="wpfooter"><a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank" class="efb nounderline">Easy Form Builder</a> Powered by <a href="https://wordpress.org/" target="_blank" class="efb nounderline">WordPress</a>, <a href="https://getbootstrap.com/" target="_blank" class="efb nounderline">Bootstrap</a> and Bootstrap Icon. Created by <a href="${ws}" target="_blank" class="efb nounderline">Whitestudio.team</a></div>`;
 }
 
 
@@ -3411,9 +3411,9 @@ function savePlanSelection_efb(plan, planData) {
         };
 
         console.log('Plan selection saved:', selectionData);
-        if (selected_plan ==='pro' || selected_plan ==='null' || selected_plan ==='free') {
+        if (plan ==='pro' || plan ==='null' || plan ==='free') {
           efb_var.setting.package_type = 2;
-        }else if (selected_plan ==='free_plus') {
+        }else if (plan ==='free_plus') {
           efb_var.setting.package_type = 3;
         }
         // ارسال به AJAX برای ذخیره در دیتابیس

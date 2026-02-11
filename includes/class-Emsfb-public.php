@@ -679,7 +679,7 @@ public function check_nonce_permission_efb($request) {
 				<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
 				<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 			}
-			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound','sfmcfop','notFound','file','copied','nonceExpired'];
+			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError'];
 
 			$this->public_scripts_and_css_head('');
 			// $this->public_scripts_and_css_head('');
@@ -1126,6 +1126,13 @@ public function check_nonce_permission_efb($request) {
 									'paymentGateway' =>'paypal',
 									'paymentKey_paypal' => $paymentKey
 								));
+					}else if($typeOfForm=="survey" ){
+						error_log('survey form->');
+						//poll-chart-efb.js
+						//wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true
+						wp_register_script('poll-chart-efb-js', EMSFB_PLUGIN_URL . 'public/assets/js/poll-chart-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
+						wp_enqueue_script('poll-chart-efb-js');
+
 					}
 					error_log(json_encode($r));
 					$content .= $r[0];
@@ -1139,21 +1146,37 @@ public function check_nonce_permission_efb($request) {
 			error_log('------------->is_track');
 			error_log(json_encode($is_track));
 			$captcha_content = '';
+			if (empty($this->pub_stting) || !is_array($this->pub_stting)) {
+				// اگر قبلاً $rp از get_setting_Emsfb('pub') ست شده باشد، از آن استفاده می‌کنیم تا از کوئری اضافه جلوگیری شود
+				if (isset($rp) && is_array($rp) && isset($rp[1]) && is_array($rp[1])) {
+					$this->pub_stting = $rp[1];
+				} else {
+					$pub = get_setting_Emsfb('pub');
+					$this->pub_stting = (is_array($pub) && isset($pub[1]) && is_array($pub[1])) ? $pub[1] : [];
+				}
+			}
 			if($valj_efb[0]->captcha==true && isset($valj_efb[0]->logic)==false ){
 				$error_msg = "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('The form is not shown because Google reCAPTCHA has not been added to the Easy Form Builder plugin settings.','easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 				//if(strlen($$setting->siteKey) <=5 || strlen($setting->secretKey) <=5){
-				if(strlen($this->pub_stting['siteKey']) <=5){
+				// Ensure public settings and siteKey are available before using them
+				// pub_stting معمولا از get_setting_Emsfb('pub')[1] پر می‌شود؛ اگر خالی بود اینجا مقداردهی می‌کنیم
+
+				$siteKey = '';
+				if (is_array($this->pub_stting) && isset($this->pub_stting['siteKey'])) {
+					$siteKey = (string) $this->pub_stting['siteKey'];
+				}
+				if(strlen($siteKey) <= 5){
 					return $error_msg;
 				}
 				$rgister_captcha_url = $this->efbFunction->check_and_enqueue_google_captcha_efb($lang);
 
 
-				$captcha_content =$efbFormBuilder->fun_captcha_load_efb($this->pub_stting['siteKey'], $form_id,$step_no - 1);
+				$captcha_content =$efbFormBuilder->fun_captcha_load_efb($siteKey, $form_id,$step_no - 1);
 				error_log('captcha->>>');
 				error_log($captcha_content);
 			}
 
-			if (strlen($content) > 10) {
+			if (strlen((string) $content) > 10) {
 				$step_no++;
 				$loading = $efbFormBuilder->loading_message_efb($this->pro_efb, $msgs, 1);
 				/* ( ($valj_efb[0]->captcha == true && (!isset($valj_efb[0]->logic) || (isset($valj_efb[0]->logic) && $valj_efb[0]->logic === false))) ? $efbFormBuilder->fun_captcha_load_efb($this->pub_stting['siteKey'], $form_id) : '<!--logic efb-->') */
@@ -1718,7 +1741,8 @@ public function check_nonce_permission_efb($request) {
 		$text_ = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM', 'bkFlM', 'mnvvXXX', 'ptrnMmm', 'ptrnMmx', 'payment', 'error403', 'errorSiteKeyM',
 			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound',
-			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN'
+			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
+			'surveyResults', 'responses'
 		];
 		$efbFunction = get_efbFunction();
 		// if(empty($this->efbFunction)) $this->efbFunction = $efbFunction;
@@ -2116,6 +2140,45 @@ public function check_nonce_permission_efb($request) {
 										}
 									}
 									$rt = $item;
+									$in_loop = false;
+									break;
+								case 'pointr5':
+									$stated = 0;
+									if (isset($item['value']) && is_numeric($item['value'])) {
+										$item['value'] = intval(sanitize_text_field($item['value']));
+										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+										// اعتبارسنجی مقدار 1-5
+										if ($item['value'] >= 1 && $item['value'] <= 5) {
+											$stated = 1;
+											$rt = $item;
+										}
+									}
+									$in_loop = false;
+									break;
+								case 'pointr10':
+									$stated = 0;
+									if (isset($item['value']) && is_numeric($item['value'])) {
+										$item['value'] = intval(sanitize_text_field($item['value']));
+										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+										// اعتبارسنجی مقدار 0-10 برای NPS
+										if ($item['value'] >= 0 && $item['value'] <= 10) {
+											$stated = 1;
+											$rt = $item;
+										}
+									}
+									$in_loop = false;
+									break;
+								case 'rating':
+									$stated = 0;
+									if (isset($item['value']) && is_numeric($item['value'])) {
+										$item['value'] = intval(sanitize_text_field($item['value']));
+										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+										// اعتبارسنجی مقدار 1-5
+										if ($item['value'] >= 1 && $item['value'] <= 5) {
+											$stated = 1;
+											$rt = $item;
+										}
+									}
 									$in_loop = false;
 									break;
 								case 'multiselect':
@@ -2865,6 +2928,35 @@ public function check_nonce_permission_efb($request) {
 									}
 									$response = array( 'success' => true , 'm' =>$this->lanText['surveyComplatedM']);
 									if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
+
+									// بررسی تنظیمات نمودار نظرسنجی و ارسال داده‌های نتایج
+									$survey_chart_type = isset($formObj[0]['survey_chart_type']) ? $formObj[0]['survey_chart_type'] : 'none';
+									error_log('[SURVEY-CALLER] survey_chart_type from formObj[0]: ' . $survey_chart_type);
+									error_log('[SURVEY-CALLER] formObj[0] keys: ' . json_encode(array_keys($formObj[0])));
+									error_log('[SURVEY-CALLER] this->id (form_id): ' . $this->id);
+									error_log('[SURVEY-CALLER] formObj total fields count: ' . count($formObj));
+
+									if ($survey_chart_type !== 'none') {
+										error_log('[SURVEY-CALLER] Calling efb_get_survey_results_data...');
+										$survey_results = $this->efb_get_survey_results_data($this->id, $formObj);
+										error_log('[SURVEY-CALLER] efb_get_survey_results_data returned: type=' . gettype($survey_results) . ', count=' . (is_array($survey_results) ? count($survey_results) : 'N/A'));
+										error_log('[SURVEY-CALLER] survey_results: ' . json_encode($survey_results));
+
+										if (!empty($survey_results)) {
+											$response['survey_chart_type'] = $survey_chart_type;
+											$response['survey_results'] = $survey_results;
+											$response['survey_labels'] = [
+												'title' => $this->lanText['surveyResults'] ?? 'Survey Results',
+												'responses' => $this->lanText['responses'] ?? 'Responses'
+											];
+											error_log('[SURVEY-CALLER] Response with survey data: ' . json_encode($response));
+										} else {
+											error_log('[SURVEY-CALLER] WARNING: survey_results is EMPTY - no data will be added to response');
+										}
+									} else {
+										error_log('[SURVEY-CALLER] survey_chart_type is "none" - skipping survey results');
+									}
+
 									$this->efbFunction->efb_code_validate_update($sid ,'poll' ,'poll' );
 									wp_send_json_success($response, 200);
 								break;
@@ -3732,7 +3824,7 @@ public function check_nonce_permission_efb($request) {
             case "survey":
                 error_log('send_email_Emsfb_ - subscribe/survey case processing: ' . $state[$i]);
                 $subject[$i] = $welcome;
-                $message[$i] = sprintf($default_message, ($state[$i] == "subscribe") ? $thankSubscribing : $thankDonePoll, $homeUrl, $blogName);
+                $message[$i] = sprintf($default_message, ($state[$i] == "subscribe") ? $thankSubscribing : $thankDonePoll, $homeUrl, $blogName, $homeUrl, $blogName);
                 error_log('send_email_Emsfb_ - subscribe/survey: message[' . $i . '] = ' . $message[$i]);
                 break;
             case "newUser":
@@ -6087,6 +6179,598 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 
+	/**
+	 * دریافت داده‌های نتایج نظرسنجی برای نمایش نمودار
+	 * Get survey results data for chart display
+	 *
+	 * @param int $form_id Form ID
+	 * @param array $formObj Form structure object
+	 * @return array Survey results data
+	 */
+	private function efb_get_survey_results_data($form_id, $formObj) {
+		global $wpdb;
+
+		error_log('========================================');
+		error_log('=== efb_get_survey_results_data START ===');
+		error_log('========================================');
+		error_log('[SURVEY-DEBUG] Form ID: ' . $form_id);
+		error_log('[SURVEY-DEBUG] formObj type: ' . gettype($formObj));
+		error_log('[SURVEY-DEBUG] formObj count: ' . (is_array($formObj) ? count($formObj) : 'NOT ARRAY'));
+
+		// لاگ اول: نمایش تمام فیلدهای فرم و خصوصیات مهم آنها
+		if (is_array($formObj)) {
+			foreach ($formObj as $idx => $field) {
+				$ftype = $field['type'] ?? 'NO_TYPE';
+				$fid = $field['id_'] ?? 'NO_ID';
+				$fname = $field['name'] ?? 'NO_NAME';
+				$showInPublic = isset($field['showInPublicResults']) ? $field['showInPublicResults'] : 'NOT_SET';
+				error_log("[SURVEY-DEBUG] formObj[$idx] => type=$ftype, id_=$fid, name=$fname, showInPublicResults=$showInPublic");
+			}
+		}
+
+		// دریافت تمام پیام‌های این فرم
+		$table_name = $wpdb->prefix . 'emsfb_msg_';
+		$query = $wpdb->prepare(
+			"SELECT content FROM $table_name WHERE form_id = %d",
+			$form_id
+		);
+		error_log('[SURVEY-DEBUG] SQL Query: ' . $query);
+
+		$messages = $wpdb->get_results($query);
+
+		error_log('[SURVEY-DEBUG] Messages count: ' . (is_array($messages) ? count($messages) : 'NULL/ERROR'));
+		if ($wpdb->last_error) {
+			error_log('[SURVEY-DEBUG] DB Error: ' . $wpdb->last_error);
+		}
+
+		if (empty($messages)) {
+			error_log('[SURVEY-DEBUG] RETURNING EMPTY - No messages found for form_id=' . $form_id);
+			return [];
+		}
+
+		// لاگ: نمایش نمونه اولین پیام برای بررسی فرمت ذخیره شده
+		error_log('[SURVEY-DEBUG] First message raw content (first 500 chars): ' . substr($messages[0]->content, 0, 500));
+		$test_content = stripslashes($messages[0]->content);
+		error_log('[SURVEY-DEBUG] First message after stripslashes (first 500 chars): ' . substr($test_content, 0, 500));
+		$test_decode = json_decode($test_content, true);
+		error_log('[SURVEY-DEBUG] First message json_decode result: ' . (is_array($test_decode) ? 'VALID ARRAY with ' . count($test_decode) . ' items' : 'DECODE FAILED - json_last_error=' . json_last_error() . ' msg=' . json_last_error_msg()));
+		if (is_array($test_decode)) {
+			foreach ($test_decode as $ti => $titem) {
+				$tid = $titem['id_'] ?? 'NO_ID';
+				$ttype = $titem['type'] ?? 'NO_TYPE';
+				$tval = $titem['value'] ?? 'NO_VALUE';
+				$tname = $titem['name'] ?? 'NO_NAME';
+				$tidob = $titem['id_ob'] ?? 'NO_ID_OB';
+				error_log("[SURVEY-DEBUG] Message[0] item[$ti] => id_=$tid, id_ob=$tidob, type=$ttype, value=$tval, name=$tname");
+			}
+		}
+
+		// تعریف انواع فیلدها و روش آماری مناسب
+		$field_categories = [
+			'radio' => 'choice',
+			'checkbox' => 'choice',
+			'select' => 'choice',
+			'multiselect' => 'choice',
+			'payRadio' => 'choice',
+			'payCheckbox' => 'choice',
+			'paySelect' => 'choice',
+			'yesNo' => 'choice',
+			'switch' => 'choice',
+			'range' => 'scale',
+			'rating' => 'scale',
+			'pointr5' => 'scale',
+			'pointr10' => 'nps',
+			'table_matrix' => 'matrix',
+			'r_matrix' => 'matrix',
+			'text' => 'text',
+			'email' => 'text',
+			'textarea' => 'text',
+			'number' => 'numeric',
+			'date' => 'date',
+			'pdate' => 'date',
+			'ardate' => 'date'
+		];
+
+		// پیدا کردن فیلدهایی که showInPublicResults فعال دارند
+		$public_fields = [];
+		$skipped_fields_no_show = 0;
+		$skipped_fields_no_category = 0;
+
+		foreach ($formObj as $field) {
+			$ftype = $field['type'] ?? 'NO_TYPE';
+			$fid = $field['id_'] ?? 'NO_ID';
+
+			if (isset($field['showInPublicResults']) && $field['showInPublicResults'] == 1) {
+				$field_type = $field['type'] ?? '';
+				if (!isset($field_categories[$field_type])) {
+					$skipped_fields_no_category++;
+					error_log("[SURVEY-DEBUG] Field $fid has showInPublicResults=1 but type '$field_type' not in field_categories - SKIPPED");
+					continue;
+				}
+
+				$field_id = $field['id_'];
+				$category = $field_categories[$field_type];
+
+				error_log("[SURVEY-DEBUG] ADDING public field: id=$field_id, type=$field_type, category=$category, name=" . ($field['name'] ?? 'NO_NAME'));
+
+				$public_fields[$field_id] = [
+					'id' => $field_id,
+					'name' => $field['name'] ?? $field_id,
+					'type' => $field_type,
+					'category' => $category,
+					'options' => [],
+					'values' => []
+				];
+
+				// دریافت گزینه‌ها برای فیلدهای choice
+				if ($category === 'choice') {
+					if ($field_type === 'yesNo') {
+						$btn1 = $field['button_1_text'] ?? 'Yes';
+						$btn2 = $field['button_2_text'] ?? 'No';
+						$public_fields[$field_id]['options'][$btn1] = ['value' => $btn1, 'count' => 0];
+						$public_fields[$field_id]['options'][$btn2] = ['value' => $btn2, 'count' => 0];
+						error_log("[SURVEY-DEBUG] yesNo options: '$btn1', '$btn2'");
+					} elseif ($field_type === 'switch') {
+						$on = $field['on'] ?? 'On';
+						$off = $field['off'] ?? 'Off';
+						$public_fields[$field_id]['options'][$on] = ['value' => $on, 'count' => 0];
+						$public_fields[$field_id]['options'][$off] = ['value' => $off, 'count' => 0];
+						error_log("[SURVEY-DEBUG] switch options: '$on', '$off'");
+					} else {
+						$opt_count = 0;
+						foreach ($formObj as $option) {
+							if (isset($option['type']) && $option['type'] === 'option'
+								&& isset($option['parent']) && $option['parent'] === $field_id) {
+								$opt_value = $option['value'] ?? '';
+								$public_fields[$field_id]['options'][$opt_value] = [
+									'id' => $option['id_'] ?? '',
+									'value' => $opt_value,
+									'count' => 0
+								];
+								$opt_count++;
+								error_log("[SURVEY-DEBUG] Option for $field_id: value='$opt_value', option_id=" . ($option['id_'] ?? 'NO_ID'));
+							}
+						}
+						error_log("[SURVEY-DEBUG] Total options found for $field_id: $opt_count");
+						if ($opt_count === 0) {
+							error_log("[SURVEY-DEBUG] WARNING: No options found for choice field $field_id (type=$field_type). Check if formObj has 'option' type entries with parent=$field_id");
+						}
+					}
+				}
+				elseif ($category === 'scale' && $field_type === 'pointr5') {
+					for ($i = 1; $i <= 5; $i++) {
+						$public_fields[$field_id]['options'][$i] = ['value' => $i, 'count' => 0];
+					}
+					error_log("[SURVEY-DEBUG] pointr5 options: 1-5");
+				}
+				elseif ($category === 'nps') {
+					for ($i = 0; $i <= 10; $i++) {
+						$public_fields[$field_id]['options'][$i] = ['value' => $i, 'count' => 0];
+					}
+					error_log("[SURVEY-DEBUG] nps options: 0-10");
+				}
+				elseif ($field_type === 'rating') {
+					for ($i = 1; $i <= 5; $i++) {
+						$public_fields[$field_id]['options'][$i] = ['value' => $i, 'count' => 0];
+					}
+					error_log("[SURVEY-DEBUG] rating options: 1-5");
+				}
+				elseif ($field_type === 'range') {
+					$public_fields[$field_id]['min'] = $field['milen'] ?? 0;
+					$public_fields[$field_id]['max'] = $field['mlen'] ?? 100;
+					error_log("[SURVEY-DEBUG] range min=" . ($field['milen'] ?? 0) . " max=" . ($field['mlen'] ?? 100));
+				}
+				elseif ($category === 'matrix') {
+					$row_count = 0;
+					foreach ($formObj as $row) {
+						if (isset($row['type']) && $row['type'] === 'r_matrix'
+							&& isset($row['parent']) && $row['parent'] === $field_id) {
+							$public_fields[$field_id]['rows'][$row['id_']] = [
+								'name' => $row['value'] ?? '',
+								'scores' => []
+							];
+							$row_count++;
+						}
+					}
+					error_log("[SURVEY-DEBUG] matrix rows for $field_id: $row_count");
+				}
+			} else {
+				$skipped_fields_no_show++;
+			}
+		}
+
+		error_log("[SURVEY-DEBUG] Total public_fields: " . count($public_fields));
+		error_log("[SURVEY-DEBUG] Skipped (no showInPublicResults): $skipped_fields_no_show");
+		error_log("[SURVEY-DEBUG] Skipped (no category match): $skipped_fields_no_category");
+		error_log("[SURVEY-DEBUG] Public field IDs: " . json_encode(array_keys($public_fields)));
+
+		if (empty($public_fields)) {
+			error_log('[SURVEY-DEBUG] RETURNING EMPTY - No public fields found. None of the formObj fields have showInPublicResults=1 with a valid type.');
+			return [];
+		}
+
+		// شمارش و جمع‌آوری پاسخ‌ها
+		$msg_index = 0;
+		$total_items_processed = 0;
+		$total_items_matched = 0;
+		$total_items_skipped_no_id = 0;
+		$total_items_skipped_no_field = 0;
+		$total_items_skipped_empty = 0;
+		$decode_failures = 0;
+
+		foreach ($messages as $message) {
+			$content = stripslashes($message->content);
+			$data = json_decode($content, true);
+			if (!is_array($data)) {
+				$decode_failures++;
+				if ($msg_index < 3) {
+					error_log("[SURVEY-DEBUG] Message[$msg_index] JSON decode FAILED. json_error=" . json_last_error() . " msg=" . json_last_error_msg());
+					error_log("[SURVEY-DEBUG] Message[$msg_index] raw (first 300): " . substr($message->content, 0, 300));
+					error_log("[SURVEY-DEBUG] Message[$msg_index] after stripslashes (first 300): " . substr($content, 0, 300));
+				}
+				$msg_index++;
+				continue;
+			}
+
+			if ($msg_index < 3) {
+				error_log("[SURVEY-DEBUG] Message[$msg_index] decoded OK, items count: " . count($data));
+			}
+
+			foreach ($data as $item) {
+				$total_items_processed++;
+
+				if (!isset($item['id_'])) {
+					$total_items_skipped_no_id++;
+					continue;
+				}
+
+				$field_id = $item['id_'];
+				$item_type = $item['type'] ?? '';
+
+				// برای r_matrix
+				if ($item_type === 'r_matrix') {
+					// id_ = table_matrix parent ID, id_ob = actual row ID
+					$row_id = $item['id_ob'] ?? null;
+					$matrix_parent_id = $item['id_'] ?? null;
+					$found_parent = false;
+
+					if ($msg_index < 3) {
+						error_log("[SURVEY-DEBUG] r_matrix item: id_=$field_id, id_ob=" . ($row_id ?? 'NULL') . ", value=" . ($item['value'] ?? 'NULL'));
+					}
+
+					if ($row_id) {
+						foreach ($public_fields as $pf_id => $pf) {
+							if ($pf['category'] === 'matrix' && isset($pf['rows'][$row_id])) {
+								$value = intval($item['value'] ?? 0);
+								$public_fields[$pf_id]['rows'][$row_id]['scores'][] = $value;
+								$found_parent = true;
+								$total_items_matched++;
+								if ($msg_index < 3) {
+									error_log("[SURVEY-DEBUG] r_matrix matched: row_id=$row_id, matrix_parent=$pf_id, value=$value");
+								}
+								break;
+							}
+						}
+					}
+
+					// Fallback: if id_ob not found, try matching by matrix_parent_id
+					// and distribute values to rows sequentially
+					if (!$found_parent && $matrix_parent_id && isset($public_fields[$matrix_parent_id]) && $public_fields[$matrix_parent_id]['category'] === 'matrix') {
+						// Try to match by item name to row name
+						$item_name = $item['name'] ?? '';
+						$matched_row = false;
+						foreach ($public_fields[$matrix_parent_id]['rows'] as $rid => $rdata) {
+							if ($rdata['name'] === $item_name) {
+								// Check if this row already got a value from this message
+								// (to handle multiple rows with same name)
+								$value = intval($item['value'] ?? 0);
+								$public_fields[$matrix_parent_id]['rows'][$rid]['scores'][] = $value;
+								$found_parent = true;
+								$total_items_matched++;
+								$matched_row = true;
+								if ($msg_index < 3) {
+									error_log("[SURVEY-DEBUG] r_matrix fallback matched by name: row_id=$rid, name='$item_name', value=$value");
+								}
+								break;
+							}
+						}
+						if (!$matched_row && $msg_index < 3) {
+							error_log("[SURVEY-DEBUG] r_matrix fallback: no row matched by name='$item_name' in matrix $matrix_parent_id");
+						}
+					}
+
+					if (!$found_parent && $msg_index < 3) {
+						error_log("[SURVEY-DEBUG] r_matrix NOT matched: field_id=$field_id, id_ob=" . ($row_id ?? 'NULL') . ", available matrix rows=" . json_encode(array_keys($public_fields[$matrix_parent_id]['rows'] ?? [])));
+					}
+					continue;
+				}
+
+				if (!isset($public_fields[$field_id])) {
+					$total_items_skipped_no_field++;
+					if ($msg_index < 3) {
+						error_log("[SURVEY-DEBUG] Item field_id=$field_id (type=$item_type) NOT in public_fields - skipped");
+					}
+					continue;
+				}
+
+				$field = &$public_fields[$field_id];
+				$value = $item['value'] ?? '';
+
+				if (empty($value) && $value !== '0' && $value !== 0) {
+					$total_items_skipped_empty++;
+					if ($msg_index < 3) {
+						error_log("[SURVEY-DEBUG] Item field_id=$field_id value is empty - skipped");
+					}
+					continue;
+				}
+
+				$total_items_matched++;
+
+				if ($msg_index < 3) {
+					error_log("[SURVEY-DEBUG] PROCESSING item: field_id=$field_id, type=$item_type, category=" . $field['category'] . ", value='$value'");
+				}
+
+				switch ($field['category']) {
+					case 'choice':
+						if (strpos($value, '@efb!') !== false) {
+							$values = array_filter(explode('@efb!', $value));
+						} else {
+							$values = [$value];
+						}
+						foreach ($values as $val) {
+							$val = trim($val);
+							if (isset($field['options'][$val])) {
+								$field['options'][$val]['count']++;
+								if ($msg_index < 3) {
+									error_log("[SURVEY-DEBUG] choice MATCHED: field=$field_id, val='$val', new_count=" . $field['options'][$val]['count']);
+								}
+							} else {
+								if ($msg_index < 3) {
+									error_log("[SURVEY-DEBUG] choice NOT MATCHED: field=$field_id, val='$val', available_options=" . json_encode(array_keys($field['options'])));
+								}
+							}
+						}
+						break;
+
+					case 'scale':
+					case 'nps':
+						$score = intval($value);
+						if (isset($field['options'][$score])) {
+							$field['options'][$score]['count']++;
+						}
+						$field['values'][] = $score;
+						if ($msg_index < 3) {
+							error_log("[SURVEY-DEBUG] scale/nps: field=$field_id, score=$score");
+						}
+						break;
+
+					case 'numeric':
+						$field['values'][] = floatval($value);
+						break;
+
+					case 'text':
+						$field['values'][] = mb_strlen($value);
+						break;
+
+					case 'date':
+						$field['values'][] = $value;
+						break;
+				}
+			}
+			$msg_index++;
+		}
+
+		// حیاتی: حذف reference از متغیر $field برای جلوگیری از بازنویسی ناخواسته در حلقه بعدی
+		unset($field);
+
+		error_log("[SURVEY-DEBUG] === Processing Summary ===");
+		error_log("[SURVEY-DEBUG] Total messages: $msg_index");
+		error_log("[SURVEY-DEBUG] Decode failures: $decode_failures");
+		error_log("[SURVEY-DEBUG] Total items processed: $total_items_processed");
+		error_log("[SURVEY-DEBUG] Items matched to public fields: $total_items_matched");
+		error_log("[SURVEY-DEBUG] Items skipped (no id_): $total_items_skipped_no_id");
+		error_log("[SURVEY-DEBUG] Items skipped (field not in public_fields): $total_items_skipped_no_field");
+		error_log("[SURVEY-DEBUG] Items skipped (empty value): $total_items_skipped_empty");
+
+		// لاگ وضعیت نهایی public_fields قبل از تبدیل
+		foreach ($public_fields as $fid => $fdata) {
+			error_log("[SURVEY-DEBUG] Field '$fid' (type={$fdata['type']}, cat={$fdata['category']}) final state:");
+			if (!empty($fdata['options'])) {
+				foreach ($fdata['options'] as $okey => $oval) {
+					error_log("[SURVEY-DEBUG]   option '$okey' => count=" . ($oval['count'] ?? 'N/A'));
+				}
+			}
+			if (!empty($fdata['values'])) {
+				error_log("[SURVEY-DEBUG]   values count=" . count($fdata['values']) . " sample=" . json_encode(array_slice($fdata['values'], 0, 5)));
+			}
+			if (isset($fdata['rows'])) {
+				foreach ($fdata['rows'] as $rid => $rdata) {
+					error_log("[SURVEY-DEBUG]   matrix row '$rid' (name={$rdata['name']}): scores_count=" . count($rdata['scores']));
+				}
+			}
+		}
+
+		// تبدیل به فرمت مناسب برای Chart.js
+		$results = [];
+		foreach ($public_fields as $field_id => $field) {
+			$result = [
+				'field_id' => $field_id,
+				'field_name' => $field['name'],
+				'field_type' => $field['type'],
+				'category' => $field['category']
+			];
+
+			switch ($field['category']) {
+				case 'choice':
+					$labels = [];
+					$data = [];
+					$total = 0;
+					foreach ($field['options'] as $opt_value => $option) {
+						$labels[] = strval($opt_value);
+						$data[] = $option['count'];
+						$total += $option['count'];
+					}
+					$result['labels'] = $labels;
+					$result['data'] = $data;
+					$result['total'] = $total;
+					$result['chart_type'] = 'bar';
+					break;
+
+				case 'scale':
+					$values = $field['values'] ?? [];
+					$avg = count($values) > 0 ? round(array_sum($values) / count($values), 2) : 0;
+
+					if ($field['type'] === 'range') {
+						// Range fields: create histogram bins
+						$min_val = intval($field['min'] ?? 0);
+						$max_val = intval($field['max'] ?? 100);
+						$range_span = $max_val - $min_val;
+						$bin_count = min(10, max(1, $range_span));
+						$bin_size = ceil($range_span / $bin_count);
+
+						$labels = [];
+						$data = [];
+						for ($i = 0; $i < $bin_count; $i++) {
+							$bin_start = $min_val + ($i * $bin_size);
+							$bin_end = min($bin_start + $bin_size, $max_val);
+							$labels[] = $bin_start . '-' . $bin_end;
+							$count = 0;
+							foreach ($values as $v) {
+								if ($i === $bin_count - 1) {
+									// Last bin includes the max value
+									if ($v >= $bin_start && $v <= $bin_end) $count++;
+								} else {
+									if ($v >= $bin_start && $v < $bin_end) $count++;
+								}
+							}
+							$data[] = $count;
+						}
+
+						$result['labels'] = $labels;
+						$result['data'] = $data;
+						$result['total'] = count($values);
+						$result['average'] = $avg;
+						$result['min_value'] = count($values) > 0 ? min($values) : 0;
+						$result['max_value'] = count($values) > 0 ? max($values) : 0;
+						$result['chart_type'] = 'bar';
+					} else {
+						// pointr5, rating: use discrete options
+						$labels = [];
+						$data = [];
+						$total = 0;
+						foreach ($field['options'] as $score => $option) {
+							$labels[] = strval($score);
+							$data[] = $option['count'];
+							$total += $option['count'];
+						}
+
+						$result['labels'] = $labels;
+						$result['data'] = $data;
+						$result['total'] = $total;
+						$result['average'] = $avg;
+						$result['chart_type'] = 'bar';
+					}
+					break;
+
+				case 'nps':
+					$labels = [];
+					$data = [];
+					$detractors = 0;
+					$passives = 0;
+					$promoters = 0;
+					$total = 0;
+
+					foreach ($field['options'] as $score => $option) {
+						$labels[] = strval($score);
+						$data[] = $option['count'];
+						$total += $option['count'];
+
+						if ($score <= 6) $detractors += $option['count'];
+						elseif ($score <= 8) $passives += $option['count'];
+						else $promoters += $option['count'];
+					}
+
+					$nps_score = $total > 0 ? round((($promoters - $detractors) / $total) * 100) : 0;
+
+					$result['labels'] = $labels;
+					$result['data'] = $data;
+					$result['total'] = $total;
+					$result['nps_score'] = $nps_score;
+					$result['detractors'] = $detractors;
+					$result['passives'] = $passives;
+					$result['promoters'] = $promoters;
+					$result['chart_type'] = 'nps';
+					break;
+
+				case 'matrix':
+					$rows = [];
+					foreach ($field['rows'] ?? [] as $row_id => $row) {
+						$scores = $row['scores'] ?? [];
+						$avg = count($scores) > 0 ? round(array_sum($scores) / count($scores), 2) : 0;
+						$rows[] = [
+							'name' => $row['name'],
+							'average' => $avg,
+							'count' => count($scores)
+						];
+					}
+					$result['rows'] = $rows;
+					$result['chart_type'] = 'matrix';
+					break;
+
+				case 'numeric':
+					$values = $field['values'] ?? [];
+					$count = count($values);
+					if ($count > 0) {
+						$result['count'] = $count;
+						$result['average'] = round(array_sum($values) / $count, 2);
+						$result['min'] = min($values);
+						$result['max'] = max($values);
+						$result['sum'] = array_sum($values);
+					} else {
+						$result['count'] = 0;
+						$result['average'] = 0;
+						$result['min'] = 0;
+						$result['max'] = 0;
+						$result['sum'] = 0;
+					}
+					$result['chart_type'] = 'stats';
+					break;
+
+				case 'text':
+					$values = $field['values'] ?? [];
+					$count = count($values);
+					$result['count'] = $count;
+					$result['avg_length'] = $count > 0 ? round(array_sum($values) / $count) : 0;
+					$result['chart_type'] = 'stats';
+					break;
+
+				case 'date':
+					$values = $field['values'] ?? [];
+					$result['count'] = count($values);
+					$by_month = [];
+					foreach ($values as $date) {
+						$month = substr($date, 0, 7);
+						$by_month[$month] = ($by_month[$month] ?? 0) + 1;
+					}
+					ksort($by_month);
+					$result['labels'] = array_keys($by_month);
+					$result['data'] = array_values($by_month);
+					$result['chart_type'] = 'bar';
+					break;
+			}
+
+			error_log("[SURVEY-DEBUG] Result for field '$field_id': " . json_encode($result));
+			$results[] = $result;
+		}
+
+		error_log('[SURVEY-DEBUG] === FINAL RESULTS ===');
+		error_log('[SURVEY-DEBUG] Total result items: ' . count($results));
+		error_log('[SURVEY-DEBUG] Final results JSON: ' . json_encode($results));
+		error_log('========================================');
+		error_log('=== efb_get_survey_results_data END ===');
+		error_log('========================================');
+		return $results;
+	}
 
 
 

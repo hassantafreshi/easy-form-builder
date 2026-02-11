@@ -46,6 +46,10 @@ hr .efb {
 
  	opacity: .25}
 
+.efb.btn:hover {
+    border: 1px solid transparent;
+}
+
 hr .efb:not([size]) {
 	height: 1px}
  .efb.h1,.efb.h2,.efb.h3,.efb.h4,.efb.h5,.efb.h6,h1.efb,h2.efb,h3.efb,h4.efb,h5.efb,h6.efb {

@@ -1472,13 +1472,13 @@ function fun_show_setting__emsFormBuilder() {
                                     </li>
 
                                     <li class="efb dropdown">
-                                    <a class="efb nav-link efb btn dropdown-toggle" data-toggle="dropdown" href="#">${efb_var.text.templates}
-                                    <span class="efb caret"></span></a>
-                                    <ul class="efb dropdown-menu">
-                                      <li class="efb nav-item"><a onClick="fun_add_email_template_efb(1)" class="efb nav-link efb btn" >${efb_var.text.emailTemplate} 1</a></li>
-                                     <li class="efb nav-item"><a onClick="fun_add_email_template_efb(2)"  class="efb nav-link efb btn">${efb_var.text.emailTemplate} 2</a></li>
-                                    </ul>
-                                  </li>
+                                        <a class="efb nav-link efb btn dropdown-toggle" data-toggle="dropdown" href="#">${efb_var.text.templates}
+                                        <span class="efb caret"></span></a>
+                                        <ul class="efb dropdown-menu">
+                                            <li class="efb nav-item"><a onClick="fun_add_email_template_efb(1)" class="efb nav-link efb btn" >${efb_var.text.emailTemplate} 1</a></li>
+                                            <li class="efb nav-item"><a onClick="fun_add_email_template_efb(2)"  class="efb nav-link efb btn">${efb_var.text.emailTemplate} 2</a></li>
+                                        </ul>
+                                    </li>
 
                               </div>
                           </nav>

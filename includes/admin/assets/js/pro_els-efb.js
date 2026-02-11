@@ -658,8 +658,9 @@ async function fun_nps_rating(el){
 function fun_switch_efb(el){
   if(state_efb!='run'){ return}
   const v = valj_efb.find(x=>x.id_ ==el.dataset.vid);
+  const form_id = el.dataset.formid || 0;
   setTimeout(() => {
-          let o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: "1", session: sessionPub_emsFormBuilder }];
+          let o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: "1", session: sessionPub_emsFormBuilder, form_id: form_id }];
           if(el.classList.contains('active')==false){
             o[0].value="0";
           }
