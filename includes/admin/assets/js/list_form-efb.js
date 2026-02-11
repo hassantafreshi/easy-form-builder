@@ -1509,7 +1509,7 @@ function fun_show_setting__emsFormBuilder() {
                               </p>
                               </br></br>
                               <!-- 3.8.6 start -->
-                              <a class="efb btn mt-1 efb btn-outline-pink btn-lg ec-efb " data-eventform="links" data-linkname="wiki"><i class="efb  bi-info-circle mx-1 ec-efb " data-eventform="links" data-linkname="wiki"></i>${efb_var.text.documents}</a>
+                              <a class="efb btn mt-1 efb btn-outline-pink btn-lg ec-efb " data-eventform="links" data-linkname="wiki"><i class="efb  bi-info-circle mx-1 ec-efb " data-eventform="links" data-linkname="wiki"></i>${efb_var.text.documentation}</a>
                               <!-- 3.8.6 end -->
                             </div>
 
