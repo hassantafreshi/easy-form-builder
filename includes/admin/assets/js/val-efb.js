@@ -1768,7 +1768,7 @@ items_dd_refresh_efb = () => {
 
 efb_powered_by=()=>{
   const ws = efb_var.language != "fa_IR" ? "https://whitestudio.team/" : 'https://easyformbuilder.ir';
-  return `<div class="efb fs-8 p-0  m-0 text-muted btn" id="wpfooter"><a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank" class="efb nounderline">Easy Form Builder</a> Powered by <a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank" class="efb nounderline">WordPress</a>, <a href="https://getbootstrap.com/" target="_blank" class="efb nounderline">Bootstrap</a> and Bootstrap Icon. Created by <a href="${ws}" target="_blank" class="efb nounderline">Whitestudio.team</a></div>`;
+  return `<div class="efb fs-8 p-0  m-0 text-muted btn" id="wpfooter"><a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank" class="efb nounderline">Easy Form Builder</a> Powered by <a href="https://wp.org/" target="_blank" class="efb nounderline">WordPress</a>, <a href="https://getbootstrap.com/" target="_blank" class="efb nounderline">Bootstrap</a> and Bootstrap Icon. Created by <a href="${ws}" target="_blank" class="efb nounderline">Whitestudio.team</a></div>`;
 }
 
 
