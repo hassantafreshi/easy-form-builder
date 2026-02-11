@@ -4244,7 +4244,7 @@ function emsFormBuilder_duplicate(id, type,value) {
   const local_id = sessionStorage.getItem('efb_duplicate_id') || '';
   const local_type = sessionStorage.getItem('efb_duplicate_type') || '';
 
-  if (local_id === id && local_type === type) {
+  if (local_id === id && local_type === type && type !='form') {
     return;
   }
   sessionStorage.removeItem('efb_duplicate_id');

@@ -370,6 +370,22 @@ async function createStepsOfPublic() {
   }
 
 
+  // Initialize switch toggle buttons with default value so they are always included in sendback data
+  for (let switchEl of document.querySelectorAll('.btn-toggle[onclick*="fun_switch_efb"]')) {
+    const sw_form_id = switchEl.dataset.formid || 0;
+    const sw_vid = switchEl.dataset.vid;
+    if (!sw_vid) continue;
+    try {
+      const sw_valj = get_structure_by_form_id_efb(sw_form_id);
+      const sw_v = sw_valj.find(x => x.id_ == sw_vid);
+      if (!sw_v) continue;
+      const sw_value = switchEl.classList.contains('active') ? "1" : "0";
+      const sw_ob = { id_: sw_v.id_, name: sw_v.name, amount: sw_v.amount, type: sw_v.type, value: sw_value, session: sessionPub_emsFormBuilder, form_id: sw_form_id };
+      console.log('switch init:', sw_ob);
+      fun_sendBack_emsFormBuilder(sw_ob);
+    } catch(e) { console.warn('switch init error:', e); }
+  }
+
   //disable-efb
  /*  if(form_id>0){
     document.getElementById(`body_efb_${form_id}`).classList.remove('disable-efb');
