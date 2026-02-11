@@ -3060,6 +3060,21 @@ public function check_nonce_permission_efb($request) {
 			$code =wp_create_nonce($code);
 			if($value!=null){
 				$r=true;
+				$date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+				if ( ! empty( $value[0]->date ) ) {
+					$ts = strtotime( $value[0]->date );
+					if ( $ts !== false ) {
+						$value[0]->date = wp_date( $date_format, $ts );
+					}
+				}
+				foreach ( $content as $c ) {
+					if ( ! empty( $c->date ) ) {
+						$ts = strtotime( $c->date );
+						if ( $ts !== false ) {
+							$c->date = wp_date( $date_format, $ts );
+						}
+					}
+				}
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code , 'id'=>$this->id);
 			}else{
 				$response = array( 'success' => false  , "m" =>$lanText['cCodeNFound']);

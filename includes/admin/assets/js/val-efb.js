@@ -3466,7 +3466,7 @@ function highlightSelectedPlan_efb() {
             // اضافه کردن علامت انتخاب
             const checkmark = document.createElement('div');
             checkmark.className = 'efb-plan-checkmark';
-            checkmark.innerHTML = '<i class="bi bi-check-circle-fill"></i> انتخاب شده';
+            checkmark.innerHTML = '<i class="bi bi-check-circle-fill"></i> Selected';
             card.querySelector('.efb-card-content').appendChild(checkmark);
         }
     });

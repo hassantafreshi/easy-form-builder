@@ -2461,6 +2461,7 @@ align-items: center;}
 		transition: none }
  }
  .efb.nav-link:focus,.efb.nav-link:hover {
+
 	color: #0a58ca}
  .efb.nav-link.disabled {
 	color: #6c757d;
@@ -2475,6 +2476,8 @@ align-items: center;}
  	border-top-left-radius: .25rem;
  	border-top-right-radius: .25rem}
  .efb.nav-tabs .efb.nav-link:focus,.efb.nav-tabs .efb.nav-link:hover {
+	cursor:pointer;
+ 	background-color: #e9ecef;
 	border-color: #e9ecef #e9ecef #dee2e6;
  	isolation: isolate}
  .efb.nav-tabs .efb.nav-link.disabled {

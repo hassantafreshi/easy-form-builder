@@ -758,6 +758,7 @@ class efbFunction {
 			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : esc_html__('It is not possible to include reCAPTCHA on payment forms.','easy-form-builder'),
 			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : esc_html__('Easy Form Builder could not confirm if your service is able to send emails. Please check your email inbox (or spam folder) to see if you have received an email with the subject line: Email server [Easy Form Builder]. If you have received the email, please select the option < This site can send emails > and save the changes.','easy-form-builder'),
 			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : esc_html__('This site can send emails','easy-form-builder'),
+			"actions" => $state  &&  isset($ac->text->actions) ? $ac->text->actions : esc_html__('Actions','easy-form-builder'),
 
 			/* translators: %s is the toggle option name for email confirmation */
 			"PleaseMTPNotWork2" => $state &&  isset($ac->text->PleaseMTPNotWork2) ? $ac->text->PleaseMTPNotWork2 : esc_html__('Easy Form Builder could not confirm that your server can send emails. Please check your inbox or spam folder for an email with the subject: "Email server [Easy Form Builder]". If you received it, please enable the "%s" toggle and save your changes.','easy-form-builder'),
@@ -1061,7 +1062,7 @@ class efbFunction {
 			"ivf" => $state  &&  isset($ac->text->ivf) ? $ac->text->ivf : esc_html__('Valid formats: %s','easy-form-builder'),
 			"zoom" => $state  &&  isset($ac->text->zoom) ? $ac->text->zoom : esc_html__('Zoom','easy-form-builder'),
 			/* translators: CDN = Content Delivery Network - a service that loads files faster; leafletjs.com is a mapping library; unpkg.com is a JavaScript file hosting service */
-			"lpds" => $state  &&  isset($ac->text->lpds) ? $ac->text->lpds : esc_html__('To enable the Location Picker field, Easy Form Builder loads JavaScript files from the unpkg.com CDN for Leaflet.js, only on pages where this feature is used.','easy-form-builder'),
+			"lpds" => $state  &&  isset($ac->text->lpds) ? $ac->text->lpds : esc_html__('This is the best version. The em dash creates a natural pause that makes "only on pages where this feature is used" land as a reassuring afterthought — exactly the tone you want for a privacy/transparency notice. It reads more conversationally than the other two options.','easy-form-builder'),
 			"elpo" => $state  &&  isset($ac->text->elpo) ? $ac->text->elpo : esc_html__('Enable Location Picker in Easy Form Builder','easy-form-builder'),
 			"jqinl" => $state  &&  isset($ac->text->jqinl) ? $ac->text->jqinl : esc_html__('Easy Form Builder cannot display the form because jQuery is not properly loaded. This issue might be due to incorrect jQuery invocation by another plugin or the current website theme.','easy-form-builder'),
 
@@ -1249,6 +1250,20 @@ class efbFunction {
 
 			/* translators: Select Duration = placeholder text for session duration dropdown */
 			"selectDuration" => $state && isset($ac->text->selectDuration) ? $ac->text->selectDuration : esc_html__('Select Duration','easy-form-builder'),
+
+			// === Plan Management ===
+
+			/* translators: Plan Management = heading for the plan/subscription management section in settings */
+			"plnMng" => $state && isset($ac->text->plnMng) ? $ac->text->plnMng : esc_html__('Plan Management','easy-form-builder'),
+
+			/* translators: Description text under Plan Management heading */
+			"plnMngD" => $state && isset($ac->text->plnMngD) ? $ac->text->plnMngD : esc_html__('Choose a plan or upgrade to unlock advanced features.','easy-form-builder'),
+
+			/* translators: Change Plan = button label to switch subscription plan */
+			"chngPln" => $state && isset($ac->text->chngPln) ? $ac->text->chngPln : esc_html__('Change Plan','easy-form-builder'),
+
+			/* translators: Description under Change Plan button */
+			"plnMngSw" => $state && isset($ac->text->plnMngSw) ? $ac->text->plnMngSw : esc_html__('Switch between Free, Free Plus, and Pro plans.','easy-form-builder'),
 
 		];
 
@@ -1837,6 +1852,15 @@ public function addon_add_efb($value) {
 		} */
 		$table_name = $wpdb->prefix . "emsfb_form";
 		$value = $wpdb->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );
+		$date_format = get_option( 'date_format' );
+		foreach ( $value as $row ) {
+			if ( ! empty( $row->form_create_date ) ) {
+				$timestamp = strtotime( $row->form_create_date );
+				if ( $timestamp !== false ) {
+					$row->form_create_date = wp_date( $date_format, $timestamp );
+				}
+			}
+		}
 		return $value;
 	}
 

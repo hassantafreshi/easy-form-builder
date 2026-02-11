@@ -261,7 +261,7 @@ function fun_emsFormBuilder_render_view(x) {
             <th scope="col" class="efb">${efb_var.text.formCode}</th>
             <th scope="col" class="efb">${efb_var.text.formName}</th>
             <th scope="col" class="efb">${efb_var.text.createDate}</th>
-            <th scope="col" class="efb">${efb_var.text.advanced}</th>
+            <th scope="col" class="efb">${efb_var.text.actions}</th>
             </tr>
         </thead>
         <tbody class="efb">${rows}</tbody>
@@ -579,7 +579,7 @@ function fun_ws_show_list_messages(value) {
     <th scope="col" class="efb">${efb_var.text.number}</th>
     <th scope="col" class="efb">${efb_var.text.trackNo}</th>
     <th scope="col" class="efb">${efb_var.text.ddate}</th>
-    <th scope="col" class="efb">${efb_var.text.advanced}</th>
+    <th scope="col" class="efb">${efb_var.text.actions}</th>
     </tr>
     </thead>
     <tbody class="efb">
@@ -1182,16 +1182,16 @@ function fun_show_setting__emsFormBuilder() {
                                 </div>
 
                                 <h5 class="efb  card-title mt-3 mobile-title">
-                                    <i class="efb  bi-layers m-3"></i>Plan Management
+                                    <i class="efb  bi-layers m-3"></i>${efb_var.text.plnMng}
                                 </h5>
-                                <p class="efb  ${mxCSize} mobile-text">Choose a plan or upgrade to unlock advanced features.</p>
+                                <p class="efb  ${mxCSize} mobile-text">${efb_var.text.plnMngD}</p>
                                 <div class="efb card-body text-center py-1">
                                     <button type="button" class="efb btn efb btn-outline-primary btn-lg" onclick="showSetupAsOverlayPage()" id="changePlanBtn">
-                                        <i class="efb  bi-gear mx-1 efb mobile-text"></i>Change Plan
+                                        <i class="efb  bi-gear mx-1 efb mobile-text"></i>${efb_var.text.chngPln}
                                     </button>
-                                    <p class="efb text-muted fs-7 mt-2">Switch between Free, Free Plus, and Pro plans.</p>
+                                    <p class="efb text-muted fs-7 mt-2">${efb_var.text.plnMngSw}</p>
                                 </div>
-
+                                <!--
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-bootstrap m-3 mobile-text"></i>${efb_var.text.bootStrapTemp}
                                 </h5>
@@ -1202,7 +1202,7 @@ function fun_show_setting__emsFormBuilder() {
                                 </button>
                                 <label class="efb form-check-label fs-6 efb mx-2 my-3" for="bootstrap_emsFormBuilder">${efb_var.text.iUsebootTemp}</label>
                                 </div>
-
+                                -->
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-file-earmark-minus m-3"></i>${efb_var.text.clearFiles}
                                 </h5>

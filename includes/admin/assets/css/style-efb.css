@@ -494,7 +494,9 @@ i.efb {	font-size: 1.2rem;
 .form-control.efb:focus {	border: 1px solid #bbc2d5;
 }
 
-#track_code_emsFormBuilder {	padding-left: 40px;
+#track_code_emsFormBuilder {
+   padding-left: 40px;
+    line-height: 1;
 }
 .search-icon.efb {	position: relative;
    left: 45px;
