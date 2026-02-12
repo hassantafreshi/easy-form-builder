@@ -4329,15 +4329,11 @@ funRefreshPricesEfb=()=>{
 }
 state_modal_show_efb=(i)=>{
   const el = document.getElementById('settingModalEfb');
-  function Respond(e) {if(e.target == el) state_modal_show_efb(0)}
    show =()=>{
    document.body.classList.add("modal-open")
    el.classList.add('show');
    el.style.cssText='display: block; padding-right: 0.400024px;';
    el.setAttribute("aria-hidden",!0);
-   setTimeout(() => {
-    document.body.addEventListener("click",Respond);
-   }, 10);
 
   }
    remove =()=>{
@@ -4370,10 +4366,6 @@ state_modal_show_efb=(i)=>{
 
     var val = efbLoadingCard('',4);
     if (jQuery(`#settingModalEfb-body`)) jQuery(`#settingModalEfb-body`).html(val)
-
-   setTimeout(() => {
-    document.body.removeEventListener("click",Respond);
-   }, 10);
 
   }
    i==1 ? show() : remove();

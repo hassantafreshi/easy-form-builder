@@ -144,6 +144,9 @@ const show_modal_efb = (body, title, icon, type) => {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     if (!document.getElementById('modalConfirmBtnEfb')) document.getElementById('settingModalEfb-sections').innerHTML += `
     <div class="efb  modal-footer" id="modal-footer-efb">
+      <a type="button" class="efb  btn btn-secondary" onclick="state_modal_show_efb(0)">
+          ${efb_var.text.no}
+      </a>
       <a type="button" class="efb  btn btn-danger" data-bs-dismiss="modal"  id="modalConfirmBtnEfb">
           ${efb_var.text.yes}
       </a>
