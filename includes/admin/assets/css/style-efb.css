@@ -2969,6 +2969,68 @@ div#Listefb-150 {
    outline: none;
    padding: 0;
 }
+/* Custom CSS tooltip for action buttons */
+.efb-act-btn::after {
+   content: attr(data-efb-tip);
+   position: absolute;
+   bottom: calc(100% + 8px);
+   left: 50%;
+   transform: translateX(-50%) translateY(4px);
+   background: #1e293b;
+   color: #f1f5f9;
+   padding: 5px 10px;
+   border-radius: 6px;
+   font-size: 0.75rem;
+   font-weight: 400;
+   line-height: 1.35;
+   width: max-content;
+   max-width: 180px;
+   white-space: nowrap;
+   text-align: center;
+   box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+   opacity: 0;
+   visibility: hidden;
+   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+   z-index: 99999;
+   pointer-events: none;
+}
+.efb-act-btn::before {
+   content: '';
+   position: absolute;
+   bottom: calc(100% + 2px);
+   left: 50%;
+   transform: translateX(-50%);
+   border: 5px solid transparent;
+   border-top-color: #1e293b;
+   opacity: 0;
+   visibility: hidden;
+   transition: opacity 0.2s ease, visibility 0.2s;
+   z-index: 99999;
+   pointer-events: none;
+}
+.efb-act-btn:hover::after,
+.efb-act-btn:focus-visible::after {
+   opacity: 1;
+   visibility: visible;
+   transform: translateX(-50%) translateY(0);
+}
+.efb-act-btn:hover::before,
+.efb-act-btn:focus-visible::before {
+   opacity: 1;
+   visibility: visible;
+}
+/* RTL tooltip support */
+[dir="rtl"] .efb-act-btn::after,
+.rtl .efb-act-btn::after {
+   direction: rtl;
+   font-family: inherit;
+}
+/* Content preview RTL */
+[dir="rtl"] .efb-content-preview::after,
+.rtl .efb-content-preview::after {
+   direction: rtl;
+   text-align: right;
+}
 .efb-act-open {
    background: #fef2f22e !important;
    color: #3b82f6 !important;
@@ -3166,6 +3228,11 @@ div#Listefb-150 {
       font-size: 1rem;
       border-radius: 10px;
    }
+   /* Hide action button tooltips on mobile (touch devices) */
+   .efb-act-btn::after,
+   .efb-act-btn::before {
+      display: none !important;
+   }
    .efb-noti-badge {
       width: 14px;
       height: 14px;
@@ -3215,6 +3282,14 @@ div#Listefb-150 {
 }
 @media (prefers-reduced-motion: reduce) {
    .efb-act-btn {
+      transition: none !important;
+   }
+   .efb-act-btn::after,
+   .efb-act-btn::before {
+      transition: none !important;
+   }
+   .efb-content-preview::after,
+   .efb-content-preview::before {
       transition: none !important;
    }
    .efb-noti-badge {

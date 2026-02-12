@@ -343,7 +343,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
     //howActivateAlertEmail
     // 3.8.6 start
     msg = `<br> <p>${efb_var.text.clickToCheckEmailServer }</p> <p>${efb_var.text.goToEFBAddEmailM }</p> <br>
-    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block ec-efb" data-eventform="links" data-linkname="EmailNoti"><i class="efb bi bi-patch-question  mx-1 ec-efb" data-eventform="links" data-linkname="EmailNoti"></i>${efb_var.text.howActivateAlertEmail}</a>
+    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block ec-efb" data-eventform="links" data-linkname="EmailNoti"><i class="efb bi bi-patch-question  mx-1"></i>${efb_var.text.howActivateAlertEmail}</a>
     `
     // 3.8.6 end
     e_m = alarm_emsFormBuilder(msg)
@@ -637,7 +637,7 @@ createCardAddoneEfb = (i) => {
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
   <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
   <!-- 3.8.6 start -->
-  <a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger ec-efb" onClick="Link_emsFormBuilder('${i.name}')" data-linkname="${i.name}"><i class="efb  bi-question-circle mx-1 ec-efb" data-eventform="links"  data-linkname="${i.name}"></i>${efb_var.text.help}</a>
+  <a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger ec-efb" onClick="Link_emsFormBuilder('${i.name}')" data-eventform="links" data-linkname="${i.name}"><i class="efb  bi-question-circle mx-1"></i>${efb_var.text.help}</a>
   <!-- 3.8.6 end -->
   </div></div></div>`
 }
@@ -1001,7 +1001,7 @@ function head_introduce_efb(state) {
   let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="${domain}" class="efb fw-bold">`).replace('%5$s','</a>');
   let cont = ``;
   let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti ec-efb" data-eventform="links" data-linkname="price">
-  <i class="efb bi-diamond text-pinkEfb mx-1 ec-efb" data-eventform="links" data-linkname="price"></i>
+  <i class="efb bi-diamond text-pinkEfb mx-1"></i>
   <span class="efb text-dark fs-7">${efb_var.text.getPro}</span><br>
   <div class="efb ms-3 fs-7">${msgpro}</div>
   </div>`;
@@ -1013,7 +1013,7 @@ function head_introduce_efb(state) {
                   <p class="efb card-text  ${state == "create" ? 'card-text' : 'text-dark'} efb pb-3 ${mobile_view_efb ? 'fs-7' : 'fs-6'}">${text}</p>
 
     <a class="efb btn btn-r btn-primary ${btnSize}" href="${link}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
-    <a class="efb btn mt-1 efb btn-outline-pink ${btnSize} ec-efb" data-eventform="links" data-linkname="tutorial"><i class="efb  bi-info-circle mx-1 ec-efb" data-eventform="links" data-linkname="tutorial"></i>${efb_var.text.tutorial}</a>`;
+    <a class="efb btn mt-1 efb btn-outline-pink ${btnSize} ec-efb" data-eventform="links" data-linkname="tutorial"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>`;
   }
   return `<section id="header-efb" class="efb mx-0 px-0  ${state == "create" ? '' : 'card col-12 bg-color'}">
   <div class="efb row ${mobile_view_efb ? 'mx-2' : 'mx-5'}">
@@ -5228,22 +5228,32 @@ const efb_url_convert_url = (url)=>{
 
 function addClickListenerToElementListEFB(element) {
   if (!element.hasClickListener) {
-      let state_event = false;
+      let _lastClickTs = 0;
 
       element.addEventListener("click", function (event) {
-          if (!state_event) {
-              const classes = event.target.classList;
-              setTimeout(() => {
-                state_event = false;
-              }, 50);
+              // Debounce rapid clicks using native event timestamp — no setTimeout needed
+              const now = event.timeStamp || performance.now();
+              if (now - _lastClickTs < 350) return;
+
+              // Only handle if this element is the closest .ec-efb to the click target
+              // This prevents parent .ec-efb elements from double-firing
+              const closestEcEfb = event.target.closest('.ec-efb');
+              if (closestEcEfb !== element) return;
+
+              // Find the closest element with BOTH data-eventform AND .ec-efb
+              // This skips elements like <code> that have data-eventform but not .ec-efb
+              const actionEl = event.target.closest('[data-eventform].ec-efb');
+              if (!actionEl) return;
+              const classes = actionEl.classList;
+
               if (classes.contains("ec-efb")) {
+                _lastClickTs = now; // Record timestamp before executing action
                 const pro = Number(efb_var.pro) === 1;
-                  state_event = true;
 
-                  const dataset = event.target.dataset;
+                  const dataset = actionEl.dataset;
 
 
-                  const eventform = dataset.hasOwnProperty('eventform') ? sanitize_text_efb(dataset.eventform) : false;
+                  const eventform = ('eventform' in dataset) ? sanitize_text_efb(dataset.eventform) : false;
                   let temp ='';
                   let temp2='';
                   state_page_efb = 'nform';
@@ -5331,7 +5341,6 @@ function addClickListenerToElementListEFB(element) {
                       }
                   }
               }
-          }
       });
 
       element.hasClickListener = true;
