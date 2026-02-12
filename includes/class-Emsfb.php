@@ -98,7 +98,7 @@ class Emsfb {
                     error_log('Auto Fill file does not exist: ' . $auto_fill_file_path);
                 }
             }
-            $telegram_exists = isset($ac->AdnTlg) ? (int) $ac->AdnTlg : 0;
+            $telegram_exists = isset($ac->AdnTLG) ? (int) $ac->AdnTLG : 0;
             error_log('telegram_exists value:' . ($telegram_exists ? 'True' : 'false'));
               if ($telegram_exists === 1) {
                 //vendor\telegram\class-Emsfb-telegram.php
@@ -546,7 +546,7 @@ class Emsfb {
         $addonKeys = [
             'AdnSS' => 'SMS',
             'AdnATF' => 'AutoFill',
-            'AdnTlg' => 'Telegram',
+            'AdnTLG' => 'Telegram',
             'AdnPAP' => 'PayPal',
             'AdnSPF' => 'Stripe',
             'AdnPPF' => 'Persia Payment',

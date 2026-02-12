@@ -114,7 +114,7 @@ class Panel_edit  {
 								</ul>
 								<div class="efb d-flex">
 									<form class="efb d-flex">
-										<i class="efb  bi-search search-icon"></i>
+									<?php echo !$is_rtl ? '<i class="efb  bi-search search-icon"></i>' : '' ?>
 									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo $lang["search"]  ?> ..."  aria-label="<?php echo $lang["search"]  ?>">
 										<a class="efb btn efb btn-outline-pink mx-2 ec-efb" type="submit" id="track_code_btn_emsFormBuilder" data-eventform='searchCC'><?php echo   $lang["search"] ?></a>
 									</form>
@@ -251,7 +251,9 @@ class Panel_edit  {
 			if("fa_IR"==get_locale()){
 				/* wp_register_script('persia_pay-efb.js',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION , true);
 				wp_enqueue_script('persia_pay-efb.js'); */
-				$efbFunction->include_persia_efb();
+
+				//call this action for include persia js in admin panel if exist
+				do_action('efb_enqueue_persia');
 			}
 			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION , true);
 			wp_enqueue_script('stripe_js');

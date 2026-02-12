@@ -1120,7 +1120,7 @@ function fun_show_setting__emsFormBuilder() {
       <div class="efb mx-3 my-2">
         <div class="efb card-body mx-0 py-1 ${mxCSize4}">
           <label class="efb form-label mx-2 fs-6">توکن</label>
-          <input type="text" class="efb form-control w-75 h-d-efb border-d  efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''} " id="payToken_emsFormBuilder"placeholder="توکن" ${payToken !== "null" ? `value="${payToken}"` : ""} data-tab="${efb_var.text.payment}">
+          <input type="text" class="efb form-control w-75 h-d-efb border-d  efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''} " id="payToken_emsFormBuilder"placeholder="توکن" ${payToken !== "null" ? `value="${payToken}"` : ""} data-tab="${efb_var.text.payment}">
         </div>
       </div>
       </div>
@@ -1144,7 +1144,12 @@ function fun_show_setting__emsFormBuilder() {
   const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.stripe);
   const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
 
-
+  // Current plan badge
+  const planBadgeHtml = getCurrentPlanBadge_efb();
+  const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
+  console.log('package_type:', package_type);
+  console.log('efb_var.pro:', efb_var.pro);
+  console.log('efb_var.setting.package_type:', efb_var.setting.package_type);
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
             <h4 class="efb title-holder efb fs-4">
@@ -1173,11 +1178,11 @@ function fun_show_setting__emsFormBuilder() {
                                     <i class="efb  bi-gem m-3"></i>${efb_var.text.activationCode}
                                 </h5>
                                 <!-- 3.8.6 start -->
-                                ${efb_var.pro == true ||  efb_var.pro == 1 ? '' :`<a class="efb ${mxCSize} efb pointer-efb ec-efb" data-eventform="links" data-linkname="price">${efb_var.text.clickHereGetActivateCode}</a>`}
+                                ${package_type == 1 ? '' :`<a class="efb ${mxCSize} efb pointer-efb ec-efb" data-eventform="links" data-linkname="price">${efb_var.text.clickHereGetActivateCode}</a>`}
                                 <!-- 3.8.6 end -->
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.pro == true ||  efb_var.pro == 1 ? 'is-valid bg-light' : ''}" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""} data-tab="${efb_var.text.general}">
-                                ${efb_var.pro == true ||  efb_var.pro == 1 ? `<p class="efb text-darkb fs-6 mx-1 ">${efb_var.text.actvtcmsg}</p>` : '' }
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${package_type == 1 ? 'is-valid bg-light' : ''}" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""} data-tab="${efb_var.text.general}">
+                                ${package_type == 1 ? `<p class="efb text-darkb fs-6 mx-1 ">${efb_var.text.actvtcmsg}</p>` : '' }
                                     <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
                                 </div>
 
@@ -1185,6 +1190,9 @@ function fun_show_setting__emsFormBuilder() {
                                     <i class="efb  bi-layers m-3"></i>${efb_var.text.plnMng}
                                 </h5>
                                 <p class="efb  ${mxCSize} mobile-text">${efb_var.text.plnMngD}</p>
+                                <div class="efb d-flex align-items-center gap-2 mb-3 ${mxCSize}" id="efbCurrentPlanBadge">
+                                    ${planBadgeHtml}
+                                </div>
                                 <div class="efb card-body text-center py-1">
                                     <button type="button" class="efb btn efb btn-outline-primary btn-lg" onclick="showSetupAsOverlayPage()" id="changePlanBtn">
                                         <i class="efb  bi-gear mx-1 efb mobile-text"></i>${efb_var.text.chngPln}
@@ -1326,10 +1334,10 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="efb ${mxCSize}"><a target="_blank" href="https://youtu.be/JI7RojBgU_o">${efb_var.text.lmavt.replace('%s',efb_var.text.grecaptcha)}</a></p>
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.siteKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.googleKeys}">
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.googleKeys}">
                                 <span id="sitekey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                 <label class="efb  form-label mx-2 col-12  mt-4 fs-6">${efb_var.text.SecreTKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""} data-tab="${efb_var.text.googleKeys}">
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""} data-tab="${efb_var.text.googleKeys}">
                                 <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
 
@@ -1340,7 +1348,7 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="efb ${mxCSize} d-none">${efb_var.text.youNeedAPIgMaps}</p>
                             <div class="efb  d-none card-body mx-0 py-1 ${mxCSize4}">
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.aPIKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${proChckEvent} data-tab="${efb_var.text.googleKeys}">
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${proChckEvent} data-tab="${efb_var.text.googleKeys}">
                                 <span id="apikey_map_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
 
@@ -1356,13 +1364,13 @@ function fun_show_setting__emsFormBuilder() {
                                 <p class="efb ${mxCSize}">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
                                     <label class="efb form-label mx-2 fs-6">${efb_var.text.email}</label>
-                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""} data-tab="${efb_var.text.emailSetting}">
+                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""} data-tab="${efb_var.text.emailSetting}">
                                     <span id="email_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                     <span  class="efb bg-light text-dark form-control border-0  w-75 efb">${msg_email}</span>
                                 </div>
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
                                     <label class="efb form-label mx-2 fs-6">${efb_var.text.from}</label>
-                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder"  ${efb_var.pro != true  &&  efb_var.pro != 1 ? 'onclick="pro_show_efb(1)"' :''} placeholder="${'no-reply@'+ window.location.hostname}" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.emailSetting}">
+                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder"  ${efb_var.pro != true  &&  efb_var.pro != 1 ? 'onclick="pro_show_efb(1)"' :''} placeholder="${'no-reply@'+ window.location.hostname}" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.emailSetting}">
                                     <span id="femail_emsFormBuilder-message" class="efb  text-danger  w-75 efb"></span>
                                     <span  class="efb  form-control border-0  w-75 efb">${efb_var.text.msgfml}</span>
                                 </div>
@@ -1420,10 +1428,10 @@ function fun_show_setting__emsFormBuilder() {
                                 <!-- 3.8.6 end -->
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                   <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
                                   <span id="stripePKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
 
                               </div>
@@ -1434,10 +1442,10 @@ function fun_show_setting__emsFormBuilder() {
                                 <p class="efb ${mxCSize}">${paypalmessage} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('paypal')" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
                                   <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                     <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
-                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
                                     <span id="paypalPKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                     <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
+                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${proChckEvent} data-tab="${efb_var.text.payment}">
                                     <span id="paypalSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   </div>
                               </div>
@@ -1547,13 +1555,13 @@ function fun_show_setting__emsFormBuilder() {
                           <p class="efb ${mxCSize}">${efb_var.text.sms_dnoti}</p>
                           <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                           <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_admn_no}</label>
-                            <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^[\+0-9\(\)\-\s]+$" placeholder="+12345678900" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}" oninput="filterPhoneNumberInput_efb(this)" onkeypress="allowOnlyPhoneChars_efb(event)" title="Only numbers, +, (), -, and spaces are allowed">
+                            <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^[\+0-9\(\)\-\s]+$" placeholder="+12345678900" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}" oninput="filterPhoneNumberInput_efb(this)" onkeypress="allowOnlyPhoneChars_efb(event)" title="Only numbers, +, (), -, and spaces are allowed">
                             <span id="pno_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             <p class="efb m-2">${efb_var.text.sms_ndnoti}</p>
                           </div>
                         </div>
                         <!-- smsconfig Section end-->
-                        <button type="button" id="save-stng-efb" class="efb btn btn-r btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onclick="fun_set_setting_emsFormBuilder(0)">
+                        <button type="button" id="save-stng-efb" class="efb btn btn-r btn-primary btn-lg ${Number(efb_var.rtl) == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onclick="fun_set_setting_emsFormBuilder(0)">
                             <i class="efb  bi-save mx-1"></i>${efb_var.text.save}
                         </button>
                 </div>
@@ -1794,7 +1802,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     }
     return true;
   }
-  const ids = ['paypalSKey_emsFormBuilder', 'paypalPKey_emsFormBuilder', 'stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder','osLocationPicker_emsFormBuilder', 'sessionDuration_emsFormBuilder'];
+  const ids = ['paypalSKey_emsFormBuilder', 'paypalPKey_emsFormBuilder', 'stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder','osLocationPicker_emsFormBuilder', 'sessionDuration_emsFormBuilder'];
   let state = true
 
   for (let id of ids) {
@@ -1821,7 +1829,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     //  const trackingcode = f(`trackingcode_emsFormBuilder`);
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
     //let smtp = f('smtp_emsFormBuilder')
-    const bootstrap = f('bootstrap_emsFormBuilder');
+   // const bootstrap = f('bootstrap_emsFormBuilder');
     const osLocationPicker = f('osLocationPicker_emsFormBuilder');
     const scaptcha = f('scaptcha_emsFormBuilder');
 
@@ -1857,7 +1865,26 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     //console.log(temp)
     const phoneNumbers = temp.length<5 ? 'null' : temp;
     let AdnSPF=AdnOF=AdnPPF=AdnATC=AdnSS=AdnCPF=AdnESZ=AdnSE=
-    AdnWHS=AdnPAP=AdnWSP=AdnSMF=AdnPLF=AdnMSF=AdnBEF=AdnPDP=AdnADP=0
+    AdnWHS=AdnPAP=AdnWSP=AdnSMF=AdnPLF=AdnMSF=AdnBEF=AdnPDP=AdnADP=AdnATF=AdnTLG=0
+                    	/*
+            AdnSPF == stripe payment
+            AdnOF == offline form
+            AdnPPF == persia payment
+            AdnATC == advance tracking code
+            AdnSS == sms service
+            AdnCPF == crypto payment
+            AdnESZ == zone picker
+            AdnSE == email service
+             AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
+            'AdnPDP'=> persian data picker,
+			'AdnADP'=> arabic data picker
+        */
     if(valueJson_ws_setting.hasOwnProperty('AdnSPF')){
       AdnSPF=valueJson_ws_setting.AdnSPF;
       AdnOF=valueJson_ws_setting.AdnOF;
@@ -1876,6 +1903,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
       AdnBEF=valueJson_ws_setting.AdnBEF;
       AdnPDP=valueJson_ws_setting.hasOwnProperty('AdnPDP') ?valueJson_ws_setting.AdnPDP :0;
       AdnADP=valueJson_ws_setting.hasOwnProperty('AdnADP') ? valueJson_ws_setting.AdnADP :0;
+      AdnATF=valueJson_ws_setting.hasOwnProperty('AdnATF') ? valueJson_ws_setting.AdnATF :0;
+      AdnTLG=valueJson_ws_setting.hasOwnProperty('AdnTLG') ? valueJson_ws_setting.AdnTLG :0;
     }
     const email_key_efb = valueJson_ws_setting.email_key ??  Math.random().toString(36).substr(2, 10);
     fun_send_setting_emsFormBuilder(
@@ -2392,7 +2421,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   let publicRows = [];
   let options = {};
   let body = `
-  <div class="efb  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="overpage">
+  <div class="efb  ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="overpage">
     <div id="overpage-chart">
         ${efbLoadingCard('',4)}
     </div>
@@ -2578,7 +2607,7 @@ function EmailTemp1Efb() {
   <meta name='viewport' content='width=device-width, initial-scale=1.0;'>
    <meta name='format-detection' content='telephone=no'/>
   <style>
-  body { margin: 0; padding: 0; min-width: 100%; width: 100% !important; height: 100% !important; ${efb_var.rtl == 1 ? `direction:rtl;` : ''}}
+  body { margin: 0; padding: 0; min-width: 100%; width: 100% !important; height: 100% !important; ${Number(efb_var.rtl) == 1 ? `direction:rtl;` : ''}}
   body, table, td, div, p, a { -webkit-font-smoothing: antialiased; text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; line-height: 100%; }
   table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse !important; border-spacing: 0; }
   img { border: 0; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }

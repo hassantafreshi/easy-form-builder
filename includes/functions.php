@@ -432,6 +432,8 @@ class efbFunction {
 			"startWithFree" => $state && isset($ac->text->startWithFree) ? $ac->text->startWithFree : esc_html__('Start with Free','easy-form-builder'),
 			/* translators: Free Plus = plan name for enhanced free version */
 			"freePlus" => $state && isset($ac->text->freePlus) ? $ac->text->freePlus : esc_html__('Free Plus','easy-form-builder'),
+			/* translators: Pro Pending = label for pending professional plan */
+			"proPending" => $state && isset($ac->text->proPending) ? $ac->text->proPending : esc_html__('Pro Pending','easy-form-builder'),
 			/* translators: Recommended = label for suggested plan */
 			"recommended" => $state && isset($ac->text->recommended) ? $ac->text->recommended : esc_html__('Recommended','easy-form-builder'),
 			/* translators: Best Value = label indicating the best price/value ratio */
@@ -1165,6 +1167,7 @@ class efbFunction {
 			"INAddonMsg" => $state  &&  isset($ac->text->INAddonMsg) ? $ac->text->INAddonMsg : esc_html__('Go to the Add-ons page in the Easy Form Builder plugin, install the %s add-on, and try again.','easy-form-builder'),
 			/* translators: %s: Payment add-on name */
 			"IMAddonPMsg" => $state && isset($ac->text->IMAddonPMsg) ? $ac->text->IMAddonPMsg  : esc_html__('To Create a payment form to collect online payments, install a payment add-on such as the %s Add-on first.', 'easy-form-builder'),
+			"activated" => $state  &&  isset($ac->text->activated) ? $ac->text->activated : esc_html__('Activated','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank','easy-form-builder'),
 
 
@@ -1262,8 +1265,11 @@ class efbFunction {
 			/* translators: Change Plan = button label to switch subscription plan */
 			"chngPln" => $state && isset($ac->text->chngPln) ? $ac->text->chngPln : esc_html__('Change Plan','easy-form-builder'),
 
-			/* translators: Description under Change Plan button */
-			"plnMngSw" => $state && isset($ac->text->plnMngSw) ? $ac->text->plnMngSw : esc_html__('Switch between Free, Free Plus, and Pro plans.','easy-form-builder'),
+			/* translators: Description under Change Plan button - explains clicking opens plan selection */
+			"plnMngSw" => $state && isset($ac->text->plnMngSw) ? $ac->text->plnMngSw : esc_html__('Click to view and choose from Free, Free Plus, or Pro plans.','easy-form-builder'),
+
+			/* translators: Current Plan = label showing the user's active plan */
+			"crntPln" => $state && isset($ac->text->crntPln) ? $ac->text->crntPln : esc_html__('Current Plan','easy-form-builder'),
 
 		];
 
@@ -3000,7 +3006,7 @@ public function addon_add_efb($value) {
 					AdnELM == Elemntor
 					AdnGTB == Gutnberg
 					AdnPFA == Private Form Advanced
-					AdnTlg == Telegram
+					AdnTLG == Telegram
 
 				*/
 		$addons = [
@@ -3015,7 +3021,7 @@ public function addon_add_efb($value) {
 			'AdnPDP' => 0,
 			'AdnADP' => 0,
 			'AdnPAP' => 0,
-			'AdnTlg' => 0,
+			'AdnTLG' => 0,
 		];
 		if($ac!=null && isset($ac->AdnSPF)==true){
 			$addons['AdnSPF'] = intval($ac->AdnSPF);
@@ -3029,7 +3035,7 @@ public function addon_add_efb($value) {
 			$addons["AdnPDP"] = isset($ac->AdnPDP) ? intval($ac->AdnPDP) : 0;
 			$addons["AdnADP"] = isset($ac->AdnADP) ? intval($ac->AdnADP) : 0;
 			$addons["AdnPAP"]=  isset($ac->AdnPAP) ? intval($ac->AdnPAP) : 0;
-			$addons["AdnTlg"]=  isset($ac->AdnTlg) ? intval($ac->AdnTlg) : 0;
+			$addons["AdnTLG"]=  isset($ac->AdnTLG) ? intval($ac->AdnTLG) : 0;
 		}
 
 		return $addons;

@@ -222,8 +222,7 @@ class Create {
 			if(isset($settings->smtp) && (bool)$settings->smtp){$smtp=1;}else if(isset($settings->smtp) && (bool)$settings->smtp==false){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
 		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		if("fa_IR"==get_locale()){
-
-			$efbFunction->include_persia_efb();
+			do_action('efb_enqueue_persia');
 		}
 		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
 		wp_enqueue_script('stripe_js');

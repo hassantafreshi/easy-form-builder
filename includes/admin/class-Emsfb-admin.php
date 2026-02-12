@@ -328,7 +328,7 @@ class Admin {
 
         // ذخیره تنظیمات تلگرام
         if(isset($valp[0]['telegramnoti']) && intval($valp[0]['telegramnoti'])==1 ){
-            $telegram_exists = get_option('emsfb_addon_AdnTlg', false);
+            $telegram_exists = get_option('emsfb_addon_AdnTLG', false);
             $telegram_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
 
             if(!$telegram_exists || !$telegram_file_exist) {
@@ -667,7 +667,7 @@ class Admin {
         // بررسی وجود تنظیمات تلگرام
         $telegramnoti = strpos($value,'\"telegramnoti\":\"1\"') !==false ? 1 : 0;
         if($telegramnoti){
-            $telegram_exists = get_option('emsfb_addon_AdnTlg', false);
+            $telegram_exists = get_option('emsfb_addon_AdnTLG', false);
             $telegram_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
             if($telegram_exists !== false && $telegram_file_exist) {
                 require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
@@ -1797,23 +1797,26 @@ function admin_notices_efb () {
         // Process plan selection based on type
         $redirect_url = null;
         $action_performed = null;
-
+        $package_type_efb = 2;
         switch($selected_plan) {
             case 'free':
                 // free = 0 (no action required)
                 update_option('emsfb_pro', 2);
                 $action_performed = __('Free plan activated - no additional features.', 'easy-form-builder');
+
                 break;
 
             case 'free_plus':
                 // free_plus = 3 (set option to 3)
                 update_option('emsfb_pro', 3);
                 $action_performed = __('Free Plus plan activated with enhanced features.', 'easy-form-builder');
+                $package_type_efb =3;
                 break;
 
             case 'pro':
                 // pro => redirect to whitestudio.team/#price
                 $redirect_url = 'https://whitestudio.team/#price';
+                $package_type_efb =0;
                 // Check if site language is Persian (Farsi)
                 if (get_locale() == 'fa_IR') {
                     $redirect_url = 'https://easyformbuilder.ir/#price';
@@ -1833,7 +1836,8 @@ function admin_notices_efb () {
             'action' => $action_performed,
             'redirect_url' => $redirect_url,
             'timestamp' => $timestamp,
-            'saved_at' => current_time('mysql')
+            'saved_at' => current_time('mysql'),
+            'package_type' =>$package_type_efb
         );
 
 

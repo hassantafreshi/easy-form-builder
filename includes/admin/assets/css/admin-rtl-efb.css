@@ -6,16 +6,16 @@ input[type="email"]:-moz-placeholder.efb {    text-align: right;}
 input[type="email"]:-ms-input-placeholder.efb {    text-align: right;}
 input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
 .btn-edit-holder.efb {    float: left!important;margin-top: -40px;margin-left: 2%!important;margin-right: 62%!important;margin-right: 73%;position: relative;z-index: 10;}
-.search-icon.efb {    position: relative;    right: 45px;left: 0px!important;;}
+.search-icon.efb {    position: relative;    right: 40px;left: 0px!important;;}
 .description-logo.efb{float: right!important;}
 @media screen and (min-width: 1000px) {
-  
-    
+
+
     /*  .col-md-12 .efb.ttiptext.show {
         margin: -30px +92px 0 0!important;
-    
+
     }  */
-  
+
   }
 /* .efb.ttiptext.show {
     width: fit-content!important;
@@ -34,7 +34,7 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
 
  .efb.form-check-inline .efb.form-check-input {
     float: right;
-} 
+}
 .efb.listContent{margin-right: 4px!important;}
 
 .efblist::before {
@@ -46,11 +46,11 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
      .efb.listContent{		width: max-content!important;}
 
      .efb.def.col-md-12 .efb.ttiptext ,
-     .efb.def.col-md-8 .efb.ttiptext, 
-     .efb.def.col-md-6 .efb.ttiptext, 
+     .efb.def.col-md-8 .efb.ttiptext,
+     .efb.def.col-md-6 .efb.ttiptext,
      .efb.def.col-md-4 .efb.ttiptext {	margin: -30px 70px 0px 0px!important;font-size: 12px!important; };
  }
- 
+
  .efb.unpx {
     margin: -32px -54px 0px 0!important;
     font-size: 10px!important;
@@ -79,7 +79,7 @@ div#gRecaptcha {
 .iti__country-list{
 	/* text-align: inherit!important; */
 	position: relative!important;
-} 
+}
 
 .iti__country{
 	direction: ltr;

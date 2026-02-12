@@ -3466,7 +3466,7 @@ function highlightSelectedPlan_efb() {
             // اضافه کردن علامت انتخاب
             const checkmark = document.createElement('div');
             checkmark.className = 'efb-plan-checkmark';
-            checkmark.innerHTML = '<i class="bi bi-check-circle-fill"></i> Selected';
+            checkmark.innerHTML = '<i class="bi bi-check-circle-fill"></i>'+efb_var.text.activated;
             card.querySelector('.efb-card-content').appendChild(checkmark);
         }
     });
@@ -3504,7 +3504,14 @@ function sendPlanSelectionToServer_efb(selectionData) {
     console.log('Sending plan selection to server:', selectionData);
     console.log('Using AJAX URL:', efb_var.ajax_url);
     console.log('Using nonce:', efb_var.nonce);
-
+    const user_selected = selectionData.selected_plan || 'unknown';
+    if(user_selected === 'pro') {
+      sessionStorage.setItem('efb_license_selected', '4');
+    }else if(user_selected === 'free_plus') {
+      sessionStorage.setItem('efb_license_selected', '3');
+    }else if(user_selected === 'free') {
+      sessionStorage.setItem('efb_license_selected', '2');
+    }
     // ارسال AJAX به سرور
     jQuery.ajax({
         url: efb_var.ajax_url,
@@ -3521,6 +3528,7 @@ function sendPlanSelectionToServer_efb(selectionData) {
                 console.log('Server response message:', response.data.message);
                 console.log('Saved plan:', response.data.plan);
                 console.log('Action performed:', response.data.action);
+                console.log('package_type performed:', response.data.package_type);
 
                 // Handle redirect for Pro plan
                 if (response.data.redirect_url) {
@@ -3532,6 +3540,7 @@ function sendPlanSelectionToServer_efb(selectionData) {
                 // Show success message to user
                 if (response.data.action) {
                     // You can add a toast notification here if you have a notification system
+                    updatePlanBadge_efb();
                     console.log('Plan action completed:', response.data.action);
                 }
 
@@ -4019,7 +4028,54 @@ function closeSetupOverlay_efb() {
             document.body.style.overflow = '';
             // Remove escape key listener
             document.removeEventListener('keydown', handleOverlayEscape_efb);
+            // Refresh the plan badge in settings
+            updatePlanBadge_efb();
         }, 300);
+    }
+}
+
+/**
+ * Returns the current plan badge HTML based on efb_var.pro and package_type
+ */
+sessionStorage.setItem('efb_license_selected', efb_var.setting.package_type);
+function getCurrentPlanBadge_efb() {
+  const crntPlnLabel = (efb_var.text && efb_var.text.crntPln) || 'Current Plan';
+  const pro_type = sessionStorage.getItem('efb_license_selected') ? Number(sessionStorage.getItem('efb_license_selected')) : Number(efb_var.pro);
+  if(Number(efb_var.rtl)==1){
+    icon_mx = 'ms-2';
+    div_mx = 'me-1';
+  }
+    let badgeClass = 'bg-secondary';
+    let planName = (efb_var.text && efb_var.text.free) || 'Free';
+    let icon_mx = 'me-2';
+    let div_mx = 'ms-1';
+    let iconHtml = `<i class="efb bi-tag ${icon_mx}"></i>`;
+    if (pro_type === 1) {
+        badgeClass = 'bg-info';
+        iconHtml = `<i class="efb bi-gem ${icon_mx}"></i>`;
+        planName = (efb_var.text && efb_var.text.pro) || 'Pro';
+    } else if (pro_type === 3) {
+        badgeClass = 'bg-primary';
+        iconHtml = `<i class="efb bi-star-fill ${icon_mx}"></i>`;
+        planName = (efb_var.text && efb_var.text.freePlus) || 'Free Plus';
+    } else if (pro_type === 4) {
+        badgeClass = 'bg-dark ';
+        iconHtml = `<i class="efb bi-hourglass ${icon_mx}"></i>`;
+        //یک عبارت بنویس که برای فعال سازی لایسنس پرو در حال انتظار است
+        planName = (efb_var.text && efb_var.text.proPending) || 'Pro Pending';
+    }
+
+    return `<span class="efb text-muted fs-6">${crntPlnLabel}:</span>
+            <span class="efb badge rounded-4 ${badgeClass} fs-6 ${div_mx} py-2">${iconHtml}${planName}</span>`;
+}
+
+/**
+ * Updates the plan badge in the settings General tab after plan change
+ */
+function updatePlanBadge_efb() {
+    const container = document.getElementById('efbCurrentPlanBadge');
+    if (container) {
+        container.innerHTML = getCurrentPlanBadge_efb();
     }
 }
 
