@@ -3503,42 +3503,129 @@ let optionElpush_efb = async (parent, value, rndm, op, tag) => {
 function create_dargAndDrop_el() {
 
   const dropZoneEFB = document.getElementById("dropZoneEFB");
+  let _efbDropTarget = null; // tracks which field to insert before/after
+  let _efbDropPos = 'after'; // 'before' or 'after'
 
+  // --- helper: remove all drop indicators ---
+  const _efbClearIndicators = () => {
+    document.querySelectorAll('.efb-drop-indicator').forEach(el => el.remove());
+    document.querySelectorAll('.efb-drop-above, .efb-drop-below').forEach(el => {
+      el.classList.remove('efb-drop-above', 'efb-drop-below');
+    });
+  };
+
+  // --- helper: find the closest top-level field element from event target ---
+  const _efbClosestField = (target) => {
+    let el = target;
+    while (el && el !== dropZoneEFB) {
+      // top-level children of dropZoneEFB that are fields (setion/section/div with efbField or stepNavEfb)
+      if (el.parentNode === dropZoneEFB && (el.classList.contains('efbField') || el.classList.contains('showBtns') || el.dataset.tag === 'buttonNav' || el.id === 'button_group_efb')) {
+        return el;
+      }
+      // also handle direct children that are <setion>
+      if (el.parentNode === dropZoneEFB && el.tagName && (el.tagName.toLowerCase() === 'setion' || el.tagName.toLowerCase() === 'section')) {
+        return el;
+      }
+      el = el.parentNode;
+    }
+    return null;
+  };
+
+  // --- dragover: show drop indicator above/below nearest field ---
   dropZoneEFB.addEventListener("dragover", (event) => {
     event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+
+    const fieldEl = _efbClosestField(event.target);
+    if (!fieldEl || fieldEl.id === 'button_group_efb' || fieldEl.dataset.tag === 'buttonNav') {
+      // hovering over empty area or buttons -> append to end
+      _efbClearIndicators();
+      _efbDropTarget = null;
+      _efbDropPos = 'after';
+      return;
+    }
+
+    const rect = fieldEl.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    const pos = event.clientY < midY ? 'before' : 'after';
+
+    // Skip adding indicator for step elements (cannot insert before first step)
+    if (fieldEl.classList.contains('stepNavEfb') && pos === 'before') {
+      // check if this is the first step
+      const prevSib = fieldEl.previousElementSibling;
+      if (!prevSib || prevSib.classList.contains('stepNavEfb') || !prevSib.classList.contains('efbField')) {
+        _efbDropTarget = fieldEl;
+        _efbDropPos = 'after';
+        _efbClearIndicators();
+        fieldEl.classList.add('efb-drop-below');
+        return;
+      }
+    }
+
+    if (_efbDropTarget === fieldEl && _efbDropPos === pos) return; // no change
+
+    _efbClearIndicators();
+    _efbDropTarget = fieldEl;
+    _efbDropPos = pos;
+
+    if (pos === 'before') {
+      fieldEl.classList.add('efb-drop-above');
+    } else {
+      fieldEl.classList.add('efb-drop-below');
+    }
   });
+
+  dropZoneEFB.addEventListener("dragleave", (event) => {
+    // only clear if leaving the dropzone entirely
+    if (!dropZoneEFB.contains(event.relatedTarget)) {
+      _efbClearIndicators();
+      _efbDropTarget = null;
+    }
+  });
+
   for (const el_efb of document.querySelectorAll(".draggable-efb")) {
-    //console.log(`added =>.draggable-efb[el.id]`)
 
     el_efb.addEventListener("dragstart", (event) => {
-
-      //console.log(`create_dargAndDrop_el[dragstart][${el_efb.id}]`)
       event.dataTransfer.setData("text/plain", el_efb.id)
-
+      event.dataTransfer.effectAllowed = 'copy';
     });
 
     el_efb.addEventListener("click", (event) => {
-
       if( document.body.classList.contains('mobile')==false && (el_efb.getAttribute('draggable')==true ||el_efb.getAttribute('draggable')=="true") ){
-
         fun_efb_add_el(el_efb.id);}
       });
   }
+
   dropZoneEFB.addEventListener("drop", (event) => {
-    // Add new element to dropZoneEFB
-
     event.preventDefault();
-    if (event.dataTransfer.getData("text/plain") !== "step" && event.dataTransfer.getData("text/plain") != null && event.dataTransfer.getData("text/plain") != "") {
-      const rndm = Math.random().toString(36).substr(2, 9);
-      const t = event.dataTransfer.getData("text/plain");
+    _efbClearIndicators();
 
-
-      fun_efb_add_el(t);
+    const t = event.dataTransfer.getData("text/plain");
+    if (t !== "step" && t != null && t != "") {
+      // determine insert-after element for position-based insertion
+      let insertAfterEl = null;
+      if (_efbDropTarget) {
+        if (_efbDropPos === 'before') {
+          // insert before _efbDropTarget = insert after previous sibling
+          insertAfterEl = _efbDropTarget.previousElementSibling;
+          // if no previous sibling, insertAfterEl stays null -> prepend
+          // Also determine the correct step from the target
+          if (_efbDropTarget.dataset && _efbDropTarget.dataset.step) {
+            step_el_efb = Number(_efbDropTarget.dataset.step) || step_el_efb;
+          }
+        } else {
+          // insert after _efbDropTarget
+          insertAfterEl = _efbDropTarget;
+          if (_efbDropTarget.dataset && _efbDropTarget.dataset.step) {
+            step_el_efb = Number(_efbDropTarget.dataset.step) || step_el_efb;
+          }
+        }
+      }
+      fun_efb_add_el(t, insertAfterEl);
     }
 
-
-
-    //enableDragSort('dropZoneEFB');
+    _efbDropTarget = null;
+    _efbDropPos = 'after';
   }); // end drogZone
 
 
@@ -3979,28 +4066,61 @@ const delete_option_efb = (id) => {
 
 
 
-fun_efb_add_el = (t) => {
+fun_efb_add_el = (t, insertAfterEl) => {
 
   const rndm = Math.random().toString(36).substr(2, 9);
-
+  const dropZoneEFB = document.getElementById('dropZoneEFB');
 
 
   if (t == "steps" && valj_efb.length < 2) { return; }
   if (valj_efb.length < 2) { dropZoneEFB.innerHTML = "", dropZoneEFB.classList.add('pb') }
+
+  // --- helper: insert HTML string at position ---
+  const _insertElHtml = (html, afterEl) => {
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const nodes = Array.from(temp.children);
+    let lastInserted = null;
+    if (afterEl && afterEl.parentNode === dropZoneEFB) {
+      let ref = afterEl.nextSibling;
+      nodes.forEach(node => {
+        dropZoneEFB.insertBefore(node, ref);
+        lastInserted = node;
+      });
+    } else if (afterEl === null && dropZoneEFB.firstChild) {
+      // prepend
+      let ref = dropZoneEFB.firstChild;
+      nodes.forEach(node => {
+        dropZoneEFB.insertBefore(node, ref);
+        lastInserted = node;
+      });
+    } else {
+      // append normally
+      nodes.forEach(node => {
+        dropZoneEFB.appendChild(node);
+        lastInserted = node;
+      });
+    }
+    return lastInserted;
+  };
+
+  let lastInsertedNode = null;
 
   if (t == "address" || t == "name") {
 
     const olist = [
       { n: 'name', t: "firstName" }, { n: 'name', t: "lastName" },
       { n: 'address', t: "conturyList" }, { n: 'address', t: "stateProvince" } , { n: 'address', t: "cityList" }, { n: 'address', t: "address_line" }  ,{ n: 'address', t: "postalcode" }
-
     ]
-    //if(t=="address") olist = [{ n: 'address', t: "country" }, { n: 'address', t: "statePro" } , { n: 'address', t: "city" }  ]
     for (const ob of olist) {
-
       if (ob.n == t) {
-                let el = addNewElement(ob.t, Math.random().toString(36).substr(2, 9), false, false);
-        dropZoneEFB.innerHTML += el;
+        let el = addNewElement(ob.t, Math.random().toString(36).substr(2, 9), false, false);
+        if (insertAfterEl !== undefined && insertAfterEl !== 'APPEND') {
+          lastInsertedNode = _insertElHtml(el, insertAfterEl);
+          insertAfterEl = lastInsertedNode; // chain: next field goes after this one
+        } else {
+          dropZoneEFB.innerHTML += el;
+        }
       }
     }
 
@@ -4008,7 +4128,11 @@ fun_efb_add_el = (t) => {
 
     let el = addNewElement(t, rndm, false, false);
     if(el!='null'){
-      dropZoneEFB.innerHTML += el;
+      if (insertAfterEl !== undefined && insertAfterEl !== 'APPEND') {
+        lastInsertedNode = _insertElHtml(el, insertAfterEl);
+      } else {
+        dropZoneEFB.innerHTML += el;
+      }
       switch(t){
         case 'mobile':
           break;
@@ -4020,12 +4144,16 @@ fun_efb_add_el = (t) => {
     }
   }
 
+  // Re-sort valj_efb based on current DOM order after positional insert
+  if (insertAfterEl !== undefined && insertAfterEl !== 'APPEND') {
+    sort_obj_el_efb_();
+  }
+
   fub_shwBtns_efb();
 
   if (t == 'maps') {
     const indx = valj_efb.findIndex(x => x.id_ == rndm);
       setTimeout(() => {
-        // Check if map function is available
         if (typeof efbCreateMap === 'function') {
           efbCreateMap(rndm ,valj_efb[indx],false);
         } else {
@@ -4035,9 +4163,8 @@ fun_efb_add_el = (t) => {
 
   }
   setTimeout(() => {
-    const vl = dropZoneEFB.lastElementChild;
-    //console.log('last child',vl)
-    active_element_efb(vl);
+    let vl = lastInsertedNode || dropZoneEFB.lastElementChild;
+    if (vl && typeof active_element_efb === 'function') active_element_efb(vl);
   }, 80);
 }
 

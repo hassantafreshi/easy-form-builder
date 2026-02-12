@@ -66,9 +66,48 @@ function efb_var_waitng(time) {
 efb_var_waitng(50)
 function fub_shwBtns_efb() {
   for (const el of document.querySelectorAll(".showBtns")) {
-    el.addEventListener("click", (e) => {
-      active_element_efb(el);
-    });
+    // Click handler (works on both mobile and desktop)
+    if (!el._efbClickBound) {
+      el.addEventListener("click", (e) => {
+        active_element_efb(el);
+      });
+      el._efbClickBound = true;
+    }
+
+    // Hover handlers for desktop: show/hide control buttons on mouseenter/mouseleave
+    if (!el._efbHoverBound) {
+      el.addEventListener("mouseenter", (e) => {
+        const btnHolder = el.querySelector('.btn-edit-holder');
+        if (btnHolder && btnHolder.classList.contains('d-none')) {
+          btnHolder.classList.remove('d-none');
+          btnHolder.classList.add('efb-hover-visible');
+        }
+        el.classList.add('efb-field-hover');
+      });
+      el.addEventListener("mouseleave", (e) => {
+        const btnHolder = el.querySelector('.btn-edit-holder');
+        // Only hide if it was shown by hover (not by active selection)
+        if (btnHolder && btnHolder.classList.contains('efb-hover-visible')) {
+          const dataId = el.dataset.id || '';
+          if (typeof activeEl_efb !== 'undefined' && activeEl_efb !== dataId) {
+            btnHolder.classList.add('d-none');
+          }
+          btnHolder.classList.remove('efb-hover-visible');
+        }
+        el.classList.remove('efb-field-hover');
+      });
+      el._efbHoverBound = true;
+    }
+
+    // Touch handler for mobile: toggle on tap
+    if (!el._efbTouchBound) {
+      el.addEventListener("touchend", (e) => {
+        // Prevent double-fire with click
+        if (e.cancelable) e.preventDefault();
+        active_element_efb(el);
+      }, { passive: false });
+      el._efbTouchBound = true;
+    }
   }
 }
 function pro_show_efb(state) {
