@@ -206,20 +206,37 @@ function fun_emsFormBuilder_render_view(x) {
   fun_backButton_efb(2);
 
   function creatRowsFormsEFB(i, newM) {
+    const fid = Number(i.form_id);
+    const sc = '[EMS_Form_Builder id=' + fid + ']';
     // v3.8.6 start
-    return ` <tr class="efb pointer-efb efb" id="emsFormBuilder-tr-${Number(i.form_id)}" >
-   <th scope="row" class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" >
-     [EMS_Form_Builder id=${Number(i.form_id)}]
+    return ` <tr class="efb pointer-efb efb" id="emsFormBuilder-tr-${fid}" >
+   <th scope="row" class="efb emsFormBuilder-tr" data-id="${fid}" data-label="${efb_var.text.formCode}">
+     <span class="efb d-inline-flex align-items-center gap-1">
+       <code class="efb text-muted user-select-all" style="font-size:0.85em">${sc}</code>
+       <button type="button" class="efb btn btn-sm btn-outline-secondary border-0 px-1 py-0" onclick="event.stopPropagation();copyShortcode_efb('${sc}',this,'shortcode')" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.copy}">
+         <i class="efb bi-clipboard"></i>
+       </button>
+     </span>
    </th>
-   <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}">${sanitize_text_efb(i.form_name)}</td>
-   <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}">${sanitize_text_efb(i.form_create_date)}</td>
-   <td  class="efb" >
-   <button type="button" class="efb zindex-100  btn btn-comment btn-sm ec-efb" data-id="${Number(i.form_id)}" data-eventform="message"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? sanitize_text_efb(efb_var.text.newResponse) : sanitize_text_efb(efb_var.text.read)}">${newM == true ? `<div class="efb nmsgefb"><i class="efb  bi-chat-dots-fill ec-efb" data-id="${Number(i.form_id)}" data-eventform="message"></i></div>` : `<i class="efb  bi-chat text-muted ec-efb" data-id="${Number(i.form_id)}" data-eventform="message"></i>`}</button>
-   <button type="button" class="efb zindex-100  btn btn-delete btn-sm ec-efb" data-id="${Number(i.form_id)}" data-eventform="delete" data-formname="${sanitize_text_efb(i.form_name)}"   data-bs-toggle="tooltip" data-bs-placement="bottom" title="${sanitize_text_efb(efb_var.text.delete)}"><i class="efb  bi-trash ec-efb"  data-id="${Number(i.form_id)}" data-eventform="delete" data-formname="${sanitize_text_efb(i.form_name)}"></i></button>
-   <button type="button" class="efb zindex-100  btn btn-delete btn-sm bg-info ec-efb" data-id="${Number(i.form_id)}" data-eventform="duplicate" data-formname="${sanitize_text_efb(i.form_name)}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${sanitize_text_efb(efb_var.text.duplicate)}" id="${Number(i.form_id)}-dup-efb"><i class="efb  bi-clipboard-plus ec-efb" data-id="${Number(i.form_id)}" data-eventform="duplicate" data-formname="${sanitize_text_efb(i.form_name)}"></i> </button>
-   <button type="button" class="efb zindex-100 btn-action-edit btn-sm ec-efb" data-id="${Number(i.form_id)}" data-eventform="edit"  data-id="${Number(i.form_id)}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${sanitize_text_efb(efb_var.text.edit)}"><i class="efb  bi-pencil ec-efb" data-id="${Number(i.form_id)}" data-eventform="edit"></i></button>
-   <button type="button" class="efb btn-r d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check ec-efb" data-id="${Number(i.form_id)}" data-eventform="copy"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.copy}"> </button>
-   <input type="text"  class="efb  d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${Number(i.form_id)}-fc">
+   <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" data-label="${efb_var.text.formName}">${sanitize_text_efb(i.form_name)}</td>
+   <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" data-label="${efb_var.text.createDate}">${sanitize_text_efb(i.form_create_date)}</td>
+   <td class="efb efb-actions-cell" data-label="${efb_var.text.actions}">
+     <div class="efb-actions-group">
+       <button type="button" class="efb efb-act-btn efb-act-msg ec-efb ${newM ? 'efb-has-badge' : ''}" data-id="${Number(i.form_id)}" data-eventform="message" data-bs-toggle="tooltip" data-bs-placement="top" title="${newM == true ? sanitize_text_efb(efb_var.text.newResponse) : sanitize_text_efb(efb_var.text.read)}" aria-label="${newM == true ? sanitize_text_efb(efb_var.text.newResponse) : sanitize_text_efb(efb_var.text.read)}">
+         <i class="efb ${newM ? 'bi-chat-dots-fill' : 'bi-chat'} ec-efb" data-id="${Number(i.form_id)}" data-eventform="message"></i>
+         ${newM ? '<span class="efb-noti-badge" role="status" aria-label="' + sanitize_text_efb(efb_var.text.newResponse) + '"></span>' : ''}
+       </button>
+       <button type="button" class="efb efb-act-btn efb-act-edit ec-efb" data-id="${Number(i.form_id)}" data-eventform="edit" data-bs-toggle="tooltip" data-bs-placement="top" title="${sanitize_text_efb(efb_var.text.edit)}" aria-label="${sanitize_text_efb(efb_var.text.edit)}">
+         <i class="efb bi-pencil ec-efb" data-id="${Number(i.form_id)}" data-eventform="edit"></i>
+       </button>
+       <button type="button" class="efb efb-act-btn efb-act-dup ec-efb" data-id="${Number(i.form_id)}" data-eventform="duplicate" data-formname="${sanitize_text_efb(i.form_name)}" data-bs-toggle="tooltip" data-bs-placement="top" title="${sanitize_text_efb(efb_var.text.duplicate)}" id="${Number(i.form_id)}-dup-efb" aria-label="${sanitize_text_efb(efb_var.text.duplicate)}">
+         <i class="efb bi-clipboard-plus ec-efb" data-id="${Number(i.form_id)}" data-eventform="duplicate" data-formname="${sanitize_text_efb(i.form_name)}"></i>
+       </button>
+       <button type="button" class="efb efb-act-btn efb-act-delete ec-efb" data-id="${Number(i.form_id)}" data-eventform="delete" data-formname="${sanitize_text_efb(i.form_name)}" data-bs-toggle="tooltip" data-bs-placement="top" title="${sanitize_text_efb(efb_var.text.delete)}" aria-label="${sanitize_text_efb(efb_var.text.delete)}">
+         <i class="efb bi-trash3 ec-efb" data-id="${Number(i.form_id)}" data-eventform="delete" data-formname="${sanitize_text_efb(i.form_name)}"></i>
+       </button>
+     </div>
+     <input type="text" class="efb d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${Number(i.form_id)}-fc">
    </td>
   </tr>
   `
@@ -285,6 +302,55 @@ function fun_emsFormBuilder_render_view(x) {
 
 function emsFormBuilder_waiting_response() {
   document.getElementById('emsFormBuilder-list').innerHTML = efbLoadingCard('',5)
+}
+
+
+/**
+ * Show a toast notification
+ * @param {string} icon - Bootstrap icon class (e.g. 'bi-check-circle-fill', 'bi-x-circle-fill')
+ * @param {string} message - The message to display
+ * @param {string} [type='success'] - Toast type: 'success' | 'error' | 'info' | 'warning'
+ */
+function toast_efb(icon, message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.className = 'efb-copy-toast efb-toast-' + type;
+  toast.innerHTML = '<i class="efb ' + icon + ' me-2"></i>' + message;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
+
+/**
+ * Copy shortcode to clipboard and show a toast notification
+ * @param {string} text - The shortcode text to copy
+ * @param {HTMLElement} btn - The button element that was clicked
+ */
+function copyShortcode_efb(text, btn ,type ='shortcode') {
+  navigator.clipboard.writeText(text).then(() => {
+    // Change icon to checkmark briefly
+    const icon = btn.querySelector('i');
+    if (icon) {
+      icon.className = 'efb bi-clipboard-check text-success';
+      setTimeout(() => { icon.className = 'efb bi-clipboard'; }, 2000);
+    }
+    const message = efb_var.text[type] || '';
+    const copiedMessage = efb_var.text.copied.replace('%s', message);
+    toast_efb('bi-check-circle-fill', copiedMessage, 'success');
+  }).catch(() => {
+    // Fallback for older browsers
+    const tmp = document.createElement('textarea');
+    tmp.value = text;
+    tmp.style.position = 'fixed';
+    tmp.style.opacity = '0';
+    document.body.appendChild(tmp);
+    tmp.select();
+    document.execCommand('copy');
+    tmp.remove();
+  });
 }
 
 
@@ -490,6 +556,32 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 
 }
 
+/**
+ * Extract a plain-text preview from a message content JSON string.
+ * Returns { short: '50 char…', full: 'complete text' }
+ */
+function getContentPreview_efb(contentStr) {
+  try {
+    const parsed = JSON.parse(replaceContentMessageEfb(contentStr));
+    if (!Array.isArray(parsed)) return { short: '—', full: '' };
+    const parts = [];
+    for (const c of parsed) {
+      if (!c || !c.value || c.value === '@file@') continue;
+      if (c.type === 'maps' || c.type === 'esign' || c.type === 'payment' || c.type ==='w_link') continue;
+      let val = String(c.value).replace(/<[^>]*>/g, '').replace(/@efb[^#]*#/g, ' ').trim();
+      if (val.length > 0) {
+        const label = c.name || c.id_ || '';
+        parts.push(label ? `${label}: ${val}` : val);
+      }
+    }
+    const full = parts.join(' | ');
+    const short = full.length > 50 ? full.substring(0, 50) + '…' : full;
+    return { short: short || '—', full: full || '—' };
+  } catch (e) {
+    return { short: '—', full: '' };
+  }
+}
+
 // 3.8.6 start
 function fun_ws_show_list_messages(value) {
 
@@ -547,21 +639,46 @@ function fun_ws_show_list_messages(value) {
       }
       $txtColor = state == 2 ? 'text-danger' : '';
       if (response_state_efb.findIndex(x => x.msg_id == v.msg_id) != -1) { state = 0 }
+      const preview = getContentPreview_efb(v.content);
+      const tooltipFull = preview.full.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
       rows += `<tr class="efb  pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}"  >
         <th scope="col" class="efb"><input class="efb  emsFormBuilder_v form-check-input   fs-8 onemsg" type="checkbox"  value="checkbox"  data-id="${v.msg_id}"  onclick="fun_select_rows_table(this)"></th>
-         <td class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" >${no}</td>
-         <th scope="row" class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" >${v.track}</th>
-           <td class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" >${v.date}</td>
-            <td class="efb ">
-            <a  class="efb  btn btn-comment btn-sm  ec-efb" id="btn-m-${v.msg_id}" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}"  >
-             ${Number(state) != 1 && Number(state) != 4 ? iconNotRead : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}"></i> `}</a>
-             <a class="efb zindex-100  btn btn-delete btn-sm  ec-efb" id="btn-m-d-${v.msg_id}" data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}" ><i class="efb  bi-trash ec-efb"  data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}"></i> </a>
+         <td class="efb ${$txtColor} ec-efb efb-content-cell" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-label="${efb_var.text.content || 'Content'}">
+           <div class="efb-content-preview" data-efb-tooltip="${tooltipFull}">
+             <span class="efb-preview-text">${preview.short}</span>
+           </div>
+         </td>
+         <th scope="row" class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-label="${efb_var.text.trackNo}">
+           <span class="efb d-inline-flex align-items-center gap-1">
+             <code class="efb text-muted user-select-all" style="font-size:0.85em" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}">${v.track}</code>
+             <button type="button" class="efb btn btn-sm btn-outline-secondary border-0 px-1 py-0" onclick="event.stopPropagation();copyShortcode_efb('${v.track}',this ,'trackingCode')" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.copy}">
+               <i class="efb bi-clipboard"></i>
+             </button>
+           </span>
+         </th>
+           <td class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-label="${efb_var.text.ddate}">${v.date}</td>
+            <td class="efb efb-actions-cell" data-label="${efb_var.text.actions}">
+              <div class="efb-actions-group">
+                <button type="button" class="efb efb-act-btn efb-act-open ec-efb ${Number(state) != 1 && Number(state) != 4 ? 'efb-has-badge' : ''}" id="btn-m-${v.msg_id}" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-bs-toggle="tooltip" data-bs-placement="top" title="${Number(state) != 1 && Number(state) != 4 ? efb_var.text.newResponse : efb_var.text.read}" aria-label="${Number(state) != 1 && Number(state) != 4 ? efb_var.text.newResponse : efb_var.text.read}">
+                  <i class="efb ${Number(state) != 1 && Number(state) != 4 ? 'bi-envelope-fill' : iconRead} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}"></i>
+                  ${Number(state) != 1 && Number(state) != 4 ? '<span class="efb-noti-badge" role="status" aria-label="' + efb_var.text.newResponse + '"></span>' : ''}
+                </button>
+                <button type="button" class="efb efb-act-btn efb-act-delete ec-efb" id="btn-m-d-${v.msg_id}" data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.delete}" aria-label="${efb_var.text.delete}">
+                  <i class="efb bi-trash3 ec-efb" data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}"></i>
+                </button>
+              </div>
             </td>
             </tr>` ;
       no += 1;
     }
   } else {
-    rows = `<tr class="efb  pointer-efb fs-6 efb"><td>${efb_var.text.noResponse}</td><td></td><td></td></tr>`
+    rows = `<tr class="efb efb"><td colspan="5" class="efb text-center py-5">
+      <div class="efb-empty-state">
+        <i class="efb bi-inbox efb-empty-icon"></i>
+        <p class="efb-empty-title">${efb_var.text.noResponse}</p>
+        <p class="efb-empty-desc">${efb_var.text.noResponseDesc || 'Submitted responses will appear here.'}</p>
+      </div>
+    </td></tr>`
   }
 
 
@@ -576,7 +693,7 @@ function fun_ws_show_list_messages(value) {
     <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
     <thead>
     <th scope="col" class="efb"><input class="efb  emsFormBuilder_v form-check-input fs-8 allmsg" type="checkbox"  value="checkbox"   onclick="fun_select_rows_table(this)"></th>
-    <th scope="col" class="efb">${efb_var.text.number}</th>
+    <th scope="col" class="efb">${efb_var.text.content || 'Content'}</th>
     <th scope="col" class="efb">${efb_var.text.trackNo}</th>
     <th scope="col" class="efb">${efb_var.text.ddate}</th>
     <th scope="col" class="efb">${efb_var.text.actions}</th>

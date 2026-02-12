@@ -1956,6 +1956,70 @@ a.efb.btn {	text-decoration: none;
 }
 .efb.modal {	background: #33353169;
 }
+
+/* ==============================================
+   Modal Fixes: Overflow & Admin Sidebar Overlap
+   ============================================== */
+
+/* 1. Raise z-index above WordPress admin bar (9991) and admin menu (9990) */
+.efb.modal {
+    z-index: 100100 !important;
+}
+
+/* 2. Account for WordPress admin bar height & admin sidebar width */
+/* Desktop: admin bar = 32px, sidebar = 160px */
+@media (min-width: 783px) {
+    .efb.modal {
+        top: 32px;
+        height: calc(100% - 32px);
+        left: 160px;
+        width: calc(100% - 160px);
+    }
+    /* When modal-new-efb is active (settings panel), preserve its left offset */
+    .efb.modal.modal-new-efb {
+        left: 25%;
+        width: 75%;
+    }
+}
+
+/* 783-960px: sidebar auto-folds to 36px */
+@media (min-width: 783px) and (max-width: 960px) {
+    .efb.modal {
+        left: 36px;
+        width: calc(100% - 36px);
+    }
+}
+
+/* Mobile: admin bar = 46px, no fixed sidebar */
+@media (max-width: 782px) {
+    .efb.modal {
+        top: 46px;
+        height: calc(100% - 46px);
+        left: 0;
+        width: 100%;
+    }
+}
+
+/* When admin menu is manually collapsed (folded) */
+body.folded .efb.modal {
+    left: 36px !important;
+    width: calc(100% - 36px) !important;
+}
+
+/* 3. Constrain modal content height to prevent header from going off-screen */
+#settingModalEfb .efb.modal-content {
+    max-height: 85vh !important;
+    height: auto !important;
+}
+
+#settingModalEfb .efb.modal-header.efb {
+    flex-shrink: 0 !important;
+    background-color: #fff;
+}
+
+#settingModalEfb .efb.modal-body {
+    overflow-y: auto !important;
+}
 @media screen and (min-width: 1000px) {		/* .col-md-6 .efb.ttiptext.show {		margin: 0% 0% 0% 16% }
    .col-md-12 .efb.ttiptext.show {		margin: -26px 0 0 70px}
 */}
@@ -2763,3 +2827,303 @@ div#Listefb-150 {
    to { opacity: 1; transform: translateY(0); }
 }
 .efb.alert_efb { transition: opacity 0.3s ease, transform 0.3s ease; }
+
+/* Toast Notification */
+.efb-copy-toast {
+   position: fixed;
+   bottom: 30px;
+   left: 50%;
+   transform: translateX(-50%) translateY(20px);
+   background: #198754;
+   color: #fff;
+   padding: 10px 24px;
+   border-radius: 8px;
+   font-size: 0.9rem;
+   box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+   z-index: 999999;
+   opacity: 0;
+   transition: opacity 0.3s ease, transform 0.3s ease;
+   pointer-events: none;
+   display: flex;
+   align-items: center;
+}
+.efb-copy-toast.show {
+   opacity: 1;
+   transform: translateX(-50%) translateY(0);
+}
+.efb-toast-success { background: #198754; }
+.efb-toast-error   { background: #dc3545; }
+.efb-toast-warning { background: #ffc107; color: #212529; }
+.efb-toast-info    { background: #0d6efd; }
+
+/* Content Preview Column */
+.efb-content-cell {
+   max-width: 260px;
+   min-width: 120px;
+}
+.efb-content-preview {
+   position: relative;
+   display: inline-block;
+   max-width: 100%;
+   cursor: pointer;
+}
+.efb-preview-text {
+   display: inline-block;
+   max-width: 100%;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+   font-size: 0.85rem;
+   color: #444;
+   transition: color 0.2s ease;
+}
+.efb-content-preview:hover .efb-preview-text {
+   color: #0d6efd;
+}
+.efb-new-dot {
+   font-size: 0.45rem;
+   color: #0d6efd;
+   vertical-align: middle;
+   margin-inline-end: 3px;
+   animation: efb-pulse-dot 1.5s infinite;
+}
+@keyframes efb-pulse-dot {
+   0%, 100% { opacity: 1; }
+   50% { opacity: 0.3; }
+}
+/* Custom tooltip for content preview */
+.efb-content-preview::after {
+   content: attr(data-efb-tooltip);
+   position: absolute;
+   bottom: 120%;
+   left: 50%;
+   transform: translateX(-50%) translateY(6px);
+   background: #1e293b;
+   color: #f1f5f9;
+   padding: 10px 14px;
+   border-radius: 8px;
+   font-size: 0.8rem;
+   line-height: 1.45;
+   max-width: 340px;
+   min-width: 160px;
+   width: max-content;
+   white-space: pre-line;
+   word-break: break-word;
+   box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+   opacity: 0;
+   visibility: hidden;
+   transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+   z-index: 99999;
+   pointer-events: none;
+}
+.efb-content-preview::before {
+   content: '';
+   position: absolute;
+   bottom: 110%;
+   left: 50%;
+   transform: translateX(-50%);
+   border: 6px solid transparent;
+   border-top-color: #1e293b;
+   opacity: 0;
+   visibility: hidden;
+   transition: opacity 0.25s ease, visibility 0.25s;
+   z-index: 99999;
+   pointer-events: none;
+}
+.efb-content-preview:hover::after {
+   opacity: 1;
+   visibility: visible;
+   transform: translateX(-50%) translateY(0);
+}
+.efb-content-preview:hover::before {
+   opacity: 1;
+   visibility: visible;
+}
+
+/* ====== Mobile responsive table (card layout) ====== */
+@media (max-width: 768px) {
+   /* Hide table header on mobile */
+   #emsFormBuilder-list thead {
+      display: none !important;
+   }
+   #emsFormBuilder-list,
+   #emsFormBuilder-list tbody {
+      display: block !important;
+      width: 100% !important;
+   }
+   /* Each row becomes a card */
+   #emsFormBuilder-list tbody tr {
+      display: block !important;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      position: relative;
+   }
+   #emsFormBuilder-list tbody tr:hover {
+      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+   }
+   /* Each cell becomes a row inside the card */
+   #emsFormBuilder-list tbody tr > td,
+   #emsFormBuilder-list tbody tr > th {
+      display: flex !important;
+      align-items: center;
+      padding: 6px 0 !important;
+      border: none !important;
+      border-bottom: 1px solid #f1f5f9 !important;
+      text-align: left !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      background: transparent !important;
+   }
+   #emsFormBuilder-list tbody tr > td:last-child,
+   #emsFormBuilder-list tbody tr > th:last-child {
+      border-bottom: none !important;
+   }
+   /* Show data-label as inline label */
+   #emsFormBuilder-list tbody tr > td[data-label]::before,
+   #emsFormBuilder-list tbody tr > th[data-label]::before {
+      content: attr(data-label);
+      display: inline-block;
+      min-width: 100px;
+      font-weight: 600;
+      font-size: 0.78rem;
+      color: #64748b;
+      flex-shrink: 0;
+      margin-right: 10px;
+   }
+   /* Checkbox cell - move to top-right */
+   #emsFormBuilder-list tbody tr > th:first-child:not([data-label]) {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: auto !important;
+      border: none !important;
+      padding: 0 !important;
+      z-index: 2;
+   }
+   [dir="rtl"] #emsFormBuilder-list tbody tr > th:first-child:not([data-label]) {
+      right: auto;
+      left: 12px;
+   }
+   /* Content cell - override max-width */
+   #emsFormBuilder-list .efb-content-cell {
+      max-width: 100% !important;
+      min-width: 0 !important;
+      overflow: visible !important;
+   }
+   #emsFormBuilder-list .efb-content-preview {
+      max-width: none !important;
+      display: block !important;
+      flex: 1;
+      min-width: 0;
+   }
+   .efb-preview-text {
+      white-space: normal !important;
+      text-overflow: unset !important;
+      overflow: visible !important;
+      word-break: break-word;
+   }
+   /* Actions cell - full width */
+   #emsFormBuilder-list tbody tr > td.efb-actions-cell {
+      justify-content: flex-start;
+      padding-top: 10px !important;
+   }
+   #emsFormBuilder-list tbody tr > td.efb-actions-cell::before {
+      display: none !important;
+   }
+   .efb-actions-group {
+      gap: 8px;
+      flex-wrap: wrap;
+   }
+   .efb-act-btn {
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
+      border-radius: 10px;
+   }
+   .efb-noti-badge {
+      width: 14px;
+      height: 14px;
+      top: -4px;
+      right: -4px;
+      border-width: 2.5px;
+   }
+   /* Tooltip: show below on mobile */
+   .efb-content-preview::after {
+      bottom: auto;
+      top: 120%;
+      max-width: 260px;
+      left: 0;
+      transform: translateY(-6px);
+   }
+   .efb-content-preview::before {
+      bottom: auto;
+      top: 100%;
+      left: 20px;
+      border-top-color: transparent;
+      border-bottom-color: #1e293b;
+   }
+   .efb-content-preview:hover::after {
+      transform: translateY(0);
+   }
+   /* Empty state */
+   #emsFormBuilder-list .efb-empty-state {
+      padding: 30px 10px;
+   }
+   /* Card: strip bootstrap table-striped background */
+   #emsFormBuilder-list.table-striped > tbody > tr:nth-of-type(odd) > * {
+      --bs-table-bg-type: transparent !important;
+      background-color: transparent !important;
+   }
+}
+/* High contrast / accessibility */
+@media (prefers-contrast: more) {
+   .efb-act-btn {
+      border: 2px solid currentColor !important;
+   }
+   .efb-noti-badge {
+      width: 14px;
+      height: 14px;
+      border-color: #000 !important;
+      background: #ff0000 !important;
+   }
+}
+@media (prefers-reduced-motion: reduce) {
+   .efb-act-btn {
+      transition: none !important;
+   }
+   .efb-noti-badge {
+      animation: none !important;
+   }
+   .efb-act-btn:hover {
+      transform: none !important;
+   }
+}
+
+/* Empty state for no responses */
+.efb-empty-state {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 6px;
+   padding: 20px 10px;
+}
+.efb-empty-icon {
+   font-size: 2.8rem;
+   color: #cbd5e1;
+   margin-bottom: 4px;
+}
+.efb-empty-title {
+   font-size: 1rem;
+   font-weight: 600;
+   color: #64748b;
+   margin: 0;
+}
+.efb-empty-desc {
+   font-size: 0.82rem;
+   color: #94a3b8;
+   margin: 0;
+}

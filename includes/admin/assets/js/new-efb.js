@@ -132,8 +132,9 @@ function move_show_efb() {
 let last_show_modal_efb = '';
 const show_modal_efb = (body, title, icon, type) => {
   last_show_modal_efb =type;
+  const mx = Number(efb_var.rtl) == 1 ? 'ms-2' : 'me-2';
   document.getElementById("settingModalEfb-title").innerHTML = title;
-  document.getElementById("settingModalEfb-icon").className = icon + ` mx-2`;
+  document.getElementById("settingModalEfb-icon").className = icon + ` efb ${mx}`;
   document.getElementById("settingModalEfb-body").innerHTML = body;
   if (type == "settingBox") {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')

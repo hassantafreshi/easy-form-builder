@@ -590,6 +590,12 @@ class EfbAddonPhrases {
             /* translators: Actions = column header */
             "actions" => $state && isset($ac->text->actions) ? $ac->text->actions : esc_html__('Actions', 'easy-form-builder'),
 
+            /* translators: Content = column header for message content preview */
+            "content" => $state && isset($ac->text->content) ? $ac->text->content : esc_html__('Content', 'easy-form-builder'),
+
+            /* translators: Description shown when there are no responses yet */
+            "noResponseDesc" => $state && isset($ac->text->noResponseDesc) ? $ac->text->noResponseDesc : esc_html__('Submitted responses will appear here.', 'easy-form-builder'),
+
             /* translators: Saving message */
             "saving" => $state && isset($ac->text->saving) ? $ac->text->saving : esc_html__('Saving...', 'easy-form-builder'),
 
