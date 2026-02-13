@@ -14,7 +14,8 @@ let wpbakery_emsFormBuilder =false;
 let pro_price_efb =19;
 let heartbeat_efb_active =false;
 let state_page_efb='';
-
+mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
+if (typeof pro_efb === 'undefined') { var pro_efb = (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1)) ? true : false; }
 
 
 
@@ -1871,6 +1872,14 @@ let change_el_edit_Efb = (el) => {
         const op = el.options[el.selectedIndex].value;
         valj_efb[indx].size = op;
         get_position_col_el(valj_efb[indx].dataId, true);
+        break;
+      case "mobileSizeEl":
+        if (!valj_efb[indx].hasOwnProperty('mobile_size')) Object.assign(valj_efb[indx],{mobile_size:100});
+        const mop = el.options[el.selectedIndex].value;
+        valj_efb[indx].mobile_size = mop;
+        if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') {
+          get_position_col_mobile_el(valj_efb[indx].dataId, true);
+        }
         break;
       case "cornerEl":
 

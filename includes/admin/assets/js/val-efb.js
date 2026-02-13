@@ -882,6 +882,23 @@ function show_setting_window_efb(idset) {
           <option value="100" ${valj_efb[indx].hasOwnProperty('size')==false || valj_efb[indx].size == 100 ? `selected` : ''} >100%</option>
       </select>
       `
+    const mobileWidthEls = `
+      <label for="mobileSizeEl" class="efb  mt-3"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.swidth.replace('%s' , efb_var.text.mobile) || 'Mobile Width!'}</label>
+      <select  data-id="${idset}" class="efb  rounded-4 elEdit form-select"  id="mobileSizeEl" >
+          <option value="8" ${valj_efb[indx].mobile_size == 8 ? `selected` : ''}>8%</option>
+          <option value="17" ${valj_efb[indx].mobile_size == 17 ? `selected` : ''}>17%</option>
+          <option value="25" ${valj_efb[indx].mobile_size == 25 ? `selected` : ''}>25%</option>
+          <option value="33" ${valj_efb[indx].mobile_size == 33 ? `selected` : ''}>33%</option>
+          <option value="42" ${valj_efb[indx].mobile_size == 42 ? `selected` : ''}>42%</option>
+          <option value="50" ${valj_efb[indx].mobile_size == 50 ? `selected` : ''}>50%</option>
+          <option value="58" ${valj_efb[indx].mobile_size == 58 ? `selected` : ''}>58%</option>
+          <option value="67" ${valj_efb[indx].mobile_size == 67 ? `selected` : ''}>67%</option>
+          <option value="75" ${valj_efb[indx].mobile_size == 75 ? `selected` : ''}>75%</option>
+          <option value="83" ${valj_efb[indx].mobile_size == 83 ? `selected` : ''}>83%</option>
+          <option value="92" ${valj_efb[indx].mobile_size == 92 ? `selected` : ''}>92%</option>
+          <option value="100" ${!valj_efb[indx].hasOwnProperty('mobile_size') || valj_efb[indx].mobile_size == 100 ? `selected` : ''}>100%</option>
+      </select>
+      `
     const classesEls = `
       <label for="cssClasses" class="efb  mt-3"><i class="efb bi-journal-code fs-7 ${iconMarginGlobal}"></i>${efb_var.text.cSSClasses}</label>
       <input type="text"  data-id="${idset}" class="efb  elEdit text-muted form-control border-d rounded-4 efb mb-3 mb-1" id="classesEl" placeholder="${efb_var.text.cSSClasses}"  ${valj_efb[indx].classes && valj_efb[indx].classes.length > 1 ? `value="${valj_efb[indx].classes}"` : ''}>
@@ -1219,6 +1236,7 @@ function show_setting_window_efb(idset) {
                         ${ElementAlignEls('label',indx,idset)}
                         ${ElementAlignEls('description',indx,idset)}
                         ${widthEls}
+                        ${mobileWidthEls}
                         ${selectHeightEls(idset,indx)}
                         ${cornerEls('',indx,idset)}
                         ${el.dataset.tag != "textarea" ? valueEls : valueTextereaEls}
@@ -1240,6 +1258,7 @@ function show_setting_window_efb(idset) {
                 ${selectColorEls('el','heading')}
                 ${fontSizeEls(idset,indx)}
                 ${widthEls}
+                ${mobileWidthEls}
                 ${classesEls}
                 <div class="efb  clearfix"></div>
                 `
@@ -1253,6 +1272,7 @@ function show_setting_window_efb(idset) {
                 ${selectColorEls('el','link')}
                 ${selectHeightEls(idset,indx)}
                 ${widthEls}
+                ${mobileWidthEls}
                 ${classesEls}
                 <div class="efb  clearfix"></div>
                 `
@@ -1338,6 +1358,7 @@ function show_setting_window_efb(idset) {
                         ${ElementAlignEls('label',indx,idset)}
                         ${ElementAlignEls('description',indx,idset)}
                         ${widthEls}
+                        ${mobileWidthEls}
                         ${fun_el_select_in_efb(el.dataset.tag) ? selectHeightEls(idset,indx) : ''}
                         ${classesEls}
                         ${disabledEls}
@@ -1387,6 +1408,7 @@ function show_setting_window_efb(idset) {
 
 
                 ${el.dataset.tag == 'rating' ? '' : widthEls}
+                ${el.dataset.tag == 'rating' ? '' : mobileWidthEls}
                 ${el.dataset.tag != 'range' ? selectHeightEls(idset,indx) :''}
                 ${el.dataset.tag == 'rating' || el.dataset.tag == 'switch' || el.dataset.tag == 'range' ? '' : cornerEls('',indx,idset)}
                 ${/* el.dataset.tag == 'esign' ? selectColorEls('icon') : '' */ ''}
@@ -1431,6 +1453,7 @@ function show_setting_window_efb(idset) {
                 ${ElementAlignEls('label',indx,idset)}
                 ${ElementAlignEls('description',indx,idset)}
                 ${widthEls}
+                ${mobileWidthEls}
                 ${selectHeightEls(idset,indx)}
                 ${cornerEls("",indx,idset)}
                 ${classesEls}
@@ -1472,6 +1495,7 @@ function show_setting_window_efb(idset) {
                 ${ElementAlignEls('label',indx,idset)}
                 ${ElementAlignEls('description',indx,idset)}
                 ${widthEls}
+                ${mobileWidthEls}
                 ${labelFontSizeEls}
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}
@@ -1521,6 +1545,7 @@ function show_setting_window_efb(idset) {
                 ${ElementAlignEls('description',indx,idset)}
 
                 ${widthEls}
+                ${mobileWidthEls}
                 ${selectHeightEls(idset,indx)}
                 ${cornerEls('yesNo',indx,idset)}
                 <label for="valueEl" class="efb  mt-3 mb-0"><i class="efb bi-cursor-text fs-7 ${iconMarginGlobal}"></i>${efb_var.text.button1Value}</label>
@@ -1561,6 +1586,7 @@ function show_setting_window_efb(idset) {
                 ${ElementAlignEls('description',indx,idset)}
 
                 ${widthEls}
+                ${mobileWidthEls}
                 ${selectHeightEls(idset,indx)}
 
                 ${classesEls}
@@ -2004,7 +2030,7 @@ function creator_form_builder_Efb() {
   const st = document.getElementById('navbarSupportedContent') ? 1 :0;
   for (let ob in navs) {
     if( typeof navs[ob] == 'object') {
-      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb nav-link efb btn text-capitalize ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink'}  " ${navs[ob].fun.length > 2 ? `onclick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
+      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb btn text-capitalize ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? 'nav-link' : 'btn-outline-pink'}  " ${navs[ob].fun.length > 2 ? `onclick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
     }
   }
 
@@ -2039,7 +2065,18 @@ function creator_form_builder_Efb() {
                 <hr class="efb hr">
             </ul>
           <div class="efb row">${els}</div></div>
-         <div class="efb  col-md-8 body-dpz-efb"><div class="efb crd efb  drag-box"><div class="efb card-body dropZoneEFB row items px-0 mx-0" id="dropZoneEFB">
+         <div class="efb  col-md-8 body-dpz-efb">
+         <div class="efb d-flex justify-content-center mb-2" id="viewToggleEfb">
+           <div class="efb btn-group" role="group" aria-label="View toggle">
+             <button type="button" class="efb btn btn-sm btn-outline-primary active" id="desktopViewBtnEfb" onclick="switchViewEfb('desktop')">
+               <i class="efb bi-display me-1"></i>${efb_var.text.desktop || 'Desktop'}
+             </button>
+             <button type="button" class="efb btn btn-sm btn-outline-primary" id="mobileViewBtnEfb" onclick="switchViewEfb('mobile')">
+               <i class="efb bi-phone me-1"></i>${efb_var.text.mobileView || 'Mobile'}
+             </button>
+           </div>
+         </div>
+         <div class="efb crd efb  drag-box" id="dragBoxWrapperEfb"><div class="efb card-body dropZoneEFB row items px-0 mx-0" id="dropZoneEFB">
 
         <div id="efb-dd" class="efb text-center ">
         <h1 class="efb text-muted display-1  bi-plus-circle-dotted"> </h1>

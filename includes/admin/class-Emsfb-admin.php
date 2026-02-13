@@ -92,10 +92,10 @@ class Admin {
         $package_type_efb = (int) get_option('Emsfb_pro' ,2);
         // if page is edit_forms_Emsfb
         if (strpos($hook, 'Emsfb')==true && is_admin()) {
-                if($package_type_efb!=2){
-                    wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-efb.css', true,EMSFB_PLUGIN_VERSION );
-                    wp_enqueue_style('Emsfb-css-rtl');
-                }
+
+                    wp_register_style('Emsfb-admin', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-efb.css', true,EMSFB_PLUGIN_VERSION );
+                    wp_enqueue_style('Emsfb-admin');
+
             if (is_rtl()) {
                 // code_v1 start
                 wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true,EMSFB_PLUGIN_VERSION );

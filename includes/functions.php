@@ -371,6 +371,12 @@ class efbFunction {
 			"center" => $state ? $ac->text->center : esc_html__('Center','easy-form-builder'),
 			"right" => $state ? $ac->text->right : esc_html__('Right','easy-form-builder'),
 			"width" => $state ? $ac->text->width : esc_html__('Width','easy-form-builder'),
+			/* translators: Mobile Width = width of element on mobile devices */
+			"swidth" => $state && isset($ac->text->swidth) ? $ac->text->swidth : esc_html__('%s width','easy-form-builder'),
+			/* translators: Desktop = computer/PC view */
+			"desktop" => $state && isset($ac->text->desktop) ? $ac->text->desktop : esc_html__('Desktop','easy-form-builder'),
+			/* translators: Mobile = mobile phone view */
+			"mobileView" => $state && isset($ac->text->mobileView) ? $ac->text->mobileView : esc_html__('Mobile','easy-form-builder'),
 			/* translators: CSS = Cascading Style Sheets - used for styling/design */
 			"cSSClasses" => $state ? $ac->text->cSSClasses : esc_html__('CSS Classes','easy-form-builder'),
 			"defaultValue" => $state ? $ac->text->defaultValue : esc_html__('Default value','easy-form-builder'),

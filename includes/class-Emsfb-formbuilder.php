@@ -315,6 +315,26 @@
 		return array($parent_row, $parent_col, $label_col, $input_col);
 	}
 
+	/* field builder - compute mobile column class */
+	private function get_mobile_col_class($val) {
+		$mobile_size = isset($val->mobile_size) ? (int) $val->mobile_size : 100;
+		switch ($mobile_size) {
+			case 100: return 'col-12';
+			case 92:  return 'col-11';
+			case 83:  return 'col-10';
+			case 75:  return 'col-9';
+			case 67:  return 'col-8';
+			case 58:  return 'col-7';
+			case 50:  return 'col-6';
+			case 42:  return 'col-5';
+			case 33:  return 'col-4';
+			case 25:  return 'col-3';
+			case 17:  return 'col-2';
+			case 8:   return 'col-1';
+			default:  return 'col-12';
+		}
+	}
+
 	/* field builder */
 	private function colMdChangerEfb($classes, $value) {
 		// Use a regular expression to replace the col-md-* class with the new value
@@ -2956,8 +2976,9 @@
 			$tagId = in_array($elementId, ["firstName", "lastName", "address", "address_line", "postalcode"]) ? 'text' : $elementId;
 			$tagT = in_array($elementId, ["esign", "yesNo", "rating"]) ? '' : 'def';
 			$stepNo = (int)$vj->step - 1;
+			$mobile_col = $this->get_mobile_col_class($vj);
 			$newElement = sprintf(
-				'<!--startTag %1$s--><div class="efb my-1 mx-0 %1$s %2$s %3$s %4$s ttEfb %5$s %6$s col-sm-12 efbField %7$s" data-step="%8$s" data-amount="%9$s" data-id="%10$s-id" id="%10$s" data-tag="%11$s">',
+				'<!--startTag %1$s--><div class="efb my-1 mx-0 %1$s %2$s %3$s %4$s ttEfb %5$s %6$s %12$s efbField %7$s" data-step="%8$s" data-amount="%9$s" data-id="%10$s-id" id="%10$s" data-tag="%11$s">',
 				$elementId,
 				$tagT,
 				$hidden,
@@ -2968,7 +2989,8 @@
 				$stepNo,
 				$vj->amount,
 				$element_Id,
-				$elementId
+				$elementId,
+				$mobile_col
 			);
 
 			if ($elementId != 'option') {

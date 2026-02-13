@@ -13,7 +13,7 @@ function deepFreeze_efb(obj) {
   });
   return Object.freeze(obj);
 }
-
+let mobile_view_efb
 let activeEl_efb = 0;
 let amount_el_efb = 1;
 let step_el_efb = 0;
@@ -45,8 +45,8 @@ let pub_el_border_color_efb='border-d';
 let pub_bg_button_color_efb='btn-primary';
 let pub_txt_button_color_efb='text-white';
 let sendBack_emsFormBuilder_pub = [];
-const getUrlparams_efb = new URLSearchParams(location.search);
-const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
+const getUrlparams_efb = new URLSearchParams(location.search)
+
 function efb_var_waitng(time) {
   setTimeout(() => {
     if (typeof (efb_var) == "object" && efb_var.hasOwnProperty('text')) {
@@ -1177,10 +1177,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
     const tagId = elementId == "firstName" || elementId == "lastName" || elementId == "address" || elementId == "address_line" || elementId == "postalcode" ? 'text' : elementId;
     const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'
+    const mobileColCls = getMobileColClass(valj_efb[iVJ]);
     newElement += `
-    ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
+    ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row ${mobileColCls} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
-    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]}` : ` row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
+    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]}` : ` row`} ${mobileColCls} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
     ${previewSate != true && pro_efb == false && pro_el==true ? proActiv : ''}
     ${previewSate != true ? contorl : '<!--efb.app-->'}
@@ -1427,7 +1428,10 @@ function copyCodeEfb(id , tagid = '') {
   document.execCommand("copy");
   if (tagid != '') {
     const tag = document.getElementById(tagid);
-    tag.innerHTML = efb_var.text.copied;
+    const message = efb_var.text.copied.replace('%s','');
+    tag.innerHTML = message;
+    toast_efb('bi-check-circle-fill', message, 'success');
+
   }
 
 }
@@ -2641,6 +2645,97 @@ function get_position_col_el(dataId, state) {
   }
   return [parent_row, parent_col, label_col, input_col]
 }
+
+/* Mobile/Desktop view toggle for builder */
+let currentViewEfb = 'desktop';
+
+function switchViewEfb(view) {
+  currentViewEfb = view;
+  const dragBox = document.getElementById('dragBoxWrapperEfb');
+  const desktopBtn = document.getElementById('desktopViewBtnEfb');
+  const mobileBtn = document.getElementById('mobileViewBtnEfb');
+  if (!dragBox || !desktopBtn || !mobileBtn) return;
+
+  if (view === 'mobile') {
+    dragBox.classList.add('efb-mobile-view-efb');
+    desktopBtn.classList.remove('active');
+    mobileBtn.classList.add('active');
+    // Apply mobile column sizes to all elements
+    for (let i = 1; i < valj_efb.length; i++) {
+      if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
+        get_position_col_mobile_el(valj_efb[i].dataId, true);
+      }
+    }
+  } else {
+    dragBox.classList.remove('efb-mobile-view-efb');
+    mobileBtn.classList.remove('active');
+    desktopBtn.classList.add('active');
+    // Re‑apply desktop column sizes
+    for (let i = 1; i < valj_efb.length; i++) {
+      if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
+        get_position_col_el(valj_efb[i].dataId, true);
+      }
+    }
+  }
+}
+
+function getMobileColClass(item) {
+  if (!item || !item.hasOwnProperty('mobile_size')) return 'col-12';
+  const ms = Number(item.mobile_size);
+  switch(ms) {
+    case 8:  return 'col-1';
+    case 17: return 'col-2';
+    case 25: return 'col-3';
+    case 33: return 'col-4';
+    case 42: return 'col-5';
+    case 50: return 'col-6';
+    case 58: return 'col-7';
+    case 67: return 'col-8';
+    case 75: return 'col-9';
+    case 83: return 'col-10';
+    case 92: return 'col-11';
+    case 100: default: return 'col-12';
+  }
+}
+
+function get_position_col_mobile_el(dataId, state) {
+  const indx = valj_efb.findIndex(x => x.dataId == dataId);
+  if (indx === -1) return ['', 'col-12', 'col-12', 'col-12'];
+  let el_parent = document.getElementById(valj_efb[indx].id_) ?? "null";
+  let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`) ?? "null";
+  let el_input = document.getElementById(`${valj_efb[indx].id_}-f`) ?? "null";
+  let parent_col = 'col-12';
+  let label_col = 'col-12';
+  let input_col = 'col-12';
+  let parent_row = '';
+  const msize = valj_efb[indx].hasOwnProperty("mobile_size") ? Number(valj_efb[indx].mobile_size) : 100;
+  switch (msize) {
+    case 100: parent_col = 'col-12'; break;
+    case 92:  parent_col = 'col-11'; break;
+    case 83:  parent_col = 'col-10'; break;
+    case 75:  parent_col = 'col-9';  break;
+    case 67:  parent_col = 'col-8';  break;
+    case 58:  parent_col = 'col-7';  break;
+    case 50:  parent_col = 'col-6';  break;
+    case 42:  parent_col = 'col-5';  break;
+    case 33:  parent_col = 'col-4';  break;
+    case 25:  parent_col = 'col-3';  break;
+    case 17:  parent_col = 'col-2';  break;
+    case 8:   parent_col = 'col-1';  break;
+  }
+  label_col = 'col-12';
+  input_col = 'col-12';
+  if (valj_efb[indx].label_position != "up") {
+    parent_row = 'row';
+  }
+  if (state == true) {
+    el_parent.classList = colChangerEfb(el_parent.className, parent_col);
+    if (el_input != "null") el_input.classList = colChangerEfb(el_input.className, input_col);
+    if (el_label != "null") el_label.classList = colChangerEfb(el_label.className, label_col);
+  }
+  return [parent_row, parent_col, label_col, input_col];
+}
+
 function calPLenEfb(len) {
   let p = 2
   if (len <= 5) { p = 40 }
