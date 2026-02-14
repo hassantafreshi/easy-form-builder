@@ -5,6 +5,7 @@
        private $pro_efb = false;
 	   public $pub_bg_button_color_efb='btn-primary';
 	   public $package_type_efb = 0;
+    private $mobile_pos = ['', 'col-sm-12', 'col-sm-12', 'col-sm-12'];
         public function __construct( $valj_efb, $pro_efb ) {
             $this->valj_efb =  $valj_efb;
             $this->pro_efb = $pro_efb;
@@ -27,7 +28,7 @@
 	}
 
 	/* field builder */
-	private function generateLabel_efb($rndm, $vj, $pos) {
+	private function generateLabel_efb($rndm, $vj, $pos, $mobile_pos = null) {
 
 
 		$label_align = isset($vj->label_align) ? $vj->label_align : '';
@@ -43,7 +44,7 @@
 			'pt-2',
 			'pb-1',
 			$pos[2],
-			'col-sm-12',
+			($mobile_pos !== null ? $mobile_pos[2] : 'col-sm-12'),
 			'col-form-label',
 			(isset($vj->hflabel) && $vj->hflabel == 1 ? 'd-none' : ''),
 			$label_color,
@@ -62,8 +63,8 @@
 	}
 
 	/* field builder */
-	private function generateDivFId_efb($rndm, $pos) {
-		return '<div class="efb ' . $pos[3] . ' col-sm-12 px-0 mx-0 ttEfb show" id="' . $rndm . '-f">';
+	private function generateDivFId_efb($rndm, $pos, $mobile_pos = null) {
+		return '<div class="efb ' . $pos[3] . ' ' . ($mobile_pos !== null ? $mobile_pos[3] : 'col-sm-12') . ' px-0 mx-0 ttEfb show" id="' . $rndm . '-f">';
 	}
 
 	/* field builder */
@@ -109,7 +110,7 @@
 				$ui = sprintf('
 					%s
 					%s
-					<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" %s>
+					<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%s-f" %s>
 						<label class="efb fs-6" id="%s_off">%s</label>
 
 						<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onclick="fun_switch_efb(this)" data-id="%s-el" data-formid="%s" id="%s_" %s>
@@ -208,7 +209,7 @@
 		return '
 		' . $label . '
 		' . $ttip . '
-		<div class="efb ' . $pos[3] . ' col-sm-12 px-0 mx-0 ttEfb show" id ="' . $rndm . '-f" ' . $aire_describedby . '>
+		<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id ="' . $rndm . '-f" ' . $aire_describedby . '>
 		<label class="efb fs-6" id="' . $rndm . '_off">' . $vj->off . '</label>
 		<button type="button" data-state="off" class="efb btn ' . $vj->el_height . ' btn-toggle efb1 ' . str_replace(',', ' ', $vj->classes) . '" data-css="' . $rndm . '" data-toggle="button" aria-pressed="false" data-vid="' . $rndm .'" data-formid="' . $form_id . '" onclick="fun_switch_efb(this)" data-id="' . $rndm . '-el" id="' . $rndm . '_" ' . $disabled . '>
 			<div class="efb handle"></div>
@@ -315,24 +316,109 @@
 		return array($parent_row, $parent_col, $label_col, $input_col);
 	}
 
-	/* field builder - compute mobile column class */
-	private function get_mobile_col_class($val) {
+	
+        /* field builder - generate mobile responsive CSS for form elements */
+        public function generate_mobile_css_efb() {
+                $css = '';
+                foreach ($this->valj_efb as $i => $vj) {
+                        if ($i === 0) continue; // skip form settings
+                        if (!isset($vj->id_)) continue;
+                        $id = $vj->id_;
+                        
+                        // Mobile label align
+                        if (isset($vj->mobile_label_align) && $vj->mobile_label_align !== '') {
+                                $css .= '#' . $id . '_labG { ' . $this->get_align_css($vj->mobile_label_align) . ' }' . "\n";
+                        }
+                        
+                        // Mobile description align  
+                        if (isset($vj->mobile_message_align) && $vj->mobile_message_align !== '') {
+                                $css .= '#' . $id . '-des { ' . $this->get_align_css_desc($vj->mobile_message_align) . ' }' . "\n";
+                        }
+                        
+                        // Mobile label font size
+                        if (isset($vj->mobile_label_text_size) && $vj->mobile_label_text_size !== '' && $vj->mobile_label_text_size !== 'fs-6') {
+                                $fontSize = $this->get_font_size_css($vj->mobile_label_text_size);
+                                if ($fontSize) {
+                                        $css .= '#' . $id . '_lab { font-size: ' . $fontSize . ' !important; }' . "\n";
+                                }
+                        }
+                        
+                        // Mobile label position
+                        if (isset($vj->mobile_label_position)) {
+                                if ($vj->mobile_label_position === 'up') {
+                                        $css .= '#' . $id . ' { flex-direction: column !important; }' . "\n";
+                                        $css .= '#' . $id . '_labG { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; }' . "\n";
+                                        $css .= '#' . $id . '-f { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; }' . "\n";
+                                } else if ($vj->mobile_label_position === 'beside') {
+                                        $css .= '#' . $id . ' { flex-direction: row !important; flex-wrap: wrap !important; }' . "\n";
+                                        $css .= '#' . $id . '_labG { width: 33.33% !important; max-width: 33.33% !important; flex: 0 0 33.33% !important; }' . "\n";
+                                        $css .= '#' . $id . '-f { width: 66.67% !important; max-width: 66.67% !important; flex: 0 0 66.67% !important; }' . "\n";
+                                }
+                        }
+                }
+                
+                if (empty($css)) return '';
+                return '<style>@media (max-width: 767.98px) {' . "\n" . $css . '}</style>';
+        }
+        
+        private function get_align_css($alignClass) {
+                switch ($alignClass) {
+                        case 'txt-left': return 'text-align: left !important;';
+                        case 'txt-center': return 'text-align: center !important;';
+                        case 'txt-right': return 'text-align: right !important;';
+                        default: return '';
+                }
+        }
+        
+        private function get_align_css_desc($alignClass) {
+                switch ($alignClass) {
+                        case 'justify-content-start': return 'justify-content: flex-start !important;';
+                        case 'justify-content-center': return 'justify-content: center !important;';
+                        case 'justify-content-end': return 'justify-content: flex-end !important;';
+                        default: return '';
+                }
+        }
+        
+        private function get_font_size_css($sizeClass) {
+                switch ($sizeClass) {
+                        case 'fs-7': return '0.875rem';
+                        case 'fs-6': return '1rem';
+                        case 'fs-5': return '1.25rem';
+                        case 'fs-4': return '1.5rem';
+                        case 'fs-3': return '1.75rem';
+                        default: return null;
+                }
+        }
+
+
+	/* field builder - compute mobile column position (mirrors get_position_col_el for mobile) */
+	private function get_position_col_mobile_el($val) {
+		$parent_col = 'col-sm-12';
+		$label_col = 'col-sm-12';
+		$input_col = 'col-sm-12';
+		$parent_row = '';
 		$mobile_size = isset($val->mobile_size) ? (int) $val->mobile_size : 100;
 		switch ($mobile_size) {
-			case 100: return 'col-12';
-			case 92:  return 'col-11';
-			case 83:  return 'col-10';
-			case 75:  return 'col-9';
-			case 67:  return 'col-8';
-			case 58:  return 'col-7';
-			case 50:  return 'col-6';
-			case 42:  return 'col-5';
-			case 33:  return 'col-4';
-			case 25:  return 'col-3';
-			case 17:  return 'col-2';
-			case 8:   return 'col-1';
-			default:  return 'col-12';
+			case 100: $parent_col = 'col-sm-12'; break;
+			case 92:  $parent_col = 'col-sm-11'; break;
+			case 83:
+			case 80:  $parent_col = 'col-sm-10'; break;
+			case 75:  $parent_col = 'col-sm-9';  break;
+			case 67:  $parent_col = 'col-sm-8';  break;
+			case 58:  $parent_col = 'col-sm-7';  break;
+			case 50:  $parent_col = 'col-sm-6';  break;
+			case 42:  $parent_col = 'col-sm-5';  break;
+			case 33:  $parent_col = 'col-sm-4';  break;
+			case 25:  $parent_col = 'col-sm-3';  break;
+			case 17:  $parent_col = 'col-sm-2';  break;
+			case 8:   $parent_col = 'col-sm-1';  break;
 		}
+		$label_col = 'col-sm-12';
+		$input_col = 'col-sm-12';
+		if (isset($val->label_position) && $val->label_position != "up") {
+			$parent_row = 'row';
+		}
+		return array($parent_row, $parent_col, $label_col, $input_col);
 	}
 
 	/* field builder */
@@ -421,7 +507,7 @@
 		$type = $vj->type;
        $ui = sprintf(
 			'%s
-			<div data-tag="%s" class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
+			<div data-tag="%s" class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<select class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s data-type="%s" data-formid="%s" %s %s>
 					<option disabled %s>%s</option>
@@ -497,7 +583,7 @@
 
 		$ui = sprintf(
 			'%s
-			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
+			<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<select data-type="stateProvince" class="efb form-select emsFormBuilder_v w-100 %s %s %s %s" data-vid="%s" id="%s_options" data-formid="%s" aria-required="%s" aria-label="%s" %s %s %s>
 					<option disabled %s>%s</option>
@@ -571,7 +657,7 @@
 
 		$ui = sprintf(
 			'%s
-			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
+			<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<select data-type="citylist" class="efb form-select emsFormBuilder_v w-100 %s %s %s %s" data-vid="%s" id="%s_options" data-formid="%s" aria-required="%s" aria-label="%s" %s %s %s>
 					<option disabled %s>%s</option>
@@ -668,7 +754,7 @@
 		$ui = sprintf(
 			'%s
 			<!--multiselect-->
-			<div class="efb %s col-sm-12 listSelect px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
+			<div class="efb %s ' . $this->mobile_pos[3] . ' listSelect px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<div class="efb efblist mx-0 inplist %s %s %s %s %s %s bi-chevron-down" data-id="menu-%s" data-no="%s" data-min="%s" data-parent="1" data-icon="1" data-select="%s" data-vid="%s" id="%s_options">
 					%s
@@ -739,7 +825,7 @@
 		// Generating UI
 		$ui = sprintf(
 			'%s
-			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f">
+			<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%s-f">
 				%s
 				<input type="text" class="efb pdpF2 input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s"
 				data-css="%s" data-id="%s-el" data-vid="%s" id="%s_" %s aria-required="%s" aria-label="%s" %s %s>
@@ -774,7 +860,7 @@
 	public function generate_html_code_efb($rndm, $vj, $pos, $formId, $texts, $previewSate) {
 		if (strlen($vj->value) < 2) {
 			$ui = sprintf(
-				'<div class="efb col-sm-12 efb" id="%s-f" data-id="%s-el" data-tag="htmlCode">
+				'<div class="efb ' . $this->mobile_pos[3] . ' efb" id="%s-f" data-id="%s-el" data-tag="htmlCode">
 					<div class="efb boxHtml-efb sign-efb efb" id="%s_html">
 						<div class="efb noCode-efb m-5 text-center efb" id="%s_noCode">
 							%s
@@ -809,7 +895,7 @@
 
 		// Build the HTML
 		$ui = sprintf(
-			'<div class="efb px-0 mx-0 %s col-sm-12" id="%s-f" data-formid="%s">
+			'<div class="efb px-0 mx-0 %s ' . $this->mobile_pos[3] . '" id="%s-f" data-formid="%s">
 				<p id="%s_" class="efb px-0 emsFormBuilder_v %s %s efbField efb1 %s" data-css="%s" data-vid="%s" data-id="%s-el">%s</p>
 			</div>',
 			$pos[0],
@@ -841,7 +927,7 @@
 
 		// Construct the UI HTML structure
 		$ui = sprintf(
-			'<div class="efb %s px-0 mx-0 col-sm-12" id="%s-f" data-formid="%s">
+			'<div class="efb %s px-0 mx-0 ' . $this->mobile_pos[3] . '" id="%s-f" data-formid="%s">
 				<a id="%s_" target="_blank" class="efb px-0 btn underline emsFormBuilder_v %s %s %s efbField efb1 %s" data-css="%s" data-vid="%s" data-id="%s-el" href="%s">%s</a>
 			</div>',
 			$pos[0],
@@ -876,7 +962,7 @@
 		$classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 
 		$ui = sprintf(
-			'<div class="efb %1$s col-sm-12 %2$s efb1 %3$s" data-css="%4$s" id="%4$s-f" data-formid="%5$s" %6$s>
+			'<div class="efb %1$s ' . $this->mobile_pos[3] . ' %2$s efb1 %3$s" data-css="%4$s" id="%4$s-f" data-formid="%5$s" %6$s>
 				<div class="efb btn-group btn-group-toggle w-100 col-md-12 col-sm-12 %7$s" data-toggle="buttons" data-id="%4$s-id" id="%4$s_yn">
 					<label for="%4$s_1" data-lid="%4$s" data-value="%8$s" onclick="yesNoGetEFB(\'%8$s\', \'%4$s\', \'%4$s_b_1\')" class="efb btn %9$s %10$s %11$s %12$s yesno-efb left-efb %13$s %14$s" id="%4$s_b_1">
 						<input type="radio" name="%4$s" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid="%4$s" data-id="%4$s-id" id="%4$s_1" value="%8$s" data-formid="%5$s"><span id="%4$s_1_lab">%8$s</span>
@@ -1046,7 +1132,7 @@
 			'
 			<!-- table matrix -->
 			%1$s
-			<div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" data-id="%3$s-el" id="%3$s-f">
+			<div class="efb %2$s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" data-id="%3$s-el" id="%3$s-f">
 				%4$s
 				<div class="efb %5$s %6$s efb1 %7$s" id="%3$s_options">
 					%8$s
@@ -1245,7 +1331,7 @@
 
 			// ایجاد HTML برای المان esign
 			$ui = sprintf(
-				"<div class='efb %s col-sm-12' id='%s-f' data-formid='%s'>
+				"<div class='efb %s {$this->mobile_pos[3]}' id='%s-f' data-formid='%s'>
 					<canvas class='efb sign-efb bg-white %s %s %s %s efb1 %s' data-css='%s' data-code='%s' data-id='%s-el' id='%s_' %s>
 						%s
 					</canvas>
@@ -1405,7 +1491,7 @@
 		$amount =$this->formatPrice_efb(0, $currency);
 		return  '
 		<!-- stripe -->
-		<div class="efb  col-sm-12 stripe emsFormBuilder_v"  id="'.$rndm.'-f" data-formid="'.$form_id.'">
+		<div class="efb  ' . $this->mobile_pos[3] . ' stripe emsFormBuilder_v"  id="'.$rndm.'-f" data-formid="'.$form_id.'">
 		<div class="efb  stripe-bg  p-3 card w-100">
 		<div class="efb  headpay border-b row col-md-12 mb-3">
 		  <div class="efb  h3 col-sm-5">
@@ -1452,7 +1538,7 @@
 		$amount =$this->formatPrice_efb(0, $currency);
 
 		return '
-		<div class="efb card w-100 col-sm-12 m-0 p-0" id="'.$rndm.'-f" data-formid="'.$form_id.'">
+		<div class="efb card w-100 ' . $this->mobile_pos[3] . ' m-0 p-0" id="'.$rndm.'-f" data-formid="'.$form_id.'">
 			<div class="efb p-3 d-block" id="beforePay" data-formid="'.$form_id.'">
 				<div class="efb headpay border-b row col-md-12 mb-3">
 					<div class="efb h3 col-sm-5">
@@ -1482,7 +1568,7 @@
 
 	public function add_ui_zp_efb($rndm , $form_id,$texts) {
 		return  '
-		<div class="efb card w-100 col-sm-12 m-0 p-0"  id="'.$rndm.'-f"  data-formid="'.$form_id.'">
+		<div class="efb card w-100 ' . $this->mobile_pos[3] . ' m-0 p-0"  id="'.$rndm.'-f"  data-formid="'.$form_id.'">
 			<div class="efb  p-3 d-block" id="beforePay">
 				<div class="efb  headpay border-b row col-md-12 mb-3">
 					<div class="efb  h3 col-sm-5">
@@ -1755,7 +1841,7 @@
 			'
 			%s
 			%s
-			<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" %s data-formid="%s">
+			<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%s-f" %s data-formid="%s">
 				<label class="efb fs-6" id="%s_off">%s</label>
 				<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onclick="fun_switch_efb(this)" data-id="%s-el" id="%s_" %s %s>
 					<div class="efb handle"></div>
@@ -1792,7 +1878,7 @@
 		$ui = sprintf(
 			'%s
 			%s
-			<div class="efb %s col-sm-12" id="%s-f" data-formid="%s">
+			<div class="efb %s ' . $this->mobile_pos[3] . '" id="%s-f" data-formid="%s">
 				<div class="efb star-efb d-flex justify-content-center %s efb1 %s" data-css="%s" %s>
 					%s
 					%s
@@ -1877,7 +1963,7 @@
 
         $ui = sprintf(
             '%s
-            <div class="efb %s col-sm-12 px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
+            <div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
                 %s
                 <select data-formid="%s" class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s %s %s>
                     <option disabled %s>%s</option>
@@ -2248,6 +2334,8 @@
 		if (!in_array($elementId, ["html", "register", "login", "subscribe", "survey"])) {
 			$pos = $this->get_position_col_el($vj, false);
 		}
+		  $mobile_pos = $this->get_position_col_mobile_el($vj);
+            $this->mobile_pos = $mobile_pos;
 		$optn = '<!-- options -->';
 		$pay = 'payefb';
 		$iVJ = $indexVJ;
@@ -2265,9 +2353,9 @@
 
 
 		$desc = $this->generateDescription_efb($element_Id, $vj, $pos);
-		$label = $this->generateLabel_efb($element_Id, $vj, $pos);
+		$label = $this->generateLabel_efb($element_Id, $vj, $pos, $mobile_pos);
 		$ttip = $this->generateTooltip_efb($element_Id);
-		$div_f_id = $this->generateDivFId_efb($element_Id, $pos);
+		$div_f_id = $this->generateDivFId_efb($element_Id, $pos, $mobile_pos);
 		$aire_describedby = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : "";
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$ui ='<!--efb ui-->';
@@ -2359,7 +2447,7 @@
 					$valueAttr = $temp ? sprintf('value="%s"', $temp) : '';
 
 					$ui = sprintf(
-						'%1$s <div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f"> %4$s <div class="efb slider m-0 p-2 %5$s %6$s efb1 %7$s" data-css="%8$s" id="%3$s-range"> <input type="%9$s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %10$s efbField" data-id="%3$s-el" data-vid="%3$s" data-formid="%8$s" id="%3$s_" oninput="fun_show_val_range_efb(\'%3$s\')" %11$s min="%12$s" max="%13$s" aria-required="%14$s" aria-label="%15$s" %16$s %17$s> <p id="%3$s_rv" class="efb mx-1 py-0 my-1 fs-6 text-darkb">%18$s</p> </div> %19$s',
+						'%1$s <div class="efb %2$s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%3$s-f"> %4$s <div class="efb slider m-0 p-2 %5$s %6$s efb1 %7$s" data-css="%8$s" id="%3$s-range"> <input type="%9$s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %10$s efbField" data-id="%3$s-el" data-vid="%3$s" data-formid="%8$s" id="%3$s_" oninput="fun_show_val_range_efb(\'%3$s\')" %11$s min="%12$s" max="%13$s" aria-required="%14$s" aria-label="%15$s" %16$s %17$s> <p id="%3$s_rv" class="efb mx-1 py-0 my-1 fs-6 text-darkb">%18$s</p> </div> %19$s',
 						$label,
 						$pos[3],
 						$element_Id,
@@ -2415,7 +2503,7 @@
 
 					$ui = sprintf('
 						%1$s
-						<div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f">
+						<div class="efb %2$s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%3$s-f">
 							%4$s
 							<textarea id="%3$s_" placeholder="%5$s" class="efb px-2 input-efb emsFormBuilder_v form-control w-100 %6$s %7$s %8$s %9$s %10$s efbField efb1 %11$s" data-css="%3$s" data-vid="%3$s" data-id="%3$s-el"  data-formid="%20$s" value="%12$s" aria-required="%13$s" aria-label="%14$s" %15$s rows="5" %16$s %17$s>%18$s</textarea>
 							%19$s
@@ -2482,7 +2570,7 @@
 					$el =$pro ? $this->dadfile_el_pro_efb(true, $element_Id, $vj,$form_id,$texts) : $this->public_pro_message_efb($texts['tfnapca']);
 					$ui = sprintf('
 						%1$s
-						<div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f">
+						<div class="efb %2$s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%3$s-f">
 							%4$s
 							%5$s
 							%6$s',
@@ -2571,7 +2659,7 @@
 						$ui = sprintf(
 							'<!-- checkbox -->
 							%s
-							<div class="efb %s col-sm-12 px-0 mx-0 py-0 my-0 ttEfb show" data-id="%s-el" id="%s-f">
+							<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 py-0 my-0 ttEfb show" data-id="%s-el" id="%s-f">
 								%s
 								<div class="efb %s %s %s efb1 %s" data-css="%s" %s id="%s_options">
 									%s
@@ -2795,7 +2883,7 @@
 
 					$r  = $this->pointer5_el_pro_efb(true, $vj, $form_id);
 
-					$ui = "" . $label ."<div class='efb $pos[3] col-sm-12 px-0 mx-0 ttEfb show'  id='$rndm-f'> ". $ttip .  $r  .$desc ;
+					$ui = "" . $label ."<div class='efb $pos[3] {$this->mobile_pos[3]} px-0 mx-0 ttEfb show'  id='$rndm-f'> ". $ttip .  $r  .$desc ;
 					$dataTag = $elementId;
 				break;
 				case 'pointr10':
@@ -2805,7 +2893,7 @@
 						break;
 					}
 					$r  = $this->pointer10_el_pro_efb(true, $vj, $form_id);
-					$ui = "" . $label ."<div class='efb $pos[3] col-sm-12 px-0 mx-0 ttEfb show'  id='$rndm-f'> ". $ttip .  $r  .$desc ;
+					$ui = "" . $label ."<div class='efb $pos[3] {$this->mobile_pos[3]} px-0 mx-0 ttEfb show'  id='$rndm-f'> ". $ttip .  $r  .$desc ;
 					$dataTag = $elementId;
 				break;
 				case 'smartcr':
@@ -2814,7 +2902,7 @@
 						break;
 					}
 					$r  = $this->smartcr_el_pro_efb(true, $vj, $form_id);
-					$ui = "" . $label ."<div class='efb $pos[3] col-sm-12 px-0 mx-0 ttEfb show'  id='$rndm-f'> ". $ttip .  $r  .$desc ;
+					$ui = "" . $label ."<div class='efb $pos[3] {$this->mobile_pos[3]} px-0 mx-0 ttEfb show'  id='$rndm-f'> ". $ttip .  $r  .$desc ;
 					$dataTag = $elementId;
 				break;
 				case 'table_matrix':
@@ -2851,7 +2939,7 @@
 					// Generate UI
 					$ui = sprintf(
 						'%s
-						<div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f" data-formId="%s">
+						<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%s-f" data-formId="%s">
 							%s
 							<div class="efb input-group m-0 p-0">
 								%s
@@ -2901,7 +2989,7 @@
 					$class = isset($vj->classes) ? $vj->classes : '';
 
 					$ui = sprintf(
-						'%s<div class="efb %s col-sm-12 pt-2 pb-1 px-0 mx-0 ttEfb show %s" id="%s-f">%s%s</div>',
+						'%s<div class="efb %s ' . $this->mobile_pos[3] . ' pt-2 pb-1 px-0 mx-0 ttEfb show %s" id="%s-f">%s%s</div>',
 						$label,  // %s
 						$pos[3],  // %s
 						$class,  // %s
@@ -2976,7 +3064,6 @@
 			$tagId = in_array($elementId, ["firstName", "lastName", "address", "address_line", "postalcode"]) ? 'text' : $elementId;
 			$tagT = in_array($elementId, ["esign", "yesNo", "rating"]) ? '' : 'def';
 			$stepNo = (int)$vj->step - 1;
-			$mobile_col = $this->get_mobile_col_class($vj);
 			$newElement = sprintf(
 				'<!--startTag %1$s--><div class="efb my-1 mx-0 %1$s %2$s %3$s %4$s ttEfb %5$s %6$s %12$s efbField %7$s" data-step="%8$s" data-amount="%9$s" data-id="%10$s-id" id="%10$s" data-tag="%11$s">',
 				$elementId,
@@ -2990,7 +3077,7 @@
 				$vj->amount,
 				$element_Id,
 				$elementId,
-				$mobile_col
+				$mobile_pos[1]
 			);
 
 			if ($elementId != 'option') {

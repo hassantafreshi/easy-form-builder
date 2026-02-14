@@ -71,22 +71,7 @@ label.hStyleOpEfb {
    background-color: white !important;
    box-shadow: 0px 2px 30px rgba(84, 131, 207, 0.2) !important;
 }
-.nav-link.efb {	padding: .3rem 0.5rem !important;
-   color: #898aa9 !important;
-}
-.nav-link.efb:hover {	color: #6637bb !important;
-}
-.nav-link.efb.active {	color: #263a8d !important;
-   border-bottom: 5px solid #263a8d !important;
-}
-.nav-icon.efb {	height: 40px;
-   width: 40px;
-   background-color: white;
-   box-shadow: 0px 2px 30px rgba(84, 131, 207, 0.15) !important;
-   border-radius: 50%;
-   display: flex;
-   justify-content: center;
-}
+
 
 i.efb {	font-size: 1.2rem;
 }

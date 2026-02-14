@@ -335,7 +335,7 @@ const ElementAlignEls = (side ,indx ,idset) => {
   const lab = efb_var.text[side] || side;
   return `
   <div class="efb  row">
-  <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>${lab} | ${efb_var.text.align}</label>
+  <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>${side == 'label' ? (efb_var.text.slabelAlign.replace('%s', '') || (lab + ' | ' + efb_var.text.align)) : (efb_var.text.sdescAlign.replace('%s', '') || (lab + ' | ' + efb_var.text.align))}</label>
     <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="ElementAlignEl">
       <label class="efb ntb btn-primary ${value == left ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${left}','${side}')"><i class="efb bi-align-start fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="labelPostionEl" value="left" >${efb_var.text.left}</label>
@@ -815,7 +815,7 @@ function show_setting_window_efb(idset) {
     ${el.dataset.tag != 'ttlprc' ? requireEls : ''}
     ${desEls}`
     const labelFontSizeEls = `
-      <label for="labelFontSizeEl" class="efb mt-3 efb"><i class="efb bi-aspect-ratio fs-7 ${iconMarginGlobal}"></i>${efb_var.text.labelSize}</label>
+      <label for="labelFontSizeEl" class="efb mt-3 efb"><i class="efb bi-aspect-ratio fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelSize.replace('%s', '') || efb_var.text.labelSize}</label>
                         <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="labelFontSizeEl"  data-tag="${valj_efb[indx].type}">
                             <option value="fs-6" ${ valj_efb[indx].label_text_size == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
                             <option value="fs-7" ${ valj_efb[indx].label_text_size == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
@@ -854,7 +854,7 @@ function show_setting_window_efb(idset) {
 
     const labelPostionEls = `
     <div class="efb row efb">
-    <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-arrows-angle-contract fs-7 ${iconMarginGlobal}"></i>${efb_var.text.labelPostion}</label>
+    <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-arrows-angle-contract fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelPosition.replace('%s', '') || efb_var.text.labelPostion}</label>
       <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-id="${idset}"  id="labelPostionEl">
         <label class="efb  ntb btn-primary bi-chevron-bar-down ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'up' ? `active` : ''}" onclick="funSetPosElEfb('${idset}','up')">
           <input type="radio" name="options" class="efb  opButtonEfb elEdit "   data-id="${idset}"  id="labelPostionEl" value="up" >${efb_var.text.up}</label>
@@ -866,7 +866,7 @@ function show_setting_window_efb(idset) {
 
 
     const widthEls = `
-      <label for="sizeEl" class="efb  mt-3"><i class="efb bi-arrow-left-right fs-7 ${iconMarginGlobal}"></i>${efb_var.text.width}</label>
+      <label for="sizeEl" class="efb  mt-3"><i class="efb bi-arrow-left-right fs-7 ${iconMarginGlobal}"></i>${efb_var.text.swidth.replace('%s', '') || efb_var.text.width}</label>
       <select  data-id="${idset}" class="efb  rounded-4 elEdit form-select"  id="sizeEl" >
           <option value="8" ${valj_efb[indx].size == 8.3 ? `selected` : ''}>8%</option>
           <option value="17" ${valj_efb[indx].size == 17 ? `selected` : ''}>17%</option>
@@ -899,6 +899,50 @@ function show_setting_window_efb(idset) {
           <option value="100" ${!valj_efb[indx].hasOwnProperty('mobile_size') || valj_efb[indx].mobile_size == 100 ? `selected` : ''}>100%</option>
       </select>
       `
+    const mobileLabelPostionEls = `
+    <div class="efb row efb">
+    <label for="mobileLabelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelPosition.replace('%s', efb_var.text.mobile) || 'Mobile Label Position'}</label>
+    <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-id="${idset}"  id="mobileLabelPostionEl">
+        <label class="efb  ntb btn-primary bi-chevron-bar-down ${valj_efb[indx].hasOwnProperty('mobile_label_position') && valj_efb[indx].mobile_label_position == 'up' ? `active` : (!valj_efb[indx].hasOwnProperty('mobile_label_position') ? `active` : '')}" onclick="funSetMobilePosElEfb('${idset}','up')">
+            <input type="radio" name="mobile_pos_options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="mobileLabelPostionEl" value="up" >${efb_var.text.up}</label>
+        <span class="efb  border-right border border-light "></span>
+        <label class="efb  ntb btn-primary bi-chevron-bar-right ${valj_efb[indx].hasOwnProperty('mobile_label_position') && valj_efb[indx].mobile_label_position == 'beside' ? `active` : ''}" onclick="funSetMobilePosElEfb('${idset}','beside')">
+            <input type="radio" name="mobile_pos_options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="mobileLabelPostionEl" value="beside"> ${efb_var.text.beside}
+        </label>
+    </div></div>`;
+
+    const mobileLabelFontSizeEls = `
+      <label for="mobileLabelFontSizeEl" class="efb mt-3 efb"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelSize.replace('%s', efb_var.text.mobile) || 'Mobile Label size'}</label>
+      <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="mobileLabelFontSizeEl"  data-tag="${valj_efb[indx].type}">
+          <option value="fs-6" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-6' ? `selected` : (!valj_efb[indx].hasOwnProperty('mobile_label_text_size') ? `selected` : '')}>${efb_var.text.default}</option>
+          <option value="fs-7" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
+          <option value="fs-5" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>
+          <option value="fs-4" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
+          <option value="fs-3" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
+      </select>`;
+
+    const MobileElementAlignEls = (side, indx, idset) => {
+      const left = side == 'label' ? 'txt-left' : 'justify-content-start'
+      const right = side == 'label' ? 'txt-right' : 'justify-content-end'
+      const center = side == 'label' ? 'txt-center' : 'justify-content-center'
+      const propName = side == 'label' ? 'mobile_label_align' : 'mobile_message_align'
+      let value = valj_efb[indx].hasOwnProperty(propName) ? valj_efb[indx][propName] : (side == 'label' ? valj_efb[indx].label_align : valj_efb[indx].message_align);
+      const labText = side == 'label' ? (efb_var.text.slabelAlign.replace('%s', efb_var.text.mobile) || 'Mobile Label | Align') : (efb_var.text.sdescAlign.replace('%s', efb_var.text.mobile) || 'Mobile Description | Align')
+      return `
+      <div class="efb  row">
+      <label for="MobileElementAlignEl" class="efb  mt-3 col-12"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${labText}</label>
+      <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="MobileElementAlignEl">
+          <label class="efb ntb btn-primary ${value == left ? `active` : ''}" onclick="funSetMobileAlignElEfb('${idset}','${left}','${side}')"><i class="efb bi-align-start fs-7 ${iconMarginGlobal}"></i>
+              <input type="radio" name="mobile_align_options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="MobileElementAlignEl" value="left" >${efb_var.text.left}</label>
+          <span class="efb border-right border border-light "></span>
+          <label class="efb ntb btn-primary ${value == center ? `active` : ''}" onclick="funSetMobileAlignElEfb('${idset}','${center}','${side}')"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>
+              <input type="radio" name="mobile_align_options" class="efb opButtonEfb elEdit" data-id="${idset}"  id="MobileElementAlignEl" value="center">${efb_var.text.center}</label>
+          <span class="efb border-right border border-light "></span>
+          <label class="efb ntb btn-primary ${value == right ? `active` : ''}" onclick="funSetMobileAlignElEfb('${idset}','${right}','${side}')"><i class="efb bi-align-end fs-7 ${iconMarginGlobal}"></i>
+              <input type="radio" name="mobile_align_options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="MobileElementAlignEl" value="right">${efb_var.text.right}</label>
+      </div></div>`;
+    }
+
     const classesEls = `
       <label for="cssClasses" class="efb  mt-3"><i class="efb bi-journal-code fs-7 ${iconMarginGlobal}"></i>${efb_var.text.cSSClasses}</label>
       <input type="text"  data-id="${idset}" class="efb  elEdit text-muted form-control border-d rounded-4 efb mb-3 mb-1" id="classesEl" placeholder="${efb_var.text.cSSClasses}"  ${valj_efb[indx].classes && valj_efb[indx].classes.length > 1 ? `value="${valj_efb[indx].classes}"` : ''}>
@@ -1225,6 +1269,7 @@ function show_setting_window_efb(idset) {
                         <div class="efb  mb-3 px-3 row">
 
                         ${labelFontSizeEls}
+    ${mobileLabelFontSizeEls}
                         ${selectColorEls('label','text')}
                         ${selectColorEls('description','text')}
                         ${selectColorEls('el','text')}
@@ -1233,8 +1278,11 @@ function show_setting_window_efb(idset) {
                         ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  && el.dataset.tag != "mobile" ? mLenEls() :''}
 
                         ${labelPostionEls}
+    ${mobileLabelPostionEls}
                         ${ElementAlignEls('label',indx,idset)}
+    ${MobileElementAlignEls('label',indx,idset)}
                         ${ElementAlignEls('description',indx,idset)}
+    ${MobileElementAlignEls('description',indx,idset)}
                         ${widthEls}
                         ${mobileWidthEls}
                         ${selectHeightEls(idset,indx)}
@@ -1349,14 +1397,18 @@ function show_setting_window_efb(idset) {
 
                         ${o_c ? optnsStyleEls :''}
                         ${labelFontSizeEls}
+    ${mobileLabelFontSizeEls}
                         ${selectColorEls('label','text')}
                         ${selectColorEls('description','text')}
                         ${fun_el_select_in_efb(el.dataset.tag)  ? cornerEls('',indx,idset) : ''}
                         ${fun_el_select_in_efb(el.dataset.tag) ? selectBorderColorEls('element',indx,idset) : ''}
                         ${el.dataset.tag != 'multiselect' && el.dataset.tag != 'payMultiselect' && el.dataset.tag != 'imgRadio'? selectColorEls('el','text') : ''}
                         ${labelPostionEls}
+    ${mobileLabelPostionEls}
                         ${ElementAlignEls('label',indx,idset)}
+    ${MobileElementAlignEls('label',indx,idset)}
                         ${ElementAlignEls('description',indx,idset)}
+    ${MobileElementAlignEls('description',indx,idset)}
                         ${widthEls}
                         ${mobileWidthEls}
                         ${fun_el_select_in_efb(el.dataset.tag) ? selectHeightEls(idset,indx) : ''}
@@ -1395,13 +1447,17 @@ function show_setting_window_efb(idset) {
                 ${el.dataset.tag == "switch" ?textEls(el.id.trim(),efb_var.text.lson ,'text',valj_efb[indx].on ,'on' ,idset):''}
                 ${el.dataset.tag == "switch" ?textEls(el.id.trim(), efb_var.text.lsoff,'text',valj_efb[indx].off,'off',idset):''}
                 ${labelFontSizeEls}
+    ${mobileLabelFontSizeEls}
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}
 
                 ${el.dataset.tag == 'rating' || el.dataset.tag == 'range'  || el.dataset.tag == 'switch' ? "" : selectBorderColorEls('element',indx,idset)}
                 ${labelPostionEls}
+    ${mobileLabelPostionEls}
                 ${ElementAlignEls('label',indx,idset)}
+    ${MobileElementAlignEls('label',indx,idset)}
                 ${ElementAlignEls('description',indx,idset)}
+    ${MobileElementAlignEls('description',indx,idset)}
                 ${el.dataset.tag == "range" || el.dataset.tag == "date" ?miLenEls():''}
                 ${el.dataset.tag == "range" || el.dataset.tag == "date" ? mLenEls() :''}
                 ${el.dataset.tag == "range" ?valueEls:''}
@@ -1444,14 +1500,18 @@ function show_setting_window_efb(idset) {
                 <div class="efb  mb-3 px-3 row">
 
                 ${labelFontSizeEls}
+    ${mobileLabelFontSizeEls}
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}
                 ${el.dataset.tag == 'dadfile' ? selectColorEls('icon','text') : ''}
                 ${el.dataset.tag == 'dadfile' ? btnColorEls(idset,indx) : ''}
                 ${selectBorderColorEls('element',indx,idset)}
                 ${labelPostionEls}
+    ${mobileLabelPostionEls}
                 ${ElementAlignEls('label',indx,idset)}
+    ${MobileElementAlignEls('label',indx,idset)}
                 ${ElementAlignEls('description',indx,idset)}
+    ${MobileElementAlignEls('description',indx,idset)}
                 ${widthEls}
                 ${mobileWidthEls}
                 ${selectHeightEls(idset,indx)}
@@ -1492,11 +1552,15 @@ function show_setting_window_efb(idset) {
                 <div class="efb  mb-3 px-3 row">
 
                 ${labelPostionEls}
+    ${mobileLabelPostionEls}
                 ${ElementAlignEls('label',indx,idset)}
+    ${MobileElementAlignEls('label',indx,idset)}
                 ${ElementAlignEls('description',indx,idset)}
+    ${MobileElementAlignEls('description',indx,idset)}
                 ${widthEls}
                 ${mobileWidthEls}
                 ${labelFontSizeEls}
+    ${mobileLabelFontSizeEls}
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}
                 ${disabledEls}
@@ -1536,13 +1600,17 @@ function show_setting_window_efb(idset) {
         <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                 <div class="efb  mb-3 px-3 row">
                 ${labelFontSizeEls}
+    ${mobileLabelFontSizeEls}
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}
                 ${selectColorEls('el','text')}
                 ${btnColorEls(idset,indx)}
                 ${labelPostionEls}
+    ${mobileLabelPostionEls}
                 ${ElementAlignEls('label',indx,idset)}
+    ${MobileElementAlignEls('label',indx,idset)}
                 ${ElementAlignEls('description',indx,idset)}
+    ${MobileElementAlignEls('description',indx,idset)}
 
                 ${widthEls}
                 ${mobileWidthEls}
@@ -1577,13 +1645,17 @@ function show_setting_window_efb(idset) {
         <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                 <div class="efb  mb-3 px-3 row">
                 ${labelFontSizeEls}
+    ${mobileLabelFontSizeEls}
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}
                 ${selectColorEls('el','text')}
 
                 ${labelPostionEls}
+    ${mobileLabelPostionEls}
                 ${ElementAlignEls('label',indx,idset)}
+    ${MobileElementAlignEls('label',indx,idset)}
                 ${ElementAlignEls('description',indx,idset)}
+    ${MobileElementAlignEls('description',indx,idset)}
 
                 ${widthEls}
                 ${mobileWidthEls}
@@ -1866,13 +1938,17 @@ function show_setting_window_efb(idset) {
                             <div class="efb  mb-3 px-3 row">
 
                             ${labelFontSizeEls}
+    ${mobileLabelFontSizeEls}
 
 
 
 
                             ${labelPostionEls}
+    ${mobileLabelPostionEls}
                             ${ElementAlignEls('label',indx,idset)}
+    ${MobileElementAlignEls('label',indx,idset)}
                             ${ElementAlignEls('description',indx,idset)}
+    ${MobileElementAlignEls('description',indx,idset)}
                             <!-- ${widthEls} -->
 
                             ${classesEls}
@@ -1900,8 +1976,11 @@ function show_setting_window_efb(idset) {
                         <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                                 <div class="efb  mb-3 px-3 row">
                                 ${labelPostionEls}
+    ${mobileLabelPostionEls}
                                 ${ElementAlignEls('label',indx,idset)}
+    ${MobileElementAlignEls('label',indx,idset)}
                                 ${ElementAlignEls('description',indx,idset)}
+    ${MobileElementAlignEls('description',indx,idset)}
                                 <!-- ${widthEls} -->
                                 ${classesEls}
                                 ${showInPublicResultsEls}
@@ -2030,7 +2109,7 @@ function creator_form_builder_Efb() {
   const st = document.getElementById('navbarSupportedContent') ? 1 :0;
   for (let ob in navs) {
     if( typeof navs[ob] == 'object') {
-      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb btn text-capitalize ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? 'nav-link' : 'btn-outline-pink'}  " ${navs[ob].fun.length > 2 ? `onclick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
+      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb btn text-capitalize nav-link ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink text-pink'}  " ${navs[ob].fun.length > 2 ? `onclick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
     }
   }
 

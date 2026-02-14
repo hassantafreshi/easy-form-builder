@@ -1251,6 +1251,38 @@ const funSetAlignElEfb = (dataId, align, element) => {
         break;
   }
 }
+const funSetMobilePosElEfb = (dataId, position) => {
+  const indx = valj_efb.findIndex(x => x.dataId == dataId);
+  if (indx != -1) {
+    valj_efb[indx].mobile_label_position = position;
+  }
+  if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') {
+    applyMobileLabelPositionEfb(valj_efb[indx]);
+  }
+}
+const funSetMobileAlignElEfb = (dataId, align, element) => {
+  const indx = dataId != 'button_group_' && dataId != 'Next_' ? valj_efb.findIndex(x => x.dataId == dataId) : 0;
+  if (indx == -1) { return }
+  const propName = element == 'label' ? 'mobile_label_align' : 'mobile_message_align';
+  valj_efb[indx][propName] = align;
+  if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') {
+    switch (element) {
+      case 'label':
+        let labEl = document.getElementById(`${valj_efb[indx].id_}_labG`);
+        if (labEl) labEl.className = alignChangerEfb(labEl.className, align);
+        break;
+      case 'description':
+        let desEl = document.getElementById(`${valj_efb[indx].id_}-des`);
+        if (desEl) {
+          desEl.className = alignChangerElEfb(desEl.className, align);
+          if (align != 'justify-content-start' && desEl.classList.contains('mx-4')) { desEl.classList.remove('mx-4'); }
+          else if (align == 'justify-content-start' && !desEl.classList.contains('mx-4')) { desEl.classList.add('mx-4'); }
+        }
+        break;
+    }
+  }
+}
+
 const loadingShow_efb = (title) => {
   return `<div class="efb modal-dialog modal-dialog-centered efb"  id="settingModalEfb_" >
  <div class="efb modal-content efb " id="settingModalEfb-sections">
@@ -1336,7 +1368,7 @@ const alignChangerEfb = (classes, value) => { return classes.replace(/(txt-left|
 const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); }
 const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-+[\w\-]+/gi, ` ${color} `) ?? `${classes} ${color} `; }
 const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-square|efb-rounded|rounded-+[0-5] )/, ` ${value} `) ?? `${classes} ${value} `; }
-const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, ` ${value} `) ?? `${classes} ${value} ` ; }
+const colMdChangerEfb = (classes, value) => { return /\bcol-md-\d+/.test(classes) ? classes.replace(/\bcol-md-\d+/, ` ${value} `) : `${classes} ${value} `; }
 const PxChangerEfb = (classes, value) => { return classes.replace(/\bpx+-\d+/, ` ${value} `) ?? `${classes} ${value} `; }
 const MxChangerEfb = (classes, value) => { return classes.replace(/\bmx+-\d+/, ` ${value} `) ?? `${classes} ${value} `; }
 const btnChangerEfb = (classes, value) => { return classes.replace(/\bbtn-outline-+\w+|\bbtn-+\w+/, ` ${value} `) ?? `${classes} ${value} `; }
@@ -1430,8 +1462,6 @@ function copyCodeEfb(id , tagid = '') {
     const tag = document.getElementById(tagid);
     const message = efb_var.text.copied.replace('%s','');
     tag.innerHTML = message;
-    toast_efb('bi-check-circle-fill', message, 'success');
-
   }
 
 }
@@ -2649,6 +2679,42 @@ function get_position_col_el(dataId, state) {
 /* Mobile/Desktop view toggle for builder */
 let currentViewEfb = 'desktop';
 
+function applyMobileLabelPositionEfb(item) {
+  if (!item || !item.id_) return;
+  const pos = item.hasOwnProperty('mobile_label_position') ? item.mobile_label_position : 'up';
+  const parentEl = document.getElementById(item.id_);
+  const labelEl = document.getElementById(`${item.id_}_labG`);
+  const inputEl = document.getElementById(`${item.id_}-f`);
+  if (pos === 'up') {
+    if (parentEl && parentEl.classList.contains('row')) parentEl.classList.remove('row');
+    if (labelEl) { labelEl.className = colSmChangerEfb(labelEl.className, 'col-sm-12'); }
+    if (inputEl) { inputEl.className = colSmChangerEfb(inputEl.className, 'col-sm-12'); }
+  } else {
+    if (parentEl && !parentEl.classList.contains('row')) parentEl.classList.add('row');
+    if (labelEl) { labelEl.className = colSmChangerEfb(labelEl.className, 'col-sm-4'); }
+    if (inputEl) { inputEl.className = colSmChangerEfb(inputEl.className, 'col-sm-8'); }
+  }
+}
+
+function applyDesktopLabelPositionEfb(item) {
+  if (!item || !item.id_) return;
+  const parentEl = document.getElementById(item.id_);
+  const labelEl = document.getElementById(`${item.id_}_labG`);
+  const inputEl = document.getElementById(`${item.id_}-f`);
+  const pos = item.hasOwnProperty('label_position') ? item.label_position : 'up';
+  if (pos === 'up') {
+    if (parentEl && parentEl.classList.contains('row')) parentEl.classList.remove('row');
+  } else {
+    if (parentEl && !parentEl.classList.contains('row')) parentEl.classList.add('row');
+  }
+  // Restore col-sm-12 (default mobile full width)
+  if (labelEl) { labelEl.className = colSmChangerEfb(labelEl.className, 'col-sm-12'); }
+  if (inputEl) { inputEl.className = colSmChangerEfb(inputEl.className, 'col-sm-12'); }
+  // Re-apply desktop col-md-* using existing function
+  if (item.type != "stripe" && item.type != "html") get_position_col_el(item.dataId, true);
+}
+
+
 function switchViewEfb(view) {
   currentViewEfb = view;
   const dragBox = document.getElementById('dragBoxWrapperEfb');
@@ -2660,78 +2726,122 @@ function switchViewEfb(view) {
     dragBox.classList.add('efb-mobile-view-efb');
     desktopBtn.classList.remove('active');
     mobileBtn.classList.add('active');
-    // Apply mobile column sizes to all elements
+    // Apply mobile column sizes and styles to all elements
     for (let i = 1; i < valj_efb.length; i++) {
       if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
         get_position_col_mobile_el(valj_efb[i].dataId, true);
+        // Apply mobile label font size
+        if (valj_efb[i].hasOwnProperty('mobile_label_text_size')) {
+          let labSpan = document.getElementById(`${valj_efb[i].id_}_lab`);
+          if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, valj_efb[i].mobile_label_text_size);
+        }
+        // Apply mobile label align
+        if (valj_efb[i].hasOwnProperty('mobile_label_align')) {
+          let labG = document.getElementById(`${valj_efb[i].id_}_labG`);
+          if (labG) labG.className = alignChangerEfb(labG.className, valj_efb[i].mobile_label_align);
+        }
+        // Apply mobile description align
+        if (valj_efb[i].hasOwnProperty('mobile_message_align')) {
+          let desEl = document.getElementById(`${valj_efb[i].id_}-des`);
+          if (desEl) {
+            desEl.className = alignChangerElEfb(desEl.className, valj_efb[i].mobile_message_align);
+            if (valj_efb[i].mobile_message_align != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
+            else if (valj_efb[i].mobile_message_align == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
+          }
+        }
+        // Apply mobile label position
+        if (valj_efb[i].hasOwnProperty('mobile_label_position')) {
+          applyMobileLabelPositionEfb(valj_efb[i]);
+        }
       }
     }
   } else {
     dragBox.classList.remove('efb-mobile-view-efb');
     mobileBtn.classList.remove('active');
     desktopBtn.classList.add('active');
-    // Re‑apply desktop column sizes
+    // Re-apply desktop column sizes and styles
     for (let i = 1; i < valj_efb.length; i++) {
       if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
         get_position_col_el(valj_efb[i].dataId, true);
+        // Restore desktop label font size
+        if (valj_efb[i].hasOwnProperty('label_text_size')) {
+          let labSpan = document.getElementById(`${valj_efb[i].id_}_lab`);
+          if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, valj_efb[i].label_text_size);
+        }
+        // Restore desktop label align
+        if (valj_efb[i].hasOwnProperty('label_align')) {
+          let labG = document.getElementById(`${valj_efb[i].id_}_labG`);
+          if (labG) labG.className = alignChangerEfb(labG.className, valj_efb[i].label_align);
+        }
+        // Restore desktop description align
+        if (valj_efb[i].hasOwnProperty('message_align')) {
+          let desEl = document.getElementById(`${valj_efb[i].id_}-des`);
+          if (desEl) {
+            desEl.className = alignChangerElEfb(desEl.className, valj_efb[i].message_align);
+            if (valj_efb[i].message_align != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
+            else if (valj_efb[i].message_align == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
+          }
+        }
+        // Restore desktop label position
+        applyDesktopLabelPositionEfb(valj_efb[i]);
       }
     }
   }
 }
 
 function getMobileColClass(item) {
-  if (!item || !item.hasOwnProperty('mobile_size')) return 'col-12';
+  if (!item || !item.hasOwnProperty('mobile_size')) return 'col-sm-12';
   const ms = Number(item.mobile_size);
   switch(ms) {
-    case 8:  return 'col-1';
-    case 17: return 'col-2';
-    case 25: return 'col-3';
-    case 33: return 'col-4';
-    case 42: return 'col-5';
-    case 50: return 'col-6';
-    case 58: return 'col-7';
-    case 67: return 'col-8';
-    case 75: return 'col-9';
-    case 83: return 'col-10';
-    case 92: return 'col-11';
-    case 100: default: return 'col-12';
+    case 8:  return 'col-sm-1';
+    case 17: return 'col-sm-2';
+    case 25: return 'col-sm-3';
+    case 33: return 'col-sm-4';
+    case 42: return 'col-sm-5';
+    case 50: return 'col-sm-6';
+    case 58: return 'col-sm-7';
+    case 67: return 'col-sm-8';
+    case 75: return 'col-sm-9';
+    case 83: return 'col-sm-10';
+    case 92: return 'col-sm-11';
+    case 100: default: return 'col-sm-12';
   }
 }
 
 function get_position_col_mobile_el(dataId, state) {
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
-  if (indx === -1) return ['', 'col-12', 'col-12', 'col-12'];
+  if (indx === -1) return ['', 'col-sm-12', 'col-sm-12', 'col-sm-12'];
   let el_parent = document.getElementById(valj_efb[indx].id_) ?? "null";
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`) ?? "null";
   let el_input = document.getElementById(`${valj_efb[indx].id_}-f`) ?? "null";
-  let parent_col = 'col-12';
-  let label_col = 'col-12';
-  let input_col = 'col-12';
+  let parent_col = 'col-sm-12';
+  let label_col = 'col-sm-12';
+  let input_col = 'col-sm-12';
   let parent_row = '';
   const msize = valj_efb[indx].hasOwnProperty("mobile_size") ? Number(valj_efb[indx].mobile_size) : 100;
   switch (msize) {
-    case 100: parent_col = 'col-12'; break;
-    case 92:  parent_col = 'col-11'; break;
-    case 83:  parent_col = 'col-10'; break;
-    case 75:  parent_col = 'col-9';  break;
-    case 67:  parent_col = 'col-8';  break;
-    case 58:  parent_col = 'col-7';  break;
-    case 50:  parent_col = 'col-6';  break;
-    case 42:  parent_col = 'col-5';  break;
-    case 33:  parent_col = 'col-4';  break;
-    case 25:  parent_col = 'col-3';  break;
-    case 17:  parent_col = 'col-2';  break;
-    case 8:   parent_col = 'col-1';  break;
+    case 100: parent_col = 'col-sm-12'; break;
+    case 92:  parent_col = 'col-sm-11'; break;
+    case 83:  parent_col = 'col-sm-10'; break;
+    case 75:  parent_col = 'col-sm-9';  break;
+    case 67:  parent_col = 'col-sm-8';  break;
+    case 58:  parent_col = 'col-sm-7';  break;
+    case 50:  parent_col = 'col-sm-6';  break;
+    case 42:  parent_col = 'col-sm-5';  break;
+    case 33:  parent_col = 'col-sm-4';  break;
+    case 25:  parent_col = 'col-sm-3';  break;
+    case 17:  parent_col = 'col-sm-2';  break;
+    case 8:   parent_col = 'col-sm-1';  break;
   }
-  label_col = 'col-12';
-  input_col = 'col-12';
+  label_col = 'col-sm-12';
+  input_col = 'col-sm-12';
   if (valj_efb[indx].label_position != "up") {
     parent_row = 'row';
   }
   if (state == true) {
-    el_parent.classList = colChangerEfb(el_parent.className, parent_col);
-    if (el_input != "null") el_input.classList = colChangerEfb(el_input.className, input_col);
-    if (el_label != "null") el_label.classList = colChangerEfb(el_label.className, label_col);
+    el_parent.className = colSmChangerEfb(el_parent.className, parent_col);
+    if (el_input != "null") el_input.className = colSmChangerEfb(el_input.className, input_col);
+    if (el_label != "null") el_label.className = colSmChangerEfb(el_label.className, label_col);
   }
   return [parent_row, parent_col, label_col, input_col];
 }

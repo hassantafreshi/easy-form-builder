@@ -1230,7 +1230,8 @@ public function check_nonce_permission_efb($request) {
 			// if (valj_efb[0].hasOwnProperty('dShowBg') && Number(valj_efb[0]->dShowBg) != 1 && state == "run") { document.getElementById('body_efb').classList.add('card') }
 			$dShow = isset($valj_efb[0]->dShowBg) && intval($valj_efb[0]->dShowBg) != 1 ? 'card' : '';
 			// Style is added directly to content, not via wp_head (because shortcode runs after wp_head)
-			$content_new = $style.$efb_loading_ui_script.$script.$bootstrap_icons.''.$iconst_html_preload.'
+			$mobile_css_efb = $efbFormBuilder->generate_mobile_css_efb();
+                        $content_new = $style.$mobile_css_efb.$efb_loading_ui_script.$script.$bootstrap_icons.''.$iconst_html_preload.'
 				<!-- start body_efb-->
 
 				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting-'.$this->id.' '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'">

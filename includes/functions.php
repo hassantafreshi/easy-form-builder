@@ -155,7 +155,7 @@ class efbFunction {
 			"getProVersion" => $state ? $ac->text->getProVersion : esc_html__('Activate Pro version','easy-form-builder'),
 			"reCAPTCHA" => $state ? $ac->text->reCAPTCHA : esc_html__('reCAPTCHA','easy-form-builder'),
 
-			"enterSITEKEY" => $state ? $ac->text->enterSITEKEY : esc_html__('Secret Key','easy-form-builder'),
+			"enterSITEKEY" => $state ? $ac->text->enterSITEKEY : esc_html__('Enter the Secret Key','easy-form-builder'),
 			"alertEmail" => $state ? $ac->text->alertEmail : esc_html__('Alert Email','easy-form-builder'),
 			/* translators: Enter Admin Email = input field for administrator's email address */
 			"enterAdminEmail" => $state ? $ac->text->enterAdminEmail : esc_html__('Enter the admin email address to receive email notifications.','easy-form-builder'),
@@ -373,6 +373,14 @@ class efbFunction {
 			"width" => $state ? $ac->text->width : esc_html__('Width','easy-form-builder'),
 			/* translators: Mobile Width = width of element on mobile devices */
 			"swidth" => $state && isset($ac->text->swidth) ? $ac->text->swidth : esc_html__('%s width','easy-form-builder'),
+/* translators: %s = context prefix (e.g. Mobile/Desktop). Label Position = position of field label */
+"slabelPosition" => $state && isset($ac->text->slabelPosition) ? $ac->text->slabelPosition : esc_html__('%s Label Position','easy-form-builder'),
+/* translators: %s = context prefix (e.g. Mobile/Desktop). Label size = font size of field label */
+"slabelSize" => $state && isset($ac->text->slabelSize) ? $ac->text->slabelSize : esc_html__('%s Label size','easy-form-builder'),
+/* translators: %s = context prefix (e.g. Mobile/Desktop). Label Align = text alignment of field label */
+"slabelAlign" => $state && isset($ac->text->slabelAlign) ? $ac->text->slabelAlign : esc_html__('%s Label | Align','easy-form-builder'),
+/* translators: %s = context prefix (e.g. Mobile/Desktop). Description Align = text alignment of field description */
+"sdescAlign" => $state && isset($ac->text->sdescAlign) ? $ac->text->sdescAlign : esc_html__('%s Description | Align','easy-form-builder'),
 			/* translators: Desktop = computer/PC view */
 			"desktop" => $state && isset($ac->text->desktop) ? $ac->text->desktop : esc_html__('Desktop','easy-form-builder'),
 			/* translators: Mobile = mobile phone view */
@@ -567,7 +575,7 @@ class efbFunction {
 			"clickHereWatchVideoTutorial" => $state ? $ac->text->clickHereWatchVideoTutorial : esc_html__('Click here to watch a video tutorial.','easy-form-builder'),
 			"siteKey" => $state ? $ac->text->siteKey : esc_html__('Site Key','easy-form-builder'),
 			"SecreTKey" => $state ? $ac->text->SecreTKey : esc_html__('Secret Key','easy-form-builder'),
-			"EnterSECRETKEY" => $state ? $ac->text->EnterSECRETKEY : esc_html__('Enter a Secret Key','easy-form-builder'),
+			"EnterSECRETKEY" => $state ? $ac->text->EnterSECRETKEY : esc_html__('Enter the Secret Key','easy-form-builder'),
 			"clearFiles" => $state ? $ac->text->clearFiles : esc_html__('Clear Files','easy-form-builder'),
 			"enterActivateCode" => $state ? $ac->text->enterActivateCode : esc_html__('Enter your activation code','easy-form-builder'),
 			"error" => $state ? $ac->text->error : esc_html__('Error','easy-form-builder'),

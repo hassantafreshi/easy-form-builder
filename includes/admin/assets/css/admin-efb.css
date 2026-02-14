@@ -1118,6 +1118,22 @@ div#sideBoxEfb {	height: 100vh;
 }
 a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 }
+.nav-link.efb {	padding: .3rem 0.5rem !important;
+   color: #898aa9 !important;
+}
+.nav-link.efb:hover {	color: #6637bb !important;
+}
+.nav-link.efb.active {	color: #263a8d !important;
+   border-bottom: 5px solid #263a8d !important;
+}
+.nav-icon.efb {	height: 40px;
+   width: 40px;
+   background-color: white;
+   box-shadow: 0px 2px 30px rgba(84, 131, 207, 0.15) !important;
+   border-radius: 50%;
+   display: flex;
+   justify-content: center;
+}
 .navbar-toggler.efb {	border: none !important;
 }
 .navbar-shadow.efb {	position: fixed;
@@ -1551,33 +1567,6 @@ div#dropZoneEFB.captcha{
    margin-bottom: 18%;
 }
 
-/* GROUP E - Dead CSS lds-hourglass */
-.efb.lds-hourglass {	display: inline-block;
-   position: relative;
-   width: 80px;
-   height: 80px;
-}
-.efb.lds-hourglass:after {	content: " ";
-   display: block;
-   border-radius: 50%;
-   width: 0;
-   height: 0;
-   margin: 8px;
-   box-sizing: border-box;
-   border: 32px solid #202a8d !important;
-   border-color: #202a8d transparent #202a8d transparent !important;
-   animation: lds-hourglass 1.2s infinite;
-}
-@keyframes lds-hourglass {	0% {		transform: rotate(0);
-	   animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
-   }
-   50% {		transform: rotate(900deg);
-	   animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
-   }
-   100% {		transform: rotate(1800deg);
-   }
-}
-
 /* GROUP F - Admin floating panel */
 #floating-panel.efb {	position: absolute;
    z-index: 5;
@@ -1588,6 +1577,9 @@ div#dropZoneEFB.captcha{
    margin-top: 14% !important;
 
 
+}
+.efb.text-pink{
+        color: #ff4b93 !important;
 }
 #floating-panel .input-efb {	color: #bb2d3b !important;
 }
@@ -1889,6 +1881,13 @@ div#Listefb-150 {
 	left: 50%;
 	transform: translateX(-50%);
 }
+/* Mobile view: disable col-md-* so col-sm-* controls layout */
+.efb-mobile-view-efb [class*="col-md-"] {
+  flex: unset !important;
+  width: unset !important;
+  max-width: unset !important;
+}
+
 
 /* Admin responsive styles */
 @media screen and (max-width: 782px) {
