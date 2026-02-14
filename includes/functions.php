@@ -1285,6 +1285,130 @@ class efbFunction {
 			/* translators: Current Plan = label showing the user's active plan */
 			"crntPln" => $state && isset($ac->text->crntPln) ? $ac->text->crntPln : esc_html__('Current Plan','easy-form-builder'),
 
+			// === Email Template Builder Strings ===
+
+			/* translators: Block type labels for drag-and-drop email builder */
+			"ebHeader" => $state && isset($ac->text->ebHeader) ? $ac->text->ebHeader : esc_html__('Header','easy-form-builder'),
+			"ebLogoImage" => $state && isset($ac->text->ebLogoImage) ? $ac->text->ebLogoImage : esc_html__('Logo / Image','easy-form-builder'),
+			"ebTitle" => $state && isset($ac->text->ebTitle) ? $ac->text->ebTitle : esc_html__('Title','easy-form-builder'),
+			"ebTextBlock" => $state && isset($ac->text->ebTextBlock) ? $ac->text->ebTextBlock : esc_html__('Text Block','easy-form-builder'),
+			"ebMessageContent" => $state && isset($ac->text->ebMessageContent) ? $ac->text->ebMessageContent : esc_html__('Message Content','easy-form-builder'),
+			"ebButton" => $state && isset($ac->text->ebButton) ? $ac->text->ebButton : esc_html__('Button','easy-form-builder'),
+			"ebDivider" => $state && isset($ac->text->ebDivider) ? $ac->text->ebDivider : esc_html__('Divider','easy-form-builder'),
+			"ebSpacer" => $state && isset($ac->text->ebSpacer) ? $ac->text->ebSpacer : esc_html__('Spacer','easy-form-builder'),
+			"ebImage" => $state && isset($ac->text->ebImage) ? $ac->text->ebImage : esc_html__('Image','easy-form-builder'),
+			"ebTwoColumns" => $state && isset($ac->text->ebTwoColumns) ? $ac->text->ebTwoColumns : esc_html__('Two Columns','easy-form-builder'),
+			"ebSocialLinks" => $state && isset($ac->text->ebSocialLinks) ? $ac->text->ebSocialLinks : esc_html__('Social Links','easy-form-builder'),
+			"ebFooter" => $state && isset($ac->text->ebFooter) ? $ac->text->ebFooter : esc_html__('Footer','easy-form-builder'),
+			"ebCustomHTML" => $state && isset($ac->text->ebCustomHTML) ? $ac->text->ebCustomHTML : esc_html__('Custom HTML','easy-form-builder'),
+
+			/* translators: Template labels for email builder */
+			"ebProfessional" => $state && isset($ac->text->ebProfessional) ? $ac->text->ebProfessional : esc_html__('Professional','easy-form-builder'),
+			"ebModernDark" => $state && isset($ac->text->ebModernDark) ? $ac->text->ebModernDark : esc_html__('Modern Dark','easy-form-builder'),
+			"ebMinimalClean" => $state && isset($ac->text->ebMinimalClean) ? $ac->text->ebMinimalClean : esc_html__('Minimal Clean','easy-form-builder'),
+			"ebElegant" => $state && isset($ac->text->ebElegant) ? $ac->text->ebElegant : esc_html__('Elegant','easy-form-builder'),
+			"ebColorful" => $state && isset($ac->text->ebColorful) ? $ac->text->ebColorful : esc_html__('Colorful','easy-form-builder'),
+
+			/* translators: Category labels for email builder blocks panel */
+			"ebCatLayout" => $state && isset($ac->text->ebCatLayout) ? $ac->text->ebCatLayout : esc_html__('Layout','easy-form-builder'),
+			"ebCatContent" => $state && isset($ac->text->ebCatContent) ? $ac->text->ebCatContent : esc_html__('Content','easy-form-builder'),
+			"ebCatShortcodes" => $state && isset($ac->text->ebCatShortcodes) ? $ac->text->ebCatShortcodes : esc_html__('Shortcodes','easy-form-builder'),
+			"ebCatAdvanced" => $state && isset($ac->text->ebCatAdvanced) ? $ac->text->ebCatAdvanced : esc_html__('Advanced','easy-form-builder'),
+
+			/* translators: Canvas & UI labels for email builder */
+			"ebDragBlocksHere" => $state && isset($ac->text->ebDragBlocksHere) ? $ac->text->ebDragBlocksHere : esc_html__('Drag blocks here to build your email template','easy-form-builder'),
+			"ebOrChooseTemplate" => $state && isset($ac->text->ebOrChooseTemplate) ? $ac->text->ebOrChooseTemplate : esc_html__('or choose a template from the Templates panel','easy-form-builder'),
+			"ebSelectBlock" => $state && isset($ac->text->ebSelectBlock) ? $ac->text->ebSelectBlock : esc_html__('Select a block to edit its properties','easy-form-builder'),
+			"ebMoveUp" => $state && isset($ac->text->ebMoveUp) ? $ac->text->ebMoveUp : esc_html__('Move Up','easy-form-builder'),
+			"ebMoveDown" => $state && isset($ac->text->ebMoveDown) ? $ac->text->ebMoveDown : esc_html__('Move Down','easy-form-builder'),
+
+			/* translators: Property labels for email builder properties panel */
+			"ebBgColor" => $state && isset($ac->text->ebBgColor) ? $ac->text->ebBgColor : esc_html__('Background Color','easy-form-builder'),
+			"ebBgCSS" => $state && isset($ac->text->ebBgCSS) ? $ac->text->ebBgCSS : esc_html__('Background (CSS)','easy-form-builder'),
+			"ebPadding" => $state && isset($ac->text->ebPadding) ? $ac->text->ebPadding : esc_html__('Padding','easy-form-builder'),
+			"ebImageURL" => $state && isset($ac->text->ebImageURL) ? $ac->text->ebImageURL : esc_html__('Image URL','easy-form-builder'),
+			"ebWidthPx" => $state && isset($ac->text->ebWidthPx) ? $ac->text->ebWidthPx : esc_html__('Width (px)','easy-form-builder'),
+			"ebAltText" => $state && isset($ac->text->ebAltText) ? $ac->text->ebAltText : esc_html__('Alt Text','easy-form-builder'),
+			"ebFontSize" => $state && isset($ac->text->ebFontSize) ? $ac->text->ebFontSize : esc_html__('Font Size (px)','easy-form-builder'),
+			"ebTitleText" => $state && isset($ac->text->ebTitleText) ? $ac->text->ebTitleText : esc_html__('Title Text','easy-form-builder'),
+			"ebWeight" => $state && isset($ac->text->ebWeight) ? $ac->text->ebWeight : esc_html__('Weight','easy-form-builder'),
+			"ebLineHeight" => $state && isset($ac->text->ebLineHeight) ? $ac->text->ebLineHeight : esc_html__('Line Height','easy-form-builder'),
+			"ebButtonText" => $state && isset($ac->text->ebButtonText) ? $ac->text->ebButtonText : esc_html__('Button Text','easy-form-builder'),
+			"ebLinkURL" => $state && isset($ac->text->ebLinkURL) ? $ac->text->ebLinkURL : esc_html__('Link URL','easy-form-builder'),
+			"ebBackground" => $state && isset($ac->text->ebBackground) ? $ac->text->ebBackground : esc_html__('Background','easy-form-builder'),
+			"ebTextColor" => $state && isset($ac->text->ebTextColor) ? $ac->text->ebTextColor : esc_html__('Text Color','easy-form-builder'),
+			"ebBorderRadius" => $state && isset($ac->text->ebBorderRadius) ? $ac->text->ebBorderRadius : esc_html__('Border Radius (px)','easy-form-builder'),
+			"ebInnerPadding" => $state && isset($ac->text->ebInnerPadding) ? $ac->text->ebInnerPadding : esc_html__('Inner Padding','easy-form-builder'),
+			"ebOuterPadding" => $state && isset($ac->text->ebOuterPadding) ? $ac->text->ebOuterPadding : esc_html__('Outer Padding','easy-form-builder'),
+			"ebThickness" => $state && isset($ac->text->ebThickness) ? $ac->text->ebThickness : esc_html__('Thickness (px)','easy-form-builder'),
+			"ebWidthPercent" => $state && isset($ac->text->ebWidthPercent) ? $ac->text->ebWidthPercent : esc_html__('Width (%)','easy-form-builder'),
+			"ebHeightPx" => $state && isset($ac->text->ebHeightPx) ? $ac->text->ebHeightPx : esc_html__('Height (px)','easy-form-builder'),
+			"ebWidthUnit" => $state && isset($ac->text->ebWidthUnit) ? $ac->text->ebWidthUnit : esc_html__('Width Unit','easy-form-builder'),
+			"ebLeftColumn" => $state && isset($ac->text->ebLeftColumn) ? $ac->text->ebLeftColumn : esc_html__('Left Column','easy-form-builder'),
+			"ebRightColumn" => $state && isset($ac->text->ebRightColumn) ? $ac->text->ebRightColumn : esc_html__('Right Column','easy-form-builder'),
+			"ebLeftTextColor" => $state && isset($ac->text->ebLeftTextColor) ? $ac->text->ebLeftTextColor : esc_html__('Left Text Color','easy-form-builder'),
+			"ebRightTextColor" => $state && isset($ac->text->ebRightTextColor) ? $ac->text->ebRightTextColor : esc_html__('Right Text Color','easy-form-builder'),
+			"ebGap" => $state && isset($ac->text->ebGap) ? $ac->text->ebGap : esc_html__('Gap (px)','easy-form-builder'),
+			"ebLinkColor" => $state && isset($ac->text->ebLinkColor) ? $ac->text->ebLinkColor : esc_html__('Link Color','easy-form-builder'),
+			"ebAddLink" => $state && isset($ac->text->ebAddLink) ? $ac->text->ebAddLink : esc_html__('Add Link','easy-form-builder'),
+			"ebFooterText" => $state && isset($ac->text->ebFooterText) ? $ac->text->ebFooterText : esc_html__('Footer Text','easy-form-builder'),
+			"ebHeaderChildren" => $state && isset($ac->text->ebHeaderChildren) ? $ac->text->ebHeaderChildren : esc_html__('Header Children','easy-form-builder'),
+			"ebLinks" => $state && isset($ac->text->ebLinks) ? $ac->text->ebLinks : esc_html__('Links','easy-form-builder'),
+
+			/* translators: Shortcode button labels for email builder */
+			"ebInsertShortcode" => $state && isset($ac->text->ebInsertShortcode) ? $ac->text->ebInsertShortcode : esc_html__('Insert shortcode:','easy-form-builder'),
+			"ebSCMessage" => $state && isset($ac->text->ebSCMessage) ? $ac->text->ebSCMessage : esc_html__('Message *','easy-form-builder'),
+			"ebSCTitle" => $state && isset($ac->text->ebSCTitle) ? $ac->text->ebSCTitle : esc_html__('Title','easy-form-builder'),
+			"ebSCSiteName" => $state && isset($ac->text->ebSCSiteName) ? $ac->text->ebSCSiteName : esc_html__('Site Name','easy-form-builder'),
+			"ebSCSiteURL" => $state && isset($ac->text->ebSCSiteURL) ? $ac->text->ebSCSiteURL : esc_html__('Site URL','easy-form-builder'),
+			"ebSCAdminEmail" => $state && isset($ac->text->ebSCAdminEmail) ? $ac->text->ebSCAdminEmail : esc_html__('Admin Email','easy-form-builder'),
+			"ebSCFormData" => $state && isset($ac->text->ebSCFormData) ? $ac->text->ebSCFormData : esc_html__('Form data','easy-form-builder'),
+			"ebSCFormName" => $state && isset($ac->text->ebSCFormName) ? $ac->text->ebSCFormName : esc_html__('Form name','easy-form-builder'),
+			"ebSCBlogName" => $state && isset($ac->text->ebSCBlogName) ? $ac->text->ebSCBlogName : esc_html__('Blog name','easy-form-builder'),
+			"ebSCHomeURL" => $state && isset($ac->text->ebSCHomeURL) ? $ac->text->ebSCHomeURL : esc_html__('Home URL','easy-form-builder'),
+			"ebSCAdminEmailDesc" => $state && isset($ac->text->ebSCAdminEmailDesc) ? $ac->text->ebSCAdminEmailDesc : esc_html__('Admin email','easy-form-builder'),
+
+			/* translators: Notification messages for email builder */
+			"ebSCRequired" => $state && isset($ac->text->ebSCRequired) ? $ac->text->ebSCRequired : esc_html__('shortcode_message is required!','easy-form-builder'),
+			"ebMustContainSC" => $state && isset($ac->text->ebMustContainSC) ? $ac->text->ebMustContainSC : esc_html__('Template must contain shortcode_message!','easy-form-builder'),
+			"ebTemplateExported" => $state && isset($ac->text->ebTemplateExported) ? $ac->text->ebTemplateExported : esc_html__('Template exported!','easy-form-builder'),
+			"ebHTMLApplied" => $state && isset($ac->text->ebHTMLApplied) ? $ac->text->ebHTMLApplied : esc_html__('HTML code applied!','easy-form-builder'),
+			"ebResetConfirm" => $state && isset($ac->text->ebResetConfirm) ? $ac->text->ebResetConfirm : esc_html__('Are you sure you want to reset the email template? This cannot be undone.','easy-form-builder'),
+			"ebTemplateReset" => $state && isset($ac->text->ebTemplateReset) ? $ac->text->ebTemplateReset : esc_html__('Template reset to default!','easy-form-builder'),
+			"ebFormContentHere" => $state && isset($ac->text->ebFormContentHere) ? $ac->text->ebFormContentHere : esc_html__('Form content appears here','easy-form-builder'),
+			"ebAddImageURL" => $state && isset($ac->text->ebAddImageURL) ? $ac->text->ebAddImageURL : esc_html__('Add image URL','easy-form-builder'),
+			"ebUnknownBlock" => $state && isset($ac->text->ebUnknownBlock) ? $ac->text->ebUnknownBlock : esc_html__('Unknown block','easy-form-builder'),
+
+			/* translators: Toolbar & sidebar labels for email builder */
+			"ebUndo" => $state && isset($ac->text->ebUndo) ? $ac->text->ebUndo : esc_html__('Undo','easy-form-builder'),
+			"ebRedo" => $state && isset($ac->text->ebRedo) ? $ac->text->ebRedo : esc_html__('Redo','easy-form-builder'),
+			"ebExport" => $state && isset($ac->text->ebExport) ? $ac->text->ebExport : esc_html__('Export','easy-form-builder'),
+			"ebBlocks" => $state && isset($ac->text->ebBlocks) ? $ac->text->ebBlocks : esc_html__('Blocks','easy-form-builder'),
+			"ebProperties" => $state && isset($ac->text->ebProperties) ? $ac->text->ebProperties : esc_html__('Properties','easy-form-builder'),
+			"ebHTMLSourceCode" => $state && isset($ac->text->ebHTMLSourceCode) ? $ac->text->ebHTMLSourceCode : esc_html__('HTML Source Code','easy-form-builder'),
+			"ebApply" => $state && isset($ac->text->ebApply) ? $ac->text->ebApply : esc_html__('Apply','easy-form-builder'),
+
+			/* translators: Global settings labels for email builder */
+			"ebEmailBg" => $state && isset($ac->text->ebEmailBg) ? $ac->text->ebEmailBg : esc_html__('Email Background','easy-form-builder'),
+			"ebContentBg" => $state && isset($ac->text->ebContentBg) ? $ac->text->ebContentBg : esc_html__('Content Background','easy-form-builder'),
+			"ebContentWidth" => $state && isset($ac->text->ebContentWidth) ? $ac->text->ebContentWidth : esc_html__('Content Width (px)','easy-form-builder'),
+			"ebDirection" => $state && isset($ac->text->ebDirection) ? $ac->text->ebDirection : esc_html__('Direction','easy-form-builder'),
+
+			/* translators: Message block notice in email builder properties */
+			"ebMessageNotice" => $state && isset($ac->text->ebMessageNotice) ? $ac->text->ebMessageNotice : esc_html__('This block outputs shortcode_message — the submitted form data.','easy-form-builder'),
+			/* translators: Email-safe HTML notice */
+			"ebNoScript" => $state && isset($ac->text->ebNoScript) ? $ac->text->ebNoScript : esc_html__('Use email-safe HTML only. No script tags.','easy-form-builder'),
+			"ebBlkCount" => $state && isset($ac->text->ebBlkCount) ? $ac->text->ebBlkCount : esc_html__('blocks','easy-form-builder'),
+			/* translators: Copy shortcode label with tooltip */
+			"ebCopyShortcode" => $state && isset($ac->text->ebCopyShortcode) ? $ac->text->ebCopyShortcode : esc_html__('Copy shortcode','easy-form-builder'),
+			"ebCopied" => $state && isset($ac->text->ebCopied) ? $ac->text->ebCopied : esc_html__('Copied!','easy-form-builder'),
+			"ebSCReference" => $state && isset($ac->text->ebSCReference) ? $ac->text->ebSCReference : esc_html__('Shortcode Reference','easy-form-builder'),
+			"ebSCInserted" => $state && isset($ac->text->ebSCInserted) ? $ac->text->ebSCInserted : esc_html__('Shortcode inserted!','easy-form-builder'),
+			"ebSCSelectBlock" => $state && isset($ac->text->ebSCSelectBlock) ? $ac->text->ebSCSelectBlock : esc_html__('Select a text block first, or shortcode copied to clipboard.','easy-form-builder'),
+			"ebSCRequired" => $state && isset($ac->text->ebSCRequired) ? $ac->text->ebSCRequired : esc_html__('Required','easy-form-builder'),
+			"ebViewWebsite" => $state && isset($ac->text->ebViewWebsite) ? $ac->text->ebViewWebsite : esc_html__('View Website','easy-form-builder'),
+			"ebDisclaimerText" => $state && isset($ac->text->ebDisclaimerText) ? $ac->text->ebDisclaimerText : esc_html__('This email was sent automatically. Please do not reply directly.','easy-form-builder'),
+
 		];
 
 

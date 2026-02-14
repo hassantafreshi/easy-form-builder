@@ -301,6 +301,9 @@ class Panel_edit  {
 			}
 			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', true,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_script('Emsfb-list_form-efb-js');
+			// Email Template Builder - Drag & Drop
+			wp_register_script('Emsfb-email-template-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/email-template-builder-efb.js', array('Emsfb-list_form-efb-js'), EMSFB_PLUGIN_VERSION, true);
+			wp_enqueue_script('Emsfb-email-template-builder-js');
 			wp_localize_script( 'Emsfb-list_form-efb-js', 'ajax_object_efm',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),
 					'ajax_value' => $value,

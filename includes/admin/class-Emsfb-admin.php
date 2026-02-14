@@ -881,16 +881,14 @@ class Admin {
             wp_send_json_success($response, 200);
             die("secure!");
         }
-        $post_message = isset($_POST['message']) ? sanitize_text_field( wp_unslash( $_POST['message'] ) ) : '';
+        // Do NOT use sanitize_text_field() here — it strips ALL HTML tags from the
+        // entire JSON string, destroying emailTemp content. Individual fields are
+        // sanitized in the foreach loop below (sanitize_text_field for plain fields,
+        // sanitize_full_html_efb for emailTemp).
+        $post_message = isset($_POST['message']) ? wp_unslash( $_POST['message'] ) : '';
         if (empty($post_message)) {
             $m = $lang['PEnterMessage'];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, 200);
-            die();
-        }
-        if ($this->isHTML(json_encode($post_message))) {
-            $m = $lang['nAllowedUseHtml'];
-            $response = ['success' => false, "m" =>$m];
             wp_send_json_success($response, 200);
             die();
         }
@@ -932,7 +930,7 @@ class Admin {
                 }else if(strlen($value)<6 && strlen($value)>0 ){
                     $response = ['success' => false, "m" =>$lang['emailTemplate']];
                     wp_send_json_success($response, 200);
-                }else if(strlen($value)>20001){
+                }else if(strlen($value)>50001){
                     $response = ['success' => false, "m" =>$lang['addSCEmailM']];
                     wp_send_json_success($response, 200);
                 }else if(strpos($value ,'<script')){
@@ -941,7 +939,7 @@ class Admin {
                 }
                   $v = str_replace('@efb@' , '/', $value);
                   $v = $efbFunction->sanitize_full_html_efb($v);
-                  $m[$key] =str_replace('/' , '@efb@', $value);
+                  $m[$key] = str_replace('/' , '@efb@', $v);
             }else if($key == 'smtp'){
 
                 function result_ok() {
@@ -973,13 +971,12 @@ class Admin {
         }
 
         if(isset($m['efb_version'])==false){
-           array_push($m, ['efb_version'=>EMSFB_PLUGIN_VERSION]);
-            $st_ = json_encode($m,JSON_UNESCAPED_UNICODE);
-            $setting = str_replace('"', '\"', $st_);
-        }else{
-            $st_ = json_encode($m,JSON_UNESCAPED_UNICODE);
-            $setting = str_replace('"', '\"', $st_);
+           $m['efb_version'] = EMSFB_PLUGIN_VERSION;
         }
+        // json_encode produces valid JSON; wpdb->insert handles DB escaping.
+        // Do NOT add extra str_replace('"','\"') — it creates double-escaping
+        // that breaks json_decode when values contain literal quotes (e.g. emailTemp HTML).
+        $setting = json_encode($m, JSON_UNESCAPED_UNICODE);
         $email = isset($m['emailSupporter']) ? $m['emailSupporter'] : wp_get_current_user()->user_email;
         error_log('set_settings_Emsfb email: '.$setting);
         $efbFunction->set_setting_Emsfb( $setting, $email );

@@ -169,8 +169,10 @@ jQuery(function () {
   pro_ws_efb = ajax_object_efm.pro == '1' ? true : false;
   page_state_efb="panel";
   if (ajax_object_efm.setting, ajax_object_efm.setting.length > 0) {
-    const ajax_object_efm_setting = ajax_object_efm.setting[0].setting.replace(/[\\]/g, '');
-    valueJson_ws_setting = JSON.parse(ajax_object_efm_setting);
+    const rawSetting = ajax_object_efm.setting[0].setting;
+    console.log('rawSetting',rawSetting)
+    try { valueJson_ws_setting = JSON.parse(rawSetting); }
+    catch(e) { valueJson_ws_setting = JSON.parse(rawSetting.replace(/[\\]/g, '')); }
     if (valueJson_ws_setting.bootstrap == 0 && ajax_object_efm.bootstrap == 1) {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
@@ -1194,10 +1196,13 @@ function fun_show_setting__emsFormBuilder() {
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
     if (valueJson_ws_setting.length == 0) {
-      const ajax_object_efm_setting = ajax_object_efm.setting[0].setting.replace(/[\\]/g, '');
-      valueJson_ws_setting = JSON.parse(ajax_object_efm_setting);
+      const rawSetting2 = ajax_object_efm.setting[0].setting;
+      console.log('rawSetting2',rawSetting2)
+      try { valueJson_ws_setting = JSON.parse(rawSetting2); }
+      catch(e) { valueJson_ws_setting = JSON.parse(rawSetting2.replace(/[\\]/g, '')); }
     } else if (typeof valueJson_ws_setting == "string") {
-      valueJson_ws_setting = (JSON.parse(valueJson_ws_setting.replace(/[\\]/g, '')));
+      try { valueJson_ws_setting = JSON.parse(valueJson_ws_setting); }
+      catch(e) { valueJson_ws_setting = JSON.parse(valueJson_ws_setting.replace(/[\\]/g, '')); }
     }
     const f = (name) => {
       if (valueJson_ws_setting.hasOwnProperty(name)==true) { return valueJson_ws_setting[name] } else { return 'null' } }
@@ -1593,69 +1598,11 @@ function fun_show_setting__emsFormBuilder() {
 
                         <div class="efb tab-pane fade" id="nav-emailtemplate" role="tabpanel" aria-labelledby="nav-contact-tab">
                         <div class="efb my-2 mx-1">
-
-                          <nav class="efb navbar navbar-expand-lg navbar-light bg-light my-2 bg-response efb">
-                              <div class="efb container-fluid">
-                                  <button class="efb navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation"><span class="efb navbar-toggler-icon"></span></button>
-                                  <div class="efb collapse navbar-collapse py-1" id="navbarTogglerDemo01">
-                                  <ul class="efb navbar-nav me-auto mb-2 mb-lg-0"><!--efb.app-->
-                                    <li class="efb nav-item"><a class="efb nav-link efb btn btn-outline-pink " onclick="email_template_efb('p')" >
-                                     <i class="efb bi-play-fill mx-1 "></i>${efb_var.text.preview}</a>
-                                    </li>
-                                    <li class="efb nav-item">
-                                        <a class="efb nav-link efb btn text-capitalize  " onclick="email_template_efb('r')" >
-                                        <i class="efb bi-arrow-counterclockwise mx-1 "></i>${efb_var.text.reset}</a>
-                                    </li>
-                                    <li class="efb nav-item">
-                                        <!-- 3.8.6 start -->
-                                        <a class="efb nav-link efb btn ec-efb " data-eventform="links" data-linkname="wiki">
-                                        <!-- 3.8.6 end -->
-                                        <i class="efb bi-question mx-1 "></i>${efb_var.text.lrnmrs.replace('%s', '')}</a>
-                                    </li>
-
-                                    <li class="efb dropdown">
-                                        <a class="efb nav-link efb btn dropdown-toggle" data-toggle="dropdown" href="#">${efb_var.text.templates}
-                                        <span class="efb caret"></span></a>
-                                        <ul class="efb dropdown-menu">
-                                            <li class="efb nav-item"><a onClick="fun_add_email_template_efb(1)" class="efb nav-link efb btn" >${efb_var.text.emailTemplate} 1</a></li>
-                                            <li class="efb nav-item"><a onClick="fun_add_email_template_efb(2)"  class="efb nav-link efb btn">${efb_var.text.emailTemplate} 2</a></li>
-                                        </ul>
-                                    </li>
-
-                              </div>
-                          </nav>
-                        </div>
-                        <div class="efb  mx-3 row col-12 mb-2">
-                            <!--EmailTemplate-->
-                              <div class="efb  col-md-8 bg-back">
-                                <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.editor}</h3>
-                                <textarea class="efb  form-control" id="emailTemp_emsFirmBuilder" rows="50" data-tab="${efb_var.text.emailTemplate}">${emailTemp}</textarea>
-                                <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
-                              </div>
-                            <div class="efb col-md-4 mt1 efb guide p-2">
-                              <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.info}</h3>
-                              <p class="efb  m-2 fs-6">
-                              ${efb_var.text.infoEmailTemplates}
-                              </br></br>
-                              <span class="efb  fs-7"> ${efb_var.text.noticeEmailContent}</span>
-                              </br></br>
-                              <span class="efb  fs-7">shortcode_message <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeMessageInfo}
-                              </br></br>
-                              <span class="efb  fs-7">shortcode_title  :</span> ${efb_var.text.shortcodeTitleInfo}
-                              </br></br>
-                              <span class="efb  fs-7">shortcode_website_name :</span> ${efb_var.text.shortcodeWebsiteNameInfo}
-                              </br></br>
-                              <span class="efb  fs-7">shortcode_website_url :</span> ${efb_var.text.shortcodeWebsiteUrlInfo}
-                              </br></br>
-                              <span class="efb  fs-7">shortcode_admin_email  :</span> ${efb_var.text.shortcodeAdminEmailInfo}
-                              </p>
-                              </br></br>
-                              <!-- 3.8.6 start -->
-                              <a class="efb btn mt-1 efb btn-outline-pink btn-lg ec-efb " data-eventform="links" data-linkname="wiki"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documentation}</a>
-                              <!-- 3.8.6 end -->
-                            </div>
-
-                            <!--End EmailTemplate-->
+                          <!-- Drag & Drop Email Template Builder -->
+                          <div id="efb-email-builder"></div>
+                          <!-- Hidden textarea keeps the same ID for save/validation compatibility -->
+                          <textarea class="efb form-control" id="emailTemp_emsFirmBuilder" rows="5" data-tab="${efb_var.text.emailTemplate}" style="display:none;">${emailTemp}</textarea>
+                          <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
                         </div>
                     </div>
                         <!-- smsconfig Section -->
@@ -1703,6 +1650,11 @@ function fun_show_setting__emsFormBuilder() {
             </div>
             ${efb_powered_by()}
 `
+
+  // Initialize Email Template Builder
+  if (typeof efbEmailBuilder !== 'undefined' && document.getElementById('efb-email-builder')) {
+    efbEmailBuilder.init();
+  }
 
   for (const el of document.querySelectorAll(`.sen`)) {
     el.addEventListener("change", (e) => {
@@ -1835,7 +1787,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
         if (el.value.length < 5 && el.value.length > 1) {
           st = 0;
           c = `<div class="efb text-center text-darkb efb"><div class="efb bi-emoji-frown fs-4 efb"></div><p class="efb fs-5 efb">${efb_var.text.pleaseEnterVaildEtemp}</p></div>`
-        } else if (el.value.length > 10000) {
+        } else if (el.value.length > 50000) {
           st = 0;
           c = `<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>`;
         } else if (el.value.length > 1 && el.value.indexOf('shortcode_message') == -1 ) {

@@ -803,6 +803,8 @@ class EmsfbEmailHandler {
             'shortcode_admin_email' => $adminEmail
         ];
 
+        // Strip builder data comment before processing (not needed in sent emails)
+        $temp = preg_replace('/\n?<!-- EFBDATA:.*? -->/', '', $temp);
         $temp = strtr($temp, $replacements);
         $temp = preg_replace(['/http:@efb@+/', '/https:@efb@+/', '/@efb@+/'], ['http://', 'https://', '/'], $temp);
 

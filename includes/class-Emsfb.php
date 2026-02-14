@@ -417,12 +417,15 @@ class Emsfb {
             $raw = $transient;
         }
 
-        // Decode JSON
-        $cleaned = str_replace('\\', '', $raw);
-        $decoded = json_decode($cleaned);
-
+        // Decode JSON — try direct parse first (new clean format),
+        // then stripslashes for backward compatibility (old \" escaped format)
+        $decoded = json_decode($raw);
         if ($decoded === null) {
-            error_log('Decoded settings is null');
+            $decoded = json_decode(stripslashes($raw));
+        }
+        if ($decoded === null) {
+            error_log('EFB: Decoded settings is null. Raw: ' . substr($raw, 0, 200));
+            return $mode === 'pub' ? [0, []] : 0;
         }
 
         // Handle different return modes
