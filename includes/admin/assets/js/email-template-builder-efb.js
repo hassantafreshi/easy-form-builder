@@ -38,6 +38,29 @@
     return fallback || key;
   };
 
+  /* ─────────────────── EMAIL-SAFE FONT STACKS ───────────────────────── */
+
+  const EMAIL_SAFE_FONTS_efb = [
+    { label: 'Segoe UI',      value: "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif" },
+    { label: 'Arial',         value: "Arial, Helvetica, sans-serif" },
+    { label: 'Helvetica',     value: "Helvetica, Arial, sans-serif" },
+    { label: 'Verdana',       value: "Verdana, Geneva, sans-serif" },
+    { label: 'Tahoma',        value: "Tahoma, Geneva, sans-serif" },
+    { label: 'Trebuchet MS',  value: "'Trebuchet MS', Helvetica, sans-serif" },
+    { label: 'Lucida Sans',   value: "'Lucida Sans Unicode', 'Lucida Grande', sans-serif" },
+    { label: 'Georgia',       value: "Georgia, 'Times New Roman', Times, serif" },
+    { label: 'Times New Roman', value: "'Times New Roman', Times, serif" },
+    { label: 'Palatino',      value: "'Palatino Linotype', 'Book Antiqua', Palatino, serif" },
+    { label: 'Courier New',   value: "'Courier New', Courier, monospace" },
+    { label: 'Lucida Console', value: "'Lucida Console', Monaco, monospace" },
+    { label: 'Comic Sans MS', value: "'Comic Sans MS', cursive" },
+    { label: 'Impact',        value: "Impact, Charcoal, sans-serif" },
+    { label: 'Tahoma (RTL)',  value: "Tahoma, Arial, sans-serif" },
+    { label: 'B Nazanin',     value: "'B Nazanin', Tahoma, Arial, sans-serif" },
+  ];
+
+  const DEFAULT_FONT_efb = "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
+
   /* ─────────────────────────── COLOR PRESETS ─────────────────────────── */
 
   const COLOR_PRESETS_efb = [
@@ -190,11 +213,17 @@
         align: 'center'
       },
       render(data) {
-        return `<td align="${sanitizeAttr_efb(data.align)}" style="padding: ${sanitizeCss_efb(data.padding)}; background: ${sanitizeCss_efb(data.bgGradient || data.bgColor)};">
+        const ha = sanitizeAttr_efb(data.align);
+        return `<tr><td align="${ha}" style="padding: ${sanitizeCss_efb(data.padding)}; background: ${sanitizeCss_efb(data.bgGradient || data.bgColor)}; text-align: ${ha};">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-            ${data.children ? data.children.map(c => renderBlock_efb(c)).join('') : ''}
+            ${data.children ? data.children.map(c => {
+              const def = BLOCK_TYPES_efb[c.type];
+              if (!def) return '';
+              const cd = Object.assign({}, def.defaultData, c.data || {}, { align: data.align });
+              return def.render(cd);
+            }).join('') : ''}
           </table>
-        </td>`;
+        </td></tr>`;
       }
     },
 
@@ -210,8 +239,9 @@
         align: 'center'
       },
       render(data) {
+        const imgMargin = data.align === 'left' ? '0 auto 20px 0' : data.align === 'right' ? '0 0 20px auto' : '0 auto 20px auto';
         return `<tr><td align="${sanitizeAttr_efb(data.align)}">
-          <img src="${sanitizeUrl_efb(data.src)}" alt="${sanitizeAttr_efb(data.alt)}" style="width: ${sanitizeAttr_efb(data.width)}px; height: auto; display: block; margin: 0 auto 20px auto; border: none;" />
+          <img src="${sanitizeUrl_efb(data.src)}" alt="${sanitizeAttr_efb(data.alt)}" style="width: ${sanitizeAttr_efb(data.width)}px; height: auto; display: block; margin: ${imgMargin}; border: none;" />
         </td></tr>`;
       }
     },
@@ -225,11 +255,13 @@
         color: '#ffffff',
         fontSize: '28',
         fontWeight: '600',
+        fontFamily: '',
         align: 'center'
       },
       render(data) {
+        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
         return `<tr><td align="${sanitizeAttr_efb(data.align)}">
-          <h1 style="margin: 0; padding: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; font-weight: ${sanitizeAttr_efb(data.fontWeight)}; line-height: 1.3; text-align: ${sanitizeAttr_efb(data.align)}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${sanitizeText_efb(data.text)}</h1>
+          <h1 style="margin: 0; padding: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; font-weight: ${sanitizeAttr_efb(data.fontWeight)}; line-height: 1.3; text-align: ${sanitizeAttr_efb(data.align)}; font-family: ${ff};">${sanitizeText_efb(data.text)}</h1>
         </td></tr>`;
       }
     },
@@ -242,13 +274,15 @@
         text: 'Your text here...',
         color: '#333333',
         fontSize: '16',
+        fontFamily: '',
         lineHeight: '1.6',
         align: 'center',
         padding: '20px 30px'
       },
       render(data) {
+        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
         return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)};">
-          <p style="margin: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: ${sanitizeAttr_efb(data.lineHeight)}; text-align: ${sanitizeAttr_efb(data.align)}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${sanitizeText_efb(data.text)}</p>
+          <p style="margin: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: ${sanitizeAttr_efb(data.lineHeight)}; text-align: ${sanitizeAttr_efb(data.align)}; font-family: ${ff};">${sanitizeText_efb(data.text)}</p>
         </td></tr>`;
       }
     },
@@ -262,12 +296,14 @@
         bgColor: '#ffffff',
         color: '#333333',
         fontSize: '16',
+        fontFamily: '',
         align: 'center'
       },
       render(data) {
+        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
         return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)}; background-color: ${sanitizeCss_efb(data.bgColor)};">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-            <tr><td align="${sanitizeAttr_efb(data.align)}" style="color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.6; text-align: ${sanitizeAttr_efb(data.align)}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">
+            <tr><td align="${sanitizeAttr_efb(data.align)}" style="color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.6; text-align: ${sanitizeAttr_efb(data.align)}; font-family: ${ff};">
               shortcode_message
             </td></tr>
           </table>
@@ -287,15 +323,19 @@
         borderRadius: '8',
         padding: '16px 32px',
         fontSize: '17',
+        fontFamily: '',
         align: 'center',
         containerPadding: '25px 30px'
       },
       render(data) {
-        return `<tr><td align="${sanitizeAttr_efb(data.align)}" style="padding: ${sanitizeCss_efb(data.containerPadding)};">
-          <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="${sanitizeAttr_efb(data.align)}" style="margin: 0 auto;">
+        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
+        const ba = sanitizeAttr_efb(data.align);
+        const btnMargin = ba === 'left' ? '0 auto 0 0' : ba === 'right' ? '0 0 0 auto' : '0 auto';
+        return `<tr><td align="${ba}" style="padding: ${sanitizeCss_efb(data.containerPadding)};">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="${ba}" style="margin: ${btnMargin};">
             <tr>
               <td style="background: ${sanitizeCss_efb(data.bgColor)}; border-radius: ${sanitizeAttr_efb(data.borderRadius)}px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
-                <a href="${sanitizeUrl_efb(data.url)}" target="_blank" style="display: inline-block; padding: ${sanitizeCss_efb(data.padding)}; color: ${sanitizeCss_efb(data.textColor)}; text-decoration: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; font-size: ${sanitizeAttr_efb(data.fontSize)}px; font-weight: 600; line-height: 1;">${sanitizeText_efb(data.text)}</a>
+                <a href="${sanitizeUrl_efb(data.url)}" target="_blank" style="display: inline-block; padding: ${sanitizeCss_efb(data.padding)}; color: ${sanitizeCss_efb(data.textColor)}; text-decoration: none; font-family: ${ff}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; font-weight: 600; line-height: 1;">${sanitizeText_efb(data.text)}</a>
               </td>
             </tr>
           </table>
@@ -369,17 +409,19 @@
         leftColor: '#333333',
         rightColor: '#333333',
         fontSize: '14',
+        fontFamily: '',
         bgColor: '#ffffff'
       },
       render(data) {
+        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
         return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)}; background-color: ${sanitizeCss_efb(data.bgColor)};">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
             <tr>
-              <td width="48%" valign="top" style="padding-right: ${Math.round(sanitizeAttr_efb(data.gap)/2)}px; color: ${sanitizeCss_efb(data.leftColor)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">
+              <td width="48%" valign="top" style="padding-right: ${Math.round(sanitizeAttr_efb(data.gap)/2)}px; color: ${sanitizeCss_efb(data.leftColor)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.6; font-family: ${ff};">
                 ${sanitizeText_efb(data.leftContent)}
               </td>
               <td width="4%"></td>
-              <td width="48%" valign="top" style="padding-left: ${Math.round(sanitizeAttr_efb(data.gap)/2)}px; color: ${sanitizeCss_efb(data.rightColor)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">
+              <td width="48%" valign="top" style="padding-left: ${Math.round(sanitizeAttr_efb(data.gap)/2)}px; color: ${sanitizeCss_efb(data.rightColor)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.6; font-family: ${ff};">
                 ${sanitizeText_efb(data.rightContent)}
               </td>
             </tr>
@@ -397,13 +439,15 @@
         padding: '20px 30px',
         color: '#667eea',
         fontSize: '14',
+        fontFamily: '',
         links: [
           { name: 'Website', url: 'shortcode_website_url' }
         ]
       },
       render(data) {
+        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
         const linksHtml = data.links.map(l =>
-          `<a href="${sanitizeUrl_efb(l.url)}" target="_blank" style="display: inline-block; margin: 0 8px; color: ${sanitizeCss_efb(data.color)}; text-decoration: none; font-size: ${sanitizeAttr_efb(data.fontSize)}px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${sanitizeText_efb(l.name)}</a>`
+          `<a href="${sanitizeUrl_efb(l.url)}" target="_blank" style="display: inline-block; margin: 0 8px; color: ${sanitizeCss_efb(data.color)}; text-decoration: none; font-size: ${sanitizeAttr_efb(data.fontSize)}px; font-family: ${ff};">${sanitizeText_efb(l.name)}</a>`
         ).join(' | ');
         return `<tr><td align="${sanitizeAttr_efb(data.align)}" style="padding: ${sanitizeCss_efb(data.padding)};">
           ${linksHtml}
@@ -419,14 +463,16 @@
         text: 'Sent by shortcode_website_name',
         color: '#6b7280',
         fontSize: '13',
+        fontFamily: '',
         align: 'center',
         bgColor: '#f8f9fa',
         padding: '30px',
         borderRadius: '0 0 8px 8px'
       },
       render(data) {
+        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
         return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)}; background-color: ${sanitizeCss_efb(data.bgColor)}; border-radius: ${sanitizeCss_efb(data.borderRadius)};">
-          <p style="margin: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.5; text-align: ${sanitizeAttr_efb(data.align)}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${sanitizeText_efb(data.text)}</p>
+          <p style="margin: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.5; text-align: ${sanitizeAttr_efb(data.align)}; font-family: ${ff};">${sanitizeText_efb(data.text)}</p>
         </td></tr>`;
       }
     },
@@ -628,7 +674,6 @@ body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text
 table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
 img { -ms-interpolation-mode: bicubic; border: 0; }
 body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
-table { border-collapse: collapse !important; }
 @media only screen and (max-width: 600px) {
   .efb-email-container { width: 100% !important; }
   .efb-email-container td { padding-left: 15px !important; padding-right: 15px !important; }
@@ -639,7 +684,7 @@ table { border-collapse: collapse !important; }
 <body style="margin: 0; padding: 0; width: 100%; background-color: ${sanitizeCss_efb(gs.bgColor)}; direction: ${sanitizeAttr_efb(gs.direction)}; font-family: ${sanitizeCss_efb(gs.fontFamily)};">
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: ${sanitizeCss_efb(gs.bgColor)};">
 <tr><td align="center" style="padding: 20px 0;">
-<table class="efb-email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="${sanitizeAttr_efb(gs.contentWidth)}" style="margin: 0 auto; background-color: ${sanitizeCss_efb(gs.contentBgColor)}; border-radius: ${sanitizeAttr_efb(gs.borderRadius)}px; overflow: hidden;">
+<table class="efb-email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="${sanitizeAttr_efb(gs.contentWidth)}" style="margin: 0 auto; background-color: ${sanitizeCss_efb(gs.contentBgColor)}; border-radius: ${sanitizeAttr_efb(gs.borderRadius)}px;">
 ${blocksHtml}
 </table>
 </td></tr>
@@ -835,36 +880,43 @@ ${blocksHtml}
 
     // Canvas drag-drop reorder
     initCanvasDragDrop_efb();
+
+    // Apply global styles visually to canvas
+    updateCanvasGlobalStyles_efb();
   }
 
   /* ──────────────── BLOCK PREVIEW (simplified visual) ─────────── */
 
   function renderBlockPreview_efb(block) {
     const data = Object.assign({}, BLOCK_TYPES_efb[block.type]?.defaultData || {}, block.data || {});
+    // Scale font sizes for compact preview (60% of actual, min 10px, max 28px)
+    const pfs = (sz) => Math.max(10, Math.min(Math.round(Number(sz) * 0.6), 28));
     switch (block.type) {
       case 'header':
+        const ha = data.align || 'center';
         const childrenHtml = (block.children || []).map(c => {
           const cd = Object.assign({}, BLOCK_TYPES_efb[c.type]?.defaultData || {}, c.data || {});
-          if (c.type === 'logo') return `<div style="text-align:${cd.align};"><img src="${cd.src}" style="width:${Math.min(cd.width,80)}px;height:auto;margin:0 auto 10px;" /></div>`;
-          if (c.type === 'title') return `<div style="text-align:${cd.align};color:${cd.color};font-size:${Math.min(cd.fontSize,18)}px;font-weight:${cd.fontWeight};">${highlightShortcodes_efb(cd.text)}</div>`;
+          if (c.type === 'logo') { const lm = ha === 'left' ? '0 auto 10px 0' : ha === 'right' ? '0 0 10px auto' : '0 auto 10px'; return `<div style="text-align:${ha};"><img src="${cd.src}" style="width:${Math.min(cd.width,80)}px;height:auto;display:block;margin:${lm};" /></div>`; }
+          if (c.type === 'title') return `<div style="text-align:${ha};color:${cd.color};font-size:${pfs(cd.fontSize)}px;font-weight:${cd.fontWeight};font-family:${cd.fontFamily || DEFAULT_FONT_efb};">${highlightShortcodes_efb(cd.text)}</div>`;
           return '';
         }).join('');
-        return `<div style="background:${data.bgGradient || data.bgColor};padding:15px;border-radius:4px;">${childrenHtml}</div>`;
+        return `<div style="background:${data.bgGradient || data.bgColor};padding:15px;border-radius:4px;text-align:${ha};">${childrenHtml}</div>`;
       case 'logo':
-        return `<div style="text-align:${data.align};padding:8px;"><img src="${data.src}" style="width:${Math.min(data.width,60)}px;height:auto;" onerror="this.style.display='none'" /></div>`;
+        const logoM = data.align === 'left' ? '0 auto 0 0' : data.align === 'right' ? '0 0 0 auto' : '0 auto';
+        return `<div style="text-align:${data.align};padding:8px;"><img src="${data.src}" style="width:${Math.min(data.width,60)}px;height:auto;display:block;margin:${logoM};" onerror="this.style.display='none'" /></div>`;
       case 'title':
-        return `<div style="text-align:${data.align};color:${data.color};font-size:${Math.min(data.fontSize,18)}px;font-weight:${data.fontWeight};padding:5px;">${highlightShortcodes_efb(data.text)}</div>`;
+        return `<div style="text-align:${data.align};color:${data.color};font-size:${pfs(data.fontSize)}px;font-weight:${data.fontWeight};font-family:${data.fontFamily || DEFAULT_FONT_efb};padding:5px;">${highlightShortcodes_efb(data.text)}</div>`;
       case 'text':
-        return `<div style="text-align:${data.align};color:${data.color};font-size:${Math.min(data.fontSize,13)}px;padding:5px;line-height:1.4;">${highlightShortcodes_efb(data.text)}</div>`;
+        return `<div style="text-align:${data.align};color:${data.color};font-size:${pfs(data.fontSize)}px;font-family:${data.fontFamily || DEFAULT_FONT_efb};padding:5px;line-height:1.4;">${highlightShortcodes_efb(data.text)}</div>`;
       case 'message':
-        return `<div style="text-align:center;background:${data.bgColor};padding:12px;border:2px dashed #667eea;border-radius:4px;">
+        return `<div style="text-align:${data.align};background:${data.bgColor};padding:12px;border:2px dashed #667eea;border-radius:4px;">
           <i class="efb bi-chat-square-text" style="font-size:20px;color:#667eea;"></i>
           <div style="color:#667eea;font-size:12px;margin-top:4px;font-weight:600;">shortcode_message</div>
           <div style="color:#94a3b8;font-size:10px;">${t_efb('ebFormContentHere', 'Form content appears here')}</div>
         </div>`;
       case 'button':
         return `<div style="text-align:${data.align};padding:8px;">
-          <span style="display:inline-block;background:${data.bgColor};color:${data.textColor};padding:8px 20px;border-radius:${data.borderRadius}px;font-size:13px;font-weight:600;">${highlightShortcodes_efb(data.text)}</span>
+          <span style="display:inline-block;background:${data.bgColor};color:${data.textColor};padding:8px 20px;border-radius:${data.borderRadius}px;font-size:${pfs(data.fontSize)}px;font-weight:600;font-family:${data.fontFamily || DEFAULT_FONT_efb};">${highlightShortcodes_efb(data.text)}</span>
         </div>`;
       case 'divider':
         return `<div style="padding:8px ${data.padding.split(' ')[1] || '20px'};"><hr style="border:none;border-top:${data.thickness}px solid ${data.color};width:${data.width}%;margin:0 auto;" /></div>`;
@@ -875,15 +927,15 @@ ${blocksHtml}
         return `<div style="text-align:${data.align};padding:5px;"><img src="${data.src}" style="max-width:100%;max-height:80px;height:auto;" onerror="this.style.display='none'" /></div>`;
       case 'columns':
         return `<div style="display:flex;gap:8px;padding:5px;">
-          <div style="flex:1;background:#f8fafc;padding:8px;border-radius:4px;font-size:11px;color:${data.leftColor};">${highlightShortcodes_efb(data.leftContent)}</div>
-          <div style="flex:1;background:#f8fafc;padding:8px;border-radius:4px;font-size:11px;color:${data.rightColor};">${highlightShortcodes_efb(data.rightContent)}</div>
+          <div style="flex:1;background:#f8fafc;padding:8px;border-radius:4px;font-size:${pfs(data.fontSize)}px;color:${data.leftColor};font-family:${data.fontFamily || DEFAULT_FONT_efb};">${highlightShortcodes_efb(data.leftContent)}</div>
+          <div style="flex:1;background:#f8fafc;padding:8px;border-radius:4px;font-size:${pfs(data.fontSize)}px;color:${data.rightColor};font-family:${data.fontFamily || DEFAULT_FONT_efb};">${highlightShortcodes_efb(data.rightContent)}</div>
         </div>`;
       case 'social':
-        return `<div style="text-align:${data.align};padding:5px;font-size:12px;color:${data.color};">
+        return `<div style="text-align:${data.align};padding:5px;font-size:${pfs(data.fontSize)}px;color:${data.color};font-family:${data.fontFamily || DEFAULT_FONT_efb};">
           ${data.links.map(l => l.name).join(' | ')}
         </div>`;
       case 'footer':
-        return `<div style="text-align:${data.align};background:${data.bgColor};padding:10px;border-radius:4px;color:${data.color};font-size:${Math.min(data.fontSize,12)}px;">${highlightShortcodes_efb(data.text)}</div>`;
+        return `<div style="text-align:${data.align};background:${data.bgColor};padding:10px;border-radius:4px;color:${data.color};font-size:${pfs(data.fontSize)}px;font-family:${data.fontFamily || DEFAULT_FONT_efb};">${highlightShortcodes_efb(data.text)}</div>`;
       case 'htmlBlock':
         return `<div style="padding:5px;font-size:11px;color:#64748b;border:1px dashed #cbd5e1;border-radius:4px;max-height:60px;overflow:hidden;"><code>&lt;/&gt; ${t_efb('ebCustomHTML', 'Custom HTML')}</code></div>`;
       default:
@@ -1126,7 +1178,8 @@ ${blocksHtml}
               html += propInput_efb('text', t_efb('text', 'Text'), cd.text, child.id);
               html += propShortcodeButtons_efb(child.id, 'text');
               html += propColor_efb('color', t_efb('clr', 'Color'), cd.color, child.id);
-              html += propInput_efb('fontSize', t_efb('ebFontSize', 'Font Size (px)'), cd.fontSize, child.id);
+              html += propFontFamily_efb('fontFamily', t_efb('ebFontFamily', 'Font'), cd.fontFamily, child.id);
+              html += propFontSize_efb('fontSize', t_efb('ebFontSize', 'Font Size'), cd.fontSize, child.id);
             }
             html += `</div>`;
           });
@@ -1144,7 +1197,8 @@ ${blocksHtml}
         html += propInput_efb('text', t_efb('ebTitleText', 'Title Text'), data.text);
         html += propShortcodeButtons_efb(block.id, 'text');
         html += propColor_efb('color', t_efb('clr', 'Color'), data.color);
-        html += propInput_efb('fontSize', t_efb('ebFontSize', 'Font Size (px)'), data.fontSize);
+        html += propFontFamily_efb('fontFamily', t_efb('ebFontFamily', 'Font'), data.fontFamily);
+        html += propFontSize_efb('fontSize', t_efb('ebFontSize', 'Font Size'), data.fontSize);
         html += propSelect_efb('fontWeight', t_efb('ebWeight', 'Weight'), data.fontWeight, ['300','400','500','600','700','800']);
         html += propSelect_efb('align', t_efb('align', 'Align'), data.align, ['left','center','right']);
         break;
@@ -1153,7 +1207,8 @@ ${blocksHtml}
         html += propTextarea_efb('text', t_efb('content', 'Content'), data.text);
         html += propShortcodeButtons_efb(block.id, 'text');
         html += propColor_efb('color', t_efb('clr', 'Color'), data.color);
-        html += propInput_efb('fontSize', t_efb('ebFontSize', 'Font Size (px)'), data.fontSize);
+        html += propFontFamily_efb('fontFamily', t_efb('ebFontFamily', 'Font'), data.fontFamily);
+        html += propFontSize_efb('fontSize', t_efb('ebFontSize', 'Font Size'), data.fontSize);
         html += propInput_efb('lineHeight', t_efb('ebLineHeight', 'Line Height'), data.lineHeight);
         html += propSelect_efb('align', t_efb('align', 'Align'), data.align, ['left','center','right']);
         html += propInput_efb('padding', t_efb('ebPadding', 'Padding'), data.padding);
@@ -1164,7 +1219,8 @@ ${blocksHtml}
         html += propInput_efb('padding', t_efb('ebPadding', 'Padding'), data.padding);
         html += propColor_efb('bgColor', t_efb('ebBackground', 'Background'), data.bgColor);
         html += propColor_efb('color', t_efb('ebTextColor', 'Text Color'), data.color);
-        html += propInput_efb('fontSize', t_efb('ebFontSize', 'Font Size (px)'), data.fontSize);
+        html += propFontFamily_efb('fontFamily', t_efb('ebFontFamily', 'Font'), data.fontFamily);
+        html += propFontSize_efb('fontSize', t_efb('ebFontSize', 'Font Size'), data.fontSize);
         html += propSelect_efb('align', t_efb('align', 'Align'), data.align, ['left','center','right']);
         break;
 
@@ -1177,7 +1233,8 @@ ${blocksHtml}
         html += propColor_efb('textColor', t_efb('ebTextColor', 'Text Color'), data.textColor);
         html += propInput_efb('borderRadius', t_efb('ebBorderRadius', 'Border Radius (px)'), data.borderRadius);
         html += propInput_efb('padding', t_efb('ebInnerPadding', 'Inner Padding'), data.padding);
-        html += propInput_efb('fontSize', t_efb('ebFontSize', 'Font Size (px)'), data.fontSize);
+        html += propFontFamily_efb('fontFamily', t_efb('ebFontFamily', 'Font'), data.fontFamily);
+        html += propFontSize_efb('fontSize', t_efb('ebFontSize', 'Font Size'), data.fontSize);
         html += propSelect_efb('align', t_efb('align', 'Align'), data.align, ['left','center','right']);
         html += propInput_efb('containerPadding', t_efb('ebOuterPadding', 'Outer Padding'), data.containerPadding);
         break;
@@ -1211,7 +1268,8 @@ ${blocksHtml}
         html += propShortcodeButtons_efb(block.id, 'rightContent');
         html += propColor_efb('leftColor', t_efb('ebLeftTextColor', 'Left Text Color'), data.leftColor);
         html += propColor_efb('rightColor', t_efb('ebRightTextColor', 'Right Text Color'), data.rightColor);
-        html += propInput_efb('fontSize', t_efb('ebFontSize', 'Font Size (px)'), data.fontSize);
+        html += propFontFamily_efb('fontFamily', t_efb('ebFontFamily', 'Font'), data.fontFamily);
+        html += propFontSize_efb('fontSize', t_efb('ebFontSize', 'Font Size'), data.fontSize);
         html += propInput_efb('gap', t_efb('ebGap', 'Gap (px)'), data.gap);
         html += propColor_efb('bgColor', t_efb('ebBackground', 'Background'), data.bgColor);
         html += propInput_efb('padding', t_efb('ebPadding', 'Padding'), data.padding);
@@ -1220,7 +1278,8 @@ ${blocksHtml}
       case 'social':
         html += propSelect_efb('align', t_efb('align', 'Align'), data.align, ['left','center','right']);
         html += propColor_efb('color', t_efb('ebLinkColor', 'Link Color'), data.color);
-        html += propInput_efb('fontSize', t_efb('ebFontSize', 'Font Size (px)'), data.fontSize);
+        html += propFontFamily_efb('fontFamily', t_efb('ebFontFamily', 'Font'), data.fontFamily);
+        html += propFontSize_efb('fontSize', t_efb('ebFontSize', 'Font Size'), data.fontSize);
         html += propInput_efb('padding', t_efb('ebPadding', 'Padding'), data.padding);
         html += `<div class="efb-props-divider"></div><h6 class="efb-props-subtitle">${t_efb('ebLinks', 'Links')}</h6>`;
         (data.links || []).forEach((link, li) => {
@@ -1240,13 +1299,14 @@ ${blocksHtml}
         html += propShortcodeButtons_efb(block.id, 'text');
         html += propColor_efb('color', t_efb('ebTextColor', 'Text Color'), data.color);
         html += propColor_efb('bgColor', t_efb('ebBackground', 'Background'), data.bgColor);
-        html += propInput_efb('fontSize', t_efb('ebFontSize', 'Font Size (px)'), data.fontSize);
+        html += propFontFamily_efb('fontFamily', t_efb('ebFontFamily', 'Font'), data.fontFamily);
+        html += propFontSize_efb('fontSize', t_efb('ebFontSize', 'Font Size'), data.fontSize);
         html += propSelect_efb('align', t_efb('align', 'Align'), data.align, ['left','center','right']);
         html += propInput_efb('padding', t_efb('ebPadding', 'Padding'), data.padding);
         break;
 
       case 'htmlBlock':
-        html += propTextarea_efb('html', t_efb('htmlCode', 'HTML Code'), data.html, 8);
+        html += propTextarea_efb('html', t_efb('htmlCode', 'HTML Code'), data.html, null, 8);
         html += `<div class="efb-props-notice"><i class="efb bi-exclamation-triangle"></i> ${t_efb('ebNoScript', 'Use email-safe HTML only. No &lt;script&gt; tags.')}</div>`;
         break;
     }
@@ -1266,8 +1326,8 @@ ${blocksHtml}
     </div>`;
   }
 
-  function propTextarea_efb(key, label, value, rows) {
-    const blockId = builderState_efb.selectedBlock;
+  function propTextarea_efb(key, label, value, targetId, rows) {
+    const blockId = targetId || builderState_efb.selectedBlock;
     return `<div class="efb-prop-row">
       <label class="efb-prop-label">${label}</label>
       <textarea class="efb-prop-textarea" data-prop="${key}" data-block="${blockId}" rows="${rows || 3}">${escHtml_efb(value)}</textarea>
@@ -1285,8 +1345,8 @@ ${blocksHtml}
     </div>`;
   }
 
-  function propSelect_efb(key, label, value, options) {
-    const blockId = builderState_efb.selectedBlock;
+  function propSelect_efb(key, label, value, options, targetId) {
+    const blockId = targetId || builderState_efb.selectedBlock;
     const opts = options.map(o => `<option value="${o}" ${o == value ? 'selected' : ''}>${o}</option>`).join('');
     return `<div class="efb-prop-row">
       <label class="efb-prop-label">${label}</label>
@@ -1294,11 +1354,40 @@ ${blocksHtml}
     </div>`;
   }
 
-  function propRange_efb(key, label, value, min, max) {
-    const blockId = builderState_efb.selectedBlock;
+  function propRange_efb(key, label, value, min, max, targetId) {
+    const blockId = targetId || builderState_efb.selectedBlock;
     return `<div class="efb-prop-row">
       <label class="efb-prop-label">${label}: <span class="efb-range-val">${value}</span></label>
       <input type="range" class="efb-prop-range" data-prop="${key}" data-block="${blockId}" value="${value}" min="${min}" max="${max}" />
+    </div>`;
+  }
+
+  function propFontFamily_efb(key, label, value, targetId) {
+    const blockId = targetId || builderState_efb.selectedBlock;
+    const safeVal = value || '';
+    const opts = EMAIL_SAFE_FONTS_efb.map(f => {
+      const sel = (safeVal === f.value) ? 'selected' : '';
+      return `<option value="${escHtml_efb(f.value)}" ${sel} style="font-family:${f.value};">${f.label}</option>`;
+    }).join('');
+    const isDefault = !safeVal || safeVal === DEFAULT_FONT_efb;
+    return `<div class="efb-prop-row">
+      <label class="efb-prop-label">${label}</label>
+      <select class="efb-prop-select efb-prop-font-select" data-prop="${key}" data-block="${blockId}">
+        <option value="" ${isDefault ? 'selected' : ''}>${t_efb('ebDefaultFont', '— Default —')}</option>
+        ${opts}
+      </select>
+    </div>`;
+  }
+
+  function propFontSize_efb(key, label, value, targetId) {
+    const blockId = targetId || builderState_efb.selectedBlock;
+    const sizes = ['10','11','12','13','14','15','16','17','18','20','22','24','26','28','30','32','36','40','48'];
+    const opts = sizes.map(s => `<option value="${s}" ${String(value) === s ? 'selected' : ''}>${s}px</option>`).join('');
+    return `<div class="efb-prop-row">
+      <label class="efb-prop-label">${label}</label>
+      <select class="efb-prop-select" data-prop="${key}" data-block="${blockId}">
+        ${opts}
+      </select>
     </div>`;
   }
 
@@ -1497,9 +1586,13 @@ ${blocksHtml}
       .replace(/shortcode_website_url/g, '#')
       .replace(/shortcode_admin_email/g, 'admin@example.com');
 
-    // Use the existing modal system
+    // Render inside an iframe so the email HTML gets its own document context
+    // (avoids inheriting WP admin RTL direction, styles, etc.)
     if (typeof show_modal_efb === 'function') {
-      show_modal_efb(preview, t_efb('preview', 'Preview'), '', 'saveBox');
+      const blob = new Blob([preview], { type: 'text/html;charset=utf-8' });
+      const blobUrl = URL.createObjectURL(blob);
+      const iframeHtml = `<iframe src="${blobUrl}" style="width:100%;height:70vh;border:none;border-radius:8px;background:#fff;" onload="try{URL.revokeObjectURL(this.src)}catch(e){}"></iframe>`;
+      show_modal_efb(iframeHtml, t_efb('preview', 'Preview'), '', 'saveBox');
       if (typeof state_modal_show_efb === 'function') state_modal_show_efb(1);
     } else {
       // Fallback to new window
@@ -1542,6 +1635,15 @@ ${blocksHtml}
           <input type="text" class="efb-prop-input efb-gs-input" data-gs="borderRadius" value="${gs.borderRadius}" />
         </div>
         <div class="efb-prop-row">
+          <label class="efb-prop-label">${t_efb('ebDefaultFont', 'Default Font')}</label>
+          <select class="efb-prop-select efb-gs-select" data-gs="fontFamily">
+            ${EMAIL_SAFE_FONTS_efb.map(f => {
+              const sel = (gs.fontFamily === f.value) ? 'selected' : '';
+              return `<option value="${escHtml_efb(f.value)}" ${sel} style="font-family:${f.value};">${f.label}</option>`;
+            }).join('')}
+          </select>
+        </div>
+        <div class="efb-prop-row">
           <label class="efb-prop-label">${t_efb('ebDirection', 'Direction')}</label>
           <select class="efb-prop-select efb-gs-select" data-gs="direction">
             <option value="ltr" ${gs.direction==='ltr'?'selected':''}>LTR</option>
@@ -1550,35 +1652,76 @@ ${blocksHtml}
         </div>
       </div>`;
 
-    // Bind
-    panel.querySelectorAll('.efb-gs-color').forEach(el => {
-      el.addEventListener('input', () => {
-        builderState_efb.globalSettings[el.dataset.gs] = el.value;
-        const txt = panel.querySelector(`.efb-gs-text[data-gs="${el.dataset.gs}"]`);
-        if (txt) txt.value = el.value;
+    // Apply current global styles to canvas visually
+    updateCanvasGlobalStyles_efb();
+
+    // Debounce helper for global settings
+    let _gsDebounce_efb = null;
+    function gsChanged_efb() {
+      clearTimeout(_gsDebounce_efb);
+      _gsDebounce_efb = setTimeout(() => {
+        updateCanvasGlobalStyles_efb();
         syncToTextarea_efb();
-      });
+      }, 200);
+    }
+
+    // Bind using event delegation on the panel
+    panel.addEventListener('input', (e) => {
+      const t = e.target;
+
+      // Color picker — immediate visual update
+      if (t.matches('.efb-gs-color')) {
+        builderState_efb.globalSettings[t.dataset.gs] = t.value;
+        const txt = panel.querySelector(`.efb-gs-text[data-gs="${t.dataset.gs}"]`);
+        if (txt) txt.value = t.value;
+        updateCanvasGlobalStyles_efb();
+        clearTimeout(_gsDebounce_efb);
+        _gsDebounce_efb = setTimeout(() => { syncToTextarea_efb(); }, 200);
+        return;
+      }
+
+      // Color text input — debounced + sync color picker
+      if (t.matches('.efb-gs-text')) {
+        builderState_efb.globalSettings[t.dataset.gs] = t.value;
+        const clr = panel.querySelector(`.efb-gs-color[data-gs="${t.dataset.gs}"]`);
+        if (clr && /^#[0-9a-fA-F]{6}$/.test(t.value)) clr.value = t.value;
+        gsChanged_efb();
+        return;
+      }
+
+      // Text inputs (contentWidth, borderRadius) — debounced
+      if (t.matches('.efb-gs-input')) {
+        builderState_efb.globalSettings[t.dataset.gs] = t.value;
+        gsChanged_efb();
+        return;
+      }
     });
-    panel.querySelectorAll('.efb-gs-text').forEach(el => {
-      el.addEventListener('change', () => {
-        builderState_efb.globalSettings[el.dataset.gs] = el.value;
-        const clr = panel.querySelector(`.efb-gs-color[data-gs="${el.dataset.gs}"]`);
-        if (clr && el.value.startsWith('#')) clr.value = el.value;
+
+    // Select (direction) — fires on change, immediate
+    panel.addEventListener('change', (e) => {
+      if (e.target.matches('.efb-gs-select')) {
+        builderState_efb.globalSettings[e.target.dataset.gs] = e.target.value;
+        updateCanvasGlobalStyles_efb();
         syncToTextarea_efb();
-      });
+      }
     });
-    panel.querySelectorAll('.efb-gs-input').forEach(el => {
-      el.addEventListener('change', () => {
-        builderState_efb.globalSettings[el.dataset.gs] = el.value;
-        syncToTextarea_efb();
-      });
-    });
-    panel.querySelectorAll('.efb-gs-select').forEach(el => {
-      el.addEventListener('change', () => {
-        builderState_efb.globalSettings[el.dataset.gs] = el.value;
-        syncToTextarea_efb();
-      });
-    });
+  }
+
+  /** Apply global settings visually to the canvas wrapper */
+  function updateCanvasGlobalStyles_efb() {
+    const gs = builderState_efb.globalSettings;
+    const canvas = document.getElementById(CANVAS_ID_efb);
+    if (!canvas) return;
+
+    canvas.style.backgroundColor = gs.contentBgColor || '#ffffff';
+    canvas.style.maxWidth = (gs.contentWidth || 600) + 'px';
+    canvas.style.borderRadius = (gs.borderRadius || 0) + 'px';
+    canvas.style.direction = gs.direction || 'ltr';
+    canvas.style.fontFamily = gs.fontFamily || DEFAULT_FONT_efb;
+
+    // Apply email background to the canvas wrapper
+    const wrap = canvas.closest('.efb-builder-canvas-wrap');
+    if (wrap) wrap.style.backgroundColor = gs.bgColor || '#f5f5f5';
   }
 
   /* ──────────── UTILITY ────────────────────────────────────── */
@@ -2226,6 +2369,7 @@ ${blocksHtml}
     }
     .efb-prop-textarea { resize: vertical; min-height: 50px; font-family: monospace; font-size: 11px; }
     .efb-prop-select { cursor: pointer; }
+    .efb-prop-font-select { font-size: 13px; }
     .efb-prop-range { width: 100%; cursor: pointer; accent-color: #667eea; }
 
     /* Color picker */

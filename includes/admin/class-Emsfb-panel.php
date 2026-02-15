@@ -288,6 +288,20 @@ class Panel_edit  {
 			$value = $efbFunction->efb_list_form();
 			$table_name = $this->db->prefix . "emsfb_setting";
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );
+			// Fix any double-escaped JSON from previous saves
+			if (!empty($stng) && isset($stng[0]->setting)) {
+				$decoded = json_decode($stng[0]->setting);
+				if ($decoded === null) {
+					$decoded = json_decode(stripslashes($stng[0]->setting));
+				}
+				if ($decoded !== null) {
+					// Convert double quotes to single quotes in emailTemp to avoid JSON escaping issues
+					if (isset($decoded->emailTemp)) {
+						$decoded->emailTemp = str_replace('"', "'", $decoded->emailTemp);
+					}
+					$stng[0]->setting = json_encode($decoded, JSON_UNESCAPED_UNICODE);
+				}
+			}
 			$lng = get_locale();
 			$ip =0;
 			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {

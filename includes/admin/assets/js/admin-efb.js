@@ -4478,14 +4478,16 @@ state_modal_show_efb=(i)=>{
    document.body.classList.add("modal-open")
    el.classList.add('show');
    el.style.cssText='display: block; padding-right: 0.400024px;';
-   el.setAttribute("aria-hidden",!0);
+   el.removeAttribute("aria-hidden");
+   el.setAttribute("aria-modal","true");
 
   }
    remove =()=>{
    document.body.classList.remove("modal-open");
    el.classList.remove('show');
    el.style.cssText='';
-   el.removeAttribute("aria-hidden");
+   el.setAttribute("aria-hidden","true");
+   el.removeAttribute("aria-modal");
    if(last_show_modal_efb =='duplicateBox'){
       sessionStorage.removeItem('efb_duplicate_id');
       sessionStorage.removeItem('efb_duplicate_type');

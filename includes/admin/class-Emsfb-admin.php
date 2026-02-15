@@ -953,6 +953,9 @@ class Admin {
                   $v = preg_replace('/<\s*\/?(iframe|object|embed|form|input|textarea|button|select|svg|math|base|link|applet)[^>]*>/i', '', $v);
                   // Now run through wp_kses
                   $v = $efbFunction->sanitize_full_html_efb($v);
+                  // wp_kses converts single-quoted HTML attributes to double quotes,
+                  // which causes JSON escaping issues when stored. Convert back to single quotes.
+                  $v = str_replace('"', "'", $v);
                   $m[$key] = str_replace('/' , '@efb@', $v);
             }else if($key == 'smtp'){
 

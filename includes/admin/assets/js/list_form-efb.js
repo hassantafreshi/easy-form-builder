@@ -172,7 +172,14 @@ jQuery(function () {
     const rawSetting = ajax_object_efm.setting[0].setting;
     console.log('rawSetting',rawSetting)
     try { valueJson_ws_setting = JSON.parse(rawSetting); }
-    catch(e) { valueJson_ws_setting = JSON.parse(rawSetting.replace(/[\\]/g, '')); }
+    catch(e) {
+      // Handle double-escaped backslashes from wp_kses + json_encode + wp_localize_script chain
+      try { valueJson_ws_setting = JSON.parse(rawSetting.replace(/\\\\/g, '\\')); }
+      catch(e2) {
+        try { valueJson_ws_setting = JSON.parse(rawSetting.replace(/[\\]/g, '')); }
+        catch(e3) { console.error('EFB: Failed to parse settings:', e3); valueJson_ws_setting = {}; }
+      }
+    }
     if (valueJson_ws_setting.bootstrap == 0 && ajax_object_efm.bootstrap == 1) {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
