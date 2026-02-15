@@ -933,11 +933,25 @@ class Admin {
                 }else if(strlen($value)>50001){
                     $response = ['success' => false, "m" =>$lang['addSCEmailM']];
                     wp_send_json_success($response, 200);
-                }else if(strpos($value ,'<script')){
-                    $response = ['success' => false, "m" =>$lang['pleaseDoNotAddJsCode']];
-                    wp_send_json_success($response, 200);
                 }
+                  // ── XSS Prevention: strip dangerous patterns before wp_kses ──
                   $v = str_replace('@efb@' , '/', $value);
+                  // Strip script tags (case-insensitive)
+                  $v = preg_replace('/<\s*script[^>]*>.*?<\s*\/\s*script\s*>/is', '', $v);
+                  $v = preg_replace('/<\s*script[^>]*>/i', '', $v);
+                  // Strip all event handler attributes (onclick, onerror, onload, etc.)
+                  $v = preg_replace('/\bon\w+\s*=\s*(["\'][^"]*["\']|[^\s>]+)/i', '', $v);
+                  // Strip javascript: / vbscript: / data:text/html URIs
+                  $v = preg_replace('/javascript\s*:/i', '', $v);
+                  $v = preg_replace('/vbscript\s*:/i', '', $v);
+                  $v = preg_replace('/data\s*:\s*text\/html/i', '', $v);
+                  // Strip dangerous CSS expressions
+                  $v = preg_replace('/expression\s*\(/i', '', $v);
+                  $v = preg_replace('/-moz-binding\s*:/i', '', $v);
+                  $v = preg_replace('/behavior\s*:/i', '', $v);
+                  // Strip iframe, object, embed, form, input, svg, math tags
+                  $v = preg_replace('/<\s*\/?(iframe|object|embed|form|input|textarea|button|select|svg|math|base|link|applet)[^>]*>/i', '', $v);
+                  // Now run through wp_kses
                   $v = $efbFunction->sanitize_full_html_efb($v);
                   $m[$key] = str_replace('/' , '@efb@', $v);
             }else if($key == 'smtp'){

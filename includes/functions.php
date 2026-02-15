@@ -2797,8 +2797,6 @@ public function addon_add_efb($value) {
 
 	public function sanitize_full_html_efb($html) {
 		// General attributes allowed for all tags
-		error_log('EFB=>sanitize_full_html_efb');
-		error_log('EFB=>sanitize_full_html_efb html: ' . $html);
 		$global_attributes = array(
 			'class' => true,       // CSS classes
 			'id' => true,          // HTML ID
@@ -2848,7 +2846,7 @@ public function addon_add_efb($value) {
 				'src' => true,  // Audio source must be sanitized
 			)),
 			'b' => $global_attributes,
-			'blockquote' => array_merge($global_attributes, array('cite' => true)), // Validate cite attribute
+			'blockquote' => array_merge($global_attributes, array('cite' => true)),
 			'br' => $global_attributes,
 			'button' => array_merge($global_attributes, array(
 				'disabled' => true,
@@ -2896,6 +2894,7 @@ public function addon_add_efb($value) {
 				'name' => true,
 				'content' => true,
 				'charset' => true,
+				'http-equiv' => true,
 			)),
 			'nav' => $global_attributes,
 			'ol' => array_merge($global_attributes, array('start' => true, 'type' => true)),
@@ -2911,9 +2910,17 @@ public function addon_add_efb($value) {
 				'cellpadding' => true,
 				'cellspacing' => true,
 				'width' => true,
+				'role' => true,
+				'align' => true,
 			)),
 			'tbody' => $global_attributes,
-			'td' => array_merge($global_attributes, array('colspan' => true, 'rowspan' => true)),
+			'td' => array_merge($global_attributes, array(
+				'colspan' => true,
+				'rowspan' => true,
+				'align' => true,
+				'valign' => true,
+				'width' => true,
+			)),
 			'textarea' => array_merge($global_attributes, array(
 				'name' => true,
 				'rows' => true,
@@ -2990,12 +2997,16 @@ public function addon_add_efb($value) {
 				return esc_url($url);
 			}
 
-
-			if (strpos($url, 'javascript:') === false && strpos($url, 'data:') === false) {
-				return esc_url($url);
+			// Case-insensitive check for dangerous URI schemes
+			$lower = strtolower(preg_replace('/\s+/', '', $url));
+			if (strpos($lower, 'javascript:') !== false ||
+			    strpos($lower, 'vbscript:') !== false ||
+			    strpos($lower, 'data:text/html') !== false ||
+			    strpos($lower, 'data:application') !== false) {
+				return '';
 			}
 
-			return '';
+			return esc_url($url);
 		}
 
 
@@ -3010,16 +3021,23 @@ public function addon_add_efb($value) {
 						$property = trim($property);
 						$value = trim($value);
 
+						// Block dangerous CSS expressions/behaviors
+						$lower_val = strtolower(preg_replace('/\s+/', '', $value));
+						if (strpos($lower_val, 'expression(') !== false ||
+						    strpos($lower_val, '-moz-binding') !== false ||
+						    strpos($lower_val, 'behavior:') !== false ||
+						    strpos($lower_val, 'javascript:') !== false ||
+						    strpos($lower_val, 'vbscript:') !== false) {
+							continue;
+						}
 
 						if ( !is_null($property) && in_array($property, $allowed_properties)) {
-							error_log('EFB=>sanitize_style_attribute_efb property: ' . $property);
 							if (strpos($value, 'url(') !== false) {
 								preg_match('/url\(["\']?([^"\')]+)["\']?\)/i', $value, $matches);
 								if (isset($matches[1]) && $this->validate_url_efb($matches[1])) {
 									$sanitized_rules[] = $property . ': ' . $value;
 								}
 							} else {
-
 								$sanitized_rules[] = $property . ': ' . $value;
 							}
 						}

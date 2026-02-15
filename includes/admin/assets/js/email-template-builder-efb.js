@@ -47,6 +47,134 @@
     '#f0f9ff', '#fefce8', '#fef2f2', '#f5f3ff', '#000000'
   ];
 
+  /* ─────────────────────────── XSS SANITIZERS ────────────────────────── */
+
+  /**
+   * Regex that matches dangerous HTML/JS patterns.
+   * Used to strip XSS vectors from user-supplied block data *before*
+   * it is interpolated into the email HTML output.
+   */
+  const _xssPatterns_efb = [
+    /<script[\s>\/]/gi,           // <script> tags
+    /<\/script>/gi,               // </script>
+    /\bon\w+\s*=/gi,              // on* event handlers (onclick=, onerror=, etc.)
+    /javascript\s*:/gi,           // javascript: URIs
+    /vbscript\s*:/gi,             // vbscript: URIs
+    /data\s*:\s*text\/html/gi,    // data:text/html URIs
+    /<iframe[\s>\/]/gi,           // <iframe>
+    /<\/iframe>/gi,
+    /<object[\s>\/]/gi,           // <object>
+    /<\/object>/gi,
+    /<embed[\s>\/]/gi,            // <embed>
+    /<\/embed>/gi,
+    /<form[\s>\/]/gi,             // <form>
+    /<\/form>/gi,
+    /<input[\s>\/]/gi,            // <input>
+    /<textarea[\s>\/]/gi,         // <textarea>
+    /<\/textarea>/gi,
+    /<button[\s>\/]/gi,           // <button>
+    /<\/button>/gi,
+    /<select[\s>\/]/gi,           // <select>
+    /<\/select>/gi,
+    /<meta[\s>\/]/gi,             // <meta> (refresh redirect)
+    /<link[\s>\/]/gi,             // <link>
+    /<base[\s>\/]/gi,             // <base>
+    /<svg[\s>\/]/gi,              // <svg> (can contain scripts)
+    /<\/svg>/gi,
+    /<math[\s>\/]/gi,             // <math> (MathML injection)
+    /<\/math>/gi,
+    /expression\s*\(/gi,          // CSS expression()
+    /-moz-binding\s*:/gi,         // -moz-binding CSS
+    /behavior\s*:/gi,             // IE behavior CSS
+    /url\s*\(\s*['"]*\s*javascript/gi, // url(javascript:)
+  ];
+
+  /**
+   * Strip all dangerous patterns from a string.
+   * Returns cleaned text safe to insert as HTML attribute value or CSS.
+   */
+  function sanitizeAttr_efb(str) {
+    if (!str && str !== 0) return '';
+    let s = String(str);
+    for (const rx of _xssPatterns_efb) {
+      rx.lastIndex = 0;          // reset stateful /g regex
+      s = s.replace(rx, '');
+    }
+    // Remove null bytes and other control chars (except \n \r \t)
+    s = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    return s;
+  }
+
+  /**
+   * Sanitize text that will appear as HTML *content* (not inside an attribute).
+   * Escapes < > & " while preserving shortcode_* placeholder names.
+   * Also strips all XSS patterns first.
+   */
+  function sanitizeText_efb(str) {
+    if (!str && str !== 0) return '';
+    let s = sanitizeAttr_efb(str);
+    // Escape HTML entities
+    s = s.replace(/&/g, '&amp;')
+         .replace(/</g, '&lt;')
+         .replace(/>/g, '&gt;')
+         .replace(/"/g, '&quot;');
+    return s;
+  }
+
+  /**
+   * Sanitize a URL — reject dangerous schemes, keep only safe ones.
+   */
+  function sanitizeUrl_efb(url) {
+    if (!url) return '';
+    let s = String(url).trim();
+    // Remove null bytes
+    s = s.replace(/\x00/g, '');
+    // Decode HTML entities to catch obfuscated javascript: etc.
+    const tmp = s.replace(/&#(\d+);?/g, (_, n) => String.fromCharCode(n))
+                 .replace(/&#x([0-9a-f]+);?/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+    const lower = tmp.replace(/\s+/g, '').toLowerCase();
+    if (lower.startsWith('javascript:') || lower.startsWith('vbscript:') ||
+        lower.startsWith('data:text/html') || lower.startsWith('data:application')) {
+      return '';
+    }
+    // Shortcodes are allowed as-is
+    if (s.startsWith('shortcode_')) return s;
+    return s;
+  }
+
+  /**
+   * Sanitize CSS value for style attributes — strip expression(), url(javascript:), etc.
+   */
+  function sanitizeCss_efb(css) {
+    if (!css) return '';
+    let s = String(css);
+    s = s.replace(/expression\s*\(/gi, '')
+         .replace(/-moz-binding\s*:/gi, '')
+         .replace(/behavior\s*:/gi, '')
+         .replace(/url\s*\(\s*['"]?\s*javascript/gi, 'url(blocked')
+         .replace(/url\s*\(\s*['"]?\s*vbscript/gi, 'url(blocked')
+         .replace(/url\s*\(\s*['"]?\s*data\s*:\s*text\/html/gi, 'url(blocked');
+    // Remove null bytes
+    s = s.replace(/[\x00]/g, '');
+    return s;
+  }
+
+  /**
+   * Sanitize content for the htmlBlock block type.
+   * Strips dangerous tags/attributes but allows safe HTML for email.
+   */
+  function sanitizeHtmlBlock_efb(html) {
+    if (!html) return '';
+    let s = String(html);
+    for (const rx of _xssPatterns_efb) {
+      rx.lastIndex = 0;
+      s = s.replace(rx, '');
+    }
+    // Remove null bytes and other control chars (except \n \r \t)
+    s = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    return s;
+  }
+
   /* ──────────────────────── BLOCK DEFINITIONS ───────────────────────── */
 
   const BLOCK_TYPES_efb = {
@@ -62,7 +190,7 @@
         align: 'center'
       },
       render(data) {
-        return `<td align="${data.align}" style="padding: ${data.padding}; background: ${data.bgGradient || data.bgColor};">
+        return `<td align="${sanitizeAttr_efb(data.align)}" style="padding: ${sanitizeCss_efb(data.padding)}; background: ${sanitizeCss_efb(data.bgGradient || data.bgColor)};">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
             ${data.children ? data.children.map(c => renderBlock_efb(c)).join('') : ''}
           </table>
@@ -82,8 +210,8 @@
         align: 'center'
       },
       render(data) {
-        return `<tr><td align="${data.align}">
-          <img src="${data.src}" alt="${data.alt}" style="width: ${data.width}px; height: auto; display: block; margin: 0 auto 20px auto; border: none;" />
+        return `<tr><td align="${sanitizeAttr_efb(data.align)}">
+          <img src="${sanitizeUrl_efb(data.src)}" alt="${sanitizeAttr_efb(data.alt)}" style="width: ${sanitizeAttr_efb(data.width)}px; height: auto; display: block; margin: 0 auto 20px auto; border: none;" />
         </td></tr>`;
       }
     },
@@ -100,8 +228,8 @@
         align: 'center'
       },
       render(data) {
-        return `<tr><td align="${data.align}">
-          <h1 style="margin: 0; padding: 0; color: ${data.color}; font-size: ${data.fontSize}px; font-weight: ${data.fontWeight}; line-height: 1.3; text-align: ${data.align}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${data.text}</h1>
+        return `<tr><td align="${sanitizeAttr_efb(data.align)}">
+          <h1 style="margin: 0; padding: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; font-weight: ${sanitizeAttr_efb(data.fontWeight)}; line-height: 1.3; text-align: ${sanitizeAttr_efb(data.align)}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${sanitizeText_efb(data.text)}</h1>
         </td></tr>`;
       }
     },
@@ -119,8 +247,8 @@
         padding: '20px 30px'
       },
       render(data) {
-        return `<tr><td style="padding: ${data.padding};">
-          <p style="margin: 0; color: ${data.color}; font-size: ${data.fontSize}px; line-height: ${data.lineHeight}; text-align: ${data.align}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${data.text}</p>
+        return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)};">
+          <p style="margin: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: ${sanitizeAttr_efb(data.lineHeight)}; text-align: ${sanitizeAttr_efb(data.align)}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${sanitizeText_efb(data.text)}</p>
         </td></tr>`;
       }
     },
@@ -137,9 +265,9 @@
         align: 'center'
       },
       render(data) {
-        return `<tr><td style="padding: ${data.padding}; background-color: ${data.bgColor};">
+        return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)}; background-color: ${sanitizeCss_efb(data.bgColor)};">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-            <tr><td align="${data.align}" style="color: ${data.color}; font-size: ${data.fontSize}px; line-height: 1.6; text-align: ${data.align}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">
+            <tr><td align="${sanitizeAttr_efb(data.align)}" style="color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.6; text-align: ${sanitizeAttr_efb(data.align)}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">
               shortcode_message
             </td></tr>
           </table>
@@ -163,11 +291,11 @@
         containerPadding: '25px 30px'
       },
       render(data) {
-        return `<tr><td align="${data.align}" style="padding: ${data.containerPadding};">
-          <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="${data.align}" style="margin: 0 auto;">
+        return `<tr><td align="${sanitizeAttr_efb(data.align)}" style="padding: ${sanitizeCss_efb(data.containerPadding)};">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="${sanitizeAttr_efb(data.align)}" style="margin: 0 auto;">
             <tr>
-              <td style="background: ${data.bgColor}; border-radius: ${data.borderRadius}px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
-                <a href="${data.url}" target="_blank" style="display: inline-block; padding: ${data.padding}; color: ${data.textColor}; text-decoration: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; font-size: ${data.fontSize}px; font-weight: 600; line-height: 1;">${data.text}</a>
+              <td style="background: ${sanitizeCss_efb(data.bgColor)}; border-radius: ${sanitizeAttr_efb(data.borderRadius)}px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                <a href="${sanitizeUrl_efb(data.url)}" target="_blank" style="display: inline-block; padding: ${sanitizeCss_efb(data.padding)}; color: ${sanitizeCss_efb(data.textColor)}; text-decoration: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; font-size: ${sanitizeAttr_efb(data.fontSize)}px; font-weight: 600; line-height: 1;">${sanitizeText_efb(data.text)}</a>
               </td>
             </tr>
           </table>
@@ -186,8 +314,8 @@
         padding: '20px 30px'
       },
       render(data) {
-        return `<tr><td style="padding: ${data.padding};">
-          <hr style="margin: 0; padding: 0; border: none; border-top: ${data.thickness}px solid ${data.color}; width: ${data.width}%;" />
+        return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)};">
+          <hr style="margin: 0; padding: 0; border: none; border-top: ${sanitizeAttr_efb(data.thickness)}px solid ${sanitizeCss_efb(data.color)}; width: ${sanitizeAttr_efb(data.width)}%;" />
         </td></tr>`;
       }
     },
@@ -201,7 +329,7 @@
         bgColor: 'transparent'
       },
       render(data) {
-        return `<tr><td style="height: ${data.height}px; background-color: ${data.bgColor};">&nbsp;</td></tr>`;
+        return `<tr><td style="height: ${sanitizeAttr_efb(data.height)}px; background-color: ${sanitizeCss_efb(data.bgColor)};">&nbsp;</td></tr>`;
       }
     },
 
@@ -219,10 +347,11 @@
         link: ''
       },
       render(data) {
-        const w = data.widthUnit === '%' ? `${data.width}%` : `${data.width}px`;
-        const img = `<img src="${data.src}" alt="${data.alt}" style="width: ${w}; max-width: 100%; height: auto; display: block; border: none;" />`;
-        const linked = data.link ? `<a href="${data.link}" target="_blank" style="text-decoration:none;">${img}</a>` : img;
-        return `<tr><td align="${data.align}" style="padding: ${data.padding};">
+        const safeWidth = sanitizeAttr_efb(data.width);
+        const w = data.widthUnit === '%' ? `${safeWidth}%` : `${safeWidth}px`;
+        const img = `<img src="${sanitizeUrl_efb(data.src)}" alt="${sanitizeAttr_efb(data.alt)}" style="width: ${w}; max-width: 100%; height: auto; display: block; border: none;" />`;
+        const linked = data.link ? `<a href="${sanitizeUrl_efb(data.link)}" target="_blank" style="text-decoration:none;">${img}</a>` : img;
+        return `<tr><td align="${sanitizeAttr_efb(data.align)}" style="padding: ${sanitizeCss_efb(data.padding)};">
           ${linked}
         </td></tr>`;
       }
@@ -243,15 +372,15 @@
         bgColor: '#ffffff'
       },
       render(data) {
-        return `<tr><td style="padding: ${data.padding}; background-color: ${data.bgColor};">
+        return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)}; background-color: ${sanitizeCss_efb(data.bgColor)};">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
             <tr>
-              <td width="48%" valign="top" style="padding-right: ${Math.round(data.gap/2)}px; color: ${data.leftColor}; font-size: ${data.fontSize}px; line-height: 1.6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">
-                ${data.leftContent}
+              <td width="48%" valign="top" style="padding-right: ${Math.round(sanitizeAttr_efb(data.gap)/2)}px; color: ${sanitizeCss_efb(data.leftColor)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">
+                ${sanitizeText_efb(data.leftContent)}
               </td>
               <td width="4%"></td>
-              <td width="48%" valign="top" style="padding-left: ${Math.round(data.gap/2)}px; color: ${data.rightColor}; font-size: ${data.fontSize}px; line-height: 1.6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">
-                ${data.rightContent}
+              <td width="48%" valign="top" style="padding-left: ${Math.round(sanitizeAttr_efb(data.gap)/2)}px; color: ${sanitizeCss_efb(data.rightColor)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">
+                ${sanitizeText_efb(data.rightContent)}
               </td>
             </tr>
           </table>
@@ -274,9 +403,9 @@
       },
       render(data) {
         const linksHtml = data.links.map(l =>
-          `<a href="${l.url}" target="_blank" style="display: inline-block; margin: 0 8px; color: ${data.color}; text-decoration: none; font-size: ${data.fontSize}px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${l.name}</a>`
+          `<a href="${sanitizeUrl_efb(l.url)}" target="_blank" style="display: inline-block; margin: 0 8px; color: ${sanitizeCss_efb(data.color)}; text-decoration: none; font-size: ${sanitizeAttr_efb(data.fontSize)}px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${sanitizeText_efb(l.name)}</a>`
         ).join(' | ');
-        return `<tr><td align="${data.align}" style="padding: ${data.padding};">
+        return `<tr><td align="${sanitizeAttr_efb(data.align)}" style="padding: ${sanitizeCss_efb(data.padding)};">
           ${linksHtml}
         </td></tr>`;
       }
@@ -296,8 +425,8 @@
         borderRadius: '0 0 8px 8px'
       },
       render(data) {
-        return `<tr><td style="padding: ${data.padding}; background-color: ${data.bgColor}; border-radius: ${data.borderRadius};">
-          <p style="margin: 0; color: ${data.color}; font-size: ${data.fontSize}px; line-height: 1.5; text-align: ${data.align}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${data.text}</p>
+        return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)}; background-color: ${sanitizeCss_efb(data.bgColor)}; border-radius: ${sanitizeCss_efb(data.borderRadius)};">
+          <p style="margin: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.5; text-align: ${sanitizeAttr_efb(data.align)}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;">${sanitizeText_efb(data.text)}</p>
         </td></tr>`;
       }
     },
@@ -310,7 +439,7 @@
         html: '<p style="text-align:center; color:#333;">Custom HTML content</p>'
       },
       render(data) {
-        return `<tr><td>${data.html}</td></tr>`;
+        return `<tr><td>${sanitizeHtmlBlock_efb(data.html)}</td></tr>`;
       }
     }
   };
@@ -507,10 +636,10 @@ table { border-collapse: collapse !important; }
 }
 </style>
 </head>
-<body style="margin: 0; padding: 0; width: 100%; background-color: ${gs.bgColor}; direction: ${gs.direction}; font-family: ${gs.fontFamily};">
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: ${gs.bgColor};">
+<body style="margin: 0; padding: 0; width: 100%; background-color: ${sanitizeCss_efb(gs.bgColor)}; direction: ${sanitizeAttr_efb(gs.direction)}; font-family: ${sanitizeCss_efb(gs.fontFamily)};">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: ${sanitizeCss_efb(gs.bgColor)};">
 <tr><td align="center" style="padding: 20px 0;">
-<table class="efb-email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="${gs.contentWidth}" style="margin: 0 auto; background-color: ${gs.contentBgColor}; border-radius: ${gs.borderRadius}px; overflow: hidden;">
+<table class="efb-email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="${sanitizeAttr_efb(gs.contentWidth)}" style="margin: 0 auto; background-color: ${sanitizeCss_efb(gs.contentBgColor)}; border-radius: ${sanitizeAttr_efb(gs.borderRadius)}px; overflow: hidden;">
 ${blocksHtml}
 </table>
 </td></tr>
