@@ -826,20 +826,20 @@ setTimeout(() => {
   if (typeof efb_apply_resp_colors === 'function') efb_apply_resp_colors();
   document.getElementById("body_tracker_emsFormBuilder").innerHTML = `
   <div class="efb  ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
-                <div class="efb row mb-3 pb-3 px-1" id="body_efb-track">
-                    <h4 class="efb  title-holder  col-12 mt-4 fs-3"><i class="efb  bi-check2-square title-icon mx-1 fs-3"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
-                <div class="efb  row col-md-12">
-                        <label for="trackingCodeEfb" class="efb fs-6 form-label mx-2 col-12">
-                        ${ajax_object_efm.text.trackingCode}:<span class="efb fs-8 text-danger mx-1">*</span></label>
-                        <div class="efb  col-12 text-center mx-2 row">
-                        <input type="text" class="efb input-efb form-control border-d rounded-4 text-labelEfb h-l-efb mb-2" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb" ${get_track}>
-                         <!-- recaptcha  -->
-                         ${setting_emsFormBuilder.scaptcha==true ? `<div class="efb  row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="${setting_emsFormBuilder.siteKey}" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
-                         <!-- recaptcha end  -->
-                         <button type="submit" class="efb fs-5  btn btn-pinkEfb col-12 text-white mb-1 "  id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
-                        <i class="efb fs-5  bi-search"></i> ${ajax_object_efm.text.search}  </button>
-                        </div>
+                <div class="efb efb-tracker-card" id="body_efb-track" data-formid="0">
+                    <div class="efb efb-tracker-icon-wrap">
+                      <i class="efb bi-shield-check efb-tracker-icon-circle"></i>
                     </div>
+                    <h4 class="efb efb-tracker-title">${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
+                    <p class="efb efb-tracker-subtitle">${ajax_object_efm.text.trackingCode}</p>
+                    <div class="efb efb-tracker-input-group">
+                      <i class="efb bi-hash efb-tracker-input-icon"></i>
+                      <input type="text" class="efb input-efb efb-tracker-input" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb" ${get_track} autocomplete="off" spellcheck="false">
+                    </div>
+                    ${setting_emsFormBuilder.scaptcha==true ? `<div class="efb efb-tracker-captcha"><div id="gRecaptcha" class="efb g-recaptcha" data-sitekey="${setting_emsFormBuilder.siteKey}" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
+                    <button type="submit" class="efb btn btn-pinkEfb efb-tracker-btn" id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
+                      <i class="efb bi-search efb-tracker-btn-icon"></i> ${ajax_object_efm.text.search}
+                    </button>
                 </div>
             <!-- efb -->
         </div>

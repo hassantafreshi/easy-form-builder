@@ -35,6 +35,7 @@
   flex-direction: column;
   height: 100%;
   max-height: 70vh;
+  width: -webkit-fill-available;
   gap: 0;
   font-family: var(--efb-resp-font-family);
   font-size: var(--efb-resp-font-size);
@@ -861,54 +862,168 @@
 }
 
 /* ==========================================================================
-   Tracker / Confirmation-Code Finder – Dynamic Colors
+   Tracker / Confirmation-Code Finder – Modern Card
    Scoped to #body_tracker_emsFormBuilder so global btn-pinkEfb etc. stay untouched.
    ========================================================================== */
 #body_tracker_emsFormBuilder {
   font-family: var(--efb-resp-font-family);
   font-size: var(--efb-resp-font-size);
 }
-#body_tracker_emsFormBuilder #body_efb-track {
-  background-color: var(--efb-resp-bg-track) !important;
-  border-radius: 9px !important;
-  box-shadow: 0 2px 30px var(--efb-resp-primary-10) !important;
+
+/* ---- card shell ---- */
+#body_tracker_emsFormBuilder .efb-tracker-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: -webkit-fill-available;
+  margin: 32px auto;
+  padding: 36px 28px 28px;
+  background-color: var(--efb-resp-bg-track);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px var(--efb-resp-primary-10),
+              0 1.5px 4px rgba(0,0,0,.04);
   color: var(--efb-resp-text);
+  position: relative;
+  overflow: visible;
 }
-#body_tracker_emsFormBuilder .title-icon.efb {
-  color: var(--efb-resp-primary);
+
+/* ---- icon circle ---- */
+#body_tracker_emsFormBuilder .efb-tracker-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
 }
-#body_tracker_emsFormBuilder .title-holder.efb {
+#body_tracker_emsFormBuilder .efb-tracker-icon-circle {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
+  color: #fff;
+  font-size: 1.55rem;
+  box-shadow: 0 4px 14px var(--efb-resp-primary-10);
+}
+
+/* ---- title & subtitle ---- */
+#body_tracker_emsFormBuilder .efb-tracker-title {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
   color: var(--efb-resp-text);
   font-family: var(--efb-resp-font-family);
 }
-#body_tracker_emsFormBuilder .form-label {
-  color: var(--efb-resp-text);
+#body_tracker_emsFormBuilder .efb-tracker-subtitle {
+  margin: 0 0 18px;
+  font-size: 0.88rem;
+  color: var(--efb-resp-text-muted);
+  text-align: center;
   font-family: var(--efb-resp-font-family);
 }
-#body_tracker_emsFormBuilder .input-efb {
-  color: var(--efb-resp-editor-text) !important;
-  border-color: var(--efb-resp-border) !important;
-  background-color: var(--efb-resp-bg-editor) !important;
+
+/* ---- input group (icon + input) ---- */
+#body_tracker_emsFormBuilder .efb-tracker-input-group {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+}
+#body_tracker_emsFormBuilder .efb-tracker-input-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  color: var(--efb-resp-editor-ph);
+  pointer-events: none;
+  z-index: 1;
+}
+.rtl-text #body_tracker_emsFormBuilder .efb-tracker-input-icon,
+#body_tracker_emsFormBuilder .rtl-text .efb-tracker-input-icon {
+  left: auto;
+  right: 14px;
+}
+#body_tracker_emsFormBuilder .efb-tracker-input {
+  width: 100%;
+  padding: 13px 16px 13px 42px;
+  border: 1.5px solid var(--efb-resp-border);
+  border-radius: 12px;
+  background-color: var(--efb-resp-bg-editor);
+  color: var(--efb-resp-editor-text);
   font-family: var(--efb-resp-font-family);
   font-size: var(--efb-resp-font-size);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  box-sizing: border-box;
 }
-#body_tracker_emsFormBuilder .input-efb:focus {
-  box-shadow: 0 2px 10px var(--efb-resp-primary-10) !important;
-  border-color: var(--efb-resp-primary) !important;
+.rtl-text #body_tracker_emsFormBuilder .efb-tracker-input,
+#body_tracker_emsFormBuilder .rtl-text .efb-tracker-input {
+  padding: 13px 42px 13px 16px;
 }
-#body_tracker_emsFormBuilder .input-efb::placeholder {
+#body_tracker_emsFormBuilder .efb-tracker-input:focus {
+  border-color: var(--efb-resp-primary);
+  box-shadow: 0 0 0 3px var(--efb-resp-primary-10);
+}
+#body_tracker_emsFormBuilder .efb-tracker-input::placeholder {
   color: var(--efb-resp-editor-ph);
-  opacity: 0.7;
+  opacity: .65;
 }
-#body_tracker_emsFormBuilder .btn-pinkEfb.efb {
-  background-color: var(--efb-resp-primary);
-  background-image: linear-gradient(65deg, var(--efb-resp-primary) 0%, var(--efb-resp-primary-dark) 100%);
+
+/* ---- captcha ---- */
+#body_tracker_emsFormBuilder .efb-tracker-captcha {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+/* ---- button ---- */
+#body_tracker_emsFormBuilder .efb-tracker-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(65deg, var(--efb-resp-primary) 0%, var(--efb-resp-primary-dark) 100%);
   color: var(--efb-resp-btn-text);
   font-family: var(--efb-resp-font-family);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform .15s, box-shadow .2s, background .2s;
 }
-#body_tracker_emsFormBuilder .btn-pinkEfb.efb:hover {
-  background-color: var(--efb-resp-primary-dark);
-  background-image: linear-gradient(65deg, var(--efb-resp-primary-dark) 0%, var(--efb-resp-primary) 100%);
+#body_tracker_emsFormBuilder .efb-tracker-btn:hover {
+  background: linear-gradient(65deg, var(--efb-resp-primary-dark) 0%, var(--efb-resp-primary) 100%);
+  box-shadow: 0 6px 20px var(--efb-resp-primary-10);
+  transform: translateY(-1px);
+}
+#body_tracker_emsFormBuilder .efb-tracker-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px var(--efb-resp-primary-10);
+}
+#body_tracker_emsFormBuilder .efb-tracker-btn:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+  transform: none;
+}
+#body_tracker_emsFormBuilder .efb-tracker-btn-icon {
+  font-size: 1rem;
+}
+
+/* ---- notification inside card ---- */
+#body_tracker_emsFormBuilder .efb-tracker-card > .alert {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 10px;
+  font-family: var(--efb-resp-font-family);
+  font-size: 0.88rem;
+  text-align: center;
 }
 
 /* ==========================================================================

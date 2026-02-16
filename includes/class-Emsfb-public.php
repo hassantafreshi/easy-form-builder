@@ -1415,8 +1415,8 @@ public function check_nonce_permission_efb($request) {
 			$script_call_captcha = '';
 			if (isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true ){
 				$script_call_captcha =sprintf(
-						'<div class="efb row mx-3">
-									<div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="%1$s" data-formid="-1" ></div>
+						'<div class="efb efb-tracker-captcha">
+									<div id="gRecaptcha" class="efb g-recaptcha" data-sitekey="%1$s" data-formid="-1" ></div>
 									<small class="efb text-danger" id="recaptcha-message"></small>
 								</div>	<script>
 						document.addEventListener("DOMContentLoaded", function() {
@@ -1431,24 +1431,21 @@ public function check_nonce_permission_efb($request) {
 
 		$track_content =  sprintf(
 			'<div class="efb %1$s">
-				<div class="efb row mb-3 pb-3 px-1" id="body_efb-track" data-formid="0">
-					<h4 class="efb title-holder col-12 mt-4 fs-3">
-						<i class="efb bi-check2-square title-icon mx-1 fs-3"></i> %2$s
-					</h4>
-					<div class="efb row col-md-12">
-						<label for="trackingCodeEfb" class="efb fs-6 form-label mx-2 col-12">
-							%3$s:<span class="efb fs-8 text-danger mx-1">*</span>
-						</label>
-						<div class="efb col-12 text-center mx-2 row">
-							<input type="text" class="efb input-efb form-control border-d rounded-4 text-labelEfb h-l-efb mb-2"
-								   placeholder="%4$s" id="trackingCodeEfb" value=" %5$s">
-							%6$s
-
-							<button type="submit" class="efb fs-5 btn btn-pinkEfb col-12 text-white mb-1" id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
-								<i class="efb fs-5 bi-search"></i> %7$s
-							</button>
-						</div>
+				<div class="efb efb-tracker-card" id="body_efb-track" data-formid="0">
+					<div class="efb efb-tracker-icon-wrap">
+						<i class="efb bi-shield-check efb-tracker-icon-circle"></i>
 					</div>
+					<h4 class="efb efb-tracker-title">%2$s</h4>
+					<p class="efb efb-tracker-subtitle">%3$s</p>
+					<div class="efb efb-tracker-input-group">
+						<i class="efb bi-hash efb-tracker-input-icon"></i>
+						<input type="text" class="efb input-efb efb-tracker-input"
+							   placeholder="%4$s" id="trackingCodeEfb" value="%5$s" autocomplete="off" spellcheck="false">
+					</div>
+					%6$s
+					<button type="submit" class="efb btn btn-pinkEfb efb-tracker-btn" id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
+						<i class="efb bi-search efb-tracker-btn-icon"></i> %7$s
+					</button>
 				</div>
 			</div>
 			<div id="alert_efb" class="efb mx-5"></div>',

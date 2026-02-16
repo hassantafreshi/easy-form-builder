@@ -1490,10 +1490,10 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="efb ${mxCSize}"><a target="_blank" href="https://youtu.be/JI7RojBgU_o">${efb_var.text.lmavt.replace('%s',efb_var.text.grecaptcha)}</a></p>
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.siteKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.googleKeys}">
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.siteKey}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.googleKeys}">
                                 <span id="sitekey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                 <label class="efb  form-label mx-2 col-12  mt-4 fs-6">${efb_var.text.SecreTKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""} data-tab="${efb_var.text.googleKeys}">
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${secretkey !== "null" ? `value="${secretkey}"` : ""} data-tab="${efb_var.text.googleKeys}">
                                 <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
 
@@ -1797,9 +1797,15 @@ function efb_open_color_modal() {
       </div>
       <button class="efb-preview-btn" disabled style="color:var(--efb-resp-btn-text)"><i class="bi bi-reply me-1"></i>${efb_var.text.reply || 'Reply'}</button>
       <!-- Tracker mini preview -->
-      <div class="efb-preview-tracker-wrap" style="margin-top:12px;padding:10px;border-radius:8px;background:var(--efb-resp-bg-track);border:1px solid var(--efb-resp-border)">
-        <div style="font-weight:600;color:var(--efb-resp-text);font-family:var(--efb-resp-font-family);margin-bottom:4px"><i class="bi bi-check2-square" style="color:var(--efb-resp-primary);margin-inline-end:4px"></i>${efb_var.text.trackNo || 'Confirmation Code'}</div>
-        <div style="padding:6px 8px;border:1px solid var(--efb-resp-border);border-radius:6px;background:var(--efb-resp-bg-editor);color:var(--efb-resp-editor-ph);font-size:var(--efb-resp-font-size);font-family:var(--efb-resp-font-family)">${efb_var.text.entrTrkngNo || 'Enter tracking number'}</div>
+      <div class="efb-preview-tracker-wrap" style="margin-top:12px;padding:18px 14px;border-radius:14px;background:var(--efb-resp-bg-track);border:1px solid var(--efb-resp-border);display:flex;flex-direction:column;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,0.04)">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--efb-resp-primary),var(--efb-resp-primary-dark));display:flex;align-items:center;justify-content:center;margin-bottom:8px;box-shadow:0 3px 10px var(--efb-resp-primary-10)"><i class="bi bi-shield-check" style="color:#fff;font-size:1.15rem"></i></div>
+        <div style="font-weight:700;color:var(--efb-resp-text);font-family:var(--efb-resp-font-family);margin-bottom:2px;font-size:0.92rem">${efb_var.text.trackNo || 'Confirmation Code'}</div>
+        <div style="color:var(--efb-resp-text-muted);font-family:var(--efb-resp-font-family);margin-bottom:8px;font-size:0.78rem">${efb_var.text.trackingCode || 'Tracking Code'}</div>
+        <div style="width:100%;position:relative;margin-bottom:8px">
+          <i class="bi bi-hash" style="position:absolute;top:50%;left:10px;transform:translateY(-50%);color:var(--efb-resp-editor-ph);font-size:0.95rem"></i>
+          <div style="padding:10px 12px 10px 32px;border:1.5px solid var(--efb-resp-border);border-radius:10px;background:var(--efb-resp-bg-editor);color:var(--efb-resp-editor-ph);font-size:var(--efb-resp-font-size);font-family:var(--efb-resp-font-family);opacity:0.65">${efb_var.text.entrTrkngNo || 'Enter tracking number'}</div>
+        </div>
+        <div style="width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(65deg,var(--efb-resp-primary),var(--efb-resp-primary-dark));color:var(--efb-resp-btn-text);font-family:var(--efb-resp-font-family);font-weight:600;text-align:center;font-size:0.88rem"><i class="bi bi-search" style="margin-inline-end:6px"></i>${efb_var.text.search || 'Search'}</div>
       </div>
     </div>`;
 
