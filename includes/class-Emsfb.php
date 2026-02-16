@@ -449,6 +449,22 @@ class Emsfb {
                     'activeDlBtn' => $decoded->activeDlBtn ?? true,
                     'paypalPkey' => $decoded->paypalPkey ?? '',
                     'addons' => self::get_addons_list_efb($decoded),
+                    // Response box color settings
+                    'respPrimary' => $decoded->respPrimary ?? '#3644d2',
+                    'respPrimaryDark' => $decoded->respPrimaryDark ?? '#202a8d',
+                    'respAccent' => $decoded->respAccent ?? '#ffc107',
+                    'respText' => $decoded->respText ?? '#1a1a2e',
+                    'respTextMuted' => $decoded->respTextMuted ?? '#657096',
+                    'respBgCard' => $decoded->respBgCard ?? '#ffffff',
+                    'respBgMeta' => $decoded->respBgMeta ?? '#f6f7fb',
+                    'respBgTrack' => $decoded->respBgTrack ?? '#ffffff',
+                    'respBgResp' => $decoded->respBgResp ?? '#f8f9fd',
+                    'respBgEditor' => $decoded->respBgEditor ?? '#ffffff',
+                    'respEditorText' => $decoded->respEditorText ?? '#1a1a2e',
+                    'respEditorPh' => $decoded->respEditorPh ?? '#a0aec0',
+                    'respBtnText' => $decoded->respBtnText ?? '#ffffff',
+                    'respFontFamily' => $decoded->respFontFamily ?? 'inherit',
+                    'respFontSize' => $decoded->respFontSize ?? '0.9rem',
                 ];
                 $result = [json_encode($pubSettings, JSON_UNESCAPED_UNICODE), $pubSettings];
                 break;

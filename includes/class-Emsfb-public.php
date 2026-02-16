@@ -718,7 +718,22 @@ public function check_nonce_permission_efb($request) {
 				"bi-trash",
 				'bi-shield-check',
 				'bi-chat-square-text',
-				'bi-paperclip'
+				'bi-paperclip',
+				'bi-type-bold',
+				'bi-type-italic',
+				'bi-type-underline',
+				'bi-eraser',
+				'bi-person',
+				'bi-reply',
+				'bi-hash',
+				'bi-calendar3',
+				'bi-globe2',
+				'bi-credit-card',
+				'bi-calculator',
+				'bi-palette',
+				'bi-pen',
+				'bi-star',
+				'bi-reply'
 			]];
 			$bootstrap_icons ='';
 			 $iconst_html_preload ='<div style="display:none;">';
@@ -1468,7 +1483,11 @@ public function check_nonce_permission_efb($request) {
 
 		if($state=='css') return;
 
-		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
+		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
+		wp_enqueue_style('Emsfb-response-viewer-css');
+		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', false, EMSFB_PLUGIN_VERSION, true);
+		wp_enqueue_script('efb-response-viewer-js');
+		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery', 'efb-response-viewer-js'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('Emsfb-core_js');
 	    wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
 
@@ -5681,6 +5700,7 @@ public function check_nonce_permission_efb($request) {
 	private function ajax_object_efm_efb($ar_core ,$values ,$typeOfForm ,$state ,$lang,$poster ,$img ,$pro ,$page_builder ,$is_user ,$username,$lanText){
 
 		$json_settings= get_setting_Emsfb('pub')[0];
+		$pub_settings = get_setting_Emsfb('pub')[1];
 		$ar_core = array_merge($ar_core , array(
 			'ajax_value_forms' =>$this->value_forms,
 			'ajax_value' =>$values, //remove this line on v4
@@ -5709,6 +5729,22 @@ public function check_nonce_permission_efb($request) {
 			'is_user'=> $is_user,
 			'user_name' => $username,
 			'nonce' => wp_create_nonce('wp_rest'),
+			// Response box color settings (from saved settings)
+			'respPrimary' => $pub_settings['respPrimary'] ?? '#3644d2',
+			'respPrimaryDark' => $pub_settings['respPrimaryDark'] ?? '#202a8d',
+			'respAccent' => $pub_settings['respAccent'] ?? '#ffc107',
+			'respText' => $pub_settings['respText'] ?? '#1a1a2e',
+			'respTextMuted' => $pub_settings['respTextMuted'] ?? '#657096',
+			'respBgCard' => $pub_settings['respBgCard'] ?? '#ffffff',
+			'respBgMeta' => $pub_settings['respBgMeta'] ?? '#f6f7fb',
+			'respBgTrack' => $pub_settings['respBgTrack'] ?? '#ffffff',
+			'respBgResp' => $pub_settings['respBgResp'] ?? '#f8f9fd',
+			'respBgEditor' => $pub_settings['respBgEditor'] ?? '#ffffff',
+			'respEditorText' => $pub_settings['respEditorText'] ?? '#1a1a2e',
+			'respEditorPh' => $pub_settings['respEditorPh'] ?? '#a0aec0',
+			'respBtnText' => $pub_settings['respBtnText'] ?? '#ffffff',
+			'respFontFamily' => $pub_settings['respFontFamily'] ?? 'inherit',
+			'respFontSize' => $pub_settings['respFontSize'] ?? '0.9rem',
 		) );
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
 	}

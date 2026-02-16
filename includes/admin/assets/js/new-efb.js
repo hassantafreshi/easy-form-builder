@@ -3545,6 +3545,8 @@ function state_rply_btn_efb(t){
        if(document.getElementById("attach_efb")) document.getElementById("attach_efb").remove();
        document.getElementById("replayM_emsFormBuilder").remove();
        document.getElementById("label_replyM_efb").remove();
+       if(document.getElementById("efb_editor_toolbar")) document.getElementById("efb_editor_toolbar").remove();
+       if(document.getElementById("efb_rich_editor")) document.getElementById("efb_rich_editor").remove();
        document.getElementById("replay_state__emsFormBuilder").innerHTML=`<h5 class="efb fs-4 my-3 text-center text-pinkEfb">${efb_var.text.clsdrspn}</h5>`
       }else{
         let d= document.getElementById('respStateEfb');
@@ -4224,40 +4226,140 @@ add_ui_totalprice_efb = (rndm ,iVJ) => {
   <!-- end total Price -->
   `
 }
+/**
+ * Apply response box color settings as CSS custom properties.
+ * Reads from ajax_object_efm.setting (admin) or ajax_object_efm (public).
+ * Safe to call multiple times — skips if already applied.
+ */
+let _efbRespColorsApplied = false;
+function efb_apply_resp_colors() {
+  if (_efbRespColorsApplied) return;
+  _efbRespColorsApplied = true;
+
+  // Settings source: admin path or public path
+  let s = null;
+  try {
+    if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.setting && ajax_object_efm.setting[0]) {
+      const raw = ajax_object_efm.setting[0].setting;
+      s = typeof raw === 'string' ? JSON.parse(raw.replace(/[\\]/g, '')) : raw;
+    }
+  } catch (e) { /* ignore */ }
+
+  // Fallback: try public localized settings
+  if (!s) {
+    try {
+      if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.respPrimary) {
+        s = ajax_object_efm;
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  if (!s) return;
+
+  const defaults = {
+    respPrimary: '#3644d2',
+    respPrimaryDark: '#202a8d',
+    respAccent: '#ffc107',
+    respText: '#1a1a2e',
+    respTextMuted: '#657096',
+    respBgCard: '#ffffff',
+    respBgMeta: '#f6f7fb',
+    respBgTrack: '#ffffff',
+    respBgResp: '#f8f9fd',
+    respBgEditor: '#ffffff',
+    respEditorText: '#1a1a2e',
+    respEditorPh: '#a0aec0',
+    respBtnText: '#ffffff',
+    respFontFamily: 'inherit',
+    respFontSize: '0.9rem',
+  };
+
+  const map = {
+    respPrimary: '--efb-resp-primary',
+    respPrimaryDark: '--efb-resp-primary-dark',
+    respAccent: '--efb-resp-accent',
+    respText: '--efb-resp-text',
+    respTextMuted: '--efb-resp-text-muted',
+    respBgCard: '--efb-resp-bg-card',
+    respBgMeta: '--efb-resp-bg-meta',
+    respBgTrack: '--efb-resp-bg-track',
+    respBgResp: '--efb-resp-bg-resp',
+    respBgEditor: '--efb-resp-bg-editor',
+    respEditorText: '--efb-resp-editor-text',
+    respEditorPh: '--efb-resp-editor-ph',
+    respBtnText: '--efb-resp-btn-text',
+    respFontFamily: '--efb-resp-font-family',
+    respFontSize: '--efb-resp-font-size',
+  };
+
+  const root = document.documentElement;
+  for (const [key, cssVar] of Object.entries(map)) {
+    const val = s[key] || defaults[key];
+    if (val && val !== defaults[key]) {
+      root.style.setProperty(cssVar, val);
+    }
+  }
+
+  // Derived opacity variants from primary
+  const primary = s.respPrimary || defaults.respPrimary;
+  if (primary !== defaults.respPrimary) {
+    const hex2rgba = (hex, a) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r},${g},${b},${a})`;
+    };
+    root.style.setProperty('--efb-resp-primary-08', hex2rgba(primary, 0.08));
+    root.style.setProperty('--efb-resp-primary-10', hex2rgba(primary, 0.10));
+    root.style.setProperty('--efb-resp-primary-06', hex2rgba(primary, 0.06));
+    root.style.setProperty('--efb-resp-border', hex2rgba(primary, 0.12));
+    root.style.setProperty('--efb-resp-shadow', `0 2px 16px ${hex2rgba(primary, 0.07)}`);
+    root.style.setProperty('--efb-resp-shadow-hover', `0 4px 24px ${hex2rgba(primary, 0.13)}`);
+  }
+}
+
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
+  // Apply response colors on first message render
+  efb_apply_resp_colors();
   //console.log(content, by, userIp, track, date);
   stock_state_efb=false;
   let totalpaid =0;
   if(content[(content.length)- 1].type=="w_link")content.pop();
    //console.log(by);
-  const ipSection = userIp!='' ? `<p class="efb small fs-7 mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>` :''
+  const ipSection = userIp!='' ? `<div class="efb-msg-meta-item"><i class="bi bi-globe2"></i><span class="efb-msg-meta-label">${efb_var.text.ip}:</span><span class="efb-msg-meta-val">${userIp}</span></div>` :''
+  let byName = '';
+  let byIsAdmin = false;
   if (by == 1) {
-     by = 'Admin'; by=`<span>${efb_var.text.by}:</span> ${by}`; }
-  else if (by ==''  && (efb_var.hasOwnProperty('user_name') &&  efb_var.user_name.length > 1)){
-    //console.log('by admin or null',efb_var.user_name.length,efb_var.user_name.length > 1 ,efb_var.user_name );
-    by = efb_var.hasOwnProperty('user_name') &&  efb_var.user_name.length > 1 ? `<span>${efb_var.text.by}:</span> ${efb_var.user_name}`  : `<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`;
+     byName = 'Admin'; byIsAdmin = true;
+  } else if (by ==''  && (efb_var.hasOwnProperty('user_name') &&  efb_var.user_name.length > 1)){
+    byName = efb_var.hasOwnProperty('user_name') &&  efb_var.user_name.length > 1 ? efb_var.user_name : efb_var.text.guest;
   }else if(by==-1){
-    by = 'Admin';
-    by=`<span>${efb_var.text.by}:</span> ${by}`;
+    byName = 'Admin'; byIsAdmin = true;
   }else if (by==undefined ||by == 0 || by.length == 0 || by.length == -1) {
-    by=`<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`;
+    byName = efb_var.text.guest;
   }else if(by=='#first'){
-
+    byName = '';
   }else {
-    by = `<span>${efb_var.text.by}:</span> ${by}`;
+    byName = by;
    }
-   by = by=='#first' ? `` : `<p class="efb small fs-7 mb-0">${by}</p>`;
-  let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
-    <div class="efb  form-check">
-     <div>
-      ${by}
+  const bySection = byName ? `<div class="efb-msg-sender">
+    <div class="efb-msg-avatar ${byIsAdmin ? 'efb-msg-avatar--admin' : ''}"><i class="bi ${byIsAdmin ? 'bi-shield-check' : 'bi-person'}"></i></div>
+    <div class="efb-msg-sender-info"><span class="efb-msg-sender-role">${byIsAdmin ? 'Admin' : efb_var.text.by}:</span><span class="efb-msg-sender-name">${byName}</span></div>
+  </div>` : '';
+  let m = `<div class="efb bg-response efb card-body my-2 py-2 efb-msg-card ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
+    <div class="efb efb-msg-header">
+     ${bySection}
+     <div class="efb-msg-header-actions">
+       <div class="efb efb-msg-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onclick="generatePDF_EFB('resp_efb')"><i class="bi bi-download"></i></div>
+     </div>
+    </div>
+    <div class="efb-msg-meta-bar">
       ${ipSection}
-      ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
-      <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>
-   </div>
-   <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onclick="generatePDF_EFB('resp_efb')"></div>
-   </div>
-  <hr>
+      ${track != 0 ? `<div class="efb-msg-meta-item"><i class="bi bi-hash"></i><span class="efb-msg-meta-label">${efb_var.text.trackNo}:</span><span class="efb-msg-meta-val">${track}</span></div>` : ''}
+      <div class="efb-msg-meta-item"><i class="bi bi-calendar3"></i><span class="efb-msg-meta-label">${efb_var.text.ddate}:</span><span class="efb-msg-meta-val">${date}</span></div>
+    </div>
+  <div class="efb-msg-divider"></div>
+  <div class="efb-msg-fields">
   `;
   content.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : -1);
   let list = []
@@ -4271,7 +4373,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
     if (c.hasOwnProperty('currency')){ currency = c.currency}
     s = false;
-    let value = typeof(c.value)=="string" ? `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>` :'';
+    let value = typeof(c.value)=="string" ? `<span class="efb-formatted">${(typeof EfbResponseViewer !== 'undefined' ? EfbResponseViewer.formatMessageForDisplay(c.value.toString().replaceAll('@efb!', ',')) : c.value.toString().replaceAll('@efb!', ','))}</span>` :'';
     if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
@@ -4303,15 +4405,14 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       s = true;
-      value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
+      value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail efb-msg-esign-img">`;
+      m += `<div class="efb efb-msg-field-row efb-msg-field-block"><span class="efb-msg-field-label"><i class="bi bi-pen"></i> ${title}:</span><div class="efb-msg-field-value"> ${value}</div></div>`;
     } else if (c.type == "color") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       s = true;
-      //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
-      m += `<p class="efb fs-6 my-0 efb  form-check">${title}: ${value}</p>`;
+      value = `<span class="efb-msg-color-swatch" style="background-color:${c.value};">&nbsp;</span><code>${c.value}</code>`;
+      m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label"><i class="bi bi-palette"></i> ${title}:</span> <span class="efb-msg-field-value">${value}</span></div>`;
     } else if (c.type == "maps") {
       if (typeof (c.value) == "object") {
         s = true;
@@ -4328,12 +4429,12 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       s = true;
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
-      value = `<div class='efb fs-4 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
+      value = `<div class='efb efb-msg-rating ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
       for (let i = 0; i < parseInt(c.value); i++) {
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value += "</div>";
-      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p><p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
+      m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label"><i class="bi bi-star"></i> ${title}:</span><span class="efb-msg-field-value">${value}</span></div>`;
       //console.log(checboxs.includes(c.id_))
     } else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
       s = true;
@@ -4342,14 +4443,14 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       checboxs.push(c.id_);
       for(let op of content){
         if(op.type=="checkbox" && op.id_ == c.id_){
-          vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
+          vc=='null' ? vc =`<span class="efb-msg-checkbox-item"><i class="bi bi-check2-square"></i> ${op.value}</span>` :vc +=`<span class="efb-msg-checkbox-item"><i class="bi bi-check2-square"></i> ${op.value}</span>`
         }
       }
-      m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
+      m += `<div class="efb efb-msg-field-row efb-msg-field-block"><span class="efb-msg-field-label">${c.name}:</span><div class="efb-msg-checkbox-list">${vc}</div></div>`;
     }else if (c.type=="r_matrix"){
       s = true;
       //console.log(390 ,checboxs.includes(c.id_));
-      vc =`${c.hasOwnProperty('label') && last_type!='r_matrix' ? `<p class="efb fs-6 my-0 efb"">${c.label}</p>` : '' }<p class="efb my-1 mx-3 fs-7 test form-check"> ${c.name} :${c.value} </p>`
+      vc =`${c.hasOwnProperty('label') && last_type!='r_matrix' ? `<div class="efb-msg-field-label efb-msg-matrix-header">${c.label}</div>` : '' }<div class="efb efb-msg-field-row efb-msg-matrix-item"><span class="efb-msg-field-label">${c.name}:</span><span class="efb-msg-field-value">${c.value}</span></div>`
       m += `${vc}`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
@@ -4360,35 +4461,38 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')  || c.type == 'prcfld') {
           //console.log(currency ,c)
-          q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
+          q+=`<span class="efb efb-msg-price-tag">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }else if(c.type.includes('checkbox')){
           //checboxs.push
         }else if(c.type.includes('imgRadio')){
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
         }
-        m += `<p class="efb fs-6 my-0 efb">${title}: ${text_nr_efb(q,1)}</p>`
+        m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label">${title}:</span> <span class="efb-msg-field-value">${text_nr_efb(q,1)}</span></div>`
        //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
       }
     if (c.type == "payment") {
       if(c.paymentGateway == "stripe" || c.paymentGateway == "paypal"){
-        m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
-            <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
-            <p class="efb  my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${Number(c.total).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></p>
-            <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
-            <p class="efb my-0">${efb_var.text.updated}:<span class="efb mb-1"> ${c.updatetime}</span></p>
-            <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
-            ${c.paymentmethod != 'charge' ? `<p class="efb fs-6 my-0">${efb_var.text.interval}:<span class="efb mb-1 text-capitalize"> ${c.interval}</span></p>` : ''}
-            </div>`
+        m += `<div class="efb efb-msg-payment">
+            <div class="efb-msg-payment-header"><i class="bi bi-credit-card"></i> ${efb_var.text.payment}</div>
+            <div class="efb-msg-payment-grid">
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.payment} ${efb_var.text.id}</span><span class="efb-msg-payment-val efb-msg-payment-id">${c.paymentIntent}</span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.payAmount}</span><span class="efb-msg-payment-val efb-msg-payment-amount">${Number(c.total).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.ddate}</span><span class="efb-msg-payment-val">${c.paymentCreated}</span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.updated}</span><span class="efb-msg-payment-val">${c.updatetime}</span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.methodPayment}</span><span class="efb-msg-payment-val"><span class="efb-msg-payment-badge">${c.paymentmethod}</span></span></div>
+            ${c.paymentmethod != 'charge' ? `<div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.interval}</span><span class="efb-msg-payment-val text-capitalize">${c.interval}</span></div>` : ''}
+            </div></div>`
       }else {
-        m += ``
-        m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
-            <p class="efb my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
-            <p class="efb my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${c.total} ریال</span></p>
-            <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
-            <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
-            <p class="efb my-0">شماره کارت:<span class="efb mb-1"> ${c.paymentCard}</span></p>
-            <p class="efb my-0">کد پیگیری زرین پال<span class="efb mb-1"> ${c.refId}</span></p>
-            </div>`
+        m += `<div class="efb efb-msg-payment">
+            <div class="efb-msg-payment-header"><i class="bi bi-credit-card"></i> ${efb_var.text.payment}</div>
+            <div class="efb-msg-payment-grid">
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.payment} ${efb_var.text.id}</span><span class="efb-msg-payment-val efb-msg-payment-id">${c.paymentIntent}</span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.payAmount}</span><span class="efb-msg-payment-val efb-msg-payment-amount">${c.total} ریال</span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.methodPayment}</span><span class="efb-msg-payment-val"><span class="efb-msg-payment-badge">${c.paymentmethod}</span></span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">${efb_var.text.ddate}</span><span class="efb-msg-payment-val">${c.paymentCreated}</span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">شماره کارت</span><span class="efb-msg-payment-val">${c.paymentCard}</span></div>
+            <div class="efb-msg-payment-item"><span class="efb-msg-payment-label">کد پیگیری زرین پال</span><span class="efb-msg-payment-val">${c.refId}</span></div>
+            </div></div>`
       }
     }else if (c.type =="closed"){
       stock_state_efb=true;
@@ -4397,9 +4501,10 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     }
     last_type = c.hasOwnProperty('type') ? c.type :'';
   }
+  m += '</div>'; /* close efb-msg-fields */
   if(totalpaid>0){
-    m +=`<div class="efb my-2 fs7 bg-dark text-light">
-    <p class="efb p-2">${efb_var.text.ttlprc}:<span class="efb mb-1"> ${Number(totalpaid).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></p>
+    m +=`<div class="efb efb-msg-total">
+    <div class="efb-msg-total-inner"><span class="efb-msg-total-label"><i class="bi bi-calculator"></i> ${efb_var.text.ttlprc}:</span><span class="efb-msg-total-amount">${Number(totalpaid).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></div>
     </div>`
   }
   m += '</div>';

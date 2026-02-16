@@ -822,6 +822,8 @@ function fun_tracking_show_emsFormBuilder() {
   let get_track = getUrlparams.get('track') !=null ? sanitize_text_efb(getUrlparams.get('track')) :null;
   if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
 setTimeout(() => {
+  // Apply dynamic response colors before rendering tracker
+  if (typeof efb_apply_resp_colors === 'function') efb_apply_resp_colors();
   document.getElementById("body_tracker_emsFormBuilder").innerHTML = `
   <div class="efb  ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
                 <div class="efb row mb-3 pb-3 px-1" id="body_efb-track">
@@ -901,44 +903,12 @@ function fun_vaid_tracker_check_emsFormBuilder() {
   }
 }
 function emsFormBuilder_show_content_message(value, content) {
-  const msg_id = value.msg_id;
-  const userIp = "XXXXXXXXX";
-  const track = value.track;
-  const date = value.date ;
-  const val = JSON.parse(replaceContentMessageEfb(value.content));
-  let m = fun_emsFormBuilder_show_messages(val, '#first' ,'', track, date);
-  for (let c of content) {
-    const val = JSON.parse(c.content.replace(/[\\]/g, ''));
-    // console.log(c);
-    m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by,'', track, c.date)}</div></div>`
-  }
-  let replayM = `<div class="efb mt-2"><div class="efb form-group mb-3" id="replay_section__emsFormBuilder">
-  <label for="replayM_emsFormBuilder" class:'efb mx-1 fs-7" id="label_replyM_efb">${ajax_object_efm.text.reply}:</label>
-  <textarea class="efb form-control border-d fs-6" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
-  </div>
-  <div class="efb col text-right row my-2 mx-1">
-  <button type="submit" class="efb btn fs-5 round-2 btn-primary btn-lg" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${ajax_object_efm.text.reply} </button>
-  <!-- recaptcha  -->
-  ${sitekye_emsFormBuilder ? `<div class="efb row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" id="recaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
-  <!-- recaptcha end  -->
-  <p class="efb mx-2 my-1 text-pinkEfb efb fs-7" id="replay_state__emsFormBuilder">  </p>
-  </div></div>
-  `
-  const body = `
-  <div class="efb modal-header efb py-4">
-  <h5 class="efb modal-title fs-5 ">
-   <!-- <i class="efb  bi-chat-square-text mx-2 mx-2 fs-5"></i>
-   <span id="settingModalEfb-title">${ajax_object_efm.text.response}</span></h5> -->
- </div>
-  <div class="efb modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
-    ${m}
-   </div>
-   ${replayM}
-   </div>
-   </div>
-</div>
-<div>
-</div></div>`;
+  // Refactored: use EfbResponseViewer module for professional UI
+  const body = EfbResponseViewer.buildPublicResponseBody(value, content);
+  // Init editor after DOM is rendered (caller should handle this)
+  setTimeout(() => {
+    EfbResponseViewer.initAfterRender(value.msg_id, false);
+  }, 50);
   return body;
 }
 
@@ -946,7 +916,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   document.getElementById('replayB_emsFormBuilder').innerHTML =`<i class="efb fs-5 bi-hourglass-split mx-1"></i>`+efb_var.text.sending;
 setTimeout(() => {
-  let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
+  let message = EfbResponseViewer.getEditorValue();
   message=sanitize_text_efb(message);
   const by = ajax_object_efm.user_name.length > 1 ? ajax_object_efm.user_name : efb_var.text.guest;
   const ob = [{id_:'message', name:'message', type:'text', amount:0, value: message, by: by , session: sessionPub_emsFormBuilder,form_id:-1}];
@@ -975,7 +945,8 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
   }
   f_btn =()=>{
     document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
-    document.getElementById('replayM_emsFormBuilder').innerHTML = "";
+    document.getElementById('replayM_emsFormBuilder').value = "";
+    var _re = document.getElementById('efb_rich_editor'); if (_re) _re.innerHTML = '';
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
   }
   if (message.length < 1) {
@@ -1355,6 +1326,9 @@ function response_Valid_tracker_efb(res) {
 function response_rMessage_id(res, message) {
   if (res.success == true && res.data.success == true) {
     document.getElementById('replayM_emsFormBuilder').value = "";
+    // Clear the rich editor as well
+    const richEditor = document.getElementById('efb_rich_editor');
+    if (richEditor) richEditor.innerHTML = '';
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;

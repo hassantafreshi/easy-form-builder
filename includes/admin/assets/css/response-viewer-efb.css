@@ -1,0 +1,1189 @@
+/* ==========================================================================
+   Response Viewer & Rich Reply Editor - Easy Form Builder
+   ========================================================================== */
+
+/* ── Dynamic Color Variables (overridden via inline style from settings) ── */
+:root {
+  --efb-resp-primary: #3644d2;
+  --efb-resp-primary-dark: #202a8d;
+  --efb-resp-accent: #ffc107;
+  --efb-resp-text: #1a1a2e;
+  --efb-resp-text-muted: #657096;
+  --efb-resp-bg-card: #ffffff;
+  --efb-resp-bg-meta: #f6f7fb;
+  --efb-resp-border: rgba(84, 131, 207, 0.12);
+  /* extended settings */
+  --efb-resp-bg-track: #ffffff;
+  --efb-resp-bg-resp: #f8f9fd;
+  --efb-resp-bg-editor: #ffffff;
+  --efb-resp-editor-text: #1a1a2e;
+  --efb-resp-editor-ph: #a0aec0;
+  --efb-resp-btn-text: #ffffff;
+  --efb-resp-font-family: inherit;
+  --efb-resp-font-size: 0.9rem;
+  /* derived */
+  --efb-resp-primary-08: rgba(54, 68, 210, 0.08);
+  --efb-resp-primary-10: rgba(54, 68, 210, 0.10);
+  --efb-resp-primary-06: rgba(54, 68, 210, 0.06);
+  --efb-resp-shadow: rgba(84, 131, 207, 0.12);
+  --efb-resp-shadow-hover: rgba(84, 131, 207, 0.18);
+}
+
+/* ── Response Container ────────────────────────────────────────────────── */
+.efb-resp-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 70vh;
+  gap: 0;
+  font-family: var(--efb-resp-font-family);
+  font-size: var(--efb-resp-font-size);
+}
+
+/* ── Messages Area ─────────────────────────────────────────────────────── */
+.efb-resp-messages {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 6px;
+  min-height: 160px;
+  max-height: 340px;
+  scroll-behavior: smooth;
+  background: var(--efb-resp-bg-resp);
+}
+.efb-resp-messages::-webkit-scrollbar {
+  width: 5px;
+}
+.efb-resp-messages::-webkit-scrollbar-track {
+  background: var(--efb-resp-bg-meta);
+  border-radius: 10px;
+}
+.efb-resp-messages::-webkit-scrollbar-thumb {
+  background: #b4c0e0;
+  border-radius: 10px;
+}
+.efb-resp-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--efb-resp-primary);
+}
+
+/* ── Single Message Card ───────────────────────────────────────────────── */
+.efb-resp-card,
+.efb-msg-card {
+  border-radius: 16px !important;
+  background: var(--efb-resp-bg-card) !important;
+  box-shadow: 0 2px 24px var(--efb-resp-shadow) !important;
+  padding: 16px 18px !important;
+  margin-bottom: 14px;
+  transition: box-shadow 0.2s;
+  border: 1px solid var(--efb-resp-border);
+  font-family: var(--efb-resp-font-family);
+  font-size: var(--efb-resp-font-size);
+}
+.efb-resp-card:hover,
+.efb-msg-card:hover {
+  box-shadow: 0 4px 32px var(--efb-resp-shadow-hover) !important;
+}
+
+/* ── Card Header ───────────────────────────────────────────────────────── */
+.efb-msg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+/* ── Sender (avatar + name + role) ─────────────────────────────────────── */
+.efb-msg-sender {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.efb-msg-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e8ecfa 0%, #d0d7f7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--efb-resp-primary);
+  font-size: 1rem;
+}
+.efb-msg-avatar--admin {
+  background: linear-gradient(135deg, var(--efb-resp-primary) 0%, var(--efb-resp-primary-dark) 100%);
+  color: #fff;
+}
+.efb-msg-sender-info {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.efb-msg-sender-role {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--efb-resp-text-muted);
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.efb-msg-sender-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--efb-resp-text);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Header Actions (download btn) ─────────────────────────────────────── */
+.efb-msg-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.efb-msg-download {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  color: var(--efb-resp-text-muted) !important;
+  font-size: 1rem !important;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+.efb-msg-download:hover {
+  background: var(--efb-resp-primary-08);
+  color: var(--efb-resp-primary) !important;
+  transform: translateY(-1px);
+}
+.efb-msg-download i {
+  font-size: 1.05rem !important;
+  pointer-events: none;
+}
+
+/* ── Meta Bar (IP, Track#, Date row) ───────────────────────────────────── */
+.efb-msg-meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 6px 10px;
+  background: var(--efb-resp-bg-meta);
+  border-radius: 8px;
+  margin-bottom: 2px;
+}
+.efb-msg-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--efb-resp-text-muted);
+  white-space: nowrap;
+}
+.efb-msg-meta-item i {
+  font-size: 0.72rem !important;
+  color: #8b94b8;
+  flex-shrink: 0;
+}
+.efb-msg-meta-label {
+  font-weight: 600;
+  color: var(--efb-resp-text-muted);
+}
+.efb-msg-meta-val {
+  color: var(--efb-resp-text);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.efb-resp-card hr,
+.efb-msg-card hr {
+  margin: 8px 0 10px !important;
+  border-color: var(--efb-resp-border) !important;
+}
+
+/* ── Card Divider ──────────────────────────────────────────────────────── */
+.efb-msg-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--efb-resp-border) 30%, var(--efb-resp-border) 70%, transparent 100%);
+  margin: 10px 0 12px;
+}
+
+/* ── Fields Container ──────────────────────────────────────────────────── */
+.efb-msg-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Field Row ─────────────────────────────────────────────────────────── */
+.efb-msg-field-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  padding: 7px 10px;
+  border-radius: 8px;
+  transition: background 0.15s;
+  gap: 6px;
+}
+.efb-msg-field-row:hover {
+  background: rgba(84, 131, 207, 0.04);
+}
+.efb-msg-field-row:nth-child(even) {
+  background: var(--efb-resp-primary-06);
+}
+.efb-msg-field-row:nth-child(even):hover {
+  background: var(--efb-resp-primary-08);
+}
+.efb-msg-field-block {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* ── Field Label ───────────────────────────────────────────────────────── */
+.efb-msg-field-label {
+  font-size: 0.85rem !important;
+  font-weight: 600;
+  color: var(--efb-resp-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin: 0 !important;
+}
+.efb-msg-field-label i {
+  font-size: 0.78rem !important;
+  opacity: 0.65;
+  margin-inline-end: 2px;
+}
+
+/* ── Field Value ───────────────────────────────────────────────────────── */
+.efb-msg-field-value {
+  font-size: 0.88rem !important;
+  color: var(--efb-resp-text);
+  line-height: 1.55;
+  flex: 1;
+  word-break: break-word;
+}
+.efb-msg-field-value .efb-formatted {
+  display: inline;
+}
+
+/* ── Price Tag (inline) ────────────────────────────────────────────────── */
+.efb-msg-price-tag {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 0.82rem !important;
+  color: #fff;
+  background: linear-gradient(135deg, var(--efb-resp-primary) 0%, var(--efb-resp-primary-dark) 100%);
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-inline-start: 8px;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+}
+
+/* ── Payment Section ───────────────────────────────────────────────────── */
+.efb-msg-payment {
+  margin: 10px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--efb-resp-border);
+  background: var(--efb-resp-bg-card);
+}
+.efb-msg-payment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, var(--efb-resp-text) 0%, var(--efb-resp-primary-dark) 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.3px;
+}
+.efb-msg-payment-header i {
+  font-size: 1.1rem !important;
+  color: var(--efb-resp-accent);
+}
+.efb-msg-payment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.efb-msg-payment-item {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--efb-resp-border);
+  border-inline-end: 1px solid var(--efb-resp-border);
+}
+.efb-msg-payment-item:nth-child(even) {
+  border-inline-end: none;
+}
+.efb-msg-payment-item:nth-last-child(-n+2) {
+  border-bottom: none;
+}
+.efb-msg-payment-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--efb-resp-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.efb-msg-payment-val {
+  font-size: 0.88rem;
+  color: var(--efb-resp-text);
+  font-weight: 500;
+  word-break: break-all;
+}
+.efb-msg-payment-amount {
+  font-weight: 700;
+  color: var(--efb-resp-primary-dark);
+  font-size: 1rem;
+}
+.efb-msg-payment-id {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.78rem;
+  color: #555;
+}
+.efb-msg-payment-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--efb-resp-primary-08);
+  color: var(--efb-resp-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* ── Total Price ───────────────────────────────────────────────────────── */
+.efb-msg-total {
+  margin-top: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--efb-resp-text) 0%, var(--efb-resp-primary-dark) 100%);
+}
+.efb-msg-total-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  gap: 12px;
+}
+.efb-msg-total-label {
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.efb-msg-total-label i {
+  font-size: 1rem !important;
+  color: var(--efb-resp-accent);
+}
+.efb-msg-total-amount {
+  color: var(--efb-resp-accent);
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
+}
+
+/* ── Rating Stars ──────────────────────────────────────────────────────── */
+.efb-msg-rating {
+  display: inline-flex;
+  gap: 2px;
+}
+.efb-msg-rating i.bi-star-fill {
+  font-size: 1.15rem !important;
+  color: var(--efb-resp-accent) !important;
+  filter: drop-shadow(0 1px 2px rgba(255,193,7,0.3));
+}
+
+/* ── Color Swatch ──────────────────────────────────────────────────────── */
+.efb-msg-color-swatch {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 2px solid rgba(0,0,0,0.1);
+  vertical-align: middle;
+  margin-inline-end: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.efb-msg-field-value code {
+  font-size: 0.8rem;
+  color: #555;
+  background: #f0f2fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ── E-Sign Image ──────────────────────────────────────────────────────── */
+.efb-msg-esign-img {
+  max-width: 240px;
+  border-radius: 8px !important;
+  border: 1px solid rgba(84, 131, 207, 0.12) !important;
+  margin-top: 6px;
+}
+
+/* ── Checkbox List ─────────────────────────────────────────────────────── */
+.efb-msg-checkbox-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+  padding-inline-start: 4px;
+}
+.efb-msg-checkbox-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: var(--efb-resp-primary-06);
+  border-radius: 6px;
+  font-size: 0.84rem;
+  color: var(--efb-resp-text);
+  font-weight: 500;
+}
+.efb-msg-checkbox-item i {
+  font-size: 0.85rem !important;
+  color: var(--efb-resp-primary);
+}
+
+/* ── Matrix ────────────────────────────────────────────────────────────── */
+.efb-msg-matrix-header {
+  font-size: 0.92rem !important;
+  color: var(--efb-resp-primary-dark);
+  border-bottom: 2px solid var(--efb-resp-border);
+  padding-bottom: 4px;
+  margin-top: 8px;
+  margin-bottom: 2px;
+}
+.efb-msg-matrix-item {
+  padding-inline-start: 20px !important;
+}
+
+/* ==========================================================================
+   Rich Reply Editor
+   ========================================================================== */
+
+.efb-reply-section {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--efb-resp-border);
+  padding: 12px 8px 8px;
+  background: var(--efb-resp-bg-editor);
+  border-radius: 0 0 12px 12px;
+}
+
+/* ── Editor Toolbar ────────────────────────────────────────────────────── */
+.efb-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  background: var(--efb-resp-bg-meta);
+  border: 1px solid var(--efb-resp-border);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  flex-wrap: wrap;
+}
+.efb-editor-toolbar-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--efb-resp-border);
+  margin: 0 4px;
+}
+.efb-editor-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: #3c4a72;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+}
+.efb-editor-btn:hover {
+  background: var(--efb-resp-primary-10);
+  color: var(--efb-resp-primary);
+}
+.efb-editor-btn.active {
+  background: var(--efb-resp-primary);
+  color: #fff;
+}
+.efb-editor-btn i {
+  font-size: 1rem !important;
+  pointer-events: none;
+}
+
+/* ── Editable Area ─────────────────────────────────────────────────────── */
+.efb-rich-editor {
+  min-height: 100px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 12px 14px;
+  border: 1px solid var(--efb-resp-border);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  background: var(--efb-resp-bg-editor);
+  font-size: var(--efb-resp-font-size);
+  font-family: var(--efb-resp-font-family);
+  line-height: 1.65;
+  color: var(--efb-resp-editor-text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  word-break: break-word;
+}
+.efb-rich-editor:focus {
+  border-color: var(--efb-resp-primary);
+  box-shadow: 0 0 0 3px var(--efb-resp-primary-08);
+}
+.efb-rich-editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--efb-resp-editor-ph);
+  pointer-events: none;
+}
+.efb-rich-editor a {
+  color: var(--efb-resp-primary);
+  text-decoration: underline;
+}
+
+/* Hidden textarea for storing raw data */
+.efb-editor-raw {
+  display: none !important;
+}
+
+/* ── Reply Actions ─────────────────────────────────────────────────────── */
+.efb-reply-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.efb-reply-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--efb-resp-primary) 0%, var(--efb-resp-primary-dark) 100%);
+  color: var(--efb-resp-btn-text);
+  font-size: var(--efb-resp-font-size);
+  font-family: var(--efb-resp-font-family);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+}
+.efb-reply-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px var(--efb-resp-primary-08);
+}
+.efb-reply-btn.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+.efb-reply-btn i {
+  font-size: 1.05rem !important;
+}
+
+.efb-reply-status {
+  font-size: 0.8rem;
+  color: #ff4b93;
+  margin: 0;
+  flex: 1;
+}
+
+/* ── Attach Button ─────────────────────────────────────────────────────── */
+.efb-attach-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.efb-attach-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border: 1px solid #dde2f0;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #3c4a72;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.efb-attach-btn:hover {
+  border-color: var(--efb-resp-primary);
+  background: var(--efb-resp-primary-06);
+}
+.efb-attach-btn input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.efb-attach-btn i {
+  font-size: 1.1rem !important;
+}
+
+.efb-close-resp-btn {
+  padding: 6px 14px;
+  border: 1px solid #ff4b93;
+  border-radius: 8px;
+  background: transparent;
+  color: #ff4b93;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.efb-close-resp-btn:hover {
+  background: #ff4b93;
+  color: #fff;
+}
+.efb-close-resp-btn.open-state {
+  border-color: #28a745;
+  color: #28a745;
+}
+.efb-close-resp-btn.open-state:hover {
+  background: #28a745;
+  color: #fff;
+}
+
+/* ── Reply Label ───────────────────────────────────────────────────────── */
+.efb-reply-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--efb-resp-primary);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.efb-reply-label i {
+  font-size: 1rem !important;
+}
+
+/* ── Rendered message formatting (display) ────────────────────────────── */
+.efb-resp-field-value .efb-formatted b,
+.efb-resp-field-value .efb-formatted strong,
+.efb-msg-field-value .efb-formatted b,
+.efb-msg-field-value .efb-formatted strong {
+  font-weight: 700;
+  color: var(--efb-resp-text);
+}
+.efb-resp-field-value .efb-formatted i,
+.efb-resp-field-value .efb-formatted em,
+.efb-msg-field-value .efb-formatted i,
+.efb-msg-field-value .efb-formatted em {
+  font-style: italic;
+}
+.efb-resp-field-value .efb-formatted u,
+.efb-msg-field-value .efb-formatted u {
+  text-decoration: underline;
+}
+.efb-resp-field-value .efb-formatted a,
+.efb-resp-card .efb-formatted a,
+.efb-msg-field-value .efb-formatted a,
+.efb-msg-card .efb-formatted a {
+  color: var(--efb-resp-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.efb-resp-field-value .efb-formatted a:hover,
+.efb-resp-card .efb-formatted a:hover,
+.efb-msg-field-value .efb-formatted a:hover,
+.efb-msg-card .efb-formatted a:hover {
+  color: var(--efb-resp-primary-dark);
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 768px) {
+  .efb-resp-viewer {
+    max-height: 80vh;
+  }
+  .efb-resp-messages {
+    max-height: 260px;
+    padding: 8px 4px;
+  }
+  .efb-resp-card,
+  .efb-msg-card {
+    padding: 12px 12px !important;
+    border-radius: 12px !important;
+  }
+  .efb-msg-meta-bar {
+    gap: 4px 12px;
+    padding: 5px 8px;
+  }
+  .efb-msg-meta-item {
+    font-size: 0.72rem;
+  }
+  .efb-msg-field-row {
+    padding: 5px 8px;
+  }
+  .efb-msg-payment-grid {
+    grid-template-columns: 1fr;
+  }
+  .efb-msg-payment-item {
+    border-inline-end: none !important;
+  }
+  .efb-msg-payment-item:nth-last-child(-n+2) {
+    border-bottom: 1px solid var(--efb-resp-border);
+  }
+  .efb-msg-payment-item:last-child {
+    border-bottom: none;
+  }
+  .efb-msg-total-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 4px;
+  }
+  .efb-reply-section {
+    padding: 8px 4px 6px;
+  }
+  .efb-editor-toolbar {
+    padding: 3px 4px;
+    gap: 1px;
+  }
+  .efb-editor-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+  }
+  .efb-rich-editor {
+    min-height: 80px;
+    max-height: 150px;
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+  .efb-reply-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .efb-reply-btn {
+    justify-content: center;
+    padding: 10px 16px;
+  }
+  .efb-attach-wrapper {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .efb-resp-messages {
+    max-height: 220px;
+  }
+  .efb-resp-card,
+  .efb-msg-card {
+    padding: 10px !important;
+  }
+  .efb-msg-header {
+    flex-direction: column;
+    gap: 6px;
+    align-items: stretch;
+  }
+  .efb-msg-header-actions {
+    align-self: flex-end;
+    margin-top: -30px;
+  }
+  .efb-msg-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 0.85rem;
+  }
+  .efb-msg-sender-name {
+    font-size: 0.82rem;
+  }
+  .efb-msg-meta-bar {
+    flex-direction: column;
+    gap: 3px;
+  }
+  .efb-msg-field-row {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .efb-msg-price-tag {
+    margin-inline-start: 0;
+    margin-top: 4px;
+  }
+  .efb-editor-toolbar-sep {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Admin Color-Picker Grid (settings panel)
+   ========================================================================== */
+.efb-resp-color-grid input[type="color"].form-control-color {
+  width: 42px;
+  height: 34px;
+  padding: 2px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid #ced4da;
+  transition: box-shadow .15s ease;
+}
+.efb-resp-color-grid input[type="color"].form-control-color:hover {
+  box-shadow: 0 0 0 3px rgba(54, 68, 210, 0.15);
+}
+.efb-resp-color-grid .efb-color-hex {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.78rem;
+  color: #6c757d;
+  user-select: all;
+  min-width: 62px;
+}
+
+/* ==========================================================================
+   Tracker / Confirmation-Code Finder – Dynamic Colors
+   Scoped to #body_tracker_emsFormBuilder so global btn-pinkEfb etc. stay untouched.
+   ========================================================================== */
+#body_tracker_emsFormBuilder {
+  font-family: var(--efb-resp-font-family);
+  font-size: var(--efb-resp-font-size);
+}
+#body_tracker_emsFormBuilder #body_efb-track {
+  background-color: var(--efb-resp-bg-track) !important;
+  border-radius: 9px !important;
+  box-shadow: 0 2px 30px var(--efb-resp-primary-10) !important;
+  color: var(--efb-resp-text);
+}
+#body_tracker_emsFormBuilder .title-icon.efb {
+  color: var(--efb-resp-primary);
+}
+#body_tracker_emsFormBuilder .title-holder.efb {
+  color: var(--efb-resp-text);
+  font-family: var(--efb-resp-font-family);
+}
+#body_tracker_emsFormBuilder .form-label {
+  color: var(--efb-resp-text);
+  font-family: var(--efb-resp-font-family);
+}
+#body_tracker_emsFormBuilder .input-efb {
+  color: var(--efb-resp-editor-text) !important;
+  border-color: var(--efb-resp-border) !important;
+  background-color: var(--efb-resp-bg-editor) !important;
+  font-family: var(--efb-resp-font-family);
+  font-size: var(--efb-resp-font-size);
+}
+#body_tracker_emsFormBuilder .input-efb:focus {
+  box-shadow: 0 2px 10px var(--efb-resp-primary-10) !important;
+  border-color: var(--efb-resp-primary) !important;
+}
+#body_tracker_emsFormBuilder .input-efb::placeholder {
+  color: var(--efb-resp-editor-ph);
+  opacity: 0.7;
+}
+#body_tracker_emsFormBuilder .btn-pinkEfb.efb {
+  background-color: var(--efb-resp-primary);
+  background-image: linear-gradient(65deg, var(--efb-resp-primary) 0%, var(--efb-resp-primary-dark) 100%);
+  color: var(--efb-resp-btn-text);
+  font-family: var(--efb-resp-font-family);
+}
+#body_tracker_emsFormBuilder .btn-pinkEfb.efb:hover {
+  background-color: var(--efb-resp-primary-dark);
+  background-image: linear-gradient(65deg, var(--efb-resp-primary-dark) 0%, var(--efb-resp-primary) 100%);
+}
+
+/* ==========================================================================
+   Color Settings Modal – Preview & Layout
+   ========================================================================== */
+.efb-color-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.efb-color-modal-preview {
+  border: 1px solid var(--efb-resp-border);
+  border-radius: 14px;
+  padding: 16px;
+  background: var(--efb-resp-bg-card);
+  box-shadow: var(--efb-resp-shadow);
+  transition: all .2s ease;
+}
+.efb-color-modal-preview .efb-preview-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--efb-resp-text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.efb-color-modal-preview .efb-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.efb-color-modal-preview .efb-preview-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.85rem;
+}
+.efb-color-modal-preview .efb-preview-sender {
+  font-weight: 600;
+  color: var(--efb-resp-text);
+  font-size: 0.9rem;
+}
+.efb-color-modal-preview .efb-preview-meta {
+  background: var(--efb-resp-bg-meta);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: var(--efb-resp-text-muted);
+  margin-bottom: 10px;
+}
+.efb-color-modal-preview .efb-preview-field {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--efb-resp-border);
+  font-size: 0.85rem;
+}
+.efb-color-modal-preview .efb-preview-field-label {
+  color: var(--efb-resp-primary);
+  font-weight: 600;
+}
+.efb-color-modal-preview .efb-preview-field-value {
+  color: var(--efb-resp-text);
+}
+.efb-color-modal-preview .efb-preview-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 5px 16px;
+  font-size: 0.8rem;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
+  color: #fff;
+  border: none;
+}
+.efb-color-modal-preview .efb-preview-accent {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--efb-resp-accent);
+  margin-inline-start: 6px;
+  vertical-align: middle;
+}
+/* Customize button in settings tab */
+.efb-customize-colors-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid var(--efb-resp-primary, #3644d2);
+  color: var(--efb-resp-primary, #3644d2);
+  background: transparent;
+  transition: all .25s ease;
+  cursor: pointer;
+}
+.efb-customize-colors-btn:hover {
+  background: var(--efb-resp-primary, #3644d2);
+  color: #fff;
+  box-shadow: 0 4px 16px var(--efb-resp-primary-10, rgba(54,68,210,0.15));
+}
+.efb-customize-colors-btn i {
+  font-size: 1.15rem;
+}
+
+/* ==========================================================================
+   RTL (Right-to-Left) Support
+   ========================================================================== */
+[dir="rtl"] .efb-resp-viewer,
+.rtl .efb-resp-viewer,
+.rtl-text .efb-resp-viewer,
+[dir="rtl"] .efb-msg-card,
+.rtl .efb-msg-card,
+.rtl-text.efb-msg-card {
+  direction: rtl;
+  text-align: right;
+}
+
+/* ── RTL Header ── */
+[dir="rtl"] .efb-msg-header,
+.rtl .efb-msg-header,
+.rtl-text .efb-msg-header {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .efb-msg-sender,
+.rtl .efb-msg-sender,
+.rtl-text .efb-msg-sender {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+[dir="rtl"] .efb-msg-sender-info,
+.rtl .efb-msg-sender-info,
+.rtl-text .efb-msg-sender-info {
+  flex-direction: row-reverse;
+}
+
+/* ── RTL Meta Bar ── */
+[dir="rtl"] .efb-msg-meta-bar,
+.rtl .efb-msg-meta-bar,
+.rtl-text .efb-msg-meta-bar {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .efb-msg-meta-item,
+.rtl .efb-msg-meta-item,
+.rtl-text .efb-msg-meta-item {
+  flex-direction: row-reverse;
+}
+
+/* ── RTL Fields ── */
+[dir="rtl"] .efb-msg-field-row,
+.rtl .efb-msg-field-row,
+.rtl-text .efb-msg-field-row {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+[dir="rtl"] .efb-msg-field-label,
+.rtl .efb-msg-field-label,
+.rtl-text .efb-msg-field-label {
+  text-align: right;
+}
+[dir="rtl"] .efb-msg-field-value,
+.rtl .efb-msg-field-value,
+.rtl-text .efb-msg-field-value {
+  text-align: right;
+}
+
+/* ── RTL Checkbox List ── */
+[dir="rtl"] .efb-msg-checkbox-list,
+.rtl .efb-msg-checkbox-list,
+.rtl-text .efb-msg-checkbox-list {
+  flex-direction: row-reverse;
+  padding-inline-start: 0;
+  padding-inline-end: 4px;
+}
+[dir="rtl"] .efb-msg-checkbox-item,
+.rtl .efb-msg-checkbox-item,
+.rtl-text .efb-msg-checkbox-item {
+  flex-direction: row-reverse;
+}
+
+/* ── RTL Payment Section ── */
+[dir="rtl"] .efb-msg-payment-header,
+.rtl .efb-msg-payment-header,
+.rtl-text .efb-msg-payment-header {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .efb-msg-payment-item,
+.rtl .efb-msg-payment-item,
+.rtl-text .efb-msg-payment-item {
+  text-align: right;
+}
+
+/* ── RTL Total ── */
+[dir="rtl"] .efb-msg-total-inner,
+.rtl .efb-msg-total-inner,
+.rtl-text .efb-msg-total-inner {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .efb-msg-total-label,
+.rtl .efb-msg-total-label,
+.rtl-text .efb-msg-total-label {
+  flex-direction: row-reverse;
+}
+
+/* ── RTL Reply Section ── */
+[dir="rtl"] .efb-reply-section,
+.rtl .efb-reply-section,
+.rtl-text .efb-reply-section {
+  direction: rtl;
+  text-align: right;
+}
+[dir="rtl"] .efb-editor-toolbar,
+.rtl .efb-editor-toolbar,
+.rtl-text .efb-editor-toolbar {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .efb-rich-editor,
+.rtl .efb-rich-editor,
+.rtl-text .efb-rich-editor {
+  direction: rtl;
+  text-align: right;
+}
+[dir="rtl"] .efb-reply-actions,
+.rtl .efb-reply-actions,
+.rtl-text .efb-reply-actions {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .efb-reply-btn,
+.rtl .efb-reply-btn,
+.rtl-text .efb-reply-btn {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .efb-attach-wrapper,
+.rtl .efb-attach-wrapper,
+.rtl-text .efb-attach-wrapper {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .efb-reply-label,
+.rtl .efb-reply-label,
+.rtl-text .efb-reply-label {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+/* ── RTL Header Actions (download) ── */
+[dir="rtl"] .efb-msg-header-actions,
+.rtl .efb-msg-header-actions,
+.rtl-text .efb-msg-header-actions {
+  margin-inline-start: 0;
+}
+
+/* ── RTL Scrollbar position (WebKit) ── */
+[dir="rtl"] .efb-resp-messages::-webkit-scrollbar,
+.rtl .efb-resp-messages::-webkit-scrollbar {
+  /* Scrollbar on left side in RTL */
+}
+
+/* ── RTL Responsive overrides ── */
+@media (max-width: 480px) {
+  [dir="rtl"] .efb-msg-header-actions,
+  .rtl .efb-msg-header-actions,
+  .rtl-text .efb-msg-header-actions {
+    align-self: flex-start;
+  }
+  [dir="rtl"] .efb-reply-actions,
+  .rtl .efb-reply-actions,
+  .rtl-text .efb-reply-actions {
+    flex-direction: column-reverse;
+  }
+}

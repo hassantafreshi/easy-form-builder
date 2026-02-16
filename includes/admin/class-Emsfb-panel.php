@@ -137,7 +137,7 @@ class Panel_edit  {
 											<h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5>
 										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?php echo  is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button"><i class="efb bi-x-lg"></i></a>
 										</div>
-										<div class="efb modal-body row" id="settingModalEfb-body">
+										<div class="efb modal-body" id="settingModalEfb-body">
 											<div class="efb card-body text-center">
 											<?php  do_action('efb_loading_card') ?>
 										</div></div><!-- settingModalEfb-body-->

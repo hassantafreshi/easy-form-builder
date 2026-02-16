@@ -393,70 +393,23 @@ function emsFormBuilder_get_edit_form(id) {
 
 
 function emsFormBuilder_show_content_message(id) {
-  // v2
+  // v2 — Refactored to use EfbResponseViewer module
   const formType = form_type_emsFormBuilder;
-  // پنجره نمایش فرم ثبت شده کاربر
   const indx = valueJson_ws_messages.findIndex(x => x.msg_id === id.toString());
-  const objOptions = valueJson_ws_messages.filter(obj => { return obj.msg_id === id.toString() })
   const msg_id = valueJson_ws_messages[indx].msg_id;
-  const userIp = valueJson_ws_messages[indx].ip;
-  const track = valueJson_ws_messages[indx].track;
-  const date = valueJson_ws_messages[indx].date;
-  //valueJson_ws_messages[indx].content = ;
-  let content = JSON.parse(replaceContentMessageEfb(valueJson_ws_messages[indx].content));
 
-
-  //const content = JSON.parse(valueJson_ws_messages[indx].content.replace(/[\\]/g, ''));
-  let m = "<--messages-->"
-
-  let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
-  if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = '#first')
-
-
-  m = fun_emsFormBuilder_show_messages(content, by, userIp, track, date)
-  //reply  message ui
-  form_type_emsFormBuilder = formType;
-  const replayM = function () {
-    let r
-    const value = localStorage.getItem('replayM_emsFormBuilder_'+msg_id) ?? '';
-    if (form_type_emsFormBuilder != 'subscribe' && form_type_emsFormBuilder != 'register' && form_type_emsFormBuilder != 'survey') {
-      r = `
-      <div class="efb mb-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}"  id="replay_section__emsFormBuilder">
-        <label for="replayM_emsFormBuilder" class="efb form-label m-2 fs-7" id="label_replyM_efb">${efb_var.text.reply}:</label>
-        <textarea class="efb  form-control efb" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}" >${value}</textarea>
-      </div>
-     <div class="efb col text-right row mx-1">
-     <button type="submit" class="efb btn efb btn-primary btn-sm" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})"><i class="efb  bi-reply mx-1"></i> ${efb_var.text.reply} </button>
-     <p class="efb mx-2 my-1 text-pinkEfb fs-7" id="replay_state__emsFormBuilder"></p>
-     </div></div>`;
-    } else { r = '<!-- comment -->'; }
-    return r;
-  }
-
-  const body = `
-    <div class="efb  modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">${m} </div>
-     ${replayM()}
-     </div></div></div><!-- content body response-->`;
-
-
-
+  const body = EfbResponseViewer.buildAdminResponseBody(indx, formType);
 
   show_modal_efb(body, efb_var.text.response, 'efb bi-chat-square-text mx-2', 'saveBox');
   setTimeout(() => {
-    reply_attach_efb(msg_id)
-    //add event listener for type message on replayM_emsFormBuilder
-    document.getElementById('replayM_emsFormBuilder').addEventListener('input', function (e) {
-      localStorage.setItem('replayM_emsFormBuilder_'+msg_id, e.target.value)
-    });
+    EfbResponseViewer.initAfterRender(msg_id, true);
   }, 10);
-  state_modal_show_efb(1)
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  state_modal_show_efb(1);
 
   jQuery('#track_code_emsFormBuilder').on('keypress',
   function (event) {
       if (event.which == '13') {
           event.preventDefault();
-
           return;
       }
   });
@@ -565,7 +518,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   localStorage.removeItem('replayM_emsFormBuilder_'+id)
-  let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
+  let message = EfbResponseViewer.getEditorValue();
   message=message ? sanitize_text_efb(message) : null;
   if (message==null) return  valNotFound_efb()
 
@@ -993,7 +946,8 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
   if (message.length < 1) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
     //alert_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')
-    document.getElementById('replayM_emsFormBuilder').innerHTML = "";
+    document.getElementById('replayM_emsFormBuilder').value = "";
+    var _re = document.getElementById('efb_rich_editor'); if (_re) _re.innerHTML = '';
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
   }
@@ -1014,10 +968,13 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
 
           document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
           // alert_message_efb(res.data.m, 7 , 'info')
-          document.getElementById('replayM_emsFormBuilder').innerHTML = "";
+          document.getElementById('replayM_emsFormBuilder').value = "";
           document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
           const date = Date();
           document.getElementById('replayM_emsFormBuilder').value = "";
+          // Clear the rich editor as well
+          const richEditor = document.getElementById('efb_rich_editor');
+          if (richEditor) richEditor.innerHTML = '';
           fun_emsFormBuilder__add_a_response_to_messages(message, message[0].by, ajax_object_efm.user_ip, 0, date);
           const chatHistory = document.getElementById("resp_efb");
           chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -1198,6 +1155,14 @@ function fun_show_setting__emsFormBuilder() {
   let femail ='null';
   let demail ='no-reply@'+ window.location.hostname;
   let osLocationPicker = false;
+  // Response box color settings (defaults)
+  let respPrimary = '#3644d2';
+  let respPrimaryDark = '#202a8d';
+  let respAccent = '#ffc107';
+  let respText = '#1a1a2e';
+  let respTextMuted = '#657096';
+  let respBgCard = '#ffffff';
+  let respBgMeta = '#f6f7fb';
   //check demail is valid email
   demail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(demail)  &&  demail.includes('127.')==false ? demail : 'no-reply@yourDomainName.com';
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
@@ -1246,6 +1211,22 @@ function fun_show_setting__emsFormBuilder() {
     adminSN  = f('adminSN') =='null' ? true :f('adminSN');
     sessionDuration = f('sessionDuration') == 'null' ? 1 : parseInt(f('sessionDuration'));
 
+    // Load response box color settings
+    respPrimary = f('respPrimary') == 'null' ? '#3644d2' : f('respPrimary');
+    respPrimaryDark = f('respPrimaryDark') == 'null' ? '#202a8d' : f('respPrimaryDark');
+    respAccent = f('respAccent') == 'null' ? '#ffc107' : f('respAccent');
+    respText = f('respText') == 'null' ? '#1a1a2e' : f('respText');
+    respTextMuted = f('respTextMuted') == 'null' ? '#657096' : f('respTextMuted');
+    respBgCard = f('respBgCard') == 'null' ? '#ffffff' : f('respBgCard');
+    respBgMeta = f('respBgMeta') == 'null' ? '#f6f7fb' : f('respBgMeta');
+    respBgTrack = f('respBgTrack') == 'null' ? '#ffffff' : f('respBgTrack');
+    respBgResp = f('respBgResp') == 'null' ? '#f8f9fd' : f('respBgResp');
+    respBgEditor = f('respBgEditor') == 'null' ? '#ffffff' : f('respBgEditor');
+    respEditorText = f('respEditorText') == 'null' ? '#1a1a2e' : f('respEditorText');
+    respEditorPh = f('respEditorPh') == 'null' ? '#a0aec0' : f('respEditorPh');
+    respBtnText = f('respBtnText') == 'null' ? '#ffffff' : f('respBtnText');
+    respFontFamily = f('respFontFamily') == 'null' ? 'inherit' : f('respFontFamily');
+    respFontSize = f('respFontSize') == 'null' ? '0.9rem' : f('respFontSize');
 
     //console.log(`dsupfile[${dsupfile}]` ,f('dsupfile'));
     payToken = f('payToken');
@@ -1463,6 +1444,35 @@ function fun_show_setting__emsFormBuilder() {
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="adminSN_emsFormBuilder">${efb_var.text.admines}</label>
                                 </div>
 
+                              <!-- Response Box Color Settings -->
+                              <h5 class="efb card-title mt-4 mobile-title">
+                                <i class="efb bi-palette m-3"></i>${efb_var.text.respColors}
+                              </h5>
+                              <p class="efb ${mxCSize}">${efb_var.text.respColorsDesc}</p>
+                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                                <button type="button" class="efb efb-customize-colors-btn" onclick="efb_open_color_modal()">
+                                  <i class="efb bi-palette2"></i> ${efb_var.text.respClrCustomize}
+                                </button>
+                              </div>
+                              <!-- Hidden color inputs (read by save function) -->
+                              <div style="display:none">
+                                <input type="color" id="respPrimary_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respPrimary}">
+                                <input type="color" id="respPrimaryDark_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respPrimaryDark}">
+                                <input type="color" id="respAccent_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respAccent}">
+                                <input type="color" id="respText_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respText}">
+                                <input type="color" id="respTextMuted_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respTextMuted}">
+                                <input type="color" id="respBgCard_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgCard}">
+                                <input type="color" id="respBgMeta_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgMeta}">
+                                <input type="color" id="respBgTrack_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgTrack}">
+                                <input type="color" id="respBgResp_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgResp}">
+                                <input type="color" id="respBgEditor_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgEditor}">
+                                <input type="color" id="respEditorText_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respEditorText}">
+                                <input type="color" id="respEditorPh_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respEditorPh}">
+                                <input type="color" id="respBtnText_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBtnText}">
+                                <input type="hidden" id="respFontFamily_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respFontFamily}">
+                                <input type="hidden" id="respFontSize_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respFontSize}">
+                              </div>
+
 
                             <!--End General-->
                             </div>
@@ -1677,6 +1687,246 @@ function fun_show_setting__emsFormBuilder() {
       }
     })
   }
+
+  // Color picker live hex preview and reset handler
+  // (moved into efb_open_color_modal — event listeners bind inside the modal)
+}
+
+/**
+ * Open the Response Box color customization modal.
+ * Contains color pickers, font settings, live preview, and reset button.
+ * Gated behind pro/free-plus — change the condition below to restrict access.
+ */
+function efb_open_color_modal() {
+  // ── Pro / Free-Plus gating ──
+  // Currently open to all users.  To gate, uncomment:
+  // if (efb_var.pro != true && efb_var.pro != 1 && efb_var.pro != '1') { pro_show_efb(3); return; }
+
+  // ── All customizable settings ──
+  const colorDefs = [
+    { key: 'respPrimary',     label: efb_var.text.respClrPrimary,    group: 'brand' },
+    { key: 'respPrimaryDark', label: efb_var.text.respClrPrimaryDk,  group: 'brand' },
+    { key: 'respAccent',      label: efb_var.text.respClrAccent,     group: 'brand' },
+    { key: 'respText',        label: efb_var.text.respClrText,       group: 'text' },
+    { key: 'respTextMuted',   label: efb_var.text.respClrMuted,      group: 'text' },
+    { key: 'respBgCard',      label: efb_var.text.respClrBgCard,     group: 'bg' },
+    { key: 'respBgMeta',      label: efb_var.text.respClrBgMeta,     group: 'bg' },
+    { key: 'respBgTrack',     label: efb_var.text.respClrBgTrack,    group: 'bg' },
+    { key: 'respBgResp',      label: efb_var.text.respClrBgResp,     group: 'bg' },
+    { key: 'respBgEditor',    label: efb_var.text.respClrBgEditor,   group: 'editor' },
+    { key: 'respEditorText',  label: efb_var.text.respClrEditorText, group: 'editor' },
+    { key: 'respEditorPh',    label: efb_var.text.respClrEditorPh,   group: 'editor' },
+    { key: 'respBtnText',     label: efb_var.text.respClrBtnText,    group: 'brand' },
+  ];
+  const defaults = {
+    respPrimary: '#3644d2', respPrimaryDark: '#202a8d', respAccent: '#ffc107',
+    respText: '#1a1a2e', respTextMuted: '#657096', respBgCard: '#ffffff', respBgMeta: '#f6f7fb',
+    respBgTrack: '#ffffff', respBgResp: '#f8f9fd', respBgEditor: '#ffffff',
+    respEditorText: '#1a1a2e', respEditorPh: '#a0aec0', respBtnText: '#ffffff',
+    respFontFamily: 'inherit', respFontSize: '0.9rem',
+  };
+
+  const fontFamilies = [
+    { value: 'inherit', label: 'Default (Inherit)' },
+    { value: 'system-ui, -apple-system, sans-serif', label: 'System UI' },
+    { value: "'Segoe UI', Tahoma, Geneva, sans-serif", label: 'Segoe UI' },
+    { value: "'Helvetica Neue', Helvetica, Arial, sans-serif", label: 'Helvetica' },
+    { value: "'Inter', sans-serif", label: 'Inter' },
+    { value: "'Roboto', sans-serif", label: 'Roboto' },
+    { value: "'Open Sans', sans-serif", label: 'Open Sans' },
+    { value: "Tahoma, Geneva, sans-serif", label: 'Tahoma' },
+    { value: "Vazirmatn, Tahoma, sans-serif", label: 'Vazirmatn (فارسی)' },
+    { value: "'IRANSans', Tahoma, sans-serif", label: 'IRANSans (فارسی)' },
+    { value: "Georgia, 'Times New Roman', serif", label: 'Georgia (Serif)' },
+    { value: "'Courier New', Courier, monospace", label: 'Courier (Mono)' },
+  ];
+  const fontSizes = [
+    { value: '0.75rem', label: '12px' },
+    { value: '0.8rem',  label: '13px' },
+    { value: '0.85rem', label: '14px' },
+    { value: '0.9rem',  label: '15px' },
+    { value: '0.95rem', label: '16px' },
+    { value: '1rem',    label: '17px' },
+    { value: '1.05rem', label: '18px' },
+    { value: '1.1rem',  label: '19px' },
+    { value: '1.15rem', label: '20px' },
+  ];
+
+  // Read current values from hidden inputs
+  const cur = {};
+  colorDefs.forEach(d => {
+    const el = document.getElementById(`${d.key}_emsFormBuilder`);
+    cur[d.key] = el ? el.value : defaults[d.key];
+  });
+  const curFontFamily = document.getElementById('respFontFamily_emsFormBuilder')?.value || defaults.respFontFamily;
+  const curFontSize = document.getElementById('respFontSize_emsFormBuilder')?.value || defaults.respFontSize;
+
+  // Build color picker rows grouped
+  const makePickerHtml = (group) => colorDefs.filter(d => d.group === group).map(d => `
+    <div class="efb col-6 col-md-4">
+      <label class="efb form-label fw-semibold small mb-1">${d.label}</label>
+      <div class="efb d-flex align-items-center gap-2">
+        <input type="color" class="efb form-control form-control-color border-d" data-color-key="${d.key}" value="${cur[d.key]}" title="${d.label}">
+        <code class="efb small text-muted efb-color-hex">${cur[d.key]}</code>
+      </div>
+    </div>`).join('');
+
+  // Build font selectors
+  const fontFamilyOpts = fontFamilies.map(ff =>
+    `<option value="${ff.value}" ${ff.value === curFontFamily ? 'selected' : ''}>${ff.label}</option>`).join('');
+  const fontSizeOpts = fontSizes.map(fs =>
+    `<option value="${fs.value}" ${fs.value === curFontSize ? 'selected' : ''}>${fs.label}</option>`).join('');
+
+  // Build live preview (response card + tracker mini)
+  const previewHtml = `
+    <div class="efb-color-modal-preview" id="efbColorPreviewBox">
+      <div class="efb-preview-title">${efb_var.text.respClrPreview}</div>
+      <!-- Response card preview -->
+      <div class="efb-preview-header">
+        <div class="efb-preview-avatar"><i class="bi bi-person"></i></div>
+        <div class="efb-preview-sender">${efb_var.text.by || 'Sender'}:<span style="font-weight:400;margin-inline-start:4px">${efb_var.text.guest || 'Guest'}</span></div>
+      </div>
+      <div class="efb-preview-meta"><i class="bi bi-calendar3" style="margin-inline-end:4px"></i>2026-02-16  12:30<span class="efb-preview-accent"></span></div>
+      <div class="efb-preview-field"><span class="efb-preview-field-label">${efb_var.text.email || 'Email'}</span><span class="efb-preview-field-value">user@example.com</span></div>
+      <div class="efb-preview-field"><span class="efb-preview-field-label">${efb_var.text.name || 'Name'}</span><span class="efb-preview-field-value">John Doe</span></div>
+      <!-- Editor preview -->
+      <div class="efb-preview-editor-wrap" style="margin-top:10px;border:1px solid var(--efb-resp-border);border-radius:8px;overflow:hidden">
+        <div class="efb-preview-editor-area" style="padding:8px 10px;min-height:32px;background:var(--efb-resp-bg-editor);color:var(--efb-resp-editor-text);font-size:var(--efb-resp-font-size);font-family:var(--efb-resp-font-family)">
+          <span class="efb-preview-editor-ph" style="color:var(--efb-resp-editor-ph);opacity:0.8">${efb_var.text.replyMsg || 'Type your reply...'}</span>
+        </div>
+      </div>
+      <button class="efb-preview-btn" disabled style="color:var(--efb-resp-btn-text)"><i class="bi bi-reply me-1"></i>${efb_var.text.reply || 'Reply'}</button>
+      <!-- Tracker mini preview -->
+      <div class="efb-preview-tracker-wrap" style="margin-top:12px;padding:10px;border-radius:8px;background:var(--efb-resp-bg-track);border:1px solid var(--efb-resp-border)">
+        <div style="font-weight:600;color:var(--efb-resp-text);font-family:var(--efb-resp-font-family);margin-bottom:4px"><i class="bi bi-check2-square" style="color:var(--efb-resp-primary);margin-inline-end:4px"></i>${efb_var.text.trackNo || 'Confirmation Code'}</div>
+        <div style="padding:6px 8px;border:1px solid var(--efb-resp-border);border-radius:6px;background:var(--efb-resp-bg-editor);color:var(--efb-resp-editor-ph);font-size:var(--efb-resp-font-size);font-family:var(--efb-resp-font-family)">${efb_var.text.entrTrkngNo || 'Enter tracking number'}</div>
+      </div>
+    </div>`;
+
+  // Section builder
+  const section = (icon, title, content) => `
+    <div class="efb-clr-section" style="margin-bottom:14px">
+      <h6 class="efb" style="font-size:0.82rem;font-weight:700;color:#4a5078;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px"><i class="bi ${icon}" style="margin-inline-end:6px"></i>${title}</h6>
+      <div class="efb row g-3 efb-resp-color-grid">${content}</div>
+    </div>`;
+
+  // Assemble modal body
+  const body = `
+    <div class="efb-color-modal-body">
+      ${previewHtml}
+      ${section('bi-palette-fill', efb_var.text.respClrPrimary + ' & ' + efb_var.text.respClrAccent, makePickerHtml('brand'))}
+      ${section('bi-fonts', efb_var.text.respClrText, makePickerHtml('text'))}
+      ${section('bi-square-half', efb_var.text.respClrBgCard, makePickerHtml('bg'))}
+      ${section('bi-pencil-square', efb_var.text.respClrBgEditor, makePickerHtml('editor'))}
+      <div class="efb-clr-section" style="margin-bottom:14px">
+        <h6 class="efb" style="font-size:0.82rem;font-weight:700;color:#4a5078;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px"><i class="bi bi-type" style="margin-inline-end:6px"></i>${efb_var.text.respFontFamily} & ${efb_var.text.respFontSize}</h6>
+        <div class="efb row g-3">
+          <div class="efb col-6">
+            <label class="efb form-label fw-semibold small mb-1">${efb_var.text.respFontFamily}</label>
+            <select class="efb form-select form-select-sm border-d efb-rounded" id="efbModalFontFamily">${fontFamilyOpts}</select>
+          </div>
+          <div class="efb col-6">
+            <label class="efb form-label fw-semibold small mb-1">${efb_var.text.respFontSize}</label>
+            <select class="efb form-select form-select-sm border-d efb-rounded" id="efbModalFontSize">${fontSizeOpts}</select>
+          </div>
+        </div>
+      </div>
+      <div class="efb d-flex justify-content-end">
+        <button type="button" class="efb btn btn-sm btn-outline-secondary efb-rounded" id="efbColorResetModal">
+          <i class="efb bi-arrow-counterclockwise me-1"></i>${efb_var.text.respClrReset}
+        </button>
+      </div>
+    </div>`;
+
+  show_modal_efb(body, efb_var.text.respColors, 'bi-palette', 'saveBox');
+  state_modal_show_efb(1);
+
+  // ── Bind modal events after DOM is ready ──
+  setTimeout(() => {
+    const previewBox = document.getElementById('efbColorPreviewBox');
+    const modal = document.getElementById('settingModalEfb-body');
+    if (!modal) return;
+
+    const varMap = {
+      respPrimary: '--efb-resp-primary', respPrimaryDark: '--efb-resp-primary-dark',
+      respAccent: '--efb-resp-accent', respText: '--efb-resp-text',
+      respTextMuted: '--efb-resp-text-muted', respBgCard: '--efb-resp-bg-card',
+      respBgMeta: '--efb-resp-bg-meta', respBgTrack: '--efb-resp-bg-track',
+      respBgResp: '--efb-resp-bg-resp', respBgEditor: '--efb-resp-bg-editor',
+      respEditorText: '--efb-resp-editor-text', respEditorPh: '--efb-resp-editor-ph',
+      respBtnText: '--efb-resp-btn-text',
+    };
+
+    // Helper: update CSS variables on preview box
+    const refreshPreview = () => {
+      if (!previewBox) return;
+      modal.querySelectorAll('input[type="color"][data-color-key]').forEach(inp => {
+        const key = inp.dataset.colorKey;
+        if (varMap[key]) previewBox.style.setProperty(varMap[key], inp.value);
+        if (key === 'respPrimary') {
+          const v = inp.value;
+          const r = parseInt(v.slice(1,3),16), g = parseInt(v.slice(3,5),16), b = parseInt(v.slice(5,7),16);
+          previewBox.style.setProperty('--efb-resp-primary-08', `rgba(${r},${g},${b},0.08)`);
+          previewBox.style.setProperty('--efb-resp-primary-10', `rgba(${r},${g},${b},0.10)`);
+          previewBox.style.setProperty('--efb-resp-border', `rgba(${r},${g},${b},0.12)`);
+        }
+      });
+      // Font settings on preview
+      const ff = document.getElementById('efbModalFontFamily');
+      const fs = document.getElementById('efbModalFontSize');
+      if (ff) previewBox.style.setProperty('--efb-resp-font-family', ff.value);
+      if (fs) previewBox.style.setProperty('--efb-resp-font-size', fs.value);
+    };
+
+    // Live hex text + preview update for color pickers
+    modal.querySelectorAll('input[type="color"][data-color-key]').forEach(inp => {
+      const hexLabel = inp.closest('.d-flex')?.querySelector('.efb-color-hex');
+      inp.addEventListener('input', () => {
+        if (hexLabel) hexLabel.textContent = inp.value;
+        const hidden = document.getElementById(`${inp.dataset.colorKey}_emsFormBuilder`);
+        if (hidden) hidden.value = inp.value;
+        refreshPreview();
+      });
+    });
+
+    // Font family & font size change handlers
+    const ffSelect = document.getElementById('efbModalFontFamily');
+    const fsSelect = document.getElementById('efbModalFontSize');
+    if (ffSelect) ffSelect.addEventListener('change', () => {
+      const hidden = document.getElementById('respFontFamily_emsFormBuilder');
+      if (hidden) hidden.value = ffSelect.value;
+      refreshPreview();
+    });
+    if (fsSelect) fsSelect.addEventListener('change', () => {
+      const hidden = document.getElementById('respFontSize_emsFormBuilder');
+      if (hidden) hidden.value = fsSelect.value;
+      refreshPreview();
+    });
+
+    // Reset button
+    const resetBtn = document.getElementById('efbColorResetModal');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        modal.querySelectorAll('input[type="color"][data-color-key]').forEach(inp => {
+          const key = inp.dataset.colorKey;
+          if (defaults[key]) {
+            inp.value = defaults[key];
+            const hex = inp.closest('.d-flex')?.querySelector('.efb-color-hex');
+            if (hex) hex.textContent = defaults[key];
+            const hidden = document.getElementById(`${key}_emsFormBuilder`);
+            if (hidden) hidden.value = defaults[key];
+          }
+        });
+        // Reset font selectors
+        if (ffSelect) { ffSelect.value = defaults.respFontFamily; document.getElementById('respFontFamily_emsFormBuilder').value = defaults.respFontFamily; }
+        if (fsSelect) { fsSelect.value = defaults.respFontSize; document.getElementById('respFontSize_emsFormBuilder').value = defaults.respFontSize; }
+        refreshPreview();
+      });
+    }
+
+    // Initial preview render
+    refreshPreview();
+  }, 80);
 }
 
 let idOfListsEfb = [];
@@ -1729,7 +1979,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
       el.value = sanitize_text_efb(el.value);}
 
     let r = "NotFoundEl"
-    if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
+    if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden" || el.type == "color") {
       if (id == "emailTemp_emsFirmBuilder") {
         let v = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
         v = u(v);
@@ -2000,6 +2250,24 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
       AdnTLG=valueJson_ws_setting.hasOwnProperty('AdnTLG') ? valueJson_ws_setting.AdnTLG :0;
     }
     const email_key_efb = valueJson_ws_setting.email_key ??  Math.random().toString(36).substr(2, 10);
+
+    // Read response box color settings
+    const respPrimary = f('respPrimary_emsFormBuilder');
+    const respPrimaryDark = f('respPrimaryDark_emsFormBuilder');
+    const respAccent = f('respAccent_emsFormBuilder');
+    const respText = f('respText_emsFormBuilder');
+    const respTextMuted = f('respTextMuted_emsFormBuilder');
+    const respBgCard = f('respBgCard_emsFormBuilder');
+    const respBgMeta = f('respBgMeta_emsFormBuilder');
+    const respBgTrack = f('respBgTrack_emsFormBuilder');
+    const respBgResp = f('respBgResp_emsFormBuilder');
+    const respBgEditor = f('respBgEditor_emsFormBuilder');
+    const respEditorText = f('respEditorText_emsFormBuilder');
+    const respEditorPh = f('respEditorPh_emsFormBuilder');
+    const respBtnText = f('respBtnText_emsFormBuilder');
+    const respFontFamily = f('respFontFamily_emsFormBuilder');
+    const respFontSize = f('respFontSize_emsFormBuilder');
+
     fun_send_setting_emsFormBuilder(
       { activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email,
          apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp,
@@ -2008,7 +2276,9 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ,
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
-         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb,showIp:showIp,adminSN:adminSN,osLocationPicker:osLocationPicker,sessionDuration:sessionDuration
+         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb,showIp:showIp,adminSN:adminSN,osLocationPicker:osLocationPicker,sessionDuration:sessionDuration,
+         respPrimary:respPrimary,respPrimaryDark:respPrimaryDark,respAccent:respAccent,respText:respText,respTextMuted:respTextMuted,respBgCard:respBgCard,respBgMeta:respBgMeta,
+         respBgTrack:respBgTrack,respBgResp:respBgResp,respBgEditor:respBgEditor,respEditorText:respEditorText,respEditorPh:respEditorPh,respBtnText:respBtnText,respFontFamily:respFontFamily,respFontSize:respFontSize
         } , state_auto);
   }
 

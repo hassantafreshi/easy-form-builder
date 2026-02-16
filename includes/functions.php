@@ -1268,6 +1268,68 @@ class efbFunction {
 			/* translators: Select Duration = placeholder text for session duration dropdown */
 			"selectDuration" => $state && isset($ac->text->selectDuration) ? $ac->text->selectDuration : esc_html__('Select Duration','easy-form-builder'),
 
+			// === Response Box Color Settings ===
+
+			/* translators: Response Box Colors = heading for the color settings section */
+			"respColors" => $state && isset($ac->text->respColors) ? $ac->text->respColors : esc_html__('Response Box Colors','easy-form-builder'),
+
+			/* translators: Description under color settings heading */
+			"respColorsDesc" => $state && isset($ac->text->respColorsDesc) ? $ac->text->respColorsDesc : esc_html__('Customize the color scheme of the response viewer to match your brand.','easy-form-builder'),
+
+			/* translators: Primary Color = label for main brand color picker */
+			"respClrPrimary" => $state && isset($ac->text->respClrPrimary) ? $ac->text->respClrPrimary : esc_html__('Primary','easy-form-builder'),
+
+			/* translators: Primary Dark Color = label for dark variant of primary color */
+			"respClrPrimaryDk" => $state && isset($ac->text->respClrPrimaryDk) ? $ac->text->respClrPrimaryDk : esc_html__('Primary Dark','easy-form-builder'),
+
+			/* translators: Accent Color = label for highlight/accent color */
+			"respClrAccent" => $state && isset($ac->text->respClrAccent) ? $ac->text->respClrAccent : esc_html__('Accent','easy-form-builder'),
+
+			/* translators: Text Color = label for main text color */
+			"respClrText" => $state && isset($ac->text->respClrText) ? $ac->text->respClrText : esc_html__('Text','easy-form-builder'),
+
+			/* translators: Muted Text = label for secondary/muted text color */
+			"respClrMuted" => $state && isset($ac->text->respClrMuted) ? $ac->text->respClrMuted : esc_html__('Muted Text','easy-form-builder'),
+
+			/* translators: Card Background = label for card background color */
+			"respClrBgCard" => $state && isset($ac->text->respClrBgCard) ? $ac->text->respClrBgCard : esc_html__('Card Background','easy-form-builder'),
+
+			/* translators: Meta Background = label for meta bar background color */
+			"respClrBgMeta" => $state && isset($ac->text->respClrBgMeta) ? $ac->text->respClrBgMeta : esc_html__('Meta Background','easy-form-builder'),
+
+			/* translators: Reset Colors = button label to restore default colors */
+			"respClrReset" => $state && isset($ac->text->respClrReset) ? $ac->text->respClrReset : esc_html__('Reset to Defaults','easy-form-builder'),
+
+			/* translators: Customize Colors = button label to open the color customization modal */
+			"respClrCustomize" => $state && isset($ac->text->respClrCustomize) ? $ac->text->respClrCustomize : esc_html__('Customize Colors','easy-form-builder'),
+
+			/* translators: Live Preview = label shown on the live preview section in color modal */
+			"respClrPreview" => $state && isset($ac->text->respClrPreview) ? $ac->text->respClrPreview : esc_html__('Live Preview','easy-form-builder'),
+
+			/* translators: Tracker Background = label for tracker section background color */
+			"respClrBgTrack" => $state && isset($ac->text->respClrBgTrack) ? $ac->text->respClrBgTrack : esc_html__('Tracker Background','easy-form-builder'),
+
+			/* translators: Response Area Background = label for chat/response area background */
+			"respClrBgResp" => $state && isset($ac->text->respClrBgResp) ? $ac->text->respClrBgResp : esc_html__('Response Area Background','easy-form-builder'),
+
+			/* translators: Editor Background = label for rich editor background color */
+			"respClrBgEditor" => $state && isset($ac->text->respClrBgEditor) ? $ac->text->respClrBgEditor : esc_html__('Editor Background','easy-form-builder'),
+
+			/* translators: Editor Text = label for rich editor text/value color */
+			"respClrEditorText" => $state && isset($ac->text->respClrEditorText) ? $ac->text->respClrEditorText : esc_html__('Editor Text','easy-form-builder'),
+
+			/* translators: Placeholder = label for editor placeholder color */
+			"respClrEditorPh" => $state && isset($ac->text->respClrEditorPh) ? $ac->text->respClrEditorPh : esc_html__('Placeholder','easy-form-builder'),
+
+			/* translators: Button Text = label for button text color */
+			"respClrBtnText" => $state && isset($ac->text->respClrBtnText) ? $ac->text->respClrBtnText : esc_html__('Button Text','easy-form-builder'),
+
+			/* translators: Font Family = label for font family selector */
+			"respFontFamily" => $state && isset($ac->text->respFontFamily) ? $ac->text->respFontFamily : esc_html__('Font Family','easy-form-builder'),
+
+			/* translators: Font Size = label for font size selector */
+			"respFontSize" => $state && isset($ac->text->respFontSize) ? $ac->text->respFontSize : esc_html__('Font Size','easy-form-builder'),
+
 			// === Plan Management ===
 
 			/* translators: Plan Management = heading for the plan/subscription management section in settings */
