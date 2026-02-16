@@ -775,35 +775,7 @@ load_intlTelInput_efb = (rndm, iVJ) => {
       });
   }, 800);
 };
-fun_imgRadio_efb=(id ,link,row ,state=true)=>{
-  const u = (url)=>{
-    url = url.replace(/(http:@efb@)+/g, 'http://');
-    url = url.replace(/(https:@efb@)+/g, 'https://');
-    url = url.replace(/(@efb@)+/g, '/');
-    return url;
-   }
 
-
-   let value = row.hasOwnProperty('value')  ? row.value : efb_var.text.newOption ?? '';
-
-  let sub_value = row.hasOwnProperty('sub_value') ? row.sub_value : efb_var.text.sampleDescription ?? '';
-     if(state==false){
-    value = efb_var.text.newOption ;
-    sub_value = efb_var.text.sampleDescription ;
-   }
-  link = link.includes('http')==false || link.length <5 ?  u(efb_var.images.head) : u(row.src);
-  link = u(link);
-  return `
-    <label class="efb  " id="${id}_lab" for="${id}">
-    <div class="efb card col-md-3 mx-0 my-1 w-100" style="">
-    <img src="${link}" alt="${value}" style="width: 100%"  id="${id}_img">
-    <div class="efb card-body">
-        <h5 class="efb card-title text-dark" id="${id}_value">${value}</h5>
-        <p class="efb card-text" id="${id}_value_sub">${sub_value}</p>
-    </div>
-    </div>
-    </label>`;
-}
 add_new_imgRadio_efb=(idin, value, id_ob, tag, parentsID)=>{
  const idx = valj_efb.findIndex(x=>x.id_==id_ob)
  const temp = fun_imgRadio_efb(id_ob,"null",valj_efb[idx]);
@@ -1000,7 +972,8 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
   return state_el!=null ? result : opt;
 }
 fun_check_link_state_efb=async(iso2_country , indx,form_id)=>{
-  console.error('fun_check_link_state_efb',iso2_country , indx,form_id)
+ if(!iso2_country) return;
+ console.log('fun_check_link_state_efb',iso2_country , indx,form_id)
  let indx_state =-1;
  if(form_ID_emsFormBuilder!=parseInt(form_id) || valj_efb.length<1 )valj_efb= await fun_valj_efb_run(form_id);
   for (let i = indx+1; i < valj_efb.length; i++) {
@@ -1013,6 +986,7 @@ fun_check_link_state_efb=async(iso2_country , indx,form_id)=>{
     }
   }
 
+  if(indx_state === -1 || !valj_efb[indx_state]) return;
   let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
    //+ condition logic: check if the statement for this element is hide then write the code to return from this function
    //console.log('iso2_country',iso2_country);
@@ -1028,6 +1002,7 @@ fun_check_link_state_efb=async(iso2_country , indx,form_id)=>{
    await callFetchStatesPovEfb(valj_efb[indx_state].id_+'_options', iso2_country, indx_state,'pubSelect');
 }
 async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,autofilled=false) {
+  if(!iso2_country) return;
   let state_el= document.getElementById(idField)
   if(state_el!=null){
     state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
@@ -1203,15 +1178,21 @@ function efbCreateMap(id ,r ,viewState) {
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2) ;
   var efbMapContainer = document.createElement('div');
   efbMapContainer.className = 'map-container';
+  efbMapContainer.style.cssText = 'width:100%;height:350px;position:relative;';
   var efbMapDiv = document.createElement('div');
   efbMapDiv.dataset.id =id+"-mapsdiv"
   efbMapDiv.className = 'map';
+  efbMapDiv.style.cssText = 'width:100%;height:100%;';
   efbMapContainer.appendChild(efbMapDiv);
   let el_maps = document.getElementById(id+'-f');
   console.log('el_maps',el_maps,id)
   const form_id = el_maps.dataset.formid;
   console.log(`form_id[${form_id}]`)
   el_maps.appendChild(efbMapContainer);
+
+  // Force browser to calculate layout before Leaflet reads container dimensions
+  efbMapDiv.offsetHeight;
+  efbMapContainer.offsetWidth;
 
   var efbMap = L.map(efbMapDiv).setView([efbInitialLat, efbInitialLng], efbInitialZoom);
   var efbOsmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1351,6 +1332,14 @@ function efbCreateMap(id ,r ,viewState) {
   } else {
     console.warn('Leaflet fullscreen control plugin is not loaded');
   }
+
+  // Fix: force Leaflet to recalculate container size so all tiles load correctly
+  efbMap.whenReady(function() {
+    efbMap.invalidateSize();
+  });
+  setTimeout(function() { efbMap.invalidateSize(); }, 100);
+  setTimeout(function() { efbMap.invalidateSize(); }, 500);
+  setTimeout(function() { efbMap.invalidateSize(); }, 1500);
 }
 
 

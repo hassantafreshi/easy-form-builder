@@ -932,7 +932,7 @@ setTimeout(() => {
     if(setting_emsFormBuilder.hasOwnProperty('dsupfile')==true && setting_emsFormBuilder.dsupfile !=true) {
       for(const s in sendBack_emsFormBuilder_pub ){ if(sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)  }
     }
-    let messages = sendBack_emsFormBuilder_pub.filter(x=>Number(x.form_id)==-1 && x.id_!='captcha_v2');
+    let messages = sendBack_emsFormBuilder_pub.filter(x=>(Number(x.form_id)==-1 || x.id_=='resp_file_efb') && x.id_!='captcha_v2');
     console.log('messages',messages);
     fun_send_replayMessage_reast_emsFormBuilder(messages);
   }
@@ -1314,7 +1314,11 @@ function response_Valid_tracker_efb(res) {
   if (res.data.success == true) {
     document.getElementById('body_efb-track').innerHTML = emsFormBuilder_show_content_message(res.data.value, res.data.content)
     setTimeout(() => {
-     if(typeof reply_attach_efb =='function') reply_attach_efb(res.data.value.msg_id)
+     // initFileUpload is already called inside initAfterRender (via emsFormBuilder_show_content_message)
+     // Only call reply_attach_efb as fallback when EfbResponseViewer is NOT available
+     if(typeof EfbResponseViewer === 'undefined' && typeof reply_attach_efb =='function') {
+       reply_attach_efb(res.data.value.msg_id);
+     }
      state_rply_btn_efb(100)
     }, 50);
     document.getElementById('body_efb-track').classList.add('card');
@@ -1333,6 +1337,14 @@ function response_rMessage_id(res, message) {
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;
      if(document.getElementById('name_attach_efb')) document.getElementById('name_attach_efb').innerHTML =ajax_object_efm.text.file
+    // Reset upload UI after successful send
+    if (typeof EfbResponseViewer !== 'undefined' && EfbResponseViewer._handleFileRemoved) {
+      var _uz = document.getElementById('efb_upload_zone');
+      var _fi = document.getElementById('efb_upload_file_info');
+      var _inp = document.getElementById('resp_file_efb_');
+      var _ab = document.getElementById('efb_attach_btn');
+      EfbResponseViewer._handleFileRemoved(_uz, _fi, _inp, _ab);
+    }
     const date = Date();
     fun_emsFormBuilder__add_a_response_to_messages(message, res.data.by, 0, 0, date);
     const chatHistory = document.getElementById("resp_efb");

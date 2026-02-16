@@ -2569,7 +2569,7 @@ function funTnxEfb(val, title, message) {
   const show_track = valj_efb[0].trackingCode == true && valj_efb[0].type != "survey" ? true : false;
   const trckCd = `
   <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
-               <input type="text" class="efb hide-input efb ${show_track ? 'd-block' : 'd-none'} " value="${val}" id="trackingCodeEfb">
+               <input type="text" class="efb hide-input efb d-none " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
            <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color}  ${show_track ? 'd-block mx-auto' : 'd-none mx-auto'} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb' ,'trackingCodeEfb2')">
                    <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i><span id="trackingCodeEfb2">${efb_var.text.copy}</span>
@@ -4368,6 +4368,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   let last_type ='';
   for (const c of content) {
+    console.log(c);
     if (c.hasOwnProperty('price')){ totalpaid +=Number(c.price)}
     if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
@@ -4382,7 +4383,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       if (c.type == "Image" || c.type == "image") {
         value = `<img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       } else if (c.type == "Document" || c.type == "document" || c.type == "allformat") {
-        value = `<a class="efb btn btn-primary m-1 text-decoration-none" href="${c.url}" target="_blank" >${c.url.split('/').pop()}</a>`
+        value = `<a class="efb-reply-btn" href="${c.url}" target="_blank" >${c.url.split('/').pop()}</a>`
       } else if (c.type == "Media" || c.type == "media") {
         const audios = ['mp3', 'wav', 'ogg'];
         let media = "video";
@@ -4399,7 +4400,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
       } else {
-        value = c.url.length > 1 ? `<a class="efb btn btn-primary mb-1" href="${c.url}" target="_blank" >${c.url.split('/').pop()}</a>` : `<span class="efb  fs-5">💤</span>`
+        value = c.url.length > 1 ? `<a class="efb-reply-btn" href="${c.url}" target="_blank" >${c.url.split('/').pop()}</a>` : `<span class="efb  fs-5">💤</span>`
       }
     } else if (c.type == "esign") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
@@ -4422,7 +4423,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         marker_maps_efb = c.value;
         m += value;
         setTimeout(() => {
-          efbCreateMap(c.id_ ,c,true)
+          if (typeof efbCreateMap === 'function') efbCreateMap(c.id_ ,c,true)
         }, 800);
       }
     } else if (c.type == "rating") {
@@ -4460,12 +4461,14 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')  || c.type == 'prcfld') {
-          //console.log(currency ,c)
-          q+=`<span class="efb efb-msg-price-tag">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
+          console.log(currency ,c)
+          const price = c.price ?? c.value ;
+          q+=`<span class="efb efb-msg-price-tag">${Number(price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }else if(c.type.includes('checkbox')){
           //checboxs.push
         }else if(c.type.includes('imgRadio')){
-          q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
+
+          q = typeof fun_imgRadio_efb === 'function' ? `<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>` : `<div class="efb w-25"><img src="${c.src || ''}" class="efb img-fluid rounded" alt="${c.value || ''}"></div>`
         }
         m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label">${title}:</span> <span class="efb-msg-field-value">${text_nr_efb(q,1)}</span></div>`
        //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
@@ -4569,4 +4572,34 @@ function maps_os_pro_efb(previewSate, pos, rndm, iVJ){
       </div>
       <!--maps end-->
     `;
+}
+
+fun_imgRadio_efb=(id ,link,row ,state=true)=>{
+  const u = (url)=>{
+    url = url.replace(/(http:@efb@)+/g, 'http://');
+    url = url.replace(/(https:@efb@)+/g, 'https://');
+    url = url.replace(/(@efb@)+/g, '/');
+    return url;
+   }
+
+
+   let value = row.hasOwnProperty('value')  ? row.value : efb_var.text.newOption ?? '';
+
+  let sub_value = row.hasOwnProperty('sub_value') ? row.sub_value : efb_var.text.sampleDescription ?? '';
+     if(state==false){
+    value = efb_var.text.newOption ;
+    sub_value = efb_var.text.sampleDescription ;
+   }
+  link = link.includes('http')==false || link.length <5 ?  u(efb_var.images.head) : u(row.src);
+  link = u(link);
+  return `
+    <label class="efb  " id="${id}_lab" for="${id}">
+    <div class="efb card col-md-3 mx-0 my-1 w-100" style="">
+    <img src="${link}" alt="${value}" style="width: 100%"  id="${id}_img">
+    <div class="efb card-body">
+        <h5 class="efb card-title text-dark" id="${id}_value">${value}</h5>
+        <p class="efb card-text" id="${id}_value_sub">${sub_value}</p>
+    </div>
+    </div>
+    </label>`;
 }

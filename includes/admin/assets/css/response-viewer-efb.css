@@ -482,7 +482,7 @@
 .efb-reply-section {
   flex: 0 0 auto;
   border-top: 1px solid var(--efb-resp-border);
-  padding: 12px 8px 8px;
+  padding: 12px 0px;
   background: var(--efb-resp-bg-editor);
   border-radius: 0 0 12px 12px;
 }
@@ -551,10 +551,10 @@
   transition: border-color 0.2s, box-shadow 0.2s;
   word-break: break-word;
 }
-.efb-rich-editor:focus {
+/* .efb-rich-editor:focus {
   border-color: var(--efb-resp-primary);
   box-shadow: 0 0 0 3px var(--efb-resp-primary-08);
-}
+} */
 .efb-rich-editor:empty::before {
   content: attr(data-placeholder);
   color: var(--efb-resp-editor-ph);
@@ -675,6 +675,141 @@
   color: #fff;
 }
 
+/* ── Attach Button in Toolbar ───────────────────────────────────────────── */
+.efb-attach-btn {
+  position: relative;
+  font-size: 1.05rem !important;
+}
+.efb-attach-btn i {
+  transform: rotate(-45deg);
+  display: inline-block;
+}
+.efb-attach-btn.efb-attach-active {
+  color: var(--efb-resp-primary);
+  background: var(--efb-resp-primary-08);
+}
+.efb-attach-btn.efb-attach-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.efb-attach-pro-tag {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  font-size: 0.5rem !important;
+  color: #f3b807;
+  line-height: 1;
+}
+.efb-attach-pro-tag i {
+  font-size: 0.5rem !important;
+}
+[dir="rtl"] .efb-attach-pro-tag,
+.rtl .efb-attach-pro-tag,
+.rtl-text .efb-attach-pro-tag {
+  right: auto;
+  left: -3px;
+}
+.efb-upload-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+/* Editor drag-over state */
+.efb-rich-editor.efb-editor-dragover {
+  border-color: var(--efb-resp-primary) !important;
+  background: var(--efb-resp-primary-06) !important;
+  box-shadow: 0 0 0 3px var(--efb-resp-primary-10) !important;
+}
+
+/* ── File Upload Zone (slim: file info + progress) ─────────────────────── */
+.efb-upload-zone {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: efb-slide-down 0.25s ease;
+}
+@keyframes efb-slide-down {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── File info (after selection) ─── */
+.efb-upload-file-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--efb-resp-border);
+  border-radius: 10px;
+  background: var(--efb-resp-bg-editor);
+}
+.efb-upload-file-icon {
+  font-size: 1.2rem;
+  color: var(--efb-resp-primary);
+  line-height: 1;
+}
+.efb-upload-file-icon i {
+  font-size: 1.2rem !important;
+}
+.efb-upload-file-name {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--efb-resp-text);
+  font-family: var(--efb-resp-font-family);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.efb-upload-file-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  color: #ff4b93;
+  cursor: pointer;
+  transition: background .15s;
+}
+.efb-upload-file-remove:hover {
+  background: rgba(255, 75, 147, 0.1);
+}
+.efb-upload-file-remove i {
+  font-size: 0.85rem !important;
+}
+
+/* ── Upload progress bar ─── */
+.efb-upload-progress {
+  width: 100%;
+}
+.efb-upload-progress-bar {
+  height: 22px;
+  border-radius: 8px;
+  background: var(--efb-resp-bg-meta);
+  overflow: hidden;
+}
+.efb-upload-progress-fill {
+  height: 100%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--efb-resp-primary) 0%, var(--efb-resp-primary-dark) 100%);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  transition: width .3s ease;
+}
+
 /* ── Reply Label ───────────────────────────────────────────────────────── */
 .efb-reply-label {
   font-size: 0.82rem;
@@ -765,9 +900,7 @@
     text-align: center;
     gap: 4px;
   }
-  .efb-reply-section {
-    padding: 8px 4px 6px;
-  }
+
   .efb-editor-toolbar {
     padding: 3px 4px;
     gap: 1px;
@@ -793,6 +926,16 @@
   }
   .efb-attach-wrapper {
     justify-content: space-between;
+  }
+  .efb-upload-zone-inner {
+    padding: 14px 12px;
+    min-height: 70px;
+  }
+  .efb-upload-icon {
+    font-size: 1.3rem;
+  }
+  .efb-upload-icon i {
+    font-size: 1.3rem !important;
   }
 }
 
@@ -1301,4 +1444,39 @@
   .rtl-text .efb-reply-actions {
     flex-direction: column-reverse;
   }
+}
+
+/* ──────────────────────────────────────────────────────
+   MAP IN RESPONSE VIEWER
+   Ensures map containers have proper height on both
+   admin and public (tracker) pages.
+   ────────────────────────────────────────────────────── */
+.efb-msg-fields .map-container {
+  width: 100%;
+  height: 350px;
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.efb-msg-fields .map {
+  width: 100%;
+  height: 100%;
+}
+.efb-msg-fields .maps-os {
+  min-height: 360px;
+}
+.efb-msg-fields .leaflet-control-container .leaflet-control-layers {
+  background: white;
+  padding: 10px;
+}
+.efb-msg-fields .leaflet-control-container .custom-control {
+  position: relative;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(248, 249, 250, 0.95);
+  padding: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border-radius: 8px;
 }

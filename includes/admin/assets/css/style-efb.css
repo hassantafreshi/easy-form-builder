@@ -867,8 +867,7 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
 .efb.navbar {	z-index: 10;
 }
 
-div#resp_efb {	height: 295px;
-}
+
 .efb input[type="radio"]:checked::before{
    background-color:#fff0!important;
 }

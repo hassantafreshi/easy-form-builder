@@ -316,7 +316,7 @@
 		return array($parent_row, $parent_col, $label_col, $input_col);
 	}
 
-	
+
         /* field builder - generate mobile responsive CSS for form elements */
         public function generate_mobile_css_efb() {
                 $css = '';
@@ -324,17 +324,17 @@
                         if ($i === 0) continue; // skip form settings
                         if (!isset($vj->id_)) continue;
                         $id = $vj->id_;
-                        
+
                         // Mobile label align
                         if (isset($vj->mobile_label_align) && $vj->mobile_label_align !== '') {
                                 $css .= '#' . $id . '_labG { ' . $this->get_align_css($vj->mobile_label_align) . ' }' . "\n";
                         }
-                        
-                        // Mobile description align  
+
+                        // Mobile description align
                         if (isset($vj->mobile_message_align) && $vj->mobile_message_align !== '') {
                                 $css .= '#' . $id . '-des { ' . $this->get_align_css_desc($vj->mobile_message_align) . ' }' . "\n";
                         }
-                        
+
                         // Mobile label font size
                         if (isset($vj->mobile_label_text_size) && $vj->mobile_label_text_size !== '' && $vj->mobile_label_text_size !== 'fs-6') {
                                 $fontSize = $this->get_font_size_css($vj->mobile_label_text_size);
@@ -342,7 +342,7 @@
                                         $css .= '#' . $id . '_lab { font-size: ' . $fontSize . ' !important; }' . "\n";
                                 }
                         }
-                        
+
                         // Mobile label position
                         if (isset($vj->mobile_label_position)) {
                                 if ($vj->mobile_label_position === 'up') {
@@ -356,11 +356,11 @@
                                 }
                         }
                 }
-                
+
                 if (empty($css)) return '';
                 return '<style>@media (max-width: 767.98px) {' . "\n" . $css . '}</style>';
         }
-        
+
         private function get_align_css($alignClass) {
                 switch ($alignClass) {
                         case 'txt-left': return 'text-align: left !important;';
@@ -369,7 +369,7 @@
                         default: return '';
                 }
         }
-        
+
         private function get_align_css_desc($alignClass) {
                 switch ($alignClass) {
                         case 'justify-content-start': return 'justify-content: flex-start !important;';
@@ -378,7 +378,7 @@
                         default: return '';
                 }
         }
-        
+
         private function get_font_size_css($sizeClass) {
                 switch ($sizeClass) {
                         case 'fs-7': return '0.875rem';
@@ -2777,6 +2777,10 @@
 										document.getElementById('%s_lng').value = position.lng;
 									});
 
+									map.whenReady(function() { map.invalidateSize(); });
+									setTimeout(function() { map.invalidateSize(); }, 100);
+									setTimeout(function() { map.invalidateSize(); }, 500);
+									setTimeout(function() { map.invalidateSize(); }, 1500);
 								}
 
 								document.addEventListener('DOMContentLoaded', function() {
@@ -3675,6 +3679,7 @@ public function check_error_console_efb(){
 
 			// Show badge with animation
 			showBadge() {
+				if (!this.badge) return;
 				this.badge.style.opacity = "1";
 				this.badge.style.pointerEvents = "auto";
 
@@ -3686,7 +3691,9 @@ public function check_error_console_efb(){
 
 			// Update error count with animation
 			updateCount() {
+				if (!this.badge) return;
 				const countEl = this.badge.querySelector(".efb-error-count");
+				if (!countEl) return;
 				countEl.textContent = this.errors.length;
 
 				// Trigger pop animation
@@ -3714,6 +3721,7 @@ public function check_error_console_efb(){
 
 				// Update list
 				const list = document.getElementById("efb-error-list");
+				if (!list) return;
 				const noErrors = list.querySelector(".efb-no-errors");
 				if (noErrors) noErrors.remove();
 

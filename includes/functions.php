@@ -189,7 +189,7 @@ class efbFunction {
 			/* translators: Number = input field for numeric values */
 			"number" => $state ? $ac->text->number : esc_html__('Number','easy-form-builder'),
 			/* translators: File = input field for uploading files */
-			"file" => $state ? $ac->text->file : esc_html__('File Upload','easy-form-builder'),
+			"file" => $state ? $ac->text->file : esc_html__('File upload','easy-form-builder'),
 			/* translators: Tel = Telephone/Phone number */
 			"tel" => $state ? $ac->text->tel : esc_html__('Tel','easy-form-builder'),
 			/* translators: Textarea = input field for text[textarea] */
@@ -836,7 +836,7 @@ class efbFunction {
 			"qty" => $state  &&  isset($ac->text->qty) ? $ac->text->qty : esc_html__('Qty','easy-form-builder'),
 			/* translators: WPBakery = a WordPress page builder plugin */
 			"wwpb" => $state  &&  isset($ac->text->wwpb) ? $ac->text->wwpb : esc_html__('This is a warning for WPBakery users. For more information, please click here.','easy-form-builder'),
-			"clsdrspnsM" => $state  &&  isset($ac->text->clsdrspnsM) ? $ac->text->clsdrspnsM : esc_html__('Are you sure you want to close the responses to this message?','easy-form-builder'),
+			"clsdrspnsM" => $state  &&  isset($ac->text->clsdrspnsM) ? $ac->text->clsdrspnsM : esc_html__('Are you sure you want to close replies to this message?','easy-form-builder'),
 			"clsdrspnsMo" => $state  &&  isset($ac->text->clsdrspnsMo) ? $ac->text->clsdrspnsMo : esc_html__('Are you sure you want to open the responses to this message?','easy-form-builder'),
 			"clsdrspn" => $state  &&  isset($ac->text->clsdrspn) ? $ac->text->clsdrspn : esc_html__('The response has been closed by Admin.','easy-form-builder'),
 			"clsdrspo" => $state  &&  isset($ac->text->clsdrspo) ? $ac->text->clsdrspo : esc_html__('The response has been opened by Admin.','easy-form-builder'),

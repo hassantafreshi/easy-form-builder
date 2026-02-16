@@ -679,7 +679,7 @@ public function check_nonce_permission_efb($request) {
 				<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
 				<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 			}
-			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError'];
+			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc'];
 
 			$this->public_scripts_and_css_head('');
 			// $this->public_scripts_and_css_head('');
@@ -1366,10 +1366,11 @@ public function check_nonce_permission_efb($request) {
 
 		$pro = $pro==1 || $pro == 3 ? true : false;
 		$this->pro_efb = $pro;
-		error_log('pro track:'.($pro ? 'true' : 'false') .''.$pro . 'type:'.gettype($pro));
+		error_log('pro track:'.($pro ? 'true' : 'false') .' '.$pro . 'type:'.gettype($pro));
 
 		$this->comper_version_efb($pl[1]['version']);
 		if($pro==true){
+			error_log('pro_fildes_loading');
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
 		}
 
@@ -1458,7 +1459,51 @@ public function check_nonce_permission_efb($request) {
 			$text['search']
 		);
 		 $val = $pro==true ? '<!--efb.app-->' : '<div class="efb d-none"><a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a></div>';
-	 	$content="<script> sitekye_emsFormBuilder='' </script>".$s_m."
+
+		// Build inline CSS variables from saved color settings so
+		// the tracker renders with customized colors immediately (no FOUC).
+		$ps = $pl[1] ?? [];
+		$css_var_map = [
+			'respPrimary'    => ['--efb-resp-primary',     '#3644d2'],
+			'respPrimaryDark'=> ['--efb-resp-primary-dark','#202a8d'],
+			'respAccent'     => ['--efb-resp-accent',      '#ffc107'],
+			'respText'       => ['--efb-resp-text',        '#1a1a2e'],
+			'respTextMuted'  => ['--efb-resp-text-muted',  '#657096'],
+			'respBgCard'     => ['--efb-resp-bg-card',     '#ffffff'],
+			'respBgMeta'     => ['--efb-resp-bg-meta',     '#f6f7fb'],
+			'respBgTrack'    => ['--efb-resp-bg-track',    '#ffffff'],
+			'respBgResp'     => ['--efb-resp-bg-resp',     '#f8f9fd'],
+			'respBgEditor'   => ['--efb-resp-bg-editor',   '#ffffff'],
+			'respEditorText' => ['--efb-resp-editor-text', '#1a1a2e'],
+			'respEditorPh'   => ['--efb-resp-editor-ph',   '#a0aec0'],
+			'respBtnText'    => ['--efb-resp-btn-text',    '#ffffff'],
+			'respFontFamily' => ['--efb-resp-font-family', 'inherit'],
+			'respFontSize'   => ['--efb-resp-font-size',   '0.9rem'],
+		];
+		$css_overrides = '';
+		$primary_hex = '';
+		foreach ($css_var_map as $key => $info) {
+			$val_s = isset($ps[$key]) && $ps[$key] !== '' ? $ps[$key] : $info[1];
+			if ($val_s !== $info[1]) {
+				$css_overrides .= $info[0] . ':' . esc_attr($val_s) . ';';
+			}
+			if ($key === 'respPrimary') $primary_hex = $val_s;
+		}
+		// Derived opacity variants from primary color
+		if ($primary_hex !== '#3644d2' && preg_match('/^#[0-9a-fA-F]{6}$/', $primary_hex)) {
+			$r = hexdec(substr($primary_hex, 1, 2));
+			$g = hexdec(substr($primary_hex, 3, 2));
+			$b = hexdec(substr($primary_hex, 5, 2));
+			$css_overrides .= "--efb-resp-primary-08:rgba({$r},{$g},{$b},0.08);";
+			$css_overrides .= "--efb-resp-primary-10:rgba({$r},{$g},{$b},0.10);";
+			$css_overrides .= "--efb-resp-primary-06:rgba({$r},{$g},{$b},0.06);";
+			$css_overrides .= "--efb-resp-border:rgba({$r},{$g},{$b},0.12);";
+			$css_overrides .= "--efb-resp-shadow:0 2px 16px rgba({$r},{$g},{$b},0.07);";
+			$css_overrides .= "--efb-resp-shadow-hover:0 4px 24px rgba({$r},{$g},{$b},0.13);";
+		}
+		$inline_style = $css_overrides !== '' ? '<style>:root{' . $css_overrides . '}</style>' : '';
+
+	 	$content="<script> sitekye_emsFormBuilder='' </script>".$s_m . $inline_style ."
 		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5 text-center'></div>
 		".$track_content."</div>" . $val ;
 

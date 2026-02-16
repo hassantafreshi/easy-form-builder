@@ -18,7 +18,10 @@
    page_state_efb, pro_efb, setting_emsFormBuilder, valNotFound_efb,
    replaceContentMessageEfb, valueJson_ws_messages, noti_message_efb_v4,
    post_api_r_message_efb, recaptcha_emsFormBuilder, sitekye_emsFormBuilder,
-   generatePDF_EFB, closed_resp_emsFormBuilder
+   generatePDF_EFB, closed_resp_emsFormBuilder,
+   files_emsFormBuilder, fileEfb, viewfileReplyEfb,
+   fun_upload_file_api_emsFormBuilder, fun_addProgessiveEl_efb, fun_removeProgessiveEl_efb,
+   validExtensions_efb_fun
 */
 
 const EfbResponseViewer = (function () {
@@ -160,6 +163,7 @@ const EfbResponseViewer = (function () {
         <button type="button" class="efb-editor-btn" data-cmd="removeFormat" title="Clear formatting">
           <i class="bi bi-eraser"></i>
         </button>
+        ${_buildAttachToolbarBtn(msgId)}
       </div>
       <!-- Editable Area -->
       <div class="efb-rich-editor"
@@ -282,6 +286,7 @@ const EfbResponseViewer = (function () {
    * @returns {string} HTML
    */
   function buildReplyActions(msgId, isPanel) {
+    const uploadHtml = buildFileUploadArea(msgId, isPanel);
     return `
     <div class="efb-reply-actions">
       <button type="submit" class="efb-reply-btn" id="replayB_emsFormBuilder"
@@ -289,7 +294,8 @@ const EfbResponseViewer = (function () {
         <i class="bi bi-reply"></i> ${_t('reply')}
       </button>
       <p class="efb-reply-status" id="replay_state__emsFormBuilder"></p>
-    </div>`;
+    </div>
+    ${uploadHtml}`;
   }
 
   // ──────────────────────────────────────────────────────
@@ -355,6 +361,7 @@ const EfbResponseViewer = (function () {
     }
 
     const savedValue = '';
+    const uploadHtml = buildFileUploadArea(msg_id, false);
     const replySection = buildRichEditor(msg_id, savedValue) + `
     <div class="efb-reply-actions">
       <button type="submit" class="efb-reply-btn" id="replayB_emsFormBuilder"
@@ -364,13 +371,11 @@ const EfbResponseViewer = (function () {
       ${typeof sitekye_emsFormBuilder !== 'undefined' && sitekye_emsFormBuilder ?
         `<div class="efb row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" id="recaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ''}
       <p class="efb-reply-status" id="replay_state__emsFormBuilder"></p>
-    </div>`;
+    </div>
+    ${uploadHtml}`;
 
     const body = `
     <div class="efb-resp-viewer">
-      <div class="efb modal-header efb py-4">
-        <h5 class="efb modal-title fs-5"></h5>
-      </div>
       <div class="efb-resp-messages ${isRtl() ? 'rtl-text' : ''}" id="resp_efb">${m}</div>
       ${replySection}
     </div>`;
@@ -386,10 +391,8 @@ const EfbResponseViewer = (function () {
    * @param {boolean} isPanel
    */
   function initAfterRender(msgId, isPanel) {
-    // FIRST: append attach/close buttons (before setting up editor listeners)
-    if (isPanel && typeof reply_attach_efb === 'function') {
-      reply_attach_efb(msgId);
-    }
+    // Initialize file upload area (modern version built into the HTML)
+    initFileUpload(msgId);
 
     // THEN: init the rich text editor listeners (after DOM is finalized)
     initRichEditor(msgId);
@@ -420,6 +423,305 @@ const EfbResponseViewer = (function () {
   }
 
   // ──────────────────────────────────────────────────────
+  // FILE UPLOAD: Modern attach UI
+  // ──────────────────────────────────────────────────────
+
+  /**
+   * Build modern file upload area HTML
+   * @param {string|number} msgId
+   * @param {boolean} isPanel - true if admin panel
+   * @returns {string} HTML
+   */
+  /**
+   * Build the attach button for the editor toolbar
+   * @param {string|number} msgId
+   * @returns {string} HTML
+   */
+  function _buildAttachToolbarBtn(msgId) {
+    // Hide when dsupfile is explicitly false on public page
+    if (typeof setting_emsFormBuilder !== 'undefined' &&
+      setting_emsFormBuilder.hasOwnProperty('dsupfile') &&
+      setting_emsFormBuilder.dsupfile == false &&
+      typeof efb_var !== 'undefined' && !efb_var.hasOwnProperty('setting')) {
+      return '';
+    }
+
+    const isPro = typeof pro_efb !== 'undefined' && pro_efb === true;
+    const attachTitle = _t('dsupfile') || 'Attach file';
+    const proText = _t('fieldAvailableInProversion') || 'Available in Pro version';
+    const titleupload = _t('file') || 'File Upload';
+    if (!isPro) {
+      return `
+        <span class="efb-editor-toolbar-sep"></span>
+        <button type="button" class="efb-editor-btn efb-attach-btn efb-attach-disabled"
+                id="efb_attach_btn" title="${proText}"
+                onclick="pro_show_efb(1)">
+          <i class="bi bi-paperclip"></i>
+          <span class="efb-attach-pro-tag"><i class="bi bi-gem"></i></span>
+        </button>`;
+    }
+
+    return `
+      <span class="efb-editor-toolbar-sep"></span>
+      <button type="button" class="efb-editor-btn efb-attach-btn" id="efb_attach_btn"
+              title="${titleupload}" data-id="${msgId}">
+        <i class="bi bi-paperclip"></i>
+      </button>
+      <input type="file" class="efb-upload-input" id="resp_file_efb_" name="file" data-id="${msgId}">`;
+  }
+
+  function buildFileUploadArea(msgId, isPanel) {
+    // Hide when dsupfile is explicitly false on public page
+    if (typeof setting_emsFormBuilder !== 'undefined' &&
+      setting_emsFormBuilder.hasOwnProperty('dsupfile') &&
+      setting_emsFormBuilder.dsupfile == false &&
+      typeof efb_var !== 'undefined' && !efb_var.hasOwnProperty('setting')) {
+      return '';
+    }
+
+    // Close/Open response button (admin panel only)
+    let closeBtn = '';
+    if (isPanel) {
+      const isOpen = typeof stock_state_efb !== 'undefined' && stock_state_efb === true;
+      closeBtn = `<button type="button" class="efb-close-resp-btn ${isOpen ? 'open-state' : ''}"
+                    onclick="closed_resp_emsFormBuilder(${msgId})"
+                    data-state="${isOpen ? 1 : 0}" id="respStateEfb" disabled>
+                    ${isOpen ? _t('open') : _t('close')}
+                  </button>`;
+    }
+
+    // Slim upload zone: file info + progress only (attach button is in toolbar)
+    return `
+    <div class="efb efb-upload-zone d-none" id="efb_upload_zone">
+      <div class="efb efb-upload-file-info d-none p-1 px-2 my-1" id="efb_upload_file_info">
+        <i class="bi bi-file-earmark"></i>
+        <span class="efb-upload-file-name" id="efb_upload_file_name"></span>
+        <button type="button" class="efb-upload-file-remove" id="efb_upload_file_remove" title="${_t('delete') || 'Remove'}">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="efb efb-upload-progress d-none" id="resp_file_efb-prG">
+        <div class=" efb efb-upload-progress-bar d-none" id="resp_file_efb-prA">
+          <div class="efb-upload-progress-fill" id="resp_file_efb-prB" role="progressbar" style="width:0%">0%</div>
+        </div>
+      </div>
+    </div>
+    ${closeBtn}`;
+  }
+
+  /**
+   * Initialize the file upload area after DOM is ready
+   * @param {string|number} msgId
+   */
+  function initFileUpload(msgId) {
+    const attachBtn = document.getElementById('efb_attach_btn');
+    const fileInput = document.getElementById('resp_file_efb_');
+    const uploadZone = document.getElementById('efb_upload_zone');
+    const fileInfo = document.getElementById('efb_upload_file_info');
+    const fileName = document.getElementById('efb_upload_file_name');
+    const removeBtn = document.getElementById('efb_upload_file_remove');
+
+    if (!attachBtn || !fileInput) return;
+
+    // Guard: prevent double-binding event listeners
+    if (attachBtn.dataset.efbBound) return;
+    attachBtn.dataset.efbBound = '1';
+
+    // Click attach button → open file picker
+    attachBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      fileInput.click();
+    });
+
+    // File selected via input
+    fileInput.addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        _handleFileSelected(this.files[0], msgId, uploadZone, fileInfo, fileName, attachBtn);
+      }
+    });
+
+    // Drag & drop on the rich editor area
+    const editor = document.getElementById('efb_rich_editor');
+    if (editor) {
+      editor.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        editor.classList.add('efb-editor-dragover');
+      });
+      editor.addEventListener('dragleave', function () {
+        editor.classList.remove('efb-editor-dragover');
+      });
+      editor.addEventListener('drop', function (e) {
+        e.preventDefault();
+        editor.classList.remove('efb-editor-dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          fileInput.files = e.dataTransfer.files;
+          _handleFileSelected(e.dataTransfer.files[0], msgId, uploadZone, fileInfo, fileName, attachBtn);
+        }
+      });
+    }
+
+    // Remove file
+    if (removeBtn) {
+      removeBtn.addEventListener('click', function () {
+        _handleFileRemoved(uploadZone, fileInfo, fileInput, attachBtn);
+      });
+    }
+  }
+
+  /**
+   * Handle a file being selected (validate + start upload)
+   */
+  function _handleFileSelected(file, msgId, uploadZone, fileInfo, fileNameEl, attachBtn) {
+    // Validate file type
+    if (typeof validExtensions_efb_fun === 'function') {
+      if (!validExtensions_efb_fun('allformat', file.type, 0)) {
+        const m = _t('pleaseUploadA') || 'Please upload a valid file';
+        if (typeof alert_message_efb === 'function') {
+          alert_message_efb('', m.replace('NN', `${_t('media')}, ${_t('document')} ${_t('or')} ${_t('zip')}`), 4, 'danger');
+        }
+        return;
+      }
+    }
+
+    // Show upload zone (container)
+    if (uploadZone) uploadZone.classList.remove('d-none');
+
+    // Mark attach button as active
+    if (attachBtn) attachBtn.classList.add('efb-attach-active');
+
+    // Show progress bar (prA = d-block during upload)
+    const prG = document.getElementById('resp_file_efb-prG');
+    const prA = document.getElementById('resp_file_efb-prA');
+    if (prG) prG.classList.remove('d-none');
+    if (prA) { prA.classList.remove('d-none'); prA.classList.add('d-block'); }
+
+    // Set global fileEfb for compatibility with pro_els-efb.js pipeline
+    if (typeof window !== 'undefined') window.fileEfb = file;
+
+    // Push to files array & start upload
+    if (typeof files_emsFormBuilder !== 'undefined' && typeof sessionPub_emsFormBuilder !== 'undefined') {
+      files_emsFormBuilder.push({
+        id_: 'resp_file_efb',
+        value: '@file@',
+        state: 0,
+        url: '',
+        type: 'file',
+        name: 'file',
+        session: sessionPub_emsFormBuilder,
+        amount: 0
+      });
+
+      // Read as data URL for the record
+      const reader = new FileReader();
+      reader.onload = function () {
+        const idx = files_emsFormBuilder.findIndex(function (x) { return x.id_ === 'resp_file_efb'; });
+        if (idx !== -1) files_emsFormBuilder[idx].url = reader.result;
+      };
+      reader.readAsDataURL(file);
+
+      // Upload via existing pipeline — hide progress after completion
+      if (typeof fun_upload_file_api_emsFormBuilder === 'function') {
+        fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat', 'resp', file);
+        // Watch for upload completion to hide progress bar
+        _watchUploadProgress();
+      }
+    }
+  }
+
+  /**
+   * Watch progress bar and hide it once upload reaches 100%
+   */
+  function _watchUploadProgress() {
+    const prB = document.getElementById('resp_file_efb-prB');
+    const prA = document.getElementById('resp_file_efb-prA');
+    const prG = document.getElementById('resp_file_efb-prG');
+    const fileInfo = document.getElementById('efb_upload_file_info');
+    const fileNameEl = document.getElementById('efb_upload_file_name');
+    const fileInput = document.getElementById('resp_file_efb_');
+    if (!prB || !prA) return;
+
+    let checks = 0;
+    const maxChecks = 600; // 60 seconds max
+    const interval = setInterval(function () {
+      checks++;
+      const width = parseFloat(prB.style.width);
+      if (width >= 100 || checks >= maxChecks) {
+        clearInterval(interval);
+        // After 100%: wait 2 seconds then hide progress, show file info
+        setTimeout(function () {
+          // Hide progress bar
+          prA.classList.remove('d-block');
+          prA.classList.add('d-none');
+          if (prG) prG.classList.add('d-none');
+          // Reset progress for next use
+          prB.style.width = '0%';
+          prB.textContent = '0%';
+
+          // Show file info with name
+          if (fileInfo && fileInput && fileInput.files && fileInput.files[0]) {
+            const name = fileInput.files[0].name;
+            if (fileNameEl) {
+              fileNameEl.textContent = name.length > 30 ? name.slice(0, 27) + '...' : name;
+              fileNameEl.title = name;
+            }
+            fileInfo.classList.remove('d-none');
+            fileInfo.classList.add('d-block');
+          }
+        }, 2000);
+      }
+    }, 100);
+  }
+
+  /**
+   * Handle file removal
+   */
+  function _handleFileRemoved(uploadZone, fileInfo, fileInput, attachBtn) {
+    // Hide file info
+    if (fileInfo) { fileInfo.classList.remove('d-block'); fileInfo.classList.add('d-none'); }
+
+    // Reset file name
+    const fileNameEl = document.getElementById('efb_upload_file_name');
+    if (fileNameEl) { fileNameEl.textContent = ''; fileNameEl.title = ''; }
+
+    // Clear file input
+    if (fileInput) fileInput.value = '';
+
+    // Hide entire upload zone
+    if (uploadZone) uploadZone.classList.add('d-none');
+
+    // Remove active state from attach button
+    if (attachBtn) attachBtn.classList.remove('efb-attach-active');
+
+    // Hide & reset progress bar
+    const prG = document.getElementById('resp_file_efb-prG');
+    const prA = document.getElementById('resp_file_efb-prA');
+    const prB = document.getElementById('resp_file_efb-prB');
+    if (prG) prG.classList.add('d-none');
+    if (prA) { prA.classList.remove('d-block'); prA.classList.add('d-none'); }
+    if (prB) { prB.style.width = '0%'; prB.textContent = '0%'; }
+
+    // Remove from files_emsFormBuilder
+    if (typeof files_emsFormBuilder !== 'undefined') {
+      const idx = files_emsFormBuilder.findIndex(function (x) { return x.id_ === 'resp_file_efb'; });
+      if (idx !== -1) {
+        files_emsFormBuilder.splice(idx, 1);
+      }
+    }
+
+    // Remove from sendBack
+    if (typeof sendBack_emsFormBuilder_pub !== 'undefined') {
+      for (let i = sendBack_emsFormBuilder_pub.length - 1; i >= 0; i--) {
+        if (sendBack_emsFormBuilder_pub[i].name === 'file') {
+          sendBack_emsFormBuilder_pub.splice(i, 1);
+        }
+      }
+    }
+
+    if (typeof window !== 'undefined') window.fileEfb = null;
+  }
+
+  // ──────────────────────────────────────────────────────
   // PUBLIC API
   // ──────────────────────────────────────────────────────
   return {
@@ -427,12 +729,15 @@ const EfbResponseViewer = (function () {
     buildPublicResponseBody: buildPublicResponseBody,
     buildRichEditor: buildRichEditor,
     buildReplyActions: buildReplyActions,
+    buildFileUploadArea: buildFileUploadArea,
     initAfterRender: initAfterRender,
     initRichEditor: initRichEditor,
+    initFileUpload: initFileUpload,
     getEditorValue: getEditorValue,
     shortcodeToHtml: shortcodeToHtml,
     htmlToShortcode: htmlToShortcode,
-    formatMessageForDisplay: formatMessageForDisplay
+    formatMessageForDisplay: formatMessageForDisplay,
+    _handleFileRemoved: _handleFileRemoved
   };
 
 })();
