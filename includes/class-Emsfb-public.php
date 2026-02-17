@@ -1485,7 +1485,10 @@ public function check_nonce_permission_efb($request) {
 		foreach ($css_var_map as $key => $info) {
 			$val_s = isset($ps[$key]) && $ps[$key] !== '' ? $ps[$key] : $info[1];
 			if ($val_s !== $info[1]) {
-				$css_overrides .= $info[0] . ':' . esc_attr($val_s) . ';';
+				// Use preg_replace for CSS-safe sanitization instead of esc_attr()
+				// esc_attr() converts quotes to HTML entities which breaks CSS values
+				$safe_val = preg_replace('/[<>&{}]/', '', $val_s);
+				$css_overrides .= $info[0] . ':' . $safe_val . ';';
 			}
 			if ($key === 'respPrimary') $primary_hex = $val_s;
 		}

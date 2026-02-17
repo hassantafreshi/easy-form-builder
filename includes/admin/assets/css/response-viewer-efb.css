@@ -1184,9 +1184,11 @@
   background: var(--efb-resp-bg-card);
   box-shadow: var(--efb-resp-shadow);
   transition: all .2s ease;
+  font-family: var(--efb-resp-font-family);
+  font-size: var(--efb-resp-font-size);
 }
 .efb-color-modal-preview .efb-preview-title {
-  font-size: 0.82rem;
+  font-size: calc(var(--efb-resp-font-size) * 0.91);
   font-weight: 600;
   color: var(--efb-resp-text-muted);
   margin-bottom: 8px;
@@ -1213,13 +1215,13 @@
 .efb-color-modal-preview .efb-preview-sender {
   font-weight: 600;
   color: var(--efb-resp-text);
-  font-size: 0.9rem;
+  font-size: var(--efb-resp-font-size);
 }
 .efb-color-modal-preview .efb-preview-meta {
   background: var(--efb-resp-bg-meta);
   padding: 6px 10px;
   border-radius: 8px;
-  font-size: 0.75rem;
+  font-size: calc(var(--efb-resp-font-size) * 0.84);
   color: var(--efb-resp-text-muted);
   margin-bottom: 10px;
 }
@@ -1228,7 +1230,7 @@
   justify-content: space-between;
   padding: 5px 0;
   border-bottom: 1px solid var(--efb-resp-border);
-  font-size: 0.85rem;
+  font-size: calc(var(--efb-resp-font-size) * 0.95);
 }
 .efb-color-modal-preview .efb-preview-field-label {
   color: var(--efb-resp-primary);
@@ -1241,7 +1243,7 @@
   display: inline-block;
   margin-top: 10px;
   padding: 5px 16px;
-  font-size: 0.8rem;
+  font-size: calc(var(--efb-resp-font-size) * 0.89);
   border-radius: 20px;
   background: linear-gradient(135deg, var(--efb-resp-primary), var(--efb-resp-primary-dark));
   color: #fff;

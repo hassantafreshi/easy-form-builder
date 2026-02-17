@@ -1799,13 +1799,13 @@ function efb_open_color_modal() {
       <!-- Tracker mini preview -->
       <div class="efb-preview-tracker-wrap" style="margin-top:12px;padding:18px 14px;border-radius:14px;background:var(--efb-resp-bg-track);border:1px solid var(--efb-resp-border);display:flex;flex-direction:column;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,0.04)">
         <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--efb-resp-primary),var(--efb-resp-primary-dark));display:flex;align-items:center;justify-content:center;margin-bottom:8px;box-shadow:0 3px 10px var(--efb-resp-primary-10)"><i class="bi bi-shield-check" style="color:#fff;font-size:1.15rem"></i></div>
-        <div style="font-weight:700;color:var(--efb-resp-text);font-family:var(--efb-resp-font-family);margin-bottom:2px;font-size:0.92rem">${efb_var.text.trackNo || 'Confirmation Code'}</div>
-        <div style="color:var(--efb-resp-text-muted);font-family:var(--efb-resp-font-family);margin-bottom:8px;font-size:0.78rem">${efb_var.text.trackingCode || 'Tracking Code'}</div>
+        <div style="font-weight:700;color:var(--efb-resp-text);font-family:var(--efb-resp-font-family);margin-bottom:2px;font-size:var(--efb-resp-font-size)">${efb_var.text.trackNo || 'Confirmation Code'}</div>
+        <div style="color:var(--efb-resp-text-muted);font-family:var(--efb-resp-font-family);margin-bottom:8px;font-size:calc(var(--efb-resp-font-size) * 0.87)">${efb_var.text.trackingCode || 'Tracking Code'}</div>
         <div style="width:100%;position:relative;margin-bottom:8px">
           <i class="bi bi-hash" style="position:absolute;top:50%;left:10px;transform:translateY(-50%);color:var(--efb-resp-editor-ph);font-size:0.95rem"></i>
           <div style="padding:10px 12px 10px 32px;border:1.5px solid var(--efb-resp-border);border-radius:10px;background:var(--efb-resp-bg-editor);color:var(--efb-resp-editor-ph);font-size:var(--efb-resp-font-size);font-family:var(--efb-resp-font-family);opacity:0.65">${efb_var.text.entrTrkngNo || 'Enter tracking number'}</div>
         </div>
-        <div style="width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(65deg,var(--efb-resp-primary),var(--efb-resp-primary-dark));color:var(--efb-resp-btn-text);font-family:var(--efb-resp-font-family);font-weight:600;text-align:center;font-size:0.88rem"><i class="bi bi-search" style="margin-inline-end:6px"></i>${efb_var.text.search || 'Search'}</div>
+        <div style="width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(65deg,var(--efb-resp-primary),var(--efb-resp-primary-dark));color:var(--efb-resp-btn-text);font-family:var(--efb-resp-font-family);font-weight:600;text-align:center;font-size:var(--efb-resp-font-size)"><i class="bi bi-search" style="margin-inline-end:6px"></i>${efb_var.text.search || 'Search'}</div>
       </div>
     </div>`;
 

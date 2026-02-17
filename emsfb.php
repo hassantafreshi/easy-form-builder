@@ -265,5 +265,3 @@ if (!function_exists('get_setting_Emsfb')) {
             }
     }
 }
-
-
