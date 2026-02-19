@@ -36,7 +36,7 @@ const fields_efb = [
   /* { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'payment all' },
   { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' },  */
   { name: efb_var.text.stripe, icon: 'bi-stripe', id: 'stripe', pro: true, tag:'payment all' },
-  // { name: efb_var.text.paypal, icon: 'bi-paypal', id: 'paypal', pro: true, tag:'payment all' },
+  { name: efb_var.text.paypal, icon: 'bi-paypal', id: 'paypal', pro: true, tag:'payment all' },
   { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false, tag:'basic all' },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true, tag:'advance all' },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true, tag:'advance all' },
@@ -2810,6 +2810,7 @@ function show_setting_up_easy_form_builder_Efb() {
         position: absolute;
         top: 15px;
         right: 15px;
+        left: auto;
         background: linear-gradient(135deg, #202a8d, #633a82);
         color: white;
         padding: 6px 12px;
@@ -2818,6 +2819,11 @@ function show_setting_up_easy_form_builder_Efb() {
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+      }
+
+      [dir="rtl"] .efb-recommended-badge {
+        right: auto;
+        left: 15px;
       }
 
       .efb-plan-header {
@@ -4157,15 +4163,15 @@ sessionStorage.setItem('efb_license_selected', efb_var.setting.package_type);
 function getCurrentPlanBadge_efb() {
   const crntPlnLabel = (efb_var.text && efb_var.text.crntPln) || 'Current Plan';
   const pro_type = sessionStorage.getItem('efb_license_selected') ? Number(sessionStorage.getItem('efb_license_selected')) : Number(efb_var.pro);
+  let badgeClass = 'bg-secondary';
+  let planName = (efb_var.text && efb_var.text.free) || 'Free';
+  let icon_mx = 'me-2';
+  let div_mx = 'ms-1';
   if(Number(efb_var.rtl)==1){
     icon_mx = 'ms-2';
     div_mx = 'me-1';
   }
-    let badgeClass = 'bg-secondary';
-    let planName = (efb_var.text && efb_var.text.free) || 'Free';
-    let icon_mx = 'me-2';
-    let div_mx = 'ms-1';
-    let iconHtml = `<i class="efb bi-tag ${icon_mx}"></i>`;
+  let iconHtml = `<i class="efb bi-tag ${icon_mx}"></i>`;
     if (pro_type === 1) {
         badgeClass = 'bg-info';
         iconHtml = `<i class="efb bi-gem ${icon_mx}"></i>`;

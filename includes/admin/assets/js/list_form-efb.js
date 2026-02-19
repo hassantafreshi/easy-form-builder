@@ -1227,6 +1227,7 @@ function fun_show_setting__emsFormBuilder() {
     respBtnText = f('respBtnText') == 'null' ? '#ffffff' : f('respBtnText');
     respFontFamily = f('respFontFamily') == 'null' ? 'inherit' : f('respFontFamily');
     respFontSize = f('respFontSize') == 'null' ? '0.9rem' : f('respFontSize');
+    respCustomFont = f('respCustomFont') == 'null' ? '' : f('respCustomFont');
 
     //console.log(`dsupfile[${dsupfile}]` ,f('dsupfile'));
     payToken = f('payToken');
@@ -1471,6 +1472,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <input type="color" id="respBtnText_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBtnText}">
                                 <input type="hidden" id="respFontFamily_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respFontFamily}">
                                 <input type="hidden" id="respFontSize_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respFontSize}">
+                                <input type="hidden" id="respCustomFont_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respCustomFont.replace(/"/g, '&quot;')}">
                               </div>
 
 
@@ -1591,7 +1593,7 @@ function fun_show_setting__emsFormBuilder() {
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
 
                               </div>
-                              <div class="efb d-none">
+                              <div class="efb ${efb_var.addons.hasOwnProperty('AdnPAP') && efb_var.addons.AdnPAP == 1 ? '' : 'd-none'}">
                                   <h5 class="efb  card-title mt-3 mobile-title">
                                   <i class="efb  bi-paypal m-3"></i>${efb_var.text.paypal}
                                 </h5>
@@ -1724,10 +1726,47 @@ function efb_open_color_modal() {
     respBgTrack: '#ffffff', respBgResp: '#f8f9fd', respBgEditor: '#ffffff',
     respEditorText: '#1a1a2e', respEditorPh: '#a0aec0', respBtnText: '#ffffff',
     respFontFamily: 'inherit', respFontSize: '0.9rem',
+    respCustomFont: '',
   };
+
+  // Detect Persian/Arabic locale
+  const _efbLang = (efb_var.language || '').toLowerCase();
+  const _efbIsPersian = _efbLang.startsWith('fa');
+  const _efbIsArabic = _efbLang.startsWith('ar');
+  const _efbIsRtlLang = _efbIsPersian || _efbIsArabic;
 
   const fontFamilies = [
     { value: 'inherit', label: 'Default (Inherit)' },
+  ];
+
+  // Persian fonts (inserted at position 1 when locale is fa_*)
+  if (_efbIsPersian) {
+    fontFamilies.push(
+      { value: "Vazirmatn, Tahoma, sans-serif", label: 'Vazirmatn (فارسی)' },
+      { value: "Vazir, Tahoma, sans-serif", label: 'Vazir (فارسی)' },
+      { value: "Sahel, Tahoma, sans-serif", label: 'Sahel (فارسی)' },
+      { value: "Samim, Tahoma, sans-serif", label: 'Samim (فارسی)' },
+      { value: "'Shabnam', Tahoma, sans-serif", label: 'Shabnam (فارسی)' },
+      { value: "Parastoo, Tahoma, sans-serif", label: 'Parastoo (فارسی)' },
+      { value: "Gandom, Tahoma, sans-serif", label: 'Gandom (فارسی)' },
+      { value: "Lalezar, Tahoma, sans-serif", label: 'Lalezar (فارسی)' },
+    );
+  }
+
+  // Arabic fonts (inserted at position 1 when locale is ar_*)
+  if (_efbIsArabic) {
+    fontFamilies.push(
+      { value: "Cairo, Tahoma, sans-serif", label: 'Cairo (عربی)' },
+      { value: "Tajawal, Tahoma, sans-serif", label: 'Tajawal (عربی)' },
+      { value: "'Noto Sans Arabic', Tahoma, sans-serif", label: 'Noto Sans Arabic (عربی)' },
+      { value: "'IBM Plex Sans Arabic', Tahoma, sans-serif", label: 'IBM Plex Sans Arabic (عربی)' },
+      { value: "Amiri, Tahoma, serif", label: 'Amiri (عربی)' },
+      { value: "'Noto Kufi Arabic', Tahoma, sans-serif", label: 'Noto Kufi Arabic (عربی)' },
+    );
+  }
+
+  // Common fonts
+  fontFamilies.push(
     { value: 'system-ui, -apple-system, sans-serif', label: 'System UI' },
     { value: "'Segoe UI', Tahoma, Geneva, sans-serif", label: 'Segoe UI' },
     { value: "'Helvetica Neue', Helvetica, Arial, sans-serif", label: 'Helvetica' },
@@ -1735,11 +1774,35 @@ function efb_open_color_modal() {
     { value: "'Roboto', sans-serif", label: 'Roboto' },
     { value: "'Open Sans', sans-serif", label: 'Open Sans' },
     { value: "Tahoma, Geneva, sans-serif", label: 'Tahoma' },
-    { value: "Vazirmatn, Tahoma, sans-serif", label: 'Vazirmatn (فارسی)' },
-    { value: "'IRANSans', Tahoma, sans-serif", label: 'IRANSans (فارسی)' },
     { value: "Georgia, 'Times New Roman', serif", label: 'Georgia (Serif)' },
     { value: "'Courier New', Courier, monospace", label: 'Courier (Mono)' },
-  ];
+    { value: '__custom__', label: '✦ ' + (efb_var.text.respCustomFont || 'Custom Font') + '...' },
+  );
+
+  // Map font-family values to their CSS stylesheet URLs (Google Fonts / CDN)
+  const fontCssMap = {
+    // Persian fonts
+    "Vazirmatn, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap",
+    "Vazir, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@latest/dist/font-face.css",
+    "Sahel, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@latest/dist/font-face.css",
+    "Samim, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@latest/dist/font-face.css",
+    "'Shabnam', Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@latest/dist/font-face.css",
+    "Parastoo, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/parastoo-font@latest/dist/font-face.css",
+    "Gandom, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/gandom-font@latest/dist/font-face.css",
+    "Lalezar, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Lalezar&display=swap",
+    // Arabic fonts (Google Fonts)
+    "Cairo, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap",
+    "Tajawal, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap",
+    "'Noto Sans Arabic', Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap",
+    "'IBM Plex Sans Arabic', Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap",
+    "Amiri, Tahoma, serif": "https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+    "'Noto Kufi Arabic', Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap",
+    // Common Google Fonts
+    "'Inter', sans-serif": "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap",
+    "'Roboto', sans-serif": "https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap",
+    "'Open Sans', sans-serif": "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap",
+  };
+
   const fontSizes = [
     { value: '0.75rem', label: '12px' },
     { value: '0.8rem',  label: '13px' },
@@ -1760,6 +1823,19 @@ function efb_open_color_modal() {
   });
   const curFontFamily = document.getElementById('respFontFamily_emsFormBuilder')?.value || defaults.respFontFamily;
   const curFontSize = document.getElementById('respFontSize_emsFormBuilder')?.value || defaults.respFontSize;
+  const curCustomFont = document.getElementById('respCustomFont_emsFormBuilder')?.value || defaults.respCustomFont;
+
+  // Parse custom font JSON: {name: "FontName", url: "https://..."}
+  let customFontName = '', customFontUrl = '';
+  if (curCustomFont) {
+    try {
+      const cf = JSON.parse(curCustomFont);
+      customFontName = cf.name || '';
+      customFontUrl = cf.url || '';
+    } catch (e) { /* ignore */ }
+  }
+  // Determine if current font family is a custom one (not in the preset list)
+  const isCustomSelected = curFontFamily === '__custom__' || (curFontFamily !== defaults.respFontFamily && customFontName && curFontFamily.indexOf(customFontName) !== -1);
 
   // Build color picker rows grouped
   const makePickerHtml = (group) => colorDefs.filter(d => d.group === group).map(d => `
@@ -1772,8 +1848,12 @@ function efb_open_color_modal() {
     </div>`).join('');
 
   // Build font selectors
-  const fontFamilyOpts = fontFamilies.map(ff =>
-    `<option value="${ff.value}" ${ff.value === curFontFamily ? 'selected' : ''}>${ff.label}</option>`).join('');
+  const fontFamilyOpts = fontFamilies.map(ff => {
+    let sel = '';
+    if (ff.value === '__custom__' && isCustomSelected) sel = 'selected';
+    else if (ff.value !== '__custom__' && ff.value === curFontFamily && !isCustomSelected) sel = 'selected';
+    return `<option value="${ff.value}" ${sel}>${ff.label}</option>`;
+  }).join('');
   const fontSizeOpts = fontSizes.map(fs =>
     `<option value="${fs.value}" ${fs.value === curFontSize ? 'selected' : ''}>${fs.label}</option>`).join('');
 
@@ -1836,6 +1916,26 @@ function efb_open_color_modal() {
             <select class="efb form-select form-select-sm border-d efb-rounded" id="efbModalFontSize">${fontSizeOpts}</select>
           </div>
         </div>
+        <!-- Custom Font Fields -->
+        <div class="efb-custom-font-area" id="efbCustomFontArea" style="display:${isCustomSelected ? 'block' : 'none'};margin-top:12px;padding:14px;border:1.5px dashed var(--efb-resp-border, #ced4ee);border-radius:12px;background:#f8f9fd">
+          <div class="efb d-flex align-items-center gap-2" style="margin-bottom:8px">
+            <i class="bi bi-fonts" style="color:#4a5078;font-size:1.1rem"></i>
+            <span class="efb fw-semibold small" style="color:#4a5078">${efb_var.text.respCustomFont || 'Custom Font'}</span>
+          </div>
+          <p class="efb small text-muted" style="margin:0 0 10px;line-height:1.45">${efb_var.text.respCustomFontDesc || 'Add your own font by entering the font name and its CSS URL.'}</p>
+          <div class="efb row g-2">
+            <div class="efb col-12 col-md-5">
+              <input type="text" class="efb form-control form-control-sm border-d efb-rounded" id="efbCustomFontName" placeholder="${efb_var.text.respCustomFontName || 'Font Name'}" value="${customFontName}" style="font-size:0.85rem" autocomplete="off">
+            </div>
+            <div class="efb col-12 col-md-7">
+              <input type="url" class="efb form-control form-control-sm border-d efb-rounded" id="efbCustomFontUrl" placeholder="${efb_var.text.respCustomFontUrl || 'Font URL (CSS/Google Fonts)'}" value="${customFontUrl}" style="font-size:0.85rem;direction:ltr" autocomplete="off">
+            </div>
+          </div>
+          <div class="efb small text-muted" style="margin-top:8px;line-height:1.4">
+            <i class="bi bi-info-circle" style="margin-inline-end:4px"></i>
+            <span>Example: <code style="font-size:0.78rem;direction:ltr;display:inline-block">https://fonts.googleapis.com/css2?family=Lalezar&display=swap</code></span>
+          </div>
+        </div>
       </div>
       <div class="efb d-flex justify-content-end">
         <button type="button" class="efb btn btn-sm btn-outline-secondary efb-rounded" id="efbColorResetModal">
@@ -1880,7 +1980,16 @@ function efb_open_color_modal() {
       // Font settings on preview
       const ff = document.getElementById('efbModalFontFamily');
       const fs = document.getElementById('efbModalFontSize');
-      if (ff) previewBox.style.setProperty('--efb-resp-font-family', ff.value);
+      if (ff) {
+        let fontVal = ff.value;
+        // If custom font is selected, build the font-family from custom name
+        if (fontVal === '__custom__') {
+          const cfName = document.getElementById('efbCustomFontName')?.value?.trim();
+          if (cfName) fontVal = "'" + cfName + "', sans-serif";
+          else fontVal = 'inherit';
+        }
+        previewBox.style.setProperty('--efb-resp-font-family', fontVal);
+      }
       if (fs) previewBox.style.setProperty('--efb-resp-font-size', fs.value);
     };
 
@@ -1898,16 +2007,90 @@ function efb_open_color_modal() {
     // Font family & font size change handlers
     const ffSelect = document.getElementById('efbModalFontFamily');
     const fsSelect = document.getElementById('efbModalFontSize');
-    if (ffSelect) ffSelect.addEventListener('change', () => {
-      const hidden = document.getElementById('respFontFamily_emsFormBuilder');
-      if (hidden) hidden.value = ffSelect.value;
+    const customArea = document.getElementById('efbCustomFontArea');
+    const cfNameInput = document.getElementById('efbCustomFontName');
+    const cfUrlInput = document.getElementById('efbCustomFontUrl');
+
+    // Helper: load a font stylesheet into <head> for preview
+    const loadCustomFontPreview = (url) => {
+      let link = document.getElementById('efbCustomFontLink');
+      if (!url) { if (link) link.remove(); return; }
+      if (!link) {
+        link = document.createElement('link');
+        link.id = 'efbCustomFontLink';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+      }
+      link.href = url;
+    };
+
+    // Helper: load built-in font CSS for preview (separate <link> per font)
+    const loadBuiltinFontPreview = (fontValue) => {
+      const url = fontCssMap[fontValue];
+      let link = document.getElementById('efbBuiltinFontLink');
+      if (!url) { if (link) link.remove(); return; }
+      if (!link) {
+        link = document.createElement('link');
+        link.id = 'efbBuiltinFontLink';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+      }
+      if (link.href !== url) link.href = url;
+    };
+
+    // Helper: sync custom font hidden inputs and preview
+    const syncCustomFont = () => {
+      const name = cfNameInput?.value?.trim() || '';
+      const url = cfUrlInput?.value?.trim() || '';
+      const hiddenCF = document.getElementById('respCustomFont_emsFormBuilder');
+      const hiddenFF = document.getElementById('respFontFamily_emsFormBuilder');
+      if (name && url) {
+        if (hiddenCF) hiddenCF.value = JSON.stringify({ name: name, url: url });
+        if (hiddenFF) hiddenFF.value = "'" + name + "', sans-serif";
+        loadCustomFontPreview(url);
+      } else {
+        if (hiddenCF) hiddenCF.value = '';
+        if (hiddenFF) hiddenFF.value = '__custom__';
+        loadCustomFontPreview('');
+      }
       refreshPreview();
+    };
+
+    if (ffSelect) ffSelect.addEventListener('change', () => {
+      const isCustom = ffSelect.value === '__custom__';
+      if (customArea) customArea.style.display = isCustom ? 'block' : 'none';
+      if (isCustom) {
+        loadBuiltinFontPreview('');
+        syncCustomFont();
+      } else {
+        // Regular font selected – clear custom font data
+        const hiddenCF = document.getElementById('respCustomFont_emsFormBuilder');
+        if (hiddenCF) hiddenCF.value = '';
+        loadCustomFontPreview('');
+        // Load built-in font CSS if needed
+        loadBuiltinFontPreview(ffSelect.value);
+        const hidden = document.getElementById('respFontFamily_emsFormBuilder');
+        if (hidden) hidden.value = ffSelect.value;
+        refreshPreview();
+      }
     });
+    if (cfNameInput) cfNameInput.addEventListener('input', syncCustomFont);
+    if (cfUrlInput) cfUrlInput.addEventListener('input', syncCustomFont);
+
     if (fsSelect) fsSelect.addEventListener('change', () => {
       const hidden = document.getElementById('respFontSize_emsFormBuilder');
       if (hidden) hidden.value = fsSelect.value;
       refreshPreview();
     });
+
+    // If custom font area is visible on load, load its font for preview
+    if (customArea && customArea.style.display !== 'none') {
+      const initUrl = cfUrlInput?.value?.trim();
+      if (initUrl) loadCustomFontPreview(initUrl);
+    } else if (ffSelect && ffSelect.value !== 'inherit' && ffSelect.value !== '__custom__') {
+      // Load built-in font CSS for current selection on modal open
+      loadBuiltinFontPreview(ffSelect.value);
+    }
 
     // Reset button
     const resetBtn = document.getElementById('efbColorResetModal');
@@ -1926,6 +2109,14 @@ function efb_open_color_modal() {
         // Reset font selectors
         if (ffSelect) { ffSelect.value = defaults.respFontFamily; document.getElementById('respFontFamily_emsFormBuilder').value = defaults.respFontFamily; }
         if (fsSelect) { fsSelect.value = defaults.respFontSize; document.getElementById('respFontSize_emsFormBuilder').value = defaults.respFontSize; }
+        // Reset custom font
+        if (customArea) customArea.style.display = 'none';
+        if (cfNameInput) cfNameInput.value = '';
+        if (cfUrlInput) cfUrlInput.value = '';
+        const hiddenCF = document.getElementById('respCustomFont_emsFormBuilder');
+        if (hiddenCF) hiddenCF.value = '';
+        loadCustomFontPreview('');
+        loadBuiltinFontPreview('');
         refreshPreview();
       });
     }
@@ -2273,6 +2464,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const respBtnText = f('respBtnText_emsFormBuilder');
     const respFontFamily = f('respFontFamily_emsFormBuilder');
     const respFontSize = f('respFontSize_emsFormBuilder');
+    const respCustomFont = f('respCustomFont_emsFormBuilder');
 
     fun_send_setting_emsFormBuilder(
       { activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email,
@@ -2284,7 +2476,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
          AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb,showIp:showIp,adminSN:adminSN,osLocationPicker:osLocationPicker,sessionDuration:sessionDuration,
          respPrimary:respPrimary,respPrimaryDark:respPrimaryDark,respAccent:respAccent,respText:respText,respTextMuted:respTextMuted,respBgCard:respBgCard,respBgMeta:respBgMeta,
-         respBgTrack:respBgTrack,respBgResp:respBgResp,respBgEditor:respBgEditor,respEditorText:respEditorText,respEditorPh:respEditorPh,respBtnText:respBtnText,respFontFamily:respFontFamily,respFontSize:respFontSize
+         respBgTrack:respBgTrack,respBgResp:respBgResp,respBgEditor:respBgEditor,respEditorText:respEditorText,respEditorPh:respEditorPh,respBtnText:respBtnText,respFontFamily:respFontFamily,respFontSize:respFontSize,respCustomFont:respCustomFont
         } , state_auto);
   }
 

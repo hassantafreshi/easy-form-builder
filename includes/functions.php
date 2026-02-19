@@ -568,7 +568,7 @@ class efbFunction {
 			"beside" => $state ? $ac->text->beside : esc_html__('Beside','easy-form-builder'),
 			"invalidEmail" => $state ? $ac->text->invalidEmail : esc_html__('Invalid Email address','easy-form-builder'),
 			"clearUnnecessaryFiles" => $state ? $ac->text->clearUnnecessaryFiles : esc_html__('Delete unnecessary files','easy-form-builder'),
-			"youCanRemoveUnnecessaryFileUploaded" => $state ? $ac->text->youCanRemoveUnnecessaryFileUploaded : esc_html__('You can delete unnecessary files uploaded by users using the button below.','easy-form-builder'),
+			"youCanRemoveUnnecessaryFileUploaded" => $state ? $ac->text->youCanRemoveUnnecessaryFileUploaded : esc_html__('Remove leftover files from incomplete form submissions. These are uploads that were never finalized.','easy-form-builder'),
 			"whenEasyFormBuilderRecivesNewMessage" => $state ? $ac->text->whenEasyFormBuilderRecivesNewMessage : esc_html__('When a new message is received through an Easy Form Builder forms, an alert email is sent to the site administrator.','easy-form-builder'),
 			/* translators: reCAPTCHA v2 = Google's version 2 anti-spam verification system */
 			"reCAPTCHAv2" => $state ? $ac->text->reCAPTCHAv2 : esc_html__('reCAPTCHA v2','easy-form-builder'),
@@ -1272,11 +1272,11 @@ class efbFunction {
 
 			// === Response Box Color Settings ===
 
-			/* translators: Response Box Colors = heading for the color settings section */
-			"respColors" => $state && isset($ac->text->respColors) ? $ac->text->respColors : esc_html__('Response Box Colors','easy-form-builder'),
+			/* translators: Colors & Fonts = heading for the color and font section */
+			"respColors" => $state && isset($ac->text->respColors) ? $ac->text->respColors : esc_html__('Colors & Fonts','easy-form-builder'),
 
 			/* translators: Description under color settings heading */
-			"respColorsDesc" => $state && isset($ac->text->respColorsDesc) ? $ac->text->respColorsDesc : esc_html__('Customize the color scheme of the response viewer to match your brand.','easy-form-builder'),
+			"respColorsDesc" => $state && isset($ac->text->respColorsDesc) ? $ac->text->respColorsDesc : esc_html__('Customize colors and fonts of the response viewer to match your brand.','easy-form-builder'),
 
 			/* translators: Primary Color = label for main brand color picker */
 			"respClrPrimary" => $state && isset($ac->text->respClrPrimary) ? $ac->text->respClrPrimary : esc_html__('Primary','easy-form-builder'),
@@ -1331,6 +1331,18 @@ class efbFunction {
 
 			/* translators: Font Size = label for font size selector */
 			"respFontSize" => $state && isset($ac->text->respFontSize) ? $ac->text->respFontSize : esc_html__('Font Size','easy-form-builder'),
+
+			/* translators: Custom Font = label for custom font input */
+			"respCustomFont" => $state && isset($ac->text->respCustomFont) ? $ac->text->respCustomFont : esc_html__('Custom Font','easy-form-builder'),
+
+			/* translators: Font Name = placeholder for custom font name input */
+			"respCustomFontName" => $state && isset($ac->text->respCustomFontName) ? $ac->text->respCustomFontName : esc_html__('Font Name','easy-form-builder'),
+
+			/* translators: Font URL = placeholder for custom font URL input */
+			"respCustomFontUrl" => $state && isset($ac->text->respCustomFontUrl) ? $ac->text->respCustomFontUrl : esc_html__('Font URL (CSS/Google Fonts)','easy-form-builder'),
+
+			/* translators: Add Custom Font description */
+			"respCustomFontDesc" => $state && isset($ac->text->respCustomFontDesc) ? $ac->text->respCustomFontDesc : esc_html__('Add your own font by entering the font name and its CSS URL (e.g. Google Fonts link).','easy-form-builder'),
 
 			// === Plan Management ===
 

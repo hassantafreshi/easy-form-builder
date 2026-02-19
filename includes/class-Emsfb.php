@@ -465,6 +465,7 @@ class Emsfb {
                     'respBtnText' => $decoded->respBtnText ?? '#ffffff',
                     'respFontFamily' => $decoded->respFontFamily ?? 'inherit',
                     'respFontSize' => $decoded->respFontSize ?? '0.9rem',
+                    'respCustomFont' => $decoded->respCustomFont ?? '',
                 ];
                 $result = [json_encode($pubSettings, JSON_UNESCAPED_UNICODE), $pubSettings];
                 break;

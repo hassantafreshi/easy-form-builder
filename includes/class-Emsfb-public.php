@@ -1506,7 +1506,46 @@ public function check_nonce_permission_efb($request) {
 		}
 		$inline_style = $css_overrides !== '' ? '<style>:root{' . $css_overrides . '}</style>' : '';
 
-	 	$content="<script> sitekye_emsFormBuilder='' </script>".$s_m . $inline_style ."
+		// Load custom font CSS if set
+		$custom_font_link = '';
+		if (!empty($ps['respCustomFont'])) {
+			$cf = json_decode($ps['respCustomFont'], true);
+			if (is_array($cf) && !empty($cf['url'])) {
+				$cf_url = esc_url($cf['url']);
+				$custom_font_link = '<link rel="stylesheet" href="' . $cf_url . '">';
+			}
+		}
+
+		// Load built-in font CSS (Google Fonts / CDN) for selected font family
+		$builtin_font_link = '';
+		if (empty($custom_font_link) && !empty($ps['respFontFamily']) && $ps['respFontFamily'] !== 'inherit') {
+			$font_css_map = array(
+				// Persian fonts
+				"Vazirmatn, Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap",
+				"'IRANSans', Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/iransans-web@latest/dist/css/IRANSans.css",
+				"Sahel, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@latest/dist/css/sahel.css",
+				"'Yekan Bakh', Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/nicubunu/yekan-bakh@latest/dist/css/yekan-bakh.css",
+				"Samim, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@latest/dist/css/samim.css",
+				"'Shabnam', Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@latest/dist/css/shabnam.css",
+				// Arabic fonts
+				"Cairo, Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap",
+				"Tajawal, Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap",
+				"'Noto Sans Arabic', Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap",
+				"'IBM Plex Sans Arabic', Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap",
+				"Amiri, Tahoma, serif" => "https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+				"'Noto Kufi Arabic', Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap",
+				// Common Google Fonts
+				"'Inter', sans-serif" => "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap",
+				"'Roboto', sans-serif" => "https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap",
+				"'Open Sans', sans-serif" => "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap",
+			);
+			$ff_val = $ps['respFontFamily'];
+			if (isset($font_css_map[$ff_val])) {
+				$builtin_font_link = '<link rel="stylesheet" href="' . esc_url($font_css_map[$ff_val]) . '">';
+			}
+		}
+
+	 	$content="<script> sitekye_emsFormBuilder='' </script>".$s_m . $builtin_font_link . $custom_font_link . $inline_style ."
 		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5 text-center'></div>
 		".$track_content."</div>" . $val ;
 
@@ -5790,6 +5829,7 @@ public function check_nonce_permission_efb($request) {
 			'respBtnText' => $pub_settings['respBtnText'] ?? '#ffffff',
 			'respFontFamily' => $pub_settings['respFontFamily'] ?? 'inherit',
 			'respFontSize' => $pub_settings['respFontSize'] ?? '0.9rem',
+			'respCustomFont' => $pub_settings['respCustomFont'] ?? '',
 		) );
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
 	}

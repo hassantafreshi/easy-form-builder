@@ -809,6 +809,60 @@ function efb_apply_resp_colors() {
   };
 
   const root = document.documentElement;
+
+  // Load custom font stylesheet if set
+  const customFontRaw = s.respCustomFont || '';
+  if (customFontRaw) {
+    try {
+      const cf = typeof customFontRaw === 'string' ? JSON.parse(customFontRaw) : customFontRaw;
+      if (cf && cf.url) {
+        let link = document.getElementById('efbCustomFontLink');
+        if (!link) {
+          link = document.createElement('link');
+          link.id = 'efbCustomFontLink';
+          link.rel = 'stylesheet';
+          document.head.appendChild(link);
+        }
+        link.href = cf.url;
+      }
+    } catch (e) { /* ignore invalid JSON */ }
+  }
+
+  // Load built-in font CSS (Google Fonts / CDN) based on selected font family
+  const fontFamilyVal = s.respFontFamily || '';
+  if (fontFamilyVal && fontFamilyVal !== 'inherit' && !customFontRaw) {
+    const builtinFontCssMap = {
+      "Vazirmatn, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap",
+      "Vazir, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@latest/dist/font-face.css",
+      "Sahel, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@latest/dist/font-face.css",
+      "Samim, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@latest/dist/font-face.css",
+      "'Shabnam', Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@latest/dist/font-face.css",
+      "Parastoo, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/parastoo-font@latest/dist/font-face.css",
+      "Gandom, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/gandom-font@latest/dist/font-face.css",
+      "Lalezar, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Lalezar&display=swap",
+      "Cairo, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap",
+      "Tajawal, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap",
+      "'Noto Sans Arabic', Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap",
+      "'IBM Plex Sans Arabic', Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap",
+      "Amiri, Tahoma, serif": "https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+      "'Noto Kufi Arabic', Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap",
+      "'Inter', sans-serif": "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap",
+      "'Roboto', sans-serif": "https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap",
+      "'Open Sans', sans-serif": "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap",
+    };
+    const builtinUrl = builtinFontCssMap[fontFamilyVal];
+    if (builtinUrl) {
+      let bLink = document.getElementById('efbBuiltinFontLink');
+      if (!bLink) {
+        bLink = document.createElement('link');
+        bLink.id = 'efbBuiltinFontLink';
+        bLink.rel = 'stylesheet';
+        document.head.appendChild(bLink);
+      }
+      bLink.href = builtinUrl;
+    }
+  }
+
   for (const [key, cssVar] of Object.entries(map)) {
     const val = s[key] || defaults[key];
     if (val && val !== defaults[key]) {
@@ -1359,13 +1413,14 @@ function generatePDF_EFB(id)
     var websiteUrl = window.location.protocol + '//' + window.location.hostname;
     var headerHtml = '<div class="efb-pdf-header">';
     headerHtml += '<h2><a href="' + websiteUrl + '" target="_blank">' + window.location.hostname + '</a></h2>';
+    const efb_link = efb_var.wp_lan === 'fa_IR' ? 'https://easyformbuilder.ir' : 'https://whitestudio.team/';
     if (efb_var.pro !== 1) {
-      headerHtml += '<h2>' + efb_var.text.createdBy + ' <a href="https://whitestudio.team" target="_blank">' + efb_var.text.easyFormBuilder + '</a></h2>';
+      headerHtml += '<h2>' + efb_var.text.createdBy + ' <a href="' + efb_link + '" target="_blank">' + efb_var.text.easyFormBuilder + '</a></h2>';
     }
     headerHtml += '</div>';
     var footerHtml = '<div class="efb-pdf-footer">' +
       (efb_var.text.createdBy || 'Created by') + ' ' + (efb_var.text.easyFormBuilder || 'Easy Form Builder') +
-      ' &mdash; ' + new Date().toLocaleDateString(efb_var.wp_lan || 'en', { year:'numeric', month:'long', day:'numeric' }) +
+      ' &mdash; ' + new Date().toLocaleDateString((efb_var.wp_lan || 'en').replace(/_/g, '-'), { year:'numeric', month:'long', day:'numeric' }) +
       '</div>';
     return headMarkup +
       '<title>' + (efb_var.text.download || 'Download') + ' - ' + window.location.hostname + '</title>' +
