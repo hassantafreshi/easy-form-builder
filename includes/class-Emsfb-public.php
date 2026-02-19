@@ -65,6 +65,12 @@ class _Public {
 				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
+			register_rest_route('Emsfb/v1','forms/payment/paypal/capture', [
+				'methods' => 'POST',
+				'callback'=>  [$this,'pay_paypal_capture_Emsfb_api'],
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
+			]);
+
 
 			register_rest_route('Emsfb/v1','forms/response/get', [
 				'methods' => 'POST',
@@ -679,7 +685,7 @@ public function check_nonce_permission_efb($request) {
 				<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
 				<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 			}
-			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc'];
+			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","createdBy","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc'];
 
 			$this->public_scripts_and_css_head('');
 			// $this->public_scripts_and_css_head('');
@@ -1338,7 +1344,7 @@ public function check_nonce_permission_efb($request) {
 
 		$this->id=0;
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
-		$text=['pleaseEnterTheTracking','pleaseWaiting','fil','trackingCode','entrTrkngNo','search','easyFormBuilder','tfnapca'];
+		$text=['pleaseEnterTheTracking','pleaseWaiting','fil','trackingCode','entrTrkngNo','search','easyFormBuilder','createdBy','tfnapca'];
 		$text= $this->efbFunction->text_efb($text) ;
 		$state="tracker";
 		$pl= get_setting_Emsfb('pub');
@@ -1522,11 +1528,13 @@ public function check_nonce_permission_efb($request) {
 			$font_css_map = array(
 				// Persian fonts
 				"Vazirmatn, Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap",
-				"'IRANSans', Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/iransans-web@latest/dist/css/IRANSans.css",
-				"Sahel, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@latest/dist/css/sahel.css",
-				"'Yekan Bakh', Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/nicubunu/yekan-bakh@latest/dist/css/yekan-bakh.css",
-				"Samim, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@latest/dist/css/samim.css",
-				"'Shabnam', Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@latest/dist/css/shabnam.css",
+				"Vazir, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@latest/dist/font-face.css",
+				"Sahel, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@latest/dist/font-face.css",
+				"Samim, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@latest/dist/font-face.css",
+				"'Shabnam', Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@latest/dist/font-face.css",
+				"Parastoo, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/parastoo-font@latest/dist/font-face.css",
+				"Gandom, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/gandom-font@latest/dist/font-face.css",
+				"Lalezar, Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Lalezar&display=swap",
 				// Arabic fonts
 				"Cairo, Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap",
 				"Tajawal, Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap",
@@ -1965,6 +1973,9 @@ public function check_nonce_permission_efb($request) {
 					$this->email_list_efb($email_user , 0 , $email_fa ,$is_multipleEmail);
 				}
 				$trackingCode_state = $formObj[0]['trackingCode'] == true || $formObj[0]['trackingCode'] == "true" || $formObj[0]['trackingCode'] == 1 ? 1 : 0;
+				error_log('Tracking code state: ' . $trackingCode_state);
+				error_log('$formObj[0][\'type\'] ' . $formObj[0]['type']);
+				error_log('$type ' . $type);
 				if ($type != $formObj[0]['type']) {
 					$response = ['success' => false, 'm' => $this->lanText['fernvtf']];
 					wp_send_json_success($response, 200);
@@ -6031,7 +6042,8 @@ public function check_nonce_permission_efb($request) {
 		$val =str_replace('\\', '', $val_);
 		$val_ = json_decode($val,true);
 		$paymentmethod = isset($fs_[0]['paymentmethod']) ? $fs_[0]['paymentmethod'] : 'one-time';
-		$paymentmethod = $paymentmethod=='charge' ? 'one-time' : sanitize_text_field($paymentmethod);
+		$isSubscription = in_array($paymentmethod, ['day', 'week', 'month', 'year']);
+		$paymentmethod_label = $paymentmethod=='charge' ? 'one-time' : sanitize_text_field($paymentmethod);
 
 
 		$price_c =0;
@@ -6087,10 +6099,10 @@ public function check_nonce_permission_efb($request) {
 			return;
 		}
 
-		$url = $paymentType === 'one-time' ? $server . "v2/checkout/orders" : $server . "v1/billing/subscriptions";
+		$url = $paymentmethod_label === 'one-time' ? $server . "v2/checkout/orders" : $server . "v1/billing/subscriptions";
 
 		/*
-		$data = $paymentType === 'one-time'
+		$data = $paymentmethod_label === 'one-time'
 			? [
 				'intent' => 'CAPTURE',
 				'purchase_units' => [[
@@ -6102,10 +6114,10 @@ public function check_nonce_permission_efb($request) {
 			]
 			: [
 				'product_id' => 'YOUR_PRODUCT_ID',
-				'name' => ucfirst($paymentType) . " Subscription Plan",
+				'name' => ucfirst($paymentmethod_label) . " Subscription Plan",
 				'billing_cycles' => [[
 					'frequency' => [
-						'interval_unit' => strtoupper($paymentType),
+						'interval_unit' => strtoupper($paymentmethod_label),
 						'interval_count' => 1,
 					],
 					'pricing_scheme' => [
@@ -6117,47 +6129,148 @@ public function check_nonce_permission_efb($request) {
 				]],
 			];
 		*/
-		$data = [
-			'intent' => 'CAPTURE',
-			'purchase_units' => [[
-				'amount' => [
-					'value' => $amount,
-					'currency_code' => 'USD',
-				],
-			]],
-		] ;
+
+		$currency = isset($fs_[0]['currency']) ? strtoupper($fs_[0]['currency']) : 'USD';
 
 		$filtered = array_filter($valobj, function($item) {
 			if(isset($item['price']))	return $item;
 		});
-		$response = $paypal->make_paypal_request($url, $accessToken, $data);
 
-		// error_log("response: " . json_encode($response));
-				$currency =$fs_[0]['currency'];
-				$payA =  $amount  . ' '. $currency;
-				$created = date("Y-m-d-h:i:s");
-				$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
-				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder') ,'type'=>'payment',
-				'value'=> $payA , 'paymentIntent'=>$response['id'] , 'paymentGateway'=>'paypal' , 'paymentmethod'=>'paypal',
-				'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$currency , 'gateway'=>'paypal'
-				,'uid'=>$uid ,'status'=>'active','updatetime'=>$created,'description'=>$description,'total'=>$amount,'interval'=>'One-time' ];
-				 $filtered=array_merge($filtered , array($ar));
+		if ($isSubscription) {
+			// ----- SUBSCRIPTION FLOW: Product → Plan → Subscription -----
+			$subResult = $paypal->create_subscription_flow(
+				$server, $accessToken, $this->id, $amount, $currency, $paymentmethod
+			);
 
+			if (!$subResult['success']) {
+				wp_send_json_success(['success' => false, 'm' => $subResult['m']], 200);
+				return;
+			}
 
-			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);
+			$payA = $amount . ' ' . $currency;
+			$created = date("Y-m-d-h:i:s");
+			$description = get_bloginfo('name') . ' >' . $fs_[0]['formName'];
+			$intervalLabel = ucfirst($paymentmethod) . 'ly';
+
+			$ar = (object)[
+				'id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder'),'type'=>'payment',
+				'value'=> $payA, 'paymentIntent'=> $subResult['subscription_id'], 'paymentGateway'=>'paypal', 'paymentmethod'=>'subscription',
+				'paymentAmount'=>$amount, 'paymentCreated'=>$created, 'paymentcurrency'=>$currency, 'gateway'=>'paypal',
+				'uid'=>$uid, 'status'=>'pending', 'updatetime'=>$created, 'description'=>$description,
+				'total'=>$amount, 'interval'=>$intervalLabel,
+				'subscription_id'=>$subResult['subscription_id'], 'plan_id'=>$subResult['plan_id'], 'product_id'=>$subResult['product_id']
+			];
+			$filtered = array_merge($filtered, array($ar));
+
+			$val_ = json_encode($filtered, JSON_UNESCAPED_UNICODE);
 			$this->value = str_replace('"', '\\"', $val_);
-			// error_log("value: " . $this->value);
 			$this->name = sanitize_text_field($data_POST['name']);
-			$check=	$this->insert_message_db(2,false);
+			$check = $this->insert_message_db(2, false);
 
+			$response = [
+				'success' => true,
+				'id' => $subResult['subscription_id'],
+				'uid' => $uid,
+				'trackid' => $check,
+				'type' => 'subscription',
+				'approval_url' => $subResult['approval_url'],
+			];
 
-		if (isset($response['id'])) {
-			$response = ['success' => true, 'id' => $response['id'],'uid'=> $uid,'trackid'=>$check];
 		} else {
-			$response = ['success' => false, 'm' => esc_html__('PayPal API error', 'easy-form-builder')];
+			// ----- ONE-TIME FLOW: Create Order -----
+			$data = [
+				'intent' => 'CAPTURE',
+				'purchase_units' => [[
+					'amount' => [
+						'value' => $amount,
+						'currency_code' => $currency,
+					],
+				]],
+			];
+
+			$response = $paypal->make_paypal_request($url, $accessToken, $data);
+
+			$payA = $amount . ' ' . $currency;
+			$created = date("Y-m-d-h:i:s");
+			$description = get_bloginfo('name') . ' >' . $fs_[0]['formName'];
+			$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder'),'type'=>'payment',
+				'value'=> $payA, 'paymentIntent'=>$response['id'], 'paymentGateway'=>'paypal', 'paymentmethod'=>'paypal',
+				'paymentAmount'=>$amount, 'paymentCreated'=>$created, 'paymentcurrency'=>$currency, 'gateway'=>'paypal',
+				'uid'=>$uid, 'status'=>'active', 'updatetime'=>$created, 'description'=>$description, 'total'=>$amount, 'interval'=>'One-time'];
+			$filtered = array_merge($filtered, array($ar));
+
+			$val_ = json_encode($filtered, JSON_UNESCAPED_UNICODE);
+			$this->value = str_replace('"', '\\"', $val_);
+			$this->name = sanitize_text_field($data_POST['name']);
+			$check = $this->insert_message_db(2, false);
+
+			if (isset($response['id'])) {
+				$response = ['success' => true, 'id' => $response['id'], 'uid'=> $uid, 'trackid'=>$check, 'type' => 'one-time'];
+			} else {
+				$response = ['success' => false, 'm' => esc_html__('PayPal API error', 'easy-form-builder')];
+			}
 		}
 
 		wp_send_json_success($response, 200);
+	}
+
+	/**
+	 * Capture an approved PayPal order after user approval.
+	 * Called from frontend onApprove callback.
+	 */
+	public function pay_paypal_capture_Emsfb_api($data_POST_) {
+		$data_POST = $data_POST_->get_json_params();
+		$order_id = sanitize_text_field($data_POST['orderID'] ?? '');
+		$form_id = sanitize_text_field($data_POST['formID'] ?? '');
+
+		if (empty($order_id)) {
+			wp_send_json_success(['success' => false, 'm' => esc_html__('Order ID is missing', 'easy-form-builder')], 400);
+			return;
+		}
+
+		$r = $this->setting != NULL && empty($this->setting) != true ? $this->setting : get_setting_Emsfb('raw');
+		$Sk = 'null';
+		$clientId = 'null';
+		if (gettype($r) == "string") {
+			$setting = str_replace('\\', '', $r);
+			$setting = json_decode($setting);
+			$Sk = isset($setting->paypalSKey) && strlen($setting->paypalSKey) > 5 ? $setting->paypalSKey : 'null';
+			$clientId = isset($setting->paypalPKey) ? $setting->paypalPKey : 'null';
+		}
+		if ($Sk == 'null') {
+			wp_send_json_success(['success' => false, 'm' => esc_html__('PayPal Secret Key not found', 'easy-form-builder')], 200);
+			return;
+		}
+
+		$server = EMSFB_DEV_MODE == false ? 'https://api-m.paypal.com/' : 'https://api-m.sandbox.paypal.com/';
+
+		require_once(EMSFB_PLUGIN_DIRECTORY . "/vendor/paypal/class-Emsfb-paypal.php");
+		$paypal = new paypal();
+		$accessToken = $paypal->get_paypal_access_token($server, $clientId, $Sk);
+
+		if (!$accessToken) {
+			wp_send_json_success(['success' => false, 'm' => esc_html__('Failed to get access token', 'easy-form-builder')], 400);
+			return;
+		}
+
+		$capture_result = $paypal->capture_paypal_order($server, $accessToken, $order_id);
+
+		if (isset($capture_result['status']) && $capture_result['status'] === 'COMPLETED') {
+			$capture_id = '';
+			if (isset($capture_result['purchase_units'][0]['payments']['captures'][0]['id'])) {
+				$capture_id = $capture_result['purchase_units'][0]['payments']['captures'][0]['id'];
+			}
+			wp_send_json_success([
+				'success' => true,
+				'status' => 'COMPLETED',
+				'captureID' => $capture_id,
+				'orderID' => $order_id
+			], 200);
+		} else {
+			$error_msg = isset($capture_result['message']) ? $capture_result['message'] : esc_html__('Capture failed', 'easy-form-builder');
+			error_log('[EFB][PayPal] Capture failed: ' . json_encode($capture_result));
+			wp_send_json_success(['success' => false, 'm' => $error_msg], 200);
+		}
 	}
 	/**
 	 * DEPRECATED - Replaced by fix_elementor_complete_protection
