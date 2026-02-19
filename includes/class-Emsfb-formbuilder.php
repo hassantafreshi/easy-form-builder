@@ -3920,151 +3920,90 @@ public function check_error_console_efb(){
 	}
 
 
-	// Add JSON-LD SoftwareApplication schema to <head> on the frontend
+	// Add JSON-LD WebPage + SoftwareApplication schema to <head> on the frontend
 
 	public function efb_output_schema_free_plus() {
-    $home = home_url('/');
-    $schema = [
-        '@context' => 'https://schema.org',
-        '@graph'   => [
-            [
-                '@type' => 'SoftwareApplication',
-                '@id'   => $home . '#efb-softwareapplication',
-
-                'name'          => esc_html__( 'Easy Form Builder', 'easy-form-builder' ),
-                'alternateName' => esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ),
-                'description'   => esc_html__( 'Easy Form Builder is a WordPress form builder plugin for creating contact forms, payment forms, and survey forms.', 'easy-form-builder' ),
-
-                'applicationCategory' => 'WebApplication',
-                'operatingSystem'     => 'WordPress',
-                'softwareVersion'     => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '',
-                'url'                 => 'https://wordpress.org/plugins/easy-form-builder/',
-                'isAccessibleForFree' => true,
-                'inLanguage'          => get_locale(),
-
-                'publisher' => [
-                    '@id' => $home . '#efb-publisher',
-                ],
-
-                // free offer only (clean)
-                'offers' => [
-                    [
-                        '@type'         => 'Offer',
-                        '@id'           => $home . '#efb-offer-free',
-                        'name'          =>  sprintf( esc_html__( 'Easy Form Builder - %s', 'easy-form-builder' ), esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ) ),
-                        'price'         => '0',
-                        'priceCurrency' => 'USD',
-                        'availability'  => 'https://schema.org/InStock',
-                        'url'           => 'https://wordpress.org/plugins/easy-form-builder/',
-                        'seller'        => [
-                            '@id' => $home . '#efb-publisher',
-                        ],
-                    ],
-                ],
-            ],
-
-            // Optional: pricing catalog for Free Plus
-            [
-                '@type' => 'OfferCatalog',
-                '@id'   => $home . '#efb-offer-catalog',
-                'name'  => esc_html__( 'Easy Form Builder Plans', 'easy-form-builder' ),
-                'itemListElement' => [
-                    [
-                        '@type'         => 'Offer',
-                        '@id'           => $home . '#efb-offer-basic',
-                        'name'          =>  sprintf( esc_html__( 'Easy Form Builder - %s', 'easy-form-builder' ), esc_html__( 'Basic (1 Site)', 'easy-form-builder' ) ),
-                        'price'         => '19',
-                        'priceCurrency' => 'USD',
-                        'availability'  => 'https://schema.org/InStock',
-                        'url'           => 'https://whitestudio.team/register-costumer/?plan=basic',
-                        'seller'        => [ '@id' => $home . '#efb-publisher' ],
-                    ],
-                    [
-                        '@type'         => 'Offer',
-                        '@id'           => $home . '#efb-offer-premium',
-                        'name'          =>  sprintf( esc_html__( 'Easy Form Builder - %s', 'easy-form-builder' ), esc_html__( 'Premium (3 Sites)', 'easy-form-builder' ) ),
-								'price'         => '29',
-								'priceCurrency' => 'USD',
-								'availability'  => 'https://schema.org/InStock',
-								'url'           => 'https://whitestudio.team/register-costumer/?plan=premium',
-								'seller'        => [ '@id' => $home . '#efb-publisher' ],
-							],
-						],
-					],
-
-					[
-						'@type' => 'Organization',
-						'@id'   => $home . '#efb-publisher',
-						'name'  => esc_html__( 'Easy Form Builder - WhiteStudio.Team', 'easy-form-builder' ),
-						'url'   => 'https://whitestudio.team',
-					],
+		$page_url = home_url( add_query_arg( [], wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ) );
+		$locale = get_locale();
+		$lang   = str_replace('_', '-', $locale);
+		$ws_url = $locale === 'fa_IR' ? 'https://easyformbuilder.ir' : 'https://whitestudio.team';
+		$wp_url = $locale === 'fa_IR' ? 'https://fa.wordpress.org/plugins/easy-form-builder/' : 'https://wordpress.org/plugins/easy-form-builder/';
+		$schema = [
+			'@context' => 'https://schema.org',
+			'@type'    => 'WebPage',
+			'@id'      => $page_url . '#webpage',
+			'url'      => $page_url,
+			'mentions' => [
+				'@type' => 'SoftwareApplication',
+				'@id'   => $wp_url . '#software',
+				'name'  => esc_html__( 'Easy Form Builder', 'easy-form-builder' ),
+				'alternateName' => esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ),
+				'description' => esc_html__( 'Easy Form Builder is a WordPress form builder plugin for creating contact forms, payment forms, and survey forms.', 'easy-form-builder' ),
+				'applicationCategory' => ['BusinessApplication', 'WebApplication'],
+				'operatingSystem'     => 'WordPress',
+				'softwareVersion'     => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '',
+				'url'   => $wp_url,
+				'isAccessibleForFree' => true,
+				'keywords' => [
+					esc_html__( 'WordPress forms', 'easy-form-builder' ),
+					esc_html__( 'contact form plugin', 'easy-form-builder' ),
+					esc_html__( 'payment form plugin', 'easy-form-builder' ),
+					esc_html__( 'survey form plugin', 'easy-form-builder' ),
+					esc_html__( 'email notification form', 'easy-form-builder' ),
 				],
-			];
+				'publisher' => [
+					'@type' => 'Organization',
+					'@id'   => $ws_url . '/#organization',
+					'name'  => sprintf( esc_html__( 'Easy Form Builder - %s', 'easy-form-builder' ), esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ) ),
+					'url'   => $ws_url
+				],
+				'inLanguage' => $lang
+			]
+		];
 
-			$this->efb_print_schema_ld( $schema );
-			$this->efb_register_head_hooks();
-		}
+		$this->efb_print_schema_ld( $schema );
+		$this->efb_register_head_hooks();
+	}
 
 
 		public function efb_output_schema_free () {
+			$page_url = home_url( add_query_arg( [], wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ) );
+			$locale = get_locale();
+			$lang   = str_replace('_', '-', $locale);
+			$ws_url = $locale === 'fa_IR' ? 'https://easyformbuilder.ir' : 'https://whitestudio.team';
+			$wp_url = $locale === 'fa_IR' ? 'https://fa.wordpress.org/plugins/easy-form-builder/' : 'https://wordpress.org/plugins/easy-form-builder/';
 
-			//check language
-			$ws_url = 'https://whitestudio.team';
-			if(get_locale() == 'fa_IR' || get_locale() == 'fa'){
-				$ws_url = 'https://easyformbuilder.ir';
-			}
-			$home = home_url('/');
 			$schema = [
 				'@context' => 'https://schema.org',
-				'@graph'   => [
-					[
-						'@type' => 'SoftwareApplication',
-						'@id'   => $home . '#efb-softwareapplication-free',
-
-						'name' => esc_html__( 'Easy Form Builder', 'easy-form-builder' ),
-						'alternateName' => esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ),
-
-						/* translators: Description for the Easy Form Builder plugin */
-						'description' => esc_html__(
-							'Easy Form Builder is a WordPress form builder plugin for creating contact forms, payment forms, and survey forms.',
-							'easy-form-builder'
-						),
-
-						'applicationCategory' => 'WebApplication',
-						'operatingSystem'     => 'WordPress',
-						'softwareVersion'     => defined( 'EMSFB_PLUGIN_VERSION' ) ? EMSFB_PLUGIN_VERSION : '',
-						'url'                 => 'https://wordpress.org/plugins/easy-form-builder/',
-
-						// Reference publisher via @id to avoid duplication
-						'publisher' => [
-							'@id' => $home . '#efb-publisher',
-						],
-
-						// Free version offer only
-						'offers' => [
-							[
-								'@type'         => 'Offer',
-								'@id'           => $home . '#efb-offer-free',
-								'name'          => esc_html__( 'Free WordPress Easy Form Builder', 'easy-form-builder' ),
-								'price'         => '0',
-								'priceCurrency' => 'USD',
-								'availability'  => 'https://schema.org/InStock',
-								'url'           => 'https://wordpress.org/plugins/easy-form-builder/',
-								'seller'        => [
-									'@id' => $home . '#efb-publisher',
-								],
-							],
-						],
+				'@type'    => 'WebPage',
+				'@id'      => $page_url . '#webpage',
+				'url'      => $page_url,
+				'mentions' => [
+					'@type' => 'SoftwareApplication',
+					'@id'   => $wp_url . '#software',
+					'name'  => esc_html__( 'Easy Form Builder', 'easy-form-builder' ),
+					'alternateName' => esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ),
+					'description' => esc_html__( 'Easy Form Builder is a WordPress form builder plugin for creating contact forms, payment forms, and survey forms.', 'easy-form-builder' ),
+					'applicationCategory' => ['BusinessApplication', 'WebApplication'],
+					'operatingSystem'     => 'WordPress',
+					'softwareVersion'     => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '',
+					'url'   => $wp_url,
+					'isAccessibleForFree' => true,
+					'keywords' => [
+						esc_html__( 'WordPress forms', 'easy-form-builder' ),
+						esc_html__( 'contact form plugin', 'easy-form-builder' ),
+						esc_html__( 'payment form plugin', 'easy-form-builder' ),
+						esc_html__( 'survey form plugin', 'easy-form-builder' ),
+						esc_html__( 'email notification form', 'easy-form-builder' ),
 					],
-
-					// Publisher entity (clean & reusable)
-					[
+					'publisher' => [
 						'@type' => 'Organization',
-						'@id'   => $home . '#efb-publisher',
-						'name'  => esc_html__( 'Easy Form Builder - Free WordPress Form Builder Plugin', 'easy-form-builder' ),
-						'url'   => $ws_url,
+						'@id'   => $ws_url . '/#organization',
+						'name'  => sprintf( esc_html__( 'Easy Form Builder - %s', 'easy-form-builder' ), esc_html__( 'Free WordPress Form Builder Plugin', 'easy-form-builder' ) ),
+						'url'   => $ws_url
 					],
-				],
+					'inLanguage' => $lang
+				]
 			];
 
 			$this->efb_print_schema_ld( $schema );
