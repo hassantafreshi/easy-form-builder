@@ -40,7 +40,9 @@ if (!defined("WP_PLUGIN_DIR")) {
 
 //development mode
 if (!defined("EMSFB_DEV_MODE")) {
-    define("EMSFB_DEV_MODE", true);
+    // Stored as '1'/'0' strings in wp_options; default '1' (dev mode on)
+    $dev_mode = get_option('emsfb_dev_mode', '1');
+    define("EMSFB_DEV_MODE", $dev_mode === '1' || $dev_mode === true);
 }
 
 //define server

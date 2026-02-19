@@ -993,6 +993,16 @@ class Admin {
         if(isset($m['efb_version'])==false){
            $m['efb_version'] = EMSFB_PLUGIN_VERSION;
         }
+
+        // Handle devMode toggle — stored in wp_options, not in the settings JSON
+        // IMPORTANT: Store as '1'/'0' strings, NOT booleans — WordPress update_option
+        // silently fails when saving boolean false (treats it as "option not set").
+        if(isset($m['devMode'])){
+            $dev_mode_value = in_array($m['devMode'], [true, 'true', 1, '1'], true) ? '1' : '0';
+            update_option('emsfb_dev_mode', $dev_mode_value);
+            unset($m['devMode']); // Remove from settings JSON — it's stored in wp_options
+        }
+
         // json_encode produces valid JSON; wpdb->insert handles DB escaping.
         // Do NOT add extra str_replace('"','\"') — it creates double-escaping
         // that breaks json_decode when values contain literal quotes (e.g. emailTemp HTML).

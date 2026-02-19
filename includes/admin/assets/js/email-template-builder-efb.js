@@ -203,7 +203,7 @@
   const BLOCK_TYPES_efb = {
 
     header: {
-      label: '📧 ' + t_efb('ebHeader', 'Header'),
+      label: t_efb('ebHeader', 'Header'),
       icon: 'bi-card-heading',
       category: 'layout',
       defaultData: {
@@ -228,7 +228,7 @@
     },
 
     logo: {
-      label: '🖼️ ' + t_efb('ebLogoImage', 'Logo / Image'),
+      label: t_efb('ebLogoImage', 'Logo / Image'),
       icon: 'bi-image',
       category: 'content',
       defaultData: {
@@ -247,7 +247,7 @@
     },
 
     title: {
-      label: '📝 ' + t_efb('ebTitle', 'Title'),
+      label: t_efb('ebTitle', 'Title'),
       icon: 'bi-type-h1',
       category: 'content',
       defaultData: {
@@ -267,7 +267,7 @@
     },
 
     text: {
-      label: '📄 ' + t_efb('ebTextBlock', 'Text Block'),
+      label: t_efb('ebTextBlock', 'Text Block'),
       icon: 'bi-text-paragraph',
       category: 'content',
       defaultData: {
@@ -288,7 +288,7 @@
     },
 
     message: {
-      label: '💬 ' + t_efb('ebMessageContent', 'Message Content') + ' *',
+      label: t_efb('ebMessageContent', 'Message Content') + ' *',
       icon: 'bi-chat-square-text',
       category: 'shortcode',
       defaultData: {
@@ -312,7 +312,7 @@
     },
 
     button: {
-      label: '🔘 ' + t_efb('ebButton', 'Button'),
+      label: t_efb('ebButton', 'Button'),
       icon: 'bi-link-45deg',
       category: 'content',
       defaultData: {
@@ -344,7 +344,7 @@
     },
 
     divider: {
-      label: '➖ ' + t_efb('ebDivider', 'Divider'),
+      label: t_efb('ebDivider', 'Divider'),
       icon: 'bi-dash-lg',
       category: 'layout',
       defaultData: {
@@ -361,7 +361,7 @@
     },
 
     spacer: {
-      label: '↕️ ' + t_efb('ebSpacer', 'Spacer'),
+      label: t_efb('ebSpacer', 'Spacer'),
       icon: 'bi-arrows-expand',
       category: 'layout',
       defaultData: {
@@ -374,7 +374,7 @@
     },
 
     image: {
-      label: '🖼️ ' + t_efb('ebImage', 'Image'),
+      label: t_efb('ebImage', 'Image'),
       icon: 'bi-card-image',
       category: 'content',
       defaultData: {
@@ -398,7 +398,7 @@
     },
 
     columns: {
-      label: '📊 ' + t_efb('ebTwoColumns', 'Two Columns'),
+      label: t_efb('ebTwoColumns', 'Two Columns'),
       icon: 'bi-layout-split',
       category: 'layout',
       defaultData: {
@@ -431,7 +431,7 @@
     },
 
     social: {
-      label: '🌐 ' + t_efb('ebSocialLinks', 'Social Links'),
+      label: t_efb('ebSocialLinks', 'Social Links'),
       icon: 'bi-share',
       category: 'content',
       defaultData: {
@@ -456,7 +456,7 @@
     },
 
     footer: {
-      label: '📋 ' + t_efb('ebFooter', 'Footer'),
+      label: t_efb('ebFooter', 'Footer'),
       icon: 'bi-card-text',
       category: 'layout',
       defaultData: {
@@ -478,7 +478,7 @@
     },
 
     htmlBlock: {
-      label: '🖥️ ' + t_efb('ebCustomHTML', 'Custom HTML'),
+      label: t_efb('ebCustomHTML', 'Custom HTML'),
       icon: 'bi-code-slash',
       category: 'advanced',
       defaultData: {
@@ -583,10 +583,10 @@
           ]
         },
         { type: 'message', data: { padding: '35px 30px', bgColor: '#faf5ff', color: '#4c1d95', fontSize: '16', align: 'center' } },
-        { type: 'button', data: { text: '🔗 ' + t_efb('ebViewWebsite', 'View Website'), url: 'shortcode_website_url', bgColor: '#8b5cf6', textColor: '#ffffff', borderRadius: '25', padding: '14px 35px', fontSize: '16', align: 'center', containerPadding: '20px 30px' } },
+        { type: 'button', data: { text: t_efb('ebViewWebsite', 'View Website'), url: 'shortcode_website_url', bgColor: '#8b5cf6', textColor: '#ffffff', borderRadius: '25', padding: '14px 35px', fontSize: '16', align: 'center', containerPadding: '20px 30px' } },
         { type: 'divider', data: { color: '#e9d5ff', thickness: '1', width: '80', padding: '15px 30px' } },
         { type: 'social', data: { color: '#8b5cf6', align: 'center', padding: '10px 30px', fontSize: '14' } },
-        { type: 'footer', data: { text: '💜 shortcode_website_name | shortcode_admin_email', color: '#7c3aed', fontSize: '13', align: 'center', bgColor: '#faf5ff', padding: '25px 30px', borderRadius: '0 0 8px 8px' } }
+        { type: 'footer', data: { text: 'shortcode_website_name | shortcode_admin_email', color: '#7c3aed', fontSize: '13', align: 'center', bgColor: '#faf5ff', padding: '25px 30px', borderRadius: '0 0 8px 8px' } }
       ],
       globalSettings: { bgColor: '#faf5ff', contentBgColor: '#ffffff', borderRadius: '12' }
     }
@@ -619,26 +619,54 @@
   /* ──────────────────── UNDO / REDO ────────────────────────────── */
 
   function saveState_efb() {
-    builderState_efb.undoStack.push(JSON.stringify(builderState_efb.blocks));
+    builderState_efb.undoStack.push(JSON.stringify({
+      blocks: builderState_efb.blocks,
+      globalSettings: builderState_efb.globalSettings
+    }));
     if (builderState_efb.undoStack.length > 30) builderState_efb.undoStack.shift();
     builderState_efb.redoStack = [];
   }
 
   function undo_efb() {
     if (builderState_efb.undoStack.length === 0) return;
-    builderState_efb.redoStack.push(JSON.stringify(builderState_efb.blocks));
-    builderState_efb.blocks = JSON.parse(builderState_efb.undoStack.pop());
+    builderState_efb.redoStack.push(JSON.stringify({
+      blocks: builderState_efb.blocks,
+      globalSettings: builderState_efb.globalSettings
+    }));
+    const restored = JSON.parse(builderState_efb.undoStack.pop());
+    // Support both old format (array) and new format (object with blocks + globalSettings)
+    if (Array.isArray(restored)) {
+      builderState_efb.blocks = restored;
+    } else {
+      builderState_efb.blocks = restored.blocks;
+      if (restored.globalSettings) {
+        builderState_efb.globalSettings = Object.assign(builderState_efb.globalSettings, restored.globalSettings);
+      }
+    }
     builderState_efb.selectedBlock = null;
     renderCanvas_efb();
+    renderGlobalSettings_efb();
     syncToTextarea_efb();
   }
 
   function redo_efb() {
     if (builderState_efb.redoStack.length === 0) return;
-    builderState_efb.undoStack.push(JSON.stringify(builderState_efb.blocks));
-    builderState_efb.blocks = JSON.parse(builderState_efb.redoStack.pop());
+    builderState_efb.undoStack.push(JSON.stringify({
+      blocks: builderState_efb.blocks,
+      globalSettings: builderState_efb.globalSettings
+    }));
+    const restored = JSON.parse(builderState_efb.redoStack.pop());
+    if (Array.isArray(restored)) {
+      builderState_efb.blocks = restored;
+    } else {
+      builderState_efb.blocks = restored.blocks;
+      if (restored.globalSettings) {
+        builderState_efb.globalSettings = Object.assign(builderState_efb.globalSettings, restored.globalSettings);
+      }
+    }
     builderState_efb.selectedBlock = null;
     renderCanvas_efb();
+    renderGlobalSettings_efb();
     syncToTextarea_efb();
   }
 
@@ -852,14 +880,16 @@ ${blocksHtml}
       const isMessage = block.type === 'message';
 
       html += `<div class="efb-canvas-block ${isSelected ? 'efb-block-selected' : ''} ${isMessage ? 'efb-block-required' : ''}"
-        data-block-id="${block.id}" data-index="${index}" draggable="true">
+        data-block-id="${block.id}" data-index="${index}" draggable="true"
+        role="listitem" tabindex="0"
+        aria-label="${escHtml_efb(label)} - ${t_efb('ebBlock', 'Block')} ${index + 1}" aria-selected="${isSelected}">
         <div class="efb-block-label">
           <span><i class="efb ${def?.icon || 'bi-square'}"></i> ${label}</span>
-          <div class="efb-block-actions">
-            <button class="efb-blk-btn" onclick="efbEmailBuilder.moveBlock_efb('${block.id}',-1)" title="${t_efb('ebMoveUp', 'Move Up')}"><i class="efb bi-arrow-up"></i></button>
-            <button class="efb-blk-btn" onclick="efbEmailBuilder.moveBlock_efb('${block.id}',1)" title="${t_efb('ebMoveDown', 'Move Down')}"><i class="efb bi-arrow-down"></i></button>
-            <button class="efb-blk-btn" onclick="efbEmailBuilder.duplicateBlock_efb('${block.id}')" title="${t_efb('duplicate', 'Duplicate')}"><i class="efb bi-copy"></i></button>
-            <button class="efb-blk-btn efb-blk-btn-danger" onclick="efbEmailBuilder.removeBlock_efb('${block.id}')" title="${t_efb('delete', 'Delete')}"><i class="efb bi-trash"></i></button>
+          <div class="efb-block-actions" role="toolbar" aria-label="${t_efb('ebBlockActions', 'Block actions')}">
+            <button class="efb-blk-btn" onclick="efbEmailBuilder.moveBlock_efb('${block.id}',-1)" title="${t_efb('ebMoveUp', 'Move Up')}" aria-label="${t_efb('ebMoveUp', 'Move Up')}"><i class="efb bi-arrow-up"></i></button>
+            <button class="efb-blk-btn" onclick="efbEmailBuilder.moveBlock_efb('${block.id}',1)" title="${t_efb('ebMoveDown', 'Move Down')}" aria-label="${t_efb('ebMoveDown', 'Move Down')}"><i class="efb bi-arrow-down"></i></button>
+            <button class="efb-blk-btn" onclick="efbEmailBuilder.duplicateBlock_efb('${block.id}')" title="${t_efb('duplicate', 'Duplicate')}" aria-label="${t_efb('duplicate', 'Duplicate')}"><i class="efb bi-copy"></i></button>
+            <button class="efb-blk-btn efb-blk-btn-danger" onclick="efbEmailBuilder.removeBlock_efb('${block.id}')" title="${t_efb('delete', 'Delete')}" aria-label="${t_efb('delete', 'Delete')}"><i class="efb bi-trash"></i></button>
           </div>
         </div>
         <div class="efb-block-preview">${renderBlockPreview_efb(block)}</div>
@@ -951,6 +981,7 @@ ${blocksHtml}
   /* ──────────────── CANVAS DRAG-DROP (REORDER) ────────────────── */
 
   let _canvasDropBound_efb = false;
+  let _dragThrottleTimer_efb = null;
 
   function initCanvasDragDrop_efb() {
     const canvas = document.getElementById(CANVAS_ID_efb);
@@ -973,12 +1004,17 @@ ${blocksHtml}
 
       el.addEventListener('dragover', (e) => {
         e.preventDefault();
-        const isPanel = e.dataTransfer.types.includes('efb-new-block');
-        e.dataTransfer.dropEffect = isPanel ? 'copy' : 'move';
-        const rect = el.getBoundingClientRect();
-        const mid = rect.top + rect.height / 2;
-        el.classList.toggle('efb-drop-above', e.clientY < mid);
-        el.classList.toggle('efb-drop-below', e.clientY >= mid);
+        // Throttle visual updates to ~60fps
+        if (_dragThrottleTimer_efb) return;
+        _dragThrottleTimer_efb = requestAnimationFrame(() => {
+          _dragThrottleTimer_efb = null;
+          const isPanel = e.dataTransfer.types.includes('efb-new-block');
+          e.dataTransfer.dropEffect = isPanel ? 'copy' : 'move';
+          const rect = el.getBoundingClientRect();
+          const mid = rect.top + rect.height / 2;
+          el.classList.toggle('efb-drop-above', e.clientY < mid);
+          el.classList.toggle('efb-drop-below', e.clientY >= mid);
+        });
       });
 
       el.addEventListener('dragleave', () => {
@@ -1067,7 +1103,7 @@ ${blocksHtml}
     if (block && block.type === 'message') {
       const msgCount = builderState_efb.blocks.filter(b => b.type === 'message').length;
       if (msgCount <= 1) {
-        showNotification_efb('⚠️ ' + t_efb('ebSCRequired', 'shortcode_message is required!'), 'warning');
+        showNotification_efb('<i class="efb bi-exclamation-triangle-fill me-1"></i>' + t_efb('ebSCRequired', 'shortcode_message is required!'), 'warning');
         return;
       }
     }
@@ -1175,7 +1211,7 @@ ${blocksHtml}
               html += propInput_efb('width', t_efb('ebWidthPx', 'Width (px)'), cd.width, child.id);
               html += propInput_efb('alt', t_efb('ebAltText', 'Alt Text'), cd.alt, child.id);
             } else if (child.type === 'title') {
-              html += propInput_efb('text', t_efb('text', 'Text'), cd.text, child.id);
+              html += propChipInput_efb('text', t_efb('text', 'Text'), cd.text, child.id);
               html += propShortcodeButtons_efb(child.id, 'text');
               html += propColor_efb('color', t_efb('clr', 'Color'), cd.color, child.id);
               html += propFontFamily_efb('fontFamily', t_efb('ebFontFamily', 'Font'), cd.fontFamily, child.id);
@@ -1194,7 +1230,7 @@ ${blocksHtml}
         break;
 
       case 'title':
-        html += propInput_efb('text', t_efb('ebTitleText', 'Title Text'), data.text);
+        html += propChipInput_efb('text', t_efb('ebTitleText', 'Title Text'), data.text);
         html += propShortcodeButtons_efb(block.id, 'text');
         html += propColor_efb('color', t_efb('clr', 'Color'), data.color);
         html += propFontFamily_efb('fontFamily', t_efb('ebFontFamily', 'Font'), data.fontFamily);
@@ -1204,7 +1240,7 @@ ${blocksHtml}
         break;
 
       case 'text':
-        html += propTextarea_efb('text', t_efb('content', 'Content'), data.text);
+        html += propChipTextarea_efb('text', t_efb('content', 'Content'), data.text);
         html += propShortcodeButtons_efb(block.id, 'text');
         html += propColor_efb('color', t_efb('clr', 'Color'), data.color);
         html += propFontFamily_efb('fontFamily', t_efb('ebFontFamily', 'Font'), data.fontFamily);
@@ -1225,9 +1261,9 @@ ${blocksHtml}
         break;
 
       case 'button':
-        html += propInput_efb('text', t_efb('ebButtonText', 'Button Text'), data.text);
+        html += propChipInput_efb('text', t_efb('ebButtonText', 'Button Text'), data.text);
         html += propShortcodeButtons_efb(block.id, 'text');
-        html += propInput_efb('url', t_efb('ebLinkURL', 'Link URL'), data.url);
+        html += propChipInput_efb('url', t_efb('ebLinkURL', 'Link URL'), data.url);
         html += propShortcodeButtons_efb(block.id, 'url');
         html += propColor_efb('bgColor', t_efb('ebBackground', 'Background'), data.bgColor);
         html += propColor_efb('textColor', t_efb('ebTextColor', 'Text Color'), data.textColor);
@@ -1262,9 +1298,9 @@ ${blocksHtml}
         break;
 
       case 'columns':
-        html += propTextarea_efb('leftContent', t_efb('ebLeftColumn', 'Left Column'), data.leftContent);
+        html += propChipTextarea_efb('leftContent', t_efb('ebLeftColumn', 'Left Column'), data.leftContent);
         html += propShortcodeButtons_efb(block.id, 'leftContent');
-        html += propTextarea_efb('rightContent', t_efb('ebRightColumn', 'Right Column'), data.rightContent);
+        html += propChipTextarea_efb('rightContent', t_efb('ebRightColumn', 'Right Column'), data.rightContent);
         html += propShortcodeButtons_efb(block.id, 'rightContent');
         html += propColor_efb('leftColor', t_efb('ebLeftTextColor', 'Left Text Color'), data.leftColor);
         html += propColor_efb('rightColor', t_efb('ebRightTextColor', 'Right Text Color'), data.rightColor);
@@ -1295,7 +1331,7 @@ ${blocksHtml}
         break;
 
       case 'footer':
-        html += propTextarea_efb('text', t_efb('ebFooterText', 'Footer Text'), data.text);
+        html += propChipTextarea_efb('text', t_efb('ebFooterText', 'Footer Text'), data.text);
         html += propShortcodeButtons_efb(block.id, 'text');
         html += propColor_efb('color', t_efb('ebTextColor', 'Text Color'), data.color);
         html += propColor_efb('bgColor', t_efb('ebBackground', 'Background'), data.bgColor);
@@ -1336,12 +1372,16 @@ ${blocksHtml}
 
   function propColor_efb(key, label, value, targetId) {
     const blockId = targetId || builderState_efb.selectedBlock;
+    const presetSwatches = COLOR_PRESETS_efb.map(c =>
+      `<button type="button" class="efb-color-swatch" style="background:${c};" data-color="${c}" data-prop="${key}" data-block="${blockId}" title="${c}" onclick="efbEmailBuilder._applyColorPreset_efb(this)"></button>`
+    ).join('');
     return `<div class="efb-prop-row efb-prop-color-row">
       <label class="efb-prop-label">${label}</label>
       <div class="efb-color-picker-wrap">
         <input type="color" class="efb-prop-color" data-prop="${key}" data-block="${blockId}" value="${value && value.startsWith('#') ? value : '#333333'}" />
         <input type="text" class="efb-prop-input efb-prop-color-text" data-prop="${key}" data-block="${blockId}" value="${escHtml_efb(value)}" />
       </div>
+      <div class="efb-color-presets">${presetSwatches}</div>
     </div>`;
   }
 
@@ -1407,6 +1447,80 @@ ${blocksHtml}
             onclick="efbEmailBuilder.insertShortcode_efb('${blockId}','${targetProp}','${sc.code}')">${sc.label}</button>`
         ).join('')}
       </div>
+    </div>`;
+  }
+
+  /* ──────────── SHORTCODE CHIP HELPERS ──────────────────────── */
+
+  const _SHORTCODE_RE_efb = /(shortcode_message|shortcode_title|shortcode_website_name|shortcode_website_url|shortcode_admin_email)/g;
+
+  const _SHORTCODE_LABELS_efb = {
+    'shortcode_message':       () => t_efb('ebSCMessage', 'Message *'),
+    'shortcode_title':         () => t_efb('ebSCTitle', 'Title'),
+    'shortcode_website_name':  () => t_efb('ebSCSiteName', 'Site Name'),
+    'shortcode_website_url':   () => t_efb('ebSCSiteURL', 'Site URL'),
+    'shortcode_admin_email':   () => t_efb('ebSCAdminEmail', 'Admin Email')
+  };
+
+  /** Build a single chip <span> for a shortcode */
+  function _shortcodeChipHtml_efb(code) {
+    const labelFn = _SHORTCODE_LABELS_efb[code];
+    const label = labelFn ? labelFn() : code;
+    return `<span class="efb-chip" contenteditable="false" data-shortcode="${escHtml_efb(code)}"><i class="efb bi-braces me-1"></i>${escHtml_efb(label)}<button type="button" class="efb-chip-remove" tabindex="-1">&times;</button></span>`;
+  }
+
+  /** Convert a string value (with shortcode_* tokens) into chip-aware innerHTML */
+  function _valueToChipHtml_efb(value) {
+    if (!value) return '';
+    const parts = value.split(_SHORTCODE_RE_efb);
+    return parts.map(part => {
+      if (_SHORTCODE_LABELS_efb[part]) return _shortcodeChipHtml_efb(part);
+      return escHtml_efb(part);
+    }).join('');
+  }
+
+  /** Reconstruct the raw string value from a chip-editor contenteditable div */
+  function _chipEditorToValue_efb(editorEl) {
+    let value = '';
+    const walk = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        value += node.textContent;
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.classList.contains('efb-chip')) {
+          value += node.dataset.shortcode || '';
+        } else if (node.tagName === 'BR') {
+          value += '\n';
+        } else {
+          // <div> created by Enter key in contenteditable
+          if (node.tagName === 'DIV' && value.length > 0 && !value.endsWith('\n')) {
+            value += '\n';
+          }
+          node.childNodes.forEach(walk);
+        }
+      }
+    };
+    editorEl.childNodes.forEach(walk);
+    return value;
+  }
+
+  /** Single-line chip-aware input (replaces propInput_efb for shortcode fields) */
+  function propChipInput_efb(key, label, value, targetId) {
+    const blockId = targetId || builderState_efb.selectedBlock;
+    const chipHtml = _valueToChipHtml_efb(value);
+    return `<div class="efb-prop-row">
+      <label class="efb-prop-label">${label}</label>
+      <div class="efb-chip-editor efb-chip-editor-single" contenteditable="true" data-prop="${key}" data-block="${blockId}" spellcheck="false">${chipHtml}</div>
+    </div>`;
+  }
+
+  /** Multi-line chip-aware textarea (replaces propTextarea_efb for shortcode fields) */
+  function propChipTextarea_efb(key, label, value, targetId, rows) {
+    const blockId = targetId || builderState_efb.selectedBlock;
+    const chipHtml = _valueToChipHtml_efb(value);
+    const minH = (rows || 3) * 20;
+    return `<div class="efb-prop-row">
+      <label class="efb-prop-label">${label}</label>
+      <div class="efb-chip-editor efb-chip-editor-multi" contenteditable="true" data-prop="${key}" data-block="${blockId}" spellcheck="false" style="min-height:${minH}px;">${chipHtml}</div>
     </div>`;
   }
 
@@ -1505,6 +1619,21 @@ ${blocksHtml}
         applyPropChange(t, false);
         return;
       }
+
+      // Chip editor (contenteditable) — debounced value reconstruction
+      if (t.matches('.efb-chip-editor')) {
+        const bid = t.dataset.block;
+        const prop = t.dataset.prop;
+        const b = findBlockById_efb(bid);
+        if (b) {
+          if (!b.data) b.data = {};
+          if (!_propStateSaved_efb) { saveState_efb(); _propStateSaved_efb = true; }
+          b.data[prop] = _chipEditorToValue_efb(t);
+          clearTimeout(_propDebounce_efb);
+          _propDebounce_efb = setTimeout(() => { renderCanvas_efb(); syncToTextarea_efb(); }, 250);
+        }
+        return;
+      }
     });
 
     // ── change event (selects — fire immediately) ──
@@ -1513,6 +1642,125 @@ ${blocksHtml}
         applyPropChange(e.target, true);
       }
     });
+
+    // ── click: chip remove button ──
+    panel.addEventListener('click', (e) => {
+      const removeBtn = e.target.closest('.efb-chip-remove');
+      if (!removeBtn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const chip = removeBtn.closest('.efb-chip');
+      const editor = chip?.closest('.efb-chip-editor');
+      if (chip && editor) {
+        chip.remove();
+        const bid = editor.dataset.block;
+        const prop = editor.dataset.prop;
+        const b = findBlockById_efb(bid);
+        if (b) {
+          if (!b.data) b.data = {};
+          if (!_propStateSaved_efb) { saveState_efb(); _propStateSaved_efb = true; }
+          b.data[prop] = _chipEditorToValue_efb(editor);
+          renderCanvas_efb();
+          syncToTextarea_efb();
+        }
+      }
+    });
+
+    // ── keydown: chip-aware backspace & prevent Enter in single-line ──
+    panel.addEventListener('keydown', (e) => {
+      const editor = e.target.closest('.efb-chip-editor');
+      if (!editor) return;
+
+      // Prevent Enter in single-line chip editors
+      if (e.key === 'Enter' && editor.classList.contains('efb-chip-editor-single')) {
+        e.preventDefault();
+        return;
+      }
+
+      // Backspace — if caret is immediately after a chip, remove the whole chip
+      if (e.key === 'Backspace') {
+        const sel = window.getSelection();
+        if (!sel.isCollapsed || sel.rangeCount === 0) return;
+        const range = sel.getRangeAt(0);
+        let prevNode = null;
+        if (range.startOffset === 0 && range.startContainer !== editor) {
+          prevNode = range.startContainer.previousSibling;
+          if (!prevNode && range.startContainer.parentNode !== editor) {
+            prevNode = range.startContainer.parentNode.previousSibling;
+          }
+        } else if (range.startContainer === editor && range.startOffset > 0) {
+          prevNode = editor.childNodes[range.startOffset - 1];
+        }
+        if (prevNode && prevNode.nodeType === Node.ELEMENT_NODE && prevNode.classList?.contains('efb-chip')) {
+          e.preventDefault();
+          prevNode.remove();
+          const bid = editor.dataset.block;
+          const prop = editor.dataset.prop;
+          const b = findBlockById_efb(bid);
+          if (b) {
+            if (!b.data) b.data = {};
+            if (!_propStateSaved_efb) { saveState_efb(); _propStateSaved_efb = true; }
+            b.data[prop] = _chipEditorToValue_efb(editor);
+            renderCanvas_efb();
+            syncToTextarea_efb();
+          }
+        }
+      }
+    });
+
+    // ── paste: strip formatting & convert shortcodes to chips ──
+    panel.addEventListener('paste', (e) => {
+      const editor = e.target.closest('.efb-chip-editor');
+      if (!editor) return;
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+      if (editor.classList.contains('efb-chip-editor-single')) {
+        // Single-line: strip newlines
+        const clean = text.replace(/[\r\n]+/g, ' ');
+        document.execCommand('insertHTML', false, _valueToChipHtml_efb(clean));
+      } else {
+        document.execCommand('insertHTML', false, _valueToChipHtml_efb(text));
+      }
+      // Sync value
+      const bid = editor.dataset.block;
+      const prop = editor.dataset.prop;
+      const b = findBlockById_efb(bid);
+      if (b) {
+        if (!b.data) b.data = {};
+        if (!_propStateSaved_efb) { saveState_efb(); _propStateSaved_efb = true; }
+        b.data[prop] = _chipEditorToValue_efb(editor);
+        clearTimeout(_propDebounce_efb);
+        _propDebounce_efb = setTimeout(() => { renderCanvas_efb(); syncToTextarea_efb(); }, 250);
+      }
+    });
+  }
+
+  /* ──────────── COLOR PRESET HELPER ─────────────────────────── */
+
+  function _applyColorPreset_efb(btn) {
+    const color = btn.dataset.color;
+    const prop = btn.dataset.prop;
+    const blockId = btn.dataset.block;
+    if (!color || !prop || !blockId) return;
+
+    const block = findBlockById_efb(blockId);
+    if (!block) return;
+    if (!block.data) block.data = {};
+
+    saveState_efb();
+    block.data[prop] = color;
+
+    // Sync the color picker and text input in the same row
+    const row = btn.closest('.efb-prop-row');
+    if (row) {
+      const cp = row.querySelector(`.efb-prop-color[data-prop="${prop}"]`);
+      if (cp) cp.value = color;
+      const txt = row.querySelector(`.efb-prop-color-text[data-prop="${prop}"]`);
+      if (txt) txt.value = color;
+    }
+
+    renderCanvas_efb();
+    syncToTextarea_efb();
   }
 
   /* ──────────── SHORTCODE INSERTION ──────────────────────────── */
@@ -1521,9 +1769,12 @@ ${blocksHtml}
     const block = findBlockById_efb(blockId);
     if (!block) return;
     if (!block.data) block.data = {};
+    saveState_efb();
     const def = BLOCK_TYPES_efb[block.type]?.defaultData || {};
     const current = block.data[propName] !== undefined ? block.data[propName] : (def[propName] || '');
-    block.data[propName] = current + shortcode;
+    // Add a space before shortcode if current text doesn't end with space/empty
+    const separator = current && !current.endsWith(' ') && !current.endsWith('\n') ? ' ' : '';
+    block.data[propName] = current + separator + shortcode;
     renderCanvas_efb();
     renderPropertiesPanel_efb();
     syncToTextarea_efb();
@@ -1534,6 +1785,7 @@ ${blocksHtml}
   function updateSocialLink_efb(blockId, index, key, value) {
     const block = findBlockById_efb(blockId);
     if (!block || !block.data?.links?.[index]) return;
+    saveState_efb();
     block.data.links[index][key] = value;
     renderCanvas_efb();
     syncToTextarea_efb();
@@ -1542,6 +1794,7 @@ ${blocksHtml}
   function addSocialLink_efb(blockId) {
     const block = findBlockById_efb(blockId);
     if (!block) return;
+    saveState_efb();
     if (!block.data) block.data = {};
     if (!block.data.links) block.data.links = [];
     block.data.links.push({ name: t_efb('link', 'Link'), url: '#' });
@@ -1552,6 +1805,7 @@ ${blocksHtml}
   function removeSocialLink_efb(blockId, index) {
     const block = findBlockById_efb(blockId);
     if (!block?.data?.links) return;
+    saveState_efb();
     block.data.links.splice(index, 1);
     renderCanvas_efb();
     renderPropertiesPanel_efb();
@@ -1574,7 +1828,7 @@ ${blocksHtml}
   function showPreview_efb() {
     const html = generateFullHTML_efb();
     if (!html.includes('shortcode_message')) {
-      showNotification_efb('⚠️ ' + t_efb('ebMustContainSC', 'Template must contain shortcode_message!'), 'warning');
+      showNotification_efb('<i class="efb bi-exclamation-triangle-fill me-1"></i>' + t_efb('ebMustContainSC', 'Template must contain shortcode_message!'), 'warning');
       return;
     }
 
@@ -1606,9 +1860,18 @@ ${blocksHtml}
 
   /* ──────────── GLOBAL SETTINGS PANEL ──────────────────────── */
 
+  // AbortController for global settings event listeners (prevents memory leaks)
+  let _gsAbortController_efb = null;
+
   function renderGlobalSettings_efb() {
     const panel = document.getElementById('efb-global-settings');
     if (!panel) return;
+
+    // Abort previous event listeners before adding new ones
+    if (_gsAbortController_efb) _gsAbortController_efb.abort();
+    _gsAbortController_efb = new AbortController();
+    const signal = _gsAbortController_efb.signal;
+
     const gs = builderState_efb.globalSettings;
     panel.innerHTML = `
       <div class="efb-props-body">
@@ -1657,6 +1920,7 @@ ${blocksHtml}
 
     // Debounce helper for global settings
     let _gsDebounce_efb = null;
+    let _gsStateSaved_efb = false;
     function gsChanged_efb() {
       clearTimeout(_gsDebounce_efb);
       _gsDebounce_efb = setTimeout(() => {
@@ -1665,9 +1929,12 @@ ${blocksHtml}
       }, 200);
     }
 
-    // Bind using event delegation on the panel
+    // Bind using event delegation on the panel (with AbortController signal)
     panel.addEventListener('input', (e) => {
       const t = e.target;
+
+      // Save undo state once per editing session
+      if (!_gsStateSaved_efb) { saveState_efb(); _gsStateSaved_efb = true; }
 
       // Color picker — immediate visual update
       if (t.matches('.efb-gs-color')) {
@@ -1695,16 +1962,17 @@ ${blocksHtml}
         gsChanged_efb();
         return;
       }
-    });
+    }, { signal });
 
     // Select (direction) — fires on change, immediate
     panel.addEventListener('change', (e) => {
       if (e.target.matches('.efb-gs-select')) {
+        if (!_gsStateSaved_efb) { saveState_efb(); _gsStateSaved_efb = true; }
         builderState_efb.globalSettings[e.target.dataset.gs] = e.target.value;
         updateCanvasGlobalStyles_efb();
         syncToTextarea_efb();
       }
-    });
+    }, { signal });
   }
 
   /** Apply global settings visually to the canvas wrapper */
@@ -1756,13 +2024,13 @@ ${blocksHtml}
         const prop = textProps[block.type];
         if (prop) {
           insertShortcode_efb(block.id, prop, shortcode);
-          showNotification_efb('✅ ' + t_efb('ebSCInserted', 'Shortcode inserted!'), 'success');
+          showNotification_efb('<i class="efb bi-check-circle-fill me-1"></i>' + t_efb('ebSCInserted', 'Shortcode inserted!'), 'success');
           return;
         }
       }
     }
     // No suitable block selected — copy to clipboard instead
-    showNotification_efb('💡 ' + t_efb('ebSCSelectBlock', 'Select a text block first, or shortcode copied to clipboard.'), 'info');
+    showNotification_efb('<i class="efb bi-lightbulb me-1"></i>' + t_efb('ebSCSelectBlock', 'Select a text block first, or shortcode copied to clipboard.'), 'info');
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(shortcode).catch(() => {});
     }
@@ -1800,11 +2068,90 @@ ${blocksHtml}
       icon.className = 'efb bi-check-lg';
       btn.classList.add('efb-sc-copied');
     }
-    showNotification_efb('✅ ' + t_efb('ebCopied', 'Copied!'), 'success');
+    showNotification_efb('<i class="efb bi-check-circle-fill me-1"></i>' + t_efb('ebCopied', 'Copied!'), 'success');
     setTimeout(() => {
       if (icon) icon.className = 'efb bi-clipboard';
       btn.classList.remove('efb-sc-copied');
     }, 1500);
+  }
+
+  /* ──────────── JS-BASED TOOLTIP HANDLER ────────────────────── */
+  // Replaces CSS-only tooltips to avoid overflow clipping in sidebars
+
+  let _tooltipEl_efb = null;
+  let _tooltipHideTimer_efb = null;
+
+  function initTooltipHandler_efb() {
+    const builder = document.getElementById(BUILDER_ID_efb);
+    if (!builder) return;
+
+    // Create tooltip element once
+    _tooltipEl_efb = document.createElement('div');
+    _tooltipEl_efb.className = 'efb-tooltip-js';
+    document.body.appendChild(_tooltipEl_efb);
+
+    builder.addEventListener('mouseenter', (e) => {
+      const target = e.target.closest('[data-efb-tooltip]');
+      if (!target) return;
+      clearTimeout(_tooltipHideTimer_efb);
+      const text = target.getAttribute('data-efb-tooltip');
+      if (!text) return;
+      _tooltipEl_efb.textContent = text;
+      _tooltipEl_efb.className = 'efb-tooltip-js';
+
+      // Position the tooltip
+      const rect = target.getBoundingClientRect();
+      const ttWidth = 240;
+      const ttHeight = _tooltipEl_efb.offsetHeight || 60;
+      const vpWidth = window.innerWidth;
+      const vpHeight = window.innerHeight;
+      const margin = 10;
+
+      // Temporarily show to measure
+      _tooltipEl_efb.style.visibility = 'hidden';
+      _tooltipEl_efb.style.opacity = '0';
+      _tooltipEl_efb.style.display = 'block';
+
+      // Try right, then left, then below
+      if (rect.right + margin + ttWidth < vpWidth) {
+        // Show to the right
+        _tooltipEl_efb.style.left = (rect.right + margin) + 'px';
+        _tooltipEl_efb.style.top = (rect.top + rect.height / 2 - ttHeight / 2) + 'px';
+        _tooltipEl_efb.classList.add('efb-tooltip-right');
+      } else if (rect.left - margin - ttWidth > 0) {
+        // Show to the left
+        _tooltipEl_efb.style.left = (rect.left - margin - ttWidth) + 'px';
+        _tooltipEl_efb.style.top = (rect.top + rect.height / 2 - ttHeight / 2) + 'px';
+        _tooltipEl_efb.classList.add('efb-tooltip-left');
+      } else {
+        // Show below
+        _tooltipEl_efb.style.left = (rect.left + rect.width / 2 - ttWidth / 2) + 'px';
+        _tooltipEl_efb.style.top = (rect.bottom + margin) + 'px';
+        _tooltipEl_efb.classList.add('efb-tooltip-bottom');
+      }
+
+      // Clamp to viewport
+      const ttRect = _tooltipEl_efb.getBoundingClientRect();
+      if (ttRect.top < 0) _tooltipEl_efb.style.top = '4px';
+      if (ttRect.bottom > vpHeight) _tooltipEl_efb.style.top = (vpHeight - ttHeight - 4) + 'px';
+      if (ttRect.left < 0) _tooltipEl_efb.style.left = '4px';
+      if (ttRect.right > vpWidth) _tooltipEl_efb.style.left = (vpWidth - ttWidth - 4) + 'px';
+
+      // Show with animation
+      _tooltipEl_efb.classList.add('efb-tooltip-visible');
+      _tooltipEl_efb.style.visibility = '';
+      _tooltipEl_efb.style.opacity = '';
+    }, true);
+
+    builder.addEventListener('mouseleave', (e) => {
+      const target = e.target.closest('[data-efb-tooltip]');
+      if (!target) return;
+      _tooltipHideTimer_efb = setTimeout(() => {
+        if (_tooltipEl_efb) {
+          _tooltipEl_efb.classList.remove('efb-tooltip-visible');
+        }
+      }, 100);
+    }, true);
   }
 
   /* ──────────── EXPORT / IMPORT HTML ────────────────────────── */
@@ -1817,7 +2164,7 @@ ${blocksHtml}
     a.download = 'email-template.html';
     a.click();
     URL.revokeObjectURL(a.href);
-    showNotification_efb('✅ ' + t_efb('ebTemplateExported', 'Template exported!'), 'success');
+    showNotification_efb('<i class="efb bi-check-circle-fill me-1"></i>' + t_efb('ebTemplateExported', 'Template exported!'), 'success');
   }
 
   function showCodeEditor_efb() {
@@ -1838,7 +2185,7 @@ ${blocksHtml}
 
     const code = codeArea.value;
     if (code.includes('<script')) {
-      showNotification_efb('⚠️ ' + t_efb('NAllowedscriptTag', 'Script tags are not allowed!'), 'warning');
+      showNotification_efb('<i class="efb bi-exclamation-triangle-fill me-1"></i>' + t_efb('NAllowedscriptTag', 'Script tags are not allowed!'), 'warning');
       return;
     }
     textarea.value = code;
@@ -1858,7 +2205,7 @@ ${blocksHtml}
     renderCanvas_efb();
     syncToTextarea_efb();
     document.getElementById('efb-code-editor-panel').style.display = 'none';
-    showNotification_efb('✅ ' + t_efb('ebHTMLApplied', 'HTML code applied!'), 'success');
+    showNotification_efb('<i class="efb bi-check-circle-fill me-1"></i>' + t_efb('ebHTMLApplied', 'HTML code applied!'), 'success');
   }
 
   /* ──────────── RENDER BLOCKS PANEL (LEFT SIDEBAR) ─────────── */
@@ -1868,10 +2215,10 @@ ${blocksHtml}
     if (!panel) return;
 
     const categories = {
-      'layout': { label: '📐 ' + t_efb('ebCatLayout', 'Layout'), blocks: [] },
-      'content': { label: '📝 ' + t_efb('ebCatContent', 'Content'), blocks: [] },
-      'shortcode': { label: '🔗 ' + t_efb('ebCatShortcodes', 'Shortcodes'), blocks: [] },
-      'advanced': { label: '⚙️ ' + t_efb('ebCatAdvanced', 'Advanced'), blocks: [] }
+      'layout': { label: '<i class="efb bi-rulers me-1"></i>' + t_efb('ebCatLayout', 'Layout'), blocks: [] },
+      'content': { label: '<i class="efb bi-pencil-square me-1"></i>' + t_efb('ebCatContent', 'Content'), blocks: [] },
+      'shortcode': { label: '<i class="efb bi-braces me-1"></i>' + t_efb('ebCatShortcodes', 'Shortcodes'), blocks: [] },
+      'advanced': { label: '<i class="efb bi-gear me-1"></i>' + t_efb('ebCatAdvanced', 'Advanced'), blocks: [] }
     };
 
     for (const [type, def] of Object.entries(BLOCK_TYPES_efb)) {
@@ -2021,7 +2368,7 @@ ${blocksHtml}
 
         <!-- Center: Canvas -->
         <div class="efb-builder-canvas-wrap">
-          <div id="${CANVAS_ID_efb}" class="efb-builder-canvas"></div>
+          <div id="${CANVAS_ID_efb}" class="efb-builder-canvas" role="list" aria-label="${t_efb('ebEmailBlocks', 'Email template blocks')}"></div>
         </div>
 
         <!-- Right: Properties -->
@@ -2059,6 +2406,7 @@ ${blocksHtml}
     renderCanvas_efb();
     renderPropertiesPanel_efb();
     initPropertyDelegation_efb();
+    initTooltipHandler_efb();
     syncToTextarea_efb();
 
     // Keyboard shortcuts
@@ -2068,8 +2416,25 @@ ${blocksHtml}
       if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redo_efb(); }
       if (e.key === 'Delete' && builderState_efb.selectedBlock) {
         const active = document.activeElement;
-        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable)) return;
         removeBlock_efb(builderState_efb.selectedBlock);
+      }
+      // Arrow keys to navigate between blocks
+      if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && builderState_efb.selectedBlock) {
+        const active = document.activeElement;
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable)) return;
+        e.preventDefault();
+        const idx = builderState_efb.blocks.findIndex(b => b.id === builderState_efb.selectedBlock);
+        if (idx === -1) return;
+        const newIdx = e.key === 'ArrowUp' ? idx - 1 : idx + 1;
+        if (newIdx >= 0 && newIdx < builderState_efb.blocks.length) {
+          builderState_efb.selectedBlock = builderState_efb.blocks[newIdx].id;
+          renderCanvas_efb();
+          renderPropertiesPanel_efb();
+          // scroll into view
+          const el = document.querySelector(`.efb-canvas-block[data-block-id="${builderState_efb.selectedBlock}"]`);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       }
     });
   }
@@ -2091,7 +2456,7 @@ ${blocksHtml}
     builderState_efb.blocks = [];
     builderState_efb.selectedBlock = null;
     loadTemplate_efb('professional');
-    showNotification_efb('✅ ' + t_efb('ebTemplateReset', 'Template reset to default!'), 'success');
+    showNotification_efb('<i class="efb bi-check-circle-fill me-1"></i>' + t_efb('ebTemplateReset', 'Template reset to default!'), 'success');
   }
 
   /* ──────────── INJECT CSS ──────────────────────────────────── */
@@ -2112,6 +2477,10 @@ ${blocksHtml}
       font-size: 13px;
       position: relative;
     }
+
+    /* ── RTL-safe spacing utilities ── */
+    #${BUILDER_ID_efb} .me-1 { margin-inline-end: .25rem; }
+    #${BUILDER_ID_efb} .ms-1 { margin-inline-start: .25rem; }
 
     /* ── Toolbar ── */
     .efb-builder-toolbar {
@@ -2258,6 +2627,11 @@ ${blocksHtml}
       border-radius: 6px;
       transition: all .15s;
       cursor: pointer;
+      animation: efbBlockIn .25s ease-out;
+    }
+    @keyframes efbBlockIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .efb-canvas-block:hover { border-color: #c7d2fe; }
     .efb-canvas-block.efb-block-selected { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
@@ -2398,6 +2772,84 @@ ${blocksHtml}
     }
     .efb-sc-btn:hover { background: #c7d2fe; }
 
+    /* ── Shortcode Chip Editor ── */
+    .efb-chip-editor {
+      width: 100%;
+      padding: 5px 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      font-size: 12px;
+      color: #334155;
+      background: #ffffff;
+      transition: border-color .15s, box-shadow .15s;
+      box-sizing: border-box;
+      font-family: inherit;
+      min-height: 32px;
+      line-height: 1.9;
+      outline: none;
+      cursor: text;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+    .efb-chip-editor:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+    .efb-chip-editor:empty::before {
+      content: attr(data-placeholder);
+      color: #94a3b8;
+      pointer-events: none;
+    }
+    .efb-chip-editor-single {
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .efb-chip-editor-multi {
+      min-height: 60px;
+      overflow-y: auto;
+    }
+    .efb-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 1px 5px 1px 6px;
+      margin: 1px 2px;
+      background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      border: 1px solid #c7d2fe;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #4338ca;
+      line-height: 1.6;
+      cursor: default;
+      user-select: none;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .efb-chip i { font-size: 10px; opacity: .7; }
+    .efb-chip-remove {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      margin-inline-start: 3px;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      color: #818cf8;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      padding: 0;
+      transition: all .15s;
+    }
+    .efb-chip-remove:hover {
+      background: #c7d2fe;
+      color: #4338ca;
+    }
+
     /* ── Social link rows ── */
     .efb-social-link-row { display: flex; gap: 4px; margin-bottom: 4px; align-items: center; }
     .efb-social-link-row .efb-prop-input { flex: 1; }
@@ -2473,6 +2925,84 @@ ${blocksHtml}
     .efb-notif-warning { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
     .efb-notif-info { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
     @keyframes efbNotifIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+    /* ── Custom Scrollbar ── */
+    .efb-sidebar-content::-webkit-scrollbar,
+    .efb-builder-canvas-wrap::-webkit-scrollbar,
+    .efb-builder-sidebar-right::-webkit-scrollbar {
+      width: 6px;
+    }
+    .efb-sidebar-content::-webkit-scrollbar-track,
+    .efb-builder-canvas-wrap::-webkit-scrollbar-track,
+    .efb-builder-sidebar-right::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .efb-sidebar-content::-webkit-scrollbar-thumb,
+    .efb-builder-canvas-wrap::-webkit-scrollbar-thumb,
+    .efb-builder-sidebar-right::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    .efb-sidebar-content::-webkit-scrollbar-thumb:hover,
+    .efb-builder-canvas-wrap::-webkit-scrollbar-thumb:hover,
+    .efb-builder-sidebar-right::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    /* Firefox scrollbar */
+    .efb-sidebar-content,
+    .efb-builder-canvas-wrap,
+    .efb-builder-sidebar-right {
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 transparent;
+    }
+
+    /* ── Focus-Visible (Accessibility) ── */
+    .efb-tb-btn:focus-visible,
+    .efb-blk-btn:focus-visible,
+    .efb-stab:focus-visible,
+    .efb-sc-action-btn:focus-visible,
+    .efb-sc-btn:focus-visible,
+    .efb-draggable-block:focus-visible,
+    .efb-template-card:focus-visible {
+      outline: 2px solid #667eea;
+      outline-offset: 2px;
+    }
+    .efb-prop-input:focus-visible,
+    .efb-prop-textarea:focus-visible,
+    .efb-prop-select:focus-visible,
+    .efb-chip-editor:focus-visible {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+    }
+    .efb-canvas-block:focus-visible {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+      outline: none;
+    }
+
+    /* ── Color Preset Swatches ── */
+    .efb-color-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-top: 4px;
+    }
+    .efb-color-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      cursor: pointer;
+      transition: transform .1s, box-shadow .1s;
+      padding: 0;
+      outline: none;
+    }
+    .efb-color-swatch:hover {
+      transform: scale(1.2);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
 
     /* ── Responsive ── */
     @media (max-width: 900px) {
@@ -2618,17 +3148,10 @@ ${blocksHtml}
       color: #16a34a;
     }
 
-    /* ── Hover Tooltip (data-efb-tooltip) ── */
-    [data-efb-tooltip] {
-      position: relative;
-    }
-    [data-efb-tooltip]::after {
-      content: attr(data-efb-tooltip);
-      position: absolute;
-      left: 105%;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 999;
+    /* ── Hover Tooltip (JS-positioned — rendered at builder root to avoid overflow clip) ── */
+    .efb-tooltip-js {
+      position: fixed;
+      z-index: 9999;
       background: #1e293b;
       color: #f1f5f9;
       font-size: 11px;
@@ -2636,83 +3159,53 @@ ${blocksHtml}
       line-height: 1.5;
       padding: 8px 12px;
       border-radius: 6px;
-      white-space: normal;
       width: 220px;
-      max-width: 260px;
+      max-width: 280px;
       pointer-events: none;
       opacity: 0;
       visibility: hidden;
       transition: opacity .2s ease, visibility .2s ease;
       box-shadow: 0 4px 16px rgba(0,0,0,0.18);
       text-align: start;
+      word-wrap: break-word;
     }
-    [data-efb-tooltip]::before {
-      content: '';
-      position: absolute;
-      left: 100%;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 999;
-      border: 6px solid transparent;
-      border-right-color: #1e293b;
-      pointer-events: none;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity .2s ease, visibility .2s ease;
-    }
-    [data-efb-tooltip]:hover::after,
-    [data-efb-tooltip]:hover::before {
+    .efb-tooltip-js.efb-tooltip-visible {
       opacity: 1;
       visibility: visible;
     }
-
-    /* ── Tooltip RTL Support ── */
-    [dir="rtl"] [data-efb-tooltip]::after,
-    .rtl [data-efb-tooltip]::after {
-      left: auto;
-      right: 105%;
-      text-align: right;
+    .efb-tooltip-js::before {
+      content: '';
+      position: absolute;
+      border: 6px solid transparent;
     }
-    [dir="rtl"] [data-efb-tooltip]::before,
-    .rtl [data-efb-tooltip]::before {
-      left: auto;
+    .efb-tooltip-js.efb-tooltip-right::before {
       right: 100%;
-      border-right-color: transparent;
+      top: 50%;
+      transform: translateY(-50%);
+      border-right-color: #1e293b;
+    }
+    .efb-tooltip-js.efb-tooltip-left::before {
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
       border-left-color: #1e293b;
     }
-
-    /* ── Tooltip fallback for narrow left panel: show below ── */
-    @media (max-width: 900px) {
-      [data-efb-tooltip]::after {
-        left: 50%;
-        right: auto;
-        top: auto;
-        bottom: calc(100% + 8px);
-        transform: translateX(-50%);
-      }
-      [data-efb-tooltip]::before {
-        left: 50%;
-        right: auto;
-        top: auto;
-        bottom: 100%;
-        transform: translateX(-50%);
-        border-right-color: transparent;
-        border-top-color: #1e293b;
-        border-left-color: transparent;
-      }
-      [dir="rtl"] [data-efb-tooltip]::after,
-      .rtl [data-efb-tooltip]::after {
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
-      }
-      [dir="rtl"] [data-efb-tooltip]::before,
-      .rtl [data-efb-tooltip]::before {
-        left: 50%;
-        right: auto;
-        border-left-color: transparent;
-      }
+    .efb-tooltip-js.efb-tooltip-bottom::before {
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-bottom-color: #1e293b;
     }
+    .efb-tooltip-js.efb-tooltip-top::before {
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-top-color: #1e293b;
+    }
+    /* Hide old CSS tooltips since we use JS now */
+    [data-efb-tooltip] { position: relative; }
+    [data-efb-tooltip]::after,
+    [data-efb-tooltip]::before { display: none !important; }
     `;
     document.head.appendChild(style);
   }
@@ -2742,6 +3235,7 @@ ${blocksHtml}
     switchSidebarTab_efb,
     copyShortcode_efb,
     insertShortcodeFromPanel_efb,
+    _applyColorPreset_efb,
     undo_efb,
     redo_efb,
     getState: () => builderState_efb,

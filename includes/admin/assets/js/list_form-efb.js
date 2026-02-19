@@ -1,5 +1,5 @@
 
-
+ let devMode_efb = false
 
 // Ensure efbLoadingCard is available even if admin-efb.js hasn't loaded yet
 if (typeof efbLoadingCard === 'undefined') {
@@ -168,6 +168,7 @@ jQuery(function () {
   response_state_efb = ajax_object_efm.response_state;
   pro_ws_efb = ajax_object_efm.pro == '1' ? true : false;
   page_state_efb="panel";
+  devMode_efb =Number(ajax_object_efm.devMode) === 1 ? true : false;
   if (ajax_object_efm.setting, ajax_object_efm.setting.length > 0) {
     const rawSetting = ajax_object_efm.setting[0].setting;
     console.log('rawSetting',rawSetting)
@@ -294,7 +295,7 @@ function fun_emsFormBuilder_render_view(x) {
 
 
     document.getElementById('content-efb').innerHTML = `
-   <h4 class="efb title-holder efb fs-4"> <img src="${efb_var.images.title}" class="efb title efb">
+   <h4 class="efb title-holder efb fs-4 d-none"> <img src="${efb_var.images.title}" class="efb title efb">
                 <i class="efb  bi-archive title-icon  mx-1 fs-4"></i>${efb_var.text.forms}
             </h4>
     <div class="efb card efb">
@@ -665,7 +666,7 @@ function fun_ws_show_list_messages(value) {
 
 
   document.getElementById('content-efb').innerHTML = `<div class="efb head-efb">${head}</div>
-    <h4 class="efb title-holder efb fs-4"> <img src="${efb_var.images.title}" class="efb title efb">
+    <h4 class="efb title-holder efb fs-4 d-none"> <img src="${efb_var.images.title}" class="efb title efb">
     <i class="efb  bi-archive title-icon  mx-1 fs-4"></i>${efb_var.text.messages}
     </h4>
     <div class="efb card efb">
@@ -1052,7 +1053,9 @@ function fun_show_content_page_emsFormBuilder(state) {
       fun_backButton_efb();
       fun_hande_active_page_emsFormBuilder(1);
   }
+
   fun_hande_active_page_emsFormBuilder(state);
+
 }
 
 function fun_hande_active_page_emsFormBuilder(no) {
@@ -1104,7 +1107,7 @@ function fun_show_help__emsFormBuilder() {
   document.getElementById('content-efb').innerHTML = `
   <img src="${efb_var.images.title}"  class="efb crcle-footer">
   <div class="efb container row">
-  <h4 class="efb title-holder efb fs-4">
+  <h4 class="efb title-holder efb fs-4 d-none">
       <img src="${efb_var.images.title}" class="efb title efb">
       <i class="efb  bi-info-circle title-icon mx-2"></i>${efb_var.text.lrnmrs.replace('%s', '')}
   </h4>
@@ -1151,6 +1154,7 @@ function fun_show_setting__emsFormBuilder() {
   let sessionDuration = 1; // Default 1 day
   let act_local_efb =scaptcha =false;
   let dsupfile= showIp =activeDlBtn =scaptcha=act_local_efb =false;
+
   let phoneNumbers=sms_method = 'null';
   let femail ='null';
   let demail ='no-reply@'+ window.location.hostname;
@@ -1280,7 +1284,7 @@ function fun_show_setting__emsFormBuilder() {
   console.log('efb_var.setting.package_type:', efb_var.setting.package_type);
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
-            <h4 class="efb title-holder efb fs-4">
+            <h4 class="efb title-holder efb fs-4 d-none">
                 <img src="${efb_var.images.title}" class="efb title efb">
                 <i class="efb  bi-gear title-icon mx-1"></i>${efb_var.text.setting}
             </h4>
@@ -1360,6 +1364,26 @@ function fun_show_setting__emsFormBuilder() {
                                 <label class="efb form-check-label fs-6 efb mx-2 my-3" for="osLocationPicker_emsFormBuilder">${efb_var.text.elpo}</label>
                                 </div>
 
+
+                              <!-- Development Mode Toggle -->
+                              <h5 class="efb card-title mt-4 mobile-title">
+                                <i class="efb bi-code-slash m-3"></i>${efb_var.text.devMode}
+                              </h5>
+                              <p class="efb ${mxCSize}">${efb_var.text.devModeDesc}</p>
+                              <div class="efb card-body mx-0 py-0 ${mxCSize4}">
+                                  <button type="button" id="devMode_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${devMode_efb == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off" >
+                                  <div class="efb handle"></div>
+                                  </button>
+                                  <label class="efb form-check-label fs-6 efb mx-2 my-3" for="devMode_emsFormBuilder">${efb_var.text.devMode}</label>
+                              </div>
+                              <div class="efb mx-4 mt-3 mb-2">
+                                <div class="efb d-flex align-items-start p-3 rounded-3" style="background:linear-gradient(135deg,#fffde7 0%,#fff8e1 100%);border-left:4px solid #f9a825;border-top:1px solid #ffe08233;border-right:1px solid #ffe08233;border-bottom:1px solid #ffe08233;box-shadow:0 1px 4px rgba(249,168,37,0.10);">
+                                  <i class="efb bi-exclamation-triangle-fill" style="color:#f9a825;font-size:1.25rem;min-width:28px;margin-top:1px;"></i>
+                                  <div class="efb mx-2" style="line-height:1.6;">
+                                    <span class="efb" style="color:#5d4037;font-size:0.9rem;">${efb_var.text.devModeWarn}</span>
+                                  </div>
+                                </div>
+                              </div>
                                 <div class="efb clearfix"></div>
 
 
@@ -1475,8 +1499,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <input type="hidden" id="respCustomFont_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respCustomFont.replace(/"/g, '&quot;')}">
                               </div>
 
-
-                            <!--End General-->
+                            <!--End Response Customize window-->
                             </div>
                         </div>
                         <div class="efb tab-pane fade" id="nav-google" role="tabpanel" aria-labelledby="nav-profile-tab">
@@ -2378,6 +2401,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const adminSN  = f('adminSN_emsFormBuilder');
     //const showIp = f('showIp_emsFormBuilder');
     const showIp=false;
+    const devMode_efb = f('devMode_emsFormBuilder');
 
     // Validate and get sessionDuration
     const sessionDurationEl = document.getElementById('sessionDuration_emsFormBuilder');
@@ -2476,7 +2500,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
          AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb,showIp:showIp,adminSN:adminSN,osLocationPicker:osLocationPicker,sessionDuration:sessionDuration,
          respPrimary:respPrimary,respPrimaryDark:respPrimaryDark,respAccent:respAccent,respText:respText,respTextMuted:respTextMuted,respBgCard:respBgCard,respBgMeta:respBgMeta,
-         respBgTrack:respBgTrack,respBgResp:respBgResp,respBgEditor:respBgEditor,respEditorText:respEditorText,respEditorPh:respEditorPh,respBtnText:respBtnText,respFontFamily:respFontFamily,respFontSize:respFontSize,respCustomFont:respCustomFont
+         respBgTrack:respBgTrack,respBgResp:respBgResp,respBgEditor:respBgEditor,respEditorText:respEditorText,respEditorPh:respEditorPh,respBtnText:respBtnText,respFontFamily:respFontFamily,respFontSize:respFontSize,respCustomFont:respCustomFont,
+         devMode:devMode_efb
         } , state_auto);
   }
 

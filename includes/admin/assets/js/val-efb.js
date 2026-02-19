@@ -3551,7 +3551,10 @@ function savePlanSelection_efb(plan, planData) {
  * @returns {object|null} اطلاعات plan انتخاب شده
  */
 function getSelectedPlan_efb() {
-  console.log(efb_var.setting.package_type);
+    if (typeof efb_var === 'undefined' || !efb_var.setting) {
+      return { selected_plan: 'null', plan_data: {} };
+    }
+    console.log(efb_var.setting.package_type);
     const package_type = Number(efb_var.setting.package_type);
     if (package_type === 10) {
       return { selected_plan: 'null', plan_data: {} };
@@ -3562,6 +3565,7 @@ function getSelectedPlan_efb() {
     }else if (package_type === 3) {
       return { selected_plan: 'free_plus', plan_data: {} };
     }
+    return { selected_plan: 'null', plan_data: {} };
 }
 
 /**
@@ -4217,7 +4221,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Check if we're on the form builder page and setup should be shown
     const getPlan = getSelectedPlan_efb();
     console.log('Current selected plan:', getPlan);
-    if (getPlan.selected_plan === 'null') {
+    if (getPlan && getPlan.selected_plan === 'null') {
       // Small delay to ensure all elements are loaded
       setTimeout(() => {
         try {
