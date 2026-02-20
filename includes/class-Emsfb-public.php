@@ -71,6 +71,11 @@ class _Public {
 				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
+			register_rest_route('Emsfb/v1','forms/payment/paypal/subscription/activate', [
+				'methods' => 'POST',
+				'callback'=>  [$this,'pay_paypal_subscription_activate_Emsfb_api'],
+				'permission_callback' => [$this, 'check_nonce_permission_efb']
+			]);
 
 			register_rest_route('Emsfb/v1','forms/response/get', [
 				'methods' => 'POST',
@@ -6137,13 +6142,16 @@ public function check_nonce_permission_efb($request) {
 		});
 
 		if ($isSubscription) {
-			// ----- SUBSCRIPTION FLOW: Product → Plan → Subscription -----
-			$subResult = $paypal->create_subscription_flow(
+			// ----- SUBSCRIPTION FLOW: Create Product + Plan only -----
+			// The actual Subscription is created client-side by PayPal JS SDK
+			// (actions.subscription.create) so the buyer approves in the popup
+			// and PayPal activates + charges the setup_fee immediately.
+			$planResult = $paypal->create_plan_flow(
 				$server, $accessToken, $this->id, $amount, $currency, $paymentmethod
 			);
 
-			if (!$subResult['success']) {
-				wp_send_json_success(['success' => false, 'm' => $subResult['m']], 200);
+			if (!$planResult['success']) {
+				wp_send_json_success(['success' => false, 'm' => $planResult['m']], 200);
 				return;
 			}
 
@@ -6154,11 +6162,11 @@ public function check_nonce_permission_efb($request) {
 
 			$ar = (object)[
 				'id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder'),'type'=>'payment',
-				'value'=> $payA, 'paymentIntent'=> $subResult['subscription_id'], 'paymentGateway'=>'paypal', 'paymentmethod'=>'subscription',
+				'value'=> $payA, 'paymentIntent'=> $planResult['plan_id'], 'paymentGateway'=>'paypal', 'paymentmethod'=>'subscription',
 				'paymentAmount'=>$amount, 'paymentCreated'=>$created, 'paymentcurrency'=>$currency, 'gateway'=>'paypal',
 				'uid'=>$uid, 'status'=>'pending', 'updatetime'=>$created, 'description'=>$description,
 				'total'=>$amount, 'interval'=>$intervalLabel,
-				'subscription_id'=>$subResult['subscription_id'], 'plan_id'=>$subResult['plan_id'], 'product_id'=>$subResult['product_id']
+				'plan_id'=>$planResult['plan_id'], 'product_id'=>$planResult['product_id']
 			];
 			$filtered = array_merge($filtered, array($ar));
 
@@ -6169,11 +6177,11 @@ public function check_nonce_permission_efb($request) {
 
 			$response = [
 				'success' => true,
-				'id' => $subResult['subscription_id'],
+				'plan_id' => $planResult['plan_id'],
+				'start_time' => $planResult['start_time'],
 				'uid' => $uid,
 				'trackid' => $check,
 				'type' => 'subscription',
-				'approval_url' => $subResult['approval_url'],
 			];
 
 		} else {
@@ -6272,6 +6280,59 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success(['success' => false, 'm' => $error_msg], 200);
 		}
 	}
+
+	/**
+	 * Save subscription_id after buyer approves inside the PayPal popup.
+	 * Called from frontend onApprove callback for subscriptions.
+	 */
+	public function pay_paypal_subscription_activate_Emsfb_api($data_POST_) {
+		$data_POST = $data_POST_->get_json_params();
+		$subscription_id = sanitize_text_field($data_POST['subscriptionID'] ?? '');
+		$trackid = sanitize_text_field($data_POST['trackid'] ?? '');
+		$form_id = sanitize_text_field($data_POST['formID'] ?? '');
+
+		if (empty($subscription_id) || empty($trackid)) {
+			wp_send_json_success(['success' => false, 'm' => esc_html__('Missing subscription data', 'easy-form-builder')], 400);
+			return;
+		}
+
+		// Update the existing DB record: store the subscription_id and set status to active
+		$table_name = $this->db->prefix . "emsfb";
+		$row = $this->db->get_row(
+			$this->db->prepare("SELECT * FROM `$table_name` WHERE tracking = %s", $trackid)
+		);
+
+		if ($row) {
+			// Update the stored JSON value to include subscription_id
+			$value = str_replace('\\"', '"', $row->value);
+			$decoded = json_decode($value, true);
+			if (is_array($decoded)) {
+				foreach ($decoded as &$item) {
+					if (isset($item['type']) && $item['type'] === 'payment') {
+						$item['subscription_id'] = $subscription_id;
+						$item['paymentIntent'] = $subscription_id;
+						$item['status'] = 'active';
+						break;
+					}
+				}
+				unset($item);
+				$updated_value = json_encode($decoded, JSON_UNESCAPED_UNICODE);
+				$updated_value = str_replace('"', '\\"', $updated_value);
+				$this->db->update(
+					$table_name,
+					['value' => $updated_value, 'status' => 1],
+					['tracking' => $trackid]
+				);
+			}
+		}
+
+		wp_send_json_success([
+			'success' => true,
+			'subscriptionID' => $subscription_id,
+			'trackid' => $trackid
+		], 200);
+	}
+
 	/**
 	 * DEPRECATED - Replaced by fix_elementor_complete_protection
 	 * Ultimate Elementor fix - runs at document level

@@ -813,10 +813,12 @@ class EmsfbEmailHandler {
         $temp = strtr($temp, $replacements);
 
         // Decode @efb@ URL encoding — each @efb@ represents exactly one /
-        // Note: the previous regex /@efb@+/ had a greedy quantifier bug where @+
-        // consumed adjacent @efb@ tokens (e.g. https:@efb@@efb@ decoded to
-        // https://efb@ instead of https://). str_replace handles each token correctly.
-        $temp = preg_replace(['/http:@efb@+/', '/https:@efb@+/'], ['http://', 'https://'], $temp);
+        // Protocol fix: wp_kses may normalize http:// to http:/ during save,
+        // so the DB may store http:@efb@ (one token) instead of http:@efb@@efb@ (two).
+        // (?:@efb@)+ matches one OR more complete @efb@ groups and restores ://
+        // The old regex @efb@+ was wrong because + applied to just the last @,
+        // eating into the next @efb@ token on two-token cases.
+        $temp = preg_replace(['/http:(?:@efb@)+/', '/https:(?:@efb@)+/'], ['http://', 'https://'], $temp);
         $temp = str_replace('@efb@', '/', $temp);
 
         // Detect builder template (contains efb-email-container class from the drag-drop builder)
