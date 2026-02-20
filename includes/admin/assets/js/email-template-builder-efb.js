@@ -117,7 +117,7 @@
     if (!preset) return '';
     const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}" fill="${color || preset.color}">${preset.svg}</svg>`;
     try {
-      const b64 = btoa(svgStr);
+      const b64 = btoa(unescape(encodeURIComponent(svgStr)));
       return `<img src="data:image/svg+xml;base64,${b64}" width="${size}" height="${size}" alt="${preset.label}" style="display:inline-block;vertical-align:middle;border:none;" />`;
     } catch(e) { return ''; }
   }
@@ -968,6 +968,7 @@ ${blocksHtml}
 
     renderCanvas_efb();
     renderPropertiesPanel_efb();
+    renderGlobalSettings_efb();
     syncToTextarea_efb();
   }
 
@@ -1271,6 +1272,7 @@ ${blocksHtml}
   function updateBlockData_efb(id, key, value) {
     const block = findBlockById_efb(id);
     if (!block) return;
+    saveState_efb();
     if (!block.data) block.data = {};
     block.data[key] = value;
     renderCanvas_efb();
@@ -2422,6 +2424,11 @@ ${blocksHtml}
     const builder = document.getElementById(BUILDER_ID_efb);
     if (!builder) return;
 
+    // Clean up previous tooltip element if re-initializing
+    if (_tooltipEl_efb && _tooltipEl_efb.parentNode) {
+      _tooltipEl_efb.parentNode.removeChild(_tooltipEl_efb);
+    }
+
     // Create tooltip element once
     _tooltipEl_efb = document.createElement('div');
     _tooltipEl_efb.className = 'efb-tooltip-js';
@@ -2746,8 +2753,9 @@ ${blocksHtml}
     initTooltipHandler_efb();
     syncToTextarea_efb();
 
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
+    // Keyboard shortcuts (remove previous to prevent accumulation on re-init)
+    if (window._efbKeyHandler) document.removeEventListener('keydown', window._efbKeyHandler);
+    window._efbKeyHandler = (e) => {
       if (!document.getElementById(BUILDER_ID_efb)) return;
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo_efb(); }
       if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redo_efb(); }
@@ -2773,7 +2781,8 @@ ${blocksHtml}
           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       }
-    });
+    };
+    document.addEventListener('keydown', window._efbKeyHandler);
   }
 
   function switchSidebarTab_efb(tab, btn) {
