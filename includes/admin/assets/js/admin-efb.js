@@ -224,6 +224,9 @@ function Link_emsFormBuilder(state) {
         //How to Exclude easy form builder Forms from Caching Plugins
         link += `/exclude-easy-form-builder-froms-cache/`;
         break;
+      case 'translateWP':
+        link = 'https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/';
+        break;
       case 'paypal':
         link += `s/how-to-setup-paypal-payment-in-easy-form-builder/`;
       break;
@@ -314,6 +317,9 @@ function Link_emsFormBuilder(state) {
       case 'paypal':
         link = `https://whitestudio.team/documents/how-to-setup-paypal-payment-in-easy-form-builder/`;
       break;
+      case 'translateWP':
+        link = 'https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/';
+        break;
     }
   }
 

@@ -60,6 +60,11 @@
 
   const DEFAULT_FONT_efb = "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
 
+  /** Returns the effective default font: global settings font → hardcoded default */
+  function _gFont_efb() {
+    return builderState_efb?.globalSettings?.fontFamily || DEFAULT_FONT_efb;
+  }
+
   /* ─────────────────────────── COLOR PRESETS ─────────────────────────── */
 
   const COLOR_PRESETS_efb = [
@@ -98,6 +103,31 @@
     const preset = SOCIAL_PRESETS_efb[key];
     if (!preset) return '';
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}" fill="${color || preset.color}">${preset.svg}</svg>`;
+  }
+
+  /**
+   * Generate a base64-encoded <img> tag for a social icon SVG.
+   * Used in email HTML render instead of inline <svg> because:
+   * - Server-side sanitizers (wp_kses) strip <svg>/<path> tags
+   * - Email clients don't reliably support inline SVG
+   * - <img src="data:image/svg+xml;base64,..."> is safe and well-supported
+   */
+  function _socialSvgImg_efb(key, size, color) {
+    const preset = SOCIAL_PRESETS_efb[key];
+    if (!preset) return '';
+    const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}" fill="${color || preset.color}">${preset.svg}</svg>`;
+    try {
+      const b64 = btoa(svgStr);
+      return `<img src="data:image/svg+xml;base64,${b64}" width="${size}" height="${size}" alt="${preset.label}" style="display:inline-block;vertical-align:middle;border:none;" />`;
+    } catch(e) { return ''; }
+  }
+
+  /** Encode an arbitrary SVG string as a base64 <img> tag (for custom SVGs). */
+  function _svgToImg_efb(svgStr, size, altText) {
+    try {
+      const b64 = btoa(unescape(encodeURIComponent(svgStr)));
+      return `<img src="data:image/svg+xml;base64,${b64}" width="${size}" height="${size}" alt="${altText || ''}" style="display:inline-block;vertical-align:middle;border:none;" />`;
+    } catch(e) { return ''; }
   }
 
   /**
@@ -287,7 +317,7 @@
         align: 'center'
       },
       render(data) {
-        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
+        const ff = sanitizeCss_efb(data.fontFamily || _gFont_efb());
         return `<tr><td align="${sanitizeAttr_efb(data.align)}">
           <h1 style="margin: 0; padding: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; font-weight: ${sanitizeAttr_efb(data.fontWeight)}; line-height: 1.3; text-align: ${sanitizeAttr_efb(data.align)}; font-family: ${ff};">${sanitizeText_efb(data.text)}</h1>
         </td></tr>`;
@@ -308,7 +338,7 @@
         padding: '20px 30px'
       },
       render(data) {
-        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
+        const ff = sanitizeCss_efb(data.fontFamily || _gFont_efb());
         return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)};">
           <p style="margin: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: ${sanitizeAttr_efb(data.lineHeight)}; text-align: ${sanitizeAttr_efb(data.align)}; font-family: ${ff};">${sanitizeText_efb(data.text)}</p>
         </td></tr>`;
@@ -328,7 +358,7 @@
         align: 'center'
       },
       render(data) {
-        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
+        const ff = sanitizeCss_efb(data.fontFamily || _gFont_efb());
         return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)}; background-color: ${sanitizeCss_efb(data.bgColor)};">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
             <tr><td align="${sanitizeAttr_efb(data.align)}" style="color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.6; text-align: ${sanitizeAttr_efb(data.align)}; font-family: ${ff};">
@@ -356,7 +386,7 @@
         containerPadding: '25px 30px'
       },
       render(data) {
-        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
+        const ff = sanitizeCss_efb(data.fontFamily || _gFont_efb());
         const ba = sanitizeAttr_efb(data.align);
         const btnMargin = ba === 'left' ? '0 auto 0 0' : ba === 'right' ? '0 0 0 auto' : '0 auto';
         return `<tr><td align="${ba}" style="padding: ${sanitizeCss_efb(data.containerPadding)};">
@@ -441,7 +471,7 @@
         bgColor: '#ffffff'
       },
       render(data) {
-        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
+        const ff = sanitizeCss_efb(data.fontFamily || _gFont_efb());
         return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)}; background-color: ${sanitizeCss_efb(data.bgColor)};">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
             <tr>
@@ -475,15 +505,18 @@
         const iconSz = parseInt(data.iconSize, 10) || 24;
         const linksHtml = data.links.map(l => {
           const preset = SOCIAL_PRESETS_efb[l.icon];
-          let svgMarkup;
+          let iconHtml;
           if (l.icon === 'custom' && l.customSvg) {
-            svgMarkup = l.customSvg;
+            // Custom SVG: encode as base64 <img> for email compatibility
+            const svgStr = l.customSvg.includes('<svg') ? l.customSvg
+              : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${iconSz}" height="${iconSz}">${l.customSvg}</svg>`;
+            iconHtml = _svgToImg_efb(svgStr, iconSz, sanitizeAttr_efb(l.name)) || sanitizeText_efb(l.name);
           } else if (preset) {
-            svgMarkup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${iconSz}" height="${iconSz}" fill="${sanitizeCss_efb(data.color)}">${preset.svg}</svg>`;
+            iconHtml = _socialSvgImg_efb(l.icon, iconSz, sanitizeCss_efb(data.color));
           } else {
-            svgMarkup = sanitizeText_efb(l.name);
+            iconHtml = sanitizeText_efb(l.name);
           }
-          return `<a href="${sanitizeUrl_efb(l.url)}" target="_blank" style="display: inline-block; margin: 0 6px; text-decoration: none; vertical-align: middle; line-height: 1;">${svgMarkup}</a>`;
+          return `<a href="${sanitizeUrl_efb(l.url)}" target="_blank" style="display: inline-block; margin: 0 6px; text-decoration: none; vertical-align: middle; line-height: 1;">${iconHtml}</a>`;
         }).join('');
         return `<tr><td align="${sanitizeAttr_efb(data.align)}" style="padding: ${sanitizeCss_efb(data.padding)};">
           ${linksHtml}
@@ -506,7 +539,7 @@
         borderRadius: '0 0 8px 8px'
       },
       render(data) {
-        const ff = sanitizeCss_efb(data.fontFamily || DEFAULT_FONT_efb);
+        const ff = sanitizeCss_efb(data.fontFamily || _gFont_efb());
         return `<tr><td style="padding: ${sanitizeCss_efb(data.padding)}; background-color: ${sanitizeCss_efb(data.bgColor)}; border-radius: ${sanitizeCss_efb(data.borderRadius)};">
           <p style="margin: 0; color: ${sanitizeCss_efb(data.color)}; font-size: ${sanitizeAttr_efb(data.fontSize)}px; line-height: 1.5; text-align: ${sanitizeAttr_efb(data.align)}; font-family: ${ff};">${sanitizeText_efb(data.text)}</p>
         </td></tr>`;
@@ -716,14 +749,55 @@
     if (block.children && block.children.length) {
       data.children = block.children;
     }
-    return def.render(data);
+    let html = def.render(data);
+    // Ensure the outer <td> has explicit background-color for email client compatibility
+    const cbg = sanitizeCss_efb(builderState_efb.globalSettings.contentBgColor || '#ffffff');
+    const firstTd = html.match(/<td([^>]*)style="([^"]*)"/i);
+    if (firstTd) {
+      // <td> with style but no background → prepend background-color
+      if (!/background/i.test(firstTd[2])) {
+        html = html.replace(
+          /(<td[^>]*style=")/i,
+          `$1background-color: ${cbg}; `
+        );
+      }
+    } else {
+      // <td> without style attribute (may have other attrs like align) → add style
+      html = html.replace(
+        /<td(?=[ >])/i,
+        `<td style="background-color: ${cbg};"`
+      );
+    }
+    return html;
   }
 
   /* ──────────────────── GENERATE FULL HTML ──────────────────────── */
 
   function generateFullHTML_efb() {
     const gs = builderState_efb.globalSettings;
-    const blocksHtml = builderState_efb.blocks.map(b => renderBlock_efb(b)).join('\n');
+    const br = parseInt(gs.borderRadius) || 0;
+    const blocksHtml = builderState_efb.blocks.map((b, i, arr) => {
+      let html = renderBlock_efb(b);
+      // Inject border-radius into first/last block's outer <td> so corners
+      // match the container radius (important for email clients that ignore overflow:hidden)
+      if (br > 0 && (i === 0 || i === arr.length - 1)) {
+        const topR = i === 0 ? br + 'px' : '0';
+        const botR = i === arr.length - 1 ? br + 'px' : '0';
+        const radiusCss = `border-radius: ${topR} ${topR} ${botR} ${botR}`;
+        const tdStyle = html.match(/<td[^>]*style="([^"]*)"/i);
+        if (tdStyle && /border-radius/i.test(tdStyle[1])) {
+          // Replace existing border-radius with container-aware value
+          html = html.replace(
+            /(<td[^>]*style="[^"]*?)border-radius:\s*[^;"]+;?/i,
+            `$1${radiusCss};`
+          );
+        } else if (tdStyle) {
+          // Prepend border-radius to existing style
+          html = html.replace(/(<td[^>]*style=")/i, `$1${radiusCss}; `);
+        }
+      }
+      return html;
+    }).join('\n');
 
     // Check if message shortcode exists
     const hasMessage = builderState_efb.blocks.some(b => b.type === 'message');
@@ -739,6 +813,7 @@ table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
 img { -ms-interpolation-mode: bicubic; border: 0; }
 body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
 @media only screen and (max-width: 600px) {
+  .efb-email-wrapper { max-width: 100% !important; width: 100% !important; }
   .efb-email-container { width: 100% !important; }
   .efb-email-container td { padding-left: 15px !important; padding-right: 15px !important; }
   img { max-width: 100% !important; height: auto !important; }
@@ -748,9 +823,13 @@ body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
 <body style="margin: 0; padding: 0; width: 100%; background-color: ${sanitizeCss_efb(gs.bgColor)}; direction: ${sanitizeAttr_efb(gs.direction)}; font-family: ${sanitizeCss_efb(gs.fontFamily)};">
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: ${sanitizeCss_efb(gs.bgColor)};">
 <tr><td align="center" style="padding: 20px 0;">
-<table class="efb-email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="${sanitizeAttr_efb(gs.contentWidth)}" style="margin: 0 auto; background-color: ${sanitizeCss_efb(gs.contentBgColor)}; border-radius: ${sanitizeAttr_efb(gs.borderRadius)}px;">
+<!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="${sanitizeAttr_efb(gs.contentWidth)}" align="center"><tr><td><![endif]-->
+<div class="efb-email-wrapper" style="max-width: ${sanitizeAttr_efb(gs.contentWidth)}px; margin: 0 auto; border-radius: ${sanitizeAttr_efb(gs.borderRadius)}px; overflow: hidden; background-color: ${sanitizeCss_efb(gs.contentBgColor)};">
+<table class="efb-email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: ${sanitizeCss_efb(gs.contentBgColor)};">
 ${blocksHtml}
 </table>
+</div>
+<!--[if mso]></td></tr></table><![endif]-->
 </td></tr>
 </table>
 </body>
@@ -968,7 +1047,7 @@ ${blocksHtml}
         const childrenHtml = (block.children || []).map(c => {
           const cd = Object.assign({}, BLOCK_TYPES_efb[c.type]?.defaultData || {}, c.data || {});
           if (c.type === 'logo') { const lm = ha === 'left' ? '0 auto 10px 0' : ha === 'right' ? '0 0 10px auto' : '0 auto 10px'; return `<div style="text-align:${ha};"><img src="${cd.src}" style="width:${Math.min(cd.width,80)}px;height:auto;display:block;margin:${lm};" /></div>`; }
-          if (c.type === 'title') return `<div style="text-align:${ha};color:${cd.color};font-size:${pfs(cd.fontSize)}px;font-weight:${cd.fontWeight};font-family:${cd.fontFamily || DEFAULT_FONT_efb};">${highlightShortcodes_efb(cd.text)}</div>`;
+          if (c.type === 'title') return `<div style="text-align:${ha};color:${cd.color};font-size:${pfs(cd.fontSize)}px;font-weight:${cd.fontWeight};font-family:${cd.fontFamily || _gFont_efb()};">${highlightShortcodes_efb(cd.text)}</div>`;
           return '';
         }).join('');
         return `<div style="background:${data.bgGradient || data.bgColor};padding:${spad(data.padding)};border-radius:4px;text-align:${ha};">${childrenHtml}</div>`;
@@ -976,9 +1055,9 @@ ${blocksHtml}
         const logoM = data.align === 'left' ? '0 auto 0 0' : data.align === 'right' ? '0 0 0 auto' : '0 auto';
         return `<div style="text-align:${data.align};padding:8px;"><img src="${data.src}" style="width:${Math.min(data.width,60)}px;height:auto;display:block;margin:${logoM};" onerror="this.style.display='none'" /></div>`;
       case 'title':
-        return `<div style="text-align:${data.align};color:${data.color};font-size:${pfs(data.fontSize)}px;font-weight:${data.fontWeight};font-family:${data.fontFamily || DEFAULT_FONT_efb};padding:5px;">${highlightShortcodes_efb(data.text)}</div>`;
+        return `<div style="text-align:${data.align};color:${data.color};font-size:${pfs(data.fontSize)}px;font-weight:${data.fontWeight};font-family:${data.fontFamily || _gFont_efb()};padding:5px;">${highlightShortcodes_efb(data.text)}</div>`;
       case 'text':
-        return `<div style="text-align:${data.align};color:${data.color};font-size:${pfs(data.fontSize)}px;font-family:${data.fontFamily || DEFAULT_FONT_efb};padding:${spad(data.padding)};line-height:1.4;">${highlightShortcodes_efb(data.text)}</div>`;
+        return `<div style="text-align:${data.align};color:${data.color};font-size:${pfs(data.fontSize)}px;font-family:${data.fontFamily || _gFont_efb()};padding:${spad(data.padding)};line-height:1.4;">${highlightShortcodes_efb(data.text)}</div>`;
       case 'message':
         return `<div style="text-align:${data.align};background:${data.bgColor};padding:${spad(data.padding)};border:2px dashed #667eea;border-radius:4px;">
           <i class="efb bi-chat-square-text" style="font-size:20px;color:#667eea;"></i>
@@ -987,7 +1066,7 @@ ${blocksHtml}
         </div>`;
       case 'button':
         return `<div style="text-align:${data.align};padding:${spad(data.containerPadding || '8px')};">
-          <span style="display:inline-block;background:${data.bgColor};color:${data.textColor};padding:${spad(data.padding)};border-radius:${data.borderRadius}px;font-size:${pfs(data.fontSize)}px;font-weight:600;font-family:${data.fontFamily || DEFAULT_FONT_efb};">${highlightShortcodes_efb(data.text)}</span>
+          <span style="display:inline-block;background:${data.bgColor};color:${data.textColor};padding:${spad(data.padding)};border-radius:${data.borderRadius}px;font-size:${pfs(data.fontSize)}px;font-weight:600;font-family:${data.fontFamily || _gFont_efb()};">${highlightShortcodes_efb(data.text)}</span>
         </div>`;
       case 'divider':
         return `<div style="padding:${spad(data.padding)};"><hr style="border:none;border-top:${data.thickness}px solid ${data.color};width:${data.width}%;margin:0 auto;" /></div>`;
@@ -998,8 +1077,8 @@ ${blocksHtml}
         return `<div style="text-align:${data.align};padding:${spad(data.padding)};"><img src="${data.src}" style="max-width:100%;max-height:80px;height:auto;" onerror="this.style.display='none'" /></div>`;
       case 'columns':
         return `<div style="display:flex;gap:8px;padding:${spad(data.padding)};">
-          <div style="flex:1;background:#f8fafc;padding:8px;border-radius:4px;font-size:${pfs(data.fontSize)}px;color:${data.leftColor};font-family:${data.fontFamily || DEFAULT_FONT_efb};">${highlightShortcodes_efb(data.leftContent)}</div>
-          <div style="flex:1;background:#f8fafc;padding:8px;border-radius:4px;font-size:${pfs(data.fontSize)}px;color:${data.rightColor};font-family:${data.fontFamily || DEFAULT_FONT_efb};">${highlightShortcodes_efb(data.rightContent)}</div>
+          <div style="flex:1;background:#f8fafc;padding:8px;border-radius:4px;font-size:${pfs(data.fontSize)}px;color:${data.leftColor};font-family:${data.fontFamily || _gFont_efb()};">${highlightShortcodes_efb(data.leftContent)}</div>
+          <div style="flex:1;background:#f8fafc;padding:8px;border-radius:4px;font-size:${pfs(data.fontSize)}px;color:${data.rightColor};font-family:${data.fontFamily || _gFont_efb()};">${highlightShortcodes_efb(data.rightContent)}</div>
         </div>`;
       case 'social':
         return `<div style="text-align:${data.align};padding:${spad(data.padding)};display:flex;gap:6px;justify-content:${data.align === 'center' ? 'center' : data.align === 'right' ? 'flex-end' : 'flex-start'};flex-wrap:wrap;">
@@ -1011,7 +1090,7 @@ ${blocksHtml}
           }).join('')}
         </div>`;
       case 'footer':
-        return `<div style="text-align:${data.align};background:${data.bgColor};padding:${spad(data.padding)};border-radius:4px;color:${data.color};font-size:${pfs(data.fontSize)}px;font-family:${data.fontFamily || DEFAULT_FONT_efb};">${highlightShortcodes_efb(data.text)}</div>`;
+        return `<div style="text-align:${data.align};background:${data.bgColor};padding:${spad(data.padding)};border-radius:4px;color:${data.color};font-size:${pfs(data.fontSize)}px;font-family:${data.fontFamily || _gFont_efb()};">${highlightShortcodes_efb(data.text)}</div>`;
       case 'htmlBlock':
         return `<div style="padding:5px;font-size:11px;color:#64748b;border:1px dashed #cbd5e1;border-radius:4px;max-height:60px;overflow:hidden;"><code>&lt;/&gt; ${t_efb('ebCustomHTML', 'Custom HTML')}</code></div>`;
       default:
@@ -2234,6 +2313,20 @@ ${blocksHtml}
     // Apply email background to the canvas wrapper
     const wrap = canvas.closest('.efb-builder-canvas-wrap');
     if (wrap) wrap.style.backgroundColor = gs.bgColor || '#f5f5f5';
+
+    // Apply corner radius to first/last block previews for visual consistency
+    const br = parseInt(gs.borderRadius) || 0;
+    const previews = canvas.querySelectorAll('.efb-block-preview');
+    if (br > 0 && previews.length > 0) {
+      previews[0].style.borderRadius = previews.length === 1
+        ? br + 'px'
+        : `${br}px ${br}px 0 0`;
+      previews[0].style.overflow = 'hidden';
+      if (previews.length > 1) {
+        previews[previews.length - 1].style.borderRadius = `0 0 ${br}px ${br}px`;
+        previews[previews.length - 1].style.overflow = 'hidden';
+      }
+    }
   }
 
   /* ──────────── UTILITY ────────────────────────────────────── */
@@ -2627,8 +2720,8 @@ ${blocksHtml}
         <div class="efb-code-editor-header">
           <span><i class="efb bi-code-slash"></i> ${t_efb('ebHTMLSourceCode', 'HTML Source Code')}</span>
           <div>
-            <button class="efb-tb-btn" onclick="efbEmailBuilder.applyCodeEditor_efb()"><i class="efb bi-check-lg"></i> ${t_efb('ebApply', 'Apply')}</button>
-            <button class="efb-tb-btn" onclick="document.getElementById('efb-code-editor-panel').style.display='none'"><i class="efb bi-x-lg"></i> ${t_efb('close', 'Close')}</button>
+            <button class="efb-tb-btn efb text-dark" onclick="efbEmailBuilder.applyCodeEditor_efb()"><i class="efb bi-check-lg text-info"></i> ${t_efb('ebApply', 'Apply')}</button>
+            <button class="efb-tb-btn efb text-dark" onclick="document.getElementById('efb-code-editor-panel').style.display='none'"><i class="efb bi-x-lg text-danger"></i> ${t_efb('close', 'Close')}</button>
           </div>
         </div>
         <textarea id="efb-code-editor-textarea" class="efb-code-textarea" spellcheck="false"></textarea>

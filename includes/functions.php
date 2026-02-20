@@ -616,6 +616,11 @@ class efbFunction {
 			"ifShowTrackingCodeToUser" => $state ? $ac->text->ifShowTrackingCodeToUser : esc_html__("To hide the Confirmation Code from users, leave the option unmarked.",'easy-form-builder'),
 			"videoOrAudio" => $state ? $ac->text->videoOrAudio : esc_html__('(Video or Audio)','easy-form-builder'),
 			"localization" => $state ? $ac->text->localization : esc_html__('Localization','easy-form-builder'),
+			/* translators: %1$s and %2$s are opening and closing HTML link tags for the WordPress.org translation portal */
+			"translateContrib" => $state ? $ac->text->translateContrib : esc_html__('Help us speak your language! Translate Easy Form Builder on the %1$sWordPress.org translation portal%2$s and make it accessible to your community.','easy-form-builder'),
+			/* translators: %1$s and %2$s are opening and closing HTML link tags for the WordPress.org translation portal, %3$s is the discount percentage */
+			"translateDiscount" => $state && isset($ac->text->translateDiscount) ? $ac->text->translateDiscount : esc_html__('If your language translation is not available yet, translate it and get a %3$s lifetime discount! Contribute via the %1$sWordPress.org translation portal%2$s.','easy-form-builder'),
+			"discountOff" => $state && isset($ac->text->discountOff) ? $ac->text->discountOff : esc_html__('OFF','easy-form-builder'),
 			"translateLocal" => $state ? $ac->text->translateLocal : esc_html__('You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.','easy-form-builder'),
 			"enterValidURL" => $state ? $ac->text->enterValidURL : esc_html__('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 			"emailOrUsername" => $state ? $ac->text->emailOrUsername : esc_html__('Email or Username','easy-form-builder'),
@@ -993,6 +998,8 @@ class efbFunction {
 			"sms_admn_no" => $state  &&  isset($ac->text->sms_admn_no) ? $ac->text->sms_admn_no : esc_html__('Enter administrators’ mobile numbers','easy-form-builder'),
 
 			"sms_efbs" => $state  &&  isset($ac->text->sms_efbs) ? $ac->text->sms_efbs : esc_html__('Easy Form Builder SMS service','easy-form-builder'),
+			/* translators: Phone number format hint shown below the phone input field */
+			"phoneFormatHint" => $state && isset($ac->text->phoneFormatHint) ? $ac->text->phoneFormatHint : esc_html__('Format: +12345678900 or +1 (234) 567-8900','easy-form-builder'),
 			/* translators: WP SMS = WordPress SMS plugin; VeronaLabs = the plugin developer */
 			"sms_wpsmss" => $state  &&  isset($ac->text->sms_wpsmss) ? $ac->text->sms_wpsmss : esc_html__('WSMS plugin by VeronaLabs','easy-form-builder'),
 			"wpsms_nm" => $state  &&  isset($ac->text->wpsms_nm) ? $ac->text->wpsms_nm : esc_html__('WSMS plugin by VeronaLabs is not installed or activated. Please select another option, or install and configure WP SMS.','easy-form-builder'),
@@ -3033,7 +3040,11 @@ public function addon_add_efb($value) {
 			)),
 		);
 
-		$sanitized_html = wp_kses($html, $allowed_tags);
+		// Allow data: protocol for base64-encoded images (social icons use data:image/svg+xml)
+		// Dangerous data: URIs (text/html, text/javascript, application/*) are already
+		// stripped by the regex sanitizer before this function is called.
+		$sanitized_html = wp_kses($html, $allowed_tags, array_merge(wp_allowed_protocols(), array('data')));
+
 
 		// Further sanitize the `style` attribute
 		$sanitized_html = preg_replace_callback(

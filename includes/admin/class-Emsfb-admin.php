@@ -939,26 +939,44 @@ class Admin {
                 }
                   // ── XSS Prevention: strip dangerous patterns before wp_kses ──
                   $v = str_replace('@efb@' , '/', $value);
+
+                  // Preserve EFBDATA comment (URI-encoded builder JSON, safe)
+                  $efbdata_comment = '';
+                  if (preg_match('/<!--\s*EFBDATA:([\S]+)\s*-->/', $v, $efb_match)) {
+                      $efbdata_comment = $efb_match[0];
+                      $v = str_replace($efbdata_comment, '', $v);
+                  }
+
                   // Strip script tags (case-insensitive)
                   $v = preg_replace('/<\s*script[^>]*>.*?<\s*\/\s*script\s*>/is', '', $v);
                   $v = preg_replace('/<\s*script[^>]*>/i', '', $v);
                   // Strip all event handler attributes (onclick, onerror, onload, etc.)
                   $v = preg_replace('/\bon\w+\s*=\s*(["\'][^"]*["\']|[^\s>]+)/i', '', $v);
-                  // Strip javascript: / vbscript: / data:text/html URIs
+                  // Strip javascript: / vbscript: / dangerous data: URIs
                   $v = preg_replace('/javascript\s*:/i', '', $v);
                   $v = preg_replace('/vbscript\s*:/i', '', $v);
                   $v = preg_replace('/data\s*:\s*text\/html/i', '', $v);
+                  $v = preg_replace('/data\s*:\s*text\/javascript/i', '', $v);
+                  $v = preg_replace('/data\s*:\s*application\//i', '', $v);
                   // Strip dangerous CSS expressions
                   $v = preg_replace('/expression\s*\(/i', '', $v);
                   $v = preg_replace('/-moz-binding\s*:/i', '', $v);
                   $v = preg_replace('/behavior\s*:/i', '', $v);
-                  // Strip iframe, object, embed, form, input, svg, math tags
-                  $v = preg_replace('/<\s*\/?(iframe|object|embed|form|input|textarea|button|select|svg|math|base|link|applet)[^>]*>/i', '', $v);
-                  // Now run through wp_kses
+                  // Strip iframe, object, embed, form, input, math tags
+                  // Note: svg removed from this list — social icons use base64 <img> now,
+                  // but keep stripping raw SVG tags for XSS safety
+                  $v = preg_replace('/<\s*\/?(iframe|object|embed|form|input|textarea|button|select|svg|path|math|base|link|applet)[^>]*>/i', '', $v);
+                  // Now run through wp_kses (with data: protocol allowed for base64 images)
                   $v = $efbFunction->sanitize_full_html_efb($v);
                   // wp_kses converts single-quoted HTML attributes to double quotes,
                   // which causes JSON escaping issues when stored. Convert back to single quotes.
                   $v = str_replace('"', "'", $v);
+
+                  // Re-append preserved EFBDATA comment
+                  if ($efbdata_comment) {
+                      $v .= "\n" . $efbdata_comment;
+                  }
+
                   $m[$key] = str_replace('/' , '@efb@', $v);
             }else if($key == 'smtp'){
 

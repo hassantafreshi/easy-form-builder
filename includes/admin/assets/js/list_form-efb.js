@@ -20,7 +20,7 @@ if (typeof efbLoadingCard === 'undefined') {
 
 // Phone number input filter functions
 function allowOnlyPhoneChars_efb(event) {
-  const allowedChars = /[0-9\+\(\)\-\s]/;
+  const allowedChars = /[0-9\+\(\)\-\s,]/;
   const key = String.fromCharCode(event.which || event.keyCode);
 
   // Allow special keys (backspace, delete, tab, enter, etc.)
@@ -45,8 +45,8 @@ function allowOnlyPhoneChars_efb(event) {
 }
 
 function filterPhoneNumberInput_efb(input) {
-  // Remove any characters that are not allowed
-  const allowedPattern = /[^0-9\+\(\)\-\s]/g;
+  // Remove any characters that are not allowed (digits, +, (), -, spaces, comma)
+  const allowedPattern = /[^0-9\+\(\)\-\s,]/g;
   const cursorPosition = input.selectionStart;
   const oldValue = input.value;
   const newValue = oldValue.replace(allowedPattern, '');
@@ -66,6 +66,52 @@ function filterPhoneNumberInput_efb(input) {
     }
   }
 }
+
+// Attach robust phone input filtering (handles paste, drop, autofill, IME)
+document.addEventListener('DOMContentLoaded', function() {
+  const _attachPhoneFilter = () => {
+    const el = document.getElementById('pno_emsFormBuilder');
+    if (!el || el._phoneFilterAttached) return;
+    el._phoneFilterAttached = true;
+
+    const cleanPhone = (str) => str.replace(/[^0-9\+\(\)\-\s,]/g, '');
+
+    // Handle paste
+    el.addEventListener('paste', function(e) {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData).getData('text');
+      const cleaned = cleanPhone(pasted);
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+      const current = el.value;
+      el.value = current.slice(0, start) + cleaned + current.slice(end);
+      const newPos = start + cleaned.length;
+      el.setSelectionRange(newPos, newPos);
+    });
+
+    // Handle drop
+    el.addEventListener('drop', function(e) {
+      e.preventDefault();
+      const dropped = e.dataTransfer.getData('text');
+      const cleaned = cleanPhone(dropped);
+      el.value += cleaned;
+    });
+
+    // Fallback: periodically check value (handles autofill, IME composition end)
+    el.addEventListener('compositionend', function() {
+      el.value = cleanPhone(el.value);
+    });
+
+    el.addEventListener('change', function() {
+      el.value = cleanPhone(el.value);
+    });
+  };
+
+  _attachPhoneFilter();
+  // Also observe for dynamically inserted element
+  const observer = new MutationObserver(() => _attachPhoneFilter());
+  observer.observe(document.body, { childList: true, subtree: true });
+});
 
 // Search functionality with real-time suggestions and highlighting
 function highlightSearchResults_efb(text, searchTerm) {
@@ -1159,6 +1205,7 @@ function fun_show_setting__emsFormBuilder() {
   let femail ='null';
   let demail ='no-reply@'+ window.location.hostname;
   let osLocationPicker = false;
+  const translateDiscountPercent = 60;
   // Response box color settings (defaults)
   let respPrimary = '#3644d2';
   let respPrimaryDark = '#202a8d';
@@ -1585,6 +1632,17 @@ function fun_show_setting__emsFormBuilder() {
                                <h5 class="efb  card-title mt-3 mobile-title">
                                  <i class="efb  bi-fonts m-3"></i>${efb_var.text.localization}
                                </h5>
+                               <div class="efb my-3 mx-4 p-3" role="" style="border-radius:10px;border:1px solid #e0e7ff;background:linear-gradient(135deg,#f0f4ff 0%,#e8f5e9 100%);">
+                                 <p class="efb mb-2" style="line-height:1.7;">
+                                   <i class="efb bi-translate" style="margin-inline-end:6px;"></i>${efb_var.text.translateContrib.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>')}
+                                 </p>
+                                 <div class="efb" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                                   <span style="display:inline-block;background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px;white-space:nowrap;">🎁 ${translateDiscountPercent}% ${efb_var.text.discountOff || 'OFF'}</span>
+                                   <p class="efb mb-0" style="line-height:1.6;font-size:13px;color:#37474f;">
+                                     ${efb_var.text.translateDiscount ? efb_var.text.translateDiscount.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>').replace('%3$s', translateDiscountPercent + '%') : ''}
+                                   </p>
+                                 </div>
+                               </div>
                                <p class="efb ${mxCSize}">${efb_var.text.translateLocal}</p>
                                <div class="efb card-body mx-0 py-1 mx-4">
 
@@ -1678,7 +1736,8 @@ function fun_show_setting__emsFormBuilder() {
                           <p class="efb ${mxCSize}">${efb_var.text.sms_dnoti}</p>
                           <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                           <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_admn_no}</label>
-                            <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^[\+0-9\(\)\-\s]+$" placeholder="+12345678900" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}" oninput="filterPhoneNumberInput_efb(this)" onkeypress="allowOnlyPhoneChars_efb(event)" title="Only numbers, +, (), -, and spaces are allowed">
+                            <input type="tel" inputmode="tel" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^[\\+0-9\\(\\)\\-\\s,]+$" placeholder="+12345678900" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}" oninput="filterPhoneNumberInput_efb(this)" onkeypress="allowOnlyPhoneChars_efb(event)" autocomplete="off">
+                            <small class="efb text-muted d-block mt-1 fs-7" ><i class="efb bi-info-circle fs-7" style="margin-inline-end:4px;"></i>${efb_var.text.phoneFormatHint || 'Format: +12345678900 or +1 (234) 567-8900'}</small>
                             <span id="pno_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             <p class="efb m-2">${efb_var.text.sms_ndnoti}</p>
                           </div>
