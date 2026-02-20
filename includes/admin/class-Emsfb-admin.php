@@ -927,7 +927,7 @@ class Admin {
                     if(strlen($value) > 1){ wp_send_json_success($response, 200);}
                 }
             }else if($key == "emailTemp"){
-                if( strlen($value)>5  && strpos($setting ,'shortcode_message')==false){
+                if( strlen($value)>5  && strpos($setting ,'shortcode_message')===false){
                     $response = ['success' => false, "m" =>$lang['addSCEmailM']];
                     wp_send_json_success($response, 200);
                 }else if(strlen($value)<6 && strlen($value)>0 ){

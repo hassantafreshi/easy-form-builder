@@ -793,6 +793,9 @@ class EmsfbEmailHandler {
 
     /**
      * Apply custom email template
+     *
+     * Handles both legacy templates (old textarea input) and builder templates
+     * (drag-drop email builder with efb-email-container class).
      */
     private function apply_custom_template($temp, $message, $title, $blogName, $blogURL, $adminEmail, $footer, $disclaimer) {
         $replacements = [
@@ -805,11 +808,32 @@ class EmsfbEmailHandler {
 
         // Strip builder data comment before processing (not needed in sent emails)
         $temp = preg_replace('/\n?<!-- EFBDATA:.*? -->/', '', $temp);
-        $temp = strtr($temp, $replacements);
-        $temp = preg_replace(['/http:@efb@+/', '/https:@efb@+/', '/@efb@+/'], ['http://', 'https://', '/'], $temp);
 
-        $p = strripos($temp, '</body>');
-        $custom_footer = "
+        // Replace shortcodes with actual values
+        $temp = strtr($temp, $replacements);
+
+        // Decode @efb@ URL encoding — each @efb@ represents exactly one /
+        // Note: the previous regex /@efb@+/ had a greedy quantifier bug where @+
+        // consumed adjacent @efb@ tokens (e.g. https:@efb@@efb@ decoded to
+        // https://efb@ instead of https://). str_replace handles each token correctly.
+        $temp = preg_replace(['/http:@efb@+/', '/https:@efb@+/'], ['http://', 'https://'], $temp);
+        $temp = str_replace('@efb@', '/', $temp);
+
+        // Detect builder template (contains efb-email-container class from the drag-drop builder)
+        $isBuilderTemplate = (strpos($temp, 'efb-email-container') !== false);
+
+        if ($isBuilderTemplate) {
+            // Builder templates are saved through wp_kses which strips the HTML document
+            // envelope (<!DOCTYPE>, <html>, <head>, <style>, <body>) and HTML comments
+            // (MSO conditionals). Reconstruct the document for correct email rendering.
+            if (stripos($temp, '<!DOCTYPE') === false && stripos($temp, '<html') === false) {
+                $temp = $this->wrap_builder_template_html($temp);
+            }
+            // Builder templates include their own footer blocks — no extra injection needed.
+        } else {
+            // Legacy template — inject footer + disclaimer before </body>
+            $p = strripos($temp, '</body>');
+            $custom_footer = "
         <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 20px auto 0 auto;\">
             <tr>
                 <td align=\"center\" style=\"padding: 30px; color: #6b7280; font-size: 14px; line-height: 1.5; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; background-color: #f8f9fa; border-radius: 8px;\">
@@ -830,13 +854,89 @@ class EmsfbEmailHandler {
                 </td>
             </tr>
         </table>
-        ";
+            ";
 
-        if ($p !== false) {
-            $temp = substr_replace($temp, $custom_footer, $p, 0);
+            if ($p !== false) {
+                $temp = substr_replace($temp, $custom_footer, $p, 0);
+            }
         }
 
         return $temp;
+    }
+
+    /**
+     * Wrap builder template content in a full HTML email document.
+     *
+     * The drag-drop email builder generates complete HTML documents, but wp_kses
+     * strips document-level tags (DOCTYPE, html, head, style, body) and HTML
+     * comments (MSO conditionals) during save sanitization. This method
+     * reconstructs the document envelope with responsive CSS and MSO fallbacks.
+     *
+     * @param string $content The sanitized builder template content (bare tables)
+     * @return string Complete HTML email document
+     */
+    private function wrap_builder_template_html($content) {
+        // Extract background color from the outer table (page background)
+        $bgColor = '#f8f9fa';
+        if (preg_match("/background-color:\s*([^;'\"]+)/i", $content, $bgMatch)) {
+            $bgColor = trim($bgMatch[1]);
+        }
+
+        // Extract content width from efb-email-wrapper max-width
+        $contentWidth = 600;
+        if (preg_match("/efb-email-wrapper[^>]*max-width:\s*(\d+)/i", $content, $wMatch)) {
+            $contentWidth = intval($wMatch[1]);
+        }
+
+        // Direction from WordPress locale
+        $direction = is_rtl() ? 'rtl' : 'ltr';
+
+        // Strip orphaned <meta> tags that survived wp_kses
+        // (they were in <head> but are now floating in content after the envelope was stripped)
+        $content = preg_replace('/<meta\s[^>]*\/?>/i', '', $content);
+
+        // Regenerate MSO conditional comments around efb-email-wrapper div
+        // (wp_kses strips all HTML comments during sanitization)
+        $mso_width = intval($contentWidth);
+        $content = preg_replace(
+            '/(<div\s[^>]*efb-email-wrapper[^>]*>)/i',
+            '<!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="' . $mso_width . '" align="center"><tr><td><![endif]-->' . "\n$1",
+            $content,
+            1
+        );
+        // Close MSO after the wrapper: </table>(efb-email-container) </div>(efb-email-wrapper) </td>(outer)
+        $content = preg_replace(
+            '#(</table>\s*</div>)(\s*</td>)#i',
+            "$1\n<!--[if mso]></td></tr></table><![endif]-->$2",
+            $content,
+            1
+        );
+
+        $safe_bg = esc_attr($bgColor);
+        $safe_dir = esc_attr($direction);
+
+        return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <style type="text/css">
+            body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+            table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+            img { -ms-interpolation-mode: bicubic; border: 0; }
+            body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            @media only screen and (max-width: 600px) {
+            .efb-email-wrapper { max-width: 100% !important; width: 100% !important; }
+            .efb-email-container { width: 100% !important; }
+            .efb-email-container td { padding-left: 15px !important; padding-right: 15px !important; }
+            img { max-width: 100% !important; height: auto !important; }
+            }
+            </style>
+            </head>
+            <body style="margin: 0; padding: 0; width: 100%; background-color: ' . $safe_bg . '; direction: ' . $safe_dir . '; font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, Arial, sans-serif;">
+            ' . $content . '
+            </body>
+            </html>';
     }
 
 
