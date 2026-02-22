@@ -120,6 +120,15 @@ class Create {
 						}
 					}, 90000);
 			</script>
+			<script>
+				document.addEventListener('DOMContentLoaded', function(){
+					if(typeof efb_powered_by === 'function' && !document.getElementById('wpfooter')){
+						var _f = document.createElement('div');
+						_f.innerHTML = efb_powered_by();
+						document.body.appendChild(_f.firstChild);
+					}
+				});
+			</script>
 		<?php
 
 		$maps =false;

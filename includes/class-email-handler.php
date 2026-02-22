@@ -878,27 +878,51 @@ class EmsfbEmailHandler {
      * @return string Complete HTML email document
      */
     private function wrap_builder_template_html($content) {
-        // Extract background color from the outer table (page background)
+        // Direction from WordPress locale
+        $direction = is_rtl() ? 'rtl' : 'ltr';
+
+        // ── Clean up orphaned content from wp_kses stripping ──
+        // Must happen BEFORE value extraction — orphaned CSS text contains selectors
+        // like .efb-email-wrapper { max-width: 100% } that would confuse the regex
+        // into extracting 100 instead of 600.
+
+        // 1. Strip orphaned <meta> tags that were in <head> and now float in content
+        $content = preg_replace('/<meta\s[^>]*\/?>/i', '', $content);
+
+        // 2. Strip orphaned CSS text — when wp_kses strips <style> tags, the CSS
+        //    rules inside become raw text before the first <table>. Remove everything
+        //    before the first <table that isn't an HTML tag.
+        $firstTable = strpos($content, '<table');
+        if ($firstTable === false) {
+            $firstTable = strpos($content, '<div');
+        }
+        if ($firstTable !== false && $firstTable > 0) {
+            $content = substr($content, $firstTable);
+        }
+
+        // 3. Strip escaped MSO conditional comments — wp_kses encodes > and < inside
+        //    HTML comments as &gt; and &lt;, making them broken:
+        //    <!--[if mso]&gt;...&lt;![endif]-->
+        $content = preg_replace('/<!--\[if\s+mso\]&gt;.*?&lt;!\[endif\]-->/is', '', $content);
+
+        // 4. Clean trailing whitespace/newlines
+        $content = trim($content);
+
+        // ── Extract values from cleaned content ──
+
+        // Background color from the outer table (page background)
         $bgColor = '#f8f9fa';
         if (preg_match("/background-color:\s*([^;'\"]+)/i", $content, $bgMatch)) {
             $bgColor = trim($bgMatch[1]);
         }
 
-        // Extract content width from efb-email-wrapper max-width
+        // Content width from efb-email-wrapper max-width
         $contentWidth = 600;
         if (preg_match("/efb-email-wrapper[^>]*max-width:\s*(\d+)/i", $content, $wMatch)) {
             $contentWidth = intval($wMatch[1]);
         }
 
-        // Direction from WordPress locale
-        $direction = is_rtl() ? 'rtl' : 'ltr';
-
-        // Strip orphaned <meta> tags that survived wp_kses
-        // (they were in <head> but are now floating in content after the envelope was stripped)
-        $content = preg_replace('/<meta\s[^>]*\/?>/i', '', $content);
-
-        // Regenerate MSO conditional comments around efb-email-wrapper div
-        // (wp_kses strips all HTML comments during sanitization)
+        // ── Regenerate MSO conditional comments ──
         $mso_width = intval($contentWidth);
         $content = preg_replace(
             '/(<div\s[^>]*efb-email-wrapper[^>]*>)/i',

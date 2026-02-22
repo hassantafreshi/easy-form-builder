@@ -100,6 +100,32 @@ jQuery(function () {
 const wpfooter = document.getElementById('wpfooter');
 if(wpfooter)wpfooter.remove();
 
+// Show #wpfooter.efb only when scrolled to bottom
+(function(){
+  function efbCheckFooterScroll(){
+    var el = document.getElementById('wpfooter');
+    if(!el) return;
+    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    var windowHeight = window.innerHeight;
+    var docHeight = Math.max(
+      document.body.scrollHeight, document.documentElement.scrollHeight,
+      document.body.offsetHeight, document.documentElement.offsetHeight
+    );
+    // Show when within 60px of the bottom (or page is short enough)
+    if(docHeight <= windowHeight || (scrollTop + windowHeight >= docHeight - 60)){
+      el.classList.add('efb-footer-visible');
+    } else {
+      el.classList.remove('efb-footer-visible');
+    }
+  }
+  window.addEventListener('scroll', efbCheckFooterScroll, {passive:true});
+  window.addEventListener('resize', efbCheckFooterScroll, {passive:true});
+  // Also observe DOM changes (footer may be injected later)
+  var _efbFooterObserver = new MutationObserver(function(){ efbCheckFooterScroll(); });
+  _efbFooterObserver.observe(document.body, {childList:true, subtree:true});
+  efbCheckFooterScroll();
+})();
+
 
 function saveLocalStorage_emsFormBuilder() {
 

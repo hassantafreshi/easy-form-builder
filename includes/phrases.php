@@ -68,6 +68,9 @@ class EfbAddonPhrases {
         // Register Autofill addon phrases
         self::register_addon('Autofill', [__CLASS__, 'get_autofill_phrases']);
 
+        // Register Payment addon phrases
+        self::register_addon('payment', [__CLASS__, 'get_payment_phrases']);
+
         /* // Register SMS addon phrases
         self::register_addon('sms', [__CLASS__, 'get_sms_phrases']);
 
@@ -838,20 +841,231 @@ class EfbAddonPhrases {
     }
 
 
+
+
     // ========================================
-    // PAYPAL ADDON PHRASES (Placeholder)
+    // PAYMENT MANAGEMENT PHRASES
     // ========================================
 
     /**
-     * Get PayPal addon phrases
+     * Get Payment management addon phrases
      *
      * @param object|null $ac Settings object
      * @param bool $state Whether custom texts are available
      * @return array
      */
-    public static function get_paypal_phrases($ac = null, $state = false) {
+    public static function get_payment_phrases($ac = null, $state = false) {
         return [
-            // PayPal phrases will be added here when needed
+            // === Page & Navigation ===
+            /* translators: Payments = admin page title */
+
+            "paypals" => $state && isset($ac->text->paypals) ? $ac->text->paypals : esc_html__('PayPal %s', 'easy-form-builder'),
+
+            "stripes" => $state && isset($ac->text->stripes) ? $ac->text->stripes : esc_html__('Stripe %s', 'easy-form-builder'),
+
+            "pay_payments" => $state && isset($ac->text->pay_payments) ? $ac->text->pay_payments : esc_html__('Payments', 'easy-form-builder'),
+
+            /* translators: Search = search input placeholder */
+            "pay_search" => $state && isset($ac->text->pay_search) ? $ac->text->pay_search : esc_html__('Search', 'easy-form-builder'),
+
+            /* translators: You do not have permission to access this page */
+            "pay_no_permission" => $state && isset($ac->text->pay_no_permission) ? $ac->text->pay_no_permission : esc_html__('You do not have permission to access this page.', 'easy-form-builder'),
+
+            // === Filters ===
+            /* translators: All Gateways = filter dropdown */
+            "pay_allGateways" => $state && isset($ac->text->pay_allGateways) ? $ac->text->pay_allGateways : esc_html__('All Gateways', 'easy-form-builder'),
+
+            /* translators: All Statuses = filter dropdown */
+            "pay_allStatuses" => $state && isset($ac->text->pay_allStatuses) ? $ac->text->pay_allStatuses : esc_html__('All Statuses', 'easy-form-builder'),
+
+            /* translators: All Forms = filter dropdown */
+            "pay_allForms" => $state && isset($ac->text->pay_allForms) ? $ac->text->pay_allForms : esc_html__('All Forms', 'easy-form-builder'),
+
+            // === Statuses ===
+            /* translators: Active = payment status */
+            "pay_active" => $state && isset($ac->text->pay_active) ? $ac->text->pay_active : esc_html__('Active', 'easy-form-builder'),
+
+            /* translators: Completed = payment status */
+            "pay_completed" => $state && isset($ac->text->pay_completed) ? $ac->text->pay_completed : esc_html__('Completed', 'easy-form-builder'),
+
+            /* translators: Pending = payment status */
+            "pay_pending" => $state && isset($ac->text->pay_pending) ? $ac->text->pay_pending : esc_html__('Pending', 'easy-form-builder'),
+
+            /* translators: Cancelled = payment status */
+            "pay_cancelled" => $state && isset($ac->text->pay_cancelled) ? $ac->text->pay_cancelled : esc_html__('Cancelled', 'easy-form-builder'),
+
+            /* translators: Refunded = payment status */
+            "pay_refunded" => $state && isset($ac->text->pay_refunded) ? $ac->text->pay_refunded : esc_html__('Refunded', 'easy-form-builder'),
+
+            /* translators: Failed = payment status */
+            "pay_failed" => $state && isset($ac->text->pay_failed) ? $ac->text->pay_failed : esc_html__('Failed', 'easy-form-builder'),
+
+            // === Table & Details ===
+            /* translators: No payments found = empty table message */
+            "pay_noPayments" => $state && isset($ac->text->pay_noPayments) ? $ac->text->pay_noPayments : esc_html__('No payments found.', 'easy-form-builder'),
+
+            /* translators: Loading... = loading indicator */
+            "pay_loading" => $state && isset($ac->text->pay_loading) ? $ac->text->pay_loading : esc_html__('Loading...', 'easy-form-builder'),
+
+            /* translators: View Details = action button */
+            "pay_viewDetails" => $state && isset($ac->text->pay_viewDetails) ? $ac->text->pay_viewDetails : esc_html__('View Details', 'easy-form-builder'),
+
+            /* translators: Refund = action button */
+            "pay_refund" => $state && isset($ac->text->pay_refund) ? $ac->text->pay_refund : esc_html__('Refund', 'easy-form-builder'),
+
+            /* translators: Cancel Subscription = action button */
+            "pay_cancelSub" => $state && isset($ac->text->pay_cancelSub) ? $ac->text->pay_cancelSub : esc_html__('Cancel Subscription', 'easy-form-builder'),
+
+            // === Confirmation Dialogs ===
+            /* translators: Are you sure you want to refund this payment? = confirm dialog */
+            "pay_confirmRefund" => $state && isset($ac->text->pay_confirmRefund) ? $ac->text->pay_confirmRefund : esc_html__('Are you sure you want to refund this payment?', 'easy-form-builder'),
+
+            /* translators: Are you sure you want to cancel this subscription? = confirm dialog */
+            "pay_confirmCancel" => $state && isset($ac->text->pay_confirmCancel) ? $ac->text->pay_confirmCancel : esc_html__('Are you sure you want to cancel this subscription?', 'easy-form-builder'),
+
+            // === Messages ===
+            /* translators: Success = success message */
+            "pay_success" => $state && isset($ac->text->pay_success) ? $ac->text->pay_success : esc_html__('Success', 'easy-form-builder'),
+
+            /* translators: Error = error message */
+            "pay_error" => $state && isset($ac->text->pay_error) ? $ac->text->pay_error : esc_html__('Error', 'easy-form-builder'),
+
+            /* translators: Close = close button */
+            "pay_close" => $state && isset($ac->text->pay_close) ? $ac->text->pay_close : esc_html__('Close', 'easy-form-builder'),
+
+            /* translators: Payment refunded successfully = success toast */
+            "pay_refundSuccess" => $state && isset($ac->text->pay_refundSuccess) ? $ac->text->pay_refundSuccess : esc_html__('Payment refunded successfully.', 'easy-form-builder'),
+
+            /* translators: Subscription cancelled successfully = success toast */
+            "pay_cancelSuccess" => $state && isset($ac->text->pay_cancelSuccess) ? $ac->text->pay_cancelSuccess : esc_html__('Subscription cancelled successfully.', 'easy-form-builder'),
+
+            /* translators: Copied = clipboard copy toast */
+            "pay_copied" => $state && isset($ac->text->pay_copied) ? $ac->text->pay_copied : esc_html__('Copied', 'easy-form-builder'),
+
+            // === Field Labels ===
+            /* translators: Transaction ID = field label */
+            "pay_transactionId" => $state && isset($ac->text->pay_transactionId) ? $ac->text->pay_transactionId : esc_html__('Transaction ID', 'easy-form-builder'),
+
+            /* translators: Subscription ID = field label */
+            "pay_subscriptionId" => $state && isset($ac->text->pay_subscriptionId) ? $ac->text->pay_subscriptionId : esc_html__('Subscription ID', 'easy-form-builder'),
+
+            /* translators: Plan ID = field label */
+            "pay_planId" => $state && isset($ac->text->pay_planId) ? $ac->text->pay_planId : esc_html__('Plan ID', 'easy-form-builder'),
+
+            /* translators: Capture ID = field label */
+            "pay_captureId" => $state && isset($ac->text->pay_captureId) ? $ac->text->pay_captureId : esc_html__('Capture ID', 'easy-form-builder'),
+
+            /* translators: Amount = field label */
+            "pay_amount" => $state && isset($ac->text->pay_amount) ? $ac->text->pay_amount : esc_html__('Amount', 'easy-form-builder'),
+
+            /* translators: Currency = field label */
+            "pay_currency" => $state && isset($ac->text->pay_currency) ? $ac->text->pay_currency : esc_html__('Currency', 'easy-form-builder'),
+
+            /* translators: Status = field label */
+            "pay_status" => $state && isset($ac->text->pay_status) ? $ac->text->pay_status : esc_html__('Status', 'easy-form-builder'),
+
+            /* translators: Gateway = field label */
+            "pay_gateway" => $state && isset($ac->text->pay_gateway) ? $ac->text->pay_gateway : esc_html__('Gateway', 'easy-form-builder'),
+
+            /* translators: Payment Type = field label */
+            "pay_paymentType" => $state && isset($ac->text->pay_paymentType) ? $ac->text->pay_paymentType : esc_html__('Payment Type', 'easy-form-builder'),
+
+            /* translators: Interval = field label */
+            "pay_interval" => $state && isset($ac->text->pay_interval) ? $ac->text->pay_interval : esc_html__('Interval', 'easy-form-builder'),
+
+            /* translators: Payer Email = field label */
+            "pay_payerEmail" => $state && isset($ac->text->pay_payerEmail) ? $ac->text->pay_payerEmail : esc_html__('Payer Email', 'easy-form-builder'),
+
+            /* translators: Payer Name = field label */
+            "pay_payerName" => $state && isset($ac->text->pay_payerName) ? $ac->text->pay_payerName : esc_html__('Payer Name', 'easy-form-builder'),
+
+            /* translators: Form = column header */
+            "pay_formName" => $state && isset($ac->text->pay_formName) ? $ac->text->pay_formName : esc_html__('Form', 'easy-form-builder'),
+
+            /* translators: Date = column header */
+            "pay_date" => $state && isset($ac->text->pay_date) ? $ac->text->pay_date : esc_html__('Date', 'easy-form-builder'),
+
+            /* translators: Tracking Code = field label */
+            "pay_trackCode" => $state && isset($ac->text->pay_trackCode) ? $ac->text->pay_trackCode : esc_html__('Tracking Code', 'easy-form-builder'),
+
+            /* translators: User = column header */
+            "pay_user" => $state && isset($ac->text->pay_user) ? $ac->text->pay_user : esc_html__('User', 'easy-form-builder'),
+
+            // === Payment Types ===
+            /* translators: One-time = payment type label */
+            "pay_oneTime" => $state && isset($ac->text->pay_oneTime) ? $ac->text->pay_oneTime : esc_html__('One-time', 'easy-form-builder'),
+
+            /* translators: Subscription = payment type label */
+            "pay_subscription" => $state && isset($ac->text->pay_subscription) ? $ac->text->pay_subscription : esc_html__('Subscription', 'easy-form-builder'),
+
+            /* translators: Daily = interval label */
+            "pay_daily" => $state && isset($ac->text->pay_daily) ? $ac->text->pay_daily : esc_html__('Daily', 'easy-form-builder'),
+
+            /* translators: Weekly = interval label */
+            "pay_weekly" => $state && isset($ac->text->pay_weekly) ? $ac->text->pay_weekly : esc_html__('Weekly', 'easy-form-builder'),
+
+            /* translators: Monthly = interval label */
+            "pay_monthly" => $state && isset($ac->text->pay_monthly) ? $ac->text->pay_monthly : esc_html__('Monthly', 'easy-form-builder'),
+
+            /* translators: Yearly = interval label */
+            "pay_yearly" => $state && isset($ac->text->pay_yearly) ? $ac->text->pay_yearly : esc_html__('Yearly', 'easy-form-builder'),
+
+            // === Detail & Subscription ===
+            /* translators: Payment Details = modal title */
+            "pay_paymentDetails" => $state && isset($ac->text->pay_paymentDetails) ? $ac->text->pay_paymentDetails : esc_html__('Payment Details', 'easy-form-builder'),
+
+            /* translators: Actions = column header */
+            "pay_actions" => $state && isset($ac->text->pay_actions) ? $ac->text->pay_actions : esc_html__('Actions', 'easy-form-builder'),
+
+            /* translators: Subscription Details = modal title */
+            "pay_subscriptionDetail" => $state && isset($ac->text->pay_subscriptionDetail) ? $ac->text->pay_subscriptionDetail : esc_html__('Subscription Details', 'easy-form-builder'),
+
+            /* translators: Next Billing Date = field label */
+            "pay_nextBilling" => $state && isset($ac->text->pay_nextBilling) ? $ac->text->pay_nextBilling : esc_html__('Next Billing Date', 'easy-form-builder'),
+
+            // === Pagination ===
+            /* translators: Export = export button */
+            "pay_export" => $state && isset($ac->text->pay_export) ? $ac->text->pay_export : esc_html__('Export', 'easy-form-builder'),
+
+            /* translators: Total = total label */
+            "pay_total" => $state && isset($ac->text->pay_total) ? $ac->text->pay_total : esc_html__('Total', 'easy-form-builder'),
+
+            /* translators: of = pagination separator */
+            "pay_of" => $state && isset($ac->text->pay_of) ? $ac->text->pay_of : esc_html__('of', 'easy-form-builder'),
+
+            /* translators: Page = pagination label */
+            "pay_page" => $state && isset($ac->text->pay_page) ? $ac->text->pay_page : esc_html__('Page', 'easy-form-builder'),
+
+            /* translators: Previous = pagination button */
+            "pay_previous" => $state && isset($ac->text->pay_previous) ? $ac->text->pay_previous : esc_html__('Previous', 'easy-form-builder'),
+
+            /* translators: Next = pagination button */
+            "pay_next" => $state && isset($ac->text->pay_next) ? $ac->text->pay_next : esc_html__('Next', 'easy-form-builder'),
+
+            /* translators: Rows per page = pagination label */
+            "pay_rowsPerPage" => $state && isset($ac->text->pay_rowsPerPage) ? $ac->text->pay_rowsPerPage : esc_html__('Rows per page', 'easy-form-builder'),
+
+            // === PayPal Subscription Actions ===
+            /* translators: Suspended = status label */
+            "pay_suspended" => $state && isset($ac->text->pay_suspended) ? $ac->text->pay_suspended : esc_html__('Suspended', 'easy-form-builder'),
+
+            /* translators: Suspend Subscription = action button */
+            "pay_suspendSub" => $state && isset($ac->text->pay_suspendSub) ? $ac->text->pay_suspendSub : esc_html__('Suspend Subscription', 'easy-form-builder'),
+
+            /* translators: Reactivate Subscription = action button */
+            "pay_reactivateSub" => $state && isset($ac->text->pay_reactivateSub) ? $ac->text->pay_reactivateSub : esc_html__('Reactivate Subscription', 'easy-form-builder'),
+
+            /* translators: Are you sure you want to suspend this subscription? = confirm dialog */
+            "pay_confirmSuspend" => $state && isset($ac->text->pay_confirmSuspend) ? $ac->text->pay_confirmSuspend : esc_html__('Are you sure you want to suspend this subscription?', 'easy-form-builder'),
+
+            /* translators: Are you sure you want to reactivate this subscription? = confirm dialog */
+            "pay_confirmReactivate" => $state && isset($ac->text->pay_confirmReactivate) ? $ac->text->pay_confirmReactivate : esc_html__('Are you sure you want to reactivate this subscription?', 'easy-form-builder'),
+
+            /* translators: Subscription suspended successfully = success toast */
+            "pay_suspendSuccess" => $state && isset($ac->text->pay_suspendSuccess) ? $ac->text->pay_suspendSuccess : esc_html__('Subscription suspended successfully.', 'easy-form-builder'),
+
+            /* translators: Subscription reactivated successfully = success toast */
+            "pay_reactivateSuccess" => $state && isset($ac->text->pay_reactivateSuccess) ? $ac->text->pay_reactivateSuccess : esc_html__('Subscription reactivated successfully.', 'easy-form-builder'),
         ];
     }
 

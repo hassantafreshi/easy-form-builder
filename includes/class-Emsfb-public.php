@@ -6029,308 +6029,49 @@ public function check_nonce_permission_efb($request) {
 }
 
 
+	/**
+	 * PayPal: Create Order or Subscription Plan.
+	 * Delegates to PaypalHandler in vendor/paypal.
+	 */
 	public function pay_paypal_sub_Emsfb_api($data_POST_) {
-		// error_log("pay_paypal_sub_Emsfb_api");
-		// error_log(print_r($data_POST_, true));
-		$data_POST = $data_POST_->get_json_params();
-		$user = wp_get_current_user();
-		$uid = $user->exists() ? $user->user_nicename : esc_html__('Guest', 'easy-form-builder');
-
-		$this->id = sanitize_text_field($data_POST['id']);
-		$amount = sanitize_text_field($data_POST['amount']);
-		$paymentType = sanitize_text_field($data_POST['paymentType']);
-		$val_ = sanitize_text_field($data_POST['value']);
-		$table_name = $this->db->prefix . "emsfb_form";
-		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
-		$fs =str_replace('\\', '', $value_form[0]->form_structer);
-		$fs_ = json_decode($fs,true);
-		$val =str_replace('\\', '', $val_);
-		$val_ = json_decode($val,true);
-		$paymentmethod = isset($fs_[0]['paymentmethod']) ? $fs_[0]['paymentmethod'] : 'one-time';
-		$isSubscription = in_array($paymentmethod, ['day', 'week', 'month', 'year']);
-		$paymentmethod_label = $paymentmethod=='charge' ? 'one-time' : sanitize_text_field($paymentmethod);
-
-
-		$price_c =0;
-		$price_f=0;
-		$email ='';
-		$valobj=[];
-		$obj = $this->fun_validation_pay_elements_efb($val_ , $fs_);
-
-		$price_f = $obj['price_total'];
-		$email = $obj['email'];
-		$valobj = $obj['valobj'];
-
-		if (!$amount || !is_numeric($amount) || !$paymentType) {
-			$amount_not_found = esc_html__('% not found', 'easy-form-builder');
-			$amount_not_found = str_replace('%', esc_html__('amount', 'easy-form-builder'), $amount_not_found);
-			$error_msg =  esc_html__('error', 'easy-form-builder') . ':' . $amount_not_found;
-			$response = ['success' => false, 'm' =>$error_msg];
-			wp_send_json_success($response, 400);
+		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
+		if ( ! file_exists( $handler_path ) ) {
+			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
 			return;
 		}
-
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
-		$Sk ='null';
-		if(gettype($r)=="string"){
-			$setting =str_replace('\\', '', $r);
-			$setting =json_decode($setting);
-			$Sk = isset($setting->paypalSKey) && strlen($setting->paypalSKey)>5  ? $setting->paypalSKey :'null';
-		}
-		if ($Sk=="null"){
-				$key_not_found = esc_html__('%s not found', 'easy-form-builder');
-				$key_not_found = str_replace('%s', esc_html__('Secret Key', 'easy-form-builder'), $key_not_found);
-				$m = esc_html__('PayPal', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ': ' . $key_not_found;
-				$response = ['success' => false, 'm' => $m];
-				wp_send_json_success($response, 200);
-				die("secure!");
-		}
-		$server = EMSFB_DEV_MODE ==false ? 'https://api-m.paypal.com/' : 'https://api-m.sandbox.paypal.com/';
-		$secret = $Sk;
-		$clientId =$setting->paypalPKey;
-		// ("server: " . $server);
-		// error_log("clientId: " . $clientId);
-		// error_log("secret: " . $secret);
-		if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")){
-			$efbFunction =  get_efbFunction();
-			$efbFunction->download_all_addons_efb();
-		}
-		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/class-Emsfb-paypal.php");
-		$paypal = new paypal();
-		$accessToken = $paypal->get_paypal_access_token($server, $clientId, $secret);
-		if (!$accessToken) {
-			$response = ['success' => false, 'm' => esc_html__('Failed to get access token', 'easy-form-builder')];
-			wp_send_json_success($response, 400);
-			return;
-		}
-
-		$url = $paymentmethod_label === 'one-time' ? $server . "v2/checkout/orders" : $server . "v1/billing/subscriptions";
-
-		/*
-		$data = $paymentmethod_label === 'one-time'
-			? [
-				'intent' => 'CAPTURE',
-				'purchase_units' => [[
-					'amount' => [
-						'value' => $amount,
-						'currency_code' => 'USD',
-					],
-				]],
-			]
-			: [
-				'product_id' => 'YOUR_PRODUCT_ID',
-				'name' => ucfirst($paymentmethod_label) . " Subscription Plan",
-				'billing_cycles' => [[
-					'frequency' => [
-						'interval_unit' => strtoupper($paymentmethod_label),
-						'interval_count' => 1,
-					],
-					'pricing_scheme' => [
-						'fixed_price' => [
-							'value' => $amount,
-							'currency_code' => 'USD',
-						],
-					],
-				]],
-			];
-		*/
-
-		$currency = isset($fs_[0]['currency']) ? strtoupper($fs_[0]['currency']) : 'USD';
-
-		$filtered = array_filter($valobj, function($item) {
-			if(isset($item['price']))	return $item;
-		});
-
-		if ($isSubscription) {
-			// ----- SUBSCRIPTION FLOW: Create Product + Plan only -----
-			// The actual Subscription is created client-side by PayPal JS SDK
-			// (actions.subscription.create) so the buyer approves in the popup
-			// and PayPal activates + charges the setup_fee immediately.
-			$planResult = $paypal->create_plan_flow(
-				$server, $accessToken, $this->id, $amount, $currency, $paymentmethod
-			);
-
-			if (!$planResult['success']) {
-				wp_send_json_success(['success' => false, 'm' => $planResult['m']], 200);
-				return;
-			}
-
-			$payA = $amount . ' ' . $currency;
-			$created = date("Y-m-d-h:i:s");
-			$description = get_bloginfo('name') . ' >' . $fs_[0]['formName'];
-			$intervalLabel = ucfirst($paymentmethod) . 'ly';
-
-			$ar = (object)[
-				'id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder'),'type'=>'payment',
-				'value'=> $payA, 'paymentIntent'=> $planResult['plan_id'], 'paymentGateway'=>'paypal', 'paymentmethod'=>'subscription',
-				'paymentAmount'=>$amount, 'paymentCreated'=>$created, 'paymentcurrency'=>$currency, 'gateway'=>'paypal',
-				'uid'=>$uid, 'status'=>'pending', 'updatetime'=>$created, 'description'=>$description,
-				'total'=>$amount, 'interval'=>$intervalLabel,
-				'plan_id'=>$planResult['plan_id'], 'product_id'=>$planResult['product_id']
-			];
-			$filtered = array_merge($filtered, array($ar));
-
-			$val_ = json_encode($filtered, JSON_UNESCAPED_UNICODE);
-			$this->value = str_replace('"', '\\"', $val_);
-			$this->name = sanitize_text_field($data_POST['name']);
-			$check = $this->insert_message_db(2, false);
-
-			$response = [
-				'success' => true,
-				'plan_id' => $planResult['plan_id'],
-				'start_time' => $planResult['start_time'],
-				'uid' => $uid,
-				'trackid' => $check,
-				'type' => 'subscription',
-			];
-
-		} else {
-			// ----- ONE-TIME FLOW: Create Order -----
-			$data = [
-				'intent' => 'CAPTURE',
-				'purchase_units' => [[
-					'amount' => [
-						'value' => $amount,
-						'currency_code' => $currency,
-					],
-				]],
-			];
-
-			$response = $paypal->make_paypal_request($url, $accessToken, $data);
-
-			$payA = $amount . ' ' . $currency;
-			$created = date("Y-m-d-h:i:s");
-			$description = get_bloginfo('name') . ' >' . $fs_[0]['formName'];
-			$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder'),'type'=>'payment',
-				'value'=> $payA, 'paymentIntent'=>$response['id'], 'paymentGateway'=>'paypal', 'paymentmethod'=>'paypal',
-				'paymentAmount'=>$amount, 'paymentCreated'=>$created, 'paymentcurrency'=>$currency, 'gateway'=>'paypal',
-				'uid'=>$uid, 'status'=>'active', 'updatetime'=>$created, 'description'=>$description, 'total'=>$amount, 'interval'=>'One-time'];
-			$filtered = array_merge($filtered, array($ar));
-
-			$val_ = json_encode($filtered, JSON_UNESCAPED_UNICODE);
-			$this->value = str_replace('"', '\\"', $val_);
-			$this->name = sanitize_text_field($data_POST['name']);
-			$check = $this->insert_message_db(2, false);
-
-			if (isset($response['id'])) {
-				$response = ['success' => true, 'id' => $response['id'], 'uid'=> $uid, 'trackid'=>$check, 'type' => 'one-time'];
-			} else {
-				$response = ['success' => false, 'm' => esc_html__('PayPal API error', 'easy-form-builder')];
-			}
-		}
-
-		wp_send_json_success($response, 200);
+		require_once $handler_path;
+		$handler = new PaypalHandler();
+		$handler->handle_create_payment( $data_POST_, $this );
 	}
 
 	/**
-	 * Capture an approved PayPal order after user approval.
-	 * Called from frontend onApprove callback.
+	 * PayPal: Capture approved order.
+	 * Delegates to PaypalHandler in vendor/paypal.
 	 */
 	public function pay_paypal_capture_Emsfb_api($data_POST_) {
-		$data_POST = $data_POST_->get_json_params();
-		$order_id = sanitize_text_field($data_POST['orderID'] ?? '');
-		$form_id = sanitize_text_field($data_POST['formID'] ?? '');
-
-		if (empty($order_id)) {
-			wp_send_json_success(['success' => false, 'm' => esc_html__('Order ID is missing', 'easy-form-builder')], 400);
+		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
+		if ( ! file_exists( $handler_path ) ) {
+			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
 			return;
 		}
-
-		$r = $this->setting != NULL && empty($this->setting) != true ? $this->setting : get_setting_Emsfb('raw');
-		$Sk = 'null';
-		$clientId = 'null';
-		if (gettype($r) == "string") {
-			$setting = str_replace('\\', '', $r);
-			$setting = json_decode($setting);
-			$Sk = isset($setting->paypalSKey) && strlen($setting->paypalSKey) > 5 ? $setting->paypalSKey : 'null';
-			$clientId = isset($setting->paypalPKey) ? $setting->paypalPKey : 'null';
-		}
-		if ($Sk == 'null') {
-			wp_send_json_success(['success' => false, 'm' => esc_html__('PayPal Secret Key not found', 'easy-form-builder')], 200);
-			return;
-		}
-
-		$server = EMSFB_DEV_MODE == false ? 'https://api-m.paypal.com/' : 'https://api-m.sandbox.paypal.com/';
-
-		require_once(EMSFB_PLUGIN_DIRECTORY . "/vendor/paypal/class-Emsfb-paypal.php");
-		$paypal = new paypal();
-		$accessToken = $paypal->get_paypal_access_token($server, $clientId, $Sk);
-
-		if (!$accessToken) {
-			wp_send_json_success(['success' => false, 'm' => esc_html__('Failed to get access token', 'easy-form-builder')], 400);
-			return;
-		}
-
-		$capture_result = $paypal->capture_paypal_order($server, $accessToken, $order_id);
-
-		if (isset($capture_result['status']) && $capture_result['status'] === 'COMPLETED') {
-			$capture_id = '';
-			if (isset($capture_result['purchase_units'][0]['payments']['captures'][0]['id'])) {
-				$capture_id = $capture_result['purchase_units'][0]['payments']['captures'][0]['id'];
-			}
-			wp_send_json_success([
-				'success' => true,
-				'status' => 'COMPLETED',
-				'captureID' => $capture_id,
-				'orderID' => $order_id
-			], 200);
-		} else {
-			$error_msg = isset($capture_result['message']) ? $capture_result['message'] : esc_html__('Capture failed', 'easy-form-builder');
-			error_log('[EFB][PayPal] Capture failed: ' . json_encode($capture_result));
-			wp_send_json_success(['success' => false, 'm' => $error_msg], 200);
-		}
+		require_once $handler_path;
+		$handler = new PaypalHandler();
+		$handler->handle_capture( $data_POST_ );
 	}
 
 	/**
-	 * Save subscription_id after buyer approves inside the PayPal popup.
-	 * Called from frontend onApprove callback for subscriptions.
+	 * PayPal: Activate subscription after buyer approval.
+	 * Delegates to PaypalHandler in vendor/paypal.
 	 */
 	public function pay_paypal_subscription_activate_Emsfb_api($data_POST_) {
-		$data_POST = $data_POST_->get_json_params();
-		$subscription_id = sanitize_text_field($data_POST['subscriptionID'] ?? '');
-		$trackid = sanitize_text_field($data_POST['trackid'] ?? '');
-		$form_id = sanitize_text_field($data_POST['formID'] ?? '');
-
-		if (empty($subscription_id) || empty($trackid)) {
-			wp_send_json_success(['success' => false, 'm' => esc_html__('Missing subscription data', 'easy-form-builder')], 400);
+		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
+		if ( ! file_exists( $handler_path ) ) {
+			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
 			return;
 		}
-
-		// Update the existing DB record: store the subscription_id and set status to active
-		$table_name = $this->db->prefix . "emsfb";
-		$row = $this->db->get_row(
-			$this->db->prepare("SELECT * FROM `$table_name` WHERE tracking = %s", $trackid)
-		);
-
-		if ($row) {
-			// Update the stored JSON value to include subscription_id
-			$value = str_replace('\\"', '"', $row->value);
-			$decoded = json_decode($value, true);
-			if (is_array($decoded)) {
-				foreach ($decoded as &$item) {
-					if (isset($item['type']) && $item['type'] === 'payment') {
-						$item['subscription_id'] = $subscription_id;
-						$item['paymentIntent'] = $subscription_id;
-						$item['status'] = 'active';
-						break;
-					}
-				}
-				unset($item);
-				$updated_value = json_encode($decoded, JSON_UNESCAPED_UNICODE);
-				$updated_value = str_replace('"', '\\"', $updated_value);
-				$this->db->update(
-					$table_name,
-					['value' => $updated_value, 'status' => 1],
-					['tracking' => $trackid]
-				);
-			}
-		}
-
-		wp_send_json_success([
-			'success' => true,
-			'subscriptionID' => $subscription_id,
-			'trackid' => $trackid
-		], 200);
+		require_once $handler_path;
+		$handler = new PaypalHandler();
+		$handler->handle_subscription_activate( $data_POST_ );
 	}
 
 	/**

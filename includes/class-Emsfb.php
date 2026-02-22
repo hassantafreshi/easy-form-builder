@@ -71,12 +71,35 @@ class Emsfb {
     public function includes(): void {
         require_once $this->plugin_path . 'includes/class-Emsfb-install.php';
 
+
         if (is_admin()) {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
             $ac = self::get_setting_Emsfb('decoded');
             error_log(json_encode($ac));
+
+            $payment_exists = isset($ac->AdnPAP) ? (int) $ac->AdnPAP : 0;
+            if ($payment_exists === 1) {
+                $payment_file_path = $this->plugin_path . 'vendor/paypal/class-Emsfb-paypal-payment.php';
+                if (file_exists($payment_file_path)) {
+                    require_once $payment_file_path;
+                    new \Emsfb\PaypalPayment();
+                } else {
+                    error_log('Payment file does not exist: ' . $payment_file_path);
+                }
+            }
+
+            $stripe_exists = isset($ac->AdnSPF) ? (int) $ac->AdnSPF : 0;
+            if ($stripe_exists === 1) {
+                $stripe_file_path = $this->plugin_path . 'vendor/stripe/class-Emsfb-stripe-payment.php';
+                if (file_exists($stripe_file_path)) {
+                    require_once $stripe_file_path;
+                    new \Emsfb\StripePayment();
+                } else {
+                    error_log('Stripe payment file does not exist: ' . $stripe_file_path);
+                }
+            }
            // $sms_exists =get_option('emsfb_addon_AdnSS',false);
 
             $sms_exists = isset($ac->AdnSS) ? (int) $ac->AdnSS : 0;
