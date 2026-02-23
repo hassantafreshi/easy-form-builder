@@ -1345,7 +1345,7 @@ function fun_show_setting__emsFormBuilder() {
                             <div class="efb nav nav-tabs" id="nav-tab" role="tablist">
                             <button class="efb  nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i class="efb  bi bi-gear mx-2"></i>${efb_var.text.general}</button>
                             <button class="efb  nav-link " id="nav-response-tab" data-bs-toggle="tab" data-bs-target="#nav-response" type="button" role="tab" aria-controls="nav-respons" aria-selected="true"><i class="efb  bi bi-chat-left-text mx-2"></i>${efb_var.text.rspcon}</button>
-                            <button class="efb  nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><i class="efb  bi bi-google mx-2"></i>${efb_var.text.googleKeys}</button>
+                            <button class="efb  nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><i class="efb  bi bi-robot mx-2"></i>${efb_var.text.captchas}</button>
                             <button class="efb  nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><i class="efb  bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
                             <button class="efb  nav-link" id="nav-contact-tab " data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb  bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button>
                             <button class="efb  nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb  bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
@@ -1566,10 +1566,10 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="efb ${mxCSize}"><a target="_blank" href="https://youtu.be/JI7RojBgU_o">${efb_var.text.lmavt.replace('%s',efb_var.text.grecaptcha)}</a></p>
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.siteKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.siteKey}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.googleKeys}">
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.siteKey}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.captchas}">
                                 <span id="sitekey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                 <label class="efb  form-label mx-2 col-12  mt-4 fs-6">${efb_var.text.SecreTKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${secretkey !== "null" ? `value="${secretkey}"` : ""} data-tab="${efb_var.text.googleKeys}">
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${secretkey !== "null" ? `value="${secretkey}"` : ""} data-tab="${efb_var.text.captchas}">
                                 <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
 
@@ -1577,7 +1577,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <i class="efb bi-shield-check m-3"></i>${efb_var.text.shieldSilentCaptcha}
                             </h5>
                             <p class="efb ${mxCSize}">${efb_var.text.shieldSilentCaptchaDesc}</p>
-                           <!--  <p class="efb ${mxCSize}"><a target="_blank" href="https://clk.shldscrty.com/silentcaptchaintegrationhelp">${efb_var.text.lmavt.replace('%s','Shield silentCAPTCHA')}</a></p> -->
+                            <p class="efb ${mxCSize}"><a target="_blank" href="https://clk.shldscrty.com/silentcaptchaintegrationhelp"  rel="nofollow noopener" >${efb_var.text.lmavt.replace('%s','Shield silentCAPTCHA')}</a></p>
                             ${shieldAvailable ? '' : `<p class="efb ${mxCSize} text-warning">${efb_var.text.shieldNotDetected}</p>`}
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                 <button type="button" id="shieldSilentCaptcha_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${shieldSilentCaptcha == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off" ${shieldAvailable ? '' : 'disabled aria-disabled="true"'}>
@@ -1593,7 +1593,7 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="efb ${mxCSize} d-none">${efb_var.text.youNeedAPIgMaps}</p>
                             <div class="efb  d-none card-body mx-0 py-1 ${mxCSize4}">
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.aPIKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${proChckEvent} data-tab="${efb_var.text.googleKeys}">
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${proChckEvent} data-tab="${efb_var.text.captchas}">
                                 <span id="apikey_map_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
 

@@ -318,6 +318,8 @@ class efbFunction {
 			"clickHere" => $state ? $ac->text->clickHere : esc_html__('Click here','easy-form-builder'),
 			"SpecialOffer" => $state ? $ac->text->SpecialOffer : esc_html__('Special offer','easy-form-builder'),
 			"googleKeys" => $state ? $ac->text->googleKeys : esc_html__('Google Keys','easy-form-builder'),
+			/* translators: Captchas = tab name in the settings panel for configuring CAPTCHA services */
+			"captchas" => $state && isset($ac->text->captchas) ? $ac->text->captchas  : esc_html__('Captchas','easy-form-builder'),
 			"emailServer" => $state ? $ac->text->emailServer : esc_html__('Email server','easy-form-builder'),
 			"beforeUsingYourEmailServers" => $state ? $ac->text->beforeUsingYourEmailServers : esc_html__('Use this test to check if your server can send emails properly.','easy-form-builder'),
 			"emailSetting" => $state ? $ac->text->emailSetting : esc_html__('Email Settings','easy-form-builder'),
@@ -608,8 +610,8 @@ class efbFunction {
 			"whenEasyFormBuilderRecivesNewMessage" => $state ? $ac->text->whenEasyFormBuilderRecivesNewMessage : esc_html__('When a new message is received through an Easy Form Builder forms, an alert email is sent to the site administrator.','easy-form-builder'),
 			/* translators: reCAPTCHA v2 = Google's version 2 anti-spam verification system */
 			"reCAPTCHAv2" => $state ? $ac->text->reCAPTCHAv2 : esc_html__('reCAPTCHA v2','easy-form-builder'),
-			"shieldSilentCaptcha" => $state && isset($ac->text->shieldSilentCaptcha) ? $ac->text->shieldSilentCaptcha : esc_html__('Add Shield silentCAPTCHA Bot SPAM Protection','easy-form-builder'),
-			"shieldSilentCaptchaDesc" => $state && isset($ac->text->shieldSilentCaptchaDesc) ? $ac->text->shieldSilentCaptchaDesc : esc_html__("Use Shield Security's silentCAPTCHA protection against bot spam form submissions.",'easy-form-builder'),
+			"shieldSilentCaptcha" => $state && isset($ac->text->shieldSilentCaptcha) ? $ac->text->shieldSilentCaptcha : esc_html__('silentCAPTCHA Spam Protection','easy-form-builder'),
+			"shieldSilentCaptchaDesc" => $state && isset($ac->text->shieldSilentCaptchaDesc) ? $ac->text->shieldSilentCaptchaDesc : esc_html__("Enable silentCAPTCHA (Shield Security) to protect against spam and bots.",'easy-form-builder'),
 			"shieldNotDetected" => $state && isset($ac->text->shieldNotDetected) ? $ac->text->shieldNotDetected : esc_html__('Shield Security is not detected. Install and activate it to use this setting.','easy-form-builder'),
 			"clickHereWatchVideoTutorial" => $state ? $ac->text->clickHereWatchVideoTutorial : esc_html__('Click here to watch a video tutorial.','easy-form-builder'),
 			"siteKey" => $state ? $ac->text->siteKey : esc_html__('Site Key','easy-form-builder'),

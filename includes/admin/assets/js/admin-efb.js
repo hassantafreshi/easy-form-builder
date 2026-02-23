@@ -694,7 +694,7 @@ const boxs_efb = [
   { id: 'register', title: efb_var.text.registerForm, desc: efb_var.text.createRegistrationForm, status: true, icon: 'bi-person-plus', tag: 'all signInUp', pro: false },
   { id: 'login', title: efb_var.text.loginForm, desc: efb_var.text.createLoginForm, status: true, icon: 'bi-box-arrow-in-right', tag: 'all signInUp', pro: false },
   { id: 'subscription', title: efb_var.text.subscriptionForm, desc: efb_var.text.createnewsletterForm, status: true, icon: 'bi-bell', tag: 'all', pro: false },
-  { id: 'quoteForm', title: efb_var.text.quoteFormT, desc: efb_var.text.quoteFormD, status: true, icon: 'bi-receipt', tag: 'all contact', pro: false },
+  { id: 'quoteForm', title: efb_var.text.quoteFormT, desc: efb_var.text.quoteFormD, status: true, icon: 'bi-receipt', tag: 'all contactUs', pro: false },
   { id: 'customOrderForm', title: efb_var.text.customOrderFormT, desc: efb_var.text.customOrderFormD, status: true, icon: 'bi-cart3', tag: 'all payment', pro: false },
   { id: 'jobApplicationForm', title: efb_var.text.jobApplicationFormT, desc: efb_var.text.jobApplicationFormD, status: true, icon: 'bi-person-badge', tag: 'all', pro: false },
   { id: 'rentCarForm', title: efb_var.text.rentCarFormT, desc: efb_var.text.rentCarFormD, status: true, icon: 'bi-car-front', tag: 'all', pro: false },
