@@ -744,6 +744,19 @@ function show_setting_window_efb(idset) {
     </button>
     <label class="efb form-check-label" for="captchaEl">${efb_var.text.addGooglereCAPTCHAtoForm}</label>
     </div>`;
+    const stateTrueEfb = (value) => value === true || value === 1 || value === '1' || value === 'true';
+    const shieldAvailable = stateTrueEfb(efb_var.shield_available);
+    const shieldGlobalEnabled = efb_var.hasOwnProperty('setting') && efb_var.setting != null ? stateTrueEfb(efb_var.setting.shield_silent_captcha) : false;
+    const shieldOverrideExists = valj_efb[indx].hasOwnProperty('shield_silent_captcha');
+    const shieldOverrideEnabled = stateTrueEfb(valj_efb[indx].shield_silent_captcha);
+    const shieldSilentCaptchaActive = shieldOverrideExists ? shieldOverrideEnabled : shieldGlobalEnabled;
+    const shieldSilentCaptchaEls = `<div class="efb mx-1 my-3 efb">
+    <button type="button" id="shieldSilentCaptchaEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${shieldSilentCaptchaActive ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off" data-id="${idset}" onclick="fun_switch_form_efb(this)" ${shieldAvailable ? '' : 'disabled aria-disabled="true"'}>
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label" for="shieldSilentCaptchaEl">${efb_var.text.shieldSilentCaptcha}</label>
+    ${shieldAvailable ? '' : `<p class="efb fs-7 mt-1 mb-0 text-warning">${efb_var.text.shieldNotDetected}</p>`}
+    </div>`;
     const showSIconsEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="showSIconsEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('show_icon') && Number(valj_efb[indx].show_icon) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
@@ -1742,9 +1755,10 @@ function show_setting_window_efb(idset) {
         deactive_element_efb();
         body = `
           <label for="formNameEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.formName}<span class="efb  mx-1 efb text-danger">*</span></label>
-           <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control efb  h-d-efb  mb-1"  placeholder="${efb_var.text.formName}" id="formNameEl" required value="${valj_efb[0].formName}">
+          <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control efb  h-d-efb  mb-1"  placeholder="${efb_var.text.formName}" id="formNameEl" required value="${valj_efb[0].formName}">
           ${trackingCodeEls}
           ${captchaEls}
+          ${shieldSilentCaptchaEls}
           ${showSIconsEls}
           ${showSprosiEls}
           ${showformLoggedEls}

@@ -1205,6 +1205,8 @@ function fun_show_setting__emsFormBuilder() {
   let femail ='null';
   let demail ='no-reply@'+ window.location.hostname;
   let osLocationPicker = false;
+  let shieldSilentCaptcha = false;
+  const shieldAvailable = efb_var.shield_available === true || efb_var.shield_available === 1 || efb_var.shield_available === '1' || efb_var.shield_available === 'true';
   const translateDiscountPercent = 60;
   // Response box color settings (defaults)
   let respPrimary = '#3644d2';
@@ -1261,6 +1263,8 @@ function fun_show_setting__emsFormBuilder() {
     phoneNumbers = f('phnNo');
     adminSN  = f('adminSN') =='null' ? true :f('adminSN');
     sessionDuration = f('sessionDuration') == 'null' ? 1 : parseInt(f('sessionDuration'));
+    const shieldSilentCaptchaSetting = f('shield_silent_captcha');
+    shieldSilentCaptcha = shieldSilentCaptchaSetting === true || shieldSilentCaptchaSetting === 1 || shieldSilentCaptchaSetting === '1' || shieldSilentCaptchaSetting === 'true';
 
     // Load response box color settings
     respPrimary = f('respPrimary') == 'null' ? '#3644d2' : f('respPrimary');
@@ -1567,6 +1571,19 @@ function fun_show_setting__emsFormBuilder() {
                                 <label class="efb  form-label mx-2 col-12  mt-4 fs-6">${efb_var.text.SecreTKey}</label>
                                 <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${secretkey !== "null" ? `value="${secretkey}"` : ""} data-tab="${efb_var.text.googleKeys}">
                                 <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+                            </div>
+
+                            <h5 class="efb  card-title mt-3 mobile-title">
+                                <i class="efb bi-shield-check m-3"></i>${efb_var.text.shieldSilentCaptcha}
+                            </h5>
+                            <p class="efb ${mxCSize}">${efb_var.text.shieldSilentCaptchaDesc}</p>
+                            <p class="efb ${mxCSize}"><a target="_blank" href="https://clk.shldscrty.com/silentcaptchaintegrationhelp">${efb_var.text.lmavt.replace('%s','Shield silentCAPTCHA')}</a></p>
+                            ${shieldAvailable ? '' : `<p class="efb ${mxCSize} text-warning">${efb_var.text.shieldNotDetected}</p>`}
+                            <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                                <button type="button" id="shieldSilentCaptcha_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${shieldSilentCaptcha == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off" ${shieldAvailable ? '' : 'disabled aria-disabled="true"'}>
+                                <div class="efb handle"></div>
+                                </button>
+                                <label class="efb form-check-label fs-6 efb mx-2 my-3" for="shieldSilentCaptcha_emsFormBuilder">${efb_var.text.shieldSilentCaptcha}</label>
                             </div>
 
                             <h5 class="efb  card-title mt-3 mobile-title d-none">
@@ -2454,6 +2471,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
    // const bootstrap = f('bootstrap_emsFormBuilder');
     const osLocationPicker = f('osLocationPicker_emsFormBuilder');
     const scaptcha = f('scaptcha_emsFormBuilder');
+    const shieldSilentCaptcha = f('shieldSilentCaptcha_emsFormBuilder');
 
     const activeDlBtn = f('activeDlBtn_emsFormBuilder');
     const showUpfile = f('showUpfile_emsFormBuilder');
@@ -2554,7 +2572,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
          apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp,
          paypalPKey: paypalPKey, paypalSKey: paypalSKey,
          stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken, act_local_efb:act_local_efb,
-          scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
+          scaptcha:scaptcha ,shield_silent_captcha:shieldSilentCaptcha,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ,
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
          AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb,showIp:showIp,adminSN:adminSN,osLocationPicker:osLocationPicker,sessionDuration:sessionDuration,

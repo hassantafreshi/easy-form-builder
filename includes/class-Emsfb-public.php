@@ -1852,7 +1852,7 @@ public function check_nonce_permission_efb($request) {
 
 		$text_ = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM', 'bkFlM', 'mnvvXXX', 'ptrnMmm', 'ptrnMmx', 'payment', 'error403', 'errorSiteKeyM',
-			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound',
+			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
 			'surveyResults', 'responses'
 		];
@@ -2640,6 +2640,17 @@ public function check_nonce_permission_efb($request) {
 						wp_send_json_success($response, 200);
 						return;
 					}
+				}
+				$shield_should_block = apply_filters('efb_submit_bot_decision', false, [
+					'setting' => is_array($setting) ? $setting : [],
+					'form' => (is_array($formObj) && isset($formObj[0]) && is_array($formObj[0])) ? $formObj[0] : [],
+					'ip' => $this->get_ip_address(),
+					'efbFunction' => $this->efbFunction,
+				]);
+				if ($shield_should_block === true) {
+					$response = ['success' => false, 'm' => $this->lanText['errorMRobot']];
+					wp_send_json_success($response, 200);
+					return;
 				}
 				// error_log('after captcha: ' . $type);
 				if ($type == "logout" || $type == "recovery") {

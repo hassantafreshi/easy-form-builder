@@ -114,10 +114,12 @@ class Emsfb {
             // Check if EMSFB_PLUGIN_DIRECTORY . '/vendor/autofill/class-Emsfb-autofill.php' exists
 
 
-        }
+		}
 
+		require_once $this->plugin_path . 'includes/integrations/class-Emsfb-shield-silentcaptcha.php';
+		new Emsfb_Shield_SilentCaptcha_Integration();
 
-        require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
+		require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
        // require_once $this->plugin_path . 'includes/class-Emsfb-webhook.php';
 
        // Load page builder integrations (available for both admin and frontend)

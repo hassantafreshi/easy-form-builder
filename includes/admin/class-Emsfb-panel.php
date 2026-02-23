@@ -218,7 +218,7 @@ class Panel_edit  {
 			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
-			wp_localize_script('Emsfb-admin-js','efb_var',array(
+			$efb_var_data = apply_filters('efb_admin_localize_vars', array(
 				'ajax_url' => admin_url('admin-ajax.php'),
 				'nonce'=> wp_create_nonce("wp_rest"),
 				'pro' => $pro ? 1 : 0,
@@ -241,7 +241,8 @@ class Panel_edit  {
 				'rest_url'=>get_rest_url(null),
 				'plugins'=>$plugins,
 				'wsteam'=> $wsteam_domain,
-			));
+			), 'panel');
+			wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
 			$lng_ = get_locale();
