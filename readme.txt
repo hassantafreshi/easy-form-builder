@@ -4,7 +4,7 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, survey form, payment form
 Requires at least: 4.7
 Tested up to: 6.8
-Stable tag: 3.8.22
+Stable tag: 4.0.0
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -135,11 +135,20 @@ These fields allow you to build complex, region-aware, and structured forms with
 
 - Stripe add-on for extended payment workflows
 
+- PayPal add-on for creating payment forms and managing transactions through PayPal
+
 - Offline forms add-on for collecting data without an active internet connection
 
 - Hijri (Qamari) date picker add-on
 
 - Jalali (Shamsi) date picker add-on
+
+- Autofill add-on for auto-completing form fields based on user input using internal datasets (CSV) or external API connections
+
+- Telegram notification add-on for sending instant form submission alerts and admin response notifications to Telegram using a bot
+
+- Shield Security plugin silentCAPTCHA integration for invisible bot and spam protection without user interaction
+
 
 
 == Available Versions ==

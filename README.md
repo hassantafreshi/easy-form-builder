@@ -241,7 +241,10 @@ Contributions of any kind are welcome!
 ### Webhook
 
 ### Add-ons and Integrations
- * Google Sheet Export
+✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration
+* Google Sheet Export
+
+### In
 
 
 
