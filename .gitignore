@@ -42,3 +42,6 @@ docs/BACKGROUND-PROCESSING.md
 docs/TESTING-GUIDE.md
 includes/functions.php.backup_20251222_221754
 .gitignore
+/.idea
+.vscode/settings.json
+.editorconfig

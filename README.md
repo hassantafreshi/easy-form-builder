@@ -240,6 +240,7 @@ Contributions of any kind are welcome!
 
 * Webhook (Coming soon)
 * Google Sheet Export (Coming soon)
+
 ✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration
 
 

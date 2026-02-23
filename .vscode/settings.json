@@ -33,5 +33,21 @@
         "titleBar.inactiveBackground": "#1a442799",
         "titleBar.inactiveForeground": "#e7e7e799"
     },
-    "peacock.color": "#1a4427"
+    "peacock.color": "#1a4427",
+    "[php]": {
+        "files.encoding": "utf8",
+        "files.insertFinalNewline": true,
+        "files.trimFinalNewlines": true,
+        "files.trimTrailingWhitespace": true,
+        "editor.formatOnSave": false
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": null
+    },
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "editor.formatOnSave": false,
+    "chat.tools.terminal.autoApprove": {
+        "ForEach-Object": true
+    }
 }
