@@ -238,10 +238,10 @@ Contributions of any kind are welcome!
 ### Email Template Editor
 ✔️ Customize email notifications with drag-and-drop template builder for better email design and branding.
 
-* Webhook (Coming soon)
-* Google Sheet Export (Coming soon)
+### Webhook (Coming soon)
+### Google Sheet Export (Coming soon)
 
-✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration
+### ✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration
 
 
 
