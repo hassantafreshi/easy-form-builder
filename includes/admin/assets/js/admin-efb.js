@@ -1901,6 +1901,13 @@ let change_el_edit_Efb = (el) => {
           el.classList.remove('active');
        }
         break;
+      case "shieldSilentCaptchaEl":
+        const shieldAvailable = efb_var.shield_available === true || efb_var.shield_available === 1 || efb_var.shield_available === '1' || efb_var.shield_available === 'true';
+        if (!shieldAvailable) {
+          return;
+        }
+        valj_efb[0].shield_silent_captcha = el.classList.contains('active') == true ? true : false;
+        break;
       case "showSIconsEl":
         valj_efb[0].show_icon =  el.classList.contains('active')==true ? true : false
         break;

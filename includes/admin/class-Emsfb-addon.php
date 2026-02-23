@@ -153,7 +153,7 @@ class Addon {
 			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
 		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
-		wp_localize_script('Emsfb-admin-js','efb_var',array(
+		$efb_var_data = apply_filters('efb_admin_localize_vars', array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'nonce'=> wp_create_nonce("wp_rest"),
 			'check' => 2,
@@ -171,7 +171,8 @@ class Addon {
 			'wp_lan'=>get_locale(),
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
 			'setting'=>$ac,
-		));
+		), 'addon');
+		wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
 		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,EMSFB_PLUGIN_VERSION);
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js',false,EMSFB_PLUGIN_VERSION);
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
