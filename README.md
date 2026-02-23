@@ -239,12 +239,12 @@ Contributions of any kind are welcome!
 ✔️ Customize email notifications with drag-and-drop template builder for better email design and branding.
 
 ### Webhook
+### Google Sheet Export
 
-### Add-ons and Integrations
+### Integrations
 ✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration
-* Google Sheet Export
 
-### In
+
 
 
 
