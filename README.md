@@ -221,7 +221,7 @@ Contributions of any kind are welcome!
  ### SMS (Text message) Notifications :
   #### Notification System for Form Submissions.
  ✔️ Seamless Integration with [WSMS](https://wordpress.org/plugins/wp-sms/).
- *  White Studio SMS Service.
+  *  White Studio SMS Service. (Coming soon)
 
 ### Telegram Notifications:
 ✔️ Real-time Telegram Updates for Admins.
@@ -229,18 +229,17 @@ Contributions of any kind are welcome!
 ### PayPal Add-ons for Payment Forms:
 ✔️ PayPal Integration for Secure Payments.
 
-### Interactive Quiz Forms .
+### Interactive Quiz Forms . (Coming soon)
 ### Smart Forms
 ✔️ Auto-Fills
-* Conditional logic.
-### SMS OTP form login
-### Booking and calendars Forms
+* Conditional logic. (Coming soon)
+### SMS OTP form login (Coming soon)
+### Booking and calendars Forms (Coming soon)
 ### Email Template Editor
 ✔️ Customize email notifications with drag-and-drop template builder for better email design and branding.
 
-### Webhook
-### Google Sheet Export
-
+* Webhook (Coming soon)
+* Google Sheet Export (Coming soon)
 ✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration
 
 
