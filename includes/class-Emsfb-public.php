@@ -2683,15 +2683,10 @@ public function check_nonce_permission_efb($request) {
 						$this->email_list_efb($email_user, 1, $emailuser, true);
 					}
 					$ip = $this->ip = $this->get_ip_address();
-					$time = microtime(true);
-					$smsSendResult =true;
 					// error_log('before switech: ' . $time);
 					switch ($type) {
 						case "form":
-							$timing_start = microtime(true);
 							$check = $this->insert_message_db(0, false);
-							$timing_db_insert = round((microtime(true) - $timing_start) * 1000, 2);
-
 							$nnc = wp_create_nonce($check);
 							$this->efbFunction->efb_code_validate_update($sid, 'send', $check);
 							$response = ['success' => true, 'ID' => $data_POST['id'], 'track' => $check, 'ip' => $ip, 'nonce' => $nnc];
@@ -2701,6 +2696,7 @@ public function check_nonce_permission_efb($request) {
 
 							// Send response and continue background processing
 							$this->efb_send_json_and_continue($response, 200);
+							$this->efb_intgrate_with_3rd_party_services_efb($check, $valo, $formObj);
 
 						// Background: SMS
 						if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
@@ -2716,8 +2712,6 @@ public function check_nonce_permission_efb($request) {
 									wp_send_json_success($response, 200);
 								}
 							}
-							$time = microtime(true);
-							error_log('before email: ' . $time);
 							if ($send_email_to_user_state) {
 								// $email_array_state = strpos($email_fa, ',') !== false;
 								$this->email_list_efb($email_user, 0, $email_fa, true);
@@ -2853,7 +2847,7 @@ public function check_nonce_permission_efb($request) {
 							}
 							wp_send_json_success($response, 200);
 							break;
-							case "register":
+					case "register":
 								$username = '';
 								$password = '';
 								$email = 'null';
@@ -2949,7 +2943,7 @@ public function check_nonce_permission_efb($request) {
 								}
 								wp_send_json_success($response, 200);
 								break;
-								case "login":
+						case "login":
 
 									$username = '';
 									$password = '';
@@ -3016,7 +3010,7 @@ public function check_nonce_permission_efb($request) {
 								break;
 
 
-								case "subscribe":
+						case "subscribe":
 									$check=	$this->insert_message_db(0,false);
 									if($send_email_to_user_state){
 										$status_email = $this->email_status_efb($formObj,$valo,$check);
@@ -3028,7 +3022,7 @@ public function check_nonce_permission_efb($request) {
 									$this->efbFunction->efb_code_validate_update($sid ,'nwltr' ,'nwltr' );
 									wp_send_json_success($response, 200);
 								break;
-								case "survey":
+						case "survey":
 									// $ip = $this->ip;
 									$check=	$this->insert_message_db(0,false);
 									if($send_email_to_user_state){
@@ -3080,11 +3074,12 @@ public function check_nonce_permission_efb($request) {
 									$this->efbFunction->efb_code_validate_update($sid ,'poll' ,'poll' );
 									wp_send_json_success($response, 200);
 								break;
-								case "reservation":
+						case "reservation":
 								break;
-								default:
+						default:
 								$response = array( 'success' => false  ,'m'=>$this->lanText['somethingWentWrongPleaseRefresh']);
 								wp_send_json_success($response, 200);
+								break;
 					}
 				}
 			//}

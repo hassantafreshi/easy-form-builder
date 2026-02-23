@@ -7310,6 +7310,20 @@ function switchViewEfb(view) {
       }
     }
   }
+  // Toggle sideBox settings visibility based on current view
+  updateSideBoxViewEfb(view);
+}
+
+function updateSideBoxViewEfb(view) {
+  const deskEls = document.querySelectorAll('.efb-desktop-settings-efb');
+  const mobEls = document.querySelectorAll('.efb-mobile-settings-efb');
+  if (view === 'mobile') {
+    deskEls.forEach(el => el.classList.add('d-none'));
+    mobEls.forEach(el => el.classList.remove('d-none'));
+  } else {
+    deskEls.forEach(el => el.classList.remove('d-none'));
+    mobEls.forEach(el => el.classList.add('d-none'));
+  }
 }
 
 function getMobileColClass(item) {

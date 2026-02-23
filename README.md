@@ -241,8 +241,8 @@ Contributions of any kind are welcome!
 ### Webhook
 
 ### Add-ons and Integrations
- * Google Sheet Export 
- *  
+ * Google Sheet Export
+
 
 
 

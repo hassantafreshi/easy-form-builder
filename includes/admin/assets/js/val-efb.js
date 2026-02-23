@@ -323,6 +323,9 @@ const paymentPersianPayEls =(idset)=>{
 }
 
 const ElementAlignEls = (side ,indx ,idset) => {
+  const _isDesktopField = (side === 'label' || side === 'description');
+  const _deskHide = _isDesktopField && typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile' ? 'd-none' : '';
+  const _wrapClass = _isDesktopField ? 'efb-desktop-settings-efb' : '';
   const left = side == 'label' ? 'txt-left' : 'justify-content-start'
   const right = side == 'label' ? 'txt-right' : 'justify-content-end'
   const center = side == 'label' ? 'txt-center' : 'justify-content-center'
@@ -333,7 +336,7 @@ const ElementAlignEls = (side ,indx ,idset) => {
     t = efb_var.text.description
   }
   const lab = efb_var.text[side] || side;
-  return `
+  return `<div class="efb ${_wrapClass} ${_deskHide}">
   <div class="efb  row">
   <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>${side == 'label' ? (efb_var.text.slabelAlign.replace('%s', '') || (lab + ' | ' + efb_var.text.align)) : (efb_var.text.sdescAlign.replace('%s', '') || (lab + ' | ' + efb_var.text.align))}</label>
     <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="ElementAlignEl">
@@ -345,7 +348,7 @@ const ElementAlignEls = (side ,indx ,idset) => {
       <span class="efb border-right border border-light "></span>
       <label class="efb ntb btn-primary ${value == right ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${right}','${side}')"><i class="efb bi-align-end fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="right">${efb_var.text.right}</label>
-    </div></div>`;
+    </div></div></div>`;
 }
 
 const countries_list_el_select=(el_type ,idset,indx)=>{
@@ -448,18 +451,18 @@ const cornerEls = (side,indx,idset) => {
   return `
     <div class="efb  row">
     <label for="cornerEl" class="efb  mt-3 col-12"><i class="efb bi-bounding-box-circles fs-7 ${iconMarginGlobal}"></i>${efb_var.text.corners}>${efb_var.text.rounded}</label>
-    <div class="efb  btn-group col-12  btn-group-toggle" data-toggle="buttons" data-side="${side}" data-id="${idset}-set" data-tag="${valj_efb[indx].type}" id="cornerEl">
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' || valj_efb[indx].corner =="0"  ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-0')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
+    <div class="efb  btn-group col-12  btn-group-toggle" style="flex-wrap:wrap;gap:2px;" data-toggle="buttons" data-side="${side}" data-id="${idset}-set" data-tag="${valj_efb[indx].type}" id="cornerEl">
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' || valj_efb[indx].corner =="0"  ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-0')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >0</label>
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="1" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-1')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="1" ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-1')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >1</label>
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="2" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-2')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="2" ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-2')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >2</label>
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="3" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-3')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="3" ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-3')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >3</label>
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="4" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-4')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="4" ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-4')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >4</label>
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'rounded-4' || valj_efb[indx].corner =="5" ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','rounded-5')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
+      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'rounded-4' || valj_efb[indx].corner =="5" ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-5')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >5</label>
         <!-- <span class="efb  border-right border border-light "></span>
       <label class="efb  ntb btn-primary ${!valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','efb-square')"><i class="efb bi-diamond fs-7 ${iconMarginGlobal}"></i>
@@ -814,7 +817,10 @@ function show_setting_window_efb(idset) {
     ${hideLabelEls}
     ${el.dataset.tag != 'ttlprc' ? requireEls : ''}
     ${desEls}`
-    const labelFontSizeEls = `
+    const deskHideEfb = typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile' ? 'd-none' : '';
+    const mobHideEfb = typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile' ? 'd-none' : '';
+
+    const labelFontSizeEls = `<div class="efb efb-desktop-settings-efb ${deskHideEfb}">
       <label for="labelFontSizeEl" class="efb mt-3 efb"><i class="efb bi-aspect-ratio fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelSize.replace('%s', '') || efb_var.text.labelSize}</label>
                         <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="labelFontSizeEl"  data-tag="${valj_efb[indx].type}">
                             <option value="fs-6" ${ valj_efb[indx].label_text_size == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
@@ -822,7 +828,7 @@ function show_setting_window_efb(idset) {
                             <option value="fs-5" ${ valj_efb[indx].label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>
                             <option value="fs-4" ${ valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
                             <option value="fs-3" ${ valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
-                        </select>`;
+                        </select></div>`;
     const optnsStyleEls = `
       <label for="optnsStyleEl" class="efb mt-3 efb"><i class="efb bi-layout-split fs-7 ${iconMarginGlobal}"></i>${efb_var.text.cols}</label>
                         <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="optnsStyleEl"  data-tag="${valj_efb[indx].type}">
@@ -852,7 +858,7 @@ function show_setting_window_efb(idset) {
      const currencyPersianPayEls= `<p for="currencyTypeEl" class="efb text-labelEfb fs-5 mt-3 efb"><i class="efb bi-cash fs-7 ${iconMarginGlobal}"></i>${efb_var.text.currency}: تومان</p>
       `;
 
-    const labelPostionEls = `
+    const labelPostionEls = `<div class="efb efb-desktop-settings-efb ${deskHideEfb}">
     <div class="efb row efb">
     <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-arrows-angle-contract fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelPosition.replace('%s', '') || efb_var.text.labelPostion}</label>
       <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-id="${idset}"  id="labelPostionEl">
@@ -862,10 +868,10 @@ function show_setting_window_efb(idset) {
         <label class="efb  ntb btn-primary bi-chevron-bar-right ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'beside' ? `active` : ''}" onclick="funSetPosElEfb('${idset}','besie')">
           <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="beside"> ${efb_var.text.beside}
         </label>
-      </div></div>`;
+      </div></div></div>`;
 
 
-    const widthEls = `
+    const widthEls = `<div class="efb efb-desktop-settings-efb ${deskHideEfb}">
       <label for="sizeEl" class="efb  mt-3"><i class="efb bi-arrow-left-right fs-7 ${iconMarginGlobal}"></i>${efb_var.text.swidth.replace('%s', '') || efb_var.text.width}</label>
       <select  data-id="${idset}" class="efb  rounded-4 elEdit form-select"  id="sizeEl" >
           <option value="8" ${valj_efb[indx].size == 8.3 ? `selected` : ''}>8%</option>
@@ -880,9 +886,9 @@ function show_setting_window_efb(idset) {
           <option value="83" ${valj_efb[indx].size == 80 || valj_efb[indx].size == 83 ? `selected` : ''} >83%</option>
           <option value="92" ${valj_efb[indx].size == 92 ? `selected` : ''} >92%</option>
           <option value="100" ${valj_efb[indx].hasOwnProperty('size')==false || valj_efb[indx].size == 100 ? `selected` : ''} >100%</option>
-      </select>
+      </select></div>
       `
-    const mobileWidthEls = `
+    const mobileWidthEls = `<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
       <label for="mobileSizeEl" class="efb  mt-3"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.swidth.replace('%s' , efb_var.text.mobile) || 'Mobile Width!'}</label>
       <select  data-id="${idset}" class="efb  rounded-4 elEdit form-select"  id="mobileSizeEl" >
           <option value="8" ${valj_efb[indx].mobile_size == 8 ? `selected` : ''}>8%</option>
@@ -897,9 +903,9 @@ function show_setting_window_efb(idset) {
           <option value="83" ${valj_efb[indx].mobile_size == 83 ? `selected` : ''}>83%</option>
           <option value="92" ${valj_efb[indx].mobile_size == 92 ? `selected` : ''}>92%</option>
           <option value="100" ${!valj_efb[indx].hasOwnProperty('mobile_size') || valj_efb[indx].mobile_size == 100 ? `selected` : ''}>100%</option>
-      </select>
+      </select></div>
       `
-    const mobileLabelPostionEls = `
+    const mobileLabelPostionEls = `<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
     <div class="efb row efb">
     <label for="mobileLabelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelPosition.replace('%s', efb_var.text.mobile) || 'Mobile Label Position'}</label>
     <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-id="${idset}"  id="mobileLabelPostionEl">
@@ -909,9 +915,9 @@ function show_setting_window_efb(idset) {
         <label class="efb  ntb btn-primary bi-chevron-bar-right ${valj_efb[indx].hasOwnProperty('mobile_label_position') && valj_efb[indx].mobile_label_position == 'beside' ? `active` : ''}" onclick="funSetMobilePosElEfb('${idset}','beside')">
             <input type="radio" name="mobile_pos_options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="mobileLabelPostionEl" value="beside"> ${efb_var.text.beside}
         </label>
-    </div></div>`;
+    </div></div></div>`;
 
-    const mobileLabelFontSizeEls = `
+    const mobileLabelFontSizeEls = `<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
       <label for="mobileLabelFontSizeEl" class="efb mt-3 efb"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelSize.replace('%s', efb_var.text.mobile) || 'Mobile Label size'}</label>
       <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="mobileLabelFontSizeEl"  data-tag="${valj_efb[indx].type}">
           <option value="fs-6" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-6' ? `selected` : (!valj_efb[indx].hasOwnProperty('mobile_label_text_size') ? `selected` : '')}>${efb_var.text.default}</option>
@@ -919,16 +925,17 @@ function show_setting_window_efb(idset) {
           <option value="fs-5" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>
           <option value="fs-4" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
           <option value="fs-3" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
-      </select>`;
+      </select></div>`;
 
     const MobileElementAlignEls = (side, indx, idset) => {
+      const _mobHide = typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile' ? 'd-none' : '';
       const left = side == 'label' ? 'txt-left' : 'justify-content-start'
       const right = side == 'label' ? 'txt-right' : 'justify-content-end'
       const center = side == 'label' ? 'txt-center' : 'justify-content-center'
       const propName = side == 'label' ? 'mobile_label_align' : 'mobile_message_align'
       let value = valj_efb[indx].hasOwnProperty(propName) ? valj_efb[indx][propName] : (side == 'label' ? valj_efb[indx].label_align : valj_efb[indx].message_align);
       const labText = side == 'label' ? (efb_var.text.slabelAlign.replace('%s', efb_var.text.mobile) || 'Mobile Label | Align') : (efb_var.text.sdescAlign.replace('%s', efb_var.text.mobile) || 'Mobile Description | Align')
-      return `
+      return `<div class="efb efb-mobile-settings-efb ${_mobHide}">
       <div class="efb  row">
       <label for="MobileElementAlignEl" class="efb  mt-3 col-12"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${labText}</label>
       <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="MobileElementAlignEl">
@@ -940,7 +947,7 @@ function show_setting_window_efb(idset) {
           <span class="efb border-right border border-light "></span>
           <label class="efb ntb btn-primary ${value == right ? `active` : ''}" onclick="funSetMobileAlignElEfb('${idset}','${right}','${side}')"><i class="efb bi-align-end fs-7 ${iconMarginGlobal}"></i>
               <input type="radio" name="mobile_align_options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="MobileElementAlignEl" value="right">${efb_var.text.right}</label>
-      </div></div>`;
+      </div></div></div>`;
     }
 
     const classesEls = `
@@ -2145,7 +2152,7 @@ function creator_form_builder_Efb() {
             </ul>
           <div class="efb row">${els}</div></div>
          <div class="efb  col-md-8 body-dpz-efb">
-         <div class="efb d-flex justify-content-center mb-2" id="viewToggleEfb">
+         <div class="efb d-flex justify-content-center mb-2 d-none" id="viewToggleEfb">
            <div class="efb btn-group" role="group" aria-label="View toggle">
              <button type="button" class="efb btn btn-sm btn-outline-primary active" id="desktopViewBtnEfb" onclick="switchViewEfb('desktop')">
                <i class="efb bi-display me-1"></i>${efb_var.text.desktop || 'Desktop'}

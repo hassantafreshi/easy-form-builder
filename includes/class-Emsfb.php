@@ -122,12 +122,8 @@ class Emsfb {
                 }
             }
             $telegram_exists = isset($ac->AdnTLG) ? (int) $ac->AdnTLG : 0;
-            error_log('telegram_exists value:' . ($telegram_exists ? 'True' : 'false'));
-              if ($telegram_exists === 1) {
-                //vendor\telegram\class-Emsfb-telegram.php
+              if ($telegram_exists >= 1) {
                   $telegram_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/class-Emsfb-telegram.php';
-                  error_log('Checking Telegram file path: ' . $telegram_file_path);
-                  error_log('File exists: ' . (file_exists($telegram_file_path) ? 'Yes' : 'No'));
                   if (file_exists($telegram_file_path)) {
                       require_once $telegram_file_path;
                   } else {
