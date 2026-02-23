@@ -1853,9 +1853,9 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	  public function get_form_public_efb($data_POST_) {
-		$data_POST = $data_POST_->get_json_params();
+		$request_data = $data_POST_->get_json_params();
 
-		$text_ = [
+		$translation_keys = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM', 'bkFlM', 'mnvvXXX', 'ptrnMmm', 'ptrnMmx', 'payment', 'error403', 'errorSiteKeyM',
 			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
@@ -1863,60 +1863,60 @@ public function check_nonce_permission_efb($request) {
 		];
 		$efbFunction = get_efbFunction();
 		// if(empty($this->efbFunction)) $this->efbFunction = $efbFunction;
-		$sid = sanitize_text_field($data_POST['sid']);
-		$this->id = sanitize_text_field($data_POST['id']);
-		$page_id = sanitize_text_field($data_POST['page_id']);
-		$data_POST['url'] = $url = sanitize_url($data_POST['url']);
+		$session_id = sanitize_text_field($request_data['sid']);
+		$this->id = sanitize_text_field($request_data['id']);
+		$page_id = sanitize_text_field($request_data['page_id']);
+		$request_data['url'] = $url = sanitize_url($request_data['url']);
 
 		// Ensure efbFunction is available
 		if(empty($this->efbFunction)) {
 			$this->efbFunction = $efbFunction;
 		}
 
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $this->id);
-		$this->lanText = $this->efbFunction->text_efb($text_);
-		$setting;
+		$session_is_valid = $this->efbFunction->efb_code_validate_select($session_id, $this->id);
+		$this->lanText = $this->efbFunction->text_efb($translation_keys);
+		$plugin_settings;
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
 		error_log('Cache plugins option: ' . $cache_plugins);
 		if($cache_plugins!='0') $this->cache_cleaner_Efb($page_id,$cache_plugins);
-		/* 	if ($s_sid != 1) {
+		/* 	if ($session_is_valid != 1) {
 			$this->efbFunction->send_email_noti_sid_plugins_efb('loadScriptsEvent');
 			$m = $this->lanText['sxnlex'];
 			$response = ['success' => false, 'm' => $m];
 			wp_send_json_success($response, 200);
 		} */
 		$user_id = 1;
-		$to_list_admin = [];
+		$admin_email_list = [];
 		// Use cache for settings
-		if (false === ($setting = wp_cache_get('emsfb_settings' , 'emsfb'))) {
+		if (false === ($plugin_settings = wp_cache_get('emsfb_settings' , 'emsfb'))) {
 			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
-			$setting = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
-			wp_cache_set('emsfb_settings', $setting , 'emsfb');
+			$plugin_settings = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
+			wp_cache_set('emsfb_settings', $plugin_settings , 'emsfb');
 		}
 
-		if (isset($setting['emailSupporter'])) {
-			array_push($to_list_admin, $setting['emailSupporter']);
+		if (isset($plugin_settings['emailSupporter'])) {
+			array_push($admin_email_list, $plugin_settings['emailSupporter']);
 		}
-		if(isset($setting['smtp']) && (bool)$setting['smtp'] ){
-						 // $email_array_state = strpos($email_fa, ',') !== false;
+		if(isset($plugin_settings['smtp']) && (bool)$plugin_settings['smtp'] ){
+						 // $has_multiple_emails = strpos($form_admin_email, ',') !== false;
 
-						$send_email_to_user_state = true;
+						$should_send_email = true;
 		}
-		$pro = intval(get_option('emsfb_pro'));
-		$pro = $pro == 1 || $pro == 3 ? true : false;
-		$this->pro_efb = $pro;
-		$type = sanitize_text_field($data_POST['type']);
+		$is_pro = intval(get_option('emsfb_pro'));
+		$is_pro = $is_pro == 1 || $is_pro == 3 ? true : false;
+		$this->pro_efb = $is_pro;
+		$submission_type = sanitize_text_field($request_data['type']);
 		$email = get_option('admin_email');
-		$rePage = "null";
+		$redirect_url = "null";
 		if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
         }
 		$this->id = intval($this->id);
-		$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
+		$form_db_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
 
 		// Check if form exists
-		if (empty($value_form_data)) {
+		if (empty($form_db_data)) {
 			error_log('[EFB Error] Form not found in database - ID: ' . $this->id);
 			$msg = 'Form not found.';
 			if (isset($this->lanText) && isset($this->lanText['snotfound']) && isset($this->lanText['fform'])) {
@@ -1926,14 +1926,14 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success($response, 200);
 		}
 
-		$fs = isset($value_form_data) ? str_replace('\\', '', $value_form_data->form_structer) : '';
-		$not_captcha = $formObj = $trackingCode_state  = $check = "";
-		$send_email_to_user_state=false;
-		$email_user = [];
-		$this->value = str_replace('\\', '', $data_POST['value']);
-		$valo = json_decode($this->value, true);
-		//check if $valo row has type key
-		if ( empty($valo)) {
+		$form_structure_json = isset($form_db_data) ? str_replace('\\', '', $form_db_data->form_structer) : '';
+		$skip_captcha = $form_fields_array = $has_tracking_code  = $track_code = "";
+		$should_send_email=false;
+		$email_recipients = [];
+		$this->value = str_replace('\\', '', $request_data['value']);
+		$submitted_values = json_decode($this->value, true);
+		//check if $submitted_values row has type key
+		if ( empty($submitted_values)) {
 
 			//$m =$this->['response'] to upper case first letter
 			$msg = 'Form data not found.';
@@ -1944,85 +1944,85 @@ public function check_nonce_permission_efb($request) {
 			$response = ['success' => false, 'm' =>$msg];
 			wp_send_json_success($response, 200);
 		}else{
-			//remove duplicate v["id_"] form $valo
-			$valo = $this->dedupe_by_id_and_ob_efb($valo);
+			//remove duplicate v["id_"] form $submitted_values
+			$submitted_values = $this->dedupe_by_id_and_ob_efb($submitted_values);
 		}
-		$smsnoti = 0;
+		$sms_notification_enabled = 0;
 		$phone_numbers = [[], []];
-		$email_array_state = false;
-		$send_email_to_user_state = false;
-		error_log('Form structure: ' . $fs);
-		if (isset($setting['sms_config']) && $setting['sms_config'] == "wpsms") {
-			$numbers = isset($setting['phnNo']) ? $setting['phnNo'] : [];
+		$has_multiple_emails = false;
+		$should_send_email = false;
+		error_log('Form structure: ' . $form_structure_json);
+		if (isset($plugin_settings['sms_config']) && $plugin_settings['sms_config'] == "wpsms") {
+			$numbers = isset($plugin_settings['phnNo']) ? $plugin_settings['phnNo'] : [];
 			if (strlen($numbers) > 5) $phone_numbers[0] = explode(',', $numbers);
-			$smsnoti = 1;
+			$sms_notification_enabled = 1;
 		}
-		$smsnoti = strpos($fs, '\"smsnoti\":\"1\"') !== false || $smsnoti == 1 ? 1 : 0;
-		error_log('SMS Notification State: ' . $smsnoti);
-		if ($fs != '') {
-			$formObj = json_decode($fs, true);
-			$fs = null;
-			$email_array_state = isset($formObj[0]["email_send_type"]) ? $formObj[0]["email_send_type"] : false;
-			error_log('formObj:'.json_encode($formObj[0]));
-			// $is_multipleEmail = strpos($email_fa, ',') !== false;
-			// $email_array_state = strpos($email_fa, ',') !== false;
-			$form_type = $formObj[0]['type'] ?? 'form';
+		$sms_notification_enabled = strpos($form_structure_json, '\"smsnoti\":\"1\"') !== false || $sms_notification_enabled == 1 ? 1 : 0;
+		error_log('SMS Notification State: ' . $sms_notification_enabled);
+		if ($form_structure_json != '') {
+			$form_fields_array = json_decode($form_structure_json, true);
+			$form_structure_json = null;
+			$has_multiple_emails = isset($form_fields_array[0]["email_send_type"]) ? $form_fields_array[0]["email_send_type"] : false;
+			error_log('formObj:'.json_encode($form_fields_array[0]));
+			// $is_multipleEmail = strpos($form_admin_email, ',') !== false;
+			// $has_multiple_emails = strpos($form_admin_email, ',') !== false;
+			$form_type = $form_fields_array[0]['type'] ?? 'form';
 			error_log('form type: ' . $form_type);
-			if (!isset($valo['logout']) && !isset($valo['recovery']) && $form_type!='register' && $form_type!='login') {
-				if(isset($setting['smtp']) && (bool)$setting['smtp'] ){
-						$send_email_to_user_state = true;
+			if (!isset($submitted_values['logout']) && !isset($submitted_values['recovery']) && $form_type!='register' && $form_type!='login') {
+				if(isset($plugin_settings['smtp']) && (bool)$plugin_settings['smtp'] ){
+						$should_send_email = true;
 				}
-				$email_fa = $formObj[0]['email'];
-				if($send_email_to_user_state && !empty($email_fa)){
-					$is_multipleEmail = strpos($email_fa, ',') !== false;
-					$this->email_list_efb($email_user , 0 , $email_fa ,$is_multipleEmail);
+				$form_admin_email = $form_fields_array[0]['email'];
+				if($should_send_email && !empty($form_admin_email)){
+					$is_multipleEmail = strpos($form_admin_email, ',') !== false;
+					$this->email_list_efb($email_recipients , 0 , $form_admin_email ,$is_multipleEmail);
 				}
-				$trackingCode_state = $formObj[0]['trackingCode'] == true || $formObj[0]['trackingCode'] == "true" || $formObj[0]['trackingCode'] == 1 ? 1 : 0;
-				error_log('Tracking code state: ' . $trackingCode_state);
-				error_log('$formObj[0][\'type\'] ' . $formObj[0]['type']);
-				error_log('$type ' . $type);
-				if ($type != $formObj[0]['type']) {
+				$has_tracking_code = $form_fields_array[0]['trackingCode'] == true || $form_fields_array[0]['trackingCode'] == "true" || $form_fields_array[0]['trackingCode'] == 1 ? 1 : 0;
+				error_log('Tracking code state: ' . $has_tracking_code);
+				error_log('$form_fields_array[0][\'type\'] ' . $form_fields_array[0]['type']);
+				error_log('$submission_type ' . $submission_type);
+				if ($submission_type != $form_fields_array[0]['type']) {
 					$response = ['success' => false, 'm' => $this->lanText['fernvtf']];
 					wp_send_json_success($response, 200);
 				}
-				if ($formObj[0]['thank_you'] == "rdrct") {
-					$rePage = $this->string_to_url($formObj[0]['rePage']);
+				if ($form_fields_array[0]['thank_you'] == "rdrct") {
+					$redirect_url = $this->string_to_url($form_fields_array[0]['rePage']);
 				}
-				$valobj = [];
-				$stated = 0;
-				$rt;
-				if (isset($data_POST['url']) && strlen($data_POST['url']) > 5) {
+				$validated_items = [];
+				$is_valid = 0;
+				$validated_item;
+				if (isset($request_data['url']) && strlen($request_data['url']) > 5) {
 					$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
 					$ar = ['http://wwww.' .$d, 'https://wwww.' . $d, 'http://' . $d, 'https://' . $d];
 					foreach ($ar as $r) {
-						$c = strpos($data_POST['url'], $r);
+						$c = strpos($request_data['url'], $r);
 						if (gettype($c) != 'boolean' && $c == 0) {
-							$stated = 1;
+							$is_valid = 1;
 						}
 					}
-					if ($stated == 1) {
+					if ($is_valid == 1) {
 						$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
 					}
 				}
-				if ($stated == 0) {
+				if ($is_valid == 0) {
 					$response = ['success' => false, 'm' => $this->lanText['error403']];
 					wp_send_json_success($response, 200);
 				}
-				$mr = '';
-				$stated = 1;
+				$error_message = '';
+				$is_valid = 1;
 				$form_condition = '';
-				if (isset($formObj[0]['booking']) && $formObj[0]['booking'] == 1) $form_condition = 'booking';
+				if (isset($form_fields_array[0]['booking']) && $form_fields_array[0]['booking'] == 1) $form_condition = 'booking';
 				$currency = '';
-				if(isset($formObj[0]['currency']) && strlen($formObj[0]['currency'])>1) $currency = $formObj[0]['currency'];
+				if(isset($form_fields_array[0]['currency']) && strlen($form_fields_array[0]['currency'])>1) $currency = $form_fields_array[0]['currency'];
 				// error_log('start_time: ' . $start_time);
 
-				foreach ($formObj as $key => $f) {
-					$rt = null;
-					$in_loop = true;
+				foreach ($form_fields_array as $key => $f) {
+					$validated_item = null;
+					$still_processing = true;
 					if ($key < 2 && !isset($f['id_'])){ continue;}
-					if ($stated == 0) {break;}
-					$it = array_filter($valo, function ($item) use ($f, $key, &$stated, &$email_user, &$rt, &$formObj, &$in_loop, &$mr, $form_condition, &$smsnoti, &$phone_numbers) {
-						if ($in_loop == false) {
+					if ($is_valid == 0) {break;}
+					$it = array_filter($submitted_values, function ($item) use ($f, $key, &$is_valid, &$email_recipients, &$validated_item, &$form_fields_array, &$still_processing, &$error_message, $form_condition, &$sms_notification_enabled, &$phone_numbers) {
+						if ($still_processing == false) {
 							return;
 						}
 						if (((isset($f['disabled']) == true &&  $f['disabled'] == 1  && isset($f['hidden']) == false)
@@ -2030,125 +2030,125 @@ public function check_nonce_permission_efb($request) {
 							&& ($item['id_'] == $f['id_'] || $f['id_'] == $item['id_'])
 							&& strlen($item['value']) > 1
 						) {
-							$stated = 0;
-							$in_loop == false;
+							$is_valid = 0;
+							$still_processing == false;
 							return;
 						}
 						$t = strpos(strtolower($item['type']), 'checkbox');
 						if (
 							isset($f['id_']) && isset($item['id_']) && ($f['id_'] == $item['id_']
 								||  gettype($t) == "integer" && $f['id_'] == $item['id_ob'])
-							|| (($f['type'] == "persiaPay" || $f['type'] == "persiapay" || $f['type'] == "payment") && $formObj[0]['type'] == 'payment')
+							|| (($f['type'] == "persiaPay" || $f['type'] == "persiapay" || $f['type'] == "payment") && $form_fields_array[0]['type'] == 'payment')
 							|| ($item['type'] == 'r_matrix' && $f['id_'] == $item['id_ob'])
 						) {
 							if (isset($f['name'])) {
-								$mr = $this->lanText['mnvvXXX'];
-								$mr = str_replace('XXX', "<b>" . $f['name'] . "</b>", $mr);
+								$error_message = $this->lanText['mnvvXXX'];
+								$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
 							}
 							switch ($f['type']) {
 								case 'email':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$item['value'] = sanitize_email($item['value']);
-										$stated = 1;
-										$rt = $item;
+										$is_valid = 1;
+										$validated_item = $item;
 										$l = strlen($item['value']);
 										if (!filter_var($item['value'], FILTER_VALIDATE_EMAIL)) {
-											$mr = str_replace('XXX', $f['name'], $mr);
-											$stated = 0;
+											$error_message = str_replace('XXX', $f['name'], $error_message);
+											$is_valid = 0;
 										}
 										// don't chenge these line!
-										$e_ar = isset($formObj[0]['email_send_type']) ? $formObj[0]['email_send_type'] : false;
+										$e_ar = isset($form_fields_array[0]['email_send_type']) ? $form_fields_array[0]['email_send_type'] : false;
 										if ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l)) {
-											$stated = 0;
+											$is_valid = 0;
 										}
-										if (isset($f['noti']) == true && intval($f['noti']) == 1)  $this->email_list_efb($email_user, 1, $item['value'], $e_ar);
+										if (isset($f['noti']) == true && intval($f['noti']) == 1)  $this->email_list_efb($email_recipients, 1, $item['value'], $e_ar);
 										// end
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case "date":
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$item['value'] = sanitize_text_field($item['value']);
 										$v = explode("-", $item['value']);
 										if (count($v) == 3 && checkdate($v[1], $v[2], $v[0])) {
-											$stated = 1;
-											$rt = $item;
+											$is_valid = 1;
+											$validated_item = $item;
 											$current_date = date('Y-m-d');
 											if (isset($f['milen']) && $f['milen'] != '') {
 												$f['milen'] = intval($f['milen']) == 1 ? $current_date : $f['milen'];
 												if ($f['milen'] != '' && (strtotime($f['milen']) > strtotime($item['value']) || strtotime($f['milen']) > strtotime($item['value']))) {
-													$stated = 0;
+													$is_valid = 0;
 												}
 											}
 											if (isset($f['mlen']) && $f['mlen'] != '') {
 												$f['mlen'] = intval($f['mlen']) == 1 ? $current_date : $f['mlen'];
 												if ($f['mlen'] != '' && (strtotime($f['mlen']) < strtotime($item['value']) || strtotime($f['mlen']) < strtotime($item['value']))) {
-													$stated = 0;
+													$is_valid = 0;
 												}
 											}
 										} else {
-											$rt = "";
-											$stated = 0;
+											$validated_item = "";
+											$is_valid = 0;
 										}
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'url':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$item['value'] = sanitize_url($item['value']);
-										$stated = 1;
+										$is_valid = 1;
 										$l = strlen($item['value']);
 										if ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l)) {
-											$stated = 0;
+											$is_valid = 0;
 										}
 									}
 									# code...
-									$rt = $item;
-									$in_loop = false;
+									$validated_item = $item;
+									$still_processing = false;
 									break;
 								case 'mobile':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$item['value'] = sanitize_text_field($item['value']);
-										$stated = 0;
+										$is_valid = 0;
 										$item['value'] = preg_replace('/\s+/', '', $item['value']);
 										if (isset($f['smsnoti']) && intval($f['smsnoti']) == 1) {
-											$smsnoti = 1;
+											$sms_notification_enabled = 1;
 											array_push($phone_numbers[1], $item['value']);
 										}
 										$l = isset($f['c_n']) && count($f['c_n']) >= 1 ? $f['c_n'] : ['all'];
-										array_filter($l, function ($no) use ($item, &$stated) {
+										array_filter($l, function ($no) use ($item, &$is_valid) {
 											$pos = strrpos($item['value'], '+');
 											if ($pos !== false) {
 												$item['value'] = substr($item['value'], $pos);
 											}
 
 											$v = strpos($item['value'], '+' . $no);
-											if (strpos($item['value'], '+' . $no) === 0 || $no == 'all') $stated = 1;
+											if (strpos($item['value'], '+' . $no) === 0 || $no == 'all') $is_valid = 1;
 										});
 									}
-									$rt = $item;
-									$in_loop = false;
+									$validated_item = $item;
+									$still_processing = false;
 									break;
 								case 'radio':
 								case 'payRadio':
 								case 'chlRadio':
 								case 'imgRadio':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$item['value'] = sanitize_text_field($item['value']);
-										array_filter($formObj, function ($fr, $ki) use (&$item, &$rt, &$stated, &$formObj, $form_condition, &$mr) {
+										array_filter($form_fields_array, function ($fr, $ki) use (&$item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message) {
 											if (isset($fr['id_']) && isset($item['id_ob']) && $fr['id_'] == $item['id_ob']) {
 												$item['value'] = $fr['value'];
-												$stated = 1;
+												$is_valid = 1;
 												$t = strpos($item['type'], 'pay');
 												if ($t != false) {
 													$item['price'] = $fr['price'];
@@ -2161,49 +2161,49 @@ public function check_nonce_permission_efb($request) {
 												if ($form_condition == 'booking') {
 													if (isset($fr['dateExp']) == true) {
 														if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
-															$stated = 0;
-															$mr = $this->lanText['bkXpM'];
-															$mr = str_replace('XXX', $fr['value'], $mr);
+															$is_valid = 0;
+															$error_message = $this->lanText['bkXpM'];
+															$error_message = str_replace('XXX', $fr['value'], $error_message);
 														}
 													}
 													if (isset($fr['mlen']) == true) {
 														if ($fr['mlen'] <= $fr['registered_count']) {
-															$stated = 0;
-															$mr = $this->lanText['bkFlM'];
-															$mr = str_replace('XXX', $fr['value'], $mr);
+															$is_valid = 0;
+															$error_message = $this->lanText['bkFlM'];
+															$error_message = str_replace('XXX', $fr['value'], $error_message);
 														} else {
-															$formObj[$ki]['registered_count'] = (int) $formObj[$ki]['registered_count'] + 1;
+															$form_fields_array[$ki]['registered_count'] = (int) $form_fields_array[$ki]['registered_count'] + 1;
 														}
 													}
 												}
-												$rt = $item;
+												$validated_item = $item;
 												return;
 											}
 										}, ARRAY_FILTER_USE_BOTH);
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'switch':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$item['value'] = sanitize_text_field($item['value']);
-										array_filter($formObj, function ($fr) use ($item, &$rt, &$stated) {
+										array_filter($form_fields_array, function ($fr) use ($item, &$validated_item, &$is_valid) {
 											if (isset($fr['id_']) && isset($item['id_']) && $fr['id_'] == $item['id_']) {
 												$item['value'] = $item['value'] == '1' ?   $fr['on'] : $fr['off'];
-												$rt = $item;
-												$stated = 1;
+												$validated_item = $item;
+												$is_valid = 1;
 												return;
 											}
 										});
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'option':
 									$t = strpos(strtolower($item['type']), 'checkbox');
 									if (gettype($t) != 'boolean') {
 									}
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value'])) {
 										// error_log('optionssssssssssss' . $f['type']);
 										$item['value'] = sanitize_text_field($item['value']);
@@ -2213,8 +2213,8 @@ public function check_nonce_permission_efb($request) {
 										) {
 											error_log('optionssssssssssss' . $f['type']);
 											$item['value'] = $this->sanitize_value_efb($item['value'],'option');
-											$rt = $item;
-											$stated = 1;
+											$validated_item = $item;
+											$is_valid = 1;
 											$t = strpos($item['type'], 'pay');
 											if (gettype($t) != 'boolean') {
 												$item['price'] = $f['price'];
@@ -2222,27 +2222,27 @@ public function check_nonce_permission_efb($request) {
 											if ($form_condition == 'booking') {
 												if (isset($f['dateExp']) == true) {
 													if (strtotime($f['dateExp']) < strtotime(wp_date('Y-m-d'))) {
-														$stated = 0;
-														$mr = $this->lanText['bkXpM'];
-														$mr = str_replace('XXX', $f['value'], $mr);
+														$is_valid = 0;
+														$error_message = $this->lanText['bkXpM'];
+														$error_message = str_replace('XXX', $f['value'], $error_message);
 													}
 												}
 												if (isset($f['mlen']) == true) {
 													if ($f['mlen'] <= $f['registered_count']) {
-														$stated = 0;
-														$mr = $this->lanText['bkFlM'];
-														$mr = str_replace('XXX', $f['value'], $mr);
+														$is_valid = 0;
+														$error_message = $this->lanText['bkFlM'];
+														$error_message = str_replace('XXX', $f['value'], $error_message);
 													} else {
-														$formObj[$key]['registered_count'] = (int) $formObj[$key]['registered_count'] + 1;
+														$form_fields_array[$key]['registered_count'] = (int) $form_fields_array[$key]['registered_count'] + 1;
 													}
 												}
 											}
 										}
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'r_matrix':
-									$stated = 0;
+									$is_valid = 0;
 									$item['value'] = sanitize_text_field($item['value']);
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									if ($item['value'] < 1 || $item['value'] > 5) {
@@ -2250,104 +2250,104 @@ public function check_nonce_permission_efb($request) {
 										$response = array('success' => false, 'm' => $m);
 										wp_send_json_success($response, 200);
 									}
-									$stated = 1;
+									$is_valid = 1;
 									$item['name'] = $f['value'];
 									$item['label'] = "";
-									foreach ($formObj as $k => $v) {
+									foreach ($form_fields_array as $k => $v) {
 										if ($v['type'] == 'table_matrix' && $v['id_'] == $item['id_']) {
 											$item['label'] = $v['name'];
 											break;
 										}
 									}
-									$rt = $item;
-									$in_loop = false;
+									$validated_item = $item;
+									$still_processing = false;
 									break;
 								case 'pointr5':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value']) && is_numeric($item['value'])) {
 										$item['value'] = intval(sanitize_text_field($item['value']));
 										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
 										// اعتبارسنجی مقدار 1-5
 										if ($item['value'] >= 1 && $item['value'] <= 5) {
-											$stated = 1;
-											$rt = $item;
+											$is_valid = 1;
+											$validated_item = $item;
 										}
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'pointr10':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value']) && is_numeric($item['value'])) {
 										$item['value'] = intval(sanitize_text_field($item['value']));
 										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
 										// اعتبارسنجی مقدار 0-10 برای NPS
 										if ($item['value'] >= 0 && $item['value'] <= 10) {
-											$stated = 1;
-											$rt = $item;
+											$is_valid = 1;
+											$validated_item = $item;
 										}
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'rating':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value']) && is_numeric($item['value'])) {
 										$item['value'] = intval(sanitize_text_field($item['value']));
 										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
 										// اعتبارسنجی مقدار 1-5
 										if ($item['value'] >= 1 && $item['value'] <= 5) {
-											$stated = 1;
-											$rt = $item;
+											$is_valid = 1;
+											$validated_item = $item;
 										}
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'multiselect':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$rt = null;
+										$validated_item = null;
 										$rs = explode("@efb!", $item['value']);
-										array_filter($formObj, function ($fr) use ($item, &$rt, $rs) {
+										array_filter($form_fields_array, function ($fr) use ($item, &$validated_item, $rs) {
 											foreach ($rs as $k => $v) {
 												if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($v) && $fr['value'] == $v &&  $fr['parent'] == $item['id_']) {
-													$rt == null ? $rt = $v . '@efb!' : $rt = $rt . $v . '@efb!';
+													$validated_item == null ? $validated_item = $v . '@efb!' : $validated_item = $validated_item . $v . '@efb!';
 												}
 											}
 										});
-										if ($rt != null) $stated = 1;
-										$item['value'] = $rt;
-										$rt = $item;
+										if ($validated_item != null) $is_valid = 1;
+										$item['value'] = $validated_item;
+										$validated_item = $item;
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'select':
 								case 'paySelect':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value'])) {
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										array_filter($formObj, function ($fr, $ki) use ($item, &$rt, &$stated, &$formObj, $form_condition, &$mr) {
+										array_filter($form_fields_array, function ($fr, $ki) use ($item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message) {
 											if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($item['value']) && $fr['value'] == $item['value'] &&  $fr['parent'] == $item['id_']) {
-												$stated = 1;
+												$is_valid = 1;
 												$item['value'] = $fr['value'];
-												$rt = $item;
-												$in_loop = false;
+												$validated_item = $item;
+												$still_processing = false;
 												if ($form_condition == 'booking') {
 													if (isset($fr['dateExp']) == true) {
 														if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
-															$stated = 0;
-															$mr = $this->lanText['bkXpM'];
-															$mr = str_replace('XXX', $fr['value'], $mr);
+															$is_valid = 0;
+															$error_message = $this->lanText['bkXpM'];
+															$error_message = str_replace('XXX', $fr['value'], $error_message);
 														}
 													}
 													if (isset($fr['mlen']) == true) {
 														if ($fr['mlen'] <= $fr['registered_count']) {
-															$stated = 0;
-															$mr = $this->lanText['bkFlM'];
-															$mr = str_replace('XXX', $fr['value'], $mr);
+															$is_valid = 0;
+															$error_message = $this->lanText['bkFlM'];
+															$error_message = str_replace('XXX', $fr['value'], $error_message);
 														} else {
-															$formObj[$ki]['registered_count'] = (int) $formObj[$ki]['registered_count'] + 1;
+															$form_fields_array[$ki]['registered_count'] = (int) $form_fields_array[$ki]['registered_count'] + 1;
 														}
 													}
 												}
@@ -2355,7 +2355,7 @@ public function check_nonce_permission_efb($request) {
 											}
 										}, ARRAY_FILTER_USE_BOTH);
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'stateProvince':
 								case 'statePro':
@@ -2363,33 +2363,33 @@ public function check_nonce_permission_efb($request) {
 								case 'country':
 								case 'city':
 								case 'cityList':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value'])) {
-										$stated = 1;
+										$is_valid = 1;
 										$item['value']= sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$rt = $item;
+										$validated_item = $item;
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'sample':
-									$rt = $item;
-									$in_loop = false;
+									$validated_item = $item;
+									$still_processing = false;
 									break;
 								case 'persiaPay':
 								case 'persiapay':
 								case 'payment':
-									if ($formObj[0]['type'] == 'payment') {
+									if ($form_fields_array[0]['type'] == 'payment') {
 										$item['amount'] = sanitize_text_field($item['amount']);
 										$item['id_'] = sanitize_text_field($item['id_']);
 										$item['name'] = sanitize_text_field($item['name']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 
-										$rt = $item;
-										$in_loop = false;
-										$stated = 1;
+										$validated_item = $item;
+										$still_processing = false;
+										$is_valid = 1;
 									} else {
-										$stated = 0;
+										$is_valid = 0;
 									}
 									break;
 								case 'file':
@@ -2397,7 +2397,7 @@ public function check_nonce_permission_efb($request) {
 									$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									if (isset($item['url']) && strlen($item['url']) > 5) {
-										$stated = 0;
+										$is_valid = 0;
 										$ar = ['http://wwww.' . $d, 'https://wwww.' . $d, 'http://' . $d, 'https://' . $d];
 										$s = 0;
 										foreach ($ar as  $r) {
@@ -2409,163 +2409,163 @@ public function check_nonce_permission_efb($request) {
 										error_log('s: ' . $s);
 										if ($s == 1) {
 											$item['url'] = sanitize_url($item['url']);
-											$rt = $item;
-											$stated = 1;
+											$validated_item = $item;
+											$is_valid = 1;
 										} else {
 											$item = null;
-											$rt = null;
-											$stated = 0;
+											$validated_item = null;
+											$is_valid = 0;
 										}
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'esign':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value']) && strpos($item['value'], 'data:image/png;base64,') == 0) {
-										$stated = 1;
+										$is_valid = 1;
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$rt = $item;
+										$validated_item = $item;
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'maps':
-									$stated = 1;
-									$rt = $item;
+									$is_valid = 1;
+									$validated_item = $item;
 									$c = 0;
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									foreach ($item['value'] as $key => $value) {
 										$c += 1;
 										if (is_numeric($value['lat']) == false || is_numeric($value['lng']) == false) {
-											$stated = 0;
-											$rt = null;
+											$is_valid = 0;
+											$validated_item = null;
 										};
 									}
 									if ($c != $f['mark']) {
-										$stated = 0;
-										$rt = null;
-										$mr = $this->lanText['mnvvXXX'];
-										$mr = str_replace('XXX', "<b>" . $f['name'] . "</b>", $mr);
+										$is_valid = 0;
+										$validated_item = null;
+										$error_message = $this->lanText['mnvvXXX'];
+										$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'color':
-									$stated = 0;
+									$is_valid = 0;
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									$l = strlen($item['value']);
 									if (isset($item['value']) && strpos($item['value'], '#') == 0 && $l == 7) {
 										$item['value'] = sanitize_text_field($item['value']);
-										$stated = 1;
-										$rt = $item;
+										$is_valid = 1;
+										$validated_item = $item;
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								case 'range':
 								case 'number':
 								case 'prcfld':
-									$stated = 0;
+									$is_valid = 0;
 									if (isset($item['value']) && is_numeric($item['value'])) {
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$stated = 1;
-										$rt = $item;
+										$is_valid = 1;
+										$validated_item = $item;
 										$l = strlen($item['value']);
 										if (strcmp($f['type'], "range") !== 0 && ((isset($f['milen']) && $f['milen'] > $l) || (isset($f['mlen']) && $f['mlen'] < $l))) {
-											$stated = 0;
+											$is_valid = 0;
 										} else if (((isset($f['milen']) && $f['milen'] > $item['value']) || (isset($f['mlen']) && $f['mlen'] < $item['value'])) && strcmp($f['type'], "range") == 0) {
-											$stated = 0;
+											$is_valid = 0;
 										}
 									}
-									$in_loop = false;
+									$still_processing = false;
 									break;
 								default:
-									$stated = 0;
+									$is_valid = 0;
 									$t	= strtolower($item['type']);
 									$t = strpos(strtolower($f['type']), 'checkbox');
 									$b = strpos(strtolower($f['type']), 'chlcheckbox');
 									if (gettype($t) == "integer" || (isset($f['type']) && $f['type'] == 'table_matrix')) {
-										$stated = 1;
+										$is_valid = 1;
 										break;
 									}
 									if (isset($item['value'])) {
-										$stated = 1;
+										$is_valid = 1;
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$l = mb_strlen($item['value'], 'UTF-8');
 										if (isset($f['milen']) != true  &&   isset($f['mlen']) != true) {
-											$stated = 1;
+											$is_valid = 1;
 										} else if ((isset($f['milen']) == true && $f['milen'] > 0 && $f['milen'] > $l)) {
-											$mr = $this->lanText['ptrnMmm'];
-											$mr = str_replace('XXX', "<b>" . $f['name'] . "</b>", $mr);
-											$mr = str_replace('NN', "<b>" . $f['milen'] . "</b>", $mr);
-											$stated = 0;
+											$error_message = $this->lanText['ptrnMmm'];
+											$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
+											$error_message = str_replace('NN', "<b>" . $f['milen'] . "</b>", $error_message);
+											$is_valid = 0;
 										} else if (isset($f['mlen']) == true && $f['mlen'] > 0   && $f['mlen'] < $l) {
-											$mr = $this->lanText['ptrnMmx'];
-											$mr = str_replace('NN', "<b>" . $f['mlen'] . "</b>", $mr);
-											$mr = str_replace('XXX', "<b>" . $f['name'] . "</b>", $mr);
-											$stated = 0;
+											$error_message = $this->lanText['ptrnMmx'];
+											$error_message = str_replace('NN', "<b>" . $f['mlen'] . "</b>", $error_message);
+											$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
+											$is_valid = 0;
 										}
 									}
-									$rt = $item;
-									$in_loop = false;
+									$validated_item = $item;
+									$still_processing = false;
 									break;
 							}
 						}
 					});
-					if (isset($rt)) {
-						error_log('rt: ' . json_encode($rt));
-						array_push($valobj, $rt);
+					if (isset($validated_item)) {
+						error_log('rt: ' . json_encode($validated_item));
+						array_push($validated_items, $validated_item);
 					};
 				}
 				// error_log('after array: ' . $end );
-				$count = count($valobj);
+				$count = count($validated_items);
 				if ($count == 0) {
-					$stated = 0;
-					if ($mr == '') $mr = $this->lanText['pleaseMakeSureAllFields'];
+					$is_valid = 0;
+					if ($error_message == '') $error_message = $this->lanText['pleaseMakeSureAllFields'];
 				}
-				// error_log(json_encode($valobj));
-				array_push($valobj, ['type' => 'w_link', 'value' => $url, 'amount' => -1]);
+				// error_log(json_encode($validated_items));
+				array_push($validated_items, ['type' => 'w_link', 'value' => $url, 'amount' => -1]);
 				if($currency!=''){
-				 	foreach ($valobj as $key => $value) {
+				 	foreach ($validated_items as $key => $value) {
 						error_log(json_encode($value));
 						$t=strpos($value['type'],'pay');
 						if(gettype($t)!='boolean'){
-							$valobj[$key]['currency'] = $currency;
+							$validated_items[$key]['currency'] = $currency;
 						}
 					}
 					error_log('after loop');
-					error_log(json_encode($valobj));
+					error_log(json_encode($validated_items));
 				}
-				$this->id = $type == "payment" ? sanitize_text_field($data_POST['payid']) : $this->id;
-				$not_captcha = $type != "payment" ? $formObj[0]['captcha'] : "";
-				if ($stated == 0) {
-					$response = ['success' => false, 'm' => $mr];
+				$this->id = $submission_type == "payment" ? sanitize_text_field($request_data['payid']) : $this->id;
+				$skip_captcha = $submission_type != "payment" ? $form_fields_array[0]['captcha'] : "";
+				if ($is_valid == 0) {
+					$response = ['success' => false, 'm' => $error_message];
 					wp_send_json_success($response, 200);
 				}
-				$this->value = json_encode($valobj, JSON_UNESCAPED_UNICODE);
+				$this->value = json_encode($validated_items, JSON_UNESCAPED_UNICODE);
 				$this->value = str_replace('"', '\\"', $this->value);
 				if ($form_condition == 'booking') {
 					$table_name = $this->db->prefix . "emsfb_form";
-					$id = sanitize_text_field($data_POST['id']);
-					$value = json_encode($formObj, JSON_UNESCAPED_UNICODE);
+					$id = sanitize_text_field($request_data['id']);
+					$value = json_encode($form_fields_array, JSON_UNESCAPED_UNICODE);
 					$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
 				}
 			}elseif($form_type=='register' || $form_type=='login'){
 
-				error_log('register or login:'.$type);
+				error_log('register or login:'.$submission_type);
 
 				// end
-				if($type=='logout'){
-					$this->efbFunction->efb_code_validate_update($sid ,'logout' ,'logout' );
+				if($submission_type=='logout'){
+					$this->efbFunction->efb_code_validate_update($session_id ,'logout' ,'logout' );
 					wp_logout();
 					$response = array( 'success' => true , 'm' =>'logout');
 					wp_send_json_success($response,200);
 					return;
 				}
-				if($type=='recovery'){
+				if($submission_type=='recovery'){
 					error_log('recovery start');
-					error_log('valo:'. json_encode($valo,true));
-					$email = isset($valo[0]) ? sanitize_email($valo[0]) : null;
-					// error_log(json_encode($valobj));
+					error_log('valo:'. json_encode($submitted_values,true));
+					$email = isset($submitted_values[0]) ? sanitize_email($submitted_values[0]) : null;
+					// error_log(json_encode($validated_items));
 					error_log('>>>>>>>>>>>>>email:'. $email);
 					$response = ['success' => false, 'm' =>'Email is not valid'];
 					if ($email!==null) {
@@ -2578,10 +2578,10 @@ public function check_nonce_permission_efb($request) {
 							$username = $state->data->user_login;
 							$ms=$this->fun_get_content_email_register_recovery_efb($userid, $username, $email, $this->id ,'recovery',$page_id);
 							$efb ='<p> '. $this->lanText['sentBy'] . home_url(). '</p>';
-							if($pro==false) $efb ='<p> '. esc_html__("from").''. home_url(). ' '. $this->lanText['sentBy'] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
+							if($is_pro==false) $efb ='<p> '. esc_html__("from").''. home_url(). ' '. $this->lanText['sentBy'] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
 							$subject ="". esc_html__("Password recovery")."[".get_bloginfo('name')."]";
 							$SERVER_NAME  = apply_filters('emsfb_get_server_host', 'yourdomain.com');
-							$from = isset($setting['femail']) && is_email($setting['femail']) ? get_bloginfo('name')." <no-reply@".$setting['femail'] .">" : get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
+							$from = isset($plugin_settings['femail']) && is_email($plugin_settings['femail']) ? get_bloginfo('name')." <no-reply@".$plugin_settings['femail'] .">" : get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
 							$message = $this->generate_recovery_email_template($ms, $efb);
 							$headers = array(
 							 'MIME-Version: 1.0\r\n',
@@ -2591,7 +2591,7 @@ public function check_nonce_permission_efb($request) {
 							error_log('send mail to:'. $email);
 							error_log($message);
 							$sent = wp_mail($email, $subject, $message, $headers);
-							$this->efbFunction->efb_code_validate_update($sid ,'recovery' ,'recovery' );
+							$this->efbFunction->efb_code_validate_update($session_id ,'recovery' ,'recovery' );
 						}
 						// For recovery, JavaScript expects res.data.m to be a string (displayed directly in UI)
 						$response = array( 'success' => true, 'm' => $lanTextReg['imvpwsy']);
@@ -2601,141 +2601,141 @@ public function check_nonce_permission_efb($request) {
 				}
 
 
-			} else if ($fs == '') {
+			} else if ($form_structure_json == '') {
 				$m = "Error 404";
 				$response = ['success' => false, 'm' => $m];
 				wp_send_json_success($response, 200);
 			}
 			// if (true) {
-				$captcha_success = "null";
-				$email_fa = $setting['emailSupporter'] ?? null;
+				$captcha_verification_result = "null";
+				$form_admin_email = $plugin_settings['emailSupporter'] ?? null;
 
-					if(isset($setting['smtp']) && (bool)$setting['smtp'] ){
-						// $email_array_state = strpos($email_fa, ',') !== false;
-						$send_email_to_user_state = true;
+					if(isset($plugin_settings['smtp']) && (bool)$plugin_settings['smtp'] ){
+						// $has_multiple_emails = strpos($form_admin_email, ',') !== false;
+						$should_send_email = true;
 					}
 
-					if($send_email_to_user_state && !empty($email_fa)){
-							$this->email_list_efb($email_user, 0, $email_fa, true);
+					if($should_send_email && !empty($form_admin_email)){
+							$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
 					}
 
-					if(isset($setttting['femail']) && is_email($setting['femail'])){
-						$email_user[2] = $setting->femail ;
+					if(isset($setttting['femail']) && is_email($plugin_settings['femail'])){
+						$email_recipients[2] = $plugin_settings->femail ;
 					}
 
 
-				$secretKey = isset($setting['secretKey']) && strlen($setting['secretKey']) > 5 ? $setting['secretKey'] : null;
+				$recaptcha_secret_key = isset($plugin_settings['secretKey']) && strlen($plugin_settings['secretKey']) > 5 ? $plugin_settings['secretKey'] : null;
 				$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
 				$server_name = str_replace("www.", "", $d);
-				$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : null;
+				$response = isset($request_data['valid']) ? sanitize_text_field($request_data['valid']) : null;
 
 
-				$args = ['secret' => $secretKey, 'response' => $response];
+				$args = ['secret' => $recaptcha_secret_key, 'response' => $response];
 
-				error_log(json_encode($formObj));
+				error_log(json_encode($form_fields_array));
 
-				if (is_array($formObj) && isset($formObj[0]['type'], $formObj[0]['captcha'])  && intval($formObj[0]['captcha']) == 1 && $formObj[0]['type'] != 'payment' && strlen($response) > 5) {
-					//error_log('if captcha: ' .$formObj[0]['type'] , ' ' . $formObj[0]['captcha'] . ' ' . $response);
-					if ($secretKey) {
-						$verify = wp_remote_get("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}");
+				if (is_array($form_fields_array) && isset($form_fields_array[0]['type'], $form_fields_array[0]['captcha'])  && intval($form_fields_array[0]['captcha']) == 1 && $form_fields_array[0]['type'] != 'payment' && strlen($response) > 5) {
+					//error_log('if captcha: ' .$form_fields_array[0]['type'] , ' ' . $form_fields_array[0]['captcha'] . ' ' . $response);
+					if ($recaptcha_secret_key) {
+						$verify = wp_remote_get("https://www.google.com/recaptcha/api/siteverify?secret={$recaptcha_secret_key}&response={$response}");
 							error_log('verify: ' . json_encode($verify));
-						$captcha_success = json_decode($verify['body']);
+						$captcha_verification_result = json_decode($verify['body']);
 					} else {
 						$response = ['success' => false, 'm' => $this->lanText['errorSiteKeyM']];
 						wp_send_json_success($response, 200);
 						return;
 					}
 				}
-				// error_log('after captcha: ' . $type);
-				if ($type == "logout" || $type == "recovery") {
-					$not_captcha = true;
-					if($type!="recovery") $send_email_to_user_state=false;
+				// error_log('after captcha: ' . $submission_type);
+				if ($submission_type == "logout" || $submission_type == "recovery") {
+					$skip_captcha = true;
+					if($submission_type!="recovery") $should_send_email=false;
 				}
-				error_log('captcha_success: ' . json_encode($captcha_success));
-				if ( ($type != "logout" && $type != "recovery") && $not_captcha && ($captcha_success == "null" || $captcha_success->success != true)) {
-					// error_log('after captcha 2: ' . $type);
+				error_log('captcha_success: ' . json_encode($captcha_verification_result));
+				if ( ($submission_type != "logout" && $submission_type != "recovery") && $skip_captcha && ($captcha_verification_result == "null" || $captcha_verification_result->success != true)) {
+					// error_log('after captcha 2: ' . $submission_type);
 					$response = ['success' => false, 'm' => $this->lanText['errorCaptcha']];
 					wp_send_json_success($response, 200);
 					die();
-				} else if (!$not_captcha || ($not_captcha &&  isset($captcha_success->success) && $captcha_success->success == true)) {
-					if (empty($data_POST['value']) || empty($data_POST['name']) || empty($data_POST['id'])) {
-						error_log(json_encode($data_POST));
+				} else if (!$skip_captcha || ($skip_captcha &&  isset($captcha_verification_result->success) && $captcha_verification_result->success == true)) {
+					if (empty($request_data['value']) || empty($request_data['name']) || empty($request_data['id'])) {
+						error_log(json_encode($request_data));
 						error_log('empty!!!');
 						$response = ['success' => false, "m" => $this->lanText['pleaseEnterVaildValue']];
 						wp_send_json_success($response, 200);
 						die();
 					}
-					$this->name = sanitize_text_field($data_POST['name']);
-					$this->id = sanitize_text_field($data_POST['id']);
-					if ($send_email_to_user_state) {
-						array_filter($valo, function ($item) use ($formObj, &$emailuser) {
+					$this->name = sanitize_text_field($request_data['name']);
+					$this->id = sanitize_text_field($request_data['id']);
+					if ($should_send_email) {
+						array_filter($submitted_values, function ($item) use ($form_fields_array, &$user_email_address) {
 							error_log('email_to');
-							error_log($formObj[0]['email_to']);
+							error_log($form_fields_array[0]['email_to']);
 							error_log(json_encode($item));
-							if (isset($item['id_']) && $item['id_'] == $formObj[0]['email_to']) {
-								$emailuser = $item['value'];
+							if (isset($item['id_']) && $item['id_'] == $form_fields_array[0]['email_to']) {
+								$user_email_address = $item['value'];
 
 							}
 						});
-						// $email_array_state = strpos($emailuser, ',') !== false;
+						// $has_multiple_emails = strpos($user_email_address, ',') !== false;
 						error_log('email list!');
-						error_log(json_encode($emailuser));
-						$this->email_list_efb($email_user, 1, $emailuser, true);
+						error_log(json_encode($user_email_address));
+						$this->email_list_efb($email_recipients, 1, $user_email_address, true);
 					}
 					$ip = $this->ip = $this->get_ip_address();
 					// error_log('before switech: ' . $time);
-					switch ($type) {
+					switch ($submission_type) {
 						case "form":
-							$check = $this->insert_message_db(0, false);
-							$nnc = wp_create_nonce($check);
-							$this->efbFunction->efb_code_validate_update($sid, 'send', $check);
-							$response = ['success' => true, 'ID' => $data_POST['id'], 'track' => $check, 'ip' => $ip, 'nonce' => $nnc];
-							if ($rePage != "null") {
-								$response = ['success' => true, 'm' => $rePage];
+							$track_code = $this->insert_message_db(0, false);
+							$nonce_token = wp_create_nonce($track_code);
+							$this->efbFunction->efb_code_validate_update($session_id, 'send', $track_code);
+							$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'ip' => $ip, 'nonce' => $nonce_token];
+							if ($redirect_url != "null") {
+								$response = ['success' => true, 'm' => $redirect_url];
 							}
 
 							// Send response and continue background processing
 							$this->efb_send_json_and_continue($response, 200);
-							$this->efb_intgrate_with_3rd_party_services_efb($check, $valo, $formObj);
+							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array);
 
 						// Background: SMS
-						if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
-								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $check);
+						if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
+								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
 								error_log('smsnoti smsSendResult: ' . json_encode($smsSendResult));
 								if($smsSendResult !== true) {
 
 									// 'msgSndBut','smsWPN' in lantexts but %$s1 is used in the message
 									$m =  $this->lanText['msgSndBut'];
-									$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , ''.$this->lanText['trackNo'] . '(' .$check.')' );
+									$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , ''.$this->lanText['trackNo'] . '(' .$track_code.')' );
 									error_log('smsnoti error: ' . $m);
 									$response = ['success' => false, 'm' => $m];
 									wp_send_json_success($response, 200);
 								}
 							}
-							if ($send_email_to_user_state) {
-								// $email_array_state = strpos($email_fa, ',') !== false;
-								$this->email_list_efb($email_user, 0, $email_fa, true);
-								$state_email_user = $trackingCode_state == 1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
+							if ($should_send_email) {
+								// $has_multiple_emails = strpos($form_admin_email, ',') !== false;
+								$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
+								$state_email_user = $has_tracking_code == 1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 								$msg_content = 'null';
-								if (isset($formObj[0]['email_noti_type']) && $formObj[0]['email_noti_type'] == 'msg') {
-									$msg_content = $this->email_get_content_efb($valo, $check);
+								if (isset($form_fields_array[0]['email_noti_type']) && $form_fields_array[0]['email_noti_type'] == 'msg') {
+									$msg_content = $this->email_get_content_efb($submitted_values, $track_code);
 									$msg_content = str_replace("\"", "'", $msg_content);
 								}
-								$status_email = $this->email_status_efb($formObj,$valo,$check);
+								$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
 								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
-								$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
+								$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
 							    // error_log('after send email: ' . $time);
 							}
 						// wp_send_json_success($response, 200);
-						error_log('[EFB] Completed: ' . $check);
+						error_log('[EFB] Completed: ' . $track_code);
 						exit;
 					break;
 					case "payment":
-							$id = sanitize_text_field($data_POST['payid']);
+							$id = sanitize_text_field($request_data['payid']);
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
-							$payment_getWay = isset($data_POST['payment']) ? sanitize_text_field($data_POST['payment']) : 'stripe';
-							if (strlen($id) < 7 && $payment_getWay == "zarinPal") {
+							$payment_gateway = isset($request_data['payment']) ? sanitize_text_field($request_data['payment']) : 'stripe';
+							if (strlen($id) < 7 && $payment_gateway == "zarinPal") {
 								$response = array('success' => false, "m" => "خطای داده های پرداختی ، صفحه را رفرش کنید");
 								wp_send_json_success($response, 200);
 							}
@@ -2746,19 +2746,19 @@ public function check_nonce_permission_efb($request) {
 							);
 
 							$value = $this->db->get_results($sql);
-							$trackId = $id;
+							$payment_track_id = $id;
 							if ($value != null) {
-								$vv = json_decode(str_replace('\\', '', $value[0]->content), true);
-								$valo = $valo;
-								$filtered = array_filter($valo, function ($item) use ($vv) {
+								$saved_payment_content = json_decode(str_replace('\\', '', $value[0]->content), true);
+								$submitted_values = $submitted_values;
+								$filtered = array_filter($submitted_values, function ($item) use ($saved_payment_content) {
 									return strpos($item['type'], 'pay') === false;
 								});
-								$amount = array_reduce($vv, function ($carry, $item) {
+								$amount = array_reduce($saved_payment_content, function ($carry, $item) {
 									return $carry + ($item['price'] ?? 0);
 								}, 0);
-								if ($payment_getWay == "persiaPay") {
-									$TokenCode = $setting['payToken'] ?? null;
-									$data = array("merchant_id" => $TokenCode, "authority" => sanitize_text_field($data_POST['auth']), "amount" => $amount);
+								if ($payment_gateway == "persiaPay") {
+									$payment_merchant_id = $plugin_settings['payToken'] ?? null;
+									$data = array("merchant_id" => $payment_merchant_id, "authority" => sanitize_text_field($request_data['auth']), "amount" => $amount);
 									$jsonData = json_encode($data);
 									if (!is_dir(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/")) {
 										$msg = " خطای تنظیمات : با مدیر وبسایت تماس بگیرید . نیاز به نصب مجدد درگاه می باشد";
@@ -2780,10 +2780,10 @@ public function check_nonce_permission_efb($request) {
 										'amount' => 0,
 										'total' => $amount,
 										'type' => "payment",
-										"paymentGateway" => $payment_getWay,
+										"paymentGateway" => $payment_gateway,
 										"paymentCreated" => wp_date(__('Y/m/d \a\t g:ia', 'textdomain')),
 										"paymentmethod" => 'کارت',
-										"paymentIntent" => sanitize_text_field($data_POST['auth']),
+										"paymentIntent" => sanitize_text_field($request_data['auth']),
 										"paymentCard" => $result['data']['card_pan'],
 										"refId" => $result['data']['ref_id'],
 										"paymentcurrency" => 'IRR'
@@ -2791,46 +2791,46 @@ public function check_nonce_permission_efb($request) {
 								}
 								$form_id = $value[0]->form_id;
 								$table_name = $this->db->prefix . "emsfb_form";
-								$fs = $this->db->get_results(
+								$form_structure_json = $this->db->get_results(
 									$this->db->prepare(
 										"SELECT form_structer, form_type FROM `$table_name` WHERE form_id = %d",
 										$form_id
 									)
 								);
-								$fs = isset($fs[0]->form_structer) ? json_decode(str_replace('\\', '', $fs[0]->form_structer), true) : '';
-								if ($fs == '') {
+								$form_structure_json = isset($form_structure_json[0]->form_structer) ? json_decode(str_replace('\\', '', $form_structure_json[0]->form_structer), true) : '';
+								if ($form_structure_json == '') {
 									$response = array('success' => false, 'm' => 'Error 406');
 									wp_send_json_success($response, 200);
 									die();
 								}
-								if ($fs[0]['thank_you'] == "rdrct") {
-									$rePage = $this->string_to_url($fs[0]['rePage']);
+								if ($form_structure_json[0]['thank_you'] == "rdrct") {
+									$redirect_url = $this->string_to_url($form_structure_json[0]['rePage']);
 								}
-								$valobj = [];
-								foreach ($fs as $f) {
+								$validated_items = [];
+								foreach ($form_structure_json as $f) {
 									$it = array_filter($filtered, function ($item) use ($f) {
 										return isset($f['id_'], $item['id_']) && $f['id_'] == $item['id_'] && $f['name'] == $item['name'];
 									});
-									$valobj = empty($valobj) ? $it : array_merge($valobj, $it);
-									if ($payment_getWay == "persiaPay") array_push($valobj, $result);
+									$validated_items = empty($validated_items) ? $it : array_merge($validated_items, $it);
+									if ($payment_gateway == "persiaPay") array_push($validated_items, $result);
 								}
-								$filtered = array_unique(array_merge($valobj, $vv), SORT_REGULAR);
+								$filtered = array_unique(array_merge($validated_items, $saved_payment_content), SORT_REGULAR);
 								$filtered[] = array('type' => 'w_link', 'id_' => 'w_link', 'id' => 'w_link', 'value' => $url, 'amount' => -1);
 								$this->value = sanitize_text_field(json_encode($filtered, JSON_UNESCAPED_UNICODE));
-								$this->id = sanitize_text_field($data_POST['payid']);
-								$check = $this->update_message_db();
-								if ($send_email_to_user_state) {
-									$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
-									$status_email = $this->email_status_efb($formObj,$valobj,$check);
+								$this->id = sanitize_text_field($request_data['payid']);
+								$track_code = $this->update_message_db();
+								if ($should_send_email) {
+									$state_email_user = $has_tracking_code==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
+									$status_email = $this->email_status_efb($form_fields_array,$validated_items,$track_code);
 									$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
-									 $this->send_email_Emsfb_( $email_user,$trackId ,$pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
+									 $this->send_email_Emsfb_( $email_recipients,$payment_track_id ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 								}
-								if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
-									$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms',$trackId);
+								if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
+									$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms',$payment_track_id);
 									if($smsSendResult !== true) {
 										// 'msgSndBut','smsWPN' in lantexts but %$s1 is used in the message
 										$m =  $this->lanText['msgSndBut'];
-										$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , ''.$this->lanText['trackNo'] . '(' .$check.')' );
+										$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , ''.$this->lanText['trackNo'] . '(' .$track_code.')' );
 										$response = ['success' => false, 'm' => $smsSendResult];
 										wp_send_json_success($response, 200);
 									}
@@ -2840,10 +2840,10 @@ public function check_nonce_permission_efb($request) {
 								wp_send_json_success($response, 200);
 							}
 							$m = "Error 500";
-							$response = $check == 1 ? array('success' => true, 'ID' => $data_POST['id'], 'track' => $this->id, 'nonce' => wp_create_nonce($this->id), 'ip' => $ip) : array('success' => false, 'm' => $m);
-							$this->efbFunction->efb_code_validate_update($sid, 'pay', $check);
-							if ($rePage != "null" && $check == 1) {
-								$response = array('success' => true, 'm' => $rePage);
+							$response = $track_code == 1 ? array('success' => true, 'ID' => $request_data['id'], 'track' => $this->id, 'nonce' => wp_create_nonce($this->id), 'ip' => $ip) : array('success' => false, 'm' => $m);
+							$this->efbFunction->efb_code_validate_update($session_id, 'pay', $track_code);
+							if ($redirect_url != "null" && $track_code == 1) {
+								$response = array('success' => true, 'm' => $redirect_url);
 							}
 							wp_send_json_success($response, 200);
 							break;
@@ -2851,7 +2851,7 @@ public function check_nonce_permission_efb($request) {
 								$username = '';
 								$password = '';
 								$email = 'null';
-								foreach ($valo as &$rv) {
+								foreach ($submitted_values as &$rv) {
 									if (isset($rv['id_'])) {
 										switch ($rv['id_']) {
 											case 'passwordRegisterEFB':
@@ -2903,10 +2903,10 @@ public function check_nonce_permission_efb($request) {
 
 
 										$this->ip = $this->get_ip_address();
-										$check = $this->insert_message_db(0, false);
+										$track_code = $this->insert_message_db(0, false);
 										$to = $email;
-										// $email_array_state = strpos($email, ',') !== false;
-										$this->email_list_efb($email_user, 1, $email, true);
+										// $has_multiple_emails = strpos($email, ',') !== false;
+										$this->email_list_efb($email_recipients, 1, $email, true);
 										$firstChar = $password[0];
 										$lastChar = $password[strlen($password) - 1];
 										$maskedPassword = $firstChar . str_repeat('*', strlen($password) - 2) . $lastChar;
@@ -2920,12 +2920,12 @@ public function check_nonce_permission_efb($request) {
 										/* new code v4 end */
 
 										$state_of_email = ['newUser', 'register'];
-										if ($send_email_to_user_state) {
-											$msg_sub = isset($formObj[0]['email_sub']) && $formObj[0]['email_sub'] != '' ? $formObj[0]['email_sub'] : 'null';
-											$this->send_email_Emsfb_($email_user, $ms, $pro, $state_of_email, $url, 'null', $msg_sub);
+										if ($should_send_email) {
+											$msg_sub = isset($form_fields_array[0]['email_sub']) && $form_fields_array[0]['email_sub'] != '' ? $form_fields_array[0]['email_sub'] : 'null';
+											$this->send_email_Emsfb_($email_recipients, $ms, $is_pro, $state_of_email, $url, 'null', $msg_sub);
 										}
-										if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
-											$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $check);
+										if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
+											$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
 											if($smsSendResult !== true) {
 												// 'msgSndBut','smsWPN' in lantexts but %$s1 is used in the message
 												$m =  $this->lanText['msgSndBut'];
@@ -2934,11 +2934,11 @@ public function check_nonce_permission_efb($request) {
 												wp_send_json_success($response, 200);
 											}
 										}
-										$this->efbFunction->efb_code_validate_update($sid, 'register', $check);
+										$this->efbFunction->efb_code_validate_update($session_id, 'register', $track_code);
 									}
 									$response = ['success' => true, 'm' => $m];
-									if ($rePage != "null") {
-										$response = ['success' => true, 'm' => $rePage];
+									if ($redirect_url != "null") {
+										$response = ['success' => true, 'm' => $redirect_url];
 									}
 								}
 								wp_send_json_success($response, 200);
@@ -2950,7 +2950,7 @@ public function check_nonce_permission_efb($request) {
 									/* $m = str_replace("\\", "", $this->value);
 									$loginValue = json_decode($m, true); */
 
-									foreach ($valo as $value) {
+									foreach ($submitted_values as $value) {
 										if (isset($value['id_']) && isset($value['value'])) {
 											switch ($value['id_']) {
 												case 'emaillogin':
@@ -2983,11 +2983,11 @@ public function check_nonce_permission_efb($request) {
 											'user_image' => get_avatar_url($user->data->ID)
 										];
 										$response = ['success' => true, 'm' => $send];
-										if ($rePage != "null") {
-											$response = ['success' => true, 'm' => $rePage];
+										if ($redirect_url != "null") {
+											$response = ['success' => true, 'm' => $redirect_url];
 										}
-										$this->efbFunction->efb_code_validate_update($sid, 'login', 'login');
-										if (isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti'] == 1) {
+										$this->efbFunction->efb_code_validate_update($session_id, 'login', 'login');
+										if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
 											$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', '');
 											if($smsSendResult !== true) {
 												$m =  $this->lanText['msgSndBut'];
@@ -3001,7 +3001,7 @@ public function check_nonce_permission_efb($request) {
 										// user not login
 										$send = [
 											'state' => false,
-											'pro' => $pro,
+											'pro' => $is_pro,
 											'error' => $this->lanText['incorrectUP']
 										];
 										$response = ['success' => true, 'm' => $send];
@@ -3011,28 +3011,28 @@ public function check_nonce_permission_efb($request) {
 
 
 						case "subscribe":
-									$check=	$this->insert_message_db(0,false);
-									if($send_email_to_user_state){
-										$status_email = $this->email_status_efb($formObj,$valo,$check);
+									$track_code=	$this->insert_message_db(0,false);
+									if($should_send_email){
+										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
 										$state_of_email = ['newMessage','subscribe',$status_email['type']];
-										$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
+										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
 									$response = array( 'success' => true , 'm' =>$this->lanText['done']);
-									if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
-									$this->efbFunction->efb_code_validate_update($sid ,'nwltr' ,'nwltr' );
+									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
+									$this->efbFunction->efb_code_validate_update($session_id ,'nwltr' ,'nwltr' );
 									wp_send_json_success($response, 200);
 								break;
 						case "survey":
 									// $ip = $this->ip;
-									$check=	$this->insert_message_db(0,false);
-									if($send_email_to_user_state){
-										$status_email = $this->email_status_efb($formObj,$valo,$check);
+									$track_code=	$this->insert_message_db(0,false);
+									if($should_send_email){
+										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
 										$state_of_email = ['newMessage',"survey",$status_email['type']];
 
-										$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
+										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
-									if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) {
-										$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
+									if(isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti']==1 ) {
+										$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$track_code);
 										if($smsSendResult !== true) {
 											$m =  $this->lanText['msgSndBut'];
 											$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
@@ -3041,18 +3041,18 @@ public function check_nonce_permission_efb($request) {
 										}
 									}
 									$response = array( 'success' => true , 'm' =>$this->lanText['surveyComplatedM']);
-									if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
+									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
 
 									// بررسی تنظیمات نمودار نظرسنجی و ارسال داده‌های نتایج
-									$survey_chart_type = isset($formObj[0]['survey_chart_type']) ? $formObj[0]['survey_chart_type'] : 'none';
+									$survey_chart_type = isset($form_fields_array[0]['survey_chart_type']) ? $form_fields_array[0]['survey_chart_type'] : 'none';
 									error_log('[SURVEY-CALLER] survey_chart_type from formObj[0]: ' . $survey_chart_type);
-									error_log('[SURVEY-CALLER] formObj[0] keys: ' . json_encode(array_keys($formObj[0])));
+									error_log('[SURVEY-CALLER] formObj[0] keys: ' . json_encode(array_keys($form_fields_array[0])));
 									error_log('[SURVEY-CALLER] this->id (form_id): ' . $this->id);
-									error_log('[SURVEY-CALLER] formObj total fields count: ' . count($formObj));
+									error_log('[SURVEY-CALLER] formObj total fields count: ' . count($form_fields_array));
 
 									if ($survey_chart_type !== 'none') {
 										error_log('[SURVEY-CALLER] Calling efb_get_survey_results_data...');
-										$survey_results = $this->efb_get_survey_results_data($this->id, $formObj);
+										$survey_results = $this->efb_get_survey_results_data($this->id, $form_fields_array);
 										error_log('[SURVEY-CALLER] efb_get_survey_results_data returned: type=' . gettype($survey_results) . ', count=' . (is_array($survey_results) ? count($survey_results) : 'N/A'));
 										error_log('[SURVEY-CALLER] survey_results: ' . json_encode($survey_results));
 
@@ -3071,7 +3071,7 @@ public function check_nonce_permission_efb($request) {
 										error_log('[SURVEY-CALLER] survey_chart_type is "none" - skipping survey results');
 									}
 
-									$this->efbFunction->efb_code_validate_update($sid ,'poll' ,'poll' );
+									$this->efbFunction->efb_code_validate_update($session_id ,'poll' ,'poll' );
 									wp_send_json_success($response, 200);
 								break;
 						case "reservation":

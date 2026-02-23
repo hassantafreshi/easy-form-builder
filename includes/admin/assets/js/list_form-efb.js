@@ -2258,7 +2258,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
       el.value = sanitize_text_efb(el.value);}
 
     let r = "NotFoundEl"
-    if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden" || el.type == "color") {
+    if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden" || el.type == "color" || el.type == "tel") {
       if (id == "emailTemp_emsFirmBuilder") {
         let v = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
         v = u(v);

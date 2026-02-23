@@ -694,6 +694,24 @@ const boxs_efb = [
   { id: 'register', title: efb_var.text.registerForm, desc: efb_var.text.createRegistrationForm, status: true, icon: 'bi-person-plus', tag: 'all signInUp', pro: false },
   { id: 'login', title: efb_var.text.loginForm, desc: efb_var.text.createLoginForm, status: true, icon: 'bi-box-arrow-in-right', tag: 'all signInUp', pro: false },
   { id: 'subscription', title: efb_var.text.subscriptionForm, desc: efb_var.text.createnewsletterForm, status: true, icon: 'bi-bell', tag: 'all', pro: false },
+  { id: 'quoteForm', title: efb_var.text.quoteFormT, desc: efb_var.text.quoteFormD, status: true, icon: 'bi-receipt', tag: 'all contact', pro: false },
+  { id: 'customOrderForm', title: efb_var.text.customOrderFormT, desc: efb_var.text.customOrderFormD, status: true, icon: 'bi-cart3', tag: 'all payment', pro: false },
+  { id: 'jobApplicationForm', title: efb_var.text.jobApplicationFormT, desc: efb_var.text.jobApplicationFormD, status: true, icon: 'bi-person-badge', tag: 'all', pro: false },
+  { id: 'rentCarForm', title: efb_var.text.rentCarFormT, desc: efb_var.text.rentCarFormD, status: true, icon: 'bi-car-front', tag: 'all', pro: false },
+  { id: 'salonConsultationForm', title: efb_var.text.salonConsultationFormT, desc: efb_var.text.salonConsultationFormD, status: true, icon: 'bi-scissors', tag: 'all', pro: false },
+  { id: 'graphicDesignOrderForm', title: efb_var.text.graphicDesignOrderFormT, desc: efb_var.text.graphicDesignOrderFormD, status: true, icon: 'bi-palette', tag: 'all', pro: false },
+  { id: 'sampleCvForm', title: efb_var.text.sampleCvFormT, desc: efb_var.text.sampleCvFormD, status: true, icon: 'bi-file-earmark-person', tag: 'all', pro: false },
+  { id: 'videographyBriefForm', title: efb_var.text.videographyBriefFormT, desc: efb_var.text.videographyBriefFormD, status: true, icon: 'bi-camera-video', tag: 'all', pro: false },
+  { id: 'partyInviteForm', title: efb_var.text.partyInviteFormT, desc: efb_var.text.partyInviteFormD, status: true, icon: 'bi-envelope-open', tag: 'all', pro: false },
+  { id: 'eventRegistrationForm', title: efb_var.text.eventRegistrationFormT, desc: efb_var.text.eventRegistrationFormD, status: true, icon: 'bi-calendar-event', tag: 'all', pro: false },
+  { id: 'storeSurveyForm', title: efb_var.text.storeSurveyFormT, desc: efb_var.text.storeSurveyFormD, status: true, icon: 'bi-shop', tag: 'all survey', pro: false },
+  { id: 'voterSurveyForm', title: efb_var.text.voterSurveyFormT, desc: efb_var.text.voterSurveyFormD, status: true, icon: 'bi-clipboard-data', tag: 'all survey', pro: false },
+  { id: 'signupForm', title: efb_var.text.signupFormT, desc: efb_var.text.signupFormD, status: true, icon: 'bi-person-plus', tag: 'all payment', pro: true },
+  { id: 'sportsLeagueForm', title: efb_var.text.sportsLeagueFormT, desc: efb_var.text.sportsLeagueFormD, status: true, icon: 'bi-trophy', tag: 'all', pro: false },
+  { id: 'summerReadingForm', title: efb_var.text.summerReadingFormT, desc: efb_var.text.summerReadingFormD, status: true, icon: 'bi-book', tag: 'all', pro: false },
+  { id: 'childrenLibraryCardForm', title: efb_var.text.childrenLibraryCardFormT, desc: efb_var.text.childrenLibraryCardFormD, status: true, icon: 'bi-journal-bookmark', tag: 'all', pro: false },
+  { id: 'employeeSuggestionForm', title: efb_var.text.employeeSuggestionFormT, desc: efb_var.text.employeeSuggestionFormD, status: true, icon: 'bi-lightbulb', tag: 'all', pro: false },
+  { id: 'bookClubForm', title: efb_var.text.bookClubFormT, desc: efb_var.text.bookClubFormD, status: true, icon: 'bi-book', tag: 'all', pro: false },
   /*  {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'bi-calendar-check'}, */
 ]//supportTicketF
 let tag_efb=[];
@@ -1006,6 +1024,114 @@ function create_form_by_type_emsfb(id, s) {
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "booking form", "icon": "bi-check2", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },];
     form_type_emsFormBuilder = "form";
     valueJson_ws_p=valj_efb;
+  } else if (id == "quoteForm") {
+    form_type_emsFormBuilder = "form";
+    let json = request_a_quote_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "customOrderForm") {
+    form_type_emsFormBuilder = "form";
+    let json = custom_order_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "jobApplicationForm") {
+    form_type_emsFormBuilder = "form";
+    let json = job_application_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "rentCarForm") {
+    form_type_emsFormBuilder = "form";
+    let json = rent_car_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "salonConsultationForm") {
+    form_type_emsFormBuilder = "form";
+    let json = salon_consultation_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "graphicDesignOrderForm") {
+    form_type_emsFormBuilder = "form";
+    let json = graphic_design_order_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "sampleCvForm") {
+    form_type_emsFormBuilder = "form";
+    let json = sample_cv_application_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "videographyBriefForm") {
+    form_type_emsFormBuilder = "form";
+    let json = videography_creative_brife_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "partyInviteForm") {
+    form_type_emsFormBuilder = "form";
+    let json = party_invite_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "eventRegistrationForm") {
+    form_type_emsFormBuilder = "form";
+    let json = sample_event_registration_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "storeSurveyForm") {
+    form_type_emsFormBuilder = "survey";
+    let json = StoreExperienceSurveyTemplate_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "voterSurveyForm") {
+    form_type_emsFormBuilder = "survey";
+    let json = VoterBehaviorSurvey_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "signupForm") {
+    form_type_emsFormBuilder = "payment";
+    let json = signup_form_template_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "sportsLeagueForm") {
+    form_type_emsFormBuilder = "form";
+    let json = recreational_Sports_league_signup_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "summerReadingForm") {
+    form_type_emsFormBuilder = "form";
+    let json = summer_reading_program_signup_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "childrenLibraryCardForm") {
+    form_type_emsFormBuilder = "form";
+    let json = children_library_card_application_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "employeeSuggestionForm") {
+    form_type_emsFormBuilder = "form";
+    let json = employee_suggestion_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
+  } else if (id == "bookClubForm") {
+    form_type_emsFormBuilder = "form";
+    let json = book_club_suggestion_form_efb();
+    sessionStorage.setItem('valj_efb', JSON.stringify(json));
+    valj_efb = json;
+    valueJson_ws_p = json;
   }
 
   formName_Efb = form_type_emsFormBuilder
@@ -6527,7 +6653,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         alert_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
         const l = valj_efb.length -1;
         valj_efb.splice(l,1);
-        return 'null';
+        ui = show_pro_message_for_elm(1);
       }
       break;
         case 'paypal':
@@ -6556,7 +6682,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         alert_message_efb(efb_var.text.iaddon, dataTag, 20 , 'danger');
         const l = valj_efb.length -1;
         valj_efb.splice(l,1);
-        return dataTag;
+        ui = show_pro_message_for_elm(1);
       }
     break;
     case "persiaPay":
@@ -6571,7 +6697,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           alert_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
           const l = valj_efb.length -1;
           valj_efb.splice(l,1);
-          return 'null';
+          ui = show_pro_message_for_elm(1);
         }
       break;
     case 'heading':
@@ -6769,7 +6895,30 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 }
 
 const public_pro_message= ()=>{
- return `<div class="efb text-white fs-6 bg-danger px-1 rounded px-2">${efb_var.text.tfnapca}</div>`
+return `<div class="efb alert alert-danger d-flex align-items-center gap-2 py-3 px-4 rounded-2 border-0" role="alert">
+  <i class="efb bi-exclamation-triangle-fill fs-5"></i>
+  <div class="efb flex-grow-1">
+    <strong class="efb d-block mb-1">${efb_var.text.error}</strong>
+    <small class="efb d-block">${efb_var.text.tfnapca}</small>
+  </div>
+    </div>`
+}
+
+const show_pro_message_for_elm = (i) =>{
+  const message = i == 1 ?  efb_var.text.proUnlockMsg: efb_var.text.thisFeatureAvailableFreePlusPro;
+  const fun = i == 1 ?`pro_show_efb(${i})` : `showSetupAsOverlayPage()`;
+  return `
+    <div class="efb alert alert-warning d-flex align-items-center gap-2 py-3 px-4 rounded-2 border-0" role="alert">
+      <i class="efb bi-gem fs-5" style="color: #ffc107;"></i>
+      <div class="efb flex-grow-1">
+        <strong class="efb d-block mb-1">${efb_var.text.proVersion}</strong>
+        <small class="efb d-block text-muted">${message}</small>
+      </div>
+      <button type="button" class="efb btn btn-sm btn-warning text-dark fw-bold px-3" onclick="${fun}">
+        <i class="efb bi-unlock-fill me-1"></i>
+      </button>
+    </div>
+  `;
 }
 
 const funSetPosElEfb = (dataId, position) => {
