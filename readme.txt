@@ -171,6 +171,11 @@ The Pro version includes all Free Plus features and adds support for official ad
 This version is suitable for professional websites, service platforms, and projects that require extended workflows such as SMS notifications, payment forms, and advanced integrations.
 
 
+As of this release, we have partnered with the following WordPress plugins:
+
+- [Shield security](https://wordpress.org/plugins/wp-simple-firewall/)
+
+
 == Frequently Asked Questions ==
 
 = What is Easy Form Builder used for? =
