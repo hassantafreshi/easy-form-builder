@@ -1420,6 +1420,7 @@ class Admin {
         }
         wp_send_json_success($response, 200);
     }
+    }
     public function check_and_enqueue_font_roboto_Emsfb() {
         $font_url = 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap';
         $response = wp_remote_head($font_url);

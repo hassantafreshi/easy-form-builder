@@ -3274,16 +3274,39 @@ public function addon_add_efb($value) {
         // Save to database
         global $wpdb;
         $table_name = $wpdb->prefix . "emsfb_setting";
-        $wpdb->insert(
-            $table_name,
-            [
-            'setting' => $json,
-            'edit_by' => get_current_user_id(),
-            'date'    => wp_date('Y-m-d H:i:s'),
-            'email'   => $email
-        ],
-            ['%s', '%d', '%s', '%s']
-        );
+
+        // Check if records exist and are more than 2 rows
+        $count = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name}");
+
+        if ($count > 2) {
+            // Get the last record ID
+            $last_id = $wpdb->get_var("SELECT MAX(id) FROM {$table_name}");
+            // Update the last row
+            $wpdb->update(
+                $table_name,
+                [
+                    'setting' => $json,
+                    'edit_by' => get_current_user_id(),
+                    'date'    => wp_date('Y-m-d H:i:s'),
+                    'email'   => $email
+                ],
+                ['id' => $last_id],
+                ['%s', '%d', '%s', '%s'],
+                ['%d']
+            );
+        } else {
+            // Insert new record
+            $wpdb->insert(
+                $table_name,
+                [
+                    'setting' => $json,
+                    'edit_by' => get_current_user_id(),
+                    'date'    => wp_date('Y-m-d H:i:s'),
+                    'email'   => $email
+                ],
+                ['%s', '%d', '%s', '%s']
+            );
+        }
 
         update_option('emsfb_settings', $json);
         set_transient('emsfb_settings_transient', $json, 1800); // 30 minutes

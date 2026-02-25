@@ -13,7 +13,7 @@ function deepFreeze_efb(obj) {
   });
   return Object.freeze(obj);
 }
-let mobile_view_efb
+let mobile_view_efb = 0;
 let activeEl_efb = 0;
 let amount_el_efb = 1;
 let step_el_efb = 0;
@@ -282,48 +282,56 @@ const alertStyles_efb = {
 let alertCounter_efb = 0;
 
 function alert_message_efb(title, message, sec, alertType) {
-  sec = sec * 1000;
-  const alertId = `alert_item_efb_${++alertCounter_efb}`;
-  const style = alertStyles_efb[alertType] || alertStyles_efb.info;
-  const isRtl = efb_var.text.rtl == 1;
-  const rtl = isRtl ? 'rtl-text' : '';
-  const isMobile = window.innerWidth < 768;
+  try {
+    sec = sec * 1000;
+    const alertId = `alert_item_efb_${++alertCounter_efb}`;
+    const style = alertStyles_efb[alertType] || alertStyles_efb.info;
+    const isRtl = efb_var.text.rtl == 1;
+    const rtl = isRtl ? 'rtl-text' : '';
+    const isMobile = window.innerWidth < 768;
 
-  // Create fixed container if not exists
-  if (!document.getElementById('alert_container_efb')) {
-    const container = document.createElement('div');
-    container.id = 'alert_container_efb';
-    container.className = 'efb';
-    container.style.cssText = `position:fixed; top:80px; ${isRtl ? 'right' : 'left'}:20px; z-index:99999; width:${isMobile ? 'calc(100vw - 40px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
-    document.body.appendChild(container);
-  }
-
-  const alertHtml = `
-    <div id="${alertId}" class="efb alert_item_efb ${rtl}" style="background:${style.bg}; border-radius:12px; padding:14px 16px; box-shadow:0 4px 20px rgba(0,0,0,0.2); animation:slideIn_efb .3s ease; transition:all .3s ease; pointer-events:auto;">
-      <div class="efb d-flex align-items-center">
-        <div class="efb" style="background:rgba(255,255,255,0.2); border-radius:50%; padding:8px; margin-${isRtl ? 'left' : 'right'}:12px; flex-shrink:0;">
-          <i class="efb bi ${style.icon}" style="font-size:1.2rem; color:${style.color};"></i>
-        </div>
-        <div class="efb flex-grow-1" style="min-width:0;">
-          ${title ? `<h6 class="efb mb-0" style="color:${style.color}; font-weight:600; font-size:0.9rem;">${title}</h6>` : ''}
-          ${message ? `<p class="efb mb-0" style="color:${style.color}; opacity:0.95; font-size:0.8rem; line-height:1.4;">${message}</p>` : ''}
-        </div>
-        <button type="button" class="efb" onclick="close_msg_efb('${alertId}')" style="background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px;">
-          <i class="efb bi bi-x" style="color:${style.color}; font-size:1rem;"></i>
-        </button>
-      </div>
-    </div>`;
-
-  document.getElementById('alert_container_efb').insertAdjacentHTML('beforeend', alertHtml);
-
-  setTimeout(() => {
-    const el = document.getElementById(alertId);
-    if (el) {
-      el.style.opacity = '0';
-      el.style.transform = `translateX(${isRtl ? '' : '-'}20px)`;
-      setTimeout(() => el.remove(), 300);
+    // ایجاد container اگر موجود نباشد / Create fixed container if not exists
+    let container = document.getElementById('alert_container_efb');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'alert_container_efb';
+      container.className = 'efb';
+      container.style.cssText = `position:fixed; top:80px; ${isRtl ? 'right' : 'left'}:20px; z-index:99999; width:${isMobile ? 'calc(100vw - 40px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
+      document.body.appendChild(container);
+      console.log('[EFB Alert] Container created');
     }
-  }, sec);
+
+    const alertHtml = `
+      <div id="${alertId}" class="efb alert_item_efb ${rtl}" style="background:${style.bg}; border-radius:12px; padding:14px 16px; box-shadow:0 4px 20px rgba(0,0,0,0.2); animation:slideIn_efb .3s ease; transition:all .3s ease; pointer-events:auto;">
+        <div class="efb d-flex align-items-center">
+          <div class="efb" style="background:rgba(255,255,255,0.2); border-radius:50%; padding:8px; margin-${isRtl ? 'left' : 'right'}:12px; flex-shrink:0;">
+            <i class="efb bi ${style.icon}" style="font-size:1.2rem; color:${style.color};"></i>
+          </div>
+          <div class="efb flex-grow-1" style="min-width:0;">
+            ${title ? `<h6 class="efb mb-0" style="color:${style.color}; font-weight:600; font-size:0.9rem;">${title}</h6>` : ''}
+            ${message ? `<p class="efb mb-0" style="color:${style.color}; opacity:0.95; font-size:0.8rem; line-height:1.4;">${message}</p>` : ''}
+          </div>
+          <button type="button" class="efb" onclick="close_msg_efb('${alertId}')" style="background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px;">
+            <i class="efb bi bi-x" style="color:${style.color}; font-size:1rem;"></i>
+          </button>
+        </div>
+      </div>`;
+
+    container.insertAdjacentHTML('beforeend', alertHtml);
+
+    setTimeout(() => {
+      const el = document.getElementById(alertId);
+      if (el) {
+        el.style.opacity = '0';
+        el.style.transform = `translateX(${isRtl ? '' : '-'}20px)`;
+        setTimeout(() => el.remove(), 300);
+      }
+    }, sec);
+
+  } catch (error) {
+    console.error('[EFB Alert] Error:', error);
+    alert(message);
+  }
 }
 
 function close_msg_efb(alertId) {

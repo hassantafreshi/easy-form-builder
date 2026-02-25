@@ -14,7 +14,7 @@ let wpbakery_emsFormBuilder =false;
 let pro_price_efb =19;
 let heartbeat_efb_active =false;
 let state_page_efb='';
-mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
+
 if (typeof pro_efb === 'undefined') { var pro_efb = (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1)) ? true : false; }
 
 
@@ -37,6 +37,14 @@ if (typeof deepFreeze_efb !== 'function') {
 }
 
 jQuery(function () {
+  // Set mobile view flag after DOM is ready
+  const bodyElement = document.getElementsByTagName('body')[0];
+  if (bodyElement) {
+    mobile_view_efb = bodyElement.classList.contains("mobile") ? 1 : 0;
+  } else {
+    mobile_view_efb = window.innerWidth < 768 ? 1 : 0;
+  }
+
   efb_var= deepFreeze_efb(efb_var);
   state_check_ws_p = Number(efb_var.check);
   setting_emsFormBuilder=efb_var.setting;
@@ -121,8 +129,10 @@ if(wpfooter)wpfooter.remove();
   window.addEventListener('scroll', efbCheckFooterScroll, {passive:true});
   window.addEventListener('resize', efbCheckFooterScroll, {passive:true});
   // Also observe DOM changes (footer may be injected later)
-  var _efbFooterObserver = new MutationObserver(function(){ efbCheckFooterScroll(); });
-  _efbFooterObserver.observe(document.body, {childList:true, subtree:true});
+  if (document.body) {
+    var _efbFooterObserver = new MutationObserver(function(){ efbCheckFooterScroll(); });
+    _efbFooterObserver.observe(document.body, {childList:true, subtree:true});
+  }
   efbCheckFooterScroll();
 })();
 
@@ -5695,24 +5705,34 @@ function addClickListenerToElementListEFB(element) {
       });
 
       // Initialize list observer safely
-      if (document.body) {
-          observer_listefb.observe(document.body, {
-            childList: true,
-            subtree: true
-          });
-          observeExistingElementsListEFB();
+      const initListObserver = () => {
+          if (document.body) {
+              observer_listefb.observe(document.body, {
+                childList: true,
+                subtree: true
+              });
+              observeExistingElementsListEFB();
+          } else {
+              console.warn('EFB: document.body not available, list observer not initialized');
+              // Try again when DOM is ready
+              document.addEventListener('DOMContentLoaded', function() {
+                  if (document.body) {
+                      observer_listefb.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                      });
+                      observeExistingElementsListEFB();
+                  }
+              });
+          }
+      };
+
+      // Call observer init safely
+      if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initListObserver);
       } else {
-          console.warn('EFB: document.body not available, list observer not initialized');
-          // Try again when DOM is ready
-          document.addEventListener('DOMContentLoaded', function() {
-              if (document.body) {
-                  observer_listefb.observe(document.body, {
-                    childList: true,
-                    subtree: true
-                  });
-                  observeExistingElementsListEFB();
-              }
-          });
+          // DOM already loaded
+          setTimeout(initListObserver, 0);
       }
 // v3.8.6 end
 
