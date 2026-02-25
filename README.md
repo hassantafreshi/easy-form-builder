@@ -376,6 +376,9 @@ Contributions of any kind are welcome!
 ✔️ PayPal Integration for Secure Payments.
 
 ### Interactive Quiz Forms . (Coming soon)
+* Quiz Forms
+* Calculation
+
 ### Smart Forms
 ✔️ Auto-Fills
 * Conditional logic. (Coming soon)
