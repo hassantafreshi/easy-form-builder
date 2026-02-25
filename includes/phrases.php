@@ -244,8 +244,8 @@ class EfbAddonPhrases {
             /* translators: Quick Tips = tips section title */
             "quick_tips" => $state && isset($ac->text->quick_tips) ? $ac->text->quick_tips : esc_html__('Quick Tips', 'easy-form-builder'),
 
-            /* translators: Tip 1 = first tip */
-            "tip_1" => $state && isset($ac->text->tip_1) ? $ac->text->tip_1 : esc_html__('Create a bot using @BotFather', 'easy-form-builder'),
+            /* translators: Tip 1 = first tip, contains %s placeholder for @BotFather link */
+            "tip_1" => $state && isset($ac->text->tip_1) ? $ac->text->tip_1 : esc_html__('Create a bot using %s', 'easy-form-builder'),
 
             /* translators: Tip 2 = second tip */
             "tip_2" => $state && isset($ac->text->tip_2) ? $ac->text->tip_2 : esc_html__('Add your bot to the target chat', 'easy-form-builder'),
@@ -255,6 +255,15 @@ class EfbAddonPhrases {
 
             /* translators: Tip 4 = fourth tip */
             "tip_4" => $state && isset($ac->text->tip_4) ? $ac->text->tip_4 : esc_html__('Monitor activity for troubleshooting', 'easy-form-builder'),
+
+            /* translators: Tip 5 = fifth tip, contains %s placeholder for Chat ID finder link */
+            "tip_5" => $state && isset($ac->text->tip_5) ? $ac->text->tip_5 : esc_html__('Find your Chat ID using %s', 'easy-form-builder'),
+
+            /* translators: @BotFather = clickable link text (not translatable) */
+            "botfather_link" => '@BotFather',
+
+            /* translators: @WSYourIDBot = clickable link text (not translatable) */
+            "chatid_finder_link" => '@WSYourIDBot',
 
             // === Test Message Tab ===
             /* translators: Enter your test message here = placeholder */
