@@ -2,6 +2,33 @@
 
 
 
+/**
+ * Notify the server that a Stripe one-time payment was confirmed successfully.
+ * Updates the payment record from 'pending' to 'completed' in emsfb_pay_ table.
+ */
+function confirm_stripe_payment_efb(paymentIntentId, trackid) {
+  const confirmUrl = efb_var.rest_url + 'Emsfb/v1/forms/payment/stripe/confirm';
+  const confirmHeaders = new Headers({
+    'Content-Type': 'application/json',
+    'X-WP-Nonce': efb_var.nonce,
+  });
+  fetch(confirmUrl, {
+    method: 'POST',
+    headers: confirmHeaders,
+    body: JSON.stringify({ paymentIntentId: paymentIntentId, trackid: trackid })
+  }).then(function(response) {
+    return response.json();
+  }).then(function(res) {
+    if (res && res.data && res.data.success) {
+      console.log('[EFB][Stripe] Payment confirmed:', paymentIntentId);
+    } else {
+      console.warn('[EFB][Stripe] Confirm response:', res);
+    }
+  }).catch(function(err) {
+    console.error('[EFB][Stripe] Confirm error:', err);
+  });
+}
+
   post_api_stripe_apay_efb=(form_id)=>{
     console.log('post_api_stripe_apay_efb')
     if (!navigator.onLine) {
@@ -110,6 +137,10 @@
         stripe.confirmCardPayment(res.data.client_secret, {
           payment_method: { card: numElm }
         }).then(transStat => {
+          // After successful confirmation, notify the server to update payment record
+          if (transStat && transStat.paymentIntent && transStat.paymentIntent.status === 'succeeded') {
+            confirm_stripe_payment_efb(transStat.paymentIntent.id, res.data.id);
+          }
           fun_trans_efb(transStat, res.data.transStat, res.data.id);
         });
       } else {

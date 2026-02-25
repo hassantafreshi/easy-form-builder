@@ -39,10 +39,10 @@ class Panel_edit  {
 			$maps=false;
 			$mdtest = "15f57cc603c2ea64721ae0d0b5983136";
 			$addons = $efbFunction->fun_get_addons_list_efb($ac);
-			if(isset($ac->osLocationPicker)==true && $ac->osLocationPicker==1){
+			if(is_object($ac) && isset($ac->osLocationPicker) && $ac->osLocationPicker==1){
 				$efbFunction->openstreet_map_required_efb(0);
 		    }
-			if(gettype($ac)!="string" && isset($ac) ){
+			if(is_object($ac) ){
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 
 				if(isset($ac->siteKey)){$captcha="true";}
@@ -59,7 +59,7 @@ class Panel_edit  {
 				} */
 				$lng = get_locale();
 			$k ="";
-			$noti_pro = intval(get_option('Emsfb_pro' ,-1));
+			$noti_pro = intval(get_option('emsfb_pro' ,-1));
 			if ($noti_pro === 0  ){
 				$noti_pro = "<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
 
@@ -67,7 +67,7 @@ class Panel_edit  {
 				$noti_pro = '<script>const noti_exp_efb="";</script>';
 			}
 			$is_rtl = is_rtl();
-			if(gettype($ac)!="string" && isset($ac->siteKey))$k= $ac->siteKey;
+			if(is_object($ac) && isset($ac->siteKey))$k= $ac->siteKey;
 			if ( strlen( $lng ) > 0 ) {
 				$lng = explode( '_', $lng )[0];
 				}
@@ -157,7 +157,7 @@ class Panel_edit  {
 							<option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">
 						</datalist>
 				<?php
-				if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){
+				if(is_object($ac) && (!isset($ac->efb_version) || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0)){
 					$efbFunction->setting_version_efb_update($ac ,$pro);
 				}
 				if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")){
@@ -367,6 +367,12 @@ class Panel_edit  {
 		return $value;
 	}
 	public function check_temp_is_bootstrap (){
+		// Use transient cache to avoid scanning the theme directory on every page load
+		$cached = get_transient('emsfb_theme_has_bootstrap');
+		if ($cached !== false) {
+			return $cached === 'yes';
+		}
+
         $it = list_files(get_template_directory());
         $s = false;
         foreach($it as $path) {
@@ -379,6 +385,9 @@ class Panel_edit  {
                 }
             }
         }
+
+		// Cache result for 24 hours
+		set_transient('emsfb_theme_has_bootstrap', $s ? 'yes' : 'no', DAY_IN_SECONDS);
         return  $s;
     }// end fun
 	public function test_smart_zone (){

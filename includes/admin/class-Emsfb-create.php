@@ -30,8 +30,7 @@ class Create {
 		add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
-		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));// ساخت فرم
-
+		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));
 
 	}
 	public function add_Create_menu() {
@@ -62,7 +61,7 @@ class Create {
 		// 3 free plus
 
 
-		$noti_pro = intval(get_option('Emsfb_pro' ,-1));
+		$noti_pro = intval(get_option('emsfb_pro' ,-1));
 		if ($noti_pro === 0  ){
 			$noti_pro ="<script>console.log('test');const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
 
@@ -378,6 +377,12 @@ class Create {
 		));    $this->id_  = $this->db->insert_id;
 	}
 	public function check_temp_is_bootstrap (){
+		// Use transient cache to avoid scanning the theme directory on every page load
+		$cached = get_transient('emsfb_theme_has_bootstrap');
+		if ($cached !== false) {
+			return $cached === 'yes';
+		}
+
         $it = list_files(get_template_directory());
         $s = false;
         foreach($it as $path) {
@@ -390,6 +395,8 @@ class Create {
                 }
             }
         }
+
+		set_transient('emsfb_theme_has_bootstrap', $s ? 'yes' : 'no', DAY_IN_SECONDS);
         return  $s;
     }// end fun
 }

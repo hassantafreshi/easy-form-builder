@@ -25,8 +25,6 @@ class Emsfb {
         }else{
             $this->init_elementor_compatibility();
         }
-
-
           // Initialize Elementor compatibility for all admin pages
 
     }
@@ -71,13 +69,11 @@ class Emsfb {
     public function includes(): void {
         require_once $this->plugin_path . 'includes/class-Emsfb-install.php';
 
-
         if (is_admin()) {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
             $ac = self::get_setting_Emsfb('decoded');
-            error_log(json_encode($ac));
 
             $payment_exists = isset($ac->AdnPAP) ? (int) $ac->AdnPAP : 0;
             if ($payment_exists === 1) {
@@ -139,6 +135,49 @@ class Emsfb {
 		if (file_exists($shield_file)) {
 			require_once $shield_file;
 			new Emsfb_Shield_SilentCaptcha_Integration();
+		}
+
+		/* ──────────────────────────────────────────────────────────
+		 * Payment addon REST route registration (runs on ALL requests).
+		 *
+		 * Each addon has a small routes-efb.php file that hooks into
+		 * 'efb_register_payment_rest_routes'.  The action is fired by
+		 * _Public during rest_api_init, so routes are only registered
+		 * when the WP REST API initialises.
+		 *
+		 * Route files are loaded conditionally based on addon settings
+		 * and file_exists() checks, so disabled or missing addons
+		 * never cause errors.
+		 *
+		 * @since 4.3.0
+		 * ────────────────────────────────────────────────────────── */
+		$ac_routes = self::get_setting_Emsfb( 'decoded' );
+
+		if ( is_object( $ac_routes ) ) {
+
+			// PayPal routes (AdnPAP)
+			if ( ! empty( $ac_routes->AdnPAP ) ) {
+				$f = $this->plugin_path . 'vendor/paypal/routes-efb.php';
+				if ( file_exists( $f ) ) {
+					require_once $f;
+				}
+			}
+
+			// Stripe routes (AdnSPF)
+			if ( ! empty( $ac_routes->AdnSPF ) ) {
+				$f = $this->plugin_path . 'vendor/stripe/routes-efb.php';
+				if ( file_exists( $f ) ) {
+					require_once $f;
+				}
+			}
+
+			// PersiaPay / Zarinpal routes (AdnPPF)
+			if ( ! empty( $ac_routes->AdnPPF ) ) {
+				$f = $this->plugin_path . 'vendor/persiapay/routes-efb.php';
+				if ( file_exists( $f ) ) {
+					require_once $f;
+				}
+			}
 		}
 
 		require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
@@ -308,7 +347,6 @@ class Emsfb {
 
 
     public function update_cache_plugins_list() {
-        error_log('EFB: Updating cache plugins list on demand');
         // List of cache plugins
         $cache_plugins_slug = array(
             'wp-optimize', 'hummingbird-performance', 'big-scoots-cache', 'wp-cloudflare-page-cache',
@@ -410,6 +448,12 @@ class Emsfb {
         // Layer 1: Static cache (fastest - in-request memory)
         static $staticCache = [];
 
+        // Allow clearing the static cache (called by set_setting_Emsfb)
+        if ($mode === '_clear_cache') {
+            $staticCache = [];
+            return true;
+        }
+
         if (isset($staticCache[$mode])) {
             return $staticCache[$mode];
         }
@@ -431,7 +475,9 @@ class Emsfb {
             $raw = $wpdb->get_var("SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1");
 
             if (empty($raw)) {
-                return $mode === 'pub' ? [0, []] : 0;
+                if ($mode === 'pub') return [0, []];
+                if ($mode === 'raw') return '';
+                return new \stdClass();
             }
 
             // Save to option and transient
@@ -441,15 +487,48 @@ class Emsfb {
             $raw = $transient;
         }
 
-        // Decode JSON — try direct parse first (new clean format),
+        // â”€â”€ Clean raw string before parsing â”€â”€
+        // Remove BOM, NULL bytes, invalid UTF-8, HTML entities, etc.
+        $raw = self::clean_raw_json_efb($raw);
+
+        // â”€â”€ Truncation detection â”€â”€
+        // If JSON doesn't end with } or ] it was likely truncated by a TEXT column
+        $trimmedEnd = rtrim($raw);
+        if (!empty($trimmedEnd) && !preg_match('/[}\]]$/', $trimmedEnd)) {
+        }
+
+        // Decode JSON â€” try direct parse first (new clean format),
         // then stripslashes for backward compatibility (old \" escaped format)
         $decoded = json_decode($raw);
         if ($decoded === null) {
-            $decoded = json_decode(stripslashes($raw));
+            // Try removing escape layers (could be multi-layered: \", \\", etc.)
+            $clean = $raw;
+            $max_attempts = 5;
+            for ($i = 0; $i < $max_attempts; $i++) {
+                $clean = stripslashes($clean);
+                $decoded = json_decode($clean);
+                if ($decoded !== null) {
+                    break;
+                }
+            }
+            // Auto-repair: if we managed to decode, save the clean version back
+            if ($decoded !== null) {
+                $cleanJson = json_encode($decoded, JSON_UNESCAPED_UNICODE);
+                update_option('emsfb_settings', $cleanJson);
+                set_transient('emsfb_settings_transient', $cleanJson, 1800);
+                $raw = $cleanJson;
+                // Also fix the DB row
+                global $wpdb;
+                $table_name = $wpdb->prefix . "emsfb_setting";
+                $latest_id = $wpdb->get_var("SELECT id FROM $table_name ORDER BY id DESC LIMIT 1");
+                if ($latest_id) {
+                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $latest_id], ['%s'], ['%d']);
+                }
+            }
         }
         if ($decoded === null) {
-            error_log('EFB: Decoded settings is null. Raw: ' . substr($raw, 0, 200));
-            return $mode === 'pub' ? [0, []] : 0;
+            // Fallback to defaults so the plugin remains functional
+            $decoded = self::get_default_settings_efb();
         }
 
         // Handle different return modes
@@ -520,16 +599,16 @@ class Emsfb {
 
 
     public static function get_efbFunction(): efbFunction {
-        // Thread-safe cache با unique key برای multisite
+
         static $instances = [];
         $cache_key = 'efb_function_' . (function_exists('get_current_blog_id') ? get_current_blog_id() : '1');
 
-        // بررسی کش موجود
+
         if (isset($instances[$cache_key]) && $instances[$cache_key] instanceof efbFunction) {
             return $instances[$cache_key];
         }
 
-        // بررسی و لود کردن کلاس با error handling
+
         try {
             if (!class_exists('efbFunction', false)) {
                 $functions_file = EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php';
@@ -539,7 +618,7 @@ class Emsfb {
                 require_once $functions_file;
             }
 
-            // بررسی دوباره وجود کلاس بعد از require
+
             if (!class_exists('efbFunction')) {
                 throw new \Exception('efbFunction class not found after require');
             }
@@ -548,12 +627,12 @@ class Emsfb {
             return $instances[$cache_key];
 
         } catch (\Exception $e) {
-            // Log error برای debugging
+            // Log error Ø¨Ø±Ø§ÛŒ debugging
             if (function_exists('error_log')) {
                 error_log('EFB get_efbFunction error: ' . $e->getMessage());
             }
 
-            throw $e; // در صورت شکست کامل
+            throw $e; // Ø¯Ø± ØµÙˆØ±Øª Ø´Ú©Ø³Øª Ú©Ø§Ù…Ù„
         }
     }
 
@@ -576,7 +655,7 @@ class Emsfb {
             AdnCPF == crypto payment
             AdnESZ == zone picker
             AdnSE == email service
-             AdnWHS == webhook
+            AdnWHS == webhook
             AdnPAP == paypal
             AdnWSP == whitestudio pay
             AdnSMF == smart form
@@ -892,9 +971,12 @@ class Emsfb {
 		}
         // If version has changed, run upgrade tasks
         if (version_compare($installed_version, $current_version, '<')) {
+            error_log(sprintf('EFB: Detected version change from %s to %s. Running upgrade tasks.', $installed_version, $current_version));
             $this->run_upgrade_tasks_efb($installed_version, $current_version);
             update_option('emsfb_version', $current_version);
         }
+
+
 
     }
 
@@ -924,12 +1006,260 @@ class Emsfb {
             "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_efb_%' OR option_name LIKE '_transient_timeout_efb_%'"
         );
 
+        // â”€â”€ Migration: Upgrade setting column from TEXT to LONGTEXT â”€â”€
+        // TEXT is ~65KB which can truncate large emailTemp settings.
+        // LONGTEXT supports up to 4GB.
+        $table_setting = $wpdb->prefix . 'emsfb_setting';
+        $wpdb->query("ALTER TABLE `{$table_setting}` MODIFY `setting` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL");
+
+        // â”€â”€ Migration: Fix double-escaped JSON in emsfb_setting table â”€â”€
+        // Previous versions used str_replace('"','\"') after json_encode,
+        // which stored {\"key\":\"val\"} instead of {"key":"val"}.
+        // This migration fixes ALL rows in one pass during upgrade.
+        $this->migrate_fix_double_escaped_settings_efb($wpdb);
+
         // Log upgrade completion
         error_log(sprintf(
             'Easy Form Builder upgraded from %s to %s - All caches cleared',
             $old_version,
             $new_version
         ));
+
+                    // Migrate activeCode users to pro when upgrading from version < 4
+            if (version_compare($old_version, '4', '<')) {
+                $activeCode = get_option('emsfb_pro_activeCode', '');
+                if (empty($activeCode)) {
+                    $settings = self::get_setting_Emsfb('decoded');
+                    if (isset($settings->activeCode)) {
+                        $activeCode = $settings->activeCode;
+                    }
+                }
+                if (!empty($activeCode) && strlen($activeCode) > 5) {
+                    update_option('emsfb_pro', 1);
+                }
+            }
+
+
+    }
+
+    /**
+     * Migration: Fix double-escaped JSON in emsfb_setting table
+     *
+     * Previous versions incorrectly used str_replace('"','\"') after json_encode,
+     * which stored {\"key\":\"val\"} instead of {"key":"val"}.
+     * This can also be multi-layered: {\\\"key\\\"...} from repeated saves.
+     *
+     * This method:
+     * 1. Reads ALL rows from emsfb_setting
+     * 2. For each row, attempts json_decode â†’ if fails, applies stripslashes
+     *    repeatedly until valid JSON is obtained
+     * 3. Updates the row with clean JSON
+     * 4. Also clears the wp_options cache (emsfb_settings) and transient
+     *
+     * @since 4.0.0
+     * @param \wpdb $wpdb WordPress database object
+     * @return int Number of rows repaired
+     */
+    private function migrate_fix_double_escaped_settings_efb($wpdb) {
+        $table_name = $wpdb->prefix . "emsfb_setting";
+
+        // Check if table exists
+        $table_exists = $wpdb->get_var(
+            $wpdb->prepare("SHOW TABLES LIKE %s", $table_name)
+        );
+        if (!$table_exists) {
+            return 0;
+        }
+
+        $rows = $wpdb->get_results("SELECT id, setting FROM $table_name");
+        if (empty($rows)) {
+            return 0;
+        }
+
+        $repaired = 0;
+        foreach ($rows as $row) {
+            $raw = $row->setting;
+
+            // Clean common corruption artifacts (BOM, NULL bytes, invalid UTF-8, etc.)
+            $cleaned = self::clean_raw_json_efb($raw);
+
+            // Skip if already valid JSON (with or without cleaning)
+            if (json_decode($cleaned) !== null) {
+                // Still save if cleaning changed the string
+                if ($cleaned !== $raw) {
+                    $cleanJson = json_encode(json_decode($cleaned), JSON_UNESCAPED_UNICODE);
+                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $row->id], ['%s'], ['%d']);
+                    $repaired++;
+                }
+                continue;
+            }
+
+            // Try stripslashes (possibly multiple layers of escaping)
+            $clean = $cleaned;
+            $max_attempts = 5; // prevent infinite loop
+            for ($i = 0; $i < $max_attempts; $i++) {
+                $clean = stripslashes($clean);
+                if (json_decode($clean) !== null) {
+                    break;
+                }
+            }
+
+            // Validate the result
+            $decoded = json_decode($clean);
+            if ($decoded === null) {
+                continue;
+            }
+
+            // Re-encode to ensure perfectly clean JSON
+            $cleanJson = json_encode($decoded, JSON_UNESCAPED_UNICODE);
+
+            // Update the row
+            $wpdb->update(
+                $table_name,
+                ['setting' => $cleanJson],
+                ['id' => $row->id],
+                ['%s'],
+                ['%d']
+            );
+            $repaired++;
+        }
+
+        // Clear all caches so the clean data is loaded
+        if ($repaired > 0) {
+            delete_option('emsfb_settings');
+            delete_transient('emsfb_settings_transient');
+            wp_cache_delete('settings:decoded', 'emsfb');
+            wp_cache_delete('settings:pub', 'emsfb');
+            wp_cache_delete('settings:raw', 'emsfb');
+            self::get_setting_Emsfb('_clear_cache');
+        }
+
+        return $repaired;
+    }
+
+    /**
+     * Clean a raw JSON string by removing common corruption artifacts
+     *
+     * Handles: UTF-8 BOM, NULL bytes, invisible Unicode characters,
+     * invalid UTF-8 sequences, HTML entities, and control characters.
+     *
+     * @since 4.0.0
+     * @param string $raw The raw string from database
+     * @return string Cleaned string ready for json_decode
+     */
+    private static function clean_raw_json_efb($raw) {
+        if (empty($raw) || !is_string($raw)) {
+            return '';
+        }
+
+        // 1. Remove UTF-8 BOM (Byte Order Mark) â€” \xEF\xBB\xBF
+        if (substr($raw, 0, 3) === "\xEF\xBB\xBF") {
+            $raw = substr($raw, 3);
+        }
+
+        // 2. Remove NULL bytes
+        $raw = str_replace("\0", '', $raw);
+
+        // 3. Remove invisible Unicode characters (ZWNJ, ZWJ, ZWNBSP, BOM in UTF-8, etc.)
+        $raw = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}\x{00AD}\x{2060}]/u', '', $raw);
+
+        // 4. Trim whitespace and control characters
+        $raw = trim($raw);
+
+        // 5. Fix invalid UTF-8 sequences
+        if (function_exists('mb_convert_encoding')) {
+            // This strips invalid sequences and replaces with valid UTF-8
+            $raw = mb_convert_encoding($raw, 'UTF-8', 'UTF-8');
+        }
+
+        // 6. If JSON is HTML-encoded (&quot; â†’ ", &amp; â†’ &, etc.)
+        if (strpos($raw, '&quot;') !== false || strpos($raw, '&#34;') !== false) {
+            $candidate = html_entity_decode($raw, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            if (json_decode($candidate) !== null) {
+                $raw = $candidate;
+            }
+        }
+
+        // 7. Remove control characters (except tab, newline, carriage return which are valid in JSON strings)
+        $raw = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $raw);
+
+        return $raw;
+    }
+
+    /**
+     * Get default plugin settings
+     *
+     * Provides a safe fallback when settings cannot be recovered from the database.
+     * The plugin can work (in limited mode) with these defaults.
+     *
+     * @since 4.0.0
+     * @return \stdClass Default settings object
+     */
+    public static function get_default_settings_efb() {
+        $defaults = new \stdClass();
+        $defaults->activeCode        = '';
+        $defaults->siteKey           = '';
+        $defaults->secretKey         = '';
+        $defaults->emailSupporter    = get_option('admin_email', '');
+        $defaults->apiKeyMap         = '';
+        $defaults->smtp              = false;
+        $defaults->text              = '';
+        $defaults->bootstrap         = '';
+        $defaults->emailTemp         = '';
+        $defaults->paypalPKey        = '';
+        $defaults->paypalSKey        = '';
+        $defaults->stripePKey        = '';
+        $defaults->stripeSKey        = '';
+        $defaults->payToken          = '';
+        $defaults->act_local_efb     = '';
+        $defaults->scaptcha          = '';
+        $defaults->shield_silent_captcha = '';
+        $defaults->activeDlBtn       = '';
+        $defaults->dsupfile          = '1';
+        $defaults->sms_config        = 'null';
+        $defaults->AdnSPF            = '0';
+        $defaults->AdnOF             = '0';
+        $defaults->AdnPPF            = '0';
+        $defaults->AdnATC            = '0';
+        $defaults->AdnSS             = '0';
+        $defaults->AdnCPF            = '0';
+        $defaults->AdnESZ            = '0';
+        $defaults->AdnSE             = '0';
+        $defaults->AdnWHS            = '0';
+        $defaults->AdnPAP            = '0';
+        $defaults->AdnWSP            = '0';
+        $defaults->AdnSMF            = '0';
+        $defaults->AdnPLF            = '0';
+        $defaults->AdnMSF            = '0';
+        $defaults->AdnBEF            = '0';
+        $defaults->AdnPDP            = '0';
+        $defaults->AdnADP            = '0';
+        $defaults->AdnTLG            = '0';
+        $defaults->phnNo             = '';
+        $defaults->femail            = '';
+        $defaults->email_key         = '';
+        $defaults->showIp            = '';
+        $defaults->adminSN           = '1';
+        $defaults->osLocationPicker  = '';
+        $defaults->sessionDuration   = '5';
+        $defaults->respPrimary       = '#3644d2';
+        $defaults->respPrimaryDark   = '#202a8d';
+        $defaults->respAccent        = '#ffc107';
+        $defaults->respText          = '#1a1a2e';
+        $defaults->respTextMuted     = '#657096';
+        $defaults->respBgCard        = '#ffffff';
+        $defaults->respBgMeta        = '#f6f7fb';
+        $defaults->respBgTrack       = '#ffffff';
+        $defaults->respBgResp        = '#f8f9fd';
+        $defaults->respBgEditor      = '#ffffff';
+        $defaults->respEditorText    = '#1a1a2e';
+        $defaults->respEditorPh      = '#a0aec0';
+        $defaults->respBtnText       = '#ffffff';
+        $defaults->respFontFamily    = 'inherit';
+        $defaults->respFontSize      = '0.9rem';
+        $defaults->respCustomFont    = '';
+        $defaults->efb_version       = defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '4.0.0';
+        return $defaults;
     }
 
     /**

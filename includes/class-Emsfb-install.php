@@ -31,7 +31,7 @@ class Install {
 
 						$sql = "CREATE TABLE IF NOT EXISTS {$table_name_stng} (
 							`id` int(1) NOT NULL AUTO_INCREMENT,
-							`setting` text COLLATE utf8mb4_unicode_ci NOT NULL,
+							`setting` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
 							`date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,
 							`edit_by` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`email` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,

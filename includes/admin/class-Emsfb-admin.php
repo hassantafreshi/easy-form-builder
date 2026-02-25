@@ -29,21 +29,16 @@ class Admin {
         if (!function_exists('wp_get_current_user')) {
             include(ABSPATH . "wp-includes/pluggable.php");
         }
-       // apply_filters( 'the_content', [$this,'check_shortCode'] );
-        // Add plugin caps to admin role
         if (is_admin() and is_super_admin()) {
             $this->add_cap();
         }
-        // Actions.
         add_action('admin_enqueue_scripts', [$this, 'admin_assets']);
         add_action('admin_menu', [$this, 'admin_menu']);
         $this->ip = $this->get_ip_address();
-        // $current_user->display_name
         if (is_admin()) {
             if (!function_exists('get_plugin_data')) {
                 require_once(ABSPATH . 'wp-admin/includes/plugin.php');
             }
-            // $this->get_not_read_message();
             add_action('wp_ajax_remove_id_Emsfb', [$this, 'delete_form_id_public']);                 //Remove a form by id
             add_action('wp_ajax_remove_message_id_Emsfb', [$this, 'delete_message_id_public']);      //Remove a message by id
             add_action('wp_ajax_get_form_id_Emsfb', [$this, 'get_form_id_Emsfb']);                   //Get a form by id
@@ -89,18 +84,15 @@ class Admin {
     public function admin_assets($hook) {
         global $current_screen;
         $hook = $hook ? $hook : http_build_query($_GET);
-        $package_type_efb = (int) get_option('Emsfb_pro' ,2);
-        // if page is edit_forms_Emsfb
+        $package_type_efb = (int) get_option('emsfb_pro' ,2);
         if (strpos($hook, 'Emsfb')==true && is_admin()) {
 
                     wp_register_style('Emsfb-admin', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-efb.css', true,EMSFB_PLUGIN_VERSION );
                     wp_enqueue_style('Emsfb-admin');
 
             if (is_rtl()) {
-                // code_v1 start
                 wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true,EMSFB_PLUGIN_VERSION );
                 wp_enqueue_style('Emsfb-css-rtl');
-                // code_v1 end
             }
             wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css',true,EMSFB_PLUGIN_VERSION);
             wp_enqueue_style('Emsfb-style-css');
@@ -252,7 +244,6 @@ class Admin {
 		$sms_msg_recived_user="";
 		$sms_admins_phoneno="";
 
-        // پردازش تنظیمات تلگرام
         $telegram_msg_new_noti = "";
         $telegram_msg_responsed_noti = "";
         $telegram_msg_recived_user = "";
@@ -270,7 +261,7 @@ class Admin {
 			if(isset($valp[0]['sms_admins_phone_no'])){unset($valp[0]['sms_admins_phone_no']);}
 		}
 
-        // پردازش تنظیمات تلگرام
+        // Ù¾Ø±Ø¯Ø§Ø²Ø´ ØªÙ†Ø¸ÛŒÙ…Ø§Øª ØªÙ„Ú¯Ø±Ø§Ù…
         if(isset($valp[0]['telegramnoti']) && intval($valp[0]['telegramnoti'])==1){
             $telegram_msg_new_noti = isset($valp[0]['telegram_msg_new_noti']) ? $valp[0]['telegram_msg_new_noti'] : $lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
             $telegram_msg_responsed_noti = isset($valp[0]['telegram_msg_responsed_noti']) ? $valp[0]['telegram_msg_responsed_noti'] : $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
@@ -278,7 +269,7 @@ class Admin {
             $telegram_bot_token = isset($valp[0]['telegram_bot_token']) ? $valp[0]['telegram_bot_token'] : "";
             $telegram_admin_chat_ids = isset($valp[0]['telegram_admin_chat_ids']) ? $valp[0]['telegram_admin_chat_ids'] : "";
 
-            // حذف پارامترهای تلگرام از آرایه اصلی
+            // Ø­Ø°Ù Ù¾Ø§Ø±Ø§Ù…ØªØ±Ù‡Ø§ÛŒ ØªÙ„Ú¯Ø±Ø§Ù… Ø§Ø² Ø¢Ø±Ø§ÛŒÙ‡ Ø§ØµÙ„ÛŒ
             unset($valp[0]['telegram_msg_new_noti']);
             unset($valp[0]['telegram_msg_responsed_noti']);
             unset($valp[0]['telegram_msg_recived_user']);
@@ -329,7 +320,7 @@ class Admin {
 				$sms_msg_responsed_noti);
 		}
 
-        // ذخیره تنظیمات تلگرام
+        // Ø°Ø®ÛŒØ±Ù‡ ØªÙ†Ø¸ÛŒÙ…Ø§Øª ØªÙ„Ú¯Ø±Ø§Ù…
         if(isset($valp[0]['telegramnoti']) && intval($valp[0]['telegramnoti'])==1 ){
             $telegram_exists = get_option('emsfb_addon_AdnTLG', false);
             $telegram_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
@@ -411,7 +402,6 @@ class Admin {
             if (get_locale() == 'fa_IR') {
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
             }
-            error_log($u);
             $attempts = 2;
             for ($i = 0; $i < $attempts; $i++) {
                 $request = wp_remote_get($u);
@@ -433,7 +423,6 @@ class Admin {
                 wp_send_json_success($response, 200);
             }
             if (isset($data->status)==true && $data->status == false) {
-                error_log(json_encode($data));
                 $response = ['success' => false, "m" => $data->error];
                 wp_send_json_success($response, 200);
             }
@@ -495,21 +484,10 @@ class Admin {
             global $wpdb;
             $this->db = $wpdb;
         }
-        $table_name = $this->db->prefix . "emsfb_setting";
-        $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
-        $newAc= str_replace('"', '\"', $newAc);
-        $efbFunction->set_setting_Emsfb( $newAc, $ac->emailSupporter );
-/*         $this->db->insert(
-            $table_name,
-            [
-                'setting' => $newAc,
-                'edit_by' => get_current_user_id(),
-                'date'    => wp_date('Y-m-d H:i:s'),
-                'email'   => $ac->emailSupporter,
-            ]
-        );
-        update_option('emsfb_settings', $newAc);
-        set_transient('emsfb_settings_transient', $newAc, 1440); */
+        // json_encode produces valid JSON; set_setting_Emsfb handles DB escaping.
+        // Do NOT add str_replace('"','\"') â€” it double-escapes and breaks json_decode.
+        $efbFunction->set_setting_Emsfb( $ac, $ac->emailSupporter );
+        $newAc = json_encode( $ac, JSON_UNESCAPED_UNICODE );
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         update_option($name_space, 1);
         wp_send_json_success($response, 200);
@@ -580,22 +558,12 @@ class Admin {
             global $wpdb;
             $this->db = $wpdb;
         }
-        $table_name = $this->db->prefix . "emsfb_setting";
-        $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
-        $newAc= str_replace('"', '\"', $newAc);
-        $this->db->insert(
-            $table_name,
-            [
-                'setting' => $newAc,
-                'edit_by' => get_current_user_id(),
-                'date'    => wp_date('Y-m-d H:i:s'),
-                'email'   => $ac->emailSupporter,
-            ]
-        );
+        // json_encode produces valid JSON; set_setting_Emsfb handles DB insert.
+        // Do NOT add str_replace('"','\"') â€” it double-escapes and breaks json_decode.
+        // Do NOT call $this->db->insert separately â€” set_setting_Emsfb already inserts.
         delete_option($name_space);
-        $efbFunction->set_setting_Emsfb( $newAc, $ac->emailSupporter );
-        /* update_option('emsfb_settings', $newAc);
-        set_transient('emsfb_settings_transient', $newAc, 1440); */
+        $efbFunction->set_setting_Emsfb( $ac, $ac->emailSupporter );
+        $newAc = json_encode( $ac, JSON_UNESCAPED_UNICODE );
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, 200);
     }
@@ -667,7 +635,7 @@ class Admin {
             }
         }
 
-        // بررسی وجود تنظیمات تلگرام
+        // Ø¨Ø±Ø±Ø³ÛŒ ÙˆØ¬ÙˆØ¯ ØªÙ†Ø¸ÛŒÙ…Ø§Øª ØªÙ„Ú¯Ø±Ø§Ù…
         $telegramnoti = strpos($value,'\"telegramnoti\":\"1\"') !==false ? 1 : 0;
         if($telegramnoti){
             $telegram_exists = get_option('emsfb_addon_AdnTLG', false);
@@ -764,7 +732,6 @@ class Admin {
         wp_send_json_success($response, 200);
     }
     public function set_replyMessage_id_Emsfb() {
-        error_log('set_replyMessage_id_Emsfb');
          $this->efbFunction = get_efbFunction();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
         $efbFunction = get_efbFunction();
@@ -884,7 +851,7 @@ class Admin {
             wp_send_json_success($response, 200);
             die("secure!");
         }
-        // Do NOT use sanitize_text_field() here — it strips ALL HTML tags from the
+        // Do NOT use sanitize_text_field() here â€” it strips ALL HTML tags from the
         // entire JSON string, destroying emailTemp content. Individual fields are
         // sanitized in the foreach loop below (sanitize_text_field for plain fields,
         // sanitize_full_html_efb for emailTemp).
@@ -895,8 +862,12 @@ class Admin {
             wp_send_json_success($response, 200);
             die();
         }
-        $m= str_replace('\\', '', $post_message);
-        $m = json_decode($m,true);
+        // wp_unslash already removes WordPress magic-quote slashes.
+        // Try json_decode directly first; only fallback to stripslashes for legacy
+        $m = json_decode($post_message, true);
+        if ($m === null && json_last_error() !== JSON_ERROR_NONE) {
+            $m = json_decode(stripslashes($post_message), true);
+        }
         if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
@@ -910,7 +881,6 @@ class Admin {
             $response = ['success' => false, "m" =>$m];
             wp_send_json_success($response, 200);
         }
-        error_log('set_settings_Emsfb input: '.json_encode($m,JSON_UNESCAPED_UNICODE));
         foreach ($m as $key => $value) {
              if (in_array($key ,['emailSupporter','femail'])) {
                 $value = sanitize_text_field($value);
@@ -937,7 +907,7 @@ class Admin {
                     $response = ['success' => false, "m" =>$lang['addSCEmailM']];
                     wp_send_json_success($response, 200);
                 }
-                  // ── XSS Prevention: strip dangerous patterns before wp_kses ──
+                  // â”€â”€ XSS Prevention: strip dangerous patterns before wp_kses â”€â”€
                   $v = str_replace('@efb@' , '/', $value);
 
                   // Preserve EFBDATA comment (URI-encoded builder JSON, safe)
@@ -963,7 +933,7 @@ class Admin {
                   $v = preg_replace('/-moz-binding\s*:/i', '', $v);
                   $v = preg_replace('/behavior\s*:/i', '', $v);
                   // Strip iframe, object, embed, form, input, math tags
-                  // Note: svg removed from this list — social icons use base64 <img> now,
+                  // Note: svg removed from this list â€” social icons use base64 <img> now,
                   // but keep stripping raw SVG tags for XSS safety
                   $v = preg_replace('/<\s*\/?(iframe|object|embed|form|input|textarea|button|select|svg|path|math|base|link|applet)[^>]*>/i', '', $v);
                   // Now run through wp_kses (with data: protocol allowed for base64 images)
@@ -1012,21 +982,20 @@ class Admin {
            $m['efb_version'] = EMSFB_PLUGIN_VERSION;
         }
 
-        // Handle devMode toggle — stored in wp_options, not in the settings JSON
-        // IMPORTANT: Store as '1'/'0' strings, NOT booleans — WordPress update_option
+        // Handle devMode toggle â€” stored in wp_options, not in the settings JSON
+        // IMPORTANT: Store as '1'/'0' strings, NOT booleans â€” WordPress update_option
         // silently fails when saving boolean false (treats it as "option not set").
         if(isset($m['devMode'])){
             $dev_mode_value = in_array($m['devMode'], [true, 'true', 1, '1'], true) ? '1' : '0';
             update_option('emsfb_dev_mode', $dev_mode_value);
-            unset($m['devMode']); // Remove from settings JSON — it's stored in wp_options
+            unset($m['devMode']); // Remove from settings JSON â€” it's stored in wp_options
         }
 
         // json_encode produces valid JSON; wpdb->insert handles DB escaping.
-        // Do NOT add extra str_replace('"','\"') — it creates double-escaping
+        // Do NOT add extra str_replace('"','\"') â€” it creates double-escaping
         // that breaks json_decode when values contain literal quotes (e.g. emailTemp HTML).
         $setting = json_encode($m, JSON_UNESCAPED_UNICODE);
         $email = isset($m['emailSupporter']) ? $m['emailSupporter'] : wp_get_current_user()->user_email;
-        error_log('set_settings_Emsfb email: '.$setting);
         $efbFunction->set_setting_Emsfb( $setting, $email );
         $m = $lang['messageSent'];
         $response = ['success' => true, "m" => $m];
@@ -1034,7 +1003,7 @@ class Admin {
     }
 
     public function get_ajax_track_admin() {
-        // جستجوی جامع در دو جدول: wp_emsfb_msg_ و wp_emsfb_rsp_
+        // Ø¬Ø³ØªØ¬ÙˆÛŒ Ø¬Ø§Ù…Ø¹ Ø¯Ø± Ø¯Ùˆ Ø¬Ø¯ÙˆÙ„: wp_emsfb_msg_ Ùˆ wp_emsfb_rsp_
         // Search in: track, content (JSON) fields from msg table
         // AND content (JSON) field from response table with JOIN
 
@@ -1101,7 +1070,7 @@ class Admin {
         wp_send_json_success($response, 200);
     }// end function
     public function clear_garbeg_admin() {
-        // پاک کردن فایل های اضافی
+        // Ù¾Ø§Ú© Ú©Ø±Ø¯Ù† ÙØ§ÛŒÙ„ Ù‡Ø§ÛŒ Ø§Ø¶Ø§ÙÛŒ
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
         $text = ["fileDeleted","error403"];
@@ -1152,7 +1121,7 @@ class Admin {
         wp_send_json_success($response, 200);
     }// end function
     public function check_email_server_admin() {
-        // پاک کردن فایل های اضافی
+        // Ù¾Ø§Ú© Ú©Ø±Ø¯Ù† ÙØ§ÛŒÙ„ Ù‡Ø§ÛŒ Ø§Ø¶Ø§ÙÛŒ
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
         $text = ["error403","emailServer"];
@@ -1176,7 +1145,7 @@ class Admin {
                 $to = $post_email;
             }
             $m = $lang['emailServer'];
-            $sub ="📫 ". $m ." [".esc_html__('Easy Form Builder','easy-form-builder') ."]";
+            $sub ="ðŸ“« ". $m ." [".esc_html__('Easy Form Builder','easy-form-builder') ."]";
             $cont = "Test Email Server";
             if(strlen($to)<5) {
                 if(strlen($ac->emailSupporter)!=0) {$to = $ac->emailSupporter;}else{
@@ -1197,18 +1166,9 @@ class Admin {
                 if($check==true){
                    $ac->smtp = true;
                     $ac->emailSupporter = $to;
-                    $table_name = $this->db->prefix . "emsfb_setting";
-                    $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
-                    $newAc= str_replace('"', '\"', $newAc);
-                    $this->db->insert(
-                        $table_name,
-                        [
-                            'setting' => $newAc,
-                            'edit_by' => get_current_user_id(),
-                            'date'    => wp_date('Y-m-d H:i:s'),
-                            'email'   => $to,
-                        ]
-                    );
+                    // json_encode produces valid JSON; set_setting_Emsfb handles DB insert.
+                    // Do NOT add str_replace('"','\"') â€” it double-escapes and breaks json_decode.
+                    // Do NOT call $this->db->insert separately â€” set_setting_Emsfb already inserts.
                      $ok =  [
                         'status' => 'ok_set_smtp',
                         'message' => [
@@ -1218,9 +1178,7 @@ class Admin {
                         ]
                         ];
                     update_option('emsfb_email_status',$ok);
-                    $efbFunction->set_setting_Emsfb( $newAc, $to );
-                    /* update_option('emsfb_settings', $newAc);
-                    set_transient('emsfb_settings_transient', $newAc, 1440); */
+                    $efbFunction->set_setting_Emsfb( $ac, $to );
                 }
         $response = ['success' => $check ];
         wp_send_json_success($response, 200);
@@ -1273,8 +1231,6 @@ class Admin {
                     WP_Filesystem();
                     $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
                     if(is_wp_error($r)){
-                        // error_log('error unzip');
-                        // error_log(json_encode($r));
                         return false;
                     }
                     return true;
@@ -1502,7 +1458,6 @@ class Admin {
         }
     }
     public function read_list_Emsfb(){
-        // error_log('read_list_Emsfb');
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
         $text = ["error403","somethingWentWrongPleaseRefresh","done"];
@@ -1518,7 +1473,6 @@ class Admin {
         }
         $state = sanitize_text_field(wp_unslash( $_POST['state'] ) ) ;
         $val =  sanitize_text_field(wp_unslash( $_POST['val'] ) ) ;
-        // error_log($val);
         $val_  = str_replace('\\\\', '', $val);
         $val_  = str_replace('\\', '', $val);
         $val = json_decode($val_ ,true);
@@ -1540,17 +1494,13 @@ class Admin {
                 // $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
                 $sql = "UPDATE $table_name SET read_ = 1 WHERE msg_id IN ($msg_ids)";
                 $r = $this->db->query($sql);
-                // error_log($r);
-                // delete  all responses from table emsfb_rsp_ where msg_id in ($msg_ids)
                 if($r>0){
                     $table_name = $this->db->prefix . "emsfb_rsp_";
                     // $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
                     $sql = "UPDATE $table_name SET read_ = 1 WHERE msg_id IN ($msg_ids)";
                     $r = $this->db->query($sql);
-                    // error_log('resp'.$r);
                 }
-                $response = ['success' => true, "m" =>$lang['done']];
-            }
+                
         }
         wp_send_json_success($response, 200);
     }
@@ -1561,7 +1511,6 @@ class Admin {
             wp_register_style('Font_Roboto', $font_url);
             wp_enqueue_style('Font_Roboto');
         } else {
-            // error_log('Font Roboto URL is not accessible.');
         }
     }
     public function heartbeat_Emsfb(){
@@ -1783,8 +1732,6 @@ function admin_notices_efb () {
      * Handle plan selection save via AJAX
      */
     public function efb_save_plan_selection() {
-        error_log('[EFB] Plan selection handler called');
-
         // Verify nonce for security
         $efbFunction = get_efbFunction();
         $text = ["error403","somethingWentWrongPleaseRefresh"];
@@ -1793,11 +1740,7 @@ function admin_notices_efb () {
 
         // Check nonce
         $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
-        error_log('[EFB] Nonce check: ' . $nonce);
-        error_log('[EFB] User can: ' . ($currrent_user_can ? 'true' : 'false'));
-
         if (!wp_verify_nonce($nonce, 'wp_rest') || !$currrent_user_can) {
-            error_log('[EFB] Security check failed');
             $response = ['success' => false, 'm' => $lang['error403']];
             wp_send_json_error($response, 403);
             die("secure!");
@@ -1805,7 +1748,6 @@ function admin_notices_efb () {
 
         // Check if plan_data is provided
         if (!isset($_POST['plan_data'])) {
-            error_log('[EFB] Plan data missing from POST: ' . print_r($_POST, true));
             wp_send_json_error(array(
                 'message' => __('Plan data is missing.', 'easy-form-builder')
             ), 400);
@@ -1814,12 +1756,9 @@ function admin_notices_efb () {
 
         // Get and validate plan data
         $plan_data_raw = sanitize_textarea_field($_POST['plan_data']);
-        error_log('[EFB] Raw plan data received: ' . $plan_data_raw);
-
         $plan_data = json_decode(stripslashes($plan_data_raw), true);
 
         if (!is_array($plan_data)) {
-            error_log('[EFB] Invalid plan data format - not an array');
             wp_send_json_error(array(
                 'message' => __('Invalid plan data format.', 'easy-form-builder')
             ), 400);
@@ -1829,10 +1768,7 @@ function admin_notices_efb () {
         // Extract plan information
         $selected_plan = isset($plan_data['selected_plan']) ? sanitize_text_field(wp_unslash($plan_data['selected_plan'])) : '';
         $timestamp = isset($plan_data['timestamp']) ? intval($plan_data['timestamp']) : time();
-
-        // Validate plan type
-        $valid_plans = array('free', 'free_plus', 'pro');
-        if (!in_array($selected_plan, $valid_plans)) {
+        if (!in_array($selected_plan, array('free', 'free_plus', 'pro'))) {
             wp_send_json_error(array(
                 'message' => __('Invalid plan type.', 'easy-form-builder')
             ), 400);
@@ -1887,16 +1823,13 @@ function admin_notices_efb () {
 
 
 
-        // Log plan selection for admin reference
-        error_log(sprintf('[EFB] Plan selected: %s by user ID: %d', $selected_plan, get_current_user_id()));
-
         // Send success response
         wp_send_json_success($response_data);
     }
 
     /**
      * Update form cache with new data
-     * این تابع برای بروزرسانی cache بدون نیاز به دیتابیس استفاده می‌شود
+     * Ø§ÛŒÙ† ØªØ§Ø¨Ø¹ Ø¨Ø±Ø§ÛŒ Ø¨Ø±ÙˆØ²Ø±Ø³Ø§Ù†ÛŒ cache Ø¨Ø¯ÙˆÙ† Ù†ÛŒØ§Ø² Ø¨Ù‡ Ø¯ÛŒØªØ§Ø¨ÛŒØ³ Ø§Ø³ØªÙØ§Ø¯Ù‡ Ù…ÛŒâ€ŒØ´ÙˆØ¯
      *
      * @param int $form_id Form ID
      * @param array $form_data Form data to cache
@@ -1927,20 +1860,12 @@ function admin_notices_efb () {
         // Update WordPress object cache
         wp_cache_set('efb_form_' . $cache_key, $cache_data, 'emsfb', 3600);
 
-        // Log cache update for debugging
-        error_log(sprintf(
-            '[EFB Cache] Updated cache for form_id: %d, fields: %s, cache_key: %s',
-            $form_id,
-            implode(',', $fields),
-            $cache_key
-        ));
-
         return true;
     }
 
     /**
      * Bulk update multiple form caches
-     * برای بروزرسانی چندین فرم به صورت یکجا
+     * Ø¨Ø±Ø§ÛŒ Ø¨Ø±ÙˆØ²Ø±Ø³Ø§Ù†ÛŒ Ú†Ù†Ø¯ÛŒÙ† ÙØ±Ù… Ø¨Ù‡ ØµÙˆØ±Øª ÛŒÚ©Ø¬Ø§
      *
      * @param array $forms_data Array of form data: [form_id => form_data]
      * @param array $fields Fields being cached
@@ -1958,7 +1883,7 @@ function admin_notices_efb () {
 
     /**
      * Clear form cache for specific form or all forms
-     * پاک کردن cache مخصوص فرم خاص یا همه فرم‌ها
+     * Ù¾Ø§Ú© Ú©Ø±Ø¯Ù† cache Ù…Ø®ØµÙˆØµ ÙØ±Ù… Ø®Ø§Øµ ÛŒØ§ Ù‡Ù…Ù‡ ÙØ±Ù…â€ŒÙ‡Ø§
      *
      * @param int|null $form_id Form ID (null for all forms)
      * @param array $fields Specific fields to clear (empty for all)
@@ -1972,7 +1897,6 @@ function admin_notices_efb () {
             // Clear WordPress object cache group
             wp_cache_flush_group('emsfb');
 
-            error_log('[EFB Cache] Cleared all form caches');
             return true;
         }
 
@@ -2002,18 +1926,12 @@ function admin_notices_efb () {
             wp_cache_delete('efb_form_' . $cache_key, 'emsfb');
         }
 
-        error_log(sprintf(
-            '[EFB Cache] Cleared cache for form_id: %d, fields: %s',
-            $form_id,
-            empty($fields) ? 'all' : implode(',', $fields)
-        ));
-
         return true;
     }
 
     /**
      * Get form cache status and statistics
-     * اطلاعات و آمار cache فرم‌ها
+     * Ø§Ø·Ù„Ø§Ø¹Ø§Øª Ùˆ Ø¢Ù…Ø§Ø± cache ÙØ±Ù…â€ŒÙ‡Ø§
      *
      * @return array Cache statistics
      */
@@ -2076,12 +1994,6 @@ function admin_notices_efb () {
         // Update cache with fresh data
         $this->form_cache[$cache_key] = $result[0];
         wp_cache_set('efb_form_' . $cache_key, $result[0], 'emsfb', 3600);
-
-        error_log(sprintf(
-            '[EFB Cache] Refreshed cache for form_id: %d, fields: %s',
-            $form_id,
-            implode(',', $fields)
-        ));
 
         return $result[0];
     }

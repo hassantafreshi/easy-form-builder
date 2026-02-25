@@ -1169,25 +1169,35 @@ function head_introduce_efb(state) {
   if(noti_exp_efb!='' && noti_exp_efb!='null'){vType='<div class="efb col-lg-4">'+noti_exp_efb+'</div>';}
   if (state != "create") {
     cont = `
-
                   <div class="efb clearfix"></div>
-                  <p class="efb card-text  ${state == "create" ? 'card-text' : 'text-dark'} efb pb-3 ${mobile_view_efb ? 'fs-7' : 'fs-6'}">${text}</p>
+                  <p class="efb efb-header-desc efb pb-3 ${mobile_view_efb ? 'fs-7' : 'fs-6'}">${text}</p>
 
-    <a class="efb btn btn-r btn-primary ${btnSize}" href="${link}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
-    <a class="efb btn mt-1 efb btn-outline-pink ${btnSize} ec-efb" data-eventform="links" data-linkname="tutorial"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>`;
+    <div class="efb efb-header-features">
+      <span class="efb efb-feature-badge"><i class="efb bi-layers mx-1"></i>Multi-Step</span>
+      <span class="efb efb-feature-badge"><i class="efb bi-code-slash mx-1"></i>No Coding</span>
+      <span class="efb efb-feature-badge"><i class="efb bi-arrows-move mx-1"></i>Drag & Drop</span>
+    </div>
+
+    <div class="efb efb-header-actions">
+      <a class="efb btn btn-r btn-primary efb-cta-btn ${btnSize}" href="${link}"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
+      <a class="efb btn efb btn-outline-pink efb-cta-btn ${btnSize} ec-efb" data-eventform="links" data-linkname="tutorial"><i class="efb bi-play-circle mx-1"></i>${efb_var.text.tutorial}</a>
+    </div>`;
   }
-  return `<section id="header-efb" class="efb mx-0 px-0  ${state == "create" ? '' : 'card col-12 bg-color'}">
-  <div class="efb row ${mobile_view_efb ? 'mx-2' : 'mx-5'}">
+  return `<section id="header-efb" class="efb mx-0 px-0 ${state == "create" ? '' : 'efb-header-card col-12'}">
+  <div class="efb row ${mobile_view_efb ? 'mx-2' : 'mx-5'} align-items-center">
               <div class="efb col-lg-7 mt-2 pd-5 col-md-12">
-                  <img src="${efb_var.images.logo}" class="efb description-logo  ${mobile_view_efb ? 'm-1' : ''} efb">
-                  <h1 class="efb  pointer-efb mb-0 ${mobile_view_efb ? 'fs-6' : ''} ec-efb" data-eventform="links" data-linkname="efb">${efb_var.text.easyFormBuilder}</h1>
-                  <h3 class="efb  pointer-efb  ${state == "create" ? 'card-text ' : 'text-darkb'} ${mobile_view_efb ? 'fs-7' : 'fs-6'} ec-efb" data-eventform="links" data-linkname="ws" >${efb_var.text.byWhiteStudioTeam}</h3>
+                  <div class="efb efb-header-brand">
+                    <img src="${efb_var.images.logo}" class="efb efb-header-logo ${mobile_view_efb ? 'm-1' : ''} efb">
+                    <div class="efb efb-header-brand-text">
+                      <h1 class="efb pointer-efb mb-0 efb-header-title ${mobile_view_efb ? 'fs-6' : ''} ec-efb" data-eventform="links" data-linkname="efb">${efb_var.text.easyFormBuilder}</h1>
+                      <p class="efb pointer-efb efb-header-subtitle ${mobile_view_efb ? 'fs-7' : 'fs-6'} ec-efb" data-eventform="links" data-linkname="ws">${efb_var.text.byWhiteStudioTeam}</p>
+                    </div>
+                  </div>
                   ${cont}
 
               </div>
               ${state == "create" && (efb_var.pro==false || efb_var.pro =='false') ? vType : ''}
-              ${(state != "create" && mobile_view_efb) ? `<div class="efb col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="efb img-fluid"></div>` : ''}
-              ${(state != "create" && mobile_view_efb == false) ? `<div class="efb col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="efb img-fluid"></div>` : ''}
+              ${(state != "create") ? `<div class="efb col-lg-5 col-md-12 efb-header-img-wrap"> <img src="${efb_var.images.head}" class="efb img-fluid efb-header-img"></div>` : ''}
     </div>
   </section> `
 }

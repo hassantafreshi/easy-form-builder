@@ -288,7 +288,7 @@ const EfbResponseViewer = (function () {
   function buildReplyActions(msgId, isPanel) {
     const uploadHtml = buildFileUploadArea(msgId, isPanel);
     return `
-    <div class="efb-reply-actions">
+    <div class="efb-reply-actions efb pb-2">
       <button type="submit" class="efb-reply-btn" id="replayB_emsFormBuilder"
               onclick="fun_send_replayMessage_emsFormBuilder(${msgId})">
         <i class="bi bi-reply"></i> ${_t('reply')}

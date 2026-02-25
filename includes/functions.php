@@ -67,6 +67,9 @@ class efbFunction {
 		register_activation_hook( __FILE__, [$this ,'download_all_addons_efb'] );
 		add_action( 'load-index.php', [$this ,'addon_adds_cron_efb'] );
 
+		// Register cron action for deferred addon downloads (used by setting_version_efb_update)
+		add_action( 'emsfb_download_addons_cron', [$this, 'download_all_addons_efb'] );
+
     }
 
 
@@ -459,7 +462,7 @@ class efbFunction {
 			/* translators: Core & advanced form fields = both basic and complex input types */
 			"coreAdvancedFormFields" => $state && isset($ac->text->coreAdvancedFormFields) ? $ac->text->coreAdvancedFormFields : esc_html__('Core & advanced form fields','easy-form-builder'),
 			/* translators: Powered by credit line message */
-			"poweredByCredit" => $state && isset($ac->text->poweredByCredit) ? $ac->text->poweredByCredit : esc_html__('Lightweight “Powered by Easy Form Builder” credit & link (loading)','easy-form-builder'),
+			"poweredByCredit" => $state && isset($ac->text->poweredByCredit) ? $ac->text->poweredByCredit : esc_html__('Lightweight “Powered by Easy Form Builder” credit & link','easy-form-builder'),
 			/* translators: Continue with Free Plus = button text */
 			"continueWithFreePlus" => $state && isset($ac->text->continueWithFreePlus) ? $ac->text->continueWithFreePlus : esc_html__('Continue with Free Plus','easy-form-builder'),
 			/* translators: Pro = professional/premium plan name */
@@ -1174,7 +1177,7 @@ class efbFunction {
 			// External API Autofill - Step 3 Field Mapping texts
 			"selectFormTitle" => $state && isset($ac->text->selectFormTitle) ? $ac->text->selectFormTitle : esc_html__('Select Form', 'easy-form-builder'),
 			"targetForm" => $state && isset($ac->text->targetForm) ? $ac->text->targetForm : esc_html__('Target Form', 'easy-form-builder'),
-			"selectForm" => $state && isset($ac->text->selectForm) ? $ac->text->selectForm : esc_html__('— Select a Form —', 'easy-form-builder'),
+			"selectForm" => $state && isset($ac->text->selectForm) ? $ac->text->selectForm : esc_html__('Select a Form', 'easy-form-builder'),
 			"targetFormHelp" => $state && isset($ac->text->targetFormHelp) ? $ac->text->targetFormHelp : esc_html__('Select the form that will receive data from the API', 'easy-form-builder'),
 			"searchFieldsTitle" => $state && isset($ac->text->searchFieldsTitle) ? $ac->text->searchFieldsTitle : esc_html__('Search Fields (Trigger Fields)', 'easy-form-builder'),
 			"searchFieldsInfo" => $state && isset($ac->text->searchFieldsInfo) ? $ac->text->searchFieldsInfo : esc_html__('Select the form fields that will trigger the API search. When user types in these fields, the API will be called.', 'easy-form-builder'),
@@ -1184,7 +1187,7 @@ class efbFunction {
 			"noFieldsFound" => $state && isset($ac->text->noFieldsFound) ? $ac->text->noFieldsFound : esc_html__('No fillable fields found in this form', 'easy-form-builder'),
 			"apiFieldName" => $state && isset($ac->text->apiFieldName) ? $ac->text->apiFieldName : esc_html__('API Field Name', 'easy-form-builder'),
 			"formFieldSelect" => $state && isset($ac->text->formFieldSelect) ? $ac->text->formFieldSelect : esc_html__('Form Field', 'easy-form-builder'),
-			"selectField" => $state && isset($ac->text->selectField) ? $ac->text->selectField : esc_html__('— Select Field —', 'easy-form-builder'),
+			"selectField" => $state && isset($ac->text->selectField) ? $ac->text->selectField : esc_html__('Select Field', 'easy-form-builder'),
 			"cacheSettings" => $state && isset($ac->text->cacheSettings) ? $ac->text->cacheSettings : esc_html__('Cache Settings', 'easy-form-builder'),
 			"cacheHelp" => $state && isset($ac->text->cacheHelp) ? $ac->text->cacheHelp : esc_html__('Cache API responses to improve performance', 'easy-form-builder'),
 			"externalApi" => $state && isset($ac->text->externalApi) ? $ac->text->externalApi : esc_html__('External API Connections', 'easy-form-builder'),
@@ -1535,6 +1538,7 @@ class efbFunction {
 			"ebSCRequired" => $state && isset($ac->text->ebSCRequired) ? $ac->text->ebSCRequired : esc_html__('Required','easy-form-builder'),
 			"ebViewWebsite" => $state && isset($ac->text->ebViewWebsite) ? $ac->text->ebViewWebsite : esc_html__('View Website','easy-form-builder'),
 			"ebDisclaimerText" => $state && isset($ac->text->ebDisclaimerText) ? $ac->text->ebDisclaimerText : esc_html__('This email was sent automatically. Please do not reply directly.','easy-form-builder'),
+			'payments' => $state && isset($ac->text->payments) ? $ac->text->payments : esc_html__('Payments','easy-form-builder'),
 
 		];
 
@@ -1583,7 +1587,6 @@ class efbFunction {
 			if (file_exists($email_handler_file)) {
 				require_once $email_handler_file;
 			} else {
-				error_log('EFB: Email handler file not found: ' . $email_handler_file);
 				return false;
 			}
 		}
@@ -1638,9 +1641,7 @@ class efbFunction {
 			}
 
 			$settings = get_setting_Emsfb();
-			error_log(json_encode($settings ));
-			$smtp = (isset($settings->smtp) && (bool)$settings->smtp ) ? true : false;
-			error_log('smtpe is exist=>'. $smtp . ' ' .$settings->smtp);
+			$smtp = (is_object($settings) && isset($settings->smtp) && (bool)$settings->smtp ) ? true : false;
 			if($smtp) {
 				//$data
 				$rtrn = false;
@@ -1648,7 +1649,6 @@ class efbFunction {
 				foreach($user_res as $key=>$val){
 					if(isset($user_res[$key]["id_"]) && in_array($user_res[$key]["id_"],$emailsId,true) && isset($val["value"]) && is_email($val["value"]) ){
 						$email=$val["value"];
-						error_log('email is: '.$email);
 						$subject ="📮 ".$lang["youRecivedNewMessage"];
 						$rtrn =$this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
 					}
@@ -1666,7 +1666,7 @@ class efbFunction {
 			$setting = get_setting_Emsfb();
 
 			// $numbers = isset($setting['phnNo']) ? explode(',',$setting['phnNo']) :[];
-			$numbers = isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5  ? explode(',',$setting->phnNo) :[];
+			$numbers = is_object($setting) && isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5  ? explode(',',$setting->phnNo) :[];
 			$phone_numbers[0]= $numbers;
 
 
@@ -1694,12 +1694,9 @@ class efbFunction {
 			if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $smsSendResult = $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,'respp' ,'wpsms' ,$trackingCode);
 		}
 
-		// Send Telegram notification for form submission
 		if(isset($data[0]['telegramnoti']) && intval($data[0]['telegramnoti'])==1){
 			if (has_action('efb_send_telegram_notification')) {
 				do_action('efb_send_telegram_notification', $form_id, $link_w, 'respp', $trackingCode);
-			} else {
-				error_log('[EFB] Telegram addon not active for notification');
 			}
 		}
 		return 0;
@@ -1840,8 +1837,8 @@ class efbFunction {
 	public function addon_adds_cron_efb(){
 
 
-	if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
-		wp_schedule_single_event( time() + 1, 'download_all_addons_efb' );
+	if ( ! wp_next_scheduled( 'emsfb_download_addons_cron' ) ) {
+		wp_schedule_single_event( time() + 5, 'emsfb_download_addons_cron' );
 		}
 
 	}// addon_adds_cron_efb
@@ -2137,7 +2134,6 @@ public function addon_add_efb($value) {
 
 
 	public function efb_code_validate_create($fid, $type, $status, $tc) {
-		error_log('[EFB SID] Creating validation code for FID: ' . $fid . ', Type: ' . $type . ', Status: ' . $status . ', TC: ' . $tc);
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
 		$ip = $this->get_ip_address();
@@ -2147,8 +2143,6 @@ public function addon_add_efb($value) {
 		$settings = get_setting_Emsfb();
 		$sessionDuration = isset($settings->sessionDuration) && is_numeric($settings->sessionDuration) ? intval($settings->sessionDuration) : 1;
 		$date_limit = wp_date('Y-m-d H:i:s', strtotime("+{$sessionDuration} days"));
-
-		error_log('[EFB SID] Session duration set to: ' . $sessionDuration . ' days, expires: ' . $date_limit);
 
 		$sid = wp_date("ymdHis") . substr(bin2hex(openssl_random_pseudo_bytes(5)), 0, 9);
 		$uid = get_current_user_id() ?? 0;
@@ -2169,7 +2163,6 @@ public function addon_add_efb($value) {
 			'date' => $date_now,
 			'read_date' => $date_limit
 		);
-		error_log('[EFB SID] Inserting validation code into database: ' . print_r($data, true));
 
 		// First check if record exists to handle sid properly
 		$existing = $wpdb->get_var($wpdb->prepare(
@@ -2183,10 +2176,8 @@ public function addon_add_efb($value) {
 				"UPDATE {$table_name} SET `type_` = %d, `status` = %s, `date` = %s, `read_date` = %s WHERE fid = %d AND uid = %d AND ip = %s AND active = 1",
 				$type, $status, $date_now, $date_limit, $fid, $uid, $ip
 			));
-			error_log('[EFB SID] Updated existing record, returning existing SID: ' . $existing);
 			return $existing;
 		} else {
-			// Insert new record with new sid
 			$sql = $wpdb->prepare(
 				"INSERT INTO {$table_name} (`sid`, `fid`, `type_`, `status`, `ip`, `os`, `browser`, `uid`, `tc`, `active`, `date`, `read_date`)
 				VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %d, %s, %s)",
@@ -2195,19 +2186,11 @@ public function addon_add_efb($value) {
 		}
 
 		$state = $wpdb->query($sql);
-		if(!$state) error_log('[EFB SID] Database insertion failed: ' . $wpdb->last_error);
-
-		error_log('[EFB SID] Created new SID: ' . $sid);
 		return $sid;
 	}
 
     public function efb_code_validate_update($sid ,$status ,$tc ) {
 		global $wpdb;
-		/* if(empty($this->db)){
-			global $wpdb;
-			$this->db = $wpdb;
-		} */
-		// $status => visit , send , upd , del => max len 5
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
         $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
 		$active =0;
@@ -2216,33 +2199,17 @@ public function addon_add_efb($value) {
 
 
 	   $sql = "UPDATE $table_name SET status='{$status}', active={$active}, read_date='{$read_date}', tc='{$tc}' WHERE sid='{$sid}' AND active=1";
-
 		$stmt = $wpdb->query($sql);
-		// $stmt->bindParam(':date_', $$date_limit);
-
 	   return $stmt > 0;
     }
 
     public function efb_code_validate_select($sid ,$fid) {
-		/* if(empty($this->db)){
-			global $wpdb;
-			$this->db = $wpdb;
-		} */
 		global $wpdb;
 
 		$fid = intval($fid);
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
         $date_now = wp_date('Y-m-d H:i:s');
 
-        // Add detailed logging
-        error_log('[EFB Nonce] SID validation details:');
-        error_log('[EFB Nonce] - SID: ' . $sid);
-        error_log('[EFB Nonce] - FID: ' . $fid);
-        error_log('[EFB Nonce] - Table: ' . $table_name);
-        error_log('[EFB Nonce] - Current date: ' . $date_now);
-
-        // Get the latest valid record instead of counting
-        // If fid is 0 or empty, ignore fid check for backward compatibility
         if(empty($fid) || $fid == 0) {
             $query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 ORDER BY date DESC LIMIT 1", $sid, $date_now);
         } else {
@@ -2252,30 +2219,14 @@ public function addon_add_efb($value) {
         $result = $wpdb->get_row($query, ARRAY_A);
 
 		if(empty($result)){
-			//check type of form
-
-			error_log('Form type is sid: '.$sid);
 			$query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE sid = %s  AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $fid);
 			$result = $wpdb->get_row($query, ARRAY_A);
-			error_log('Latest record for SID: ' . $sid . ' is: ' . print_r($result, true));
 			$valid = ['regis','login','reset','recov','logou'];
 			if(empty($result) || !in_array($result['status'], $valid)){
-				error_log('No form record found for SID: '.$sid);
-				//update status to inact
 				return false;
 			}
 			$wpdb->query($wpdb->prepare("UPDATE {$table_name} SET status = %s WHERE sid = %s", 'inact', $sid));
 		}
-
-        // Additional logging for debugging
-        error_log('[EFB Nonce] Query: ' . $query);
-        error_log('[EFB Nonce] Latest record result: ' . print_r($result, true));
-
-        // Debug: Also check what records exist for this SID
-        $debug_query = $wpdb->prepare("SELECT fid, active, read_date, status FROM {$table_name} WHERE sid = %s ORDER BY date DESC", $sid);
-        $debug_result = $wpdb->get_results($debug_query, ARRAY_A);
-        error_log('[EFB Nonce] Debug - All records for SID: ' . print_r($debug_result, true));
-		error_log('[EFB Nonce] Validation result: ' . (!empty($result) ? 'Valid' : 'Invalid'));
 
         return !empty($result);
     }
@@ -2336,12 +2287,10 @@ public function addon_add_efb($value) {
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
 		$sms_exists =get_option('emsfb_addon_AdnSS',false);
 		if(!$sms_exists){
-			// error_log('Easy Form Builder: SMS Addon is not installed');
 			return false;
 		}
 		$path = EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php";
 		if(!file_exists($path)){
-			// error_log('Easy Form Builder: SMS Addon file not found');
 			return false;
 		}
 		require_once($path);
@@ -2415,14 +2364,16 @@ public function addon_add_efb($value) {
 	}
 
 	public function setting_version_efb_update($st ,$pro, $skip_redirect = false){
-		// error_log('EFB=>setting_version_efb_update: ' . $pro);
 		global $wpdb;
 
-		$start_time = microtime(true);
-		if($st=='null'){
+		if($st=='null' || !is_object($st)){
 			$st=get_setting_Emsfb();
 		}
+		if(!is_object($st)){
+			$st = new \stdClass();
+		}
 		$st->efb_version=EMSFB_PLUGIN_VERSION;
+		// Use clean JSON encoding without double-escaping
 		$st_ = json_encode($st,JSON_UNESCAPED_UNICODE);
 		// $table_name = $wpdb->prefix . "emsfb_setting";
         $setting = str_replace('"', '\"', $st_);
@@ -2441,26 +2392,20 @@ public function addon_add_efb($value) {
 		update_option('emsfb_settings', $setting); */
 		if($pro == true || $pro ==1){
 
-			$is_pro = (int) get_option('Emsfb_pro' ,2);
+			$is_pro = (int) get_option('emsfb_pro' ,2);
 			if($is_pro==3){ return true; }
 
 			$this->download_all_addons_efb();
-			$end_time = microtime(true);
-			$execution_time = ($end_time - $start_time);
-			// error_log('EFB=>setting_version_efb_update: ' . $execution_time);
 
-			// Skip redirect/reload if requested
 			if($skip_redirect === true) {
 				return true;
 			}
 
 			$request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : null;
 		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') == false ){
-				// error_log('if execution_time>2');
 				wp_safe_redirect($request_uri);
 				exit;
 			}else{
-				// error_log('else execution_time>2');
 				?>
 
 				<script>
@@ -2516,8 +2461,6 @@ public function addon_add_efb($value) {
             wp_enqueue_script('recaptcha');
 			return true;
         } else {
-
-            // error_log('recaptcha google URL is not accessible.');
 			return false;
         }
     }
@@ -2541,13 +2484,12 @@ public function addon_add_efb($value) {
 			$str .= 'Version: ' . $plugin_data['Version'] . '<br><br>';
 		}
 		$settings = get_setting_Emsfb('decoded');
-		if(isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
+		if(is_object($settings) && isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
 		return true;
 	}
 
 
 	public function parsing_plugins_efb(){
-		error_log('EFB=>parsing_plugins_efb');
 		$plugins = get_plugins();
 		$active_plugins = get_option('active_plugins');
 		$plugin_list = [];
@@ -2576,8 +2518,6 @@ public function addon_add_efb($value) {
 		// if (empty($plugin_list)) not then add_option('emsfb_cache_plugins') and convert to string with json_encode
 		$val = !empty($plugin_list) ? json_encode($plugin_list) : 0;
 		$old_val = get_option('emsfb_cache_plugins' ,0);
-		error_log('EFB=>parsing_plugins_efb old_val: ' . $old_val);
-		error_log('EFB=>parsing_plugins_efb val: ' . $val);
 		if($val != $old_val){
 			update_option('emsfb_cache_plugins', $val );
 			$this->send_email_noti_about_cache_plugins($val);
@@ -2588,17 +2528,13 @@ public function addon_add_efb($value) {
 	}
 
 	public function send_email_noti_about_cache_plugins($val){
-		error_log('EFB=>send_email_noti_about_cache_plugins: ' . $val);
-		//$to = get_option('admin_email');
-		error_log('EFB=>send_email_noti_about_cache_plugins: ' . get_option('admin_email'));
 		$to = [];
 		$to[] = get_option('admin_email');
 		$settings = get_setting_Emsfb('decoded');
-		if($settings->emailSupporter != null && $settings->emailSupporter != 'null' && $settings->emailSupporter != ''){
+		if(is_object($settings) && isset($settings->emailSupporter) && $settings->emailSupporter != null && $settings->emailSupporter != 'null' && $settings->emailSupporter != ''){
 			$to[] = $settings->emailSupporter;
 		}
 		$cache_plugins = json_decode($val ,true);
-		//Important: Caching Plugin May Affect Easy Form Builder
 		$subject = esc_html__('Important: Caching Plugin May Affect Easy Form Builder','easy-form-builder');
 		$message = esc_html__('The following caching plugins are active on your site:','easy-form-builder') . '<br>';
 		foreach ($cache_plugins as $plugin) {
@@ -2616,7 +2552,7 @@ public function addon_add_efb($value) {
 
 
 
-		if(isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new($to ,$subject ,$message,0,"cache_plugins_noti",'null','null');
+		if(is_object($settings) && isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new($to ,$subject ,$message,0,"cache_plugins_noti",'null','null');
 
 		return true;
 	}
@@ -2624,29 +2560,17 @@ public function addon_add_efb($value) {
 
 
 	public function make_post_request_efb( $ac) {
-		// error_log('EFB=>make_post_requestefb ac: ' . $ac);
-		//$url = 'https://demo.whitestudio.team/wp-json/wl/v1/pro/key';
 		$url = EMSFB_SERVER_URL . '/wp-json/wl/v1/pro/key';
-		//$url = 'http://127.0.0.1/ws/wp-json/wl/v1/pro/key';
-		// error_log('EFB=>make_post_requestefb url: ' . $url);
 
-		// check internet connection
-		/* $connected = @fsockopen("www.whitestudio.team", 80);
-		if (!$connected) { */
-		error_log('EFB=>make_post_requestefb: not connected');
-		error_log($ac);
-		error_log($url);
 		$_http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
 		$connected = wp_remote_post('https://www.whitestudio.team', array('timeout' => 2));
 		if (is_wp_error($connected)) {
-			// error_log('not connected');
 			$s = explode('@', $ac)[0];
 			$server_name = str_replace("www.", "", $_http_host);
 			$r= isset($s) && md5($server_name) == $s ? (object)['r' => true , 'state' => 'active','pakcage'=>1]   : (object)['r' => false , 'state' => 'notExists' ];
 			return $r;
 
 		}
-		// write a query paramters key=$ac
 		$get_list_plugins_active = json_encode(get_option('active_plugins'));
 		$info = array(
 			'domain' => $_http_host,
@@ -2670,7 +2594,6 @@ public function addon_add_efb($value) {
 		);
 		$response = wp_remote_post($url, $options);
 		if (is_wp_error($response)) {
-			// error_log('EFB=>make_post_requestefb: ' . json_encode($response));
 			return false;
 		}
 		$body = wp_remote_retrieve_body($response);
@@ -2683,33 +2606,28 @@ public function addon_add_efb($value) {
 		update_option('emsfb_pro', 1);
 		update_option('emsfb_pro_activeCode', $code);
 		$json = $this->make_post_request_efb($code);
-		error_log('EFB=>update_pro_status_efb: ' . json_encode($json));
 
 		$r = isset($json->r) ? $json->r : false;
-		// error_log('EFB=>update_pro_status_efb r: ' . $r);
 		if($r===false) {
 			delete_option('emsfb_pro');
 			delete_option('emsfb_pro_ac_date');
 			delete_option('emsfb_pro_activeCode');
 			return false;
 		}
-		// if (!get_option('emsfb_pro_ac_date')) {
-			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
-		// }
+		update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
 		$state = isset($json->state) ? $json->state : '';
 		if($state=="new") {
-			// error_log('EFB=>update_pro_status_efb state: new');
 			$activeCode = $json->key;
 			update_option('emsfb_pro_activeCode', $activeCode);
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
 			update_option('emsfb_pro', 1);
-			$st = emsfb_get_settings();
+			$st = get_setting_Emsfb();
+			if(!is_object($st)){ $st = new \stdClass(); }
 			$st->activeCode = $activeCode;
 			$this->setting_version_efb_update($st,1);
 			return true;
 		}elseif($state=="active") {
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
-			// error_log('EFB=>update_pro_status_efb state: date='.get_option('emsfb_pro_ac_date'));
 			return true;
 		}elseif ($state=="deactive") {
 			update_option('emsfb_pro' , 0);
@@ -2726,20 +2644,12 @@ public function addon_add_efb($value) {
 
 	public function weekly_check_pro_efb($activeCode) {
 		$ac_date = get_option('emsfb_pro_ac_date');
-		// error_log('EFB=>weekly_check_pro_efb: date' . $ac_date);
 		$ac_date = strtotime($ac_date);
-		// error_log('EFB=>weekly_check_pro_efb: ' . $ac_date);
 		$now = strtotime(date('Y-m-d H:i:s'));
 		$diff = ($now - $ac_date) / (60 * 60 * 24);
-		// error_log('EFB=>weekly_check_pro_efb: before if' . $diff);
 		if ($diff > 7) {
-			// error_log('EFB=>weekly_check_pro_efb: in if' . $diff);
-			// Make an API request to check the activeCode
-			// Assume the API request is successful for demonstration
-			// API get a json include key:true or false , smsStatus:true or false, smsDeposited: Number (USD currency)
 
 			$r = $this->update_pro_status_efb($activeCode);
-			error_log('EFB=>weekly_check_pro_efb r: ' . $r);
 			if ($r==1) {
 				update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
 				$this->delete_old_rows_emsfb_stts_();
@@ -2753,19 +2663,16 @@ public function addon_add_efb($value) {
 		}
 		return true;
 	}
-	// +Pro
 	private function validated_pro_efb($s) {
 		$_http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
 		$server_name = str_replace("www.", "", $_http_host);
-		error_log($server_name);
 		return isset($s) && md5($server_name) == $s ? true : false;
 	}
 	public function is_efb_pro($s=1) {
 
 
 		if ($s == 1) {
-			$is_pro = (int) get_option('Emsfb_pro' ,2);
-			// error_log('EFB=>is_efb_pro is_pro: ' . $is_pro);
+			$is_pro = (int) get_option('emsfb_pro' ,2);
 			if($is_pro==3){ return true; }
 			if($is_pro == 0){ return false; }
 
@@ -2775,12 +2682,15 @@ public function addon_add_efb($value) {
 				$st = get_option('emsfb_settings' , 'null');
 				if($st=='null'){
 					$st = get_setting_Emsfb();
-					$activeCode = $st->activeCode;
+					$activeCode = is_object($st) && isset($st->activeCode) ? $st->activeCode : '';
 
 				}else{
-					$r =str_replace('\\', '', $st);
-					$st = json_decode($r);
-					$activeCode = $st->activeCode;
+					// Try json_decode directly first, then with stripslashes for legacy data
+					$st = json_decode($st);
+					if ($st === null) {
+						$st = json_decode(stripslashes($st));
+					}
+					$activeCode = is_object($st) && isset($st->activeCode) ? $st->activeCode : '';
 				}
 				/* $st = Emsfb::get_setting_Emsfb('decoded');
 				$activeCode = $st->activeCode; */
@@ -2800,12 +2710,9 @@ public function addon_add_efb($value) {
 			delete_option('emsfb_pro');
 			return false;
 		} else {
-			// error_log('EFB=>is_efb_pro: else ' . $s);
 			$activeCode = explode('@', $s)[0];
-			error_log($activeCode);
 			if ($this->validated_pro_efb($activeCode)) {
-					return $this->update_pro_status_efb($s);
-					// return true;
+				return $this->update_pro_status_efb($s);
 			}
 			delete_option('emsfb_pro');
 			delete_option('emsfb_pro_ac_date');
@@ -2825,7 +2732,6 @@ public function addon_add_efb($value) {
 		$renew = '<br><a class="efb alert-link fw-bold text-info" href="'.$url.'' . $ac . '" target="_blank">';
 		$msg = sprintf($msg, $renew, '</a>');
 		$ativ = esc_html__('Your activation code has expired!', 'easy-form-builder');
-		// $div_noti = '<div class="efb alert alert-danger fade show mt-4 mb-2 alert-dismissible" role="alert">' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
 		$div_noti = '<div class="efb mx-3  mt-4 mb-3 pd-5  alert alert-light pointer-efb buy-noti  alert-dismissible bg-dark text-warning"><i class="efb bi-exclamation-triangle-fill text-warning mx-1"></i><span class="efb text-warning">'.$ativ.'</span><br>' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
 
 		return $div_noti;
@@ -2845,12 +2751,12 @@ public function addon_add_efb($value) {
 			)
 		);
 
-		// استفاده از option وردپرس برای چک کردن وجود جدول 'emsfb_temp_links'
+		// Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø§Ø² option ÙˆØ±Ø¯Ù¾Ø±Ø³ Ø¨Ø±Ø§ÛŒ Ú†Ú© Ú©Ø±Ø¯Ù† ÙˆØ¬ÙˆØ¯ Ø¬Ø¯ÙˆÙ„ 'emsfb_temp_links'
 		$table_name_temp_links =  $wpdb->prefix . 'emsfb_temp_links';
 		$table_exists = get_option('emsfb_temp_links_table_exists' , false);
 
 		if ($table_exists === false) {
-			// اگر option هنوز تنظیم نشده، یک بار بررسی وجود جدول را انجام دهید
+			// Ø§Ú¯Ø± option Ù‡Ù†ÙˆØ² ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡ØŒ ÛŒÚ© Ø¨Ø§Ø± Ø¨Ø±Ø±Ø³ÛŒ ÙˆØ¬ÙˆØ¯ Ø¬Ø¯ÙˆÙ„ Ø±Ø§ Ø§Ù†Ø¬Ø§Ù… Ø¯Ù‡ÛŒØ¯
 			$table_exists =  $wpdb->get_var("SHOW TABLES LIKE '{$table_name_temp_links}'") == $table_name_temp_links;
 			update_option('emsfb_temp_links_table_exists', $table_exists);
 		}
@@ -3106,7 +3012,6 @@ public function addon_add_efb($value) {
 			if (file_exists($email_handler_file)) {
 				require_once $email_handler_file;
 			} else {
-				error_log('EFB: Email handler file not found: ' . $email_handler_file);
 				return false;
 			}
 		}
@@ -3184,7 +3089,7 @@ public function addon_add_efb($value) {
 		// هر علامت پایان جمله/پایان عبارت در زبان‌های مختلف (به‌اضافه «:»)
 		$punctClass = '[:：\.\!\?\…‥。！？｡．؟\x{06D4}؛;;‽‼⁇⁈⁉⸮።፧။។៕։\x{0964}\x{0965}\x{0589}\x{1362}\x{104B}\x{17D4}\x{17D5}\x{05C3}]';
 
-		// اگر هر کدام از این‌ها هرجای متن باشد، چیزی اضافه نکن
+		// Ø§Ú¯Ø± Ù‡Ø± Ú©Ø¯Ø§Ù… Ø§Ø² Ø§ÛŒÙ†â€ŒÙ‡Ø§ Ù‡Ø±Ø¬Ø§ÛŒ Ù…ØªÙ† Ø¨Ø§Ø´Ø¯ØŒ Ú†ÛŒØ²ÛŒ Ø§Ø¶Ø§ÙÙ‡ Ù†Ú©Ù†
 		if (preg_match('/' . $punctClass . '/u', $s)) {
 			return $s;
 		}
@@ -3194,14 +3099,14 @@ public function addon_add_efb($value) {
 		if (preg_match('/(?P<closers>' . $closersRe . ')(?P<spaces>[\s\x{00A0}\x{202F}]*)$/u', $s, $m)) {
 			$endClosers = $m['closers'];
 			$endSpaces  = $m['spaces'];
-			// حذف بخش انتهایی برای درج کولون قبل از آن
+			// Ø­Ø°Ù Ø¨Ø®Ø´ Ø§Ù†ØªÙ‡Ø§ÛŒÛŒ Ø¨Ø±Ø§ÛŒ Ø¯Ø±Ø¬ Ú©ÙˆÙ„ÙˆÙ† Ù‚Ø¨Ù„ Ø§Ø² Ø¢Ù†
 			$s = preg_replace('/' . $closersRe . '[\s\x{00A0}\x{202F}]*$/u', '', $s);
 		} else {
 			$endClosers = '';
 			$endSpaces  = '';
 		}
 
-		// یک فاصله قبل از کولون (سبک فارسی/فرانسوی «نام خانوادگی :»)
+		// ÛŒÚ© ÙØ§ØµÙ„Ù‡ Ù‚Ø¨Ù„ Ø§Ø² Ú©ÙˆÙ„ÙˆÙ† (Ø³Ø¨Ú© ÙØ§Ø±Ø³ÛŒ/ÙØ±Ø§Ù†Ø³ÙˆÛŒ Â«Ù†Ø§Ù… Ø®Ø§Ù†ÙˆØ§Ø¯Ú¯ÛŒ :Â»)
 		if (!preg_match('/\s$/u', $s)) {
 			$s .= ' ';
 		}
@@ -3238,7 +3143,7 @@ public function addon_add_efb($value) {
 				? substr( $plugin_file, 0, strpos( $plugin_file, '/' ) )
 				: basename( $plugin_file, '.php' );
 
-			// Match by directory (common “slug”) or by sanitized plugin display name
+			// Match by directory (common â€œslugâ€) or by sanitized plugin display name
 			if ( $dir === $slug || sanitize_title( $data['Name'] ) === $slug ) {
 				// Network-activated on multisite?
 				if ( is_multisite() && is_plugin_active_for_network( $plugin_file ) ) {
@@ -3339,19 +3244,29 @@ public function addon_add_efb($value) {
 
 	public static function set_setting_Emsfb ($newSettings, $email = '')
     {
-        error_log('type of newSettings: ' . gettype($newSettings));
         if (empty($newSettings)) {
             return false;
         }
 
         $json = '';
         if(is_object($newSettings) || is_array($newSettings)){
+            // Object/array â†’ encode to clean JSON
             $json = json_encode($newSettings, JSON_UNESCAPED_UNICODE);
         }else{
+            // String input â€” validate it's valid JSON
             $json = $newSettings;
+            // Fix double-escaped JSON from legacy callers:
+            // If json_decode fails, try stripslashes (old \" format)
+            if (json_decode($json) === null && json_last_error() !== JSON_ERROR_NONE) {
+                $unslashed = stripslashes($json);
+                if (json_decode($unslashed) !== null) {
+                    $json = $unslashed;
+                } else {
+                    return false;
+                }
+            }
         }
 
-        error_log('EFB: New Settings JSON: ' . $json);
         if ($json === false) {
             return false;
         }
@@ -3370,8 +3285,6 @@ public function addon_add_efb($value) {
             ['%s', '%d', '%s', '%s']
         );
 
-        error_log('EFB: Settings updated by user ' . get_current_user_id());
-        error_log('EFB: New Settings: ' . $json);
         update_option('emsfb_settings', $json);
         set_transient('emsfb_settings_transient', $json, 1800); // 30 minutes
 
@@ -3379,6 +3292,9 @@ public function addon_add_efb($value) {
         wp_cache_delete('settings:decoded', 'emsfb');
         wp_cache_delete('settings:pub', 'emsfb');
         wp_cache_delete('settings:raw', 'emsfb');
+
+        // Clear the static in-request cache in get_setting_Emsfb
+        \Emsfb::get_setting_Emsfb('_clear_cache');
 
         return true;
        }

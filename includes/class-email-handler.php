@@ -371,7 +371,7 @@ class EmsfbEmailHandler {
 
         // Pro version footer handling
         if ($pro == true || $pro == 1) {
-            $is_pro = (int) get_option('Emsfb_pro', 2);
+            $is_pro = (int) get_option('emsfb_pro', 2);
             if ($is_pro == 3) {
                 $footer = "<div style='text-align:center;'>
                     " . $footer . "<br>

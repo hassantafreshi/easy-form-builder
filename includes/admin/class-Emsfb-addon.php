@@ -55,7 +55,7 @@ class Addon {
         wp_enqueue_script('whiteStudioAddone');
 
 		$efbFunction = get_efbFunction();
-		$noti_pro = intval(get_option('Emsfb_pro' ,-1));
+		$noti_pro = intval(get_option('emsfb_pro' ,-1));
 		$addon_status = null; // Initialize addon_status
 		if ($noti_pro === 0  ){
 			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
@@ -122,13 +122,13 @@ class Addon {
     </div>
 	<!-- end new code dd -->
 		<?php
-		$pro = intval(get_option('Emsfb_pro')) ;
+		$pro = intval(get_option('emsfb_pro')) ;
 		$pro = $pro == 1 ? true : false;
 		$maps =false;
 
 		$ac= get_setting_Emsfb('decoded');
 
-		if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){
+		if(is_object($ac) && (!isset($ac->efb_version) || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0)){
 			$efbFunction->setting_version_efb_update($ac ,$pro);
 		}
 		// v2 translate
@@ -148,9 +148,9 @@ class Addon {
 		$captcha =false;
 		$smtp_m = "";
 		$addons = $efbFunction->fun_get_addons_list_efb($ac);
-		if(gettype($ac)!="string"){
+		if(is_object($ac)){
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
-			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
+			if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else if (isset($ac->smtp) && $ac->smtp=="false"){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
 		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
 		$efb_var_data = apply_filters('efb_admin_localize_vars', array(
@@ -201,6 +201,12 @@ class Addon {
 		));    $this->id_  = $this->db->insert_id;
 	}
 	public function check_temp_is_bootstrap (){
+		// Use transient cache to avoid scanning the theme directory on every page load
+		$cached = get_transient('emsfb_theme_has_bootstrap');
+		if ($cached !== false) {
+			return $cached === 'yes';
+		}
+
         $it = list_files(get_template_directory());
         $s = false;
         foreach($it as $path) {
@@ -213,6 +219,8 @@ class Addon {
                 }
             }
         }
+
+		set_transient('emsfb_theme_has_bootstrap', $s ? 'yes' : 'no', DAY_IN_SECONDS);
         return  $s;
     }// end fun
 }

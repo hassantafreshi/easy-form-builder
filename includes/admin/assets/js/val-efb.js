@@ -3820,9 +3820,31 @@ function showSetupAsOverlayPage() {
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
+            overflow-x: hidden;
             position: relative;
             border: 2px solid rgba(32, 42, 141, 0.1);
             animation: overlaySlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            scrollbar-width: thin;
+            scrollbar-color: #b4c0e0 transparent;
+        }
+
+        .efb-overlay-container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .efb-overlay-container::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .efb-overlay-container::-webkit-scrollbar-thumb {
+            background: #b4c0e0;
+            border-radius: 10px;
+        }
+
+        .efb-overlay-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(32, 42, 141, 0.5);
         }
 
         .efb-overlay-close {

@@ -9,7 +9,7 @@
         public function __construct( $valj_efb, $pro_efb ) {
             $this->valj_efb =  $valj_efb;
             $this->pro_efb = $pro_efb;
-			$this->package_type_efb = (int) get_option('Emsfb_pro' ,2);
+			$this->package_type_efb = (int) get_option('emsfb_pro' ,2);
         }
 
 

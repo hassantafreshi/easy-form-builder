@@ -8,6 +8,8 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
 .btn-edit-holder.efb {    float: left!important;margin-top: -40px;margin-left: 2%!important;margin-right: 62%!important;margin-right: 73%;position: relative;z-index: 10;}
 .search-icon.efb {    position: relative;    right: 40px;left: 0px!important;;}
 .description-logo.efb{float: right!important;}
+/* Override old description-logo float for new header logo */
+.efb-header-logo.efb {float: none !important;}
 @media screen and (min-width: 1000px) {
 
 
@@ -97,6 +99,68 @@ div#gRecaptcha {
     margin-right:  5px !important;
     padding-right: 5PX;
     padding-left: 0;
+}
+
+/* ========================================
+   RTL - Redesigned Header Overrides
+   ======================================== */
+#header-efb.efb-header-card {
+    background: linear-gradient(225deg, #eef4ff 0%, #f0e6ff 50%, #fff0f6 100%);
+}
+.efb-header-brand {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+.efb-header-brand-text {
+    align-items: flex-end;
+    text-align: right;
+}
+.efb-header-title.efb {
+    letter-spacing: 0;
+    text-align: right;
+}
+.efb-header-subtitle.efb {
+    text-align: right;
+}
+.efb-header-desc.efb {
+    text-align: right;
+    margin-left: auto;
+    margin-right: 0;
+}
+.efb-header-features {
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+}
+.efb-feature-badge.efb {
+    flex-direction: row-reverse;
+}
+.efb-feature-badge.efb i.efb {
+    margin-left: 4px !important;
+    margin-right: 0 !important;
+}
+.efb-header-actions {
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+}
+.efb-cta-btn.efb i.efb {
+    margin-left: 6px !important;
+    margin-right: 0 !important;
+}
+.efb-header-img-wrap {
+    text-align: center;
+}
+/* Ensure the right column (text) stays on the right in RTL */
+#header-efb .row {
+    flex-direction: row-reverse;
+}
+
+/* Mobile RTL adjustments */
+.mobile .efb-header-actions {
+    flex-direction: column;
+    align-items: stretch;
+}
+.mobile .efb-cta-btn.efb {
+    text-align: center;
 }
 
 .iti--allow-dropdown .iti__flag-container:hover .iti__selected-flag {

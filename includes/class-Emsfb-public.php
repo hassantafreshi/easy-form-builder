@@ -48,34 +48,18 @@ class _Public {
 				'callback'=>  [$this,'mail_send_form_api'],
 				'permission_callback' => '__return_true'
 			]);  */
-			register_rest_route('Emsfb/v1','forms/payment/persia/add', [
-				'methods' => 'POST',
-				'callback'=>  [$this,'pay_persia_sub_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission_efb']
-			]);
-			register_rest_route('Emsfb/v1','forms/payment/stripe/card/add', [
-				'methods' => 'POST',
-				'callback'=>  [$this,'pay_stripe_sub_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission_efb']
-			]);
-
-			register_rest_route('Emsfb/v1','forms/payment/paypal/card/add', [
-				'methods' => 'POST',
-				'callback'=>  [$this,'pay_paypal_sub_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission_efb']
-			]);
-
-			register_rest_route('Emsfb/v1','forms/payment/paypal/capture', [
-				'methods' => 'POST',
-				'callback'=>  [$this,'pay_paypal_capture_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission_efb']
-			]);
-
-			register_rest_route('Emsfb/v1','forms/payment/paypal/subscription/activate', [
-				'methods' => 'POST',
-				'callback'=>  [$this,'pay_paypal_subscription_activate_Emsfb_api'],
-				'permission_callback' => [$this, 'check_nonce_permission_efb']
-			]);
+			/**
+			 * Allow payment addons to register their own REST routes.
+			 *
+			 * Each addon hooks into this action (from its own routes file)
+			 * and is loaded conditionally by class-Emsfb.php based on addon settings.
+			 * This keeps payment route definitions inside their related addon directories
+			 * and avoids registering routes for disabled addons.
+			 *
+			 * @since 4.3.0
+			 * @param \Emsfb\_Public $public The _Public instance for callback binding.
+			 */
+			do_action( 'efb_register_payment_rest_routes', $this );
 
 			register_rest_route('Emsfb/v1','forms/response/get', [
 				'methods' => 'POST',
@@ -211,13 +195,13 @@ public function check_nonce_permission_efb($request) {
 			$sid_valid = $this->efbFunction->efb_code_validate_select($sid, $fid);
 
 			if ($sid_valid) {
-					error_log('[EFB Nonce] ✅ SID fallback successful for SID: ' . $sid . '...');
+					error_log('[EFB Nonce] âœ… SID fallback successful for SID: ' . $sid . '...');
 					return true; // Allow access via SID validation
 			} else {
-				error_log('[EFB Nonce] ❌ SID fallback failed - invalid SID');
+				error_log('[EFB Nonce] âŒ SID fallback failed - invalid SID');
 			}
 		} else {
-			error_log('[EFB Nonce] ❌ SID fallback skipped - missing sid or fid');
+			error_log('[EFB Nonce] âŒ SID fallback skipped - missing sid or fid');
 			return new \WP_Error('rest_forbidden', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
 		}
 
@@ -421,7 +405,7 @@ public function check_nonce_permission_efb($request) {
 					attempts++;
 
 					if (window.elementorFrontend && typeof window.elementorFrontend === 'object') {
-						console.log('🚀 EFB: Found elementorFrontend, patching methods...');
+						console.log('ðŸš€ EFB: Found elementorFrontend, patching methods...');
 
 
 						Object.defineProperty(window.elementorFrontend, 'config', {
@@ -445,9 +429,9 @@ public function check_nonce_permission_efb($request) {
 							window.elementorFrontend.initOnReadyComponents = function() {
 								try {
 
-									console.log('🔍 EFB: this.config before fix:', this.config);
-									console.log('🔍 EFB: this.config.tools before fix:', this.config ? this.config.tools : 'config is null');
-									console.log('🔍 EFB: window.elementorFrontendConfig:', window.elementorFrontendConfig);
+									console.log('ðŸ” EFB: this.config before fix:', this.config);
+									console.log('ðŸ” EFB: this.config.tools before fix:', this.config ? this.config.tools : 'config is null');
+									console.log('ðŸ” EFB: window.elementorFrontendConfig:', window.elementorFrontendConfig);
 
 
 									this.config = window.elementorFrontendConfig || safeConfig;
@@ -456,23 +440,23 @@ public function check_nonce_permission_efb($request) {
 									this.config.tools = safeConfig.tools;
 									this.config.settings = safeConfig.settings;
 
-									console.log('🔧 EFB: FORCED tools and settings');
-									console.log('🔍 EFB: this.config.tools AFTER fix:', this.config.tools);
-									console.log('🛡️ EFB: Safe initOnReadyComponents called, config fixed:', this.config);
+									console.log('ðŸ”§ EFB: FORCED tools and settings');
+									console.log('ðŸ” EFB: this.config.tools AFTER fix:', this.config.tools);
+									console.log('ðŸ›¡ï¸ EFB: Safe initOnReadyComponents called, config fixed:', this.config);
 
 
 									try {
 
 										var result = originalInitOnReadyComponents.call(this);
-										console.log('✅ EFB: Original method called successfully');
+										console.log('âœ… EFB: Original method called successfully');
 										return result;
 									} catch (innerError) {
-										console.warn('🛡️ EFB: Inner method error, using safe fallback:', innerError);
+										console.warn('ðŸ›¡ï¸ EFB: Inner method error, using safe fallback:', innerError);
 
 										return {};
 									}
 								} catch (e) {
-									console.warn('🛡️ EFB: Caught initOnReadyComponents error:', e);
+									console.warn('ðŸ›¡ï¸ EFB: Caught initOnReadyComponents error:', e);
 
 									return {};
 								}
@@ -488,24 +472,24 @@ public function check_nonce_permission_efb($request) {
 									this.config.tools = this.config.tools || safeConfig.tools;
 									this.config.settings = this.config.settings || safeConfig.settings;
 
-									console.log('🛡️ EFB: Safe init called');
+									console.log('ðŸ›¡ï¸ EFB: Safe init called');
 									return originalInit.apply(this, arguments);
 								} catch (e) {
-									console.warn('🛡️ EFB: Caught init error:', e);
+									console.warn('ðŸ›¡ï¸ EFB: Caught init error:', e);
 									return {};
 								}
 							};
 						}
 
-						console.log('✅ EFB: Patched Elementor methods');
+						console.log('âœ… EFB: Patched Elementor methods');
 						clearInterval(checkElementor);
 					}
 
 					if (attempts > 500) {
 						clearInterval(checkElementor);
-						console.log('⚠️ EFB: elementorFrontend not found, using global protection only');
+						console.log('âš ï¸ EFB: elementorFrontend not found, using global protection only');
 					}
-				}, 10);				console.log('� EFB: Ultimate Elementor fix started');
+				}, 10);				console.log('ï¿½ EFB: Ultimate Elementor fix started');
 			})();
 			</script>
 			<?php
@@ -622,7 +606,7 @@ public function check_nonce_permission_efb($request) {
 					<div style="font-size: 14px; opacity: 0.9;">'.esc_html__('The form will be displayed on the frontend.', 'easy-form-builder').'</div>
 					'.$form_info.'
 					<div style="margin-top: 15px; font-size: 12px; opacity: 0.7;">
-						<span style="background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 4px;">📝 ' . esc_html($page_builder) . '</span>
+						<span style="background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 4px;">ðŸ“ ' . esc_html($page_builder) . '</span>
 					</div>
 				</div>
 				';
@@ -1105,7 +1089,7 @@ public function check_nonce_permission_efb($request) {
 						if($autofill_id >0){
 							wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
 						}else if($autofill_id == 0){
-							// بررسی autofill_api برای External API AutoFill
+							// Ø¨Ø±Ø±Ø³ÛŒ autofill_api Ø¨Ø±Ø§ÛŒ External API AutoFill
 							// Check autofill_api for External API AutoFill
 							$autofill_api = isset($valj_efb[0]->autofill_api) ? $valj_efb[0]->autofill_api : false;
 							$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
@@ -1114,7 +1098,7 @@ public function check_nonce_permission_efb($request) {
 							}
 						}
 					}
-					// بررسی مستقل autofill_api (زمانی که autofill_id تنظیم نشده)
+					// Ø¨Ø±Ø±Ø³ÛŒ Ù…Ø³ØªÙ‚Ù„ autofill_api (Ø²Ù…Ø§Ù†ÛŒ Ú©Ù‡ autofill_id ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡)
 					// Independent check for autofill_api (when autofill_id is not set)
 					else if($pro==true && $auto_filled == false && !isset($valj_efb[0]->autofill_id) && isset($valj_efb[0]->autofill_api) && $valj_efb[0]->autofill_api){
 						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
@@ -1173,7 +1157,7 @@ public function check_nonce_permission_efb($request) {
 			error_log(json_encode($is_track));
 			$captcha_content = '';
 			if (empty($this->pub_stting) || !is_array($this->pub_stting)) {
-				// اگر قبلاً $rp از get_setting_Emsfb('pub') ست شده باشد، از آن استفاده می‌کنیم تا از کوئری اضافه جلوگیری شود
+				// Ø§Ú¯Ø± Ù‚Ø¨Ù„Ø§Ù‹ $rp Ø§Ø² get_setting_Emsfb('pub') Ø³Øª Ø´Ø¯Ù‡ Ø¨Ø§Ø´Ø¯ØŒ Ø§Ø² Ø¢Ù† Ø§Ø³ØªÙØ§Ø¯Ù‡ Ù…ÛŒâ€ŒÚ©Ù†ÛŒÙ… ØªØ§ Ø§Ø² Ú©ÙˆØ¦Ø±ÛŒ Ø§Ø¶Ø§ÙÙ‡ Ø¬Ù„ÙˆÚ¯ÛŒØ±ÛŒ Ø´ÙˆØ¯
 				if (isset($rp) && is_array($rp) && isset($rp[1]) && is_array($rp[1])) {
 					$this->pub_stting = $rp[1];
 				} else {
@@ -1185,7 +1169,7 @@ public function check_nonce_permission_efb($request) {
 				$error_msg = "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('The form is not shown because Google reCAPTCHA has not been added to the Easy Form Builder plugin settings.','easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 				//if(strlen($$setting->siteKey) <=5 || strlen($setting->secretKey) <=5){
 				// Ensure public settings and siteKey are available before using them
-				// pub_stting معمولا از get_setting_Emsfb('pub')[1] پر می‌شود؛ اگر خالی بود اینجا مقداردهی می‌کنیم
+				// pub_stting Ù…Ø¹Ù…ÙˆÙ„Ø§ Ø§Ø² get_setting_Emsfb('pub')[1] Ù¾Ø± Ù…ÛŒâ€ŒØ´ÙˆØ¯Ø› Ø§Ú¯Ø± Ø®Ø§Ù„ÛŒ Ø¨ÙˆØ¯ Ø§ÛŒÙ†Ø¬Ø§ Ù…Ù‚Ø¯Ø§Ø±Ø¯Ù‡ÛŒ Ù…ÛŒâ€ŒÚ©Ù†ÛŒÙ…
 
 				$siteKey = '';
 				if (is_array($this->pub_stting) && isset($this->pub_stting['siteKey'])) {
@@ -1598,7 +1582,7 @@ public function check_nonce_permission_efb($request) {
 
 	/**
 	 * Send JSON response to client and continue processing in background
-	 * این تابع در تمام محیط‌ها کار می‌کند: Apache, Nginx, PHP-FPM, Hostinger, DirectAdmin, cPanel
+	 * Ø§ÛŒÙ† ØªØ§Ø¨Ø¹ Ø¯Ø± ØªÙ…Ø§Ù… Ù…Ø­ÛŒØ·â€ŒÙ‡Ø§ Ú©Ø§Ø± Ù…ÛŒâ€ŒÚ©Ù†Ø¯: Apache, Nginx, PHP-FPM, Hostinger, DirectAdmin, cPanel
 	 *
 	 * @param array $response Response data to send
 	 * @param int $status_code HTTP status code
@@ -1615,7 +1599,7 @@ public function check_nonce_permission_efb($request) {
 		$environment_method = 'Unknown';
 		$start_time = microtime(true);
 
-		// 2. Close session early - مهم برای تمام محیط‌ها
+		// 2. Close session early - Ù…Ù‡Ù… Ø¨Ø±Ø§ÛŒ ØªÙ…Ø§Ù… Ù…Ø­ÛŒØ·â€ŒÙ‡Ø§
 		if (session_id()) {
 			session_write_close();
 		}
@@ -1689,7 +1673,7 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		// 12. Method 4: Generic fallback - send extra padding
-		// این روش در Apache و محیط‌های دیگر کمک می‌کند که browser response را سریع‌تر ببیند
+		// Ø§ÛŒÙ† Ø±ÙˆØ´ Ø¯Ø± Apache Ùˆ Ù…Ø­ÛŒØ·â€ŒÙ‡Ø§ÛŒ Ø¯ÛŒÚ¯Ø± Ú©Ù…Ú© Ù…ÛŒâ€ŒÚ©Ù†Ø¯ Ú©Ù‡ browser response Ø±Ø§ Ø³Ø±ÛŒØ¹â€ŒØªØ± Ø¨Ø¨ÛŒÙ†Ø¯
 		if (ob_get_level() == 0) {
 			ob_start();
 		}
@@ -1703,7 +1687,7 @@ public function check_nonce_permission_efb($request) {
 		flush();
 
 		// 13. Final flush without delay
-		// حذف usleep برای کاهش تاخیر - فقط اطمینان از flush
+		// Ø­Ø°Ù usleep Ø¨Ø±Ø§ÛŒ Ú©Ø§Ù‡Ø´ ØªØ§Ø®ÛŒØ± - ÙÙ‚Ø· Ø§Ø·Ù…ÛŒÙ†Ø§Ù† Ø§Ø² flush
 		if (function_exists('apache_setenv')) {
 			$environment_method = 'Apache (fallback with padding)';
 		} else {
@@ -1715,8 +1699,8 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/**
-	 * ثبت روش background processing استفاده شده
-	 * برای debugging و اطمینان از عملکرد صحیح
+	 * Ø«Ø¨Øª Ø±ÙˆØ´ background processing Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø´Ø¯Ù‡
+	 * Ø¨Ø±Ø§ÛŒ debugging Ùˆ Ø§Ø·Ù…ÛŒÙ†Ø§Ù† Ø§Ø² Ø¹Ù…Ù„Ú©Ø±Ø¯ ØµØ­ÛŒØ­
 	 */
 	private function log_background_method($method, $start_time) {
 		$elapsed = round((microtime(true) - $start_time) * 1000, 2);
@@ -1731,23 +1715,23 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/**
-	 * ارسال background request برای پردازش ایمیل/SMS
-	 * این تابع یک HTTP request جدید ایجاد می‌کند که به صورت non-blocking اجرا می‌شود
+	 * Ø§Ø±Ø³Ø§Ù„ background request Ø¨Ø±Ø§ÛŒ Ù¾Ø±Ø¯Ø§Ø²Ø´ Ø§ÛŒÙ…ÛŒÙ„/SMS
+	 * Ø§ÛŒÙ† ØªØ§Ø¨Ø¹ ÛŒÚ© HTTP request Ø¬Ø¯ÛŒØ¯ Ø§ÛŒØ¬Ø§Ø¯ Ù…ÛŒâ€ŒÚ©Ù†Ø¯ Ú©Ù‡ Ø¨Ù‡ ØµÙˆØ±Øª non-blocking Ø§Ø¬Ø±Ø§ Ù…ÛŒâ€ŒØ´ÙˆØ¯
 	 */
 	private function trigger_background_processing($data) {
-		// ذخیره داده‌ها در transient برای استفاده در background request
+		// Ø°Ø®ÛŒØ±Ù‡ Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ Ø¯Ø± transient Ø¨Ø±Ø§ÛŒ Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø¯Ø± background request
 		$transient_key = 'efb_bg_' . $data['track_id'];
-		set_transient($transient_key, $data, 300); // 5 دقیقه اعتبار
+		set_transient($transient_key, $data, 300); // 5 Ø¯Ù‚ÛŒÙ‚Ù‡ Ø§Ø¹ØªØ¨Ø§Ø±
 
-		// روش 1: سعی در استفاده از wp_schedule_single_event (سریع‌ترین)
+		// Ø±ÙˆØ´ 1: Ø³Ø¹ÛŒ Ø¯Ø± Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø§Ø² wp_schedule_single_event (Ø³Ø±ÛŒØ¹â€ŒØªØ±ÛŒÙ†)
 		if (function_exists('wp_schedule_single_event')) {
 			wp_schedule_single_event(time(), 'efb_process_background_cron', [$data['track_id']]);
-			spawn_cron(); // اجرای فوری cron
+			spawn_cron(); // Ø§Ø¬Ø±Ø§ÛŒ ÙÙˆØ±ÛŒ cron
 			error_log('[EFB Background] Scheduled cron event for track: ' . $data['track_id']);
 			return;
 		}
 
-		// روش 2: fallback - استفاده از wp_remote_post با timeout خیلی کم
+		// Ø±ÙˆØ´ 2: fallback - Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø§Ø² wp_remote_post Ø¨Ø§ timeout Ø®ÛŒÙ„ÛŒ Ú©Ù…
 		$url = admin_url('admin-ajax.php');
 
 		wp_remote_post($url, [
@@ -1764,11 +1748,11 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/**
-	 * پردازش background request (ایمیل/SMS)
-	 * این تابع از طریق AJAX فراخوانی می‌شود
+	 * Ù¾Ø±Ø¯Ø§Ø²Ø´ background request (Ø§ÛŒÙ…ÛŒÙ„/SMS)
+	 * Ø§ÛŒÙ† ØªØ§Ø¨Ø¹ Ø§Ø² Ø·Ø±ÛŒÙ‚ AJAX ÙØ±Ø§Ø®ÙˆØ§Ù†ÛŒ Ù…ÛŒâ€ŒØ´ÙˆØ¯
 	 */
 	public function process_background_task() {
-		// دریافت track_id
+		// Ø¯Ø±ÛŒØ§ÙØª track_id
 		$track_id = isset($_POST['track_id']) ? sanitize_text_field($_POST['track_id']) : '';
 
 		if (empty($track_id)) {
@@ -1776,7 +1760,7 @@ public function check_nonce_permission_efb($request) {
 			exit;
 		}
 
-		// دریافت داده‌ها از transient
+		// Ø¯Ø±ÛŒØ§ÙØª Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ Ø§Ø² transient
 		$transient_key = 'efb_bg_' . $track_id;
 		$data = get_transient($transient_key);
 
@@ -1785,12 +1769,12 @@ public function check_nonce_permission_efb($request) {
 			exit;
 		}
 
-		// حذف transient
+		// Ø­Ø°Ù transient
 		delete_transient($transient_key);
 
 		$timing_start = microtime(true);
 
-		// ارسال SMS
+		// Ø§Ø±Ø³Ø§Ù„ SMS
 		$timing_sms_start = microtime(true);
 		if ($data['send_sms'] && !empty($data['phone_numbers'])) {
 			$smsSendResult = $this->efbFunction->sms_ready_for_send_efb(
@@ -1808,7 +1792,7 @@ public function check_nonce_permission_efb($request) {
 		}
 		$timing_sms = round((microtime(true) - $timing_sms_start) * 1000, 2);
 
-		// ارسال Email
+		// Ø§Ø±Ø³Ø§Ù„ Email
 		$timing_email_start = microtime(true);
 		if ($data['send_email']) {
 			$this->email_list_efb($data['email_user'], 0, $data['email_fa'], true);
@@ -1840,7 +1824,7 @@ public function check_nonce_permission_efb($request) {
 
 		$timing_total = round((microtime(true) - $timing_start) * 1000, 2);
 
-		// لاگ زمان‌بندی
+		// Ù„Ø§Ú¯ Ø²Ù…Ø§Ù†â€ŒØ¨Ù†Ø¯ÛŒ
 		error_log(sprintf(
 			'[EFB Background] Track: %s | SMS: %sms | Email: %sms | Total: %sms',
 			$data['track_id'],
@@ -2267,7 +2251,7 @@ public function check_nonce_permission_efb($request) {
 									if (isset($item['value']) && is_numeric($item['value'])) {
 										$item['value'] = intval(sanitize_text_field($item['value']));
 										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
-										// اعتبارسنجی مقدار 1-5
+										// Ø§Ø¹ØªØ¨Ø§Ø±Ø³Ù†Ø¬ÛŒ Ù…Ù‚Ø¯Ø§Ø± 1-5
 										if ($item['value'] >= 1 && $item['value'] <= 5) {
 											$is_valid = 1;
 											$validated_item = $item;
@@ -2280,7 +2264,7 @@ public function check_nonce_permission_efb($request) {
 									if (isset($item['value']) && is_numeric($item['value'])) {
 										$item['value'] = intval(sanitize_text_field($item['value']));
 										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
-										// اعتبارسنجی مقدار 0-10 برای NPS
+										// Ø§Ø¹ØªØ¨Ø§Ø±Ø³Ù†Ø¬ÛŒ Ù…Ù‚Ø¯Ø§Ø± 0-10 Ø¨Ø±Ø§ÛŒ NPS
 										if ($item['value'] >= 0 && $item['value'] <= 10) {
 											$is_valid = 1;
 											$validated_item = $item;
@@ -2293,7 +2277,7 @@ public function check_nonce_permission_efb($request) {
 									if (isset($item['value']) && is_numeric($item['value'])) {
 										$item['value'] = intval(sanitize_text_field($item['value']));
 										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
-										// اعتبارسنجی مقدار 1-5
+										// Ø§Ø¹ØªØ¨Ø§Ø±Ø³Ù†Ø¬ÛŒ Ù…Ù‚Ø¯Ø§Ø± 1-5
 										if ($item['value'] >= 1 && $item['value'] <= 5) {
 											$is_valid = 1;
 											$validated_item = $item;
@@ -2886,8 +2870,8 @@ public function check_nonce_permission_efb($request) {
 
 
 								// +emsfb_temp_users added
-								// در کارت زیر فقط نام کاربری و ایمیل ست شود و بعد از فعال سازی پسورد ست شود
-								// در صفحه لاگین نیز چک شود اگر در لیست مقدار موقت وجود داشت و مقدار state =0 یعنی کاربر فعال نشده است.
+								// Ø¯Ø± Ú©Ø§Ø±Øª Ø²ÛŒØ± ÙÙ‚Ø· Ù†Ø§Ù… Ú©Ø§Ø±Ø¨Ø±ÛŒ Ùˆ Ø§ÛŒÙ…ÛŒÙ„ Ø³Øª Ø´ÙˆØ¯ Ùˆ Ø¨Ø¹Ø¯ Ø§Ø² ÙØ¹Ø§Ù„ Ø³Ø§Ø²ÛŒ Ù¾Ø³ÙˆØ±Ø¯ Ø³Øª Ø´ÙˆØ¯
+								// Ø¯Ø± ØµÙØ­Ù‡ Ù„Ø§Ú¯ÛŒÙ† Ù†ÛŒØ² Ú†Ú© Ø´ÙˆØ¯ Ø§Ú¯Ø± Ø¯Ø± Ù„ÛŒØ³Øª Ù…Ù‚Ø¯Ø§Ø± Ù…ÙˆÙ‚Øª ÙˆØ¬ÙˆØ¯ Ø¯Ø§Ø´Øª Ùˆ Ù…Ù‚Ø¯Ø§Ø± state =0 ÛŒØ¹Ù†ÛŒ Ú©Ø§Ø±Ø¨Ø± ÙØ¹Ø§Ù„ Ù†Ø´Ø¯Ù‡ Ø§Ø³Øª.
 								$creds = [
 									'user_login' => esc_sql($username),
 									'user_pass' => esc_sql($password),
@@ -3054,7 +3038,7 @@ public function check_nonce_permission_efb($request) {
 									$response = array( 'success' => true , 'm' =>$this->lanText['surveyComplatedM']);
 									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
 
-									// بررسی تنظیمات نمودار نظرسنجی و ارسال داده‌های نتایج
+									// Ø¨Ø±Ø±Ø³ÛŒ ØªÙ†Ø¸ÛŒÙ…Ø§Øª Ù†Ù…ÙˆØ¯Ø§Ø± Ù†Ø¸Ø±Ø³Ù†Ø¬ÛŒ Ùˆ Ø§Ø±Ø³Ø§Ù„ Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ Ù†ØªØ§ÛŒØ¬
 									$survey_chart_type = isset($form_fields_array[0]['survey_chart_type']) ? $form_fields_array[0]['survey_chart_type'] : 'none';
 									error_log('[SURVEY-CALLER] survey_chart_type from formObj[0]: ' . $survey_chart_type);
 									error_log('[SURVEY-CALLER] formObj[0] keys: ' . json_encode(array_keys($form_fields_array[0])));
@@ -3624,7 +3608,7 @@ public function check_nonce_permission_efb($request) {
 					$this->db = $wpdb;
 				}
 
-				// خواندن محتوای پیام از دیتابیس
+				// Ø®ÙˆØ§Ù†Ø¯Ù† Ù…Ø­ØªÙˆØ§ÛŒ Ù¾ÛŒØ§Ù… Ø§Ø² Ø¯ÛŒØªØ§Ø¨ÛŒØ³
 				$id = intval($id);
 				error_log('Reading message content for ID: ' . $id . ' and track: ' . $track);
 
@@ -3699,7 +3683,7 @@ public function check_nonce_permission_efb($request) {
 					'read_' => $read_s,
 					'date'=>wp_date('Y-m-d H:i:s'),
 				));
-				// استفاده ایمن از $value برای track و form_id
+				// Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø§ÛŒÙ…Ù† Ø§Ø² $value Ø¨Ø±Ø§ÛŒ track Ùˆ form_id
 				$track = isset($value[0]->track) ? $value[0]->track : null;
 				if (empty($track)) {
 					error_log('Track not found in message data');
@@ -3864,11 +3848,11 @@ public function check_nonce_permission_efb($request) {
 		$cont = ['',''];
 		$subject = ['',''];
 		$message = ['',''];
-		// محاسبه زمان قبل از ایجاد محتوای ایمیل
+		// Ù…Ø­Ø§Ø³Ø¨Ù‡ Ø²Ù…Ø§Ù† Ù‚Ø¨Ù„ Ø§Ø² Ø§ÛŒØ¬Ø§Ø¯ Ù…Ø­ØªÙˆØ§ÛŒ Ø§ÛŒÙ…ÛŒÙ„
 		$micr = microtime(true);
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 
-    // ایجاد الگوی پیام پیش‌فرض با دکمه استاندارد email-friendly
+    // Ø§ÛŒØ¬Ø§Ø¯ Ø§Ù„Ú¯ÙˆÛŒ Ù¾ÛŒØ§Ù… Ù¾ÛŒØ´â€ŒÙØ±Ø¶ Ø¨Ø§ Ø¯Ú©Ù…Ù‡ Ø§Ø³ØªØ§Ù†Ø¯Ø§Ø±Ø¯ email-friendly
     $modern_button_template = "
         <!--[if mso]>
         <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='%s' style='height:50px;v-text-anchor:middle;width:220px;' arcsize='12%%' strokecolor='#202a8d' fillcolor='#202a8d'>
@@ -3891,7 +3875,7 @@ public function check_nonce_permission_efb($request) {
         <!--<![endif]-->
     ";
     $default_message = "<h2>%s</h2>" . $modern_button_template;
-    // کش کردن مقادیر ثابت برای پیام‌ها
+    // Ú©Ø´ Ú©Ø±Ø¯Ù† Ù…Ù‚Ø§Ø¯ÛŒØ± Ø«Ø§Ø¨Øª Ø¨Ø±Ø§ÛŒ Ù¾ÛŒØ§Ù…â€ŒÙ‡Ø§
     $dt = str_replace('%s', $track, $this->lanText['msgdml']);
     $thankFillForm = $this->lanText['thankFillForm'];
     $trackNo = $this->lanText['trackNo'];
@@ -3904,7 +3888,7 @@ public function check_nonce_permission_efb($request) {
     $newUserRegistration = esc_html__('New user registration', 'easy-form-builder');
 	$newMassageReciver = $this->lanText['newMessageReceived'];
 	// error_log('$newMassageReciver:'.$newMassageReciver);
-    //  حلقه برای تنظیم پیام‌ها و موضوع‌ها بر اساس حالت‌ها
+    //  Ø­Ù„Ù‚Ù‡ Ø¨Ø±Ø§ÛŒ ØªÙ†Ø¸ÛŒÙ… Ù¾ÛŒØ§Ù…â€ŒÙ‡Ø§ Ùˆ Ù…ÙˆØ¶ÙˆØ¹â€ŒÙ‡Ø§ Ø¨Ø± Ø§Ø³Ø§Ø³ Ø­Ø§Ù„Øªâ€ŒÙ‡Ø§
 	// error_log(json_encode($state));
     for ($i = 0; $i < 2; $i++) {
 		if(strlen($link)>5){
@@ -3996,7 +3980,7 @@ public function check_nonce_permission_efb($request) {
             $subject[$i] = strtr($sub, $rp);
         }
     }
-    // محاسبه زمان بعد از ایجاد محتوای ایمیل
+    // Ù…Ø­Ø§Ø³Ø¨Ù‡ Ø²Ù…Ø§Ù† Ø¨Ø¹Ø¯ Ø§Ø² Ø§ÛŒØ¬Ø§Ø¯ Ù…Ø­ØªÙˆØ§ÛŒ Ø§ÛŒÙ…ÛŒÙ„
 	// error_log(json_encode($subject));
     $micr = microtime(true);
     error_log('send_email_Emsfb_ after create contet email: ' . $micr);
@@ -4007,14 +3991,14 @@ public function check_nonce_permission_efb($request) {
 	error_log(json_encode($state));
 	error_log(json_encode($link_w));
 	// error_log(json_encode($this->setting));
-    // ارسال ایمیل
+    // Ø§Ø±Ø³Ø§Ù„ Ø§ÛŒÙ…ÛŒÙ„
     error_log('send_email_Emsfb_ - Before send_email_state_new call');
     error_log('send_email_Emsfb_ - Final cont array: ' . json_encode($cont));
     error_log('send_email_Emsfb_ - Final subject array: ' . json_encode($subject));
 
     $check = $this->efbFunction->send_email_state_new($to, $subject, $cont, $pro, $state, $link_w, $this->setting);
     error_log('send_email_Emsfb_ - send_email_state_new result: ' . json_encode($check));
-    // محاسبه زمان بعد از ارسال ایمیل
+    // Ù…Ø­Ø§Ø³Ø¨Ù‡ Ø²Ù…Ø§Ù† Ø¨Ø¹Ø¯ Ø§Ø² Ø§Ø±Ø³Ø§Ù„ Ø§ÛŒÙ…ÛŒÙ„
     $micr = microtime(true);
     // error_log('send_email_Emsfb_ after email: ' . $micr);
 	}
@@ -4164,6 +4148,42 @@ public function check_nonce_permission_efb($request) {
 			$this->value = str_replace('"', '\\"', $val_);
 			$this->name = sanitize_text_field($data_POST['name']);
 			$check=	$this->insert_message_db(2,false);
+
+			/* ── Insert into emsfb_pay_ table for Stripe admin panel ── */
+			$stripe_payment_file = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/class-Emsfb-stripe-payment.php';
+			if ( ! class_exists( '\Emsfb\StripePayment' ) && file_exists( $stripe_payment_file ) ) {
+				require_once $stripe_payment_file;
+			}
+			if ( class_exists( '\Emsfb\StripePayment' ) ) {
+				$pay_data = [
+					'form_id'        => (int) $this->id,
+					'track'          => $check,
+					'gateway'        => 'stripe',
+					'amount'         => (float) $amount,
+					'currency'       => strtoupper( $paymentmethod !== 'charge' ? $price->currency : $paymentIntent->currency ),
+					'payer_email'    => $email,
+					'uid'            => $uid,
+					'ip'             => $this->ip,
+					'form_name'      => isset( $fs_[0]['formName'] ) ? $fs_[0]['formName'] : '',
+				];
+				if ( $paymentmethod !== 'charge' ) {
+					// Subscription
+					$pay_data['payment_type']    = 'subscription';
+					$pay_data['transaction_id']  = $paymentIntent->id;
+					$pay_data['subscription_id'] = $paymentIntent->id;
+					$pay_data['plan_id']         = $price->id ?? '';
+					$pay_data['product_id']      = $product->id ?? '';
+					$pay_data['status']          = 'active';
+					$pay_data['interval_unit']   = strtoupper( $paymentmethod );
+				} else {
+					// One-time payment
+					$pay_data['payment_type']    = 'one-time';
+					$pay_data['transaction_id']  = $paymentIntent->id;
+					$pay_data['status']          = 'pending';
+				}
+				StripePayment::insert_payment( $pay_data );
+			}
+
 			// $response->transStat
 			// array_push($response->transStat ,array('id'=>$check));
 			$response=array_merge($response , ['id'=>$check]);
@@ -4174,6 +4194,80 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success($response, 200);
 		}
 	}
+
+	/**
+	 * REST endpoint: Confirm a Stripe one-time payment after confirmCardPayment() succeeds.
+	 * Updates the payment record in emsfb_pay_ from 'pending' to 'completed'.
+	 *
+	 * @param \WP_REST_Request $request
+	 */
+	public function pay_stripe_confirm_Emsfb_api( $request ) {
+		$data_POST       = $request->get_json_params();
+		$payment_intent  = sanitize_text_field( $data_POST['paymentIntentId'] ?? '' );
+		$trackid         = sanitize_text_field( $data_POST['trackid'] ?? '' );
+
+		if ( empty( $payment_intent ) ) {
+			wp_send_json_success( [ 'success' => false, 'm' => esc_html__( 'Payment Intent ID is missing', 'easy-form-builder' ) ], 400 );
+			return;
+		}
+
+		$stripe_payment_file = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/class-Emsfb-stripe-payment.php';
+		if ( ! class_exists( '\Emsfb\StripePayment' ) && file_exists( $stripe_payment_file ) ) {
+			require_once $stripe_payment_file;
+		}
+
+		if ( ! class_exists( '\Emsfb\StripePayment' ) ) {
+			wp_send_json_success( [ 'success' => false, 'm' => 'Stripe payment class not available' ], 500 );
+			return;
+		}
+
+		global $wpdb;
+		$pay_table = $wpdb->prefix . 'emsfb_pay_';
+
+		// Find the payment record by transaction_id (PaymentIntent ID)
+		$pay_row = $wpdb->get_row( $wpdb->prepare(
+			"SELECT id, status FROM {$pay_table} WHERE transaction_id = %s AND gateway = 'stripe' LIMIT 1",
+			$payment_intent
+		) );
+
+		if ( ! $pay_row ) {
+			// Try finding by track code as fallback
+			if ( ! empty( $trackid ) ) {
+				$pay_row = $wpdb->get_row( $wpdb->prepare(
+					"SELECT id, status FROM {$pay_table} WHERE track = %s AND gateway = 'stripe' LIMIT 1",
+					$trackid
+				) );
+			}
+		}
+
+		if ( $pay_row && $pay_row->status === 'pending' ) {
+			StripePayment::update_payment( $pay_row->id, [
+				'status'     => 'completed',
+				'capture_id' => $payment_intent,
+			] );
+		}
+
+		// Also update the emsfb message table status
+		if ( ! empty( $trackid ) ) {
+			if ( empty( $this->db ) ) {
+				global $wpdb;
+				$this->db = $wpdb;
+			}
+			$table_name = $this->db->prefix . 'emsfb';
+			$this->db->update(
+				$table_name,
+				[ 'status' => 1 ],
+				[ 'tracking' => $trackid ]
+			);
+		}
+
+		wp_send_json_success( [
+			'success'         => true,
+			'paymentIntentId' => $payment_intent,
+			'trackid'         => $trackid,
+		], 200 );
+	}
+
 	public function pay_persia_sub_Emsfb_api($data_POST_){
 
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
@@ -4239,7 +4333,7 @@ public function check_nonce_permission_efb($request) {
 		$price_c =0;
 		$price_f=0;
 		$email ='no@email.com';
-		$des = ':پرداختی فرم' . $fs_[0]['formName'];
+		$des = ':Ù¾Ø±Ø¯Ø§Ø®ØªÛŒ ÙØ±Ù…' . $fs_[0]['formName'];
 		$valobj=[];
 		for ($i=0; $i <count($val_) ; $i++) {
 			$a=-1;
@@ -4328,7 +4422,7 @@ public function check_nonce_permission_efb($request) {
 			);
 			$jsonData = json_encode($data);
 			if($price_f<4999){
-				$response = array( 'success' => false  , 'm'=>'مجموع مبلغ پرداختی نباید کمتر از پانصد تومان باشد');
+				$response = array( 'success' => false  , 'm'=>'Ù…Ø¬Ù…ÙˆØ¹ Ù…Ø¨Ù„Øº Ù¾Ø±Ø¯Ø§Ø®ØªÛŒ Ù†Ø¨Ø§ÛŒØ¯ Ú©Ù…ØªØ± Ø§Ø² Ù¾Ø§Ù†ØµØ¯ ØªÙˆÙ…Ø§Ù† Ø¨Ø§Ø´Ø¯');
 				wp_send_json_success($response, 200);
 				die();
 			}
@@ -4347,12 +4441,12 @@ public function check_nonce_permission_efb($request) {
 						$check=	$this->insert_message_db(2,$clientRefId);
 						if(isset($check)!=true){
 							$this->efbFunction->send_email_noti_sid_plugins_efb('PersianPaymentEvent');
-							$response = array('success' => false, 'm' => 'خطا در ارتباط با دیتابیس ، شماره خطا DB-403');
+							$response = array('success' => false, 'm' => 'Ø®Ø·Ø§ Ø¯Ø± Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ Ø¯ÛŒØªØ§Ø¨ÛŒØ³ ØŒ Ø´Ù…Ø§Ø±Ù‡ Ø®Ø·Ø§ DB-403');
 						}
 				}else{
 					$check =-1;
 					$message = isset($response['re']) ? $response['re'] :'';
-					$response = array( 'success' => false  , 'm'=>'اختلال در ارتباط با زرین پال. این اختلال ممکن است از طرف سرور زرین پال باشد. پیام دریافتی از زرین پال:</br>' . $message);
+					$response = array( 'success' => false  , 'm'=>'Ø§Ø®ØªÙ„Ø§Ù„ Ø¯Ø± Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ Ø²Ø±ÛŒÙ† Ù¾Ø§Ù„. Ø§ÛŒÙ† Ø§Ø®ØªÙ„Ø§Ù„ Ù…Ù…Ú©Ù† Ø§Ø³Øª Ø§Ø² Ø·Ø±Ù Ø³Ø±ÙˆØ± Ø²Ø±ÛŒÙ† Ù¾Ø§Ù„ Ø¨Ø§Ø´Ø¯. Ù¾ÛŒØ§Ù… Ø¯Ø±ÛŒØ§ÙØªÛŒ Ø§Ø² Ø²Ø±ÛŒÙ† Ù¾Ø§Ù„:</br>' . $message);
 				}
 			}
 			// array_push($filtered,$ar);
@@ -4402,7 +4496,7 @@ public function check_nonce_permission_efb($request) {
 		$price_c =0;
 		$price_f=0;
 		$email ='no@email.com';
-		$des = ':پرداختی فرم' . $fs_[0]['formName'];
+		$des = ':Ù¾Ø±Ø¯Ø§Ø®ØªÛŒ ÙØ±Ù…' . $fs_[0]['formName'];
 		$valobj=[];
 		for ($i=0; $i <count($val_) ; $i++) {
 			$a=-1;
@@ -4488,7 +4582,7 @@ public function check_nonce_permission_efb($request) {
 			);
 			$jsonData = json_encode($data);
 			if($price_f<4999){
-				$response = array( 'success' => false  , 'm'=>'مجموع مبلغ پرداختی نباید کمتر از پانصد تومان باشد');
+				$response = array( 'success' => false  , 'm'=>'Ù…Ø¬Ù…ÙˆØ¹ Ù…Ø¨Ù„Øº Ù¾Ø±Ø¯Ø§Ø®ØªÛŒ Ù†Ø¨Ø§ÛŒØ¯ Ú©Ù…ØªØ± Ø§Ø² Ù¾Ø§Ù†ØµØ¯ ØªÙˆÙ…Ø§Ù† Ø¨Ø§Ø´Ø¯');
 				wp_send_json_success($response, 200);
 				die();
 			}
@@ -4504,10 +4598,10 @@ public function check_nonce_permission_efb($request) {
 						$this->name = sanitize_text_field($_POST['name']);
 						$check=	$this->insert_message_db(2,$clientRefId);
 						if(isset($check)!=true){
-							$response = array('success' => false, 'm' => 'خطا در ارتباط با دیتابیس ، شماره خطا DB-403');
+							$response = array('success' => false, 'm' => 'Ø®Ø·Ø§ Ø¯Ø± Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ Ø¯ÛŒØªØ§Ø¨ÛŒØ³ ØŒ Ø´Ù…Ø§Ø±Ù‡ Ø®Ø·Ø§ DB-403');
 						}
 				}else{
-					$response = array( 'success' => false  , 'm'=>'اختلال در ارتباط با زرین پال. این اختلال ممکن است از طرف سرور زرین پال باشد');
+					$response = array( 'success' => false  , 'm'=>'Ø§Ø®ØªÙ„Ø§Ù„ Ø¯Ø± Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ Ø²Ø±ÛŒÙ† Ù¾Ø§Ù„. Ø§ÛŒÙ† Ø§Ø®ØªÙ„Ø§Ù„ Ù…Ù…Ú©Ù† Ø§Ø³Øª Ø§Ø² Ø·Ø±Ù Ø³Ø±ÙˆØ± Ø²Ø±ÛŒÙ† Ù¾Ø§Ù„ Ø¨Ø§Ø´Ø¯');
 				}
 			}
 			// array_push($filtered,$ar);
@@ -4575,13 +4669,13 @@ public function check_nonce_permission_efb($request) {
 	public function email_get_content_efb($content, $track){
 		$m  = '<table border="0" cellpadding="0" cellspacing="0" width="100%" class="container containerEmailEfb" >';
 
-			// ترجمه‌ها و متغیرها
+			// ØªØ±Ø¬Ù…Ù‡â€ŒÙ‡Ø§ Ùˆ Ù…ØªØºÛŒØ±Ù‡Ø§
 			$text_     = ['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
 			$list      = [];
 			$checboxs  = [];
 			$total_amount = 0;
 
-			// لینک پیگیری/نقشه
+			// Ù„ÛŒÙ†Ú© Ù¾ÛŒÚ¯ÛŒØ±ÛŒ/Ù†Ù‚Ø´Ù‡
 			$lst    = end($content);
 			$link_w = (isset($lst['type']) && $lst['type']==="w_link") ? ($lst['value'] ?? '') : '';
 			if (strlen($link_w)>5){
@@ -4590,21 +4684,21 @@ public function check_nonce_permission_efb($request) {
 				$link_w = home_url();
 			}
 
-			// ارز پیش‌فرض
+			// Ø§Ø±Ø² Ù¾ÛŒØ´â€ŒÙØ±Ø¶
 			$currency = (isset($content[0]['paymentcurrency'])) ? $content[0]['paymentcurrency'] : 'usd';
 
-			// دسترسی به متن‌ها
+			// Ø¯Ø³ØªØ±Ø³ÛŒ Ø¨Ù‡ Ù…ØªÙ†â€ŒÙ‡Ø§
 			if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 			$lanText = $this->efbFunction->text_efb($text_);
 
-			// در صورت وجود amount مرتب‌سازی ملایم
+			// Ø¯Ø± ØµÙˆØ±Øª ÙˆØ¬ÙˆØ¯ amount Ù…Ø±ØªØ¨â€ŒØ³Ø§Ø²ÛŒ Ù…Ù„Ø§ÛŒÙ…
 			usort($content, function($a,$b){
 				$aa = isset($a['amount']) ? $a['amount'] : 0;
 				$bb = isset($b['amount']) ? $b['amount'] : 0;
 				return $aa <=> $bb;
 			});
 
-			// افزودن یک جفت عنوان/مقدار به دو ستون
+			// Ø§ÙØ²ÙˆØ¯Ù† ÛŒÚ© Ø¬ÙØª Ø¹Ù†ÙˆØ§Ù†/Ù…Ù‚Ø¯Ø§Ø± Ø¨Ù‡ Ø¯Ùˆ Ø³ØªÙˆÙ†
 			$addPair = function($title, $value) use (&$m){
 				$title = $this->efbFunction->ensure_trailing_colon_efb($title);
 				if($title==='' && $value===''){ return; }
@@ -4660,7 +4754,7 @@ public function check_nonce_permission_efb($request) {
 					} elseif ($t==='document' || $t==='allformat') {
 						$q = '<a href="'.$url.'" target="_blank" style="text-decoration:none;">'.$nm.'</a>';
 					} elseif ($t==='media') {
-						// ایمیل‌ها غالباً ویدیو را پخش نمی‌کنند → لینک دانلود
+						// Ø§ÛŒÙ…ÛŒÙ„â€ŒÙ‡Ø§ ØºØ§Ù„Ø¨Ø§Ù‹ ÙˆÛŒØ¯ÛŒÙˆ Ø±Ø§ Ù¾Ø®Ø´ Ù†Ù…ÛŒâ€ŒÚ©Ù†Ù†Ø¯ â†’ Ù„ÛŒÙ†Ú© Ø¯Ø§Ù†Ù„ÙˆØ¯
 						$audios = ['mp3','wav','ogg'];
 						$isAudio = false;
 						foreach($audios as $a){ if(strpos($url,$a)!==false){ $isAudio=true; break; } }
@@ -4922,7 +5016,7 @@ public function check_nonce_permission_efb($request) {
 			return false;
 		}
 
-		// محاسبه یکبار برای کل فرآیند - بهینه‌سازی
+		// Ù…Ø­Ø§Ø³Ø¨Ù‡ ÛŒÚ©Ø¨Ø§Ø± Ø¨Ø±Ø§ÛŒ Ú©Ù„ ÙØ±Ø¢ÛŒÙ†Ø¯ - Ø¨Ù‡ÛŒÙ†Ù‡â€ŒØ³Ø§Ø²ÛŒ
 		$page_type = get_post_type($page_id);
 		$page_url = get_permalink($page_id);
 		$page_post = get_post($page_id);
@@ -5116,7 +5210,7 @@ public function check_nonce_permission_efb($request) {
 			);
 		}
 
-		// Handlers که نیاز به متغیرهای محلی دارند
+		// Handlers Ú©Ù‡ Ù†ÛŒØ§Ø² Ø¨Ù‡ Ù…ØªØºÛŒØ±Ù‡Ø§ÛŒ Ù…Ø­Ù„ÛŒ Ø¯Ø§Ø±Ù†Ø¯
 		$dynamic_handlers = array(
 			'wp-cloudflare-page-cache' => array(
 				'check' => class_exists('SW_CLOUDFLARE_PAGECACHE'),
@@ -5144,7 +5238,7 @@ public function check_nonce_permission_efb($request) {
 			),
 		);
 
-		// دریافت لیست افزونه‌های فعال - بهینه‌سازی شده
+		// Ø¯Ø±ÛŒØ§ÙØª Ù„ÛŒØ³Øª Ø§ÙØ²ÙˆÙ†Ù‡â€ŒÙ‡Ø§ÛŒ ÙØ¹Ø§Ù„ - Ø¨Ù‡ÛŒÙ†Ù‡â€ŒØ³Ø§Ø²ÛŒ Ø´Ø¯Ù‡
 		$active_plugins = array();
 
 		if ($plugins !== null) {
@@ -5158,15 +5252,15 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
-		// اگر لیست خالی است، تشخیص خودکار
+		// Ø§Ú¯Ø± Ù„ÛŒØ³Øª Ø®Ø§Ù„ÛŒ Ø§Ø³ØªØŒ ØªØ´Ø®ÛŒØµ Ø®ÙˆØ¯Ú©Ø§Ø±
 		if (empty($active_plugins)) {
-			// بررسی static handlers
+			// Ø¨Ø±Ø±Ø³ÛŒ static handlers
 			foreach ($cache_handlers as $slug => $handler) {
 				if ($handler['check']()) {
 					$active_plugins[$slug] = true;
 				}
 			}
-			// بررسی dynamic handlers
+			// Ø¨Ø±Ø±Ø³ÛŒ dynamic handlers
 			foreach ($dynamic_handlers as $slug => $handler) {
 				if ($handler['check'] && $handler['clear']) {
 					$active_plugins[$slug] = true;
@@ -5178,11 +5272,11 @@ public function check_nonce_permission_efb($request) {
 			return false;
 		}
 
-		// پاکسازی کش - error handling استاندارد WordPress
+		// Ù¾Ø§Ú©Ø³Ø§Ø²ÛŒ Ú©Ø´ - error handling Ø§Ø³ØªØ§Ù†Ø¯Ø§Ø±Ø¯ WordPress
 		$cleared = 0;
 
 		foreach ($active_plugins as $slug => $val) {
-			// بررسی static handlers
+			// Ø¨Ø±Ø±Ø³ÛŒ static handlers
 			if (isset($cache_handlers[$slug]) && is_callable($cache_handlers[$slug]['check']) && $cache_handlers[$slug]['check']()) {
 				if (is_callable($cache_handlers[$slug]['clear'])) {
 					try {
@@ -5194,7 +5288,7 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 			}
-			// بررسی dynamic handlers
+			// Ø¨Ø±Ø±Ø³ÛŒ dynamic handlers
 			elseif (isset($dynamic_handlers[$slug]) && $dynamic_handlers[$slug]['check'] && is_callable($dynamic_handlers[$slug]['clear'])) {
 				try {
 					$dynamic_handlers[$slug]['clear']($page_id);
@@ -5557,7 +5651,7 @@ public function check_nonce_permission_efb($request) {
 		$pro = $this->efbFunction->is_efb_pro(1);
 
 
-            $is_pro = (int) get_option('Emsfb_pro', 2);
+            $is_pro = (int) get_option('emsfb_pro', 2);
             if ($is_pro == 3 || !$pro || $is_pro ==2 ) {
                 $copyright = "<div style='text-align:center;'>
                     <p>" . sprintf(
@@ -5900,16 +5994,16 @@ public function check_nonce_permission_efb($request) {
 				error_log('email_status_efb email_noti_type:' .$formObj[0]["email_noti_type"]);
 
 				if($formObj[0]["email_noti_type"]=='msg'){
-					// برای message_link: فرم پر شده + کد رهگیری + لینک
+					// Ø¨Ø±Ø§ÛŒ message_link: ÙØ±Ù… Ù¾Ø± Ø´Ø¯Ù‡ + Ú©Ø¯ Ø±Ù‡Ú¯ÛŒØ±ÛŒ + Ù„ÛŒÙ†Ú©
 					$msg_content_ = $this->email_get_content_efb($valobj ,$check);
 					$msg_content = str_replace("\"","'",$msg_content_);
 					$msg_type = 'message_link';
 				}else if ($formObj[0]["email_noti_type"]=='cc'){
-					// برای traking_link: فقط تأیید پیام + لینک (بدون جزئیات فرم)
+					// Ø¨Ø±Ø§ÛŒ traking_link: ÙÙ‚Ø· ØªØ£ÛŒÛŒØ¯ Ù¾ÛŒØ§Ù… + Ù„ÛŒÙ†Ú© (Ø¨Ø¯ÙˆÙ† Ø¬Ø²Ø¦ÛŒØ§Øª ÙØ±Ù…)
 					$msg_type ='traking_link';
 					$msg_sub = 'null';
 				}else{
-					// برای just_message: فقط فرم پر شده (بدون لینک)
+					// Ø¨Ø±Ø§ÛŒ just_message: ÙÙ‚Ø· ÙØ±Ù… Ù¾Ø± Ø´Ø¯Ù‡ (Ø¨Ø¯ÙˆÙ† Ù„ÛŒÙ†Ú©)
 					$msg_content_ = $this->email_get_content_efb($valobj ,$check);
 					$msg_content = str_replace("\"","'",$msg_content_);
 					$msg_type = 'just_message';
@@ -6238,7 +6332,7 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/**
-	 * دریافت داده‌های نتایج نظرسنجی برای نمایش نمودار
+	 * Ø¯Ø±ÛŒØ§ÙØª Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ Ù†ØªØ§ÛŒØ¬ Ù†Ø¸Ø±Ø³Ù†Ø¬ÛŒ Ø¨Ø±Ø§ÛŒ Ù†Ù…Ø§ÛŒØ´ Ù†Ù…ÙˆØ¯Ø§Ø±
 	 * Get survey results data for chart display
 	 *
 	 * @param int $form_id Form ID
@@ -6255,7 +6349,7 @@ public function check_nonce_permission_efb($request) {
 		error_log('[SURVEY-DEBUG] formObj type: ' . gettype($formObj));
 		error_log('[SURVEY-DEBUG] formObj count: ' . (is_array($formObj) ? count($formObj) : 'NOT ARRAY'));
 
-		// لاگ اول: نمایش تمام فیلدهای فرم و خصوصیات مهم آنها
+		// Ù„Ø§Ú¯ Ø§ÙˆÙ„: Ù†Ù…Ø§ÛŒØ´ ØªÙ…Ø§Ù… ÙÛŒÙ„Ø¯Ù‡Ø§ÛŒ ÙØ±Ù… Ùˆ Ø®ØµÙˆØµÛŒØ§Øª Ù…Ù‡Ù… Ø¢Ù†Ù‡Ø§
 		if (is_array($formObj)) {
 			foreach ($formObj as $idx => $field) {
 				$ftype = $field['type'] ?? 'NO_TYPE';
@@ -6266,7 +6360,7 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
-		// دریافت تمام پیام‌های این فرم
+		// Ø¯Ø±ÛŒØ§ÙØª ØªÙ…Ø§Ù… Ù¾ÛŒØ§Ù…â€ŒÙ‡Ø§ÛŒ Ø§ÛŒÙ† ÙØ±Ù…
 		$table_name = $wpdb->prefix . 'emsfb_msg_';
 		$query = $wpdb->prepare(
 			"SELECT content FROM $table_name WHERE form_id = %d",
@@ -6286,7 +6380,7 @@ public function check_nonce_permission_efb($request) {
 			return [];
 		}
 
-		// لاگ: نمایش نمونه اولین پیام برای بررسی فرمت ذخیره شده
+		// Ù„Ø§Ú¯: Ù†Ù…Ø§ÛŒØ´ Ù†Ù…ÙˆÙ†Ù‡ Ø§ÙˆÙ„ÛŒÙ† Ù¾ÛŒØ§Ù… Ø¨Ø±Ø§ÛŒ Ø¨Ø±Ø±Ø³ÛŒ ÙØ±Ù…Øª Ø°Ø®ÛŒØ±Ù‡ Ø´Ø¯Ù‡
 		error_log('[SURVEY-DEBUG] First message raw content (first 500 chars): ' . substr($messages[0]->content, 0, 500));
 		$test_content = stripslashes($messages[0]->content);
 		error_log('[SURVEY-DEBUG] First message after stripslashes (first 500 chars): ' . substr($test_content, 0, 500));
@@ -6303,7 +6397,7 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
-		// تعریف انواع فیلدها و روش آماری مناسب
+		// ØªØ¹Ø±ÛŒÙ Ø§Ù†ÙˆØ§Ø¹ ÙÛŒÙ„Ø¯Ù‡Ø§ Ùˆ Ø±ÙˆØ´ Ø¢Ù…Ø§Ø±ÛŒ Ù…Ù†Ø§Ø³Ø¨
 		$field_categories = [
 			'radio' => 'choice',
 			'checkbox' => 'choice',
@@ -6329,7 +6423,7 @@ public function check_nonce_permission_efb($request) {
 			'ardate' => 'date'
 		];
 
-		// پیدا کردن فیلدهایی که showInPublicResults فعال دارند
+		// Ù¾ÛŒØ¯Ø§ Ú©Ø±Ø¯Ù† ÙÛŒÙ„Ø¯Ù‡Ø§ÛŒÛŒ Ú©Ù‡ showInPublicResults ÙØ¹Ø§Ù„ Ø¯Ø§Ø±Ù†Ø¯
 		$public_fields = [];
 		$skipped_fields_no_show = 0;
 		$skipped_fields_no_category = 0;
@@ -6360,7 +6454,7 @@ public function check_nonce_permission_efb($request) {
 					'values' => []
 				];
 
-				// دریافت گزینه‌ها برای فیلدهای choice
+				// Ø¯Ø±ÛŒØ§ÙØª Ú¯Ø²ÛŒÙ†Ù‡â€ŒÙ‡Ø§ Ø¨Ø±Ø§ÛŒ ÙÛŒÙ„Ø¯Ù‡Ø§ÛŒ choice
 				if ($category === 'choice') {
 					if ($field_type === 'yesNo') {
 						$btn1 = $field['button_1_text'] ?? 'Yes';
@@ -6447,7 +6541,7 @@ public function check_nonce_permission_efb($request) {
 			return [];
 		}
 
-		// شمارش و جمع‌آوری پاسخ‌ها
+		// Ø´Ù…Ø§Ø±Ø´ Ùˆ Ø¬Ù…Ø¹â€ŒØ¢ÙˆØ±ÛŒ Ù¾Ø§Ø³Ø®â€ŒÙ‡Ø§
 		$msg_index = 0;
 		$total_items_processed = 0;
 		$total_items_matched = 0;
@@ -6485,7 +6579,7 @@ public function check_nonce_permission_efb($request) {
 				$field_id = $item['id_'];
 				$item_type = $item['type'] ?? '';
 
-				// برای r_matrix
+				// Ø¨Ø±Ø§ÛŒ r_matrix
 				if ($item_type === 'r_matrix') {
 					// id_ = table_matrix parent ID, id_ob = actual row ID
 					$row_id = $item['id_ob'] ?? null;
@@ -6618,7 +6712,7 @@ public function check_nonce_permission_efb($request) {
 			$msg_index++;
 		}
 
-		// حیاتی: حذف reference از متغیر $field برای جلوگیری از بازنویسی ناخواسته در حلقه بعدی
+		// Ø­ÛŒØ§ØªÛŒ: Ø­Ø°Ù reference Ø§Ø² Ù…ØªØºÛŒØ± $field Ø¨Ø±Ø§ÛŒ Ø¬Ù„ÙˆÚ¯ÛŒØ±ÛŒ Ø§Ø² Ø¨Ø§Ø²Ù†ÙˆÛŒØ³ÛŒ Ù†Ø§Ø®ÙˆØ§Ø³ØªÙ‡ Ø¯Ø± Ø­Ù„Ù‚Ù‡ Ø¨Ø¹Ø¯ÛŒ
 		unset($field);
 
 		error_log("[SURVEY-DEBUG] === Processing Summary ===");
@@ -6630,7 +6724,7 @@ public function check_nonce_permission_efb($request) {
 		error_log("[SURVEY-DEBUG] Items skipped (field not in public_fields): $total_items_skipped_no_field");
 		error_log("[SURVEY-DEBUG] Items skipped (empty value): $total_items_skipped_empty");
 
-		// لاگ وضعیت نهایی public_fields قبل از تبدیل
+		// Ù„Ø§Ú¯ ÙˆØ¶Ø¹ÛŒØª Ù†Ù‡Ø§ÛŒÛŒ public_fields Ù‚Ø¨Ù„ Ø§Ø² ØªØ¨Ø¯ÛŒÙ„
 		foreach ($public_fields as $fid => $fdata) {
 			error_log("[SURVEY-DEBUG] Field '$fid' (type={$fdata['type']}, cat={$fdata['category']}) final state:");
 			if (!empty($fdata['options'])) {
@@ -6648,7 +6742,7 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
-		// تبدیل به فرمت مناسب برای Chart.js
+		// ØªØ¨Ø¯ÛŒÙ„ Ø¨Ù‡ ÙØ±Ù…Øª Ù…Ù†Ø§Ø³Ø¨ Ø¨Ø±Ø§ÛŒ Chart.js
 		$results = [];
 		foreach ($public_fields as $field_id => $field) {
 			$result = [
