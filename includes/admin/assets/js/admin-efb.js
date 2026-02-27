@@ -405,7 +405,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')">
       <i class="efb  bi-question mx-1"></i>${efb_var.text.help}
   </a>
-  <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#close" onclick="location.reload(true);">
+  <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#close" onclick="state_modal_show_efb(0)">
       <i class="efb  bi-x mx-1"></i>${efb_var.text.close}
   </a>
   `
@@ -664,7 +664,7 @@ createCardAddoneEfb = (i) => {
   let iconNtn = 'bi-download';
   let colorNtn = 'btn-primary';
   if (i.pro == true &&   Number(setting_emsFormBuilder.package_type) === 2) {
-    funNtn=`pro_show_efb(3)`;
+    funNtn=`pro_show_efb(1)`;
     nameNtn = efb_var.text.pro;
     iconNtn ='bi-gem';
     colorNtn = 'btn-warning';

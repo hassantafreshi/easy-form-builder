@@ -2524,28 +2524,20 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
             AdnMSF == membership form
             AdnBEF == booking and event form
             'AdnPDP'=> persian data picker,
-			'AdnADP'=> arabic data picker
+			     'AdnADP'=> arabic data picker
+            AdnTLG == telegram integration
+            AdnATF == auto complete form
         */
     if(valueJson_ws_setting.hasOwnProperty('AdnSPF')){
       AdnSPF=valueJson_ws_setting.AdnSPF;
       AdnOF=valueJson_ws_setting.AdnOF;
       AdnPPF=valueJson_ws_setting.AdnPPF;
-      AdnATC=valueJson_ws_setting.AdnATC;
       AdnSS=valueJson_ws_setting.AdnSS;
-      AdnCPF=valueJson_ws_setting.AdnCPF;
       AdnESZ=valueJson_ws_setting.AdnESZ;
       AdnSE=valueJson_ws_setting.AdnSE;
-      AdnWHS=valueJson_ws_setting.AdnWHS;
       AdnPAP=valueJson_ws_setting.AdnPAP;
-      AdnWSP=valueJson_ws_setting.AdnWSP;
-      AdnSMF=valueJson_ws_setting.AdnSMF;
-      AdnPLF=valueJson_ws_setting.AdnPLF;
-      AdnMSF=valueJson_ws_setting.AdnMSF;
-      AdnBEF=valueJson_ws_setting.AdnBEF;
       AdnPDP=valueJson_ws_setting.hasOwnProperty('AdnPDP') ?valueJson_ws_setting.AdnPDP :0;
       AdnADP=valueJson_ws_setting.hasOwnProperty('AdnADP') ? valueJson_ws_setting.AdnADP :0;
-      AdnATF=valueJson_ws_setting.hasOwnProperty('AdnATF') ? valueJson_ws_setting.AdnATF :0;
-      AdnTLG=valueJson_ws_setting.hasOwnProperty('AdnTLG') ? valueJson_ws_setting.AdnTLG :0;
     }
     const email_key_efb = valueJson_ws_setting.email_key ??  Math.random().toString(36).substr(2, 10);
 
@@ -2567,19 +2559,84 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const respFontSize = f('respFontSize_emsFormBuilder');
     const respCustomFont = f('respCustomFont_emsFormBuilder');
 
-    fun_send_setting_emsFormBuilder(
-      { activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email,
-         apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp,
-         paypalPKey: paypalPKey, paypalSKey: paypalSKey,
-         stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken, act_local_efb:act_local_efb,
-          scaptcha:scaptcha ,shield_silent_captcha:shieldSilentCaptcha,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
-         AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ,
-         AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
-         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb,showIp:showIp,adminSN:adminSN,osLocationPicker:osLocationPicker,sessionDuration:sessionDuration,
-         respPrimary:respPrimary,respPrimaryDark:respPrimaryDark,respAccent:respAccent,respText:respText,respTextMuted:respTextMuted,respBgCard:respBgCard,respBgMeta:respBgMeta,
-         respBgTrack:respBgTrack,respBgResp:respBgResp,respBgEditor:respBgEditor,respEditorText:respEditorText,respEditorPh:respEditorPh,respBtnText:respBtnText,respFontFamily:respFontFamily,respFontSize:respFontSize,respCustomFont:respCustomFont,
-         devMode:devMode_efb
-        } , state_auto);
+    let setting = { ...(valueJson_ws_setting || {}) };
+    const patch = {
+          activeCode: activeCode,
+          siteKey: sitekey,
+          secretKey: secretkey,
+          emailSupporter: email,
+
+          apiKeyMap: `${apiKeyMap}`,
+          smtp: smtp,
+          text: text,
+          bootstrap: bootstrap,
+          emailTemp: emailTemp,
+
+          paypalPKey: paypalPKey,
+          paypalSKey: paypalSKey,
+
+          stripePKey: stripePKey,
+          stripeSKey: stripeSKey,
+
+          payToken: payToken,
+          act_local_efb: act_local_efb,
+
+          scaptcha: scaptcha,
+          shield_silent_captcha: shieldSilentCaptcha,
+
+          activeDlBtn: activeDlBtn,
+          dsupfile: showUpfile,
+
+          sms_config: sms_config_efb,
+
+          AdnSPF: AdnSPF,
+          AdnOF: AdnOF,
+          AdnPPF: AdnPPF,
+          AdnSS: AdnSS,
+          AdnESZ: AdnESZ,
+          AdnSE: AdnSE,
+          AdnPAP: AdnPAP,
+          AdnPDP: AdnPDP,
+          AdnADP: AdnADP,
+
+          phnNo: phoneNumbers,
+          femail: femail,
+          email_key: email_key_efb,
+
+          showIp: showIp,
+          adminSN: adminSN,
+
+          osLocationPicker: osLocationPicker,
+          sessionDuration: sessionDuration,
+
+          respPrimary: respPrimary,
+          respPrimaryDark: respPrimaryDark,
+          respAccent: respAccent,
+          respText: respText,
+          respTextMuted: respTextMuted,
+          respBgCard: respBgCard,
+          respBgMeta: respBgMeta,
+          respBgTrack: respBgTrack,
+          respBgResp: respBgResp,
+          respBgEditor: respBgEditor,
+          respEditorText: respEditorText,
+          respEditorPh: respEditorPh,
+          respBtnText: respBtnText,
+          respFontFamily: respFontFamily,
+          respFontSize: respFontSize,
+          respCustomFont: respCustomFont,
+
+          devMode: devMode_efb
+        };
+
+        for (const [key, val] of Object.entries(patch)) {
+          if (val !== undefined) {
+            setting[key] = val;
+          }
+        }
+
+
+    fun_send_setting_emsFormBuilder( setting , state_auto);
   }
 
   /* document.getElementById('save-stng-efb').innerHTML = nnrhtml

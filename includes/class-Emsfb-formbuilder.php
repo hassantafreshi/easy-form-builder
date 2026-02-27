@@ -2199,12 +2199,12 @@
 				// Ensure the schema is hooked on the frontend (once)
 			$f = substr(get_locale(), 0, 2);
 			add_action('wp_head',  [$this, 'efb_output_schema_free_plus'], 20);
+			$style = 'opacity:0.5 !important;text-decoration:none !important;text-decoration-line:none !important;border:none !important;outline:none !important;box-shadow:none !important;';
 
-
-			$copyRight = '<div class="efb  d-md-block" id="copyrightEfb" style="font-size: 10px; text-align: center;">
-							<h2 class="efb fs-8" style="opacity: 0.7;">' . $s . '</h2>
+			$copyRight = '<div class="efb  d-md-block" id="copyrightEfb" style="font-size: 10px;' . $style . '">
+							<h2 class="efb fs-8" style="' . $style . '">' . $s . '</h2>
 							<aside class="efb-ai-context">
-							  <h2 class="efb fs-8" style="opacity: 0.7;">' .
+							  <h2 class="efb fs-8" style="' . $style . '">' .
 								/* translators: %1$s: opening link tag to plugin page, %2$s: closing link tag, %3$s: opening link tag to developer website, %4$s: closing link tag */
 								sprintf(
 									esc_html__('Powered by %1$sEasy Form Builder%2$s . %3$sWhiteStudio.team%4$s.', 'easy-form-builder'),
@@ -2214,15 +2214,14 @@
 									'</a>'
 								) .
 							  '</h2>
-							</aside>
-						</div>';
+							';
 
 			if (strpos(get_locale(), 'fa') === 0 || strpos(get_locale(), 'ar') === 0) {
-				$copyRight .= '<a href="https://easyformbuilder.ir" target="_blank" rel="sponsored noopener">فرم ساز آسان</a>ساخته شده بوسیله<a href="https://fa.wordpress.org/plugins/easy-form-builder/" target="_blank">افزونه فرم ساز رایگان وردپرس</a>' . $fr;
+				$copyRight .= '<a href="https://easyformbuilder.ir" target="_blank" style="font-size: 8px;' . $style . '" rel="sponsored noopener">فرم ساز آسان</a>ساخته شده بوسیله<a href="https://fa.wordpress.org/plugins/easy-form-builder/" target="_blank">افزونه فرم ساز رایگان وردپرس</a>' . $fr;
 			} else if (strpos(get_locale(), 'en') !== 0) {
-				$copyRight .= '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank" rel="sponsored noopener">'.$efb.' '. $wp_text.'</a>' . $fr;
+				$copyRight .= '<a href="https://'.$f.'.wordpress.org/plugins/easy-form-builder/" target="_blank" style="font-size: 8px;' . $style . '" rel="sponsored noopener">'.$efb.' '. $wp_text.'</a>' . $fr;
 			}
-			return $copyRight;
+			return $copyRight .'</aside></div>';
 		}else if($this->package_type_efb==2){
 			//free version
 			add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);;
