@@ -1876,6 +1876,19 @@ public function check_nonce_permission_efb($request) {
 			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
 			$plugin_settings = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
 			wp_cache_set('emsfb_settings', $plugin_settings , 'emsfb');
+		} else {
+			// Cache hit - still ensure $this->setting is an object
+			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
+		}
+
+		// Ensure $this->setting is properly set for email handling (as object)
+		if (is_string($r)) {
+			$r = str_replace('\\', '', $r);
+			$this->setting = json_decode($r);
+		} else if (is_array($plugin_settings)) {
+			$this->setting = json_decode(json_encode($plugin_settings), false);
+		} else if (is_object($r)) {
+			$this->setting = $r;
 		}
 
 		if (isset($plugin_settings['emailSupporter'])) {
@@ -3912,18 +3925,23 @@ public function check_nonce_permission_efb($request) {
 		}
 
         $cont[$i] = $track;
+        // Determine if content will be provided - used to skip button building
+        $will_have_custom_content = ($content != "null" && $i < 2);
+
         switch ($state[$i]) {
 			case "newMessage":
 				error_log('send_email_Emsfb_ - newMessage case processing');
 				$subject[$i] = $this->lanText['youRecivedNewMessage'] .' ['.$track.']';
-				$message[$i] = "<h2>$newMassageReciver</h2><p>$trackNo:<br> $track </p><p>$dt </p>" . sprintf($modern_button_template, $link_w[$i], $vmgs, $link_w[$i], $vmgs);
+				// Don't add button here - let email_template_efb handle it based on email_content_type
+				$message[$i] = "<h2>$newMassageReciver</h2><p>$trackNo:<br> $track </p><p>$dt </p>";
 				error_log('send_email_Emsfb_ - newMessage: subject[' . $i . '] = ' . $subject[$i]);
 				error_log('send_email_Emsfb_ - newMessage: message[' . $i . '] = ' . $message[$i]);
 				break;
             case "notiToUserFormFilled_TrackingCode":
                 error_log('send_email_Emsfb_ - notiToUserFormFilled_TrackingCode case processing');
                 $subject[$i] = $weRecivedUrM;
-                $message[$i] = "<h2>$thankFillForm</h2><p>$trackNo:<br> $track </p><p>$dt </p>" . sprintf($modern_button_template, $link_w[$i], $vmgs, $link_w[$i], $vmgs);
+                // Don't add button here - let email_template_efb handle it based on email_content_type
+                $message[$i] = "<h2>$thankFillForm</h2><p>$trackNo:<br> $track </p><p>$dt </p>";
                 error_log('send_email_Emsfb_ - notiToUserFormFilled_TrackingCode: message[' . $i . '] = ' . $message[$i]);
                 break;
             case "notiToUserFormFilled":
@@ -3935,7 +3953,8 @@ public function check_nonce_permission_efb($request) {
             case "respRecivedMessage":
                 error_log('send_email_Emsfb_ - respRecivedMessage case processing');
                 $subject[$i] = "$weRecivedUrM [$track]";
-                $message[$i] = "<h2>$weRecivedUrM</h2><p>$trackNo:<br> $track </p><p>$dt </p>" . sprintf($modern_button_template, $link_w[$i], $vmgs, $link_w[$i], $vmgs);
+                // Don't add button here - let email_template_efb handle it based on email_content_type
+                $message[$i] = "<h2>$weRecivedUrM</h2><p>$trackNo:<br> $track </p><p>$dt </p>";
                 error_log('send_email_Emsfb_ - respRecivedMessage: message[' . $i . '] = ' . $message[$i]);
                 break;
             case "register":
@@ -5009,6 +5028,13 @@ public function check_nonce_permission_efb($request) {
 	}
 
 
+	/**
+	 * Cache cleaner for supported cache plugins
+	 *
+	 * @param int $page_id   Post/Page ID to clear cache for
+	 * @param string|null $plugins  JSON string of cache plugins list
+	 * @return bool|null  false = no cache plugin active | null = cache plugin active but failed to clear | true = cache cleared successfully
+	 */
 	public function cache_cleaner_Efb($page_id, $plugins = null) {
 		$page_id = intval($page_id);
 
@@ -5016,7 +5042,6 @@ public function check_nonce_permission_efb($request) {
 			return false;
 		}
 
-		// Ù…Ø­Ø§Ø³Ø¨Ù‡ ÛŒÚ©Ø¨Ø§Ø± Ø¨Ø±Ø§ÛŒ Ú©Ù„ ÙØ±Ø¢ÛŒÙ†Ø¯ - Ø¨Ù‡ÛŒÙ†Ù‡â€ŒØ³Ø§Ø²ÛŒ
 		$page_type = get_post_type($page_id);
 		$page_url = get_permalink($page_id);
 		$page_post = get_post($page_id);
@@ -5042,12 +5067,12 @@ public function check_nonce_permission_efb($request) {
 					'clear' => function($p) { $GLOBALS['super_cache_enabled'] = 1; wp_cache_post_change($p); }
 				),
 				'jetpack' => array(
-					'check' => function() { return function_exists('wp_cache_post_change'); },
-					'clear' => function($p) { $GLOBALS['super_cache_enabled'] = 1; wp_cache_post_change($p); }
+					'check' => function() { return (class_exists('Jetpack') || defined('JETPACK__VERSION')); },
+					'clear' => function($p) { return null; }
 				),
 				'jetpack-boost' => array(
-					'check' => function() { return function_exists('wp_cache_post_change'); },
-					'clear' => function($p) { $GLOBALS['super_cache_enabled'] = 1; wp_cache_post_change($p); }
+					'check' => function() { return (class_exists('Automattic\\Jetpack_Boost\\Jetpack_Boost') || defined('JETPACK_BOOST_VERSION')); },
+					'clear' => function($p) { return null; }
 				),
 				'wp-optimize' => array(
 					'check' => function() { return class_exists('WPO_Page_Cache'); },
@@ -5072,8 +5097,20 @@ public function check_nonce_permission_efb($request) {
 					'clear' => function($p) { do_action('wphb_clear_page_cache', $p); }
 				),
 				'sg-optimizer' => array(
-					'check' => function() { return function_exists('sg_cachepress_purge_post'); },
-					'clear' => function($p) { sg_cachepress_purge_post($p); }
+					'check' => function() { return (function_exists('sg_cachepress_purge_cache') || function_exists('sg_cachepress_purge_post') || class_exists('SiteGround_Optimizer\Supercacher\Supercacher')); },
+					'clear' => function($p) {
+						try {
+							if (function_exists('sg_cachepress_purge_cache')) {
+								sg_cachepress_purge_cache(get_permalink($p));
+							} elseif (function_exists('sg_cachepress_purge_post')) {
+								sg_cachepress_purge_post($p);
+							} elseif (class_exists('SiteGround_Optimizer\Supercacher\Supercacher')) {
+								\SiteGround_Optimizer\Supercacher\Supercacher::purge_cache();
+							}
+						} catch (\Exception $e) {
+						} catch (\Error $e) {
+						}
+					}
 				),
 				'breeze' => array(
 					'check' => function() { return has_action('breeze_clear_all_cache'); },
@@ -5125,11 +5162,12 @@ public function check_nonce_permission_efb($request) {
 					'check' => function() { return class_exists('autoptimizeCache'); },
 					'clear' => function($p) {
 						try {
+							// Exclude EFB JS files from optimization
+							add_filter('autoptimize_filter_js_exclude', function($exclude) {
+								$efb_excludes = 'jquery.min-efb.js,core-efb.js';
+								return $exclude ? $exclude . ',' . $efb_excludes : $efb_excludes;
+							});
 							\autoptimizeCache::clearall();
-							if (function_exists('autoptimize_filter_js_noptimize')) {
-								autoptimize_filter_js_exclude(['jquery.min-efb.js','core-efb.js']);
-								autoptimize_filter_js_noptimize();
-							}
 						} catch (\Exception $e) {
 						} catch (\Error $e) {
 						}
@@ -5168,22 +5206,30 @@ public function check_nonce_permission_efb($request) {
 					'clear' => function($p) { ccfm_clear_cache_for_me(); }
 				),
 				'atec-cache-apcu' => array(
-					'check' => function() { return (function_exists('atec_wpca_delete_page') && function_exists('atec_wpca_settings')); },
+					'check' => function() { return (function_exists('atec_wpca_delete_page') && function_exists('atec_wpca_settings') && defined('ATEC_WPCA_APCU')); },
 					'clear' => function($p) {
-						$settings = atec_wpca_settings('cache');
-						if ($settings) {
-							$suffix = (isset($settings['salt']) ? $settings['salt'] : '') . '_p';
-							atec_wpca_delete_page($suffix, $p);
+						try {
+							$settings = atec_wpca_settings('cache');
+							if ($settings) {
+								$suffix = (isset($settings['salt']) ? $settings['salt'] : '') . '_p';
+								atec_wpca_delete_page($suffix, $p);
+							}
+						} catch (\Exception $e) {
+						} catch (\Error $e) {
 						}
 					}
 				),
 				'atec-cache-info' => array(
-					'check' => function() { return (function_exists('atec_wpca_delete_page') && function_exists('atec_wpca_settings')); },
+					'check' => function() { return (function_exists('atec_wpca_delete_page') && function_exists('atec_wpca_settings') && !defined('ATEC_WPCA_APCU')); },
 					'clear' => function($p) {
-						$settings = atec_wpca_settings('cache');
-						if ($settings) {
-							$suffix = (isset($settings['salt']) ? $settings['salt'] : '') . '_p';
-							atec_wpca_delete_page($suffix, $p);
+						try {
+							$settings = atec_wpca_settings('cache');
+							if ($settings) {
+								$suffix = (isset($settings['salt']) ? $settings['salt'] : '') . '_p';
+								atec_wpca_delete_page($suffix, $p);
+							}
+						} catch (\Exception $e) {
+						} catch (\Error $e) {
 						}
 					}
 				),
@@ -5238,7 +5284,6 @@ public function check_nonce_permission_efb($request) {
 			),
 		);
 
-		// Ø¯Ø±ÛŒØ§ÙØª Ù„ÛŒØ³Øª Ø§ÙØ²ÙˆÙ†Ù‡â€ŒÙ‡Ø§ÛŒ ÙØ¹Ø§Ù„ - Ø¨Ù‡ÛŒÙ†Ù‡â€ŒØ³Ø§Ø²ÛŒ Ø´Ø¯Ù‡
 		$active_plugins = array();
 
 		if ($plugins !== null) {
@@ -5252,9 +5297,9 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
-		// Ø§Ú¯Ø± Ù„ÛŒØ³Øª Ø®Ø§Ù„ÛŒ Ø§Ø³ØªØŒ ØªØ´Ø®ÛŒØµ Ø®ÙˆØ¯Ú©Ø§Ø±
+		// اگر لیست خالی است، تشخیص خودکار
 		if (empty($active_plugins)) {
-			// Ø¨Ø±Ø±Ø³ÛŒ static handlers
+			// بررسی static handlers
 			foreach ($cache_handlers as $slug => $handler) {
 				if ($handler['check']()) {
 					$active_plugins[$slug] = true;
@@ -5269,40 +5314,67 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		if (empty($active_plugins)) {
+			// حالت 1: هیچ افزونه کشی فعال نیست
 			return false;
 		}
 
-		// Ù¾Ø§Ú©Ø³Ø§Ø²ÛŒ Ú©Ø´ - error handling Ø§Ø³ØªØ§Ù†Ø¯Ø§Ø±Ø¯ WordPress
+		// پاکسازی کش - error handling استاندارد WordPress
 		$cleared = 0;
+		$failed = 0;
 
 		foreach ($active_plugins as $slug => $val) {
-			// Ø¨Ø±Ø±Ø³ÛŒ static handlers
+			// بررسی static handlers
 			if (isset($cache_handlers[$slug]) && is_callable($cache_handlers[$slug]['check']) && $cache_handlers[$slug]['check']()) {
 				if (is_callable($cache_handlers[$slug]['clear'])) {
 					try {
-						$cache_handlers[$slug]['clear']($page_id);
-						$cleared++;
-						error_log('Emsfb: Successfully cleared cache for plugin: ' . $slug . ' (page ID: ' . $page_id . ')');
+						$result = $cache_handlers[$slug]['clear']($page_id);
+						if ($result === null) {
+							// handler پاکسازی کش را پشتیبانی نمی‌کند
+							$failed++;
+							error_log('Emsfb: Cache clear not supported for plugin: ' . $slug . ' (page ID: ' . $page_id . ')');
+						} else {
+							$cleared++;
+							error_log('Emsfb: Successfully cleared cache for plugin: ' . $slug . ' (page ID: ' . $page_id . ')');
+						}
 					} catch (Exception $e) {
+						$failed++;
 						error_log('Emsfb: Failed to clear cache for plugin: ' . $slug . ' - Error: ' . $e->getMessage());
 					}
+				} else {
+					$failed++;
+					error_log('Emsfb: Clear function not callable for plugin: ' . $slug);
 				}
 			}
-			// Ø¨Ø±Ø±Ø³ÛŒ dynamic handlers
+			// بررسی dynamic handlers
 			elseif (isset($dynamic_handlers[$slug]) && $dynamic_handlers[$slug]['check'] && is_callable($dynamic_handlers[$slug]['clear'])) {
 				try {
-					$dynamic_handlers[$slug]['clear']($page_id);
-					$cleared++;
-					error_log('Emsfb: Successfully cleared cache for plugin: ' . $slug . ' (page ID: ' . $page_id . ')');
+					$result = $dynamic_handlers[$slug]['clear']($page_id);
+					if ($result === null) {
+						$failed++;
+						error_log('Emsfb: Cache clear not supported for plugin: ' . $slug . ' (page ID: ' . $page_id . ')');
+					} else {
+						$cleared++;
+						error_log('Emsfb: Successfully cleared cache for plugin: ' . $slug . ' (page ID: ' . $page_id . ')');
+					}
 				} catch (Exception $e) {
+					$failed++;
 					error_log('Emsfb: Failed to clear cache for plugin: ' . $slug . ' - Error: ' . $e->getMessage());
 				}
+			} else {
+				$failed++;
+				error_log('Emsfb: Handler not found or not available for plugin: ' . $slug);
 			}
 		}
 
-		error_log('Emsfb: Cache cleaner completed. Total plugins cleared: ' . $cleared . ' out of ' . count($active_plugins) . ' active plugins.');
+		error_log('Emsfb: Cache cleaner completed. Cleared: ' . $cleared . ', Failed: ' . $failed . ' out of ' . count($active_plugins) . ' active plugins.');
 
-		return $cleared > 0;
+		if ($cleared > 0) {
+			// حالت 3: کش با موفقیت پاک شده
+			return true;
+		}
+
+		// حالت 2: افزونه کشی فعال بود اما نتوانسته کش را پاک کند
+		return null;
 	}
 
 	public function comper_version_efb($v){
@@ -5898,7 +5970,7 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	private function ajax_object_efm_efb($ar_core ,$values ,$typeOfForm ,$state ,$lang,$poster ,$img ,$pro ,$page_builder ,$is_user ,$username,$lanText){
-
+		$page_id = get_the_ID();
 		$json_settings= get_setting_Emsfb('pub')[0];
 		$pub_settings = get_setting_Emsfb('pub')[1];
 		$ar_core = array_merge($ar_core , array(
@@ -5924,7 +5996,7 @@ public function check_nonce_permission_efb($request) {
 			'zone_area'=>CDN_ZONE_AREA,
 			'root_url'=>home_url('/'), // Root URL for REST API
 			'rest_url'=>get_rest_url(null),
-			'page_id'=>get_the_ID(),
+			'page_id'=> $page_id,
 			'page_builder'=>$page_builder,
 			'is_user'=> $is_user,
 			'user_name' => $username,
@@ -5947,6 +6019,11 @@ public function check_nonce_permission_efb($request) {
 			'respFontSize' => $pub_settings['respFontSize'] ?? '0.9rem',
 			'respCustomFont' => $pub_settings['respCustomFont'] ?? '',
 		) );
+
+		$cache_plugins = get_option('emsfb_cache_plugins','0');
+		if ( current_user_can('manage_options') && $cache_plugins !== '0' && !empty($cache_plugins)) {
+			$ar_core['cache_plugins'] = $cache_plugins;
+		}
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
 	}
 
@@ -6924,8 +7001,19 @@ public function check_nonce_permission_efb($request) {
 		return $results;
 	}
 
-
-
+	/**
+	 * Integrate with third-party services
+	 *
+	 * @param string $track_code Tracking code for the submission
+	 * @param array $submitted_values The submitted form values
+	 * @param array $form_fields_array The form structure and fields
+	 * @return void
+	 */
+	private function efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array) {
+		// TODO: Implement third-party service integration logic
+		// This method is called after form submission to integrate with external services
+		error_log('[Third Party Services] Integration initiated for tracking code: ' . $track_code);
+	}
 
 }
 new _Public();

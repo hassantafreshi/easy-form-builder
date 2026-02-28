@@ -3291,6 +3291,7 @@ public function check_error_console_efb(){
 		'wpCore'      => esc_html__('WordPress Core', 'easy-form-builder'),
 		'external'    => esc_html__('External', 'easy-form-builder'),
 		'unknown'     => esc_html__('Unknown', 'easy-form-builder'),
+		'notice'      => esc_html__('Notice', 'easy-form-builder'),
 		'line'        => esc_html__('Line', 'easy-form-builder'),
 		'file'        => esc_html__('File', 'easy-form-builder'),
 		'clear'       => esc_html__('Clear All', 'easy-form-builder'),
@@ -3514,7 +3515,7 @@ public function check_error_console_efb(){
 						border-radius: 50px; z-index: -1;
 					}
 					.efb-panel-header {
-						background: linear-gradient(135deg, #202a8d, #ff4b93);
+						background: linear-gradient(135deg, #dc3545, #410404);
 						color: #fff; padding: 16px 20px;
 						display: flex; justify-content: space-between; align-items: center;
 					}
@@ -3604,6 +3605,7 @@ public function check_error_console_efb(){
 					.efb-error-source .type-wpCore { background: #cce5ff; color: #004085; }
 					.efb-error-source .type-external { background: #e2e3e5; color: #383d41; }
 					.efb-error-source .type-unknown { background: #f5c6cb; color: #721c24; }
+					.efb-error-source .type-notice { background: #fff3cd; color: #664d03; border: 1px solid #ffecb5; }
 					.efb-error-msg { color: #333; font-size: 13px; line-height: 1.5; word-break: break-word; margin-bottom: 8px; }
 					.efb-error-file {
 						background: #1e1e2e; padding: 8px 12px; border-radius: 6px;
@@ -3703,8 +3705,10 @@ public function check_error_console_efb(){
 
 			// Add error to panel
 			addError(errorData) {
-				const { message, source, lineno, stack = [] } = errorData;
+				const { message, source, lineno, stack = [], typeOverride = null, nameOverride = null } = errorData;
 				const parsed = this.parseSource(source);
+				if (typeOverride) { parsed.type = typeOverride; }
+				if (nameOverride) { parsed.name = nameOverride; }
 				const time = new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
 
 				// Use first stack item as the real source if available
@@ -3813,6 +3817,68 @@ public function check_error_console_efb(){
 					}
 				}
 				return stack;
+			},
+
+			/**
+			 * Send a test error to the panel
+			 * Usage: EFB_ERROR_PANEL.test("My test message")
+			 *        EFB_ERROR_PANEL.test() // default test message
+			 */
+			test(message) {
+				const msg = message || "🧪 This is a TEST error message from EFB_ERROR_PANEL.test()";
+				const err = new Error(msg);
+				const stack = this.parseStack(err.stack);
+				this.addError({
+					message: msg,
+					source: window.location.href,
+					lineno: null,
+					stack: stack
+				});
+				console.info("%c[EFB Debug Panel]%c Test error added: " + msg, "color:#ff4b93;font-weight:bold", "color:inherit");
+			},
+
+			/**
+			 * Log a custom message with optional extra stack info
+			 * Usage:
+			 *   EFB_ERROR_PANEL.log("Something went wrong")
+			 *   EFB_ERROR_PANEL.log("API failed", { source: "my-plugin/api.js", line: 42 })
+			 *   EFB_ERROR_PANEL.log("Error X", { stack: [ { func: "loadData()", file: "wp-content/plugins/my-plugin/js/app.js", line: "55" }, { func: "init()", file: "wp-content/plugins/my-plugin/js/main.js", line: "10" } ] })
+			 */
+			log(message, options = {}) {
+				if (!message) { console.warn("[EFB Debug Panel] log() requires a message"); return; }
+
+				let source = options.source || window.location.href;
+				let lineno = options.line || options.lineno || null;
+				let stack = [];
+
+				// If user provided custom stack entries
+				if (Array.isArray(options.stack) && options.stack.length > 0) {
+					stack = options.stack.map(s => {
+						const filePath = s.file || s.url || "";
+						const parsed = this.parseSource(filePath.startsWith("http") ? filePath : window.location.origin + "/" + filePath);
+						parsed.fullPath = filePath;
+						return {
+							func: s.func || s.function || "anonymous",
+							url: filePath,
+							line: String(s.line || "?"),
+							col: String(s.col || s.column || "?"),
+							parsed: parsed
+						};
+					});
+				} else if (options.captureStack !== false) {
+					// Auto-capture real stack from call site
+					const err = new Error("__efb_log__");
+					stack = this.parseStack(err.stack);
+					// Remove the first frame (this log() call itself)
+					if (stack.length > 0 && stack[0].func.includes("log")) {
+						stack.shift();
+					}
+				}
+
+				const typeOverride = options.type || null;
+				const nameOverride = options.name || null;
+				this.addError({ message, source, lineno, stack, typeOverride, nameOverride });
+				console.info("%c[EFB Debug Panel]%c Logged: " + message, "color:#ff4b93;font-weight:bold", "color:inherit");
 			},
 
 			// Initialize

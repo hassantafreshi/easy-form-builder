@@ -292,17 +292,20 @@ function alert_message_efb(title, message, sec, alertType) {
 
     // ایجاد container اگر موجود نباشد / Create fixed container if not exists
     let container = document.getElementById('alert_container_efb');
+    let width = document.getElementById('adminmenuback')?.offsetWidth || 0;
+    console.log('[EFB Alert] Menu width:', width , document.getElementById('adminmenuback'));
+    width = width > 0 ? width + 15 : 15; // اضافه کردن فاصله به عرض منو
     if (!container) {
       container = document.createElement('div');
       container.id = 'alert_container_efb';
       container.className = 'efb';
-      container.style.cssText = `position:fixed; top:80px; ${isRtl ? 'right' : 'left'}:20px; z-index:99999; width:${isMobile ? 'calc(100vw - 40px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
+      container.style.cssText = `position:fixed; top:80px; ${isRtl ? 'right' : 'left'}:${width}px; z-index:99999; width:${isMobile ? 'calc(100vw - 40px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
       document.body.appendChild(container);
       console.log('[EFB Alert] Container created');
     }
 
     const alertHtml = `
-      <div id="${alertId}" class="efb alert_item_efb ${rtl}" style="background:${style.bg}; border-radius:12px; padding:14px 16px; box-shadow:0 4px 20px rgba(0,0,0,0.2); animation:slideIn_efb .3s ease; transition:all .3s ease; pointer-events:auto;">
+      <div id="${alertId}" class="efb alert_item_efb ${rtl}" style="background:${style.bg}; border-radius:12px; padding:14px 16px; box-shadow:0 4px 20px rgb(0 0 0 / 49%); animation:slideIn_efb .3s ease; transition:all .3s ease; pointer-events:auto;">
         <div class="efb d-flex align-items-center">
           <div class="efb" style="background:rgba(255,255,255,0.2); border-radius:50%; padding:8px; margin-${isRtl ? 'left' : 'right'}:12px; flex-shrink:0;">
             <i class="efb bi ${style.icon}" style="font-size:1.2rem; color:${style.color};"></i>

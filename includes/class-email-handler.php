@@ -387,6 +387,11 @@ class EmsfbEmailHandler {
         }
 
         $temp = isset($st->emailTemp) && strlen($st->emailTemp) > 10 ? $st->emailTemp : "0";
+        error_log('===== EmailHandler Settings Debug =====');
+        error_log('Settings object received: ' . json_encode($st));
+        error_log('emailTemp extracted: ' . substr($temp, 0, 100) . (strlen($temp) > 100 ? '...' : ''));
+        error_log('emailTemp will be used: ' . ($temp != "0" ? 'YES' : 'NO'));
+        error_log('========================================');
 
         $title = $lang['newMessage'];
         $message = is_string($m) ? "<h3>$m</h3>" : "<h3>{$m[0]}</h3>";
@@ -412,7 +417,11 @@ class EmsfbEmailHandler {
         }
         // For newUser/register states, no tracking section needed - the verification link is in the content
         $isRegistrationState = in_array($state, ['newUser', 'register']);
-        $tracking_section = ($email_content_type == 'just_message' || $isRegistrationState) ? "" : "
+
+        // Build tracking section only for tracking_link and message_link types (not for just_message)
+        $tracking_section = "";
+        if ($email_content_type != 'just_message' && !$isRegistrationState) {
+            $tracking_section = "
             <div style='text-align:center; margin: 30px 0;'>
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 0 auto;'>
                     <tr>
@@ -425,6 +434,7 @@ class EmsfbEmailHandler {
                 </table>
             </div>
         ";
+        }
 
         // Set appropriate title based on state
         if ($isRegistrationState) {
@@ -596,7 +606,7 @@ class EmsfbEmailHandler {
         if (is_string($m)) {
             // فقط کد رهگیری داریم
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
-                return $m;
+                return $m . $tracking_section;
             } else {
                 $track_id = $m;
                 $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];

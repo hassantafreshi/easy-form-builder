@@ -1539,6 +1539,12 @@ class efbFunction {
 			"ebViewWebsite" => $state && isset($ac->text->ebViewWebsite) ? $ac->text->ebViewWebsite : esc_html__('View Website','easy-form-builder'),
 			"ebDisclaimerText" => $state && isset($ac->text->ebDisclaimerText) ? $ac->text->ebDisclaimerText : esc_html__('This email was sent automatically. Please do not reply directly.','easy-form-builder'),
 			'payments' => $state && isset($ac->text->payments) ? $ac->text->payments : esc_html__('Payments','easy-form-builder'),
+			/* translators: Cache warning messages shown to admin when cache plugins detected */
+			"cacheWarnTitle" => $state && isset($ac->text->cacheWarnTitle) ? $ac->text->cacheWarnTitle : esc_html__('Cache Plugin Detected','easy-form-builder'),
+			"cacheWarnMsg" => $state && isset($ac->text->cacheWarnMsg) ? $ac->text->cacheWarnMsg : esc_html__('The following cache plugins may interfere with form functionality. If you experience issues, please review the documentation.','easy-form-builder'),
+			"cacheWarnPlugin" => $state && isset($ac->text->cacheWarnPlugin) ? $ac->text->cacheWarnPlugin : esc_html__('Plugin','easy-form-builder'),
+			"cacheWarnVersion" => $state && isset($ac->text->cacheWarnVersion) ? $ac->text->cacheWarnVersion : esc_html__('Version','easy-form-builder'),
+			"cacheWarnDoc" => $state && isset($ac->text->cacheWarnDoc) ? $ac->text->cacheWarnDoc : esc_html__('Read more about cache compatibility','easy-form-builder'),
 
 		];
 

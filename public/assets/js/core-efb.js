@@ -115,6 +115,42 @@ function check_body_efb_timer (){
       setting_emsFormBuilder=typeof ajax_object_efm.form_settingJSON=='string' ? JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, '')) : ajax_object_efm.form_settingJSON;
       efb_var = ajax_object_efm;
       efb_var.text = deepFreeze_efb(efb_var.text);
+
+      /* --- Cache plugin warning for admins --- */
+      if (ajax_object_efm.cache_plugins && ajax_object_efm.cache_plugins !== '0') {
+        try {
+          const _cacheList = typeof ajax_object_efm.cache_plugins === 'string'
+            ? JSON.parse(ajax_object_efm.cache_plugins)
+            : ajax_object_efm.cache_plugins;
+
+          if (Array.isArray(_cacheList) && _cacheList.length > 0) {
+            const _t = ajax_object_efm.text;
+            const _docUrl = 'https://whitestudio.team/document/exclude-easy-form-builder-froms-cache/';
+
+            _cacheList.forEach(function(p) {
+              let _line = (_t.cacheWarnPlugin || 'Plugin') + ': ' + p.name;
+              if (p.version) {
+                _line += '  |  ' + (_t.cacheWarnVersion || 'Version') + ': ' + p.version;
+              }
+
+              const _msg = '\u26A0\uFE0F ' + (_t.cacheWarnTitle || 'Cache Plugin Detected') + '\n'
+                + (_t.cacheWarnMsg || 'The following cache plugins may interfere with form functionality. If you experience issues, please review the documentation.') + '\n\n'
+                + _line + '\n\n'
+                + (_t.cacheWarnDoc || 'Read more about cache compatibility') + ':\n' + _docUrl;
+
+              if (typeof EFB_ERROR_PANEL !== 'undefined' && typeof EFB_ERROR_PANEL.log === 'function') {
+                EFB_ERROR_PANEL.log(_msg, { source: 'cache-warning', type: 'notice', name: 'Easy Form Builder', captureStack: false });
+              } else {
+                console.warn('[EFB] ' + _msg);
+              }
+            });
+          }
+        } catch (_e) {
+          console.warn('[EFB] Failed to parse cache_plugins:', _e);
+        }
+      }
+      /* --- End cache plugin warning --- */
+
       if (ajax_object_efm.state != 'tracker') {
         console.log(ajax_object_efm.ajax_value)
         const ajax_value = typeof (ajax_object_efm.ajax_value) == "string" ? JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
