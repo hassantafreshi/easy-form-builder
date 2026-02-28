@@ -239,7 +239,7 @@ class EmsfbEmailHandler {
         error_log('EmailHandler - final sender: ' . $from);
 
         $headers = [
-            'MIME-Version: 1.0\r\n',
+            "MIME-Version: 1.0\r\n",
             'From:' . $from,
         ];
 
@@ -359,7 +359,7 @@ class EmsfbEmailHandler {
         // Email disclaimer
         $automatic_email_disclaimer = '📧 ' . __('This email was sent automatically. Please do not reply.', 'easy-form-builder');
 
-        $footer = "<a class='efb subtle-link' target='_blank' href='" . home_url() . "'>" . $lang['sentBy'] . " " . get_bloginfo('name') . "</a>";
+        $footer = "<a class='efb subtle-link' target='_blank' href='" . esc_url(home_url()) . "'>" . $lang['sentBy'] . " " . esc_html(get_bloginfo('name')) . "</a>";
         $align = is_rtl() ? 'right' : 'left';
         $d = is_rtl() ? 'rtl' : 'ltr';
 
@@ -367,7 +367,7 @@ class EmsfbEmailHandler {
         if ($st == 'null') {
             $st = $this->get_settings_efficiently();
         }
-        if ($st == "null") return;
+        if ($st == "null") return '';
 
         // Pro version footer handling
         if ($pro == true || $pro == 1) {
@@ -426,7 +426,7 @@ class EmsfbEmailHandler {
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 0 auto;'>
                     <tr>
                         <td style='background: linear-gradient(135deg, #202a8d 0%, #1e3a8a 100%); border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(32, 42, 141, 0.3);'>
-                            <a href='" . $link . "' target='_blank' style='" . $button_style . "'>
+                            <a href='" . esc_url($link) . "' target='_blank' style='" . $button_style . "'>
                                 " . $lang['vmgs'] . "
                             </a>
                         </td>
@@ -722,7 +722,7 @@ class EmsfbEmailHandler {
 <head>
     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
-    <title>$title</title>
+    <title>" . esc_html($title) . "</title>
     <style type=\"text/css\">
         body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
         table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
@@ -816,32 +816,44 @@ class EmsfbEmailHandler {
             'shortcode_admin_email' => $adminEmail
         ];
 
-        // Strip builder data comment before processing (not needed in sent emails)
+        // ── Extract EFBDATA metadata BEFORE stripping it ──
+        // EFBDATA contains the complete block definitions with all styling (colors,
+        // fonts, padding, etc.) that may have been lost from the HTML during save
+        // sanitization (wp_kses strips style attributes broken by quote conversion).
+        $efbdata_json = null;
+        if (preg_match('/<!-- EFBDATA:([\S]+) -->/', $temp, $efb_match)) {
+            $efbdata_json = $efb_match[1];
+        }
+
+        // If EFBDATA exists, regenerate the full HTML from block data.
+        // This is the reliable path because EFBDATA is URL-encoded and preserved
+        // intact through the save pipeline, unlike inline styles which can be
+        // broken by the double-quote → single-quote conversion in font-family values.
+        if ($efbdata_json) {
+            $rebuilt = $this->generate_from_efbdata($efbdata_json, $replacements);
+            if ($rebuilt !== false) {
+                return $rebuilt;
+            }
+        }
+
+        // ── Fallback: use the stored HTML directly (legacy or non-builder templates) ──
+        // Strip builder data comment
         $temp = preg_replace('/\n?<!-- EFBDATA:.*? -->/', '', $temp);
 
         // Replace shortcodes with actual values
         $temp = strtr($temp, $replacements);
 
-        // Decode @efb@ URL encoding — each @efb@ represents exactly one /
-        // Protocol fix: wp_kses may normalize http:// to http:/ during save,
-        // so the DB may store http:@efb@ (one token) instead of http:@efb@@efb@ (two).
-        // (?:@efb@)+ matches one OR more complete @efb@ groups and restores ://
-        // The old regex @efb@+ was wrong because + applied to just the last @,
-        // eating into the next @efb@ token on two-token cases.
+        // Decode @efb@ URL encoding
         $temp = preg_replace(['/http:(?:@efb@)+/', '/https:(?:@efb@)+/'], ['http://', 'https://'], $temp);
         $temp = str_replace('@efb@', '/', $temp);
 
-        // Detect builder template (contains efb-email-container class from the drag-drop builder)
+        // Detect builder template
         $isBuilderTemplate = (strpos($temp, 'efb-email-container') !== false);
 
         if ($isBuilderTemplate) {
-            // Builder templates are saved through wp_kses which strips the HTML document
-            // envelope (<!DOCTYPE>, <html>, <head>, <style>, <body>) and HTML comments
-            // (MSO conditionals). Reconstruct the document for correct email rendering.
             if (stripos($temp, '<!DOCTYPE') === false && stripos($temp, '<html') === false) {
                 $temp = $this->wrap_builder_template_html($temp);
             }
-            // Builder templates include their own footer blocks — no extra injection needed.
         } else {
             // Legacy template — inject footer + disclaimer before </body>
             $p = strripos($temp, '</body>');
@@ -877,6 +889,671 @@ class EmsfbEmailHandler {
     }
 
     /**
+     * Rebuild full email HTML from EFBDATA block definitions.
+     *
+     * The drag-drop email builder stores a JSON metadata comment (EFBDATA) that
+     * contains the complete block tree with all styling properties. This method
+     * renders each block to HTML with proper inline styles — faithfully matching
+     * the JavaScript builder's output — and replaces shortcodes with real values.
+     *
+     * This bypasses the stored HTML which may have broken inline styles due to
+     * the save pipeline's double-quote → single-quote conversion conflicting
+     * with font-family names that contain quotes (e.g. 'Segoe UI').
+     *
+     * @param string $efbdata_encoded URL-encoded JSON string from EFBDATA comment
+     * @param array  $replacements    Shortcode → value mapping
+     * @return string|false           Complete HTML email document, or false on failure
+     */
+    /**
+     * Sanitize a CSS value for use inside a double-quoted HTML style attribute.
+     *
+     * Unlike esc_attr(), this preserves single quotes which are needed for
+     * CSS font-family names like 'Segoe UI'. It strips characters that could
+     * break out of the style attribute (double quotes, angle brackets) and
+     * removes dangerous CSS patterns.
+     *
+     * @param string $value Raw CSS value
+     * @return string Sanitized CSS value safe for style="..." context
+     */
+    private function safe_css_value($value) {
+        // Remove characters that break double-quoted attribute context
+        $value = str_replace(['"', '<', '>', '\\'], '', $value);
+        // Remove dangerous CSS patterns
+        $value = preg_replace('/expression\s*\(/i', '', $value);
+        $value = preg_replace('/javascript\s*:/i', '', $value);
+        $value = preg_replace('/\burl\s*\(/i', '', $value);
+        $value = preg_replace('/-moz-binding\s*:/i', '', $value);
+        $value = preg_replace('/behavior\s*:/i', '', $value);
+        $value = preg_replace('/@import/i', '', $value);
+        return trim($value);
+    }
+
+    private function generate_from_efbdata($efbdata_encoded, $replacements) {
+        $data = json_decode(urldecode($efbdata_encoded), true);
+        if (!$data || !isset($data['blocks']) || !is_array($data['blocks'])) {
+            return false;
+        }
+
+        $blocks = $data['blocks'];
+        $gs = $data['globalSettings'] ?? [];
+
+        // Global settings with defaults
+        $bgColor        = $gs['bgColor']        ?? '#f8f9fa';
+        $contentBgColor = $gs['contentBgColor']  ?? '#ffffff';
+        $contentWidth   = intval($gs['contentWidth'] ?? 600);
+        $borderRadius   = intval($gs['borderRadius'] ?? 8);
+        $fontFamily     = $gs['fontFamily']      ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
+        $direction      = $gs['direction']       ?? (is_rtl() ? 'rtl' : 'ltr');
+
+        // Render all blocks
+        $rows_html = '';
+        foreach ($blocks as $block) {
+            $rows_html .= $this->render_efb_block($block, $gs, $replacements);
+        }
+
+        // Build MSO conditional wrapper
+        $mso_open  = '<!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="' . $contentWidth . '" align="center"><tr><td><![endif]-->';
+        $mso_close = '<!--[if mso]></td></tr></table><![endif]-->';
+
+        // Escape for HTML attributes — use safe_css_value for font-family
+        $safe_bg       = esc_attr($bgColor);
+        $safe_cbg      = esc_attr($contentBgColor);
+        $safe_dir      = esc_attr($direction);
+        $safe_ff       = $this->safe_css_value($fontFamily);
+        $safe_br       = esc_attr($borderRadius);
+        $safe_cw       = esc_attr($contentWidth);
+
+        return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+<style type="text/css">
+body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+img { -ms-interpolation-mode: bicubic; border: 0; }
+body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+table { border-collapse: collapse !important; }
+@media only screen and (max-width: 600px) {
+  .efb-email-wrapper { max-width: 100% !important; width: 100% !important; }
+  .efb-email-container { width: 100% !important; }
+  .efb-email-container td { padding-left: 15px !important; padding-right: 15px !important; }
+  img { max-width: 100% !important; height: auto !important; }
+}
+</style>
+</head>
+<body style="margin: 0; padding: 0; width: 100%; background-color: ' . $safe_bg . '; direction: ' . $safe_dir . '; font-family: ' . $safe_ff . ';">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: ' . $safe_bg . ';">
+<tr><td align="center" style="padding: 20px 0;">
+' . $mso_open . '
+<div class="efb-email-wrapper" style="max-width: ' . $safe_cw . 'px; margin: 0 auto; border-radius: ' . $safe_br . 'px; overflow: hidden; background-color: ' . $safe_cbg . ';">
+<table class="efb-email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: ' . $safe_cbg . ';">
+' . $rows_html . '
+</table>
+</div>
+' . $mso_close . '
+</td></tr>
+</table>
+</body>
+</html>';
+    }
+
+    /**
+     * Render a single email builder block to HTML.
+     *
+     * Matches the JavaScript builder's render functions exactly, producing
+     * identical HTML structure with all inline styles from block properties.
+     *
+     * @param array $block        Block definition {id, type, data, children?}
+     * @param array $gs           Global settings
+     * @param array $replacements Shortcode → value mapping
+     * @return string HTML for the block
+     */
+    private function render_efb_block($block, $gs, $replacements) {
+        $type = $block['type'] ?? '';
+        $d    = $block['data'] ?? [];
+        $contentBgColor = $gs['contentBgColor'] ?? '#ffffff';
+        $globalFont     = $gs['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
+
+        // Helper: resolve font-family (block-level or global)
+        $ff = function($blockFont = '') use ($globalFont) {
+            return (!empty($blockFont) && $blockFont !== '') ? $blockFont : $globalFont;
+        };
+
+        // Helper: apply shortcode replacements to a text value
+        $sc = function($text) use ($replacements) {
+            return strtr($text, $replacements);
+        };
+
+        switch ($type) {
+            case 'header':
+                return $this->render_header_block($d, $block['children'] ?? [], $gs, $replacements);
+
+            case 'logo':
+                return $this->render_logo_block($d);
+
+            case 'title':
+                return $this->render_title_block($d, $gs, $replacements);
+
+            case 'text':
+                return $this->render_text_block($d, $gs, $replacements);
+
+            case 'message':
+                return $this->render_message_block($d, $gs, $replacements);
+
+            case 'button':
+                return $this->render_button_block($d, $gs, $replacements);
+
+            case 'divider':
+                return $this->render_divider_block($d, $gs);
+
+            case 'spacer':
+                return $this->render_spacer_block($d);
+
+            case 'image':
+                return $this->render_image_block($d, $gs, $replacements);
+
+            case 'columns':
+                return $this->render_columns_block($d, $gs, $replacements);
+
+            case 'social':
+                return $this->render_social_block($d, $gs, $replacements);
+
+            case 'footer':
+                return $this->render_footer_block($d, $gs, $replacements);
+
+            case 'htmlBlock':
+                return $this->render_html_block($d, $replacements);
+
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Render header block (container with gradient/color bg + child blocks)
+     */
+    private function render_header_block($d, $children, $gs, $replacements) {
+        $align   = esc_attr($d['align'] ?? 'center');
+        $padding = esc_attr($d['padding'] ?? '40px 30px 30px 30px');
+        $bg      = !empty($d['bgGradient']) ? $d['bgGradient'] : ($d['bgColor'] ?? '#202a8d');
+        $isGradient = (strpos($bg, 'gradient') !== false);
+        $borderRadius = isset($gs['borderRadius']) ? intval($gs['borderRadius']) : 8;
+
+        // Extract a solid fallback colour from gradient for Outlook
+        $solidFallback = $d['bgColor'] ?? '#202a8d';
+        if ($isGradient && preg_match('/#[0-9a-fA-F]{3,8}/', $bg, $cMatch)) {
+            $solidFallback = $cMatch[0];
+        }
+
+        $inner = '';
+        foreach ($children as $child) {
+            $childType = $child['type'] ?? '';
+            $childData = $child['data'] ?? [];
+            if ($childType === 'logo') {
+                $inner .= $this->render_logo_block($childData, $align);
+            } elseif ($childType === 'title') {
+                $inner .= $this->render_title_block($childData, $gs, $replacements, $align);
+            }
+        }
+
+        // Outlook-safe: use background-color as fallback; modern clients see the gradient
+        $bgStyle = $isGradient
+            ? 'background-color: ' . esc_attr($solidFallback) . '; background: ' . esc_attr($bg) . ';'
+            : 'background-color: ' . esc_attr($bg) . ';';
+
+        return '<tr><td align="' . $align . '" style="padding: ' . $padding . '; ' . $bgStyle . ' text-align: ' . $align . ';">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+            ' . $inner . '
+          </table>
+        </td></tr>';
+    }
+
+    /**
+     * Render logo block
+     */
+    private function render_logo_block($d, $parentAlign = null) {
+        $src   = esc_url($d['src'] ?? '');
+        $alt   = esc_attr($d['alt'] ?? 'Logo');
+        $width = intval($d['width'] ?? 120);
+        $align = esc_attr($parentAlign ?? $d['align'] ?? 'center');
+
+        // Compute margin based on alignment
+        $margin = '0 auto 20px auto';
+        if ($align === 'left')  $margin = '0 auto 20px 0';
+        if ($align === 'right') $margin = '0 0 20px auto';
+
+        return '<tr><td align="' . $align . '">
+          <img src="' . $src . '" alt="' . $alt . '" style="width: ' . $width . 'px; height: auto; display: block; margin: ' . $margin . '; border: none;" />
+        </td></tr>';
+    }
+
+    /**
+     * Render title block (h1 with full inline styles)
+     */
+    private function render_title_block($d, $gs, $replacements, $parentAlign = null) {
+        $text       = strtr(($d['text'] ?? ''), $replacements);
+        $color      = esc_attr($d['color'] ?? '#ffffff');
+        $fontSize   = intval($d['fontSize'] ?? 28);
+        $fontWeight = esc_attr($d['fontWeight'] ?? '600');
+        $align      = esc_attr($parentAlign ?? $d['align'] ?? 'center');
+        $globalFont = $gs['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
+        $fontFam    = $this->safe_css_value(!empty($d['fontFamily']) ? $d['fontFamily'] : $globalFont);
+
+        return '<tr><td align="' . $align . '">
+          <h1 style="margin: 0; padding: 0; color: ' . $color . '; font-size: ' . $fontSize . 'px; font-weight: ' . $fontWeight . '; line-height: 1.3; text-align: ' . $align . '; font-family: ' . $fontFam . ';">' . $text . '</h1>
+        </td></tr>';
+    }
+
+    /**
+     * Render text block (p with full inline styles)
+     */
+    private function render_text_block($d, $gs, $replacements) {
+        $text       = strtr(($d['text'] ?? ''), $replacements);
+        $color      = esc_attr($d['color'] ?? '#333333');
+        $fontSize   = intval($d['fontSize'] ?? 16);
+        $lineHeight = esc_attr($d['lineHeight'] ?? '1.6');
+        $align      = esc_attr($d['align'] ?? 'center');
+        $padding    = esc_attr($d['padding'] ?? '10px 30px');
+        $globalFont = $gs['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
+        $fontFam    = $this->safe_css_value(!empty($d['fontFamily']) ? $d['fontFamily'] : $globalFont);
+        $contentBg  = esc_attr($gs['contentBgColor'] ?? '#ffffff');
+
+        return '<tr><td style="padding: ' . $padding . '; background-color: ' . $contentBg . ';">
+          <p style="margin: 0; color: ' . $color . '; font-size: ' . $fontSize . 'px; line-height: ' . $lineHeight . '; text-align: ' . $align . '; font-family: ' . $fontFam . ';">' . $text . '</p>
+        </td></tr>';
+    }
+
+    /**
+     * Render message block (shortcode_message container with styles from builder)
+     */
+    private function render_message_block($d, $gs, $replacements) {
+        $padding    = esc_attr($d['padding'] ?? '40px 30px');
+        $bgColor    = esc_attr($d['bgColor'] ?? '#ffffff');
+        $color      = esc_attr($d['color'] ?? '#333333');
+        $fontSize   = intval($d['fontSize'] ?? 16);
+        $align      = esc_attr($d['align'] ?? 'center');
+        $globalFont = $gs['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
+        $fontFam    = $this->safe_css_value(!empty($d['fontFamily']) ? $d['fontFamily'] : $globalFont);
+
+        // The message content (form submission data)
+        $content = $replacements['shortcode_message'] ?? 'shortcode_message';
+
+        return '<tr><td style="padding: ' . $padding . '; background-color: ' . $bgColor . ';">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+            <tr><td align="' . $align . '" style="color: ' . $color . '; font-size: ' . $fontSize . 'px; line-height: 1.6; text-align: ' . $align . '; font-family: ' . $fontFam . ';">
+              ' . $content . '
+            </td></tr>
+          </table>
+        </td></tr>';
+    }
+
+    /**
+     * Render button block
+     */
+    private function render_button_block($d, $gs, $replacements) {
+        $text        = strtr(($d['text'] ?? 'Click Here'), $replacements);
+        $url         = esc_url(strtr(($d['url'] ?? '#'), $replacements));
+        $bgColor     = esc_attr($d['bgColor'] ?? '#202a8d');
+        $textColor   = esc_attr($d['textColor'] ?? '#ffffff');
+        $borderRad   = intval($d['borderRadius'] ?? 8);
+        $padding     = esc_attr($d['padding'] ?? '14px 32px');
+        $fontSize    = intval($d['fontSize'] ?? 16);
+        $align       = esc_attr($d['align'] ?? 'center');
+        $cPadding    = esc_attr($d['containerPadding'] ?? '20px 30px');
+        $globalFont  = $gs['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
+        $fontFam     = $this->safe_css_value(!empty($d['fontFamily']) ? $d['fontFamily'] : $globalFont);
+        $contentBg   = esc_attr($gs['contentBgColor'] ?? '#ffffff');
+
+        // Compute margin for alignment
+        $margin = '0 auto';
+        if ($align === 'left')  $margin = '0 auto 0 0';
+        if ($align === 'right') $margin = '0 0 0 auto';
+
+        // Parse padding values for VML (Outlook bulletproof button)
+        $padParts = preg_split('/\s+/', trim($padding));
+        $padTop = intval($padParts[0] ?? 14);
+        $padRight = intval($padParts[1] ?? $padParts[0] ?? 32);
+        $padBottom = intval($padParts[2] ?? $padParts[0] ?? 14);
+        $padLeft = intval($padParts[3] ?? $padParts[1] ?? $padParts[0] ?? 32);
+        $btnWidth = 0; // auto width for VML
+
+        // Bulletproof button: VML for Outlook, CSS for modern clients
+        $vml_btn = '<!--[if mso]>
+          <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="' . $url . '" style="height:auto;v-text-anchor:middle;" arcsize="' . ($borderRad > 0 ? intval($borderRad * 100 / 40) : 0) . '%" strokecolor="' . $bgColor . '" fillcolor="' . $bgColor . '">
+            <w:anchorlock/>
+            <center style="color:' . $textColor . ';font-family:' . $fontFam . ';font-size:' . $fontSize . 'px;font-weight:600;padding:' . $padTop . 'px ' . $padRight . 'px ' . $padBottom . 'px ' . $padLeft . 'px;">' . $text . '</center>
+          </v:roundrect>
+        <![endif]-->';
+
+        return '<tr><td align="' . $align . '" style="background-color: ' . $contentBg . '; padding: ' . $cPadding . ';">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="' . $align . '" style="margin: ' . $margin . ';">
+            <tr>
+              <td style="background-color: ' . $bgColor . '; border-radius: ' . $borderRad . 'px; text-align: center;">
+                ' . $vml_btn . '
+                <!--[if !mso]><!-->
+                <a href="' . $url . '" target="_blank" style="display: inline-block; padding: ' . $padding . '; color: ' . $textColor . '; text-decoration: none; font-family: ' . $fontFam . '; font-size: ' . $fontSize . 'px; font-weight: 600; line-height: 1; mso-hide: all;">' . $text . '</a>
+                <!--<![endif]-->
+              </td>
+            </tr>
+          </table>
+        </td></tr>';
+    }
+
+    /**
+     * Render divider block
+     */
+    private function render_divider_block($d, $gs) {
+        $color     = esc_attr($d['color'] ?? '#e5e7eb');
+        $thickness = intval($d['thickness'] ?? 1);
+        $width     = intval($d['width'] ?? 100);
+        $padding   = esc_attr($d['padding'] ?? '15px 30px');
+        $contentBg = esc_attr($gs['contentBgColor'] ?? '#ffffff');
+
+        // Table-based divider (Outlook-safe — <hr> has rendering issues in MSO)
+        return '<tr><td style="background-color: ' . $contentBg . '; padding: ' . $padding . ';">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="' . $width . '%" align="center" style="margin: 0 auto;">
+            <tr>
+              <td style="border-top: ' . $thickness . 'px solid ' . $color . '; font-size: 1px; line-height: 1px;">&nbsp;</td>
+            </tr>
+          </table>
+        </td></tr>';
+    }
+
+    /**
+     * Render spacer block
+     */
+    private function render_spacer_block($d) {
+        $height  = intval($d['height'] ?? 20);
+        $bgColor = esc_attr($d['bgColor'] ?? 'transparent');
+
+        return '<tr><td style="height: ' . $height . 'px; background-color: ' . $bgColor . ';">&nbsp;</td></tr>';
+    }
+
+    /**
+     * Render image block
+     */
+    private function render_image_block($d, $gs, $replacements) {
+        $src       = esc_url($d['src'] ?? '');
+        $alt       = esc_attr($d['alt'] ?? '');
+        $width     = $d['width'] ?? '100';
+        $widthUnit = $d['widthUnit'] ?? '%';
+        $align     = esc_attr($d['align'] ?? 'center');
+        $padding   = esc_attr($d['padding'] ?? '10px 30px');
+        $link      = !empty($d['link']) ? esc_url(strtr($d['link'], $replacements)) : '';
+        $contentBg = esc_attr($gs['contentBgColor'] ?? '#ffffff');
+
+        $w = esc_attr($width . $widthUnit);
+        $img = '<img src="' . $src . '" alt="' . $alt . '" style="width: ' . $w . '; max-width: 100%; height: auto; display: block; border: none;" />';
+
+        if ($link) {
+            $img = '<a href="' . $link . '" target="_blank">' . $img . '</a>';
+        }
+
+        return '<tr><td align="' . $align . '" style="background-color: ' . $contentBg . '; padding: ' . $padding . ';">
+          ' . $img . '
+        </td></tr>';
+    }
+
+    /**
+     * Render columns block (two-column layout)
+     */
+    private function render_columns_block($d, $gs, $replacements) {
+        $padding    = esc_attr($d['padding'] ?? '20px 30px');
+        $gap        = intval($d['gap'] ?? 20);
+        $leftColor  = esc_attr($d['leftColor'] ?? '#333333');
+        $rightColor = esc_attr($d['rightColor'] ?? '#333333');
+        $fontSize   = intval($d['fontSize'] ?? 14);
+        $bgColor    = esc_attr($d['bgColor'] ?? ($gs['contentBgColor'] ?? '#ffffff'));
+        $globalFont = $gs['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
+        $fontFam    = $this->safe_css_value(!empty($d['fontFamily']) ? $d['fontFamily'] : $globalFont);
+
+        $leftContent  = strtr(($d['leftContent'] ?? ''), $replacements);
+        $rightContent = strtr(($d['rightContent'] ?? ''), $replacements);
+        $halfGap = intval($gap / 2);
+
+        return '<tr><td style="padding: ' . $padding . '; background-color: ' . $bgColor . ';">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+            <tr>
+              <td width="48%" valign="top" style="padding-right: ' . $halfGap . 'px; color: ' . $leftColor . '; font-size: ' . $fontSize . 'px; line-height: 1.6; font-family: ' . $fontFam . ';">' . $leftContent . '</td>
+              <td width="4%"></td>
+              <td width="48%" valign="top" style="padding-left: ' . $halfGap . 'px; color: ' . $rightColor . '; font-size: ' . $fontSize . 'px; line-height: 1.6; font-family: ' . $fontFam . ';">' . $rightContent . '</td>
+            </tr>
+          </table>
+        </td></tr>';
+    }
+
+    /**
+     * Render social icons block
+     */
+    private function render_social_block($d, $gs, $replacements) {
+        $align     = esc_attr($d['align'] ?? 'center');
+        $padding   = esc_attr($d['padding'] ?? '20px 30px');
+        $iconColor = $d['color'] ?? '#333333';
+        $iconSize  = intval($d['iconSize'] ?? 24);
+        $links     = $d['links'] ?? [];
+        $contentBg = esc_attr($gs['contentBgColor'] ?? '#ffffff');
+
+        // Build social icon links for email delivery.
+        // Priority: 1) recolored hosted PNG — Outlook/Gmail/Yahoo/Apple Mail
+        //           2) inline SVG — Apple Mail & some webmail only
+        //           3) plain text — universal fallback
+        $linksHtml = '';
+        foreach ($links as $link) {
+            $url   = esc_url(strtr(($link['url'] ?? '#'), $replacements));
+            $name  = $link['name'] ?? '';
+            $icon  = $link['icon'] ?? '';
+            $label = esc_attr($name ?: ucfirst($icon));
+
+            // 1) Hosted PNG recolored to admin's chosen color.
+            //    Base 64x64 PNGs in plugin; recolored copies cached in uploads.
+            $icon_html = '';
+            $png_url = $this->get_colored_icon_url($icon, $iconColor);
+            if ($png_url) {
+                $icon_html = '<img src="' . esc_url($png_url) . '" alt="' . $label . '" width="' . $iconSize . '" height="' . $iconSize . '" style="display:inline-block;vertical-align:middle;border:0;" />';
+            }
+
+            // 2) Inline SVG icon — fallback for dev/missing PNG scenarios
+            if (!$icon_html) {
+                $svg = $this->get_social_icon_svg($icon, $iconColor, $iconSize);
+                if ($svg) {
+                    $icon_html = $svg;
+                } else {
+                    // 3) Plain text label as last fallback
+                    $icon_html = esc_html($name ?: ucfirst($icon));
+                }
+            }
+
+            $linksHtml .= '<a href="' . $url . '" target="_blank" style="display:inline-block;margin:0 6px;text-decoration:none;vertical-align:middle;line-height:1;">' . $icon_html . '</a>';
+        }
+
+        return '<tr><td align="' . $align . '" style="background-color: ' . $contentBg . '; padding: ' . $padding . ';">
+          ' . $linksHtml . '
+        </td></tr>';
+    }
+
+    /**
+     * Get a recolored social icon PNG URL.
+     *
+     * Loads the base PNG shipped with the plugin, recolors every non-transparent
+     * pixel to the admin's chosen color using GD, and caches the result in the
+     * WordPress uploads directory. Returns the cached file URL, or the base
+     * PNG URL if GD is unavailable, or empty string if the icon doesn't exist.
+     *
+     * @param string $icon  Icon key (facebook, x, instagram, etc.)
+     * @param string $color Hex color chosen by admin (e.g. '#7B2D8E')
+     * @return string URL to the (possibly recolored) PNG, or empty string
+     */
+    private function get_colored_icon_url($icon, $color) {
+        if (!defined('EMSFB_PLUGIN_URL') || !defined('EMSFB_PLUGIN_DIRECTORY')) {
+            return '';
+        }
+
+        $safe_icon = sanitize_file_name($icon);
+        $base_rel  = 'public/assets/images/social/' . $safe_icon . '.png';
+        $base_path = EMSFB_PLUGIN_DIRECTORY . $base_rel;
+
+        if (!file_exists($base_path)) {
+            return '';
+        }
+
+        // Normalise color to 6-digit hex without #
+        $hex = ltrim(sanitize_hex_color($color) ?: '#333333', '#');
+
+        // If GD is not available, return the base (brand-colored) PNG as-is
+        if (!function_exists('imagecreatefrompng')) {
+            return EMSFB_PLUGIN_URL . $base_rel;
+        }
+
+        // Cache recolored PNGs in wp-content/uploads/efb-icons/{hex}/
+        $upload_dir = wp_upload_dir();
+        $cache_dir  = $upload_dir['basedir'] . '/efb-icons/' . $hex;
+        $cache_file = $cache_dir . '/' . $safe_icon . '.png';
+        $cache_url  = $upload_dir['baseurl'] . '/efb-icons/' . $hex . '/' . $safe_icon . '.png';
+
+        // Return cached version if it exists
+        if (file_exists($cache_file)) {
+            return $cache_url;
+        }
+
+        // Create cache directory
+        if (!is_dir($cache_dir)) {
+            wp_mkdir_p($cache_dir);
+        }
+
+        // Parse target RGB
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+
+        // Load base PNG and recolor non-transparent pixels
+        $img = @imagecreatefrompng($base_path);
+        if (!$img) {
+            return EMSFB_PLUGIN_URL . $base_rel;
+        }
+
+        $w = imagesx($img);
+        $h = imagesy($img);
+        imagealphablending($img, false);
+        imagesavealpha($img, true);
+
+        for ($x = 0; $x < $w; $x++) {
+            for ($y = 0; $y < $h; $y++) {
+                $rgba  = imagecolorat($img, $x, $y);
+                $alpha = ($rgba >> 24) & 0x7F; // 0 = opaque, 127 = transparent
+                if ($alpha < 127) {
+                    $new_color = imagecolorallocatealpha($img, $r, $g, $b, $alpha);
+                    imagesetpixel($img, $x, $y, $new_color);
+                }
+            }
+        }
+
+        imagepng($img, $cache_file, 9);
+        imagedestroy($img);
+
+        return file_exists($cache_file) ? $cache_url : EMSFB_PLUGIN_URL . $base_rel;
+    }
+
+    /**
+     * Render footer block
+     */
+    private function render_footer_block($d, $gs, $replacements) {
+        $text       = strtr(($d['text'] ?? ''), $replacements);
+        $color      = esc_attr($d['color'] ?? '#666666');
+        $fontSize   = intval($d['fontSize'] ?? 14);
+        $align      = esc_attr($d['align'] ?? 'center');
+        $bgColor    = esc_attr($d['bgColor'] ?? ($gs['contentBgColor'] ?? '#ffffff'));
+        $padding    = esc_attr($d['padding'] ?? '25px 30px');
+        $borderRad  = esc_attr($d['borderRadius'] ?? '0');
+        $globalFont = $gs['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
+        $fontFam    = $this->safe_css_value(!empty($d['fontFamily']) ? $d['fontFamily'] : $globalFont);
+
+        return '<tr><td style="padding: ' . $padding . '; background-color: ' . $bgColor . '; border-radius: ' . $borderRad . ';">
+          <p style="margin: 0; color: ' . $color . '; font-size: ' . $fontSize . 'px; line-height: 1.5; text-align: ' . $align . '; font-family: ' . $fontFam . ';">' . $text . '</p>
+        </td></tr>';
+    }
+
+    /**
+     * Render raw HTML block
+     */
+    private function render_html_block($d, $replacements) {
+        $html = strtr(($d['html'] ?? ''), $replacements);
+        return '<tr><td>' . $html . '</td></tr>';
+    }
+
+    /**
+     * Get a Unicode emoji/symbol for a social network name.
+     * Used as a visual indicator in the email-safe pill fallback
+     * (replaces data:URI SVG images that are blocked by Gmail/Outlook).
+     *
+     * @param string $icon Social network key
+     * @return string HTML entity for a UTF-8 emoji character
+     */
+    private function get_social_emoji($icon) {
+        $map = [
+            'facebook'  => '&#x1F1EB;',   // 🇫
+            'x'         => '&#x2717;',     // ✗
+            'instagram' => '&#x1F4F7;',   // 📷
+            'linkedin'  => '&#x1F517;',   // 🔗
+            'youtube'   => '&#x25B6;',    // ▶
+            'tiktok'    => '&#x266B;',    // ♫
+            'whatsapp'  => '&#x1F4AC;',   // 💬
+            'telegram'  => '&#x2708;',    // ✈
+            'pinterest' => '&#x1F4CC;',   // 📌
+            'github'    => '&#x2699;',    // ⚙
+            'website'   => '&#x1F310;',   // 🌐
+            'email'     => '&#x2709;',    // ✉
+        ];
+        return $map[$icon] ?? '&#x1F517;'; // default: 🔗
+    }
+
+    /**
+     * Get social icon SVG markup.
+     *
+     * Returns inline SVG icons for social networks, matching the
+     * email-template-builder JS preview. Covers all 21 presets from
+     * SOCIAL_PRESETS_efb in email-template-builder-efb.js.
+     *
+     * @param string $icon  Icon key (facebook, x, instagram, etc.)
+     * @param string $color Fill color
+     * @param int    $size  Icon dimensions
+     * @return string SVG markup or empty string if unknown icon
+     */
+    private function get_social_icon_svg($icon, $color = '#333333', $size = 24) {
+        $esc_color = esc_attr($color);
+        $paths = [
+            'facebook'  => 'M24 12.073c0-6.627-5.373-12-12-12S0 5.446 0 12.073c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z',
+            'x'         => 'M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932zM17.61 20.644h2.039L6.486 3.24H4.298z',
+            'instagram' => 'M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405a1.441 1.441 0 11-2.882 0 1.441 1.441 0 012.882 0z',
+            'linkedin'  => 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z',
+            'youtube'   => 'M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z',
+            'tiktok'    => 'M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z',
+            'whatsapp'  => 'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z',
+            'telegram'  => 'M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z',
+            'pinterest' => 'M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z',
+            'snapchat'  => 'M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12 1.033-.301a.32.32 0 01.139-.029c.108 0 .234.029.365.104.21.12.3.27.3.42v.012c-.06.45-.539.63-.959.719-.03.011-.06.016-.09.026-.21.059-.39.105-.45.359l-.009.031c-.12.48.12.9.33 1.32.36.72.87 1.38 1.47 1.89.33.27.6.51.96.63.12.06.27.12.27.36-.06.27-.33.42-.56.481-.27.075-.56.12-.84.18-.27.045-.53.089-.78.149a.37.37 0 00-.27.27c-.03.105 0 .225.06.36.12.21.18.45.21.66.032.24-.068.48-.208.62-.18.18-.42.24-.66.24-.27.014-.54-.06-.81-.18-.27-.12-.51-.18-.78-.24-.15-.03-.3-.049-.45-.049-.54 0-.96.33-1.29.57-.66.45-1.17.81-2.16.87a4.98 4.98 0 01-.36.01c-.21 0-.51-.03-.78-.06-1.2-.15-2.01-.57-2.73-1.07-.45-.3-.87-.51-1.35-.51-.15 0-.3.015-.45.045-.27.06-.51.12-.78.24-.27.12-.54.196-.81.18a.982.982 0 01-.66-.24c-.14-.14-.24-.38-.21-.62.03-.21.09-.45.21-.66.06-.135.09-.255.06-.36a.37.37 0 00-.27-.27c-.24-.06-.51-.105-.78-.15-.3-.06-.57-.104-.84-.18-.24-.06-.51-.21-.57-.48l.003-.06c.03-.18.06-.33.27-.345.36-.12.63-.36.96-.63.6-.51 1.11-1.17 1.47-1.89.21-.42.45-.84.33-1.32l-.009-.03c-.06-.255-.24-.3-.45-.36-.03-.009-.06-.015-.09-.024-.42-.09-.9-.27-.96-.72v-.015c0-.15.09-.3.3-.42.12-.075.255-.105.365-.105a.35.35 0 01.135.03c.375.18.735.285 1.035.3.3 0 .435-.074.465-.09l-.003-.06a30.9 30.9 0 00-.033-.51c-.104-1.628-.23-3.654.3-4.847C7.86 1.07 11.216.793 12.206.793z',
+            'github'    => 'M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12',
+            'dribbble'  => 'M12 24C5.385 24 0 18.615 0 12S5.385 0 12 0s12 5.385 12 12-5.385 12-12 12zm10.12-10.358c-.35-.11-3.17-.953-6.384-.438 1.34 3.684 1.887 6.684 1.992 7.308a10.28 10.28 0 004.395-6.87zm-6.115 7.808c-.153-.9-.75-4.032-2.19-7.77l-.066.02c-5.79 2.015-7.86 6.025-8.04 6.4a10.161 10.161 0 006.29 2.166c1.42 0 2.77-.29 4.006-.816zM4.855 18.546c.24-.395 3.004-4.936 8.348-6.613.135-.045.27-.084.405-.12-.26-.585-.54-1.167-.832-1.74C7.17 11.775 1.65 11.7 1.2 11.685v.315c0 2.633.998 5.037 2.655 6.845zm-1.56-8.735c.46.008 5.225.03 10.44-1.415A76.27 76.27 0 0010.2 3.216 10.232 10.232 0 002.295 9.81zm9.56-7.38c.79 1.207 1.558 2.497 2.288 3.855 3.36-1.26 4.785-3.164 4.952-3.394A10.174 10.174 0 0012.856 3.43zm8.478 1.816c-.21.264-1.8 2.293-5.31 3.704.249.515.489 1.035.717 1.56.08.186.16.37.236.555 3.396-.428 6.77.265 7.104.335-.02-2.235-.794-4.29-2.146-5.88z',
+            'reddit'    => 'M12 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 01-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 01.042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 014.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 01.14-.197.35.35 0 01.238-.042l2.906.617a1.214 1.214 0 011.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 00-.231.094.33.33 0 000 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 00.029-.463.33.33 0 00-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 00-.232-.095z',
+            'discord'   => 'M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z',
+            'twitch'    => 'M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z',
+            'medium'    => 'M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.86 0-3.38-2.88-3.38-6.42s1.52-6.42 3.38-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z',
+            'spotify'   => 'M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z',
+            'behance'   => 'M6.938 4.503c.702 0 1.34.06 1.92.188.577.13 1.07.33 1.485.61.41.28.733.65.96 1.12.225.47.34 1.05.34 1.73 0 .74-.17 1.36-.507 1.86-.338.5-.837.9-1.502 1.22.906.26 1.576.72 2.022 1.37.448.66.665 1.45.665 2.36 0 .75-.13 1.39-.41 1.93-.28.55-.67 1-1.16 1.35-.48.348-1.05.6-1.67.767-.63.165-1.27.25-1.95.25H0V4.51h6.938v-.007zM16.94 16.665c.44.428 1.073.643 1.894.643.59 0 1.1-.148 1.53-.447.424-.29.68-.61.78-.94h2.588c-.403 1.28-1.048 2.2-1.9 2.75-.85.56-1.884.83-3.08.83-.837 0-1.584-.13-2.272-.4a4.948 4.948 0 01-1.72-1.14 5.1 5.1 0 01-1.077-1.77c-.253-.69-.373-1.45-.373-2.27 0-.803.135-1.54.403-2.23.27-.7.644-1.28 1.12-1.79.495-.51 1.063-.895 1.736-1.194s1.4-.433 2.22-.433c.91 0 1.69.164 2.38.523.67.34 1.22.82 1.66 1.4.44.586.75 1.26.94 2.02.19.75.25 1.54.21 2.38h-7.69c.055 1.023.47 1.84.91 2.267zM3.577 8.377c0-.41-.086-.74-.258-1.01-.172-.27-.41-.47-.68-.61-.283-.13-.586-.21-.94-.24a8.018 8.018 0 00-1.008-.06H3.59v3.93H.93c-.372 0-.74-.026-1.087-.087-.36-.06-.67-.17-.94-.33a1.697 1.697 0 01-.638-.62c-.16-.27-.24-.62-.24-1.04 0-.06.006-.117.013-.173.007-.057.017-.107.027-.157zM9.58 5.89c0-.316-.06-.585-.17-.82a1.45 1.45 0 00-.46-.57 1.86 1.86 0 00-.69-.33c-.26-.06-.55-.1-.85-.1H3.59v3.58h3.77c.34 0 .65-.03.96-.1s.55-.18.78-.34c.22-.16.393-.37.52-.64.12-.27.18-.6.18-1z',
+            'vimeo'     => 'M23.977 6.416c-.105 2.338-1.739 5.543-4.894 9.609-3.268 4.247-6.026 6.37-8.29 6.37-1.409 0-2.578-1.294-3.553-3.881L5.322 11.4C4.603 8.816 3.834 7.522 3.01 7.522c-.179 0-.806.378-1.881 1.132L0 7.197c1.185-1.044 2.351-2.084 3.501-3.128C5.08 2.701 6.266 1.984 7.055 1.91c1.867-.18 3.016 1.1 3.447 3.838.465 2.953.789 4.789.971 5.507.539 2.45 1.131 3.674 1.776 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.186-3.868 3.434-5.757 6.762-5.637 2.473.06 3.628 1.664 3.493 4.797l-.013.01z',
+            'website'   => 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z',
+            'email'     => 'M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636H1.636C.732 21.002 0 20.27 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h20.727c.904 0 1.636.732 1.636 1.636zm-2.07.195L12 13.423 2.07 5.652A.364.364 0 001.636 6v12.727c0 .2.164.364.364.364h20c.2 0 .364-.164.364-.364V6a.364.364 0 00-.434-.348z',
+        ];
+
+        if (!isset($paths[$icon])) {
+            return '';
+        }
+
+        return '<svg viewBox="0 0 24 24" width="' . $size . '" height="' . $size . '" fill="' . $esc_color . '"><path d="' . $paths[$icon] . '"/></svg>';
+    }
+
+    /**
      * Wrap builder template content in a full HTML email document.
      *
      * The drag-drop email builder generates complete HTML documents, but wp_kses
@@ -901,13 +1578,18 @@ class EmsfbEmailHandler {
 
         // 2. Strip orphaned CSS text — when wp_kses strips <style> tags, the CSS
         //    rules inside become raw text before the first <table>. Remove everything
-        //    before the first <table that isn't an HTML tag.
-        $firstTable = strpos($content, '<table');
-        if ($firstTable === false) {
-            $firstTable = strpos($content, '<div');
+        //    before the first HTML element, but preserve meaningful container divs.
+        $firstElement = strpos($content, '<table');
+        if ($firstElement === false) {
+            $firstElement = strpos($content, '<div');
         }
-        if ($firstTable !== false && $firstTable > 0) {
-            $content = substr($content, $firstTable);
+        if ($firstElement !== false && $firstElement > 0) {
+            // Only strip if the text before is NOT a meaningful HTML tag (e.g. orphaned CSS text).
+            // If it starts with an HTML tag like <div, keep it.
+            $beforeText = trim(substr($content, 0, $firstElement));
+            if (!preg_match('/^<[a-z]/i', $beforeText)) {
+                $content = substr($content, $firstElement);
+            }
         }
 
         // 3. Strip escaped MSO conditional comments — wp_kses encodes > and < inside
@@ -952,15 +1634,17 @@ class EmsfbEmailHandler {
         $safe_dir = esc_attr($direction);
 
         return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-            <html xmlns="http://www.w3.org/1999/xhtml">
+            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
             <head>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
             <style type="text/css">
             body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
             table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
             img { -ms-interpolation-mode: bicubic; border: 0; }
             body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            table { border-collapse: collapse !important; }
             @media only screen and (max-width: 600px) {
             .efb-email-wrapper { max-width: 100% !important; width: 100% !important; }
             .efb-email-container { width: 100% !important; }
