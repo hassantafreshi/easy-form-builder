@@ -1835,6 +1835,63 @@ let change_el_edit_Efb = (el) => {
         }
 
         break;
+      case "telegramEnableEl":
+        //check pro version activate
+        if(pro_efb!=true){
+          pro_show_efb(1);
+          document.getElementById("telegramEnableEl").checked = false;
+          document.getElementById("telegramEnableEl").classList.remove('active') ;
+        }
+        if(Number(efb_var.addons.AdnTLG)!=1){
+          document.getElementById("telegramEnableEl").classList.remove('active') ;
+          let m = efb_var.text.msg_adons.replace('NN',`<b>${efb_var.text.etelegramno || 'Telegram notifications'}</b>`);
+          alert_message_efb(efb_var.text.error, m, 20, "danger")
+          return false;
+        }
+        if(indx==-1){indx=0};
+          c = el.classList.contains('active')==true ? 1 :0
+
+        valj_efb[indx].hasOwnProperty('telegramnoti')==false ? Object.assign(valj_efb[indx],{'telegramnoti':c}) : valj_efb[indx].telegramnoti = c;
+
+        if(indx!=0){
+          if(c==1){
+            indx=0;
+          }else{
+            clss=-1;
+            clss= valj_efb.findIndex(x => x.telegramnoti == 1);
+          }
+        }
+        if(indx==0){
+          if (c==1){
+            const telegramEls = document.querySelectorAll('.telegrammsg')
+            telegramEls.forEach((el)=>{
+              el.disabled=false;
+              el.classList.remove('disabled');
+              el.classList.remove('d-none');
+            })
+          }else{
+            const telegramEls = document.querySelectorAll('.telegrammsg')
+            telegramEls.forEach((el)=>{
+              el.disabled=true;
+              el.classList.add('disabled');
+              el.classList.add('d-none');
+            })
+          }
+
+          if(valj_efb[0].hasOwnProperty('telegramnoti')!=false){
+            c= document.querySelector(`.telegram-efb[data-id="newMessageReceived"]`)
+            if(c){ c= sanitize_text_efb(c.value ,true); Object.assign(valj_efb[0], { telegram_msg_new_noti: c }); }
+
+            if(valj_efb[0].type!="register" && valj_efb[0].type!="login"){
+              c= document.querySelector(`.telegram-efb[data-id="responsedMessage"]`)
+              if(c){ c= sanitize_text_efb(c.value ,true); Object.assign(valj_efb[0], { telegram_msg_responsed_noti:c }); }
+            }else{
+              Object.assign(valj_efb[0], { telegram_msg_responsed_noti:'' });
+            }
+          }
+        }
+
+        break;
       case "smsAdminsPhoneNoEl":
         //validate el.value for international phone number and seprate them by comma
 
@@ -3128,6 +3185,23 @@ let change_el_edit_Efb = (el) => {
          }else if(el.dataset.id=="newMessageReceived"){
            //console.log('newMessageReceived')
             valj_efb[0].hasOwnProperty('sms_msg_new_noti') ? valj_efb[0].sms_msg_new_noti = c : Object.assign(valj_efb[0], { sms_msg_new_noti: c })
+
+         }
+
+      break;
+      case 'telegramContentEl':
+         //check pro version
+         if(pro_efb!=true){
+           pro_show_efb(1);
+           return;
+         }
+
+         c = sanitize_text_efb(el.value ,true);
+         if(el.dataset.id=="responsedMessage"){
+          valj_efb[0].hasOwnProperty('telegram_msg_responsed_noti') ? valj_efb[0].telegram_msg_responsed_noti = c : Object.assign(valj_efb[0], { telegram_msg_responsed_noti: c })
+
+         }else if(el.dataset.id=="newMessageReceived"){
+          valj_efb[0].hasOwnProperty('telegram_msg_new_noti') ? valj_efb[0].telegram_msg_new_noti = c : Object.assign(valj_efb[0], { telegram_msg_new_noti: c })
 
          }
 

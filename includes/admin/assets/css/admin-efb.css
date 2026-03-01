@@ -1395,14 +1395,14 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 
     /* Mobile touch feedback for btn-toggle elements */
     .btn-toggle.efb-toggle-touching {
-        transform: scale(0.95) !important;
+        filter: brightness(0.95);
         background-color: rgba(99, 58, 130, 0.3) !important;
-        transition: all 0.1s ease-in-out !important;
-        box-shadow: 0 0 0 2px rgba(99, 58, 130, 0.3) !important;
+        transition: filter 0.15s ease-in-out, background-color 0.15s ease-in-out !important;
     }
 
     .btn-toggle:active {
-        transform: scale(0.95) !important;
+        filter: brightness(0.95);
+        transform: none !important;
     }
 
     .btn-edit i, .BtnSideEfb i {

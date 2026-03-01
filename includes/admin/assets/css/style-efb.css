@@ -1328,6 +1328,8 @@ a.efb.btn {	text-decoration: none;
   border-radius: 1.5rem;
   color: #6b7381;
   background: #bdc1c8;
+  box-sizing: content-box !important;
+  transition: filter 0.2s ease, background-color 0.25s ease;
 }
 .efb.btn-toggle:focus,
 .efb.btn-toggle.focus,
@@ -1345,7 +1347,7 @@ a.efb.btn {	text-decoration: none;
   height: 1.125rem;
   border-radius: 1.125rem;
   background: #fff;
-  transition: left 0.25s;
+  transition: left 0.25s ease, box-shadow 0.2s ease;
 }
 .efb.btn-toggle.active {
   transition: background-color 0.25s;
@@ -1544,6 +1546,25 @@ a.efb.btn {	text-decoration: none;
   background-image: linear-gradient(65deg, #4636f1 0, #6030b8 100%) !important;
 }
 
+/* Prevent border shift on hover and add smooth feedback */
+.efb.btn-toggle:hover,
+.efb.btn-toggle:active,
+.efb.btn-toggle:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.efb.btn-toggle:hover {
+  filter: brightness(1.1);
+  cursor: pointer;
+}
+.efb.btn-toggle:hover > .handle {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+}
+.efb.btn-toggle:active {
+  transform: none !important;
+  filter: brightness(0.95);
+}
 
 
 .efb.btn-toggle.h-s-efb {

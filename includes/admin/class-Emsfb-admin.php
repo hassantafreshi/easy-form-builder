@@ -244,6 +244,7 @@ class Admin {
         $telegram_msg_recived_user = "";
         $telegram_bot_token = "";
         $telegram_admin_chat_ids = "";
+        $settings = get_setting_Emsfb('decoded', []);
 
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
 			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
@@ -292,7 +293,7 @@ class Admin {
         $value_="";
         $value="";
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
-            $sms_exists = get_option('emsfb_addon_AdnSS',false);
+            $sms_exists = isset($settings['AdnSS']) ? intval($settings['AdnSS']) : false;
             $smf_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
             if(!$sms_exists || !$smf_file_exist) {
                $m = str_replace('NN', '<b>' . $lang['sms_noti'] . '</b>', $lang['msg_adons']);
@@ -312,7 +313,7 @@ class Admin {
 		}
 
         if(isset($valp[0]['telegramnoti']) && intval($valp[0]['telegramnoti'])==1 ){
-            $telegram_exists = get_option('emsfb_addon_AdnTLG', false);
+            $telegram_exists = isset($settings['AdnTLG']) ? intval($settings['AdnTLG']) : false;
             $telegram_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
 
             if(!$telegram_exists || !$telegram_file_exist) {
