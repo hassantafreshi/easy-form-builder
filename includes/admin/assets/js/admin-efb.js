@@ -14,6 +14,9 @@ let wpbakery_emsFormBuilder =false;
 let pro_price_efb =19;
 let heartbeat_efb_active =false;
 let state_page_efb='';
+// Mutable nonce variable - kept outside Object.freeze to allow heartbeat refresh
+// Initialize immediately from efb_var if available (before jQuery ready)
+var _efb_nonce_ = (typeof efb_var !== 'undefined' && efb_var.nonce) ? efb_var.nonce : '';
 
 if (typeof pro_efb === 'undefined') { var pro_efb = (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1)) ? true : false; }
 
@@ -45,6 +48,8 @@ jQuery(function () {
     mobile_view_efb = window.innerWidth < 768 ? 1 : 0;
   }
 
+  // Extract nonce before freezing so heartbeat can update it
+  _efb_nonce_ = efb_var.nonce;
   efb_var= deepFreeze_efb(efb_var);
   state_check_ws_p = Number(efb_var.check);
   setting_emsFormBuilder=efb_var.setting;
@@ -195,6 +200,9 @@ function Link_emsFormBuilder(state) {
       case 'EmailNoti':
         link += "s/How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";
         break;
+      case 'SMSNoti':
+        link += "s/send-sms-after-wordpress-form-submission/";
+        break;
       case 'redirectPage':
         link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
       break;
@@ -296,6 +304,9 @@ function Link_emsFormBuilder(state) {
         break;
       case 'EmailNoti':
         link += "چگونه-ایمیل-اطلاع-رسانی-را-در-فرم-ساز-آس/";
+        break;
+      case 'SMSNoti':
+        link = "https://whitestudio.team/documents/send-sms-after-wordpress-form-submission/";
         break;
       case 'redirectPage':
         link += "نحوه-ساخت-یک-صفحه-تشکر-در-افزونه-فرم-ساز/";
@@ -452,7 +463,7 @@ async function  actionSendData_emsFormBuilder() {
         value: ls_val,
         name: name,
         type: form_type_emsFormBuilder,
-        nonce: efb_var.nonce
+        nonce: _efb_nonce_
       };
     } else {
 
@@ -460,7 +471,7 @@ async function  actionSendData_emsFormBuilder() {
         action: "update_form_Emsfb",
         value: ls_val,
         name: name,
-        nonce: efb_var.nonce,
+        nonce: _efb_nonce_,
         id: form_ID_emsFormBuilder
       };
     }
@@ -515,7 +526,7 @@ function actionSendAddons_efb(val) {
       data = {
         action: "add_addons_Emsfb",
         value: snd,
-        nonce: efb_var.nonce
+        nonce: _efb_nonce_
       };
 
     $.post(ajaxurl, data, function (res) {
@@ -558,7 +569,7 @@ function actionSendAddonsUn_efb(val) {
       data = {
         action: "remove_addons_Emsfb",
         value: val,
-        nonce: efb_var.nonce
+        nonce: _efb_nonce_
       };
 
     $.post(ajaxurl, data, function (res) {
@@ -5350,7 +5361,7 @@ function form_preview_efb(val) {
       data = {
         action: "form_preview_efb",
         id: val,
-        nonce: efb_var.nonce
+        nonce: _efb_nonce_
       };
 
     $.post(ajaxurl, data, function (res) {
@@ -5418,15 +5429,17 @@ call_beat = async () => {
     jQuery(function ($) {
       const data = {
         action: "heartbeat_Emsfb",
-        nonce: efb_var.nonce,
+        nonce: _efb_nonce_,
       };
 
       $.post(ajaxurl, data, function (res) {
         if (res.success === true) {
           hold_time_last_beat_efb = Date.now();
-          efb_var.nonce = res.data.newNonce;
+          _efb_nonce_ = res.data.newNonce;
+          // Also refresh core nonce for panel pages (same wp_rest action)
+          if (typeof _efb_core_nonce_ !== 'undefined') _efb_core_nonce_ = res.data.newNonce;
           heartbeat_efb_active = false;
-          console.log("new nonce", efb_var.nonce);
+          console.log("new nonce", _efb_nonce_);
           resolve(1);
         } else {
           heartbeat_efb_active = false;
@@ -5458,7 +5471,7 @@ call_beat = async () => {
   heartbeat_efb_active = true;
 
   data = {};
-  console.log('Old nonce', efb_var.nonce);
+  console.log('Old nonce', _efb_nonce_);
   //check if state_page_efb is equal to 'create'
   const len = typeof valj_efb !== "undefined" ? valj_efb.length :0;
 
@@ -5513,7 +5526,7 @@ function report_problem_efb(state ,value){
   jQuery(function ($) {
     data = {
       action: "report_problem_Emsfb",
-      nonce: efb_var.nonce,
+      nonce: _efb_nonce_,
       state: state,
       value: value
     };
@@ -5618,20 +5631,61 @@ const efb_url_convert_url = (url)=>{
 
  // v3.8.6 start
 
+ // ── Idle-aware nonce refresh ──
+ // Refreshes nonce every 5 minutes automatically via setInterval.
+ // Also refreshes on user activity (click/keypress) if last beat was >3 min ago.
+ // This replaces the old per-element heartbeat calls that caused excessive requests.
+ let _efb_idle_heartbeat_ = null;
+ let _efb_last_user_activity_ = Date.now();
+ const _EFB_HEARTBEAT_INTERVAL_ = 5 * 60 * 1000; // 5 minutes
+ const _EFB_ACTIVITY_THRESHOLD_ = 3 * 60 * 1000; // 3 minutes
+
+ // Track user activity
+ function _efb_record_activity_() {
+   _efb_last_user_activity_ = Date.now();
+   // If last beat was too long ago and user just became active, refresh now
+   const sinceLastBeat = Date.now() - hold_time_last_beat_efb;
+   if (sinceLastBeat > _EFB_ACTIVITY_THRESHOLD_ && !heartbeat_efb_active) {
+     heartbeat_Emsfb();
+   }
+ }
+
+ // Start the idle heartbeat interval when DOM is ready
+ function _efb_start_idle_heartbeat_() {
+   if (_efb_idle_heartbeat_) return; // already started
+   // Listen for user activity (passive, no perf impact)
+   document.addEventListener('click', _efb_record_activity_, { passive: true });
+   document.addEventListener('keydown', _efb_record_activity_, { passive: true });
+   document.addEventListener('mousemove', (function() {
+     let _throttle = 0;
+     return function() {
+       const now = Date.now();
+       if (now - _throttle < 30000) return; // throttle to once per 30s
+       _throttle = now;
+       _efb_last_user_activity_ = now;
+     };
+   })(), { passive: true });
+
+   // Periodic nonce refresh — runs every 5 minutes regardless of activity
+   _efb_idle_heartbeat_ = setInterval(function() {
+     if (heartbeat_efb_active) return;
+     heartbeat_Emsfb();
+   }, _EFB_HEARTBEAT_INTERVAL_);
+
+   // Also do first beat on startup
+   heartbeat_Emsfb();
+ }
+
+ if (document.readyState === 'loading') {
+   document.addEventListener('DOMContentLoaded', _efb_start_idle_heartbeat_);
+ } else {
+   setTimeout(_efb_start_idle_heartbeat_, 100);
+ }
+
 
  function  EventClickHeartBeatEFB(element){
-  if (!heartbeat_status_efb) {
-    //heartbeat_Emsfb
-
-    element.addEventListener("click", function (event) {
-      if(heartbeat_status_efb==true) return;
-      heartbeat_status_efb=true;
-      heartbeat_Emsfb()
-
-
-    })
-
-  }
+  // Kept for backward compatibility but no longer triggers heartbeat directly.
+  // Nonce refresh is now handled by _efb_idle_heartbeat_ interval.
  }
 
 function addClickListenerToElementListEFB(element) {
@@ -5753,7 +5807,7 @@ function addClickListenerToElementListEFB(element) {
 
       element.hasClickListener = true;
   }
-  heartbeat_Emsfb();
+  // heartbeat is now handled by setInterval (_efb_idle_heartbeat_), no need to call per-element
 }
 
       function observeExistingElementsListEFB() {

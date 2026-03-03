@@ -1702,11 +1702,7 @@ class efbFunction {
 			if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $smsSendResult = $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,'respp' ,'wpsms' ,$trackingCode);
 		}
 
-		if(isset($data[0]['telegramnoti']) && intval($data[0]['telegramnoti'])==1){
-			if (has_action('efb_send_telegram_notification')) {
-				do_action('efb_send_telegram_notification', $form_id, $link_w, 'respp', $trackingCode);
-			}
-		}
+
 		return 0;
 	}// end function
 

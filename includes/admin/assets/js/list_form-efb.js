@@ -1,6 +1,27 @@
 
  let devMode_efb = false
 
+/**
+ * Safely parse a JSON string from the DB/AJAX.
+ * Tries direct JSON.parse first (standard encoding from json_encode).
+ * Falls back to stripping backslashes for legacy DB format ([{\"key\":\"val\"}]).
+ */
+function efb_safe_json_parse(str) {
+  // 1) Try direct parse — works for properly encoded JSON
+  try { return JSON.parse(str); } catch (e) { /* fall through */ }
+  // 2) Fallback: strip escaped quotes (legacy format), re-escape control chars
+  var v = str.replace(/[\\]/g, '');
+  v = v.replace(/[\x00-\x1F\x7F]/g, function(c) {
+    switch (c) {
+      case '\n': return '\\n';
+      case '\r': return '\\r';
+      case '\t': return '\\t';
+      default: return '';
+    }
+  });
+  return JSON.parse(v);
+}
+
 // Ensure efbLoadingCard is available even if admin-efb.js hasn't loaded yet
 if (typeof efbLoadingCard === 'undefined') {
   efbLoadingCard = (bgColor, size = 0) => {
@@ -749,7 +770,7 @@ function fun_delete_form_with_id_by_server(id) {
       action: "remove_id_Emsfb",
       type: "POST",
       id: id,
-      nonce: ajax_object_efm_core.nonce,
+      nonce: _efb_core_nonce_,
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
@@ -775,7 +796,7 @@ function fun_delete_message_with_id_by_server(id) {
       action: "remove_message_id_Emsfb",
       type: "POST",
       id: id,
-      nonce: ajax_object_efm_core.nonce,
+      nonce: _efb_core_nonce_,
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
@@ -804,7 +825,7 @@ function fun_delete_all_message_by_server(val) {
       type: "POST",
       val: JSON.stringify(val),
       state: 'msg',
-      nonce: ajax_object_efm_core.nonce,
+      nonce: _efb_core_nonce_,
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.data.success == true) {
@@ -864,14 +885,13 @@ function fun_get_form_by_id(id) {
     data = {
       action: "get_form_id_Emsfb",
       type: "POST",
-      nonce: ajax_object_efm_core.nonce,
+      nonce: _efb_core_nonce_,
       id: id
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
         try {
-          let v = res.data.ajax_value.replace(/[\\]/g, '')
-          const value = JSON.parse(v);
+          const value = efb_safe_json_parse(res.data.ajax_value);
           const len = value.length
           const p = calPLenEfb(len) + 1;
           valj_efb = value;
@@ -887,11 +907,12 @@ function fun_get_form_by_id(id) {
             localStorage.setItem('efb_auto_save', 0);
           }, len * p)
         } catch (error) {
-
-          //reportE
+          console.error('EFB: Failed to parse form data:', error.message);
         }
       }
-    })
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      console.error('EFB: AJAX failed loading form:', textStatus, errorThrown);
+    });
   });
 }
 function fun_update_message_state_by_id(id) {
@@ -903,7 +924,7 @@ function fun_update_message_state_by_id(id) {
     data = {
       action: "update_message_state_Emsfb",
       type: "POST",
-      nonce: ajax_object_efm_core.nonce,
+      nonce: _efb_core_nonce_,
       id: id
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
@@ -918,7 +939,7 @@ function fun_update_message_state_by_id(id) {
         if(document.getElementById(`efbCountM`))document.getElementById(`efbCountM`).innerHTML = parseInt(document.getElementById(`efbCountM`).innerHTML) - 1;
 
         if (res.data.ajax_value != undefined) {
-          const value = JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
+          const value = efb_safe_json_parse(res.data.ajax_value);
           sessionStorage.setItem('valueJson_ws_p', JSON.stringify(value));
           const edit = { id: res.data.id, edit: true };
           sessionStorage.setItem('Edit_ws_form', JSON.stringify(edit))
@@ -936,7 +957,7 @@ function fun_get_messages_by_id(id) {
   jQuery(function ($) {
     data = {
       action: "get_messages_id_Emsfb",
-      nonce: ajax_object_efm_core.nonce,
+      nonce: _efb_core_nonce_,
       type: "POST",
       form: form_type_emsFormBuilder,
       id: id
@@ -965,7 +986,7 @@ function fun_emsFormBuilder_get_all_response_by_id(id) {
   jQuery(function ($) {
     data = {
       action: "get_all_response_id_Emsfb",
-      nonce: ajax_object_efm_core.nonce,
+      nonce: _efb_core_nonce_,
       type: "POST",
       id: id
     };
@@ -1003,7 +1024,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
     data = {
       action: "set_replyMessage_id_Emsfb",
       type: "POST",
-      nonce: ajax_object_efm_core.nonce,
+      nonce: _efb_core_nonce_,
       id: id,
       message: JSON.stringify(message)
     };
@@ -1094,7 +1115,6 @@ function fun_show_content_page_emsFormBuilder(state) {
     window.location.reload();
   }else if(state=="edit-form"){
    const v =sanitize_text_efb(getUrlparams_efb.get('id'));
-
       fun_get_form_by_id(Number(v));
       fun_backButton_efb();
       fun_hande_active_page_emsFormBuilder(1);
@@ -2682,7 +2702,7 @@ function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
     data = {
       action: "set_settings_Emsfb",
       type: "POST",
-      nonce: ajax_object_efm.nonce,
+      nonce: _efb_core_nonce_,
       contentType: "application/x-www-form-urlencoded;charset=utf-8",
       message: data
     };
@@ -2753,7 +2773,7 @@ search_comprehensive_efb =(el)=>{
   jQuery(function ($) {
     data = {
       action: "get_track_id_Emsfb",
-      nonce: ajax_object_efm_core.nonce,
+      nonce: _efb_core_nonce_,
       value: el,
     };
 
@@ -2840,7 +2860,7 @@ function clear_garbeg_emsFormBuilder() {
   jQuery(function ($) {
     data = {
       action: "clear_garbeg_Emsfb",
-      nonce: ajax_object_efm_core.nonce
+      nonce: _efb_core_nonce_
     };
 
     $.post(ajax_object_efm.ajax_url, data, function (res) {
@@ -3242,7 +3262,7 @@ function clickToCheckEmailServer() {
     jQuery(function ($) {
       data = {
         action: "check_email_server_efb",
-        nonce: ajax_object_efm_core.nonce,
+        nonce: _efb_core_nonce_,
         value: 'testMailServer',
         email: email
       };
@@ -3460,7 +3480,7 @@ function fun_dup_form_server_efb(id,type){
     jQuery(function ($) {
       data = {
         action: "dup_efb",
-        nonce: ajax_object_efm_core.nonce,
+        nonce: _efb_core_nonce_,
         id: id,
         type: type
 
@@ -3571,7 +3591,7 @@ function emsFormBuilder_read(state,val){
       type: "POST",
       val: JSON.stringify(val),
       state: state,
-      nonce: ajax_object_efm_core.nonce,
+      nonce: _efb_core_nonce_,
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       //console.log(res);

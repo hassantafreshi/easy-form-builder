@@ -118,6 +118,7 @@ class Emsfb {
                 }
             }
             $telegram_exists = isset($ac->AdnTLG) ? (int) $ac->AdnTLG : 0;
+            error_log('Telegram addon check: AdnTLG=' . (isset($ac->AdnTLG) ? $ac->AdnTLG : 'NOT SET') . ' => telegram_exists=' . $telegram_exists);
               if ($telegram_exists >= 1) {
                   $telegram_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/class-Emsfb-telegram.php';
                   if (file_exists($telegram_file_path)) {
@@ -125,20 +126,20 @@ class Emsfb {
                   } else {
                       error_log('Telegram file does not exist: ' . $telegram_file_path);
                   }
+
+                  // Load telegram sending class (hooks registration for both admin & public)
+                  // بارگذاری کلاس ارسال تلگرام (ثبت هوک‌ها برای ادمین و عمومی)
+                  $telegram_send_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php';
+                  if (file_exists($telegram_send_path)) {
+                      require_once $telegram_send_path;
+                  }
               }
             // Check if EMSFB_PLUGIN_DIRECTORY . '/vendor/autofill/class-Emsfb-autofill.php' exists
 
 
 		}
-
-		$shield_file = $this->plugin_path . 'includes/integrations/class-Emsfb-shield-silentcaptcha.php';
-		if (file_exists($shield_file)) {
-			require_once $shield_file;
-			new Emsfb_Shield_SilentCaptcha_Integration();
-		}
-
-		/* ──────────────────────────────────────────────────────────
-		 * Payment addon REST route registration (runs on ALL requests).
+        /* ──────────────────────────────────────────────────────────
+		 * addon REST route registration (runs on ALL requests).
 		 *
 		 * Each addon has a small routes-efb.php file that hooks into
 		 * 'efb_register_payment_rest_routes'.  The action is fired by
@@ -153,9 +154,31 @@ class Emsfb {
 		 * ────────────────────────────────────────────────────────── */
 		$ac_routes = self::get_setting_Emsfb( 'decoded' );
 
-		if ( is_object( $ac_routes ) ) {
 
-			// PayPal routes (AdnPAP)
+        if (is_object($ac_routes)) {
+            // --- Telegram notification hooks (needed for REST API form submit) ---
+            $telegram_public = isset($ac_routes->AdnTLG) ? (int) $ac_routes->AdnTLG : 0;
+            if ($telegram_public >= 1) {
+                // فقط فایل ارسال تلگرام بارگذاری شود (بدون UI ادمین)
+                // Only load telegram sending class (without admin UI class)
+                // تابع efb_telegram_debug_log اگر وجود نداشته باشد در telegram-new-efb.php تعریف می‌شود
+                $telegram_send_path_public = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php';
+                if (file_exists($telegram_send_path_public)) {
+                    require_once $telegram_send_path_public;
+                    error_log('[EFB DIAG] Telegram send class loaded for non-admin (REST API) context');
+                }
+            }
+
+            // --- SMS notification hooks (needed for REST API form submit) ---
+            $sms_public = isset($ac_routes->AdnSS) ? (int) $ac_routes->AdnSS : 0;
+            if ($sms_public === 1) {
+                $sms_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/class-Emsfb-sms.php';
+                if (file_exists($sms_file_path)) {
+                    require_once $sms_file_path;
+                    error_log('[EFB DIAG] SMS class loaded for non-admin (REST API) context');
+                }
+            }
+            // PayPal routes (AdnPAP)
 			if ( ! empty( $ac_routes->AdnPAP ) ) {
 				$f = $this->plugin_path . 'vendor/paypal/routes-efb.php';
 				if ( file_exists( $f ) ) {
@@ -178,7 +201,17 @@ class Emsfb {
 					require_once $f;
 				}
 			}
+        }
+
+
+		$shield_file = $this->plugin_path . 'includes/integrations/class-Emsfb-shield-silentcaptcha.php';
+		if (file_exists($shield_file)) {
+			require_once $shield_file;
+			new Emsfb_Shield_SilentCaptcha_Integration();
 		}
+
+
+
 
 		require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
        // require_once $this->plugin_path . 'includes/class-Emsfb-webhook.php';

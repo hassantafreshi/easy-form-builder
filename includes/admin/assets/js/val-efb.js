@@ -3618,7 +3618,7 @@ function redirectToProUpgrade_efb($proUrl) {
 function sendPlanSelectionToServer_efb(selectionData) {
     console.log('Sending plan selection to server:', selectionData);
     console.log('Using AJAX URL:', efb_var.ajax_url);
-    console.log('Using nonce:', efb_var.nonce);
+    console.log('Using nonce:', _efb_nonce_);
     const user_selected = selectionData.selected_plan || 'unknown';
     if(user_selected === 'pro') {
       sessionStorage.setItem('efb_license_selected', '4');
@@ -3635,7 +3635,7 @@ function sendPlanSelectionToServer_efb(selectionData) {
         data: {
             action: 'efb_save_plan_selection',
             plan_data: JSON.stringify(selectionData),
-            nonce: efb_var.nonce
+            nonce: _efb_nonce_
         },
         success: function(response) {
             console.log('Plan selection saved to server:', response);

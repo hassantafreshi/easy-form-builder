@@ -17,8 +17,12 @@ let validate_edit_mode_emsFormBuilder = false;
 let test_view__emsFormBuilder = true
 
 
+// Mutable nonce for ajax_object_efm_core - kept outside freeze
+var _efb_core_nonce_ = '';
+
 jQuery(function () {
   if (typeof ajax_object_efm_core != undefined) {
+    _efb_core_nonce_ = ajax_object_efm_core.nonce;
     ajax_object_efm_core = deepFreeze_efb(ajax_object_efm_core);
     if (Number(ajax_object_efm_core.check) == 1) {
       fun_render_view_core_emsFormBuilder(ajax_object_efm_core.check);
@@ -729,4 +733,3 @@ function valid_file_emsFormBuilder(id) {
 }, 800);
   return rtrn;
 }
-

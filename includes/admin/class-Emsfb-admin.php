@@ -261,8 +261,8 @@ class Admin {
             $telegram_msg_new_noti = isset($valp[0]['telegram_msg_new_noti']) ? $valp[0]['telegram_msg_new_noti'] : $lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
             $telegram_msg_responsed_noti = isset($valp[0]['telegram_msg_responsed_noti']) ? $valp[0]['telegram_msg_responsed_noti'] : $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
             $telegram_msg_recived_user = isset($valp[0]['telegram_msg_recived_usr']) ? $valp[0]['telegram_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
-            $telegram_bot_token = isset($valp[0]['telegram_bot_token']) ? $valp[0]['telegram_bot_token'] : "";
-            $telegram_admin_chat_ids = isset($valp[0]['telegram_admin_chat_ids']) ? $valp[0]['telegram_admin_chat_ids'] : "";
+            $telegram_bot_token = isset($valp[0]['telegram_bot_token']) && !empty($valp[0]['telegram_bot_token']) ? $valp[0]['telegram_bot_token'] : get_option('emsfb_telegram_bot_token', '');
+            $telegram_admin_chat_ids = isset($valp[0]['telegram_admin_chat_ids']) && !empty($valp[0]['telegram_admin_chat_ids']) ? $valp[0]['telegram_admin_chat_ids'] : get_option('emsfb_telegram_chat_id', '');
 
             unset($valp[0]['telegram_msg_new_noti']);
             unset($valp[0]['telegram_msg_responsed_noti']);
@@ -293,7 +293,7 @@ class Admin {
         $value_="";
         $value="";
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
-            $sms_exists = isset($settings['AdnSS']) ? intval($settings['AdnSS']) : false;
+            $sms_exists = isset($settings->AdnSS) ? intval($settings->AdnSS) : false;
             $smf_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
             if(!$sms_exists || !$smf_file_exist) {
                $m = str_replace('NN', '<b>' . $lang['sms_noti'] . '</b>', $lang['msg_adons']);
@@ -313,7 +313,7 @@ class Admin {
 		}
 
         if(isset($valp[0]['telegramnoti']) && intval($valp[0]['telegramnoti'])==1 ){
-            $telegram_exists = isset($settings['AdnTLG']) ? intval($settings['AdnTLG']) : false;
+            $telegram_exists = isset($settings->AdnTLG) ? intval($settings->AdnTLG) : false;
             $telegram_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
 
             if(!$telegram_exists || !$telegram_file_exist) {
@@ -604,30 +604,54 @@ class Admin {
         }
         $table_name = $this->db->prefix . "emsfb_form";
         $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
-        $smsnoti = strpos($value,'\"smsnoti\":\"1\"') !==false ? 1 : 0;
-        if($smsnoti){
-            $sms_exists = get_option('emsfb_addon_AdnSS', false);
-            $smf_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
-            if($sms_exists !== false && $smf_file_exist) {
+
+        // ── Decode form structure so we can safely merge addon data ──
+        // The DB stores a JSON array with escaped quotes: [{\"type\":\"form\",...},{...}]
+        $decoded_form = json_decode( stripslashes( $value ) );
+        if ( $decoded_form === null ) {
+            // Fallback: try decoding the raw value
+            $decoded_form = json_decode( $value );
+        }
+        $use_decoded = ( $decoded_form !== null && is_array( $decoded_form ) && ! empty( $decoded_form ) );
+
+        // ── SMS addon ──
+        if ( $use_decoded && ! empty( $decoded_form[0]->smsnoti ) && $decoded_form[0]->smsnoti === '1' ) {
+            $sms_exists      = get_option( 'emsfb_addon_AdnSS', false );
+            $smf_file_exist  = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
+            if ( $sms_exists !== false && $smf_file_exist ) {
                 require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
                 $smsefb = new smssendefb();
-                $sms = $smsefb->get_sms_contact_efb($id);
-                $value = str_replace('\"smsnoti\":\"1\"', '\"smsnoti\":\"1\",\"sms_msg_new_noti\":\"'.$sms->new_message_noti_user.'\",\"sms_msg_responsed_noti\":\"'.$sms->new_response_noti.'\",\"sms_msg_recived_usr\":\"'.$sms->recived_message_noti_user.'\",\"sms_admins_phone_no\":\"'.$sms->admin_numbers.'\"',$value);
+                $sms    = $smsefb->get_sms_contact_efb( $id );
+                if ( $sms ) {
+                    $decoded_form[0]->sms_msg_new_noti      = isset( $sms->new_message_noti_user )   ? $sms->new_message_noti_user   : '';
+                    $decoded_form[0]->sms_msg_responsed_noti = isset( $sms->new_response_noti )       ? $sms->new_response_noti       : '';
+                    $decoded_form[0]->sms_msg_recived_usr   = isset( $sms->recived_message_noti_user ) ? $sms->recived_message_noti_user : '';
+                    $decoded_form[0]->sms_admins_phone_no   = isset( $sms->admin_numbers )            ? $sms->admin_numbers            : '';
+                }
             }
         }
 
-        $telegramnoti = strpos($value,'\"telegramnoti\":\"1\"') !==false ? 1 : 0;
-        if($telegramnoti){
-            $telegram_exists = get_option('emsfb_addon_AdnTLG', false);
+        // ── Telegram addon ──
+        if ( $use_decoded && ! empty( $decoded_form[0]->telegramnoti ) && $decoded_form[0]->telegramnoti === '1' ) {
+            $telegram_exists     = get_option( 'emsfb_addon_AdnTLG', false );
             $telegram_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
-            if($telegram_exists !== false && $telegram_file_exist) {
+            if ( $telegram_exists !== false && $telegram_file_exist ) {
                 require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
                 $telegramsendefb = new telegramsendefb();
-                $telegram = $telegramsendefb->get_telegram_contact_efb($id);
-                if($telegram) {
-                    $value = str_replace('\"telegramnoti\":\"1\"', '\"telegramnoti\":\"1\",\"telegram_msg_new_noti\":\"'.$telegram->new_message_noti_user.'\",\"telegram_msg_responsed_noti\":\"'.$telegram->new_response_noti.'\",\"telegram_msg_recived_usr\":\"'.$telegram->received_message_noti_user.'\",\"telegram_bot_token\":\"'.$telegram->bot_token.'\",\"telegram_admin_chat_ids\":\"'.$telegram->admin_chat_ids.'\"',$value);
+                $telegram        = $telegramsendefb->get_telegram_contact_efb( $id );
+                if ( $telegram ) {
+                    $decoded_form[0]->telegram_msg_new_noti      = isset( $telegram->new_message_noti_user )    ? $telegram->new_message_noti_user    : '';
+                    $decoded_form[0]->telegram_msg_responsed_noti = isset( $telegram->new_response_noti )        ? $telegram->new_response_noti        : '';
+                    $decoded_form[0]->telegram_msg_recived_usr   = isset( $telegram->received_message_noti_user ) ? $telegram->received_message_noti_user : '';
+                    $decoded_form[0]->telegram_bot_token         = isset( $telegram->bot_token )                 ? $telegram->bot_token                 : '';
+                    $decoded_form[0]->telegram_admin_chat_ids    = isset( $telegram->admin_chat_ids )            ? $telegram->admin_chat_ids            : '';
                 }
             }
+        }
+
+        // Re-encode: json_encode handles all escaping (newlines, quotes, etc.) automatically
+        if ( $use_decoded ) {
+            $value = wp_json_encode( $decoded_form, JSON_UNESCAPED_UNICODE );
         }
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id];
         wp_send_json_success($response, 200);

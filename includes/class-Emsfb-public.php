@@ -3807,6 +3807,12 @@ public function check_nonce_permission_efb($request) {
 					$email_status[0] ='newMessage';
 				}
 				if(isset($setting->smtp) && (bool)$setting->smtp ) $this->send_email_Emsfb_($user_eamil,$track,$pro,$email_status,$links ,'null','null');
+
+				// Telegram & 3rd party notification for reply / اطلاع‌رسانی تلگرام و سرویس‌های ثالث برای پاسخ
+				$reply_event_type = ($rsp_by == 'admin') ? 'admin_reply' : 'received_reply';
+				$this->id = $form_id;
+				$this->efb_intgrate_with_3rd_party_services_efb($track, $valobj ?? [], $valn, $reply_event_type);
+
 				$response = array(
 				'success' => true , "m"=>$this->lanText['messageSent'] , "by"=>$by,
 				'track'=>$track,
@@ -7002,17 +7008,66 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/**
+	 * یکپارچه‌سازی با سرویس‌های ثالث
 	 * Integrate with third-party services
 	 *
-	 * @param string $track_code Tracking code for the submission
-	 * @param array $submitted_values The submitted form values
-	 * @param array $form_fields_array The form structure and fields
+	 * این تابع پس از ارسال فرم یا دریافت پاسخ فراخوانی می‌شود و از طریق
+	 * اکشن‌های وردپرس، سرویس‌های ثالث مانند تلگرام، وب‌هوک و غیره را
+	 * در جریان رویداد قرار می‌دهد.
+	 *
+	 * This method is called after form submission or reply receipt.
+	 * It dispatches WordPress actions so third-party services (Telegram, Webhook, SMS, etc.)
+	 * can independently handle notifications.
+	 *
+	 * Supported event types:
+	 * - 'form_submit'     : New form submission
+	 * - 'received_reply'  : User reply/response received
+	 * - 'admin_reply'     : Admin reply to user
+	 *
+	 * @param string $track_code        Tracking code for the submission
+	 * @param array  $submitted_values  The submitted form values
+	 * @param array  $form_fields_array The form structure and fields
+	 * @param string $event_type        Event type: 'form_submit', 'received_reply', 'admin_reply'
 	 * @return void
 	 */
-	private function efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array) {
-		// TODO: Implement third-party service integration logic
-		// This method is called after form submission to integrate with external services
-		error_log('[Third Party Services] Integration initiated for tracking code: ' . $track_code);
+	private function efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, $event_type = 'form_submit') {
+		error_log('[EFB 3rd Party] === Integration START ===');
+		error_log('[EFB 3rd Party] Event: ' . $event_type . ' | Track: ' . $track_code);
+		error_log('[EFB 3rd Party DIAG] is_admin()=' . var_export(is_admin(), true));
+		error_log('[EFB 3rd Party DIAG] Hook efb_3rd_party_telegram_notify registered=' . var_export(has_action('efb_3rd_party_telegram_notify'), true));
+		error_log('[EFB 3rd Party DIAG] Hook efb_after_form_integration registered=' . var_export(has_action('efb_after_form_integration'), true));
+		error_log('[EFB 3rd Party DIAG] Class telegramsendefb exists=' . var_export(class_exists('Emsfb\telegramsendefb'), true));
+		error_log('[EFB 3rd Party DIAG] EMSFB_TELEGRAM_SEND_LOADED=' . var_export(defined('EMSFB_TELEGRAM_SEND_LOADED'), true));
+
+		// ساخت آرایه استاندارد اطلاعات رویداد برای تمام سرویس‌ها
+		// Build standardized event context for all services
+		$context = [
+			'track_code'       => $track_code,
+			'form_id'          => intval($this->id),
+			'page_url'         => isset($_SERVER['HTTP_REFERER']) ? sanitize_url(wp_unslash($_SERVER['HTTP_REFERER'])) : get_site_url(),
+			'event_type'       => $event_type,
+			'submitted_values' => $submitted_values,
+			'form_fields'      => $form_fields_array,
+		];
+
+		// ─── تلگرام / Telegram ───────────────────────────────────
+		// سرویس تلگرام از طریق اکشن efb_3rd_party_telegram_notify
+		// بصورت مستقل شرایط را بررسی و پیام ارسال می‌کند
+		error_log('[EFB 3rd Party DIAG] Firing efb_3rd_party_telegram_notify action...');
+		do_action('efb_3rd_party_telegram_notify', $context);
+		error_log('[EFB 3rd Party DIAG] efb_3rd_party_telegram_notify action completed');
+
+		// ─── وب‌هوک / Webhook (آینده) ─────────────────────────────
+		// do_action('efb_3rd_party_webhook_notify', $context);
+
+		// ─── کد پیامک / SMS Code (آینده) ─────────────────────────
+		// do_action('efb_3rd_party_sms_code_notify', $context);
+
+		// ─── اکشن عمومی برای افزونه‌های خارجی ────────────────────
+		// Generic action for external plugins to hook into
+		do_action('efb_after_form_integration', $context);
+
+		error_log('[EFB 3rd Party] === Integration END === Track: ' . $track_code);
 	}
 
 }

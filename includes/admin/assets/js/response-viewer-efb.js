@@ -1575,7 +1575,7 @@ function fun_vaid_tracker_check_emsFormBuilder() {
           value: el,
           name: formNameEfb,
           valid: recaptcha_emsFormBuilder,
-          nonce: ajax_object_efm.nonce,
+          nonce: (typeof _efb_core_nonce_ !== 'undefined' && _efb_core_nonce_) ? _efb_core_nonce_ : ajax_object_efm.nonce,
           sid:efb_var.sid,
           id: 0,
         };
