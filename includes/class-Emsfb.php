@@ -123,6 +123,7 @@ class Emsfb {
                   $telegram_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/class-Emsfb-telegram.php';
                   if (file_exists($telegram_file_path)) {
                       require_once $telegram_file_path;
+                      new \Emsfb\telegramlistefb();
                   } else {
                       error_log('Telegram file does not exist: ' . $telegram_file_path);
                   }

@@ -272,9 +272,9 @@ async function createStepsOfPublic() {
               call_fun_jalali_datepicker_efb_v4();
             }else if (classes.contains("hijri-picker")) {
               call_fun_hijri_datapicker_efb_v4();
-              $("#"+el.id).on('dp.change', function (arg) {
+              jQuery("#"+el.id).on('dp.change', function (arg) {
                 if (!arg.date) {
-                    $("#selected-date").html('');
+                    jQuery("#selected-date").html('');
                     return;
                 };
                 let date = arg.date;
