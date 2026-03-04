@@ -579,7 +579,7 @@ function actionSendAddonsUn_efb(val) {
           let m = efb_var.text.tDeleted;
           const ad = efb_var.text.addon.replace('%s1', ``).toLowerCase();
           m =m.replace('%s', ad);
-          alert_message_efb(m,'', 30,'info');
+          alert_message_efb(m,'', 30,'success');
           location.reload();
         } else {
           alert(res, "error")
@@ -4110,8 +4110,8 @@ function add_option_edit_pro_efb(parent, tag, len) {
 function show_delete_window_efb(idset,iVJ) {
 
   // این تابع المان را از صفحه پاک می کند
-  let v = valj_efb[iVJ] && valj_efb[iVJ].hasOwnProperty('type') ?`<br> <b>${valj_efb[iVJ].type} > ${valj_efb[iVJ].name ?? valj_efb[iVJ].value }</b>` : ''
-  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem} ${v}</div></div>`
+  let itemLabel = valj_efb[iVJ] && valj_efb[iVJ].hasOwnProperty('type') ? `${valj_efb[iVJ].type} &rsaquo; ${valj_efb[iVJ].name ?? valj_efb[iVJ].value}` : '';
+  const body = efb_build_confirm_body('danger', 'bi-trash', efb_var.text.delete, efb_var.text.areYouSureYouWantDeleteItem, itemLabel);
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
   show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox')
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
@@ -4126,6 +4126,7 @@ function show_delete_window_efb(idset,iVJ) {
       obj_delete_row(idset, false, confirmBtn.dataset.id);
       activeEl_efb = 0;
       state_modal_show_efb(0)
+      setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.field?.replace('%s1','').toLowerCase() || 'element'), '', 4, 'success') }, 300);
     })
     //myModal.show_efb();
   } else if (is_step) {
@@ -4147,6 +4148,7 @@ function show_delete_window_efb(idset,iVJ) {
         obj_delete_row(idset, true)
         document.getElementById(confirmBtn.dataset.id).remove();
         state_modal_show_efb(0)
+        setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.step?.replace('%s1','').toLowerCase() || 'step'), '', 4, 'success') }, 300);
 
       })
 
@@ -4619,8 +4621,8 @@ function emsFormBuilder_delete(id, type,value) {
     break
   }
   const f = efb_var.text[type].replaceAll('%s1','');
-  const m = f ? `${f}  >>`: '';
-  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}<br><b>${m} ${val} </b></div></div>`
+  const m = f ? `${f} &rsaquo; ${val}` : val;
+  const body = efb_build_confirm_body('danger', 'bi-trash', efb_var.text.delete, efb_var.text.areYouSureYouWantDeleteItem, m);
   show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox')
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
@@ -4629,16 +4631,20 @@ function emsFormBuilder_delete(id, type,value) {
   state_modal_show_efb(1)
   confirmBtn.addEventListener("click", (e) => {
     // console.log(type);
+    let _deleteTypeLabel = '';
     if(type=='form'){
     fun_confirm_remove_emsFormBuilder(Number(id))
+    _deleteTypeLabel = efb_var.text.form?.replace('%s1','') || 'form';
     }else if(type=='message'){
       fun_confirm_remove_message_emsFormBuilder(Number(id))
+      _deleteTypeLabel = efb_var.text.message?.replace('%s1','') || 'message';
     }else if (type =='addon'){
       addons_btn_state_efb(id);
       fun_confirm_remove_addon_emsFormBuilder(id);
     }else if (type =="condlogic"){
 
       fun_remove_condition_efb(id , value);
+      _deleteTypeLabel = efb_var.text.condlogic?.replace('%s1','') || 'condition';
     }else if(type=="messagelist"){
       // console.log(type);
       //+here
@@ -4646,13 +4652,22 @@ function emsFormBuilder_delete(id, type,value) {
       fun_confirm_remove_all_message_emsFormBuilder(value)
       return;
     }else if(type=="datas"){
-      console.log(`type:${type} , id:${id} , value:${value}`);
+      console.log(`[EFB-DEBUG] Confirm clicked for type:${type} , id:${id} , value:${value}`);
       if (typeof fun_confirm_remove_dataset_autofilled_emsFormBuilder === 'function') {
+        console.log('[EFB-DEBUG] fun_confirm_remove_dataset_autofilled_emsFormBuilder IS available, calling it...');
         fun_confirm_remove_dataset_autofilled_emsFormBuilder(id, value);
+      } else {
+        console.error('[EFB-DEBUG] fun_confirm_remove_dataset_autofilled_emsFormBuilder is NOT defined!');
       }
+      _deleteTypeLabel = efb_var.text.datas?.replace('%s1','') || 'dataset';
     }
     activeEl_efb = 0;
     state_modal_show_efb(0)
+    // Show success toast for client-side deletes (condlogic, element, step)
+    // For form/message/addon/dataset, the AJAX callback already shows an alert
+    if (type === 'condlogic') {
+      setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', _deleteTypeLabel.toLowerCase()), '', 4, 'success') }, 300);
+    }
   })
   //myModal.show_efb();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -4690,7 +4705,7 @@ function emsFormBuilder_duplicate(id, type,value) {
   }
   // console.log(val);
   const msg = efb_var.text.ausdup.replaceAll('XXX',val);
-  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${msg}</div></div>`
+  const body = efb_build_confirm_body('info', 'bi-clipboard-plus', efb_var.text.duplicate, msg, '');
   show_modal_efb(body, efb_var.text.duplicate, 'efb bi-clipboard-plus mx-2', 'duplicateBox')
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
@@ -4746,20 +4761,49 @@ funRefreshPricesEfb=()=>{
 }
 state_modal_show_efb=(i)=>{
   const el = document.getElementById('settingModalEfb');
+  const dialogEl = document.getElementById('settingModalEfb_');
    show =()=>{
+   // Create/show backdrop
+   let backdrop = document.querySelector('.efb-modal-backdrop');
+   if (!backdrop) {
+     backdrop = document.createElement('div');
+     backdrop.className = 'efb-modal-backdrop';
+     document.body.appendChild(backdrop);
+   }
+   // Force reflow then add show class for transition
+   void backdrop.offsetWidth;
+   backdrop.classList.add('show');
+   backdrop.onclick = () => state_modal_show_efb(0);
+
    document.body.classList.add("modal-open")
-   el.classList.add('show');
    el.style.cssText='display: block; padding-right: 0.400024px;';
+   // Force reflow to trigger CSS transition
+   void el.offsetWidth;
+   el.classList.add('show');
    el.removeAttribute("aria-hidden");
    el.setAttribute("aria-modal","true");
 
   }
    remove =()=>{
+   // Remove backdrop
+   const backdrop = document.querySelector('.efb-modal-backdrop');
+   if (backdrop) {
+     backdrop.classList.remove('show');
+     setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 250);
+   }
+
    document.body.classList.remove("modal-open");
    el.classList.remove('show');
-   el.style.cssText='';
+   // Delay hiding display to allow fade-out animation
+   setTimeout(() => { if (!el.classList.contains('show')) el.style.cssText=''; }, 250);
    el.setAttribute("aria-hidden","true");
    el.removeAttribute("aria-modal");
+
+   // Remove confirm-dialog class if present
+   if (dialogEl && dialogEl.classList.contains('efb-confirm-dialog')) {
+     dialogEl.classList.remove('efb-confirm-dialog');
+   }
+
    if(last_show_modal_efb =='duplicateBox'){
       sessionStorage.removeItem('efb_duplicate_id');
       sessionStorage.removeItem('efb_duplicate_type');

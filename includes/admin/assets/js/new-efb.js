@@ -65,6 +65,25 @@ function efb_var_waitng(time) {
 }
 efb_var_waitng(50)
 
+/**
+ * Build a modern confirm/delete modal body with icon, title, message and item label.
+ * @param {string} variant  - 'danger' | 'warning' | 'info'
+ * @param {string} iconCls  - Bootstrap icon class e.g. 'bi-trash'
+ * @param {string} title    - Header text
+ * @param {string} message  - Main question text
+ * @param {string} itemLabel - Optional item name to highlight
+ * @returns {string} HTML string
+ */
+const efb_build_confirm_body = (variant = 'danger', iconCls = 'bi-trash', title = '', message = '', itemLabel = '') => {
+  const iconType = variant === 'warning' ? 'efb-icon-warning' : variant === 'info' ? 'efb-icon-info' : 'efb-icon-danger';
+  const labelHtml = itemLabel ? `<b>${itemLabel}</b>` : '';
+  return `<div class="efb-confirm-body">
+    <div class="efb-confirm-icon-wrap ${iconType}"><i class="efb ${iconCls}"></i></div>
+    <div class="efb-confirm-title">${title}</div>
+    <div class="efb-confirm-message">${message}${labelHtml ? '<br>' + labelHtml : ''}</div>
+  </div>`;
+};
+
 let last_show_modal_efb = '';
 const show_modal_efb = (body, title, icon, type) => {
   last_show_modal_efb =type;
@@ -78,15 +97,24 @@ const show_modal_efb = (body, title, icon, type) => {
   }
   else if (type == "deleteBox" || type=="duplicateBox") {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
-    if (!document.getElementById('modalConfirmBtnEfb')) document.getElementById('settingModalEfb-sections').innerHTML += `
-    <div class="efb  modal-footer" id="modal-footer-efb">
-      <a type="button" class="efb  btn btn-secondary" onclick="state_modal_show_efb(0)">
+    document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
+    // Add confirm-dialog class for compact centered layout
+    if (!document.getElementById('settingModalEfb_').classList.contains('efb-confirm-dialog')) {
+      document.getElementById('settingModalEfb_').classList.add('efb-confirm-dialog');
+    }
+    if (!document.getElementById('modalConfirmBtnEfb')) {
+      const isDelete = type === 'deleteBox';
+      const confirmClass = isDelete ? 'efb-btn-confirm-danger' : 'efb-btn-confirm-primary';
+      document.getElementById('settingModalEfb-sections').innerHTML += `
+    <div class="efb modal-footer efb-confirm-footer" id="modal-footer-efb">
+      <a type="button" class="efb-btn-cancel" onclick="state_modal_show_efb(0)">
           ${efb_var.text.no}
       </a>
-      <a type="button" class="efb  btn btn-danger" data-bs-dismiss="modal"  id="modalConfirmBtnEfb">
-          ${efb_var.text.yes}
+      <a type="button" class="${confirmClass}" id="modalConfirmBtnEfb">
+          ${isDelete ? efb_var.text.yes : efb_var.text.yes}
       </a>
     </div>`
+    }
   } else if (type == "saveBox") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if (!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')

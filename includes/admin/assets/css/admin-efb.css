@@ -902,6 +902,254 @@ body.folded .efb.modal {
     overflow: hidden !important;
 }
 
+/* ===== Enhanced Delete/Confirm Modal Styles ===== */
+
+/* Backdrop overlay */
+.efb-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 100099;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+.efb-modal-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Smooth entrance animation for the modal dialog */
+#settingModalEfb .efb.modal-dialog {
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+    transform: scale(0.92) translateY(10px);
+    opacity: 0;
+}
+#settingModalEfb.show .efb.modal-dialog {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+/* Delete/Confirm modal body styling */
+.efb-confirm-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 20px 8px;
+}
+.efb-confirm-icon-wrap {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+.efb-confirm-icon-wrap.efb-icon-danger {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+}
+.efb-confirm-icon-wrap.efb-icon-warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #d97706;
+}
+.efb-confirm-icon-wrap.efb-icon-info {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #2563eb;
+}
+.efb-confirm-icon-wrap i {
+    font-size: 28px;
+}
+.efb-confirm-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+.efb-confirm-message {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.6;
+    max-width: 360px;
+    word-break: break-word;
+}
+.efb-confirm-message b {
+    color: #334155;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 6px;
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    direction: ltr;
+}
+
+/* Enhanced modal footer for delete/confirm */
+#modal-footer-efb.efb-confirm-footer {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 24px 24px;
+    border-top: 1px solid #f1f5f9;
+    background: transparent;
+}
+#modal-footer-efb.efb-confirm-footer .efb-btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #475569;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    line-height: 1.4;
+}
+#modal-footer-efb.efb-confirm-footer .efb-btn-cancel:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+    line-height: 1.4;
+}
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+    transform: translateY(-1px);
+}
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(220, 38, 38, 0.2);
+}
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+    line-height: 1.4;
+}
+#modal-footer-efb.efb-confirm-footer .efb-btn-confirm-primary:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    transform: translateY(-1px);
+}
+
+/* Override modal content for small confirm dialogs — don't stretch full width */
+#settingModalEfb .efb.modal-dialog.efb-confirm-dialog {
+    max-width: 420px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    min-height: 100%;
+    padding: 16px;
+}
+#settingModalEfb .efb-confirm-dialog .efb.modal-content {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    border: none;
+    border-radius: 16px !important;
+    width: 100%;
+}
+#settingModalEfb .efb-confirm-dialog .efb.modal-header.efb {
+    display: none;
+}
+
+/* RTL support for confirm modal */
+[dir="rtl"] .efb-confirm-message b,
+.rtl .efb-confirm-message b {
+    direction: rtl;
+}
+
+/* Mobile responsive for confirm modal */
+@media (max-width: 782px) {
+    #settingModalEfb .efb.modal-dialog.efb-confirm-dialog {
+        max-width: calc(100% - 32px);
+        margin: 0 auto;
+        padding: 16px;
+    }
+    .efb-confirm-body {
+        padding: 20px 16px 4px;
+    }
+    .efb-confirm-icon-wrap {
+        width: 56px;
+        height: 56px;
+    }
+    .efb-confirm-icon-wrap i {
+        font-size: 24px;
+    }
+    .efb-confirm-title {
+        font-size: 16px;
+    }
+    .efb-confirm-message {
+        font-size: 13px;
+    }
+    #modal-footer-efb.efb-confirm-footer {
+        padding: 14px 16px 20px;
+        gap: 10px;
+    }
+    #modal-footer-efb.efb-confirm-footer .efb-btn-cancel,
+    #modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger,
+    #modal-footer-efb.efb-confirm-footer .efb-btn-confirm-primary {
+        min-width: 0;
+        flex: 1;
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Small screens — stack buttons vertically */
+@media (max-width: 380px) {
+    #modal-footer-efb.efb-confirm-footer {
+        flex-direction: column-reverse;
+    }
+    #modal-footer-efb.efb-confirm-footer .efb-btn-cancel,
+    #modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger,
+    #modal-footer-efb.efb-confirm-footer .efb-btn-confirm-primary {
+        width: 100%;
+    }
+}
+
 /* ===== Side Menu Panel (Block C from style-efb.css) ===== */
 .sideMenuConEfb {	transition: transform 0.3s ease;
    background-color: #ECF0F1;

@@ -604,17 +604,59 @@ class EfbAddonPhrases {
             /* translators: Dataset help step 1 */
             "datasetHelpStep1" => $state && isset($ac->text->datasetHelpStep1) ? $ac->text->datasetHelpStep1 : esc_html__('Prepare a CSV file with column headers in the first row.', 'easy-form-builder'),
 
+            /* translators: Dataset help step 1 title */
+            "datasetHelpStep1Title" => $state && isset($ac->text->datasetHelpStep1Title) ? $ac->text->datasetHelpStep1Title : esc_html__('Prepare CSV', 'easy-form-builder'),
+
             /* translators: Dataset help step 2 */
             "datasetHelpStep2" => $state && isset($ac->text->datasetHelpStep2) ? $ac->text->datasetHelpStep2 : esc_html__('Upload the CSV file using the upload button.', 'easy-form-builder'),
 
+            /* translators: Dataset help step 2 title */
+            "datasetHelpStep2Title" => $state && isset($ac->text->datasetHelpStep2Title) ? $ac->text->datasetHelpStep2Title : esc_html__('Upload Dataset', 'easy-form-builder'),
+
             /* translators: Dataset help step 3 */
-            "datasetHelpStep3" => $state && isset($ac->text->datasetHelpStep3) ? $ac->text->datasetHelpStep3 : esc_html__('In the form builder, enable autofill and select your dataset.', 'easy-form-builder'),
+            "datasetHelpStep3" => $state && isset($ac->text->datasetHelpStep3) ? $ac->text->datasetHelpStep3 : esc_html__('In Form Builder, open Form Settings and enable "Auto-Fill". Choose your dataset, then map elements to dataset fields as search conditions.', 'easy-form-builder'),
+
+            /* translators: Dataset help step 3 title */
+            "datasetHelpStep3Title" => $state && isset($ac->text->datasetHelpStep3Title) ? $ac->text->datasetHelpStep3Title : esc_html__('Enable Auto-Fill', 'easy-form-builder'),
 
             /* translators: Dataset help step 4 */
-            "datasetHelpStep4" => $state && isset($ac->text->datasetHelpStep4) ? $ac->text->datasetHelpStep4 : esc_html__('Map columns to form fields using the condition settings.', 'easy-form-builder'),
+            "datasetHelpStep4" => $state && isset($ac->text->datasetHelpStep4) ? $ac->text->datasetHelpStep4 : esc_html__('For each target field, enable "AutoFill to automatically fill this field" and select the dataset column to auto-populate.', 'easy-form-builder'),
+
+            /* translators: Dataset help step 4 title */
+            "datasetHelpStep4Title" => $state && isset($ac->text->datasetHelpStep4Title) ? $ac->text->datasetHelpStep4Title : esc_html__('Map Fields', 'easy-form-builder'),
 
             /* translators: Dataset help tip */
-            "datasetHelpTip" => $state && isset($ac->text->datasetHelpTip) ? $ac->text->datasetHelpTip : esc_html__('Tip: You can edit dataset values inline by clicking on them.', 'easy-form-builder'),
+            "datasetHelpTip" => $state && isset($ac->text->datasetHelpTip) ? $ac->text->datasetHelpTip : esc_html__('You can edit dataset values inline by clicking on them.', 'easy-form-builder'),
+
+            /* translators: Dataset help subtitle */
+            "datasetHelpSubtitle" => $state && isset($ac->text->datasetHelpSubtitle) ? $ac->text->datasetHelpSubtitle : esc_html__('Follow these steps to set up auto-fill for your forms', 'easy-form-builder'),
+
+            /* translators: Quick Start Guide title */
+            "quickStartGuide" => $state && isset($ac->text->quickStartGuide) ? $ac->text->quickStartGuide : esc_html__('Quick Start Guide', 'easy-form-builder'),
+
+            /* translators: Tips & Notes title */
+            "tipsAndNotes" => $state && isset($ac->text->tipsAndNotes) ? $ac->text->tipsAndNotes : esc_html__('Tips & Notes', 'easy-form-builder'),
+
+            /* translators: Editing Data section title */
+            "editingData" => $state && isset($ac->text->editingData) ? $ac->text->editingData : esc_html__('Editing Data', 'easy-form-builder'),
+
+            /* translators: Dataset tip about CSV format */
+            "datasetTipCSV" => $state && isset($ac->text->datasetTipCSV) ? $ac->text->datasetTipCSV : esc_html__('Supported format: CSV with UTF-8 encoding.', 'easy-form-builder'),
+
+            /* translators: Form Builder Tips section title */
+            "formBuilderTips" => $state && isset($ac->text->formBuilderTips) ? $ac->text->formBuilderTips : esc_html__('Form Builder Tips', 'easy-form-builder'),
+
+            /* translators: Dataset tip about conditions */
+            "datasetTipCondition" => $state && isset($ac->text->datasetTipCondition) ? $ac->text->datasetTipCondition : esc_html__('Use conditions to filter dataset rows based on user input.', 'easy-form-builder'),
+
+            /* translators: Dataset tip about multiple fields */
+            "datasetTipMultiple" => $state && isset($ac->text->datasetTipMultiple) ? $ac->text->datasetTipMultiple : esc_html__('Multiple fields can auto-fill from the same dataset.', 'easy-form-builder'),
+
+            /* translators: Dataset notice title */
+            "datasetNoticeTitle" => $state && isset($ac->text->datasetNoticeTitle) ? $ac->text->datasetNoticeTitle : esc_html__('Good to know', 'easy-form-builder'),
+
+            /* translators: Dataset notice text */
+            "datasetNoticeText" => $state && isset($ac->text->datasetNoticeText) ? $ac->text->datasetNoticeText : esc_html__('Changes to the dataset take effect immediately for new form submissions.', 'easy-form-builder'),
 
             // === API Page Header & Tabs ===
             /* translators: API page subtitle */
@@ -647,20 +689,56 @@ class EfbAddonPhrases {
             /* translators: API help title */
             "apiHelpTitle" => $state && isset($ac->text->apiHelpTitle) ? $ac->text->apiHelpTitle : esc_html__('How to use API Integrations', 'easy-form-builder'),
 
+            /* translators: API help subtitle */
+            "apiHelpSubtitle" => $state && isset($ac->text->apiHelpSubtitle) ? $ac->text->apiHelpSubtitle : esc_html__('Follow these steps to connect your external API', 'easy-form-builder'),
+
             /* translators: API help step 1 */
-            "apiHelpStep1" => $state && isset($ac->text->apiHelpStep1) ? $ac->text->apiHelpStep1 : esc_html__('Click "Add API Connection" to create a new connection.', 'easy-form-builder'),
+            "apiHelpStep1" => $state && isset($ac->text->apiHelpStep1) ? $ac->text->apiHelpStep1 : esc_html__('Click "Add API Connection" to create a new connection and enter your API endpoint URL.', 'easy-form-builder'),
+
+            /* translators: API help step 1 title */
+            "apiHelpStep1Title" => $state && isset($ac->text->apiHelpStep1Title) ? $ac->text->apiHelpStep1Title : esc_html__('Add Connection', 'easy-form-builder'),
 
             /* translators: API help step 2 */
-            "apiHelpStep2" => $state && isset($ac->text->apiHelpStep2) ? $ac->text->apiHelpStep2 : esc_html__('Enter the API endpoint URL and configure authentication.', 'easy-form-builder'),
+            "apiHelpStep2" => $state && isset($ac->text->apiHelpStep2) ? $ac->text->apiHelpStep2 : esc_html__('Configure authentication (API Key, Bearer Token, or Basic Auth) if your API requires it.', 'easy-form-builder'),
+
+            /* translators: API help step 2 title */
+            "apiHelpStep2Title" => $state && isset($ac->text->apiHelpStep2Title) ? $ac->text->apiHelpStep2Title : esc_html__('Authentication', 'easy-form-builder'),
 
             /* translators: API help step 3 */
-            "apiHelpStep3" => $state && isset($ac->text->apiHelpStep3) ? $ac->text->apiHelpStep3 : esc_html__('Map API response fields to your form fields.', 'easy-form-builder'),
+            "apiHelpStep3" => $state && isset($ac->text->apiHelpStep3) ? $ac->text->apiHelpStep3 : esc_html__('Select a form and map API response fields to your form fields for auto-fill.', 'easy-form-builder'),
+
+            /* translators: API help step 3 title */
+            "apiHelpStep3Title" => $state && isset($ac->text->apiHelpStep3Title) ? $ac->text->apiHelpStep3Title : esc_html__('Map Fields', 'easy-form-builder'),
 
             /* translators: API help step 4 */
-            "apiHelpStep4" => $state && isset($ac->text->apiHelpStep4) ? $ac->text->apiHelpStep4 : esc_html__('Test the connection and save.', 'easy-form-builder'),
+            "apiHelpStep4" => $state && isset($ac->text->apiHelpStep4) ? $ac->text->apiHelpStep4 : esc_html__('Use the Test button to verify the API returns expected data, then save your connection.', 'easy-form-builder'),
+
+            /* translators: API help step 4 title */
+            "apiHelpStep4Title" => $state && isset($ac->text->apiHelpStep4Title) ? $ac->text->apiHelpStep4Title : esc_html__('Test & Save', 'easy-form-builder'),
 
             /* translators: API help tip */
-            "apiHelpTip" => $state && isset($ac->text->apiHelpTip) ? $ac->text->apiHelpTip : esc_html__('Tip: Use cache settings to reduce API calls and improve performance.', 'easy-form-builder'),
+            "apiHelpTip" => $state && isset($ac->text->apiHelpTip) ? $ac->text->apiHelpTip : esc_html__('Use cache settings to reduce API calls and improve performance.', 'easy-form-builder'),
+
+            /* translators: API tip - Performance section title */
+            "apiTipPerformance" => $state && isset($ac->text->apiTipPerformance) ? $ac->text->apiTipPerformance : esc_html__('Performance', 'easy-form-builder'),
+
+            /* translators: API tip - timeout */
+            "apiTipTimeout" => $state && isset($ac->text->apiTipTimeout) ? $ac->text->apiTipTimeout : esc_html__('Set a reasonable timeout to prevent slow form loading.', 'easy-form-builder'),
+
+            /* translators: API tip - Security section title */
+            "apiTipSecurity" => $state && isset($ac->text->apiTipSecurity) ? $ac->text->apiTipSecurity : esc_html__('Security', 'easy-form-builder'),
+
+            /* translators: API tip - HTTPS */
+            "apiTipAuth" => $state && isset($ac->text->apiTipAuth) ? $ac->text->apiTipAuth : esc_html__('Always use HTTPS endpoints for secure data transfer.', 'easy-form-builder'),
+
+            /* translators: API tip - keys */
+            "apiTipKeys" => $state && isset($ac->text->apiTipKeys) ? $ac->text->apiTipKeys : esc_html__('Keep API keys confidential — they are stored securely in WordPress.', 'easy-form-builder'),
+
+            /* translators: API notice title */
+            "apiNoticeTitle" => $state && isset($ac->text->apiNoticeTitle) ? $ac->text->apiNoticeTitle : esc_html__('Good to know', 'easy-form-builder'),
+
+            /* translators: API notice text */
+            "apiNoticeText" => $state && isset($ac->text->apiNoticeText) ? $ac->text->apiNoticeText : esc_html__('API responses are fetched in real-time when the form loads. Enable caching for frequently accessed data.', 'easy-form-builder'),
 
             // === External API Section ===
             /* translators: External API Connections = section header */
