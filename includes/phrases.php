@@ -71,10 +71,10 @@ class EfbAddonPhrases {
         // Register Payment addon phrases
         self::register_addon('payment', [__CLASS__, 'get_payment_phrases']);
 
-        /* // Register SMS addon phrases
+        // Register SMS addon phrases
         self::register_addon('sms', [__CLASS__, 'get_sms_phrases']);
 
-        // Register Stripe addon phrases
+        /* // Register Stripe addon phrases
         self::register_addon('stripe', [__CLASS__, 'get_stripe_phrases']);
 
         // Register PayPal addon phrases
@@ -186,9 +186,6 @@ class EfbAddonPhrases {
 
             /* translators: Real-time Form Notifications = header subtitle */
             "telegram_subtitle" => $state && isset($ac->text->telegram_subtitle) ? $ac->text->telegram_subtitle : esc_html__('Real-time Form Notifications', 'easy-form-builder'),
-
-            /* translators: Introduction text for Telegram settings */
-            "telegram_intro" => $state && isset($ac->text->telegram_intro) ? $ac->text->telegram_intro : esc_html__('Configure Telegram notifications to receive instant alerts when forms are submitted. Keep your team informed in real-time.', 'easy-form-builder'),
 
             // === Status Messages ===
             /* translators: Enabled = status when feature is active */
@@ -437,7 +434,100 @@ class EfbAddonPhrases {
      */
     public static function get_sms_phrases($ac = null, $state = false) {
         return [
-            // SMS phrases will be added here when needed
+            // === Header & Intro ===
+            /* translators: SMS Send & Manage Messages = subtitle in SMS header */
+            "smsSendMessages" => $state && isset($ac->text->smsSendMessages) ? $ac->text->smsSendMessages : esc_html__('Send & Manage Messages', 'easy-form-builder'),
+
+            /* translators: SMS intro description = description text under SMS header */
+            "smsIntroDesc" => $state && isset($ac->text->smsIntroDesc) ? $ac->text->smsIntroDesc : esc_html__('Send SMS messages directly from your dashboard and track all sent messages.', 'easy-form-builder'),
+
+            /* translators: Quick Send = feature badge label */
+            "quickSend" => $state && isset($ac->text->quickSend) ? $ac->text->quickSend : esc_html__('Quick Send', 'easy-form-builder'),
+
+            /* translators: Message History = tab title and feature badge */
+            "messageHistory" => $state && isset($ac->text->messageHistory) ? $ac->text->messageHistory : esc_html__('Message History', 'easy-form-builder'),
+
+            /* translators: Total Sent = label for total sent messages counter */
+            "totalSent" => $state && isset($ac->text->totalSent) ? $ac->text->totalSent : esc_html__('Total Sent', 'easy-form-builder'),
+
+            /* translators: Messages sent from your dashboard = hint under status card */
+            "smsStatusHint" => $state && isset($ac->text->smsStatusHint) ? $ac->text->smsStatusHint : esc_html__('Messages sent from your dashboard', 'easy-form-builder'),
+
+            // === Tab Titles ===
+            /* translators: Send Message = tab title for composing an SMS */
+            "sendMessage" => $state && isset($ac->text->sendMessage) ? $ac->text->sendMessage : esc_html__('Send Message', 'easy-form-builder'),
+
+            // === Send Tab ===
+            /* translators: Compose and send an SMS message = subtitle on send card */
+            "sendSmsDesc" => $state && isset($ac->text->sendSmsDesc) ? $ac->text->sendSmsDesc : esc_html__('Compose and send an SMS message', 'easy-form-builder'),
+
+            /* translators: Type your message here... = textarea placeholder */
+            "typeYourMessage" => $state && isset($ac->text->typeYourMessage) ? $ac->text->typeYourMessage : esc_html__('Type your message here...', 'easy-form-builder'),
+
+            /* translators: Phone Number = label for phone input field */
+            "phoneNumber" => $state && isset($ac->text->phoneNumber) ? $ac->text->phoneNumber : esc_html__('Phone Number', 'easy-form-builder'),
+
+            /* translators: SMS message field hint text */
+            "smsMessageHint" => $state && isset($ac->text->smsMessageHint) ? $ac->text->smsMessageHint : esc_html__('Write the message you want to send via SMS', 'easy-form-builder'),
+
+            /* translators: SMS phone field hint text */
+            "smsPhoneHint" => $state && isset($ac->text->smsPhoneHint) ? $ac->text->smsPhoneHint : esc_html__('Enter phone number with country code (e.g. +11234567890)', 'easy-form-builder'),
+
+            /* translators: Quick Tips = title for tips sidebar */
+            "quickTips" => $state && isset($ac->text->quickTips) ? $ac->text->quickTips : esc_html__('Quick Tips', 'easy-form-builder'),
+
+            /* translators: SMS tip about international phone format */
+            "smsTip1" => $state && isset($ac->text->smsTip1) ? $ac->text->smsTip1 : esc_html__('Use international format: +[country code][number]', 'easy-form-builder'),
+
+            /* translators: SMS tip about provider configuration */
+            "smsTip2" => $state && isset($ac->text->smsTip2) ? $ac->text->smsTip2 : esc_html__('Messages are sent via your configured SMS provider', 'easy-form-builder'),
+
+            /* translators: SMS tip about message history */
+            "smsTip3" => $state && isset($ac->text->smsTip3) ? $ac->text->smsTip3 : esc_html__('All sent messages are logged in the History tab', 'easy-form-builder'),
+
+            // === History Tab ===
+            /* translators: No messages sent yet = empty state message */
+            "noRecordsFound" => $state && isset($ac->text->noRecordsFound) ? $ac->text->noRecordsFound : esc_html__('No messages sent yet', 'easy-form-builder'),
+
+            /* translators: sent = status label for sent messages */
+            "sent" => $state && isset($ac->text->sent) ? $ac->text->sent : esc_html__('sent', 'easy-form-builder'),
+
+            // === Help Tab ===
+            /* translators: Learn how to use the SMS feature = help subtitle */
+            "smsHelpDesc" => $state && isset($ac->text->smsHelpDesc) ? $ac->text->smsHelpDesc : esc_html__('Learn how to use the SMS feature', 'easy-form-builder'),
+
+            /* translators: Quick Start Guide = help section title */
+            "smsHelpQuickStart" => $state && isset($ac->text->smsHelpQuickStart) ? $ac->text->smsHelpQuickStart : esc_html__('Quick Start Guide', 'easy-form-builder'),
+
+            /* translators: Step 1 of SMS quick start guide */
+            "smsHelpStep1" => $state && isset($ac->text->smsHelpStep1) ? $ac->text->smsHelpStep1 : esc_html__('Go to EFB Settings and configure your SMS provider (e.g. WP SMS Pro)', 'easy-form-builder'),
+
+            /* translators: Step 2 of SMS quick start guide */
+            "smsHelpStep2" => $state && isset($ac->text->smsHelpStep2) ? $ac->text->smsHelpStep2 : esc_html__('Navigate to the "Send Message" tab', 'easy-form-builder'),
+
+            /* translators: Step 3 of SMS quick start guide */
+            "smsHelpStep3" => $state && isset($ac->text->smsHelpStep3) ? $ac->text->smsHelpStep3 : esc_html__('Type your message and enter the phone number with country code', 'easy-form-builder'),
+
+            /* translators: Step 4 of SMS quick start guide */
+            "smsHelpStep4" => $state && isset($ac->text->smsHelpStep4) ? $ac->text->smsHelpStep4 : esc_html__('Click "Send" — the message will appear in Message History', 'easy-form-builder'),
+
+            /* translators: Important Notes = help section title */
+            "smsHelpNotes" => $state && isset($ac->text->smsHelpNotes) ? $ac->text->smsHelpNotes : esc_html__('Important Notes', 'easy-form-builder'),
+
+            /* translators: Note about country code requirement */
+            "smsHelpNote1" => $state && isset($ac->text->smsHelpNote1) ? $ac->text->smsHelpNote1 : esc_html__('Phone numbers must include country code (e.g. +1 for US, +44 for UK)', 'easy-form-builder'),
+
+            /* translators: Note about SMS provider requirement */
+            "smsHelpNote2" => $state && isset($ac->text->smsHelpNote2) ? $ac->text->smsHelpNote2 : esc_html__('An SMS provider plugin must be installed and configured', 'easy-form-builder'),
+
+            /* translators: Note about form notification settings */
+            "smsHelpNote3" => $state && isset($ac->text->smsHelpNote3) ? $ac->text->smsHelpNote3 : esc_html__('SMS notifications for forms can be set up in each form\'s settings', 'easy-form-builder'),
+
+            /* translators: Note about message history tab */
+            "smsHelpNote4" => $state && isset($ac->text->smsHelpNote4) ? $ac->text->smsHelpNote4 : esc_html__('All sent messages are recorded in the Message History tab', 'easy-form-builder'),
+
+            /* translators: Supported SMS Providers = help section title */
+            "smsHelpProviders" => $state && isset($ac->text->smsHelpProviders) ? $ac->text->smsHelpProviders : esc_html__('Supported SMS Providers', 'easy-form-builder'),
         ];
     }
 
@@ -476,6 +566,101 @@ class EfbAddonPhrases {
 
             /* translators: Autofill Integrations = menu title for API integrations */
             "autofill_integrations" => $state && isset($ac->text->autofill_integrations) ? $ac->text->autofill_integrations : esc_html__('Autofill Integrations', 'easy-form-builder'),
+
+            // === Dataset Page Header & Tabs ===
+            /* translators: Dataset page header subtitle */
+            "datasetSubtitle" => $state && isset($ac->text->datasetSubtitle) ? $ac->text->datasetSubtitle : esc_html__('Manage & Upload Datasets', 'easy-form-builder'),
+
+            /* translators: Feature badge: Upload */
+            "uploadDataset" => $state && isset($ac->text->uploadDataset) ? $ac->text->uploadDataset : esc_html__('Upload CSV', 'easy-form-builder'),
+
+            /* translators: Feature badge: Manage */
+            "manageDatasets" => $state && isset($ac->text->manageDatasets) ? $ac->text->manageDatasets : esc_html__('Manage Datasets', 'easy-form-builder'),
+
+            /* translators: Feature badge: Easy Edit */
+            "easyEdit" => $state && isset($ac->text->easyEdit) ? $ac->text->easyEdit : esc_html__('Easy Edit', 'easy-form-builder'),
+
+            /* translators: Total datasets status label */
+            "totalDatasets" => $state && isset($ac->text->totalDatasets) ? $ac->text->totalDatasets : esc_html__('Total Datasets', 'easy-form-builder'),
+
+            /* translators: Datasets count suffix */
+            "datasets" => $state && isset($ac->text->datasets) ? $ac->text->datasets : esc_html__('Datasets', 'easy-form-builder'),
+
+            /* translators: Dataset status hint */
+            "datasetStatusHint" => $state && isset($ac->text->datasetStatusHint) ? $ac->text->datasetStatusHint : esc_html__('Datasets available for autofill', 'easy-form-builder'),
+
+            /* translators: Tab: Datasets */
+            "datasetsTab" => $state && isset($ac->text->datasetsTab) ? $ac->text->datasetsTab : esc_html__('Datasets', 'easy-form-builder'),
+
+            /* translators: Tab: Help */
+            "helpTab" => $state && isset($ac->text->helpTab) ? $ac->text->helpTab : esc_html__('Help', 'easy-form-builder'),
+
+            /* translators: No datasets yet message */
+            "noDatasetsYet" => $state && isset($ac->text->noDatasetsYet) ? $ac->text->noDatasetsYet : esc_html__('No datasets yet. Upload a CSV file to get started.', 'easy-form-builder'),
+
+            /* translators: Dataset help title */
+            "datasetHelpTitle" => $state && isset($ac->text->datasetHelpTitle) ? $ac->text->datasetHelpTitle : esc_html__('How to use Autofill Datasets', 'easy-form-builder'),
+
+            /* translators: Dataset help step 1 */
+            "datasetHelpStep1" => $state && isset($ac->text->datasetHelpStep1) ? $ac->text->datasetHelpStep1 : esc_html__('Prepare a CSV file with column headers in the first row.', 'easy-form-builder'),
+
+            /* translators: Dataset help step 2 */
+            "datasetHelpStep2" => $state && isset($ac->text->datasetHelpStep2) ? $ac->text->datasetHelpStep2 : esc_html__('Upload the CSV file using the upload button.', 'easy-form-builder'),
+
+            /* translators: Dataset help step 3 */
+            "datasetHelpStep3" => $state && isset($ac->text->datasetHelpStep3) ? $ac->text->datasetHelpStep3 : esc_html__('In the form builder, enable autofill and select your dataset.', 'easy-form-builder'),
+
+            /* translators: Dataset help step 4 */
+            "datasetHelpStep4" => $state && isset($ac->text->datasetHelpStep4) ? $ac->text->datasetHelpStep4 : esc_html__('Map columns to form fields using the condition settings.', 'easy-form-builder'),
+
+            /* translators: Dataset help tip */
+            "datasetHelpTip" => $state && isset($ac->text->datasetHelpTip) ? $ac->text->datasetHelpTip : esc_html__('Tip: You can edit dataset values inline by clicking on them.', 'easy-form-builder'),
+
+            // === API Page Header & Tabs ===
+            /* translators: API page subtitle */
+            "apiSubtitle" => $state && isset($ac->text->apiSubtitle) ? $ac->text->apiSubtitle : esc_html__('Connect & Manage API Integrations', 'easy-form-builder'),
+
+            /* translators: Feature badge: Real-time */
+            "realTimeData" => $state && isset($ac->text->realTimeData) ? $ac->text->realTimeData : esc_html__('Real-time Data', 'easy-form-builder'),
+
+            /* translators: Feature badge: Field Mapping */
+            "fieldMappingFeature" => $state && isset($ac->text->fieldMappingFeature) ? $ac->text->fieldMappingFeature : esc_html__('Field Mapping', 'easy-form-builder'),
+
+            /* translators: Feature badge: Smart Cache */
+            "smartCache" => $state && isset($ac->text->smartCache) ? $ac->text->smartCache : esc_html__('Smart Cache', 'easy-form-builder'),
+
+            /* translators: Total connections label */
+            "totalConnections" => $state && isset($ac->text->totalConnections) ? $ac->text->totalConnections : esc_html__('Total Connections', 'easy-form-builder'),
+
+            /* translators: Connections count suffix */
+            "connections" => $state && isset($ac->text->connections) ? $ac->text->connections : esc_html__('Connections', 'easy-form-builder'),
+
+            /* translators: API status hint */
+            "apiStatusHint" => $state && isset($ac->text->apiStatusHint) ? $ac->text->apiStatusHint : esc_html__('API connections configured', 'easy-form-builder'),
+
+            /* translators: Tab: Connections */
+            "connectionsTab" => $state && isset($ac->text->connectionsTab) ? $ac->text->connectionsTab : esc_html__('Connections', 'easy-form-builder'),
+
+            /* translators: Tab: Help */
+            "apiHelpTab" => $state && isset($ac->text->apiHelpTab) ? $ac->text->apiHelpTab : esc_html__('Help', 'easy-form-builder'),
+
+            /* translators: API help title */
+            "apiHelpTitle" => $state && isset($ac->text->apiHelpTitle) ? $ac->text->apiHelpTitle : esc_html__('How to use API Integrations', 'easy-form-builder'),
+
+            /* translators: API help step 1 */
+            "apiHelpStep1" => $state && isset($ac->text->apiHelpStep1) ? $ac->text->apiHelpStep1 : esc_html__('Click "Add API Connection" to create a new connection.', 'easy-form-builder'),
+
+            /* translators: API help step 2 */
+            "apiHelpStep2" => $state && isset($ac->text->apiHelpStep2) ? $ac->text->apiHelpStep2 : esc_html__('Enter the API endpoint URL and configure authentication.', 'easy-form-builder'),
+
+            /* translators: API help step 3 */
+            "apiHelpStep3" => $state && isset($ac->text->apiHelpStep3) ? $ac->text->apiHelpStep3 : esc_html__('Map API response fields to your form fields.', 'easy-form-builder'),
+
+            /* translators: API help step 4 */
+            "apiHelpStep4" => $state && isset($ac->text->apiHelpStep4) ? $ac->text->apiHelpStep4 : esc_html__('Test the connection and save.', 'easy-form-builder'),
+
+            /* translators: API help tip */
+            "apiHelpTip" => $state && isset($ac->text->apiHelpTip) ? $ac->text->apiHelpTip : esc_html__('Tip: Use cache settings to reduce API calls and improve performance.', 'easy-form-builder'),
 
             // === External API Section ===
             /* translators: External API Connections = section header */
@@ -1075,6 +1260,42 @@ class EfbAddonPhrases {
 
             /* translators: Subscription reactivated successfully = success toast */
             "pay_reactivateSuccess" => $state && isset($ac->text->pay_reactivateSuccess) ? $ac->text->pay_reactivateSuccess : esc_html__('Subscription reactivated successfully.', 'easy-form-builder'),
+
+            // === Header Phrases (shared by PayPal & Stripe) ===
+            /* translators: Payment Management Dashboard = header subtitle */
+            "pay_headerSubtitle" => $state && isset($ac->text->pay_headerSubtitle) ? $ac->text->pay_headerSubtitle : esc_html__('Payment Management Dashboard', 'easy-form-builder'),
+
+            /* translators: %s = gateway name (PayPal/Stripe). Header description */
+            "pay_headerDesc" => $state && isset($ac->text->pay_headerDesc) ? $ac->text->pay_headerDesc : esc_html__('Manage and track all %s transactions. View payment details, process refunds, and export records.', 'easy-form-builder'),
+
+            /* translators: Secure = feature badge in header */
+            "pay_secure" => $state && isset($ac->text->pay_secure) ? $ac->text->pay_secure : esc_html__('Secure', 'easy-form-builder'),
+
+            /* translators: Download payment records = export hint in header */
+            "pay_downloadRecords" => $state && isset($ac->text->pay_downloadRecords) ? $ac->text->pay_downloadRecords : esc_html__('Download payment records', 'easy-form-builder'),
+
+            // === Subscription Detail Labels ===
+            /* translators: Start = subscription start date label */
+            "pay_start" => $state && isset($ac->text->pay_start) ? $ac->text->pay_start : esc_html__('Start', 'easy-form-builder'),
+
+            /* translators: Last Payment = subscription last payment label */
+            "pay_lastPayment" => $state && isset($ac->text->pay_lastPayment) ? $ac->text->pay_lastPayment : esc_html__('Last Payment', 'easy-form-builder'),
+
+            // === Misc ===
+            /* translators: Copy = copy button tooltip */
+            "pay_copy" => $state && isset($ac->text->pay_copy) ? $ac->text->pay_copy : esc_html__('Copy', 'easy-form-builder'),
+
+            /* translators: Powered by = footer text */
+            "pay_poweredBy" => $state && isset($ac->text->pay_poweredBy) ? $ac->text->pay_poweredBy : esc_html__('Powered by', 'easy-form-builder'),
+
+            /* translators: and Bootstrap Icon. Created by = footer segment */
+            "pay_createdBy" => $state && isset($ac->text->pay_createdBy) ? $ac->text->pay_createdBy : esc_html__('and Bootstrap Icon. Created by', 'easy-form-builder'),
+
+            /* translators: Easy Form Builder = brand name */
+            "pay_brandName" => $state && isset($ac->text->pay_brandName) ? $ac->text->pay_brandName : esc_html__('Easy Form Builder', 'easy-form-builder'),
+
+            /* translators: Please Wait = loading overlay */
+            "pay_pleaseWait" => $state && isset($ac->text->pay_pleaseWait) ? $ac->text->pay_pleaseWait : esc_html__('Please Wait', 'easy-form-builder'),
         ];
     }
 

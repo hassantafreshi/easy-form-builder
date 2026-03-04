@@ -2727,6 +2727,67 @@ public function addon_add_efb($value) {
 
 
 
+	/**
+	 * Render pro-gate message for addon pages.
+	 * Returns true (and outputs HTML) if user is NOT pro or expired, so caller should return early.
+	 * Returns false if pro is active — caller should continue rendering.
+	 *
+	 * @param string $addon_name  Name of the addon (e.g. 'PayPal', 'Telegram', 'Stripe', 'SMS', 'Autofill')
+	 * @return bool  true = blocked (not pro), false = pro is active
+	 */
+	public function render_pro_gate_efb( $addon_name = '' ) {
+		$pro_status = (int) get_option( 'emsfb_pro', -1 );
+		error_log("Pro status: " . $pro_status); // Debug log
+		// Pro is active: 1 = active, 3 = special pro
+		if ( $pro_status === 1 || $pro_status === 3 ) {
+			return false;
+		}
+
+		// Determine message based on status
+		$is_expired = ( $pro_status === 0 );
+
+		$buy_url    = EMSFB_SERVER_URL . '/register-costumer';
+		$ac         = get_option( 'emsfb_pro_activeCode', '' );
+		$renew_url  = $buy_url . '?renew=' . urlencode( $ac );
+
+		if ( $is_expired ) {
+			$title   = esc_html__( 'Your activation code has expired!', 'easy-form-builder' );
+			$message = sprintf(
+				esc_html__( 'Your Easy Form Builder Pro subscription has expired. To continue using the %s addon and all Pro features, please renew your subscription.', 'easy-form-builder' ),
+				'<strong>' . esc_html( $addon_name ) . '</strong>'
+			);
+			$btn_url  = $renew_url;
+			$btn_text = esc_html__( 'Renew Subscription', 'easy-form-builder' );
+			$icon     = 'bi-exclamation-triangle-fill';
+			$bg_class = 'bg-dark text-warning';
+		} else {
+			$title   = esc_html__( 'Pro Version Required', 'easy-form-builder' );
+			$message = sprintf(
+				esc_html__( 'The %s addon is a Pro feature. Please upgrade to Easy Form Builder Pro to access this functionality.', 'easy-form-builder' ),
+				'<strong>' . esc_html( $addon_name ) . '</strong>'
+			);
+			$btn_url  = $buy_url;
+			$btn_text = esc_html__( 'Upgrade to Pro', 'easy-form-builder' );
+			$icon     = 'bi-lock-fill';
+			$bg_class = 'bg-dark text-info';
+		}
+
+		?>
+		<div class="wrap">
+			<div class="efb mx-3 mt-5 mb-3 p-4 alert alert-light <?php echo esc_attr( $bg_class ); ?>" style="border-radius:12px; max-width:700px; margin:60px auto; text-align:center;">
+				<i class="efb <?php echo esc_attr( $icon ); ?>" style="font-size:48px; display:block; margin-bottom:16px;"></i>
+				<h2 style="margin:0 0 12px; font-size:1.4em;"><?php echo $title; ?></h2>
+				<p style="font-size:1.05em; line-height:1.7; margin-bottom:20px;"><?php echo $message; ?></p>
+				<a href="<?php echo esc_url( $btn_url ); ?>" target="_blank" class="efb btn btn-primary btn-lg" style="padding:10px 32px; font-size:1.1em; border-radius:8px; text-decoration:none;">
+					<?php echo $btn_text; ?>
+				</a>
+			</div>
+		</div>
+		<?php
+
+		return true;
+	}
+
 	public function noti_expire_efb() {
 		$url = 'https://demo.whitestudio.team/register-costumer?renew=';
 		$url = EMSFB_SERVER_URL . '/register-costumer?renew=';
