@@ -2827,22 +2827,6 @@ public function check_nonce_permission_efb($request) {
 								$this->value = sanitize_text_field(json_encode($filtered, JSON_UNESCAPED_UNICODE));
 								$this->id = sanitize_text_field($request_data['payid']);
 								$track_code = $this->update_message_db();
-								if ($should_send_email) {
-									$state_email_user = $has_tracking_code==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
-									$status_email = $this->email_status_efb($form_fields_array,$validated_items,$track_code);
-									$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
-									 $this->send_email_Emsfb_( $email_recipients,$payment_track_id ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
-								}
-								if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
-									$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms',$payment_track_id);
-									if($smsSendResult !== true) {
-										// 'msgSndBut','smsWPN' in lantexts but %$s1 is used in the message
-										$m =  $this->lanText['msgSndBut'];
-										$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , ''.$this->lanText['trackNo'] . '(' .$track_code.')' );
-										$response = ['success' => false, 'm' => $smsSendResult];
-										wp_send_json_success($response, 200);
-									}
-								}
 							} else {
 								$response = array('success' => false, 'm' => esc_html__('Error Code', 'easy-form-builder') . '</br>' . esc_html__('Payment Form', 'easy-form-builder'));
 								wp_send_json_success($response, 200);
@@ -2853,8 +2837,27 @@ public function check_nonce_permission_efb($request) {
 							if ($redirect_url != "null" && $track_code == 1) {
 								$response = array('success' => true, 'm' => $redirect_url);
 							}
-							wp_send_json_success($response, 200);
-							break;
+							// Send response and continue background processing
+							$this->efb_send_json_and_continue($response, 200);
+							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'payment');
+
+							// Background: Email
+							if ($should_send_email) {
+								$state_email_user = $has_tracking_code==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
+								$status_email = $this->email_status_efb($form_fields_array,$validated_items,$track_code);
+								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
+								$this->send_email_Emsfb_( $email_recipients,$payment_track_id ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
+							}
+							// Background: SMS
+							if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
+								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers, $url, 'fform', 'wpsms',$payment_track_id);
+								if($smsSendResult !== true) {
+									error_log('[EFB] payment smsnoti error: ' . json_encode($smsSendResult));
+								}
+							}
+							error_log('[EFB] Completed payment: ' . $payment_track_id);
+							exit;
+								break;
 					case "register":
 								$username = '';
 								$password = '';
@@ -2928,20 +2931,6 @@ public function check_nonce_permission_efb($request) {
 										/* new code v4 end */
 
 										$state_of_email = ['newUser', 'register'];
-										if ($should_send_email) {
-											$msg_sub = isset($form_fields_array[0]['email_sub']) && $form_fields_array[0]['email_sub'] != '' ? $form_fields_array[0]['email_sub'] : 'null';
-											$this->send_email_Emsfb_($email_recipients, $ms, $is_pro, $state_of_email, $url, 'null', $msg_sub);
-										}
-										if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
-											$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
-											if($smsSendResult !== true) {
-												// 'msgSndBut','smsWPN' in lantexts but %$s1 is used in the message
-												$m =  $this->lanText['msgSndBut'];
-												$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
-												$response = ['success' => false, 'm' => $m];
-												wp_send_json_success($response, 200);
-											}
-										}
 										$this->efbFunction->efb_code_validate_update($session_id, 'register', $track_code);
 									}
 									$response = ['success' => true, 'm' => $m];
@@ -2949,7 +2938,28 @@ public function check_nonce_permission_efb($request) {
 										$response = ['success' => true, 'm' => $redirect_url];
 									}
 								}
-								wp_send_json_success($response, 200);
+
+								// Send response and continue background processing
+								$this->efb_send_json_and_continue($response, 200);
+
+								// Background tasks (only if user was created successfully)
+								if (!is_wp_error($state) && $email != "null" && isset($track_code)) {
+									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'register');
+									// Background: Email
+									if ($should_send_email) {
+										$msg_sub = isset($form_fields_array[0]['email_sub']) && $form_fields_array[0]['email_sub'] != '' ? $form_fields_array[0]['email_sub'] : 'null';
+										$this->send_email_Emsfb_($email_recipients, $ms, $is_pro, $state_of_email, $url, 'null', $msg_sub);
+									}
+									// Background: SMS
+									if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
+										$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
+										if($smsSendResult !== true) {
+											error_log('[EFB] register smsnoti error: ' . json_encode($smsSendResult));
+										}
+									}
+								}
+								error_log('[EFB] Completed register');
+								exit;
 								break;
 						case "login":
 
@@ -2995,16 +3005,20 @@ public function check_nonce_permission_efb($request) {
 											$response = ['success' => true, 'm' => $redirect_url];
 										}
 										$this->efbFunction->efb_code_validate_update($session_id, 'login', 'login');
+
+										// Send response and continue background processing
+										$this->efb_send_json_and_continue($response, 200);
+										$this->efb_intgrate_with_3rd_party_services_efb('login', $submitted_values, $form_fields_array, 'login');
+
+										// Background: SMS
 										if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
 											$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', '');
 											if($smsSendResult !== true) {
-												$m =  $this->lanText['msgSndBut'];
-												$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
-												$response = ['success' => false, 'm' => $m];
-												wp_send_json_success($response, 200);
+												error_log('[EFB] login smsnoti error: ' . json_encode($smsSendResult));
 											}
 										}
-										wp_send_json_success($response, 200);
+										error_log('[EFB] Completed login');
+										exit;
 									} else {
 										// user not login
 										$send = [
@@ -3020,38 +3034,30 @@ public function check_nonce_permission_efb($request) {
 
 						case "subscribe":
 									$track_code=	$this->insert_message_db(0,false);
+									$response = array( 'success' => true , 'm' =>$this->lanText['done']);
+									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
+									$this->efbFunction->efb_code_validate_update($session_id ,'nwltr' ,'nwltr' );
+
+									// Send response and continue background processing
+									$this->efb_send_json_and_continue($response, 200);
+									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'subscribe');
+
+									// Background: Email
 									if($should_send_email){
 										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
 										$state_of_email = ['newMessage','subscribe',$status_email['type']];
 										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
-									$response = array( 'success' => true , 'm' =>$this->lanText['done']);
-									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
-									$this->efbFunction->efb_code_validate_update($session_id ,'nwltr' ,'nwltr' );
-									wp_send_json_success($response, 200);
+									error_log('[EFB] Completed subscribe: ' . $track_code);
+									exit;
 								break;
 						case "survey":
 									// $ip = $this->ip;
 									$track_code=	$this->insert_message_db(0,false);
-									if($should_send_email){
-										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
-										$state_of_email = ['newMessage',"survey",$status_email['type']];
-
-										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
-									}
-									if(isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti']==1 ) {
-										$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$track_code);
-										if($smsSendResult !== true) {
-											$m =  $this->lanText['msgSndBut'];
-											$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
-											$response = ['success' => false, 'm' => $m];
-											wp_send_json_success($response, 200);
-										}
-									}
 									$response = array( 'success' => true , 'm' =>$this->lanText['surveyComplatedM']);
 									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
 
-									// Ø¨Ø±Ø±Ø³ÛŒ ØªÙ†Ø¸ÛŒÙ…Ø§Øª Ù†Ù…ÙˆØ¯Ø§Ø± Ù†Ø¸Ø±Ø³Ù†Ø¬ÛŒ Ùˆ Ø§Ø±Ø³Ø§Ù„ Ø¯Ø§Ø¯Ù‡â€ŒÙ‡Ø§ÛŒ Ù†ØªØ§ÛŒØ¬
+									// بررسی تنظیمات نمودار نظرسنجی و ارسال داده‌های نتایج
 									$survey_chart_type = isset($form_fields_array[0]['survey_chart_type']) ? $form_fields_array[0]['survey_chart_type'] : 'none';
 									error_log('[SURVEY-CALLER] survey_chart_type from formObj[0]: ' . $survey_chart_type);
 									error_log('[SURVEY-CALLER] formObj[0] keys: ' . json_encode(array_keys($form_fields_array[0])));
@@ -3080,7 +3086,26 @@ public function check_nonce_permission_efb($request) {
 									}
 
 									$this->efbFunction->efb_code_validate_update($session_id ,'poll' ,'poll' );
-									wp_send_json_success($response, 200);
+
+									// Send response and continue background processing
+									$this->efb_send_json_and_continue($response, 200);
+									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'survey');
+
+									// Background: Email
+									if($should_send_email){
+										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
+										$state_of_email = ['newMessage',"survey",$status_email['type']];
+										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
+									}
+									// Background: SMS
+									if(isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti']==1 ) {
+										$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$track_code);
+										if($smsSendResult !== true) {
+											error_log('[EFB] survey smsnoti error: ' . json_encode($smsSendResult));
+										}
+									}
+									error_log('[EFB] Completed survey: ' . $track_code);
+									exit;
 								break;
 						case "reservation":
 								break;
