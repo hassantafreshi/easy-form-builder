@@ -1,9 +1,3 @@
-/**
- * Easy Form Builder - Gutenberg Block Editor Script
- *
- * @package EasyFormBuilder
- * @since 4.0.0
- */
 
 (function(wp) {
     const { registerBlockType } = wp.blocks;
@@ -12,11 +6,9 @@
     const { useState, useEffect, Fragment } = wp.element;
     const { __ } = wp.i18n;
 
-    // Brand colors
     const BRAND_PRIMARY = '#ff4b93';
     const BRAND_SECONDARY = '#202a8d';
 
-    // Block Icon - Use logo.svg image
     const blockIcon = wp.element.createElement('img',
         {
             src: (typeof efbBlockData !== 'undefined' && efbBlockData.logoUrl)
@@ -29,7 +21,6 @@
         }
     );
 
-    // Register the block
     registerBlockType('easy-form-builder/form', {
         icon: blockIcon,
 
@@ -44,7 +35,6 @@
                 className: 'efb-gutenberg-block'
             });
 
-            // Fetch forms list on mount
             useEffect(() => {
                 setIsLoading(true);
 
@@ -56,12 +46,10 @@
                     }
                     setIsLoading(false);
                 }).catch(error => {
-                    console.error('EFB: Error fetching forms', error);
                     setIsLoading(false);
                 });
             }, []);
 
-            // Fetch preview when form changes
             useEffect(() => {
                 if (formId) {
                     wp.apiFetch({
@@ -71,12 +59,10 @@
                             setPreviewHtml(response.preview);
                         }
                     }).catch(error => {
-                        console.error('EFB: Error fetching preview', error);
                     });
                 }
             }, [formId]);
 
-            // Handle form selection
             const onFormChange = (newFormId) => {
                 const selectedForm = forms.find(f => String(f.id) === String(newFormId));
                 setAttributes({
@@ -85,7 +71,6 @@
                 });
             };
 
-            // Build form options
             const formOptions = [
                 { value: '', label: __('— Select a Form —', 'easy-form-builder') }
             ];
@@ -97,7 +82,6 @@
                 });
             });
 
-            // Inspector controls (sidebar)
             const inspectorControls = wp.element.createElement(
                 InspectorControls,
                 null,
@@ -127,7 +111,6 @@
                 )
             );
 
-            // Main block content
             let blockContent;
 
             if (isLoading) {
@@ -141,7 +124,6 @@
                     wp.element.createElement('p', null, __('Loading forms...', 'easy-form-builder'))
                 );
             } else if (!formId) {
-                // Show form selector placeholder
                 blockContent = wp.element.createElement(
                     Placeholder,
                     {
@@ -160,7 +142,6 @@
                     )
                 );
             } else {
-                // Show form preview
                 blockContent = wp.element.createElement(
                     'div',
                     { className: 'efb-block-preview' },
@@ -249,7 +230,6 @@
         },
 
         save: function() {
-            // Server-side rendering
             return null;
         }
     });

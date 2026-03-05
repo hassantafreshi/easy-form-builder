@@ -1,55 +1,19 @@
 <?php
-/**
- * Email Handler for Easy Form Builder
- * Separates all email functionality from main efbFunction class for better performance and caching
- *
- * @package    Easy Form Builder
- * @subpackage Email Handler
- * @since      1.0
- */
 
 defined('ABSPATH') || exit;
 
-/**
- * EmsfbEmailHandler Class
- * Handles all email-related functionality with proper text translation integration
- */
 class EmsfbEmailHandler {
 
-    /**
-     * efbFunction instance for accessing text translations and utilities
-     * @var efbFunction
-     */
     private $efb_instance;
 
-    /**
-     * Static efbFunction instance for shared access
-     * @var efbFunction
-     */
     private static $efb_function = null;
 
-    /**
-     * Cached text translations to avoid repeated lookups
-     * @var array
-     */
     private static $text_cache = [];
 
-    /**
-     * Constructor - accepts efbFunction instance for dependency injection
-     *
-     * @param efbFunction $efb_instance Instance of efbFunction class
-     */
     public function __construct($efb_instance = null) {
         $this->efb_instance = $efb_instance;
     }
 
-    /**
-     * Get text translations using efbFunction instance
-     * Caches results to avoid repeated database queries
-     *
-     * @param array $text_keys Array of translation keys
-     * @return array Translated text array
-     */
     private function get_text_efb($text_keys) {
         $cache_key = md5(serialize($text_keys));
 
@@ -57,12 +21,10 @@ class EmsfbEmailHandler {
             return self::$text_cache[$cache_key];
         }
 
-        // Get efbFunction instance efficiently
         if (self::$efb_function === null) {
             if (class_exists('Emsfb') && method_exists('Emsfb', 'get_efbFunction')) {
                 self::$efb_function = Emsfb::get_efbFunction();
             } else {
-                // Fallback للحصول على efbFunction
                 global $efbFunction;
                 if ($efbFunction instanceof efbFunction) {
                     self::$efb_function = $efbFunction;
@@ -76,7 +38,6 @@ class EmsfbEmailHandler {
             return $result;
         }
 
-        // Fallback to WordPress translations
         $fallback = [];
         foreach ($text_keys as $key) {
             $fallback[$key] = $this->get_fallback_text($key);
@@ -85,12 +46,6 @@ class EmsfbEmailHandler {
         return count($text_keys) === 1 ? $fallback[array_keys($fallback)[0]] : $fallback;
     }
 
-    /**
-     * Fallback text translations
-     *
-     * @param string $key
-     * @return string
-     */
     private function get_fallback_text($key) {
         $fallbacks = [
             'msgdml' => __('To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %1$s documentation %2$s .', 'easy-form-builder'),
@@ -113,11 +68,6 @@ class EmsfbEmailHandler {
         return $fallbacks[$key] ?? $key;
     }
 
-    /**
-     * Get visitor IP address
-     *
-     * @return string IP address
-     */
     public function get_ip_address() {
         $ip = '1.1.1.1';
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
@@ -135,11 +85,6 @@ class EmsfbEmailHandler {
         return $ip;
     }
 
-    /**
-     * Get visitor operating system
-     *
-     * @return string OS name
-     */
     public function getVisitorOS() {
         $_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : null;
         $ua = strtolower($_HTTP_USER_AGENT);
@@ -162,11 +107,6 @@ class EmsfbEmailHandler {
         return $os;
     }
 
-    /**
-     * Get visitor browser
-     *
-     * @return string Browser name
-     */
     public function getVisitorBrowser() {
         $_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : null;
         $ua = strtolower($_HTTP_USER_AGENT);
@@ -195,78 +135,39 @@ class EmsfbEmailHandler {
         return $b;
     }
 
-    /**
-     * Send email with state and template
-     *
-     * @param string|array $to Recipient(s)
-     * @param string|array $sub Subject(s)
-     * @param string|array $cont Content
-     * @param mixed $pro Pro version flag
-     * @param string $state Email state
-     * @param string $link Link for email
-     * @param string $st Settings (optional)
-     * @return mixed Email send result
-     */
     public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null") {
-        error_log('===== EmsfbEmailHandler::send_email_state_new START =====');
-        error_log('EmailHandler - to: ' . json_encode($to));
-        error_log('EmailHandler - sub: ' . json_encode($sub));
-        error_log('EmailHandler - state: ' . json_encode($state));
 
         $email_content_type = isset($state[2]) ? $state[2] : 'traking_link';
-        error_log('EmailHandler - email_content_type: ' . $email_content_type);
-        error_log('EmailHandler - content: ' . json_encode($cont));
 
-        // Set email content type to HTML
         add_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 
         $mailResult = "n";
         $server_name = apply_filters('emsfb_get_server_host', 'yourdomain.com');
         $from = get_bloginfo('name') . " <no-reply@" . $server_name . ">";
-        error_log('EmailHandler - default sender: ' . $from);
 
-        // Handle $from setup based on $to type and email validation
         if (is_array($to) && isset($to[2]) && is_email($to[2])) {
             $fromEmail = is_array($to[2]) ? array_pop($to[2]) : $to[2];
             $from = get_bloginfo('name') . " <" . $fromEmail . ">";
-            error_log('EmailHandler - sender updated from array: ' . $from);
             unset($to[2]);
         } elseif (is_object($to) && isset($to[2]) && is_email($to[2])) {
             $from = get_bloginfo('name') . " <" . $to[2] . ">";
-            error_log('EmailHandler - sender updated from object: ' . $from);
             unset($to[2]);
         }
-        error_log('EmailHandler - final sender: ' . $from);
 
         $headers = [
             "MIME-Version: 1.0\r\n",
             'From:' . $from,
         ];
 
-        // Add wp_mail error logging
         add_action('wp_mail_failed', function($wp_error) {
-            error_log('===== WP_MAIL FAILED =====');
-            error_log('wp_mail error: ' . $wp_error->get_error_message());
         });
 
-        // Internal function for sending emails
         $sendMail = function($to, $sub, $message, $headers) {
-            error_log('======= EMAIL DETAILS =======');
-            error_log('EmailHandler - Recipients: ' . json_encode($to));
-            error_log('EmailHandler - Subject: ' . $sub);
-            error_log('EmailHandler - Headers: ' . json_encode($headers));
-            error_log('EmailHandler - Message length: ' . strlen($message) . ' chars');
-            error_log('EmailHandler - Message preview: ' . substr(strip_tags($message), 0, 200) . '...');
-            error_log('============================');
 
             if (is_string($to)) {
                 $result = wp_mail($to, $sub, $message, $headers);
-                error_log('EmailHandler - wp_mail result for ' . $to . ': ' . ($result ? 'SUCCESS' : 'FAILED'));
                 if (!$result) {
-                    error_log('EmailHandler - wp_mail FAILED for: ' . $to);
-                    // Try alternative method
                     $alt_result = mail($to, $sub, $message, implode("\r\n", $headers));
-                    error_log('EmailHandler - PHP mail() result: ' . json_encode($alt_result));
                 }
                 return $result;
             } else {
@@ -275,40 +176,30 @@ class EmsfbEmailHandler {
                 foreach ($to as $email) {
                     if (is_email($email)) {
                         $result = wp_mail($email, $sub, $message, $headers);
-                        error_log('EmailHandler - wp_mail result for ' . $email . ': ' . ($result ? 'SUCCESS' : 'FAILED'));
                         if (!$result) {
                             $success = false;
-                            error_log('EmailHandler - wp_mail FAILED for: ' . $email);
                         }
                     } else {
-                        error_log('EmailHandler - Invalid email address: ' . $email);
                     }
                 }
                 return $success;
             }
         };
 
-        // Handle single email sending
         if (is_string($sub)) {
-            error_log('EmailHandler - Single email mode');
             $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
-            error_log('EmailHandler - Generated message for single email: ' . substr(strip_tags($message), 0, 300) . '...');
             if ($state != "reportProblem") {
                 $mailResult = $sendMail($to, $sub, $message, $headers);
             }
 
-            // Handle special support emails
             if (in_array($state, ["reportProblem", "testMailServer", "addonsDlProblem"])) {
                 $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
                 $mailResult = $sendMail($to, $sub, $message, $headers);
             }
         } else {
-            // Handle multiple emails
             for ($i = 0; $i < 2; $i++) {
                 if (!empty($to[$i]) && $to[$i] != "null") {
-                    error_log('EmailHandler - Multiple email mode [' . $i . ']');
                     $message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $email_content_type, $st);
-                    error_log('EmailHandler - Generated message for email [' . $i . ']: ' . substr(strip_tags($message), 0, 300) . '...');
                     if ($state != "reportProblem") {
                         $mailResult = $sendMail($to[$i], $sub[$i], $message, $headers);
                     }
@@ -316,32 +207,13 @@ class EmsfbEmailHandler {
             }
         }
 
-        // Remove email content type filter
         remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 
-        error_log('EmailHandler - Final result: ' . json_encode($mailResult));
         return $mailResult;
     }
 
-    /**
-     * Generate email template with proper translations
-     *
-     * @param mixed $pro Pro version flag
-     * @param string $state Email state
-     * @param mixed $m Message content
-     * @param string $link Link for email
-     * @param string $email_content_type Content type
-     * @param string $st Settings
-     * @return string Generated HTML email template
-     */
     public function email_template_efb($pro, $state, $m, $link, $email_content_type, $st = "null") {
-        error_log('===== EmsfbEmailHandler::email_template_efb START =====');
-        error_log('EmailHandler Template - state: ' . json_encode($state));
-        error_log('EmailHandler Template - message content: ' . json_encode($m));
-        error_log('EmailHandler Template - link: ' . $link);
-        error_log('EmailHandler Template - content type: ' . $email_content_type);
 
-        // Website locale and URL setup
         $l = 'https://whitestudio.team';
         $wp_lan = get_locale();
         $locale_map = [
@@ -352,24 +224,20 @@ class EmsfbEmailHandler {
         ];
         $l = $locale_map[$wp_lan] ?? $l;
 
-        // Get translations efficiently
         $text_keys = ['msgdml', 'mlntip', 'msgnml', 'serverEmailAble', 'vmgs', 'getProVersion', 'sentBy', 'hiUser', 'trackingCode', 'newMessage', 'createdBy', 'newMessageReceived', 'goodJob', 'yFreeVEnPro', 'WeRecivedUrM'];
         $lang = $this->get_text_efb($text_keys);
 
-        // Email disclaimer
         $automatic_email_disclaimer = '📧 ' . __('This email was sent automatically. Please do not reply.', 'easy-form-builder');
 
         $footer = "<a class='efb subtle-link' target='_blank' href='" . esc_url(home_url()) . "'>" . $lang['sentBy'] . " " . esc_html(get_bloginfo('name')) . "</a>";
         $align = is_rtl() ? 'right' : 'left';
         $d = is_rtl() ? 'rtl' : 'ltr';
 
-        // Get settings
         if ($st == 'null') {
             $st = $this->get_settings_efficiently();
         }
         if ($st == "null") return '';
 
-        // Pro version footer handling
         if ($pro == true || $pro == 1) {
             $is_pro = (int) get_option('emsfb_pro', 2);
             if ($is_pro == 3) {
@@ -387,11 +255,6 @@ class EmsfbEmailHandler {
         }
 
         $temp = isset($st->emailTemp) && strlen($st->emailTemp) > 10 ? $st->emailTemp : "0";
-        error_log('===== EmailHandler Settings Debug =====');
-        error_log('Settings object received: ' . json_encode($st));
-        error_log('emailTemp extracted: ' . substr($temp, 0, 100) . (strlen($temp) > 100 ? '...' : ''));
-        error_log('emailTemp will be used: ' . ($temp != "0" ? 'YES' : 'NO'));
-        error_log('========================================');
 
         $title = $lang['newMessage'];
         $message = is_string($m) ? "<h3>$m</h3>" : "<h3>{$m[0]}</h3>";
@@ -407,18 +270,12 @@ class EmsfbEmailHandler {
             $track_id = $m[0];
         }
 
-        // Create responsive email button
         $button_style = "display: inline-block; padding: 16px 32px; background: transparent; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; cursor: pointer;";
-        error_log('email content type: ' . $email_content_type);
-        error_log('contet message: ' . json_encode($m));
-        // message_link
         if($email_content_type == 'message_link'){
 
         }
-        // For newUser/register states, no tracking section needed - the verification link is in the content
         $isRegistrationState = in_array($state, ['newUser', 'register']);
 
-        // Build tracking section only for tracking_link and message_link types (not for just_message)
         $tracking_section = "";
         if ($email_content_type != 'just_message' && !$isRegistrationState) {
             $tracking_section = "
@@ -436,58 +293,39 @@ class EmsfbEmailHandler {
         ";
         }
 
-        // Set appropriate title based on state
         if ($isRegistrationState) {
             $title = __('Welcome!', 'easy-form-builder');
         }
 
-        // Handle different email states based on content type
         if ($state == "testMailServer") {
             $title = $lang['serverEmailAble'];
             $message = $this->generate_test_server_message($lang, $l, $wp_lan);
         } else {
-            // Use email_content_type to determine message structure
-            error_log('EmailHandler - Using email_content_type: ' . $email_content_type . ' for state: ' . $state);
             switch ($email_content_type) {
                 case 'message_link':
-                    // message_link: فرم پر شده + لینک رهگیری
-                    error_log('EmailHandler - Generating message_link content');
                     $message = $this->generate_message_link_content($m, $lang, $link, $tracking_section, $state);
                     break;
 
                 case 'just_message':
-                    // just_message: فقط فرم پر شده (بدون لینک)
-                    error_log('EmailHandler - Generating just_message content');
                     $message = $this->generate_just_message_content($m, $lang, $align);
                     break;
 
                 case 'traking_link':
                 default:
-                    // traking_link: تأیید پیام + لینک (بدون جزئیات فرم)
-                    error_log('EmailHandler - Generating traking_link content');
                     $message = $this->generate_tracking_link_content($m, $lang, $link, $tracking_section, $state);
                     break;
             }
         }
 
-        // Generate final HTML email
         $html_email = $this->generate_html_email_template($title, $message, $footer, $automatic_email_disclaimer, $d, $align);
 
-        // Handle custom templates
         if ($temp != "0") {
             $html_email = $this->apply_custom_template($temp, $message, $title, $blogName, $blogURL, $adminEmail, $footer, $automatic_email_disclaimer);
         }
 
-        error_log('EmailHandler Template - Final output:\\n ' . $html_email);
-        error_log('EmailHandler Template - Preview: ' . substr(strip_tags($html_email), 0, 200) . '...');
-        error_log('===== EmsfbEmailHandler::email_template_efb END =====');
-
         return $html_email;
     }
 
-    /**
-     * Generate test server message
-     */
     private function generate_test_server_message($lang, $l, $wp_lan) {
         $dt = $lang['msgnml'];
         $de = preg_replace('/^[^.]*\. /', '', $lang['mlntip']);
@@ -528,9 +366,6 @@ class EmsfbEmailHandler {
             </table>";
     }
 
-    /**
-     * Generate new message content
-     */
     private function generate_new_message_content($m, $lang, $link, $tracking_section) {
         if (gettype($m) == 'string') {
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
@@ -546,9 +381,6 @@ class EmsfbEmailHandler {
         }
     }
 
-    /**
-     * Generate default message content
-     */
     private function generate_default_message_content($m, $lang, $link, $tracking_section, $align) {
         if (is_string($m)) {
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
@@ -598,13 +430,8 @@ class EmsfbEmailHandler {
         return "";
     }
 
-    /**
-     * Generate message_link content: فرم پر شده + لینک رهگیری
-     */
     private function generate_message_link_content($m, $lang, $link, $tracking_section, $state) {
-        error_log('EmailHandler - generate_message_link_content called with m: ' . json_encode($m) . ', state: ' . $state);
         if (is_string($m)) {
-            // فقط کد رهگیری داریم
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
                 return $m . $tracking_section;
             } else {
@@ -614,7 +441,6 @@ class EmsfbEmailHandler {
                 <p style='text-align:center'>" . $lang["trackingCode"] . ": " . $track_id . " </p>" . $tracking_section;
             }
         } elseif (is_array($m) && count($m) >= 2) {
-            // فرم پر شده + کد رهگیری داریم
             $track_id = $m[0];
             $form_content = $m[1];
             $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
@@ -635,9 +461,6 @@ class EmsfbEmailHandler {
         return "";
     }
 
-    /**
-     * Generate just_message content: فقط فرم پر شده (بدون لینک)
-     */
     private function generate_just_message_content($m, $lang, $align) {
         if (is_string($m)) {
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
@@ -663,38 +486,27 @@ class EmsfbEmailHandler {
         return "";
     }
 
-    /**
-     * Generate traking_link content: تأیید پیام + لینک (بدون جزئیات فرم)
-     */
     private function generate_tracking_link_content($m, $lang, $link, $tracking_section, $state) {
-        // For newUser/register states, the message already contains the verification link
-        // Just clean up &quot; entities and return the content without additional tracking section
         $isRegistrationState = in_array($state, ['newUser', 'register']);
 
         if (is_string($m)) {
-            // Clean &quot; entities from content for all states
             $m = str_replace(['&quot;', '&amp;quot;'], '', $m);
 
-            // If content already has formatted HTML structure, return it
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false) {
-                // For registration states, don't add tracking section (verification link is in content)
                 return $isRegistrationState ? $m : ($m . $tracking_section);
             } else {
-                // Plain text tracking code - format it properly
                 $track_id = $m;
                 $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
                 return "<h2 style='text-align:center'>" . $title . "</h2>
                 <p style='text-align:center'>" . $lang["trackingCode"] . ": " . $track_id . " </p>" . $tracking_section;
             }
         } elseif (is_array($m) && count($m) >= 2) {
-            // Array format: [tracking_code, content]
             $track_id = $m[0];
             $content = str_replace(['&quot;', '&amp;quot;'], '', $m[1]);
             $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
 
-            // For registration states with array content
             if ($isRegistrationState && (strpos($content, '<') !== false)) {
-                return $content; // Return content as-is without tracking section
+                return $content;
             }
 
             return "
@@ -713,12 +525,9 @@ class EmsfbEmailHandler {
         return "";
     }
 
-    /**
-     * Generate complete HTML email template
-     */
     private function generate_html_email_template($title, $message, $footer, $disclaimer, $direction, $align) {
         return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
-<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">
+<html xmlns=\"http:
 <head>
     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
@@ -738,13 +547,13 @@ class EmsfbEmailHandler {
         }
     </style>
 </head>
-<body style=\"margin: 0; padding: 0; width: 100%; background-color: #f8f9fa; direction: $direction; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
-    <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 0; padding: 0; background-color: #f8f9fa;\">
+<body style=\"margin: 0; padding: 0; width: 100%; background-color:
+    <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 0; padding: 0; background-color:
         <tr>
             <td align=\"center\" style=\"padding: 20px 0;\">
-                <table class=\"email-container\" role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;\">
+                <table class=\"email-container\" role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 0 auto; background-color:
                     <tr>
-                        <td align=\"center\" style=\"padding: 40px 30px 30px 30px; background: linear-gradient(135deg, #667eea 0%, #202a8d 100%);\">
+                        <td align=\"center\" style=\"padding: 40px 30px 30px 30px; background: linear-gradient(135deg,
                             <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
                                 <tr>
                                     <td align=\"center\">
@@ -753,7 +562,7 @@ class EmsfbEmailHandler {
                                 </tr>
                                 <tr>
                                     <td align=\"center\">
-                                        <h1 style=\"margin: 0; padding: 0; color: #ffffff; font-size: 28px; font-weight: 600; line-height: 1.3; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">$title</h1>
+                                        <h1 style=\"margin: 0; padding: 0; color:
                                     </td>
                                 </tr>
                             </table>
@@ -763,7 +572,7 @@ class EmsfbEmailHandler {
                         <td class=\"content-wrapper\" style=\"padding: 40px 30px;\">
                             <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
                                 <tr>
-                                    <td class=\"message-content\" align=\"center\" style=\"color: #333333; font-size: 16px; line-height: 1.6; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
+                                    <td class=\"message-content\" align=\"center\" style=\"color:
                                         $message
                                     </td>
                                 </tr>
@@ -771,12 +580,12 @@ class EmsfbEmailHandler {
                         </td>
                     </tr>
                     <tr>
-                        <td style=\"height: 20px; background-color: #ffffff;\"></td>
+                        <td style=\"height: 20px; background-color:
                     </tr>
                 </table>
                 <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 20px auto 0 auto;\">
                     <tr>
-                        <td class=\"footer-content\" align=\"center\" style=\"padding: 30px; color: #6b7280; font-size: 14px; line-height: 1.5; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
+                        <td class=\"footer-content\" align=\"center\" style=\"padding: 30px; color:
                             $footer
                         </td>
                     </tr>
@@ -784,8 +593,8 @@ class EmsfbEmailHandler {
                         <td align=\"center\" style=\"padding-bottom: 20px;\">
                             <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
                                 <tr>
-                                    <td style=\"border-radius: 20px; background-color: #f1f5f9; padding: 15px 25px;\">
-                                        <p style=\"margin: 0; color: #64748b; font-size: 12px; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
+                                    <td style=\"border-radius: 20px; background-color:
+                                        <p style=\"margin: 0; color:
                                             $disclaimer
                                         </p>
                                     </td>
@@ -816,19 +625,11 @@ class EmsfbEmailHandler {
             'shortcode_admin_email' => $adminEmail
         ];
 
-        // ── Extract EFBDATA metadata BEFORE stripping it ──
-        // EFBDATA contains the complete block definitions with all styling (colors,
-        // fonts, padding, etc.) that may have been lost from the HTML during save
-        // sanitization (wp_kses strips style attributes broken by quote conversion).
         $efbdata_json = null;
         if (preg_match('/<!-- EFBDATA:([\S]+) -->/', $temp, $efb_match)) {
             $efbdata_json = $efb_match[1];
         }
 
-        // If EFBDATA exists, regenerate the full HTML from block data.
-        // This is the reliable path because EFBDATA is URL-encoded and preserved
-        // intact through the save pipeline, unlike inline styles which can be
-        // broken by the double-quote → single-quote conversion in font-family values.
         if ($efbdata_json) {
             $rebuilt = $this->generate_from_efbdata($efbdata_json, $replacements);
             if ($rebuilt !== false) {
@@ -836,18 +637,13 @@ class EmsfbEmailHandler {
             }
         }
 
-        // ── Fallback: use the stored HTML directly (legacy or non-builder templates) ──
-        // Strip builder data comment
         $temp = preg_replace('/\n?<!-- EFBDATA:.*? -->/', '', $temp);
 
-        // Replace shortcodes with actual values
         $temp = strtr($temp, $replacements);
 
-        // Decode @efb@ URL encoding
         $temp = preg_replace(['/http:(?:@efb@)+/', '/https:(?:@efb@)+/'], ['http://', 'https://'], $temp);
         $temp = str_replace('@efb@', '/', $temp);
 
-        // Detect builder template
         $isBuilderTemplate = (strpos($temp, 'efb-email-container') !== false);
 
         if ($isBuilderTemplate) {
@@ -855,12 +651,11 @@ class EmsfbEmailHandler {
                 $temp = $this->wrap_builder_template_html($temp);
             }
         } else {
-            // Legacy template — inject footer + disclaimer before </body>
             $p = strripos($temp, '</body>');
             $custom_footer = "
         <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 20px auto 0 auto;\">
             <tr>
-                <td align=\"center\" style=\"padding: 30px; color: #6b7280; font-size: 14px; line-height: 1.5; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; background-color: #f8f9fa; border-radius: 8px;\">
+                <td align=\"center\" style=\"padding: 30px; color:
                     $footer
                 </td>
             </tr>
@@ -868,8 +663,8 @@ class EmsfbEmailHandler {
                 <td align=\"center\" style=\"padding: 15px 30px;\">
                     <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
                         <tr>
-                            <td style=\"border-radius: 20px; background-color: #f1f5f9; padding: 12px 20px;\">
-                                <p style=\"margin: 0; color: #64748b; font-size: 11px; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
+                            <td style=\"border-radius: 20px; background-color:
+                                <p style=\"margin: 0; color:
                                     $disclaimer
                                 </p>
                             </td>
@@ -888,37 +683,8 @@ class EmsfbEmailHandler {
         return $temp;
     }
 
-    /**
-     * Rebuild full email HTML from EFBDATA block definitions.
-     *
-     * The drag-drop email builder stores a JSON metadata comment (EFBDATA) that
-     * contains the complete block tree with all styling properties. This method
-     * renders each block to HTML with proper inline styles — faithfully matching
-     * the JavaScript builder's output — and replaces shortcodes with real values.
-     *
-     * This bypasses the stored HTML which may have broken inline styles due to
-     * the save pipeline's double-quote → single-quote conversion conflicting
-     * with font-family names that contain quotes (e.g. 'Segoe UI').
-     *
-     * @param string $efbdata_encoded URL-encoded JSON string from EFBDATA comment
-     * @param array  $replacements    Shortcode → value mapping
-     * @return string|false           Complete HTML email document, or false on failure
-     */
-    /**
-     * Sanitize a CSS value for use inside a double-quoted HTML style attribute.
-     *
-     * Unlike esc_attr(), this preserves single quotes which are needed for
-     * CSS font-family names like 'Segoe UI'. It strips characters that could
-     * break out of the style attribute (double quotes, angle brackets) and
-     * removes dangerous CSS patterns.
-     *
-     * @param string $value Raw CSS value
-     * @return string Sanitized CSS value safe for style="..." context
-     */
     private function safe_css_value($value) {
-        // Remove characters that break double-quoted attribute context
         $value = str_replace(['"', '<', '>', '\\'], '', $value);
-        // Remove dangerous CSS patterns
         $value = preg_replace('/expression\s*\(/i', '', $value);
         $value = preg_replace('/javascript\s*:/i', '', $value);
         $value = preg_replace('/\burl\s*\(/i', '', $value);
@@ -937,7 +703,6 @@ class EmsfbEmailHandler {
         $blocks = $data['blocks'];
         $gs = $data['globalSettings'] ?? [];
 
-        // Global settings with defaults
         $bgColor        = $gs['bgColor']        ?? '#f8f9fa';
         $contentBgColor = $gs['contentBgColor']  ?? '#ffffff';
         $contentWidth   = intval($gs['contentWidth'] ?? 600);
@@ -945,17 +710,14 @@ class EmsfbEmailHandler {
         $fontFamily     = $gs['fontFamily']      ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
         $direction      = $gs['direction']       ?? (is_rtl() ? 'rtl' : 'ltr');
 
-        // Render all blocks
         $rows_html = '';
         foreach ($blocks as $block) {
             $rows_html .= $this->render_efb_block($block, $gs, $replacements);
         }
 
-        // Build MSO conditional wrapper
         $mso_open  = '<!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="' . $contentWidth . '" align="center"><tr><td><![endif]-->';
         $mso_close = '<!--[if mso]></td></tr></table><![endif]-->';
 
-        // Escape for HTML attributes — use safe_css_value for font-family
         $safe_bg       = esc_attr($bgColor);
         $safe_cbg      = esc_attr($contentBgColor);
         $safe_dir      = esc_attr($direction);
@@ -999,29 +761,16 @@ table { border-collapse: collapse !important; }
 </html>';
     }
 
-    /**
-     * Render a single email builder block to HTML.
-     *
-     * Matches the JavaScript builder's render functions exactly, producing
-     * identical HTML structure with all inline styles from block properties.
-     *
-     * @param array $block        Block definition {id, type, data, children?}
-     * @param array $gs           Global settings
-     * @param array $replacements Shortcode → value mapping
-     * @return string HTML for the block
-     */
     private function render_efb_block($block, $gs, $replacements) {
         $type = $block['type'] ?? '';
         $d    = $block['data'] ?? [];
         $contentBgColor = $gs['contentBgColor'] ?? '#ffffff';
         $globalFont     = $gs['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
 
-        // Helper: resolve font-family (block-level or global)
         $ff = function($blockFont = '') use ($globalFont) {
             return (!empty($blockFont) && $blockFont !== '') ? $blockFont : $globalFont;
         };
 
-        // Helper: apply shortcode replacements to a text value
         $sc = function($text) use ($replacements) {
             return strtr($text, $replacements);
         };
@@ -1071,9 +820,6 @@ table { border-collapse: collapse !important; }
         }
     }
 
-    /**
-     * Render header block (container with gradient/color bg + child blocks)
-     */
     private function render_header_block($d, $children, $gs, $replacements) {
         $align   = esc_attr($d['align'] ?? 'center');
         $padding = esc_attr($d['padding'] ?? '40px 30px 30px 30px');
@@ -1081,7 +827,6 @@ table { border-collapse: collapse !important; }
         $isGradient = (strpos($bg, 'gradient') !== false);
         $borderRadius = isset($gs['borderRadius']) ? intval($gs['borderRadius']) : 8;
 
-        // Extract a solid fallback colour from gradient for Outlook
         $solidFallback = $d['bgColor'] ?? '#202a8d';
         if ($isGradient && preg_match('/#[0-9a-fA-F]{3,8}/', $bg, $cMatch)) {
             $solidFallback = $cMatch[0];
@@ -1098,7 +843,6 @@ table { border-collapse: collapse !important; }
             }
         }
 
-        // Outlook-safe: use background-color as fallback; modern clients see the gradient
         $bgStyle = $isGradient
             ? 'background-color: ' . esc_attr($solidFallback) . '; background: ' . esc_attr($bg) . ';'
             : 'background-color: ' . esc_attr($bg) . ';';
@@ -1110,16 +854,12 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-    /**
-     * Render logo block
-     */
     private function render_logo_block($d, $parentAlign = null) {
         $src   = esc_url($d['src'] ?? '');
         $alt   = esc_attr($d['alt'] ?? 'Logo');
         $width = intval($d['width'] ?? 120);
         $align = esc_attr($parentAlign ?? $d['align'] ?? 'center');
 
-        // Compute margin based on alignment
         $margin = '0 auto 20px auto';
         if ($align === 'left')  $margin = '0 auto 20px 0';
         if ($align === 'right') $margin = '0 0 20px auto';
@@ -1129,9 +869,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-    /**
-     * Render title block (h1 with full inline styles)
-     */
     private function render_title_block($d, $gs, $replacements, $parentAlign = null) {
         $text       = strtr(($d['text'] ?? ''), $replacements);
         $color      = esc_attr($d['color'] ?? '#ffffff');
@@ -1146,9 +883,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-    /**
-     * Render text block (p with full inline styles)
-     */
     private function render_text_block($d, $gs, $replacements) {
         $text       = strtr(($d['text'] ?? ''), $replacements);
         $color      = esc_attr($d['color'] ?? '#333333');
@@ -1165,9 +899,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-    /**
-     * Render message block (shortcode_message container with styles from builder)
-     */
     private function render_message_block($d, $gs, $replacements) {
         $padding    = esc_attr($d['padding'] ?? '40px 30px');
         $bgColor    = esc_attr($d['bgColor'] ?? '#ffffff');
@@ -1177,7 +908,6 @@ table { border-collapse: collapse !important; }
         $globalFont = $gs['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
         $fontFam    = $this->safe_css_value(!empty($d['fontFamily']) ? $d['fontFamily'] : $globalFont);
 
-        // The message content (form submission data)
         $content = $replacements['shortcode_message'] ?? 'shortcode_message';
 
         return '<tr><td style="padding: ' . $padding . '; background-color: ' . $bgColor . ';">
@@ -1189,9 +919,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-    /**
-     * Render button block
-     */
     private function render_button_block($d, $gs, $replacements) {
         $text        = strtr(($d['text'] ?? 'Click Here'), $replacements);
         $url         = esc_url(strtr(($d['url'] ?? '#'), $replacements));
@@ -1206,20 +933,17 @@ table { border-collapse: collapse !important; }
         $fontFam     = $this->safe_css_value(!empty($d['fontFamily']) ? $d['fontFamily'] : $globalFont);
         $contentBg   = esc_attr($gs['contentBgColor'] ?? '#ffffff');
 
-        // Compute margin for alignment
         $margin = '0 auto';
         if ($align === 'left')  $margin = '0 auto 0 0';
         if ($align === 'right') $margin = '0 0 0 auto';
 
-        // Parse padding values for VML (Outlook bulletproof button)
         $padParts = preg_split('/\s+/', trim($padding));
         $padTop = intval($padParts[0] ?? 14);
         $padRight = intval($padParts[1] ?? $padParts[0] ?? 32);
         $padBottom = intval($padParts[2] ?? $padParts[0] ?? 14);
         $padLeft = intval($padParts[3] ?? $padParts[1] ?? $padParts[0] ?? 32);
-        $btnWidth = 0; // auto width for VML
+        $btnWidth = 0;
 
-        // Bulletproof button: VML for Outlook, CSS for modern clients
         $vml_btn = '<!--[if mso]>
           <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="' . $url . '" style="height:auto;v-text-anchor:middle;" arcsize="' . ($borderRad > 0 ? intval($borderRad * 100 / 40) : 0) . '%" strokecolor="' . $bgColor . '" fillcolor="' . $bgColor . '">
             <w:anchorlock/>
@@ -1241,9 +965,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-    /**
-     * Render divider block
-     */
     private function render_divider_block($d, $gs) {
         $color     = esc_attr($d['color'] ?? '#e5e7eb');
         $thickness = intval($d['thickness'] ?? 1);
@@ -1251,7 +972,6 @@ table { border-collapse: collapse !important; }
         $padding   = esc_attr($d['padding'] ?? '15px 30px');
         $contentBg = esc_attr($gs['contentBgColor'] ?? '#ffffff');
 
-        // Table-based divider (Outlook-safe — <hr> has rendering issues in MSO)
         return '<tr><td style="background-color: ' . $contentBg . '; padding: ' . $padding . ';">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="' . $width . '%" align="center" style="margin: 0 auto;">
             <tr>
@@ -1261,9 +981,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-    /**
-     * Render spacer block
-     */
     private function render_spacer_block($d) {
         $height  = intval($d['height'] ?? 20);
         $bgColor = esc_attr($d['bgColor'] ?? 'transparent');
@@ -1271,9 +988,6 @@ table { border-collapse: collapse !important; }
         return '<tr><td style="height: ' . $height . 'px; background-color: ' . $bgColor . ';">&nbsp;</td></tr>';
     }
 
-    /**
-     * Render image block
-     */
     private function render_image_block($d, $gs, $replacements) {
         $src       = esc_url($d['src'] ?? '');
         $alt       = esc_attr($d['alt'] ?? '');
@@ -1296,9 +1010,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-    /**
-     * Render columns block (two-column layout)
-     */
     private function render_columns_block($d, $gs, $replacements) {
         $padding    = esc_attr($d['padding'] ?? '20px 30px');
         $gap        = intval($d['gap'] ?? 20);
@@ -1324,9 +1035,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-    /**
-     * Render social icons block
-     */
     private function render_social_block($d, $gs, $replacements) {
         $align     = esc_attr($d['align'] ?? 'center');
         $padding   = esc_attr($d['padding'] ?? '20px 30px');
@@ -1335,10 +1043,6 @@ table { border-collapse: collapse !important; }
         $links     = $d['links'] ?? [];
         $contentBg = esc_attr($gs['contentBgColor'] ?? '#ffffff');
 
-        // Build social icon links for email delivery.
-        // Priority: 1) recolored hosted PNG — Outlook/Gmail/Yahoo/Apple Mail
-        //           2) inline SVG — Apple Mail & some webmail only
-        //           3) plain text — universal fallback
         $linksHtml = '';
         foreach ($links as $link) {
             $url   = esc_url(strtr(($link['url'] ?? '#'), $replacements));
@@ -1346,21 +1050,17 @@ table { border-collapse: collapse !important; }
             $icon  = $link['icon'] ?? '';
             $label = esc_attr($name ?: ucfirst($icon));
 
-            // 1) Hosted PNG recolored to admin's chosen color.
-            //    Base 64x64 PNGs in plugin; recolored copies cached in uploads.
             $icon_html = '';
             $png_url = $this->get_colored_icon_url($icon, $iconColor);
             if ($png_url) {
                 $icon_html = '<img src="' . esc_url($png_url) . '" alt="' . $label . '" width="' . $iconSize . '" height="' . $iconSize . '" style="display:inline-block;vertical-align:middle;border:0;" />';
             }
 
-            // 2) Inline SVG icon — fallback for dev/missing PNG scenarios
             if (!$icon_html) {
                 $svg = $this->get_social_icon_svg($icon, $iconColor, $iconSize);
                 if ($svg) {
                     $icon_html = $svg;
                 } else {
-                    // 3) Plain text label as last fallback
                     $icon_html = esc_html($name ?: ucfirst($icon));
                 }
             }
@@ -1373,18 +1073,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-    /**
-     * Get a recolored social icon PNG URL.
-     *
-     * Loads the base PNG shipped with the plugin, recolors every non-transparent
-     * pixel to the admin's chosen color using GD, and caches the result in the
-     * WordPress uploads directory. Returns the cached file URL, or the base
-     * PNG URL if GD is unavailable, or empty string if the icon doesn't exist.
-     *
-     * @param string $icon  Icon key (facebook, x, instagram, etc.)
-     * @param string $color Hex color chosen by admin (e.g. '#7B2D8E')
-     * @return string URL to the (possibly recolored) PNG, or empty string
-     */
     private function get_colored_icon_url($icon, $color) {
         if (!defined('EMSFB_PLUGIN_URL') || !defined('EMSFB_PLUGIN_DIRECTORY')) {
             return '';
@@ -1398,36 +1086,29 @@ table { border-collapse: collapse !important; }
             return '';
         }
 
-        // Normalise color to 6-digit hex without #
         $hex = ltrim(sanitize_hex_color($color) ?: '#333333', '#');
 
-        // If GD is not available, return the base (brand-colored) PNG as-is
         if (!function_exists('imagecreatefrompng')) {
             return EMSFB_PLUGIN_URL . $base_rel;
         }
 
-        // Cache recolored PNGs in wp-content/uploads/efb-icons/{hex}/
         $upload_dir = wp_upload_dir();
         $cache_dir  = $upload_dir['basedir'] . '/efb-icons/' . $hex;
         $cache_file = $cache_dir . '/' . $safe_icon . '.png';
         $cache_url  = $upload_dir['baseurl'] . '/efb-icons/' . $hex . '/' . $safe_icon . '.png';
 
-        // Return cached version if it exists
         if (file_exists($cache_file)) {
             return $cache_url;
         }
 
-        // Create cache directory
         if (!is_dir($cache_dir)) {
             wp_mkdir_p($cache_dir);
         }
 
-        // Parse target RGB
         $r = hexdec(substr($hex, 0, 2));
         $g = hexdec(substr($hex, 2, 2));
         $b = hexdec(substr($hex, 4, 2));
 
-        // Load base PNG and recolor non-transparent pixels
         $img = @imagecreatefrompng($base_path);
         if (!$img) {
             return EMSFB_PLUGIN_URL . $base_rel;
@@ -1441,7 +1122,7 @@ table { border-collapse: collapse !important; }
         for ($x = 0; $x < $w; $x++) {
             for ($y = 0; $y < $h; $y++) {
                 $rgba  = imagecolorat($img, $x, $y);
-                $alpha = ($rgba >> 24) & 0x7F; // 0 = opaque, 127 = transparent
+                $alpha = ($rgba >> 24) & 0x7F;
                 if ($alpha < 127) {
                     $new_color = imagecolorallocatealpha($img, $r, $g, $b, $alpha);
                     imagesetpixel($img, $x, $y, $new_color);
@@ -1455,9 +1136,6 @@ table { border-collapse: collapse !important; }
         return file_exists($cache_file) ? $cache_url : EMSFB_PLUGIN_URL . $base_rel;
     }
 
-    /**
-     * Render footer block
-     */
     private function render_footer_block($d, $gs, $replacements) {
         $text       = strtr(($d['text'] ?? ''), $replacements);
         $color      = esc_attr($d['color'] ?? '#666666');
@@ -1474,52 +1152,29 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-    /**
-     * Render raw HTML block
-     */
     private function render_html_block($d, $replacements) {
         $html = strtr(($d['html'] ?? ''), $replacements);
         return '<tr><td>' . $html . '</td></tr>';
     }
 
-    /**
-     * Get a Unicode emoji/symbol for a social network name.
-     * Used as a visual indicator in the email-safe pill fallback
-     * (replaces data:URI SVG images that are blocked by Gmail/Outlook).
-     *
-     * @param string $icon Social network key
-     * @return string HTML entity for a UTF-8 emoji character
-     */
     private function get_social_emoji($icon) {
         $map = [
-            'facebook'  => '&#x1F1EB;',   // 🇫
-            'x'         => '&#x2717;',     // ✗
-            'instagram' => '&#x1F4F7;',   // 📷
-            'linkedin'  => '&#x1F517;',   // 🔗
-            'youtube'   => '&#x25B6;',    // ▶
-            'tiktok'    => '&#x266B;',    // ♫
-            'whatsapp'  => '&#x1F4AC;',   // 💬
-            'telegram'  => '&#x2708;',    // ✈
-            'pinterest' => '&#x1F4CC;',   // 📌
-            'github'    => '&#x2699;',    // ⚙
-            'website'   => '&#x1F310;',   // 🌐
-            'email'     => '&#x2709;',    // ✉
+            'facebook'  => '&#x1F1EB;',
+            'x'         => '&#x2717;',
+            'instagram' => '&#x1F4F7;',
+            'linkedin'  => '&#x1F517;',
+            'youtube'   => '&#x25B6;',
+            'tiktok'    => '&#x266B;',
+            'whatsapp'  => '&#x1F4AC;',
+            'telegram'  => '&#x2708;',
+            'pinterest' => '&#x1F4CC;',
+            'github'    => '&#x2699;',
+            'website'   => '&#x1F310;',
+            'email'     => '&#x2709;',
         ];
-        return $map[$icon] ?? '&#x1F517;'; // default: 🔗
+        return $map[$icon] ?? '&#x1F517;';
     }
 
-    /**
-     * Get social icon SVG markup.
-     *
-     * Returns inline SVG icons for social networks, matching the
-     * email-template-builder JS preview. Covers all 21 presets from
-     * SOCIAL_PRESETS_efb in email-template-builder-efb.js.
-     *
-     * @param string $icon  Icon key (facebook, x, instagram, etc.)
-     * @param string $color Fill color
-     * @param int    $size  Icon dimensions
-     * @return string SVG markup or empty string if unknown icon
-     */
     private function get_social_icon_svg($icon, $color = '#333333', $size = 24) {
         $esc_color = esc_attr($color);
         $paths = [
@@ -1553,68 +1208,36 @@ table { border-collapse: collapse !important; }
         return '<svg viewBox="0 0 24 24" width="' . $size . '" height="' . $size . '" fill="' . $esc_color . '"><path d="' . $paths[$icon] . '"/></svg>';
     }
 
-    /**
-     * Wrap builder template content in a full HTML email document.
-     *
-     * The drag-drop email builder generates complete HTML documents, but wp_kses
-     * strips document-level tags (DOCTYPE, html, head, style, body) and HTML
-     * comments (MSO conditionals) during save sanitization. This method
-     * reconstructs the document envelope with responsive CSS and MSO fallbacks.
-     *
-     * @param string $content The sanitized builder template content (bare tables)
-     * @return string Complete HTML email document
-     */
     private function wrap_builder_template_html($content) {
-        // Direction from WordPress locale
         $direction = is_rtl() ? 'rtl' : 'ltr';
 
-        // ── Clean up orphaned content from wp_kses stripping ──
-        // Must happen BEFORE value extraction — orphaned CSS text contains selectors
-        // like .efb-email-wrapper { max-width: 100% } that would confuse the regex
-        // into extracting 100 instead of 600.
-
-        // 1. Strip orphaned <meta> tags that were in <head> and now float in content
         $content = preg_replace('/<meta\s[^>]*\/?>/i', '', $content);
 
-        // 2. Strip orphaned CSS text — when wp_kses strips <style> tags, the CSS
-        //    rules inside become raw text before the first <table>. Remove everything
-        //    before the first HTML element, but preserve meaningful container divs.
         $firstElement = strpos($content, '<table');
         if ($firstElement === false) {
             $firstElement = strpos($content, '<div');
         }
         if ($firstElement !== false && $firstElement > 0) {
-            // Only strip if the text before is NOT a meaningful HTML tag (e.g. orphaned CSS text).
-            // If it starts with an HTML tag like <div, keep it.
             $beforeText = trim(substr($content, 0, $firstElement));
             if (!preg_match('/^<[a-z]/i', $beforeText)) {
                 $content = substr($content, $firstElement);
             }
         }
 
-        // 3. Strip escaped MSO conditional comments — wp_kses encodes > and < inside
-        //    HTML comments as &gt; and &lt;, making them broken:
-        //    <!--[if mso]&gt;...&lt;![endif]-->
         $content = preg_replace('/<!--\[if\s+mso\]&gt;.*?&lt;!\[endif\]-->/is', '', $content);
 
-        // 4. Clean trailing whitespace/newlines
         $content = trim($content);
 
-        // ── Extract values from cleaned content ──
-
-        // Background color from the outer table (page background)
         $bgColor = '#f8f9fa';
         if (preg_match("/background-color:\s*([^;'\"]+)/i", $content, $bgMatch)) {
             $bgColor = trim($bgMatch[1]);
         }
 
-        // Content width from efb-email-wrapper max-width
         $contentWidth = 600;
         if (preg_match("/efb-email-wrapper[^>]*max-width:\s*(\d+)/i", $content, $wMatch)) {
             $contentWidth = intval($wMatch[1]);
         }
 
-        // ── Regenerate MSO conditional comments ──
         $mso_width = intval($contentWidth);
         $content = preg_replace(
             '/(<div\s[^>]*efb-email-wrapper[^>]*>)/i',
@@ -1622,7 +1245,6 @@ table { border-collapse: collapse !important; }
             $content,
             1
         );
-        // Close MSO after the wrapper: </table>(efb-email-container) </div>(efb-email-wrapper) </td>(outer)
         $content = preg_replace(
             '#(</table>\s*</div>)(\s*</td>)#i',
             "$1\n<!--[if mso]></td></tr></table><![endif]-->$2",
@@ -1659,7 +1281,6 @@ table { border-collapse: collapse !important; }
             </html>';
     }
 
-
     public function send_email_noti_sid_plugins_efb($status){
 		$all_plugins = get_plugins();
 		$msg = esc_html__('This is an alert message regarding a SID validation error. This issue may have occurred due to a plugin conflict or an unauthorized attempt to access the website.', 'easy-form-builder') . '<br>';
@@ -1667,10 +1288,8 @@ table { border-collapse: collapse !important; }
 		$msg .= '<a href="'.EMSFB_SERVER_URL.'/support" target="_blank">'.esc_html__('Please contact our support team for assistance.', 'easy-form-builder') . '</a><br>';
 		$msg .= esc_html__('One or more of the plugins listed below—typically related to caching or security—might be triggering this issue. For troubleshooting, temporarily deactivate them and test your site.', 'easy-form-builder') . '<br>';
 
-
 		$str =   '<!--efb-->';
 		$str .= 'Error code:'.$status . '<br>';
-		// 'this is a test message for sid validation error because of plugin conflict or user try to attack the website<br>';
         $str .=  $msg . '<br><hr>';
 		$str .= 'IP:'.$this->get_ip_address() . '<br>';
 		$str .= 'OS:'.$this->getVisitorOS() . '<br>';
@@ -1699,7 +1318,6 @@ table { border-collapse: collapse !important; }
 			$div .= '</div>';
 
 		}
-		error_log('EFB=>plugin_data[name] : ' . $div );
 		$str .= $div;
 		$subject = esc_html__('Easy Form Builder', 'easy-form-builder') . ':' . esc_html__('SID Validation Error', 'easy-form-builder') . ' - ' . get_bloginfo('name');
 		$to = [];
@@ -1711,19 +1329,13 @@ table { border-collapse: collapse !important; }
 		$to[]= 'no-reply@whitestudio.team';
 		if(isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new($to, $subject, $str, 0, "sid_noti_validation", 'null', 'null');
 
-
-
 	}
 
-    /**
-     * Get settings efficiently
-     */
     private function get_settings_efficiently() {
         if (class_exists('Emsfb') && method_exists('Emsfb', 'get_setting_Emsfb')) {
             return Emsfb::get_setting_Emsfb();
         }
 
-        // Fallback to global function
         if (function_exists('get_setting_Emsfb')) {
             return get_setting_Emsfb();
         }
@@ -1731,20 +1343,10 @@ table { border-collapse: collapse !important; }
         return null;
     }
 
-    /**
-     * Set HTML content type for emails
-     *
-     * @return string
-     */
     public function wpdocs_set_html_mail_content_type() {
         return 'text/html';
     }
 
-    /**
-     * Static factory method for quick access
-     *
-     * @return EmsfbEmailHandler
-     */
     public static function getInstance() {
         static $instance = null;
         if ($instance === null) {
@@ -1753,15 +1355,6 @@ table { border-collapse: collapse !important; }
         return $instance;
     }
 
-    /**
-     * Quick send method with minimal parameters
-     *
-     * @param string $to Recipient email
-     * @param string $subject Email subject
-     * @param string $message Message content
-     * @param string $state Email state (optional)
-     * @return bool Send result
-     */
     public static function quickSend($to, $subject, $message, $state = 'newMessage') {
         $handler = self::getInstance();
         $link = home_url();

@@ -1,19 +1,11 @@
 <?php
 namespace Emsfb;
 
-/**
- * Class Admin
- *
- * @package Emsfb
- */
-
 if (!defined('ABSPATH')) exit;
 
 class CheckRequirementEmsfb {
 
     const OPTION_KEY = 'emsfb_email_status';
-
-
 
     public static function run_and_save_efb() {
         $result = self::check_email_capability_efb();
@@ -33,8 +25,6 @@ class CheckRequirementEmsfb {
             ],
             'details' => [],
         ];
-
-
 
         if (!function_exists('mail')) {
             return [

@@ -96,7 +96,7 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
             }
           }
           optn += `<option value="${value}" id="${i.id_}" data-iso="${i.id_op}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb"  ${valj_efb[indx_parent].value==i.id_ ||( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${value}</option>`
-        }//end for
+        }
       } else {
         if (typeof counstries_list_efb  != 'object') {
           optn = `
@@ -129,17 +129,13 @@ statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState,autofilled)=>{
       let value = i.value;
       let s2 = i.s2;
       let row= sendBack_emsFormBuilder_pub.findIndex(r=>r.id_==rndm);
-      //console.log(id,value,row ,rndm,row.value)
-      //remove space
       const row_value = sendBack_emsFormBuilder_pub[row].value.replace(/\s/g, '');
       value = value.replace(/\s/g, '');
       let re =false;
       if(row_value==value){
-        //console.log(row_value,value,s2,iso_con)
         re=true;
         sendBack_emsFormBuilder_pub[row].hasOwnProperty('statePrev_') ? sendBack_emsFormBuilder_pub[row].statePrev_=s2 : Object.assign(sendBack_emsFormBuilder_pub[row], {statePrev_: s2})
         sendBack_emsFormBuilder_pub[row].hasOwnProperty('cont_') ? sendBack_emsFormBuilder_pub[row].cont_=iso_con : Object.assign(sendBack_emsFormBuilder_pub[row], {cont_: iso_con})
-        //console.log(sendBack_emsFormBuilder_pub[row])
         if(sendBack_emsFormBuilder_pub[row].type=='cityList'){
           sendBack_emsFormBuilder_pub[row].hasOwnProperty('city_') ? sendBack_emsFormBuilder_pub[row].city_=s2 : Object.assign(sendBack_emsFormBuilder_pub[row], {city_: s2})
         }
@@ -156,14 +152,13 @@ statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState,autofilled)=>{
               value = `<span class="efb">${i.n}</span>`
             }
           }
-          //autofilled
           let autofill_check='' ;
           if(autofilled==true){
             autofill_check=check_autofilled(i.id_,i,iso_con);
            }
           const selected = valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) || (autofill_check ) ? "selected" :''
           optn += `<option id="${i.id_}" value="${value}" data-iso="${i.s2}" data-isoc='${iso_con}'  data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${selected}>${value}</option>`
-        }//end for
+        }
       } else {
           state_local=optns_obj;
           state_local.sort();
@@ -194,8 +189,7 @@ cityList_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
             }
           }
           optn += `<option value="${value}" data-iso="${i.id_}" id="${i.id_}" data-id="${i.id_}"  data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${value}</option>`
-          //if(temp!=true) optionElpush_efb(rndm, i.value, i.id_, i.id_ ,'select')
-        }//end for
+        }
       } else {
           state_local=optns_obj;
           state_local.sort();
@@ -252,7 +246,6 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
       return ui;
 }
 function ui_dadfile_efb(indx, previewSate,form_id) {
-  console.log(indx, previewSate,form_id,valj_efb)
   let valj_efb_
   if (form_id){
     valj_efb_ = get_structure_by_form_id_efb(form_id);
@@ -281,8 +274,6 @@ function ui_dadfile_efb(indx, previewSate,form_id) {
  <input type="file" hidden="" accept="${filetype_efb[valj_efb_[indx].value]}" data-type="dadfile" data-vid='${valj_efb_[indx].id_}' data-ID='${valj_efb_[indx].id_}' class="efb  emsFormBuilder_v   ${valj_efb_[indx].required == 1 || valj_efb_[indx].required == true ? 'required' : ''}" id="${valj_efb_[indx].id_}_" data-id="${valj_efb_[indx].id_}-el" ${previewSate != true ? 'disabled' : ''} ${disabled}>`
 }
 function viewfileEfb(id, indx ,filed,form_id) {
-  //find last dost and slice from that in a string varible
-  console.log('viewfileEfb');
   const valj_efb = get_structure_by_form_id_efb(form_id);
     if(filed==undefined) {
       document.getElementById(`${valj_efb[indx].id_}_-message`).classList.remove('show')
@@ -319,7 +310,6 @@ function viewfileEfb(id, indx ,filed,form_id) {
         }
       }
       fileReader.readAsDataURL(fileEfb);
-      console.log(`fileefb`,fileEfb)
       document.getElementById(`${id}_-message`).innerHTML = "";
       document.getElementById(`${id}_-message`).classList.remove('show')
 
@@ -335,7 +325,6 @@ function viewfileEfb(id, indx ,filed,form_id) {
     }
   }
 function viewfileReplyEfb(id, indx) {
-  console.log('viewfileReplyEfb')
     let fileType = fileEfb.type;
     const filename = fileEfb.name;
     if (validExtensions_efb_fun('allformat',fileType,indx)) {
@@ -346,8 +335,6 @@ function viewfileReplyEfb(id, indx) {
          fileURL = fileReader.result;
       }
       fileReader.readAsDataURL(fileEfb);
-      //files_emsFormBuilder=[{ id_: 'resp_file_efb', value: "@file@", state: 0, url: "", type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 }];
-      // add files_emsFormBuilder { id_: 'resp_file_efb', value: "@file@", state: 0, url: fileURL, type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 }];
       files_emsFormBuilder.push({ id_: 'resp_file_efb', value: "@file@", state: 0, url: fileURL, type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 });
       fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp',fileEfb);
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
@@ -361,7 +348,6 @@ function removeFileEfb(id, indx,form_id) {
     fileEfb = "";
     document.getElementById(`${id}_box`).innerHTML = ui_dadfile_efb(indx,true,form_id)
     setTimeout(() => {
-      console.log('removefileEFb',id, indx,form_id)
       create_dadfile_efb(id, indx,form_id);
       document.getElementById(`${id}_`).addEventListener('change', () => {
         valid_file_emsFormBuilder(id ,'msg' ,'',form_id);
@@ -386,13 +372,12 @@ function removeFileEfb(id, indx,form_id) {
       }
     }
     fun_removeProgessiveEl_efb(id);
-  }//end function
+  }
 function gm_authFailure() {
     const body = `<p class="efb fs-6 efb">${efb_var.text.aPIkeyGoogleMapsFeild} <a href="https://developers.google.com/maps/documentation/javascript/error-messages" target="blank">${efb_var.text.clickHere}</a> </p>`
     alert_message_efb(efb_var.text.error, body, 15, 'danger')
   }
 set_dadfile_fun_efb = (id, indx,form_id=0) => {
-    console.log('set_dadfile_fun_efb',id, indx,form_id)
     setTimeout(() => {
       create_dadfile_efb(id, indx,form_id)
       document.getElementById(`${id}_`).addEventListener('change', () => {
@@ -401,7 +386,6 @@ set_dadfile_fun_efb = (id, indx,form_id=0) => {
      }, 100)
   }
   create_dadfile_efb = (id, indx,form_id) => {
-    console.log('create_dadfile_efb');
     const valj_efb =get_structure_by_form_id_efb(form_id);
     let dropAreaEfb = document.getElementById(`${id}_box`);
     let dragTextEfb = dropAreaEfb.querySelector("h6");
@@ -410,11 +394,8 @@ set_dadfile_fun_efb = (id, indx,form_id=0) => {
     dropAreaEfb.classList.remove("active");
     dragInptEfb.disabled = false;
     dragbtntEfb.onclick = () => {
-     // dragInptEfb.click();
     }
     dragInptEfb.addEventListener("change", function () {
-      console.log('change file!');
-     // return;
       fileEfb = this.files[0];
       dropAreaEfb.classList.add("active");
       viewfileEfb(id, indx ,fileEfb,form_id);
@@ -431,7 +412,6 @@ set_dadfile_fun_efb = (id, indx,form_id=0) => {
       dragTextEfb.textContent = `${efb_var.text.dragAndDropA} ${n}`;
     });
     dropAreaEfb.addEventListener("drop", (event) => {
-      console.log('drop file');
       event.preventDefault();
       fileEfb = event.dataTransfer.files[0];
       document.getElementById(`${id}_`).files=event.dataTransfer.files;
@@ -457,8 +437,6 @@ set_dadfile_fun_efb = (id, indx,form_id=0) => {
         }, lenV);
       }
   function renderCanvas_efb() {
-    // این تابع دیگر مورد نیاز نیست زیرا رسم مستقیماً در event handler ها انجام می‌شود
-    // ولی برای سازگاری با کدهای قدیمی نگه داشته می‌شود
     return;
   }
 function fun_clear_esign_efb(id) {
@@ -517,19 +495,13 @@ function fun_clear_esign_efb(id) {
     document.getElementById(`${v}-star${no}`).checked = true;
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
        if(form_ID_emsFormBuilder!=parseInt(form_id) || valj_efb.length<1)valj_efb = await fun_valj_efb_run(form_id);
-      console.log('fun_get_rating_efb',v, no,form_id,valj_efb)
       const indx = valj_efb.findIndex(x => x.id_ == v);
       const o = [{ id_: v, name: valj_efb[indx].name, amount: valj_efb[indx].amount, type: "rating", value: no, session: sessionPub_emsFormBuilder,form_id:form_id }];
       fun_sendBack_emsFormBuilder(o[0]);
     }
   }
 
-
-
-
-
   fun_addProgessiveEl_efb=(id,state)=>{
-    console.log('fun_addProgessiveEl_efb');
   let newEl = document.createElement('div');
   const elId = `${id}-prG`;
   newEl.setAttribute("id",elId)
@@ -607,12 +579,10 @@ async function fun_point_rating(el) {
           l.className = btnChangerEfb(l.className, 'btn-secondary');
       }
   }
-  console.log(id, el.dataset.point,el);
   document.getElementById(id + '-point-rating').value = el.dataset.point;
   let form_id =0;
   if(state_efb=='run'){
     if(valj_efb_new){
-      console.log(el.dataset)
         form_id = el.dataset.formid;
          if(form_ID_emsFormBuilder!=parseInt(form_id) || valj_efb.length<1) valj_efb= await fun_valj_efb_run(form_id)
     }
@@ -671,7 +641,7 @@ function fun_switch_efb(el){
 function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : '';
   load_intlTelInput_efb(rndm,iVJ)
-  const formId = valj_efb[iVJ].form_id || 0; // Add form_id support
+  const formId = valj_efb[iVJ].form_id || 0;
   return `
   <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-formid="${formId}" data-vid='${rndm}' id="${rndm}_" aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}"  ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""}  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
   <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField d-none efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-formid="${formId}" data-vid='${rndm}' id="${rndm}-code" placeholder="verify"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
@@ -686,9 +656,7 @@ load_intlTelInput_efb = (rndm, iVJ) => {
     const el_mobile = document.getElementById(rndm + "_");
     if(efb_var.length<1) efb_var = ajax_object_efm
     const ulitisJs = efb_var.images.hasOwnProperty('utilsJs') ? efb_var.images.utilsJs  : el_mobile.dataset.utilsjs;
-    console.log('ulitisJs :', ulitisJs ,el_mobile,onlyCountries);
 
-      // Updated for intl-tel-input v25.14.0
       iti = window.intlTelInput(el_mobile, {
           onlyCountries: onlyCountries,
           nationalMode: true,
@@ -706,42 +674,25 @@ load_intlTelInput_efb = (rndm, iVJ) => {
               efb_var.text.cpnnc
           ];
 
-          // Clear styles and messages
           el_mobile.classList.remove("border-danger", "border-success");
           const messageEl = document.getElementById(rndm + "_-message");
           messageEl.innerHTML = "";
           messageEl.classList.remove("d-block");
           messageEl.classList.add("d-none");
 
-          // Check if input value is not empty
           if (el_mobile.value.trim()) {
-              console.log("Input value:", el_mobile.value);
               const form_id = el_mobile.dataset.formid ?? 0;
-              // Validate phone number
-              console.log(iti , iti.isValidNumber());
               if (iti.isValidNumber()) {
                   el_mobile.classList.add("border-success");
-                  console.log(el_mobile)
-                  console.log(iti)
 
-                  // Get different country information using new API
                   const countryData = iti.getSelectedCountryData();
-                  const countryCode = countryData.dialCode; // کد کشور (مثل: "98" برای ایران)
-                  const iso2 = countryData.iso2; // کد ISO2 (مثل: "ir" برای ایران)
-                  const countryName = countryData.name; // نام کشور (مثل: "Iran")
+                  const countryCode = countryData.dialCode;
+                  const iso2 = countryData.iso2;
+                  const countryName = countryData.name;
 
-                  // Get the full number including the country code using new API
                   const value = iti.getNumber();
-                  // Get national format using new API
                   const nationalNumber = iti.getNumber(window.intlTelInput?.utils?.numberFormat?.NATIONAL || 1);
 
-                  console.log("Mobile Valid number:", value);
-                  console.log("Mobile Country code:", countryCode);
-                  console.log("Mobile ISO2:", iso2);
-                  console.log("Mobile Country name:", countryName);
-                  console.log("Mobile National number:", nationalNumber);
-
-                  // Update the value in the array
                   iVJ = valj_efb.findIndex(x => x.id_ == rndm);
                   fun_sendBack_emsFormBuilder({
                       id_: valj_efb[iVJ].id_,
@@ -756,17 +707,13 @@ load_intlTelInput_efb = (rndm, iVJ) => {
               } else {
                   el_mobile.classList.add("border-danger");
 
-                  // Handle validation errors
                   let errorCode = iti.getValidationError();
                   errorCode = errorMap[errorCode] ? errorMap[errorCode] : errorMap[0];
-                  console.log("Error code:", errorCode);
 
-                  // Display the error message
                   messageEl.innerHTML = errorCode;
                   messageEl.classList.remove("d-none");
                   messageEl.classList.add("d-block");
 
-                  // Remove invalid value from the array
                   let inx = get_row_sendback_by_id_efb(rndm);
                   if (inx !== -1) {
                       sendBack_emsFormBuilder_pub.splice(inx, 1);
@@ -856,8 +803,6 @@ function clean_options_select_efb(id){
   }
 }
 async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_state,fieldType,autofilled=false) {
-  console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled);
-  console.log(`function callFetchCitiesEfb called with idField: ${idField}, iso2_country: ${iso2_country}, iso2_statePove: ${iso2_statePove}, indx_state: ${indx_state}, fieldType: ${fieldType}, autofilled: ${autofilled}`);
   let state_el= document.getElementById(idField)
   if(state_el!=null){
   state_el.innerHTML = "";
@@ -869,30 +814,23 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
   if(autofilled){
     const id_valj = valj_efb[indx_state].id_;
     const s_index =  sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==id_valj);
-    // console.log('s_index',s_index)
     if(s_index!=-1){
       const row_sb = sendBack_emsFormBuilder_pub[s_index-1];
-      // console.log('s_index',row_sb ,  s_index-1>1 , row_sb.type==='stateProvince')
         if(s_index-1>1 && row_sb.type==='stateProvince'){
         iso2_country = row_sb.cont_;
         iso2_statePove = row_sb.statePrev_
-        // console.log('iso2_country',iso2_country,iso2_statePove)
         }
     }
 
   }
-  // console.log('callFetchCitiesEfb',idField,iso2_country,iso2_statePove,indx_state,fieldType,autofilled)
   let url = efb_var.zone_area ?? ajax_object_efm.zone_area
   url = url+`json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`;
-
 
   const state_check = fun_state_check_addon_AdnOF_setting_efb();
   if(state_check){
      url =efb_var.images.plugin_url+ `/vendor/offline/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`;
-     //exclude first two duble slashes
      url =url.replaceAll('//vendor','/vendor');
     }
-   //console.log('url',url);
    clean_options_select_efb(valj_efb[indx_state].id_);
   let result = await  fetch_json_from_url_efb(url)
   if(result.s==false){
@@ -910,14 +848,11 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
   if(autofilled){
     const id_valj = valj_efb[indx_state].id_;
     const s_index =  sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==id_valj);
-    //console.log('s_index',s_index)
     if(s_index!=-1){
       const row_sb = sendBack_emsFormBuilder_pub[s_index-1];
-        //console.log('s_index',row_sb ,  s_index-1>1 , row_sb.type==='cityList')
         if(s_index-1>1 && row_sb.type==='stateProvince'){
         iso2_country = row_sb.cont_;
         iso2_statePove = row_sb.statePrev_
-        //console.log('iso2_country',iso2_country,iso2_statePove)
         }
     }
 
@@ -974,7 +909,6 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
 }
 fun_check_link_state_efb=async(iso2_country , indx,form_id)=>{
  if(!iso2_country) return;
- console.log('fun_check_link_state_efb',iso2_country , indx,form_id)
  let indx_state =-1;
  if(form_ID_emsFormBuilder!=parseInt(form_id) || valj_efb.length<1 )valj_efb= await fun_valj_efb_run(form_id);
   for (let i = indx+1; i < valj_efb.length; i++) {
@@ -989,8 +923,6 @@ fun_check_link_state_efb=async(iso2_country , indx,form_id)=>{
 
   if(indx_state === -1 || !valj_efb[indx_state]) return;
   let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
-   //+ condition logic: check if the statement for this element is hide then write the code to return from this function
-   //console.log('iso2_country',iso2_country);
    if(valj_efb[indx_state].country==iso2_country) return;
   valj_efb[indx_state].country=iso2_country;
   for(let i =0; i < valj_efb.length; i++){
@@ -999,7 +931,6 @@ fun_check_link_state_efb=async(iso2_country , indx,form_id)=>{
       i--;
     }
   }
-    //console.log('get_states_efb')
    await callFetchStatesPovEfb(valj_efb[indx_state].id_+'_options', iso2_country, indx_state,'pubSelect');
 }
 async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,autofilled=false) {
@@ -1011,10 +942,8 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
     state_el.disabled=true;
   }
   iso2_country = iso2_country.toLowerCase()
-  //check if fetech_result_iso2_country exist and equal to iso2_country
   if(sessionStorage.getItem('fetech_result_iso2_country')==iso2_country && sessionStorage.getItem('fetech_result_states')!=null){
     const result = JSON.parse(sessionStorage.getItem('fetech_result_states'));
-    console.log('callFetchStatesPovEfb from sessionStorage',result);
     return parsing_result_json_smart_address_efb(fieldType,indx_state,idField,result, autofilled);
   }
   let url = efb_var.zone_area ?? ajax_object_efm.zone_area
@@ -1024,9 +953,7 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
     url =efb_var.images.plugin_url+ `/vendor/offline/json/states/${iso2_country}.json`;
     url =url.replaceAll('//vendor','/vendor');
    }
-   //console.log('url',url);
    valj_efb[indx_state].hasOwnProperty('country') ? valj_efb[indx_state].country=iso2_country : Object.assign(valj_efb[indx_state], {country:iso2_country});
-   //console.log('url',url,valj_efb[indx_state]);
    clean_options_select_efb(valj_efb[indx_state].id_);
 
    try {
@@ -1036,26 +963,20 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
       return;
     }
   const json_result =JSON.stringify(result)
-  console.log('json_result',json_result);
   sessionStorage.setItem('fetech_result_states', json_result);
   sessionStorage.setItem('fetech_result_iso2_country', iso2_country);
 
-
   return parsing_result_json_smart_address_efb(fieldType,indx_state,idField,result, autofilled);
-  // تا اینجا جدا شود 789
 } catch (error) {
-  console.warn('error',error)
   alert_message_efb('', efb_var.text.offlineSend, 5, 'warning');
 }
 
 return false;
 }
 
-
 async function parsing_result_json_smart_address_efb(fieldType,indx_state,idField,result, autofilled=false) {
 let state_el= document.getElementById(idField)
 
-// از اینجل جدا شپذ 789
   let opt = `<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   for (const key in result.r) {
       const n = efb_remove_forbidden_chrs(result.r[key].n);
@@ -1103,51 +1024,35 @@ let state_el= document.getElementById(idField)
       }, 2000);
     }
 
-
  const f= document.getElementById(idField)
  if(f!=null && f.dataset.hasOwnProperty("vid") && autofilled==false){
   const id = f.dataset.vid;
-  //remove from sendBack_emsFormBuilder_pub if id_ == id
-  //check sendBack_emsFormBuilder_pub exist
   fun_remove_row_sendback_efb(id)
   return state_el!=null ? result : opt;
  }
 }
 
-
-/* maps function start */
-
-
-// Fallback function to load Leaflet dynamically
 function efbLoadLeafletFallback(callback) {
-  // Check if already loading
   if (window.efbLeafletLoading) {
     return;
   }
   window.efbLeafletLoading = true;
 
-  console.log('Attempting to load Leaflet dynamically...');
-
-  // Load CSS first
   var link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css';
   document.head.appendChild(link);
 
-  // Load JavaScript
   var script = document.createElement('script');
   script.src = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js';
   script.onload = function() {
-    console.log('Leaflet loaded successfully via fallback');
     window.efbLeafletLoading = false;
     if (callback && typeof callback === 'function') {
-      setTimeout(callback, 100); // Small delay to ensure initialization
+      setTimeout(callback, 100);
     }
   };
   script.onerror = function() {
-    console.error('Failed to load Leaflet via fallback');
     window.efbLeafletLoading = false;
-    // Show error message
     let containers = document.querySelectorAll('[id$="-f"]');
     containers.forEach(el => {
       if (el) {
@@ -1159,14 +1064,10 @@ function efbLoadLeafletFallback(callback) {
 }
 
 function efbCreateMap(id ,r ,viewState) {
-  console.log('efbCreateMap',id ,r ,viewState ,Number(r.mark)>0 ,Number(r.mark))
 
-  // Check if Leaflet is loaded
   if (typeof L === 'undefined') {
-    console.error('Leaflet library (L) is not loaded. Maps cannot be initialized.');
-    // Try to load Leaflet dynamically as fallback
     efbLoadLeafletFallback(() => {
-      efbCreateMap(id, r, viewState); // Retry after loading
+      efbCreateMap(id, r, viewState);
     });
     return;
   }
@@ -1186,12 +1087,9 @@ function efbCreateMap(id ,r ,viewState) {
   efbMapDiv.style.cssText = 'width:100%;height:100%;';
   efbMapContainer.appendChild(efbMapDiv);
   let el_maps = document.getElementById(id+'-f');
-  console.log('el_maps',el_maps,id)
   const form_id = el_maps.dataset.formid;
-  console.log(`form_id[${form_id}]`)
   el_maps.appendChild(efbMapContainer);
 
-  // Force browser to calculate layout before Leaflet reads container dimensions
   efbMapDiv.offsetHeight;
   efbMapContainer.offsetWidth;
 
@@ -1216,12 +1114,10 @@ function efbCreateMap(id ,r ,viewState) {
 
   L.control.layers(efbBaseLayers, efbOverlays).addTo(efbMap);
 
-  //find el by id+"-mapsdiv"
   var efbMap_dv = document.querySelector(`[data-id="${id}-mapsdiv"]`);
   efbMap_dv.dataset.leaflet =efbMap._leaflet_id;
 
   var efbSearchDiv = L.control({ position: 'bottomleft' });
-  console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}] state_efb[${state_efb}]`)
   efbSearchDiv.onAdd = function (efbMap) {
       var efbDiv = L.DomUtil.create('div', 'custom-control');
       efbDiv.dataset.id = id+'-contorller';
@@ -1315,7 +1211,6 @@ function efbCreateMap(id ,r ,viewState) {
     }
   }
 
-  // Add fullscreen control if available
   if (typeof L.control.fullscreen === 'function') {
     var efbFullscreenControl = L.control.fullscreen({
         title: {
@@ -1331,10 +1226,8 @@ function efbCreateMap(id ,r ,viewState) {
     efbMap.on('exitFullscreen', function(){
     });
   } else {
-    console.warn('Leaflet fullscreen control plugin is not loaded');
   }
 
-  // Fix: force Leaflet to recalculate container size so all tiles load correctly
   efbMap.whenReady(function() {
     efbMap.invalidateSize();
   });
@@ -1342,7 +1235,6 @@ function efbCreateMap(id ,r ,viewState) {
   setTimeout(function() { efbMap.invalidateSize(); }, 500);
   setTimeout(function() { efbMap.invalidateSize(); }, 1500);
 }
-
 
 function efbSearchLocation(efbMapId) {
   var efbQuery = document.getElementById(`efb-search-${efbMapId}`).value;
@@ -1380,11 +1272,9 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r,form_id,
      if(Number(r.mark)<efbMarkerNumber) return
   }else{
     efbMarkerNumber = efbAllowAddingMarkers;
-    //console.log(efbMarkerNumber);
   }
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2);
   var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
-  //console.log(`efb-error-message-${efbMapId}`,efbErrorMessageDiv);
   var efbMarkerIcon = L.divIcon({
       className: 'custom-div-icon',
       html: map_marker_ui_efb(efbMarkerNumber),
@@ -1427,7 +1317,6 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r,form_id,
           lng: efbLng,
           address: efbName
       });
-      //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
   }
 
     if(state_efb=='view'){
@@ -1436,7 +1325,6 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r,form_id,
       for (let i = 0; i < r.value.length; i++) {
         v+= `<p>${i+1}- ${r.value[i].address} - <b> <a href="https://www.openstreetmap.org/?mlat=${r.value[i].lat}&mlon=${r.value[i].lng}#map=17/${r.value[i].lat}/${r.value[i].lng}" target="_blank">${r.value[i].lat}, ${r.value[i].lng}</a></b></p>`
       }
-      //console.log(v ,efbMapId);
       setTimeout(() => {
           if(document.getElementById('os-address-efb')==null){
           document.getElementById(r.id_+`-f`).innerHTML +='<div class="efb fs-6  mx-2" id="os-address-efb">'+ v+'</div>';
@@ -1449,7 +1337,6 @@ function efbClearMarkers(efbMapId,indx) {
   maps_efb[efbMapId].markersLayer.clearLayers();
   maps_efb[efbMapId].markers = [];
   maps_efb[efbMapId].locationList = [];
-  //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
 
   if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
     const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.type == "maps");
@@ -1483,7 +1370,6 @@ function efbAddInitialMarker(efbLat, efbLng, efbMapId) {
               lng: efbLng,
               address: efbAddress
           });
-          //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
       })
       .catch(error => {
           efbErrorMessageDiv.classList.remove('d-none');
@@ -1499,7 +1385,6 @@ map_marker_ui_efb=(efbMarkerNumber)=>{
     <text id="pointer-number" x="25" y="20" font-size="10" font-weight="bold" fill="#000000" text-anchor="middle" dominant-baseline="middle">${efbMarkerNumber}</text>
   </svg>`
 }
-
 
 function efbLocateMe(efbMapId) {
   if (navigator.geolocation) {
@@ -1523,7 +1408,6 @@ function efbLocateMe(efbMapId) {
 
         var efbMarker = L.marker([efbLat, efbLng], { icon: efbMarkerIcon }).addTo(maps_efb[efbMapId].markersLayer);
 
-        // انتقال نقشه به موقعیت جدید
         var efbLatlng = [efbLat, efbLng];
         maps_efb[efbMapId].map.setView(efbLatlng, 13);
 
@@ -1542,7 +1426,6 @@ function efbLocateMe(efbMapId) {
                     lng: efbLng,
                     address: efbAddress
                 });
-                //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
             })
             .catch(error => {
                 efbErrorMessageDiv.classList.remove('d-none');
@@ -1555,10 +1438,6 @@ function efbLocateMe(efbMapId) {
     alert('Geolocation is not supported by this browser.');
 }
 }
-
-/* maps function end */
-
-
 
 fun_remove_row_sendback_efb=(id)=>{
   if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
@@ -1578,8 +1457,6 @@ fun_remove_row_sendback_efb=(id)=>{
   }
 }
 
-
-
 fun_event_esign_efb=(id,form_id,disabled,v)=>{
   const canvas = document.getElementById(id+'_');
   c2d_contex_efb = canvas.getContext("2d");
@@ -1590,7 +1467,6 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
 
   if(disabled) return;
 
-  // تابع محاسبه دقیق مختصات
   function getCanvasCoordinates(canvas, event) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -1616,11 +1492,9 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
     canvas_id_efb = id;
     lastMousePostion_efb = getCanvasCoordinates(canvas, e);
 
-    // شروع مسیر جدید دقیقاً از نقطه کلیک
     c2d_contex_efb.beginPath();
     c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
 
-    // رسم یک نقطه کوچک در نقطه شروع
     c2d_contex_efb.fillStyle = "#000000";
     c2d_contex_efb.beginPath();
     c2d_contex_efb.arc(lastMousePostion_efb.x, lastMousePostion_efb.y, 2, 0, 2 * Math.PI);
@@ -1631,7 +1505,6 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
     if (!draw_mouse_efb) return;
     draw_mouse_efb = false;
 
-    // ذخیره تصویر
     const data = canvas.toDataURL();
     document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
 
@@ -1647,7 +1520,6 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
 
     const currentPos = getCanvasCoordinates(canvas, e);
 
-    // رسم خط روان
     c2d_contex_efb.beginPath();
     c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
     c2d_contex_efb.lineTo(currentPos.x, currentPos.y);
@@ -1663,11 +1535,9 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
     canvas_id_efb = id;
     lastMousePostion_efb = getCanvasCoordinates(canvas, e);
 
-    // شروع مسیر جدید دقیقاً از نقطه تاچ
     c2d_contex_efb.beginPath();
     c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
 
-    // رسم یک نقطه کوچک در نقطه شروع
     c2d_contex_efb.fillStyle = "#000000";
     c2d_contex_efb.beginPath();
     c2d_contex_efb.arc(lastMousePostion_efb.x, lastMousePostion_efb.y, 2, 0, 2 * Math.PI);
@@ -1681,7 +1551,6 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
 
     const currentPos = getCanvasCoordinates(canvas, e);
 
-    // رسم خط روان برای تاچ
     c2d_contex_efb.beginPath();
     c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
     c2d_contex_efb.lineTo(currentPos.x, currentPos.y);
@@ -1696,7 +1565,6 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
     if (!draw_mouse_efb) return;
     draw_mouse_efb = false;
 
-    // ذخیره تصویر برای تاچ
     const data = canvas.toDataURL();
     document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
 

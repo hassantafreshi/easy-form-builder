@@ -3,7 +3,7 @@ const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
 let smail_efb =false;
 document.addEventListener("DOMContentLoaded", function() { smail_efb = efb_var.setting.emailSupporter!=''  ? true :false ;})
 function textThankUEFB(tp){
-    
+
     let tk ={"thankYou":efb_var.text.thanksFillingOutform,"done":efb_var.text.yad,"trackingCode":efb_var.text.trackingCode,"error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields ,'icon': "bi-hand-thumbs-up" };
     if (!tp){
         return tk;
@@ -13,15 +13,12 @@ function textThankUEFB(tp){
             tk.thankYou=efb_var.text.createAcountDoneM;
             return tk;
             break;
-    
+
         default:
             return tk
             break;
     }
 }
-
-
-
 
 function private_contact_us_template_efb(){
 
@@ -31,7 +28,6 @@ function private_contact_us_template_efb(){
     {"id_":"tcab7i0wd","dataId":"tcab7i0wd-id","type":"text","placeholder":"","value":"","size":100,"message":"","id":"","classes":"","name":efb_var.text.subject,"required":true,"amount":4,"step":"1","label_text_size":"fs-6","label_position":"beside","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
     {"id_":"6zwyowreb","dataId":"6zwyowreb-id","type":"textarea","placeholder":"","value":"","size":100,"message":"","id":"","classes":"","name":efb_var.text.message,"required":true,"amount":6,"step":"1","label_text_size":"fs-6","label_position":"beside","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""}]
 }
-
 
 function support_ticket_form_efb(){
     return[{"type":"form","steps":1,"formName":efb_var.text.supportTicketF,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-muted","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
@@ -46,12 +42,9 @@ function support_ticket_form_efb(){
     {"id_":"6q0j3oadj","dataId":"6q0j3oadj-id","type":"email","placeholder":efb_var.text.email,"value":"","size":"80","message":"","id":"","classes":"","name":efb_var.text.email,"required":0,"amount":10,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
     {"id_":"bya1i31ja","dataId":"bya1i31ja-id","type":"url","placeholder":efb_var.text.url,"value":"","size":"80","message":"","id":"","classes":"","name":"Website","required":true,"amount":12,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
     {"id_":"riz7rlhdw","dataId":"riz7rlhdw-id","type":"textarea","placeholder":efb_var.text.message,"value":"","size":"80","message":"","id":"","classes":"","name":"Message / Issues","required":true,"amount":14,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""}]
-     
 
 }
 function curved_contact_us_template_efb(){
-    //Curved Contact us template
-    //
     return    [{"type":"form","steps":1,"formName":`${efb_var.text.curved} ${efb_var.text.contactusTemplate}`,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-colorDEfb-83859f","icon":"bi-arrow-bar-up","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"rounded-4","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","style_btn_color":"#83859f","style_icon_color":"#83859f","dShowBg":true},
     {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":efb_var.text.contactUs,"icon":"bi-ui-checks-grid","step":1,"amount":9,"EfbVersion":2,"message":"","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
     {"id_":"ra1a6c89o","dataId":"ra1a6c89o-id","type":"text","placeholder":efb_var.text.firstName,"value":"","size":"50","message":"","id":"","classes":"","name":efb_var.text.firstName,"required":true,"amount":10,"step":1,"corner":"rounded-4","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
@@ -63,7 +56,6 @@ function curved_contact_us_template_efb(){
 }
 
 function multiple_step_ontact_us_template_efb(){
-    //Multiple step Contact us Template
  return   [{"type":"form","steps":2,"formName":`${efb_var.text.multiStep} ${efb_var.text.contactusTemplate}`,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-muted","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"multi","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":true,"show_pro_bar":false,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","style_btn_color":"#83859f","dShowBg":true},
 {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"Step 1","icon":"bi-ui-checks-grid","step":1,"amount":2,"EfbVersion":2,"message":"","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-secondary","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-colorDEfb-83859f","visible":1,"style_icon_color":"#83859f"},
 {"id_":"3fvfpi1rn","dataId":"3fvfpi1rn-id","type":"text","placeholder":"Full Name","value":"","size":100,"message":"","id":"","classes":"","name":efb_var.text.name,"required":true,"amount":3,"step":1,"label_text_size":"fs-6","label_position":"beside","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
@@ -74,8 +66,7 @@ function multiple_step_ontact_us_template_efb(){
 }
 
 function contact_us_template_efb(){
-    //Contact us Template
-   
+
 return    [{"type":"form","steps":1,"formName":efb_var.text.contactusTemplate,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":false,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-box-arrow-up","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
 {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"Contact us form","icon":"bi-ui-checks-grid","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
 {"id_":"r0n6slwb5","dataId":"r0n6slwb5-id","type":"text","placeholder":"Full Name","value":"","size":"100","message":"","id":"","classes":"","name":"Name","required":true,"amount":2,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
@@ -85,7 +76,6 @@ return    [{"type":"form","steps":1,"formName":efb_var.text.contactusTemplate,"e
 }
 
 function rent_car_form_efb(){
-    //Rent Car Form
  return   [{"type":"form","steps":2,"formName":efb_var.text.rentCarFormT,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"multi","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":false,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
 {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"Personal information","icon":"bi-person-fill","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
 {"id_":"vcwtntbwq","dataId":"vcwtntbwq-id","type":"text","placeholder":efb_var.text.firstName,"value":"","size":"50","message":"","id":"","classes":"","name":efb_var.text.firstName,"required":true,"amount":2,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
@@ -116,8 +106,7 @@ function rent_car_form_efb(){
 
 }
 
-function salon_consultation_form_efb(){  
-    //Salon Consultation Form
+function salon_consultation_form_efb(){
      return   [{"type":"form","steps":1,"formName":efb_var.text.salonConsultationFormT,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":"a1qeen42l","show_icon":false,"show_pro_bar":false,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
     {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"Salon Consultation Form","icon":"bi-scissors","step":1,"amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
     {"id_":"34hpb06ur","dataId":"34hpb06ur-id","type":"text","placeholder":efb_var.text.firstName,"value":"","size":"50","message":efb_var.text.firstName,"id":"","classes":"","name":"Name","required":true,"amount":2,"step":1,"label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
@@ -147,8 +136,7 @@ function salon_consultation_form_efb(){
 
     }
 
-function graphic_design_order_form_efb(){  
-    //Graphic Design Order Form
+function graphic_design_order_form_efb(){
       return  [{"type":"form","steps":1,"formName":efb_var.text.graphicDesignOrderFormT,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":false,"show_pro_bar":false,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
     {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"FORM","icon":"bi-ui-checks-grid","step":"1","amount":1,"EfbVersion":2,"message":"Graphic Design Order Form","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
     {"id_":"9i98c9iym","dataId":"9i98c9iym-id","type":"text","placeholder":"","value":"","size":100,"message":"","id":"","classes":"","name":"Name","required":true,"amount":2,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
@@ -166,7 +154,6 @@ function graphic_design_order_form_efb(){
     }
 
 function sample_cv_application_form_efb(){
-    //Sample CV Application Form
 return  [{"type":"form","steps":1,"formName":efb_var.text.sampleCvFormT,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":false,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":false,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":""},
 {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"CV Submission","icon":"bi-person-fill","step":"1","amount":1,"EfbVersion":2,"message":"Do you want to work with us? Please fill in your details below.","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
 {"id_":"rt6kou5xl","dataId":"rt6kou5xl-id","type":"text","placeholder":"","value":"","size":"50","message":"","id":"","classes":"","name":efb_var.text.firstName,"required":true,"amount":2,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
@@ -180,7 +167,6 @@ return  [{"type":"form","steps":1,"formName":efb_var.text.sampleCvFormT,"email":
 }
 
 function videography_creative_brife_efb(){
-    //Videography Creative Brife
   return  [{"type":"form","steps":1,"formName":efb_var.text.videographyBriefFormT,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":false,"show_pro_bar":false,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":""},
 {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"BRIEF","icon":"bi-ui-checks-grid","step":"1","amount":1,"EfbVersion":2,"message":"VIDEOGRAPHY CREATIVE BRIEF","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
 {"id_":"bhu7f2q84","dataId":"bhu7f2q84-id","type":"text","placeholder":"","value":"","size":"50","message":"","id":"","classes":"","name":"Your Name","required":true,"amount":2,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
@@ -209,12 +195,10 @@ function videography_creative_brife_efb(){
 {"id_":"g1x4tt51g","dataId":"g1x4tt51g-id","parent":"dzb","type":"option","value":"$2,000-$5,000","id_op":"v4zdqflrq","step":"1","amount":32},
 {"id_":"5639a9y79","dataId":"5639a9y79-id","parent":"dzb","type":"option","value":"$5,000-$10,000","id_op":"5639a9y79","step":"1","amount":33},
 {"id_":"8ufa0f9c1","dataId":"8ufa0f9c1-id","parent":"dzb","type":"option","value":"$10,000-$20,000","id_op":"8ufa0f9c1","step":"1","amount":34}]
-    
 
 }
 
 function party_invite_form_efb(){
-    //Party Invite
  return   [{"type":"form","steps":1,"formName":efb_var.text.partyInviteFormT,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":false,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":""},
 {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"Party Invite","icon":"bi-envelope-open-fill","step":"1","amount":1,"EfbVersion":2,"message":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur quis sem odio. Sed commodo vestibulum leo, sit amet tempus odio consectetur in. ","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
 {"id_":"v8ayfy3ny","dataId":"v8ayfy3ny-id","type":"text","placeholder":"","value":"","size":"80","message":"Sample description","id":"","classes":"","name":"Your Name","required":true,"amount":2,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
@@ -235,7 +219,6 @@ function party_invite_form_efb(){
 }
 
 function sample_event_registration_efb(){
-    //Sample Event registration
  return   [{"type":"form","steps":1,"formName":efb_var.text.eventRegistrationFormT,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":false,"show_pro_bar":false,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":""},
 {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"Event registration","icon":"bi-calendar-event-fill","step":1,"amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-warning","visible":1},
 {"id_":"3j6f1bni4","dataId":"3j6f1bni4-id","type":"text","placeholder":"","value":"","size":"80","message":"","id":"","classes":"","name":"Name","required":true,"amount":2,"step":1,"label_text_size":"fs-6","label_position":"beside","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
@@ -259,7 +242,6 @@ function sample_event_registration_efb(){
 }
 
 function customer_feedback_efb(){
-    //Customer Feedback
  return   [{"type":"form","steps":1,"formName":efb_var.text.customerFeedback,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-app","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
 {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":efb_var.text.customerFeedback,"icon":"bi-ui-checks-grid","step":1,"amount":2,"EfbVersion":2,"message":"","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
 {"id_": "fue32", "dataId": "fue32-id","type": "heading","classes": "","value": "We would be Happy to hear your feedback on how we can improve your experience!","amount": 3,"step": 1,"el_text_size": "display-7","el_text_color": "text-colorDEfb-363636","el_align": "justify-content-start","pro": true,"style_el_text_color": "#363636"},
@@ -273,7 +255,6 @@ function customer_feedback_efb(){
 {"id_":"9435mkevj","dataId":"9435mkevj-id","type":"email","placeholder":"","value":"","size":100,"message":"","id":"","classes":"","name":efb_var.text.email,"required":true,"amount":10,"step":1,"label_text_size":"fs-6","label_position":"beside","el_text_size":"fs-6","label_text_color":"text-colorDEfb-363636","el_border_color":"border-d","el_text_color":"text-colorDEfb-363636","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":"","style_label_color":"#363636","style_el_text_color":"#363636"}]
 
 }
-
 
 function order_payment_form_efb(){
 
@@ -381,7 +362,6 @@ function recreational_Sports_league_signup_form_efb(){
         ]
 }
 
-
 function summer_reading_program_signup_form_efb(){
     return [{"type": "form","steps": "1","formName": efb_var.text.summerReadingFormT,"email":efb_var.setting.emailSupporter, 'sendEmail': smail_efb,"trackingCode": "1","EfbVersion": "2","button_single_text": efb_var.text.submit,"button_color": "btn-primary","icon": "bXXX","button_Next_text": efb_var.text.next,"button_Previous_text": efb_var.text.previous,"button_Next_icon": "bi-chevron-right","button_Previous_icon": "bi-chevron-left","button_state": "single","corner": "efb-square","label_text_color": "text-light","el_text_color": "text-light","message_text_color": "text-muted","icon_color": "text-light","el_height": "h-l-efb","email_to": "","show_icon": "1","show_pro_bar": "1","captcha": "","thank_you": "msg","thank_you_message": "","email_temp": "","sendEmail": "0","stateForm": "","dShowBg": "1"},
     {"id_": "1","type": "step","dataId": "1","classes": "","id": "1","name": "Summer Reading Program Signup Form Template","icon": "bi-undefined","step": "1","amount": "2","EfbVersion": "2","message": "","label_text_size": "fs-5","message_text_size": "default","el_text_size": "fs-5","file": "document","label_text_color": "text-muted","el_text_color": "text-labelEfb","message_text_color": "text-muted","icon_color": "text-danger","visible": "1"},
@@ -459,11 +439,6 @@ book_club_suggestion_form_efb=()=>{
         ]
 }
 
-
-/**
- * Request a Quote Form Template
- * فرم درخواست قیمت / استعلام
- */
 function request_a_quote_form_efb(){
     return [
     {"type":"form","steps":2,"formName":efb_var.text.quoteFormT,"email":efb_var.setting.emailSupporter,'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"multi","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":"rq_email01","show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
@@ -493,11 +468,6 @@ function request_a_quote_form_efb(){
     ]
 }
 
-
-/**
- * Custom Order Form Template
- * فرم سفارش سفارشی / سفارش عمده
- */
 function custom_order_form_efb(){
     return [
     {"type":"form","steps":2,"formName":efb_var.text.customOrderFormT,"email":efb_var.setting.emailSupporter,'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"multi","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":"co_email01","show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
@@ -526,11 +496,6 @@ function custom_order_form_efb(){
     ]
 }
 
-
-/**
- * Job Application Form Template
- * فرم درخواست شغلی / استخدام
- */
 function job_application_form_efb(){
     return [
     {"type":"form","steps":2,"formName":efb_var.text.jobApplicationFormT,"email":efb_var.setting.emailSupporter,'sendEmail': smail_efb,"trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"multi","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":"ja_email01","show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
@@ -559,7 +524,3 @@ function job_application_form_efb(){
     {"id_":"ja_why01","dataId":"ja_why01-id","type":"textarea","placeholder":"Tell us why you are a great fit for this position...","value":"","size":"100","message":"","id":"","classes":"","name":"Why Should We Hire You?","required":false,"amount":31,"step":2,"label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""}
     ]
 }
-
-
-
-

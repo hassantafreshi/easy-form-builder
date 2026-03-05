@@ -1,35 +1,7 @@
-/**
- * Response Viewer & Rich Reply Editor Module
- * Easy Form Builder
- *
- * This module provides:
- * 1. Professional response message viewer UI
- * 2. Rich text editor for reply with visual Bold/Italic/Underline
- * 3. Markdown-like shortcode storage (**bold**, *italic*, __underline__)
- * 4. Auto-linkify URLs in displayed messages
- * 5. Formatted display of saved messages
- */
-
-/* global efb_var, ajax_object_efm, fun_emsFormBuilder_show_messages,
-   reply_attach_efb, stock_state_efb, form_type_emsFormBuilder,
-   sessionPub_emsFormBuilder, sendBack_emsFormBuilder_pub,
-   fun_sendBack_emsFormBuilder, sanitize_text_efb, check_msg_ext_resp_efb,
-   fun_send_replayMessage_ajax_emsFormBuilder, show_modal_efb, state_modal_show_efb,
-   page_state_efb, pro_efb, setting_emsFormBuilder, valNotFound_efb,
-   replaceContentMessageEfb, valueJson_ws_messages, noti_message_efb_v4,
-   post_api_r_message_efb, recaptcha_emsFormBuilder, sitekye_emsFormBuilder,
-   generatePDF_EFB, closed_resp_emsFormBuilder,
-   files_emsFormBuilder, fileEfb, viewfileReplyEfb,
-   fun_upload_file_api_emsFormBuilder, fun_addProgessiveEl_efb, fun_removeProgessiveEl_efb,
-   validExtensions_efb_fun
-*/
 
 const EfbResponseViewer = (function () {
   'use strict';
 
-  // ──────────────────────────────────────────────────────
-  // UTILITY: Get text helper (admin or public)
-  // ──────────────────────────────────────────────────────
   function _t(key) {
     if (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) return efb_var.text[key];
     if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text && ajax_object_efm.text[key]) return ajax_object_efm.text[key];
@@ -40,30 +12,14 @@ const EfbResponseViewer = (function () {
     return (typeof efb_var !== 'undefined' && efb_var.rtl == 1);
   }
 
-  // ──────────────────────────────────────────────────────
-  // RICH TEXT <-> SHORTCODE CONVERSION
-  // ──────────────────────────────────────────────────────
-
-  /**
-   * Convert shortcode-formatted text to HTML for display
-   * **text** => <strong>text</strong>
-   * *text*  => <em>text</em>
-   * __text__ => <u>text</u>
-   * URLs => clickable links
-   */
   function shortcodeToHtml(text) {
     if (!text || typeof text !== 'string') return text || '';
     let html = text;
 
-    // Escape HTML first (but preserve existing safe tags)
-    // Bold: **text**
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    // Italic: *text* (but not **)
     html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
-    // Underline: __text__
     html = html.replace(/__(.+?)__/g, '<u>$1</u>');
 
-    // Auto-linkify URLs (http/https)
     html = html.replace(
       /(?<!"|\bhref="|>)(https?:\/\/[^\s<"']+)/gi,
       '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
@@ -72,73 +28,40 @@ const EfbResponseViewer = (function () {
     return html;
   }
 
-  /**
-   * Convert HTML from contentEditable back to shortcode text for storage
-   * <strong>text</strong> / <b>text</b> => **text**
-   * <em>text</em> / <i>text</i>         => *text*
-   * <u>text</u>                         => __text__
-   * <br>                                => newline
-   * <a href="url">text</a>             => just text (URLs auto-detected)
-   */
   function htmlToShortcode(html) {
     if (!html || typeof html !== 'string') return '';
     let text = html;
 
-    // Replace <br> / <br/> with newline marker
     text = text.replace(/<br\s*\/?>/gi, '\n');
-    // Replace block-level elements with newline
     text = text.replace(/<\/?(div|p|li|blockquote)[^>]*>/gi, '\n');
 
-    // Bold
     text = text.replace(/<(strong|b)\b[^>]*>([\s\S]*?)<\/\1>/gi, '**$2**');
-    // Italic
     text = text.replace(/<(em|i)\b[^>]*>([\s\S]*?)<\/\1>/gi, '*$2*');
-    // Underline
     text = text.replace(/<u\b[^>]*>([\s\S]*?)<\/u>/gi, '__$1__');
 
-    // Links: keep just the URL or text
     text = text.replace(/<a\b[^>]*href="([^"]*)"[^>]*>[\s\S]*?<\/a>/gi, '$1');
 
-    // Strip all remaining HTML tags
     text = text.replace(/<[^>]+>/g, '');
 
-    // Decode HTML entities
     text = text.replace(/&amp;/g, '&');
     text = text.replace(/&lt;/g, '<');
     text = text.replace(/&gt;/g, '>');
     text = text.replace(/&nbsp;/g, ' ');
     text = text.replace(/&quot;/g, '"');
 
-    // Normalize newlines
     text = text.replace(/\n{3,}/g, '\n\n');
     text = text.trim();
 
     return text;
   }
 
-  /**
-   * Format stored message text for display
-   * Applies shortcode->HTML conversion and auto-linkify
-   */
   function formatMessageForDisplay(text) {
     if (!text || typeof text !== 'string') return text || '';
-    // First handle @efb@nq# line breaks
     let formatted = text.replace(/@efb@nq#/g, '<br>');
-    // Then convert shortcodes
     formatted = shortcodeToHtml(formatted);
     return formatted;
   }
 
-  // ──────────────────────────────────────────────────────
-  // RICH TEXT EDITOR UI
-  // ──────────────────────────────────────────────────────
-
-  /**
-   * Build the rich text editor HTML (replaces plain textarea)
-   * @param {string|number} msgId - message ID
-   * @param {string} savedValue - previously saved text (shortcode format)
-   * @returns {string} HTML string
-   */
   function buildRichEditor(msgId, savedValue) {
     const placeholderText = _t('enterYourMessage') || 'Type your reply...';
     const initialHtml = savedValue ? shortcodeToHtml(savedValue.replace(/@efb@nq#/g, '<br>')) : '';
@@ -177,16 +100,12 @@ const EfbResponseViewer = (function () {
     </div>`;
   }
 
-  /**
-   * Initialize the rich text editor after it's added to the DOM
-   */
   function initRichEditor(msgId) {
     const editor = document.getElementById('efb_rich_editor');
     const raw = document.getElementById('replayM_emsFormBuilder');
     const toolbar = document.getElementById('efb_editor_toolbar');
     if (!editor || !raw || !toolbar) return;
 
-    // Toolbar button clicks
     toolbar.addEventListener('click', function (e) {
       const btn = e.target.closest('.efb-editor-btn');
       if (!btn) return;
@@ -200,7 +119,6 @@ const EfbResponseViewer = (function () {
       _updateToolbarState(toolbar);
     });
 
-    // Keyboard shortcuts
     editor.addEventListener('keydown', function (e) {
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
         switch (e.key.toLowerCase()) {
@@ -222,24 +140,20 @@ const EfbResponseViewer = (function () {
       }
     });
 
-    // Sync on input
     editor.addEventListener('input', function () {
       _syncRawFromEditor(editor, raw, msgId);
-      // Re-enable reply button if it was disabled (compatibility with check_msg_ext_resp_efb)
       var replyBtn = document.getElementById('replayB_emsFormBuilder');
       if (replyBtn && replyBtn.classList.contains('disabled')) {
         replyBtn.classList.remove('disabled');
       }
     });
 
-    // Track selection changes for toolbar state
     document.addEventListener('selectionchange', function () {
       if (document.activeElement === editor) {
         _updateToolbarState(toolbar);
       }
     });
 
-    // Prevent pasting styled content (paste as plain text)
     editor.addEventListener('paste', function (e) {
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData('text/plain');
@@ -247,21 +161,14 @@ const EfbResponseViewer = (function () {
     });
   }
 
-  /**
-   * Sync contenteditable HTML -> hidden textarea (shortcode format)
-   */
   function _syncRawFromEditor(editor, raw, msgId) {
     const shortcode = htmlToShortcode(editor.innerHTML);
     raw.value = shortcode;
-    // Also save to localStorage for persistence
     if (typeof localStorage !== 'undefined' && msgId) {
       localStorage.setItem('replayM_emsFormBuilder_' + msgId, shortcode);
     }
   }
 
-  /**
-   * Update toolbar button active state based on current selection
-   */
   function _updateToolbarState(toolbar) {
     const buttons = toolbar.querySelectorAll('.efb-editor-btn[data-cmd]');
     buttons.forEach(function (btn) {
@@ -275,16 +182,6 @@ const EfbResponseViewer = (function () {
     });
   }
 
-  // ──────────────────────────────────────────────────────
-  // REPLY ACTIONS UI
-  // ──────────────────────────────────────────────────────
-
-  /**
-   * Build the reply action buttons (Reply, Attach, Close/Open)
-   * @param {string|number} msgId
-   * @param {boolean} isPanel - true if admin panel
-   * @returns {string} HTML
-   */
   function buildReplyActions(msgId, isPanel) {
     const uploadHtml = buildFileUploadArea(msgId, isPanel);
     return `
@@ -298,18 +195,6 @@ const EfbResponseViewer = (function () {
     ${uploadHtml}`;
   }
 
-  // ──────────────────────────────────────────────────────
-  // RESPONSE VIEWER: BUILD FULL MODAL BODY
-  // ──────────────────────────────────────────────────────
-
-  /**
-   * Build the admin panel response viewer body
-   * This replaces the inline HTML in list_form-efb.js
-   *
-   * @param {number} indx - index in valueJson_ws_messages
-   * @param {string} formType - form type (subscribe, register, survey, etc.)
-   * @returns {string} HTML for modal body
-   */
   function buildAdminResponseBody(indx, formType) {
     const msg_id = valueJson_ws_messages[indx].msg_id;
     const userIp = valueJson_ws_messages[indx].ip;
@@ -324,7 +209,6 @@ const EfbResponseViewer = (function () {
 
     form_type_emsFormBuilder = formType;
 
-    // Build reply section (only for message/form types that support reply)
     let replySection = '';
     if (formType !== 'subscribe' && formType !== 'register' && formType !== 'survey') {
       const savedValue = localStorage.getItem('replayM_emsFormBuilder_' + msg_id) || '';
@@ -340,14 +224,6 @@ const EfbResponseViewer = (function () {
     return body;
   }
 
-  /**
-   * Build the public-facing (tracker) response viewer body
-   * This replaces the inline HTML in core-efb.js emsFormBuilder_show_content_message
-   *
-   * @param {object} value - message object
-   * @param {array} content - array of response messages
-   * @returns {string} HTML for the viewer
-   */
   function buildPublicResponseBody(value, content) {
     const msg_id = value.msg_id;
     const track = value.track;
@@ -383,21 +259,11 @@ const EfbResponseViewer = (function () {
     return body;
   }
 
-  /**
-   * Initialize the response viewer after it's rendered in the DOM.
-   * Must be called after the modal is shown.
-   *
-   * @param {string|number} msgId
-   * @param {boolean} isPanel
-   */
   function initAfterRender(msgId, isPanel) {
-    // Initialize file upload area (modern version built into the HTML)
     initFileUpload(msgId);
 
-    // THEN: init the rich text editor listeners (after DOM is finalized)
     initRichEditor(msgId);
 
-    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Scroll messages to bottom
@@ -409,36 +275,15 @@ const EfbResponseViewer = (function () {
     }
   }
 
-  /**
-   * Get editor value in storage format (plain text with shortcodes + @efb@nq# newlines)
-   * @returns {string}
-   */
   function getEditorValue() {
     const raw = document.getElementById('replayM_emsFormBuilder');
     if (!raw) return '';
     let value = raw.value;
-    // Replace newlines with @efb@nq# for storage compatibility
     value = value.replace(/\n/g, '@efb@nq#');
     return value;
   }
 
-  // ──────────────────────────────────────────────────────
-  // FILE UPLOAD: Modern attach UI
-  // ──────────────────────────────────────────────────────
-
-  /**
-   * Build modern file upload area HTML
-   * @param {string|number} msgId
-   * @param {boolean} isPanel - true if admin panel
-   * @returns {string} HTML
-   */
-  /**
-   * Build the attach button for the editor toolbar
-   * @param {string|number} msgId
-   * @returns {string} HTML
-   */
   function _buildAttachToolbarBtn(msgId) {
-    // Hide when dsupfile is explicitly false on public page
     if (typeof setting_emsFormBuilder !== 'undefined' &&
       setting_emsFormBuilder.hasOwnProperty('dsupfile') &&
       setting_emsFormBuilder.dsupfile == false &&
@@ -471,7 +316,6 @@ const EfbResponseViewer = (function () {
   }
 
   function buildFileUploadArea(msgId, isPanel) {
-    // Hide when dsupfile is explicitly false on public page
     if (typeof setting_emsFormBuilder !== 'undefined' &&
       setting_emsFormBuilder.hasOwnProperty('dsupfile') &&
       setting_emsFormBuilder.dsupfile == false &&
@@ -479,7 +323,6 @@ const EfbResponseViewer = (function () {
       return '';
     }
 
-    // Close/Open response button (admin panel only)
     let closeBtn = '';
     if (isPanel) {
       const isOpen = typeof stock_state_efb !== 'undefined' && stock_state_efb === true;
@@ -490,7 +333,6 @@ const EfbResponseViewer = (function () {
                   </button>`;
     }
 
-    // Slim upload zone: file info + progress only (attach button is in toolbar)
     return `
     <div class="efb efb-upload-zone d-none" id="efb_upload_zone">
       <div class="efb efb-upload-file-info d-none p-1 px-2 my-1" id="efb_upload_file_info">
@@ -509,10 +351,6 @@ const EfbResponseViewer = (function () {
     ${closeBtn}`;
   }
 
-  /**
-   * Initialize the file upload area after DOM is ready
-   * @param {string|number} msgId
-   */
   function initFileUpload(msgId) {
     const attachBtn = document.getElementById('efb_attach_btn');
     const fileInput = document.getElementById('resp_file_efb_');
@@ -523,25 +361,21 @@ const EfbResponseViewer = (function () {
 
     if (!attachBtn || !fileInput) return;
 
-    // Guard: prevent double-binding event listeners
     if (attachBtn.dataset.efbBound) return;
     attachBtn.dataset.efbBound = '1';
 
-    // Click attach button → open file picker
     attachBtn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
       fileInput.click();
     });
 
-    // File selected via input
     fileInput.addEventListener('change', function () {
       if (this.files && this.files[0]) {
         _handleFileSelected(this.files[0], msgId, uploadZone, fileInfo, fileName, attachBtn);
       }
     });
 
-    // Drag & drop on the rich editor area
     const editor = document.getElementById('efb_rich_editor');
     if (editor) {
       editor.addEventListener('dragover', function (e) {
@@ -561,7 +395,6 @@ const EfbResponseViewer = (function () {
       });
     }
 
-    // Remove file
     if (removeBtn) {
       removeBtn.addEventListener('click', function () {
         _handleFileRemoved(uploadZone, fileInfo, fileInput, attachBtn);
@@ -569,11 +402,7 @@ const EfbResponseViewer = (function () {
     }
   }
 
-  /**
-   * Handle a file being selected (validate + start upload)
-   */
   function _handleFileSelected(file, msgId, uploadZone, fileInfo, fileNameEl, attachBtn) {
-    // Validate file type
     if (typeof validExtensions_efb_fun === 'function') {
       if (!validExtensions_efb_fun('allformat', file.type, 0)) {
         const m = _t('pleaseUploadA') || 'Please upload a valid file';
@@ -584,22 +413,17 @@ const EfbResponseViewer = (function () {
       }
     }
 
-    // Show upload zone (container)
     if (uploadZone) uploadZone.classList.remove('d-none');
 
-    // Mark attach button as active
     if (attachBtn) attachBtn.classList.add('efb-attach-active');
 
-    // Show progress bar (prA = d-block during upload)
     const prG = document.getElementById('resp_file_efb-prG');
     const prA = document.getElementById('resp_file_efb-prA');
     if (prG) prG.classList.remove('d-none');
     if (prA) { prA.classList.remove('d-none'); prA.classList.add('d-block'); }
 
-    // Set global fileEfb for compatibility with pro_els-efb.js pipeline
     if (typeof window !== 'undefined') window.fileEfb = file;
 
-    // Push to files array & start upload
     if (typeof files_emsFormBuilder !== 'undefined' && typeof sessionPub_emsFormBuilder !== 'undefined') {
       files_emsFormBuilder.push({
         id_: 'resp_file_efb',
@@ -612,7 +436,6 @@ const EfbResponseViewer = (function () {
         amount: 0
       });
 
-      // Read as data URL for the record
       const reader = new FileReader();
       reader.onload = function () {
         const idx = files_emsFormBuilder.findIndex(function (x) { return x.id_ === 'resp_file_efb'; });
@@ -620,18 +443,13 @@ const EfbResponseViewer = (function () {
       };
       reader.readAsDataURL(file);
 
-      // Upload via existing pipeline — hide progress after completion
       if (typeof fun_upload_file_api_emsFormBuilder === 'function') {
         fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat', 'resp', file);
-        // Watch for upload completion to hide progress bar
         _watchUploadProgress();
       }
     }
   }
 
-  /**
-   * Watch progress bar and hide it once upload reaches 100%
-   */
   function _watchUploadProgress() {
     const prB = document.getElementById('resp_file_efb-prB');
     const prA = document.getElementById('resp_file_efb-prA');
@@ -642,23 +460,19 @@ const EfbResponseViewer = (function () {
     if (!prB || !prA) return;
 
     let checks = 0;
-    const maxChecks = 600; // 60 seconds max
+    const maxChecks = 600;
     const interval = setInterval(function () {
       checks++;
       const width = parseFloat(prB.style.width);
       if (width >= 100 || checks >= maxChecks) {
         clearInterval(interval);
-        // After 100%: wait 2 seconds then hide progress, show file info
         setTimeout(function () {
-          // Hide progress bar
           prA.classList.remove('d-block');
           prA.classList.add('d-none');
           if (prG) prG.classList.add('d-none');
-          // Reset progress for next use
           prB.style.width = '0%';
           prB.textContent = '0%';
 
-          // Show file info with name
           if (fileInfo && fileInput && fileInput.files && fileInput.files[0]) {
             const name = fileInput.files[0].name;
             if (fileNameEl) {
@@ -673,27 +487,18 @@ const EfbResponseViewer = (function () {
     }, 100);
   }
 
-  /**
-   * Handle file removal
-   */
   function _handleFileRemoved(uploadZone, fileInfo, fileInput, attachBtn) {
-    // Hide file info
     if (fileInfo) { fileInfo.classList.remove('d-block'); fileInfo.classList.add('d-none'); }
 
-    // Reset file name
     const fileNameEl = document.getElementById('efb_upload_file_name');
     if (fileNameEl) { fileNameEl.textContent = ''; fileNameEl.title = ''; }
 
-    // Clear file input
     if (fileInput) fileInput.value = '';
 
-    // Hide entire upload zone
     if (uploadZone) uploadZone.classList.add('d-none');
 
-    // Remove active state from attach button
     if (attachBtn) attachBtn.classList.remove('efb-attach-active');
 
-    // Hide & reset progress bar
     const prG = document.getElementById('resp_file_efb-prG');
     const prA = document.getElementById('resp_file_efb-prA');
     const prB = document.getElementById('resp_file_efb-prB');
@@ -701,7 +506,6 @@ const EfbResponseViewer = (function () {
     if (prA) { prA.classList.remove('d-block'); prA.classList.add('d-none'); }
     if (prB) { prB.style.width = '0%'; prB.textContent = '0%'; }
 
-    // Remove from files_emsFormBuilder
     if (typeof files_emsFormBuilder !== 'undefined') {
       const idx = files_emsFormBuilder.findIndex(function (x) { return x.id_ === 'resp_file_efb'; });
       if (idx !== -1) {
@@ -709,7 +513,6 @@ const EfbResponseViewer = (function () {
       }
     }
 
-    // Remove from sendBack
     if (typeof sendBack_emsFormBuilder_pub !== 'undefined') {
       for (let i = sendBack_emsFormBuilder_pub.length - 1; i >= 0; i--) {
         if (sendBack_emsFormBuilder_pub[i].name === 'file') {
@@ -721,9 +524,6 @@ const EfbResponseViewer = (function () {
     if (typeof window !== 'undefined') window.fileEfb = null;
   }
 
-  // ──────────────────────────────────────────────────────
-  // PUBLIC API
-  // ──────────────────────────────────────────────────────
   return {
     buildAdminResponseBody: buildAdminResponseBody,
     buildPublicResponseBody: buildPublicResponseBody,
@@ -742,13 +542,6 @@ const EfbResponseViewer = (function () {
 
 })();
 
-
-// ══════════════════════════════════════════════════════════
-// RESPONSE BOX – Shared global functions
-// Moved from new-efb.js & core-efb.js (exclusively used in response/tracker context)
-// ══════════════════════════════════════════════════════════
-
-/* ── Response color application ── */
 let _efbRespColorsApplied = false;
 function efb_apply_resp_colors() {
   if (_efbRespColorsApplied) return;
@@ -760,14 +553,14 @@ function efb_apply_resp_colors() {
       const raw = ajax_object_efm.setting[0].setting;
       s = typeof raw === 'string' ? JSON.parse(raw.replace(/[\\]/g, '')) : raw;
     }
-  } catch (e) { /* ignore */ }
+  } catch (e) {  }
 
   if (!s) {
     try {
       if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.respPrimary) {
         s = ajax_object_efm;
       }
-    } catch (e) { /* ignore */ }
+    } catch (e) {  }
   }
 
   if (!s) return;
@@ -810,7 +603,6 @@ function efb_apply_resp_colors() {
 
   const root = document.documentElement;
 
-  // Load custom font stylesheet if set
   const customFontRaw = s.respCustomFont || '';
   if (customFontRaw) {
     try {
@@ -825,10 +617,9 @@ function efb_apply_resp_colors() {
         }
         link.href = cf.url;
       }
-    } catch (e) { /* ignore invalid JSON */ }
+    } catch (e) {  }
   }
 
-  // Load built-in font CSS (Google Fonts / CDN) based on selected font family
   const fontFamilyVal = s.respFontFamily || '';
   if (fontFamilyVal && fontFamilyVal !== 'inherit' && !customFontRaw) {
     const builtinFontCssMap = {
@@ -887,7 +678,6 @@ function efb_apply_resp_colors() {
   }
 }
 
-/* ── Show messages (builds response card HTML) ── */
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   efb_apply_resp_colors();
   stock_state_efb=false;
@@ -935,7 +725,6 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   let last_type ='';
   for (const c of content) {
-    console.log(c);
     if (c.hasOwnProperty('price')){ totalpaid +=Number(c.price)}
     if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
@@ -1023,7 +812,6 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')  || c.type == 'prcfld') {
-          console.log(currency ,c)
           const price = c.price ?? c.value ;
           q+=`<span class="efb efb-msg-price-tag">${Number(price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }else if(c.type.includes('checkbox')){
@@ -1073,7 +861,6 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   return m;
 }
 
-/* ── Reply button state handler ── */
 function state_rply_btn_efb(t){
     if(pro_efb ==false){return};
    setTimeout(() => {
@@ -1107,7 +894,6 @@ function state_rply_btn_efb(t){
    }, t);
 }
 
-/* ── Reply textarea keypress handler ── */
 function check_msg_ext_resp_efb() {
   const replayM_emsFormBuilder = document.querySelector("#replayM_emsFormBuilder");
   replayM_emsFormBuilder.addEventListener("keypress", (event) => {
@@ -1120,7 +906,6 @@ function check_msg_ext_resp_efb() {
   });
 }
 
-/* ── PDF / Print generation ── */
 function checkBrowserSupport_efb() {
   return {
     templateLiterals: (function() {
@@ -1247,7 +1032,6 @@ function generatePDF_EFB(id)
 
   var divPrint = document.getElementById(id);
   if (!divPrint) {
-    console.error('Element with id "' + id + '" not found');
     return;
   }
 
@@ -1393,7 +1177,7 @@ function generatePDF_EFB(id)
           el.href.indexOf('mailto') !== 0 &&
           el.href.indexOf('tel') !== 0) {
         if (browserSupport.urlConstructor) {
-          try { el.href = new URL(el.href, window.location.origin).href; } catch (e) { /* keep original */ }
+          try { el.href = new URL(el.href, window.location.origin).href; } catch (e) {  }
         } else if (el.href.indexOf('/') === 0) {
           el.href = window.location.protocol + '//' + window.location.host + el.href;
         }
@@ -1447,7 +1231,7 @@ function generatePDF_EFB(id)
         try {
           printWindow = window.open('', '_blank', 'width=device-width,initial-scale=1');
           if (printWindow) { printWindow.document.open(); printWindow.document.write(printContent); printWindow.document.close(); return; }
-        } catch (e) { console.warn('iOS popup failed:', e); }
+        } catch (e) {  }
       } else if (browserSupport.isAndroid) {
         try {
           printWindow = window.open('', 'Print-Window-EFB', 'width=device-width,initial-scale=1,user-scalable=yes');
@@ -1456,14 +1240,14 @@ function generatePDF_EFB(id)
             setTimeout(function() { if (printWindow && !printWindow.closed) printWindow.focus(); }, 500);
             return;
           }
-        } catch (e) { console.warn('Android popup failed:', e); }
+        } catch (e) {  }
       }
       try {
         var blob = new Blob([content], { type: 'text/html' });
         var url = window.URL.createObjectURL(blob);
         printWindow = window.open(url, '_blank');
         if (printWindow) { setTimeout(function() { window.URL.revokeObjectURL(url); }, 5000); return; }
-      } catch (e) { console.warn('Mobile blob fallback failed:', e); }
+      } catch (e) {  }
       if (confirm(efb_var.text.download || 'Open in new tab for printing?')) {
         var newWindow = window.open('about:blank', '_blank');
         if (newWindow) { newWindow.document.write(content); newWindow.document.close(); }
@@ -1477,7 +1261,6 @@ function generatePDF_EFB(id)
       printWindow.document.write(content);
       setTimeout(function() { if (printWindow && !printWindow.closed) printWindow.document.close(); }, 100);
     } catch (e) {
-      console.warn('Desktop popup error:', e);
       if (confirm(efb_var.text.download || 'Popup blocked. Try again?')) {
         setTimeout(function() { generatePDF_EFB(id); }, 1000);
       } else {
@@ -1501,7 +1284,6 @@ function generatePDF_EFB(id)
   });
 }
 
-/* ── Public tracker UI & handlers (from core-efb.js) ── */
 function fun_tracking_show_emsFormBuilder() {
   const time = pro_efb==true ? 10 :900;
   const getUrlparams = new URLSearchParams(location.search);
@@ -1556,7 +1338,6 @@ function fun_vaid_tracker_check_emsFormBuilder() {
   } else {
     if (currentTab_emsFormBuilder == 0) {
         const captcha = sendBack_emsFormBuilder_pub.filter(x=>Number(x.form_id)==-1 && x.id_=='captcha_v2');
-        console.log('captcha',captcha);
         recaptcha_emsFormBuilder = '';
         if(captcha.length>0){
             recaptcha_emsFormBuilder=captcha.length>0 ? captcha[0].value : '';
@@ -1600,7 +1381,6 @@ function fun_send_replayMessage_emsFormBuilder(id) {
     message=sanitize_text_efb(message);
     const by = ajax_object_efm.user_name.length > 1 ? ajax_object_efm.user_name : efb_var.text.guest;
     const ob = [{id_:'message', name:'message', type:'text', amount:0, value: message, by: by , session: sessionPub_emsFormBuilder,form_id:-1}];
-    console.log('620');
     fun_sendBack_emsFormBuilder(ob[0])
     if (message.length < 1 ) {
       check_msg_ext_resp_efb();
@@ -1613,7 +1393,6 @@ function fun_send_replayMessage_emsFormBuilder(id) {
         for(const s in sendBack_emsFormBuilder_pub ){ if(sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)  }
       }
       let messages = sendBack_emsFormBuilder_pub.filter(x=>(Number(x.form_id)==-1 || x.id_=='resp_file_efb') && x.id_!='captcha_v2');
-      console.log('messages',messages);
       fun_send_replayMessage_reast_emsFormBuilder(messages);
     }
   }, 100);

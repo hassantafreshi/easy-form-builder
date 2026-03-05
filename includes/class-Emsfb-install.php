@@ -4,17 +4,9 @@ namespace Emsfb;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} // Exit if accessed directly
+}
 
-/**
- * Class Install
- * @package Emsfb
- */
 class Install {
-	/**
-	 * Creating plugin tables
-	 *
-	 */
 
 	static function install() {
 		global $wpdb;
@@ -107,8 +99,6 @@ class Install {
 
 						dbDelta( $sql );
 
-
-
 				$user_id = get_current_user_id();
 				$usr =get_user_by('id',$user_id);
 				$eml=$usr->user_email;
@@ -141,11 +131,9 @@ class Install {
 
 		add_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
 
-		// Check for active cache plugins on first activation
 		do_action('emsfb_update_cache_plugins_list');
 
 		return $state;
 	}
-
 
 }

@@ -1,46 +1,18 @@
 <?php
-/**
- * Easy Form Builder - Widgets Helper Class
- *
- * Provides shared functionality for all page builder widgets
- * (Gutenberg, Elementor, WPBakery, etc.)
- *
- * @package EasyFormBuilder
- * @since 4.0.0
- */
 
 if (!defined('ABSPATH')) {
-    exit; // No direct access allowed
+    exit;
 }
 
-/**
- * Class Emsfb_Widgets_Helper
- *
- * Helper class providing shared functions for page builder integrations
- */
 class Emsfb_Widgets_Helper {
 
-    /**
-     * Plugin brand colors
-     */
     const BRAND_COLOR_PRIMARY = '#ff4b93';
     const BRAND_COLOR_SECONDARY = '#202a8d';
 
-    /**
-     * Singleton instance
-     */
     private static $instance = null;
 
-    /**
-     * Cache for forms list
-     */
     private static $forms_cache = null;
 
-    /**
-     * Get singleton instance
-     *
-     * @return Emsfb_Widgets_Helper
-     */
     public static function get_instance() {
         if (self::$instance === null) {
             self::$instance = new self();
@@ -48,38 +20,23 @@ class Emsfb_Widgets_Helper {
         return self::$instance;
     }
 
-    /**
-     * Private constructor for singleton
-     */
     private function __construct() {
-        // Initialize hooks
         add_action('save_post', [$this, 'clear_forms_cache']);
         add_action('deleted_post', [$this, 'clear_forms_cache']);
     }
 
-    /**
-     * Clear forms cache when forms are modified
-     */
     public function clear_forms_cache() {
         self::$forms_cache = null;
         delete_transient('emsfb_forms_list');
     }
 
-    /**
-     * Get all available forms from database
-     *
-     * @param bool $include_tracking Whether to include tracking form option
-     * @return array Array of forms with id and name
-     */
     public static function get_all_forms($include_tracking = true) {
         global $wpdb;
 
-        // Check cache first
         if (self::$forms_cache !== null) {
             return $include_tracking ? self::add_tracking_option(self::$forms_cache) : self::$forms_cache;
         }
 
-        // Check transient cache
         $cached = get_transient('emsfb_forms_list');
         if ($cached !== false) {
             self::$forms_cache = $cached;
@@ -89,7 +46,6 @@ class Emsfb_Widgets_Helper {
         $table_name = $wpdb->prefix . 'emsfb_form';
         $forms = [];
 
-        // Check if table exists
         $table_exists = $wpdb->get_var($wpdb->prepare(
             "SHOW TABLES LIKE %s",
             $table_name
@@ -114,21 +70,13 @@ class Emsfb_Widgets_Helper {
             }
         }
 
-        // Cache the results
         self::$forms_cache = $forms;
         set_transient('emsfb_forms_list', $forms, HOUR_IN_SECONDS);
 
         return $include_tracking ? self::add_tracking_option($forms) : $forms;
     }
 
-    /**
-     * Add tracking form option to forms list
-     *
-     * @param array $forms Forms list
-     * @return array Forms list with tracking option
-     */
     private static function add_tracking_option($forms) {
-        // Add tracking form as first option
         array_unshift($forms, [
             'id' => 'tracking',
             'name' => __('📍 Confirmation Code Finder (Tracking Form)', 'easy-form-builder'),
@@ -137,13 +85,6 @@ class Emsfb_Widgets_Helper {
         return $forms;
     }
 
-    /**
-     * Get forms as options array for select controls
-     *
-     * @param bool $include_tracking Whether to include tracking form option
-     * @param bool $include_empty Whether to include empty "Select Form" option
-     * @return array Associative array [id => name]
-     */
     public static function get_forms_for_select($include_tracking = true, $include_empty = true) {
         $forms = self::get_all_forms($include_tracking);
         $options = [];
@@ -159,12 +100,6 @@ class Emsfb_Widgets_Helper {
         return $options;
     }
 
-    /**
-     * Generate shortcode for a form
-     *
-     * @param int|string $form_id Form ID or 'tracking'
-     * @return string Shortcode string
-     */
     public static function generate_shortcode($form_id) {
         if (empty($form_id)) {
             return '';
@@ -177,12 +112,6 @@ class Emsfb_Widgets_Helper {
         return sprintf('[EMS_Form_Builder id="%d"]', intval($form_id));
     }
 
-    /**
-     * Render form by ID
-     *
-     * @param int|string $form_id Form ID or 'tracking'
-     * @return string Rendered form HTML
-     */
     public static function render_form($form_id) {
         if (empty($form_id)) {
             return self::render_placeholder_message(__('Please select a form to display.', 'easy-form-builder'));
@@ -192,12 +121,6 @@ class Emsfb_Widgets_Helper {
         return do_shortcode($shortcode);
     }
 
-    /**
-     * Render placeholder message for editor preview
-     *
-     * @param string $message Message to display
-     * @return string HTML output
-     */
     public static function render_placeholder_message($message) {
         return sprintf(
             '<div style="padding: 30px; background: linear-gradient(135deg, %s 0%%, %s 100%%); border-radius: 10px; text-align: center; color: #fff; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
@@ -219,13 +142,6 @@ class Emsfb_Widgets_Helper {
         );
     }
 
-    /**
-     * Get editor preview HTML for form
-     *
-     * @param int|string $form_id Form ID
-     * @param string $form_name Form name for display
-     * @return string HTML output
-     */
     public static function get_editor_preview($form_id, $form_name = '') {
         if (empty($form_id)) {
             return self::render_placeholder_message(__('Please select a form to display.', 'easy-form-builder'));
@@ -266,30 +182,14 @@ class Emsfb_Widgets_Helper {
         );
     }
 
-    /**
-     * Get plugin logo URL
-     *
-     * @return string Logo URL
-     */
     public static function get_logo_url() {
         return EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.svg';
     }
 
-    /**
-     * Get plugin icon (for Gutenberg block, etc.)
-     *
-     * @return string SVG icon URL
-     */
     public static function get_icon_svg() {
         return '<img src="' . esc_url(self::get_logo_url()) . '" alt="Easy Form Builder" width="24" height="24" style="display:block;">';
     }
 
-    /**
-     * Check if a page builder is active
-     *
-     * @param string $builder Builder name: 'elementor', 'wpbakery', 'gutenberg'
-     * @return bool
-     */
     public static function is_builder_active($builder) {
         switch ($builder) {
             case 'elementor':
@@ -311,7 +211,6 @@ class Emsfb_Widgets_Helper {
                 }
 
             case 'gutenberg':
-                // Gutenberg is part of WordPress core since 5.0
                 return function_exists('register_block_type');
 
             default:
@@ -319,18 +218,11 @@ class Emsfb_Widgets_Helper {
         }
     }
 
-    /**
-     * Check if currently editing in a page builder
-     *
-     * @return bool|string False or builder name
-     */
     public static function get_current_editor() {
-        // Elementor editor
         if (isset($_GET['action']) && $_GET['action'] === 'elementor') {
             return 'elementor';
         }
 
-        // Safely check Elementor edit mode
         if (class_exists('\Elementor\Plugin')) {
             try {
                 $elementor = \Elementor\Plugin::$instance;
@@ -338,13 +230,10 @@ class Emsfb_Widgets_Helper {
                     return 'elementor';
                 }
             } catch (\Exception $e) {
-                // Elementor not properly initialized
             } catch (\Error $e) {
-                // Elementor not properly initialized
             }
         }
 
-        // WPBakery editor
         if (function_exists('vc_is_inline') && vc_is_inline()) {
             return 'wpbakery';
         }
@@ -352,7 +241,6 @@ class Emsfb_Widgets_Helper {
             return 'wpbakery';
         }
 
-        // Gutenberg editor
         if (function_exists('is_block_editor') && is_block_editor()) {
             return 'gutenberg';
         }
@@ -361,5 +249,4 @@ class Emsfb_Widgets_Helper {
     }
 }
 
-// Initialize the helper
 Emsfb_Widgets_Helper::get_instance();

@@ -1,28 +1,6 @@
-/**
- * Easy Form Builder - Professional Drag & Drop Email Template Builder
- *
- * Replaces the plain textarea email template editor with a visual
- * drag-and-drop builder that outputs email-safe HTML.
- *
- * Shortcodes supported (replaced server-side in class-email-handler.php):
- *   shortcode_message       * (required) - Form submission content
- *   shortcode_title           - Email title / form name
- *   shortcode_website_name    - Blog name (get_bloginfo('name'))
- *   shortcode_website_url     - Home URL (home_url())
- *   shortcode_admin_email     - Admin email address
- *
- * Output is stored in the hidden #emailTemp_emsFirmBuilder textarea
- * using the same encoding convention: URLs encoded with @efb@
- * (handled by the existing f() / u() functions in list_form-efb.js)
- *
- * @package Easy Form Builder
- * @since 4.x
- */
 
 (function () {
   'use strict';
-
-  /* ──────────────────────────── CONFIGURATION ──────────────────────────── */
 
   const BUILDER_ID_efb = 'efb-email-builder';
   const CANVAS_ID_efb  = 'efb-email-canvas';
@@ -30,15 +8,12 @@
 
   const isRtl_efb = () => typeof efb_var !== 'undefined' && Number(efb_var.rtl) === 1;
 
-  // Text helper - falls back to English
   const t_efb = (key, fallback) => {
     if (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) {
       return efb_var.text[key];
     }
     return fallback || key;
   };
-
-  /* ─────────────────── EMAIL-SAFE FONT STACKS ───────────────────────── */
 
   const EMAIL_SAFE_FONTS_efb = [
     { label: 'Segoe UI',      value: "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif" },
@@ -60,12 +35,9 @@
 
   const DEFAULT_FONT_efb = "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
 
-  /** Returns the effective default font: global settings font → hardcoded default */
   function _gFont_efb() {
     return builderState_efb?.globalSettings?.fontFamily || DEFAULT_FONT_efb;
   }
-
-  /* ─────────────────────────── COLOR PRESETS ─────────────────────────── */
 
   const COLOR_PRESETS_efb = [
     '#202a8d', '#667eea', '#0ea5e9', '#10b981', '#f59e0b',
@@ -74,7 +46,6 @@
     '#f0f9ff', '#fefce8', '#fef2f2', '#f5f3ff', '#000000'
   ];
 
-  /* ─── Social Network SVG Presets (20 popular + custom) ─── */
   const SOCIAL_PRESETS_efb = {
     facebook:    { label: 'Facebook',    color: '#1877F2', svg: '<path d="M24 12.073c0-6.627-5.373-12-12-12S0 5.446 0 12.073c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953h-1.513c-1.491 0-1.956.925-1.956 1.875v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>' },
     x:           { label: 'X',           color: '#000000', svg: '<path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932zM17.61 20.644h2.039L6.486 3.24H4.298z"/>' },
@@ -105,13 +76,6 @@
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}" fill="${color || preset.color}">${preset.svg}</svg>`;
   }
 
-  /**
-   * Generate a base64-encoded <img> tag for a social icon SVG.
-   * Used in email HTML render instead of inline <svg> because:
-   * - Server-side sanitizers (wp_kses) strip <svg>/<path> tags
-   * - Email clients don't reliably support inline SVG
-   * - <img src="data:image/svg+xml;base64,..."> is safe and well-supported
-   */
   function _socialSvgImg_efb(key, size, color) {
     const preset = SOCIAL_PRESETS_efb[key];
     if (!preset) return '';
@@ -122,7 +86,6 @@
     } catch(e) { return ''; }
   }
 
-  /** Encode an arbitrary SVG string as a base64 <img> tag (for custom SVGs). */
   function _svgToImg_efb(svgStr, size, altText) {
     try {
       const b64 = btoa(unescape(encodeURIComponent(svgStr)));
@@ -130,71 +93,55 @@
     } catch(e) { return ''; }
   }
 
-  /**
-   * Regex that matches dangerous HTML/JS patterns.
-   * Used to strip XSS vectors from user-supplied block data *before*
-   * it is interpolated into the email HTML output.
-   */
   const _xssPatterns_efb = [
-    /<script[\s>\/]/gi,           // <script> tags
-    /<\/script>/gi,               // </script>
-    /\bon\w+\s*=/gi,              // on* event handlers (onclick=, onerror=, etc.)
-    /javascript\s*:/gi,           // javascript: URIs
-    /vbscript\s*:/gi,             // vbscript: URIs
-    /data\s*:\s*text\/html/gi,    // data:text/html URIs
-    /<iframe[\s>\/]/gi,           // <iframe>
+    /<script[\s>\/]/gi,
+    /<\/script>/gi,
+    /\bon\w+\s*=/gi,
+    /javascript\s*:/gi,
+    /vbscript\s*:/gi,
+    /data\s*:\s*text\/html/gi,
+    /<iframe[\s>\/]/gi,
     /<\/iframe>/gi,
-    /<object[\s>\/]/gi,           // <object>
+    /<object[\s>\/]/gi,
     /<\/object>/gi,
-    /<embed[\s>\/]/gi,            // <embed>
+    /<embed[\s>\/]/gi,
     /<\/embed>/gi,
-    /<form[\s>\/]/gi,             // <form>
+    /<form[\s>\/]/gi,
     /<\/form>/gi,
-    /<input[\s>\/]/gi,            // <input>
-    /<textarea[\s>\/]/gi,         // <textarea>
+    /<input[\s>\/]/gi,
+    /<textarea[\s>\/]/gi,
     /<\/textarea>/gi,
-    /<button[\s>\/]/gi,           // <button>
+    /<button[\s>\/]/gi,
     /<\/button>/gi,
-    /<select[\s>\/]/gi,           // <select>
+    /<select[\s>\/]/gi,
     /<\/select>/gi,
-    /<meta[\s>\/]/gi,             // <meta> (refresh redirect)
-    /<link[\s>\/]/gi,             // <link>
-    /<base[\s>\/]/gi,             // <base>
-    /<svg[\s>\/]/gi,              // <svg> (can contain scripts)
+    /<meta[\s>\/]/gi,
+    /<link[\s>\/]/gi,
+    /<base[\s>\/]/gi,
+    /<svg[\s>\/]/gi,
     /<\/svg>/gi,
-    /<math[\s>\/]/gi,             // <math> (MathML injection)
+    /<math[\s>\/]/gi,
     /<\/math>/gi,
-    /expression\s*\(/gi,          // CSS expression()
-    /-moz-binding\s*:/gi,         // -moz-binding CSS
-    /behavior\s*:/gi,             // IE behavior CSS
+    /expression\s*\(/gi,
+    /-moz-binding\s*:/gi,
+    /behavior\s*:/gi,
     /url\s*\(\s*['"]*\s*javascript/gi, // url(javascript:)
   ];
 
-  /**
-   * Strip all dangerous patterns from a string.
-   * Returns cleaned text safe to insert as HTML attribute value or CSS.
-   */
   function sanitizeAttr_efb(str) {
     if (!str && str !== 0) return '';
     let s = String(str);
     for (const rx of _xssPatterns_efb) {
-      rx.lastIndex = 0;          // reset stateful /g regex
+      rx.lastIndex = 0;
       s = s.replace(rx, '');
     }
-    // Remove null bytes and other control chars (except \n \r \t)
     s = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
     return s;
   }
 
-  /**
-   * Sanitize text that will appear as HTML *content* (not inside an attribute).
-   * Escapes < > & " while preserving shortcode_* placeholder names.
-   * Also strips all XSS patterns first.
-   */
   function sanitizeText_efb(str) {
     if (!str && str !== 0) return '';
     let s = sanitizeAttr_efb(str);
-    // Escape HTML entities
     s = s.replace(/&/g, '&amp;')
          .replace(/</g, '&lt;')
          .replace(/>/g, '&gt;')
@@ -202,15 +149,10 @@
     return s;
   }
 
-  /**
-   * Sanitize a URL — reject dangerous schemes, keep only safe ones.
-   */
   function sanitizeUrl_efb(url) {
     if (!url) return '';
     let s = String(url).trim();
-    // Remove null bytes
     s = s.replace(/\x00/g, '');
-    // Decode HTML entities to catch obfuscated javascript: etc.
     const tmp = s.replace(/&#(\d+);?/g, (_, n) => String.fromCharCode(n))
                  .replace(/&#x([0-9a-f]+);?/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
     const lower = tmp.replace(/\s+/g, '').toLowerCase();
@@ -218,14 +160,10 @@
         lower.startsWith('data:text/html') || lower.startsWith('data:application')) {
       return '';
     }
-    // Shortcodes are allowed as-is
     if (s.startsWith('shortcode_')) return s;
     return s;
   }
 
-  /**
-   * Sanitize CSS value for style attributes — strip expression(), url(javascript:), etc.
-   */
   function sanitizeCss_efb(css) {
     if (!css) return '';
     let s = String(css);
@@ -235,15 +173,10 @@
          .replace(/url\s*\(\s*['"]?\s*javascript/gi, 'url(blocked')
          .replace(/url\s*\(\s*['"]?\s*vbscript/gi, 'url(blocked')
          .replace(/url\s*\(\s*['"]?\s*data\s*:\s*text\/html/gi, 'url(blocked');
-    // Remove null bytes
     s = s.replace(/[\x00]/g, '');
     return s;
   }
 
-  /**
-   * Sanitize content for the htmlBlock block type.
-   * Strips dangerous tags/attributes but allows safe HTML for email.
-   */
   function sanitizeHtmlBlock_efb(html) {
     if (!html) return '';
     let s = String(html);
@@ -251,12 +184,9 @@
       rx.lastIndex = 0;
       s = s.replace(rx, '');
     }
-    // Remove null bytes and other control chars (except \n \r \t)
     s = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
     return s;
   }
-
-  /* ──────────────────────── BLOCK DEFINITIONS ───────────────────────── */
 
   const BLOCK_TYPES_efb = {
 
@@ -507,7 +437,6 @@
           const preset = SOCIAL_PRESETS_efb[l.icon];
           let iconHtml;
           if (l.icon === 'custom' && l.customSvg) {
-            // Custom SVG: encode as base64 <img> for email compatibility
             const svgStr = l.customSvg.includes('<svg') ? l.customSvg
               : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${iconSz}" height="${iconSz}">${l.customSvg}</svg>`;
             iconHtml = _svgToImg_efb(svgStr, iconSz, sanitizeAttr_efb(l.name)) || sanitizeText_efb(l.name);
@@ -558,8 +487,6 @@
       }
     }
   };
-
-  /* ───────────────────── PRE-BUILT TEMPLATES ──────────────────────────── */
 
   const TEMPLATES_efb = {
 
@@ -661,9 +588,6 @@
     }
   };
 
-
-  /* ────────────────────── BUILDER STATE ────────────────────────────── */
-
   let builderState_efb = {
     blocks: [],
     selectedBlock: null,
@@ -681,11 +605,8 @@
     redoStack: []
   };
 
-  /* ──────────────────── UNIQUE ID GENERATOR ──────────────────────── */
   let _blockIdCounter_efb = 0;
   function genId_efb() { return 'efb-blk-' + (++_blockIdCounter_efb) + '-' + Date.now().toString(36); }
-
-  /* ──────────────────── UNDO / REDO ────────────────────────────── */
 
   function saveState_efb() {
     builderState_efb.undoStack.push(JSON.stringify({
@@ -739,22 +660,17 @@
     syncToTextarea_efb();
   }
 
-  /* ──────────────────── RENDER SINGLE BLOCK ────────────────────── */
-
   function renderBlock_efb(block) {
     const def = BLOCK_TYPES_efb[block.type];
     if (!def) return '';
     const data = Object.assign({}, def.defaultData, block.data || {});
-    // For blocks with children (like header)
     if (block.children && block.children.length) {
       data.children = block.children;
     }
     let html = def.render(data);
-    // Ensure the outer <td> has explicit background-color for email client compatibility
     const cbg = sanitizeCss_efb(builderState_efb.globalSettings.contentBgColor || '#ffffff');
     const firstTd = html.match(/<td([^>]*)style="([^"]*)"/i);
     if (firstTd) {
-      // <td> with style but no background → prepend background-color
       if (!/background/i.test(firstTd[2])) {
         html = html.replace(
           /(<td[^>]*style=")/i,
@@ -762,7 +678,6 @@
         );
       }
     } else {
-      // <td> without style attribute (may have other attrs like align) → add style
       html = html.replace(
         /<td(?=[ >])/i,
         `<td style="background-color: ${cbg};"`
@@ -771,35 +686,28 @@
     return html;
   }
 
-  /* ──────────────────── GENERATE FULL HTML ──────────────────────── */
-
   function generateFullHTML_efb() {
     const gs = builderState_efb.globalSettings;
     const br = parseInt(gs.borderRadius) || 0;
     const blocksHtml = builderState_efb.blocks.map((b, i, arr) => {
       let html = renderBlock_efb(b);
-      // Inject border-radius into first/last block's outer <td> so corners
-      // match the container radius (important for email clients that ignore overflow:hidden)
       if (br > 0 && (i === 0 || i === arr.length - 1)) {
         const topR = i === 0 ? br + 'px' : '0';
         const botR = i === arr.length - 1 ? br + 'px' : '0';
         const radiusCss = `border-radius: ${topR} ${topR} ${botR} ${botR}`;
         const tdStyle = html.match(/<td[^>]*style="([^"]*)"/i);
         if (tdStyle && /border-radius/i.test(tdStyle[1])) {
-          // Replace existing border-radius with container-aware value
           html = html.replace(
             /(<td[^>]*style="[^"]*?)border-radius:\s*[^;"]+;?/i,
             `$1${radiusCss};`
           );
         } else if (tdStyle) {
-          // Prepend border-radius to existing style
           html = html.replace(/(<td[^>]*style=")/i, `$1${radiusCss}; `);
         }
       }
       return html;
     }).join('\n');
 
-    // Check if message shortcode exists
     const hasMessage = builderState_efb.blocks.some(b => b.type === 'message');
 
     return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -836,19 +744,14 @@ ${blocksHtml}
 </html>`;
   }
 
-  /* ──────────────────── SYNC TO TEXTAREA ───────────────────────── */
-
   function syncToTextarea_efb() {
     const textarea = document.getElementById(TEXTAREA_ID_efb);
     if (!textarea) return;
     const html = generateFullHTML_efb();
-    // Embed builder JSON as HTML comment so it survives save/reload
-    // encodeURIComponent output has NO / or " chars → safe from @efb@ encoding & quote replacement
     try {
       const builderData = { blocks: builderState_efb.blocks, globalSettings: builderState_efb.globalSettings };
       const encoded = encodeURIComponent(JSON.stringify(builderData));
       textarea.value = html + '\n<!-- EFBDATA:' + encoded + ' -->';
-      // Also keep the in-memory JSON store in sync
       const jsonStore = document.getElementById('efb-builder-json');
       if (jsonStore) {
         jsonStore.value = JSON.stringify(builderData);
@@ -858,10 +761,7 @@ ${blocksHtml}
     }
   }
 
-  /* ──────────────────── PARSE EXISTING TEMPLATE ───────────────── */
-
   function tryParseExistingTemplate_efb(html) {
-    // Priority 1: Extract embedded EFBDATA from the HTML (survives save/reload)
     if (html && html.includes('<!-- EFBDATA:')) {
       const match = html.match(/<!-- EFBDATA:(.*?) -->/);
       if (match && match[1]) {
@@ -875,12 +775,10 @@ ${blocksHtml}
             return true;
           }
         } catch (e) {
-          // EFBDATA corrupt, fall through to other methods
         }
       }
     }
 
-    // Priority 2: Check in-memory JSON store (within same session)
     const jsonStore = document.getElementById('efb-builder-json');
     if (jsonStore && jsonStore.value && jsonStore.value.length > 10) {
       try {
@@ -895,14 +793,11 @@ ${blocksHtml}
       } catch (e) {}
     }
 
-    // Priority 3: Empty template → load default
     if (!html || html.trim().length < 10) {
       loadTemplate_efb('professional');
       return true;
     }
 
-    // Priority 4: Legacy template (not built by us) → wrap in htmlBlock
-    // Strip any EFBDATA comment remnant from the HTML before wrapping
     const cleanHtml = html.replace(/\n?<!-- EFBDATA:.*? -->/g, '').trim();
     const hasMessage = cleanHtml.includes('shortcode_message');
     builderState_efb.blocks = [];
@@ -920,8 +815,6 @@ ${blocksHtml}
     }
     return true;
   }
-
-  /* ──────────────────── LOAD TEMPLATE ──────────────────────────── */
 
   function loadTemplate_efb(name) {
     const tpl = TEMPLATES_efb[name];
@@ -951,11 +844,9 @@ ${blocksHtml}
 
     builderState_efb.blocks = processBlocks_efb(tpl.blocks);
 
-    // Apply template-specific global settings (colors, border-radius, etc.)
     if (tpl.globalSettings) {
       builderState_efb.globalSettings = Object.assign({}, builderState_efb.globalSettings, tpl.globalSettings);
     } else {
-      // Reset to defaults for templates without custom global settings
       builderState_efb.globalSettings = {
         bgColor: '#f8f9fa',
         contentBgColor: '#ffffff',
@@ -971,8 +862,6 @@ ${blocksHtml}
     renderGlobalSettings_efb();
     syncToTextarea_efb();
   }
-
-  /* ──────────────── RENDER CANVAS (VISUAL EDITOR) ─────────────── */
 
   function renderCanvas_efb() {
     const canvas = document.getElementById(CANVAS_ID_efb);
@@ -1014,7 +903,6 @@ ${blocksHtml}
 
     canvas.innerHTML = html;
 
-    // Bind click to select
     canvas.querySelectorAll('.efb-canvas-block').forEach(el => {
       el.addEventListener('click', (e) => {
         if (e.target.closest('.efb-blk-btn')) return;
@@ -1024,20 +912,14 @@ ${blocksHtml}
       });
     });
 
-    // Canvas drag-drop reorder
     initCanvasDragDrop_efb();
 
-    // Apply global styles visually to canvas
     updateCanvasGlobalStyles_efb();
   }
 
-  /* ──────────────── BLOCK PREVIEW (simplified visual) ─────────── */
-
   function renderBlockPreview_efb(block) {
     const data = Object.assign({}, BLOCK_TYPES_efb[block.type]?.defaultData || {}, block.data || {});
-    // Scale font sizes for compact preview (60% of actual, min 10px, max 28px)
     const pfs = (sz) => Math.max(10, Math.min(Math.round(Number(sz) * 0.6), 28));
-    // Scale padding for compact preview (50% of actual, min 2px)
     const spad = (p) => {
       if (!p) return '5px';
       return String(p).replace(/(\d+)/g, (m, n) => Math.max(2, Math.round(Number(n) * 0.5)));
@@ -1104,8 +986,6 @@ ${blocksHtml}
     return text.replace(/(shortcode_\w+)/g, '<span style="background:#dbeafe;color:#1e40af;padding:1px 4px;border-radius:2px;font-size:0.85em;">$1</span>');
   }
 
-  /* ──────────────── CANVAS DRAG-DROP (REORDER) ────────────────── */
-
   let _canvasDropBound_efb = false;
   let _dragThrottleTimer_efb = null;
 
@@ -1130,7 +1010,6 @@ ${blocksHtml}
 
       el.addEventListener('dragover', (e) => {
         e.preventDefault();
-        // Throttle visual updates to ~60fps
         if (_dragThrottleTimer_efb) return;
         _dragThrottleTimer_efb = requestAnimationFrame(() => {
           _dragThrottleTimer_efb = null;
@@ -1152,7 +1031,6 @@ ${blocksHtml}
         el.classList.remove('efb-drop-above', 'efb-drop-below');
         const targetIndex = parseInt(el.dataset.index);
 
-        // Check if this is from the blocks panel (new block) — must be before reorder guard
         const newBlockType = e.dataTransfer.getData('efb-new-block');
         if (newBlockType) {
           const rect = el.getBoundingClientRect();
@@ -1173,7 +1051,6 @@ ${blocksHtml}
       });
     });
 
-    // Attach canvas-level listeners only once (canvas element persists across re-renders)
     if (!_canvasDropBound_efb) {
       _canvasDropBound_efb = true;
 
@@ -1194,8 +1071,6 @@ ${blocksHtml}
     }
   }
 
-  /* ──────────────── BLOCK OPERATIONS ──────────────────────────── */
-
   function addBlock_efb(type) {
     addBlockAt_efb(type, builderState_efb.blocks.length);
   }
@@ -1209,7 +1084,6 @@ ${blocksHtml}
       type: type,
       data: JSON.parse(JSON.stringify(def.defaultData))
     };
-    // For header, add default children
     if (type === 'header') {
       block.children = [
         { id: genId_efb(), type: 'logo', data: JSON.parse(JSON.stringify(BLOCK_TYPES_efb.logo.defaultData)) },
@@ -1224,7 +1098,6 @@ ${blocksHtml}
   }
 
   function removeBlock_efb(id) {
-    // Don't allow removing the only message block
     const block = builderState_efb.blocks.find(b => b.id === id);
     if (block && block.type === 'message') {
       const msgCount = builderState_efb.blocks.filter(b => b.type === 'message').length;
@@ -1291,8 +1164,6 @@ ${blocksHtml}
     return null;
   }
 
-  /* ──────────────── PROPERTIES PANEL ──────────────────────────── */
-
   function renderPropertiesPanel_efb() {
     const panel = document.getElementById('efb-properties-panel');
     if (!panel) return;
@@ -1320,7 +1191,6 @@ ${blocksHtml}
     </div>
     <div class="efb-props-body">`;
 
-    // Generate property editors based on block type
     switch (block.type) {
       case 'header':
         html += propColor_efb('bgColor', t_efb('ebBgColor', 'Background Color'), data.bgColor);
@@ -1465,20 +1335,17 @@ ${blocksHtml}
               <label class="efb-sl-field-label">${t_efb('ebIcon', 'Icon')}</label>
               <div class="efb-sl-icon-grid" data-block-id="${block.id}" data-link-idx="${li}">`;
 
-          // render preset icons as selectable grid
           Object.entries(SOCIAL_PRESETS_efb).forEach(([key, p]) => {
             const active = curIcon === key ? ' active' : '';
             html += `<button type="button" class="efb-sl-icon-btn${active}" data-icon="${key}" title="${p.label}">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="${p.color}">${p.svg}</svg>
             </button>`;
           });
-          // Custom SVG option
           html += `<button type="button" class="efb-sl-icon-btn${curIcon === 'custom' ? ' active' : ''}" data-icon="custom" title="${t_efb('ebCustomSVG', 'Custom SVG')}">
             <i class="efb bi-code-slash" style="font-size:14px;color:#64748b;"></i>
           </button>`;
           html += `</div>`;
 
-          // Custom SVG textarea (only if custom is selected)
           if (curIcon === 'custom') {
             html += `<label class="efb-sl-field-label" style="margin-top:4px;">${t_efb('ebCustomSVGCode', 'Custom SVG Code')}</label>
               <textarea class="efb-prop-textarea efb-sl-custom-svg" rows="3" data-block-id="${block.id}" data-link-idx="${li}"
@@ -1516,8 +1383,6 @@ ${blocksHtml}
     panel.innerHTML = html;
     _propStateSaved_efb = false;
   }
-
-  /* ──────────── PROPERTY FIELD GENERATORS ──────────────────────── */
 
   function propInput_efb(key, label, value, targetId) {
     const blockId = targetId || builderState_efb.selectedBlock;
@@ -1568,7 +1433,6 @@ ${blocksHtml}
     </div>`;
   }
 
-  /* ── 4-sided padding / margin editor ── */
   function _parsePaddingShorthand_efb(val) {
     const parts = String(val || '0').trim().split(/\s+/).map(v => parseInt(v, 10) || 0);
     if (parts.length === 1) return { top: parts[0], right: parts[0], bottom: parts[0], left: parts[0] };
@@ -1664,8 +1528,6 @@ ${blocksHtml}
     </div>`;
   }
 
-  /* ──────────── SHORTCODE CHIP HELPERS ──────────────────────── */
-
   const _SHORTCODE_RE_efb = /(shortcode_message|shortcode_title|shortcode_website_name|shortcode_website_url|shortcode_admin_email)/g;
 
   const _SHORTCODE_LABELS_efb = {
@@ -1676,14 +1538,12 @@ ${blocksHtml}
     'shortcode_admin_email':   () => t_efb('ebSCAdminEmail', 'Admin Email')
   };
 
-  /** Build a single chip <span> for a shortcode */
   function _shortcodeChipHtml_efb(code) {
     const labelFn = _SHORTCODE_LABELS_efb[code];
     const label = labelFn ? labelFn() : code;
     return `<span class="efb-chip" contenteditable="false" data-shortcode="${escHtml_efb(code)}"><i class="efb bi-braces me-1"></i>${escHtml_efb(label)}<button type="button" class="efb-chip-remove" tabindex="-1">&times;</button></span>`;
   }
 
-  /** Convert a string value (with shortcode_* tokens) into chip-aware innerHTML */
   function _valueToChipHtml_efb(value) {
     if (!value) return '';
     const parts = value.split(_SHORTCODE_RE_efb);
@@ -1693,7 +1553,6 @@ ${blocksHtml}
     }).join('');
   }
 
-  /** Reconstruct the raw string value from a chip-editor contenteditable div */
   function _chipEditorToValue_efb(editorEl) {
     let value = '';
     const walk = (node) => {
@@ -1705,7 +1564,6 @@ ${blocksHtml}
         } else if (node.tagName === 'BR') {
           value += '\n';
         } else {
-          // <div> created by Enter key in contenteditable
           if (node.tagName === 'DIV' && value.length > 0 && !value.endsWith('\n')) {
             value += '\n';
           }
@@ -1717,7 +1575,6 @@ ${blocksHtml}
     return value;
   }
 
-  /** Single-line chip-aware input (replaces propInput_efb for shortcode fields) */
   function propChipInput_efb(key, label, value, targetId) {
     const blockId = targetId || builderState_efb.selectedBlock;
     const chipHtml = _valueToChipHtml_efb(value);
@@ -1727,7 +1584,6 @@ ${blocksHtml}
     </div>`;
   }
 
-  /** Multi-line chip-aware textarea (replaces propTextarea_efb for shortcode fields) */
   function propChipTextarea_efb(key, label, value, targetId, rows) {
     const blockId = targetId || builderState_efb.selectedBlock;
     const chipHtml = _valueToChipHtml_efb(value);
@@ -1738,15 +1594,9 @@ ${blocksHtml}
     </div>`;
   }
 
-  /* ──────────── PROPERTY EVENT DELEGATION ──────────────────────── */
-
   let _propDebounce_efb = null;
   let _propStateSaved_efb = false;
 
-  /**
-   * Delegated event handling for the properties panel.
-   * Called ONCE during init — survives all panel re-renders.
-   */
   function initPropertyDelegation_efb() {
     const panel = document.getElementById('efb-properties-panel');
     if (!panel) return;
@@ -1758,12 +1608,10 @@ ${blocksHtml}
 
       const b = findBlockById_efb(bid);
       if (!b) {
-        console.warn('[EFB] Block not found for property edit:', bid);
         return;
       }
       if (!b.data) b.data = {};
 
-      // save undo state once per editing session
       if (!_propStateSaved_efb) {
         saveState_efb();
         _propStateSaved_efb = true;
@@ -1783,11 +1631,9 @@ ${blocksHtml}
       }
     }
 
-    // ── input event (text inputs, textareas, color pickers, ranges) ──
     panel.addEventListener('input', (e) => {
       const t = e.target;
 
-      // Range sliders — immediate
       if (t.matches('.efb-prop-range')) {
         const val = t.closest('.efb-prop-row')?.querySelector('.efb-range-val');
         if (val) val.textContent = t.value;
@@ -1795,7 +1641,6 @@ ${blocksHtml}
         return;
       }
 
-      // Color pickers — immediate + sync text input
       if (t.matches('.efb-prop-color')) {
         applyPropChange(t, true);
         const textInput = panel.querySelector(
@@ -1805,7 +1650,6 @@ ${blocksHtml}
         return;
       }
 
-      // Color text inputs — debounced + sync color picker
       if (t.matches('.efb-prop-color-text')) {
         const bid = t.dataset.block;
         const prop = t.dataset.prop;
@@ -1822,7 +1666,6 @@ ${blocksHtml}
         return;
       }
 
-      // 4-sided padding inputs — immediate
       if (t.matches('.efb-pad-input')) {
         const editor = t.closest('.efb-padding-editor');
         if (!editor) return;
@@ -1846,19 +1689,16 @@ ${blocksHtml}
         return;
       }
 
-      // Regular text inputs — debounced
       if (t.matches('.efb-prop-input')) {
         applyPropChange(t, false);
         return;
       }
 
-      // Textareas — debounced
       if (t.matches('.efb-prop-textarea')) {
         applyPropChange(t, false);
         return;
       }
 
-      // Chip editor (contenteditable) — debounced value reconstruction
       if (t.matches('.efb-chip-editor')) {
         const bid = t.dataset.block;
         const prop = t.dataset.prop;
@@ -1874,12 +1714,10 @@ ${blocksHtml}
       }
     });
 
-    // ── change event (selects — fire immediately) ──
     panel.addEventListener('change', (e) => {
       if (e.target.matches('.efb-prop-select')) {
         applyPropChange(e.target, true);
       }
-      // Custom SVG textarea for social links
       if (e.target.matches('.efb-sl-custom-svg')) {
         const bid = e.target.dataset.blockId;
         const idx = parseInt(e.target.dataset.linkIdx, 10);
@@ -1887,9 +1725,7 @@ ${blocksHtml}
       }
     });
 
-    // ── click: chip remove button + padding link toggle ──
     panel.addEventListener('click', (e) => {
-      // Padding link/unlink toggle
       const linkBtn = e.target.closest('.efb-pad-link-btn');
       if (linkBtn) {
         e.preventDefault();
@@ -1902,10 +1738,8 @@ ${blocksHtml}
         }
         linkBtn.classList.toggle('active', isLinked);
         if (isLinked) {
-          // set all sides to the top value
           const topVal = editor.querySelector('.efb-pad-input[data-side="top"]')?.value || '0';
           editor.querySelectorAll('.efb-pad-input').forEach(inp => { inp.value = topVal; });
-          // fire change
           const sides = { top: +topVal, right: +topVal, bottom: +topVal, left: +topVal };
           const shorthand = _paddingSidesToShorthand_efb(sides.top, sides.right, sides.bottom, sides.left);
           const bid = editor.dataset.block;
@@ -1922,7 +1756,6 @@ ${blocksHtml}
         return;
       }
 
-      // Social icon grid – select icon for a link
       const iconBtn = e.target.closest('.efb-sl-icon-btn');
       if (iconBtn) {
         e.preventDefault();
@@ -1936,7 +1769,6 @@ ${blocksHtml}
         return;
       }
 
-      // Chip remove button
       const removeBtn = e.target.closest('.efb-chip-remove');
       if (!removeBtn) return;
       e.preventDefault();
@@ -1958,18 +1790,15 @@ ${blocksHtml}
       }
     });
 
-    // ── keydown: chip-aware backspace & prevent Enter in single-line ──
     panel.addEventListener('keydown', (e) => {
       const editor = e.target.closest('.efb-chip-editor');
       if (!editor) return;
 
-      // Prevent Enter in single-line chip editors
       if (e.key === 'Enter' && editor.classList.contains('efb-chip-editor-single')) {
         e.preventDefault();
         return;
       }
 
-      // Backspace — if caret is immediately after a chip, remove the whole chip
       if (e.key === 'Backspace') {
         const sel = window.getSelection();
         if (!sel.isCollapsed || sel.rangeCount === 0) return;
@@ -2000,20 +1829,17 @@ ${blocksHtml}
       }
     });
 
-    // ── paste: strip formatting & convert shortcodes to chips ──
     panel.addEventListener('paste', (e) => {
       const editor = e.target.closest('.efb-chip-editor');
       if (!editor) return;
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData('text/plain');
       if (editor.classList.contains('efb-chip-editor-single')) {
-        // Single-line: strip newlines
         const clean = text.replace(/[\r\n]+/g, ' ');
         document.execCommand('insertHTML', false, _valueToChipHtml_efb(clean));
       } else {
         document.execCommand('insertHTML', false, _valueToChipHtml_efb(text));
       }
-      // Sync value
       const bid = editor.dataset.block;
       const prop = editor.dataset.prop;
       const b = findBlockById_efb(bid);
@@ -2026,8 +1852,6 @@ ${blocksHtml}
       }
     });
   }
-
-  /* ──────────── COLOR PRESET HELPER ─────────────────────────── */
 
   function _applyColorPreset_efb(btn) {
     const color = btn.dataset.color;
@@ -2042,7 +1866,6 @@ ${blocksHtml}
     saveState_efb();
     block.data[prop] = color;
 
-    // Sync the color picker and text input in the same row
     const row = btn.closest('.efb-prop-row');
     if (row) {
       const cp = row.querySelector(`.efb-prop-color[data-prop="${prop}"]`);
@@ -2055,8 +1878,6 @@ ${blocksHtml}
     syncToTextarea_efb();
   }
 
-  /* ──────────── SHORTCODE INSERTION ──────────────────────────── */
-
   function insertShortcode_efb(blockId, propName, shortcode) {
     const block = findBlockById_efb(blockId);
     if (!block) return;
@@ -2064,15 +1885,12 @@ ${blocksHtml}
     saveState_efb();
     const def = BLOCK_TYPES_efb[block.type]?.defaultData || {};
     const current = block.data[propName] !== undefined ? block.data[propName] : (def[propName] || '');
-    // Add a space before shortcode if current text doesn't end with space/empty
     const separator = current && !current.endsWith(' ') && !current.endsWith('\n') ? ' ' : '';
     block.data[propName] = current + separator + shortcode;
     renderCanvas_efb();
     renderPropertiesPanel_efb();
     syncToTextarea_efb();
   }
-
-  /* ──────────── SOCIAL LINK HELPERS ─────────────────────────── */
 
   function updateSocialLink_efb(blockId, index, key, value) {
     const block = findBlockById_efb(blockId);
@@ -2112,7 +1930,6 @@ ${blocksHtml}
   }
 
   function showSocialPicker_efb(blockId) {
-    // Simply add a new link with default icon; user picks icon from the grid
     addSocialLink_efb(blockId, 'website');
   }
 
@@ -2126,8 +1943,6 @@ ${blocksHtml}
     syncToTextarea_efb();
   }
 
-  /* ──────────── NOTIFICATION ────────────────────────────────── */
-
   function showNotification_efb(msg, type) {
     const el = document.createElement('div');
     el.className = `efb-builder-notification efb-notif-${type || 'info'}`;
@@ -2137,8 +1952,6 @@ ${blocksHtml}
     setTimeout(() => el.remove(), 3500);
   }
 
-  /* ──────────── PREVIEW ────────────────────────────────────── */
-
   function showPreview_efb() {
     const html = generateFullHTML_efb();
     if (!html.includes('shortcode_message')) {
@@ -2146,7 +1959,6 @@ ${blocksHtml}
       return;
     }
 
-    // Replace shortcodes with sample data for preview
     let preview = html
       .replace(/shortcode_message/g, '<div style="background:#f0fdf4;padding:15px;border-radius:8px;border:1px solid #bbf7d0;"><strong>' + t_efb('name', 'Name') + ':</strong> John Doe<br><strong>' + t_efb('email', 'Email') + ':</strong> john@example.com<br><strong>' + t_efb('message', 'Message') + ':</strong> This is a sample form submission.</div>')
       .replace(/shortcode_title/g, t_efb('message', 'New Message'))
@@ -2154,8 +1966,6 @@ ${blocksHtml}
       .replace(/shortcode_website_url/g, '#')
       .replace(/shortcode_admin_email/g, 'admin@example.com');
 
-    // Render inside an iframe so the email HTML gets its own document context
-    // (avoids inheriting WP admin RTL direction, styles, etc.)
     if (typeof show_modal_efb === 'function') {
       const blob = new Blob([preview], { type: 'text/html;charset=utf-8' });
       const blobUrl = URL.createObjectURL(blob);
@@ -2163,7 +1973,6 @@ ${blocksHtml}
       show_modal_efb(iframeHtml, t_efb('preview', 'Preview'), '', 'saveBox');
       if (typeof state_modal_show_efb === 'function') state_modal_show_efb(1);
     } else {
-      // Fallback to new window
       const win = window.open('', '_blank', 'width=700,height=800');
       if (win) {
         win.document.write(preview);
@@ -2172,16 +1981,12 @@ ${blocksHtml}
     }
   }
 
-  /* ──────────── GLOBAL SETTINGS PANEL ──────────────────────── */
-
-  // AbortController for global settings event listeners (prevents memory leaks)
   let _gsAbortController_efb = null;
 
   function renderGlobalSettings_efb() {
     const panel = document.getElementById('efb-global-settings');
     if (!panel) return;
 
-    // Abort previous event listeners before adding new ones
     if (_gsAbortController_efb) _gsAbortController_efb.abort();
     _gsAbortController_efb = new AbortController();
     const signal = _gsAbortController_efb.signal;
@@ -2229,10 +2034,8 @@ ${blocksHtml}
         </div>
       </div>`;
 
-    // Apply current global styles to canvas visually
     updateCanvasGlobalStyles_efb();
 
-    // Debounce helper for global settings
     let _gsDebounce_efb = null;
     let _gsStateSaved_efb = false;
     function gsChanged_efb() {
@@ -2243,14 +2046,11 @@ ${blocksHtml}
       }, 200);
     }
 
-    // Bind using event delegation on the panel (with AbortController signal)
     panel.addEventListener('input', (e) => {
       const t = e.target;
 
-      // Save undo state once per editing session
       if (!_gsStateSaved_efb) { saveState_efb(); _gsStateSaved_efb = true; }
 
-      // Color picker — immediate visual update
       if (t.matches('.efb-gs-color')) {
         builderState_efb.globalSettings[t.dataset.gs] = t.value;
         const txt = panel.querySelector(`.efb-gs-text[data-gs="${t.dataset.gs}"]`);
@@ -2261,7 +2061,6 @@ ${blocksHtml}
         return;
       }
 
-      // Color text input — debounced + sync color picker
       if (t.matches('.efb-gs-text')) {
         builderState_efb.globalSettings[t.dataset.gs] = t.value;
         const clr = panel.querySelector(`.efb-gs-color[data-gs="${t.dataset.gs}"]`);
@@ -2270,14 +2069,12 @@ ${blocksHtml}
         return;
       }
 
-      // Text inputs (contentWidth) — debounced
       if (t.matches('.efb-gs-input')) {
         builderState_efb.globalSettings[t.dataset.gs] = t.value;
         gsChanged_efb();
         return;
       }
 
-      // Range sliders (borderRadius) — immediate
       if (t.matches('.efb-gs-range')) {
         const lbl = t.closest('.efb-prop-row')?.querySelector('.efb-range-val');
         if (lbl) lbl.textContent = t.value;
@@ -2289,7 +2086,6 @@ ${blocksHtml}
       }
     }, { signal });
 
-    // Select (direction) — fires on change, immediate
     panel.addEventListener('change', (e) => {
       if (e.target.matches('.efb-gs-select')) {
         if (!_gsStateSaved_efb) { saveState_efb(); _gsStateSaved_efb = true; }
@@ -2300,7 +2096,6 @@ ${blocksHtml}
     }, { signal });
   }
 
-  /** Apply global settings visually to the canvas wrapper */
   function updateCanvasGlobalStyles_efb() {
     const gs = builderState_efb.globalSettings;
     const canvas = document.getElementById(CANVAS_ID_efb);
@@ -2312,11 +2107,9 @@ ${blocksHtml}
     canvas.style.direction = gs.direction || 'ltr';
     canvas.style.fontFamily = gs.fontFamily || DEFAULT_FONT_efb;
 
-    // Apply email background to the canvas wrapper
     const wrap = canvas.closest('.efb-builder-canvas-wrap');
     if (wrap) wrap.style.backgroundColor = gs.bgColor || '#f5f5f5';
 
-    // Apply corner radius to first/last block previews for visual consistency
     const br = parseInt(gs.borderRadius) || 0;
     const previews = canvas.querySelectorAll('.efb-block-preview');
     if (br > 0 && previews.length > 0) {
@@ -2331,17 +2124,12 @@ ${blocksHtml}
     }
   }
 
-  /* ──────────── UTILITY ────────────────────────────────────── */
-
   function escHtml_efb(str) {
     if (!str) return '';
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  /* ──────────── INSERT SHORTCODE FROM PANEL ───────────────────── */
-
   function insertShortcodeFromPanel_efb(shortcode) {
-    // If a block is selected, try to insert shortcode into its main text property
     if (builderState_efb.selectedBlock) {
       const block = findBlockById_efb(builderState_efb.selectedBlock);
       if (block) {
@@ -2368,14 +2156,11 @@ ${blocksHtml}
         }
       }
     }
-    // No suitable block selected — copy to clipboard instead
     showNotification_efb('<i class="efb bi-lightbulb me-1"></i>' + t_efb('ebSCSelectBlock', 'Select a text block first, or shortcode copied to clipboard.'), 'info');
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(shortcode).catch(() => {});
     }
   }
-
-  /* ──────────── COPY SHORTCODE TO CLIPBOARD ───────────────────── */
 
   function copyShortcode_efb(code, btn) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2414,9 +2199,6 @@ ${blocksHtml}
     }, 1500);
   }
 
-  /* ──────────── JS-BASED TOOLTIP HANDLER ────────────────────── */
-  // Replaces CSS-only tooltips to avoid overflow clipping in sidebars
-
   let _tooltipEl_efb = null;
   let _tooltipHideTimer_efb = null;
 
@@ -2424,12 +2206,10 @@ ${blocksHtml}
     const builder = document.getElementById(BUILDER_ID_efb);
     if (!builder) return;
 
-    // Clean up previous tooltip element if re-initializing
     if (_tooltipEl_efb && _tooltipEl_efb.parentNode) {
       _tooltipEl_efb.parentNode.removeChild(_tooltipEl_efb);
     }
 
-    // Create tooltip element once
     _tooltipEl_efb = document.createElement('div');
     _tooltipEl_efb.className = 'efb-tooltip-js';
     document.body.appendChild(_tooltipEl_efb);
@@ -2443,7 +2223,6 @@ ${blocksHtml}
       _tooltipEl_efb.textContent = text;
       _tooltipEl_efb.className = 'efb-tooltip-js';
 
-      // Position the tooltip
       const rect = target.getBoundingClientRect();
       const ttWidth = 240;
       const ttHeight = _tooltipEl_efb.offsetHeight || 60;
@@ -2451,37 +2230,30 @@ ${blocksHtml}
       const vpHeight = window.innerHeight;
       const margin = 10;
 
-      // Temporarily show to measure
       _tooltipEl_efb.style.visibility = 'hidden';
       _tooltipEl_efb.style.opacity = '0';
       _tooltipEl_efb.style.display = 'block';
 
-      // Try right, then left, then below
       if (rect.right + margin + ttWidth < vpWidth) {
-        // Show to the right
         _tooltipEl_efb.style.left = (rect.right + margin) + 'px';
         _tooltipEl_efb.style.top = (rect.top + rect.height / 2 - ttHeight / 2) + 'px';
         _tooltipEl_efb.classList.add('efb-tooltip-right');
       } else if (rect.left - margin - ttWidth > 0) {
-        // Show to the left
         _tooltipEl_efb.style.left = (rect.left - margin - ttWidth) + 'px';
         _tooltipEl_efb.style.top = (rect.top + rect.height / 2 - ttHeight / 2) + 'px';
         _tooltipEl_efb.classList.add('efb-tooltip-left');
       } else {
-        // Show below
         _tooltipEl_efb.style.left = (rect.left + rect.width / 2 - ttWidth / 2) + 'px';
         _tooltipEl_efb.style.top = (rect.bottom + margin) + 'px';
         _tooltipEl_efb.classList.add('efb-tooltip-bottom');
       }
 
-      // Clamp to viewport
       const ttRect = _tooltipEl_efb.getBoundingClientRect();
       if (ttRect.top < 0) _tooltipEl_efb.style.top = '4px';
       if (ttRect.bottom > vpHeight) _tooltipEl_efb.style.top = (vpHeight - ttHeight - 4) + 'px';
       if (ttRect.left < 0) _tooltipEl_efb.style.left = '4px';
       if (ttRect.right > vpWidth) _tooltipEl_efb.style.left = (vpWidth - ttWidth - 4) + 'px';
 
-      // Show with animation
       _tooltipEl_efb.classList.add('efb-tooltip-visible');
       _tooltipEl_efb.style.visibility = '';
       _tooltipEl_efb.style.opacity = '';
@@ -2497,8 +2269,6 @@ ${blocksHtml}
       }, 100);
     }, true);
   }
-
-  /* ──────────── EXPORT / IMPORT HTML ────────────────────────── */
 
   function exportHTML_efb() {
     const html = generateFullHTML_efb();
@@ -2517,7 +2287,6 @@ ${blocksHtml}
     const codeArea = document.getElementById('efb-code-editor-textarea');
     if (!codePanel || !codeArea) return;
 
-    // Show clean HTML without EFBDATA metadata
     codeArea.value = generateFullHTML_efb();
     codePanel.style.display = codePanel.style.display === 'none' ? 'block' : 'none';
   }
@@ -2533,7 +2302,6 @@ ${blocksHtml}
       return;
     }
     textarea.value = code;
-    // Reset builder to htmlBlock mode with this code
     builderState_efb.blocks = [{
       id: genId_efb(),
       type: 'htmlBlock',
@@ -2552,8 +2320,6 @@ ${blocksHtml}
     showNotification_efb('<i class="efb bi-check-circle-fill me-1"></i>' + t_efb('ebHTMLApplied', 'HTML code applied!'), 'success');
   }
 
-  /* ──────────── RENDER BLOCKS PANEL (LEFT SIDEBAR) ─────────── */
-
   function renderBlocksPanel_efb() {
     const panel = document.getElementById('efb-blocks-panel');
     if (!panel) return;
@@ -2570,7 +2336,6 @@ ${blocksHtml}
       cat.blocks.push({ type, ...def });
     }
 
-    // Shortcode definitions for the shortcode category tooltip buttons
     const shortcodeDefs = [
       { code: 'shortcode_message', label: t_efb('ebSCMessage', 'Message *'), desc: t_efb('shortcodeMessageInfo', 'Add this shortcode inside an HTML tag to display the message content of an email.'), required: true },
       { code: 'shortcode_title', label: t_efb('ebSCTitle', 'Title'), desc: t_efb('shortcodeTitleInfo', 'Add this shortcode inside a tag to display the title of the email.'), required: false },
@@ -2582,12 +2347,10 @@ ${blocksHtml}
     let html = '';
     for (const [catKey, cat] of Object.entries(categories)) {
       if (catKey === 'shortcode') {
-        // Special rendering for shortcode category
         html += `<div class="efb-block-category">
           <div class="efb-cat-label">${cat.label}</div>
           <div class="efb-cat-blocks">`;
 
-        // Add the message block as draggable (required block)
         cat.blocks.forEach(b => {
           html += `<div class="efb-draggable-block efb-sc-draggable-required" draggable="true" data-block-type="${b.type}" title="${b.label}">
             <i class="efb ${b.icon}"></i>
@@ -2596,13 +2359,11 @@ ${blocksHtml}
           </div>`;
         });
 
-        // Shortcode reference section header
         html += `<div class="efb-sc-section-header">
           <i class="efb bi-code-square"></i>
           <span>${t_efb('ebSCReference', 'Shortcode Reference')}</span>
         </div>`;
 
-        // All 5 shortcode items with tooltips, copy and insert
         shortcodeDefs.forEach(sc => {
           const reqClass = sc.required ? ' efb-sc-item-required' : '';
           const reqBadge = sc.required ? `<span class="efb-sc-req-dot" title="${t_efb('ebSCRequired', 'Required')}">●</span>` : '';
@@ -2643,20 +2404,16 @@ ${blocksHtml}
 
     panel.innerHTML = html;
 
-    // Make blocks draggable to canvas
     panel.querySelectorAll('.efb-draggable-block').forEach(el => {
       el.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('efb-new-block', el.dataset.blockType);
         e.dataTransfer.effectAllowed = 'copy';
       });
-      // Also allow click to add
       el.addEventListener('click', () => {
         addBlock_efb(el.dataset.blockType);
       });
     });
   }
-
-  /* ──────────── TEMPLATES PANEL ────────────────────────────── */
 
   function renderTemplatesPanel_efb() {
     const panel = document.getElementById('efb-templates-panel');
@@ -2673,8 +2430,6 @@ ${blocksHtml}
     html += '</div>';
     panel.innerHTML = html;
   }
-
-  /* ──────────── MAIN BUILDER RENDERER ──────────────────────── */
 
   function initBuilder_efb() {
     const container = document.getElementById(BUILDER_ID_efb);
@@ -2738,12 +2493,10 @@ ${blocksHtml}
       <input type="hidden" id="efb-builder-json" value="" />
     `;
 
-    // Load existing template if any
     const textarea = document.getElementById(TEXTAREA_ID_efb);
     const existingHtml = textarea ? textarea.value : '';
     tryParseExistingTemplate_efb(existingHtml);
 
-    // Render all panels
     renderBlocksPanel_efb();
     renderTemplatesPanel_efb();
     renderGlobalSettings_efb();
@@ -2753,7 +2506,6 @@ ${blocksHtml}
     initTooltipHandler_efb();
     syncToTextarea_efb();
 
-    // Keyboard shortcuts (remove previous to prevent accumulation on re-init)
     if (window._efbKeyHandler) document.removeEventListener('keydown', window._efbKeyHandler);
     window._efbKeyHandler = (e) => {
       if (!document.getElementById(BUILDER_ID_efb)) return;
@@ -2764,7 +2516,6 @@ ${blocksHtml}
         if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable)) return;
         removeBlock_efb(builderState_efb.selectedBlock);
       }
-      // Arrow keys to navigate between blocks
       if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && builderState_efb.selectedBlock) {
         const active = document.activeElement;
         if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable)) return;
@@ -2776,7 +2527,6 @@ ${blocksHtml}
           builderState_efb.selectedBlock = builderState_efb.blocks[newIdx].id;
           renderCanvas_efb();
           renderPropertiesPanel_efb();
-          // scroll into view
           const el = document.querySelector(`.efb-canvas-block[data-block-id="${builderState_efb.selectedBlock}"]`);
           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
@@ -2805,15 +2555,12 @@ ${blocksHtml}
     showNotification_efb('<i class="efb bi-check-circle-fill me-1"></i>' + t_efb('ebTemplateReset', 'Template reset to default!'), 'success');
   }
 
-  /* ──────────── INJECT CSS ──────────────────────────────────── */
-
   function injectStyles_efb() {
     if (document.getElementById('efb-email-builder-styles')) return;
     const style = document.createElement('style');
     style.id = 'efb-email-builder-styles';
     style.textContent = `
 
-    /* ── Builder Container ── */
     #${BUILDER_ID_efb} {
       border: 1px solid #e2e8f0;
       border-radius: 8px;
@@ -2824,11 +2571,9 @@ ${blocksHtml}
       position: relative;
     }
 
-    /* ── RTL-safe spacing utilities ── */
     #${BUILDER_ID_efb} .me-1 { margin-inline-end: .25rem; }
     #${BUILDER_ID_efb} .ms-1 { margin-inline-start: .25rem; }
 
-    /* ── Toolbar ── */
     .efb-builder-toolbar {
       display: flex;
       justify-content: space-between;
@@ -2861,7 +2606,6 @@ ${blocksHtml}
     .efb-tb-btn.efb-tb-danger:hover { background: #fef2f2; border-color: #fca5a5; }
     .efb-tb-sep { width: 1px; height: 20px; background: #e2e8f0; margin: 0 4px; }
 
-    /* ── Layout ── */
     .efb-builder-layout {
       display: grid;
       grid-template-columns: 220px 1fr 260px;
@@ -2871,7 +2615,6 @@ ${blocksHtml}
       overflow: hidden;
     }
 
-    /* ── Left Sidebar ── */
     .efb-builder-sidebar-left {
       background: #ffffff;
       border-right: 1px solid #e2e8f0;
@@ -2903,7 +2646,6 @@ ${blocksHtml}
     .efb-stab-panel { display: none; padding: 8px; }
     .efb-stab-panel.active { display: block; }
 
-    /* ── Blocks Panel ── */
     .efb-block-category { margin-bottom: 12px; }
     .efb-cat-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; padding: 4px 0; letter-spacing: 0.5px; }
     .efb-cat-blocks { display: flex; flex-direction: column; gap: 3px; }
@@ -2925,7 +2667,6 @@ ${blocksHtml}
     .efb-draggable-block:active { cursor: grabbing; }
     .efb-draggable-block i { font-size: 14px; width: 16px; text-align: center; }
 
-    /* ── Templates Panel ── */
     .efb-templates-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .efb-template-card {
       padding: 12px 8px;
@@ -2941,7 +2682,6 @@ ${blocksHtml}
     .efb-tpl-name { font-size: 11px; font-weight: 600; color: #334155; }
     .efb-tpl-count { font-size: 10px; color: #94a3b8; }
 
-    /* ── Canvas ── */
     .efb-builder-canvas-wrap {
       background: #f1f5f9;
       overflow-y: auto;
@@ -2965,7 +2705,6 @@ ${blocksHtml}
       text-align: center;
     }
 
-    /* ── Canvas Blocks ── */
     .efb-canvas-block {
       position: relative;
       margin: 4px 0;
@@ -3009,12 +2748,10 @@ ${blocksHtml}
     .efb-blk-btn.efb-blk-btn-danger:hover { background: #fef2f2; color: #ef4444; }
     .efb-block-preview { padding: 4px; }
 
-    /* Drag indicators */
     .efb-canvas-block.efb-dragging { opacity: 0.4; }
     .efb-canvas-block.efb-drop-above { border-top: 3px solid #667eea; }
     .efb-canvas-block.efb-drop-below { border-bottom: 3px solid #667eea; }
 
-    /* ── Right Sidebar (Properties) ── */
     .efb-builder-sidebar-right {
       background: #ffffff;
       border-left: 1px solid #e2e8f0;
@@ -3061,7 +2798,6 @@ ${blocksHtml}
       line-height: 1.4;
     }
 
-    /* ── Property Inputs ── */
     .efb-prop-row { margin-bottom: 8px; }
     .efb-prop-label {
       display: block;
@@ -3092,7 +2828,6 @@ ${blocksHtml}
     .efb-prop-font-select { font-size: 13px; }
     .efb-prop-range { width: 100%; cursor: pointer; accent-color: #667eea; }
 
-    /* Color picker */
     .efb-prop-color-row { }
     .efb-color-picker-wrap { display: flex; gap: 6px; align-items: center; }
     .efb-prop-color {
@@ -3101,7 +2836,6 @@ ${blocksHtml}
     }
     .efb-prop-color-text { flex: 1; font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace; font-size: 12px; letter-spacing: 0.5px; direction: ltr; text-align: start; }
 
-    /* ── Shortcode Buttons ── */
     .efb-shortcode-btns { margin: 4px 0 10px; }
     .efb-shortcode-btns small { display: block; margin-bottom: 4px; }
     .efb-sc-btn-wrap { display: flex; flex-wrap: wrap; gap: 3px; }
@@ -3118,7 +2852,6 @@ ${blocksHtml}
     }
     .efb-sc-btn:hover { background: #c7d2fe; }
 
-    /* ── Shortcode Chip Editor ── */
     .efb-chip-editor {
       width: 100%;
       padding: 5px 8px;
@@ -3196,7 +2929,6 @@ ${blocksHtml}
       color: #4338ca;
     }
 
-    /* ── 4-Sided Padding Editor ── */
     .efb-padding-editor {
       display: flex;
       align-items: center;
@@ -3269,7 +3001,6 @@ ${blocksHtml}
       background: #fefeff;
     }
 
-    /* ── Social link cards & icon picker ── */
     .efb-social-link-card { background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:8px; overflow:hidden; }
     .efb-sl-header { display:flex; align-items:center; gap:6px; padding:6px 8px; background:#f1f5f9; border-bottom:1px solid #e2e8f0; }
     .efb-sl-header .efb-blk-btn { margin-inline-start:auto; }
@@ -3295,7 +3026,6 @@ ${blocksHtml}
     }
     .efb-btn-add:hover { background: #dcfce7; }
 
-    /* ── Child Properties ── */
     .efb-child-props {
       padding: 8px;
       margin: 6px 0;
@@ -3304,7 +3034,6 @@ ${blocksHtml}
       border-radius: 6px;
     }
 
-    /* ── Code Editor ── */
     #efb-code-editor-panel {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -3341,7 +3070,6 @@ ${blocksHtml}
     }
     .efb-code-textarea:focus { outline: none; }
 
-    /* ── Notifications ── */
     .efb-builder-notification {
       position: absolute;
       top: 55px;
@@ -3360,7 +3088,6 @@ ${blocksHtml}
     .efb-notif-info { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
     @keyframes efbNotifIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 
-    /* ── Custom Scrollbar ── */
     .efb-sidebar-content::-webkit-scrollbar,
     .efb-builder-canvas-wrap::-webkit-scrollbar,
     .efb-builder-sidebar-right::-webkit-scrollbar {
@@ -3382,7 +3109,6 @@ ${blocksHtml}
     .efb-builder-sidebar-right::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
     }
-    /* Firefox scrollbar */
     .efb-sidebar-content,
     .efb-builder-canvas-wrap,
     .efb-builder-sidebar-right {
@@ -3390,7 +3116,6 @@ ${blocksHtml}
       scrollbar-color: #cbd5e1 transparent;
     }
 
-    /* ── Focus-Visible (Accessibility) ── */
     .efb-tb-btn:focus-visible,
     .efb-blk-btn:focus-visible,
     .efb-stab:focus-visible,
@@ -3415,7 +3140,6 @@ ${blocksHtml}
       outline: none;
     }
 
-    /* ── Color Preset Swatches ── */
     .efb-color-presets {
       display: flex;
       flex-wrap: wrap;
@@ -3438,7 +3162,6 @@ ${blocksHtml}
       z-index: 1;
     }
 
-    /* ── Responsive ── */
     @media (max-width: 900px) {
       .efb-builder-layout {
         grid-template-columns: 1fr;
@@ -3448,7 +3171,6 @@ ${blocksHtml}
       .efb-builder-sidebar-right { border-left: none; border-top: 1px solid #e2e8f0; max-height: 300px; }
     }
 
-    /* ── Shortcode Section (Blocks Panel) ── */
     .efb-sc-draggable-required {
       border-color: #a5b4fc !important;
       background: #eef2ff !important;
@@ -3582,7 +3304,6 @@ ${blocksHtml}
       color: #16a34a;
     }
 
-    /* ── Hover Tooltip (JS-positioned — rendered at builder root to avoid overflow clip) ── */
     .efb-tooltip-js {
       position: fixed;
       z-index: 9999;
@@ -3636,15 +3357,12 @@ ${blocksHtml}
       transform: translateX(-50%);
       border-top-color: #1e293b;
     }
-    /* Hide old CSS tooltips since we use JS now */
     [data-efb-tooltip] { position: relative; }
     [data-efb-tooltip]::after,
     [data-efb-tooltip]::before { display: none !important; }
     `;
     document.head.appendChild(style);
   }
-
-  /* ──────────── PUBLIC API ──────────────────────────────────── */
 
   window.efbEmailBuilder = {
     init: function () {

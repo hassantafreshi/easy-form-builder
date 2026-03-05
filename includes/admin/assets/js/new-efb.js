@@ -1,9 +1,4 @@
-//Copyright 2021-2024
-//Easy Form Builder
-//WhiteStudio.team
-//EFB.APP
 
-// Define deepFreeze_efb at the top for availability
 function deepFreeze_efb(obj) {
   if (typeof obj !== "object" || obj === null) return obj;
   Object.keys(obj).forEach((key) => {
@@ -65,15 +60,6 @@ function efb_var_waitng(time) {
 }
 efb_var_waitng(50)
 
-/**
- * Build a modern confirm/delete modal body with icon, title, message and item label.
- * @param {string} variant  - 'danger' | 'warning' | 'info'
- * @param {string} iconCls  - Bootstrap icon class e.g. 'bi-trash'
- * @param {string} title    - Header text
- * @param {string} message  - Main question text
- * @param {string} itemLabel - Optional item name to highlight
- * @returns {string} HTML string
- */
 const efb_build_confirm_body = (variant = 'danger', iconCls = 'bi-trash', title = '', message = '', itemLabel = '') => {
   const iconType = variant === 'warning' ? 'efb-icon-warning' : variant === 'info' ? 'efb-icon-info' : 'efb-icon-danger';
   const labelHtml = itemLabel ? `<b>${itemLabel}</b>` : '';
@@ -98,7 +84,6 @@ const show_modal_efb = (body, title, icon, type) => {
   else if (type == "deleteBox" || type=="duplicateBox") {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
-    // Add confirm-dialog class for compact centered layout
     if (!document.getElementById('settingModalEfb_').classList.contains('efb-confirm-dialog')) {
       document.getElementById('settingModalEfb_').classList.add('efb-confirm-dialog');
     }
@@ -143,7 +128,6 @@ let add_buttons_zone_efb = (state, id) => {
   </div>
   </div>`;
   const floatEnd = id == "dropZoneEFB" ? 'float-end' : ``;
-  //in the php mx-2 should be mx-3
   const btnPos = id != "dropZoneEFB" ? ' text-center mx-2' : ''
   let dis = ''
   if (true) {
@@ -228,7 +212,6 @@ function copyCodeEfb(id , tagid = '') {
 }
 function validExtensions_efb_fun(type, fileType,indx) {
   type= type.toLowerCase();
-  console.log(type, fileType,indx)
   const tt = valj_efb.length>1 && valj_efb[indx].hasOwnProperty('file_ctype') ? valj_efb[indx].file_ctype.replaceAll(',',' , ') : '';
   filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif',
   'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg',
@@ -318,18 +301,15 @@ function alert_message_efb(title, message, sec, alertType) {
     const rtl = isRtl ? 'rtl-text' : '';
     const isMobile = window.innerWidth < 768;
 
-    // ایجاد container اگر موجود نباشد / Create fixed container if not exists
     let container = document.getElementById('alert_container_efb');
     let width = document.getElementById('adminmenuback')?.offsetWidth || 0;
-    console.log('[EFB Alert] Menu width:', width , document.getElementById('adminmenuback'));
-    width = width > 0 ? width + 15 : 15; // اضافه کردن فاصله به عرض منو
+    width = width > 0 ? width + 15 : 15;
     if (!container) {
       container = document.createElement('div');
       container.id = 'alert_container_efb';
       container.className = 'efb';
       container.style.cssText = `position:fixed; top:80px; ${isRtl ? 'right' : 'left'}:${width}px; z-index:99999; width:${isMobile ? 'calc(100vw - 40px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
       document.body.appendChild(container);
-      console.log('[EFB Alert] Container created');
     }
 
     const alertHtml = `
@@ -360,7 +340,6 @@ function alert_message_efb(title, message, sec, alertType) {
     }, sec);
 
   } catch (error) {
-    console.error('[EFB Alert] Error:', error);
     alert(message);
   }
 }
@@ -385,53 +364,13 @@ function noti_message_efb(message, alert ,id) {
   </div>`
 }
 
-/* function fun_prev_send() {
-  var stp = Number(valj_efb[0].steps) + 1;
-  document.getElementById('efb-final-step').innerHTML = loading_messge_efb();
-  var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
-  prev_s_efb = document.querySelector('[data-step="step-' + (current_s_efb-1) + '-efb"]');
-  if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
-  document.querySelector('[data-step="step-' + current_s_efb + '-efb"]').classList.toggle("d-none");
-  if (stp == 2) {
-    document.getElementById("btn_send_efb").classList.toggle("d-none");
-    if(document.getElementById("gRecaptcha")) document.getElementById("gRecaptcha").classList.toggle("d-none");
-  } else {
-    document.getElementById("next_efb").classList.toggle("d-none");
-  }
-  var s = "" + (current_s_efb - 1) + "";
-  var val = valj_efb.find(x => x.step == s);
-  if(Number(valj_efb[0].show_icon)!=1){
-    document.getElementById("title_efb").className = val['label_text_color'] + ' efb text-center mt-1';
-    document.getElementById("desc_efb").className = val['message_text_color'] + " efb text-center fs-6";
-    document.getElementById("title_efb").textContent = val['name'];
-    document.getElementById("desc_efb").textContent = val['message'];
-  }
-  if(document.getElementById("prev_efb"))document.getElementById("prev_efb").classList.toggle("d-none");
-  current_s.classList.add('d-none');
-  prev_s_efb.classList.remove('d-none');
-  current_s_efb -= 1;
-  localStorage.setItem('step', current_s_efb);
-  setProgressBar_efb(current_s_efb, stp);
-} */
-/* function verifyCaptcha(token) {
-  const captchaEl = document.querySelector('.g-recaptcha.active');
-  console.log(token);
-  if (token.length > 1) {
-    const id = valj_efb[0].steps > 1 ? 'next_efb' : 'btn_send_efb'
-    document.getElementById(id).classList.remove('disabled');
-    setTimeout(() => { timeOutCaptcha() }, 61000)
-  }
-} */
-
 function fun_el_select_in_efb(el) {
   const validSelectElements = new Set(['select', 'multiselect', 'conturyList', 'stateProvince','statePro','country','city', 'cityList', 'paySelect', 'payMultiselect']);
   return validSelectElements.has(el);
-  //return  el == 'select' || el == 'multiselect' || el == 'conturyList' || el == 'stateProvince' || el == 'cityList'||  el == 'paySelect' || el == 'payMultiselect' ? true : false
  }
 function fun_el_check_radio_in_efb(el) {
   const validElements = new Set(['radio', 'checkbox', 'payRadio', 'payCheckbox', 'imgRadio', 'chlRadio', 'chlCheckBox']);
   return  validElements.has(el);
-   // return el == 'radio' || el == 'checkbox' || el == 'payRadio' || el == 'payCheckbox' || el == 'imgRadio' || el == 'chlRadio' || el == 'chlCheckBox' ? true : false
   }
 
 function type_validate_efb(type) {
@@ -439,11 +378,7 @@ function type_validate_efb(type) {
 }
 
 async function fun_offline_Efb() {
-  //console.log('fun_offline_Efb');
   const find_by_value = (val) => {
-      //console.log(val);
-      //remove all space
-      //find in valj_efb by value
       const index = valj_efb.findIndex(row => row.value === val);
       if (index > -1) {
           return valj_efb[index];
@@ -454,7 +389,6 @@ async function fun_offline_Efb() {
   let el = '';
   if(localStorage.hasOwnProperty('sendback')==false) return;
   const values =   JSON.parse(localStorage.getItem('sendback'))
-  //console.log(values);
   let temp, id;
   for (let value of values) {
 
@@ -472,7 +406,6 @@ async function fun_offline_Efb() {
       case 'firstName':
       case 'lastName':
       case 'prcfld':
-        //console.log(value.id_ob, value.value);
         document.getElementById(value.id_ob).value = value.value;
 
         el=value.type;
@@ -495,8 +428,6 @@ async function fun_offline_Efb() {
         if(el=='contury' ||el=='conturyList' ){
             el = valj_efb.findIndex(x => x.id_ == value.id_);
             id= valj_efb[el].id_;
-            //console.log(id, temp, el, 'pubSelect',true);
-            //idField,iso2_country, indx_state,fieldType,autofilled=false
             await callFetchStatesPovEfb(id+'_options', temp, el, 'pubSelect',true);
           }
 
@@ -512,11 +443,9 @@ async function fun_offline_Efb() {
 
             if(typeof autofilled_search_value_efb!== 'undefined'){
               temp = sendBack_emsFormBuilder_pub.find(x => x.id_ == id);
-              //console.log(id, temp, el, 'pubSelect',true);
               iso2_country = temp.cont_;
               iso2_statePove = temp.statePrev_;
             }
-            console.log(id+'_options',iso2_country,iso2_statePove, el)
             await callFetchCitiesEfb(id+'_options',iso2_country,iso2_statePove, el,'pubSelect',true);
 
           }
@@ -532,22 +461,18 @@ async function fun_offline_Efb() {
         break;
         case 'conturyList':
         case 'contury':
-          //console.log(value);
           id = valj_efb.findIndex(x => x.id_ == value.id_);
           el = find_by_value(value.value);
           temp = el.id_op
 
-          //console.log(id,el,temp);
           valj_efb[id].hasOwnProperty('contury') ? valj_efb[id].country = temp : Object.assign(valj_efb[id], { country: temp });
           document.getElementById(value.id_ob).value = value.value;
-          //console.log(valj_efb[id].country ,valj_efb[id] );
           el=value.type;
         break;
       case 'multiselect':
       case 'payMultiselect':
 
         const op = document.getElementById(`${value.id_}_options`)
-        //console.log(op);
         op.innerHTML = value.value.replaceAll('@efb!', ',');
         const vs = value.value.split('@efb!');
         for (let v of vs) {
@@ -612,7 +537,6 @@ async function fun_offline_Efb() {
       case 'persiaPay':
       break;
       case 'mobile':
-        console.log('mobile', value);
         let v = value.value.split('+');
         el = document.getElementById(value.id_ob+'_');
         let storedPhoneNumber =value.value;
@@ -662,8 +586,6 @@ function funTnxEfb(val, title, message) {
   `
 }
 
-/* Mobile/Desktop view toggle for builder */
-
 function calPLenEfb(len) {
   let p = 2
   if (len <= 5) { p = 40 }
@@ -693,11 +615,7 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
 	alert_message_efb('', msg, 17, 'danger');
     return;
   }
-  //v3.6.2  updated
-  console.log('fun_upload_file_api_emsFormBuilder 2345')
-  console.log(id , type , tp , file)
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
-  console.log(indx , files_emsFormBuilder)
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;
   let r = ""
@@ -712,15 +630,10 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
     sid = vj.sid;
   }
     nonce_msg = efb_var.nonce ?? '';
-  //const nonce_msg = form_id==0 ? efb_var.nonce_msg : fun_sid_efb(form_id);
-  console.log(`form_id[${form_id}] nonce_msg[${nonce_msg}]`);
   const page_id = efb_var.page_id ;
-  //jQuery(function ($) {
     const fd = new FormData();
     const idn =  id + '_';
-    //const file = document.getElementById(idn);
     setTimeout(() => {
-      //const caption = document.querySelector(idn);
       uploadFile_api(file, id, tp, nonce_msg ,indx ,idn,page_id,form_id,sid);
       return true;
     }, 500);
@@ -728,13 +641,8 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
 function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
   const progressBar = document.querySelector('#progress-bar');
   const idB =id+'-prB';
-  console.log('uploadFile_api 2385')
-  console.log(`uploadFile_api 2385 file[${file}] id[${id}] pl[${pl}] nonce_msg[${nonce_msg}] indx[${indx}] idn[${idn}] page_id[${page_id}]`)
-  //setTimeout(() => {
       fetch_uploadFile(file, id, pl, nonce_msg,page_id,fid,sid).then((data) => {
-        console.log('Upload response:', data);
 
-        // بررسی ساختار response
         var responseData = data;
         if (data.hasOwnProperty('data')) {
           responseData = data.data;
@@ -757,9 +665,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
             page_id: page_id,
             form_id: form_id,
           }];
-          console.log('File uploaded successfully');
           fun_sendBack_emsFormBuilder(o[0]);
-          //remove indx from files_emsFormBuilder
           files_emsFormBuilder.splice(indx, 1);
           const el = document.getElementById(idB)
           if(el){
@@ -768,7 +674,6 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
           }
           if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
         } else {
-          // بررسی منابع مختلف پیام خطا
           var errorMessage = 'Upload failed';
           if (responseData.hasOwnProperty('file') && responseData.file.hasOwnProperty('error')) {
             errorMessage = responseData.file.error;
@@ -781,7 +686,6 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
           }
 
           const el = document.getElementById(idB);
-          console.error('Upload error:', errorMessage, 'Full response:', data);
 		  const baseMsg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
 		  const fullMsg = errorMessage ? `${baseMsg}<br>${errorMessage}` : baseMsg;
 		  alert_message_efb('', fullMsg, 300, 'danger');
@@ -793,9 +697,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
       })
       .catch((error) => {
         const el = document.getElementById(idB);
-        console.error('Upload fetch error:', error);
 
-        // بررسی نوع خطا
         var errorMessage = 'Network error or upload failed';
         if (typeof error === 'string') {
           errorMessage = error;
@@ -812,7 +714,6 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
           el.textContent = '0% = Error: ' + file.name;
         }
 
-        // Reset file state
         files_emsFormBuilder[indx].state = 0;
       });
 }
@@ -820,8 +721,6 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
   var idB =id+'-prB';
   return new Promise((resolve, reject) => {
     const formData = new FormData();
-   // const fid = efb_var.hasOwnProperty('id') ? efb_var.id :0;
-    console.log(nonce_msg);
     formData.append('async-upload', file);
     formData.append('id', id);
     formData.append('pl', pl);
@@ -844,17 +743,13 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
     xhr.addEventListener('load', () => {
     if (xhr.status >= 200 && xhr.status < 300) {
       try {
-        // Clean response text از whitespace و HTML tags اضافی
         var cleanResponseText = xhr.responseText.trim();
 
-        // بررسی اینکه response با { شروع می‌شود (JSON valid)
         if (!cleanResponseText.startsWith('{') && !cleanResponseText.startsWith('[')) {
-          // اگر response HTML error است، سعی کن JSON را extract کن
           var jsonMatch = cleanResponseText.match(/\{.*\}/s);
           if (jsonMatch) {
             cleanResponseText = jsonMatch[0];
           } else {
-            console.error('Invalid JSON response:', cleanResponseText);
             reject('Server returned invalid JSON: ' + cleanResponseText.substring(0, 100));
             return;
           }
@@ -863,8 +758,6 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
         const response = JSON.parse(cleanResponseText);
         resolve(response);
       } catch (parseError) {
-        console.error('JSON Parse Error:', parseError);
-        console.error('Original Response:', xhr.responseText);
         reject('Invalid JSON response from server. Check console for details.');
       }
     } else {
@@ -878,7 +771,6 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
     xhr.send(formData);
   });
 }
-// Polyfill برای findIndex در IE
 if (!Array.prototype.findIndex) {
   Array.prototype.findIndex = function(predicate) {
     if (this == null) {
@@ -904,8 +796,8 @@ function santize_string_efb(str){
   const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
   return  str.replaceAll(regexp,'do not use HTML tags');
 }
-window.addEventListener('offline', (e) => { console.warn('offline'); });
-window.addEventListener('online', (e) => { console.warn('online'); });
+window.addEventListener('offline', (e) => {  });
+window.addEventListener('online', (e) => {  });
  function fun_show_val_range_efb(id ){
   document.getElementById(id+'_rv').innerText=document.getElementById(id+'_').value;
  }
@@ -1033,7 +925,6 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
   if (found) {
     filtered = filtered.trim().replace(/ +/g, ' ');
   }
-  console.log(filtered);
   return filtered;
 }
 
@@ -1053,9 +944,7 @@ function sendback_state_handler_efb(id_, state, step){
     if(document.getElementById('btn_send_efb') && document.getElementById('btn_send_efb').classList.contains('disabled')==false )document.getElementById('btn_send_efb').classList.add('disabled');
     else if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('disabled')==false )document.getElementById('next_efb').classList.add('disabled');
   }else if(indx>-1 && state==true && sendback_efb_state.length>0){
-    //remove for  sendback_efb_state by id_
     sendback_efb_state.splice(indx,1);
-    //get sendback_efb_state by step if exists return true else return false
     setTimeout(() => {
       const indx_ = sendback_efb_state.findIndex(x=>x.step==step);
       if(indx_==-1 || sendback_efb_state.length==0){
@@ -1157,7 +1046,7 @@ function handle_change_event_efb(el){
               return 0;
       }
             return 1;
-    }//end validate_len_efb
+    }
     const formid = el.dataset.hasOwnProperty('formid') ? el.dataset.formid : -1;
     valj_efb =  get_structure_by_form_id_efb(formid);
     let ob = valj_efb.find(x => x.id_ === el.dataset.vid);
@@ -1177,8 +1066,6 @@ function handle_change_event_efb(el){
         return
       }
     }
-    console.log(el);
-    console.log(ob);
     switch (el.type) {
       case "text":
       case "color":
@@ -1193,8 +1080,6 @@ function handle_change_event_efb(el){
           value = el.value;
          return;
         }else if(el.classList.contains("pdpF2")==true){
-          //1404-11-13
-          //check value format dddd-dd-dd
           const pdp_regex = /^\d{4}-\d{2}-\d{2}$/;
           if(!pdp_regex.test(el.value)){
             el.className = colorBorderChangerEfb(el.className, "border-danger");
@@ -1209,7 +1094,6 @@ function handle_change_event_efb(el){
           value = el.value;
         }
         if(validate_len_efb()==0 && (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox")){
-          //console.log('validate_len_efb()==0!!!');
           if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
          return;
         }else {
@@ -1296,7 +1180,6 @@ function handle_change_event_efb(el){
              let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
               iso_con = el.options[el.selectedIndex].dataset.isoc
               iso_state = el.options[el.selectedIndex].dataset.iso
-             // fun_check_link_city_efb(iso_con,iso_state , temp,form_id)
         }
         break;
       case "range":
@@ -1357,7 +1240,6 @@ function handle_change_event_efb(el){
     const form_id = el.dataset.hasOwnProperty('formid') ? el.dataset.formid : 0;
     if(state==false && value.length > 0)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
     if (value != "" || value.length > 0) {
-      console.log('ob',ob);
       const type = ob.type;
       const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
       let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder,form_id:  form_id }];
@@ -1371,7 +1253,6 @@ function handle_change_event_efb(el){
           p = price_efb.length > 0 ? { price: price } : { price: q.price }
         }
         Object.assign(o[0], p)
-        console.log('3090');
 
         fun_sendBack_emsFormBuilder(o[0]);
         fun_total_pay_efb(form_id)
@@ -1386,14 +1267,11 @@ function handle_change_event_efb(el){
           o[0]="";
         }
 
-        console.log('3102',el);
         fun_sendBack_emsFormBuilder(o[0]);
       }else if (o[0].type=="email"){
 
-        console.log('3105',el);
         fun_sendBack_emsFormBuilder(o[0]);
       }else {
-        console.log('3108',el);
 
         fun_sendBack_emsFormBuilder(o[0]);
       }
@@ -1413,22 +1291,18 @@ offset_view_efb=()=>{
 get_row_sendback_by_id_efb=(id_)=>{
  return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)
 }
-//end payment functions
 function fun_total_pay_efb(form_id) {
   let total = 0;
   if(valj_efb==undefined || valj_efb==null || valj_efb.length==0){
-    console.error('valj_efb not found!')
     if(Number(form_id)!=Number(form_ID_emsFormBuilder)) valj_efb = get_structure_by_form_id_efb(form_id);
     return 0;
   }
   updateTotal_efb = (i ,form_id) => {
-    //totalpayEfb
      if(Number(form_id)!=Number(form_ID_emsFormBuilder)) valj_efb = get_structure_by_form_id_efb(form_id);
     for (const l of document.querySelectorAll(".totalpayEfb")) {
       l.innerHTML = Number(i).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
       if(l.classList.contains('paypal')){
         const paypal_btn = document.querySelectorAll(`.paypalEfb[data-formid="${form_id}"]`);
-        console.log('paypal_btn',paypal_btn);
         if (paypal_btn.length) {
           Number(i) > 0 ? paypal_btn.forEach(p => p.classList.remove('disabled')) : paypal_btn.forEach(p => p.classList.add('disabled'));
         }
@@ -1441,7 +1315,6 @@ function fun_total_pay_efb(form_id) {
   setTimeout(() => { updateTotal_efb(total,form_id); }, 800);
   if(valj_efb[0].getway=="persiaPay" && typeof fun_total_pay_persiaPay_efn=="function"){ fun_total_pay_persiaPay_efn(total)}
   else if(valj_efb[0].getway=="persiaPay"){
-    //console.error('pyament persia not loaded (fun_total_pay_persiaPay_efn)')
   }else if(valj_efb[0].getway=="paypal" && typeof fun_total_pay_paypal_efn=="function"){ fun_total_pay_paypal_efn(total)}
 }
 fun_currency_no_convert_efb = (currency, number) => {
@@ -1451,18 +1324,13 @@ fun_disabled_all_pay_efb = () => {
   let type = '';
   if(valj_efb[0].getway!="persiaPay")document.getElementById('stripeCardSectionEfb').classList.add('d-none');
   for (let o of valj_efb) {
-    //console.log(o.type.includes('pay'),o);
     if (o.hasOwnProperty('price')==true || (o.hasOwnProperty('type') && o.type=='prcfld')) {
-      //|| o.type.includes('pay')==true && o.type.includes('payment')==false
-      //console.log(o.hasOwnProperty('parent'));
       if (o.hasOwnProperty('parent')) {
         const p = valj_efb.findIndex(x => x.id_ == o.parent);
         if (p==-1) continue;
         if(valj_efb[p].hasOwnProperty('type')==false) continue;
         type = valj_efb[p].type.toLowerCase();
-        //if( type != "radio"  && type != "checkbox" && type != "select") continue;
         if(type.includes('pay')==false) continue;
-        //console.log(valj_efb[p])
         let ov = document.querySelector(`[data-vid="${o.parent}"]`);
         ov.classList.remove('payefb');
         ov.classList.add('disabled');
@@ -1476,11 +1344,10 @@ fun_disabled_all_pay_efb = () => {
             ov.classList.add('disabled');
             ov.classList.remove('payefb');
             ov.disabled = true;
-          }//end for
-        }//end if multiselect
+          }
+        }
       }else{
         let ov = document.querySelector(`[data-vid="${o.id_}"]`);
-        //console.log(ov)
         ov.classList.add('disabled');
         ov.disabled = true;
         ov.classList.remove('payefb');
@@ -1489,7 +1356,6 @@ fun_disabled_all_pay_efb = () => {
   }
 }
 add_ui_totalprice_efb = (rndm ,iVJ) => {
-  //${valj_efb[indx]. valj_efb[indx].el_text_color}
   return  `
   <!-- total Price -->
     <label class="efb totalpayEfb  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].classes.replace(`,`, ` `)}  mt-1"   data-id="${rndm}-el" id="${rndm}_">
@@ -1498,14 +1364,8 @@ add_ui_totalprice_efb = (rndm ,iVJ) => {
   <!-- end total Price -->
   `
 }
-//end payment functions
 
 fun_get_links_from_string_Efb=(str , handler)=>{
-  /*
-  handler : false mean return export link and anchor text
-  handler : true mean return string with anchor tag
-  */
-  //let str = "Here is a link [test1](https://github.com/hassantafreshi/), and here is another [test2](https://github.com/hassantafreshi/another-repo)";
   if(handler==false){
     let regex = /\[([^\]]+)\]\(([^)]+)\)/g;
     let match;
@@ -1517,33 +1377,26 @@ fun_get_links_from_string_Efb=(str , handler)=>{
         let url = match[2];
         r.push({text:anchorText,url:url})
     }
-    //console.log(r);
     return [state,r]
   }else{
-   // let str = "Here is a link [test1](https://github.com/hassantafreshi/), and here is another [test2](https://github.com/hassantafreshi/another-repo)";
 
     str= str.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(_, anchorText, url) {
           state=true;
         return `<a href="${url}" target="_blank")>${anchorText}</a>`;
     });
 
-    //console.log(str);
     return str;
   }
 
 }
 
 async function fun_valj_efb_run(form_id){
-  console.log(form_id ,valj_efb_new);
   form_id = isNaN(form_id) ? form_id : parseInt(form_id);
   form_ID_emsFormBuilder = form_id;
   const r = valj_efb_new.find(x=>x.id ==form_id);
-  console.log('fun_valj_efb_run',r);
   valj_efb = r.form_structer;
   return  valj_efb ;
 }
-
-//3.6.8 end
 
 function maps_os_pro_efb(previewSate, pos, rndm, iVJ){
     return `

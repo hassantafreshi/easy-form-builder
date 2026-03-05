@@ -1,11 +1,4 @@
 
-/**
- * نمایش نمودار نتایج نظرسنجی
- * Render Survey Results Chart
- * @param {Object} data - Survey results data from server
- * @param {HTMLElement} container - Container element to append chart
- * @param {number} formId - Form ID
- */
 function renderSurveyResultsChart(data, container, formId) {
   if (!data.survey_results || data.survey_results.length === 0) return;
 
@@ -13,10 +6,8 @@ function renderSurveyResultsChart(data, container, formId) {
   const results = data.survey_results;
   const labels = data.survey_labels || { title: 'Survey Results', responses: 'Responses' };
 
-  // محاسبه total برای همه نتایج
   const totalResponses = results.reduce((sum, r) => sum + (r.total || r.count || 0), 0);
 
-  // ایجاد container برای نمودارها
   const chartContainer = document.createElement('div');
   chartContainer.className = 'efb survey-results-container mt-4 p-3';
   chartContainer.innerHTML = `
@@ -30,25 +21,23 @@ function renderSurveyResultsChart(data, container, formId) {
 
   const chartsWrapper = document.getElementById(`survey-charts-${formId}`);
 
-  // رنگ‌های نمودار
   const colors = [
-    'rgba(32, 42, 141, 0.8)',   // آبی تیره
-    'rgba(255, 75, 147, 0.8)',  // صورتی
-    'rgba(75, 192, 192, 0.8)',  // فیروزه‌ای
-    'rgba(255, 159, 64, 0.8)',  // نارنجی
-    'rgba(153, 102, 255, 0.8)', // بنفش
-    'rgba(255, 99, 132, 0.8)',  // قرمز
-    'rgba(54, 162, 235, 0.8)',  // آبی روشن
-    'rgba(255, 206, 86, 0.8)',  // زرد
-    'rgba(75, 192, 192, 0.8)',  // سبز آبی
-    'rgba(199, 199, 199, 0.8)'  // خاکستری
+    'rgba(32, 42, 141, 0.8)',
+    'rgba(255, 75, 147, 0.8)',
+    'rgba(75, 192, 192, 0.8)',
+    'rgba(255, 159, 64, 0.8)',
+    'rgba(153, 102, 255, 0.8)',
+    'rgba(255, 99, 132, 0.8)',
+    'rgba(54, 162, 235, 0.8)',
+    'rgba(255, 206, 86, 0.8)',
+    'rgba(75, 192, 192, 0.8)',
+    'rgba(199, 199, 199, 0.8)'
   ];
 
-  // رنگ‌های NPS
   const npsColors = {
-    detractors: 'rgba(239, 68, 68, 0.8)',  // قرمز
-    passives: 'rgba(251, 191, 36, 0.8)',   // زرد
-    promoters: 'rgba(34, 197, 94, 0.8)'    // سبز
+    detractors: 'rgba(239, 68, 68, 0.8)',
+    passives: 'rgba(251, 191, 36, 0.8)',
+    promoters: 'rgba(34, 197, 94, 0.8)'
   };
 
   results.forEach((result, index) => {
@@ -56,19 +45,14 @@ function renderSurveyResultsChart(data, container, formId) {
     const chartDiv = document.createElement('div');
     chartDiv.className = 'efb survey-chart-item mb-4 p-3 bg-light rounded-3';
 
-    // تعیین نوع نمودار بر اساس category
     const chartType = result.chart_type || defaultChartType || 'bar';
 
-    // رندر بر اساس نوع
     if (chartType === 'stats') {
-      // برای فیلدهای آماری (text, number)
       chartDiv.innerHTML = renderStatsCard(result);
       chartsWrapper.appendChild(chartDiv);
     } else if (chartType === 'nps') {
-      // برای NPS
       chartDiv.innerHTML = renderNPSCard(result, npsColors);
       chartsWrapper.appendChild(chartDiv);
-      // نمودار NPS
       const npsChartId = `${chartId}-nps`;
       if (typeof Chart === 'undefined') {
         loadChartJS(() => createNPSChart(npsChartId, result, npsColors));
@@ -76,7 +60,6 @@ function renderSurveyResultsChart(data, container, formId) {
         createNPSChart(npsChartId, result, npsColors);
       }
     } else if (chartType === 'matrix') {
-      // برای Matrix
       chartDiv.innerHTML = renderMatrixCard(result, colors);
       chartsWrapper.appendChild(chartDiv);
       const matrixChartId = `${chartId}-matrix`;
@@ -86,7 +69,6 @@ function renderSurveyResultsChart(data, container, formId) {
         createMatrixChart(matrixChartId, result, colors);
       }
     } else {
-      // برای choice و scale - نمودار معمولی
       let extraInfo = '';
       if (result.average !== undefined) {
         extraInfo = `<p class="efb text-muted fs-7 text-center mb-2">Average: ${result.average}</p>`;
@@ -107,9 +89,6 @@ function renderSurveyResultsChart(data, container, formId) {
   });
 }
 
-/**
- * رندر کارت آماری برای فیلدهای text/number
- */
 function renderStatsCard(result) {
   const isNumeric = result.category === 'numeric';
   let statsHtml = `
@@ -149,9 +128,6 @@ function renderStatsCard(result) {
   return statsHtml;
 }
 
-/**
- * رندر کارت NPS
- */
 function renderNPSCard(result, npsColors) {
   const npsScore = result.nps_score || 0;
   const scoreClass = npsScore >= 50 ? 'text-success' : (npsScore >= 0 ? 'text-warning' : 'text-danger');
@@ -180,9 +156,6 @@ function renderNPSCard(result, npsColors) {
   `;
 }
 
-/**
- * رندر کارت Matrix
- */
 function renderMatrixCard(result, colors) {
   let rowsHtml = '';
   (result.rows || []).forEach((row, i) => {
@@ -202,9 +175,6 @@ function renderMatrixCard(result, colors) {
   `;
 }
 
-/**
- * ایجاد نمودار NPS
- */
 function createNPSChart(canvasId, result, npsColors) {
   const ctx = document.getElementById(canvasId);
   if (!ctx) return;
@@ -232,9 +202,6 @@ function createNPSChart(canvasId, result, npsColors) {
   });
 }
 
-/**
- * ایجاد نمودار Matrix
- */
 function createMatrixChart(canvasId, result, colors) {
   const ctx = document.getElementById(canvasId);
   if (!ctx) return;
@@ -260,9 +227,6 @@ function createMatrixChart(canvasId, result, colors) {
   });
 }
 
-/**
- * لود داینامیک Chart.js
- */
 function loadChartJS(callback) {
   if (typeof Chart !== 'undefined') {
     callback();
@@ -274,9 +238,6 @@ function loadChartJS(callback) {
   document.head.appendChild(script);
 }
 
-/**
- * ایجاد نمودار با Chart.js
- */
 function createChart(canvasId, chartType, result, colors) {
   const ctx = document.getElementById(canvasId);
   if (!ctx) return;
