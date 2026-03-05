@@ -1,4 +1,4 @@
-﻿
+
 const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
 let smail_efb =false;
 document.addEventListener("DOMContentLoaded", function() { smail_efb = efb_var.setting.emailSupporter!=''  ? true :false ;})

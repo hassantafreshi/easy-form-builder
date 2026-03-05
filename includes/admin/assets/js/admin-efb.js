@@ -86,7 +86,6 @@ jQuery(function () {
 const wpfooter = document.getElementById('wpfooter');
 if(wpfooter)wpfooter.remove();
 
-// Show #wpfooter.efb only when scrolled to bottom
 (function(){
   function efbCheckFooterScroll(){
     var el = document.getElementById('wpfooter');
@@ -97,7 +96,7 @@ if(wpfooter)wpfooter.remove();
       document.body.scrollHeight, document.documentElement.scrollHeight,
       document.body.offsetHeight, document.documentElement.offsetHeight
     );
-    // Show when within 60px of the bottom (or page is short enough)
+
     if(docHeight <= windowHeight || (scrollTop + windowHeight >= docHeight - 60)){
       el.classList.add('efb-footer-visible');
     } else {
@@ -4372,7 +4371,7 @@ window.addEventListener("popstate",e=>{
     case "edit-dataset":
       if(typeof emsFormBuilder_edit_dataset_efb === 'function'){
       v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
-        if (v==null) 
+        if (v==null)
         emsFormBuilder_edit_dataset_efb(Number(v));
       }
     break;
@@ -4916,8 +4915,7 @@ function addClickListenerToElementListEFB(element) {
               const closestEcEfb = event.target.closest('.ec-efb');
               if (closestEcEfb !== element) return;
 
-              // Find the closest element with BOTH data-eventform AND .ec-efb
-              const actionEl = event.target.closest('[data-eventform].ec-efb');
+const actionEl = event.target.closest('[data-eventform].ec-efb');
               if (!actionEl) return;
               const classes = actionEl.classList;
 
@@ -5124,7 +5122,7 @@ function restore_auto_save_efb(){
 
 function fub_shwBtns_efb() {
   for (const el of document.querySelectorAll(".showBtns")) {
-    // Click handler (works on both mobile and desktop)
+
     if (!el._efbClickBound) {
       el.addEventListener("click", (e) => {
         active_element_efb(el);

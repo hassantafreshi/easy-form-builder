@@ -266,8 +266,7 @@ const EfbResponseViewer = (function () {
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Scroll messages to bottom
-    const chatHistory = document.getElementById('resp_efb');
+const chatHistory = document.getElementById('resp_efb');
     if (chatHistory) {
       setTimeout(function () {
         chatHistory.scrollTop = chatHistory.scrollHeight;

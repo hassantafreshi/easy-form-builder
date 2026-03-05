@@ -624,7 +624,7 @@
       globalSettings: builderState_efb.globalSettings
     }));
     const restored = JSON.parse(builderState_efb.undoStack.pop());
-    // Support both old format (array) and new format (object with blocks + globalSettings)
+
     if (Array.isArray(restored)) {
       builderState_efb.blocks = restored;
     } else {
