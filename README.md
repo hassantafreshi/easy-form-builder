@@ -212,11 +212,11 @@ Thanks goes to these wonderful people
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/hassantafreshi/" target="_blank"><img src="https://avatars.githubusercontent.com/u/5526682?v=4=100" alt="" width="100px;" /><br /><sub><strong>Hassan</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Answering Questions" href="#question-kentcdodds">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> <a title="Translation" href="#translation">🌍</a> <a title="Talks" href="#talk-kentcdodds">📢</a>
+<a href="https://github.com/hassantafreshi/" target="_blank"><img src="https://avatars.githubusercontent.com/u/5526682?v=4&s=100" alt="" width="100px;" /><br /><sub><strong>Hassan</strong></sub></a><br />💡 <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Answering Questions" href="#question-kentcdodds">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> <a title="Translation" href="#translation">🌍</a> <a title="Talks" href="#talk-kentcdodds">📢</a>
 <a href="#maintenance" title="Maintenance">🚧</a>
 </td>
-<td><a href="https://github.com/01mrlast" target="_blank"><img src="https://avatars.githubusercontent.com/u/51836304?v=4=100" alt="" width="100px;" /><br /><sub><strong>Samson</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji><a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Translation" href="#translation">🌍</a> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji></td>
-<td><a href="https://github.com/aminkhadivar/" target="_blank"><img src="https://avatars.githubusercontent.com/u/62219173?v=4=100" alt="" width="100px;" /><br /><sub><strong>Amin</strong></sub></a><br /><a href="#design" title="Design"><g-emoji class=" g-emoji" alias="art" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f3a8.png">🎨</g-emoji></a> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a></td>
+<td><a href="https://github.com/01mrlast" target="_blank"><img src="https://avatars.githubusercontent.com/u/51836304?v=4&s=100" alt="" width="100px;" /><br /><sub><strong>Samson</strong></sub></a><br />💡 <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Translation" href="#translation">🌍</a> 🐛</td>
+<td><a href="https://github.com/aminkhadivar/" target="_blank"><img src="https://avatars.githubusercontent.com/u/62219173?v=4&s=100" alt="" width="100px;" /><br /><sub><strong>Amin</strong></sub></a><br /><a href="#design" title="Design">🎨</a> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a></td>
 <td>
   <a href="https://www.linkedin.com/in/seyed-mohammad-hosse-tafreshi-hosseini-3b741039/" target="_blank"><img src="https://i.pinimg.com/280x280_RS/77/06/58/7706589c0b149637320299a110050922.jpg" alt="" width="100px;" /><br /><sub><strong>Seyed</strong></sub></a><br />
     <a title="Finance" href="#finance">📊</a>
@@ -244,19 +244,19 @@ Thanks goes to these wonderful people
   <a href="https://github.com/pedro-mendonca" target="_blank"><img src="https://avatars.githubusercontent.com/u/7371591?v=4" alt="" width="100px;" /><br /><sub><strong>Pedro</strong></sub></a><br />
     <a title="Translation" href="#translation">🌍</a>
 </td>
-<td><a href="https://github.com/rahulslj" target="_blank"><img src="https://avatars.githubusercontent.com/u/6607130?v=4=100" alt="" width="100px;" /><br /><sub><strong>Rahulslj</strong></sub></a><br />
+<td><a href="https://github.com/rahulslj" target="_blank"><img src="https://avatars.githubusercontent.com/u/6607130?v=4&s=100" alt="" width="100px;" /><br /><sub><strong>Rahulslj</strong></sub></a><br />
   <a title="Translation" href="#translation">🌍</a></td>
 <td>
   <a href="https://github.com/ehssantafreshi" target="_blank"><img src="https://avatars.githubusercontent.com/u/91035643?v=4" alt="" width="100px;" /><br /><sub><strong>Ehssan</strong></sub></a><br />
-    <a title="Translation" href="#translation">🌍</a></td>
+    <a title="Translation" href="#translation">🌍</a>
 </td>
 <td>
   <a href="https://github.com/ArefHam" target="_blank"><img src="https://avatars.githubusercontent.com/u/56312801?v=4" alt="" width="100px;" /><br /><sub><strong>Aref</strong></sub></a><br />
-    <a title="Translation" href="#translation">🌍</a></td>
+    <a title="Translation" href="#translation">🌍</a>
 </td>
-  <td><a href="https://github.com/isaumya" target="_blank"><img src="https://avatars.githubusercontent.com/u/2124755?v=4" alt="" width="100px;" /><br /><sub><strong>Saumya</strong></sub></a><br> <g-emoji class=" g-emoji" alias="Code" title="code" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">💻</g-emoji>
+  <td><a href="https://github.com/isaumya" target="_blank"><img src="https://avatars.githubusercontent.com/u/2124755?v=4" alt="" width="100px;" /><br /><sub><strong>Saumya</strong></sub></a><br /> 💻
   </td>
-   <td><a href="https://github.com/thaikolja" target="_blank"><img src="https://avatars.githubusercontent.com/u/37884870?v=4=100" alt="" width="100px;" /><br /><sub><strong>Kolja</strong></sub></a><br> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji>
+   <td><a href="https://github.com/thaikolja" target="_blank"><img src="https://avatars.githubusercontent.com/u/37884870?v=4&s=100" alt="" width="100px;" /><br /><sub><strong>Kolja</strong></sub></a><br /> 🐛
   <a title="Translation" href="#translation">🌍</a></td>
   <td>
   <a href="https://github.com/soroushsamadi86" target="_blank"><img src="https://avatars.githubusercontent.com/u/58665580?v=4" alt="" width="100px;" /><br /><sub><strong>Soroush</strong></sub></a><br />
