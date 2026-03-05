@@ -285,9 +285,10 @@ i.efb {	font-size: 1.2rem;
 .efb.form-check-input{
    position: inherit!important;
 }
-.efb.form-check-input:checked {	background-color: #a2b0d5 !important;
-   border-color: #a2b0d5 !important;
-   color: #4e5f96 !important;
+.efb.form-check-input:checked {
+   background-color: #004cbb !important;
+   border-color: #004cbb !important;
+   color: #004cbb !important;
    background-repeat: no-repeat !important;
 }
 .form-select.efb {	min-height: 36px;

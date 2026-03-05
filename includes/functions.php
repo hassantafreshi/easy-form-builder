@@ -1120,7 +1120,7 @@ class efbFunction {
 			"nsrf" => $state  &&  isset($ac->text->nsrf) ? $ac->text->nsrf : esc_html__('No selected rows found.','easy-form-builder'),
 			"spprt" => $state  &&  isset($ac->text->spprt) ? $ac->text->spprt : esc_html__('Support','easy-form-builder'),
 			"mread" => $state  &&  isset($ac->text->mread) ? $ac->text->mread : esc_html__('Mark as Read','easy-form-builder'),
-			"admines" => $state  &&  isset($ac->text->admines) ? $ac->text->admines : esc_html__('Form admins can access the response box after logging in.','easy-form-builder'),
+			"admines" => $state  &&  isset($ac->text->admines) ? $ac->text->admines : esc_html__('Require admin login to view responses','easy-form-builder'),
 			"devMode" => $state  &&  isset($ac->text->devMode) ? $ac->text->devMode : esc_html__('Development Mode (Sandbox)','easy-form-builder'),
 			"devModeDesc" => $state  &&  isset($ac->text->devModeDesc) ? $ac->text->devModeDesc : esc_html__('When enabled, uses sandbox/demo servers for PayPal and other services. Disable for production.','easy-form-builder'),
 			"devModeWarn" => $state  &&  isset($ac->text->devModeWarn) ? $ac->text->devModeWarn : esc_html__('After changing the Development Mode (Sandbox) option, save the settings, then deactivate and reactivate Easy Form Builder plugin from the Plugins page for the changes to take effect.','easy-form-builder'),
@@ -2298,7 +2298,7 @@ public function addon_add_efb($value) {
 			return false;
 		}
 		require_once($path);
-		$smssendefb = new smssendefb();
+		$smssendefb = new \Emsfb\smssendefb();
 		$sms_content = $smssendefb->get_sms_contact_efb($form_id);
 
 		if(empty($sms_content->id)) return false;

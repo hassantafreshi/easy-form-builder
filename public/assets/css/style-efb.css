@@ -704,7 +704,7 @@ progress.efb {
       width: 100%
   }
 
-  
+
 }
 
 .efb.table {
@@ -951,8 +951,8 @@ textarea.efb.form-control {
 }
 
 .efb.form-check-input:checked {
-  background-color: #0d6efd;
-  border-color: #0d6efd
+  background-color: #004cbb !important;
+  border-color: #004cbb !important;
 }
 
 .efb.form-check-input:checked[type=checkbox] {
@@ -964,8 +964,8 @@ textarea.efb.form-control {
 }
 
 .efb.form-check-input[type=checkbox]:indeterminate {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #004cbb !important;
+  border-color: #004cbb !important;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e")
 }
 

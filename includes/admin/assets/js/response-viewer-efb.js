@@ -917,7 +917,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     <div class="efb efb-msg-header">
      ${bySection}
      <div class="efb-msg-header-actions">
-       <div class="efb efb-msg-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onclick="generatePDF_EFB('resp_efb')"><i class="bi bi-download"></i></div>
+       ${efb_var.hasOwnProperty('setting') || (typeof setting_emsFormBuilder !== 'undefined' && (setting_emsFormBuilder.activeDlBtn == true || setting_emsFormBuilder.activeDlBtn == '1' || setting_emsFormBuilder.activeDlBtn === 1)) ? `<div class="efb efb-msg-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onclick="generatePDF_EFB('resp_efb')"><i class="bi bi-download"></i></div>` : ''}
      </div>
     </div>
     <div class="efb-msg-meta-bar">

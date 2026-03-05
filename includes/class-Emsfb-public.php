@@ -642,7 +642,39 @@ public function check_nonce_permission_efb($request) {
 			}
 
 			if(( is_user_logged_in()==false && $admin_form==true && $admin_sc==null)){
-				return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+				// Load colour / font / size overrides from saved settings
+				$overrides = $this->efb_build_inline_style_overrides();
+				$pl_warn = get_setting_Emsfb('pub');
+				$ps_warn = $pl_warn[1] ?? [];
+
+				// Resolve concrete values (fallback to defaults)
+				$warn_text_color  = !empty($ps_warn['respText'])       ? $ps_warn['respText']       : '#1a1a2e';
+				$warn_bg_color    = !empty($ps_warn['respBgCard'])     ? $ps_warn['respBgCard']     : '#ffffff';
+				$warn_primary     = !empty($ps_warn['respPrimary'])    ? $ps_warn['respPrimary']    : '#3644d2';
+				$warn_muted       = !empty($ps_warn['respTextMuted'])  ? $ps_warn['respTextMuted']  : '#657096';
+				$warn_font_family = !empty($ps_warn['respFontFamily']) ? $ps_warn['respFontFamily'] : 'inherit';
+				$warn_font_size   = !empty($ps_warn['respFontSize'])  ? $ps_warn['respFontSize']   : '0.9rem';
+
+				return $overrides['font_link'] . $overrides['inline_style'] . "
+				<div id='body_efb' class='efb card-public efb'
+				     style='display:flex; flex-direction:column; align-items:center; justify-content:center;
+				            color:" . esc_attr($warn_text_color) . "; background-color:" . esc_attr($warn_bg_color) . ";
+				            font-family:" . esc_attr($warn_font_family) . "; font-size:" . esc_attr($warn_font_size) . ";
+				            padding: 40px 20px; border-radius: 12px;
+				            box-shadow: 0 2px 16px rgba(0,0,0,0.07); text-align:center;'>
+					<div style='margin-bottom:18px; text-align:center;'>
+						<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' fill='" . esc_attr($warn_primary) . "' viewBox='0 0 16 16' style='display:inline-block;'>
+							<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM8 4a.905.905 0 0 1 .9.995l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/>
+						</svg>
+					</div>
+					<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
+					           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
+					           margin:0 0 10px 0; text-align:center;'>"
+					    . esc_html__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder') .
+					"</h3>
+					<p style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
+					          font-size:" . esc_attr($warn_font_size) . "; margin:0; text-align:center;'></p>
+				</div>";
 			}
 			if(empty($this->db)){
 				global $wpdb;
@@ -1077,53 +1109,62 @@ public function check_nonce_permission_efb($request) {
 					}
 
 					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $form_id, $lanText);
-					//check if has autofill
-					if($pro==true && $auto_filled == false &&  isset($valj_efb[0]->autofill_id) ){
-						$autofill_id = intval($valj_efb[0]->autofill_id);
+					if($pro==true ){
+						//check if has autofill
+						if($auto_filled == false &&  isset($valj_efb[0]->autofill_id) ){
+							$autofill_id = intval($valj_efb[0]->autofill_id);
 
-						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
-							$this->efbFunction->download_all_addons_efb();
-							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.','easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+							if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
+								$this->efbFunction->download_all_addons_efb();
+								return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.','easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+							}
+							//first check autofill directory exists
+							if($autofill_id >0){
+								wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+							}else if($autofill_id == 0){
+								// Ø¨Ø±Ø±Ø³ÛŒ autofill_api Ø¨Ø±Ø§ÛŒ External API AutoFill
+								// Check autofill_api for External API AutoFill
+								$autofill_api = isset($valj_efb[0]->autofill_api) ? $valj_efb[0]->autofill_api : false;
+								$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
+								if($autofill_api && !empty($autofill_api_id)){
+									wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+								}
+							}
 						}
-						//first check autofill directory exists
-						if($autofill_id >0){
-							wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
-						}else if($autofill_id == 0){
-							// Ø¨Ø±Ø±Ø³ÛŒ autofill_api Ø¨Ø±Ø§ÛŒ External API AutoFill
-							// Check autofill_api for External API AutoFill
-							$autofill_api = isset($valj_efb[0]->autofill_api) ? $valj_efb[0]->autofill_api : false;
+						// Ø¨Ø±Ø±Ø³ÛŒ Ù…Ø³ØªÙ‚Ù„ autofill_api (Ø²Ù…Ø§Ù†ÛŒ Ú©Ù‡ autofill_id ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡)
+						// Independent check for autofill_api (when autofill_id is not set)
+						else if($auto_filled == false && !isset($valj_efb[0]->autofill_id) && isset($valj_efb[0]->autofill_api) && $valj_efb[0]->autofill_api){
+							if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
+								$this->efbFunction->download_all_addons_efb();
+							}
 							$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
-							if($autofill_api && !empty($autofill_api_id)){
+							if(!empty($autofill_api_id)){
 								wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js',false,EMSFB_PLUGIN_VERSION);
 							}
 						}
-					}
-					// Ø¨Ø±Ø±Ø³ÛŒ Ù…Ø³ØªÙ‚Ù„ autofill_api (Ø²Ù…Ø§Ù†ÛŒ Ú©Ù‡ autofill_id ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡)
-					// Independent check for autofill_api (when autofill_id is not set)
-					else if($pro==true && $auto_filled == false && !isset($valj_efb[0]->autofill_id) && isset($valj_efb[0]->autofill_api) && $valj_efb[0]->autofill_api){
-						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
-							$this->efbFunction->download_all_addons_efb();
-						}
-						$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
-						if(!empty($autofill_api_id)){
-							wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js',false,EMSFB_PLUGIN_VERSION);
-						}
-					}
-					else if ($pro==true && $valj_efb[$i]->type =='stripe' && $typeOfForm=="payment" ){
 
-							wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);
-							wp_enqueue_script('stripe-js');
-							// wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
-							//vendor\stripe\stripe_pay-efb.js
-							!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe") ? $this->efbFunction->download_all_addons_efb() : '';
-							wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
-							wp_enqueue_script('stripe_js');
-							$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
-							$ar_core = array_merge($ar_core , array(
-							'paymentGateway' =>'stripe',
-							'paymentKey' => $paymentKey
-						));
-					}else if($pro==true && $valj_efb[$i]->type =='paypal' &&  $typeOfForm=="payment" ){
+						if($typeOfForm=="payment"){
+							/* ── Payment gateway & survey scripts ──
+							* IMPORTANT: These MUST be separate if-blocks, NOT chained with else-if after autofill.
+							* Previously they were in the same else-if chain, which meant PayPal/Stripe/Survey JS
+							* was never loaded when autofill was also active on the form.
+							* Fix: Changed "else if" → "if" so payment scripts load independently of autofill. */
+							if ($valj_efb[$i]->type =='stripe' ){
+
+									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);
+									wp_enqueue_script('stripe-js');
+									// wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
+									//vendor\stripe\stripe_pay-efb.js
+									!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe") ? $this->efbFunction->download_all_addons_efb() : '';
+									wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
+									wp_enqueue_script('stripe_js');
+									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
+									$ar_core = array_merge($ar_core , array(
+									'paymentGateway' =>'stripe',
+									'paymentKey' => $paymentKey
+								));
+							}
+							if($valj_efb[$i]->type =='paypal'){
 								$paymentType="paypal";
 								$paymentKey=isset($setting->paypalPKey)  ? $setting->paypalPKey:'null';
 								$currency ='USD';
@@ -1136,7 +1177,11 @@ public function check_nonce_permission_efb($request) {
 									'paymentGateway' =>'paypal',
 									'paymentKey_paypal' => $paymentKey
 								));
-					}else if($typeOfForm=="survey" ){
+							}
+						}
+					}
+
+					if($typeOfForm=="survey" ){
 						error_log('survey form->');
 						//poll-chart-efb.js
 						//wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true
@@ -1326,6 +1371,105 @@ public function check_nonce_permission_efb($request) {
 
 
 	}
+
+	/**
+	 * Build inline CSS variable overrides + font links from saved settings.
+	 * Reusable helper so every public-facing block (tracker, admin-warning, etc.)
+	 * honours the same colour / font / size customisation.
+	 *
+	 * @param  array|null $ps  Settings array (index [1] of get_setting_Emsfb('pub')). If null, loaded automatically.
+	 * @return array  ['inline_style' => string, 'font_link' => string]
+	 */
+	private function efb_build_inline_style_overrides($ps = null) {
+		if ($ps === null) {
+			$pl = get_setting_Emsfb('pub');
+			$ps = $pl[1] ?? [];
+		}
+
+		$css_var_map = [
+			'respPrimary'     => ['--efb-resp-primary',      '#3644d2'],
+			'respPrimaryDark' => ['--efb-resp-primary-dark', '#202a8d'],
+			'respAccent'      => ['--efb-resp-accent',       '#ffc107'],
+			'respText'        => ['--efb-resp-text',         '#1a1a2e'],
+			'respTextMuted'   => ['--efb-resp-text-muted',   '#657096'],
+			'respBgCard'      => ['--efb-resp-bg-card',      '#ffffff'],
+			'respBgMeta'      => ['--efb-resp-bg-meta',      '#f6f7fb'],
+			'respBgTrack'     => ['--efb-resp-bg-track',     '#ffffff'],
+			'respBgResp'      => ['--efb-resp-bg-resp',      '#f8f9fd'],
+			'respBgEditor'    => ['--efb-resp-bg-editor',    '#ffffff'],
+			'respEditorText'  => ['--efb-resp-editor-text',  '#1a1a2e'],
+			'respEditorPh'    => ['--efb-resp-editor-ph',    '#a0aec0'],
+			'respBtnText'     => ['--efb-resp-btn-text',     '#ffffff'],
+			'respFontFamily'  => ['--efb-resp-font-family',  'inherit'],
+			'respFontSize'    => ['--efb-resp-font-size',    '0.9rem'],
+		];
+
+		$css_overrides = '';
+		$primary_hex   = '';
+		foreach ($css_var_map as $key => $info) {
+			$val_s = isset($ps[$key]) && $ps[$key] !== '' ? $ps[$key] : $info[1];
+			if ($val_s !== $info[1]) {
+				$safe_val = preg_replace('/[<>&{}]/', '', $val_s);
+				$css_overrides .= $info[0] . ':' . $safe_val . ';';
+			}
+			if ($key === 'respPrimary') $primary_hex = $val_s;
+		}
+
+		// Derived opacity variants from primary colour
+		if ($primary_hex !== '#3644d2' && preg_match('/^#[0-9a-fA-F]{6}$/', $primary_hex)) {
+			$r = hexdec(substr($primary_hex, 1, 2));
+			$g = hexdec(substr($primary_hex, 3, 2));
+			$b = hexdec(substr($primary_hex, 5, 2));
+			$css_overrides .= "--efb-resp-primary-08:rgba({$r},{$g},{$b},0.08);";
+			$css_overrides .= "--efb-resp-primary-10:rgba({$r},{$g},{$b},0.10);";
+			$css_overrides .= "--efb-resp-primary-06:rgba({$r},{$g},{$b},0.06);";
+			$css_overrides .= "--efb-resp-border:rgba({$r},{$g},{$b},0.12);";
+			$css_overrides .= "--efb-resp-shadow:0 2px 16px rgba({$r},{$g},{$b},0.07);";
+			$css_overrides .= "--efb-resp-shadow-hover:0 4px 24px rgba({$r},{$g},{$b},0.13);";
+		}
+
+		$inline_style = $css_overrides !== '' ? '<style>:root{' . $css_overrides . '}</style>' : '';
+
+		// --- font link ---
+		$font_link = '';
+
+		// Custom uploaded font
+		if (!empty($ps['respCustomFont'])) {
+			$cf = json_decode($ps['respCustomFont'], true);
+			if (is_array($cf) && !empty($cf['url'])) {
+				$font_link = '<link rel="stylesheet" href="' . esc_url($cf['url']) . '">';
+			}
+		}
+
+		// Built-in Google / CDN font
+		if (empty($font_link) && !empty($ps['respFontFamily']) && $ps['respFontFamily'] !== 'inherit') {
+			$font_css_map = [
+				"Vazirmatn, Tahoma, sans-serif"                     => "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap",
+				"Vazir, Tahoma, sans-serif"                          => "https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@latest/dist/font-face.css",
+				"Sahel, Tahoma, sans-serif"                          => "https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@latest/dist/font-face.css",
+				"Samim, Tahoma, sans-serif"                          => "https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@latest/dist/font-face.css",
+				"'Shabnam', Tahoma, sans-serif"                      => "https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@latest/dist/font-face.css",
+				"Parastoo, Tahoma, sans-serif"                       => "https://cdn.jsdelivr.net/gh/rastikerdar/parastoo-font@latest/dist/font-face.css",
+				"Gandom, Tahoma, sans-serif"                         => "https://cdn.jsdelivr.net/gh/rastikerdar/gandom-font@latest/dist/font-face.css",
+				"Lalezar, Tahoma, sans-serif"                        => "https://fonts.googleapis.com/css2?family=Lalezar&display=swap",
+				"Cairo, Tahoma, sans-serif"                          => "https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap",
+				"Tajawal, Tahoma, sans-serif"                        => "https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap",
+				"'Noto Sans Arabic', Tahoma, sans-serif"             => "https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap",
+				"'IBM Plex Sans Arabic', Tahoma, sans-serif"         => "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap",
+				"Amiri, Tahoma, serif"                               => "https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+				"'Noto Kufi Arabic', Tahoma, sans-serif"             => "https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap",
+				"'Inter', sans-serif"                                => "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap",
+				"'Roboto', sans-serif"                               => "https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap",
+				"'Open Sans', sans-serif"                            => "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap",
+			];
+			if (isset($font_css_map[$ps['respFontFamily']])) {
+				$font_link = '<link rel="stylesheet" href="' . esc_url($font_css_map[$ps['respFontFamily']]) . '">';
+			}
+		}
+
+		return ['inline_style' => $inline_style, 'font_link' => $font_link];
+	}
+
 	public function EMS_Form_Builder_track(){
 		error_log('in track shortcode');
 		$this->enqueue_jquery();
@@ -1458,91 +1602,11 @@ public function check_nonce_permission_efb($request) {
 		// Build inline CSS variables from saved color settings so
 		// the tracker renders with customized colors immediately (no FOUC).
 		$ps = $pl[1] ?? [];
-		$css_var_map = [
-			'respPrimary'    => ['--efb-resp-primary',     '#3644d2'],
-			'respPrimaryDark'=> ['--efb-resp-primary-dark','#202a8d'],
-			'respAccent'     => ['--efb-resp-accent',      '#ffc107'],
-			'respText'       => ['--efb-resp-text',        '#1a1a2e'],
-			'respTextMuted'  => ['--efb-resp-text-muted',  '#657096'],
-			'respBgCard'     => ['--efb-resp-bg-card',     '#ffffff'],
-			'respBgMeta'     => ['--efb-resp-bg-meta',     '#f6f7fb'],
-			'respBgTrack'    => ['--efb-resp-bg-track',    '#ffffff'],
-			'respBgResp'     => ['--efb-resp-bg-resp',     '#f8f9fd'],
-			'respBgEditor'   => ['--efb-resp-bg-editor',   '#ffffff'],
-			'respEditorText' => ['--efb-resp-editor-text', '#1a1a2e'],
-			'respEditorPh'   => ['--efb-resp-editor-ph',   '#a0aec0'],
-			'respBtnText'    => ['--efb-resp-btn-text',    '#ffffff'],
-			'respFontFamily' => ['--efb-resp-font-family', 'inherit'],
-			'respFontSize'   => ['--efb-resp-font-size',   '0.9rem'],
-		];
-		$css_overrides = '';
-		$primary_hex = '';
-		foreach ($css_var_map as $key => $info) {
-			$val_s = isset($ps[$key]) && $ps[$key] !== '' ? $ps[$key] : $info[1];
-			if ($val_s !== $info[1]) {
-				// Use preg_replace for CSS-safe sanitization instead of esc_attr()
-				// esc_attr() converts quotes to HTML entities which breaks CSS values
-				$safe_val = preg_replace('/[<>&{}]/', '', $val_s);
-				$css_overrides .= $info[0] . ':' . $safe_val . ';';
-			}
-			if ($key === 'respPrimary') $primary_hex = $val_s;
-		}
-		// Derived opacity variants from primary color
-		if ($primary_hex !== '#3644d2' && preg_match('/^#[0-9a-fA-F]{6}$/', $primary_hex)) {
-			$r = hexdec(substr($primary_hex, 1, 2));
-			$g = hexdec(substr($primary_hex, 3, 2));
-			$b = hexdec(substr($primary_hex, 5, 2));
-			$css_overrides .= "--efb-resp-primary-08:rgba({$r},{$g},{$b},0.08);";
-			$css_overrides .= "--efb-resp-primary-10:rgba({$r},{$g},{$b},0.10);";
-			$css_overrides .= "--efb-resp-primary-06:rgba({$r},{$g},{$b},0.06);";
-			$css_overrides .= "--efb-resp-border:rgba({$r},{$g},{$b},0.12);";
-			$css_overrides .= "--efb-resp-shadow:0 2px 16px rgba({$r},{$g},{$b},0.07);";
-			$css_overrides .= "--efb-resp-shadow-hover:0 4px 24px rgba({$r},{$g},{$b},0.13);";
-		}
-		$inline_style = $css_overrides !== '' ? '<style>:root{' . $css_overrides . '}</style>' : '';
+		$overrides_track = $this->efb_build_inline_style_overrides($ps);
+		$inline_style      = $overrides_track['inline_style'];
+		$builtin_font_link = $overrides_track['font_link'];
 
-		// Load custom font CSS if set
-		$custom_font_link = '';
-		if (!empty($ps['respCustomFont'])) {
-			$cf = json_decode($ps['respCustomFont'], true);
-			if (is_array($cf) && !empty($cf['url'])) {
-				$cf_url = esc_url($cf['url']);
-				$custom_font_link = '<link rel="stylesheet" href="' . $cf_url . '">';
-			}
-		}
-
-		// Load built-in font CSS (Google Fonts / CDN) for selected font family
-		$builtin_font_link = '';
-		if (empty($custom_font_link) && !empty($ps['respFontFamily']) && $ps['respFontFamily'] !== 'inherit') {
-			$font_css_map = array(
-				// Persian fonts
-				"Vazirmatn, Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap",
-				"Vazir, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@latest/dist/font-face.css",
-				"Sahel, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@latest/dist/font-face.css",
-				"Samim, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@latest/dist/font-face.css",
-				"'Shabnam', Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@latest/dist/font-face.css",
-				"Parastoo, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/parastoo-font@latest/dist/font-face.css",
-				"Gandom, Tahoma, sans-serif" => "https://cdn.jsdelivr.net/gh/rastikerdar/gandom-font@latest/dist/font-face.css",
-				"Lalezar, Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Lalezar&display=swap",
-				// Arabic fonts
-				"Cairo, Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap",
-				"Tajawal, Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap",
-				"'Noto Sans Arabic', Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap",
-				"'IBM Plex Sans Arabic', Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap",
-				"Amiri, Tahoma, serif" => "https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap",
-				"'Noto Kufi Arabic', Tahoma, sans-serif" => "https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap",
-				// Common Google Fonts
-				"'Inter', sans-serif" => "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap",
-				"'Roboto', sans-serif" => "https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap",
-				"'Open Sans', sans-serif" => "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap",
-			);
-			$ff_val = $ps['respFontFamily'];
-			if (isset($font_css_map[$ff_val])) {
-				$builtin_font_link = '<link rel="stylesheet" href="' . esc_url($font_css_map[$ff_val]) . '">';
-			}
-		}
-
-	 	$content="<script> sitekye_emsFormBuilder='' </script>".$s_m . $builtin_font_link . $custom_font_link . $inline_style ."
+	 	$content="<script> sitekye_emsFormBuilder='' </script>".$s_m . $builtin_font_link . $inline_style ."
 		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5 text-center'></div>
 		".$track_content."</div>" . $val ;
 
@@ -2826,25 +2890,28 @@ public function check_nonce_permission_efb($request) {
 								$filtered[] = array('type' => 'w_link', 'id_' => 'w_link', 'id' => 'w_link', 'value' => $url, 'amount' => -1);
 								$this->value = sanitize_text_field(json_encode($filtered, JSON_UNESCAPED_UNICODE));
 								$this->id = sanitize_text_field($request_data['payid']);
-								$track_code = $this->update_message_db();
+								$db_update_result = $this->update_message_db();
 							} else {
 								$response = array('success' => false, 'm' => esc_html__('Error Code', 'easy-form-builder') . '</br>' . esc_html__('Payment Form', 'easy-form-builder'));
 								wp_send_json_success($response, 200);
 							}
 							$m = "Error 500";
-							$response = $track_code == 1 ? array('success' => true, 'ID' => $request_data['id'], 'track' => $this->id, 'nonce' => wp_create_nonce($this->id), 'ip' => $ip) : array('success' => false, 'm' => $m);
-							$this->efbFunction->efb_code_validate_update($session_id, 'pay', $track_code);
-							if ($redirect_url != "null" && $track_code == 1) {
+							// [EFB][PayPal][FIX] $db_update_result = rows affected (1 on success), used ONLY for success check
+							// $payment_track_id = actual tracking code (e.g. '260304A8KQR'), used for notifications
+							error_log('[EFB][PayPal][TRACK] db_update_result=' . var_export($db_update_result, true) . ' | payment_track_id=' . $payment_track_id);
+							$response = $db_update_result == 1 ? array('success' => true, 'ID' => $request_data['id'], 'track' => $this->id, 'nonce' => wp_create_nonce($this->id), 'ip' => $ip) : array('success' => false, 'm' => $m);
+							$this->efbFunction->efb_code_validate_update($session_id, 'pay', $payment_track_id);
+							if ($redirect_url != "null" && $db_update_result == 1) {
 								$response = array('success' => true, 'm' => $redirect_url);
 							}
 							// Send response and continue background processing
 							$this->efb_send_json_and_continue($response, 200);
-							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'payment');
+							$this->efb_intgrate_with_3rd_party_services_efb($payment_track_id, $submitted_values, $form_fields_array, 'payment');
 
 							// Background: Email
 							if ($should_send_email) {
 								$state_email_user = $has_tracking_code==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
-								$status_email = $this->email_status_efb($form_fields_array,$validated_items,$track_code);
+								$status_email = $this->email_status_efb($form_fields_array,$validated_items,$payment_track_id);
 								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
 								$this->send_email_Emsfb_( $email_recipients,$payment_track_id ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 							}
@@ -6093,6 +6160,7 @@ public function check_nonce_permission_efb($request) {
 
 
 	public function email_status_efb($formObj,$valobj,$check){
+			error_log('[EFB][Email][STATUS] email_status_efb called with track_code=' . var_export($check, true));
 
 			$msg_content='null';
 			$msg_type ='traking_link';
