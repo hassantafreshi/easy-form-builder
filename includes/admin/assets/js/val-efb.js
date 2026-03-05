@@ -1,12 +1,7 @@
 
-
-// Global variable for RTL margin optimization
 const iconMarginGlobal = efb_var.rtl == 1 ? 'ms-2' : 'me-2';
 
 const currency_efb = ["USD (United State dollar)","AED (United Arab Emirates dirham, درهم إماراتي)","AFN (Afghan afghani)","ALL (Albania Lek)","AMD (Armenian dram, Հայկական Դրామ)","ANG (Netherlands Antillean guilder, Antilliaanse gulden)","AOA (Angolan kwanza)","ARS (Argentine peso,Peso argentino)","AUD (Australian dollar)","AWG (Aruban florin, Arubaanse florin)","AZN (Azerbaijani manat, Azərbaycan manatı)","BAM (Bosnia and Herzegovina convertible mark, Конвертибилна марка)","BBD (Barbadian dollar)","BDT (Bangladeshi taka, টাকা)","BGN (Bulgarian lev, Български лев)","BIF (franc burundais)","BMD (Bermudian dollar)","BND (Brunei dollar, ringgit Brunei)","BOB  (Bolivian boliviano, boliviano)","BRL  (Brazilian real, Real brasileiro)","BSD (Bahamian dollar)","BWP (Botswana pula)","BYN (Belarusian ruble, беларускі рубель)","BZD (Belize dollar)","CAD (Canadian dollar, dollar canadien)","CDF (Congolese franc, franc congolais)","CHF (Swiss franc)","CLP  (Chilean peso, Peso chileno)","CNY (Renminbi, 人民币)","COP  (Colombian peso, peso colombiano)","CRC  (Costa Rican colón, colón costarricense)","CVE  (Cape Verdean escudo, escudo cabo-verdiano)","CZK (Czech koruna, koruna česká)","DJF  (Djiboutian franc, الفرنك الجيبوتي)","DKK (Danish krone, dansk krone)","DOP (Dominican peso, peso dominicano)","DZD (Algerian dinar, دينار جزائري)","EGP (Egyptian pound, جنيه مصرى)","ETB (Ethiopian birr)","EUR (Euro)","FJD (Fijian dollar)","FKP  (Falkland Islands pound)","GBP (Pound sterling)","GEL (Georgian lari,  ქართული ლარი)","GIP (Gibraltar pound)","GMD (Gambian dalasi)","GNF  (Guinean franc, franc guinéen)","GTQ  (Guatemalan quetzal,  quetzal guatemalteco)","GYD (Guyanese dollar)","HKD (Hong Kong dollar, 港元)","HNL  (Honduran lempira, lempira hondureño)","HRK (Croatian kuna, hrvatska kuna)","HTG (Haitian gourde, gourde haïtienne)","HUF (Hungarian forint, Magyar forint)","IDR (Indonesian rupiah)","ILS (Israeli new shekel, שקל חדש)","INR (Indian rupee)","ISK (Icelandic krona, króna)","JMD (Jamaican dollar)","JPY (Japanese yen, 日本円)","KES (Kenyan shilling, Kenyan shilling)","KGS (Kyrgyzstani som, Кыргыз сому)","KHR (Cambodian riel, រៀលកម្ពុជា/រៀលខ្មែរ)","KMF (Comorian franc)","KRW (South Korean won, 대한민국 원)","KYD (Cayman Islands dollar)","KZT (Kazakhstani tenge, Қазақстан теңгесі)","LAK (Lao kip,ເງີນກີບລາວ)","LBP (Lebanese pound, Livre libanaise)","LKR (Sri Lankan rupee, ශ්‍රී ලංකා රුපියල්)","LRD (Liberian dollar)","LSL (Lesotho loti)","MAD (Moroccan dirham, ⴰⴷⵔⵀⵎ ⵏ ⵍⵎⵖⵔⵉⴱ)","MDL (Moldovan leu, leu moldovenesc)","MGA (Malagasy ariary,ariary malgache)","MKD (Macedonian denar,денар)","MMK (Myanmar kyat)","MNT (Mongolian tögrög, Монгол төгрөг)","MOP (Macanese pataca)","MRO (Mauritanian ouguiya, أوقية موريتانية)","MUR (Mauritian rupee, Roupie mauricienne)","MVR (Maldivian rufiyaa)","MWK (Malawian kwacha)","MXN (Mexican peso, Peso Mexicano)","MYR (Malaysian ringgit, Ringgit Malaysia)","MZN (Mozambican metical, Metical moçambicano)","NAD (Namibian dollar)","NGN (Nigerian naira)","NIO (Nicaraguan córdoba, córdoba nicaragüense)","NOK (Norwegian krone, norsk krone)","NPR (Nepalese rupee, रुपैयाँ)","NZD (New Zealand dollar)","PAB (Panamanian balboa, Balboa panameño)","PEN (Peruvian sol, sol peruano)","PGK (Papua New Guinean kina)","PHP (Philippine peso, Piso ng Pilipinas)","PKR (Pakistani rupee)","PLN (Polish złoty, Polski złoty)","PYG (Paraguayan guaraní, Guaraní paraguayo)","QAR (Qatari riyal, ريال قطري)","RON (Romanian leu, Leu românesc)","RSD (Serbian dinar, Cрпски динар)","RUB (Russian ruble, Российский рубль)","RWF (Rwandan franc, franc rwandais)","SAR (Saudi riyalSaudi riyal, ريال سعودي)","SBD (Solomon Islands dollar)","SCR (Seychellois rupee, roupie seychelloise)","SEK (Swedish krona, svensk krona )","SGD (Singapore dollar, Dolar Singapura)","SHP (Saint Helena pound)","SLL (Sierra Leonean leone)","SOS (Somali shilling, Shilin Soomaali)","SRD (Surinamese, Surinamese )","STD (São Tomé and Príncipe dobra, dobra são-tomense)","SZL (Swazi lilangeni)","THB (Thai baht, บาทไทย)","TJS (Tajikistani somoni, Сомонӣ)","TOP (Tonga Pa'anga)","TRY (Turkish New Lira)","TTD (Trinidad/Tobago Dollar)","TWD (Taiwan Dollar)","TZS (Tanzania Shilling)","UAH (Ukraine Hryvnia)","UGX (Uganda Shilling)","UYU (Uruguay Peso)","UZS (Uzbekistani soʻm, Oʻzbek soʻmi)","VND (Vietnam Dong)","VUV (Vanuatu Vatu)","WST (Samoa Tala)","XAF (CFA Franc BEAC)","XCD (East Caribbean Dollar)","XOF (CFA Franc BCEAO)","XPF (CFP Franc)","YER (Yemen Rial)","ZAR (South Africa Rand)","ZMW (Zambian kwacha)"];
-/* PayPal supported currencies — source: https://developer.paypal.com/docs/reports/reference/paypal-supported-currencies/
- * HUF, JPY, TWD are zero-decimal currencies (no fractions).
- * BRL, CNY, MYR are limited to in-country PayPal accounts only. */
 const currency_paypal_efb = ["USD (United State dollar)","AUD (Australian dollar)","BRL  (Brazilian real, Real brasileiro)","CAD (Canadian dollar, dollar canadien)","CHF (Swiss franc)","CNY (Renminbi, 人民币)","CZK (Czech koruna, koruna česká)","DKK (Danish krone, dansk krone)","EUR (Euro)","GBP (Pound sterling)","HKD (Hong Kong dollar, 港元)","HUF (Hungarian forint, Magyar forint)","ILS (Israeli new shekel, שקל חדש)","JPY (Japanese yen, 日本円)","MXN (Mexican peso, Peso Mexicano)","MYR (Malaysian ringgit, Ringgit Malaysia)","NOK (Norwegian krone, norsk krone)","NZD (New Zealand dollar)","PHP (Philippine peso, Piso ng Pilipinas)","PLN (Polish złoty, Polski złoty)","SEK (Swedish krona, svensk krona )","SGD (Singapore dollar, Dolar Singapura)","THB (Thai baht, บาทไทย)","TWD (Taiwan Dollar)"];
 const lan_con_efb = {af:"ZA",ak:"AK",sq:"AL",hy:"AM",rup_MK:"en",as:"as",az_TR:"AZ",ba:"RU",eu:"ES",bel:"BY",bn_BD:"BD",bs_BA:"BA",my_MM:"MM",ca:"ES",bal:"ES",co:"FR",hr:"HR",dv:"MV",nl_NL:"NL",eo:"EO",fo:"FO",fr_BE:"FR",fy:"NL",fuc:"CM",gl_ES:"ES",ka_GE:"GE",gn:"BO",gu_IN:"IN",haw_US:"US",haz:"AF",is_IS:"IS",ido:"FI",jv_ID:"ID",kn:"IN",km:"KH",kin:"RW",ky_KY:"KG",ckb:"IQ",lo:"LA",li:"BE",lin:"CG",lb_LU:"LU",mk_MK:"MK",mg_MG:"MG",ml_IN:"IN",mr:"IN",xmf:"GA",mn:"MN",me_ME:"ME",ne_NP:"NP",nn_NO:"NO",ory:"IN",os:"IR",ps:"PK",fa_AF:"AF",pa_IN:"IN",rhg:"BD",ro_RO:"RO",ru_UA:"UA",rue:"SK",sah:"RU",sa_IN:"IN",srd:"IT",gd:"GB",sr_RS:"CS",sd_PK:"IN",si_LK:"LK ",sl_SI:"SI ",so_SO:"SO",azb:"IR",es_AR:"AR",es_CL:"CL",es_CO:"CO",es_MX:"MX",es_PE:"PE",es_PR:"PR ",es_ES:"ES",es_VE:"VE",su_ID:"SD",sw:"KE",sv_SE:"SE",gsw:"CH",tl:"PH",tg:"TJ ",tzm:"MA",ta_IN:"IN",ta_LK:"LK",tt_RU:"RU",te:"IN",th:"TH",bo:"CH",tir:"ET",tr_TR:"TR",tuk:"TM",ug_CN:"CN",uk:"UA",ur:"PK",uz_UZ:"UZ",vi:"VN",wa:"BE",cy:"GB ",yor:"NG",en_AU:"AU",en_CA:"CA",en_GB:"GB",en_NZ:"NZ",en_US:"US",en_ZA:"ZA",cs_CZ:"CZ",da_DK:"DK",de_AT:"AT",de_CH_informal:"CH",de_DE:"DE",ar:"SA",fa_IR:"IR",ja:"JA",zh_CN:"CN",zh_HK:"HK",zh_SG:"SG",zh_TW:"TW",pl_PL:"PL",pt_AO:"AO",pt_BR:"BR",pt_PT:"PT",ro_RO:"RO",ru_RU:"RU",sk_SK:"SK",ms_MY:"MY",nb_NO:"NO",nl_BE:"BE",ko_KR:"KR",he_IL:"IL",hi_IN:"IN",hu_HU:"HU",id_ID:"ID",it_IT:"IT",fi:"fi",fr_CA:"CA",fr_FR:"FR"};
 const fields_efb = [
@@ -31,14 +26,11 @@ const fields_efb = [
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
   { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: true, tag:'advance all' },
 
-
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
   { name: efb_var.text.prcfld, icon: 'bi-bag-plus', id: 'prcfld', pro: true, tag:'payment all' },
   { name: efb_var.text.ttlprc, icon: 'bi-cash', id: 'ttlprc', pro: true, tag:'payment all' },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
-  /* { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'payment all' },
-  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' },  */
   { name: efb_var.text.stripe, icon: 'bi-stripe', id: 'stripe', pro: true, tag:'payment all' },
   { name: efb_var.text.paypal, icon: 'bi-paypal', id: 'paypal', pro: true, tag:'payment all' },
   { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false, tag:'basic all' },
@@ -48,7 +40,6 @@ const fields_efb = [
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true, tag:'advance all' },
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' },
   { name: efb_var.text.chlCheckBox, icon: 'bi-card-checklist', id: 'chlCheckBox', pro: true, tag:'advance all' },
-  //{ name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
   { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true, tag:'advance all' },
 
   { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true, tag:'basic all' },
@@ -56,15 +47,12 @@ const fields_efb = [
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true, tag:'advance all' },
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true, tag:'advance all' },
   { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true, tag:'advance all' },
- /*  { name: efb_var.text.smartcr, icon: 'bi-globe', id: 'smartcr', pro: true, tag:'advance all' }, */
   { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
   { name: efb_var.text.nps_, icon: 'bi-square', id: 'pointr10', pro: true, tag: 'advance all' },
   { name: efb_var.text.imgRadio, icon: 'bi-images', id: 'imgRadio', pro: true, tag:'advance all' },
   { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'advance all' },
   { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
 
-  //{ name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
-  /* { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
   { name: efb_var.text.terms, icon: 'bi-shield-check', id: 'trmCheckbox', pro: true, tag:'advance all' },
 
   { name: efb_var.text.nps_tm, icon: ' bi-table', id: 'table_matrix', pro: true, tag: 'advance all' },
@@ -96,12 +84,7 @@ const formTypeEls =()=>{
   </select></span>`;
 }
 
-/**
- * Survey Chart Display Type Selector
- * تابع انتخاب نوع نمایش نمودار نظرسنجی
- */
 const surveyChartTypeEls = () => {
-  // مقدار پیش‌فرض برای survey_chart_type
   if (!valj_efb[0].hasOwnProperty('survey_chart_type')) {
     Object.assign(valj_efb[0], { survey_chart_type: 'none' });
   }
@@ -132,12 +115,7 @@ const surveyChartTypeEls = () => {
   </div>`;
 }
 
-/**
- * تابع انتخاب نوع لودینگ برای فرم
- * Loading Type Selector for Form
- */
 const loadingTypeEls = () => {
-  // مقدار پیش‌فرض برای loading_type و loading_color
   if (!valj_efb[0].hasOwnProperty('loading_type')) {
     Object.assign(valj_efb[0], { loading_type: 'dots' });
   }
@@ -184,10 +162,6 @@ const loadingTypeEls = () => {
   </div>`;
 }
 
-/**
- * تولید SVG لودینگ برای پیش‌نمایش
- * Generate Loading SVG for Preview
- */
 const getLoadingSvgPreview = (type, color = '#abb8c3') => {
   const svgMap = {
     'dots': `<svg viewBox="0 0 120 30" height="30px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
@@ -284,10 +258,6 @@ const getLoadingSvgPreview = (type, color = '#abb8c3') => {
   return svgMap[type] || svgMap['dots'];
 }
 
-/**
- * به‌روزرسانی پیش‌نمایش لودینگ
- * Update Loading Preview
- */
 const updateLoadingPreview = () => {
   const previewEl = document.getElementById('loadingPreviewEl');
   if (previewEl) {
@@ -302,7 +272,6 @@ const textEls=(id , name ,el_type,value ,attr ,idset) =>{
 }
 
 const currencyTypeEls=(idset)=>{
-  // const c =currency_efb;
   let op = `<-- options -->`;
   for(let i of currency_efb){
     op += `<option value="${i.toLowerCase()}" ${valj_efb[0].currency.toUpperCase()==i.slice(0, 3) ? 'selected' :''}>${i}</option>`
@@ -316,7 +285,6 @@ const currencyTypeEls=(idset)=>{
 
 }
 
-/* PayPal-only currency selector — only shows currencies supported by PayPal REST API */
 const currencyPaypalTypeEls=(idset)=>{
   let op = `<-- options -->`;
   for(let i of currency_paypal_efb){
@@ -374,13 +342,11 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
 
   let opt =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : null;
-  // console.error(country);
   if (country==null){
     country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
   }
   counstries_list_efb.sort((a, b) => a.n.localeCompare(b.n));
   for (let i of counstries_list_efb) {
-    // console.log(i.s2 ,country ,i.s2.toLowerCase()==country.toLowerCase());
     opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==country.toLowerCase() ? `selected` : ''}>${i.l} (${i.s2})</option>`
   }
   return `
@@ -393,17 +359,14 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   `
 }
 const state_list_el_select=(el_type ,idset,indx)=>{
-  console.error('state_list_el_select',el_type,idset,indx);
   let opt =`<!--efb--->`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : 'GB';
   let statePov = valj_efb[indx].hasOwnProperty("statePov") ? valj_efb[indx].statePov : 'Antrim_Newtownabbey';
   country= country.toLowerCase();
 
-  // console.error(country);
   if (country==null){
     country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
   }
-  // console.log(`======================>country:[${country}] statePov:[${statePov}]`)
 
     if(country=='gb'){
         state_list_efb=fun_state_of_UK(idset,indx) ;
@@ -412,33 +375,19 @@ const state_list_el_select=(el_type ,idset,indx)=>{
         opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
       }
     }else{
-      // check if cityPovListEl is already populated with parent on valj_efb
       const parent_id = valj_efb[indx].id_;
       const parent_row =valj_efb[indx]
-      // const state = valj_efb.findIndex( v=> v.parent = parent_row); find all row with parent id with filter
       const state = valj_efb.filter(v => v.parent == parent_id);
       if(state.length === 0){
         opt = callFetchStatesPovEfb('statePovListEl',country,indx,'getStatesPovEfb');
       }else{
-        // console.error('state_list_el_select',state);
-        console.log('state_list_el_select',state,parent_row.value);
         const citySelected = parent_row.value!='' ? parent_row.value.toLowerCase() : '';
         for (let i of state) {
-          console.error('state_list_el_select',i);
-          /*
-             let value = result.r[key].n==result.r[key].l || result.r[key].l.length<1 ? n : `${l} (${n})`;
-            if(valj_efb[indx_state].hasOwnProperty('stylish') && Number(valj_efb[indx_state].stylish)>1){
-            value =  Number(valj_efb[indx_state].stylish)==2 && l.length>1 ? l : n;
-            }
-           */
            let value = i.n==i.l || i.l.length<1 ? i.n : `${i.l} (${i.n})`;
             if(parent_row.hasOwnProperty('stylish') && Number(parent_row.stylish)>1){
             value =  Number(parent_row.stylish)==2 && i.l.length>1 ? i.l : i.n;
             }
 
-          //opt +=`<option value="${id.toLowerCase()}" ${ id.toLowerCase()==valj_efb[indx_state].statePov.toLowerCase() ? `selected` : ''}>${value}</option>`
-         // opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
-         console.log('state_list_el_select 2',`i.id_[${i.id_}] citySelected[${citySelected}]`,i.id_.toLowerCase()==citySelected);
           opt +=`<option value="${i.id_.toLowerCase()}" ${ i.id_.toLowerCase()==citySelected ? `selected` : ''}>${i.value}</option>`
         }
       }
@@ -492,7 +441,6 @@ const cornerEls = (side,indx,idset) => {
 const btnColorEls =(idset,indx) =>{
 
   color = valj_efb[indx].button_color;
-  // console.log(ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') ,color)
   const hex=ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn')
   addColorTolistEfb(hex);
   idset =  valj_efb[indx].type =="esign" ? idset+'-id' :idset;
@@ -560,9 +508,7 @@ const ElcountriesListSelections = (idset,indx) => {
  }
   for (const i of counstries_list_efb) {
 
-   // bi-check-square text-info efb
     const s2 = i.s2.trim().toLowerCase();
-    // console.log(c_c.indexOf(i.s2.trim().toLowerCase())!=-1 ,c_c ,i.s2);
     const v = i.l!=i.n  ? `(${i.l})` :''
     optn += `<tr   class="efb   efblist " data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" data-row="${s2}" data-state="0" data-visible="1">
     <th scope="row" class="efb ${c_c.indexOf(s2)!=-1 ? 'bi-check-square text-info' : 'bi-square'}" onclick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" ></th><td class="efb ms col-12"  onclick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}">${i.n} ${v}</td>
@@ -589,7 +535,6 @@ const ElcountriesListSelections = (idset,indx) => {
     `
 }
 function fun_test(t){
-  // console.log(t)
   const idx = t.dataset.indx;
   const c= t.dataset.name;
   const n= t.dataset.code;
@@ -614,17 +559,13 @@ function fun_test(t){
 function show_setting_window_efb(idset) {
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
-    // document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
     return};
-    // console.log('show_setting_window_efb',idset,valj_efb)
     state_view_efb=1;
     document.getElementById('sideMenuConEfb').innerHTML=efbLoadingCard('',5);
     sideMenuEfb(1)
-    // document.getElementById('sideBoxEfb').classList.add('show');
 
     let el = idset != "formSet" ? document.querySelector(`[data-id="${idset}"]`) : { dataset: { id: 'formSet', tag: 'formSet' } }
     let body = ``;
-    // const bodySetting = document.getElementById("settingModalEfb-body");
     const indx = idset != "button_group" && idset != "formSet" ? valj_efb.findIndex(x => x.dataId == idset) : 0;
 
     if (indx == 0 && idset != "formSet") el = document.getElementById(`f_btn_send_efb`);
@@ -634,20 +575,15 @@ function show_setting_window_efb(idset) {
     const idHidden = `
     <!-- <input type="hide"  class="efb d-none" data-id="${idset}" data-hide="idhide" id="${valj_efb[indx].id_}" >-->`
 
-
     const desEls = `<label for="desEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.description}</label>
     <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${efb_var.text.description}" id="desEl" required value="${valj_efb[indx].message ? valj_efb[indx].message : ''}">`
-
-
 
     const miLenEls = ()=>{
     let label =  efb_var.text.min;
     let type = "number"
-    // valj_efb[indx].type=="date"  ?  'date limited' : valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.milen :
     if(valj_efb[indx].type=="range" || valj_efb[indx].type=="number") {label = efb_var.text.min}
     else if(valj_efb[indx].type=="date") {
       label = efb_var.text.mindt; ;
-      // 'minimum date'
       type =  'text'}
 
     return  `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${label}</label>
@@ -657,7 +593,6 @@ function show_setting_window_efb(idset) {
   const mLenEls = ()=>{
     let label =  efb_var.text.max;
     let type = "number"
-    // valj_efb[indx].type=="date"  ?  'date limited' : valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.mlen :
     if(valj_efb[indx].type=="range" || valj_efb[indx].type=="number") {label = efb_var.text.max}
     else if(valj_efb[indx].type=="date") {
       label = efb_var.text.mxdt;
@@ -665,22 +600,12 @@ function show_setting_window_efb(idset) {
       return `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${label}</label>
       <input type="${type}" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${label}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}" min="0">`
   }
-  /*  const mLenEls = `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.mlen :efb_var.text.max}</label>
-    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.mlen :efb_var.text.max}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}" min="2">` */
   const requireEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="requiredEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('required') && Number(valj_efb[indx].required) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label pt-1" for="requiredEl">${efb_var.text.required}</label>
     </div>`;
-  /*   const requireEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="requiredEl" ${Number(valj_efb[indx].required) == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label pt-1" for="requiredEl">${efb_var.text.required}</label>
-    </div>`; */
-/*     const disabledEls = `<div class="efb mx-1 my-3 efb">
-    <button type="button" id="disabledEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('disabled') && Number(valj_efb[indx].disabled) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
-    <label class="efb form-check-label pt-1" for="disabledEl">${efb_var.text.dFeild}</label>
-    </div>`; */
     const hiddenEls = `<div class="efb mx-0 my-1 efb">
     <button type="button" id="hiddenEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('hidden') && Number(valj_efb[indx].hidden) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
@@ -693,17 +618,12 @@ function show_setting_window_efb(idset) {
     </button>
     <label class="efb form-check-label" for="disabledEl">${efb_var.text.dField}</label>
     </div>`;
-    // Survey Public Results Toggle - نمایش در نتایج عمومی نظرسنجی
     const showInPublicResultsEls = `<div class="efb mx-0 my-1 efb survey-public-results-toggle ${valj_efb[0].type !== 'survey' ? 'd-none' : ''}" id="showInPublicResultsWrapper-${indx}">
     <button type="button" id="showInPublicResultsEl" data-state="off" data-name="showInPublicResults" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('showInPublicResults') && Number(valj_efb[indx].showInPublicResults) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label" for="showInPublicResultsEl">${efb_var.text.showInPublicResults || 'Show this field in public survey results'}</label>
     </div>`;
-   /*  const hideLabelEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hidelabel') && Number(valj_efb[indx].hidelabel) == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label pt-1" for="hideLabelEl">${efb_var.text.hflabel}</label>
-    </div>`; */
     const hideLabelEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="hideLabelEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('hflabel') && Number(valj_efb[indx].hflabel) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
         <div class="efb handle"></div>
@@ -732,9 +652,7 @@ function show_setting_window_efb(idset) {
     const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}<i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="EmailNoti"> </i></label>
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
     const FormEmailSubjectEls = () =>{
-      // default
       let value = efb_var.text.default
-      // ${valj_efb[0].email ? valj_efb[0].email : ''}
       if(valj_efb[0].hasOwnProperty('email_sub') && valj_efb[0].email_sub!='') value =  valj_efb[0].email_sub;
       return `
       ${pro_efb==true ?"":funProEfb()}
@@ -800,14 +718,12 @@ function show_setting_window_efb(idset) {
     const thankYouMessageConfirmationCodeEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageConfirmationCodeEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
     <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="thankYouMessageConfirmationCodeEl" required value="${valj_efb[0].thank_you_message.trackingCode ? valj_efb[0].thank_you_message.trackingCode : efb_var.text.trackingCode}"></div>`;
 
-
     const showformLoggedEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="showformLoggedEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('stateForm') && Number(valj_efb[indx].stateForm) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label" for="showformLoggedEl">${efb_var.text.showTheFormTologgedUsers}</label>
     </div>`;
-
 
     const smsEnableEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="smsEnableEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('smsnoti') && Number(valj_efb[indx].smsnoti) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >
@@ -838,10 +754,7 @@ function show_setting_window_efb(idset) {
 
                       </select>`;
 
-
-
     const qtyPlcEls = valj_efb[indx].hasOwnProperty('pholder_chl_value')? `<label for="qtyPlclEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label> <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1"  placeholder="${efb_var.text.placeholder}" id="qtyPlcEl" required value="${valj_efb[indx].pholder_chl_value ? valj_efb[indx].pholder_chl_value : ''}">` :'';
-
 
     const Nadvanced = `
     ${idHidden}
@@ -901,7 +814,6 @@ function show_setting_window_efb(idset) {
           <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="beside"> ${efb_var.text.beside}
         </label>
       </div></div></div>`;
-
 
     const widthEls = `<div class="efb efb-desktop-settings-efb ${deskHideEfb}">
       <label for="sizeEl" class="efb  mt-3"><i class="efb bi-arrow-left-right fs-7 ${iconMarginGlobal}"></i>${efb_var.text.swidth.replace('%s', '') || efb_var.text.width}</label>
@@ -1017,7 +929,6 @@ function show_setting_window_efb(idset) {
       }else {
        idset != "button_group" ? iset=idset=valj_efb[indx].id_: iset=idset="button_group_"
         if(isNumericEfb(iset))idset=iset="step-"+iset;
-       // console.log(iset)
         icon = valj_efb[indx].icon }
       let list =`<tr class="efb efblist text-white" data-id="${iset}" data-name="bi-XXX" data-row="-2" data-state="0" data-visible="1">
       <th scope="row" class="efb bi-XXXXX"></th>
@@ -1034,7 +945,6 @@ function show_setting_window_efb(idset) {
       if (icon.length>1){
          iNo =bootstrap_icons.findIndex(x=>x==icon.replace('bi-',''));
       }
-      // check for Nex and previous
 
       return `
       <div class="efb ${ side!="DoneIconEfb"? '' :`tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}` }"> <label for="iconEl" class="efb form-label mt-2 mb-0" id="DoneIconEfb"><i class="efb bi-heptagon fs-7 ${iconMarginGlobal}"></i>${t} ${efb_var.text.icon} </label>
@@ -1058,10 +968,7 @@ function show_setting_window_efb(idset) {
         `
     }
 
-
     const smsContentEls=(type)=>{
-
-      //check pro version
 
       if(type=="WeRecivedUrM"){
         if(valj_efb[0].hasOwnProperty('sms_msg_recived_usr')){
@@ -1070,9 +977,6 @@ function show_setting_window_efb(idset) {
         if( valj_efb[0].hasOwnProperty('sms_msg_responsed_noti')){value = text_nr_efb(valj_efb[0].sms_msg_responsed_noti,0)}else{value =efb_var.text.newResponse + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_response]`};
       }else if (type == "newMessageReceived"){
       if(valj_efb[0].hasOwnProperty('sms_msg_new_noti')) { value =text_nr_efb(valj_efb[0].sms_msg_new_noti,0) }else{
-       /*  if(valj_efb[0].type=="survey"){ value = efb_var.text.thanksFillingOutform + `\n ${efb_var.text.trackNo}: [confirmation_code] \n ${efb_var.text.url}: [link_response]` ;
-        else if(valj_efb[0].type=="register") {value = efb_var.text.createAcountDoneM + `\n ${efb_var.text.url}: [link_domain]` ;}
-        else {} */
           value = efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n ${efb_var.text.url}: [link_response]`};
       }
 
@@ -1085,7 +989,6 @@ function show_setting_window_efb(idset) {
       return content;
     }
 
-    // textinput for mulitple mobile number of admins
     const smsAdminsPhoneNoEls =()=>{
       let value = valj_efb[0].hasOwnProperty('sms_admins_phone_no') ? valj_efb[0].sms_admins_phone_no : '';
       const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled d-none';
@@ -1098,7 +1001,6 @@ function show_setting_window_efb(idset) {
       return content;
     }
 
-    // Telegram Content Elements
     const telegramContentEls=(type)=>{
       let value = '';
 
@@ -1118,8 +1020,6 @@ function show_setting_window_efb(idset) {
       return content;
     }
 
-
-    // file size
     const fileSizeMaxEls =()=>{
       const file_size = valj_efb[indx].hasOwnProperty('max_fsize') ? valj_efb[indx].max_fsize : 8;
       return`
@@ -1129,10 +1029,6 @@ function show_setting_window_efb(idset) {
       <input type="number" min="1" max="300" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" placeholder=""${efb_var.text.exDot} 8" id="fileSizeMaxEl" required value="${file_size}">
       </div>
       `}
-
-
-
-
 
     const fileTypeEls = `
           <label for="fileTypeEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.fileType}</label>
@@ -1149,7 +1045,6 @@ function show_setting_window_efb(idset) {
     const fileCustomizeTypleEls =()=>{
       let value =  'jpg, png, pdf';
       let show = 'd-none';
-      // valj_efb[indx].file
       if(valj_efb[indx].file=="customize"){
         value = valj_efb[indx].file_ctype;
         show = 'd-block';
@@ -1165,36 +1060,29 @@ function show_setting_window_efb(idset) {
     }
 
     const selectColorEls = (forEl ,f) => {
-      // f ===> text , border,  bg
-      // console.log(forEl,indx,f)
       let t = ''
       let color = '';
       let hex=''
       let cls="";
       if (forEl == 'icon') {
         color = valj_efb[indx].icon_color;
-        // console.log(color.slice(5));
         t = efb_var.text.icon;
-        if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'icon') //slice text=5 bg=2 border=6 btn=3
+        if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'icon')
       } else if (forEl == 'description') {
         color = valj_efb[indx].message_text_color;
-        // console.log(color,color.slice(5));
         t = efb_var.text.description
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'description')
       } else if (forEl == 'label') {
         color = valj_efb[indx].label_text_color;
-        // console.log(color.slice(5));
         t = efb_var.text.label
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'label')
       } else if (forEl == "el") {
         color = valj_efb[indx].el_text_color;
-        // console.log(color.slice(5));
         t = efb_var.text.field
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
       }
       else if (forEl == "clrdoniconEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"#ff4b93" ;
-        // console.log(color.slice(5));
         t = efb_var.text.icon
         hex = color;
         if(color!="" && color.includes('#')==false)  hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
@@ -1202,7 +1090,6 @@ function show_setting_window_efb(idset) {
       }
       else if (forEl == "clrdoneMessageEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"#000000";
-        // console.log(color.slice(5));
         t = efb_var.text.message
         cls="tnxmsg";
         hex = color;
@@ -1218,7 +1105,6 @@ function show_setting_window_efb(idset) {
       } else if (forEl == "progessbar"){
         color = valj_efb[0].hasOwnProperty("prg_bar_color")==true? valj_efb[0].prg_bar_color :"#4636f1";
 
-         // console.log(color);
          t = efb_var.text.pgbar
          hex = color;
        if(color!="" && color.includes('#')==false){
@@ -1234,19 +1120,11 @@ function show_setting_window_efb(idset) {
       `
     }
 
-
-
     const selectMultiSelectEls = `<label for="labelEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.maxSelect}</label>
     <input type="number"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1"  placeholder="${efb_var.text.maxSelect}" id="selectMultiSelectMaxEl"  value="${valj_efb[indx].maxSelect ? valj_efb[indx].maxSelect : '2'}" >
     <label for="labelEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.minSelect}</label>
     <input type="number"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1"  placeholder="${efb_var.text.minSelect}" id="selectMultiSelectMinEl"  value="${valj_efb[indx].minSelect ? valj_efb[indx].minSelect : '0'}" >`
 
-
-
-
-
-
-    // console.log(el.dataset.tag)
     switch (el.dataset.tag) {
       case 'email':
       case 'text':
@@ -1357,7 +1235,6 @@ function show_setting_window_efb(idset) {
         const newRndm = Math.random().toString(36).substr(2, 9);
         let opetions = `<!-- options -->`;
         const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-md-7':'col-md-12'
-        console.log(`el.dataset.tag: ${el.dataset.tag} , s:${s} , o_c:${o_c} , col:${col}` ,objOptions)
         if (objOptions.length > 0) {
 
           const ftyp=el.dataset.tag.includes("pay") ? 'payment':'';
@@ -1470,12 +1347,11 @@ function show_setting_window_efb(idset) {
                 ${el.dataset.tag == "range" || el.dataset.tag == "date" ? mLenEls() :''}
                 ${el.dataset.tag == "range" ?valueEls:''}
 
-
                 ${el.dataset.tag == 'rating' ? '' : widthEls}
                 ${el.dataset.tag == 'rating' ? '' : mobileWidthEls}
                 ${el.dataset.tag != 'range' ? selectHeightEls(idset,indx) :''}
                 ${el.dataset.tag == 'rating' || el.dataset.tag == 'switch' || el.dataset.tag == 'range' ? '' : cornerEls('',indx,idset)}
-                ${/* el.dataset.tag == 'esign' ? selectColorEls('icon') : '' */ ''}
+                ${ ''}
                 ${el.dataset.tag == 'esign' ? iconEls('') : ''}
                 ${el.dataset.tag == 'esign' ? btnColorEls(idset,indx) : ''}
                 ${el.dataset.tag == 'esign' ? SingleTextEls('',idset,indx) : ''}
@@ -1534,7 +1410,6 @@ function show_setting_window_efb(idset) {
         `
         break;
       case "maps":
-        // Object.assign(valj_efb[indx], { lat: 49.24803870604257, lon: -123.10512829684463 })
 
         body = `
         <div class="efb  mb-3">
@@ -1679,7 +1554,6 @@ function show_setting_window_efb(idset) {
       case "booking":
         break;
       case "steps":
-        // console.log(`steps[${idset}]` ,Number(idset)>1);
         idset=Number(idset);
         const logic_steps =idset>1 && false ? logic_section(idset) :"<!--efb-->";
         body = `
@@ -1687,7 +1561,6 @@ function show_setting_window_efb(idset) {
         <!--  not   advanced-->
         ${labelEls}
         ${desEls}
-
 
         </div>
         <!--  not   advanced-->
@@ -1723,7 +1596,6 @@ function show_setting_window_efb(idset) {
         ${cornerEls('Next',indx,idset)}
         ${selectHeightEls(idset,indx)}
         `
-
 
         if (valj_efb[0].button_state != "single") {
           content = `
@@ -1763,8 +1635,6 @@ function show_setting_window_efb(idset) {
           ${FormEmailSubjectEls()}
           ${valj_efb[0].type=="form" || valj_efb[0].type=="payment" ?  EmailNotiContainsEls() :'<!--efb-->'}
           ${selectColorEls('progessbar','btn')}
-
-
 
           <!-- sms section -->
           <div class="efb d-grid gap-2">
@@ -1844,7 +1714,6 @@ function show_setting_window_efb(idset) {
         break;
       case 'stripe':
 
-
         body = `<div class="efb  mb-3">
         <!--  not   advanced-->
           <h2 class="efb  text-muted">${efb_var.text.stripe}</h2>
@@ -1855,7 +1724,6 @@ function show_setting_window_efb(idset) {
 
         break;
         case 'paypal':
-
 
           body = `<div class="efb  mb-3">
           <!--  not   advanced-->
@@ -1876,26 +1744,14 @@ function show_setting_window_efb(idset) {
           </div>`
         break;
         case "table_matrix":
-          // case "multiselect":
-          // case "conturyList":
-          // case "stateProvince":
-          // case "payCheckbox":
-          // case "payRadio":
-          // case "paySelect":
-          // case "chlCheckBox":
-          // case "chlRadio":
-          // case "payMultiselect":
           const obj_r_matrix = valj_efb.filter(obj => {
             return obj.parent === el.id
           })
-          // let s = el.dataset.tag;
 
           const newRndmm = Math.random().toString(36).substr(2, 9);
           let r_matrixs = `<!-- options -->`;
-          // const col ='col-md-12'
 
           if (obj_r_matrix.length > 0) {
-
 
             for (let ob of obj_r_matrix) {
               let cont = ` <div class="efb  btn-edit-holder newop" id="deleteOption" data-parent_id="${ob.parent}">
@@ -1921,7 +1777,6 @@ function show_setting_window_efb(idset) {
                     <!--notAdvanced-->
                     ${Nadvanced}
 
-
                     ${el.dataset.tag == 'multiselect' || el.dataset.tag == 'payMultiselect' ? selectMultiSelectEls : ''}
                     <label for="optionListefb" class="efb  ">${efb_var.text.options}
 
@@ -1946,9 +1801,6 @@ function show_setting_window_efb(idset) {
 
                             ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
-
-
-
 
                             ${labelPostionEls}
     ${mobileLabelPostionEls}
@@ -1999,11 +1851,6 @@ function show_setting_window_efb(idset) {
 
     }
 
-
-    // console.log("show_setting_window_efb",body)
-    // show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
-    // sideMenuEfb(1)
-   // document.getElementById('sideBoxEfb').classList.add('show');
    const len = valj_efb.length;
    const timeout = len>600 ? 4200 : len>500 ? 2600 : len >400 ? 1800 : len>300 ? 1200 : len>200 ? 800 : len>100 ? 200 : len>50 ? 100 : len>25 ? 50 : len>10 ? 20 : 0;
 
@@ -2020,14 +1867,10 @@ function show_setting_window_efb(idset) {
      }, timeout);
   }
 
-
-
-
 function creator_form_builder_Efb() {
   if (valj_efb.length < 2) {
     const btn_pois = Number(efb_var.rtl) == 1 ? 'justify-content-center' : 'justify-content-center';
     step_el_efb = 1;
-    // const smail =efb_var.setting.emailSupporter!=''  ? true :false
     valj_efb.push({
       type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode: true, EfbVersion: 2,
       button_single_text: efb_var.text.submit, button_color: pub_bg_button_color_efb, icon: 'bi-ui-checks-grid', button_Next_text: efb_var.text.next, button_Previous_text: efb_var.text.previous,
@@ -2044,7 +1887,6 @@ function creator_form_builder_Efb() {
 
   }
 
-
   let els = "<!--efb.app-->";
   let dragab = true;
   let disable = "disable";
@@ -2054,10 +1896,8 @@ function creator_form_builder_Efb() {
   if (formType == "login") {
     dragab = false;
     disable = ond;
-    // thisElemantNotAvailable
   }
 
-  // Check if pro is not active and package type is 2 - restrict dragging
   const isPackageTypeLimited = pro_efb == false && Number(setting_emsFormBuilder.package_type) == 2;
   const packageLimitMessage = `onclick='pro_show_efb(3)'`
 
@@ -2065,7 +1905,6 @@ function creator_form_builder_Efb() {
   for (let ob of fields_efb) {
 
     if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
-    // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
     if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
       const msg =efb_var.text.IMAddonPMsg.replace('%s',`<b>${efb_var.text.stripe}</b>`) + ' '+ efb_var.text.INAddonMsg.replace('%s',`<b>${efb_var.text.stripe}</b>`).toLowerCase()
       disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${msg}', 20 , 'info')"`
@@ -2088,7 +1927,6 @@ function creator_form_builder_Efb() {
       dragab = false;
     }
 
-    // Apply package type 2 limitations for pro fields when pro is not active
     if (isPackageTypeLimited && ob.pro == true) {
       disable = packageLimitMessage;
       dragab = false;
@@ -2213,7 +2051,6 @@ function funUpdateLisetcardTitleEfb(cat){
   change_visible_el_efb(cat);
 }
 
-
 items_dd_efb = () => {
   jQuery(function () {
 
@@ -2247,30 +2084,24 @@ efb_powered_by=()=>{
   return `<div class="efb fs-8 p-0  m-0 text-muted" id="wpfooter"><a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank" class="efb nounderline">Easy Form Builder</a> Powered by <a href="https://wordpress.org/" target="_blank" class="efb nounderline">WordPress</a>, <a href="https://getbootstrap.com/" target="_blank" class="efb nounderline">Bootstrap</a> and Bootstrap Icon. Created by <a href="${ws}" target="_blank" class="efb nounderline">Whitestudio.team</a></div>`;
 }
 
-
 efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
  const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-sm-7':'col-sm-12'
 
  let t = "radio";
- // const col = "col-sm-11"
  let opetions = `<!-- options -->`;
  let parent = valj_efb.find(x=>x.id_ == objOptions[0].parent)
  const vl =parent ? parent.value :'';
   let l_b = mobile_view_efb ? 'd-block' : 'd-none';
   const tp = parent.type.toLowerCase();
-  // console.log(`parent lower case=====>[${tp}]`,ftyp)
  for (let ob of objOptions) {
    if(parent){
      if(tp.indexOf("multi")>-1  || tp.includes("checkbox")==true || tp.includes("multiselect")==true  ) t="checkbox"
 
    }
     const price = ob.hasOwnProperty("price") ? ob.price : 0;
-    // const id = ob.hasOwnProperty("id") ? ob.id : ob.id_;
     const id = ob.hasOwnProperty('id') ? ob.id : ob.id_;
     const id_old = ob.hasOwnProperty("id_old") ? ob.id_old :'null'
     let checked= "";
-
-
 
     if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && (vl == id || vl==id_old)){ checked="checked";
     }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof vl!="string" &&  vl.findIndex(x=>x==id || x==id_old)!=-1 ){checked="checked"
@@ -2281,9 +2112,7 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
   return opetions
 }
 
-
 const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,id_value,checked)=>{
-    console.log(`add_option_edit_admin_efb parentsID=[${parentsID}] t=[${t}] idin=[${idin}] tag=[${tag}] id_ob=[${id_ob}] value=[${value}] col=[${col}] s=[${s}] l_b=[${l_b}] ftyp=[${ftyp}] id_value=[${id_value}] checked=[${checked}]`)
   const fun_imgRadio =()=>{
     let r ='<!-efb-->'
     const u = (url)=>{
@@ -2296,7 +2125,6 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
 
     if(tag=="imgRadio"){
       let row = valj_efb.find(x=>x.id_==id_value);
-      //console.log(row)
       if (typeof row == "undefined") r ='<!-efb-->';
       const url = u(row.src);
       r =`
@@ -2310,12 +2138,9 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
   const fun_bookingAttr =()=>{
     let r ='<!-efb-->'
 
-
     if(valj_efb[0].hasOwnProperty('booking')==true && valj_efb[0].booking==true && (tag=='radio' || tag=='checkbox' || tag=='select' || tag=='imgRadio')){
       let row = valj_efb.find(x=>x.id_==id_value);
-      //console.log(row)
       if (typeof row == "undefined") r ='<!-efb-->';
-      //dateExp
       const date_v =row.hasOwnProperty('dateExp') && row.dateExp.length>1 ? row.dateExp : '';
       r =`
       <input type="date" placeholder="${efb_var.text.date}" id="bookDateExpEl"  value="${date_v}" data-value="${date_v}" data-id="${row.id_}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d rounded-4 elEdit" >
@@ -2426,10 +2251,7 @@ const optionSmartforOptionsEls = (idset ,fid , s_op)=>{
  <select>`
 }
 
-
-
 const selectSmartforOptionsEls = (idset ,fid)=>{
-  // console.error("!!!!!!!!",idset ,fid);
   let c = -1;
   const n = valj_efb[0].hasOwnProperty('conditions')==true ? valj_efb[0].conditions.findIndex(x=>x.id_ ==fid):-1;
 
@@ -2437,10 +2259,8 @@ const selectSmartforOptionsEls = (idset ,fid)=>{
 
   }
   if (typeof c =="undefined") c= valj_efb[0].conditions[n].condition[0];
- // if (c==-1) return `<!-- efb: conditions not exists -->`
  let row= get_list_name_selecting_field_efb();
  let op =`<option disabled>${efb_var.text.nothingSelected}</option>`;
-
 
  for (let i =0 ; i< row.length ; i++){
 
@@ -2458,8 +2278,6 @@ fun_translate_check_efb=()=>{
 }
 
 const test=fun_translate_check_efb();
-
-
 
 const fun_state_of_UK =(rndm,iVJ)=>{
   return [{
@@ -2509,15 +2327,11 @@ const fun_state_of_UK =(rndm,iVJ)=>{
   ];
 }
 
-
-
 function update_event_elmants_settings(classes){
-  console.log(`update_event_elmants_settings classes=[${classes}]`)
    for (const el of document.querySelectorAll(`${classes}`)) {
       el.addEventListener("change", (e) => { change_el_edit_Efb(el);})
     }
 }
-
 
 function show_setting_up_easy_form_builder_Efb() {
 
@@ -2683,7 +2497,6 @@ function show_setting_up_easy_form_builder_Efb() {
       </div>
     </div>
     <style>
-      /* EFB Setup Container Styles */
       .efb-setup-container {
         padding: 30px;
         max-width: 100%;
@@ -2723,7 +2536,6 @@ function show_setting_up_easy_form_builder_Efb() {
         line-height: 1.5;
       }
 
-      /* Plans Grid */
       .efb-plans-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -2756,8 +2568,6 @@ function show_setting_up_easy_form_builder_Efb() {
         box-shadow: 0 10px 30px rgba(32, 42, 141, 0.1);
       }
 
-
-      /* Pro Plan Highlighted Styles */
       .efb-pro-highlighted {
         background: linear-gradient(145deg, rgba(255, 215, 0, 0.05) 0%, rgba(255, 193, 7, 0.08) 100%);
         border: 3px solid #8f8f8f;
@@ -2803,7 +2613,6 @@ function show_setting_up_easy_form_builder_Efb() {
         border: 2px solid white;
         z-index: 10;
       }
-
 
       .efb-card-content {
         padding: 30px 25px;
@@ -2923,7 +2732,6 @@ function show_setting_up_easy_form_builder_Efb() {
         color: #17a2b8;
       }
 
-      /* Plan Action Area */
       .efb-plan-action {
         margin-top: auto;
         flex-shrink: 0;
@@ -2931,7 +2739,6 @@ function show_setting_up_easy_form_builder_Efb() {
         width: 100%;
       }
 
-      /* Buttons */
       .efb-btn {
         width: 100%;
         padding: 15px 20px;
@@ -3029,7 +2836,6 @@ function show_setting_up_easy_form_builder_Efb() {
         text-decoration: underline;
       }
 
-      /* Footer */
       .efb-setup-footer {
         border-top: 1px solid rgba(32, 42, 141, 0.1);
         padding-top: 30px;
@@ -3060,7 +2866,6 @@ function show_setting_up_easy_form_builder_Efb() {
         margin: 0;
       }
 
-      /* Responsive Design */
       @media (max-width: 768px) {
         .efb-setup-container {
           padding: 20px 15px;
@@ -3127,7 +2932,6 @@ function show_setting_up_easy_form_builder_Efb() {
         }
       }
 
-
       .badge {
         font-size: 0.7rem;
         padding: 0.5rem 0.75rem;
@@ -3156,17 +2960,14 @@ function show_setting_up_easy_form_builder_Efb() {
         color: white !important;
       }
 
-      /* Change cursor to pointer for text elements */
       .efb p, .efb span, .efb h1, .efb h2, .efb h3, .efb h4, .efb h5, .efb h6, .efb li, .efb .text-muted, .efb .badge, .efb .modal-title, .efb .lead {
         cursor: pointer;
       }
 
-      /* Prevent text selection for better UX */
       .efb .modal-title, .efb .badge, .efb .card-body h6 {
         user-select: none;
       }
 
-      /* Selectable card styles */
       .efb-selectable-card {
         cursor: pointer;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -3211,7 +3012,6 @@ function show_setting_up_easy_form_builder_Efb() {
         box-shadow: 0 6px 20px rgba(32, 42, 141, 0.3);
       }
 
-      /* Icons styling */
       .bi-heart-fill {
         color: #633a82 !important;
       }
@@ -3228,7 +3028,6 @@ function show_setting_up_easy_form_builder_Efb() {
         color: #202a8d !important;
       }
 
-      /* Text colors */
       .text-muted {
         color: #898aa9 !important;
       }
@@ -3237,7 +3036,6 @@ function show_setting_up_easy_form_builder_Efb() {
         color: #202a8d !important;
       }
 
-      /* Notification styles */
       .efb-notification {
         position: fixed;
         top: 20px;
@@ -3270,7 +3068,6 @@ function show_setting_up_easy_form_builder_Efb() {
         font-size: 18px;
       }
 
-      /* Enhanced modal header */
       .modal-header {
         background: linear-gradient(135deg, rgba(32, 42, 141, 0.03) 0%, rgba(99, 58, 130, 0.05) 100%);
         border-bottom: 1px solid rgba(32, 42, 141, 0.1);
@@ -3312,7 +3109,6 @@ function show_setting_up_easy_form_builder_Efb() {
       .card:nth-child(2) { animation-delay: 0.2s; }
       .card:nth-child(3) { animation-delay: 0.3s; }
 
-      /* Premium Button Styling */
       .efb-btn-premium {
         background: linear-gradient(135deg, #3F51B5 0%, #2196F3 100%);
         border: 2px solid #2196F3;
@@ -3346,7 +3142,6 @@ function show_setting_up_easy_form_builder_Efb() {
         left: 100%;
       }
 
-      /* Pro Box Animations */
       @keyframes proGlow {
         0% {
           box-shadow: 0 15px 40px rgba(63, 81, 181, 0.2);
@@ -3368,7 +3163,6 @@ function show_setting_up_easy_form_builder_Efb() {
         }
       }
 
-      /* Selected Plan Styling */
       .efb-plan-selected {
         border: 3px solid #28a745 !important;
         background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(40, 167, 69, 0.08) 100%) !important;
@@ -3426,49 +3220,35 @@ function show_setting_up_easy_form_builder_Efb() {
 
 }
 
-/**
- * Handle setup modal actions based on selected plan
- * @param {string} plan - The selected plan: 'free', 'free_plus', 'pro', or 'later'
- */
 function handle_setup_modal_action(plan) {
-    console.log('Setup modal action:', plan);
 
     plan = (typeof plan === 'string') ? plan.replace(/[^A-Za-z_]/g, '') : '';
     try {
-        // Handle different plan selections
         switch(plan) {
             case 'free':
-                console.log('User selected Free plan');
-                // ذخیره‌سازی در localStorage
                 savePlanSelection_efb('free', {
                     plan_name: 'Free Plan',
                     features: ['core_form_fields', 'email_notifications'],
                     selected_at: Date.now()
                 });
-                // تنظیم پیکربندی طرح رایگان
                 setupFreePlan_efb();
                 show_success_notification_efb(efb_var.text.startWithFree + ' ' + efb_var.text.selected);
                 closeSetupOverlay_efb();
                 break;
 
             case 'free_plus':
-                console.log('User selected Free Plus plan');
-                // ذخیره‌سازی در localStorage
                 savePlanSelection_efb('free_plus', {
                     plan_name: 'Free Plus Plan',
                     features: ['core_form_fields', 'advanced_form_fields', 'email_notifications', 'built_in_features'],
                     show_credit: true,
                     selected_at: Date.now()
                 });
-                // فعال‌سازی ویژگی‌های پیشرفته با کردیت
                 enable_advanced_features_with_credit_efb();
                 show_success_notification_efb(efb_var.text.freePlus + ' ' + efb_var.text.selected);
                 closeSetupOverlay_efb();
                 break;
 
             case 'pro':
-                console.log('User selected Pro plan');
-                // ذخیره‌سازی انتخاب Pro در localStorage
                 savePlanSelection_efb('pro', {
                     plan_name: 'Pro Plan',
                     features: ['all_features', 'no_credit', 'premium_support'],
@@ -3476,10 +3256,8 @@ function handle_setup_modal_action(plan) {
                 });
 
             case 'later':
-                console.log('User chose "Maybe later"');
-                // ذخیره‌سازی یادآوری
                 localStorage.setItem('efb_setup_reminder', JSON.stringify({
-                    remind_at: Date.now() + (7 * 24 * 60 * 60 * 1000), // 1 هفته بعد
+                    remind_at: Date.now() + (7 * 24 * 60 * 60 * 1000),
                     skipped_at: Date.now()
                 }));
                 show_info_notification_efb(efb_var.text.setupReminder || 'You can access setup from plugin settings anytime.');
@@ -3487,14 +3265,11 @@ function handle_setup_modal_action(plan) {
                 break;
 
             default:
-                console.warn('Unknown plan selected:', plan);
                 break;
         }
 
-        // Update UI based on selection
         update_ui_based_on_plan_efb(plan);
 
-        // Send analytics event (if analytics is enabled)
         if (typeof gtag !== 'undefined') {
             gtag('event', 'plan_selected', {
                 'event_category': 'easy_form_builder',
@@ -3504,33 +3279,18 @@ function handle_setup_modal_action(plan) {
         }
 
     } catch (error) {
-        console.error('Error handling setup modal action:', error);
         show_error_notification_efb('An error occurred. Please try again.');
     }
 }
 
-/**
- * Enable advanced features with credit line for Free Plus plan
- */
 function enable_advanced_features_with_credit_efb() {
-    console.log('Enabling advanced features with credit line...');
-    // Enable advanced form fields
-    // Enable conditional logic
-    // Enable file uploads
-    // Add "Powered by Easy Form Builder" credit
 
-    // You can add specific feature enablement logic here
     if (typeof efb_var !== 'undefined') {
         efb_var.advanced_features = true;
         efb_var.show_credit = true;
     }
 }
 
-/**
- * ذخیره‌سازی انتخاب plan در localStorage
- * @param {string} plan - نام plan انتخاب شده
- * @param {object} planData - اطلاعات تکمیلی plan
- */
 function savePlanSelection_efb(plan, planData) {
     try {
         const selectionData = {
@@ -3539,29 +3299,21 @@ function savePlanSelection_efb(plan, planData) {
             timestamp: Date.now()
         };
 
-        console.log('Plan selection saved:', selectionData);
         if (plan ==='pro' || plan ==='null' || plan ==='free') {
           efb_var.setting.package_type = 2;
         }else if (plan ==='free_plus') {
           efb_var.setting.package_type = 3;
         }
-        // ارسال به AJAX برای ذخیره در دیتابیس
         sendPlanSelectionToServer_efb(selectionData);
 
     } catch (error) {
-        console.error('Error saving plan selection:', error);
     }
 }
 
-/**
- * دریافت انتخاب قبلی کاربر از localStorage
- * @returns {object|null} اطلاعات plan انتخاب شده
- */
 function getSelectedPlan_efb() {
     if (typeof efb_var === 'undefined' || !efb_var.setting) {
       return { selected_plan: 'null', plan_data: {} };
     }
-    console.log(efb_var.setting.package_type);
     const package_type = Number(efb_var.setting.package_type);
     if (package_type === 10) {
       return { selected_plan: 'null', plan_data: {} };
@@ -3575,28 +3327,21 @@ function getSelectedPlan_efb() {
     return { selected_plan: 'null', plan_data: {} };
 }
 
-/**
- * نمایش plan انتخاب شده در overlay
- */
 function highlightSelectedPlan_efb() {
     const selectedPlanData = getSelectedPlan_efb();
     if (!selectedPlanData) return;
 
     const selectedPlan = selectedPlanData.selected_plan;
-    console.log('Highlighting previously selected plan:', selectedPlan);
 
-    // پیدا کردن card مربوط به plan انتخاب شده
     const planCards = document.querySelectorAll('.efb-plan-card');
     planCards.forEach((card, index) => {
         const isSelected = (
             (selectedPlan === 'free' && index === 0)
             || (selectedPlan === 'free_plus' && index === 1)
-         // || (selectedPlan === 'pro' && index === 2)
         );
 
         if (isSelected) {
             card.classList.add('efb-plan-selected');
-            // اضافه کردن علامت انتخاب
             const checkmark = document.createElement('div');
             checkmark.className = 'efb-plan-checkmark';
             checkmark.innerHTML = '<i class="bi bi-check-circle-fill"></i>'+efb_var.text.activated;
@@ -3605,12 +3350,7 @@ function highlightSelectedPlan_efb() {
     });
 }
 
-/**
- * تنظیم طرح رایگان
- */
 function setupFreePlan_efb() {
-    console.log('Setting up Free Plan...');
-    // تنظیمات طرح رایگان
     if (typeof efb_var !== 'undefined') {
         efb_var.current_plan = 'free';
         efb_var.advanced_features = false;
@@ -3618,25 +3358,13 @@ function setupFreePlan_efb() {
     }
 }
 
-/**
- * هدایت به صفحه خرید Pro
- */
 function redirectToProUpgrade_efb($proUrl) {
-    console.log('Redirecting to Pro upgrade page...');
-
 
     closeSetupOverlay();
     window.open(proUrl, '_blank');
 }
 
-/**
- * ارسال انتخاب plan به سرور (برای آینده)
- * @param {object} selectionData - اطلاعات انتخاب
- */
 function sendPlanSelectionToServer_efb(selectionData) {
-    console.log('Sending plan selection to server:', selectionData);
-    console.log('Using AJAX URL:', efb_var.ajax_url);
-    console.log('Using nonce:', _efb_nonce_);
     const user_selected = selectionData.selected_plan || 'unknown';
     if(user_selected === 'pro') {
       sessionStorage.setItem('efb_license_selected', '4');
@@ -3645,7 +3373,6 @@ function sendPlanSelectionToServer_efb(selectionData) {
     }else if(user_selected === 'free') {
       sessionStorage.setItem('efb_license_selected', '2');
     }
-    // ارسال AJAX به سرور
     jQuery.ajax({
         url: efb_var.ajax_url,
         type: 'POST',
@@ -3656,33 +3383,20 @@ function sendPlanSelectionToServer_efb(selectionData) {
             nonce: _efb_nonce_
         },
         success: function(response) {
-            console.log('Plan selection saved to server:', response);
             if (response.success && response.data) {
-                console.log('Server response message:', response.data.message);
-                console.log('Saved plan:', response.data.plan);
-                console.log('Action performed:', response.data.action);
-                console.log('package_type performed:', response.data.package_type);
 
-                // Handle redirect for Pro plan
                 if (response.data.redirect_url) {
-                    console.log('Redirecting to:', response.data.redirect_url);
-                    // Show user notification before redirect
                     window.open(response.data.redirect_url, '_blank');
                 }
 
-                // Show success message to user
                 if (response.data.action) {
-                    // You can add a toast notification here if you have a notification system
                     updatePlanBadge_efb();
-                    console.log('Plan action completed:', response.data.action);
                 }
 
             } else if (response.success === false && response.data) {
-                console.error('Server returned error:', response.data.message);
             }
         },
         error: function(xhr, status, error) {
-            console.error('Error saving plan to server:', {
                 status: status,
                 error: error,
                 response: xhr.responseText,
@@ -3692,23 +3406,15 @@ function sendPlanSelectionToServer_efb(selectionData) {
         }
     });
 
-    console.log('Server sync ready for:', selectionData);
 }
 
-/**
- * Update UI based on selected plan
- * @param {string} plan - Selected plan
- */
 function update_ui_based_on_plan_efb(plan) {
-    console.log('Updating UI for plan:', plan);
 
-    // Update navigation or admin interface based on plan
     const planElement = document.querySelector('.efb-current-plan');
     if (planElement) {
         planElement.textContent = plan.replace('_', ' ').toUpperCase();
     }
 
-    // Show/hide features based on plan
     const advancedFeatures = document.querySelectorAll('.efb-advanced-feature');
     if (plan === 'free') {
         advancedFeatures.forEach(el => el.style.display = 'none');
@@ -3717,12 +3423,7 @@ function update_ui_based_on_plan_efb(plan) {
     }
 }
 
-/**
- * Show success notification
- * @param {string} message - Success message
- */
 function show_success_notification_efb(message) {
-    // Create and show success notification
     const notification = document.createElement('div');
     notification.className = 'efb-notification efb-notification-success';
     notification.innerHTML = `
@@ -3734,38 +3435,20 @@ function show_success_notification_efb(message) {
 
     document.body.appendChild(notification);
 
-    // Auto remove after 3 seconds
     setTimeout(() => {
         notification.remove();
     }, 3000);
 }
 
-/**
- * Show info notification
- * @param {string} message - Info message
- */
 function show_info_notification_efb(message) {
-    console.log('Info:', message);
-    // You can implement a toast/notification system here
 }
 
-/**
- * Show error notification
- * @param {string} message - Error message
- */
 function show_error_notification_efb(message) {
-    console.error('Error:', message);
-    // You can implement an error notification system here
 }
 
-/**
- * Show setup as responsive overlay page
- */
 function showSetupAsOverlayPage() {
-    // Get the setup content
     const setupContent = show_setting_up_easy_form_builder_Efb();
 
-    // Create overlay page
     const overlayPage = document.createElement('div');
     overlayPage.id = 'efb-setup-overlay';
     overlayPage.className = 'efb-setup-overlay';
@@ -3866,7 +3549,6 @@ function showSetupAsOverlayPage() {
             overflow-x: hidden;
         }
 
-        /* Enhanced Responsive Design */
         @media (max-width: 1024px) {
             .efb-overlay-container {
                 max-width: 95%;
@@ -3898,7 +3580,6 @@ function showSetupAsOverlayPage() {
                 background: rgba(255, 255, 255, 0.95);
             }
 
-            /* Mobile plan card adjustments */
             .efb-overlay-content .efb-plan-card {
                 margin-bottom: 15px !important;
                 padding: 15px !important;
@@ -3916,7 +3597,6 @@ function showSetupAsOverlayPage() {
                 position: relative !important;
             }
 
-            /* Add scroll hint */
             .efb-overlay-content .efb-plans-grid::after {
                 content: '← Swipe to see more plans →' !important;
                 position: absolute !important;
@@ -3983,7 +3663,6 @@ function showSetupAsOverlayPage() {
                 font-size: 0.9rem;
             }
 
-            /* Mobile plan card adjustments */
             .efb-overlay-content .efb-plan-card {
                 padding: 12px !important;
                 margin-bottom: 12px !important;
@@ -4012,14 +3691,12 @@ function showSetupAsOverlayPage() {
                 padding: 10px !important;
             }
 
-            /* Button responsive sizing */
             .efb-overlay-content .efb-setup-button {
                 padding: 8px 16px !important;
                 font-size: 0.9rem !important;
                 margin: 5px 0 !important;
             }
 
-            /* Text size adjustments */
             .efb-overlay-content .efb-plan-title {
                 font-size: 1.1rem !important;
             }
@@ -4088,7 +3765,6 @@ function showSetupAsOverlayPage() {
             }
         }
 
-        /* Landscape orientation adjustments */
         @media (max-height: 600px) and (orientation: landscape) {
             .efb-overlay-container {
                 max-height: 95vh;
@@ -4104,7 +3780,6 @@ function showSetupAsOverlayPage() {
             }
         }
 
-        /* Animation keyframes */
         @keyframes overlayFadeIn {
             from {
                 opacity: 0;
@@ -4129,13 +3804,10 @@ function showSetupAsOverlayPage() {
         </style>
     `;
 
-    // Add to document
     document.body.appendChild(overlayPage);
 
-    // نمایش انتخاب قبلی کاربر
     highlightSelectedPlan_efb();
 
-    // Auto scroll to Free Plus on mobile devices
     setTimeout(() => {
         const isMobile = window.innerWidth <= 768;
         if (isMobile) {
@@ -4147,7 +3819,6 @@ function showSetupAsOverlayPage() {
                 const gridWidth = plansGrid.clientWidth;
                 const cardWidth = freePlusCard.clientWidth;
 
-                // Center the Free Plus card
                 const scrollPosition = cardOffsetLeft - (gridWidth - cardWidth) / 2;
 
                 plansGrid.scrollTo({
@@ -4155,43 +3826,29 @@ function showSetupAsOverlayPage() {
                     behavior: 'smooth'
                 });
 
-                console.log('Auto-scrolled to Free Plus plan on mobile');
             }
         }
     }, 300);
 
-    // Prevent body scroll
     document.body.style.overflow = 'hidden';
 
-    // Add escape key listener
     document.addEventListener('keydown', handleOverlayEscape_efb);
 }
 
-/**
- * Close setup overlay page
- */
 function closeSetupOverlay_efb() {
     const overlay = document.getElementById('efb-setup-overlay');
     if (overlay) {
-        // Add fade out animation
         overlay.style.animation = 'overlayFadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
 
-        // Remove after animation
         setTimeout(() => {
             overlay.remove();
-            // Restore body scroll
             document.body.style.overflow = '';
-            // Remove escape key listener
             document.removeEventListener('keydown', handleOverlayEscape_efb);
-            // Refresh the plan badge in settings
             updatePlanBadge_efb();
         }, 300);
     }
 }
 
-/**
- * Returns the current plan badge HTML based on efb_var.pro and package_type
- */
 sessionStorage.setItem('efb_license_selected', efb_var.setting.package_type);
 function getCurrentPlanBadge_efb() {
   const crntPlnLabel = (efb_var.text && efb_var.text.crntPln) || 'Current Plan';
@@ -4216,7 +3873,6 @@ function getCurrentPlanBadge_efb() {
     } else if (pro_type === 4) {
         badgeClass = 'bg-dark ';
         iconHtml = `<i class="efb bi-hourglass ${icon_mx}"></i>`;
-        //یک عبارت بنویس که برای فعال سازی لایسنس پرو در حال انتظار است
         planName = (efb_var.text && efb_var.text.proPending) || 'Pro Pending';
     }
 
@@ -4224,9 +3880,6 @@ function getCurrentPlanBadge_efb() {
             <span class="efb badge rounded-4 ${badgeClass} fs-6 ${div_mx} py-2">${iconHtml}${planName}</span>`;
 }
 
-/**
- * Updates the plan badge in the settings General tab after plan change
- */
 function updatePlanBadge_efb() {
     const container = document.getElementById('efbCurrentPlanBadge');
     if (container) {
@@ -4234,48 +3887,31 @@ function updatePlanBadge_efb() {
     }
 }
 
-/**
- * Handle escape key for overlay
- */
 function handleOverlayEscape_efb(event) {
     if (event.key === 'Escape') {
         closeSetupOverlay_efb();
     }
 }
 
-
-
-// Show setup overlay page when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Check if we're on the form builder page and setup should be shown
     const getPlan = getSelectedPlan_efb();
-    console.log('Current selected plan:', getPlan);
     if (getPlan && getPlan.selected_plan === 'null') {
-      // Small delay to ensure all elements are loaded
       setTimeout(() => {
         try {
-          // Show setup as responsive overlay page
           showSetupAsOverlayPage();
-          // Mark as sho
-          console.log('Setup overlay page displayed successfully');
         } catch (error) {
-          console.error('Error displaying setup overlay page:', error);
         }
-      }, 1.5); // 0.8 seconds delay to ensure everything is loaded
+      }, 1.5);
     }
 
 });
 
-
-
-// Function to force setup modal on next page load
 function forceSetupModalOnNextLoad() {
   sessionStorage.setItem('efb_force_setup_modal', 'true');
 }
 
-// Optional: Function to reset and show setup modal again (for testing)
 function resetSetupModal() {
   localStorage.removeItem('efb_setup_modal_shown');
   sessionStorage.setItem('efb_force_setup_modal', 'true');
-  location.reload(); // Reload page to trigger setup modal again
+  location.reload();
 }

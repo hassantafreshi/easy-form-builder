@@ -1,8 +1,3 @@
-//multi step form wizard builder (core)
-//Create by: Hassan Tafreshi
-// Email: hasan.tafreshi@gmail.com
-// WhiteStudio.team
-
 
 let exportView_emsFormBuilder = [];
 let stepsCountEfb;
@@ -16,8 +11,6 @@ let demo_emsFormBuilder = false;
 let validate_edit_mode_emsFormBuilder = false;
 let test_view__emsFormBuilder = true
 
-
-// Mutable nonce for ajax_object_efm_core - kept outside freeze
 var _efb_core_nonce_ = '';
 
 jQuery(function () {
@@ -31,8 +24,6 @@ jQuery(function () {
   }
 });
 function fun_render_view_core_emsFormBuilder(check) {
-  //v2
-  // valueJson_ws ? document.getElementById('button-preview-emsFormBuilder').disabled = false : document.getElementById('button-preview-emsFormBuilder').disabled = true;
   exportView_emsFormBuilder = [];
   valueJson_ws = JSON.parse(sessionStorage.getItem("valueJson_ws_p"));
   form_type_emsFormBuilder = valueJson_ws && valueJson_ws[0].type ? valueJson_ws[0].type : 'form';
@@ -58,15 +49,6 @@ function fun_render_view_core_emsFormBuilder(check) {
         req = v.required ? v.required : false;
         if (v.type == "date") {
 
-          /* if (v.clander=="Persian" || v.clander=="Arabic") {
-             v.type="text";
-            if (v.clander=="Arabic"){
-              classData="hijri-picker"
-              el =` <link href="bootstrap-datetimepicker-ar.css" rel="stylesheet" />`
-             }else{
-                classData="jalali-picker";
-             }
-           }; */
         }
         else if (v.type == "email" || v.type == "tel" || v.type === "url" || v.type === "password") classData = "validation";
 
@@ -78,7 +60,7 @@ function fun_render_view_core_emsFormBuilder(check) {
       case 'file':
         id = v.id ? v.id : v.id_;
         req = v.required ? v.required : false;
-        const drog = v.fileDrogAndDrop ? v.fileDrogAndDrop : false; // برای تشخیص اینکه حالت دراگ اند دراپ هست یا نه
+        const drog = v.fileDrogAndDrop ? v.fileDrogAndDrop : false;
         let acception = `.zip,.rar`;
         let typeFile = "Zip"
         if (v.file == "Image") {
@@ -96,7 +78,6 @@ function fun_render_view_core_emsFormBuilder(check) {
         } else if (v.file == "customize") {
           acception =  `.zip ,.rar`;
           if(v.hasOwnProperty('file_ctype') ){
-            //seprate string to array by comma
             const arr = v.file_ctype.split(',');
             for (let i = 0; i < arr.length; i++) {
               acception += `.${arr[i]},`;
@@ -125,7 +106,6 @@ function fun_render_view_core_emsFormBuilder(check) {
         const typ = v.type == "checkbox" ? "checkbox" : "radio";
         req = v.required ? v.required : false;
         el = `<div class="efb  emsFormBuilder"><div class="efb row"><label for="${v.id_}" id="${v.id_}" class="efb emsFormBuilder emsFormBuilder-title ${v.required == true ? 'require' : ''}" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label></div>`
-        // el = ` <label for="${v.id_}" class="efb emsFormBuilder" >${v.name}</label><input type="checkbox"  id='${id}' name="${v.id_}" class="efb ${v.class ? `${v.class}  emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'require' : ''}>`
         exportView_emsFormBuilder.push({ id_: v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: typ, required: req, amount: v.amount });
         break
       case 'multiselect':
@@ -205,9 +185,7 @@ function fun_render_view_core_emsFormBuilder(check) {
   ShowTab_emsFormBuilder_view(currentTab_emsFormBuilder);
   createStepsOfPublic()
 
-
 }
-
 
 function ShowTab_emsFormBuilder_view(n) {
   var x = document.getElementsByClassName("emsFormBuilder-tab-view");
@@ -224,15 +202,12 @@ function ShowTab_emsFormBuilder_view(n) {
     }
   }
   if (n == (x.length - 1)) {
-    //document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="efb fa fa-angle-double-right"></i>';
   } else {
-    // document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="efb fa fa-angle-double-right"></i>';
   }
   validateForm_fixStepInd_view(n)
 }
 
 function emsFormBuilder_nevButton_view(n) {
-
 
   if (n != 0) {
     var x = document.getElementsByClassName("emsFormBuilder-tab-view");
@@ -254,32 +229,24 @@ function emsFormBuilder_nevButton_view(n) {
       el.classList.remove("active");
       el.classList.contains('first')
     }
-    // endMessage_emsFormBuilder_view()
     currentTab_emsFormBuilder = n;
   }
-
-
 
   if (x && currentTab_emsFormBuilder >= x.length) {
     document.getElementById("emsFormBuilder-text-nextprevious-view").style.display = "none";
     document.getElementById("emsFormBuilder-all-steps-view").style.display = "none";
     document.getElementById("emsFormBuilder-form-view-title").style.display = "none";
     document.getElementById("emsFormBuilder-text-message-view").style.display = "block";
-    //endMessage_emsFormBuilder_view()
     if (demo_emsFormBuilder == false) {
       endMessage_emsFormBuilder_view()
     } else {
       document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="efb px-1 fas fa-thumbs-up faa-bounce animated text-primary"></h1> <h3>${efb_var.text.done}!</br><small>(Demo)</smal><h3>`
     }
 
-
   }
-
 
   ShowTab_emsFormBuilder_view(currentTab_emsFormBuilder);
 }
-
-
 
 function validateForm_emsFormBuilder_view() {
   let x, y, i, valid = true, NotValidCount = 0;
@@ -288,7 +255,6 @@ function validateForm_emsFormBuilder_view() {
   let value
   try {
     for (const input of x[currentTab_emsFormBuilder].querySelectorAll(".require , .validation")) {
-      //require
       const req = input.classList.contains('require');
 
       if (input.tagName == "INPUT") {
@@ -375,9 +341,6 @@ function validateForm_emsFormBuilder_view() {
 }
 function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClassName("emsFormBuilder-step-view"); for (i = 0; i < x.length; i++) { x[i].className = x[i].className.replace(" active", ""); } x[n].className += " active"; }
 
-
-
-
 function createStepsOfPublic() {
   if (valueJson_ws.length == 1 && valueJson_ws == "N" && document.getElementById('emsFormBuilder-form-view')) {
     document.getElementById('emsFormBuilder-form-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb bi-exclamation-triangle-fill text-danger""></i></h1><h3 id="formNotFound">${efb_var.text.formNotFound}</h3> <span>${efb_var.text.errorV01}</span>`;
@@ -406,11 +369,9 @@ function createStepsOfPublic() {
     }
   }
 
-
   exportView_emsFormBuilder = exportView_emsFormBuilder.sort(function (a, b) {
     return Number(a.amount) - Number(b.amount);
   })
-  //add icons
   for (let i = 1; i <= stepsCountEfb; i++) {
     tags = "";
     icon = 'icon-' + i;
@@ -428,12 +389,9 @@ function createStepsOfPublic() {
 
     if (tags != "") document.getElementById(id).innerHTML += id == "emsFormBuilder-firstTab-view" ? tags : `<div class="efb emsFormBuilder-tab-view"> ${tags}</div>`
 
-
-
     i == 1 ? document.getElementById('emsFormBuilder-firstStepIcon-view').innerHTML = `<i class="efb ${icon}"></i>` : document.getElementById('emsFormBuilder-addStep-view').innerHTML += `<span class="efb emsFormBuilder-step-view" id="stepIcon-${i - 1}"><i class="efb ${icon}"></i></span>`
 
-  }//end for
-
+  }
 
   for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
     if (el.type != "submit") {
@@ -445,7 +403,7 @@ function createStepsOfPublic() {
         if (el.type == "text" || el.type == 'password' || el.type == "color" || el.type == "number" || el.type == "date" || el.type == "url" || el.type == "range" || el.type == "textarea") { value = el.value; }
         else if (el.type == "radio" || el.type == "checkbox") {
           value = el.value; ob.name = document.getElementById(ob.parents).innerText ;
-        }//ob.name = document.getElementById(ob.parents).
+        }
         else if (el.type == "select-one") {
           value = el.value;
         } else if (el.type == "select-multiple") {
@@ -460,7 +418,6 @@ function createStepsOfPublic() {
             handle_change_event_efb(el);
           });
 
-
         } else if (el.type == "email") {
           const state = valid_email_emsFormBuilder(el);
           value = state == true ? el.value : '';
@@ -468,8 +425,6 @@ function createStepsOfPublic() {
           const state = valid_phone_emsFormBuilder(el);
           value = state == true ? el.value : '';
         }
-
-
 
         if (value !== "") {
           const o = [{ id_: id_, name: ob.name, value: value, session: sessionPub_emsFormBuilder }];
@@ -485,9 +440,8 @@ function createStepsOfPublic() {
         fun_sendBack_emsFormBuilder(o[0]);
       });
     }
-  }//end for
-}//end function createStepsOfPublic
-
+  }
+}
 
 function fun_sendBack_emsFormBuilder(ob) {
   if(ob.hasOwnProperty('value')){
@@ -532,7 +486,6 @@ function fun_multiSelectElemnets_emsFormBuilder(ob) {
     const indx = multiSelectElemnets_emsFormBuilder.findIndex(x => x.parents === ob.parents);
     if (indx !== -1) {
       const map = multiSelectElemnets_emsFormBuilder[indx];
-      //  const r= Object.keys(map).find(key => map[key] === true);
       const keys = Object.keys(map);
       let check = 0;
       for (const key of keys) {
@@ -556,12 +509,8 @@ function fun_multiSelectElemnets_emsFormBuilder(ob) {
   return r;
 }
 
-
-
-
 function saveLocalStorage_emsFormBuilder_view() {
   localStorage.setItem('valueJson_ws', JSON.stringify(valueJson_ws));
-  //valueJson_ws ? document.getElementById('button-preview-emsFormBuilder').disabled = false : document.getElementById('button-preview-emsFormBuilder').disabled = true;
 }
 
 function alarm_emsFormBuilder(val) {
@@ -571,10 +520,7 @@ function alarm_emsFormBuilder(val) {
   </div>`
 }
 
-
-
 function endMessage_emsFormBuilder_view() {
-  //console.log('fun endMessage_emsFormBuilder_view')
   const stepMax = currentTab_emsFormBuilder + 1;
   let notfilled = []
   for (let i = 1; i <= stepMax; i++) {
@@ -590,35 +536,27 @@ function endMessage_emsFormBuilder_view() {
     }
   }
 
-
   if (countRequired != valueExistsRequired && sendBack_emsFormBuilder.length < 1) {
     let str = ""
     document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb bi-exclamation-triangle-fill text-danger""></i></h1><h3>Failed</h3> <span>${efb_var.text.pleaseMakeSureAllFields}</span>
     <div class="efb display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="efb fa fa-angle-double-left"></i></button></div>`;
 
-    // faild form
   } else {
     document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder "></h1> <h3 class="efb fs-3 text-center"> ${efb_var.text.pleaseWaiting}<h3>`
     actionSendData_emsFormBuilder()
   }
 }
 
-
-
 function stepName_emsFormBuilder_view(i) {
   document.getElementById('emsFormBuilder-step-name-view').innerHTML = stepNames_emsFormBuilder[i] != "null" && stepNames_emsFormBuilder[i] != undefined ? ` ${stepNames_emsFormBuilder[i]}` : "";
 
 }
 
-
-
 function valid_email_emsFormBuilder(el) {
-  console.log('valid_email_emsFormBuilder 612');
   let offsetw = offset_view_efb();
 
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheEmail}','',10,'danger');"></div>` : efb_var.text.enterTheEmail;
   let check = 0;
-  //const format = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
   const format =/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   check += el.value.match(format) ? 0 : 1;
   if (check > 0) {
@@ -640,7 +578,6 @@ function valid_email_emsFormBuilder(el) {
   return check > 0 ? false : true
 }
 
-
 function valid_phone_emsFormBuilder(el) {
   if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove();
   let check = 0;
@@ -658,7 +595,6 @@ function valid_phone_emsFormBuilder(el) {
   }
   return check > 0 ? false : true
 }
-
 
 function valid_file_emsFormBuilder(id) {
   let msgEl = document.getElementById(`${id}_-message`);
@@ -696,11 +632,9 @@ function valid_file_emsFormBuilder(id) {
   if (check > 0) {
     msgEl.innerHTML = "";
       const idB =id+'-prB';
-      //console.log(idB);
       const elf = document.getElementById(idB);
       document.getElementById(id+'-prA').classList.remove('d-none');
       if(elf==null) return;
-      //console.log('test');
       let pp =0;
       elf.style.width = pp+'%';
       elf.textContent = pp+'% = ' + efb_var.text.preview;
@@ -713,8 +647,6 @@ function valid_file_emsFormBuilder(id) {
           document.getElementById(id+'-prA').classList.add('d-none');
         }
       }, 300);
-
-
 
     rtrn = true;
   } else {
