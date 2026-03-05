@@ -9,8 +9,6 @@ class Emsfb {
 
     public $plugin_url = "";
 
-
-
     public function __construct() {
         $this->plugin_path = EMSFB_PLUGIN_DIRECTORY;
         $this->plugin_url  = EMSFB_PLUGIN_URL;
@@ -22,10 +20,7 @@ class Emsfb {
             $this->init_elementor_compatibility();
         }
 
-
     }
-
-
 
     private function init_hooks(): void {
         register_activation_hook(
@@ -38,27 +33,19 @@ class Emsfb {
             [$this, 'plugin_deactivation_cleanup_efb']
         );
 
-
         add_action('activated_plugin', [$this, 'handle_new_plugin_activation_efb'], 10, 2);
         add_action('deactivated_plugin', [$this, 'clear_server_host_cache_efb']);
 
-
         add_action('emsfb_update_cache_plugins_list', [$this, 'update_cache_plugins_list']);
-
 
         add_filter('emsfb_get_server_host', [$this, 'get_cached_server_host_efb']);
 
-
         add_action('emsfb_file_access_check_after_activation', 'emsfb_check_file_access_efb');
-
 
         add_action('upgrader_process_complete', [$this, 'plugin_update_completed_efb'], 10, 2);
 
-
         add_action('plugins_loaded', [$this, 'check_version_and_upgrade_efb']);
     }
-
-
 
     public function includes(): void {
         require_once $this->plugin_path . 'includes/class-Emsfb-install.php';
@@ -86,7 +73,6 @@ class Emsfb {
                     new \Emsfb\StripePayment();
                 }
             }
-
 
             $sms_exists = isset($ac->AdnSS) ? (int) $ac->AdnSS : 0;
             if ($sms_exists === 1) {
@@ -119,9 +105,7 @@ class Emsfb {
                   }
               }
 
-
 		}
-
 
 		$ac_routes = self::get_setting_Emsfb( 'decoded' );
 
@@ -130,14 +114,11 @@ class Emsfb {
             $telegram_public = isset($ac_routes->AdnTLG) ? (int) $ac_routes->AdnTLG : 0;
             if ($telegram_public >= 1) {
 
-
-
                 $telegram_send_path_public = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php';
                 if (file_exists($telegram_send_path_public)) {
                     require_once $telegram_send_path_public;
                 }
             }
-
 
             $sms_public = isset($ac_routes->AdnSS) ? (int) $ac_routes->AdnSS : 0;
             if ($sms_public === 1) {
@@ -154,14 +135,12 @@ class Emsfb {
 				}
 			}
 
-
 			if ( ! empty( $ac_routes->AdnSPF ) ) {
 				$f = $this->plugin_path . 'vendor/stripe/routes-efb.php';
 				if ( file_exists( $f ) ) {
 					require_once $f;
 				}
 			}
-
 
 			if ( ! empty( $ac_routes->AdnPPF ) ) {
 				$f = $this->plugin_path . 'vendor/persiapay/routes-efb.php';
@@ -179,25 +158,17 @@ class Emsfb {
 
 		require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
 
-
-
        $this->load_page_builder_integrations();
 
-
-
     }
-
-
 
     private function load_page_builder_integrations(): void {
 
         require_once $this->plugin_path . 'includes/class-Emsfb-widgets-helper.php';
 
-
         if (function_exists('register_block_type')) {
             require_once $this->plugin_path . 'includes/page-builders/gutenberg/class-Emsfb-gutenberg-block.php';
         }
-
 
         if (did_action('elementor/loaded') || class_exists('\Elementor\Plugin')) {
             require_once $this->plugin_path . 'includes/page-builders/elementor/class-Emsfb-elementor.php';
@@ -210,7 +181,6 @@ class Emsfb {
             });
         }
 
-
         if (defined('WPB_VC_VERSION') || class_exists('Vc_Manager')) {
             require_once $this->plugin_path . 'includes/page-builders/wpbakery/class-Emsfb-wpbakery.php';
         } else {
@@ -221,8 +191,6 @@ class Emsfb {
                 }
             }, 5);
         }
-
-
 
         if (defined('VCV_VERSION')) {
             require_once $this->plugin_path . 'includes/page-builders/visual-composer/class-Emsfb-visual-composer.php';
@@ -236,8 +204,6 @@ class Emsfb {
     }
 
     public function webhooks(){
-
-
 
     }
 
@@ -264,13 +230,11 @@ class Emsfb {
     public static function email_send_efb() {
         $message = esc_html__( 'The Easy Form Builder had Important update and require to deactivate and activate the plugin manually. Notice: Please do this act immediately so forms of your site will be available again.', 'easy-form-builder' );
 
-
         $super_admins = get_super_admins();
 
         if ( empty( $super_admins ) ) {
             return;
         }
-
 
         $recipients = array();
 
@@ -282,11 +246,9 @@ class Emsfb {
             }
         }
 
-
         if ( empty( $recipients ) ) {
             return;
         }
-
 
         $server_name = apply_filters('emsfb_get_server_host', 'yourdomain.com');
         $from_email  = 'no-reply@' . $server_name;
@@ -304,8 +266,6 @@ class Emsfb {
             get_bloginfo( 'name' )
         );
 
-
-
         wp_mail( $recipients, $subject, wp_kses_post( $message ), $headers );
     }
 
@@ -322,9 +282,7 @@ class Emsfb {
             'sg-optimizer', 'swift-performance', 'powered-cache'
         );
 
-
         $plugin_slug = dirname($plugin);
-
 
         if (in_array($plugin_slug, $cache_plugins_slug)) {
            do_action('emsfb_update_cache_plugins_list');
@@ -345,7 +303,6 @@ class Emsfb {
         );
 
         $cache_plugins_slug = apply_filters('emsfb_cache_plugins_slug', $cache_plugins_slug);
-
 
         if (!function_exists('get_plugins')) {
             require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -373,7 +330,6 @@ class Emsfb {
             }
         }
 
-
         $val = !empty($plugin_list) ? json_encode($plugin_list) : 0;
         $old_val = get_option('emsfb_cache_plugins', 0);
 
@@ -384,8 +340,6 @@ class Emsfb {
         return $plugin_list;
     }
 
-
-
     public function get_cached_server_host_efb() {
 
         $cached_host = get_option('emsfb_server_host_cache', false);
@@ -394,29 +348,22 @@ class Emsfb {
             return $cached_host;
         }
 
-
         $server_host = wp_parse_url(home_url(), PHP_URL_HOST) ?: 'yourdomain.com';
-
 
         update_option('emsfb_server_host_cache', $server_host, false);
 
         return $server_host;
     }
 
-
-
     public function clear_server_host_cache_efb()
     {
         delete_option('emsfb_server_host_cache');
     }
 
-
-
     public static function get_setting_Emsfb($mode = 'decoded')
     {
 
         static $staticCache = [];
-
 
         if ($mode === '_clear_cache') {
             $staticCache = [];
@@ -427,14 +374,12 @@ class Emsfb {
             return $staticCache[$mode];
         }
 
-
         $cacheKey = 'settings:' . $mode;
         $cached = wp_cache_get($cacheKey, 'emsfb');
         if ($cached !== false && !empty($cached)) {
             $staticCache[$mode] = $cached;
             return $cached;
         }
-
 
         $transient = get_transient('emsfb_settings_transient');
 
@@ -449,24 +394,17 @@ class Emsfb {
                 return new \stdClass();
             }
 
-
             update_option('emsfb_settings', $raw);
             set_transient('emsfb_settings_transient', $raw, 1800);
         } else {
             $raw = $transient;
         }
 
-
-
         $raw = self::clean_raw_json_efb($raw);
-
-
 
         $trimmedEnd = rtrim($raw);
         if (!empty($trimmedEnd) && !preg_match('/[}\]]$/', $trimmedEnd)) {
         }
-
-
 
         $decoded = json_decode($raw);
         if ($decoded === null) {
@@ -499,7 +437,6 @@ class Emsfb {
 
             $decoded = self::get_default_settings_efb();
         }
-
 
         $result = null;
 
@@ -550,15 +487,11 @@ class Emsfb {
             case 'decoded':
             default:
 
-
-
                 $package_type = get_option('emsfb_pro', 10);
                 $decoded->package_type = $package_type;
                 $result = $decoded;
                 break;
         }
-
-
 
         $staticCache[$mode] = $result;
         wp_cache_set($cacheKey, $result, 'emsfb', 3600);
@@ -593,18 +526,13 @@ class Emsfb {
 
         } catch (\Exception $e) {
 
-
             throw $e;
         }
     }
 
-
-
     private static function get_addons_list_efb($settings)
     {
         $addons = [];
-
-
 
         $addonKeys = [
             'AdnSS' => 'SMS',
@@ -631,8 +559,6 @@ class Emsfb {
         return $addons;
     }
 
-
-
     public static function plugin_deactivation_cleanup_efb()
     {
 
@@ -640,34 +566,27 @@ class Emsfb {
         delete_option('emsfb_server_host_cache');
         delete_option('emsfb_settings');
 
-
         delete_transient('emsfb_settings_transient');
-
 
         global $wpdb;
         $wpdb->query(
             "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_emsfb_%' OR option_name LIKE '_transient_timeout_emsfb_%'"
         );
 
-
         if (function_exists('wp_cache_flush')) {
             wp_cache_flush();
         }
-
 
         if (function_exists('wp_cache_flush_group')) {
             wp_cache_flush_group('emsfb');
         }
     }
 
-
-
     public function init_elementor_compatibility() {
 
         if (!$this->is_elementor_admin_active()) {
             return;
         }
-
 
         if (isset($_GET['page']) && (
             $_GET['page'] === 'Emsfb' ||
@@ -679,14 +598,10 @@ class Emsfb {
         }
     }
 
-
-
     public function apply_elementor_admin_fixes() {
 
         add_action('admin_footer', array($this, 'elementor_admin_conflict_prevention'));
     }
-
-
 
     public function is_elementor_admin_active() {
 
@@ -694,15 +609,12 @@ class Emsfb {
             return true;
         }
 
-
         if (function_exists('is_plugin_active') && is_plugin_active('elementor/elementor.php')) {
             return true;
         }
 
         return false;
     }
-
-
 
     public function elementor_admin_conflict_prevention() {
         $current_page = isset($_GET['page']) ? $_GET['page'] : '';
@@ -769,14 +681,11 @@ class Emsfb {
         <?php
     }
 
-
-
     public function init_elementor_compatibility_efb() {
 
         if (!$this->is_elementor_admin_active_efb()) {
             return;
         }
-
 
         if (isset($_GET['page']) && (
             sanitize_key( $_GET['page'] ) === 'Emsfb' ||
@@ -788,14 +697,10 @@ class Emsfb {
         }
     }
 
-
-
     public function apply_elementor_admin_fixes_efb() {
 
         add_action('admin_footer', array($this, 'elementor_admin_conflict_prevention_efb'));
     }
-
-
 
     public function is_elementor_admin_active_efb() {
 
@@ -803,15 +708,12 @@ class Emsfb {
             return true;
         }
 
-
         if (function_exists('is_plugin_active') && is_plugin_active('elementor/elementor.php')) {
             return true;
         }
 
         return false;
     }
-
-
 
     public function elementor_admin_conflict_prevention_efb() {
         $current_page = isset($_GET['page']) ? sanitize_key( $_GET['page'] ) : '';
@@ -877,8 +779,6 @@ class Emsfb {
         <?php
     }
 
-
-
     public function check_version_and_upgrade_efb() {
         $installed_version = get_option('emsfb_version', '0.0.0');
         $current_version = EMSFB_PLUGIN_VERSION;
@@ -893,39 +793,25 @@ class Emsfb {
 
     }
 
-
-
     private function run_upgrade_tasks_efb($old_version, $new_version) {
 
         if (function_exists('wp_cache_flush')) {
             wp_cache_flush();
         }
 
-
         if (function_exists('wp_cache_flush_group')) {
             wp_cache_flush_group('emsfb');
         }
-
 
         global $wpdb;
         $wpdb->query(
             "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_efb_%' OR option_name LIKE '_transient_timeout_efb_%'"
         );
 
-
-
-
         $table_setting = $wpdb->prefix . 'emsfb_setting';
         $wpdb->query("ALTER TABLE `{$table_setting}` MODIFY `setting` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL");
 
-
-
-
-
         $this->migrate_fix_double_escaped_settings_efb($wpdb);
-
-
-
 
             if (version_compare($old_version, '4', '<')) {
                 $activeCode = get_option('emsfb_pro_activeCode', '');
@@ -942,11 +828,8 @@ class Emsfb {
 
     }
 
-
-
     private function migrate_fix_double_escaped_settings_efb($wpdb) {
         $table_name = $wpdb->prefix . "emsfb_setting";
-
 
         $table_exists = $wpdb->get_var(
             $wpdb->prepare("SHOW TABLES LIKE %s", $table_name)
@@ -964,9 +847,7 @@ class Emsfb {
         foreach ($rows as $row) {
             $raw = $row->setting;
 
-
             $cleaned = self::clean_raw_json_efb($raw);
-
 
             if (json_decode($cleaned) !== null) {
 
@@ -978,7 +859,6 @@ class Emsfb {
                 continue;
             }
 
-
             $clean = $cleaned;
             $max_attempts = 5;
             for ($i = 0; $i < $max_attempts; $i++) {
@@ -988,15 +868,12 @@ class Emsfb {
                 }
             }
 
-
             $decoded = json_decode($clean);
             if ($decoded === null) {
                 continue;
             }
 
-
             $cleanJson = json_encode($decoded, JSON_UNESCAPED_UNICODE);
-
 
             $wpdb->update(
                 $table_name,
@@ -1007,7 +884,6 @@ class Emsfb {
             );
             $repaired++;
         }
-
 
         if ($repaired > 0) {
             delete_option('emsfb_settings');
@@ -1021,33 +897,25 @@ class Emsfb {
         return $repaired;
     }
 
-
-
     private static function clean_raw_json_efb($raw) {
         if (empty($raw) || !is_string($raw)) {
             return '';
         }
 
-
         if (substr($raw, 0, 3) === "\xEF\xBB\xBF") {
             $raw = substr($raw, 3);
         }
 
-
         $raw = str_replace("\0", '', $raw);
-
 
         $raw = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}\x{00AD}\x{2060}]/u', '', $raw);
 
-
         $raw = trim($raw);
-
 
         if (function_exists('mb_convert_encoding')) {
 
             $raw = mb_convert_encoding($raw, 'UTF-8', 'UTF-8');
         }
-
 
         if (strpos($raw, '&quot;') !== false || strpos($raw, '&#34;') !== false) {
             $candidate = html_entity_decode($raw, ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -1056,13 +924,10 @@ class Emsfb {
             }
         }
 
-
         $raw = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $raw);
 
         return $raw;
     }
-
-
 
     public static function get_default_settings_efb() {
         $defaults = new \stdClass();
@@ -1131,14 +996,11 @@ class Emsfb {
         return $defaults;
     }
 
-
-
     public function plugin_update_completed_efb($upgrader_object, $options) {
 
         if ($options['action'] !== 'update' || $options['type'] !== 'plugin') {
             return;
         }
-
 
         $our_plugin = plugin_basename(EMSFB_PLUGIN_FILE);
 

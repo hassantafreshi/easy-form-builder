@@ -16,43 +16,29 @@ use Elementor\Controls_Manager;
 
 class Emsfb_Elementor_Widget extends Widget_Base {
 
-
-
     public function get_name() {
         return 'emsfb_form';
     }
-
-
 
     public function get_title() {
         return __('Easy Form Builder', 'easy-form-builder');
     }
 
-
-
     public function get_icon() {
         return 'eicon-form-horizontal';
     }
-
-
 
     public function get_categories() {
         return ['easy-form-builder', 'general'];
     }
 
-
-
     public function get_keywords() {
         return ['form', 'contact', 'easy form builder', 'efb', 'forms', 'survey', 'questionnaire', 'registration'];
     }
 
-
-
     public function get_custom_help_url() {
         return 'https://whitestudio.team/docs/easy-form-builder/';
     }
-
-
 
     protected function register_controls() {
 
@@ -63,7 +49,6 @@ class Emsfb_Elementor_Widget extends Widget_Base {
                 'tab' => Controls_Manager::TAB_CONTENT,
             ]
         );
-
 
         $form_options = $this->get_forms();
 
@@ -95,7 +80,6 @@ class Emsfb_Elementor_Widget extends Widget_Base {
         );
 
         $this->end_controls_section();
-
 
         $this->start_controls_section(
             'style_container_section',
@@ -161,8 +145,6 @@ class Emsfb_Elementor_Widget extends Widget_Base {
         $this->end_controls_section();
     }
 
-
-
     private function get_forms() {
         if (!class_exists('Emsfb_Widgets_Helper')) {
             return ['' => __('— Select a Form —', 'easy-form-builder')];
@@ -170,8 +152,6 @@ class Emsfb_Elementor_Widget extends Widget_Base {
 
         return Emsfb_Widgets_Helper::get_forms_for_select(true, true);
     }
-
-
 
     protected function render() {
         $settings = $this->get_settings_for_display();
@@ -200,9 +180,7 @@ class Emsfb_Elementor_Widget extends Widget_Base {
             return;
         }
 
-
         echo '<div class="efb-elementor-form-wrapper">';
-
 
         if ($settings['show_form_title'] === 'yes') {
             $forms = Emsfb_Widgets_Helper::get_all_forms(true);
@@ -214,7 +192,6 @@ class Emsfb_Elementor_Widget extends Widget_Base {
             }
         }
 
-
         if (class_exists('Emsfb_Widgets_Helper')) {
             echo Emsfb_Widgets_Helper::render_form($form_id);
         } else {
@@ -225,11 +202,8 @@ class Emsfb_Elementor_Widget extends Widget_Base {
             echo do_shortcode($shortcode);
         }
 
-
         echo '</div>';
     }
-
-
 
     private function render_editor_placeholder() {
         return sprintf(
@@ -255,8 +229,6 @@ class Emsfb_Elementor_Widget extends Widget_Base {
             esc_html__('👈 Use the sidebar to choose a form', 'easy-form-builder')
         );
     }
-
-
 
     protected function content_template() {
         ?>

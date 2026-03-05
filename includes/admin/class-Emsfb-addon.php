@@ -47,10 +47,7 @@ class Addon {
 	public function render_settings() {
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 
-
 		wp_register_script('whiteStudioAddone', 'http://127.0.0.1/ws/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
-
-
 
         wp_enqueue_script('whiteStudioAddone');
 

@@ -1,8 +1,4 @@
 <?php
-/**
- * Class _Public
- * @package Emsfb
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -10,20 +6,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class efbFunction {
 
-
     protected static $req_cache = [];
-
 
     protected static $cached_settings = null;
     protected static $cached_lang = null;
-
 
     public function invalidate_settings_cache($old, $new, $option) {
         wp_cache_delete('settings:decoded', 'efb');
         delete_transient('emsfb_settings_transient');
         update_option('emsfb_text_version', time());
     }
-
 
     private function detect_current_lang_slug() {
         if (function_exists('icl_object_id') && defined('ICL_LANGUAGE_CODE')) {
@@ -36,7 +28,6 @@ class efbFunction {
         return function_exists('get_locale') ? get_locale() : 'en_US';
     }
 
-
     private function get_text_version($settingsObj) {
         $v = get_option('emsfb_text_version', 0);
         if (!empty($v)) return (string)$v;
@@ -46,7 +37,6 @@ class efbFunction {
         }
         return substr(md5((string)$raw), 0, 12);
     }
-
 
 	protected static $lang_cache = [];
 	private const EFB_LANG_CACHE_TTL = 21600;
@@ -65,12 +55,9 @@ class efbFunction {
 		register_activation_hook( __FILE__, [$this ,'download_all_addons_efb'] );
 		add_action( 'load-index.php', [$this ,'addon_adds_cron_efb'] );
 
-
 		add_action( 'emsfb_download_addons_cron', [$this, 'download_all_addons_efb'] );
 
     }
-
-
 
 	public function text_efb($inp,$page_request = 'default') {
 
@@ -92,7 +79,6 @@ class efbFunction {
             $efb_subset = 'with-extra';
         }
 
-
         $efb_ck_final = "langfinal:$efb_lang:$efb_ver:$efb_subset:$page_request";
 
         if (isset(self::$req_cache[$efb_ck_final])) {
@@ -103,7 +89,6 @@ class efbFunction {
             self::$req_cache[$efb_ck_final] = $efb_cached_final;
             return $efb_cached_final;
         }
-
 
 		$ac= get_setting_Emsfb();
 		$state= $ac!=='null' && isset($ac->text) && gettype($ac->text)!='string' ? true : false ;
@@ -423,7 +408,6 @@ class efbFunction {
 			"noCodeAddedYet" => $state ? $ac->text->noCodeAddedYet : esc_html__('The code has not yet been added. Click on','easy-form-builder'),
 			"andAddingHtmlCode" => $state ? $ac->text->andAddingHtmlCode : esc_html__('and adding HTML code.','easy-form-builder'),
 
-
 			/* translators: Essential Features = basic/core features of the plugin */
 			"essentialFeatures" => $state && isset($ac->text->essentialFeatures) ? $ac->text->essentialFeatures : esc_html__('Essential Features','easy-form-builder'),
 			/* translators: Getting started message */
@@ -484,7 +468,6 @@ class efbFunction {
 			"maybeLater" => $state && isset($ac->text->maybeLater) ? $ac->text->maybeLater : esc_html__('Maybe later','easy-form-builder'),
 			/* translators: Build professional forms message */
 			"buildProfessionalForms" => $state && isset($ac->text->buildProfessionalForms) ? $ac->text->buildProfessionalForms : esc_html__('Build professional WordPress forms in minutes. Choose how you\'d like to get started.','easy-form-builder'),
-
 
 			/* translators: Selected = indicates something has been chosen */
 			"selected" => $state && isset($ac->text->selected) ? $ac->text->selected : esc_html__('selected','easy-form-builder'),
@@ -1100,7 +1083,6 @@ class efbFunction {
 			/* translators: %1$s and %2$s are opening and closing link tags for documentation */
 			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : esc_html__('To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %1$s documentation %2$s .','easy-form-builder'),
 
-
 			"rspcon" => $state  &&  isset($ac->text->rspcon) ? $ac->text->rspcon : esc_html__('Responses & Confirmation','easy-form-builder'),
 
 			/* translators: %1$s, %2$s, %3$s, %4$s are opening and closing link tags for help resources */
@@ -1167,7 +1149,6 @@ class efbFunction {
 			"atfllApiActiveDesc" => $state && isset($ac->text->atfllApiActiveDesc) ? $ac->text->atfllApiActiveDesc : esc_html__('This form uses External API AutoFill. To configure settings, go to','easy-form-builder'),
 			"atfllApiLink" => $state && isset($ac->text->atfllApiLink) ? $ac->text->atfllApiLink : esc_html__('Autofill Integrations','easy-form-builder'),
 
-
 			"selectFormTitle" => $state && isset($ac->text->selectFormTitle) ? $ac->text->selectFormTitle : esc_html__('Select Form', 'easy-form-builder'),
 			"targetForm" => $state && isset($ac->text->targetForm) ? $ac->text->targetForm : esc_html__('Target Form', 'easy-form-builder'),
 			"selectForm" => $state && isset($ac->text->selectForm) ? $ac->text->selectForm : esc_html__('Select a Form', 'easy-form-builder'),
@@ -1210,7 +1191,6 @@ class efbFunction {
 
 			/* translators: %s is the feature name */
 			"lmavt" => $state  &&  isset($ac->text->lmavt) ? $ac->text->lmavt : esc_html__('Learn more about %s or watch the video tutorial.','easy-form-builder'),
-
 
 			"lrnmrs" => $state  &&  isset($ac->text->lrnmrs) ? $ac->text->lrnmrs : esc_html__('Learn more %s','easy-form-builder'),
 
@@ -1295,8 +1275,6 @@ class efbFunction {
 			/* translators: Template for found results text with placeholders - %1$s is result count, %2$s is result/results text */
 			'foundResultsText' => $state && isset($ac->text->foundResultsText) ? $ac->text->foundResultsText : esc_html__('Found %1$s %2$s for','easy-form-builder'),
 
-
-
 			/* translators: Session Duration = title for nonce/session expiration settings */
 			"sessionDuration" => $state && isset($ac->text->sessionDuration) ? $ac->text->sessionDuration : esc_html__('Session Duration','easy-form-builder'),
 
@@ -1314,8 +1292,6 @@ class efbFunction {
 
 			/* translators: Select Duration = placeholder text for session duration dropdown */
 			"selectDuration" => $state && isset($ac->text->selectDuration) ? $ac->text->selectDuration : esc_html__('Select Duration','easy-form-builder'),
-
-
 
 			/* translators: Colors & Fonts = heading for the color and font section */
 			"respColors" => $state && isset($ac->text->respColors) ? $ac->text->respColors : esc_html__('Colors & Fonts','easy-form-builder'),
@@ -1389,8 +1365,6 @@ class efbFunction {
 			/* translators: Add Custom Font description */
 			"respCustomFontDesc" => $state && isset($ac->text->respCustomFontDesc) ? $ac->text->respCustomFontDesc : esc_html__('Add your own font by entering the font name and its CSS URL (e.g. Google Fonts link).','easy-form-builder'),
 
-
-
 			/* translators: Plan Management = heading for the plan/subscription management section in settings */
 			"plnMng" => $state && isset($ac->text->plnMng) ? $ac->text->plnMng : esc_html__('Plan Management','easy-form-builder'),
 
@@ -1405,8 +1379,6 @@ class efbFunction {
 
 			/* translators: Current Plan = label showing the user's active plan */
 			"crntPln" => $state && isset($ac->text->crntPln) ? $ac->text->crntPln : esc_html__('Current Plan','easy-form-builder'),
-
-
 
 			/* translators: Block type labels for drag-and-drop email builder */
 			"ebHeader" => $state && isset($ac->text->ebHeader) ? $ac->text->ebHeader : esc_html__('Header','easy-form-builder'),
@@ -1554,20 +1526,17 @@ class efbFunction {
 			}
 		}
 
-
 		if ($page_request !== 'default') {
 
 			if (!class_exists('EfbAddonPhrases')) {
 				require_once EMSFB_PLUGIN_DIRECTORY . 'includes/phrases.php';
 			}
 
-
 			$addon_phrases = efb_get_addon_phrases($page_request, $ac, $state);
 			if (!empty($addon_phrases)) {
 				$rtrn = array_merge($rtrn, $addon_phrases);
 			}
 		}
-
 
 		wp_cache_set($efb_ck_final, $rtrn, 'efb', 7200);
 		self::$req_cache[$efb_ck_final] = $rtrn;
@@ -1590,7 +1559,6 @@ class efbFunction {
 	}
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
-
 
 		global $wpdb;
 		$text = ['youRecivedNewMessage'];
@@ -1645,13 +1613,10 @@ class efbFunction {
 			return false;
 		}
 
-
-
 		if(isset($data[0]['smsnoti']) && intval($data[0]['smsnoti'])==1){
 
 			$phone_numbers=[[],[]];
 			$setting = get_setting_Emsfb();
-
 
 			$numbers = is_object($setting) && isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5  ? explode(',',$setting->phnNo) :[];
 			$phone_numbers[0]= $numbers;
@@ -1821,7 +1786,6 @@ class efbFunction {
 public function addon_add_efb($value) {
     if ($value != "AdnOF") {
 
-
         if (!emsfb_is_addon_install_ready_efb()) {
             $status = emsfb_get_file_access_status_efb();
             if ($status) {
@@ -1832,7 +1796,6 @@ public function addon_add_efb($value) {
                 return array('status' => false, 'message' => $message);
             }
         }
-
 
         $_server_name = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : 'localhost';
         $server_name = str_replace("www.", "", $_server_name);
@@ -1866,7 +1829,6 @@ public function addon_add_efb($value) {
 
             $response_code = wp_remote_retrieve_response_code($request);
 
-
             if ($response_code != 200) {
                 $attempt++;
                 $error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
@@ -1880,7 +1842,6 @@ public function addon_add_efb($value) {
 
             $body = wp_remote_retrieve_body($request);
             $data = json_decode($body);
-
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $attempt++;
@@ -1902,18 +1863,15 @@ public function addon_add_efb($value) {
 				}
 			}
 
-
             if ($data->status == false) {
 				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
 				$error_message = sprintf($error_message, 'whitestudio.team', 'invalid_status');
                 return array('status' => false, 'message' => $error_messag);
             }
 
-
             if (version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
                 return array('status' => false, 'message' =>  esc_html__('The version of the add-on is not compatible with the version of the Easy Form Builder plugin.','easy-form-builder'));
             }
-
 
             if ($data->download == true) {
                 $url = $data->link;
@@ -1951,7 +1909,6 @@ public function addon_add_efb($value) {
 		$r =download_url($url);
 		if(is_wp_error($r)){
 
-
 		}else{
 			require_once(ABSPATH . 'wp-admin/includes/file.php');
 			if (WP_Filesystem()) {
@@ -1987,7 +1944,6 @@ public function addon_add_efb($value) {
 			}
 			return true;
 		}
-
 
 		$fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/".$name."/".$name.".php";
 
@@ -2039,7 +1995,6 @@ public function addon_add_efb($value) {
 			return false;
 		}
 
-
             return true;
 
 	}
@@ -2079,7 +2034,6 @@ public function addon_add_efb($value) {
 	public function efb_list_form(){
 		global $wpdb;
 
-
 		$table_name = $wpdb->prefix . "emsfb_form";
 		$value = $wpdb->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );
 		$date_format = get_option( 'date_format' );
@@ -2099,7 +2053,6 @@ public function addon_add_efb($value) {
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
 		$ip = $this->get_ip_address();
 		$date_now = wp_date('Y-m-d H:i:s');
-
 
 		$settings = get_setting_Emsfb();
 		$sessionDuration = isset($settings->sessionDuration) && is_numeric($settings->sessionDuration) ? intval($settings->sessionDuration) : 1;
@@ -2124,7 +2077,6 @@ public function addon_add_efb($value) {
 			'date' => $date_now,
 			'read_date' => $date_limit
 		);
-
 
 		$existing = $wpdb->get_var($wpdb->prepare(
 			"SELECT sid FROM {$table_name} WHERE fid = %d AND uid = %d AND ip = %s AND active = 1",
@@ -2336,7 +2288,6 @@ public function addon_add_efb($value) {
         $setting = str_replace('"', '\"', $st_);
 		$this->set_setting_Emsfb($setting,$st->emailSupporter);
 
-
 		if($pro == true || $pro ==1){
 
 			$is_pro = (int) get_option('emsfb_pro' ,2);
@@ -2384,8 +2335,6 @@ public function addon_add_efb($value) {
 		wp_enqueue_style('leaflet_fullscreen_css_efb');
 		wp_register_script('leaflet_fullscreen_js_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js');
 		wp_enqueue_script('leaflet_fullscreen_js_efb');
-
-
 
 		return true;
 
@@ -2451,7 +2400,6 @@ public function addon_add_efb($value) {
 				];
 			}
 		}
-
 
 		$val = !empty($plugin_list) ? json_encode($plugin_list) : 0;
 		$old_val = get_option('emsfb_cache_plugins' ,0);
@@ -2625,7 +2573,6 @@ public function addon_add_efb($value) {
 					$activeCode = is_object($st) && isset($st->activeCode) ? $st->activeCode : '';
 				}
 
-
 				if(strlen($activeCode)>5){
 					update_option('emsfb_pro_activeCode', $activeCode);
 				}else{
@@ -2653,15 +2600,12 @@ public function addon_add_efb($value) {
 		return false;
 	}
 
-
-
 	public function render_pro_gate_efb( $addon_name = '' ) {
 		$pro_status = (int) get_option( 'emsfb_pro', -1 );
 
 		if ( $pro_status === 1 || $pro_status === 3 ) {
 			return false;
 		}
-
 
 		$is_expired = ( $pro_status === 0 );
 
@@ -2734,7 +2678,6 @@ public function addon_add_efb($value) {
 			)
 		);
 
-
 		$table_name_temp_links =  $wpdb->prefix . 'emsfb_temp_links';
 		$table_exists = get_option('emsfb_temp_links_table_exists' , false);
 
@@ -2763,45 +2706,36 @@ public function addon_add_efb($value) {
 			'background-repeat', 'background-size', 'background-attachment', 'background-clip', 'background-origin',
 			'border-image', 'border-image-source', 'border-image-slice', 'border-image-width', 'border-image-outset', 'border-image-repeat',
 
-
 			'font', 'font-family', 'font-size', 'font-style', 'font-variant', 'font-weight',
 			'letter-spacing', 'line-height', 'text-align', 'text-decoration', 'text-indent',
 			'text-overflow', 'text-shadow', 'text-transform', 'white-space', 'word-break', 'word-spacing',
 			'direction', 'unicode-bidi', 'writing-mode', 'hyphens',
-
 
 			'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
 			'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
 			'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
 			'box-sizing', 'overflow', 'overflow-x', 'overflow-y', 'aspect-ratio',
 
-
 			'border', 'border-width', 'border-style', 'border-color', 'border-top', 'border-right', 'border-bottom', 'border-left',
 			'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width',
 			'border-radius', 'outline', 'outline-width', 'outline-style', 'outline-color',
 			'border-collapse', 'border-spacing', 'border-image', 'border-image-source', 'border-image-slice', 'border-image-width', 'border-image-outset', 'border-image-repeat',
 
-
 			'box-shadow', 'box-sizing', 'box-decoration-break',
-
 
 			'position', 'top', 'right', 'bottom', 'left', 'z-index',
 			'float', 'clear', 'vertical-align', 'clip',
-
 
 			'display', 'flex', 'flex-grow', 'flex-shrink', 'flex-basis',
 			'align-items', 'align-content', 'align-self', 'justify-content', 'order',
 			'grid', 'grid-template-rows', 'grid-template-columns', 'grid-template-areas',
 			'grid-area', 'row-gap', 'column-gap', 'gap', 'place-items', 'place-content', 'place-self',
 
-
 			'animation', 'animation-name', 'animation-duration', 'animation-timing-function', 'animation-delay',
 			'animation-iteration-count', 'animation-direction', 'animation-fill-mode', 'animation-play-state',
 			'transition', 'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay',
 
-
 			'border-collapse', 'border-spacing', 'caption-side', 'empty-cells', 'table-layout','collapse',
-
 
 			'cursor', 'opacity', 'clip-path', 'filter', 'backface-visibility', 'visibility',
 			'transform', 'transform-origin', 'transform-style', 'perspective', 'perspective-origin',
@@ -2822,14 +2756,10 @@ public function addon_add_efb($value) {
 			'aria-*' => true,
 		);
 
-
-
 		$allowed_properties = $this->allowed_properties_thml_efb();
-
 
 		$current_domain = wp_parse_url(home_url(), PHP_URL_HOST);
 		$allowed_domains = array('google.com', 'gstatic.com', 'googleapis.com', 'googleusercontent.com', 'youtube.com', 'ytimg.com', 'microsoft.com', 'office.com', 'live.com', 'msn.com', 'outlook.com', 'amazonaws.com', 'cloudfront.net', 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com', 'jsdelivr.net', 'unpkg.com', 'facebook.com', 'fbcdn.net', 'twitter.com', 'twimg.com', 'github.com', 'github.io', 'vimeo.com', 'vimeocdn.com', 'wikipedia.org', 'wikimedia.org', 'wikidata.org', 'stripe.com', 'paypal.com', 'braintreepayments.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'use.fontawesome.com', 'dailymotion.com', 'dmcdn.net', 'maps.googleapis.com', 'openstreetmap.org', 'mapbox.com', 'gravatar.com', 'unsplash.com', 'placekitten.com', 'placehold.co', 'akamaihd.net', 'cloudflare.com', 'fastly.net', 'linkedin.com', 'apple.com', 'adobe.com', 'cdn.shopify.com', 'example.com', 'example.org', 'trusted.com', 'cdn.trusted.com');
-
 
 		$allowed_tags = array(
 			'a' => array_merge($global_attributes, array(
@@ -2966,11 +2896,7 @@ public function addon_add_efb($value) {
 			)),
 		);
 
-
-
-
 		$sanitized_html = wp_kses($html, $allowed_tags, array_merge(wp_allowed_protocols(), array('data')));
-
 
 		$sanitized_html = preg_replace_callback(
 			'/style=["\']([^"\']+)["\']/i',
@@ -3007,7 +2933,6 @@ public function addon_add_efb($value) {
 				return esc_url($url);
 			}
 
-
 			$lower = strtolower(preg_replace('/\s+/', '', $url));
 			if (strpos($lower, 'javascript:') !== false ||
 			    strpos($lower, 'vbscript:') !== false ||
@@ -3029,7 +2954,6 @@ public function addon_add_efb($value) {
 						list($property, $value) = explode(':', $rule, 2);
 						$property = trim($property);
 						$value = trim($value);
-
 
 						$lower_val = strtolower(preg_replace('/\s+/', '', $value));
 						if (strpos($lower_val, 'expression(') !== false ||
@@ -3061,11 +2985,9 @@ public function addon_add_efb($value) {
 
 		$punctClass = '[:：\.\!\?\…‥。！？｡．؟\x{06D4}؛;;‽‼⁇⁈⁉⸮።፧။។៕։\x{0964}\x{0965}\x{0589}\x{1362}\x{104B}\x{17D4}\x{17D5}\x{05C3}]';
 
-
 		if (preg_match('/' . $punctClass . '/u', $s)) {
 			return $s;
 		}
-
 
 		$closersRe = '(?:\p{Pe}|\p{Pf}|["\'»”’）\)\]】］｝〉》」』〕〗])*';
 		if (preg_match('/(?P<closers>' . $closersRe . ')(?P<spaces>[\s\x{00A0}\x{202F}]*)$/u', $s, $m)) {
@@ -3078,15 +3000,12 @@ public function addon_add_efb($value) {
 			$endSpaces  = '';
 		}
 
-
 		if (!preg_match('/\s$/u', $s)) {
 			$s .= ' ';
 		}
 
 		return $s . $colon . $endClosers . $endSpaces;
 	}
-
-
 
 	public function invalidate_lang_cache_on_settings_update($old_value, $value){
 		self::$lang_cache = [];
@@ -3104,13 +3023,11 @@ public function addon_add_efb($value) {
 			$all_plugins = get_plugins();
 		}
 
-
 		foreach ( $all_plugins as $plugin_file => $data ) {
 
 			$dir = ( strpos( $plugin_file, '/' ) !== false )
 				? substr( $plugin_file, 0, strpos( $plugin_file, '/' ) )
 				: basename( $plugin_file, '.php' );
-
 
 			if ( $dir === $slug || sanitize_title( $data['Name'] ) === $slug ) {
 
@@ -3124,14 +3041,11 @@ public function addon_add_efb($value) {
 			}
 		}
 
-
-
 		$mu_plugins = function_exists( 'get_mu_plugins' ) ? get_mu_plugins() : [];
 		foreach ( $mu_plugins as $mu_file => $data ) {
 
 			$base   = basename( $mu_file, '.php' );
 			$folder = basename( dirname( $mu_file ) );
-
 
 			if ( $folder === $slug || $base === $slug || sanitize_title( $data['Name'] ) === $slug ) {
 				return true;
@@ -3142,7 +3056,6 @@ public function addon_add_efb($value) {
 	}
 
 	function fun_get_addons_list_efb($ac = null){
-
 
 		$addons = [
 			'AdnSPF' => 0,
@@ -3198,7 +3111,6 @@ public function addon_add_efb($value) {
 
             $json = $newSettings;
 
-
             if (json_decode($json) === null && json_last_error() !== JSON_ERROR_NONE) {
                 $unslashed = stripslashes($json);
                 if (json_decode($unslashed) !== null) {
@@ -3213,10 +3125,8 @@ public function addon_add_efb($value) {
             return false;
         }
 
-
         global $wpdb;
         $table_name = $wpdb->prefix . "emsfb_setting";
-
 
         $count = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name}");
 
@@ -3253,11 +3163,9 @@ public function addon_add_efb($value) {
         update_option('emsfb_settings', $json);
         set_transient('emsfb_settings_transient', $json, 1800);
 
-
         wp_cache_delete('settings:decoded', 'emsfb');
         wp_cache_delete('settings:pub', 'emsfb');
         wp_cache_delete('settings:raw', 'emsfb');
-
 
         \Emsfb::get_setting_Emsfb('_clear_cache');
 

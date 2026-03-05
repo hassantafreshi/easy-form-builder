@@ -1,12 +1,7 @@
 <?php
 namespace Emsfb;
-/**
- * Class Admin
- *
- * @package Emsfb
- */
-class Admin {
 
+class Admin {
 
     public $ip;
     public $plugin_version;
@@ -18,7 +13,6 @@ class Admin {
         global $wpdb;
         $this->db = $wpdb;
     }
-
 
     private function init_hooks() {
         if (!function_exists('wp_get_current_user')) {
@@ -110,7 +104,6 @@ class Admin {
         }
     }
 
-
     public function admin_menu() {
         $noti_count = count($this->get_not_read_message());
         $icon       = EMSFB_PLUGIN_URL . '/includes/admin/assets/image/logo-gray.png';
@@ -124,7 +117,6 @@ class Admin {
         );
         add_submenu_page('Emsfb', esc_html__('Panel', 'easy-form-builder'), esc_html__('Panel', 'easy-form-builder'), 'Emsfb', 'Emsfb', [$this, 'panel_callback']);
     }
-
 
     public function panel_callback() {
         include_once EMSFB_PLUGIN_DIRECTORY . "/includes/admin/class-Emsfb-panel.php";
@@ -338,7 +330,6 @@ class Admin {
         $lang= $efbFunction->text_efb($text);
         $ac= get_setting_Emsfb('decoded');
 
-
         $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
                  "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP"];
@@ -410,7 +401,6 @@ class Admin {
             }
         }
 
-
         if(isset($ac->AdnSPF)==false){
             $ac->AdnSPF=0;
             $ac->AdnOF=0;
@@ -467,7 +457,6 @@ class Admin {
         $server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : 'yourdomain.com');
         $name_space ='emsfb_addon_'.$post_value;
 
-
         if(isset($ac->AdnSPF)==false){
             $ac->AdnSPF=0;
             $ac->AdnOF=0;
@@ -490,8 +479,6 @@ class Admin {
             global $wpdb;
             $this->db = $wpdb;
         }
-
-
 
         delete_option($name_space);
         $efbFunction->set_setting_Emsfb( $ac, $ac->emailSupporter );
@@ -552,15 +539,12 @@ class Admin {
         $table_name = $this->db->prefix . "emsfb_form";
         $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
 
-
-
         $decoded_form = json_decode( stripslashes( $value ) );
         if ( $decoded_form === null ) {
 
             $decoded_form = json_decode( $value );
         }
         $use_decoded = ( $decoded_form !== null && is_array( $decoded_form ) && ! empty( $decoded_form ) );
-
 
         if ( $use_decoded && ! empty( $decoded_form[0]->smsnoti ) && $decoded_form[0]->smsnoti === '1' ) {
             $sms_exists      = get_option( 'emsfb_addon_AdnSS', false );
@@ -578,7 +562,6 @@ class Admin {
             }
         }
 
-
         if ( $use_decoded && ! empty( $decoded_form[0]->telegramnoti ) && $decoded_form[0]->telegramnoti === '1' ) {
             $telegram_exists     = get_option( 'emsfb_addon_AdnTLG', false );
             $telegram_file_exist = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
@@ -595,7 +578,6 @@ class Admin {
                 }
             }
         }
-
 
         if ( $use_decoded ) {
             $value = wp_json_encode( $decoded_form, JSON_UNESCAPED_UNICODE );
@@ -1576,8 +1558,6 @@ function admin_notices_efb () {
             echo $output;
     }
 
-
-
     public function efb_save_plan_selection() {
         $efbFunction = get_efbFunction();
         $text = ["error403","somethingWentWrongPleaseRefresh"];
@@ -1658,8 +1638,6 @@ function admin_notices_efb () {
         wp_send_json_success($response_data);
     }
 
-
-
     public function update_form_cache_efb($form_id, $form_data, $fields = array('form_structer', 'form_type')) {
         $form_id = intval($form_id);
 
@@ -1683,8 +1661,6 @@ function admin_notices_efb () {
         return true;
     }
 
-
-
     public function bulk_update_form_cache_efb($forms_data, $fields = array('form_structer', 'form_type')) {
         $results = array();
 
@@ -1694,8 +1670,6 @@ function admin_notices_efb () {
 
         return $results;
     }
-
-
 
     public function clear_form_cache_efb($form_id = null, $fields = array()) {
         if ($form_id === null) {
@@ -1731,8 +1705,6 @@ function admin_notices_efb () {
         return true;
     }
 
-
-
     public function get_form_cache_stats_efb() {
         $memory_cache_count = count($this->form_cache);
         $memory_size_estimate = strlen(serialize($this->form_cache));
@@ -1744,8 +1716,6 @@ function admin_notices_efb () {
             'cache_keys' => array_keys($this->form_cache)
         );
     }
-
-
 
     public function validate_and_refresh_cache_efb($form_id, $fields = array('form_structer', 'form_type'), $force_refresh = false) {
         $form_id = intval($form_id);

@@ -87,7 +87,6 @@ function emsfb_check_file_access_efb() {
     $error_codes = [];
     $details = [];
 
-
     if (!file_exists($vendor_path)) {
         $status = false;
         $error_codes[] = 'VENDOR_NOT_EXIST';
@@ -100,7 +99,6 @@ function emsfb_check_file_access_efb() {
             $details['vendor_writable'] = true;
         }
     }
-
 
     if (!file_exists($temp_path)) {
         if (is_writable(dirname($temp_path))) {
@@ -125,14 +123,12 @@ function emsfb_check_file_access_efb() {
         }
     }
 
-
     if (!is_writable(EMSFB_PLUGIN_DIRECTORY)) {
         $status = false;
         $error_codes[] = 'PLUGIN_DIR_NOT_WRITABLE';
     } else {
         $details['plugin_writable'] = true;
     }
-
 
     if (!function_exists('WP_Filesystem')) {
         require_once(ABSPATH . 'wp-admin/includes/file.php');
@@ -144,7 +140,6 @@ function emsfb_check_file_access_efb() {
         $details['wp_filesystem'] = true;
     }
 
-
     $free_bytes = disk_free_space(EMSFB_PLUGIN_DIRECTORY);
     if (!$free_bytes || $free_bytes < (10 * 1024 * 1024)) {
         $status = false;
@@ -153,7 +148,6 @@ function emsfb_check_file_access_efb() {
         $details['sufficient_space'] = true;
         $details['free_space_mb'] = round($free_bytes / (1024 * 1024), 2);
     }
-
 
     if ($status && file_exists($vendor_path)) {
         $test_file = $vendor_path . '/test_write_efb.txt';
@@ -191,7 +185,6 @@ function emsfb_check_file_access_efb() {
         'current_message' => $status ? $success_message : $error_message
     ];
 
-
     update_option('emsfb_file_access_status', $result);
 
     return $result;
@@ -208,15 +201,11 @@ function emsfb_is_addon_install_ready_efb() {
 
 if (!function_exists('get_setting_Emsfb')) {
 
-
     function get_setting_Emsfb($mode = 'decoded') {
         return Emsfb::get_setting_Emsfb($mode);
     }
 
-
-
     if (!function_exists('get_efbFunction')) {
-
 
             function get_efbFunction() {
                 return Emsfb::get_efbFunction();

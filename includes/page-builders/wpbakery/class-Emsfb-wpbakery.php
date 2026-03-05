@@ -1,12 +1,4 @@
 <?php
-/**
- * Easy Form Builder - WPBakery (Visual Composer) Integration
- *
- * Provides a custom WPBakery element for Easy Form Builder forms
- *
- * @package EasyFormBuilder
- * @since 4.0.0
- */
 
 if (!defined('ABSPATH')) {
     exit;
@@ -21,16 +13,10 @@ if (!class_exists('Emsfb_Widgets_Helper') && defined('EMSFB_PLUGIN_DIRECTORY')) 
 
 class Emsfb_WPBakery_Integration {
 
-
-
     private static $instance = null;
-
-
 
     const BRAND_PRIMARY = '#ff4b93';
     const BRAND_SECONDARY = '#202a8d';
-
-
 
     public static function get_instance() {
         if (self::$instance === null) {
@@ -39,21 +25,16 @@ class Emsfb_WPBakery_Integration {
         return self::$instance;
     }
 
-
-
     private function __construct() {
 
         if (!defined('WPB_VC_VERSION')) {
             return;
         }
 
-
         add_action('vc_before_init', [$this, 'register_element']);
         add_action('vc_load_iframe_jscss', [$this, 'enqueue_editor_assets']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_styles']);
     }
-
-
 
     public function register_element() {
         if (!function_exists('vc_map')) {
@@ -106,11 +87,8 @@ class Emsfb_WPBakery_Integration {
             ],
         ]);
 
-
         add_shortcode('efb_wpbakery_form', [$this, 'render_shortcode']);
     }
-
-
 
     private function get_forms_for_dropdown() {
         $forms_array = [
@@ -127,8 +105,6 @@ class Emsfb_WPBakery_Integration {
 
         return $forms_array;
     }
-
-
 
     public function render_shortcode($atts) {
         $atts = shortcode_atts([
@@ -148,20 +124,17 @@ class Emsfb_WPBakery_Integration {
             return '';
         }
 
-
         $wrapper_classes = ['efb-wpbakery-form-wrapper'];
 
         if (!empty($atts['extra_class'])) {
             $wrapper_classes[] = esc_attr($atts['extra_class']);
         }
 
-
         if (!empty($atts['css']) && function_exists('vc_shortcode_custom_css_class')) {
             $wrapper_classes[] = vc_shortcode_custom_css_class($atts['css']);
         }
 
         $output = '<div class="' . implode(' ', $wrapper_classes) . '">';
-
 
         if ($atts['show_title'] === 'yes') {
             if (class_exists('Emsfb_Widgets_Helper')) {
@@ -174,7 +147,6 @@ class Emsfb_WPBakery_Integration {
                 }
             }
         }
-
 
         if (class_exists('Emsfb_Widgets_Helper')) {
             $output .= Emsfb_Widgets_Helper::render_form($form_id);
@@ -191,8 +163,6 @@ class Emsfb_WPBakery_Integration {
         return $output;
     }
 
-
-
     private function is_editor_mode() {
         if (function_exists('vc_is_inline') && vc_is_inline()) {
             return true;
@@ -205,8 +175,6 @@ class Emsfb_WPBakery_Integration {
         }
         return false;
     }
-
-
 
     private function render_editor_placeholder() {
         return sprintf(
@@ -236,8 +204,6 @@ class Emsfb_WPBakery_Integration {
         );
     }
 
-
-
     public function enqueue_editor_assets() {
         wp_enqueue_style(
             'efb-wpbakery-editor',
@@ -246,12 +212,9 @@ class Emsfb_WPBakery_Integration {
             EMSFB_PLUGIN_VERSION
         );
 
-
         wp_enqueue_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', [], EMSFB_PLUGIN_VERSION);
         wp_enqueue_style('Emsfb-responsive-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/min-1200-style.css', [], EMSFB_PLUGIN_VERSION);
     }
-
-
 
     public function enqueue_admin_styles() {
         global $pagenow;

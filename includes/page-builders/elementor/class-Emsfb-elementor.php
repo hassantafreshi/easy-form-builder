@@ -13,15 +13,9 @@ if (!class_exists('Emsfb_Widgets_Helper') && defined('EMSFB_PLUGIN_DIRECTORY')) 
 
 class Emsfb_Elementor_Integration {
 
-
-
     private static $instance = null;
 
-
-
     const MINIMUM_ELEMENTOR_VERSION = '3.0.0';
-
-
 
     public static function get_instance() {
         if (self::$instance === null) {
@@ -30,30 +24,22 @@ class Emsfb_Elementor_Integration {
         return self::$instance;
     }
 
-
-
     private function __construct() {
 
         if (!did_action('elementor/loaded')) {
             return;
         }
 
-
         if (!version_compare(ELEMENTOR_VERSION, self::MINIMUM_ELEMENTOR_VERSION, '>=')) {
             return;
         }
 
-
         add_action('elementor/widgets/register', [$this, 'register_widgets']);
-
 
         add_action('elementor/elements/categories_registered', [$this, 'register_widget_category']);
 
-
         add_action('elementor/editor/after_enqueue_styles', [$this, 'enqueue_editor_styles']);
     }
-
-
 
     public function register_widget_category($elements_manager) {
         $elements_manager->add_category(
@@ -65,17 +51,12 @@ class Emsfb_Elementor_Integration {
         );
     }
 
-
-
     public function register_widgets($widgets_manager) {
 
         require_once __DIR__ . '/class-Emsfb-elementor-widget.php';
 
-
         $widgets_manager->register(new Emsfb_Elementor_Widget());
     }
-
-
 
     public function enqueue_editor_styles() {
         wp_enqueue_style(

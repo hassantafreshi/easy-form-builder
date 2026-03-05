@@ -1,12 +1,6 @@
 <?php
 namespace Emsfb;
 
-/**
- * Class Admin
- *
- * @package Emsfb
- */
-
 if (!defined('ABSPATH')) exit;
 
 class CheckRequirementEmsfb {

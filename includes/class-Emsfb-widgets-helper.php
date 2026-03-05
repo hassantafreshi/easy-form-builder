@@ -1,13 +1,4 @@
 <?php
-/**
- * Easy Form Builder - Widgets Helper Class
- *
- * Provides shared functionality for all page builder widgets
- * (Gutenberg, Elementor, WPBakery, etc.)
- *
- * @package EasyFormBuilder
- * @since 4.0.0
- */
 
 if (!defined('ABSPATH')) {
     exit;
@@ -15,20 +6,12 @@ if (!defined('ABSPATH')) {
 
 class Emsfb_Widgets_Helper {
 
-
-
     const BRAND_COLOR_PRIMARY = '#ff4b93';
     const BRAND_COLOR_SECONDARY = '#202a8d';
 
-
-
     private static $instance = null;
 
-
-
     private static $forms_cache = null;
-
-
 
     public static function get_instance() {
         if (self::$instance === null) {
@@ -37,31 +20,23 @@ class Emsfb_Widgets_Helper {
         return self::$instance;
     }
 
-
-
     private function __construct() {
 
         add_action('save_post', [$this, 'clear_forms_cache']);
         add_action('deleted_post', [$this, 'clear_forms_cache']);
     }
 
-
-
     public function clear_forms_cache() {
         self::$forms_cache = null;
         delete_transient('emsfb_forms_list');
     }
 
-
-
     public static function get_all_forms($include_tracking = true) {
         global $wpdb;
-
 
         if (self::$forms_cache !== null) {
             return $include_tracking ? self::add_tracking_option(self::$forms_cache) : self::$forms_cache;
         }
-
 
         $cached = get_transient('emsfb_forms_list');
         if ($cached !== false) {
@@ -71,7 +46,6 @@ class Emsfb_Widgets_Helper {
 
         $table_name = $wpdb->prefix . 'emsfb_form';
         $forms = [];
-
 
         $table_exists = $wpdb->get_var($wpdb->prepare(
             "SHOW TABLES LIKE %s",
@@ -97,14 +71,11 @@ class Emsfb_Widgets_Helper {
             }
         }
 
-
         self::$forms_cache = $forms;
         set_transient('emsfb_forms_list', $forms, HOUR_IN_SECONDS);
 
         return $include_tracking ? self::add_tracking_option($forms) : $forms;
     }
-
-
 
     private static function add_tracking_option($forms) {
 
@@ -115,8 +86,6 @@ class Emsfb_Widgets_Helper {
         ]);
         return $forms;
     }
-
-
 
     public static function get_forms_for_select($include_tracking = true, $include_empty = true) {
         $forms = self::get_all_forms($include_tracking);
@@ -133,8 +102,6 @@ class Emsfb_Widgets_Helper {
         return $options;
     }
 
-
-
     public static function generate_shortcode($form_id) {
         if (empty($form_id)) {
             return '';
@@ -147,8 +114,6 @@ class Emsfb_Widgets_Helper {
         return sprintf('[EMS_Form_Builder id="%d"]', intval($form_id));
     }
 
-
-
     public static function render_form($form_id) {
         if (empty($form_id)) {
             return self::render_placeholder_message(__('Please select a form to display.', 'easy-form-builder'));
@@ -157,8 +122,6 @@ class Emsfb_Widgets_Helper {
         $shortcode = self::generate_shortcode($form_id);
         return do_shortcode($shortcode);
     }
-
-
 
     public static function render_placeholder_message($message) {
         return sprintf(
@@ -180,8 +143,6 @@ class Emsfb_Widgets_Helper {
             esc_html($message)
         );
     }
-
-
 
     public static function get_editor_preview($form_id, $form_name = '') {
         if (empty($form_id)) {
@@ -223,19 +184,13 @@ class Emsfb_Widgets_Helper {
         );
     }
 
-
-
     public static function get_logo_url() {
         return EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.svg';
     }
 
-
-
     public static function get_icon_svg() {
         return '<img src="' . esc_url(self::get_logo_url()) . '" alt="Easy Form Builder" width="24" height="24" style="display:block;">';
     }
-
-
 
     public static function is_builder_active($builder) {
         switch ($builder) {
@@ -266,14 +221,11 @@ class Emsfb_Widgets_Helper {
         }
     }
 
-
-
     public static function get_current_editor() {
 
         if (isset($_GET['action']) && $_GET['action'] === 'elementor') {
             return 'elementor';
         }
-
 
         if (class_exists('\Elementor\Plugin')) {
             try {
@@ -288,14 +240,12 @@ class Emsfb_Widgets_Helper {
             }
         }
 
-
         if (function_exists('vc_is_inline') && vc_is_inline()) {
             return 'wpbakery';
         }
         if (isset($_GET['vc_editable']) && $_GET['vc_editable'] === 'true') {
             return 'wpbakery';
         }
-
 
         if (function_exists('is_block_editor') && is_block_editor()) {
             return 'gutenberg';

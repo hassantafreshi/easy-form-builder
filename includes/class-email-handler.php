@@ -1,12 +1,4 @@
 <?php
-/**
- * Email Handler for Easy Form Builder
- * Separates all email functionality from main efbFunction class for better performance and caching
- *
- * @package    Easy Form Builder
- * @subpackage Email Handler
- * @since      1.0
- */
 
 defined('ABSPATH') || exit;
 
@@ -22,8 +14,6 @@ class EmsfbEmailHandler {
      */
     private $efb_instance;
 
-
-
     private static $efb_function = null;
 
     /**
@@ -31,8 +21,6 @@ class EmsfbEmailHandler {
      * @var array
      */
     private static $text_cache = [];
-
-
 
     public function __construct($efb_instance = null) {
         $this->efb_instance = $efb_instance;
@@ -51,7 +39,6 @@ class EmsfbEmailHandler {
         if (isset(self::$text_cache[$cache_key])) {
             return self::$text_cache[$cache_key];
         }
-
 
         if (self::$efb_function === null) {
             if (class_exists('Emsfb') && method_exists('Emsfb', 'get_efbFunction')) {
@@ -108,8 +95,6 @@ class EmsfbEmailHandler {
         return $fallbacks[$key] ?? $key;
     }
 
-
-
     public function get_ip_address() {
         $ip = '1.1.1.1';
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
@@ -126,8 +111,6 @@ class EmsfbEmailHandler {
         }
         return $ip;
     }
-
-
 
     public function getVisitorOS() {
         $_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : null;
@@ -150,8 +133,6 @@ class EmsfbEmailHandler {
 
         return $os;
     }
-
-
 
     public function getVisitorBrowser() {
         $_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : null;
@@ -181,19 +162,15 @@ class EmsfbEmailHandler {
         return $b;
     }
 
-
-
     public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null") {
 
         $email_content_type = isset($state[2]) ? $state[2] : 'traking_link';
-
 
         add_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 
         $mailResult = "n";
         $server_name = apply_filters('emsfb_get_server_host', 'yourdomain.com');
         $from = get_bloginfo('name') . " <no-reply@" . $server_name . ">";
-
 
         if (is_array($to) && isset($to[2]) && is_email($to[2])) {
             $fromEmail = is_array($to[2]) ? array_pop($to[2]) : $to[2];
@@ -209,10 +186,8 @@ class EmsfbEmailHandler {
             'From:' . $from,
         ];
 
-
         add_action('wp_mail_failed', function($wp_error) {
         });
-
 
         $sendMail = function($to, $sub, $message, $headers) {
 
@@ -238,13 +213,11 @@ class EmsfbEmailHandler {
             }
         };
 
-
         if (is_string($sub)) {
             $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
             if ($state != "reportProblem") {
                 $mailResult = $sendMail($to, $sub, $message, $headers);
             }
-
 
             if (in_array($state, ["reportProblem", "testMailServer", "addonsDlProblem"])) {
                 $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
@@ -261,7 +234,6 @@ class EmsfbEmailHandler {
                 }
             }
         }
-
 
         remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 
@@ -281,7 +253,6 @@ class EmsfbEmailHandler {
      */
     public function email_template_efb($pro, $state, $m, $link, $email_content_type, $st = "null") {
 
-
         $l = 'https://whitestudio.team';
         $wp_lan = get_locale();
         $locale_map = [
@@ -296,19 +267,16 @@ class EmsfbEmailHandler {
         $text_keys = ['msgdml', 'mlntip', 'msgnml', 'serverEmailAble', 'vmgs', 'getProVersion', 'sentBy', 'hiUser', 'trackingCode', 'newMessage', 'createdBy', 'newMessageReceived', 'goodJob', 'yFreeVEnPro', 'WeRecivedUrM'];
         $lang = $this->get_text_efb($text_keys);
 
-
         $automatic_email_disclaimer = '📧 ' . __('This email was sent automatically. Please do not reply.', 'easy-form-builder');
 
         $footer = "<a class='efb subtle-link' target='_blank' href='" . esc_url(home_url()) . "'>" . $lang['sentBy'] . " " . esc_html(get_bloginfo('name')) . "</a>";
         $align = is_rtl() ? 'right' : 'left';
         $d = is_rtl() ? 'rtl' : 'ltr';
 
-
         if ($st == 'null') {
             $st = $this->get_settings_efficiently();
         }
         if ($st == "null") return '';
-
 
         if ($pro == true || $pro == 1) {
             $is_pro = (int) get_option('emsfb_pro', 2);
@@ -342,7 +310,6 @@ class EmsfbEmailHandler {
             $track_id = $m[0];
         }
 
-
         $button_style = "display: inline-block; padding: 16px 32px; background: transparent; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; cursor: pointer;";
 
         if($email_content_type == 'message_link'){
@@ -350,7 +317,6 @@ class EmsfbEmailHandler {
         }
 
         $isRegistrationState = in_array($state, ['newUser', 'register']);
-
 
         $tracking_section = "";
         if ($email_content_type != 'just_message' && !$isRegistrationState) {
@@ -369,11 +335,9 @@ class EmsfbEmailHandler {
         ";
         }
 
-
         if ($isRegistrationState) {
             $title = __('Welcome!', 'easy-form-builder');
         }
-
 
         if ($state == "testMailServer") {
             $title = $lang['serverEmailAble'];
@@ -399,9 +363,7 @@ class EmsfbEmailHandler {
             }
         }
 
-
         $html_email = $this->generate_html_email_template($title, $message, $footer, $automatic_email_disclaimer, $d, $align);
-
 
         if ($temp != "0") {
             $html_email = $this->apply_custom_template($temp, $message, $title, $blogName, $blogURL, $adminEmail, $footer, $automatic_email_disclaimer);
@@ -409,8 +371,6 @@ class EmsfbEmailHandler {
 
         return $html_email;
     }
-
-
 
     private function generate_test_server_message($lang, $l, $wp_lan) {
         $dt = $lang['msgnml'];
@@ -452,8 +412,6 @@ class EmsfbEmailHandler {
             </table>";
     }
 
-
-
     private function generate_new_message_content($m, $lang, $link, $tracking_section) {
         if (gettype($m) == 'string') {
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
@@ -468,8 +426,6 @@ class EmsfbEmailHandler {
             return "<div style='text-align:center;color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>" . $m[1] . " </div>" . $tracking_section;
         }
     }
-
-
 
     private function generate_default_message_content($m, $lang, $link, $tracking_section, $align) {
         if (is_string($m)) {
@@ -520,8 +476,6 @@ class EmsfbEmailHandler {
         return "";
     }
 
-
-
     private function generate_message_link_content($m, $lang, $link, $tracking_section, $state) {
         if (is_string($m)) {
 
@@ -555,8 +509,6 @@ class EmsfbEmailHandler {
         return "";
     }
 
-
-
     private function generate_just_message_content($m, $lang, $align) {
         if (is_string($m)) {
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
@@ -582,17 +534,13 @@ class EmsfbEmailHandler {
         return "";
     }
 
-
-
     private function generate_tracking_link_content($m, $lang, $link, $tracking_section, $state) {
-
 
         $isRegistrationState = in_array($state, ['newUser', 'register']);
 
         if (is_string($m)) {
 
             $m = str_replace(['&quot;', '&amp;quot;'], '', $m);
-
 
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false) {
 
@@ -609,7 +557,6 @@ class EmsfbEmailHandler {
             $track_id = $m[0];
             $content = str_replace(['&quot;', '&amp;quot;'], '', $m[1]);
             $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
-
 
             if ($isRegistrationState && (strpos($content, '<') !== false)) {
                 return $content;
@@ -630,8 +577,6 @@ class EmsfbEmailHandler {
 
         return "";
     }
-
-
 
     private function generate_html_email_template($title, $message, $footer, $disclaimer, $direction, $align) {
         return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
@@ -733,18 +678,10 @@ class EmsfbEmailHandler {
             'shortcode_admin_email' => $adminEmail
         ];
 
-
-
-
-
         $efbdata_json = null;
         if (preg_match('/<!-- EFBDATA:([\S]+) -->/', $temp, $efb_match)) {
             $efbdata_json = $efb_match[1];
         }
-
-
-
-
 
         if ($efbdata_json) {
             $rebuilt = $this->generate_from_efbdata($efbdata_json, $replacements);
@@ -753,17 +690,12 @@ class EmsfbEmailHandler {
             }
         }
 
-
-
         $temp = preg_replace('/\n?<!-- EFBDATA:.*? -->/', '', $temp);
-
 
         $temp = strtr($temp, $replacements);
 
-
         $temp = preg_replace(['/http:(?:@efb@)+/', '/https:(?:@efb@)+/'], ['http://', 'https://'], $temp);
         $temp = str_replace('@efb@', '/', $temp);
-
 
         $isBuilderTemplate = (strpos($temp, 'efb-email-container') !== false);
 
@@ -805,10 +737,6 @@ class EmsfbEmailHandler {
         return $temp;
     }
 
-
-
-
-
     private function safe_css_value($value) {
 
         $value = str_replace(['"', '<', '>', '\\'], '', $value);
@@ -831,7 +759,6 @@ class EmsfbEmailHandler {
         $blocks = $data['blocks'];
         $gs = $data['globalSettings'] ?? [];
 
-
         $bgColor        = $gs['bgColor']        ?? '#f8f9fa';
         $contentBgColor = $gs['contentBgColor']  ?? '#ffffff';
         $contentWidth   = intval($gs['contentWidth'] ?? 600);
@@ -839,16 +766,13 @@ class EmsfbEmailHandler {
         $fontFamily     = $gs['fontFamily']      ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
         $direction      = $gs['direction']       ?? (is_rtl() ? 'rtl' : 'ltr');
 
-
         $rows_html = '';
         foreach ($blocks as $block) {
             $rows_html .= $this->render_efb_block($block, $gs, $replacements);
         }
 
-
         $mso_open  = '<!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="' . $contentWidth . '" align="center"><tr><td><![endif]-->';
         $mso_close = '<!--[if mso]></td></tr></table><![endif]-->';
-
 
         $safe_bg       = esc_attr($bgColor);
         $safe_cbg      = esc_attr($contentBgColor);
@@ -893,19 +817,15 @@ table { border-collapse: collapse !important; }
 </html>';
     }
 
-
-
     private function render_efb_block($block, $gs, $replacements) {
         $type = $block['type'] ?? '';
         $d    = $block['data'] ?? [];
         $contentBgColor = $gs['contentBgColor'] ?? '#ffffff';
         $globalFont     = $gs['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
 
-
         $ff = function($blockFont = '') use ($globalFont) {
             return (!empty($blockFont) && $blockFont !== '') ? $blockFont : $globalFont;
         };
-
 
         $sc = function($text) use ($replacements) {
             return strtr($text, $replacements);
@@ -956,15 +876,12 @@ table { border-collapse: collapse !important; }
         }
     }
 
-
-
     private function render_header_block($d, $children, $gs, $replacements) {
         $align   = esc_attr($d['align'] ?? 'center');
         $padding = esc_attr($d['padding'] ?? '40px 30px 30px 30px');
         $bg      = !empty($d['bgGradient']) ? $d['bgGradient'] : ($d['bgColor'] ?? '#202a8d');
         $isGradient = (strpos($bg, 'gradient') !== false);
         $borderRadius = isset($gs['borderRadius']) ? intval($gs['borderRadius']) : 8;
-
 
         $solidFallback = $d['bgColor'] ?? '#202a8d';
         if ($isGradient && preg_match('/#[0-9a-fA-F]{3,8}/', $bg, $cMatch)) {
@@ -982,7 +899,6 @@ table { border-collapse: collapse !important; }
             }
         }
 
-
         $bgStyle = $isGradient
             ? 'background-color: ' . esc_attr($solidFallback) . '; background: ' . esc_attr($bg) . ';'
             : 'background-color: ' . esc_attr($bg) . ';';
@@ -994,14 +910,11 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-
-
     private function render_logo_block($d, $parentAlign = null) {
         $src   = esc_url($d['src'] ?? '');
         $alt   = esc_attr($d['alt'] ?? 'Logo');
         $width = intval($d['width'] ?? 120);
         $align = esc_attr($parentAlign ?? $d['align'] ?? 'center');
-
 
         $margin = '0 auto 20px auto';
         if ($align === 'left')  $margin = '0 auto 20px 0';
@@ -1011,8 +924,6 @@ table { border-collapse: collapse !important; }
           <img src="' . $src . '" alt="' . $alt . '" style="width: ' . $width . 'px; height: auto; display: block; margin: ' . $margin . '; border: none;" />
         </td></tr>';
     }
-
-
 
     private function render_title_block($d, $gs, $replacements, $parentAlign = null) {
         $text       = strtr(($d['text'] ?? ''), $replacements);
@@ -1027,8 +938,6 @@ table { border-collapse: collapse !important; }
           <h1 style="margin: 0; padding: 0; color: ' . $color . '; font-size: ' . $fontSize . 'px; font-weight: ' . $fontWeight . '; line-height: 1.3; text-align: ' . $align . '; font-family: ' . $fontFam . ';">' . $text . '</h1>
         </td></tr>';
     }
-
-
 
     private function render_text_block($d, $gs, $replacements) {
         $text       = strtr(($d['text'] ?? ''), $replacements);
@@ -1046,8 +955,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-
-
     private function render_message_block($d, $gs, $replacements) {
         $padding    = esc_attr($d['padding'] ?? '40px 30px');
         $bgColor    = esc_attr($d['bgColor'] ?? '#ffffff');
@@ -1056,7 +963,6 @@ table { border-collapse: collapse !important; }
         $align      = esc_attr($d['align'] ?? 'center');
         $globalFont = $gs['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
         $fontFam    = $this->safe_css_value(!empty($d['fontFamily']) ? $d['fontFamily'] : $globalFont);
-
 
         $content = $replacements['shortcode_message'] ?? 'shortcode_message';
 
@@ -1068,8 +974,6 @@ table { border-collapse: collapse !important; }
           </table>
         </td></tr>';
     }
-
-
 
     private function render_button_block($d, $gs, $replacements) {
         $text        = strtr(($d['text'] ?? 'Click Here'), $replacements);
@@ -1085,11 +989,9 @@ table { border-collapse: collapse !important; }
         $fontFam     = $this->safe_css_value(!empty($d['fontFamily']) ? $d['fontFamily'] : $globalFont);
         $contentBg   = esc_attr($gs['contentBgColor'] ?? '#ffffff');
 
-
         $margin = '0 auto';
         if ($align === 'left')  $margin = '0 auto 0 0';
         if ($align === 'right') $margin = '0 0 0 auto';
-
 
         $padParts = preg_split('/\s+/', trim($padding));
         $padTop = intval($padParts[0] ?? 14);
@@ -1097,7 +999,6 @@ table { border-collapse: collapse !important; }
         $padBottom = intval($padParts[2] ?? $padParts[0] ?? 14);
         $padLeft = intval($padParts[3] ?? $padParts[1] ?? $padParts[0] ?? 32);
         $btnWidth = 0;
-
 
         $vml_btn = '<!--[if mso]>
           <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="' . $url . '" style="height:auto;v-text-anchor:middle;" arcsize="' . ($borderRad > 0 ? intval($borderRad * 100 / 40) : 0) . '%" strokecolor="' . $bgColor . '" fillcolor="' . $bgColor . '">
@@ -1120,15 +1021,12 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-
-
     private function render_divider_block($d, $gs) {
         $color     = esc_attr($d['color'] ?? '#e5e7eb');
         $thickness = intval($d['thickness'] ?? 1);
         $width     = intval($d['width'] ?? 100);
         $padding   = esc_attr($d['padding'] ?? '15px 30px');
         $contentBg = esc_attr($gs['contentBgColor'] ?? '#ffffff');
-
 
         return '<tr><td style="background-color: ' . $contentBg . '; padding: ' . $padding . ';">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="' . $width . '%" align="center" style="margin: 0 auto;">
@@ -1139,16 +1037,12 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-
-
     private function render_spacer_block($d) {
         $height  = intval($d['height'] ?? 20);
         $bgColor = esc_attr($d['bgColor'] ?? 'transparent');
 
         return '<tr><td style="height: ' . $height . 'px; background-color: ' . $bgColor . ';">&nbsp;</td></tr>';
     }
-
-
 
     private function render_image_block($d, $gs, $replacements) {
         $src       = esc_url($d['src'] ?? '');
@@ -1171,8 +1065,6 @@ table { border-collapse: collapse !important; }
           ' . $img . '
         </td></tr>';
     }
-
-
 
     private function render_columns_block($d, $gs, $replacements) {
         $padding    = esc_attr($d['padding'] ?? '20px 30px');
@@ -1199,8 +1091,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-
-
     private function render_social_block($d, $gs, $replacements) {
         $align     = esc_attr($d['align'] ?? 'center');
         $padding   = esc_attr($d['padding'] ?? '20px 30px');
@@ -1209,10 +1099,6 @@ table { border-collapse: collapse !important; }
         $links     = $d['links'] ?? [];
         $contentBg = esc_attr($gs['contentBgColor'] ?? '#ffffff');
 
-
-
-
-
         $linksHtml = '';
         foreach ($links as $link) {
             $url   = esc_url(strtr(($link['url'] ?? '#'), $replacements));
@@ -1220,14 +1106,11 @@ table { border-collapse: collapse !important; }
             $icon  = $link['icon'] ?? '';
             $label = esc_attr($name ?: ucfirst($icon));
 
-
-
             $icon_html = '';
             $png_url = $this->get_colored_icon_url($icon, $iconColor);
             if ($png_url) {
                 $icon_html = '<img src="' . esc_url($png_url) . '" alt="' . $label . '" width="' . $iconSize . '" height="' . $iconSize . '" style="display:inline-block;vertical-align:middle;border:0;" />';
             }
-
 
             if (!$icon_html) {
                 $svg = $this->get_social_icon_svg($icon, $iconColor, $iconSize);
@@ -1247,8 +1130,6 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-
-
     private function get_colored_icon_url($icon, $color) {
         if (!defined('EMSFB_PLUGIN_URL') || !defined('EMSFB_PLUGIN_DIRECTORY')) {
             return '';
@@ -1262,35 +1143,28 @@ table { border-collapse: collapse !important; }
             return '';
         }
 
-
         $hex = ltrim(sanitize_hex_color($color) ?: '#333333', '#');
-
 
         if (!function_exists('imagecreatefrompng')) {
             return EMSFB_PLUGIN_URL . $base_rel;
         }
-
 
         $upload_dir = wp_upload_dir();
         $cache_dir  = $upload_dir['basedir'] . '/efb-icons/' . $hex;
         $cache_file = $cache_dir . '/' . $safe_icon . '.png';
         $cache_url  = $upload_dir['baseurl'] . '/efb-icons/' . $hex . '/' . $safe_icon . '.png';
 
-
         if (file_exists($cache_file)) {
             return $cache_url;
         }
-
 
         if (!is_dir($cache_dir)) {
             wp_mkdir_p($cache_dir);
         }
 
-
         $r = hexdec(substr($hex, 0, 2));
         $g = hexdec(substr($hex, 2, 2));
         $b = hexdec(substr($hex, 4, 2));
-
 
         $img = @imagecreatefrompng($base_path);
         if (!$img) {
@@ -1319,8 +1193,6 @@ table { border-collapse: collapse !important; }
         return file_exists($cache_file) ? $cache_url : EMSFB_PLUGIN_URL . $base_rel;
     }
 
-
-
     private function render_footer_block($d, $gs, $replacements) {
         $text       = strtr(($d['text'] ?? ''), $replacements);
         $color      = esc_attr($d['color'] ?? '#666666');
@@ -1337,14 +1209,10 @@ table { border-collapse: collapse !important; }
         </td></tr>';
     }
 
-
-
     private function render_html_block($d, $replacements) {
         $html = strtr(($d['html'] ?? ''), $replacements);
         return '<tr><td>' . $html . '</td></tr>';
     }
-
-
 
     private function get_social_emoji($icon) {
         $map = [
@@ -1363,8 +1231,6 @@ table { border-collapse: collapse !important; }
         ];
         return $map[$icon] ?? '&#x1F517;';
     }
-
-
 
     private function get_social_icon_svg($icon, $color = '#333333', $size = 24) {
         $esc_color = esc_attr($color);
@@ -1399,22 +1265,11 @@ table { border-collapse: collapse !important; }
         return '<svg viewBox="0 0 24 24" width="' . $size . '" height="' . $size . '" fill="' . $esc_color . '"><path d="' . $paths[$icon] . '"/></svg>';
     }
 
-
-
     private function wrap_builder_template_html($content) {
 
         $direction = is_rtl() ? 'rtl' : 'ltr';
 
-
-
-
-
-
-
         $content = preg_replace('/<meta\s[^>]*\/?>/i', '', $content);
-
-
-
 
         $firstElement = strpos($content, '<table');
         if ($firstElement === false) {
@@ -1422,35 +1277,25 @@ table { border-collapse: collapse !important; }
         }
         if ($firstElement !== false && $firstElement > 0) {
 
-
             $beforeText = trim(substr($content, 0, $firstElement));
             if (!preg_match('/^<[a-z]/i', $beforeText)) {
                 $content = substr($content, $firstElement);
             }
         }
 
-
-
-
         $content = preg_replace('/<!--\[if\s+mso\]&gt;.*?&lt;!\[endif\]-->/is', '', $content);
 
-
         $content = trim($content);
-
-
-
 
         $bgColor = '#f8f9fa';
         if (preg_match("/background-color:\s*([^;'\"]+)/i", $content, $bgMatch)) {
             $bgColor = trim($bgMatch[1]);
         }
 
-
         $contentWidth = 600;
         if (preg_match("/efb-email-wrapper[^>]*max-width:\s*(\d+)/i", $content, $wMatch)) {
             $contentWidth = intval($wMatch[1]);
         }
-
 
         $mso_width = intval($contentWidth);
         $content = preg_replace(
@@ -1547,13 +1392,10 @@ table { border-collapse: collapse !important; }
 
 	}
 
-
-
     private function get_settings_efficiently() {
         if (class_exists('Emsfb') && method_exists('Emsfb', 'get_setting_Emsfb')) {
             return Emsfb::get_setting_Emsfb();
         }
-
 
         if (function_exists('get_setting_Emsfb')) {
             return get_setting_Emsfb();
@@ -1562,13 +1404,9 @@ table { border-collapse: collapse !important; }
         return null;
     }
 
-
-
     public function wpdocs_set_html_mail_content_type() {
         return 'text/html';
     }
-
-
 
     public static function getInstance() {
         static $instance = null;
@@ -1577,8 +1415,6 @@ table { border-collapse: collapse !important; }
         }
         return $instance;
     }
-
-
 
     public static function quickSend($to, $subject, $message, $state = 'newMessage') {
         $handler = self::getInstance();

@@ -1,10 +1,7 @@
 <?php
 namespace Emsfb;
 use WP_REST_Response;
-/**
- * Class _Public
- * @package Emsfb
- */
+
 require_once('functions.php');
 class _Public {
 	public $value;
@@ -44,9 +41,6 @@ class _Public {
 				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
-
-
-
 			do_action( 'efb_register_payment_rest_routes', $this );
 
 			register_rest_route('Emsfb/v1','forms/response/get', [
@@ -70,7 +64,6 @@ class _Public {
 				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
-
 			register_rest_route('Emsfb/v1','forms/recovery/efb_set_password', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'set_password_efb_api'],
@@ -87,17 +80,13 @@ class _Public {
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
 
-
 		add_action('wp_ajax_efb_test_background', [$this, 'test_background_processing']);
 		add_action('wp_ajax_nopriv_efb_test_background', [$this, 'test_background_processing']);
-
 
 		add_action('wp_ajax_efb_process_background', [$this, 'process_background_task']);
 		add_action('wp_ajax_nopriv_efb_process_background', [$this, 'process_background_task']);
 
-
 		add_action('efb_process_background_cron', [$this, 'process_background_cron'], 10, 1);
-
 
 		if (!is_admin()) {
 			add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
@@ -136,7 +125,6 @@ public function check_nonce_permission_efb($request) {
 		exit();
 	}
 
-
 	if (!isset($_SERVER['HTTP_X_WP_NONCE'])) {
 
 		if ($origin) {
@@ -160,7 +148,6 @@ public function check_nonce_permission_efb($request) {
 
 	if (!$verify) {
 
-
 		$sid = sanitize_text_field( wp_unslash($_SERVER['HTTP_SID'] ?? ''));
 		$fid = sanitize_text_field( wp_unslash($_SERVER['HTTP_FORM_ID'] ?? ''));
 
@@ -169,7 +156,6 @@ public function check_nonce_permission_efb($request) {
 			if (!$this->efbFunction) {
 				$this->efbFunction = get_efbFunction();
 			}
-
 
 			$sid_valid = $this->efbFunction->efb_code_validate_select($sid, $fid);
 
@@ -185,8 +171,6 @@ public function check_nonce_permission_efb($request) {
 
 	return true;
 }
-
-
 
 	public function init_elementor_compatibility() {
 
@@ -204,8 +188,6 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 
-
-
 	private function safe_wp_script_is($handle, $list = 'enqueued') {
 
 		if (!did_action('wp_enqueue_scripts') && !did_action('admin_enqueue_scripts') && !did_action('login_enqueue_scripts')) {
@@ -218,8 +200,6 @@ public function check_nonce_permission_efb($request) {
 
 		return false;
 	}
-
-
 
 	public function is_elementor_active() {
 
@@ -450,8 +430,6 @@ public function check_nonce_permission_efb($request) {
 			$page_builder="";
 			$action_post = isset($_GET['action']) ? sanitize_key( wp_unslash( $_GET['action'] ) ) :'';
 
-
-
 			$is_beaver_active = false;
 			if (class_exists('\FLBuilderModel') && method_exists('\FLBuilderModel', 'is_builder_active')) {
 				try {
@@ -463,7 +441,6 @@ public function check_nonce_permission_efb($request) {
 				}
 			}
 
-
 			$is_divi_enabled = false;
 			if (defined('ET_FB_ENABLED')) {
 				try {
@@ -474,7 +451,6 @@ public function check_nonce_permission_efb($request) {
 					$is_divi_enabled = false;
 				}
 			}
-
 
 			$is_oxygen_enabled = false;
 			if (defined('SHOW_CT_BUILDER')) {
@@ -528,7 +504,6 @@ public function check_nonce_permission_efb($request) {
 					$page_builder = 'Editor';
 				}
 
-
 				$form_id = is_array($id) ? end($id) : $id;
 				$form_info = '';
 				if (!empty($form_id)) {
@@ -574,7 +549,6 @@ public function check_nonce_permission_efb($request) {
 				$state_form =  sanitize_text_field(wp_unslash($_GET['track']) );
 				$state="track";
 
-
 				if(isset($_GET['user'])  && sanitize_text_field( wp_unslash( $_GET['user'] ) ) == "admin" ) $admin_form = true;
 				if(isset($_GET['sc'])) $admin_sc = sanitize_text_field(wp_unslash($_GET['sc']));
 			}elseif (isset($_GET['state'])){
@@ -582,7 +556,6 @@ public function check_nonce_permission_efb($request) {
 				$username =isset($_GET['username']) ?  sanitize_text_field(wp_unslash($_GET['username'])) : 'null';
 				$state = sanitize_text_field(wp_unslash($_GET['state']));
 				$fid = sanitize_text_field(wp_unslash($_GET['fid']));
-
 
 				$val = $this->fun_present_others_action_efb( $state, $username, $admin_sc, $fid);
 				return $val;
@@ -593,7 +566,6 @@ public function check_nonce_permission_efb($request) {
 				$overrides = $this->efb_build_inline_style_overrides();
 				$pl_warn = get_setting_Emsfb('pub');
 				$ps_warn = $pl_warn[1] ?? [];
-
 
 				$warn_text_color  = !empty($ps_warn['respText'])       ? $ps_warn['respText']       : '#1a1a2e';
 				$warn_bg_color    = !empty($ps_warn['respBgCard'])     ? $ps_warn['respBgCard']     : '#ffffff';
@@ -717,7 +689,6 @@ public function check_nonce_permission_efb($request) {
 
 				preg_match_all($pattern, $value, $icons_ );
 
-
 				$iconsd = array_merge($icons_[0] , $icons[0]);
 
 				$icons_ = array_unique($iconsd);
@@ -735,12 +706,9 @@ public function check_nonce_permission_efb($request) {
 						$iconst_html_preload .= "<i class='bi $icon'></i>";
 				}
 
-
 				$is_track['content'] = $bootstrap_icons . $is_track['content'];
 			}
 			$iconst_html_preload .='</div>';
-
-
 
 			$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 
@@ -764,10 +732,7 @@ public function check_nonce_permission_efb($request) {
 				return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('Easy Form Builder couldn\'t locate the form settings. Please check your settings or contact support for assistance.','easy-form-builder')."</h3>".$efb_m;
 			}
 
-
 			$stng= $rp[0];
-
-
 
 			$this->comper_version_efb($rp[1]['version']);
 
@@ -836,8 +801,6 @@ public function check_nonce_permission_efb($request) {
 				$stng = $this->pub_stting;
 				if(gettype($stng)!=="integer" && $lanText['settingsNfound']){
 
-
-
 				$s_m ='<!--efb-->';
 
 				if( is_string($value) && (strpos($value , '\"type\":\"maps\"') !== false || strpos($value , '"type":"maps"') !== false)){
@@ -861,7 +824,6 @@ public function check_nonce_permission_efb($request) {
 			$value =str_replace('\\', '', $value);
 			$values = $value;
 
-
 			   require_once(EMSFB_PLUGIN_DIRECTORY . '/includes/class-Emsfb-formbuilder.php');
 			   $efbFormBuilder = new Formbuilder($valj_efb , $this->pro_efb);
 			   $content="<!--efb-->";
@@ -877,7 +839,6 @@ public function check_nonce_permission_efb($request) {
 					</div> </div>";
 					return $content;
 				}else if(($value_form_data->form_type=="login" || $value_form_data->form_type=="register") && is_user_logged_in()){
-
 
 					$content = $efbFormBuilder->show_user_profile_emsFormBuilder( $lanText['logout'], $this->id);
 
@@ -909,16 +870,11 @@ public function check_nonce_permission_efb($request) {
 			$pro_element_exists = false;
 			$auto_filled = false;
 
-
 			$loading_type = isset($valj_efb[0]->loading_type) ? $valj_efb[0]->loading_type : 'dots';
 			$loading_color = isset($valj_efb[0]->loading_color) ? $valj_efb[0]->loading_color : '#abb8c3';
 			$loading_svg = $efbFormBuilder->efb_selected_loading_svg($loading_type, $loading_color);
 
-
-
 			$efb_loading_ui_script = '<script>window.efb_loading_ui_' . intval($form_id) . ' = ' . json_encode($loading_svg) . ';</script>';
-
-
 
 			$loading_svg_encoded = rawurlencode($loading_svg);
 			$form_id_int = intval($form_id);
@@ -932,7 +888,6 @@ public function check_nonce_permission_efb($request) {
 				$randomId = wp_unique_id('efb_');
 
 				 foreach ($valj_efb[$i] as $key => $value) {
-
 
 					if(is_string($value)){
 						if(strpos($value, 'colorDEfb') !== false){
@@ -957,8 +912,6 @@ public function check_nonce_permission_efb($request) {
 					}
 
 				}
-
-
 
 				if($valj_efb[$i]->type=="step" ){
 					$valj_efb_first = $valj_efb[0];
@@ -1027,7 +980,6 @@ public function check_nonce_permission_efb($request) {
 								wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
 							}else if($autofill_id == 0){
 
-
 								$autofill_api = isset($valj_efb[0]->autofill_api) ? $valj_efb[0]->autofill_api : false;
 								$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
 								if($autofill_api && !empty($autofill_api_id)){
@@ -1035,7 +987,6 @@ public function check_nonce_permission_efb($request) {
 								}
 							}
 						}
-
 
 						else if($auto_filled == false && !isset($valj_efb[0]->autofill_id) && isset($valj_efb[0]->autofill_api) && $valj_efb[0]->autofill_api){
 							if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
@@ -1049,12 +1000,10 @@ public function check_nonce_permission_efb($request) {
 
 						if($typeOfForm=="payment"){
 
-
 							if ($valj_efb[$i]->type =='stripe' ){
 
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);
 									wp_enqueue_script('stripe-js');
-
 
 									!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe") ? $this->efbFunction->download_all_addons_efb() : '';
 									wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
@@ -1070,7 +1019,6 @@ public function check_nonce_permission_efb($request) {
 								$paymentKey=isset($setting->paypalPKey)  ? $setting->paypalPKey:'null';
 								$currency ='USD';
 
-
 								!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal") ? $this->efbFunction->download_all_addons_efb() : '';
 								wp_register_script('paypalefb-js', EMSFB_PLUGIN_URL . 'vendor/paypal/assets/js/paypal_efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
 								wp_enqueue_script('paypalefb-js');
@@ -1083,7 +1031,6 @@ public function check_nonce_permission_efb($request) {
 					}
 
 					if($typeOfForm=="survey" ){
-
 
 						wp_register_script('poll-chart-efb-js', EMSFB_PLUGIN_URL . 'public/assets/js/poll-chart-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
 						wp_enqueue_script('poll-chart-efb-js');
@@ -1107,9 +1054,6 @@ public function check_nonce_permission_efb($request) {
 			}
 			if($valj_efb[0]->captcha==true && isset($valj_efb[0]->logic)==false ){
 				$error_msg = "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('The form is not shown because Google reCAPTCHA has not been added to the Easy Form Builder plugin settings.','easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
-
-
-
 
 				$siteKey = '';
 				if (is_array($this->pub_stting) && isset($this->pub_stting['siteKey'])) {
@@ -1164,13 +1108,11 @@ public function check_nonce_permission_efb($request) {
 			$style = $style.'</style>';
 			$jss = $jss.'</script>';
 
-
 			$script = '';
 			if (current_user_can('manage_options')) {
 				$console_checker = $efbFormBuilder->check_error_console_efb();
 				$script = '<script>'.$console_checker.'</script>';
 			}
-
 
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
@@ -1212,15 +1154,9 @@ public function check_nonce_permission_efb($request) {
 
 					$this->ajax_object_efm_efb($ar_core ,$values ,$typeOfForm ,$state ,$lang,$poster ,$img ,$pro ,$page_builder ,$is_user ,$username,$lanText);
 
-
-
 					return $content_new;
 
-
-
 	}
-
-
 
 	private function efb_build_inline_style_overrides($ps = null) {
 		if ($ps === null) {
@@ -1257,7 +1193,6 @@ public function check_nonce_permission_efb($request) {
 			if ($key === 'respPrimary') $primary_hex = $val_s;
 		}
 
-
 		if ($primary_hex !== '#3644d2' && preg_match('/^#[0-9a-fA-F]{6}$/', $primary_hex)) {
 			$r = hexdec(substr($primary_hex, 1, 2));
 			$g = hexdec(substr($primary_hex, 3, 2));
@@ -1272,9 +1207,7 @@ public function check_nonce_permission_efb($request) {
 
 		$inline_style = $css_overrides !== '' ? '<style>:root{' . $css_overrides . '}</style>' : '';
 
-
 		$font_link = '';
-
 
 		if (!empty($ps['respCustomFont'])) {
 			$cf = json_decode($ps['respCustomFont'], true);
@@ -1282,7 +1215,6 @@ public function check_nonce_permission_efb($request) {
 				$font_link = '<link rel="stylesheet" href="' . esc_url($cf['url']) . '">';
 			}
 		}
-
 
 		if (empty($font_link) && !empty($ps['respFontFamily']) && $ps['respFontFamily'] !== 'inherit') {
 			$font_css_map = [
@@ -1315,7 +1247,6 @@ public function check_nonce_permission_efb($request) {
 	public function EMS_Form_Builder_track(){
 		$this->enqueue_jquery();
 
-
 		$this->id=0;
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$text=['pleaseEnterTheTracking','pleaseWaiting','fil','trackingCode','entrTrkngNo','search','easyFormBuilder','createdBy','tfnapca'];
@@ -1330,7 +1261,6 @@ public function check_nonce_permission_efb($request) {
 		}else{
 			   $valstng= json_decode($stng);
 			   if(isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true){
-
 
 				}
 
@@ -1356,7 +1286,6 @@ public function check_nonce_permission_efb($request) {
 
 		$sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
 		$sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : 'null';
-
 
 		$get_track ='';
 		$captcha_exist = false;
@@ -1409,8 +1338,6 @@ public function check_nonce_permission_efb($request) {
 		);
 		 $val = $pro==true ? '<!--efb.app-->' : '<div class="efb d-none"><a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a></div>';
 
-
-
 		$ps = $pl[1] ?? [];
 		$overrides_track = $this->efb_build_inline_style_overrides($ps);
 		$inline_style      = $overrides_track['inline_style'];
@@ -1446,15 +1373,12 @@ public function check_nonce_permission_efb($request) {
 		wp_enqueue_script('Emsfb-core_js');
 	    wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
 
-
 		$ar_core = array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'nonce' => wp_create_nonce('wp_rest'),
 		);
 		wp_localize_script( 'Emsfb-core_js', 'efb_var', $ar_core);
 	  }
-
-
 
 	private function efb_send_json_and_continue($response, $status_code = 200) {
 
@@ -1463,15 +1387,12 @@ public function check_nonce_permission_efb($request) {
 		ignore_user_abort(true);
 		set_time_limit(300);
 
-
 		$environment_method = 'Unknown';
 		$start_time = microtime(true);
-
 
 		if (session_id()) {
 			session_write_close();
 		}
-
 
 		if ($status_code >= 200 && $status_code < 300) {
 			$json_response = array(
@@ -1488,37 +1409,29 @@ public function check_nonce_permission_efb($request) {
 		$output = wp_json_encode($json_response);
 		$content_length = strlen($output);
 
-
 		while (ob_get_level() > 0) {
 			ob_end_clean();
 		}
 
-
 		ob_start();
-
 
 		header('Content-Type: application/json; charset=utf-8');
 		header('Content-Length: ' . $content_length);
 		header('Connection: close');
 		header('Content-Encoding: none');
 
-
 		header('Cache-Control: no-cache, no-store, must-revalidate');
 		header('Pragma: no-cache');
 		header('Expires: 0');
 
-
 		echo $output;
-
 
 		if (ob_get_level() > 0) {
 			ob_end_flush();
 		}
 
-
 		@ob_flush();
 		flush();
-
 
 		if (function_exists('fastcgi_finish_request')) {
 			$environment_method = 'PHP-FPM (fastcgi_finish_request)';
@@ -1527,11 +1440,9 @@ public function check_nonce_permission_efb($request) {
 			return true;
 		}
 
-
 		if (function_exists('apache_setenv')) {
 			@apache_setenv('no-gzip', '1');
 		}
-
 
 		if (function_exists('litespeed_finish_request')) {
 			$environment_method = 'LiteSpeed (litespeed_finish_request)';
@@ -1540,12 +1451,9 @@ public function check_nonce_permission_efb($request) {
 			return true;
 		}
 
-
-
 		if (ob_get_level() == 0) {
 			ob_start();
 		}
-
 
 		echo str_repeat(' ', 4096);
 
@@ -1553,8 +1461,6 @@ public function check_nonce_permission_efb($request) {
 			ob_end_flush();
 		}
 		flush();
-
-
 
 		if (function_exists('apache_setenv')) {
 			$environment_method = 'Apache (fallback with padding)';
@@ -1565,8 +1471,6 @@ public function check_nonce_permission_efb($request) {
 		$this->log_background_method($environment_method, $start_time);
 		return true;
 	}
-
-
 
 	private function log_background_method($method, $start_time) {
 		$elapsed = round((microtime(true) - $start_time) * 1000, 2);
@@ -1579,20 +1483,16 @@ public function check_nonce_permission_efb($request) {
 		);
 	}
 
-
-
 	private function trigger_background_processing($data) {
 
 		$transient_key = 'efb_bg_' . $data['track_id'];
 		set_transient($transient_key, $data, 300);
-
 
 		if (function_exists('wp_schedule_single_event')) {
 			wp_schedule_single_event(time(), 'efb_process_background_cron', [$data['track_id']]);
 			spawn_cron();
 			return;
 		}
-
 
 		$url = admin_url('admin-ajax.php');
 
@@ -1608,8 +1508,6 @@ public function check_nonce_permission_efb($request) {
 
 	}
 
-
-
 	public function process_background_task() {
 
 		$track_id = isset($_POST['track_id']) ? sanitize_text_field($_POST['track_id']) : '';
@@ -1618,7 +1516,6 @@ public function check_nonce_permission_efb($request) {
 			exit;
 		}
 
-
 		$transient_key = 'efb_bg_' . $track_id;
 		$data = get_transient($transient_key);
 
@@ -1626,11 +1523,9 @@ public function check_nonce_permission_efb($request) {
 			exit;
 		}
 
-
 		delete_transient($transient_key);
 
 		$timing_start = microtime(true);
-
 
 		$timing_sms_start = microtime(true);
 		if ($data['send_sms'] && !empty($data['phone_numbers'])) {
@@ -1647,7 +1542,6 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 		$timing_sms = round((microtime(true) - $timing_sms_start) * 1000, 2);
-
 
 		$timing_email_start = microtime(true);
 		if ($data['send_email']) {
@@ -1680,8 +1574,6 @@ public function check_nonce_permission_efb($request) {
 
 		$timing_total = round((microtime(true) - $timing_start) * 1000, 2);
 
-
-
 		exit;
 	}
 
@@ -1701,7 +1593,6 @@ public function check_nonce_permission_efb($request) {
 		$page_id = sanitize_text_field($request_data['page_id']);
 		$request_data['url'] = $url = sanitize_url($request_data['url']);
 
-
 		if(empty($this->efbFunction)) {
 			$this->efbFunction = $efbFunction;
 		}
@@ -1711,7 +1602,6 @@ public function check_nonce_permission_efb($request) {
 		$plugin_settings;
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
 		if($cache_plugins!='0') $this->cache_cleaner_Efb($page_id,$cache_plugins);
-
 
 		$user_id = 1;
 		$admin_email_list = [];
@@ -1724,7 +1614,6 @@ public function check_nonce_permission_efb($request) {
 
 			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
 		}
-
 
 		if (is_string($r)) {
 			$r = str_replace('\\', '', $r);
@@ -1740,7 +1629,6 @@ public function check_nonce_permission_efb($request) {
 		}
 		if(isset($plugin_settings['smtp']) && (bool)$plugin_settings['smtp'] ){
 
-
 						$should_send_email = true;
 		}
 		$is_pro = intval(get_option('emsfb_pro'));
@@ -1755,7 +1643,6 @@ public function check_nonce_permission_efb($request) {
         }
 		$this->id = intval($this->id);
 		$form_db_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
-
 
 		if (empty($form_db_data)) {
 			$msg = 'Form not found.';
@@ -1774,7 +1661,6 @@ public function check_nonce_permission_efb($request) {
 		$submitted_values = json_decode($this->value, true);
 
 		if ( empty($submitted_values)) {
-
 
 			$msg = 'Form data not found.';
 			if (isset($this->lanText) && isset($this->lanText['snotfound']) && isset($this->lanText['fform'])) {
@@ -1801,7 +1687,6 @@ public function check_nonce_permission_efb($request) {
 			$form_fields_array = json_decode($form_structure_json, true);
 			$form_structure_json = null;
 			$has_multiple_emails = isset($form_fields_array[0]["email_send_type"]) ? $form_fields_array[0]["email_send_type"] : false;
-
 
 			$form_type = $form_fields_array[0]['type'] ?? 'form';
 			if (!isset($submitted_values['logout']) && !isset($submitted_values['recovery']) && $form_type!='register' && $form_type!='login') {
@@ -1847,7 +1732,6 @@ public function check_nonce_permission_efb($request) {
 				if (isset($form_fields_array[0]['booking']) && $form_fields_array[0]['booking'] == 1) $form_condition = 'booking';
 				$currency = '';
 				if(isset($form_fields_array[0]['currency']) && strlen($form_fields_array[0]['currency'])>1) $currency = $form_fields_array[0]['currency'];
-
 
 				foreach ($form_fields_array as $key => $f) {
 					$validated_item = null;
@@ -2378,7 +2262,6 @@ public function check_nonce_permission_efb($request) {
 				}
 			}elseif($form_type=='register' || $form_type=='login'){
 
-
 				if($submission_type=='logout'){
 					$this->efbFunction->efb_code_validate_update($session_id ,'logout' ,'logout' );
 					wp_logout();
@@ -2511,15 +2394,12 @@ public function check_nonce_permission_efb($request) {
 								$response = ['success' => true, 'm' => $redirect_url];
 							}
 
-
 							$this->efb_send_json_and_continue($response, 200);
 							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array);
-
 
 						if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
 								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
 								if($smsSendResult !== true) {
-
 
 									$m =  $this->lanText['msgSndBut'];
 									$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , ''.$this->lanText['trackNo'] . '(' .$track_code.')' );
@@ -2639,7 +2519,6 @@ public function check_nonce_permission_efb($request) {
 							}
 							$m = "Error 500";
 
-
 							$response = $db_update_result == 1 ? array('success' => true, 'ID' => $request_data['id'], 'track' => $this->id, 'nonce' => wp_create_nonce($this->id), 'ip' => $ip) : array('success' => false, 'm' => $m);
 							$this->efbFunction->efb_code_validate_update($session_id, 'pay', $payment_track_id);
 							if ($redirect_url != "null" && $db_update_result == 1) {
@@ -2648,7 +2527,6 @@ public function check_nonce_permission_efb($request) {
 
 							$this->efb_send_json_and_continue($response, 200);
 							$this->efb_intgrate_with_3rd_party_services_efb($payment_track_id, $submitted_values, $form_fields_array, 'payment');
-
 
 							if ($should_send_email) {
 								$state_email_user = $has_tracking_code==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
@@ -2690,9 +2568,6 @@ public function check_nonce_permission_efb($request) {
 									wp_send_json_success($response, 200);
 								}
 
-
-
-
 								$creds = [
 									'user_login' => esc_sql($username),
 									'user_pass' => esc_sql($password),
@@ -2712,7 +2587,6 @@ public function check_nonce_permission_efb($request) {
 									$response = ['success' => false, 'm' => $m];
 								} else {
 
-
 									if ($email != "null") {
 
 										$this->ip = $this->get_ip_address();
@@ -2725,10 +2599,7 @@ public function check_nonce_permission_efb($request) {
 										$maskedPassword = $firstChar . str_repeat('*', strlen($password) - 2) . $lastChar;
 										$ms = "<p>" . esc_html__('Username', 'easy-form-builder') . ": " . $username . " </p> <p>" . esc_html__('Password', 'easy-form-builder') . ": " . $maskedPassword . "</p>";
 
-
-
 										$ms=$this->fun_get_content_email_register_recovery_efb($state, $username, $email, $this->id ,'register',$page_id);
-
 
 										$state_of_email = ['newUser', 'register'];
 										$this->efbFunction->efb_code_validate_update($session_id, 'register', $track_code);
@@ -2739,9 +2610,7 @@ public function check_nonce_permission_efb($request) {
 									}
 								}
 
-
 								$this->efb_send_json_and_continue($response, 200);
-
 
 								if (!is_wp_error($state) && $email != "null" && isset($track_code)) {
 									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'register');
@@ -2763,7 +2632,6 @@ public function check_nonce_permission_efb($request) {
 
 									$username = '';
 									$password = '';
-
 
 									foreach ($submitted_values as $value) {
 										if (isset($value['id_']) && isset($value['value'])) {
@@ -2803,10 +2671,8 @@ public function check_nonce_permission_efb($request) {
 										}
 										$this->efbFunction->efb_code_validate_update($session_id, 'login', 'login');
 
-
 										$this->efb_send_json_and_continue($response, 200);
 										$this->efb_intgrate_with_3rd_party_services_efb('login', $submitted_values, $form_fields_array, 'login');
-
 
 										if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
 											$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', '');
@@ -2832,10 +2698,8 @@ public function check_nonce_permission_efb($request) {
 									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
 									$this->efbFunction->efb_code_validate_update($session_id ,'nwltr' ,'nwltr' );
 
-
 									$this->efb_send_json_and_continue($response, 200);
 									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'subscribe');
-
 
 									if($should_send_email){
 										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
@@ -2849,7 +2713,6 @@ public function check_nonce_permission_efb($request) {
 									$track_code=	$this->insert_message_db(0,false);
 									$response = array( 'success' => true , 'm' =>$this->lanText['surveyComplatedM']);
 									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
-
 
 									$survey_chart_type = isset($form_fields_array[0]['survey_chart_type']) ? $form_fields_array[0]['survey_chart_type'] : 'none';
 
@@ -2868,10 +2731,8 @@ public function check_nonce_permission_efb($request) {
 
 									$this->efbFunction->efb_code_validate_update($session_id ,'poll' ,'poll' );
 
-
 									$this->efb_send_json_and_continue($response, 200);
 									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'survey');
-
 
 									if($should_send_email){
 										$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
@@ -2906,7 +2767,6 @@ public function check_nonce_permission_efb($request) {
 		$this->efbFunction = get_efbFunction();
 		$text_ = ['spprt','sxnlex','error403','errorMRobot','enterVValue','guest','cCodeNFound'];
 		$lanText= $this->efbFunction->text_efb($text_);
-
 
 		$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
 		$captcha_success =[];
@@ -3021,7 +2881,6 @@ public function check_nonce_permission_efb($request) {
 		$table_name = $this->db->prefix . "emsfb_msg_";
 		return $this->db->update( $table_name, array( 'content' => $this->value , 'read_' =>0,  'ip'=>$this->ip , 'read_date'=>wp_date('Y-m-d H:i:s') ), array( 'track' => $this->id ) );
 
-
 	}
 	public function get_ip_address() {
 
@@ -3093,12 +2952,9 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 
-
-
 	private function get_form_data_efb($form_id, $fields = array('form_structer', 'form_type')) {
 		$form_id = intval($form_id);
 		$cache_key = $form_id . '_' . md5(implode('_', $fields));
-
 
 		if(empty($this->db)){
 			global $wpdb;
@@ -3143,7 +2999,6 @@ public function check_nonce_permission_efb($request) {
         $fid= isset($_POST['fid']) ? intval( wp_unslash( $_POST['fid'] ) ) : 0;
 		$sid = '';
 		$page_id = isset($_POST['page_id']) ? sanitize_text_field(wp_unslash($_POST['page_id'])) : '';
-
 
 		$this->cache_cleaner_Efb($page_id);
 
@@ -3300,7 +3155,6 @@ public function check_nonce_permission_efb($request) {
 			$setting =json_decode($r);
 			$this->setting = $setting;
 
-
 			if(isset($setting->smtp) && (bool)$setting->smtp )  $email_actived = true;
 			$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
 			$email = isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
@@ -3377,7 +3231,6 @@ public function check_nonce_permission_efb($request) {
 					global $wpdb;
 					$this->db = $wpdb;
 				}
-
 
 				$id = intval($id);
 
@@ -3556,7 +3409,6 @@ public function check_nonce_permission_efb($request) {
 				}
 				if(isset($setting->smtp) && (bool)$setting->smtp ) $this->send_email_Emsfb_($user_eamil,$track,$pro,$email_status,$links ,'null','null');
 
-
 				$reply_event_type = ($rsp_by == 'admin') ? 'admin_reply' : 'received_reply';
 				$this->id = $form_id;
 				$this->efb_intgrate_with_3rd_party_services_efb($track, $valobj ?? [], $valn, $reply_event_type);
@@ -3615,7 +3467,6 @@ public function check_nonce_permission_efb($request) {
 		$micr = microtime(true);
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 
-
     $modern_button_template = "
         <!--[if mso]>
         <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='%s' style='height:50px;v-text-anchor:middle;width:220px;' arcsize='12%%' strokecolor='#202a8d' fillcolor='#202a8d'>
@@ -3650,8 +3501,6 @@ public function check_nonce_permission_efb($request) {
     $thankDonePoll = $this->lanText['thankDonePoll'];
     $newUserRegistration = esc_html__('New user registration', 'easy-form-builder');
 	$newMassageReciver = $this->lanText['newMessageReceived'];
-
-
 
     for ($i = 0; $i < 2; $i++) {
 		if(strlen($link)>5){
@@ -3710,7 +3559,6 @@ public function check_nonce_permission_efb($request) {
             case "newUser":
                 $subject[$i] = $newUserRegistration;
 
-
                 $message[$i] = "<p>$newUserRegistration</p>" . $cont[$i];
                 break;
         }
@@ -3730,10 +3578,7 @@ public function check_nonce_permission_efb($request) {
         }
     }
 
-
     $micr = microtime(true);
-
-
 
     $check = $this->efbFunction->send_email_state_new($to, $subject, $cont, $pro, $state, $link_w, $this->setting);
 
@@ -3818,7 +3663,6 @@ public function check_nonce_permission_efb($request) {
 			}else{
 				$token= sanitize_text_field($data_POST['token']);
 
-
 				$product = $stripe->products->create([
 					'name' => $description,
 					]);
@@ -3879,7 +3723,6 @@ public function check_nonce_permission_efb($request) {
 			$this->name = sanitize_text_field($data_POST['name']);
 			$check=	$this->insert_message_db(2,false);
 
-
 			$stripe_payment_file = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/class-Emsfb-stripe-payment.php';
 			if ( ! class_exists( '\Emsfb\StripePayment' ) && file_exists( $stripe_payment_file ) ) {
 				require_once $stripe_payment_file;
@@ -3914,8 +3757,6 @@ public function check_nonce_permission_efb($request) {
 				StripePayment::insert_payment( $pay_data );
 			}
 
-
-
 			$response=array_merge($response , ['id'=>$check]);
 			wp_send_json_success($response, 200);
 		}else{
@@ -3924,8 +3765,6 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success($response, 200);
 		}
 	}
-
-
 
 	public function pay_stripe_confirm_Emsfb_api( $request ) {
 		$data_POST       = $request->get_json_params();
@@ -3950,7 +3789,6 @@ public function check_nonce_permission_efb($request) {
 		global $wpdb;
 		$pay_table = $wpdb->prefix . 'emsfb_pay_';
 
-
 		$pay_row = $wpdb->get_row( $wpdb->prepare(
 			"SELECT id, status FROM {$pay_table} WHERE transaction_id = %s AND gateway = 'stripe' LIMIT 1",
 			$payment_intent
@@ -3972,7 +3810,6 @@ public function check_nonce_permission_efb($request) {
 				'capture_id' => $payment_intent,
 			] );
 		}
-
 
 		if ( ! empty( $trackid ) ) {
 			if ( empty( $this->db ) ) {
@@ -4007,10 +3844,7 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success($response, 200);
 		}
 
-
-
 	}
-
 
 	public function string_to_url($string) {
 			$rePage= preg_replace('/(http:@efb@)+/','http://',$string);
@@ -4067,12 +3901,10 @@ public function check_nonce_permission_efb($request) {
 	public function email_get_content_efb($content, $track){
 		$m  = '<table border="0" cellpadding="0" cellspacing="0" width="100%" class="container containerEmailEfb" >';
 
-
 			$text_     = ['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
 			$list      = [];
 			$checboxs  = [];
 			$total_amount = 0;
-
 
 			$lst    = end($content);
 			$link_w = (isset($lst['type']) && $lst['type']==="w_link") ? ($lst['value'] ?? '') : '';
@@ -4082,20 +3914,16 @@ public function check_nonce_permission_efb($request) {
 				$link_w = home_url();
 			}
 
-
 			$currency = (isset($content[0]['paymentcurrency'])) ? $content[0]['paymentcurrency'] : 'usd';
-
 
 			if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 			$lanText = $this->efbFunction->text_efb($text_);
-
 
 			usort($content, function($a,$b){
 				$aa = isset($a['amount']) ? $a['amount'] : 0;
 				$bb = isset($b['amount']) ? $b['amount'] : 0;
 				return $aa <=> $bb;
 			});
-
 
 			$addPair = function($title, $value) use (&$m){
 				$title = $this->efbFunction->ensure_trailing_colon_efb($title);
@@ -4127,7 +3955,6 @@ public function check_nonce_permission_efb($request) {
 				$title = isset($c['name']) ? $c['name'] : '';
 				$q     = '';
 
-
 				if (isset($c['value']) && is_string($c['value'])) {
 					$q = str_replace('@efb!', ',', $c['value']);
 					$q = str_replace('@n#', '<br>', $q);
@@ -4136,7 +3963,6 @@ public function check_nonce_permission_efb($request) {
 				if (isset($c['qty'])) {
 					$q .= ($q ? ' ' : '') . ': <b>'.$c['qty'].'</b>';
 				}
-
 
 				if (isset($c['value']) && $c['value']==='@file@' && !in_array(($c['url'] ?? ''), $list)) {
 					$url = $c['url'] ?? '';
@@ -4166,13 +3992,11 @@ public function check_nonce_permission_efb($request) {
 					continue;
 				}
 
-
 				if (isset($c['type']) && $c['type']==='esign'){
 					$q = '<img src="'.($c['value'] ?? '').'" alt="'.htmlspecialchars($title).'" style="display:block;max-width:100%;height:auto;border:0;">';
 					$addPair($title, $q);
 					continue;
 				}
-
 
 				if (isset($c['type']) && $c['type']==='color'){
 					$q = '<span style="display:inline-block;width:50px;height:20px;vertical-align:middle;background:'.($c['value'] ?? '#000').'"></span> '
@@ -4180,7 +4004,6 @@ public function check_nonce_permission_efb($request) {
 					$addPair($title, $q);
 					continue;
 				}
-
 
 				if (isset($c['type']) && $c['type']==='maps'){
 					if (is_array($c['value'] ?? null)){
@@ -4190,14 +4013,12 @@ public function check_nonce_permission_efb($request) {
 					continue;
 				}
 
-
 				if (isset($c['type']) && $c['type']==='rating'){
 					$stars = intval($c['value'] ?? 0);
 					$q = str_repeat('⭐', $stars);
 					$addPair($title ?: 'Rating', $q);
 					continue;
 				}
-
 
 				if (isset($c['type']) && ($c['type']==='payCheckbox' || $c['type']==='payRadio')){
 					$price = intval($c['price'] ?? 0);
@@ -4208,13 +4029,11 @@ public function check_nonce_permission_efb($request) {
 					continue;
 				}
 
-
 				if (isset($c['type']) && $c['type']==='prcfld'){
 					$numberformat = $this->formatPrice_efb(number_format(intval($c['price'] ?? 0),0,'.',','), $currency);
 					$addPair($c['name'] ?? 'Price', '<b>'.$numberformat.'</b>');
 					continue;
 				}
-
 
 				if (isset($c['type']) && $c['type']==='r_matrix' && !in_array(($c['id_'] ?? ''), $checboxs)){
 					$checboxs[] = $c['id_'] ?? '';
@@ -4227,7 +4046,6 @@ public function check_nonce_permission_efb($request) {
 					$addPair($title ?: 'Options', implode('<br>', $vals));
 					continue;
 				}
-
 
 				if (isset($c['type']) && $c['type']==='payment'){
 					if (($c['paymentGateway'] ?? '')==='stripe'){
@@ -4246,11 +4064,9 @@ public function check_nonce_permission_efb($request) {
 					continue;
 				}
 
-
 				if (isset($c['id_']) && $c['id_']==='passwordRegisterEFB'){
 					$q = '**********';
 				}
-
 
 				if (
 					(!isset($c['type']) || $c['type']!=='checkbox') &&
@@ -4264,7 +4080,6 @@ public function check_nonce_permission_efb($request) {
 						$q = '<b>'.number_format(intval($c['price']),0,'.',',').' '.$currency.'</b>';
 						$addPair($title, $q);
 					}
-
 
 					if (isset($c['type']) && strpos($c['type'],'imgRadio')!==false){
 						$q = '<b>'.($c['value'] ?? '').'</b>';
@@ -4290,7 +4105,6 @@ public function check_nonce_permission_efb($request) {
 
 	function fun_imgRadio_efb($id ,$link,$row){
 
-
 		$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 		$u = function($url){
 			$patterns = [
@@ -4304,10 +4118,7 @@ public function check_nonce_permission_efb($request) {
 				'/'
 			];
 
-
-
 			$processedLink = preg_replace($patterns, $replacements, $url);
-
 
 			return $processedLink;
 			};
@@ -4401,8 +4212,6 @@ public function check_nonce_permission_efb($request) {
 		<h3  class="efb fs-5" style="justify-content: center; align-items: center;  text-align: center;">'. $fil.' <br><span class="efb  text-center fs-7">'.$pw.'</span> </h3>
 		';
 	}
-
-
 
 	public function cache_cleaner_Efb($page_id, $plugins = null) {
 		$page_id = intval($page_id);
@@ -4625,7 +4434,6 @@ public function check_nonce_permission_efb($request) {
 			);
 		}
 
-
 		$dynamic_handlers = array(
 			'wp-cloudflare-page-cache' => array(
 				'check' => class_exists('SW_CLOUDFLARE_PAGECACHE'),
@@ -4666,7 +4474,6 @@ public function check_nonce_permission_efb($request) {
 			}
 		}
 
-
 		if (empty($active_plugins)) {
 
 			foreach ($cache_handlers as $slug => $handler) {
@@ -4686,7 +4493,6 @@ public function check_nonce_permission_efb($request) {
 
 			return false;
 		}
-
 
 		$cleared = 0;
 		$failed = 0;
@@ -4731,7 +4537,6 @@ public function check_nonce_permission_efb($request) {
 
 			return true;
 		}
-
 
 		return null;
 	}
@@ -4828,9 +4633,6 @@ public function check_nonce_permission_efb($request) {
 		return g($track , $this->setting->email_key);
 	}
 
-
-
-
 	private function sanitize_value_efb($value, $key) {
 		switch ($key) {
 			case 'email':
@@ -4869,9 +4671,6 @@ public function check_nonce_permission_efb($request) {
 			'yesNo' => true, 'payMultiselect' => true, 'rating' => true, 'text'=>true, 'password'=>true
 		];
 
-
-
-
 			if (isset($attribute_map_efb[$type])) {
 				$allowed_attributes_efb_type = is_array($attribute_map_efb[$type]) ?  array_replace($allowed_attributes_efb, $attribute_map_efb[$type]) :$allowed_attributes_efb;
 
@@ -4887,10 +4686,7 @@ public function check_nonce_permission_efb($request) {
 		return false;
 	}
 
-
-
 	public function fun_present_others_action_efb($state, $username, $sid,$fid){
-
 
 		$this->efbFunction = get_efbFunction();
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
@@ -5066,8 +4862,6 @@ public function check_nonce_permission_efb($request) {
 
 	}
 
-
-
 	private function generate_recovery_email_template($content, $footer) {
 		$site_name = get_bloginfo('name');
 		$site_url = home_url();
@@ -5159,8 +4953,6 @@ public function check_nonce_permission_efb($request) {
 
 		$lan =$this->efbFunction->text_efb($text);
 
-
-
 		$data = array(
 			'username' => $username,
 			'created_at' => current_time('mysql'),
@@ -5170,7 +4962,6 @@ public function check_nonce_permission_efb($request) {
 		);
 		$sql = $this->db->prepare("INSERT INTO $table_name (username, created_at, code, ip_address, status_) VALUES (%s, %s, %s, %s, %s)", $data);
 		$this->db->query($sql);
-
 
 		$url = get_permalink($page_id) . '?sc=' . $sid . '&state=' . $status_ . '&username=' . $username . '&fid=' . $fid;
 		if($type_ =='register'){
@@ -5182,7 +4973,6 @@ public function check_nonce_permission_efb($request) {
 			$button_text = esc_html__('Reset Password', 'easy-form-builder');
 			$button_color = '#667eea';
 		}
-
 
 		$button = sprintf(
 			'<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 25px auto;">
@@ -5197,7 +4987,6 @@ public function check_nonce_permission_efb($request) {
 			$button_text
 		);
 
-
 		$link_text = sprintf(
 			'<p style="margin: 20px 0 0 0; font-size: 13px; color: #6b7280; word-break: break-all;">%s<br><a href="%s" style="color: #667eea;">%s</a></p>',
 			esc_html__('Or copy and paste this link:', 'easy-form-builder'),
@@ -5206,7 +4995,6 @@ public function check_nonce_permission_efb($request) {
 		);
 
 		$nr = '<p style="margin: 20px 0 0 0; padding: 15px; background-color: #fef3c7; border-radius: 6px; font-size: 13px; color: #92400e;">⚠️ ' . $lan['udnrtun'] . '</p>';
-
 
 		$greeting = sprintf('<p style="margin: 0 0 20px 0; font-size: 18px;">%s <strong>%s</strong>,</p>', esc_html__('Hi', 'easy-form-builder'), esc_html($username));
 
@@ -5222,11 +5010,9 @@ public function check_nonce_permission_efb($request) {
 
 		return $message;
 
-
 	}
 
 	public function set_password_efb_api(){
-
 
 		$data = json_decode(file_get_contents('php://input'), true);
 
@@ -5234,8 +5020,6 @@ public function check_nonce_permission_efb($request) {
 		$fid = sanitize_text_field($data['fid']);
 		$this->efbFunction = get_efbFunction();
 		 $s_sid = $this->efbFunction->efb_code_validate_select($st, $fid);
-
-
 
 		$password = sanitize_text_field($data['password']);
 		if(empty($this->db)){
@@ -5261,9 +5045,7 @@ public function check_nonce_permission_efb($request) {
 		return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder')));
 	}
 
-
 	public function ColorNameToHexEfbOfElEfb($v, $n) {
-
 
 		$color_map = [
 			"primary" => '#0d6efd',
@@ -5511,12 +5293,10 @@ public function check_nonce_permission_efb($request) {
         $id  = isset($row['id_'])   ? (string)$row['id_']   : '';
         $ob  = isset($row['id_ob']) ? (string)$row['id_ob'] : '';
 
-
         if ($id === '' && $ob === '') {
             $out[] = $row;
             continue;
         }
-
 
         $key = $id . '|' . $ob;
 
@@ -5529,8 +5309,6 @@ public function check_nonce_permission_efb($request) {
     return $out;
 }
 
-
-
 	public function pay_paypal_sub_Emsfb_api($data_POST_) {
 		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
 		if ( ! file_exists( $handler_path ) ) {
@@ -5541,8 +5319,6 @@ public function check_nonce_permission_efb($request) {
 		$handler = new PaypalHandler();
 		$handler->handle_create_payment( $data_POST_, $this );
 	}
-
-
 
 	public function pay_paypal_capture_Emsfb_api($data_POST_) {
 		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
@@ -5555,8 +5331,6 @@ public function check_nonce_permission_efb($request) {
 		$handler->handle_capture( $data_POST_ );
 	}
 
-
-
 	public function pay_paypal_subscription_activate_Emsfb_api($data_POST_) {
 		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
 		if ( ! file_exists( $handler_path ) ) {
@@ -5567,8 +5341,6 @@ public function check_nonce_permission_efb($request) {
 		$handler = new PaypalHandler();
 		$handler->handle_subscription_activate( $data_POST_ );
 	}
-
-
 
 	public function fix_elementor_ultimate_DEPRECATED() {
 		if (!is_admin()) {
@@ -5605,8 +5377,6 @@ public function check_nonce_permission_efb($request) {
 			<?php
 		}
 	}
-
-
 
 	public function fix_elementor_monkey_patch_DEPRECATED() {
 		if (!is_admin()) {
@@ -5660,8 +5430,6 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 
-
-
 	public function fix_elementor_direct_DEPRECATED() {
 		if (!is_admin()) {
 			?>
@@ -5708,11 +5476,8 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 
-
-
 	private function efb_get_survey_results_data($form_id, $formObj) {
 		global $wpdb;
-
 
 		if (is_array($formObj)) {
 			foreach ($formObj as $idx => $field) {
@@ -5722,7 +5487,6 @@ public function check_nonce_permission_efb($request) {
 				$showInPublic = isset($field['showInPublicResults']) ? $field['showInPublicResults'] : 'NOT_SET';
 			}
 		}
-
 
 		$table_name = $wpdb->prefix . 'emsfb_msg_';
 		$query = $wpdb->prepare(
@@ -5739,7 +5503,6 @@ public function check_nonce_permission_efb($request) {
 			return [];
 		}
 
-
 		$test_content = stripslashes($messages[0]->content);
 		$test_decode = json_decode($test_content, true);
 		if (is_array($test_decode)) {
@@ -5751,7 +5514,6 @@ public function check_nonce_permission_efb($request) {
 				$tidob = $titem['id_ob'] ?? 'NO_ID_OB';
 			}
 		}
-
 
 		$field_categories = [
 			'radio' => 'choice',
@@ -5777,7 +5539,6 @@ public function check_nonce_permission_efb($request) {
 			'pdate' => 'date',
 			'ardate' => 'date'
 		];
-
 
 		$public_fields = [];
 		$skipped_fields_no_show = 0;
@@ -5805,7 +5566,6 @@ public function check_nonce_permission_efb($request) {
 					'options' => [],
 					'values' => []
 				];
-
 
 				if ($category === 'choice') {
 					if ($field_type === 'yesNo') {
@@ -5877,7 +5637,6 @@ public function check_nonce_permission_efb($request) {
 			return [];
 		}
 
-
 		$msg_index = 0;
 		$total_items_processed = 0;
 		$total_items_matched = 0;
@@ -5911,7 +5670,6 @@ public function check_nonce_permission_efb($request) {
 				$field_id = $item['id_'];
 				$item_type = $item['type'] ?? '';
 
-
 				if ($item_type === 'r_matrix') {
 
 					$row_id = $item['id_ob'] ?? null;
@@ -5935,15 +5693,12 @@ public function check_nonce_permission_efb($request) {
 						}
 					}
 
-
-
 					if (!$found_parent && $matrix_parent_id && isset($public_fields[$matrix_parent_id]) && $public_fields[$matrix_parent_id]['category'] === 'matrix') {
 
 						$item_name = $item['name'] ?? '';
 						$matched_row = false;
 						foreach ($public_fields[$matrix_parent_id]['rows'] as $rid => $rdata) {
 							if ($rdata['name'] === $item_name) {
-
 
 								$value = intval($item['value'] ?? 0);
 								$public_fields[$matrix_parent_id]['rows'][$rid]['scores'][] = $value;
@@ -6033,9 +5788,7 @@ public function check_nonce_permission_efb($request) {
 			$msg_index++;
 		}
 
-
 		unset($field);
-
 
 		foreach ($public_fields as $fid => $fdata) {
 			if (!empty($fdata['options'])) {
@@ -6049,7 +5802,6 @@ public function check_nonce_permission_efb($request) {
 				}
 			}
 		}
-
 
 		$results = [];
 		foreach ($public_fields as $field_id => $field) {
@@ -6225,11 +5977,7 @@ public function check_nonce_permission_efb($request) {
 		return $results;
 	}
 
-
-
 	private function efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, $event_type = 'form_submit') {
-
-
 
 		$context = [
 			'track_code'       => $track_code,
@@ -6240,18 +5988,7 @@ public function check_nonce_permission_efb($request) {
 			'form_fields'      => $form_fields_array,
 		];
 
-
-
-
 		do_action('efb_3rd_party_telegram_notify', $context);
-
-
-
-
-
-
-
-
 
 		do_action('efb_after_form_integration', $context);
 

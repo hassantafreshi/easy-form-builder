@@ -48,7 +48,6 @@ class Panel_edit  {
 				if(isset($ac->siteKey)){$captcha="true";}
 				if(isset($ac->smtp) && (bool)$ac->smtp){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
 
-
 				$lng = get_locale();
 			$k ="";
 			$noti_pro = intval(get_option('emsfb_pro' ,-1));
@@ -190,10 +189,8 @@ class Panel_edit  {
 				}
 			}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 
-
 			$colors =[];
 			$location ='';
-
 
 			$current_locale = get_locale();
 			if (strpos($current_locale, 'de_') === 0) {
@@ -205,7 +202,6 @@ class Panel_edit  {
 			} else {
 				$wsteam_domain = 'whitestudio.team';
 			}
-
 
 			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
@@ -243,8 +239,6 @@ class Panel_edit  {
 			}
 			if("fa_IR"==get_locale()){
 
-
-
 				do_action('efb_enqueue_persia');
 			}
 			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION , true);
@@ -261,7 +255,6 @@ class Panel_edit  {
 				wp_enqueue_script('jquery-ui-efb');
 				wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);
 				wp_enqueue_script('jquery-dd-efb');
-
 
 			$url =CDN_ZONE_AREA.'js/wp/countries.js';
 			if(isset($ac->AdnOF) && $ac->AdnOF==1){
@@ -328,8 +321,6 @@ class Panel_edit  {
 					'devMode'=> get_option('emsfb_dev_mode', '1') === '1' ? 1 : 0,
 				));
 
-
-
 		}else{
 			echo "Easy Form Builder: You don't access this section";
 		}
@@ -377,12 +368,10 @@ class Panel_edit  {
             }
         }
 
-
 		set_transient('emsfb_theme_has_bootstrap', $s ? 'yes' : 'no', DAY_IN_SECONDS);
         return  $s;
     }
 	public function test_smart_zone (){
-
 
             $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/smartzone/smartzone.php";
             if(file_exists($fl_ex)){

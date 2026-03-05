@@ -56,10 +56,6 @@ class Create {
 	public function render_settings() {
 		$efbFunction = get_efbFunction();
 
-
-
-
-
 		$noti_pro = intval(get_option('emsfb_pro' ,-1));
 		if ($noti_pro === 0  ){
 			$noti_pro ="<script>console.log('test');const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
@@ -134,7 +130,6 @@ class Create {
 		$pro =$efbFunction->is_efb_pro(1);
 		$settings= get_setting_Emsfb('decoded');
 		$addons = $efbFunction->fun_get_addons_list_efb($settings);
-
 
 		if(isset($settings->osLocationPicker)==true && $settings->osLocationPicker==1){
 			$efbFunction->openstreet_map_required_efb(0);
@@ -281,13 +276,11 @@ class Create {
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
 
-
 		$nonce = $_POST['nonce'];
 		if ( !wp_verify_nonce( $nonce, 'wp_rest' ) || !current_user_can('Emsfb') ) {
             $response = ['success' => false, 'm' =>  $lang['error403']];
             wp_send_json_success($response, 200);
 		}
-
 
 		$email = '';
 		if( empty($_POST['name']) || empty($_POST['value']) ){
@@ -327,7 +320,6 @@ class Create {
 		$this->value=str_replace('"', '\\"', $valx);
 		$this->insert_db();
 		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
-
 
 			$sms_exists = get_option('emsfb_addon_AdnSS', false);
 			$sms_files_exists = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );

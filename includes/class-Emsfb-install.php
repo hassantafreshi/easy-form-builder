@@ -8,7 +8,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Install {
 
-
 	static function install() {
 		global $wpdb;
 		$state="gi";
@@ -131,7 +130,6 @@ class Install {
 			}
 
 		add_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
-
 
 		do_action('emsfb_update_cache_plugins_list');
 

@@ -1,21 +1,4 @@
 <?php
-/**
- * Easy Form Builder - Visual Composer Website Builder Integration
- *
- * Provides a drag & drop element for Visual Composer Website Builder
- *
- * HOW TO USE IN VISUAL COMPOSER:
- * 1. In the editor, click Add Element (+)
- * 2. Search for "Easy Form Builder" or go to "Content" category
- * 3. Click/Drag the element to your page
- * 4. Select your form from the dropdown in element settings
- *
- * Alternative: Use "Shortcode" element with [EMS_Form_Builder id="YOUR_FORM_ID"]
- *
- * @package    Emsfb
- * @subpackage Emsfb/includes/page-builders/visual-composer
- * @since      4.0.0
- */
 
 if (!defined('ABSPATH')) {
     die("Direct access of plugin files is not allowed.");
@@ -43,33 +26,24 @@ class Emsfb_Visual_Composer_Integration {
 
         add_shortcode('efb_vc_form', [$this, 'render_shortcode']);
 
-
         add_action('vcv:api', [$this, 'register_vc_element'], 10);
-
 
         add_filter('vcv:helpers:localizations:i18n', [$this, 'add_localization']);
 
-
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
 
-
         add_action('widgets_init', [$this, 'register_widget']);
-
 
         add_action('admin_footer', [$this, 'output_forms_data']);
         add_action('wp_footer', [$this, 'output_forms_data']);
     }
-
-
 
     public function register_vc_element($api) {
         if (!$api) {
             return;
         }
 
-
         $forms = $this->get_forms_for_dropdown();
-
 
         $element = [
             'tag' => 'efb_vc_form',
@@ -89,13 +63,10 @@ class Emsfb_Visual_Composer_Integration {
             ],
         ];
 
-
         if (method_exists($api, 'elements') && is_callable([$api->elements(), 'register'])) {
             $api->elements()->register($element);
         }
     }
-
-
 
     public function render_shortcode($atts) {
         $atts = shortcode_atts([
@@ -103,7 +74,6 @@ class Emsfb_Visual_Composer_Integration {
         ], $atts, 'efb_vc_form');
 
         $form_id = $atts['form_id'];
-
 
         $is_editor = $this->is_editor_mode();
 
@@ -114,7 +84,6 @@ class Emsfb_Visual_Composer_Integration {
             return '';
         }
 
-
         if ($is_editor) {
             $form_name = $this->get_form_name($form_id);
             return $this->get_editor_placeholder(
@@ -122,15 +91,12 @@ class Emsfb_Visual_Composer_Integration {
             );
         }
 
-
         if ($form_id === 'tracking') {
             return do_shortcode('[Easy_Form_Builder_confirmation_code_finder]');
         }
 
         return do_shortcode('[EMS_Form_Builder id="' . intval($form_id) . '"]');
     }
-
-
 
     private function get_forms_for_dropdown() {
         $forms = ['' => __('— Select a Form —', 'easy-form-builder')];
@@ -158,8 +124,6 @@ class Emsfb_Visual_Composer_Integration {
         return $forms;
     }
 
-
-
     private function get_form_name($form_id) {
         if ($form_id === 'tracking') {
             return __('Confirmation Code Finder', 'easy-form-builder');
@@ -184,8 +148,6 @@ class Emsfb_Visual_Composer_Integration {
         return $result ? $result : __('Form', 'easy-form-builder') . ' #' . $form_id;
     }
 
-
-
     private function get_icon_url() {
         if (defined('EMSFB_PLUGIN_URL')) {
             $icon_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/image/efb-icon.png';
@@ -196,8 +158,6 @@ class Emsfb_Visual_Composer_Integration {
         return '';
     }
 
-
-
     private function is_editor_mode() {
         return (
             isset($_GET['vcv-action']) ||
@@ -207,8 +167,6 @@ class Emsfb_Visual_Composer_Integration {
             wp_doing_ajax()
         );
     }
-
-
 
     private function get_editor_placeholder($message) {
         return sprintf(
@@ -221,27 +179,20 @@ class Emsfb_Visual_Composer_Integration {
         );
     }
 
-
-
     public function add_localization($localizations) {
         $localizations['easyFormBuilder'] = __('Easy Form Builder', 'easy-form-builder');
         return $localizations;
     }
-
-
 
     public function enqueue_admin_scripts($hook) {
         if (!in_array($hook, ['post.php', 'post-new.php'])) {
             return;
         }
 
-
         if (!defined('VCV_VERSION')) {
             return;
         }
     }
-
-
 
     public function output_forms_data() {
         if (!is_admin() && !isset($_GET['vcv-action'])) {
@@ -255,8 +206,6 @@ class Emsfb_Visual_Composer_Integration {
         </script>
         <?php
     }
-
-
 
     public function register_widget() {
         register_widget('EFB_Visual_Composer_Widget');
@@ -276,8 +225,6 @@ class EFB_Visual_Composer_Widget extends WP_Widget {
         );
     }
 
-
-
     public function widget($args, $instance) {
         $form_id = !empty($instance['form_id']) ? $instance['form_id'] : '';
         $show_title = !empty($instance['show_title']) ? $instance['show_title'] : 'no';
@@ -288,11 +235,9 @@ class EFB_Visual_Composer_Widget extends WP_Widget {
 
         echo $args['before_widget'];
 
-
         if ($show_title === 'yes' && !empty($instance['title'])) {
             echo $args['before_title'] . esc_html($instance['title']) . $args['after_title'];
         }
-
 
         if ($form_id === 'tracking') {
             echo do_shortcode('[Easy_Form_Builder_confirmation_code_finder]');
@@ -303,13 +248,10 @@ class EFB_Visual_Composer_Widget extends WP_Widget {
         echo $args['after_widget'];
     }
 
-
-
     public function form($instance) {
         $form_id = !empty($instance['form_id']) ? $instance['form_id'] : '';
         $title = !empty($instance['title']) ? $instance['title'] : '';
         $show_title = !empty($instance['show_title']) ? $instance['show_title'] : 'no';
-
 
         $forms = $this->get_forms_list();
 
@@ -385,8 +327,6 @@ class EFB_Visual_Composer_Widget extends WP_Widget {
         <?php
     }
 
-
-
     public function update($new_instance, $old_instance) {
         $instance = [];
         $instance['form_id'] = !empty($new_instance['form_id']) ? sanitize_text_field($new_instance['form_id']) : '';
@@ -394,8 +334,6 @@ class EFB_Visual_Composer_Widget extends WP_Widget {
         $instance['show_title'] = !empty($new_instance['show_title']) ? 'yes' : 'no';
         return $instance;
     }
-
-
 
     private function get_forms_list() {
         if (class_exists('Emsfb_Widgets_Helper')) {
@@ -420,13 +358,10 @@ class EFB_Visual_Composer_Widget extends WP_Widget {
             }
         }
 
-
         $forms['tracking'] = __('📍 Confirmation Code Finder (Tracking)', 'easy-form-builder');
 
         return $forms;
     }
-
-
 
     private function is_editor_mode() {
         return (
@@ -436,8 +371,6 @@ class EFB_Visual_Composer_Widget extends WP_Widget {
             (defined('REST_REQUEST') && REST_REQUEST)
         );
     }
-
-
 
     private function get_editor_placeholder($message) {
         $logo_url = '';
