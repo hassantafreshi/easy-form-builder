@@ -31,7 +31,7 @@ class Panel_edit  {
 			];
 			$efbFunction = get_efbFunction();
 			$pro =$efbFunction->is_efb_pro(1);;
-			// $lng =new lng();
+
 			$ac = get_setting_Emsfb('decoded');
 			$lang = $efbFunction->text_efb(2);
 			$smtp =false;
@@ -47,16 +47,8 @@ class Panel_edit  {
 
 				if(isset($ac->siteKey)){$captcha="true";}
 				if(isset($ac->smtp) && (bool)$ac->smtp){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
-				/* if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
-					$k= $ac->apiKeyMap;
-					$maps =true;
-					$lng = strval(get_locale());
-						if ( strlen($lng) > 0 ) {
-						$lng = explode( '_', $lng )[0];
-						}
-					wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);
-					wp_enqueue_script('googleMaps-js');
-				} */
+
+
 				$lng = get_locale();
 			$k ="";
 			$noti_pro = intval(get_option('emsfb_pro' ,-1));
@@ -163,11 +155,11 @@ class Panel_edit  {
 				if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")){
 					$addons['AdnSS'] =1;
 				}
-				//AdnPAP
+
 				if(isset($ac->AdnPAP) && $ac->AdnPAP==1){
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
 						$r = $efbFunction->update_message_admin_side_efb();
-						//echo $r;
+
 						$efbFunction->download_all_addons_efb();
 						return 0;
 					}
@@ -176,7 +168,7 @@ class Panel_edit  {
 					$paypalefb = new paypalefb() ;
 				}
 				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
-					// wmaddon
+
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
 						$r = $efbFunction->update_message_admin_side_efb();
 						echo $r;
@@ -198,11 +190,11 @@ class Panel_edit  {
 				}
 			}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 
-			// $colors = $efbFunction->get_list_colores_template();
+
 			$colors =[];
 			$location ='';
 
-			// Set domain based on language
+
 			$current_locale = get_locale();
 			if (strpos($current_locale, 'de_') === 0) {
 				$wsteam_domain = 'de.whitestudio.team';
@@ -214,7 +206,7 @@ class Panel_edit  {
 				$wsteam_domain = 'whitestudio.team';
 			}
 
-			// efb_code_validate_create( $fid, $type, $status, $tc)
+
 			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
@@ -250,10 +242,9 @@ class Panel_edit  {
 			$lng_ = explode( '_', $lng_ )[0];
 			}
 			if("fa_IR"==get_locale()){
-				/* wp_register_script('persia_pay-efb.js',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION , true);
-				wp_enqueue_script('persia_pay-efb.js'); */
 
-				//call this action for include persia js in admin panel if exist
+
+
 				do_action('efb_enqueue_persia');
 			}
 			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION , true);
@@ -265,12 +256,12 @@ class Panel_edit  {
 					));
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false ,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,EMSFB_PLUGIN_VERSION);
-				/* new code v4 */
+
 				wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);
 				wp_enqueue_script('jquery-ui-efb');
 				wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);
 				wp_enqueue_script('jquery-dd-efb');
-				/*end new code v4 */
+
 
 			$url =CDN_ZONE_AREA.'js/wp/countries.js';
 			if(isset($ac->AdnOF) && $ac->AdnOF==1){
@@ -289,14 +280,14 @@ class Panel_edit  {
 			$value = $efbFunction->efb_list_form();
 			$table_name = $this->db->prefix . "emsfb_setting";
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );
-			// Fix any double-escaped JSON from previous saves
+
 			if (!empty($stng) && isset($stng[0]->setting)) {
 				$decoded = json_decode($stng[0]->setting);
 				if ($decoded === null) {
 					$decoded = json_decode(stripslashes($stng[0]->setting));
 				}
 				if ($decoded !== null) {
-					// Convert double quotes to single quotes in emailTemp to avoid JSON escaping issues
+
 					if (isset($decoded->emailTemp)) {
 						$decoded->emailTemp = str_replace('"', "'", $decoded->emailTemp);
 					}
@@ -306,17 +297,17 @@ class Panel_edit  {
 			$lng = get_locale();
 			$ip =0;
 			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-				// check ip from share internet
+
 				$ip = isset($_SERVER['HTTP_CLIENT_IP']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) ) : '0.0.0.0';
 			} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-				// to check ip is pass from proxy
+
 				$ip = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) : '0.0.0.0';
 			} else {
 				$ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
 			}
 			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', true,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_script('Emsfb-list_form-efb-js');
-			// Email Template Builder - Drag & Drop
+
 			wp_register_script('Emsfb-email-template-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/email-template-builder-efb.js', array('Emsfb-list_form-efb-js'), EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('Emsfb-email-template-builder-js');
 			wp_localize_script( 'Emsfb-list_form-efb-js', 'ajax_object_efm',
@@ -337,8 +328,8 @@ class Panel_edit  {
 					'devMode'=> get_option('emsfb_dev_mode', '1') === '1' ? 1 : 0,
 				));
 
-					// smart zone test
-					// $this->test_smart_zone();
+
+
 		}else{
 			echo "Easy Form Builder: You don't access this section";
 		}
@@ -359,7 +350,7 @@ class Panel_edit  {
 		}
 		$table_name_msg = $this->db->prefix . "emsfb_msg_";
 		$table_name_rsp = $this->db->prefix . "emsfb_rsp_";
-		// $table_name = $this->db->prefix . "emsfb_rsp_";
+
 		$value = $this->db->get_results( "SELECT t.msg_id, t.form_id
 		FROM `$table_name_msg` AS t
 		 INNER JOIN `$table_name_rsp` AS tr
@@ -367,7 +358,7 @@ class Panel_edit  {
 		return $value;
 	}
 	public function check_temp_is_bootstrap (){
-		// Use transient cache to avoid scanning the theme directory on every page load
+
 		$cached = get_transient('emsfb_theme_has_bootstrap');
 		if ($cached !== false) {
 			return $cached === 'yes';
@@ -386,21 +377,21 @@ class Panel_edit  {
             }
         }
 
-		// Cache result for 24 hours
+
 		set_transient('emsfb_theme_has_bootstrap', $s ? 'yes' : 'no', DAY_IN_SECONDS);
         return  $s;
-    }// end fun
+    }
 	public function test_smart_zone (){
-			     // =>>>>>>>>>>>>>>>>>Temp Remove <<<<<<<<<<<<<<<<<<
-            // test code for create database adsone
+
+
             $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/smartzone/smartzone.php";
             if(file_exists($fl_ex)){
                 $name ='smartzone';
                 $name ='\Emsfb\\'.$name;
                 require_once $fl_ex;
                 $t = new $name();
-            }else{}
-            // end test
+            }
+
 	}
 
 }

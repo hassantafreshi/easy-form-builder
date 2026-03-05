@@ -9,10 +9,9 @@
  */
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly.
+    exit;
 }
 
-// Ensure helper class is loaded
 if (!class_exists('Emsfb_Widgets_Helper') && defined('EMSFB_PLUGIN_DIRECTORY')) {
     $helper_file = EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-widgets-helper.php';
     if (file_exists($helper_file)) {
@@ -20,29 +19,19 @@ if (!class_exists('Emsfb_Widgets_Helper') && defined('EMSFB_PLUGIN_DIRECTORY')) 
     }
 }
 
-/**
- * Class Emsfb_WPBakery_Integration
- *
- * Main class for WPBakery integration
- */
 class Emsfb_WPBakery_Integration {
 
-    /**
-     * Singleton instance
-     */
+
+
     private static $instance = null;
 
-    /**
-     * Brand colors
-     */
+
+
     const BRAND_PRIMARY = '#ff4b93';
     const BRAND_SECONDARY = '#202a8d';
 
-    /**
-     * Get singleton instance
-     *
-     * @return Emsfb_WPBakery_Integration
-     */
+
+
     public static function get_instance() {
         if (self::$instance === null) {
             self::$instance = new self();
@@ -50,24 +39,22 @@ class Emsfb_WPBakery_Integration {
         return self::$instance;
     }
 
-    /**
-     * Constructor
-     */
+
+
     private function __construct() {
-        // Check if WPBakery is active
+
         if (!defined('WPB_VC_VERSION')) {
             return;
         }
 
-        // Initialize WPBakery integration
+
         add_action('vc_before_init', [$this, 'register_element']);
         add_action('vc_load_iframe_jscss', [$this, 'enqueue_editor_assets']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_styles']);
     }
 
-    /**
-     * Register WPBakery element
-     */
+
+
     public function register_element() {
         if (!function_exists('vc_map')) {
             return;
@@ -119,15 +106,12 @@ class Emsfb_WPBakery_Integration {
             ],
         ]);
 
-        // Register shortcode
+
         add_shortcode('efb_wpbakery_form', [$this, 'render_shortcode']);
     }
 
-    /**
-     * Get forms formatted for WPBakery dropdown
-     *
-     * @return array Forms array with [name => id] format (WPBakery uses reversed format)
-     */
+
+
     private function get_forms_for_dropdown() {
         $forms_array = [
             __('— Select a Form —', 'easy-form-builder') => ''
@@ -144,12 +128,8 @@ class Emsfb_WPBakery_Integration {
         return $forms_array;
     }
 
-    /**
-     * Render the shortcode output
-     *
-     * @param array $atts Shortcode attributes
-     * @return string HTML output
-     */
+
+
     public function render_shortcode($atts) {
         $atts = shortcode_atts([
             'form_id' => '',
@@ -161,28 +141,28 @@ class Emsfb_WPBakery_Integration {
         $form_id = $atts['form_id'];
 
         if (empty($form_id)) {
-            // Check if in WPBakery editor
+
             if ($this->is_editor_mode()) {
                 return $this->render_editor_placeholder();
             }
             return '';
         }
 
-        // Build wrapper classes
+
         $wrapper_classes = ['efb-wpbakery-form-wrapper'];
 
         if (!empty($atts['extra_class'])) {
             $wrapper_classes[] = esc_attr($atts['extra_class']);
         }
 
-        // Handle VC CSS classes
+
         if (!empty($atts['css']) && function_exists('vc_shortcode_custom_css_class')) {
             $wrapper_classes[] = vc_shortcode_custom_css_class($atts['css']);
         }
 
         $output = '<div class="' . implode(' ', $wrapper_classes) . '">';
 
-        // Optional form title
+
         if ($atts['show_title'] === 'yes') {
             if (class_exists('Emsfb_Widgets_Helper')) {
                 $forms = Emsfb_Widgets_Helper::get_all_forms(true);
@@ -195,11 +175,11 @@ class Emsfb_WPBakery_Integration {
             }
         }
 
-        // Render the form
+
         if (class_exists('Emsfb_Widgets_Helper')) {
             $output .= Emsfb_Widgets_Helper::render_form($form_id);
         } else {
-            // Fallback
+
             $shortcode = $form_id === 'tracking'
                 ? '[Easy_Form_Builder_confirmation_code_finder]'
                 : '[EMS_Form_Builder id="' . intval($form_id) . '"]';
@@ -211,11 +191,8 @@ class Emsfb_WPBakery_Integration {
         return $output;
     }
 
-    /**
-     * Check if in WPBakery editor mode
-     *
-     * @return bool
-     */
+
+
     private function is_editor_mode() {
         if (function_exists('vc_is_inline') && vc_is_inline()) {
             return true;
@@ -229,11 +206,8 @@ class Emsfb_WPBakery_Integration {
         return false;
     }
 
-    /**
-     * Render editor placeholder
-     *
-     * @return string HTML output
-     */
+
+
     private function render_editor_placeholder() {
         return sprintf(
             '<div class="efb-wpbakery-placeholder" style="
@@ -262,9 +236,8 @@ class Emsfb_WPBakery_Integration {
         );
     }
 
-    /**
-     * Enqueue editor assets for WPBakery iframe
-     */
+
+
     public function enqueue_editor_assets() {
         wp_enqueue_style(
             'efb-wpbakery-editor',
@@ -273,14 +246,13 @@ class Emsfb_WPBakery_Integration {
             EMSFB_PLUGIN_VERSION
         );
 
-        // Also enqueue the main form styles
+
         wp_enqueue_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', [], EMSFB_PLUGIN_VERSION);
         wp_enqueue_style('Emsfb-responsive-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/min-1200-style.css', [], EMSFB_PLUGIN_VERSION);
     }
 
-    /**
-     * Enqueue admin styles for WPBakery panel
-     */
+
+
     public function enqueue_admin_styles() {
         global $pagenow;
 
@@ -295,5 +267,4 @@ class Emsfb_WPBakery_Integration {
     }
 }
 
-// Initialize WPBakery integration
 Emsfb_WPBakery_Integration::get_instance();

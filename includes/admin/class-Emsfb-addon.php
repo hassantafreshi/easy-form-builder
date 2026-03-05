@@ -2,7 +2,7 @@
 namespace Emsfb;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} // No direct access allow ;)
+}
 class Addon {
 	public $setting_name;
 	public $options = array();
@@ -46,17 +46,17 @@ class Addon {
 	}
 	public function render_settings() {
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-		// demo start
-		// wp_register_script('whiteStudioAddone', 'http://demo.whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
-		wp_register_script('whiteStudioAddone', 'http://127.0.0.1/ws/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
-		// demo end
 
-		// wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
+
+		wp_register_script('whiteStudioAddone', 'http://127.0.0.1/ws/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
+
+
+
         wp_enqueue_script('whiteStudioAddone');
 
 		$efbFunction = get_efbFunction();
 		$noti_pro = intval(get_option('emsfb_pro' ,-1));
-		$addon_status = null; // Initialize addon_status
+		$addon_status = null;
 		if ($noti_pro === 0  ){
 			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
 
@@ -102,7 +102,6 @@ class Addon {
 	<!-- End Addon Directory Status Check -->
 
 	<div id="alert_efb" class="efb mx-5"></div>
-
 
 	<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
@@ -184,7 +183,6 @@ class Addon {
 	{
 	}
 
-
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
 		if(empty($this->db)){
@@ -201,7 +199,7 @@ class Addon {
 		));    $this->id_  = $this->db->insert_id;
 	}
 	public function check_temp_is_bootstrap (){
-		// Use transient cache to avoid scanning the theme directory on every page load
+
 		$cached = get_transient('emsfb_theme_has_bootstrap');
 		if ($cached !== false) {
 			return $cached === 'yes';
@@ -222,6 +220,6 @@ class Addon {
 
 		set_transient('emsfb_theme_has_bootstrap', $s ? 'yes' : 'no', DAY_IN_SECONDS);
         return  $s;
-    }// end fun
+    }
 }
 new Addon();

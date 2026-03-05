@@ -13,13 +13,10 @@
         }
 
 
-
-
-	/* field builder */
 	private function generateDescription_efb($rndm, $vj, $pos) {
-		//  error_log('generateDescription_efb');
-		//  error_log($vj->message_align);
-		//  error_log($pos[1]);
+
+
+
 		$mx = $pos[1] == 'col-md-4' || (isset($vj->message_align) && $vj->message_align != "justify-content-start") ? '' : 'mx-4';
 		$msg_align = isset($vj->message_align) ? $vj->message_align : '';
 		$msg_txt_color = isset($vj->message_text_color) ? $vj->message_text_color : '';
@@ -27,9 +24,8 @@
 		return '<small id="' . $rndm . '-des" class="efb form-text d-flex fs-7 col-sm-12 efb ' . $mx . ' ' . $msg_align . ' ' . $msg_txt_color . ' ' . (isset($vj->message_text_size) ? $vj->message_text_size : '') . ' ">' . $msg . '</small>';
 	}
 
-	/* field builder */
-	private function generateLabel_efb($rndm, $vj, $pos, $mobile_pos = null) {
 
+	private function generateLabel_efb($rndm, $vj, $pos, $mobile_pos = null) {
 
 		$label_align = isset($vj->label_align) ? $vj->label_align : '';
 		$label_text_size = isset($vj->label_text_size) && $vj->label_text_size != "default" ? $vj->label_text_size : '';
@@ -57,17 +53,17 @@
 		return '<label for="' . $rndm . '_" class="' . $label_class_str . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size . '">' . $vj->name . '</span>' . $required . '</label>';
 	}
 
-	/* field builder */
+
 	private function generateTooltip_efb($rndm) {
 		return '<small id="' . $rndm . '_-message" class="efb py-1 fs-7 tx ttiptext px-2"> ! </small>';
 	}
 
-	/* field builder */
+
 	private function generateDivFId_efb($rndm, $pos, $mobile_pos = null) {
 		return '<div class="efb ' . $pos[3] . ' ' . ($mobile_pos !== null ? $mobile_pos[3] : 'col-sm-12') . ' px-0 mx-0 ttEfb show" id="' . $rndm . '-f">';
 	}
 
-	/* field builder */
+
 	private function generateElementSpecificFields_efb($elementId, $rndm, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id,$texts) {
 		$fields = ['ui' => '', 'dataTag' => ''];
 		switch ($elementId) {
@@ -125,18 +121,18 @@
 					$rndm,
 					$aire_describedby,
 
-					$rndm, // id for the first label
+					$rndm,
 					$vj->off,
 
 					$vj->el_height,
 					str_replace(',', ' ', $vj->classes),
-					$rndm, //data-css
-					$rndm, // data-vid
-					$rndm, // data-id and id for the button
+					$rndm,
+					$rndm,
+					$rndm,
 					$form_id,
 					$rndm,
 					$disabled,
-					$rndm, // id for the second label
+					$rndm,
 					$vj->on,
 					$desc
 				);
@@ -145,15 +141,15 @@
 				$fields['dataTag'] = $elementId;
 
 				break;
-			// Add other cases as needed
+
 			default:
 				return false;
 		}
-		// error_log('fields: '.json_encode($fields));
+
 		return $fields;
 	}
 
-	/* field builder */
+
 	private function generateAutocomplete_efb($elementId) {
 		static $autocompleteOptions = [
 			'email' => 'email',
@@ -169,7 +165,7 @@
 		return $autocompleteOptions[$elementId] ?? 'off';
 	}
 
-	/* field builder */
+
 	private function generateLengthAttributes_efb($elementId, $vj) {
 		$maxlen = '';
 		$minlen = '';
@@ -186,10 +182,10 @@
 		return ['maxlen' => $maxlen, 'minlen' => $minlen];
 	}
 
-	/* field builder */
+
 	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id) {
-		// error_log('generateTextInput_efb');
-		// error_log(json_encode($lenAttributes));
+
+
 		$corener = isset($vj->corner) ? $vj->corner : 'efb-square';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$value = !empty($vj->value) ? 'value="' . $vj->value . '"' : '';
@@ -204,7 +200,7 @@
 		);
 	}
 
-	/* field builder */
+
 	private function generateSwitchInput_efb($vj, $rndm, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled) {
 		return '
 		' . $label . '
@@ -218,7 +214,7 @@
 		<div class="efb mb-3">' . $desc . '</div>';
 	}
 
-	/* field builder */
+
 	private function get_position_col_el($val, $state) {
 		$el_parent = "null";
 		$el_label =  "null";
@@ -300,12 +296,12 @@
 			$label_col = 'col-md-12';
 			$input_col = 'col-md-12';
 			if ($state === true) {
-				// Add any additional logic for label_position == "up" here
+
 			}
 		} else {
 			$parent_row = 'row';
 			if ($state === true) {
-				// Add any additional logic for other label_position here
+
 			}
 		}
 		if ($state === true) {
@@ -317,25 +313,24 @@
 	}
 
 
-        /* field builder - generate mobile responsive CSS for form elements */
         public function generate_mobile_css_efb() {
                 $css = '';
                 foreach ($this->valj_efb as $i => $vj) {
-                        if ($i === 0) continue; // skip form settings
+                        if ($i === 0) continue;
                         if (!isset($vj->id_)) continue;
                         $id = $vj->id_;
 
-                        // Mobile label align
+
                         if (isset($vj->mobile_label_align) && $vj->mobile_label_align !== '') {
                                 $css .= '#' . $id . '_labG { ' . $this->get_align_css($vj->mobile_label_align) . ' }' . "\n";
                         }
 
-                        // Mobile description align
+
                         if (isset($vj->mobile_message_align) && $vj->mobile_message_align !== '') {
                                 $css .= '#' . $id . '-des { ' . $this->get_align_css_desc($vj->mobile_message_align) . ' }' . "\n";
                         }
 
-                        // Mobile label font size
+
                         if (isset($vj->mobile_label_text_size) && $vj->mobile_label_text_size !== '' && $vj->mobile_label_text_size !== 'fs-6') {
                                 $fontSize = $this->get_font_size_css($vj->mobile_label_text_size);
                                 if ($fontSize) {
@@ -343,7 +338,7 @@
                                 }
                         }
 
-                        // Mobile label position
+
                         if (isset($vj->mobile_label_position)) {
                                 if ($vj->mobile_label_position === 'up') {
                                         $css .= '#' . $id . ' { flex-direction: column !important; }' . "\n";
@@ -391,7 +386,6 @@
         }
 
 
-	/* field builder - compute mobile column position (mirrors get_position_col_el for mobile) */
 	private function get_position_col_mobile_el($val) {
 		$parent_col = 'col-sm-12';
 		$label_col = 'col-sm-12';
@@ -421,28 +415,28 @@
 		return array($parent_row, $parent_col, $label_col, $input_col);
 	}
 
-	/* field builder */
+
 	private function colMdChangerEfb($classes, $value) {
-		// Use a regular expression to replace the col-md-* class with the new value
+
 		$newClasses = preg_replace('/\bcol-md+-\d+/', " $value ", $classes);
-		// If the replacement did not occur (preg_replace returns null), concatenate the new value
+
 		if ($newClasses === null) {
 			return $classes . ' ' . $value;
 		}
 		return $newClasses;
 	}
 
-	/* field builder */
+
 	private function public_pro_message_efb($text){
 		$r = sprintf(
 			'<div class="efb text-white fs-6 bg-danger px-1 rounded px-2">%s</div>',
 			$text
 		);
-		// error_log('public_pro_message_efb: '.$r);
+
 		return $r;
 	}
 
-	// $rndm, $vj, $pos, $formId, $texts ,$desc,$label,$ttip,$aire_describedby
+
 	public function generate_country_list_efb($rndm, $vj, $pos, $formId, $texts ,$desc,$label,$ttip,$aire_describedby) {
 		$optn = '<!--countries-->';
 
@@ -451,20 +445,13 @@
             return isset($obj->parent) && $obj->parent === $rndm;
         });
 		$is_selected =false;
-        // error_log('optns_obj:'.json_encode($optns_obj));
+
         foreach ($optns_obj as $i) {
-			// error_log('optns_obj:'.json_encode($i));
+
             $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
 			if($selected == 'selected') $is_selected = true;
-           /*  $options .= sprintf(
-                '<option class="efb %s emsFormBuilder_v efb" data-id="%s" data-op="%s" value="%s" %s>%s</option>',
-                $vj->el_text_color,
-                $i->id_,
-                $i->id_,
-                $i->value,
-                $selected,
-                $i->value
-            ); */
+
+
 			$options .= sprintf(
 					'<option value="%s" id="%s" data-iso="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" data-formid="%s"  %s>%s</option>',
 					$i->value,
@@ -477,26 +464,15 @@
 					$selected,
 					$i->value
 				);
-				// error_log('options:'.$options);
+
         }
 
-				/*
-				$optn .= sprintf(
-					'<option value="%s" id="%s" data-iso="%s" data-id="%s" data-op="%s" class="efb %s emsFormBuilder_v efb" %s>%s</option>',
-					$value,
-					$i->id_,
-					$i->id_op,
-					$i->id_,
-					$i->id_,
-					$this->valj_efb[$indx_parent]->el_text_color,
-					$selected,
-					$value
-				); */
-			//}
+
+
 
 
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
-        //$readonly = $previewSate != true ? 'readonly' : '';
+
         $readonly = '';
         $ariaRequired = $vj->required == 1 ? 'true' : 'false';
         $ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
@@ -531,7 +507,7 @@
 			$ariaRequired,
 			$vj->name,
 			$ariaDescribedBy,
-			$type, // اضافه کردن ویژگی data-type
+			$type,
 			$formId,
 			$readonly,
 			$disabled ? 'disabled' : '',
@@ -544,7 +520,6 @@
 		return $ui;
 
 	}
-
 
 	public function generate_state_province_efb($rndm, $vj, $pos, $formId, $texts, $desc, $label, $ttip, $aire_describedby) {
 		$options = '';
@@ -569,11 +544,11 @@
 					$selected,
 					$i->value
 				);
-				// error_log('options:'.$options);
+
         }
 
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
-		$readonly = false ? 'readonly' : ''; // Assuming $previewSate is false as not provided
+		$readonly = false ? 'readonly' : '';
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
@@ -603,7 +578,7 @@
 			$el_border_color,
 			$rndm,
 			$rndm,
-			$formId, // Added data-formid to the select element
+			$formId,
 			$ariaRequired,
 			$vj->name,
 			$ariaDescribedBy,
@@ -625,8 +600,6 @@
         });
 		$is_selected = false;
         foreach ($optns_obj as $i) {
-			error_log('optns_obj:'.json_encode($i));
-			error_log('vj->value:'.$vj->value .' i->id_:'.$i->id_);
             $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_op') && $vj->value == $i->id_op)) ? 'selected' : '';
 			if($selected == 'selected') $is_selected = true;
 			$options .= sprintf(
@@ -643,11 +616,11 @@
 					$selected,
 					$i->value
 				);
-				// error_log('options:'.$options);
+
         }
 
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
-		$readonly = false ? 'readonly' : ''; // Assuming $previewSate is false as not provided
+		$readonly = false ? 'readonly' : '';
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
@@ -677,7 +650,7 @@
 			$el_border_color,
 			$rndm,
 			$rndm,
-			$formId, // Added data-formid to the select element
+			$formId,
 			$ariaRequired,
 			$vj->name,
 			$ariaDescribedBy,
@@ -703,11 +676,11 @@
 			return isset($obj->parent) && $obj->parent === $rndm;
 		});
 
-		//$indx_parent = array_search($rndm, array_column($this->valj_efb, 'id_'));
+
 		$s = isset($vj->value) && gettype($vj->value)!='string' && count($vj->value) > 0 ? true : false;
 
-		// error_log('type $this->$vj->value:'.gettype($vj->value));
-		// error_log('$this->$vj->value:'.json_encode($vj->value));
+
+
 		foreach ($optns_obj as $i) {
 			$c = "efb bi-square efb";
 			if ($s && in_array($i->id_, $vj->value)) {
@@ -727,10 +700,10 @@
 				$rndm,
 				$i->value,
 				$i->id_,
-				$formId, // Added data-formid to the tr tag
+				$formId,
 				$c,
-				$formId, // Added data-formid to the th tag
-				$formId, // Added data-formid to the td tag
+				$formId,
+				$formId,
 				$i->value,
 				strlen($pay) > 2 ? sprintf(
 					'<td class="efb ms fw-bold text-center"><span id="%s-price" class="efb efb-crrncy">%s</span></td>',
@@ -741,7 +714,7 @@
 		}
 
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
-		$readonly =  ''; // Assuming $previewSate is false as not provided
+		$readonly =  '';
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
@@ -749,8 +722,8 @@
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_border_color = isset($vj->el_border_color) ? $vj->el_border_color : '';
 
-		// error_log('va: '.$va);
-		// error_log('sl: '.$sl);
+
+
 		$ui = sprintf(
 			'%s
 			<!--multiselect-->
@@ -811,7 +784,7 @@
 	}
 
 	public function generate_pdate_input_efb ($rndm, $vj, $pos, $formId, $texts, $desc, $label, $ttip, $aire_describedby, $previewSate) {
-		// Setting up classes and conditions
+
 		$classes = sprintf('form-control %s', $vj->el_border_color ?? '');
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
@@ -822,7 +795,7 @@
 		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
 		$extra_classes = str_replace(',', ' ', $vj->classes);
 
-		// Generating UI
+
 		$ui = sprintf(
 			'%s
 			<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%s-f">
@@ -855,8 +828,6 @@
 		return $ui;
 	}
 
-
-
 	public function generate_html_code_efb($rndm, $vj, $pos, $formId, $texts, $previewSate) {
 		if (strlen($vj->value) < 2) {
 			$ui = sprintf(
@@ -885,15 +856,14 @@
 		return $ui;
 	}
 
-
 	public function generate_heading_efb($rndm, $pos, $vj, $formId) {
-		// Extract properties with defaults
+
 		$el_text_color = isset($vj->el_text_color) ? $vj->el_text_color : '';
 		$el_text_size = isset($vj->el_text_size) ? $vj->el_text_size : '';
 		$extra_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 		$value = isset($vj->value) ? htmlspecialchars($vj->value, ENT_QUOTES, 'UTF-8') : '';
 
-		// Build the HTML
+
 		$ui = sprintf(
 			'<div class="efb px-0 mx-0 %s ' . $this->mobile_pos[3] . '" id="%s-f" data-formid="%s">
 				<p id="%s_" class="efb px-0 emsFormBuilder_v %s %s efbField efb1 %s" data-css="%s" data-vid="%s" data-id="%s-el">%s</p>
@@ -915,17 +885,17 @@
 	}
 
 	public function generate_link_efb($previewState, $pos, $rndm, $vj, $formId) {
-		// Determine if the link should be disabled in preview mode
+
 		$disabled = $previewState != true ? 'disabled' : '';
 
-		// Extract classes and other properties
+
 		$el_text_color = isset($vj->el_text_color) ? $vj->el_text_color : '';
 		$el_text_size = isset($vj->el_text_size) ? $vj->el_text_size : '';
 		$classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 		$href = isset($vj->href) ? $vj->href : '#';
 		$value = isset($vj->value) ? $vj->value : '';
 
-		// Construct the UI HTML structure
+
 		$ui = sprintf(
 			'<div class="efb %s px-0 mx-0 ' . $this->mobile_pos[3] . '" id="%s-f" data-formid="%s">
 				<a id="%s_" target="_blank" class="efb px-0 btn underline emsFormBuilder_v %s %s %s efbField efb1 %s" data-css="%s" data-vid="%s" data-id="%s-el" href="%s">%s</a>
@@ -949,7 +919,7 @@
 	}
 
     public function generate_yes_no_efb($previewState, $pos, $rndm, $vj, $formId) {
-		// تعیین ویژگی‌ها و شرایط
+
 		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
 		$disabled = (isset($vj->disabled) && $vj->disabled == 1) ? 'disabled' : '';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
@@ -973,21 +943,21 @@
 					</label>
 				</div>
 			',
-			$pos[3],             // %1$s
-			$disabled,           // %2$s
-			$classes,            // %3$s
-			$rndm,               // %4$s
-			$formId,             // %5$s
-			$ariaDescribedBy,    // %6$s
-			$required,           // %7$s
-			$button1Text,        // %8$s
-			$buttonColor,        // %9$s
-			$elTextColor,        // %10$s
-			$elHeight,           // %11$s
-			$corner,             // %12$s
-			$disabled,           // %13$s
-			$previewState != true ? 'disabled' : '',   // %14$s
-			$button2Text         // %15$s
+			$pos[3],
+			$disabled,
+			$classes,
+			$rndm,
+			$formId,
+			$ariaDescribedBy,
+			$required,
+			$button1Text,
+			$buttonColor,
+			$elTextColor,
+			$elHeight,
+			$corner,
+			$disabled,
+			$previewState != true ? 'disabled' : '',
+			$button2Text
 		);
 
 		return $ui;
@@ -1009,18 +979,18 @@
 				<div class="efb btn btn-secondary emsFormBuilder_v text-white mx-1 %s %s" data-point="5" data-id="%s" data-formid="%s" onclick="fun_point_rating(this)"><i class="efb bi-star-fill"></i></div>
 				<input type="hidden" data-vid="%s" data-type="rating" id="%s-point-rating">
 			</div>',
-			$classes,         // %1$s
-			$id,              //  %2$s
-			$id,              // %3$s
-			$form_id,         // %4$s
-			$message,         // %5$s
-			$previewSate, $disabled, $id, $form_id, // first star
-			$previewSate, $disabled, $id, $form_id, // second star
-			$previewSate, $disabled, $id, $form_id, // third star
-			$previewSate, $disabled, $id, $form_id, // fourth star
-			$previewSate, $disabled, $id, $form_id, // fifth star
-			$id,              // data-vid
-			$id               // id for hidden input
+			$classes,
+			$id,
+			$id,
+			$form_id,
+			$message,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$id,
+			$id
 		);
 	}
 
@@ -1046,24 +1016,24 @@
 				<div class="efb emsFormBuilder_v rating btn btn-outline-secondary mx-1 mb-1 %s %s" data-point="10" data-id="%s" data-formid="%s" onclick="fun_nps_rating(this)">10</div>
 				<input type="hidden" data-vid="%s" data-type="rating" id="%s-nps-rating">
 			</div>',
-			$classes,    // %1$s: classes for main div
-			$id,         // %2$s: data-css and id for main div
-			$id,         // %3$s: id for main div
-			$form_id,    // %4$s: form ID
-			$message,    // %5$s: aria-describedby if there is a message
-			$previewSate, $disabled, $id, $form_id, // %6: rating button for point 0
-			$previewSate, $disabled, $id, $form_id, // %7: rating button for point 1
-			$previewSate, $disabled, $id, $form_id, // %8: rating button for point 2
-			$previewSate, $disabled, $id, $form_id, // %9: rating button for point 3
-			$previewSate, $disabled, $id, $form_id, // %10: rating button for point 4
-			$previewSate, $disabled, $id, $form_id, // %11: rating button for point 5
-			$previewSate, $disabled, $id, $form_id, // %12: rating button for point 6
-			$previewSate, $disabled, $id, $form_id, // %13: rating button for point 7
-			$previewSate, $disabled, $id, $form_id, // %14: rating button for point 8
-			$previewSate, $disabled, $id, $form_id, // %15: rating button for point 9
-			$previewSate, $disabled, $id, $form_id, // %16: rating button for point 10
-			$id,         // %17: data-vid for hidden input
-			$id          // %18: id for hidden input
+			$classes,
+			$id,
+			$id,
+			$form_id,
+			$message,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$previewSate, $disabled, $id, $form_id,
+			$id,
+			$id
 		);
 	}
 
@@ -1080,7 +1050,7 @@
 		$disabled_preview = $previewSate != true ? 'disabled' : '';
 		$classes = str_replace(',', ' ', $vj->classes);
 
-		// Filter options based on parent ID
+
 		$optns_obj = array_filter($this->valj_efb, function ($obj) use ($rndm) {
 			return isset($obj->parent) && $obj->parent === $rndm;
 		});
@@ -1113,18 +1083,18 @@
 					<hr class="efb t-matrix my-1">
 				</div>
 				<!-- end r_matrix -->',
-				$col,                // %1$s
-				$i->id_,             // %2$s
-				$i->parent,          // %3$s
-				$vj->el_text_color,  // %4$s
-				$vj->el_height,      // %5$s
-				$vj->label_text_size,// %6$s
-				$i->value,           // %7$s
-				$position_l_efb,     // %8$s
-				$aire_describedby,   // %9$s
-				$disabled_preview,   // %10$s
-				$disabled,           // %11$s
-				$form_id             // %12$s
+				$col,
+				$i->id_,
+				$i->parent,
+				$vj->el_text_color,
+				$vj->el_height,
+				$vj->label_text_size,
+				$i->value,
+				$position_l_efb,
+				$aire_describedby,
+				$disabled_preview,
+				$disabled,
+				$form_id
 			);
 		}
 
@@ -1140,30 +1110,21 @@
 				<div class="efb mb-3">%9$s</div>
 
 			<!-- end table matrix -->',
-			$label,                    // %1$s
-			$pos[3],                   // %2$s
-			$rndm,                     // %3$s
-			$ttip,                     // %4$s
-			$vj->required ? 'required' : '',  // %5$s
-			$col ? 'row col-md-12' : '',      // %6$s
-			$classes,                  // %7$s
-			$optn,                     // %8$s
-			$desc                      // %9$s
+			$label,
+			$pos[3],
+			$rndm,
+			$ttip,
+			$vj->required ? 'required' : '',
+			$col ? 'row col-md-12' : '',
+			$classes,
+			$optn,
+			$desc
 		);
 
 		return $ui;
 	}
 
 
-
-
-
-
-
-
-
-
-	/* field builder */
 	private function create_intlTelInput_efb($rndm,$vj, $previewSate, $corner,$form_id) {
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$required = $vj->required == 1 || $vj->required == true ? 'required' : '';
@@ -1183,7 +1144,7 @@
 			$onlyCountries = '[]';
 		}
 
-		// Call the function to load intlTelInput (Updated for v25.14.0)
+
 		$js =sprintf(
 			'
 			let el_emsfb_%1$s = document.getElementById("%1$s_");
@@ -1262,7 +1223,7 @@
 
     	);
 
-		// Create the HTML string
+
 		$inputPhone = sprintf(
 			'<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s data-utilsjs="%14$s" %15$s>
 			<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField d-none efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s-code" placeholder="verify" %11$s %12$s %10$s data-utilsjs="%14$s"  %15$s>',
@@ -1312,11 +1273,11 @@
 		return [$inputPhone  . $buttonSubmit ,$js];
 	}
 
-	/* field builder */
+
 	public function esign_el_pro_efb($previewSate,$pos, $rndm, $vj,$message, $formId,$updateUrbrowser) {
-		// true, $pos, $rndm, $vj, $desc
-		// error_log('esign_el_pro_efb');
-		// error_log('esign_el_pro_efb: '.json_encode($vj));
+
+
+
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$required = $vj->required == 1 || $vj->required == true ? 'required' : '';
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
@@ -1329,7 +1290,7 @@
 		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 		$randomId =$vj->id_;
 
-			// ایجاد HTML برای المان esign
+
 			$ui = sprintf(
 				"<div class='efb %s {$this->mobile_pos[3]}' id='%s-f' data-formid='%s'>
 					<canvas class='efb sign-efb bg-white %s %s %s %s efb1 %s' data-css='%s' data-code='%s' data-id='%s-el' id='%s_' %s>
@@ -1344,37 +1305,32 @@
 						</button>
 					</div>
 				",
-				$pos[3], // کلاس‌های موقعیت
-				$randomId, $formId, // شناسه و formId
+				$pos[3],
+				$randomId, $formId,
 				$el_height, $corner, $el_text_color, $vj->el_border_color,
-				str_replace(',', ' ', $classes), // کلاس‌های اضافی
-				$randomId, $randomId, $randomId, $randomId, // شناسه و داده‌ها
+				str_replace(',', ' ', $classes),
+				$randomId, $randomId, $randomId, $randomId,
 				$ariaDescribedBy,
-				$updateUrbrowser, // پیغام به‌روزرسانی مرورگر
+				$updateUrbrowser,
 				$previewSate ? sprintf(
 					"<input type='hidden' data-type='esign' data-vid='%s' class='efb emsFormBuilder_v %s' id='%s-sig-data' value='Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==' data-formid='%s'>",
 					$randomId,$required, $randomId, $formId
 				) : '',
-				$formId, $message, // فرم‌آی‌دی و توضیحات
-				$formId, // فرم‌آی‌دی برای دکمه
-				$corner, $vj->button_color, $disabled, $randomId, $randomId, // دکمه و شناسه‌ها
+				$formId, $message,
+				$formId,
+				$corner, $vj->button_color, $disabled, $randomId, $randomId,
 				$vj->icon, $vj->icon_color != 'default' ? $vj->icon_color : '',
-				$randomId, $randomId, // شناسه‌های آیکون و متن
-				$vj->icon_color, $disabled, $vj->button_single_text // رنگ و متن دکمه
+				$randomId, $randomId,
+				$vj->icon_color, $disabled, $vj->button_single_text
 			);
 
 			return $ui;
 
-
-
-
 	}
 
-	/* field builder */
 
 
 	public function ui_dadfile_efb($vj, $previewSate, $form_id, $texts, $disabled, $corner) {
-
 
 		$fileType = property_exists($vj, 'file') ? $vj->file : '';
 
@@ -1410,12 +1366,12 @@
 			$vj->icon,
 			$vj->icon_color,
 			$vj->id_,
-			$texts['dragAndDropA'],  // dragAndDropA
+			$texts['dragAndDropA'],
 			$name_type_file ,
-			$texts['or'],  // or
+			$texts['or'],
 			$vj->button_color,
 			$disabled,
-			$texts['browseFile'],  // browseFile
+			$texts['browseFile'],
 			$fileTypeAttr,
 			$requiredClass,
 			$readonlyAttr,
@@ -1425,7 +1381,6 @@
 	public function dadfile_el_pro_efb($previewSate, $rndm, $vj, $form_id, $texts) {
 		$corner = property_exists($vj, 'corner') ? $vj->corner : 'efb-square';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-
 
 		$ui = $this->ui_dadfile_efb($vj, $previewSate, $form_id, $texts , $disabled, $corner);
 		return sprintf(
@@ -1450,19 +1405,19 @@
 		);
 	}
 
-	/* field builder */
+
 	private function text_nr_efb($text, $type) {
 		$val = $type == 1 ? '<br>' : "\n";
 		return str_replace('@n#', $val, $text);
 	}
 
-	/* field builder */
+
 	private function fun_get_links_from_string_Efb($str , $handler){
-		 // Define the regular expression pattern for matching links
+
 		 $pattern = '/\[([^\]]+)\]\(([^)]+)\)/';
 
 		 if ($handler === false) {
-			 // Use preg_match_all to find all matches
+
 			 $matches = [];
 			 preg_match_all($pattern, $str, $matches, PREG_SET_ORDER);
 
@@ -1478,14 +1433,14 @@
 
 			 return [$state, $result];
 		 } else {
-			 // Use preg_replace_callback to replace matches with anchor tags
+
 			 return preg_replace_callback($pattern, function($matches) {
 				 return '<a href="' . htmlspecialchars($matches[2], ENT_QUOTES, 'UTF-8') . '" target="_blank">' . htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8') . '</a>';
 			 }, $str);
 		 }
 	}
 
-	/* field builder */
+
 	public function add_ui_stripe_efb($rndm , $cl, $sub,$form_id,$texts) {
 		$currency = $this->valj_efb[0]->currency;
 		$amount =$this->formatPrice_efb(0, $currency);
@@ -1529,10 +1484,10 @@
 	}
 
 	public function add_ui_paypal_efb($rndm, $form_id, $texts, $currency = 'USD', $charge_class = '', $sub = '') {
-		// $texts keys expected: ['payAmount', 'payNow']
-		// $currency: e.g., 'USD', 'EUR', 'GBP', ...
-		// $charge_class: optional CSS class for charge badge (e.g., 'one', 'sub', 'monthly' ...)
-		// $sub: optional label (e.g., 'one-time', 'subscription', 'monthly')
+
+
+
+
 
 		$currency = $this->valj_efb[0]->currency;
 		$amount =$this->formatPrice_efb(0, $currency);
@@ -1565,7 +1520,6 @@
 		';
 	}
 
-
 	public function add_ui_zp_efb($rndm , $form_id,$texts) {
 		return  '
 		<div class="efb card w-100 ' . $this->mobile_pos[3] . ' m-0 p-0"  id="'.$rndm.'-f"  data-formid="'.$form_id.'">
@@ -1588,7 +1542,6 @@
 		';
 
 	}
-
 
 	 public function totalprice_el_pro_efb($rndm, $vj ,$currency,$form_id) {
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
@@ -1614,7 +1567,7 @@
 		);
 	 }
 
-	/* field builder */
+
 	public function formatPrice_efb($amount, $currency) {
 
 		$currency_details = $this->get_currency_details_efb($currency);
@@ -1627,7 +1580,7 @@
 
     }
 
-	/* field builder */
+
 	public function get_currency_details_efb($currency) {
 		$currency = strtoupper($currency);
 		$symbols = array(
@@ -1778,11 +1731,10 @@
 	}
 
 
-        /* field builder */
 	public function ColorNameToHexEfbOfElEfb($v, $n) {
-		// ColorNameToHexEfbOfElEfb(color.slice(4),'btn') // slice text=5 bg=2 border=6 btn=3 icon=4
-		// ColorNameToHexEfbOfElEfb(color.slice(7),'border') // slice text=5 bg=2 border=6 btn=3
-		// error_log('ColorNameToHexEfbOfElEfb v:'.$v .' n:'.$n);
+
+
+
 		$color_map = [
 			"primary" => '#0d6efd',
 			"success" => '#198754',
@@ -1821,11 +1773,11 @@
 				$r = '';
 			}
 		}
-		// error_log($r);
+
 		return $r;
 	}
 
-    /* field builder */
+
 	public function switch_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts) {
 		$vj->on = property_exists($vj, 'on') ? $vj->on : $texts['on'];
 		$vj->off = property_exists($vj, 'off') ? $vj->off : $texts['off'];
@@ -1835,7 +1787,6 @@
 		$readonly = $previewSate != true ? 'readonly' : '';
 		$classes = str_replace(',', ' ', $vj->classes);
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
-
 
 		$ui = sprintf(
 			'
@@ -1851,7 +1802,7 @@
 			',
 			$label,
 			$ttip,
-			$pos[3],  // postion
+			$pos[3],
 			$rndm, $aire_describedby, $formId,
 			$rndm, $vj->off,
 			$el_height, $classes,
@@ -1864,7 +1815,7 @@
 		return $ui;
 	}
 
-	/* field builder */
+
 	public function rating_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts) {
 
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
@@ -1874,7 +1825,7 @@
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$required = $vj->required == 1 ? 'required' : '';
 
-		// ایجاد HTML برای rating element
+
 		$ui = sprintf(
 			'%s
 			%s
@@ -1891,9 +1842,9 @@
 			',
 			$ttip,
 			$label,
-			$pos[3], // موقعیت
-			$rndm, $formId, // شناسه و فرم آی‌دی
-			$disabled, $classes, $rndm, // کلاس‌ها و داده‌ها
+			$pos[3],
+			$rndm, $formId,
+			$disabled, $classes, $rndm,
 			$ariaDescribedBy,
 			$this->generate_rating_input($rndm, 5, $previewSate, $disabled, $el_height, $texts['stars'], $formId),
 			$this->generate_rating_input($rndm, 4, $previewSate, $disabled, $el_height, $texts['stars'], $formId),
@@ -1908,7 +1859,6 @@
 	}
 
 
-	/* field builder */
 	private function generate_rating_input($rndm, $starValue, $previewSate, $disabled, $el_height, $starText,$form_id) {
 		return sprintf(
 			'<input type="radio" id="%s-star%s" data-vid="%s" data-formid="%s" data-type="rating" class="efb" data-star="star" name="%s-star-efb" value="%s" data-name="star" data-id="%s-el" %s %s>
@@ -1924,18 +1874,18 @@
 		);
 	}
 
-    /* field builder */
+
 
     public function generate_select_efb($elementId, $rndm, $vj, $pos, $formId, $texts, $previewSate ,$desc,$label,$ttip,$aire_describedby ) {
-        // error_log('>>generate_select_efb');
-        // error_log('elementId:'.$elementId);
+
+
         $pay = $elementId != "paySelect" ? '' : 'pay';
         $options = '';
         $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
             return isset($obj->parent) && $obj->parent === $rndm;
         });
 		$is_selected = false;
-        // error_log('optns_obj:'.json_encode($optns_obj));
+
         foreach ($optns_obj as $i) {
             $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
 			if ($selected == 'selected') {
@@ -2002,12 +1952,6 @@
 
 
 
-
-
-
-    /* new */
-	/* sanitize */
-	/* sanitize recived object value */
 	private function sanitize_value_efb($value, $key) {
 		switch ($key) {
 			case 'email':
@@ -2045,13 +1989,13 @@
 			'pointr10' => true, 'zarinPal' => true, 'stripe' => ['amount' => true],
 			'yesNo' => true, 'payMultiselect' => true, 'rating' => true, 'text'=>true, 'password'=>true
 		];
-		// error_log('filter_attributes_by_type_efb');
-		// error_log($type);
-		// error_log(json_encode($attribute_map_efb[$type]));
+
+
+
 
 			if (isset($attribute_map_efb[$type])) {
 				$allowed_attributes_efb_type = is_array($attribute_map_efb[$type]) ?  array_replace($allowed_attributes_efb, $attribute_map_efb[$type]) :$allowed_attributes_efb;
-				// error_log(json_encode($allowed_attributes_efb_type));
+
 				$sanitized_item = $this->filter_and_sanitize_attributes_efb($data, $allowed_attributes_efb_type);
 				foreach ($sanitized_item as $key => $value) {
 					if ($key !== 'value') {
@@ -2065,7 +2009,7 @@
 	}
 
 	public function fun_imgRadio_efb($id, $link, $row, $state , $text) {
-		// Define the URL processing function
+
 		$process_url = function($url) {
 			$url = preg_replace('/(http:@efb@)+/', 'http://', $url);
 			$url = preg_replace('/(https:@efb@)+/', 'https://', $url);
@@ -2073,18 +2017,18 @@
 			return $url;
 		};
 
-		// Determine value and sub_value based on the state
+
 		$value = isset($row->value ) ? $row->value :  '';
 		$sub_value = isset($row->sub_value) ? $row->sub_value :  '';
-		// error_log(json_encode($row));
-		// error_log('value-------------------------->'.$row->value);
-		// error_log('sub_value-------------------------->'.$row->sub_value);
 
-		// Process the link and set the default if necessary
+
+
+
+
 
 		$link = $process_url($link);
 
-		// Return the constructed HTML
+
 		return sprintf(
 			'<label class="efb" id="%s_lab" for="%s">
 				<div class="efb card col-md-3 mx-0 my-1 w-100" style="">
@@ -2124,7 +2068,7 @@
 				);
 			}
 
-			// Final HTML structure including formId
+
 			$ui = sprintf(
 				'%1$s
 				<div id="step-1-efb-msg" data-formid="%2$s"></div>',
@@ -2137,7 +2081,7 @@
 
 	public function loading_message_efb($pro ,$texts,$state=0) {
 
-		// SVG animation for loading indicator
+
 		$svg = '
 			<svg viewBox="0 0 120 30" height="15px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
 				<circle cx="15" cy="15" r="15" fill="#abb8c3">
@@ -2160,15 +2104,13 @@
 				</circle>
 			</svg>';
 
-
-
 		$copyRight = $this->free_plus_efb_powered_by($texts);
 
-		// Generate the loading message with SVG animation
+
 		$loadingMessage = sprintf(
 			'<h2 class="efb fs-3 text-center">%s %s</h2><p class="efb fs-5">%s</p> %s',
 			$texts[0], // Accessing translation or variable for "Please wait" text
-			$svg,// SVG animation
+			$svg,
 			$state == 1 ? '<p class="efb fs-5">' . $texts[1] . '</p>' : '',
 			$copyRight
 		);
@@ -2176,27 +2118,22 @@
 		return $loadingMessage;
 	}
 
-
 	function  free_plus_efb_powered_by($texts) {
-		// Powered by Easy Form Builder by white studio team
+
 		$text = esc_html__('Built with %sEasy Form Builder%s by %sWordPress form plugin by whitestudio.team%s', 'easy-form-builder');
 		$text = sprintf($text, '<a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank">', '</a>', '<a href="https://whitestudio.team" target="_blank">', '</a>');
 		$copyRight = '<!-- texts -->';
 		$efb = esc_html__('Easy Form Builder', 'easy-form-builder');
 		$wp_text = esc_html__('WordPress', 'easy-form-builder');
 		$fr = '<!-- efb copyRight -->';
-		error_log('state:'. get_locale());
-		error_log('strpos(get_locale(), en) :'.strpos(get_locale(), 'en') );
 		$s = '';
 
 
-		// state can be used for user setting to show or hide the copy right
-		// error_log('state:' . $state);
-		// error_log('pro:' . $pro);
-			error_log('this->package_type_efb:' . var_export($this->package_type_efb, true));
-		//free plus version
+
+
+
 		if($this->package_type_efb==3){
-				// Ensure the schema is hooked on the frontend (once)
+
 			$f = substr(get_locale(), 0, 2);
 			add_action('wp_head',  [$this, 'efb_output_schema_free_plus'], 20);
 			$style = 'opacity:0.5 !important;text-decoration:none !important;text-decoration-line:none !important;border:none !important;outline:none !important;box-shadow:none !important;';
@@ -2223,29 +2160,28 @@
 			}
 			return $copyRight .'</aside></div>';
 		}else if($this->package_type_efb==2){
-			//free version
+
 			add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);;
 		}
 		return '<!--efb-->';
 	}
 
-
 	function add_buttons_zone_efb($state, $id, $valj_efb, $efb_var, $formId) {
-		// Determine button status and initialize display variables
+
 		$dis = '';
 		$t = array_search('stripe', array_column($valj_efb, 'type'));
 		$t = $t === false ? array_search('persiaPay', array_column($valj_efb, 'type')) : $t;
 		$t = $t === false ? array_search('paypal', array_column($valj_efb, 'type')) : $t;
 		$t = $t !== false ? $valj_efb[$t]->step : 0;
 
-		// Check if payment method is required
-		//This form requires a payment method. Please add one or change the form type.
+
+
 		$dis = ($valj_efb[0]->type == "payment" && $valj_efb[0]->steps == 1 && $t == 1) ? 'disabled' : '';
 		if ($valj_efb[0]->type == "payment" && $t == 0) {
 			return  "<script>alert('".esc_html__('Easy Form Builder' , 'easy-form-builder'). ": " .esc_html__('This form requires a payment method. Please add one or change the form type.' , 'easy-form-builder')."');</script>";
 		}
 
-		// Set alignment and corner styles
+
 
 		$corner = property_exists($valj_efb[0], 'corner') ? $valj_efb[0]->corner : 'efb-square';
 		$btns_align = property_exists($valj_efb[0], 'btns_align') ? $valj_efb[0]->btns_align . ' mx-3' : 'justify-content-center';
@@ -2253,7 +2189,7 @@
 		$prev_icon = strlen($valj_efb[0]->button_Previous_icon) > 3 && $valj_efb[0]->button_Previous_icon != 'bi-undefined' &&  $valj_efb[0]->button_Previous_icon!='bXXX' ? sprintf('<i class="efb %s mx-2 %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Previous_icon, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
 		$next_icon = strlen($valj_efb[0]->button_Next_text) > 3 && $valj_efb[0]->button_Next_text != 'bi-undefined' && $valj_efb[0]->button_Next_text!='bXXX' ? sprintf('<i class="efb %s mx-2 %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
 		$class_disabled = $valj_efb[0]->captcha == true ? 'disabled' : 'nnn';
-		// Single button display
+
 		$s = sprintf(
 			'<div class="efb d-flex %s %s text-center efb mx-3" id="f_btn_send_efb" data-tag="buttonNav" data-formid="%s">
 				<a id="btn_send_efb" role="button" class="efb text-decoration-none mx-0 btn p-2 %s %s %s %s %s efb-btn-lg btn_send_efb" data-formid="%s" data-currentstep="1" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_button_single_text" class="efb %s" >%s</span></a>
@@ -2275,7 +2211,7 @@
 			$valj_efb[0]->button_single_text
 		);
 
-		// Navigation buttons
+
 		$d = sprintf(
 			'<div class="efb d-flex %s %s %s text-center efb" id="f_button_form_np" data-formid="%s" data-step="1">
 				<a id="prev_efb"  data-formid="%s" data-currentstep="1" role="button" class="efb text-decoration-none btn p-2  %s %s %s efb-btn-lg m-1 d-none prev_efb" onclick="btn_navigate_handle_efb(\'%s\' ,\'%s\' ,\'%s\',this)">%s<span id="button_group_Previous_button_text" class="efb %s">%s</span></a>
@@ -2309,13 +2245,10 @@
 		);
 
 
-
-
-		// Return button structure based on state
 		return sprintf('<div class="efb footer-test p-1">%s</div>', $state == 0 ? $s : $d);
 	}
 
-    	/* field builder */
+
 	public function addNewElement_efb($i, $rndm,$form_id,$texts) {
 		$pro = $this->pro_efb == 1 || $this->pro_efb == true ? true : false;
 		$nfield = ['html','stripe','paypal','persiapay','persiaPay','zarinPal','heading','link'];
@@ -2327,7 +2260,7 @@
 		$position_l_efb = is_rtl() ? "end" : "start";
 		$vj = $this->valj_efb[$indexVJ];
 
-		// error_log($elementId);
+
 		if(in_array($elementId, ["option","r_matrix"])) return;
 
 		if (!in_array($elementId, ["html", "register", "login", "subscribe", "survey"])) {
@@ -2341,15 +2274,10 @@
 		$dataTag = 'text';
 		$rndm = $this->valj_efb[$i]->id_;
 		$desc=''; $label=''; $ttip=''; $div_f_id=''; $aire_describedby=''; $disabled=''; $ui=''; $elementSpecificFields=''; $js_s=''; $classes=''; $vtype=''; $elementSpecificFields = '';
-			/*
-		// + after check functionlity cheange below codes to
-		 $desc =isset($vj->message) && strlen($vj->message)>0 ?$this->generateDescription_efb($element_Id, $vj, $pos) :'<!-- descripton not exist -->';
-		 $label =isset($vj->name) && strlen($vj->name)   ? $this->generateLabel_efb($element_Id, $vj, $pos) :'<!-- label not exist -->';
 
-		*/
+
 		$style ='';
 		if(!in_array($elementId,$nfield)){
-
 
 		$desc = $this->generateDescription_efb($element_Id, $vj, $pos);
 		$label = $this->generateLabel_efb($element_Id, $vj, $pos, $mobile_pos);
@@ -2368,15 +2296,14 @@
 		}
 
 
-		// error_log('pro:'.$pro);
 		if (gettype($elementSpecificFields) == 'array') {
 			$ui = $elementSpecificFields['ui'];
 			$dataTag = $elementSpecificFields['dataTag'];
 		} else {
 			$corner= isset($vj->corner) ? $vj->corner : 'efb-square';
 			switch ($vj->type) {
-				// Other cases go here (e.g., 'pdate', 'ardate', 'range', 'maps', 'file', 'textarea', 'mobile', 'dadfile', etc.)
-				// These cases should be processed similarly to how generateElementSpecificFields handles different element types
+
+
 				case 'pdate':
 				case 'ardate':
 					$isPdate = $elementId === 'pdate';
@@ -2408,7 +2335,7 @@
 						$readonlyAttr,
 						$desc
 					);
-					// error_log('element ID:'.$element_Id);
+
 					$dataTag = $elementId;
 					$ui = $pro ? $ui : $this->public_pro_message_efb($texts['tfnapca']);
 
@@ -2456,7 +2383,7 @@
 						$classes,
 						$form_id,
 						'range',
-						'range', // نوع ورودی
+						'range',
 						$requiredAttr,
 						$minlen,
 						$maxlen,
@@ -2507,33 +2434,32 @@
 							<textarea id="%3$s_" placeholder="%5$s" class="efb px-2 input-efb emsFormBuilder_v form-control w-100 %6$s %7$s %8$s %9$s %10$s efbField efb1 %11$s" data-css="%3$s" data-vid="%3$s" data-id="%3$s-el"  data-formid="%20$s" value="%12$s" aria-required="%13$s" aria-label="%14$s" %15$s rows="5" %16$s %17$s>%18$s</textarea>
 							%19$s
 							',
-							$label,  // %1$s
-							$pos[3],  // %2$s
-							$element_Id,  // %3$s
-							$ttip,  // %4$s
-							$vj->placeholder,  // %5$s
-							($vj->required == 1 ? 'required' : ''),  // %6$s
-							$vj->el_height,  // %7$s
-							$corner,  // %8$s
-							$vj->el_text_color,  // %9$s
-							$classes,  // %10$s
-							'',  // %11$s
-							$vj->value,  // %12$s
-							($vj->required == 1 ? 'true' : 'false'),  // %13$s
-							$vj->name,  // %14$s
-							$aire_describedby,  // %15$s
-							$disabled,  // %16$s
-							$minlen,  // %17$s
-							$this->text_nr_efb($vj->value, 0),  // %18$s
-							$desc,  // %19$s
-							$form_id  // %20$s
+							$label,
+							$pos[3],
+							$element_Id,
+							$ttip,
+							$vj->placeholder,
+							($vj->required == 1 ? 'required' : ''),
+							$vj->el_height,
+							$corner,
+							$vj->el_text_color,
+							$classes,
+							'',
+							$vj->value,
+							($vj->required == 1 ? 'true' : 'false'),
+							$vj->name,
+							$aire_describedby,
+							$disabled,
+							$minlen,
+							$this->text_nr_efb($vj->value, 0),
+							$desc,
+							$form_id
 
 					);
 					$dataTag = "textarea";
 					break;
 
 				case "mobile":
-
 
 					if($pro){
 						$temp =  $this->create_intlTelInput_efb($element_Id, $vj, true, $corner,$form_id);
@@ -2564,7 +2490,7 @@
 				break;
 				case 'dadfile':
 
-					// error_log('case dadfile');
+
 
 					$el =$pro ? $this->dadfile_el_pro_efb(true, $element_Id, $vj,$form_id,$texts) : $this->public_pro_message_efb($texts['tfnapca']);
 					$ui = sprintf('
@@ -2612,8 +2538,8 @@
 							} elseif ((strpos($tp, "multi") !== false || strpos($tp, "checkbox") !== false) && is_array($parent->value) && array_search($i->id_, $parent->value) !== false) {
 								$checked = "checked";
 							}
-							// error_log(json_encode($i));
-							// $id, $link, $row, $state = true, $text
+
+
 							$imageRadio = $elementId == "imgRadio" ? $this->fun_imgRadio_efb($i->id_, $i->src, $i,true, $texts) : '';
 							$prc = isset($i->price) ? intval($i->price) : 0;
 							if($pay!='') $prc = $this->formatPrice_efb($prc, $currency );
@@ -2687,11 +2613,9 @@
 					' . $label . '
 					' . $ttip . '
 					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : $this->public_pro_message_efb($texts['tfnapca']));
-					// $previewSate, $rndm, $vj, $form_id,$texts
-					 /*
-					 const disabled = ob.hasOwnProperty("disabled") && ob.disabled==true ? true : false;
-            		  fun_event_esign_efb(id,form_id,disabled,ob);
-					  */
+
+
+
 					$ui.= sprintf(
 						"<script>
 							document.addEventListener('DOMContentLoaded', function() {
@@ -2719,8 +2643,7 @@
 					$message = $vj->message;
 
 
-					// تولید HTML المان نقشه با استفاده از sprintf و اضافه کردن formId
-					//1$s
+
 					$ui .= sprintf(
 						"<div class='efb col-md-12' id='%1\$s-f' data-formid='%2\$s'>
 							<label for='%1\$s_' class='efb form-label text-labelEfb'>
@@ -2732,22 +2655,22 @@
 							<input type='hidden' name='%1\$s-lng' id='%1\$s_lng' value='%7\$s' class='efb emsFormBuilder_v'  data-formid='%2\$s' data-type='maps' data-vid='%1\$s' %10\$s>
 							<small id='%1\$s-des' class='form-text text-muted'>%11\$s</small>
 						</div>",
-						$element_Id,  // %1$s
-						$formId,      // %2$s
-						$label,       // %3$s
-						($required ? '*' : ''), // %4$s
-						$el_height,   // %5$s
-						$lat,         // %6$s
-						$lng,         // %7$s
-						$zoom,        // %8$s
-						$ariaDescribedBy, // %9$s
-						$required,    // %10$s
-						$message,      // %11$s
-						isset($vj->mark) && (int)$vj->mark>0 ? 'd-none' : '' // %12$s
+						$element_Id,
+						$formId,
+						$label,
+						($required ? '*' : ''),
+						$el_height,
+						$lat,
+						$lng,
+						$zoom,
+						$ariaDescribedBy,
+						$required,
+						$message,
+						isset($vj->mark) && (int)$vj->mark>0 ? 'd-none' : ''
 					);
 
 					if(isset($vj->mark) && (int)$vj->mark>0 ){
-						//
+
 						$ui .=sprintf(
 							"<script>
 								document.addEventListener('DOMContentLoaded', function() {
@@ -2757,7 +2680,6 @@
 								});
 							</script>",
 							$this->map_search_section_efb($element_Id,$vj,$form_id),
-
 
 						);
 						}else{
@@ -2805,13 +2727,8 @@
 					$dataTag = "maps";
 					break;
 				break;
-			/* 	case 'switch':
-					// switch_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts)
-					$ui ="<!-- switch -->";
-					$ui = $pro == true ? $this->switch_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts)  : $this->public_pro_message_efb($texts['tfnapca']);
-					$ui .="<!-- switch -->";
-					$dataTag = $elementId;
-				break; */
+
+
 				case 'rating':
 
 					$ui = $pro == true ? $this->rating_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts) : $this->public_pro_message_efb($texts['tfnapca']);
@@ -2819,15 +2736,15 @@
 				break;
                 case 'select':
                 case 'paySelect':
-                    // generate_select_efb($elementId, $rndm, $vj, $pos, $formId, $texts, $previewSate=true ,$desc,$label,$ttip,$aire_describedby )
-                    // error_log('select');
+
+
 
                     $ui = $this->generate_select_efb($elementId, $rndm, $vj, $pos, $form_id, $texts, true ,$desc,$label,$ttip,$aire_describedby);
                     $dataTag = $elementId;
                 break;
 				case 'conturyList':
 				case 'country':
-					// error_log('country');
+
 					$ui =$pro == true ? $this->generate_country_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby): $this->public_pro_message_efb($texts['tfnapca']);
 
 					$dataTag = $elementId;
@@ -2844,26 +2761,26 @@
 				break;
 				case 'multiselect':
 				case 'payMultiselect':
-					// error_log('multiselect');
-					// error_log($desc);
-					//$elementId, $rndm, $vj, $pos, $formId, $texts, $desc, $label, $ttip, $previewSate
+
+
+
 					$ui = $this->generate_multiselect_efb($elementId, $rndm, $vj, $pos, $form_id, $texts,$desc,$label,$ttip,$aire_describedby) ;
 					$dataTag = $elementId;
 				break;
 
 				case 'html':
-					//generate_html_code_efb($rndm, $vj, $pos, $formId, $texts, $previewSate)
+
 					$ui = $pro == true ? $this->generate_html_code_efb($rndm, $vj, $pos, $form_id, $texts, true) : $this->public_pro_message_efb($texts['tfnapca']);
 					$dataTag = $elementId;
 				break;
 				case 'heading':
-					//generate_heading_efb($rndm, $pos, $vj, $formId)
+
 					$ui = $pro == true ? $this->generate_heading_efb($rndm, $pos, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca']);
 					$dataTag = $elementId;
 
 				break;
 				case 'link':
-					//generate_link_efb($previewState, $pos, $rndm, $vj, $formId)
+
 					$ui = $pro == true ? $this->generate_link_efb(true, $pos, $rndm, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca']);
 					$dataTag = $elementId;
 				break;
@@ -2872,7 +2789,7 @@
 						$ui =$this->public_pro_message_efb($texts['tfnapca']);
 						break;
 					}
-					//generate_yes_no_efb($previewState, $pos, $rndm, $vj, $formId)
+
 					$r = $this->generate_yes_no_efb(true, $pos, $rndm, $vj, $form_id);
 
 					$ui = '' . $label . $ttip .  $r  .$desc ;
@@ -2913,7 +2830,7 @@
 						$ui =$this->public_pro_message_efb($texts['tfnapca']);
 						break;
 					}
-					//table_matrix_el_pro_efb($elementId, $vj, $rndm, $position_l_efb, $previewSate, $aire_describedby, $label, $ttip, $desc)
+
 					$ui  = $this->table_matrix_el_pro_efb($elementId, $vj, $rndm, $position_l_efb, true, $aire_describedby, $label, $ttip, $desc,$form_id,$pos);
 					$dataTag = $elementId;
 
@@ -2925,21 +2842,21 @@
 					}
 					$maxlen = (property_exists($vj, 'mlen') && $vj->mlen > 0) ? 'maxlength="' . $vj->mlen . '"' : '';
 
-					// Set minlength attribute
+
 					$minlen = (property_exists($vj, 'milen') && $vj->milen > 0) ? 'minlength="' . $vj->milen . '"' : '';
 
-					// Determine currency symbol
+
 					$dataTag = (!property_exists($this->valj_efb[0], 'currency')) ? 'usd' : $this->valj_efb[0]->currency;
-					//convert to up
+
 
 					$classes = $this->get_currency_details_efb($dataTag);
 
 					$dataTagHtml = '<span class="efb input-group-text crrncy-clss">' . $classes['s'] . '</span>';
 
-					// Set additional classes
+
 					$classes = 'form-control ' . $vj->el_border_color;
 
-					// Generate UI
+
 					$ui = sprintf(
 						'%s
 						<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%s-f" data-formId="%s">
@@ -2950,33 +2867,33 @@
 								%s
 							</div>
 							%s',
-						$label, // Label for the input
-						$pos[3], // Position
-						$rndm, // Random ID
-						$form_id, // Form ID
-						$ttip, // Tooltip
-						is_rtl() ? '' : $dataTagHtml, // Currency symbol on the left for LTR
-						$classes, // Input classes
-						$vj->el_height, // Element height
-						$corner, // Border radius
-						$vj->el_text_color, // Text color
-						($vj->required == 1 || $vj->required == true) ? 'required' : '', // Required attribute
-						str_replace(',', ' ', $vj->classes), // Additional classes
-						$rndm, // Data ID
-						$rndm, // Data vid
-						$rndm, // CSS ID
-						$rndm, // Element ID
-						htmlspecialchars($vj->placeholder), // Placeholder text
+						$label,
+						$pos[3],
+						$rndm,
 						$form_id,
-						($vj->value && strlen($vj->value) > 0) ? 'value="' . htmlspecialchars($vj->value) . '"' : '', // Value attribute
-						$aire_describedby, // Aria described by
+						$ttip,
+						is_rtl() ? '' : $dataTagHtml,
+						$classes,
+						$vj->el_height,
+						$corner,
+						$vj->el_text_color,
+						($vj->required == 1 || $vj->required == true) ? 'required' : '',
+						str_replace(',', ' ', $vj->classes),
+						$rndm,
+						$rndm,
+						$rndm,
+						$rndm,
+						htmlspecialchars($vj->placeholder),
+						$form_id,
+						($vj->value && strlen($vj->value) > 0) ? 'value="' . htmlspecialchars($vj->value) . '"' : '',
+						$aire_describedby,
 
-						$maxlen, // Maxlength attribute
-						$minlen, // Minlength attribute
-						'', // Readonly attribute
-						$disabled == 'disabled' ? 'readonly' : '', // Disabled attribute
-						is_rtl() ? $dataTagHtml : '', // Currency symbol on the right for RTL
-						$desc // Description
+						$maxlen,
+						$minlen,
+						'',
+						$disabled == 'disabled' ? 'readonly' : '',
+						is_rtl() ? $dataTagHtml : '',
+						$desc
 					);
 
 					$dataTag = $elementId;
@@ -2986,21 +2903,20 @@
 						$ui =$this->public_pro_message_efb($texts['tfnapca']);
 						break;
 					}
-					//totalprice_el_pro_efb($rndm, $vj ,$currency)
+
 					$currency = isset($this->valj_efb[0]->currency) ? $this->valj_efb[0]->currency : 'USD';
 					$r  = $this->totalprice_el_pro_efb($rndm, $vj ,$currency,$form_id);
 					$class = isset($vj->classes) ? $vj->classes : '';
 
 					$ui = sprintf(
 						'%s<div class="efb %s ' . $this->mobile_pos[3] . ' pt-2 pb-1 px-0 mx-0 ttEfb show %s" id="%s-f">%s%s</div>',
-						$label,  // %s
-						$pos[3],  // %s
-						$class,  // %s
-						$rndm,  // %s
-						$r,  // %s
-						$desc  // %s
+						$label,
+						$pos[3],
+						$class,
+						$rndm,
+						$r,
+						$desc
 					);
-					error_log('ui=>'.$ui);
 				break;
 				case 'stripe':
 					if($pro!==true && $pro!==1){
@@ -3014,11 +2930,10 @@
 						$sub = $texts[$n];
 						$cl = $this->valj_efb[0]->paymentmethod;
 					}
-					//$rndm , $cl, $sub,$form_id,$texts
+
 					$ui = $this->add_ui_stripe_efb($rndm , $cl, $sub,$form_id,$texts);
 
 					$dataTag = $elementId;
-
 
 				break;
 				case 'paypal':
@@ -3033,8 +2948,8 @@
 						$sub = $texts[$n];
 						$cl = $this->valj_efb[0]->paymentmethod;
 					}
-					// $rndm , $form_id,$texts
-					//add_ui_paypal_efb($rndm, $form_id, $texts, $currency = 'USD', $charge_class = '', $sub = '')
+
+
 					$ui = $this->add_ui_paypal_efb($rndm , $form_id,$texts ,'USD' , $cl , $sub);
 					$dataTag = $elementId;
 				break;
@@ -3055,13 +2970,11 @@
 
 				break;
 
-
 			}
 		}
 
 
-		// error_log('ui=>'.$ui);
-		// error_log('dataTag'. $dataTag);
+
 		if ($vj->type != "form" && $dataTag != "step" && $vj->type != 'option') {
 			$hidden = isset($vj->hidden) && $vj->hidden == 1 ? 'd-none' : '';
 			$tagId = in_array($elementId, ["firstName", "lastName", "address", "address_line", "postalcode"]) ? 'text' : $elementId;
@@ -3094,16 +3007,14 @@
 			}
 
 			$newElement .= sprintf('<!--endTag %s-->', $elementId);
-			 error_log('newElement: reult'.$newElement);
-			// error_log('style: reult'.$style);
-			//check if js_s have value
-			error_log('jsssssssssssssssssssss============> '.$js_s);
+
+
 			return [$newElement ,$style ,$js_s];
 		}
 	}
 
 	public function show_user_profile_emsFormBuilder($text_logout, $formId) {
-		// Sanitize and escape output for security
+
 		$user_login = wp_get_current_user();
 		$display_name = esc_html($user_login->display_name);
 		$user_image = get_avatar_url($user_login->ID);
@@ -3112,8 +3023,6 @@
 		$user_id =  $user_login->user_login ?? $user_login->user_email;
 
 
-
-		// Return the user profile HTML
 		return sprintf(
 			'<div class="efb mt-5" data-formId="%s" id="body_efb_%s">
 				<div class="efb card-block text-center text-dark">
@@ -3138,16 +3047,15 @@
 		);
 	}
 
-
 	public function addStyleColorBodyEfb($t, $c, $type, $id, $vj) {
-		// Determine type based on id and default assignment
+
 		$ttype = ($id == -1) ? $type : $vj->type;
 
-		// Set the color style for CSS
+
 		$v = ".$t { color: $c !important; }";
 		$tag = "";
 
-		// Switch-case to determine the tag type
+
 		switch ($ttype) {
 			case 'textarea':
 				$tag = "textarea";
@@ -3175,10 +3083,10 @@
 				break;
 		}
 
-		// Ensure color starts with '#' if not already
+
 		if ($c[0] != "#") $c = "#$c";
 
-		// Call helper function to add custom style
+
 		return $this->efb_add_custom_color($t, $c, $v, $type);
 	}
 
@@ -3186,7 +3094,7 @@
 		$n = '';
 		if ($c[0] != "#") $c = "#$c";
 
-		// Determine style class based on type
+
 		if ($type == "text") {
 			$n = "{$type}-$t";
 			$v = ".$n { color: $c !important; }";
@@ -3204,12 +3112,12 @@
 			$v = ".$n { background-color: $c !important; }";
 		}
 
-		// Inject style into the page
+
 		return $v;
 	}
 
 	public function fun_addStyle_customize_efb($val, $key, $vj) {
-		// Check if the value includes 'colorDEfb' and set type and color
+
 		if (strpos($val, 'colorDEfb') !== false) {
 			$type = "";
 			$color = "";
@@ -3257,7 +3165,7 @@
 					break;
 			}
 
-			// Call addStyleColorBodyEfb if color is set
+
 			if ($color != "") {
 				return $this->addStyleColorBodyEfb("colorDEfb-" . substr($color, 1), substr($color, -6), $type, -1, $vj);
 			}
@@ -3265,8 +3173,8 @@
 	}
 
 	public function map_search_section_efb($element_Id, $vj, $form_id) {
-		// متن‌های مورد نیاز برای نقشه
-		// efbCreateMap(id ,r ,viewState)
+
+
 		 return sprintf('efbCreateMap("%1$s", %2$s, %3$s);',
 			$element_Id,
 			json_encode($vj),
@@ -3275,10 +3183,6 @@
 
 	}
 
-	/* public function fun_captcha_load_efb($public_key, $form_id) {
-		// Return the captcha HTML
-		return  '<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="' . $public_key . '" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>' ;
-	} */
 
 
 public function check_error_console_efb(){
@@ -3931,36 +3835,27 @@ public function check_error_console_efb(){
 }
 
 
-	/**
-	 * Register head output hooks
-	 * Should be called once during plugin init
-	 */
+
 	public function efb_register_head_hooks() {
-		// Author link via wp_head action
+
 		add_action( 'wp_head', [ $this, 'efb_print_author_link' ], 1 );
 
-		// Generator meta via WordPress filter
+
 		add_filter( 'the_generator', [ $this, 'efb_filter_generator' ], 10, 2 );
 	}
 
-	/**
-	 * Print author link tag via wp_head hook
-	 */
+
+
 	public function efb_print_author_link() {
 		$enabled = apply_filters( 'efb_author_link_enabled', true );
 		if ( ! $enabled ) { return; }
 
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Hardcoded safe URL
+
 		printf( '<link rel="author" href="%s">' . "\n", esc_url( 'https://whitestudio.team/' ) );
 	}
 
-	/**
-	 * Filter WordPress generator meta tag
-	 *
-	 * @param string $generator The generator output
-	 * @param string $type The type of generator (xhtml, html, etc)
-	 * @return string Modified generator output
-	 */
+
+
 	public function efb_filter_generator( $generator, $type ) {
 		$enabled = apply_filters( 'efb_generator_meta_enabled', true );
 		if ( ! $enabled ) { return $generator; }
@@ -3968,11 +3863,8 @@ public function check_error_console_efb(){
 		return '<meta name="generator" content="'. esc_html__( 'Easy Form Builder', 'easy-form-builder' ). ' - ' . esc_html__( 'WhiteStudio.team', 'easy-form-builder' ).'" />' . "\n";
 	}
 
-	/**
-	 * Print JSON-LD schema using WordPress native function
-	 *
-	 * @param array $schema Schema data array
-	 */
+
+
 	private function efb_print_schema_ld( $schema ) {
 		$enabled = apply_filters( 'efb_schema_ld_enabled', true );
 		if ( ! $enabled ) { return; }
@@ -3985,7 +3877,6 @@ public function check_error_console_efb(){
 	}
 
 
-	// Add JSON-LD WebPage + SoftwareApplication schema to <head> on the frontend
 
 	public function efb_output_schema_free_plus() {
 		$page_url = home_url( add_query_arg( [], wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ) );
@@ -4030,7 +3921,6 @@ public function check_error_console_efb(){
 		$this->efb_register_head_hooks();
 	}
 
-
 		public function efb_output_schema_free () {
 			$page_url = home_url( add_query_arg( [], wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ) );
 			$locale = get_locale();
@@ -4074,7 +3964,6 @@ public function check_error_console_efb(){
 			$this->efb_print_schema_ld( $schema );
 			$this->efb_register_head_hooks();
 		}
-
 
 		public function field_maps_style_efb(){
 			return '
@@ -4194,7 +4083,6 @@ public function check_error_console_efb(){
 					margin: 10px;
 					}
 
-
 					.custom-control.leaflet-control {
 					display: flex;
 					align-items: center;
@@ -4289,7 +4177,6 @@ public function check_error_console_efb(){
 					';
 		}
 
-
 		public function field_mobile_style_efb(){
 			return '
 					.iti--inline-dropdown .iti__dropdown-content{
@@ -4321,14 +4208,11 @@ public function check_error_console_efb(){
 					.mobile .efblist.inplist.h-d-efb {	font-size: 15px !important;
 					}
 
-
 					.mobile div#sideBoxEfb {	height: 100vh;
 					width: 70%}
 					.mobile #content-efb {	margin-top: 10px;
 					}';
 		}
-
-
 
 		public function efb_selected_loading_svg($state ,$color='#abb8c3'){
 			switch($state){
@@ -4457,8 +4341,5 @@ public function check_error_console_efb(){
 			}
 
 		}
-
-
-
 
 }

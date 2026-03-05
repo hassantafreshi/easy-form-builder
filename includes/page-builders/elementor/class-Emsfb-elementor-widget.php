@@ -1,18 +1,9 @@
 <?php
-/**
- * Easy Form Builder - Elementor Widget
- *
- * The actual Elementor widget class for displaying Easy Form Builder forms
- *
- * @package EasyFormBuilder
- * @since 4.0.0
- */
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly.
+    exit;
 }
 
-// Ensure helper class is loaded
 if (!class_exists('Emsfb_Widgets_Helper') && defined('EMSFB_PLUGIN_DIRECTORY')) {
     $helper_file = EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-widgets-helper.php';
     if (file_exists($helper_file)) {
@@ -23,72 +14,48 @@ if (!class_exists('Emsfb_Widgets_Helper') && defined('EMSFB_PLUGIN_DIRECTORY')) 
 use Elementor\Widget_Base;
 use Elementor\Controls_Manager;
 
-/**
- * Class Emsfb_Elementor_Widget
- *
- * Elementor widget for Easy Form Builder forms
- */
 class Emsfb_Elementor_Widget extends Widget_Base {
 
-    /**
-     * Get widget name
-     *
-     * @return string Widget name
-     */
+
+
     public function get_name() {
         return 'emsfb_form';
     }
 
-    /**
-     * Get widget title
-     *
-     * @return string Widget title
-     */
+
+
     public function get_title() {
         return __('Easy Form Builder', 'easy-form-builder');
     }
 
-    /**
-     * Get widget icon
-     *
-     * @return string Widget icon
-     */
+
+
     public function get_icon() {
         return 'eicon-form-horizontal';
     }
 
-    /**
-     * Get widget categories
-     *
-     * @return array Widget categories
-     */
+
+
     public function get_categories() {
         return ['easy-form-builder', 'general'];
     }
 
-    /**
-     * Get widget keywords for search
-     *
-     * @return array Widget keywords
-     */
+
+
     public function get_keywords() {
         return ['form', 'contact', 'easy form builder', 'efb', 'forms', 'survey', 'questionnaire', 'registration'];
     }
 
-    /**
-     * Get custom help URL
-     *
-     * @return string Help URL
-     */
+
+
     public function get_custom_help_url() {
         return 'https://whitestudio.team/docs/easy-form-builder/';
     }
 
-    /**
-     * Register widget controls
-     */
+
+
     protected function register_controls() {
-        // Content Section
+
         $this->start_controls_section(
             'content_section',
             [
@@ -97,7 +64,7 @@ class Emsfb_Elementor_Widget extends Widget_Base {
             ]
         );
 
-        // Get forms for select options
+
         $form_options = $this->get_forms();
 
         $this->add_control(
@@ -129,7 +96,7 @@ class Emsfb_Elementor_Widget extends Widget_Base {
 
         $this->end_controls_section();
 
-        // Style Section - Container
+
         $this->start_controls_section(
             'style_container_section',
             [
@@ -194,11 +161,8 @@ class Emsfb_Elementor_Widget extends Widget_Base {
         $this->end_controls_section();
     }
 
-    /**
-     * Get forms as options array
-     *
-     * @return array Form options
-     */
+
+
     private function get_forms() {
         if (!class_exists('Emsfb_Widgets_Helper')) {
             return ['' => __('— Select a Form —', 'easy-form-builder')];
@@ -207,15 +171,14 @@ class Emsfb_Elementor_Widget extends Widget_Base {
         return Emsfb_Widgets_Helper::get_forms_for_select(true, true);
     }
 
-    /**
-     * Render widget output on the frontend
-     */
+
+
     protected function render() {
         $settings = $this->get_settings_for_display();
         $form_id = $settings['form_id'];
 
         if (empty($form_id)) {
-            // Safely check Elementor edit mode
+
             $is_edit_mode = false;
             if (class_exists('\Elementor\Plugin')) {
                 try {
@@ -229,18 +192,18 @@ class Emsfb_Elementor_Widget extends Widget_Base {
                     $is_edit_mode = false;
                 }
             }
-            
+
             if ($is_edit_mode) {
-                // Show placeholder in editor
+
                 echo $this->render_editor_placeholder();
             }
             return;
         }
 
-        // Wrapper start
+
         echo '<div class="efb-elementor-form-wrapper">';
 
-        // Optional form title
+
         if ($settings['show_form_title'] === 'yes') {
             $forms = Emsfb_Widgets_Helper::get_all_forms(true);
             foreach ($forms as $form) {
@@ -251,26 +214,23 @@ class Emsfb_Elementor_Widget extends Widget_Base {
             }
         }
 
-        // Render the form
+
         if (class_exists('Emsfb_Widgets_Helper')) {
             echo Emsfb_Widgets_Helper::render_form($form_id);
         } else {
-            // Fallback to shortcode
+
             $shortcode = $form_id === 'tracking'
                 ? '[Easy_Form_Builder_confirmation_code_finder]'
                 : '[EMS_Form_Builder id="' . intval($form_id) . '"]';
             echo do_shortcode($shortcode);
         }
 
-        // Wrapper end
+
         echo '</div>';
     }
 
-    /**
-     * Render editor placeholder
-     *
-     * @return string Placeholder HTML
-     */
+
+
     private function render_editor_placeholder() {
         return sprintf(
             '<div class="efb-elementor-placeholder" style="
@@ -296,9 +256,8 @@ class Emsfb_Elementor_Widget extends Widget_Base {
         );
     }
 
-    /**
-     * Render widget output in the editor (live preview)
-     */
+
+
     protected function content_template() {
         ?>
         <#

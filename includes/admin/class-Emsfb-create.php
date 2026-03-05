@@ -2,7 +2,7 @@
 namespace Emsfb;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} // No direct access allow ;)
+}
 class Create {
 	public $setting_name;
 	public $options = array();
@@ -22,7 +22,7 @@ class Create {
 		if ( empty( $this->options ) ) {
 			update_option( $this->setting_name, array() );
 		}
-		//chek if update_option('emsfb_pro' exists
+
 		if ( false == get_option( 'emsfb_pro' ) ) {
 			add_option( 'emsfb_pro', -1 );
 		}
@@ -55,10 +55,9 @@ class Create {
 	}
 	public function render_settings() {
 		$efbFunction = get_efbFunction();
-		// 0 expired
- 		// 1 pro
-		// 2 free plan
-		// 3 free plus
+
+
+
 
 
 		$noti_pro = intval(get_option('emsfb_pro' ,-1));
@@ -135,7 +134,7 @@ class Create {
 		$pro =$efbFunction->is_efb_pro(1);
 		$settings= get_setting_Emsfb('decoded');
 		$addons = $efbFunction->fun_get_addons_list_efb($settings);
-		// Load map scripts if location picker is enabled
+
 
 		if(isset($settings->osLocationPicker)==true && $settings->osLocationPicker==1){
 			$efbFunction->openstreet_map_required_efb(0);
@@ -146,14 +145,11 @@ class Create {
 
 		$efbFunction->setting_version_efb_update($settings, $pro, true);
 
-
-
-
 		if(isset($settings->AdnPDP) && $settings->AdnPDP==1){
-			// wmaddon
+
 			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
 				$r = $efbFunction->update_message_admin_side_efb();
-				// echo $r;
+
 				$efbFunction->download_all_addons_efb();
 				return 0;
 			}
@@ -164,7 +160,7 @@ class Create {
 		if(isset($settings->AdnPDP) && $settings->AdnADP==1){
 			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
 				$r = $efbFunction->update_message_admin_side_efb();
-				// echo $r;
+
 				$efbFunction->download_all_addons_efb();
 				return 0;
 			}
@@ -175,20 +171,19 @@ class Create {
 		if(isset($settings->AdnSS) && $settings->AdnSS==1){
 			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
 				$r = $efbFunction->update_message_admin_side_efb();
-				// echo $r;
+
 				$efbFunction->download_all_addons_efb();
 				return 0;
 			}
 		}
-		// AdnPAP
+
 		if(isset($settings->AdnPAP) && $settings->AdnPAP==1){
 			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
 				$r = $efbFunction->update_message_admin_side_efb();
-				//echo $r;
+
 				$efbFunction->download_all_addons_efb();
 				return 0;
 			}
-			error_log('paypal!');
 			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php");
 			$paypalefb = new paypalefb() ;
 		}
@@ -223,8 +218,6 @@ class Create {
 		$captcha =false;
 		$smtp_m = "";
 		$stng_pdate = true;
-		error_log(gettype($settings));
-		error_log($settings->smtp);
 		if(gettype($settings)!="string"){
 			if( isset($settings->siteKey)&& strlen($settings->siteKey)>5){$captcha="true";}
 			if(isset($settings->smtp) && (bool)$settings->smtp){$smtp=1;}else if(isset($settings->smtp) && (bool)$settings->smtp==false){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
@@ -234,9 +227,9 @@ class Create {
 		}
 		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
 		wp_enqueue_script('stripe_js');
-		// $colors = $efbFunction->get_list_colores_template();
+
 		$colors =[];
-		// $location =$pro==true  ? $efbFunction->get_geolocation() :'';
+
 		$plugins =['wpsms' => 0,'wpbaker' => 0,'elemntor'=> 0 , 'cache'=>0];
 			$plugins_get = get_plugins();
 			if (is_plugin_active('wp-sms/wp-sms.php')) {
@@ -288,13 +281,12 @@ class Create {
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
 
-		// security check
+
 		$nonce = $_POST['nonce'];
 		if ( !wp_verify_nonce( $nonce, 'wp_rest' ) || !current_user_can('Emsfb') ) {
             $response = ['success' => false, 'm' =>  $lang['error403']];
             wp_send_json_success($response, 200);
 		}
-		// end security check
 
 
 		$email = '';
@@ -307,7 +299,7 @@ class Create {
 		$this->id_ ="hid";
 		$this->name =  sanitize_text_field($_POST['name']);
 		$this->email =  $email;
-		// $this->value = $_POST['value'];
+
 		$valp =str_replace('\\', '', $_POST['value']);
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
@@ -316,7 +308,7 @@ class Create {
 			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']);
 			wp_send_json_success($response, 200);
 		}
-		// check if smsnoti axist then call add_sms_contact_efb
+
 		$sms_msg_new_noti="";
 		$sms_msg_responsed_noti="";
 		$sms_msg_recived_user="";
@@ -335,8 +327,8 @@ class Create {
 		$this->value=str_replace('"', '\\"', $valx);
 		$this->insert_db();
 		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
-			// $efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
-			// require smsefb.php and call add_sms_contact_efb
+
+
 			$sms_exists = get_option('emsfb_addon_AdnSS', false);
 			$sms_files_exists = file_exists( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
 			if($sms_exists !== false && $sms_exists != 0 && $sms_files_exists){
@@ -352,7 +344,6 @@ class Create {
 			}
 		}
 		if($this->formtype=='login' || $this->formtype=='register'){
-			error_log('Creating temporary links table for form ID: ' . $this->id_);
 			do_action('create_temporary_links_table_Emsfb');
 		}
 		if($this->id_ !=0){
@@ -377,7 +368,7 @@ class Create {
 		));    $this->id_  = $this->db->insert_id;
 	}
 	public function check_temp_is_bootstrap (){
-		// Use transient cache to avoid scanning the theme directory on every page load
+
 		$cached = get_transient('emsfb_theme_has_bootstrap');
 		if ($cached !== false) {
 			return $cached === 'yes';
@@ -398,6 +389,6 @@ class Create {
 
 		set_transient('emsfb_theme_has_bootstrap', $s ? 'yes' : 'no', DAY_IN_SECONDS);
         return  $s;
-    }// end fun
+    }
 }
 new Create();

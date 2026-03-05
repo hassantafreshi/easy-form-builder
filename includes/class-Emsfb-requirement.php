@@ -13,8 +13,6 @@ class CheckRequirementEmsfb {
 
     const OPTION_KEY = 'emsfb_email_status';
 
-
-
     public static function run_and_save_efb() {
         $result = self::check_email_capability_efb();
         update_option(self::OPTION_KEY, $result, false);
@@ -33,8 +31,6 @@ class CheckRequirementEmsfb {
             ],
             'details' => [],
         ];
-
-
 
         if (!function_exists('mail')) {
             return [
