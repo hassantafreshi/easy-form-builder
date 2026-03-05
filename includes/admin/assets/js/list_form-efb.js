@@ -328,7 +328,7 @@ function fun_emsFormBuilder_render_view(x) {
         <tbody class="efb">${rows}</tbody>
     </table>
  </div>
- ${efb_powered_by()}
+ ${typeof efb_powered_by === 'function' ? efb_powered_by() : ''}
  `
 
   } else {
@@ -635,7 +635,7 @@ function fun_ws_show_list_messages(value) {
     </tbody>
     </table>
     </div>
-     ${efb_powered_by()}
+     ${typeof efb_powered_by === 'function' ? efb_powered_by() : ''}
     `;
   if (form_type_emsFormBuilder != 'login') fun_export_rows_for_Subscribe_emsFormBuilder(value);
 
@@ -1045,7 +1045,7 @@ function fun_show_help__emsFormBuilder() {
                   <a class="efb btn mt-1 efb btn-outline-pink btn-lg ec-efb" data-eventform="links" data-linkname="wiki"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
               </div>
   </div>
-  ${efb_powered_by()}
+  ${typeof efb_powered_by === 'function' ? efb_powered_by() : ''}
  `;
 }
 
@@ -1613,7 +1613,7 @@ function fun_show_setting__emsFormBuilder() {
                 </div>
             </div>
             </div>
-            ${efb_powered_by()}
+            ${typeof efb_powered_by === 'function' ? efb_powered_by() : ''}
 `
 
   if (typeof efbEmailBuilder !== 'undefined' && document.getElementById('efb-email-builder')) {
