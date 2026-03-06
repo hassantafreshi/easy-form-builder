@@ -3166,10 +3166,10 @@ public function check_error_console_efb(){
 					</svg>
 					<span class="efb-error-count">0</span>
 				`;
-				const isRtl = document.documentElement.dir === 'rtl' || document.body.dir === 'rtl' || getComputedStyle(document.documentElement).direction === 'rtl';
+				const isRtl = document.documentElement.dir === "rtl" || document.body.dir === "rtl" || getComputedStyle(document.documentElement).direction === "rtl";
 				this.isRtl = isRtl;
 				this.badge.style.cssText = `
-					position: fixed; bottom: 20px; ${isRtl ? 'left' : 'right'}: 20px; z-index: 999999;
+					position: fixed; bottom: 20px; ${isRtl ? "left" : "right"}: 20px; z-index: 999999;
 					background: #dc3545;
 					color: #fff; padding: 12px 18px; border-radius: 50px;
 					cursor: pointer; display: flex; align-items: center; gap: 10px;
@@ -3342,12 +3342,17 @@ public function check_error_console_efb(){
 						font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 						overflow: hidden !important; font-size: 14px !important; color: #333 !important;
 						line-height: 1.5 !important;
-						direction: ${isRtl ? 'rtl' : 'ltr'} !important;
+						direction: ${isRtl ? "rtl" : "ltr"} !important;
 					}
 					#efb-error-panel svg {
 						display: inline-block !important; vertical-align: middle !important;
 						height: auto !important; width: auto !important; overflow: visible !important;
 						fill: none !important; stroke: currentColor !important; stroke-width: 2 !important;
+					}
+					#efb-error-panel img {
+						max-width: 100% !important; height: auto !important; max-height: 150px !important;
+						display: inline-block !important; object-fit: contain !important; border: none !important;
+						margin: 0 !important; padding: 0 !important;
 					}
 					#efb-error-panel .efb-panel-header {
 						background: linear-gradient(135deg, #dc3545, #410404) !important;
@@ -3421,15 +3426,15 @@ public function check_error_console_efb(){
 					}
 					#efb-error-panel .efb-error-item {
 						background: #f8f9fa !important; border-radius: 10px !important; padding: 14px !important;
-						margin-bottom: 12px !important; border-${isRtl ? 'right' : 'left'}: 4px solid #dc3545 !important;
+						margin-bottom: 12px !important; border-${isRtl ? "right" : "left"}: 4px solid #dc3545 !important;
 						transition: transform 0.2s, box-shadow 0.2s !important;
 					}
-					#efb-error-panel .efb-error-item:hover { transform: translateX(${isRtl ? '-2px' : '2px'}) !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; }
+					#efb-error-panel .efb-error-item:hover { transform: translateX(${isRtl ? "-2px" : "2px"}) !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; }
 					#efb-error-panel .efb-error-item:last-child { margin-bottom: 0 !important; }
-					#efb-error-panel .efb-error-item.is-efb { border-${isRtl ? 'right' : 'left'}-color: #ff4b93 !important; background: #fff5f8 !important; }
-					#efb-error-panel .efb-error-item.is-theme { border-${isRtl ? 'right' : 'left'}-color: #28a745 !important; }
-					#efb-error-panel .efb-error-item.is-core { border-${isRtl ? 'right' : 'left'}-color: #007bff !important; }
-					#efb-error-panel .efb-error-item.is-external { border-${isRtl ? 'right' : 'left'}-color: #6c757d !important; }
+					#efb-error-panel .efb-error-item.is-efb { border-${isRtl ? "right" : "left"}-color: #ff4b93 !important; background: #fff5f8 !important; }
+					#efb-error-panel .efb-error-item.is-theme { border-${isRtl ? "right" : "left"}-color: #28a745 !important; }
+					#efb-error-panel .efb-error-item.is-core { border-${isRtl ? "right" : "left"}-color: #007bff !important; }
+					#efb-error-panel .efb-error-item.is-external { border-${isRtl ? "right" : "left"}-color: #6c757d !important; }
 					#efb-error-panel .efb-error-source {
 						display: flex !important; align-items: center !important; gap: 8px !important;
 						font-weight: 600 !important; font-size: 14px !important; margin-bottom: 8px !important;
@@ -3446,6 +3451,7 @@ public function check_error_console_efb(){
 					#efb-error-panel .efb-error-source .type-unknown { background: #f5c6cb !important; color: #721c24 !important; }
 					#efb-error-panel .efb-error-source .type-notice { background: #fff3cd !important; color: #664d03 !important; border: 1px solid #ffecb5 !important; }
 					#efb-error-panel .efb-error-msg { color: #333 !important; font-size: 13px !important; line-height: 1.5 !important; word-break: break-word !important; margin-bottom: 8px !important; }
+					#efb-error-panel .efb-error-msg img { max-width: 100% !important; height: auto !important; max-height: 14px !important; display: inline-block !important; object-fit: contain !important; }
 					#efb-error-panel .efb-error-file {
 						background: #1e1e2e !important; padding: 8px 12px !important; border-radius: 6px !important;
 						font-family: "SF Mono", Monaco, Consolas, monospace !important;
@@ -3474,7 +3480,7 @@ public function check_error_console_efb(){
 					#efb-error-panel .efb-stack-item.is-efb { background: rgba(255,75,147,0.1) !important; }
 					#efb-error-panel .efb-stack-item.is-efb:hover { background: rgba(255,75,147,0.2) !important; }
 					#efb-error-panel .efb-stack-num {
-						color: #6c7086 !important; min-width: 18px !important; text-align: ${isRtl ? 'left' : 'right'} !important;
+						color: #6c7086 !important; min-width: 18px !important; text-align: ${isRtl ? "left" : "right"} !important;
 						font-size: 10px !important; padding-top: 2px !important; display: inline-block !important;
 					}
 					#efb-error-panel .efb-stack-content { flex: 1 !important; min-width: 0 !important; }

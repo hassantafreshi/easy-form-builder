@@ -616,6 +616,12 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
     return;
   }
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
+  if (indx === -1) {
+    const ob = typeof valueJson_ws !== 'undefined' ? valueJson_ws.find(x => x.id_ === id) : null;
+    const fid = ob && ob.hasOwnProperty('step') ? (document.getElementById(id + '_') ? document.getElementById(id + '_').dataset.formid || 0 : 0) : 0;
+    files_emsFormBuilder.push({ id_: id, value: "@file@", state: 0, url: "", type: "file", name: ob ? ob.name : '', session: sessionPub_emsFormBuilder, form_id: fid });
+    indx = files_emsFormBuilder.length - 1;
+  }
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;
   let r = ""

@@ -358,17 +358,29 @@ function removeFileEfb(id, indx,form_id) {
       if (inx != -1) {
         sendBack_emsFormBuilder_pub.splice(inx, 1)
         inx = files_emsFormBuilder.findIndex(x => x.id_ == id)
-        files_emsFormBuilder[inx].url = "";
+        if (inx != -1) {
+          files_emsFormBuilder[inx].url = "";
+          files_emsFormBuilder[inx].state = 0;
+        }
       }
       else {
         inx = files_emsFormBuilder.findIndex(x => x.id_ == id)
         if (inx != -1) {
           files_emsFormBuilder[inx].url = "";
+          files_emsFormBuilder[inx].state = 0;
           setTimeout(() => {
             inx = get_row_sendback_by_id_efb(id);
             if (inx != -1) { sendBack_emsFormBuilder_pub.splice(inx, 1) }
           }, 100);
         }
+      }
+    }
+    let fileIndx = files_emsFormBuilder.findIndex(x => x.id_ == id);
+    if (fileIndx === -1) {
+      const valj_efb_rm = get_structure_by_form_id_efb(form_id);
+      const ob = valj_efb_rm ? valj_efb_rm.find(x => x.id_ === id) : null;
+      if (ob) {
+        files_emsFormBuilder.push({ id_: id, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder, form_id: form_id });
       }
     }
     fun_removeProgessiveEl_efb(id);
