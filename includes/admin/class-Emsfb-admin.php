@@ -1604,7 +1604,7 @@ function admin_notices_efb () {
             case 'free':
                 update_option('emsfb_pro', 2);
                 $action_performed = __('Free plan activated - no additional features.', 'easy-form-builder');
-
+                 $package_type_efb =2;
                 break;
 
             case 'free_plus':

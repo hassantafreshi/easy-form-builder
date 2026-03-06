@@ -1243,7 +1243,7 @@ class efbFunction {
 			'activationCode' => $state  &&  isset($ac->text->activationCode) ? $ac->text->activationCode : esc_html__('Activation Code','easy-form-builder'),
 
 			/* translators: Message indicating a feature is available in Free Plus or Pro versions */
-			'thisFeatureAvailableFreePlusPro' => $state && isset($ac->text->thisFeatureAvailableFreePlusPro) ? $ac->text->thisFeatureAvailableFreePlusPro : esc_html__('Want to use this feature? It is included in Free Plus and Pro plans.','easy-form-builder'),
+			'thisFeatureAvailableFreePlusPro' => $state && isset($ac->text->thisFeatureAvailableFreePlusPro) ? $ac->text->thisFeatureAvailableFreePlusPro : esc_html__('Want to use this feature? It is available in the Free Plus, and Pro plans.','easy-form-builder'),
 
 			/* translators: Button text for Free Plus Guide  (link to https://easyformbuilder.com/document/easy-form-builder-free-plus-activation-guide/) */
 			'freePlusActivation' => $state && isset($ac->text->freePlusActivation) ? $ac->text->freePlusActivation : esc_html__('Free Plus Guide','easy-form-builder'),
