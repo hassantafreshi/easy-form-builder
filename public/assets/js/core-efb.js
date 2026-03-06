@@ -245,6 +245,45 @@ async function createStepsOfPublic() {
               load_intlTelInput_efb(id,indx);
 
             }
+            if(el.type === 'tel') {
+              el.setAttribute('inputmode', 'tel');
+              el.addEventListener('input', function() {
+                var cursorPos = this.selectionStart;
+                var oldLen = this.value.length;
+                var cleaned = this.value.replace(/[^0-9+\-\s().]/g, '');
+                var firstPlus = cleaned.indexOf('+');
+                if (firstPlus > 0) { cleaned = cleaned.replace(/\+/g, ''); }
+                else if (firstPlus === 0) { cleaned = '+' + cleaned.slice(1).replace(/\+/g, ''); }
+                if (cleaned !== this.value) {
+                  this.value = cleaned;
+                  var newLen = this.value.length;
+                  this.setSelectionRange(cursorPos - (oldLen - newLen), cursorPos - (oldLen - newLen));
+                }
+              });
+              el.addEventListener('paste', function(e) {
+                e.preventDefault();
+                var paste = (e.clipboardData || window.clipboardData).getData('text') || '';
+                var cleaned = paste.replace(/[^0-9+\-\s().]/g, '');
+                var firstPlus = cleaned.indexOf('+');
+                if (firstPlus > 0) { cleaned = cleaned.replace(/\+/g, ''); }
+                else if (firstPlus === 0) { cleaned = '+' + cleaned.slice(1).replace(/\+/g, ''); }
+                var start = this.selectionStart;
+                var end = this.selectionEnd;
+                var before = this.value.substring(0, start);
+                var after = this.value.substring(end);
+                this.value = before + cleaned + after;
+                var newPos = start + cleaned.length;
+                this.setSelectionRange(newPos, newPos);
+                handle_change_event_efb_v4(this, this.dataset.formid || 0);
+              });
+              el.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey || e.altKey) return;
+                if (e.key && e.key.length === 1) {
+                  if (!/[0-9+\-\s().]/.test(e.key)) { e.preventDefault(); }
+                  if (e.key === '+' && (this.selectionStart !== 0 || this.value.indexOf('+') !== -1)) { e.preventDefault(); }
+                }
+              });
+            }
           break;
           case "file":
             const ob = valj_efb_.find(x => x.id_ === id);
@@ -636,13 +675,22 @@ function valid_phone_emsFormBuilder(el) {
   let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${ajax_object_efm.text.enterThePhones}','',10,'danger');"></div>` : ajax_object_efm.text.enterThePhones;
   let check = 0;
-  const format = /^\+?[0-9\s\-()]{7,20}$/;
+  var val = el.value.replace(/\s+/g, ' ').trim();
+  var formatChars = /^[0-9+\-\s().]+$/;
+  var digitCount = (val.match(/[0-9]/g) || []).length;
+  var plusPos = val.indexOf('+');
+  var plusCount = (val.match(/\+/g) || []).length;
+  var consecutiveSpecial = /[\-\s().]{3,}/.test(val);
+  var openParen = (val.match(/\(/g) || []).length;
+  var closeParen = (val.match(/\)/g) || []).length;
+  if (!formatChars.test(val) || digitCount < 7 || digitCount > 15 || val.length > 25 || plusCount > 1 || (plusCount === 1 && plusPos !== 0) || consecutiveSpecial || openParen !== closeParen) {
+    check = 1;
+  }
   const id = el.id;
   const form_id = el.dataset.formid || 0;
   let msg_el = document.getElementById(`${id}-message`);
-  check += el.value.match(format) ? 0 : 1;
   if (check >0) {
-    el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");
+    el.className = colorBorderChangerEfb(el.className, "border-danger");
     const i = get_row_sendback_by_id_efb_v4(el.dataset.vid,form_id);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
     if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
