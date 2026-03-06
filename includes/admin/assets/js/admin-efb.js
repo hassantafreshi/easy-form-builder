@@ -2655,7 +2655,7 @@ let change_el_edit_Efb = (el) => {
             url =efb_var.images.plugin_url+`/vendor/offline/json/states/${valj_efb[indx].country.toLowerCase()}.json`;
              url = url.replaceAll('//vendor','/vendor');
           }
-          temp_efb= await fetch_json_from_url_efb(url);
+          temp_efb= await fetch_json_from_url_efb_admin(url);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
           setTimeout(() => {
@@ -2715,7 +2715,7 @@ let change_el_edit_Efb = (el) => {
             url =efb_var.images.plugin_url+'/vendor/offline/json/cites/'+temp+'/'+valj_efb[indx].statePov+'.json';
             url = url.replaceAll('//vendor','/vendor');
           }
-          temp_efb = await fetch_json_from_url_efb(url);
+          temp_efb = await fetch_json_from_url_efb_admin(url);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
 
@@ -6858,7 +6858,7 @@ const add_r_matrix_view_select = (idin, value, id_ob, tag, parentsID) => {
     `
 }
 
-async function fetch_json_from_url_efb(url) {
+async function fetch_json_from_url_efb_admin(url) {
   let r = { s: false, r: "false" };
   try {
     const response = await fetch(url);

@@ -1,3 +1,19 @@
+async function fetch_json_from_url_efb(url) {
+  let r = { s: false, r: "false" };
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    r.s = true;
+    r.r = data;
+  } catch (error) {
+    r.r = error.message;
+  }
+  return r;
+}
+
 let marker_maps_efb;
 maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
     return `
