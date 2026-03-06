@@ -1139,15 +1139,15 @@ class efbFunction {
 			"yad" => $state  &&  isset($ac->text->yad) ? $ac->text->yad : esc_html__('You\'re all done','easy-form-builder'),
 			"servpss" => $state  &&  isset($ac->text->servpss) ? $ac->text->servpss : esc_html__('Enter your email to reset your password','easy-form-builder'),
 			"imvpwsy" => $state  &&  isset($ac->text->imvpwsy) ? $ac->text->imvpwsy : esc_html__('If your email is valid, a password reset link has been sent to your email address.','easy-form-builder'),
-			/* translators: %s is the feature name being enabled (e.g., SMS, Email, Auto-fill) */
+			/* translators: %s is the feature name being enabled (e.g., SMS, Email, Auto-Populate) */
 			"enbl" => $state  &&  isset($ac->text->enbl) ? $ac->text->enbl : esc_html__('Enable %s','easy-form-builder'),
-			"atfll" => $state  &&  isset($ac->text->atfll) ? $ac->text->atfll : esc_html__('Auto-Fill','easy-form-builder'),
-			"atflls" => $state  &&  isset($ac->text->atflls) ? $ac->text->atflls : esc_html__('Auto-Fills','easy-form-builder'),
-			"atflldm" => $state  &&  isset($ac->text->atflldm) ? $ac->text->atflldm : esc_html__('Auto-fill by previously filled form','easy-form-builder'),
-			"atflltm" => $state  &&  isset($ac->text->atflltm) ? $ac->text->atflltm : esc_html__('Enable AutoFill to automatically fill this field','easy-form-builder'),
-			"atfllApiActive" => $state && isset($ac->text->atfllApiActive) ? $ac->text->atfllApiActive : esc_html__('API AutoFill Integration is Active','easy-form-builder'),
-			"atfllApiActiveDesc" => $state && isset($ac->text->atfllApiActiveDesc) ? $ac->text->atfllApiActiveDesc : esc_html__('This form uses External API AutoFill. To configure settings, go to','easy-form-builder'),
-			"atfllApiLink" => $state && isset($ac->text->atfllApiLink) ? $ac->text->atfllApiLink : esc_html__('Autofill Integrations','easy-form-builder'),
+			"atfll" => $state  &&  isset($ac->text->atfll) ? $ac->text->atfll : esc_html__('Auto-Populate','easy-form-builder'),
+			"atflls" => $state  &&  isset($ac->text->atflls) ? $ac->text->atflls : esc_html__('Auto-Populates','easy-form-builder'),
+			"atflldm" => $state  &&  isset($ac->text->atflldm) ? $ac->text->atflldm : esc_html__('Auto-populate from previously submitted forms','easy-form-builder'),
+			"atflltm" => $state  &&  isset($ac->text->atflltm) ? $ac->text->atflltm : esc_html__('Enable Auto-Populate to automatically populate this field','easy-form-builder'),
+			"atfllApiActive" => $state && isset($ac->text->atfllApiActive) ? $ac->text->atfllApiActive : esc_html__('API Auto-Populate Integration is Active','easy-form-builder'),
+			"atfllApiActiveDesc" => $state && isset($ac->text->atfllApiActiveDesc) ? $ac->text->atfllApiActiveDesc : esc_html__('This form uses External API Auto-Populate. To configure settings, go to','easy-form-builder'),
+			"atfllApiLink" => $state && isset($ac->text->atfllApiLink) ? $ac->text->atfllApiLink : esc_html__('Auto-Populate Integrations','easy-form-builder'),
 
 			"selectFormTitle" => $state && isset($ac->text->selectFormTitle) ? $ac->text->selectFormTitle : esc_html__('Select Form', 'easy-form-builder'),
 			"targetForm" => $state && isset($ac->text->targetForm) ? $ac->text->targetForm : esc_html__('Target Form', 'easy-form-builder'),
@@ -1166,7 +1166,7 @@ class efbFunction {
 			"cacheHelp" => $state && isset($ac->text->cacheHelp) ? $ac->text->cacheHelp : esc_html__('Cache API responses to improve performance', 'easy-form-builder'),
 			"externalApi" => $state && isset($ac->text->externalApi) ? $ac->text->externalApi : esc_html__('External API Connections', 'easy-form-builder'),
 			"apiIntroTitle" => $state && isset($ac->text->apiIntroTitle) ? $ac->text->apiIntroTitle : esc_html__('Connect Your Forms to External APIs', 'easy-form-builder'),
-			"apiIntroDesc" => $state && isset($ac->text->apiIntroDesc) ? $ac->text->apiIntroDesc : esc_html__('Easily autofill your form fields with data from any API. Just add your API endpoint and map the fields!', 'easy-form-builder'),
+			"apiIntroDesc" => $state && isset($ac->text->apiIntroDesc) ? $ac->text->apiIntroDesc : esc_html__('Easily auto-populate your form fields with data from any API. Just add your API endpoint and map the fields!', 'easy-form-builder'),
 			"addNewApi" => $state && isset($ac->text->addNewApi) ? $ac->text->addNewApi : esc_html__('Add API Connection', 'easy-form-builder'),
 			/* translators: %s is the file type (e.g., Image, Document, ZIP, JPEG PNG ...) */
 			"uplsf" => $state  &&  isset($ac->text->uplsf) ? $ac->text->uplsf : esc_html__('Upload the %s file','easy-form-builder'),
@@ -1510,7 +1510,7 @@ class efbFunction {
 			"cacheWarnDoc" => $state && isset($ac->text->cacheWarnDoc) ? $ac->text->cacheWarnDoc : esc_html__('Read more about cache compatibility','easy-form-builder'),
 
 			"TAdnAtF" => $state  &&  isset($ac->text->TAdnAtF) ? $ac->text->TAdnAtF : esc_html__('Auto-Populate Addon','easy-form-builder'),
-			"DAdnAtF" => $state  &&  isset($ac->text->DAdnAtF) ? $ac->text->DAdnAtF : esc_html__('The SMS service addon enables you to receive notification SMS messages when you or your customers receive new messages or responses.','easy-form-builder'),
+			"DAdnAtF" => $state  &&  isset($ac->text->DAdnAtF) ? $ac->text->DAdnAtF : esc_html__('The Auto-Populate addon enables you to automatically populate form fields from datasets, previously submitted forms, or external APIs.','easy-form-builder'),
 
 		];
 

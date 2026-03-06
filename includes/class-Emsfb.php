@@ -543,7 +543,7 @@ class Emsfb {
 
         $addonKeys = [
             'AdnSS' => 'SMS',
-            'AdnATF' => 'AutoFill',
+            'AdnATF' => 'Auto-Populate',
             'AdnTLG' => 'Telegram',
             'AdnPAP' => 'PayPal',
             'AdnSPF' => 'Stripe',

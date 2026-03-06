@@ -434,11 +434,11 @@ class EfbAddonPhrases {
     public static function get_autofill_phrases($ac = null, $state = false) {
         return [
 
-            /* translators: Autofill Dataset = menu title for dataset management */
-            "autofill_dataset" => $state && isset($ac->text->autofill_dataset) ? $ac->text->autofill_dataset : esc_html__('Autofill Dataset', 'easy-form-builder'),
+            /* translators: Auto-Populate Dataset = menu title for dataset management */
+            "autofill_dataset" => $state && isset($ac->text->autofill_dataset) ? $ac->text->autofill_dataset : esc_html__('Auto-Populate Dataset', 'easy-form-builder'),
 
-            /* translators: Autofill Integrations = menu title for API integrations */
-            "autofill_integrations" => $state && isset($ac->text->autofill_integrations) ? $ac->text->autofill_integrations : esc_html__('Autofill Integrations', 'easy-form-builder'),
+            /* translators: Auto-Populate Integrations = menu title for API integrations */
+            "autofill_integrations" => $state && isset($ac->text->autofill_integrations) ? $ac->text->autofill_integrations : esc_html__('Auto-Populate Integrations', 'easy-form-builder'),
 
             /* translators: Dataset page header subtitle */
             "datasetSubtitle" => $state && isset($ac->text->datasetSubtitle) ? $ac->text->datasetSubtitle : esc_html__('Manage & Upload Datasets', 'easy-form-builder'),
@@ -459,7 +459,7 @@ class EfbAddonPhrases {
             "datasets" => $state && isset($ac->text->datasets) ? $ac->text->datasets : esc_html__('Datasets', 'easy-form-builder'),
 
             /* translators: Dataset status hint */
-            "datasetStatusHint" => $state && isset($ac->text->datasetStatusHint) ? $ac->text->datasetStatusHint : esc_html__('Datasets available for autofill', 'easy-form-builder'),
+            "datasetStatusHint" => $state && isset($ac->text->datasetStatusHint) ? $ac->text->datasetStatusHint : esc_html__('Datasets available for auto-populate', 'easy-form-builder'),
 
             /* translators: Tab: Datasets */
             "datasetsTab" => $state && isset($ac->text->datasetsTab) ? $ac->text->datasetsTab : esc_html__('Datasets', 'easy-form-builder'),
@@ -471,7 +471,7 @@ class EfbAddonPhrases {
             "noDatasetsYet" => $state && isset($ac->text->noDatasetsYet) ? $ac->text->noDatasetsYet : esc_html__('No datasets yet. Upload a CSV file to get started.', 'easy-form-builder'),
 
             /* translators: Dataset help title */
-            "datasetHelpTitle" => $state && isset($ac->text->datasetHelpTitle) ? $ac->text->datasetHelpTitle : esc_html__('How to use Autofill Datasets', 'easy-form-builder'),
+            "datasetHelpTitle" => $state && isset($ac->text->datasetHelpTitle) ? $ac->text->datasetHelpTitle : esc_html__('How to use Auto-Populate Datasets', 'easy-form-builder'),
 
             /* translators: Dataset help step 1 */
             "datasetHelpStep1" => $state && isset($ac->text->datasetHelpStep1) ? $ac->text->datasetHelpStep1 : esc_html__('Prepare a CSV file with column headers in the first row.', 'easy-form-builder'),
@@ -486,13 +486,13 @@ class EfbAddonPhrases {
             "datasetHelpStep2Title" => $state && isset($ac->text->datasetHelpStep2Title) ? $ac->text->datasetHelpStep2Title : esc_html__('Upload Dataset', 'easy-form-builder'),
 
             /* translators: Dataset help step 3 */
-            "datasetHelpStep3" => $state && isset($ac->text->datasetHelpStep3) ? $ac->text->datasetHelpStep3 : esc_html__('In Form Builder, open Form Settings and enable "Auto-Fill". Choose your dataset, then map elements to dataset fields as search conditions.', 'easy-form-builder'),
+            "datasetHelpStep3" => $state && isset($ac->text->datasetHelpStep3) ? $ac->text->datasetHelpStep3 : esc_html__('In Form Builder, open Form Settings and enable "Auto-Populate". Choose your dataset, then map elements to dataset fields as search conditions.', 'easy-form-builder'),
 
             /* translators: Dataset help step 3 title */
-            "datasetHelpStep3Title" => $state && isset($ac->text->datasetHelpStep3Title) ? $ac->text->datasetHelpStep3Title : esc_html__('Enable Auto-Fill', 'easy-form-builder'),
+            "datasetHelpStep3Title" => $state && isset($ac->text->datasetHelpStep3Title) ? $ac->text->datasetHelpStep3Title : esc_html__('Enable Auto-Populate', 'easy-form-builder'),
 
             /* translators: Dataset help step 4 */
-            "datasetHelpStep4" => $state && isset($ac->text->datasetHelpStep4) ? $ac->text->datasetHelpStep4 : esc_html__('For each target field, enable "AutoFill to automatically fill this field" and select the dataset column to auto-populate.', 'easy-form-builder'),
+            "datasetHelpStep4" => $state && isset($ac->text->datasetHelpStep4) ? $ac->text->datasetHelpStep4 : esc_html__('For each target field, enable "Auto-Populate to automatically populate this field" and select the dataset column to auto-populate.', 'easy-form-builder'),
 
             /* translators: Dataset help step 4 title */
             "datasetHelpStep4Title" => $state && isset($ac->text->datasetHelpStep4Title) ? $ac->text->datasetHelpStep4Title : esc_html__('Map Fields', 'easy-form-builder'),
@@ -501,7 +501,7 @@ class EfbAddonPhrases {
             "datasetHelpTip" => $state && isset($ac->text->datasetHelpTip) ? $ac->text->datasetHelpTip : esc_html__('You can edit dataset values inline by clicking on them.', 'easy-form-builder'),
 
             /* translators: Dataset help subtitle */
-            "datasetHelpSubtitle" => $state && isset($ac->text->datasetHelpSubtitle) ? $ac->text->datasetHelpSubtitle : esc_html__('Follow these steps to set up auto-fill for your forms', 'easy-form-builder'),
+            "datasetHelpSubtitle" => $state && isset($ac->text->datasetHelpSubtitle) ? $ac->text->datasetHelpSubtitle : esc_html__('Follow these steps to set up auto-populate for your forms', 'easy-form-builder'),
 
             /* translators: Quick Start Guide title */
             "quickStartGuide" => $state && isset($ac->text->quickStartGuide) ? $ac->text->quickStartGuide : esc_html__('Quick Start Guide', 'easy-form-builder'),
@@ -522,7 +522,7 @@ class EfbAddonPhrases {
             "datasetTipCondition" => $state && isset($ac->text->datasetTipCondition) ? $ac->text->datasetTipCondition : esc_html__('Use conditions to filter dataset rows based on user input.', 'easy-form-builder'),
 
             /* translators: Dataset tip about multiple fields */
-            "datasetTipMultiple" => $state && isset($ac->text->datasetTipMultiple) ? $ac->text->datasetTipMultiple : esc_html__('Multiple fields can auto-fill from the same dataset.', 'easy-form-builder'),
+            "datasetTipMultiple" => $state && isset($ac->text->datasetTipMultiple) ? $ac->text->datasetTipMultiple : esc_html__('Multiple fields can auto-populate from the same dataset.', 'easy-form-builder'),
 
             /* translators: Dataset notice title */
             "datasetNoticeTitle" => $state && isset($ac->text->datasetNoticeTitle) ? $ac->text->datasetNoticeTitle : esc_html__('Good to know', 'easy-form-builder'),
@@ -576,7 +576,7 @@ class EfbAddonPhrases {
             "apiHelpStep2Title" => $state && isset($ac->text->apiHelpStep2Title) ? $ac->text->apiHelpStep2Title : esc_html__('Authentication', 'easy-form-builder'),
 
             /* translators: API help step 3 */
-            "apiHelpStep3" => $state && isset($ac->text->apiHelpStep3) ? $ac->text->apiHelpStep3 : esc_html__('Select a form and map API response fields to your form fields for auto-fill.', 'easy-form-builder'),
+            "apiHelpStep3" => $state && isset($ac->text->apiHelpStep3) ? $ac->text->apiHelpStep3 : esc_html__('Select a form and map API response fields to your form fields for auto-populate.', 'easy-form-builder'),
 
             /* translators: API help step 3 title */
             "apiHelpStep3Title" => $state && isset($ac->text->apiHelpStep3Title) ? $ac->text->apiHelpStep3Title : esc_html__('Map Fields', 'easy-form-builder'),
@@ -859,7 +859,7 @@ class EfbAddonPhrases {
             "saving" => $state && isset($ac->text->saving) ? $ac->text->saving : esc_html__('Saving...', 'easy-form-builder'),
 
             "apiIntroTitle" => $state && isset($ac->text->api_intro_title) ? $ac->text->api_intro_title : esc_html__('Connect Your Forms to External APIs', 'easy-form-builder'),
-            "apiIntroDesc" => $state && isset($ac->text->api_intro_desc) ? $ac->text->api_intro_desc : esc_html__('Easily autofill your form fields with data from any API. Just add your API endpoint and map the fields!', 'easy-form-builder'),
+            "apiIntroDesc" => $state && isset($ac->text->api_intro_desc) ? $ac->text->api_intro_desc : esc_html__('Easily auto-populate your form fields with data from any API. Just add your API endpoint and map the fields!', 'easy-form-builder'),
             "clickToAdd" => $state && isset($ac->text->click_to_add) ? $ac->text->click_to_add : esc_html__('Click the button above to create your first API connection', 'easy-form-builder'),
 
             "step1Label" => $state && isset($ac->text->step1_label) ? $ac->text->step1_label : esc_html__('Basic Info', 'easy-form-builder'),
@@ -895,7 +895,7 @@ class EfbAddonPhrases {
             "fieldType" => $state && isset($ac->text->field_type) ? $ac->text->field_type : esc_html__('Type', 'easy-form-builder'),
             "selectFormFirst" => $state && isset($ac->text->select_form_first) ? $ac->text->select_form_first : esc_html__('Please select a form first', 'easy-form-builder'),
             "searchParamHelp" => $state && isset($ac->text->search_param_help) ? $ac->text->search_param_help : esc_html__('API Parameter is what will be sent to the API (e.g., "q" for ?q=value)', 'easy-form-builder'),
-            "targetFieldsTitle" => $state && isset($ac->text->target_fields_title) ? $ac->text->target_fields_title : esc_html__('Target Fields (Auto-fill)', 'easy-form-builder'),
+            "targetFieldsTitle" => $state && isset($ac->text->target_fields_title) ? $ac->text->target_fields_title : esc_html__('Target Fields (Auto-Populate)', 'easy-form-builder'),
             "targetFieldsInfo" => $state && isset($ac->text->target_fields_info) ? $ac->text->target_fields_info : esc_html__('Map API response to form fields', 'easy-form-builder'),
             "apiFieldName" => $state && isset($ac->text->api_field_name) ? $ac->text->api_field_name : esc_html__('API Response Field', 'easy-form-builder'),
             "formFieldSelect" => $state && isset($ac->text->form_field_select) ? $ac->text->form_field_select : esc_html__('Form Field to Fill', 'easy-form-builder'),
@@ -942,9 +942,9 @@ class EfbAddonPhrases {
             "formNotFound" => $state && isset($ac->text->form_not_found) ? $ac->text->form_not_found : esc_html__('Form data not found. Please refresh the page.', 'easy-form-builder'),
             "noFieldsFound" => $state && isset($ac->text->no_fields_found) ? $ac->text->no_fields_found : esc_html__('No fillable fields found in this form', 'easy-form-builder'),
 
-            "atfllApiActive" => $state && isset($ac->text->atfll_api_active) ? $ac->text->atfll_api_active : esc_html__('API AutoFill Integration is Active', 'easy-form-builder'),
-            "atfllApiActiveDesc" => $state && isset($ac->text->atfll_api_active_desc) ? $ac->text->atfll_api_active_desc : esc_html__('This form uses External API AutoFill. To configure settings, go to', 'easy-form-builder'),
-            "atfllApiLink" => $state && isset($ac->text->atfll_api_link) ? $ac->text->atfll_api_link : esc_html__('Autofill Integrations', 'easy-form-builder'),
+            "atfllApiActive" => $state && isset($ac->text->atfll_api_active) ? $ac->text->atfll_api_active : esc_html__('API Auto-Populate Integration is Active', 'easy-form-builder'),
+            "atfllApiActiveDesc" => $state && isset($ac->text->atfll_api_active_desc) ? $ac->text->atfll_api_active_desc : esc_html__('This form uses External API Auto-Populate. To configure settings, go to', 'easy-form-builder'),
+            "atfllApiLink" => $state && isset($ac->text->atfll_api_link) ? $ac->text->atfll_api_link : esc_html__('Auto-Populate Integrations', 'easy-form-builder'),
 
             "status" => $state && isset($ac->text->status) ? $ac->text->status : esc_html__('Status', 'easy-form-builder'),
             "actions" => $state && isset($ac->text->actions) ? $ac->text->actions : esc_html__('Actions', 'easy-form-builder'),
