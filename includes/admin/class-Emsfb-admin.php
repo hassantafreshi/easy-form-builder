@@ -1600,29 +1600,50 @@ function admin_notices_efb () {
         $redirect_url = null;
         $action_performed = null;
         $package_type_efb = 2;
+
+        $settings = get_setting_Emsfb('decoded');
+        $has_active_code = isset($settings->activeCode) && !empty($settings->activeCode);
+
         switch($selected_plan) {
             case 'free':
                 update_option('emsfb_pro', 2);
+                $package_type_efb = 2;
                 $action_performed = __('Free plan activated - no additional features.', 'easy-form-builder');
-
+                if ($has_active_code) {
+                    $settings->activeCode = '';
+                }
                 break;
 
             case 'free_plus':
                 update_option('emsfb_pro', 3);
+                $package_type_efb = 3;
                 $action_performed = __('Free Plus plan activated with enhanced features.', 'easy-form-builder');
-                $package_type_efb =3;
+                if ($has_active_code) {
+                    $settings->activeCode = '';
+                }
                 break;
 
             case 'pro':
-                $redirect_url = 'https://whitestudio.team/#price';
-                $package_type_efb =0;
-                if (get_locale() == 'fa_IR') {
-                    $redirect_url = 'https://easyformbuilder.ir/#price';
+                if ($has_active_code) {
+                    $package_type_efb = 1;
+                    update_option('emsfb_pro', 1);
+                    $action_performed = __('Pro plan activated with existing activation code.', 'easy-form-builder');
+                } else {
+                    $package_type_efb = 0;
+                    update_option('emsfb_pro', 0);
+                    $redirect_url = 'https://whitestudio.team/#price';
+                    if (get_locale() == 'fa_IR') {
+                        $redirect_url = 'https://easyformbuilder.ir/#price';
+                    }
+                    $action_performed = __('Redirecting to Pro plan purchase page.', 'easy-form-builder');
                 }
-                $action_performed = __('Redirecting to Pro plan purchase page.', 'easy-form-builder');
-
-            break;
+                break;
         }
+
+        $settings->package_type = $package_type_efb;
+        error_log("Plan selection: $selected_plan, Action: $action_performed, Package Type: $package_type_efb, settings: $settings->package_type" );
+        $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
+        $efbFunction->set_setting_Emsfb($settings, $email);
 
         $response_data = array(
             'success' => true,
@@ -1632,7 +1653,7 @@ function admin_notices_efb () {
             'redirect_url' => $redirect_url,
             'timestamp' => $timestamp,
             'saved_at' => current_time('mysql'),
-            'package_type' =>$package_type_efb
+            'package_type' => $package_type_efb
         );
 
         wp_send_json_success($response_data);

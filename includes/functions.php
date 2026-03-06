@@ -1509,6 +1509,9 @@ class efbFunction {
 			"cacheWarnVersion" => $state && isset($ac->text->cacheWarnVersion) ? $ac->text->cacheWarnVersion : esc_html__('Version','easy-form-builder'),
 			"cacheWarnDoc" => $state && isset($ac->text->cacheWarnDoc) ? $ac->text->cacheWarnDoc : esc_html__('Read more about cache compatibility','easy-form-builder'),
 
+			"TAdnAtF" => $state  &&  isset($ac->text->TAdnAtF) ? $ac->text->TAdnAtF : esc_html__('Auto-Populate Addon','easy-form-builder'),
+			"DAdnAtF" => $state  &&  isset($ac->text->DAdnAtF) ? $ac->text->DAdnAtF : esc_html__('The SMS service addon enables you to receive notification SMS messages when you or your customers receive new messages or responses.','easy-form-builder'),
+
 		];
 
 		$rtrn =[];
@@ -2554,7 +2557,7 @@ public function addon_add_efb($value) {
 		if ($s == 1) {
 			$is_pro = (int) get_option('emsfb_pro' ,2);
 			if($is_pro==3){ return true; }
-			if($is_pro == 0){ return false; }
+			if($is_pro != 1){ return false; }
 
 			$activeCode = get_option('emsfb_pro_activeCode');
 			if (empty($activeCode)) {
@@ -3162,6 +3165,17 @@ public function addon_add_efb($value) {
 
         update_option('emsfb_settings', $json);
         set_transient('emsfb_settings_transient', $json, 1800);
+
+        $decoded_for_sync = json_decode($json);
+        if ($decoded_for_sync !== null && isset($decoded_for_sync->package_type)) {
+            $synced_pt = intval($decoded_for_sync->package_type);
+            if (in_array($synced_pt, [0, 1, 2, 3], true)) {
+                $current_pro = get_option('emsfb_pro');
+                if (intval($current_pro) !== $synced_pt) {
+                    update_option('emsfb_pro', $synced_pt);
+                }
+            }
+        }
 
         wp_cache_delete('settings:decoded', 'emsfb');
         wp_cache_delete('settings:pub', 'emsfb');

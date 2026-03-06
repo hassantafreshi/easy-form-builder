@@ -23,7 +23,7 @@ class Create {
 			update_option( $this->setting_name, array() );
 		}
 
-		if ( false == get_option( 'emsfb_pro' ) ) {
+		if ( get_option( 'emsfb_pro' ) === false ) {
 			add_option( 'emsfb_pro', -1 );
 		}
 		add_action( 'admin_menu', array( $this, 'add_Create_menu' ), 11 );

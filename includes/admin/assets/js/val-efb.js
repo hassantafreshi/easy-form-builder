@@ -3397,12 +3397,6 @@ function sendPlanSelectionToServer_efb(selectionData) {
             }
         },
         error: function(xhr, status, error) {
-                status: status,
-                error: error,
-                response: xhr.responseText,
-                readyState: xhr.readyState,
-                statusText: xhr.statusText
-            });
         }
     });
 

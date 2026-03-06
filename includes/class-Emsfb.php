@@ -488,6 +488,13 @@ class Emsfb {
             default:
 
                 $package_type = get_option('emsfb_pro', 10);
+                $stored_pt = isset($decoded->package_type) ? intval($decoded->package_type) : null;
+
+                if (($package_type == 10 || $package_type == -1) && $stored_pt !== null && in_array($stored_pt, [0, 1, 2, 3], true)) {
+                    $package_type = $stored_pt;
+                    update_option('emsfb_pro', $package_type);
+                }
+
                 $decoded->package_type = $package_type;
                 $result = $decoded;
                 break;
