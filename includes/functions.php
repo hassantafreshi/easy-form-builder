@@ -1870,7 +1870,7 @@ public function addon_add_efb($value) {
             if ($data->status == false) {
 				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
 				$error_message = sprintf($error_message, 'whitestudio.team', 'invalid_status');
-                return array('status' => false, 'message' => $error_messag);
+                return array('status' => false, 'message' => $error_message);
             }
 
             if (version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
@@ -1912,51 +1912,32 @@ public function addon_add_efb($value) {
 
 		$r =download_url($url);
 		if(is_wp_error($r)){
-
-		}else{
-			require_once(ABSPATH . 'wp-admin/includes/file.php');
-			if (WP_Filesystem()) {
-				global $wp_filesystem;
-
-				$directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
-				if (!$wp_filesystem->exists($directory)) {
-					$wp_filesystem->mkdir($directory, 0755);
-				}
-				$v = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip', true);
-			} else {
-
-				$directory = EMSFB_PLUGIN_DIRECTORY . '/temp';
-				if (!file_exists($directory)) {
-					mkdir($directory, 0755, true);
-				}
-				$v = rename($r, EMSFB_PLUGIN_DIRECTORY . '/temp/temp.zip');
-			}
-			if(is_wp_error($v)){
-				$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
-				if(is_wp_error($s)){
-
-					return false;
-				}
-			}else{
-
-				require_once(ABSPATH . 'wp-admin/includes/file.php');
-				WP_Filesystem();
-				$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
-				if(is_wp_error($r)){
-					return false;
-				}
-			}
-			return true;
+			return false;
 		}
+		require_once(ABSPATH . 'wp-admin/includes/file.php');
+		if (WP_Filesystem()) {
+			global $wp_filesystem;
 
-		$fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/".$name."/".$name.".php";
-
-		if(file_exists($fl_ex)){
-			$name ='\Emsfb\\'.$name;
-			require_once  $fl_ex;
-			$t = new $name();
+			$directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
+			if (!$wp_filesystem->exists($directory)) {
+				$wp_filesystem->mkdir($directory, 0755);
+			}
+			$moved = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', true);
+		} else {
+			$directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
+			if (!file_exists($directory)) {
+				mkdir($directory, 0755, true);
+			}
+			$moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
 		}
-
+		if(!$moved){
+			return false;
+		}
+		$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
+		if(is_wp_error($r)){
+			return false;
+		}
+		return true;
 	}
 
 	public function download_all_addons_efb(){

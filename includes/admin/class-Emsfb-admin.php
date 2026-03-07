@@ -332,7 +332,7 @@ class Admin {
 
         $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
-                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP"];
+                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP","AdnATF","AdnTLG" ,'AdnPAP'];
         $dd =gettype(array_search($post_value, $allw));
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can || $dd !='integer') {
@@ -350,17 +350,17 @@ class Admin {
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
         }
-        $name_space ='emsfb_addon_'.$value;
-       if($value!="AdnOF"){
+        $name_space ='emsfb_addon_'.$post_value;
+       if($post_value!="AdnOF"){
             $server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
-            $name_space = 'emsfb_addon_' . $value;
+            $name_space = 'emsfb_addon_' . $post_value;
             delete_option($name_space);
             $vwp = get_bloginfo('version');
             $vwp = substr($vwp,0,3);
             $domain =  get_option('emsfb_dev_mode', '0') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
-            $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+            $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/';
             if (get_locale() == 'fa_IR') {
-                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/';
             }
             $attempts = 2;
             for ($i = 0; $i < $attempts; $i++) {
@@ -420,7 +420,7 @@ class Admin {
             $ac->AdnMSF=0;
             $ac->AdnBEF=0;
         }
-        $ac->{$value}=1;
+        $ac->{$post_value}=1;
         $ac->efb_version=EMSFB_PLUGIN_VERSION;
         if(empty($this->db)){
             global $wpdb;
@@ -1102,30 +1102,31 @@ class Admin {
             $name =substr($url,strrpos($url ,"/")+1,-4);
             $r =download_url($url);
             if(is_wp_error($r)){
-            }else{
-                $directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
+                return false;
+            }
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+            if (WP_Filesystem()) {
+                global $wp_filesystem;
+                $directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
+                if (!$wp_filesystem->exists($directory)) {
+                    $wp_filesystem->mkdir($directory, 0755);
+                }
+                $moved = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', true);
+            } else {
+                $directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
                 if (!file_exists($directory)) {
                     mkdir($directory, 0755, true);
                 }
-                $r = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
-                if(is_wp_error($r)){
-                    return false;
-                }else{
-                    require_once(ABSPATH . 'wp-admin/includes/file.php');
-                    WP_Filesystem();
-                    $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
-                    if(is_wp_error($r)){
-                        return false;
-                    }
-                    return true;
-                }
+                $moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
             }
-            $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/".$name."/".$name.".php";
-            if(file_exists($fl_ex)){
-                $name ='\Emsfb\\'.$name;
-                require_once  $fl_ex;
-                $t = new $name();
+            if(!$moved){
+                return false;
             }
+            $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
+            if(is_wp_error($r)){
+                return false;
+            }
+            return true;
         }
     public function file_upload_public(){
 
