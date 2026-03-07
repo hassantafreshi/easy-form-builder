@@ -813,7 +813,10 @@ class Admin {
                 }
                 $state = $efbFunction->is_efb_pro($value);
                 $m['activeCode'] = sanitize_text_field($value);
-                if ($state==false) {
+                if ($state==true) {
+                    $m['package_type'] = 1;
+                    update_option('emsfb_pro', 1);
+                } else {
                     $response = ['success' => false, "m" =>$lang['activationNcorrect']];
                     if(strlen($value) > 1){ wp_send_json_success($response, 200);}
                 }
