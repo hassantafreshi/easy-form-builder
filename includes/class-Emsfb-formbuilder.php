@@ -3166,18 +3166,28 @@ public function check_error_console_efb(){
 						<line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
 					</svg>
 					<span class="efb-error-count">0</span>
+					<span class="efb-badge-tooltip">${this.t.adminOnly}</span>
 				`;
 				const isRtl = document.documentElement.dir === "rtl" || document.body.dir === "rtl" || getComputedStyle(document.documentElement).direction === "rtl";
 				this.isRtl = isRtl;
 				this.badge.style.cssText = `
-					position: fixed; bottom: 20px; ${isRtl ? "left" : "right"}: 20px; z-index: 999999;
-					background: #dc3545;
-					color: #fff; padding: 12px 18px; border-radius: 50px;
-					cursor: pointer; display: flex; align-items: center; gap: 10px;
-					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-					font-size: 13px; font-weight: 600; box-shadow: 0 4px 15px rgba(220,53,69,0.4);
-					transition: all 0.3s ease; opacity: 0; pointer-events: none;
-					direction: ltr;
+					all: initial !important;
+					position: fixed !important; top: 20px !important; ${isRtl ? "right" : "left"}: 20px !important;
+					z-index: 999999 !important;
+					background: #dc3545 !important;
+					color: #fff !important; padding: 12px 18px !important; border-radius: 50px !important;
+					cursor: pointer !important; display: flex !important; align-items: center !important; gap: 10px !important;
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+					font-size: 13px !important; font-weight: 600 !important;
+					box-shadow: 0 4px 15px rgba(220,53,69,0.4) !important;
+					opacity: 0 !important; pointer-events: none !important;
+					direction: ltr !important; box-sizing: border-box !important;
+					line-height: normal !important; text-transform: none !important;
+					text-decoration: none !important; letter-spacing: normal !important;
+					margin: 0 !important; float: none !important; border: none !important;
+					min-height: 0 !important; max-height: none !important;
+					min-width: 0 !important; height: auto !important; width: auto !important;
+					overflow: visible !important;
 				`;
 				this.badge.onclick = () => this.togglePanel();
 				document.body.appendChild(this.badge);
@@ -3188,8 +3198,8 @@ public function check_error_console_efb(){
 				this.panel.innerHTML = `
 					<div class="efb-panel-header">
 						<div class="efb-panel-title">
-							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-								<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+							<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
 							</svg>
 							<span>Easy Form Builder - ${this.t.title}</span>
 						</div>
@@ -3246,53 +3256,79 @@ public function check_error_console_efb(){
 				// Styles
 				const style = document.createElement("style");
 				style.textContent = `
-					@keyframes efb-badge-pulse {
-						0%, 100% { box-shadow: 0 4px 15px rgba(220,53,69,0.4), 0 0 0 0 rgba(220,53,69,0.5); }
-						50% { box-shadow: 0 4px 20px rgba(220,53,69,0.5), 0 0 0 8px rgba(220,53,69,0); }
-					}
-					@keyframes efb-badge-shake {
-						0%, 100% { transform: translateX(0); }
-						10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-						20%, 40%, 60%, 80% { transform: translateX(4px); }
-					}
-					@keyframes efb-badge-bounce {
-						0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-						40% { transform: translateY(-8px); }
-						60% { transform: translateY(-4px); }
+					@keyframes efb-badge-vibrate {
+						0% { transform: translate(0, 0); }
+						10% { transform: translate(-2px, -1px); }
+						20% { transform: translate(2px, 1px); }
+						30% { transform: translate(-1px, 2px); }
+						40% { transform: translate(1px, -1px); }
+						50% { transform: translate(-1px, 1px); }
+						60% { transform: translate(2px, -1px); }
+						70% { transform: translate(-2px, 1px); }
+						80% { transform: translate(1px, -2px); }
+						90% { transform: translate(-1px, 1px); }
+						100% { transform: translate(0, 0); }
 					}
 					@keyframes efb-count-pop {
 						0% { transform: scale(1); }
 						50% { transform: scale(1.3); }
 						100% { transform: scale(1); }
 					}
-					@keyframes efb-glow {
-						0%, 100% { filter: brightness(1); }
-						50% { filter: brightness(1.2); }
-					}
 					#efb-error-badge {
-						animation: efb-badge-pulse 2s ease-in-out infinite !important;
-					}
-					#efb-error-badge.efb-new-error {
-						animation: efb-badge-shake 0.6s ease-in-out, efb-badge-pulse 2s ease-in-out infinite !important;
+						animation: efb-badge-vibrate 0.4s ease-in-out infinite !important;
 					}
 					#efb-error-badge:hover {
-						transform: scale(1.05) !important;
+						animation: efb-badge-vibrate 0.4s ease-in-out infinite !important;
 						background: #c82333 !important;
 						box-shadow: 0 6px 25px rgba(220,53,69,0.5) !important;
-						animation: none !important;
+					}
+					#efb-error-badge svg,
+					#efb-error-badge span {
+						all: initial !important;
+						font-family: inherit !important; color: inherit !important;
+						line-height: normal !important; display: inline-block !important;
+						box-sizing: border-box !important;
+					}
+					#efb-error-badge svg {
+						width: 18px !important; height: 18px !important;
+						fill: none !important; stroke: currentColor !important; stroke-width: 2.5 !important;
+						vertical-align: middle !important; flex-shrink: 0 !important;
+						overflow: visible !important;
 					}
 					#efb-error-badge .efb-error-count {
-						background: #fff; color: #dc3545; padding: 3px 10px; border-radius: 12px;
-						font-size: 12px; min-width: 22px; text-align: center;
-						font-weight: 700;
+						background: #fff !important; color: #dc3545 !important; padding: 3px 10px !important; border-radius: 12px !important;
+						font-size: 12px !important; min-width: 22px !important; text-align: center !important;
+						font-weight: 700 !important;
 					}
 					#efb-error-badge .efb-error-count.efb-count-updated {
-						animation: efb-count-pop 0.3s ease-out;
+						animation: efb-count-pop 0.3s ease-out !important;
 					}
 					#efb-error-badge::before {
 						content: ""; position: absolute; inset: 0;
 						background: transparent;
 						border-radius: 50px; z-index: -1;
+					}
+					#efb-error-badge .efb-badge-tooltip {
+						position: absolute; top: 50%; ${isRtl ? "right" : "left"}: calc(100% + 12px);
+						transform: translateY(-50%); white-space: nowrap;
+						background: linear-gradient(135deg, #890000, #000014);
+						color: #e2e8f0; padding: 8px 14px; border-radius: 8px;
+						font-size: 12px; font-weight: 500; letter-spacing: 0.2px;
+						box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+						opacity: 0; pointer-events: none;
+						transition: opacity 0.25s ease, transform 0.25s ease;
+						${isRtl ? "transform: translateY(-50%) translateX(8px)" : "transform: translateY(-50%) translateX(-8px)"};
+					}
+					#efb-error-badge .efb-badge-tooltip::before {
+						content: ""; position: absolute; top: 50%; ${isRtl ? "left" : "right"}: 100%;
+						transform: translateY(-50%);
+						border: 6px solid transparent;
+						border-${isRtl ? "left" : "right"}-color: #1e1e2e;
+						${isRtl ? "border-right: none" : "border-left: none"};
+					}
+					#efb-error-badge:hover .efb-badge-tooltip {
+						opacity: 1; pointer-events: auto;
+						transform: translateY(-50%) translateX(0);
 					}
 					/* Reset all inherited/theme styles on the panel and its children */
 					#efb-error-panel,
@@ -3506,6 +3542,7 @@ public function check_error_console_efb(){
 			togglePanel() {
 				this.isOpen = !this.isOpen;
 				if (this.isOpen) {
+					this.badge.style.setProperty("animation", "none", "important");
 					this.panel.style.setProperty("display", "block", "important");
 					this.overlay.style.display = "block";
 					setTimeout(() => {
@@ -3527,13 +3564,16 @@ public function check_error_console_efb(){
 			// Show badge with animation
 			showBadge() {
 				if (!this.badge) return;
-				this.badge.style.opacity = "1";
-				this.badge.style.pointerEvents = "auto";
+				this.badge.style.setProperty("opacity", "1", "important");
+				this.badge.style.setProperty("pointer-events", "auto", "important");
+				this.badge.style.removeProperty("animation");
+			},
 
-				// Trigger shake animation on new error
-				this.badge.classList.remove("efb-new-error");
-				void this.badge.offsetWidth; // Force reflow
-				this.badge.classList.add("efb-new-error");
+			// Hide badge
+			hideBadge() {
+				if (!this.badge) return;
+				this.badge.style.setProperty("opacity", "0", "important");
+				this.badge.style.setProperty("pointer-events", "none", "important");
 			},
 
 			// Update error count with animation
@@ -3632,6 +3672,7 @@ public function check_error_console_efb(){
 				this.updateCount();
 				const list = document.getElementById("efb-error-list");
 				list.innerHTML = "<div class=\"efb-no-errors\">✓ " + this.t.noErrors + "</div>";
+				this.hideBadge();
 			},
 
 			// Escape HTML

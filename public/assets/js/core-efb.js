@@ -1117,16 +1117,7 @@ recaptchaExpiredEfb = (formId)=>{
       }
     }
   }else{
-    if(Number(form_id)!=Number(form_ID_emsFormBuilder)) {valj_efb = get_structure_by_form_id_efb(form_id);}else{valj_efb = valj_efb;}
-    const steps =valj_efb[0].steps ? Number(valj_efb[0].steps) : 1;
-    const bdy = document.getElementById(`body_efb_${formId}`);
-    if(steps==1){
-      const btn = bdy.querySelector(`#btn_send_efb`);
-      if(btn) btn.classList.add('disabled');
-    }else{
-      const btn = document.querySelector(`#next_efb`);
-      if(btn) btn.classList.add('disabled');
-    }
+    updateStepButtonState_efb(formId);
   }
 }
 
@@ -1145,19 +1136,7 @@ recaptchaSuccessEfb = (token, formid) => {
       }
     }
   }else{
-    const indx = valj_efb_new.findIndex(x => x.id == formid);
-    if(indx!=-1) {
-     const steps= Number(valj_efb_new[indx].form_structer[0].steps)
-     const bdy = document.getElementById(`body_efb_${formid}`);
-     if(steps==1){
-      const btn = bdy.querySelector(`#btn_send_efb`);
-      if(btn) btn.classList.remove('disabled');
-     }else{
-      const btn = document.querySelector(`#next_efb`);
-      if(btn) btn.classList.remove('disabled');
-     }
-
-    }
+    updateStepButtonState_efb(formid);
   }
 }
 function calPLenEfb(len) {
@@ -1430,7 +1409,127 @@ document.addEventListener("DOMContentLoaded",async function() {
   });
 
   if(captcha) loadCaptcha_efb(20);
+
+  // Initial button state evaluation for all forms after DOM is ready
+  try {
+    valj_efb_new.forEach(function(formData) {
+      if (formData && formData.id && formData.form_structer && formData.form_structer[0]) {
+        var steps = Number(formData.form_structer[0].steps) || 1;
+        if (steps > 1) {
+          updateStepButtonState_efb(formData.id);
+        }
+      }
+    });
+  } catch (e) { }
 });
+
+/**
+ * Centralized function to evaluate the Next/Send button disabled state
+ * for a given form and step, based on required fields.
+ * Called after every field change and after step navigation.
+ */
+function updateStepButtonState_efb(form_id) {
+  try {
+    var id_body = 'body_efb_' + form_id;
+    var body_efb = document.getElementById(id_body);
+    if (!body_efb) return;
+
+    var valj = get_structure_by_form_id_efb(form_id);
+    if (!valj || !valj[0]) return;
+
+    var max_step = Number(valj[0].steps) || 1;
+    var currentStep = Number(body_efb.dataset.currentstep) || 1;
+
+    // Determine which button to manage
+    var next_btn = body_efb.querySelector('#next_efb');
+    var send_btn = body_efb.querySelector('#btn_send_efb');
+    var target_btn = null;
+
+    if (currentStep < max_step && next_btn) {
+      target_btn = next_btn;
+    } else if (currentStep === max_step && send_btn) {
+      target_btn = send_btn;
+    } else if (next_btn) {
+      target_btn = next_btn;
+    }
+
+    if (!target_btn) return;
+
+    // Check if there are validation errors for the current step in sendback_efb_state
+    var hasValidationErrors = false;
+    for (var si = 0; si < sendback_efb_state.length; si++) {
+      var entry = sendback_efb_state[si];
+      if (entry && Number(entry.form_id) === Number(form_id) && entry.state === false) {
+        // Check if this error belongs to a field in the current step
+        var fieldInStep = valj.find(function(v) {
+          return v.id_ === entry.id_ && Number(v.step) === currentStep;
+        });
+        if (fieldInStep) {
+          hasValidationErrors = true;
+          break;
+        }
+      }
+    }
+
+    if (hasValidationErrors) {
+      if (!target_btn.classList.contains('disabled')) {
+        target_btn.classList.add('disabled');
+      }
+      return;
+    }
+
+    // Check all required fields for the current step are in sendBack_emsFormBuilder_pub
+    var requiredFields = valj.filter(function(v) {
+      return Number(v.step) === currentStep &&
+             Number(v.required) === 1 &&
+             v.type !== 'step' &&
+             v.type !== 'option' &&
+             v.type !== 'form';
+    });
+
+    var allRequiredFilled = true;
+    for (var ri = 0; ri < requiredFields.length; ri++) {
+      var field = requiredFields[ri];
+      var fieldId = field.id_;
+
+      if (field.type === 'file' || field.type === 'dadfile') {
+        var fileIdx = files_emsFormBuilder.findIndex(function(f) { return f.id_ === fieldId; });
+        if (fileIdx === -1 || (files_emsFormBuilder[fileIdx].hasOwnProperty('state') && Number(files_emsFormBuilder[fileIdx].state) === 0)) {
+          allRequiredFilled = false;
+          break;
+        }
+      } else {
+        var sbIdx = sendBack_emsFormBuilder_pub.findIndex(function(x) {
+          return x != null && x.hasOwnProperty('id_') && x.id_ === fieldId && Number(x.form_id) === Number(form_id);
+        });
+        if (sbIdx === -1) {
+          allRequiredFilled = false;
+          break;
+        }
+      }
+    }
+
+    // Check captcha if on last step
+    if (allRequiredFilled && currentStep === max_step && Number(valj[0].captcha) === 1) {
+      var hasCaptcha = sendBack_emsFormBuilder_pub.findIndex(function(x) {
+        return x != null && x.id_ === 'captcha_v2' && Number(x.form_id) === Number(form_id);
+      }) !== -1;
+      if (!hasCaptcha) {
+        allRequiredFilled = false;
+      }
+    }
+
+    if (allRequiredFilled) {
+      target_btn.classList.remove('disabled');
+    } else {
+      if (!target_btn.classList.contains('disabled')) {
+        target_btn.classList.add('disabled');
+      }
+    }
+  } catch (e) {
+    // Fail silently - never leave button permanently stuck
+  }
+}
 
 smoothy_scroll_postion_efb=(id)=>{
 
@@ -1589,24 +1688,8 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
          prev_btn.classList.add('d-none');
          endMessage_emsFormBuilder_view(max_step,form_id);
        }else if(no_step==max_step){
-        const grecaptcha = parent_body.querySelector('#gRecaptcha');
-        const r = await fun_check_step_has_necessary_fields_efb(no_step ,valj_efb);
-
-        let next_btn = parent_body.querySelector('#next_efb');
-        let captcha_ok = true;
-
-        if (grecaptcha) {
-          const hasCaptchaRow = sendBack_emsFormBuilder_pub.findIndex(
-            x => x.id_=='captcha_v2' && Number(x.form_id)===Number(form_id)
-          ) !== -1;
-          captcha_ok = hasCaptchaRow;
-        }
-
-        if (r === 0 && captcha_ok){
-          if(next_btn) next_btn.classList.remove('disabled');
-        } else {
-          if(next_btn) next_btn.classList.add('disabled');
-        }
+        // Delegate button state to centralized handler
+        updateStepButtonState_efb(form_id);
        }
        smoothy_scroll_postion_efb(id_body);
        if(no_step==step_payment_exists){
@@ -1628,13 +1711,8 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     if(progessbar) fun_progessbar(no_step,max_step);
     smoothy_scroll_postion_efb(id_body);
     await fun_handle_header_efb(no_step,'backward');
-    const r = await fun_check_step_has_necessary_fields_efb(no_step ,valj_efb);
-    next_efb_btn = parent_body.querySelector('#next_efb');
-    if (r==1){
-      next_efb_btn.classList.add('disabled');
-    } else{
-      next_efb_btn.classList.remove('disabled');
-    }
+    // Delegate button state to centralized handler
+    updateStepButtonState_efb(form_id);
   }else if (btn_state=='btn_send_efb'){
     no_step = Number(no_step)+1;
 
@@ -1662,22 +1740,25 @@ get_structure_by_form_id_efb=(form_id)=>{
 sendback_state_handler_efb_v4=(id_,state,step,form_id)=>{
   const id_body = 'body_efb_'+form_id;
   const body_efb = document.getElementById(id_body);
+  if (!body_efb) return;
   const indx = sendback_efb_state.findIndex(x=>x.id_==id_ && Number(x.form_id)==Number(form_id));
-  const next_btn = body_efb.querySelector('#next_efb');
-  const send_btn = body_efb.querySelector('#btn_send_efb');
   if(indx==-1 && state==false){
-    sendback_efb_state.push({id_:id_,state:state,step:step,form_id:form_id})
-    if(send_btn && send_btn.classList.contains('disabled')==false )send_btn.classList.add('disabled');
-    else if(next_btn && next_btn.classList.contains('disabled')==false )next_btn.classList.add('disabled');
+    // Resolve actual step from form structure
+    var actualStep = step;
+    try {
+      var _valj = get_structure_by_form_id_efb(form_id);
+      var _field = _valj ? _valj.find(function(v){ return v.id_ === id_; }) : null;
+      if (_field && _field.step) actualStep = Number(_field.step);
+    } catch(e) {}
+    sendback_efb_state.push({id_:id_,state:state,step:actualStep,form_id:form_id});
+    // Button state delegated to updateStepButtonState_efb
+    updateStepButtonState_efb(form_id);
   }else if(indx>-1 && state==true && sendback_efb_state.length>0){
     sendback_efb_state.splice(indx,1);
-    setTimeout(() => {
-      const indx_ = sendback_efb_state.findIndex(x=>x.step==step);
-      if(indx_==-1 || sendback_efb_state.length==0){
-        if(send_btn)send_btn.classList.remove('disabled');
-        else if(next_btn)next_btn.classList.remove('disabled');
-      }
-    }, 200);
+    // Button state delegated to updateStepButtonState_efb (slight delay for DOM sync)
+    setTimeout(function() {
+      updateStepButtonState_efb(form_id);
+    }, 100);
   }
 }
 
@@ -1776,6 +1857,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       }
     }
     delete_by_id(id);
+    updateStepButtonState_efb(form_id);
   }
   validate_len_efb_v4 =async()=>{
 
@@ -1882,13 +1964,17 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         value = el.value;
        return;
       }
-      if(validate_len_efb_v4()==0 && (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox")){
-         sendback_state_handler_efb_v4(id_,false,0,form_id);
-       return;
-      }else {
-        el.className = colorBorderChangerEfb(el.className, "border-success");
-        vd= document.getElementById(`${el.id}-message`)
-        if(vd)vd.classList.remove('show');
+      {
+        let lenResult = await validate_len_efb_v4();
+        if(lenResult===0 && (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox")){
+          sendback_state_handler_efb_v4(id_,false,0,form_id);
+          updateStepButtonState_efb(form_id);
+          return;
+        }else {
+          el.className = colorBorderChangerEfb(el.className, "border-success");
+          vd= document.getElementById(`${el.id}-message`)
+          if(vd)vd.classList.remove('show');
+        }
       }
       break;
     case 'url':
@@ -2036,7 +2122,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       break;
   }
   form_id = el.dataset.hasOwnProperty('formid') ? el.dataset.formid : 0;
-  if(state==false && value.length > 0)   sendback_state_handler_efb_v4(id_,false,0,form_id);
+  if(state===false && value.length > 0)   sendback_state_handler_efb_v4(id_,false,0,form_id);
   if (value != "" || value.length > 0) {
 
     const type = ob.type;
@@ -2080,6 +2166,8 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       await fun_sendBack_emsFormBuilder(o[0]);
     }
   }
+  // Always re-evaluate button state after any field change
+  updateStepButtonState_efb(form_id);
 }
 
 async function fun_validation_efb_v4(form_id) {

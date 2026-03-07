@@ -348,7 +348,7 @@ function show_message_result_form_set_EFB(state, m) {
       <i class="efb  bi-question mx-1"></i>${efb_var.text.help}
   </a>
   <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#close" onclick="state_modal_show_efb(0)">
-      <i class="efb  bi-x mx-1"></i>${efb_var.text.close}
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="mx-1"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>${efb_var.text.close}
   </a>
   `
   } else {

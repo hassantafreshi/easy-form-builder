@@ -284,7 +284,7 @@ function setProgressBar_efb(curStep, steps_len_efb) {
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
 
 const alertStyles_efb = {
-  danger: { bg: 'linear-gradient(135deg, #c00751 0%, #f95e5e 100%)', icon: 'bi-x-octagon', color: '#fff' },
+  danger: { bg: 'linear-gradient(135deg, #c00751 0%, #f95e5e 100%)', icon: 'bi-ban', color: '#fff' },
   warning: { bg: 'linear-gradient(135deg, #ffc107 0%, #ffb300 100%)', icon: 'bi-exclamation-triangle-fill', color: '#333' },
   success: { bg: 'linear-gradient(135deg, #065518  0%, #108f69 100%)', icon: 'bi-check-lg', color: '#fff' },
   info: { bg: 'linear-gradient(135deg, #202a8d 0%, #667eea 100%)', icon: 'bi-info-lg', color: '#fff' }
