@@ -46,7 +46,7 @@ class Addon {
 	}
 	public function render_settings() {
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-		$dev_mode = get_option('emsfb_dev_mode', '1') === '1';
+		$dev_mode = get_option('emsfb_dev_mode', '0') === '1';
 		$domain =  $dev_mode ? 'demo.whitestudio.team' : 'whitestudio.team';
 		wp_register_script('whiteStudioAddone', 'http://' . $domain . '/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
 

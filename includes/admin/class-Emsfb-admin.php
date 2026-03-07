@@ -357,7 +357,7 @@ class Admin {
             delete_option($name_space);
             $vwp = get_bloginfo('version');
             $vwp = substr($vwp,0,3);
-            $domain =  get_option('emsfb_dev_mode', '1') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
+            $domain =  get_option('emsfb_dev_mode', '0') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
             $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
             if (get_locale() == 'fa_IR') {
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';

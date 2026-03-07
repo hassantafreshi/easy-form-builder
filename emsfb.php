@@ -40,8 +40,13 @@ if (!defined("WP_PLUGIN_DIR")) {
 
 if (!defined("EMSFB_DEV_MODE")) {
 
-    $dev_mode = get_option('emsfb_dev_mode', '0');
-    define("EMSFB_DEV_MODE", $dev_mode === '1' || $dev_mode === true);
+    $dev_mode = get_option('emsfb_dev_mode', '2');
+    if($dev_mode === '2') {
+        update_option('emsfb_dev_mode', '0');
+        define("EMSFB_DEV_MODE", false);
+    }else{
+        define("EMSFB_DEV_MODE", $dev_mode === '1' || $dev_mode === true ? true : false);
+    }
 }
 
 if (!defined("EMSFB_SERVER_URL")) {

@@ -182,7 +182,7 @@ class EmsfbEmailHandler {
         }
 
         $headers = [
-            "MIME-Version: 1.0\r\n",
+            "MIME-Version: 1.0",
             'From:' . $from,
         ];
 
