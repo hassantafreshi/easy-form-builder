@@ -1804,7 +1804,8 @@ public function addon_add_efb($value) {
         $server_name = str_replace("www.", "", $_server_name);
         $vwp = get_bloginfo('version');
 		$vwp = substr($vwp,0,3);
-        $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+		$domain =  get_option('emsfb_dev_mode', '1') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
+        $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
         $name_space = 'emsfb_addon_' . $value;
         if (get_locale() == 'fa_IR') {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
@@ -1815,7 +1816,7 @@ public function addon_add_efb($value) {
         $attempt = 0;
         $success = false;
         $error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
-		$error_messag = sprintf($error_message, 'whitestudio.team', 'not_success');
+		$error_messag = sprintf($error_message, $domain, 'not_success');
 
         while ($attempt < $max_attempts && !$success) {
             $request = wp_remote_get($u);

@@ -357,7 +357,8 @@ class Admin {
             delete_option($name_space);
             $vwp = get_bloginfo('version');
             $vwp = substr($vwp,0,3);
-            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+            $domain =  get_option('emsfb_dev_mode', '1') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
+            $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
             if (get_locale() == 'fa_IR') {
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
             }
@@ -368,7 +369,8 @@ class Admin {
                     break;
                 }
                 if ($i == $attempts - 1) {
-                    $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server', 'easy-form-builder');
+                    $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server', 'easy-form-builder');
+                    $m = sprintf($m, $domain);
                     $response = ['success' => false, "m" => $m];
                     wp_send_json_success($response, 200);
                 }
