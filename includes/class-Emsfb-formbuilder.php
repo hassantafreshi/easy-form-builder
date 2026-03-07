@@ -3283,7 +3283,7 @@ public function check_error_console_efb(){
 						box-shadow: 0 6px 25px rgba(220,53,69,0.5) !important;
 					}
 					#efb-error-badge svg,
-					#efb-error-badge span {
+					#efb-error-badge span:not(.efb-badge-tooltip) {
 						all: initial !important;
 						font-family: inherit !important; color: inherit !important;
 						line-height: normal !important; display: inline-block !important;
@@ -3309,26 +3309,31 @@ public function check_error_console_efb(){
 						border-radius: 50px; z-index: -1;
 					}
 					#efb-error-badge .efb-badge-tooltip {
-						position: absolute; top: 50%; ${isRtl ? "right" : "left"}: calc(100% + 12px);
-						transform: translateY(-50%); white-space: nowrap;
-						background: linear-gradient(135deg, #890000, #000014);
-						color: #e2e8f0; padding: 8px 14px; border-radius: 8px;
-						font-size: 12px; font-weight: 500; letter-spacing: 0.2px;
-						box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-						opacity: 0; pointer-events: none;
-						transition: opacity 0.25s ease, transform 0.25s ease;
-						${isRtl ? "transform: translateY(-50%) translateX(8px)" : "transform: translateY(-50%) translateX(-8px)"};
+						all: initial !important;
+						position: absolute !important; top: 50% !important; ${isRtl ? "right" : "left"}: calc(100% + 12px) !important;
+						transform: translateY(-50%) translateX(${isRtl ? "8px" : "-8px"}) !important;
+						white-space: nowrap !important;
+						background: linear-gradient(135deg, #890000, #000014) !important;
+						color: #e2e8f0 !important; padding: 8px 14px !important; border-radius: 8px !important;
+						font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+						font-size: 12px !important; font-weight: 500 !important; letter-spacing: 0.2px !important;
+						box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+						opacity: 0 !important; pointer-events: none !important;
+						transition: opacity 0.25s ease, transform 0.25s ease !important;
+						box-sizing: border-box !important; line-height: normal !important;
+						display: block !important; z-index: 1000000 !important;
 					}
 					#efb-error-badge .efb-badge-tooltip::before {
-						content: ""; position: absolute; top: 50%; ${isRtl ? "left" : "right"}: 100%;
-						transform: translateY(-50%);
-						border: 6px solid transparent;
-						border-${isRtl ? "left" : "right"}-color: #1e1e2e;
-						${isRtl ? "border-right: none" : "border-left: none"};
+						content: "" !important; position: absolute !important; top: 50% !important; ${isRtl ? "left" : "right"}: 100% !important;
+						transform: translateY(-50%) !important;
+						border: 6px solid transparent !important;
+						border-${isRtl ? "left" : "right"}-color: #1e1e2e !important;
+						${isRtl ? "border-right: none" : "border-left: none"} !important;
+						display: block !important;
 					}
 					#efb-error-badge:hover .efb-badge-tooltip {
-						opacity: 1; pointer-events: auto;
-						transform: translateY(-50%) translateX(0);
+						opacity: 1 !important; pointer-events: auto !important;
+						transform: translateY(-50%) translateX(0) !important;
 					}
 					/* Reset all inherited/theme styles on the panel and its children */
 					#efb-error-panel,
