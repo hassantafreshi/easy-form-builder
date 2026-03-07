@@ -3077,6 +3077,7 @@ public function check_error_console_efb(){
 		'noErrors'    => esc_html__('No errors detected', 'easy-form-builder'),
 		'warning'     => esc_html__('These errors may interfere with forms built using Easy Form Builder.', 'easy-form-builder'),
 		'adminOnly'   => esc_html__('This panel is only visible to site administrators.', 'easy-form-builder'),
+		'easyformbuilder' => esc_html__('Easy Form Builder', 'easy-form-builder'),
 	];
 
 	$value = '
@@ -3174,7 +3175,7 @@ public function check_error_console_efb(){
 				this.isRtl = isRtl;
 				this.badge.style.cssText = `
 					all: initial !important;
-					position: fixed !important; top: 20px !important; ${isRtl ? "right" : "left"}: 20px !important;
+					position: fixed !important; top: 35px !important; ${isRtl ? "right" : "left"}: 30px !important;
 					z-index: 999999 !important;
 					background: #dc3545 !important;
 					color: #fff !important; padding: 12px 18px !important; border-radius: 50px !important;
@@ -3200,10 +3201,7 @@ public function check_error_console_efb(){
 				this.panel.innerHTML = `
 					<div class="efb-panel-header">
 						<div class="efb-panel-title">
-							<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-								<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
-							</svg>
-							<span>Easy Form Builder - ${this.t.title}</span>
+							<span>${this.t.easyformbuilder} - ${this.t.title}</span>
 						</div>
 						<div class="efb-panel-actions">
 							<button class="efb-btn-clear" onclick="EFB_ERROR_PANEL.clearErrors()">${this.t.clear}</button>
@@ -3212,16 +3210,9 @@ public function check_error_console_efb(){
 					</div>
 
 					<div class="efb-panel-warning">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-							<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-						</svg>
-
 						<span>${this.t.warning}</span>
 					</div>
 					<div class="efb-admin-notice">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-						</svg>
 						<span>${this.t.adminOnly}</span>
 						<span class="efb-admin-badge">ADMIN</span>
 					</div>
@@ -3258,29 +3249,16 @@ public function check_error_console_efb(){
 				// Styles
 				const style = document.createElement("style");
 				style.textContent = `
-					@keyframes efb-badge-vibrate {
-						0% { transform: translate(0, 0); }
-						10% { transform: translate(-2px, -1px); }
-						20% { transform: translate(2px, 1px); }
-						30% { transform: translate(-1px, 2px); }
-						40% { transform: translate(1px, -1px); }
-						50% { transform: translate(-1px, 1px); }
-						60% { transform: translate(2px, -1px); }
-						70% { transform: translate(-2px, 1px); }
-						80% { transform: translate(1px, -2px); }
-						90% { transform: translate(-1px, 1px); }
-						100% { transform: translate(0, 0); }
+					@keyframes efb-badge-pulse {
+						0% { transform: scale(1); opacity: 0.5; }
+						100% { transform: scale(1.6); opacity: 0; }
 					}
 					@keyframes efb-count-pop {
 						0% { transform: scale(1); }
 						50% { transform: scale(1.3); }
 						100% { transform: scale(1); }
 					}
-					#efb-error-badge {
-						animation: efb-badge-vibrate 0.4s ease-in-out infinite !important;
-					}
 					#efb-error-badge:hover {
-						animation: efb-badge-vibrate 0.4s ease-in-out infinite !important;
 						background: #c82333 !important;
 						box-shadow: 0 6px 25px rgba(220,53,69,0.5) !important;
 					}
@@ -3305,10 +3283,17 @@ public function check_error_console_efb(){
 					#efb-error-badge .efb-error-count.efb-count-updated {
 						animation: efb-count-pop 0.3s ease-out !important;
 					}
-					#efb-error-badge::before {
-						content: ""; position: absolute; inset: 0;
-						background: transparent;
-						border-radius: 50px; z-index: -1;
+					#efb-error-badge::before,
+					#efb-error-badge::after {
+						content: "" !important; position: absolute !important; inset: -2px !important;
+						border-radius: 50px !important; z-index: -1 !important;
+						border: 1.5px solid rgba(220,53,69,0.4) !important;
+						animation: efb-badge-pulse 2.5s ease-out infinite !important;
+						pointer-events: none !important; box-sizing: border-box !important;
+						background: transparent !important;
+					}
+					#efb-error-badge::after {
+						animation-delay: 1.25s !important;
 					}
 					#efb-error-badge .efb-badge-tooltip {
 						all: initial !important;
@@ -3549,7 +3534,6 @@ public function check_error_console_efb(){
 			togglePanel() {
 				this.isOpen = !this.isOpen;
 				if (this.isOpen) {
-					this.badge.style.setProperty("animation", "none", "important");
 					this.panel.style.setProperty("display", "block", "important");
 					this.overlay.style.display = "block";
 					setTimeout(() => {
@@ -3573,7 +3557,6 @@ public function check_error_console_efb(){
 				if (!this.badge) return;
 				this.badge.style.setProperty("opacity", "1", "important");
 				this.badge.style.setProperty("pointer-events", "auto", "important");
-				this.badge.style.removeProperty("animation");
 			},
 
 			// Hide badge
