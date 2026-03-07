@@ -1139,9 +1139,9 @@ class Admin {
         }else{
             $id = isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
             $table_name = $this->db->prefix . "emsfb_form";
-            $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
+            $vl  = $this->db->get_var($this->db->prepare("SELECT form_structer FROM `{$table_name}` WHERE form_id = %d", $id));
             if($vl!=null){
-                if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') || strpos($vl , '"type":"dadfile"') || strpos($vl , '"type":"file"')){
+                if(strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false || strpos($vl , '"type":"dadfile"') !== false || strpos($vl , '"type":"file"') !== false){
                     $vl ='efb'.$id;
 
                 }
@@ -1175,19 +1175,39 @@ class Admin {
 		if (isset($_FILES['file']['type']) && in_array($_FILES['file']['type'], $arr_ext)) {
 
             $file_name = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
-            $file_tmp = isset($_FILES['file']['tmp_name']) ? sanitize_text_field( wp_unslash( $_FILES['file']['tmp_name'] ) ) : '';
+            $file_tmp = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
             $file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
-            $name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("..."), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
-            $upload = wp_upload_bits($name, null, file_get_contents($file_tmp));
+
+            if (empty($file_tmp) || !is_uploaded_file($file_tmp) || !is_readable($file_tmp)) {
+                $response = array( 'success' => false, 'error' => 'File upload error');
+                wp_send_json_success($response, 200);
+            }
+
+            $name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
+
+            $blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg');
+            $file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+            if (in_array($file_ext, $blocked_ext)) {
+                $response = array( 'success' => false, 'error' => 'File type not allowed');
+                wp_send_json_success($response, 200);
+            }
+
+            $file_contents = file_get_contents($file_tmp);
+            if ($file_contents === false) {
+                $response = array( 'success' => false, 'error' => 'File read error');
+                wp_send_json_success($response, 200);
+            }
+
+            $upload = wp_upload_bits($name, null, $file_contents);
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
 			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=> $file_type);
 			  wp_send_json_success($response,200);
 		}else{
-			$response = array( 'success' => false  ,'error'=>"File Type Error");
+			$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : 'unknown';
+			$response = array( 'success' => false  ,'error'=>'File Type Error');
 			wp_send_json_success($response,200);
-			die('invalid file '. $file_type);
 		}
 
 	}

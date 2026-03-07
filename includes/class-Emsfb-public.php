@@ -2911,7 +2911,7 @@ public function check_nonce_permission_efb($request) {
             $vl_data = $this->get_form_data_efb($id, array('form_structer'));
             $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
-                if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){
+                if(strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false){
                     $vl ='efb'.$id;
                 }
             }
@@ -2937,9 +2937,28 @@ public function check_nonce_permission_efb($request) {
 		$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
 		if (in_array($file_type, $arr_ext)) {
 			$file_name_raw = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
-			$file_tmp = isset($_FILES['file']['tmp_name']) ? sanitize_text_field( wp_unslash( $_FILES['file']['tmp_name'] ) ) : '';
+			$file_tmp = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
+
+			if (empty($file_tmp) || !is_uploaded_file($file_tmp) || !is_readable($file_tmp)) {
+				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
+				wp_send_json_success($response, 200);
+			}
+
 			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
-			$upload = wp_upload_bits($name, null, file_get_contents($file_tmp));
+
+			$blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg');
+			$file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+			if (in_array($file_ext, $blocked_ext)) {
+				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
+				wp_send_json_success($response, 200);
+			}
+
+			$file_contents = file_get_contents($file_tmp);
+			if ($file_contents === false) {
+				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
+				wp_send_json_success($response, 200);
+			}
+			$upload = wp_upload_bits($name, null, $file_contents);
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
@@ -3015,7 +3034,7 @@ public function check_nonce_permission_efb($request) {
             $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
 				if(gettype($vl)=="string"){
-					$temp = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') ? true : false;
+					$temp = (strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false) ? true : false;
 				}
 
                 if($temp==false){
@@ -3024,7 +3043,7 @@ public function check_nonce_permission_efb($request) {
 					wp_send_json_success($response,200);
                 }
 
-				if(strpos($vl , '\"value\":\"customize\"')!=false){
+				if(strpos($vl , '\"value\":\"customize\"')!==false){
 					$val_ = str_replace('\\', '', $vl);
 					$vl = json_decode($val_);
 					foreach($vl as $key=>$val){
@@ -3105,6 +3124,14 @@ public function check_nonce_permission_efb($request) {
 			}
 
 			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;
+
+			$blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg');
+			$file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+			if (in_array($file_ext, $blocked_ext)) {
+				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
+				wp_send_json_success($response,200);
+			}
+
 			$file_contents = file_get_contents($async_file_tmp);
 			if ($file_contents === false) {
 				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);

@@ -1289,9 +1289,11 @@
 
 		$fileType = property_exists($vj, 'file') ? $vj->file : '';
 
-		if ($fileType == 'customize') {
-			$name_type_file = $vj->file_ctype;
-		}else{
+		if ($fileType === 'customize') {
+			$name_type_file = esc_html__('File', 'easy-form-builder') . '<span class="efb d-none d-md-inline fs-7">(' . esc_html($vj->file_ctype) . ')</span>';
+		} elseif ($fileType === 'allformat') {
+			$name_type_file = esc_html__('File', 'easy-form-builder');
+		} else {
 			$name_type_file = $texts[$fileType];
 		}
 

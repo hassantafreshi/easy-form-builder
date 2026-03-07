@@ -708,12 +708,7 @@ function valid_phone_emsFormBuilder(el) {
   return check > 0 ? false : true
 }
 function valid_file_emsFormBuilder(id,tp,filed,form_id) {
-  let valj_efb
-  if (form_id){
-    valj_efb = get_structure_by_form_id_efb(form_id);
-  }else{
-    valj_efb = valj_efb;
-  }
+  let valj_efb = get_structure_by_form_id_efb(form_id);
   let msgEl = document.getElementById(`${id}_-message`);
   msgEl.innerHTML = "";
   msgEl.classList.remove('show');
