@@ -492,7 +492,7 @@ function actionSendAddonsUn_efb(val) {
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           let m = efb_var.text.tDeleted;
-          const ad = efb_var.text.addon.replace('%s1', ``).toLowerCase();
+          const ad = (efb_var.text.addon || '').replace('%s1', '').replace(/%\d+\$s/g, '').trim().toLowerCase();
           m =m.replace('%s', ad);
           alert_message_efb(m,'', 30,'success');
           location.reload();
@@ -4033,8 +4033,20 @@ function emsFormBuilder_delete(id, type,value) {
 
   switch (type) {
     case "addon":
-      val = efb_var.text[id];
-
+      if (typeof addons_efb !== 'undefined') {
+        const addonItem = addons_efb.find(a => a.name === id);
+        if (addonItem) {
+          let atitle = addonItem.title;
+          if (atitle && atitle.trim().split(/\s+/).length === 1) {
+            atitle = efb_var.text[atitle] || atitle;
+          }
+          val = atitle || id;
+        } else {
+          val = id;
+        }
+      } else {
+        val = id;
+      }
       break;
     case "form":
       val=value;
@@ -4059,7 +4071,7 @@ function emsFormBuilder_delete(id, type,value) {
       type = 'datas';
     break
   }
-  const f = efb_var.text[type].replaceAll('%s1','');
+  const f = (efb_var.text[type] || '').replaceAll('%s1','').replace(/%\d+\$s/g, '').trim();
   const m = f ? `${f} &rsaquo; ${val}` : val;
   const body = efb_build_confirm_body('danger', 'bi-trash', efb_var.text.delete, efb_var.text.areYouSureYouWantDeleteItem, m);
   show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox')
