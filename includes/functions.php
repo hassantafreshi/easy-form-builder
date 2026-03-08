@@ -1802,11 +1802,12 @@ public function addon_add_efb($value) {
         $server_name = str_replace("www.", "", $_server_name);
         $vwp = get_bloginfo('version');
 		$vwp = substr($vwp,0,3);
+		$vefb = EMSFB_PLUGIN_VERSION;
 		$domain =  get_option('emsfb_dev_mode', '0') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
-        $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+        $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
         $name_space = 'emsfb_addon_' . $value;
-        if (get_locale() == 'fa_IR') {
-            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+        if (get_locale() == 'fa_IR' && false) {
+            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
         }
 		delete_option($name_space);
 
@@ -1882,7 +1883,10 @@ public function addon_add_efb($value) {
                 $directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/' . $directory_name;
 
                 if (!file_exists($directory)) {
-                    $this->fun_addon_new($url);
+                    $result = $this->fun_addon_new($url);
+                    if (is_wp_error($result)) {
+                        return array('status' => false, 'message' => $result->get_error_message());
+                    }
                 }
 				update_option($name_space, 1);
                 $success = true;
@@ -1905,15 +1909,19 @@ public function addon_add_efb($value) {
 		$path = preg_replace( '/wp-content(?!.*wp-content).*/', '', __DIR__ );
 		require_once( $path . 'wp-load.php' );
 		require_once (ABSPATH .'wp-admin/includes/admin.php');
+		require_once(ABSPATH . 'wp-admin/includes/file.php');
 
 		$name =substr($url,strrpos($url ,"/")+1,-4);
 
 		$r =download_url($url);
 		if(is_wp_error($r)){
-			return false;
+			return new WP_Error('download_failed',
+				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to download files', 'easy-form-builder')
+				. ' (' . $r->get_error_message() . ')'
+			);
 		}
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
-		if (WP_Filesystem()) {
+		$filesystem_ready = WP_Filesystem();
+		if ($filesystem_ready) {
 			global $wp_filesystem;
 
 			$directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
@@ -1929,11 +1937,21 @@ public function addon_add_efb($value) {
 			$moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
 		}
 		if(!$moved){
-			return false;
+			@unlink($r);
+			return new WP_Error('move_failed',
+				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file', 'easy-form-builder')
+			);
+		}
+		if (!$filesystem_ready) {
+			WP_Filesystem();
 		}
 		$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
+		@unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
 		if(is_wp_error($r)){
-			return false;
+			return new WP_Error('unzip_failed',
+				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder')
+				. ' (' . $r->get_error_message() . ')'
+			);
 		}
 		return true;
 	}

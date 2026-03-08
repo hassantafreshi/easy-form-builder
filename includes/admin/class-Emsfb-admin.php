@@ -357,10 +357,11 @@ class Admin {
             delete_option($name_space);
             $vwp = get_bloginfo('version');
             $vwp = substr($vwp,0,3);
+            $vefb = EMSFB_PLUGIN_VERSION;
             $domain =  get_option('emsfb_dev_mode', '0') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
-            $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/';
-            if (get_locale() == 'fa_IR') {
-                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/';
+            $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+            if (get_locale() == 'fa_IR' && false) {
+                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
             }
             $attempts = 2;
             for ($i = 0; $i < $attempts; $i++) {
@@ -394,9 +395,12 @@ class Admin {
             }
             if ( isset($data->download) && $data->download == true) {
                 $url = $data->link;
+                error_log('[EFB Addon Debug] API URL: ' . $u);
+                error_log('[EFB Addon Debug] Download link: ' . $url);
+                error_log('[EFB Addon Debug] Full API response: ' . $body);
                 $s = $this->fun_addon_new($url);
-                if ($s == false) {
-                    $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder');
+                if (is_wp_error($s)) {
+                    $m = $s->get_error_message();
                     $response = ['success' => false, "m" => $m];
                     wp_send_json_success($response, 200);
                 }
@@ -1103,12 +1107,16 @@ class Admin {
         public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
         public function fun_addon_new($url){
             $name =substr($url,strrpos($url ,"/")+1,-4);
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
             $r =download_url($url);
             if(is_wp_error($r)){
-                return false;
+                return new \WP_Error('download_failed',
+                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to download files', 'easy-form-builder')
+                    . ' (' . $r->get_error_message() . ')'
+                );
             }
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
-            if (WP_Filesystem()) {
+            $filesystem_ready = WP_Filesystem();
+            if ($filesystem_ready) {
                 global $wp_filesystem;
                 $directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
                 if (!$wp_filesystem->exists($directory)) {
@@ -1123,11 +1131,21 @@ class Admin {
                 $moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
             }
             if(!$moved){
-                return false;
+                @unlink($r);
+                return new \WP_Error('move_failed',
+                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file', 'easy-form-builder')
+                );
+            }
+            if (!$filesystem_ready) {
+                WP_Filesystem();
             }
             $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
+            @unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
             if(is_wp_error($r)){
-                return false;
+                return new \WP_Error('unzip_failed',
+                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder')
+                    . ' (' . $r->get_error_message() . ')'
+                );
             }
             return true;
         }
