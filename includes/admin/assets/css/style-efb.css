@@ -1838,3 +1838,8 @@ div#gRecaptcha {
    to { opacity: 1; transform: translateY(0); }
 }
 .efb.alert_efb { transition: opacity 0.3s ease, transform 0.3s ease; }
+
+
+#efb-final-step h2,p {
+   border: 0;
+}
