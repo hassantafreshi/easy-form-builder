@@ -1140,11 +1140,6 @@
 							// Get the full number including country code using new API
 							const value = iti.getNumber();
 
-							console.log("Mobile Valid number:", value);
-							console.log("Mobile Country code:", countryCode);
-							console.log("Mobile ISO2:", iso2);
-							console.log("Mobile Country name:", countryName);
-
 							fun_sendBack_emsFormBuilder({
 								id_: "%2$s",
 								name: "%3$s",

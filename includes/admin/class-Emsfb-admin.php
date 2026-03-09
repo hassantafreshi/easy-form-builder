@@ -395,9 +395,6 @@ class Admin {
             }
             if ( isset($data->download) && $data->download == true) {
                 $url = $data->link;
-                error_log('[EFB Addon Debug] API URL: ' . $u);
-                error_log('[EFB Addon Debug] Download link: ' . $url);
-                error_log('[EFB Addon Debug] Full API response: ' . $body);
                 $s = $this->fun_addon_new($url);
                 if (is_wp_error($s)) {
                     $m = $s->get_error_message();
@@ -1108,12 +1105,39 @@ class Admin {
         public function fun_addon_new($url){
             $name =substr($url,strrpos($url ,"/")+1,-4);
             require_once(ABSPATH . 'wp-admin/includes/file.php');
-            $r =download_url($url);
+
+            // Debug: check URL accessibility before download
+            $head = wp_remote_head($url, ['sslverify' => true, 'timeout' => 15]);
+            if (is_wp_error($head)) {
+                error_log('[EFB Addon Debug] HEAD request error: ' . $head->get_error_message());
+                // Retry without SSL verify
+                $head = wp_remote_head($url, ['sslverify' => false, 'timeout' => 15]);
+                if (is_wp_error($head)) {
+                    error_log('[EFB Addon Debug] HEAD (no SSL) error: ' . $head->get_error_message());
+                } else {
+                    error_log('[EFB Addon Debug] HEAD (no SSL) status: ' . wp_remote_retrieve_response_code($head));
+                }
+            } else {
+                $head_code = wp_remote_retrieve_response_code($head);
+                error_log('[EFB Addon Debug] HEAD status: ' . $head_code);
+                if ($head_code >= 300 && $head_code < 400) {
+                    error_log('[EFB Addon Debug] Redirect Location: ' . wp_remote_retrieve_header($head, 'location'));
+                }
+            }
+
+            $r = download_url($url);
             if(is_wp_error($r)){
-                return new \WP_Error('download_failed',
-                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to download files', 'easy-form-builder')
-                    . ' (' . $r->get_error_message() . ')'
-                );
+                error_log('[EFB Addon Debug] download_url error code: ' . $r->get_error_code());
+                error_log('[EFB Addon Debug] download_url error msg: ' . $r->get_error_message());
+                // Retry with sslverify=false
+                $r = download_url($url, 300, true);
+                if (is_wp_error($r)) {
+                    error_log('[EFB Addon Debug] download_url (retry) error: ' . $r->get_error_message());
+                    return new \WP_Error('download_failed',
+                        esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to download files', 'easy-form-builder')
+                        . ' (' . $r->get_error_message() . ')'
+                    );
+                }
             }
             $filesystem_ready = WP_Filesystem();
             if ($filesystem_ready) {

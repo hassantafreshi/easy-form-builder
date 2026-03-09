@@ -304,7 +304,6 @@ public function check_nonce_permission_efb($request) {
 			window.elementorFrontendConfig = window.elementorFrontendConfig || {};
 			window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
 			window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
-			console.log('EFB: Elementor detected - config protection applied');
 			</script>
 			<?php
 		}
@@ -341,7 +340,6 @@ public function check_nonce_permission_efb($request) {
 					attempts++;
 
 					if (window.elementorFrontend && typeof window.elementorFrontend === 'object') {
-						console.log('ðŸš€ EFB: Found elementorFrontend, patching methods...');
 
 						Object.defineProperty(window.elementorFrontend, 'config', {
 							get: function() {
@@ -363,23 +361,15 @@ public function check_nonce_permission_efb($request) {
 							window.elementorFrontend.initOnReadyComponents = function() {
 								try {
 
-									console.log('ðŸ” EFB: this.config before fix:', this.config);
-									console.log('ðŸ” EFB: this.config.tools before fix:', this.config ? this.config.tools : 'config is null');
-									console.log('ðŸ” EFB: window.elementorFrontendConfig:', window.elementorFrontendConfig);
-
 									this.config = window.elementorFrontendConfig || safeConfig;
 
 									this.config.tools = safeConfig.tools;
 									this.config.settings = safeConfig.settings;
 
-									console.log('ðŸ”§ EFB: FORCED tools and settings');
-									console.log('ðŸ” EFB: this.config.tools AFTER fix:', this.config.tools);
-									console.log('ðŸ›¡ï¸ EFB: Safe initOnReadyComponents called, config fixed:', this.config);
-
 									try {
 
 										var result = originalInitOnReadyComponents.call(this);
-										console.log('âœ… EFB: Original method called successfully');
+
 										return result;
 									} catch (innerError) {
 										console.warn('ðŸ›¡ï¸ EFB: Inner method error, using safe fallback:', innerError);
@@ -402,7 +392,6 @@ public function check_nonce_permission_efb($request) {
 									this.config.tools = this.config.tools || safeConfig.tools;
 									this.config.settings = this.config.settings || safeConfig.settings;
 
-									console.log('ðŸ›¡ï¸ EFB: Safe init called');
 									return originalInit.apply(this, arguments);
 								} catch (e) {
 									console.warn('ðŸ›¡ï¸ EFB: Caught init error:', e);
@@ -411,15 +400,13 @@ public function check_nonce_permission_efb($request) {
 							};
 						}
 
-						console.log('âœ… EFB: Patched Elementor methods');
 						clearInterval(checkElementor);
 					}
 
 					if (attempts > 500) {
 						clearInterval(checkElementor);
-						console.log('âš ï¸ EFB: elementorFrontend not found, using global protection only');
 					}
-				}, 10);				console.log('ï¿½ EFB: Ultimate Elementor fix started');
+				}, 10);
 			})();
 			</script>
 			<?php
@@ -5398,7 +5385,6 @@ public function check_nonce_permission_efb($request) {
 					}
 				});
 
-				console.log('EFB: Ultimate Elementor fix applied - tools protected');
 			})();
 			</script>
 			<?php
@@ -5427,7 +5413,6 @@ public function check_nonce_permission_efb($request) {
 							this.config.settings = this.config.settings || {};
 							return originalInit.apply(this, arguments);
 						};
-						console.log('EFB: Patched elementorFrontend.init');
 					}
 
 					if (typeof window.elementorFrontend !== 'undefined' && window.elementorFrontend.initOnReadyComponents) {
@@ -5438,7 +5423,6 @@ public function check_nonce_permission_efb($request) {
 							this.config.settings = this.config.settings || {};
 							return originalInitOnReady.apply(this, arguments);
 						};
-						console.log('EFB: Patched elementorFrontend.initOnReadyComponents');
 					}
 				}
 
@@ -5450,7 +5434,6 @@ public function check_nonce_permission_efb($request) {
 
 				window.addEventListener('load', patchElementor);
 
-				console.log('EFB: Elementor monkey patch installed');
 			})();
 			</script>
 			<?php
@@ -5485,7 +5468,6 @@ public function check_nonce_permission_efb($request) {
 					    !window.elementorFrontend.initialized) {
 						try {
 							window.elementorFrontend.initialized = true;
-							console.log('EFB: Emergency Elementor fix applied');
 						} catch (e) {
 							console.log('EFB: Emergency fix attempt completed');
 						}
