@@ -3073,14 +3073,14 @@ public function addon_add_efb($value) {
 			'AdnTLG' => 0,
 		];
 		if($ac!=null && isset($ac->AdnSPF)==true){
-			$addons['AdnSPF'] = intval($ac->AdnSPF);
-			$addons["AdnOF"] = intval($ac->AdnOF);
-			$addons["AdnPPF"] = intval($ac->AdnPPF);
-			$addons["AdnATC"] = intval($ac->AdnATC);
-			$addons["AdnSS"] = intval($ac->AdnSS);
-			$addons["AdnCPF"] = intval($ac->AdnCPF);
-			$addons["AdnESZ"] = intval($ac->AdnESZ);
-			$addons["AdnSE"] = intval($ac->AdnSE);
+			$addons['AdnSPF'] = isset($ac->AdnSPF) ? intval($ac->AdnSPF) : 0;
+			$addons["AdnOF"] =  isset($ac->AdnOF) ? intval($ac->AdnOF) : 0;
+			$addons["AdnPPF"] = isset($ac->AdnPPF) ? intval($ac->AdnPPF) : 0;
+			$addons["AdnSS"] =  isset($ac->AdnSS) ? intval($ac->AdnSS) : 0;
+			$addons["AdnESZ"] = isset($ac->AdnESZ) ? intval($ac->AdnESZ) : 0;
+			$addons["AdnSE"]  = isset($ac->AdnSE) ? intval($ac->AdnSE) : 0;
+			$addons["AdnCPF"] = isset($ac->AdnCPF) ? intval($ac->AdnCPF) : 0;
+			$addons["AdnATC"] = isset($ac->AdnATC) ? intval($ac->AdnATC) : 0;
 			$addons["AdnPDP"] = isset($ac->AdnPDP) ? intval($ac->AdnPDP) : 0;
 			$addons["AdnADP"] = isset($ac->AdnADP) ? intval($ac->AdnADP) : 0;
 			$addons["AdnPAP"]=  isset($ac->AdnPAP) ? intval($ac->AdnPAP) : 0;

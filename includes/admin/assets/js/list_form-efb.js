@@ -1183,9 +1183,9 @@ function fun_show_setting__emsFormBuilder() {
   const proChckEvent =is_pro ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
   const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.stripe);
   const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
-
-  const planBadgeHtml = getCurrentPlanBadge_efb();
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
+  console.log('package type', package_type , `is pro ${is_pro}`)
+  const planBadgeHtml = getCurrentPlanBadge_efb();
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
             <h4 class="efb title-holder efb fs-4 d-none">
@@ -1376,7 +1376,7 @@ function fun_show_setting__emsFormBuilder() {
                               </h5>
                               <p class="efb ${mxCSize}">${efb_var.text.respColorsDesc}</p>
                               <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                <button type="button" class="efb efb-customize-colors-btn" onclick="${is_pro ? 'efb_open_color_modal()()' : 'pro_show_efb(3)'}">
+                                <button type="button" class="efb efb-customize-colors-btn" onclick="${is_pro ? 'efb_open_color_modal()' : 'pro_show_efb(3)'}">
                                   <i class="efb bi-palette2"></i> ${efb_var.text.respClrCustomize}
                                 </button>
                               </div>

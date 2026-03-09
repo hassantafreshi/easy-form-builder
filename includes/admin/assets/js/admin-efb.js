@@ -4409,7 +4409,7 @@ function efb_check_el_pro(el){
       pro_show_efb(efb_var.text.youUseProElements)
     }else if(el.type=="button" && el.classList.contains('setting')==true){
       f_b();
-      pro_show_efb(efb_var.text.proUnlockMsg)
+      pro_show_efb(3)
     }
     return false ;
   }
