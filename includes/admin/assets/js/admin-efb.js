@@ -1782,7 +1782,11 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].stateForm = el.classList.contains('active')==true ? true : false
         break;
       case 'emailNotiContainsEl':
-
+        if(pro_efb!=true){
+          pro_show_efb(3);
+          el.value="";
+          break;
+        }
         if(valj_efb[0].hasOwnProperty('email_noti_type')==false) Object.assign(valj_efb[0],{'email_noti_type':el.options[el.selectedIndex].value})
         valj_efb[0].email_noti_type = el.options[el.selectedIndex].value;
 
@@ -2050,25 +2054,30 @@ let change_el_edit_Efb = (el) => {
         break;
       case "loadingTypeEl":
         if(pro_efb!=true){
-          pro_show_efb(1);
+          pro_show_efb(3);
+          return;
+        }else{
           valj_efb[0].loading_type ='bars';
+          if (!valj_efb[0].hasOwnProperty('loading_type')) {
+            Object.assign(valj_efb[0], { loading_type: 'bars' });
+          }
+          valj_efb[0].loading_type = el.options[el.selectedIndex].value;
           updateLoadingPreview();
-          break;
         }
-        if (!valj_efb[0].hasOwnProperty('loading_type')) {
-          Object.assign(valj_efb[0], { loading_type: 'bars' });
-        }
-        valj_efb[0].loading_type = el.options[el.selectedIndex].value;
-        updateLoadingPreview();
         break;
       case "loadingColorEl":
-        if (!valj_efb[0].hasOwnProperty('loading_color')) {
-          Object.assign(valj_efb[0], { loading_color: '#abb8c3' });
+        if(pro_efb!=true){
+          pro_show_efb(3);
+          return;
+        }else{
+          if (!valj_efb[0].hasOwnProperty('loading_color')) {
+            Object.assign(valj_efb[0], { loading_color: '#abb8c3' });
+          }
+          valj_efb[0].loading_color = el.value;
+          const colorTextEl = document.getElementById('loadingColorTextEl');
+          if (colorTextEl) colorTextEl.value = el.value;
+          updateLoadingPreview();
         }
-        valj_efb[0].loading_color = el.value;
-        const colorTextEl = document.getElementById('loadingColorTextEl');
-        if (colorTextEl) colorTextEl.value = el.value;
-        updateLoadingPreview();
         break;
       case "currencyTypeEl":
         if(valj_efb[0].hasOwnProperty('currency')==false) Object.assign(valj_efb[0],{'currency':'USD '})
@@ -2871,7 +2880,7 @@ let change_el_edit_Efb = (el) => {
       break;
       case 'FormEmailSubjectEl':
         if(pro_efb!=true){
-          pro_show_efb(1);
+          pro_show_efb(3);
           valj_efb[0].email_sub ='';
           break;
         }
@@ -4969,7 +4978,7 @@ const actionEl = event.target.closest('[data-eventform].ec-efb');
                               emsFormBuilder_duplicate(temp2, 'form', temp);
                               break;
                           case 'generateCSV':
-                              pro ? generat_csv_emsFormBuilder() : pro_show_efb(efb_var.text.proUnlockMsg);
+                              pro ? generat_csv_emsFormBuilder() : pro_show_efb(3);
                               break;
                           case 'generateChart':
                               convert_to_dataset_emsFormBuilder();
@@ -4978,7 +4987,7 @@ const actionEl = event.target.closest('[data-eventform].ec-efb');
                               event_selected_row_emsFormBuilder('delete');
                               break;
                           case 'readSelectedRow':
-                              pro ? event_selected_row_emsFormBuilder('read') : pro_show_efb(efb_var.text.proUnlockMsg);
+                              pro ? event_selected_row_emsFormBuilder('read') :pro_show_efb(3);
                               break;
                           case 'setting':
                               fun_show_content_page_emsFormBuilder('setting');
@@ -5011,7 +5020,7 @@ const actionEl = event.target.closest('[data-eventform].ec-efb');
                           case 'deleteMsg':
                             temp = sanitize_text_efb(dataset.msgid);
                             temp2 = sanitize_text_efb(dataset.trackid);
-                            pro ? emsFormBuilder_delete(temp ,'message',temp2) : pro_show_efb(efb_var.text.proUnlockMsg);
+                            pro ? emsFormBuilder_delete(temp ,'message',temp2) : pro_show_efb(3);
 
                           break;
                           default:
@@ -6372,14 +6381,14 @@ const sub =lan_subdomain_wsteam_efb();
       link += `?notInputExists`
       break;
     case 'pickupByUser':
-      link = `How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder#how-to-add-a-location-picker-when-creating-form`
+      link += `How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder#how-to-add-a-location-picker-when-creating-form`
       break;
     case 'paymentform':
-      link = `How-to-Create-a-Payment-Form-in-Easy-Form-Builder`
+      link += `How-to-Create-a-Payment-Form-in-Easy-Form-Builder`
       break;
     case 'free_plus_guide':
-      link = 'easy-form-builder-free-plus-activation-guide'
-      break;
+      link += 'easy-form-builder-free-plus-activation-guide'
+    break;
   }
 }else{
   link = `https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/`;
@@ -6403,6 +6412,7 @@ const sub =lan_subdomain_wsteam_efb();
     case 'paymentform':
       link += `%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%db%8c%d8%b1%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%a8%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/`
       break;
+
   }
 }
   window.open(link, "_blank")

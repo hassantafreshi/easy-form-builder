@@ -1179,8 +1179,8 @@ function fun_show_setting__emsFormBuilder() {
   const mxCSize = !mobile_view_efb ? 'mx-5' : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
   let msg_email = efb_var.text.mlntip.replace('%1$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="EmailSpam" >`).replace('%2$s', '</a>').replace('%3$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="support" >`).replace('%4$s', '</a>');
-  const proChckEvent =efb_var.pro!=true && efb_var.pro!="true" ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
-
+  const is_pro = efb_var.pro == true || efb_var.pro == "true" ? true : false;
+  const proChckEvent =is_pro ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
   const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.stripe);
   const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
 
@@ -1376,7 +1376,7 @@ function fun_show_setting__emsFormBuilder() {
                               </h5>
                               <p class="efb ${mxCSize}">${efb_var.text.respColorsDesc}</p>
                               <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                <button type="button" class="efb efb-customize-colors-btn" onclick="efb_open_color_modal()">
+                                <button type="button" class="efb efb-customize-colors-btn" onclick="${is_pro ? 'efb_open_color_modal()()' : 'pro_show_efb(3)'}">
                                   <i class="efb bi-palette2"></i> ${efb_var.text.respClrCustomize}
                                 </button>
                               </div>
