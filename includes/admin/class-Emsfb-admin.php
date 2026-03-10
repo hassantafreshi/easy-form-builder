@@ -1107,33 +1107,11 @@ class Admin {
             $name =substr($url,strrpos($url ,"/")+1,-4);
             require_once(ABSPATH . 'wp-admin/includes/file.php');
 
-            // Debug: check URL accessibility before download
-            $head = wp_remote_head($url, ['sslverify' => true, 'timeout' => 15]);
-            if (is_wp_error($head)) {
-                error_log('[EFB Addon Debug] HEAD request error: ' . $head->get_error_message());
-                // Retry without SSL verify
-                $head = wp_remote_head($url, ['sslverify' => false, 'timeout' => 15]);
-                if (is_wp_error($head)) {
-                    error_log('[EFB Addon Debug] HEAD (no SSL) error: ' . $head->get_error_message());
-                } else {
-                    error_log('[EFB Addon Debug] HEAD (no SSL) status: ' . wp_remote_retrieve_response_code($head));
-                }
-            } else {
-                $head_code = wp_remote_retrieve_response_code($head);
-                error_log('[EFB Addon Debug] HEAD status: ' . $head_code);
-                if ($head_code >= 300 && $head_code < 400) {
-                    error_log('[EFB Addon Debug] Redirect Location: ' . wp_remote_retrieve_header($head, 'location'));
-                }
-            }
-
             $r = download_url($url);
             if(is_wp_error($r)){
-                error_log('[EFB Addon Debug] download_url error code: ' . $r->get_error_code());
-                error_log('[EFB Addon Debug] download_url error msg: ' . $r->get_error_message());
                 // Retry with sslverify=false
                 $r = download_url($url, 300, true);
                 if (is_wp_error($r)) {
-                    error_log('[EFB Addon Debug] download_url (retry) error: ' . $r->get_error_message());
                     return new \WP_Error('download_failed',
                         esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to download files', 'easy-form-builder')
                         . ' (' . $r->get_error_message() . ')'
@@ -1614,7 +1592,6 @@ function admin_notices_efb () {
                         efbNotice.style.display = 'none';
                     }
                     efbCloseBtn.addEventListener('click', function () {
-                        console.log('Notice closed permanently');
                         var efbNotice = document.getElementById('notice-email-efb');
                         if (efbNotice) efbNotice.style.display = 'none';
                         window.localStorage.setItem('efb_email_notice_dismissed', 'true');
@@ -1710,8 +1687,6 @@ function admin_notices_efb () {
         }
 
         $settings->package_type = $package_type_efb;
-        error_log("Plan selection: $selected_plan, Action: $action_performed, Package Type: $package_type_efb, settings: $settings->package_type" );
-        error_log("pro option value: " . get_option('emsfb_pro'));
         $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
         $efbFunction->set_setting_Emsfb($settings, $email);
 

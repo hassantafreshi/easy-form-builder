@@ -1184,7 +1184,7 @@ function fun_show_setting__emsFormBuilder() {
   const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.stripe);
   const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
-  console.log('package type', package_type , `is pro ${is_pro}`)
+
   const planBadgeHtml = getCurrentPlanBadge_efb();
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
