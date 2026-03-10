@@ -1,4 +1,13 @@
+/**
+ * Easy Form Builder - WPBakery Admin Panel Styles
+ *
+ * Styles for WPBakery admin panel
+ *
+ * @package EasyFormBuilder
+ * @since 4.0.0
+ */
 
+/* Element in WPBakery panel */
 .wpb_efb_wpbakery_form {
     position: relative;
 }
