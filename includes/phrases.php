@@ -974,9 +974,6 @@ class EfbAddonPhrases {
             /* translators: You do not have permission to access this page */
             "pay_no_permission" => $state && isset($ac->text->pay_no_permission) ? $ac->text->pay_no_permission : esc_html__('You do not have permission to access this page.', 'easy-form-builder'),
 
-            /* translators: All Gateways = filter dropdown */
-            "pay_allGateways" => $state && isset($ac->text->pay_allGateways) ? $ac->text->pay_allGateways : esc_html__('All Gateways', 'easy-form-builder'),
-
             /* translators: All Statuses = filter dropdown */
             "pay_allStatuses" => $state && isset($ac->text->pay_allStatuses) ? $ac->text->pay_allStatuses : esc_html__('All Statuses', 'easy-form-builder'),
 
@@ -1060,9 +1057,6 @@ class EfbAddonPhrases {
 
             /* translators: Status = field label */
             "pay_status" => $state && isset($ac->text->pay_status) ? $ac->text->pay_status : esc_html__('Status', 'easy-form-builder'),
-
-            /* translators: Gateway = field label */
-            "pay_gateway" => $state && isset($ac->text->pay_gateway) ? $ac->text->pay_gateway : esc_html__('Gateway', 'easy-form-builder'),
 
             /* translators: Payment Type = field label */
             "pay_paymentType" => $state && isset($ac->text->pay_paymentType) ? $ac->text->pay_paymentType : esc_html__('Payment Type', 'easy-form-builder'),
