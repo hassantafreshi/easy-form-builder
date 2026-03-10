@@ -2,37 +2,18 @@
 
 defined('ABSPATH') || exit;
 
-/**
- * EmsfbEmailHandler Class
- * Handles all email-related functionality with proper text translation integration
- */
 class EmsfbEmailHandler {
 
-    /**
-     * efbFunction instance for accessing text translations and utilities
-     * @var efbFunction
-     */
     private $efb_instance;
 
     private static $efb_function = null;
 
-    /**
-     * Cached text translations to avoid repeated lookups
-     * @var array
-     */
     private static $text_cache = [];
 
     public function __construct($efb_instance = null) {
         $this->efb_instance = $efb_instance;
     }
 
-    /**
-     * Get text translations using efbFunction instance
-     * Caches results to avoid repeated database queries
-     *
-     * @param array $text_keys Array of translation keys
-     * @return array Translated text array
-     */
     private function get_text_efb($text_keys) {
         $cache_key = md5(serialize($text_keys));
 
@@ -58,7 +39,6 @@ class EmsfbEmailHandler {
             return $result;
         }
 
-        // Fallback to WordPress translations
         $fallback = [];
         foreach ($text_keys as $key) {
             $fallback[$key] = $this->get_fallback_text($key);
@@ -67,12 +47,6 @@ class EmsfbEmailHandler {
         return count($text_keys) === 1 ? $fallback[array_keys($fallback)[0]] : $fallback;
     }
 
-    /**
-     * Fallback text translations
-     *
-     * @param string $key
-     * @return string
-     */
     private function get_fallback_text($key) {
         $fallbacks = [
             'msgdml' => __('To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %1$s documentation %2$s .', 'easy-form-builder'),
@@ -182,7 +156,7 @@ class EmsfbEmailHandler {
         }
 
         $headers = [
-            "MIME-Version: 1.0\r\n",
+            "MIME-Version: 1.0",
             'From:' . $from,
         ];
 
@@ -240,17 +214,6 @@ class EmsfbEmailHandler {
         return $mailResult;
     }
 
-    /**
-     * Generate email template with proper translations
-     *
-     * @param mixed $pro Pro version flag
-     * @param string $state Email state
-     * @param mixed $m Message content
-     * @param string $link Link for email
-     * @param string $email_content_type Content type
-     * @param string $st Settings
-     * @return string Generated HTML email template
-     */
     public function email_template_efb($pro, $state, $m, $link, $email_content_type, $st = "null") {
 
         $l = 'https://whitestudio.team';
@@ -263,7 +226,6 @@ class EmsfbEmailHandler {
         ];
         $l = $locale_map[$wp_lan] ?? $l;
 
-        // Get translations efficiently
         $text_keys = ['msgdml', 'mlntip', 'msgnml', 'serverEmailAble', 'vmgs', 'getProVersion', 'sentBy', 'hiUser', 'trackingCode', 'newMessage', 'createdBy', 'newMessageReceived', 'goodJob', 'yFreeVEnPro', 'WeRecivedUrM'];
         $lang = $this->get_text_efb($text_keys);
 
@@ -663,12 +625,6 @@ class EmsfbEmailHandler {
 </html>";
     }
 
-    /**
-     * Apply custom email template
-     *
-     * Handles both legacy templates (old textarea input) and builder templates
-     * (drag-drop email builder with efb-email-container class).
-     */
     private function apply_custom_template($temp, $message, $title, $blogName, $blogURL, $adminEmail, $footer, $disclaimer) {
         $replacements = [
             'shortcode_message' => $message,

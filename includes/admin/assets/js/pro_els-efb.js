@@ -1,3 +1,19 @@
+async function fetch_json_from_url_efb(url) {
+  let r = { s: false, r: "false" };
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    r.s = true;
+    r.r = data;
+  } catch (error) {
+    r.r = error.message;
+  }
+  return r;
+}
+
 let marker_maps_efb;
 maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
     return `
@@ -263,7 +279,7 @@ function ui_dadfile_efb(indx, previewSate,form_id) {
   'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
   'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
   'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar',
-  'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text, .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime',
+  'allformat':'image/png, image/jpeg, image/jpg, image/gif, image/heic, audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg, video/mpg, audio/mpg, video/mov, video/quicktime, .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text, .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime',
   'customize':`${valj_efb_[indx].file_ctype}`
     }
   return `<div class="efb icon efb"><i class="efb  fs-3 ${valj_efb_[indx].icon} ${valj_efb_[indx].icon_color}" id="${valj_efb_[indx].id_}_icon"></i></div>
@@ -309,7 +325,7 @@ function viewfileEfb(id, indx ,filed,form_id) {
           box.innerHTML = box_v;
         }
       }
-      fileReader.readAsDataURL(fileEfb);
+      fileReader.readAsDataURL(filed);
       document.getElementById(`${id}_-message`).innerHTML = "";
       document.getElementById(`${id}_-message`).classList.remove('show')
 
@@ -358,17 +374,29 @@ function removeFileEfb(id, indx,form_id) {
       if (inx != -1) {
         sendBack_emsFormBuilder_pub.splice(inx, 1)
         inx = files_emsFormBuilder.findIndex(x => x.id_ == id)
-        files_emsFormBuilder[inx].url = "";
+        if (inx != -1) {
+          files_emsFormBuilder[inx].url = "";
+          files_emsFormBuilder[inx].state = 0;
+        }
       }
       else {
         inx = files_emsFormBuilder.findIndex(x => x.id_ == id)
         if (inx != -1) {
           files_emsFormBuilder[inx].url = "";
+          files_emsFormBuilder[inx].state = 0;
           setTimeout(() => {
             inx = get_row_sendback_by_id_efb(id);
             if (inx != -1) { sendBack_emsFormBuilder_pub.splice(inx, 1) }
           }, 100);
         }
+      }
+    }
+    let fileIndx = files_emsFormBuilder.findIndex(x => x.id_ == id);
+    if (fileIndx === -1) {
+      const valj_efb_rm = get_structure_by_form_id_efb(form_id);
+      const ob = valj_efb_rm ? valj_efb_rm.find(x => x.id_ === id) : null;
+      if (ob) {
+        files_emsFormBuilder.push({ id_: id, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder, form_id: form_id });
       }
     }
     fun_removeProgessiveEl_efb(id);

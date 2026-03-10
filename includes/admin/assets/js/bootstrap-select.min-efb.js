@@ -1,5 +1,5 @@
 
-/* 
+/*
  Created by : Hassan Tafreshi
  Copy right owner : whiteStudio.team
  Desc: This multi-select is designed base on boostrap 5 and used for Easy form builder Wordpress Plugin
@@ -177,7 +177,6 @@ document.addEventListener("click", (evnt) => {
                     if (l.classList.contains('border-danger')) l.classList.remove('border-danger');
                 } else {
                     if (l.classList.contains('border-danger')) {
-                        //console.error('add border');
                     }
                 }
             }

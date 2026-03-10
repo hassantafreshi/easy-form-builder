@@ -213,14 +213,16 @@ function copyCodeEfb(id , tagid = '') {
 function validExtensions_efb_fun(type, fileType,indx) {
   type= type.toLowerCase();
   const tt = valj_efb.length>1 && valj_efb[indx].hasOwnProperty('file_ctype') ? valj_efb[indx].file_ctype.replaceAll(',',' , ') : '';
-  filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif',
-  'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg',
+  filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif, image/heic',
+  'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
   'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
   'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar',
-  'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, image/heic, video/mov, .mov, video/quicktime',
+  'allformat':'image/png, image/jpeg, image/jpg, image/gif, image/heic, audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg, video/mpg, audio/mpg, video/mov, video/quicktime, .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text, .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, video/mov, .mov, video/quicktime',
   'customize':tt
   }
-  return filetype_efb[type].includes(fileType) ;
+  var allowed = filetype_efb[type];
+  if (!allowed) return false;
+  return allowed.includes(fileType) ;
 }
 let steps_len_efb
 
@@ -284,7 +286,7 @@ function setProgressBar_efb(curStep, steps_len_efb) {
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
 
 const alertStyles_efb = {
-  danger: { bg: 'linear-gradient(135deg, #c00751 0%, #f95e5e 100%)', icon: 'bi-x-octagon', color: '#fff' },
+  danger: { bg: 'linear-gradient(135deg, #c00751 0%, #f95e5e 100%)', icon: 'bi-ban', color: '#fff' },
   warning: { bg: 'linear-gradient(135deg, #ffc107 0%, #ffb300 100%)', icon: 'bi-exclamation-triangle-fill', color: '#333' },
   success: { bg: 'linear-gradient(135deg, #065518  0%, #108f69 100%)', icon: 'bi-check-lg', color: '#fff' },
   info: { bg: 'linear-gradient(135deg, #202a8d 0%, #667eea 100%)', icon: 'bi-info-lg', color: '#fff' }
@@ -616,6 +618,12 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
     return;
   }
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
+  if (indx === -1) {
+    const ob = typeof valueJson_ws !== 'undefined' ? valueJson_ws.find(x => x.id_ === id) : null;
+    const fid = ob && ob.hasOwnProperty('step') ? (document.getElementById(id + '_') ? document.getElementById(id + '_').dataset.formid || 0 : 0) : 0;
+    files_emsFormBuilder.push({ id_: id, value: "@file@", state: 0, url: "", type: "file", name: ob ? ob.name : '', session: sessionPub_emsFormBuilder, form_id: fid });
+    indx = files_emsFormBuilder.length - 1;
+  }
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;
   let r = ""
@@ -643,30 +651,33 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
   const idB =id+'-prB';
       fetch_uploadFile(file, id, pl, nonce_msg,page_id,fid,sid).then((data) => {
 
+        var currentIndx = files_emsFormBuilder.findIndex(function(x) { return x.id_ === id; });
+        if (currentIndx === -1) return;
+
         var responseData = data;
         if (data.hasOwnProperty('data')) {
           responseData = data.data;
         }
 
         if (data.success === true && responseData.success === true) {
-          files_emsFormBuilder[indx].url = responseData.file.url;
-          files_emsFormBuilder[indx].state = 2;
-          files_emsFormBuilder[indx].id = idn;
-          const form_id = files_emsFormBuilder[indx].hasOwnProperty('form_id') ? files_emsFormBuilder[indx].form_id : 0;
+          files_emsFormBuilder[currentIndx].url = responseData.file.url;
+          files_emsFormBuilder[currentIndx].state = 2;
+          files_emsFormBuilder[currentIndx].id = idn;
+          const form_id = files_emsFormBuilder[currentIndx].hasOwnProperty('form_id') ? files_emsFormBuilder[currentIndx].form_id : 0;
           const ob = valueJson_ws.find(x => x.id_ === id) || 0;
           const o = [{
-            id_: files_emsFormBuilder[indx].id_,
-            name: files_emsFormBuilder[indx].name,
+            id_: files_emsFormBuilder[currentIndx].id_,
+            name: files_emsFormBuilder[currentIndx].name,
             amount: ob.amount,
-            type: files_emsFormBuilder[indx].type,
+            type: files_emsFormBuilder[currentIndx].type,
             value: '@file@',
-            url: files_emsFormBuilder[indx].url,
+            url: files_emsFormBuilder[currentIndx].url,
             session: sessionPub_emsFormBuilder,
             page_id: page_id,
             form_id: form_id,
           }];
           fun_sendBack_emsFormBuilder(o[0]);
-          files_emsFormBuilder.splice(indx, 1);
+          files_emsFormBuilder.splice(currentIndx, 1);
           const el = document.getElementById(idB)
           if(el){
             el.style.width = '100%';
@@ -692,6 +703,9 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
           if(el==null) return;
           el.style.width = '0%';
           el.textContent = '0% = ' + file.name;
+
+          var errIndx = files_emsFormBuilder.findIndex(function(x) { return x.id_ === id; });
+          if (errIndx !== -1) files_emsFormBuilder[errIndx].state = 3;
           return;
         }
       })
@@ -714,7 +728,8 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
           el.textContent = '0% = Error: ' + file.name;
         }
 
-        files_emsFormBuilder[indx].state = 0;
+        var catchIndx = files_emsFormBuilder.findIndex(function(x) { return x.id_ === id; });
+        if (catchIndx !== -1) files_emsFormBuilder[catchIndx].state = 0;
       });
 }
 function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {

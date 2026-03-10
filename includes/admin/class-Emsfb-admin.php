@@ -108,7 +108,7 @@ class Admin {
         $noti_count = count($this->get_not_read_message());
         $icon       = EMSFB_PLUGIN_URL . '/includes/admin/assets/image/logo-gray.png';
         add_menu_page(
-            esc_html__('Panel', 'Emsfb'),
+            esc_html__('Panel', 'easy-form-builder'),
             $noti_count ? sprintf(esc_html__('Easy Form Builder', 'easy-form-builder') . ' <span id="efbCountM" class="efb awaiting-mod">%d</span>', $noti_count) : esc_html__('Easy Form Builder', 'easy-form-builder'),
             'Emsfb',
             'Emsfb',
@@ -332,7 +332,7 @@ class Admin {
 
         $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
-                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP"];
+                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP","AdnATF","AdnTLG" ,'AdnPAP'];
         $dd =gettype(array_search($post_value, $allw));
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can || $dd !='integer') {
@@ -350,16 +350,18 @@ class Admin {
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
         }
-        $name_space ='emsfb_addon_'.$value;
-       if($value!="AdnOF"){
+        $name_space ='emsfb_addon_'.$post_value;
+       if($post_value!="AdnOF"){
             $server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
-            $name_space = 'emsfb_addon_' . $value;
+            $name_space = 'emsfb_addon_' . $post_value;
             delete_option($name_space);
             $vwp = get_bloginfo('version');
             $vwp = substr($vwp,0,3);
-            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
-            if (get_locale() == 'fa_IR') {
-                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/';
+            $vefb = EMSFB_PLUGIN_VERSION;
+            $domain =  get_option('emsfb_dev_mode', '0') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
+            $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+            if (get_locale() == 'fa_IR' && false) {
+                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
             }
             $attempts = 2;
             for ($i = 0; $i < $attempts; $i++) {
@@ -368,7 +370,8 @@ class Admin {
                     break;
                 }
                 if ($i == $attempts - 1) {
-                    $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server', 'easy-form-builder');
+                    $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server', 'easy-form-builder');
+                    $m = sprintf($m, $domain);
                     $response = ['success' => false, "m" => $m];
                     wp_send_json_success($response, 200);
                 }
@@ -393,8 +396,8 @@ class Admin {
             if ( isset($data->download) && $data->download == true) {
                 $url = $data->link;
                 $s = $this->fun_addon_new($url);
-                if ($s == false) {
-                    $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder');
+                if (is_wp_error($s)) {
+                    $m = $s->get_error_message();
                     $response = ['success' => false, "m" => $m];
                     wp_send_json_success($response, 200);
                 }
@@ -418,7 +421,7 @@ class Admin {
             $ac->AdnMSF=0;
             $ac->AdnBEF=0;
         }
-        $ac->{$value}=1;
+        $ac->{$post_value}=1;
         $ac->efb_version=EMSFB_PLUGIN_VERSION;
         if(empty($this->db)){
             global $wpdb;
@@ -809,9 +812,13 @@ class Admin {
                 if(strlen($value)<1){
                     continue;
                 }
-                $state = $efbFunction->is_efb_pro($value);
                 $m['activeCode'] = sanitize_text_field($value);
-                if ($state==false) {
+                $state = $efbFunction->is_efb_pro($m['activeCode']);
+                if ($state==true) {
+                    $m['package_type'] = 1;
+                    update_option('emsfb_pro', 1);
+                } else {
+                    $m['package_type'] = 2;
                     $response = ['success' => false, "m" =>$lang['activationNcorrect']];
                     if(strlen($value) > 1){ wp_send_json_success($response, 200);}
                 }
@@ -1098,32 +1105,51 @@ class Admin {
         public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
         public function fun_addon_new($url){
             $name =substr($url,strrpos($url ,"/")+1,-4);
-            $r =download_url($url);
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+
+            $r = download_url($url);
             if(is_wp_error($r)){
-            }else{
-                $directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
+                $r = download_url($url, 300, true);
+                if (is_wp_error($r)) {
+                    return new \WP_Error('download_failed',
+                        esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to download files', 'easy-form-builder')
+                        . ' (' . $r->get_error_message() . ')'
+                    );
+                }
+            }
+            $filesystem_ready = WP_Filesystem();
+            if ($filesystem_ready) {
+                global $wp_filesystem;
+                $directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
+                if (!$wp_filesystem->exists($directory)) {
+                    $wp_filesystem->mkdir($directory, 0755);
+                }
+                $moved = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', true);
+            } else {
+                $directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
                 if (!file_exists($directory)) {
                     mkdir($directory, 0755, true);
                 }
-                $r = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
-                if(is_wp_error($r)){
-                    return false;
-                }else{
-                    require_once(ABSPATH . 'wp-admin/includes/file.php');
-                    WP_Filesystem();
-                    $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
-                    if(is_wp_error($r)){
-                        return false;
-                    }
-                    return true;
-                }
+                $moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
             }
-            $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/".$name."/".$name.".php";
-            if(file_exists($fl_ex)){
-                $name ='\Emsfb\\'.$name;
-                require_once  $fl_ex;
-                $t = new $name();
+            if(!$moved){
+                @unlink($r);
+                return new \WP_Error('move_failed',
+                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file', 'easy-form-builder')
+                );
             }
+            if (!$filesystem_ready) {
+                WP_Filesystem();
+            }
+            $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
+            @unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
+            if(is_wp_error($r)){
+                return new \WP_Error('unzip_failed',
+                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder')
+                    . ' (' . $r->get_error_message() . ')'
+                );
+            }
+            return true;
         }
     public function file_upload_public(){
 
@@ -1139,9 +1165,9 @@ class Admin {
         }else{
             $id = isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
             $table_name = $this->db->prefix . "emsfb_form";
-            $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
+            $vl  = $this->db->get_var($this->db->prepare("SELECT form_structer FROM `{$table_name}` WHERE form_id = %d", $id));
             if($vl!=null){
-                if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') || strpos($vl , '"type":"dadfile"') || strpos($vl , '"type":"file"')){
+                if(strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false || strpos($vl , '"type":"dadfile"') !== false || strpos($vl , '"type":"file"') !== false){
                     $vl ='efb'.$id;
 
                 }
@@ -1175,19 +1201,39 @@ class Admin {
 		if (isset($_FILES['file']['type']) && in_array($_FILES['file']['type'], $arr_ext)) {
 
             $file_name = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
-            $file_tmp = isset($_FILES['file']['tmp_name']) ? sanitize_text_field( wp_unslash( $_FILES['file']['tmp_name'] ) ) : '';
+            $file_tmp = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
             $file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
-            $name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("..."), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
-            $upload = wp_upload_bits($name, null, file_get_contents($file_tmp));
+
+            if (empty($file_tmp) || !is_uploaded_file($file_tmp) || !is_readable($file_tmp)) {
+                $response = array( 'success' => false, 'error' => 'File upload error');
+                wp_send_json_success($response, 200);
+            }
+
+            $name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
+
+            $blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg');
+            $file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+            if (in_array($file_ext, $blocked_ext)) {
+                $response = array( 'success' => false, 'error' => 'File type not allowed');
+                wp_send_json_success($response, 200);
+            }
+
+            $file_contents = file_get_contents($file_tmp);
+            if ($file_contents === false) {
+                $response = array( 'success' => false, 'error' => 'File read error');
+                wp_send_json_success($response, 200);
+            }
+
+            $upload = wp_upload_bits($name, null, $file_contents);
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
 			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=> $file_type);
 			  wp_send_json_success($response,200);
 		}else{
-			$response = array( 'success' => false  ,'error'=>"File Type Error");
+			$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : 'unknown';
+			$response = array( 'success' => false  ,'error'=>'File Type Error');
 			wp_send_json_success($response,200);
-			die('invalid file '. $file_type);
 		}
 
 	}
@@ -1545,7 +1591,6 @@ function admin_notices_efb () {
                         efbNotice.style.display = 'none';
                     }
                     efbCloseBtn.addEventListener('click', function () {
-                        console.log('Notice closed permanently');
                         var efbNotice = document.getElementById('notice-email-efb');
                         if (efbNotice) efbNotice.style.display = 'none';
                         window.localStorage.setItem('efb_email_notice_dismissed', 'true');
@@ -1600,29 +1645,49 @@ function admin_notices_efb () {
         $redirect_url = null;
         $action_performed = null;
         $package_type_efb = 2;
+
+        $settings = get_setting_Emsfb('decoded');
+        $has_active_code = isset($settings->activeCode) && !empty($settings->activeCode);
+
         switch($selected_plan) {
             case 'free':
                 update_option('emsfb_pro', 2);
+                $package_type_efb = 2;
                 $action_performed = __('Free plan activated - no additional features.', 'easy-form-builder');
-
+                if ($has_active_code) {
+                    $settings->activeCode = '';
+                }
                 break;
 
             case 'free_plus':
                 update_option('emsfb_pro', 3);
+                $package_type_efb = 3;
                 $action_performed = __('Free Plus plan activated with enhanced features.', 'easy-form-builder');
-                $package_type_efb =3;
+                if ($has_active_code) {
+                    $settings->activeCode = '';
+                }
                 break;
 
             case 'pro':
-                $redirect_url = 'https://whitestudio.team/#price';
-                $package_type_efb =0;
-                if (get_locale() == 'fa_IR') {
-                    $redirect_url = 'https://easyformbuilder.ir/#price';
+                if ($has_active_code) {
+                    $package_type_efb = 1;
+                    update_option('emsfb_pro', 1);
+                    $action_performed = __('Pro plan activated with existing activation code.', 'easy-form-builder');
+                } else {
+                    $package_type_efb = 0;
+                    update_option('emsfb_pro', 0);
+                    $redirect_url = 'https://whitestudio.team/#price';
+                    if (get_locale() == 'fa_IR') {
+                        $redirect_url = 'https://easyformbuilder.ir/#price';
+                    }
+                    $action_performed = __('Redirecting to Pro plan purchase page.', 'easy-form-builder');
                 }
-                $action_performed = __('Redirecting to Pro plan purchase page.', 'easy-form-builder');
-
-            break;
+                break;
         }
+
+        $settings->package_type = $package_type_efb;
+        $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
+        $efbFunction->set_setting_Emsfb($settings, $email);
 
         $response_data = array(
             'success' => true,
@@ -1632,7 +1697,7 @@ function admin_notices_efb () {
             'redirect_url' => $redirect_url,
             'timestamp' => $timestamp,
             'saved_at' => current_time('mysql'),
-            'package_type' =>$package_type_efb
+            'package_type' => $package_type_efb
         );
 
         wp_send_json_success($response_data);

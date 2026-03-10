@@ -46,8 +46,9 @@ class Addon {
 	}
 	public function render_settings() {
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-
-		wp_register_script('whiteStudioAddone', 'http://127.0.0.1/ws/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
+		$dev_mode = get_option('emsfb_dev_mode', '0') === '1';
+		$domain =  $dev_mode ? 'demo.whitestudio.team' : 'whitestudio.team';
+		wp_register_script('whiteStudioAddone', 'http://' . $domain . '/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
 
         wp_enqueue_script('whiteStudioAddone');
 
@@ -127,7 +128,6 @@ class Addon {
 		if(is_object($ac) && (!isset($ac->efb_version) || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0)){
 			$efbFunction->setting_version_efb_update($ac ,$pro);
 		}
-		// v2 translate
 		$lang = $efbFunction->text_efb(2);
 			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('jquery-ui-efb');

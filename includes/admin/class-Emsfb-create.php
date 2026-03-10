@@ -23,7 +23,7 @@ class Create {
 			update_option( $this->setting_name, array() );
 		}
 
-		if ( false == get_option( 'emsfb_pro' ) ) {
+		if ( get_option( 'emsfb_pro' ) === false ) {
 			add_option( 'emsfb_pro', -1 );
 		}
 		add_action( 'admin_menu', array( $this, 'add_Create_menu' ), 11 );
@@ -58,7 +58,7 @@ class Create {
 
 		$noti_pro = intval(get_option('emsfb_pro' ,-1));
 		if ($noti_pro === 0  ){
-			$noti_pro ="<script>console.log('test');const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
+			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
 
 		}else{
 			$noti_pro = '<script>const noti_exp_efb="";</script>';
@@ -109,7 +109,7 @@ class Create {
 			<script>
 					setTimeout(() => {
 						if(typeof efb_var == 'undefined' || efb_var == null) {
-							console.log('efb_var not found!')
+							console.error('efb_var not found!')
 							document.getElementById('tab_container_efb').innerHTML ='<div class="efb bg-danger m-5 fs-6 p-5 text-white" ><p><?php echo esc_html__('If you are seeing this message, it is likely for one of these reasons: If you have a caching plugin installed, its settings may need to be reviewed.','easy-form-builder') . ' ' . esc_html__('Please also ensure that you have a stable internet connection and try again.','easy-form-builder') ?></p><p class="efb fs-7 text-darkb mt-3"><?php echo  esc_html__('Easy Form Builder','easy-form-builder') ?></p></div>';
 						}
 					}, 90000);
@@ -135,7 +135,6 @@ class Create {
 			$efbFunction->openstreet_map_required_efb(0);
 		}
 
-		// v2 translate
 		$lang = $efbFunction->text_efb(1);
 
 		$efbFunction->setting_version_efb_update($settings, $pro, true);

@@ -318,7 +318,7 @@ class Panel_edit  {
 					'zone_area'=>CDN_ZONE_AREA,
 					'bootstrap'=>$this->check_temp_is_bootstrap(),
 					'pro'=>$pro ? 1 : 0,
-					'devMode'=> get_option('emsfb_dev_mode', '1') === '1' ? 1 : 0,
+					'devMode'=> get_option('emsfb_dev_mode', '0') === '1' ? 1 : 0,
 				));
 
 		}else{

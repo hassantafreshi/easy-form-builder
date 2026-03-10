@@ -3367,12 +3367,13 @@ function redirectToProUpgrade_efb($proUrl) {
 function sendPlanSelectionToServer_efb(selectionData) {
     const user_selected = selectionData.selected_plan || 'unknown';
     if(user_selected === 'pro') {
-      sessionStorage.setItem('efb_license_selected', '4');
+      sessionStorage.setItem('efb_license_selected', '1');
     }else if(user_selected === 'free_plus') {
       sessionStorage.setItem('efb_license_selected', '3');
     }else if(user_selected === 'free') {
       sessionStorage.setItem('efb_license_selected', '2');
     }
+
     jQuery.ajax({
         url: efb_var.ajax_url,
         type: 'POST',

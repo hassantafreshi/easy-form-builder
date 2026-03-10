@@ -1,6 +1,5 @@
 @charset "UTF-8";
 
-/*! * Bootstrap v5.0.1 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) */
 :root {
     --bs-blue: #0d6efd;
     --bs-indigo: #6610f2;
@@ -865,6 +864,20 @@ progress.efb {
 
 .efb.form-control:hover:not(:disabled):not([readonly])::-webkit-file-upload-button {
   background-color: #dde0e3
+}
+
+.efb.form-control[type=file]::file-selector-button {
+  padding-top: 100px;
+  padding-bottom: 100px;
+  margin-top: -100px;
+  margin-bottom: -100px;
+}
+
+.efb.form-control[type=file]::-webkit-file-upload-button {
+  padding-top: 100px;
+  padding-bottom: 100px;
+  margin-top: -100px;
+  margin-bottom: -100px;
 }
 
 .efb.form-control-plaintext {
@@ -2562,7 +2575,6 @@ fieldset:disabled .efb.btn {
 
 
 
-/* style.css admin */
 #alert_content_efb {
   position: absolute;
   margin: 10% 15%;

@@ -82,11 +82,12 @@
 				$type = $isTextType ? 'text' : $elementId;
 				$autocomplete = $this->generateAutocomplete_efb($elementId);
 				$placeholder = $isPlaceholderType ? sprintf('placeholder="%s"', $vj->placeholder) : '';
+				$telPattern = ($elementId === 'tel') ? 'pattern="^\+?[0-9\-\s().]{7,25}$"' : '';
 				$lenAttributes = $this->generateLengthAttributes_efb($elementId, $vj);
 				$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
 
 				$fields['ui'] = $this->generateTextInput_efb(
-				$type,$classes,$vj,$rndm,$desc,$label,$ttip,$div_f_id,$placeholder,$lenAttributes,$aire_describedby,$disabled,$autocomplete,$form_id
+				$type,$classes,$vj,$rndm,$desc,$label,$ttip,$div_f_id,$placeholder,$lenAttributes,$aire_describedby,$disabled,$autocomplete,$form_id,$telPattern
 				);
 				$fields['dataTag'] = $elementId;
 				break;
@@ -173,7 +174,7 @@
 		return ['maxlen' => $maxlen, 'minlen' => $minlen];
 	}
 
-	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id) {
+	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id, $telPattern = '') {
 
 		$corener = isset($vj->corner) ? $vj->corner : 'efb-square';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
@@ -185,7 +186,7 @@
 		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 
 		return sprintf(
-			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formid="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  $vj->name,  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $desc
+			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formid="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  $vj->name,  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $telPattern,  $desc
 		);
 	}
 
@@ -1130,19 +1131,12 @@
 						if (iti.isValidNumber()) {
 							elem.classList.add("border-success");
 
-							// Get country data using new API
 							const countryData = iti.getSelectedCountryData();
 							const countryCode = countryData.dialCode;
 							const iso2 = countryData.iso2;
 							const countryName = countryData.name;
 
-							// Get the full number including country code using new API
 							const value = iti.getNumber();
-
-							console.log("Mobile Valid number:", value);
-							console.log("Mobile Country code:", countryCode);
-							console.log("Mobile ISO2:", iso2);
-							console.log("Mobile Country name:", countryName);
 
 							fun_sendBack_emsFormBuilder({
 								id_: "%2$s",
@@ -1288,9 +1282,11 @@
 
 		$fileType = property_exists($vj, 'file') ? $vj->file : '';
 
-		if ($fileType == 'customize') {
-			$name_type_file = $vj->file_ctype;
-		}else{
+		if ($fileType === 'customize') {
+			$name_type_file = esc_html__('File', 'easy-form-builder') . '<span class="efb d-none d-md-inline fs-7">(' . esc_html($vj->file_ctype) . ')</span>';
+		} elseif ($fileType === 'allformat') {
+			$name_type_file = esc_html__('File', 'easy-form-builder');
+		} else {
 			$name_type_file = $texts[$fileType];
 		}
 
@@ -3059,7 +3055,6 @@
 
 public function check_error_console_efb(){
 
-	// Translations
 	$t = [
 		'title'       => esc_html__('Error Monitor', 'easy-form-builder'),
 		'plugin'      => esc_html__('Plugin', 'easy-form-builder'),
@@ -3074,6 +3069,7 @@ public function check_error_console_efb(){
 		'noErrors'    => esc_html__('No errors detected', 'easy-form-builder'),
 		'warning'     => esc_html__('These errors may interfere with forms built using Easy Form Builder.', 'easy-form-builder'),
 		'adminOnly'   => esc_html__('This panel is only visible to site administrators.', 'easy-form-builder'),
+		'easyformbuilder' => esc_html__('Easy Form Builder', 'easy-form-builder'),
 	];
 
 	$value = '
@@ -3088,7 +3084,6 @@ public function check_error_console_efb(){
 
 			t: ' . wp_json_encode($t) . ',
 
-			// Parse source to get plugin/theme name
 			parseSource(source) {
 				if (!source) return { type: "unknown", name: this.t.unknown, file: "", fullPath: "" };
 
@@ -3097,7 +3092,6 @@ public function check_error_console_efb(){
 				try {
 					const url = new URL(source);
 					const pathname = url.pathname;
-					// Extract full path from wp-content onwards
 					const wpContentIdx = pathname.indexOf("/wp-content/");
 					if (wpContentIdx !== -1) {
 						fullPath = pathname.substring(wpContentIdx + 1); // Remove leading slash
@@ -3115,7 +3109,6 @@ public function check_error_console_efb(){
 					file = source.split("/").slice(-2).join("/");
 				}
 
-				// WordPress plugins
 				const pluginMatch = source.match(/wp-content\/plugins\/([^\/]+)/);
 				if (pluginMatch) {
 					const name = pluginMatch[1].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
@@ -3129,19 +3122,16 @@ public function check_error_console_efb(){
 					};
 				}
 
-				// WordPress themes
 				const themeMatch = source.match(/wp-content\/themes\/([^\/]+)/);
 				if (themeMatch) {
 					const name = themeMatch[1].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 					return { type: "theme", slug: themeMatch[1], name: name, file: file, fullPath: fullPath, isEFB: false };
 				}
 
-				// WordPress core
 				if (source.match(/wp-(includes|admin)/)) {
 					return { type: "wpCore", name: this.t.wpCore, file: file, fullPath: fullPath, isEFB: false };
 				}
 
-				// External (CDN, etc.)
 				if (source.startsWith("http")) {
 					try {
 						const url = new URL(source);
@@ -3154,9 +3144,7 @@ public function check_error_console_efb(){
 				return { type: "unknown", name: this.t.unknown, file: file, fullPath: fullPath || source, isEFB: false };
 			},
 
-			// Create UI
 			createUI() {
-				// Badge button
 				this.badge = document.createElement("div");
 				this.badge.id = "efb-error-badge";
 				this.badge.innerHTML = `
@@ -3165,29 +3153,38 @@ public function check_error_console_efb(){
 						<line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
 					</svg>
 					<span class="efb-error-count">0</span>
+					<span class="efb-badge-tooltip">${this.t.adminOnly}</span>
 				`;
+				const isRtl = document.documentElement.dir === "rtl" || document.body.dir === "rtl" || getComputedStyle(document.documentElement).direction === "rtl";
+				this.isRtl = isRtl;
 				this.badge.style.cssText = `
-					position: fixed; bottom: 20px; right: 20px; z-index: 999999;
-					background: #dc3545;
-					color: #fff; padding: 12px 18px; border-radius: 50px;
-					cursor: pointer; display: flex; align-items: center; gap: 10px;
-					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-					font-size: 13px; font-weight: 600; box-shadow: 0 4px 15px rgba(220,53,69,0.4);
-					transition: all 0.3s ease; opacity: 0; pointer-events: none;
+					all: initial !important;
+					position: fixed !important; top: 35px !important; ${isRtl ? "right" : "left"}: 30px !important;
+					z-index: 999999 !important;
+					background: #dc3545 !important;
+					color: #fff !important; padding: 12px 18px !important; border-radius: 50px !important;
+					cursor: pointer !important; display: flex !important; align-items: center !important; gap: 10px !important;
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+					font-size: 13px !important; font-weight: 600 !important;
+					box-shadow: 0 4px 15px rgba(220,53,69,0.4) !important;
+					opacity: 0 !important; pointer-events: none !important;
+					direction: ltr !important; box-sizing: border-box !important;
+					line-height: normal !important; text-transform: none !important;
+					text-decoration: none !important; letter-spacing: normal !important;
+					margin: 0 !important; float: none !important; border: none !important;
+					min-height: 0 !important; max-height: none !important;
+					min-width: 0 !important; height: auto !important; width: auto !important;
+					overflow: visible !important;
 				`;
 				this.badge.onclick = () => this.togglePanel();
 				document.body.appendChild(this.badge);
 
-				// Panel
 				this.panel = document.createElement("div");
 				this.panel.id = "efb-error-panel";
 				this.panel.innerHTML = `
 					<div class="efb-panel-header">
 						<div class="efb-panel-title">
-							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-								<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-							</svg>
-							<span>Easy Form Builder - ${this.t.title}</span>
+							<span>${this.t.easyformbuilder} - ${this.t.title}</span>
 						</div>
 						<div class="efb-panel-actions">
 							<button class="efb-btn-clear" onclick="EFB_ERROR_PANEL.clearErrors()">${this.t.clear}</button>
@@ -3196,16 +3193,9 @@ public function check_error_console_efb(){
 					</div>
 
 					<div class="efb-panel-warning">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-							<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-						</svg>
-
 						<span>${this.t.warning}</span>
 					</div>
 					<div class="efb-admin-notice">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-						</svg>
 						<span>${this.t.adminOnly}</span>
 						<span class="efb-admin-badge">ADMIN</span>
 					</div>
@@ -3220,15 +3210,14 @@ public function check_error_console_efb(){
 					</div>
 				`;
 				this.panel.style.cssText = `
-					position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
-					z-index: 1000000; width: 92%; max-width: 520px; max-height: 80vh;
-					background: #fff; border-radius: 16px; box-shadow: 0 25px 80px rgba(0,0,0,0.4);
-					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-					display: none; opacity: 0; transition: all 0.3s ease; overflow: hidden;
+					position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) scale(0.9) !important;
+					z-index: 1000000 !important; width: 92% !important; max-width: 520px !important; max-height: 80vh !important;
+					background: #fff !important; border-radius: 16px !important; box-shadow: 0 25px 80px rgba(0,0,0,0.4) !important;
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+					display: none !important; opacity: 0 !important; transition: all 0.3s ease !important; overflow: hidden !important;
 				`;
 				document.body.appendChild(this.panel);
 
-				// Overlay
 				this.overlay = document.createElement("div");
 				this.overlay.id = "efb-error-overlay";
 				this.overlay.style.cssText = `
@@ -3239,247 +3228,331 @@ public function check_error_console_efb(){
 				this.overlay.onclick = () => this.togglePanel();
 				document.body.appendChild(this.overlay);
 
-				// Styles
 				const style = document.createElement("style");
 				style.textContent = `
 					@keyframes efb-badge-pulse {
-						0%, 100% { box-shadow: 0 4px 15px rgba(220,53,69,0.4), 0 0 0 0 rgba(220,53,69,0.5); }
-						50% { box-shadow: 0 4px 20px rgba(220,53,69,0.5), 0 0 0 8px rgba(220,53,69,0); }
-					}
-					@keyframes efb-badge-shake {
-						0%, 100% { transform: translateX(0); }
-						10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-						20%, 40%, 60%, 80% { transform: translateX(4px); }
-					}
-					@keyframes efb-badge-bounce {
-						0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-						40% { transform: translateY(-8px); }
-						60% { transform: translateY(-4px); }
+						0% { transform: scale(1); opacity: 0.5; }
+						100% { transform: scale(1.6); opacity: 0; }
 					}
 					@keyframes efb-count-pop {
 						0% { transform: scale(1); }
 						50% { transform: scale(1.3); }
 						100% { transform: scale(1); }
 					}
-					@keyframes efb-glow {
-						0%, 100% { filter: brightness(1); }
-						50% { filter: brightness(1.2); }
-					}
-					#efb-error-badge {
-						animation: efb-badge-pulse 2s ease-in-out infinite !important;
-					}
-					#efb-error-badge.efb-new-error {
-						animation: efb-badge-shake 0.6s ease-in-out, efb-badge-pulse 2s ease-in-out infinite !important;
-					}
 					#efb-error-badge:hover {
-						transform: scale(1.05) !important;
 						background: #c82333 !important;
 						box-shadow: 0 6px 25px rgba(220,53,69,0.5) !important;
-						animation: none !important;
+					}
+					#efb-error-badge svg,
+					#efb-error-badge span:not(.efb-badge-tooltip) {
+						all: initial !important;
+						font-family: inherit !important; color: inherit !important;
+						line-height: normal !important; display: inline-block !important;
+						box-sizing: border-box !important;
+					}
+					#efb-error-badge svg {
+						width: 18px !important; height: 18px !important;
+						fill: none !important; stroke: currentColor !important; stroke-width: 2.5 !important;
+						vertical-align: middle !important; flex-shrink: 0 !important;
+						overflow: visible !important;
 					}
 					#efb-error-badge .efb-error-count {
-						background: #fff; color: #dc3545; padding: 3px 10px; border-radius: 12px;
-						font-size: 12px; min-width: 22px; text-align: center;
-						font-weight: 700;
+						background: #fff !important; color: #dc3545 !important; padding: 3px 10px !important; border-radius: 12px !important;
+						font-size: 12px !important; min-width: 22px !important; text-align: center !important;
+						font-weight: 700 !important;
 					}
 					#efb-error-badge .efb-error-count.efb-count-updated {
-						animation: efb-count-pop 0.3s ease-out;
+						animation: efb-count-pop 0.3s ease-out !important;
 					}
-					#efb-error-badge::before {
-						content: ""; position: absolute; inset: 0;
-						background: transparent;
-						border-radius: 50px; z-index: -1;
+					#efb-error-badge::before,
+					#efb-error-badge::after {
+						content: "" !important; position: absolute !important; inset: -2px !important;
+						border-radius: 50px !important; z-index: -1 !important;
+						border: 1.5px solid rgba(220,53,69,0.4) !important;
+						animation: efb-badge-pulse 2.5s ease-out infinite !important;
+						pointer-events: none !important; box-sizing: border-box !important;
+						background: transparent !important;
 					}
-					.efb-panel-header {
-						background: linear-gradient(135deg, #dc3545, #410404);
-						color: #fff; padding: 16px 20px;
-						display: flex; justify-content: space-between; align-items: center;
+					#efb-error-badge::after {
+						animation-delay: 1.25s !important;
 					}
-					.efb-panel-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
-					.efb-panel-actions { display: flex; gap: 8px; align-items: center; }
-					.efb-btn-clear {
-						background: rgba(255,255,255,0.2); border: none; color: #fff;
-						padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
-						transition: background 0.2s;
+					#efb-error-badge .efb-badge-tooltip {
+						all: initial !important;
+						position: absolute !important; top: 50% !important; ${isRtl ? "right" : "left"}: calc(100% + 12px) !important;
+						transform: translateY(-50%) translateX(${isRtl ? "8px" : "-8px"}) !important;
+						white-space: nowrap !important;
+						background: linear-gradient(135deg, #890000, #000014) !important;
+						color: #e2e8f0 !important; padding: 8px 14px !important; border-radius: 8px !important;
+						font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+						font-size: 12px !important; font-weight: 500 !important; letter-spacing: 0.2px !important;
+						box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+						opacity: 0 !important; pointer-events: none !important;
+						transition: opacity 0.25s ease, transform 0.25s ease !important;
+						box-sizing: border-box !important; line-height: normal !important;
+						display: block !important; z-index: 1000000 !important;
 					}
-					.efb-btn-clear:hover { background: rgba(255,255,255,0.3); }
-					.efb-btn-close {
-						background: none; border: none; color: #fff; font-size: 26px;
-						cursor: pointer; line-height: 1; padding: 0 4px; opacity: 0.8;
-						transition: opacity 0.2s;
+					#efb-error-badge .efb-badge-tooltip::before {
+						content: "" !important; position: absolute !important; top: 50% !important; ${isRtl ? "left" : "right"}: 100% !important;
+						transform: translateY(-50%) !important;
+						border: 6px solid transparent !important;
+						border-${isRtl ? "left" : "right"}-color: #1e1e2e !important;
+						${isRtl ? "border-right: none" : "border-left: none"} !important;
+						display: block !important;
 					}
-					.efb-btn-close:hover { opacity: 1; }
-					.efb-panel-warning {
-						background: #fff8e6; border-bottom: 1px solid #ffe0a0;
-						padding: 12px 16px; display: flex; align-items: center; gap: 10px;
-						color: #8a6d3b; font-size: 13px; line-height: 1.4;
+					#efb-error-badge:hover .efb-badge-tooltip {
+						opacity: 1 !important; pointer-events: auto !important;
+						transform: translateY(-50%) translateX(0) !important;
 					}
-					.efb-panel-warning svg { flex-shrink: 0; color: #f0ad4e; }
-					.efb-admin-notice {
-						background: linear-gradient(135deg, #e8f4fd 0%, #d1e9ff 100%);
-						border-bottom: 1px solid #b8daff;
-						padding: 10px 16px; display: flex; align-items: center; gap: 10px;
-						color: #004085; font-size: 12px; line-height: 1.4;
-						position: relative; overflow: hidden;
+					#efb-error-panel,
+					#efb-error-panel *,
+					#efb-error-panel *::before,
+					#efb-error-panel *::after {
+						all: revert !important;
+						box-sizing: border-box !important;
+						margin: 0 !important;
+						padding: 0 !important;
+						border: none !important;
+						float: none !important;
+						min-height: 0 !important;
+						max-height: none !important;
+						min-width: 0 !important;
+						height: auto !important;
+						width: auto !important;
+						line-height: normal !important;
+						letter-spacing: normal !important;
+						text-transform: none !important;
+						text-decoration: none !important;
+						text-indent: 0 !important;
+						text-align: start !important;
+						vertical-align: baseline !important;
+						white-space: normal !important;
+						word-spacing: normal !important;
+						background: transparent !important;
+						color: inherit !important;
+						font: inherit !important;
+						list-style: none !important;
+						outline: none !important;
+						overflow: visible !important;
+						position: static !important;
+						transform: none !important;
+						transition: none !important;
+						animation: none !important;
+						visibility: visible !important;
+						opacity: 1 !important;
+						z-index: auto !important;
+						display: block !important;
+						flex: none !important;
 					}
-					.efb-admin-notice::before {
-						content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-						background: linear-gradient(90deg, #007bff, #00d4ff, #007bff);
-						background-size: 200% 100%;
-						animation: efb-admin-shine 2s linear infinite;
+					#efb-error-panel {
+						position: fixed !important; top: 50% !important; left: 50% !important;
+						z-index: 1000000 !important; width: 92% !important; max-width: 520px !important; max-height: 80vh !important;
+						background: #fff !important; border-radius: 16px !important; box-shadow: 0 25px 80px rgba(0,0,0,0.4) !important;
+						font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+						overflow: hidden !important; font-size: 14px !important; color: #333 !important;
+						line-height: 1.5 !important;
+						direction: ${isRtl ? "rtl" : "ltr"} !important;
+					}
+					#efb-error-panel svg {
+						display: inline-block !important; vertical-align: middle !important;
+						height: auto !important; width: auto !important; overflow: visible !important;
+						fill: none !important; stroke: currentColor !important; stroke-width: 2 !important;
+					}
+					#efb-error-panel img {
+						max-width: 100% !important; height: auto !important; max-height: 150px !important;
+						display: inline-block !important; object-fit: contain !important; border: none !important;
+						margin: 0 !important; padding: 0 !important;
+					}
+					#efb-error-panel .efb-panel-header {
+						background: linear-gradient(135deg, #dc3545, #410404) !important;
+						color: #fff !important; padding: 16px 20px !important;
+						display: flex !important; justify-content: space-between !important; align-items: center !important;
+					}
+					#efb-error-panel .efb-panel-title { display: flex !important; align-items: center !important; gap: 10px !important; font-weight: 600 !important; font-size: 15px !important; color: #fff !important; }
+					#efb-error-panel .efb-panel-title svg { color: #fff !important; }
+					#efb-error-panel .efb-panel-actions { display: flex !important; gap: 8px !important; align-items: center !important; }
+					#efb-error-panel .efb-btn-clear {
+						background: rgba(255,255,255,0.2) !important; border: none !important; color: #fff !important;
+						padding: 6px 12px !important; border-radius: 6px !important; cursor: pointer !important; font-size: 12px !important;
+						transition: background 0.2s !important; display: inline-block !important;
+					}
+					#efb-error-panel .efb-btn-clear:hover { background: rgba(255,255,255,0.3) !important; }
+					#efb-error-panel .efb-btn-close {
+						background: none !important; border: none !important; color: #fff !important; font-size: 26px !important;
+						cursor: pointer !important; line-height: 1 !important; padding: 0 4px !important; opacity: 0.8 !important;
+						transition: opacity 0.2s !important; display: inline-block !important;
+					}
+					#efb-error-panel .efb-btn-close:hover { opacity: 1 !important; }
+					#efb-error-panel .efb-panel-warning {
+						background: #fff8e6 !important; border-bottom: 1px solid #ffe0a0 !important;
+						padding: 12px 16px !important; display: flex !important; align-items: center !important; gap: 10px !important;
+						color: #8a6d3b !important; font-size: 13px !important; line-height: 1.4 !important;
+					}
+					#efb-error-panel .efb-panel-warning svg { flex-shrink: 0 !important; color: #f0ad4e !important; }
+					#efb-error-panel .efb-admin-notice {
+						background: linear-gradient(135deg, #e8f4fd 0%, #d1e9ff 100%) !important;
+						border-bottom: 1px solid #b8daff !important;
+						padding: 10px 16px !important; display: flex !important; align-items: center !important; gap: 10px !important;
+						color: #004085 !important; font-size: 12px !important; line-height: 1.4 !important;
+						position: relative !important; overflow: hidden !important;
+					}
+					#efb-error-panel .efb-admin-notice::before {
+						content: "" !important; position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; height: 2px !important;
+						background: linear-gradient(90deg, #007bff, #00d4ff, #007bff) !important;
+						background-size: 200% 100% !important;
+						animation: efb-admin-shine 2s linear infinite !important;
+						display: block !important; padding: 0 !important; margin: 0 !important;
 					}
 					@keyframes efb-admin-shine {
 						0% { background-position: 200% 0; }
 						100% { background-position: -200% 0; }
 					}
-					.efb-admin-notice svg { flex-shrink: 0; color: #007bff; }
-					.efb-admin-notice span:not(.efb-admin-badge) { flex: 1; }
-					.efb-admin-badge {
-						background: linear-gradient(135deg, #007bff, #0056b3);
-						color: #fff; font-size: 9px; font-weight: 700;
-						padding: 4px 10px; border-radius: 20px;
-						text-transform: uppercase; letter-spacing: 1px;
-						box-shadow: 0 2px 8px rgba(0,123,255,0.3);
-						animation: efb-badge-glow 2s ease-in-out infinite;
+					#efb-error-panel .efb-admin-notice svg { flex-shrink: 0 !important; color: #007bff !important; }
+					#efb-error-panel .efb-admin-notice span:not(.efb-admin-badge) { flex: 1 !important; display: inline !important; }
+					#efb-error-panel .efb-admin-badge {
+						background: linear-gradient(135deg, #007bff, #0056b3) !important;
+						color: #fff !important; font-size: 9px !important; font-weight: 700 !important;
+						padding: 4px 10px !important; border-radius: 20px !important;
+						text-transform: uppercase !important; letter-spacing: 1px !important;
+						box-shadow: 0 2px 8px rgba(0,123,255,0.3) !important;
+						animation: efb-badge-glow 2s ease-in-out infinite !important;
+						display: inline-block !important;
 					}
 					@keyframes efb-badge-glow {
 						0%, 100% { box-shadow: 0 2px 8px rgba(0,123,255,0.3); }
 						50% { box-shadow: 0 2px 15px rgba(0,123,255,0.6); }
 					}
-					.efb-panel-body { max-height: 45vh; overflow-y: auto; padding: 16px; }
-					.efb-panel-footer {
-						background: #f8f9fa; border-top: 1px solid #e9ecef;
-						padding: 10px 16px; display: flex; align-items: center; gap: 8px;
-						color: #6c757d; font-size: 11px;
+					#efb-error-panel .efb-panel-body { max-height: 45vh !important; overflow-y: auto !important; padding: 16px !important; }
+					#efb-error-panel .efb-panel-footer {
+						background: #f8f9fa !important; border-top: 1px solid #e9ecef !important;
+						padding: 10px 16px !important; display: flex !important; align-items: center !important; gap: 8px !important;
+						color: #6c757d !important; font-size: 11px !important;
 					}
-					.efb-panel-footer svg { opacity: 0.6; }
-					.efb-no-errors {
-						text-align: center; color: #28a745; padding: 40px 20px;
-						font-size: 15px; font-weight: 500;
+					#efb-error-panel .efb-panel-footer svg { opacity: 0.6 !important; color: #6c757d !important; }
+					#efb-error-panel .efb-no-errors {
+						text-align: center !important; color: #28a745 !important; padding: 40px 20px !important;
+						font-size: 15px !important; font-weight: 500 !important;
 					}
-					.efb-error-item {
-						background: #f8f9fa; border-radius: 10px; padding: 14px;
-						margin-bottom: 12px; border-left: 4px solid #dc3545;
-						transition: transform 0.2s, box-shadow 0.2s;
+					#efb-error-panel .efb-error-item {
+						background: #f8f9fa !important; border-radius: 10px !important; padding: 14px !important;
+						margin-bottom: 12px !important; border-${isRtl ? "right" : "left"}: 4px solid #dc3545 !important;
+						transition: transform 0.2s, box-shadow 0.2s !important;
 					}
-					.efb-error-item:hover { transform: translateX(2px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-					.efb-error-item:last-child { margin-bottom: 0; }
-					.efb-error-item.is-efb { border-left-color: #ff4b93; background: #fff5f8; }
-					.efb-error-item.is-theme { border-left-color: #28a745; }
-					.efb-error-item.is-core { border-left-color: #007bff; }
-					.efb-error-item.is-external { border-left-color: #6c757d; }
-					.efb-error-source {
-						display: flex; align-items: center; gap: 8px;
-						font-weight: 600; font-size: 14px; margin-bottom: 8px;
+					#efb-error-panel .efb-error-item:hover { transform: translateX(${isRtl ? "-2px" : "2px"}) !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; }
+					#efb-error-panel .efb-error-item:last-child { margin-bottom: 0 !important; }
+					#efb-error-panel .efb-error-item.is-efb { border-${isRtl ? "right" : "left"}-color: #ff4b93 !important; background: #fff5f8 !important; }
+					#efb-error-panel .efb-error-item.is-theme { border-${isRtl ? "right" : "left"}-color: #28a745 !important; }
+					#efb-error-panel .efb-error-item.is-core { border-${isRtl ? "right" : "left"}-color: #007bff !important; }
+					#efb-error-panel .efb-error-item.is-external { border-${isRtl ? "right" : "left"}-color: #6c757d !important; }
+					#efb-error-panel .efb-error-source {
+						display: flex !important; align-items: center !important; gap: 8px !important;
+						font-weight: 600 !important; font-size: 14px !important; margin-bottom: 8px !important;
 					}
-					.efb-error-source .type-badge {
-						font-size: 9px; padding: 3px 8px; border-radius: 4px;
-						text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;
+					#efb-error-panel .efb-error-source .type-badge {
+						font-size: 9px !important; padding: 3px 8px !important; border-radius: 4px !important;
+						text-transform: uppercase !important; font-weight: 700 !important; letter-spacing: 0.5px !important;
+						display: inline-block !important;
 					}
-					.efb-error-source .type-plugin { background: #fff3cd; color: #856404; }
-					.efb-error-source .type-theme { background: #d4edda; color: #155724; }
-					.efb-error-source .type-wpCore { background: #cce5ff; color: #004085; }
-					.efb-error-source .type-external { background: #e2e3e5; color: #383d41; }
-					.efb-error-source .type-unknown { background: #f5c6cb; color: #721c24; }
-					.efb-error-source .type-notice { background: #fff3cd; color: #664d03; border: 1px solid #ffecb5; }
-					.efb-error-msg { color: #333; font-size: 13px; line-height: 1.5; word-break: break-word; margin-bottom: 8px; }
-					.efb-error-file {
-						background: #1e1e2e; padding: 8px 12px; border-radius: 6px;
-						font-family: "SF Mono", Monaco, Consolas, monospace;
-						font-size: 11px; color: #a6e3a1; word-break: break-all;
-						display: flex; align-items: flex-start; gap: 8px;
-						line-height: 1.5;
+					#efb-error-panel .efb-error-source .type-plugin { background: #fff3cd !important; color: #856404 !important; }
+					#efb-error-panel .efb-error-source .type-theme { background: #d4edda !important; color: #155724 !important; }
+					#efb-error-panel .efb-error-source .type-wpCore { background: #cce5ff !important; color: #004085 !important; }
+					#efb-error-panel .efb-error-source .type-external { background: #e2e3e5 !important; color: #383d41 !important; }
+					#efb-error-panel .efb-error-source .type-unknown { background: #f5c6cb !important; color: #721c24 !important; }
+					#efb-error-panel .efb-error-source .type-notice { background: #fff3cd !important; color: #664d03 !important; border: 1px solid #ffecb5 !important; }
+					#efb-error-panel .efb-error-msg { color: #333 !important; font-size: 13px !important; line-height: 1.5 !important; word-break: break-word !important; margin-bottom: 8px !important; }
+					#efb-error-panel .efb-error-msg img { max-width: 100% !important; height: auto !important; max-height: 14px !important; display: inline-block !important; object-fit: contain !important; }
+					#efb-error-panel .efb-error-file {
+						background: #1e1e2e !important; padding: 8px 12px !important; border-radius: 6px !important;
+						font-family: "SF Mono", Monaco, Consolas, monospace !important;
+						font-size: 11px !important; color: #a6e3a1 !important; word-break: break-all !important;
+						display: flex !important; align-items: flex-start !important; gap: 8px !important;
+						line-height: 1.5 !important; direction: ltr !important; text-align: left !important;
 					}
-					.efb-error-file svg { flex-shrink: 0; opacity: 0.7; margin-top: 2px; color: #89b4fa; }
-					.efb-error-file .efb-full-path { color: #cdd6f4; }
-					.efb-stack-trace {
-						margin-top: 10px; background: #1e1e2e; border-radius: 8px;
-						overflow: hidden; border: 1px solid #313244;
+					#efb-error-panel .efb-error-file svg { flex-shrink: 0 !important; opacity: 0.7 !important; margin-top: 2px !important; color: #89b4fa !important; }
+					#efb-error-panel .efb-error-file .efb-full-path { color: #cdd6f4 !important; display: inline !important; }
+					#efb-error-panel .efb-stack-trace {
+						margin-top: 10px !important; background: #1e1e2e !important; border-radius: 8px !important;
+						overflow: hidden !important; border: 1px solid #313244 !important; direction: ltr !important; text-align: left !important;
 					}
-					.efb-stack-title {
-						background: #313244; color: #cdd6f4; padding: 8px 12px;
-						font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px;
+					#efb-error-panel .efb-stack-title {
+						background: #313244 !important; color: #cdd6f4 !important; padding: 8px 12px !important;
+						font-size: 11px !important; font-weight: 600 !important; display: flex !important; align-items: center !important; gap: 6px !important;
 					}
-					.efb-stack-title svg { color: #89b4fa; }
-					.efb-stack-items { padding: 8px 0; }
-					.efb-stack-item {
-						display: flex; align-items: flex-start; gap: 10px; padding: 6px 12px;
-						font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 11px;
-						transition: background 0.15s;
+					#efb-error-panel .efb-stack-title svg { color: #89b4fa !important; }
+					#efb-error-panel .efb-stack-items { padding: 8px 0 !important; }
+					#efb-error-panel .efb-stack-item {
+						display: flex !important; align-items: flex-start !important; gap: 10px !important; padding: 6px 12px !important;
+						font-family: "SF Mono", Monaco, Consolas, monospace !important; font-size: 11px !important;
+						transition: background 0.15s !important;
 					}
-					.efb-stack-item:hover { background: #313244; }
-					.efb-stack-item.is-efb { background: rgba(255,75,147,0.1); }
-					.efb-stack-item.is-efb:hover { background: rgba(255,75,147,0.2); }
-					.efb-stack-num {
-						color: #6c7086; min-width: 18px; text-align: right;
-						font-size: 10px; padding-top: 2px;
+					#efb-error-panel .efb-stack-item:hover { background: #313244 !important; }
+					#efb-error-panel .efb-stack-item.is-efb { background: rgba(255,75,147,0.1) !important; }
+					#efb-error-panel .efb-stack-item.is-efb:hover { background: rgba(255,75,147,0.2) !important; }
+					#efb-error-panel .efb-stack-num {
+						color: #6c7086 !important; min-width: 18px !important; text-align: ${isRtl ? "left" : "right"} !important;
+						font-size: 10px !important; padding-top: 2px !important; display: inline-block !important;
 					}
-					.efb-stack-content { flex: 1; min-width: 0; }
-					.efb-stack-func { color: #f9e2af; display: block; margin-bottom: 2px; }
-					.efb-stack-loc { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-					.efb-stack-source {
-						font-size: 9px; padding: 2px 6px; border-radius: 3px;
-						text-transform: uppercase; font-weight: 600;
+					#efb-error-panel .efb-stack-content { flex: 1 !important; min-width: 0 !important; }
+					#efb-error-panel .efb-stack-func { color: #f9e2af !important; display: block !important; margin-bottom: 2px !important; }
+					#efb-error-panel .efb-stack-loc { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; align-items: center !important; height: auto !important; min-height: 0 !important; max-height: none !important; }
+					#efb-error-panel .efb-stack-source {
+						font-size: 9px !important; padding: 2px 6px !important; border-radius: 3px !important;
+						text-transform: uppercase !important; font-weight: 600 !important; display: inline-block !important;
 					}
-					.efb-stack-source.plugin { background: #fff3cd; color: #856404; }
-					.efb-stack-source.theme { background: #d4edda; color: #155724; }
-					.efb-stack-source.wpCore { background: #cce5ff; color: #004085; }
-					.efb-stack-source.external { background: #e2e3e5; color: #383d41; }
-					.efb-stack-source.unknown { background: #f5c6cb; color: #721c24; }
-					.efb-stack-path { color: #a6adc8; word-break: break-all; }
-					.efb-error-meta { color: #6c757d; font-size: 11px; margin-top: 8px; }
+					#efb-error-panel .efb-stack-source.plugin { background: #fff3cd !important; color: #856404 !important; }
+					#efb-error-panel .efb-stack-source.theme { background: #d4edda !important; color: #155724 !important; }
+					#efb-error-panel .efb-stack-source.wpCore { background: #cce5ff !important; color: #004085 !important; }
+					#efb-error-panel .efb-stack-source.external { background: #e2e3e5 !important; color: #383d41 !important; }
+					#efb-error-panel .efb-stack-source.unknown { background: #f5c6cb !important; color: #721c24 !important; }
+					#efb-error-panel .efb-stack-path { color: #a6adc8 !important; word-break: break-all !important; display: inline !important; }
+					#efb-error-panel .efb-error-meta { color: #6c757d !important; font-size: 11px !important; margin-top: 8px !important; }
 				`;
 				document.head.appendChild(style);
 			},
 
-			// Toggle panel
 			togglePanel() {
 				this.isOpen = !this.isOpen;
 				if (this.isOpen) {
-					this.panel.style.display = "block";
+					this.panel.style.setProperty("display", "block", "important");
 					this.overlay.style.display = "block";
 					setTimeout(() => {
-						this.panel.style.opacity = "1";
-						this.panel.style.transform = "translate(-50%, -50%) scale(1)";
+						this.panel.style.setProperty("opacity", "1", "important");
+						this.panel.style.setProperty("transform", "translate(-50%, -50%) scale(1)", "important");
 						this.overlay.style.opacity = "1";
 					}, 10);
 				} else {
-					this.panel.style.opacity = "0";
-					this.panel.style.transform = "translate(-50%, -50%) scale(0.9)";
+					this.panel.style.setProperty("opacity", "0", "important");
+					this.panel.style.setProperty("transform", "translate(-50%, -50%) scale(0.9)", "important");
 					this.overlay.style.opacity = "0";
 					setTimeout(() => {
-						this.panel.style.display = "none";
+						this.panel.style.setProperty("display", "none", "important");
 						this.overlay.style.display = "none";
 					}, 300);
 				}
 			},
 
-			// Show badge with animation
 			showBadge() {
 				if (!this.badge) return;
-				this.badge.style.opacity = "1";
-				this.badge.style.pointerEvents = "auto";
-
-				// Trigger shake animation on new error
-				this.badge.classList.remove("efb-new-error");
-				void this.badge.offsetWidth; // Force reflow
-				this.badge.classList.add("efb-new-error");
+				this.badge.style.setProperty("opacity", "1", "important");
+				this.badge.style.setProperty("pointer-events", "auto", "important");
 			},
 
-			// Update error count with animation
+			hideBadge() {
+				if (!this.badge) return;
+				this.badge.style.setProperty("opacity", "0", "important");
+				this.badge.style.setProperty("pointer-events", "none", "important");
+			},
+
 			updateCount() {
 				if (!this.badge) return;
 				const countEl = this.badge.querySelector(".efb-error-count");
 				if (!countEl) return;
 				countEl.textContent = this.errors.length;
 
-				// Trigger pop animation
 				countEl.classList.remove("efb-count-updated");
 				void countEl.offsetWidth; // Force reflow
 				countEl.classList.add("efb-count-updated");
 			},
 
-			// Add error to panel
 			addError(errorData) {
 				const { message, source, lineno, stack = [], typeOverride = null, nameOverride = null } = errorData;
 				const parsed = this.parseSource(source);
@@ -3487,18 +3560,14 @@ public function check_error_console_efb(){
 				if (nameOverride) { parsed.name = nameOverride; }
 				const time = new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
 
-				// Use first stack item as the real source if available
 				const realSource = stack.length > 0 ? stack[0].parsed : parsed;
 				const realPath = stack.length > 0 ? stack[0].parsed.fullPath + ":" + stack[0].line : (parsed.fullPath + (lineno ? ":" + lineno : ""));
 
-				// Store
 				this.errors.push({ message, source, lineno, parsed, stack, time });
 
-				// Show badge
 				this.showBadge();
 				this.updateCount();
 
-				// Update list
 				const list = document.getElementById("efb-error-list");
 				if (!list) return;
 				const noErrors = list.querySelector(".efb-no-errors");
@@ -3509,7 +3578,6 @@ public function check_error_console_efb(){
 					realSource.type === "wpCore" ? "is-core" :
 					realSource.type === "external" ? "is-external" : "";
 
-				// Build stack trace HTML
 				let stackHtml = "";
 				if (stack.length > 0) {
 					stackHtml = `<div class="efb-stack-trace">
@@ -3556,29 +3624,26 @@ public function check_error_console_efb(){
 				list.insertBefore(item, list.firstChild);
 			},
 
-			// Clear errors
 			clearErrors() {
 				this.errors = [];
 				this.updateCount();
 				const list = document.getElementById("efb-error-list");
 				list.innerHTML = "<div class=\"efb-no-errors\">✓ " + this.t.noErrors + "</div>";
+				this.hideBadge();
 			},
 
-			// Escape HTML
 			escapeHtml(text) {
 				const div = document.createElement("div");
 				div.textContent = text;
 				return div.innerHTML;
 			},
 
-			// Parse stack trace
 			parseStack(stackString) {
 				if (!stackString) return [];
 				const lines = stackString.split("\n");
 				const stack = [];
 
 				for (const line of lines) {
-					// Match patterns like "at Function.name (url:line:col)" or "at url:line:col"
 					const match = line.match(/at\s+(.+?)\s*\(?(https?:\/\/[^)\s]+):(\d+):(\d+)\)?/);
 					if (match) {
 						const [, funcName, url, lineNo, colNo] = match;
@@ -3595,11 +3660,6 @@ public function check_error_console_efb(){
 				return stack;
 			},
 
-			/**
-			 * Send a test error to the panel
-			 * Usage: EFB_ERROR_PANEL.test("My test message")
-			 *        EFB_ERROR_PANEL.test() // default test message
-			 */
 			test(message) {
 				const msg = message || "🧪 This is a TEST error message from EFB_ERROR_PANEL.test()";
 				const err = new Error(msg);
@@ -3613,13 +3673,6 @@ public function check_error_console_efb(){
 				console.info("%c[EFB Debug Panel]%c Test error added: " + msg, "color:#ff4b93;font-weight:bold", "color:inherit");
 			},
 
-			/**
-			 * Log a custom message with optional extra stack info
-			 * Usage:
-			 *   EFB_ERROR_PANEL.log("Something went wrong")
-			 *   EFB_ERROR_PANEL.log("API failed", { source: "my-plugin/api.js", line: 42 })
-			 *   EFB_ERROR_PANEL.log("Error X", { stack: [ { func: "loadData()", file: "wp-content/plugins/my-plugin/js/app.js", line: "55" }, { func: "init()", file: "wp-content/plugins/my-plugin/js/main.js", line: "10" } ] })
-			 */
 			log(message, options = {}) {
 				if (!message) { console.warn("[EFB Debug Panel] log() requires a message"); return; }
 
@@ -3627,7 +3680,6 @@ public function check_error_console_efb(){
 				let lineno = options.line || options.lineno || null;
 				let stack = [];
 
-				// If user provided custom stack entries
 				if (Array.isArray(options.stack) && options.stack.length > 0) {
 					stack = options.stack.map(s => {
 						const filePath = s.file || s.url || "";
@@ -3642,10 +3694,8 @@ public function check_error_console_efb(){
 						};
 					});
 				} else if (options.captureStack !== false) {
-					// Auto-capture real stack from call site
 					const err = new Error("__efb_log__");
 					stack = this.parseStack(err.stack);
-					// Remove the first frame (this log() call itself)
 					if (stack.length > 0 && stack[0].func.includes("log")) {
 						stack.shift();
 					}
@@ -3657,18 +3707,15 @@ public function check_error_console_efb(){
 				console.info("%c[EFB Debug Panel]%c Logged: " + message, "color:#ff4b93;font-weight:bold", "color:inherit");
 			},
 
-			// Initialize
 			init() {
 				const self = this;
 
-				// Create UI after DOM ready
 				if (document.readyState === "loading") {
 					document.addEventListener("DOMContentLoaded", () => self.createUI());
 				} else {
 					self.createUI();
 				}
 
-				// Global error handler
 				window.addEventListener("error", function(event) {
 					let stack = [];
 					if (event.error && event.error.stack) {
@@ -3682,7 +3729,6 @@ public function check_error_console_efb(){
 					});
 				}, true);
 
-				// Promise rejections
 				window.addEventListener("unhandledrejection", function(event) {
 					let source = "";
 					let stack = [];
@@ -3993,7 +4039,6 @@ public function check_error_console_efb(){
 						box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 					}
 
-					/* Map control responsive styles */
 					.efb .map-control-container {
 					display: flex !important;
 					flex-wrap: nowrap !important;

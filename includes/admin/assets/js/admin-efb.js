@@ -7,7 +7,7 @@ let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
 const efb_version = 4;
 let wpbakery_emsFormBuilder =false;
-let pro_price_efb =19;
+let pro_price_efb =27;
 let heartbeat_efb_active =false;
 let state_page_efb='';
 var _efb_nonce_ = (typeof efb_var !== 'undefined' && efb_var.nonce) ? efb_var.nonce : '';
@@ -348,7 +348,7 @@ function show_message_result_form_set_EFB(state, m) {
       <i class="efb  bi-question mx-1"></i>${efb_var.text.help}
   </a>
   <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#close" onclick="state_modal_show_efb(0)">
-      <i class="efb  bi-x mx-1"></i>${efb_var.text.close}
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="mx-1"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>${efb_var.text.close}
   </a>
   `
   } else {
@@ -492,7 +492,7 @@ function actionSendAddonsUn_efb(val) {
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           let m = efb_var.text.tDeleted;
-          const ad = efb_var.text.addon.replace('%s1', ``).toLowerCase();
+          const ad = (efb_var.text.addon || '').replace('%s1', '').replace(/%\d+\$s/g, '').trim().toLowerCase();
           m =m.replace('%s', ad);
           alert_message_efb(m,'', 30,'success');
           location.reload();
@@ -1049,8 +1049,8 @@ function head_introduce_efb(state) {
   const link = state == "create" ? '#form' : 'admin.php?page=Emsfb_create'
   let text = `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
-  const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/pricing' : 'https://whitestudioteam.com/pricing';
-  let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="${domain}" class="efb fw-bold">`).replace('%5$s','</a>');
+  const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/pricing' : 'https://whitestudio.team/#pricing';
+  let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="${domain}" target="_blank" class="efb fw-bold">`).replace('%5$s','</a>');
   let cont = ``;
   let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti ec-efb" data-eventform="links" data-linkname="price">
   <i class="efb bi-diamond text-pinkEfb mx-1"></i>
@@ -1754,12 +1754,7 @@ let change_el_edit_Efb = (el) => {
           fun_add_Class_captcha(false);
           alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.paymentNcaptcha, 20, "danger");
           return;
-        } /* else {
-          el.classList.remove('active');
-          fun_add_Class_captcha(false);
-          alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger")
-
-        } */
+        }
         if (efb_var.captcha !=true && efb_var.captcha !="true" ){
           el.classList.remove('active');
        }
@@ -1782,7 +1777,11 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].stateForm = el.classList.contains('active')==true ? true : false
         break;
       case 'emailNotiContainsEl':
-
+        if(pro_efb!=true){
+          pro_show_efb(3);
+          el.value="";
+          break;
+        }
         if(valj_efb[0].hasOwnProperty('email_noti_type')==false) Object.assign(valj_efb[0],{'email_noti_type':el.options[el.selectedIndex].value})
         valj_efb[0].email_noti_type = el.options[el.selectedIndex].value;
 
@@ -2050,25 +2049,30 @@ let change_el_edit_Efb = (el) => {
         break;
       case "loadingTypeEl":
         if(pro_efb!=true){
-          pro_show_efb(1);
+          pro_show_efb(3);
+          return;
+        }else{
           valj_efb[0].loading_type ='bars';
+          if (!valj_efb[0].hasOwnProperty('loading_type')) {
+            Object.assign(valj_efb[0], { loading_type: 'bars' });
+          }
+          valj_efb[0].loading_type = el.options[el.selectedIndex].value;
           updateLoadingPreview();
-          break;
         }
-        if (!valj_efb[0].hasOwnProperty('loading_type')) {
-          Object.assign(valj_efb[0], { loading_type: 'bars' });
-        }
-        valj_efb[0].loading_type = el.options[el.selectedIndex].value;
-        updateLoadingPreview();
         break;
       case "loadingColorEl":
-        if (!valj_efb[0].hasOwnProperty('loading_color')) {
-          Object.assign(valj_efb[0], { loading_color: '#abb8c3' });
+        if(pro_efb!=true){
+          pro_show_efb(3);
+          return;
+        }else{
+          if (!valj_efb[0].hasOwnProperty('loading_color')) {
+            Object.assign(valj_efb[0], { loading_color: '#abb8c3' });
+          }
+          valj_efb[0].loading_color = el.value;
+          const colorTextEl = document.getElementById('loadingColorTextEl');
+          if (colorTextEl) colorTextEl.value = el.value;
+          updateLoadingPreview();
         }
-        valj_efb[0].loading_color = el.value;
-        const colorTextEl = document.getElementById('loadingColorTextEl');
-        if (colorTextEl) colorTextEl.value = el.value;
-        updateLoadingPreview();
         break;
       case "currencyTypeEl":
         if(valj_efb[0].hasOwnProperty('currency')==false) Object.assign(valj_efb[0],{'currency':'USD '})
@@ -2655,7 +2659,7 @@ let change_el_edit_Efb = (el) => {
             url =efb_var.images.plugin_url+`/vendor/offline/json/states/${valj_efb[indx].country.toLowerCase()}.json`;
              url = url.replaceAll('//vendor','/vendor');
           }
-          temp_efb= await fetch_json_from_url_efb(url);
+          temp_efb= await fetch_json_from_url_efb_admin(url);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
           setTimeout(() => {
@@ -2715,7 +2719,7 @@ let change_el_edit_Efb = (el) => {
             url =efb_var.images.plugin_url+'/vendor/offline/json/cites/'+temp+'/'+valj_efb[indx].statePov+'.json';
             url = url.replaceAll('//vendor','/vendor');
           }
-          temp_efb = await fetch_json_from_url_efb(url);
+          temp_efb = await fetch_json_from_url_efb_admin(url);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
 
@@ -2871,7 +2875,7 @@ let change_el_edit_Efb = (el) => {
       break;
       case 'FormEmailSubjectEl':
         if(pro_efb!=true){
-          pro_show_efb(1);
+          pro_show_efb(3);
           valj_efb[0].email_sub ='';
           break;
         }
@@ -4033,8 +4037,20 @@ function emsFormBuilder_delete(id, type,value) {
 
   switch (type) {
     case "addon":
-      val = efb_var.text[id];
-
+      if (typeof addons_efb !== 'undefined') {
+        const addonItem = addons_efb.find(a => a.name === id);
+        if (addonItem) {
+          let atitle = addonItem.title;
+          if (atitle && atitle.trim().split(/\s+/).length === 1) {
+            atitle = efb_var.text[atitle] || atitle;
+          }
+          val = atitle || id;
+        } else {
+          val = id;
+        }
+      } else {
+        val = id;
+      }
       break;
     case "form":
       val=value;
@@ -4059,7 +4075,7 @@ function emsFormBuilder_delete(id, type,value) {
       type = 'datas';
     break
   }
-  const f = efb_var.text[type].replaceAll('%s1','');
+  const f = (efb_var.text[type] || '').replaceAll('%s1','').replace(/%\d+\$s/g, '').trim();
   const m = f ? `${f} &rsaquo; ${val}` : val;
   const body = efb_build_confirm_body('danger', 'bi-trash', efb_var.text.delete, efb_var.text.areYouSureYouWantDeleteItem, m);
   show_modal_efb(body, efb_var.text.delete, 'efb bi-trash mx-2', 'deleteBox')
@@ -4388,7 +4404,7 @@ function efb_check_el_pro(el){
       pro_show_efb(efb_var.text.youUseProElements)
     }else if(el.type=="button" && el.classList.contains('setting')==true){
       f_b();
-      pro_show_efb(efb_var.text.proUnlockMsg)
+      pro_show_efb(3)
     }
     return false ;
   }
@@ -4957,7 +4973,7 @@ const actionEl = event.target.closest('[data-eventform].ec-efb');
                               emsFormBuilder_duplicate(temp2, 'form', temp);
                               break;
                           case 'generateCSV':
-                              pro ? generat_csv_emsFormBuilder() : pro_show_efb(efb_var.text.proUnlockMsg);
+                              pro ? generat_csv_emsFormBuilder() : pro_show_efb(3);
                               break;
                           case 'generateChart':
                               convert_to_dataset_emsFormBuilder();
@@ -4966,7 +4982,7 @@ const actionEl = event.target.closest('[data-eventform].ec-efb');
                               event_selected_row_emsFormBuilder('delete');
                               break;
                           case 'readSelectedRow':
-                              pro ? event_selected_row_emsFormBuilder('read') : pro_show_efb(efb_var.text.proUnlockMsg);
+                              pro ? event_selected_row_emsFormBuilder('read') :pro_show_efb(3);
                               break;
                           case 'setting':
                               fun_show_content_page_emsFormBuilder('setting');
@@ -4999,7 +5015,7 @@ const actionEl = event.target.closest('[data-eventform].ec-efb');
                           case 'deleteMsg':
                             temp = sanitize_text_efb(dataset.msgid);
                             temp2 = sanitize_text_efb(dataset.trackid);
-                            pro ? emsFormBuilder_delete(temp ,'message',temp2) : pro_show_efb(efb_var.text.proUnlockMsg);
+                            pro ? emsFormBuilder_delete(temp ,'message',temp2) : pro_show_efb(3);
 
                           break;
                           default:
@@ -6360,14 +6376,14 @@ const sub =lan_subdomain_wsteam_efb();
       link += `?notInputExists`
       break;
     case 'pickupByUser':
-      link = `How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder#how-to-add-a-location-picker-when-creating-form`
+      link += `How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder#how-to-add-a-location-picker-when-creating-form`
       break;
     case 'paymentform':
-      link = `How-to-Create-a-Payment-Form-in-Easy-Form-Builder`
+      link += `How-to-Create-a-Payment-Form-in-Easy-Form-Builder`
       break;
     case 'free_plus_guide':
-      link = 'easy-form-builder-free-plus-activation-guide'
-      break;
+      link += 'easy-form-builder-free-plus-activation-guide'
+    break;
   }
 }else{
   link = `https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/`;
@@ -6391,6 +6407,7 @@ const sub =lan_subdomain_wsteam_efb();
     case 'paymentform':
       link += `%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%db%8c%d8%b1%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%a8%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/`
       break;
+
   }
 }
   window.open(link, "_blank")
@@ -6858,7 +6875,7 @@ const add_r_matrix_view_select = (idin, value, id_ob, tag, parentsID) => {
     `
 }
 
-async function fetch_json_from_url_efb(url) {
+async function fetch_json_from_url_efb_admin(url) {
   let r = { s: false, r: "false" };
   try {
     const response = await fetch(url);
