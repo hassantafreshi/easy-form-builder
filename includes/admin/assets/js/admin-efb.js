@@ -1754,12 +1754,7 @@ let change_el_edit_Efb = (el) => {
           fun_add_Class_captcha(false);
           alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.paymentNcaptcha, 20, "danger");
           return;
-        } /* else {
-          el.classList.remove('active');
-          fun_add_Class_captcha(false);
-          alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger")
-
-        } */
+        }
         if (efb_var.captcha !=true && efb_var.captcha !="true" ){
           el.classList.remove('active');
        }

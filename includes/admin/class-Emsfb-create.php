@@ -135,7 +135,6 @@ class Create {
 			$efbFunction->openstreet_map_required_efb(0);
 		}
 
-		// v2 translate
 		$lang = $efbFunction->text_efb(1);
 
 		$efbFunction->setting_version_efb_update($settings, $pro, true);

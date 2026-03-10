@@ -172,7 +172,6 @@ function emsfb_check_file_access_efb() {
         }
     }
 
-    // Create multilingual messages using WordPress translation functions
     $success_message = esc_html__('Addon directory is ready for file operations', 'easy-form-builder');
     $error_message = sprintf(
         esc_html__('Cannot install addons: %s', 'easy-form-builder'),

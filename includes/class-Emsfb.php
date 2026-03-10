@@ -97,7 +97,6 @@ class Emsfb {
                       new \Emsfb\telegramlistefb();
                   }
 
-                  // Load telegram sending class (hooks registration for both admin & public)
 
                   $telegram_send_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php';
                   if (file_exists($telegram_send_path)) {
@@ -259,7 +258,6 @@ class Emsfb {
             sprintf( 'From: %s <%s>', $from_name, $from_email ),
         );
 
-        // Prepare subject with proper translation
         $subject = sprintf(
             /* translators: %s: Site name */
             esc_html__( 'Important Warning from %s', 'easy-form-builder' ),
@@ -627,20 +625,16 @@ class Emsfb {
         $current_page = isset($_GET['page']) ? $_GET['page'] : '';
         ?>
         <script type="text/javascript">
-        // Prevent Elementor admin conflicts with EFB Admin Pages
         (function($) {
             'use strict';
 
-            // Store original methods before any modifications
             if (typeof window.efb_global_elementor_protection === 'undefined') {
                 window.efb_global_elementor_protection = true;
 
                 console.log('EFB Global: Initializing Elementor compatibility layer for <?php echo esc_js($current_page); ?>');
 
-                // Prevent Elementor admin errors
                 if (typeof elementorFrontend !== 'undefined') {
                     try {
-                        // Safely check and initialize elementorFrontend.tools
                         if (!elementorFrontend.tools) {
                             elementorFrontend.tools = {};
                             console.log('EFB Global: Initialized missing elementorFrontend.tools');
@@ -650,9 +644,7 @@ class Emsfb {
                     }
                 }
 
-                // Global error handling for dispatchEvent issues
                 $(document).ready(function() {
-                    // Prevent jQuery Deferred errors
                     $(window).on('error', function(e) {
                         if (e.originalEvent && e.originalEvent.message) {
                             var errorMessage = e.originalEvent.message.toLowerCase();
@@ -667,7 +659,6 @@ class Emsfb {
                         }
                     });
 
-                    // Protect Event.dispatchEvent calls
                     if (window.Event && Event.prototype.dispatchEvent) {
                         var originalDispatchEvent = Event.prototype.dispatchEvent;
                         Event.prototype.dispatchEvent = function(event) {
@@ -726,20 +717,16 @@ class Emsfb {
         $current_page = isset($_GET['page']) ? sanitize_key( $_GET['page'] ) : '';
         ?>
         <script type="text/javascript">
-        // Prevent Elementor admin conflicts with EFB Admin Pages
         (function($) {
             'use strict';
 
-            // Store original methods before any modifications
             if (typeof window.efb_global_elementor_protection === 'undefined') {
                 window.efb_global_elementor_protection = true;
 
                 console.log('EFB Global: Initializing Elementor compatibility layer for <?php echo esc_js($current_page); ?>');
 
-                // Prevent Elementor admin errors
                 if (typeof elementorFrontend !== 'undefined') {
                     try {
-                        // Safely check and initialize elementorFrontend.tools
                         if (!elementorFrontend.tools) {
                             elementorFrontend.tools = {};
                             console.log('EFB Global: Initialized missing elementorFrontend.tools');
@@ -749,9 +736,7 @@ class Emsfb {
                     }
                 }
 
-                // Global error handling for dispatchEvent issues
                 $(document).ready(function() {
-                    // Prevent jQuery Deferred errors
                     $(window).on('error', function(e) {
                         if (e.originalEvent && e.originalEvent.message) {
                             var errorMessage = e.originalEvent.message.toLowerCase();
@@ -765,7 +750,6 @@ class Emsfb {
                         }
                     });
 
-                    // Fix dispatchEvent errors - use EventTarget instead of Event
                     if (window.EventTarget && window.EventTarget.prototype && EventTarget.prototype.dispatchEvent) {
                         var originalDispatchEvent = EventTarget.prototype.dispatchEvent;
                         EventTarget.prototype.dispatchEvent = function(event) {

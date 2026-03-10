@@ -1131,13 +1131,11 @@
 						if (iti.isValidNumber()) {
 							elem.classList.add("border-success");
 
-							// Get country data using new API
 							const countryData = iti.getSelectedCountryData();
 							const countryCode = countryData.dialCode;
 							const iso2 = countryData.iso2;
 							const countryName = countryData.name;
 
-							// Get the full number including country code using new API
 							const value = iti.getNumber();
 
 							fun_sendBack_emsFormBuilder({
@@ -3057,7 +3055,6 @@
 
 public function check_error_console_efb(){
 
-	// Translations
 	$t = [
 		'title'       => esc_html__('Error Monitor', 'easy-form-builder'),
 		'plugin'      => esc_html__('Plugin', 'easy-form-builder'),
@@ -3087,7 +3084,6 @@ public function check_error_console_efb(){
 
 			t: ' . wp_json_encode($t) . ',
 
-			// Parse source to get plugin/theme name
 			parseSource(source) {
 				if (!source) return { type: "unknown", name: this.t.unknown, file: "", fullPath: "" };
 
@@ -3096,7 +3092,6 @@ public function check_error_console_efb(){
 				try {
 					const url = new URL(source);
 					const pathname = url.pathname;
-					// Extract full path from wp-content onwards
 					const wpContentIdx = pathname.indexOf("/wp-content/");
 					if (wpContentIdx !== -1) {
 						fullPath = pathname.substring(wpContentIdx + 1); // Remove leading slash
@@ -3114,7 +3109,6 @@ public function check_error_console_efb(){
 					file = source.split("/").slice(-2).join("/");
 				}
 
-				// WordPress plugins
 				const pluginMatch = source.match(/wp-content\/plugins\/([^\/]+)/);
 				if (pluginMatch) {
 					const name = pluginMatch[1].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
@@ -3128,19 +3122,16 @@ public function check_error_console_efb(){
 					};
 				}
 
-				// WordPress themes
 				const themeMatch = source.match(/wp-content\/themes\/([^\/]+)/);
 				if (themeMatch) {
 					const name = themeMatch[1].replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 					return { type: "theme", slug: themeMatch[1], name: name, file: file, fullPath: fullPath, isEFB: false };
 				}
 
-				// WordPress core
 				if (source.match(/wp-(includes|admin)/)) {
 					return { type: "wpCore", name: this.t.wpCore, file: file, fullPath: fullPath, isEFB: false };
 				}
 
-				// External (CDN, etc.)
 				if (source.startsWith("http")) {
 					try {
 						const url = new URL(source);
@@ -3153,9 +3144,7 @@ public function check_error_console_efb(){
 				return { type: "unknown", name: this.t.unknown, file: file, fullPath: fullPath || source, isEFB: false };
 			},
 
-			// Create UI
 			createUI() {
-				// Badge button
 				this.badge = document.createElement("div");
 				this.badge.id = "efb-error-badge";
 				this.badge.innerHTML = `
@@ -3190,7 +3179,6 @@ public function check_error_console_efb(){
 				this.badge.onclick = () => this.togglePanel();
 				document.body.appendChild(this.badge);
 
-				// Panel
 				this.panel = document.createElement("div");
 				this.panel.id = "efb-error-panel";
 				this.panel.innerHTML = `
@@ -3230,7 +3218,6 @@ public function check_error_console_efb(){
 				`;
 				document.body.appendChild(this.panel);
 
-				// Overlay
 				this.overlay = document.createElement("div");
 				this.overlay.id = "efb-error-overlay";
 				this.overlay.style.cssText = `
@@ -3241,7 +3228,6 @@ public function check_error_console_efb(){
 				this.overlay.onclick = () => this.togglePanel();
 				document.body.appendChild(this.overlay);
 
-				// Styles
 				const style = document.createElement("style");
 				style.textContent = `
 					@keyframes efb-badge-pulse {
@@ -3317,7 +3303,6 @@ public function check_error_console_efb(){
 						opacity: 1 !important; pointer-events: auto !important;
 						transform: translateY(-50%) translateX(0) !important;
 					}
-					/* Reset all inherited/theme styles on the panel and its children */
 					#efb-error-panel,
 					#efb-error-panel *,
 					#efb-error-panel *::before,
@@ -3358,7 +3343,6 @@ public function check_error_console_efb(){
 						display: block !important;
 						flex: none !important;
 					}
-					/* Re-apply panel base styles */
 					#efb-error-panel {
 						position: fixed !important; top: 50% !important; left: 50% !important;
 						z-index: 1000000 !important; width: 92% !important; max-width: 520px !important; max-height: 80vh !important;
@@ -3525,7 +3509,6 @@ public function check_error_console_efb(){
 				document.head.appendChild(style);
 			},
 
-			// Toggle panel
 			togglePanel() {
 				this.isOpen = !this.isOpen;
 				if (this.isOpen) {
@@ -3547,34 +3530,29 @@ public function check_error_console_efb(){
 				}
 			},
 
-			// Show badge with animation
 			showBadge() {
 				if (!this.badge) return;
 				this.badge.style.setProperty("opacity", "1", "important");
 				this.badge.style.setProperty("pointer-events", "auto", "important");
 			},
 
-			// Hide badge
 			hideBadge() {
 				if (!this.badge) return;
 				this.badge.style.setProperty("opacity", "0", "important");
 				this.badge.style.setProperty("pointer-events", "none", "important");
 			},
 
-			// Update error count with animation
 			updateCount() {
 				if (!this.badge) return;
 				const countEl = this.badge.querySelector(".efb-error-count");
 				if (!countEl) return;
 				countEl.textContent = this.errors.length;
 
-				// Trigger pop animation
 				countEl.classList.remove("efb-count-updated");
 				void countEl.offsetWidth; // Force reflow
 				countEl.classList.add("efb-count-updated");
 			},
 
-			// Add error to panel
 			addError(errorData) {
 				const { message, source, lineno, stack = [], typeOverride = null, nameOverride = null } = errorData;
 				const parsed = this.parseSource(source);
@@ -3582,18 +3560,14 @@ public function check_error_console_efb(){
 				if (nameOverride) { parsed.name = nameOverride; }
 				const time = new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
 
-				// Use first stack item as the real source if available
 				const realSource = stack.length > 0 ? stack[0].parsed : parsed;
 				const realPath = stack.length > 0 ? stack[0].parsed.fullPath + ":" + stack[0].line : (parsed.fullPath + (lineno ? ":" + lineno : ""));
 
-				// Store
 				this.errors.push({ message, source, lineno, parsed, stack, time });
 
-				// Show badge
 				this.showBadge();
 				this.updateCount();
 
-				// Update list
 				const list = document.getElementById("efb-error-list");
 				if (!list) return;
 				const noErrors = list.querySelector(".efb-no-errors");
@@ -3604,7 +3578,6 @@ public function check_error_console_efb(){
 					realSource.type === "wpCore" ? "is-core" :
 					realSource.type === "external" ? "is-external" : "";
 
-				// Build stack trace HTML
 				let stackHtml = "";
 				if (stack.length > 0) {
 					stackHtml = `<div class="efb-stack-trace">
@@ -3651,7 +3624,6 @@ public function check_error_console_efb(){
 				list.insertBefore(item, list.firstChild);
 			},
 
-			// Clear errors
 			clearErrors() {
 				this.errors = [];
 				this.updateCount();
@@ -3660,21 +3632,18 @@ public function check_error_console_efb(){
 				this.hideBadge();
 			},
 
-			// Escape HTML
 			escapeHtml(text) {
 				const div = document.createElement("div");
 				div.textContent = text;
 				return div.innerHTML;
 			},
 
-			// Parse stack trace
 			parseStack(stackString) {
 				if (!stackString) return [];
 				const lines = stackString.split("\n");
 				const stack = [];
 
 				for (const line of lines) {
-					// Match patterns like "at Function.name (url:line:col)" or "at url:line:col"
 					const match = line.match(/at\s+(.+?)\s*\(?(https?:\/\/[^)\s]+):(\d+):(\d+)\)?/);
 					if (match) {
 						const [, funcName, url, lineNo, colNo] = match;
@@ -3691,11 +3660,6 @@ public function check_error_console_efb(){
 				return stack;
 			},
 
-			/**
-			 * Send a test error to the panel
-			 * Usage: EFB_ERROR_PANEL.test("My test message")
-			 *        EFB_ERROR_PANEL.test() // default test message
-			 */
 			test(message) {
 				const msg = message || "🧪 This is a TEST error message from EFB_ERROR_PANEL.test()";
 				const err = new Error(msg);
@@ -3709,13 +3673,6 @@ public function check_error_console_efb(){
 				console.info("%c[EFB Debug Panel]%c Test error added: " + msg, "color:#ff4b93;font-weight:bold", "color:inherit");
 			},
 
-			/**
-			 * Log a custom message with optional extra stack info
-			 * Usage:
-			 *   EFB_ERROR_PANEL.log("Something went wrong")
-			 *   EFB_ERROR_PANEL.log("API failed", { source: "my-plugin/api.js", line: 42 })
-			 *   EFB_ERROR_PANEL.log("Error X", { stack: [ { func: "loadData()", file: "wp-content/plugins/my-plugin/js/app.js", line: "55" }, { func: "init()", file: "wp-content/plugins/my-plugin/js/main.js", line: "10" } ] })
-			 */
 			log(message, options = {}) {
 				if (!message) { console.warn("[EFB Debug Panel] log() requires a message"); return; }
 
@@ -3723,7 +3680,6 @@ public function check_error_console_efb(){
 				let lineno = options.line || options.lineno || null;
 				let stack = [];
 
-				// If user provided custom stack entries
 				if (Array.isArray(options.stack) && options.stack.length > 0) {
 					stack = options.stack.map(s => {
 						const filePath = s.file || s.url || "";
@@ -3738,10 +3694,8 @@ public function check_error_console_efb(){
 						};
 					});
 				} else if (options.captureStack !== false) {
-					// Auto-capture real stack from call site
 					const err = new Error("__efb_log__");
 					stack = this.parseStack(err.stack);
-					// Remove the first frame (this log() call itself)
 					if (stack.length > 0 && stack[0].func.includes("log")) {
 						stack.shift();
 					}
@@ -3753,18 +3707,15 @@ public function check_error_console_efb(){
 				console.info("%c[EFB Debug Panel]%c Logged: " + message, "color:#ff4b93;font-weight:bold", "color:inherit");
 			},
 
-			// Initialize
 			init() {
 				const self = this;
 
-				// Create UI after DOM ready
 				if (document.readyState === "loading") {
 					document.addEventListener("DOMContentLoaded", () => self.createUI());
 				} else {
 					self.createUI();
 				}
 
-				// Global error handler
 				window.addEventListener("error", function(event) {
 					let stack = [];
 					if (event.error && event.error.stack) {
@@ -3778,7 +3729,6 @@ public function check_error_console_efb(){
 					});
 				}, true);
 
-				// Promise rejections
 				window.addEventListener("unhandledrejection", function(event) {
 					let source = "";
 					let stack = [];
@@ -4089,7 +4039,6 @@ public function check_error_console_efb(){
 						box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 					}
 
-					/* Map control responsive styles */
 					.efb .map-control-container {
 					display: flex !important;
 					flex-wrap: nowrap !important;

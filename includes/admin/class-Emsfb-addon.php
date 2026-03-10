@@ -128,7 +128,6 @@ class Addon {
 		if(is_object($ac) && (!isset($ac->efb_version) || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0)){
 			$efbFunction->setting_version_efb_update($ac ,$pro);
 		}
-		// v2 translate
 		$lang = $efbFunction->text_efb(2);
 			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('jquery-ui-efb');

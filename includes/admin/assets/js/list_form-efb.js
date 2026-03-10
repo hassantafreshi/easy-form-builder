@@ -2533,14 +2533,6 @@ search_comprehensive_efb =(el)=>{
         document.getElementById('track_code_btn_emsFormBuilder').disabled = false;
         document.getElementById('track_code_btn_emsFormBuilder').innerHTML = btnValue;
 
-      /*   setTimeout(() => {
-          alert_message_efb(
-            efb_var.text.searchDetails || 'Search Details',
-            efb_var.text.searchedInTablesInfo || 'Searched in: Messages Content (JSON), Tracking Codes, and Response Content (JSON) from both tables',
-            6,
-            'info'
-          );
-        }, 2000); */
       } else {
         const noResultsMsg = efb_var.text.noResultsFound
           ? `${efb_var.text.noResultsFound} "${el}"`

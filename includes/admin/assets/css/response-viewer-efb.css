@@ -2,7 +2,6 @@
    Response Viewer & Rich Reply Editor - Easy Form Builder
    ========================================================================== */
 
-/* ── Dynamic Color Variables (overridden via inline style from settings) ── */
 :root {
   --efb-resp-primary: #3644d2;
   --efb-resp-primary-dark: #202a8d;
@@ -12,7 +11,6 @@
   --efb-resp-bg-card: #ffffff;
   --efb-resp-bg-meta: #f6f7fb;
   --efb-resp-border: rgba(84, 131, 207, 0.12);
-  /* extended settings */
   --efb-resp-bg-track: #ffffff;
   --efb-resp-bg-resp: #f8f9fd;
   --efb-resp-bg-editor: #ffffff;
@@ -21,7 +19,6 @@
   --efb-resp-btn-text: #ffffff;
   --efb-resp-font-family: inherit;
   --efb-resp-font-size: 0.9rem;
-  /* derived */
   --efb-resp-primary-08: rgba(54, 68, 210, 0.08);
   --efb-resp-primary-10: rgba(54, 68, 210, 0.10);
   --efb-resp-primary-06: rgba(54, 68, 210, 0.06);
@@ -29,7 +26,6 @@
   --efb-resp-shadow-hover: rgba(84, 131, 207, 0.18);
 }
 
-/* ── Isolation & Defensive Reset ───────────────────────────────────────── */
 .efb-resp-viewer,
 .efb-resp-viewer *,
 .efb-resp-viewer *::before,
@@ -57,7 +53,6 @@
   border: none !important;
 }
 
-/* ── Response Container ────────────────────────────────────────────────── */
 .efb-resp-viewer {
   isolation: isolate;
   position: relative;
@@ -73,7 +68,6 @@
   -webkit-text-size-adjust: 100%;
 }
 
-/* ── Messages Area ─────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-resp-messages {
   flex: 1 1 auto;
   overflow-y: auto;
@@ -99,7 +93,6 @@
   background: var(--efb-resp-primary);
 }
 
-/* ── Single Message Card ───────────────────────────────────────────────── */
 .efb-resp-viewer .efb-resp-card,
 .efb-resp-viewer .efb-msg-card {
   border-radius: 16px !important;
@@ -117,7 +110,6 @@
   box-shadow: 0 4px 32px var(--efb-resp-shadow-hover) !important;
 }
 
-/* ── Card Header ───────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-header {
   display: flex;
   align-items: center;
@@ -126,7 +118,6 @@
   margin-bottom: 6px;
 }
 
-/* ── Sender (avatar + name + role) ─────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-sender {
   display: flex;
   align-items: center;
@@ -174,7 +165,6 @@
   text-overflow: ellipsis;
 }
 
-/* ── Header Actions (download btn) ─────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-header-actions {
   display: flex;
   align-items: center;
@@ -203,7 +193,6 @@
   pointer-events: none;
 }
 
-/* ── Meta Bar (IP, Track#, Date row) ───────────────────────────────────── */
 .efb-resp-viewer .efb-msg-meta-bar {
   display: flex;
   flex-wrap: wrap;
@@ -242,21 +231,18 @@
   border-color: var(--efb-resp-border) !important;
 }
 
-/* ── Card Divider ──────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent 0%, var(--efb-resp-border) 30%, var(--efb-resp-border) 70%, transparent 100%);
   margin: 10px 0 12px;
 }
 
-/* ── Fields Container ──────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-fields {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-/* ── Field Row ─────────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-field-row {
   display: flex;
   align-items: baseline;
@@ -280,7 +266,6 @@
   align-items: stretch;
 }
 
-/* ── Field Label ───────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-field-label {
   font-size: 0.85rem !important;
   font-weight: 600;
@@ -295,7 +280,6 @@
   margin-inline-end: 2px;
 }
 
-/* ── Field Value ───────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-field-value {
   font-size: 0.88rem !important;
   color: var(--efb-resp-text);
@@ -307,7 +291,6 @@
   display: inline;
 }
 
-/* ── Price Tag (inline) ────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-price-tag {
   display: inline-flex;
   align-items: center;
@@ -323,7 +306,6 @@
   vertical-align: middle;
 }
 
-/* ── Payment Section ───────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-payment {
   margin: 10px 0;
   border-radius: 12px;
@@ -399,7 +381,6 @@
   text-transform: capitalize;
 }
 
-/* ── Total Price ───────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-total {
   margin-top: 10px;
   border-radius: 10px;
@@ -432,7 +413,6 @@
   letter-spacing: 0.5px;
 }
 
-/* ── Rating Stars ──────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-rating {
   display: inline-flex;
   gap: 2px;
@@ -443,7 +423,6 @@
   filter: drop-shadow(0 1px 2px rgba(255,193,7,0.3));
 }
 
-/* ── Color Swatch ──────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-color-swatch {
   display: inline-block;
   width: 28px;
@@ -462,7 +441,6 @@
   border-radius: 4px;
 }
 
-/* ── E-Sign Image ──────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-esign-img {
   max-width: 240px;
   border-radius: 8px !important;
@@ -470,7 +448,6 @@
   margin-top: 6px;
 }
 
-/* ── Checkbox List ─────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-checkbox-list {
   display: flex;
   flex-wrap: wrap;
@@ -494,7 +471,6 @@
   color: var(--efb-resp-primary);
 }
 
-/* ── Matrix ────────────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-matrix-header {
   font-size: 0.92rem !important;
   color: var(--efb-resp-primary-dark);
@@ -507,9 +483,6 @@
   padding-inline-start: 20px !important;
 }
 
-/* ==========================================================================
-   Rich Reply Editor
-   ========================================================================== */
 
 .efb-resp-viewer .efb-reply-section {
   flex: 0 0 auto;
@@ -519,7 +492,6 @@
   border-radius: 0 0 12px 12px;
 }
 
-/* ── Editor Toolbar ────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-editor-toolbar {
   display: flex;
   align-items: center;
@@ -565,7 +537,6 @@
   pointer-events: none;
 }
 
-/* ── Editable Area ─────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-rich-editor {
   min-height: 100px;
   max-height: 200px;
@@ -583,10 +554,6 @@
   transition: border-color 0.2s, box-shadow 0.2s;
   word-break: break-word;
 }
-/* .efb-rich-editor:focus {
-  border-color: var(--efb-resp-primary);
-  box-shadow: 0 0 0 3px var(--efb-resp-primary-08);
-} */
 .efb-resp-viewer .efb-rich-editor:empty::before {
   content: attr(data-placeholder);
   color: var(--efb-resp-editor-ph);
@@ -597,12 +564,10 @@
   text-decoration: underline;
 }
 
-/* Hidden textarea for storing raw data */
 .efb-resp-viewer .efb-editor-raw {
   display: none !important;
 }
 
-/* ── Reply Actions ─────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-reply-actions {
   display: flex;
   align-items: center;
@@ -644,7 +609,6 @@
   flex: 1;
 }
 
-/* ── Attach Button ─────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-attach-wrapper {
   display: flex;
   align-items: center;
@@ -707,7 +671,6 @@
   color: #fff;
 }
 
-/* ── Attach Button in Toolbar ───────────────────────────────────────────── */
 .efb-resp-viewer .efb-attach-btn {
   position: relative;
   font-size: 1.05rem !important;
@@ -750,14 +713,12 @@
   pointer-events: none;
   z-index: -1;
 }
-/* Editor drag-over state */
 .efb-resp-viewer .efb-rich-editor.efb-editor-dragover {
   border-color: var(--efb-resp-primary) !important;
   background: var(--efb-resp-primary-06) !important;
   box-shadow: 0 0 0 3px var(--efb-resp-primary-10) !important;
 }
 
-/* ── File Upload Zone (slim: file info + progress) ─────────────────────── */
 .efb-resp-viewer .efb-upload-zone {
   margin-top: 8px;
   display: flex;
@@ -770,7 +731,6 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── File info (after selection) ─── */
 .efb-resp-viewer .efb-upload-file-info {
   display: flex;
   align-items: center;
@@ -817,7 +777,6 @@
   font-size: 0.85rem !important;
 }
 
-/* ── Upload progress bar ─── */
 .efb-resp-viewer .efb-upload-progress {
   width: 100%;
 }
@@ -841,7 +800,6 @@
   transition: width .3s ease;
 }
 
-/* ── Reply Label ───────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-reply-label {
   font-size: 0.82rem;
   font-weight: 600;
@@ -855,7 +813,6 @@
   font-size: 1rem !important;
 }
 
-/* ── Rendered message formatting (display) ────────────────────────────── */
 .efb-resp-viewer .efb-resp-field-value .efb-formatted b,
 .efb-resp-viewer .efb-resp-field-value .efb-formatted strong,
 .efb-resp-viewer .efb-msg-field-value .efb-formatted b,
@@ -888,9 +845,6 @@
   color: var(--efb-resp-primary-dark);
 }
 
-/* ==========================================================================
-   Responsive
-   ========================================================================== */
 @media (max-width: 768px) {
   .efb-resp-viewer {
     max-height: 80vh;
@@ -1012,9 +966,6 @@
   }
 }
 
-/* ==========================================================================
-   Admin Color-Picker Grid (settings panel)
-   ========================================================================== */
 .efb-resp-color-grid input[type="color"].form-control-color {
   width: 42px;
   height: 34px;
@@ -1035,16 +986,11 @@
   min-width: 62px;
 }
 
-/* ==========================================================================
-   Tracker / Confirmation-Code Finder – Modern Card
-   Scoped to #body_tracker_emsFormBuilder so global btn-pinkEfb etc. stay untouched.
-   ========================================================================== */
 #body_tracker_emsFormBuilder {
   font-family: var(--efb-resp-font-family);
   font-size: var(--efb-resp-font-size);
 }
 
-/* ---- card shell ---- */
 #body_tracker_emsFormBuilder .efb-tracker-card {
   display: flex;
   flex-direction: column;
@@ -1061,7 +1007,6 @@
   overflow: visible;
 }
 
-/* ---- icon circle ---- */
 #body_tracker_emsFormBuilder .efb-tracker-icon-wrap {
   display: flex;
   align-items: center;
@@ -1081,7 +1026,6 @@
   box-shadow: 0 4px 14px var(--efb-resp-primary-10);
 }
 
-/* ---- title & subtitle ---- */
 #body_tracker_emsFormBuilder .efb-tracker-title {
   margin: 0 0 4px;
   font-size: 1.2rem;
@@ -1098,7 +1042,6 @@
   font-family: var(--efb-resp-font-family);
 }
 
-/* ---- input group (icon + input) ---- */
 #body_tracker_emsFormBuilder .efb-tracker-input-group {
   position: relative;
   width: 100%;
@@ -1145,7 +1088,6 @@
   opacity: .65;
 }
 
-/* ---- captcha ---- */
 #body_tracker_emsFormBuilder .efb-tracker-captcha {
   width: 100%;
   display: flex;
@@ -1154,7 +1096,6 @@
   margin-bottom: 14px;
 }
 
-/* ---- button ---- */
 #body_tracker_emsFormBuilder .efb-tracker-btn {
   width: 100%;
   padding: 13px;
@@ -1190,7 +1131,6 @@
   font-size: 1rem;
 }
 
-/* ---- notification inside card ---- */
 #body_tracker_emsFormBuilder .efb-tracker-card > .alert {
   width: 100%;
   margin-top: 12px;
@@ -1200,9 +1140,6 @@
   text-align: center;
 }
 
-/* ==========================================================================
-   Color Settings Modal – Preview & Layout
-   ========================================================================== */
 .efb-color-modal-body {
   display: flex;
   flex-direction: column;
@@ -1289,7 +1226,6 @@
   margin-inline-start: 6px;
   vertical-align: middle;
 }
-/* Customize button in settings tab */
 .efb-customize-colors-btn {
   display: inline-flex;
   align-items: center;
@@ -1313,9 +1249,6 @@
   font-size: 1.15rem;
 }
 
-/* ==========================================================================
-   RTL (Right-to-Left) Support
-   ========================================================================== */
 [dir="rtl"] .efb-resp-viewer,
 .efb-resp-viewer.rtl-text {
   direction: rtl;
@@ -1327,7 +1260,6 @@
   text-align: right;
 }
 
-/* ── RTL Header ── */
 [dir="rtl"] .efb-resp-viewer .efb-msg-header,
 .efb-resp-viewer.rtl-text .efb-msg-header {
   flex-direction: row;
@@ -1342,7 +1274,6 @@
   flex-direction: row;
 }
 
-/* ── RTL Meta Bar ── */
 [dir="rtl"] .efb-resp-viewer .efb-msg-meta-bar,
 .efb-resp-viewer.rtl-text .efb-msg-meta-bar {
   flex-direction: row;
@@ -1352,7 +1283,6 @@
   flex-direction: row;
 }
 
-/* ── RTL Fields ── */
 [dir="rtl"] .efb-resp-viewer .efb-msg-field-row,
 .efb-resp-viewer.rtl-text .efb-msg-field-row {
   flex-direction: row;
@@ -1367,7 +1297,6 @@
   text-align: right;
 }
 
-/* ── RTL Checkbox List ── */
 [dir="rtl"] .efb-resp-viewer .efb-msg-checkbox-list,
 .efb-resp-viewer.rtl-text .efb-msg-checkbox-list {
   flex-direction: row;
@@ -1379,7 +1308,6 @@
   flex-direction: row;
 }
 
-/* ── RTL Payment Section ── */
 [dir="rtl"] .efb-resp-viewer .efb-msg-payment-header,
 .efb-resp-viewer.rtl-text .efb-msg-payment-header {
   flex-direction: row;
@@ -1389,7 +1317,6 @@
   text-align: right;
 }
 
-/* ── RTL Total ── */
 [dir="rtl"] .efb-resp-viewer .efb-msg-total-inner,
 .efb-resp-viewer.rtl-text .efb-msg-total-inner {
   flex-direction: row;
@@ -1399,7 +1326,6 @@
   flex-direction: row;
 }
 
-/* ── RTL Reply Section ── */
 [dir="rtl"] .efb-resp-viewer .efb-reply-section,
 .efb-resp-viewer.rtl-text .efb-reply-section {
   direction: rtl;
@@ -1432,7 +1358,6 @@
   text-align: right;
 }
 
-/* ── RTL Reply Icon Flip ── */
 [dir="rtl"] .efb-resp-viewer .efb-reply-btn i.bi-reply,
 .efb-resp-viewer.rtl-text .efb-reply-btn i.bi-reply,
 [dir="rtl"] .efb-resp-viewer .efb-reply-label i.bi-reply,
@@ -1440,19 +1365,16 @@
   transform: scaleX(-1);
 }
 
-/* ── RTL Header Actions (download) ── */
 [dir="rtl"] .efb-resp-viewer .efb-msg-header-actions,
 .efb-resp-viewer.rtl-text .efb-msg-header-actions {
   margin-inline-start: 0;
 }
 
-/* ── RTL Close Response Button ── */
 [dir="rtl"] .efb-resp-viewer .efb-close-resp-btn,
 .efb-resp-viewer.rtl-text .efb-close-resp-btn {
   float: left;
 }
 
-/* ── RTL Upload Zone ── */
 [dir="rtl"] .efb-resp-viewer .efb-upload-zone,
 .efb-resp-viewer.rtl-text .efb-upload-zone {
   direction: rtl;
@@ -1467,13 +1389,10 @@
   direction: ltr;
 }
 
-/* ── RTL Scrollbar position (WebKit) ── */
 [dir="rtl"] .efb-resp-viewer .efb-resp-messages::-webkit-scrollbar {
-  /* force scrollbar to left side in RTL */
   direction: rtl;
 }
 
-/* ── RTL Responsive overrides ── */
 @media (max-width: 480px) {
   [dir="rtl"] .efb-resp-viewer .efb-msg-header-actions,
   .efb-resp-viewer.rtl-text .efb-msg-header-actions {
@@ -1485,11 +1404,6 @@
   }
 }
 
-/* ──────────────────────────────────────────────────────
-   MAP IN RESPONSE VIEWER
-   Ensures map containers have proper height on both
-   admin and public (tracker) pages.
-   ────────────────────────────────────────────────────── */
 .efb-resp-viewer .efb-msg-fields .map-container {
   width: 100%;
   height: 350px;

@@ -1,8 +1,3 @@
-/* Copyright 2021 ~ 2024
-   Easy Form Builder
-   WhiteStudio.team
-   EFB.APP
-*/
 
 .efb {	font-weight: 400 !important;
 }
@@ -16,7 +11,6 @@
    -webkit-touch-callout: none !important;
 }
 
-/* Allow text selection inside .efb.guide blocks even in builder containers */
 #body_emsFormBuilder .efb.guide,
 #body_emsFormBuilder #resp_efb,
 #tab_container_efb .efb.guide {
@@ -27,9 +21,6 @@
    -webkit-touch-callout: default !important;
 }
 
-/* Fix horizontal scroll inside Create Forms tab container
-   Bootstrap's .row.efb adds negative horizontal margins; in WP admin layout
-   this can push content outside viewport and cause overflow-x. Limit it here. */
 #tab_container_efb .row.efb {
    margin-right: 0 !important;
    margin-left: 0 !important;
@@ -43,9 +34,6 @@
    pointer-events: none !important;
 }
 
-/*   .entry-content{
-  width: 500px;
-} */
 
 #alert_content_efb {	position: absolute;
    margin: 8% 8%;
@@ -65,8 +53,7 @@ label.hStyleOpEfb {
 }
 
    h3.efb {	font-size: 25px !important;
-      /*display: inline-block;
-      */}
+}
 .bg-response.efb {	border-radius: 15px !important;
    background-color: white !important;
    box-shadow: 0px 2px 30px rgba(84, 131, 207, 0.2) !important;
@@ -1295,8 +1282,6 @@ a.efb.btn {	text-decoration: none;
 .efb.esign .efb.ttiptext { margin: -25px 0px 0px 10px}
 .efb.yesNo.row  .ttiptext { margin: -25px 0px 0px 20px!important}
 .efb.yesNo  .ttiptext { margin: -35px 00px 0px 20px}
-/* .efb.esign.col-md-6 .efb.ttiptext {	margin:-25px 0px 0px 10px}
-.efb.esign.col-md-4 .efb.ttiptext {	margin: -25px 0px 0px 10px;font-size: 12px!important; }; */
 
 .efb.def.col-md-12 .efb.ttiptext { margin: -25px 0px 0px 50px!important}
 .efb.def.col-md-10 .efb.ttiptext,
@@ -1547,7 +1532,6 @@ a.efb.btn {	text-decoration: none;
   background-image: linear-gradient(65deg, #4636f1 0, #6030b8 100%) !important;
 }
 
-/* Prevent border shift on hover and add smooth feedback */
 .efb.btn-toggle:hover,
 .efb.btn-toggle:active,
 .efb.btn-toggle:focus {
@@ -1826,13 +1810,12 @@ div#gRecaptcha {
    top: 50%;
    left: 50%;
    transform: translate(-50%, -50%);
-   width: 120px; /* تنظیم عرض SVG */
-   height: 30px; /* تنظیم ارتفاع SVG */
+   width: 120px;
+   height: 30px;
    background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 120 30" height="15px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><circle cx="15" cy="15" r="15" fill="%23abb8c3"><animate attributeName="r" from="15" to="9" begin="0s" dur="1s" values="15;9;15" calcMode="linear" repeatCount="indefinite"></animate></circle><circle cx="60" cy="15" r="9" fill="%23abb8c3"><animate attributeName="r" from="9" to="15" begin="0.3s" dur="1s" values="9;15;9" calcMode="linear" repeatCount="indefinite"></animate></circle><circle cx="105" cy="15" r="15" fill="%23abb8c3"><animate attributeName="r" from="15" to="9" begin="0.6s" dur="1s" values="15;9;15" calcMode="linear" repeatCount="indefinite"></animate></circle></svg>') no-repeat center center;
    background-size: contain;
 }
 
-/* Alert Message Animation */
 @keyframes slideIn_efb {
    from { opacity: 0; transform: translateY(-15px); }
    to { opacity: 1; transform: translateY(0); }

@@ -1,24 +1,9 @@
 <?php
-/**
- * Easy Form Builder - Addon Phrases Handler
- *
- * This file manages translation phrases for plugin addons.
- * Each addon can register its own phrases through this system.
- *
- * @package Emsfb
- * @since 4.0.0
- */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-/**
- * Class EfbAddonPhrases
- *
- * Manages addon-specific translation phrases in a modular and extensible way.
- * Addons can register their phrases and they will be loaded only when needed.
- */
 class EfbAddonPhrases {
 
     private static $instance = null;
@@ -120,7 +105,6 @@ class EfbAddonPhrases {
             /* translators: Configure settings to enable = status description */
             "configure_to_enable" => $state && isset($ac->text->configure_to_enable) ? $ac->text->configure_to_enable : esc_html__('Configure settings to enable', 'easy-form-builder'),
 
-            // === Bot Configuration ===
             /* translators: Enable Telegram Notifications = toggle label */
             "enable_telegram" => $state && isset($ac->text->enable_telegram) ? $ac->text->enable_telegram : esc_html__('Enable Telegram Notifications', 'easy-form-builder'),
 

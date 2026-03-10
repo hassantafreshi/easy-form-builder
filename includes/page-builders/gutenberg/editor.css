@@ -1,16 +1,8 @@
-/**
- * Easy Form Builder - Gutenberg Block Editor Styles
- *
- * @package EasyFormBuilder
- * @since 4.0.0
- */
 
-/* Block wrapper */
 .efb-gutenberg-block {
     margin: 20px 0;
 }
 
-/* Placeholder styling */
 .efb-gutenberg-block .components-placeholder {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border: 2px dashed #202a8d;
@@ -28,7 +20,6 @@
     margin-bottom: 15px;
 }
 
-/* Preview styles */
 .efb-block-preview {
     border-radius: 12px;
     overflow: hidden;
@@ -56,12 +47,10 @@
     opacity: 0.5;
 }
 
-/* Inspector panel styling */
 .editor-styles-wrapper .efb-gutenberg-block .components-panel__body-title {
     color: #202a8d;
 }
 
-/* Select control in placeholder */
 .efb-gutenberg-block .components-placeholder .components-select-control__input {
     min-width: 250px;
     border-color: #202a8d;
@@ -73,12 +62,10 @@
     box-shadow: 0 0 0 1px #ff4b93;
 }
 
-/* Loading state */
 .efb-gutenberg-block .components-spinner {
     margin: 10px auto;
 }
 
-/* Responsive */
 @media (max-width: 782px) {
     .efb-gutenberg-block .components-placeholder {
         padding: 20px;

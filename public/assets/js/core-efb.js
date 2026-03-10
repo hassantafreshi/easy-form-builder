@@ -1405,7 +1405,6 @@ document.addEventListener("DOMContentLoaded",async function() {
 
   if(captcha) loadCaptcha_efb(20);
 
-  // Initial button state evaluation for all forms after DOM is ready
   try {
     valj_efb_new.forEach(function(formData) {
       if (formData && formData.id && formData.form_structer && formData.form_structer[0]) {
@@ -1418,11 +1417,6 @@ document.addEventListener("DOMContentLoaded",async function() {
   } catch (e) { }
 });
 
-/**
- * Centralized function to evaluate the Next/Send button disabled state
- * for a given form and step, based on required fields.
- * Called after every field change and after step navigation.
- */
 function updateStepButtonState_efb(form_id) {
   try {
     var id_body = 'body_efb_' + form_id;
@@ -1435,7 +1429,6 @@ function updateStepButtonState_efb(form_id) {
     var max_step = Number(valj[0].steps) || 1;
     var currentStep = Number(body_efb.dataset.currentstep) || 1;
 
-    // Determine which button to manage
     var next_btn = body_efb.querySelector('#next_efb');
     var send_btn = body_efb.querySelector('#btn_send_efb');
     var target_btn = null;
@@ -1450,12 +1443,10 @@ function updateStepButtonState_efb(form_id) {
 
     if (!target_btn) return;
 
-    // Check if there are validation errors for the current step in sendback_efb_state
     var hasValidationErrors = false;
     for (var si = 0; si < sendback_efb_state.length; si++) {
       var entry = sendback_efb_state[si];
       if (entry && Number(entry.form_id) === Number(form_id) && entry.state === false) {
-        // Check if this error belongs to a field in the current step
         var fieldInStep = valj.find(function(v) {
           return v.id_ === entry.id_ && Number(v.step) === currentStep;
         });
@@ -1473,7 +1464,6 @@ function updateStepButtonState_efb(form_id) {
       return;
     }
 
-    // Check all required fields for the current step are in sendBack_emsFormBuilder_pub
     var requiredFields = valj.filter(function(v) {
       return Number(v.step) === currentStep &&
              Number(v.required) === 1 &&
@@ -1504,7 +1494,6 @@ function updateStepButtonState_efb(form_id) {
       }
     }
 
-    // Check captcha if on last step
     if (allRequiredFilled && currentStep === max_step && Number(valj[0].captcha) === 1) {
       var hasCaptcha = sendBack_emsFormBuilder_pub.findIndex(function(x) {
         return x != null && x.id_ === 'captcha_v2' && Number(x.form_id) === Number(form_id);
@@ -1522,7 +1511,6 @@ function updateStepButtonState_efb(form_id) {
       }
     }
   } catch (e) {
-    // Fail silently - never leave button permanently stuck
   }
 }
 
@@ -1683,7 +1671,6 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
          prev_btn.classList.add('d-none');
          endMessage_emsFormBuilder_view(max_step,form_id);
        }else if(no_step==max_step){
-        // Delegate button state to centralized handler
         updateStepButtonState_efb(form_id);
        }
        smoothy_scroll_postion_efb(id_body);
@@ -1706,7 +1693,6 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     if(progessbar) fun_progessbar(no_step,max_step);
     smoothy_scroll_postion_efb(id_body);
     await fun_handle_header_efb(no_step,'backward');
-    // Delegate button state to centralized handler
     updateStepButtonState_efb(form_id);
   }else if (btn_state=='btn_send_efb'){
     no_step = Number(no_step)+1;
@@ -1738,7 +1724,6 @@ sendback_state_handler_efb_v4=(id_,state,step,form_id)=>{
   if (!body_efb) return;
   const indx = sendback_efb_state.findIndex(x=>x.id_==id_ && Number(x.form_id)==Number(form_id));
   if(indx==-1 && state==false){
-    // Resolve actual step from form structure
     var actualStep = step;
     try {
       var _valj = get_structure_by_form_id_efb(form_id);
@@ -1746,11 +1731,9 @@ sendback_state_handler_efb_v4=(id_,state,step,form_id)=>{
       if (_field && _field.step) actualStep = Number(_field.step);
     } catch(e) {}
     sendback_efb_state.push({id_:id_,state:state,step:actualStep,form_id:form_id});
-    // Button state delegated to updateStepButtonState_efb
     updateStepButtonState_efb(form_id);
   }else if(indx>-1 && state==true && sendback_efb_state.length>0){
     sendback_efb_state.splice(indx,1);
-    // Button state delegated to updateStepButtonState_efb (slight delay for DOM sync)
     setTimeout(function() {
       updateStepButtonState_efb(form_id);
     }, 100);
@@ -2161,7 +2144,6 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       await fun_sendBack_emsFormBuilder(o[0]);
     }
   }
-  // Always re-evaluate button state after any field change
   updateStepButtonState_efb(form_id);
 }
 

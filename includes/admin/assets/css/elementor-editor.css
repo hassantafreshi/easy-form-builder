@@ -5,12 +5,10 @@
  * @since 4.0.0
  */
 
-/* Widget icon in panel */
 .elementor-element .icon[class*="eicon-"] {
     color: #202a8d;
 }
 
-/* Placeholder styling */
 .efb-elementor-placeholder {
     transition: all 0.3s ease;
 }
@@ -20,12 +18,10 @@
     box-shadow: 0 8px 25px rgba(32, 42, 141, 0.3);
 }
 
-/* Form wrapper in editor */
 .efb-elementor-form-wrapper {
     transition: all 0.3s ease;
 }
 
-/* Preview styling */
 .efb-elementor-preview {
     box-shadow: 0 4px 15px rgba(32, 42, 141, 0.2);
     transition: all 0.3s ease;
@@ -35,7 +31,6 @@
     box-shadow: 0 6px 25px rgba(32, 42, 141, 0.3);
 }
 
-/* Form title */
 .efb-elementor-form-title {
     font-size: 24px;
     font-weight: 600;
@@ -44,14 +39,12 @@
     text-align: center;
 }
 
-/* Category icon in widgets panel */
 .elementor-panel-category[data-panel-category="easy-form-builder"] .elementor-panel-heading-category-icon {
     background: linear-gradient(135deg, #202a8d 0%, #ff4b93 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-/* Widget in panel */
 .elementor-panel .elementor-element[data-widget_type="emsfb_form.default"] {
     border-left: 3px solid #ff4b93;
 }
@@ -60,7 +53,6 @@
     background-color: rgba(255, 75, 147, 0.05);
 }
 
-/* Control styling */
 .elementor-control-form_id .elementor-control-input-wrapper select {
     border-color: #202a8d;
 }
@@ -70,13 +62,11 @@
     box-shadow: 0 0 0 1px #ff4b93;
 }
 
-/* Section headers */
 .elementor-control-type-section[data-setting="content_section"] .elementor-panel-heading-title,
 .elementor-control-type-section[data-setting="style_container_section"] .elementor-panel-heading-title {
     color: #202a8d;
 }
 
-/* Responsive adjustments */
 @media (max-width: 767px) {
     .efb-elementor-placeholder {
         padding: 25px 15px !important;

@@ -1109,7 +1109,6 @@ class Admin {
 
             $r = download_url($url);
             if(is_wp_error($r)){
-                // Retry with sslverify=false
                 $r = download_url($url, 300, true);
                 if (is_wp_error($r)) {
                     return new \WP_Error('download_failed',
