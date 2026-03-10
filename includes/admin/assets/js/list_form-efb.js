@@ -2308,7 +2308,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const respFontFamily = f('respFontFamily_emsFormBuilder');
     const respFontSize = f('respFontSize_emsFormBuilder');
     const respCustomFont = f('respCustomFont_emsFormBuilder');
-
+    const package_type = sessionStorage.getItem('efb_license_selected') ?? valueJson_ws_setting.package_type ?? (valueJson_ws_setting.activeCode == '' ? '2' : '1');
     let setting = { ...(valueJson_ws_setting || {}) };
     const patch = {
           activeCode: activeCode,
@@ -2376,6 +2376,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           respFontSize: respFontSize,
           respCustomFont: respCustomFont,
 
+          package_type:package_type,
           devMode: devMode_efb
         };
 
@@ -2384,7 +2385,6 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
             setting[key] = val;
           }
         }
-
     fun_send_setting_emsFormBuilder( setting , state_auto);
   }
 
@@ -2430,9 +2430,9 @@ function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       let m = ''
-      let t = efb_var.text.done
+      let t = efb_var.text.tshbc.replace('%s', efb_var.text.save)
       let lrt = "info"
-      let time = 3.7
+      let time = 5
       if (res.success == true) {
         valueJson_ws_setting = data.message;
 
@@ -2440,13 +2440,13 @@ function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
           t = efb_var.text.error
           m = res.data.m;
           lrt = "danger";
-          time = 7;
+          time = 15;
         }
       } else {
         t = '';
         m = res;
         lrt = "danger";
-        time = 7;
+        time = 15;
       }
       if(state_auto==1){return}
       if(res.data.success == true){

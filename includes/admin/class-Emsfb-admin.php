@@ -108,7 +108,7 @@ class Admin {
         $noti_count = count($this->get_not_read_message());
         $icon       = EMSFB_PLUGIN_URL . '/includes/admin/assets/image/logo-gray.png';
         add_menu_page(
-            esc_html__('Panel', 'Emsfb'),
+            esc_html__('Panel', 'easy-form-builder'),
             $noti_count ? sprintf(esc_html__('Easy Form Builder', 'easy-form-builder') . ' <span id="efbCountM" class="efb awaiting-mod">%d</span>', $noti_count) : esc_html__('Easy Form Builder', 'easy-form-builder'),
             'Emsfb',
             'Emsfb',
@@ -812,12 +812,13 @@ class Admin {
                 if(strlen($value)<1){
                     continue;
                 }
-                $state = $efbFunction->is_efb_pro($value);
                 $m['activeCode'] = sanitize_text_field($value);
+                $state = $efbFunction->is_efb_pro($m['activeCode']);
                 if ($state==true) {
                     $m['package_type'] = 1;
                     update_option('emsfb_pro', 1);
                 } else {
+                    $m['package_type'] = 2;
                     $response = ['success' => false, "m" =>$lang['activationNcorrect']];
                     if(strlen($value) > 1){ wp_send_json_success($response, 200);}
                 }
@@ -1710,6 +1711,7 @@ function admin_notices_efb () {
 
         $settings->package_type = $package_type_efb;
         error_log("Plan selection: $selected_plan, Action: $action_performed, Package Type: $package_type_efb, settings: $settings->package_type" );
+        error_log("pro option value: " . get_option('emsfb_pro'));
         $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
         $efbFunction->set_setting_Emsfb($settings, $email);
 

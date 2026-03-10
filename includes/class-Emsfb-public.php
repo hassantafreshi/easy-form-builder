@@ -2270,7 +2270,7 @@ public function check_nonce_permission_efb($request) {
 							$username = $state->data->user_login;
 							$ms=$this->fun_get_content_email_register_recovery_efb($userid, $username, $email, $this->id ,'recovery',$page_id);
 							$efb ='<p> '. $this->lanText['sentBy'] . home_url(). '</p>';
-							if($is_pro==false) $efb ='<p> '. esc_html__("from").''. home_url(). ' '. $this->lanText['sentBy'] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
+							if($is_pro==false) $efb ='<p> '. esc_html__("from", 'easy-form-builder').''. home_url(). ' '. $this->lanText['sentBy'] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
 							$subject ="". esc_html__("Password recovery")."[".get_bloginfo('name')."]";
 							$SERVER_NAME  = apply_filters('emsfb_get_server_host', 'yourdomain.com');
 							$from = isset($plugin_settings['femail']) && is_email($plugin_settings['femail']) ? get_bloginfo('name')." <no-reply@".$plugin_settings['femail'] .">" : get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
@@ -2462,7 +2462,7 @@ public function check_nonce_permission_efb($request) {
 										'total' => $amount,
 										'type' => "payment",
 										"paymentGateway" => $payment_gateway,
-										"paymentCreated" => wp_date(__('Y/m/d \a\t g:ia', 'textdomain')),
+										"paymentCreated" => wp_date(__('Y/m/d \a\t g:ia', 'easy-form-builder')),
 										"paymentmethod" => 'کارت',
 										"paymentIntent" => sanitize_text_field($request_data['auth']),
 										"paymentCard" => $result['data']['card_pan'],
