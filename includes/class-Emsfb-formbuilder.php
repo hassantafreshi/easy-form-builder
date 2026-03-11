@@ -813,7 +813,38 @@
 				$texts['notFound']
 			);
 		} else {
-			$ui = str_replace(['@!', '@efb@nq#'], ['"', ''], $vj->value) . "<!--endhtml first -->";
+			$ui = str_replace(['@!', '@efb@nq#'], ['"', ''], $vj->value);
+			$allowed = wp_kses_allowed_html( 'post' );
+			$allowed['style']  = [];
+			$allowed['iframe'] = [
+				'src'             => true,
+				'width'           => true,
+				'height'          => true,
+				'frameborder'     => true,
+				'allowfullscreen' => true,
+				'title'           => true,
+				'loading'         => true,
+				'style'           => true,
+				'class'           => true,
+			];
+			$allowed['svg'] = [
+				'xmlns'       => true,
+				'viewbox'     => true,
+				'width'       => true,
+				'height'      => true,
+				'fill'        => true,
+				'class'       => true,
+				'style'       => true,
+				'aria-hidden' => true,
+				'role'        => true,
+			];
+			$allowed['path']    = [ 'd' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true ];
+			$allowed['circle']  = [ 'cx' => true, 'cy' => true, 'r' => true, 'fill' => true, 'stroke' => true ];
+			$allowed['rect']    = [ 'x' => true, 'y' => true, 'width' => true, 'height' => true, 'fill' => true, 'rx' => true, 'ry' => true ];
+			$allowed['line']    = [ 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true, 'stroke' => true ];
+			$allowed['polygon'] = [ 'points' => true, 'fill' => true, 'stroke' => true ];
+			$allowed['g']       = [ 'fill' => true, 'transform' => true, 'class' => true ];
+			$ui = wp_kses( $ui, $allowed ) . "<!--endhtml first -->";
 			$ui = sprintf(
 				'<div %s>%s</div>',
 				$previewSate == false ? 'class="efb bg-light" id="' . $rndm . '_html"' : '',
