@@ -48,7 +48,7 @@ class Addon {
 		$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
 		$dev_mode = get_option('emsfb_dev_mode', '0') === '1';
 		$domain =  $dev_mode ? 'demo.whitestudio.team' : 'whitestudio.team';
-		wp_register_script('whiteStudioAddone', 'http://' . $domain . '/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
+		wp_register_script('whiteStudioAddone', 'https://' . $domain . '/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
 
         wp_enqueue_script('whiteStudioAddone');
 

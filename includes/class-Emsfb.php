@@ -384,7 +384,8 @@ class Emsfb {
         if ($transient === false || empty($transient)) {
             global $wpdb;
             $table_name = $wpdb->prefix . "emsfb_setting";
-            $raw = $wpdb->get_var("SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1");
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
+            $raw = $wpdb->get_var( "SELECT setting FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
 
             if (empty($raw)) {
                 if ($mode === 'pub') return [0, []];
@@ -425,7 +426,8 @@ class Emsfb {
 
                 global $wpdb;
                 $table_name = $wpdb->prefix . "emsfb_setting";
-                $latest_id = $wpdb->get_var("SELECT id FROM $table_name ORDER BY id DESC LIMIT 1");
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
+                $latest_id = $wpdb->get_var( "SELECT id FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
                 if ($latest_id) {
                     $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $latest_id], ['%s'], ['%d']);
                 }
@@ -830,7 +832,8 @@ class Emsfb {
             return 0;
         }
 
-        $rows = $wpdb->get_results("SELECT id, setting FROM $table_name");
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
+        $rows = $wpdb->get_results( "SELECT id, setting FROM `{$table_name}`" );
         if (empty($rows)) {
             return 0;
         }

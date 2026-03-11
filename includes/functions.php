@@ -501,7 +501,6 @@ class efbFunction {
 			"aPIkeyGoogleMapsFeild" => $state ? $ac->text->aPIkeyGoogleMapsFeild : esc_html__('There was an error loading Maps.','easy-form-builder'),
 			"fileIsNotRight" => $state ? $ac->text->fileIsNotRight : esc_html__('The uploaded file is not in the correct file format.','easy-form-builder'),
 			"thisElemantNotAvailable" => $state ? $ac->text->thisElemantNotAvailable : esc_html__('The selected field is not available in this type of form.','easy-form-builder'),
-			"numberSteps" => $state ? $ac->text->numberSteps : esc_html__('Edit','easy-form-builder'),
 			"clickHereGetActivateCode" => $state ? $ac->text->clickHereGetActivateCode : esc_html__('Get your activation code now and unlock exclusive features ! Click here.','easy-form-builder'),
 			/* translators: Confirmation Code is a unique identifier and after filling the form, users receive this code to track their submission */
 			"trackingCode" => $state ? $ac->text->trackingCode : esc_html__('Confirmation Code','easy-form-builder'),
@@ -1551,7 +1550,7 @@ class efbFunction {
 		$msg_id = preg_replace('/[,]+/','',$msg_id);
 		$email="null";
 		$table_name =  $wpdb->prefix . "emsfb_msg_";
-		$data =  $wpdb->get_results("SELECT content ,form_id,track FROM `$table_name` WHERE msg_id = '$msg_id' ORDER BY msg_id DESC LIMIT 1");
+		$data =  $wpdb->get_results( $wpdb->prepare( "SELECT content, form_id, track FROM `{$table_name}` WHERE msg_id = %s ORDER BY msg_id DESC LIMIT 1", $msg_id ) );
 
 		$form_id = $data[0]->form_id;
 		$response_msg = $data[0]->content;
@@ -1563,7 +1562,7 @@ class efbFunction {
 		$link_w = $lst['type']=="w_link" ? $lst['value'].'?track='.$trackingCode : 'null';
 
 		$table_name =  $wpdb->prefix . "emsfb_form";
-		$data =  $wpdb->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
+		$data =  $wpdb->get_results( $wpdb->prepare( "SELECT form_structer FROM `{$table_name}` WHERE form_id = %s ORDER BY form_id DESC LIMIT 1", $form_id ) );
 
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
