@@ -178,7 +178,7 @@
 
 		$corener = isset($vj->corner) ? $vj->corner : 'efb-square';
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
-		$value = !empty($vj->value) ? 'value="' . $vj->value . '"' : '';
+		$value = !empty($vj->value) ? 'value="' . esc_attr($vj->value) . '"' : '';
 		$aria_required = ($vj->required == 1) ? 'true' : 'false';
 		$readonly = ($disabled == "disabled") ? 'readonly' : '';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
@@ -758,7 +758,7 @@
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$readonly =  '';
-		$value = !empty($vj->value) ? sprintf('value="%s"', $vj->value) : '';
+		$value = !empty($vj->value) ? sprintf('value="%s"', esc_attr($vj->value)) : '';
 		$el_height = isset($vj->el_height) ? $vj->el_height : '';
 		$el_text_color = isset($vj->el_text_color) ? $vj->el_text_color : '';
 		$corner = isset($vj->corner) ? $vj->corner : 'efb-square';
@@ -787,7 +787,7 @@
 			$rndm,
 			$value,
 			$ariaRequired,
-			$vj->value,
+			esc_attr($vj->value),
 			$aire_describedby,
 			$readonly,
 			$desc
@@ -859,7 +859,7 @@
 		$el_text_size = isset($vj->el_text_size) ? $vj->el_text_size : '';
 		$classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 		$href = isset($vj->href) ? $vj->href : '#';
-		$value = isset($vj->value) ? $vj->value : '';
+		$value = isset($vj->value) ? esc_html($vj->value) : '';
 
 		$ui = sprintf(
 			'<div class="efb %s px-0 mx-0 ' . $this->mobile_pos[3] . '" id="%s-f" data-formid="%s">
@@ -1093,7 +1093,7 @@
 		$required = $vj->required == 1 || $vj->required == true ? 'required' : '';
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
-		$value = !empty($vj->value) ? 'value="' . $vj->value . '"' : '';
+		$value = !empty($vj->value) ? 'value="' . esc_attr($vj->value) . '"' : '';
 		$readonly = $previewSate != true ? 'readonly' : '';
 		$classes =  str_replace(',', ' ', $vj->classes) ?? '';
 		$onlyCountries = isset($vj->c_c) && count($vj->c_c) > 0 ? $vj->c_c : '';
@@ -2210,7 +2210,7 @@
 					$inputClass = $isPdate ? 'efb pdpF2 pdp-el' : 'efb hijri-picker';
 
 					$readonlyAttr = $elementId === 'ardate' && $disabled === "disabled" ? 'readonly' : '';
-					$valueAttr = !empty($vj->value) ? sprintf('value="%s"', $vj->value) : '';
+					$valueAttr = !empty($vj->value) ? sprintf('value="%s"', esc_attr($vj->value)) : '';
 					$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';
 
@@ -2345,13 +2345,13 @@
 							$vj->el_text_color,
 							$classes,
 							'',
-							$vj->value,
+							esc_attr($vj->value),
 							($vj->required == 1 ? 'true' : 'false'),
-							$vj->name,
+							esc_attr($vj->name),
 							$aire_describedby,
 							$disabled,
 							$minlen,
-							$this->text_nr_efb($vj->value, 0),
+							esc_html($this->text_nr_efb($vj->value, 0)),
 							$desc,
 							$form_id
 
