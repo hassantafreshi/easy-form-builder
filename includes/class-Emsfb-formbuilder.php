@@ -3785,7 +3785,7 @@ public function check_error_console_efb(){
 	}
 
 	public function efb_output_schema_free_plus() {
-		$page_url = home_url( add_query_arg( [], wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ) );
+		$page_url = home_url( add_query_arg( [], sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ) ) );
 		$locale = get_locale();
 		$lang   = str_replace('_', '-', $locale);
 		$ws_url = $locale === 'fa_IR' ? 'https://easyformbuilder.ir' : 'https://whitestudio.team';
@@ -3828,7 +3828,7 @@ public function check_error_console_efb(){
 	}
 
 		public function efb_output_schema_free () {
-			$page_url = home_url( add_query_arg( [], wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ) );
+			$page_url = home_url( add_query_arg( [], sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ) ) );
 			$locale = get_locale();
 			$lang   = str_replace('_', '-', $locale);
 			$ws_url = $locale === 'fa_IR' ? 'https://easyformbuilder.ir' : 'https://whitestudio.team';

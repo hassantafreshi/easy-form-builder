@@ -43,7 +43,7 @@ class Panel_edit  {
 				$efbFunction->openstreet_map_required_efb(0);
 		    }
 			if(is_object($ac) ){
-				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+				$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
 
 				if(isset($ac->siteKey)){$captcha="true";}
 				if(isset($ac->smtp) && (bool)$ac->smtp){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
@@ -80,7 +80,7 @@ class Panel_edit  {
 					<div id="msg_emsFormBuilder" class="efb mx-2">
 				</div>
 				<div class="efb top_circle-efb-1"></div>
-				<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>";</script>
+				<script>let sitekye_emsFormBuilder="<?php echo esc_js($k); ?>";</script>
 						<?php echo $noti_pro ?>
 					<nav class="efb navbar navbar-expand-lg navbar-light efb" id="navbar">
 						<div class="efb container">

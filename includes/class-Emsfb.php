@@ -593,12 +593,13 @@ class Emsfb {
             return;
         }
 
-        if (isset($_GET['page']) && (
-            $_GET['page'] === 'Emsfb' ||
-            $_GET['page'] === 'Emsfb_create' ||
-            $_GET['page'] === 'Emsfb_addon' ||
-            $_GET['page'] === 'Emsfb_sms_efb'
-        )) {
+        $page = isset($_GET['page']) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+        if ($page === 'Emsfb' ||
+            $page === 'Emsfb_create' ||
+            $page === 'Emsfb_addon' ||
+            $page === 'Emsfb_sms_efb'
+        ) {
             add_action('admin_enqueue_scripts', array($this, 'apply_elementor_admin_fixes'), 1);
         }
     }
@@ -622,7 +623,7 @@ class Emsfb {
     }
 
     public function elementor_admin_conflict_prevention() {
-        $current_page = isset($_GET['page']) ? $_GET['page'] : '';
+        $current_page = isset($_GET['page']) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
         ?>
         <script type="text/javascript">
         (function($) {

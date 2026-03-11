@@ -126,21 +126,6 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	if (!isset($_SERVER['HTTP_X_WP_NONCE'])) {
-
-		if ($origin) {
-			if (in_array($origin, $allowed_origins)) {
-				return true;
-			}
-
-			$parsed_origin = wp_parse_url($origin);
-			$parsed_home = wp_parse_url(home_url());
-
-			if (isset($parsed_origin['host']) && isset($parsed_home['host']) &&
-			    $parsed_origin['host'] === $parsed_home['host']) {
-				return true;
-			}
-		}
-
 		return new \WP_Error('rest_forbidden', __('X-WP-Nonce header is missing', 'easy-form-builder'), array('status' => 403));
 	}
 
@@ -157,7 +142,6 @@ public function check_nonce_permission_efb($request) {
 			}
 
 			$sid_valid = $this->efbFunction->efb_code_validate_select($sid, $fid);
-
 			if ($sid_valid) {
 					return true;
 			}
@@ -1463,7 +1447,7 @@ public function check_nonce_permission_efb($request) {
 			'[EFB Background] Method: %s | Response Time: %sms | Server: %s | PHP: %s',
 			$method,
 			$elapsed,
-			$_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
+			isset($_SERVER['SERVER_SOFTWARE']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : 'Unknown',
 			PHP_SAPI
 		);
 	}
@@ -2870,9 +2854,9 @@ public function check_nonce_permission_efb($request) {
 	public function get_ip_address() {
 
         $ip='1.1.1.1';
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {$ip = $_SERVER['REMOTE_ADDR'];}
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+        } else {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
         $ip = strval($ip);
         $check =strpos($ip,',');
         if($check!=false){$ip = substr($ip,0,$check);}
