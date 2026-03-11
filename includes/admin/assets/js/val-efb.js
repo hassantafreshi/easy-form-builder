@@ -3847,7 +3847,7 @@ function closeSetupOverlay_efb() {
 sessionStorage.setItem('efb_license_selected', efb_var.setting.package_type);
 function getCurrentPlanBadge_efb() {
   const crntPlnLabel = (efb_var.text && efb_var.text.crntPln) || 'Current Plan';
-  const pro_type = sessionStorage.getItem('efb_license_selected') ? Number(sessionStorage.getItem('efb_license_selected')) : Number(efb_var.pro);
+  const pro_type = Number(efb_var.pro) === 1 ? 1 : (sessionStorage.getItem('efb_license_selected') ? Number(sessionStorage.getItem('efb_license_selected')) : Number(efb_var.pro));
   let badgeClass = 'bg-secondary';
   let planName = (efb_var.text && efb_var.text.free) || 'Free';
   let icon_mx = 'me-2';
@@ -3857,7 +3857,7 @@ function getCurrentPlanBadge_efb() {
     div_mx = 'me-1';
   }
   let iconHtml = `<i class="efb bi-tag ${icon_mx}"></i>`;
-    if (pro_type === 1) {
+    if (pro_type === 1 || pro_type === true) {
         badgeClass = 'bg-info';
         iconHtml = `<i class="efb bi-gem ${icon_mx}"></i>`;
         planName = (efb_var.text && efb_var.text.pro) || 'Pro';
