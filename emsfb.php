@@ -35,7 +35,7 @@ if (!defined("EMSFB_PLUGIN_URL")) {
 }
 
 if (!defined("WP_PLUGIN_DIR")) {
-    define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '\plugins' );
+    define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
 }
 
 if (!defined("EMSFB_DEV_MODE")) {

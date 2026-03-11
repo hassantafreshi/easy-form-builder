@@ -80,9 +80,6 @@ class _Public {
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
 
-		add_action('wp_ajax_efb_test_background', [$this, 'test_background_processing']);
-		add_action('wp_ajax_nopriv_efb_test_background', [$this, 'test_background_processing']);
-
 		add_action('wp_ajax_efb_process_background', [$this, 'process_background_task']);
 		add_action('wp_ajax_nopriv_efb_process_background', [$this, 'process_background_task']);
 
