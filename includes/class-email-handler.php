@@ -272,7 +272,8 @@ class EmsfbEmailHandler {
             $track_id = $m[0];
         }
 
-        $button_style = "display: inline-block; padding: 16px 32px; background: transparent; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; cursor: pointer;";
+        $btnBgColor = isset($st->emailBtnBgColor) && !empty($st->emailBtnBgColor) ? esc_attr($st->emailBtnBgColor) : '#202a8d';
+        $btnTextColor = isset($st->emailBtnTextColor) && !empty($st->emailBtnTextColor) ? esc_attr($st->emailBtnTextColor) : '#ffffff';
 
         if($email_content_type == 'message_link'){
 
@@ -282,14 +283,23 @@ class EmsfbEmailHandler {
 
         $tracking_section = "";
         if ($email_content_type != 'just_message' && !$isRegistrationState) {
+            $safe_link = esc_url($link);
             $tracking_section = "
             <div style='text-align:center; margin: 30px 0;'>
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 0 auto;'>
                     <tr>
-                        <td style='background: linear-gradient(135deg, #202a8d 0%, #1e3a8a 100%); border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(32, 42, 141, 0.3);'>
-                            <a href='" . esc_url($link) . "' target='_blank' style='" . $button_style . "'>
+                        <td align='center' style='background-color: " . $btnBgColor . "; border-radius: 8px; text-align: center;'>
+                            <!--[if mso]>
+                            <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='" . $safe_link . "' style='height:auto;v-text-anchor:middle;' arcsize='20%' strokecolor='" . $btnBgColor . "' fillcolor='" . $btnBgColor . "'>
+                                <w:anchorlock/>
+                                <center style='color:" . $btnTextColor . ";font-family:Segoe UI,Tahoma,Geneva,Verdana,Arial,sans-serif;font-size:18px;font-weight:700;padding:16px 32px;'>" . $lang['vmgs'] . "</center>
+                            </v:roundrect>
+                            <![endif]-->
+                            <!--[if !mso]><!-->
+                            <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 16px 32px; background-color: " . $btnBgColor . "; color: " . $btnTextColor . "; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: Segoe UI, Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; mso-hide: all;'>
                                 " . $lang['vmgs'] . "
                             </a>
+                            <!--<![endif]-->
                         </td>
                     </tr>
                 </table>
@@ -547,6 +557,7 @@ class EmsfbEmailHandler {
     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
     <title>" . esc_html($title) . "</title>
+    <!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
     <style type=\"text/css\">
         body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
         table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }

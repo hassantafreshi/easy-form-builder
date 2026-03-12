@@ -17,16 +17,14 @@ if (typeof pro_efb === 'undefined') { var pro_efb = (typeof efb_var !== 'undefin
 if (sessionStorage.getItem("valueJson_ws_p")) sessionStorage.removeItem('valueJson_ws_p');
 if(sessionStorage.getItem("formId_efb")) sessionStorage.removeItem('formId_efb');
 
-if (typeof deepFreeze_efb !== 'function') {
-  function deepFreeze_efb(obj) {
-    if (typeof obj !== "object" || obj === null) return obj;
-    Object.keys(obj).forEach((key) => {
-        if (typeof obj[key] === "object" && obj[key] !== null) {
-            deepFreeze_efb(obj[key]);
-        }
-    });
-    return Object.freeze(obj);
-  }
+function deepFreeze_efb_admin(obj) {
+  if (typeof obj !== "object" || obj === null) return obj;
+  Object.keys(obj).forEach((key) => {
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+          deepFreeze_efb_admin(obj[key]);
+      }
+  });
+  return Object.freeze(obj);
 }
 
 jQuery(function () {
@@ -38,7 +36,7 @@ jQuery(function () {
   }
 
   _efb_nonce_ = efb_var.nonce;
-  efb_var= deepFreeze_efb(efb_var);
+  efb_var= deepFreeze_efb_admin(efb_var);
   state_check_ws_p = Number(efb_var.check);
   setting_emsFormBuilder=efb_var.setting;
   pro_ws_efb = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;

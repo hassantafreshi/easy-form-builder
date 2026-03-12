@@ -13,10 +13,20 @@ let test_view__emsFormBuilder = true
 
 var _efb_core_nonce_ = '';
 
+function deepFreeze_efb_core(obj) {
+  if (typeof obj !== "object" || obj === null) return obj;
+  Object.keys(obj).forEach((key) => {
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+          deepFreeze_efb_core(obj[key]);
+      }
+  });
+  return Object.freeze(obj);
+}
+
 jQuery(function () {
   if (typeof ajax_object_efm_core != undefined) {
     _efb_core_nonce_ = ajax_object_efm_core.nonce;
-    ajax_object_efm_core = deepFreeze_efb(ajax_object_efm_core);
+    ajax_object_efm_core = deepFreeze_efb_core(ajax_object_efm_core);
     if (Number(ajax_object_efm_core.check) == 1) {
       fun_render_view_core_emsFormBuilder(ajax_object_efm_core.check);
       validate_edit_mode_emsFormBuilder = true;

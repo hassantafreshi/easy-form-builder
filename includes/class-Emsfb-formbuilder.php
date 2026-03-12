@@ -3200,7 +3200,7 @@ public function check_error_console_efb(){
 					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 					font-size: 13px !important; font-weight: 600 !important;
 					box-shadow: 0 4px 15px rgba(220,53,69,0.4) !important;
-					opacity: 0 !important; pointer-events: none !important;
+					opacity: 0 !important; pointer-events: none !important; visibility: hidden !important;
 					direction: ltr !important; box-sizing: border-box !important;
 					line-height: normal !important; text-transform: none !important;
 					text-decoration: none !important; letter-spacing: normal !important;
@@ -3561,6 +3561,7 @@ public function check_error_console_efb(){
 
 			showBadge() {
 				if (!this.badge) return;
+				this.badge.style.setProperty("visibility", "visible", "important");
 				this.badge.style.setProperty("opacity", "1", "important");
 				this.badge.style.setProperty("pointer-events", "auto", "important");
 			},
@@ -3569,6 +3570,7 @@ public function check_error_console_efb(){
 				if (!this.badge) return;
 				this.badge.style.setProperty("opacity", "0", "important");
 				this.badge.style.setProperty("pointer-events", "none", "important");
+				this.badge.style.setProperty("visibility", "hidden", "important");
 			},
 
 			updateCount() {},

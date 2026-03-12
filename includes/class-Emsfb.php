@@ -935,6 +935,8 @@ class Emsfb {
         $defaults->text              = '';
         $defaults->bootstrap         = '';
         $defaults->emailTemp         = '';
+        $defaults->emailBtnBgColor   = '#202a8d';
+        $defaults->emailBtnTextColor = '#ffffff';
         $defaults->paypalPKey        = '';
         $defaults->paypalSKey        = '';
         $defaults->stripePKey        = '';

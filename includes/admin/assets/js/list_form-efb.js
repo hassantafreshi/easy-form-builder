@@ -1076,6 +1076,8 @@ function fun_show_setting__emsFormBuilder() {
   let demail ='no-reply@'+ window.location.hostname;
   let osLocationPicker = false;
   let shieldSilentCaptcha = false;
+  let emailBtnBgColor = '#202a8d';
+  let emailBtnTextColor = '#ffffff';
   const shieldAvailable = efb_var.shield_available === true || efb_var.shield_available === 1 || efb_var.shield_available === '1' || efb_var.shield_available === 'true';
   const translateDiscountPercent = 60;
   let respPrimary = '#3644d2';
@@ -1148,6 +1150,8 @@ function fun_show_setting__emsFormBuilder() {
     respFontFamily = f('respFontFamily') == 'null' ? 'inherit' : f('respFontFamily');
     respFontSize = f('respFontSize') == 'null' ? '0.9rem' : f('respFontSize');
     respCustomFont = f('respCustomFont') == 'null' ? '' : f('respCustomFont');
+    emailBtnBgColor = f('emailBtnBgColor') == 'null' ? '#202a8d' : f('emailBtnBgColor');
+    emailBtnTextColor = f('emailBtnTextColor') == 'null' ? '#ffffff' : f('emailBtnTextColor');
 
     payToken = f('payToken');
     act_local_efb = f('act_local_efb');
@@ -1566,6 +1570,8 @@ function fun_show_setting__emsFormBuilder() {
                           <div id="efb-email-builder"></div>
                           <!-- Hidden textarea keeps the same ID for save/validation compatibility -->
                           <textarea class="efb form-control" id="emailTemp_emsFirmBuilder" rows="5" data-tab="${efb_var.text.emailTemplate}" style="display:none;">${emailTemp}</textarea>
+                          <input type="hidden" id="emailBtnBgColor_emsFormBuilder" value="${emailBtnBgColor}">
+                          <input type="hidden" id="emailBtnTextColor_emsFormBuilder" value="${emailBtnTextColor}">
                           <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
                         </div>
                     </div>
@@ -2262,6 +2268,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
+    const emailBtnBgColor = f('emailBtnBgColor_emsFormBuilder') || '#202a8d';
+    const emailBtnTextColor = f('emailBtnTextColor_emsFormBuilder') || '#ffffff';
     let text = act_local_efb==true ? efb_var.text :'';
     if(typeof text != 'object' && text!=''){
         noti_message_efb('Localization not found. It seems there may be a conflict with a plugin and Easy Form Builder. Please reach out to the Easy Form Builder support team for assistance', 'danger', 'content-efb');
@@ -2321,6 +2329,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           text: text,
           bootstrap: bootstrap,
           emailTemp: emailTemp,
+          emailBtnBgColor: emailBtnBgColor,
+          emailBtnTextColor: emailBtnTextColor,
 
           paypalPKey: paypalPKey,
           paypalSKey: paypalSKey,

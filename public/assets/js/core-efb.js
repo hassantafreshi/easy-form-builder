@@ -44,6 +44,16 @@ function fun_render_view_efb(val, check) {
   state_efb = "run";
 }
 
+function deepFreeze_efb_pub(obj) {
+  if (typeof obj !== "object" || obj === null) return obj;
+  Object.keys(obj).forEach((key) => {
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+          deepFreeze_efb_pub(obj[key]);
+      }
+  });
+  return Object.freeze(obj);
+}
+
 function check_body_efb_timer (){
   g_timeout_efb -=10;
   if((document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null) && g_timeout_efb>10){
@@ -84,15 +94,15 @@ function check_body_efb_timer (){
         check_body_efb_timer();
       }
 
-      poster_emsFormBuilder = deepFreeze_efb(ajax_object_efm.poster);
-      ajax_object_efm.text = deepFreeze_efb(ajax_object_efm.text);
+      poster_emsFormBuilder = deepFreeze_efb_pub(ajax_object_efm.poster);
+      ajax_object_efm.text = deepFreeze_efb_pub(ajax_object_efm.text);
       lan_name_emsFormBuilder = ajax_object_efm.language.slice(0, 2);
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
       page_state_efb = "public";
 
       setting_emsFormBuilder=typeof ajax_object_efm.form_settingJSON=='string' ? JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, '')) : ajax_object_efm.form_settingJSON;
       efb_var = ajax_object_efm;
-      efb_var.text = deepFreeze_efb(efb_var.text);
+      efb_var.text = deepFreeze_efb_pub(efb_var.text);
 
       if (ajax_object_efm.cache_plugins && ajax_object_efm.cache_plugins !== '0') {
         try {
