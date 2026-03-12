@@ -195,7 +195,11 @@ function emsfb_check_file_access_efb() {
 }
 
 function emsfb_get_file_access_status_efb() {
-    return get_option('emsfb_file_access_status', null);
+    $state= get_option('emsfb_file_access_status', null);
+    if (!$state) {
+        $state = emsfb_check_file_access_efb();
+    }
+    return $state;
 }
 
 function emsfb_is_addon_install_ready_efb() {

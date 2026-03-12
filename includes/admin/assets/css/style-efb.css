@@ -1164,18 +1164,19 @@ a.efb.btn {	text-decoration: none;
 }
 .efb.checklist {	min-width: 20%;
 }
-@media (min-width:2000px) {    	.efb.fs-1 {            font-size: 90px !important     }
+@media (min-width:2000px) {
+      .efb.fs-1 {            font-size: 90px !important     }
 	   .efb.fs-2 {            font-size: 70px !important     }
 	   .efb.fs-3 {            font-size: 55px !important     }
-	   .efb.fs-4 {            font-size: 45px !important     }
-	   .efb.fs-5 {            font-size: 35px !important     }
-	   .efb.fs-6 {            font-size: 28px !important     }
-	   .efb.fs-7 {            font-size: 23px !important     }
-	   .efb.fs-8 {            font-size: 18px !important     }
+	   .efb.fs-4 {            font-size: 43px !important     }
+	   .efb.fs-5 {            font-size: 34px !important     }
+	   .efb.fs-6 {            font-size: 25px !important     }
+	   .efb.fs-7 {            font-size: 21px !important     }
+	   .efb.fs-8 {            font-size: 17px !important     }
 	   .efb.fs-9 {            font-size: 13px !important     }
    }
-.efb.form-check-inline{    display:inline-block!important;
-}
+
+.efb.form-check-inline{    display:inline-block!important;}
 
 
 
