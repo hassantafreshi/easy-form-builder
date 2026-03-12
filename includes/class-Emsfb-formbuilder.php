@@ -460,7 +460,7 @@
 			<div data-tag="%s" class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<select class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s data-type="%s" data-formid="%s" %s %s>
-					<option disabled %s>%s</option>
+					<option disabled %s id="efbNotingSelected">%s</option>
 					%s
 				</select>
 				%s
@@ -535,7 +535,7 @@
 			<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<select data-type="stateProvince" class="efb form-select emsFormBuilder_v w-100 %s %s %s %s" data-vid="%s" id="%s_options" data-formid="%s" aria-required="%s" aria-label="%s" %s %s %s>
-					<option disabled %s>%s</option>
+					<option disabled %s id="efbNotingSelected">%s</option>
 					%s
 				</select>
 				%s
@@ -607,7 +607,7 @@
 			<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
 				<select data-type="citylist" class="efb form-select emsFormBuilder_v w-100 %s %s %s %s" data-vid="%s" id="%s_options" data-formid="%s" aria-required="%s" aria-label="%s" %s %s %s>
-					<option disabled %s>%s</option>
+					<option disabled %s id="efbNotingSelected">%s</option>
 					%s
 				</select>
 				%s
@@ -1878,7 +1878,7 @@
             <div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
                 %s
                 <select data-formid="%s" class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s %s %s>
-                    <option disabled %s>%s</option>
+                    <option disabled %s id="efbNotingSelected">%s</option>
                     %s
                 </select>
                 %s

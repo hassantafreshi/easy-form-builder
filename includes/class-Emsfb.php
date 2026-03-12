@@ -218,7 +218,7 @@ class Emsfb {
                 $message =  esc_html__('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually. Notice: Please do this act immediately so forms of your site will be available again.','easy-form-builder');
                 ?>
                     <div class="notice notice-warning is-dismissible">
-                        <p> <?php echo '<b>'.esc_html__('Warning').':</b> '. $message.''; ?> </p>
+                        <p> <?php echo '<b>'.esc_html__('Warning').':</b> '. wp_kses_post($message); ?> </p>
                     </div>
                 <?php
             $this->email_send_efb();

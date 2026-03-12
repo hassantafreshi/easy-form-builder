@@ -198,7 +198,7 @@ async function createStepsOfPublic() {
     const form_type = valj_efb_[0].hasOwnProperty('type') ? valj_efb_[0].type : 'form';
     let o =[{ id_: id, name: el.name, id_ob: el.id, amount: 0, type: el.type, value: el.value, session: sessionPub_emsFormBuilder, form_id: form_id }];
     if ('type' in el) {
-      if(false && ( el.type=="checkbox" || el.type=="radio" )&& valj_efb_[0].type == "payment" && classes.contains('payefb')){
+      if( ( el.type=="checkbox" || el.type=="radio" ) && valj_efb_[0].type == "payment" && classes.contains('payefb')){
         let indx = valj_efb.findIndex(x => x.id_ === id);
         const row = valj_efb[indx];
         const parent_id= row.hasOwnProperty('parent_id') ? row.parent_id : -1;
@@ -223,9 +223,17 @@ async function createStepsOfPublic() {
           case 'url':
           case 'range':
           case 'color':
-
             if(el.value && el.value.length>0){
-              handle_change_event_efb_v4(el,form_id);
+              if(el.type!="range" && el.type!="color"){
+                handle_change_event_efb_v4(el,form_id);
+              }else{
+                let indx = valj_efb.findIndex(x => x.id_ === id);
+                if(valj_efb[indx].hasOwnProperty('value') && valj_efb[indx].value==""){
+                  console.log(indx ,valj_efb[indx])
+                  break;
+                }
+                handle_change_event_efb_v4(el,form_id);
+              }
             }
             if (classes.contains("pdpF2")) {
               call_fun_jalali_datepicker_efb_v4();
@@ -320,7 +328,7 @@ async function createStepsOfPublic() {
           break;
           case 'select-one':
             const selected_option_tag = el.querySelector('option:checked');
-            if (selected_option_tag) {
+            if (selected_option_tag && selected_option_tag.id !== 'efbNotingSelected') {
               handle_change_event_efb_v4(el,form_id);
             }
 
@@ -369,7 +377,7 @@ async function createStepsOfPublic() {
     try {
       const sw_valj = get_structure_by_form_id_efb(sw_form_id);
       const sw_v = sw_valj.find(x => x.id_ == sw_vid);
-      if (!sw_v) continue;
+      if (!sw_v || sw_v.value == undefined || sw_v.value == null || sw_v.value == "") continue;
       const sw_value = switchEl.classList.contains('active') ? "1" : "0";
       const sw_ob = { id_: sw_v.id_, name: sw_v.name, amount: sw_v.amount, type: sw_v.type, value: sw_value, session: sessionPub_emsFormBuilder, form_id: sw_form_id };
       fun_sendBack_emsFormBuilder(sw_ob);

@@ -199,14 +199,29 @@ const loading_messge_efb = () => {
 }
 function copyCodeEfb(id , tagid = '') {
   var copyText = document.getElementById(id);
+  var textVal = copyText.value || copyText.innerText;
 
-  copyText.select();
-  copyText.setSelectionRange(0, 99999);
-  document.execCommand("copy");
-  if (tagid != '') {
-    const tag = document.getElementById(tagid);
-    const message = efb_var.text.copied.replace('%s','');
-    tag.innerHTML = message;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(textVal).then(function() {
+      if (tagid != '') {
+        const t = (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text.copied)
+          ? efb_var.text : (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text)
+          ? ajax_object_efm.text : null;
+        const tag = document.getElementById(tagid);
+        tag.innerHTML = t && t.copied ? t.copied.replace('%s','') : '✓';
+      }
+    });
+  } else {
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    if (tagid != '') {
+      const t = (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text.copied)
+        ? efb_var.text : (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text)
+        ? ajax_object_efm.text : null;
+      const tag = document.getElementById(tagid);
+      tag.innerHTML = t && t.copied ? t.copied.replace('%s','') : '✓';
+    }
   }
 
 }
@@ -783,6 +798,9 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
     reject(xhr.statusText);
     });
     xhr.open('POST', url, true);
+    xhr.setRequestHeader('X-WP-Nonce', nonce_msg);
+    if (sid) xhr.setRequestHeader('sid', sid);
+    if (fid) xhr.setRequestHeader('form_id', fid);
     xhr.send(formData);
   });
 }

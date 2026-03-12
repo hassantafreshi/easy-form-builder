@@ -810,6 +810,9 @@ class Admin {
                 $email =  $value;
             }else if ($key == "activeCode" ) {
                 if(strlen($value)<1){
+                    if(get_option('emsfb_pro',false)==1){
+                        update_option('emsfb_pro', 2);
+                    }
                     continue;
                 }
                 $m['activeCode'] = sanitize_text_field($value);

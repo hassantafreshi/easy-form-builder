@@ -279,6 +279,12 @@ https://whitestudio.team
 15. SMS configuration of Easy From Builder
 
 
+== Upgrade Notice ==
+
+= 4.0.0 =
+Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official addons will be update to their latest versions.
+**Backup your site before updating. Not backward-compatible with v3.x addons.**
+
 
 == Changelog ==
 = 3.8.22 =

@@ -3847,7 +3847,7 @@ function closeSetupOverlay_efb() {
 sessionStorage.setItem('efb_license_selected', efb_var.setting.package_type);
 function getCurrentPlanBadge_efb() {
   const crntPlnLabel = (efb_var.text && efb_var.text.crntPln) || 'Current Plan';
-  const pro_type = Number(efb_var.pro) === 1 ? 1 : (sessionStorage.getItem('efb_license_selected') ? Number(sessionStorage.getItem('efb_license_selected')) : Number(efb_var.pro));
+  const pro_type = (Number(efb_var.pro) === 1 && valueJson_ws_setting.activeCode!='') ? 1 : (sessionStorage.getItem('efb_license_selected') ? Number(sessionStorage.getItem('efb_license_selected')) : Number(efb_var.pro));
   let badgeClass = 'bg-secondary';
   let planName = (efb_var.text && efb_var.text.free) || 'Free';
   let icon_mx = 'me-2';
