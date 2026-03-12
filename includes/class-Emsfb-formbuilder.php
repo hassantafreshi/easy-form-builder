@@ -3101,6 +3101,7 @@ public function check_error_console_efb(){
 		'warning'     => esc_html__('These errors may interfere with forms built using Easy Form Builder.', 'easy-form-builder'),
 		'adminOnly'   => esc_html__('This panel is only visible to site administrators.', 'easy-form-builder'),
 		'easyformbuilder' => esc_html__('Easy Form Builder', 'easy-form-builder'),
+		'warningBadge' => esc_html__('Warning', 'easy-form-builder'),
 	];
 
 	$value = '
@@ -3109,6 +3110,7 @@ public function check_error_console_efb(){
 
 		const EFB_ERROR_PANEL = {
 			errors: [],
+			errorKeys: new Set(),
 			isOpen: false,
 			panel: null,
 			badge: null,
@@ -3183,7 +3185,7 @@ public function check_error_console_efb(){
 						<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
 						<line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
 					</svg>
-					<span class="efb-error-count">0</span>
+					<span class="efb-error-label">${this.t.warningBadge}</span>
 					<span class="efb-badge-tooltip">${this.t.adminOnly}</span>
 				`;
 				const isRtl = document.documentElement.dir === "rtl" || document.body.dir === "rtl" || getComputedStyle(document.documentElement).direction === "rtl";
@@ -3287,13 +3289,9 @@ public function check_error_console_efb(){
 						vertical-align: middle !important; flex-shrink: 0 !important;
 						overflow: visible !important;
 					}
-					#efb-error-badge .efb-error-count {
-						background: #fff !important; color: #dc3545 !important; padding: 3px 10px !important; border-radius: 12px !important;
-						font-size: 12px !important; min-width: 22px !important; text-align: center !important;
-						font-weight: 700 !important;
-					}
-					#efb-error-badge .efb-error-count.efb-count-updated {
-						animation: efb-count-pop 0.3s ease-out !important;
+					#efb-error-badge .efb-error-label {
+						font-size: 13px !important; font-weight: 600 !important;
+						color: #fff !important;
 					}
 					#efb-error-badge::before,
 					#efb-error-badge::after {
@@ -3573,19 +3571,15 @@ public function check_error_console_efb(){
 				this.badge.style.setProperty("pointer-events", "none", "important");
 			},
 
-			updateCount() {
-				if (!this.badge) return;
-				const countEl = this.badge.querySelector(".efb-error-count");
-				if (!countEl) return;
-				countEl.textContent = this.errors.length;
+			updateCount() {},
 
-				countEl.classList.remove("efb-count-updated");
-				void countEl.offsetWidth; // Force reflow
-				countEl.classList.add("efb-count-updated");
-			},
 
 			addError(errorData) {
 				const { message, source, lineno, stack = [], typeOverride = null, nameOverride = null } = errorData;
+				const errorKey = (message || "") + "|" + (source || "") + "|" + (lineno || "");
+				if (this.errorKeys.has(errorKey)) return;
+				this.errorKeys.add(errorKey);
+
 				const parsed = this.parseSource(source);
 				if (typeOverride) { parsed.type = typeOverride; }
 				if (nameOverride) { parsed.name = nameOverride; }
@@ -3657,6 +3651,7 @@ public function check_error_console_efb(){
 
 			clearErrors() {
 				this.errors = [];
+				this.errorKeys.clear();
 				this.updateCount();
 				const list = document.getElementById("efb-error-list");
 				list.innerHTML = "<div class=\"efb-no-errors\">✓ " + this.t.noErrors + "</div>";

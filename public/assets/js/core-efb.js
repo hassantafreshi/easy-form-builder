@@ -229,7 +229,6 @@ async function createStepsOfPublic() {
               }else{
                 let indx = valj_efb.findIndex(x => x.id_ === id);
                 if(valj_efb[indx].hasOwnProperty('value') && valj_efb[indx].value==""){
-                  console.log(indx ,valj_efb[indx])
                   break;
                 }
                 handle_change_event_efb_v4(el,form_id);
