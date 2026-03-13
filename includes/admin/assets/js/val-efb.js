@@ -2066,6 +2066,13 @@ items_dd_efb = () => {
       stop: function (event, ui) {
         ui.item.hasClass('ui-state-disabled') ? ui.item.removeData('sortableItem') : false;
         ui.item.toggleClass("highlight");
+        const container = ui.item.closest('.items')[0];
+        if (container) {
+          const step1 = container.querySelector('.stepNavEfb[data-step="1"]');
+          if (step1 && step1 !== container.firstElementChild) {
+            container.insertBefore(step1, container.firstElementChild);
+          }
+        }
         sort_obj_el_efb_();
       }
     });

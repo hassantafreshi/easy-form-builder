@@ -3409,6 +3409,14 @@ function create_dargAndDrop_el() {
     const midY = rect.top + rect.height / 2;
     const pos = event.clientY < midY ? 'before' : 'after';
 
+    if (fieldEl.classList.contains('stepNavEfb') && fieldEl.dataset.step === '1') {
+      _efbDropTarget = fieldEl;
+      _efbDropPos = 'after';
+      _efbClearIndicators();
+      fieldEl.classList.add('efb-drop-below');
+      return;
+    }
+
     if (fieldEl.classList.contains('stepNavEfb') && pos === 'before') {
       const prevSib = fieldEl.previousElementSibling;
       if (!prevSib || prevSib.classList.contains('stepNavEfb') || !prevSib.classList.contains('efbField')) {
@@ -3472,6 +3480,10 @@ function create_dargAndDrop_el() {
             step_el_efb = Number(_efbDropTarget.dataset.step) || step_el_efb;
           }
         }
+      }
+      const step1El = dropZoneEFB.querySelector('.stepNavEfb[data-step="1"]');
+      if (step1El && (insertAfterEl === null || insertAfterEl === step1El.previousElementSibling)) {
+        insertAfterEl = step1El;
       }
       fun_efb_add_el(t, insertAfterEl);
     }
@@ -3782,6 +3794,10 @@ let handleDrag = (item) => {
   selectedItem.classList.add('drag-sort-active-efb');
   if (lst === swapItem.parentNode) {
     swapItem = swapItem !== selectedItem.nextSibling && swapItem.dataset == "steps" && swapItem.id != "1" ? swapItem : swapItem.nextSibling;
+    const step1El = lst.querySelector('.stepNavEfb[data-step="1"]');
+    if (step1El && (swapItem === step1El || (!swapItem && step1El === lst.firstElementChild))) {
+      return;
+    }
     if (lst.insertBefore(selectedItem, swapItem)) {
 
     }
@@ -3845,6 +3861,10 @@ fun_efb_add_el = (t, insertAfterEl) => {
     temp.innerHTML = html;
     const nodes = Array.from(temp.children);
     let lastInserted = null;
+    const step1El = dropZoneEFB.querySelector('.stepNavEfb[data-step="1"]');
+    if (afterEl === null && step1El) {
+      afterEl = step1El;
+    }
     if (afterEl && afterEl.parentNode === dropZoneEFB) {
       let ref = afterEl.nextSibling;
       nodes.forEach(node => {
