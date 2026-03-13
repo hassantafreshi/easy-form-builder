@@ -1074,19 +1074,27 @@ table { border-collapse: collapse !important; }
             $label = esc_attr($name ?: ucfirst($icon));
 
             $icon_html = '';
+
+            // 1. Try existing colored PNG from plugin assets
             $png_url = $this->get_colored_icon_url($icon, $iconColor);
             if ($png_url) {
                 $icon_html = '<img src="' . esc_url($png_url) . '" alt="' . $label . '" width="' . $iconSize . '" height="' . $iconSize . '" style="display:inline-block;vertical-align:middle;border:0;" />';
             }
 
+            // 2. Generate icon image file (PNG via Imagick, GD circle, or SVG file)
             if (!$icon_html) {
-                $svg = $this->get_social_icon_svg($icon, $iconColor, $iconSize);
-                if ($svg) {
-                    $icon_html = $svg;
-                } else {
-
-                    $icon_html = esc_html($name ?: ucfirst($icon));
+                $gen_url = $this->get_social_icon_file_url($icon, $iconColor, max($iconSize * 2, 48));
+                if ($gen_url) {
+                    $icon_html = '<img src="' . esc_url($gen_url) . '" alt="' . $label . '" width="' . $iconSize . '" height="' . $iconSize . '" style="display:inline-block;vertical-align:middle;border:0;" />';
                 }
+            }
+
+            // 3. Text fallback with emoji (works in all email clients)
+            if (!$icon_html) {
+                $emoji = $this->get_social_emoji($icon);
+                $safe_color = esc_attr($iconColor);
+                $fs = max(12, intval($iconSize * 0.6));
+                $icon_html = '<span style="display:inline-block;width:' . $iconSize . 'px;height:' . $iconSize . 'px;line-height:' . $iconSize . 'px;text-align:center;font-size:' . $fs . 'px;vertical-align:middle;">' . $emoji . '</span>';
             }
 
             $linksHtml .= '<a href="' . $url . '" target="_blank" style="display:inline-block;margin:0 6px;text-decoration:none;vertical-align:middle;line-height:1;">' . $icon_html . '</a>';
@@ -1230,6 +1238,73 @@ table { border-collapse: collapse !important; }
         }
 
         return '<svg viewBox="0 0 24 24" width="' . $size . '" height="' . $size . '" fill="' . $esc_color . '"><path d="' . $paths[$icon] . '"/></svg>';
+    }
+
+    private function get_social_icon_file_url($icon, $color, $size = 48) {
+        $esc_color = sanitize_hex_color($color) ?: '#333333';
+        $hex       = ltrim($esc_color, '#');
+        $safe_icon = sanitize_file_name($icon);
+
+        $upload_dir = wp_upload_dir();
+        $cache_dir  = $upload_dir['basedir'] . '/efb-icons/' . $hex;
+
+        // 1. Check cached PNG (best for all email clients)
+        $png_file = $cache_dir . '/' . $safe_icon . '.png';
+        $png_url  = $upload_dir['baseurl'] . '/efb-icons/' . $hex . '/' . $safe_icon . '.png';
+        if (file_exists($png_file)) {
+            return $png_url;
+        }
+
+        $svg = $this->get_social_icon_svg($icon, $esc_color, $size);
+        if (!$svg) {
+            return '';
+        }
+
+        if (!is_dir($cache_dir)) {
+            wp_mkdir_p($cache_dir);
+        }
+
+        $svg_xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+                 . str_replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ', $svg);
+
+        // 2. Try Imagick SVG→PNG (exact icon shape, transparent background)
+        if (class_exists('Imagick')) {
+            try {
+                $im = new \Imagick();
+                $im->setResolution(150, 150);
+                $im->setBackgroundColor(new \ImagickPixel('transparent'));
+                $im->readImageBlob($svg_xml);
+                $im->setImageFormat('png32');
+                $im->resizeImage($size, $size, \Imagick::FILTER_LANCZOS, 1);
+                $im->writeImage($png_file);
+                $im->destroy();
+                if (file_exists($png_file)) {
+                    return $png_url;
+                }
+            } catch (\Exception $e) {
+                // Imagick failed
+            }
+        }
+
+        // 3. Save as SVG file — email clients fetch external <img src="url.svg">
+        //    via their image proxy (Gmail, Outlook.com, Yahoo all proxy external images)
+        $svg_file = $cache_dir . '/' . $safe_icon . '.svg';
+        $svg_url  = $upload_dir['baseurl'] . '/efb-icons/' . $hex . '/' . $safe_icon . '.svg';
+        if (!file_exists($svg_file)) {
+            global $wp_filesystem;
+            if (empty($wp_filesystem)) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+                WP_Filesystem();
+            }
+            if ($wp_filesystem) {
+                $wp_filesystem->put_contents($svg_file, $svg_xml, FS_CHMOD_FILE);
+            }
+        }
+        if (file_exists($svg_file)) {
+            return $svg_url;
+        }
+
+        return '';
     }
 
     private function wrap_builder_template_html($content) {
