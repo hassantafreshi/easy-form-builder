@@ -295,11 +295,9 @@ class EmsfbEmailHandler {
                                 <center style='color:" . $btnTextColor . ";font-family:Segoe UI,Tahoma,Geneva,Verdana,Arial,sans-serif;font-size:18px;font-weight:700;padding:16px 32px;'>" . $lang['vmgs'] . "</center>
                             </v:roundrect>
                             <![endif]-->
-                            <!--[if !mso]><!-->
                             <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 16px 32px; background-color: " . $btnBgColor . "; color: " . $btnTextColor . "; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: Segoe UI, Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; mso-hide: all;'>
                                 " . $lang['vmgs'] . "
                             </a>
-                            <!--<![endif]-->
                         </td>
                     </tr>
                 </table>
@@ -979,9 +977,7 @@ table { border-collapse: collapse !important; }
             <tr>
               <td style="background-color: ' . $bgColor . '; border-radius: ' . $borderRad . 'px; text-align: center;">
                 ' . $vml_btn . '
-                <!--[if !mso]><!-->
                 <a href="' . $url . '" target="_blank" style="display: inline-block; padding: ' . $padding . '; color: ' . $textColor . '; text-decoration: none; font-family: ' . $fontFam . '; font-size: ' . $fontSize . 'px; font-weight: 600; line-height: 1; mso-hide: all;">' . $text . '</a>
-                <!--<![endif]-->
               </td>
             </tr>
           </table>
