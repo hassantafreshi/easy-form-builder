@@ -29,11 +29,15 @@ With Easy Form Builder, you can use a single form plugin to build and manage mul
 - Support and feedback forms with message tracking
 - Survey and poll forms with structured results
 - Stripe payment forms for online payments
+- PayPal payment forms for collecting online payments
 - Login (sign-in) forms for WordPress users
 - Registration (sign-up) forms for new users
 - File upload forms
 - Private or restricted-access forms
 - Multi-step forms for improved usability
+- Electronic signature forms for contracts and agreements
+- Location picker forms for address and map selection
+- Custom email notification templates with a built-in visual editor
 
 The form builder provides a consistent interface for form creation, submission handling, and response management inside WordPress.
 
