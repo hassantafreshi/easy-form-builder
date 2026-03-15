@@ -277,6 +277,8 @@ https://whitestudio.team
 13. configuration Response box of Easy Form Builder
 14. Email Setting of Easy Form Builder
 15. SMS configuration of Easy From Builder
+16. Confirmation Code Search Field
+17. WordPress Support Ticket Conversation and Reply Form
 
 
 == Upgrade Notice ==

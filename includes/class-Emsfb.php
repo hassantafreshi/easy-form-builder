@@ -788,38 +788,40 @@ class Emsfb {
     }
 
     private function run_upgrade_tasks_efb($old_version, $new_version) {
+        global $wpdb;
+        $table_setting = $wpdb->prefix . 'emsfb_setting';
 
         if (function_exists('wp_cache_flush')) {
             wp_cache_flush();
         }
-
         if (function_exists('wp_cache_flush_group')) {
             wp_cache_flush_group('emsfb');
         }
-
-        global $wpdb;
         $wpdb->query(
             "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_efb_%' OR option_name LIKE '_transient_timeout_efb_%'"
         );
 
-        $table_setting = $wpdb->prefix . 'emsfb_setting';
         $wpdb->query("ALTER TABLE `{$table_setting}` MODIFY `setting` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL");
 
         $this->migrate_fix_double_escaped_settings_efb($wpdb);
 
-            if (version_compare($old_version, '4', '<')) {
-                $activeCode = get_option('emsfb_pro_activeCode', '');
-                if (empty($activeCode)) {
-                    $settings = self::get_setting_Emsfb('decoded');
-                    if (isset($settings->activeCode)) {
-                        $activeCode = $settings->activeCode;
-                    }
-                }
-                if (!empty($activeCode) && strlen($activeCode) > 5) {
-                    update_option('emsfb_pro', 1);
+        if (version_compare($old_version, '4', '<')) {
+            $activeCode = get_option('emsfb_pro_activeCode', '');
+
+            if (empty($activeCode)) {
+                self::get_setting_Emsfb('_clear_cache');
+                delete_transient('emsfb_settings_transient');
+
+                $settings = self::get_setting_Emsfb('decoded');
+                if (is_object($settings) && isset($settings->activeCode)) {
+                    $activeCode = $settings->activeCode;
                 }
             }
 
+            if (!empty($activeCode) && strlen($activeCode) > 5) {
+                update_option('emsfb_pro', 1);
+            }
+        }
     }
 
     private function migrate_fix_double_escaped_settings_efb($wpdb) {
