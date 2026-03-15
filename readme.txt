@@ -251,14 +251,11 @@ If your theme uses Bootstrap, go to “Easy Form Builder” → “Settings” a
 
 == Documentation & Support ==
 
-Full documentation:
-https://whitestudio.team/documents
+For setup guides, tutorials, and feature walkthroughs, visit the official documentation:
+[Easy Form Builder Documentation](https://whitestudio.team/documents)
 
-Bug reports:
-https://github.com/hassantafreshi/easy-form-builder/issues
-
-Official website:
-https://whitestudio.team
+For more information, visit the official website:
+[WhiteStudio – Easy Form Builder](https://whitestudio.team)
 
 == Screenshots ==
 
