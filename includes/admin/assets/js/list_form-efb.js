@@ -742,6 +742,22 @@ function fun_open_message_emsFormBuilder(msg_id, state) {
   show_modal_efb(efbLoadingCard('',4), '', '', 'saveBox');
   state_modal_show_efb(1)
 
+  if (state == 0 || state == 3) {
+    const btn = document.getElementById(`btn-m-${msg_id}`);
+    if (btn) {
+      btn.classList.remove('efb-has-badge');
+      let iconRead = 'bi-envelope-open';
+      if (form_type_emsFormBuilder == 'subscribe' || form_type_emsFormBuilder == 'register') {
+        iconRead = 'bi-person';
+      } else if (form_type_emsFormBuilder == 'survey') {
+        iconRead = 'bi-chat-square-text';
+      }
+      btn.innerHTML = `<i class="efb ${iconRead} text-muted"></i>`;
+      btn.setAttribute('data-efb-tip', efb_var.text.read);
+      btn.setAttribute('aria-label', efb_var.text.read);
+    }
+  }
+
   fun_emsFormBuilder_get_all_response_by_id(Number(msg_id));
   emsFormBuilder_show_content_message(msg_id)
   if (state == 0 || state == 3) {

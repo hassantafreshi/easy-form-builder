@@ -59,7 +59,9 @@ if (!defined("EMSFB_SERVER_URL")) {
 
 if (!defined("EMSFB_IS_FARSI")) {
     if (get_locale() == 'fa_IR') {
-        define("CDN_ZONE_AREA", "https://cdn.easyformbuilder.ir/gh/Json-List-of-countries-states-and-cities-in-the-world/");
+        //THIS LINE COMMENTED TO AVOID PROBLEMS WITH CDN IN FARSI LANGUAGE BECUSE OF SHUTDOWN IRAN NETWORK!!
+        //define("CDN_ZONE_AREA", "https://cdn.easyformbuilder.ir/gh/Json-List-of-countries-states-and-cities-in-the-world/");
+        define("CDN_ZONE_AREA", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
     } else {
         define("CDN_ZONE_AREA", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
     }

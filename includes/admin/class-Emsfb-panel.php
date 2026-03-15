@@ -198,7 +198,7 @@ class Panel_edit  {
 			} elseif (strpos($current_locale, 'ar') === 0) {
 				$wsteam_domain = 'ar.whitestudio.team';
 			} elseif (strpos($current_locale, 'fa_') === 0) {
-				$wsteam_domain = 'easyformbuilder.ir';
+				$wsteam_domain = 'whitestudio.team';
 			} else {
 				$wsteam_domain = 'whitestudio.team';
 			}
