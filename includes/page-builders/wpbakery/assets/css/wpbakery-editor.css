@@ -1,11 +1,4 @@
-/**
- * Easy Form Builder - WPBakery Editor Styles
- *
- * @package EasyFormBuilder
- * @since 4.0.0
- */
 
-/* Placeholder styling */
 .efb-wpbakery-placeholder {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -15,12 +8,10 @@
     box-shadow: 0 8px 25px rgba(32, 42, 141, 0.3);
 }
 
-/* Form wrapper */
 .efb-wpbakery-form-wrapper {
     margin: 10px 0;
 }
 
-/* Form title */
 .efb-wpbakery-form-title {
     margin-bottom: 20px;
     color: #202a8d;

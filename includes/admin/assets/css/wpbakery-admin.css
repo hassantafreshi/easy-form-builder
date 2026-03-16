@@ -22,20 +22,17 @@
     background: linear-gradient(180deg, #202a8d 0%, #ff4b93 100%);
 }
 
-/* Element icon */
 .wpb_efb_wpbakery_form .vc_element-icon {
     background-size: contain !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
 }
 
-/* Element title */
 .wpb_efb_wpbakery_form .wpb_element_title {
     color: #202a8d;
     font-weight: 600;
 }
 
-/* Admin label (form name display) */
 .wpb_efb_wpbakery_form .admin_label_form_id {
     background: linear-gradient(135deg, #202a8d 0%, #ff4b93 100%);
     color: #fff;
@@ -46,13 +43,11 @@
     display: inline-block;
 }
 
-/* Panel element hover */
 .wpb-layout-element-button[data-element="efb_wpbakery_form"]:hover {
     background-color: rgba(255, 75, 147, 0.1);
     border-color: #ff4b93;
 }
 
-/* Settings panel */
 .vc_ui-panel-content-container .vc_shortcode-param[data-param_name="form_id"] select {
     border-color: #202a8d;
 }
@@ -62,7 +57,6 @@
     box-shadow: 0 0 0 1px #ff4b93;
 }
 
-/* Group tabs */
 .vc_ui-tabs-line-trigger[data-vc-ui-element-target*="Form Settings"] {
     color: #202a8d !important;
 }

@@ -80,9 +80,6 @@ class _Public {
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
 
-		add_action('wp_ajax_efb_test_background', [$this, 'test_background_processing']);
-		add_action('wp_ajax_nopriv_efb_test_background', [$this, 'test_background_processing']);
-
 		add_action('wp_ajax_efb_process_background', [$this, 'process_background_task']);
 		add_action('wp_ajax_nopriv_efb_process_background', [$this, 'process_background_task']);
 
@@ -126,21 +123,6 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	if (!isset($_SERVER['HTTP_X_WP_NONCE'])) {
-
-		if ($origin) {
-			if (in_array($origin, $allowed_origins)) {
-				return true;
-			}
-
-			$parsed_origin = wp_parse_url($origin);
-			$parsed_home = wp_parse_url(home_url());
-
-			if (isset($parsed_origin['host']) && isset($parsed_home['host']) &&
-			    $parsed_origin['host'] === $parsed_home['host']) {
-				return true;
-			}
-		}
-
 		return new \WP_Error('rest_forbidden', __('X-WP-Nonce header is missing', 'easy-form-builder'), array('status' => 403));
 	}
 
@@ -151,14 +133,12 @@ public function check_nonce_permission_efb($request) {
 		$sid = sanitize_text_field( wp_unslash($_SERVER['HTTP_SID'] ?? ''));
 		$fid = sanitize_text_field( wp_unslash($_SERVER['HTTP_FORM_ID'] ?? ''));
 
-		// Only try SID fallback if we have both sid and fid
 		if (!empty($sid) && $fid !== '') {
 			if (!$this->efbFunction) {
 				$this->efbFunction = get_efbFunction();
 			}
 
 			$sid_valid = $this->efbFunction->efb_code_validate_select($sid, $fid);
-
 			if ($sid_valid) {
 					return true;
 			}
@@ -304,7 +284,6 @@ public function check_nonce_permission_efb($request) {
 			window.elementorFrontendConfig = window.elementorFrontendConfig || {};
 			window.elementorFrontendConfig.tools = window.elementorFrontendConfig.tools || {};
 			window.elementorFrontendConfig.settings = window.elementorFrontendConfig.settings || {};
-			console.log('EFB: Elementor detected - config protection applied');
 			</script>
 			<?php
 		}
@@ -341,7 +320,6 @@ public function check_nonce_permission_efb($request) {
 					attempts++;
 
 					if (window.elementorFrontend && typeof window.elementorFrontend === 'object') {
-						console.log('ðŸš€ EFB: Found elementorFrontend, patching methods...');
 
 						Object.defineProperty(window.elementorFrontend, 'config', {
 							get: function() {
@@ -363,23 +341,15 @@ public function check_nonce_permission_efb($request) {
 							window.elementorFrontend.initOnReadyComponents = function() {
 								try {
 
-									console.log('ðŸ” EFB: this.config before fix:', this.config);
-									console.log('ðŸ” EFB: this.config.tools before fix:', this.config ? this.config.tools : 'config is null');
-									console.log('ðŸ” EFB: window.elementorFrontendConfig:', window.elementorFrontendConfig);
-
 									this.config = window.elementorFrontendConfig || safeConfig;
 
 									this.config.tools = safeConfig.tools;
 									this.config.settings = safeConfig.settings;
 
-									console.log('ðŸ”§ EFB: FORCED tools and settings');
-									console.log('ðŸ” EFB: this.config.tools AFTER fix:', this.config.tools);
-									console.log('ðŸ›¡ï¸ EFB: Safe initOnReadyComponents called, config fixed:', this.config);
-
 									try {
 
 										var result = originalInitOnReadyComponents.call(this);
-										console.log('âœ… EFB: Original method called successfully');
+
 										return result;
 									} catch (innerError) {
 										console.warn('ðŸ›¡ï¸ EFB: Inner method error, using safe fallback:', innerError);
@@ -402,7 +372,6 @@ public function check_nonce_permission_efb($request) {
 									this.config.tools = this.config.tools || safeConfig.tools;
 									this.config.settings = this.config.settings || safeConfig.settings;
 
-									console.log('ðŸ›¡ï¸ EFB: Safe init called');
 									return originalInit.apply(this, arguments);
 								} catch (e) {
 									console.warn('ðŸ›¡ï¸ EFB: Caught init error:', e);
@@ -411,15 +380,13 @@ public function check_nonce_permission_efb($request) {
 							};
 						}
 
-						console.log('âœ… EFB: Patched Elementor methods');
 						clearInterval(checkElementor);
 					}
 
 					if (attempts > 500) {
 						clearInterval(checkElementor);
-						console.log('âš ï¸ EFB: elementorFrontend not found, using global protection only');
 					}
-				}, 10);				console.log('ï¿½ EFB: Ultimate Elementor fix started');
+				}, 10);
 			})();
 			</script>
 			<?php
@@ -774,7 +741,6 @@ public function check_nonce_permission_efb($request) {
 					}
 
 				$send=array();
-				// translate v3
 			$content_new="";
 			$values ="";
 			$is_user = is_user_logged_in() || ( $admin_form && $state == "track") ? (current_user_can('administrator') ? 'admin' : 'user') : 'guest';
@@ -1367,11 +1333,11 @@ public function check_nonce_permission_efb($request) {
 
 		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-response-viewer-css');
-		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', false, EMSFB_PLUGIN_VERSION, true);
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
+		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-response-viewer-js');
-		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery', 'efb-response-viewer-js'), EMSFB_PLUGIN_VERSION, true);
+		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery', 'efb-main-js', 'efb-response-viewer-js'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('Emsfb-core_js');
-	    wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
 
 		$ar_core = array(
 			'ajax_url' => admin_url('admin-ajax.php'),
@@ -1478,7 +1444,7 @@ public function check_nonce_permission_efb($request) {
 			'[EFB Background] Method: %s | Response Time: %sms | Server: %s | PHP: %s',
 			$method,
 			$elapsed,
-			$_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
+			isset($_SERVER['SERVER_SOFTWARE']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : 'Unknown',
 			PHP_SAPI
 		);
 	}
@@ -2283,7 +2249,7 @@ public function check_nonce_permission_efb($request) {
 							$username = $state->data->user_login;
 							$ms=$this->fun_get_content_email_register_recovery_efb($userid, $username, $email, $this->id ,'recovery',$page_id);
 							$efb ='<p> '. $this->lanText['sentBy'] . home_url(). '</p>';
-							if($is_pro==false) $efb ='<p> '. esc_html__("from").''. home_url(). ' '. $this->lanText['sentBy'] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
+							if($is_pro==false) $efb ='<p> '. esc_html__("from", 'easy-form-builder').''. home_url(). ' '. $this->lanText['sentBy'] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
 							$subject ="". esc_html__("Password recovery")."[".get_bloginfo('name')."]";
 							$SERVER_NAME  = apply_filters('emsfb_get_server_host', 'yourdomain.com');
 							$from = isset($plugin_settings['femail']) && is_email($plugin_settings['femail']) ? get_bloginfo('name')." <no-reply@".$plugin_settings['femail'] .">" : get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
@@ -2475,7 +2441,7 @@ public function check_nonce_permission_efb($request) {
 										'total' => $amount,
 										'type' => "payment",
 										"paymentGateway" => $payment_gateway,
-										"paymentCreated" => wp_date(__('Y/m/d \a\t g:ia', 'textdomain')),
+										"paymentCreated" => wp_date(__('Y/m/d \a\t g:ia', 'easy-form-builder')),
 										"paymentmethod" => 'کارت',
 										"paymentIntent" => sanitize_text_field($request_data['auth']),
 										"paymentCard" => $result['data']['card_pan'],
@@ -2885,9 +2851,9 @@ public function check_nonce_permission_efb($request) {
 	public function get_ip_address() {
 
         $ip='1.1.1.1';
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {$ip = $_SERVER['REMOTE_ADDR'];}
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+        } else {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
         $ip = strval($ip);
         $check =strpos($ip,',');
         if($check!=false){$ip = substr($ip,0,$check);}
@@ -2911,7 +2877,7 @@ public function check_nonce_permission_efb($request) {
             $vl_data = $this->get_form_data_efb($id, array('form_structer'));
             $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
-                if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){
+                if(strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false){
                     $vl ='efb'.$id;
                 }
             }
@@ -2937,9 +2903,28 @@ public function check_nonce_permission_efb($request) {
 		$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
 		if (in_array($file_type, $arr_ext)) {
 			$file_name_raw = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
-			$file_tmp = isset($_FILES['file']['tmp_name']) ? sanitize_text_field( wp_unslash( $_FILES['file']['tmp_name'] ) ) : '';
+			$file_tmp = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
+
+			if (empty($file_tmp) || !is_uploaded_file($file_tmp) || !is_readable($file_tmp)) {
+				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
+				wp_send_json_success($response, 200);
+			}
+
 			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
-			$upload = wp_upload_bits($name, null, file_get_contents($file_tmp));
+
+			$blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg');
+			$file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+			if (in_array($file_ext, $blocked_ext)) {
+				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
+				wp_send_json_success($response, 200);
+			}
+
+			$file_contents = file_get_contents($file_tmp);
+			if ($file_contents === false) {
+				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
+				wp_send_json_success($response, 200);
+			}
+			$upload = wp_upload_bits($name, null, $file_contents);
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
@@ -3015,7 +3000,7 @@ public function check_nonce_permission_efb($request) {
             $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
 				if(gettype($vl)=="string"){
-					$temp = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') ? true : false;
+					$temp = (strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false) ? true : false;
 				}
 
                 if($temp==false){
@@ -3024,7 +3009,7 @@ public function check_nonce_permission_efb($request) {
 					wp_send_json_success($response,200);
                 }
 
-				if(strpos($vl , '\"value\":\"customize\"')!=false){
+				if(strpos($vl , '\"value\":\"customize\"')!==false){
 					$val_ = str_replace('\\', '', $vl);
 					$vl = json_decode($val_);
 					foreach($vl as $key=>$val){
@@ -3105,6 +3090,14 @@ public function check_nonce_permission_efb($request) {
 			}
 
 			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;
+
+			$blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg');
+			$file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+			if (in_array($file_ext, $blocked_ext)) {
+				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
+				wp_send_json_success($response,200);
+			}
+
 			$file_contents = file_get_contents($async_file_tmp);
 			if ($file_contents === false) {
 				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
@@ -4702,11 +4695,9 @@ public function check_nonce_permission_efb($request) {
 			return "<script>
 			const efb_url = '".get_rest_url(null)."Emsfb/v1/forms/recovery/efb_set_password';
 
-			// SVG paths for eye icons
 			const eyeOpenSvg = '<path d=\"M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z\"/><path d=\"M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0\"/>';
 			const eyeClosedSvg = '<path d=\"M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z\"/><path d=\"M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829\"/><path d=\"M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z\"/>';
 
-			// Toggle password visibility
 			document.addEventListener('click', function(e) {
 				if (e.target && (e.target.id === 'togglePasswordEfb' || e.target.closest('#togglePasswordEfb'))) {
 					const passwordInput = document.getElementById('passwordefb');
@@ -5371,7 +5362,6 @@ public function check_nonce_permission_efb($request) {
 					}
 				});
 
-				console.log('EFB: Ultimate Elementor fix applied - tools protected');
 			})();
 			</script>
 			<?php
@@ -5400,7 +5390,6 @@ public function check_nonce_permission_efb($request) {
 							this.config.settings = this.config.settings || {};
 							return originalInit.apply(this, arguments);
 						};
-						console.log('EFB: Patched elementorFrontend.init');
 					}
 
 					if (typeof window.elementorFrontend !== 'undefined' && window.elementorFrontend.initOnReadyComponents) {
@@ -5411,7 +5400,6 @@ public function check_nonce_permission_efb($request) {
 							this.config.settings = this.config.settings || {};
 							return originalInitOnReady.apply(this, arguments);
 						};
-						console.log('EFB: Patched elementorFrontend.initOnReadyComponents');
 					}
 				}
 
@@ -5423,7 +5411,6 @@ public function check_nonce_permission_efb($request) {
 
 				window.addEventListener('load', patchElementor);
 
-				console.log('EFB: Elementor monkey patch installed');
 			})();
 			</script>
 			<?php
@@ -5458,7 +5445,6 @@ public function check_nonce_permission_efb($request) {
 					    !window.elementorFrontend.initialized) {
 						try {
 							window.elementorFrontend.initialized = true;
-							console.log('EFB: Emergency Elementor fix applied');
 						} catch (e) {
 							console.log('EFB: Emergency fix attempt completed');
 						}

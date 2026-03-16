@@ -599,7 +599,9 @@
       contentWidth: '600',
       borderRadius: '8',
       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif",
-      direction: isRtl_efb() ? 'rtl' : 'ltr'
+      direction: isRtl_efb() ? 'rtl' : 'ltr',
+      btnBgColor: '#202a8d',
+      btnTextColor: '#ffffff'
     },
     undoStack: [],
     redoStack: []
@@ -756,6 +758,11 @@ ${blocksHtml}
       if (jsonStore) {
         jsonStore.value = JSON.stringify(builderData);
       }
+      const gs = builderState_efb.globalSettings;
+      const btnBgEl = document.getElementById('emailBtnBgColor_emsFormBuilder');
+      const btnTxtEl = document.getElementById('emailBtnTextColor_emsFormBuilder');
+      if (btnBgEl) btnBgEl.value = gs.btnBgColor || '#202a8d';
+      if (btnTxtEl) btnTxtEl.value = gs.btnTextColor || '#ffffff';
     } catch(e) {
       textarea.value = html;
     }
@@ -2032,6 +2039,20 @@ ${blocksHtml}
             <option value="rtl" ${gs.direction==='rtl'?'selected':''}>RTL</option>
           </select>
         </div>
+        <div class="efb-prop-row efb-prop-color-row">
+          <label class="efb-prop-label">${t_efb('ebBtnBgColor', 'Button Background')}</label>
+          <div class="efb-color-picker-wrap">
+            <input type="color" class="efb-gs-color" data-gs="btnBgColor" value="${gs.btnBgColor || '#202a8d'}" />
+            <input type="text" class="efb-prop-input efb-gs-text" data-gs="btnBgColor" value="${gs.btnBgColor || '#202a8d'}" />
+          </div>
+        </div>
+        <div class="efb-prop-row efb-prop-color-row">
+          <label class="efb-prop-label">${t_efb('ebBtnTextColor', 'Button Text Color')}</label>
+          <div class="efb-color-picker-wrap">
+            <input type="color" class="efb-gs-color" data-gs="btnTextColor" value="${gs.btnTextColor || '#ffffff'}" />
+            <input type="text" class="efb-prop-input efb-gs-text" data-gs="btnTextColor" value="${gs.btnTextColor || '#ffffff'}" />
+          </div>
+        </div>
       </div>`;
 
     updateCanvasGlobalStyles_efb();
@@ -2496,6 +2517,15 @@ ${blocksHtml}
     const textarea = document.getElementById(TEXTAREA_ID_efb);
     const existingHtml = textarea ? textarea.value : '';
     tryParseExistingTemplate_efb(existingHtml);
+
+    const _btnBgInit = document.getElementById('emailBtnBgColor_emsFormBuilder');
+    const _btnTxtInit = document.getElementById('emailBtnTextColor_emsFormBuilder');
+    if (!builderState_efb.globalSettings.btnBgColor || builderState_efb.globalSettings.btnBgColor === '#202a8d') {
+      if (_btnBgInit && _btnBgInit.value && _btnBgInit.value !== '#202a8d') builderState_efb.globalSettings.btnBgColor = _btnBgInit.value;
+    }
+    if (!builderState_efb.globalSettings.btnTextColor || builderState_efb.globalSettings.btnTextColor === '#ffffff') {
+      if (_btnTxtInit && _btnTxtInit.value && _btnTxtInit.value !== '#ffffff') builderState_efb.globalSettings.btnTextColor = _btnTxtInit.value;
+    }
 
     renderBlocksPanel_efb();
     renderTemplatesPanel_efb();

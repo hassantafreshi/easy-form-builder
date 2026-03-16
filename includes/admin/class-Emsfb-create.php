@@ -23,11 +23,10 @@ class Create {
 			update_option( $this->setting_name, array() );
 		}
 
-		if ( false == get_option( 'emsfb_pro' ) ) {
+		if ( get_option( 'emsfb_pro' ) === false ) {
 			add_option( 'emsfb_pro', -1 );
 		}
 		add_action( 'admin_menu', array( $this, 'add_Create_menu' ), 11 );
-		add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
 		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));
@@ -58,7 +57,7 @@ class Create {
 
 		$noti_pro = intval(get_option('emsfb_pro' ,-1));
 		if ($noti_pro === 0  ){
-			$noti_pro ="<script>console.log('test');const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
+			$noti_pro ="<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
 
 		}else{
 			$noti_pro = '<script>const noti_exp_efb="";</script>';
@@ -109,7 +108,7 @@ class Create {
 			<script>
 					setTimeout(() => {
 						if(typeof efb_var == 'undefined' || efb_var == null) {
-							console.log('efb_var not found!')
+							console.error('efb_var not found!')
 							document.getElementById('tab_container_efb').innerHTML ='<div class="efb bg-danger m-5 fs-6 p-5 text-white" ><p><?php echo esc_html__('If you are seeing this message, it is likely for one of these reasons: If you have a caching plugin installed, its settings may need to be reviewed.','easy-form-builder') . ' ' . esc_html__('Please also ensure that you have a stable internet connection and try again.','easy-form-builder') ?></p><p class="efb fs-7 text-darkb mt-3"><?php echo  esc_html__('Easy Form Builder','easy-form-builder') ?></p></div>';
 						}
 					}, 90000);
@@ -135,7 +134,6 @@ class Create {
 			$efbFunction->openstreet_map_required_efb(0);
 		}
 
-		// v2 translate
 		$lang = $efbFunction->text_efb(1);
 
 		$efbFunction->setting_version_efb_update($settings, $pro, true);
@@ -232,7 +230,7 @@ class Create {
 			}
 		$plugins['cache'] =$efbFunction->check_for_active_plugins_cache();
 		$location ='';
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION);
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,EMSFB_PLUGIN_VERSION, true);
 		$efb_var_data = apply_filters('efb_admin_localize_vars', array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'nonce'=> wp_create_nonce("wp_rest"),
@@ -257,15 +255,15 @@ class Create {
 			'plugins'=>$plugins
 		), 'create');
 		wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,EMSFB_PLUGIN_VERSION);
-		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
-		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js',false,EMSFB_PLUGIN_VERSION);
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js',false,EMSFB_PLUGIN_VERSION);
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,EMSFB_PLUGIN_VERSION, true);
+		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION, true);
+		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js',false,EMSFB_PLUGIN_VERSION, true);
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js',false,EMSFB_PLUGIN_VERSION, true);
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("wp_rest"),
 			'check' => 1		));
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,EMSFB_PLUGIN_VERSION);
-		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,EMSFB_PLUGIN_VERSION);
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,EMSFB_PLUGIN_VERSION, true);
+		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,EMSFB_PLUGIN_VERSION, true);
 	}
 	public function fun_Emsfb_creator()
 	{

@@ -43,7 +43,7 @@ class Panel_edit  {
 				$efbFunction->openstreet_map_required_efb(0);
 		    }
 			if(is_object($ac) ){
-				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+				$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
 
 				if(isset($ac->siteKey)){$captcha="true";}
 				if(isset($ac->smtp) && (bool)$ac->smtp){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
@@ -80,7 +80,7 @@ class Panel_edit  {
 					<div id="msg_emsFormBuilder" class="efb mx-2">
 				</div>
 				<div class="efb top_circle-efb-1"></div>
-				<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>";</script>
+				<script>let sitekye_emsFormBuilder="<?php echo esc_js($k); ?>";</script>
 						<?php echo $noti_pro ?>
 					<nav class="efb navbar navbar-expand-lg navbar-light efb" id="navbar">
 						<div class="efb container">
@@ -198,7 +198,7 @@ class Panel_edit  {
 			} elseif (strpos($current_locale, 'ar') === 0) {
 				$wsteam_domain = 'ar.whitestudio.team';
 			} elseif (strpos($current_locale, 'fa_') === 0) {
-				$wsteam_domain = 'easyformbuilder.ir';
+				$wsteam_domain = 'whitestudio.team';
 			} else {
 				$wsteam_domain = 'whitestudio.team';
 			}
@@ -298,7 +298,7 @@ class Panel_edit  {
 			} else {
 				$ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
 			}
-			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', true,EMSFB_PLUGIN_VERSION);
+			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', array('efb-main-js'),EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('Emsfb-list_form-efb-js');
 
 			wp_register_script('Emsfb-email-template-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/email-template-builder-efb.js', array('Emsfb-list_form-efb-js'), EMSFB_PLUGIN_VERSION, true);
@@ -318,7 +318,7 @@ class Panel_edit  {
 					'zone_area'=>CDN_ZONE_AREA,
 					'bootstrap'=>$this->check_temp_is_bootstrap(),
 					'pro'=>$pro ? 1 : 0,
-					'devMode'=> get_option('emsfb_dev_mode', '1') === '1' ? 1 : 0,
+					'devMode'=> get_option('emsfb_dev_mode', '0') === '1' ? 1 : 0,
 				));
 
 		}else{

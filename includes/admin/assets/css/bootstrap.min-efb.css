@@ -1295,10 +1295,6 @@ progress.efb {
 	padding-top: calc(.25rem + 1px);
  	padding-bottom: calc(.25rem + 1px);
  	font-size: .875rem}
-/*      .efb.form-text {
-	margin-top: .25rem;
- 	font-size: .875em;
- 	color: #6c757d} */
  .efb.form-control {
 	display: block;
  	width: 100%;
@@ -1382,6 +1378,16 @@ progress.efb {
  }
  .efb.form-control:hover:not(:disabled):not([readonly])::-webkit-file-upload-button {
 	background-color: #dde0e3}
+ .efb.form-control[type=file]::file-selector-button {
+	padding-top: 100px;
+	padding-bottom: 100px;
+	margin-top: -100px;
+	margin-bottom: -100px}
+ .efb.form-control[type=file]::-webkit-file-upload-button {
+	padding-top: 100px;
+	padding-bottom: 100px;
+	margin-top: -100px;
+	margin-bottom: -100px}
  .efb.form-control-plaintext {
 	display: block;
  	width: 100%;
@@ -4385,19 +4391,7 @@ align-items: center;}
 	padding-left: 3rem !important}
  .efb.font-monospace {
 	font-family: var(--bs-font-monospace) !important}
- /* .efb.fs-1 {
-	font-size: calc(1.375rem + 1.5vw) !important}
- .efb.fs-2 {
-	font-size: calc(1.325rem + .9vw) !important}
- .efb.fs-3 {
-	font-size: calc(1.3rem + .6vw) !important}
- .efb.fs-4 {
-	font-size: calc(1.275rem + .3vw) !important}
- .efb.fs-5 {
-	font-size: 1.25rem !important}
- .efb.fs-6 {
-	font-size: 1rem !important}
-  */.efb.fst-italic {
+.efb.fst-italic {
 	font-style: italic !important}
  .efb.fst-normal {
 	font-style: normal !important}

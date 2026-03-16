@@ -202,7 +202,7 @@ class Emsfb_Visual_Composer_Integration {
         $forms = $this->get_forms_for_dropdown();
         ?>
         <script type="text/javascript">
-            window.efbVcForms = <?php echo json_encode($forms); ?>;
+            window.efbVcForms = <?php echo wp_json_encode($forms); ?>;
         </script>
         <?php
     }

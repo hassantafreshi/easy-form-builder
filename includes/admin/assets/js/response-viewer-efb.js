@@ -216,7 +216,7 @@ const EfbResponseViewer = (function () {
     }
 
     const body = `
-      <div class="efb-resp-viewer">
+      <div class="efb-resp-viewer ${isRtl() ? 'rtl-text' : ''}">
         <div class="efb-resp-messages ${isRtl() ? 'rtl-text' : ''}" id="resp_efb">${m}</div>
         ${replySection}
       </div>`;
@@ -251,7 +251,7 @@ const EfbResponseViewer = (function () {
     ${uploadHtml}`;
 
     const body = `
-    <div class="efb-resp-viewer">
+    <div class="efb-resp-viewer ${isRtl() ? 'rtl-text' : ''}">
       <div class="efb-resp-messages ${isRtl() ? 'rtl-text' : ''}" id="resp_efb">${m}</div>
       ${replySection}
     </div>`;

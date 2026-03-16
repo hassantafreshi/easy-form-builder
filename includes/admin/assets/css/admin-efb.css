@@ -1,4 +1,3 @@
-/* maps field styles start */
 .map-container {
 width: 100%;
 height: 350px;
@@ -166,7 +165,6 @@ margin-top: 10px;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-/* Map control responsive styles */
 .efb .map-control-container {
 display: flex !important;
 flex-wrap: nowrap !important;
@@ -208,9 +206,7 @@ flex-grow: 1 !important;
     }
 }
 
-/* maps field styles end */
 
-/* Mobile styles for admin panel */
 .mobile .efb.btn-edit-holder {	margin-left: 0;
    margin-right: 0;
 }
@@ -279,9 +275,7 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
 
 .efb.mobile input#EditOption {	width: 100% !important;
 }
-/* Mobile styles for admin panel end */
 
-/* ===== Drop Zone Indicators (admin form builder) ===== */
 .efb-drop-above {
    border-top: 3px solid #4ca1af !important;
    position: relative;
@@ -313,7 +307,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    z-index: 100;
 }
 
-/* ===== Field Hover Effect (admin form builder) ===== */
 .efb-field-hover {
    background-color: rgba(76, 161, 175, 0.04) !important;
    border-radius: 5px;
@@ -325,12 +318,10 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    transition: opacity 0.15s ease;
 }
 
-/* Smooth transition for control buttons */
 .efb.btn-edit-holder {
    transition: opacity 0.15s ease;
 }
 
-/* ===== Custom CSS tooltip for action buttons (admin list) ===== */
 .efb-act-btn::after {
    content: attr(data-efb-tip);
    position: absolute;
@@ -380,20 +371,17 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    opacity: 1;
    visibility: visible;
 }
-/* RTL tooltip support */
 [dir="rtl"] .efb-act-btn::after,
 .rtl .efb-act-btn::after {
    direction: rtl;
    font-family: inherit;
 }
-/* Content preview RTL */
 [dir="rtl"] .efb-content-preview::after,
 .rtl .efb-content-preview::after {
    direction: rtl;
    text-align: right;
 }
 
-/* Hide action button tooltips on mobile (touch devices) */
 @media (max-width: 768px) {
    .efb-act-btn::after,
    .efb-act-btn::before {
@@ -401,7 +389,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    }
 }
 
-/* Reduced motion for tooltips */
 @media (prefers-reduced-motion: reduce) {
    .efb-act-btn::after,
    .efb-act-btn::before {
@@ -413,8 +400,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    }
 }
 
-/* ===== Form List Table Styles (Block A from style-efb.css) ===== */
-/* Toast Notification */
 .efb-copy-toast {
    position: fixed;
    bottom: 30px;
@@ -442,7 +427,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
 .efb-toast-warning { background: #ffc107; color: #212529; }
 .efb-toast-info    { background: #0d6efd; }
 
-/* Content Preview Column */
 .efb-content-cell {
    max-width: 260px;
    min-width: 120px;
@@ -477,7 +461,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    0%, 100% { opacity: 1; }
    50% { opacity: 0.3; }
 }
-/* Custom tooltip for content preview */
 .efb-content-preview::after {
    content: attr(data-efb-tooltip);
    position: absolute;
@@ -526,7 +509,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    visibility: visible;
 }
 
-/* ====== Action buttons (desktop base styles) ====== */
 .efb-actions-cell {
    white-space: nowrap;
 }
@@ -643,9 +625,7 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    margin: 0;
 }
 
-/* ====== Mobile responsive table (card layout) ====== */
 @media (max-width: 768px) {
-   /* Hide table header on mobile */
    #emsFormBuilder-list thead {
       display: none !important;
    }
@@ -654,7 +634,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
       display: block !important;
       width: 100% !important;
    }
-   /* Each row becomes a card */
    #emsFormBuilder-list tbody tr {
       display: block !important;
       background: #fff;
@@ -668,7 +647,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    #emsFormBuilder-list tbody tr:hover {
       box-shadow: 0 3px 12px rgba(0,0,0,0.1);
    }
-   /* Each cell becomes a row inside the card */
    #emsFormBuilder-list tbody tr > td,
    #emsFormBuilder-list tbody tr > th {
       display: flex !important;
@@ -685,7 +663,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    #emsFormBuilder-list tbody tr > th:last-child {
       border-bottom: none !important;
    }
-   /* Show data-label as inline label */
    #emsFormBuilder-list tbody tr > td[data-label]::before,
    #emsFormBuilder-list tbody tr > th[data-label]::before {
       content: attr(data-label);
@@ -697,7 +674,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
       flex-shrink: 0;
       margin-right: 10px;
    }
-   /* Checkbox cell - move to top-right */
    #emsFormBuilder-list tbody tr > th:first-child:not([data-label]) {
       position: absolute;
       top: 12px;
@@ -711,7 +687,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
       right: auto;
       left: 12px;
    }
-   /* Content cell - override max-width */
    #emsFormBuilder-list .efb-content-cell {
       max-width: 100% !important;
       min-width: 0 !important;
@@ -729,7 +704,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
       overflow: visible !important;
       word-break: break-word;
    }
-   /* Actions cell - full width */
    #emsFormBuilder-list tbody tr > td.efb-actions-cell {
       justify-content: flex-start;
       padding-top: 10px !important;
@@ -754,7 +728,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
       right: -4px;
       border-width: 2.5px;
    }
-   /* Tooltip: show below on mobile */
    .efb-content-preview::after {
       bottom: auto;
       top: 120%;
@@ -772,17 +745,14 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    .efb-content-preview:hover::after {
       transform: translateY(0);
    }
-   /* Empty state */
    #emsFormBuilder-list .efb-empty-state {
       padding: 30px 10px;
    }
-   /* Card: strip bootstrap table-striped background */
    #emsFormBuilder-list.table-striped > tbody > tr:nth-of-type(odd) > * {
       --bs-table-bg-type: transparent !important;
       background-color: transparent !important;
    }
 }
-/* High contrast / accessibility */
 @media (prefers-contrast: more) {
    .efb-act-btn {
       border: 2px solid currentColor !important;
@@ -806,14 +776,10 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    }
 }
 
-/* ===== Modal Fixes: Overflow & Admin Sidebar Overlap (Block B from style-efb.css) ===== */
-/* Raise z-index above WordPress admin bar (9991) and admin menu (9990) */
 .efb.modal {
     z-index: 100100 !important;
 }
 
-/* Account for WordPress admin bar height & admin sidebar width */
-/* Desktop: admin bar = 32px, sidebar = 160px */
 @media (min-width: 783px) {
     .efb.modal {
         top: 32px;
@@ -821,14 +787,12 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
         left: 160px;
         width: calc(100% - 160px);
     }
-    /* When modal-new-efb is active (settings panel), preserve its left offset */
     .efb.modal.modal-new-efb {
         left: 25%;
         width: 75%;
     }
 }
 
-/* 783-960px: sidebar auto-folds to 36px */
 @media (min-width: 783px) and (max-width: 960px) {
     .efb.modal {
         left: 36px;
@@ -836,7 +800,6 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
     }
 }
 
-/* Mobile: admin bar = 46px, no fixed sidebar */
 @media (max-width: 782px) {
     .efb.modal {
         top: 46px;
@@ -846,13 +809,11 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
     }
 }
 
-/* When admin menu is manually collapsed (folded) */
 body.folded .efb.modal {
     left: 36px !important;
     width: calc(100% - 36px) !important;
 }
 
-/* Constrain modal content height to prevent header from going off-screen */
 #settingModalEfb .efb.modal-content {
     max-height: 85vh !important;
     height: auto !important;
@@ -868,7 +829,6 @@ body.folded .efb.modal {
     border-top-right-radius: 20px !important;
 }
 
-/* Keep scroll inside modal body — same scrollbar style as efb-setup-overlay */
 #settingModalEfb .efb.modal-body {
     overflow-y: auto !important;
     overflow-x: hidden !important;
@@ -897,14 +857,11 @@ body.folded .efb.modal {
     background: rgba(32, 42, 141, 0.5);
 }
 
-/* Prevent Y-scroll from escaping the modal to the page behind */
+
 #settingModalEfb.efb.modal.show {
     overflow: hidden !important;
 }
 
-/* ===== Enhanced Delete/Confirm Modal Styles ===== */
-
-/* Backdrop overlay */
 .efb-modal-backdrop {
     position: fixed;
     top: 0;
@@ -924,7 +881,6 @@ body.folded .efb.modal {
     pointer-events: auto;
 }
 
-/* Smooth entrance animation for the modal dialog */
 #settingModalEfb .efb.modal-dialog {
     transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
     transform: scale(0.92) translateY(10px);
@@ -935,7 +891,6 @@ body.folded .efb.modal {
     opacity: 1;
 }
 
-/* Delete/Confirm modal body styling */
 .efb-confirm-body {
     display: flex;
     flex-direction: column;
@@ -994,7 +949,6 @@ body.folded .efb.modal {
     direction: ltr;
 }
 
-/* Enhanced modal footer for delete/confirm */
 #modal-footer-efb.efb-confirm-footer {
     display: flex;
     justify-content: center;
@@ -1076,7 +1030,6 @@ body.folded .efb.modal {
     transform: translateY(-1px);
 }
 
-/* Override modal content for small confirm dialogs — don't stretch full width */
 #settingModalEfb .efb.modal-dialog.efb-confirm-dialog {
     max-width: 420px;
     margin: 0 auto;
@@ -1095,13 +1048,11 @@ body.folded .efb.modal {
     display: none;
 }
 
-/* RTL support for confirm modal */
 [dir="rtl"] .efb-confirm-message b,
 .rtl .efb-confirm-message b {
     direction: rtl;
 }
 
-/* Mobile responsive for confirm modal */
 @media (max-width: 782px) {
     #settingModalEfb .efb.modal-dialog.efb-confirm-dialog {
         max-width: calc(100% - 32px);
@@ -1138,7 +1089,6 @@ body.folded .efb.modal {
     }
 }
 
-/* Small screens — stack buttons vertically */
 @media (max-width: 380px) {
     #modal-footer-efb.efb-confirm-footer {
         flex-direction: column-reverse;
@@ -1150,7 +1100,6 @@ body.folded .efb.modal {
     }
 }
 
-/* ===== Side Menu Panel (Block C from style-efb.css) ===== */
 .sideMenuConEfb {	transition: transform 0.3s ease;
    background-color: #ECF0F1;
    width: 100%;
@@ -1216,7 +1165,6 @@ div#sideBoxEfb {	height: 100vh;
    outline: 1px solid #545b6e;
 }
 
-/* ===== Smartphone Preview (Block D from style-efb.css) ===== */
 .smartphone-efb {	position: relative;
    width: 390px;
    height: 759px;
@@ -1257,7 +1205,6 @@ div#sideBoxEfb {	height: 100vh;
    height: 100%;
 }
 
-/* ===== Pro Version & Modal Elements (Block E from style-efb.css) ===== */
 .modal-new-efb {	left: 25%;
 }
 .pro-el-efb {	color: #453300;
@@ -1303,9 +1250,6 @@ div#sideBoxEfb {	height: 100vh;
    display: block;
 }
 
-/* ========================================
-   Block F: Scattered admin-only selectors
-   ======================================== */
 .btn-select-form.efb {	height: 120px;
    width: 100%;
    background-color: white !important;
@@ -1375,9 +1319,6 @@ div#sideBoxEfb {	height: 100vh;
 #header-efb.bg-color {	background-color: #c8ddff40 !important;
 }
 
-/* ========================================
-   Redesigned Header - User-Friendly
-   ======================================== */
 #header-efb.efb-header-card {
 	background: linear-gradient(135deg, #eef4ff 0%, #f0e6ff 50%, #fff0f6 100%);
 	border: none;
@@ -1490,7 +1431,6 @@ div#sideBoxEfb {	height: 100vh;
 	transform: scale(1.03);
 }
 
-/* Mobile adjustments for new header */
 .mobile #header-efb.efb-header-card {
 	padding: 20px 0;
 	border-radius: 14px;
@@ -1535,9 +1475,6 @@ div#sideBoxEfb {	height: 100vh;
    position: relative;
 }
 
-/* ========================================
-   Top-section: Navbar, header, footer admin-only
-   ======================================== */
 #wpfooter.efb {
 	position: fixed !important;
 	bottom: 0;
@@ -1607,9 +1544,6 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
    margin-top: -100px;
 }
 
-/* ========================================
-   Touch/mobile media queries (admin-only)
-   ======================================== */
 @media (hover: none) and (pointer: coarse) {
     .btn-edit, .BtnSideEfb {
         min-height: 20px !important;
@@ -1641,7 +1575,6 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
         background-color: rgba(108, 117, 125, 0.2) !important;
     }
 
-    /* Mobile touch feedback for btn-toggle elements */
     .btn-toggle.efb-toggle-touching {
         filter: brightness(0.95);
         background-color: rgba(99, 58, 130, 0.3) !important;
@@ -1662,7 +1595,6 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
         pointer-events: none;
     }
 
-    /* Mobile field selection improvements */
     .showBtns, .efbField.ttEfb {
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
@@ -1681,7 +1613,6 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
     }
 }
 
-/* General mobile improvements */
 @media (max-width: 768px) {
     .btn-edit-holder {
         gap: 8px !important;
@@ -1704,9 +1635,6 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
     }
 }
 
-/* ============================
-   Scattered Admin-Only Selectors - Batch 1
-   ============================ */
 
 .noti_content_efb{
    right: 0px!important;
@@ -1726,13 +1654,11 @@ svg.efb.h3 {
 
 #wpwrap h1.efb {	color: #202a8d ;
    font-weight: 600 !important;
-   /*display: inline-block;
-   */}
+}
 
 #wpwrap h3.efb , .modal-content .h3.efb {	font-size: 25px !important;
    color: #a2b0d5;
-   /*display: inline-block;
-   */}
+}
 div#optionListefb {	max-height: 280px;
    overflow: auto;
    padding: 4px 10px;
@@ -1814,9 +1740,7 @@ div#optionListeHeadfb {	z-index: 1040;
    transition: 0.5s;
 }
 
-/* Scattered Admin-Only - Batch 2 */
 
-/* GROUP A - Admin panel decorative circles */
 .top_circle-efb-1 {	height: 800px;
    width: 800px;
    background-color: #c8ddff !important;
@@ -1836,7 +1760,6 @@ div#optionListeHeadfb {	z-index: 1040;
    opacity: 0.8;
 }
 
-/* GROUP B - Admin builder selection */
 .field-selected-efb {	border: 1px dashed #ffbaba;
    border-radius: 5px !important;
    margin: 0px;
@@ -1856,11 +1779,9 @@ div#optionListeHeadfb {	z-index: 1040;
 .efb.nav-icon {	padding: 0.4rem;
 }
 
-/* GROUP C - Dead CSS */
 #content.efb {	margin: 100px 0;
 }
 
-/* GROUP D - Admin headings */
 #wpwrap .h4.efb ,.modal-content h4.efb {	font-size: 50px !important;
    color: #202a8d!important;
 }
@@ -1870,7 +1791,6 @@ div#optionListeHeadfb {	z-index: 1040;
    color: #202a8d!important;
 }
 
-/* GROUP E - Admin builder UI */
 .icon-container {
    display: flex;
    justify-content: center;
@@ -1897,7 +1817,6 @@ div#optionListeHeadfb {	z-index: 1040;
    left: -9999px;
 }
 
-/* GROUP F - Dead CSS (btn-arrow) */
 .btn-arrow.efb {	background-image: linear-gradient(65deg, #dc09a1 0, #fd4794 100%);
    color: white;
    transition: 0.5s;
@@ -1930,9 +1849,7 @@ div#optionListeHeadfb {	z-index: 1040;
    padding: 0 !important;
 }
 
-/* Scattered Admin-Only - Batch 3 */
 
-/* GROUP A - Admin builder buttons */
 #settingElEFb.efb.btn-sm i {	font-size: 24px !important;
 }
 .efb.btn-edit {	height: 30px;
@@ -1973,7 +1890,6 @@ div#optionListeHeadfb {	z-index: 1040;
 }
 td .efb.btn-delete {	margin: 0px 2px !important;}
 
-/* GROUP B - Dead CSS */
 .efb.btn-comment {	height: 30px;
    width: 30px;
    background-color: #cacfdf !important;
@@ -1987,7 +1903,6 @@ td .efb.btn-delete {	margin: 0px 2px !important;}
    color: white !important;
 }
 
-/* GROUP C - Admin drag/drop */
 .drag-sort-active-efb {	background: transparent;
    color: transparent;
    border: 1px solid #4ca1af !important;
@@ -2001,7 +1916,6 @@ div#dropZoneEFB.captcha{
    padding-bottom: 22%;
 }
 
-/* GROUP D - Admin settings */
 #settingModalEfb-body div#recaptcha_efb{
    position: relative!important;
 }
@@ -2009,7 +1923,6 @@ div#dropZoneEFB.captcha{
    margin-bottom: 18%;
 }
 
-/* GROUP F - Admin floating panel */
 #floating-panel.efb {	position: absolute;
    z-index: 5;
    margin-top: 52px !important;
@@ -2026,15 +1939,12 @@ div#dropZoneEFB.captcha{
 #floating-panel .input-efb {	color: #bb2d3b !important;
 }
 
-/* GROUP G - Admin file icon */
 .ico-file.efb {	font-size: 88px;
    left: 0;
    top: 10px;
 }
 
-/* Scattered Admin-Only - Batch 4 */
 
-/* GROUP A - Dead CSS loading */
 #loading_emsFormBuilder {	position: fixed;
    width: 100%;
    height: 100%;
@@ -2049,7 +1959,6 @@ div#dropZoneEFB.captcha{
    pointer-events: none;
 }
 
-/* GROUP B - Admin card/circle layouts */
 .efb.crd {	position: relative;
    display: flex;
    flex-direction: column;
@@ -2088,7 +1997,6 @@ img.right_circle-efb {	width: 58%;
    left: 67%;
    margin: 36% 0%}
 
-/* GROUP C - Admin builder elements */
 .drophere.efb {	border-left: 20px solid #ffd1d8;
    border-radius: 50px !important;
 }
@@ -2101,7 +2009,6 @@ img.right_circle-efb {	width: 58%;
 .sideMenu input.efb,.sideMenu textarea.efb,.sideMenu select.efb,.sideMenu .seldiv.efb,.sideMenu .select2-choice.efb,.sideMenu .select2-selection--single.efb {	background-color: #ffffffc9 !important;
 }
 
-/* GROUP D - Admin settings/list IDs */
 #shortCode_emsFormBuilder,#email_emsFormBuilder,#apikey_map_emsFormBuilder,#secretkey_emsFormBuilder,#sitekey_emsFormBuilder,#activeCode_emsFormBuilder {	height: 45px !important;
 }
 
@@ -2120,7 +2027,6 @@ img.right_circle-efb {	width: 58%;
 .head-efb {	z-index: 100;
 }
 
-/* GROUP E - Admin overlay/options */
 #overlay_efb {	position: fixed;
    display: none;
    width: 100%;
@@ -2137,7 +2043,6 @@ img.right_circle-efb {	width: 58%;
 #deleteOption.newop {	margin: 0px 10px;
 }
 
-/* GROUP F - Dead CSS */
 .efb.ddefb {	background: #dc3545a1;
    border-radius: 7px !important;
    width: 7%!important;
@@ -2155,7 +2060,6 @@ img.right_circle-efb {	width: 58%;
    width: 250px;
 }
 
-/* GROUP G - Admin file/pro elements */
 div#attach_efb {	position: relative;
    overflow: hidden;
 }
@@ -2178,9 +2082,7 @@ div#attach_efb {	position: relative;
    margin-left: 5px;
 }
 
-/* Scattered Admin-Only - Batch 5 (Final) */
 
-/* Admin builder state */
 .efb-hidden {
   position: absolute;
   padding: 10px;
@@ -2202,7 +2104,6 @@ div#Listefb-150 {
   background: #efefef85;
 }
 
-/* Admin option list */
 .efb.opt{
   border-radius: 7px !important;
   padding: 5px;
@@ -2215,12 +2116,10 @@ div#Listefb-150 {
   background:#cbccf554;
 }
 
-/* Admin readonly state */
 .showBtns input[type][readonly],.showBtns select[readonly],.showBtns label {
    pointer-events: none;
 }
 
-/* Enhanced Search Functionality Styles */
 .efb.search-highlight {
    background-color: #fff3cd !important;
    color: #856404 !important;
@@ -2235,7 +2134,6 @@ div#Listefb-150 {
    100% { background-color: #fff3cd; }
 }
 
-/* Search form enhancements */
 .efb.search-form-control:focus {
    border-color: #633a82 !important;
    box-shadow: 0 0 0 0.2rem rgba(99, 58, 130, 0.25) !important;
@@ -2246,7 +2144,6 @@ div#Listefb-150 {
    opacity: 0.8 !important;
 }
 
-/* Search results counter badge */
 .search-results-badge {
    display: inline-block;
    padding: 0.25rem 0.5rem;
@@ -2259,7 +2156,6 @@ div#Listefb-150 {
    margin-left: 0.5rem;
 }
 
-/* Search loading state */
 .search-loading .efb.search-form-control {
    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%236c757d' d='M8 16c-2.137 0-4.146-.832-5.657-2.343S0 10.137 0 8s.832-4.146 2.343-5.657S5.863 0 8 0s4.146.832 5.657 2.343S16 5.863 16 8s-.832 4.146-2.343 5.657S10.137 16 8 16zm0-14C4.691 2 2 4.691 2 8s2.691 6 6 6 6-2.691 6-6-2.691-6-6-6z'/%3E%3C/svg%3E");
    background-repeat: no-repeat;
@@ -2273,7 +2169,6 @@ div#Listefb-150 {
    100% { transform: rotate(360deg); }
 }
 
-/* Mobile/Desktop view toggle for builder */
 #viewToggleEfb {
 	margin-top: 5px;
 }
@@ -2323,7 +2218,6 @@ div#Listefb-150 {
 	left: 50%;
 	transform: translateX(-50%);
 }
-/* Mobile view: disable col-md-* so col-sm-* controls layout */
 .efb-mobile-view-efb [class*="col-md-"] {
   flex: unset !important;
   width: unset !important;
@@ -2331,7 +2225,6 @@ div#Listefb-150 {
 }
 
 
-/* Admin responsive styles */
 @media screen and (max-width: 782px) {
   .top_circle-efb-1, .top_circle-efb-2 {		display: none !important;}
    #wpwrap h1.efb {

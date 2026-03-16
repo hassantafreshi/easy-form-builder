@@ -2066,6 +2066,13 @@ items_dd_efb = () => {
       stop: function (event, ui) {
         ui.item.hasClass('ui-state-disabled') ? ui.item.removeData('sortableItem') : false;
         ui.item.toggleClass("highlight");
+        const container = ui.item.closest('.items')[0];
+        if (container) {
+          const step1 = container.querySelector('.stepNavEfb[data-step="1"]');
+          if (step1 && step1 !== container.firstElementChild) {
+            container.insertBefore(step1, container.firstElementChild);
+          }
+        }
         sort_obj_el_efb_();
       }
     });
@@ -3368,12 +3375,13 @@ function sendPlanSelectionToServer_efb(selectionData) {
     console.log('Sending plan selection to server:', selectionData);
     const user_selected = selectionData.selected_plan || 'unknown';
     if(user_selected === 'pro') {
-      sessionStorage.setItem('efb_license_selected', '4');
+      sessionStorage.setItem('efb_license_selected', '1');
     }else if(user_selected === 'free_plus') {
       sessionStorage.setItem('efb_license_selected', '3');
     }else if(user_selected === 'free') {
       sessionStorage.setItem('efb_license_selected', '2');
     }
+
     jQuery.ajax({
         url: efb_var.ajax_url,
         type: 'POST',
@@ -3847,7 +3855,7 @@ function closeSetupOverlay_efb() {
 sessionStorage.setItem('efb_license_selected', efb_var.setting.package_type);
 function getCurrentPlanBadge_efb() {
   const crntPlnLabel = (efb_var.text && efb_var.text.crntPln) || 'Current Plan';
-  const pro_type = sessionStorage.getItem('efb_license_selected') ? Number(sessionStorage.getItem('efb_license_selected')) : Number(efb_var.pro);
+  const pro_type = (Number(efb_var.pro) === 1 && valueJson_ws_setting.activeCode!='') ? 1 : (sessionStorage.getItem('efb_license_selected') ? Number(sessionStorage.getItem('efb_license_selected')) : Number(efb_var.pro));
   let badgeClass = 'bg-secondary';
   let planName = (efb_var.text && efb_var.text.free) || 'Free';
   let icon_mx = 'me-2';
@@ -3857,7 +3865,7 @@ function getCurrentPlanBadge_efb() {
     div_mx = 'me-1';
   }
   let iconHtml = `<i class="efb bi-tag ${icon_mx}"></i>`;
-    if (pro_type === 1) {
+    if (pro_type === 1 || pro_type === true) {
         badgeClass = 'bg-info';
         iconHtml = `<i class="efb bi-gem ${icon_mx}"></i>`;
         planName = (efb_var.text && efb_var.text.pro) || 'Pro';

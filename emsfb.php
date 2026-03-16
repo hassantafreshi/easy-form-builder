@@ -35,13 +35,18 @@ if (!defined("EMSFB_PLUGIN_URL")) {
 }
 
 if (!defined("WP_PLUGIN_DIR")) {
-    define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '\plugins' );
+    define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
 }
 
 if (!defined("EMSFB_DEV_MODE")) {
 
-    $dev_mode = get_option('emsfb_dev_mode', '1');
-    define("EMSFB_DEV_MODE", $dev_mode === '1' || $dev_mode === true);
+    $dev_mode = get_option('emsfb_dev_mode', '2');
+    if($dev_mode === '2') {
+        update_option('emsfb_dev_mode', '0');
+        define("EMSFB_DEV_MODE", false);
+    }else{
+        define("EMSFB_DEV_MODE", $dev_mode === '1' || $dev_mode === true ? true : false);
+    }
 }
 
 if (!defined("EMSFB_SERVER_URL")) {
@@ -54,7 +59,9 @@ if (!defined("EMSFB_SERVER_URL")) {
 
 if (!defined("EMSFB_IS_FARSI")) {
     if (get_locale() == 'fa_IR') {
-        define("CDN_ZONE_AREA", "https://cdn.easyformbuilder.ir/gh/Json-List-of-countries-states-and-cities-in-the-world/");
+        //THIS LINE COMMENTED TO AVOID PROBLEMS WITH CDN IN FARSI LANGUAGE BECUSE OF SHUTDOWN IRAN NETWORK!!
+        //define("CDN_ZONE_AREA", "https://cdn.easyformbuilder.ir/gh/Json-List-of-countries-states-and-cities-in-the-world/");
+        define("CDN_ZONE_AREA", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
     } else {
         define("CDN_ZONE_AREA", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
     }
@@ -167,7 +174,6 @@ function emsfb_check_file_access_efb() {
         }
     }
 
-    // Create multilingual messages using WordPress translation functions
     $success_message = esc_html__('Addon directory is ready for file operations', 'easy-form-builder');
     $error_message = sprintf(
         esc_html__('Cannot install addons: %s', 'easy-form-builder'),
@@ -191,7 +197,11 @@ function emsfb_check_file_access_efb() {
 }
 
 function emsfb_get_file_access_status_efb() {
-    return get_option('emsfb_file_access_status', null);
+    $state= get_option('emsfb_file_access_status', null);
+    if (!$state) {
+        $state = emsfb_check_file_access_efb();
+    }
+    return $state;
 }
 
 function emsfb_is_addon_install_ready_efb() {

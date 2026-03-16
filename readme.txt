@@ -2,8 +2,8 @@
 Contributors: hassantafreshi, mostafas1990, mrlast, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, survey form, payment form
-Requires at least: 4.7
-Tested up to: 6.8
+Requires at least: 5.0
+Tested up to: 6.9
 Stable tag: 4.0.0
 Requires PHP: 7.0
 License: GPLv3 or later
@@ -29,11 +29,15 @@ With Easy Form Builder, you can use a single form plugin to build and manage mul
 - Support and feedback forms with message tracking
 - Survey and poll forms with structured results
 - Stripe payment forms for online payments
+- PayPal payment forms for collecting online payments
 - Login (sign-in) forms for WordPress users
 - Registration (sign-up) forms for new users
 - File upload forms
 - Private or restricted-access forms
 - Multi-step forms for improved usability
+- Electronic signature forms for contracts and agreements
+- Location picker forms for address and map selection
+- Custom email notification templates with a built-in visual editor
 
 The form builder provides a consistent interface for form creation, submission handling, and response management inside WordPress.
 
@@ -251,14 +255,11 @@ If your theme uses Bootstrap, go to “Easy Form Builder” → “Settings” a
 
 == Documentation & Support ==
 
-Full documentation:
-https://whitestudio.team/documents
+For setup guides, tutorials, and feature walkthroughs, visit the official documentation:
+[Easy Form Builder Documentation](https://whitestudio.team/documents)
 
-Bug reports:
-https://github.com/hassantafreshi/easy-form-builder/issues
-
-Official website:
-https://whitestudio.team
+For more information, visit the official website:
+[WhiteStudio – Easy Form Builder](https://whitestudio.team)
 
 == Screenshots ==
 
@@ -277,7 +278,15 @@ https://whitestudio.team
 13. configuration Response box of Easy Form Builder
 14. Email Setting of Easy Form Builder
 15. SMS configuration of Easy From Builder
+16. Confirmation Code Search Field
+17. WordPress Support Ticket Conversation and Reply Form
 
+
+== Upgrade Notice ==
+
+= 4.0.0 =
+Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official addons will be update to their latest versions.
+**Backup your site before updating. Not backward-compatible with v3.x addons.**
 
 
 == Changelog ==

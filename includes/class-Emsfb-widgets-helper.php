@@ -53,9 +53,10 @@ class Emsfb_Widgets_Helper {
         ));
 
         if ($table_exists) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
             $results = $wpdb->get_results(
                 "SELECT form_id, form_name, form_type
-                 FROM {$table_name}
+                 FROM `{$table_name}`
                  ORDER BY form_id DESC",
                 ARRAY_A
             );

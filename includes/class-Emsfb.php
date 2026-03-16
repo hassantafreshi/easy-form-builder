@@ -97,7 +97,6 @@ class Emsfb {
                       new \Emsfb\telegramlistefb();
                   }
 
-                  // Load telegram sending class (hooks registration for both admin & public)
 
                   $telegram_send_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php';
                   if (file_exists($telegram_send_path)) {
@@ -219,7 +218,7 @@ class Emsfb {
                 $message =  esc_html__('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually. Notice: Please do this act immediately so forms of your site will be available again.','easy-form-builder');
                 ?>
                     <div class="notice notice-warning is-dismissible">
-                        <p> <?php echo '<b>'.esc_html__('Warning').':</b> '. $message.''; ?> </p>
+                        <p> <?php echo '<b>'.esc_html__('Warning').':</b> '. wp_kses_post($message); ?> </p>
                     </div>
                 <?php
             $this->email_send_efb();
@@ -259,7 +258,6 @@ class Emsfb {
             sprintf( 'From: %s <%s>', $from_name, $from_email ),
         );
 
-        // Prepare subject with proper translation
         $subject = sprintf(
             /* translators: %s: Site name */
             esc_html__( 'Important Warning from %s', 'easy-form-builder' ),
@@ -386,7 +384,8 @@ class Emsfb {
         if ($transient === false || empty($transient)) {
             global $wpdb;
             $table_name = $wpdb->prefix . "emsfb_setting";
-            $raw = $wpdb->get_var("SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1");
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
+            $raw = $wpdb->get_var( "SELECT setting FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
 
             if (empty($raw)) {
                 if ($mode === 'pub') return [0, []];
@@ -427,7 +426,8 @@ class Emsfb {
 
                 global $wpdb;
                 $table_name = $wpdb->prefix . "emsfb_setting";
-                $latest_id = $wpdb->get_var("SELECT id FROM $table_name ORDER BY id DESC LIMIT 1");
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
+                $latest_id = $wpdb->get_var( "SELECT id FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
                 if ($latest_id) {
                     $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $latest_id], ['%s'], ['%d']);
                 }
@@ -488,6 +488,13 @@ class Emsfb {
             default:
 
                 $package_type = get_option('emsfb_pro', 10);
+                $stored_pt = isset($decoded->package_type) ? intval($decoded->package_type) : null;
+
+                if (($package_type == 10 || $package_type == -1) && $stored_pt !== null && in_array($stored_pt, [0, 1, 2, 3], true)) {
+                    $package_type = $stored_pt;
+                    update_option('emsfb_pro', $package_type);
+                }
+
                 $decoded->package_type = $package_type;
                 $result = $decoded;
                 break;
@@ -536,7 +543,7 @@ class Emsfb {
 
         $addonKeys = [
             'AdnSS' => 'SMS',
-            'AdnATF' => 'AutoFill',
+            'AdnATF' => 'Auto-Populate',
             'AdnTLG' => 'Telegram',
             'AdnPAP' => 'PayPal',
             'AdnSPF' => 'Stripe',
@@ -588,12 +595,13 @@ class Emsfb {
             return;
         }
 
-        if (isset($_GET['page']) && (
-            $_GET['page'] === 'Emsfb' ||
-            $_GET['page'] === 'Emsfb_create' ||
-            $_GET['page'] === 'Emsfb_addon' ||
-            $_GET['page'] === 'Emsfb_sms_efb'
-        )) {
+        $page = isset($_GET['page']) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+        if ($page === 'Emsfb' ||
+            $page === 'Emsfb_create' ||
+            $page === 'Emsfb_addon' ||
+            $page === 'Emsfb_sms_efb'
+        ) {
             add_action('admin_enqueue_scripts', array($this, 'apply_elementor_admin_fixes'), 1);
         }
     }
@@ -617,23 +625,19 @@ class Emsfb {
     }
 
     public function elementor_admin_conflict_prevention() {
-        $current_page = isset($_GET['page']) ? $_GET['page'] : '';
+        $current_page = isset($_GET['page']) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
         ?>
         <script type="text/javascript">
-        // Prevent Elementor admin conflicts with EFB Admin Pages
         (function($) {
             'use strict';
 
-            // Store original methods before any modifications
             if (typeof window.efb_global_elementor_protection === 'undefined') {
                 window.efb_global_elementor_protection = true;
 
                 console.log('EFB Global: Initializing Elementor compatibility layer for <?php echo esc_js($current_page); ?>');
 
-                // Prevent Elementor admin errors
                 if (typeof elementorFrontend !== 'undefined') {
                     try {
-                        // Safely check and initialize elementorFrontend.tools
                         if (!elementorFrontend.tools) {
                             elementorFrontend.tools = {};
                             console.log('EFB Global: Initialized missing elementorFrontend.tools');
@@ -643,9 +647,7 @@ class Emsfb {
                     }
                 }
 
-                // Global error handling for dispatchEvent issues
                 $(document).ready(function() {
-                    // Prevent jQuery Deferred errors
                     $(window).on('error', function(e) {
                         if (e.originalEvent && e.originalEvent.message) {
                             var errorMessage = e.originalEvent.message.toLowerCase();
@@ -660,7 +662,6 @@ class Emsfb {
                         }
                     });
 
-                    // Protect Event.dispatchEvent calls
                     if (window.Event && Event.prototype.dispatchEvent) {
                         var originalDispatchEvent = Event.prototype.dispatchEvent;
                         Event.prototype.dispatchEvent = function(event) {
@@ -719,20 +720,16 @@ class Emsfb {
         $current_page = isset($_GET['page']) ? sanitize_key( $_GET['page'] ) : '';
         ?>
         <script type="text/javascript">
-        // Prevent Elementor admin conflicts with EFB Admin Pages
         (function($) {
             'use strict';
 
-            // Store original methods before any modifications
             if (typeof window.efb_global_elementor_protection === 'undefined') {
                 window.efb_global_elementor_protection = true;
 
                 console.log('EFB Global: Initializing Elementor compatibility layer for <?php echo esc_js($current_page); ?>');
 
-                // Prevent Elementor admin errors
                 if (typeof elementorFrontend !== 'undefined') {
                     try {
-                        // Safely check and initialize elementorFrontend.tools
                         if (!elementorFrontend.tools) {
                             elementorFrontend.tools = {};
                             console.log('EFB Global: Initialized missing elementorFrontend.tools');
@@ -742,9 +739,7 @@ class Emsfb {
                     }
                 }
 
-                // Global error handling for dispatchEvent issues
                 $(document).ready(function() {
-                    // Prevent jQuery Deferred errors
                     $(window).on('error', function(e) {
                         if (e.originalEvent && e.originalEvent.message) {
                             var errorMessage = e.originalEvent.message.toLowerCase();
@@ -758,7 +753,6 @@ class Emsfb {
                         }
                     });
 
-                    // Fix dispatchEvent errors - use EventTarget instead of Event
                     if (window.EventTarget && window.EventTarget.prototype && EventTarget.prototype.dispatchEvent) {
                         var originalDispatchEvent = EventTarget.prototype.dispatchEvent;
                         EventTarget.prototype.dispatchEvent = function(event) {
@@ -794,38 +788,40 @@ class Emsfb {
     }
 
     private function run_upgrade_tasks_efb($old_version, $new_version) {
+        global $wpdb;
+        $table_setting = $wpdb->prefix . 'emsfb_setting';
 
         if (function_exists('wp_cache_flush')) {
             wp_cache_flush();
         }
-
         if (function_exists('wp_cache_flush_group')) {
             wp_cache_flush_group('emsfb');
         }
-
-        global $wpdb;
         $wpdb->query(
             "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_efb_%' OR option_name LIKE '_transient_timeout_efb_%'"
         );
 
-        $table_setting = $wpdb->prefix . 'emsfb_setting';
         $wpdb->query("ALTER TABLE `{$table_setting}` MODIFY `setting` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL");
 
         $this->migrate_fix_double_escaped_settings_efb($wpdb);
 
-            if (version_compare($old_version, '4', '<')) {
-                $activeCode = get_option('emsfb_pro_activeCode', '');
-                if (empty($activeCode)) {
-                    $settings = self::get_setting_Emsfb('decoded');
-                    if (isset($settings->activeCode)) {
-                        $activeCode = $settings->activeCode;
-                    }
-                }
-                if (!empty($activeCode) && strlen($activeCode) > 5) {
-                    update_option('emsfb_pro', 1);
+        if (version_compare($old_version, '4', '<')) {
+            $activeCode = get_option('emsfb_pro_activeCode', '');
+
+            if (empty($activeCode)) {
+                self::get_setting_Emsfb('_clear_cache');
+                delete_transient('emsfb_settings_transient');
+
+                $settings = self::get_setting_Emsfb('decoded');
+                if (is_object($settings) && isset($settings->activeCode)) {
+                    $activeCode = $settings->activeCode;
                 }
             }
 
+            if (!empty($activeCode) && strlen($activeCode) > 5) {
+                update_option('emsfb_pro', 1);
+            }
+        }
     }
 
     private function migrate_fix_double_escaped_settings_efb($wpdb) {
@@ -838,7 +834,8 @@ class Emsfb {
             return 0;
         }
 
-        $rows = $wpdb->get_results("SELECT id, setting FROM $table_name");
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
+        $rows = $wpdb->get_results( "SELECT id, setting FROM `{$table_name}`" );
         if (empty($rows)) {
             return 0;
         }
@@ -940,6 +937,8 @@ class Emsfb {
         $defaults->text              = '';
         $defaults->bootstrap         = '';
         $defaults->emailTemp         = '';
+        $defaults->emailBtnBgColor   = '#202a8d';
+        $defaults->emailBtnTextColor = '#ffffff';
         $defaults->paypalPKey        = '';
         $defaults->paypalSKey        = '';
         $defaults->stripePKey        = '';

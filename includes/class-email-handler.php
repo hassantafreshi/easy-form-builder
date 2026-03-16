@@ -2,37 +2,18 @@
 
 defined('ABSPATH') || exit;
 
-/**
- * EmsfbEmailHandler Class
- * Handles all email-related functionality with proper text translation integration
- */
 class EmsfbEmailHandler {
 
-    /**
-     * efbFunction instance for accessing text translations and utilities
-     * @var efbFunction
-     */
     private $efb_instance;
 
     private static $efb_function = null;
 
-    /**
-     * Cached text translations to avoid repeated lookups
-     * @var array
-     */
     private static $text_cache = [];
 
     public function __construct($efb_instance = null) {
         $this->efb_instance = $efb_instance;
     }
 
-    /**
-     * Get text translations using efbFunction instance
-     * Caches results to avoid repeated database queries
-     *
-     * @param array $text_keys Array of translation keys
-     * @return array Translated text array
-     */
     private function get_text_efb($text_keys) {
         $cache_key = md5(serialize($text_keys));
 
@@ -58,7 +39,6 @@ class EmsfbEmailHandler {
             return $result;
         }
 
-        // Fallback to WordPress translations
         $fallback = [];
         foreach ($text_keys as $key) {
             $fallback[$key] = $this->get_fallback_text($key);
@@ -67,12 +47,6 @@ class EmsfbEmailHandler {
         return count($text_keys) === 1 ? $fallback[array_keys($fallback)[0]] : $fallback;
     }
 
-    /**
-     * Fallback text translations
-     *
-     * @param string $key
-     * @return string
-     */
     private function get_fallback_text($key) {
         $fallbacks = [
             'msgdml' => __('To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %1$s documentation %2$s .', 'easy-form-builder'),
@@ -182,7 +156,7 @@ class EmsfbEmailHandler {
         }
 
         $headers = [
-            "MIME-Version: 1.0\r\n",
+            "MIME-Version: 1.0",
             'From:' . $from,
         ];
 
@@ -240,17 +214,6 @@ class EmsfbEmailHandler {
         return $mailResult;
     }
 
-    /**
-     * Generate email template with proper translations
-     *
-     * @param mixed $pro Pro version flag
-     * @param string $state Email state
-     * @param mixed $m Message content
-     * @param string $link Link for email
-     * @param string $email_content_type Content type
-     * @param string $st Settings
-     * @return string Generated HTML email template
-     */
     public function email_template_efb($pro, $state, $m, $link, $email_content_type, $st = "null") {
 
         $l = 'https://whitestudio.team';
@@ -263,7 +226,6 @@ class EmsfbEmailHandler {
         ];
         $l = $locale_map[$wp_lan] ?? $l;
 
-        // Get translations efficiently
         $text_keys = ['msgdml', 'mlntip', 'msgnml', 'serverEmailAble', 'vmgs', 'getProVersion', 'sentBy', 'hiUser', 'trackingCode', 'newMessage', 'createdBy', 'newMessageReceived', 'goodJob', 'yFreeVEnPro', 'WeRecivedUrM'];
         $lang = $this->get_text_efb($text_keys);
 
@@ -310,7 +272,8 @@ class EmsfbEmailHandler {
             $track_id = $m[0];
         }
 
-        $button_style = "display: inline-block; padding: 16px 32px; background: transparent; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; cursor: pointer;";
+        $btnBgColor = isset($st->emailBtnBgColor) && !empty($st->emailBtnBgColor) ? esc_attr($st->emailBtnBgColor) : '#202a8d';
+        $btnTextColor = isset($st->emailBtnTextColor) && !empty($st->emailBtnTextColor) ? esc_attr($st->emailBtnTextColor) : '#ffffff';
 
         if($email_content_type == 'message_link'){
 
@@ -320,12 +283,19 @@ class EmsfbEmailHandler {
 
         $tracking_section = "";
         if ($email_content_type != 'just_message' && !$isRegistrationState) {
+            $safe_link = esc_url($link);
             $tracking_section = "
             <div style='text-align:center; margin: 30px 0;'>
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 0 auto;'>
                     <tr>
-                        <td style='background: linear-gradient(135deg, #202a8d 0%, #1e3a8a 100%); border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(32, 42, 141, 0.3);'>
-                            <a href='" . esc_url($link) . "' target='_blank' style='" . $button_style . "'>
+                        <td align='center' style='background-color: " . $btnBgColor . "; border-radius: 8px; text-align: center;'>
+                            <!--[if mso]>
+                            <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='" . $safe_link . "' style='height:auto;v-text-anchor:middle;' arcsize='20%' strokecolor='" . $btnBgColor . "' fillcolor='" . $btnBgColor . "'>
+                                <w:anchorlock/>
+                                <center style='color:" . $btnTextColor . ";font-family:Segoe UI,Tahoma,Geneva,Verdana,Arial,sans-serif;font-size:18px;font-weight:700;padding:16px 32px;'>" . $lang['vmgs'] . "</center>
+                            </v:roundrect>
+                            <![endif]-->
+                            <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 16px 32px; background-color: " . $btnBgColor . "; color: " . $btnTextColor . "; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: Segoe UI, Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; mso-hide: all;'>
                                 " . $lang['vmgs'] . "
                             </a>
                         </td>
@@ -585,6 +555,7 @@ class EmsfbEmailHandler {
     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
     <title>" . esc_html($title) . "</title>
+    <!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
     <style type=\"text/css\">
         body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
         table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
@@ -663,12 +634,6 @@ class EmsfbEmailHandler {
 </html>";
     }
 
-    /**
-     * Apply custom email template
-     *
-     * Handles both legacy templates (old textarea input) and builder templates
-     * (drag-drop email builder with efb-email-container class).
-     */
     private function apply_custom_template($temp, $message, $title, $blogName, $blogURL, $adminEmail, $footer, $disclaimer) {
         $replacements = [
             'shortcode_message' => $message,
@@ -1012,9 +977,7 @@ table { border-collapse: collapse !important; }
             <tr>
               <td style="background-color: ' . $bgColor . '; border-radius: ' . $borderRad . 'px; text-align: center;">
                 ' . $vml_btn . '
-                <!--[if !mso]><!-->
                 <a href="' . $url . '" target="_blank" style="display: inline-block; padding: ' . $padding . '; color: ' . $textColor . '; text-decoration: none; font-family: ' . $fontFam . '; font-size: ' . $fontSize . 'px; font-weight: 600; line-height: 1; mso-hide: all;">' . $text . '</a>
-                <!--<![endif]-->
               </td>
             </tr>
           </table>
@@ -1107,19 +1070,27 @@ table { border-collapse: collapse !important; }
             $label = esc_attr($name ?: ucfirst($icon));
 
             $icon_html = '';
+
+            // 1. Try existing colored PNG from plugin assets
             $png_url = $this->get_colored_icon_url($icon, $iconColor);
             if ($png_url) {
                 $icon_html = '<img src="' . esc_url($png_url) . '" alt="' . $label . '" width="' . $iconSize . '" height="' . $iconSize . '" style="display:inline-block;vertical-align:middle;border:0;" />';
             }
 
+            // 2. Generate icon image file (PNG via Imagick, GD circle, or SVG file)
             if (!$icon_html) {
-                $svg = $this->get_social_icon_svg($icon, $iconColor, $iconSize);
-                if ($svg) {
-                    $icon_html = $svg;
-                } else {
-
-                    $icon_html = esc_html($name ?: ucfirst($icon));
+                $gen_url = $this->get_social_icon_file_url($icon, $iconColor, max($iconSize * 2, 48));
+                if ($gen_url) {
+                    $icon_html = '<img src="' . esc_url($gen_url) . '" alt="' . $label . '" width="' . $iconSize . '" height="' . $iconSize . '" style="display:inline-block;vertical-align:middle;border:0;" />';
                 }
+            }
+
+            // 3. Text fallback with emoji (works in all email clients)
+            if (!$icon_html) {
+                $emoji = $this->get_social_emoji($icon);
+                $safe_color = esc_attr($iconColor);
+                $fs = max(12, intval($iconSize * 0.6));
+                $icon_html = '<span style="display:inline-block;width:' . $iconSize . 'px;height:' . $iconSize . 'px;line-height:' . $iconSize . 'px;text-align:center;font-size:' . $fs . 'px;vertical-align:middle;">' . $emoji . '</span>';
             }
 
             $linksHtml .= '<a href="' . $url . '" target="_blank" style="display:inline-block;margin:0 6px;text-decoration:none;vertical-align:middle;line-height:1;">' . $icon_html . '</a>';
@@ -1263,6 +1234,73 @@ table { border-collapse: collapse !important; }
         }
 
         return '<svg viewBox="0 0 24 24" width="' . $size . '" height="' . $size . '" fill="' . $esc_color . '"><path d="' . $paths[$icon] . '"/></svg>';
+    }
+
+    private function get_social_icon_file_url($icon, $color, $size = 48) {
+        $esc_color = sanitize_hex_color($color) ?: '#333333';
+        $hex       = ltrim($esc_color, '#');
+        $safe_icon = sanitize_file_name($icon);
+
+        $upload_dir = wp_upload_dir();
+        $cache_dir  = $upload_dir['basedir'] . '/efb-icons/' . $hex;
+
+        // 1. Check cached PNG (best for all email clients)
+        $png_file = $cache_dir . '/' . $safe_icon . '.png';
+        $png_url  = $upload_dir['baseurl'] . '/efb-icons/' . $hex . '/' . $safe_icon . '.png';
+        if (file_exists($png_file)) {
+            return $png_url;
+        }
+
+        $svg = $this->get_social_icon_svg($icon, $esc_color, $size);
+        if (!$svg) {
+            return '';
+        }
+
+        if (!is_dir($cache_dir)) {
+            wp_mkdir_p($cache_dir);
+        }
+
+        $svg_xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+                 . str_replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ', $svg);
+
+        // 2. Try Imagick SVG→PNG (exact icon shape, transparent background)
+        if (class_exists('Imagick')) {
+            try {
+                $im = new \Imagick();
+                $im->setResolution(150, 150);
+                $im->setBackgroundColor(new \ImagickPixel('transparent'));
+                $im->readImageBlob($svg_xml);
+                $im->setImageFormat('png32');
+                $im->resizeImage($size, $size, \Imagick::FILTER_LANCZOS, 1);
+                $im->writeImage($png_file);
+                $im->destroy();
+                if (file_exists($png_file)) {
+                    return $png_url;
+                }
+            } catch (\Exception $e) {
+                // Imagick failed
+            }
+        }
+
+        // 3. Save as SVG file — email clients fetch external <img src="url.svg">
+        //    via their image proxy (Gmail, Outlook.com, Yahoo all proxy external images)
+        $svg_file = $cache_dir . '/' . $safe_icon . '.svg';
+        $svg_url  = $upload_dir['baseurl'] . '/efb-icons/' . $hex . '/' . $safe_icon . '.svg';
+        if (!file_exists($svg_file)) {
+            global $wp_filesystem;
+            if (empty($wp_filesystem)) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+                WP_Filesystem();
+            }
+            if ($wp_filesystem) {
+                $wp_filesystem->put_contents($svg_file, $svg_xml, FS_CHMOD_FILE);
+            }
+        }
+        if (file_exists($svg_file)) {
+            return $svg_url;
+        }
+
+        return '';
     }
 
     private function wrap_builder_template_html($content) {

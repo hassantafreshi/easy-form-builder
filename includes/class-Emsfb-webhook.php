@@ -18,7 +18,9 @@ class webhook {
               register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
                   'method'=> 'GET',
                   'callback'=>  [$this,'test_fun'],
-                  'permission_callback' => '__return_true'
+                  'permission_callback' => function() {
+                      return current_user_can('manage_options');
+                  }
               ]);
 
           });
