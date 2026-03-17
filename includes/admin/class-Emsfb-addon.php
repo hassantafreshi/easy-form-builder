@@ -119,7 +119,7 @@ class Addon {
     </div>
 	<!-- end new code dd -->
 		<?php
-		$pro = intval(get_option('emsfb_pro')) ;
+		$pro = intval(get_option('emsfb_pro' ,-1));
 		$pro = $pro == 1 ? true : false;
 		$maps =false;
 

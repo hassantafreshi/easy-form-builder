@@ -2103,7 +2103,7 @@
 			return $copyRight .'</aside></div>';
 		}else if($this->package_type_efb==2){
 
-			add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);;
+			add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);
 		}
 		return '<!--efb-->';
 	}

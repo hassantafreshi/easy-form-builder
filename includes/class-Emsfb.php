@@ -444,7 +444,7 @@ class Emsfb {
             case 'pub':
 
                 $pro = absint(get_option('emsfb_pro'));
-                $pro = $pro == 1 || $pro == 2 ? true : false;
+                $pro = $pro == 1 || $pro == 3 ? true : false;
                 $pubSettings = [
                     'pro' => $pro,
                     'trackingCode' => $decoded->trackingCode ?? '',

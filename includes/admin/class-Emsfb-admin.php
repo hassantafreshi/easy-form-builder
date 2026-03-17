@@ -804,6 +804,7 @@ class Admin {
             $response = ['success' => false, "m" =>$m];
             wp_send_json_success($response, 200);
         }
+        $active_code_is_valid = false;
         foreach ($m as $key => $value) {
              if (in_array($key ,['emailSupporter','femail'])) {
                 $value = sanitize_text_field($value);
@@ -819,13 +820,24 @@ class Admin {
                 $m['activeCode'] = sanitize_text_field($value);
                 $state = $efbFunction->is_efb_pro($m['activeCode']);
                 if ($state==true) {
+                    $active_code_is_valid = true;
                     $m['package_type'] = 1;
+                    $package_type = 1;
                     update_option('emsfb_pro', 1);
                 } else {
+                    $active_code_is_valid = false;
                     $m['package_type'] = 2;
                     $response = ['success' => false, "m" =>$lang['activationNcorrect']];
                     if(strlen($value) > 1){ wp_send_json_success($response, 200);}
                 }
+            }else if($key == 'package_type'){
+                // Keep the validated Pro package even if payload contains stale package_type.
+                if ($active_code_is_valid) {
+                    $m[$key] = 1;
+                    continue;
+                }
+                $package_type = intval(sanitize_text_field($value));
+                $m[$key] = in_array($package_type, [0, 1, 2, 3], true) ? $package_type : 2;
             }else if($key == "emailTemp"){
                 if( strlen($value)>5  && strpos($setting ,'shortcode_message')===false){
                     $response = ['success' => false, "m" =>$lang['addSCEmailM']];
@@ -902,6 +914,10 @@ class Admin {
             $dev_mode_value = in_array($m['devMode'], [true, 'true', 1, '1'], true) ? '1' : '0';
             update_option('emsfb_dev_mode', $dev_mode_value);
             unset($m['devMode']);
+        }
+
+        if ($active_code_is_valid) {
+            $m['package_type'] = 1;
         }
 
         $setting = json_encode($m, JSON_UNESCAPED_UNICODE);
