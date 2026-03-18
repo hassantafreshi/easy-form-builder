@@ -4,7 +4,7 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, survey form, payment form
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 4.0.1
+Stable tag: 4.0.2
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -302,6 +302,10 @@ For more information, visit the official website:
 
 
 == Upgrade Notice ==
+
+= 4.0.2 =
+
+* Fixed issues
 
 = 4.0.1 =
 

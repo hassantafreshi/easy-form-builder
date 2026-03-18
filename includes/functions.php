@@ -1943,18 +1943,21 @@ public function addon_add_efb($value) {
 		$settings=get_setting_Emsfb();
 		$addons['AdnSPF']	=	isset($settings->AdnSPF)	? $settings->AdnSPF	:0;
 		$addons['AdnATC']	=	isset($settings->AdnATC)	? $settings->AdnATC	:0;
+		$addons['AdnTLG']	=	isset($settings->AdnTLG)	? $settings->AdnTLG	:0;
 		$addons['AdnPPF']	=	isset($settings->AdnPPF)	? $settings->AdnPPF	:0;
 		$addons['AdnSS']	=	isset($settings->AdnSS)		? $settings->AdnSS	:0;
 		$addons['AdnESZ']	=	isset($settings->AdnESZ)	? $settings->AdnESZ	:0;
 		$addons['AdnSE']	=	isset($settings->AdnSE)		? $settings->AdnSE	:0;
 		$addons['AdnPDP']	=	isset($settings->AdnPDP)	? $settings->AdnPDP	:0;
 		$addons['AdnADP']	=	isset($settings->AdnADP)	? $settings->AdnADP	:0;
+		$addons['AdnATF']	=	isset($settings->AdnATF)	? $settings->AdnATF	:0;
+		$addons['AdnPAP']	=	isset($settings->AdnPAP)	? $settings->AdnPAP	:0;
+		$addons['AdnOF']	=	isset($settings->AdnOF)		? $settings->AdnOF	:0;
 
 		$error_messag ='';
 		foreach ($addons as $key => $value) {
 
 			if($value ==1){
-
 				$r =$this->addon_add_efb($key);
 				if($r['status']==false){
 					$state=false;
@@ -1983,9 +1986,67 @@ public function addon_add_efb($value) {
 	}
 
 	public function update_message_admin_side_efb(){
-		$text = ['wmaddon'];
+		$text = ['wmaddon','contactUs' ,'addons' ,'easyFormBuilder'];
         $lang= $this->text_efb($text);
-		return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".$lang['wmaddon']."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><b>".esc_html__('Easy Form Builder', 'easy-form-builder')."</b><p></div></div>";
+		return '<div id="body_efb" class="efb card-public efb" style="max-width:680px; margin:60px auto; text-align:center;">
+			<div class="efb alert alert-light bg-dark" style="border-radius:16px; padding:40px 32px; box-shadow:0 4px 24px rgba(54,68,210,0.13);">
+				<div style="margin-bottom:18px;">
+					<span style="display:inline-flex; align-items:center; justify-content:center; width:64px; height:64px; border-radius:50%; background:rgba(233,195,26,0.15);">
+						<i class="efb bi-arrow-repeat text-warning" style="font-size:32px;"></i>
+					</span>
+				</div>
+				<h3 class="efb text-warning" style="font-size:2em; margin:0 0 14px; font-weight:600;">'.$lang['addons'].'</h3>
+				<p class="efb text-info" style="font-size:1.5em; line-height:1.8; margin:0 0 18px; opacity:0.9;">'.$lang['wmaddon'].'</p>
+				<p class="efb text-warning" style="margin:0 0 12px; font-size:1.5em; font-weight:600;">
+				 <span id="efb-addon-countdown">03:00</span>
+				</p>
+				<hr style="border-color:rgba(255,255,255,0.1); margin:18px 0;">
+				<p class="efb" style="margin:0; font-size:0.95em;">
+					<a href="https://whitestudio.team/support/" target="_blank" class="efb text-info" style="text-decoration:none; font-weight:500;">
+						<i class="efb bi-headset mx-1"></i>'.$lang['contactUs'].'
+					</a>
+				</p>
+				<p class="efb text-pinkEfb" style="margin:12px 0 0; font-size:0.9em; font-weight:600;">
+					<i class="efb bi-plugin mx-1"></i>'.$lang['easyFormBuilder'].'
+				</p>
+			</div>
+		</div>
+		<script>
+		(function(){
+			if (window.efbAddonCountdownStarted) {
+				return;
+			}
+			window.efbAddonCountdownStarted = true;
+
+			var remaining = 180;
+			var node = document.getElementById("efb-addon-countdown");
+
+			function renderTimer() {
+				if (!node) {
+					node = document.getElementById("efb-addon-countdown");
+					if (!node) {
+						return;
+					}
+				}
+
+				var min = Math.floor(remaining / 60);
+				var sec = remaining % 60;
+				node.textContent = String(min).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+			}
+
+			renderTimer();
+
+			var intervalId = setInterval(function(){
+				remaining -= 1;
+				renderTimer();
+
+				if (remaining <= 0) {
+					clearInterval(intervalId);
+					window.location.reload();
+				}
+			}, 1000);
+		})();
+		</script>';
 	}
 
 	function admin_notice_msg_efb($s) {
@@ -3053,6 +3114,7 @@ public function addon_add_efb($value) {
 			'AdnADP' => 0,
 			'AdnPAP' => 0,
 			'AdnTLG' => 0,
+			'AdnATF' => 0,
 		];
 		if($ac!=null && isset($ac->AdnSPF)==true){
 			$addons['AdnSPF'] = isset($ac->AdnSPF) ? intval($ac->AdnSPF) : 0;
@@ -3065,8 +3127,9 @@ public function addon_add_efb($value) {
 			$addons["AdnATC"] = isset($ac->AdnATC) ? intval($ac->AdnATC) : 0;
 			$addons["AdnPDP"] = isset($ac->AdnPDP) ? intval($ac->AdnPDP) : 0;
 			$addons["AdnADP"] = isset($ac->AdnADP) ? intval($ac->AdnADP) : 0;
-			$addons["AdnPAP"]=  isset($ac->AdnPAP) ? intval($ac->AdnPAP) : 0;
-			$addons["AdnTLG"]=  isset($ac->AdnTLG) ? intval($ac->AdnTLG) : 0;
+			$addons["AdnPAP"] =  isset($ac->AdnPAP) ? intval($ac->AdnPAP) : 0;
+			$addons["AdnTLG"] =  isset($ac->AdnTLG) ? intval($ac->AdnTLG) : 0;
+			$addons['AdnATF'] =	isset($ac->AdnATF)	? intval($ac->AdnATF)	:0;
 		}
 
 		return $addons;

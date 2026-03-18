@@ -62,6 +62,74 @@ class Create {
 		}else{
 			$noti_pro = '<script>const noti_exp_efb="";</script>';
 		}
+
+		$lang = $efbFunction->text_efb(1);
+
+		$efbFunction->setting_version_efb_update($settings, $pro, true);
+		$download_addons = null;
+		if(isset($settings->AdnPAP) && $settings->AdnPAP==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
+				$download_addons = true;
+			}else{
+				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php");
+				$paypalefb = new paypalefb() ;
+			}
+		}
+		if(isset($settings->AdnPDP) && $settings->AdnPDP==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
+				$download_addons = true;
+			}else{
+				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+				$persianDatePicker = new persianDatePickerEFB() ;
+			}
+		}
+		if(isset($settings->AdnADP) && $settings->AdnADP==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+				$download_addons = true;
+			}else{
+				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+				$arabicDatePicker = new arabicDatePickerEfb() ;
+			}
+		}
+		if(isset($settings->AdnOF) && $settings->AdnOF==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/offline")) {
+				$download_addons = true;
+			}else{
+				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/offline/offline.php");
+				$offline = new offlineEfb() ;
+			}
+		}
+		if(isset($settings->AdnSPF) && $settings->AdnSPF==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {
+				$download_addons = true;
+			}
+		}
+		if(isset($settings->AdnTLG) && $settings->AdnTLG==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/telegram")) {
+				$download_addons = true;
+			}
+		}
+		if(isset($settings->AdnSS) && $settings->AdnSS==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
+				$download_addons = true;
+			}
+		}
+		if(isset($settings->AdnATF) && $settings->AdnATF==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
+				$download_addons = true;
+			}
+		}
+		if(isset($settings->AdnPPF) && $settings->AdnPPF==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay")) {
+				$download_addons = true;
+			}
+		}
+
+		if($download_addons === true){
+			 print $efbFunction->update_message_admin_side_efb();
+			 $efbFunction->download_all_addons_efb();
+			return;
+		}
 	?>
 	<!-- new code ddd -->
 	<style>
@@ -128,58 +196,14 @@ class Create {
 
 		$pro =$efbFunction->is_efb_pro(1);
 		$settings= get_setting_Emsfb('decoded');
+
 		$addons = $efbFunction->fun_get_addons_list_efb($settings);
 
 		if(isset($settings->osLocationPicker)==true && $settings->osLocationPicker==1){
 			$efbFunction->openstreet_map_required_efb(0);
 		}
 
-		$lang = $efbFunction->text_efb(1);
 
-		$efbFunction->setting_version_efb_update($settings, $pro, true);
-
-		if(isset($settings->AdnPDP) && $settings->AdnPDP==1){
-
-			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
-				$r = $efbFunction->update_message_admin_side_efb();
-
-				$efbFunction->download_all_addons_efb();
-				return 0;
-			}
-			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
-			$persianDatePicker = new persianDatePickerEFB() ;
-		}
-
-		if(isset($settings->AdnPDP) && $settings->AdnADP==1){
-			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
-				$r = $efbFunction->update_message_admin_side_efb();
-
-				$efbFunction->download_all_addons_efb();
-				return 0;
-			}
-			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
-			$arabicDatePicker = new arabicDatePickerEfb() ;
-		}
-
-		if(isset($settings->AdnSS) && $settings->AdnSS==1){
-			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
-				$r = $efbFunction->update_message_admin_side_efb();
-
-				$efbFunction->download_all_addons_efb();
-				return 0;
-			}
-		}
-
-		if(isset($settings->AdnPAP) && $settings->AdnPAP==1){
-			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
-				$r = $efbFunction->update_message_admin_side_efb();
-
-				$efbFunction->download_all_addons_efb();
-				return 0;
-			}
-			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal/paypalefb.php");
-			$paypalefb = new paypalefb() ;
-		}
 		$url =CDN_ZONE_AREA.'js/wp/countries.js';
 		if(isset($settings->AdnOF) && $settings->AdnOF==1){
 			$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
