@@ -1767,7 +1767,6 @@ class efbFunction {
 	}
 
 public function addon_add_efb($value) {
-    if ($value != "AdnOF") {
 
         if (!emsfb_is_addon_install_ready_efb()) {
             $status = emsfb_get_file_access_status_efb();
@@ -1883,7 +1882,7 @@ public function addon_add_efb($value) {
         } else {
             return array('status' => false, 'message' => $error_message);
         }
-    }
+
 }
 
 	   public function fun_addon_new($url){
@@ -1919,7 +1918,10 @@ public function addon_add_efb($value) {
 			$moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
 		}
 		if(!$moved){
-			@unlink($r);
+			if (file_exists($r) && !@unlink($r)) {
+				error_log('[EFB-ADDON] cleanup temp failed after move failure | file=' . $r);
+			}
+			error_log('[EFB-ADDON] move failed | url=' . $url);
 			return new WP_Error('move_failed',
 				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file', 'easy-form-builder')
 			);
@@ -1928,13 +1930,17 @@ public function addon_add_efb($value) {
 			WP_Filesystem();
 		}
 		$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
-		@unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
+		if (file_exists(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip') && !@unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip')) {
+			error_log('[EFB-ADDON] cleanup temp.zip failed after unzip');
+		}
 		if(is_wp_error($r)){
+			error_log('[EFB-ADDON] unzip failed | error=' . $r->get_error_message());
 			return new WP_Error('unzip_failed',
 				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder')
 				. ' (' . $r->get_error_message() . ')'
 			);
 		}
+		error_log('[EFB-ADDON] fun_addon_new success | url=' . $url);
 		return true;
 	}
 
@@ -1959,6 +1965,11 @@ public function addon_add_efb($value) {
 
 			if($value ==1){
 				$r =$this->addon_add_efb($key);
+				if(!is_array($r) || !isset($r['status'])){
+					$state=false;
+					error_log("Unexpected response format when downloading add-on $key: " . print_r($r, true));
+					continue;
+				}
 				if($r['status']==false){
 					$state=false;
 					$error_messag .= $r['message']."<br>";

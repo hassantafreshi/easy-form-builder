@@ -88,11 +88,8 @@ class Panel_edit  {
 					}
 			}
 			if(isset($ac->AdnOF) && $ac->AdnOF==1){
-					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/offline")) {
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/offline") || !file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/offline/json/countries.js")) {
 						$download_addons = true;
-					}else{
-						require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/offline/offline.php");
-						$offline = new offlineEfb() ;
 					}
 			}
 			if(isset($ac->AdnSPF) && $ac->AdnSPF==1){
