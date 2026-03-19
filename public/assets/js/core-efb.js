@@ -1383,6 +1383,21 @@ post_api_r_message_efb=(data,message)=>{
 }
 
 document.addEventListener("DOMContentLoaded",async function() {
+  // Store admin sc before cleaning URL, for later use in response submissions
+  const _urlParams = new URLSearchParams(window.location.search);
+  if (_urlParams.has('sc')) {
+    sessionStorage.setItem('efb_sc', _urlParams.get('sc'));
+  }
+  // Clean admin-related params from URL
+  if (_urlParams.has('sc') || _urlParams.has('user')) {
+    _urlParams.delete('sc');
+    _urlParams.delete('user');
+    const _cleanUrl = _urlParams.toString()
+      ? window.location.pathname + '?' + _urlParams.toString()
+      : window.location.pathname;
+    window.history.replaceState(null, '', _cleanUrl);
+  }
+
   let elements = document.querySelectorAll('#body_efb');
   const msg = `<h3 class="efb fs-5 text-center text-dark bg-warning m-3 p-3">${ajax_object_efm.text.fetf} <div class='efb mt-1 fs-6'> ${ajax_object_efm.text.easyFormBuilder}</div> </h3>`
   fun =()=>{

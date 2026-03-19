@@ -1384,7 +1384,7 @@ function fun_show_setting__emsFormBuilder() {
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="showIp_emsFormBuilder">${efb_var.text.sips}</label>
                                 </div> -->
                                <div class="efb card-body my-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="adminSN_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${adminSN != true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >
+                                  <button type="button" id="adminSN_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${adminSN == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >
                                   <div class="efb handle"></div>
                                   </button>
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="adminSN_emsFormBuilder">${efb_var.text.admines}</label>

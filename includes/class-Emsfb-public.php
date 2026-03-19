@@ -508,6 +508,7 @@ public function check_nonce_permission_efb($request) {
 			$state_form = 'not';
 			$admin_form = false;
 			$admin_sc = null;
+			$admin_verified = false;
 			$is_track = null;
 			$state="form";
 			$rgister_captcha_url = false;
@@ -519,7 +520,7 @@ public function check_nonce_permission_efb($request) {
 				if(isset($_GET['user'])  && sanitize_text_field( wp_unslash( $_GET['user'] ) ) == "admin" ) $admin_form = true;
 				if(isset($_GET['sc'])) $admin_sc = sanitize_text_field(wp_unslash($_GET['sc']));
 			}elseif (isset($_GET['state'])){
-				$admin_sc = sanitize_text_field(wp_unslash($_GET['sc']));
+				$admin_sc = isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : null;
 				$username =isset($_GET['username']) ?  sanitize_text_field(wp_unslash($_GET['username'])) : 'null';
 				$state = sanitize_text_field(wp_unslash($_GET['state']));
 				$fid = sanitize_text_field(wp_unslash($_GET['fid']));
@@ -528,8 +529,29 @@ public function check_nonce_permission_efb($request) {
 				return $val;
 			}
 
-			if(( is_user_logged_in()==false && $admin_form==true && $admin_sc==null)){
+			// Verify admin sc (secure code from email link)
+			if ($admin_sc !== null && $state === 'track' && strlen($state_form) > 5) {
+				$sc_setting = get_setting_Emsfb('decoded');
+				if (isset($sc_setting->email_key) && strlen($sc_setting->email_key) > 3) {
+					$expected_sc = md5($state_form . $sc_setting->email_key);
+					if (hash_equals($expected_sc, $admin_sc)) {
+						$admin_verified = true;
+						$admin_form = true;
+					}
+				}
+			}
 
+			// Determine admin access
+			$adminSN_enabled = false;
+			if (!isset($sc_setting)) $sc_setting = get_setting_Emsfb('decoded');
+			if (isset($sc_setting->adminSN)) $adminSN_enabled = (bool) $sc_setting->adminSN;
+
+
+			// If user=admin without valid sc → must be logged in as admin
+			if ($admin_form && !$admin_verified) {
+				if (is_user_logged_in() && current_user_can('administrator')) {
+					$admin_verified = true;
+				} else if (!is_user_logged_in()) {
 				$overrides = $this->efb_build_inline_style_overrides();
 				$pl_warn = get_setting_Emsfb('pub');
 				$ps_warn = $pl_warn[1] ?? [];
@@ -561,7 +583,48 @@ public function check_nonce_permission_efb($request) {
 					<p style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
 					          font-size:" . esc_attr($warn_font_size) . "; margin:0; text-align:center;'></p>
 				</div>";
+				} else {
+					$admin_form = false;
+				}
 			}
+
+			// If adminSN is enabled and admin verified via sc but not logged in → require login
+			if ($adminSN_enabled && $admin_verified && !is_user_logged_in()) {
+				$admin_verified = false;
+				$admin_form = false;
+
+				$overrides = $this->efb_build_inline_style_overrides();
+				$pl_warn = get_setting_Emsfb('pub');
+				$ps_warn = $pl_warn[1] ?? [];
+				$warn_text_color  = !empty($ps_warn['respText'])       ? $ps_warn['respText']       : '#1a1a2e';
+				$warn_bg_color    = !empty($ps_warn['respBgCard'])     ? $ps_warn['respBgCard']     : '#ffffff';
+				$warn_primary     = !empty($ps_warn['respPrimary'])    ? $ps_warn['respPrimary']    : '#3644d2';
+				$warn_muted       = !empty($ps_warn['respTextMuted'])  ? $ps_warn['respTextMuted']  : '#657096';
+				$warn_font_family = !empty($ps_warn['respFontFamily']) ? $ps_warn['respFontFamily'] : 'inherit';
+				$warn_font_size   = !empty($ps_warn['respFontSize'])  ? $ps_warn['respFontSize']   : '0.9rem';
+
+				return $overrides['font_link'] . $overrides['inline_style'] . "
+				<div id='body_efb' class='efb card-public efb'
+				     style='display:flex; flex-direction:column; align-items:center; justify-content:center;
+				            color:" . esc_attr($warn_text_color) . "; background-color:" . esc_attr($warn_bg_color) . ";
+				            font-family:" . esc_attr($warn_font_family) . "; font-size:" . esc_attr($warn_font_size) . ";
+				            padding: 40px 20px; border-radius: 12px;
+				            box-shadow: 0 2px 16px rgba(0,0,0,0.07); text-align:center;'>
+					<div style='margin-bottom:18px; text-align:center;'>
+						<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' fill='" . esc_attr($warn_primary) . "' viewBox='0 0 16 16' style='display:inline-block;'>
+							<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM8 4a.905.905 0 0 1 .9.995l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/>
+						</svg>
+					</div>
+					<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
+					           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
+					           margin:0 0 10px 0; text-align:center;'>"
+					    . esc_html__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder') .
+					"</h3>
+					<p style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
+					          font-size:" . esc_attr($warn_font_size) . "; margin:0; text-align:center;'></p>
+				</div>";
+			}
+
 			if(empty($this->db)){
 				global $wpdb;
 				$this->db = $wpdb;
@@ -743,7 +806,12 @@ public function check_nonce_permission_efb($request) {
 				$send=array();
 			$content_new="";
 			$values ="";
-			$is_user = is_user_logged_in() || ( $admin_form && $state == "track") ? (current_user_can('administrator') ? 'admin' : 'user') : 'guest';
+			$is_user = 'guest';
+			if ($admin_verified) {
+				$is_user = 'admin';
+			} else if (is_user_logged_in()) {
+				$is_user = current_user_can('administrator') ? 'admin' : 'user';
+			}
 			$username = is_user_logged_in() ? wp_get_current_user()->user_login : 'guest';
 			if ($is_track==null){
 
@@ -3118,10 +3186,10 @@ public function check_nonce_permission_efb($request) {
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
 		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
-        'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
+        'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN' ,'guest']: $this->text_;
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
-		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :  'guest';
+		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :'guest';
 		$sc = isset($data_POST['sc']) ? sanitize_text_field($data_POST['sc']) : 'null';
 		$track = sanitize_text_field($data_POST['track']);
 
@@ -3252,7 +3320,26 @@ public function check_nonce_permission_efb($request) {
 					$link_w = (is_array($lst) && isset($lst['type']) && $lst['type'] == "w_link") ? $lst['value'] : 'null';
 				}
 				$table_name = $this->db->prefix . "emsfb_rsp_";
-				$read_s = $rsp_by=='admin' ? 1 :0;
+
+				// Server-side admin verification: don't trust client user_type
+				$admin_verified_rsp = false;
+				if (is_user_logged_in() && current_user_can('administrator')) {
+					$admin_verified_rsp = true;
+					$rsp_by = 'admin';
+				} else if ($sc !== 'null' && !empty($sc) && isset($this->setting->email_key) && strlen($this->setting->email_key) > 3) {
+					$expected_sc_rsp = md5($track . $this->setting->email_key);
+					if (hash_equals($expected_sc_rsp, $sc)) {
+						$admin_verified_rsp = true;
+						$rsp_by = 'admin';
+					} else {
+						$response = array('success' => false, 'm' => $this->lanText['error405']);
+						wp_send_json_success($response, 200);
+					}
+				} else {
+					$rsp_by = is_user_logged_in() ? 'user' : 'guest';
+				}
+
+				$read_s = $admin_verified_rsp ? 1 : 0;
 				$by=$this->lanText['guest'];
 				$table_emsfb_msg_ = $this->db->prefix . "emsfb_msg_";
 
@@ -3271,19 +3358,11 @@ public function check_nonce_permission_efb($request) {
 					);
 				}
 				if($read_s==1){
-					$by = get_user_by('id',$this->efb_uid);
-				}
-				if($sc!='null'){
-					$email_key = $this->setting->email_key;
-					$md5 = md5($track.$email_key);
-					if ($md5==$sc){
-						$read_s =1;
-						if($this->efb_uid==0) $this->efb_uid = -1;
+					if($this->efb_uid > 0) {
+						$by = get_user_by('id',$this->efb_uid);
+					} else {
+						$this->efb_uid = -1;
 						$by = $this->lanText['spprt'];
-						$rsp_by ='admin';
-					}else{
-						$response = array( 'success' => false  , 'm'=>$this->lanText['error405']);
-					    wp_send_json_success($response,200);
 					}
 				}
 				$this->db->insert($table_name, array(
@@ -3502,14 +3581,8 @@ public function check_nonce_permission_efb($request) {
 			$trackParam = $isRegistrationState ? '' : urlencode($track);
 			$link_w[$i] = strpos($link,'?')!=false ? $link . ($trackParam ? '&track='.$trackParam : '') : $link . ($trackParam ? '?track='.$trackParam : '');
 			if($i==0){
-					$s= isset($this->setting->adminSN) ? $this->setting->adminSN : 0 ;
-
-				if( $s== false || ($s==true && intval($this->setting->adminSN)==1)){
-					$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'user=admin';
-				}else{
-					$sc = $this->genrate_sacure_code_admin_email($track);
-					$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'user=admin&sc='.$sc;
-				}
+				$sc = $this->genrate_sacure_code_admin_email($track);
+				$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'sc='.$sc;
 			}
 		}else{
 			$link_w[$i] = $homeUrl;
@@ -5110,6 +5183,7 @@ public function check_nonce_permission_efb($request) {
 			'page_builder'=>$page_builder,
 			'is_user'=> $is_user,
 			'user_name' => $username,
+			'admin_sc' => isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : '',
 			'nonce' => wp_create_nonce('wp_rest'),
 
 			'respPrimary' => $pub_settings['respPrimary'] ?? '#3644d2',
