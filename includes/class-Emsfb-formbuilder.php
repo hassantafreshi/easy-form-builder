@@ -50,7 +50,7 @@
 	}
 
 	private function generateTooltip_efb($rndm) {
-		return '<small id="' . $rndm . '_-message" class="efb py-1 fs-7 tx ttiptext px-2"> ! </small>';
+		return '<small id="' . $rndm . '_-message" class="efb py-1 fs-7 tx ttiptext px-2" style="display:none"> ! </small>';
 	}
 
 	private function generateDivFId_efb($rndm, $pos, $mobile_pos = null) {
@@ -82,7 +82,7 @@
 				$type = $isTextType ? 'text' : $elementId;
 				$autocomplete = $this->generateAutocomplete_efb($elementId);
 				$placeholder = $isPlaceholderType ? sprintf('placeholder="%s"', $vj->placeholder) : '';
-				$telPattern = ($elementId === 'tel') ? 'pattern="^\+?[0-9\-\s().]{7,25}$"' : '';
+				$telPattern = ($elementId === 'tel') ? 'pattern="^\+?(?:[0-9]|\s|\.|\(|\)|-){7,25}$"' : '';
 				$lenAttributes = $this->generateLengthAttributes_efb($elementId, $vj);
 				$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
 
@@ -1156,8 +1156,7 @@
 					elem.classList.remove("border-danger");
 					elem.classList.remove("border-success");
 					messageElem.innerHTML = "";
-					messageElem.classList.remove("d-block");
-					messageElem.classList.add("d-none");
+					messageElem.style.display = "none";
 					if (elem.value.trim()) {
 						if (iti.isValidNumber()) {
 							elem.classList.add("border-success");
@@ -1183,8 +1182,7 @@
 							elem.classList.add("border-danger");
 							let errorCode = iti.getValidationError();
 							errorCode = errorMap[errorCode] ? errorMap[errorCode] : errorMap[0];
-							messageElem.classList.remove("d-none");
-							messageElem.classList.add("d-block");
+							messageElem.style.display = "block";
 							messageElem.innerHTML = errorCode;
 							let inx = get_row_sendback_by_id_efb("%2$s");
 							if (inx !== -1) {

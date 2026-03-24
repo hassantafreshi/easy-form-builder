@@ -292,7 +292,7 @@ function ui_dadfile_efb(indx, previewSate,form_id) {
 function viewfileEfb(id, indx ,filed,form_id) {
   const valj_efb = get_structure_by_form_id_efb(form_id);
     if(filed==undefined) {
-      document.getElementById(`${valj_efb[indx].id_}_-message`).classList.remove('show')
+      document.getElementById(`${valj_efb[indx].id_}_-message`).style.display='none'
       return;}
     const filename =  filed.name ;
     let fileType =valj_efb[indx].file=='customize' ? filename.slice(filename.lastIndexOf('.') + 1) : filed.type;
@@ -327,14 +327,14 @@ function viewfileEfb(id, indx ,filed,form_id) {
       }
       fileReader.readAsDataURL(filed);
       document.getElementById(`${id}_-message`).innerHTML = "";
-      document.getElementById(`${id}_-message`).classList.remove('show')
+      document.getElementById(`${id}_-message`).style.display='none'
 
     } else {
       let t_m = valj_efb[indx].file!='customize'? valj_efb[indx].file : valj_efb[indx].file_ctype;
       t_m = t_m.replaceAll(',',` ${efb_var.text.or} `);
       const m  = efb_var.text.pleaseUploadA.replace('NN', t_m);
       document.getElementById(`${id}_-message`).innerHTML = m;
-      if(document.getElementById(`${id}_-message`).classList.contains('show'))document.getElementById(`${id}_-message`).classList.add('show');
+      document.getElementById(`${id}_-message`).style.display='block';
       alert_message_efb('', m, 4, 'danger')
       document.getElementById(`${id}_box`).classList.remove("active");
       fileEfb = [];
@@ -1538,7 +1538,7 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
 
     const el = document.getElementById(`${id}-sig-data`);
     const value = el.value;
-    document.getElementById(`${id}_-message`).classList.remove('show');
+    document.getElementById(`${id}_-message`).style.display='none';
     const o = [{ id_: id, name: v.name, amount: v.amount, type: v.type, value: value, session: sessionPub_emsFormBuilder, form_id: form_id }];
     fun_sendBack_emsFormBuilder(o[0]);
   }, false);

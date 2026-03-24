@@ -5355,7 +5355,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let dataTag = 'text'
   const desc = `<small id="${rndm}-des" class="efb  form-text d-flex  fs-7 col-sm-12 efb ${previewSate == true && pos[1] == 'col-md-4' || valj_efb[iVJ].message_align != "justify-content-start" ? `` : `mx-4`}  ${valj_efb[iVJ].message_align}  ${valj_efb[iVJ].message_text_color} ${ valj_efb[iVJ].hasOwnProperty('message_text_size') ? valj_efb[iVJ].message_text_size : ''} ">${valj_efb[iVJ].message} </small> `;
   const  label = `<label for="${rndm}_" class="efb mx-0 px-0 pt-2 pb-1  ${previewSate == true ? pos[2] :"col-md-12"} col-sm-12 col-form-label ${valj_efb[iVJ].hasOwnProperty('hflabel') && Number(valj_efb[iVJ].hflabel)==1 ? 'd-none' :''} ${valj_efb[iVJ].label_text_color} ${valj_efb[iVJ].label_align} ${valj_efb[iVJ].label_text_size != "default" ? valj_efb[iVJ].label_text_size : ''} " id="${rndm}_labG" ><span id="${rndm}_lab" class="efb  ${valj_efb[iVJ].label_text_size}">${valj_efb[iVJ].name}</span><span class="efb  mx-1 text-danger" id="${rndm}_req" role='none'>${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? '*' : ''}</span></label>`
-  const ttip = `<small id="${rndm}_-message" class="efb py-1 fs-7 tx ttiptext px-2"> ! </small>`
+  const ttip = `<small id="${rndm}_-message" class="efb py-1 fs-7 tx ttiptext px-2" style="display:none"> ! </small>`
   const rndm_1 = Math.random().toString(36).substr(2, 9);
   const rndm_2 = Math.random().toString(36).substr(2, 9);
   const op_3 = Math.random().toString(36).substr(2, 9);
@@ -6483,19 +6483,19 @@ async function fun_validation_efb() {
           el.classList.add('unpx');
         }
         el.innerHTML = msg;
-        if(!el.classList.contains('show'))el.classList.add('show');
+        el.style.display='block';
         if (type_validate_efb(valj_efb[row].type) == true) {
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");}
       } else {
         idi = valj_efb[row].id_;
         el.innerHTML = "";
-        el.classList.remove('show');
+        el.style.display='none';
         if (type_validate_efb(valj_efb[row].type) == true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-success");
         const v = sendBack_emsFormBuilder_pub.length>0 && valj_efb[row].type == "multiselect" && sendBack_emsFormBuilder_pub[s].hasOwnProperty('value') ? sendBack_emsFormBuilder_pub[s].value.split("@efb!") :"";
         if ((valj_efb[row].type == "multiselect" || valj_efb[row].type == "payMultiselect") && (v.length - 1) < valj_efb[row].minSelect) {
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");
           el.innerHTML = efb_var.text.minSelect + " " + valj_efb[row].minSelect
-          if(!el.classList.contains('show'))el.classList.add('show');
+          el.style.display='block';
           if (state == true) { state = false; idi = valj_efb[row].id_ }
         }
       }
@@ -7286,7 +7286,7 @@ function previewFormEfb(state) {
 
             const el = document.getElementById(`${v.id_}-sig-data`);
             const value = el.value;
-            document.getElementById(`${v.id_}_-message`).classList.remove('show');
+            document.getElementById(`${v.id_}_-message`).style.display='none';
             const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: value, session: sessionPub_emsFormBuilder }];
             fun_sendBack_emsFormBuilder(o[0]);
           }, false);
