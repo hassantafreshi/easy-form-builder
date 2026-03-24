@@ -2417,10 +2417,14 @@ public function check_nonce_permission_efb($request) {
 						$this->email_list_efb($email_recipients, 1, $user_email_address, true);
 					}
 					$ip = $this->ip = $this->get_ip_address();
+					$style_trackingCode = "date_en_mix";
+					if (is_object($this->setting) && isset($this->setting->trackCodeStyle)) {
+							$style_trackingCode = $this->setting->trackCodeStyle;
+					}
 
 					switch ($submission_type) {
 						case "form":
-							$track_code = $this->insert_message_db(0, false);
+							$track_code = $this->insert_message_db(0, false, $style_trackingCode);
 							$nonce_token = wp_create_nonce($track_code);
 							$this->efbFunction->efb_code_validate_update($session_id, 'send', $track_code);
 							$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'ip' => $ip, 'nonce' => $nonce_token];
@@ -2624,7 +2628,7 @@ public function check_nonce_permission_efb($request) {
 									if ($email != "null") {
 
 										$this->ip = $this->get_ip_address();
-										$track_code = $this->insert_message_db(0, false);
+										$track_code = $this->insert_message_db(0, false, $style_trackingCode);
 										$to = $email;
 
 										$this->email_list_efb($email_recipients, 1, $email, true);
@@ -2727,7 +2731,7 @@ public function check_nonce_permission_efb($request) {
 								break;
 
 						case "subscribe":
-									$track_code=	$this->insert_message_db(0,false);
+									$track_code=	$this->insert_message_db(0,false,$style_trackingCode);
 									$response = array( 'success' => true , 'm' =>$this->lanText['done']);
 									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
 									$this->efbFunction->efb_code_validate_update($session_id ,'nwltr' ,'nwltr' );
@@ -2744,7 +2748,7 @@ public function check_nonce_permission_efb($request) {
 								break;
 						case "survey":
 
-									$track_code=	$this->insert_message_db(0,false);
+									$track_code=	$this->insert_message_db(0,false,$style_trackingCode);
 									$response = array( 'success' => true , 'm' =>$this->lanText['surveyComplatedM']);
 									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
 
@@ -2889,9 +2893,12 @@ public function check_nonce_permission_efb($request) {
 			}
 
 	  }
-	public function insert_message_db($read,$uniqid){
+	public function insert_message_db($read,$uniqid,$style_trackingCode){
 		if(isset($read)==false) $read=0;
-		if($uniqid==false) $uniqid= date("ymd").substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
+
+		if($uniqid==false){
+			$uniqid = $this->generate_track_code_efb($style_trackingCode);
+		}
 		if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
@@ -2907,6 +2914,66 @@ public function check_nonce_permission_efb($request) {
 			'date'=>wp_date('Y-m-d H:i:s')
 		));    return $uniqid;
 	}
+
+	private function generate_track_code_efb($style = 'date_en_mix') {
+		/* if (is_object($this->setting) && isset($this->setting->trackCodeStyle)) {
+			$style = $this->setting->trackCodeStyle;
+		} else {
+			$settings = get_setting_Emsfb('decoded');
+			if (is_object($settings) && isset($settings->trackCodeStyle)) {
+				$style = $settings->trackCodeStyle;
+			}
+		} */
+		$dp = wp_date('ymd');
+		$len = 5;
+		$local ='';
+		$en_styles = ['date_en_mix','unique_num','date_num'];
+		if(!in_array($style, $en_styles)){
+			$local = get_locale_script_chars_efb();
+		}
+
+		$en = str_split('ASDFGHJKLQWERTYUIOPZXCVBNM');
+
+		switch ($style) {
+			case 'date_num':
+				return $dp . '-' . str_pad((string) wp_rand(10000, 99999), 5, '0', STR_PAD_LEFT);
+
+			case 'date_local_mix':
+				if (!$local) return $dp . substr(str_shuffle('0123456789ASDFGHJKLQWERTYUIOPZXCVBNM'), 0, $len);
+				$ld = $local['digits'] ? strtr($dp, array_combine(range(0,9), $local['digits'])) : $dp;
+				$pool = $local['alpha'];
+				$pool = array_merge($pool, $local['digits'] ?: str_split('0123456789'));
+				shuffle($pool);
+				return $ld . implode('', array_slice($pool, 0, $len));
+
+			case 'date_local_alpha':
+				if (!$local) return $dp . substr(str_shuffle('ASDFGHJKLQWERTYUIOPZXCVBNM'), 0, $len);
+				$pool = $local['alpha'];
+				shuffle($pool);
+				return $dp . implode('', array_slice($pool, 0, $len));
+
+			case 'date_local_num':
+				$rand = str_pad((string) wp_rand(10000, 99999), 5, '0', STR_PAD_LEFT);
+				if (!$local || !$local['digits']) return $dp . '-' . $rand;
+				$ld = strtr($dp, array_combine(range(0,9), $local['digits']));
+				$lr = strtr($rand, array_combine(range(0,9), $local['digits']));
+				return $ld . '-' . $lr;
+
+			case 'unique_num':
+				return (string)(intval($dp) * 100000 + wp_rand(10000, 99999));
+
+			case 'local_mix':
+				if (!$local) return substr(str_shuffle('0123456789ASDFGHJKLQWERTYUIOPZXCVBNM'), 0, 11);
+				$pool = array_merge($local['alpha'], $local['digits'] ?: str_split('0123456789'));
+				shuffle($pool);
+				return implode('', array_slice($pool, 0, 11));
+
+			case 'date_en_mix':
+			default:
+				return $dp . substr(str_shuffle('0123456789ASDFGHJKLQWERTYUIOPZXCVBNM'), 0, $len);
+		}
+	}
+
 	public function update_message_db(){
 		if(empty($this->db)){
             global $wpdb;

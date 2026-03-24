@@ -222,3 +222,9 @@ if (!function_exists('get_setting_Emsfb')) {
             }
     }
 }
+
+if (!function_exists('get_locale_script_chars_efb')) {
+    function get_locale_script_chars_efb() {
+        return Emsfb::get_locale_script_chars_efb();
+    }
+}

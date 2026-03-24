@@ -65,6 +65,13 @@ class Create {
 
 		$lang = $efbFunction->text_efb(1);
 
+		$settings = get_setting_Emsfb('decoded');
+		//clean emailtemplate from settings  "emailTemp"
+		if (isset($settings->emailTemp)) {
+			unset($settings->emailTemp);
+		}
+
+		$pro = $efbFunction->is_efb_pro(1);
 		$efbFunction->setting_version_efb_update($settings, $pro, true);
 		$download_addons = null;
 		if(isset($settings->AdnPAP) && $settings->AdnPAP==1){
@@ -190,9 +197,6 @@ class Create {
 		<?php
 
 		$maps =false;
-
-		$pro =$efbFunction->is_efb_pro(1);
-		$settings= get_setting_Emsfb('decoded');
 
 		$addons = $efbFunction->fun_get_addons_list_efb($settings);
 

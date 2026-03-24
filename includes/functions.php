@@ -1273,6 +1273,24 @@ class efbFunction {
 			/* translators: Select Duration = placeholder text for session duration dropdown */
 			"selectDuration" => $state && isset($ac->text->selectDuration) ? $ac->text->selectDuration : esc_html__('Select Duration','easy-form-builder'),
 
+			/* translators: %s is the feature name (e.g., Confirmation Code) */
+			"trackCodeStyleDesc" => $state && isset($ac->text->trackCodeStyleDesc) ? $ac->text->trackCodeStyleDesc : esc_html__('Choose the style for the %s.','easy-form-builder'),
+
+			/* translators: %1$s + %2$s = pattern for composing code option labels like "Date + Random Numbers" */
+			"trackCodeDatePlus" => $state && isset($ac->text->trackCodeDatePlus) ? $ac->text->trackCodeDatePlus : esc_html__('%1$s + %2$s','easy-form-builder'),
+
+			/* translators: %1$s %2$s & %3$s = pattern for composing labels like "Local Letters & Numbers" */
+			"trackCodeTriple" => $state && isset($ac->text->trackCodeTriple) ? $ac->text->trackCodeTriple : esc_html__('%1$s %2$s & %3$s','easy-form-builder'),
+
+			/* translators: Letters = alphabet characters */
+			"tLetters" => $state && isset($ac->text->tLetters) ? $ac->text->tLetters : esc_html__('Letters','easy-form-builder'),
+
+			/* translators: Unique Number = a unique numeric identifier (date-based) */
+			"uniqueNum" => $state && isset($ac->text->uniqueNum) ? $ac->text->uniqueNum : esc_html__('Unique Number (date-based)','easy-form-builder'),
+
+			"trackCodeLocalChars" => implode('', (get_locale_script_chars_efb() ?: ['alpha' => []])['alpha']),
+			"trackCodeLocalDigits" => implode('', (get_locale_script_chars_efb() ?: ['digits' => null])['digits'] ?: []),
+
 			/* translators: Colors & Fonts = heading for the color and font section */
 			"respColors" => $state && isset($ac->text->respColors) ? $ac->text->respColors : esc_html__('Colors & Fonts','easy-form-builder'),
 

@@ -252,6 +252,20 @@ No personal or form submission data is sent to this external source. The CDN is 
 = Where can I find documentation and support? =
 For full setup instructions, and guides visit [ Easy Form Builder Documentation](https://whitestudio.team/documents)
 
+= What are the different confirmation code styles and how do I customize confirmation code (or tracking code) in my WordPress form submissions? =
+Easy Form Builder WordPress plugin includes seven confirmation code (or tracking code) styles with locale-aware character support for submitted forms. Each tracking ID style can use characters from 55+ languages including Chinese, Japanese, Korean, Russian, Hebrew, Hindi, Persian, Arabic, Bengali, Gujarati, Punjabi, Tamil, Telugu, Kannada, Malayalam, Greek, Thai, Khmer, Lao, Myanmar, Georgian, Armenian, and more.
+
+When users submit forms through the Easy Form Builder WordPress plugin, they receive a unique tracking code or confirmation code based on your chosen style. The seven available confirmation code styles for form submissions are:
+- Date + Random Number
+- Date + National Language Letters & Random Number
+- Date + National Language Letters Only
+- Date + English Characters
+- Date + National Random Numbers
+- Unique Number (date-based)
+- National Language Letters & Random Number
+
+In the Easy Form Builder plugin settings, you can choose your preferred confirmation code style from the form submission tracking options. The plugin automatically selects characters based on your website's language/locale, making it ideal for multilingual and RTL (right-to-left) language WordPress websites. This feature improves code readability and user experience when users submit forms, displaying confirmation codes and tracking IDs in the visitor's native language and script.
+
 
 == Installation ==
 

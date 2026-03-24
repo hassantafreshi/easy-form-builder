@@ -330,6 +330,9 @@ class Admin {
         $text = ["error403","done","invalidRequire","upDMsg"];
         $lang= $efbFunction->text_efb($text);
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
 
         $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
@@ -439,6 +442,9 @@ class Admin {
         $text = ["error403","done","invalidRequire"];
         $lang= $efbFunction->text_efb($text);
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+            unset($ac->emailTemp);
+        }
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
             $m = $lang['error403'];
@@ -932,6 +938,9 @@ class Admin {
 
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
         $text = ["notFound","error403"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -990,6 +999,9 @@ class Admin {
     public function clear_garbeg_admin() {
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
         $text = ["fileDeleted","error403"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1290,6 +1302,9 @@ class Admin {
     public function fun_duplicate_Emsfb(){
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
         $text = ["error403","somethingWentWrongPleaseRefresh","copy"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1345,6 +1360,10 @@ class Admin {
     public function delete_messages_Emsfb(){
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
+
         $text = ["error403","somethingWentWrongPleaseRefresh","delete"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1389,6 +1408,9 @@ class Admin {
     public function read_list_Emsfb(){
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
         $text = ["error403","somethingWentWrongPleaseRefresh","done"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
