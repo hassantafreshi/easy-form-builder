@@ -396,12 +396,10 @@ async function createStepsOfPublic() {
 }
 async function fun_sendBack_emsFormBuilder(ob) {
   if(typeof ob=='string' || ob.hasOwnProperty('value')==false ){
-    console.log('[fun_sendBack_emsFormBuilder] Invalid object - returning');
     return;
   }
   normalize_sendback_row_form_id_efb(ob, form_ID_emsFormBuilder || -1);
   const form_id = ob.form_id || -1;
-  console.log('[fun_sendBack_emsFormBuilder] Storing data - Field:', ob.id_, 'Value:', ob.value, 'Type:', ob.type, 'Form:', form_id);
   remove_ttmsg_efb(ob.id_)
   if(ob.hasOwnProperty('value') && typeof(ob.value)!='number' && typeof(ob.value)!='object' && typeof(ob.value)!='string') {ob.value=fun_text_forbiden_convert_efb(ob.value);
   }else if(ob.hasOwnProperty('value') && ( typeof(ob.value)=='object') &&  ob.type=="maps" ){
@@ -439,7 +437,6 @@ async function fun_sendBack_emsFormBuilder(ob) {
   } else {
     sendBack_emsFormBuilder_pub.push(ob);
   }
-  console.log('[fun_sendBack_emsFormBuilder] After storage - sendBack_emsFormBuilder_pub:', sendBack_emsFormBuilder_pub.map(x => ({id_: x.id_, value: x.value, form_id: x.form_id})));
   if (Number(form_id) > 0 && typeof updateStepButtonState_efb === 'function') {
     // Some controls (like switch/multiselect callbacks) store values without passing through handle_change_event_efb_v4.
     // Re-evaluate submit button state after every successful store to remove order-dependent behavior.
@@ -1469,109 +1466,9 @@ function updateStepButtonState_efb(form_id) {
     var body_efb = document.getElementById(id_body);
     if (!body_efb) return;
 
-    var valj = get_structure_by_form_id_efb(form_id);
-    if (!valj || !valj[0]) return;
-
-    var max_step = Number(valj[0].steps) || 1;
-    var currentStep = Number(body_efb.dataset.currentstep) || 1;
-
     // Backfill missing form_id on legacy rows (commonly multiselect) so required checks can find them.
     for (var bi = 0; bi < sendBack_emsFormBuilder_pub.length; bi++) {
       normalize_sendback_row_form_id_efb(sendBack_emsFormBuilder_pub[bi], form_id);
-    }
-
-    console.log('[updateStepButtonState_efb] Form ID:', form_id, 'Max Step:', max_step, 'Current Step:', currentStep);
-
-    var next_btn = body_efb.querySelector('#next_efb');
-    var send_btn = body_efb.querySelector('#btn_send_efb');
-    var target_btn = null;
-
-    if (currentStep < max_step && next_btn) {
-      target_btn = next_btn;
-    } else if (currentStep === max_step && send_btn) {
-      target_btn = send_btn;
-    } else if (next_btn) {
-      target_btn = next_btn;
-    }
-
-    if (!target_btn) return;
-
-    var hasValidationErrors = false;
-    for (var si = 0; si < sendback_efb_state.length; si++) {
-      var entry = sendback_efb_state[si];
-      if (entry && Number(entry.form_id) === Number(form_id) && entry.state === false) {
-        var fieldInStep = valj.find(function(v) {
-          return v.id_ === entry.id_ && Number(v.step) === currentStep;
-        });
-        if (fieldInStep) {
-          hasValidationErrors = true;
-          break;
-        }
-      }
-    }
-
-    if (hasValidationErrors) {
-      if (!target_btn.classList.contains('disabled')) {
-        target_btn.classList.add('disabled');
-      }
-      return;
-    }
-
-    var requiredFields = valj.filter(function(v) {
-      return Number(v.step) === currentStep &&
-             Number(v.required) === 1 &&
-             v.type !== 'step' &&
-             v.type !== 'option' &&
-             v.type !== 'form';
-    });
-    console.log('[updateStepButtonState_efb] Required Fields for Current Step:', requiredFields.map(f => ({id_: f.id_, name: f.name, required: f.required, step: f.step})));
-
-    var allRequiredFilled = true;
-    console.log('[updateStepButtonState_efb] sendBack_emsFormBuilder_pub:', sendBack_emsFormBuilder_pub.map(x => ({id_: x.id_, name: x.name, value: x.value, form_id: x.form_id})));
-    for (var ri = 0; ri < requiredFields.length; ri++) {
-      var field = requiredFields[ri];
-      var fieldId = field.id_;
-
-      if (field.type === 'file' || field.type === 'dadfile') {
-        var fileIdx = files_emsFormBuilder.findIndex(function(f) { return f.id_ === fieldId; });
-        console.log('[updateStepButtonState_efb] File Check - fieldId:', fieldId, 'fileIdx:', fileIdx);
-        if (fileIdx === -1 || (files_emsFormBuilder[fileIdx].hasOwnProperty('state') && Number(files_emsFormBuilder[fileIdx].state) === 0)) {
-          allRequiredFilled = false;
-          console.log('[updateStepButtonState_efb] File not filled - fieldId:', fieldId);
-          break;
-        }
-      } else {
-        var sbIdx = sendBack_emsFormBuilder_pub.findIndex(function(x) {
-          return x != null && x.hasOwnProperty('id_') && x.id_ === fieldId && Number((x.hasOwnProperty('form_id') ? x.form_id : infer_form_id_by_field_efb(x.id_))) === Number(form_id);
-        });
-        var sbRow = sbIdx !== -1 ? sendBack_emsFormBuilder_pub[sbIdx] : null;
-        var fieldFilled = is_required_value_filled_efb(sbRow, field.type);
-        console.log('[updateStepButtonState_efb] Field Check - fieldId:', fieldId, 'found at index:', sbIdx, 'filled:', fieldFilled, 'in form:', form_id);
-        if (sbIdx === -1 || fieldFilled === false) {
-          allRequiredFilled = false;
-          console.log('[updateStepButtonState_efb] Required field NOT filled:', fieldId, 'value:', sbRow ? sbRow.value : undefined);
-          break;
-        }
-      }
-    }
-
-    if (allRequiredFilled && currentStep === max_step && Number(valj[0].captcha) === 1) {
-      var hasCaptcha = sendBack_emsFormBuilder_pub.findIndex(function(x) {
-        return x != null && x.id_ === 'captcha_v2' && Number(x.form_id) === Number(form_id);
-      }) !== -1;
-      if (!hasCaptcha) {
-        allRequiredFilled = false;
-      }
-    }
-
-    if (allRequiredFilled) {
-      console.log('[updateStepButtonState_efb] ✓ All required fields filled - ENABLING button');
-      target_btn.classList.remove('disabled');
-    } else {
-      console.log('[updateStepButtonState_efb] ✗ Not all required fields filled - DISABLING button');
-      if (!target_btn.classList.contains('disabled')) {
-        target_btn.classList.add('disabled');
-      }
     }
   } catch (e) {
     console.error('[updateStepButtonState_efb] ERROR:', e);
@@ -1580,21 +1477,17 @@ function updateStepButtonState_efb(form_id) {
 
 smoothy_scroll_postion_efb=(id)=>{
 
-  const error = new Error();
-  const stack = error.stack || '';
-
   const element = document.getElementById(id);
   if (element) {
     const elementRect = element.getBoundingClientRect();
     const elementTop = elementRect.top + window.scrollY;
-    const offset = 50;
-    const scrollPosition = elementTop - offset;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const scrollPosition = elementTop - (viewportHeight / 2) + (elementRect.height / 2);
 
     window.scrollTo({
       top: scrollPosition,
       behavior: 'smooth'
     });
-  } else {
   }
 
 }
@@ -1739,7 +1632,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
        }
        smoothy_scroll_postion_efb(id_body);
        if(no_step==step_payment_exists){
-         el.disabled = true;
+         el.classList.add('disabled');
        }
 
   }else if (btn_state=='prev_efb'){
@@ -1934,7 +1827,6 @@ sendback_state_handler_efb_v4=(id_,state,step,form_id)=>{
   const body_efb = document.getElementById(id_body);
   if (!body_efb) return;
   const indx = sendback_efb_state.findIndex(x=>x.id_==id_ && Number(x.form_id)==Number(form_id));
-  console.log('[sendback_state_handler_efb_v4] Field:', id_, 'State:', state, 'Form:', form_id, 'Error index:', indx, 'Current errors:', sendback_efb_state.map(x => ({id_: x.id_, state: x.state})));
   if(indx==-1 && state==false){
     var actualStep = step;
     try {
@@ -1943,18 +1835,12 @@ sendback_state_handler_efb_v4=(id_,state,step,form_id)=>{
       if (_field && _field.step) actualStep = Number(_field.step);
     } catch(e) {}
     sendback_efb_state.push({id_:id_,state:state,step:actualStep,form_id:form_id});
-    console.log('[sendback_state_handler_efb_v4] ✗ Added validation error:', id_);
     updateStepButtonState_efb(form_id);
   }else if(indx>-1 && state==true && sendback_efb_state.length>0){
     sendback_efb_state.splice(indx,1);
-    console.log('[sendback_state_handler_efb_v4] ✓ Removed validation error:', id_);
     setTimeout(function() {
       updateStepButtonState_efb(form_id);
     }, 100);
-  }else if(indx>-1 && state==false){
-    console.log('[sendback_state_handler_efb_v4] Error already exists:', id_);
-  }else{
-    console.log('[sendback_state_handler_efb_v4] No action taken - indx:', indx, 'state:', state);
   }
 }
 
@@ -2313,9 +2199,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       break;
   }
   form_id = el.dataset.hasOwnProperty('formid') ? el.dataset.formid : 0;
-  console.log('[handle_change_event_efb_v4] Field:', id_, 'Value:', value, 'State:', state, 'Form:', form_id);
   if(state===false && value.length > 0) {
-    console.log('[handle_change_event_efb_v4] Setting validation error for field:', id_);
     sendback_state_handler_efb_v4(id_,false,0,form_id);
   }
   if (value != "" || value.length > 0) {
@@ -2323,7 +2207,6 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     const type = ob.type;
     const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
     let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder,form_id:  form_id }];
-    console.log('[handle_change_event_efb_v4] Storing valid data and clearing validation error:', id_);
      sendback_state_handler_efb_v4(id_,true,0,form_id);
     if (el.classList.contains('payefb')) {
       let q = valueJson_ws.find(x => x.id_ === el.id);
@@ -2358,15 +2241,18 @@ async function handle_change_event_efb_v4(el ,form_id=0){
 
       await fun_sendBack_emsFormBuilder(o[0]);
     }else {
-      console.log('[handle_change_event_efb_v4] Default case - storing:', o[0]);
       await fun_sendBack_emsFormBuilder(o[0]);
     }
   }
-  console.log('[handle_change_event_efb_v4] END - Final sendBack_emsFormBuilder_pub:', sendBack_emsFormBuilder_pub.map(x => ({id_: x.id_, value: x.value})));
   updateStepButtonState_efb(form_id);
 }
 
 async function fun_validation_efb_v4(form_id) {
+  var body_efb_v = document.getElementById('body_efb_' + form_id);
+  if (body_efb_v) {
+    current_s_efb = Number(body_efb_v.dataset.currentstep) || 1;
+  }
+
   let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
   let state = true;
@@ -2378,14 +2264,18 @@ async function fun_validation_efb_v4(form_id) {
     let s =  get_row_sendback_by_id_efb_v4(valj_efb[row].id_,form_id);
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
-      let el =document.getElementById(`${valj_efb[row].id_}_-message`);
+      let el = document.getElementById(`${valj_efb[row].id_}_-message`);
+
+      let fieldFailed = false;
       if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile'){
-        let r=files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_);
-        s = files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state)==0 || r==-1 ? -1 :1;
+        let r = files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_);
+        fieldFailed = r == -1 || (files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state)==0);
+      } else {
+        fieldFailed = s == -1 || !is_required_value_filled_efb(sendBack_emsFormBuilder_pub[s], valj_efb[row].type);
       }
-      if (s == -1) {
+
+      if (fieldFailed) {
         if (state == true) { state = false; idi = valj_efb[row].id_ , name_field = valj_efb[row].name }
-        const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
         if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
           el.classList.add('unpx');
         }
@@ -2436,17 +2326,30 @@ async function fun_validation_efb_v4(form_id) {
     }
   }
 
-  if (state===false && idi != "null") {
-    console.log('[fun_validation_efb_v4] VALIDATION FAILED - Form:', form_id, 'Field:', idi, 'All validation errors:', sendback_efb_state.map(x => ({id_: x.id_, state: x.state})));
-    if(typeof smoothy_scroll_postion_efb === 'function'){
-      smoothy_scroll_postion_efb(idi)
+  if (state === true && valj_efb[0]) {
+    var max_step_v = Number(valj_efb[0].steps) || 1;
+    if (Number(current_s_efb) === max_step_v && Number(valj_efb[0].captcha) === 1) {
+      var hasCaptcha = sendBack_emsFormBuilder_pub.findIndex(function(x) {
+        return x != null && x.id_ === 'captcha_v2' && Number(x.form_id) === Number(form_id);
+      }) !== -1;
+      if (!hasCaptcha) {
+        state = false;
+        noti_message_efb_v4(efb_var.text.enterTheValueThisField, 'danger', id_noti_message, form_id);
+      }
+    }
+  }
 
-    }else{
-      document.getElementById(idi).scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+  if (state===false) {
+    alert_message_efb(efb_var.text.fillrequiredfields, '', 10000, 'warning');
+    if (idi != "null") {
+      if(typeof smoothy_scroll_postion_efb === 'function'){
+        smoothy_scroll_postion_efb(idi)
+      }else{
+        document.getElementById(idi).scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+      }
     }
     return false;
   }
-  console.log('[fun_validation_efb_v4] VALIDATION PASSED - Form:', form_id);
   return state
 }
 
