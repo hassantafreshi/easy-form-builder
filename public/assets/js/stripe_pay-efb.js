@@ -5,17 +5,28 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
     'Content-Type': 'application/json',
     'X-WP-Nonce': efb_var.nonce,
   });
+  console.log('[EFB Stripe Debug] confirm request start', {
+    confirmUrl,
+    paymentIntentId,
+    trackid
+  });
   fetch(confirmUrl, {
     method: 'POST',
     headers: confirmHeaders,
     body: JSON.stringify({ paymentIntentId: paymentIntentId, trackid: trackid })
   }).then(function(response) {
+    console.log('[EFB Stripe Debug] confirm response received', {
+      status: response.status,
+      ok: response.ok
+    });
     return response.json();
   }).then(function(res) {
+    console.log('[EFB Stripe Debug] confirm response body', res);
     if (res && res.data && res.data.success) {
     } else {
     }
   }).catch(function(err) {
+    console.error('[EFB Stripe Debug] confirm request failed', err);
   });
 }
 
@@ -32,6 +43,13 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
       'form-id': form_id ? form_id : 0,
       'sid':efb_var.sid ? efb_var.sid : '',
       });
+
+        console.log('[EFB Stripe Debug] init stripe payment flow', {
+          form_id,
+          url,
+          hasNonce: !!efb_var.nonce,
+          hasSessionId: !!(efb_var.sid ? efb_var.sid : '')
+        });
 
         const bdy = document.getElementById('body_efb_'+form_id);
         const cardnoEfb = bdy.querySelector('#cardnoEfb')
@@ -101,6 +119,11 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
 
           fun_fetch_api_efb=(data ,transStat)=>{
             const jsonData = JSON.stringify(data);
+            const safeLogData = Object.assign({}, data, {
+              token: data && data.token ? '[REDACTED]' : undefined,
+              value: data && data.value ? '[JSON_PAYLOAD]' : undefined,
+            });
+            console.log('[EFB Stripe Debug] card/add request payload', safeLogData);
             const requestOptions = {
             method: 'POST',
             headers,
@@ -109,17 +132,23 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
 
   fetch(url, requestOptions)
   .then(response => {
+    console.log('[EFB Stripe Debug] card/add response meta', {
+      status: response.status,
+      ok: response.ok
+    });
     if (!response.ok) {
       throw new Error(`Network response was not ok (HTTP ${response.status})`);
     }
     return response.json();
   })
   .then(res => {
+    console.log('[EFB Stripe Debug] card/add response body', res);
     if (res && res.data && res.data.success === true) {
       if (valj_efb[0].paymentmethod === "charge") {
         stripe.confirmCardPayment(res.data.client_secret, {
           payment_method: { card: numElm }
         }).then(transStat => {
+          console.log('[EFB Stripe Debug] confirmCardPayment result', transStat);
           if (transStat && transStat.paymentIntent && transStat.paymentIntent.status === 'succeeded') {
             confirm_stripe_payment_efb(transStat.paymentIntent.id, res.data.id);
           }
@@ -135,6 +164,7 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
     }
   })
   .catch(error => {
+    console.error('[EFB Stripe Debug] card/add request failed', error);
     btnStripeEfb.classList.remove('disabled');
     const errorMessage = `<p class="efb h4">${efb_var.text.error} ${error.message}</p>`;
     alert_message_efb('Stripe', errorMessage, 120, 'danger');
@@ -144,11 +174,19 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
 }
 
           btnStripeEfb.addEventListener('click', () => {
+            console.log('[EFB Stripe Debug] Pay Now clicked', {
+              form_id,
+              paymentmethod: valj_efb[0] && valj_efb[0].paymentmethod ? valj_efb[0].paymentmethod : 'unknown'
+            });
             btnStripeEfb.classList.add('disabled');
             btnStripeEfb.innerHTML = efb_var.text.pleaseWaiting;
 
             const v = fun_pay_valid_price();
             if (v == false) {
+              console.warn('[EFB Stripe Debug] blocked by empty cart validation', {
+                form_id,
+                sendBackLength: Array.isArray(sendBack_emsFormBuilder_pub) ? sendBack_emsFormBuilder_pub.length : -1
+              });
               alert_message_efb(efb_var.text.error, efb_var.text.emptyCartM, 10, 'warning')
               btnStripeEfb.innerHTML = efb_var.text.payNow;
               btnStripeEfb.classList.remove('disabled');
@@ -157,6 +195,10 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
 
                 if(valj_efb[0].paymentmethod != "charge"){
                   stripe.createToken(numElm).then((transStat) => {
+                    console.log('[EFB Stripe Debug] createToken result', {
+                      hasError: !!(transStat && transStat.error),
+                      hasToken: !!(transStat && transStat.token && transStat.token.id)
+                    });
                     if (transStat.error) {
                       stsStripeEfb.innerHTML = `<p class="h4">${transStat.status}</p> ${transStat.statusText} </br> ${transStat.responseText}`
 
@@ -192,6 +234,12 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
             if (efb_var.pro==true || efb_var.pro=="true") alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`, 100, 'danger');
           }
           fun_trans_efb = (transStat, data, trackid) => {
+
+            console.log('[EFB Stripe Debug] fun_trans_efb called', {
+              hasError: !!(transStat && transStat.error),
+              trackid,
+              data
+            });
 
             if (transStat.error) {
               stsStripeEfb.innerHTML = `

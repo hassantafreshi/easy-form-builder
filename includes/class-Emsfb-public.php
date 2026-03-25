@@ -2921,7 +2921,9 @@ public function check_nonce_permission_efb($request) {
 			'ip' => $this->ip,
 			'read_' => $read,
 			'date'=>wp_date('Y-m-d H:i:s')
-		));    return $uniqid;
+		));
+		error_log('[EFB Stripe Debug] insert_message_db done | form_id=' . $this->id . ' | track=' . $uniqid . ' | db_insert_id=' . $this->db->insert_id);
+		return $uniqid;
 	}
 
 	private function generate_track_code_efb($style = 'date_en_mix') {
@@ -3730,6 +3732,7 @@ public function check_nonce_permission_efb($request) {
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
 	public function pay_stripe_sub_Emsfb_api($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
+		error_log('[EFB Stripe Debug] pay_stripe_sub_Emsfb_api start | raw_payload=' . wp_json_encode($data_POST));
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
 		$this->id =sanitize_text_field($data_POST['id']);
@@ -3770,6 +3773,7 @@ public function check_nonce_permission_efb($request) {
 		$fs_ = json_decode($fs,true);
 		$val =str_replace('\\', '', $val_);
 		$val_ = json_decode($val,true);
+		error_log('[EFB Stripe Debug] form loaded | form_id=' . $this->id . ' | has_form_struct=' . (is_array($fs_) ? '1' : '0'));
 		$paymentmethod = $fs_[0]['paymentmethod'];
 		$price_c =0;
 		$price_f=0;
@@ -3780,6 +3784,7 @@ public function check_nonce_permission_efb($request) {
 		$price_f = $obj['price_total'];
 		$email = $obj['email'];
 		$valobj = $obj['valobj'];
+		error_log('[EFB Stripe Debug] payment calculated | form_id=' . $this->id . ' | payment_method=' . $paymentmethod . ' | total_before_cents=' . $price_f . ' | email=' . $email);
 		$price_f = $price_f*100;
 		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
 		if($price_f>0){
@@ -3863,7 +3868,12 @@ public function check_nonce_permission_efb($request) {
 			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);
 			$this->value = str_replace('"', '\\"', $val_);
 			$this->name = sanitize_text_field($data_POST['name']);
-			$check=	$this->insert_message_db(2,false);
+			$style_trackingCode = 'date_en_mix';
+			if (is_object($this->setting) && isset($this->setting->trackCodeStyle)) {
+				$style_trackingCode = $this->setting->trackCodeStyle;
+			}
+			error_log('[EFB Stripe Debug] about to insert payment message | form_id=' . $this->id . ' | payment_method=' . $paymentmethod . ' | amount=' . $amount . ' | currency=' . $currency . ' | track_style=' . $style_trackingCode);
+			$check=	$this->insert_message_db(2,false,$style_trackingCode);
 
 			$stripe_payment_file = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/class-Emsfb-stripe-payment.php';
 			if ( ! class_exists( '\Emsfb\StripePayment' ) && file_exists( $stripe_payment_file ) ) {
@@ -3897,13 +3907,16 @@ public function check_nonce_permission_efb($request) {
 					$pay_data['status']          = 'pending';
 				}
 				StripePayment::insert_payment( $pay_data );
+				error_log('[EFB Stripe Debug] StripePayment::insert_payment done | form_id=' . $this->id . ' | track=' . $check . ' | trx=' . $pay_data['transaction_id']);
 			}
 
 			$response=array_merge($response , ['id'=>$check]);
+			error_log('[EFB Stripe Debug] pay_stripe_sub_Emsfb_api success | form_id=' . $this->id . ' | track=' . $check . ' | payment_method=' . $paymentmethod);
 			wp_send_json_success($response, 200);
 		}else{
 			$msg = esc_html__('No payment amount detected. Please review your selected items and try again. If the problem persists, contact support.', 'easy-form-builder');
 			$response = array( 'success' => false  , 'm'=>$msg);
+			error_log('[EFB Stripe Debug] pay_stripe_sub_Emsfb_api empty amount | form_id=' . $this->id . ' | computed_total_cents=' . $price_f);
 			wp_send_json_success($response, 200);
 		}
 	}

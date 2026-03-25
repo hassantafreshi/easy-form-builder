@@ -1466,6 +1466,25 @@ function updateStepButtonState_efb(form_id) {
     var body_efb = document.getElementById(id_body);
     if (!body_efb) return;
 
+    var currentStep = Number(body_efb.dataset.currentstep || 0);
+    var maxStep = Number(body_efb.dataset.steps || 0);
+    var nextTextEl = body_efb.querySelector('#button_group_Next_button_text');
+
+    if (nextTextEl) {
+      if (!nextTextEl.dataset.defaultText) {
+        nextTextEl.dataset.defaultText = nextTextEl.textContent || 'Next';
+      }
+
+      var submitText =
+        (typeof efb_var !== 'undefined' && efb_var && efb_var.text && efb_var.text.submit)
+          ? efb_var.text.submit
+          : ((typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.text && ajax_object_efm.text.submit)
+            ? ajax_object_efm.text.submit
+            : 'Submit');
+
+      nextTextEl.textContent = currentStep === maxStep ? submitText : nextTextEl.dataset.defaultText;
+    }
+
     // Backfill missing form_id on legacy rows (commonly multiselect) so required checks can find them.
     for (var bi = 0; bi < sendBack_emsFormBuilder_pub.length; bi++) {
       normalize_sendback_row_form_id_efb(sendBack_emsFormBuilder_pub[bi], form_id);
@@ -1602,11 +1621,12 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     }
   }
 
-  const validate = await fun_validation_efb_v4(form_id);
-        if (validate == false) {
-
-          return false;
-        }
+  if(btn_state != 'prev_efb'){
+    const validate = await fun_validation_efb_v4(form_id);
+    if (validate == false) {
+      return false;
+    }
+  }
 
   if(btn_state=='next_efb'){
         let prev_btn = parent_body.querySelector('#prev_efb');
@@ -2334,13 +2354,14 @@ async function fun_validation_efb_v4(form_id) {
       }) !== -1;
       if (!hasCaptcha) {
         state = false;
-        noti_message_efb_v4(efb_var.text.enterTheValueThisField, 'danger', id_noti_message, form_id);
+        alert_message_efb(efb_var.text.checkedBoxIANotRobot, '', 8, 'warning');
+        return false;
       }
     }
   }
 
   if (state===false) {
-    alert_message_efb(efb_var.text.fillrequiredfields, '', 10000, 'warning');
+    alert_message_efb(efb_var.text.fillrequiredfields, '', 6, 'warning');
     if (idi != "null") {
       if(typeof smoothy_scroll_postion_efb === 'function'){
         smoothy_scroll_postion_efb(idi)

@@ -3017,6 +3017,10 @@ const saveFormEfb = async (stated) => {
         }
       }
 
+      if (stated === 1 && valj_efb[0].type === 'payment') {
+        valj_efb[0].captcha = "0";
+      }
+
         show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox");
 
       let timeout = 1000;
