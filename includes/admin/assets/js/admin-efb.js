@@ -62,8 +62,8 @@ jQuery(function () {
   }
 
   let count_show_efb_cache = localStorage.hasOwnProperty('efb_cache') ? Number(localStorage.getItem('efb_cache'))+1 : 0;
-  console.log('EFB Cache Warning shown count:', count_show_efb_cache);
-  if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && count_show_efb_cache<3){
+  const efb_cache_dismissed = localStorage.getItem('efb_cache_dismissed') === 'true';
+  if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && !efb_cache_dismissed){
 
     if(efb_var.text.excefb.indexOf('%s')==-1){
       $val_noti = efb_var.text.excefb.replaceAll('XX', `<b>${efb_var.plugins.cache} </b>`);
@@ -71,6 +71,10 @@ jQuery(function () {
       $val_noti = efb_var.text.excefb.replaceAll('%s', `<b>${efb_var.plugins.cache} </b>`);
       $val_noti += `<br><a class="efb text-danger ec-efb" data-eventform="links" data-linkname="cachePlugin">${efb_var.text.clcdetls}</a>`
     }
+    $val_noti += `<div class="efb d-flex gap-2 mt-2">`
+      + `<button type="button" class="efb btn btn-sm" style="background:rgba(255,255,255,0.85);color:#333;border:none;border-radius:6px;padding:4px 12px;font-size:0.78rem;cursor:pointer;" onclick="localStorage.setItem('efb_cache',0);close_msg_efb(this.closest('.alert_item_efb')?.id);">${efb_var.text.rmndltr}</button>`
+      + `<button type="button" class="efb btn btn-sm" style="background:rgba(0,0,0,0.2);color:#fff;border:none;border-radius:6px;padding:4px 12px;font-size:0.78rem;cursor:pointer;" onclick="localStorage.setItem('efb_cache_dismissed','true');close_msg_efb(this.closest('.alert_item_efb')?.id);">${efb_var.text.gotitdsmss}</button>`
+      + `</div>`;
     alert_message_efb('' ,$val_noti,  120 ,'warning' )
     count_show_efb_cache = count_show_efb_cache + 1;
     localStorage.setItem('efb_cache',count_show_efb_cache);

@@ -1189,7 +1189,9 @@ class efbFunction {
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank','easy-form-builder'),
 
 			/* translators: %s is the caching plugin name */
-			"excefb" => $state  &&  isset($ac->text->excefb) ? $ac->text->excefb : esc_html__('The %s plugins might interfere with forms of Easy Form Builder\'s functionality. If you encounter any issues with the Forms, disable caching for the Easy Form Builder plugin in the %s plugin\'s settings.','easy-form-builder'),
+			"excefb" => $state  &&  isset($ac->text->excefb) ? $ac->text->excefb : esc_html__('The %s plugin may interfere with Easy Form Builder form functionality. If you encounter any issues with the forms, disable caching for the Easy Form Builder plugin in the %s settings.','easy-form-builder'),
+			"rmndltr" => $state  &&  isset($ac->text->rmndltr) ? $ac->text->rmndltr : esc_html__('Remind me later','easy-form-builder'),
+			"gotitdsmss" => $state  &&  isset($ac->text->gotitdsmss) ? $ac->text->gotitdsmss : esc_html__('Got it, don\'t show again','easy-form-builder'),
 			/* translators: %1$s is the field name, %2$s is the minimum character count */
 			"ptrnMmm_" => $state  &&  isset($ac->text->ptrnMmm_) ? $ac->text->ptrnMmm_ : esc_html__('The value of the %1$s field does not match the pattern and must be at least %2$s characters.','easy-form-builder'),
 			/* translators: %1$s is the field name, %2$s is the maximum character count */
