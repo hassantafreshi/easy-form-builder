@@ -951,11 +951,15 @@ body.folded .efb.modal {
 
 #modal-footer-efb.efb-confirm-footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 12px;
     padding: 16px 24px 24px;
     border-top: 1px solid #f1f5f9;
     background: transparent;
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow: hidden;
 }
 #modal-footer-efb.efb-confirm-footer .efb-btn-cancel {
     display: inline-flex;
@@ -1043,6 +1047,9 @@ body.folded .efb.modal {
     border: none;
     border-radius: 16px !important;
     width: 100%;
+    overflow: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 #settingModalEfb .efb-confirm-dialog .efb.modal-header.efb {
     display: none;
@@ -1076,27 +1083,55 @@ body.folded .efb.modal {
         font-size: 13px;
     }
     #modal-footer-efb.efb-confirm-footer {
-        padding: 14px 16px 20px;
-        gap: 10px;
+        padding: 14px 12px 20px;
+        gap: 8px;
     }
     #modal-footer-efb.efb-confirm-footer .efb-btn-cancel,
     #modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger,
     #modal-footer-efb.efb-confirm-footer .efb-btn-confirm-primary {
         min-width: 0;
-        flex: 1;
+        flex: 1 1 0;
+        padding: 10px 12px;
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    #modal-footer-efb.efb-confirm-footer {
+        flex-direction: column-reverse;
+        padding: 12px 12px 16px;
+        gap: 8px;
+    }
+    #modal-footer-efb.efb-confirm-footer .efb-btn-cancel,
+    #modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger,
+    #modal-footer-efb.efb-confirm-footer .efb-btn-confirm-primary {
+        width: 100%;
+        flex: none;
+        text-align: center;
         padding: 10px 16px;
         font-size: 14px;
     }
 }
 
 @media (max-width: 380px) {
+    #settingModalEfb .efb.modal-dialog.efb-confirm-dialog {
+        max-width: calc(100% - 16px);
+        padding: 8px;
+    }
     #modal-footer-efb.efb-confirm-footer {
-        flex-direction: column-reverse;
+        padding: 10px 10px 14px;
     }
     #modal-footer-efb.efb-confirm-footer .efb-btn-cancel,
     #modal-footer-efb.efb-confirm-footer .efb-btn-confirm-danger,
     #modal-footer-efb.efb-confirm-footer .efb-btn-confirm-primary {
-        width: 100%;
+        padding: 9px 12px;
+        font-size: 13px;
+        border-radius: 8px;
     }
 }
 

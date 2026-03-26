@@ -166,7 +166,7 @@ class EfbAddonPhrases {
             "enter_test_message" => $state && isset($ac->text->enter_test_message) ? $ac->text->enter_test_message : esc_html__('Enter your test message here...', 'easy-form-builder'),
 
             /* translators: Default test message content */
-            "default_test_message" => $state && isset($ac->text->default_test_message) ? $ac->text->default_test_message : esc_html__("Test Message\n\nThis is a test message from Easy Form Builder.\n\n If you receive this message, your Telegram integration is working correctly!", 'easy-form-builder'),
+            "default_test_message" => $state && isset($ac->text->default_test_message) ? $ac->text->default_test_message : esc_html__("Test Message\n\nThis is a test message from Easy Form Builder.\n\nIf you receive this message, your Telegram integration is working correctly!", 'easy-form-builder'),
 
             /* translators: Test Information = info section title */
             "test_info" => $state && isset($ac->text->test_info) ? $ac->text->test_info : esc_html__('Test Information', 'easy-form-builder'),

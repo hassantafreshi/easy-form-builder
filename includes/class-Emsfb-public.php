@@ -548,6 +548,7 @@ public function check_nonce_permission_efb($request) {
 
 
 			// If user=admin without valid sc → must be logged in as admin
+			$is_legacy_admin_link = ($admin_form && ($admin_sc === null || !$admin_verified));
 			if ($admin_form && !$admin_verified) {
 				if (is_user_logged_in() && current_user_can('administrator')) {
 					$admin_verified = true;
@@ -562,6 +563,22 @@ public function check_nonce_permission_efb($request) {
 				$warn_muted       = !empty($ps_warn['respTextMuted'])  ? $ps_warn['respTextMuted']  : '#657096';
 				$warn_font_family = !empty($ps_warn['respFontFamily']) ? $ps_warn['respFontFamily'] : 'inherit';
 				$warn_font_size   = !empty($ps_warn['respFontSize'])  ? $ps_warn['respFontSize']   : '0.9rem';
+
+				$legacy_notice = '';
+				if ($is_legacy_admin_link) {
+					$legacy_notice = "
+					<div style='margin-top:16px; padding:10px 18px; border-radius:8px;
+					            background-color: rgba(54,68,210,0.07);
+					            display:inline-flex; align-items:center; gap:8px;'>
+						<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='" . esc_attr($warn_muted) . "' viewBox='0 0 16 16' style='flex-shrink:0;'>
+							<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.399l-.502 0 .07-.332C7.005 6.584 7.912 6.196 8.454 6h.37l-.82 4.588zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z'/>
+						</svg>
+						<span style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
+						             font-size: calc(" . esc_attr($warn_font_size) . " * 0.93);'>"
+						. esc_html__('This link uses an older format. For improved security, new email notifications include updated links.', 'easy-form-builder') .
+						"</span>
+					</div>";
+				}
 
 				return $overrides['font_link'] . $overrides['inline_style'] . "
 				<div id='body_efb' class='efb card-public efb'
@@ -579,9 +596,7 @@ public function check_nonce_permission_efb($request) {
 					           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
 					           margin:0 0 10px 0; text-align:center;'>"
 					    . esc_html__('It seems that you are the admin of this form. Please log in and try again.', 'easy-form-builder') .
-					"</h3>
-					<p style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
-					          font-size:" . esc_attr($warn_font_size) . "; margin:0; text-align:center;'></p>
+					"</h3>" . $legacy_notice . "
 				</div>";
 				} else {
 					$admin_form = false;
