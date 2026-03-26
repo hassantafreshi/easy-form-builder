@@ -1320,9 +1320,9 @@ let change_el_edit_Efb = (el) => {
               c = el.value ==0 ?  0 : el.value !=1 ? el.value : c;
 
             } else {
-              let m = efb_var.text.mnvvXXX;
+              let m = efb_var.text.mnvvXXX_;
 
-              m  = m.replace('XXX', "<b>" +  efb_var.text.mxdt + "</b>");
+              m  = m.replace('%s', "<b>" +  efb_var.text.mxdt + "</b>");
               m += " "+  efb_var.text.ivf.replace('%s', "YYYY-MM-DD, 1");
               alert_message_efb("", m,15,"warning")
               el.value ='';
@@ -1380,8 +1380,8 @@ let change_el_edit_Efb = (el) => {
               c = el.value ==0 ?  0 : el.value !=1 ? el.value : c;
 
             } else {
-              let m = efb_var.text.mnvvXXX;
-              m  = m.replace('XXX', "<b>" +  efb_var.text.mindt + "</b>");
+              let m = efb_var.text.mnvvXXX_;
+              m  = m.replace('%s', "<b>" +  efb_var.text.mindt + "</b>");
               m += " "+  efb_var.text.ivf.replace('%s', "YYYY-MM-DD, 1");
               alert_message_efb("", m,15,"warning")
               el.value ='';
@@ -4168,7 +4168,7 @@ function emsFormBuilder_duplicate(id, type,value) {
     case 'dataset_autofilled':
       val = value;
   }
-  const msg = efb_var.text.ausdup.replaceAll('XXX',val);
+  const msg = efb_var.text.ausdup_.replaceAll('%s',val);
   const body = efb_build_confirm_body('info', 'bi-clipboard-plus', efb_var.text.duplicate, msg, '');
   show_modal_efb(body, efb_var.text.duplicate, 'efb bi-clipboard-plus mx-2', 'duplicateBox')
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');

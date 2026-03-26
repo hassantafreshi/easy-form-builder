@@ -2360,8 +2360,8 @@ ${blocksHtml}
     const shortcodeDefs = [
       { code: 'shortcode_message', label: t_efb('ebSCMessage', 'Message *'), desc: t_efb('shortcodeMessageInfo', 'Add this shortcode inside an HTML tag to display the message content of an email.'), required: true },
       { code: 'shortcode_title', label: t_efb('ebSCTitle', 'Title'), desc: t_efb('shortcodeTitleInfo', 'Add this shortcode inside a tag to display the title of the email.'), required: false },
-      { code: 'shortcode_website_name', label: t_efb('ebSCSiteName', 'Site Name'), desc: t_efb('shortcodeWebsiteNameInfo', 'To display the website name, add this shortcode inside a HTML tag.'), required: false },
-      { code: 'shortcode_website_url', label: t_efb('ebSCSiteURL', 'Site URL'), desc: t_efb('shortcodeWebsiteUrlInfo', 'Add this shortcode within a HTML tag to display the Website URL.'), required: false },
+      { code: 'shortcode_website_name', label: t_efb('ebSCSiteName', 'Site Name'), desc: t_efb('shortcodeWebsiteNameInfo', 'To display the website name, add this shortcode inside an HTML tag.'), required: false },
+      { code: 'shortcode_website_url', label: t_efb('ebSCSiteURL', 'Site URL'), desc: t_efb('shortcodeWebsiteUrlInfo', 'Add this shortcode within an HTML tag to display the Website URL.'), required: false },
       { code: 'shortcode_admin_email', label: t_efb('ebSCAdminEmail', 'Admin Email'), desc: t_efb('shortcodeAdminEmailInfo', 'You can display the Admin Email address of your WordPress site by adding this shortcode within an HTML tag.'), required: false }
     ];
 

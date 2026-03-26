@@ -2093,7 +2093,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
 
   const returnError=(val)=>{
     if(state_auto==1){return}
-    const m =efb_var.text.msgchckvt.replace('XXX', val );
+    const m =efb_var.text.msgchckvt_.replace('%s', val );
 
     noti_message_efb(m, 'danger' , `content-efb` );
     window.scrollTo({

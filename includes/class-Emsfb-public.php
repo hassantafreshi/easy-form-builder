@@ -1624,7 +1624,7 @@ public function check_nonce_permission_efb($request) {
 		$request_data = $data_POST_->get_json_params();
 
 		$translation_keys = [
-			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM', 'bkFlM', 'mnvvXXX', 'ptrnMmm', 'ptrnMmx', 'payment', 'error403', 'errorSiteKeyM',
+			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
 			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
 			'surveyResults', 'responses'
@@ -1802,8 +1802,8 @@ public function check_nonce_permission_efb($request) {
 							|| ($item['type'] == 'r_matrix' && $f['id_'] == $item['id_ob'])
 						) {
 							if (isset($f['name'])) {
-								$error_message = $this->lanText['mnvvXXX'];
-								$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
+								$error_message = $this->lanText['mnvvXXX_'];
+								$error_message = str_replace('%s', "<b>" . $f['name'] . "</b>", $error_message);
 							}
 							switch ($f['type']) {
 								case 'email':
@@ -1815,7 +1815,7 @@ public function check_nonce_permission_efb($request) {
 										$validated_item = $item;
 										$l = strlen($item['value']);
 										if (!filter_var($item['value'], FILTER_VALIDATE_EMAIL)) {
-											$error_message = str_replace('XXX', $f['name'], $error_message);
+											$error_message = str_replace('%s', $f['name'], $error_message);
 											$is_valid = 0;
 										}
 
@@ -1922,15 +1922,15 @@ public function check_nonce_permission_efb($request) {
 													if (isset($fr['dateExp']) == true) {
 														if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
 															$is_valid = 0;
-															$error_message = $this->lanText['bkXpM'];
-															$error_message = str_replace('XXX', $fr['value'], $error_message);
+															$error_message = $this->lanText['bkXpM_'];
+															$error_message = str_replace('%s', $fr['value'], $error_message);
 														}
 													}
 													if (isset($fr['mlen']) == true) {
 														if ($fr['mlen'] <= $fr['registered_count']) {
 															$is_valid = 0;
-															$error_message = $this->lanText['bkFlM'];
-															$error_message = str_replace('XXX', $fr['value'], $error_message);
+															$error_message = $this->lanText['bkFlM_'];
+															$error_message = str_replace('%s', $fr['value'], $error_message);
 														} else {
 															$form_fields_array[$ki]['registered_count'] = (int) $form_fields_array[$ki]['registered_count'] + 1;
 														}
@@ -1982,15 +1982,15 @@ public function check_nonce_permission_efb($request) {
 												if (isset($f['dateExp']) == true) {
 													if (strtotime($f['dateExp']) < strtotime(wp_date('Y-m-d'))) {
 														$is_valid = 0;
-														$error_message = $this->lanText['bkXpM'];
-														$error_message = str_replace('XXX', $f['value'], $error_message);
+														$error_message = $this->lanText['bkXpM_'];
+														$error_message = str_replace('%s', $f['value'], $error_message);
 													}
 												}
 												if (isset($f['mlen']) == true) {
 													if ($f['mlen'] <= $f['registered_count']) {
 														$is_valid = 0;
-														$error_message = $this->lanText['bkFlM'];
-														$error_message = str_replace('XXX', $f['value'], $error_message);
+														$error_message = $this->lanText['bkFlM_'];
+														$error_message = str_replace('%s', $f['value'], $error_message);
 													} else {
 														$form_fields_array[$key]['registered_count'] = (int) $form_fields_array[$key]['registered_count'] + 1;
 													}
@@ -2096,15 +2096,15 @@ public function check_nonce_permission_efb($request) {
 													if (isset($fr['dateExp']) == true) {
 														if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
 															$is_valid = 0;
-															$error_message = $this->lanText['bkXpM'];
-															$error_message = str_replace('XXX', $fr['value'], $error_message);
+															$error_message = $this->lanText['bkXpM_'];
+															$error_message = str_replace('%s', $fr['value'], $error_message);
 														}
 													}
 													if (isset($fr['mlen']) == true) {
 														if ($fr['mlen'] <= $fr['registered_count']) {
 															$is_valid = 0;
-															$error_message = $this->lanText['bkFlM'];
-															$error_message = str_replace('XXX', $fr['value'], $error_message);
+															$error_message = $this->lanText['bkFlM_'];
+															$error_message = str_replace('%s', $fr['value'], $error_message);
 														} else {
 															$form_fields_array[$ki]['registered_count'] = (int) $form_fields_array[$ki]['registered_count'] + 1;
 														}
@@ -2201,8 +2201,8 @@ public function check_nonce_permission_efb($request) {
 									if ($c != $f['mark']) {
 										$is_valid = 0;
 										$validated_item = null;
-										$error_message = $this->lanText['mnvvXXX'];
-										$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
+										$error_message = $this->lanText['mnvvXXX_'];
+										$error_message = str_replace('%s', "<b>" . $f['name'] . "</b>", $error_message);
 									}
 									$still_processing = false;
 									break;
@@ -2249,17 +2249,20 @@ public function check_nonce_permission_efb($request) {
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$l = mb_strlen($item['value'], 'UTF-8');
-										if (isset($f['milen']) != true  &&   isset($f['mlen']) != true) {
-											$is_valid = 1;
-										} else if ((isset($f['milen']) == true && $f['milen'] > 0 && $f['milen'] > $l)) {
-											$error_message = $this->lanText['ptrnMmm'];
-											$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
-											$error_message = str_replace('NN', "<b>" . $f['milen'] . "</b>", $error_message);
+										$min_len = isset($f['milen']) ? (int) $f['milen'] : 0;
+										$max_len = isset($f['mlen']) ? (int) $f['mlen'] : 0;
+
+										if ($min_len > 0 && $l < $min_len) {
+											$error_message = strtr($this->lanText['ptrnMmm_'], [
+												'%1$s' => "<b>" . $f['name'] . "</b>",
+												'%2$s' => "<b>" . $min_len . "</b>",
+											]);
 											$is_valid = 0;
-										} else if (isset($f['mlen']) == true && $f['mlen'] > 0   && $f['mlen'] < $l) {
-											$error_message = $this->lanText['ptrnMmx'];
-											$error_message = str_replace('NN', "<b>" . $f['mlen'] . "</b>", $error_message);
-											$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
+										} else if ($max_len > 0 && $l > $max_len) {
+											$error_message = strtr($this->lanText['ptrnMmx_'], [
+												'%1$s' => "<b>" . $f['name'] . "</b>",
+												'%2$s' => "<b>" . $max_len . "</b>",
+											]);
 											$is_valid = 0;
 										}
 									}
