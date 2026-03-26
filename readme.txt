@@ -274,7 +274,7 @@ If your theme uses Bootstrap, go to “Easy Form Builder” → “Settings” a
 
 1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
 2. Navigate to Dashboard → “Plugins” → “Add New” → “Upload Plugin” → select *Easy Form Builder* zip file then “Activate”.
-3. In the menu bar, navigate to “Easy Form Builder” → “Settings'' → “Add Google recaptcha keys”
+3. In the menu bar, navigate to “Easy Form Builder” → “Settings'' → “Add Google reCAPTCHA keys”
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
 
 
@@ -308,9 +308,9 @@ For more information, visit the official website:
 10. Localization Easy Form Builder to your language
 11. Email template Editor of Easy Form Builder
 12. Order payment forms
-13. configuration Response box of Easy Form Builder
+13. Configuration Response box of Easy Form Builder
 14. Email Setting of Easy Form Builder
-15. SMS configuration of Easy From Builder
+15. SMS configuration of Easy Form Builder
 16. Confirmation Code Search Field
 17. WordPress Support Ticket Conversation and Reply Form
 

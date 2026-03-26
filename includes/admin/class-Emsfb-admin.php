@@ -509,7 +509,7 @@ class Admin {
         }
         if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']),JSON_UNESCAPED_UNICODE)) {
             $m =   $lang['somethingWentWrongPleaseRefresh'];
-            $response = ['success' => false, "m" => esc_html__("Something went wrong, Please refresh the page." ,'easy-form-builder')];
+            $response = ['success' => false, "m" => esc_html__("Something went wrong, please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, 200);
             die();
         }

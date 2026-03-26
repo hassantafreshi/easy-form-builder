@@ -227,7 +227,7 @@ class efbFunction {
 			"trackingForm" => $state ? $ac->text->trackingForm : esc_html__('Tracking Form','easy-form-builder'),
 			"trackingCodeIsNotValid" => $state ? $ac->text->trackingCodeIsNotValid : esc_html__('The confirmation Code is not valid.','easy-form-builder'),
 			/* translators: Instruction to check the reCAPTCHA checkbox - 'I am not a robot' */
-			"checkedBoxIANotRobot" => $state ? $ac->text->checkedBoxIANotRobot : esc_html__('Please Checked Box of I am Not robot','easy-form-builder'),
+			"checkedBoxIANotRobot" => $state ? $ac->text->checkedBoxIANotRobot : esc_html__('Please check the box of I am Not robot','easy-form-builder'),
 			"howConfigureEFB" => $state ? $ac->text->howConfigureEFB : esc_html__('How to configure Easy Form Builder','easy-form-builder'),
 
 			"howGetGooglereCAPTCHA" => $state ? $ac->text->howGetGooglereCAPTCHA : esc_html__('How to get Google reCAPTCHA and implement it into Easy Form Builder','easy-form-builder'),
@@ -311,12 +311,12 @@ class efbFunction {
 			"copyTrackingcode" => $state ? $ac->text->copyTrackingcode : esc_html__('Copy Confirmation Code','easy-form-builder'),
 			"previewForm" => $state ? $ac->text->previewForm : esc_html__('Preview Form','easy-form-builder'),
 			"activateProVersion" => $state ? $ac->text->activateProVersion : esc_html__('Upgrade to Pro','easy-form-builder'),
-			"itAppearedStepsEmpty" => $state ? $ac->text->itAppearedStepsEmpty : esc_html__('It seems that some of the steps in your form are empty. Please add field to all steps before saving.','easy-form-builder'),
+			"itAppearedStepsEmpty" => $state ? $ac->text->itAppearedStepsEmpty : esc_html__('It seems that some of the steps in your form are empty. Please add a field to all steps before saving.','easy-form-builder'),
 			/* translators: Message shown when user tries to use Pro features without activating Pro version */
 			"youUseProElements" => $state ? $ac->text->youUseProElements : esc_html__('You are using the pro field in the form. To save and use the form including pro fields, activate Pro.','easy-form-builder'),
 			"sampleDescription" => $state ? $ac->text->sampleDescription : esc_html__('Sample description','easy-form-builder'),
 			/* translators: Pro version = Premium/paid version of the plugin */
-			"fieldAvailableInProversion" => $state ? $ac->text->fieldAvailableInProversion : esc_html__('This feature is only available in the Pro of Easy Form Builder.','easy-form-builder'),
+			"fieldAvailableInProversion" => $state ? $ac->text->fieldAvailableInProversion : esc_html__('This feature is only available in the Pro version of Easy Form Builder.','easy-form-builder'),
 			"editField" => $state ? $ac->text->editField : esc_html__('Edit Field','easy-form-builder'),
 			"description" => $state ? $ac->text->description : esc_html__('Description','easy-form-builder'),
 			"descriptions" => $state ? $ac->text->descriptions : esc_html__('Descriptions','easy-form-builder'),
@@ -466,7 +466,7 @@ class efbFunction {
 			/* translators: Pro plan redirect confirmation message */
 			"proRedirectMessage" => $state && isset($ac->text->proRedirectMessage) ? $ac->text->proRedirectMessage : esc_html__('You will be redirected to the Pro plan purchase page. Continue?','easy-form-builder'),
 
-			"aPIkeyGoogleMapsError" => $state ? $ac->text->aPIkeyGoogleMapsError : esc_html__('The API key for Google Maps has not been added. Please go to Easy Form Builder > Panel > Setting > Google Keys, add the API key for Google Maps, and try again.','easy-form-builder'),
+
 			"howToAddGoogleMap" => $state ? $ac->text->howToAddGoogleMap : esc_html__('How to Add Location Picker(maps) to Easy form Builder WordPress Plugin','easy-form-builder'),
 			"deletemarkers" => $state ? $ac->text->deletemarkers : esc_html__('Delete markers','easy-form-builder'),
 			"updateUrbrowser" => $state ? $ac->text->updateUrbrowser : esc_html__('update your browser','easy-form-builder'),
@@ -478,7 +478,7 @@ class efbFunction {
 			"thanksFillingOutform" => $state ? $ac->text->thanksFillingOutform : esc_html__('Thanks for filling out the form.','easy-form-builder'),
 			"finish" => $state ? $ac->text->finish : esc_html__('Finish','easy-form-builder'),
 			"dragAndDropA" => $state ? $ac->text->dragAndDropA : esc_html__('Drag & Drop the','easy-form-builder'),
-			"browseFile" => $state ? $ac->text->browseFile : esc_html__('Browse File','easy-form-builder'),
+			"browseFile" => $state ? $ac->text->browseFile : esc_html__('Browse the file','easy-form-builder'),
 			"removeTheFile" => $state ? $ac->text->removeTheFile : esc_html__('Remove the file','easy-form-builder'),
 			"enterAPIKey" => $state ? $ac->text->enterAPIKey : esc_html__('Enter API KEY','easy-form-builder'),
 			"formSetting" => $state ? $ac->text->formSetting : esc_html__('Form Settings','easy-form-builder'),
@@ -496,7 +496,7 @@ class efbFunction {
 			"ddate" => $state ? $ac->text->ddate : esc_html__('Date','easy-form-builder'),
 			"serverEmailAble" => $state ? $ac->text->serverEmailAble : esc_html__('Your server is capable of sending emails','easy-form-builder'),
 			/* translators: SMTP = Simple Mail Transfer Protocol - email sending method */
-			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : esc_html__('SMTP Error: The host is unable to send an email. Please contact the host is support team for assistance.','easy-form-builder'),
+			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : esc_html__('SMTP Error: The host is unable to send an email. Please contact the host support team for assistance.','easy-form-builder'),
 
 			"aPIkeyGoogleMapsFeild" => $state ? $ac->text->aPIkeyGoogleMapsFeild : esc_html__('There was an error loading Maps.','easy-form-builder'),
 			"fileIsNotRight" => $state ? $ac->text->fileIsNotRight : esc_html__('The uploaded file is not in the correct file format.','easy-form-builder'),
@@ -641,7 +641,7 @@ class efbFunction {
 			"newMessage" => $state ? $ac->text->newMessage : esc_html__('New message!', 'easy-form-builder'),
 			"newMessageReceived" => $state ? $ac->text->newMessageReceived : esc_html__('A New Message has been Received.', 'easy-form-builder'),
 			"createdBy" => $state ? $ac->text->createdBy : esc_html__('Created by','easy-form-builder'),
-			"hiUser" => $state ? $ac->text->hiUser : esc_html__('Hi Dear User', 'easy-form-builder'),
+			"hiUser" => $state ? $ac->text->hiUser : esc_html__('Hi dear user', 'easy-form-builder'),
 			"sentBy" => $state ? $ac->text->sentBy : esc_html__("Sent by:",'easy-form-builder'),
 			"youRecivedNewMessage" => $state ? $ac->text->youRecivedNewMessage : esc_html__('You have a new message.', 'easy-form-builder'),
 			"formNExist" => $state ? $ac->text->formNExist : esc_html__('Form does not exist !!','easy-form-builder'),
@@ -718,7 +718,7 @@ class efbFunction {
 			"ChrlimitEmail" => $state  &&  isset($ac->text->ChrlimitEmail) ? $ac->text->ChrlimitEmail : esc_html__('Your Email Template cannot exceed 10,000 characters.','easy-form-builder'),
 			"pleaseEnterVaildEtemp" => $state  &&  isset($ac->text->pleaseEnterVaildEtemp) ? $ac->text->pleaseEnterVaildEtemp : esc_html__('Please use HTML tags to create your email template.','easy-form-builder'),
 			/* translators: HTML2 = HTML (HyperText Markup Language) for creating email templates */
-			"infoEmailTemplates" => $state  &&  isset($ac->text->infoEmailTemplates) ? $ac->text->infoEmailTemplates : esc_html__('To create an email template using HTML2, use the following shortcodes. Please note that the shortcodes marked with an asterisk (*) should be included in the email template.','easy-form-builder'),
+			"infoEmailTemplates" => $state  &&  isset($ac->text->infoEmailTemplates) ? $ac->text->infoEmailTemplates : esc_html__('To create an email template using HTML2, use the following shortcodes. Please note that the shortcodes marked with an asterisk “*” should be included in the email template.','easy-form-builder'),
 			"shortcodeTitleInfo" => $state  &&  isset($ac->text->shortcodeTitleInfo) ? $ac->text->shortcodeTitleInfo : esc_html__('Add this shortcode inside a tag to display the title of the email.','easy-form-builder'),
 			"shortcodeMessageInfo" => $state  &&  isset($ac->text->shortcodeMessageInfo) ? $ac->text->shortcodeMessageInfo : esc_html__('Add this shortcode inside an HTML tag to display the message content of an email.','easy-form-builder'),
 			"shortcodeWebsiteNameInfo" => $state  &&  isset($ac->text->shortcodeWebsiteNameInfo) ? $ac->text->shortcodeWebsiteNameInfo : esc_html__('To display the website name, add this shortcode inside an HTML tag.','easy-form-builder'),
@@ -765,7 +765,7 @@ class efbFunction {
 			"emptyCartM" => $state  &&  isset($ac->text->emptyCartM) ? $ac->text->emptyCartM : esc_html__('Your cart is currently empty. Please add items to continue.','easy-form-builder'),
 			"payCheckbox" => $state  &&  isset($ac->text->payCheckbox) ? $ac->text->payCheckbox : esc_html__('Payment Multi choose','easy-form-builder'),
 			"payRadio" => $state  &&  isset($ac->text->payRadio) ? $ac->text->payRadio : esc_html__('Payment Single choose','easy-form-builder'),
-			"paySelect" => $state  &&  isset($ac->text->paySelect) ? $ac->text->paySelect : esc_html__('Payment Selection Choose','easy-form-builder'),
+			"paySelect" => $state  &&  isset($ac->text->paySelect) ? $ac->text->paySelect : esc_html__('Payment Selection choose','easy-form-builder'),
 			"payMultiselect" => $state  &&  isset($ac->text->payMultiselect) ? $ac->text->payMultiselect : esc_html__('Payment dropdown list','easy-form-builder'),
 			"errorCode" => $state  &&  isset($ac->text->errorCode) ? $ac->text->errorCode : esc_html__('Error Code','easy-form-builder'),
 			"stripeKeys" => $state  &&  isset($ac->text->stripeKeys) ? $ac->text->stripeKeys : esc_html__('Stripe Keys','easy-form-builder'),
@@ -794,7 +794,7 @@ class efbFunction {
 			"monthly" => $state  &&  isset($ac->text->monthly) ? $ac->text->monthly : esc_html__('Monthly','easy-form-builder'),
 			"weekly" => $state  &&  isset($ac->text->weekly) ? $ac->text->weekly : esc_html__('Weekly','easy-form-builder'),
 			"yearly" => $state  &&  isset($ac->text->yearly) ? $ac->text->yearly : esc_html__('Yearly','easy-form-builder'),
-			"howProV" => $state  &&  isset($ac->text->howProV) ? $ac->text->howProV : esc_html__('How to activate Pro version of Easy form builder','easy-form-builder'),
+			"howProV" => $state  &&  isset($ac->text->howProV) ? $ac->text->howProV : esc_html__('How to activate the Pro version of Easy Form Builder','easy-form-builder'),
 			"uploadedFile" => $state  &&  isset($ac->text->uploadedFile) ? $ac->text->uploadedFile : esc_html__('Uploaded File','easy-form-builder'),
 			"offlineMSend" => $state  &&  isset($ac->text->offlineMSend) ? $ac->text->offlineMSend : esc_html__('Your internet connection has been lost, but do not worry, we have saved the information you entered on this form. Once you are reconnected to the internet, you can easily send your information by clicking the submit button.','easy-form-builder'),
 			"offlineSend" => $state  &&  isset($ac->text->offlineSend) ? $ac->text->offlineSend : esc_html__('Please ensure that you have a stable internet connection and try again.','easy-form-builder'),
@@ -830,7 +830,7 @@ class efbFunction {
 			"install" => $state  &&  isset($ac->text->install) ? $ac->text->install : esc_html__('Install','easy-form-builder'),
 			"upDMsg" => $state  &&  isset($ac->text->upDMsg) ? $ac->text->upDMsg : esc_html__('Please update Easy Form Builder before trying again.','easy-form-builder'),
 			"AfLnFrm" => $state  &&  isset($ac->text->AfLnFrm) ? $ac->text->AfLnFrm : esc_html__('Activation of offline form mode.','easy-form-builder'),
-			"IMAddons" => $state  &&  isset($ac->text->IMAddons) ? $ac->text->IMAddons : esc_html__('Before activation this option, install','easy-form-builder'),
+			"IMAddons" => $state  &&  isset($ac->text->IMAddons) ? $ac->text->IMAddons : esc_html__('Before activating this option, install','easy-form-builder'),
 			"IMAddonP" => $state  &&  isset($ac->text->IMAddonP) ? $ac->text->IMAddonP : esc_html__('To create a payment form to collect online payments, you must first install a payment add-on such as the Stripe Add-on.','easy-form-builder'),
 			"allformat" => $state  &&  isset($ac->text->allformat) ? $ac->text->allformat : esc_html__('All formats','easy-form-builder'),
 			"AdnSST" => $state  &&  isset($ac->text->AdnSST) ? $ac->text->AdnSST : esc_html__('EFB SMS Addon','easy-form-builder'),
@@ -864,7 +864,7 @@ class efbFunction {
 			"max" => $state  &&  isset($ac->text->max) ? $ac->text->max : esc_html__('Max','easy-form-builder'),
 			"min" => $state  &&  isset($ac->text->min) ? $ac->text->min : esc_html__('Min','easy-form-builder'),
 			/* translators: Validation message - minimum value must be less than maximum value */
-			"mxlmn" => $state  &&  isset($ac->text->mxlmn) ? $ac->text->mxlmn : esc_html__('Minimum entry must lower than maximum entry','easy-form-builder'),
+			"mxlmn" => $state  &&  isset($ac->text->mxlmn) ? $ac->text->mxlmn : esc_html__('Minimum entry must be lower than the maximum entry','easy-form-builder'),
 			"disabled" => $state  &&  isset($ac->text->disabled) ? $ac->text->disabled : esc_html__('Disabled','easy-form-builder'),
 			"hflabel" => $state  &&  isset($ac->text->hflabel) ? $ac->text->hflabel : esc_html__('Hide the label','easy-form-builder'),
 			/* translators: Response/ticket = form submission that can be closed/opened like a support ticket */
@@ -888,8 +888,8 @@ class efbFunction {
 			"ardate" => $state  &&  isset($ac->text->ardate) ? $ac->text->ardate : esc_html__('Hijri Date','easy-form-builder'),
 			"iaddon" => $state  &&  isset($ac->text->iaddon) ? $ac->text->iaddon : esc_html__('Install the addon','easy-form-builder'),
 			/* translators: Jalili is a typo for Jalali (Persian/Shamsi calendar) */
-			"IMAddonPD" => $state  &&  isset($ac->text->IMAddonPD) ? $ac->text->IMAddonPD : esc_html__('Please go to Add-ons Page of Easy Form Builder plugin and install the Jalili date addons','easy-form-builder'),
-			"IMAddonAD" => $state  &&  isset($ac->text->IMAddonAD) ? $ac->text->IMAddonAD : esc_html__('Please go to Add-ons Page of Easy Form Builder plugin and install the Hijri date addons','easy-form-builder'),
+			"IMAddonPD" => $state  &&  isset($ac->text->IMAddonPD) ? $ac->text->IMAddonPD : esc_html__('Please go to the Add-ons Page of Easy Form Builder plugin and install the Jalili date addons','easy-form-builder'),
+			"IMAddonAD" => $state  &&  isset($ac->text->IMAddonAD) ? $ac->text->IMAddonAD : esc_html__('Please go to the Add-ons Page of Easy Form Builder plugin and install the Hijri date addons','easy-form-builder'),
 			"warning" => $state  &&  isset($ac->text->warning) ? $ac->text->warning : esc_html__('warning','easy-form-builder'),
 			"datetimelocal" => $state  &&  isset($ac->text->datetimelocal) ? $ac->text->datetimelocal : esc_html__('date & time','easy-form-builder'),
 			"dsupfile" => $state  &&  isset($ac->text->dsupfile) ? $ac->text->dsupfile : esc_html__('Enable file upload in the response box','easy-form-builder'),
@@ -1000,7 +1000,7 @@ class efbFunction {
 			"sms_wpsmss" => $state  &&  isset($ac->text->sms_wpsmss) ? $ac->text->sms_wpsmss : esc_html__('WSMS plugin by VeronaLabs','easy-form-builder'),
 			"wpsms_nm" => $state  &&  isset($ac->text->wpsms_nm) ? $ac->text->wpsms_nm : esc_html__('WSMS plugin by VeronaLabs is not installed or activated. Please select another option, or install and configure WP SMS.','easy-form-builder'),
 			/* translators: NN = Name of the add-on */
-			"msg_adons" => $state  &&  isset($ac->text->msg_adons) ? $ac->text->msg_adons : esc_html__('To use this option, please install the NN add-ons from the Easy Form Builder plugin\'s Add-ons page.','easy-form-builder'),
+			"msg_adons" => $state  &&  isset($ac->text->msg_adons) ? $ac->text->msg_adons : esc_html__('To use this option, please install the NN add-ons from the Easy Form Builder plugin\'s add-ons page.','easy-form-builder'),
 			"sms_noti" => $state  &&  isset($ac->text->sms_noti) ? $ac->text->sms_noti : esc_html__('SMS Notifications','easy-form-builder'),
 			"sms_dnoti" => $state  &&  isset($ac->text->sms_dnoti) ? $ac->text->sms_dnoti : esc_html__('Enter the administrators’ mobile numbers to receive SMS notifications, such as alerts or new messages.','easy-form-builder'),
 			"sms_ndnoti" => $state  &&  isset($ac->text->sms_ndnoti) ? $ac->text->sms_ndnoti : esc_html__(' All SMS notifications sent by Easy Form Builder will be delivered to the numbers entered here.','easy-form-builder'),
@@ -1182,7 +1182,7 @@ class efbFunction {
 			"ufinyf" => $state  &&  isset($ac->text->ufinyf) ? $ac->text->ufinyf : esc_html__('To use %1$s features in your forms, you need to get your %2$s keys.','easy-form-builder'),
 			"payment" => $state  &&  isset($ac->text->payment) ? $ac->text->payment : esc_html__('Payment','easy-form-builder'),
 			/* translators: %s: Add-on name */
-			"INAddonMsg" => $state  &&  isset($ac->text->INAddonMsg) ? $ac->text->INAddonMsg : esc_html__('Go to the Add-ons page in the Easy Form Builder plugin, install the %s add-on, and try again.','easy-form-builder'),
+			"INAddonMsg" => $state  &&  isset($ac->text->INAddonMsg) ? $ac->text->INAddonMsg : esc_html__('Go to the add-ons page in the Easy Form Builder plugin, install the %s add-on, and try again.','easy-form-builder'),
 			/* translators: %s: Payment add-on name */
 			"IMAddonPMsg" => $state && isset($ac->text->IMAddonPMsg) ? $ac->text->IMAddonPMsg  : esc_html__('To create a payment form to collect online payments, install a payment add-on such as the %s Add-on first.', 'easy-form-builder'),
 			"activated" => $state  &&  isset($ac->text->activated) ? $ac->text->activated : esc_html__('Activated','easy-form-builder'),

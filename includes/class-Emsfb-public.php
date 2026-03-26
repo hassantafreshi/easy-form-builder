@@ -578,7 +578,7 @@ public function check_nonce_permission_efb($request) {
 					<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
 					           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
 					           margin:0 0 10px 0; text-align:center;'>"
-					    . esc_html__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder') .
+					    . esc_html__('It seems that you are the admin of this form. Please log in and try again.', 'easy-form-builder') .
 					"</h3>
 					<p style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
 					          font-size:" . esc_attr($warn_font_size) . "; margin:0; text-align:center;'></p>
@@ -618,7 +618,7 @@ public function check_nonce_permission_efb($request) {
 					<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
 					           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
 					           margin:0 0 10px 0; text-align:center;'>"
-					    . esc_html__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder') .
+					    . esc_html__('It seems that you are the admin of this form. Please log in and try again', 'easy-form-builder') .
 					"</h3>
 					<p style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
 					          font-size:" . esc_attr($warn_font_size) . "; margin:0; text-align:center;'></p>
@@ -661,7 +661,7 @@ public function check_nonce_permission_efb($request) {
 			"error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media",
 			"zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync",
 			"enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue",
-			"name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork",
+			"name","latitude","longitude","previous","next","invalidEmail","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork",
 			"aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","createdBy","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation',
 			'snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc','fillrequiredfields'];
 

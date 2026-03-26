@@ -824,10 +824,6 @@ class Emsfb {
             if (!empty($activeCode) && strlen($activeCode) > 5) {
                 update_option('emsfb_pro', 1);
             }
-            $date_ =get_options('emsfb_update_v4_date', -1);
-            if ($date_ === -1) {
-                update_option('emsfb_update_v4_date', current_time('ymd'));
-            }
         }
     }
 
