@@ -729,7 +729,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
     if (c.hasOwnProperty('currency')){ currency = c.currency}
     s = false;
-    let value = typeof(c.value)=="string" ? `<span class="efb-formatted">${(typeof EfbResponseViewer !== 'undefined' ? EfbResponseViewer.formatMessageForDisplay(c.value.toString().replaceAll('@efb!', ',')) : c.value.toString().replaceAll('@efb!', ','))}</span>` :'';
+    let value = typeof(c.value)=="string" ? `<span class="efb-formatted">${(typeof EfbResponseViewer !== 'undefined' ? EfbResponseViewer.formatMessageForDisplay(c.value.toString().replaceAll('@efb!', ',').replace(/,\s*$/, '')) : c.value.toString().replaceAll('@efb!', ',').replace(/,\s*$/, ''))}</span>` :'';
     if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;

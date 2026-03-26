@@ -62,7 +62,8 @@ jQuery(function () {
   }
 
   let count_show_efb_cache = localStorage.hasOwnProperty('efb_cache') ? Number(localStorage.getItem('efb_cache'))+1 : 0;
-  if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && count_show_efb_cache<2){
+  console.log('EFB Cache Warning shown count:', count_show_efb_cache);
+  if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && count_show_efb_cache<3){
 
     if(efb_var.text.excefb.indexOf('%s')==-1){
       $val_noti = efb_var.text.excefb.replaceAll('XX', `<b>${efb_var.plugins.cache} </b>`);
@@ -71,7 +72,7 @@ jQuery(function () {
       $val_noti += `<br><a class="efb text-danger ec-efb" data-eventform="links" data-linkname="cachePlugin">${efb_var.text.clcdetls}</a>`
     }
     alert_message_efb('' ,$val_noti,  120 ,'warning' )
-
+    count_show_efb_cache = count_show_efb_cache + 1;
     localStorage.setItem('efb_cache',count_show_efb_cache);
   }
 

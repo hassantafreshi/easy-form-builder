@@ -507,7 +507,7 @@ function getContentPreview_efb(contentStr) {
     for (const c of parsed) {
       if (!c || !c.value || c.value === '@file@') continue;
       if (c.type === 'maps' || c.type === 'esign' || c.type === 'payment' || c.type ==='w_link') continue;
-      let val = String(c.value).replace(/<[^>]*>/g, '').replace(/@efb[^#]*#/g, ' ').trim();
+      let val = String(c.value).replace(/<[^>]*>/g, '').replace(/@efb!/g, ',').replace(/@efb[^#]*#/g, ' ').replace(/,\s*$/, '').trim();
       if (val.length > 0) {
         const label = c.name || c.id_ || '';
         parts.push(label ? `${label}: ${val}` : val);
