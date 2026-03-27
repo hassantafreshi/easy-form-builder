@@ -2969,14 +2969,7 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	private function generate_track_code_efb($style = 'date_en_mix') {
-		/* if (is_object($this->setting) && isset($this->setting->trackCodeStyle)) {
-			$style = $this->setting->trackCodeStyle;
-		} else {
-			$settings = get_setting_Emsfb('decoded');
-			if (is_object($settings) && isset($settings->trackCodeStyle)) {
-				$style = $settings->trackCodeStyle;
-			}
-		} */
+
 		$dp = wp_date('ymd');
 		$len = 5;
 		$local ='';
@@ -3306,7 +3299,7 @@ public function check_nonce_permission_efb($request) {
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
 		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
-        'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN' ,'guest']: $this->text_;
+        'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :'guest';
