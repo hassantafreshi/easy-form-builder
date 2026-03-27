@@ -442,12 +442,12 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
 .form-range.efb:focus {	border-radius: 20px;
    box-shadow: none !important;
 }
-.form-range.efb::-webkit-slider-thumb {	background: #ff4b93 !important;
+/* .form-range.efb::-webkit-slider-thumb {	background: #ff4b93 !important;
 }
 .form-range.efb::-moz-range-thumb {	background: #ff4b93 !important;
 }
 .form-range.efb::-ms-thumb {	background: #ff4b93 !important;
-}
+} */
 
 
 .maps-efb {	height: 200px;
@@ -1213,9 +1213,9 @@ a.efb.btn {	text-decoration: none;
   }
 
   .efb.slider input[type="range"]::-webkit-slider-thumb {
-	  background: #ff4b93;
+	  background: #0d6efd;
 
-	  border: 2px solid #ff4b93;
+	  border: 0;
 
 	  border-radius: 50%;
 

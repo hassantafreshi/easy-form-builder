@@ -382,6 +382,14 @@ class efbFunction {
 			"clr" => $state ? $ac->text->clr : esc_html__('Color','easy-form-builder'),
 			/* translators: %s Checked Color = color of checked radio/checkbox elements, %s is replaced with field type name */
 			"checkedClr" => $state && isset($ac->text->checkedClr) ? $ac->text->checkedClr : esc_html__('%s Checked Color','easy-form-builder'),
+			/* translators: Range Thumb range slider button/thumb */
+			"rangeThumb" => $state && isset($ac->text->rangeThumb) ? $ac->text->rangeThumb : esc_html__('Slider Button','easy-form-builder'),
+			/* translators: Range Value  range slider value */
+			"rangeValue" => $state && isset($ac->text->rangeValue) ? $ac->text->rangeValue : esc_html__('Value Text','easy-form-builder'),
+
+			/* translators: %s Color = color of the field element, %s is replaced with field type name */
+			"scolor" => $state && isset($ac->text->scolor) ? $ac->text->scolor : esc_html__('%s color','easy-form-builder'),
+
 			"borderColor" => $state ? $ac->text->borderColor : esc_html__('Border Color','easy-form-builder'),
 			"height" => $state ? $ac->text->height : esc_html__('Height','easy-form-builder'),
 			"name" => $state ? $ac->text->name : esc_html__('Name','easy-form-builder'),

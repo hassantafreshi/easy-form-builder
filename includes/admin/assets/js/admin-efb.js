@@ -2295,6 +2295,20 @@ let change_el_edit_Efb = (el) => {
         // Apply the checked color to the form preview
         applyCheckedColorEfb(valj_efb[indx].id_, color);
         break;
+      case "selectRangeThumbColorEl":
+        // Range thumb color (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('range_thumb_color') == false ? Object.assign(valj_efb[indx], { 'range_thumb_color': color }) : valj_efb[indx].range_thumb_color = color;
+        // Apply the range thumb color to the form preview
+        applyRangeThumbColorEfb(valj_efb[indx].id_, color);
+        break;
+      case "selectRangeValueColorEl":
+        // Range value text color (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('range_value_color') == false ? Object.assign(valj_efb[indx], { 'range_value_color': color }) : valj_efb[indx].range_value_color = color;
+        // Apply the range value color to the form preview
+        applyRangeValueColorEfb(valj_efb[indx].id_, color);
+        break;
       case "selectBorderColorEl":
 
         color = el.value;
@@ -6718,6 +6732,86 @@ function updateCheckedColorStyleEfb(input) {
 }
 
 /**
+ * Apply range thumb color to range slider elements
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applyRangeThumbColorEfb(parentId, color) {
+  color = color[0] !== "#" ? "#" + color : color;
+  const styleId = `efb-range-thumb-color-${parentId}`;
+
+  // Remove existing style if present
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  // Create CSS for range thumb with vendor prefixes - using multiple selectors for compatibility
+  const css = `
+    input[type="range"][data-vid="${parentId}"]::-webkit-slider-thumb,
+    [data-vid="${parentId}"] input[type="range"]::-webkit-slider-thumb,
+    [id="${parentId}-range"] input[type="range"]::-webkit-slider-thumb,
+    [data-css="${parentId}"] input[type="range"]::-webkit-slider-thumb,
+    [data-css="${parentId}"] .efb.form-range::-webkit-slider-thumb {
+      background-color: ${color} !important;
+    }
+    input[type="range"][data-vid="${parentId}"]::-moz-range-thumb,
+    [data-vid="${parentId}"] input[type="range"]::-moz-range-thumb,
+    [id="${parentId}-range"] input[type="range"]::-moz-range-thumb,
+    [data-css="${parentId}"] input[type="range"]::-moz-range-thumb,
+    [data-css="${parentId}"] .efb.form-range::-moz-range-thumb {
+      background-color: ${color} !important;
+    }
+    input[type="range"][data-vid="${parentId}"]::-ms-thumb,
+    [data-vid="${parentId}"] input[type="range"]::-ms-thumb,
+    [id="${parentId}-range"] input[type="range"]::-ms-thumb,
+    [data-css="${parentId}"] input[type="range"]::-ms-thumb,
+    [data-css="${parentId}"] .efb.form-range::-ms-thumb {
+      background-color: ${color} !important;
+    }
+  `;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+}
+
+/**
+ * Apply range value text color
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applyRangeValueColorEfb(parentId, color) {
+  color = color[0] !== "#" ? "#" + color : color;
+
+  // Find the range value element and apply color directly
+  const valueEl = document.getElementById(`${parentId}_rv`);
+  if (valueEl) {
+    valueEl.style.setProperty('color', color, 'important');
+  }
+
+  // Also create a style tag for consistency
+  const styleId = `efb-range-value-color-${parentId}`;
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  const css = `
+    #${parentId}_rv,
+    [id="${parentId}_rv"] {
+      color: ${color} !important;
+    }
+  `;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+}
+
+/**
  * Initialize checked colors for all radio/checkbox elements on form load
  */
 function initCheckedColorsEfb() {
@@ -6733,6 +6827,18 @@ function initCheckedColorsEfb() {
 }
 
 function fun_addStyle_costumize_efb(val, key, indexVJ) {
+  // Handle range_thumb_color for range elements
+  if (key === 'range_thumb_color' && val && val.length > 0) {
+    applyRangeThumbColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
+  // Handle range_value_color for range elements
+  if (key === 'range_value_color' && val && val.length > 0) {
+    applyRangeValueColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
   // Handle checked_color for radio/checkbox elements
   if (key === 'checked_color') {
     console.log('[EFB DEBUG] checked_color detected:', {

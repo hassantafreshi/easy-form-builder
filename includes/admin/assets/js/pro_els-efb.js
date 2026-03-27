@@ -469,7 +469,9 @@ set_dadfile_fun_efb = (id, indx,form_id=0) => {
   }
 function fun_clear_esign_efb(id) {
     const canvas = document.getElementById(`${id}_`);
-    document.getElementById(`${id}-sig-data`).value = "Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+    const sigData = document.getElementById(`${id}-sig-data`);
+    if (!canvas || !sigData) return;
+    sigData.value = "Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
     const c2d = canvas.getContext("2d");
     c2d.clearRect(0, 0, canvas.width, canvas.height);
     var w = canvas.width;

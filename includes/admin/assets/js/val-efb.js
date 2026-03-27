@@ -793,6 +793,30 @@ function show_setting_window_efb(idset) {
         <input type="color" id="selectCheckedColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="checked" data-type="checked" data-tag="${valj_efb[indx].type}" value="${checkedClrHex}" name="selectCheckedColorEl" ${!isPro ? 'disabled' : ''}></span>`;
     };
 
+    // Range thumb color picker (PRO feature)
+    const selectRangeThumbColorEls = () => {
+      let thumbClrHex = valj_efb[indx].hasOwnProperty('range_thumb_color') ? valj_efb[indx].range_thumb_color : '#004cbb';
+      // const labelText = efb_var.text.rangeThumbClr || 'Slider Button Color';
+      const labelText = (efb_var.text.scolor.replace('%s', efb_var.text.rangeThumb) || 'Slider Button Color');
+      const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
+      return `<span class="efb">
+        <label for="selectRangeThumbColorEl" class="efb mt-3 efb"><i class="efb bi-sliders fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        <input type="color" id="selectRangeThumbColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="rangeThumb" data-type="rangeThumb" data-tag="${valj_efb[indx].type}" value="${thumbClrHex}" name="selectRangeThumbColorEl" ${!isPro ? 'disabled' : ''}></span>`;
+    };
+
+    // Range value text color picker (PRO feature)
+    const selectRangeValueColorEls = () => {
+      let valueClrHex = valj_efb[indx].hasOwnProperty('range_value_color') ? valj_efb[indx].range_value_color : '#212529';
+     // const labelText = efb_var.text.rangeValueClr || 'Value Text Color';
+      const labelText = (efb_var.text.scolor.replace('%s', efb_var.text.rangeValue) || 'Value Text Color');
+      const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
+      return `<span class="efb">
+        <label for="selectRangeValueColorEl" class="efb mt-3 efb"><i class="efb bi-fonts fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        <input type="color" id="selectRangeValueColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="rangeValue" data-type="rangeValue" data-tag="${valj_efb[indx].type}" value="${valueClrHex}" name="selectRangeValueColorEl" ${!isPro ? 'disabled' : ''}></span>`;
+    };
+
       const thankYouTypeEls = `
       <label for="thankYouTypeEl" class="efb mt-3 bi-card-heading mx-0 mb-2 fs-6 form-text border-secondary  border-bottom text-secondary">${efb_var.text.landingTnx}</label>
                         <select  data-id="thankYouTypeEl" class="efb elEdit form-select efb border-d rounded-4"  id="thankYouTypeEl"  data-tag="${valj_efb[0].thank_you}">
@@ -1358,6 +1382,8 @@ function show_setting_window_efb(idset) {
                 ${el.dataset.tag == "range" || el.dataset.tag == "date" ?miLenEls():''}
                 ${el.dataset.tag == "range" || el.dataset.tag == "date" ? mLenEls() :''}
                 ${el.dataset.tag == "range" ?valueEls:''}
+                ${el.dataset.tag == "range" ? selectRangeThumbColorEls() :''}
+                ${el.dataset.tag == "range" ? selectRangeValueColorEls() :''}
 
                 ${el.dataset.tag == 'rating' ? '' : widthEls}
                 ${el.dataset.tag == 'rating' ? '' : mobileWidthEls}

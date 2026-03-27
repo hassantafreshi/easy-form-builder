@@ -2145,7 +2145,7 @@
 
 		$corner = property_exists($valj_efb[0], 'corner') ? $valj_efb[0]->corner : 'efb-square';
 		$btns_align = property_exists($valj_efb[0], 'btns_align') ? $valj_efb[0]->btns_align . ' mx-3' : 'justify-content-center';
-		$icon_spacing_class = is_rtl() ? 'me-2' : 'ms-2';
+		$icon_spacing_class = 'ms-2';
 
 		$prev_icon = strlen($valj_efb[0]->button_Previous_icon) > 3 && $valj_efb[0]->button_Previous_icon != 'bi-undefined' &&  $valj_efb[0]->button_Previous_icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Previous_icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
 		$next_icon = strlen($valj_efb[0]->button_Next_text) > 3 && $valj_efb[0]->button_Next_text != 'bi-undefined' && $valj_efb[0]->button_Next_text!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
@@ -3080,11 +3080,64 @@
 		return $css;
 	}
 
+	/**
+	 * Generate CSS for range slider thumb color
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateRangeThumbColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		$css = sprintf(
+			'input[type="range"][data-vid="%1$s"]::-webkit-slider-thumb, ' .
+			'[data-vid="%1$s"] input[type="range"]::-webkit-slider-thumb, ' .
+			'[id="%1$s-range"] input[type="range"]::-webkit-slider-thumb, ' .
+			'[data-css="%1$s"] input[type="range"]::-webkit-slider-thumb, ' .
+			'[data-css="%1$s"] .efb.form-range::-webkit-slider-thumb { background-color: %2$s !important; } ' .
+			'input[type="range"][data-vid="%1$s"]::-moz-range-thumb, ' .
+			'[data-vid="%1$s"] input[type="range"]::-moz-range-thumb, ' .
+			'[id="%1$s-range"] input[type="range"]::-moz-range-thumb, ' .
+			'[data-css="%1$s"] input[type="range"]::-moz-range-thumb, ' .
+			'[data-css="%1$s"] .efb.form-range::-moz-range-thumb { background-color: %2$s !important; } ' .
+			'input[type="range"][data-vid="%1$s"]::-ms-thumb, ' .
+			'[data-vid="%1$s"] input[type="range"]::-ms-thumb, ' .
+			'[id="%1$s-range"] input[type="range"]::-ms-thumb, ' .
+			'[data-css="%1$s"] input[type="range"]::-ms-thumb, ' .
+			'[data-css="%1$s"] .efb.form-range::-ms-thumb { background-color: %2$s !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
+	/**
+	 * Generate CSS for range value text color
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateRangeValueColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		$css = sprintf(
+			'[id="%1$s_rv"], #%1$s_rv { color: %2$s !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
 	public function fun_addStyle_customize_efb($val, $key, $vj) {
-		// Handle checked_color for radio/checkbox elements
-		if ($key === 'checked_color' && !empty($val) && isset($vj->id_)) {
-			return $this->generateCheckedColorCss($vj->id_, $val);
-		}
+
 
 		if (strpos($val, 'colorDEfb') !== false) {
 			$type = "";
@@ -3135,6 +3188,15 @@
 
 			if ($color != "") {
 				return $this->addStyleColorBodyEfb("colorDEfb-" . substr($color, 1), substr($color, -6), $type, -1, $vj);
+			}
+		}else{
+			// Handle checked_color for radio/checkbox elements
+			if ($key === 'checked_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateCheckedColorCss($vj->id_, $val);
+			}else if ($key === 'range_thumb_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateRangeThumbColorCss($vj->id_, $val);
+			}else if ($key === 'range_value_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateRangeValueColorCss($vj->id_, $val);
 			}
 		}
 	}

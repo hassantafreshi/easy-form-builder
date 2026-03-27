@@ -959,6 +959,14 @@ public function check_nonce_permission_efb($request) {
 						if($key === 'checked_color' && !empty($value)){
 							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
 						}
+						// Handle range_thumb_color for range elements
+						if($key === 'range_thumb_color' && !empty($value)){
+							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
+						}
+						// Handle range_value_color for range elements
+						if($key === 'range_value_color' && !empty($value)){
+							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
+						}
 					}else{
 						foreach ($value as $key2 => $value2) {
 							if(is_string($value2)){
