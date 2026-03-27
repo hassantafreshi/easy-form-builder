@@ -975,6 +975,10 @@ public function check_nonce_permission_efb($request) {
 						if($key === 'switch_handle_color' && !empty($value)){
 							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
 						}
+						// Handle switch_off_color for switch elements
+						if($key === 'switch_off_color' && !empty($value)){
+							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
+						}
 					}else{
 						foreach ($value as $key2 => $value2) {
 							if(is_string($value2)){

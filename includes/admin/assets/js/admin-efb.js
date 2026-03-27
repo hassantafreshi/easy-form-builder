@@ -2316,6 +2316,13 @@ let change_el_edit_Efb = (el) => {
         // Apply the switch on color to the form preview
         applySwitchOnColorEfb(valj_efb[indx].id_, color);
         break;
+      case "selectSwitchOffColorEl":
+        // Switch off color (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('switch_off_color') == false ? Object.assign(valj_efb[indx], { 'switch_off_color': color }) : valj_efb[indx].switch_off_color = color;
+        // Apply the switch off color to the form preview
+        applySwitchOffColorEfb(valj_efb[indx].id_, color);
+        break;
       case "selectSwitchHandleColorEl":
         // Switch handle color (PRO feature)
         color = el.value;
@@ -6896,6 +6903,42 @@ function applySwitchHandleColorEfb(parentId, color) {
 }
 
 /**
+ * Apply switch off color
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applySwitchOffColorEfb(parentId, color) {
+  color = color[0] !== "#" ? "#" + color : color;
+
+  // Find the switch button element and apply color directly when not active
+  const switchBtn = document.querySelector(`#${parentId} .btn-toggle, [id="${parentId}"] .btn-toggle`);
+  if (switchBtn && !switchBtn.classList.contains('active')) {
+    switchBtn.style.setProperty('background-color', color, 'important');
+    switchBtn.style.setProperty('border-color', color, 'important');
+  }
+
+  // Create a style tag for the off state
+  const styleId = `efb-switch-off-color-${parentId}`;
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  const css = `
+    #${parentId} .efb.btn-toggle:not(.active),
+    [id="${parentId}"] .efb.btn-toggle:not(.active) {
+      background-color: ${color} !important;
+      border-color: ${color} !important;
+    }
+  `;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+}
+
+/**
  * Initialize checked colors for all radio/checkbox elements on form load
  */
 function initCheckedColorsEfb() {
@@ -6932,6 +6975,12 @@ function fun_addStyle_costumize_efb(val, key, indexVJ) {
   // Handle switch_handle_color for switch elements
   if (key === 'switch_handle_color' && val && val.length > 0) {
     applySwitchHandleColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
+  // Handle switch_off_color for switch elements
+  if (key === 'switch_off_color' && val && val.length > 0) {
+    applySwitchOffColorEfb(valj_efb[indexVJ].id_, val);
     return;
   }
 

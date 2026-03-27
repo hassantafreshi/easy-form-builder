@@ -3178,6 +3178,27 @@
 		return $css;
 	}
 
+	/**
+	 * Generate CSS for switch off color
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateSwitchOffColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		$css = sprintf(
+			'[id="%1$s"] .efb.btn-toggle:not(.active), #%1$s .efb.btn-toggle:not(.active) { background-color: %2$s !important; border-color: %2$s !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
 	public function fun_addStyle_customize_efb($val, $key, $vj) {
 
 
@@ -3243,6 +3264,8 @@
 				return $this->generateSwitchOnColorCss($vj->id_, $val);
 			}else if ($key === 'switch_handle_color' && !empty($val) && isset($vj->id_)) {
 				return $this->generateSwitchHandleColorCss($vj->id_, $val);
+			}else if ($key === 'switch_off_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateSwitchOffColorCss($vj->id_, $val);
 			}
 		}
 	}
