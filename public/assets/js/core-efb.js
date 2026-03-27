@@ -393,6 +393,24 @@ async function createStepsOfPublic() {
     } catch(e) {  }
   }
 
+  for (let msEl of document.querySelectorAll('.efb.efblist.inplist[data-vid][data-select]')) {
+    try {
+      const ms_vid = msEl.dataset.vid;
+      const ms_select = msEl.dataset.select;
+      if (!ms_vid || !ms_select || ms_select.trim().length === 0) continue;
+      if (get_row_sendback_by_id_efb_v4(ms_vid, 0) !== -1) continue;
+      const ms_form_id_el = msEl.closest('[data-formid]');
+      const ms_fid = ms_form_id_el ? ms_form_id_el.dataset.formid : (typeof form_ID_emsFormBuilder !== 'undefined' ? form_ID_emsFormBuilder : 0);
+      const ms_valj = (typeof get_structure_by_form_id_efb === 'function' && ms_fid) ? get_structure_by_form_id_efb(ms_fid) : valj_efb;
+      const ms_ob_def = ms_valj.find(x => x.id_ === ms_vid);
+      if (!ms_ob_def) continue;
+      const ms_v = msEl.innerHTML.trim().replaceAll(',', '@efb!');
+      if (!ms_v || ms_v.trim() === efb_var.text.selectOption.trim()) continue;
+      const ms_push = { id_: ms_vid, name: ms_ob_def.name, amount: ms_ob_def.amount, type: ms_ob_def.type, value: ms_v, session: sessionPub_emsFormBuilder, form_id: ms_fid };
+      fun_sendBack_emsFormBuilder(ms_push);
+    } catch(e) {  }
+  }
+
 }
 async function fun_sendBack_emsFormBuilder(ob) {
   if(typeof ob=='string' || ob.hasOwnProperty('value')==false ){

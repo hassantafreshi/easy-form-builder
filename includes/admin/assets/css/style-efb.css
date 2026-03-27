@@ -952,7 +952,7 @@ input[type=radio].efb.fs-2.form-check-input input[type=checkbox].efb.fs-2.form-c
    max-height: 60px !important;
    min-height: 60px !important;
 }
-.form-select.efb {	padding: 0px 35px !important;
+.form-select.efb {	padding: 0px 35px 0px  7px !important
 }
 
 div#recaptcha_efb {	position: absolute;
