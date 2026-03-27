@@ -319,6 +319,8 @@ For more information, visit the official website:
 
 = 4.0.3 =
 
+* Improved UX of Easy Form Builder
+
 * Fixed issues
 
 = 4.0.2 =
