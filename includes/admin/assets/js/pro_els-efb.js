@@ -680,8 +680,33 @@ function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
 load_intlTelInput_efb = (rndm, iVJ) => {
   setTimeout(() => {
     const onlyCountries = valj_efb[iVJ].hasOwnProperty("c_c") && valj_efb[iVJ].c_c.length > 0 ? valj_efb[iVJ].c_c : "";
+    const forceIntlContainerRtlEfb = (inputEl) => {
+      if (!inputEl) return;
+
+      const hasRtlScope = inputEl.closest('[dir="rtl"]') || document.documentElement.getAttribute('dir') === 'rtl';
+      if (!hasRtlScope) return;
+
+      const itiContainer = inputEl.closest('.iti');
+      if (!itiContainer) return;
+
+      const countryContainer = itiContainer.querySelector('.iti__country-container');
+      if (countryContainer) {
+        countryContainer.style.setProperty('left', 'auto', 'important');
+        countryContainer.style.setProperty('right', '0', 'important');
+        countryContainer.style.setProperty('inset-inline-start', 'auto', 'important');
+        countryContainer.style.setProperty('inset-inline-end', '0', 'important');
+      }
+
+      inputEl.setAttribute('dir', 'ltr');
+      inputEl.style.setProperty('direction', 'ltr', 'important');
+      inputEl.style.setProperty('text-align', 'left', 'important');
+      inputEl.style.setProperty('unicode-bidi', 'plaintext', 'important');
+    };
     let iti;
     const el_mobile = document.getElementById(rndm + "_");
+    if (!el_mobile) {
+      return;
+    }
     if(efb_var.length<1) efb_var = ajax_object_efm
     const ulitisJs = efb_var.images.hasOwnProperty('utilsJs') ? efb_var.images.utilsJs  : el_mobile.dataset.utilsjs;
 
@@ -692,6 +717,7 @@ load_intlTelInput_efb = (rndm, iVJ) => {
           placeholderNumberType: "MOBILE",
           loadUtils: () => import(ulitisJs),
       });
+        forceIntlContainerRtlEfb(el_mobile);
 
       el_mobile.addEventListener('blur', function () {
           const errorMap = [

@@ -1141,6 +1141,30 @@
 		$js =sprintf(
 			'
 			let el_emsfb_%1$s = document.getElementById("%1$s_");
+			const forceIntlContainerRtlEfb_%1$s = function(inputEl) {
+				if (!inputEl) {
+					return;
+				}
+				const rtlScope = inputEl.closest("[dir=\"rtl\"]") || document.documentElement.getAttribute("dir") === "rtl";
+				if (!rtlScope) {
+					return;
+				}
+				const itiContainer = inputEl.closest(".iti");
+				if (!itiContainer) {
+					return;
+				}
+				const countryContainer = itiContainer.querySelector(".iti__country-container");
+				if (countryContainer) {
+					countryContainer.style.setProperty("left", "auto", "important");
+					countryContainer.style.setProperty("right", "0", "important");
+					countryContainer.style.setProperty("inset-inline-start", "auto", "important");
+					countryContainer.style.setProperty("inset-inline-end", "0", "important");
+				}
+				inputEl.setAttribute("dir", "ltr");
+				inputEl.style.setProperty("direction", "ltr", "important");
+				inputEl.style.setProperty("text-align", "left", "important");
+				inputEl.style.setProperty("unicode-bidi", "plaintext", "important");
+			};
 			setTimeout(function() {
 				const iti = window.intlTelInput(el_emsfb_%1$s, {
 					onlyCountries: %11$s,
@@ -1149,6 +1173,7 @@
 					placeholderNumberType: "MOBILE",
 					loadUtils: () => import("%10$s"),
 				});
+				forceIntlContainerRtlEfb_%1$s(el_emsfb_%1$s);
 				el_emsfb_%1$s.addEventListener("blur", function() {
 					const errorMap = [`%6$s`, `%7$s`,`%8$s`,`%9$s`, `%6$s`];
 					const elem = el_emsfb_%1$s;
