@@ -116,7 +116,7 @@
 					$aire_describedby,
 
 					$rndm,
-					$vj->off,
+					is_rtl() ?  $vj->on : $vj->off,
 
 					$vj->el_height,
 					str_replace(',', ' ', $vj->classes),
@@ -127,7 +127,7 @@
 					$rndm,
 					$disabled,
 					$rndm,
-					$vj->on,
+					is_rtl() ?  $vj->off : $vj->on,
 					$desc
 				);
 
@@ -3136,6 +3136,48 @@
 		return $css;
 	}
 
+	/**
+	 * Generate CSS for switch on color
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateSwitchOnColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		$css = sprintf(
+			'[id="%1$s"] .efb.btn-toggle.active, #%1$s .efb.btn-toggle.active { background-color: %2$s !important; border-color: %2$s !important; background-image: none !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
+	/**
+	 * Generate CSS for switch handle color
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateSwitchHandleColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		$css = sprintf(
+			'[id="%1$s"] .efb.btn-toggle > .handle, #%1$s .efb.btn-toggle > .handle { background-color: %2$s !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
 	public function fun_addStyle_customize_efb($val, $key, $vj) {
 
 
@@ -3197,6 +3239,10 @@
 				return $this->generateRangeThumbColorCss($vj->id_, $val);
 			}else if ($key === 'range_value_color' && !empty($val) && isset($vj->id_)) {
 				return $this->generateRangeValueColorCss($vj->id_, $val);
+			}else if ($key === 'switch_on_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateSwitchOnColorCss($vj->id_, $val);
+			}else if ($key === 'switch_handle_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateSwitchHandleColorCss($vj->id_, $val);
 			}
 		}
 	}

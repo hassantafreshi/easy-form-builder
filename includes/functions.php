@@ -386,6 +386,10 @@ class efbFunction {
 			"rangeThumb" => $state && isset($ac->text->rangeThumb) ? $ac->text->rangeThumb : esc_html__('Slider Button','easy-form-builder'),
 			/* translators: Range Value  range slider value */
 			"rangeValue" => $state && isset($ac->text->rangeValue) ? $ac->text->rangeValue : esc_html__('Value Text','easy-form-builder'),
+			/* translators: Switch On switch toggle on state */
+			"switchOn" => $state && isset($ac->text->switchOn) ? $ac->text->switchOn : esc_html__('Switch On','easy-form-builder'),
+			/* translators: Switch Handle switch toggle handle/button */
+			"switchHandle" => $state && isset($ac->text->switchHandle) ? $ac->text->switchHandle : esc_html__('Switch Handle','easy-form-builder'),
 
 			/* translators: %s Color = color of the field element, %s is replaced with field type name */
 			"scolor" => $state && isset($ac->text->scolor) ? $ac->text->scolor : esc_html__('%s color','easy-form-builder'),

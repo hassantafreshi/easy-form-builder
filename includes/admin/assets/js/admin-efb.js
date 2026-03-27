@@ -2309,6 +2309,20 @@ let change_el_edit_Efb = (el) => {
         // Apply the range value color to the form preview
         applyRangeValueColorEfb(valj_efb[indx].id_, color);
         break;
+      case "selectSwitchOnColorEl":
+        // Switch on color (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('switch_on_color') == false ? Object.assign(valj_efb[indx], { 'switch_on_color': color }) : valj_efb[indx].switch_on_color = color;
+        // Apply the switch on color to the form preview
+        applySwitchOnColorEfb(valj_efb[indx].id_, color);
+        break;
+      case "selectSwitchHandleColorEl":
+        // Switch handle color (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('switch_handle_color') == false ? Object.assign(valj_efb[indx], { 'switch_handle_color': color }) : valj_efb[indx].switch_handle_color = color;
+        // Apply the switch handle color to the form preview
+        applySwitchHandleColorEfb(valj_efb[indx].id_, color);
+        break;
       case "selectBorderColorEl":
 
         color = el.value;
@@ -6812,6 +6826,76 @@ function applyRangeValueColorEfb(parentId, color) {
 }
 
 /**
+ * Apply switch on color
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applySwitchOnColorEfb(parentId, color) {
+  color = color[0] !== "#" ? "#" + color : color;
+
+  // Find the switch button element and apply color directly when active
+  const switchBtn = document.querySelector(`#${parentId} .btn-toggle, [id="${parentId}"] .btn-toggle`);
+  if (switchBtn && switchBtn.classList.contains('active')) {
+    switchBtn.style.setProperty('background-color', color, 'important');
+    switchBtn.style.setProperty('border-color', color, 'important');
+  }
+
+  // Create a style tag for the active state
+  const styleId = `efb-switch-on-color-${parentId}`;
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  const css = `
+    #${parentId} .efb.btn-toggle.active,
+    [id="${parentId}"] .efb.btn-toggle.active {
+      background-color: ${color} !important;
+      border-color: ${color} !important;
+    }
+  `;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+}
+
+/**
+ * Apply switch handle color
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applySwitchHandleColorEfb(parentId, color) {
+  color = color[0] !== "#" ? "#" + color : color;
+
+  // Find the switch handle element and apply color directly
+  const handleEl = document.querySelector(`#${parentId} .btn-toggle > .handle, [id="${parentId}"] .btn-toggle > .handle`);
+  if (handleEl) {
+    handleEl.style.setProperty('background-color', color, 'important');
+  }
+
+  // Create a style tag for the handle
+  const styleId = `efb-switch-handle-color-${parentId}`;
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  const css = `
+    #${parentId} .efb.btn-toggle > .handle,
+    [id="${parentId}"] .efb.btn-toggle > .handle {
+      background-color: ${color} !important;
+    }
+  `;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+}
+
+/**
  * Initialize checked colors for all radio/checkbox elements on form load
  */
 function initCheckedColorsEfb() {
@@ -6836,6 +6920,18 @@ function fun_addStyle_costumize_efb(val, key, indexVJ) {
   // Handle range_value_color for range elements
   if (key === 'range_value_color' && val && val.length > 0) {
     applyRangeValueColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
+  // Handle switch_on_color for switch elements
+  if (key === 'switch_on_color' && val && val.length > 0) {
+    applySwitchOnColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
+  // Handle switch_handle_color for switch elements
+  if (key === 'switch_handle_color' && val && val.length > 0) {
+    applySwitchHandleColorEfb(valj_efb[indexVJ].id_, val);
     return;
   }
 
