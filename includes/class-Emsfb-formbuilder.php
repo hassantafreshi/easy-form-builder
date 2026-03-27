@@ -3042,7 +3042,49 @@
 		return $v;
 	}
 
+	/**
+	 * Generate CSS for checked color of radio/checkbox elements
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateCheckedColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		// High specificity selectors for both radio and checkbox
+		// Using attribute selectors for IDs to handle IDs starting with numbers
+		$css = sprintf(
+			'[data-css="%1$s"] .efb.form-check-input:checked, ' .
+			'[data-css="%1$s"] .efb.form-check-input:checked[type=checkbox], ' .
+			'[data-css="%1$s"] .efb.form-check-input:checked[type=radio], ' .
+			'[data-parent="%1$s"] .efb.form-check-input:checked, ' .
+			'[data-parent="%1$s"] .efb.form-check-input:checked[type=checkbox], ' .
+			'[data-parent="%1$s"] .efb.form-check-input:checked[type=radio], ' .
+			'[id="%1$s_options"] .efb.form-check-input:checked, ' .
+			'[id="%1$s_options"] .efb.form-check-input:checked[type=checkbox], ' .
+			'[id="%1$s_options"] .efb.form-check-input:checked[type=radio], ' .
+			'[data-vid="%1$s"] .efb.form-check-input:checked, ' .
+			'[data-vid="%1$s"] .efb.form-check-input:checked[type=checkbox], ' .
+			'[data-vid="%1$s"] .efb.form-check-input:checked[type=radio], ' .
+			'.efb.form-check-input[data-vid="%1$s"]:checked, ' .
+			'.efb.form-check-input[data-vid="%1$s"]:checked[type=checkbox], ' .
+			'.efb.form-check-input[data-vid="%1$s"]:checked[type=radio] ' .
+			'{ background-color: %2$s !important; border-color: %2$s !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
 	public function fun_addStyle_customize_efb($val, $key, $vj) {
+		// Handle checked_color for radio/checkbox elements
+		if ($key === 'checked_color' && !empty($val) && isset($vj->id_)) {
+			return $this->generateCheckedColorCss($vj->id_, $val);
+		}
 
 		if (strpos($val, 'colorDEfb') !== false) {
 			$type = "";

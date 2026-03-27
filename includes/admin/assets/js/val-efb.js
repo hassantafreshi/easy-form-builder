@@ -782,6 +782,17 @@ function show_setting_window_efb(idset) {
                             <option value="3" ${ valj_efb[indx].op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>
                         </select>`;
 
+    // Checked color picker for radio/checkbox elements (PRO feature)
+    const selectCheckedColorEls = () => {
+      let checkedClrHex = valj_efb[indx].hasOwnProperty('checked_color') ? valj_efb[indx].checked_color : '#004cbb';
+      const labelText = (efb_var.text.checkedClr || '%s Checked Color').replace('%s', '');
+      const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
+      return `<span class="efb">
+        <label for="selectCheckedColorEl" class="efb mt-3 efb"><i class="efb bi-check-circle-fill fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        <input type="color" id="selectCheckedColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="checked" data-type="checked" data-tag="${valj_efb[indx].type}" value="${checkedClrHex}" name="selectCheckedColorEl" ${!isPro ? 'disabled' : ''}></span>`;
+    };
+
       const thankYouTypeEls = `
       <label for="thankYouTypeEl" class="efb mt-3 bi-card-heading mx-0 mb-2 fs-6 form-text border-secondary  border-bottom text-secondary">${efb_var.text.landingTnx}</label>
                         <select  data-id="thankYouTypeEl" class="efb elEdit form-select efb border-d rounded-4"  id="thankYouTypeEl"  data-tag="${valj_efb[0].thank_you}">
@@ -1281,6 +1292,7 @@ function show_setting_window_efb(idset) {
                         <div class="efb  mb-3 px-3 row">
 
                         ${o_c ? optnsStyleEls :''}
+                        ${o_c ? selectCheckedColorEls() :''}
                         ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
                         ${selectColorEls('label','text')}

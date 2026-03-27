@@ -310,7 +310,6 @@ const alertStyles_efb = {
 let alertCounter_efb = 0;
 
 function alert_message_efb(title, message, sec, alertType) {
-  console.log(title, message, sec, alertType);
   try {
     sec = sec * 1000;
     const alertId = `alert_item_efb_${++alertCounter_efb}`;

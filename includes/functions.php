@@ -380,6 +380,8 @@ class efbFunction {
 			"grayDark" => $state ? $ac->text->grayDark : esc_html__('Gray Dark','easy-form-builder'),
 			"white" => $state ? $ac->text->white : esc_html__('White','easy-form-builder'),
 			"clr" => $state ? $ac->text->clr : esc_html__('Color','easy-form-builder'),
+			/* translators: %s Checked Color = color of checked radio/checkbox elements, %s is replaced with field type name */
+			"checkedClr" => $state && isset($ac->text->checkedClr) ? $ac->text->checkedClr : esc_html__('%s Checked Color','easy-form-builder'),
 			"borderColor" => $state ? $ac->text->borderColor : esc_html__('Border Color','easy-form-builder'),
 			"height" => $state ? $ac->text->height : esc_html__('Height','easy-form-builder'),
 			"name" => $state ? $ac->text->name : esc_html__('Name','easy-form-builder'),

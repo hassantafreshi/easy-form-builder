@@ -2288,6 +2288,13 @@ let change_el_edit_Efb = (el) => {
           }
         }
         break;
+      case "selectCheckedColorEl":
+        // Checked color for radio/checkbox elements (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('checked_color') == false ? Object.assign(valj_efb[indx], { 'checked_color': color }) : valj_efb[indx].checked_color = color;
+        // Apply the checked color to the form preview
+        applyCheckedColorEfb(valj_efb[indx].id_, color);
+        break;
       case "selectBorderColorEl":
 
         color = el.value;
@@ -6585,7 +6592,165 @@ function efb_add_costum_color(t, c, v, type){
   return n;
 }
 
+/**
+ * Apply checked color to radio/checkbox elements
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applyCheckedColorEfb(parentId, color) {
+  console.log('[EFB DEBUG] applyCheckedColorEfb called:', { parentId, color });
+  color = color[0] !== "#" ? "#" + color : color;
+  const styleId = `efb-checked-color-${parentId}`;
+
+  // Remove existing style if present
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    console.log('[EFB DEBUG] Removing existing style:', styleId);
+    existingStyle.remove();
+  }
+
+  // Create CSS with maximum specificity using attribute selectors for IDs (to handle IDs starting with numbers)
+  const css = `
+    input.efb.form-check-input[data-vid="${parentId}"]:checked,
+    input.efb.form-check-input[data-vid="${parentId}"]:checked[type=checkbox],
+    input.efb.form-check-input[data-vid="${parentId}"]:checked[type=radio],
+    [data-css="${parentId}"] input.efb.form-check-input:checked,
+    [data-css="${parentId}"] input.efb.form-check-input:checked[type=checkbox],
+    [data-css="${parentId}"] input.efb.form-check-input:checked[type=radio],
+    [data-parent="${parentId}"] input.efb.form-check-input:checked,
+    [data-parent="${parentId}"] input.efb.form-check-input:checked[type=checkbox],
+    [data-parent="${parentId}"] input.efb.form-check-input:checked[type=radio],
+    [id="${parentId}_options"] input.efb.form-check-input:checked,
+    [id="${parentId}_options"] input.efb.form-check-input:checked[type=checkbox],
+    [id="${parentId}_options"] input.efb.form-check-input:checked[type=radio] {
+      background-color: ${color} !important;
+      border-color: ${color} !important;
+    }
+  `;
+
+  console.log('[EFB DEBUG] Adding style tag:', styleId);
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+  console.log('[EFB DEBUG] Style tag added to head');
+
+  // Also apply directly to elements for immediate effect (with delay for DOM readiness)
+  setTimeout(() => {
+    applyCheckedColorDirectEfb(parentId, color);
+  }, 100);
+
+  // Also try after longer delay for async loaded elements
+  setTimeout(() => {
+    applyCheckedColorDirectEfb(parentId, color);
+  }, 500);
+}
+
+/**
+ * Apply checked color directly to elements via inline style
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applyCheckedColorDirectEfb(parentId, color) {
+  // Find all checkboxes/radios with this parent
+  // Use attribute selectors instead of #id to avoid issues with IDs starting with numbers
+  const selectors = [
+    `input.form-check-input[data-vid="${parentId}"]`,
+    `[data-css="${parentId}"] input.form-check-input`,
+    `[data-parent="${parentId}"] input.form-check-input`,
+    `[id="${parentId}_options"] input.form-check-input`
+  ];
+
+  let totalFound = 0;
+  selectors.forEach(selector => {
+    try {
+      const inputs = document.querySelectorAll(selector);
+      totalFound += inputs.length;
+      console.log('[EFB DEBUG] Selector:', selector, 'Found:', inputs.length);
+      inputs.forEach(input => {
+        // Store the color in a data attribute
+        input.dataset.checkedColor = color;
+
+        // Remove old listener if exists
+        if (input._efbCheckedColorHandler) {
+          input.removeEventListener('change', input._efbCheckedColorHandler);
+        }
+
+        // Add change listener to apply color when checked
+        input._efbCheckedColorHandler = function() {
+          updateCheckedColorStyleEfb(this);
+        };
+        input.addEventListener('change', input._efbCheckedColorHandler);
+
+        // Apply immediately if already checked
+        updateCheckedColorStyleEfb(input);
+        console.log('[EFB DEBUG] Element configured:', input.id, 'checked:', input.checked, 'style applied:', input.style.backgroundColor);
+      });
+    } catch (e) {
+      console.log('[EFB DEBUG] Selector error:', selector, e.message);
+    }
+  });
+
+  console.log('[EFB DEBUG] Total elements found for parentId:', parentId, '=', totalFound);
+}
+
+/**
+ * Update inline style based on checked state
+ * @param {HTMLInputElement} input - The input element
+ */
+function updateCheckedColorStyleEfb(input) {
+  const color = input.dataset.checkedColor;
+  if (!color) {
+    console.log('[EFB DEBUG] updateCheckedColorStyleEfb: no color for', input.id);
+    return;
+  }
+
+  console.log('[EFB DEBUG] updateCheckedColorStyleEfb:', input.id, 'checked:', input.checked, 'color:', color);
+
+  if (input.checked) {
+    input.style.setProperty('background-color', color, 'important');
+    input.style.setProperty('border-color', color, 'important');
+    console.log('[EFB DEBUG] Style set for', input.id, '- bg:', input.style.backgroundColor, 'border:', input.style.borderColor);
+  } else {
+    input.style.removeProperty('background-color');
+    input.style.removeProperty('border-color');
+  }
+}
+
+/**
+ * Initialize checked colors for all radio/checkbox elements on form load
+ */
+function initCheckedColorsEfb() {
+  if (typeof valj_efb === 'undefined') return;
+
+  const radioCheckboxTypes = ['radio', 'checkbox', 'payRadio', 'payCheckbox', 'chlRadio', 'chlCheckBox', 'trmCheckbox'];
+
+  valj_efb.forEach((item, index) => {
+    if (radioCheckboxTypes.includes(item.type) && item.hasOwnProperty('checked_color') && item.checked_color) {
+      applyCheckedColorEfb(item.id_, item.checked_color);
+    }
+  });
+}
+
 function fun_addStyle_costumize_efb(val, key, indexVJ) {
+  // Handle checked_color for radio/checkbox elements
+  if (key === 'checked_color') {
+    console.log('[EFB DEBUG] checked_color detected:', {
+      key: key,
+      val: val,
+      indexVJ: indexVJ,
+      elementId: valj_efb[indexVJ]?.id_,
+      elementType: valj_efb[indexVJ]?.type,
+      valTruthiness: !!val,
+      valLength: val?.length
+    });
+  }
+  if (key === 'checked_color' && val && val.length > 0) {
+    console.log('[EFB DEBUG] Applying checked color:', valj_efb[indexVJ].id_, val);
+    applyCheckedColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
   if (val.toString().includes('colorDEfb')) {
     let type = ""
     let color = ""
