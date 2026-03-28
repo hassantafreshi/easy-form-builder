@@ -1331,7 +1331,6 @@ window.addEventListener("popstate",e=>{
       throw new Error('Network response was not ok');
     }
     const responseData = await response.json();
-    console.log("🚀 ~ file: core-efb.js:1234 ~ post_api_forms_efb ~ responseData:", responseData);
 
     await response_fill_form_efb(responseData, form_id);
     if (localStorage.getItem('sendback')) localStorage.removeItem('sendback');

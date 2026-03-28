@@ -2831,7 +2831,7 @@ public function check_nonce_permission_efb($request) {
 									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
 
 									$survey_chart_type = isset($form_fields_array[0]['survey_chart_type']) ? $form_fields_array[0]['survey_chart_type'] : 'none';
-
+									$survey_results = [];
 									if ($survey_chart_type !== 'none') {
 										$survey_results = $this->efb_get_survey_results_data($this->id, $form_fields_array);
 
@@ -2844,9 +2844,7 @@ public function check_nonce_permission_efb($request) {
 											];
 										}
 									}
-
 									$this->efbFunction->efb_code_validate_update($session_id ,'poll' ,'poll' );
-
 									$this->efb_send_json_and_continue($response, 200);
 									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'survey');
 
@@ -5676,12 +5674,28 @@ public function check_nonce_permission_efb($request) {
 		$skipped_fields_no_show = 0;
 		$skipped_fields_no_category = 0;
 
+		// Backward compatibility: older survey forms may not have per-field visibility flags.
+		$has_public_visibility_config = false;
+		foreach ($formObj as $field) {
+			if (isset($field['showInPublicResults'])) {
+				$has_public_visibility_config = true;
+				break;
+			}
+		}
+
 		foreach ($formObj as $field) {
 			$ftype = $field['type'] ?? 'NO_TYPE';
 			$fid = $field['id_'] ?? 'NO_ID';
+			$field_type = $field['type'] ?? '';
 
-			if (isset($field['showInPublicResults']) && $field['showInPublicResults'] == 1) {
-				$field_type = $field['type'] ?? '';
+			$show_in_public = isset($field['showInPublicResults']) ? intval($field['showInPublicResults']) : null;
+			$should_include_field = ($show_in_public === 1);
+
+			if ($show_in_public === null && !$has_public_visibility_config) {
+				$should_include_field = isset($field_categories[$field_type]) && !in_array($field_type, ['step', 'option', 'r_matrix'], true);
+			}
+
+			if ($should_include_field) {
 				if (!isset($field_categories[$field_type])) {
 					$skipped_fields_no_category++;
 					continue;

@@ -189,12 +189,13 @@ class EmsfbEmailHandler {
 
         if (is_string($sub)) {
             $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
-            if ($state != "reportProblem") {
-                $mailResult = $sendMail($to, $sub, $message, $headers);
-            }
+
 
             if (in_array($state, ["reportProblem", "testMailServer", "addonsDlProblem"])) {
+
                 $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
+                $mailResult = $sendMail($to, $sub, $message, $headers);
+            }else  {
                 $mailResult = $sendMail($to, $sub, $message, $headers);
             }
         } else {
