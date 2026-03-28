@@ -2356,34 +2356,60 @@ public function check_nonce_permission_efb($request) {
 					return;
 				}
 				if($submission_type=='recovery'){
-					$email = isset($submitted_values[0]) ? sanitize_email($submitted_values[0]) : null;
+					// Try to get email from original raw data or numeric array
+					$raw_recovery_data = json_decode($this->value, true);
+					$email = null;
+
+					// First try associative key (original format)
+					if (isset($raw_recovery_data['email'])) {
+						$email = sanitize_email($raw_recovery_data['email']);
+					}
+					// Fallback to numeric array (after dedupe)
+					elseif (isset($submitted_values[0])) {
+						$email = sanitize_email($submitted_values[0]);
+					}
+
+					error_log('[EFB Recovery] Email extracted: ' . ($email ?: 'NULL'));
 
 					$response = ['success' => false, 'm' =>'Email is not valid'];
-					if ($email!==null) {
+					if ($email!==null && is_email($email)) {
 
 						$state= get_user_by( 'email', $email);
+						error_log('[EFB Recovery] User found: ' . (is_object($state) ? 'YES - ID: ' . $state->data->ID : 'NO'));
+
 						$texts = ['imvpwsy'];
 						$lanTextReg =$this->efbFunction->text_efb($texts);
-						if(gettype($state)=="object"){
+						if(is_object($state)){
 							$userid =(int) $state->data->ID;
 							$username = $state->data->user_login;
-							$ms=$this->fun_get_content_email_register_recovery_efb($userid, $username, $email, $this->id ,'recovery',$page_id);
-							$efb ='<p> '. $this->lanText['sentBy'] . home_url(). '</p>';
-							if($is_pro==false) $efb ='<p> '. esc_html__("from", 'easy-form-builder').''. home_url(). ' '. $this->lanText['sentBy'] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
-							$subject ="". esc_html__("Password recovery")."[".get_bloginfo('name')."]";
-							$SERVER_NAME  = apply_filters('emsfb_get_server_host', 'yourdomain.com');
-							$from = isset($plugin_settings['femail']) && is_email($plugin_settings['femail']) ? get_bloginfo('name')." <no-reply@".$plugin_settings['femail'] .">" : get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
-							$message = $this->generate_recovery_email_template($ms, $efb);
-							$headers = array(
-							 'MIME-Version: 1.0\r\n',
-							 '"Content-Type: text/html; charset=UTF-8\r\n"',
-							 'From:'.$from.''
-							 );
-							$sent = wp_mail($email, $subject, $message, $headers);
-							$this->efbFunction->efb_code_validate_update($session_id ,'recovery' ,'recovery' );
+
+							// Generate recovery content
+							$ms = $this->fun_get_content_email_register_recovery_efb($userid, $username, $email, $this->id, 'recovery', $page_id);
+							$subject = esc_html__("Password recovery", 'easy-form-builder') . " [" . get_bloginfo('name') . "]";
+							$recovery_link = get_permalink($page_id);
+
+							// Use the plugin's centralized email sender (no direct include in this class)
+							$pro = $this->efbFunction->is_efb_pro(1);
+							error_log('[EFB Recovery] Sending email via efbFunction->send_email_state_new to: ' . $email . ' with subject: ' . $subject);
+							$sent = $this->efbFunction->send_email_state_new(
+								$email,
+								$subject,
+								$ms,
+								$pro,
+								'recovery',
+								$recovery_link,
+								$plugin_settings
+							);
+							error_log('[EFB Recovery] send_email_state_new result: ' . ($sent ? 'SUCCESS' : 'FAILED'));
+
+							$this->efbFunction->efb_code_validate_update($session_id, 'recovery', 'recovery');
+						} else {
+							error_log('[EFB Recovery] User not found for email: ' . $email);
 						}
 
 						$response = array( 'success' => true, 'm' => $lanTextReg['imvpwsy']);
+					} else {
+						error_log('[EFB Recovery] Invalid email: ' . ($email ?: 'NULL'));
 					}
 					wp_send_json_success($response,200);
 
@@ -3640,6 +3666,7 @@ public function check_nonce_permission_efb($request) {
 		$autofill->get_autofill_api_efb($data_POST);
 	}
 	public function send_email_Emsfb_($to, $track, $pro, $state, $link, $content = 'null', $sub = 'null') {
+		error_log('send_email_Emsfb_ called with track: ' . $track);
 		$homeUrl = home_url();
 		$blogName = get_bloginfo('name');
 		$micr = microtime(true);
@@ -3757,11 +3784,8 @@ public function check_nonce_permission_efb($request) {
         }
     }
 
-    $micr = microtime(true);
 
     $check = $this->efbFunction->send_email_state_new($to, $subject, $cont, $pro, $state, $link_w, $this->setting);
-
-    $micr = microtime(true);
 
 	}
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
@@ -4884,6 +4908,7 @@ public function check_nonce_permission_efb($request) {
 		function Js_setpassword(){
 			return "<script>
 			const efb_url = '".get_rest_url(null)."Emsfb/v1/forms/recovery/efb_set_password';
+			const efb_nonce = '".wp_create_nonce('wp_rest')."';
 
 			const eyeOpenSvg = '<path d=\"M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z\"/><path d=\"M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0\"/>';
 			const eyeClosedSvg = '<path d=\"M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z\"/><path d=\"M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829\"/><path d=\"M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z\"/>';
@@ -4939,7 +4964,7 @@ public function check_nonce_permission_efb($request) {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
-
+								'X-WP-Nonce': efb_nonce,
 							},
 							body: JSON.stringify(data)
 						}) .then(response => response.json())
@@ -5043,76 +5068,6 @@ public function check_nonce_permission_efb($request) {
 
 	}
 
-	private function generate_recovery_email_template($content, $footer) {
-		$site_name = get_bloginfo('name');
-		$site_url = home_url();
-		$year = date('Y');
-		$logo_url = defined('EMSFB_PLUGIN_URL') ? EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png' : '';
-
-		$copyright = '<p></p>';
-		$pro = $this->efbFunction->is_efb_pro(1);
-
-            $is_pro = (int) get_option('emsfb_pro', 2);
-            if ($is_pro == 3 || !$pro || $is_pro ==2 ) {
-                $copyright = "<div style='text-align:center;'>
-                    <p>" . sprintf(
-                        __('Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s', 'easy-form-builder'),
-                        "<a href='https://wordpress.org/plugins/easy-form-builder/' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
-                        "</a>",
-                        "<a href='https://whitestudio.team' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
-                        "</a>"
-                    ) . "</p>
-                </div>";
-            }
-
-			return '<!DOCTYPE html>
-				<html lang="en">
-				<head>
-					<meta charset="UTF-8">
-					<meta name="viewport" content="width=device-width, initial-scale=1.0">
-					<title>' . esc_html($site_name) . '</title>
-				</head>
-				<body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f7; line-height: 1.6;">
-					<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f7; padding: 30px 0;">
-						<tr>
-							<td align="center">
-								<table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-									<!-- Header -->
-									<tr>
-										<td align="center" style="background: linear-gradient(135deg, #667eea 0%, #202a8d 100%); padding: 40px 30px;">
-											<h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">🔐 ' . esc_html__('Password Reset', 'easy-form-builder') . '</h1>
-										</td>
-									</tr>
-									<!-- Content -->
-									<tr>
-										<td style="padding: 40px 30px;">
-											<div style="color: #333333; font-size: 16px; line-height: 1.8;">
-												' . $content . '
-											</div>
-										</td>
-									</tr>
-									<!-- Divider -->
-									<tr>
-										<td style="padding: 0 30px;">
-											<hr style="border: none; border-top: 1px solid #e8e8e8; margin: 0;">
-										</td>
-									</tr>
-									<!-- Footer -->
-									<tr>
-										<td style="padding: 30px; background-color: #f9fafb;">
-											<p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px; text-align: center;">
-												' . $footer . '
-											</p>
-											'.$copyright.'
-										</td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-					</table>
-				</body>
-				</html>';
-	}
 
 	public function fun_get_content_email_register_recovery_efb($userid, $username, $email, $fid ,$type_ ,$page_id){
 		if(empty($this->db)){

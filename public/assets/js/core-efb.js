@@ -664,6 +664,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
         };
       }
     }
+    console.log("🚀 ~ file: core-efb.js:1229 ~ actionSendData_emsFormBuilder ~ data:", data)
     post_api_forms_efb(data,form_id);
 }
 function valid_email_emsFormBuilder(el) {
@@ -1316,6 +1317,8 @@ window.addEventListener("popstate",e=>{
     });
 
     const jsonData = JSON.stringify(data);
+    console.error("🚀 ~ file: core-efb.js:1234 ~ post_api_forms_efb ~ jsonData:", data);
+
     const requestOptions = {
       method: 'POST',
       headers,
@@ -1328,6 +1331,8 @@ window.addEventListener("popstate",e=>{
       throw new Error('Network response was not ok');
     }
     const responseData = await response.json();
+    console.log("🚀 ~ file: core-efb.js:1234 ~ post_api_forms_efb ~ responseData:", responseData);
+
     await response_fill_form_efb(responseData, form_id);
     if (localStorage.getItem('sendback')) localStorage.removeItem('sendback');
   } catch (error) {
