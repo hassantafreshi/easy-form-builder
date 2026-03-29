@@ -1699,11 +1699,16 @@ class efbFunction {
 					break;
 					case 'thank_you_message':
 
-						$valp[$key][$k]['icon']=sanitize_text_field( $v['icon']);
-						$valp[$key][$k]['thankYou']=sanitize_text_field( $v['thankYou']);
-						$valp[$key][$k]['done']=sanitize_text_field( $v['done']);
-						$valp[$key][$k]['trackingCode']=sanitize_text_field( $v['trackingCode']);
-						$valp[$key][$k]['pleaseFillInRequiredFields']=sanitize_text_field( $v['pleaseFillInRequiredFields']);
+						if (!is_array($v)) {
+							$v = [];
+						}
+						$valp[$key][$k] = [
+							'icon' => sanitize_text_field($v['icon'] ?? 'bi-hand-thumbs-up'),
+							'thankYou' => sanitize_text_field($v['thankYou'] ?? esc_html__('Thank you message','easy-form-builder')),
+							'done' => sanitize_text_field($v['done'] ?? esc_html__('Done','easy-form-builder')),
+							'trackingCode' => sanitize_text_field($v['trackingCode'] ??  esc_html__('Confirmation Code', 'easy-form-builder')),
+							'pleaseFillInRequiredFields' => sanitize_text_field($v['pleaseFillInRequiredFields'] ?? esc_html__('Please fill in all required fields.','easy-form-builder')),
+						];
 					break;
 					case 'autofill_conditions':
 						foreach ($valp[$key][$k] as $kei => $value) {
