@@ -6633,14 +6633,12 @@ function efb_add_costum_color(t, c, v, type){
  * @param {string} color - The hex color value
  */
 function applyCheckedColorEfb(parentId, color) {
-  console.log('[EFB DEBUG] applyCheckedColorEfb called:', { parentId, color });
   color = color[0] !== "#" ? "#" + color : color;
   const styleId = `efb-checked-color-${parentId}`;
 
   // Remove existing style if present
   const existingStyle = document.getElementById(styleId);
   if (existingStyle) {
-    console.log('[EFB DEBUG] Removing existing style:', styleId);
     existingStyle.remove();
   }
 
@@ -6663,12 +6661,10 @@ function applyCheckedColorEfb(parentId, color) {
     }
   `;
 
-  console.log('[EFB DEBUG] Adding style tag:', styleId);
   const styleEl = document.createElement("style");
   styleEl.id = styleId;
   styleEl.textContent = css;
   document.head.appendChild(styleEl);
-  console.log('[EFB DEBUG] Style tag added to head');
 
   // Also apply directly to elements for immediate effect (with delay for DOM readiness)
   setTimeout(() => {
@@ -6701,7 +6697,6 @@ function applyCheckedColorDirectEfb(parentId, color) {
     try {
       const inputs = document.querySelectorAll(selector);
       totalFound += inputs.length;
-      console.log('[EFB DEBUG] Selector:', selector, 'Found:', inputs.length);
       inputs.forEach(input => {
         // Store the color in a data attribute
         input.dataset.checkedColor = color;
@@ -6719,14 +6714,12 @@ function applyCheckedColorDirectEfb(parentId, color) {
 
         // Apply immediately if already checked
         updateCheckedColorStyleEfb(input);
-        console.log('[EFB DEBUG] Element configured:', input.id, 'checked:', input.checked, 'style applied:', input.style.backgroundColor);
       });
     } catch (e) {
       console.log('[EFB DEBUG] Selector error:', selector, e.message);
     }
   });
 
-  console.log('[EFB DEBUG] Total elements found for parentId:', parentId, '=', totalFound);
 }
 
 /**
@@ -6736,16 +6729,15 @@ function applyCheckedColorDirectEfb(parentId, color) {
 function updateCheckedColorStyleEfb(input) {
   const color = input.dataset.checkedColor;
   if (!color) {
-    console.log('[EFB DEBUG] updateCheckedColorStyleEfb: no color for', input.id);
     return;
   }
 
-  console.log('[EFB DEBUG] updateCheckedColorStyleEfb:', input.id, 'checked:', input.checked, 'color:', color);
+
 
   if (input.checked) {
     input.style.setProperty('background-color', color, 'important');
     input.style.setProperty('border-color', color, 'important');
-    console.log('[EFB DEBUG] Style set for', input.id, '- bg:', input.style.backgroundColor, 'border:', input.style.borderColor);
+
   } else {
     input.style.removeProperty('background-color');
     input.style.removeProperty('border-color');
@@ -6984,20 +6976,7 @@ function fun_addStyle_costumize_efb(val, key, indexVJ) {
     return;
   }
 
-  // Handle checked_color for radio/checkbox elements
-  if (key === 'checked_color') {
-    console.log('[EFB DEBUG] checked_color detected:', {
-      key: key,
-      val: val,
-      indexVJ: indexVJ,
-      elementId: valj_efb[indexVJ]?.id_,
-      elementType: valj_efb[indexVJ]?.type,
-      valTruthiness: !!val,
-      valLength: val?.length
-    });
-  }
   if (key === 'checked_color' && val && val.length > 0) {
-    console.log('[EFB DEBUG] Applying checked color:', valj_efb[indexVJ].id_, val);
     applyCheckedColorEfb(valj_efb[indexVJ].id_, val);
     return;
   }

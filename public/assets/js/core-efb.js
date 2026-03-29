@@ -664,7 +664,6 @@ async function actionSendData_emsFormBuilder(form_id=0) {
         };
       }
     }
-    console.log("🚀 ~ file: core-efb.js:1229 ~ actionSendData_emsFormBuilder ~ data:", data)
     post_api_forms_efb(data,form_id);
 }
 function valid_email_emsFormBuilder(el) {

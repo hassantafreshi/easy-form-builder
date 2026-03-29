@@ -2369,13 +2369,11 @@ public function check_nonce_permission_efb($request) {
 						$email = sanitize_email($submitted_values[0]);
 					}
 
-					error_log('[EFB Recovery] Email extracted: ' . ($email ?: 'NULL'));
 
 					$response = ['success' => false, 'm' =>'Email is not valid'];
 					if ($email!==null && is_email($email)) {
 
 						$state= get_user_by( 'email', $email);
-						error_log('[EFB Recovery] User found: ' . (is_object($state) ? 'YES - ID: ' . $state->data->ID : 'NO'));
 
 						$texts = ['imvpwsy'];
 						$lanTextReg =$this->efbFunction->text_efb($texts);
@@ -2390,7 +2388,6 @@ public function check_nonce_permission_efb($request) {
 
 							// Use the plugin's centralized email sender (no direct include in this class)
 							$pro = $this->efbFunction->is_efb_pro(1);
-							error_log('[EFB Recovery] Sending email via efbFunction->send_email_state_new to: ' . $email . ' with subject: ' . $subject);
 							$sent = $this->efbFunction->send_email_state_new(
 								$email,
 								$subject,
@@ -2400,16 +2397,11 @@ public function check_nonce_permission_efb($request) {
 								$recovery_link,
 								$plugin_settings
 							);
-							error_log('[EFB Recovery] send_email_state_new result: ' . ($sent ? 'SUCCESS' : 'FAILED'));
 
 							$this->efbFunction->efb_code_validate_update($session_id, 'recovery', 'recovery');
-						} else {
-							error_log('[EFB Recovery] User not found for email: ' . $email);
 						}
 
 						$response = array( 'success' => true, 'm' => $lanTextReg['imvpwsy']);
-					} else {
-						error_log('[EFB Recovery] Invalid email: ' . ($email ?: 'NULL'));
 					}
 					wp_send_json_success($response,200);
 
@@ -3664,7 +3656,6 @@ public function check_nonce_permission_efb($request) {
 		$autofill->get_autofill_api_efb($data_POST);
 	}
 	public function send_email_Emsfb_($to, $track, $pro, $state, $link, $content = 'null', $sub = 'null') {
-		error_log('send_email_Emsfb_ called with track: ' . $track);
 		$homeUrl = home_url();
 		$blogName = get_bloginfo('name');
 		$micr = microtime(true);

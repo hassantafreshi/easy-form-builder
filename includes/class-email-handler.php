@@ -1440,7 +1440,6 @@ table { border-collapse: collapse !important; }
     }
 
     public function send_email_noti_sid_plugins_efb($status){
-        error_log('SID Validation Error: ' . $status);
 		$all_plugins = get_plugins();
 		$msg = esc_html__('This is an alert message regarding a SID validation error. This issue may have occurred due to a plugin conflict or an unauthorized attempt to access the website.', 'easy-form-builder') . '<br>';
         $msg .= esc_html__('If you receive this email multiple times, it could indicate a recurring issue.', 'easy-form-builder') ;
@@ -1516,7 +1515,6 @@ table { border-collapse: collapse !important; }
     }
 
     public static function quickSend($to, $subject, $message, $state = 'newMessage') {
-        error_log('QuickSend called with state: ' . $state);
         $handler = self::getInstance();
         $link = home_url();
         return $handler->send_email_state_new($to, $subject, $message, false, $state, $link);
