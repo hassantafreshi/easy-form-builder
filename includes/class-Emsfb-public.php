@@ -2505,7 +2505,7 @@ public function check_nonce_permission_efb($request) {
 							$this->efb_send_json_and_continue($response, 200);
 							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array);
 
-						if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
+							if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
 								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
 								if($smsSendResult !== true) {
 
@@ -2713,8 +2713,9 @@ public function check_nonce_permission_efb($request) {
 										$this->efbFunction->efb_code_validate_update($session_id, 'register', $track_code);
 									}
 									$response = ['success' => true, 'm' => $m];
-									if ($redirect_url != "null") {
-										$response = ['success' => true, 'm' => $redirect_url];
+									if(!is_wp_error($state) && isset($form_fields_array[0]['rePage']) && isset($form_fields_array[0]['thank_you'] ) && $form_fields_array[0]['thank_you'] == "rdrct"){
+										$redirect_url = $this->string_to_url($form_fields_array[0]['rePage']);
+										$response['redirect_url'] = $redirect_url;
 									}
 								}
 
@@ -2759,6 +2760,9 @@ public function check_nonce_permission_efb($request) {
 										'remember' => true
 									];
 									$user = wp_signon($creds, false);
+									if(isset($form_fields_array[0]['rePage']) && isset($form_fields_array[0]['thank_you'] ) && $form_fields_array[0]['thank_you'] == "rdrct"){
+										$redirect_url = $this->string_to_url($form_fields_array[0]['rePage']);
+									}
 									if (isset($user->ID)) {
 										$userID = $user->ID;
 										do_action('wp_login', $creds['user_login'], $user);
@@ -2771,12 +2775,10 @@ public function check_nonce_permission_efb($request) {
 											'user_login' => $user->data->user_login,
 											'user_nicename' => $user->data->user_nicename,
 											'user_registered' => $user->data->user_registered,
-											'user_image' => get_avatar_url($user->data->ID)
+											'user_image' => get_avatar_url($user->data->ID),
+											'redirect_url' => $redirect_url
 										];
 										$response = ['success' => true, 'm' => $send];
-										if ($redirect_url != "null") {
-											$response = ['success' => true, 'm' => $redirect_url];
-										}
 										$this->efbFunction->efb_code_validate_update($session_id, 'login', 'login');
 
 										$this->efb_send_json_and_continue($response, 200);
@@ -2798,7 +2800,7 @@ public function check_nonce_permission_efb($request) {
 										$response = ['success' => true, 'm' => $send];
 										wp_send_json_success($response, 200);
 									}
-								break;
+							break;
 
 						case "subscribe":
 									$track_code=	$this->insert_message_db(0,false,$style_trackingCode);
@@ -2815,7 +2817,7 @@ public function check_nonce_permission_efb($request) {
 										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
 									exit;
-								break;
+							break;
 						case "survey":
 
 									$track_code=	$this->insert_message_db(0,false,$style_trackingCode);
@@ -2852,13 +2854,13 @@ public function check_nonce_permission_efb($request) {
 										}
 									}
 									exit;
-								break;
+							break;
 						case "reservation":
-								break;
+							break;
 						default:
 								$response = array( 'success' => false  ,'m'=>$this->lanText['somethingWentWrongPleaseRefresh']);
 								wp_send_json_success($response, 200);
-								break;
+							break;
 					}
 				}
 

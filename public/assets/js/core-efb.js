@@ -1003,22 +1003,28 @@ async function response_fill_form_efb(res ,form_id=0) {
   const efb_final_step = body_efb.querySelector('#efb-final-step');
   if(valj_efb.length>1) btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? `logic_fun_prev_send(${form_id})`:`fun_prev_send(${form_id})`;
   if (res.data.success == true) {
-    if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
+    if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' && res.data.m.includes('@efb@') ){
       efb_final_step.innerHTML = `
       <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
       <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
       `
-      window.location.href = res.data.m;
+      // window.location.href = res.data.m;
       return ;
     }
     switch (t.type) {
       case 'form':
       case 'payment':
         efb_final_step.innerHTML = funTnxEfb(res.data.track)
-        localStorage.clear();
         break;
       case 'survey':
-        localStorage.clear();
+        if(valj_efb[0].hasOwnProperty('thank_you') && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string'  ){
+          efb_final_step.innerHTML = `
+          <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
+          <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
+          `
+          window.location.href = res.data.m;
+          break;
+        }
         efb_final_step.innerHTML = funTnxEfb('','',res.data.m);
         if (res.data.survey_chart_type && res.data.survey_chart_type !== 'none' && res.data.survey_results && res.data.survey_results.length > 0) {
           if (typeof renderSurveyResultsChart === 'function') {
@@ -1030,19 +1036,35 @@ async function response_fill_form_efb(res ,form_id=0) {
         break;
       case 'subscribe':
         efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder fs-4'><i class="efb fs-2 bi-hand-thumbs-up  text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${valj_efb[0].thank_you_message.thankYou}</h3></br> <span class="efb fs-5">${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
-        localStorage.clear();
         break;
       case 'register':
-          const m = form_type_emsFormBuilder !='recovery' ? valj_efb[0].thank_you_message.thankYou: ajax_object_efm.text.checkYourEmail;
-          efb_final_step.innerHTML = funTnxEfb('','',m );
+          if(res.data.hasOwnProperty('redirect_url') && typeof res.data.redirect_url === 'string' && res.data.redirect_url.length > 5 && res.data.redirect_url !== 'null'){
+            efb_final_step.innerHTML = `
+            <h3 class="efb fs-4 text-center">${res.data.m}</h3>
+            <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.redirect_url}">${efb_var.text.orClickHere}</a></h3>
+            `
+            window.location.href = res.data.redirect_url;
+          }else{
+            const m = form_type_emsFormBuilder !='recovery' ? valj_efb[0].thank_you_message.thankYou: ajax_object_efm.text.checkYourEmail;
+            efb_final_step.innerHTML = funTnxEfb('','',m );
+          }
           break;
       case 'recovery':
         efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder fs-4  text-center'><i class="efb fs-2 bi-envelope text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${res.data.m}</h3></br></br></h3>`;
       break;
       case 'login':
+
         if (res.data.m && typeof res.data.m === 'object' && res.data.m.state == true) {
-          document.getElementById('body_efb_'+form_id).innerHTML = show_user_profile_emsFormBuilder(res.data.m);
-          location.reload();
+          if(res.data.m.hasOwnProperty('redirect_url') && res.data.m.redirect_url.length>5){
+            efb_final_step.innerHTML = `
+            <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m.redirect_url}">${efb_var.text.orClickHere}</a></h3>
+            `
+            window.location.href = res.data.m.redirect_url;
+
+          }else{
+            document.getElementById('body_efb_'+form_id).innerHTML = show_user_profile_emsFormBuilder(res.data.m);
+            location.reload();
+          }
         } else if(typeof res.data.m === 'string' && res.data.success == true){
           document.getElementById('body_efb_'+form_id).innerHTML = `
           <div class="efb mt-5"><div class="efb card-block text-center text-dark ">
@@ -1108,7 +1130,6 @@ async function response_fill_form_efb(res ,form_id=0) {
         break;
       case "logout":
         location.reload();
-        localStorage.clear();
         break;
     }
 
@@ -1407,7 +1428,6 @@ post_api_r_message_efb=(data,message)=>{
     })
     .then(responseData => {
       response_rMessage_id(responseData, message);
-      sendBack_emsFormBuilder_pub = [];
     })
     .catch(error => {
       response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
