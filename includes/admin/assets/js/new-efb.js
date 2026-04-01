@@ -332,14 +332,14 @@ function alert_message_efb(title, message, sec, alertType) {
     const alertHtml = `
       <div id="${alertId}" class="efb alert_item_efb ${rtl}" style="background:${style.bg}; border-radius:12px; padding:14px 16px; box-shadow:0 4px 20px rgb(0 0 0 / 49%); animation:slideIn_efb .3s ease; transition:all .3s ease; pointer-events:auto;">
         <div class="efb d-flex align-items-center">
-          <div class="efb" style="background:rgba(255,255,255,0.2); border-radius:50%; padding:8px; margin-${isRtl ? 'left' : 'right'}:12px; flex-shrink:0;">
+          <div class="efb" style="border-radius:50%; padding:8px; margin-${isRtl ? 'left' : 'right'}:12px; flex-shrink:0;">
             <i class="efb bi ${style.icon}" style="font-size:1.2rem; color:${style.color};"></i>
           </div>
           <div class="efb flex-grow-1" style="min-width:0;">
             ${title ? `<h6 class="efb mb-0" style="color:${style.color}; font-weight:600; font-size:0.9rem;">${title}</h6>` : ''}
             ${message ? `<p class="efb mb-0" style="color:${style.color}; opacity:0.95; font-size:0.8rem; line-height:1.4;">${message}</p>` : ''}
           </div>
-          <button type="button" class="efb" onclick="close_msg_efb('${alertId}')" style="background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px;">
+          <button type="button" class="efb p-0" onclick="close_msg_efb('${alertId}')" style="background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px;">
             <i class="efb bi bi-x" style="color:${style.color}; font-size:1rem;"></i>
           </button>
         </div>

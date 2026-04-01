@@ -39,13 +39,16 @@ function renderSurveyResultsChart(data, container, formId) {
     passives: 'rgba(251, 191, 36, 0.8)',
     promoters: 'rgba(34, 197, 94, 0.8)'
   };
-
+  const valj_efb = get_structure_by_form_id_efb(formId);
+  const chartTypeform_efb = valj_efb && valj_efb[0].hasOwnProperty('survey_chart_type') ? valj_efb[0].survey_chart_type : 'null';
   results.forEach((result, index) => {
     const chartId = `survey-chart-${formId}-${index}`;
     const chartDiv = document.createElement('div');
     chartDiv.className = 'efb survey-chart-item mb-4 p-3 bg-light rounded-3';
 
-    const chartType = result.chart_type || defaultChartType || 'bar';
+    // Keep special renderers for advanced result types, otherwise honor selected form chart type.
+
+    const chartType = chartTypeform_efb!= 'null'  ? chartTypeform_efb : defaultChartType;
 
     if (chartType === 'stats') {
       chartDiv.innerHTML = renderStatsCard(result);
@@ -81,9 +84,9 @@ function renderSurveyResultsChart(data, container, formId) {
       chartsWrapper.appendChild(chartDiv);
 
       if (typeof Chart === 'undefined') {
-        loadChartJS(() => createChart(chartId, defaultChartType, result, colors));
+        loadChartJS(() => createChart(chartId, chartType, result, colors));
       } else {
-        createChart(chartId, defaultChartType, result, colors);
+        createChart(chartId, chartType, result, colors);
       }
     }
   });

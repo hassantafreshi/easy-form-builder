@@ -330,6 +330,9 @@ class Admin {
         $text = ["error403","done","invalidRequire","upDMsg"];
         $lang= $efbFunction->text_efb($text);
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
 
         $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
@@ -439,6 +442,9 @@ class Admin {
         $text = ["error403","done","invalidRequire"];
         $lang= $efbFunction->text_efb($text);
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+            unset($ac->emailTemp);
+        }
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
             $m = $lang['error403'];
@@ -503,7 +509,7 @@ class Admin {
         }
         if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']),JSON_UNESCAPED_UNICODE)) {
             $m =   $lang['somethingWentWrongPleaseRefresh'];
-            $response = ['success' => false, "m" => esc_html__("Something went wrong, Please refresh the page." ,'easy-form-builder')];
+            $response = ['success' => false, "m" => esc_html__("Something went wrong, please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, 200);
             die();
         }
@@ -804,6 +810,7 @@ class Admin {
             $response = ['success' => false, "m" =>$m];
             wp_send_json_success($response, 200);
         }
+        $active_code_is_valid = false;
         foreach ($m as $key => $value) {
              if (in_array($key ,['emailSupporter','femail'])) {
                 $value = sanitize_text_field($value);
@@ -819,13 +826,24 @@ class Admin {
                 $m['activeCode'] = sanitize_text_field($value);
                 $state = $efbFunction->is_efb_pro($m['activeCode']);
                 if ($state==true) {
+                    $active_code_is_valid = true;
                     $m['package_type'] = 1;
+                    $package_type = 1;
                     update_option('emsfb_pro', 1);
                 } else {
+                    $active_code_is_valid = false;
                     $m['package_type'] = 2;
                     $response = ['success' => false, "m" =>$lang['activationNcorrect']];
                     if(strlen($value) > 1){ wp_send_json_success($response, 200);}
                 }
+            }else if($key == 'package_type'){
+                // Keep the validated Pro package even if payload contains stale package_type.
+                if ($active_code_is_valid) {
+                    $m[$key] = 1;
+                    continue;
+                }
+                $package_type = intval(sanitize_text_field($value));
+                $m[$key] = in_array($package_type, [0, 1, 2, 3], true) ? $package_type : 2;
             }else if($key == "emailTemp"){
                 if( strlen($value)>5  && strpos($setting ,'shortcode_message')===false){
                     $response = ['success' => false, "m" =>$lang['addSCEmailM']];
@@ -904,6 +922,10 @@ class Admin {
             unset($m['devMode']);
         }
 
+        if ($active_code_is_valid) {
+            $m['package_type'] = 1;
+        }
+
         $setting = json_encode($m, JSON_UNESCAPED_UNICODE);
         $email = isset($m['emailSupporter']) ? $m['emailSupporter'] : wp_get_current_user()->user_email;
         $efbFunction->set_setting_Emsfb( $setting, $email );
@@ -916,6 +938,9 @@ class Admin {
 
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
         $text = ["notFound","error403"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -974,6 +999,9 @@ class Admin {
     public function clear_garbeg_admin() {
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
         $text = ["fileDeleted","error403"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1274,6 +1302,9 @@ class Admin {
     public function fun_duplicate_Emsfb(){
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
         $text = ["error403","somethingWentWrongPleaseRefresh","copy"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1329,6 +1360,10 @@ class Admin {
     public function delete_messages_Emsfb(){
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
+
         $text = ["error403","somethingWentWrongPleaseRefresh","delete"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1373,6 +1408,9 @@ class Admin {
     public function read_list_Emsfb(){
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        if (isset($ac->emailTemp)) {
+			 unset($ac->emailTemp);
+		}
         $text = ["error403","somethingWentWrongPleaseRefresh","done"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();

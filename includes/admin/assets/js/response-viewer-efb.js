@@ -729,7 +729,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
     if (c.hasOwnProperty('currency')){ currency = c.currency}
     s = false;
-    let value = typeof(c.value)=="string" ? `<span class="efb-formatted">${(typeof EfbResponseViewer !== 'undefined' ? EfbResponseViewer.formatMessageForDisplay(c.value.toString().replaceAll('@efb!', ',')) : c.value.toString().replaceAll('@efb!', ','))}</span>` :'';
+    let value = typeof(c.value)=="string" ? `<span class="efb-formatted">${(typeof EfbResponseViewer !== 'undefined' ? EfbResponseViewer.formatMessageForDisplay(c.value.toString().replaceAll('@efb!', ',').replace(/,\s*$/, '')) : c.value.toString().replaceAll('@efb!', ',').replace(/,\s*$/, ''))}</span>` :'';
     if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
@@ -1413,7 +1413,8 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     return;
   }
   const track = sessionStorage.getItem('track') ?? 'null';
-  const is_user_track = location.href.includes("user=admin") ? 'admin' : 'user';
+  const is_user_track = (ajax_object_efm && ajax_object_efm.is_user === 'admin') ? 'admin' : 'user';
+  const efb_sc = (ajax_object_efm && ajax_object_efm.admin_sc) ? ajax_object_efm.admin_sc : (sessionStorage.getItem('efb_sc') || '');
   data = {
     action: "set_rMessage_id_Emsfb",
     type: "POST",
@@ -1423,6 +1424,7 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     type: form_type_emsFormBuilder,
     sid:efb_var.sid,
     user_type : is_user_track,
+    sc: efb_sc,
     page_id: ajax_object_efm.page_id,
     track: track,
   };

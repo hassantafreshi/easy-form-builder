@@ -507,7 +507,7 @@ function getContentPreview_efb(contentStr) {
     for (const c of parsed) {
       if (!c || !c.value || c.value === '@file@') continue;
       if (c.type === 'maps' || c.type === 'esign' || c.type === 'payment' || c.type ==='w_link') continue;
-      let val = String(c.value).replace(/<[^>]*>/g, '').replace(/@efb[^#]*#/g, ' ').trim();
+      let val = String(c.value).replace(/<[^>]*>/g, '').replace(/@efb!/g, ',').replace(/@efb[^#]*#/g, ' ').replace(/,\s*$/, '').trim();
       if (val.length > 0) {
         const label = c.name || c.id_ || '';
         parts.push(label ? `${label}: ${val}` : val);
@@ -1084,6 +1084,7 @@ function fun_show_setting__emsFormBuilder() {
   let emailTemp = "null"
   let payToken="null";
   let sessionDuration = 1;
+  let trackCodeStyle = 'date_en_mix';
   let act_local_efb =scaptcha =false;
   let dsupfile= showIp =activeDlBtn =scaptcha=act_local_efb =false;
 
@@ -1147,6 +1148,7 @@ function fun_show_setting__emsFormBuilder() {
     phoneNumbers = f('phnNo');
     adminSN  = f('adminSN') =='null' ? true :f('adminSN');
     sessionDuration = f('sessionDuration') == 'null' ? 1 : parseInt(f('sessionDuration'));
+    trackCodeStyle = f('trackCodeStyle') == 'null' ? 'date_en_mix' : f('trackCodeStyle');
     const shieldSilentCaptchaSetting = f('shield_silent_captcha');
     shieldSilentCaptcha = shieldSilentCaptchaSetting === true || shieldSilentCaptchaSetting === 1 || shieldSilentCaptchaSetting === '1' || shieldSilentCaptchaSetting === 'true';
 
@@ -1355,6 +1357,25 @@ function fun_show_setting__emsFormBuilder() {
                               </div>
 
                               <h5 class="efb  card-title mt-3 mobile-title">
+                                <i class="efb  bi-hash m-3"></i>${efb_var.text.trackNo}
+                              </h5>
+                              <p class="efb ${mxCSize}">${efb_var.text.trackCodeStyleDesc.replace('%s', efb_var.text.trackNo)}</p>
+                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                                      <div class="efb row efb col-12">
+                                          <div class="efb  col-md-8">
+                                            <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="trackCodeStyle_emsFormBuilder" data-tab="${efb_var.text.rspcon}" onchange="efb_preview_track_code(this.value)">
+                                                ${efb_build_track_options(trackCodeStyle)}
+                                            </select>
+                                            <span id="trackCodeStyle_emsFormBuilder-message" class="efb text-danger"></span>
+                                          </div>
+                                        </div>
+                                      <div class="efb mt-2 mx-1">
+                                        <span class="efb text-muted small">${efb_var.text.preview}: </span>
+                                        <code id="trackCodePreview_efb" class="efb px-2 py-1" style="font-size:1.05em;letter-spacing:1px;background:#f6f7fb;border-radius:6px;">${efb_generate_track_preview(trackCodeStyle)}</code>
+                                      </div>
+                              </div>
+
+                              <h5 class="efb  card-title mt-3 mobile-title">
                                 <i class="efb  bi-chat-left-text m-3"></i>${efb_var.text.rbox}
                               </h5>
                                 <div class="efb card-body mx-0 py-0 ${mxCSize4}">
@@ -1384,7 +1405,7 @@ function fun_show_setting__emsFormBuilder() {
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="showIp_emsFormBuilder">${efb_var.text.sips}</label>
                                 </div> -->
                                <div class="efb card-body my-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="adminSN_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${adminSN != true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >
+                                  <button type="button" id="adminSN_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${adminSN == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >
                                   <div class="efb handle"></div>
                                   </button>
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="adminSN_emsFormBuilder">${efb_var.text.admines}</label>
@@ -2072,7 +2093,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
 
   const returnError=(val)=>{
     if(state_auto==1){return}
-    const m =efb_var.text.msgchckvt.replace('XXX', val );
+    const m =efb_var.text.msgchckvt_.replace('%s', val );
 
     noti_message_efb(m, 'danger' , `content-efb` );
     window.scrollTo({
@@ -2280,6 +2301,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     if (!v('sessionDuration_emsFormBuilder')) return false;
     const sessionDuration = f('sessionDuration_emsFormBuilder');
 
+    const trackCodeStyle = f('trackCodeStyle_emsFormBuilder');
+
     smtp = f('hostSupportSmtp_emsFormBuilder');
     act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
@@ -2384,6 +2407,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
 
           osLocationPicker: osLocationPicker,
           sessionDuration: sessionDuration,
+          trackCodeStyle: trackCodeStyle,
 
           respPrimary: respPrimary,
           respPrimaryDark: respPrimaryDark,
@@ -2414,6 +2438,51 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     fun_send_setting_emsFormBuilder( setting , state_auto);
   }
 
+}
+
+function efb_build_track_options(sel) {
+  const t = efb_var.text;
+  const dp = (a,b) => t.trackCodeDatePlus.replace('%1$s',a).replace('%2$s',b);
+  const tp = (a,b,c) => t.trackCodeTriple.replace('%1$s',a).replace('%2$s',b).replace('%3$s',c);
+  const nl = t.nlan;  // National language / Local
+  const el = t.elan;  // English language
+  const lt = t.tLetters; // Letters
+  const nm = t.number;  // Number
+  const opts = [
+    ['date_num',         dp(t.ddate, nm)],
+    ['date_local_mix',   dp(t.ddate, tp(nl, lt, nm))],
+    ['date_local_alpha', dp(t.ddate, nl + ' ' + lt)],
+    ['date_en_mix',      dp(t.ddate, tp(el, lt, nm))],
+    ['date_local_num',   dp(t.ddate, nl + ' ' + nm)],
+    ['unique_num',       t.uniqueNum],
+    ['local_mix',        tp(nl, lt, nm)],
+  ];
+  return opts.map(([v,l]) => `<option value="${v}" ${sel===v?'selected':''}>${l}</option>`).join('');
+}
+
+function efb_generate_track_preview(style) {
+  const d = new Date();
+  const ymd = String(d.getFullYear()).slice(-2) + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+  const pick = (chars, n) => { const a = [...chars]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a.slice(0,n).join(''); };
+  const lc = efb_var.text.trackCodeLocalChars || '';
+  const ld = efb_var.text.trackCodeLocalDigits || '';
+  const toLD = (s) => ld ? s.replace(/[0-9]/g, c => ld[parseInt(c)] || c) : s;
+  const en = '0123456789ASDFGHJKLQWERTYUIOPZXCVBNM';
+  switch(style) {
+    case 'date_num': return ymd + '-' + String(10000 + Math.floor(Math.random()*90000));
+    case 'date_local_mix': return (lc ? toLD(ymd) : ymd) + pick(lc ? (lc + (ld || '0123456789')) : en, 5);
+    case 'date_local_alpha': return ymd + pick(lc || 'ASDFGHJKLQWERTYUIOPZXCVBNM', 5);
+    case 'date_local_num': { const r = String(10000+Math.floor(Math.random()*90000)); return (ld ? toLD(ymd)+'-'+toLD(r) : ymd+'-'+r); }
+    case 'unique_num': return String(parseInt(ymd)*100000 + 10000+Math.floor(Math.random()*90000));
+    case 'local_mix': return pick(lc ? (lc + (ld || '0123456789')) : en, 11);
+    case 'date_en_mix':
+    default: return ymd + pick(en, 5);
+  }
+}
+
+function efb_preview_track_code(style) {
+  const el = document.getElementById('trackCodePreview_efb');
+  if(el) el.textContent = efb_generate_track_preview(style);
 }
 
 function fun_State_btn_set_setting_emsFormBuilder($state) {

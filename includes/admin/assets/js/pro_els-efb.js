@@ -292,7 +292,7 @@ function ui_dadfile_efb(indx, previewSate,form_id) {
 function viewfileEfb(id, indx ,filed,form_id) {
   const valj_efb = get_structure_by_form_id_efb(form_id);
     if(filed==undefined) {
-      document.getElementById(`${valj_efb[indx].id_}_-message`).classList.remove('show')
+      document.getElementById(`${valj_efb[indx].id_}_-message`).style.display='none'
       return;}
     const filename =  filed.name ;
     let fileType =valj_efb[indx].file=='customize' ? filename.slice(filename.lastIndexOf('.') + 1) : filed.type;
@@ -327,14 +327,14 @@ function viewfileEfb(id, indx ,filed,form_id) {
       }
       fileReader.readAsDataURL(filed);
       document.getElementById(`${id}_-message`).innerHTML = "";
-      document.getElementById(`${id}_-message`).classList.remove('show')
+      document.getElementById(`${id}_-message`).style.display='none'
 
     } else {
       let t_m = valj_efb[indx].file!='customize'? valj_efb[indx].file : valj_efb[indx].file_ctype;
       t_m = t_m.replaceAll(',',` ${efb_var.text.or} `);
       const m  = efb_var.text.pleaseUploadA.replace('NN', t_m);
       document.getElementById(`${id}_-message`).innerHTML = m;
-      if(document.getElementById(`${id}_-message`).classList.contains('show'))document.getElementById(`${id}_-message`).classList.add('show');
+      document.getElementById(`${id}_-message`).style.display='block';
       alert_message_efb('', m, 4, 'danger')
       document.getElementById(`${id}_box`).classList.remove("active");
       fileEfb = [];
@@ -469,7 +469,9 @@ set_dadfile_fun_efb = (id, indx,form_id=0) => {
   }
 function fun_clear_esign_efb(id) {
     const canvas = document.getElementById(`${id}_`);
-    document.getElementById(`${id}-sig-data`).value = "Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+    const sigData = document.getElementById(`${id}-sig-data`);
+    if (!canvas || !sigData) return;
+    sigData.value = "Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
     const c2d = canvas.getContext("2d");
     c2d.clearRect(0, 0, canvas.width, canvas.height);
     var w = canvas.width;
@@ -680,8 +682,33 @@ function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
 load_intlTelInput_efb = (rndm, iVJ) => {
   setTimeout(() => {
     const onlyCountries = valj_efb[iVJ].hasOwnProperty("c_c") && valj_efb[iVJ].c_c.length > 0 ? valj_efb[iVJ].c_c : "";
+    const forceIntlContainerRtlEfb = (inputEl) => {
+      if (!inputEl) return;
+
+      const hasRtlScope = inputEl.closest('[dir="rtl"]') || document.documentElement.getAttribute('dir') === 'rtl';
+      if (!hasRtlScope) return;
+
+      const itiContainer = inputEl.closest('.iti');
+      if (!itiContainer) return;
+
+      const countryContainer = itiContainer.querySelector('.iti__country-container');
+      if (countryContainer) {
+        countryContainer.style.setProperty('left', 'auto', 'important');
+        countryContainer.style.setProperty('right', '0', 'important');
+        countryContainer.style.setProperty('inset-inline-start', 'auto', 'important');
+        countryContainer.style.setProperty('inset-inline-end', '0', 'important');
+      }
+
+      inputEl.setAttribute('dir', 'ltr');
+      inputEl.style.setProperty('direction', 'ltr', 'important');
+      inputEl.style.setProperty('text-align', 'left', 'important');
+      inputEl.style.setProperty('unicode-bidi', 'plaintext', 'important');
+    };
     let iti;
     const el_mobile = document.getElementById(rndm + "_");
+    if (!el_mobile) {
+      return;
+    }
     if(efb_var.length<1) efb_var = ajax_object_efm
     const ulitisJs = efb_var.images.hasOwnProperty('utilsJs') ? efb_var.images.utilsJs  : el_mobile.dataset.utilsjs;
 
@@ -692,6 +719,7 @@ load_intlTelInput_efb = (rndm, iVJ) => {
           placeholderNumberType: "MOBILE",
           loadUtils: () => import(ulitisJs),
       });
+        forceIntlContainerRtlEfb(el_mobile);
 
       el_mobile.addEventListener('blur', function () {
           const errorMap = [
@@ -1538,7 +1566,7 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
 
     const el = document.getElementById(`${id}-sig-data`);
     const value = el.value;
-    document.getElementById(`${id}_-message`).classList.remove('show');
+    document.getElementById(`${id}_-message`).style.display='none';
     const o = [{ id_: id, name: v.name, amount: v.amount, type: v.type, value: value, session: sessionPub_emsFormBuilder, form_id: form_id }];
     fun_sendBack_emsFormBuilder(o[0]);
   }, false);

@@ -50,7 +50,7 @@
 	}
 
 	private function generateTooltip_efb($rndm) {
-		return '<small id="' . $rndm . '_-message" class="efb py-1 fs-7 tx ttiptext px-2"> ! </small>';
+		return '<small id="' . $rndm . '_-message" class="efb py-1 fs-7 tx ttiptext px-2" style="display:none"> ! </small>';
 	}
 
 	private function generateDivFId_efb($rndm, $pos, $mobile_pos = null) {
@@ -82,7 +82,7 @@
 				$type = $isTextType ? 'text' : $elementId;
 				$autocomplete = $this->generateAutocomplete_efb($elementId);
 				$placeholder = $isPlaceholderType ? sprintf('placeholder="%s"', $vj->placeholder) : '';
-				$telPattern = ($elementId === 'tel') ? 'pattern="^\+?[0-9\-\s().]{7,25}$"' : '';
+				$telPattern = ($elementId === 'tel') ? 'pattern="^\+?(?:[0-9]|\s|\.|\(|\)|-){7,25}$"' : '';
 				$lenAttributes = $this->generateLengthAttributes_efb($elementId, $vj);
 				$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
 
@@ -116,7 +116,7 @@
 					$aire_describedby,
 
 					$rndm,
-					$vj->off,
+					is_rtl() ?  $vj->on : $vj->off,
 
 					$vj->el_height,
 					str_replace(',', ' ', $vj->classes),
@@ -127,7 +127,7 @@
 					$rndm,
 					$disabled,
 					$rndm,
-					$vj->on,
+					is_rtl() ?  $vj->off : $vj->on,
 					$desc
 				);
 
@@ -1141,6 +1141,30 @@
 		$js =sprintf(
 			'
 			let el_emsfb_%1$s = document.getElementById("%1$s_");
+			const forceIntlContainerRtlEfb_%1$s = function(inputEl) {
+				if (!inputEl) {
+					return;
+				}
+				const rtlScope = inputEl.closest("[dir=\"rtl\"]") || document.documentElement.getAttribute("dir") === "rtl";
+				if (!rtlScope) {
+					return;
+				}
+				const itiContainer = inputEl.closest(".iti");
+				if (!itiContainer) {
+					return;
+				}
+				const countryContainer = itiContainer.querySelector(".iti__country-container");
+				if (countryContainer) {
+					countryContainer.style.setProperty("left", "auto", "important");
+					countryContainer.style.setProperty("right", "0", "important");
+					countryContainer.style.setProperty("inset-inline-start", "auto", "important");
+					countryContainer.style.setProperty("inset-inline-end", "0", "important");
+				}
+				inputEl.setAttribute("dir", "ltr");
+				inputEl.style.setProperty("direction", "ltr", "important");
+				inputEl.style.setProperty("text-align", "left", "important");
+				inputEl.style.setProperty("unicode-bidi", "plaintext", "important");
+			};
 			setTimeout(function() {
 				const iti = window.intlTelInput(el_emsfb_%1$s, {
 					onlyCountries: %11$s,
@@ -1149,6 +1173,7 @@
 					placeholderNumberType: "MOBILE",
 					loadUtils: () => import("%10$s"),
 				});
+				forceIntlContainerRtlEfb_%1$s(el_emsfb_%1$s);
 				el_emsfb_%1$s.addEventListener("blur", function() {
 					const errorMap = [`%6$s`, `%7$s`,`%8$s`,`%9$s`, `%6$s`];
 					const elem = el_emsfb_%1$s;
@@ -1156,8 +1181,7 @@
 					elem.classList.remove("border-danger");
 					elem.classList.remove("border-success");
 					messageElem.innerHTML = "";
-					messageElem.classList.remove("d-block");
-					messageElem.classList.add("d-none");
+					messageElem.style.display = "none";
 					if (elem.value.trim()) {
 						if (iti.isValidNumber()) {
 							elem.classList.add("border-success");
@@ -1183,8 +1207,7 @@
 							elem.classList.add("border-danger");
 							let errorCode = iti.getValidationError();
 							errorCode = errorMap[errorCode] ? errorMap[errorCode] : errorMap[0];
-							messageElem.classList.remove("d-none");
-							messageElem.classList.add("d-block");
+							messageElem.style.display = "block";
 							messageElem.innerHTML = errorCode;
 							let inx = get_row_sendback_by_id_efb("%2$s");
 							if (inx !== -1) {
@@ -2103,7 +2126,7 @@
 			return $copyRight .'</aside></div>';
 		}else if($this->package_type_efb==2){
 
-			add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);;
+			add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);
 		}
 		return '<!--efb-->';
 	}
@@ -2116,17 +2139,17 @@
 		$t = $t === false ? array_search('paypal', array_column($valj_efb, 'type')) : $t;
 		$t = $t !== false ? $valj_efb[$t]->step : 0;
 
-		$dis = ($valj_efb[0]->type == "payment" && $valj_efb[0]->steps == 1 && $t == 1) ? 'disabled' : '';
 		if ($valj_efb[0]->type == "payment" && $t == 0) {
 			return  "<script>alert('".esc_html__('Easy Form Builder' , 'easy-form-builder'). ": " .esc_html__('This form requires a payment method. Please add one or change the form type.' , 'easy-form-builder')."');</script>";
 		}
 
 		$corner = property_exists($valj_efb[0], 'corner') ? $valj_efb[0]->corner : 'efb-square';
 		$btns_align = property_exists($valj_efb[0], 'btns_align') ? $valj_efb[0]->btns_align . ' mx-3' : 'justify-content-center';
+		$icon_spacing_class = is_rtl() ? 'ms-2' : 'me-2';
 
-		$prev_icon = strlen($valj_efb[0]->button_Previous_icon) > 3 && $valj_efb[0]->button_Previous_icon != 'bi-undefined' &&  $valj_efb[0]->button_Previous_icon!='bXXX' ? sprintf('<i class="efb %s mx-2 %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Previous_icon, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
-		$next_icon = strlen($valj_efb[0]->button_Next_text) > 3 && $valj_efb[0]->button_Next_text != 'bi-undefined' && $valj_efb[0]->button_Next_text!='bXXX' ? sprintf('<i class="efb %s mx-2 %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
-		$class_disabled = $valj_efb[0]->captcha == true ? 'disabled' : 'nnn';
+		$prev_icon = strlen($valj_efb[0]->button_Previous_icon) > 3 && $valj_efb[0]->button_Previous_icon != 'bi-undefined' &&  $valj_efb[0]->button_Previous_icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Previous_icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
+		$next_icon = strlen($valj_efb[0]->button_Next_text) > 3 && $valj_efb[0]->button_Next_text != 'bi-undefined' && $valj_efb[0]->button_Next_text!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
+		$class_disabled = '';
 
 		$s = sprintf(
 			'<div class="efb d-flex %s %s text-center efb mx-3" id="f_btn_send_efb" data-tag="buttonNav" data-formid="%s">
@@ -2144,7 +2167,7 @@
 			$formId,
 			$valj_efb[0]->type,
 			'btn_send_efb',
-			(strlen($valj_efb[0]->icon) > 3 && $valj_efb[0]->icon != 'bi-undefined' &&  $valj_efb[0]->icon!='bXXX' ? sprintf('<i class="efb %s mx-2 %s %s" id="button_group_icon"></i>', $valj_efb[0]->icon, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : ''),
+			(strlen($valj_efb[0]->icon) > 3 && $valj_efb[0]->icon != 'bi-undefined' &&  $valj_efb[0]->icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : ''),
 			$valj_efb[0]->el_text_color,
 			$valj_efb[0]->button_single_text
 		);
@@ -3019,7 +3042,165 @@
 		return $v;
 	}
 
+	/**
+	 * Generate CSS for checked color of radio/checkbox elements
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateCheckedColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		// High specificity selectors for both radio and checkbox
+		// Using attribute selectors for IDs to handle IDs starting with numbers
+		$css = sprintf(
+			'[data-css="%1$s"] .efb.form-check-input:checked, ' .
+			'[data-css="%1$s"] .efb.form-check-input:checked[type=checkbox], ' .
+			'[data-css="%1$s"] .efb.form-check-input:checked[type=radio], ' .
+			'[data-parent="%1$s"] .efb.form-check-input:checked, ' .
+			'[data-parent="%1$s"] .efb.form-check-input:checked[type=checkbox], ' .
+			'[data-parent="%1$s"] .efb.form-check-input:checked[type=radio], ' .
+			'[id="%1$s_options"] .efb.form-check-input:checked, ' .
+			'[id="%1$s_options"] .efb.form-check-input:checked[type=checkbox], ' .
+			'[id="%1$s_options"] .efb.form-check-input:checked[type=radio], ' .
+			'[data-vid="%1$s"] .efb.form-check-input:checked, ' .
+			'[data-vid="%1$s"] .efb.form-check-input:checked[type=checkbox], ' .
+			'[data-vid="%1$s"] .efb.form-check-input:checked[type=radio], ' .
+			'.efb.form-check-input[data-vid="%1$s"]:checked, ' .
+			'.efb.form-check-input[data-vid="%1$s"]:checked[type=checkbox], ' .
+			'.efb.form-check-input[data-vid="%1$s"]:checked[type=radio] ' .
+			'{ background-color: %2$s !important; border-color: %2$s !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
+	/**
+	 * Generate CSS for range slider thumb color
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateRangeThumbColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		$css = sprintf(
+			'input[type="range"][data-vid="%1$s"]::-webkit-slider-thumb, ' .
+			'[data-vid="%1$s"] input[type="range"]::-webkit-slider-thumb, ' .
+			'[id="%1$s-range"] input[type="range"]::-webkit-slider-thumb, ' .
+			'[data-css="%1$s"] input[type="range"]::-webkit-slider-thumb, ' .
+			'[data-css="%1$s"] .efb.form-range::-webkit-slider-thumb { background-color: %2$s !important; } ' .
+			'input[type="range"][data-vid="%1$s"]::-moz-range-thumb, ' .
+			'[data-vid="%1$s"] input[type="range"]::-moz-range-thumb, ' .
+			'[id="%1$s-range"] input[type="range"]::-moz-range-thumb, ' .
+			'[data-css="%1$s"] input[type="range"]::-moz-range-thumb, ' .
+			'[data-css="%1$s"] .efb.form-range::-moz-range-thumb { background-color: %2$s !important; } ' .
+			'input[type="range"][data-vid="%1$s"]::-ms-thumb, ' .
+			'[data-vid="%1$s"] input[type="range"]::-ms-thumb, ' .
+			'[id="%1$s-range"] input[type="range"]::-ms-thumb, ' .
+			'[data-css="%1$s"] input[type="range"]::-ms-thumb, ' .
+			'[data-css="%1$s"] .efb.form-range::-ms-thumb { background-color: %2$s !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
+	/**
+	 * Generate CSS for range value text color
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateRangeValueColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		$css = sprintf(
+			'[id="%1$s_rv"], #%1$s_rv { color: %2$s !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
+	/**
+	 * Generate CSS for switch on color
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateSwitchOnColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		$css = sprintf(
+			'[id="%1$s"] .efb.btn-toggle.active, #%1$s .efb.btn-toggle.active { background-color: %2$s !important; border-color: %2$s !important; background-image: none !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
+	/**
+	 * Generate CSS for switch handle color
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateSwitchHandleColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		$css = sprintf(
+			'[id="%1$s"] .efb.btn-toggle > .handle, #%1$s .efb.btn-toggle > .handle { background-color: %2$s !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
+	/**
+	 * Generate CSS for switch off color
+	 * @param string $parentId The parent element ID
+	 * @param string $color The hex color value
+	 * @return string CSS rules
+	 */
+	public function generateSwitchOffColorCss($parentId, $color) {
+		if (empty($color)) return '';
+
+		$color = $color[0] !== '#' ? '#' . $color : $color;
+		$parentId = esc_attr($parentId);
+
+		$css = sprintf(
+			'[id="%1$s"] .efb.btn-toggle:not(.active), #%1$s .efb.btn-toggle:not(.active) { background-color: %2$s !important; border-color: %2$s !important; }',
+			$parentId,
+			esc_attr($color)
+		);
+
+		return $css;
+	}
+
 	public function fun_addStyle_customize_efb($val, $key, $vj) {
+
 
 		if (strpos($val, 'colorDEfb') !== false) {
 			$type = "";
@@ -3070,6 +3251,21 @@
 
 			if ($color != "") {
 				return $this->addStyleColorBodyEfb("colorDEfb-" . substr($color, 1), substr($color, -6), $type, -1, $vj);
+			}
+		}else{
+			// Handle checked_color for radio/checkbox elements
+			if ($key === 'checked_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateCheckedColorCss($vj->id_, $val);
+			}else if ($key === 'range_thumb_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateRangeThumbColorCss($vj->id_, $val);
+			}else if ($key === 'range_value_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateRangeValueColorCss($vj->id_, $val);
+			}else if ($key === 'switch_on_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateSwitchOnColorCss($vj->id_, $val);
+			}else if ($key === 'switch_handle_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateSwitchHandleColorCss($vj->id_, $val);
+			}else if ($key === 'switch_off_color' && !empty($val) && isset($vj->id_)) {
+				return $this->generateSwitchOffColorCss($vj->id_, $val);
 			}
 		}
 	}

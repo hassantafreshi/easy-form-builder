@@ -189,12 +189,13 @@ class EmsfbEmailHandler {
 
         if (is_string($sub)) {
             $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
-            if ($state != "reportProblem") {
-                $mailResult = $sendMail($to, $sub, $message, $headers);
-            }
+
 
             if (in_array($state, ["reportProblem", "testMailServer", "addonsDlProblem"])) {
+
                 $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
+                $mailResult = $sendMail($to, $sub, $message, $headers);
+            }else  {
                 $mailResult = $sendMail($to, $sub, $message, $headers);
             }
         } else {
@@ -280,9 +281,10 @@ class EmsfbEmailHandler {
         }
 
         $isRegistrationState = in_array($state, ['newUser', 'register']);
+        $isRecoveryState = $state === 'recovery';
 
         $tracking_section = "";
-        if ($email_content_type != 'just_message' && !$isRegistrationState) {
+        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState) {
             $safe_link = esc_url($link);
             $tracking_section = "
             <div style='text-align:center; margin: 30px 0;'>
@@ -309,9 +311,16 @@ class EmsfbEmailHandler {
             $title = __('Welcome!', 'easy-form-builder');
         }
 
+        if ($isRecoveryState) {
+            $title = __('Password Reset', 'easy-form-builder');
+        }
+
         if ($state == "testMailServer") {
             $title = $lang['serverEmailAble'];
             $message = $this->generate_test_server_message($lang, $l, $wp_lan);
+        } else if ($isRecoveryState) {
+            // Recovery email - m contains the pre-generated recovery content
+            $message = $this->generate_recovery_content($m, $lang, $link, $btnBgColor, $btnTextColor);
         } else {
 
             switch ($email_content_type) {
@@ -546,6 +555,57 @@ class EmsfbEmailHandler {
         }
 
         return "";
+    }
+
+    /**
+     * Generate recovery email content with proper styling
+     *
+     * @param string|array $m The message content (can be pre-generated HTML or array with [track_id, content])
+     * @param array $lang Language strings
+     * @param string $link The recovery link URL
+     * @param string $btnBgColor Button background color
+     * @param string $btnTextColor Button text color
+     * @return string The formatted recovery email content
+     */
+    private function generate_recovery_content($m, $lang, $link, $btnBgColor = '#667eea', $btnTextColor = '#ffffff') {
+        // If already pre-generated HTML content, return it directly
+        if (is_string($m) && (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false || strpos($m, '<table') !== false)) {
+            return $m;
+        }
+
+        // Generate recovery button
+        $safe_link = esc_url($link);
+        $button_text = __('Reset Password', 'easy-form-builder');
+
+        $recovery_button = "
+            <table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 25px auto;'>
+                <tr>
+                    <td style='border-radius: 6px; background-color: " . esc_attr($btnBgColor) . ";'>
+                        <!--[if mso]>
+                        <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='" . $safe_link . "' style='height:auto;v-text-anchor:middle;' arcsize='20%' strokecolor='" . esc_attr($btnBgColor) . "' fillcolor='" . esc_attr($btnBgColor) . "'>
+                            <w:anchorlock/>
+                            <center style='color:" . esc_attr($btnTextColor) . ";font-family:Segoe UI,Tahoma,Geneva,Verdana,Arial,sans-serif;font-size:16px;font-weight:600;padding:14px 35px;'>" . $button_text . "</center>
+                        </v:roundrect>
+                        <![endif]-->
+                        <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 14px 35px; font-size: 16px; font-weight: 600; color: " . esc_attr($btnTextColor) . "; text-decoration: none; border-radius: 6px; background-color: " . esc_attr($btnBgColor) . "; mso-hide: all;'>" . $button_text . "</a>
+                    </td>
+                </tr>
+            </table>";
+
+        $link_text = sprintf(
+            '<p style="margin: 20px 0 0 0; font-size: 13px; color: #6b7280; word-break: break-all;">%s<br><a href="%s" style="color: #667eea;">%s</a></p>',
+            esc_html__('Or copy and paste this link:', 'easy-form-builder'),
+            $safe_link,
+            $safe_link
+        );
+
+        $warning_text = '<p style="margin: 20px 0 0 0; padding: 15px; background-color: #fef3c7; border-radius: 6px; font-size: 13px; color: #92400e;">⚠️ ' . esc_html__('If you did not request this, you can safely ignore it.', 'easy-form-builder') . '</p>';
+
+        // Default recovery content if no pre-generated content
+        $main_text = '<p style="margin: 0 0 10px 0;">' . esc_html__('You have requested to reset your password.', 'easy-form-builder') . '</p>';
+        $main_text .= '<p style="margin: 0;">' . esc_html__('Click the button below to set a new password. This link will be valid for 24 hours.', 'easy-form-builder') . '</p>';
+
+        return $main_text . $recovery_button . $link_text . $warning_text;
     }
 
     private function generate_html_email_template($title, $message, $footer, $disclaimer, $direction, $align) {

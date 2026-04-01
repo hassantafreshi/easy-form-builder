@@ -444,7 +444,7 @@ class Emsfb {
             case 'pub':
 
                 $pro = absint(get_option('emsfb_pro'));
-                $pro = $pro == 1 || $pro == 2 ? true : false;
+                $pro = $pro == 1 || $pro == 3 ? true : false;
                 $pubSettings = [
                     'pro' => $pro,
                     'trackingCode' => $decoded->trackingCode ?? '',
@@ -813,7 +813,10 @@ class Emsfb {
                 delete_transient('emsfb_settings_transient');
 
                 $settings = self::get_setting_Emsfb('decoded');
-                if (is_object($settings) && isset($settings->activeCode)) {
+                if (isset($settings->emailTemp)) {
+                    unset($settings->emailTemp);
+                }
+                if (isset($settings->activeCode)) {
                     $activeCode = $settings->activeCode;
                 }
             }
@@ -975,6 +978,7 @@ class Emsfb {
         $defaults->adminSN           = '1';
         $defaults->osLocationPicker  = '';
         $defaults->sessionDuration   = '5';
+        $defaults->trackCodeStyle    = 'date_en_mix';
         $defaults->respPrimary       = '#3644d2';
         $defaults->respPrimaryDark   = '#202a8d';
         $defaults->respAccent        = '#ffc107';
@@ -993,6 +997,151 @@ class Emsfb {
         $defaults->respCustomFont    = '';
         $defaults->efb_version       = defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '4.0.0';
         return $defaults;
+    }
+
+    public static function get_locale_script_chars_efb() {
+        static $cache = null;
+        if ($cache !== null) return $cache;
+
+        $lang_full  = strtok(get_locale(), '_');
+        $lang_short = substr($lang_full, 0, 2);
+
+        $map = [
+            // ── Arabic script ──
+            'ar'  => [[[0x0627,0x063A],[0x0641,0x064A]], 0x0660],
+            'fa'  => [[[0x0622,0x0622],[0x0627,0x0628],[0x067E,0x067E],[0x062A,0x062C],[0x0686,0x0686],[0x062D,0x0632],[0x0698,0x0698],[0x0633,0x063A],[0x0641,0x0642],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x0644,0x0648],[0x06CC,0x06CC]], 0x06F0],
+            'ur'  => [[[0x0627,0x063A],[0x0641,0x064A],[0x067E,0x067E],[0x0686,0x0686],[0x0698,0x0698],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x06CC,0x06CC]], 0x0660],
+            'ps'  => [[[0x0627,0x063A],[0x0641,0x064A],[0x067E,0x067E],[0x0686,0x0686],[0x0693,0x0693],[0x0698,0x0698],[0x069A,0x069A],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x06BC,0x06BC],[0x06CC,0x06CC],[0x06D0,0x06D0]], 0x06F0],
+            'sd'  => [[[0x0627,0x063A],[0x0641,0x064A],[0x067E,0x067E],[0x0686,0x0686],[0x0698,0x0698],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x06CC,0x06CC]], 0x0660],
+            'ug'  => [[[0x0627,0x0628],[0x067E,0x067E],[0x062A,0x062C],[0x0686,0x0686],[0x062E,0x0632],[0x0698,0x0698],[0x0633,0x063A],[0x0641,0x0642],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x0644,0x0648],[0x06CB,0x06CC],[0x06D0,0x06D0],[0x06D5,0x06D5]], 0x0660],
+            'ckb' => [[[0x0627,0x063A],[0x0641,0x064A],[0x067E,0x067E],[0x0686,0x0686],[0x0698,0x0698],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x06CC,0x06CC]], 0x0660],
+            'azb' => [[[0x0627,0x063A],[0x0641,0x064A],[0x067E,0x067E],[0x0686,0x0686],[0x0698,0x0698],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x06CC,0x06CC]], 0x06F0],
+            'haz' => [[[0x0622,0x0622],[0x0627,0x0628],[0x067E,0x067E],[0x062A,0x062C],[0x0686,0x0686],[0x062D,0x0632],[0x0698,0x0698],[0x0633,0x063A],[0x0641,0x0642],[0x06A9,0x06A9],[0x06AF,0x06AF],[0x0644,0x0648],[0x06CC,0x06CC]], 0x06F0],
+
+            // ── Devanagari script ──
+            'hi'  => [[[0x0915,0x0939]], 0x0966],
+            'mr'  => [[[0x0915,0x0939]], 0x0966],
+            'ne'  => [[[0x0915,0x0939]], 0x0966],
+            'sa'  => [[[0x0915,0x0939]], 0x0966],
+            'bho' => [[[0x0915,0x0939]], 0x0966],
+            'mai' => [[[0x0915,0x0939]], 0x0966],
+            'doi' => [[[0x0915,0x0939]], 0x0966],
+
+            // ── Bengali script ──
+            'bn'  => [[[0x0995,0x09B9]], 0x09E6],
+            'as'  => [[[0x0995,0x09B9]], 0x09E6],
+
+            // ── Gurmukhi ──
+            'pa'  => [[[0x0A15,0x0A39]], 0x0A66],
+
+            // ── Gujarati ──
+            'gu'  => [[[0x0A95,0x0AB9]], 0x0AE6],
+
+            // ── Odia (Oriya) ──
+            'or'  => [[[0x0B15,0x0B39]], 0x0B66],
+            'ory' => [[[0x0B15,0x0B39]], 0x0B66],
+
+            // ── Tamil ──
+            'ta'  => [[[0x0B95,0x0BB9]], 0x0BE6],
+
+            // ── Telugu ──
+            'te'  => [[[0x0C15,0x0C39]], 0x0C66],
+
+            // ── Kannada ──
+            'kn'  => [[[0x0C95,0x0CB9]], 0x0CE6],
+
+            // ── Malayalam ──
+            'ml'  => [[[0x0D15,0x0D39]], 0x0D66],
+
+            // ── Sinhala ──
+            'si'  => [[[0x0D9A,0x0DC6]], 0x0DE6],
+
+            // ── Thai ──
+            'th'  => [[[0x0E01,0x0E2E]], 0x0E50],
+
+            // ── Lao ──
+            'lo'  => [[[0x0E81,0x0EAE]], 0x0ED0],
+
+            // ── Myanmar (Burmese) ──
+            'my'  => [[[0x1000,0x1021]], 0x1040],
+
+            // ── Khmer ──
+            'km'  => [[[0x1780,0x17A2]], 0x17E0],
+
+            // ── Tibetan ──
+            'bo'  => [[[0x0F40,0x0F69]], 0x0F20],
+
+            // ── Georgian ──
+            'ka'  => [[[0x10D0,0x10F0]], null],
+
+            // ── Armenian ──
+            'hy'  => [[[0x0531,0x0556]], null],
+
+            // ── Greek ──
+            'el'  => [[[0x0391,0x03A9],[0x03B1,0x03C9]], null],
+
+            // ── Cyrillic ──
+            'ru'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'uk'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'bg'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'sr'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'be'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'mk'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'kk'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'ky'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'mn'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'tg'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'tt'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'ba'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'ce'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'cv'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+            'os'  => [[[0x0410,0x042F],[0x0430,0x044F]], null],
+
+            // ── Hebrew ──
+            'he'  => [[[0x05D0,0x05EA]], null],
+            'yi'  => [[[0x05D0,0x05EA]], null],
+
+            // ── CJK ──
+            'ja'  => [[[0x30A2,0x30F3]], null],
+            'ko'  => [[[0x3131,0x314E]], null],
+            'zh'  => [[[0x4E00,0x4E4F]], null],
+
+            // ── Ethiopic ──
+            'am'  => [[[0x1200,0x1248]], null],
+            'ti'  => [[[0x1200,0x1248]], null],
+
+            // ── Thaana (Dhivehi) ──
+            'dv'  => [[[0x0780,0x07A5]], null],
+
+            // ── Cherokee ──
+            'chr' => [[[0x13A0,0x13F4]], null],
+        ];
+
+        $lang = isset($map[$lang_full]) ? $lang_full : (isset($map[$lang_short]) ? $lang_short : null);
+        if ($lang === null) {
+            $cache = false;
+            return false;
+        }
+
+        $info = $map[$lang];
+        $alpha = [];
+        foreach ($info[0] as $range) {
+            for ($i = $range[0]; $i <= $range[1]; $i++) {
+                $ch = mb_chr($i, 'UTF-8');
+                if ($ch !== false) $alpha[] = $ch;
+            }
+        }
+
+        $digits = null;
+        if ($info[1] !== null) {
+            $digits = [];
+            for ($i = 0; $i <= 9; $i++) {
+                $digits[$i] = mb_chr($info[1] + $i, 'UTF-8');
+            }
+        }
+
+        $cache = ['alpha' => $alpha, 'digits' => $digits];
+        return $cache;
     }
 
     public function plugin_update_completed_efb($upgrader_object, $options) {

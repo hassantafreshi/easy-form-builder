@@ -508,6 +508,7 @@ public function check_nonce_permission_efb($request) {
 			$state_form = 'not';
 			$admin_form = false;
 			$admin_sc = null;
+			$admin_verified = false;
 			$is_track = null;
 			$state="form";
 			$rgister_captcha_url = false;
@@ -519,7 +520,7 @@ public function check_nonce_permission_efb($request) {
 				if(isset($_GET['user'])  && sanitize_text_field( wp_unslash( $_GET['user'] ) ) == "admin" ) $admin_form = true;
 				if(isset($_GET['sc'])) $admin_sc = sanitize_text_field(wp_unslash($_GET['sc']));
 			}elseif (isset($_GET['state'])){
-				$admin_sc = sanitize_text_field(wp_unslash($_GET['sc']));
+				$admin_sc = isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : null;
 				$username =isset($_GET['username']) ?  sanitize_text_field(wp_unslash($_GET['username'])) : 'null';
 				$state = sanitize_text_field(wp_unslash($_GET['state']));
 				$fid = sanitize_text_field(wp_unslash($_GET['fid']));
@@ -528,12 +529,88 @@ public function check_nonce_permission_efb($request) {
 				return $val;
 			}
 
-			if(( is_user_logged_in()==false && $admin_form==true && $admin_sc==null)){
+			// Verify admin sc (secure code from email link)
+			if ($admin_sc !== null && $state === 'track' && strlen($state_form) > 5) {
+				$sc_setting = get_setting_Emsfb('decoded');
+				if (isset($sc_setting->email_key) && strlen($sc_setting->email_key) > 3) {
+					$expected_sc = md5($state_form . $sc_setting->email_key);
+					if (hash_equals($expected_sc, $admin_sc)) {
+						$admin_verified = true;
+						$admin_form = true;
+					}
+				}
+			}
 
+			// Determine admin access
+			$adminSN_enabled = false;
+			if (!isset($sc_setting)) $sc_setting = get_setting_Emsfb('decoded');
+			if (isset($sc_setting->adminSN)) $adminSN_enabled = (bool) $sc_setting->adminSN;
+
+
+			// If user=admin without valid sc → must be logged in as admin
+			$is_legacy_admin_link = ($admin_form && ($admin_sc === null || !$admin_verified));
+			if ($admin_form && !$admin_verified) {
+				if (is_user_logged_in() && current_user_can('administrator')) {
+					$admin_verified = true;
+				} else if (!is_user_logged_in()) {
 				$overrides = $this->efb_build_inline_style_overrides();
 				$pl_warn = get_setting_Emsfb('pub');
 				$ps_warn = $pl_warn[1] ?? [];
 
+				$warn_text_color  = !empty($ps_warn['respText'])       ? $ps_warn['respText']       : '#1a1a2e';
+				$warn_bg_color    = !empty($ps_warn['respBgCard'])     ? $ps_warn['respBgCard']     : '#ffffff';
+				$warn_primary     = !empty($ps_warn['respPrimary'])    ? $ps_warn['respPrimary']    : '#3644d2';
+				$warn_muted       = !empty($ps_warn['respTextMuted'])  ? $ps_warn['respTextMuted']  : '#657096';
+				$warn_font_family = !empty($ps_warn['respFontFamily']) ? $ps_warn['respFontFamily'] : 'inherit';
+				$warn_font_size   = !empty($ps_warn['respFontSize'])  ? $ps_warn['respFontSize']   : '0.9rem';
+
+				$legacy_notice = '';
+				if ($is_legacy_admin_link) {
+					$legacy_notice = "
+					<div style='margin-top:16px; padding:10px 18px; border-radius:8px;
+					            background-color: rgba(54,68,210,0.07);
+					            display:inline-flex; align-items:center; gap:8px;'>
+						<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='" . esc_attr($warn_muted) . "' viewBox='0 0 16 16' style='flex-shrink:0;'>
+							<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.399l-.502 0 .07-.332C7.005 6.584 7.912 6.196 8.454 6h.37l-.82 4.588zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z'/>
+						</svg>
+						<span style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
+						             font-size: calc(" . esc_attr($warn_font_size) . " * 0.93);'>"
+						. esc_html__('This link uses an older format. For improved security, new email notifications include updated links.', 'easy-form-builder') .
+						"</span>
+					</div>";
+				}
+
+				return $overrides['font_link'] . $overrides['inline_style'] . "
+				<div id='body_efb' class='efb card-public efb'
+				     style='display:flex; flex-direction:column; align-items:center; justify-content:center;
+				            color:" . esc_attr($warn_text_color) . "; background-color:" . esc_attr($warn_bg_color) . ";
+				            font-family:" . esc_attr($warn_font_family) . "; font-size:" . esc_attr($warn_font_size) . ";
+				            padding: 40px 20px; border-radius: 12px;
+				            box-shadow: 0 2px 16px rgba(0,0,0,0.07); text-align:center;'>
+					<div style='margin-bottom:18px; text-align:center;'>
+						<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' fill='" . esc_attr($warn_primary) . "' viewBox='0 0 16 16' style='display:inline-block;'>
+							<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM8 4a.905.905 0 0 1 .9.995l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/>
+						</svg>
+					</div>
+					<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
+					           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
+					           margin:0 0 10px 0; text-align:center;'>"
+					    . esc_html__('It seems that you are the admin of this form. Please log in and try again.', 'easy-form-builder') .
+					"</h3>" . $legacy_notice . "
+				</div>";
+				} else {
+					$admin_form = false;
+				}
+			}
+
+			// If adminSN is enabled and admin verified via sc but not logged in → require login
+			if ($adminSN_enabled && $admin_verified && !is_user_logged_in()) {
+				$admin_verified = false;
+				$admin_form = false;
+
+				$overrides = $this->efb_build_inline_style_overrides();
+				$pl_warn = get_setting_Emsfb('pub');
+				$ps_warn = $pl_warn[1] ?? [];
 				$warn_text_color  = !empty($ps_warn['respText'])       ? $ps_warn['respText']       : '#1a1a2e';
 				$warn_bg_color    = !empty($ps_warn['respBgCard'])     ? $ps_warn['respBgCard']     : '#ffffff';
 				$warn_primary     = !empty($ps_warn['respPrimary'])    ? $ps_warn['respPrimary']    : '#3644d2';
@@ -556,12 +633,13 @@ public function check_nonce_permission_efb($request) {
 					<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
 					           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
 					           margin:0 0 10px 0; text-align:center;'>"
-					    . esc_html__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder') .
+					    . esc_html__('It seems that you are the admin of this form. Please log in and try again', 'easy-form-builder') .
 					"</h3>
 					<p style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
 					          font-size:" . esc_attr($warn_font_size) . "; margin:0; text-align:center;'></p>
 				</div>";
 			}
+
 			if(empty($this->db)){
 				global $wpdb;
 				$this->db = $wpdb;
@@ -592,7 +670,15 @@ public function check_nonce_permission_efb($request) {
 				<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
 				<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 			}
-			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","createdBy","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation','snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc'];
+			$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist",
+			"settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot",
+			"enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document",
+			"error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media",
+			"zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync",
+			"enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue",
+			"name","latitude","longitude","previous","next","invalidEmail","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork",
+			"aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","createdBy","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation',
+			'snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc','fillrequiredfields'];
 
 			$this->public_scripts_and_css_head('');
 
@@ -646,7 +732,8 @@ public function check_nonce_permission_efb($request) {
 				'bi-palette',
 				'bi-pen',
 				'bi-star',
-				'bi-reply'
+				'bi-reply',
+				'bi-x'
 			]];
 			$bootstrap_icons ='';
 			 $iconst_html_preload ='<div style="display:none;">';
@@ -743,7 +830,12 @@ public function check_nonce_permission_efb($request) {
 				$send=array();
 			$content_new="";
 			$values ="";
-			$is_user = is_user_logged_in() || ( $admin_form && $state == "track") ? (current_user_can('administrator') ? 'admin' : 'user') : 'guest';
+			$is_user = 'guest';
+			if ($admin_verified) {
+				$is_user = 'admin';
+			} else if (is_user_logged_in()) {
+				$is_user = current_user_can('administrator') ? 'admin' : 'user';
+			}
 			$username = is_user_logged_in() ? wp_get_current_user()->user_login : 'guest';
 			if ($is_track==null){
 
@@ -862,6 +954,30 @@ public function check_nonce_permission_efb($request) {
 						}else if(strpos($value, 'bi-') !== false && strpos($key, 'icon') !== false){
 
 							$icons_els[] = $value;
+						}
+						// Handle checked_color for radio/checkbox elements
+						if($key === 'checked_color' && !empty($value)){
+							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
+						}
+						// Handle range_thumb_color for range elements
+						if($key === 'range_thumb_color' && !empty($value)){
+							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
+						}
+						// Handle range_value_color for range elements
+						if($key === 'range_value_color' && !empty($value)){
+							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
+						}
+						// Handle switch_on_color for switch elements
+						if($key === 'switch_on_color' && !empty($value)){
+							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
+						}
+						// Handle switch_handle_color for switch elements
+						if($key === 'switch_handle_color' && !empty($value)){
+							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
+						}
+						// Handle switch_off_color for switch elements
+						if($key === 'switch_off_color' && !empty($value)){
+							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
 						}
 					}else{
 						foreach ($value as $key2 => $value2) {
@@ -1084,13 +1200,14 @@ public function check_nonce_permission_efb($request) {
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
 
 			$dShow = isset($valj_efb[0]->dShowBg) && intval($valj_efb[0]->dShowBg) != 1 ? 'card' : '';
+			$direction_attr = is_rtl() ? ' dir="rtl"' : '';
 
 			$mobile_css_efb = $efbFormBuilder->generate_mobile_css_efb();
                         $content_new = $style.$mobile_css_efb.$efb_loading_ui_script.$script.$bootstrap_icons.''.$iconst_html_preload.'
 				<!-- start body_efb-->
 
-				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting-'.$this->id.' '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'">
-					<form id="efbform" class="mx-0 px-0 efb" data-formid="'.$this->id.'">
+				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting-'.$this->id.' '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'"'.$direction_attr.'>
+					<form id="efbform" class="mx-0 px-0 efb" data-formid="'.$this->id.'"'.$direction_attr.'>
 						<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2 view-efb" id="view-efb" data-formid="'.$this->id.'">
 						' . (intval($valj_efb[0]->show_icon) != 1
 							? '<h4 id="title_efb" class="efb fs-3 ' . $valj_efb[1]->label_text_color . ' text-center mt-3 mb-0 title_efb" data-formid="'.$this->id.'">' . $valj_efb[1]->name . '</h4>
@@ -1547,7 +1664,7 @@ public function check_nonce_permission_efb($request) {
 		$request_data = $data_POST_->get_json_params();
 
 		$translation_keys = [
-			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM', 'bkFlM', 'mnvvXXX', 'ptrnMmm', 'ptrnMmx', 'payment', 'error403', 'errorSiteKeyM',
+			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
 			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
 			'surveyResults', 'responses'
@@ -1725,8 +1842,8 @@ public function check_nonce_permission_efb($request) {
 							|| ($item['type'] == 'r_matrix' && $f['id_'] == $item['id_ob'])
 						) {
 							if (isset($f['name'])) {
-								$error_message = $this->lanText['mnvvXXX'];
-								$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
+								$error_message = $this->lanText['mnvvXXX_'];
+								$error_message = str_replace('%s', "<b>" . $f['name'] . "</b>", $error_message);
 							}
 							switch ($f['type']) {
 								case 'email':
@@ -1738,7 +1855,7 @@ public function check_nonce_permission_efb($request) {
 										$validated_item = $item;
 										$l = strlen($item['value']);
 										if (!filter_var($item['value'], FILTER_VALIDATE_EMAIL)) {
-											$error_message = str_replace('XXX', $f['name'], $error_message);
+											$error_message = str_replace('%s', $f['name'], $error_message);
 											$is_valid = 0;
 										}
 
@@ -1845,15 +1962,15 @@ public function check_nonce_permission_efb($request) {
 													if (isset($fr['dateExp']) == true) {
 														if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
 															$is_valid = 0;
-															$error_message = $this->lanText['bkXpM'];
-															$error_message = str_replace('XXX', $fr['value'], $error_message);
+															$error_message = $this->lanText['bkXpM_'];
+															$error_message = str_replace('%s', $fr['value'], $error_message);
 														}
 													}
 													if (isset($fr['mlen']) == true) {
 														if ($fr['mlen'] <= $fr['registered_count']) {
 															$is_valid = 0;
-															$error_message = $this->lanText['bkFlM'];
-															$error_message = str_replace('XXX', $fr['value'], $error_message);
+															$error_message = $this->lanText['bkFlM_'];
+															$error_message = str_replace('%s', $fr['value'], $error_message);
 														} else {
 															$form_fields_array[$ki]['registered_count'] = (int) $form_fields_array[$ki]['registered_count'] + 1;
 														}
@@ -1905,15 +2022,15 @@ public function check_nonce_permission_efb($request) {
 												if (isset($f['dateExp']) == true) {
 													if (strtotime($f['dateExp']) < strtotime(wp_date('Y-m-d'))) {
 														$is_valid = 0;
-														$error_message = $this->lanText['bkXpM'];
-														$error_message = str_replace('XXX', $f['value'], $error_message);
+														$error_message = $this->lanText['bkXpM_'];
+														$error_message = str_replace('%s', $f['value'], $error_message);
 													}
 												}
 												if (isset($f['mlen']) == true) {
 													if ($f['mlen'] <= $f['registered_count']) {
 														$is_valid = 0;
-														$error_message = $this->lanText['bkFlM'];
-														$error_message = str_replace('XXX', $f['value'], $error_message);
+														$error_message = $this->lanText['bkFlM_'];
+														$error_message = str_replace('%s', $f['value'], $error_message);
 													} else {
 														$form_fields_array[$key]['registered_count'] = (int) $form_fields_array[$key]['registered_count'] + 1;
 													}
@@ -2019,15 +2136,15 @@ public function check_nonce_permission_efb($request) {
 													if (isset($fr['dateExp']) == true) {
 														if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
 															$is_valid = 0;
-															$error_message = $this->lanText['bkXpM'];
-															$error_message = str_replace('XXX', $fr['value'], $error_message);
+															$error_message = $this->lanText['bkXpM_'];
+															$error_message = str_replace('%s', $fr['value'], $error_message);
 														}
 													}
 													if (isset($fr['mlen']) == true) {
 														if ($fr['mlen'] <= $fr['registered_count']) {
 															$is_valid = 0;
-															$error_message = $this->lanText['bkFlM'];
-															$error_message = str_replace('XXX', $fr['value'], $error_message);
+															$error_message = $this->lanText['bkFlM_'];
+															$error_message = str_replace('%s', $fr['value'], $error_message);
 														} else {
 															$form_fields_array[$ki]['registered_count'] = (int) $form_fields_array[$ki]['registered_count'] + 1;
 														}
@@ -2124,8 +2241,8 @@ public function check_nonce_permission_efb($request) {
 									if ($c != $f['mark']) {
 										$is_valid = 0;
 										$validated_item = null;
-										$error_message = $this->lanText['mnvvXXX'];
-										$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
+										$error_message = $this->lanText['mnvvXXX_'];
+										$error_message = str_replace('%s', "<b>" . $f['name'] . "</b>", $error_message);
 									}
 									$still_processing = false;
 									break;
@@ -2172,17 +2289,20 @@ public function check_nonce_permission_efb($request) {
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$l = mb_strlen($item['value'], 'UTF-8');
-										if (isset($f['milen']) != true  &&   isset($f['mlen']) != true) {
-											$is_valid = 1;
-										} else if ((isset($f['milen']) == true && $f['milen'] > 0 && $f['milen'] > $l)) {
-											$error_message = $this->lanText['ptrnMmm'];
-											$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
-											$error_message = str_replace('NN', "<b>" . $f['milen'] . "</b>", $error_message);
+										$min_len = isset($f['milen']) ? (int) $f['milen'] : 0;
+										$max_len = isset($f['mlen']) ? (int) $f['mlen'] : 0;
+
+										if ($min_len > 0 && $l < $min_len) {
+											$error_message = strtr($this->lanText['ptrnMmm_'], [
+												'%1$s' => "<b>" . $f['name'] . "</b>",
+												'%2$s' => "<b>" . $min_len . "</b>",
+											]);
 											$is_valid = 0;
-										} else if (isset($f['mlen']) == true && $f['mlen'] > 0   && $f['mlen'] < $l) {
-											$error_message = $this->lanText['ptrnMmx'];
-											$error_message = str_replace('NN', "<b>" . $f['mlen'] . "</b>", $error_message);
-											$error_message = str_replace('XXX', "<b>" . $f['name'] . "</b>", $error_message);
+										} else if ($max_len > 0 && $l > $max_len) {
+											$error_message = strtr($this->lanText['ptrnMmx_'], [
+												'%1$s' => "<b>" . $f['name'] . "</b>",
+												'%2$s' => "<b>" . $max_len . "</b>",
+											]);
 											$is_valid = 0;
 										}
 									}
@@ -2236,31 +2356,49 @@ public function check_nonce_permission_efb($request) {
 					return;
 				}
 				if($submission_type=='recovery'){
-					$email = isset($submitted_values[0]) ? sanitize_email($submitted_values[0]) : null;
+					// Try to get email from original raw data or numeric array
+					$raw_recovery_data = json_decode($this->value, true);
+					$email = null;
+
+					// First try associative key (original format)
+					if (isset($raw_recovery_data['email'])) {
+						$email = sanitize_email($raw_recovery_data['email']);
+					}
+					// Fallback to numeric array (after dedupe)
+					elseif (isset($submitted_values[0])) {
+						$email = sanitize_email($submitted_values[0]);
+					}
+
 
 					$response = ['success' => false, 'm' =>'Email is not valid'];
-					if ($email!==null) {
+					if ($email!==null && is_email($email)) {
 
 						$state= get_user_by( 'email', $email);
+
 						$texts = ['imvpwsy'];
 						$lanTextReg =$this->efbFunction->text_efb($texts);
-						if(gettype($state)=="object"){
+						if(is_object($state)){
 							$userid =(int) $state->data->ID;
 							$username = $state->data->user_login;
-							$ms=$this->fun_get_content_email_register_recovery_efb($userid, $username, $email, $this->id ,'recovery',$page_id);
-							$efb ='<p> '. $this->lanText['sentBy'] . home_url(). '</p>';
-							if($is_pro==false) $efb ='<p> '. esc_html__("from", 'easy-form-builder').''. home_url(). ' '. $this->lanText['sentBy'] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
-							$subject ="". esc_html__("Password recovery")."[".get_bloginfo('name')."]";
-							$SERVER_NAME  = apply_filters('emsfb_get_server_host', 'yourdomain.com');
-							$from = isset($plugin_settings['femail']) && is_email($plugin_settings['femail']) ? get_bloginfo('name')." <no-reply@".$plugin_settings['femail'] .">" : get_bloginfo('name')." <no-reply@".$SERVER_NAME.">";
-							$message = $this->generate_recovery_email_template($ms, $efb);
-							$headers = array(
-							 'MIME-Version: 1.0\r\n',
-							 '"Content-Type: text/html; charset=UTF-8\r\n"',
-							 'From:'.$from.''
-							 );
-							$sent = wp_mail($email, $subject, $message, $headers);
-							$this->efbFunction->efb_code_validate_update($session_id ,'recovery' ,'recovery' );
+
+							// Generate recovery content
+							$ms = $this->fun_get_content_email_register_recovery_efb($userid, $username, $email, $this->id, 'recovery', $page_id);
+							$subject = esc_html__("Password recovery", 'easy-form-builder') . " [" . get_bloginfo('name') . "]";
+							$recovery_link = get_permalink($page_id);
+
+							// Use the plugin's centralized email sender (no direct include in this class)
+							$pro = $this->efbFunction->is_efb_pro(1);
+							$sent = $this->efbFunction->send_email_state_new(
+								$email,
+								$subject,
+								$ms,
+								$pro,
+								'recovery',
+								$recovery_link,
+								$plugin_settings
+							);
+
+							$this->efbFunction->efb_code_validate_update($session_id, 'recovery', 'recovery');
 						}
 
 						$response = array( 'success' => true, 'm' => $lanTextReg['imvpwsy']);
@@ -2349,10 +2487,14 @@ public function check_nonce_permission_efb($request) {
 						$this->email_list_efb($email_recipients, 1, $user_email_address, true);
 					}
 					$ip = $this->ip = $this->get_ip_address();
+					$style_trackingCode = "date_en_mix";
+					if (is_object($this->setting) && isset($this->setting->trackCodeStyle)) {
+							$style_trackingCode = $this->setting->trackCodeStyle;
+					}
 
 					switch ($submission_type) {
 						case "form":
-							$track_code = $this->insert_message_db(0, false);
+							$track_code = $this->insert_message_db(0, false, $style_trackingCode);
 							$nonce_token = wp_create_nonce($track_code);
 							$this->efbFunction->efb_code_validate_update($session_id, 'send', $track_code);
 							$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'ip' => $ip, 'nonce' => $nonce_token];
@@ -2363,7 +2505,7 @@ public function check_nonce_permission_efb($request) {
 							$this->efb_send_json_and_continue($response, 200);
 							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array);
 
-						if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
+							if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
 								$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers, $url, 'fform', 'wpsms', $track_code);
 								if($smsSendResult !== true) {
 
@@ -2556,7 +2698,7 @@ public function check_nonce_permission_efb($request) {
 									if ($email != "null") {
 
 										$this->ip = $this->get_ip_address();
-										$track_code = $this->insert_message_db(0, false);
+										$track_code = $this->insert_message_db(0, false, $style_trackingCode);
 										$to = $email;
 
 										$this->email_list_efb($email_recipients, 1, $email, true);
@@ -2571,8 +2713,9 @@ public function check_nonce_permission_efb($request) {
 										$this->efbFunction->efb_code_validate_update($session_id, 'register', $track_code);
 									}
 									$response = ['success' => true, 'm' => $m];
-									if ($redirect_url != "null") {
-										$response = ['success' => true, 'm' => $redirect_url];
+									if(!is_wp_error($state) && isset($form_fields_array[0]['rePage']) && isset($form_fields_array[0]['thank_you'] ) && $form_fields_array[0]['thank_you'] == "rdrct"){
+										$redirect_url = $this->string_to_url($form_fields_array[0]['rePage']);
+										$response['redirect_url'] = $redirect_url;
 									}
 								}
 
@@ -2617,6 +2760,9 @@ public function check_nonce_permission_efb($request) {
 										'remember' => true
 									];
 									$user = wp_signon($creds, false);
+									if(isset($form_fields_array[0]['rePage']) && isset($form_fields_array[0]['thank_you'] ) && $form_fields_array[0]['thank_you'] == "rdrct"){
+										$redirect_url = $this->string_to_url($form_fields_array[0]['rePage']);
+									}
 									if (isset($user->ID)) {
 										$userID = $user->ID;
 										do_action('wp_login', $creds['user_login'], $user);
@@ -2629,12 +2775,10 @@ public function check_nonce_permission_efb($request) {
 											'user_login' => $user->data->user_login,
 											'user_nicename' => $user->data->user_nicename,
 											'user_registered' => $user->data->user_registered,
-											'user_image' => get_avatar_url($user->data->ID)
+											'user_image' => get_avatar_url($user->data->ID),
+											'redirect_url' => $redirect_url
 										];
 										$response = ['success' => true, 'm' => $send];
-										if ($redirect_url != "null") {
-											$response = ['success' => true, 'm' => $redirect_url];
-										}
 										$this->efbFunction->efb_code_validate_update($session_id, 'login', 'login');
 
 										$this->efb_send_json_and_continue($response, 200);
@@ -2656,10 +2800,10 @@ public function check_nonce_permission_efb($request) {
 										$response = ['success' => true, 'm' => $send];
 										wp_send_json_success($response, 200);
 									}
-								break;
+							break;
 
 						case "subscribe":
-									$track_code=	$this->insert_message_db(0,false);
+									$track_code=	$this->insert_message_db(0,false,$style_trackingCode);
 									$response = array( 'success' => true , 'm' =>$this->lanText['done']);
 									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
 									$this->efbFunction->efb_code_validate_update($session_id ,'nwltr' ,'nwltr' );
@@ -2673,15 +2817,15 @@ public function check_nonce_permission_efb($request) {
 										$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 									}
 									exit;
-								break;
+							break;
 						case "survey":
 
-									$track_code=	$this->insert_message_db(0,false);
+									$track_code=	$this->insert_message_db(0,false,$style_trackingCode);
 									$response = array( 'success' => true , 'm' =>$this->lanText['surveyComplatedM']);
 									if($redirect_url!="null"){$response = array( 'success' => true  ,'m'=>$redirect_url); }
 
 									$survey_chart_type = isset($form_fields_array[0]['survey_chart_type']) ? $form_fields_array[0]['survey_chart_type'] : 'none';
-
+									$survey_results = [];
 									if ($survey_chart_type !== 'none') {
 										$survey_results = $this->efb_get_survey_results_data($this->id, $form_fields_array);
 
@@ -2694,9 +2838,7 @@ public function check_nonce_permission_efb($request) {
 											];
 										}
 									}
-
 									$this->efbFunction->efb_code_validate_update($session_id ,'poll' ,'poll' );
-
 									$this->efb_send_json_and_continue($response, 200);
 									$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, 'survey');
 
@@ -2712,13 +2854,13 @@ public function check_nonce_permission_efb($request) {
 										}
 									}
 									exit;
-								break;
+							break;
 						case "reservation":
-								break;
+							break;
 						default:
 								$response = array( 'success' => false  ,'m'=>$this->lanText['somethingWentWrongPleaseRefresh']);
 								wp_send_json_success($response, 200);
-								break;
+							break;
 					}
 				}
 
@@ -2821,9 +2963,12 @@ public function check_nonce_permission_efb($request) {
 			}
 
 	  }
-	public function insert_message_db($read,$uniqid){
+	public function insert_message_db($read,$uniqid,$style_trackingCode){
 		if(isset($read)==false) $read=0;
-		if($uniqid==false) $uniqid= date("ymd").substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
+
+		if($uniqid==false){
+			$uniqid = $this->generate_track_code_efb($style_trackingCode);
+		}
 		if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
@@ -2837,8 +2982,62 @@ public function check_nonce_permission_efb($request) {
 			'ip' => $this->ip,
 			'read_' => $read,
 			'date'=>wp_date('Y-m-d H:i:s')
-		));    return $uniqid;
+		));
+		return $uniqid;
 	}
+
+	private function generate_track_code_efb($style = 'date_en_mix') {
+
+		$dp = wp_date('ymd');
+		$len = 5;
+		$local ='';
+		$en_styles = ['date_en_mix','unique_num','date_num'];
+		if(!in_array($style, $en_styles)){
+			$local = get_locale_script_chars_efb();
+		}
+
+		$en = str_split('ASDFGHJKLQWERTYUIOPZXCVBNM');
+
+		switch ($style) {
+			case 'date_num':
+				return $dp . '-' . str_pad((string) wp_rand(10000, 99999), 5, '0', STR_PAD_LEFT);
+
+			case 'date_local_mix':
+				if (!$local) return $dp . substr(str_shuffle('0123456789ASDFGHJKLQWERTYUIOPZXCVBNM'), 0, $len);
+				$ld = $local['digits'] ? strtr($dp, array_combine(range(0,9), $local['digits'])) : $dp;
+				$pool = $local['alpha'];
+				$pool = array_merge($pool, $local['digits'] ?: str_split('0123456789'));
+				shuffle($pool);
+				return $ld . implode('', array_slice($pool, 0, $len));
+
+			case 'date_local_alpha':
+				if (!$local) return $dp . substr(str_shuffle('ASDFGHJKLQWERTYUIOPZXCVBNM'), 0, $len);
+				$pool = $local['alpha'];
+				shuffle($pool);
+				return $dp . implode('', array_slice($pool, 0, $len));
+
+			case 'date_local_num':
+				$rand = str_pad((string) wp_rand(10000, 99999), 5, '0', STR_PAD_LEFT);
+				if (!$local || !$local['digits']) return $dp . '-' . $rand;
+				$ld = strtr($dp, array_combine(range(0,9), $local['digits']));
+				$lr = strtr($rand, array_combine(range(0,9), $local['digits']));
+				return $ld . '-' . $lr;
+
+			case 'unique_num':
+				return (string)(intval($dp) * 100000 + wp_rand(10000, 99999));
+
+			case 'local_mix':
+				if (!$local) return substr(str_shuffle('0123456789ASDFGHJKLQWERTYUIOPZXCVBNM'), 0, 11);
+				$pool = array_merge($local['alpha'], $local['digits'] ?: str_split('0123456789'));
+				shuffle($pool);
+				return implode('', array_slice($pool, 0, 11));
+
+			case 'date_en_mix':
+			default:
+				return $dp . substr(str_shuffle('0123456789ASDFGHJKLQWERTYUIOPZXCVBNM'), 0, $len);
+		}
+	}
+
 	public function update_message_db(){
 		if(empty($this->db)){
             global $wpdb;
@@ -3121,7 +3320,7 @@ public function check_nonce_permission_efb($request) {
         'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
-		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :  'guest';
+		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :'guest';
 		$sc = isset($data_POST['sc']) ? sanitize_text_field($data_POST['sc']) : 'null';
 		$track = sanitize_text_field($data_POST['track']);
 
@@ -3252,7 +3451,26 @@ public function check_nonce_permission_efb($request) {
 					$link_w = (is_array($lst) && isset($lst['type']) && $lst['type'] == "w_link") ? $lst['value'] : 'null';
 				}
 				$table_name = $this->db->prefix . "emsfb_rsp_";
-				$read_s = $rsp_by=='admin' ? 1 :0;
+
+				// Server-side admin verification: don't trust client user_type
+				$admin_verified_rsp = false;
+				if (is_user_logged_in() && current_user_can('administrator')) {
+					$admin_verified_rsp = true;
+					$rsp_by = 'admin';
+				} else if ($sc !== 'null' && !empty($sc) && isset($this->setting->email_key) && strlen($this->setting->email_key) > 3) {
+					$expected_sc_rsp = md5($track . $this->setting->email_key);
+					if (hash_equals($expected_sc_rsp, $sc)) {
+						$admin_verified_rsp = true;
+						$rsp_by = 'admin';
+					} else {
+						$response = array('success' => false, 'm' => $this->lanText['error405']);
+						wp_send_json_success($response, 200);
+					}
+				} else {
+					$rsp_by = is_user_logged_in() ? 'user' : 'guest';
+				}
+
+				$read_s = $admin_verified_rsp ? 1 : 0;
 				$by=$this->lanText['guest'];
 				$table_emsfb_msg_ = $this->db->prefix . "emsfb_msg_";
 
@@ -3271,19 +3489,11 @@ public function check_nonce_permission_efb($request) {
 					);
 				}
 				if($read_s==1){
-					$by = get_user_by('id',$this->efb_uid);
-				}
-				if($sc!='null'){
-					$email_key = $this->setting->email_key;
-					$md5 = md5($track.$email_key);
-					if ($md5==$sc){
-						$read_s =1;
-						if($this->efb_uid==0) $this->efb_uid = -1;
+					if($this->efb_uid > 0) {
+						$by = get_user_by('id',$this->efb_uid);
+					} else {
+						$this->efb_uid = -1;
 						$by = $this->lanText['spprt'];
-						$rsp_by ='admin';
-					}else{
-						$response = array( 'success' => false  , 'm'=>$this->lanText['error405']);
-					    wp_send_json_success($response,200);
 					}
 				}
 				$this->db->insert($table_name, array(
@@ -3502,14 +3712,8 @@ public function check_nonce_permission_efb($request) {
 			$trackParam = $isRegistrationState ? '' : urlencode($track);
 			$link_w[$i] = strpos($link,'?')!=false ? $link . ($trackParam ? '&track='.$trackParam : '') : $link . ($trackParam ? '?track='.$trackParam : '');
 			if($i==0){
-					$s= isset($this->setting->adminSN) ? $this->setting->adminSN : 0 ;
-
-				if( $s== false || ($s==true && intval($this->setting->adminSN)==1)){
-					$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'user=admin';
-				}else{
-					$sc = $this->genrate_sacure_code_admin_email($track);
-					$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'user=admin&sc='.$sc;
-				}
+				$sc = $this->genrate_sacure_code_admin_email($track);
+				$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'sc='.$sc;
 			}
 		}else{
 			$link_w[$i] = $homeUrl;
@@ -3571,11 +3775,8 @@ public function check_nonce_permission_efb($request) {
         }
     }
 
-    $micr = microtime(true);
 
     $check = $this->efbFunction->send_email_state_new($to, $subject, $cont, $pro, $state, $link_w, $this->setting);
-
-    $micr = microtime(true);
 
 	}
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
@@ -3714,7 +3915,11 @@ public function check_nonce_permission_efb($request) {
 			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);
 			$this->value = str_replace('"', '\\"', $val_);
 			$this->name = sanitize_text_field($data_POST['name']);
-			$check=	$this->insert_message_db(2,false);
+			$style_trackingCode = 'date_en_mix';
+			if (is_object($this->setting) && isset($this->setting->trackCodeStyle)) {
+				$style_trackingCode = $this->setting->trackCodeStyle;
+			}
+			$check=	$this->insert_message_db(2,false,$style_trackingCode);
 
 			$stripe_payment_file = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/class-Emsfb-stripe-payment.php';
 			if ( ! class_exists( '\Emsfb\StripePayment' ) && file_exists( $stripe_payment_file ) ) {
@@ -4694,6 +4899,7 @@ public function check_nonce_permission_efb($request) {
 		function Js_setpassword(){
 			return "<script>
 			const efb_url = '".get_rest_url(null)."Emsfb/v1/forms/recovery/efb_set_password';
+			const efb_nonce = '".wp_create_nonce('wp_rest')."';
 
 			const eyeOpenSvg = '<path d=\"M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z\"/><path d=\"M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0\"/>';
 			const eyeClosedSvg = '<path d=\"M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z\"/><path d=\"M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829\"/><path d=\"M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z\"/>';
@@ -4749,7 +4955,7 @@ public function check_nonce_permission_efb($request) {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
-
+								'X-WP-Nonce': efb_nonce,
 							},
 							body: JSON.stringify(data)
 						}) .then(response => response.json())
@@ -4853,76 +5059,6 @@ public function check_nonce_permission_efb($request) {
 
 	}
 
-	private function generate_recovery_email_template($content, $footer) {
-		$site_name = get_bloginfo('name');
-		$site_url = home_url();
-		$year = date('Y');
-		$logo_url = defined('EMSFB_PLUGIN_URL') ? EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png' : '';
-
-		$copyright = '<p></p>';
-		$pro = $this->efbFunction->is_efb_pro(1);
-
-            $is_pro = (int) get_option('emsfb_pro', 2);
-            if ($is_pro == 3 || !$pro || $is_pro ==2 ) {
-                $copyright = "<div style='text-align:center;'>
-                    <p>" . sprintf(
-                        __('Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s', 'easy-form-builder'),
-                        "<a href='https://wordpress.org/plugins/easy-form-builder/' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
-                        "</a>",
-                        "<a href='https://whitestudio.team' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
-                        "</a>"
-                    ) . "</p>
-                </div>";
-            }
-
-			return '<!DOCTYPE html>
-				<html lang="en">
-				<head>
-					<meta charset="UTF-8">
-					<meta name="viewport" content="width=device-width, initial-scale=1.0">
-					<title>' . esc_html($site_name) . '</title>
-				</head>
-				<body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f7; line-height: 1.6;">
-					<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f7; padding: 30px 0;">
-						<tr>
-							<td align="center">
-								<table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-									<!-- Header -->
-									<tr>
-										<td align="center" style="background: linear-gradient(135deg, #667eea 0%, #202a8d 100%); padding: 40px 30px;">
-											<h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">🔐 ' . esc_html__('Password Reset', 'easy-form-builder') . '</h1>
-										</td>
-									</tr>
-									<!-- Content -->
-									<tr>
-										<td style="padding: 40px 30px;">
-											<div style="color: #333333; font-size: 16px; line-height: 1.8;">
-												' . $content . '
-											</div>
-										</td>
-									</tr>
-									<!-- Divider -->
-									<tr>
-										<td style="padding: 0 30px;">
-											<hr style="border: none; border-top: 1px solid #e8e8e8; margin: 0;">
-										</td>
-									</tr>
-									<!-- Footer -->
-									<tr>
-										<td style="padding: 30px; background-color: #f9fafb;">
-											<p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px; text-align: center;">
-												' . $footer . '
-											</p>
-											'.$copyright.'
-										</td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-					</table>
-				</body>
-				</html>';
-	}
 
 	public function fun_get_content_email_register_recovery_efb($userid, $username, $email, $fid ,$type_ ,$page_id){
 		if(empty($this->db)){
@@ -5110,6 +5246,7 @@ public function check_nonce_permission_efb($request) {
 			'page_builder'=>$page_builder,
 			'is_user'=> $is_user,
 			'user_name' => $username,
+			'admin_sc' => isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : '',
 			'nonce' => wp_create_nonce('wp_rest'),
 
 			'respPrimary' => $pub_settings['respPrimary'] ?? '#3644d2',
@@ -5530,12 +5667,28 @@ public function check_nonce_permission_efb($request) {
 		$skipped_fields_no_show = 0;
 		$skipped_fields_no_category = 0;
 
+		// Backward compatibility: older survey forms may not have per-field visibility flags.
+		$has_public_visibility_config = false;
+		foreach ($formObj as $field) {
+			if (isset($field['showInPublicResults'])) {
+				$has_public_visibility_config = true;
+				break;
+			}
+		}
+
 		foreach ($formObj as $field) {
 			$ftype = $field['type'] ?? 'NO_TYPE';
 			$fid = $field['id_'] ?? 'NO_ID';
+			$field_type = $field['type'] ?? '';
 
-			if (isset($field['showInPublicResults']) && $field['showInPublicResults'] == 1) {
-				$field_type = $field['type'] ?? '';
+			$show_in_public = isset($field['showInPublicResults']) ? intval($field['showInPublicResults']) : null;
+			$should_include_field = ($show_in_public === 1);
+
+			if ($show_in_public === null && !$has_public_visibility_config) {
+				$should_include_field = isset($field_categories[$field_type]) && !in_array($field_type, ['step', 'option', 'r_matrix'], true);
+			}
+
+			if ($should_include_field) {
 				if (!isset($field_categories[$field_type])) {
 					$skipped_fields_no_category++;
 					continue;

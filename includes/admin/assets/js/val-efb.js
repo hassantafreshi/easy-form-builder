@@ -782,6 +782,74 @@ function show_setting_window_efb(idset) {
                             <option value="3" ${ valj_efb[indx].op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>
                         </select>`;
 
+    // Checked color picker for radio/checkbox elements (PRO feature)
+    const selectCheckedColorEls = () => {
+      let checkedClrHex = valj_efb[indx].hasOwnProperty('checked_color') ? valj_efb[indx].checked_color : '#004cbb';
+      const labelText = (efb_var.text.checkedClr || '%s Checked Color').replace('%s', '');
+      const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
+      return `<span class="efb">
+        <label for="selectCheckedColorEl" class="efb mt-3 efb"><i class="efb bi-check-circle-fill fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        <input type="color" id="selectCheckedColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="checked" data-type="checked" data-tag="${valj_efb[indx].type}" value="${checkedClrHex}" name="selectCheckedColorEl" ${!isPro ? 'disabled' : ''}></span>`;
+    };
+
+    // Range thumb color picker (PRO feature)
+    const selectRangeThumbColorEls = () => {
+      let thumbClrHex = valj_efb[indx].hasOwnProperty('range_thumb_color') ? valj_efb[indx].range_thumb_color : '#004cbb';
+      // const labelText = efb_var.text.rangeThumbClr || 'Slider Button Color';
+      const labelText = (efb_var.text.scolor.replace('%s', efb_var.text.rangeThumb) || 'Slider Button Color');
+      const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
+      return `<span class="efb">
+        <label for="selectRangeThumbColorEl" class="efb mt-3 efb"><i class="efb bi-sliders fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        <input type="color" id="selectRangeThumbColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="rangeThumb" data-type="rangeThumb" data-tag="${valj_efb[indx].type}" value="${thumbClrHex}" name="selectRangeThumbColorEl" ${!isPro ? 'disabled' : ''}></span>`;
+    };
+
+    // Range value text color picker (PRO feature)
+    const selectRangeValueColorEls = () => {
+      let valueClrHex = valj_efb[indx].hasOwnProperty('range_value_color') ? valj_efb[indx].range_value_color : '#212529';
+     // const labelText = efb_var.text.rangeValueClr || 'Value Text Color';
+      const labelText = (efb_var.text.scolor.replace('%s', efb_var.text.rangeValue) || 'Value Text Color');
+      const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
+      return `<span class="efb">
+        <label for="selectRangeValueColorEl" class="efb mt-3 efb"><i class="efb bi-fonts fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        <input type="color" id="selectRangeValueColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="rangeValue" data-type="rangeValue" data-tag="${valj_efb[indx].type}" value="${valueClrHex}" name="selectRangeValueColorEl" ${!isPro ? 'disabled' : ''}></span>`;
+    };
+
+    // Switch on color picker (PRO feature)
+    const selectSwitchOnColorEls = () => {
+      let switchOnClrHex = valj_efb[indx].hasOwnProperty('switch_on_color') ? valj_efb[indx].switch_on_color : '#3644d2';
+      const labelText = (efb_var.text.scolor.replace('%s', efb_var.text.switchs.replace('%s', efb_var.text.on)) || 'Switch On Color');
+      const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
+      return `<span class="efb">
+        <label for="selectSwitchOnColorEl" class="efb mt-3 efb"><i class="efb bi-toggle-on fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        <input type="color" id="selectSwitchOnColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="switchOn" data-type="switchOn" data-tag="${valj_efb[indx].type}" value="${switchOnClrHex}" name="selectSwitchOnColorEl" ${!isPro ? 'disabled' : ''}></span>`;
+    };
+
+    // Switch off color picker (PRO feature)
+    const selectSwitchOffColorEls = () => {
+      let switchOffClrHex = valj_efb[indx].hasOwnProperty('switch_off_color') ? valj_efb[indx].switch_off_color : '#9290a7';
+      const labelText = (efb_var.text.scolor.replace('%s', efb_var.text.switchs.replace('%s', efb_var.text.off)) || 'Switch Off Color');
+      const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
+      return `<span class="efb">
+        <label for="selectSwitchOffColorEl" class="efb mt-3 efb"><i class="efb bi-toggle-off fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        <input type="color" id="selectSwitchOffColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="switchOff" data-type="switchOff" data-tag="${valj_efb[indx].type}" value="${switchOffClrHex}" name="selectSwitchOffColorEl" ${!isPro ? 'disabled' : ''}></span>`;
+    };
+
+    // Switch handle color picker (PRO feature)
+    const selectSwitchHandleColorEls = () => {
+      let switchHandleClrHex = valj_efb[indx].hasOwnProperty('switch_handle_color') ? valj_efb[indx].switch_handle_color : '#ffffff';
+      const labelText = (efb_var.text.scolor.replace('%s', efb_var.text.switchs.replace('%s', efb_var.text.handle)) || 'Switch Handle Color');
+      const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
+      return `<span class="efb">
+        <label for="selectSwitchHandleColorEl" class="efb mt-3 efb"><i class="efb bi-circle-fill fs-7 ${iconMarginGlobal}"></i>${labelText}</label>
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        <input type="color" id="selectSwitchHandleColorEl" class="efb elEdit form-select efb border-d rounded-4" data-id="${idset}" data-el="switchHandle" data-type="switchHandle" data-tag="${valj_efb[indx].type}" value="${switchHandleClrHex}" name="selectSwitchHandleColorEl" ${!isPro ? 'disabled' : ''}></span>`;
+    };
+
       const thankYouTypeEls = `
       <label for="thankYouTypeEl" class="efb mt-3 bi-card-heading mx-0 mb-2 fs-6 form-text border-secondary  border-bottom text-secondary">${efb_var.text.landingTnx}</label>
                         <select  data-id="thankYouTypeEl" class="efb elEdit form-select efb border-d rounded-4"  id="thankYouTypeEl"  data-tag="${valj_efb[0].thank_you}">
@@ -1281,6 +1349,7 @@ function show_setting_window_efb(idset) {
                         <div class="efb  mb-3 px-3 row">
 
                         ${o_c ? optnsStyleEls :''}
+                        ${o_c ? selectCheckedColorEls() :''}
                         ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
                         ${selectColorEls('label','text')}
@@ -1331,6 +1400,9 @@ function show_setting_window_efb(idset) {
 
                 ${el.dataset.tag == "switch" ?textEls(el.id.trim(),efb_var.text.lson ,'text',valj_efb[indx].on ,'on' ,idset):''}
                 ${el.dataset.tag == "switch" ?textEls(el.id.trim(), efb_var.text.lsoff,'text',valj_efb[indx].off,'off',idset):''}
+                ${el.dataset.tag == "switch" ? selectSwitchOnColorEls() :''}
+                ${el.dataset.tag == "switch" ? selectSwitchOffColorEls() :''}
+                ${el.dataset.tag == "switch" ? selectSwitchHandleColorEls() :''}
                 ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
                 ${selectColorEls('label','text')}
@@ -1346,6 +1418,8 @@ function show_setting_window_efb(idset) {
                 ${el.dataset.tag == "range" || el.dataset.tag == "date" ?miLenEls():''}
                 ${el.dataset.tag == "range" || el.dataset.tag == "date" ? mLenEls() :''}
                 ${el.dataset.tag == "range" ?valueEls:''}
+                ${el.dataset.tag == "range" ? selectRangeThumbColorEls() :''}
+                ${el.dataset.tag == "range" ? selectRangeValueColorEls() :''}
 
                 ${el.dataset.tag == 'rating' ? '' : widthEls}
                 ${el.dataset.tag == 'rating' ? '' : mobileWidthEls}
@@ -1624,7 +1698,7 @@ function show_setting_window_efb(idset) {
           <label for="formNameEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.formName}<span class="efb  mx-1 efb text-danger">*</span></label>
            <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control efb  h-d-efb  mb-1"  placeholder="${efb_var.text.formName}" id="formNameEl" required value="${valj_efb[0].formName}">
           ${trackingCodeEls}
-          ${captchaEls}
+          ${valj_efb[0].type=="payment" ? '<!--efb-->' : captchaEls}
           ${shieldSilentCaptchaEls}
           ${showSIconsEls}
           ${showSprosiEls}

@@ -62,7 +62,8 @@ jQuery(function () {
   }
 
   let count_show_efb_cache = localStorage.hasOwnProperty('efb_cache') ? Number(localStorage.getItem('efb_cache'))+1 : 0;
-  if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && count_show_efb_cache<2){
+  const efb_cache_dismissed = localStorage.getItem('efb_cache_dismissed') === 'true';
+  if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && !efb_cache_dismissed){
 
     if(efb_var.text.excefb.indexOf('%s')==-1){
       $val_noti = efb_var.text.excefb.replaceAll('XX', `<b>${efb_var.plugins.cache} </b>`);
@@ -70,8 +71,12 @@ jQuery(function () {
       $val_noti = efb_var.text.excefb.replaceAll('%s', `<b>${efb_var.plugins.cache} </b>`);
       $val_noti += `<br><a class="efb text-danger ec-efb" data-eventform="links" data-linkname="cachePlugin">${efb_var.text.clcdetls}</a>`
     }
+    $val_noti += `<div class="efb d-flex gap-2 mt-2">`
+      + `<button type="button" class="efb btn btn-sm" style="background:rgba(255,255,255,0.85);color:#333;border:none;border-radius:6px;padding:4px 12px;font-size:0.78rem;cursor:pointer;" onclick="localStorage.setItem('efb_cache',0);close_msg_efb(this.closest('.alert_item_efb')?.id);">${efb_var.text.rmndltr}</button>`
+      + `<button type="button" class="efb btn btn-sm" style="background:rgba(0,0,0,0.2);color:#fff;border:none;border-radius:6px;padding:4px 12px;font-size:0.78rem;cursor:pointer;" onclick="localStorage.setItem('efb_cache_dismissed','true');close_msg_efb(this.closest('.alert_item_efb')?.id);">${efb_var.text.gotitdsmss}</button>`
+      + `</div>`;
     alert_message_efb('' ,$val_noti,  120 ,'warning' )
-
+    count_show_efb_cache = count_show_efb_cache + 1;
     localStorage.setItem('efb_cache',count_show_efb_cache);
   }
 
@@ -893,7 +898,7 @@ function create_form_by_type_emsfb(id, s) {
     valj_efb = json;
   } else if (id == "survey") {
     form_type_emsFormBuilder = "survey";
-    const json = [{ "type": "survey", "steps": 1, "formName": efb_var.text.survey, "email":'', 'sendEmail': smail, "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "stateForm": false },
+    const json = [{ "type": "survey", "steps": 1, "formName": efb_var.text.survey, "email":'', 'sendEmail': smail, "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB('"survey"'), "email_temp": "", "stateForm": false },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "Survey form", "icon": "bi-clipboard-data", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
     { "id_": "6af03cgwb", "dataId": "6af03cgwb-id", "type": "select", "placeholder": "Select", "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": "what is your favorite food ?", "required": true, "amount": 2, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "wxgt1tvri", "dataId": "wxgt1tvri-id", "parent": "6af03cgwb", "type": "option", "value": "Pasta", "id_op": "n9r68xhl1", "step": "1", "amount": 3 },
@@ -1320,9 +1325,9 @@ let change_el_edit_Efb = (el) => {
               c = el.value ==0 ?  0 : el.value !=1 ? el.value : c;
 
             } else {
-              let m = efb_var.text.mnvvXXX;
+              let m = efb_var.text.mnvvXXX_;
 
-              m  = m.replace('XXX', "<b>" +  efb_var.text.mxdt + "</b>");
+              m  = m.replace('%s', "<b>" +  efb_var.text.mxdt + "</b>");
               m += " "+  efb_var.text.ivf.replace('%s', "YYYY-MM-DD, 1");
               alert_message_efb("", m,15,"warning")
               el.value ='';
@@ -1380,8 +1385,8 @@ let change_el_edit_Efb = (el) => {
               c = el.value ==0 ?  0 : el.value !=1 ? el.value : c;
 
             } else {
-              let m = efb_var.text.mnvvXXX;
-              m  = m.replace('XXX', "<b>" +  efb_var.text.mindt + "</b>");
+              let m = efb_var.text.mnvvXXX_;
+              m  = m.replace('%s', "<b>" +  efb_var.text.mindt + "</b>");
               m += " "+  efb_var.text.ivf.replace('%s', "YYYY-MM-DD, 1");
               alert_message_efb("", m,15,"warning")
               el.value ='';
@@ -2283,6 +2288,48 @@ let change_el_edit_Efb = (el) => {
           }
         }
         break;
+      case "selectCheckedColorEl":
+        // Checked color for radio/checkbox elements (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('checked_color') == false ? Object.assign(valj_efb[indx], { 'checked_color': color }) : valj_efb[indx].checked_color = color;
+        // Apply the checked color to the form preview
+        applyCheckedColorEfb(valj_efb[indx].id_, color);
+        break;
+      case "selectRangeThumbColorEl":
+        // Range thumb color (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('range_thumb_color') == false ? Object.assign(valj_efb[indx], { 'range_thumb_color': color }) : valj_efb[indx].range_thumb_color = color;
+        // Apply the range thumb color to the form preview
+        applyRangeThumbColorEfb(valj_efb[indx].id_, color);
+        break;
+      case "selectRangeValueColorEl":
+        // Range value text color (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('range_value_color') == false ? Object.assign(valj_efb[indx], { 'range_value_color': color }) : valj_efb[indx].range_value_color = color;
+        // Apply the range value color to the form preview
+        applyRangeValueColorEfb(valj_efb[indx].id_, color);
+        break;
+      case "selectSwitchOnColorEl":
+        // Switch on color (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('switch_on_color') == false ? Object.assign(valj_efb[indx], { 'switch_on_color': color }) : valj_efb[indx].switch_on_color = color;
+        // Apply the switch on color to the form preview
+        applySwitchOnColorEfb(valj_efb[indx].id_, color);
+        break;
+      case "selectSwitchOffColorEl":
+        // Switch off color (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('switch_off_color') == false ? Object.assign(valj_efb[indx], { 'switch_off_color': color }) : valj_efb[indx].switch_off_color = color;
+        // Apply the switch off color to the form preview
+        applySwitchOffColorEfb(valj_efb[indx].id_, color);
+        break;
+      case "selectSwitchHandleColorEl":
+        // Switch handle color (PRO feature)
+        color = el.value;
+        valj_efb[indx].hasOwnProperty('switch_handle_color') == false ? Object.assign(valj_efb[indx], { 'switch_handle_color': color }) : valj_efb[indx].switch_handle_color = color;
+        // Apply the switch handle color to the form preview
+        applySwitchHandleColorEfb(valj_efb[indx].id_, color);
+        break;
       case "selectBorderColorEl":
 
         color = el.value;
@@ -3015,6 +3062,10 @@ const saveFormEfb = async (stated) => {
         if (gateway == 'persiaPay') {
           gateway = valj_efb[0].persiaPay;
         }
+      }
+
+      if (stated === 1 && valj_efb[0].type === 'payment') {
+        valj_efb[0].captcha = "0";
       }
 
         show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox");
@@ -4164,7 +4215,7 @@ function emsFormBuilder_duplicate(id, type,value) {
     case 'dataset_autofilled':
       val = value;
   }
-  const msg = efb_var.text.ausdup.replaceAll('XXX',val);
+  const msg = efb_var.text.ausdup_.replaceAll('%s',val);
   const body = efb_build_confirm_body('info', 'bi-clipboard-plus', efb_var.text.duplicate, msg, '');
   show_modal_efb(body, efb_var.text.duplicate, 'efb bi-clipboard-plus mx-2', 'duplicateBox')
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
@@ -5355,7 +5406,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let dataTag = 'text'
   const desc = `<small id="${rndm}-des" class="efb  form-text d-flex  fs-7 col-sm-12 efb ${previewSate == true && pos[1] == 'col-md-4' || valj_efb[iVJ].message_align != "justify-content-start" ? `` : `mx-4`}  ${valj_efb[iVJ].message_align}  ${valj_efb[iVJ].message_text_color} ${ valj_efb[iVJ].hasOwnProperty('message_text_size') ? valj_efb[iVJ].message_text_size : ''} ">${valj_efb[iVJ].message} </small> `;
   const  label = `<label for="${rndm}_" class="efb mx-0 px-0 pt-2 pb-1  ${previewSate == true ? pos[2] :"col-md-12"} col-sm-12 col-form-label ${valj_efb[iVJ].hasOwnProperty('hflabel') && Number(valj_efb[iVJ].hflabel)==1 ? 'd-none' :''} ${valj_efb[iVJ].label_text_color} ${valj_efb[iVJ].label_align} ${valj_efb[iVJ].label_text_size != "default" ? valj_efb[iVJ].label_text_size : ''} " id="${rndm}_labG" ><span id="${rndm}_lab" class="efb  ${valj_efb[iVJ].label_text_size}">${valj_efb[iVJ].name}</span><span class="efb  mx-1 text-danger" id="${rndm}_req" role='none'>${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? '*' : ''}</span></label>`
-  const ttip = `<small id="${rndm}_-message" class="efb py-1 fs-7 tx ttiptext px-2"> ! </small>`
+  const ttip = `<small id="${rndm}_-message" class="efb py-1 fs-7 tx ttiptext px-2" style="display:none"> ! </small>`
   const rndm_1 = Math.random().toString(36).substr(2, 9);
   const rndm_2 = Math.random().toString(36).substr(2, 9);
   const op_3 = Math.random().toString(36).substr(2, 9);
@@ -6483,19 +6534,19 @@ async function fun_validation_efb() {
           el.classList.add('unpx');
         }
         el.innerHTML = msg;
-        if(!el.classList.contains('show'))el.classList.add('show');
+        el.style.display='block';
         if (type_validate_efb(valj_efb[row].type) == true) {
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");}
       } else {
         idi = valj_efb[row].id_;
         el.innerHTML = "";
-        el.classList.remove('show');
+        el.style.display='none';
         if (type_validate_efb(valj_efb[row].type) == true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-success");
         const v = sendBack_emsFormBuilder_pub.length>0 && valj_efb[row].type == "multiselect" && sendBack_emsFormBuilder_pub[s].hasOwnProperty('value') ? sendBack_emsFormBuilder_pub[s].value.split("@efb!") :"";
         if ((valj_efb[row].type == "multiselect" || valj_efb[row].type == "payMultiselect") && (v.length - 1) < valj_efb[row].minSelect) {
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");
           el.innerHTML = efb_var.text.minSelect + " " + valj_efb[row].minSelect
-          if(!el.classList.contains('show'))el.classList.add('show');
+          el.style.display='block';
           if (state == true) { state = false; idi = valj_efb[row].id_ }
         }
       }
@@ -6576,7 +6627,360 @@ function efb_add_costum_color(t, c, v, type){
   return n;
 }
 
+/**
+ * Apply checked color to radio/checkbox elements
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applyCheckedColorEfb(parentId, color) {
+  color = color[0] !== "#" ? "#" + color : color;
+  const styleId = `efb-checked-color-${parentId}`;
+
+  // Remove existing style if present
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  // Create CSS with maximum specificity using attribute selectors for IDs (to handle IDs starting with numbers)
+  const css = `
+    input.efb.form-check-input[data-vid="${parentId}"]:checked,
+    input.efb.form-check-input[data-vid="${parentId}"]:checked[type=checkbox],
+    input.efb.form-check-input[data-vid="${parentId}"]:checked[type=radio],
+    [data-css="${parentId}"] input.efb.form-check-input:checked,
+    [data-css="${parentId}"] input.efb.form-check-input:checked[type=checkbox],
+    [data-css="${parentId}"] input.efb.form-check-input:checked[type=radio],
+    [data-parent="${parentId}"] input.efb.form-check-input:checked,
+    [data-parent="${parentId}"] input.efb.form-check-input:checked[type=checkbox],
+    [data-parent="${parentId}"] input.efb.form-check-input:checked[type=radio],
+    [id="${parentId}_options"] input.efb.form-check-input:checked,
+    [id="${parentId}_options"] input.efb.form-check-input:checked[type=checkbox],
+    [id="${parentId}_options"] input.efb.form-check-input:checked[type=radio] {
+      background-color: ${color} !important;
+      border-color: ${color} !important;
+    }
+  `;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  // Also apply directly to elements for immediate effect (with delay for DOM readiness)
+  setTimeout(() => {
+    applyCheckedColorDirectEfb(parentId, color);
+  }, 100);
+
+  // Also try after longer delay for async loaded elements
+  setTimeout(() => {
+    applyCheckedColorDirectEfb(parentId, color);
+  }, 500);
+}
+
+/**
+ * Apply checked color directly to elements via inline style
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applyCheckedColorDirectEfb(parentId, color) {
+  // Find all checkboxes/radios with this parent
+  // Use attribute selectors instead of #id to avoid issues with IDs starting with numbers
+  const selectors = [
+    `input.form-check-input[data-vid="${parentId}"]`,
+    `[data-css="${parentId}"] input.form-check-input`,
+    `[data-parent="${parentId}"] input.form-check-input`,
+    `[id="${parentId}_options"] input.form-check-input`
+  ];
+
+  let totalFound = 0;
+  selectors.forEach(selector => {
+    try {
+      const inputs = document.querySelectorAll(selector);
+      totalFound += inputs.length;
+      inputs.forEach(input => {
+        // Store the color in a data attribute
+        input.dataset.checkedColor = color;
+
+        // Remove old listener if exists
+        if (input._efbCheckedColorHandler) {
+          input.removeEventListener('change', input._efbCheckedColorHandler);
+        }
+
+        // Add change listener to apply color when checked
+        input._efbCheckedColorHandler = function() {
+          updateCheckedColorStyleEfb(this);
+        };
+        input.addEventListener('change', input._efbCheckedColorHandler);
+
+        // Apply immediately if already checked
+        updateCheckedColorStyleEfb(input);
+      });
+    } catch (e) {
+      console.log('[EFB DEBUG] Selector error:', selector, e.message);
+    }
+  });
+
+}
+
+/**
+ * Update inline style based on checked state
+ * @param {HTMLInputElement} input - The input element
+ */
+function updateCheckedColorStyleEfb(input) {
+  const color = input.dataset.checkedColor;
+  if (!color) {
+    return;
+  }
+
+
+
+  if (input.checked) {
+    input.style.setProperty('background-color', color, 'important');
+    input.style.setProperty('border-color', color, 'important');
+
+  } else {
+    input.style.removeProperty('background-color');
+    input.style.removeProperty('border-color');
+  }
+}
+
+/**
+ * Apply range thumb color to range slider elements
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applyRangeThumbColorEfb(parentId, color) {
+  color = color[0] !== "#" ? "#" + color : color;
+  const styleId = `efb-range-thumb-color-${parentId}`;
+
+  // Remove existing style if present
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  // Create CSS for range thumb with vendor prefixes - using multiple selectors for compatibility
+  const css = `
+    input[type="range"][data-vid="${parentId}"]::-webkit-slider-thumb,
+    [data-vid="${parentId}"] input[type="range"]::-webkit-slider-thumb,
+    [id="${parentId}-range"] input[type="range"]::-webkit-slider-thumb,
+    [data-css="${parentId}"] input[type="range"]::-webkit-slider-thumb,
+    [data-css="${parentId}"] .efb.form-range::-webkit-slider-thumb {
+      background-color: ${color} !important;
+    }
+    input[type="range"][data-vid="${parentId}"]::-moz-range-thumb,
+    [data-vid="${parentId}"] input[type="range"]::-moz-range-thumb,
+    [id="${parentId}-range"] input[type="range"]::-moz-range-thumb,
+    [data-css="${parentId}"] input[type="range"]::-moz-range-thumb,
+    [data-css="${parentId}"] .efb.form-range::-moz-range-thumb {
+      background-color: ${color} !important;
+    }
+    input[type="range"][data-vid="${parentId}"]::-ms-thumb,
+    [data-vid="${parentId}"] input[type="range"]::-ms-thumb,
+    [id="${parentId}-range"] input[type="range"]::-ms-thumb,
+    [data-css="${parentId}"] input[type="range"]::-ms-thumb,
+    [data-css="${parentId}"] .efb.form-range::-ms-thumb {
+      background-color: ${color} !important;
+    }
+  `;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+}
+
+/**
+ * Apply range value text color
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applyRangeValueColorEfb(parentId, color) {
+  color = color[0] !== "#" ? "#" + color : color;
+
+  // Find the range value element and apply color directly
+  const valueEl = document.getElementById(`${parentId}_rv`);
+  if (valueEl) {
+    valueEl.style.setProperty('color', color, 'important');
+  }
+
+  // Also create a style tag for consistency
+  const styleId = `efb-range-value-color-${parentId}`;
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  const css = `
+    #${parentId}_rv,
+    [id="${parentId}_rv"] {
+      color: ${color} !important;
+    }
+  `;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+}
+
+/**
+ * Apply switch on color
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applySwitchOnColorEfb(parentId, color) {
+  color = color[0] !== "#" ? "#" + color : color;
+
+  // Find the switch button element and apply color directly when active
+  const switchBtn = document.querySelector(`#${parentId} .btn-toggle, [id="${parentId}"] .btn-toggle`);
+  if (switchBtn && switchBtn.classList.contains('active')) {
+    switchBtn.style.setProperty('background-color', color, 'important');
+    switchBtn.style.setProperty('border-color', color, 'important');
+  }
+
+  // Create a style tag for the active state
+  const styleId = `efb-switch-on-color-${parentId}`;
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  const css = `
+    #${parentId} .efb.btn-toggle.active,
+    [id="${parentId}"] .efb.btn-toggle.active {
+      background-color: ${color} !important;
+      border-color: ${color} !important;
+    }
+  `;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+}
+
+/**
+ * Apply switch handle color
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applySwitchHandleColorEfb(parentId, color) {
+  color = color[0] !== "#" ? "#" + color : color;
+
+  // Find the switch handle element and apply color directly
+  const handleEl = document.querySelector(`#${parentId} .btn-toggle > .handle, [id="${parentId}"] .btn-toggle > .handle`);
+  if (handleEl) {
+    handleEl.style.setProperty('background-color', color, 'important');
+  }
+
+  // Create a style tag for the handle
+  const styleId = `efb-switch-handle-color-${parentId}`;
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  const css = `
+    #${parentId} .efb.btn-toggle > .handle,
+    [id="${parentId}"] .efb.btn-toggle > .handle {
+      background-color: ${color} !important;
+    }
+  `;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+}
+
+/**
+ * Apply switch off color
+ * @param {string} parentId - The parent element ID
+ * @param {string} color - The hex color value
+ */
+function applySwitchOffColorEfb(parentId, color) {
+  color = color[0] !== "#" ? "#" + color : color;
+
+  // Find the switch button element and apply color directly when not active
+  const switchBtn = document.querySelector(`#${parentId} .btn-toggle, [id="${parentId}"] .btn-toggle`);
+  if (switchBtn && !switchBtn.classList.contains('active')) {
+    switchBtn.style.setProperty('background-color', color, 'important');
+    switchBtn.style.setProperty('border-color', color, 'important');
+  }
+
+  // Create a style tag for the off state
+  const styleId = `efb-switch-off-color-${parentId}`;
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  const css = `
+    #${parentId} .efb.btn-toggle:not(.active),
+    [id="${parentId}"] .efb.btn-toggle:not(.active) {
+      background-color: ${color} !important;
+      border-color: ${color} !important;
+    }
+  `;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = styleId;
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+}
+
+/**
+ * Initialize checked colors for all radio/checkbox elements on form load
+ */
+function initCheckedColorsEfb() {
+  if (typeof valj_efb === 'undefined') return;
+
+  const radioCheckboxTypes = ['radio', 'checkbox', 'payRadio', 'payCheckbox', 'chlRadio', 'chlCheckBox', 'trmCheckbox'];
+
+  valj_efb.forEach((item, index) => {
+    if (radioCheckboxTypes.includes(item.type) && item.hasOwnProperty('checked_color') && item.checked_color) {
+      applyCheckedColorEfb(item.id_, item.checked_color);
+    }
+  });
+}
+
 function fun_addStyle_costumize_efb(val, key, indexVJ) {
+  // Handle range_thumb_color for range elements
+  if (key === 'range_thumb_color' && val && val.length > 0) {
+    applyRangeThumbColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
+  // Handle range_value_color for range elements
+  if (key === 'range_value_color' && val && val.length > 0) {
+    applyRangeValueColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
+  // Handle switch_on_color for switch elements
+  if (key === 'switch_on_color' && val && val.length > 0) {
+    applySwitchOnColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
+  // Handle switch_handle_color for switch elements
+  if (key === 'switch_handle_color' && val && val.length > 0) {
+    applySwitchHandleColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
+  // Handle switch_off_color for switch elements
+  if (key === 'switch_off_color' && val && val.length > 0) {
+    applySwitchOffColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
+  if (key === 'checked_color' && val && val.length > 0) {
+    applyCheckedColorEfb(valj_efb[indexVJ].id_, val);
+    return;
+  }
+
   if (val.toString().includes('colorDEfb')) {
     let type = ""
     let color = ""
@@ -7286,7 +7690,7 @@ function previewFormEfb(state) {
 
             const el = document.getElementById(`${v.id_}-sig-data`);
             const value = el.value;
-            document.getElementById(`${v.id_}_-message`).classList.remove('show');
+            document.getElementById(`${v.id_}_-message`).style.display='none';
             const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: value, session: sessionPub_emsFormBuilder }];
             fun_sendBack_emsFormBuilder(o[0]);
           }, false);

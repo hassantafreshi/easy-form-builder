@@ -71,6 +71,7 @@ Features:
 - **Email Notifications** - Automatic email alerts when forms are submitted
 - **Custom Email Templates** - Drag-and-drop email template editor for branded notifications
 - **Confirmation Code (Tracking ID)** - Unique identifiers for each submission
+- **Confirmation Code Style** - Choose from 7 code styles with locale-aware characters supporting 55+ languages and scripts (Arabic, Persian, Hindi, Chinese, Japanese, Korean, Cyrillic, and more)
 - **CSV & PDF Export** - Download form responses in CSV or PDF formats
 - **Message Status Management** - Mark messages as Open or Closed
 - **Admin Replies** - Reply to form submissions directly from WordPress dashboard

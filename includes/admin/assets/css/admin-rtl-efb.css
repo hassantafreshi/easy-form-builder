@@ -83,6 +83,39 @@ div#gRecaptcha {
     flex-direction: row-reverse;
 }
 
+[dir="rtl"] .efb .iti__country-container,
+.efb[dir="rtl"] .iti__country-container,
+body.rtl .efb .iti__country-container,
+.rtl .efb .iti__country-container,
+body.rtl div[id^="body_efb_"] .iti.iti--allow-dropdown .iti__country-container {
+    left: auto !important;
+    right: 0 !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: 0 !important;
+}
+
+[dir="rtl"] .efb .iti input.iti__tel-input,
+[dir="rtl"] .efb input.intlPhone,
+.efb[dir="rtl"] .iti input.iti__tel-input,
+body.rtl .efb .iti input.iti__tel-input,
+body.rtl .efb input.intlPhone,
+.rtl .efb .iti input.iti__tel-input,
+.rtl .efb input.intlPhone {
+    direction: ltr !important;
+    text-align: left !important;
+    unicode-bidi: plaintext !important;
+}
+
+[dir="rtl"] .efb .iti input.iti__tel-input::placeholder,
+[dir="rtl"] .efb input.intlPhone::placeholder,
+body.rtl .efb .iti input.iti__tel-input::placeholder,
+body.rtl .efb input.intlPhone::placeholder,
+.rtl .efb .iti input.iti__tel-input::placeholder,
+.rtl .efb input.intlPhone::placeholder {
+    direction: ltr !important;
+    text-align: left !important;
+}
+
 .hStyleOpEfb{
     margin-left:  0px !important;
     margin-right:  5px !important;

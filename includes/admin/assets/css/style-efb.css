@@ -442,12 +442,7 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
 .form-range.efb:focus {	border-radius: 20px;
    box-shadow: none !important;
 }
-.form-range.efb::-webkit-slider-thumb {	background: #ff4b93 !important;
-}
-.form-range.efb::-moz-range-thumb {	background: #ff4b93 !important;
-}
-.form-range.efb::-ms-thumb {	background: #ff4b93 !important;
-}
+
 
 
 .maps-efb {	height: 200px;
@@ -952,7 +947,7 @@ input[type=radio].efb.fs-2.form-check-input input[type=checkbox].efb.fs-2.form-c
    max-height: 60px !important;
    min-height: 60px !important;
 }
-.form-select.efb {	padding: 0px 35px !important;
+.form-select.efb {	padding: 0px 35px 0px  7px !important
 }
 
 div#recaptcha_efb {	position: absolute;
@@ -1213,9 +1208,9 @@ a.efb.btn {	text-decoration: none;
   }
 
   .efb.slider input[type="range"]::-webkit-slider-thumb {
-	  background: #ff4b93;
+	  background: #0d6efd;
 
-	  border: 2px solid #ff4b93;
+	  border: 0;
 
 	  border-radius: 50%;
 

@@ -137,9 +137,13 @@ document.addEventListener("click", (evnt) => {
             if ((typeof ajax_object_efm) == 'object') {
                 const v = l.innerHTML.replaceAll(`,`, "@efb!");
                 const el_o = l.dataset.select.split(" @efb!");
-                let ob = valj_efb.find(x => x.id_ === l.dataset.vid);
-                let o = [{ id_: l.dataset.vid, name: ob.name, amount: ob.amount, type: ob.type, value: v, session: sessionPub_emsFormBuilder }];
-                if (valj_efb[0].type == "payment" && l.classList.contains('payefb')) {
+                const ms_form_id = e.dataset.formid || (l.closest('[data-formid]') ? l.closest('[data-formid]').dataset.formid : '') || (typeof form_ID_emsFormBuilder !== 'undefined' ? form_ID_emsFormBuilder : 0);
+                const ms_valj = (typeof get_structure_by_form_id_efb === 'function' && ms_form_id) ? get_structure_by_form_id_efb(ms_form_id) : valj_efb;
+                let ob = ms_valj.find(x => x.id_ === l.dataset.vid);
+                if (!ob) ob = valj_efb.find(x => x.id_ === l.dataset.vid);
+                if (!ob) return;
+                let o = [{ id_: l.dataset.vid, name: ob.name, amount: ob.amount, type: ob.type, value: v, session: sessionPub_emsFormBuilder, form_id: ms_form_id }];
+                if (ms_valj[0] && ms_valj[0].type == "payment" && l.classList.contains('payefb')) {
                     let ids = "";
                     for (let el of el_o) {
                         const i = valueJson_ws.findIndex(x => x.id_ == `${el}`);
@@ -154,13 +158,15 @@ document.addEventListener("click", (evnt) => {
                         Object.assign(o[0], q);
                     }
                 }
-                indx = get_row_sendback_by_id_efb(l.dataset.vid);
+                const _find_sb = typeof get_row_sendback_by_id_efb_v4 === 'function' ? get_row_sendback_by_id_efb_v4(l.dataset.vid, ms_form_id) : get_row_sendback_by_id_efb(l.dataset.vid);
+                indx = _find_sb;
                 if (indx == -1) {
                     sendBack_emsFormBuilder_pub.push(o[0]);
                 } else {
                     if (v.trim() != efb_var.text.selectOption.trim()) {
                         sendBack_emsFormBuilder_pub[indx].value = v;
-                        if (valj_efb[0].type == "payment" && l.classList.contains('payefb')) {
+                        if (!sendBack_emsFormBuilder_pub[indx].form_id) sendBack_emsFormBuilder_pub[indx].form_id = ms_form_id;
+                        if (ms_valj[0] && ms_valj[0].type == "payment" && l.classList.contains('payefb')) {
                             sendBack_emsFormBuilder_pub[indx].price = price;
                             sendBack_emsFormBuilder_pub[indx].ids = o[0].ids;
                         }
@@ -168,8 +174,15 @@ document.addEventListener("click", (evnt) => {
                         sendBack_emsFormBuilder_pub.splice(indx, 1);
                     }
                 }
-                if (valj_efb[0].type == "payment" && l.classList.contains('payefb')) fun_total_pay_efb();
+                if (ms_valj[0] && ms_valj[0].type == "payment" && l.classList.contains('payefb')) fun_total_pay_efb();
                 localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+                if (typeof sendback_state_handler_efb_v4 === 'function') {
+                    const has_value = v.trim() != efb_var.text.selectOption.trim() && l.dataset.select.length > 0;
+                    sendback_state_handler_efb_v4(l.dataset.vid, has_value, 0, ms_form_id);
+                }
+                if (typeof updateStepButtonState_efb === 'function') {
+                    updateStepButtonState_efb(Number(ms_form_id));
+                }
                 const pl = l.id.split('_');
                 const idm = pl[0] + '_-message';
                 if (el_o.length > 1) {

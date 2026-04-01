@@ -4,7 +4,7 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, survey form, payment form
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 4.0.0
+Stable tag: 4.0.3
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -38,6 +38,9 @@ With Easy Form Builder, you can use a single form plugin to build and manage mul
 - Electronic signature forms for contracts and agreements
 - Location picker forms for address and map selection
 - Custom email notification templates with a built-in visual editor
+- Job application forms for hiring and recruitment
+- Event registration forms for conferences and workshops
+- Order forms with recurring and subscription billing options
 
 The form builder provides a consistent interface for form creation, submission handling, and response management inside WordPress.
 
@@ -64,6 +67,9 @@ The form plugin includes client-side and server-side validation. Google reCAPTCH
 
 = Multi-Step Forms =
 Multi-step forms allow long forms to be divided into multiple sections. This improves user experience and helps reduce form abandonment.
+
+= Ready-Made Form Templates =
+The plugin includes pre-built form templates to help you get started quickly. Available templates include contact forms, reservation forms, job application forms, event registration forms, quote request forms, booking forms, order forms, survey forms, and more.
 
 
 == Form Entry & Message Management Dashboard ==
@@ -127,6 +133,8 @@ Login and registration forms integrate with WordPress user management and allow 
 - Switch and toggle fields
 - Date pickers (Gregorian, Hijri, and Jalali)
 - Telephone and mobile input fields
+- Color picker fields
+- Matrix and table fields for structured data collection
 
 These fields allow you to build complex, region-aware, and structured forms without custom development.
 
@@ -157,7 +165,7 @@ These fields allow you to build complex, region-aware, and structured forms with
 
 == Available Versions ==
 
- Easy Form Builder is available in multiple versions to support different usage needs. Each version is designed to provide a clear and predictable set of features.
+ [Easy Form Builder is available in multiple versions](https://whitestudio.team/document/easy-form-builder-free-plus-activation-guide/) to support different usage needs. Each version is designed to provide a clear and predictable set of features.
 
 = Free Version =
 The Free version provides essential form-building tools. It is suitable for users who need reliable form creation with email notifications, confirmation codes, entry management, file uploads, and basic surveys fields.
@@ -215,8 +223,19 @@ Yes. Users can upload files through forms, and administrators can attach files i
 Yes. Stripe payment fields are supported.
 [How to Create a payment form to collect online payments in Easy Form Builder](https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/)
 
+= Does Easy Form Builder support PayPal payments? =
+Yes. You can add and set up the PayPal payment field to accept online payments through your WordPress forms. The PayPal add-on supports one-time payments as well as recurring billing options including daily, weekly, monthly, and yearly subscriptions. Payment entries are managed alongside other form submissions in the Form Entry & Message Management Dashboard.
+
 = Does Easy Form Builder support survey forms? =
 Yes. The form builder includes survey and poll fields such as rating stars and NPS.
+
+= Does Easy Form Builder include ready-made form templates? =
+Yes. The plugin comes with pre-built templates for contact forms, reservation forms, job applications, event registrations, booking forms, quote requests, order forms, and more.
+
+
+= Does Easy Form Builder support recurring payments? =
+Yes. The payment fields support one-time, daily, weekly, monthly, and yearly billing options for subscription and recurring payment forms. You can create payment forms using Stripe or PayPal to accept online payments directly through your WordPress forms. Both payment gateways are available as add-ons and can be configured from the Easy Form Builder settings.
+[How to Create a payment form to collect online payments in Easy Form Builder](https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/)
 
 = Do the country, state, and city fields load data from an external source? =
 Yes. The country, state/province, and city lists used in Easy Form Builder are automatically loaded from an external CDN-hosted JSON source maintained on GitHub.
@@ -233,6 +252,20 @@ No personal or form submission data is sent to this external source. The CDN is 
 = Where can I find documentation and support? =
 For full setup instructions, and guides visit [ Easy Form Builder Documentation](https://whitestudio.team/documents)
 
+= What are the different confirmation code styles and how do I customize confirmation code (or tracking code) in my WordPress form submissions? =
+Easy Form Builder WordPress plugin includes seven confirmation code (or tracking code) styles with locale-aware character support for submitted forms. Each tracking ID style can use characters from 55+ languages including Chinese, Japanese, Korean, Russian, Hebrew, Hindi, Persian, Arabic, Bengali, Gujarati, Punjabi, Tamil, Telugu, Kannada, Malayalam, Greek, Thai, Khmer, Lao, Myanmar, Georgian, Armenian, and more.
+
+When users submit forms through the Easy Form Builder WordPress plugin, they receive a unique tracking code or confirmation code based on your chosen style. The seven available confirmation code styles for form submissions are:
+- Date + Random Number
+- Date + National Language Letters & Random Number
+- Date + National Language Letters Only
+- Date + English Characters
+- Date + National Random Numbers
+- Unique Number (date-based)
+- National Language Letters & Random Number
+
+In the Easy Form Builder plugin settings, you can choose your preferred confirmation code style from the form submission tracking options. The plugin automatically selects characters based on your website's language/locale, making it ideal for multilingual and RTL (right-to-left) language WordPress websites. This feature improves code readability and user experience when users submit forms, displaying confirmation codes and tracking IDs in the visitor's native language and script.
+
 
 == Installation ==
 
@@ -241,7 +274,7 @@ If your theme uses Bootstrap, go to “Easy Form Builder” → “Settings” a
 
 1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
 2. Navigate to Dashboard → “Plugins” → “Add New” → “Upload Plugin” → select *Easy Form Builder* zip file then “Activate”.
-3. In the menu bar, navigate to “Easy Form Builder” → “Settings'' → “Add Google recaptcha keys”
+3. In the menu bar, navigate to “Easy Form Builder” → “Settings'' → “Add Google reCAPTCHA keys”
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
 
 
@@ -275,14 +308,26 @@ For more information, visit the official website:
 10. Localization Easy Form Builder to your language
 11. Email template Editor of Easy Form Builder
 12. Order payment forms
-13. configuration Response box of Easy Form Builder
+13. Configuration Response box of Easy Form Builder
 14. Email Setting of Easy Form Builder
-15. SMS configuration of Easy From Builder
+15. SMS configuration of Easy Form Builder
 16. Confirmation Code Search Field
 17. WordPress Support Ticket Conversation and Reply Form
 
 
 == Upgrade Notice ==
+
+= 4.0.3 =
+
+* Improved UX of Easy Form Builder
+
+* Fixed issues
+
+= 4.0.2 =
+
+= 4.0.1 =
+
+* Fixed issues
 
 = 4.0.0 =
 Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official addons will be update to their latest versions.
