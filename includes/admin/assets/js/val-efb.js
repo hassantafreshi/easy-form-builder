@@ -620,7 +620,8 @@ function show_setting_window_efb(idset) {
       const hintTxt = efb_var.text.customMessageHint
         ? efb_var.text.customMessageHint.replace('%s', efb_var.text.message || 'message')
         : 'Leave empty to use default message';
-      return `<div class="efb mx-1 my-1 efb customRequiredMsgWrapper ${valj_efb[indx].hasOwnProperty('required') && Number(valj_efb[indx].required) == 1 ? '' : 'd-none'}">
+      const isVisible = valj_efb[indx].hasOwnProperty('required') && Number(valj_efb[indx].required) == 1;
+      return `<div class="efb mx-1 my-1 efb customRequiredMsgWrapper" style="transition: opacity 0.3s ease, max-height 0.3s ease; overflow: hidden; ${isVisible ? 'opacity: 1; max-height: 200px;' : 'opacity: 0; max-height: 0; padding: 0; margin: 0;'}">
         ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
         <label for="customRequiredMsgEl" class="efb form-label mt-2 mb-1 efb"><i class="efb bi-chat-square-text fs-7 me-1"></i>${labelTxt}</label>
         <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${placeholderTxt}" id="customRequiredMsgEl" value="${currentValue}" ${!isPro ? 'disabled' : ''}>
@@ -791,8 +792,8 @@ function show_setting_window_efb(idset) {
     ${labelEls}
     ${hideLabelEls}
     ${el.dataset.tag != 'ttlprc' ? requireEls : ''}
-    ${desEls}
-    ${el.dataset.tag != 'ttlprc' ? customRequiredMsgEls() : ''}`
+    ${el.dataset.tag != 'ttlprc' ? customRequiredMsgEls() : ''}
+    ${desEls}`
     const deskHideEfb = typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile' ? 'd-none' : '';
     const mobHideEfb = typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile' ? 'd-none' : '';
 

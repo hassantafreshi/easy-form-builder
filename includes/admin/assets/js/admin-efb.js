@@ -1470,7 +1470,8 @@ let change_el_edit_Efb = (el) => {
       case "requiredEl":
         valj_efb[indx].required = el.classList.contains('active')==true ? 1 :0;
 
-        document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML = valj_efb[indx].required  == true ? '*' : '';
+        const reqEl = document.getElementById(`${valj_efb[indx].id_}_req`);
+        if(reqEl) reqEl.innerHTML = valj_efb[indx].required  == true ? '*' : '';
         const aId = {
           email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", color: "_", range: "_", number: "_", file: "_",
           textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
@@ -1480,14 +1481,22 @@ let change_el_edit_Efb = (el) => {
         id = valj_efb[indx].id_
         postId = document.getElementById(`${id}${postId}`)
         if(postId) postId.classList.toggle('required');
-        
-        // Toggle customRequiredMsgWrapper visibility
+
+        // Toggle customRequiredMsgWrapper visibility with fade animation
         const customMsgWrapper = document.querySelector('.customRequiredMsgWrapper');
         if(customMsgWrapper) {
           if(valj_efb[indx].required == 1) {
-            customMsgWrapper.classList.remove('d-none');
+            // Show with fade in
+            customMsgWrapper.style.opacity = '1';
+            customMsgWrapper.style.maxHeight = '200px';
+            customMsgWrapper.style.padding = '';
+            customMsgWrapper.style.margin = '';
           } else {
-            customMsgWrapper.classList.add('d-none');
+            // Hide with fade out
+            customMsgWrapper.style.opacity = '0';
+            customMsgWrapper.style.maxHeight = '0';
+            customMsgWrapper.style.padding = '0';
+            customMsgWrapper.style.margin = '0';
           }
         }
 
@@ -2043,18 +2052,18 @@ let change_el_edit_Efb = (el) => {
         const oldFormType = valj_efb[0].type;
         valj_efb[0].type = el.options[el.selectedIndex].value;
         form_type_emsFormBuilder = valj_efb[0].type;
-        
+
         // Update thank you messages based on form type if user hasn't customized them
         if (typeof getDefaultThankYouByType === 'function') {
           const newDefaults = getDefaultThankYouByType(valj_efb[0].type);
-          
+
           // Update thankYou if it's still a default value
           if (typeof isDefaultThankYou === 'function' && isDefaultThankYou(valj_efb[0].thank_you_message.thankYou)) {
             valj_efb[0].thank_you_message.thankYou = newDefaults.thankYou;
             const thankYouInput = document.getElementById('thankYouMessageEl');
             if (thankYouInput) thankYouInput.value = newDefaults.thankYou;
           }
-          
+
           // Update done if it's still a default value
           if (typeof isDefaultDone === 'function' && isDefaultDone(valj_efb[0].thank_you_message.done)) {
             valj_efb[0].thank_you_message.done = newDefaults.done;
@@ -2062,7 +2071,7 @@ let change_el_edit_Efb = (el) => {
             if (doneInput) doneInput.value = newDefaults.done;
           }
         }
-        
+
         const surveyChartWrapper = document.getElementById('surveyChartOptionsWrapper');
         if (surveyChartWrapper) {
           if (valj_efb[0].type === 'survey') {
