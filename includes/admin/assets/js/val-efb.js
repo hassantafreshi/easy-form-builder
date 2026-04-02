@@ -1021,7 +1021,7 @@ function show_setting_window_efb(idset) {
           <div class="efb  listSelect my-2">
             <div class="efb  efblist mx-1  p-2 inplist  h-d-efb elEdit border efb border-d rounded-4 bi-chevron-down" id="iconEl"
             data-id="${iset}" data-idset="${idset}" data-side="${side}"  data-no="1" data-parent="1" data-iconset="${iNo}"
-            data-select="">${icon=="" ? efb_var.text.selectOption :icon!='bi-undefined'? icon :'None'}</div>
+            data-select="">${icon=="" ? efb_var.text.selectOption :icon!='bi-undefined'? `<i class="efb ${icon} fs-5"></i>` :'None'}</div>
             <div class="efb  efblist mx-1  listContent d-none rounded-bottom  bg-secondary" data-id="${iset}" data-list="${iset}">
             <table class="efb  table ${iset}">
                     <thead class="efb  efblist">

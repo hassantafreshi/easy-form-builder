@@ -99,7 +99,7 @@ document.addEventListener("click", (evnt) => {
                         if (l.dataset.icon == 1) x.querySelector("TH").className = "bi-square efb";
                     }
                     l.dataset.select = e.dataset.row;
-                    l.innerHTML = e.dataset.name;
+                    l.innerHTML = l.id === "iconEl" ? `<i class="efb ${e.dataset.name} fs-5"></i>` : e.dataset.name;
                     if (l.dataset.icon == 1) fc.className = "bi-check-square text-info efb";
                     e.className += " border-info";
                 }
