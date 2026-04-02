@@ -710,11 +710,13 @@ function show_setting_window_efb(idset) {
     <label class="efb form-check-label" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>
     </div>`;
     let disable =valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? '' : 'disabled';
-    const m_tankYouMessage = valj_efb[0].type!="register" ? efb_var.text.thankYouMessage:efb_var.text.createAcountDoneM;
+    const defaultThankYou = typeof getDefaultThankYouByType === 'function' ? getDefaultThankYouByType(valj_efb[0].type) : { thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.yad };
+    const m_tankYouMessage = defaultThankYou.thankYou;
+    const m_doneMessage = defaultThankYou.done;
     const thankYouMessageEls = `<div class="efb tnxmsg mt-1  ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageEl" class="efb form-label mt-2 mb-1 efb">${ efb_var.text.thankYouMessage }</label>
     <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.thankYouMessage}" id="thankYouMessageEl" required value="${valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : m_tankYouMessage}"></div>`;
     const thankYouMessageDoneEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageDoneEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.done} ${efb_var.text.message}</label>
-    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.done}" id="thankYouMessageDoneEl" required value="${valj_efb[0].thank_you_message.done ? valj_efb[0].thank_you_message.done : efb_var.text.yad}"></div>`;
+    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.done}" id="thankYouMessageDoneEl" required value="${valj_efb[0].thank_you_message.done ? valj_efb[0].thank_you_message.done : m_doneMessage}"></div>`;
     const thankYouMessageConfirmationCodeEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageConfirmationCodeEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
     <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="thankYouMessageConfirmationCodeEl" required value="${valj_efb[0].thank_you_message.trackingCode ? valj_efb[0].thank_you_message.trackingCode : efb_var.text.trackingCode}"></div>`;
 

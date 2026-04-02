@@ -1025,7 +1025,9 @@ async function response_fill_form_efb(res ,form_id=0) {
           window.location.href = res.data.m;
           break;
         }
-        efb_final_step.innerHTML = funTnxEfb('','',res.data.m);
+        // Use custom thank_you_message if set, otherwise use server response
+        const surveyThankYou = valj_efb[0].thank_you_message && valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : res.data.m;
+        efb_final_step.innerHTML = funTnxEfb('','', surveyThankYou);
         if (res.data.survey_chart_type && res.data.survey_chart_type !== 'none' && res.data.survey_results && res.data.survey_results.length > 0) {
           if (typeof renderSurveyResultsChart === 'function') {
             renderSurveyResultsChart(res.data, efb_final_step, form_id);
@@ -1035,17 +1037,21 @@ async function response_fill_form_efb(res ,form_id=0) {
         }
         break;
       case 'subscribe':
-        efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder fs-4'><i class="efb fs-2 bi-hand-thumbs-up  text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${valj_efb[0].thank_you_message.thankYou}</h3></br> <span class="efb fs-5">${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
+        // Use thank_you_message values for subscribe success
+        const subscribeThankYou = valj_efb[0].thank_you_message && valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : ajax_object_efm.text.YouSubscribed;
+        efb_final_step.innerHTML = funTnxEfb('','', subscribeThankYou);
         break;
       case 'register':
+          // Use thank_you_message values for register success
+          const registerThankYou = valj_efb[0].thank_you_message && valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : (res.data.m || efb_var.text.createAcountDoneM);
           if(res.data.hasOwnProperty('redirect_url') && typeof res.data.redirect_url === 'string' && res.data.redirect_url.length > 5 && res.data.redirect_url !== 'null'){
             efb_final_step.innerHTML = `
-            <h3 class="efb fs-4 text-center">${res.data.m}</h3>
+            <h3 class="efb fs-4 text-center">${registerThankYou}</h3>
             <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.redirect_url}">${efb_var.text.orClickHere}</a></h3>
             `
             window.location.href = res.data.redirect_url;
           }else{
-            const m = form_type_emsFormBuilder !='recovery' ? valj_efb[0].thank_you_message.thankYou: ajax_object_efm.text.checkYourEmail;
+            const m = form_type_emsFormBuilder !='recovery' ? registerThankYou : ajax_object_efm.text.checkYourEmail;
             efb_final_step.innerHTML = funTnxEfb('','',m );
           }
           break;

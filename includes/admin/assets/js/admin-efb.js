@@ -2025,8 +2025,29 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case "formTypeEl":
+        const oldFormType = valj_efb[0].type;
         valj_efb[0].type = el.options[el.selectedIndex].value;
         form_type_emsFormBuilder = valj_efb[0].type;
+        
+        // Update thank you messages based on form type if user hasn't customized them
+        if (typeof getDefaultThankYouByType === 'function') {
+          const newDefaults = getDefaultThankYouByType(valj_efb[0].type);
+          
+          // Update thankYou if it's still a default value
+          if (typeof isDefaultThankYou === 'function' && isDefaultThankYou(valj_efb[0].thank_you_message.thankYou)) {
+            valj_efb[0].thank_you_message.thankYou = newDefaults.thankYou;
+            const thankYouInput = document.getElementById('thankYouMessageEl');
+            if (thankYouInput) thankYouInput.value = newDefaults.thankYou;
+          }
+          
+          // Update done if it's still a default value
+          if (typeof isDefaultDone === 'function' && isDefaultDone(valj_efb[0].thank_you_message.done)) {
+            valj_efb[0].thank_you_message.done = newDefaults.done;
+            const doneInput = document.getElementById('thankYouMessageDoneEl');
+            if (doneInput) doneInput.value = newDefaults.done;
+          }
+        }
+        
         const surveyChartWrapper = document.getElementById('surveyChartOptionsWrapper');
         if (surveyChartWrapper) {
           if (valj_efb[0].type === 'survey') {
