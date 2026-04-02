@@ -155,7 +155,7 @@ const loadingTypeEls = () => {
     </div>
   </div>
   <div class="efb mt-3 mb-3 p-3 border rounded-4 bg-light" id="loadingPreviewContainer">
-    <label class="efb mb-2 text-muted"><i class="efb bi-eye fs-7 ${iconMarginGlobal}"></i>${efb_var.text.preview || 'Preview'}</label>
+    <label class="efb mb-2 text-muted"><i class="efb bi-eye fs-7 ${iconMarginGlobal}"></i>${efb_var.text.preview || 'Preview'} (${valj_efb[0].loadingType || 'Loading Animation'})</label>
     <div class="efb d-flex justify-content-center align-items-center p-3" id="loadingPreviewEl" style="min-height: 60px; background: rgba(255,255,255,0.8); border-radius: 8px;">
       ${getLoadingSvgPreview(valj_efb[0].loading_type, valj_efb[0].loading_color)}
     </div>
@@ -606,6 +606,27 @@ function show_setting_window_efb(idset) {
     </button>
     <label class="efb form-check-label pt-1" for="requiredEl">${efb_var.text.required}</label>
     </div>`;
+
+    // Custom required message input (PRO feature)
+    const customRequiredMsgEls = () => {
+      const isPro = (typeof pro_efb !== 'undefined' && pro_efb === true) || (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1 || efb_var.pro === true));
+      const currentValue = valj_efb[indx].hasOwnProperty('customRequiredMsg') ? valj_efb[indx].customRequiredMsg : '';
+      // Dynamic label using customMessage with %s placeholder
+      const labelTxt = efb_var.text.customMessage
+        ? efb_var.text.customMessage.replace('%s', efb_var.text.required || 'Required')
+        : 'Custom Required Message';
+      const placeholderTxt = efb_var.text.enterTheValueThisField || 'This field is required.';
+      // Dynamic hint using customMessageHint with %s placeholder
+      const hintTxt = efb_var.text.customMessageHint
+        ? efb_var.text.customMessageHint.replace('%s', efb_var.text.message || 'message')
+        : 'Leave empty to use default message';
+      return `<div class="efb mx-1 my-1 efb customRequiredMsgWrapper ${valj_efb[indx].hasOwnProperty('required') && Number(valj_efb[indx].required) == 1 ? '' : 'd-none'}">
+        ${!isPro ? '<div class="efb pro-card"><a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (efb_var.text.fieldAvailableInProversion || 'PRO') + '"><i class="efb bi-gem text-light"></i></a></div>' : ''}
+        <label for="customRequiredMsgEl" class="efb form-label mt-2 mb-1 efb"><i class="efb bi-chat-square-text fs-7 me-1"></i>${labelTxt}</label>
+        <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${placeholderTxt}" id="customRequiredMsgEl" value="${currentValue}" ${!isPro ? 'disabled' : ''}>
+        <small class="efb text-muted fs-8 mx-2">${hintTxt}</small>
+      </div>`;
+    };
     const hiddenEls = `<div class="efb mx-0 my-1 efb">
     <button type="button" id="hiddenEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('hidden') && Number(valj_efb[indx].hidden) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
@@ -649,15 +670,22 @@ function show_setting_window_efb(idset) {
     </button>
     <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="EmailNoti"> </i>
     </div>`;
-    const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}<i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="EmailNoti"> </i></label>
+    const adminFormEmailEls = `
+
+    <label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}<i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="EmailNoti"> </i></label>
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
     const FormEmailSubjectEls = () =>{
-      let value = efb_var.text.default
-      if(valj_efb[0].hasOwnProperty('email_sub') && valj_efb[0].email_sub!='') value =  valj_efb[0].email_sub;
+      const value = valj_efb[0].hasOwnProperty('email_sub') ? valj_efb[0].email_sub : '';
+      const hintTxt = efb_var.text.customMessageHint
+        ? efb_var.text.customMessageHint.replace('%s', efb_var.text.mlsbjt.toLowerCase() || 'email subject')
+        : 'Leave empty to use default message';
       return `
+      <div class="efb mx-1 efb ">
       ${pro_efb==true ?"":funProEfb()}
       <label for="FormEmailSubjectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.mlsbjt}</label>
-      <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.mlsbjt}" id="FormEmailSubjectEl" required value="${value}">`
+      <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4 efb" placeholder="${efb_var.text.emailSubject || 'Email Subject'}" id="FormEmailSubjectEl" required value="${value}">
+      <small class="efb text-muted fs-8 mx-2">${hintTxt}</small>
+      </div>`
 
     }
     const EmailNotiContainsEls =() =>{
@@ -763,7 +791,8 @@ function show_setting_window_efb(idset) {
     ${labelEls}
     ${hideLabelEls}
     ${el.dataset.tag != 'ttlprc' ? requireEls : ''}
-    ${desEls}`
+    ${desEls}
+    ${el.dataset.tag != 'ttlprc' ? customRequiredMsgEls() : ''}`
     const deskHideEfb = typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile' ? 'd-none' : '';
     const mobHideEfb = typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile' ? 'd-none' : '';
 
@@ -1000,13 +1029,15 @@ function show_setting_window_efb(idset) {
        idset != "button_group" ? iset=idset=valj_efb[indx].id_: iset=idset="button_group_"
         if(isNumericEfb(iset))idset=iset="step-"+iset;
         icon = valj_efb[indx].icon }
-      let list =`<tr class="efb efblist text-white" data-id="${iset}" data-name="bi-XXX" data-row="-2" data-state="0" data-visible="1">
+      let list =`<tr class="efb efblist text-d" data-id="${iset}" data-name="bi-XXX" data-row="-2" data-state="0" data-visible="1">
       <th scope="row" class="efb bi-XXXXX"></th>
       <td>None</td>
      </tr>`
+      const shouldCapitalize = ['en', 'en_US', 'en_GB', 'de', 'de_DE', 'fr', 'fr_FR', 'es', 'es_ES', 'it', 'it_IT', 'pt', 'pt_BR', 'nl', 'nl_NL'].some(lang => efb_var.wp_lan?.startsWith(lang.split('_')[0]));
+      const capitalizeWords = (str) => shouldCapitalize ? str.replace(/\b\w/g, c => c.toUpperCase()) : str;
       bootstrap_icons.forEach((e,key )=> {
-        const v= e.replace(`-`, ' ');
-        list+=`<tr class="efb efblist text-white" data-id="${iset}" data-name="bi-${e}" data-row="${key}" data-state="0" data-visible="1">
+        const v= capitalizeWords(e.replace(/-/g, ' '));
+        list+=`<tr class="efb efblist text-d" data-id="${iset}" data-name="bi-${e}" data-row="${key}" data-state="0" data-visible="1">
         <th scope="row" class="efb bi-${e}"></th>
         <td>${v}</td>
       </tr>`
@@ -1022,14 +1053,14 @@ function show_setting_window_efb(idset) {
             <div class="efb  efblist mx-1  p-2 inplist  h-d-efb elEdit border efb border-d rounded-4 bi-chevron-down" id="iconEl"
             data-id="${iset}" data-idset="${idset}" data-side="${side}"  data-no="1" data-parent="1" data-iconset="${iNo}"
             data-select="">${icon=="" ? efb_var.text.selectOption :icon!='bi-undefined'? `<i class="efb ${icon} fs-5"></i>` :'None'}</div>
-            <div class="efb  efblist mx-1  listContent d-none rounded-bottom  bg-secondary" data-id="${iset}" data-list="${iset}">
+            <div class="efb  efblist mx-1  listContent d-none rounded-bottom  bg-light border" data-id="${iset}" data-list="${iset}">
             <table class="efb  table ${iset}">
                     <thead class="efb  efblist">
-                      <tr><div class="efb  searchSection efblist  p-2 bg-secondary">
+                      <tr><div class="efb  searchSection efblist  p-2 bg-light">
                         <!--  <i class="efb  efblist  searchIcon  bi-search text-primary "></i> -->
                           <input type="text" class="efb  efblist search searchBox my-1 col-12 rounded " data-id="${iset}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('${iset}')">
                         </div></tr>
-                    </thead> <tbody class="efb">
+                    </thead> <tbody class="efb bg-white">
                     ${list}
                     </tbody></table>
             </div>
@@ -3981,6 +4012,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }, 1.5);
     }
+
+    // Toggle collapse icons for Advanced button (arrow down/up)
+    document.addEventListener('click', function(e) {
+        const collapseBtn = e.target.closest('#advanced_collapse');
+        if (collapseBtn) {
+            const icon = collapseBtn.querySelector('i');
+            if (icon) {
+                const isExpanded = collapseBtn.getAttribute('aria-expanded') === 'true';
+                // When open (expanded), clicking will close, so show UP
+                // When closed, clicking will open, so show DOWN
+                if (isExpanded) {
+                    icon.classList.remove('bi-arrow-down-circle-fill');
+                    icon.classList.add('bi-arrow-up-circle-fill');
+                } else {
+                    icon.classList.remove('bi-arrow-up-circle-fill');
+                    icon.classList.add('bi-arrow-down-circle-fill');
+                }
+            }
+        }
+    });
 
 });
 

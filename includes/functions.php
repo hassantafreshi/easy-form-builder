@@ -622,6 +622,10 @@ class efbFunction {
 			/* translators: Sync = Synchronize - to update and match data */
 			"sync" => $state ? $ac->text->sync : esc_html__('Sync','easy-form-builder'),
 			"enterTheValueThisField" => $state ? $ac->text->enterTheValueThisField : esc_html__('This field is required.','easy-form-builder'),
+			/* translators: %s will be replaced with field type like "Required", "Validation", etc. Example: "Custom Required Message" */
+			"customMessage" => $state && isset($ac->text->customMessage) ? $ac->text->customMessage : esc_html__('Custom %s Message','easy-form-builder'),
+			/* translators: Hint text for custom message field. %s will be replaced with type like "message", "value", etc. */
+			"customMessageHint" => $state && isset($ac->text->customMessageHint) ? $ac->text->customMessageHint : esc_html__('Leave empty to use default %s','easy-form-builder'),
 			"thankYou" => $state ? $ac->text->thankYou : esc_html__('Thank you','easy-form-builder'),
 			"YouSubscribed" => $state ? $ac->text->YouSubscribed : esc_html__('You are subscribed','easy-form-builder'),
 			"passwordRecovery" => $state ? $ac->text->passwordRecovery : esc_html__('Password recovery','easy-form-builder'),

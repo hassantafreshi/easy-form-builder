@@ -1753,6 +1753,28 @@ div#optionListeHeadfb {	z-index: 1040;
    color: #5e7494;
    transition: 0.5s;
 }
+/* Enhanced hover styles for collapse buttons (SMS, Telegram, Advanced) */
+#sms_collapse.btn-outline-light.efb:hover,
+#telegram_collapse.btn-outline-light.efb:hover,
+#advanced_collapse.btn-outline-light.efb:hover {
+   background: linear-gradient(135deg, #e8f0ff 0%, #f3f7ff 100%) !important;
+   border: 2px solid #b3c7f0 !important;
+   color: #4a6fa5 !important;
+   box-shadow: 0 4px 15px rgba(70, 54, 241, 0.15);
+   transform: translateY(-2px);
+}
+#sms_collapse.btn-outline-light.efb:hover i,
+#telegram_collapse.btn-outline-light.efb:hover i,
+#advanced_collapse.btn-outline-light.efb:hover i {
+   transform: scale(1.1);
+   transition: transform 0.3s ease;
+}
+#sms_collapse.btn-outline-light.efb:active,
+#telegram_collapse.btn-outline-light.efb:active,
+#advanced_collapse.btn-outline-light.efb:active {
+   transform: translateY(0);
+   box-shadow: 0 2px 8px rgba(70, 54, 241, 0.1);
+}
 .btn-outline-warning.efb {	border: 2px solid #ffc257 !important;
    border-radius: 20px !important;
    color: #ffc257;

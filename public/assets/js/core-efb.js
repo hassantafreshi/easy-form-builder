@@ -2001,7 +2001,9 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     }else{
       if(el !== null) el.className = colorBorderChangerEfb(el.className, "border-danger");
       if(el_msg!=null){
-        el_msg.innerHTML = efb_var.text.enterTheValueThisField;
+        // Use custom required message if set, otherwise use default
+        const customMsg = s.hasOwnProperty('customRequiredMsg') && s.customRequiredMsg.length > 0 ? s.customRequiredMsg : efb_var.text.enterTheValueThisField;
+        el_msg.innerHTML = customMsg;
         show_msg_efb(el_msg);
       }
     }
@@ -2153,7 +2155,9 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       if (el.value.length > 1 || el.checked == true) {
         hide_msg_efb(vd);
       } else {
-        vd.innerHTML = efb_var.text.enterTheValueThisField;
+        // Use custom required message if set, otherwise use default
+        const customMsgCb = ob.hasOwnProperty('customRequiredMsg') && ob.customRequiredMsg.length > 0 ? ob.customRequiredMsg : efb_var.text.enterTheValueThisField;
+        vd.innerHTML = customMsgCb;
         show_msg_efb(vd);
       }
       if( el.checked == false && el.type =="checkbox") {
@@ -2321,7 +2325,7 @@ async function fun_validation_efb_v4(form_id) {
   }
 
   let offsetw = offset_view_efb();
-  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
+  const defaultMsg = efb_var.text.enterTheValueThisField;
   let state = true;
   let idi = "null";
   let name_field = "";
@@ -2346,6 +2350,9 @@ async function fun_validation_efb_v4(form_id) {
         if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
           el.classList.add('unpx');
         }
+        // Use custom required message if set, otherwise use default
+        const fieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
+        const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${fieldMsg}','',10,'danger')"></div>` : fieldMsg;
         el.innerHTML = msg;
         show_msg_efb(el);
         if (type_validate_efb(valj_efb[row].type) == true) {
@@ -2377,7 +2384,10 @@ async function fun_validation_efb_v4(form_id) {
         let state_of_ch = true;;
         const em = sendBack_emsFormBuilder_pub.find(x => x.id_ob == idi);
         if(em==undefined || em==null ){
-            document.getElementById(idi+'_-message').innerHTML = msg;
+            // Use custom required message if set, otherwise use default
+            const chlFieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
+            const chlMsg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${chlFieldMsg}','',10,'danger')"></div>` : chlFieldMsg;
+            document.getElementById(idi+'_-message').innerHTML = chlMsg;
             show_msg_efb(document.getElementById(idi+'_-message'));
 
             document.getElementById(idi).classList.add('bg-warning');

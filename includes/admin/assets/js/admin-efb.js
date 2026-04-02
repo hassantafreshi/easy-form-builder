@@ -1480,6 +1480,16 @@ let change_el_edit_Efb = (el) => {
         id = valj_efb[indx].id_
         postId = document.getElementById(`${id}${postId}`)
         if(postId) postId.classList.toggle('required');
+        
+        // Toggle customRequiredMsgWrapper visibility
+        const customMsgWrapper = document.querySelector('.customRequiredMsgWrapper');
+        if(customMsgWrapper) {
+          if(valj_efb[indx].required == 1) {
+            customMsgWrapper.classList.remove('d-none');
+          } else {
+            customMsgWrapper.classList.add('d-none');
+          }
+        }
 
         break;
       case "hideLabelEl":
@@ -1793,6 +1803,11 @@ let change_el_edit_Efb = (el) => {
         document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = sanitize_text_efb(el.value);
 
         valj_efb[indx].placeholder = sanitize_text_efb(el.value);
+        break;
+      case "customRequiredMsgEl":
+        // Save custom required validation message for the field
+        if(valj_efb[indx].hasOwnProperty('customRequiredMsg')==false) Object.assign(valj_efb[indx],{'customRequiredMsg':''})
+        valj_efb[indx].customRequiredMsg = sanitize_text_efb(el.value);
         break;
       case "enableConEl":
          clss=true;
@@ -6536,7 +6551,7 @@ function timeOutCaptcha() {
 
 async function fun_validation_efb() {
   let offsetw = offset_view_efb();
-  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
+  const defaultMsg = efb_var.text.enterTheValueThisField;
   let state = true;
   let idi = "null";
   for (let row in valj_efb) {
@@ -6554,6 +6569,9 @@ async function fun_validation_efb() {
         if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
           el.classList.add('unpx');
         }
+        // Use custom required message if set, otherwise use default
+        const fieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
+        const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${fieldMsg}','',10,'danger')"></div>` : fieldMsg;
         el.innerHTML = msg;
         el.style.display='block';
         if (type_validate_efb(valj_efb[row].type) == true) {
@@ -6582,7 +6600,9 @@ async function fun_validation_efb() {
         }
       }
       if (state == false) {
-          noti_message_efb(efb_var.text.enterTheValueThisField, 'danger' , `step-${current_s_efb}-efb-msg` );
+          // Use custom required message if set, otherwise use default
+          const chlFieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
+          noti_message_efb(chlFieldMsg, 'danger' , `step-${current_s_efb}-efb-msg` );
       }
     }
   }
