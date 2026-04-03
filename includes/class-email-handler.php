@@ -191,7 +191,7 @@ class EmsfbEmailHandler {
             $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
 
             // DEBUG LOG: Email content for all states
-            $this->log_email_debug($state, $to, $sub, $message, $link, $email_content_type);
+            // $this->log_email_debug($state, $to, $sub, $message, $link, $email_content_type);
 
             if (in_array($state, ["reportProblem", "testMailServer", "addonsDlProblem"])) {
 
@@ -207,7 +207,7 @@ class EmsfbEmailHandler {
                     $message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $email_content_type, $st);
 
                     // DEBUG LOG: Email content for array states
-                    $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $email_content_type);
+                    // $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $email_content_type);
 
                     if ($state != "reportProblem") {
                         $mailResult = $sendMail($to[$i], $sub[$i], $message, $headers);
