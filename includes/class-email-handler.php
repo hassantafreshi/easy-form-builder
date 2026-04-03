@@ -283,6 +283,7 @@ class EmsfbEmailHandler {
         $btnTextColor = isset($st->emailBtnTextColor) && !empty($st->emailBtnTextColor) ? esc_attr($st->emailBtnTextColor) : '#ffffff';
 
         $templateConfig = ['headerBgColor' => $btnBgColor];
+        $msgStyles = null;
         if ($temp != "0") {
             $tplGs = $this->extract_template_global_settings($temp);
             if ($tplGs) {
@@ -295,6 +296,7 @@ class EmsfbEmailHandler {
                 if (!empty($tplGs['fontFamily'])) $templateConfig['fontFamily'] = $tplGs['fontFamily'];
                 $templateConfig['headerBgColor'] = $btnBgColor;
             }
+            $msgStyles = $this->extract_message_block_styles($temp);
         }
 
         if($email_content_type == 'message_link'){
@@ -355,18 +357,18 @@ class EmsfbEmailHandler {
             switch ($email_content_type) {
                 case 'message_link':
 
-                    $message = $this->generate_message_link_content($m, $lang, $link, $tracking_section, $state);
+                    $message = $this->generate_message_link_content($m, $lang, $link, $tracking_section, $state, $msgStyles);
                     break;
 
                 case 'just_message':
 
-                    $message = $this->generate_just_message_content($m, $lang, $align);
+                    $message = $this->generate_just_message_content($m, $lang, $align, $msgStyles);
                     break;
 
                 case 'traking_link':
                 default:
 
-                    $message = $this->generate_tracking_link_content($m, $lang, $link, $tracking_section, $state);
+                    $message = $this->generate_tracking_link_content($m, $lang, $link, $tracking_section, $state, $msgStyles);
                     break;
             }
         }
@@ -420,7 +422,19 @@ class EmsfbEmailHandler {
             </table>";
     }
 
-    private function generate_new_message_content($m, $lang, $link, $tracking_section) {
+    private function build_content_div_style($msgStyles, $fallbackAlign = 'left') {
+        if ($msgStyles) {
+            $align    = esc_attr($msgStyles['align'] ?? $fallbackAlign);
+            $color    = esc_attr($msgStyles['color'] ?? '#333333');
+            $fontSize = intval($msgStyles['fontSize'] ?? 16);
+            $fontFam  = $this->safe_css_value($msgStyles['fontFamily'] ?? '');
+            $fontStr  = $fontFam ? "font-family:{$fontFam};" : '';
+            return "text-align:{$align};color:{$color};font-size:{$fontSize}px;{$fontStr}margin:20px 0;";
+        }
+        return "text-align:{$fallbackAlign};color:#252526;font-size:14px;background:#f8f9fa;padding:15px;margin:20px 0;border-radius:8px;border:1px solid #e9ecef;";
+    }
+
+    private function generate_new_message_content($m, $lang, $link, $tracking_section, $msgStyles = null) {
         if (gettype($m) == 'string') {
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
                 return $m;
@@ -431,11 +445,12 @@ class EmsfbEmailHandler {
             }
         } else {
             $link = strpos($link, "?") == true ? $link . '&track=' . $m[0] : $link . '?track=' . $m[0];
-            return "<div style='text-align:center;color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>" . $m[1] . " </div>" . $tracking_section;
+            $divStyle = $this->build_content_div_style($msgStyles, 'center');
+            return "<div style='" . $divStyle . "'>" . $m[1] . " </div>" . $tracking_section;
         }
     }
 
-    private function generate_default_message_content($m, $lang, $link, $tracking_section, $align) {
+    private function generate_default_message_content($m, $lang, $link, $tracking_section, $align, $msgStyles = null) {
         if (is_string($m)) {
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
                 return $m;
@@ -455,36 +470,24 @@ class EmsfbEmailHandler {
         } elseif (is_array($m) && count($m) >= 2) {
             $track_id = $m[0];
             $content = $m[1];
+            $divStyle = $this->build_content_div_style($msgStyles, $align);
 
-            if (strpos($content, '<') !== false && strpos($content, '>') !== false) {
-                return "
+            return "
                     <table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
                         <tr>
                             <td style='text-align: center; padding: 20px;'>
                                 <h2>" . $lang["WeRecivedUrM"] . "</h2>
-                                <div style='text-align:" . $align . ";color:#252526;font-size:14px;'>" . $content . " </div>
+                                <div style='" . $divStyle . "'>" . $content . " </div>
                                 " . $tracking_section . "
                             </td>
                         </tr>
                     </table>";
-            } else {
-                return "
-                    <table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
-                        <tr>
-                            <td style='text-align: center; padding: 20px;'>
-                                <h2>" . $lang["WeRecivedUrM"] . "</h2>
-                                <div style='text-align:" . $align . ";color:#252526;font-size:14px;background:#f9f9f9;padding:10px;margin:20px 5px;border-radius:8px;'>" . $content . " </div>
-                                " . $tracking_section . "
-                            </td>
-                        </tr>
-                    </table>";
-            }
         }
 
         return "";
     }
 
-    private function generate_message_link_content($m, $lang, $link, $tracking_section, $state) {
+    private function generate_message_link_content($m, $lang, $link, $tracking_section, $state, $msgStyles = null) {
         if (is_string($m)) {
 
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
@@ -500,14 +503,17 @@ class EmsfbEmailHandler {
             $track_id = $m[0];
             $form_content = $m[1];
             $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
+            $divStyle = $this->build_content_div_style($msgStyles);
 
             return "
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
                     <tr>
                         <td style='text-align: center; padding: 20px;'>
                             <h2>" . $title . "</h2>
-                            <p style='margin: 10px 0; color: #666;'>" . $lang["trackingCode"] . ": <strong>" . $track_id . "</strong></p>
-                            <div style='text-align:left;color:#252526;font-size:14px;background:#f8f9fa;padding:15px;margin:20px 0;border-radius:8px;border:1px solid #e9ecef;'>" . $form_content . " </div>
+                            <div style='" . $divStyle . "'>
+                              <p style='text-align:center'>" . $lang["trackingCode"] . ": <strong>" . $track_id . "</strong></p>"
+                             . $form_content .
+                              " </div>
                             " . $tracking_section . "
                         </td>
                     </tr>
@@ -517,7 +523,7 @@ class EmsfbEmailHandler {
         return "";
     }
 
-    private function generate_just_message_content($m, $lang, $align) {
+    private function generate_just_message_content($m, $lang, $align, $msgStyles = null) {
         if (is_string($m)) {
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
                 return $m;
@@ -527,13 +533,14 @@ class EmsfbEmailHandler {
             }
         } elseif (is_array($m) && count($m) >= 2) {
             $form_content = $m[1];
+            $divStyle = $this->build_content_div_style($msgStyles, $align);
 
             return "
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
                     <tr>
                         <td style='text-align: center; padding: 20px;'>
                             <h2>" . $lang["WeRecivedUrM"] . "</h2>
-                            <div style='text-align:" . $align . ";color:#252526;font-size:14px;background:#f8f9fa;padding:15px;margin:20px 0;border-radius:8px;border:1px solid #e9ecef;'>" . $form_content . "</div>
+                            <div style='" . $divStyle . "'>" . $form_content . "</div>
                         </td>
                     </tr>
                 </table>";
@@ -542,7 +549,7 @@ class EmsfbEmailHandler {
         return "";
     }
 
-    private function generate_tracking_link_content($m, $lang, $link, $tracking_section, $state) {
+    private function generate_tracking_link_content($m, $lang, $link, $tracking_section, $state, $msgStyles = null) {
 
         $isRegistrationState = in_array($state, ['newUser', 'register']);
 
@@ -575,8 +582,8 @@ class EmsfbEmailHandler {
                     <tr>
                         <td style='text-align: center; padding: 20px;'>
                             <h2>" . $title . "</h2>
-                            <p style='margin: 10px 0; color: #666;'>" . $lang["trackingCode"] . ": <strong>" . $track_id . "</strong></p>
-                            <p style='color: #28a745; font-weight: 600;'>✅ " . __('Your message has been received and recorded successfully.', 'easy-form-builder') . "</p>
+                            <p style='text-align:center'>" . $lang["trackingCode"] . ": <strong>" . $track_id . "</strong></p>
+                            <p style='text-align:center'> " . __('Your message has been received and recorded successfully.', 'easy-form-builder') . "</p>
                             " . $tracking_section . "
                         </td>
                     </tr>
@@ -948,6 +955,29 @@ class EmsfbEmailHandler {
             $data = json_decode(urldecode($match[1]), true);
             if ($data && isset($data['globalSettings'])) {
                 return $data['globalSettings'];
+            }
+        }
+        return null;
+    }
+
+    private function extract_message_block_styles($temp) {
+        if (preg_match('/<!-- EFBDATA:([\S]+) -->/', $temp, $match)) {
+            $data = json_decode(urldecode($match[1]), true);
+            if ($data && isset($data['blocks']) && is_array($data['blocks'])) {
+                foreach ($data['blocks'] as $block) {
+                    if (isset($block['type']) && $block['type'] === 'message') {
+                        $d = $block['data'] ?? [];
+                        $gs = $data['globalSettings'] ?? [];
+                        return [
+                            'bgColor'    => $d['bgColor'] ?? '#ffffff',
+                            'color'      => $d['color'] ?? '#333333',
+                            'fontSize'   => intval($d['fontSize'] ?? 16),
+                            'fontFamily' => !empty($d['fontFamily']) ? $d['fontFamily'] : ($gs['fontFamily'] ?? ''),
+                            'align'      => $d['align'] ?? (is_rtl() ? 'right' : 'left'),
+                            'padding'    => $d['padding'] ?? '40px 30px',
+                        ];
+                    }
+                }
             }
         }
         return null;
