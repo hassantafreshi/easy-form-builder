@@ -1203,6 +1203,15 @@ public function check_nonce_permission_efb($request) {
 			$direction_attr = is_rtl() ? ' dir="rtl"' : '';
 
 			$mobile_css_efb = $efbFormBuilder->generate_mobile_css_efb();
+			if($valj_efb[0]->type=="login" || $valj_efb[0]->type=="register"){
+
+				$ps_form = $this->pub_stting ?? (get_setting_Emsfb('pub')[1] ?? []);
+				$overrides_form = $this->efb_build_inline_style_overrides($ps_form);
+				$inline_style_form = $overrides_form['inline_style'];
+				$font_link_form = $overrides_form['font_link'];
+				$mobile_css_efb = $mobile_css_efb.$font_link_form.$inline_style_form;
+
+			}
                         $content_new = $style.$mobile_css_efb.$efb_loading_ui_script.$script.$bootstrap_icons.''.$iconst_html_preload.'
 				<!-- start body_efb-->
 
