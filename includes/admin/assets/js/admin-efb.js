@@ -7740,6 +7740,7 @@ function previewFormEfb(state) {
 
             const el = document.getElementById(`${v.id_}-sig-data`);
             const value = el.value;
+            document.getElementById(`${v.id_}_-message`).innerHTML='';
             document.getElementById(`${v.id_}_-message`).style.display='none';
             const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: value, session: sessionPub_emsFormBuilder }];
             fun_sendBack_emsFormBuilder(o[0]);

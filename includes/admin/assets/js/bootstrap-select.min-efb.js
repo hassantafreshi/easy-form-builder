@@ -185,8 +185,9 @@ document.addEventListener("click", (evnt) => {
                 }
                 const pl = l.id.split('_');
                 const idm = pl[0] + '_-message';
+                const msgEl = document.getElementById(idm);
                 if (el_o.length > 1) {
-                    document.getElementById(idm).innerHTML = "";
+                    if(msgEl){ msgEl.innerHTML = ""; msgEl.style.display = 'none'; }
                     if (l.classList.contains('border-danger')) l.classList.remove('border-danger');
                 } else {
                     if (l.classList.contains('border-danger')) {

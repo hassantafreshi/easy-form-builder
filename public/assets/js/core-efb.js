@@ -796,7 +796,7 @@ function valid_file_emsFormBuilder(id,tp,filed,form_id) {
       filed.push(fi);
     }
     if (check > 0) {
-      msgEl.innerHTML = "";
+      hide_msg_efb(msgEl);
       fun_upload_file_api_emsFormBuilder(id, filed[0].type,tp,filed[0]);
       rtrn = true;
     } else {
@@ -2124,7 +2124,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         }else {
           el.className = colorBorderChangerEfb(el.className, "border-success");
           vd= document.getElementById(`${el.id}-message`)
-          if(vd) vd.style.display='none';
+          hide_msg_efb(vd);
         }
       }
       break;
