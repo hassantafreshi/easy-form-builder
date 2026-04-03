@@ -247,6 +247,10 @@ class EmsfbEmailHandler {
         }
         if ($st == "null") return '';
 
+        if (is_array($st)) {
+            $st = json_decode(json_encode($st), false);
+        }
+
         if ($pro == true || $pro == 1) {
             $is_pro = (int) get_option('emsfb_pro', 2);
             if ($is_pro == 3) {
