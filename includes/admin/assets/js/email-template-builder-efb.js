@@ -196,7 +196,7 @@
       category: 'layout',
       defaultData: {
         bgColor: '#202a8d',
-        bgGradient: 'linear-gradient(135deg, #667eea 0%, #202a8d 100%)',
+        bgGradient: '',
         padding: '40px 30px 30px 30px',
         align: 'center'
       },
@@ -504,7 +504,7 @@
       label: t_efb('ebProfessional', 'Professional'),
       icon: 'bi-briefcase',
       blocks: [
-        { type: 'header', data: { bgGradient: 'linear-gradient(135deg, #667eea 0%, #202a8d 100%)', padding: '40px 30px 30px 30px' },
+        { type: 'header', data: { bgColor: '#667eea', padding: '40px 30px 30px 30px' },
           children: [
             { type: 'logo', data: { width: '120', align: 'center' } },
             { type: 'title', data: { text: 'shortcode_title', color: '#ffffff', fontSize: '28', fontWeight: '600', align: 'center' } }
@@ -521,7 +521,7 @@
       label: t_efb('ebModernDark', 'Modern Dark'),
       icon: 'bi-moon-stars',
       blocks: [
-        { type: 'header', data: { bgColor: '#111827', bgGradient: 'linear-gradient(180deg, #1f2937 0%, #111827 100%)', padding: '45px 30px 35px 30px' },
+        { type: 'header', data: { bgColor: '#1f2937', padding: '45px 30px 35px 30px' },
           children: [
             { type: 'logo', data: { width: '100', align: 'center' } },
             { type: 'title', data: { text: 'shortcode_title', color: '#f9fafb', fontSize: '26', fontWeight: '600', align: 'center' } }
@@ -555,7 +555,7 @@
       label: t_efb('ebElegant', 'Elegant'),
       icon: 'bi-gem',
       blocks: [
-        { type: 'header', data: { bgGradient: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', padding: '50px 30px 40px 30px' },
+        { type: 'header', data: { bgColor: '#1e293b', padding: '50px 30px 40px 30px' },
           children: [
             { type: 'logo', data: { width: '80', align: 'center' } },
             { type: 'title', data: { text: 'shortcode_title', color: '#e2e8f0', fontSize: '30', fontWeight: '300', align: 'center' } }
@@ -574,7 +574,7 @@
       label: t_efb('ebColorful', 'Colorful'),
       icon: 'bi-palette',
       blocks: [
-        { type: 'header', data: { bgGradient: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #6366f1 100%)', padding: '45px 30px 35px 30px' },
+        { type: 'header', data: { bgColor: '#8b5cf6', padding: '45px 30px 35px 30px' },
           children: [
             { type: 'logo', data: { width: '100', align: 'center' } },
             { type: 'title', data: { text: 'shortcode_title', color: '#ffffff', fontSize: '28', fontWeight: '700', align: 'center' } }
@@ -1228,7 +1228,7 @@ ${blocksHtml}
     switch (block.type) {
       case 'header':
         html += propColor_efb('bgColor', t_efb('ebBgColor', 'Background Color'), data.bgColor);
-        html += propInput_efb('bgGradient', t_efb('ebBgCSS', 'Background (CSS)'), data.bgGradient || data.bgColor);
+        html += propInput_efb('bgGradient', t_efb('ebBgCSS', 'Background (CSS)'), data.bgGradient || '');
         html += propPadding_efb('padding', t_efb('ebPadding', 'Padding'), data.padding);
         html += propSelect_efb('align', t_efb('align', 'Align'), data.align, ['left','center','right']);
         if (block.children) {
