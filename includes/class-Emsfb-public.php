@@ -2381,20 +2381,21 @@ public function check_nonce_permission_efb($request) {
 							$userid =(int) $state->data->ID;
 							$username = $state->data->user_login;
 
-							// Generate recovery content
-							$ms = $this->fun_get_content_email_register_recovery_efb($userid, $username, $email, $this->id, 'recovery', $page_id);
-							$subject = esc_html__("Password recovery", 'easy-form-builder') . " [" . get_bloginfo('name') . "]";
-							$recovery_link = get_permalink($page_id);
+							// Prepare recovery data - returns array with url and username
+							$recovery_data = $this->fun_get_content_email_register_recovery_efb($userid, $username, $email, $this->id, 'recovery', $page_id);
+							$recovery_url = $recovery_data['url'];
 
-							// Use the plugin's centralized email sender (no direct include in this class)
+							$subject = esc_html__("Password recovery", 'easy-form-builder') . " [" . get_bloginfo('name') . "]";
+
+							// Use the plugin's centralized email sender with the full recovery URL
 							$pro = $this->efbFunction->is_efb_pro(1);
 							$sent = $this->efbFunction->send_email_state_new(
 								$email,
 								$subject,
-								$ms,
+								$username,
 								$pro,
 								'recovery',
-								$recovery_link,
+								$recovery_url,
 								$plugin_settings
 							);
 
@@ -2702,12 +2703,10 @@ public function check_nonce_permission_efb($request) {
 										$to = $email;
 
 										$this->email_list_efb($email_recipients, 1, $email, true);
-										$firstChar = $password[0];
-										$lastChar = $password[strlen($password) - 1];
-										$maskedPassword = $firstChar . str_repeat('*', strlen($password) - 2) . $lastChar;
-										$ms = "<p>" . esc_html__('Username', 'easy-form-builder') . ": " . $username . " </p> <p>" . esc_html__('Password', 'easy-form-builder') . ": " . $maskedPassword . "</p>";
 
-										$ms=$this->fun_get_content_email_register_recovery_efb($state, $username, $email, $this->id ,'register',$page_id);
+										// Prepare registration verification data
+										$register_data = $this->fun_get_content_email_register_recovery_efb($state, $username, $email, $this->id, 'register', $page_id);
+										$verification_url = $register_data['url'];
 
 										$state_of_email = ['newUser', 'register'];
 										$this->efbFunction->efb_code_validate_update($session_id, 'register', $track_code);
@@ -2726,7 +2725,8 @@ public function check_nonce_permission_efb($request) {
 
 									if ($should_send_email) {
 										$msg_sub = isset($form_fields_array[0]['email_sub']) && $form_fields_array[0]['email_sub'] != '' ? $form_fields_array[0]['email_sub'] : 'null';
-										$this->send_email_Emsfb_($email_recipients, $ms, $is_pro, $state_of_email, $url, 'null', $msg_sub);
+										// Pass username for email content and verification_url for the button link
+										$this->send_email_Emsfb_($email_recipients, $username, $is_pro, $state_of_email, $verification_url, 'null', $msg_sub);
 									}
 
 									if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
@@ -2760,7 +2760,7 @@ public function check_nonce_permission_efb($request) {
 										'remember' => true
 									];
 									$user = wp_signon($creds, false);
-									if(isset($form_fields_array[0]['rePage']) && isset($form_fields_array[0]['thank_you'] ) && $form_fields_array[0]['thank_you'] == "rdrct"){
+									if(is_array($form_fields_array) && isset($form_fields_array[0]['rePage']) && isset($form_fields_array[0]['thank_you'] ) && $form_fields_array[0]['thank_you'] == "rdrct"){
 										$redirect_url = $this->string_to_url($form_fields_array[0]['rePage']);
 									}
 									if (isset($user->ID)) {
@@ -3711,7 +3711,7 @@ public function check_nonce_permission_efb($request) {
 			$isRegistrationState = in_array($state[$i], ['newUser', 'register']) || (isset($state[0]) && $state[0] === 'newUser');
 			$trackParam = $isRegistrationState ? '' : urlencode($track);
 			$link_w[$i] = strpos($link,'?')!=false ? $link . ($trackParam ? '&track='.$trackParam : '') : $link . ($trackParam ? '?track='.$trackParam : '');
-			if($i==0){
+			if($i==0 && !$isRegistrationState){
 				$sc = $this->genrate_sacure_code_admin_email($track);
 				$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'sc='.$sc;
 			}
@@ -3722,6 +3722,7 @@ public function check_nonce_permission_efb($request) {
         $cont[$i] = $track;
 
         $will_have_custom_content = ($content != "null" && $i < 2);
+        $isRegistrationState = in_array($state[$i], ['newUser', 'register']);
 
         switch ($state[$i]) {
 			case "newMessage":
@@ -3745,8 +3746,8 @@ public function check_nonce_permission_efb($request) {
                 break;
             case "register":
                 $subject[$i] = $thankRegistering;
-
-                $message[$i] = "<h2>$welcome</h2>" . $cont[$i];
+                // Don't generate message here - let email_template_efb handle it with generate_register_content
+                $message[$i] = $track; // Pass username, email_template_efb will generate the content
                 break;
             case "subscribe":
             case "survey":
@@ -3755,11 +3756,12 @@ public function check_nonce_permission_efb($request) {
                 break;
             case "newUser":
                 $subject[$i] = $newUserRegistration;
-
-                $message[$i] = "<p>$newUserRegistration</p>" . $cont[$i];
+                // Don't generate message here - let email_template_efb handle it with generate_register_content
+                $message[$i] = $track; // Pass username, email_template_efb will generate the content
                 break;
         }
-        $cont[$i] = $message[$i];
+        // For registration states, keep username as content for email_template_efb
+        $cont[$i] = $isRegistrationState ? $track : $message[$i];
         if ($content != "null") {
             $cont[$i] = [$track, $content];
         }
@@ -5060,83 +5062,54 @@ public function check_nonce_permission_efb($request) {
 	}
 
 
-	public function fun_get_content_email_register_recovery_efb($userid, $username, $email, $fid ,$type_ ,$page_id){
-		if(empty($this->db)){
-            global $wpdb;
-            $this->db = $wpdb;
-        }
+	/**
+	 * Prepare data for registration verification or password recovery email
+	 *
+	 * Creates verification code, stores in database, and returns data for email sending.
+	 * The actual email content is generated by email_template_efb in class-email-handler.php
+	 *
+	 * @param int    $userid   User ID
+	 * @param string $username Username
+	 * @param string $email    User email
+	 * @param int    $fid      Form ID
+	 * @param string $type_    Type: 'register' or 'recovery'
+	 * @param int    $page_id  Page ID for the verification/recovery page
+	 * @return array Array with 'url' (verification/recovery URL) and 'username'
+	 */
+	public function fun_get_content_email_register_recovery_efb($userid, $username, $email, $fid, $type_, $page_id) {
+		if (empty($this->db)) {
+			global $wpdb;
+			$this->db = $wpdb;
+		}
+
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
-		$ip = $this->ip ;
-		$text =['udnrtun'];
+		$ip = !empty($this->ip) ? $this->ip : $this->get_ip_address();
 
-		$sid=$this->efbFunction->efb_code_validate_create( $this->id , 0, $type_ , 0);
-		$status_ =1;
-		if($type_ =='register'){
-			$text[] = 'ecnr';
-		}else{
-			$status_ =0;
-			$text[] = 'ecrp';
-		}
+		$sid = $this->efbFunction->efb_code_validate_create($this->id, 0, $type_, 0);
+		$status_ = ($type_ === 'register') ? 1 : 0;
 
-		$lan =$this->efbFunction->text_efb($text);
-
-		$data = array(
-			'username' => $username,
+		$data = [
+			'username'   => $username,
 			'created_at' => current_time('mysql'),
-			'code' => $sid,
+			'code'       => $sid,
 			'ip_address' => $ip,
-			'status_' => $status_,
-		);
-		$sql = $this->db->prepare("INSERT INTO $table_name (username, created_at, code, ip_address, status_) VALUES (%s, %s, %s, %s, %s)", $data);
-		$this->db->query($sql);
+			'status_'    => $status_,
+		];
 
-		$url = get_permalink($page_id) . '?sc=' . $sid . '&state=' . $status_ . '&username=' . $username . '&fid=' . $fid;
-		if($type_ =='register'){
-			$m =$lan['ecnr'];
-			$button_text = esc_html__('Verify Email', 'easy-form-builder');
-			$button_color = '#22c55e';
-		}elseif($type_ =='recovery'){
-			$m =$lan['ecrp'];
-			$button_text = esc_html__('Reset Password', 'easy-form-builder');
-			$button_color = '#667eea';
-		}
+		$this->db->insert($table_name, $data, ['%s', '%s', '%s', '%s', '%d']);
 
-		$button = sprintf(
-			'<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 25px auto;">
-				<tr>
-					<td style="border-radius: 6px; background-color: %s;">
-						<a href="%s" target="_blank" style="display: inline-block; padding: 14px 35px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 6px;">%s</a>
-					</td>
-				</tr>
-			</table>',
-			$button_color,
-			esc_url($url),
-			$button_text
-		);
+		$url = add_query_arg([
+			'sc'       => $sid,
+			'state'    => $status_,
+			'username' => rawurlencode($username),
+			'fid'      => $fid,
+		], get_permalink($page_id));
 
-		$link_text = sprintf(
-			'<p style="margin: 20px 0 0 0; font-size: 13px; color: #6b7280; word-break: break-all;">%s<br><a href="%s" style="color: #667eea;">%s</a></p>',
-			esc_html__('Or copy and paste this link:', 'easy-form-builder'),
-			esc_url($url),
-			esc_url($url)
-		);
-
-		$nr = '<p style="margin: 20px 0 0 0; padding: 15px; background-color: #fef3c7; border-radius: 6px; font-size: 13px; color: #92400e;">⚠️ ' . $lan['udnrtun'] . '</p>';
-
-		$greeting = sprintf('<p style="margin: 0 0 20px 0; font-size: 18px;">%s <strong>%s</strong>,</p>', esc_html__('Hi', 'easy-form-builder'), esc_html($username));
-
-		if($type_ =='register'){
-			$main_text = '<p style="margin: 0 0 10px 0;">' . esc_html__('Your account has been successfully created!', 'easy-form-builder') . '</p>';
-			$main_text .= '<p style="margin: 0;">' . esc_html__('Please verify your email address by clicking the button below. This activation link will be valid for 24 hours.', 'easy-form-builder') . '</p>';
-		} else {
-			$main_text = '<p style="margin: 0 0 10px 0;">' . esc_html__('You have requested to reset your password.', 'easy-form-builder') . '</p>';
-			$main_text .= '<p style="margin: 0;">' . esc_html__('Click the button below to set a new password. This link will be valid for 24 hours.', 'easy-form-builder') . '</p>';
-		}
-
-		$message = $greeting . $main_text . $button . $link_text . $nr;
-
-		return $message;
-
+		return [
+			'url'      => $url,
+			'username' => $username,
+			'type'     => $type_,
+		];
 	}
 
 	public function set_password_efb_api(){

@@ -190,6 +190,8 @@ class EmsfbEmailHandler {
         if (is_string($sub)) {
             $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
 
+            // DEBUG LOG: Email content for all states
+            $this->log_email_debug($state, $to, $sub, $message, $link, $email_content_type);
 
             if (in_array($state, ["reportProblem", "testMailServer", "addonsDlProblem"])) {
 
@@ -203,6 +205,10 @@ class EmsfbEmailHandler {
             for ($i = 0; $i < 2; $i++) {
                 if (!empty($to[$i]) && $to[$i] != "null") {
                     $message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $email_content_type, $st);
+
+                    // DEBUG LOG: Email content for array states
+                    $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $email_content_type);
+
                     if ($state != "reportProblem") {
                         $mailResult = $sendMail($to[$i], $sub[$i], $message, $headers);
                     }
@@ -276,6 +282,21 @@ class EmsfbEmailHandler {
         $btnBgColor = isset($st->emailBtnBgColor) && !empty($st->emailBtnBgColor) ? esc_attr($st->emailBtnBgColor) : '#202a8d';
         $btnTextColor = isset($st->emailBtnTextColor) && !empty($st->emailBtnTextColor) ? esc_attr($st->emailBtnTextColor) : '#ffffff';
 
+        $templateConfig = ['headerBgColor' => $btnBgColor];
+        if ($temp != "0") {
+            $tplGs = $this->extract_template_global_settings($temp);
+            if ($tplGs) {
+                if (!empty($tplGs['btnBgColor'])) $btnBgColor = esc_attr($tplGs['btnBgColor']);
+                if (!empty($tplGs['btnTextColor'])) $btnTextColor = esc_attr($tplGs['btnTextColor']);
+                if (!empty($tplGs['bgColor'])) $templateConfig['bgColor'] = $tplGs['bgColor'];
+                if (!empty($tplGs['contentBgColor'])) $templateConfig['contentBgColor'] = $tplGs['contentBgColor'];
+                if (!empty($tplGs['contentWidth'])) $templateConfig['contentWidth'] = intval($tplGs['contentWidth']);
+                if (!empty($tplGs['borderRadius'])) $templateConfig['borderRadius'] = intval($tplGs['borderRadius']);
+                if (!empty($tplGs['fontFamily'])) $templateConfig['fontFamily'] = $tplGs['fontFamily'];
+                $templateConfig['headerBgColor'] = $btnBgColor;
+            }
+        }
+
         if($email_content_type == 'message_link'){
 
         }
@@ -307,8 +328,10 @@ class EmsfbEmailHandler {
         ";
         }
 
-        if ($isRegistrationState) {
+        if ($state === 'register') {
             $title = __('Welcome!', 'easy-form-builder');
+        } else if ($state === 'newUser') {
+            $title = __('New User Registration', 'easy-form-builder');
         }
 
         if ($isRecoveryState) {
@@ -319,8 +342,14 @@ class EmsfbEmailHandler {
             $title = $lang['serverEmailAble'];
             $message = $this->generate_test_server_message($lang, $l, $wp_lan);
         } else if ($isRecoveryState) {
-            // Recovery email - m contains the pre-generated recovery content
+            // Recovery email - m contains username, link contains the full recovery URL
             $message = $this->generate_recovery_content($m, $lang, $link, $btnBgColor, $btnTextColor);
+        } else if ($state === 'register') {
+            // Registration email to USER - m contains username, link contains the full verification URL
+            $message = $this->generate_register_content($m, $lang, $link, $btnBgColor, $btnTextColor);
+        } else if ($state === 'newUser') {
+            // Registration notification to ADMIN - show info about the new user
+            $message = $this->generate_admin_new_user_content($m, $lang, $link, $btnBgColor, $btnTextColor);
         } else {
 
             switch ($email_content_type) {
@@ -342,7 +371,7 @@ class EmsfbEmailHandler {
             }
         }
 
-        $html_email = $this->generate_html_email_template($title, $message, $footer, $automatic_email_disclaimer, $d, $align);
+        $html_email = $this->generate_html_email_template($title, $message, $footer, $automatic_email_disclaimer, $d, $align, $templateConfig);
 
         if ($temp != "0") {
             $html_email = $this->apply_custom_template($temp, $message, $title, $blogName, $blogURL, $adminEmail, $footer, $automatic_email_disclaimer);
@@ -560,9 +589,9 @@ class EmsfbEmailHandler {
     /**
      * Generate recovery email content with proper styling
      *
-     * @param string|array $m The message content (can be pre-generated HTML or array with [track_id, content])
+     * @param string|array $m The message content (username or pre-generated HTML)
      * @param array $lang Language strings
-     * @param string $link The recovery link URL
+     * @param string $link The recovery link URL (with all parameters)
      * @param string $btnBgColor Button background color
      * @param string $btnTextColor Button text color
      * @return string The formatted recovery email content
@@ -573,6 +602,9 @@ class EmsfbEmailHandler {
             return $m;
         }
 
+        // $m is the username
+        $username = is_string($m) ? esc_html($m) : '';
+
         // Generate recovery button
         $safe_link = esc_url($link);
         $button_text = __('Reset Password', 'easy-form-builder');
@@ -580,35 +612,252 @@ class EmsfbEmailHandler {
         $recovery_button = "
             <table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 25px auto;'>
                 <tr>
-                    <td style='border-radius: 6px; background-color: " . esc_attr($btnBgColor) . ";'>
+                    <td style='border-radius: 8px; background-color: " . esc_attr($btnBgColor) . "; text-align: center;'>
                         <!--[if mso]>
                         <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='" . $safe_link . "' style='height:auto;v-text-anchor:middle;' arcsize='20%' strokecolor='" . esc_attr($btnBgColor) . "' fillcolor='" . esc_attr($btnBgColor) . "'>
                             <w:anchorlock/>
                             <center style='color:" . esc_attr($btnTextColor) . ";font-family:Segoe UI,Tahoma,Geneva,Verdana,Arial,sans-serif;font-size:16px;font-weight:600;padding:14px 35px;'>" . $button_text . "</center>
                         </v:roundrect>
                         <![endif]-->
-                        <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 14px 35px; font-size: 16px; font-weight: 600; color: " . esc_attr($btnTextColor) . "; text-decoration: none; border-radius: 6px; background-color: " . esc_attr($btnBgColor) . "; mso-hide: all;'>" . $button_text . "</a>
+                        <!--[if !mso]><!-->
+                        <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 14px 35px; font-size: 16px; font-weight: 600; color: " . esc_attr($btnTextColor) . "; text-decoration: none; border-radius: 8px; background-color: " . esc_attr($btnBgColor) . "; mso-hide: all; font-family: Segoe UI, Tahoma, Geneva, Verdana, Arial, sans-serif;'>" . $button_text . "</a>
+                        <!--<![endif]-->
                     </td>
                 </tr>
             </table>";
 
         $link_text = sprintf(
-            '<p style="margin: 20px 0 0 0; font-size: 13px; color: #6b7280; word-break: break-all;">%s<br><a href="%s" style="color: #667eea;">%s</a></p>',
+            '<p style="margin: 20px 0 0 0; font-size: 13px; color: #6b7280; word-break: break-all; text-align: center;">%s<br><a href="%s" style="color: ' . esc_attr($btnBgColor) . '; text-decoration: none;">%s</a></p>',
             esc_html__('Or copy and paste this link:', 'easy-form-builder'),
             $safe_link,
             $safe_link
         );
 
-        $warning_text = '<p style="margin: 20px 0 0 0; padding: 15px; background-color: #fef3c7; border-radius: 6px; font-size: 13px; color: #92400e;">⚠️ ' . esc_html__('If you did not request this, you can safely ignore it.', 'easy-form-builder') . '</p>';
+        // Use theme color for warning section
+        $warningBgColor = $this->adjust_color_brightness($btnBgColor, 0.92);
+        $warning_text = '<p style="margin: 20px 0 0 0; padding: 15px; background-color: ' . esc_attr($warningBgColor) . '; border-radius: 6px; font-size: 13px; color: ' . esc_attr($btnBgColor) . '; text-align: center;">⚠️ ' . esc_html__('If you did not request this, you can safely ignore it.', 'easy-form-builder') . '</p>';
 
-        // Default recovery content if no pre-generated content
-        $main_text = '<p style="margin: 0 0 10px 0;">' . esc_html__('You have requested to reset your password.', 'easy-form-builder') . '</p>';
-        $main_text .= '<p style="margin: 0;">' . esc_html__('Click the button below to set a new password. This link will be valid for 24 hours.', 'easy-form-builder') . '</p>';
+        // Greeting with username if available
+        $greeting = '';
+        if (!empty($username)) {
+            $greeting = sprintf(
+                '<p style="margin: 0 0 20px 0; font-size: 18px; text-align: center;">%s <strong>%s</strong>,</p>',
+                esc_html__('Hi', 'easy-form-builder'),
+                $username
+            );
+        }
 
-        return $main_text . $recovery_button . $link_text . $warning_text;
+        $main_text = '<p style="margin: 0 0 10px 0; text-align: center;">' . esc_html__('You have requested to reset your password.', 'easy-form-builder') . '</p>';
+        $main_text .= '<p style="margin: 0; text-align: center;">' . esc_html__('Click the button below to set a new password. This link will be valid for 24 hours.', 'easy-form-builder') . '</p>';
+
+        return $greeting . $main_text . $recovery_button . $link_text . $warning_text;
     }
 
-    private function generate_html_email_template($title, $message, $footer, $disclaimer, $direction, $align) {
+    /**
+     * Generate registration verification email content
+     *
+     * @param string|array $m The message content (username or pre-generated HTML)
+     * @param array $lang Language strings
+     * @param string $link The verification link URL (with all parameters)
+     * @param string $btnBgColor Button background color
+     * @param string $btnTextColor Button text color
+     * @return string The formatted registration email content
+     */
+    private function generate_register_content($m, $lang, $link, $btnBgColor = '#22c55e', $btnTextColor = '#ffffff') {
+        // If already pre-generated HTML content, return it directly
+        if (is_string($m) && (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false || strpos($m, '<table') !== false)) {
+            return $m;
+        }
+
+        // $m is the username
+        $username = is_string($m) ? esc_html($m) : '';
+
+        $safe_link = esc_url($link);
+        $button_text = __('Verify Email', 'easy-form-builder');
+
+        $verify_button = "
+            <table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 25px auto;'>
+                <tr>
+                    <td style='border-radius: 8px; background-color: " . esc_attr($btnBgColor) . "; text-align: center;'>
+                        <!--[if mso]>
+                        <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='" . $safe_link . "' style='height:auto;v-text-anchor:middle;' arcsize='20%' strokecolor='" . esc_attr($btnBgColor) . "' fillcolor='" . esc_attr($btnBgColor) . "'>
+                            <w:anchorlock/>
+                            <center style='color:" . esc_attr($btnTextColor) . ";font-family:Segoe UI,Tahoma,Geneva,Verdana,Arial,sans-serif;font-size:16px;font-weight:600;padding:14px 35px;'>" . $button_text . "</center>
+                        </v:roundrect>
+                        <![endif]-->
+                        <!--[if !mso]><!-->
+                        <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 14px 35px; font-size: 16px; font-weight: 600; color: " . esc_attr($btnTextColor) . "; text-decoration: none; border-radius: 8px; background-color: " . esc_attr($btnBgColor) . "; mso-hide: all; font-family: Segoe UI, Tahoma, Geneva, Verdana, Arial, sans-serif;'>" . $button_text . "</a>
+                        <!--<![endif]-->
+                    </td>
+                </tr>
+            </table>";
+
+        $link_text = sprintf(
+            '<p style="margin: 20px 0 0 0; font-size: 13px; color: #6b7280; word-break: break-all; text-align: center;">%s<br><a href="%s" style="color: ' . esc_attr($btnBgColor) . '; text-decoration: none;">%s</a></p>',
+            esc_html__('Or copy and paste this link:', 'easy-form-builder'),
+            $safe_link,
+            $safe_link
+        );
+
+        // Use theme color for warning section
+        $warningBgColor = $this->adjust_color_brightness($btnBgColor, 0.92);
+        $warning_text = '<p style="margin: 20px 0 0 0; padding: 15px; background-color: ' . esc_attr($warningBgColor) . '; border-radius: 6px; font-size: 13px; color: ' . esc_attr($btnBgColor) . '; text-align: center;">⚠️ ' . esc_html__('If you did not request this, you can safely ignore it.', 'easy-form-builder') . '</p>';
+
+        // Greeting with username if available
+        $greeting = '';
+        if (!empty($username)) {
+            $greeting = sprintf(
+                '<p style="margin: 0 0 20px 0; font-size: 18px; text-align: center;">%s <strong>%s</strong>,</p>',
+                esc_html__('Hi', 'easy-form-builder'),
+                $username
+            );
+        }
+
+        $main_text = '<p style="margin: 0 0 10px 0; text-align: center;">' . esc_html__('Your account has been successfully created!', 'easy-form-builder') . '</p>';
+        $main_text .= '<p style="margin: 0; text-align: center;">' . esc_html__('Please verify your email address by clicking the button below. This activation link will be valid for 24 hours.', 'easy-form-builder') . '</p>';
+
+        return $greeting . $main_text . $verify_button . $link_text . $warning_text;
+    }
+
+    /**
+     * Generate admin notification email for new user registration
+     *
+     * @param string $m The username of the new user
+     * @param array $lang Language strings
+     * @param string $link The admin dashboard or user profile link
+     * @param string $btnBgColor Button/accent background color from template settings
+     * @param string $btnTextColor Button/accent text color from template settings
+     * @return string The formatted admin notification email content
+     */
+    private function generate_admin_new_user_content($m, $lang, $link, $btnBgColor = '#202a8d', $btnTextColor = '#ffffff') {
+        // If already pre-generated HTML content, return it directly
+        if (is_string($m) && (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false || strpos($m, '<table') !== false)) {
+            return $m;
+        }
+
+        $username = is_string($m) ? esc_html($m) : '';
+        $registration_time = wp_date(get_option('date_format') . ' ' . get_option('time_format'));
+
+        // Calculate lighter shade of btnBgColor for background
+        $headerBgColor = $this->adjust_color_brightness($btnBgColor, 0.9);
+        $infoBgColor = $this->adjust_color_brightness($btnBgColor, 0.95);
+
+        $content = '<div style="text-align: center;">';
+        $content .= '<p style="margin: 0 0 20px 0; font-size: 16px;">' . esc_html__('A new user has registered on your website.', 'easy-form-builder') . '</p>';
+
+        // User info box with theme colors
+        $content .= '<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 20px auto; background-color: ' . esc_attr($infoBgColor) . '; border-radius: 8px; border: 1px solid ' . esc_attr($this->adjust_color_brightness($btnBgColor, 0.8)) . ';">';
+        $content .= '<tr><td style="padding: 20px;">';
+        $content .= '<table role="presentation" cellspacing="0" cellpadding="5" border="0" width="100%">';
+
+        // Username row
+        $content .= '<tr>';
+        $content .= '<td style="text-align: right; padding: 8px 15px; color: #6b7280; font-size: 14px;"><strong>' . esc_html__('Username', 'easy-form-builder') . ':</strong></td>';
+        $content .= '<td style="text-align: left; padding: 8px 15px; color: #1f2937; font-size: 14px;">' . $username . '</td>';
+        $content .= '</tr>';
+
+        // Registration time row
+        $content .= '<tr>';
+        $content .= '<td style="text-align: right; padding: 8px 15px; color: #6b7280; font-size: 14px;"><strong>' . esc_html__('Registered', 'easy-form-builder') . ':</strong></td>';
+        $content .= '<td style="text-align: left; padding: 8px 15px; color: #1f2937; font-size: 14px;">' . esc_html($registration_time) . '</td>';
+        $content .= '</tr>';
+
+        $content .= '</table>';
+        $content .= '</td></tr></table>';
+
+        // Note for admin with theme colors
+        $content .= '<p style="margin: 20px 0 0 0; padding: 15px; background-color: ' . esc_attr($headerBgColor) . '; border-radius: 6px; font-size: 13px; color: ' . esc_attr($btnBgColor) . '; text-align: center;">ℹ️ ' . esc_html__('The user has been sent a verification email to confirm their account.', 'easy-form-builder') . '</p>';
+
+        $content .= '</div>';
+
+        return $content;
+    }
+
+    /**
+     * Adjust color brightness
+     *
+     * @param string $hex Hex color code
+     * @param float $factor Factor to adjust (0-1 for darker, >1 for lighter, 0.9 = 90% lightness mix with white)
+     * @return string Adjusted hex color
+     */
+    private function adjust_color_brightness($hex, $factor) {
+        $hex = ltrim($hex, '#');
+        if (strlen($hex) === 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        if (strlen($hex) !== 6) {
+            return '#f8f9fa'; // Return default light gray if invalid
+        }
+
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+
+        // Mix with white based on factor
+        $r = round($r + (255 - $r) * $factor);
+        $g = round($g + (255 - $g) * $factor);
+        $b = round($b + (255 - $b) * $factor);
+
+        $r = min(255, max(0, $r));
+        $g = min(255, max(0, $g));
+        $b = min(255, max(0, $b));
+
+        return sprintf('#%02x%02x%02x', $r, $g, $b);
+    }
+
+    /**
+     * DEBUG: Log email content for debugging purposes
+     * Check wp-content/debug.log to see the output
+     *
+     * @param string $state Email state (register, recovery, newUser, etc.)
+     * @param string|array $to Recipient email(s)
+     * @param string $subject Email subject
+     * @param string $message Email HTML content
+     * @param string $link Link included in email
+     * @param string $email_content_type Content type
+     */
+    private function log_email_debug($state, $to, $subject, $message, $link, $email_content_type) {
+        if (!defined('WP_DEBUG') || !WP_DEBUG) {
+            return; // Only log when WP_DEBUG is enabled
+        }
+
+        $log_file = WP_CONTENT_DIR . '/efb-email-debug.log';
+        $timestamp = wp_date('Y-m-d H:i:s');
+
+        $log_content = "\n";
+        $log_content .= "╔══════════════════════════════════════════════════════════════════════════════╗\n";
+        $log_content .= "║  EMAIL DEBUG LOG - " . str_pad($timestamp, 58) . "║\n";
+        $log_content .= "╠══════════════════════════════════════════════════════════════════════════════╣\n";
+        $log_content .= "║  State: " . str_pad($state, 69) . "║\n";
+        $log_content .= "║  Content Type: " . str_pad($email_content_type, 62) . "║\n";
+        $log_content .= "║  To: " . str_pad(is_array($to) ? implode(', ', $to) : $to, 72) . "║\n";
+        $log_content .= "║  Subject: " . str_pad(mb_substr($subject, 0, 65), 67) . "║\n";
+        $log_content .= "║  Link: " . str_pad(mb_substr($link, 0, 68), 70) . "║\n";
+        $log_content .= "╚══════════════════════════════════════════════════════════════════════════════╝\n";
+        $log_content .= "\n───────────────────────────────────────────────────────────────────────────────\n";
+        $log_content .= "EMAIL HTML CONTENT:\n";
+        $log_content .= "───────────────────────────────────────────────────────────────────────────────\n";
+        $log_content .= $message;
+        $log_content .= "\n───────────────────────────────────────────────────────────────────────────────\n";
+        $log_content .= "END OF EMAIL\n";
+        $log_content .= "═══════════════════════════════════════════════════════════════════════════════\n\n";
+
+        // Write to custom log file
+        file_put_contents($log_file, $log_content, FILE_APPEND | LOCK_EX);
+
+        // Also log summary to WordPress debug.log
+        error_log("[EFB Email Debug] State: {$state} | To: " . (is_array($to) ? implode(', ', $to) : $to) . " | Subject: {$subject} | See full HTML in: {$log_file}");
+    }
+
+    private function generate_html_email_template($title, $message, $footer, $disclaimer, $direction, $align, $config = []) {
+        $bgColor = esc_attr($config['bgColor'] ?? '#f8f9fa');
+        $contentBgColor = esc_attr($config['contentBgColor'] ?? '#ffffff');
+        $contentWidth = intval($config['contentWidth'] ?? 600);
+        $borderRadius = intval($config['borderRadius'] ?? 8);
+        $fontFamily = $this->safe_css_value($config['fontFamily'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif");
+        $headerBgColor = esc_attr($config['headerBgColor'] ?? '#202a8d');
+        $headerGradientStart = $this->adjust_color_brightness($headerBgColor, 0.4);
+
         return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
 <html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">
 <head>
@@ -631,13 +880,13 @@ class EmsfbEmailHandler {
         }
     </style>
 </head>
-<body style=\"margin: 0; padding: 0; width: 100%; background-color: #f8f9fa; direction: $direction; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
-    <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 0; padding: 0; background-color: #f8f9fa;\">
+<body style=\"margin: 0; padding: 0; width: 100%; background-color: $bgColor; direction: $direction; font-family: $fontFamily;\">
+    <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 0; padding: 0; background-color: $bgColor;\">
         <tr>
             <td align=\"center\" style=\"padding: 20px 0;\">
-                <table class=\"email-container\" role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;\">
+                <table class=\"email-container\" role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"$contentWidth\" style=\"margin: 0 auto; background-color: $contentBgColor; border-radius: {$borderRadius}px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;\">
                     <tr>
-                        <td align=\"center\" style=\"padding: 40px 30px 30px 30px; background: linear-gradient(135deg, #667eea 0%, #202a8d 100%);\">
+                        <td align=\"center\" style=\"padding: 40px 30px 30px 30px; background: linear-gradient(135deg, $headerGradientStart 0%, $headerBgColor 100%);\">
                             <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
                                 <tr>
                                     <td align=\"center\">
@@ -646,7 +895,7 @@ class EmsfbEmailHandler {
                                 </tr>
                                 <tr>
                                     <td align=\"center\">
-                                        <h1 style=\"margin: 0; padding: 0; color: #ffffff; font-size: 28px; font-weight: 600; line-height: 1.3; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">$title</h1>
+                                        <h1 style=\"margin: 0; padding: 0; color: #ffffff; font-size: 28px; font-weight: 600; line-height: 1.3; text-align: center; font-family: $fontFamily;\">$title</h1>
                                     </td>
                                 </tr>
                             </table>
@@ -656,7 +905,7 @@ class EmsfbEmailHandler {
                         <td class=\"content-wrapper\" style=\"padding: 40px 30px;\">
                             <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">
                                 <tr>
-                                    <td class=\"message-content\" align=\"center\" style=\"color: #333333; font-size: 16px; line-height: 1.6; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
+                                    <td class=\"message-content\" align=\"center\" style=\"color: #333333; font-size: 16px; line-height: 1.6; text-align: center; font-family: $fontFamily;\">
                                         $message
                                     </td>
                                 </tr>
@@ -664,12 +913,12 @@ class EmsfbEmailHandler {
                         </td>
                     </tr>
                     <tr>
-                        <td style=\"height: 20px; background-color: #ffffff;\"></td>
+                        <td style=\"height: 20px; background-color: $contentBgColor;\"></td>
                     </tr>
                 </table>
-                <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"margin: 20px auto 0 auto;\">
+                <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"$contentWidth\" style=\"margin: 20px auto 0 auto;\">
                     <tr>
-                        <td class=\"footer-content\" align=\"center\" style=\"padding: 30px; color: #6b7280; font-size: 14px; line-height: 1.5; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
+                        <td class=\"footer-content\" align=\"center\" style=\"padding: 30px; color: #6b7280; font-size: 14px; line-height: 1.5; text-align: center; font-family: $fontFamily;\">
                             $footer
                         </td>
                     </tr>
@@ -678,7 +927,7 @@ class EmsfbEmailHandler {
                             <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
                                 <tr>
                                     <td style=\"border-radius: 20px; background-color: #f1f5f9; padding: 15px 25px;\">
-                                        <p style=\"margin: 0; color: #64748b; font-size: 12px; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;\">
+                                        <p style=\"margin: 0; color: #64748b; font-size: 12px; text-align: center; font-family: $fontFamily;\">
                                             $disclaimer
                                         </p>
                                     </td>
@@ -692,6 +941,16 @@ class EmsfbEmailHandler {
     </table>
 </body>
 </html>";
+    }
+
+    private function extract_template_global_settings($temp) {
+        if (preg_match('/<!-- EFBDATA:([\S]+) -->/', $temp, $match)) {
+            $data = json_decode(urldecode($match[1]), true);
+            if ($data && isset($data['globalSettings'])) {
+                return $data['globalSettings'];
+            }
+        }
+        return null;
     }
 
     private function apply_custom_template($temp, $message, $title, $blogName, $blogURL, $adminEmail, $footer, $disclaimer) {
