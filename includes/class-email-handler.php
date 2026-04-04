@@ -303,6 +303,10 @@ class EmsfbEmailHandler {
             $msgStyles = $this->extract_message_block_styles($temp);
         }
 
+        $btnFontFamily = !empty($templateConfig['fontFamily'])
+            ? $this->safe_css_value($templateConfig['fontFamily'])
+            : "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
+
         if($email_content_type == 'message_link'){
 
         }
@@ -321,10 +325,10 @@ class EmsfbEmailHandler {
                             <!--[if mso]>
                             <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='" . $safe_link . "' style='height:auto;v-text-anchor:middle;' arcsize='20%' strokecolor='" . $btnBgColor . "' fillcolor='" . $btnBgColor . "'>
                                 <w:anchorlock/>
-                                <center style='color:" . $btnTextColor . ";font-family:Segoe UI,Tahoma,Geneva,Verdana,Arial,sans-serif;font-size:18px;font-weight:700;padding:16px 32px;'>" . $lang['vmgs'] . "</center>
+                                <center style='color:" . $btnTextColor . ";font-family:" . $btnFontFamily . ";font-size:18px;font-weight:700;padding:16px 32px;'>" . $lang['vmgs'] . "</center>
                             </v:roundrect>
                             <![endif]-->
-                            <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 16px 32px; background-color: " . $btnBgColor . "; color: " . $btnTextColor . "; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: Segoe UI, Tahoma, Geneva, Verdana, Arial, sans-serif; border: none; mso-hide: all;'>
+                            <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 16px 32px; background-color: " . $btnBgColor . "; color: " . $btnTextColor . "; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: " . $btnFontFamily . "; border: none; mso-hide: all;'>
                                 " . $lang['vmgs'] . "
                             </a>
                         </td>
@@ -349,10 +353,10 @@ class EmsfbEmailHandler {
             $message = $this->generate_test_server_message($lang, $l, $wp_lan);
         } else if ($isRecoveryState) {
             // Recovery email - m contains username, link contains the full recovery URL
-            $message = $this->generate_recovery_content($m, $lang, $link, $btnBgColor, $btnTextColor);
+            $message = $this->generate_recovery_content($m, $lang, $link, $btnBgColor, $btnTextColor, $btnFontFamily);
         } else if ($state === 'register') {
             // Registration email to USER - m contains username, link contains the full verification URL
-            $message = $this->generate_register_content($m, $lang, $link, $btnBgColor, $btnTextColor);
+            $message = $this->generate_register_content($m, $lang, $link, $btnBgColor, $btnTextColor, $btnFontFamily);
         } else if ($state === 'newUser') {
             // Registration notification to ADMIN - show info about the new user
             $message = $this->generate_admin_new_user_content($m, $lang, $link, $btnBgColor, $btnTextColor);
@@ -607,7 +611,7 @@ class EmsfbEmailHandler {
      * @param string $btnTextColor Button text color
      * @return string The formatted recovery email content
      */
-    private function generate_recovery_content($m, $lang, $link, $btnBgColor = '#667eea', $btnTextColor = '#ffffff') {
+    private function generate_recovery_content($m, $lang, $link, $btnBgColor = '#667eea', $btnTextColor = '#ffffff', $btnFontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif") {
         // If already pre-generated HTML content, return it directly
         if (is_string($m) && (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false || strpos($m, '<table') !== false)) {
             return $m;
@@ -627,11 +631,11 @@ class EmsfbEmailHandler {
                         <!--[if mso]>
                         <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='" . $safe_link . "' style='height:auto;v-text-anchor:middle;' arcsize='20%' strokecolor='" . esc_attr($btnBgColor) . "' fillcolor='" . esc_attr($btnBgColor) . "'>
                             <w:anchorlock/>
-                            <center style='color:" . esc_attr($btnTextColor) . ";font-family:Segoe UI,Tahoma,Geneva,Verdana,Arial,sans-serif;font-size:16px;font-weight:600;padding:14px 35px;'>" . $button_text . "</center>
+                            <center style='color:" . esc_attr($btnTextColor) . ";font-family:" . $btnFontFamily . ";font-size:16px;font-weight:600;padding:14px 35px;'>" . $button_text . "</center>
                         </v:roundrect>
                         <![endif]-->
                         <!--[if !mso]><!-->
-                        <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 14px 35px; font-size: 16px; font-weight: 600; color: " . esc_attr($btnTextColor) . "; text-decoration: none; border-radius: 8px; background-color: " . esc_attr($btnBgColor) . "; mso-hide: all; font-family: Segoe UI, Tahoma, Geneva, Verdana, Arial, sans-serif;'>" . $button_text . "</a>
+                        <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 14px 35px; font-size: 16px; font-weight: 600; color: " . esc_attr($btnTextColor) . "; text-decoration: none; border-radius: 8px; background-color: " . esc_attr($btnBgColor) . "; mso-hide: all; font-family: " . $btnFontFamily . ";'>" . $button_text . "</a>
                         <!--<![endif]-->
                     </td>
                 </tr>
@@ -674,7 +678,7 @@ class EmsfbEmailHandler {
      * @param string $btnTextColor Button text color
      * @return string The formatted registration email content
      */
-    private function generate_register_content($m, $lang, $link, $btnBgColor = '#22c55e', $btnTextColor = '#ffffff') {
+    private function generate_register_content($m, $lang, $link, $btnBgColor = '#22c55e', $btnTextColor = '#ffffff', $btnFontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif") {
         // If already pre-generated HTML content, return it directly
         if (is_string($m) && (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false || strpos($m, '<p>') !== false || strpos($m, '<table') !== false)) {
             return $m;
@@ -693,11 +697,11 @@ class EmsfbEmailHandler {
                         <!--[if mso]>
                         <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='" . $safe_link . "' style='height:auto;v-text-anchor:middle;' arcsize='20%' strokecolor='" . esc_attr($btnBgColor) . "' fillcolor='" . esc_attr($btnBgColor) . "'>
                             <w:anchorlock/>
-                            <center style='color:" . esc_attr($btnTextColor) . ";font-family:Segoe UI,Tahoma,Geneva,Verdana,Arial,sans-serif;font-size:16px;font-weight:600;padding:14px 35px;'>" . $button_text . "</center>
+                            <center style='color:" . esc_attr($btnTextColor) . ";font-family:" . $btnFontFamily . ";font-size:16px;font-weight:600;padding:14px 35px;'>" . $button_text . "</center>
                         </v:roundrect>
                         <![endif]-->
                         <!--[if !mso]><!-->
-                        <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 14px 35px; font-size: 16px; font-weight: 600; color: " . esc_attr($btnTextColor) . "; text-decoration: none; border-radius: 8px; background-color: " . esc_attr($btnBgColor) . "; mso-hide: all; font-family: Segoe UI, Tahoma, Geneva, Verdana, Arial, sans-serif;'>" . $button_text . "</a>
+                        <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 14px 35px; font-size: 16px; font-weight: 600; color: " . esc_attr($btnTextColor) . "; text-decoration: none; border-radius: 8px; background-color: " . esc_attr($btnBgColor) . "; mso-hide: all; font-family: " . $btnFontFamily . ";'>" . $button_text . "</a>
                         <!--<![endif]-->
                     </td>
                 </tr>

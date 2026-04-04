@@ -1115,10 +1115,10 @@ async function response_fill_form_efb(res ,form_id=0) {
 
               <!-- Back Button -->
               <button id="prev_efb_send" type="button"
-                class="efb efb-recovery-back-btn"
+                class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'} ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'} ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'} p-2 text-center btn-lg"
                 onclick="fun_prev_send(${form_id})">
-                <i class="efb bi-chevron-left"></i>
-                <span>${valj_efb[0].button_Previous_text}</span>
+                <i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6"></i>
+                <span class="efb ${valj_efb[0].el_text_color}">${valj_efb[0].button_Previous_text}</span>
               </button>
             </div>`;
         }
