@@ -338,10 +338,8 @@ class EmsfbEmailHandler {
         ";
         }
 
-        if ($state === 'register') {
+        if ($isRegistrationState) {
             $title = __('Welcome!', 'easy-form-builder');
-        } else if ($state === 'newUser') {
-            $title = __('New User Registration', 'easy-form-builder');
         }
 
         if ($isRecoveryState) {
@@ -354,13 +352,10 @@ class EmsfbEmailHandler {
         } else if ($isRecoveryState) {
             // Recovery email - m contains username, link contains the full recovery URL
             $message = $this->generate_recovery_content($m, $lang, $link, $btnBgColor, $btnTextColor, $btnFontFamily);
-        } else if ($state === 'register') {
+        } else if ($isRegistrationState) {
             // Registration email to USER - m contains username, link contains the full verification URL
             $message = $this->generate_register_content($m, $lang, $link, $btnBgColor, $btnTextColor, $btnFontFamily);
-        } else if ($state === 'newUser') {
-            // Registration notification to ADMIN - show info about the new user
-            $message = $this->generate_admin_new_user_content($m, $lang, $link, $btnBgColor, $btnTextColor);
-        } else {
+        }else {
 
             switch ($email_content_type) {
                 case 'message_link':

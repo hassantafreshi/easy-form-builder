@@ -2306,7 +2306,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     smtp = f('hostSupportSmtp_emsFormBuilder');
     act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
-    emailTemp = emailTemp.replace(/([\/\r\n])+/g, ' ')
+     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ');
     const emailBtnBgColor = f('emailBtnBgColor_emsFormBuilder') || '#202a8d';
     const emailBtnTextColor = f('emailBtnTextColor_emsFormBuilder') || '#ffffff';
     let text = act_local_efb==true ? efb_var.text :'';
