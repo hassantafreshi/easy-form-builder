@@ -66,10 +66,7 @@ class Create {
 		$lang = $efbFunction->text_efb(1);
 
 		$settings = get_setting_Emsfb('decoded');
-		//clean emailtemplate from settings  "emailTemp"
-		if (isset($settings->emailTemp)) {
-			unset($settings->emailTemp);
-		}
+
 
 		$pro = $efbFunction->is_efb_pro(1);
 		$efbFunction->setting_version_efb_update($settings, $pro, true);

@@ -124,9 +124,6 @@ class Addon {
 		$maps =false;
 
 		$ac= get_setting_Emsfb('decoded');
-		if (isset($ac->emailTemp)) {
-			 unset($ac->emailTemp);
-		}
 
 		if(is_object($ac) && (!isset($ac->efb_version) || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0)){
 			$efbFunction->setting_version_efb_update($ac ,$pro);

@@ -813,9 +813,6 @@ class Emsfb {
                 delete_transient('emsfb_settings_transient');
 
                 $settings = self::get_setting_Emsfb('decoded');
-                if (isset($settings->emailTemp)) {
-                    unset($settings->emailTemp);
-                }
                 if (isset($settings->activeCode)) {
                     $activeCode = $settings->activeCode;
                 }

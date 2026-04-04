@@ -33,9 +33,7 @@ class Panel_edit  {
 			$pro =$efbFunction->is_efb_pro(1);;
 
 			$ac = get_setting_Emsfb('decoded');
-			if (isset($ac->emailTemp)) {
-				unset($ac->emailTemp);
-			}
+
 			$lang = $efbFunction->text_efb(2);
 			$smtp =false;
 			$captcha =false;
