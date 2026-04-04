@@ -321,16 +321,18 @@ class EmsfbEmailHandler {
             <div style='text-align:center; margin: 30px 0;'>
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' style='margin: 0 auto;'>
                     <tr>
-                        <td align='center' style='background-color: " . $btnBgColor . "; border-radius: 8px; text-align: center;'>
+                        <td align='center' style='background-color: " . $btnBgColor . "; border-radius: 8px; text-align: center; padding: 13px;'>
                             <!--[if mso]>
                             <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='" . $safe_link . "' style='height:auto;v-text-anchor:middle;' arcsize='20%' strokecolor='" . $btnBgColor . "' fillcolor='" . $btnBgColor . "'>
                                 <w:anchorlock/>
                                 <center style='color:" . $btnTextColor . ";font-family:" . $btnFontFamily . ";font-size:18px;font-weight:700;padding:16px 32px;'>" . $lang['vmgs'] . "</center>
                             </v:roundrect>
                             <![endif]-->
-                            <a href='" . $safe_link . "' target='_blank' style='display: inline-block; padding: 16px 32px; background-color: " . $btnBgColor . "; color: " . $btnTextColor . "; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: " . $btnFontFamily . "; border: none; mso-hide: all;'>
-                                " . $lang['vmgs'] . "
+                            <!--[if !mso]><!-->
+                            <a href='" . $safe_link . "' target='_blank' style='display: block; color: " . $btnTextColor . "; text-decoration: none !important; font-weight: 700; font-size: 18px; line-height: 1; text-align: center; font-family: " . $btnFontFamily . "; border: none;'>
+                                <span style='color: " . $btnTextColor . "; text-decoration: none;'>" . $lang['vmgs'] . "</span>
                             </a>
+                            <!--<![endif]-->
                         </td>
                     </tr>
                 </table>
