@@ -333,7 +333,7 @@ class Admin {
 
         $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
-                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP","AdnATF","AdnTLG" ,'AdnPAP'];
+                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP","AdnATF","AdnTLG"];
         $dd =gettype(array_search($post_value, $allw));
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can || $dd !='integer') {
@@ -344,65 +344,129 @@ class Admin {
         if ($this->isScript($post_value)) {
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, 200);
+            wp_send_json_error($response, 200);
+            return;
         }
-        if ($this->isScript($post_value)) {
-            $m = $lang['nAllowedUseHtml'];
-            $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, 200);
+
+        if (!emsfb_is_addon_install_ready_efb()) {
+            $status = emsfb_get_file_access_status_efb();
+            $m = $status ? ($status['error_message'] ?? $status['current_message']) : esc_html__('File access status not checked yet. Please wait.', 'easy-form-builder');
+            $response = ['success' => false, 'm' => $m];
+            wp_send_json_error($response, 200);
+            return;
         }
-        $name_space ='emsfb_addon_'.$post_value;
-       if($post_value!="AdnOF"){
-            $server_name = isset($_SERVER['HTTP_HOST']) ? str_replace("www.", "", sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
-            $name_space = 'emsfb_addon_' . $post_value;
-            delete_option($name_space);
-            $vwp = get_bloginfo('version');
-            $vwp = substr($vwp,0,3);
-            $vefb = EMSFB_PLUGIN_VERSION;
-            $domain =  get_option('emsfb_dev_mode', '0') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
-            $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
-            if (get_locale() == 'fa_IR' && false) {
-                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+
+        $name_space = 'emsfb_addon_' . $post_value;
+
+        $_server_name = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : 'localhost';
+        $server_name = str_replace("www.", "", $_server_name);
+        delete_option($name_space);
+        $vwp = get_bloginfo('version');
+        $vwp = substr($vwp,0,3);
+        $vefb = EMSFB_PLUGIN_VERSION;
+        $domain =  get_option('emsfb_dev_mode', '0') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
+        $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+        if (get_locale() == 'fa_IR' && false) {
+            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+        }
+
+        $max_attempts = 2;
+        $attempt = 0;
+        $success = false;
+        $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
+        $error_message = sprintf($error_message, $domain, 'not_success');
+
+        while ($attempt < $max_attempts && !$success) {
+            $request = wp_remote_get($u);
+
+            if (is_wp_error($request)) {
+                $attempt++;
+                $error_message = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server', 'easy-form-builder');
+                if ($attempt >= $max_attempts) {
+                    $response = ['success' => false, 'm' => $error_message];
+                    wp_send_json_error($response, 200);
+                    return;
+                }
+                continue;
             }
-            $attempts = 2;
-            for ($i = 0; $i < $attempts; $i++) {
-                $request = wp_remote_get($u);
-                if (!is_wp_error($request)) {
-                    break;
+
+            $response_code = wp_remote_retrieve_response_code($request);
+            if ($response_code != 200) {
+                $attempt++;
+                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
+                $error_message = sprintf($error_message, $domain, $response_code);
+                if ($attempt >= $max_attempts) {
+                    $response = ['success' => false, 'm' => $error_message];
+                    wp_send_json_error($response, 200);
+                    return;
                 }
-                if ($i == $attempts - 1) {
-                    $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server', 'easy-form-builder');
-                    $m = sprintf($m, $domain);
-                    $response = ['success' => false, "m" => $m];
-                    wp_send_json_success($response, 200);
-                }
+                continue;
             }
 
             $body = wp_remote_retrieve_body($request);
             $data = json_decode($body);
-            if ($data == null || $data == 'null') {
-                $m = esc_html__('It looks like you cannot use the Easy Form Builder features right now. Please contact Whitestudio.team support if you need assistance.', 'easy-form-builder');
-                $response = ['success' => false, "m" => $m];
-                wp_send_json_success($response, 200);
-            }
-            if (isset($data->status)==true && $data->status == false) {
-                $response = ['success' => false, "m" => $data->error];
-                wp_send_json_success($response, 200);
-            }
-            if (isset($data->v)==true && version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
-                $m = $lang['upDMsg'];
-                $response = ['success' => false, "m" => $m];
-                wp_send_json_success($response, 200);
-            }
-            if ( isset($data->download) && $data->download == true) {
-                $url = $data->link;
-                $s = $this->fun_addon_new($url);
-                if (is_wp_error($s)) {
-                    $m = $s->get_error_message();
-                    $response = ['success' => false, "m" => $m];
-                    wp_send_json_success($response, 200);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $attempt++;
+                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
+                $error_message = sprintf($error_message, $domain, 'invalid_json');
+                if ($attempt >= $max_attempts) {
+                    $response = ['success' => false, 'm' => $error_message];
+                    wp_send_json_error($response, 200);
+                    return;
                 }
+                continue;
             }
+
+            if ($data == null) {
+                $attempt++;
+                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
+                $error_message = sprintf($error_message, $domain, 'invalid_data');
+                if ($attempt >= $max_attempts) {
+                    $response = ['success' => false, 'm' => $error_message];
+                    wp_send_json_error($response, 200);
+                    return;
+                }
+                continue;
+            }
+
+            if ($data->status == false) {
+                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
+                $error_message = sprintf($error_message, $domain, 'invalid_status');
+                $response = ['success' => false, 'm' => $error_message];
+                wp_send_json_error($response, 200);
+                return;
+            }
+
+            if (version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
+                $m = $lang['upDMsg'];
+                $response = ['success' => false, 'm' => $m];
+                wp_send_json_error($response, 200);
+                return;
+            }
+
+            if ($data->download == true) {
+                $url = $data->link;
+                $directory_name = substr($url, strrpos($url, "/") + 1, -4);
+                $directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/' . $directory_name;
+
+                if (!file_exists($directory)) {
+                    $result = $this->fun_addon_new($url);
+                    if (is_wp_error($result)) {
+                        $response = ['success' => false, 'm' => $result->get_error_message()];
+                        wp_send_json_error($response, 200);
+                        return;
+                    }
+                }
+                update_option($name_space, 1);
+                $success = true;
+            }
+        }
+
+        if (!$success) {
+            $response = ['success' => false, 'm' => $error_message];
+            wp_send_json_error($response, 200);
+            return;
         }
 
         if(isset($ac->AdnSPF)==false){
@@ -430,8 +494,8 @@ class Admin {
         }
         $efbFunction->set_setting_Emsfb( $ac, $ac->emailSupporter );
         $newAc = json_encode( $ac, JSON_UNESCAPED_UNICODE );
-        $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         update_option($name_space, 1);
+        $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, 200);
     }
     public function remove_addons_Emsfb() {

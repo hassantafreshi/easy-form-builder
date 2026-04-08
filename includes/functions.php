@@ -1915,6 +1915,27 @@ public function addon_add_efb($value) {
 
         if ($success) {
 			update_option($name_space, 1);
+			$ac = get_setting_Emsfb('decoded');
+			if(isset($ac->AdnSPF)==false){
+				$ac->AdnSPF=0;
+				$ac->AdnOF=0;
+				$ac->AdnPPF=0;
+				$ac->AdnATC=0;
+				$ac->AdnSS=0;
+				$ac->AdnCPF=0;
+				$ac->AdnESZ=0;
+				$ac->AdnSE=0;
+				$ac->AdnWHS=0;
+				$ac->AdnPAP=0;
+				$ac->AdnWSP=0;
+				$ac->AdnSMF=0;
+				$ac->AdnPLF=0;
+				$ac->AdnMSF=0;
+				$ac->AdnBEF=0;
+			}
+			$ac->{$value}=1;
+			$ac->efb_version=EMSFB_PLUGIN_VERSION;
+			$this->set_setting_Emsfb( $ac, $ac->emailSupporter );
 			$message = esc_html__('The %s has been successfully completed','easy-form-builder');
 			$message = sprintf($message,  esc_html__('installation','easy-form-builder'));
             return array('status' => true, 'message' => $message );
