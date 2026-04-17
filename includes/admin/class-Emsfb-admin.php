@@ -733,7 +733,6 @@ class Admin {
         wp_send_json_success($response, 200);
     }
     public function set_replyMessage_id_Emsfb() {
-         $this->efbFunction = get_efbFunction();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
         $efbFunction = get_efbFunction();
         $lang= $efbFunction->text_efb($text);
@@ -1544,8 +1543,7 @@ class Admin {
 
         $state = isset($_POST['state']) ? sanitize_text_field( wp_unslash($_POST['state'])) : '';
         $value = isset($_POST['value']) ? sanitize_text_field( wp_unslash($_POST['value'])) : '';
-        $this->efbFunction = get_efbFunction();
-        $this->efbFunction->report_problem_efb($state , $value);
+        $efbFunction->report_problem_efb($state , $value);
         $response = ['success' => true, "m" =>'report_problem_done'];
         wp_send_json_success($response, 200);
     }
