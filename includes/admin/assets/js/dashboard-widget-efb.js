@@ -228,7 +228,7 @@
     ctx.fillStyle = '#00a32a';
     ctx.fillRect(legendX + 60, legendY, 10, 10);
     ctx.fillStyle = '#555';
-    ctx.fillText(t.send || 'Send', legendX + 74, legendY + 9);
+    ctx.fillText(t.dwSubmissions || 'Submissions', legendX + 74, legendY + 9);
   }
 
   function drawRoundedBar(ctx, x, y, w, h, r, color) {
