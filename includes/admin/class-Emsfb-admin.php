@@ -73,7 +73,7 @@ class Admin {
         global $current_screen;
         $hook = $hook ? $hook : http_build_query($_GET);
         $package_type_efb = (int) get_option('emsfb_pro' ,2);
-        if (strpos($hook, 'Emsfb')==true && is_admin()) {
+        if (strpos($hook, 'Emsfb') !== false && is_admin()) {
 
                     wp_register_style('Emsfb-admin', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-efb.css', true,EMSFB_PLUGIN_VERSION );
                     wp_enqueue_style('Emsfb-admin');
@@ -201,7 +201,7 @@ class Admin {
         $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM"];
         $lang= $efbFunction->text_efb($text);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
+        $post_value = isset($_POST['value']) ? wp_unslash( $_POST['value'] ) : '';
         $id =  ( int ) sanitize_text_field( wp_unslash( $_POST['id']) );
         $name = sanitize_text_field( wp_unslash( $_POST['name']) );
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can)  {
@@ -1073,7 +1073,7 @@ class Admin {
         $value      = $this->db->get_results("SELECT content FROM `$table_name`");
         $urlsDB     = [];
         foreach ($value as $v) {
-            if (strpos($v->content, 'url') != false) {
+            if (strpos($v->content, 'url') !== false) {
                 $jsn  = $v->content;
                 $jsn  = str_replace('\\', '', $jsn);
                 $json = json_decode($jsn);
@@ -1090,9 +1090,9 @@ class Admin {
         $files    = list_files($upload_dir['basedir']);
         $urlDBStr = json_encode($urlsDB);
         foreach ($files as &$file) {
-            if (strpos($file, 'emsfb-PLG-') != false) {
+            if (strpos($file, 'emsfb-PLG-') !== false) {
                 $namfile = strrchr($file, '/');
-                if (strpos($urlDBStr, $namfile) == false) {
+                if (strpos($urlDBStr, $namfile) === false) {
                     wp_delete_file($file);
                 }
             }
@@ -1170,7 +1170,7 @@ class Admin {
         } elseif (isset($_SERVER['REMOTE_ADDR'])) {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
         $ip = strval($ip);
         $check =strpos($ip,',');
-        if($check!=false){$ip = substr($ip,0,$check);}
+        if($check !== false){$ip = substr($ip,0,$check);}
         return $ip;
     }
     public function get_not_read_message() {
@@ -1291,8 +1291,18 @@ class Admin {
             $file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
 
             if (empty($file_tmp) || !is_uploaded_file($file_tmp) || !is_readable($file_tmp)) {
-                $response = array( 'success' => false, 'error' => 'File upload error');
+                $response = array( 'success' => false, 'error' => esc_html__('There seems to be an error with the file permissions.','easy-form-builder') . ' ( File not readable)' );
                 wp_send_json_success($response, 200);
+            }
+
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $real_mime = finfo_file($finfo, $file_tmp);
+                finfo_close($finfo);
+                if (!in_array($real_mime, $arr_ext)) {
+                    $response = array( 'success' => false, 'error' => esc_html__('There seems to be an error with the file permissions.','easy-form-builder') . ' (MIME type)' );
+                    wp_send_json_success($response, 200);
+                }
             }
 
             $name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;

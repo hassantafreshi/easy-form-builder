@@ -80,11 +80,6 @@ class _Public {
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
 
-		add_action('wp_ajax_efb_process_background', [$this, 'process_background_task']);
-		add_action('wp_ajax_nopriv_efb_process_background', [$this, 'process_background_task']);
-
-		add_action('efb_process_background_cron', [$this, 'process_background_cron'], 10, 1);
-
 		if (!is_admin()) {
 			add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
 		}
@@ -767,13 +762,13 @@ public function check_nonce_permission_efb($request) {
 			$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 
 			$lang = get_locale();
-			$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
+			$lang =strpos($lang,'_') !== false ? explode( '_', $lang )[0]:$lang;
 
 			$typeOfForm =$value_form_data->form_type ?? 'track';
 			$value = $value_form_data->form_structer ?? 'track';
 			$state="form";
 			$multi_exist = strpos($value , '"type\":\"multiselect\"');
-			if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
+			if($multi_exist !== false || strpos($value , '"type":"multiselect"') !== false || strpos($value , '"type\":\"payMultiselect\"') !== false || strpos($value , '"type":"payMultiselect"') !== false){
 				wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,EMSFB_PLUGIN_VERSION, true );
 				wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,EMSFB_PLUGIN_VERSION );
 				wp_enqueue_style('Emsfb-bootstrap-select-css');
@@ -822,7 +817,7 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 
-					if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
+					if(strpos($value , '\"logic\":\"1\"') !== false || strpos($value , '"logic":"1"') !== false){
 						wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', array(), EMSFB_PLUGIN_VERSION, true);
 						wp_enqueue_script('logic-efb');
 					}
@@ -868,7 +863,7 @@ public function check_nonce_permission_efb($request) {
 					}
 				}else{
 					$new_string_value = json_encode($value);
-					if(strpos($new_string_value , 'type":"maps"') || strpos($new_string_value , 'type\":\"maps\"')){
+					if(strpos($new_string_value , 'type":"maps"') !== false || strpos($new_string_value , 'type\":\"maps\"') !== false){
 						$sm = $this->efbFunction->openstreet_map_required_efb(1);
 						if($sm==false){
 							$s_m =" <script>alert('OpenStreetMap Error:".$lanText['tfnapca']."')</script>";
@@ -1575,100 +1570,6 @@ public function check_nonce_permission_efb($request) {
 		);
 	}
 
-	private function trigger_background_processing($data) {
-
-		$transient_key = 'efb_bg_' . $data['track_id'];
-		set_transient($transient_key, $data, 300);
-
-		if (function_exists('wp_schedule_single_event')) {
-			wp_schedule_single_event(time(), 'efb_process_background_cron', [$data['track_id']]);
-			spawn_cron();
-			return;
-		}
-
-		$url = admin_url('admin-ajax.php');
-
-		wp_remote_post($url, [
-			'timeout'   => 0.01,
-			'blocking'  => false,
-			'sslverify' => false,
-			'body'      => [
-				'action'   => 'efb_process_background',
-				'track_id' => $data['track_id']
-			]
-		]);
-
-	}
-
-	public function process_background_task() {
-
-		$track_id = isset($_POST['track_id']) ? sanitize_text_field($_POST['track_id']) : '';
-
-		if (empty($track_id)) {
-			exit;
-		}
-
-		$transient_key = 'efb_bg_' . $track_id;
-		$data = get_transient($transient_key);
-
-		if (!$data) {
-			exit;
-		}
-
-		delete_transient($transient_key);
-
-		$timing_start = microtime(true);
-
-		$timing_sms_start = microtime(true);
-		if ($data['send_sms'] && !empty($data['phone_numbers'])) {
-			$smsSendResult = $this->efbFunction->sms_ready_for_send_efb(
-				$data['form_id'],
-				$data['phone_numbers'],
-				$data['url'],
-				'fform',
-				'wpsms',
-				$data['track_id']
-			);
-
-			if ($smsSendResult !== true) {
-			}
-		}
-		$timing_sms = round((microtime(true) - $timing_sms_start) * 1000, 2);
-
-		$timing_email_start = microtime(true);
-		if ($data['send_email']) {
-			$this->email_list_efb($data['email_user'], 0, $data['email_fa'], true);
-
-			$state_email_user = $data['trackingCode_state'] == 1
-				? 'notiToUserFormFilled_TrackingCode'
-				: 'notiToUserFormFilled';
-
-			$msg_content = 'null';
-			if (isset($data['formObj'][0]['email_noti_type']) && $data['formObj'][0]['email_noti_type'] == 'msg') {
-				$msg_content = $this->email_get_content_efb($data['valobj'], $data['track_id']);
-				$msg_content = str_replace("\"", "'", $msg_content);
-			}
-
-			$status_email = $this->email_status_efb($data['formObj'], $data['valobj'], $data['track_id']);
-			$state_of_email = ['newMessage', $state_email_user, $status_email['type']];
-
-			$this->send_email_Emsfb_(
-				$data['email_user'],
-				$data['track_id'],
-				$data['pro'],
-				$state_of_email,
-				$data['url'],
-				$status_email['content'],
-				$status_email['subject']
-			);
-		}
-		$timing_email = round((microtime(true) - $timing_email_start) * 1000, 2);
-
-		$timing_total = round((microtime(true) - $timing_start) * 1000, 2);
-
-		exit;
-	}
-
 	  public function get_form_public_efb($data_POST_) {
 		$request_data = $data_POST_->get_json_params();
 
@@ -2228,7 +2129,7 @@ public function check_nonce_permission_efb($request) {
 									break;
 								case 'esign':
 									$is_valid = 0;
-									if (isset($item['value']) && strpos($item['value'], 'data:image/png;base64,') == 0) {
+									if (isset($item['value']) && is_string($item['value']) && strpos($item['value'], 'data:image/png;base64,') === 0) {
 										$is_valid = 1;
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$validated_item = $item;
@@ -2259,7 +2160,7 @@ public function check_nonce_permission_efb($request) {
 									$is_valid = 0;
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									$l = strlen($item['value']);
-									if (isset($item['value']) && strpos($item['value'], '#') == 0 && $l == 7) {
+									if (isset($item['value']) && is_string($item['value']) && strpos($item['value'], '#') === 0 && $l == 7) {
 										$item['value'] = sanitize_text_field($item['value']);
 										$is_valid = 1;
 										$validated_item = $item;
@@ -3118,6 +3019,16 @@ public function check_nonce_permission_efb($request) {
 				wp_send_json_success($response, 200);
 			}
 
+			if (function_exists('finfo_open')) {
+				$finfo = finfo_open(FILEINFO_MIME_TYPE);
+				$real_mime = finfo_file($finfo, $file_tmp);
+				finfo_close($finfo);
+				if (!in_array($real_mime, $arr_ext)) {
+					$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
+					wp_send_json_success($response, 200);
+				}
+			}
+
 			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
 
 			$blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg');
@@ -3295,6 +3206,17 @@ public function check_nonce_permission_efb($request) {
 			if (empty($async_file_tmp) || !is_uploaded_file($async_file_tmp) || !is_readable($async_file_tmp)) {
 				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
 				wp_send_json_success($response,200);
+			}
+
+			if (function_exists('finfo_open')) {
+				$finfo = finfo_open(FILEINFO_MIME_TYPE);
+				$real_mime = finfo_file($finfo, $async_file_tmp);
+				finfo_close($finfo);
+				$allowed_mimes = array('image/png','image/jpeg','image/jpg','image/gif','application/pdf','audio/mpeg','image/heic','audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi','video/mpeg','video/mpg','audio/mpg','video/mov','video/quicktime','text/plain','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation','application/zip','application/octet-stream','application/x-zip-compressed','multipart/x-zip');
+				if (!in_array($real_mime, $allowed_mimes)) {
+					$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
+					wp_send_json_success($response,200);
+				}
 			}
 
 			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;

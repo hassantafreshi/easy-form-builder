@@ -87,7 +87,7 @@ jQuery(function () {
 })
 
 const wpfooter = document.getElementById('wpfooter');
-if(wpfooter)wpfooter.remove();
+if(wpfooter)wpfooter.style.display='none';
 
 (function(){
   function efbCheckFooterScroll(){
@@ -431,6 +431,9 @@ async function  actionSendData_emsFormBuilder() {
           fun_pr(0);
         }
       }
+    }).fail(function(xhr, status, error) {
+      show_message_result_form_set_EFB(0, '', `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:${xhr.status || 'NET'}`)
+      fun_pr(0);
     })
     return true;
   });
@@ -472,6 +475,8 @@ function actionSendAddons_efb(val) {
           alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-2`, 30, "danger");
         }
       }
+    }).fail(function(xhr) {
+      alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:${xhr.status || 'NET'}`, 30, 'danger');
     })
     return true;
   });
@@ -4804,6 +4809,8 @@ function form_preview_efb(val) {
       } else {
         alert_message_efb(efb_var.text.error, efb_var.text.errorMsg, 30, 'danger');
       }
+    }).fail(function(xhr) {
+      alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:${xhr.status || 'NET'}`, 30, 'danger');
     })
     return true;
   });
@@ -4935,7 +4942,7 @@ function report_problem_efb(state ,value){
 fun_observer_state_efb=(mutation)=>{
   noti_check =()=>{
     for (const el of document.querySelectorAll(".update-nag, .nf-admin-notice, .notice")) {
-      if(!el.classList.contains('efb')) el.remove();
+      if(!el.classList.contains('efb')) el.style.display = 'none';
     }
   }
   if (mutation.type === 'childList') {

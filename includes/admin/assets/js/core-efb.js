@@ -24,7 +24,7 @@ function deepFreeze_efb_core(obj) {
 }
 
 jQuery(function () {
-  if (typeof ajax_object_efm_core != undefined) {
+  if (typeof ajax_object_efm_core !== 'undefined') {
     _efb_core_nonce_ = ajax_object_efm_core.nonce;
     ajax_object_efm_core = deepFreeze_efb_core(ajax_object_efm_core);
     if (Number(ajax_object_efm_core.check) == 1) {

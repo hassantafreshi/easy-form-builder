@@ -1793,7 +1793,7 @@ class efbFunction {
         } else {$ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));}
         $ip = strval($ip);
         $check =strpos($ip,',');
-        if($check!=false){$ip = substr($ip,0,$check);}
+        if($check !== false){$ip = substr($ip,0,$check);}
         return $ip;
     }
 
@@ -2415,7 +2415,7 @@ public function addon_add_efb($value) {
 			}
 
 			$request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : null;
-		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') == false ){
+		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') === false ){
 				wp_safe_redirect($request_uri);
 				exit;
 			}else{
