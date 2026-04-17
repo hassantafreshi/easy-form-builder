@@ -13,7 +13,7 @@
 .efb-dw-card{display:flex;align-items:center;gap:10px;padding:12px 10px;border-radius:6px;background:#f6f7f7;border:1px solid #e0e0e0;transition:box-shadow .2s}
 .efb-dw-card:hover{box-shadow:0 1px 4px rgba(0,0,0,.08)}
 
-.efb-dw-card-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.efb-dw-card-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .efb-dw-card-icon .dashicons{font-size:18px;width:18px;height:18px}
 
 .efb-dw-card--visits .efb-dw-card-icon{background:#e8f0fe;color:#2271b1}

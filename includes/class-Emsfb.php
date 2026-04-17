@@ -54,6 +54,8 @@ class Emsfb {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
+            require_once $this->plugin_path . 'includes/admin/class-Emsfb-dashboard-widget.php';
+            new \Emsfb\Dashboard_Widget();
             $ac = self::get_setting_Emsfb('decoded');
 
             $payment_exists = isset($ac->AdnPAP) ? (int) $ac->AdnPAP : 0;

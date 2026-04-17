@@ -48,7 +48,7 @@ jQuery(document).ready(function($) {
     };
     c._mouseInit = function() {
         var f = this;
-        f.element.bind("touchstart", $.proxy(f, "_touchStart")).bind("touchmove", $.proxy(f, "_touchMove")).bind("touchend", $.proxy(f, "_touchEnd"));
+        f.element.on("touchstart", $.proxy(f, "_touchStart")).on("touchmove", $.proxy(f, "_touchMove")).on("touchend", $.proxy(f, "_touchEnd"));
         e.call(f);
     };
 })

@@ -160,16 +160,24 @@ class EmsfbEmailHandler {
             'From:' . $from,
         ];
 
-        add_action('wp_mail_failed', function($wp_error) {
+        $last_mail_error = null;
+        add_action('wp_mail_failed', function($wp_error) use (&$last_mail_error) {
+            $last_mail_error = $wp_error;
         });
 
-        $sendMail = function($to, $sub, $message, $headers) {
+        $sendMail = function($to, $sub, $message, $headers) use (&$last_mail_error) {
+            $last_mail_error = null;
 
             if (is_string($to)) {
                 $result = wp_mail($to, $sub, $message, $headers);
                 if (!$result) {
-
+                    self::log_email_failure($to, $sub, $last_mail_error);
                     $alt_result = mail($to, $sub, $message, implode("\r\n", $headers));
+                    if ($alt_result) {
+                        self::log_email_success($to, $sub);
+                    }
+                } else {
+                    self::log_email_success($to, $sub);
                 }
                 return $result;
             } else {
@@ -177,9 +185,13 @@ class EmsfbEmailHandler {
                 $success = true;
                 foreach ($to as $email) {
                     if (is_email($email)) {
+                        $last_mail_error = null;
                         $result = wp_mail($email, $sub, $message, $headers);
                         if (!$result) {
+                            self::log_email_failure($email, $sub, $last_mail_error);
                             $success = false;
+                        } else {
+                            self::log_email_success($email, $sub);
                         }
                     }
                 }
@@ -444,12 +456,12 @@ class EmsfbEmailHandler {
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
                 return $m;
             } else {
-                $link = strpos($link, "?") == true ? $link . '&track=' . $m : $link . '?track=' . $m;
+                $link = strpos($link, "?") !== false ? $link . '&track=' . $m : $link . '?track=' . $m;
                 return "<h2 style='text-align:center'>" . $lang["newMessageReceived"] . "</h2>
                 <p style='text-align:center'>" . $lang["trackingCode"] . ": " . $m . " </p>" . $tracking_section;
             }
         } else {
-            $link = strpos($link, "?") == true ? $link . '&track=' . $m[0] : $link . '?track=' . $m[0];
+            $link = strpos($link, "?") !== false ? $link . '&track=' . $m[0] : $link . '?track=' . $m[0];
             $divStyle = $this->build_content_div_style($msgStyles, 'center');
             return "<div style='" . $divStyle . "'>" . $m[1] . " </div>" . $tracking_section;
         }
@@ -1812,5 +1824,94 @@ table { border-collapse: collapse !important; }
         $handler = self::getInstance();
         $link = home_url();
         return $handler->send_email_state_new($to, $subject, $message, false, $state, $link);
+    }
+
+    /**
+     * Log a failed email attempt to the efb_email_log option.
+     */
+    public static function log_email_failure($to, $subject, $wp_error = null) {
+        $logs = get_option('efb_email_log', []);
+        if (!is_array($logs)) { $logs = []; }
+
+        $error_message = '';
+        if ($wp_error instanceof \WP_Error) {
+            $error_message = $wp_error->get_error_message();
+        }
+
+        $logs[] = [
+            'to'      => is_array($to) ? implode(', ', $to) : $to,
+            'subject' => mb_substr($subject, 0, 100),
+            'error'   => $error_message,
+            'date'    => wp_date('Y-m-d H:i:s'),
+            'success' => false,
+        ];
+
+        // Keep last 200 entries
+        if (count($logs) > 200) {
+            $logs = array_slice($logs, -200);
+        }
+
+        update_option('efb_email_log', $logs, false);
+    }
+
+    /**
+     * Log a successful email send.
+     */
+    public static function log_email_success($to, $subject) {
+        $logs = get_option('efb_email_log', []);
+        if (!is_array($logs)) { $logs = []; }
+
+        $logs[] = [
+            'to'      => is_array($to) ? implode(', ', $to) : $to,
+            'subject' => mb_substr($subject, 0, 100),
+            'error'   => '',
+            'date'    => wp_date('Y-m-d H:i:s'),
+            'success' => true,
+        ];
+
+        if (count($logs) > 200) {
+            $logs = array_slice($logs, -200);
+        }
+
+        update_option('efb_email_log', $logs, false);
+    }
+
+    /**
+     * Get email logs filtered by period and optionally by success state.
+     */
+    public static function get_email_stats($period = 'week') {
+        $logs = get_option('efb_email_log', []);
+        if (!is_array($logs)) { return ['success' => 0, 'failed' => 0, 'failed_logs' => []]; }
+
+        $now = current_time('timestamp');
+        switch ($period) {
+            case 'day':   $since = $now - DAY_IN_SECONDS; break;
+            case 'week':  $since = $now - WEEK_IN_SECONDS; break;
+            case 'month': $since = $now - MONTH_IN_SECONDS; break;
+            case 'year':  $since = $now - YEAR_IN_SECONDS; break;
+            default:      $since = $now - WEEK_IN_SECONDS;
+        }
+
+        $success = 0;
+        $failed  = 0;
+        $failed_logs = [];
+
+        foreach ($logs as $log) {
+            $log_time = strtotime($log['date']);
+            if ($log_time < $since) { continue; }
+
+            if (!empty($log['success'])) {
+                $success++;
+            } else {
+                $failed++;
+                $failed_logs[] = $log;
+            }
+        }
+
+        return [
+            'success'     => $success,
+            'failed'      => $failed,
+            'failed_logs' => $failed_logs,
+        ];
     }
 }

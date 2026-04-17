@@ -1068,6 +1068,25 @@ class efbFunction {
 			"orbit" => $state  &&  isset($ac->text->orbit) ? $ac->text->orbit : esc_html__('Orbit','easy-form-builder'),
 			"wave" => $state  &&  isset($ac->text->wave) ? $ac->text->wave : esc_html__('Wave','easy-form-builder'),
 			"hourglass" => $state  &&  isset($ac->text->hourglass) ? $ac->text->hourglass : esc_html__('Hourglass','easy-form-builder'),
+
+			/* translators: Dashboard widget — card label: %s is replaced with the word 'Page' at runtime. Example: "Page Views" */
+			"dwVisits" => $state  &&  isset($ac->text->dwVisits) ? $ac->text->dwVisits : esc_html__('%s Views','easy-form-builder'),
+			/* translators: Dashboard widget — card label: number of form submissions */
+			"dwSubmissions" => $state  &&  isset($ac->text->dwSubmissions) ? $ac->text->dwSubmissions : esc_html__('Submissions','easy-form-builder'),
+			/* translators: Generic noun used in labels like "%s Views". Example: "Page" */
+			"page" => $state  &&  isset($ac->text->page) ? $ac->text->page : esc_html__('Page','easy-form-builder'),
+			/* translators: Dashboard widget — card label: %s is replaced with the word 'Email' at runtime. Example: "Email Sent" */
+			"dwEmailsSent" => $state  &&  isset($ac->text->dwEmailsSent) ? $ac->text->dwEmailsSent : esc_html__('%s Sent','easy-form-builder'),
+			/* translators: Dashboard widget — card label: %s is replaced with the word 'Email' at runtime. Example: "Email Failures" */
+			"dwEmailsFailed" => $state  &&  isset($ac->text->dwEmailsFailed) ? $ac->text->dwEmailsFailed : esc_html__('%s Failures','easy-form-builder'),
+			/* translators: Dashboard widget — panel title: %s is replaced with the word 'Email' at runtime. Example: "Email Error Log" */
+			"dwEmailErrors" => $state  &&  isset($ac->text->dwEmailErrors) ? $ac->text->dwEmailErrors : esc_html__('%s Error Log','easy-form-builder'),
+			/* translators: Dashboard widget — table column header: recipient email address */
+			"dwRecipient" => $state  &&  isset($ac->text->dwRecipient) ? $ac->text->dwRecipient : esc_html__('Recipient','easy-form-builder'),
+			/* translators: Dashboard widget — table column header: %s is replaced with the word 'Error' at runtime. Example: "Error Details" */
+			"dwErrorDetail" => $state  &&  isset($ac->text->dwErrorDetail) ? $ac->text->dwErrorDetail : esc_html__('%s Details','easy-form-builder'),
+			/* translators: Dashboard widget — shown when there is no data to display */
+			"dwNoData" => $state  &&  isset($ac->text->dwNoData) ? $ac->text->dwNoData : esc_html__('No data available for this period','easy-form-builder'),
 			"fernvtf" => $state  &&  isset($ac->text->fernvtf) ? $ac->text->fernvtf : esc_html__('The entered data does not match the form type. If you are an admin, please review the form type.','easy-form-builder'),
 			"fetf" => $state  &&  isset($ac->text->fetf) ? $ac->text->fetf : esc_html__('Error: Please ensure there is only one form per page.','easy-form-builder'),
 			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : esc_html__('Your activation code has been verified. Enjoy all Pro features of Easy Form Builder.','easy-form-builder'),

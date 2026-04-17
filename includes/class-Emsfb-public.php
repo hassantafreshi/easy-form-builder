@@ -249,13 +249,8 @@ public function check_nonce_permission_efb($request) {
 			return;
 		}
 
-		if (!isset(wp_scripts()->registered['jquery']) || version_compare(wp_scripts()->registered['jquery']->ver , '3.6.0' , '<')) {
-			$wp_version = get_bloginfo('version');
-			if (version_compare($wp_version, '6.0', '>')) {
-				wp_enqueue_script('jquery', includes_url('/js/jquery/jquery.js') , false, '3.7.1', true);
-			}else {
-				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min-efb.js', false, '3.6.2', true);
-			}
+		if ( ! wp_script_is( 'jquery', 'enqueued' ) ) {
+			wp_enqueue_script('jquery');
 		}
 	}
 
@@ -769,7 +764,7 @@ public function check_nonce_permission_efb($request) {
 			$state="form";
 			$multi_exist = strpos($value , '"type\":\"multiselect\"');
 			if($multi_exist !== false || strpos($value , '"type":"multiselect"') !== false || strpos($value , '"type\":\"payMultiselect\"') !== false || strpos($value , '"type":"payMultiselect"') !== false){
-				wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,EMSFB_PLUGIN_VERSION, true );
+				wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true );
 				wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,EMSFB_PLUGIN_VERSION );
 				wp_enqueue_style('Emsfb-bootstrap-select-css');
 			}
@@ -1027,7 +1022,7 @@ public function check_nonce_permission_efb($request) {
 
 				if($i>1){
 					if(in_array($valj_efb[$i]->type, $list_pro_elements) && $pro_element_exists == false && $pro == true){
-						wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
+						wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 						$pro_element_exists = true;
 					}
 					if(in_array($valj_efb[$i]->type, ["option","r_matrix"])) {continue;
@@ -1054,13 +1049,13 @@ public function check_nonce_permission_efb($request) {
 							}
 
 							if($autofill_id >0){
-								wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+								wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 							}else if($autofill_id == 0){
 
 								$autofill_api = isset($valj_efb[0]->autofill_api) ? $valj_efb[0]->autofill_api : false;
 								$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
 								if($autofill_api && !empty($autofill_api_id)){
-									wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+									wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 								}
 							}
 						}
@@ -1071,7 +1066,7 @@ public function check_nonce_permission_efb($request) {
 							}
 							$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
 							if(!empty($autofill_api_id)){
-								wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+								wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 							}
 						}
 
@@ -1366,7 +1361,7 @@ public function check_nonce_permission_efb($request) {
 
 		$this->comper_version_efb($pl[1]['version']);
 		if($pro==true){
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 		}
 
 		$location = '';
@@ -2965,7 +2960,7 @@ public function check_nonce_permission_efb($request) {
         } else {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
         $ip = strval($ip);
         $check =strpos($ip,',');
-        if($check!=false){$ip = substr($ip,0,$check);}
+        if($check !== false){$ip = substr($ip,0,$check);}
         return $ip;
     }
 	public function file_upload_public(){
@@ -3641,7 +3636,7 @@ public function check_nonce_permission_efb($request) {
 
 			$isRegistrationState = in_array($state[$i], ['newUser', 'register']) || (isset($state[0]) && $state[0] === 'newUser');
 			$trackParam = $isRegistrationState ? '' : urlencode($track);
-			$link_w[$i] = strpos($link,'?')!=false ? $link . ($trackParam ? '&track='.$trackParam : '') : $link . ($trackParam ? '?track='.$trackParam : '');
+			$link_w[$i] = strpos($link,'?')!==false ? $link . ($trackParam ? '&track='.$trackParam : '') : $link . ($trackParam ? '?track='.$trackParam : '');
 			if($i==0 && !$isRegistrationState){
 				$sc = $this->genrate_sacure_code_admin_email($track);
 				$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'sc='.$sc;
@@ -4214,7 +4209,7 @@ public function check_nonce_permission_efb($request) {
 
 					if (isset($c['type']) && strpos($c['type'],'imgRadio')!==false){
 						$q = '<b>'.($c['value'] ?? '').'</b>';
-					}else if (isset($c['value']) && strpos($c['type'],'imgRadio')){
+					}else if (isset($c['value']) && strpos($c['type'],'imgRadio') !== false){
 
 						$q = $this->fun_imgRadio_efb($c['id_'], $c['src'] ?? '', $c);
 						$addPair('', $q);
@@ -5186,7 +5181,7 @@ public function check_nonce_permission_efb($request) {
 			}
 			if(!isset($email_user[$pointer])) $email_user[$pointer] = $state_array ? [] : '';
 			if($state_array){
-				if (strpos($email, ',') != -1){
+				if (strpos($email, ',') !== false){
 					$emails = explode(',', $email);
 					foreach ($emails as $email_) {
 						if(!in_array($email_, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email_); }

@@ -4942,7 +4942,7 @@ function report_problem_efb(state ,value){
 fun_observer_state_efb=(mutation)=>{
   noti_check =()=>{
     for (const el of document.querySelectorAll(".update-nag, .nf-admin-notice, .notice")) {
-      if(!el.classList.contains('efb')) el.style.display = 'none';
+      if(!el.classList.contains('efb')) el.remove();
     }
   }
   if (mutation.type === 'childList') {
