@@ -92,6 +92,16 @@ class Emsfb {
                     require_once $auto_fill_file_path;
                 }
             }
+            $google_sheet_exists = isset($ac->AdnGoS) ? (int) $ac->AdnGoS : 0;
+            if ($google_sheet_exists >= 1) {
+                $google_sheet_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
+                if (file_exists($google_sheet_file_path)) {
+                    require_once $google_sheet_file_path;
+                    if (class_exists('\\Emsfb\\GoogleSheetAddon')) {
+                        new \Emsfb\GoogleSheetAddon();
+                    }
+                }
+            }
             $telegram_exists = isset($ac->AdnTLG) ? (int) $ac->AdnTLG : 0;
               if ($telegram_exists >= 1) {
                   $telegram_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/class-Emsfb-telegram.php';
@@ -127,6 +137,17 @@ class Emsfb {
                 $sms_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/class-Emsfb-sms.php';
                 if (file_exists($sms_file_path)) {
                     require_once $sms_file_path;
+                }
+            }
+
+            $google_sheet_public = isset($ac_routes->AdnGoS) ? (int) $ac_routes->AdnGoS : 0;
+            if ($google_sheet_public >= 1) {
+                $google_sheet_file_path_public = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
+                if (file_exists($google_sheet_file_path_public)) {
+                    require_once $google_sheet_file_path_public;
+                    if (class_exists('\\Emsfb\\GoogleSheetAddon')) {
+                        new \Emsfb\GoogleSheetAddon();
+                    }
                 }
             }
 
@@ -574,6 +595,19 @@ class Emsfb {
             case 'decoded':
             default:
 
+                $settings_changed = false;
+                if (!isset($decoded->AdnGoS)) {
+                    $decoded->AdnGoS = 1;
+                    $settings_changed = true;
+                }
+                if ($settings_changed) {
+                    $updated_json = wp_json_encode($decoded, JSON_UNESCAPED_UNICODE);
+                    if (!empty($updated_json)) {
+                        update_option('emsfb_settings', $updated_json);
+                        set_transient('emsfb_settings_transient', $updated_json, 1800);
+                    }
+                }
+
                 $package_type = get_option('emsfb_pro', 10);
                 $stored_pt = isset($decoded->package_type) ? intval($decoded->package_type) : null;
 
@@ -631,6 +665,7 @@ class Emsfb {
         $addonKeys = [
             'AdnSS' => 'SMS',
             'AdnATF' => 'Auto-Populate',
+            'AdnGoS' => 'Google Sheet',
             'AdnTLG' => 'Telegram',
             'AdnPAP' => 'PayPal',
             'AdnSPF' => 'Stripe',
@@ -1057,6 +1092,7 @@ class Emsfb {
         $defaults->AdnBEF            = '0';
         $defaults->AdnPDP            = '0';
         $defaults->AdnADP            = '0';
+        $defaults->AdnGoS            = '1';
         $defaults->AdnTLG            = '0';
         $defaults->phnNo             = '';
         $defaults->femail            = '';

@@ -1778,19 +1778,14 @@ function show_setting_window_efb(idset) {
             </div>
           </div>
         <!-- telegram section end -->` : '<!-- telegram addon not active -->'}
-          <!-- condi section
-          <div class="efb d-grid gap-2">
-            <button class="efb btn btn-outline-light mt-3" id="login_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLogic" aria-expanded="false" aria-controls="collapseLogic">
-              <i class="efb bi-chat-left-dots me-1" id="sms_collapse_id"></i>${efb_var.text.conlog}
+          <!-- conditional logic section -->
+          <div class="efb d-grid gap-2" id="efb-conlog-btn-wrap">
+            <button class="efb btn btn-outline-light mt-3" type="button" onclick="if(typeof EFB_Logic!=='undefined'){EFB_Logic.open()}else{console.error('EFB_Logic not loaded')}">
+              <i class="efb bi-diagram-3 me-1"></i>${efb_var.text.conlog || 'Conditional Logic'}
+              ${(valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) ? '<span class="efb badge bg-primary ms-2">' + valj_efb[0].logic_rules.length + '</span>' : ''}
             </button>
           </div>
-          <div class="efb mb-3 mt-3 collapse" id="collapseLogic">
-            <div class="efb mb-3 px-3 row">
-              ${enableConEls}
-            </div>
-          </div>
-          -->
-        <!-- condi section  end -->
+          <!-- conditional logic section end -->
           <div class="efb  d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
             <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
@@ -2098,7 +2093,7 @@ function creator_form_builder_Efb() {
             </ul>
           <div class="efb row">${els}</div></div>
          <div class="efb  col-md-8 body-dpz-efb">
-         <div class="efb d-flex justify-content-center mb-2 d-none" id="viewToggleEfb">
+         <div class="efb d-flex justify-content-center mb-2" id="viewToggleEfb">
            <div class="efb btn-group" role="group" aria-label="View toggle">
              <button type="button" class="efb btn btn-sm btn-outline-primary active" id="desktopViewBtnEfb" onclick="switchViewEfb('desktop')">
                <i class="efb bi-display me-1"></i>${efb_var.text.desktop || 'Desktop'}

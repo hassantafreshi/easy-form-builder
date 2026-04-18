@@ -113,6 +113,11 @@ class Panel_edit  {
 						$download_addons = true;
 					}
 			}
+			if(isset($ac->AdnGoS) && $ac->AdnGoS==1){
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/googlesheet")) {
+						$download_addons = true;
+					}
+			}
 			if(isset($ac->AdnPPF) && $ac->AdnPPF==1){
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay")) {
 						$download_addons = true;

@@ -9,6 +9,7 @@ const efb_version = 4;
 let wpbakery_emsFormBuilder =false;
 let pro_price_efb =27;
 let heartbeat_efb_active =false;
+let _efb_autosave_in_progress = false;
 let state_page_efb='';
 var _efb_nonce_ = (typeof efb_var !== 'undefined' && efb_var.nonce) ? efb_var.nonce : '';
 
@@ -315,6 +316,11 @@ function Link_emsFormBuilder(state) {
 }
 
 function show_message_result_form_set_EFB(state, m) {
+
+  if (_efb_autosave_in_progress) {
+    _efb_autosave_in_progress = false;
+    return;
+  }
 
   const cet = () => {
     const emailItem = valj_efb.find(item => item.type === 'email');
@@ -3118,7 +3124,9 @@ const saveFormEfb = async (stated) => {
         valj_efb[0].captcha = "0";
       }
 
+      if (!isAutoSave) {
         show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox");
+      }
 
       let timeout = 1000;
       check_show_box = () => {
@@ -3126,7 +3134,7 @@ const saveFormEfb = async (stated) => {
           if (returnState == false) {
             check_show_box();
             timeout = 500;
-          } else {
+          } else if (!isAutoSave) {
               show_modal_efb(body, title, icon, box);
 
           }
@@ -3164,6 +3172,7 @@ const saveFormEfb = async (stated) => {
           returnState = true;
           returnn =true;
 
+          _efb_autosave_in_progress = isAutoSave;
           actionSendData_emsFormBuilder();
         } else if (proState == false) {
           btnText = efb_var.text.activateProVersion;
@@ -3256,7 +3265,7 @@ let editFormEfb =async () => {
 
       try {
         if (valj_efb[v].type != "option" && valj_efb[v].type != 'r_matrix') {
-          const type = valj_efb[v].type == "step" ? "steps" : valj_efb[v].type;
+          const type = valj_efb[v].type == "step" ? "steps" : (valj_efb[v].elementId || valj_efb[v].type);
 
           let el = addNewElement(type, valj_efb[v].id_, true, false);
 
@@ -3342,7 +3351,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link") {
 
     valj_efb.push({
-      id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: "",
+      id_: rndm, dataId: `${rndm}-id`, type: type, elementId: elementId, placeholder: efb_var.text[elementId], value: '', size: size, message: "",
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,  label_text_size: 'fs-6',
       label_position: 'up', el_text_size: 'fs-6', label_text_color: pub_label_text_color_efb, el_border_color: 'border-d',
       el_text_color: txt_color, message_text_color: pub_message_text_color_efb, el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
@@ -5451,7 +5460,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       });
       editState == false && valj_efb.length > 2 ? step_el_efb= Number(step_el_efb) +1 : 0;
     }
-    amount_el_efb =Number(amount_el_efb)+1;
+    if (editState == false) amount_el_efb =Number(amount_el_efb)+1;
   }
   if (editState == false && ((elementId != "steps" && step_el_efb >= 0) || (elementId == "steps" && step_el_efb >= 0)) && ((pro_efb == false && step_el_efb < 3) || pro_efb == true)) { sampleElpush_efb(rndm, elementId); }
   let iVJ = editState == false ? valj_efb.length - 1 : valj_efb.findIndex(x => x.id_ == rndm);
@@ -7193,66 +7202,100 @@ function applyDesktopLabelPositionEfb(item) {
 function switchViewEfb(view) {
   currentViewEfb = view;
   const dragBox = document.getElementById('dragBoxWrapperEfb');
+  const dropZoneEFB = document.getElementById('dropZoneEFB');
   const desktopBtn = document.getElementById('desktopViewBtnEfb');
   const mobileBtn = document.getElementById('mobileViewBtnEfb');
-  if (!dragBox || !desktopBtn || !mobileBtn) return;
+  if (!dragBox || !dropZoneEFB || !desktopBtn || !mobileBtn) return;
 
+  // Update button active state
   if (view === 'mobile') {
     dragBox.classList.add('efb-mobile-view-efb');
     desktopBtn.classList.remove('active');
     mobileBtn.classList.add('active');
-    for (let i = 1; i < valj_efb.length; i++) {
-      if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
-        get_position_col_mobile_el(valj_efb[i].dataId, true);
-        if (valj_efb[i].hasOwnProperty('mobile_label_text_size')) {
-          let labSpan = document.getElementById(`${valj_efb[i].id_}_lab`);
-          if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, valj_efb[i].mobile_label_text_size);
-        }
-        if (valj_efb[i].hasOwnProperty('mobile_label_align')) {
-          let labG = document.getElementById(`${valj_efb[i].id_}_labG`);
-          if (labG) labG.className = alignChangerEfb(labG.className, valj_efb[i].mobile_label_align);
-        }
-        if (valj_efb[i].hasOwnProperty('mobile_message_align')) {
-          let desEl = document.getElementById(`${valj_efb[i].id_}-des`);
-          if (desEl) {
-            desEl.className = alignChangerElEfb(desEl.className, valj_efb[i].mobile_message_align);
-            if (valj_efb[i].mobile_message_align != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
-            else if (valj_efb[i].mobile_message_align == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
-          }
-        }
-        if (valj_efb[i].hasOwnProperty('mobile_label_position')) {
-          applyMobileLabelPositionEfb(valj_efb[i]);
-        }
-      }
-    }
   } else {
     dragBox.classList.remove('efb-mobile-view-efb');
     mobileBtn.classList.remove('active');
     desktopBtn.classList.add('active');
-    for (let i = 1; i < valj_efb.length; i++) {
-      if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
-        get_position_col_el(valj_efb[i].dataId, true);
-        if (valj_efb[i].hasOwnProperty('label_text_size')) {
-          let labSpan = document.getElementById(`${valj_efb[i].id_}_lab`);
-          if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, valj_efb[i].label_text_size);
-        }
-        if (valj_efb[i].hasOwnProperty('label_align')) {
-          let labG = document.getElementById(`${valj_efb[i].id_}_labG`);
-          if (labG) labG.className = alignChangerEfb(labG.className, valj_efb[i].label_align);
-        }
-        if (valj_efb[i].hasOwnProperty('message_align')) {
-          let desEl = document.getElementById(`${valj_efb[i].id_}-des`);
-          if (desEl) {
-            desEl.className = alignChangerElEfb(desEl.className, valj_efb[i].message_align);
-            if (valj_efb[i].message_align != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
-            else if (valj_efb[i].message_align == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
+  }
+
+  // Show loading, then re-render all fields
+  dropZoneEFB.innerHTML = efbLoadingCard('', 4);
+  let p = calPLenEfb(valj_efb.length);
+  const len = (valj_efb.length) * p || 10;
+
+  setTimeout(() => {
+    dropZoneEFB.innerHTML = '<!-- switch view efb -->';
+    for (let v in valj_efb) {
+      try {
+        if (valj_efb[v].type != 'option' && valj_efb[v].type != 'r_matrix') {
+          const type = valj_efb[v].type == 'step' ? 'steps' : (valj_efb[v].elementId || valj_efb[v].type);
+          let el = addNewElement(type, valj_efb[v].id_, true, false);
+          dropZoneEFB.innerHTML += el;
+
+          if (valj_efb[v].hasOwnProperty('type') && valj_efb[v].type != 'form' && valj_efb[v].type != 'step' && valj_efb[v].type != 'html' && valj_efb[v].type != 'register' && valj_efb[v].type != 'login' && valj_efb[v].type != 'subscribe' && valj_efb[v].type != 'survey' && valj_efb[v].type != 'payment' && valj_efb[v].type != 'smartForm') {
+            funSetPosElEfb(valj_efb[v].dataId, valj_efb[v].label_position);
+          }
+
+          if (type == 'maps') {
+            setTimeout(() => { efbCreateMap(valj_efb[v].id_, valj_efb[v], false); }, (len * 2));
           }
         }
-        applyDesktopLabelPositionEfb(valj_efb[i]);
+      } catch (error) {}
+    }
+
+    fub_shwBtns_efb();
+
+    // Apply view-specific layout after fields are rendered
+    if (view === 'mobile') {
+      for (let i = 1; i < valj_efb.length; i++) {
+        if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
+          get_position_col_mobile_el(valj_efb[i].dataId, true);
+          if (valj_efb[i].hasOwnProperty('mobile_label_text_size')) {
+            let labSpan = document.getElementById(`${valj_efb[i].id_}_lab`);
+            if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, valj_efb[i].mobile_label_text_size);
+          }
+          if (valj_efb[i].hasOwnProperty('mobile_label_align')) {
+            let labG = document.getElementById(`${valj_efb[i].id_}_labG`);
+            if (labG) labG.className = alignChangerEfb(labG.className, valj_efb[i].mobile_label_align);
+          }
+          if (valj_efb[i].hasOwnProperty('mobile_message_align')) {
+            let desEl = document.getElementById(`${valj_efb[i].id_}-des`);
+            if (desEl) {
+              desEl.className = alignChangerElEfb(desEl.className, valj_efb[i].mobile_message_align);
+              if (valj_efb[i].mobile_message_align != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
+              else if (valj_efb[i].mobile_message_align == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
+            }
+          }
+          if (valj_efb[i].hasOwnProperty('mobile_label_position')) {
+            applyMobileLabelPositionEfb(valj_efb[i]);
+          }
+        }
+      }
+    } else {
+      for (let i = 1; i < valj_efb.length; i++) {
+        if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
+          if (valj_efb[i].hasOwnProperty('label_text_size')) {
+            let labSpan = document.getElementById(`${valj_efb[i].id_}_lab`);
+            if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, valj_efb[i].label_text_size);
+          }
+          if (valj_efb[i].hasOwnProperty('label_align')) {
+            let labG = document.getElementById(`${valj_efb[i].id_}_labG`);
+            if (labG) labG.className = alignChangerEfb(labG.className, valj_efb[i].label_align);
+          }
+          if (valj_efb[i].hasOwnProperty('message_align')) {
+            let desEl = document.getElementById(`${valj_efb[i].id_}-des`);
+            if (desEl) {
+              desEl.className = alignChangerElEfb(desEl.className, valj_efb[i].message_align);
+              if (valj_efb[i].message_align != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
+              else if (valj_efb[i].message_align == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
+            }
+          }
+        }
       }
     }
-  }
-  updateSideBoxViewEfb(view);
+
+    updateSideBoxViewEfb(view);
+  }, len);
 }
 
 function updateSideBoxViewEfb(view) {

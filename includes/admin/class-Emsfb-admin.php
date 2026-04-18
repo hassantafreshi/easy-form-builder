@@ -96,6 +96,8 @@ class Admin {
             wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css',true,EMSFB_PLUGIN_VERSION);
             wp_enqueue_style('Emsfb-response-viewer-css');
             $this->check_and_enqueue_font_roboto_Emsfb();
+            wp_enqueue_style('wp-pointer');
+            wp_enqueue_script('wp-pointer');
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
                 wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
@@ -334,7 +336,7 @@ class Admin {
 
         $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
-                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP","AdnATF","AdnTLG"];
+                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP","AdnATF","AdnTLG","AdnGoS"];
         $dd =gettype(array_search($post_value, $allw));
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can || $dd !='integer') {
@@ -486,6 +488,7 @@ class Admin {
             $ac->AdnPLF=0;
             $ac->AdnMSF=0;
             $ac->AdnBEF=0;
+            $ac->AdnGoS=1;
         }
         $ac->{$post_value}=1;
         $ac->efb_version=EMSFB_PLUGIN_VERSION;
@@ -543,6 +546,7 @@ class Admin {
             $ac->AdnPLF=0;
             $ac->AdnMSF=0;
             $ac->AdnBEF=0;
+            $ac->AdnGoS=1;
         }
         $ac->{$post_value}=0;
         if(empty($this->db)){

@@ -1,0 +1,604 @@
+/**
+ * EFB Conditional Logic Builder
+ * Admin-side rule builder for Easy Form Builder 4.x
+ */
+(function () {
+  'use strict';
+
+  /* ────────────────────────────────────────────
+     HELPERS
+     ──────────────────────────────────────────── */
+  const _id = () => 'rule_' + Math.random().toString(36).substr(2, 9);
+  const _t = (k) => (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[k]) ? efb_var.text[k] : k;
+  const _esc = (s) => {
+    if (typeof s !== 'string') return '';
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(s));
+    return d.innerHTML;
+  };
+
+  /* operator definitions keyed by field category */
+  const OPERATORS_BY_CATEGORY = {
+    choice: ['is', 'is_not', 'is_empty', 'is_not_empty'],
+    text: ['is', 'is_not', 'contains', 'not_contains', 'starts_with', 'ends_with', 'is_empty', 'is_not_empty'],
+    number: ['is', 'is_not', 'gt', 'lt', 'is_empty', 'is_not_empty'],
+    date: ['is', 'is_not', 'gt', 'lt', 'is_empty', 'is_not_empty'],
+    bool: ['is'],
+    file: ['is_empty', 'is_not_empty']
+  };
+
+  const OPERATOR_LABELS = {
+    is: 'ise',
+    is_not: 'isne',
+    contains: 'contains',
+    not_contains: 'ncontains',
+    starts_with: 'startw',
+    ends_with: 'endw',
+    gt: 'gthan',
+    lt: 'lthan',
+    is_empty: 'empty',
+    is_not_empty: 'nEmpty'
+  };
+
+  const NO_VALUE_OPERATORS = new Set(['is_empty', 'is_not_empty']);
+
+  /* field type → category mapping */
+  const FIELD_CATEGORY = {
+    text: 'text', textarea: 'text', email: 'text', url: 'text', tel: 'text', password: 'text',
+    color: 'text', link: 'text', htmlcode: 'text',
+    number: 'number', range: 'number',
+    date: 'date',
+    select: 'choice', multiselect: 'choice', radio: 'choice', checkbox: 'choice',
+    conturyList: 'choice', stateProvince: 'choice', statePro: 'choice',
+    country: 'choice', city: 'choice', cityList: 'choice',
+    paySelect: 'choice', payMultiselect: 'choice', payRadio: 'choice', payCheckbox: 'choice',
+    imgRadio: 'choice', chlRadio: 'choice', chlCheckBox: 'choice',
+    yesNo: 'bool',
+    file: 'file', signature: 'file'
+  };
+
+  /* action types */
+  const ACTION_TYPES = [
+    { value: 'show_field', label: () => _t('show') + ' ' + _t('field') },
+    { value: 'hide_field', label: () => _t('hide') + ' ' + _t('field') },
+    { value: 'set_required', label: () => _t('required') },
+    { value: 'set_optional', label: () => 'Optional' },
+    { value: 'enable_field', label: () => 'Enable' },
+    { value: 'disable_field', label: () => 'Disable' },
+    { value: 'show_step', label: () => _t('show') + ' ' + _t('step') },
+    { value: 'hide_step', label: () => _t('hide') + ' ' + _t('step') }
+  ];
+
+  /* ────────────────────────────────────────────
+     STATE
+     ──────────────────────────────────────────── */
+  let rules = [];
+  let currentRuleId = null;
+  let view = 'list'; // 'list' | 'editor'
+
+  /* ────────────────────────────────────────────
+     FIELD HELPERS
+     ──────────────────────────────────────────── */
+  function getAllFields() {
+    const r = [];
+    if (typeof valj_efb === 'undefined') return r;
+    for (let i = 1; i < valj_efb.length; i++) {
+      const f = valj_efb[i];
+      if (!f || f.type === 'option' || f.type === 'form' || f.type === 'r_matrix' || f.type === 'step' || f.type === 'buttonNav') continue;
+      r.push({ id_: f.id_, name: f.name || f.type, type: f.type, step: f.step || 1 });
+    }
+    return r;
+  }
+
+  function getAllSteps() {
+    const r = [];
+    if (typeof valj_efb === 'undefined') return r;
+    for (let i = 1; i < valj_efb.length; i++) {
+      const f = valj_efb[i];
+      if (f && f.type === 'step') {
+        r.push({ id_: f.id_, name: f.name || (_t('step') + ' ' + f.step), step: f.step });
+      }
+    }
+    return r;
+  }
+
+  function getFieldOptions(fieldId) {
+    const r = [];
+    if (typeof valj_efb === 'undefined') return r;
+    for (let i = 0; i < valj_efb.length; i++) {
+      if (valj_efb[i].parent === fieldId) {
+        r.push({ id_: valj_efb[i].id_, value: valj_efb[i].value || valj_efb[i].name || '' });
+      }
+    }
+    return r;
+  }
+
+  function getFieldCategory(type) {
+    return FIELD_CATEGORY[type] || 'text';
+  }
+
+  function getOperatorsForField(fieldId) {
+    const f = typeof valj_efb !== 'undefined' ? valj_efb.find(x => x.id_ === fieldId) : null;
+    const cat = f ? getFieldCategory(f.type) : 'text';
+    return OPERATORS_BY_CATEGORY[cat] || OPERATORS_BY_CATEGORY.text;
+  }
+
+  function fieldHasOptions(fieldId) {
+    const f = typeof valj_efb !== 'undefined' ? valj_efb.find(x => x.id_ === fieldId) : null;
+    if (!f) return false;
+    const cat = getFieldCategory(f.type);
+    return cat === 'choice' || cat === 'bool';
+  }
+
+  /* Target list depending on action type */
+  function getTargetsForAction(actionType) {
+    if (actionType === 'show_step' || actionType === 'hide_step') {
+      return getAllSteps().map(s => ({ id_: s.id_, name: s.name }));
+    }
+    return getAllFields().map(f => ({ id_: f.id_, name: f.name }));
+  }
+
+  /* ────────────────────────────────────────────
+     LOAD / SAVE
+     ──────────────────────────────────────────── */
+  function loadRules() {
+    if (typeof valj_efb === 'undefined' || !valj_efb[0]) return;
+    rules = Array.isArray(valj_efb[0].logic_rules) ? JSON.parse(JSON.stringify(valj_efb[0].logic_rules)) : [];
+  }
+
+  function saveRules() {
+    if (typeof valj_efb === 'undefined' || !valj_efb[0]) return;
+    valj_efb[0].logic_rules = JSON.parse(JSON.stringify(rules));
+    valj_efb[0].logic = rules.some(r => r.enabled) ? true : false;
+  }
+
+  /* ────────────────────────────────────────────
+     HUMAN-READABLE SUMMARY
+     ──────────────────────────────────────────── */
+  function buildSummary(rule) {
+    if (!rule || !rule.conditions || !rule.conditions.items || rule.conditions.items.length === 0) {
+      return '';
+    }
+    /* Check if rule is actually configured (at least one condition has a field selected) */
+    const hasConfiguredCondition = rule.conditions.items.some(c => c.field_id && c.field_id !== '');
+    const hasConfiguredAction = (rule.actions || []).some(a => a.type && a.target && a.target !== '');
+    if (!hasConfiguredCondition && !hasConfiguredAction) return '';
+
+    const fieldName = (id) => {
+      if (!id || typeof valj_efb === 'undefined') return '';
+      const f = valj_efb.find(x => x.id_ === id);
+      return f ? _esc(f.name || f.type) : '';
+    };
+    const optionValue = (id) => {
+      if (!id || typeof valj_efb === 'undefined') return '';
+      const f = valj_efb.find(x => x.id_ === id);
+      return f ? _esc(f.value || f.name || '') : _esc(id || '');
+    };
+
+    const conds = rule.conditions.items
+      .filter(c => c.field_id && c.field_id !== '')
+      .map(c => {
+        const fn = fieldName(c.field_id);
+        const op = _t(OPERATOR_LABELS[c.compare] || c.compare);
+        if (NO_VALUE_OPERATORS.has(c.compare)) return `${fn} ${op}`;
+        const val = fieldHasOptions(c.field_id) ? optionValue(c.value) : _esc(c.value || '');
+        return val ? `${fn} ${op} "${val}"` : `${fn} ${op}`;
+      });
+
+    const opSep = rule.conditions.operator === 'OR' ? (' ' + _t('or') + ' ') : (' ' + _t('and') + ' ');
+    const condText = conds.join(opSep);
+
+    const acts = (rule.actions || [])
+      .filter(a => a.type && a.target && a.target !== '')
+      .map(a => {
+        const at = ACTION_TYPES.find(x => x.value === a.type);
+        const label = at ? at.label() : a.type;
+        const tn = fieldName(a.target);
+        return tn ? `${label} → ${tn}` : at ? at.label() : '';
+      })
+      .filter(Boolean);
+
+    if (!condText && acts.length === 0) return '';
+    if (acts.length === 0) return condText;
+    if (!condText) return acts.join(', ');
+    return condText + ' ⟹ ' + acts.join(', ');
+  }
+
+  /* ────────────────────────────────────────────
+     RENDER — RULES LIST
+     ──────────────────────────────────────────── */
+  function renderList() {
+    view = 'list';
+    currentRuleId = null;
+
+    if (rules.length === 0) {
+      return `
+        <div class="efb-logic-list">
+          <div class="efb-logic-empty">
+            <div class="efb-logic-empty-icon"><i class="efb bi-diagram-3"></i></div>
+            <p>Add your first rule to start building smart forms.</p>
+            <button type="button" class="efb-logic-add-btn efb-logic-add-btn-center" onclick="EFB_Logic.addRule()"><i class="efb bi-plus-lg"></i> ${_t('add')}</button>
+          </div>
+        </div>`;
+    }
+
+    let cards = '';
+    rules.forEach((rule, idx) => {
+      const summary = buildSummary(rule);
+      cards += `
+        <div class="efb-logic-rule-card ${rule.enabled ? '' : 'disabled'}" data-rule-id="${_esc(rule.id)}">
+          <div class="efb-logic-rule-top">
+            <label class="efb-logic-toggle efb-logic-rule-toggle">
+              <input type="checkbox" ${rule.enabled ? 'checked' : ''} onchange="EFB_Logic.toggleRule('${_esc(rule.id)}')">
+              <span class="efb-logic-toggle-track"></span>
+              <span class="efb-logic-toggle-thumb"></span>
+            </label>
+            <div class="efb-logic-rule-info" onclick="EFB_Logic.editRule('${_esc(rule.id)}')">
+              <p class="efb-logic-rule-name">${_esc(rule.name || (_t('conlog') + ' ' + (idx + 1)))}</p>
+              <p class="efb-logic-rule-summary">${summary || '<span class="efb-logic-not-configured">⚙ Not configured — click edit</span>'}</p>
+            </div>
+            <div class="efb-logic-rule-actions">
+              <button type="button" title="Edit" onclick="EFB_Logic.editRule('${_esc(rule.id)}')"><i class="efb bi-pencil"></i></button>
+              <button type="button" class="efb-logic-delete-btn" title="${_t('delete')}" onclick="EFB_Logic.deleteRule('${_esc(rule.id)}')"><i class="efb bi-trash"></i></button>
+            </div>
+          </div>
+        </div>`;
+    });
+
+    return `
+      <div class="efb-logic-list">
+        <div class="efb-logic-list-header">
+          <button type="button" class="efb-logic-add-btn" onclick="EFB_Logic.addRule()"><i class="efb bi-plus-lg"></i> ${_t('add')}</button>
+        </div>
+        ${cards}
+      </div>`;
+  }
+
+  /* ────────────────────────────────────────────
+     RENDER — RULE EDITOR
+     ──────────────────────────────────────────── */
+  function renderEditor(rule) {
+    if (!rule) return renderList();
+    view = 'editor';
+    currentRuleId = rule.id;
+    const ruleIdx = rules.findIndex(r => r.id === rule.id);
+
+    const fields = getAllFields();
+    const condOp = rule.conditions.operator || 'AND';
+
+    /* ── conditions ── */
+    let conditionRows = '';
+    (rule.conditions.items || []).forEach((c, ci) => {
+      if (ci > 0) {
+        conditionRows += `
+          <div class="efb-logic-operator-toggle">
+            <button type="button" class="${condOp === 'AND' ? 'active' : ''}" onclick="EFB_Logic.setCondOperator('AND')">${_t('and')}</button>
+            <button type="button" class="${condOp === 'OR' ? 'active' : ''}" onclick="EFB_Logic.setCondOperator('OR')">${_t('or')}</button>
+          </div>`;
+      }
+      conditionRows += renderConditionRow(c, ci, fields);
+    });
+
+    /* ── actions ── */
+    let actionRows = '';
+    (rule.actions || []).forEach((a, ai) => {
+      actionRows += renderActionRow(a, ai);
+    });
+
+    return `
+      <div class="efb-logic-editor">
+        <div class="efb-logic-editor-header">
+          <button type="button" class="efb-logic-back-btn" onclick="EFB_Logic.backToList()"><i class="efb bi-arrow-left"></i></button>
+          <div class="efb-logic-editor-title">
+            <input type="text" value="${_esc(rule.name || (_t('conlog') + ' ' + (ruleIdx + 1)))}"
+                   onchange="EFB_Logic.renameRule(this.value)" placeholder="${_t('conlog')}">
+          </div>
+        </div>
+        <div class="efb-logic-editor-body">
+          <!-- IF section -->
+          <div class="efb-logic-section">
+            <span class="efb-logic-section-label efb-if-label">IF</span>
+            <div id="efb-logic-conditions">
+              ${conditionRows}
+            </div>
+            <button type="button" class="efb-logic-add-row-btn" onclick="EFB_Logic.addCondition()">
+              <i class="efb bi-plus"></i>${_t('add')} ${_t('conlog').toLowerCase ? _t('conlog').toLowerCase() : _t('conlog')}
+            </button>
+          </div>
+
+          <!-- Connector -->
+          <div class="efb-logic-connector">
+            <div class="efb-logic-connector-dot"></div>
+            <div class="efb-logic-connector-line"></div>
+            <div class="efb-logic-connector-diamond"></div>
+            <div class="efb-logic-connector-line"></div>
+            <div class="efb-logic-connector-dot"></div>
+          </div>
+
+          <!-- THEN section -->
+          <div class="efb-logic-section">
+            <span class="efb-logic-section-label efb-then-label">THEN</span>
+            <div id="efb-logic-actions">
+              ${actionRows}
+            </div>
+            <button type="button" class="efb-logic-add-row-btn" onclick="EFB_Logic.addAction()">
+              <i class="efb bi-plus"></i>${_t('add')}
+            </button>
+          </div>
+        </div>
+        <div class="efb-logic-editor-footer">
+          <button type="button" class="efb-logic-apply-btn" onclick="EFB_Logic.applyRule()">
+            ${_t('save')}
+          </button>
+        </div>
+      </div>`;
+  }
+
+  function renderConditionRow(cond, idx, fields) {
+    if (!fields) fields = getAllFields();
+    const ops = cond.field_id ? getOperatorsForField(cond.field_id) : OPERATORS_BY_CATEGORY.text;
+    const needsValue = !NO_VALUE_OPERATORS.has(cond.compare);
+    const hasOpts = cond.field_id && fieldHasOptions(cond.field_id);
+
+    /* field select */
+    let fieldOpts = `<option value="">${_t('select')} ${_t('field')}</option>`;
+    fields.forEach(f => {
+      fieldOpts += `<option value="${_esc(f.id_)}" ${f.id_ === cond.field_id ? 'selected' : ''}>${_esc(f.name)}</option>`;
+    });
+
+    /* operator select */
+    let opOpts = '';
+    ops.forEach(op => {
+      opOpts += `<option value="${op}" ${op === cond.compare ? 'selected' : ''}>${_t(OPERATOR_LABELS[op])}</option>`;
+    });
+
+    /* value input */
+    let valueHtml = '';
+    if (needsValue) {
+      if (hasOpts) {
+        const fopts = getFieldOptions(cond.field_id);
+        let vOpts = `<option value="">${_t('select')}</option>`;
+        /* for yesNo type */
+        const fObj = typeof valj_efb !== 'undefined' ? valj_efb.find(x => x.id_ === cond.field_id) : null;
+        if (fObj && fObj.type === 'yesNo') {
+          vOpts += `<option value="yes" ${cond.value === 'yes' ? 'selected' : ''}>Yes</option>`;
+          vOpts += `<option value="no" ${cond.value === 'no' ? 'selected' : ''}>No</option>`;
+        } else {
+          fopts.forEach(o => {
+            vOpts += `<option value="${_esc(o.id_)}" ${o.id_ === cond.value ? 'selected' : ''}>${_esc(o.value)}</option>`;
+          });
+        }
+        valueHtml = `<select class="efb-logic-value-select" data-ci="${idx}" onchange="EFB_Logic.updateCondition(${idx},'value',this.value)">${vOpts}</select>`;
+      } else {
+        valueHtml = `<input type="text" class="efb-logic-value-input" value="${_esc(cond.value || '')}" placeholder="${_t('select')}" data-ci="${idx}" onchange="EFB_Logic.updateCondition(${idx},'value',this.value)">`;
+      }
+    }
+
+    return `
+      <div class="efb-logic-condition-row" data-ci="${idx}">
+        <select class="efb-logic-field-select" data-ci="${idx}" onchange="EFB_Logic.updateCondition(${idx},'field_id',this.value)">${fieldOpts}</select>
+        <select class="efb-logic-operator-select" data-ci="${idx}" onchange="EFB_Logic.updateCondition(${idx},'compare',this.value)">${opOpts}</select>
+        ${valueHtml}
+        <button type="button" class="efb-logic-remove-btn" onclick="EFB_Logic.removeCondition(${idx})" title="${_t('delete')}"><i class="efb bi-x-lg"></i></button>
+      </div>`;
+  }
+
+  function renderActionRow(action, idx) {
+    /* action type select */
+    let atOpts = `<option value="">${_t('select')}</option>`;
+    ACTION_TYPES.forEach(at => {
+      atOpts += `<option value="${at.value}" ${at.value === action.type ? 'selected' : ''}>${at.label()}</option>`;
+    });
+
+    /* target select */
+    const targets = action.type ? getTargetsForAction(action.type) : getAllFields();
+    let tOpts = `<option value="">${_t('select')}</option>`;
+    targets.forEach(t => {
+      tOpts += `<option value="${_esc(t.id_)}" ${t.id_ === action.target ? 'selected' : ''}>${_esc(t.name)}</option>`;
+    });
+
+    return `
+      <div class="efb-logic-action-row" data-ai="${idx}">
+        <select class="efb-logic-action-type-select" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'type',this.value)">${atOpts}</select>
+        <select class="efb-logic-action-target-select" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'target',this.value)">${tOpts}</select>
+        <button type="button" class="efb-logic-remove-btn" onclick="EFB_Logic.removeAction(${idx})" title="${_t('delete')}"><i class="efb bi-x-lg"></i></button>
+      </div>`;
+  }
+
+  /* ────────────────────────────────────────────
+     MODAL MANAGEMENT
+     ──────────────────────────────────────────── */
+  function openModal() {
+    loadRules();
+    view = 'list';
+    currentRuleId = null;
+    const modal = document.getElementById('settingModalEfb');
+    if (!modal) return;
+
+    modal.classList.add('efb-logic-modal');
+
+    const titleEl = document.getElementById('settingModalEfb-title');
+    if (titleEl) titleEl.textContent = _t('conlog');
+
+    const iconEl = document.getElementById('settingModalEfb-icon');
+    if (iconEl) iconEl.className = 'efb bi-diagram-3';
+
+    const bodyEl = document.getElementById('settingModalEfb-body');
+    if (bodyEl) {
+      bodyEl.classList.remove('row');
+      bodyEl.innerHTML = renderList();
+    }
+
+    if (typeof state_modal_show_efb === 'function') state_modal_show_efb(1);
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('settingModalEfb');
+    if (modal) modal.classList.remove('efb-logic-modal');
+    if (typeof state_modal_show_efb === 'function') state_modal_show_efb(0);
+  }
+
+  function refreshView() {
+    const bodyEl = document.getElementById('settingModalEfb-body');
+    if (!bodyEl) return;
+    if (view === 'editor' && currentRuleId) {
+      const rule = rules.find(r => r.id === currentRuleId);
+      bodyEl.innerHTML = renderEditor(rule);
+    } else {
+      bodyEl.innerHTML = renderList();
+    }
+  }
+
+  /* ────────────────────────────────────────────
+     PUBLIC API
+     ──────────────────────────────────────────── */
+  window.EFB_Logic = {
+    /* Open the builder modal */
+    open: openModal,
+
+    /* Back from editor to list */
+    backToList() {
+      view = 'list';
+      currentRuleId = null;
+      refreshView();
+    },
+
+    /* Add a new blank rule */
+    addRule() {
+      const rule = {
+        id: _id(),
+        name: '',
+        scope: 'field',
+        enabled: true,
+        priority: 10,
+        conditions: {
+          type: 'group',
+          operator: 'AND',
+          items: [
+            { source: 'field', field_id: '', compare: 'is', value: '' }
+          ]
+        },
+        actions: [
+          { type: 'show_field', target: '' }
+        ]
+      };
+      rules.push(rule);
+      view = 'editor';
+      currentRuleId = rule.id;
+      refreshView();
+    },
+
+    /* Edit existing rule */
+    editRule(id) {
+      currentRuleId = id;
+      view = 'editor';
+      refreshView();
+    },
+
+    /* Delete a rule */
+    deleteRule(id) {
+      rules = rules.filter(r => r.id !== id);
+      saveRules();
+      refreshView();
+    },
+
+    /* Toggle rule enabled */
+    toggleRule(id) {
+      const rule = rules.find(r => r.id === id);
+      if (rule) rule.enabled = !rule.enabled;
+      saveRules();
+      refreshView();
+    },
+
+    /* Rename current rule */
+    renameRule(name) {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (rule) rule.name = (typeof sanitize_text_efb === 'function') ? sanitize_text_efb(name) : name;
+    },
+
+    /* Set condition group operator */
+    setCondOperator(op) {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (rule) rule.conditions.operator = op;
+      refreshView();
+    },
+
+    /* Add condition row */
+    addCondition() {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (!rule) return;
+      rule.conditions.items.push({ source: 'field', field_id: '', compare: 'is', value: '' });
+      refreshView();
+    },
+
+    /* Remove condition row */
+    removeCondition(idx) {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (!rule || rule.conditions.items.length <= 1) return;
+      rule.conditions.items.splice(idx, 1);
+      refreshView();
+    },
+
+    /* Update a condition property */
+    updateCondition(idx, prop, value) {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (!rule || !rule.conditions.items[idx]) return;
+      const cond = rule.conditions.items[idx];
+      cond[prop] = value;
+
+      /* When field changes, reset operator & value */
+      if (prop === 'field_id') {
+        const ops = getOperatorsForField(value);
+        if (!ops.includes(cond.compare)) cond.compare = ops[0] || 'is';
+        cond.value = '';
+        refreshView();
+      }
+      /* When operator changes, maybe hide value */
+      if (prop === 'compare') {
+        if (NO_VALUE_OPERATORS.has(value)) cond.value = '';
+        refreshView();
+      }
+    },
+
+    /* Add action row */
+    addAction() {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (!rule) return;
+      rule.actions.push({ type: '', target: '' });
+      refreshView();
+    },
+
+    /* Remove action row */
+    removeAction(idx) {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (!rule || rule.actions.length <= 1) return;
+      rule.actions.splice(idx, 1);
+      refreshView();
+    },
+
+    /* Update an action property */
+    updateAction(idx, prop, value) {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (!rule || !rule.actions[idx]) return;
+      rule.actions[idx][prop] = value;
+      /* When type changes, reset target */
+      if (prop === 'type') {
+        rule.actions[idx].target = '';
+        refreshView();
+      }
+    },
+
+    /* Apply (save & close editor) */
+    applyRule() {
+      saveRules();
+      view = 'list';
+      currentRuleId = null;
+      refreshView();
+    },
+
+    /* Get rules array (for runtime engine) */
+    getRules() {
+      return rules;
+    }
+  };
+})();

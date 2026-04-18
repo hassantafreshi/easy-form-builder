@@ -120,6 +120,11 @@ class Create {
 				$download_addons = true;
 			}
 		}
+		if(isset($settings->AdnGoS) && $settings->AdnGoS==1){
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/googlesheet")) {
+				$download_addons = true;
+			}
+		}
 		if(isset($settings->AdnPPF) && $settings->AdnPPF==1){
 			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay")) {
 				$download_addons = true;
@@ -289,6 +294,9 @@ class Create {
 			'check' => 1		));
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+
+		wp_enqueue_style('efb-conditional-logic-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/conditional-logic-efb.css', array(), EMSFB_PLUGIN_VERSION);
+		wp_enqueue_script('efb-conditional-logic-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/conditional-logic-efb.js', array('Emsfb-admin-js'), EMSFB_PLUGIN_VERSION, true);
 	}
 	public function fun_Emsfb_creator()
 	{

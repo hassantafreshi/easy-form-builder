@@ -1543,6 +1543,8 @@ class efbFunction {
 
 			"TAdnAtF" => $state  &&  isset($ac->text->TAdnAtF) ? $ac->text->TAdnAtF : esc_html__('Auto-Populate Addon','easy-form-builder'),
 			"DAdnAtF" => $state  &&  isset($ac->text->DAdnAtF) ? $ac->text->DAdnAtF : esc_html__('The Auto-Populate addon enables you to automatically populate form fields from datasets, previously submitted forms, or external APIs.','easy-form-builder'),
+			"TAdnGoS" => $state  &&  isset($ac->text->TAdnGoS) ? $ac->text->TAdnGoS : esc_html__('Google Sheet Addon','easy-form-builder'),
+			"DAdnGoS" => $state  &&  isset($ac->text->DAdnGoS) ? $ac->text->DAdnGoS : esc_html__('Sync form submissions with Google Sheets in real-time via webhook integration.','easy-form-builder'),
 			"fillrequiredfields" => $state && isset($ac->text->fillrequiredfields) ? $ac->text->fillrequiredfields : esc_html__('Please fill in all required fields', 'easy-form-builder'),
 
 		];
@@ -1786,8 +1788,18 @@ class efbFunction {
 						}
 					break;
 					case 'conditions':
-
-						$valp[$key][$k]=sanitize_text_field($v);
+						if(is_array($v)){
+							$valp[$key][$k] = $this->sanitize_logic_conditions($v);
+						} else {
+							$valp[$key][$k]=sanitize_text_field($v);
+						}
+					break;
+					case 'logic_rules':
+						if(is_array($v)){
+							$valp[$key][$k] = $this->sanitize_logic_rules($v);
+						} else {
+							$valp[$key][$k]=sanitize_text_field($v);
+						}
 					break;
 					default:
 					$k =sanitize_text_field($k);
@@ -1798,6 +1810,89 @@ class efbFunction {
 			}
 		}
 		return $valp;
+	}
+
+	/**
+	 * Sanitize logic_rules array (new conditional logic data model)
+	 */
+	private function sanitize_logic_rules($rules) {
+		if (!is_array($rules)) return array();
+		$clean = array();
+		$allowed_operators = array('AND', 'OR');
+		$allowed_compares = array('is','is_not','contains','not_contains','starts_with','ends_with','gt','lt','is_empty','is_not_empty');
+		$allowed_action_types = array('show_field','hide_field','set_required','set_optional','enable_field','disable_field','show_step','hide_step');
+		$allowed_scopes = array('field','step','notification','confirmation','webhook','pricing');
+
+		foreach ($rules as $rule) {
+			if (!is_array($rule)) continue;
+			$r = array();
+			$r['id'] = isset($rule['id']) ? sanitize_text_field($rule['id']) : '';
+			$r['name'] = isset($rule['name']) ? sanitize_text_field($rule['name']) : '';
+			$r['scope'] = isset($rule['scope']) && in_array($rule['scope'], $allowed_scopes, true) ? $rule['scope'] : 'field';
+			$r['enabled'] = isset($rule['enabled']) ? (bool) $rule['enabled'] : true;
+			$r['priority'] = isset($rule['priority']) ? intval($rule['priority']) : 10;
+
+			$r['conditions'] = array('type' => 'group', 'operator' => 'AND', 'items' => array());
+			if (isset($rule['conditions']) && is_array($rule['conditions'])) {
+				$cg = $rule['conditions'];
+				$r['conditions']['operator'] = isset($cg['operator']) && in_array($cg['operator'], $allowed_operators, true) ? $cg['operator'] : 'AND';
+				if (isset($cg['items']) && is_array($cg['items'])) {
+					foreach ($cg['items'] as $item) {
+						if (!is_array($item)) continue;
+						$ci = array();
+						$ci['source'] = 'field';
+						$ci['field_id'] = isset($item['field_id']) ? sanitize_text_field($item['field_id']) : '';
+						$ci['compare'] = isset($item['compare']) && in_array($item['compare'], $allowed_compares, true) ? $item['compare'] : 'is';
+						$ci['value'] = isset($item['value']) ? sanitize_text_field($item['value']) : '';
+						$r['conditions']['items'][] = $ci;
+					}
+				}
+			}
+
+			$r['actions'] = array();
+			if (isset($rule['actions']) && is_array($rule['actions'])) {
+				foreach ($rule['actions'] as $act) {
+					if (!is_array($act)) continue;
+					$a = array();
+					$a['type'] = isset($act['type']) && in_array($act['type'], $allowed_action_types, true) ? $act['type'] : '';
+					$a['target'] = isset($act['target']) ? sanitize_text_field($act['target']) : '';
+					if (isset($act['value'])) $a['value'] = sanitize_text_field($act['value']);
+					$r['actions'][] = $a;
+				}
+			}
+
+			$clean[] = $r;
+		}
+		return $clean;
+	}
+
+	/**
+	 * Sanitize legacy conditions array
+	 */
+	private function sanitize_logic_conditions($conditions) {
+		if (!is_array($conditions)) return array();
+		$clean = array();
+		foreach ($conditions as $cond) {
+			if (!is_array($cond)) continue;
+			$c = array();
+			$c['id_'] = isset($cond['id_']) ? sanitize_text_field($cond['id_']) : '';
+			$c['state'] = isset($cond['state']) ? (bool) $cond['state'] : false;
+			$c['show'] = isset($cond['show']) ? (bool) $cond['show'] : true;
+			if (isset($cond['condition']) && is_array($cond['condition'])) {
+				$c['condition'] = array();
+				foreach ($cond['condition'] as $rule) {
+					if (!is_array($rule)) continue;
+					$c['condition'][] = array(
+						'no' => isset($rule['no']) ? sanitize_text_field($rule['no']) : '0',
+						'term' => isset($rule['term']) ? sanitize_text_field($rule['term']) : 'is',
+						'one' => isset($rule['one']) ? sanitize_text_field($rule['one']) : '',
+						'two' => isset($rule['two']) ? sanitize_text_field($rule['two']) : ''
+					);
+				}
+			}
+			$clean[] = $c;
+		}
+		return $clean;
 	}
 
 	public function get_geolocation() {
@@ -1951,6 +2046,7 @@ public function addon_add_efb($value) {
 				$ac->AdnPLF=0;
 				$ac->AdnMSF=0;
 				$ac->AdnBEF=0;
+				$ac->AdnGoS=1;
 			}
 			$ac->{$value}=1;
 			$ac->efb_version=EMSFB_PLUGIN_VERSION;
@@ -2036,6 +2132,7 @@ public function addon_add_efb($value) {
 		$addons['AdnPDP']	=	isset($settings->AdnPDP)	? $settings->AdnPDP	:0;
 		$addons['AdnADP']	=	isset($settings->AdnADP)	? $settings->AdnADP	:0;
 		$addons['AdnATF']	=	isset($settings->AdnATF)	? $settings->AdnATF	:0;
+		$addons['AdnGoS']	=	isset($settings->AdnGoS)	? $settings->AdnGoS	:1;
 		$addons['AdnPAP']	=	isset($settings->AdnPAP)	? $settings->AdnPAP	:0;
 		$addons['AdnOF']	=	isset($settings->AdnOF)		? $settings->AdnOF	:0;
 
@@ -2043,6 +2140,13 @@ public function addon_add_efb($value) {
 		foreach ($addons as $key => $value) {
 
 			if($value ==1){
+				if ($key === 'AdnGoS') {
+					$local_gs = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
+					if (file_exists($local_gs)) {
+						update_option('emsfb_addon_AdnGoS', 2);
+						continue;
+					}
+				}
 				$r =$this->addon_add_efb($key);
 				if(!is_array($r) || !isset($r['status'])){
 					$state=false;
@@ -3209,6 +3313,7 @@ public function addon_add_efb($value) {
 			'AdnPAP' => 0,
 			'AdnTLG' => 0,
 			'AdnATF' => 0,
+			'AdnGoS' => 1,
 		];
 		if($ac!=null && isset($ac->AdnSPF)==true){
 			$addons['AdnSPF'] = isset($ac->AdnSPF) ? intval($ac->AdnSPF) : 0;
@@ -3224,6 +3329,7 @@ public function addon_add_efb($value) {
 			$addons["AdnPAP"] =  isset($ac->AdnPAP) ? intval($ac->AdnPAP) : 0;
 			$addons["AdnTLG"] =  isset($ac->AdnTLG) ? intval($ac->AdnTLG) : 0;
 			$addons['AdnATF'] =	isset($ac->AdnATF)	? intval($ac->AdnATF)	:0;
+			$addons['AdnGoS'] =	isset($ac->AdnGoS)	? intval($ac->AdnGoS)	:1;
 		}
 
 		return $addons;
