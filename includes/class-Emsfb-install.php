@@ -132,6 +132,7 @@ class Install {
 		add_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
 
 		do_action('emsfb_update_cache_plugins_list');
+		do_action('emsfb_update_security_plugins_list');
 
 		return $state;
 	}

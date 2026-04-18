@@ -34,9 +34,10 @@ class Emsfb {
         );
 
         add_action('activated_plugin', [$this, 'handle_new_plugin_activation_efb'], 10, 2);
-        add_action('deactivated_plugin', [$this, 'clear_server_host_cache_efb']);
+        add_action('deactivated_plugin', [$this, 'handle_plugin_deactivation_efb'], 10, 1);
 
         add_action('emsfb_update_cache_plugins_list', [$this, 'update_cache_plugins_list']);
+        add_action('emsfb_update_security_plugins_list', [$this, 'update_security_plugins_list']);
 
         add_filter('emsfb_get_server_host', [$this, 'get_cached_server_host_efb']);
 
@@ -282,13 +283,52 @@ class Emsfb {
             'sg-optimizer', 'swift-performance', 'powered-cache'
         );
 
+        $security_plugins_slug = array(
+            'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
+            'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
+            'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'bulletproof-security'
+        );
+
         $plugin_slug = dirname($plugin);
 
         if (in_array($plugin_slug, $cache_plugins_slug)) {
-           do_action('emsfb_update_cache_plugins_list');
+            do_action('emsfb_update_cache_plugins_list');
+        }
+
+        if (in_array($plugin_slug, $security_plugins_slug)) {
+            do_action('emsfb_update_security_plugins_list');
         }
     }
 
+    public function handle_plugin_deactivation_efb($plugin) {
+        $this->clear_server_host_cache_efb();
+        $security_plugins_slug = array(
+            'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
+            'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
+            'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'bulletproof-security'
+        );
+        $cache_plugins_slug = array(
+            'wp-optimize', 'hummingbird-performance', 'big-scoots-cache', 'wp-cloudflare-page-cache',
+            'breeze', 'jetpack', 'w3-total-cache', 'wp-fastest-cache',
+            'wp-rocket', 'comet-cache', 'hyper-cache', 'cache-enabler',
+            'wp-super-cache', 'litespeed-cache', 'nitropack', 'jetpack-boost',
+            'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
+            'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
+            'wpspeed', 'wp-speed', 'flying-press',
+            'sg-optimizer', 'swift-performance', 'powered-cache'
+        );
+        $slug = dirname($plugin);
+        if (in_array($slug, $cache_plugins_slug)) {
+            do_action('emsfb_update_cache_plugins_list');
+        }
+        if (in_array($slug, $security_plugins_slug)) {
+            do_action('emsfb_update_security_plugins_list');
+        }
+    }
     public function update_cache_plugins_list() {
 
         $cache_plugins_slug = array(
@@ -335,6 +375,51 @@ class Emsfb {
 
         if ($val != $old_val) {
             update_option('emsfb_cache_plugins', $val);
+        }
+
+        return $plugin_list;
+    }
+
+
+    public function update_security_plugins_list() {
+
+        $security_plugins_slug = array(
+            'wordfence', 'better-wp-security', 'all-in-one-wp-security-and-firewall',
+            'disable-json-api', 'wp-rest-api-authentication', 'jwt-authentication-for-wp-rest-api',
+            'limit-login-attempts-reloaded', 'loginizer', 'shield-security',
+            'sucuri-scanner', 'bbq-firewall', 'wp-cerber', 'anti-spam-bee',
+            'bulletproof-security'
+        );
+
+        $security_plugins_slug = apply_filters('emsfb_security_plugins_slug', $security_plugins_slug);
+
+        if (!function_exists('get_plugins')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        $plugins      = get_plugins();
+        $active       = get_option('active_plugins', array());
+        $plugin_list  = array();
+
+        foreach ($plugins as $plugin_file => $plugin_data) {
+            if (!in_array($plugin_file, $active)) {
+                continue;
+            }
+            $slug = explode('/', $plugin_file)[0];
+            if (in_array($slug, $security_plugins_slug)) {
+                $plugin_list[] = array(
+                    'name'    => $plugin_data['Name'],
+                    'version' => $plugin_data['Version'],
+                    'slug'    => $slug,
+                );
+            }
+        }
+
+        $val     = !empty($plugin_list) ? json_encode($plugin_list) : 0;
+        $old_val = get_option('emsfb_security_plugins', 0);
+
+        if ($val != $old_val) {
+            update_option('emsfb_security_plugins', $val);
         }
 
         return $plugin_list;
@@ -808,6 +893,9 @@ class Emsfb {
         $this->migrate_fix_double_escaped_settings_efb($wpdb);
 
         if (version_compare($old_version, '4', '<')) {
+            do_action('emsfb_update_cache_plugins_list');
+            do_action('emsfb_update_security_plugins_list');
+
             $activeCode = get_option('emsfb_pro_activeCode', '');
 
             if (empty($activeCode)) {

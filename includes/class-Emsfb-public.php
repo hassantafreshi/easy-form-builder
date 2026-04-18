@@ -70,6 +70,14 @@ class _Public {
 				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
+			register_rest_route('Emsfb/v1','nonce/refresh', [
+				'methods' => 'GET',
+				'callback' => function() {
+					return new \WP_REST_Response(['nonce' => wp_create_nonce('wp_rest')], 200);
+				},
+				'permission_callback' => '__return_true',
+			]);
+
 		});
 
 		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EFB_Form_Builder' ) );

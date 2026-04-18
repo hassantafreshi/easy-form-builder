@@ -1322,6 +1322,16 @@ window.addEventListener("popstate",e=>{
     }
   return  r;
  }
+efb_refresh_nonce=async()=>{
+  try {
+    const r = await fetch(efb_var.rest_url+'Emsfb/v1/nonce/refresh',{method:'GET',credentials:'same-origin'});
+    if(r.ok){
+      const d = await r.json();
+      if(d && d.nonce){ efb_var.nonce = d.nonce; return true; }
+    }
+  } catch(e){}
+  return false;
+}
  post_api_forms_efb=async(data,form_id)=>{
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
     const headers = new Headers({
@@ -1340,8 +1350,25 @@ window.addEventListener("popstate",e=>{
     };
 
   try {
-    const response = await fetch(url, requestOptions);
+    let response = await fetch(url, requestOptions);
+    if (response.status === 403) {
+      const refreshed = await efb_refresh_nonce();
+      if (refreshed) {
+        const retryHeaders = new Headers({
+          'Content-Type': 'application/json',
+          'X-WP-Nonce': efb_var.nonce,
+          'form-id': form_id ? form_id : 0,
+          'sid': data.sid ? data.sid : '',
+        });
+        response = await fetch(url, { method: 'POST', headers: retryHeaders, body: jsonData });
+      }
+    }
     if (!response.ok) {
+      if (response.status === 403) {
+        const msg403 = (ajax_object_efm && ajax_object_efm.text && ajax_object_efm.text.nonceExpired) ? ajax_object_efm.text.nonceExpired : 'Your session has expired. Please refresh the page and try again.';
+        await response_fill_form_efb({ success: false, data: { success: false, m: msg403 } }, form_id);
+        return;
+      }
       throw new Error('Network response was not ok');
     }
     const responseData = await response.json();
