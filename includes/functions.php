@@ -38,6 +38,47 @@ class efbFunction {
         return substr(md5((string)$raw), 0, 12);
     }
 
+		private function normalize_text_settings_compat($settingsObj) {
+			if (!is_object($settingsObj) || !isset($settingsObj->text) || !is_object($settingsObj->text)) {
+				return $settingsObj;
+			}
+
+			$reset_to_defaults = [
+				'copyAndPasteBelowShortCodeTrackingCodeFinder' => esc_html__('Copy and paste this shortcode to add the confirmation code finder to any page or post.','easy-form-builder'),
+				'checkedBoxIANotRobot' => esc_html__('Please check the box of I am Not robot','easy-form-builder'),
+				'proUnlockMsg' => esc_html__('Activate Pro version for more features and unlimited access to all plugin services.','easy-form-builder'),
+				'beforeUsingYourEmailServers' => esc_html__('Use this test to check if your server can send emails properly.','easy-form-builder'),
+				'pcPreview' => esc_html__('Desktop Preview','easy-form-builder'),
+				'activateProVersion' => esc_html__('Upgrade to Pro','easy-form-builder'),
+				'fieldAvailableInProversion' => esc_html__('This feature is only available in the Pro version of Easy Form Builder.','easy-form-builder'),
+				'enterAdminEmailReceiveNoti' => esc_html__('Enter email address to receive notifications.','easy-form-builder'),
+				'howToAddGoogleMap' => esc_html__('How to Add Location Picker(maps) to Easy form Builder WordPress Plugin','easy-form-builder'),
+				'browseFile' => esc_html__('Browse the file','easy-form-builder'),
+				'freefeatureNotiEmail' => esc_html__('Email notifications are available in all versions, including Free, Free Plus, and Pro.','easy-form-builder'),
+			];
+
+			$fill_missing_defaults = [
+				'videoOrAudio' => esc_html__('(Video or Audio)','easy-form-builder'),
+				'localization' => esc_html__('Localization','easy-form-builder'),
+				'translateContrib' => esc_html__('Help us speak your language! Translate Easy Form Builder on the %1$sWordPress.org translation portal%2$s and make it accessible to your community.','easy-form-builder'),
+				'translateLocal' => esc_html__('You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.','easy-form-builder'),
+			];
+
+			foreach ($reset_to_defaults as $key => $default) {
+				if (!isset($settingsObj->text->$key) || $settingsObj->text->$key !== $default) {
+					$settingsObj->text->$key = $default;
+				}
+			}
+
+			foreach ($fill_missing_defaults as $key => $default) {
+				if (!isset($settingsObj->text->$key) || $settingsObj->text->$key === null || $settingsObj->text->$key === 'null') {
+					$settingsObj->text->$key = $default;
+				}
+			}
+
+			return $settingsObj;
+		}
+
 	protected static $lang_cache = [];
 	private const EFB_LANG_CACHE_TTL = 21600;
 
@@ -65,7 +106,8 @@ class efbFunction {
             static::$cached_settings = get_setting_Emsfb();
             static::$cached_lang = $this->detect_current_lang_slug();
         }
-        $ac = static::$cached_settings;
+	$ac = $this->normalize_text_settings_compat(static::$cached_settings);
+	static::$cached_settings = $ac;
         $efb_lang = static::$cached_lang;
         $efb_needX    = ($inp === 1);
         $efb_ver      = $this->get_text_version($ac);
@@ -637,14 +679,14 @@ class efbFunction {
 			"red" => $state ? $ac->text->red : esc_html__('Red','easy-form-builder'),
 			"reCAPTCHASetError" => $state ? $ac->text->reCAPTCHASetError : esc_html__('Please navigate to the Easy Form Builder Panel, then go to Settings and click on Google Keys to configure the keys for Google reCAPTCHA.','easy-form-builder'),
 			"ifShowTrackingCodeToUser" => $state ? $ac->text->ifShowTrackingCodeToUser : esc_html__("To hide the Confirmation Code from users, leave the option unmarked.",'easy-form-builder'),
-			"videoOrAudio" => $state ? $ac->text->videoOrAudio : esc_html__('(Video or Audio)','easy-form-builder'),
-			"localization" => $state ? $ac->text->localization : esc_html__('Localization','easy-form-builder'),
+			"videoOrAudio" => $state && isset($ac->text->videoOrAudio) ? $ac->text->videoOrAudio : esc_html__('(Video or Audio)','easy-form-builder'),
+			"localization" => $state && isset($ac->text->localization) ? $ac->text->localization : esc_html__('Localization','easy-form-builder'),
 			/* translators: %1$s and %2$s are opening and closing HTML link tags for the WordPress.org translation portal */
-			"translateContrib" => $state ? $ac->text->translateContrib : esc_html__('Help us speak your language! Translate Easy Form Builder on the %1$sWordPress.org translation portal%2$s and make it accessible to your community.','easy-form-builder'),
+			"translateContrib" => $state && isset($ac->text->translateContrib) ? $ac->text->translateContrib : esc_html__('Help us speak your language! Translate Easy Form Builder on the %1$sWordPress.org translation portal%2$s and make it accessible to your community.','easy-form-builder'),
 			/* translators: %1$s and %2$s are opening and closing HTML link tags for the WordPress.org translation portal, %3$s is the discount percentage */
 			"translateDiscount" => $state && isset($ac->text->translateDiscount) ? $ac->text->translateDiscount : esc_html__('If your language translation is not available yet, translate it and get a %3$s lifetime discount! Contribute via the %1$sWordPress.org translation portal%2$s.','easy-form-builder'),
 			"discountOff" => $state && isset($ac->text->discountOff) ? $ac->text->discountOff : esc_html__('OFF','easy-form-builder'),
-			"translateLocal" => $state ? $ac->text->translateLocal : esc_html__('You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.','easy-form-builder'),
+			"translateLocal" => $state && isset($ac->text->translateLocal) ? $ac->text->translateLocal : esc_html__('You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.','easy-form-builder'),
 			"enterValidURL" => $state ? $ac->text->enterValidURL : esc_html__('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 			"emailOrUsername" => $state ? $ac->text->emailOrUsername : esc_html__('Email or Username','easy-form-builder'),
 			"contactusForm" => $state ? $ac->text->contactusForm : esc_html__('Contact Us Form','easy-form-builder'),
@@ -2046,7 +2088,7 @@ public function addon_add_efb($value) {
 				$ac->AdnPLF=0;
 				$ac->AdnMSF=0;
 				$ac->AdnBEF=0;
-				$ac->AdnGoS=1;
+				$ac->AdnGoS=0;
 			}
 			$ac->{$value}=1;
 			$ac->efb_version=EMSFB_PLUGIN_VERSION;
@@ -2132,7 +2174,7 @@ public function addon_add_efb($value) {
 		$addons['AdnPDP']	=	isset($settings->AdnPDP)	? $settings->AdnPDP	:0;
 		$addons['AdnADP']	=	isset($settings->AdnADP)	? $settings->AdnADP	:0;
 		$addons['AdnATF']	=	isset($settings->AdnATF)	? $settings->AdnATF	:0;
-		$addons['AdnGoS']	=	isset($settings->AdnGoS)	? $settings->AdnGoS	:1;
+		$addons['AdnGoS']	=	isset($settings->AdnGoS)	? $settings->AdnGoS	:0;
 		$addons['AdnPAP']	=	isset($settings->AdnPAP)	? $settings->AdnPAP	:0;
 		$addons['AdnOF']	=	isset($settings->AdnOF)		? $settings->AdnOF	:0;
 
@@ -3313,7 +3355,7 @@ public function addon_add_efb($value) {
 			'AdnPAP' => 0,
 			'AdnTLG' => 0,
 			'AdnATF' => 0,
-			'AdnGoS' => 1,
+			'AdnGoS' => 0,
 		];
 		if($ac!=null && isset($ac->AdnSPF)==true){
 			$addons['AdnSPF'] = isset($ac->AdnSPF) ? intval($ac->AdnSPF) : 0;
@@ -3329,7 +3371,7 @@ public function addon_add_efb($value) {
 			$addons["AdnPAP"] =  isset($ac->AdnPAP) ? intval($ac->AdnPAP) : 0;
 			$addons["AdnTLG"] =  isset($ac->AdnTLG) ? intval($ac->AdnTLG) : 0;
 			$addons['AdnATF'] =	isset($ac->AdnATF)	? intval($ac->AdnATF)	:0;
-			$addons['AdnGoS'] =	isset($ac->AdnGoS)	? intval($ac->AdnGoS)	:1;
+			$addons['AdnGoS'] =	isset($ac->AdnGoS)	? intval($ac->AdnGoS)	:0;
 		}
 
 		return $addons;

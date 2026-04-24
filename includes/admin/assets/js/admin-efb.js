@@ -6326,7 +6326,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     newElement += `
     ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row ${mobileColCls} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
-    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]}` : ` row`} ${mobileColCls} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
+    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]} ${mobileColCls}` : ` row`} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
     ${previewSate != true && pro_efb == false && pro_el==true ? proActiv : ''}
     ${previewSate != true ? contorl : '<!--efb.app-->'}
@@ -7077,7 +7077,7 @@ function send_data_efb() {
 
 function get_position_col_el(dataId, state) {
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
-  let el_parent = document.getElementById(valj_efb[indx].id_) ?? "null";
+  let el_parent = document.querySelector(`setion[id="${valj_efb[indx].id_}"]`) || document.getElementById(valj_efb[indx].id_) || "null";
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`) ?? "null";
   let el_input = document.getElementById(`${valj_efb[indx].id_}-f`) ?? "null";
   let parent_col = ``;
@@ -7168,18 +7168,18 @@ function get_position_col_el(dataId, state) {
 
 function applyMobileLabelPositionEfb(item) {
   if (!item || !item.id_) return;
-  const pos = item.hasOwnProperty('mobile_label_position') ? item.mobile_label_position : 'up';
+  const pos = item.hasOwnProperty('mobile_label_position') ? item.mobile_label_position : (item.hasOwnProperty('label_position') ? item.label_position : 'up');
   const parentEl = document.getElementById(item.id_);
   const labelEl = document.getElementById(`${item.id_}_labG`);
   const inputEl = document.getElementById(`${item.id_}-f`);
   if (pos === 'up') {
     if (parentEl && parentEl.classList.contains('row')) parentEl.classList.remove('row');
-    if (labelEl) { labelEl.className = colSmChangerEfb(labelEl.className, 'col-sm-12'); }
-    if (inputEl) { inputEl.className = colSmChangerEfb(inputEl.className, 'col-sm-12'); }
+    if (labelEl) { labelEl.className = colMdChangerEfb(labelEl.className, 'col-md-12'); }
+    if (inputEl) { inputEl.className = colMdChangerEfb(inputEl.className, 'col-md-12'); }
   } else {
     if (parentEl && !parentEl.classList.contains('row')) parentEl.classList.add('row');
-    if (labelEl) { labelEl.className = colSmChangerEfb(labelEl.className, 'col-sm-4'); }
-    if (inputEl) { inputEl.className = colSmChangerEfb(inputEl.className, 'col-sm-8'); }
+    if (labelEl) { labelEl.className = colMdChangerEfb(labelEl.className, 'col-md-4'); }
+    if (inputEl) { inputEl.className = colMdChangerEfb(inputEl.className, 'col-md-8'); }
   }
 }
 
@@ -7250,25 +7250,26 @@ function switchViewEfb(view) {
       for (let i = 1; i < valj_efb.length; i++) {
         if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
           get_position_col_mobile_el(valj_efb[i].dataId, true);
-          if (valj_efb[i].hasOwnProperty('mobile_label_text_size')) {
+          const mLabelTextSize = valj_efb[i].hasOwnProperty('mobile_label_text_size') ? valj_efb[i].mobile_label_text_size : valj_efb[i].label_text_size;
+          if (mLabelTextSize) {
             let labSpan = document.getElementById(`${valj_efb[i].id_}_lab`);
-            if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, valj_efb[i].mobile_label_text_size);
+            if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, mLabelTextSize);
           }
-          if (valj_efb[i].hasOwnProperty('mobile_label_align')) {
+          const mLabelAlign = valj_efb[i].hasOwnProperty('mobile_label_align') ? valj_efb[i].mobile_label_align : valj_efb[i].label_align;
+          if (mLabelAlign) {
             let labG = document.getElementById(`${valj_efb[i].id_}_labG`);
-            if (labG) labG.className = alignChangerEfb(labG.className, valj_efb[i].mobile_label_align);
+            if (labG) labG.className = alignChangerEfb(labG.className, mLabelAlign);
           }
-          if (valj_efb[i].hasOwnProperty('mobile_message_align')) {
+          const mMsgAlign = valj_efb[i].hasOwnProperty('mobile_message_align') ? valj_efb[i].mobile_message_align : valj_efb[i].message_align;
+          if (mMsgAlign) {
             let desEl = document.getElementById(`${valj_efb[i].id_}-des`);
             if (desEl) {
-              desEl.className = alignChangerElEfb(desEl.className, valj_efb[i].mobile_message_align);
-              if (valj_efb[i].mobile_message_align != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
-              else if (valj_efb[i].mobile_message_align == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
+              desEl.className = alignChangerElEfb(desEl.className, mMsgAlign);
+              if (mMsgAlign != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
+              else if (mMsgAlign == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
             }
           }
-          if (valj_efb[i].hasOwnProperty('mobile_label_position')) {
-            applyMobileLabelPositionEfb(valj_efb[i]);
-          }
+          applyMobileLabelPositionEfb(valj_efb[i]);
         }
       }
     } else {
@@ -7311,8 +7312,7 @@ function updateSideBoxViewEfb(view) {
 }
 
 function getMobileColClass(item) {
-  if (!item || !item.hasOwnProperty('mobile_size')) return 'col-sm-12';
-  const ms = Number(item.mobile_size);
+  const ms = item && item.hasOwnProperty('mobile_size') ? Number(item.mobile_size) : (item && item.hasOwnProperty('size') ? Number(item.size) : 100);
   switch(ms) {
     case 8:  return 'col-sm-1';
     case 17: return 'col-sm-2';
@@ -7331,38 +7331,37 @@ function getMobileColClass(item) {
 
 function get_position_col_mobile_el(dataId, state) {
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
-  if (indx === -1) return ['', 'col-sm-12', 'col-sm-12', 'col-sm-12'];
-  let el_parent = document.getElementById(valj_efb[indx].id_) ?? "null";
+  if (indx === -1) return ['', 'col-md-12', 'col-md-12', 'col-md-12'];
+  let el_parent = document.querySelector(`setion[id="${valj_efb[indx].id_}"]`) || document.getElementById(valj_efb[indx].id_) || "null";
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`) ?? "null";
   let el_input = document.getElementById(`${valj_efb[indx].id_}-f`) ?? "null";
-  let parent_col = 'col-sm-12';
-  let label_col = 'col-sm-12';
-  let input_col = 'col-sm-12';
+  let parent_col = 'col-md-12';
+  let label_col = 'col-md-12';
+  let input_col = 'col-md-12';
   let parent_row = '';
-  const msize = valj_efb[indx].hasOwnProperty("mobile_size") ? Number(valj_efb[indx].mobile_size) : 100;
+  const msize = valj_efb[indx].hasOwnProperty("mobile_size") ? Number(valj_efb[indx].mobile_size) : (valj_efb[indx].hasOwnProperty("size") ? Number(valj_efb[indx].size) : 100);
   switch (msize) {
-    case 100: parent_col = 'col-sm-12'; break;
-    case 92:  parent_col = 'col-sm-11'; break;
-    case 83:  parent_col = 'col-sm-10'; break;
-    case 75:  parent_col = 'col-sm-9';  break;
-    case 67:  parent_col = 'col-sm-8';  break;
-    case 58:  parent_col = 'col-sm-7';  break;
-    case 50:  parent_col = 'col-sm-6';  break;
-    case 42:  parent_col = 'col-sm-5';  break;
-    case 33:  parent_col = 'col-sm-4';  break;
-    case 25:  parent_col = 'col-sm-3';  break;
-    case 17:  parent_col = 'col-sm-2';  break;
-    case 8:   parent_col = 'col-sm-1';  break;
+    case 100: parent_col = 'col-md-12'; break;
+    case 92:  parent_col = 'col-md-11'; break;
+    case 83:  parent_col = 'col-md-10'; break;
+    case 75:  parent_col = 'col-md-9';  break;
+    case 67:  parent_col = 'col-md-8';  break;
+    case 58:  parent_col = 'col-md-7';  break;
+    case 50:  parent_col = 'col-md-6';  break;
+    case 42:  parent_col = 'col-md-5';  break;
+    case 33:  parent_col = 'col-md-4';  break;
+    case 25:  parent_col = 'col-md-3';  break;
+    case 17:  parent_col = 'col-md-2';  break;
+    case 8:   parent_col = 'col-md-1';  break;
   }
-  label_col = 'col-sm-12';
-  input_col = 'col-sm-12';
-  if (valj_efb[indx].label_position != "up") {
+  const mpos = valj_efb[indx].hasOwnProperty('mobile_label_position') ? valj_efb[indx].mobile_label_position : valj_efb[indx].label_position;
+  if (mpos != "up") {
     parent_row = 'row';
   }
   if (state == true) {
-    el_parent.className = colSmChangerEfb(el_parent.className, parent_col);
-    if (el_input != "null") el_input.className = colSmChangerEfb(el_input.className, input_col);
-    if (el_label != "null") el_label.className = colSmChangerEfb(el_label.className, label_col);
+    el_parent.className = colMdChangerEfb(el_parent.className, parent_col);
+    if (el_input != "null") el_input.className = colMdChangerEfb(el_input.className, input_col);
+    if (el_label != "null") el_label.className = colMdChangerEfb(el_label.className, label_col);
   }
   return [parent_row, parent_col, label_col, input_col];
 }

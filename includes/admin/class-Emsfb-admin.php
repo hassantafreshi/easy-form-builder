@@ -488,7 +488,7 @@ class Admin {
             $ac->AdnPLF=0;
             $ac->AdnMSF=0;
             $ac->AdnBEF=0;
-            $ac->AdnGoS=1;
+            $ac->AdnGoS=0;
         }
         $ac->{$post_value}=1;
         $ac->efb_version=EMSFB_PLUGIN_VERSION;
@@ -546,7 +546,7 @@ class Admin {
             $ac->AdnPLF=0;
             $ac->AdnMSF=0;
             $ac->AdnBEF=0;
-            $ac->AdnGoS=1;
+            $ac->AdnGoS=0;
         }
         $ac->{$post_value}=0;
         if(empty($this->db)){

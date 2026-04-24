@@ -290,6 +290,9 @@ class Panel_edit  {
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 
+			wp_enqueue_style('efb-conditional-logic-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/conditional-logic-efb.css', array(), EMSFB_PLUGIN_VERSION);
+			wp_enqueue_script('efb-conditional-logic-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/conditional-logic-efb.js', array('Emsfb-admin-js'), EMSFB_PLUGIN_VERSION, true);
+
 				wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);
 				wp_enqueue_script('jquery-ui-efb');
 				wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);

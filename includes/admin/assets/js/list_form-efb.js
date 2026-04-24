@@ -2326,7 +2326,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const phoneNumbers = temp.length<5 ? 'null' : temp;
     let AdnSPF=AdnOF=AdnPPF=AdnATC=AdnSS=AdnCPF=AdnESZ=AdnSE=
     AdnWHS=AdnPAP=AdnWSP=AdnSMF=AdnPLF=AdnMSF=AdnBEF=AdnPDP=AdnADP=AdnATF=AdnTLG=0,
-    AdnGoS=1
+    AdnGoS=0
     if(valueJson_ws_setting.hasOwnProperty('AdnSPF')){
       AdnSPF=valueJson_ws_setting.AdnSPF;
       AdnOF=valueJson_ws_setting.AdnOF;
@@ -2339,7 +2339,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
       AdnADP=valueJson_ws_setting.hasOwnProperty('AdnADP') ? valueJson_ws_setting.AdnADP :0;
       AdnATF=valueJson_ws_setting.hasOwnProperty('AdnATF') ? valueJson_ws_setting.AdnATF :0;
       AdnTLG=valueJson_ws_setting.hasOwnProperty('AdnTLG') ? valueJson_ws_setting.AdnTLG :0;
-      AdnGoS=valueJson_ws_setting.hasOwnProperty('AdnGoS') ? valueJson_ws_setting.AdnGoS :1;
+      AdnGoS=valueJson_ws_setting.hasOwnProperty('AdnGoS') ? valueJson_ws_setting.AdnGoS :0;
     }
     const email_key_efb = valueJson_ws_setting.email_key ??  Math.random().toString(36).substr(2, 10);
 

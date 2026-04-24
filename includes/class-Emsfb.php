@@ -597,7 +597,7 @@ class Emsfb {
 
                 $settings_changed = false;
                 if (!isset($decoded->AdnGoS)) {
-                    $decoded->AdnGoS = 1;
+                    $decoded->AdnGoS = 0;
                     $settings_changed = true;
                 }
                 if ($settings_changed) {
@@ -1092,7 +1092,7 @@ class Emsfb {
         $defaults->AdnBEF            = '0';
         $defaults->AdnPDP            = '0';
         $defaults->AdnADP            = '0';
-        $defaults->AdnGoS            = '1';
+        $defaults->AdnGoS            = '0';
         $defaults->AdnTLG            = '0';
         $defaults->phnNo             = '';
         $defaults->femail            = '';
