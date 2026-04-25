@@ -1207,6 +1207,23 @@ function fun_show_setting__emsFormBuilder() {
   const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
 
+  const language_not_needed_show =['fa_IR','ar_AR' ,'fr_FR','de','en_US'].includes(efb_var.language) ? false : true;
+  let message_lanaguage = ''
+  console.log('language_not_needed_show', language_not_needed_show)
+  if(language_not_needed_show){
+    message_lanaguage = `<div class="efb my-3 mx-4 p-3" role="" style="border-radius:10px;border:1px solid #e0e7ff;background:linear-gradient(135deg,#f0f4ff 0%,#e8f5e9 100%);">
+                                 <p class="efb mb-2" style="line-height:1.7;">
+                                   <i class="efb bi-translate" style="margin-inline-end:6px;"></i>${efb_var.text.translateContrib.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>')}
+                                 </p>
+                                 <div class="efb" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                                   <span style="display:inline-block;background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px;white-space:nowrap;">🎁 ${translateDiscountPercent}% ${efb_var.text.discountOff || 'OFF'}</span>
+                                   <p class="efb mb-0" style="line-height:1.6;font-size:13px;color:#37474f;">
+                                     ${efb_var.text.translateDiscount ? efb_var.text.translateDiscount.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>').replace('%3$s', translateDiscountPercent + '%') : ''}
+                                   </p>
+                                 </div>
+                               </div>`
+  }
+
   const planBadgeHtml = getCurrentPlanBadge_efb();
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
@@ -1539,17 +1556,7 @@ function fun_show_setting__emsFormBuilder() {
                                <h5 class="efb  card-title mt-3 mobile-title">
                                  <i class="efb  bi-fonts m-3"></i>${efb_var.text.localization}
                                </h5>
-                               <div class="efb my-3 mx-4 p-3" role="" style="border-radius:10px;border:1px solid #e0e7ff;background:linear-gradient(135deg,#f0f4ff 0%,#e8f5e9 100%);">
-                                 <p class="efb mb-2" style="line-height:1.7;">
-                                   <i class="efb bi-translate" style="margin-inline-end:6px;"></i>${efb_var.text.translateContrib.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>')}
-                                 </p>
-                                 <div class="efb" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                                   <span style="display:inline-block;background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px;white-space:nowrap;">🎁 ${translateDiscountPercent}% ${efb_var.text.discountOff || 'OFF'}</span>
-                                   <p class="efb mb-0" style="line-height:1.6;font-size:13px;color:#37474f;">
-                                     ${efb_var.text.translateDiscount ? efb_var.text.translateDiscount.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>').replace('%3$s', translateDiscountPercent + '%') : ''}
-                                   </p>
-                                 </div>
-                               </div>
+                                ${message_lanaguage}
                                <p class="efb ${mxCSize}">${efb_var.text.translateLocal}</p>
                                <div class="efb card-body mx-0 py-1 mx-4">
 

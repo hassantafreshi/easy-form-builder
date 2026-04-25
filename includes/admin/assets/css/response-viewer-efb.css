@@ -172,25 +172,86 @@
   flex-shrink: 0;
 }
 .efb-resp-viewer .efb-msg-download {
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  color: var(--efb-resp-text-muted) !important;
-  font-size: 1rem !important;
-  transition: background 0.2s, color 0.2s, transform 0.15s;
-}
-.efb-resp-viewer .efb-msg-download:hover {
-  background: var(--efb-resp-primary-08);
-  color: var(--efb-resp-primary) !important;
-  transform: translateY(-1px);
 }
 .efb-resp-viewer .efb-msg-download i {
   font-size: 1.05rem !important;
   pointer-events: none;
+}
+
+/* Toggle button */
+.efb-resp-viewer .efb-msg-dl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--efb-resp-text-muted, #6b7280);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, transform 0.15s;
+  outline: none;
+}
+.efb-resp-viewer .efb-msg-dl-btn:hover,
+.efb-resp-viewer .efb-msg-dl-btn:focus,
+.efb-resp-viewer .efb-msg-dl-btn[aria-expanded="true"] {
+  background: var(--efb-resp-primary-08, rgba(67,97,238,.08));
+  color: var(--efb-resp-primary, #4361ee);
+  transform: translateY(-1px);
+  box-shadow: none;
+}
+
+/* ---- Floating dropdown menu (appended directly to <body>) ---- */
+.efb-dl-dropdown {
+  position: fixed;   /* set by JS – listed here as fallback */
+  z-index: 999999;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  min-width: 130px;
+  background: #fff;
+  border: 1px solid var(--efb-resp-border, #e5e7eb);
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.14);
+  font-size: 0.875rem;
+}
+
+.efb-dl-dropdown li {
+  display: block;
+}
+
+.efb-dl-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  margin: 1px 4px;
+  border-radius: 6px;
+  color: var(--efb-resp-text, #333);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.efb-dl-item:hover,
+.efb-dl-item:focus {
+  background: var(--efb-resp-primary-08, rgba(67,97,238,.08));
+  color: var(--efb-resp-primary, #4361ee);
+  text-decoration: none;
+  outline: none;
+}
+.efb-dl-item i {
+  font-size: 0.95rem;
+  flex-shrink: 0;
 }
 
 .efb-resp-viewer .efb-msg-meta-bar {

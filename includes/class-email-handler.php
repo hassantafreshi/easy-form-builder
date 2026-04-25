@@ -272,11 +272,22 @@ class EmsfbEmailHandler {
                         __('Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s', 'easy-form-builder'),
                         "<a href='https://wordpress.org/plugins/easy-form-builder/' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
                         "</a>",
-                        "<a href='https://whitestudio.team' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
+                        "<a href='".$l."' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
                         "</a>"
                     ) . "</p>
                 </div>";
             }
+        }else{
+                $footer = "<div style='text-align:center;'>
+                        " . $footer . "<br>
+                        <p>" . sprintf(
+                            __('Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s', 'easy-form-builder'),
+                            "<a href='https://wordpress.org/plugins/easy-form-builder/' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
+                            "</a>",
+                            "<a href='".$l."' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
+                            "</a>"
+                        ) . "</p>
+                    </div>";
         }
 
         $temp = isset($st->emailTemp) && strlen($st->emailTemp) > 10 ? $st->emailTemp : "0";
