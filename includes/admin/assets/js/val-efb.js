@@ -4006,7 +4006,7 @@ document.addEventListener('DOMContentLoaded', function() {
           showSetupAsOverlayPage();
         } catch (error) {
         }
-      }, 1.5);
+      }, 500);
     }
 
     // Toggle collapse icons for Advanced button (arrow down/up)

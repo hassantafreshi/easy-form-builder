@@ -792,6 +792,8 @@ class efbFunction {
 			"contactusTemplate" => $state  &&  isset($ac->text->contactusTemplate) ? $ac->text->contactusTemplate : esc_html__('Contact us Template','easy-form-builder'),
 			"curved" => $state  &&  isset($ac->text->curved) ? $ac->text->curved : esc_html__('Curved','easy-form-builder'),
 			"multiStep" => $state  &&  isset($ac->text->multiStep) ? $ac->text->multiStep : esc_html__('Multi-Step','easy-form-builder'),
+			"noCoding" => $state  &&  isset($ac->text->noCoding) ? $ac->text->noCoding : esc_html__('No Coding','easy-form-builder'),
+			"dragAndDropBadge" => $state  &&  isset($ac->text->dragAndDropBadge) ? $ac->text->dragAndDropBadge : esc_html__('Drag & Drop','easy-form-builder'),
 			"customerFeedback" => $state  &&  isset($ac->text->customerFeedback) ? $ac->text->customerFeedback : esc_html__('Customer Feedback','easy-form-builder'),
 			"supportTicketF" => $state  &&  isset($ac->text->supportTicketF) ? $ac->text->supportTicketF : esc_html__('Support Ticket Form','easy-form-builder'),
 			"paymentform" => $state  &&  isset($ac->text->paymentform) ? $ac->text->paymentform : esc_html__('Payment Form','easy-form-builder'),

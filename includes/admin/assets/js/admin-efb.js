@@ -1078,9 +1078,9 @@ function head_introduce_efb(state) {
                   <p class="efb efb-header-desc efb pb-3 ${mobile_view_efb ? 'fs-7' : 'fs-6'}">${text}</p>
 
     <div class="efb efb-header-features">
-      <span class="efb efb-feature-badge"><i class="efb bi-layers mx-1"></i>Multi-Step</span>
-      <span class="efb efb-feature-badge"><i class="efb bi-code-slash mx-1"></i>No Coding</span>
-      <span class="efb efb-feature-badge"><i class="efb bi-arrows-move mx-1"></i>Drag & Drop</span>
+      <span class="efb efb-feature-badge"><i class="efb bi-layers mx-1"></i>${efb_var.text.multiStep}</span>
+      <span class="efb efb-feature-badge"><i class="efb bi-code-slash mx-1"></i>${efb_var.text.noCoding}</span>
+      <span class="efb efb-feature-badge"><i class="efb bi-arrows-move mx-1"></i>${efb_var.text.dragAndDropBadge}</span>
     </div>
 
     <div class="efb efb-header-actions">
@@ -5061,7 +5061,7 @@ function addClickListenerToElementListEFB(element) {
               const closestEcEfb = event.target.closest('.ec-efb');
               if (closestEcEfb !== element) return;
 
-const actionEl = event.target.closest('[data-eventform].ec-efb');
+              const actionEl = event.target.closest('[data-eventform].ec-efb');
               if (!actionEl) return;
               const classes = actionEl.classList;
 
