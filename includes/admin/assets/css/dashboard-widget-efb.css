@@ -9,8 +9,9 @@
 
 /* Cards grid */
 .efb-dw-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-@media(max-width:1200px){.efb-dw-cards{grid-template-columns:repeat(2,1fr)}}
-.efb-dw-card{display:flex;align-items:center;gap:10px;padding:12px 10px;border-radius:6px;background:#f6f7f7;border:1px solid #e0e0e0;transition:box-shadow .2s}
+@media(max-width:1200px){.efb-dw-cards{grid-template-columns:repeat(2,1fr);gap:8px}}
+@media(max-width:600px){.efb-dw-cards{gap:6px}.efb-dw-card-value{font-size:17px}}
+.efb-dw-card{display:flex;align-items:center;gap:7px;padding:12px 7px;border-radius:6px;background:#f6f7f7;border:1px solid #e0e0e0;transition:box-shadow .2s}
 .efb-dw-card:hover{box-shadow:0 1px 4px rgba(0,0,0,.08)}
 
 .efb-dw-card-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -27,6 +28,9 @@
 .efb-dw-card-body{display:flex;flex-direction:column;min-width:0}
 .efb-dw-card-value{font-size:20px;font-weight:600;line-height:1.2;color:#1d2327}
 .efb-dw-card-label{font-size:11px;color:#646970;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.efb-dw-card-label[data-efb-full]{cursor:help}
+/* Floating tooltip (JS-positioned, avoids overflow:hidden clipping) */
+.efb-dw-label-tip{position:fixed;background:#1d2327;color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;z-index:999999;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.28);display:none}
 
 /* Chart */
 .efb-dw-chart-wrap{position:relative;width:100%;margin-bottom:6px}
