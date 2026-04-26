@@ -1098,7 +1098,7 @@ class Emsfb {
         $defaults->femail            = '';
         $defaults->email_key         = '';
         $defaults->showIp            = '';
-        $defaults->adminSN           = '1';
+        $defaults->adminSN           = '';
         $defaults->osLocationPicker  = '';
         $defaults->sessionDuration   = '5';
         $defaults->trackCodeStyle    = 'date_en_mix';

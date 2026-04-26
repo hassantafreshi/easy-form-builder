@@ -1146,7 +1146,7 @@ function fun_show_setting__emsFormBuilder() {
     showIp = f('showIp') =='null' ? false :f('showIp');
     dsupfile = f('dsupfile') =='null' ? true :f('dsupfile');
     phoneNumbers = f('phnNo');
-    adminSN  = f('adminSN') =='null' ? true :f('adminSN');
+    adminSN  = f('adminSN') =='null' ? false :f('adminSN');
     sessionDuration = f('sessionDuration') == 'null' ? 1 : parseInt(f('sessionDuration'));
     trackCodeStyle = f('trackCodeStyle') == 'null' ? 'date_en_mix' : f('trackCodeStyle');
     const shieldSilentCaptchaSetting = f('shield_silent_captcha');

@@ -545,97 +545,72 @@ public function check_nonce_permission_efb($request) {
 			if (isset($sc_setting->adminSN)) $adminSN_enabled = (bool) $sc_setting->adminSN;
 
 
-			// If user=admin without valid sc → must be logged in as admin
+			// Admin access control (single unified block covering ALL link types and adminSN states)
 			$is_legacy_admin_link = ($admin_form && ($admin_sc === null || !$admin_verified));
-			if ($admin_form && !$admin_verified) {
+			if ($admin_form) {
 				if (is_user_logged_in() && current_user_can('administrator')) {
+					// Logged-in WP admin: always grant access regardless of adminSN setting
 					$admin_verified = true;
 				} else if (!is_user_logged_in()) {
-				$overrides = $this->efb_build_inline_style_overrides();
-				$pl_warn = get_setting_Emsfb('pub');
-				$ps_warn = $pl_warn[1] ?? [];
+					if ($adminSN_enabled) {
+						// adminSN=true: login required — block ALL link types (email sc AND SMS legacy)
+						$admin_verified = false;
+						$admin_form    = false;
 
-				$warn_text_color  = !empty($ps_warn['respText'])       ? $ps_warn['respText']       : '#1a1a2e';
-				$warn_bg_color    = !empty($ps_warn['respBgCard'])     ? $ps_warn['respBgCard']     : '#ffffff';
-				$warn_primary     = !empty($ps_warn['respPrimary'])    ? $ps_warn['respPrimary']    : '#3644d2';
-				$warn_muted       = !empty($ps_warn['respTextMuted'])  ? $ps_warn['respTextMuted']  : '#657096';
-				$warn_font_family = !empty($ps_warn['respFontFamily']) ? $ps_warn['respFontFamily'] : 'inherit';
-				$warn_font_size   = !empty($ps_warn['respFontSize'])  ? $ps_warn['respFontSize']   : '0.9rem';
+						$overrides = $this->efb_build_inline_style_overrides();
+						$pl_warn = get_setting_Emsfb('pub');
+						$ps_warn = $pl_warn[1] ?? [];
 
-				$legacy_notice = '';
-				if ($is_legacy_admin_link) {
-					$legacy_notice = "
-					<div style='margin-top:16px; padding:10px 18px; border-radius:8px;
-					            background-color: rgba(54,68,210,0.07);
-					            display:inline-flex; align-items:center; gap:8px;'>
-						<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='" . esc_attr($warn_muted) . "' viewBox='0 0 16 16' style='flex-shrink:0;'>
-							<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.399l-.502 0 .07-.332C7.005 6.584 7.912 6.196 8.454 6h.37l-.82 4.588zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z'/>
-						</svg>
-						<span style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
-						             font-size: calc(" . esc_attr($warn_font_size) . " * 0.93);'>"
-						. esc_html__('This link uses an older format. For improved security, new email notifications include updated links.', 'easy-form-builder') .
-						"</span>
-					</div>";
-				}
+						$warn_text_color  = !empty($ps_warn['respText'])       ? $ps_warn['respText']       : '#1a1a2e';
+						$warn_bg_color    = !empty($ps_warn['respBgCard'])     ? $ps_warn['respBgCard']     : '#ffffff';
+						$warn_primary     = !empty($ps_warn['respPrimary'])    ? $ps_warn['respPrimary']    : '#3644d2';
+						$warn_muted       = !empty($ps_warn['respTextMuted'])  ? $ps_warn['respTextMuted']  : '#657096';
+						$warn_font_family = !empty($ps_warn['respFontFamily']) ? $ps_warn['respFontFamily'] : 'inherit';
+						$warn_font_size   = !empty($ps_warn['respFontSize'])  ? $ps_warn['respFontSize']   : '0.9rem';
 
-				return $overrides['font_link'] . $overrides['inline_style'] . "
-				<div id='body_efb' class='efb card-public efb'
-				     style='display:flex; flex-direction:column; align-items:center; justify-content:center;
-				            color:" . esc_attr($warn_text_color) . "; background-color:" . esc_attr($warn_bg_color) . ";
-				            font-family:" . esc_attr($warn_font_family) . "; font-size:" . esc_attr($warn_font_size) . ";
-				            padding: 40px 20px; border-radius: 12px;
-				            box-shadow: 0 2px 16px rgba(0,0,0,0.07); text-align:center;'>
-					<div style='margin-bottom:18px; text-align:center;'>
-						<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' fill='" . esc_attr($warn_primary) . "' viewBox='0 0 16 16' style='display:inline-block;'>
-							<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM8 4a.905.905 0 0 1 .9.995l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/>
-						</svg>
-					</div>
-					<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
-					           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
-					           margin:0 0 10px 0; text-align:center;'>"
-					    . esc_html__('It seems that you are the admin of this form. Please log in and try again.', 'easy-form-builder') .
-					"</h3>" . $legacy_notice . "
-				</div>";
+						$legacy_notice = '';
+						if ($is_legacy_admin_link) {
+							$legacy_notice = "
+							<div style='margin-top:16px; padding:10px 18px; border-radius:8px;
+							            background-color: rgba(54,68,210,0.07);
+							            display:inline-flex; align-items:center; gap:8px;'>
+								<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='" . esc_attr($warn_muted) . "' viewBox='0 0 16 16' style='flex-shrink:0;'>
+									<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.399l-.502 0 .07-.332C7.005 6.584 7.912 6.196 8.454 6h.37l-.82 4.588zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z'/>
+								</svg>
+								<span style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
+								             font-size: calc(" . esc_attr($warn_font_size) . " * 0.93);'>"
+								. esc_html__('This link uses an older format. For improved security, new email notifications include updated links.', 'easy-form-builder') .
+								"</span>
+							</div>";
+						}
+
+						return $overrides['font_link'] . $overrides['inline_style'] . "
+						<div id='body_efb' class='efb card-public efb'
+						     style='display:flex; flex-direction:column; align-items:center; justify-content:center;
+						            color:" . esc_attr($warn_text_color) . "; background-color:" . esc_attr($warn_bg_color) . ";
+						            font-family:" . esc_attr($warn_font_family) . "; font-size:" . esc_attr($warn_font_size) . ";
+						            padding: 40px 20px; border-radius: 12px;
+						            box-shadow: 0 2px 16px rgba(0,0,0,0.07); text-align:center;'>
+							<div style='margin-bottom:18px; text-align:center;'>
+								<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' fill='" . esc_attr($warn_primary) . "' viewBox='0 0 16 16' style='display:inline-block;'>
+									<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM8 4a.905.905 0 0 1 .9.995l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/>
+								</svg>
+							</div>
+							<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
+							           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
+							           margin:0 0 10px 0; text-align:center;'>"
+							    . esc_html__('It seems that you are the admin of this form. Please log in and try again.', 'easy-form-builder') .
+							"</h3>" . $legacy_notice . "
+						</div>";
+					} else {
+						// adminSN=false: allow without login (SMS link or email sc link)
+						$admin_verified = true;
+					}
 				} else {
-					$admin_form = false;
+					// Logged in but not a WP administrator
+					$admin_form    = false;
+					$admin_verified = false;
 				}
-			}
-
-			// If adminSN is enabled and admin verified via sc but not logged in → require login
-			if ($adminSN_enabled && $admin_verified && !is_user_logged_in()) {
-				$admin_verified = false;
-				$admin_form = false;
-
-				$overrides = $this->efb_build_inline_style_overrides();
-				$pl_warn = get_setting_Emsfb('pub');
-				$ps_warn = $pl_warn[1] ?? [];
-				$warn_text_color  = !empty($ps_warn['respText'])       ? $ps_warn['respText']       : '#1a1a2e';
-				$warn_bg_color    = !empty($ps_warn['respBgCard'])     ? $ps_warn['respBgCard']     : '#ffffff';
-				$warn_primary     = !empty($ps_warn['respPrimary'])    ? $ps_warn['respPrimary']    : '#3644d2';
-				$warn_muted       = !empty($ps_warn['respTextMuted'])  ? $ps_warn['respTextMuted']  : '#657096';
-				$warn_font_family = !empty($ps_warn['respFontFamily']) ? $ps_warn['respFontFamily'] : 'inherit';
-				$warn_font_size   = !empty($ps_warn['respFontSize'])  ? $ps_warn['respFontSize']   : '0.9rem';
-
-				return $overrides['font_link'] . $overrides['inline_style'] . "
-				<div id='body_efb' class='efb card-public efb'
-				     style='display:flex; flex-direction:column; align-items:center; justify-content:center;
-				            color:" . esc_attr($warn_text_color) . "; background-color:" . esc_attr($warn_bg_color) . ";
-				            font-family:" . esc_attr($warn_font_family) . "; font-size:" . esc_attr($warn_font_size) . ";
-				            padding: 40px 20px; border-radius: 12px;
-				            box-shadow: 0 2px 16px rgba(0,0,0,0.07); text-align:center;'>
-					<div style='margin-bottom:18px; text-align:center;'>
-						<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' fill='" . esc_attr($warn_primary) . "' viewBox='0 0 16 16' style='display:inline-block;'>
-							<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM8 4a.905.905 0 0 1 .9.995l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/>
-						</svg>
-					</div>
-					<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
-					           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
-					           margin:0 0 10px 0; text-align:center;'>"
-					    . esc_html__('It seems that you are the admin of this form. Please log in and try again', 'easy-form-builder') .
-					"</h3>
-					<p style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
-					          font-size:" . esc_attr($warn_font_size) . "; margin:0; text-align:center;'></p>
-				</div>";
 			}
 
 			if(empty($this->db)){
