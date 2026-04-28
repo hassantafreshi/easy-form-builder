@@ -38,6 +38,47 @@ class efbFunction {
         return substr(md5((string)$raw), 0, 12);
     }
 
+		private function normalize_text_settings_compat($settingsObj) {
+			if (!is_object($settingsObj) || !isset($settingsObj->text) || !is_object($settingsObj->text)) {
+				return $settingsObj;
+			}
+
+			$reset_to_defaults = [
+				'copyAndPasteBelowShortCodeTrackingCodeFinder' => esc_html__('Copy and paste this shortcode to add the confirmation code finder to any page or post.','easy-form-builder'),
+				'checkedBoxIANotRobot' => esc_html__('Please check the box of I am Not robot','easy-form-builder'),
+				'proUnlockMsg' => esc_html__('Activate Pro version for more features and unlimited access to all plugin services.','easy-form-builder'),
+				'beforeUsingYourEmailServers' => esc_html__('Use this test to check if your server can send emails properly.','easy-form-builder'),
+				'pcPreview' => esc_html__('Desktop Preview','easy-form-builder'),
+				'activateProVersion' => esc_html__('Upgrade to Pro','easy-form-builder'),
+				'fieldAvailableInProversion' => esc_html__('This feature is only available in the Pro version of Easy Form Builder.','easy-form-builder'),
+				'enterAdminEmailReceiveNoti' => esc_html__('Enter email address to receive notifications.','easy-form-builder'),
+				'howToAddGoogleMap' => esc_html__('How to Add Location Picker(maps) to Easy form Builder WordPress Plugin','easy-form-builder'),
+				'browseFile' => esc_html__('Browse the file','easy-form-builder'),
+				'freefeatureNotiEmail' => esc_html__('Email notifications are available in all versions, including Free, Free Plus, and Pro.','easy-form-builder'),
+			];
+
+			$fill_missing_defaults = [
+				'videoOrAudio' => esc_html__('(Video or Audio)','easy-form-builder'),
+				'localization' => esc_html__('Localization','easy-form-builder'),
+				'translateContrib' => esc_html__('Help us speak your language! Translate Easy Form Builder on the %1$sWordPress.org translation portal%2$s and make it accessible to your community.','easy-form-builder'),
+				'translateLocal' => esc_html__('You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.','easy-form-builder'),
+			];
+
+			foreach ($reset_to_defaults as $key => $default) {
+				if (!isset($settingsObj->text->$key) || $settingsObj->text->$key !== $default) {
+					$settingsObj->text->$key = $default;
+				}
+			}
+
+			foreach ($fill_missing_defaults as $key => $default) {
+				if (!isset($settingsObj->text->$key) || $settingsObj->text->$key === null || $settingsObj->text->$key === 'null') {
+					$settingsObj->text->$key = $default;
+				}
+			}
+
+			return $settingsObj;
+		}
+
 	protected static $lang_cache = [];
 	private const EFB_LANG_CACHE_TTL = 21600;
 
@@ -65,7 +106,8 @@ class efbFunction {
             static::$cached_settings = get_setting_Emsfb();
             static::$cached_lang = $this->detect_current_lang_slug();
         }
-        $ac = static::$cached_settings;
+	$ac = $this->normalize_text_settings_compat(static::$cached_settings);
+	static::$cached_settings = $ac;
         $efb_lang = static::$cached_lang;
         $efb_needX    = ($inp === 1);
         $efb_ver      = $this->get_text_version($ac);
@@ -622,6 +664,10 @@ class efbFunction {
 			/* translators: Sync = Synchronize - to update and match data */
 			"sync" => $state ? $ac->text->sync : esc_html__('Sync','easy-form-builder'),
 			"enterTheValueThisField" => $state ? $ac->text->enterTheValueThisField : esc_html__('This field is required.','easy-form-builder'),
+			/* translators: %s will be replaced with field type like "Required", "Validation", etc. Example: "Custom Required Message" */
+			"customMessage" => $state && isset($ac->text->customMessage) ? $ac->text->customMessage : esc_html__('Custom %s Message','easy-form-builder'),
+			/* translators: Hint text for custom message field. %s will be replaced with type like "message", "value", etc. */
+			"customMessageHint" => $state && isset($ac->text->customMessageHint) ? $ac->text->customMessageHint : esc_html__('Leave empty to use default %s','easy-form-builder'),
 			"thankYou" => $state ? $ac->text->thankYou : esc_html__('Thank you','easy-form-builder'),
 			"YouSubscribed" => $state ? $ac->text->YouSubscribed : esc_html__('You are subscribed','easy-form-builder'),
 			"passwordRecovery" => $state ? $ac->text->passwordRecovery : esc_html__('Password recovery','easy-form-builder'),
@@ -633,14 +679,14 @@ class efbFunction {
 			"red" => $state ? $ac->text->red : esc_html__('Red','easy-form-builder'),
 			"reCAPTCHASetError" => $state ? $ac->text->reCAPTCHASetError : esc_html__('Please navigate to the Easy Form Builder Panel, then go to Settings and click on Google Keys to configure the keys for Google reCAPTCHA.','easy-form-builder'),
 			"ifShowTrackingCodeToUser" => $state ? $ac->text->ifShowTrackingCodeToUser : esc_html__("To hide the Confirmation Code from users, leave the option unmarked.",'easy-form-builder'),
-			"videoOrAudio" => $state ? $ac->text->videoOrAudio : esc_html__('(Video or Audio)','easy-form-builder'),
-			"localization" => $state ? $ac->text->localization : esc_html__('Localization','easy-form-builder'),
+			"videoOrAudio" => $state && isset($ac->text->videoOrAudio) ? $ac->text->videoOrAudio : esc_html__('(Video or Audio)','easy-form-builder'),
+			"localization" => $state && isset($ac->text->localization) ? $ac->text->localization : esc_html__('Localization','easy-form-builder'),
 			/* translators: %1$s and %2$s are opening and closing HTML link tags for the WordPress.org translation portal */
-			"translateContrib" => $state ? $ac->text->translateContrib : esc_html__('Help us speak your language! Translate Easy Form Builder on the %1$sWordPress.org translation portal%2$s and make it accessible to your community.','easy-form-builder'),
+			"translateContrib" => $state && isset($ac->text->translateContrib) ? $ac->text->translateContrib : esc_html__('Help us speak your language! Translate Easy Form Builder on the %1$sWordPress.org translation portal%2$s and make it accessible to your community.','easy-form-builder'),
 			/* translators: %1$s and %2$s are opening and closing HTML link tags for the WordPress.org translation portal, %3$s is the discount percentage */
 			"translateDiscount" => $state && isset($ac->text->translateDiscount) ? $ac->text->translateDiscount : esc_html__('If your language translation is not available yet, translate it and get a %3$s lifetime discount! Contribute via the %1$sWordPress.org translation portal%2$s.','easy-form-builder'),
 			"discountOff" => $state && isset($ac->text->discountOff) ? $ac->text->discountOff : esc_html__('OFF','easy-form-builder'),
-			"translateLocal" => $state ? $ac->text->translateLocal : esc_html__('You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.','easy-form-builder'),
+			"translateLocal" => $state && isset($ac->text->translateLocal) ? $ac->text->translateLocal : esc_html__('You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.','easy-form-builder'),
 			"enterValidURL" => $state ? $ac->text->enterValidURL : esc_html__('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 			"emailOrUsername" => $state ? $ac->text->emailOrUsername : esc_html__('Email or Username','easy-form-builder'),
 			"contactusForm" => $state ? $ac->text->contactusForm : esc_html__('Contact Us Form','easy-form-builder'),
@@ -746,6 +792,8 @@ class efbFunction {
 			"contactusTemplate" => $state  &&  isset($ac->text->contactusTemplate) ? $ac->text->contactusTemplate : esc_html__('Contact us Template','easy-form-builder'),
 			"curved" => $state  &&  isset($ac->text->curved) ? $ac->text->curved : esc_html__('Curved','easy-form-builder'),
 			"multiStep" => $state  &&  isset($ac->text->multiStep) ? $ac->text->multiStep : esc_html__('Multi-Step','easy-form-builder'),
+			"noCoding" => $state  &&  isset($ac->text->noCoding) ? $ac->text->noCoding : esc_html__('No Coding','easy-form-builder'),
+			"dragAndDropBadge" => $state  &&  isset($ac->text->dragAndDropBadge) ? $ac->text->dragAndDropBadge : esc_html__('Drag & Drop','easy-form-builder'),
 			"customerFeedback" => $state  &&  isset($ac->text->customerFeedback) ? $ac->text->customerFeedback : esc_html__('Customer Feedback','easy-form-builder'),
 			"supportTicketF" => $state  &&  isset($ac->text->supportTicketF) ? $ac->text->supportTicketF : esc_html__('Support Ticket Form','easy-form-builder'),
 			"paymentform" => $state  &&  isset($ac->text->paymentform) ? $ac->text->paymentform : esc_html__('Payment Form','easy-form-builder'),
@@ -1064,6 +1112,25 @@ class efbFunction {
 			"orbit" => $state  &&  isset($ac->text->orbit) ? $ac->text->orbit : esc_html__('Orbit','easy-form-builder'),
 			"wave" => $state  &&  isset($ac->text->wave) ? $ac->text->wave : esc_html__('Wave','easy-form-builder'),
 			"hourglass" => $state  &&  isset($ac->text->hourglass) ? $ac->text->hourglass : esc_html__('Hourglass','easy-form-builder'),
+
+			/* translators: Dashboard widget — card label: %s is replaced with the word 'Page' at runtime. Example: "Page Views" */
+			"dwVisits" => $state  &&  isset($ac->text->dwVisits) ? $ac->text->dwVisits : esc_html__('%s Views','easy-form-builder'),
+			/* translators: Dashboard widget — card label: number of form submissions */
+			"dwSubmissions" => $state  &&  isset($ac->text->dwSubmissions) ? $ac->text->dwSubmissions : esc_html__('Submissions','easy-form-builder'),
+			/* translators: Generic noun used in labels like "%s Views". Example: "Page" */
+			"page" => $state  &&  isset($ac->text->page) ? $ac->text->page : esc_html__('Page','easy-form-builder'),
+			/* translators: Dashboard widget — card label: %s is replaced with the word 'Email' at runtime. Example: "Email Sent" */
+			"dwEmailsSent" => $state  &&  isset($ac->text->dwEmailsSent) ? $ac->text->dwEmailsSent : esc_html__('%s Sent','easy-form-builder'),
+			/* translators: Dashboard widget — card label: %s is replaced with the word 'Email' at runtime. Example: "Email Failures" */
+			"dwEmailsFailed" => $state  &&  isset($ac->text->dwEmailsFailed) ? $ac->text->dwEmailsFailed : esc_html__('%s Failures','easy-form-builder'),
+			/* translators: Dashboard widget — panel title: %s is replaced with the word 'Email' at runtime. Example: "Email Error Log" */
+			"dwEmailErrors" => $state  &&  isset($ac->text->dwEmailErrors) ? $ac->text->dwEmailErrors : esc_html__('%s Error Log','easy-form-builder'),
+			/* translators: Dashboard widget — table column header: recipient email address */
+			"dwRecipient" => $state  &&  isset($ac->text->dwRecipient) ? $ac->text->dwRecipient : esc_html__('Recipient','easy-form-builder'),
+			/* translators: Dashboard widget — table column header: %s is replaced with the word 'Error' at runtime. Example: "Error Details" */
+			"dwErrorDetail" => $state  &&  isset($ac->text->dwErrorDetail) ? $ac->text->dwErrorDetail : esc_html__('%s Details','easy-form-builder'),
+			/* translators: Dashboard widget — shown when there is no data to display */
+			"dwNoData" => $state  &&  isset($ac->text->dwNoData) ? $ac->text->dwNoData : esc_html__('No data available for this period','easy-form-builder'),
 			"fernvtf" => $state  &&  isset($ac->text->fernvtf) ? $ac->text->fernvtf : esc_html__('The entered data does not match the form type. If you are an admin, please review the form type.','easy-form-builder'),
 			"fetf" => $state  &&  isset($ac->text->fetf) ? $ac->text->fetf : esc_html__('Error: Please ensure there is only one form per page.','easy-form-builder'),
 			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : esc_html__('Your activation code has been verified. Enjoy all Pro features of Easy Form Builder.','easy-form-builder'),
@@ -1520,6 +1587,8 @@ class efbFunction {
 
 			"TAdnAtF" => $state  &&  isset($ac->text->TAdnAtF) ? $ac->text->TAdnAtF : esc_html__('Auto-Populate Addon','easy-form-builder'),
 			"DAdnAtF" => $state  &&  isset($ac->text->DAdnAtF) ? $ac->text->DAdnAtF : esc_html__('The Auto-Populate addon enables you to automatically populate form fields from datasets, previously submitted forms, or external APIs.','easy-form-builder'),
+			"TAdnGoS" => $state  &&  isset($ac->text->TAdnGoS) ? $ac->text->TAdnGoS : esc_html__('Google Sheet Addon','easy-form-builder'),
+			"DAdnGoS" => $state  &&  isset($ac->text->DAdnGoS) ? $ac->text->DAdnGoS : esc_html__('Sync form submissions with Google Sheets in real-time via webhook integration.','easy-form-builder'),
 			"fillrequiredfields" => $state && isset($ac->text->fillrequiredfields) ? $ac->text->fillrequiredfields : esc_html__('Please fill in all required fields', 'easy-form-builder'),
 
 		];
@@ -1763,8 +1832,18 @@ class efbFunction {
 						}
 					break;
 					case 'conditions':
-
-						$valp[$key][$k]=sanitize_text_field($v);
+						if(is_array($v)){
+							$valp[$key][$k] = $this->sanitize_logic_conditions($v);
+						} else {
+							$valp[$key][$k]=sanitize_text_field($v);
+						}
+					break;
+					case 'logic_rules':
+						if(is_array($v)){
+							$valp[$key][$k] = $this->sanitize_logic_rules($v);
+						} else {
+							$valp[$key][$k]=sanitize_text_field($v);
+						}
 					break;
 					default:
 					$k =sanitize_text_field($k);
@@ -1775,6 +1854,89 @@ class efbFunction {
 			}
 		}
 		return $valp;
+	}
+
+	/**
+	 * Sanitize logic_rules array (new conditional logic data model)
+	 */
+	private function sanitize_logic_rules($rules) {
+		if (!is_array($rules)) return array();
+		$clean = array();
+		$allowed_operators = array('AND', 'OR');
+		$allowed_compares = array('is','is_not','contains','not_contains','starts_with','ends_with','gt','lt','is_empty','is_not_empty');
+		$allowed_action_types = array('show_field','hide_field','set_required','set_optional','enable_field','disable_field','show_step','hide_step');
+		$allowed_scopes = array('field','step','notification','confirmation','webhook','pricing');
+
+		foreach ($rules as $rule) {
+			if (!is_array($rule)) continue;
+			$r = array();
+			$r['id'] = isset($rule['id']) ? sanitize_text_field($rule['id']) : '';
+			$r['name'] = isset($rule['name']) ? sanitize_text_field($rule['name']) : '';
+			$r['scope'] = isset($rule['scope']) && in_array($rule['scope'], $allowed_scopes, true) ? $rule['scope'] : 'field';
+			$r['enabled'] = isset($rule['enabled']) ? (bool) $rule['enabled'] : true;
+			$r['priority'] = isset($rule['priority']) ? intval($rule['priority']) : 10;
+
+			$r['conditions'] = array('type' => 'group', 'operator' => 'AND', 'items' => array());
+			if (isset($rule['conditions']) && is_array($rule['conditions'])) {
+				$cg = $rule['conditions'];
+				$r['conditions']['operator'] = isset($cg['operator']) && in_array($cg['operator'], $allowed_operators, true) ? $cg['operator'] : 'AND';
+				if (isset($cg['items']) && is_array($cg['items'])) {
+					foreach ($cg['items'] as $item) {
+						if (!is_array($item)) continue;
+						$ci = array();
+						$ci['source'] = 'field';
+						$ci['field_id'] = isset($item['field_id']) ? sanitize_text_field($item['field_id']) : '';
+						$ci['compare'] = isset($item['compare']) && in_array($item['compare'], $allowed_compares, true) ? $item['compare'] : 'is';
+						$ci['value'] = isset($item['value']) ? sanitize_text_field($item['value']) : '';
+						$r['conditions']['items'][] = $ci;
+					}
+				}
+			}
+
+			$r['actions'] = array();
+			if (isset($rule['actions']) && is_array($rule['actions'])) {
+				foreach ($rule['actions'] as $act) {
+					if (!is_array($act)) continue;
+					$a = array();
+					$a['type'] = isset($act['type']) && in_array($act['type'], $allowed_action_types, true) ? $act['type'] : '';
+					$a['target'] = isset($act['target']) ? sanitize_text_field($act['target']) : '';
+					if (isset($act['value'])) $a['value'] = sanitize_text_field($act['value']);
+					$r['actions'][] = $a;
+				}
+			}
+
+			$clean[] = $r;
+		}
+		return $clean;
+	}
+
+	/**
+	 * Sanitize legacy conditions array
+	 */
+	private function sanitize_logic_conditions($conditions) {
+		if (!is_array($conditions)) return array();
+		$clean = array();
+		foreach ($conditions as $cond) {
+			if (!is_array($cond)) continue;
+			$c = array();
+			$c['id_'] = isset($cond['id_']) ? sanitize_text_field($cond['id_']) : '';
+			$c['state'] = isset($cond['state']) ? (bool) $cond['state'] : false;
+			$c['show'] = isset($cond['show']) ? (bool) $cond['show'] : true;
+			if (isset($cond['condition']) && is_array($cond['condition'])) {
+				$c['condition'] = array();
+				foreach ($cond['condition'] as $rule) {
+					if (!is_array($rule)) continue;
+					$c['condition'][] = array(
+						'no' => isset($rule['no']) ? sanitize_text_field($rule['no']) : '0',
+						'term' => isset($rule['term']) ? sanitize_text_field($rule['term']) : 'is',
+						'one' => isset($rule['one']) ? sanitize_text_field($rule['one']) : '',
+						'two' => isset($rule['two']) ? sanitize_text_field($rule['two']) : ''
+					);
+				}
+			}
+			$clean[] = $c;
+		}
+		return $clean;
 	}
 
 	public function get_geolocation() {
@@ -1789,7 +1951,7 @@ class efbFunction {
         } else {$ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));}
         $ip = strval($ip);
         $check =strpos($ip,',');
-        if($check!=false){$ip = substr($ip,0,$check);}
+        if($check !== false){$ip = substr($ip,0,$check);}
         return $ip;
     }
 
@@ -1911,6 +2073,28 @@ public function addon_add_efb($value) {
 
         if ($success) {
 			update_option($name_space, 1);
+			$ac = get_setting_Emsfb('decoded');
+			if(isset($ac->AdnSPF)==false){
+				$ac->AdnSPF=0;
+				$ac->AdnOF=0;
+				$ac->AdnPPF=0;
+				$ac->AdnATC=0;
+				$ac->AdnSS=0;
+				$ac->AdnCPF=0;
+				$ac->AdnESZ=0;
+				$ac->AdnSE=0;
+				$ac->AdnWHS=0;
+				$ac->AdnPAP=0;
+				$ac->AdnWSP=0;
+				$ac->AdnSMF=0;
+				$ac->AdnPLF=0;
+				$ac->AdnMSF=0;
+				$ac->AdnBEF=0;
+				$ac->AdnGoS=0;
+			}
+			$ac->{$value}=1;
+			$ac->efb_version=EMSFB_PLUGIN_VERSION;
+			$this->set_setting_Emsfb( $ac, $ac->emailSupporter );
 			$message = esc_html__('The %s has been successfully completed','easy-form-builder');
 			$message = sprintf($message,  esc_html__('installation','easy-form-builder'));
             return array('status' => true, 'message' => $message );
@@ -1992,6 +2176,7 @@ public function addon_add_efb($value) {
 		$addons['AdnPDP']	=	isset($settings->AdnPDP)	? $settings->AdnPDP	:0;
 		$addons['AdnADP']	=	isset($settings->AdnADP)	? $settings->AdnADP	:0;
 		$addons['AdnATF']	=	isset($settings->AdnATF)	? $settings->AdnATF	:0;
+		$addons['AdnGoS']	=	isset($settings->AdnGoS)	? $settings->AdnGoS	:0;
 		$addons['AdnPAP']	=	isset($settings->AdnPAP)	? $settings->AdnPAP	:0;
 		$addons['AdnOF']	=	isset($settings->AdnOF)		? $settings->AdnOF	:0;
 
@@ -1999,6 +2184,13 @@ public function addon_add_efb($value) {
 		foreach ($addons as $key => $value) {
 
 			if($value ==1){
+				if ($key === 'AdnGoS') {
+					$local_gs = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
+					if (file_exists($local_gs)) {
+						update_option('emsfb_addon_AdnGoS', 2);
+						continue;
+					}
+				}
 				$r =$this->addon_add_efb($key);
 				if(!is_array($r) || !isset($r['status'])){
 					$state=false;
@@ -2390,7 +2582,7 @@ public function addon_add_efb($value) {
 			}
 
 			$request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : null;
-		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') == false ){
+		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') === false ){
 				wp_safe_redirect($request_uri);
 				exit;
 			}else{
@@ -2852,6 +3044,10 @@ public function addon_add_efb($value) {
 		$allowed_domains = array('google.com', 'gstatic.com', 'googleapis.com', 'googleusercontent.com', 'youtube.com', 'ytimg.com', 'microsoft.com', 'office.com', 'live.com', 'msn.com', 'outlook.com', 'amazonaws.com', 'cloudfront.net', 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com', 'jsdelivr.net', 'unpkg.com', 'facebook.com', 'fbcdn.net', 'twitter.com', 'twimg.com', 'github.com', 'github.io', 'vimeo.com', 'vimeocdn.com', 'wikipedia.org', 'wikimedia.org', 'wikidata.org', 'stripe.com', 'paypal.com', 'braintreepayments.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'use.fontawesome.com', 'dailymotion.com', 'dmcdn.net', 'maps.googleapis.com', 'openstreetmap.org', 'mapbox.com', 'gravatar.com', 'unsplash.com', 'placekitten.com', 'placehold.co', 'akamaihd.net', 'cloudflare.com', 'fastly.net', 'linkedin.com', 'apple.com', 'adobe.com', 'cdn.shopify.com', 'example.com', 'example.org', 'trusted.com', 'cdn.trusted.com');
 
 		$allowed_tags = array(
+			'html' => array('xmlns' => true, 'lang' => true, 'dir' => true, 'xmlns:v' => true, 'xmlns:o' => true),
+			'head' => array(),
+			'body' => array_merge($global_attributes, array('bgcolor' => true)),
+			'style' => array('type' => true, 'media' => true),
 			'a' => array_merge($global_attributes, array(
 				'href' => true,
 				'title' => true,
@@ -3161,6 +3357,7 @@ public function addon_add_efb($value) {
 			'AdnPAP' => 0,
 			'AdnTLG' => 0,
 			'AdnATF' => 0,
+			'AdnGoS' => 0,
 		];
 		if($ac!=null && isset($ac->AdnSPF)==true){
 			$addons['AdnSPF'] = isset($ac->AdnSPF) ? intval($ac->AdnSPF) : 0;
@@ -3176,6 +3373,7 @@ public function addon_add_efb($value) {
 			$addons["AdnPAP"] =  isset($ac->AdnPAP) ? intval($ac->AdnPAP) : 0;
 			$addons["AdnTLG"] =  isset($ac->AdnTLG) ? intval($ac->AdnTLG) : 0;
 			$addons['AdnATF'] =	isset($ac->AdnATF)	? intval($ac->AdnATF)	:0;
+			$addons['AdnGoS'] =	isset($ac->AdnGoS)	? intval($ac->AdnGoS)	:0;
 		}
 
 		return $addons;

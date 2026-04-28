@@ -1,0 +1,541 @@
+/* ==========================================================================
+   EFB Conditional Logic Builder — Styles
+   ========================================================================== */
+
+/* ── Modal Override ── */
+#settingModalEfb.efb-logic-modal .modal-dialog {
+  max-width: 680px;
+  margin: 2rem auto;
+}
+#settingModalEfb.efb-logic-modal .modal-content {
+  border-radius: 16px;
+}
+#settingModalEfb.efb-logic-modal .modal-header {
+  border-radius: 16px 16px 0 0;
+}
+#settingModalEfb.efb-logic-modal .modal-body {
+  padding: 0;
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 0 0 16px 16px;
+  /* Override Bootstrap .row that gets added to modal-body */
+  margin-left: 0;
+  margin-right: 0;
+  flex-wrap: nowrap;
+}
+
+/* ── Rules List View ── */
+.efb-logic-list {
+  padding: 20px 24px;
+}
+.efb-logic-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+.efb-logic-list-header h5 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+.efb-logic-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.efb-logic-add-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+}
+.efb-logic-add-btn i {
+  font-size: 14px;
+}
+.efb-logic-add-btn-center {
+  margin-top: 12px;
+}
+
+/* ── Not Configured State ── */
+.efb-logic-not-configured {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 11px;
+}
+
+/* ── Empty State ── */
+.efb-logic-empty {
+  text-align: center;
+  padding: 48px 24px;
+}
+.efb-logic-empty-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.efb-logic-empty-icon i {
+  font-size: 28px;
+  color: #6366f1;
+}
+.efb-logic-empty h6 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 6px;
+}
+.efb-logic-empty p {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* ── Rule Card ── */
+.efb-logic-rule-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.efb-logic-rule-card:hover {
+  border-color: #c7d2fe;
+  background: #f1f5f9;
+}
+.efb-logic-rule-card.disabled {
+  opacity: 0.55;
+}
+.efb-logic-rule-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.efb-logic-rule-toggle {
+  flex-shrink: 0;
+}
+.efb-logic-rule-info {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.efb-logic-rule-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.efb-logic-rule-summary {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.efb-logic-rule-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.efb-logic-rule-actions button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.efb-logic-rule-actions button:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+.efb-logic-rule-actions button.efb-logic-delete-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* ── Scope Badge ── */
+.efb-logic-scope-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #e0e7ff;
+  color: #4338ca;
+  margin-inline-start: 8px;
+  vertical-align: middle;
+}
+
+/* ── Rule Editor View ── */
+.efb-logic-editor {
+  padding: 0;
+}
+.efb-logic-editor-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fafbfc;
+}
+.efb-logic-back-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.efb-logic-back-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+.efb-logic-editor-title {
+  flex: 1;
+  min-width: 0;
+}
+.efb-logic-editor-title input {
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  width: 100%;
+  padding: 4px 0;
+  outline: none;
+}
+.efb-logic-editor-title input:focus {
+  border-bottom: 2px solid #6366f1;
+}
+
+.efb-logic-editor-body {
+  padding: 20px 24px;
+}
+
+/* ── IF / THEN Sections ── */
+.efb-logic-section {
+  margin-bottom: 0;
+}
+.efb-logic-section-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+.efb-logic-section-label.efb-if-label {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.efb-logic-section-label.efb-then-label {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* ── Condition Row ── */
+.efb-logic-condition-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.efb-logic-condition-row select,
+.efb-logic-condition-row input {
+  height: 38px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 13px;
+  color: #334155;
+  background: #fff;
+  transition: border-color 0.15s ease;
+  outline: none;
+}
+.efb-logic-condition-row select:focus,
+.efb-logic-condition-row input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+.efb-logic-field-select {
+  flex: 2;
+  min-width: 140px;
+}
+.efb-logic-operator-select {
+  flex: 1;
+  min-width: 100px;
+}
+.efb-logic-value-input,
+.efb-logic-value-select {
+  flex: 2;
+  min-width: 120px;
+}
+.efb-logic-remove-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.efb-logic-remove-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* ── AND / OR Toggle Between Conditions ── */
+.efb-logic-operator-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0 8px 0;
+}
+.efb-logic-operator-toggle button {
+  padding: 3px 14px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.efb-logic-operator-toggle button:first-child {
+  border-radius: 8px 0 0 8px;
+}
+.efb-logic-operator-toggle button:last-child {
+  border-radius: 0 8px 8px 0;
+  border-inline-start: none;
+}
+.efb-logic-operator-toggle button.active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #fff;
+}
+
+/* ── Add Condition / Action Button (small) ── */
+.efb-logic-add-row-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 4px;
+}
+.efb-logic-add-row-btn:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+  background: #f5f3ff;
+}
+.efb-logic-add-row-btn i {
+  font-size: 13px;
+}
+
+/* ── Visual Connector (dot-line-diamond) ── */
+.efb-logic-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+}
+.efb-logic-connector-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+.efb-logic-connector-line {
+  width: 2px;
+  height: 18px;
+  background: #cbd5e1;
+}
+.efb-logic-connector-diamond {
+  width: 12px;
+  height: 12px;
+  background: #6366f1;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+/* ── Action Row ── */
+.efb-logic-action-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.efb-logic-action-row select {
+  height: 38px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 13px;
+  color: #334155;
+  background: #fff;
+  transition: border-color 0.15s ease;
+  outline: none;
+}
+.efb-logic-action-row select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+.efb-logic-action-type-select {
+  flex: 1;
+  min-width: 120px;
+}
+.efb-logic-action-target-select {
+  flex: 2;
+  min-width: 140px;
+}
+
+/* ── Footer / Apply ── */
+.efb-logic-editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: #fafbfc;
+}
+.efb-logic-apply-btn {
+  padding: 9px 28px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+}
+.efb-logic-apply-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+}
+
+/* ── Toggle Switch (small) ── */
+.efb-logic-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  cursor: pointer;
+}
+.efb-logic-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.efb-logic-toggle-track {
+  position: absolute;
+  inset: 0;
+  background: #cbd5e1;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+.efb-logic-toggle input:checked + .efb-logic-toggle-track {
+  background: #6366f1;
+}
+.efb-logic-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.efb-logic-toggle input:checked ~ .efb-logic-toggle-thumb {
+  transform: translateX(16px);
+}
+
+/* ── RTL Support ── */
+[dir="rtl"] .efb-logic-back-btn i {
+  transform: scaleX(-1);
+}
+[dir="rtl"] .efb-logic-toggle-thumb {
+  left: auto;
+  right: 2px;
+}
+[dir="rtl"] .efb-logic-toggle input:checked ~ .efb-logic-toggle-thumb {
+  transform: translateX(-16px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  #settingModalEfb.efb-logic-modal .modal-dialog {
+    max-width: 95%;
+    margin: 1rem auto;
+  }
+  .efb-logic-condition-row,
+  .efb-logic-action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .efb-logic-condition-row select,
+  .efb-logic-condition-row input,
+  .efb-logic-action-row select {
+    width: 100%;
+  }
+  .efb-logic-remove-btn {
+    align-self: flex-end;
+  }
+}

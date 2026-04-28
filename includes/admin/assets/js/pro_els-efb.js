@@ -292,7 +292,8 @@ function ui_dadfile_efb(indx, previewSate,form_id) {
 function viewfileEfb(id, indx ,filed,form_id) {
   const valj_efb = get_structure_by_form_id_efb(form_id);
     if(filed==undefined) {
-      document.getElementById(`${valj_efb[indx].id_}_-message`).style.display='none'
+      document.getElementById(`${valj_efb[indx].id_}_-message`).innerHTML='';
+      document.getElementById(`${valj_efb[indx].id_}_-message`).style.display='none';
       return;}
     const filename =  filed.name ;
     let fileType =valj_efb[indx].file=='customize' ? filename.slice(filename.lastIndexOf('.') + 1) : filed.type;
@@ -1566,6 +1567,7 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
 
     const el = document.getElementById(`${id}-sig-data`);
     const value = el.value;
+    document.getElementById(`${id}_-message`).innerHTML='';
     document.getElementById(`${id}_-message`).style.display='none';
     const o = [{ id_: id, name: v.name, amount: v.amount, type: v.type, value: value, session: sessionPub_emsFormBuilder, form_id: form_id }];
     fun_sendBack_emsFormBuilder(o[0]);

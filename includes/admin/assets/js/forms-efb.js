@@ -10,17 +10,67 @@ function textThankUEFB(tp){
     }
     switch (tp) {
         case 'register':
-            tk.thankYou=efb_var.text.createAcountDoneM;
+            tk.thankYou = efb_var.text.createAcountDoneM;
+            tk.done = efb_var.text.yad;
             return tk;
-            break;
         case 'survey':
-            tk.thankYou=efb_var.text.thanksFillingOutform;
+            tk.thankYou = efb_var.text.surveyComplatedM || efb_var.text.thanksFillingOutform;
+            tk.done = efb_var.text.yad;
             return tk;
-
+        case 'payment':
+            tk.thankYou = efb_var.text.successPayment || efb_var.text.thanksFillingOutform;
+            tk.done = efb_var.text.yad;
+            return tk;
+        case 'login':
+            tk.thankYou = efb_var.text.welcome || efb_var.text.thanksFillingOutform;
+            tk.done = efb_var.text.yad;
+            return tk;
         default:
-            return tk
-        break;
+            return tk;
     }
+}
+
+// Get default thank you messages based on form type
+function getDefaultThankYouByType(formType) {
+    const defaults = {
+        form: {
+            thankYou: efb_var.text.thanksFillingOutform,
+            done: efb_var.text.yad
+        },
+        register: {
+            thankYou: efb_var.text.createAcountDoneM,
+            done: efb_var.text.yad
+        },
+        survey: {
+            thankYou: efb_var.text.surveyComplatedM || efb_var.text.thanksFillingOutform,
+            done: efb_var.text.yad
+        },
+        payment: {
+            thankYou: efb_var.text.successPayment || efb_var.text.thanksFillingOutform,
+            done: efb_var.text.yad
+        },
+        login: {
+            thankYou: efb_var.text.welcome || efb_var.text.thanksFillingOutform,
+            done: efb_var.text.yad
+        }
+    };
+    return defaults[formType] || defaults.form;
+}
+
+// Check if thank you message is still default (not customized)
+function isDefaultThankYou(currentValue) {
+    const defaultValues = [
+        efb_var.text.thanksFillingOutform,
+        efb_var.text.createAcountDoneM,
+        efb_var.text.surveyComplatedM,
+        efb_var.text.successPayment,
+        efb_var.text.welcome
+    ].filter(v => v); // filter out undefined
+    return defaultValues.includes(currentValue);
+}
+
+function isDefaultDone(currentValue) {
+    return currentValue === efb_var.text.yad;
 }
 
 function private_contact_us_template_efb(){

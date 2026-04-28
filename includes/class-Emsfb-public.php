@@ -70,6 +70,14 @@ class _Public {
 				'permission_callback' => [$this, 'check_nonce_permission_efb']
 			]);
 
+			register_rest_route('Emsfb/v1','nonce/refresh', [
+				'methods' => 'GET',
+				'callback' => function() {
+					return new \WP_REST_Response(['nonce' => wp_create_nonce('wp_rest')], 200);
+				},
+				'permission_callback' => '__return_true',
+			]);
+
 		});
 
 		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EFB_Form_Builder' ) );
@@ -79,11 +87,6 @@ class _Public {
 		add_action('init',  array($this, 'hide_toolmenu'));
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
-
-		add_action('wp_ajax_efb_process_background', [$this, 'process_background_task']);
-		add_action('wp_ajax_nopriv_efb_process_background', [$this, 'process_background_task']);
-
-		add_action('efb_process_background_cron', [$this, 'process_background_cron'], 10, 1);
 
 		if (!is_admin()) {
 			add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
@@ -254,13 +257,8 @@ public function check_nonce_permission_efb($request) {
 			return;
 		}
 
-		if (!isset(wp_scripts()->registered['jquery']) || version_compare(wp_scripts()->registered['jquery']->ver , '3.6.0' , '<')) {
-			$wp_version = get_bloginfo('version');
-			if (version_compare($wp_version, '6.0', '>')) {
-				wp_enqueue_script('jquery', includes_url('/js/jquery/jquery.js') , false, '3.7.1', true);
-			}else {
-				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min-efb.js', false, '3.6.2', true);
-			}
+		if ( ! wp_script_is( 'jquery', 'enqueued' ) ) {
+			wp_enqueue_script('jquery');
 		}
 	}
 
@@ -767,14 +765,14 @@ public function check_nonce_permission_efb($request) {
 			$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 
 			$lang = get_locale();
-			$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
+			$lang =strpos($lang,'_') !== false ? explode( '_', $lang )[0]:$lang;
 
 			$typeOfForm =$value_form_data->form_type ?? 'track';
 			$value = $value_form_data->form_structer ?? 'track';
 			$state="form";
 			$multi_exist = strpos($value , '"type\":\"multiselect\"');
-			if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-				wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,EMSFB_PLUGIN_VERSION, true );
+			if($multi_exist !== false || strpos($value , '"type":"multiselect"') !== false || strpos($value , '"type\":\"payMultiselect\"') !== false || strpos($value , '"type":"payMultiselect"') !== false){
+				wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true );
 				wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,EMSFB_PLUGIN_VERSION );
 				wp_enqueue_style('Emsfb-bootstrap-select-css');
 			}
@@ -822,9 +820,11 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 
-					if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
+					if(strpos($value , '\"logic\":\"1\"') !== false || strpos($value , '"logic":"1"') !== false || strpos($value , '"logic_rules"') !== false){
 						wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', array(), EMSFB_PLUGIN_VERSION, true);
 						wp_enqueue_script('logic-efb');
+						wp_register_script('logic-runtime-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic-runtime-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
+						wp_enqueue_script('logic-runtime-efb');
 					}
 
 				$send=array();
@@ -868,7 +868,7 @@ public function check_nonce_permission_efb($request) {
 					}
 				}else{
 					$new_string_value = json_encode($value);
-					if(strpos($new_string_value , 'type":"maps"') || strpos($new_string_value , 'type\":\"maps\"')){
+					if(strpos($new_string_value , 'type":"maps"') !== false || strpos($new_string_value , 'type\":\"maps\"') !== false){
 						$sm = $this->efbFunction->openstreet_map_required_efb(1);
 						if($sm==false){
 							$s_m =" <script>alert('OpenStreetMap Error:".$lanText['tfnapca']."')</script>";
@@ -1032,7 +1032,7 @@ public function check_nonce_permission_efb($request) {
 
 				if($i>1){
 					if(in_array($valj_efb[$i]->type, $list_pro_elements) && $pro_element_exists == false && $pro == true){
-						wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
+						wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 						$pro_element_exists = true;
 					}
 					if(in_array($valj_efb[$i]->type, ["option","r_matrix"])) {continue;
@@ -1059,13 +1059,13 @@ public function check_nonce_permission_efb($request) {
 							}
 
 							if($autofill_id >0){
-								wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+								wp_enqueue_script('efb-autofill', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-public-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 							}else if($autofill_id == 0){
 
 								$autofill_api = isset($valj_efb[0]->autofill_api) ? $valj_efb[0]->autofill_api : false;
 								$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
 								if($autofill_api && !empty($autofill_api_id)){
-									wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+									wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 								}
 							}
 						}
@@ -1076,7 +1076,7 @@ public function check_nonce_permission_efb($request) {
 							}
 							$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
 							if(!empty($autofill_api_id)){
-								wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js',false,EMSFB_PLUGIN_VERSION);
+								wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 							}
 						}
 
@@ -1203,6 +1203,15 @@ public function check_nonce_permission_efb($request) {
 			$direction_attr = is_rtl() ? ' dir="rtl"' : '';
 
 			$mobile_css_efb = $efbFormBuilder->generate_mobile_css_efb();
+			if($valj_efb[0]->type=="login" || $valj_efb[0]->type=="register"){
+
+				$ps_form = $this->pub_stting ?? (get_setting_Emsfb('pub')[1] ?? []);
+				$overrides_form = $this->efb_build_inline_style_overrides($ps_form);
+				$inline_style_form = $overrides_form['inline_style'];
+				$font_link_form = $overrides_form['font_link'];
+				$mobile_css_efb = $mobile_css_efb.$font_link_form.$inline_style_form;
+
+			}
                         $content_new = $style.$mobile_css_efb.$efb_loading_ui_script.$script.$bootstrap_icons.''.$iconst_html_preload.'
 				<!-- start body_efb-->
 
@@ -1362,7 +1371,7 @@ public function check_nonce_permission_efb($request) {
 
 		$this->comper_version_efb($pl[1]['version']);
 		if($pro==true){
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,EMSFB_PLUGIN_VERSION);
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 		}
 
 		$location = '';
@@ -1564,100 +1573,6 @@ public function check_nonce_permission_efb($request) {
 			isset($_SERVER['SERVER_SOFTWARE']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : 'Unknown',
 			PHP_SAPI
 		);
-	}
-
-	private function trigger_background_processing($data) {
-
-		$transient_key = 'efb_bg_' . $data['track_id'];
-		set_transient($transient_key, $data, 300);
-
-		if (function_exists('wp_schedule_single_event')) {
-			wp_schedule_single_event(time(), 'efb_process_background_cron', [$data['track_id']]);
-			spawn_cron();
-			return;
-		}
-
-		$url = admin_url('admin-ajax.php');
-
-		wp_remote_post($url, [
-			'timeout'   => 0.01,
-			'blocking'  => false,
-			'sslverify' => false,
-			'body'      => [
-				'action'   => 'efb_process_background',
-				'track_id' => $data['track_id']
-			]
-		]);
-
-	}
-
-	public function process_background_task() {
-
-		$track_id = isset($_POST['track_id']) ? sanitize_text_field($_POST['track_id']) : '';
-
-		if (empty($track_id)) {
-			exit;
-		}
-
-		$transient_key = 'efb_bg_' . $track_id;
-		$data = get_transient($transient_key);
-
-		if (!$data) {
-			exit;
-		}
-
-		delete_transient($transient_key);
-
-		$timing_start = microtime(true);
-
-		$timing_sms_start = microtime(true);
-		if ($data['send_sms'] && !empty($data['phone_numbers'])) {
-			$smsSendResult = $this->efbFunction->sms_ready_for_send_efb(
-				$data['form_id'],
-				$data['phone_numbers'],
-				$data['url'],
-				'fform',
-				'wpsms',
-				$data['track_id']
-			);
-
-			if ($smsSendResult !== true) {
-			}
-		}
-		$timing_sms = round((microtime(true) - $timing_sms_start) * 1000, 2);
-
-		$timing_email_start = microtime(true);
-		if ($data['send_email']) {
-			$this->email_list_efb($data['email_user'], 0, $data['email_fa'], true);
-
-			$state_email_user = $data['trackingCode_state'] == 1
-				? 'notiToUserFormFilled_TrackingCode'
-				: 'notiToUserFormFilled';
-
-			$msg_content = 'null';
-			if (isset($data['formObj'][0]['email_noti_type']) && $data['formObj'][0]['email_noti_type'] == 'msg') {
-				$msg_content = $this->email_get_content_efb($data['valobj'], $data['track_id']);
-				$msg_content = str_replace("\"", "'", $msg_content);
-			}
-
-			$status_email = $this->email_status_efb($data['formObj'], $data['valobj'], $data['track_id']);
-			$state_of_email = ['newMessage', $state_email_user, $status_email['type']];
-
-			$this->send_email_Emsfb_(
-				$data['email_user'],
-				$data['track_id'],
-				$data['pro'],
-				$state_of_email,
-				$data['url'],
-				$status_email['content'],
-				$status_email['subject']
-			);
-		}
-		$timing_email = round((microtime(true) - $timing_email_start) * 1000, 2);
-
-		$timing_total = round((microtime(true) - $timing_start) * 1000, 2);
-
-		exit;
 	}
 
 	  public function get_form_public_efb($data_POST_) {
@@ -2219,7 +2134,7 @@ public function check_nonce_permission_efb($request) {
 									break;
 								case 'esign':
 									$is_valid = 0;
-									if (isset($item['value']) && strpos($item['value'], 'data:image/png;base64,') == 0) {
+									if (isset($item['value']) && is_string($item['value']) && strpos($item['value'], 'data:image/png;base64,') === 0) {
 										$is_valid = 1;
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$validated_item = $item;
@@ -2250,7 +2165,7 @@ public function check_nonce_permission_efb($request) {
 									$is_valid = 0;
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									$l = strlen($item['value']);
-									if (isset($item['value']) && strpos($item['value'], '#') == 0 && $l == 7) {
+									if (isset($item['value']) && is_string($item['value']) && strpos($item['value'], '#') === 0 && $l == 7) {
 										$item['value'] = sanitize_text_field($item['value']);
 										$is_valid = 1;
 										$validated_item = $item;
@@ -2381,20 +2296,21 @@ public function check_nonce_permission_efb($request) {
 							$userid =(int) $state->data->ID;
 							$username = $state->data->user_login;
 
-							// Generate recovery content
-							$ms = $this->fun_get_content_email_register_recovery_efb($userid, $username, $email, $this->id, 'recovery', $page_id);
-							$subject = esc_html__("Password recovery", 'easy-form-builder') . " [" . get_bloginfo('name') . "]";
-							$recovery_link = get_permalink($page_id);
+							// Prepare recovery data - returns array with url and username
+							$recovery_data = $this->fun_get_content_email_register_recovery_efb($userid, $username, $email, $this->id, 'recovery', $page_id);
+							$recovery_url = $recovery_data['url'];
 
-							// Use the plugin's centralized email sender (no direct include in this class)
+							$subject = esc_html__("Password recovery", 'easy-form-builder') . " [" . get_bloginfo('name') . "]";
+
+							// Use the plugin's centralized email sender with the full recovery URL
 							$pro = $this->efbFunction->is_efb_pro(1);
 							$sent = $this->efbFunction->send_email_state_new(
 								$email,
 								$subject,
-								$ms,
+								$username,
 								$pro,
 								'recovery',
-								$recovery_link,
+								$recovery_url,
 								$plugin_settings
 							);
 
@@ -2702,12 +2618,10 @@ public function check_nonce_permission_efb($request) {
 										$to = $email;
 
 										$this->email_list_efb($email_recipients, 1, $email, true);
-										$firstChar = $password[0];
-										$lastChar = $password[strlen($password) - 1];
-										$maskedPassword = $firstChar . str_repeat('*', strlen($password) - 2) . $lastChar;
-										$ms = "<p>" . esc_html__('Username', 'easy-form-builder') . ": " . $username . " </p> <p>" . esc_html__('Password', 'easy-form-builder') . ": " . $maskedPassword . "</p>";
 
-										$ms=$this->fun_get_content_email_register_recovery_efb($state, $username, $email, $this->id ,'register',$page_id);
+										// Prepare registration verification data
+										$register_data = $this->fun_get_content_email_register_recovery_efb($state, $username, $email, $this->id, 'register', $page_id);
+										$verification_url = $register_data['url'];
 
 										$state_of_email = ['newUser', 'register'];
 										$this->efbFunction->efb_code_validate_update($session_id, 'register', $track_code);
@@ -2726,7 +2640,8 @@ public function check_nonce_permission_efb($request) {
 
 									if ($should_send_email) {
 										$msg_sub = isset($form_fields_array[0]['email_sub']) && $form_fields_array[0]['email_sub'] != '' ? $form_fields_array[0]['email_sub'] : 'null';
-										$this->send_email_Emsfb_($email_recipients, $ms, $is_pro, $state_of_email, $url, 'null', $msg_sub);
+										// Pass username for email content and verification_url for the button link
+										$this->send_email_Emsfb_($email_recipients, $username, $is_pro, $state_of_email, $verification_url, 'null', $msg_sub);
 									}
 
 									if (isset($form_fields_array[0]['smsnoti']) && $form_fields_array[0]['smsnoti'] == 1) {
@@ -2760,7 +2675,7 @@ public function check_nonce_permission_efb($request) {
 										'remember' => true
 									];
 									$user = wp_signon($creds, false);
-									if(isset($form_fields_array[0]['rePage']) && isset($form_fields_array[0]['thank_you'] ) && $form_fields_array[0]['thank_you'] == "rdrct"){
+									if(is_array($form_fields_array) && isset($form_fields_array[0]['rePage']) && isset($form_fields_array[0]['thank_you'] ) && $form_fields_array[0]['thank_you'] == "rdrct"){
 										$redirect_url = $this->string_to_url($form_fields_array[0]['rePage']);
 									}
 									if (isset($user->ID)) {
@@ -3055,7 +2970,7 @@ public function check_nonce_permission_efb($request) {
         } else {$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );}
         $ip = strval($ip);
         $check =strpos($ip,',');
-        if($check!=false){$ip = substr($ip,0,$check);}
+        if($check !== false){$ip = substr($ip,0,$check);}
         return $ip;
     }
 	public function file_upload_public(){
@@ -3107,6 +3022,16 @@ public function check_nonce_permission_efb($request) {
 			if (empty($file_tmp) || !is_uploaded_file($file_tmp) || !is_readable($file_tmp)) {
 				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
 				wp_send_json_success($response, 200);
+			}
+
+			if (function_exists('finfo_open')) {
+				$finfo = finfo_open(FILEINFO_MIME_TYPE);
+				$real_mime = finfo_file($finfo, $file_tmp);
+				finfo_close($finfo);
+				if (!in_array($real_mime, $arr_ext)) {
+					$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
+					wp_send_json_success($response, 200);
+				}
 			}
 
 			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
@@ -3286,6 +3211,17 @@ public function check_nonce_permission_efb($request) {
 			if (empty($async_file_tmp) || !is_uploaded_file($async_file_tmp) || !is_readable($async_file_tmp)) {
 				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
 				wp_send_json_success($response,200);
+			}
+
+			if (function_exists('finfo_open')) {
+				$finfo = finfo_open(FILEINFO_MIME_TYPE);
+				$real_mime = finfo_file($finfo, $async_file_tmp);
+				finfo_close($finfo);
+				$allowed_mimes = array('image/png','image/jpeg','image/jpg','image/gif','application/pdf','audio/mpeg','image/heic','audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi','video/mpeg','video/mpg','audio/mpg','video/mov','video/quicktime','text/plain','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation','application/zip','application/octet-stream','application/x-zip-compressed','multipart/x-zip');
+				if (!in_array($real_mime, $allowed_mimes)) {
+					$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
+					wp_send_json_success($response,200);
+				}
 			}
 
 			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;
@@ -3710,8 +3646,8 @@ public function check_nonce_permission_efb($request) {
 
 			$isRegistrationState = in_array($state[$i], ['newUser', 'register']) || (isset($state[0]) && $state[0] === 'newUser');
 			$trackParam = $isRegistrationState ? '' : urlencode($track);
-			$link_w[$i] = strpos($link,'?')!=false ? $link . ($trackParam ? '&track='.$trackParam : '') : $link . ($trackParam ? '?track='.$trackParam : '');
-			if($i==0){
+			$link_w[$i] = strpos($link,'?')!==false ? $link . ($trackParam ? '&track='.$trackParam : '') : $link . ($trackParam ? '?track='.$trackParam : '');
+			if($i==0 && !$isRegistrationState){
 				$sc = $this->genrate_sacure_code_admin_email($track);
 				$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'sc='.$sc;
 			}
@@ -3722,6 +3658,7 @@ public function check_nonce_permission_efb($request) {
         $cont[$i] = $track;
 
         $will_have_custom_content = ($content != "null" && $i < 2);
+        $isRegistrationState = in_array($state[$i], ['newUser', 'register']);
 
         switch ($state[$i]) {
 			case "newMessage":
@@ -3745,8 +3682,8 @@ public function check_nonce_permission_efb($request) {
                 break;
             case "register":
                 $subject[$i] = $thankRegistering;
-
-                $message[$i] = "<h2>$welcome</h2>" . $cont[$i];
+                // Don't generate message here - let email_template_efb handle it with generate_register_content
+                $message[$i] = $track; // Pass username, email_template_efb will generate the content
                 break;
             case "subscribe":
             case "survey":
@@ -3755,11 +3692,12 @@ public function check_nonce_permission_efb($request) {
                 break;
             case "newUser":
                 $subject[$i] = $newUserRegistration;
-
-                $message[$i] = "<p>$newUserRegistration</p>" . $cont[$i];
+                // Don't generate message here - let email_template_efb handle it with generate_register_content
+                $message[$i] = $track; // Pass username, email_template_efb will generate the content
                 break;
         }
-        $cont[$i] = $message[$i];
+        // For registration states, keep username as content for email_template_efb
+        $cont[$i] = $isRegistrationState ? $track : $message[$i];
         if ($content != "null") {
             $cont[$i] = [$track, $content];
         }
@@ -4281,7 +4219,7 @@ public function check_nonce_permission_efb($request) {
 
 					if (isset($c['type']) && strpos($c['type'],'imgRadio')!==false){
 						$q = '<b>'.($c['value'] ?? '').'</b>';
-					}else if (isset($c['value']) && strpos($c['type'],'imgRadio')){
+					}else if (isset($c['value']) && strpos($c['type'],'imgRadio') !== false){
 
 						$q = $this->fun_imgRadio_efb($c['id_'], $c['src'] ?? '', $c);
 						$addPair('', $q);
@@ -5060,83 +4998,54 @@ public function check_nonce_permission_efb($request) {
 	}
 
 
-	public function fun_get_content_email_register_recovery_efb($userid, $username, $email, $fid ,$type_ ,$page_id){
-		if(empty($this->db)){
-            global $wpdb;
-            $this->db = $wpdb;
-        }
+	/**
+	 * Prepare data for registration verification or password recovery email
+	 *
+	 * Creates verification code, stores in database, and returns data for email sending.
+	 * The actual email content is generated by email_template_efb in class-email-handler.php
+	 *
+	 * @param int    $userid   User ID
+	 * @param string $username Username
+	 * @param string $email    User email
+	 * @param int    $fid      Form ID
+	 * @param string $type_    Type: 'register' or 'recovery'
+	 * @param int    $page_id  Page ID for the verification/recovery page
+	 * @return array Array with 'url' (verification/recovery URL) and 'username'
+	 */
+	public function fun_get_content_email_register_recovery_efb($userid, $username, $email, $fid, $type_, $page_id) {
+		if (empty($this->db)) {
+			global $wpdb;
+			$this->db = $wpdb;
+		}
+
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
-		$ip = $this->ip ;
-		$text =['udnrtun'];
+		$ip = !empty($this->ip) ? $this->ip : $this->get_ip_address();
 
-		$sid=$this->efbFunction->efb_code_validate_create( $this->id , 0, $type_ , 0);
-		$status_ =1;
-		if($type_ =='register'){
-			$text[] = 'ecnr';
-		}else{
-			$status_ =0;
-			$text[] = 'ecrp';
-		}
+		$sid = $this->efbFunction->efb_code_validate_create($this->id, 0, $type_, 0);
+		$status_ = ($type_ === 'register') ? 1 : 0;
 
-		$lan =$this->efbFunction->text_efb($text);
-
-		$data = array(
-			'username' => $username,
+		$data = [
+			'username'   => $username,
 			'created_at' => current_time('mysql'),
-			'code' => $sid,
+			'code'       => $sid,
 			'ip_address' => $ip,
-			'status_' => $status_,
-		);
-		$sql = $this->db->prepare("INSERT INTO $table_name (username, created_at, code, ip_address, status_) VALUES (%s, %s, %s, %s, %s)", $data);
-		$this->db->query($sql);
+			'status_'    => $status_,
+		];
 
-		$url = get_permalink($page_id) . '?sc=' . $sid . '&state=' . $status_ . '&username=' . $username . '&fid=' . $fid;
-		if($type_ =='register'){
-			$m =$lan['ecnr'];
-			$button_text = esc_html__('Verify Email', 'easy-form-builder');
-			$button_color = '#22c55e';
-		}elseif($type_ =='recovery'){
-			$m =$lan['ecrp'];
-			$button_text = esc_html__('Reset Password', 'easy-form-builder');
-			$button_color = '#667eea';
-		}
+		$this->db->insert($table_name, $data, ['%s', '%s', '%s', '%s', '%d']);
 
-		$button = sprintf(
-			'<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 25px auto;">
-				<tr>
-					<td style="border-radius: 6px; background-color: %s;">
-						<a href="%s" target="_blank" style="display: inline-block; padding: 14px 35px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 6px;">%s</a>
-					</td>
-				</tr>
-			</table>',
-			$button_color,
-			esc_url($url),
-			$button_text
-		);
+		$url = add_query_arg([
+			'sc'       => $sid,
+			'state'    => $status_,
+			'username' => rawurlencode($username),
+			'fid'      => $fid,
+		], get_permalink($page_id));
 
-		$link_text = sprintf(
-			'<p style="margin: 20px 0 0 0; font-size: 13px; color: #6b7280; word-break: break-all;">%s<br><a href="%s" style="color: #667eea;">%s</a></p>',
-			esc_html__('Or copy and paste this link:', 'easy-form-builder'),
-			esc_url($url),
-			esc_url($url)
-		);
-
-		$nr = '<p style="margin: 20px 0 0 0; padding: 15px; background-color: #fef3c7; border-radius: 6px; font-size: 13px; color: #92400e;">⚠️ ' . $lan['udnrtun'] . '</p>';
-
-		$greeting = sprintf('<p style="margin: 0 0 20px 0; font-size: 18px;">%s <strong>%s</strong>,</p>', esc_html__('Hi', 'easy-form-builder'), esc_html($username));
-
-		if($type_ =='register'){
-			$main_text = '<p style="margin: 0 0 10px 0;">' . esc_html__('Your account has been successfully created!', 'easy-form-builder') . '</p>';
-			$main_text .= '<p style="margin: 0;">' . esc_html__('Please verify your email address by clicking the button below. This activation link will be valid for 24 hours.', 'easy-form-builder') . '</p>';
-		} else {
-			$main_text = '<p style="margin: 0 0 10px 0;">' . esc_html__('You have requested to reset your password.', 'easy-form-builder') . '</p>';
-			$main_text .= '<p style="margin: 0;">' . esc_html__('Click the button below to set a new password. This link will be valid for 24 hours.', 'easy-form-builder') . '</p>';
-		}
-
-		$message = $greeting . $main_text . $button . $link_text . $nr;
-
-		return $message;
-
+		return [
+			'url'      => $url,
+			'username' => $username,
+			'type'     => $type_,
+		];
 	}
 
 	public function set_password_efb_api(){
@@ -5282,7 +5191,7 @@ public function check_nonce_permission_efb($request) {
 			}
 			if(!isset($email_user[$pointer])) $email_user[$pointer] = $state_array ? [] : '';
 			if($state_array){
-				if (strpos($email, ',') != -1){
+				if (strpos($email, ',') !== false){
 					$emails = explode(',', $email);
 					foreach ($emails as $email_) {
 						if(!in_array($email_, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email_); }
@@ -6129,8 +6038,119 @@ public function check_nonce_permission_efb($request) {
 
 		do_action('efb_3rd_party_telegram_notify', $context);
 
+		do_action('efb_3rd_party_google_sheet_sync', $context);
+
 		do_action('efb_after_form_integration', $context);
 
+	}
+
+	/**
+	 * Server-side conditional logic evaluation
+	 * Determines which fields should be visible/required based on submitted values and logic_rules
+	 */
+	public function evaluate_logic_rules($form_fields_array, $submitted_values) {
+		if (!isset($form_fields_array[0]['logic_rules']) || !is_array($form_fields_array[0]['logic_rules'])) {
+			return array('hidden_fields' => array(), 'required_fields' => array(), 'optional_fields' => array());
+		}
+
+		$rules = $form_fields_array[0]['logic_rules'];
+		$hidden_fields = array();
+		$required_fields = array();
+		$optional_fields = array();
+
+		/* Build a map of submitted values by field id */
+		$values_map = array();
+		foreach ($submitted_values as $sv) {
+			if (isset($sv['id_'])) {
+				$values_map[$sv['id_']] = isset($sv['value']) ? $sv['value'] : '';
+			}
+			if (isset($sv['id_ob'])) {
+				if (!isset($values_map[$sv['id_ob']])) $values_map[$sv['id_ob']] = array();
+				if (is_array($values_map[$sv['id_ob']])) {
+					$values_map[$sv['id_ob']][] = isset($sv['id_']) ? $sv['id_'] : '';
+				}
+			}
+		}
+
+		/* Sort rules by priority */
+		usort($rules, function($a, $b) {
+			return (isset($a['priority']) ? intval($a['priority']) : 10) - (isset($b['priority']) ? intval($b['priority']) : 10);
+		});
+
+		foreach ($rules as $rule) {
+			if (!isset($rule['enabled']) || !$rule['enabled']) continue;
+			if (!isset($rule['conditions']) || !isset($rule['conditions']['items'])) continue;
+
+			$matched = $this->evaluate_condition_group($rule['conditions'], $values_map);
+
+			if (isset($rule['actions']) && is_array($rule['actions'])) {
+				foreach ($rule['actions'] as $action) {
+					if (!isset($action['target']) || empty($action['target'])) continue;
+					$target = $action['target'];
+					$type = isset($action['type']) ? $action['type'] : '';
+
+					if ($type === 'hide_field' && $matched) $hidden_fields[$target] = true;
+					if ($type === 'show_field' && !$matched) $hidden_fields[$target] = true;
+					if ($type === 'set_required' && $matched) $required_fields[$target] = true;
+					if ($type === 'set_optional' && $matched) $optional_fields[$target] = true;
+				}
+			}
+		}
+
+		return array(
+			'hidden_fields' => array_keys($hidden_fields),
+			'required_fields' => array_keys($required_fields),
+			'optional_fields' => array_keys($optional_fields)
+		);
+	}
+
+	private function evaluate_condition_group($group, $values_map) {
+		if (!isset($group['items']) || !is_array($group['items']) || count($group['items']) === 0) return true;
+		$operator = isset($group['operator']) ? $group['operator'] : 'AND';
+
+		foreach ($group['items'] as $item) {
+			$result = $this->evaluate_single_condition($item, $values_map);
+			if ($operator === 'OR' && $result) return true;
+			if ($operator === 'AND' && !$result) return false;
+		}
+
+		return ($operator === 'AND');
+	}
+
+	private function evaluate_single_condition($cond, $values_map) {
+		$field_id = isset($cond['field_id']) ? $cond['field_id'] : '';
+		$compare = isset($cond['compare']) ? $cond['compare'] : 'is';
+		$expected = isset($cond['value']) ? $cond['value'] : '';
+
+		$val = isset($values_map[$field_id]) ? $values_map[$field_id] : '';
+
+		/* Handle array values (checkbox/multiselect) */
+		if (is_array($val)) {
+			switch ($compare) {
+				case 'is': return in_array($expected, $val, true);
+				case 'is_not': return !in_array($expected, $val, true);
+				case 'is_empty': return count($val) === 0;
+				case 'is_not_empty': return count($val) > 0;
+				case 'contains': return count(array_filter($val, function($v) use ($expected) { return stripos($v, $expected) !== false; })) > 0;
+				case 'not_contains': return count(array_filter($val, function($v) use ($expected) { return stripos($v, $expected) !== false; })) === 0;
+				default: return false;
+			}
+		}
+
+		$str_val = trim(strval($val));
+		switch ($compare) {
+			case 'is': return $str_val === $expected;
+			case 'is_not': return $str_val !== $expected;
+			case 'contains': return stripos($str_val, $expected) !== false;
+			case 'not_contains': return stripos($str_val, $expected) === false;
+			case 'starts_with': return stripos($str_val, $expected) === 0;
+			case 'ends_with': return substr(strtolower($str_val), -strlen($expected)) === strtolower($expected);
+			case 'gt': return floatval($str_val) > floatval($expected);
+			case 'lt': return floatval($str_val) < floatval($expected);
+			case 'is_empty': return $str_val === '';
+			case 'is_not_empty': return $str_val !== '';
+			default: return false;
+		}
 	}
 
 }

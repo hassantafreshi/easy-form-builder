@@ -528,7 +528,7 @@ function alarm_emsFormBuilder(val) {
         checkFile += 1;
       } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
         checkFile = -100;
-        efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb font-weight-bold  text-center">File Error</h3> <span class="efb font-weight-bold  text-center">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
+        efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb font-weight-bold  text-center">${ajax_object_efm.text.error} - ${ajax_object_efm.text.file}</h3> <span class="efb font-weight-bold  text-center">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
          <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onclick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
         return;
       }
@@ -553,7 +553,7 @@ function alarm_emsFormBuilder(val) {
             checkFile += 1;
           } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
             checkFile = -100;
-            efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb fs-4  text-center">File Error</h3> <span class="efb fs-6  text-center">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
+            efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb fs-4  text-center">${ajax_object_efm.text.error} - ${ajax_object_efm.text.file}</h3> <span class="efb fs-6  text-center">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
                <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onclick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
             return;
           }
@@ -796,7 +796,7 @@ function valid_file_emsFormBuilder(id,tp,filed,form_id) {
       filed.push(fi);
     }
     if (check > 0) {
-      msgEl.innerHTML = "";
+      hide_msg_efb(msgEl);
       fun_upload_file_api_emsFormBuilder(id, filed[0].type,tp,filed[0]);
       rtrn = true;
     } else {
@@ -895,7 +895,7 @@ async function validation_before_send_efb(form_id) {
     }
   }
   require = require > fill ? 1 : 0;
-  if (((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) && ( (valj_efb[0].hasOwnProperty("logic")== true || valj_efb[0].hasOwnProperty("logic")==false) && valj_efb.logic==false )) {
+  if (((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) && ( (valj_efb[0].hasOwnProperty("logic")== true || valj_efb[0].hasOwnProperty("logic")==false) && valj_efb[0].logic==false )) {
     const body_efb = document.getElementById(id_body);
     const efb_final_step = body_efb.getElementsByClassName('efb-final-step');
     efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center fs-2 efb"></i></h1><h3 class="efb fs-3 efb text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 fs-5 efb text-muted"> ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
@@ -945,7 +945,7 @@ function Show_recovery_pass_efb() {
       el.classList.remove('d-none');
       el.classList.remove('fadeOut');
       el.classList.add('fadeIn');
-      iconBtn.className = 'bi bi-chevron-up mx-2';
+      iconBtn.className = 'efb bi-chevron-up';
       el = document.getElementById('btn_recovery_pass_efb');
       el.disabled = true;
       elMsg.classList.add('d-none');
@@ -954,7 +954,7 @@ function Show_recovery_pass_efb() {
       el.classList.remove('fadeIn');
       el.classList.add('fadeOut');
 
-      iconBtn.className = 'bi bi-chevron-down';
+      iconBtn.className = 'efb bi-chevron-down';
 
       el.addEventListener('animationend', function() {
           el.classList.add('d-none');
@@ -972,7 +972,7 @@ function Show_recovery_pass_efb() {
     el.addEventListener("click", (e) => {
       form_type_emsFormBuilder = "recovery";
       formNameEfb = form_type_emsFormBuilder;
-      document.getElementById('efb-final-step').innerHTML = `<h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3 class="efb text-center">${ajax_object_efm.text.pleaseWaiting}<h3>`
+      document.getElementById('efb-final-step').innerHTML = `<div class="efb" style="text-align:center;padding:32px 0;"><div style="width:40px;height:40px;border:3px solid var(--efb-resp-primary-10);border-top-color:var(--efb-resp-primary);border-radius:50%;animation:efb-spin .7s linear infinite;margin:0 auto 12px;"></div><p style="color:var(--efb-resp-text-muted);font-family:var(--efb-resp-font-family);font-size:var(--efb-resp-font-size);">${ajax_object_efm.text.pleaseWaiting}</p></div>`
       const valj = valj_efb_new.find(x => x.type ==  'login');
       const form_id = valj ? valj.id : 0;
       sendBack_emsFormBuilder_pub = { email: us.value ,'recovery':true , form_id: form_id};
@@ -1025,7 +1025,9 @@ async function response_fill_form_efb(res ,form_id=0) {
           window.location.href = res.data.m;
           break;
         }
-        efb_final_step.innerHTML = funTnxEfb('','',res.data.m);
+        // Use custom thank_you_message if set, otherwise use server response
+        const surveyThankYou = valj_efb[0].thank_you_message && valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : res.data.m;
+        efb_final_step.innerHTML = funTnxEfb('','', surveyThankYou);
         if (res.data.survey_chart_type && res.data.survey_chart_type !== 'none' && res.data.survey_results && res.data.survey_results.length > 0) {
           if (typeof renderSurveyResultsChart === 'function') {
             renderSurveyResultsChart(res.data, efb_final_step, form_id);
@@ -1035,22 +1037,26 @@ async function response_fill_form_efb(res ,form_id=0) {
         }
         break;
       case 'subscribe':
-        efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder fs-4'><i class="efb fs-2 bi-hand-thumbs-up  text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${valj_efb[0].thank_you_message.thankYou}</h3></br> <span class="efb fs-5">${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
+        // Use thank_you_message values for subscribe success
+        const subscribeThankYou = valj_efb[0].thank_you_message && valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : ajax_object_efm.text.YouSubscribed;
+        efb_final_step.innerHTML = funTnxEfb('','', subscribeThankYou);
         break;
       case 'register':
+          // Use thank_you_message values for register success
+          const registerThankYou = valj_efb[0].thank_you_message && valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : (res.data.m || efb_var.text.createAcountDoneM);
           if(res.data.hasOwnProperty('redirect_url') && typeof res.data.redirect_url === 'string' && res.data.redirect_url.length > 5 && res.data.redirect_url !== 'null'){
             efb_final_step.innerHTML = `
-            <h3 class="efb fs-4 text-center">${res.data.m}</h3>
+            <h3 class="efb fs-4 text-center">${registerThankYou}</h3>
             <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.redirect_url}">${efb_var.text.orClickHere}</a></h3>
             `
             window.location.href = res.data.redirect_url;
           }else{
-            const m = form_type_emsFormBuilder !='recovery' ? valj_efb[0].thank_you_message.thankYou: ajax_object_efm.text.checkYourEmail;
+            const m = form_type_emsFormBuilder !='recovery' ? registerThankYou : ajax_object_efm.text.checkYourEmail;
             efb_final_step.innerHTML = funTnxEfb('','',m );
           }
           break;
       case 'recovery':
-        efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder fs-4  text-center'><i class="efb fs-2 bi-envelope text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${res.data.m}</h3></br></br></h3>`;
+        efb_final_step.innerHTML = `<div class="efb efb-recovery-success-card"><div class="efb efb-recovery-success-icon"><i class="efb bi-envelope"></i></div><p class="efb" style="color:var(--efb-resp-text);font-family:var(--efb-resp-font-family);font-size:var(--efb-resp-font-size);margin:0;">${res.data.m}</p></div>`;
       break;
       case 'login':
 
@@ -1067,64 +1073,53 @@ async function response_fill_form_efb(res ,form_id=0) {
           }
         } else if(typeof res.data.m === 'string' && res.data.success == true){
           document.getElementById('body_efb_'+form_id).innerHTML = `
-          <div class="efb mt-5"><div class="efb card-block text-center text-dark ">
-              <div class="efb mb-3 d-flex justify-content-center"><i class="efb fs-1 bi-envelope-check text-success"></i></div>
-              <p class="efb fs-6">${res.data.m}</p>
+          <div class="efb efb-recovery-success-card">
+              <div class="efb efb-recovery-success-icon"><i class="efb bi-envelope-check"></i></div>
+              <p class="efb efb-login-error-msg" style="color:var(--efb-resp-text)">${res.data.m}</p>
           </div>
           `
         } else {
           const errorMsg = res.data.m && res.data.m.error ? res.data.m.error : (res.data.m || ajax_object_efm.text.error);
           efb_final_step.innerHTML = `
-            <div class="efb mx-auto" style="max-width: 400px;">
-              <div class="efb card-body text-center py-4 px-3">
-                <!-- Error Icon & Message -->
-                <div id="alertFinalStepEFB" class="efb mb-4">
-                  <div class="efb mb-3">
-                    <i class="efb bi-shield-exclamation fs-1 text-warning"></i>
-                  </div>
-                  <h5 class="efb fs-5 text-dark mb-2">${ajax_object_efm.text.error}</h5>
-                  <p class="efb fs-6 text-muted mb-0">${errorMsg}</p>
-                </div>
-
-                <!-- Recovery Link -->
-                <div class="efb pt-3 mt-3">
-                  <button id="btn_Show_recovery_efb" type="button"
-                    class="efb btn btn-outline-secondary ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'rounded-2'} ${valj_efb[0].el_height}   px-4 py-2 d-inline-flex align-items-center"
-                    onclick="Show_recovery_pass_efb()">
-                    <span>${ajax_object_efm.text.passwordRecovery}</span>
-                    <i id="icon_btn_Show_recovery_efb" class="efb bi-chevron-down mx-2"></i>
-                  </button>
-                </div>
-
-                <!-- Recovery Form Section -->
-                <div class="efb bg-light rounded-3 p-3 mt-3 d-none" id="recoverySectionemsFormBuilder">
-                  <div class="efb mb-3">
-                    <i class="efb bi-envelope fs-3 text-muted"></i>
-                  </div>
-                  <p class="efb fs-7 text-muted mb-3">${ajax_object_efm.text.servpss}</p>
-                  <div class="efb mb-3">
-                    <input type="email" id="username_recovery_pass_efb"
-                      class="efb form-control h-d-efb rounded-2 border text-center"
-                      placeholder="${ajax_object_efm.text.email || 'Email'}"
-                      autocomplete="email">
-                  </div>
-                  <button id="btn_recovery_pass_efb"
-                    class="efb btn  ${valj_efb[0].button_color} ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'rounded-2'} ${valj_efb[0].el_text_color} w-100 h-d-efb disabled"
-                    data-id="1">
-                    <i class="efb bi-send me-2"></i>${ajax_object_efm.text.send}
-                  </button>
-                </div>
-
-                <!-- Back Button -->
-                <div class="efb mt-4">
-                  <button id="prev_efb_send" type="button"
-                    class="efb btn ${valj_efb[0].button_color} ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'rounded-2'} ${valj_efb[0].el_height} px-4"
-                    onclick="fun_prev_send(${form_id})">
-                    <i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} me-2"></i>
-                    <span class="efb ${valj_efb[0].el_text_color}">${valj_efb[0].button_Previous_text}</span>
-                  </button>
-                </div>
+            <div class="efb" style="display:flex;flex-direction:column;align-items:center;text-align:center;font-family:var(--efb-resp-font-family);font-size:var(--efb-resp-font-size);">
+              <!-- Error Message -->
+              <div id="alertFinalStepEFB" class="efb" style="display:flex;flex-direction:column;align-items:center;margin-bottom:16px;">
+                <h5 class="efb efb-login-error-title">${ajax_object_efm.text.error}</h5>
+                <p class="efb efb-login-error-msg">${errorMsg}</p>
               </div>
+
+              <!-- Recovery Link -->
+              <button id="btn_Show_recovery_efb" type="button"
+                class="efb efb-recovery-toggle-btn mb-2"
+                onclick="Show_recovery_pass_efb()">
+                <span>${ajax_object_efm.text.passwordRecovery}</span>
+                <i id="icon_btn_Show_recovery_efb" class="efb bi-chevron-down"></i>
+              </button>
+
+              <!-- Recovery Form Section -->
+              <div class="efb efb-recovery-section d-none" id="recoverySectionemsFormBuilder" style="text-align:center;">
+                <div class="efb efb-recovery-section-icon">
+                  <i class="efb bi-envelope"></i>
+                </div>
+                <p class="efb efb-recovery-section-text">${ajax_object_efm.text.servpss}</p>
+                <input type="email" id="username_recovery_pass_efb"
+                  class="efb efb-recovery-input mb-2"
+                  placeholder="${ajax_object_efm.text.email || 'Email'}"
+                  autocomplete="email">
+                <button id="btn_recovery_pass_efb"
+                  class="efb efb-recovery-send-btn"
+                  data-id="1" disabled>
+                  <i class="efb bi-send"></i>${ajax_object_efm.text.send}
+                </button>
+              </div>
+
+              <!-- Back Button -->
+              <button id="prev_efb_send" type="button"
+                class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'} ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'} ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'} p-2 text-center btn-lg"
+                onclick="fun_prev_send(${form_id})">
+                <i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6"></i>
+                <span class="efb ${valj_efb[0].el_text_color}">${valj_efb[0].button_Previous_text}</span>
+              </button>
             </div>`;
         }
         break;
@@ -1327,6 +1322,16 @@ window.addEventListener("popstate",e=>{
     }
   return  r;
  }
+efb_refresh_nonce=async()=>{
+  try {
+    const r = await fetch(efb_var.rest_url+'Emsfb/v1/nonce/refresh',{method:'GET',credentials:'same-origin'});
+    if(r.ok){
+      const d = await r.json();
+      if(d && d.nonce){ efb_var.nonce = d.nonce; return true; }
+    }
+  } catch(e){}
+  return false;
+}
  post_api_forms_efb=async(data,form_id)=>{
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
     const headers = new Headers({
@@ -1337,7 +1342,6 @@ window.addEventListener("popstate",e=>{
     });
 
     const jsonData = JSON.stringify(data);
-    console.error("🚀 ~ file: core-efb.js:1234 ~ post_api_forms_efb ~ jsonData:", data);
 
     const requestOptions = {
       method: 'POST',
@@ -1346,8 +1350,25 @@ window.addEventListener("popstate",e=>{
     };
 
   try {
-    const response = await fetch(url, requestOptions);
+    let response = await fetch(url, requestOptions);
+    if (response.status === 403) {
+      const refreshed = await efb_refresh_nonce();
+      if (refreshed) {
+        const retryHeaders = new Headers({
+          'Content-Type': 'application/json',
+          'X-WP-Nonce': efb_var.nonce,
+          'form-id': form_id ? form_id : 0,
+          'sid': data.sid ? data.sid : '',
+        });
+        response = await fetch(url, { method: 'POST', headers: retryHeaders, body: jsonData });
+      }
+    }
     if (!response.ok) {
+      if (response.status === 403) {
+        const msg403 = (ajax_object_efm && ajax_object_efm.text && ajax_object_efm.text.nonceExpired) ? ajax_object_efm.text.nonceExpired : 'Your session has expired. Please refresh the page and try again.';
+        await response_fill_form_efb({ success: false, data: { success: false, m: msg403 } }, form_id);
+        return;
+      }
       throw new Error('Network response was not ok');
     }
     const responseData = await response.json();
@@ -1995,7 +2016,9 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     }else{
       if(el !== null) el.className = colorBorderChangerEfb(el.className, "border-danger");
       if(el_msg!=null){
-        el_msg.innerHTML = efb_var.text.enterTheValueThisField;
+        // Use custom required message if set, otherwise use default
+        const customMsg = s.hasOwnProperty('customRequiredMsg') && s.customRequiredMsg.length > 0 ? s.customRequiredMsg : efb_var.text.enterTheValueThisField;
+        el_msg.innerHTML = customMsg;
         show_msg_efb(el_msg);
       }
     }
@@ -2116,7 +2139,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         }else {
           el.className = colorBorderChangerEfb(el.className, "border-success");
           vd= document.getElementById(`${el.id}-message`)
-          if(vd) vd.style.display='none';
+          hide_msg_efb(vd);
         }
       }
       break;
@@ -2147,7 +2170,9 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       if (el.value.length > 1 || el.checked == true) {
         hide_msg_efb(vd);
       } else {
-        vd.innerHTML = efb_var.text.enterTheValueThisField;
+        // Use custom required message if set, otherwise use default
+        const customMsgCb = ob.hasOwnProperty('customRequiredMsg') && ob.customRequiredMsg.length > 0 ? ob.customRequiredMsg : efb_var.text.enterTheValueThisField;
+        vd.innerHTML = customMsgCb;
         show_msg_efb(vd);
       }
       if( el.checked == false && el.type =="checkbox") {
@@ -2315,7 +2340,7 @@ async function fun_validation_efb_v4(form_id) {
   }
 
   let offsetw = offset_view_efb();
-  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
+  const defaultMsg = efb_var.text.enterTheValueThisField;
   let state = true;
   let idi = "null";
   let name_field = "";
@@ -2340,6 +2365,9 @@ async function fun_validation_efb_v4(form_id) {
         if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
           el.classList.add('unpx');
         }
+        // Use custom required message if set, otherwise use default
+        const fieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
+        const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${fieldMsg}','',10,'danger')"></div>` : fieldMsg;
         el.innerHTML = msg;
         show_msg_efb(el);
         if (type_validate_efb(valj_efb[row].type) == true) {
@@ -2371,7 +2399,10 @@ async function fun_validation_efb_v4(form_id) {
         let state_of_ch = true;;
         const em = sendBack_emsFormBuilder_pub.find(x => x.id_ob == idi);
         if(em==undefined || em==null ){
-            document.getElementById(idi+'_-message').innerHTML = msg;
+            // Use custom required message if set, otherwise use default
+            const chlFieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
+            const chlMsg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${chlFieldMsg}','',10,'danger')"></div>` : chlFieldMsg;
+            document.getElementById(idi+'_-message').innerHTML = chlMsg;
             show_msg_efb(document.getElementById(idi+'_-message'));
 
             document.getElementById(idi).classList.add('bg-warning');

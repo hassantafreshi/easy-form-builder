@@ -99,7 +99,7 @@ document.addEventListener("click", (evnt) => {
                         if (l.dataset.icon == 1) x.querySelector("TH").className = "bi-square efb";
                     }
                     l.dataset.select = e.dataset.row;
-                    l.innerHTML = e.dataset.name;
+                    l.innerHTML = l.id === "iconEl" ? `<i class="efb ${e.dataset.name} fs-5"></i>` : e.dataset.name;
                     if (l.dataset.icon == 1) fc.className = "bi-check-square text-info efb";
                     e.className += " border-info";
                 }
@@ -185,8 +185,9 @@ document.addEventListener("click", (evnt) => {
                 }
                 const pl = l.id.split('_');
                 const idm = pl[0] + '_-message';
+                const msgEl = document.getElementById(idm);
                 if (el_o.length > 1) {
-                    document.getElementById(idm).innerHTML = "";
+                    if(msgEl){ msgEl.innerHTML = ""; msgEl.style.display = 'none'; }
                     if (l.classList.contains('border-danger')) l.classList.remove('border-danger');
                 } else {
                     if (l.classList.contains('border-danger')) {

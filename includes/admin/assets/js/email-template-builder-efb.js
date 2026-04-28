@@ -196,7 +196,7 @@
       category: 'layout',
       defaultData: {
         bgColor: '#202a8d',
-        bgGradient: 'linear-gradient(135deg, #667eea 0%, #202a8d 100%)',
+        bgGradient: '',
         padding: '40px 30px 30px 30px',
         align: 'center'
       },
@@ -279,13 +279,15 @@
       label: t_efb('ebMessageContent', 'Message Content') + ' *',
       icon: 'bi-chat-square-text',
       category: 'shortcode',
-      defaultData: {
-        padding: '40px 30px',
-        bgColor: '#ffffff',
-        color: '#333333',
-        fontSize: '16',
-        fontFamily: '',
-        align: 'center'
+      get defaultData() {
+        return {
+          padding: '40px 30px',
+          bgColor: '#ffffff',
+          color: '#333333',
+          fontSize: '16',
+          fontFamily: '',
+          align: isRtl_efb() ? 'right' : 'left'
+        };
       },
       render(data) {
         const ff = sanitizeCss_efb(data.fontFamily || _gFont_efb());
@@ -502,13 +504,13 @@
       label: t_efb('ebProfessional', 'Professional'),
       icon: 'bi-briefcase',
       blocks: [
-        { type: 'header', data: { bgGradient: 'linear-gradient(135deg, #667eea 0%, #202a8d 100%)', padding: '40px 30px 30px 30px' },
+        { type: 'header', data: { bgColor: '#667eea', padding: '40px 30px 30px 30px' },
           children: [
             { type: 'logo', data: { width: '120', align: 'center' } },
             { type: 'title', data: { text: 'shortcode_title', color: '#ffffff', fontSize: '28', fontWeight: '600', align: 'center' } }
           ]
         },
-        { type: 'message', data: { padding: '40px 30px', bgColor: '#ffffff', color: '#333333', fontSize: '16', align: 'center' } },
+        { type: 'message', data: { padding: '40px 30px', bgColor: '#ffffff', color: '#333333', fontSize: '16' } },
         { type: 'spacer', data: { height: '20', bgColor: '#ffffff' } },
         { type: 'footer', data: { text: 'shortcode_website_name | shortcode_admin_email', color: '#6b7280', fontSize: '14', align: 'center', bgColor: '#f8f9fa', padding: '30px' } },
         { type: 'text', data: { text: t_efb('ebDisclaimerText', 'This email was sent automatically. Please do not reply directly.'), color: '#64748b', fontSize: '12', align: 'center', padding: '15px 25px' } }
@@ -519,13 +521,13 @@
       label: t_efb('ebModernDark', 'Modern Dark'),
       icon: 'bi-moon-stars',
       blocks: [
-        { type: 'header', data: { bgColor: '#111827', bgGradient: 'linear-gradient(180deg, #1f2937 0%, #111827 100%)', padding: '45px 30px 35px 30px' },
+        { type: 'header', data: { bgColor: '#1f2937', padding: '45px 30px 35px 30px' },
           children: [
             { type: 'logo', data: { width: '100', align: 'center' } },
             { type: 'title', data: { text: 'shortcode_title', color: '#f9fafb', fontSize: '26', fontWeight: '600', align: 'center' } }
           ]
         },
-        { type: 'message', data: { padding: '35px 30px', bgColor: '#1f2937', color: '#d1d5db', fontSize: '15', align: 'center' } },
+        { type: 'message', data: { padding: '35px 30px', bgColor: '#1f2937', color: '#d1d5db', fontSize: '15' } },
         { type: 'button', data: { text: t_efb('ebViewWebsite', 'View Website'), url: 'shortcode_website_url', bgColor: '#4f46e5', textColor: '#ffffff', borderRadius: '6', padding: '14px 36px', fontSize: '16', align: 'center', containerPadding: '25px 30px' } },
         { type: 'divider', data: { color: '#374151', thickness: '1', width: '100', padding: '10px 30px' } },
         { type: 'footer', data: { text: 'shortcode_website_name | shortcode_admin_email', color: '#9ca3af', fontSize: '13', align: 'center', bgColor: '#111827', padding: '25px 30px', borderRadius: '0 0 8px 8px' } }
@@ -541,7 +543,7 @@
         { type: 'logo', data: { width: '80', align: 'center' } },
         { type: 'title', data: { text: 'shortcode_title', color: '#1f2937', fontSize: '24', fontWeight: '700', align: 'center' } },
         { type: 'divider', data: { color: '#6366f1', thickness: '3', width: '50', padding: '15px 30px' } },
-        { type: 'message', data: { padding: '25px 35px', bgColor: '#ffffff', color: '#4b5563', fontSize: '15', align: 'center' } },
+        { type: 'message', data: { padding: '25px 35px', bgColor: '#ffffff', color: '#4b5563', fontSize: '15' } },
         { type: 'button', data: { text: 'shortcode_website_name', url: 'shortcode_website_url', bgColor: '#6366f1', textColor: '#ffffff', borderRadius: '25', padding: '13px 30px', fontSize: '15', align: 'center', containerPadding: '20px 30px' } },
         { type: 'spacer', data: { height: '15', bgColor: '#ffffff' } },
         { type: 'footer', data: { text: 'shortcode_admin_email', color: '#9ca3af', fontSize: '12', align: 'center', bgColor: '#ffffff', padding: '20px 30px', borderRadius: '0 0 8px 8px' } }
@@ -553,13 +555,13 @@
       label: t_efb('ebElegant', 'Elegant'),
       icon: 'bi-gem',
       blocks: [
-        { type: 'header', data: { bgGradient: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', padding: '50px 30px 40px 30px' },
+        { type: 'header', data: { bgColor: '#1e293b', padding: '50px 30px 40px 30px' },
           children: [
             { type: 'logo', data: { width: '80', align: 'center' } },
             { type: 'title', data: { text: 'shortcode_title', color: '#e2e8f0', fontSize: '30', fontWeight: '300', align: 'center' } }
           ]
         },
-        { type: 'message', data: { padding: '40px 40px', bgColor: '#ffffff', color: '#475569', fontSize: '15', align: 'center' } },
+        { type: 'message', data: { padding: '40px 40px', bgColor: '#ffffff', color: '#475569', fontSize: '15' } },
         { type: 'button', data: { text: t_efb('ebViewWebsite', 'View Website') + ' →', url: 'shortcode_website_url', bgColor: '#1e293b', textColor: '#ffffff', borderRadius: '4', padding: '14px 40px', fontSize: '15', align: 'center', containerPadding: '20px 30px' } },
         { type: 'divider', data: { color: '#e2e8f0', thickness: '1', width: '80', padding: '20px 30px' } },
         { type: 'text', data: { text: 'shortcode_website_name', color: '#94a3b8', fontSize: '13', align: 'center', padding: '5px 30px' } },
@@ -572,13 +574,13 @@
       label: t_efb('ebColorful', 'Colorful'),
       icon: 'bi-palette',
       blocks: [
-        { type: 'header', data: { bgGradient: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #6366f1 100%)', padding: '45px 30px 35px 30px' },
+        { type: 'header', data: { bgColor: '#8b5cf6', padding: '45px 30px 35px 30px' },
           children: [
             { type: 'logo', data: { width: '100', align: 'center' } },
             { type: 'title', data: { text: 'shortcode_title', color: '#ffffff', fontSize: '28', fontWeight: '700', align: 'center' } }
           ]
         },
-        { type: 'message', data: { padding: '35px 30px', bgColor: '#faf5ff', color: '#4c1d95', fontSize: '16', align: 'center' } },
+        { type: 'message', data: { padding: '35px 30px', bgColor: '#faf5ff', color: '#4c1d95', fontSize: '16' } },
         { type: 'button', data: { text: t_efb('ebViewWebsite', 'View Website'), url: 'shortcode_website_url', bgColor: '#8b5cf6', textColor: '#ffffff', borderRadius: '25', padding: '14px 35px', fontSize: '16', align: 'center', containerPadding: '20px 30px' } },
         { type: 'divider', data: { color: '#e9d5ff', thickness: '1', width: '80', padding: '15px 30px' } },
         { type: 'social', data: { color: '#8b5cf6', align: 'center', padding: '10px 30px', iconSize: '24', links: [{icon:'facebook',name:'Facebook',url:'#'},{icon:'x',name:'X',url:'#'},{icon:'instagram',name:'Instagram',url:'#'}] } },
@@ -937,38 +939,38 @@ ${blocksHtml}
         const childrenHtml = (block.children || []).map(c => {
           const cd = Object.assign({}, BLOCK_TYPES_efb[c.type]?.defaultData || {}, c.data || {});
           if (c.type === 'logo') { const lm = ha === 'left' ? '0 auto 10px 0' : ha === 'right' ? '0 0 10px auto' : '0 auto 10px'; return `<div style="text-align:${ha};"><img src="${cd.src}" style="width:${Math.min(cd.width,80)}px;height:auto;display:block;margin:${lm};" /></div>`; }
-          if (c.type === 'title') return `<div style="text-align:${ha};color:${cd.color};font-size:${pfs(cd.fontSize)}px;font-weight:${cd.fontWeight};font-family:${cd.fontFamily || _gFont_efb()};">${highlightShortcodes_efb(cd.text)}</div>`;
+          if (c.type === 'title') return `<div style="text-align:${ha};color:${cd.color};font-size:${pfs(cd.fontSize)}px;font-weight:${cd.fontWeight};font-family:${cd.fontFamily || _gFont_efb()};">${previewShortcodes_efb(cd.text)}</div>`;
           return '';
         }).join('');
-        return `<div style="background:${data.bgGradient || data.bgColor};padding:${spad(data.padding)};border-radius:4px;text-align:${ha};">${childrenHtml}</div>`;
+        return `<div style="background:${data.bgGradient || data.bgColor};padding:${spad(data.padding)};text-align:${ha};">${childrenHtml}</div>`;
       case 'logo':
         const logoM = data.align === 'left' ? '0 auto 0 0' : data.align === 'right' ? '0 0 0 auto' : '0 auto';
         return `<div style="text-align:${data.align};padding:8px;"><img src="${data.src}" style="width:${Math.min(data.width,60)}px;height:auto;display:block;margin:${logoM};" onerror="this.style.display='none'" /></div>`;
       case 'title':
-        return `<div style="text-align:${data.align};color:${data.color};font-size:${pfs(data.fontSize)}px;font-weight:${data.fontWeight};font-family:${data.fontFamily || _gFont_efb()};padding:5px;">${highlightShortcodes_efb(data.text)}</div>`;
+        return `<div style="text-align:${data.align};color:${data.color};font-size:${pfs(data.fontSize)}px;font-weight:${data.fontWeight};font-family:${data.fontFamily || _gFont_efb()};padding:5px;">${previewShortcodes_efb(data.text)}</div>`;
       case 'text':
-        return `<div style="text-align:${data.align};color:${data.color};font-size:${pfs(data.fontSize)}px;font-family:${data.fontFamily || _gFont_efb()};padding:${spad(data.padding)};line-height:1.4;">${highlightShortcodes_efb(data.text)}</div>`;
+        return `<div style="text-align:${data.align};color:${data.color};font-size:${pfs(data.fontSize)}px;font-family:${data.fontFamily || _gFont_efb()};padding:${spad(data.padding)};line-height:1.4;">${previewShortcodes_efb(data.text)}</div>`;
       case 'message':
-        return `<div style="text-align:${data.align};background:${data.bgColor};padding:${spad(data.padding)};border:2px dashed #667eea;border-radius:4px;">
-          <i class="efb bi-chat-square-text" style="font-size:20px;color:#667eea;"></i>
-          <div style="color:#667eea;font-size:12px;margin-top:4px;font-weight:600;">shortcode_message</div>
-          <div style="color:#94a3b8;font-size:10px;">${t_efb('ebFormContentHere', 'Form content appears here')}</div>
+        return `<div style="text-align:${data.align};background:${data.bgColor};padding:${spad(data.padding)};min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:${data.color};font-family:${data.fontFamily || _gFont_efb()};">
+          <i class="efb bi-chat-square-text" style="font-size:20px;color:${data.color};"></i>
+          <div style="color:${data.color};font-size:${pfs(data.fontSize)}px;margin-top:4px;font-weight:600;">${t_efb('ebMessageContent', 'Message Content')}</div>
+          <div style="color:${data.color};font-size:10px;opacity:0.7;">${t_efb('ebFormContentHere', 'Form content appears here')}</div>
         </div>`;
       case 'button':
         return `<div style="text-align:${data.align};padding:${spad(data.containerPadding || '8px')};">
-          <span style="display:inline-block;background:${data.bgColor};color:${data.textColor};padding:${spad(data.padding)};border-radius:${data.borderRadius}px;font-size:${pfs(data.fontSize)}px;font-weight:600;font-family:${data.fontFamily || _gFont_efb()};">${highlightShortcodes_efb(data.text)}</span>
+          <span style="display:inline-block;background:${data.bgColor};color:${data.textColor};padding:${spad(data.padding)};border-radius:${data.borderRadius}px;font-size:${pfs(data.fontSize)}px;font-weight:600;font-family:${data.fontFamily || _gFont_efb()};">${previewShortcodes_efb(data.text)}</span>
         </div>`;
       case 'divider':
         return `<div style="padding:${spad(data.padding)};"><hr style="border:none;border-top:${data.thickness}px solid ${data.color};width:${data.width}%;margin:0 auto;" /></div>`;
       case 'spacer':
         return `<div style="height:${Math.min(data.height,30)}px;background:${data.bgColor};border:1px dashed #e5e7eb;text-align:center;line-height:${Math.min(data.height,30)}px;color:#cbd5e1;font-size:10px;">${data.height}px</div>`;
       case 'image':
-        if (!data.src) return `<div style="text-align:center;padding:15px;border:2px dashed #e5e7eb;border-radius:4px;color:#94a3b8;"><i class="efb bi-card-image" style="font-size:24px;"></i><div style="font-size:11px;margin-top:4px;">${t_efb('ebAddImageURL', 'Add image URL')}</div></div>`;
+        if (!data.src) return `<div style="text-align:center;padding:15px;border:2px dashed #e5e7eb;color:#94a3b8;"><i class="efb bi-card-image" style="font-size:24px;"></i><div style="font-size:11px;margin-top:4px;">${t_efb('ebAddImageURL', 'Add image URL')}</div></div>`;
         return `<div style="text-align:${data.align};padding:${spad(data.padding)};"><img src="${data.src}" style="max-width:100%;max-height:80px;height:auto;" onerror="this.style.display='none'" /></div>`;
       case 'columns':
         return `<div style="display:flex;gap:8px;padding:${spad(data.padding)};">
-          <div style="flex:1;background:#f8fafc;padding:8px;border-radius:4px;font-size:${pfs(data.fontSize)}px;color:${data.leftColor};font-family:${data.fontFamily || _gFont_efb()};">${highlightShortcodes_efb(data.leftContent)}</div>
-          <div style="flex:1;background:#f8fafc;padding:8px;border-radius:4px;font-size:${pfs(data.fontSize)}px;color:${data.rightColor};font-family:${data.fontFamily || _gFont_efb()};">${highlightShortcodes_efb(data.rightContent)}</div>
+          <div style="flex:1;background:#f8fafc;padding:8px;font-size:${pfs(data.fontSize)}px;color:${data.leftColor};font-family:${data.fontFamily || _gFont_efb()};">${previewShortcodes_efb(data.leftContent)}</div>
+          <div style="flex:1;background:#f8fafc;padding:8px;font-size:${pfs(data.fontSize)}px;color:${data.rightColor};font-family:${data.fontFamily || _gFont_efb()};">${previewShortcodes_efb(data.rightContent)}</div>
         </div>`;
       case 'social':
         return `<div style="text-align:${data.align};padding:${spad(data.padding)};display:flex;gap:6px;justify-content:${data.align === 'center' ? 'center' : data.align === 'right' ? 'flex-end' : 'flex-start'};flex-wrap:wrap;">
@@ -980,9 +982,9 @@ ${blocksHtml}
           }).join('')}
         </div>`;
       case 'footer':
-        return `<div style="text-align:${data.align};background:${data.bgColor};padding:${spad(data.padding)};border-radius:4px;color:${data.color};font-size:${pfs(data.fontSize)}px;font-family:${data.fontFamily || _gFont_efb()};">${highlightShortcodes_efb(data.text)}</div>`;
+        return `<div style="text-align:${data.align};background:${data.bgColor};padding:${spad(data.padding)};color:${data.color};font-size:${pfs(data.fontSize)}px;font-family:${data.fontFamily || _gFont_efb()};">${previewShortcodes_efb(data.text)}</div>`;
       case 'htmlBlock':
-        return `<div style="padding:5px;font-size:11px;color:#64748b;border:1px dashed #cbd5e1;border-radius:4px;max-height:60px;overflow:hidden;"><code>&lt;/&gt; ${t_efb('ebCustomHTML', 'Custom HTML')}</code></div>`;
+        return `<div style="padding:5px;font-size:11px;color:#64748b;border:1px dashed #cbd5e1;max-height:60px;overflow:hidden;"><code>&lt;/&gt; ${t_efb('ebCustomHTML', 'Custom HTML')}</code></div>`;
       default:
         return `<div style="padding:8px;color:#94a3b8;">${t_efb('ebUnknownBlock', 'Unknown block')}</div>`;
     }
@@ -990,7 +992,32 @@ ${blocksHtml}
 
   function highlightShortcodes_efb(text) {
     if (!text) return '';
-    return text.replace(/(shortcode_\w+)/g, '<span style="background:#dbeafe;color:#1e40af;padding:1px 4px;border-radius:2px;font-size:0.85em;">$1</span>');
+    return text.replace(/(shortcode_\w+)/g, '<span style="text-decoration:underline dotted;cursor:default;">$1</span>');
+  }
+
+  function previewShortcodes_efb(text) {
+    if (!text) return '';
+    const siteName = (typeof efb_var !== 'undefined' && efb_var.siteName) ? efb_var.siteName : 'My Website';
+    const siteUrl  = (typeof efb_var !== 'undefined' && efb_var.siteUrl)  ? efb_var.siteUrl  : 'https://example.com';
+    const adminEmail = (typeof efb_var !== 'undefined' && efb_var.adminEmail) ? efb_var.adminEmail : 'admin@example.com';
+    let formTitle = t_efb('ebFormTitle', 'Form Title');
+    if (typeof formName_Efb !== 'undefined' && formName_Efb) {
+      formTitle = formName_Efb;
+    } else if (typeof valueJson_ws_p !== 'undefined' && valueJson_ws_p && valueJson_ws_p[0] && valueJson_ws_p[0].formName) {
+      formTitle = valueJson_ws_p[0].formName;
+    }
+    const map = {
+      'shortcode_message': t_efb('ebMessageContent', 'Message Content'),
+      'shortcode_title': formTitle,
+      'shortcode_website_name': siteName,
+      'shortcode_website_url': siteUrl,
+      'shortcode_admin_email': adminEmail
+    };
+    let result = escHtml_efb(text);
+    for (const [code, preview] of Object.entries(map)) {
+      result = result.replace(new RegExp(code, 'g'), '<span style="text-decoration:underline dotted;cursor:default;" title="' + code + '">' + escHtml_efb(preview) + '</span>');
+    }
+    return result;
   }
 
   let _canvasDropBound_efb = false;
@@ -1201,7 +1228,7 @@ ${blocksHtml}
     switch (block.type) {
       case 'header':
         html += propColor_efb('bgColor', t_efb('ebBgColor', 'Background Color'), data.bgColor);
-        html += propInput_efb('bgGradient', t_efb('ebBgCSS', 'Background (CSS)'), data.bgGradient || data.bgColor);
+        html += propInput_efb('bgGradient', t_efb('ebBgCSS', 'Background (CSS)'), data.bgGradient || '');
         html += propPadding_efb('padding', t_efb('ebPadding', 'Padding'), data.padding);
         html += propSelect_efb('align', t_efb('align', 'Align'), data.align, ['left','center','right']);
         if (block.children) {
@@ -1967,7 +1994,7 @@ ${blocksHtml}
     }
 
     let preview = html
-      .replace(/shortcode_message/g, '<div style="background:#f0fdf4;padding:15px;border-radius:8px;border:1px solid #bbf7d0;"><strong>' + t_efb('name', 'Name') + ':</strong> John Doe<br><strong>' + t_efb('email', 'Email') + ':</strong> john@example.com<br><strong>' + t_efb('message', 'Message') + ':</strong> This is a sample form submission.</div>')
+      .replace(/shortcode_message/g, '<div><strong>' + t_efb('name', 'Name') + ':</strong> John Doe<br><strong>' + t_efb('email', 'Email') + ':</strong> john@example.com<br><strong>' + t_efb('message', 'Message') + ':</strong> This is a sample form submission.</div>')
       .replace(/shortcode_title/g, t_efb('message', 'New Message'))
       .replace(/shortcode_website_name/g, 'My Website')
       .replace(/shortcode_website_url/g, '#')
@@ -2720,11 +2747,12 @@ ${blocksHtml}
     .efb-builder-canvas {
       max-width: 620px;
       margin: 0 auto;
-      min-height: 400px;
+      min-height: 200px;
       background: #ffffff;
       border-radius: 8px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      padding: 8px;
+      padding: 0;
+      overflow: hidden;
     }
     .efb-empty-canvas {
       display: flex;
@@ -2737,10 +2765,10 @@ ${blocksHtml}
 
     .efb-canvas-block {
       position: relative;
-      margin: 4px 0;
-      border: 2px solid transparent;
-      border-radius: 6px;
-      transition: all .15s;
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      transition: outline .15s, box-shadow .15s;
       cursor: pointer;
       animation: efbBlockIn .25s ease-out;
     }
@@ -2748,24 +2776,27 @@ ${blocksHtml}
       from { opacity: 0; transform: translateY(-8px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .efb-canvas-block:hover { border-color: #c7d2fe; }
-    .efb-canvas-block.efb-block-selected { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+    .efb-canvas-block:hover { outline: 2px solid #c7d2fe; outline-offset: -2px; }
+    .efb-canvas-block.efb-block-selected { outline: 2px solid #667eea; outline-offset: -2px; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
     .efb-canvas-block.efb-block-required { }
     .efb-block-label {
-      display: flex;
+      display: none;
       justify-content: space-between;
       align-items: center;
       padding: 3px 8px;
-      background: #f1f5f9;
-      border-radius: 4px 4px 0 0;
+      background: rgba(241,245,249,0.95);
+      border-radius: 0;
       font-size: 10px;
       color: #64748b;
       font-weight: 600;
-      opacity: 0;
-      transition: opacity .15s;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
     }
     .efb-canvas-block:hover .efb-block-label,
-    .efb-canvas-block.efb-block-selected .efb-block-label { opacity: 1; }
+    .efb-canvas-block.efb-block-selected .efb-block-label { display: flex; }
     .efb-block-actions { display: flex; gap: 2px; }
     .efb-blk-btn {
       width: 22px; height: 22px;
@@ -2776,11 +2807,11 @@ ${blocksHtml}
     }
     .efb-blk-btn:hover { background: #e2e8f0; color: #334155; }
     .efb-blk-btn.efb-blk-btn-danger:hover { background: #fef2f2; color: #ef4444; }
-    .efb-block-preview { padding: 4px; }
+    .efb-block-preview { padding: 0; }
 
     .efb-canvas-block.efb-dragging { opacity: 0.4; }
-    .efb-canvas-block.efb-drop-above { border-top: 3px solid #667eea; }
-    .efb-canvas-block.efb-drop-below { border-bottom: 3px solid #667eea; }
+    .efb-canvas-block.efb-drop-above { outline: none; box-shadow: inset 0 3px 0 0 #667eea; }
+    .efb-canvas-block.efb-drop-below { outline: none; box-shadow: inset 0 -3px 0 0 #667eea; }
 
     .efb-builder-sidebar-right {
       background: #ffffff;

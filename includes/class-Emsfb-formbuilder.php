@@ -3298,6 +3298,8 @@ public function check_error_console_efb(){
 		'adminOnly'   => esc_html__('This panel is only visible to site administrators.', 'easy-form-builder'),
 		'easyformbuilder' => esc_html__('Easy Form Builder', 'easy-form-builder'),
 		'warningBadge' => esc_html__('Warning', 'easy-form-builder'),
+		'jqueryMissing' => esc_html__('jQuery Dependency Issue', 'easy-form-builder'),
+		'jqueryMessage' => esc_html__('jQuery is not properly loaded or available. AJAX and interactive form features may not work correctly.', 'easy-form-builder'),
 	];
 
 	$value = '
@@ -3939,6 +3941,22 @@ public function check_error_console_efb(){
 				} else {
 					self.createUI();
 				}
+
+				// Check if jQuery is loaded and working properly
+				setTimeout(() => {
+					if (typeof jQuery === "undefined" || !jQuery || typeof jQuery.ajax !== "function") {
+						self.addError({
+							message: self.t.jqueryMessage,
+							source: "window",
+							lineno: null,
+							typeOverride: "jqueryMissing",
+							nameOverride: self.t.jqueryMissing
+						});
+					}
+					if (typeof $ === "undefined" && typeof jQuery !== "undefined") {
+						console.warn("[EFB] $ is undefined. If using jQuery in noConflict mode, use jQuery instead of $");
+					}
+				}, 500);
 
 				window.addEventListener("error", function(event) {
 					let stack = [];

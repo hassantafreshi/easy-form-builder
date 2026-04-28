@@ -706,7 +706,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     <div class="efb efb-msg-header">
      ${bySection}
      <div class="efb-msg-header-actions">
-       ${efb_var.hasOwnProperty('setting') || (typeof setting_emsFormBuilder !== 'undefined' && (setting_emsFormBuilder.activeDlBtn == true || setting_emsFormBuilder.activeDlBtn == '1' || setting_emsFormBuilder.activeDlBtn === 1)) ? `<div class="efb efb-msg-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onclick="generatePDF_EFB('resp_efb')"><i class="bi bi-download"></i></div>` : ''}
+       ${efb_var.hasOwnProperty('setting') || (typeof setting_emsFormBuilder !== 'undefined' && (setting_emsFormBuilder.activeDlBtn == true || setting_emsFormBuilder.activeDlBtn == '1' || setting_emsFormBuilder.activeDlBtn === 1)) ? `<div class="efb efb-msg-download"><button type="button" class="efb-msg-dl-btn" onclick="toggleDlDropdown_EFB(this)" aria-expanded="false" title="${efb_var.text.download}"><i class="bi bi-download"></i></button></div>` : ''}
      </div>
     </div>
     <div class="efb-msg-meta-bar">
@@ -1281,6 +1281,254 @@ function generatePDF_EFB(id)
     var content = generatePDFContent_efb(hasGoogleFontsAccess);
     openPrintWindow_efb(content);
   });
+}
+
+/* ---- Download dropdown – portal pattern, appended to <body>, position:fixed ---- */
+var _efbDlMenu = null;  // reference to the single floating menu element
+var _efbDlOwner = null; // the button that opened it
+
+function toggleDlDropdown_EFB(btn) {
+  // If the menu is already open for THIS button → close it
+  if (_efbDlMenu && _efbDlOwner === btn) {
+    closeDlDropdown_EFB();
+    return;
+  }
+  // Close any previously open menu
+  closeDlDropdown_EFB();
+
+  // Build the menu element once and reuse
+  var menu = document.createElement('ul');
+  menu.className = 'efb-dl-dropdown';
+  menu.setAttribute('role', 'menu');
+  menu.innerHTML =
+    '<li><a class="efb-dl-item" href="#" data-efb-dl="pdf"><i class="bi bi-file-earmark-pdf"></i> PDF</a></li>' +
+    '<li><a class="efb-dl-item" href="#" data-efb-dl="csv"><i class="bi bi-filetype-csv"></i> CSV</a></li>';
+
+  menu.addEventListener('click', function(e) {
+    var item = e.target.closest('[data-efb-dl]');
+    if (!item) return;
+    e.preventDefault();
+    var action = item.getAttribute('data-efb-dl');
+    closeDlDropdown_EFB();
+    if (action === 'pdf') generatePDF_EFB('resp_efb');
+    if (action === 'csv') generateCSV_EFB('resp_efb');
+  });
+
+  document.body.appendChild(menu);
+  _efbDlMenu  = menu;
+  _efbDlOwner = btn;
+
+  _efbDlPosition(btn, menu);
+
+  btn.setAttribute('aria-expanded', 'true');
+}
+
+function _efbDlPosition(btn, menu) {
+  var rect   = btn.getBoundingClientRect();
+  var menuW  = menu.offsetWidth  || 130;
+  var menuH  = menu.offsetHeight || 80;
+  var gap    = 4; // px gap between button bottom and menu top
+
+  // Vertical: below button; flip up if not enough room
+  var top;
+  if (rect.bottom + gap + menuH <= window.innerHeight) {
+    top = rect.bottom + gap;
+  } else {
+    top = Math.max(4, rect.top - gap - menuH);
+  }
+
+  // Horizontal: right-align menu with button; shift left if it bleeds off screen
+  var left = rect.right - menuW;
+  if (left < 4) left = 4;
+  if (left + menuW > window.innerWidth - 4) left = window.innerWidth - menuW - 4;
+
+  menu.style.position = 'fixed';
+  menu.style.top  = top  + 'px';
+  menu.style.left = left + 'px';
+}
+
+function closeDlDropdown_EFB() {
+  if (_efbDlMenu) {
+    _efbDlMenu.remove();
+    _efbDlMenu = null;
+  }
+  if (_efbDlOwner) {
+    _efbDlOwner.setAttribute('aria-expanded', 'false');
+    _efbDlOwner = null;
+  }
+}
+
+// Reposition on scroll or resize while open
+window.addEventListener('scroll', function() {
+  if (_efbDlMenu && _efbDlOwner) _efbDlPosition(_efbDlOwner, _efbDlMenu);
+}, true);
+window.addEventListener('resize', function() {
+  if (_efbDlMenu && _efbDlOwner) _efbDlPosition(_efbDlOwner, _efbDlMenu);
+});
+
+// Close on outside click
+document.addEventListener('click', function(e) {
+  if (_efbDlMenu && _efbDlOwner && !_efbDlOwner.contains(e.target) && !_efbDlMenu.contains(e.target)) {
+    closeDlDropdown_EFB();
+  }
+}, true);
+
+// Close on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDlDropdown_EFB();
+});
+/* ---------------------------------------------------------------------------- */
+
+function csvEscape_EFB(val) {
+  if (val === null || val === undefined) return '';
+  val = String(val).trim();
+  if (val.search(/[,"\n\r]/) !== -1) {
+    val = '"' + val.replace(/"/g, '""') + '"';
+  }
+  return val;
+}
+
+function generateCSV_EFB(id) {
+  var container = document.getElementById(id);
+  if (!container) return;
+
+  var cards = container.querySelectorAll('.efb-msg-card');
+  if (!cards.length) return;
+
+  // --- Collect all unique column headers ---
+  var metaLabels = [];
+  var fieldLabels = [];
+
+  cards.forEach(function(card) {
+    card.querySelectorAll('.efb-msg-meta-bar .efb-msg-meta-item').forEach(function(item) {
+      var lbl = item.querySelector('.efb-msg-meta-label');
+      if (lbl) {
+        var key = lbl.textContent.trim().replace(/:$/, '').trim();
+        if (key && metaLabels.indexOf(key) === -1) metaLabels.push(key);
+      }
+    });
+
+    card.querySelectorAll('.efb-msg-fields .efb-msg-field-row').forEach(function(row) {
+      var lbl = row.querySelector('.efb-msg-field-label');
+      if (lbl) {
+        var key = lbl.textContent.trim().replace(/:$/, '').trim();
+        if (key && fieldLabels.indexOf(key) === -1) fieldLabels.push(key);
+      }
+    });
+
+    card.querySelectorAll('.efb-msg-payment .efb-msg-payment-item').forEach(function(item) {
+      var lbl = item.querySelector('.efb-msg-payment-label');
+      if (lbl) {
+        var key = 'Payment: ' + lbl.textContent.trim();
+        if (key && fieldLabels.indexOf(key) === -1) fieldLabels.push(key);
+      }
+    });
+  });
+
+  var allHeaders = metaLabels.concat(fieldLabels);
+  var csvRows = [allHeaders.map(csvEscape_EFB).join(',')];
+
+  // --- Build one CSV row per card ---
+  cards.forEach(function(card) {
+    var rowData = {};
+
+    // Meta bar
+    card.querySelectorAll('.efb-msg-meta-bar .efb-msg-meta-item').forEach(function(item) {
+      var lbl = item.querySelector('.efb-msg-meta-label');
+      var val = item.querySelector('.efb-msg-meta-val');
+      if (lbl && val) {
+        var key = lbl.textContent.trim().replace(/:$/, '').trim();
+        rowData[key] = val.textContent.trim();
+      }
+    });
+
+    // Field rows
+    card.querySelectorAll('.efb-msg-fields .efb-msg-field-row').forEach(function(row) {
+      var lbl = row.querySelector('.efb-msg-field-label');
+      if (!lbl) return;
+      var key = lbl.textContent.trim().replace(/:$/, '').trim();
+      var cellVal = '';
+
+      // Signature (esign) - base64 data URL → note; external URL → link
+      var esignImg = row.querySelector('.efb-msg-esign-img');
+      if (esignImg) {
+        var src = esignImg.getAttribute('src') || '';
+        cellVal = src.startsWith('data:') ? '[Signature]' : src;
+
+      // Uploaded image
+      } else if (row.querySelector('img:not(.efb-msg-esign-img)')) {
+        var img = row.querySelector('img:not(.efb-msg-esign-img)');
+        cellVal = img.getAttribute('src') || '';
+
+      // File / document link
+      } else if (row.querySelector('.efb-reply-btn, a[href]')) {
+        var link = row.querySelector('.efb-reply-btn, a[href]');
+        cellVal = link.getAttribute('href') || link.textContent.trim();
+
+      // Video
+      } else if (row.querySelector('video[src]')) {
+        cellVal = row.querySelector('video[src]').getAttribute('src');
+
+      // Audio
+      } else if (row.querySelector('audio source[src]')) {
+        cellVal = row.querySelector('audio source[src]').getAttribute('src');
+
+      // Checkbox list
+      } else if (row.querySelector('.efb-msg-checkbox-list')) {
+        var items = row.querySelectorAll('.efb-msg-checkbox-item');
+        var vals = [];
+        items.forEach(function(ci) {
+          var iconEl = ci.querySelector('i');
+          if (iconEl) iconEl.remove();
+          vals.push(ci.textContent.trim());
+        });
+        cellVal = vals.join(' | ');
+
+      // Rating – count filled stars
+      } else if (row.querySelector('.efb-msg-rating')) {
+        var stars = row.querySelectorAll('.bi-star-fill');
+        cellVal = String(stars.length);
+
+      // Color swatch – take <code> text
+      } else if (row.querySelector('code')) {
+        cellVal = row.querySelector('code').textContent.trim();
+
+      // Price tag
+      } else if (row.querySelector('.efb-msg-price-tag')) {
+        cellVal = row.querySelector('.efb-msg-price-tag').textContent.trim();
+
+      // Plain text
+      } else {
+        var valEl = row.querySelector('.efb-msg-field-value');
+        if (valEl) cellVal = valEl.textContent.trim();
+      }
+
+      rowData[key] = (rowData[key] ? rowData[key] + ' | ' : '') + cellVal;
+    });
+
+    // Payment items
+    card.querySelectorAll('.efb-msg-payment .efb-msg-payment-item').forEach(function(item) {
+      var lbl = item.querySelector('.efb-msg-payment-label');
+      var val = item.querySelector('.efb-msg-payment-val');
+      if (lbl && val) {
+        var key = 'Payment: ' + lbl.textContent.trim();
+        rowData[key] = val.textContent.trim();
+      }
+    });
+
+    csvRows.push(allHeaders.map(function(h) { return csvEscape_EFB(rowData[h] || ''); }).join(','));
+  });
+
+  var bom = '\uFEFF';
+  var blob = new Blob([bom + csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'form-response-' + Date.now() + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 function fun_tracking_show_emsFormBuilder() {

@@ -150,9 +150,14 @@ class Emsfb_Visual_Composer_Integration {
 
     private function get_icon_url() {
         if (defined('EMSFB_PLUGIN_URL')) {
-            $icon_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/image/efb-icon.png';
-            if (file_exists($icon_path)) {
-                return EMSFB_PLUGIN_URL . 'includes/admin/assets/image/efb-icon.png';
+            // Try SVG first, then PNG as fallback
+            $svg_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/image/logo.svg';
+            if (file_exists($svg_path)) {
+                return EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.svg';
+            }
+            $png_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/image/logo.png';
+            if (file_exists($png_path)) {
+                return EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.png';
             }
         }
         return '';
