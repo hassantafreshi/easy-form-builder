@@ -2180,7 +2180,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         if(indx!=-1) {
           slice_sback(indx)
           if(ob.type=="payCheckbox") fun_total_pay_efb(form_id);
-          if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
+          if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.id ,el.type);
           return ;
         }
        }
@@ -2195,7 +2195,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         document.getElementById(id).disabled=true;
         document.getElementById(id).value ="";
        }
-       if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
+       if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.id ,el.type);
       break;
     case "select-one":
     case "select":
@@ -2209,7 +2209,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         if (typeof v.price == "string") price_efb = v.price;
       }
 
-      if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.dataset.vid , el.type);
+      if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.dataset.vid , el.type);
       if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
         let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
            await fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp,el.dataset.formid);
@@ -2355,7 +2355,18 @@ async function fun_validation_efb_v4(form_id) {
       let fieldFailed = false;
       if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile'){
         let r = files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_);
-        fieldFailed = r == -1 || (files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state)==0);
+        if (r !== -1) {
+          fieldFailed = files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state) == 0;
+        } else {
+          // Upload completed — entry removed from files_emsFormBuilder; check sendback for uploaded URL
+          const sbIndx = sendBack_emsFormBuilder_pub.findIndex(x =>
+            x.id_ === valj_efb[row].id_ &&
+            x.value === '@file@' &&
+            typeof x.url === 'string' &&
+            x.url.length > 0
+          );
+          fieldFailed = sbIndx === -1;
+        }
       } else {
         fieldFailed = s == -1 || !is_required_value_filled_efb(sendBack_emsFormBuilder_pub[s], valj_efb[row].type);
       }

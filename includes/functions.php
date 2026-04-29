@@ -3358,6 +3358,7 @@ public function addon_add_efb($value) {
 			'AdnTLG' => 0,
 			'AdnATF' => 0,
 			'AdnGoS' => 0,
+			'AdnSMF' => 0, // Conditional Logic addon
 		];
 		if($ac!=null && isset($ac->AdnSPF)==true){
 			$addons['AdnSPF'] = isset($ac->AdnSPF) ? intval($ac->AdnSPF) : 0;
@@ -3374,6 +3375,7 @@ public function addon_add_efb($value) {
 			$addons["AdnTLG"] =  isset($ac->AdnTLG) ? intval($ac->AdnTLG) : 0;
 			$addons['AdnATF'] =	isset($ac->AdnATF)	? intval($ac->AdnATF)	:0;
 			$addons['AdnGoS'] =	isset($ac->AdnGoS)	? intval($ac->AdnGoS)	:0;
+			$addons['AdnSMF'] =	isset($ac->AdnSMF)	? intval($ac->AdnSMF)	:0;
 		}
 
 		return $addons;

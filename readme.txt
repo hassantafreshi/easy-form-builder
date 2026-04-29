@@ -317,48 +317,17 @@ For more information, visit the official website:
 
 == Upgrade Notice ==
 
-= 4.0.5 =
-
-* Introduced Dashboard Widget for tracking form submission statistics.
-
-* Added download dropdown menu in response viewer for easier file access.
-
-* Added security plugin compatibility notice and improved plugin deactivation handling.
-
-* Improved email template button accessibility and cross-client link styling.
-
-* Enhanced form recovery UI with dynamic color, corner, and height styling.
-
-* Updated CDN links and improved error handling across multiple components.
-
-* Improved localization for multi-step, drag & drop, and no-coding badge labels.
-
-* Fixed settings display issue in Easy Form Builder panel.
-
-* Fixed issues
-
-= 4.0.4 =
-
-* Improved UX of Easy Form Builder
-
-= 4.0.3 =
-
-* Improved UX of Easy Form Builder
-
-* Fixed issues
-
-= 4.0.2 =
-
-= 4.0.1 =
-
-* Fixed issues
-
 = 4.0.0 =
 Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official addons will be update to their latest versions.
 **Backup your site before updating. Not backward-compatible with v3.x addons.**
 
 
 == Changelog ==
+
+= 4.0.6 =
+
+* Fixed issues
+
 = 4.0.5 =
 
 * Introduced Dashboard Widget for tracking form submission statistics.

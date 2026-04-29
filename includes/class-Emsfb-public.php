@@ -1659,6 +1659,26 @@ public function check_nonce_permission_efb($request) {
 		if ($form_structure_json != '') {
 			$form_fields_array = json_decode($form_structure_json, true);
 			$form_structure_json = null;
+
+			// Phase 0.2 — Apply logic_rules: build hidden/optional fields map for this submission
+			$efb_logic_result = $this->evaluate_logic_rules($form_fields_array, $submitted_values);
+			if ( !empty($efb_logic_result['hidden_fields']) ) {
+				foreach ( $form_fields_array as $key => &$field ) {
+					if ( isset($field['id_']) && in_array($field['id_'], $efb_logic_result['hidden_fields'], true) ) {
+						$field['required'] = false;
+					}
+				}
+				unset($field);
+			}
+			if ( !empty($efb_logic_result['optional_fields']) ) {
+				foreach ( $form_fields_array as $key => &$field ) {
+					if ( isset($field['id_']) && in_array($field['id_'], $efb_logic_result['optional_fields'], true) ) {
+						$field['required'] = false;
+					}
+				}
+				unset($field);
+			}
+
 			$has_multiple_emails = isset($form_fields_array[0]["email_send_type"]) ? $form_fields_array[0]["email_send_type"] : false;
 
 			$form_type = $form_fields_array[0]['type'] ?? 'form';

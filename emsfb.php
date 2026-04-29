@@ -24,7 +24,7 @@ if (!defined("EMSFB_PLUGIN_DIRECTORY")) {
     define("EMSFB_PLUGIN_DIRECTORY", plugin_dir_path(__FILE__));
 }
 if (!defined("EMSFB_PLUGIN_VERSION")) {
-    define("EMSFB_PLUGIN_VERSION", "4.0.6");
+    define("EMSFB_PLUGIN_VERSION", "4.0.61");
 }
 if (!defined("EMSFB_DB_VERSION")) {
     define("EMSFB_DB_VERSION", 1.1);

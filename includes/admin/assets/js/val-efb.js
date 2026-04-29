@@ -1780,7 +1780,7 @@ function show_setting_window_efb(idset) {
         <!-- telegram section end -->` : '<!-- telegram addon not active -->'}
           <!-- conditional logic section -->
           <div class="efb d-grid gap-2" id="efb-conlog-btn-wrap">
-            <button class="efb btn btn-outline-light mt-3 d-none" type="button" onclick="if(typeof EFB_Logic!=='undefined'){EFB_Logic.open()}else{console.error('EFB_Logic not loaded')}">
+            <button class="efb btn btn-outline-light mt-3" type="button" onclick="if(typeof EFB_Logic!=='undefined'){EFB_Logic.open()}else{console.error('EFB_Logic not loaded')}">
               <i class="efb bi-diagram-3 me-1"></i>${efb_var.text.conlog || 'Conditional Logic'}
               ${(valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) ? '<span class="efb badge bg-primary ms-2">' + valj_efb[0].logic_rules.length + '</span>' : ''}
             </button>

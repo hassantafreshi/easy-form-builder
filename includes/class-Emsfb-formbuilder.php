@@ -2146,9 +2146,10 @@
 		$corner = property_exists($valj_efb[0], 'corner') ? $valj_efb[0]->corner : 'efb-square';
 		$btns_align = property_exists($valj_efb[0], 'btns_align') ? $valj_efb[0]->btns_align . ' mx-3' : 'justify-content-center';
 		$icon_spacing_class = is_rtl() ? 'ms-2' : 'me-2';
+		$icon_spacing_next_class = is_rtl() ? 'me-2' : 'ms-2';
 
 		$prev_icon = strlen($valj_efb[0]->button_Previous_icon) > 3 && $valj_efb[0]->button_Previous_icon != 'bi-undefined' &&  $valj_efb[0]->button_Previous_icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Previous_icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
-		$next_icon = strlen($valj_efb[0]->button_Next_text) > 3 && $valj_efb[0]->button_Next_text != 'bi-undefined' && $valj_efb[0]->button_Next_text!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
+		$next_icon = strlen($valj_efb[0]->button_Next_text) > 3 && $valj_efb[0]->button_Next_text != 'bi-undefined' && $valj_efb[0]->button_Next_text!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $icon_spacing_next_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
 		$class_disabled = '';
 
 		$s = sprintf(
