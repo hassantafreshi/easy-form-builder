@@ -24,7 +24,8 @@
     number: ['is', 'is_not', 'gt', 'lt', 'is_empty', 'is_not_empty'],
     date: ['is', 'is_not', 'gt', 'lt', 'is_empty', 'is_not_empty'],
     bool: ['is'],
-    file: ['is_empty', 'is_not_empty']
+    file: ['is_empty', 'is_not_empty'],
+    payment: ['is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt']
   };
 
   const OPERATOR_LABELS = {
@@ -37,15 +38,20 @@
     gt: 'gthan',
     lt: 'lthan',
     is_empty: 'empty',
-    is_not_empty: 'nEmpty'
+    is_not_empty: 'nEmpty',
+    is_paid: 'pay_completed',
+    is_not_paid: 'pay_failed',
+    amount_eq: 'ise',
+    amount_gt: 'gthan',
+    amount_lt: 'lthan'
   };
 
-  const NO_VALUE_OPERATORS = new Set(['is_empty', 'is_not_empty']);
+  const NO_VALUE_OPERATORS = new Set(['is_empty', 'is_not_empty', 'is_paid', 'is_not_paid']);
 
   /* field type → category mapping */
   const FIELD_CATEGORY = {
     text: 'text', textarea: 'text', email: 'text', url: 'text', tel: 'text', password: 'text',
-    color: 'text', link: 'text', htmlcode: 'text',
+    color: 'text', link: 'text', htmlcode: 'text', html: 'text',
     number: 'number', range: 'number',
     date: 'date',
     select: 'choice', multiselect: 'choice', radio: 'choice', checkbox: 'choice',
@@ -54,8 +60,15 @@
     paySelect: 'choice', payMultiselect: 'choice', payRadio: 'choice', payCheckbox: 'choice',
     imgRadio: 'choice', chlRadio: 'choice', chlCheckBox: 'choice',
     yesNo: 'bool',
-    file: 'file', signature: 'file'
+    file: 'file', signature: 'file',
+    stripe: 'payment', paypal: 'payment',
+    maps: 'text', heading: 'text', pointr10: 'number', table_matrix: 'text'
   };
+
+  /* field types that cannot be used as logic conditions */
+  const EXCLUDED_CONDITION_TYPES = new Set([
+    'html', 'htmlcode', 'link', 'maps', 'heading', 'chlCheckBox', 'pointr10', 'table_matrix'
+  ]);
 
   /* action types */
   const ACTION_TYPES = [
@@ -85,6 +98,7 @@
     for (let i = 1; i < valj_efb.length; i++) {
       const f = valj_efb[i];
       if (!f || f.type === 'option' || f.type === 'form' || f.type === 'r_matrix' || f.type === 'step' || f.type === 'buttonNav') continue;
+      if (EXCLUDED_CONDITION_TYPES.has(f.type)) continue;
       r.push({ id_: f.id_, name: f.name || f.type, type: f.type, step: f.step || 1 });
     }
     return r;
@@ -210,12 +224,12 @@
   function renderList() {
     view = 'list';
     currentRuleId = null;
-
+    const mx = Number(efb_var.rtl) == 1 ? 'ms-2' : 'me-2';
     if (rules.length === 0) {
       return `
         <div class="efb-logic-list">
           <div class="efb-logic-empty">
-            <div class="efb-logic-empty-icon"><i class="efb bi-diagram-3"></i></div>
+            <div class="efb-logic-empty-icon"><i class="efb bi-diagram-3 ${mx}"></i></div>
             <p>Add your first rule to start building smart forms.</p>
             <button type="button" class="efb-logic-add-btn efb-logic-add-btn-center" onclick="EFB_Logic.addRule()"><i class="efb bi-plus-lg"></i> ${_t('add')}</button>
           </div>
@@ -340,6 +354,11 @@
     const needsValue = !NO_VALUE_OPERATORS.has(cond.compare);
     const hasOpts = cond.field_id && fieldHasOptions(cond.field_id);
 
+    /* detect payment amount operator (needs number input) */
+    const fObj = typeof valj_efb !== 'undefined' ? valj_efb.find(x => x.id_ === cond.field_id) : null;
+    const isPaymentAmountOp = fObj && getFieldCategory(fObj.type) === 'payment' &&
+      (cond.compare === 'amount_eq' || cond.compare === 'amount_gt' || cond.compare === 'amount_lt');
+
     /* field select */
     let fieldOpts = `<option value="">${_t('select')} ${_t('field')}</option>`;
     fields.forEach(f => {
@@ -349,17 +368,18 @@
     /* operator select */
     let opOpts = '';
     ops.forEach(op => {
-      opOpts += `<option value="${op}" ${op === cond.compare ? 'selected' : ''}>${_t(OPERATOR_LABELS[op])}</option>`;
+      opOpts += `<option value="${op}" ${op === cond.compare ? 'selected' : ''}>${_t(OPERATOR_LABELS[op] || op)}</option>`;
     });
 
     /* value input */
     let valueHtml = '';
     if (needsValue) {
-      if (hasOpts) {
+      if (isPaymentAmountOp) {
+        valueHtml = `<input type="number" min="0" step="0.01" class="efb-logic-value-input" value="${_esc(cond.value || '')}" placeholder="0" data-ci="${idx}" onchange="EFB_Logic.updateCondition(${idx},'value',this.value)">`;
+      } else if (hasOpts) {
         const fopts = getFieldOptions(cond.field_id);
         let vOpts = `<option value="">${_t('select')}</option>`;
         /* for yesNo type */
-        const fObj = typeof valj_efb !== 'undefined' ? valj_efb.find(x => x.id_ === cond.field_id) : null;
         if (fObj && fObj.type === 'yesNo') {
           vOpts += `<option value="yes" ${cond.value === 'yes' ? 'selected' : ''}>Yes</option>`;
           vOpts += `<option value="no" ${cond.value === 'no' ? 'selected' : ''}>No</option>`;
@@ -412,6 +432,7 @@
     loadRules();
     view = 'list';
     currentRuleId = null;
+    const mx = Number(efb_var.rtl) == 1 ? 'ms-2' : 'me-2';
     const modal = document.getElementById('settingModalEfb');
     if (!modal) return;
 
@@ -421,7 +442,7 @@
     if (titleEl) titleEl.textContent = _t('conlog');
 
     const iconEl = document.getElementById('settingModalEfb-icon');
-    if (iconEl) iconEl.className = 'efb bi-diagram-3';
+    if (iconEl) iconEl.className = 'efb bi-diagram-3'+mx;
 
     const bodyEl = document.getElementById('settingModalEfb-body');
     if (bodyEl) {

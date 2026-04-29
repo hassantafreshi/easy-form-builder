@@ -1176,7 +1176,7 @@ function handle_change_event_efb(el){
           if(indx!=-1) {
             slice_sback(indx)
             if(ob.type=="payCheckbox") fun_total_pay_efb();
-            if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
+            if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.id ,el.type);
             return ;
           }
          }
@@ -1191,7 +1191,7 @@ function handle_change_event_efb(el){
           document.getElementById(id).disabled=true;
           document.getElementById(id).value ="";
          }
-         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
+         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.id ,el.type);
         break;
       case "select-one":
       case "select":
@@ -1205,7 +1205,7 @@ function handle_change_event_efb(el){
           v = valueJson_ws.find(x => x.id_ == v && x.value == el.value);
           if (typeof v.price == "string") price_efb = v.price;
         }
-        if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.dataset.vid , el.type);
+        if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.dataset.vid , el.type);
         if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
           let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
               fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp,form_id)

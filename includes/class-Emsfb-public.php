@@ -719,7 +719,6 @@ public function check_nonce_permission_efb($request) {
 				$iconsd = array_merge($icons_[0] , $icons[0]);
 
 				$icons_ = array_unique($iconsd);
-				$value = preg_replace('/\\\"email\\\":\\\"(.*?)\\\"/', '\"email\":\"\"', $value);
 
 					foreach($iconsd as $icon){
 						$iconst_html_preload .= "<i class='bi $icon'></i>";
@@ -815,6 +814,7 @@ public function check_nonce_permission_efb($request) {
 			if ($is_track==null){
 
 					$fs =str_replace('\\', '', $value_form_data->form_structer);
+					$fs = preg_replace('/"email":"[^"]*"/', '"email":""', $fs);
 					$formObj= json_decode($fs,true);
 					$valj_efb = json_decode($fs, false, 512, JSON_UNESCAPED_UNICODE);
 					if(($valj_efb[0]->stateForm==true || $valj_efb[0]->stateForm==1) &&  is_user_logged_in()==false ){

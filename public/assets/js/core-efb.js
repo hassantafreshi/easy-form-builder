@@ -1,6 +1,191 @@
 let exportView_emsFormBuilder = [];
 let stepsCount;
 let sessionPub_emsFormBuilder = "reciveFromClient"
+
+/**
+ * Conditional Logic Engine — fun_statement_logic_efb
+ * Evaluates all logic_rules from valj_efb[0] and executes show/hide/require actions.
+ * Always loaded as part of core. Overridable by logic-runtime-efb.js (AdnSMF addon).
+ */
+function fun_statement_logic_efb(triggeredId, triggeredType) {
+  console.log('Logic engine triggered by', triggeredId, 'of type', triggeredType);
+  if (typeof valj_efb === 'undefined' || !valj_efb[0]) return;
+
+  var rules = valj_efb[0].logic_rules;
+  if (!Array.isArray(rules) || rules.length === 0) {
+    /* Legacy fallback: no-op (handled by logic-runtime-efb.js if loaded) */
+    return;
+  }
+
+  /* ── Read current value from sendBack_emsFormBuilder_pub ── */
+  function _getFieldValue(fieldId) {
+    if (typeof sendBack_emsFormBuilder_pub === 'undefined') return '';
+    var fObj = valj_efb.find(function(x) { return x.id_ === fieldId; });
+    if (!fObj) return '';
+    var type = fObj.type;
+
+    /* Checkbox types: multiple entries, one per checked option */
+    if (type === 'checkbox' || type === 'payCheckbox' || type === 'chlCheckBox') {
+      return sendBack_emsFormBuilder_pub
+        .filter(function(x) { return x && x.id_ === fieldId; })
+        .map(function(x) { return x.id_ob || x.value || ''; });
+    }
+
+    var row = sendBack_emsFormBuilder_pub.find(function(x) { return x && x.id_ === fieldId; });
+    if (!row) return '';
+
+    /* Multiselect: value joined by '@efb!' */
+    if (type === 'multiselect' || type === 'payMultiselect') {
+      var v = row.value;
+      if (!v || typeof v !== 'string') return [];
+      return v.split('@efb!').map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+    }
+
+    /* YesNo: id_ob is '{fieldId}_1' (yes) or '{fieldId}_2' (no) */
+    if (type === 'yesNo') {
+      if (!row.id_ob) return '';
+      return row.id_ob === fieldId + '_1' ? 'yes' : row.id_ob === fieldId + '_2' ? 'no' : '';
+    }
+
+    /* Radio types: id_ob = checked option's id_ */
+    if (type === 'radio' || type === 'payRadio' || type === 'imgRadio' || type === 'chlRadio') {
+      return row.id_ob || '';
+    }
+
+    return row.value != null ? String(row.value) : '';
+  }
+
+  /* ── Resolve option id_ → display text ── */
+  function _optionText(optId) {
+    if (!optId) return '';
+    var o = valj_efb.find(function(x) { return x.id_ === optId; });
+    return o ? (o.value || o.name || '') : '';
+  }
+
+  /* ── Evaluate one condition ── */
+  function _evalCondition(cond) {
+    var val = _getFieldValue(cond.field_id);
+    var op  = cond.compare || 'is';
+    var exp = cond.value   || '';
+
+    /* For select/country/state/city: cond.value = option id_, row.value = display text */
+    var fObj = valj_efb.find(function(x) { return x.id_ === cond.field_id; });
+    var selectTypes = ['select','paySelect','conturyList','stateProvince','statePro','country','city','cityList'];
+    var effectiveExp = exp;
+    if (fObj && selectTypes.indexOf(fObj.type) !== -1 && exp) {
+      effectiveExp = _optionText(exp) || exp;
+    }
+
+    /* Array (checkbox / multiselect) */
+    if (Array.isArray(val)) {
+      var isMulti = fObj && (fObj.type === 'multiselect' || fObj.type === 'payMultiselect');
+      var arrExp  = isMulti ? (_optionText(exp) || exp) : exp;
+      switch (op) {
+        case 'is':           return val.indexOf(arrExp) !== -1;
+        case 'is_not':       return val.indexOf(arrExp) === -1;
+        case 'contains':     return val.some(function(v) { return String(v).toLowerCase().indexOf(arrExp.toLowerCase()) !== -1; });
+        case 'not_contains': return !val.some(function(v) { return String(v).toLowerCase().indexOf(arrExp.toLowerCase()) !== -1; });
+        case 'is_empty':     return val.length === 0;
+        case 'is_not_empty': return val.length > 0;
+        default:             return false;
+      }
+    }
+
+    /* Scalar */
+    var sv = String(val).trim();
+    switch (op) {
+      case 'is':           return sv === effectiveExp || sv === exp;
+      case 'is_not':       return sv !== effectiveExp && sv !== exp;
+      case 'contains':     return sv.toLowerCase().indexOf(effectiveExp.toLowerCase()) !== -1;
+      case 'not_contains': return sv.toLowerCase().indexOf(effectiveExp.toLowerCase()) === -1;
+      case 'starts_with':  return sv.toLowerCase().indexOf(effectiveExp.toLowerCase()) === 0;
+      case 'ends_with':    return sv.toLowerCase().lastIndexOf(effectiveExp.toLowerCase()) === sv.length - effectiveExp.length && sv.length >= effectiveExp.length;
+      case 'gt':           return parseFloat(sv) > parseFloat(effectiveExp);
+      case 'lt':           return parseFloat(sv) < parseFloat(effectiveExp);
+      case 'is_empty':     return sv === '';
+      case 'is_not_empty': return sv !== '';
+      default:             return false;
+    }
+  }
+
+  /* ── Evaluate condition group (AND / OR) ── */
+  function _evalGroup(group) {
+    if (!group || !group.items || group.items.length === 0) return true;
+    var op = group.operator || 'AND';
+    if (op === 'OR') {
+      return group.items.some(function(c) { return _evalCondition(c); });
+    }
+    return group.items.every(function(c) { return _evalCondition(c); });
+  }
+
+  /* ── Execute one action ── */
+  function _execAction(action, matched) {
+    if (!action.target) return;
+    var t = action.type;
+
+    /* show / hide field */
+    if (t === 'show_field' || t === 'hide_field') {
+      var show = (t === 'show_field') ? matched : !matched;
+      /* Parent column wrapper has id = fieldId exactly.
+       * Uses d-none (Bootstrap) to match how PHP renders initially-hidden fields. */
+      var wrapper = document.getElementById(action.target);
+      console.log('Executing action', t, 'on target', action.target, 'matched:', matched, 'show:', show ,wrapper);
+      if (wrapper) {
+        if (show) {
+          wrapper.classList.remove('d-none');
+        } else {
+          wrapper.classList.add('d-none');
+        }
+        wrapper.setAttribute('aria-hidden', String(!show));
+      }
+    }
+
+    /* required / optional */
+    if (t === 'set_required' || t === 'set_optional') {
+      var req = (t === 'set_required') ? matched : !matched;
+      var idx = valj_efb.findIndex(function(x) { return x.id_ === action.target; });
+      if (idx !== -1) valj_efb[idx].required = req;
+      /* Update required star in label */
+      var reqSpan = document.getElementById(action.target + '_req');
+      if (reqSpan) reqSpan.style.display = req ? '' : 'none';
+    }
+
+    /* enable / disable */
+    if (t === 'enable_field' || t === 'disable_field') {
+      var en = (t === 'enable_field') ? matched : !matched;
+      var el = document.getElementById(action.target + '_');
+      if (el) el.disabled = !en;
+      var sel = document.querySelector('select[data-vid="' + action.target + '"]');
+      if (sel) sel.disabled = !en;
+      var ms = document.querySelector('.efblist[data-vid="' + action.target + '"]');
+      if (ms) { ms.style.pointerEvents = en ? '' : 'none'; ms.style.opacity = en ? '' : '0.5'; }
+    }
+
+    /* show / hide step */
+    if (t === 'show_step' || t === 'hide_step') {
+      var showStep = (t === 'show_step') ? matched : !matched;
+      var stepObj = valj_efb.find(function(x) { return x.id_ === action.target && x.type === 'step'; });
+      if (stepObj) {
+        var fs = document.querySelector('fieldset[data-step="step-' + stepObj.step + '-efb"]');
+        if (fs) fs.dataset.logicHidden = showStep ? '0' : '1';
+      }
+      var stepLi = document.getElementById(action.target);
+      if (stepLi && stepLi !== document.getElementById(action.target + '_options')) {
+        /* only hide if it's a step indicator, not a field wrapper */
+        if (stepLi.dataset && stepLi.dataset.step) stepLi.style.display = showStep ? '' : 'none';
+      }
+    }
+  }
+
+  /* ── Run all enabled rules in priority order ── */
+  var sorted = rules.slice().sort(function(a, b) { return (a.priority || 10) - (b.priority || 10); });
+  sorted.forEach(function(rule) {
+    if (!rule.enabled) return;
+    var matched = _evalGroup(rule.conditions);
+    (rule.actions || []).forEach(function(action) { _execAction(action, matched); });
+  });
+}
+
 let stepNames_emsFormBuilder = [`t`, ``, ``];
 let currentTab_emsFormBuilder = 0;
 let multiSelectElemnets_emsFormBuilder = [];
@@ -2180,7 +2365,8 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         if(indx!=-1) {
           slice_sback(indx)
           if(ob.type=="payCheckbox") fun_total_pay_efb(form_id);
-          if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.id ,el.type);
+          console.log((valj_efb[0].hasOwnProperty('logic') && Number(valj_efb[0].logic)==1) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) ,valj_efb[0].logic , valj_efb[0].logic_rules.length )
+          if((valj_efb[0].hasOwnProperty('logic') && Number(valj_efb[0].logic)==1) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.id ,el.type);
           return ;
         }
        }
@@ -2195,7 +2381,8 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         document.getElementById(id).disabled=true;
         document.getElementById(id).value ="";
        }
-       if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.id ,el.type);
+       console.log((valj_efb[0].hasOwnProperty('logic') && Number(valj_efb[0].logic)==1) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) && typeof fun_statement_logic_efb !== 'undefined' ,valj_efb[0].logic , valj_efb[0].logic_rules.length , typeof fun_statement_logic_efb !== 'undefined' )
+       if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) && typeof fun_statement_logic_efb !== 'undefined'){ console.log('callll!'); fun_statement_logic_efb(el.id ,el.type);}
       break;
     case "select-one":
     case "select":
@@ -2208,8 +2395,8 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         v = valueJson_ws.find(x => x.id_ == v && x.value == el.value);
         if (typeof v.price == "string") price_efb = v.price;
       }
-
-      if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.dataset.vid , el.type);
+      console.log((valj_efb[0].hasOwnProperty('logic') && Number(valj_efb[0].logic)==1) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) ,valj_efb[0].logic , valj_efb[0].logic_rules.length )
+      if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.dataset.vid , el.type);
       if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
         let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
            await fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp,el.dataset.formid);
