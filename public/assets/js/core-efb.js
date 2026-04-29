@@ -1895,6 +1895,14 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         }
         no_step = Number(no_step)+1;
 
+        /* Skip logic-hidden steps forward — if all remaining steps are hidden,
+         * no_step will exceed max_step and the form will proceed to submission. */
+        while (no_step <= max_step) {
+          const _cs = parent_body.querySelector('[data-step="step-' + no_step + '-efb"]');
+          if (!_cs || _cs.dataset.logicHidden !== '1') break;
+          no_step++;
+        }
+
         await fun_handle_header_efb(no_step,'forward');
         current_fieldset.classList.add('d-none');
         const next_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
@@ -1905,7 +1913,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
 
        if(no_step>max_step){
          el.classList.add('d-none');
-         prev_btn.classList.add('d-none');
+         if(prev_btn) prev_btn.classList.add('d-none');
          endMessage_emsFormBuilder_view(max_step,form_id);
        }else if(no_step==max_step){
         updateStepButtonState_efb(form_id);
@@ -1916,12 +1924,21 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
        }
 
   }else if (btn_state=='prev_efb'){
-    if(no_step==2){
-      let prev_btn = parent_body.querySelector('#prev_efb');
-      if(prev_btn)prev_btn.classList.add('d-none');
+    no_step = Number(no_step)-1;
+
+    /* Skip logic-hidden steps backward */
+    while (no_step > 1) {
+      const _cs = parent_body.querySelector('[data-step="step-' + no_step + '-efb"]');
+      if (!_cs || _cs.dataset.logicHidden !== '1') break;
+      no_step--;
     }
 
-    no_step = Number(no_step)-1;
+    if (no_step <= 1) {
+      no_step = 1;
+      let prev_btn = parent_body.querySelector('#prev_efb');
+      if(prev_btn) prev_btn.classList.add('d-none');
+    }
+
     parent_body.dataset.currentstep =  no_step;
     const prev_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
     current_fieldset.classList.add('d-none');
@@ -2144,7 +2161,15 @@ fun_prev_send =(form_id =0) =>{
   finalStepEl.innerHTML = loading_messge_efb();
   let id = `step-${current_s_efb}-efb`;
   var current_s = body_efb.querySelector(`[data-step="${id}"]`);
-  id = `step-${current_s_efb-1}-efb`;
+
+  /* Find last visible (non-logic-hidden) step to return to */
+  let _prevTarget = Number(current_s_efb) - 1;
+  while (_prevTarget > 1) {
+    const _pc = body_efb.querySelector('[data-step="step-' + _prevTarget + '-efb"]');
+    if (!_pc || _pc.dataset.logicHidden !== '1') break;
+    _prevTarget--;
+  }
+  id = `step-${_prevTarget}-efb`;
   const prev_s_efb = body_efb.querySelector(`[data-step="${id}"]`);
 
   fun_progessbar = (current_step,max_step)=>{
@@ -2168,7 +2193,7 @@ fun_prev_send =(form_id =0) =>{
     const next_efb = body_efb.querySelector('#next_efb');
     next_efb.classList.remove('d-none');
   }
-  var s = "" + (current_s_efb - 1) + "";
+  var s = "" + _prevTarget + "";
   var val = valj_efb.find(x => x.step == s);
   if(Number(valj_efb[0].show_icon)!=1){
     const title_efb = body_efb.querySelector("#title_efb");
@@ -2186,7 +2211,7 @@ fun_prev_send =(form_id =0) =>{
   if(prev_efb)prev_efb.classList.toggle("d-none");
   current_s.classList.add('d-none');
   prev_s_efb.classList.remove('d-none');
-  current_s_efb -= 1;
+  current_s_efb = _prevTarget;
   body_efb.dataset.currentstep = current_s_efb;
   fun_progessbar(current_s_efb,stp);
   smoothy_scroll_postion_efb(id_body);
