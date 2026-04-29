@@ -151,6 +151,15 @@ class Emsfb {
                 }
             }
 
+			// AdnSMF — Conditional Logic addon: load validator and register filters
+			$logic_public = isset( $ac_routes->AdnSMF ) ? (int) $ac_routes->AdnSMF : 0;
+			if ( $logic_public >= 1 ) {
+				$logic_validator_file = EMSFB_PLUGIN_DIRECTORY . '/vendor/logic/class-Emsfb-logic-validator.php';
+				if ( file_exists( $logic_validator_file ) ) {
+					require_once $logic_validator_file;
+				}
+			}
+
 			if ( ! empty( $ac_routes->AdnPAP ) ) {
 				$f = $this->plugin_path . 'vendor/paypal/routes-efb.php';
 				if ( file_exists( $f ) ) {
