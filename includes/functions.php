@@ -2387,14 +2387,16 @@ public function addon_add_efb($value) {
     public function efb_code_validate_update($sid ,$status ,$tc ) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
-        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
-		$active =0;
+		$active = 0;
 		$read_date = wp_date('Y-m-d H:i:s');
 		if($status=="rsp" || $status=="ppay")  $active =1;
 
-	   $sql = "UPDATE $table_name SET status='{$status}', active={$active}, read_date='{$read_date}', tc='{$tc}' WHERE sid='{$sid}' AND active=1";
+		$sql = $wpdb->prepare(
+			"UPDATE `{$table_name}` SET status = %s, active = %d, read_date = %s, tc = %s WHERE sid = %s AND active = 1",
+			$status, $active, $read_date, $tc, $sid
+		);
 		$stmt = $wpdb->query($sql);
-	   return $stmt > 0;
+		return $stmt > 0;
     }
 
     public function efb_code_validate_select($sid ,$fid) {

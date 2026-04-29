@@ -1449,19 +1449,23 @@ class Admin {
         }
         if($state =='msg'){
             $table_name = $this->db->prefix . "emsfb_msg_";
-            $msg_ids ='';
+            $msg_id_list = [];
             foreach ($val as $key => $value) {
                 if(isset($value['msg_id'])){
-                    $msg_ids !='' ? $msg_ids .=','.$value['msg_id'] : $msg_ids .= $value['msg_id'];
+                    $clean_id = intval($value['msg_id']);
+                    if ($clean_id > 0) {
+                        $msg_id_list[] = $clean_id;
+                    }
                 }
             }
             $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
-            if($msg_ids !=''){
-                $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+            if(!empty($msg_id_list)){
+                $placeholders = implode(',', array_fill(0, count($msg_id_list), '%d'));
+                $sql = $this->db->prepare("DELETE FROM `$table_name` WHERE msg_id IN ($placeholders)", ...$msg_id_list);
                 $r = $this->db->query($sql);
                 if($r>0){
                     $table_name = $this->db->prefix . "emsfb_rsp_";
-                    $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+                    $sql = $this->db->prepare("DELETE FROM `$table_name` WHERE msg_id IN ($placeholders)", ...$msg_id_list);
                     $r = $this->db->query($sql);
                 }
                 $response = ['success' => true, "m" =>$lang['delete']];
@@ -1494,20 +1498,24 @@ class Admin {
         }
         if($state =='msg'){
             $table_name = $this->db->prefix . "emsfb_msg_";
-            $msg_ids ='';
+            $msg_id_list = [];
             foreach ($val as $key => $value) {
                 if(isset($value['msg_id'])){
-                    $msg_ids !='' ? $msg_ids .=','.$value['msg_id'] : $msg_ids .= $value['msg_id'];
+                    $clean_id = intval($value['msg_id']);
+                    if ($clean_id > 0) {
+                        $msg_id_list[] = $clean_id;
+                    }
                 }
             }
             $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
             $user_id = get_current_user_id();
-            if($msg_ids !='' ){
-                $sql = "UPDATE $table_name SET read_ = 1 WHERE msg_id IN ($msg_ids)";
+            if(!empty($msg_id_list)){
+                $placeholders = implode(',', array_fill(0, count($msg_id_list), '%d'));
+                $sql = $this->db->prepare("UPDATE `$table_name` SET read_ = 1 WHERE msg_id IN ($placeholders)", ...$msg_id_list);
                 $r = $this->db->query($sql);
                 if($r>0){
                     $table_name = $this->db->prefix . "emsfb_rsp_";
-                    $sql = "UPDATE $table_name SET read_ = 1 WHERE msg_id IN ($msg_ids)";
+                    $sql = $this->db->prepare("UPDATE `$table_name` SET read_ = 1 WHERE msg_id IN ($placeholders)", ...$msg_id_list);
                     $r = $this->db->query($sql);
                 }
 

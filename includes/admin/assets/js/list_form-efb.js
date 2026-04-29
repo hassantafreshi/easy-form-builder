@@ -2693,6 +2693,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   let rows = Array.from(Array(value.length + 1), () => Array(100).fill('null@EFB'));
 
   rows[0][0] = 'id';
+  rows[0][1] = efb_var.text.createDate;
 
   let i_count = -1;
   add_multi = (c, content, value_col_index, v) => {
@@ -2717,6 +2718,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     const content = JSON.parse(replaceContentMessageEfb(v.content))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
+    rows[i_count][1] = v.date;
 
     for (let c in content) {
       let value_col_index;

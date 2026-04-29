@@ -118,41 +118,62 @@ function fun_statement_logic_efb(triggeredId, triggeredType) {
     return group.items.every(function(c) { return _evalCondition(c); });
   }
 
-  /* ── Execute one action ── */
-  function _execAction(action, matched) {
-    if (!action.target) return;
-    var t = action.type;
+  /* ── Capture original state of all rule target fields (runs once) ── */
+  if (!fun_statement_logic_efb._states) {
+    fun_statement_logic_efb._states = {};
+    rules.forEach(function(rule) {
+      (rule.actions || []).forEach(function(action) {
+        if (!action.target || fun_statement_logic_efb._states.hasOwnProperty(action.target)) return;
+        var wrapper = document.getElementById(action.target);
+        var fObj    = valj_efb.find(function(x) { return x.id_ === action.target; });
+        var inp     = document.getElementById(action.target + '_');
+        var sel     = document.querySelector('select[data-vid="' + action.target + '"]');
+        fun_statement_logic_efb._states[action.target] = {
+          hidden:   wrapper ? wrapper.classList.contains('d-none') : false,
+          required: fObj ? (fObj.required == 1 || fObj.required === true) : false,
+          disabled: inp ? inp.disabled : (sel ? sel.disabled : false)
+        };
+      });
+    });
+  }
 
-    /* show / hide field */
-    if (t === 'show_field' || t === 'hide_field') {
-      var show = (t === 'show_field') ? matched : !matched;
-      /* Parent column wrapper has id = fieldId exactly.
-       * Uses d-none (Bootstrap) to match how PHP renders initially-hidden fields. */
-      var wrapper = document.getElementById(action.target);
-      console.log('Executing action', t, 'on target', action.target, 'matched:', matched, 'show:', show ,wrapper);
-      if (wrapper) {
-        if (show) {
-          wrapper.classList.remove('d-none');
-        } else {
-          wrapper.classList.add('d-none');
-        }
-        wrapper.setAttribute('aria-hidden', String(!show));
-      }
+  /* ── Reset all targets to original state before applying current rules ── */
+  var states = fun_statement_logic_efb._states;
+  Object.keys(states).forEach(function(fieldId) {
+    var s = states[fieldId];
+    var wrapper = document.getElementById(fieldId);
+    if (wrapper) {
+      s.hidden ? wrapper.classList.add('d-none') : wrapper.classList.remove('d-none');
+      wrapper.setAttribute('aria-hidden', String(s.hidden));
     }
+    var idx = valj_efb.findIndex(function(x) { return x.id_ === fieldId; });
+    if (idx !== -1) valj_efb[idx].required = s.required;
+    var reqSpan = document.getElementById(fieldId + '_req');
+    if (reqSpan) reqSpan.style.display = s.required ? '' : 'none';
+    var inp = document.getElementById(fieldId + '_');
+    if (inp) inp.disabled = s.disabled;
+    var sel = document.querySelector('select[data-vid="' + fieldId + '"]');
+    if (sel) sel.disabled = s.disabled;
+    var ms = document.querySelector('.efblist[data-vid="' + fieldId + '"]');
+    if (ms) { ms.style.pointerEvents = ''; ms.style.opacity = ''; }
+  });
 
-    /* required / optional */
+  /* ── Execute one action — only when matched; reversal handled by reset above ── */
+  function _execAction(action, matched) {
+    if (!action.target || !matched) return;
+    var t = action.type;
+    var wrapper = document.getElementById(action.target);
+    if (t === 'show_field' && wrapper) { wrapper.classList.remove('d-none'); wrapper.setAttribute('aria-hidden', 'false'); }
+    if (t === 'hide_field' && wrapper) { wrapper.classList.add('d-none');    wrapper.setAttribute('aria-hidden', 'true');  }
     if (t === 'set_required' || t === 'set_optional') {
-      var req = (t === 'set_required') ? matched : !matched;
+      var req = (t === 'set_required');
       var idx = valj_efb.findIndex(function(x) { return x.id_ === action.target; });
       if (idx !== -1) valj_efb[idx].required = req;
-      /* Update required star in label */
       var reqSpan = document.getElementById(action.target + '_req');
       if (reqSpan) reqSpan.style.display = req ? '' : 'none';
     }
-
-    /* enable / disable */
     if (t === 'enable_field' || t === 'disable_field') {
-      var en = (t === 'enable_field') ? matched : !matched;
+      var en = (t === 'enable_field');
       var el = document.getElementById(action.target + '_');
       if (el) el.disabled = !en;
       var sel = document.querySelector('select[data-vid="' + action.target + '"]');
@@ -160,19 +181,12 @@ function fun_statement_logic_efb(triggeredId, triggeredType) {
       var ms = document.querySelector('.efblist[data-vid="' + action.target + '"]');
       if (ms) { ms.style.pointerEvents = en ? '' : 'none'; ms.style.opacity = en ? '' : '0.5'; }
     }
-
-    /* show / hide step */
     if (t === 'show_step' || t === 'hide_step') {
-      var showStep = (t === 'show_step') ? matched : !matched;
+      var showStep = (t === 'show_step');
       var stepObj = valj_efb.find(function(x) { return x.id_ === action.target && x.type === 'step'; });
       if (stepObj) {
         var fs = document.querySelector('fieldset[data-step="step-' + stepObj.step + '-efb"]');
         if (fs) fs.dataset.logicHidden = showStep ? '0' : '1';
-      }
-      var stepLi = document.getElementById(action.target);
-      if (stepLi && stepLi !== document.getElementById(action.target + '_options')) {
-        /* only hide if it's a step indicator, not a field wrapper */
-        if (stepLi.dataset && stepLi.dataset.step) stepLi.style.display = showStep ? '' : 'none';
       }
     }
   }
@@ -627,13 +641,12 @@ async function fun_sendBack_emsFormBuilder(ob) {
       } else {
         if (typeof ob.price != "string") {
           sendBack_emsFormBuilder_pub[indx].value = ob.value;
+          /* Always sync id_ob so radio/yesNo/imgRadio changes are reflected correctly */
+          if (ob.id_ob) sendBack_emsFormBuilder_pub[indx].id_ob = ob.id_ob;
         } else {
           sendBack_emsFormBuilder_pub[indx].value = ob.value;
           sendBack_emsFormBuilder_pub[indx].price = ob.price;
-          if(ob.type == "payRadio"){
-            sendBack_emsFormBuilder_pub[indx].id_ob = ob.id_ob;
-          }
-
+          sendBack_emsFormBuilder_pub[indx].id_ob = ob.id_ob;
         }
       }
     }
@@ -2365,8 +2378,12 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         if(indx!=-1) {
           slice_sback(indx)
           if(ob.type=="payCheckbox") fun_total_pay_efb(form_id);
-          console.log((valj_efb[0].hasOwnProperty('logic') && Number(valj_efb[0].logic)==1) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) ,valj_efb[0].logic , valj_efb[0].logic_rules.length )
-          if((valj_efb[0].hasOwnProperty('logic') && Number(valj_efb[0].logic)==1) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.id ,el.type);
+          /* sendBack already updated via slice_sback — safe to evaluate logic now */
+          if (typeof window.efb_logic_runtime !== 'undefined') {
+            window.efb_logic_runtime.evaluate();
+          } else if (typeof fun_statement_logic_efb === 'function') {
+            fun_statement_logic_efb(el.id, el.type);
+          }
           return ;
         }
        }
@@ -2381,8 +2398,6 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         document.getElementById(id).disabled=true;
         document.getElementById(id).value ="";
        }
-       console.log((valj_efb[0].hasOwnProperty('logic') && Number(valj_efb[0].logic)==1) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) && typeof fun_statement_logic_efb !== 'undefined' ,valj_efb[0].logic , valj_efb[0].logic_rules.length , typeof fun_statement_logic_efb !== 'undefined' )
-       if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) && typeof fun_statement_logic_efb !== 'undefined'){ console.log('callll!'); fun_statement_logic_efb(el.id ,el.type);}
       break;
     case "select-one":
     case "select":
@@ -2395,8 +2410,6 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         v = valueJson_ws.find(x => x.id_ == v && x.value == el.value);
         if (typeof v.price == "string") price_efb = v.price;
       }
-      console.log((valj_efb[0].hasOwnProperty('logic') && Number(valj_efb[0].logic)==1) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) ,valj_efb[0].logic , valj_efb[0].logic_rules.length )
-      if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.dataset.vid , el.type);
       if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
         let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
            await fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp,el.dataset.formid);
@@ -2518,6 +2531,16 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     }
   }
   updateStepButtonState_efb(form_id);
+  /* Re-evaluate conditional logic AFTER sendBack has been updated — covers all field types */
+  if (typeof valj_efb !== 'undefined' && valj_efb[0] &&
+      ((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) ||
+       (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0))) {
+    if (typeof window.efb_logic_runtime !== 'undefined') {
+      window.efb_logic_runtime.evaluate();
+    } else if (typeof fun_statement_logic_efb === 'function') {
+      fun_statement_logic_efb(el.id, el.type);
+    }
+  }
 }
 
 async function fun_validation_efb_v4(form_id) {
@@ -2535,6 +2558,9 @@ async function fun_validation_efb_v4(form_id) {
   let id_noti_message = valj_efb.steps > 1 ?  `step-${current_s_efb}-efb-msg` : 'alert_efb';
   for (let row in valj_efb) {
     let s =  get_row_sendback_by_id_efb_v4(valj_efb[row].id_,form_id);
+    /* Skip validation for fields hidden by conditional logic (wrapper has d-none class) */
+    const _wrapper_v = document.getElementById(valj_efb[row].id_);
+    if (_wrapper_v && _wrapper_v.classList.contains('d-none')) continue;
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
       let el = document.getElementById(`${valj_efb[row].id_}_-message`);
@@ -2583,7 +2609,7 @@ async function fun_validation_efb_v4(form_id) {
           if (state == true) { state = false; idi = valj_efb[row].id_ }
         }
       }
-    }else if (row > 1 && valj_efb[row].type == "chlCheckBox" && current_s_efb == valj_efb[row].step){
+    }else if (row > 1 && valj_efb[row].type == "chlCheckBox" && current_s_efb == valj_efb[row].step && !(_wrapper_v && _wrapper_v.classList.contains('d-none'))){
       name_field = valj_efb[row].name;
       idi = valj_efb[row].id_;
       fun_noti_chlcheckbox = (idi,name_field,id_noti_message,form_id) => {
