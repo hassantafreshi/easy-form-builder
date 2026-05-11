@@ -1114,56 +1114,547 @@ class Admin {
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
             $response = ['success' => false, 'm' => $m];
+            $this->email_tester_log_efb('ajax_forbidden', [
+                'mode' => isset($_POST['mode']) ? sanitize_key(wp_unslash($_POST['mode'])) : 'start',
+                'user_id' => get_current_user_id(),
+            ]);
             wp_send_json_success($response, 200);
             die("secure!");
         }
-        $pro = $efbFunction->is_efb_pro(1);
+        $mode = isset($_POST['mode']) ? sanitize_key(wp_unslash($_POST['mode'])) : 'start';
+        $this->email_tester_log_efb('ajax_request', [
+            'mode' => $mode,
+            'user_id' => get_current_user_id(),
+            'site_url' => home_url(),
+            'posted_email' => isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '',
+            'posted_sender_email' => isset($_POST['sender_email']) ? sanitize_email(wp_unslash($_POST['sender_email'])) : '',
+            'test_hash' => isset($_POST['test_hash']) ? sanitize_text_field(wp_unslash($_POST['test_hash'])) : '',
+            'run_id' => isset($_POST['run_id']) ? sanitize_text_field(wp_unslash($_POST['run_id'])) : '',
+        ]);
+        if ($mode === 'result') {
+            $test_hash = isset($_POST['test_hash']) ? sanitize_text_field(wp_unslash($_POST['test_hash'])) : '';
+            $response = $this->get_email_tester_result_efb($test_hash, $efbFunction, $ac);
+            wp_send_json_success($response, 200);
+        }
 
-        $con ='';
-        $sub='';
-        $to ='';
-        $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
-        $post_email = isset($_POST['email']) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
-        if('testMailServer'==$post_value){
-            if(is_email( $post_email)){
-                $to = $post_email;
-            }
-            $m = $lang['emailServer'];
-            $sub ="📫 ". $m ." [".esc_html__('Easy Form Builder','easy-form-builder') ."]";
-            $cont = "Test Email Server";
-            if(strlen($to)<5) {
-                if(strlen($ac->emailSupporter)!=0) {$to = $ac->emailSupporter;}else{
-                    $to="null";
-                }
-            }
-            $server_name =  str_replace("www.", "",  isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : 'yourdomain.com');
-            $from = "no-reply@".$server_name;
-            if(isset($ac->femail) && strlen($ac->femail)>5){
-                $from =$ac->femail ;
-            }
-        }
-        if(empty($this->db)){
-            global $wpdb;
-            $this->db = $wpdb;
-        }
-        $check = $efbFunction->send_email_state_new([$to , null,$from] ,$sub ,$cont,$pro,'testMailServer',home_url(),$ac);
-                if($check==true){
-                   $ac->smtp = true;
-                    $ac->emailSupporter = $to;
-                     $ok =  [
-                        'status' => 'ok_set_smtp',
-                        'message' => [
-                            'title' => 'configured',
-                            'description' => 'user configured email settings',
-                            'id' => 'email_settings_configured'
-                        ]
-                        ];
-                    update_option('emsfb_email_status',$ok);
-                    $efbFunction->set_setting_Emsfb( $ac, $to );
-                }
-        $response = ['success' => $check ];
+        $response = $this->start_email_tester_efb($efbFunction, $ac);
         wp_send_json_success($response, 200);
     }
+
+    private function start_email_tester_efb($efbFunction, $ac) {
+        $admin_email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
+        if (!is_email($admin_email)) {
+            $this->email_tester_log_efb('start_validation_failed', [
+                'reason' => 'invalid_admin_email',
+                'admin_email' => $admin_email,
+            ]);
+            return [
+                'success' => false,
+                'm' => esc_html__('Please enter a valid email address.', 'easy-form-builder'),
+                'stage' => 'validation'
+            ];
+        }
+
+        $sender_email = isset($_POST['sender_email']) ? sanitize_email(wp_unslash($_POST['sender_email'])) : '';
+        if (!is_email($sender_email)) {
+            $sender_email = $this->get_default_sender_email_efb($ac);
+        }
+        if (!is_email($sender_email)) {
+            $this->email_tester_log_efb('start_validation_failed', [
+                'reason' => 'invalid_sender_email',
+                'admin_email' => $admin_email,
+                'sender_email' => $sender_email,
+            ]);
+            return [
+                'success' => false,
+                'm' => esc_html__('The sender email address is not valid.', 'easy-form-builder'),
+                'stage' => 'validation'
+            ];
+        }
+
+        $start = $this->request_email_tester_start_efb($sender_email, $admin_email, $efbFunction);
+        if (empty($start['success'])) {
+            $this->email_tester_log_efb('start_failed_before_mail', [
+                'run_id' => $this->email_tester_current_run_id_efb(),
+                'stage' => isset($start['stage']) ? $start['stage'] : '',
+                'message' => isset($start['m']) ? $start['m'] : '',
+                'code' => isset($start['code']) ? $start['code'] : null,
+                'test' => isset($start['test']) ? $start['test'] : null,
+            ]);
+            return $start;
+        }
+
+        $test = isset($start['test']) && is_array($start['test']) ? $start['test'] : [];
+        $recipient_email = isset($test['recipient_email']) ? sanitize_email($test['recipient_email']) : '';
+        $email_subject = isset($test['email_subject']) ? str_replace(["\r", "\n"], '', (string) $test['email_subject']) : '';
+        $test_hash = isset($test['test_hash']) ? sanitize_text_field($test['test_hash']) : '';
+
+        if (!is_email($recipient_email) || empty($email_subject) || !$this->is_valid_email_test_hash_efb($test_hash)) {
+            $this->email_tester_log_efb('start_invalid_service_payload', [
+                'recipient_email' => $recipient_email,
+                'email_subject' => $email_subject,
+                'test_hash' => $test_hash,
+                'test' => $test,
+            ]);
+            return [
+                'success' => false,
+                'm' => esc_html__('The email tester service returned an invalid response.', 'easy-form-builder'),
+                'stage' => 'start',
+                'test' => $test
+            ];
+        }
+
+        $headers = [
+            'Content-Type: text/html; charset=UTF-8',
+            'From: ' . $sender_email,
+            'X-EFB-Test-Hash: ' . $test_hash,
+        ];
+        $message = sprintf(
+            '<p>Easy Form Builder email delivery test.</p><p>Site: %s</p><p>Test hash: %s</p><p>Short hash: %s</p>',
+            esc_html(home_url()),
+            esc_html($test_hash),
+            esc_html(isset($test['short_hash']) ? $test['short_hash'] : '')
+        );
+
+        $this->email_tester_log_efb('wp_mail_before_send', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'expected_to' => $recipient_email,
+            'expected_from' => $sender_email,
+            'admin_email' => $admin_email,
+            'expected_subject' => $email_subject,
+            'test_hash' => $test_hash,
+            'short_hash' => isset($test['short_hash']) ? $test['short_hash'] : '',
+            'headers' => $headers,
+        ]);
+
+        $last_mail_error = null;
+        $actual_mail = null;
+        $mail_error_listener = function($wp_error) use (&$last_mail_error) {
+            if ($wp_error instanceof \WP_Error) {
+                $last_mail_error = [
+                    'code' => $wp_error->get_error_code(),
+                    'message' => $wp_error->get_error_message(),
+                    'data' => $wp_error->get_error_data(),
+                ];
+            }
+        };
+        $from_filter = function() use ($sender_email) {
+            return $sender_email;
+        };
+        $from_name_filter = function() {
+            return '';
+        };
+        $phpmailer_listener = function($phpmailer) use (&$actual_mail, $sender_email, $test_hash) {
+            if (is_object($phpmailer)) {
+                $phpmailer->From = $sender_email;
+                $phpmailer->FromName = '';
+                $phpmailer->Sender = $sender_email;
+                $actual_mail = $this->email_tester_collect_phpmailer_state_efb($phpmailer, $test_hash);
+            }
+        };
+        add_action('wp_mail_failed', $mail_error_listener);
+        add_filter('wp_mail_from', $from_filter, PHP_INT_MAX);
+        add_filter('wp_mail_from_name', $from_name_filter, PHP_INT_MAX);
+        add_action('phpmailer_init', $phpmailer_listener, PHP_INT_MAX);
+        $sent = wp_mail($recipient_email, $email_subject, $message, $headers);
+        remove_action('phpmailer_init', $phpmailer_listener, PHP_INT_MAX);
+        remove_filter('wp_mail_from_name', $from_name_filter, PHP_INT_MAX);
+        remove_filter('wp_mail_from', $from_filter, PHP_INT_MAX);
+        remove_action('wp_mail_failed', $mail_error_listener);
+
+        $this->email_tester_log_efb('wp_mail_after_send', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'sent' => $sent ? true : false,
+            'expected_to' => $recipient_email,
+            'expected_from' => $sender_email,
+            'expected_subject' => $email_subject,
+            'test_hash' => $test_hash,
+            'mail_error' => $last_mail_error,
+            'actual_phpmailer' => $actual_mail,
+            'actual_matches_expected' => [
+                'to' => is_array($actual_mail) && isset($actual_mail['to']) ? in_array($recipient_email, (array) $actual_mail['to'], true) : false,
+                'from' => is_array($actual_mail) && isset($actual_mail['from']) ? hash_equals((string) $sender_email, (string) $actual_mail['from']) : false,
+                'subject' => is_array($actual_mail) && isset($actual_mail['subject']) ? hash_equals((string) $email_subject, (string) $actual_mail['subject']) : false,
+                'hash_header' => is_array($actual_mail) && !empty($actual_mail['has_expected_hash_header']),
+            ],
+        ]);
+        if (!$sent) {
+            return [
+                'success' => false,
+                'm' => esc_html__('WordPress could not send the test email. Please check your hosting mail settings or SMTP configuration.', 'easy-form-builder'),
+                'stage' => 'send',
+                'test' => $test
+            ];
+        }
+
+        $this->email_tester_log_efb('start_completed_test_ready_to_poll', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'test_hash' => $test_hash,
+            'recipient_email' => $recipient_email,
+            'sender_email' => $sender_email,
+            'email_subject' => $email_subject,
+            'check_after_seconds' => isset($test['check_after_seconds']) ? $test['check_after_seconds'] : null,
+            'expires_in_seconds' => isset($test['expires_in_seconds']) ? $test['expires_in_seconds'] : null,
+        ]);
+
+        return [
+            'success' => true,
+            'm' => isset($start['m']) ? $start['m'] : esc_html__('The test email has been sent. Waiting for the server result.', 'easy-form-builder'),
+            'stage' => 'sent',
+            'test' => $test
+        ];
+    }
+
+    private function request_email_tester_start_efb($sender_email, $admin_email, $efbFunction) {
+        $body = [
+            'site_url' => home_url(),
+            'sender_email' => $sender_email,
+            'admin_email' => $admin_email,
+            'plugin' => 'easy-form-builder',
+            'plugin_version' => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '',
+            'wp_version' => get_bloginfo('version'),
+            'php_version' => phpversion(),
+            'language' => get_locale(),
+            'license_type' => $efbFunction->is_efb_pro(1) ? 'pro' : 'free',
+            'license_key' => '',
+        ];
+
+        $this->email_tester_log_efb('start_request_before_remote', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'endpoint' => $this->email_tester_endpoint_efb('/start'),
+            'body' => $body,
+        ]);
+
+        $request = $this->email_tester_remote_request_efb('POST', '/start', [
+            'timeout' => 20,
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ],
+            'body' => wp_json_encode($body),
+        ]);
+
+        if (is_wp_error($request)) {
+            $this->email_tester_log_efb('start_request_wp_error', [
+                'run_id' => $this->email_tester_current_run_id_efb(),
+                'message' => $request->get_error_message(),
+                'code' => $request->get_error_code(),
+            ]);
+            return [
+                'success' => false,
+                'm' => $request->get_error_message(),
+                'stage' => 'start'
+            ];
+        }
+
+        $code = (int) wp_remote_retrieve_response_code($request);
+        $raw_body = wp_remote_retrieve_body($request);
+        $data = json_decode($raw_body, true);
+        $this->email_tester_log_efb('start_response', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'http_code' => $code,
+            'body' => $data,
+            'raw_body' => is_array($data) ? null : $raw_body,
+        ]);
+        if (!is_array($data)) {
+            return [
+                'success' => false,
+                'm' => esc_html__('The email tester service returned an invalid JSON response.', 'easy-form-builder'),
+                'stage' => 'start',
+                'code' => $code
+            ];
+        }
+
+        if ($code < 200 || $code >= 300 || empty($data['success'])) {
+            return [
+                'success' => false,
+                'm' => isset($data['message']) ? sanitize_text_field($data['message']) : esc_html__('The email tester service could not start the test.', 'easy-form-builder'),
+                'stage' => 'start',
+                'code' => $code,
+                'test' => $data
+            ];
+        }
+
+        return [
+            'success' => true,
+            'm' => isset($data['message']) ? sanitize_text_field($data['message']) : '',
+            'stage' => 'start',
+            'test' => $data,
+        ];
+    }
+
+    private function get_email_tester_result_efb($test_hash, $efbFunction, $ac) {
+        if (!$this->is_valid_email_test_hash_efb($test_hash)) {
+            $this->email_tester_log_efb('result_validation_failed', [
+                'reason' => 'invalid_test_hash',
+                'test_hash' => $test_hash,
+            ]);
+            return [
+                'success' => false,
+                'm' => esc_html__('The email test hash is not valid.', 'easy-form-builder'),
+                'stage' => 'result'
+            ];
+        }
+
+        $this->email_tester_log_efb('result_request_before_remote', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'endpoint' => $this->email_tester_endpoint_efb('/result/' . rawurlencode($test_hash)),
+            'test_hash' => $test_hash,
+        ]);
+
+        $request = $this->email_tester_remote_request_efb('GET', '/result/' . rawurlencode($test_hash), [
+            'timeout' => 20,
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+        ]);
+
+        if (is_wp_error($request)) {
+            $this->email_tester_log_efb('result_request_wp_error', [
+                'run_id' => $this->email_tester_current_run_id_efb(),
+                'test_hash' => $test_hash,
+                'message' => $request->get_error_message(),
+                'code' => $request->get_error_code(),
+            ]);
+            return [
+                'success' => false,
+                'm' => $request->get_error_message(),
+                'stage' => 'result'
+            ];
+        }
+
+        $code = (int) wp_remote_retrieve_response_code($request);
+        $raw_body = wp_remote_retrieve_body($request);
+        $data = json_decode($raw_body, true);
+        $this->email_tester_log_efb('result_response', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'http_code' => $code,
+            'test_hash' => $test_hash,
+            'body' => $data,
+            'raw_body' => is_array($data) ? null : $raw_body,
+        ]);
+        if (!is_array($data)) {
+            return [
+                'success' => false,
+                'm' => esc_html__('The email tester service returned an invalid JSON response.', 'easy-form-builder'),
+                'stage' => 'result',
+                'code' => $code
+            ];
+        }
+
+        $this->email_tester_log_efb('result_status_interpreted', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'http_code' => $code,
+            'test_hash' => $test_hash,
+            'status' => isset($data['status']) ? $data['status'] : '',
+            'analysis_stage' => isset($data['analysis_stage']) ? $data['analysis_stage'] : '',
+            'success' => !empty($data['success']),
+            'can_send_email' => !empty($data['can_send_email']),
+            'failure_reason' => isset($data['delivery']['failure_reason']) ? $data['delivery']['failure_reason'] : '',
+        ]);
+
+        if ($code < 200 || $code >= 300) {
+            return [
+                'success' => false,
+                'm' => isset($data['message']) ? sanitize_text_field($data['message']) : esc_html__('The email tester service could not return the result.', 'easy-form-builder'),
+                'stage' => 'result',
+                'code' => $code,
+                'result' => $data
+            ];
+        }
+
+        if (!empty($data['can_send_email'])) {
+            $this->mark_email_server_as_ready_efb($efbFunction, $ac, isset($data['admin_email']) ? sanitize_email($data['admin_email']) : '');
+        }
+
+        return [
+            'success' => !empty($data['success']),
+            'm' => isset($data['message']) ? sanitize_text_field($data['message']) : '',
+            'stage' => 'result',
+            'result' => $data
+        ];
+    }
+
+    private function mark_email_server_as_ready_efb($efbFunction, $ac, $admin_email = '') {
+        if (!is_object($ac)) {
+            return;
+        }
+        $ac->smtp = true;
+        if (is_email($admin_email)) {
+            $ac->emailSupporter = $admin_email;
+        }
+        $ok = [
+            'status' => 'ok_set_smtp',
+            'message' => [
+                'title' => 'configured',
+                'description' => 'user configured email settings',
+                'id' => 'email_settings_configured'
+            ]
+        ];
+        update_option('emsfb_email_status', $ok);
+        $setting_email = is_email($admin_email) ? $admin_email : '';
+        if (empty($setting_email) && isset($ac->emailSupporter) && is_email($ac->emailSupporter)) {
+            $setting_email = $ac->emailSupporter;
+        }
+        $efbFunction->set_setting_Emsfb($ac, $setting_email);
+    }
+
+    private function get_default_sender_email_efb($ac) {
+        if (is_object($ac) && isset($ac->femail) && is_email($ac->femail)) {
+            return sanitize_email($ac->femail);
+        }
+        $host = wp_parse_url(home_url(), PHP_URL_HOST);
+        if (empty($host)) {
+            $host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : 'yourdomain.com';
+        }
+        $server_name = strtolower(str_replace("www.", "", preg_replace('/:\d+$/', '', $host)));
+        return sanitize_email('no-reply@' . $server_name);
+    }
+
+    private function email_tester_remote_request_efb($method, $path, $args) {
+        $primary_endpoint = $this->email_tester_endpoint_efb($path);
+        $this->email_tester_log_efb('remote_request_attempt', [
+            'run_id' => $this->email_tester_current_run_id_efb(),
+            'method' => strtoupper($method),
+            'endpoint' => $primary_endpoint,
+        ]);
+        $request = $this->email_tester_remote_request_once_efb($method, $primary_endpoint, $args);
+        if (is_wp_error($request)) {
+            $this->email_tester_log_efb('remote_request_attempt_failed', [
+                'run_id' => $this->email_tester_current_run_id_efb(),
+                'method' => strtoupper($method),
+                'endpoint' => $primary_endpoint,
+                'message' => $request->get_error_message(),
+                'code' => $request->get_error_code(),
+            ]);
+            $fallback_endpoint = $this->email_tester_endpoint_efb($path, true);
+            $this->email_tester_log_efb('remote_request_fallback_attempt', [
+                'run_id' => $this->email_tester_current_run_id_efb(),
+                'method' => strtoupper($method),
+                'endpoint' => $fallback_endpoint,
+            ]);
+            $request = $this->email_tester_remote_request_once_efb($method, $fallback_endpoint, $args);
+        }
+        if (is_wp_error($request)) {
+            $this->email_tester_log_efb('remote_request_final_error', [
+                'run_id' => $this->email_tester_current_run_id_efb(),
+                'method' => strtoupper($method),
+                'path' => $path,
+                'message' => $request->get_error_message(),
+                'code' => $request->get_error_code(),
+            ]);
+        } else {
+            $this->email_tester_log_efb('remote_request_final_response', [
+                'run_id' => $this->email_tester_current_run_id_efb(),
+                'method' => strtoupper($method),
+                'path' => $path,
+                'http_code' => (int) wp_remote_retrieve_response_code($request),
+            ]);
+        }
+        return $request;
+    }
+
+    private function email_tester_remote_request_once_efb($method, $endpoint, $args) {
+        return strtoupper($method) === 'POST' ? wp_remote_post($endpoint, $args) : wp_remote_get($endpoint, $args);
+    }
+
+    private function email_tester_collect_phpmailer_state_efb($phpmailer, $test_hash) {
+        $to = [];
+        if (method_exists($phpmailer, 'getToAddresses')) {
+            foreach ((array) $phpmailer->getToAddresses() as $address) {
+                $to[] = isset($address[0]) ? $address[0] : '';
+            }
+        }
+
+        $custom_headers = [];
+        if (method_exists($phpmailer, 'getCustomHeaders')) {
+            foreach ((array) $phpmailer->getCustomHeaders() as $header) {
+                if (is_array($header)) {
+                    $name = isset($header[0]) ? (string) $header[0] : '';
+                    $value = isset($header[1]) ? (string) $header[1] : '';
+                    $custom_headers[$name] = $value;
+                }
+            }
+        }
+
+        return [
+            'from' => isset($phpmailer->From) ? $phpmailer->From : '',
+            'from_name' => isset($phpmailer->FromName) ? $phpmailer->FromName : '',
+            'sender' => isset($phpmailer->Sender) ? $phpmailer->Sender : '',
+            'to' => array_values(array_filter($to)),
+            'subject' => isset($phpmailer->Subject) ? $phpmailer->Subject : '',
+            'has_expected_hash_header' => isset($custom_headers['X-EFB-Test-Hash']) && hash_equals((string) $test_hash, (string) $custom_headers['X-EFB-Test-Hash']),
+            'custom_headers' => $custom_headers,
+        ];
+    }
+
+    private function email_tester_endpoint_efb($path, $use_www = false) {
+        $host = $use_www ? 'www.whitestudio.team' : 'whitestudio.team';
+        return 'https://' . $host . '/wp-json/ws-email-tester/v1' . $path;
+    }
+
+    private function email_tester_current_run_id_efb() {
+        return isset($_POST['run_id']) ? sanitize_text_field(wp_unslash($_POST['run_id'])) : '';
+    }
+
+    private function is_valid_email_test_hash_efb($test_hash) {
+        return is_string($test_hash) && preg_match('/^[a-f0-9]{64}$/i', $test_hash);
+    }
+
+    private function email_tester_log_efb($event, $context = []) {
+        $debug_enabled = (defined('WP_DEBUG') && WP_DEBUG) || (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG);
+        if (!$debug_enabled) {
+            return;
+        }
+        $safe_context = $this->email_tester_sanitize_log_context_efb($context);
+        error_log('[EFB Email Tester] ' . $event . ' ' . wp_json_encode($safe_context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    }
+
+    private function email_tester_sanitize_log_context_efb($value) {
+        if (is_array($value)) {
+            $safe = [];
+            foreach ($value as $key => $item) {
+                $safe_key = is_string($key) ? $key : (string) $key;
+                if (in_array($safe_key, ['license_key', 'password', 'secret', 'nonce'], true)) {
+                    $safe[$safe_key] = '[redacted]';
+                    continue;
+                }
+                $safe[$safe_key] = $this->email_tester_sanitize_log_context_efb($item);
+            }
+            return $safe;
+        }
+        if (is_object($value)) {
+            if ($value instanceof \WP_Error) {
+                return [
+                    'code' => $value->get_error_code(),
+                    'message' => $value->get_error_message(),
+                ];
+            }
+            return $this->email_tester_sanitize_log_context_efb((array) $value);
+        }
+        if (is_string($value)) {
+            if (is_email($value)) {
+                return $this->email_tester_mask_email_efb($value);
+            }
+            if (preg_match('/^[a-f0-9]{64}$/i', $value)) {
+                return substr($value, 0, 12) . '...' . substr($value, -8);
+            }
+            return strlen($value) > 2000 ? substr($value, 0, 2000) . '...[truncated]' : $value;
+        }
+        return $value;
+    }
+
+    private function email_tester_mask_email_efb($email) {
+        $parts = explode('@', $email);
+        if (count($parts) !== 2) {
+            return $email;
+        }
+        $name = $parts[0];
+        $domain = $parts[1];
+        $visible = substr($name, 0, 2);
+        return $visible . '***@' . $domain;
+    }
+
     public function isHTML($str) {
         return preg_match("/\/[a-z]*>/i", $str) != 0;
     }
