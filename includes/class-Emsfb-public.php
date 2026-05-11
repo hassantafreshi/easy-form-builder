@@ -895,7 +895,7 @@ public function check_nonce_permission_efb($request) {
 
 			);
 
-			$style ='<style>#teststyleefb{display:none;}';
+			$style ='<style>.efb.d-none{display:none!important;} #teststyleefb{display:none;}';
 			$jss ='<script> //efbJs';
 			$icons_els =[];
 			$pro_element_exists = false;
@@ -6088,115 +6088,6 @@ public function check_nonce_permission_efb($request) {
 
 		do_action('efb_after_form_integration', $context);
 
-	}
-
-	/**
-	 * Server-side conditional logic evaluation
-	 * Determines which fields should be visible/required based on submitted values and logic_rules
-	 */
-	public function evaluate_logic_rules($form_fields_array, $submitted_values) {
-		if (!isset($form_fields_array[0]['logic_rules']) || !is_array($form_fields_array[0]['logic_rules'])) {
-			return array('hidden_fields' => array(), 'required_fields' => array(), 'optional_fields' => array());
-		}
-
-		$rules = $form_fields_array[0]['logic_rules'];
-		$hidden_fields = array();
-		$required_fields = array();
-		$optional_fields = array();
-
-		/* Build a map of submitted values by field id */
-		$values_map = array();
-		foreach ($submitted_values as $sv) {
-			if (isset($sv['id_'])) {
-				$values_map[$sv['id_']] = isset($sv['value']) ? $sv['value'] : '';
-			}
-			if (isset($sv['id_ob'])) {
-				if (!isset($values_map[$sv['id_ob']])) $values_map[$sv['id_ob']] = array();
-				if (is_array($values_map[$sv['id_ob']])) {
-					$values_map[$sv['id_ob']][] = isset($sv['id_']) ? $sv['id_'] : '';
-				}
-			}
-		}
-
-		/* Sort rules by priority */
-		usort($rules, function($a, $b) {
-			return (isset($a['priority']) ? intval($a['priority']) : 10) - (isset($b['priority']) ? intval($b['priority']) : 10);
-		});
-
-		foreach ($rules as $rule) {
-			if (!isset($rule['enabled']) || !$rule['enabled']) continue;
-			if (!isset($rule['conditions']) || !isset($rule['conditions']['items'])) continue;
-
-			$matched = $this->evaluate_condition_group($rule['conditions'], $values_map);
-
-			if (isset($rule['actions']) && is_array($rule['actions'])) {
-				foreach ($rule['actions'] as $action) {
-					if (!isset($action['target']) || empty($action['target'])) continue;
-					$target = $action['target'];
-					$type = isset($action['type']) ? $action['type'] : '';
-
-					if ($type === 'hide_field' && $matched) $hidden_fields[$target] = true;
-					if ($type === 'show_field' && !$matched) $hidden_fields[$target] = true;
-					if ($type === 'set_required' && $matched) $required_fields[$target] = true;
-					if ($type === 'set_optional' && $matched) $optional_fields[$target] = true;
-				}
-			}
-		}
-
-		return array(
-			'hidden_fields' => array_keys($hidden_fields),
-			'required_fields' => array_keys($required_fields),
-			'optional_fields' => array_keys($optional_fields)
-		);
-	}
-
-	private function evaluate_condition_group($group, $values_map) {
-		if (!isset($group['items']) || !is_array($group['items']) || count($group['items']) === 0) return true;
-		$operator = isset($group['operator']) ? $group['operator'] : 'AND';
-
-		foreach ($group['items'] as $item) {
-			$result = $this->evaluate_single_condition($item, $values_map);
-			if ($operator === 'OR' && $result) return true;
-			if ($operator === 'AND' && !$result) return false;
-		}
-
-		return ($operator === 'AND');
-	}
-
-	private function evaluate_single_condition($cond, $values_map) {
-		$field_id = isset($cond['field_id']) ? $cond['field_id'] : '';
-		$compare = isset($cond['compare']) ? $cond['compare'] : 'is';
-		$expected = isset($cond['value']) ? $cond['value'] : '';
-
-		$val = isset($values_map[$field_id]) ? $values_map[$field_id] : '';
-
-		/* Handle array values (checkbox/multiselect) */
-		if (is_array($val)) {
-			switch ($compare) {
-				case 'is': return in_array($expected, $val, true);
-				case 'is_not': return !in_array($expected, $val, true);
-				case 'is_empty': return count($val) === 0;
-				case 'is_not_empty': return count($val) > 0;
-				case 'contains': return count(array_filter($val, function($v) use ($expected) { return stripos($v, $expected) !== false; })) > 0;
-				case 'not_contains': return count(array_filter($val, function($v) use ($expected) { return stripos($v, $expected) !== false; })) === 0;
-				default: return false;
-			}
-		}
-
-		$str_val = trim(strval($val));
-		switch ($compare) {
-			case 'is': return $str_val === $expected;
-			case 'is_not': return $str_val !== $expected;
-			case 'contains': return stripos($str_val, $expected) !== false;
-			case 'not_contains': return stripos($str_val, $expected) === false;
-			case 'starts_with': return stripos($str_val, $expected) === 0;
-			case 'ends_with': return substr(strtolower($str_val), -strlen($expected)) === strtolower($expected);
-			case 'gt': return floatval($str_val) > floatval($expected);
-			case 'lt': return floatval($str_val) < floatval($expected);
-			case 'is_empty': return $str_val === '';
-			case 'is_not_empty': return $str_val !== '';
-			default: return false;
-		}
 	}
 
 }

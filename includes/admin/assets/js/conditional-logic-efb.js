@@ -72,14 +72,18 @@
 
   /* action types */
   const ACTION_TYPES = [
-    { value: 'show_field', label: () => _t('show') + ' ' + _t('field') },
-    { value: 'hide_field', label: () => _t('hide') + ' ' + _t('field') },
-    { value: 'set_required', label: () => _t('required') },
-    { value: 'set_optional', label: () => 'Optional' },
-    { value: 'enable_field', label: () => 'Enable' },
+    { value: 'show_field',    label: () => _t('show') + ' ' + _t('field') },
+    { value: 'hide_field',    label: () => _t('hide') + ' ' + _t('field') },
+    { value: 'set_required',  label: () => _t('required') },
+    { value: 'set_optional',  label: () => 'Optional' },
+    { value: 'enable_field',  label: () => 'Enable' },
     { value: 'disable_field', label: () => 'Disable' },
-    { value: 'show_step', label: () => _t('show') + ' ' + _t('step') },
-    { value: 'hide_step', label: () => _t('hide') + ' ' + _t('step') }
+    { value: 'show_step',     label: () => _t('show') + ' ' + _t('step') },
+    { value: 'hide_step',     label: () => _t('hide') + ' ' + _t('step') },
+    { value: 'jump_to_step',  label: () => efb_var.text.jumpStep  || 'Jump to Step' },
+    { value: 'set_value',     label: () => efb_var.text.setValue  || 'Set Value' },
+    { value: 'clear_value',   label: () => efb_var.text.clearValue || 'Clear Value' },
+    { value: 'show_message',  label: () => efb_var.text.showMessage || 'Show Message' }
   ];
 
   /* ────────────────────────────────────────────
@@ -146,10 +150,23 @@
 
   /* Target list depending on action type */
   function getTargetsForAction(actionType) {
-    if (actionType === 'show_step' || actionType === 'hide_step') {
+    if (actionType === 'show_step' || actionType === 'hide_step' || actionType === 'jump_to_step') {
       return getAllSteps().map(s => ({ id_: s.id_, name: s.name }));
     }
     return getAllFields().map(f => ({ id_: f.id_, name: f.name }));
+  }
+
+  /* Return true when autofill dataset is enabled and a dataset is selected */
+  function isAutofillActive() {
+    return typeof valj_efb !== 'undefined' && valj_efb[0]
+      && Number(valj_efb[0].auto_fill) === 1
+      && Number(valj_efb[0].autofill_id) > 0;
+  }
+
+  /* Return the array of dataset column key names, or [] if not yet loaded */
+  function getAutofillSourceKeys() {
+    if (!isAutofillActive()) return [];
+    return Array.isArray(valj_efb[0].autofill_source_keys) ? valj_efb[0].autofill_source_keys : [];
   }
 
   /* ────────────────────────────────────────────
@@ -417,10 +434,44 @@
       tOpts += `<option value="${_esc(t.id_)}" ${t.id_ === action.target ? 'selected' : ''}>${_esc(t.name)}</option>`;
     });
 
+    /* value input for set_value / show_message actions */
+    let valueHtml = '';
+    if (action.type === 'show_message') {
+      valueHtml = `<input type="text" class="efb-logic-value-input" value="${_esc(action.value || '')}" placeholder="${_t('enterText') || 'Message...'}" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'value',this.value)">` ;
+    }
+    if (action.type === 'set_value') {
+      const afActive = isAutofillActive();
+      const afKeys   = getAutofillSourceKeys();
+      const vType    = action.value_type || 'static';
+      const phStatic = _t('enterTheValueThisField') || 'Value...';
+      if (afActive) {
+        /* Source-type selector: Static | Dataset column */
+        let vtOpts = `<option value="static" ${vType === 'static' ? 'selected' : ''}>${efb_var.text.setValue || 'Static'}</option>`;
+        if (afKeys.length > 0) {
+          vtOpts += `<option value="autofill_key" ${vType === 'autofill_key' ? 'selected' : ''}>⛛ ${efb_var.text.datas || 'Dataset'}</option>`;
+        }
+        const vtSel = `<select class="efb-logic-value-type-sel" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'value_type',this.value)" title="${efb_var.text.datas || 'Value source'}">${vtOpts}</select>`;
+        if (vType === 'autofill_key' && afKeys.length > 0) {
+          /* Dropdown: pick which dataset column to copy into target field */
+          let kOpts = `<option value="">—</option>`;
+          afKeys.forEach(k => { kOpts += `<option value="${_esc(k)}" ${action.value === k ? 'selected' : ''}>${_esc(k)}</option>`; });
+          valueHtml = vtSel + `<select class="efb-logic-value-select" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'value',this.value)">${kOpts}</select>`;
+        } else {
+          /* Static text input + optional "load keys" button when keys not yet fetched */
+          valueHtml = vtSel + `<input type="text" class="efb-logic-value-input" value="${_esc(action.value || '')}" placeholder="${phStatic}" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'value',this.value)">` +
+            (afKeys.length === 0 ? `<button type="button" class="efb-logic-remove-btn" style="color:#6c757d" onclick="EFB_Logic.loadAutofillKeys()" title="${efb_var.text.datasetsTab || 'Load dataset columns'}"><i class="efb bi-database"></i></button>` : '');
+        }
+      } else {
+        /* Autofill not active — plain static input */
+        valueHtml = `<input type="text" class="efb-logic-value-input" value="${_esc(action.value || '')}" placeholder="${phStatic}" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'value',this.value)">` ;
+      }
+    }
+
     return `
       <div class="efb-logic-action-row" data-ai="${idx}">
         <select class="efb-logic-action-type-select" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'type',this.value)">${atOpts}</select>
         <select class="efb-logic-action-target-select" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'target',this.value)">${tOpts}</select>
+        ${valueHtml}
         <button type="button" class="efb-logic-remove-btn" onclick="EFB_Logic.removeAction(${idx})" title="${_t('delete')}"><i class="efb bi-x-lg"></i></button>
       </div>`;
   }
@@ -602,9 +653,16 @@
       const rule = rules.find(r => r.id === currentRuleId);
       if (!rule || !rule.actions[idx]) return;
       rule.actions[idx][prop] = value;
-      /* When type changes, reset target */
+      /* When type changes, reset target and value fields */
       if (prop === 'type') {
         rule.actions[idx].target = '';
+        delete rule.actions[idx].value_type;
+        delete rule.actions[idx].value;
+        refreshView();
+      }
+      /* When value_type changes (static ↔ autofill_key), clear the current value */
+      if (prop === 'value_type') {
+        rule.actions[idx].value = '';
         refreshView();
       }
     },
@@ -620,6 +678,27 @@
     /* Get rules array (for runtime engine) */
     getRules() {
       return rules;
+    },
+
+    /* Load autofill dataset column keys via AJAX and refresh the builder view.
+     * Called when the user clicks the ⛛ database icon in a set_value action row
+     * and autofill is active but source_keys are not yet cached in valj_efb[0]. */
+    async loadAutofillKeys() {
+      if (!isAutofillActive()) return;
+      if (typeof efbAjaxCalllistAutoFill !== 'function') return;
+      const autofillId = Number(valj_efb[0].autofill_id);
+      if (!autofillId) return;
+      try {
+        const res = await efbAjaxCalllistAutoFill('id', autofillId);
+        if (Array.isArray(res) && res[0] && Object.prototype.hasOwnProperty.call(res[0], 'value_')) {
+          const parsed = JSON.parse(res[0].value_);
+          const rows   = Object.keys(parsed);
+          if (rows.length > 0) {
+            valj_efb[0].autofill_source_keys = Object.keys(parsed[rows[0]]);
+            refreshView();
+          }
+        }
+      } catch (e) { console.error('EFB Logic: Failed to load autofill keys', e); }
     }
   };
 })();

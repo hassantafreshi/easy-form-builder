@@ -2125,8 +2125,8 @@
 			}
 			return $copyRight .'</aside></div>';
 		}else if($this->package_type_efb==2){
-
-			add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);
+			$lang = substr(get_locale(), 0, 2);
+			if($lang == 'fa' || $lang == 'ar') add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);
 		}
 		return '<!--efb-->';
 	}

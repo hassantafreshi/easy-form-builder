@@ -1864,7 +1864,7 @@ class efbFunction {
 		$clean = array();
 		$allowed_operators = array('AND', 'OR');
 		$allowed_compares = array('is','is_not','contains','not_contains','starts_with','ends_with','gt','lt','is_empty','is_not_empty');
-		$allowed_action_types = array('show_field','hide_field','set_required','set_optional','enable_field','disable_field','show_step','hide_step');
+		$allowed_action_types = array('show_field','hide_field','set_required','set_optional','enable_field','disable_field','show_step','hide_step','jump_to_step','set_value','clear_value','show_message');
 		$allowed_scopes = array('field','step','notification','confirmation','webhook','pricing');
 
 		foreach ($rules as $rule) {
