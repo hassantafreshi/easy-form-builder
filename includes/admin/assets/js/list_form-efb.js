@@ -3008,6 +3008,12 @@ function efbEmailTestText(key, fallback) {
   return efb_var && efb_var.text && efb_var.text[key] ? efb_var.text[key] : fallback;
 }
 
+function efbEmailTestFormat(str) {
+  const args = Array.prototype.slice.call(arguments, 1);
+  let i = 0;
+  return (str || '').replace(/%s/g, function () { return i < args.length ? String(args[i++]) : '%s'; });
+}
+
 function efbEmailTestEscape(value) {
   const text = value == null ? '' : value.toString();
   if (typeof sanitizeXSS_efb === 'function') return sanitizeXSS_efb(text);
@@ -3021,13 +3027,13 @@ function efbEmailTestIsValidEmail(value) {
 }
 
 function efbEmailTestStep(title, description, state) {
-  let icon = 'bi-circle text-muted';
+  let icon = 'bi-circle text-muted opacity-50';
   if (state == 'done') icon = 'bi-check-circle-fill text-success';
   if (state == 'active') icon = 'bi-hourglass-split text-info';
   if (state == 'warning') icon = 'bi-exclamation-triangle-fill text-warning';
   if (state == 'error') icon = 'bi-exclamation-circle-fill text-danger';
-  return `<div class="efb d-flex align-items-start gap-2 py-2 border-bottom">
-    <i class="efb bi ${icon} fs-5 mt-1"></i>
+  return `<div class="efb d-flex align-items-center gap-2 py-2 border-bottom">
+    <i class="efb bi ${icon} fs-5 flex-shrink-0"></i>
     <div class="efb flex-fill">
       <div class="efb fw-semibold">${efbEmailTestEscape(title)}</div>
       <div class="efb small text-muted">${efbEmailTestEscape(description)}</div>
@@ -3041,9 +3047,9 @@ function efbEmailTestHumanizeCode(value) {
 
 function efbEmailTestInlineItem(label, value) {
   if (value === undefined || value === null || value === '') return '';
-  return `<div class="efb d-flex justify-content-between gap-3 border-bottom py-1">
-    <span class="efb text-muted">${efbEmailTestEscape(label)}</span>
-    <span class="efb text-end fw-semibold">${efbEmailTestEscape(value)}</span>
+  return `<div class="efb d-flex flex-wrap justify-content-between gap-1 border-bottom py-2">
+    <span class="efb text-muted small">${efbEmailTestEscape(label)}</span>
+    <span class="efb fw-semibold small">${efbEmailTestEscape(value)}</span>
   </div>`;
 }
 
@@ -3067,30 +3073,30 @@ function efbEmailTestDeliveryBox(result, test) {
   const timeout = delivery.timeout_seconds || diagnostics.timeout_seconds || '';
   const failure = delivery.failure_reason || details.failure_reason || '';
   const rows = [
-    efbEmailTestInlineItem('Recipient', recipient),
-    efbEmailTestInlineItem('Expected subject', expectedSubject),
-    efbEmailTestInlineItem('Expected sender', diagnostics.expected_sender || ''),
-    efbEmailTestInlineItem('Email received', delivery.email_received === true ? 'Yes' : (delivery.email_received === false ? 'No' : '')),
-    efbEmailTestInlineItem('Subject matched', delivery.subject_matched === true ? 'Yes' : (delivery.subject_matched === false ? 'No' : '')),
-    efbEmailTestInlineItem('Hash matched', delivery.hash_matched === true ? 'Yes' : (delivery.hash_matched === false ? 'No' : '')),
-    efbEmailTestInlineItem('Waited', waited),
-    efbEmailTestInlineItem('Timeout', timeout ? `${timeout}s` : ''),
-    efbEmailTestInlineItem('Reason', efbEmailTestHumanizeCode(failure))
+    efbEmailTestInlineItem(efbEmailTestText('testSentTo', 'Test sent to'), recipient),
+    efbEmailTestInlineItem(efbEmailTestText('emailSubjectLabel', 'Email subject'), expectedSubject),
+    efbEmailTestInlineItem(efbEmailTestText('senderAddress', 'Sender address'), diagnostics.expected_sender || ''),
+    efbEmailTestInlineItem(efbEmailTestText('emailReceived', 'Email received'), delivery.email_received === true ? 'Yes' : (delivery.email_received === false ? 'No' : '')),
+    efbEmailTestInlineItem(efbEmailTestText('subjectMatched', 'Subject matched'), delivery.subject_matched === true ? 'Yes' : (delivery.subject_matched === false ? 'No' : '')),
+    efbEmailTestInlineItem(efbEmailTestText('uniqueCodeVerified', 'Unique code verified'), delivery.hash_matched === true ? 'Yes' : (delivery.hash_matched === false ? 'No' : '')),
+    efbEmailTestInlineItem(efbEmailTestText('timeWaited', 'Time waited'), waited),
+    efbEmailTestInlineItem(efbEmailTestText('maxWaitTime', 'Max wait time'), timeout ? `${timeout}s` : ''),
+    efbEmailTestInlineItem(efbEmailTestText('failureReason', 'Failure reason'), efbEmailTestHumanizeCode(failure))
   ].join('');
   if (!rows) return '';
   return `<div class="efb mt-3 p-3 border rounded bg-white text-dark text-start">
-    <div class="efb fw-semibold mb-2"><i class="efb bi-envelope-paper mx-1"></i>Delivery details</div>
+    <div class="efb fw-semibold mb-2"><i class="efb bi-envelope-paper mx-1"></i>${efbEmailTestEscape(efbEmailTestText('deliveryDetailsTitle', 'Delivery Details'))}</div>
     ${rows}
   </div>`;
 }
 
 function efbEmailTestDiagnosticsBox(result) {
   const diagnostics = result && result.diagnostics ? result.diagnostics : {};
-  const causes = efbEmailTestList('Likely causes', diagnostics.likely_causes || []);
-  const checks = efbEmailTestList('Next checks', diagnostics.next_checks || []);
+  const causes = efbEmailTestList(efbEmailTestText('possibleCauses', 'Possible causes'), diagnostics.likely_causes || []);
+  const checks = efbEmailTestList(efbEmailTestText('whatToCheckNext', 'What to check next'), diagnostics.next_checks || []);
   if (!causes && !checks) return '';
   return `<div class="efb mt-3 p-3 border rounded bg-light text-dark text-start">
-    <div class="efb fw-semibold mb-2"><i class="efb bi-tools mx-1"></i>Diagnostics</div>
+    <div class="efb fw-semibold mb-2"><i class="efb bi-tools mx-1"></i>${efbEmailTestEscape(efbEmailTestText('diagnosisTitle', 'Diagnosis & Troubleshooting'))}</div>
     ${diagnostics.status ? `<div class="efb small text-muted mb-2">${efbEmailTestEscape(efbEmailTestHumanizeCode(diagnostics.status))}</div>` : ''}
     ${causes}
     ${checks}
@@ -3115,21 +3121,28 @@ function efbEmailTestRender(state) {
   const recommendations = result && Array.isArray(result.recommendations) && result.recommendations.length
     ? `<div class="efb mt-3 text-start"><div class="efb fw-semibold mb-1">${efbEmailTestEscape(efbEmailTestText('recommendations', 'Recommendations'))}</div><ul class="efb mb-0 ps-3">${result.recommendations.slice(0, 5).map(function (item) { return `<li class="efb">${efbEmailTestEscape(item)}</li>`; }).join('')}</ul></div>`
     : '';
-  const score = quick && quick.score != null ? `<span class="efb badge bg-light text-dark border mx-1">${efbEmailTestEscape(efbEmailTestText('score', 'Score'))}: ${Number(quick.score)}</span>` : '';
+  const score = quick && quick.score != null ? `<span class="efb badge bg-light text-dark border mx-1">${efbEmailTestEscape(efbEmailTestFormat(efbEmailTestText('score', 'Score: %s'), Number(quick.score)))}</span>` : '';
   const grade = quick && (quick.grade_label || quick.grade) ? `<span class="efb badge bg-light text-dark border mx-1">${efbEmailTestEscape(quick.grade_label || quick.grade)}</span>` : '';
   const quickStatusClass = quick && quick.can_send_email === false ? 'border-warning bg-warning bg-opacity-10' : 'bg-light';
   const quickBox = quick ? `<div class="efb mt-3 p-3 border rounded ${quickStatusClass} text-dark">
-    <div class="efb fw-semibold mb-2"><i class="efb bi-speedometer2 mx-1"></i>${efbEmailTestEscape(efbEmailTestText('serverEmailAble', 'Quick result'))}</div>
+    <div class="efb fw-semibold mb-2"><i class="efb bi-speedometer2 mx-1"></i>${efbEmailTestEscape(efbEmailTestText('emailServerStatus', 'Email Server Status'))}</div>
     <div class="efb mb-2">${efbEmailTestEscape(quick.message || '')}</div>
     <div class="efb">${score}${grade}</div>
   </div>` : '';
+  const smtpBox = (quick && quick.can_send_email === false) || (result && result.status === 'expired') || steps.send === 'error'
+    ? `<div class="efb mt-3 p-3 border rounded border-warning bg-warning bg-opacity-10 text-start">
+    <div class="efb fw-semibold mb-2"><i class="efb bi-exclamation-triangle-fill text-warning mx-1"></i>${efbEmailTestEscape(efbEmailTestText('emailDeliveryNotWorking', 'Email Delivery Is Not Working'))}</div>
+    <div class="efb small text-dark mb-3">${efbEmailTestEscape(efbEmailTestText('emailDeliveryNotWorkingDesc', 'Your WordPress site cannot send emails reliably. This is a very common hosting issue — the default PHP mail function is often blocked or ends up in spam. Installing an SMTP plugin routes your emails through a verified mail service and fixes this in minutes.'))}</div>
+    <a class="efb btn btn-sm btn-warning fw-semibold" href="https://whitestudio.team/document/send-email-using-smtp-plugin/" target="_blank" rel="noopener noreferrer"><i class="efb bi-box-arrow-up-right me-1"></i>${efbEmailTestEscape(efbEmailTestText('smtpSetupGuideBtn', 'Step-by-step SMTP setup guide'))}</a>
+  </div>`
+    : '';
   const reportBox = quick && quick.can_send_email ? `<div class="efb mt-3 alert alert-info mb-0">
     <i class="efb bi-envelope-check mx-1"></i>
-    ${efbEmailTestEscape('The quick result is ready. The complete HTML report will be sent to the admin email')}${adminEmail ? `: <b>${adminEmail}</b>` : '.'}
+    ${efbEmailTestFormat(efbEmailTestText('emailServerWorkingReport', 'Your email server is working. A detailed HTML report has been sent to %s.'), adminEmail ? `<b>${adminEmail}</b>` : efbEmailTestEscape(efbEmailTestText('yourAdminEmail', 'your admin email address')))}
   </div>` : '';
   const delayedBox = result && result.status == 'delayed' ? `<div class="efb mt-3 alert alert-warning mb-0 text-start">
-    <div class="efb fw-semibold mb-1"><i class="efb bi-clock-history mx-1"></i>Delivery is delayed</div>
-    <div class="efb small">${efbEmailTestEscape('WordPress accepted the test email, but WhiteStudio has not received it yet. Use the diagnostics below for the next server-side check.')}</div>
+    <div class="efb fw-semibold mb-1"><i class="efb bi-clock-history mx-1"></i>${efbEmailTestEscape(efbEmailTestText('deliveryDelayedTitle', 'Delivery is taking longer than expected'))}</div>
+    <div class="efb small">${efbEmailTestEscape(efbEmailTestText('deliveryDelayedDesc', 'WordPress sent the test email, but our server has not received it yet. This may be a temporary delay. Check the diagnostics below to troubleshoot.'))}</div>
   </div>` : '';
   const deliveryBox = result ? efbEmailTestDeliveryBox(result, test) : (test ? efbEmailTestDeliveryBox({}, test) : '');
   const diagnosticsBox = result ? efbEmailTestDiagnosticsBox(result) : '';
@@ -3137,13 +3150,14 @@ function efbEmailTestRender(state) {
 
   return `<div class="efb px-2" id="efbEmailServerTestModal">
     <div class="efb progress mb-3" style="height:8px"><div class="efb progress-bar bg-info" style="width:${percent}%"></div></div>
-    ${efbEmailTestStep('Create test', 'Requesting a test hash and receiver address from WhiteStudio.', steps.start || 'active')}
-    ${efbEmailTestStep('Send email', 'Sending a real WordPress email with the returned subject and test hash.', steps.send || 'waiting')}
-    ${efbEmailTestStep('Wait for delivery', 'Waiting for Cloudflare Email Routing and the quick analysis.', steps.wait || 'waiting')}
-    ${efbEmailTestStep('Quick result', 'Showing the first delivery result as soon as it is ready.', steps.quick || 'waiting')}
-    ${efbEmailTestStep('Full report', 'The detailed HTML report is prepared and sent by email.', steps.full || 'waiting')}
+    ${efbEmailTestStep(efbEmailTestText('stepPrepareTest', 'Prepare Test'), efbEmailTestText('stepPrepareTestDesc', 'Connecting to WhiteStudio to generate a unique test email address.'), steps.start || 'active')}
+    ${efbEmailTestStep(efbEmailTestText('stepSendEmail', 'Send Test Email'), efbEmailTestText('stepSendEmailDesc', 'WordPress is sending a real email to verify your server can deliver mail.'), steps.send || 'waiting')}
+    ${efbEmailTestStep(efbEmailTestText('stepWaitDelivery', 'Waiting for Delivery'), efbEmailTestText('stepWaitDeliveryDesc', 'Checking whether the test email arrived at our server (usually takes a few seconds).'), steps.wait || 'waiting')}
+    ${efbEmailTestStep(efbEmailTestText('stepQuickResult', 'Quick Result'), efbEmailTestText('stepQuickResultDesc', 'Showing the first delivery result — you will see right away if email is working.'), steps.quick || 'waiting')}
+    ${efbEmailTestStep(efbEmailTestText('stepFullReport', 'Full Report'), efbEmailTestText('stepFullReportDesc', 'A detailed HTML report with full diagnostics is being prepared and emailed to you.'), steps.full || 'waiting')}
     ${state.message ? `<div class="efb mt-3 small text-muted">${efbEmailTestEscape(state.message)}</div>` : ''}
     ${quickBox}
+    ${smtpBox}
     ${delayedBox}
     ${reportBox}
     ${deliveryBox}
@@ -3196,7 +3210,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
   const elapsed = Math.floor((Date.now() - startedAt) / 1000);
   if (elapsed > maxDuration) {
     uiState.steps.wait = 'error';
-    uiState.message = 'The test timed out before the server returned a final result.';
+    uiState.message = efbEmailTestText('emailTestTimedOut', 'The test timed out. Please try again — your server may be slow or blocking outgoing mail.');
     uiState.percent = 100;
     efbEmailTestShow(uiState);
     efbEmailTestFinishButton(button, buttonHtml);
@@ -3229,7 +3243,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
 
       if (status == 'pending' || stage == 'pending') {
         uiState.steps.wait = 'active';
-        uiState.message = result.message || 'Waiting for the test email to arrive.';
+        uiState.message = result.message || efbEmailTestText('waitingForEmail', 'Waiting for the test email to arrive...');
         uiState.percent = Math.min(75, 35 + Math.floor((elapsed / maxDuration) * 40));
         efbEmailTestShow(uiState);
         const nextDelay = efbEmailTestNextPendingDelay(uiState, result);
@@ -3245,7 +3259,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         uiState.steps.full = 'waiting';
         uiState.quick = result;
         uiState.result = result;
-        uiState.message = result.message || 'The test email has not reached WhiteStudio yet.';
+        uiState.message = result.message || efbEmailTestText('emailOnItsWay', 'Email is on its way — still waiting for delivery confirmation.');
         uiState.percent = 100;
         efbEmailTestSetSmtpState(false);
         efbEmailTestShow(uiState);
@@ -3257,7 +3271,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
       if (status == 'expired') {
         uiState.steps.wait = 'error';
         uiState.steps.quick = 'error';
-        uiState.message = result.message || 'No test email was received before the test expired.';
+        uiState.message = result.message || efbEmailTestText('emailNeverArrived', 'No email arrived during the test window. Your server may not be able to send emails.');
         uiState.result = result;
         uiState.percent = 100;
         efbEmailTestSetSmtpState(false);
@@ -3301,14 +3315,14 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         return;
       }
 
-      uiState.message = result.message || payload.m || 'Waiting for the email tester service.';
+      uiState.message = result.message || payload.m || efbEmailTestText('stillChecking', 'Still checking — please wait a moment...');
       efbEmailTestShow(uiState);
       efbEmailServerTestTimer = setTimeout(function () {
         efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt);
       }, 10000);
     }).fail(function (xhr) {
       uiState.steps.wait = 'error';
-      uiState.message = `${efbEmailTestText('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh.')}, Code:${xhr.status || 'NET'}`;
+      uiState.message = efbEmailTestFormat(efbEmailTestText('connectionErrorCode', 'Connection error. Please refresh the page and try again. (Code: %s)'), xhr.status || 'NET');
       uiState.percent = 100;
       efbEmailTestShow(uiState);
       efbEmailTestFinishButton(button, buttonHtml);
@@ -3348,7 +3362,7 @@ function clickToCheckEmailServer() {
     percent: 12,
     adminEmail: email,
     runId: runId,
-    message: 'Starting the email server test.'
+    message: efbEmailTestText('startingEmailTest', 'Starting email delivery test...')
   };
   efbEmailTestShow(uiState);
 
@@ -3369,7 +3383,7 @@ function clickToCheckEmailServer() {
         uiState.steps.send = 'done';
         uiState.steps.wait = 'active';
         uiState.percent = 35;
-        uiState.message = payload.m || 'The test email has been sent. Waiting for analysis.';
+        uiState.message = payload.m || efbEmailTestText('testEmailSent', 'Test email sent! Waiting for delivery confirmation...');
         uiState.test = test;
         uiState.result = {
           delivery: {
@@ -3397,7 +3411,7 @@ function clickToCheckEmailServer() {
       }
     }).fail(function (xhr) {
       uiState.steps.start = 'error';
-      uiState.message = `${efbEmailTestText('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh.')}, Code:${xhr.status || 'NET'}`;
+      uiState.message = efbEmailTestFormat(efbEmailTestText('connectionErrorCode', 'Connection error. Please refresh the page and try again. (Code: %s)'), xhr.status || 'NET');
       uiState.percent = 100;
       efbEmailTestShow(uiState);
       alert_message_efb(efb_var.text.error, uiState.message, 30, 'danger');

@@ -950,8 +950,8 @@ class efbFunction {
 			"ardate" => $state  &&  isset($ac->text->ardate) ? $ac->text->ardate : esc_html__('Hijri Date','easy-form-builder'),
 			"iaddon" => $state  &&  isset($ac->text->iaddon) ? $ac->text->iaddon : esc_html__('Install the addon','easy-form-builder'),
 			/* translators: Jalili is a typo for Jalali (Persian/Shamsi calendar) */
-			"IMAddonPD" => $state  &&  isset($ac->text->IMAddonPD) ? $ac->text->IMAddonPD : esc_html__('Please go to the Add-on Page of Easy Form Builder plugin and install the Jalili date addons','easy-form-builder'),
-			"IMAddonAD" => $state  &&  isset($ac->text->IMAddonAD) ? $ac->text->IMAddonAD : esc_html__('Please go to the Add-on Page of Easy Form Builder plugin and install the Hijri date addons','easy-form-builder'),
+			"IMAddonPD" => $state  &&  isset($ac->text->IMAddonPD) ? $ac->text->IMAddonPD : esc_html__('Please go to the Add-on Page of Easy Form Builder plugin and install the Jalili date addon','easy-form-builder'),
+			"IMAddonAD" => $state  &&  isset($ac->text->IMAddonAD) ? $ac->text->IMAddonAD : esc_html__('Please go to the Add-on Page of Easy Form Builder plugin and install the Hijri date addon','easy-form-builder'),
 			"warning" => $state  &&  isset($ac->text->warning) ? $ac->text->warning : esc_html__('warning','easy-form-builder'),
 			"datetimelocal" => $state  &&  isset($ac->text->datetimelocal) ? $ac->text->datetimelocal : esc_html__('date & time','easy-form-builder'),
 			"dsupfile" => $state  &&  isset($ac->text->dsupfile) ? $ac->text->dsupfile : esc_html__('Enable file upload in the response box','easy-form-builder'),
@@ -1590,6 +1590,96 @@ class efbFunction {
 			"TAdnGoS" => $state  &&  isset($ac->text->TAdnGoS) ? $ac->text->TAdnGoS : esc_html__('Google Sheet Addon','easy-form-builder'),
 			"DAdnGoS" => $state  &&  isset($ac->text->DAdnGoS) ? $ac->text->DAdnGoS : esc_html__('Sync form submissions with Google Sheets in real-time via webhook integration.','easy-form-builder'),
 			"fillrequiredfields" => $state && isset($ac->text->fillrequiredfields) ? $ac->text->fillrequiredfields : esc_html__('Please fill in all required fields', 'easy-form-builder'),
+
+			/* translators: Email server test section title */
+			"emailServerStatus" => $state && isset($ac->text->emailServerStatus) ? $ac->text->emailServerStatus : esc_html__('Email Server Status','easy-form-builder'),
+			/* translators: Title shown when WordPress cannot send emails */
+			"emailDeliveryNotWorking" => $state && isset($ac->text->emailDeliveryNotWorking) ? $ac->text->emailDeliveryNotWorking : esc_html__('Email Delivery Is Not Working','easy-form-builder'),
+			/* translators: Description shown when WordPress cannot send emails */
+			"emailDeliveryNotWorkingDesc" => $state && isset($ac->text->emailDeliveryNotWorkingDesc) ? $ac->text->emailDeliveryNotWorkingDesc : esc_html__('Your WordPress site cannot send emails reliably. This is a very common hosting issue — the default PHP mail function is often blocked or ends up in spam. Installing an SMTP plugin routes your emails through a verified mail service and fixes this in minutes.','easy-form-builder'),
+			/* translators: Button label linking to the SMTP setup guide */
+			"smtpSetupGuideBtn" => $state && isset($ac->text->smtpSetupGuideBtn) ? $ac->text->smtpSetupGuideBtn : esc_html__('Step-by-step SMTP setup guide','easy-form-builder'),
+			/* translators: Message shown when email test succeeds. %s is replaced with the admin email address (e.g. "...sent to admin@example.com.") */
+			"emailServerWorkingReport" => $state && isset($ac->text->emailServerWorkingReport) ? $ac->text->emailServerWorkingReport : esc_html__('Your email server is working. A detailed HTML report has been sent to %s.','easy-form-builder'),
+			/* translators: Fallback text when admin email address is not available */
+			"yourAdminEmail" => $state && isset($ac->text->yourAdminEmail) ? $ac->text->yourAdminEmail : esc_html__('your admin email address','easy-form-builder'),
+			/* translators: Title of the delayed delivery warning box */
+			"deliveryDelayedTitle" => $state && isset($ac->text->deliveryDelayedTitle) ? $ac->text->deliveryDelayedTitle : esc_html__('Delivery is taking longer than expected','easy-form-builder'),
+			/* translators: Description shown when email delivery is delayed */
+			"deliveryDelayedDesc" => $state && isset($ac->text->deliveryDelayedDesc) ? $ac->text->deliveryDelayedDesc : esc_html__('WordPress sent the test email, but our server has not received it yet. This may be a temporary delay. Check the diagnostics below to troubleshoot.','easy-form-builder'),
+
+			/* translators: Email test step 1 — title */
+			"stepPrepareTest" => $state && isset($ac->text->stepPrepareTest) ? $ac->text->stepPrepareTest : esc_html__('Prepare Test','easy-form-builder'),
+			/* translators: Email test step 1 — description */
+			"stepPrepareTestDesc" => $state && isset($ac->text->stepPrepareTestDesc) ? $ac->text->stepPrepareTestDesc : esc_html__('Connecting to WhiteStudio to generate a unique test email address.','easy-form-builder'),
+			/* translators: Email test step 2 — title */
+			"stepSendEmail" => $state && isset($ac->text->stepSendEmail) ? $ac->text->stepSendEmail : esc_html__('Send Test Email','easy-form-builder'),
+			/* translators: Email test step 2 — description */
+			"stepSendEmailDesc" => $state && isset($ac->text->stepSendEmailDesc) ? $ac->text->stepSendEmailDesc : esc_html__('WordPress is sending a real email to verify your server can deliver mail.','easy-form-builder'),
+			/* translators: Email test step 3 — title */
+			"stepWaitDelivery" => $state && isset($ac->text->stepWaitDelivery) ? $ac->text->stepWaitDelivery : esc_html__('Waiting for Delivery','easy-form-builder'),
+			/* translators: Email test step 3 — description */
+			"stepWaitDeliveryDesc" => $state && isset($ac->text->stepWaitDeliveryDesc) ? $ac->text->stepWaitDeliveryDesc : esc_html__('Checking whether the test email arrived at our server (usually takes a few seconds).','easy-form-builder'),
+			/* translators: Email test step 4 — title */
+			"stepQuickResult" => $state && isset($ac->text->stepQuickResult) ? $ac->text->stepQuickResult : esc_html__('Quick Result','easy-form-builder'),
+			/* translators: Email test step 4 — description */
+			"stepQuickResultDesc" => $state && isset($ac->text->stepQuickResultDesc) ? $ac->text->stepQuickResultDesc : esc_html__('Showing the first delivery result — you will see right away if email is working.','easy-form-builder'),
+			/* translators: Email test step 5 — title */
+			"stepFullReport" => $state && isset($ac->text->stepFullReport) ? $ac->text->stepFullReport : esc_html__('Full Report','easy-form-builder'),
+			/* translators: Email test step 5 — description */
+			"stepFullReportDesc" => $state && isset($ac->text->stepFullReportDesc) ? $ac->text->stepFullReportDesc : esc_html__('A detailed HTML report with full diagnostics is being prepared and emailed to you.','easy-form-builder'),
+
+			/* translators: Delivery details box title */
+			"deliveryDetailsTitle" => $state && isset($ac->text->deliveryDetailsTitle) ? $ac->text->deliveryDetailsTitle : esc_html__('Delivery Details','easy-form-builder'),
+			/* translators: Label for the email address the test was sent to */
+			"testSentTo" => $state && isset($ac->text->testSentTo) ? $ac->text->testSentTo : esc_html__('Test sent to','easy-form-builder'),
+			/* translators: Label for the email subject used in the delivery test */
+			"emailSubjectLabel" => $state && isset($ac->text->emailSubjectLabel) ? $ac->text->emailSubjectLabel : esc_html__('Email subject','easy-form-builder'),
+			/* translators: Label for the sender email address shown in delivery details */
+			"senderAddress" => $state && isset($ac->text->senderAddress) ? $ac->text->senderAddress : esc_html__('Sender address','easy-form-builder'),
+			/* translators: Label showing whether the test email was received */
+			"emailReceived" => $state && isset($ac->text->emailReceived) ? $ac->text->emailReceived : esc_html__('Email received','easy-form-builder'),
+			/* translators: Label showing whether the email subject line matched the expected value */
+			"subjectMatched" => $state && isset($ac->text->subjectMatched) ? $ac->text->subjectMatched : esc_html__('Subject matched','easy-form-builder'),
+			/* translators: Label showing whether the unique verification hash in the email matched */
+			"uniqueCodeVerified" => $state && isset($ac->text->uniqueCodeVerified) ? $ac->text->uniqueCodeVerified : esc_html__('Unique code verified','easy-form-builder'),
+			/* translators: Label showing how many seconds the test waited for the email */
+			"timeWaited" => $state && isset($ac->text->timeWaited) ? $ac->text->timeWaited : esc_html__('Time waited','easy-form-builder'),
+			/* translators: Label showing the maximum wait time before the test expires */
+			"maxWaitTime" => $state && isset($ac->text->maxWaitTime) ? $ac->text->maxWaitTime : esc_html__('Max wait time','easy-form-builder'),
+			/* translators: Label showing the reason email delivery failed */
+			"failureReason" => $state && isset($ac->text->failureReason) ? $ac->text->failureReason : esc_html__('Failure reason','easy-form-builder'),
+
+			/* translators: Diagnostics section title — & is an ampersand */
+			"diagnosisTitle" => $state && isset($ac->text->diagnosisTitle) ? $ac->text->diagnosisTitle : esc_html__('Diagnosis & Troubleshooting','easy-form-builder'),
+			/* translators: Heading for the list of possible reasons email failed */
+			"possibleCauses" => $state && isset($ac->text->possibleCauses) ? $ac->text->possibleCauses : esc_html__('Possible causes','easy-form-builder'),
+			/* translators: Heading for the list of recommended next troubleshooting steps */
+			"whatToCheckNext" => $state && isset($ac->text->whatToCheckNext) ? $ac->text->whatToCheckNext : esc_html__('What to check next','easy-form-builder'),
+
+			/* translators: Recommendations section title shown in email test result */
+			"recommendations" => $state && isset($ac->text->recommendations) ? $ac->text->recommendations : esc_html__('Recommendations','easy-form-builder'),
+			/* translators: Score label in email test result badge. %s is replaced with the numeric score value (e.g. "Score: 8") */
+			"score" => $state && isset($ac->text->score) ? $ac->text->score : esc_html__('Score: %s','easy-form-builder'),
+			/* translators: Upgrade button label shown when a higher plan is required */
+			"upgrade" => $state && isset($ac->text->upgrade) ? $ac->text->upgrade : esc_html__('Upgrade','easy-form-builder'),
+
+			/* translators: Status message shown when the email test times out */
+			"emailTestTimedOut" => $state && isset($ac->text->emailTestTimedOut) ? $ac->text->emailTestTimedOut : esc_html__('The test timed out. Please try again — your server may be slow or blocking outgoing mail.','easy-form-builder'),
+			/* translators: Status message shown while waiting for the test email to arrive */
+			"waitingForEmail" => $state && isset($ac->text->waitingForEmail) ? $ac->text->waitingForEmail : esc_html__('Waiting for the test email to arrive...','easy-form-builder'),
+			/* translators: Status message shown when the test email is delayed */
+			"emailOnItsWay" => $state && isset($ac->text->emailOnItsWay) ? $ac->text->emailOnItsWay : esc_html__('Email is on its way — still waiting for delivery confirmation.','easy-form-builder'),
+			/* translators: Status message shown when no test email arrived before expiry */
+			"emailNeverArrived" => $state && isset($ac->text->emailNeverArrived) ? $ac->text->emailNeverArrived : esc_html__('No email arrived during the test window. Your server may not be able to send emails.','easy-form-builder'),
+			/* translators: Status message shown while polling for test results */
+			"stillChecking" => $state && isset($ac->text->stillChecking) ? $ac->text->stillChecking : esc_html__('Still checking — please wait a moment...','easy-form-builder'),
+			/* translators: Status message shown when the email server test begins */
+			"startingEmailTest" => $state && isset($ac->text->startingEmailTest) ? $ac->text->startingEmailTest : esc_html__('Starting email delivery test...','easy-form-builder'),
+			/* translators: Status message shown after the test email has been sent */
+			"testEmailSent" => $state && isset($ac->text->testEmailSent) ? $ac->text->testEmailSent : esc_html__('Test email sent! Waiting for delivery confirmation...','easy-form-builder'),
+			/* translators: Connection error message with HTTP status code. %s is replaced with the error code (e.g. "Code: 500") */
+			"connectionErrorCode" => $state && isset($ac->text->connectionErrorCode) ? $ac->text->connectionErrorCode : esc_html__('Connection error. Please refresh the page and try again. (Code: %s)','easy-form-builder'),
 
 		];
 
