@@ -55,7 +55,6 @@ class Admin {
             add_action('create_temporary_links_table_Emsfb' , [$this , 'create_temporary_links_table_Emsfb']);
 
             add_action('admin_notices', [$this, 'admin_notices_efb']);
-            add_action('admin_notices', [$this, 'efb_security_plugin_notice']);
 
         }
     }
@@ -2202,68 +2201,6 @@ function admin_notices_efb () {
             $output = ob_get_clean();
 
             echo $output;
-    }
-
-
-    public function efb_security_plugin_notice() {
-        $security_plugins_raw = get_option('emsfb_security_plugins', 0);
-        if (!$security_plugins_raw || $security_plugins_raw === '0') {
-            return;
-        }
-        $security_plugins = json_decode($security_plugins_raw, true);
-        if (empty($security_plugins) || !is_array($security_plugins)) {
-            return;
-        }
-        $logo_url = EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.png';
-        ob_start();
-        foreach ($security_plugins as $plugin) {
-            $name    = isset($plugin['name'])    ? esc_html($plugin['name'])    : '';
-            $version = isset($plugin['version']) ? esc_html($plugin['version']) : '';
-            ?>
-            <div id="notice-security-efb-<?php echo esc_attr($plugin['slug']); ?>" class="notice notice-warning efb-notice-security notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;position:relative;z-index:1000;">
-                <button type="button" class="efb-close-security-notice-btn"
-                    data-slug="<?php echo esc_attr($plugin['slug']); ?>"
-                    style="position:absolute;top:8px;right:8px;background:transparent;border:none;font-size:20px;cursor:pointer;"
-                    aria-label="Close">&times;</button>
-                <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr__('Easy Form Builder', 'easy-form-builder'); ?>" style="width:46px;height:auto;margin-top:4px;" />
-                <div>
-                    <p><strong><?php echo esc_html__('Easy Form Builder Security Plugin Notice:', 'easy-form-builder'); ?></strong>
-                    <?php echo esc_html__('A security plugin that may block form submissions (403 errors) has been detected.', 'easy-form-builder'); ?></p>
-                    <p>
-                        <?php echo esc_html__('Plugin:', 'easy-form-builder'); ?> <strong><?php echo $name; ?></strong>
-                        &nbsp;|&nbsp; <?php echo esc_html__('Version:', 'easy-form-builder'); ?> <?php echo $version; ?>
-                    </p>
-                    <p><?php echo esc_html__('If users experience 403 errors when submitting forms, this plugin may be blocking the REST API or removing the X-WP-Nonce header. Common causes: "Disable REST API for non-logged-in users", WAF rules, or login protection modules.', 'easy-form-builder'); ?></p>
-                    <p><a href="https://whitestudio.team/document/security-plugin-compatibility/" target="_blank"><?php echo esc_html__('Read more about security plugin compatibility', 'easy-form-builder'); ?></a></p>
-                </div>
-            </div>
-            <?php
-        }
-        $output = ob_get_clean();
-        echo $output;
-        ?>
-        <script>
-        (function(){
-            var dismissed = JSON.parse(window.localStorage.getItem('efb_security_notices_dismissed') || '{}');
-            document.querySelectorAll('.efb-notice-security').forEach(function(el){
-                var slug = el.id.replace('notice-security-efb-','');
-                if(dismissed[slug]) el.style.display='none';
-                var page = document.querySelector('.sideMenuFEfb');
-                if(page) el.style.display='none';
-            });
-            document.querySelectorAll('.efb-close-security-notice-btn').forEach(function(btn){
-                btn.addEventListener('click', function(){
-                    var slug = this.dataset.slug;
-                    var el = document.getElementById('notice-security-efb-'+slug);
-                    if(el) el.style.display='none';
-                    var dismissed = JSON.parse(window.localStorage.getItem('efb_security_notices_dismissed') || '{}');
-                    dismissed[slug] = true;
-                    window.localStorage.setItem('efb_security_notices_dismissed', JSON.stringify(dismissed));
-                });
-            });
-        })();
-        </script>
-        <?php
     }
 
     public function efb_save_plan_selection() {

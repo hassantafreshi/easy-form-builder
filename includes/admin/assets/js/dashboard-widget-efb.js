@@ -31,41 +31,8 @@
     bindTabs();
     bindEmailFailCard();
     bindErrorsClose();
-    bindLabelTooltip();
     loadStats('week');
   });
-
-  /* ── Label tooltip (fixed-position, unclipped by overflow) ── */
-  function bindLabelTooltip() {
-    var $tip = $('<div class="efb-dw-label-tip"></div>').appendTo('body');
-    $(document)
-      .on('mouseenter', '.efb-dw-card-label[data-efb-full]', function (e) {
-        $tip.text($(this).attr('data-efb-full'));
-        $tip.show();
-        moveTip(e, $tip);
-      })
-      .on('mousemove', '.efb-dw-card-label[data-efb-full]', function (e) {
-        moveTip(e, $tip);
-      })
-      .on('mouseleave', '.efb-dw-card-label[data-efb-full]', function () {
-        $tip.hide();
-      });
-  }
-
-  function moveTip(e, $tip) {
-    var tw = $tip.outerWidth();
-    var left = e.clientX - tw / 2;
-    if (left < 4) left = 4;
-    if (left + tw > window.innerWidth - 4) left = window.innerWidth - tw - 4;
-    $tip.css({ top: e.clientY - 34, left: left });
-  }
-
-  function applyLabelEllipsis($el) {
-    var full = $el.text();
-    if (full.length > 7) {
-      $el.attr('data-efb-full', full).text(full.slice(0, 7) + '\u2026');
-    }
-  }
 
   function setTabLabels() {
     $('.efb-dw-tab').each(function () {
@@ -80,7 +47,6 @@
     $('#efb-dw-submissions-label').text(t.dwSubmissions || 'Submissions');
     $('#efb-dw-email-ok-label').text(fmt(t.dwEmailsSent, emailWord) || emailWord + ' Sent');
     $('#efb-dw-email-fail-label').text(fmt(t.dwEmailFailures, errorWord) || errorWord + ' Log');
-    $('.efb-dw-card-label').each(function () { applyLabelEllipsis($(this)); });
   }
 
   function bindTabs() {

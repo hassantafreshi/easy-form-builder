@@ -5222,9 +5222,16 @@ public function check_nonce_permission_efb($request) {
 			'respCustomFont' => $pub_settings['respCustomFont'] ?? '',
 		) );
 
-		$cache_plugins = get_option('emsfb_cache_plugins','0');
-		if ( current_user_can('manage_options') && $cache_plugins !== '0' && !empty($cache_plugins)) {
-			$ar_core['cache_plugins'] = $cache_plugins;
+		if (is_user_logged_in() && current_user_can('manage_options')) {
+			$cache_plugins = get_option('emsfb_cache_plugins','0');
+			if ($cache_plugins !== '0' && !empty($cache_plugins)) {
+				$ar_core['cache_plugins'] = $cache_plugins;
+			}
+
+			$security_plugins = get_option('emsfb_security_plugins','0');
+			if ($security_plugins !== '0' && !empty($security_plugins)) {
+				$ar_core['security_plugins'] = $security_plugins;
+			}
 		}
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
 	}

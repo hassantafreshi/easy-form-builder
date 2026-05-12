@@ -1584,6 +1584,16 @@ class efbFunction {
 			"cacheWarnPlugin" => $state && isset($ac->text->cacheWarnPlugin) ? $ac->text->cacheWarnPlugin : esc_html__('Plugin','easy-form-builder'),
 			"cacheWarnVersion" => $state && isset($ac->text->cacheWarnVersion) ? $ac->text->cacheWarnVersion : esc_html__('Version','easy-form-builder'),
 			"cacheWarnDoc" => $state && isset($ac->text->cacheWarnDoc) ? $ac->text->cacheWarnDoc : esc_html__('Read more about cache compatibility','easy-form-builder'),
+			"dismiss" => $state && isset($ac->text->dismiss) ? $ac->text->dismiss : esc_html__('Dismiss','easy-form-builder'),
+			"dismissAll" => $state && isset($ac->text->dismissAll) ? $ac->text->dismissAll : esc_html__('Dismiss All','easy-form-builder'),
+			/* translators: %s: item label */
+			"dismissItem" => $state && isset($ac->text->dismissItem) ? $ac->text->dismissItem : esc_html__('Dismiss %s','easy-form-builder'),
+			/* translators: Security plugin warning messages shown to admin on public forms */
+			"securityWarnTitle" => $state && isset($ac->text->securityWarnTitle) ? $ac->text->securityWarnTitle : esc_html__('Security Plugin Detected','easy-form-builder'),
+			"securityWarnMsg" => $state && isset($ac->text->securityWarnMsg) ? $ac->text->securityWarnMsg : esc_html__('The following security plugin may block form submissions with 403 errors. It may block the REST API, remove the X-WP-Nonce header, or apply firewall rules to form requests.','easy-form-builder'),
+			"securityWarnPlugin" => $state && isset($ac->text->securityWarnPlugin) ? $ac->text->securityWarnPlugin : esc_html__('Plugin','easy-form-builder'),
+			"securityWarnVersion" => $state && isset($ac->text->securityWarnVersion) ? $ac->text->securityWarnVersion : esc_html__('Version','easy-form-builder'),
+			"securityWarnDoc" => $state && isset($ac->text->securityWarnDoc) ? $ac->text->securityWarnDoc : esc_html__('Read more about security plugin compatibility','easy-form-builder'),
 
 			"TAdnAtF" => $state  &&  isset($ac->text->TAdnAtF) ? $ac->text->TAdnAtF : esc_html__('Auto-Populate Addon','easy-form-builder'),
 			"DAdnAtF" => $state  &&  isset($ac->text->DAdnAtF) ? $ac->text->DAdnAtF : esc_html__('The Auto-Populate addon enables you to automatically populate form fields from datasets, previously submitted forms, or external APIs.','easy-form-builder'),

@@ -325,7 +325,56 @@ function check_body_efb_timer (){
                 + (_t.cacheWarnDoc || 'Read more about cache compatibility') + ':\n' + _docUrl;
 
               if (typeof EFB_ERROR_PANEL !== 'undefined' && typeof EFB_ERROR_PANEL.log === 'function') {
-                EFB_ERROR_PANEL.log(_msg, { source: 'cache-warning', type: 'notice', name: 'Easy Form Builder', captureStack: false });
+                EFB_ERROR_PANEL.log(_msg, {
+                  source: 'cache-warning',
+                  type: 'notice',
+                  name: 'Easy Form Builder',
+                  captureStack: false,
+                  format: {
+                    links: [{ url: _docUrl }],
+                    boldTexts: [p.name]
+                  }
+                });
+              } else {
+              }
+            });
+          }
+        } catch (_e) {
+        }
+      }
+
+      if (ajax_object_efm.security_plugins && ajax_object_efm.security_plugins !== '0') {
+        try {
+          const _securityList = typeof ajax_object_efm.security_plugins === 'string'
+            ? JSON.parse(ajax_object_efm.security_plugins)
+            : ajax_object_efm.security_plugins;
+
+          if (Array.isArray(_securityList) && _securityList.length > 0) {
+            const _t = ajax_object_efm.text;
+            const _docUrl = 'https://whitestudio.team/document/security-plugin-compatibility/';
+
+            _securityList.forEach(function(p) {
+              let _line = (_t.securityWarnPlugin || _t.cacheWarnPlugin || 'Plugin') + ': ' + (p.name || '');
+              if (p.version) {
+                _line += '  |  ' + (_t.securityWarnVersion || _t.cacheWarnVersion || 'Version') + ': ' + p.version;
+              }
+
+              const _msg = '\u26A0\uFE0F ' + (_t.securityWarnTitle || 'Security Plugin Detected') + '\n'
+                + (_t.securityWarnMsg || 'The following security plugin may block form submissions with 403 errors. It may block the REST API, remove the X-WP-Nonce header, or apply firewall rules to form requests.') + '\n\n'
+                + _line + '\n\n'
+                + (_t.securityWarnDoc || 'Read more about security plugin compatibility') + ':\n' + _docUrl;
+
+              if (typeof EFB_ERROR_PANEL !== 'undefined' && typeof EFB_ERROR_PANEL.log === 'function') {
+                EFB_ERROR_PANEL.log(_msg, {
+                  source: 'security-warning',
+                  type: 'notice',
+                  name: 'Easy Form Builder',
+                  captureStack: false,
+                  format: {
+                    links: [{ url: _docUrl }],
+                    boldTexts: [p.name]
+                  }
+                });
               } else {
               }
             });

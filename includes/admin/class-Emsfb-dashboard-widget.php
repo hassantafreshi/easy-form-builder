@@ -100,32 +100,32 @@ class Dashboard_Widget {
             </div>
             <div class="efb-dw-cards">
                 <div class="efb-dw-card efb-dw-card--visits">
-                    <div class="efb-dw-card-icon"><span class="dashicons dashicons-visibility"></span></div>
-                    <div class="efb-dw-card-body">
+                    <div class="efb-dw-card-top">
+                        <div class="efb-dw-card-icon"><span class="dashicons dashicons-visibility"></span></div>
                         <span class="efb-dw-card-value" id="efb-dw-visits">—</span>
-                        <span class="efb-dw-card-label" id="efb-dw-visits-label"></span>
                     </div>
+                    <span class="efb-dw-card-label" id="efb-dw-visits-label"></span>
                 </div>
                 <div class="efb-dw-card efb-dw-card--submissions">
-                    <div class="efb-dw-card-icon"><span class="dashicons dashicons-forms"></span></div>
-                    <div class="efb-dw-card-body">
+                    <div class="efb-dw-card-top">
+                        <div class="efb-dw-card-icon"><span class="dashicons dashicons-forms"></span></div>
                         <span class="efb-dw-card-value" id="efb-dw-submissions">—</span>
-                        <span class="efb-dw-card-label" id="efb-dw-submissions-label"></span>
                     </div>
+                    <span class="efb-dw-card-label" id="efb-dw-submissions-label"></span>
                 </div>
                 <div class="efb-dw-card efb-dw-card--email-ok">
-                    <div class="efb-dw-card-icon"><span class="dashicons dashicons-email"></span></div>
-                    <div class="efb-dw-card-body">
+                    <div class="efb-dw-card-top">
+                        <div class="efb-dw-card-icon"><span class="dashicons dashicons-email"></span></div>
                         <span class="efb-dw-card-value" id="efb-dw-email-ok">—</span>
-                        <span class="efb-dw-card-label" id="efb-dw-email-ok-label"></span>
                     </div>
+                    <span class="efb-dw-card-label" id="efb-dw-email-ok-label"></span>
                 </div>
                 <div class="efb-dw-card efb-dw-card--email-fail" id="efb-dw-email-fail-card" role="button" tabindex="0" title="">
-                    <div class="efb-dw-card-icon"><span class="dashicons dashicons-warning"></span></div>
-                    <div class="efb-dw-card-body">
+                    <div class="efb-dw-card-top">
+                        <div class="efb-dw-card-icon"><span class="dashicons dashicons-warning"></span></div>
                         <span class="efb-dw-card-value" id="efb-dw-email-fail">—</span>
-                        <span class="efb-dw-card-label" id="efb-dw-email-fail-label"></span>
                     </div>
+                    <span class="efb-dw-card-label" id="efb-dw-email-fail-label"></span>
                 </div>
             </div>
             <div class="efb-dw-chart-wrap">
