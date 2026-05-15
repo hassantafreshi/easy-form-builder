@@ -3223,7 +3223,8 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
       nonce: _efb_core_nonce_,
       mode: 'result',
       run_id: uiState.runId || '',
-      test_hash: test.test_hash
+      test_hash: test.test_hash,
+      admin_email: uiState.adminEmail || ''
     }, function (res) {
       const payload = res && res.data ? res.data : {};
       const result = payload.result || {};
