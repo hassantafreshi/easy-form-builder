@@ -3235,7 +3235,6 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         uiState.message = payload.m || result.message || efbEmailTestText('error', 'Error');
         uiState.result = result;
         uiState.percent = 100;
-        efbEmailTestSetSmtpState(false);
         efbEmailTestShow(uiState);
         efbEmailTestFinishButton(button, buttonHtml);
         return;
@@ -3261,7 +3260,6 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         uiState.result = result;
         uiState.message = result.message || efbEmailTestText('emailOnItsWay', 'Email is on its way — still waiting for delivery confirmation.');
         uiState.percent = 100;
-        efbEmailTestSetSmtpState(false);
         efbEmailTestShow(uiState);
         alert_message_efb(efb_var.text.alert, uiState.message, 18, 'warning');
         efbEmailTestFinishButton(button, buttonHtml);
@@ -3274,7 +3272,6 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         uiState.message = result.message || efbEmailTestText('emailNeverArrived', 'No email arrived during the test window. Your server may not be able to send emails.');
         uiState.result = result;
         uiState.percent = 100;
-        efbEmailTestSetSmtpState(false);
         efbEmailTestShow(uiState);
         efbEmailTestFinishButton(button, buttonHtml);
         return;
@@ -3288,7 +3285,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         uiState.result = result;
         uiState.message = result.message || '';
         uiState.percent = 88;
-        efbEmailTestSetSmtpState(!!result.can_send_email);
+        if (result.can_send_email) efbEmailTestSetSmtpState(true);
         efbEmailTestShow(uiState);
         alert_message_efb(result.can_send_email ? efb_var.text.done : efb_var.text.alert, result.message || '', 12, result.can_send_email ? 'success' : 'warning');
         if (result.full_report_pending) {
@@ -3309,7 +3306,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         uiState.result = result;
         uiState.message = result.message || '';
         uiState.percent = 100;
-        efbEmailTestSetSmtpState(!!result.can_send_email);
+        if (result.can_send_email) efbEmailTestSetSmtpState(true);
         efbEmailTestShow(uiState);
         efbEmailTestFinishButton(button, buttonHtml);
         return;
@@ -3405,7 +3402,6 @@ function clickToCheckEmailServer() {
         uiState.test = payload.test || null;
         uiState.percent = 100;
         efbEmailTestShow(uiState);
-        efbEmailTestSetSmtpState(false);
         alert_message_efb(efb_var.text.alert, uiState.message, 30, 'warning');
         efbEmailTestFinishButton(button, buttonHtml);
       }

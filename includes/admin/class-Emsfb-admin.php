@@ -946,25 +946,14 @@ class Admin {
 
                   $m[$key] = str_replace('/' , '@efb@', $v);
             }else if($key == 'smtp'){
-
-                function result_ok() {
-                    return [
-                        'status' => 'ok_set_smtp',
-                        'message' => [
-                            'title' => 'configured',
-                            'description' => 'user configured email settings',
-                            'id' => 'email_settings_configured'
-                        ]
-                    ];
-                }
                 if(isset($value) && in_array($value,[1,true,'true','1']) ){
 
                   $check =  get_option('emsfb_email_status',false);
                     if($check==false || $check==null){
-                         update_option('emsfb_email_status', result_ok());
-                    }else if($check['status']!='ok_set_smtp' || $check['status']!='ok'){
+                         update_option('emsfb_email_status', $this->build_email_ready_status_efb());
+                    }else if(!is_array($check) || !isset($check['status']) || !in_array($check['status'], ['ok_set_smtp', 'ok'], true)){
 
-                            update_option('emsfb_email_status', result_ok());
+                            update_option('emsfb_email_status', $this->build_email_ready_status_efb());
                     }
 
                 }
@@ -1143,10 +1132,24 @@ class Admin {
     private function start_email_tester_efb($efbFunction, $ac) {
         $admin_email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
         if (!is_email($admin_email)) {
+            $validation_error = [
+                'status' => 'error',
+                'message' => [
+                    'title' => esc_html__('Invalid email address', 'easy-form-builder'),
+                    'description' => esc_html__('Please enter a valid email address.', 'easy-form-builder'),
+                    'id' => 'invalid_admin_email'
+                ],
+                'details' => [
+                    'stage' => 'validation',
+                    'test_timestamp' => current_time('mysql', true),
+                    'reason' => 'invalid_admin_email',
+                ]
+            ];
             $this->email_tester_log_efb('start_validation_failed', [
                 'reason' => 'invalid_admin_email',
                 'admin_email' => $admin_email,
             ]);
+            update_option('emsfb_email_status', $validation_error);
             return [
                 'success' => false,
                 'm' => esc_html__('Please enter a valid email address.', 'easy-form-builder'),
@@ -1159,11 +1162,25 @@ class Admin {
             $sender_email = $this->get_default_sender_email_efb($ac);
         }
         if (!is_email($sender_email)) {
+            $validation_error = [
+                'status' => 'error',
+                'message' => [
+                    'title' => esc_html__('Invalid sender email', 'easy-form-builder'),
+                    'description' => esc_html__('The sender email address is not valid.', 'easy-form-builder'),
+                    'id' => 'invalid_sender_email'
+                ],
+                'details' => [
+                    'stage' => 'validation',
+                    'test_timestamp' => current_time('mysql', true),
+                    'reason' => 'invalid_sender_email',
+                ]
+            ];
             $this->email_tester_log_efb('start_validation_failed', [
                 'reason' => 'invalid_sender_email',
                 'admin_email' => $admin_email,
                 'sender_email' => $sender_email,
             ]);
+            update_option('emsfb_email_status', $validation_error);
             return [
                 'success' => false,
                 'm' => esc_html__('The sender email address is not valid.', 'easy-form-builder'),
@@ -1173,6 +1190,19 @@ class Admin {
 
         $start = $this->request_email_tester_start_efb($sender_email, $admin_email, $efbFunction);
         if (empty($start['success'])) {
+            $api_error = [
+                'status' => 'error',
+                'message' => [
+                    'title' => esc_html__('Email tester service error', 'easy-form-builder'),
+                    'description' => isset($start['m']) ? sanitize_text_field($start['m']) : esc_html__('Could not start email test.', 'easy-form-builder'),
+                    'id' => 'service_start_error'
+                ],
+                'details' => [
+                    'stage' => isset($start['stage']) ? $start['stage'] : '',
+                    'test_timestamp' => current_time('mysql', true),
+                    'code' => isset($start['code']) ? $start['code'] : null,
+                ]
+            ];
             $this->email_tester_log_efb('start_failed_before_mail', [
                 'run_id' => $this->email_tester_current_run_id_efb(),
                 'stage' => isset($start['stage']) ? $start['stage'] : '',
@@ -1180,6 +1210,7 @@ class Admin {
                 'code' => isset($start['code']) ? $start['code'] : null,
                 'test' => isset($start['test']) ? $start['test'] : null,
             ]);
+            update_option('emsfb_email_status', $api_error);
             return $start;
         }
 
@@ -1189,12 +1220,25 @@ class Admin {
         $test_hash = isset($test['test_hash']) ? sanitize_text_field($test['test_hash']) : '';
 
         if (!is_email($recipient_email) || empty($email_subject) || !$this->is_valid_email_test_hash_efb($test_hash)) {
+            $payload_error = [
+                'status' => 'error',
+                'message' => [
+                    'title' => esc_html__('Invalid service response', 'easy-form-builder'),
+                    'description' => esc_html__('The email tester service returned an invalid response.', 'easy-form-builder'),
+                    'id' => 'invalid_service_payload'
+                ],
+                'details' => [
+                    'stage' => 'start',
+                    'test_timestamp' => current_time('mysql', true),
+                ]
+            ];
             $this->email_tester_log_efb('start_invalid_service_payload', [
                 'recipient_email' => $recipient_email,
                 'email_subject' => $email_subject,
                 'test_hash' => $test_hash,
                 'test' => $test,
             ]);
+            update_option('emsfb_email_status', $payload_error);
             return [
                 'success' => false,
                 'm' => esc_html__('The email tester service returned an invalid response.', 'easy-form-builder'),
@@ -1278,6 +1322,22 @@ class Admin {
             ],
         ]);
         if (!$sent) {
+            $failure_status = [
+                'status' => 'error',
+                'message' => [
+                    'title' => esc_html__('Email delivery failed', 'easy-form-builder'),
+                    'description' => esc_html__('WordPress could not send the test email. Please check your hosting mail settings or SMTP configuration.', 'easy-form-builder'),
+                    'id' => 'mail_function_failed'
+                ],
+                'details' => [
+                    'stage' => 'send',
+                    'test_timestamp' => current_time('mysql', true),
+                    'error' => $last_mail_error,
+                ]
+            ];
+            $this->email_tester_log_efb('wp_mail_failed_save_status', $failure_status);
+            update_option('emsfb_email_status', $failure_status);
+
             return [
                 'success' => false,
                 'm' => esc_html__('WordPress could not send the test email. Please check your hosting mail settings or SMTP configuration.', 'easy-form-builder'),
@@ -1295,6 +1355,23 @@ class Admin {
             'check_after_seconds' => isset($test['check_after_seconds']) ? $test['check_after_seconds'] : null,
             'expires_in_seconds' => isset($test['expires_in_seconds']) ? $test['expires_in_seconds'] : null,
         ]);
+
+        $pending_status = [
+            'status' => 'warning',
+            'message' => [
+                'title' => esc_html__('Email test is waiting for delivery confirmation', 'easy-form-builder'),
+                'description' => esc_html__('WordPress sent the test email. Easy Form Builder is waiting for the delivery result before marking email as ready.', 'easy-form-builder'),
+                'id' => 'email_test_pending'
+            ],
+            'details' => [
+                'stage' => 'sent',
+                'test_timestamp' => current_time('mysql', true),
+                'test_hash' => $test_hash,
+                'recipient_email' => $recipient_email,
+                'sender_email' => $sender_email,
+            ]
+        ];
+        update_option('emsfb_email_status', $pending_status);
 
         return [
             'success' => true,
@@ -1384,10 +1461,24 @@ class Admin {
 
     private function get_email_tester_result_efb($test_hash, $efbFunction, $ac) {
         if (!$this->is_valid_email_test_hash_efb($test_hash)) {
+            $validation_error = [
+                'status' => 'error',
+                'message' => [
+                    'title' => esc_html__('Invalid test hash', 'easy-form-builder'),
+                    'description' => esc_html__('The email test hash is not valid.', 'easy-form-builder'),
+                    'id' => 'invalid_test_hash'
+                ],
+                'details' => [
+                    'stage' => 'result',
+                    'test_timestamp' => current_time('mysql', true),
+                    'reason' => 'invalid_test_hash',
+                ]
+            ];
             $this->email_tester_log_efb('result_validation_failed', [
                 'reason' => 'invalid_test_hash',
                 'test_hash' => $test_hash,
             ]);
+            update_option('emsfb_email_status', $validation_error);
             return [
                 'success' => false,
                 'm' => esc_html__('The email test hash is not valid.', 'easy-form-builder'),
@@ -1409,12 +1500,26 @@ class Admin {
         ]);
 
         if (is_wp_error($request)) {
+            $request_error = [
+                'status' => 'error',
+                'message' => [
+                    'title' => esc_html__('Service connection error', 'easy-form-builder'),
+                    'description' => $request->get_error_message(),
+                    'id' => 'service_request_error'
+                ],
+                'details' => [
+                    'stage' => 'result',
+                    'test_timestamp' => current_time('mysql', true),
+                    'code' => $request->get_error_code(),
+                ]
+            ];
             $this->email_tester_log_efb('result_request_wp_error', [
                 'run_id' => $this->email_tester_current_run_id_efb(),
                 'test_hash' => $test_hash,
                 'message' => $request->get_error_message(),
                 'code' => $request->get_error_code(),
             ]);
+            update_option('emsfb_email_status', $request_error);
             return [
                 'success' => false,
                 'm' => $request->get_error_message(),
@@ -1433,6 +1538,20 @@ class Admin {
             'raw_body' => is_array($data) ? null : $raw_body,
         ]);
         if (!is_array($data)) {
+            $parse_error = [
+                'status' => 'error',
+                'message' => [
+                    'title' => esc_html__('Invalid service response', 'easy-form-builder'),
+                    'description' => esc_html__('The email tester service returned an invalid JSON response.', 'easy-form-builder'),
+                    'id' => 'invalid_json_response'
+                ],
+                'details' => [
+                    'stage' => 'result',
+                    'test_timestamp' => current_time('mysql', true),
+                    'http_code' => $code,
+                ]
+            ];
+            update_option('emsfb_email_status', $parse_error);
             return [
                 'success' => false,
                 'm' => esc_html__('The email tester service returned an invalid JSON response.', 'easy-form-builder'),
@@ -1453,6 +1572,20 @@ class Admin {
         ]);
 
         if ($code < 200 || $code >= 300) {
+            $http_error = [
+                'status' => 'error',
+                'message' => [
+                    'title' => esc_html__('Service error', 'easy-form-builder'),
+                    'description' => isset($data['message']) ? sanitize_text_field($data['message']) : esc_html__('The email tester service could not return the result.', 'easy-form-builder'),
+                    'id' => 'service_http_error'
+                ],
+                'details' => [
+                    'stage' => 'result',
+                    'test_timestamp' => current_time('mysql', true),
+                    'http_code' => $code,
+                ]
+            ];
+            update_option('emsfb_email_status', $http_error);
             return [
                 'success' => false,
                 'm' => isset($data['message']) ? sanitize_text_field($data['message']) : esc_html__('The email tester service could not return the result.', 'easy-form-builder'),
@@ -1462,8 +1595,11 @@ class Admin {
             ];
         }
 
+        // Save test result to emsfb_email_status for all scenarios
+        $this->save_email_tester_result_to_status_efb($data, $efbFunction, $ac);
+
         if (!empty($data['can_send_email'])) {
-            $this->mark_email_server_as_ready_efb($efbFunction, $ac, isset($data['admin_email']) ? sanitize_email($data['admin_email']) : '');
+            $this->mark_email_server_as_ready_efb($efbFunction, $ac, isset($data['admin_email']) ? sanitize_email($data['admin_email']) : '', false);
         }
 
         return [
@@ -1474,7 +1610,75 @@ class Admin {
         ];
     }
 
-    private function mark_email_server_as_ready_efb($efbFunction, $ac, $admin_email = '') {
+    private function save_email_tester_result_to_status_efb($test_result, $efbFunction, $ac) {
+        if (!is_array($test_result)) {
+            return;
+        }
+
+        $status_data = [
+            'status' => 'error',
+            'message' => [
+                'title' => esc_html__('Email test failed', 'easy-form-builder'),
+                'description' => esc_html__('The email server test could not verify email capability.', 'easy-form-builder'),
+                'id' => 'email_test_failed'
+            ],
+            'details' => [
+                'test_timestamp' => current_time('mysql', true),
+                'can_send_email' => !empty($test_result['can_send_email']),
+                'success' => !empty($test_result['success']),
+            ]
+        ];
+
+        if (!empty($test_result['can_send_email'])) {
+            $status_data['status'] = 'ok_set_smtp';
+            $status_data['message'] = [
+                'title' => esc_html__('Email capability verified', 'easy-form-builder'),
+                'description' => esc_html__('Server confirmed ability to send emails.', 'easy-form-builder'),
+                'id' => 'email_settings_configured'
+            ];
+        } else if (isset($test_result['status']) && in_array($test_result['status'], ['pending', 'delayed'], true)) {
+            $status_data['status'] = 'warning';
+            $status_data['message'] = [
+                'title' => esc_html__('Email test is waiting for delivery confirmation', 'easy-form-builder'),
+                'description' => esc_html__('WordPress sent the test email, but delivery has not been confirmed yet.', 'easy-form-builder'),
+                'id' => 'email_test_pending'
+            ];
+        }
+
+        // If there's a delivery failure reason
+        if (!empty($test_result['delivery']['failure_reason'])) {
+            $failure_reason = sanitize_text_field($test_result['delivery']['failure_reason']);
+            $status_data['message']['description'] = sprintf(
+                esc_html__('Email delivery failed: %s', 'easy-form-builder'),
+                $failure_reason
+            );
+            $status_data['details']['failure_reason'] = $failure_reason;
+        }
+
+        // Add analysis stage if available
+        if (!empty($test_result['analysis_stage'])) {
+            $status_data['details']['analysis_stage'] = sanitize_text_field($test_result['analysis_stage']);
+        }
+
+        // Add API response status if available
+        if (!empty($test_result['status'])) {
+            $status_data['details']['api_status'] = sanitize_text_field($test_result['status']);
+        }
+
+        $this->email_tester_log_efb('saving_status_to_option', [
+            'status_data' => $status_data,
+            'test_result' => [
+                'can_send_email' => !empty($test_result['can_send_email']),
+                'success' => !empty($test_result['success']),
+                'status' => isset($test_result['status']) ? $test_result['status'] : '',
+                'analysis_stage' => isset($test_result['analysis_stage']) ? $test_result['analysis_stage'] : '',
+            ]
+        ]);
+
+        update_option('emsfb_email_status', $status_data);
+    }
+
+    private function mark_email_server_as_ready_efb($efbFunction, $ac, $admin_email = '', $update_status = true) {
         if (!is_object($ac)) {
             return;
         }
@@ -1482,7 +1686,18 @@ class Admin {
         if (is_email($admin_email)) {
             $ac->emailSupporter = $admin_email;
         }
-        $ok = [
+        if ($update_status) {
+            update_option('emsfb_email_status', $this->build_email_ready_status_efb());
+        }
+        $setting_email = is_email($admin_email) ? $admin_email : '';
+        if (empty($setting_email) && isset($ac->emailSupporter) && is_email($ac->emailSupporter)) {
+            $setting_email = $ac->emailSupporter;
+        }
+        $efbFunction->set_setting_Emsfb($ac, $setting_email);
+    }
+
+    private function build_email_ready_status_efb() {
+        return [
             'status' => 'ok_set_smtp',
             'message' => [
                 'title' => 'configured',
@@ -1490,12 +1705,6 @@ class Admin {
                 'id' => 'email_settings_configured'
             ]
         ];
-        update_option('emsfb_email_status', $ok);
-        $setting_email = is_email($admin_email) ? $admin_email : '';
-        if (empty($setting_email) && isset($ac->emailSupporter) && is_email($ac->emailSupporter)) {
-            $setting_email = $ac->emailSupporter;
-        }
-        $efbFunction->set_setting_Emsfb($ac, $setting_email);
     }
 
     private function get_default_sender_email_efb($ac) {
@@ -2078,20 +2287,14 @@ class Admin {
 
 function admin_notices_efb () {
              $check = get_option('emsfb_email_status', false);
-            function result_ok ($ok) {
-                   $r['status'] = $ok;
-                   $r['message']['title'] = 'configured';
-                   $r['message']['description'] = 'user configured email settings';
-                   $r['message']['id'] = 'email_settings_configured';
-                   return $r;
-            }
             $efbFunction = get_efbFunction();
             $settings= get_setting_Emsfb('decoded');
 
             if(is_array($check)){
-                    if($check['status'] === 'ok_set_smtp') {
+                    $email_status = isset($check['status']) ? $check['status'] : '';
+                    if($email_status === 'ok_set_smtp') {
                         return;
-                    }else if ($check['status'] === 'ok' ) {
+                    }else if ($email_status === 'ok' ) {
                         if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
                             $settings->smtp = true;
                             $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
@@ -2099,15 +2302,20 @@ function admin_notices_efb () {
                         }
 
                         return;
-                    }else if (($check['status'] !== 'ok' || $check['status'] !== 'ok_set_smtp') && (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true))) {
-                            update_option('emsfb_email_status',  result_ok('ok_set_smtp'));
-                            return;
                     }
             }else{
                 if (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true)) {
-                       update_option('emsfb_email_status', result_ok('ok_set_smtp'));
+                       update_option('emsfb_email_status', $this->build_email_ready_status_efb());
                        return;
                 }else{
+                     $r = get_option('emsfb_email_status', false);
+                     if($r===false){
+                        // یک پیام نوتیس نمایش دهد که برای دریافت ایمیل نوتی تنظیمات ایمیل را از این روش انجام دهید
+                        //+ email test
+                     }
+                }
+                // نمایش دهد تنظیمات ایمیل انجام نشده است
+/*                 else{
                     require_once (EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-requirement.php');
                     $efbRequirement = new CheckRequirementEmsfb();
                     $efbRequirement->run_and_save_efb();
@@ -2120,7 +2328,7 @@ function admin_notices_efb () {
                         }
                         return;
                     }
-                }
+                } */
 
             }
             $email_notifi = sprintf(
@@ -2157,6 +2365,46 @@ function admin_notices_efb () {
                 'mail_function_failed' => [
                     'title' => esc_html__('Test email could not be sent.', 'easy-form-builder'),
                     'description' => esc_html__('It seems that your WordPress site could not send a test email. To manually test your email system, go to Easy Form Builder > Settings > Email Settings tab and click the "Check Email Server" button.', 'easy-form-builder') . $warning,
+                ],
+                'invalid_admin_email' => [
+                    'title' => esc_html__('Invalid email address.', 'easy-form-builder'),
+                    'description' => esc_html__('Please enter a valid admin email address before testing email delivery.', 'easy-form-builder'),
+                ],
+                'invalid_sender_email' => [
+                    'title' => esc_html__('Invalid sender email.', 'easy-form-builder'),
+                    'description' => esc_html__('The sender email address is not valid. Please check your email settings.', 'easy-form-builder'),
+                ],
+                'service_start_error' => [
+                    'title' => esc_html__('Email tester service error.', 'easy-form-builder'),
+                    'description' => esc_html__('Easy Form Builder could not start the email delivery test. Please try again later.', 'easy-form-builder'),
+                ],
+                'invalid_service_payload' => [
+                    'title' => esc_html__('Invalid email tester response.', 'easy-form-builder'),
+                    'description' => esc_html__('The email tester service returned an invalid response.', 'easy-form-builder'),
+                ],
+                'invalid_test_hash' => [
+                    'title' => esc_html__('Invalid email test.', 'easy-form-builder'),
+                    'description' => esc_html__('The email test identifier is invalid. Please start a new test.', 'easy-form-builder'),
+                ],
+                'service_request_error' => [
+                    'title' => esc_html__('Email tester connection error.', 'easy-form-builder'),
+                    'description' => esc_html__('Easy Form Builder could not connect to the email tester service.', 'easy-form-builder'),
+                ],
+                'invalid_json_response' => [
+                    'title' => esc_html__('Invalid email tester response.', 'easy-form-builder'),
+                    'description' => esc_html__('The email tester service returned an invalid JSON response.', 'easy-form-builder'),
+                ],
+                'service_http_error' => [
+                    'title' => esc_html__('Email tester service error.', 'easy-form-builder'),
+                    'description' => esc_html__('The email tester service could not return the result.', 'easy-form-builder'),
+                ],
+                'email_test_failed' => [
+                    'title' => esc_html__('Email delivery test failed.', 'easy-form-builder'),
+                    'description' => esc_html__('The email server test could not verify email capability.', 'easy-form-builder') . $warning,
+                ],
+                'email_test_pending' => [
+                    'title' => esc_html__('Email delivery test is pending.', 'easy-form-builder'),
+                    'description' => esc_html__('WordPress sent the test email, but delivery has not been confirmed yet.', 'easy-form-builder'),
                 ],
             ];
 
