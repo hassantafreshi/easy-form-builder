@@ -2310,25 +2310,53 @@ function admin_notices_efb () {
                 }else{
                      $r = get_option('emsfb_email_status', false);
                      if($r===false){
-                        // یک پیام نوتیس نمایش دهد که برای دریافت ایمیل نوتی تنظیمات ایمیل را از این روش انجام دهید
-                        //+ email test
+                        $logo_url   = EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.png';
+                        $panel_url  = admin_url('admin.php?page=Emsfb');
+                        ob_start();
+                        ?>
+                        <div id="notice-email-setup-efb" class="notice notice-info efb-notice-email-setup notice-alt efb" style="display:flex;align-items:flex-start;gap:14px;padding:14px 20px;position:relative;z-index:1000;">
+                            <button type="button" id="efb-close-setup-notice-btn"
+                                style="position:absolute;top:8px;right:8px;background:transparent;border:none;font-size:20px;cursor:pointer;line-height:1;"
+                                aria-label="<?php esc_attr_e('Close', 'easy-form-builder'); ?>">&times;</button>
+                            <img src="<?php echo esc_url($logo_url); ?>" alt="<?php esc_attr_e('Easy Form Builder', 'easy-form-builder'); ?>" style="width:46px;height:auto;margin-top:2px;flex-shrink:0;" />
+                            <div style="flex:1;min-width:0;">
+                                <p style="margin:0 0 6px 0;font-size:14px;">
+                                    <strong><?php esc_html_e('Easy Form Builder', 'easy-form-builder'); ?></strong>
+                                    &mdash;
+                                    <?php esc_html_e('Enable the Email Notification Feature', 'easy-form-builder'); ?>
+                                </p>
+                                <p style="margin:0 0 8px 0;color:#555;"><?php esc_html_e('To receive email notifications from your forms, verify your email server by following these steps:', 'easy-form-builder'); ?></p>
+                                <ol style="margin:0 0 10px 0;padding-left:22px;line-height:2;color:#333;">
+                                    <li><?php printf( wp_kses( __('Go to the <a href="%s" style="font-weight:600;">Easy Form Builder Panel</a>', 'easy-form-builder'), ['a' => ['href' => [], 'style' => []]] ), esc_url($panel_url) ); ?></li>
+                                    <li><?php esc_html_e('Click Settings from the top menu', 'easy-form-builder'); ?></li>
+                                    <li><?php esc_html_e('Select the Email Settings tab', 'easy-form-builder'); ?></li>
+                                    <li><?php esc_html_e('Click "Check Email Server" and wait for the test to finish', 'easy-form-builder'); ?></li>
+                                    <li><?php esc_html_e('If the score is above 70 — enable the "This site can send emails" switch and save', 'easy-form-builder'); ?></li>
+                                    <li><?php esc_html_e('Otherwise, follow the instructions shown in the test results', 'easy-form-builder'); ?></li>
+                                </ol>
+                            </div>
+                        </div>
+                        <script>
+                        (function () {
+                            var n = document.getElementById('notice-email-setup-efb');
+                            if (window.localStorage.getItem('efb_email_setup_notice_dismissed') === 'true') {
+                                if (n) n.style.display = 'none';
+                            }
+                            var btn = document.getElementById('efb-close-setup-notice-btn');
+                            if (btn && n) {
+                                btn.addEventListener('click', function () {
+                                    n.style.display = 'none';
+                                    window.localStorage.setItem('efb_email_setup_notice_dismissed', 'true');
+                                });
+                            }
+                        })();
+                        </script>
+                        <?php
+                        echo ob_get_clean();
+                        return;
                      }
                 }
-                // نمایش دهد تنظیمات ایمیل انجام نشده است
-/*                 else{
-                    require_once (EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-requirement.php');
-                    $efbRequirement = new CheckRequirementEmsfb();
-                    $efbRequirement->run_and_save_efb();
-                    $check = get_option('emsfb_email_status', false);
-                    if(is_array($check)  && isset($check['status']) && ($check['status'] == 'ok_set_smtp' || $check['status'] == 'ok')) {
-                        if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
-                            $settings->smtp = true;
-                            $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
-                            $efbFunction->set_setting_Emsfb($settings, $email);
-                        }
-                        return;
-                    }
-                } */
+
 
             }
             $email_notifi = sprintf(
