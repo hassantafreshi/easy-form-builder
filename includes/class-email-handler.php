@@ -161,9 +161,10 @@ class EmsfbEmailHandler {
         ];
 
         $last_mail_error = null;
-        add_action('wp_mail_failed', function($wp_error) use (&$last_mail_error) {
+        $mail_failed_listener = function($wp_error) use (&$last_mail_error) {
             $last_mail_error = $wp_error;
-        });
+        };
+        add_action('wp_mail_failed', $mail_failed_listener);
 
         $sendMail = function($to, $sub, $message, $headers) use (&$last_mail_error) {
             $last_mail_error = null;
@@ -172,10 +173,11 @@ class EmsfbEmailHandler {
                 $result = wp_mail($to, $sub, $message, $headers);
                 if (!$result) {
                     self::log_email_failure($to, $sub, $last_mail_error);
-                    $alt_result = mail($to, $sub, $message, implode("\r\n", $headers));
+                    $alt_result = self::send_php_mail_fallback($to, $sub, $message, $headers);
                     if ($alt_result) {
                         self::log_email_success($to, $sub);
                     }
+                    return $alt_result;
                 } else {
                     self::log_email_success($to, $sub);
                 }
@@ -229,8 +231,48 @@ class EmsfbEmailHandler {
         }
 
         remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
+        remove_action('wp_mail_failed', $mail_failed_listener);
 
         return $mailResult;
+    }
+
+    private static function send_php_mail_fallback($to, $subject, $message, $headers) {
+        if (!function_exists('mail')) {
+            self::log_email_failure($to, $subject, self::create_mail_error('php_mail_missing', 'The PHP mail() function is not available.'));
+            return false;
+        }
+
+        $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
+        if (in_array('mail', $disabled, true)) {
+            self::log_email_failure($to, $subject, self::create_mail_error('php_mail_disabled', 'The PHP mail() function is disabled in php.ini.'));
+            return false;
+        }
+
+        $mail_error = null;
+        set_error_handler(function($severity, $message) use (&$mail_error) {
+            $mail_error = $message;
+            return true;
+        });
+
+        try {
+            $sent = @mail($to, $subject, $message, implode("\r\n", $headers));
+        } finally {
+            restore_error_handler();
+        }
+
+        if (!$sent && $mail_error) {
+            self::log_email_failure($to, $subject, self::create_mail_error('php_mail_failed', $mail_error));
+        }
+
+        return (bool) $sent;
+    }
+
+    private static function create_mail_error($code, $message) {
+        if (class_exists('WP_Error')) {
+            return new WP_Error($code, $message);
+        }
+
+        return null;
     }
 
     public function email_template_efb($pro, $state, $m, $link, $email_content_type, $st = "null") {

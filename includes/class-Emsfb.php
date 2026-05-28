@@ -573,7 +573,7 @@ class Emsfb {
                     'scaptcha' => $decoded->scaptcha ?? false,
                     'dsupfile' => $decoded->dsupfile ?? false,
                     'activeDlBtn' => $decoded->activeDlBtn ?? true,
-                    'paypalPkey' => $decoded->paypalPkey ?? '',
+                    'paypalPKey' => $decoded->paypalPKey ?? '',
                     'addons' => self::get_addons_list_efb($decoded),
 
                     'respPrimary' => $decoded->respPrimary ?? '#3644d2',

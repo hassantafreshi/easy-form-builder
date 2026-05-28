@@ -896,17 +896,18 @@ async function actionSendData_emsFormBuilder(form_id=0) {
           page_id: ajax_object_efm.page_id
         };
       } else if (valj_efb[0].getway=="paypal"){
+        const paypalPayId = efb_var.payId || localStorage.getItem('PayId') || '';
         data = {
           action: "get_form_Emsfb",
           value: JSON.stringify(sendback),
           name: formNameEfb,
           id: form_id,
-          payid: efb_var.payId,
-          valid: recaptcha_emsFormBuilder,
-          type: form_type_emsFormBuilder,
+          payid: paypalPayId,
+          valid: recaptcha_emsFormBuilder_row,
+          type: vj.type,
           payment: 'paypal',
           url:location.href.split('?')[0],
-          sid:efb_var.sid,
+          sid:vj.sid ,
           page_id: ajax_object_efm.page_id
         };
       }

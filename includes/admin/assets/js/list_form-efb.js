@@ -1202,7 +1202,7 @@ function fun_show_setting__emsFormBuilder() {
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
   let msg_email = efb_var.text.mlntip.replace('%1$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="EmailSpam" >`).replace('%2$s', '</a>').replace('%3$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="support" >`).replace('%4$s', '</a>');
   const is_pro = efb_var.pro == true || efb_var.pro == "true" ? true : false;
-  const proChckEvent =is_pro ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
+  const proChckEvent = !is_pro ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` : '';
   const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.stripe);
   const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
