@@ -366,9 +366,10 @@ class Admin {
         $vwp = get_bloginfo('version');
         $vwp = substr($vwp,0,3);
         $vefb = EMSFB_PLUGIN_VERSION;
-        $domain =  get_option('emsfb_dev_mode', '0') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
+        $admin_test = get_option('EMSFB_team_test', '0') === '1';
+		$domain =  $admin_test ? 'demo.whitestudio.team' : 'whitestudio.team';
         $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
-        if (get_locale() == 'fa_IR' && false) {
+        if (get_locale() == 'fa_IR') {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
         }
 

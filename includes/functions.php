@@ -2081,12 +2081,13 @@ public function addon_add_efb($value) {
         $vwp = get_bloginfo('version');
 		$vwp = substr($vwp,0,3);
 		$vefb = EMSFB_PLUGIN_VERSION;
-		$domain =  get_option('emsfb_dev_mode', '0') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
-        $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
-        $name_space = 'emsfb_addon_' . $value;
-        if (get_locale() == 'fa_IR' && false) {
-            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
+        $admin_test = get_option('EMSFB_team_test', '0') === '1';
+		$domain =  $admin_test ? 'demo.whitestudio.team' : 'whitestudio.team';
+        $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+        if (get_locale() == 'fa_IR') {
+            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
         }
+		$name_space = 'emsfb_addon_' . $value;
 		delete_option($name_space);
 
         $max_attempts = 2;

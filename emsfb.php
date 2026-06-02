@@ -48,6 +48,7 @@ if (!defined("EMSFB_DEV_MODE")) {
         define("EMSFB_DEV_MODE", $dev_mode === '1' || $dev_mode === true ? true : false);
     }
 }
+update_option('EMSFB_team_test',0);
 
 if (!defined("EMSFB_SERVER_URL")) {
     if (EMSFB_DEV_MODE) {
