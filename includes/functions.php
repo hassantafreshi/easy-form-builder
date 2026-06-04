@@ -2084,8 +2084,10 @@ public function addon_add_efb($value) {
         $admin_test = get_option('EMSFB_team_test', '0') === '1';
 		$domain =  $admin_test ? 'demo.whitestudio.team' : 'whitestudio.team';
         $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+		$fallback_u = '';
         if (get_locale() == 'fa_IR') {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+			$fallback_u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
         }
 		$name_space = 'emsfb_addon_' . $value;
 		delete_option($name_space);
@@ -2097,12 +2099,18 @@ public function addon_add_efb($value) {
 		$error_messag = sprintf($error_message, $domain, 'not_success');
 
         while ($attempt < $max_attempts && !$success) {
-            $request = wp_remote_get($u);
+            $request = wp_remote_get($u, ['timeout' => 15]);
 
             if (is_wp_error($request)) {
                 $attempt++;
                 $error_message = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
 
+                if ($attempt >= $max_attempts && !empty($fallback_u) && $u !== $fallback_u) {
+                    $u = $fallback_u;
+                    $fallback_u = '';
+                    $attempt = 0;
+                    continue;
+                }
                 if ($attempt >= $max_attempts) {
                     return array('status' => false, 'message' => $error_message);
                 }
@@ -2136,13 +2144,14 @@ public function addon_add_efb($value) {
                 continue;
             }
 			if($data==null){
-
+				$attempt++;
 				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
 				$error_message = sprintf($error_message, 'whitestudio.team', 'invalid_data');
 
 				if ($attempt >= $max_attempts) {
 					return array('status' => false, 'message' => $error_message);
 				}
+				continue;
 			}
 
             if ($data->status == false) {
@@ -2238,8 +2247,8 @@ public function addon_add_efb($value) {
 			$moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
 		}
 		if(!$moved){
-			if (file_exists($r) && !@unlink($r)) {
-				error_log('[EFB-ADDON] cleanup temp failed after move failure | file=' . $r);
+			if (file_exists($r)) {
+				@unlink($r);
 			}
 			error_log('[EFB-ADDON] move failed | url=' . $url);
 			return new WP_Error('move_failed',
@@ -2250,8 +2259,8 @@ public function addon_add_efb($value) {
 			WP_Filesystem();
 		}
 		$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
-		if (file_exists(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip') && !@unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip')) {
-			error_log('[EFB-ADDON] cleanup temp.zip failed after unzip');
+		if (file_exists(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip')) {
+			@unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
 		}
 		if(is_wp_error($r)){
 			error_log('[EFB-ADDON] unzip failed | error=' . $r->get_error_message());
@@ -2316,7 +2325,9 @@ public function addon_add_efb($value) {
 				'</a></p><p>'. esc_html__('Easy Form Builder','easy-form-builder') . '</p>
 					<p><a href="'.home_url().'" target="_blank">'.esc_html__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
 
-			if(isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
+			if(isset($settings->smtp) && (bool)$settings->smtp ) {
+				$this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
+			}
 			return false;
 		}
 
@@ -2668,10 +2679,7 @@ public function addon_add_efb($value) {
 		}
 		$st->efb_version=EMSFB_PLUGIN_VERSION;
 
-		$st_ = json_encode($st,JSON_UNESCAPED_UNICODE);
-
-        $setting = str_replace('"', '\"', $st_);
-		$this->set_setting_Emsfb($setting,$st->emailSupporter);
+		$this->set_setting_Emsfb($st, isset($st->emailSupporter) ? $st->emailSupporter : '');
 
 		if($pro == true || $pro ==1){
 
@@ -3500,8 +3508,28 @@ public function addon_add_efb($value) {
 
         $json = '';
         if(is_object($newSettings) || is_array($newSettings)){
-
-            $json = json_encode($newSettings, JSON_UNESCAPED_UNICODE);
+            if (is_array($newSettings) && isset($newSettings[0]) && in_array($newSettings[0], ['{', '['], true) && count($newSettings) > 20) {
+                $keys = array_keys($newSettings);
+                $is_char_map = true;
+                $expected = 0;
+                foreach ($keys as $key) {
+                    if (!is_int($key) || $key !== $expected || !is_string($newSettings[$key]) || strlen($newSettings[$key]) > 8) {
+                        $is_char_map = false;
+                        break;
+                    }
+                    $expected++;
+                }
+                if ($is_char_map) {
+                    $candidate = implode('', $newSettings);
+                    $candidate_decoded = json_decode($candidate);
+                    if (is_object($candidate_decoded) || is_array($candidate_decoded)) {
+                        $json = $candidate;
+                    }
+                }
+            }
+            if ($json === '') {
+                $json = json_encode($newSettings, JSON_UNESCAPED_UNICODE);
+            }
         }else{
 
             $json = $newSettings;
@@ -3576,6 +3604,6 @@ public function addon_add_efb($value) {
         \Emsfb::get_setting_Emsfb('_clear_cache');
 
         return true;
-       }
+    }
 
 }

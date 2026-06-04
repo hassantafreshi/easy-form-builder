@@ -28,6 +28,33 @@ function deepFreeze_efb_admin(obj) {
   return Object.freeze(obj);
 }
 
+function fun_default_addons_efb_admin() {
+  return [
+    {id:7, name:'AdnSS', title:'smsTAddon', desc:'smsDAddon', icon:'bi-chat-left-text', link:'', download:true, pro:true, state:true, tag:'form sms notification integrate', version:0.1, v_required:3.7, package:1},
+    {id:1, name:'AdnSPF', title:'stripeTAddon', desc:'stripeDAddon', icon:'bi-stripe', link:'', download:true, pro:true, state:true, tag:'pay payment', version:0.1, v_required:3.4, package:1},
+    {id:3, name:'AdnPPF', title:'persiaPayTAddon', desc:'persiaPayDAddon', icon:'bi-credit-card-2-front', link:'', download:true, pro:true, state:true, tag:'pay payment persia form', version:0.1, v_required:3.4, package:1},
+    {id:4, name:'AdnATC', title:'trackCTAddon', desc:'trackCDAddon', icon:'bi-pentagon', link:'', download:true, pro:true, state:false, tag:'form tracking track', version:0.0, v_required:10, package:1},
+    {id:5, name:'AdnPDP', title:'datePTAddon', desc:'datePDAddon', icon:'bi-calendar', link:'', download:true, pro:true, state:true, tag:'date form persia', version:0.1, v_required:3.6, package:1},
+    {id:6, name:'AdnADP', title:'dateATAddon', desc:'dateADAddon', icon:'bi-calendar', link:'', download:true, pro:true, state:true, tag:'date form arabic', version:0.1, v_required:3.6, package:1},
+    {id:2, name:'AdnOF', title:'offlineTAddon', desc:'offlineDAddon', icon:'bi-chat-text', link:'', download:true, pro:false, state:true, tag:'offline', version:0.1, v_required:3.4, package:0},
+    {id:9, name:'AdnATF', title:'TAdnAtF', desc:'DAdnAtF', icon:'bi-database-add', link:'', download:true, pro:true, state:true, tag:'data form', version:0.1, v_required:4.0, package:1},
+    {id:8, name:'AdnPAP', title:'payPalTAddon', desc:'payPalDAddon', icon:'bi-paypal', link:'', download:true, pro:true, state:true, tag:'form pay payment', version:0.1, v_required:4.0, package:1},
+    {id:8, name:'AdnTLG', title:'tlgmAddon', desc:'tlgmDAddon', icon:'bi-telegram', link:'', download:true, pro:true, state:true, tag:'form social notification integrate', version:0.1, v_required:4.0, package:1},
+  ];
+}
+
+function fun_get_addons_efb_admin() {
+
+  if (typeof addons_efb !== 'undefined' && Array.isArray(addons_efb)) {
+    return addons_efb;
+  }
+  if (!Array.isArray(window.addons_efb)) {
+    console.log('test fun_default_addons_efb_admin');
+    window.addons_efb = fun_default_addons_efb_admin();
+  }
+  return window.addons_efb;
+}
+
 jQuery(function () {
   const bodyElement = document.getElementsByTagName('body')[0];
   if (bodyElement) {
@@ -48,13 +75,21 @@ jQuery(function () {
 
   }else if(state_check_ws_p==2){
     timeout=500;
+    let addon_wait_attempts_efb = 0;
 
     fun_timeout=()=>{
       setTimeout(() => {
-        if(typeof addons_efb =='undefined'){
+        if(typeof addons_efb =='undefined' || !Array.isArray(addons_efb)){
           timeout +=100
+          addon_wait_attempts_efb += 1;
 
-          fun_timeout();
+          if (addon_wait_attempts_efb < 20) {
+            fun_timeout();
+            return;
+          }
+
+          fun_get_addons_efb_admin();
+          add_addons_emsFormBuilder();
         }else{
           add_addons_emsFormBuilder();}
        }, timeout);
@@ -712,7 +747,8 @@ function add_dasboard_emsFormBuilder() {
 function add_addons_emsFormBuilder() {
 
   let value = `<!-- boxs -->`;
-  for (let i of addons_efb) {
+  const addonsList = fun_get_addons_efb_admin();
+  for (let i of addonsList) {
     let title = i.title;
     let desc = i.desc;
     if(title.trim().split(/\s+/).length === 1) {
@@ -787,7 +823,7 @@ function FunfindCardAddonEFB() {
   const v = document.getElementById('findCardFormEFB').value.toLowerCase();
   document.getElementById('listFormCardsEFB').innerHTML = ''
 
-  for (let row of addons_efb) {
+  for (let row of fun_get_addons_efb_admin()) {
 
     if (row["title"].toLowerCase().includes(v) == true || row["desc"].toLowerCase().includes(v) == true) { cards.push(row); }
   }
