@@ -2863,9 +2863,9 @@
 					}
 					$sub = $texts['onetime'];
 					$cl = 'one';
-					if ($this->valj_efb[0]->paymentmethod != 'charge') {
+					if (isset($this->valj_efb[0]->paymentmethod) && $this->valj_efb[0]->paymentmethod != 'charge') {
 						$n = $this->valj_efb[0]->paymentmethod.'ly';
-						$sub = $texts[$n];
+						$sub = isset($texts[$n]) ? $texts[$n] : $texts['onetime'];
 						$cl = $this->valj_efb[0]->paymentmethod;
 					}
 
@@ -2881,9 +2881,9 @@
 					}
 					$sub = $texts['onetime'];
 					$cl = 'one';
-						if ($this->valj_efb[0]->paymentmethod != 'charge') {
+					if (isset($this->valj_efb[0]->paymentmethod) && $this->valj_efb[0]->paymentmethod != 'charge') {
 						$n = $this->valj_efb[0]->paymentmethod.'ly';
-						$sub = $texts[$n];
+						$sub = isset($texts[$n]) ? $texts[$n] : $texts['onetime'];
 						$cl = $this->valj_efb[0]->paymentmethod;
 					}
 
