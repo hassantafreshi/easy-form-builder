@@ -802,9 +802,19 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 
-					if(strpos($value , '\"logic\":\"1\"') !== false || strpos($value , '"logic":"1"') !== false || strpos($value , '"logic_rules"') !== false){
-						wp_register_script('logic-runtime-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic-runtime-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
-						wp_enqueue_script('logic-runtime-efb');
+					$_efb_logic_addon_active = isset( $rp[1]['addons']['AdnSMF'] ) && (int) $rp[1]['addons']['AdnSMF'] >= 1;
+					$_efb_form_has_logic = strpos($value , '\"logic\":\"1\"') !== false
+						|| strpos($value , '"logic":"1"') !== false
+						|| strpos($value , '"logic_rules"') !== false;
+					if ( $_efb_logic_addon_active && $_efb_form_has_logic ) {
+						wp_register_script(
+							'efb-conditional-logic-public',
+							EMSFB_PLUGIN_URL . 'public/assets/js/conditional-logic-efb.js',
+							array( 'Emsfb-core_js' ),
+							EMSFB_PLUGIN_VERSION,
+							true
+						);
+						wp_enqueue_script( 'efb-conditional-logic-public' );
 					}
 
 				$send=array();
@@ -1693,75 +1703,68 @@ public function check_nonce_permission_efb($request) {
 			$form_fields_array = json_decode($form_structure_json, true);
 			$form_structure_json = null;
 
-			// ── Logic validation: evaluate rules server-side (via AdnSMF addon filter) ─────
-			// Default: empty arrays (no logic) when addon is inactive.
-			$_efb_logic_default = [
-				'hidden_fields'   => [],
-				'shown_fields'    => [],
-				'required_fields' => [],
-				'optional_fields' => [],
-				'disabled_fields' => [],
-			];
-			$efb_logic_result = apply_filters(
-				'efb_logic_evaluate',
-				$_efb_logic_default,
+			// Conditional forms have an independent normalization/required-validation
+			// phase. The default result keeps ordinary forms on the legacy path.
+			$_efb_logic_prepared = apply_filters(
+				'efb_logic_prepare_submission',
+				[
+					'is_conditional' => false,
+					'submitted_values' => $submitted_values,
+					'logic_result' => [],
+				],
 				$form_fields_array,
 				$submitted_values
 			);
 
-			// Apply logic results to form_fields_array so the main validation loop sees the
-			// correct required/disabled state for every field.
-			$_hidden_set   = array_flip( $efb_logic_result['hidden_fields']   ?? [] );
-			$_optional_set = array_flip( $efb_logic_result['optional_fields'] ?? [] );
-			$_required_set = array_flip( $efb_logic_result['required_fields'] ?? [] );
-			$_disabled_set = array_flip( $efb_logic_result['disabled_fields'] ?? [] );
+			if ( ! empty( $_efb_logic_prepared['is_conditional'] ) ) {
+				$submitted_values = isset( $_efb_logic_prepared['submitted_values'] ) && is_array( $_efb_logic_prepared['submitted_values'] )
+					? array_values( $_efb_logic_prepared['submitted_values'] )
+					: [];
+				$efb_logic_result = isset( $_efb_logic_prepared['logic_result'] ) && is_array( $_efb_logic_prepared['logic_result'] )
+					? $_efb_logic_prepared['logic_result']
+					: [];
 
-			foreach ( $form_fields_array as &$_f ) {
-				if ( ! isset( $_f['id_'] ) ) continue;
-				$_fid = $_f['id_'];
-				if ( isset( $_hidden_set[ $_fid ] ) )   { $_f['required'] = false; continue; }
-				if ( isset( $_disabled_set[ $_fid ] ) ) { $_f['disabled'] = 1; continue; }
-				if ( isset( $_required_set[ $_fid ] ) ) { $_f['required'] = true; continue; }
-				if ( isset( $_optional_set[ $_fid ] ) ) { $_f['required'] = false; }
-			}
-			unset( $_f );
+				$_ignored_set = array_flip( $efb_logic_result['ignored_fields'] ?? [] );
+				$_optional_set = array_flip( $efb_logic_result['optional_fields'] ?? [] );
+				$_required_set = array_flip( $efb_logic_result['required_fields'] ?? [] );
+				$_disabled_set = array_flip( $efb_logic_result['disabled_fields'] ?? [] );
+				$_enabled_set = array_flip( $efb_logic_result['enabled_fields'] ?? [] );
 
-			// ── Validate logic consistency: hidden-field data must not be present ──────
-			// Fields hidden by logic rules must arrive with no value.
-			// If a non-empty value is found for such a field the submitted state does not
-			// match the evaluated logic state (frontend race condition or tampering) → reject.
-			if ( ! empty( $efb_logic_result['hidden_fields'] ) ) {
-				$_efb_hidden_ids = array_flip( $efb_logic_result['hidden_fields'] );
-				foreach ( $submitted_values as $_sv ) {
-					$_sv_id = $_sv['id_'] ?? '';
-					if ( $_sv_id === '' || ! isset( $_efb_hidden_ids[ $_sv_id ] ) ) continue;
-					// Non-empty value present for a field that logic says is hidden
-					if ( ( $_sv['value'] ?? '' ) !== '' || ( $_sv['id_ob'] ?? '' ) !== '' ) {
-						$response = [ 'success' => false, 'm' => isset( $this->lanText['pleaseMakeSureAllFields'] ) ? $this->lanText['pleaseMakeSureAllFields'] : 'Please ensure that all fields are filled correctly.' ];
-						wp_send_json_success( $response, 200 );
+				foreach ( $form_fields_array as &$_f ) {
+					if ( ! isset( $_f['id_'] ) ) continue;
+					$_fid = $_f['id_'];
+					if ( isset( $_enabled_set[ $_fid ] ) ) $_f['disabled'] = 0;
+					if ( isset( $_disabled_set[ $_fid ] ) ) $_f['disabled'] = 1;
+					if ( isset( $_ignored_set[ $_fid ] ) ) {
+						$_f['required'] = false;
+						continue;
+					}
+					if ( isset( $_required_set[ $_fid ] ) ) {
+						$_f['required'] = true;
+					} elseif ( isset( $_optional_set[ $_fid ] ) ) {
+						$_f['required'] = false;
 					}
 				}
-			}
+				unset( $_f );
 
-			// ── Server-side required field check (via AdnSMF addon filter) ────────────
-			// Default: valid=true (no check) when addon is inactive.
-			$_req_check = apply_filters(
-				'efb_logic_validate_required',
-				[ 'valid' => true, 'missing_field' => null, 'missing_name' => null ],
-				$form_fields_array,
-				$submitted_values,
-				$efb_logic_result
-			);
-			if ( ! $_req_check['valid'] ) {
-				$_missing_name = $_req_check['missing_name'] ?? '';
-				$_req_msg = isset( $this->lanText['pleaseMakeSureAllFields'] )
-					? $this->lanText['pleaseMakeSureAllFields']
-					: 'Please fill in all required fields.';
-				if ( $_missing_name !== '' && isset( $this->lanText['mnvvXXX_'] ) ) {
-					$_req_msg = str_replace( '%s', '<b>' . esc_html( $_missing_name ) . '</b>', $this->lanText['mnvvXXX_'] );
+				$_req_check = apply_filters(
+					'efb_logic_validate_required',
+					[ 'valid' => true, 'missing_field' => null, 'missing_name' => null ],
+					$form_fields_array,
+					$submitted_values,
+					$efb_logic_result
+				);
+				if ( empty( $_req_check['valid'] ) ) {
+					$_missing_name = $_req_check['missing_name'] ?? '';
+					$_req_msg = isset( $this->lanText['pleaseMakeSureAllFields'] )
+						? $this->lanText['pleaseMakeSureAllFields']
+						: 'Please fill in all required fields.';
+					if ( $_missing_name !== '' && isset( $this->lanText['mnvvXXX_'] ) ) {
+						$_req_msg = str_replace( '%s', '<b>' . esc_html( $_missing_name ) . '</b>', $this->lanText['mnvvXXX_'] );
+					}
+					$response = [ 'success' => false, 'm' => $_req_msg ];
+					wp_send_json_success( $response, 200 );
 				}
-				$response = [ 'success' => false, 'm' => $_req_msg ];
-				wp_send_json_success( $response, 200 );
 			}
 
 			$has_multiple_emails = isset($form_fields_array[0]["email_send_type"]) ? $form_fields_array[0]["email_send_type"] : false;

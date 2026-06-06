@@ -180,7 +180,23 @@
   function saveRules() {
     if (typeof valj_efb === 'undefined' || !valj_efb[0]) return;
     valj_efb[0].logic_rules = JSON.parse(JSON.stringify(rules));
-    valj_efb[0].logic = rules.some(r => r.enabled) ? true : false;
+    valj_efb[0].logic = rules.some(r => r.enabled && isRuleValid(r)) ? true : false;
+  }
+
+  function isRuleValid(rule) {
+    if (!rule || !rule.conditions || !Array.isArray(rule.conditions.items) || !rule.conditions.items.length) return false;
+    if (!Array.isArray(rule.actions) || !rule.actions.length) return false;
+    const conditionsValid = rule.conditions.items.every(cond => {
+      if (!cond || !cond.field_id || !cond.compare) return false;
+      return NO_VALUE_OPERATORS.has(cond.compare) || (cond.value !== undefined && cond.value !== null && String(cond.value).length > 0);
+    });
+    const actionsValid = rule.actions.every(action => {
+      if (!action || !action.type || !action.target) return false;
+      if (action.type === 'show_message') return String(action.value || '').trim().length > 0;
+      if (action.type === 'set_value') return String(action.value || '').length > 0;
+      return true;
+    });
+    return conditionsValid && actionsValid;
   }
 
   /* ────────────────────────────────────────────
@@ -358,6 +374,16 @@
           </div>
         </div>
         <div class="efb-logic-editor-footer">
+          <label class="efb d-flex align-items-center gap-2 mb-0">
+            <span>${_t('priority') || 'Priority'}</span>
+            <input type="number" min="0" step="1" value="${Number(rule.priority || 10)}"
+                   onchange="EFB_Logic.setPriority(this.value)" style="width:5rem">
+          </label>
+          <label class="efb d-flex align-items-center gap-2 mb-0">
+            <input type="checkbox" ${rule.stop_processing ? 'checked' : ''}
+                   onchange="EFB_Logic.setStopProcessing(this.checked)">
+            <span>${efb_var.text.stopProcessing || 'Stop after this rule matches'}</span>
+          </label>
           <button type="button" class="efb-logic-apply-btn" onclick="EFB_Logic.applyRule()">
             ${_t('save')}
           </button>
@@ -543,6 +569,7 @@
         scope: 'field',
         enabled: true,
         priority: 10,
+        stop_processing: false,
         conditions: {
           type: 'group',
           operator: 'AND',
@@ -586,6 +613,16 @@
     renameRule(name) {
       const rule = rules.find(r => r.id === currentRuleId);
       if (rule) rule.name = (typeof sanitize_text_efb === 'function') ? sanitize_text_efb(name) : name;
+    },
+
+    setPriority(value) {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (rule) rule.priority = Math.max(0, Number.parseInt(value, 10) || 0);
+    },
+
+    setStopProcessing(value) {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (rule) rule.stop_processing = Boolean(value);
     },
 
     /* Set condition group operator */
@@ -669,6 +706,13 @@
 
     /* Apply (save & close editor) */
     applyRule() {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (!isRuleValid(rule)) {
+        const message = (efb_var.text && (efb_var.text.fillrequiredfields || efb_var.text.pleaseFillInRequiredFields))
+          || 'Complete all condition and action fields before saving.';
+        if (typeof alert_message_efb === 'function') alert_message_efb(message, '', 6, 'warning');
+        return;
+      }
       saveRules();
       view = 'list';
       currentRuleId = null;

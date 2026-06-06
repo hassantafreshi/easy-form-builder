@@ -3,11 +3,17 @@ let stepsCount;
 let sessionPub_emsFormBuilder = "reciveFromClient"
 
 /**
- * Conditional Logic Engine — fun_statement_logic_efb
- * Evaluates all logic_rules from valj_efb[0] and executes show/hide/require actions.
- * Always loaded as part of core. Overridable by logic-runtime-efb.js (AdnSMF addon).
+ * Conditional logic adapter. The addon-owned public runtime is the only engine
+ * allowed to execute saved rules.
  */
-function fun_statement_logic_efb(triggeredId, triggeredType) {
+function fun_statement_logic_efb(triggeredId, triggeredType, formId) {
+  if (typeof window.efb_logic_runtime !== 'undefined') {
+    return window.efb_logic_runtime.evaluate(formId || infer_form_id_by_field_efb(triggeredId));
+  }
+}
+
+/* Retained only for legacy reference; no public call path invokes this engine. */
+function legacy_statement_logic_efb(triggeredId, triggeredType) {
   console.log('Logic engine triggered by', triggeredId, 'of type', triggeredType);
   if (typeof valj_efb === 'undefined' || !valj_efb[0]) return;
 
@@ -1748,6 +1754,10 @@ document.addEventListener("DOMContentLoaded",async function() {
   }
 
   await createStepsOfPublic();
+  if (typeof window.efb_logic_runtime !== 'undefined' &&
+      typeof window.efb_logic_runtime.initAll === 'function') {
+    window.efb_logic_runtime.initAll();
+  }
   fun_wait_form_load_efb(false,'nfast');
   let captcha = false ;
   valj_efb_new.forEach((valj_efb) => {
@@ -2455,9 +2465,9 @@ async function handle_change_event_efb_v4(el ,form_id=0){
           if(ob.type=="payCheckbox") fun_total_pay_efb(form_id);
           /* sendBack already updated via slice_sback — safe to evaluate logic now */
           if (typeof window.efb_logic_runtime !== 'undefined') {
-            window.efb_logic_runtime.evaluate();
+            window.efb_logic_runtime.evaluate(form_id);
           } else if (typeof fun_statement_logic_efb === 'function') {
-            fun_statement_logic_efb(el.id, el.type);
+            fun_statement_logic_efb(el.id, el.type, form_id);
           }
           return ;
         }
@@ -2607,13 +2617,14 @@ async function handle_change_event_efb_v4(el ,form_id=0){
   }
   updateStepButtonState_efb(form_id);
   /* Re-evaluate conditional logic AFTER sendBack has been updated — covers all field types */
-  if (typeof valj_efb !== 'undefined' && valj_efb[0] &&
-      ((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) ||
-       (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0))) {
+  const logicStructure = get_structure_by_form_id_efb(form_id);
+  if (logicStructure && logicStructure[0] &&
+      ((logicStructure[0].hasOwnProperty('logic') && logicStructure[0].logic) ||
+       (logicStructure[0].hasOwnProperty('logic_rules') && Array.isArray(logicStructure[0].logic_rules) && logicStructure[0].logic_rules.length > 0))) {
     if (typeof window.efb_logic_runtime !== 'undefined') {
-      window.efb_logic_runtime.evaluate();
+      window.efb_logic_runtime.evaluate(form_id);
     } else if (typeof fun_statement_logic_efb === 'function') {
-      fun_statement_logic_efb(el.id, el.type);
+      fun_statement_logic_efb(el.id, el.type, form_id);
     }
   }
 }
@@ -2622,6 +2633,17 @@ async function fun_validation_efb_v4(form_id) {
   var body_efb_v = document.getElementById('body_efb_' + form_id);
   if (body_efb_v) {
     current_s_efb = Number(body_efb_v.dataset.currentstep) || 1;
+  }
+  if (typeof window.efb_logic_runtime !== 'undefined' &&
+      typeof window.efb_logic_runtime.validate === 'function') {
+    const logicValidation = window.efb_logic_runtime.validate(form_id, current_s_efb);
+    if (!logicValidation.valid) {
+      alert_message_efb(efb_var.text.fillrequiredfields, '', 6, 'warning');
+      if (logicValidation.missing_field && typeof smoothy_scroll_postion_efb === 'function') {
+        smoothy_scroll_postion_efb(logicValidation.missing_field);
+      }
+      return false;
+    }
   }
 
   let offsetw = offset_view_efb();

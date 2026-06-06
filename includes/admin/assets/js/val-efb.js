@@ -1778,6 +1778,7 @@ function show_setting_window_efb(idset) {
             </div>
           </div>
         <!-- telegram section end -->` : '<!-- telegram addon not active -->'}
+          ${(efb_var.addons && efb_var.addons.hasOwnProperty('AdnSMF') && Number(efb_var.addons.AdnSMF) >= 1) ? `
           <!-- conditional logic section -->
           <div class="efb d-grid gap-2" id="efb-conlog-btn-wrap">
             <button class="efb btn btn-outline-light mt-3" type="button" onclick="if(typeof EFB_Logic!=='undefined'){EFB_Logic.open()}else{console.error('EFB_Logic not loaded')}">
@@ -1785,7 +1786,7 @@ function show_setting_window_efb(idset) {
               ${(valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) ? '<span class="efb badge bg-primary ms-2">' + valj_efb[0].logic_rules.length + '</span>' : ''}
             </button>
           </div>
-          <!-- conditional logic section end -->
+          <!-- conditional logic section end -->` : '<!-- conditional logic addon not active -->'}
           <div class="efb  d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
             <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}

@@ -516,24 +516,7 @@ class Emsfb {
             $raw = $transient;
         }
 
-        $original_raw = $raw;
         $raw = self::clean_raw_json_efb($raw);
-        if ($raw !== $original_raw && json_decode($raw) !== null) {
-            $cleanJson = json_encode(json_decode($raw), JSON_UNESCAPED_UNICODE);
-            if (!empty($cleanJson)) {
-                update_option('emsfb_settings', $cleanJson);
-                set_transient('emsfb_settings_transient', $cleanJson, 1800);
-                $raw = $cleanJson;
-
-                global $wpdb;
-                $table_name = $wpdb->prefix . "emsfb_setting";
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
-                $latest_id = $wpdb->get_var( "SELECT id FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
-                if ($latest_id) {
-                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $latest_id], ['%s'], ['%d']);
-                }
-            }
-        }
 
         $trimmedEnd = rtrim($raw);
         if (!empty($trimmedEnd) && !preg_match('/[}\]]$/', $trimmedEnd)) {
@@ -590,7 +573,7 @@ class Emsfb {
                     'scaptcha' => $decoded->scaptcha ?? false,
                     'dsupfile' => $decoded->dsupfile ?? false,
                     'activeDlBtn' => $decoded->activeDlBtn ?? true,
-                    'paypalPKey' => $decoded->paypalPKey ?? '',
+                    'paypalPkey' => $decoded->paypalPkey ?? '',
                     'addons' => self::get_addons_list_efb($decoded),
 
                     'respPrimary' => $decoded->respPrimary ?? '#3644d2',
@@ -1069,27 +1052,6 @@ class Emsfb {
             $candidate = html_entity_decode($raw, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             if (json_decode($candidate) !== null) {
                 $raw = $candidate;
-            }
-        }
-
-        $decoded = json_decode($raw, true);
-        if (is_array($decoded) && isset($decoded[0]) && in_array($decoded[0], ['{', '['], true) && count($decoded) > 20) {
-            $keys = array_keys($decoded);
-            $is_char_map = true;
-            $expected = 0;
-            foreach ($keys as $key) {
-                if (!is_int($key) || $key !== $expected || !is_string($decoded[$key]) || strlen($decoded[$key]) > 8) {
-                    $is_char_map = false;
-                    break;
-                }
-                $expected++;
-            }
-            if ($is_char_map) {
-                $candidate = implode('', $decoded);
-                $candidate_decoded = json_decode($candidate);
-                if (is_object($candidate_decoded) || is_array($candidate_decoded)) {
-                    $raw = $candidate;
-                }
             }
         }
 

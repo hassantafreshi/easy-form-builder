@@ -1010,7 +1010,8 @@ class efbFunction {
 			"newbkForm" => $state &&  isset($ac->text->newbkForm)? $ac->text->newbkForm : esc_html__('New Booking Form','easy-form-builder'),
 			"AdnSMF" => $state  &&  isset($ac->text->AdnSMF) ? $ac->text->AdnSMF : esc_html__('Conditional logic Addon','easy-form-builder'),
 			"condATAddon" => $state  &&  isset($ac->text->condATAddon) ? $ac->text->condATAddon : esc_html__('Conditional logic Addon','easy-form-builder'),
-			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : esc_html__('The Conditional Logic Addon enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users’ unique needs.','easy-form-builder'),
+			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : esc_html__("The Conditional Logic Addon enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users' unique needs.", 'easy-form-builder'),
+			"stopProcessing" => $state  &&  isset($ac->text->stopProcessing) ? $ac->text->stopProcessing : esc_html__('Stop after this rule matches','easy-form-builder'),
 
 			"condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : esc_html__('Enable Conditional','easy-form-builder'),
 			"enableCon" => $state  &&  isset($ac->text->enableCon) ? $ac->text->enableCon : esc_html__('Enable Conditional','easy-form-builder'),
@@ -1691,6 +1692,117 @@ class efbFunction {
 			/* translators: Connection error message with HTTP status code. %s is replaced with the error code (e.g. "Code: 500") */
 			"connectionErrorCode" => $state && isset($ac->text->connectionErrorCode) ? $ac->text->connectionErrorCode : esc_html__('Connection error. Please refresh the page and try again. (Code: %s)','easy-form-builder'),
 
+			/* translators: Form template field labels */
+			"fullName" => $state && isset($ac->text->fullName) ? $ac->text->fullName : esc_html__('Full Name','easy-form-builder'),
+			"emailAddress" => $state && isset($ac->text->emailAddress) ? $ac->text->emailAddress : esc_html__('Email Address','easy-form-builder'),
+			"areaCode" => $state && isset($ac->text->areaCode) ? $ac->text->areaCode : esc_html__('Area Code','easy-form-builder'),
+			"city" => $state && isset($ac->text->city) ? $ac->text->city : esc_html__('City','easy-form-builder'),
+			"comment" => $state && isset($ac->text->comment) ? $ac->text->comment : esc_html__('Comment','easy-form-builder'),
+			"personalInformation" => $state && isset($ac->text->personalInformation) ? $ac->text->personalInformation : esc_html__('Personal Information','easy-form-builder'),
+			"streetAddress" => $state && isset($ac->text->streetAddress) ? $ac->text->streetAddress : esc_html__('Street Address','easy-form-builder'),
+			"streetAddressLine2" => $state && isset($ac->text->streetAddressLine2) ? $ac->text->streetAddressLine2 : esc_html__('Street Address Line 2','easy-form-builder'),
+			"stateProvinceLabel" => $state && isset($ac->text->stateProvinceLabel) ? $ac->text->stateProvinceLabel : esc_html__('State / Province','easy-form-builder'),
+			"selectAVehicle" => $state && isset($ac->text->selectAVehicle) ? $ac->text->selectAVehicle : esc_html__('Select a Vehicle','easy-form-builder'),
+			"pickupDate" => $state && isset($ac->text->pickupDate) ? $ac->text->pickupDate : esc_html__('Pickup Date','easy-form-builder'),
+			"pickupAddress" => $state && isset($ac->text->pickupAddress) ? $ac->text->pickupAddress : esc_html__('Pickup Address','easy-form-builder'),
+			"pickupCity" => $state && isset($ac->text->pickupCity) ? $ac->text->pickupCity : esc_html__('Pickup City','easy-form-builder'),
+			"pickupStateProvince" => $state && isset($ac->text->pickupStateProvince) ? $ac->text->pickupStateProvince : esc_html__('Pickup State / Province','easy-form-builder'),
+			"dropoffDate" => $state && isset($ac->text->dropoffDate) ? $ac->text->dropoffDate : esc_html__('Dropoff Date','easy-form-builder'),
+			"dropoffAddress" => $state && isset($ac->text->dropoffAddress) ? $ac->text->dropoffAddress : esc_html__('Dropoff Address','easy-form-builder'),
+			"dropoffCity" => $state && isset($ac->text->dropoffCity) ? $ac->text->dropoffCity : esc_html__('Dropoff City','easy-form-builder'),
+			"dropoffStateProvince" => $state && isset($ac->text->dropoffStateProvince) ? $ac->text->dropoffStateProvince : esc_html__('Dropoff State / Province','easy-form-builder'),
+			"selectADate" => $state && isset($ac->text->selectADate) ? $ac->text->selectADate : esc_html__('Select a Date','easy-form-builder'),
+			"exEmailExample" => $state && isset($ac->text->exEmailExample) ? $ac->text->exEmailExample : esc_html__('ex: example@mail.com','easy-form-builder'),
+			"howCanWeHelpYou" => $state && isset($ac->text->howCanWeHelpYou) ? $ac->text->howCanWeHelpYou : esc_html__('How can we help you?','easy-form-builder'),
+
+			/* translators: Form template option values */
+			"optionNo" => $state && isset($ac->text->optionNo) ? $ac->text->optionNo : esc_html__('No','easy-form-builder'),
+			"optionSomewhat" => $state && isset($ac->text->optionSomewhat) ? $ac->text->optionSomewhat : esc_html__('Somewhat','easy-form-builder'),
+			"optionNotObserved" => $state && isset($ac->text->optionNotObserved) ? $ac->text->optionNotObserved : esc_html__('Not Observed','easy-form-builder'),
+			"optionOther" => $state && isset($ac->text->optionOther) ? $ac->text->optionOther : esc_html__('Other','easy-form-builder'),
+			"optionNone" => $state && isset($ac->text->optionNone) ? $ac->text->optionNone : esc_html__('None','easy-form-builder'),
+			"optionMale" => $state && isset($ac->text->optionMale) ? $ac->text->optionMale : esc_html__('Male','easy-form-builder'),
+			"optionFemale" => $state && isset($ac->text->optionFemale) ? $ac->text->optionFemale : esc_html__('Female','easy-form-builder'),
+			"optionNonBinary" => $state && isset($ac->text->optionNonBinary) ? $ac->text->optionNonBinary : esc_html__('Non-binary','easy-form-builder'),
+			"optionTransgender" => $state && isset($ac->text->optionTransgender) ? $ac->text->optionTransgender : esc_html__('Transgender','easy-form-builder'),
+			"optionIntersex" => $state && isset($ac->text->optionIntersex) ? $ac->text->optionIntersex : esc_html__('Intersex','easy-form-builder'),
+			"optionPreferNotSay" => $state && isset($ac->text->optionPreferNotSay) ? $ac->text->optionPreferNotSay : esc_html__('I prefer not to say','easy-form-builder'),
+			"optionEnglish" => $state && isset($ac->text->optionEnglish) ? $ac->text->optionEnglish : esc_html__('English','easy-form-builder'),
+			"optionFrench" => $state && isset($ac->text->optionFrench) ? $ac->text->optionFrench : esc_html__('French','easy-form-builder'),
+			"optionGerman" => $state && isset($ac->text->optionGerman) ? $ac->text->optionGerman : esc_html__('German','easy-form-builder'),
+			"optionRussian" => $state && isset($ac->text->optionRussian) ? $ac->text->optionRussian : esc_html__('Russian','easy-form-builder'),
+			"optionPortuguese" => $state && isset($ac->text->optionPortuguese) ? $ac->text->optionPortuguese : esc_html__('Portuguese','easy-form-builder'),
+			"optionHindi" => $state && isset($ac->text->optionHindi) ? $ac->text->optionHindi : esc_html__('Hindi','easy-form-builder'),
+			"optionPasta" => $state && isset($ac->text->optionPasta) ? $ac->text->optionPasta : esc_html__('Pasta','easy-form-builder'),
+			"optionPizza" => $state && isset($ac->text->optionPizza) ? $ac->text->optionPizza : esc_html__('Pizza','easy-form-builder'),
+			"optionFishSeafood" => $state && isset($ac->text->optionFishSeafood) ? $ac->text->optionFishSeafood : esc_html__('Fish and seafood','easy-form-builder'),
+			"optionVegetables" => $state && isset($ac->text->optionVegetables) ? $ac->text->optionVegetables : esc_html__('Vegetables','easy-form-builder'),
+			"optionGeneralQuestion" => $state && isset($ac->text->optionGeneralQuestion) ? $ac->text->optionGeneralQuestion : esc_html__('General question','easy-form-builder'),
+			"optionFeatureRequest" => $state && isset($ac->text->optionFeatureRequest) ? $ac->text->optionFeatureRequest : esc_html__('Feature request','easy-form-builder'),
+			"optionBugReport" => $state && isset($ac->text->optionBugReport) ? $ac->text->optionBugReport : esc_html__('Bug report','easy-form-builder'),
+			"optionMyAccount" => $state && isset($ac->text->optionMyAccount) ? $ac->text->optionMyAccount : esc_html__('My account','easy-form-builder'),
+			"optionComments" => $state && isset($ac->text->optionComments) ? $ac->text->optionComments : esc_html__('Comments','easy-form-builder'),
+			"optionQuestions" => $state && isset($ac->text->optionQuestions) ? $ac->text->optionQuestions : esc_html__('Questions','easy-form-builder'),
+			"optionBugReports" => $state && isset($ac->text->optionBugReports) ? $ac->text->optionBugReports : esc_html__('Bug Reports','easy-form-builder'),
+			"optionFeatureRequestT" => $state && isset($ac->text->optionFeatureRequestT) ? $ac->text->optionFeatureRequestT : esc_html__('Feature Request','easy-form-builder'),
+			"optionVegetarian" => $state && isset($ac->text->optionVegetarian) ? $ac->text->optionVegetarian : esc_html__('Vegetarian','easy-form-builder'),
+			"optionVegan" => $state && isset($ac->text->optionVegan) ? $ac->text->optionVegan : esc_html__('Vegan','easy-form-builder'),
+			"optionKosher" => $state && isset($ac->text->optionKosher) ? $ac->text->optionKosher : esc_html__('Kosher','easy-form-builder'),
+			"optionGlutenFree" => $state && isset($ac->text->optionGlutenFree) ? $ac->text->optionGlutenFree : esc_html__('Gluten-free','easy-form-builder'),
+
+			/* translators: Form template vehicle options */
+			"optionLimousine" => $state && isset($ac->text->optionLimousine) ? $ac->text->optionLimousine : esc_html__('Limousine','easy-form-builder'),
+			"optionExecutiveLimousine" => $state && isset($ac->text->optionExecutiveLimousine) ? $ac->text->optionExecutiveLimousine : esc_html__('Executive Limousine','easy-form-builder'),
+			"optionSuvLimousine" => $state && isset($ac->text->optionSuvLimousine) ? $ac->text->optionSuvLimousine : esc_html__('SUV Limousine','easy-form-builder'),
+			"optionCoupe" => $state && isset($ac->text->optionCoupe) ? $ac->text->optionCoupe : esc_html__('COUPE','easy-form-builder'),
+			"optionSportsCar" => $state && isset($ac->text->optionSportsCar) ? $ac->text->optionSportsCar : esc_html__('SPORTS CAR','easy-form-builder'),
+			"optionConvertible" => $state && isset($ac->text->optionConvertible) ? $ac->text->optionConvertible : esc_html__('CONVERTIBLE','easy-form-builder'),
+
+			/* translators: Form template salon service options */
+			"optionCutShape" => $state && isset($ac->text->optionCutShape) ? $ac->text->optionCutShape : esc_html__('Cut - Shape','easy-form-builder'),
+			"optionCurlyCut" => $state && isset($ac->text->optionCurlyCut) ? $ac->text->optionCurlyCut : esc_html__('Curly Cut','easy-form-builder'),
+			"optionHairColor" => $state && isset($ac->text->optionHairColor) ? $ac->text->optionHairColor : esc_html__('Hair Color','easy-form-builder'),
+
+			/* translators: Form template additional field labels */
+			"anySpecialInstructions" => $state && isset($ac->text->anySpecialInstructions) ? $ac->text->anySpecialInstructions : esc_html__('Any special instructions?','easy-form-builder'),
+			"additionalInformation" => $state && isset($ac->text->additionalInformation) ? $ac->text->additionalInformation : esc_html__('Additional Information','easy-form-builder'),
+			"positionApplyingFor" => $state && isset($ac->text->positionApplyingFor) ? $ac->text->positionApplyingFor : esc_html__('Position Applying For','easy-form-builder'),
+			"yourName" => $state && isset($ac->text->yourName) ? $ac->text->yourName : esc_html__('Your Name','easy-form-builder'),
+			"notSure" => $state && isset($ac->text->notSure) ? $ac->text->notSure : esc_html__('Not Sure','easy-form-builder'),
+			"website" => $state && isset($ac->text->website) ? $ac->text->website : esc_html__('Website','easy-form-builder'),
+			"accountingQuestion" => $state && isset($ac->text->accountingQuestion) ? $ac->text->accountingQuestion : esc_html__('Accounting & Sell question','easy-form-builder'),
+			"technicalQuestion" => $state && isset($ac->text->technicalQuestion) ? $ac->text->technicalQuestion : esc_html__('Technical & support question','easy-form-builder'),
+
+			/* translators: Form template salon service options */
+			"optionHighlights" => $state && isset($ac->text->optionHighlights) ? $ac->text->optionHighlights : esc_html__('Highlights','easy-form-builder'),
+			"optionTwistOut" => $state && isset($ac->text->optionTwistOut) ? $ac->text->optionTwistOut : esc_html__('Twist- Out','easy-form-builder'),
+			"optionTrim" => $state && isset($ac->text->optionTrim) ? $ac->text->optionTrim : esc_html__('Trim','easy-form-builder'),
+			"optionTwoStrandTwists" => $state && isset($ac->text->optionTwoStrandTwists) ? $ac->text->optionTwoStrandTwists : esc_html__('Two- Strand Twists','easy-form-builder'),
+			"optionNailPolish" => $state && isset($ac->text->optionNailPolish) ? $ac->text->optionNailPolish : esc_html__('Nail Polish','easy-form-builder'),
+			"optionNailCare" => $state && isset($ac->text->optionNailCare) ? $ac->text->optionNailCare : esc_html__('Nail Care','easy-form-builder'),
+			"optionMakeup" => $state && isset($ac->text->optionMakeup) ? $ac->text->optionMakeup : esc_html__('Make-up','easy-form-builder'),
+			"optionIronCurling" => $state && isset($ac->text->optionIronCurling) ? $ac->text->optionIronCurling : esc_html__('Iron/Curling','easy-form-builder'),
+			"optionTreatments" => $state && isset($ac->text->optionTreatments) ? $ac->text->optionTreatments : esc_html__('Treatments','easy-form-builder'),
+			"optionShampooBlowdry" => $state && isset($ac->text->optionShampooBlowdry) ? $ac->text->optionShampooBlowdry : esc_html__('Shampoo & Blowdry','easy-form-builder'),
+			"optionStraighteningPerming" => $state && isset($ac->text->optionStraighteningPerming) ? $ac->text->optionStraighteningPerming : esc_html__('Straightening and Perming','easy-form-builder'),
+			"optionWashGo" => $state && isset($ac->text->optionWashGo) ? $ac->text->optionWashGo : esc_html__('Wash & Go','easy-form-builder'),
+			"optionWaxing" => $state && isset($ac->text->optionWaxing) ? $ac->text->optionWaxing : esc_html__('Waxing','easy-form-builder'),
+
+			/* translators: Form template graphic design type options */
+			"optionFlyer" => $state && isset($ac->text->optionFlyer) ? $ac->text->optionFlyer : esc_html__('Flyer','easy-form-builder'),
+			"optionBusinessCard" => $state && isset($ac->text->optionBusinessCard) ? $ac->text->optionBusinessCard : esc_html__('Business Card','easy-form-builder'),
+			"optionPostCard" => $state && isset($ac->text->optionPostCard) ? $ac->text->optionPostCard : esc_html__('Post Card','easy-form-builder'),
+			"optionBrochure" => $state && isset($ac->text->optionBrochure) ? $ac->text->optionBrochure : esc_html__('Brochure (trifold)','easy-form-builder'),
+			"optionLogo" => $state && isset($ac->text->optionLogo) ? $ac->text->optionLogo : esc_html__('Logo','easy-form-builder'),
+			"optionBanner" => $state && isset($ac->text->optionBanner) ? $ac->text->optionBanner : esc_html__('Banner','easy-form-builder'),
+
+			/* translators: Form template party food options */
+			"optionMains" => $state && isset($ac->text->optionMains) ? $ac->text->optionMains : esc_html__('Mains','easy-form-builder'),
+			"optionSalad" => $state && isset($ac->text->optionSalad) ? $ac->text->optionSalad : esc_html__('Salad','easy-form-builder'),
+			"optionDessert" => $state && isset($ac->text->optionDessert) ? $ac->text->optionDessert : esc_html__('Dessert','easy-form-builder'),
+			"optionDrinks" => $state && isset($ac->text->optionDrinks) ? $ac->text->optionDrinks : esc_html__('Drinks','easy-form-builder'),
+			"optionSidesAppetizers" => $state && isset($ac->text->optionSidesAppetizers) ? $ac->text->optionSidesAppetizers : esc_html__('Sides/Appetizers','easy-form-builder'),
+
 		];
 
 		$rtrn =[];
@@ -1940,7 +2052,7 @@ class efbFunction {
 					break;
 					case 'logic_rules':
 						if(is_array($v)){
-							$valp[$key][$k] = $this->sanitize_logic_rules($v);
+							$valp[$key][$k] = $this->sanitize_logic_rules($v, $valp);
 						} else {
 							$valp[$key][$k]=sanitize_text_field($v);
 						}
@@ -1959,54 +2071,121 @@ class efbFunction {
 	/**
 	 * Sanitize logic_rules array (new conditional logic data model)
 	 */
-	private function sanitize_logic_rules($rules) {
+	private function sanitize_logic_rules($rules, $form_structure = array()) {
 		if (!is_array($rules)) return array();
+
 		$clean = array();
-		$allowed_operators = array('AND', 'OR');
-		$allowed_compares = array('is','is_not','contains','not_contains','starts_with','ends_with','gt','lt','is_empty','is_not_empty');
+		$valid_fields = array();
+		$valid_steps = array();
+		foreach ($form_structure as $field) {
+			if (!is_array($field) || empty($field['id_'])) continue;
+			$id = sanitize_text_field($field['id_']);
+			if (($field['type'] ?? '') === 'step') {
+				$valid_steps[$id] = true;
+			} elseif (!in_array(($field['type'] ?? ''), array('form', 'option', 'r_matrix', 'buttonNav'), true)) {
+				$valid_fields[$id] = true;
+			}
+		}
+
 		$allowed_action_types = array('show_field','hide_field','set_required','set_optional','enable_field','disable_field','show_step','hide_step','jump_to_step','set_value','clear_value','show_message');
 		$allowed_scopes = array('field','step','notification','confirmation','webhook','pricing');
 
 		foreach ($rules as $rule) {
 			if (!is_array($rule)) continue;
+
 			$r = array();
 			$r['id'] = isset($rule['id']) ? sanitize_text_field($rule['id']) : '';
 			$r['name'] = isset($rule['name']) ? sanitize_text_field($rule['name']) : '';
 			$r['scope'] = isset($rule['scope']) && in_array($rule['scope'], $allowed_scopes, true) ? $rule['scope'] : 'field';
 			$r['enabled'] = isset($rule['enabled']) ? (bool) $rule['enabled'] : true;
-			$r['priority'] = isset($rule['priority']) ? intval($rule['priority']) : 10;
-
-			$r['conditions'] = array('type' => 'group', 'operator' => 'AND', 'items' => array());
-			if (isset($rule['conditions']) && is_array($rule['conditions'])) {
-				$cg = $rule['conditions'];
-				$r['conditions']['operator'] = isset($cg['operator']) && in_array($cg['operator'], $allowed_operators, true) ? $cg['operator'] : 'AND';
-				if (isset($cg['items']) && is_array($cg['items'])) {
-					foreach ($cg['items'] as $item) {
-						if (!is_array($item)) continue;
-						$ci = array();
-						$ci['source'] = 'field';
-						$ci['field_id'] = isset($item['field_id']) ? sanitize_text_field($item['field_id']) : '';
-						$ci['compare'] = isset($item['compare']) && in_array($item['compare'], $allowed_compares, true) ? $item['compare'] : 'is';
-						$ci['value'] = isset($item['value']) ? sanitize_text_field($item['value']) : '';
-						$r['conditions']['items'][] = $ci;
-					}
-				}
-			}
+			$r['priority'] = isset($rule['priority']) ? max(0, min(100000, intval($rule['priority']))) : 10;
+			$r['stop_processing'] = !empty($rule['stop_processing']);
+			$r['conditions'] = $this->sanitize_logic_condition_group(
+				$rule['conditions'] ?? array(),
+				$valid_fields
+			);
 
 			$r['actions'] = array();
 			if (isset($rule['actions']) && is_array($rule['actions'])) {
 				foreach ($rule['actions'] as $act) {
 					if (!is_array($act)) continue;
+
 					$a = array();
 					$a['type'] = isset($act['type']) && in_array($act['type'], $allowed_action_types, true) ? $act['type'] : '';
 					$a['target'] = isset($act['target']) ? sanitize_text_field($act['target']) : '';
-					if (isset($act['value'])) $a['value'] = sanitize_text_field($act['value']);
+					if ($a['type'] === '') continue;
+
+					$is_step_action = in_array($a['type'], array('show_step', 'hide_step', 'jump_to_step'), true);
+					$valid_targets = $is_step_action ? $valid_steps : $valid_fields;
+					if ($a['target'] === '' || !isset($valid_targets[$a['target']])) continue;
+
+					if (isset($act['value'])) {
+						$a['value'] = is_array($act['value'])
+							? array_map('sanitize_text_field', $act['value'])
+							: sanitize_text_field($act['value']);
+					}
+					if ($a['type'] === 'set_value') {
+						$a['value_type'] = isset($act['value_type']) && $act['value_type'] === 'autofill_key'
+							? 'autofill_key'
+							: 'static';
+					}
 					$r['actions'][] = $a;
 				}
 			}
 
 			$clean[] = $r;
 		}
+		return $clean;
+	}
+
+	/**
+	 * Sanitize a nested conditional-logic group.
+	 */
+	private function sanitize_logic_condition_group($group, $valid_fields) {
+		$allowed_compares = array(
+			'is', 'is_not', 'contains', 'not_contains', 'starts_with', 'ends_with',
+			'gt', 'gte', 'lt', 'lte', 'between', 'not_between',
+			'is_empty', 'is_not_empty',
+			'is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt'
+		);
+		$clean = array(
+			'type' => 'group',
+			'operator' => 'AND',
+			'items' => array(),
+		);
+
+		if (!is_array($group)) return $clean;
+		$operator = strtoupper(sanitize_text_field($group['operator'] ?? 'AND'));
+		$clean['operator'] = in_array($operator, array('AND', 'OR'), true) ? $operator : 'AND';
+
+		foreach (($group['items'] ?? array()) as $item) {
+			if (!is_array($item)) continue;
+			if (($item['type'] ?? '') === 'group' || isset($item['items'])) {
+				$clean['items'][] = $this->sanitize_logic_condition_group($item, $valid_fields);
+				continue;
+			}
+
+			$field_id = sanitize_text_field($item['field_id'] ?? '');
+			if ($field_id === '' || !isset($valid_fields[$field_id])) continue;
+
+			$compare = sanitize_text_field($item['compare'] ?? 'is');
+			if (!in_array($compare, $allowed_compares, true)) $compare = 'is';
+			$value = $item['value'] ?? '';
+			if (is_array($value)) {
+				$value = array_map('sanitize_text_field', $value);
+			} else {
+				$value = sanitize_text_field($value);
+			}
+
+			$clean['items'][] = array(
+				'type' => 'condition',
+				'source' => 'field',
+				'field_id' => $field_id,
+				'compare' => $compare,
+				'value' => $value,
+			);
+		}
+
 		return $clean;
 	}
 
