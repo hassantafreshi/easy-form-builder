@@ -605,9 +605,11 @@ class Emsfb {
             default:
 
                 $settings_changed = false;
-                if (!isset($decoded->AdnGoS)) {
-                    $decoded->AdnGoS = 0;
-                    $settings_changed = true;
+                foreach ( array_keys( self::get_addon_labels_efb() ) as $addon_key ) {
+                    if ( ! isset( $decoded->{$addon_key} ) ) {
+                        $decoded->{$addon_key} = 0;
+                        $settings_changed = true;
+                    }
                 }
                 if ($settings_changed) {
                     $updated_json = wp_json_encode($decoded, JSON_UNESCAPED_UNICODE);
@@ -667,29 +669,46 @@ class Emsfb {
         }
     }
 
-    private static function get_addons_list_efb($settings)
-    {
-        $addons = [];
-
-        $addonKeys = [
-            'AdnSS' => 'SMS',
+    private static function get_addon_labels_efb() {
+        return [
+            'AdnSS'  => 'SMS',
             'AdnATF' => 'Auto-Populate',
             'AdnGoS' => 'Google Sheet',
             'AdnTLG' => 'Telegram',
             'AdnPAP' => 'PayPal',
             'AdnSPF' => 'Stripe',
             'AdnPPF' => 'Persia Payment',
-            'AdnOF' => 'offline form',
-
+            'AdnOF'  => 'Offline Forms',
+            'AdnATC' => 'Advanced Tracking Code',
+            'AdnCPF' => 'AdnCPF addons',
+            'AdnESZ' => 'AdnESZ addons',
+            'AdnSE'  => 'Search Entry',
+            'AdnWHS' => 'Webhook',
+            'AdnWSP' => 'WhatsApp',
+            'AdnSMF' => 'Conditional Logic',
+            'AdnPLF' => 'AdnPLF addons',
+            'AdnMSF' => 'AdnMSF addons',
+            'AdnBEF' => 'Booking',
+            'AdnPDP' => 'Persian Date Picker',
+            'AdnADP' => 'َArabic Date Picker',
         ];
+    }
 
-        foreach ($addonKeys as $key => $name) {
-            $optionValue = get_option('emsfb_addon_' . $key, false);
-            if ($optionValue != false && $optionValue != 0) {
+    private static function get_addons_list_efb($settings) {
+        $addons = [];
+
+        foreach ( self::get_addon_labels_efb() as $key => $name ) {
+            $has_setting = is_object( $settings ) && property_exists( $settings, $key );
+            $setting_value = $has_setting ? absint( $settings->{$key} ) : 0;
+            $option_value = get_option( 'emsfb_addon_' . $key, false );
+            $option_active = $option_value !== false && absint( $option_value ) >= 1;
+            $is_active = $has_setting ? $setting_value >= 1 : $option_active;
+
+            if ( $is_active ) {
                 $addons[$key] = [
                     'name' => $name,
                     'active' => true,
-                    'version' => $optionValue,
+                    'version' => $option_active ? $option_value : $setting_value,
                 ];
             }
         }
@@ -1101,6 +1120,7 @@ class Emsfb {
         $defaults->AdnBEF            = '0';
         $defaults->AdnPDP            = '0';
         $defaults->AdnADP            = '0';
+        $defaults->AdnATF            = '0';
         $defaults->AdnGoS            = '0';
         $defaults->AdnTLG            = '0';
         $defaults->phnNo             = '';

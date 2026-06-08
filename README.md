@@ -185,6 +185,8 @@ The most recent documentation for Easy Form Builder can be found at:
 
 [مستندات فرم ساز آسان به زبان فارسی](https://easyformbuilder.ir/documents)
 
+[Developer and internal project documentation](docs/README.md)
+
 
 [Version History and Technical Logs](https://github.com/hassantafreshi/easy-form-builder/wiki/Version-History-with-Technical-Changes)
 
@@ -211,7 +213,7 @@ Thanks goes to these wonderful people
         💡 <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Answering Questions" href="#question">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> <a title="Translation" href="#translation">🌍</a> <a title="Talks" href="#talks">📢</a> <a href="#maintenance" title="Maintenance">🚧</a>
       </td>
       <td align="center">
-        <a href="https://github.com/01mrlast" target="_blank"><img src="https://avatars.githubusercontent.com/u/51836304?v=4" alt="Samson" width="100px;" /><br /><sub><strong>Samson</strong></sub></a><br />
+        <a href="https://github.com/6arshid/" target="_blank"><img src="https://avatars.githubusercontent.com/u/51836304?v=4" alt="Farshid Mahmoudi" width="100px;" /><br /><sub><strong>Farshid</strong></sub></a><br />
         💡 <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Translation" href="#translation">🌍</a> 🐛
       </td>
       <td align="center">

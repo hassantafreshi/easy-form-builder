@@ -70,8 +70,6 @@ if (!defined("EMSFB_IS_FARSI")) {
 
 require 'includes/class-Emsfb.php';
 
-$emsfb = new Emsfb();
-
 register_activation_hook(__FILE__, 'emsfb_schedule_file_access_check');
 
 add_action('emsfb_check_file_access_after_activation', 'emsfb_perform_file_access_check_efb');
@@ -210,17 +208,55 @@ function emsfb_is_addon_install_ready_efb() {
     return $status && $status['status'] === true;
 }
 
-if (!function_exists('get_setting_Emsfb')) {
+if (!function_exists('emsfb_is_addon_active_efb')) {
+    /**
+     * Determine whether an add-on is active in a settings or public payload.
+     *
+     * @param array|object $settings  Add-on settings or a public settings payload.
+     * @param string       $addon_key Add-on identifier, such as AdnSMF.
+     * @return bool
+     */
+    function emsfb_is_addon_active_efb($settings, $addon_key) {
+        $addon = null;
 
+        if (is_array($settings)) {
+            if (isset($settings['addons']) && is_array($settings['addons'])) {
+                $settings = $settings['addons'];
+            }
+            if (array_key_exists($addon_key, $settings)) {
+                $addon = $settings[$addon_key];
+            }
+        } elseif (is_object($settings) && property_exists($settings, $addon_key)) {
+            $addon = $settings->{$addon_key};
+        }
+
+        if (is_array($addon)) {
+            if (array_key_exists('active', $addon)) {
+                return (bool) $addon['active'];
+            }
+            return !empty($addon['version']);
+        }
+
+        if (is_object($addon)) {
+            if (property_exists($addon, 'active')) {
+                return (bool) $addon->active;
+            }
+            return !empty($addon->version);
+        }
+
+        return absint($addon) >= 1;
+    }
+}
+
+if (!function_exists('get_setting_Emsfb')) {
     function get_setting_Emsfb($mode = 'decoded') {
         return Emsfb::get_setting_Emsfb($mode);
     }
+}
 
-    if (!function_exists('get_efbFunction')) {
-
-            function get_efbFunction() {
-                return Emsfb::get_efbFunction();
-            }
+if (!function_exists('get_efbFunction')) {
+    function get_efbFunction() {
+        return Emsfb::get_efbFunction();
     }
 }
 
@@ -229,3 +265,5 @@ if (!function_exists('get_locale_script_chars_efb')) {
         return Emsfb::get_locale_script_chars_efb();
     }
 }
+
+$emsfb = new Emsfb();

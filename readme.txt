@@ -1,5 +1,5 @@
 === Easy Form Builder by WhiteStudio — Drag & Drop Form Builder ===
-Contributors: hassantafreshi, mostafas1990, mrlast, aminkhadivar, presskopp
+Contributors: hassantafreshi, mostafas1990, 6arshid, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, survey form, payment form
 Requires at least: 5.0

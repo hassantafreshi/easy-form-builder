@@ -801,8 +801,7 @@ public function check_nonce_permission_efb($request) {
 						));
 					}
 				}
-
-					$_efb_logic_addon_active = isset( $rp[1]['addons']['AdnSMF'] ) && (int) $rp[1]['addons']['AdnSMF'] >= 1;
+					$_efb_logic_addon_active = emsfb_is_addon_active_efb( $rp[1] ?? [], 'AdnSMF' );
 					$_efb_form_has_logic = strpos($value , '\"logic\":\"1\"') !== false
 						|| strpos($value , '"logic":"1"') !== false
 						|| strpos($value , '"logic_rules"') !== false;
@@ -1762,7 +1761,7 @@ public function check_nonce_permission_efb($request) {
 					if ( $_missing_name !== '' && isset( $this->lanText['mnvvXXX_'] ) ) {
 						$_req_msg = str_replace( '%s', '<b>' . esc_html( $_missing_name ) . '</b>', $this->lanText['mnvvXXX_'] );
 					}
-					$response = [ 'success' => false, 'm' => $_req_msg ];
+					$response = [ 'success' => false, 'm' => $_req_msg, 'field_id' => $_req_check['missing_field'] ?? '' ];
 					wp_send_json_success( $response, 200 );
 				}
 			}
@@ -1808,6 +1807,7 @@ public function check_nonce_permission_efb($request) {
 					wp_send_json_success($response, 200);
 				}
 				$error_message = '';
+				$error_field_id = '';
 				$is_valid = 1;
 				$form_condition = '';
 				if (isset($form_fields_array[0]['booking']) && $form_fields_array[0]['booking'] == 1) $form_condition = 'booking';
@@ -1819,7 +1819,7 @@ public function check_nonce_permission_efb($request) {
 					$still_processing = true;
 					if ($key < 2 && !isset($f['id_'])){ continue;}
 					if ($is_valid == 0) {break;}
-					$it = array_filter($submitted_values, function ($item) use ($f, $key, &$is_valid, &$email_recipients, &$validated_item, &$form_fields_array, &$still_processing, &$error_message, $form_condition, &$sms_notification_enabled, &$phone_numbers) {
+					$it = array_filter($submitted_values, function ($item) use ($f, $key, &$is_valid, &$email_recipients, &$validated_item, &$form_fields_array, &$still_processing, &$error_message, &$error_field_id, $form_condition, &$sms_notification_enabled, &$phone_numbers) {
 						if ($still_processing == false) {
 							return;
 						}
@@ -1842,6 +1842,7 @@ public function check_nonce_permission_efb($request) {
 							if (isset($f['name'])) {
 								$error_message = $this->lanText['mnvvXXX_'];
 								$error_message = str_replace('%s', "<b>" . $f['name'] . "</b>", $error_message);
+								$error_field_id = isset($f['id_']) ? $f['id_'] : '';
 							}
 							switch ($f['type']) {
 								case 'email':
@@ -2333,7 +2334,7 @@ public function check_nonce_permission_efb($request) {
 				$this->id = $submission_type == "payment" ? sanitize_text_field($request_data['payid']) : $this->id;
 				$skip_captcha = $submission_type != "payment" ? $form_fields_array[0]['captcha'] : "";
 				if ($is_valid == 0) {
-					$response = ['success' => false, 'm' => $error_message];
+					$response = ['success' => false, 'm' => $error_message, 'field_id' => $error_field_id];
 					wp_send_json_success($response, 200);
 				}
 				$this->value = json_encode($validated_items, JSON_UNESCAPED_UNICODE);
