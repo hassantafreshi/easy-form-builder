@@ -229,7 +229,7 @@ Thanks goes to these wonderful people
         <a title="Translation" href="#translation">🌍</a> <a title="Code" href="https://github.com/Presskopp/easy-form-builder">💻</a>
       </td>
       <td align="center">
-        <a href="https://github.com/FakhriAz" target="_blank"><img src="https://avatars.githubusercontent.com/u/18373563?v=4" alt="Presskopp" width="100px;" /><br /><sub><strong>FakhriAz</strong></sub></a><br />
+        <a href="https://github.com/FakhriAz" target="_blank"><img src="https://avatars.githubusercontent.com/u/26854454?v=4" alt="Presskopp" width="100px;" /><br /><sub><strong>FakhriAz</strong></sub></a><br />
         <a title="Translation" href="#translation">🌍</a> <a title="Documentation Specialist" href="https://github.com/hassantafreshi/easy-form-builder">📝</a>
       </td>
       <td align="center">
