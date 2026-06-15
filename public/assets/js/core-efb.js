@@ -845,7 +845,9 @@ async function actionSendData_emsFormBuilder(form_id=0) {
      if(form_type_emsFormBuilder =='recovery'){
       vj.type ='recovery';
      }
-     sendBack_emsFormBuilder_pub = [];
+     /* Do NOT wipe sendBack_emsFormBuilder_pub here — the submission may still fail
+        validation server-side. Clearing happens in response_fill_form_efb once the
+        final result (success, or a specific field error) is known. */
   }
   if( vj.captcah){
     const indx = sendback.findIndex(x => x.id_ == 'captcha_v2');
@@ -1246,8 +1248,48 @@ function Show_recovery_pass_efb() {
     })
   }
 }
+/* Remove only the sendBack_emsFormBuilder_pub rows that belong to a single field.
+   Most field types keep one row per id_, but checkbox/multiselect/chlCheckBox-style
+   fields can keep several rows for the same field (one per selected option, matched
+   either by id_ or, for chlCheckBox, by id_ob referencing the parent field's id_) —
+   so every matching row for that field must be removed, not just the first. */
+function remove_sendback_rows_by_field_id_efb(field_id, form_id) {
+  if (!field_id) return;
+  let changed = false;
+  for (let i = sendBack_emsFormBuilder_pub.length - 1; i >= 0; i--) {
+    const row = sendBack_emsFormBuilder_pub[i];
+    if (!row) continue;
+    if (Number(row.form_id) !== Number(form_id)) continue;
+    if (row.id_ === field_id || row.id_ob === field_id) {
+      sendBack_emsFormBuilder_pub.splice(i, 1);
+      changed = true;
+    }
+  }
+  if (changed) localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+}
+/* Remove every sendBack_emsFormBuilder_pub row that belongs to the submitted form,
+   leaving rows for any other forms on the page untouched. */
+function clear_sendback_rows_by_form_id_efb(form_id) {
+  const before = sendBack_emsFormBuilder_pub.length;
+  sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(row => row && Number(row.form_id) !== Number(form_id));
+  if (sendBack_emsFormBuilder_pub.length !== before) localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+}
 async function response_fill_form_efb(res ,form_id=0) {
   form_id = Number(form_id);
+  /* Some flows (e.g. password recovery) temporarily replace sendBack_emsFormBuilder_pub
+     with a plain object before submitting — restore array form so the helpers below
+     (and any later array operations) keep working. */
+  if (!Array.isArray(sendBack_emsFormBuilder_pub)) sendBack_emsFormBuilder_pub = [];
+  if (res.data.success == true) {
+    /* Final submit succeeded — now it is safe to drop this form's stored values.
+       Other forms on the same page keep their data untouched. */
+    clear_sendback_rows_by_form_id_efb(form_id);
+  } else if (res.data && res.data.field_id) {
+    /* Validation failed for one specific field — remove only that field's rows
+       (by id_, or by id_ob for chlCheckBox-style fields) so the rest of the
+       already-filled-in form data survives and doesn't have to be re-entered. */
+    remove_sendback_rows_by_field_id_efb(res.data.field_id, form_id);
+  }
   let btn_prev ='';
   const t = valj_efb_new.find(x => x.id == form_id);
   const valj_efb = t.form_structer;

@@ -1,5 +1,7 @@
 # How to Test Your WordPress Email Server in Easy Form Builder
 
+> [Docs index](../README.md) · [Conditional Logic tests](../conditional-logic/EFB-Conditional-Logic-TEST-PLAN.md)
+
 Easy Form Builder includes a built-in email server test. It sends a real email through your WordPress site and verifies whether it actually arrives. You will see live step-by-step results and a score. If there is a problem, the test tells you exactly what is wrong and how to fix it.
 
 ---

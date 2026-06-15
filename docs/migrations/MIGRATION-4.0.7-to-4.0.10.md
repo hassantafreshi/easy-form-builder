@@ -1,5 +1,7 @@
 # Migration Guide: v4.0.7 → v4.0.10
 
+> [Docs index](../README.md)
+
 **مقایسه اصلی:** `C:\svn\easy-form-builder\tags\4.0.7` vs `C:\xampp\htdocs\67\wp-content\plugins\easy-form-builder`  
 **پروژه هدف:** `C:\xampp\htdocs\wp\wp-content\plugins\easy-form-builder`  
 **برنچ:** `v4.0.10-update` (ساخته شده از `dev4`)  

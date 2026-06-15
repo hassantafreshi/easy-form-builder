@@ -1,5 +1,7 @@
 # EFB Conditional Logic — Implementation Roadmap
 
+> [Documentation index](README.md) · [Product roadmap](EFB-Conditional-Logic-Product-ROADMAP.md) · [Test plan](EFB-Conditional-Logic-TEST-PLAN.md)
+
 > **Branch:** `dev4`  
 > **Last updated:** 2026-06-06  
 > **Status key:** ✅ Done · 🔄 Partial · ❌ Not started

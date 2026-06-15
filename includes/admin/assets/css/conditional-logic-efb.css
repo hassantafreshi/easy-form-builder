@@ -447,10 +447,65 @@
 /* ── Footer / Apply ── */
 .efb-logic-editor-footer {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
   padding: 14px 24px;
   border-top: 1px solid #e2e8f0;
   background: #fafbfc;
+}
+.efb-logic-footer-options {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.efb-logic-priority-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  cursor: default;
+}
+.efb-logic-priority-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  text-transform: capitalize;
+}
+.efb-logic-priority-input {
+  width: 64px;
+  height: 34px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #334155;
+  background: #fff;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.efb-logic-priority-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+.efb-logic-stop-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  cursor: pointer;
+}
+.efb-logic-stop-toggle {
+  flex-shrink: 0;
+}
+.efb-logic-stop-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  white-space: nowrap;
 }
 .efb-logic-apply-btn {
   padding: 9px 28px;

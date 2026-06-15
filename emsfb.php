@@ -70,6 +70,8 @@ if (!defined("EMSFB_IS_FARSI")) {
 
 require 'includes/class-Emsfb.php';
 
+$emsfb = new Emsfb();
+
 register_activation_hook(__FILE__, 'emsfb_schedule_file_access_check');
 
 add_action('emsfb_check_file_access_after_activation', 'emsfb_perform_file_access_check_efb');
@@ -265,5 +267,3 @@ if (!function_exists('get_locale_script_chars_efb')) {
         return Emsfb::get_locale_script_chars_efb();
     }
 }
-
-$emsfb = new Emsfb();

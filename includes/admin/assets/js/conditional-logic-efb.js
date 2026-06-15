@@ -374,16 +374,22 @@
           </div>
         </div>
         <div class="efb-logic-editor-footer">
-          <label class="efb d-flex align-items-center gap-2 mb-0">
-            <span>${_t('priority') || 'Priority'}</span>
-            <input type="number" min="0" step="1" value="${Number(rule.priority || 10)}"
-                   onchange="EFB_Logic.setPriority(this.value)" style="width:5rem">
-          </label>
-          <label class="efb d-flex align-items-center gap-2 mb-0">
-            <input type="checkbox" ${rule.stop_processing ? 'checked' : ''}
-                   onchange="EFB_Logic.setStopProcessing(this.checked)">
-            <span>${efb_var.text.stopProcessing || 'Stop after this rule matches'}</span>
-          </label>
+          <div class="efb-logic-footer-options">
+            <label class="efb-logic-priority-field">
+              <span class="efb-logic-priority-label">${_t('priority') || 'Priority'}</span>
+              <input type="number" class="efb-logic-priority-input" min="0" step="1" value="${Number(rule.priority || 10)}"
+                     onchange="EFB_Logic.setPriority(this.value)">
+            </label>
+            <label class="efb-logic-stop-field">
+              <span class="efb-logic-toggle efb-logic-stop-toggle">
+                <input type="checkbox" ${rule.stop_processing ? 'checked' : ''}
+                       onchange="EFB_Logic.setStopProcessing(this.checked)">
+                <span class="efb-logic-toggle-track"></span>
+                <span class="efb-logic-toggle-thumb"></span>
+              </span>
+              <span class="efb-logic-stop-label">${efb_var.text.stopProcessing || 'Stop after this rule matches'}</span>
+            </label>
+          </div>
           <button type="button" class="efb-logic-apply-btn" onclick="EFB_Logic.applyRule()">
             ${_t('save')}
           </button>

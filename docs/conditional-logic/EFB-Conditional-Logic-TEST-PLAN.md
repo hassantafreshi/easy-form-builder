@@ -1,12 +1,14 @@
 # EFB Conditional Logic — Test Plan
 
+> [Documentation index](README.md) · [Persian acceptance test](EFB-Conditional-Logic-E2E-TEST-FA.md) · [Implementation roadmap](EFB-Conditional-Logic-Implementation-ROADMAP.md)
+
 > **Branch:** `dev4`  
-> **Date:** 2026-06-06  
+> **Last automated verification:** 2026-06-07  
 > **Prerequisites:** AdnSMF addon active, PHP 8+, WordPress 6+
 
 ---
 
-## Automated Test Results (2026-06-06)
+## Automated Test Results (verified again on 2026-06-07)
 
 | Suite | File | Result |
 |-------|------|--------|

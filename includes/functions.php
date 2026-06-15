@@ -11,9 +11,18 @@ class efbFunction {
     protected static $cached_settings = null;
     protected static $cached_lang = null;
 
-    public function invalidate_settings_cache($old, $new, $option) {
-        wp_cache_delete('settings:decoded', 'efb');
+    public function invalidate_settings_cache($old, $new, $option = '') {
+        self::$req_cache = [];
+        self::$lang_cache = [];
+        self::$cached_settings = null;
+        self::$cached_lang = null;
+        wp_cache_delete('settings:decoded', 'emsfb');
+        wp_cache_delete('settings:pub', 'emsfb');
+        wp_cache_delete('settings:raw', 'emsfb');
         delete_transient('emsfb_settings_transient');
+        if (function_exists('get_setting_Emsfb')) {
+            get_setting_Emsfb('_clear_cache');
+        }
         update_option('emsfb_text_version', time());
     }
 
@@ -87,7 +96,7 @@ class efbFunction {
 	public function __construct() {
 
 		if (function_exists('add_action')) {
-			add_action('update_option_emsfb_settings', [ $this, 'invalidate_lang_cache_on_settings_update' ], 10, 2);
+			add_action('update_option_emsfb_settings', [ $this, 'invalidate_settings_cache' ], 10, 3);
 		}
 
 		global $wpdb;
@@ -3648,24 +3657,26 @@ public function addon_add_efb($value) {
 			'AdnTLG' => 0,
 			'AdnATF' => 0,
 			'AdnGoS' => 0,
-			'AdnSMF' => 0, // Conditional Logic addon
+			'AdnWHS' => 0,
+			'AdnWSP' => 0,
+			'AdnSMF' => 0,
+			'AdnPLF' => 0,
+			'AdnMSF' => 0,
+			'AdnBEF' => 0,
 		];
-		if($ac!=null && isset($ac->AdnSPF)==true){
-			$addons['AdnSPF'] = isset($ac->AdnSPF) ? intval($ac->AdnSPF) : 0;
-			$addons["AdnOF"] =  isset($ac->AdnOF) ? intval($ac->AdnOF) : 0;
-			$addons["AdnPPF"] = isset($ac->AdnPPF) ? intval($ac->AdnPPF) : 0;
-			$addons["AdnSS"] =  isset($ac->AdnSS) ? intval($ac->AdnSS) : 0;
-			$addons["AdnESZ"] = isset($ac->AdnESZ) ? intval($ac->AdnESZ) : 0;
-			$addons["AdnSE"]  = isset($ac->AdnSE) ? intval($ac->AdnSE) : 0;
-			$addons["AdnCPF"] = isset($ac->AdnCPF) ? intval($ac->AdnCPF) : 0;
-			$addons["AdnATC"] = isset($ac->AdnATC) ? intval($ac->AdnATC) : 0;
-			$addons["AdnPDP"] = isset($ac->AdnPDP) ? intval($ac->AdnPDP) : 0;
-			$addons["AdnADP"] = isset($ac->AdnADP) ? intval($ac->AdnADP) : 0;
-			$addons["AdnPAP"] =  isset($ac->AdnPAP) ? intval($ac->AdnPAP) : 0;
-			$addons["AdnTLG"] =  isset($ac->AdnTLG) ? intval($ac->AdnTLG) : 0;
-			$addons['AdnATF'] =	isset($ac->AdnATF)	? intval($ac->AdnATF)	:0;
-			$addons['AdnGoS'] =	isset($ac->AdnGoS)	? intval($ac->AdnGoS)	:0;
-			$addons['AdnSMF'] =	isset($ac->AdnSMF)	? intval($ac->AdnSMF)	:0;
+
+		if ( is_object( $ac ) ) {
+			foreach ( $addons as $addon_key => $default_value ) {
+				if ( property_exists( $ac, $addon_key ) ) {
+					$addons[$addon_key] = intval( $ac->{$addon_key} );
+					continue;
+				}
+
+				$legacy_value = get_option( 'emsfb_addon_' . $addon_key, false );
+				if ( $legacy_value !== false ) {
+					$addons[$addon_key] = intval( $legacy_value );
+				}
+			}
 		}
 
 		return $addons;
@@ -3780,7 +3791,7 @@ public function addon_add_efb($value) {
         wp_cache_delete('settings:pub', 'emsfb');
         wp_cache_delete('settings:raw', 'emsfb');
 
-        \Emsfb::get_setting_Emsfb('_clear_cache');
+        get_setting_Emsfb('_clear_cache');
 
         return true;
     }
