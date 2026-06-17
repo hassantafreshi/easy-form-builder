@@ -3313,9 +3313,11 @@ public function check_error_console_efb(){
 		const EFB_ERROR_PANEL = {
 			errors: [],
 			errorKeys: new Set(),
+			visibleErrorKeys: new Set(),
 			isOpen: false,
 			panel: null,
 			badge: null,
+			inlineTargetFormId: null,
 			storageKey: "efb_error_panel_dismissed_v1",
 			dismissedKeys: new Set(),
 
@@ -3417,11 +3419,11 @@ public function check_error_console_efb(){
 				this.isRtl = isRtl;
 				this.badge.style.cssText = `
 					all: initial !important;
-					position: fixed !important; top: 35px !important; ${isRtl ? "right" : "left"}: 30px !important;
-					z-index: 999999 !important;
+					position: relative !important;
+					z-index: auto !important;
 					background: #dc3545 !important;
 					color: #fff !important; padding: 12px 18px !important; border-radius: 50px !important;
-					cursor: pointer !important; display: flex !important; align-items: center !important; gap: 10px !important;
+					cursor: pointer !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 10px !important;
 					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 					font-size: 13px !important; font-weight: 600 !important;
 					box-shadow: 0 4px 15px rgba(220,53,69,0.4) !important;
@@ -3434,6 +3436,8 @@ public function check_error_console_efb(){
 					min-width: 0 !important; height: auto !important; width: auto !important;
 					overflow: visible !important;
 				`;
+				this.badge.setAttribute("role", "status");
+				this.badge.setAttribute("aria-live", "polite");
 				this.badge.onclick = () => this.togglePanel();
 				document.body.appendChild(this.badge);
 
@@ -3540,6 +3544,7 @@ public function check_error_console_efb(){
 					}
 					#efb-error-badge .efb-badge-tooltip {
 						all: initial !important;
+						display: none !important;
 						position: absolute !important; top: 50% !important; ${isRtl ? "right" : "left"}: calc(100% + 12px) !important;
 						transform: translateY(-50%) translateX(${isRtl ? "8px" : "-8px"}) !important;
 						white-space: nowrap !important;
@@ -3551,7 +3556,7 @@ public function check_error_console_efb(){
 						opacity: 0 !important; pointer-events: none !important;
 						transition: opacity 0.25s ease, transform 0.25s ease !important;
 						box-sizing: border-box !important; line-height: normal !important;
-						display: block !important; z-index: 1000000 !important;
+						display: none !important; z-index: 1000000 !important;
 					}
 					#efb-error-badge .efb-badge-tooltip::before {
 						content: "" !important; position: absolute !important; top: 50% !important; ${isRtl ? "left" : "right"}: 100% !important;
@@ -3806,6 +3811,32 @@ public function check_error_console_efb(){
 				}
 			},
 
+			getInlineTarget(formId) {
+				const id = formId !== null && formId !== undefined ? String(formId) : "";
+				if (id !== "") {
+					return document.getElementById("efb-submit-error-badge-slot-" + id)
+						|| document.querySelector("#body_efb_" + id + " #efb-final-step")
+						|| document.querySelector("#body_efb_" + id + " .view-efb");
+				}
+				return document.querySelector(".efb-submit-error-badge-slot")
+					|| document.querySelector(".view-efb #efb-final-step")
+					|| document.querySelector(".view-efb");
+			},
+
+			showInlineBadge(formId = null) {
+				if (!this.badge) return;
+				if (formId !== null && formId !== undefined) {
+					this.inlineTargetFormId = formId;
+				}
+				const target = this.getInlineTarget(this.inlineTargetFormId);
+				if (target && this.badge.parentNode !== target) {
+					target.appendChild(this.badge);
+				} else if (!this.badge.isConnected) {
+					document.body.appendChild(this.badge);
+				}
+				this.showBadge();
+			},
+
 			showBadge() {
 				if (!this.badge) return;
 				this.badge.style.setProperty("visibility", "visible", "important");
@@ -3820,14 +3851,31 @@ public function check_error_console_efb(){
 				this.badge.style.setProperty("visibility", "hidden", "important");
 			},
 
+			clearSubmissionBadge(formId = null) {
+				this.hideBadge();
+				if (formId === null || formId === undefined || String(formId) === String(this.inlineTargetFormId)) {
+					this.inlineTargetFormId = null;
+					this.visibleErrorKeys.clear();
+				}
+				this.closePanelIfOpen();
+			},
+
 			updateCount() {},
 
 
 			addError(errorData) {
-				const { message, source, lineno, stack = [], typeOverride = null, nameOverride = null, formatOptions = {} } = errorData;
+				errorData = errorData || {};
+				const { message, source, lineno, stack = [], typeOverride = null, nameOverride = null, formatOptions = {}, showBadge = false, context = "", formId = null } = errorData;
+				const shouldShowBadge = showBadge === true || context === "submissionAjax";
 				const errorKey = (message || "") + "|" + (source || "") + "|" + (lineno || "");
 				if (this.dismissedKeys.has(errorKey)) return;
-				if (this.errorKeys.has(errorKey)) return;
+				if (this.errorKeys.has(errorKey)) {
+					if (shouldShowBadge) {
+						this.visibleErrorKeys.add(errorKey);
+						this.showInlineBadge(formId);
+					}
+					return;
+				}
 				this.errorKeys.add(errorKey);
 
 				const parsed = this.parseSource(source);
@@ -3838,10 +3886,15 @@ public function check_error_console_efb(){
 				const realSource = stack.length > 0 ? stack[0].parsed : parsed;
 				const realPath = stack.length > 0 ? stack[0].parsed.fullPath + ":" + stack[0].line : (parsed.fullPath + (lineno ? ":" + lineno : ""));
 
-				this.errors.push({ key: errorKey, message, source, lineno, parsed, stack, time });
+				this.errors.push({ key: errorKey, message, source, lineno, parsed, stack, time, showBadge: shouldShowBadge });
 
-				this.showBadge();
+				if (shouldShowBadge) {
+					this.visibleErrorKeys.add(errorKey);
+					this.showInlineBadge(formId);
+				}
 				this.updateCount();
+
+				if (context === "submissionAjax") return;
 
 				const list = document.getElementById("efb-error-list");
 				if (!list) return;
@@ -3881,13 +3934,14 @@ public function check_error_console_efb(){
 
 				const item = document.createElement("div");
 				item.className = "efb-error-item " + typeClass;
+				const messageHtml = context === "submissionAjax" ? "" : `<div class="efb-error-msg">${this.formatMessage(message, formatOptions)}</div>`;
 				item.innerHTML = `
 					<div class="efb-error-source">
 						<span class="type-badge type-${realSource.type}">${this.t[realSource.type] || realSource.type}</span>
 						<span class="efb-error-source-name">${realSource.name}</span>
 						<button type="button" class="efb-btn-dismiss" aria-label="${this.getDismissLabel(realSource.name)}">${this.t.dismiss}</button>
 					</div>
-					<div class="efb-error-msg">${this.formatMessage(message, formatOptions)}</div>
+					${messageHtml}
 					<div class="efb-error-file">
 						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
@@ -3932,6 +3986,7 @@ public function check_error_console_efb(){
 				this.saveDismissedKeys();
 				this.errors = [];
 				this.errorKeys.clear();
+				this.visibleErrorKeys.clear();
 				this.updateCount();
 				const list = document.getElementById("efb-error-list");
 				list.innerHTML = "<div class=\"efb-no-errors\">✓ " + this.t.noErrors + "</div>";
@@ -3945,6 +4000,7 @@ public function check_error_console_efb(){
 				this.saveDismissedKeys();
 				this.errors = this.errors.filter(error => error.key !== errorKey);
 				this.errorKeys.delete(errorKey);
+				this.visibleErrorKeys.delete(errorKey);
 				const list = document.getElementById("efb-error-list");
 				if (list) {
 					Array.from(list.querySelectorAll(".efb-error-item")).forEach(item => {
@@ -3956,6 +4012,8 @@ public function check_error_console_efb(){
 				this.updateCount();
 				if (this.errors.length === 0) {
 					this.showEmptyState();
+				}
+				if (this.visibleErrorKeys.size === 0) {
 					this.hideBadge();
 					this.closePanelIfOpen();
 				}
@@ -4064,7 +4122,10 @@ public function check_error_console_efb(){
 				const typeOverride = options.type || null;
 				const nameOverride = options.name || null;
 				const formatOptions = options.format || {};
-				this.addError({ message, source, lineno, stack, typeOverride, nameOverride, formatOptions });
+				const showBadge = options.showBadge === true;
+				const context = options.context || "";
+				const formId = options.formId || options.form_id || null;
+				this.addError({ message, source, lineno, stack, typeOverride, nameOverride, formatOptions, showBadge, context, formId });
 				console.info("%c[EFB Debug Panel]%c Logged: " + message, "color:#ff4b93;font-weight:bold", "color:inherit");
 			},
 

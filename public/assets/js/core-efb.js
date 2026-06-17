@@ -1274,6 +1274,21 @@ function clear_sendback_rows_by_form_id_efb(form_id) {
   sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(row => row && Number(row.form_id) !== Number(form_id));
   if (sendBack_emsFormBuilder_pub.length !== before) localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
 }
+function efb_get_error_panel_efb() {
+  return window.EFB_ERROR_PANEL || (typeof EFB_ERROR_PANEL !== 'undefined' ? EFB_ERROR_PANEL : null);
+}
+function efb_show_submit_ajax_badge_efb(form_id) {
+  const panel = efb_get_error_panel_efb();
+  if (panel && typeof panel.showInlineBadge === 'function') {
+    panel.showInlineBadge(form_id);
+  }
+}
+function efb_hide_submit_ajax_badge_efb(form_id) {
+  const panel = efb_get_error_panel_efb();
+  if (panel && typeof panel.clearSubmissionBadge === 'function') {
+    panel.clearSubmissionBadge(form_id);
+  }
+}
 async function response_fill_form_efb(res ,form_id=0) {
   form_id = Number(form_id);
   /* Some flows (e.g. password recovery) temporarily replace sendBack_emsFormBuilder_pub
@@ -1281,6 +1296,7 @@ async function response_fill_form_efb(res ,form_id=0) {
      (and any later array operations) keep working. */
   if (!Array.isArray(sendBack_emsFormBuilder_pub)) sendBack_emsFormBuilder_pub = [];
   if (res.data.success == true) {
+    efb_hide_submit_ajax_badge_efb(form_id);
     /* Final submit succeeded — now it is safe to drop this form's stored values.
        Other forms on the same page keep their data untouched. */
     clear_sendback_rows_by_form_id_efb(form_id);
@@ -1297,6 +1313,7 @@ async function response_fill_form_efb(res ,form_id=0) {
   const id_body = 'body_efb_'+form_id;
   const body_efb = document.getElementById(id_body);
   const efb_final_step = body_efb.querySelector('#efb-final-step');
+  const isSubmitAjaxError = res.data && res.data.efb_ajax_submission_error === true;
   if(valj_efb.length>1) btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? `logic_fun_prev_send(${form_id})`:`fun_prev_send(${form_id})`;
   if (res.data.success == true) {
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' && res.data.m.includes('@efb@') ){
@@ -1427,7 +1444,9 @@ async function response_fill_form_efb(res ,form_id=0) {
       if(stps>1 ){smoothy_scroll_postion_efb(id_body)}
   } else {
     if(efb_final_step){efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder text-center'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3  text-center"></i></h1><h3 class="efb  text-center fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
-    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onclick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+    ${isSubmitAjaxError ? `<div class="efb efb-submit-error-badge-slot my-2 d-flex justify-content-center" id="efb-submit-error-badge-slot-${form_id}"></div>` : ``}
+    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onclick="efb_hide_submit_ajax_badge_efb(${form_id}); ${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+      if (isSubmitAjaxError) efb_show_submit_ajax_badge_efb(form_id);
     }else{
       alert_message_efb(res.data.m,'',14,'warning');
     }
@@ -1628,6 +1647,30 @@ efb_refresh_nonce=async()=>{
   } catch(e){}
   return false;
 }
+function efb_report_submit_ajax_error_efb(error, details = {}) {
+  const panel = efb_get_error_panel_efb();
+  if (!panel || typeof panel.log !== 'function') return;
+
+  const statusLabel = details.status ? `HTTP ${details.status}` : 'Network/response error';
+  const message = [
+    ajax_object_efm?.text?.eJQ500 || 'The form could not be submitted because of a request error.',
+    `Submit AJAX error: ${statusLabel}`,
+    error && error.message ? error.message : ''
+  ].filter(Boolean).join('\n');
+
+  panel.log(message, {
+    source: details.url || window.location.href,
+    type: 'plugin',
+    name: 'Easy Form Builder',
+    captureStack: true,
+    showBadge: true,
+    context: 'submissionAjax',
+    formId: details.formId || details.form_id || null,
+    format: {
+      boldTexts: ['Submit AJAX error', statusLabel]
+    }
+  });
+}
  post_api_forms_efb=async(data,form_id)=>{
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
     const headers = new Headers({
@@ -1652,9 +1695,9 @@ efb_refresh_nonce=async()=>{
       if (refreshed) {
         const retryHeaders = new Headers({
           'Content-Type': 'application/json',
-          'X-WP-Nonce': efb_var.nonce,
+          'X-WP-Nonce': efbForce403Test ? 'efb-force-403-test' : efb_var.nonce,
           'form-id': form_id ? form_id : 0,
-          'sid': data.sid ? data.sid : '',
+          'sid': efbForce403Test ? 'efb-force-403-test' : (data.sid ? data.sid : ''),
         });
         response = await fetch(url, { method: 'POST', headers: retryHeaders, body: jsonData });
       }
@@ -1662,17 +1705,19 @@ efb_refresh_nonce=async()=>{
     if (!response.ok) {
       if (response.status === 403) {
         const msg403 = (ajax_object_efm && ajax_object_efm.text && ajax_object_efm.text.nonceExpired) ? ajax_object_efm.text.nonceExpired : 'Your session has expired. Please refresh the page and try again.';
-        await response_fill_form_efb({ success: false, data: { success: false, m: msg403 } }, form_id);
+        efb_report_submit_ajax_error_efb(new Error(msg403), { status: response.status, url, formId: form_id });
+        await response_fill_form_efb({ success: false, data: { success: false, m: msg403, efb_ajax_submission_error: true } }, form_id);
         return;
       }
-      throw new Error('Network response was not ok');
+      throw new Error(`Network response was not ok (HTTP ${response.status})`);
     }
     const responseData = await response.json();
 
     await response_fill_form_efb(responseData, form_id);
     if (localStorage.getItem('sendback')) localStorage.removeItem('sendback');
   } catch (error) {
-    await response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } }, form_id);
+    efb_report_submit_ajax_error_efb(error, { url, formId: form_id });
+    await response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500, efb_ajax_submission_error: true } }, form_id);
   }
   bdy = document.getElementById('body_efb_'+form_id);
   if(bdy){
@@ -2254,6 +2299,7 @@ get_row_sendback_by_id_efb_v4=(id_,form_id=0)=>{
  }
 
 fun_prev_send =(form_id =0) =>{
+  efb_hide_submit_ajax_badge_efb(form_id);
   let valj_efb = get_structure_by_form_id_efb(form_id);
   var stp = Number(valj_efb[0].steps) + 1;
   const id_body = 'body_efb_'+form_id;
