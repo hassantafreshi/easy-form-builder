@@ -268,6 +268,7 @@ class Panel_edit  {
 				'rest_url'=>get_rest_url(null),
 				'plugins'=>$plugins,
 				'wsteam'=> $wsteam_domain,
+				'emailMonitor' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_public_status() : array(),
 			), 'panel');
 			wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);

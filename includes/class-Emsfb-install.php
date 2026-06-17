@@ -133,6 +133,9 @@ class Install {
 
 		do_action('emsfb_update_cache_plugins_list');
 		do_action('emsfb_update_security_plugins_list');
+		if (class_exists('\Emsfb\Email_Monitor')) {
+			\Emsfb\Email_Monitor::activate();
+		}
 
 		return $state;
 	}

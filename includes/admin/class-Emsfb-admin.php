@@ -946,6 +946,13 @@ class Admin {
                   }
 
                   $m[$key] = str_replace('/' , '@efb@', $v);
+            }else if($key == 'weeklyEmailReport'){
+                if (class_exists('\Emsfb\Email_Monitor') && \Emsfb\Email_Monitor::can_manage_setting()) {
+                    \Emsfb\Email_Monitor::update_enabled($value);
+                }
+                $m[$key] = class_exists('\Emsfb\Email_Monitor')
+                    ? \Emsfb\Email_Monitor::is_enabled()
+                    : true;
             }else if($key == 'smtp'){
                 if(isset($value) && in_array($value,[1,true,'true','1']) ){
 
@@ -1683,6 +1690,11 @@ class Admin {
         ]);
 
         update_option('emsfb_email_status', $status_data);
+
+        if (!empty($test_result['can_send_email']) && is_object($ac) && isset($ac->smtp) && $ac->smtp != true) {
+            $ac->smtp = true;
+            $efbFunction->set_setting_Emsfb($ac);
+        }
     }
 
     private function maybe_request_email_tester_no_delivery_report_efb($test_hash, $test_result, $admin_email = '') {

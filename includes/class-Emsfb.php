@@ -50,6 +50,7 @@ class Emsfb {
 
     public function includes(): void {
         require_once $this->plugin_path . 'includes/class-Emsfb-install.php';
+        require_once $this->plugin_path . 'includes/class-Emsfb-email-monitor.php';
 
         if (is_admin()) {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
@@ -617,6 +618,10 @@ class Emsfb {
                     }
                 }
 
+                if (class_exists('\Emsfb\Email_Monitor')) {
+                    $decoded->weeklyEmailReport = \Emsfb\Email_Monitor::is_enabled();
+                }
+
                 $package_type = get_option('emsfb_pro', 10);
                 $stored_pt = isset($decoded->package_type) ? intval($decoded->package_type) : null;
 
@@ -715,6 +720,9 @@ class Emsfb {
 
     public static function plugin_deactivation_cleanup_efb()
     {
+        if (class_exists('\Emsfb\Email_Monitor')) {
+            \Emsfb\Email_Monitor::deactivate();
+        }
 
         delete_option('emsfb_cache_plugins');
         delete_option('emsfb_server_host_cache');
@@ -924,12 +932,21 @@ class Emsfb {
         $installed_version = get_option('emsfb_version', '0.0.0');
         $current_version = EMSFB_PLUGIN_VERSION;
 	    if (!is_admin()) {
+            if (
+                version_compare($installed_version, $current_version, '<')
+                && class_exists('\Emsfb\Email_Monitor')
+            ) {
+                \Emsfb\Email_Monitor::plugin_updated();
+            }
 			return;
 		}
 
         if (version_compare($installed_version, $current_version, '<')) {
             $this->run_upgrade_tasks_efb($installed_version, $current_version);
             update_option('emsfb_version', $current_version);
+            if (class_exists('\Emsfb\Email_Monitor')) {
+                \Emsfb\Email_Monitor::plugin_updated();
+            }
         }
 
     }
@@ -1084,6 +1101,7 @@ class Emsfb {
         $defaults->emailSupporter    = get_option('admin_email', '');
         $defaults->apiKeyMap         = '';
         $defaults->smtp              = false;
+        $defaults->weeklyEmailReport = true;
         $defaults->text              = '';
         $defaults->bootstrap         = '';
         $defaults->emailTemp         = '';
