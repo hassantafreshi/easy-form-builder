@@ -26,6 +26,7 @@
 
 - راهنمای تست Email Server
 - تست‌های Conditional Logic در پوشه مخصوص آن feature
+- راهنمای تست Autofill از طریق API خارجی (Auto-Populate Integrations) به ۴ زبان: [فارسی](testing/autofill-api/AUTOFILL-API-TEST-GUIDE.fa.md) · [English](testing/autofill-api/AUTOFILL-API-TEST-GUIDE.en.md) · [العربية](testing/autofill-api/AUTOFILL-API-TEST-GUIDE.ar.md) · [Deutsch](testing/autofill-api/AUTOFILL-API-TEST-GUIDE.de.md)
 
 ### Compatibility
 
@@ -52,4 +53,5 @@
 - README ریشه فقط معرفی عمومی repository و لینک ورود به این index است.
 - README و مستندات packageهای داخل `node_modules/` و `vendor/` متعلق به dependencyها هستند و جابه‌جا نمی‌شوند.
 - فایل‌های موقت نباید منبع اصلی مستندات باشند.
+- راهنماهای تستی که برای کاربران/جستجو/AI طراحی می‌شوند، باید بعد از تیتر اصلی یک خط **Keywords/کلمات کلیدی** شامل عبارات پرکاربرد مرتبط داشته باشند، و در صورت ارائه به چند زبان، یک خط breadcrumb برای پیمایش بین زبان‌ها و بازگشت به index قرار گیرد.
 
