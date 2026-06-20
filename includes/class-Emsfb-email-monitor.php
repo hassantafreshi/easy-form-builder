@@ -173,16 +173,16 @@ class Email_Monitor {
             return;
         }
 
-        $status = isset($result['status']) ? sanitize_key($result['status']) : '';
-        $stage = isset($result['analysis_stage']) ? sanitize_key($result['analysis_stage']) : '';
-        $terminal = in_array($status, ['expired', 'failed'], true)
-            || ($status === 'analyzed' && $stage === 'full')
-            || !empty($result['can_send_email']);
+		$status = isset($result['status']) ? sanitize_key($result['status']) : '';
+		$stage = isset($result['analysis_stage']) ? sanitize_key($result['analysis_stage']) : '';
+		$terminal = in_array($status, ['delayed', 'expired', 'failed'], true)
+			|| ($status === 'analyzed' && $stage === 'full')
+			|| !empty($result['can_send_email']);
 
-        if (!$terminal) {
-            self::retry_or_finish($pending, 'pending', isset($result['message']) ? $result['message'] : '');
-            return;
-        }
+		if (!$terminal) {
+			self::retry_or_finish($pending, $status ?: 'pending', isset($result['message']) ? $result['message'] : '');
+			return;
+		}
 
         $can_send = !empty($result['can_send_email']) || !empty($result['success']);
         $message = isset($result['message']) ? sanitize_text_field($result['message']) : '';
@@ -193,11 +193,11 @@ class Email_Monitor {
         }
 
         self::save_status($can_send ? 'success' : 'failed', $message, $pending['context'], $result);
-        if ($can_send) {
-            self::mark_email_ready();
-        } else {
-            self::request_remote_email_report($test_hash, $status, $pending['admin_email']);
-        }
+		if ($can_send) {
+			self::mark_email_ready();
+		} else {
+			self::request_remote_email_report($test_hash, $status, $pending['admin_email']);
+		}
 
         delete_option(self::OPTION_PENDING);
     }
@@ -333,14 +333,16 @@ class Email_Monitor {
     private static function retry_or_finish($pending, $state, $message) {
         $pending['attempts'] = isset($pending['attempts']) ? (int) $pending['attempts'] + 1 : 1;
         if ($pending['attempts'] >= 10 || (time() - (int) $pending['started_at']) >= 12 * MINUTE_IN_SECONDS) {
-            $final_message = $message !== ''
-                ? sanitize_text_field($message)
-                : __('The email delivery test timed out before confirmation was received.', 'easy-form-builder');
-            self::save_status('failed', $final_message, $pending['context']);
-            self::request_remote_email_report($pending['test_hash'], $state, $pending['admin_email']);
-            delete_option(self::OPTION_PENDING);
-            return;
-        }
+			$final_message = $message !== ''
+				? sanitize_text_field($message)
+				: __('The email delivery test timed out before confirmation was received.', 'easy-form-builder');
+			self::save_status('failed', $final_message, $pending['context']);
+			if (in_array($state, ['delayed', 'expired'], true)) {
+				self::request_remote_email_report($pending['test_hash'], $state, $pending['admin_email']);
+			}
+			delete_option(self::OPTION_PENDING);
+			return;
+		}
 
         update_option(self::OPTION_PENDING, $pending, false);
         wp_schedule_single_event(time() + 60, self::POLL_HOOK, [$pending['test_hash']]);
@@ -385,12 +387,17 @@ class Email_Monitor {
         ];
     }
 
-    private static function request_remote_email_report($test_hash, $status, $admin_email) {
-        if (!self::is_valid_hash($test_hash)) {
-            return;
-        }
+	private static function request_remote_email_report($test_hash, $status, $admin_email) {
+		if (!self::is_valid_hash($test_hash)) {
+			return;
+		}
 
-        self::remote_request('POST', '/result/' . rawurlencode($test_hash) . '/email-report', [
+		$status = sanitize_key($status);
+		if (!in_array($status, ['delayed', 'expired'], true)) {
+			return;
+		}
+
+		self::remote_request('POST', '/result/' . rawurlencode($test_hash) . '/email-report', [
             'timeout' => 20,
             'headers' => [
                 'Content-Type' => 'application/json',
@@ -478,16 +485,18 @@ class Email_Monitor {
         }
     }
 
-    private static function remote_request($method, $path, $args) {
-        $base_url = defined('EMSFB_SERVER_URL') ? untrailingslashit(EMSFB_SERVER_URL) : 'https://whitestudio.team';
-        $endpoint = $base_url . '/wp-json/ws-email-tester/v1' . $path;
-        $response = strtoupper($method) === 'POST'
-            ? wp_remote_post($endpoint, $args)
-            : wp_remote_get($endpoint, $args);
+	private static function remote_request($method, $path, $args) {
+		$base_url = defined('EMSFB_EMAIL_TESTER_URL') && EMSFB_EMAIL_TESTER_URL
+			? untrailingslashit((string) EMSFB_EMAIL_TESTER_URL)
+			: (defined('EMSFB_SERVER_URL') ? untrailingslashit(EMSFB_SERVER_URL) : 'https://whitestudio.team');
+		$endpoint = $base_url . '/wp-json/ws-email-tester/v1' . $path;
+		$response = strtoupper($method) === 'POST'
+			? wp_remote_post($endpoint, $args)
+			: wp_remote_get($endpoint, $args);
 
-        if (!is_wp_error($response) || strpos($base_url, '://www.') !== false) {
-            return $response;
-        }
+		if (!is_wp_error($response) || strpos($base_url, '://www.') !== false || !preg_match('#://whitestudio\.team/?$#', $base_url)) {
+			return $response;
+		}
 
         $fallback = preg_replace('#://#', '://www.', $base_url, 1) . '/wp-json/ws-email-tester/v1' . $path;
         return strtoupper($method) === 'POST'

@@ -1627,6 +1627,10 @@ class efbFunction {
 			"emailServerWorkingReport" => $state && isset($ac->text->emailServerWorkingReport) ? $ac->text->emailServerWorkingReport : esc_html__('Your email server is working. A detailed HTML report has been sent to %s.','easy-form-builder'),
 			/* translators: Fallback text when admin email address is not available */
 			"yourAdminEmail" => $state && isset($ac->text->yourAdminEmail) ? $ac->text->yourAdminEmail : esc_html__('your admin email address','easy-form-builder'),
+			/* translators: Title of the spam score notification box shown when email test succeeds */
+			"emailSpamReportTitle" => $state && isset($ac->text->emailSpamReportTitle) ? $ac->text->emailSpamReportTitle : esc_html__('Spam Score Report on the Way!','easy-form-builder'),
+			/* translators: Description in spam score notification box. %s is replaced with the admin email address */
+			"emailSpamReportDesc" => $state && isset($ac->text->emailSpamReportDesc) ? $ac->text->emailSpamReportDesc : esc_html__('A complete email health report — including your spam score, deliverability details, and recommendations — will be sent to %s within the next few minutes.','easy-form-builder'),
 			/* translators: Title of the delayed delivery warning box */
 			"deliveryDelayedTitle" => $state && isset($ac->text->deliveryDelayedTitle) ? $ac->text->deliveryDelayedTitle : esc_html__('Delivery is taking longer than expected','easy-form-builder'),
 			/* translators: Description shown when email delivery is delayed */

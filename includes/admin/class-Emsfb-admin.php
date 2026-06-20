@@ -1811,30 +1811,32 @@ class Admin {
         return sanitize_email('no-reply@' . $server_name);
     }
 
-    private function email_tester_remote_request_efb($method, $path, $args) {
-        $primary_endpoint = $this->email_tester_endpoint_efb($path);
-        $this->email_tester_log_efb('remote_request_attempt', [
-            'run_id' => $this->email_tester_current_run_id_efb(),
-            'method' => strtoupper($method),
+	private function email_tester_remote_request_efb($method, $path, $args) {
+		$primary_endpoint = $this->email_tester_endpoint_efb($path);
+		$this->email_tester_log_efb('remote_request_attempt', [
+			'run_id' => $this->email_tester_current_run_id_efb(),
+			'method' => strtoupper($method),
             'endpoint' => $primary_endpoint,
         ]);
-        $request = $this->email_tester_remote_request_once_efb($method, $primary_endpoint, $args);
-        if (is_wp_error($request)) {
-            $this->email_tester_log_efb('remote_request_attempt_failed', [
-                'run_id' => $this->email_tester_current_run_id_efb(),
-                'method' => strtoupper($method),
+		$request = $this->email_tester_remote_request_once_efb($method, $primary_endpoint, $args);
+		if (is_wp_error($request)) {
+			$this->email_tester_log_efb('remote_request_attempt_failed', [
+				'run_id' => $this->email_tester_current_run_id_efb(),
+				'method' => strtoupper($method),
                 'endpoint' => $primary_endpoint,
-                'message' => $request->get_error_message(),
-                'code' => $request->get_error_code(),
-            ]);
-            $fallback_endpoint = $this->email_tester_endpoint_efb($path, true);
-            $this->email_tester_log_efb('remote_request_fallback_attempt', [
-                'run_id' => $this->email_tester_current_run_id_efb(),
-                'method' => strtoupper($method),
-                'endpoint' => $fallback_endpoint,
-            ]);
-            $request = $this->email_tester_remote_request_once_efb($method, $fallback_endpoint, $args);
-        }
+				'message' => $request->get_error_message(),
+				'code' => $request->get_error_code(),
+			]);
+			$fallback_endpoint = $this->email_tester_endpoint_efb($path, true);
+			if ($fallback_endpoint !== $primary_endpoint) {
+				$this->email_tester_log_efb('remote_request_fallback_attempt', [
+					'run_id' => $this->email_tester_current_run_id_efb(),
+					'method' => strtoupper($method),
+					'endpoint' => $fallback_endpoint,
+				]);
+				$request = $this->email_tester_remote_request_once_efb($method, $fallback_endpoint, $args);
+			}
+		}
         if (is_wp_error($request)) {
             $this->email_tester_log_efb('remote_request_final_error', [
                 'run_id' => $this->email_tester_current_run_id_efb(),
@@ -1888,10 +1890,15 @@ class Admin {
         ];
     }
 
-    private function email_tester_endpoint_efb($path, $use_www = false) {
-        $host = $use_www ? 'www.whitestudio.team' : 'whitestudio.team';
-        return 'https://' . $host . '/wp-json/ws-email-tester/v1' . $path;
-    }
+	private function email_tester_endpoint_efb($path, $use_www = false) {
+		if (defined('EMSFB_EMAIL_TESTER_URL') && EMSFB_EMAIL_TESTER_URL) {
+			$base_url = untrailingslashit((string) EMSFB_EMAIL_TESTER_URL);
+			return $base_url . '/wp-json/ws-email-tester/v1' . $path;
+		}
+
+		$host = $use_www ? 'www.whitestudio.team' : 'whitestudio.team';
+		return 'https://' . $host . '/wp-json/ws-email-tester/v1' . $path;
+	}
 
     private function email_tester_current_run_id_efb() {
         return isset($_POST['run_id']) ? sanitize_text_field(wp_unslash($_POST['run_id'])) : '';
