@@ -99,7 +99,7 @@ jQuery(function () {
 
   let count_show_efb_cache = localStorage.hasOwnProperty('efb_cache') ? Number(localStorage.getItem('efb_cache'))+1 : 0;
   const efb_cache_dismissed = localStorage.getItem('efb_cache_dismissed') === 'true';
-  if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && !efb_cache_dismissed){
+/*   if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && !efb_cache_dismissed){
 
     if(efb_var.text.excefb.indexOf('%s')==-1){
       $val_noti = efb_var.text.excefb.replaceAll('XX', `<b>${efb_var.plugins.cache} </b>`);
@@ -114,7 +114,7 @@ jQuery(function () {
     alert_message_efb('' ,$val_noti,  120 ,'warning' )
     count_show_efb_cache = count_show_efb_cache + 1;
     localStorage.setItem('efb_cache',count_show_efb_cache);
-  }
+  } */
 
   setTimeout(() => {
     restore_auto_save_efb();

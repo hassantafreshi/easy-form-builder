@@ -1289,6 +1289,37 @@ function efb_hide_submit_ajax_badge_efb(form_id) {
     panel.clearSubmissionBadge(form_id);
   }
 }
+function efb_log_cache_plugin_notice_efb(form_id) {
+  if (!ajax_object_efm || !ajax_object_efm.cache_plugins_public) return;
+  const panel = efb_get_error_panel_efb();
+  if (!panel || typeof panel.log !== 'function') return;
+  try {
+    const list = typeof ajax_object_efm.cache_plugins_public === 'string'
+      ? JSON.parse(ajax_object_efm.cache_plugins_public)
+      : ajax_object_efm.cache_plugins_public;
+    if (!Array.isArray(list) || list.length === 0) return;
+    const t = ajax_object_efm.text;
+    const names = list.map(p => p && p.name).filter(Boolean).join(', ');
+    if (!names) return;
+    const docUrl = 'https://whitestudio.team/document/exclude-easy-form-builder-froms-cache/';
+    const message = (t.cacheWarnMsg || 'The following cache plugins may interfere with form functionality.')
+      + ' ' + names + '\n' + (t.cacheWarnDoc || 'Read more about cache compatibility') + ': ' + docUrl;
+
+    panel.log(message, {
+      source: 'cache-warning-submit',
+      type: 'notice',
+      name: ajax_object_efm.text.easyformbuilder || 'Easy Form Builder',
+      captureStack: false,
+      showBadge: true,
+      formId: form_id,
+      format: {
+        links: [{ url: docUrl, label: t.cacheWarnDoc || 'Read more about cache compatibility' }],
+        boldTexts: [names]
+      }
+    });
+  } catch (_e) {
+  }
+}
 async function response_fill_form_efb(res ,form_id=0) {
   form_id = Number(form_id);
   /* Some flows (e.g. password recovery) temporarily replace sendBack_emsFormBuilder_pub
@@ -1446,8 +1477,9 @@ async function response_fill_form_efb(res ,form_id=0) {
     if(efb_final_step){efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder text-center'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3  text-center"></i></h1><h3 class="efb  text-center fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
     ${isSubmitAjaxError ? `<div class="efb efb-submit-error-badge-slot my-2 d-flex justify-content-center" id="efb-submit-error-badge-slot-${form_id}"></div>` : ``}
     <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onclick="efb_hide_submit_ajax_badge_efb(${form_id}); ${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
-      if (isSubmitAjaxError) efb_show_submit_ajax_badge_efb(form_id);
+      if (isSubmitAjaxError) { efb_show_submit_ajax_badge_efb(form_id); efb_log_cache_plugin_notice_efb(form_id); }
     }else{
+      if (isSubmitAjaxError) efb_log_cache_plugin_notice_efb(form_id);
       alert_message_efb(res.data.m,'',14,'warning');
     }
   }
@@ -1673,11 +1705,12 @@ function efb_report_submit_ajax_error_efb(error, details = {}) {
 }
  post_api_forms_efb=async(data,form_id)=>{
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
+    const efbForce403Test = false; // Set to true to force a 403 response for testing nonce refresh flow
     const headers = new Headers({
-      'Content-Type': 'application/json',
-      'X-WP-Nonce': efb_var.nonce,
-      'form-id': form_id ? form_id : 0,
-      'sid':data.sid ? data.sid : '',
+     'Content-Type': 'application/json',
+     'X-WP-Nonce': efbForce403Test ? 'efb-force-403-test' : efb_var.nonce,
+     'form-id': form_id ? form_id : 0,
+     'sid': efbForce403Test ? 'efb-force-403-test' : (data.sid ? data.sid : ''),
     });
 
     const jsonData = JSON.stringify(data);
@@ -1692,6 +1725,7 @@ function efb_report_submit_ajax_error_efb(error, details = {}) {
     let response = await fetch(url, requestOptions);
     if (response.status === 403) {
       const refreshed = await efb_refresh_nonce();
+
       if (refreshed) {
         const retryHeaders = new Headers({
           'Content-Type': 'application/json',

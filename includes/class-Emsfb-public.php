@@ -1208,10 +1208,9 @@ public function check_nonce_permission_efb($request) {
 			$jss = $jss.'</script>';
 
 			$script = '';
-			if (current_user_can('manage_options')) {
-				$console_checker = $efbFormBuilder->check_error_console_efb();
-				$script = '<script>'.$console_checker.'</script>';
-			}
+			$console_checker = $efbFormBuilder->check_error_console_efb();
+			$script = '<script>'.$console_checker.'</script>';
+
 
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
@@ -5272,6 +5271,16 @@ public function check_nonce_permission_efb($request) {
 			'respFontSize' => $pub_settings['respFontSize'] ?? '0.9rem',
 			'respCustomFont' => $pub_settings['respCustomFont'] ?? '',
 		) );
+
+		$cache_plugins_public = get_option('emsfb_cache_plugins','0');
+		if ($cache_plugins_public !== '0' && !empty($cache_plugins_public)) {
+			$cache_plugins_public_list = json_decode($cache_plugins_public, true);
+			if (is_array($cache_plugins_public_list) && !empty($cache_plugins_public_list)) {
+				$ar_core['cache_plugins_public'] = wp_json_encode(array_map(function($p) {
+					return array('name' => $p['name'] ?? '');
+				}, $cache_plugins_public_list));
+			}
+		}
 
 		if (is_user_logged_in() && current_user_can('manage_options')) {
 			$cache_plugins = get_option('emsfb_cache_plugins','0');

@@ -3413,7 +3413,7 @@ public function check_error_console_efb(){
 					<svg class="efb-badge-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
 						<path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
 					</svg>
-					<span class="efb-badge-tooltip">${this.t.adminOnly}</span>
+					<!-- <span class="efb-badge-tooltip">${this.t.adminOnly}</span>-->
 				`;
 				const isRtl = document.documentElement.dir === "rtl" || document.body.dir === "rtl" || getComputedStyle(document.documentElement).direction === "rtl";
 				this.isRtl = isRtl;
@@ -3458,7 +3458,7 @@ public function check_error_console_efb(){
 						<span>${this.t.warning}</span>
 					</div>
 					<div class="efb-admin-notice">
-						<span>${this.t.adminOnly}</span>
+						<!-- <span>${this.t.adminOnly}</span> -->
 						<span class="efb-admin-badge">ADMIN</span>
 					</div>
 					<div class="efb-panel-body" id="efb-error-list">
@@ -3468,7 +3468,7 @@ public function check_error_console_efb(){
 						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
 						</svg>
-						<span>${this.t.adminOnly}</span>
+						<!-- <span>${this.t.adminOnly}</span> -->
 					</div>
 				`;
 				this.panel.style.cssText = `
