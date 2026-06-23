@@ -963,8 +963,8 @@ class efbFunction {
 			"ardate" => $state  &&  isset($ac->text->ardate) ? $ac->text->ardate : esc_html__('Hijri Date','easy-form-builder'),
 			"iaddon" => $state  &&  isset($ac->text->iaddon) ? $ac->text->iaddon : esc_html__('Install the addon','easy-form-builder'),
 			/* translators: Jalili is a typo for Jalali (Persian/Shamsi calendar) */
-			"IMAddonPD" => $state  &&  isset($ac->text->IMAddonPD) ? $ac->text->IMAddonPD : esc_html__('Please go to the Add-on Page of Easy Form Builder plugin and install the Jalili date addon','easy-form-builder'),
-			"IMAddonAD" => $state  &&  isset($ac->text->IMAddonAD) ? $ac->text->IMAddonAD : esc_html__('Please go to the Add-on Page of Easy Form Builder plugin and install the Hijri date addon','easy-form-builder'),
+			"IMAddonPD" => $state  &&  isset($ac->text->IMAddonPD) ? $ac->text->IMAddonPD : esc_html__('Please go to the Add-ons Page of Easy Form Builder plugin and install the Jalili date addons','easy-form-builder'),
+			"IMAddonAD" => $state  &&  isset($ac->text->IMAddonAD) ? $ac->text->IMAddonAD : esc_html__('Please go to the Add-ons Page of Easy Form Builder plugin and install the Hijri date addons','easy-form-builder'),
 			"warning" => $state  &&  isset($ac->text->warning) ? $ac->text->warning : esc_html__('warning','easy-form-builder'),
 			"datetimelocal" => $state  &&  isset($ac->text->datetimelocal) ? $ac->text->datetimelocal : esc_html__('date & time','easy-form-builder'),
 			"dsupfile" => $state  &&  isset($ac->text->dsupfile) ? $ac->text->dsupfile : esc_html__('Enable file upload in the response box','easy-form-builder'),
@@ -1023,7 +1023,7 @@ class efbFunction {
 			"newbkForm" => $state &&  isset($ac->text->newbkForm)? $ac->text->newbkForm : esc_html__('New Booking Form','easy-form-builder'),
 			"AdnSMF" => $state  &&  isset($ac->text->AdnSMF) ? $ac->text->AdnSMF : esc_html__('Conditional logic Addon','easy-form-builder'),
 			"condATAddon" => $state  &&  isset($ac->text->condATAddon) ? $ac->text->condATAddon : esc_html__('Conditional logic Addon','easy-form-builder'),
-			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : esc_html__("The Conditional Logic Addon enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users' unique needs.", 'easy-form-builder'),
+			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : esc_html__('The Conditional Logic Addon enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users’ unique needs.','easy-form-builder'),
 			"stopProcessing" => $state  &&  isset($ac->text->stopProcessing) ? $ac->text->stopProcessing : esc_html__('Stop after this rule matches','easy-form-builder'),
 
 			"condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : esc_html__('Enable Conditional','easy-form-builder'),
@@ -2529,6 +2529,17 @@ public function addon_add_efb($value) {
 
             return true;
 
+	}
+
+	public function flush_addon_wait_message_efb(){
+		if (function_exists('wp_ob_end_flush_all')) {
+			wp_ob_end_flush_all();
+		} else {
+			while (ob_get_level() > 0) {
+				ob_end_flush();
+			}
+		}
+		flush();
 	}
 
 	public function update_message_admin_side_efb(){

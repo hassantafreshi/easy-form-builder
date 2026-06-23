@@ -631,7 +631,8 @@ createCardAddoneEfb = (i) => {
   let nameNtn = efb_var.text.install;
   let iconNtn = 'bi-download';
   let colorNtn = 'btn-primary';
-  if (i.pro == true &&   Number(setting_emsFormBuilder.package_type) === 2) {
+
+  if ((i.pro == true &&   Number(setting_emsFormBuilder.package_type) === 2) || Number(setting_emsFormBuilder.package_type) === 3) {
     funNtn=`pro_show_efb(1)`;
     nameNtn = efb_var.text.pro;
     iconNtn ='bi-gem';
