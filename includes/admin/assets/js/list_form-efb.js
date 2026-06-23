@@ -3382,7 +3382,6 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         uiState.message = result.message || efbEmailTestText('emailOnItsWay', 'Email is on its way — still waiting for delivery confirmation.');
         uiState.percent = 100;
         efbEmailTestShow(uiState);
-        alert_message_efb(efb_var.text.alert, uiState.message, 18, 'warning');
         efbEmailTestFinishButton(button, buttonHtml);
         return;
       }
@@ -3408,7 +3407,6 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         uiState.percent = 88;
         if (result.can_send_email) efbEmailTestSetSmtpState(true);
         efbEmailTestShow(uiState);
-        alert_message_efb(result.can_send_email ? efb_var.text.done : efb_var.text.alert, result.message || '', 12, result.can_send_email ? 'success' : 'warning');
         if (result.full_report_pending) {
           efbEmailServerTestTimer = setTimeout(function () {
             efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt);
@@ -3530,7 +3528,6 @@ function clickToCheckEmailServer() {
         uiState.test = payload.test || null;
         uiState.percent = 100;
         efbEmailTestShow(uiState);
-        alert_message_efb(efb_var.text.alert, uiState.message, 30, 'warning');
         efbEmailTestFinishButton(button, buttonHtml);
       }
     }).fail(function (xhr, textStatus) {

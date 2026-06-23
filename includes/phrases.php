@@ -903,7 +903,7 @@ class EfbAddonPhrases {
             "enableConnection" => $state && isset($ac->text->enable_connection) ? $ac->text->enable_connection : esc_html__('Enable this connection', 'easy-form-builder'),
             "previous" => $state && isset($ac->text->previous) ? $ac->text->previous : esc_html__('Previous', 'easy-form-builder'),
             "next" => $state && isset($ac->text->next) ? $ac->text->next : esc_html__('Next', 'easy-form-builder'),
-            "save" => $state && isset($ac->text->save) ? $ac->text->save : esc_html__('Save Connection', 'easy-form-builder'),
+            "save" => $state && isset($ac->text->save) ? $ac->text->save : esc_html__('Save', 'easy-form-builder'),
             "back" => $state && isset($ac->text->back) ? $ac->text->back : esc_html__('Back', 'easy-form-builder'),
             "edit" => $state && isset($ac->text->edit) ? $ac->text->edit : esc_html__('Edit', 'easy-form-builder'),
             "test" => $state && isset($ac->text->test) ? $ac->text->test : esc_html__('Test', 'easy-form-builder'),

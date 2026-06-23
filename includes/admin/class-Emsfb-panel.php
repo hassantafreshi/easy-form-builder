@@ -243,6 +243,7 @@ class Panel_edit  {
 			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+			$email_health = $this->get_email_health_status_for_builder();
 			$efb_var_data = apply_filters('efb_admin_localize_vars', array(
 				'ajax_url' => admin_url('admin-ajax.php'),
 				'nonce'=> wp_create_nonce("wp_rest"),
@@ -269,6 +270,7 @@ class Panel_edit  {
 				'rest_url'=>get_rest_url(null),
 				'plugins'=>$plugins,
 				'wsteam'=> $wsteam_domain,
+				'emailHealth'=>$email_health,
 				'emailMonitor' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_public_status() : array(),
 			), 'panel');
 			wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
@@ -379,6 +381,41 @@ class Panel_edit  {
 		$table_name = $this->db->prefix . "emsfb_msg_";
 		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0 OR read_=3" );
 		return $value;
+	}
+	private function get_email_health_status_for_builder() {
+		$status = get_option('emsfb_email_status', false);
+		$score = null;
+
+		if (is_array($status)) {
+			$score = $this->extract_email_score_from_status($status);
+		}
+
+		return array(
+			'score' => $score,
+			'threshold' => 75,
+		);
+	}
+	private function extract_email_score_from_status($value) {
+		if (!is_array($value)) {
+			return null;
+		}
+
+		foreach (array('score', 'spam_score', 'spamScore') as $key) {
+			if (isset($value[$key]) && is_numeric($value[$key])) {
+				return (float) $value[$key];
+			}
+		}
+
+		foreach ($value as $item) {
+			if (is_array($item)) {
+				$score = $this->extract_email_score_from_status($item);
+				if ($score !== null) {
+					return $score;
+				}
+			}
+		}
+
+		return null;
 	}
 	public function get_not_read_response(){
 		if(empty($this->db)){

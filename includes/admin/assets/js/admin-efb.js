@@ -11,12 +11,80 @@ let pro_price_efb =27;
 let heartbeat_efb_active =false;
 let _efb_autosave_in_progress = false;
 let state_page_efb='';
+let efb_builder_last_email_warning_signature = '';
 var _efb_nonce_ = (typeof efb_var !== 'undefined' && efb_var.nonce) ? efb_var.nonce : '';
 
 if (typeof pro_efb === 'undefined') { var pro_efb = (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1)) ? true : false; }
 
 if (sessionStorage.getItem("valueJson_ws_p")) sessionStorage.removeItem('valueJson_ws_p');
 if(sessionStorage.getItem("formId_efb")) sessionStorage.removeItem('formId_efb');
+
+function efb_builder_value_is_true(value) {
+  return value === true || value === 1 || value === '1' || value === 'true';
+}
+
+function efb_builder_form_has_email_field() {
+  return Array.isArray(valj_efb) && valj_efb.some((field) => field && field.type === 'email');
+}
+
+function efb_builder_email_setting_smtp_disabled() {
+  const toggle = document.getElementById('hostSupportSmtp_emsFormBuilder');
+  if (toggle) {
+    return !toggle.classList.contains('active');
+  }
+
+  const setting = (typeof valueJson_ws_setting !== 'undefined' && valueJson_ws_setting && typeof valueJson_ws_setting === 'object' && Object.prototype.hasOwnProperty.call(valueJson_ws_setting, 'smtp'))
+    ? valueJson_ws_setting
+    : ((typeof efb_var !== 'undefined' && efb_var.setting)
+      ? efb_var.setting
+      : (typeof setting_emsFormBuilder !== 'undefined' ? setting_emsFormBuilder : null));
+  return !setting || !efb_builder_value_is_true(setting.smtp);
+}
+
+function efb_builder_latest_email_spam_score() {
+  const health = (typeof efb_var !== 'undefined' && efb_var.emailHealth) ? efb_var.emailHealth : {};
+  const score = health && health.score !== null && health.score !== undefined ? Number(health.score) : NaN;
+  return Number.isFinite(score) ? score : null;
+}
+
+function efb_builder_email_warning_signature() {
+  const first = Array.isArray(valj_efb) && valj_efb[0] ? valj_efb[0] : {};
+  return [
+    form_ID_emsFormBuilder || 0,
+    first.formName || first.type || '',
+    Array.isArray(valj_efb) ? valj_efb.length : 0,
+    efb_builder_latest_email_spam_score()
+  ].join('|');
+}
+
+function efb_builder_maybe_warn_email_delivery() {
+  const score = efb_builder_latest_email_spam_score();
+  const health = (typeof efb_var !== 'undefined' && efb_var.emailHealth) ? efb_var.emailHealth : {};
+  const threshold = health && Number(health.threshold) ? Number(health.threshold) : 75;
+
+  if (!efb_builder_form_has_email_field() || !efb_builder_email_setting_smtp_disabled() || (score !== null && score >= threshold)) {
+    return;
+  }
+
+  const signature = efb_builder_email_warning_signature();
+  if (efb_builder_last_email_warning_signature === signature) {
+    return;
+  }
+  efb_builder_last_email_warning_signature = signature;
+
+  const title = efb_var.text.emailNotificationRiskTitle || 'Email notifications may not be delivered';
+  const template = score === null
+    ? (efb_var.text.emailNotificationRiskDescNoScore || 'This form includes an email field, but email delivery is not enabled in settings and no recent spam score is available. Form admin notification emails may not arrive until SMTP/email delivery is tested and fixed.')
+    : (efb_var.text.emailNotificationRiskDesc || 'This form includes an email field, but email delivery is not enabled in settings and the latest spam score is %s/100. The form was saved, but admin notification emails may not reach the form admin until SMTP/email delivery is fixed.');
+  const helpText = efb_var.text.clcdetls || efb_var.text.smtpSetupGuideBtn || efb_var.text.clickHere || 'Click here for more details';
+  const helpLink = `<br><a class="efb alert-link text-dark fw-semibold pointer-efb" onclick="Link_emsFormBuilder('EmailSpam')">${helpText}</a>`;
+  const message = (score === null ? template : template.replace('%s', `<b>${score}</b>`)) + helpLink;
+  alert_message_efb(title, message, 30, 'warning');
+}
+
+function efb_builder_maybe_warn_email_delivery_after_save() {
+  efb_builder_maybe_warn_email_delivery();
+}
 
 function deepFreeze_efb_admin(obj) {
   if (typeof obj !== "object" || obj === null) return obj;
@@ -372,7 +440,8 @@ function show_message_result_form_set_EFB(state, m) {
   const e_s = cet();
   let e_m ='<div id="alert"></div>';
   if((efb_var.smtp==false || efb_var.smtp==0 || efb_var.smtp==-1) && (e_s==true || e_s==1)) {
-    msg = `<br> <p>${efb_var.text.clickToCheckEmailServer }</p> <p>${efb_var.text.goToEFBAddEmailM }</p> <br>
+    msg = `<p class="efb mb-1"><strong>${efb_var.text.emailNotificationRiskTitle}</strong></p>
+    <p class="efb mb-2">${efb_var.text.goToEFBAddEmailM}</p>
     <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block ec-efb" data-eventform="links" data-linkname="EmailNoti"><i class="efb bi bi-patch-question  mx-1"></i>${efb_var.text.howActivateAlertEmail}</a>
     `
     e_m = alarm_emsFormBuilder(msg)
@@ -450,6 +519,7 @@ async function  actionSendData_emsFormBuilder() {
           form_ID_emsFormBuilder = parseInt(res.data.id)
 
           show_message_result_form_set_EFB(1, res.data.value);
+          if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
           localStorage.setItem('efb_auto_save', 0);
           fun_pr(1);
         } else {
@@ -459,6 +529,7 @@ async function  actionSendData_emsFormBuilder() {
         }
       } else if (res.data.r == "update" || res.data.r == "updated" && res.data.success == true) {
         show_message_result_form_set_EFB(2, res.data.value);
+        if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
 
         sessionStorage.setItem('formId_efb', res.data.value);
         fun_pr(1);
@@ -3325,6 +3396,9 @@ let editFormEfb =async () => {
     }
 
     fub_shwBtns_efb()
+    setTimeout(() => {
+      efb_builder_maybe_warn_email_delivery();
+    }, 250);
   }, len);
 
 }
@@ -3483,6 +3557,12 @@ let sampleElpush_efb = (rndm, elementId) => {
       valj_efb[indx].file = 'zip';
     }
 
+  }
+
+  if (elementId == "email") {
+    setTimeout(() => {
+      efb_builder_maybe_warn_email_delivery();
+    }, 250);
   }
 
 }

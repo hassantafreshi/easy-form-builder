@@ -1679,6 +1679,11 @@ class Admin {
             $status_data['details']['api_status'] = sanitize_text_field($test_result['status']);
         }
 
+        $spam_score = $this->extract_email_test_score_efb($test_result);
+        if ($spam_score !== null) {
+            $status_data['details']['score'] = $spam_score;
+        }
+
         $this->email_tester_log_efb('saving_status_to_option', [
             'status_data' => $status_data,
             'test_result' => [
@@ -1695,6 +1700,29 @@ class Admin {
             $ac->smtp = true;
             $efbFunction->set_setting_Emsfb($ac);
         }
+    }
+
+    private function extract_email_test_score_efb($value) {
+        if (!is_array($value)) {
+            return null;
+        }
+
+        foreach (['score', 'spam_score', 'spamScore'] as $key) {
+            if (isset($value[$key]) && is_numeric($value[$key])) {
+                return (float) $value[$key];
+            }
+        }
+
+        foreach ($value as $item) {
+            if (is_array($item)) {
+                $score = $this->extract_email_test_score_efb($item);
+                if ($score !== null) {
+                    return $score;
+                }
+            }
+        }
+
+        return null;
     }
 
     private function maybe_request_email_tester_no_delivery_report_efb($test_hash, $test_result, $admin_email = '') {
@@ -2402,11 +2430,17 @@ function admin_notices_efb () {
 
                         return;
                     }
+                    $msg_id = isset($check['message']['id']) ? $check['message']['id'] : '';
+                    if ($msg_id === 'email_test_pending' || in_array($email_status, ['pending', 'delayed', 'warning'], true)) {
+                        return;
+                    }
+                    return;
             }else{
                 if (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true)) {
                        update_option('emsfb_email_status', $this->build_email_ready_status_efb());
                        return;
                 }else{
+                     return;
                      $r = get_option('emsfb_email_status', false);
                      if($r===false){
                         $logo_url   = EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.png';
