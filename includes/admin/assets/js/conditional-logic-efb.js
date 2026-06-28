@@ -427,7 +427,8 @@
   function renderList() {
     view = 'list';
     currentRuleId = null;
-    const mx = Number(efb_var.rtl) == 1 ? 'ms-2' : 'me-2';
+    // const mx = Number(efb_var.rtl) == 1 ? 'ms-2' : 'me-2';
+    const mx ="";
     if (rules.length === 0) {
       return `
         <div class="efb-logic-list">

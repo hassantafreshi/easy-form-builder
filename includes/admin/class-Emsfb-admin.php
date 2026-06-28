@@ -611,7 +611,23 @@ class Admin {
             $this->db = $wpdb;
         }
         $table_name = $this->db->prefix . "emsfb_form";
-        $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
+        $value      = $this->db->get_var( $this->db->prepare( "SELECT form_structer FROM `$table_name` WHERE form_id = %d", $id ) );
+
+        /*
+         * Previously this endpoint always answered success=true even when no
+         * row existed for $id (deleted form, stale link, etc.) — ajax_value
+         * was sent back as null. The builder's JS then crashed trying to
+         * read .length off that null (silently swallowed by an empty catch),
+         * never reaching the call that hides the loading spinner — the edit
+         * screen stayed stuck loading forever, with no console error and no
+         * feedback to the user. Failing fast here with success=false lets
+         * the client show an actual error instead.
+         */
+        if ( $value === null || $value === '' ) {
+            $response = [ 'success' => false, 'm' => $lang['somethingWentWrongPleaseRefresh'] ];
+            wp_send_json_success( $response, 200 );
+            die();
+        }
 
         $decoded_form = json_decode( stripslashes( $value ) );
         if ( $decoded_form === null ) {

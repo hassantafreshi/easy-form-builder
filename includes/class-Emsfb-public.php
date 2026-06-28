@@ -1746,14 +1746,18 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 				unset( $_f );
+			}
 
-				$_req_check = apply_filters(
-					'efb_logic_validate_required',
-					[ 'valid' => true, 'missing_field' => null, 'missing_name' => null ],
-					$form_fields_array,
-					$submitted_values,
-					$efb_logic_result
-				);
+			$has_multiple_emails = isset($form_fields_array[0]["email_send_type"]) ? $form_fields_array[0]["email_send_type"] : false;
+
+			$form_type = $form_fields_array[0]['type'] ?? 'form';
+			if (!isset($submitted_values['logout']) && !isset($submitted_values['recovery']) && $form_type!='register' && $form_type!='login') {
+				// Required-field presence check — runs for every ordinary submission,
+				// with or without the conditional-logic addon, because the legacy
+				// per-field validation loop below only checks the FORMAT of values
+				// that were submitted; it never notices a required field that is
+				// missing entirely from $submitted_values.
+				$_req_check = $this->validate_required_fields_present_efb( $form_fields_array, $submitted_values );
 				if ( empty( $_req_check['valid'] ) ) {
 					$_missing_name = $_req_check['missing_name'] ?? '';
 					$_req_msg = isset( $this->lanText['pleaseMakeSureAllFields'] )
@@ -1765,12 +1769,7 @@ public function check_nonce_permission_efb($request) {
 					$response = [ 'success' => false, 'm' => $_req_msg, 'field_id' => $_req_check['missing_field'] ?? '' ];
 					wp_send_json_success( $response, 200 );
 				}
-			}
 
-			$has_multiple_emails = isset($form_fields_array[0]["email_send_type"]) ? $form_fields_array[0]["email_send_type"] : false;
-
-			$form_type = $form_fields_array[0]['type'] ?? 'form';
-			if (!isset($submitted_values['logout']) && !isset($submitted_values['recovery']) && $form_type!='register' && $form_type!='login') {
 				if(isset($plugin_settings['smtp']) && (bool)$plugin_settings['smtp'] ){
 						$should_send_email = true;
 				}
@@ -5059,6 +5058,52 @@ public function check_nonce_permission_efb($request) {
 		return array_filter($item, function($key) use ($allowed_attributes_efb) {
 			return isset($allowed_attributes_efb[$key]);
 		}, ARRAY_FILTER_USE_KEY);
+	}
+
+	/**
+	 * Confirms every required field has a value in $submitted_values.
+	 *
+	 * The per-field loop in get_form_public_efb() only validates the FORMAT of
+	 * values that arrived in the request — if a required field is absent from
+	 * $submitted_values entirely (e.g. JS validation was bypassed), that loop
+	 * never iterates for it and the missing field passes silently. This runs
+	 * before that loop for every ordinary submission so the existing
+	 * "fill required fields" message is actually enforced server-side.
+	 */
+	private function validate_required_fields_present_efb($form_fields_array, $submitted_values) {
+		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld'];
+		static $checkbox_types = ['checkbox', 'paycheckbox', 'chlcheckbox'];
+		static $radio_types = ['radio', 'payradio', 'imgradio', 'chlradio'];
+		static $file_types = ['file', 'dadfile', 'esign'];
+
+		$submitted_ids = [];
+		foreach ((array) $submitted_values as $row) {
+			if (!is_array($row) || empty($row['id_'])) continue;
+			$type = strtolower((string) ($row['type'] ?? ''));
+			$value = $row['value'] ?? '';
+			if (in_array($type, $checkbox_types, true) && !empty($row['id_ob'])) {
+				$submitted_ids[$row['id_']] = true;
+			} elseif ((in_array($type, $radio_types, true) || $type === 'yesno') && !empty($row['id_ob'])) {
+				$submitted_ids[$row['id_']] = true;
+			} elseif (in_array($type, $file_types, true) && ($value !== '' || !empty($row['url']))) {
+				$submitted_ids[$row['id_']] = true;
+			} elseif (is_array($value) ? !empty($value) : ($value !== '' && $value !== null)) {
+				$submitted_ids[$row['id_']] = true;
+			}
+		}
+
+		foreach ($form_fields_array as $position => $field) {
+			if ($position < 1 || !is_array($field) || empty($field['id_'])) continue;
+			$type = strtolower((string) ($field['type'] ?? ''));
+			if (in_array($type, $structural_types, true)) continue;
+			$required = $field['required'] ?? false;
+			$is_required = $required === true || $required === 1 || $required === '1' || $required === 'true';
+			if ($is_required && !isset($submitted_ids[$field['id_']])) {
+				return ['valid' => false, 'missing_field' => $field['id_'], 'missing_name' => $field['name'] ?? $field['id_']];
+			}
+		}
+
+		return ['valid' => true, 'missing_field' => null, 'missing_name' => null];
 	}
 
 	private function filter_attributes_by_type_efb($data,$type) {

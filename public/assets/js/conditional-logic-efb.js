@@ -650,10 +650,23 @@
     return root.document.getElementById('body_efb_' + context.formId);
   }
 
+  function cssEscape(value) {
+    var text = String(value || '');
+    if (root.CSS && typeof root.CSS.escape === 'function') return root.CSS.escape(text);
+    return text.replace(/([ #;?%&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
+  }
+
   function elementInForm(context, id) {
-    var element = root.document.getElementById(id);
     var body = bodyFor(context);
-    return element && body && body.contains(element) ? element : null;
+    if (!body) return null;
+    if (body.querySelector) {
+      try {
+        var local = body.querySelector('#' + cssEscape(id));
+        if (local) return local;
+      } catch (error) {}
+    }
+    var element = root.document.getElementById(id);
+    return element && body.contains(element) ? element : null;
   }
 
   function clearFieldDom(context, fieldId) {
@@ -675,15 +688,15 @@
     var field = index.fields[fieldId] || {};
     var type = String(field.type || '').toLowerCase();
     var values = Array.isArray(value) ? value.map(String) : [String(value)];
-    var input = root.document.getElementById(fieldId + '_');
+    var input = elementInForm(context, fieldId + '_');
 
     if (type === 'yesno') {
       wrapper.querySelectorAll('input[type="radio"]').forEach(function (radioInput) { radioInput.checked = false; });
       wrapper.querySelectorAll('.active').forEach(function (active) { active.classList.remove('active'); });
       var yes = String(value).toLowerCase() === 'yes';
-      var radio = root.document.getElementById(fieldId + (yes ? '_1' : '_2'));
+      var radio = elementInForm(context, fieldId + (yes ? '_1' : '_2'));
       if (radio) radio.checked = true;
-      var button = root.document.getElementById(fieldId + (yes ? '_b_1' : '_b_2'));
+      var button = elementInForm(context, fieldId + (yes ? '_b_1' : '_b_2'));
       if (button) button.classList.add('active');
       return;
     }
@@ -730,7 +743,7 @@
         : (required[fieldId] ? true : (optional[fieldId] ? false : bool(index.fields[fieldId].required)));
       var liveField = context.structure.find(function (field) { return field && field.id_ === fieldId; });
       if (liveField) liveField.required = isRequired;
-      var requiredMarker = root.document.getElementById(fieldId + '_req');
+      var requiredMarker = elementInForm(context, fieldId + '_req');
       if (requiredMarker) requiredMarker.style.display = isRequired ? '' : 'none';
 
       if (wrapper) {

@@ -780,27 +780,48 @@ function fun_get_form_by_id(id) {
       id: id
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      if (res.success == true) {
-        try {
-          const value = efb_safe_json_parse(res.data.ajax_value);
-          const len = value.length
-          const p = calPLenEfb(len) + 1;
-          valj_efb = value;
-          setTimeout(() => {
-            formName_Efb = valj_efb[0].formName;
-            form_type_emsFormBuilder=valj_efb[0].type
-            form_ID_emsFormBuilder = id;
-            sessionStorage.setItem('valj_efb', JSON.stringify(value));
-            const edit = { id: res.data.id, edit: true };
-            sessionStorage.setItem('Edit_ws_form', JSON.stringify(edit))
-            fun_ws_show_edit_form(id);
-            state_page_efb = 'edit';
-            localStorage.setItem('efb_auto_save', 0);
-          }, len * p)
-        } catch (error) {
-        }
+      /*
+       * NOTE: res.success is the wp_send_json_success() envelope and is
+       * ALWAYS true — the actual app-level result is res.data.success.
+       * That field used to be ignored entirely here, and the PHP side used
+       * to always answer data.success=true even when the form no longer
+       * existed (deleted, stale link, wrong id) — ajax_value came back
+       * null/empty. That null then threw inside the try block below
+       * (reading .length off it), and the catch was empty, so nothing ever
+       * replaced the loading card shown by emsFormBuilder_waiting_response()
+       * — the edit screen stayed stuck loading forever with no error and
+       * no console trace. Every failure path below now explicitly reports
+       * the error and returns the user to the forms list instead of hanging.
+       */
+      const value = (res.data && res.data.success == true) ? efb_safe_json_parse(res.data.ajax_value) : null;
+      if (!res.data || res.data.success !== true || !Array.isArray(value) || value.length === 0) {
+        const msg = (res.data && res.data.m) || (efb_var.text && efb_var.text.somethingWentWrongPleaseRefresh) || 'This form could not be loaded.';
+        alert_message_efb('', msg, 17, 'danger');
+        fun_show_content_page_emsFormBuilder('forms');
+        return;
+      }
+      try {
+        const len = value.length
+        const p = calPLenEfb(len) + 1;
+        valj_efb = value;
+        setTimeout(() => {
+          formName_Efb = valj_efb[0].formName;
+          form_type_emsFormBuilder=valj_efb[0].type
+          form_ID_emsFormBuilder = id;
+          sessionStorage.setItem('valj_efb', JSON.stringify(value));
+          const edit = { id: res.data.id, edit: true };
+          sessionStorage.setItem('Edit_ws_form', JSON.stringify(edit))
+          fun_ws_show_edit_form(id);
+          state_page_efb = 'edit';
+          localStorage.setItem('efb_auto_save', 0);
+        }, len * p)
+      } catch (error) {
+        alert_message_efb('', (efb_var.text && efb_var.text.somethingWentWrongPleaseRefresh) || 'This form could not be loaded.', 17, 'danger');
+        fun_show_content_page_emsFormBuilder('forms');
       }
     }).fail(function(jqXHR, textStatus, errorThrown) {
+      alert_message_efb('', (efb_var.text && efb_var.text.somethingWentWrongPleaseRefresh) || 'This form could not be loaded.', 17, 'danger');
+      fun_show_content_page_emsFormBuilder('forms');
     });
   });
 }

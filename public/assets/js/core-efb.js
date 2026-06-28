@@ -728,6 +728,61 @@ async function fun_sendBack_emsFormBuilder(ob) {
   localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
   localStorage.setItem('formId', efb_var.id)
 }
+
+function yesNoGetEFB(v, id, idl, form_id=0) {
+  if (typeof sendBack_emsFormBuilder_pub === 'undefined') return;
+
+  var clickedBtn = null;
+  if (Number(form_id) > 0 && typeof efb_get_by_id_in_form_efb === 'function') {
+    clickedBtn = efb_get_by_id_in_form_efb(form_id, idl);
+  }
+  if (!clickedBtn && typeof event !== 'undefined' && event && event.currentTarget && event.currentTarget.id === idl) {
+    clickedBtn = event.currentTarget;
+  }
+  if (!clickedBtn) clickedBtn = document.getElementById(idl);
+
+  if (!(Number(form_id) > 0) && clickedBtn && typeof efb_form_id_from_dom_node_efb === 'function') {
+    form_id = efb_form_id_from_dom_node_efb(clickedBtn);
+  }
+  if (!(Number(form_id) > 0) && typeof efb_unique_dom_form_id_for_id_efb === 'function') {
+    form_id = efb_unique_dom_form_id_for_id_efb(idl);
+  }
+  form_id = Number(form_id) > 0 ? Number(form_id) : 0;
+
+  const getLocalEl = (targetId)=>{
+    if (Number(form_id) > 0 && typeof efb_get_by_id_in_form_efb === 'function') {
+      return efb_get_by_id_in_form_efb(form_id, targetId);
+    }
+    return document.getElementById(targetId);
+  }
+
+  const otherId = idl.slice(-4) === '_b_2' ? `${id}_b_1` : `${id}_b_2`;
+  const otherBtn = getLocalEl(otherId);
+  if (otherBtn) otherBtn.classList.remove('btn-set');
+  if (clickedBtn && !clickedBtn.classList.contains('btn-set')) clickedBtn.classList.add('btn-set');
+
+  const inputId = idl.slice(-4) === '_b_2' ? `${id}_2` : `${id}_1`;
+  const inputEl = getLocalEl(inputId);
+  if (inputEl) inputEl.checked = true;
+
+  const structure = Number(form_id) > 0 ? get_structure_by_form_id_efb(form_id) : valj_efb;
+  const indx = Array.isArray(structure) ? structure.findIndex(x => x && x.id_ == id) : -1;
+  if (indx === -1) return;
+
+  const row = structure[indx];
+  const o = {
+    id_: id,
+    name: row.name,
+    id_ob: inputId,
+    amount: row.amount,
+    type: "yesNo",
+    value: v,
+    session: sessionPub_emsFormBuilder
+  };
+  if (Number(form_id) > 0) o.form_id = form_id;
+  fun_sendBack_emsFormBuilder(o);
+}
+
 function alarm_emsFormBuilder(val) {
   return `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
       <div><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></div>
@@ -1966,18 +2021,139 @@ function updateStepButtonState_efb(form_id) {
       nextTextEl.textContent = currentStep === maxStep ? submitText : nextTextEl.dataset.defaultText;
     }
 
-    // Backfill missing form_id on legacy rows (commonly multiselect) so required checks can find them.
+    // Backfill missing form_id on legacy rows only when the owner can be inferred confidently.
     for (var bi = 0; bi < sendBack_emsFormBuilder_pub.length; bi++) {
-      normalize_sendback_row_form_id_efb(sendBack_emsFormBuilder_pub[bi], form_id);
+      normalize_sendback_row_form_id_efb(sendBack_emsFormBuilder_pub[bi], -1);
     }
   } catch (e) {
     console.error('[updateStepButtonState_efb] ERROR:', e);
   }
 }
 
-smoothy_scroll_postion_efb=(id)=>{
+function efb_css_escape_efb(value) {
+  var text = String(value || '');
+  if (typeof CSS !== 'undefined' && CSS && typeof CSS.escape === 'function') {
+    return CSS.escape(text);
+  }
+  return text.replace(/([ #;?%&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
+}
 
-  const element = document.getElementById(id);
+function efb_form_body_efb(form_id) {
+  return document.getElementById('body_efb_' + form_id) ||
+    (Number(form_id) === 0 ? document.getElementById('body_efb') : null);
+}
+
+function efb_query_in_form_efb(form_id, selector) {
+  var body = efb_form_body_efb(form_id);
+  if (body && typeof body.querySelector === 'function') {
+    try {
+      return body.querySelector(selector);
+    } catch (e) {}
+  }
+  try {
+    return document.querySelector(selector);
+  } catch (e) {
+    return null;
+  }
+}
+
+function efb_get_by_id_in_form_efb(form_id, id) {
+  if (id === null || id === undefined || String(id).length === 0) return null;
+  var body = efb_form_body_efb(form_id);
+  var selector = '#' + efb_css_escape_efb(id);
+  if (body && typeof body.querySelector === 'function') {
+    try {
+      var local = body.querySelector(selector);
+      if (local) return local;
+    } catch (e) {}
+  }
+  var globalEl = document.getElementById(String(id));
+  if (!body) return globalEl;
+  return globalEl && body.contains(globalEl) ? globalEl : null;
+}
+
+function efb_structure_for_form_efb(form_id) {
+  if (!Array.isArray(valj_efb_new)) return null;
+  var form = valj_efb_new.find(function(item) { return item && Number(item.id) === Number(form_id); });
+  return form && Array.isArray(form.form_structer) ? form.form_structer : null;
+}
+
+function efb_field_owner_count_efb(field_id) {
+  if (!Array.isArray(valj_efb_new) || field_id === null || field_id === undefined) return 0;
+  var count = 0;
+  for (var i = 0; i < valj_efb_new.length; i++) {
+    var structure = valj_efb_new[i] && valj_efb_new[i].form_structer;
+    if (!Array.isArray(structure)) continue;
+    if (structure.some(function(field) { return field && String(field.id_) === String(field_id); })) count++;
+  }
+  return count;
+}
+
+function efb_field_exists_in_form_efb(field_id, form_id) {
+  var structure = efb_structure_for_form_efb(form_id);
+  if (!structure) return false;
+  return structure.some(function(field) { return field && String(field.id_) === String(field_id); });
+}
+
+function efb_has_form_id_efb(row) {
+  if (!row || typeof row !== 'object') return false;
+  if (!row.hasOwnProperty('form_id')) return false;
+  if (row.form_id === '' || row.form_id === null || row.form_id === undefined) return false;
+  var parsedFormId = Number(row.form_id);
+  return Number.isNaN(parsedFormId) === false && parsedFormId > 0;
+}
+
+function efb_form_id_from_dom_node_efb(node) {
+  var cursor = node;
+  while (cursor) {
+    if (cursor.dataset && cursor.dataset.formid !== undefined && cursor.dataset.formid !== '') {
+      var dataFormId = Number(cursor.dataset.formid);
+      if (Number.isNaN(dataFormId) === false) return dataFormId;
+    }
+    if (cursor.id && /^body_efb_\d+$/.test(String(cursor.id))) {
+      return Number(String(cursor.id).replace('body_efb_', ''));
+    }
+    cursor = cursor.parentElement || cursor.parentNode || cursor.parent || null;
+  }
+  return -1;
+}
+
+function efb_unique_dom_form_id_for_id_efb(id) {
+  if (!id || typeof document !== 'object') return -1;
+  var nodes = [];
+  if (typeof document.querySelectorAll === 'function') {
+    var safeAttr = String(id).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    try {
+      nodes = Array.prototype.slice.call(document.querySelectorAll('[id="' + safeAttr + '"]'));
+    } catch (e) {}
+  }
+  if (nodes.length === 0 && document.getElementById) {
+    var el = document.getElementById(String(id));
+    if (el) nodes = [el];
+  }
+  var found = [];
+  for (var i = 0; i < nodes.length; i++) {
+    var formId = efb_form_id_from_dom_node_efb(nodes[i]);
+    if (formId !== -1 && found.indexOf(formId) === -1) found.push(formId);
+  }
+  return found.length === 1 ? found[0] : -1;
+}
+
+function efb_row_belongs_to_form_efb(row, form_id) {
+  if (Number(form_id) === 0) return true;
+  if (!row || typeof row !== 'object') return false;
+  if (efb_has_form_id_efb(row)) return Number(row.form_id) === Number(form_id);
+  var inferred = infer_form_id_by_field_efb(row);
+  if (inferred !== -1) return Number(inferred) === Number(form_id);
+  var rowId = row.id_ || row.id || '';
+  return rowId && efb_field_owner_count_efb(rowId) === 1 && efb_field_exists_in_form_efb(rowId, form_id);
+}
+
+smoothy_scroll_postion_efb=(id, form_id=0)=>{
+
+  const element = Number(form_id) > 0 && typeof efb_get_by_id_in_form_efb === 'function'
+    ? efb_get_by_id_in_form_efb(form_id, id)
+    : document.getElementById(id);
   if (element) {
     const elementRect = element.getBoundingClientRect();
     const elementTop = elementRect.top + window.scrollY;
@@ -2212,11 +2388,21 @@ infer_form_id_by_field_efb=(field_id)=>{
   // Fast path via cached map (field_id -> form_id), rebuilt when form schema changes.
   const get_map_efb =()=>{
     if (!Array.isArray(valj_efb_new)) return null;
-    const cacheKey = `len:${valj_efb_new.length}|ids:${valj_efb_new.map(f => Number(f && f.id || -1)).join(',')}`;
+    const cacheKey = `len:${valj_efb_new.length}|ids:${valj_efb_new.map(f => Number(f && f.id || -1)).join(',')}|rows:${valj_efb_new.map(f => Array.isArray(f && f.form_structer) ? f.form_structer.length : 0).join(',')}`;
     if (window.__efb_field_form_map_cache && window.__efb_field_form_map_cache.key === cacheKey) {
       return window.__efb_field_form_map_cache.map;
     }
     const mp = new Map();
+    const put_efb = (key, fId)=>{
+      if (key === null || key === undefined || String(key).length === 0) return;
+      const normalizedKey = String(key);
+      const existing = mp.get(normalizedKey);
+      if (existing === undefined) {
+        mp.set(normalizedKey, fId);
+      } else if (existing !== null && Number(existing) !== Number(fId)) {
+        mp.set(normalizedKey, null);
+      }
+    }
     for (let i = 0; i < valj_efb_new.length; i++) {
       const form = valj_efb_new[i];
       if (!form || !Array.isArray(form.form_structer)) continue;
@@ -2225,13 +2411,13 @@ infer_form_id_by_field_efb=(field_id)=>{
         const row = form.form_structer[j];
         if (!row || typeof row !== 'object') continue;
         if (row.hasOwnProperty('id_') && String(row.id_).length > 0) {
-          mp.set(String(row.id_), fId);
+          put_efb(String(row.id_), fId);
         }
         if (row.hasOwnProperty('id_ob') && String(row.id_ob).length > 0) {
-          mp.set(`id_ob:${String(row.id_ob)}`, fId);
+          put_efb(`id_ob:${String(row.id_ob)}`, fId);
         }
         if (row.hasOwnProperty('name') && String(row.name).length > 0) {
-          mp.set(`name:${String(row.name).toLowerCase()}`, fId);
+          put_efb(`name:${String(row.name).toLowerCase()}`, fId);
         }
       }
     }
@@ -2242,41 +2428,51 @@ infer_form_id_by_field_efb=(field_id)=>{
   if (!Array.isArray(valj_efb_new) || valj_efb_new.length === 0) return -1;
 
   const isObjectInput = field_id && typeof field_id === 'object';
+  if (isObjectInput && efb_has_form_id_efb(field_id)) {
+    const explicitFormId = Number(field_id.form_id);
+    if (Number.isNaN(explicitFormId) === false) return explicitFormId;
+  }
+
   const candidateId = isObjectInput
     ? (field_id.id_ || field_id.id || '')
     : field_id;
 
   const map = get_map_efb();
   if (!map) return -1;
+  const read_hit_efb = (key)=>{
+    const hit = map.get(key);
+    if (hit === undefined || hit === null) return -1;
+    return Number(hit);
+  }
 
   if (candidateId !== null && candidateId !== undefined && String(candidateId).length > 0) {
-    const hit = map.get(String(candidateId));
-    if (hit !== undefined) return Number(hit);
+    const hit = read_hit_efb(String(candidateId));
+    if (hit !== -1) return hit;
   }
 
   // Fallback for objects that may not have id_ (legacy/special rows).
   if (isObjectInput) {
     if (field_id.hasOwnProperty('id_ob') && String(field_id.id_ob).length > 0) {
-      const byOb = map.get(`id_ob:${String(field_id.id_ob)}`);
-      if (byOb !== undefined) return Number(byOb);
+      const byOb = read_hit_efb(`id_ob:${String(field_id.id_ob)}`);
+      if (byOb !== -1) return byOb;
     }
     if (field_id.hasOwnProperty('name') && String(field_id.name).length > 0) {
-      const byName = map.get(`name:${String(field_id.name).toLowerCase()}`);
-      if (byName !== undefined) return Number(byName);
+      const byName = read_hit_efb(`name:${String(field_id.name).toLowerCase()}`);
+      if (byName !== -1) return byName;
     }
     // DOM fallback: if this row belongs to an input/select/textarea element, use dataset formid.
     const domId = field_id.id_ob || field_id.id_ || field_id.id || '';
-    if (domId && typeof document === 'object' && document.getElementById) {
-      const el = document.getElementById(String(domId)) || document.getElementById(`${domId}_`);
-      if (el && el.dataset && el.dataset.formid !== undefined) {
-        const domFormId = Number(el.dataset.formid);
-        if (Number.isNaN(domFormId) === false) return domFormId;
-      }
+    if (domId && typeof document === 'object') {
+      const domFormId = efb_unique_dom_form_id_for_id_efb(String(domId));
+      if (domFormId !== -1) return domFormId;
+      const domInputFormId = efb_unique_dom_form_id_for_id_efb(`${domId}_`);
+      if (domInputFormId !== -1) return domInputFormId;
     }
   }
 
-  // Last fallback: active form context if available.
-  if (form_ID_emsFormBuilder !== undefined && form_ID_emsFormBuilder !== null) {
+  // Last fallback only when there is a single form on the page. With multiple
+  // forms, guessing from active global context can validate the wrong form.
+  if (Array.isArray(valj_efb_new) && valj_efb_new.length === 1 && form_ID_emsFormBuilder !== undefined && form_ID_emsFormBuilder !== null) {
     const activeFormId = Number(form_ID_emsFormBuilder);
     if (Number.isNaN(activeFormId) === false && activeFormId >= 0) return activeFormId;
   }
@@ -2348,10 +2544,15 @@ is_required_value_filled_efb=(row, fieldType='')=>{
 
 normalize_sendback_row_form_id_efb=(row, fallback_form_id=-1)=>{
   if (!row || typeof row !== 'object') return row;
-  const hasFormId = row.hasOwnProperty('form_id') && row.form_id !== '' && row.form_id !== null && row.form_id !== undefined;
-  if (hasFormId) return row;
+  if (efb_has_form_id_efb(row)) return row;
   const inferred = infer_form_id_by_field_efb(row);
-  row.form_id = inferred !== -1 ? inferred : fallback_form_id;
+  if (inferred !== -1) {
+    row.form_id = inferred;
+    return row;
+  }
+  if (Number(fallback_form_id) > 0 && row.id_ && efb_field_owner_count_efb(row.id_) === 1 && efb_field_exists_in_form_efb(row.id_, fallback_form_id)) {
+    row.form_id = fallback_form_id;
+  }
   return row;
 }
 
@@ -2383,7 +2584,7 @@ get_row_sendback_by_id_efb_v4=(id_,form_id=0)=>{
     return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)
 
   }else{
-    return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_ && Number((x.hasOwnProperty('form_id') ? x.form_id : infer_form_id_by_field_efb(x.id_)))==Number(form_id))
+    return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_ && efb_row_belongs_to_form_efb(x, form_id))
   }
  }
 
@@ -2488,16 +2689,23 @@ function efb_go_to_step_direct(form_id, targetStep) {
   const progressBar = body_efb.querySelector('.progress-bar-efb');
   if (progressBar) progressBar.style.width = (targetStep / (maxStep + 1)) * 100 + '%';
 
+  /* #next_efb is the SAME element whether it currently reads "Next" or
+   * "Submit" — only its inner text is swapped by updateStepButtonState_efb()
+   * (also used by jumpToStep() for the same reason). But the overshoot path
+   * in btn_navigate_handle_efb hides the clicked button itself
+   * (`el.classList.add('d-none')`) when treating the form as finished, and
+   * that `el` is #next_efb — so it must be explicitly shown again here,
+   * since we are by definition NOT finished if we're displaying a real step. */
   const nextBtn = body_efb.querySelector('#next_efb');
+  if (nextBtn) nextBtn.classList.remove('d-none');
+  /* #btn_send_efb is the equivalent single-step-form submit button (mutually
+   * exclusive with #next_efb/#prev_efb) and gets hidden the same way on its
+   * own overshoot path in btn_navigate_handle_efb — restore it too. */
   const sendBtn = body_efb.querySelector('#btn_send_efb');
+  if (sendBtn) sendBtn.classList.remove('d-none');
+  if (typeof updateStepButtonState_efb === 'function') updateStepButtonState_efb(form_id);
+
   const prevBtn = body_efb.querySelector('#prev_efb');
-  if (targetStep >= maxStep) {
-    if (sendBtn) sendBtn.classList.remove('d-none');
-    if (nextBtn) nextBtn.classList.add('d-none');
-  } else {
-    if (nextBtn) nextBtn.classList.remove('d-none');
-    if (sendBtn) sendBtn.classList.add('d-none');
-  }
   if (prevBtn) prevBtn.classList.toggle('d-none', targetStep <= 1);
 
   if (Number(valj_efb[0].show_icon) !== 1) {
@@ -2882,7 +3090,7 @@ async function fun_validation_efb_v4(form_id) {
     if (!logicValidation.valid) {
       alert_message_efb(efb_var.text.fillrequiredfields, '', 6, 'warning');
       if (logicValidation.missing_field && typeof smoothy_scroll_postion_efb === 'function') {
-        smoothy_scroll_postion_efb(logicValidation.missing_field);
+        smoothy_scroll_postion_efb(logicValidation.missing_field, form_id);
       }
       return false;
     }
@@ -2898,21 +3106,23 @@ async function fun_validation_efb_v4(form_id) {
   for (let row in valj_efb) {
     let s =  get_row_sendback_by_id_efb_v4(valj_efb[row].id_,form_id);
     /* Skip validation for fields hidden by conditional logic (wrapper has d-none class) */
-    const _wrapper_v = document.getElementById(valj_efb[row].id_);
+    const _wrapper_v = efb_get_by_id_in_form_efb(form_id, valj_efb[row].id_);
     if (_wrapper_v && _wrapper_v.classList.contains('d-none')) continue;
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
-      let el = document.getElementById(`${valj_efb[row].id_}_-message`);
+      let el = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_-message`);
+      let inputEl = efb_get_by_id_in_form_efb(form_id, id);
 
       let fieldFailed = false;
       if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile'){
-        let r = files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_);
+        let r = files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_ && efb_row_belongs_to_form_efb(x, form_id));
         if (r !== -1) {
           fieldFailed = files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state) == 0;
         } else {
           // Upload completed — entry removed from files_emsFormBuilder; check sendback for uploaded URL
           const sbIndx = sendBack_emsFormBuilder_pub.findIndex(x =>
             x.id_ === valj_efb[row].id_ &&
+            efb_row_belongs_to_form_efb(x, form_id) &&
             x.value === '@file@' &&
             typeof x.url === 'string' &&
             x.url.length > 0
@@ -2925,26 +3135,30 @@ async function fun_validation_efb_v4(form_id) {
 
       if (fieldFailed) {
         if (state == true) { state = false; idi = valj_efb[row].id_ , name_field = valj_efb[row].name }
-        if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+        if(el && Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
           el.classList.add('unpx');
         }
         // Use custom required message if set, otherwise use default
         const fieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
         const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${fieldMsg}','',10,'danger')"></div>` : fieldMsg;
-        el.innerHTML = msg;
-        show_msg_efb(el);
-        if (type_validate_efb(valj_efb[row].type) == true) {
-          document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");}
+        if (el) {
+          el.innerHTML = msg;
+          show_msg_efb(el);
+        }
+        if (inputEl && type_validate_efb(valj_efb[row].type) == true) {
+          inputEl.className = colorBorderChangerEfb(inputEl.className, "border-danger");}
       } else {
         idi = valj_efb[row].id_;
-        hide_msg_efb(el);
-        if (type_validate_efb(valj_efb[row].type) == true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-success");
+        if (el) hide_msg_efb(el);
+        if (inputEl && type_validate_efb(valj_efb[row].type) == true) inputEl.className = colorBorderChangerEfb(inputEl.className, "border-success");
         const v = sendBack_emsFormBuilder_pub.length>0 && valj_efb[row].type == "multiselect" && sendBack_emsFormBuilder_pub[s].hasOwnProperty('value') ? sendBack_emsFormBuilder_pub[s].value.split("@efb!") :"";
         if ((valj_efb[row].type == "multiselect" || valj_efb[row].type == "payMultiselect") && (v.length - 1) < valj_efb[row].minSelect) {
           name_field = valj_efb[row].name
-          document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");
-          el.innerHTML = efb_var.text.minSelect + " " + valj_efb[row].minSelect
-          show_msg_efb(el);
+          if (inputEl) inputEl.className = colorBorderChangerEfb(inputEl.className, "border-danger");
+          if (el) {
+            el.innerHTML = efb_var.text.minSelect + " " + valj_efb[row].minSelect
+            show_msg_efb(el);
+          }
           if (state == true) { state = false; idi = valj_efb[row].id_ }
         }
       }
@@ -2960,22 +3174,26 @@ async function fun_validation_efb_v4(form_id) {
 
       }
         let state_of_ch = true;;
-        const em = sendBack_emsFormBuilder_pub.find(x => x.id_ob == idi);
+        const msgEl = efb_get_by_id_in_form_efb(form_id, idi+'_-message');
+        const wrapperEl = efb_get_by_id_in_form_efb(form_id, idi);
+        const em = sendBack_emsFormBuilder_pub.find(x => x.id_ob == idi && efb_row_belongs_to_form_efb(x, form_id));
         if(em==undefined || em==null ){
             // Use custom required message if set, otherwise use default
             const chlFieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
             const chlMsg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${chlFieldMsg}','',10,'danger')"></div>` : chlFieldMsg;
-            document.getElementById(idi+'_-message').innerHTML = chlMsg;
-            show_msg_efb(document.getElementById(idi+'_-message'));
+            if (msgEl) {
+              msgEl.innerHTML = chlMsg;
+              show_msg_efb(msgEl);
+            }
 
-            document.getElementById(idi).classList.add('bg-warning');
+            if (wrapperEl) wrapperEl.classList.add('bg-warning');
 
-        }else if(em.id_ob =idi && em.hasOwnProperty('qty')==false && em.qty == "" && em.value.length == 0 ) {
+        }else if(em.id_ob == idi && em.hasOwnProperty('qty')==false && em.qty == "" && em.value.length == 0 ) {
           fun_noti_chlcheckbox(idi,name_field,id_noti_message,form_id);
 
         }else{
-            hide_msg_efb(document.getElementById(idi+'_-message'));
-             document.getElementById(idi).classList.remove('bg-warning');
+            if (msgEl) hide_msg_efb(msgEl);
+            if (wrapperEl) wrapperEl.classList.remove('bg-warning');
         }
 
     }
@@ -2999,9 +3217,10 @@ async function fun_validation_efb_v4(form_id) {
     alert_message_efb(efb_var.text.fillrequiredfields, '', 6, 'warning');
     if (idi != "null") {
       if(typeof smoothy_scroll_postion_efb === 'function'){
-        smoothy_scroll_postion_efb(idi)
+        smoothy_scroll_postion_efb(idi, form_id)
       }else{
-        document.getElementById(idi).scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+        const scrollTarget = efb_get_by_id_in_form_efb(form_id, idi);
+        if (scrollTarget) scrollTarget.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
       }
     }
     return false;
