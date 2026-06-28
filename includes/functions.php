@@ -1037,6 +1037,10 @@ class efbFunction {
 			"endw" => $state  &&  isset($ac->text->endw) ? $ac->text->endw : esc_html__('ends with','easy-form-builder'),
 			"gthan" => $state  &&  isset($ac->text->gthan) ? $ac->text->gthan : esc_html__('greater than','easy-form-builder'),
 			"lthan" => $state  &&  isset($ac->text->lthan) ? $ac->text->lthan : esc_html__('less than','easy-form-builder'),
+			"gtehan" => $state  &&  isset($ac->text->gtehan) ? $ac->text->gtehan : esc_html__('greater than or equal to','easy-form-builder'),
+			"ltehan" => $state  &&  isset($ac->text->ltehan) ? $ac->text->ltehan : esc_html__('less than or equal to','easy-form-builder'),
+			"between" => $state  &&  isset($ac->text->between) ? $ac->text->between : esc_html__('between','easy-form-builder'),
+			"nBetween" => $state  &&  isset($ac->text->nBetween) ? $ac->text->nBetween : esc_html__('not between','easy-form-builder'),
 			"ise" => $state  &&  isset($ac->text->ise) ? $ac->text->ise : esc_html__('Is','easy-form-builder'),
 			"isne" => $state  &&  isset($ac->text->isne) ? $ac->text->isne : esc_html__('Is not','easy-form-builder'),
 			"empty" => $state  &&  isset($ac->text->empty) ? $ac->text->empty : esc_html__('Empty','easy-form-builder'),
@@ -1045,6 +1049,10 @@ class efbFunction {
 			"or" => $state  &&  isset($ac->text->or) ? $ac->text->or : esc_html__('or','easy-form-builder'),
 			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : esc_html__('and','easy-form-builder'),
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : esc_html__('Add New Group','easy-form-builder'),
+			"logicConditions" => $state  &&  isset($ac->text->logicConditions) ? $ac->text->logicConditions : esc_html__('Conditions','easy-form-builder'),
+			"logicCondition" => $state  &&  isset($ac->text->logicCondition) ? $ac->text->logicCondition : esc_html__('Condition','easy-form-builder'),
+			"logicGroup" => $state  &&  isset($ac->text->logicGroup) ? $ac->text->logicGroup : esc_html__('Group','easy-form-builder'),
+			"logicGroupEmpty" => $state  &&  isset($ac->text->logicGroupEmpty) ? $ac->text->logicGroupEmpty : esc_html__('Add a condition or a group.','easy-form-builder'),
 
 			"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : esc_html__('Add your forms','easy-form-builder'),
 
@@ -2077,6 +2085,12 @@ class efbFunction {
 							$valp[$key][$k]=sanitize_text_field($v);
 						}
 					break;
+					case 'notification_rules':
+						$valp[$key][$k] = is_array($v) ? $this->sanitize_notification_rules($v, $valp) : array();
+					break;
+					case 'confirmation_rules':
+						$valp[$key][$k] = is_array($v) ? $this->sanitize_confirmation_rules($v, $valp) : array();
+					break;
 					default:
 					$k =sanitize_text_field($k);
 					$valp[$key][$k]=sanitize_text_field($v);
@@ -2158,6 +2172,71 @@ class efbFunction {
 		return $clean;
 	}
 
+	private function get_logic_valid_fields_from_structure($form_structure) {
+		$valid_fields = array();
+		if (!is_array($form_structure)) return $valid_fields;
+
+		foreach ($form_structure as $field) {
+			if (!is_array($field) || empty($field['id_'])) continue;
+			$type = isset($field['type']) ? $field['type'] : '';
+			if (in_array($type, array('form', 'step', 'option', 'r_matrix', 'buttonNav'), true)) continue;
+			$valid_fields[sanitize_text_field($field['id_'])] = true;
+		}
+
+		return $valid_fields;
+	}
+
+	private function sanitize_notification_rules($rules, $form_structure = array()) {
+		if (!is_array($rules)) return array();
+		$valid_fields = $this->get_logic_valid_fields_from_structure($form_structure);
+		$clean = array();
+
+		foreach ($rules as $rule) {
+			if (!is_array($rule)) continue;
+			$recipient = isset($rule['recipient']) ? sanitize_email($rule['recipient']) : '';
+			if ($recipient === '') continue;
+
+			$clean[] = array(
+				'id' => isset($rule['id']) ? sanitize_text_field($rule['id']) : '',
+				'enabled' => isset($rule['enabled']) ? (bool) $rule['enabled'] : true,
+				'name' => isset($rule['name']) ? sanitize_text_field($rule['name']) : '',
+				'priority' => isset($rule['priority']) ? max(0, min(100000, intval($rule['priority']))) : 10,
+				'conditions' => $this->sanitize_logic_condition_group($rule['conditions'] ?? array(), $valid_fields),
+				'recipient' => $recipient,
+				'subject' => isset($rule['subject']) ? sanitize_text_field($rule['subject']) : '',
+				'template' => isset($rule['template']) ? sanitize_text_field($rule['template']) : 'default',
+			);
+		}
+
+		return $clean;
+	}
+
+	private function sanitize_confirmation_rules($rules, $form_structure = array()) {
+		if (!is_array($rules)) return array();
+		$valid_fields = $this->get_logic_valid_fields_from_structure($form_structure);
+		$clean = array();
+
+		foreach ($rules as $rule) {
+			if (!is_array($rule)) continue;
+			$action = isset($rule['action']) && in_array($rule['action'], array('message', 'redirect'), true)
+				? $rule['action']
+				: 'message';
+
+			$clean[] = array(
+				'id' => isset($rule['id']) ? sanitize_text_field($rule['id']) : '',
+				'enabled' => isset($rule['enabled']) ? (bool) $rule['enabled'] : true,
+				'name' => isset($rule['name']) ? sanitize_text_field($rule['name']) : '',
+				'priority' => isset($rule['priority']) ? max(0, min(100000, intval($rule['priority']))) : 10,
+				'conditions' => $this->sanitize_logic_condition_group($rule['conditions'] ?? array(), $valid_fields),
+				'action' => $action,
+				'url' => isset($rule['url']) ? esc_url_raw($rule['url']) : '',
+				'message' => isset($rule['message']) ? wp_kses_post($rule['message']) : '',
+			);
+		}
+
+		return $clean;
+	}
+
 	/**
 	 * Sanitize a nested conditional-logic group.
 	 */
@@ -2180,8 +2259,14 @@ class efbFunction {
 
 		foreach (($group['items'] ?? array()) as $item) {
 			if (!is_array($item)) continue;
+			$connector = strtoupper(sanitize_text_field($item['connector'] ?? ''));
+			$connector = in_array($connector, array('AND', 'OR'), true) ? $connector : '';
 			if (($item['type'] ?? '') === 'group' || isset($item['items'])) {
-				$clean['items'][] = $this->sanitize_logic_condition_group($item, $valid_fields);
+				$nested = $this->sanitize_logic_condition_group($item, $valid_fields);
+				if (!empty($nested['items'])) {
+					if ($connector !== '' && !empty($clean['items'])) $nested['connector'] = $connector;
+					$clean['items'][] = $nested;
+				}
 				continue;
 			}
 
@@ -2197,13 +2282,15 @@ class efbFunction {
 				$value = sanitize_text_field($value);
 			}
 
-			$clean['items'][] = array(
+			$condition = array(
 				'type' => 'condition',
 				'source' => 'field',
 				'field_id' => $field_id,
 				'compare' => $compare,
 				'value' => $value,
 			);
+			if ($connector !== '' && !empty($clean['items'])) $condition['connector'] = $connector;
+			$clean['items'][] = $condition;
 		}
 
 		return $clean;

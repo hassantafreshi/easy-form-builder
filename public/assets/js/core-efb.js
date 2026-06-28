@@ -116,12 +116,22 @@ function legacy_statement_logic_efb(triggeredId, triggeredType) {
 
   /* ── Evaluate condition group (AND / OR) ── */
   function _evalGroup(group) {
-    if (!group || !group.items || group.items.length === 0) return true;
-    var op = group.operator || 'AND';
-    if (op === 'OR') {
-      return group.items.some(function(c) { return _evalCondition(c); });
-    }
-    return group.items.every(function(c) { return _evalCondition(c); });
+    if (!group || !group.items || group.items.length === 0) return false;
+    var result = false;
+    var evalItem = function(c) {
+      if (c && (c.type === 'group' || Array.isArray(c.items))) return _evalGroup(c);
+      return _evalCondition(c);
+    };
+    group.items.forEach(function(c, index) {
+      var matched = evalItem(c);
+      if (index === 0) {
+        result = matched;
+        return;
+      }
+      var connector = String((c && c.connector) || group.operator || 'AND').toUpperCase() === 'OR' ? 'OR' : 'AND';
+      result = connector === 'OR' ? (result || matched) : (result && matched);
+    });
+    return result;
   }
 
   /* ── Capture original state of all rule target fields (runs once) ── */
@@ -750,7 +760,12 @@ function alarm_emsFormBuilder(val) {
 
   }
   let counter = 0;
-  const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? `logic_fun_prev_send(${form_id})`:`fun_prev_send(${form_id})`;
+  /* current_step is the last real step the user was on when they hit
+   * Submit — by the time these error screens render, dataset.currentstep
+   * has already been advanced past it (to current_step + 1), so
+   * fun_prev_send() would try to hide a fieldset that doesn't exist and
+   * throw. Go back to current_step directly instead. */
+  const btn_prev = `efb_go_to_step_direct(${form_id}, ${current_step})`;
   const stepMax = current_step + 1;
   let notfilled = []
   for (let i = 1; i <= stepMax; i++) {
@@ -1089,7 +1104,12 @@ async function validation_before_send_efb(form_id) {
   }else{
     valj_efb = valj_efb;
   }
-  const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? `logic_fun_prev_send(${form_id})`:`fun_prev_send(${form_id})`;
+  /* This validation runs right after a final-submit attempt, so
+   * dataset.currentstep may already be past the last real step (see
+   * efb_go_to_step_direct's doc comment) — fall back to the last real
+   * step instead of fun_prev_send(), which assumes a currently-visible
+   * fieldset exists at dataset.currentstep. */
+  const btn_prev = `efb_go_to_step_direct(${form_id}, ${Number(valj_efb[0].steps) || 1})`;
   const count = [0, 0]
   let fill = 0;
   let require = 0;
@@ -1345,7 +1365,19 @@ async function response_fill_form_efb(res ,form_id=0) {
   const body_efb = document.getElementById(id_body);
   const efb_final_step = body_efb.querySelector('#efb-final-step');
   const isSubmitAjaxError = res.data && res.data.efb_ajax_submission_error === true;
-  if(valj_efb.length>1) btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? `logic_fun_prev_send(${form_id})`:`fun_prev_send(${form_id})`;
+  if (valj_efb.length > 1) {
+    /* If the server rejected one specific field, send Previous straight back
+     * to THAT field's step — not "one step back from dataset.currentstep",
+     * which by this point may already be past the last real step (the
+     * step-advance code sets it before the AJAX call even runs) and would
+     * make fun_prev_send() throw trying to hide a fieldset that doesn't
+     * exist. */
+    const _erroredField = (res.data && res.data.field_id)
+      ? valj_efb.find((f) => f && f.id_ === res.data.field_id)
+      : null;
+    const _backStep = (_erroredField && _erroredField.step != null) ? Number(_erroredField.step) : (Number(stps) || 1);
+    btn_prev = `efb_go_to_step_direct(${form_id}, ${_backStep})`;
+  }
   if (res.data.success == true) {
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' && res.data.m.includes('@efb@') ){
       efb_final_step.innerHTML = `
@@ -1358,7 +1390,15 @@ async function response_fill_form_efb(res ,form_id=0) {
     switch (t.type) {
       case 'form':
       case 'payment':
-        efb_final_step.innerHTML = funTnxEfb(res.data.track)
+        if (res.data.conditional_redirect === true && typeof res.data.m === 'string') {
+          efb_final_step.innerHTML = `
+          <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
+          <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
+          `
+          window.location.href = res.data.m;
+          break;
+        }
+        efb_final_step.innerHTML = funTnxEfb(res.data.track, '', res.data.conditional_message || '')
         break;
       case 'survey':
         if(valj_efb[0].hasOwnProperty('thank_you') && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string'  ){
@@ -2071,23 +2111,38 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
 
   if(btn_state=='next_efb'){
         let prev_btn = parent_body.querySelector('#prev_efb');
-        if(no_step<2){
-          if(prev_btn)prev_btn.classList.remove('d-none');
-        }
-        no_step = Number(no_step)+1;
+        const _liveStepAfterValidation = Number(parent_body.dataset.currentstep);
+        const _jumpedDuringValidation = _liveStepAfterValidation !== no_step;
 
-        /* Skip logic-hidden steps forward — if all remaining steps are hidden,
-         * no_step will exceed max_step and the form will proceed to submission. */
-        while (no_step <= max_step) {
-          const _cs = parent_body.querySelector('[data-step="step-' + no_step + '-efb"]');
-          if (!_cs || _cs.dataset.logicHidden !== '1') break;
-          no_step++;
-        }
+        if (_jumpedDuringValidation) {
+          /* A conditional-logic jump_to_step action ran as a side effect of
+           * the validation/evaluate() call above (e.g. a rule on the field
+           * the user is leaving) and already moved the visible step —
+           * fieldset visibility, progress bar, and title/description are
+           * already correct. Adopt that destination instead of ALSO
+           * advancing by one more step below, which would double-count the
+           * jump and could overshoot past the real (or even the last) step. */
+          no_step = _liveStepAfterValidation;
+          if (prev_btn) prev_btn.classList.toggle('d-none', no_step <= 1);
+        } else {
+          if(no_step<2){
+            if(prev_btn)prev_btn.classList.remove('d-none');
+          }
+          no_step = Number(no_step)+1;
 
-        await fun_handle_header_efb(no_step,'forward');
-        current_fieldset.classList.add('d-none');
-        const next_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
-        if (next_fieldset) next_fieldset.classList.remove('d-none');
+          /* Skip logic-hidden steps forward — if all remaining steps are hidden,
+           * no_step will exceed max_step and the form will proceed to submission. */
+          while (no_step <= max_step) {
+            const _cs = parent_body.querySelector('[data-step="step-' + no_step + '-efb"]');
+            if (!_cs || _cs.dataset.logicHidden !== '1') break;
+            no_step++;
+          }
+
+          await fun_handle_header_efb(no_step,'forward');
+          current_fieldset.classList.add('d-none');
+          const next_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
+          if (next_fieldset) next_fieldset.classList.remove('d-none');
+        }
 
        parent_body.dataset.currentstep = no_step;
        if(progessbar)fun_progessbar(no_step,max_step);
@@ -2398,6 +2453,71 @@ fun_prev_send =(form_id =0) =>{
   fun_progessbar(current_s_efb,stp);
   smoothy_scroll_postion_efb(id_body);
 
+}
+
+/**
+ * Show a specific step directly, regardless of whatever value
+ * dataset.currentstep currently holds. fun_prev_send() always assumes
+ * dataset.currentstep points at a real, currently-visible fieldset and just
+ * decrements it — which throws (querySelector(...).classList on null) right
+ * after a final-submit attempt, because the step-advance code in
+ * btn_navigate_handle_efb already sets dataset.currentstep to max_step + 1
+ * before the AJAX call even runs, and no fieldset exists for that step.
+ * Used for the "Previous" button rendered on synthetic error screens
+ * (#efb-final-step) after a failed submit/validation, where we cannot rely
+ * on dataset.currentstep being a real, displayed step.
+ */
+function efb_go_to_step_direct(form_id, targetStep) {
+  const body_efb = document.getElementById('body_efb_' + form_id);
+  if (!body_efb) return false;
+  const valj_efb = get_structure_by_form_id_efb(form_id);
+  const maxStep = Number(valj_efb[0].steps) || 1;
+  targetStep = Math.max(1, Math.min(Number(targetStep) || 1, maxStep));
+
+  if (typeof efb_hide_submit_ajax_badge_efb === 'function') efb_hide_submit_ajax_badge_efb(form_id);
+
+  body_efb.querySelectorAll('[data-step^="step-"][data-step$="-efb"]').forEach((fieldset) => {
+    fieldset.classList.add('d-none');
+  });
+  const targetFieldset = body_efb.querySelector('[data-step="step-' + targetStep + '-efb"]');
+  if (targetFieldset) targetFieldset.classList.remove('d-none');
+
+  body_efb.dataset.currentstep = targetStep;
+  current_s_efb = targetStep;
+
+  const progressBar = body_efb.querySelector('.progress-bar-efb');
+  if (progressBar) progressBar.style.width = (targetStep / (maxStep + 1)) * 100 + '%';
+
+  const nextBtn = body_efb.querySelector('#next_efb');
+  const sendBtn = body_efb.querySelector('#btn_send_efb');
+  const prevBtn = body_efb.querySelector('#prev_efb');
+  if (targetStep >= maxStep) {
+    if (sendBtn) sendBtn.classList.remove('d-none');
+    if (nextBtn) nextBtn.classList.add('d-none');
+  } else {
+    if (nextBtn) nextBtn.classList.remove('d-none');
+    if (sendBtn) sendBtn.classList.add('d-none');
+  }
+  if (prevBtn) prevBtn.classList.toggle('d-none', targetStep <= 1);
+
+  if (Number(valj_efb[0].show_icon) !== 1) {
+    const titleEl = body_efb.querySelector('#title_efb');
+    const descEl = body_efb.querySelector('#desc_efb');
+    const stepData = valj_efb.find((x) => String(x.step) === String(targetStep));
+    if (stepData && titleEl && descEl) {
+      titleEl.className = colorTextChangerEfb(titleEl.className, stepData['label_text_color']);
+      descEl.className = colorTextChangerEfb(descEl.className, stepData['message_text_color']);
+      titleEl.textContent = stepData['name'];
+      descEl.textContent = stepData['message'];
+    }
+    for (let i = 1; i <= maxStep; i++) {
+      const icon = document.getElementById(i + '-f-step-efb-' + form_id);
+      if (icon) icon.classList.toggle('active', i === targetStep);
+    }
+  }
+
+  if (typeof smoothy_scroll_postion_efb === 'function') smoothy_scroll_postion_efb('body_efb_' + form_id);
+  return true;
 }
 
 async function handle_change_event_efb_v4(el ,form_id=0){

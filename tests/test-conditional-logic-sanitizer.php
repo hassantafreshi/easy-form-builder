@@ -99,8 +99,14 @@ class efbFunction_TestDouble {
 
         foreach (($group['items'] ?? array()) as $item) {
             if (!is_array($item)) continue;
+            $connector = strtoupper(sanitize_text_field($item['connector'] ?? ''));
+            $connector = in_array($connector, array('AND', 'OR'), true) ? $connector : '';
             if (($item['type'] ?? '') === 'group' || isset($item['items'])) {
-                $clean['items'][] = $this->sanitize_logic_condition_group($item, $valid_fields);
+                $nested = $this->sanitize_logic_condition_group($item, $valid_fields);
+                if (!empty($nested['items'])) {
+                    if ($connector !== '' && !empty($clean['items'])) $nested['connector'] = $connector;
+                    $clean['items'][] = $nested;
+                }
                 continue;
             }
 
@@ -116,13 +122,15 @@ class efbFunction_TestDouble {
                 $value = sanitize_text_field($value);
             }
 
-            $clean['items'][] = array(
+            $condition = array(
                 'type' => 'condition',
                 'source' => 'field',
                 'field_id' => $field_id,
                 'compare' => $compare,
                 'value' => $value,
             );
+            if ($connector !== '' && !empty($clean['items'])) $condition['connector'] = $connector;
+            $clean['items'][] = $condition;
         }
 
         return $clean;
@@ -283,6 +291,22 @@ $result = $efb->sanitize_logic_rules($rules, $form_structure);
 test('T4.3 unknown operator defaults to is', !empty($result) && $result[0]['conditions']['items'][0]['compare'] === 'is', true);
 
 // ─────────────────────────────────────────────────────────────────────────────
+// GROUP 4b: Numeric operators — gte, lte, between, not_between (Task 5.1)
+// ─────────────────────────────────────────────────────────────────────────────
+foreach (['gte', 'lte', 'between', 'not_between'] as $numericOp) {
+    $rules = [[
+        'id' => 'r1', 'enabled' => true, 'priority' => 10,
+        'conditions' => ['operator' => 'AND', 'items' => [
+            ['field_id' => 'field_a', 'compare' => $numericOp, 'value' => '5,10']
+        ]],
+        'actions' => [['type' => 'show_field', 'target' => 'field_b']],
+    ]];
+    $result = $efb->sanitize_logic_rules($rules, $form_structure);
+    test("T4b.$numericOp operator preserved", !empty($result) && $result[0]['conditions']['items'][0]['compare'] === $numericOp, true);
+    test("T4b.$numericOp value preserved as min,max string", !empty($result) && $result[0]['conditions']['items'][0]['value'] === '5,10', true);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // GROUP 5: value_type for set_value (Task 5)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -375,6 +399,61 @@ $result = $efb->sanitize_logic_rules($rules, $form_structure);
 test('T7.1 nested group preserved as group', !empty($result) && ($result[0]['conditions']['items'][0]['type'] ?? '') === 'group', true);
 test('T7.2 nested group operator preserved', !empty($result) && $result[0]['conditions']['items'][0]['operator'] === 'OR', true);
 test('T7.3 nested group items count', !empty($result) && count($result[0]['conditions']['items'][0]['items']) === 2, true);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP 7b: Per-item connector — mixed AND/OR within one group (Task 5.2)
+// ─────────────────────────────────────────────────────────────────────────────
+$rules = [[
+    'id' => 'r1', 'enabled' => true, 'priority' => 10,
+    'conditions' => [
+        'operator' => 'AND',
+        'items' => [
+            ['field_id' => 'field_a', 'compare' => 'is', 'value' => 'x'],
+            ['field_id' => 'field_b', 'compare' => 'is', 'value' => 'y', 'connector' => 'or'],
+            [
+                'type' => 'group', 'operator' => 'AND', 'connector' => 'AND',
+                'items' => [
+                    ['field_id' => 'field_a', 'compare' => 'is_not_empty', 'value' => ''],
+                ],
+            ],
+        ],
+    ],
+    'actions' => [['type' => 'hide_field', 'target' => 'field_b']],
+]];
+$result = $efb->sanitize_logic_rules($rules, $form_structure);
+$items7b = !empty($result) ? $result[0]['conditions']['items'] : [];
+test('T7b.1 first item has no connector', !isset($items7b[0]['connector']), true);
+test('T7b.2 second item connector normalized+preserved as OR', $items7b[1]['connector'] ?? null, 'OR');
+test('T7b.3 third item (group) connector preserved as AND', $items7b[2]['connector'] ?? null, 'AND');
+test('T7b.4 invalid connector value is dropped', (function() use ($efb, $form_structure) {
+    $r = [[
+        'id' => 'r2', 'enabled' => true, 'priority' => 10,
+        'conditions' => [
+            'operator' => 'AND',
+            'items' => [
+                ['field_id' => 'field_a', 'compare' => 'is', 'value' => 'x'],
+                ['field_id' => 'field_b', 'compare' => 'is', 'value' => 'y', 'connector' => 'xor'],
+            ],
+        ],
+        'actions' => [['type' => 'hide_field', 'target' => 'field_b']],
+    ]];
+    $res = $efb->sanitize_logic_rules($r, $form_structure);
+    return isset($res[0]['conditions']['items'][1]['connector']) ? $res[0]['conditions']['items'][1]['connector'] : 'none';
+})(), 'none');
+test('T7b.5 connector on first item is stripped (no preceding sibling)', (function() use ($efb, $form_structure) {
+    $r = [[
+        'id' => 'r3', 'enabled' => true, 'priority' => 10,
+        'conditions' => [
+            'operator' => 'AND',
+            'items' => [
+                ['field_id' => 'field_a', 'compare' => 'is', 'value' => 'x', 'connector' => 'OR'],
+            ],
+        ],
+        'actions' => [['type' => 'hide_field', 'target' => 'field_b']],
+    ]];
+    $res = $efb->sanitize_logic_rules($r, $form_structure);
+    return isset($res[0]['conditions']['items'][0]['connector']) ? $res[0]['conditions']['items'][0]['connector'] : 'none';
+})(), 'none');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GROUP 8: XSS / injection safety (Task 2/5)

@@ -4,7 +4,7 @@
 
 /* ── Modal Override ── */
 #settingModalEfb.efb-logic-modal .modal-dialog {
-  max-width: 680px;
+  max-width: 760px;
   margin: 2rem auto;
 }
 #settingModalEfb.efb-logic-modal .modal-content {
@@ -23,6 +23,37 @@
   margin-left: 0;
   margin-right: 0;
   flex-wrap: nowrap;
+}
+
+.efb-logic-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 14px 24px 0;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+}
+.efb-logic-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.efb-logic-tabs button.active {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #4338ca;
+}
+.efb-logic-tabs button:hover {
+  color: #1e293b;
 }
 
 /* ── Rules List View ── */
@@ -182,6 +213,30 @@
   color: #dc2626;
 }
 
+.efb-logic-settings-row {
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+.efb-logic-setting-field {
+  display: flex;
+  flex: 1 1 190px;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+.efb-logic-setting-field-wide {
+  flex-basis: 100%;
+}
+.efb-logic-setting-field span {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+}
+.efb-logic-message-input {
+  min-height: 88px;
+  resize: vertical;
+}
+
 /* ── Scope Badge ── */
 .efb-logic-scope-badge {
   display: inline-block;
@@ -274,6 +329,93 @@
   color: #15803d;
 }
 
+/* ── Condition Groups ── */
+.efb-logic-group {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  background: #fff;
+}
+.efb-logic-root-group {
+  border-color: #dbeafe;
+  background: #f8fbff;
+}
+.efb-logic-actions-group {
+    border-color: #1882403d;
+    background: #c0cfc617;
+}
+.efb-logic-group .efb-logic-group {
+  margin-top: 8px;
+  margin-inline-start: 18px;
+  background: #fbfdff;
+}
+.efb-logic-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.efb-logic-group-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+}
+.efb-logic-group-title i {
+  color: #6366f1;
+  font-size: 14px;
+}
+.efb-logic-group-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.efb-logic-group-body {
+  position: relative;
+}
+.efb-logic-item-connector {
+  justify-content: flex-start;
+  margin: 2px 0 8px 12px;
+}
+.efb-logic-group-empty {
+  padding: 10px 12px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.efb-logic-group-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.efb-logic-group-remove-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.efb-logic-group-remove-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
 /* ── Condition Row ── */
 .efb-logic-condition-row {
   display: flex;
@@ -311,6 +453,22 @@
 .efb-logic-value-select {
   flex: 2;
   min-width: 120px;
+}
+.efb-logic-value-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 2;
+  min-width: 160px;
+}
+.efb-logic-value-range .efb-logic-value-input {
+  flex: 1;
+  min-width: 70px;
+}
+.efb-logic-value-range-sep {
+  color: #94a3b8;
+  font-size: 13px;
+  flex-shrink: 0;
 }
 .efb-logic-remove-btn {
   width: 32px;
@@ -382,8 +540,10 @@
   color: #6366f1;
   background: #f5f3ff;
 }
-.efb-logic-add-row-btn i {
-  font-size: 13px;
+ .efb-logic-actions-group .efb-logic-add-row-btn:hover {
+  border-color: #1882403d;
+    color: #188240;
+    background: #dcfce7;
 }
 
 /* ── Visual Connector (dot-line-diamond) ── */
@@ -585,10 +745,27 @@
     flex-direction: column;
     align-items: stretch;
   }
+  .efb-logic-group .efb-logic-group {
+    margin-inline-start: 8px;
+  }
+  .efb-logic-group-header,
+  .efb-logic-group-controls,
+  .efb-logic-group-actions {
+    align-items: flex-start;
+  }
+  .efb-logic-group-header {
+    flex-direction: column;
+  }
   .efb-logic-condition-row select,
   .efb-logic-condition-row input,
   .efb-logic-action-row select {
     width: 100%;
+  }
+  .efb-logic-value-range {
+    width: 100%;
+  }
+  .efb-logic-value-range .efb-logic-value-input {
+    width: auto;
   }
   .efb-logic-remove-btn {
     align-self: flex-end;

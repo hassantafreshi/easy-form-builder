@@ -317,17 +317,21 @@
   function evaluateGroup(group, values, structure, rows) {
     var items = group && Array.isArray(group.items) ? group.items : [];
     if (!items.length) return false;
-    var isOr = String(group.operator || 'AND').toUpperCase() === 'OR';
+    var result = false;
     for (var i = 0; i < items.length; i++) {
       var item = items[i] || {};
       var isGroup = item.type === 'group' || Array.isArray(item.items);
       var matched = isGroup
         ? evaluateGroup(item, values, structure, rows)
         : evaluateCondition(item, values, structure, rows);
-      if (isOr && matched) return true;
-      if (!isOr && !matched) return false;
+      if (i === 0) {
+        result = matched;
+        continue;
+      }
+      var connector = String(item.connector || group.operator || 'AND').toUpperCase() === 'OR' ? 'OR' : 'AND';
+      result = connector === 'OR' ? (result || matched) : (result && matched);
     }
-    return !isOr;
+    return result;
   }
 
   function resolveActionValue(action, structure, values) {
@@ -374,13 +378,33 @@
       });
     });
 
+    var stoppedFieldTargets = {};
+    var stoppedStepTargets = {};
+    function isStepActionType(type) {
+      return type === 'show_step' || type === 'hide_step' || type === 'jump_to_step';
+    }
+
     for (var r = 0; r < rules.length; r++) {
       var rule = rules[r];
+      var ruleActions = rule.actions || [];
+
+      /* stop_processing only freezes the SPECIFIC targets a stopping rule acted
+         on (Task 3: "Multiple Rules on Same Target"), not every later rule in
+         the form. A rule is skipped here only if ALL of its action targets were
+         already frozen by an earlier matched stop_processing rule. */
+      var blockedByStop = ruleActions.length > 0 && ruleActions.every(function (action) {
+        if (!action.target) return false;
+        return isStepActionType(action.type)
+          ? Object.prototype.hasOwnProperty.call(stoppedStepTargets, action.target)
+          : Object.prototype.hasOwnProperty.call(stoppedFieldTargets, action.target);
+      });
+      if (blockedByStop) continue;
+
       if (!evaluateGroup(rule.conditions, values, structure, rows)) continue;
       var ruleId = String(rule.id || ('rule_' + r));
       matchedRules.push(ruleId);
 
-      (rule.actions || []).forEach(function (action, actionIndex) {
+      ruleActions.forEach(function (action, actionIndex) {
         var target = action.target;
         if (!target) return;
         switch (action.type) {
@@ -405,7 +429,14 @@
             break;
         }
       });
-      if (bool(rule.stop_processing)) break;
+
+      if (bool(rule.stop_processing)) {
+        ruleActions.forEach(function (action) {
+          if (!action.target) return;
+          if (isStepActionType(action.type)) stoppedStepTargets[action.target] = true;
+          else stoppedFieldTargets[action.target] = true;
+        });
+      }
     }
 
     var ignored = Object.assign({}, hidden, disabled);
@@ -777,6 +808,14 @@
     targetFieldset.classList.remove('d-none');
     body.dataset.currentstep = target;
 
+    /* jump_to_step can fire purely from a field change (debounced evaluate),
+     * with no Next/Previous click involved at all — the click handlers in
+     * core-efb.js are the only other code that manages #prev_efb visibility,
+     * so without this the button is left stuck in whatever state it was in
+     * before the jump (typically hidden, since forms start on step 1). */
+    var prevBtn = body.querySelector('#prev_efb');
+    if (prevBtn) prevBtn.classList.toggle('d-none', target <= 1);
+
     var max = Number(body.dataset.steps || 1);
     var progress = body.querySelector('.progress-bar-efb');
     if (progress) progress.style.width = (target / (max + 1)) * 100 + '%';
@@ -837,6 +876,21 @@
     var context = getContext(formId);
     if (!context) return { valid: true, missing_field: null };
     var result = evaluate(formId);
+
+    /* evaluate() above may have just run a jump_to_step action as a side
+     * effect of a rule matching on a field change, moving the actual
+     * visible step. If the caller captured stepNumber BEFORE that jump
+     * (the common case: callers read dataset.currentstep, then call
+     * validate(), which is what triggers evaluate() in the first place),
+     * validating against the stale stepNumber would check the WRONG
+     * step's required fields entirely and let a premature submission
+     * through. Always trust the live DOM step over a parameter that may
+     * predate evaluate()'s side effects. */
+    var body = root ? bodyFor(context) : null;
+    if (body && body.dataset.currentstep) {
+      stepNumber = Number(body.dataset.currentstep);
+    }
+
     var ignored = {};
     var required = {};
     var optional = {};

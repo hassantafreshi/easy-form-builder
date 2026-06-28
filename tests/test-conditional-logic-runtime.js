@@ -257,6 +257,224 @@ const resultLegacy = runtime.evaluateDefinition(legacyStructure, rowsLegacy);
 testTrue('T13.1 legacy conditions: fb hidden', resultLegacy.hidden_fields.includes('fb'));
 testTrue('T13.2 legacy conditions: is_conditional true', resultLegacy.is_conditional);
 
+// ── Test 14: nested groups + per-item connector (mixed AND/OR) ───────────────
+// (fa = x AND fb = y) OR (fc is_not_empty)
+const struct14 = makeStructure([
+  { id_: 'fa', type: 'text' },
+  { id_: 'fb', type: 'text' },
+  { id_: 'fc', type: 'text' },
+  { id_: 'fd', type: 'text' },
+]);
+struct14[0].logic_rules = [makeRule({
+  conditions: {
+    type: 'group', operator: 'AND',
+    items: [
+      {
+        type: 'group', operator: 'AND',
+        items: [makeCondition('fa', 'is', 'x'), Object.assign(makeCondition('fb', 'is', 'y'), { connector: 'AND' })],
+      },
+      Object.assign({ type: 'group', operator: 'AND', items: [makeCondition('fc', 'is_not_empty')] }, { connector: 'OR' }),
+    ],
+  },
+  actions: [{ type: 'show_field', target: 'fd' }],
+})];
+
+// Branch 1 satisfied (fa=x AND fb=y), branch 2 not relevant
+const rows14a = [{ id_: 'fa', value: 'x', type: 'text' }, { id_: 'fb', value: 'y', type: 'text' }];
+testTrue('T14.1 nested mixed AND/OR: left branch true → rule fires', runtime.evaluateDefinition(struct14, rows14a).matched_rules.includes('r1'));
+
+// Branch 1 not satisfied (fb != y), branch 2 satisfied via OR connector
+const rows14b = [{ id_: 'fa', value: 'x', type: 'text' }, { id_: 'fb', value: 'other', type: 'text' }, { id_: 'fc', value: 'filled', type: 'text' }];
+testTrue('T14.2 nested mixed AND/OR: right branch true via OR connector → rule fires', runtime.evaluateDefinition(struct14, rows14b).matched_rules.includes('r1'));
+
+// Neither branch satisfied
+const rows14c = [{ id_: 'fa', value: 'x', type: 'text' }, { id_: 'fb', value: 'other', type: 'text' }];
+testFalse('T14.3 nested mixed AND/OR: neither branch true → rule does not fire', runtime.evaluateDefinition(struct14, rows14c).matched_rules.includes('r1'));
+
+// ── Test 15: per-item connector inside a single (non-nested) group ──────────
+// fa=x OR fb=y AND fc=z  → evaluated left-to-right: ((fa==x) OR fb==y) AND fc==z
+const struct15 = makeStructure([
+  { id_: 'fa', type: 'text' },
+  { id_: 'fb', type: 'text' },
+  { id_: 'fc', type: 'text' },
+  { id_: 'fd', type: 'text' },
+]);
+struct15[0].logic_rules = [makeRule({
+  conditions: {
+    type: 'group', operator: 'AND',
+    items: [
+      makeCondition('fa', 'is', 'x'),
+      Object.assign(makeCondition('fb', 'is', 'y'), { connector: 'OR' }),
+      Object.assign(makeCondition('fc', 'is', 'z'), { connector: 'AND' }),
+    ],
+  },
+  actions: [{ type: 'show_field', target: 'fd' }],
+})];
+
+const rows15a = [{ id_: 'fa', value: 'x', type: 'text' }, { id_: 'fb', value: 'no', type: 'text' }, { id_: 'fc', value: 'z', type: 'text' }];
+testTrue('T15.1 left-to-right connectors: (fa OR fb) AND fc → true', runtime.evaluateDefinition(struct15, rows15a).matched_rules.includes('r1'));
+
+const rows15b = [{ id_: 'fa', value: 'no', type: 'text' }, { id_: 'fb', value: 'no', type: 'text' }, { id_: 'fc', value: 'z', type: 'text' }];
+testFalse('T15.2 left-to-right connectors: fa & fb both false → false regardless of fc', runtime.evaluateDefinition(struct15, rows15b).matched_rules.includes('r1'));
+
+const rows15c = [{ id_: 'fa', value: 'x', type: 'text' }, { id_: 'fb', value: 'no', type: 'text' }, { id_: 'fc', value: 'no', type: 'text' }];
+testFalse('T15.3 left-to-right connectors: fc false → false', runtime.evaluateDefinition(struct15, rows15c).matched_rules.includes('r1'));
+
+// ── Test 16: numeric operators — gte, lte, between, not_between (Task 5.1) ───
+const struct16 = makeStructure([
+  { id_: 'price', type: 'number' },
+  { id_: 'flag', type: 'text' },
+]);
+function makeRangeRule(compare, value) {
+  return makeRule({
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('price', compare, value)] },
+    actions: [{ type: 'show_field', target: 'flag' }],
+  });
+}
+function fires(compare, value, priceValue) {
+  const struct = makeStructure([{ id_: 'price', type: 'number' }, { id_: 'flag', type: 'text' }]);
+  struct[0].logic_rules = [makeRangeRule(compare, value)];
+  const rows = [{ id_: 'price', value: priceValue, type: 'number' }];
+  return runtime.evaluateDefinition(struct, rows).matched_rules.includes('r1');
+}
+
+testTrue('T16.1 gte: 10 >= 10 → true', fires('gte', '10', '10'));
+testTrue('T16.2 gte: 15 >= 10 → true', fires('gte', '10', '15'));
+testFalse('T16.3 gte: 5 >= 10 → false', fires('gte', '10', '5'));
+testTrue('T16.4 lte: 10 <= 10 → true', fires('lte', '10', '10'));
+testTrue('T16.5 lte: 5 <= 10 → true', fires('lte', '10', '5'));
+testFalse('T16.6 lte: 15 <= 10 → false', fires('lte', '10', '15'));
+testTrue('T16.7 between: 7 in [5,10] → true', fires('between', '5,10', '7'));
+testTrue('T16.8 between: boundary 5 in [5,10] → true', fires('between', '5,10', '5'));
+testFalse('T16.9 between: 12 not in [5,10] → false', fires('between', '5,10', '12'));
+testTrue('T16.10 not_between: 12 outside [5,10] → true', fires('not_between', '5,10', '12'));
+testFalse('T16.11 not_between: 7 inside [5,10] → false', fires('not_between', '5,10', '7'));
+testFalse('T16.12 gte: non-numeric field value never satisfies', fires('gte', '10', 'abc'));
+testFalse('T16.13 between: non-numeric field value never inside range', fires('between', '5,10', 'abc'));
+testFalse('T16.14 gte: empty field value never satisfies', fires('gte', '10', ''));
+
+// ── Test 17: stop_processing must NOT block rules on unrelated fields ────────
+// Regression for a real bug report: "customer_type is Company" (priority 10,
+// stop_processing=true, action targets step "2") silently prevented the
+// unrelated "has_budget is yes" rules (priority 10/20, target field "budget")
+// from ever running, because stop_processing broke the ENTIRE rule loop
+// instead of only freezing the targets the stopping rule itself acted on.
+const struct17 = makeStructure([
+  { id_: 'customer_type', type: 'text' },
+  { id_: 'has_budget', type: 'text' },
+  { id_: 'budget', type: 'number' },
+]);
+struct17[0].logic_rules = [
+  makeRule({
+    id: 'r_company', priority: 10, stop_processing: true,
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('customer_type', 'is', 'company')] },
+    actions: [{ type: 'show_step', target: '2' }],
+  }),
+  makeRule({
+    id: 'r_budget_required', priority: 10, stop_processing: false,
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('has_budget', 'is', 'yes')] },
+    actions: [{ type: 'set_required', target: 'budget' }],
+  }),
+  makeRule({
+    id: 'r_budget_show', priority: 20, stop_processing: false,
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('has_budget', 'is', 'yes')] },
+    actions: [{ type: 'show_field', target: 'budget' }],
+  }),
+];
+const rows17 = [
+  { id_: 'customer_type', value: 'company', type: 'text' },
+  { id_: 'has_budget', value: 'yes', type: 'text' },
+];
+const result17 = runtime.evaluateDefinition(struct17, rows17);
+testTrue('T17.1 stop_processing rule itself matched', result17.matched_rules.includes('r_company'));
+testTrue('T17.2 unrelated budget-required rule still matched', result17.matched_rules.includes('r_budget_required'));
+testTrue('T17.3 unrelated budget-show rule still matched', result17.matched_rules.includes('r_budget_show'));
+testTrue('T17.4 budget field is shown', result17.shown_fields.includes('budget'));
+testFalse('T17.5 budget field is NOT hidden', result17.hidden_fields.includes('budget'));
+testTrue('T17.6 budget field is required', result17.required_fields.includes('budget'));
+
+// Same-target conflict (T6) must still hold: stop_processing keeps blocking a
+// LATER rule that targets the exact same field as the stopping rule.
+const struct17b = makeStructure([
+  { id_: 'customer_type', type: 'text' },
+  { id_: 'budget', type: 'number' },
+]);
+struct17b[0].logic_rules = [
+  makeRule({
+    id: 'r_stop', priority: 10, stop_processing: true,
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('customer_type', 'is', 'company')] },
+    actions: [{ type: 'set_required', target: 'budget' }],
+  }),
+  makeRule({
+    id: 'r_after', priority: 20, stop_processing: false,
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('customer_type', 'is', 'company')] },
+    actions: [{ type: 'set_optional', target: 'budget' }],
+  }),
+];
+const rows17b = [{ id_: 'customer_type', value: 'company', type: 'text' }];
+const result17b = runtime.evaluateDefinition(struct17b, rows17b);
+testTrue('T17.7 same-target: budget still required (r_stop fired)', result17b.required_fields.includes('budget'));
+testFalse('T17.8 same-target: budget NOT optional (r_after blocked)', result17b.optional_fields.includes('budget'));
+test('T17.9 same-target: only r_stop in matched_rules', result17b.matched_rules, ['r_stop']);
+
+// ── Test 18: stop_processing fix does not interact badly with nested groups ──
+// The blockedByStop pre-check only inspects rule.actions[].target — it never
+// touches rule.conditions — so nested AND/OR groups (Phase 5.2) and per-item
+// connectors must keep evaluating exactly as before, both for the stopping
+// rule itself and for later unrelated/same-target rules.
+const struct18 = makeStructure([
+  { id_: 'fa', type: 'text' }, { id_: 'fb', type: 'text' }, { id_: 'fc', type: 'text' },
+  { id_: 'fd', type: 'text' }, { id_: 'fe', type: 'text' }, { id_: 'fg', type: 'text' },
+]);
+const nestedGroupConditions = {
+  type: 'group', operator: 'AND',
+  items: [
+    { type: 'group', operator: 'AND', items: [makeCondition('fa', 'is', 'x'), makeCondition('fb', 'is', 'y')] },
+    Object.assign({ type: 'group', operator: 'AND', items: [makeCondition('fc', 'is_not_empty')] }, { connector: 'OR' }),
+  ],
+};
+struct18[0].logic_rules = [
+  makeRule({
+    id: 'r_nested_stop', priority: 10, stop_processing: true,
+    conditions: nestedGroupConditions,
+    actions: [{ type: 'hide_field', target: 'fd' }],
+  }),
+  makeRule({
+    // Same target (fd) as the stopping rule, ALSO uses a nested group —
+    // must be skipped entirely (never even evaluated) once fd is locked.
+    id: 'r_nested_same_target', priority: 20, stop_processing: false,
+    conditions: nestedGroupConditions,
+    actions: [{ type: 'show_field', target: 'fd' }],
+  }),
+  makeRule({
+    // Different target (fg) — must still run normally despite the earlier
+    // stop_processing rule, and its own nested group must still evaluate.
+    id: 'r_nested_other_target', priority: 20, stop_processing: false,
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('fe', 'is', 'z')] },
+    actions: [{ type: 'show_field', target: 'fg' }],
+  }),
+];
+
+// Left branch of the nested group true (fa=x AND fb=y); fe=z for the 3rd rule.
+const rows18 = [
+  { id_: 'fa', value: 'x', type: 'text' }, { id_: 'fb', value: 'y', type: 'text' },
+  { id_: 'fe', value: 'z', type: 'text' },
+];
+const result18 = runtime.evaluateDefinition(struct18, rows18);
+testTrue('T18.1 nested-group stopping rule matched', result18.matched_rules.includes('r_nested_stop'));
+testTrue('T18.2 fd hidden by the stopping rule', result18.hidden_fields.includes('fd'));
+testFalse('T18.3 same-target nested-group rule blocked (never matched)', result18.matched_rules.includes('r_nested_same_target'));
+testFalse('T18.4 fd not shown (same-target rule did not run)', result18.shown_fields.includes('fd'));
+testTrue('T18.5 different-target nested-group rule still ran', result18.matched_rules.includes('r_nested_other_target'));
+testTrue('T18.6 fg shown by the unrelated rule', result18.shown_fields.includes('fg'));
+
+// Now flip to the OR branch of the nested group (fc filled instead of fa/fb)
+// to confirm the per-item connector still drives the match correctly here too.
+const rows18b = [{ id_: 'fc', value: 'filled', type: 'text' }, { id_: 'fe', value: 'z', type: 'text' }];
+const result18b = runtime.evaluateDefinition(struct18, rows18b);
+testTrue('T18.7 OR-branch via connector still matches the stopping rule', result18b.matched_rules.includes('r_nested_stop'));
+testTrue('T18.8 fd hidden via the OR branch', result18b.hidden_fields.includes('fd'));
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);

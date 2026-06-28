@@ -2,7 +2,7 @@
 
 > [فهرست مستندات](README.md) · [نقشه پیاده‌سازی](EFB-Conditional-Logic-Implementation-ROADMAP.md) · [برنامه تست](EFB-Conditional-Logic-TEST-PLAN.md)
 
-> **وضعیت کنونی:** هسته و Hardening منطق شرطی 100% انجام شده؛ کل Roadmap توسعه محصول ~55%
+> **وضعیت کنونی:** هسته، Hardening، و Phase 5 (Nested Groups + Operators عددی) 100% انجام شده؛ کل Roadmap توسعه محصول ~60%
 > **هدف:** تکمیل ویژگی Conditional Logic به عنوان یک Addon کامل و قابل فروش
 > **کلید Addon:** `AdnSMF`
 > **ساختار:** addon مشابه Telegram (`vendor/logic/`) + UI در admin builder
@@ -18,7 +18,7 @@
 | Phase 2 | تکمیل ساختار Addon (AdnSMF) | ✅ کامل و تست‌شده | High |
 | Phase 3 | Conditional Notification & Confirmation | 🔴 نشده | High |
 | Phase 4 | Conditional Webhook | 🔴 نشده | High |
-| Phase 5 | Operators عددی کامل + Nested Groups | 🟡 engine/sanitizer آماده؛ UI پیشرفته باقی است | Medium |
+| Phase 5 | Operators عددی کامل + Nested Groups | ✅ کامل و تست‌شده | Medium |
 | Phase 6 | Preview / Test Mode | 🔴 نشده | Medium |
 | Phase 7 | Debugger / Inspector | 🔴 نشده | Medium |
 | Phase 8 | Basic Calculations | 🔴 نشده | Medium |
@@ -38,6 +38,13 @@
 - [x] H7 — gating یکسان `AdnSMF` برای UI/admin assets/public runtime/server validator و state مستقل برای چند فرم.
 - [x] H8 — runtime و validator مستقل public در `public/assets/js/conditional-logic-efb.js` و اتصال کامل builder → save → publish → fill → submit.
 - [x] H9 — backward compatibility برای فرم‌های قدیمی مبتنی بر `conditions` از طریق تبدیل به قرارداد استاندارد rule.
+- [x] H10 — رفع باگ بحرانی `stop_processing`: قبلاً به‌جای متوقف‌کردن فقط rule‌های بعدی روی **همان target**، کل پردازش rule‌های فرم را متوقف می‌کرد (هم در `public/assets/js/conditional-logic-efb.js` و هم در `vendor/logic/class-Emsfb-logic-validator.php`). الان فقط targetهای همان rule قفل می‌شوند؛ rule‌های دیگر با target متفاوت بدون تأثیر اجرا می‌شوند. تست شده هم‌زمان با nested groups برای تضمین عدم تداخل.
+- [x] H11 — لایه نهایی validation/sanitize برای submission مبتنی بر ساختار (`includes/class-Emsfb-public.php`, درست قبل از ذخیره نهایی): با استفاده از همان `ignored_fields` محاسبه‌شده توسط addon (که hidden + disabled + hidden-step را پوشش می‌دهد)، هر row از `submitted_values` که به یک فیلد ignore-شده تعلق دارد حذف می‌شود — حتی اگر داده دستکاری‌شده یا stale از مراحل قبلی عبور کرده باشد. این لایه فقط زمانی فعال است که addon `AdnSMF` نصب/فعال باشد **و** فرم `logic_rules` فعال داشته باشد (`$_efb_is_conditional_logic_active`)؛ فرم‌های عادی هیچ تغییری نمی‌بینند. ساختار به‌گونه‌ای است که فازهای بعدی (Notification/Webhook rules) می‌توانند از همان pattern (محاسبه یک‌بار در `efb_logic_prepare_submission` + اعمال در یک نقطه واحد قبل از ذخیره) استفاده کنند.
+- [x] H12 — رفع باگ `jump_to_step` × ناوبری Next/Previous (`public/assets/js/core-efb.js`، `btn_navigate_handle_efb`): مقدار `no_step` در ابتدای کلیک Next/Submit کش می‌شود، اما `await fun_validation_efb_v4()` بین این کش‌شدن و استفاده از آن، runtime منطق شرطی را اجرا می‌کند که می‌تواند `jump_to_step` را فعال کند و `dataset.currentstep`/نمایش fieldset را مستقیماً (و مستقل از `no_step`) تغییر دهد. نتیجه: کد Next روی مقدار قدیمی `no_step` یک بار دیگر +۱ می‌کرد و گاهی از `max_step` عبور می‌کرد — که باعث می‌شد فرم زودهنگام «تمام‌شده» در نظر گرفته شود و دکمه Previous مخفی شود (دقیقاً علامتی که در سناریوی E مشاهده شد). رفع شد با خواندن مجدد `dataset.currentstep` بعد از validation: اگر در همین فاصله یک jump رخ داده باشد، به‌جای +۱ کردن دوباره، مقصد jump به‌عنوان step فعلی پذیرفته می‌شود. مسیر بدون jump هیچ تغییری نکرده (ریسک صفر برای رفتار موجود).
+- [x] H13 — ریشه‌ی عمیق‌تر همان باگ، در خود runtime عمومی (`public/assets/js/conditional-logic-efb.js`، تابع `validate(formId, stepNumber)`): این تابع اول `evaluate(formId)` را صدا می‌زند (که می‌تواند `jump_to_step` را اجرا کند و step واقعی را عوض کند)، اما همچنان required-fieldهای همان `stepNumber` که از قبل (و قبل از این تغییر) به آن پاس داده شده بود را چک می‌کرد — یعنی دقیقاً step اشتباه (step قدیمی، نه step واقعی بعد از jump) اعتبارسنجی می‌شد و required-fieldهای step واقعی هرگز چک نمی‌شدند. این یعنی validation به‌صورت نامرئی bypass می‌شد و امکان submit/Next زودهنگام از یک step ناقص فراهم می‌شد — حتی با وجود فیکس H12. رفع شد: بعد از `evaluate()`، اگر step واقعی DOM (`dataset.currentstep`) با `stepNumber` ورودی فرق داشت، validate همیشه step واقعی را چک می‌کند. تست شد با `tests/test-conditional-logic-validate-step.js` (یک fake DOM کوچک، چون این تابع به document وابسته است)؛ با بازگرداندن موقت فیکس، تست واقعاً fail می‌شود — یعنی این تست باگ را واقعاً تشخیص می‌دهد، نه فقط ظاهری.
+- [x] H14 — حتی بعد از H12/H13، یک علت سوم برای مخفی‌ماندن دکمه Previous کشف شد: `jump_to_step` می‌تواند کاملاً مستقل از کلیک Next/Previous رخ دهد (مثلاً صرفاً با تغییر یک فیلد و اجرای `evaluate()` debounce‌شده) — و تابع `jumpToStep()` در `public/assets/js/conditional-logic-efb.js` هیچ‌وقت دکمه `#prev_efb` را مدیریت نمی‌کرد (فقط fieldset، progress bar و عنوان step را عوض می‌کرد). نتیجه: وقتی jump بدون دخالت کلیک رخ می‌داد، دکمه Previous در همان وضعیت قبل از jump (معمولاً مخفی، چون فرم از step 1 شروع می‌شود) باقی می‌ماند، حتی اگر مقصد jump step 1 نباشد. رفع شد: `jumpToStep()` حالا خودش `#prev_efb` را بر اساس step مقصد (مخفی فقط اگر مقصد step 1 باشد) تنظیم می‌کند — مستقل از این‌که jump از کجا trigger شده. تست شد با ۲ سناریو جدید در `tests/test-conditional-logic-validate-step.js` (T1b, T3) که بدون فیکس واقعاً fail می‌شوند.
+- [x] H15 — علت چهارم، در `public/assets/js/core-efb.js` (سه محل: خطوط ~763, ~1102, ~1358): وقتی `valj_efb[0].logic === true` بود، دکمه Previous با `onclick="logic_fun_prev_send(form_id)"` رندر می‌شد — تابعی که **هیچ‌جا در کدبیس تعریف نشده** (احتمالاً بازمانده از قبل از این‌که `fun_prev_send` خودش منطق رد‌شدن از stepهای logic-hidden را پیاده‌سازی کند). نتیجه: روی فرم‌های conditional، کلیک Previous (مخصوصاً در صفحه‌ی خطای نهایی validation، مثل `#efb-final-step`) با `Uncaught ReferenceError: logic_fun_prev_send is not defined` کاملاً بی‌اثر بود. رفع شد با حذف این شاخه‌ی شرطی مرده و استفاده‌ی یکدست از `fun_prev_send(form_id)` در هر سه محل — برای فرم‌های عادی هیچ تغییری ایجاد نشد، چون مقدار قبلی آن‌ها هم همین بود (`valj_efb[0].logic` falsy → همیشه شاخه‌ی else یعنی `fun_prev_send` انتخاب می‌شد).
+- [x] H16 — حتی بعد از H15، خود `fun_prev_send()` برای این صفحه‌های خطا مناسب نبود: این تابع فرض می‌کند `dataset.currentstep` همیشه یک step واقعی و قابل‌مشاهده است و فقط آن را `-1` می‌کند؛ اما کد پیشروی step (`btn_navigate_handle_efb`) **قبل از** ارسال AJAX، `dataset.currentstep` را به `max_step + 1` تنظیم می‌کند — یعنی وقتی این صفحه خطا (به‌خاطر رد شدن validation سمت سرور، مثلاً فیلد «Customer type») رندر می‌شود، چنین fieldset‌ای اصلاً وجود ندارد و `fun_prev_send()` با خطای `Cannot read properties of null (reading 'classList')` کرش می‌کرد — **این باگ برای فرم‌های عادی هم بود**، نه فقط conditional. رفع شد با تابع جدید و امن `efb_go_to_step_direct(form_id, targetStep)` که مستقل از مقدار فعلی (حتی نامعتبر) `dataset.currentstep` کار می‌کند: تمام fieldsetها را مخفی و فقط step مقصد را نشان می‌دهد. این تابع در هر ۴ نقطه‌ی رندر دکمه Previous روی صفحه خطا جایگزین شد: ۳ مورد در `endMessage_emsFormBuilder_view`/`validation_before_send_efb` (بازگشت به آخرین step واقعی) و یک مورد در `response_fill_form_efb` که حالا از `res.data.field_id` (که سرور همیشه آن را برمی‌گرداند) استفاده می‌کند تا کاربر را **دقیقاً به step همان فیلدی که خطای validation گرفته** برگرداند، نه صرفاً «یک step عقب‌تر». دکمه‌های Previous عادی بین stepهای واقعی (در `btn_navigate_handle_efb`) دست‌نخورده ماندند چون آنجا `dataset.currentstep` همیشه معتبر است.
 
 **قرارداد تعارض:** ruleها با `priority` صعودی و سپس ترتیب ذخیره اجرا می‌شوند؛ فقط ruleهای match‌شده action اجرا می‌کنند؛ آخرین action موفق روی یک property/target نتیجه نهایی را تعیین می‌کند؛ `stop_processing` اجرای ruleهای بعدی را متوقف می‌کند.
 
@@ -46,10 +53,16 @@
 ```text
 C:\xampp\php\php.exe tests\test-conditional-logic-sanitizer.php
 C:\xampp\php\php.exe tests\test-conditional-logic-submission.php
+C:\xampp\php\php.exe tests\test-conditional-logic-validator.php
+C:\xampp\php\php.exe tests\test-conditional-logic-final-guard.php
 node tests\test-conditional-logic-runtime.js
+node tests\test-conditional-logic-builder-ui.js
+node tests\test-conditional-logic-validate-step.js
 ```
 
-این تست‌ها normal-form isolation، sanitizer، yes/no، payment، nested groups، تمام actionها، hidden step، stale disabled data، cascade مقدار، priority، stop_processing و multi-form isolation را پوشش می‌دهند.
+این تست‌ها normal-form isolation، sanitizer، yes/no، payment، nested groups، per-item connector (مخلوط AND/OR در یک گروه)، operators عددی (`gte`/`lte`/`between`/`not_between` + edge case های NaN/خالی)، رندر UI builder برای این operators، تمام actionها، hidden step، stale disabled data، cascade مقدار، priority، **stop_processing per-target (نه global break)**، **لایه نهایی sanitize submission**، **validate() همگام با jump_to_step (H13)**، **همگام‌سازی دکمه Previous در jumpToStep (H14)**، و multi-form isolation را پوشش می‌دهند. `test-conditional-logic-validator.php` مستقیماً validator واقعی PHP addon (`vendor/logic/class-Emsfb-logic-validator.php`) را تست می‌کند، نه یک کپی.
+
+**نتیجه آخرین اجرا (2026-06-26): 188 تست خودکار، 0 شکست** — 65 (runtime) + 49 (sanitizer) + 15 (submission) + 20 (builder UI) + 24 (validator واقعی PHP) + 8 (final-save guard) + 7 (validate-step، شامل H13 و H14). جزئیات کامل در [Test Plan](EFB-Conditional-Logic-TEST-PLAN.md).
 
 ---
 
@@ -71,7 +84,7 @@ includes/
 ├── admin/
 │   ├── class-Emsfb-create.php          ← enqueue فایل‌ها (✅ انجام شده)
 │   └── class-Emsfb-panel.php           ← enqueue فایل‌ها (✅ انجام شده)
-├── class-Emsfb-public.php              ← ✅ prepare/validate شرطی پیش از validation معمول
+├── class-Emsfb-public.php              ← ✅ prepare/validate شرطی پیش از validation معمول + لایه نهایی sanitize submission (H11) درست قبل از ذخیره
 ├── functions.php                       ← ✅ schema sanitizer + addons list
 └── admin/assets/js/val-efb.js          ← ✅ دکمه CL فقط با AdnSMF فعال
 public/assets/js/
@@ -780,7 +793,7 @@ private function should_fire_webhook($webhook_id, $form_fields_array, $submitted
 
 ---
 
-## Task 5.1 — اضافه کردن Operators عددی
+## Task 5.1 — اضافه کردن Operators عددی ✅
 
 **فایل‌ها:** `logic-runtime-efb.js` + `conditional-logic-efb.js`
 
@@ -833,7 +846,7 @@ not_between: 'nBetween',
 
 ---
 
-## Task 5.2 — پشتیبانی از Nested Condition Groups (یک سطح)
+## Task 5.2 — پشتیبانی از Nested Condition Groups (یک سطح) ✅
 
 **هدف:** امکان نوشتن منطق مثل: `(A = x AND B = y) OR (C = z)`
 
@@ -888,13 +901,13 @@ function evaluateConditionGroup(group) {
 
 ---
 
-## Task 5.3 — تست یکپارچگی Phase 5
+## Task 5.3 — تست یکپارچگی Phase 5 ✅
 
-**تست 5.3:**
-1. تمام operator های جدید با فیلدهای عددی تست شوند
-2. nested group با depth=1 کار کند
-3. PHP و JS هر دو نتیجه یکسان بدهند
-4. edge case: NaN، string در number field
+**وضعیت:** کامل — همه موارد با تست خودکار پوشش داده شدند (نگاه کنید به [Test Plan](EFB-Conditional-Logic-TEST-PLAN.md), Test Group 9 و 10):
+1. ✅ تمام operator های جدید (`gte`, `lte`, `between`, `not_between`) با فیلدهای عددی تست شدند — `tests/test-conditional-logic-runtime.js` (T16، شامل boundary و عدم تطبیق)
+2. ✅ nested group با depth=1 کار می‌کند — `tests/test-conditional-logic-runtime.js` (T14) و `tests/test-conditional-logic-sanitizer.php` (T7)
+3. ⚠️ ارزیابی شرط‌ها سمت سرور توسط addon خارجی (AdnSMF) از طریق فیلتر `efb_logic_prepare_submission` انجام می‌شود؛ این پلاگین فقط sanitize می‌کند (نه evaluate). بنابراین «PHP و JS یک نتیجه بدهند» در سطح این کدبیس قابل تست نیست — معادلش اینجا این است که sanitizer مقادیر این عملگرها (`compare` و رشته `"min,max"`) را بدون تغییر عبور می‌دهد، که تست شد (`test-conditional-logic-sanitizer.php`, GROUP 4b).
+4. ✅ edge caseهای NaN/string در فیلد عددی تست شدند — `tests/test-conditional-logic-runtime.js` (T16.12–T16.14: مقدار غیرعددی یا خالی هرگز match نمی‌کند)
 
 ---
 
@@ -1400,10 +1413,10 @@ Phase 4 — Conditional Webhook
   [ ] 4.2 — webhook_rules داده‌مدل
   [ ] 4.3 — should_fire_webhook فیلتر
 
-Phase 5 — Advanced Operators + Nested Groups
-  [ ] 5.1 — gte, lte, between, not_between (engine/sanitizer کامل؛ UI builder باقی است)
-  [ ] 5.2 — nested AND/OR groups (engine/sanitizer کامل؛ UI builder باقی است)
-  [ ] 5.3 — تست
+Phase 5 — Advanced Operators + Nested Groups ✅ کامل
+  [x] 5.1 — gte, lte, between, not_between (کامل: engine، sanitizer، builder UI با ورودی Min/Max)
+  [x] 5.2 — nested AND/OR groups (کامل: engine، sanitizer، builder UI، per-item connector AND/OR)
+  [x] 5.3 — تست (132 تست خودکار سبز؛ جزئیات در Test Plan، Test Group 9 و 10)
 
 Phase 6 — Preview / Test Mode
   [ ] 6.1 — UI test panel
@@ -1441,7 +1454,7 @@ Phase 10 — Release
 | Phase 1 — 1.1, 1.2 | 🔴 actions اصلی |
 | Phase 2 — همه | 🟠 addon باید درست کار کند |
 | Phase 3 — 3.1 تا 3.4 | 🟠 notification مشروط مهم‌ترین feature PRD |
-| Phase 5 — 5.1 | 🟡 operators عددی مهم |
+| Phase 5 | ✅ کامل شد (operators عددی مهم بودند، الان انجام شده) |
 | Phase 10 — 10.1, 10.5 | 🟡 i18n و امنیت |
 
 ---

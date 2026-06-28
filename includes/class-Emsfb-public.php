@@ -1714,7 +1714,9 @@ public function check_nonce_permission_efb($request) {
 				$submitted_values
 			);
 
+			$_efb_is_conditional_logic_active = false;
 			if ( ! empty( $_efb_logic_prepared['is_conditional'] ) ) {
+				$_efb_is_conditional_logic_active = true;
 				$submitted_values = isset( $_efb_logic_prepared['submitted_values'] ) && is_array( $_efb_logic_prepared['submitted_values'] )
 					? array_values( $_efb_logic_prepared['submitted_values'] )
 					: [];
@@ -2315,6 +2317,24 @@ public function check_nonce_permission_efb($request) {
 					};
 				}
 
+				/*
+				 * Redundant server-side guard (Conditional Logic addon only):
+				 * even if a disabled/hidden field's value slipped through the
+				 * normalization pass above (stale client data, race condition,
+				 * tampered request), never let it reach the saved submission
+				 * record. ignored_fields already covers hidden, disabled, and
+				 * hidden-step fields, so this single check is the structural
+				 * source of truth for "should this value ever be persisted".
+				 * Scoped strictly to conditional forms (AdnSMF active AND form
+				 * has active logic_rules) — plain forms are untouched.
+				 */
+				if ( $_efb_is_conditional_logic_active && ! empty( $_ignored_set ) ) {
+					$validated_items = array_values( array_filter( $validated_items, function ( $vi ) use ( $_ignored_set ) {
+						$vid = is_array( $vi ) && isset( $vi['id_'] ) ? $vi['id_'] : null;
+						return $vid === null || ! isset( $_ignored_set[ $vid ] );
+					} ) );
+				}
+
 				$count = count($validated_items);
 				if ($count == 0) {
 					$is_valid = 0;
@@ -2500,6 +2520,15 @@ public function check_nonce_permission_efb($request) {
 							if ($redirect_url != "null") {
 								$response = ['success' => true, 'm' => $redirect_url];
 							}
+							$conditional_confirmation = $this->get_conditional_confirmation_result($form_fields_array, $submitted_values);
+							if (is_array($conditional_confirmation)) {
+								if ($conditional_confirmation['action'] === 'redirect' && !empty($conditional_confirmation['url'])) {
+									$response = ['success' => true, 'm' => $conditional_confirmation['url'], 'conditional_redirect' => true];
+								} elseif ($conditional_confirmation['action'] === 'message' && !empty($conditional_confirmation['message'])) {
+									$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'ip' => $ip, 'nonce' => $nonce_token];
+									$response['conditional_message'] = $conditional_confirmation['message'];
+								}
+							}
 
 							$this->efb_send_json_and_continue($response, 200);
 							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array);
@@ -2526,6 +2555,7 @@ public function check_nonce_permission_efb($request) {
 								$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
 								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
 								$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
+								$this->process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email);
 
 							}
 
@@ -3688,6 +3718,156 @@ public function check_nonce_permission_efb($request) {
 
 		$autofill->get_autofill_api_efb($data_POST);
 	}
+	private function efb_conditional_sorted_rules($rules) {
+		if (!is_array($rules)) return [];
+		$clean = [];
+		foreach ($rules as $position => $rule) {
+			if (!is_array($rule) || (isset($rule['enabled']) && !$rule['enabled'])) continue;
+			if (empty($rule['conditions']['items']) || !is_array($rule['conditions']['items'])) continue;
+			$rule['_position'] = $position;
+			$rule['priority'] = isset($rule['priority']) ? intval($rule['priority']) : 10;
+			$clean[] = $rule;
+		}
+		usort($clean, function($a, $b) {
+			if ($a['priority'] === $b['priority']) return $a['_position'] - $b['_position'];
+			return $a['priority'] - $b['priority'];
+		});
+		return $clean;
+	}
+
+	private function efb_conditional_values_map($form_fields_array, $submitted_values) {
+		if (class_exists('Emsfb\\Emsfb_Logic_Validator')) {
+			$validator = new \Emsfb\Emsfb_Logic_Validator();
+			return $validator->build_values_map($form_fields_array, $submitted_values);
+		}
+
+		$values = [];
+		foreach ($submitted_values as $row) {
+			if (!is_array($row) || empty($row['id_'])) continue;
+			$field_id = (string) $row['id_'];
+			$type = strtolower((string)($row['type'] ?? ''));
+			if (strpos($type, 'checkbox') !== false) {
+				if (!isset($values[$field_id]) || !is_array($values[$field_id])) $values[$field_id] = [];
+				$option = $row['id_ob'] ?? ($row['value'] ?? '');
+				if ($option !== '' && !in_array($option, $values[$field_id], true)) $values[$field_id][] = $option;
+				continue;
+			}
+			if ($type === 'yesno') {
+				$value = (string)($row['id_ob'] ?? ($row['value'] ?? ''));
+				$values[$field_id] = ($value === $field_id . '_1' || strtolower($value) === 'yes' || $value === '1') ? 'yes' : (($value === $field_id . '_2' || strtolower($value) === 'no' || $value === '0') ? 'no' : '');
+				continue;
+			}
+			if (strpos($type, 'radio') !== false) {
+				$values[$field_id] = $row['id_ob'] ?? ($row['value'] ?? '');
+				continue;
+			}
+			if (strpos($type, 'multiselect') !== false) {
+				$raw = $row['value'] ?? '';
+				$values[$field_id] = is_array($raw) ? array_values(array_filter($raw)) : array_values(array_filter(array_map('trim', explode('@efb!', (string)$raw))));
+				continue;
+			}
+			$values[$field_id] = $row['value'] ?? '';
+		}
+		return $values;
+	}
+
+	private function efb_evaluate_conditional_group($group, $values) {
+		$items = isset($group['items']) && is_array($group['items']) ? $group['items'] : [];
+		if (empty($items)) return false;
+		$result = false;
+		foreach ($items as $index => $item) {
+			$is_group = is_array($item) && (($item['type'] ?? '') === 'group' || isset($item['items']));
+			$matched = $is_group ? $this->efb_evaluate_conditional_group($item, $values) : $this->efb_evaluate_conditional_condition($item, $values);
+			if ($index === 0) {
+				$result = $matched;
+				continue;
+			}
+			$connector = strtoupper((string)($item['connector'] ?? ($group['operator'] ?? 'AND'))) === 'OR' ? 'OR' : 'AND';
+			$result = $connector === 'OR' ? ($result || $matched) : ($result && $matched);
+		}
+		return $result;
+	}
+
+	private function efb_evaluate_conditional_condition($condition, $values) {
+		if (!is_array($condition) || empty($condition['field_id'])) return false;
+		$field_id = (string) $condition['field_id'];
+		$compare = (string)($condition['compare'] ?? 'is');
+		$expected = $condition['value'] ?? '';
+		$value = array_key_exists($field_id, $values) ? $values[$field_id] : '';
+
+		if (is_array($value)) {
+			$expected_scalar = is_array($expected) ? implode(',', $expected) : (string)$expected;
+			if ($compare === 'is') return in_array($expected_scalar, $value, true);
+			if ($compare === 'is_not') return !in_array($expected_scalar, $value, true);
+			if ($compare === 'is_empty') return count($value) === 0;
+			if ($compare === 'is_not_empty') return count($value) > 0;
+			$value = implode(' ', array_map('strval', $value));
+		}
+
+		$value = trim((string)$value);
+		$expected_scalar = is_array($expected) ? implode(',', $expected) : trim((string)$expected);
+		$value_lower = strtolower($value);
+		$expected_lower = strtolower($expected_scalar);
+
+		switch ($compare) {
+			case 'is': return $value_lower === $expected_lower;
+			case 'is_not': return $value_lower !== $expected_lower;
+			case 'contains': return strpos($value_lower, $expected_lower) !== false;
+			case 'not_contains': return strpos($value_lower, $expected_lower) === false;
+			case 'starts_with': return strpos($value_lower, $expected_lower) === 0;
+			case 'ends_with':
+				$length = strlen($expected_lower);
+				return $length === 0 || substr($value_lower, -$length) === $expected_lower;
+			case 'gt': case 'amount_gt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value > (float)$expected_scalar;
+			case 'gte': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value >= (float)$expected_scalar;
+			case 'lt': case 'amount_lt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value < (float)$expected_scalar;
+			case 'lte': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value <= (float)$expected_scalar;
+			case 'amount_eq': return is_numeric($value) && is_numeric($expected_scalar) && abs((float)$value - (float)$expected_scalar) < 0.00001;
+			case 'between':
+			case 'not_between':
+				$range = is_array($expected) ? $expected : preg_split('/\s*,\s*/', $expected_scalar);
+				$inside = count($range) >= 2 && is_numeric($value) && is_numeric($range[0]) && is_numeric($range[1]) && (float)$value >= (float)$range[0] && (float)$value <= (float)$range[1];
+				return $compare === 'between' ? $inside : !$inside;
+			case 'is_empty': return $value === '';
+			case 'is_not_empty': return $value !== '';
+			case 'is_paid': return $value !== '' && $value !== '0';
+			case 'is_not_paid': return $value === '' || $value === '0';
+			default: return false;
+		}
+	}
+
+	private function get_conditional_confirmation_result($form_fields_array, $submitted_values) {
+		if (empty($form_fields_array[0]['confirmation_rules']) || !is_array($form_fields_array[0]['confirmation_rules'])) return null;
+		$values = $this->efb_conditional_values_map($form_fields_array, $submitted_values);
+		foreach ($this->efb_conditional_sorted_rules($form_fields_array[0]['confirmation_rules']) as $rule) {
+			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? [], $values)) continue;
+			$action = ($rule['action'] ?? 'message') === 'redirect' ? 'redirect' : 'message';
+			return [
+				'action' => $action,
+				'url' => $action === 'redirect' ? esc_url($rule['url'] ?? '') : '',
+				'message' => $action === 'message' ? wp_kses_post($rule['message'] ?? '') : '',
+			];
+		}
+		return null;
+	}
+
+	private function process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email) {
+		if (empty($form_fields_array[0]['notification_rules']) || !is_array($form_fields_array[0]['notification_rules'])) return;
+		$values = $this->efb_conditional_values_map($form_fields_array, $submitted_values);
+		$content = isset($status_email['content']) ? $status_email['content'] : 'null';
+		$type = isset($status_email['type']) ? $status_email['type'] : 'traking_link';
+
+		foreach ($this->efb_conditional_sorted_rules($form_fields_array[0]['notification_rules']) as $rule) {
+			$recipient = sanitize_email($rule['recipient'] ?? '');
+			if ($recipient === '' || !is_email($recipient)) continue;
+			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? [], $values)) continue;
+
+			$subject = isset($rule['subject']) && trim((string)$rule['subject']) !== '' ? sanitize_text_field($rule['subject']) : ($status_email['subject'] ?? 'null');
+			if ($subject === '') $subject = 'null';
+			$this->send_email_Emsfb_([$recipient, ''], $track_code, $is_pro, ['newMessage', 'newMessage', $type], $url, $content, $subject);
+		}
+	}
+
 	public function send_email_Emsfb_($to, $track, $pro, $state, $link, $content = 'null', $sub = 'null') {
 		$homeUrl = home_url();
 		$blogName = get_bloginfo('name');
@@ -4920,7 +5100,6 @@ public function check_nonce_permission_efb($request) {
 	public function fun_present_others_action_efb($state, $username, $sid,$fid){
 
 		$this->efbFunction = get_efbFunction();
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
 		$texts =['sxnlex','uraatn'];
 		$lan =$this->efbFunction->text_efb($texts);
 		function Js_() {
@@ -5059,14 +5238,14 @@ public function check_nonce_permission_efb($request) {
 			}
 			return '<p text-align: center;">'.$lan['uraatn'].'</p>' . Js_();
 		}
-		if ($s_sid !=1 || $sid==null){
-			$this->efbFunction->send_email_noti_sid_plugins_efb('userActionEvent');
-			return '<p style="color:#ff4b93;text-align: center;">'.$lan['sxnlex'].'</p>'.Js_();
-		}
 		if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
         }
+		if (empty($sid) || strlen($sid) < 32) {
+			$this->efbFunction->send_email_noti_sid_plugins_efb('userActionEvent');
+			return '<p style="color:#ff4b93;text-align: center;">'.$lan['sxnlex'].'</p>'.Js_();
+		}
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
 		$sql = $this->db->prepare("SELECT * FROM $table_name WHERE code = %s", $sid);
 		$row = $this->db->get_row($sql);
@@ -5078,6 +5257,7 @@ public function check_nonce_permission_efb($request) {
 				$st = $state == 1 ? 'register' : 'recovery';
 				if($state==1){
 					$this->efbFunction->efb_code_validate_update($sid, $st, 0);
+					$this->db->delete($table_name, ['id' => (int) $row->id], ['%d']);
 					return register_( $lan,$username);
 				}else if($state==0){
 					$this->public_scripts_and_css_head('css');
@@ -5090,6 +5270,22 @@ public function check_nonce_permission_efb($request) {
 			$m= esc_html__('error', 'easy-form-builder') . ': R404';
 			return '<p style="color:#ff4b93;text-align: center;">'.$m.'</p>';
 
+	}
+
+	private function generate_temp_link_token_efb($table_name) {
+		do {
+			if (function_exists('wp_generate_password')) {
+				$token = wp_generate_password(32, false, false);
+			} else {
+				$token = bin2hex(random_bytes(16));
+			}
+			$exists = $this->db->get_var($this->db->prepare(
+				"SELECT id FROM $table_name WHERE code = %s LIMIT 1",
+				$token
+			));
+		} while ($exists);
+
+		return $token;
 	}
 
 
@@ -5116,7 +5312,7 @@ public function check_nonce_permission_efb($request) {
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
 		$ip = !empty($this->ip) ? $this->ip : $this->get_ip_address();
 
-		$sid = $this->efbFunction->efb_code_validate_create($this->id, 0, $type_, 0);
+		$sid = $this->generate_temp_link_token_efb($table_name);
 		$status_ = ($type_ === 'register') ? 1 : 0;
 
 		$data = [
@@ -5146,19 +5342,24 @@ public function check_nonce_permission_efb($request) {
 	public function set_password_efb_api(){
 
 		$data = json_decode(file_get_contents('php://input'), true);
+		if (!is_array($data)) {
+			return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder')), 400);
+		}
 
-		$st = sanitize_text_field($data['st']);
-		$fid = sanitize_text_field($data['fid']);
+		$st = sanitize_text_field($data['st'] ?? '');
+		$fid = sanitize_text_field($data['fid'] ?? '');
 		$this->efbFunction = get_efbFunction();
-		 $s_sid = $this->efbFunction->efb_code_validate_select($st, $fid);
 
-		$password = sanitize_text_field($data['password']);
+		$password = sanitize_text_field($data['password'] ?? '');
+		if ($st === '' || strlen($st) < 32 || $fid === '' || $password === '') {
+			return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder')), 400);
+		}
 		if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
         }
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
-		$sql = $this->db->prepare("SELECT * FROM $table_name WHERE code = %s", $st);
+		$sql = $this->db->prepare("SELECT * FROM $table_name WHERE code = %s AND status_ = %d", $st, 0);
 		$row = $this->db->get_row($sql);
 		if ($row) {
 			$created_at = strtotime($row->created_at);
@@ -5169,6 +5370,7 @@ public function check_nonce_permission_efb($request) {
 				if ($user) {
 					wp_set_password($password, $user->ID);
 					$this->efbFunction->efb_code_validate_update($st, 'recovery', 1);
+					$this->db->delete($table_name, ['id' => (int) $row->id], ['%d']);
 					return new WP_REST_Response(array('success' => true, 'data' => esc_html__('Password has been changed successfully!', 'easy-form-builder')));
 				}
 			}

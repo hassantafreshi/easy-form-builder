@@ -3,12 +3,12 @@
 > [Documentation index](README.md) · [Persian acceptance test](EFB-Conditional-Logic-E2E-TEST-FA.md) · [Implementation roadmap](EFB-Conditional-Logic-Implementation-ROADMAP.md)
 
 > **Branch:** `dev4`  
-> **Last automated verification:** 2026-06-07  
+> **Last automated verification:** 2026-06-24  
 > **Prerequisites:** AdnSMF addon active, PHP 8+, WordPress 6+
 
 ---
 
-## Automated Test Results (verified again on 2026-06-07)
+## Automated Test Results (verified again on 2026-06-26)
 
 | Suite | File | Result |
 |-------|------|--------|
@@ -19,11 +19,30 @@
 | JS Syntax | `public/assets/js/conditional-logic-efb.js` | ✅ OK |
 | JS Syntax | `public/assets/js/core-efb.js` | ✅ OK |
 | JS Syntax | `includes/admin/assets/js/conditional-logic-efb.js` | ✅ OK |
-| PHP Unit — Sanitizer | `tests/test-conditional-logic-sanitizer.php` | ✅ **36/36** |
+| PHP Unit — Sanitizer | `tests/test-conditional-logic-sanitizer.php` | ✅ **49/49** |
 | PHP Unit — Submission | `tests/test-conditional-logic-submission.php` | ✅ **15/15** |
-| JS Unit — Runtime | `tests/test-conditional-logic-runtime.js` | ✅ **28/28** |
+| PHP Unit — Real PHP addon validator | `tests/test-conditional-logic-validator.php` | ✅ **24/24** |
+| PHP Unit — Final-save guard | `tests/test-conditional-logic-final-guard.php` | ✅ **8/8** |
+| JS Unit — Runtime | `tests/test-conditional-logic-runtime.js` | ✅ **65/65** |
+| JS Unit — Admin Builder UI | `tests/test-conditional-logic-builder-ui.js` | ✅ **20/20** |
+| JS Unit — validate() × jump_to_step | `tests/test-conditional-logic-validate-step.js` | ✅ **7/7** |
 
-**Total automated: 79 tests, 0 failures.**
+**Total automated: 188 tests, 0 failures.**
+
+**2026-06-26 update (cross-field `stop_processing` + submission hardening + jump/validate race):**
+- **H10 (stop_processing):** Both the public JS runtime and the real PHP addon validator (`vendor/logic/class-Emsfb-logic-validator.php`) used to `break` the ENTIRE rule loop when any matching rule had `stop_processing: true`, silently blocking every later rule regardless of target field. Fixed to freeze only that rule's own action targets. New `tests/test-conditional-logic-validator.php` (24 tests) is the first suite to test the real PHP addon class directly (not a copy), including a reproduction of the exact reported bug.
+- **H11 (final-save guard):** `includes/class-Emsfb-public.php` had no guard re-checking `ignored_fields`/`disabled_fields` right before the submission record is serialized — a disabled field's tampered/stale value could still get saved. Added a redundant structural guard, scoped to `AdnSMF` active + form has active `logic_rules`; plain forms untouched. Covered by `tests/test-conditional-logic-final-guard.php` (8 tests).
+- **H12 (jump_to_step × Next/Previous nav):** `core-efb.js`'s `btn_navigate_handle_efb` cached the current step BEFORE awaiting validation, but validation's `evaluate()` call can run `jump_to_step` as a side effect and move the real step — the stale cached step then got incremented AGAIN, overshooting past the last step and incorrectly hiding the Previous button. Fixed by re-syncing to the live step when a jump is detected.
+- **H13 (validate() step staleness — the deeper bug):** Even with H12 fixed, `conditional-logic-efb.js`'s own `validate(formId, stepNumber)` trusted the caller's `stepNumber`, which can predate the jump that its own internal `evaluate()` call just triggered — silently validating the WRONG step's required fields and letting a Next/Submit through on an incomplete step. Fixed to always re-derive the live step from the DOM after `evaluate()`.
+- **H14 (Previous button still desynced — a third cause):** Even with H12 and H13 fixed, the Previous button could still be stuck hidden after a jump that happens with NO click involved at all (e.g. a debounced `evaluate()` triggered purely by typing). `jumpToStep()` itself never touched `#prev_efb` — only the manual click handlers in `core-efb.js` did. Fixed by having `jumpToStep()` manage `#prev_efb` directly (hidden only when the jump lands on step 1). `tests/test-conditional-logic-validate-step.js` grew to 7 tests (T1b, T3) covering H13 and H14 together — both verified to actually fail without their respective fixes, not just pass coincidentally.
+- **H15 (Previous button click did nothing — a fourth cause, browser-reported):** On conditional-logic forms, the Previous button was rendered with `onclick="logic_fun_prev_send(form_id)"` in three places in `core-efb.js` — a function that is **never defined anywhere in the codebase** (dead code, likely predating `fun_prev_send` itself learning to skip logic-hidden steps). Clicking Previous threw `Uncaught ReferenceError: logic_fun_prev_send is not defined` and did nothing — most visibly on the final validation-error screen (`#efb-final-step`). Fixed by always using `fun_prev_send(form_id)`, the one path plain forms already used (so plain forms are provably unaffected — their branch never changed).
+- **H16 (fun_prev_send itself crashes on that same error screen — affects plain forms too):** Even with H15 fixed, `fun_prev_send()` assumes `dataset.currentstep` always points at a real, visible fieldset and just decrements it. But `btn_navigate_handle_efb` sets `dataset.currentstep` to `max_step + 1` *before* the final AJAX submit even runs — so by the time a server validation error (e.g. "Please enter valid value for the Customer type field") renders that screen, no such fieldset exists and `fun_prev_send()` throws `Cannot read properties of null (reading 'classList')`. This affected **plain forms too**, not just conditional ones. Fixed with a new `efb_go_to_step_direct(form_id, targetStep)` that works regardless of the (possibly invalid) current value of `dataset.currentstep` — it hides every step fieldset and shows only the target. Wired into all 4 error-screen Previous-button render sites; the one in `response_fill_form_efb` uses the server's `res.data.field_id` to send the user straight back to the exact step containing the field that failed validation, not just "one step back". Normal Previous clicks between real, valid steps (in `btn_navigate_handle_efb`) were left untouched — `dataset.currentstep` is always valid there.
+
+Neither H15 nor H16 is covered by an automated test (same DOM-string-rendering territory as H12/H14, deep inside a huge legacy function); verify manually per the steps below.
+
+**Earlier (2026-06-24, Phase 5 complete):**
+- Builder UI for nested condition groups now supports a **per-item connector** (mixed AND/OR within the same group, not just one operator per group). See Test Group 9 below.
+- **Task 5.1 (numeric operators) finished:** `gte`, `lte`, `between`, `not_between` added to the admin builder's operator dropdown, with a Min/Max range input pair for `between`/`not_between`. See Test Group 10 below.
 
 ---
 
@@ -69,9 +88,13 @@ All screenshots saved to `tests/screenshots/`:
 # PHP tests (requires XAMPP PHP)
 C:\xampp\php\php.exe tests/test-conditional-logic-sanitizer.php
 C:\xampp\php\php.exe tests/test-conditional-logic-submission.php
+C:\xampp\php\php.exe tests/test-conditional-logic-validator.php
+C:\xampp\php\php.exe tests/test-conditional-logic-final-guard.php
 
-# JS unit test
+# JS unit tests
 node tests/test-conditional-logic-runtime.js
+node tests/test-conditional-logic-builder-ui.js
+node tests/test-conditional-logic-validate-step.js
 
 # Browser test (requires Chrome + WordPress running)
 node tests/browser-test.js
@@ -397,6 +420,117 @@ POST to AJAX endpoint with:
 
 ---
 
+## Test Group 9 — Nested Groups & Per-Item Connector (Task 5.2)
+
+### 9.1 — Add a nested group in the builder
+
+**Setup:** Open a rule editor in the conditional logic builder.
+
+**Steps:**
+1. Click "+ Add Group" inside the conditions panel.
+2. Add two conditions inside the new nested group.
+3. Save the rule.
+
+**Expected:** The nested group renders with its own AND/OR toggle and a remove (trash) button; saved JSON has the nested group as `{ type: 'group', items: [...] }` inside the parent `items` array.  
+**Failure indicator:** Nested group flattens into the parent on save, or disappears on reopen.
+
+---
+
+### 9.2 — Mixed AND/OR connectors within one group
+
+**Setup:** Rule with three sibling conditions/groups: `field_a = x`, then `field_b = y` with connector **OR**, then a nested group with connector **AND**.
+
+**Steps:**
+1. Build the rule above in the editor — set the connector toggle between item 1↔2 to OR, and between item 2↔3 to AND.
+2. Save and reopen the rule.
+
+**Expected:** Each connector is preserved independently (not a single group-wide operator) — item 1 has no connector (first item), item 2 has `connector: 'OR'`, item 3 (the group) has `connector: 'AND'`.  
+**Failure indicator:** All connectors collapse to the same value, or the connector on item 1 is saved (it should always be stripped — there's no preceding sibling to connect from).
+
+---
+
+### 9.3 — Mixed connector evaluation matches expected boolean logic
+
+**Setup:** Rule: `(field_a = x AND field_b = y) OR (field_c is_not_empty)` → show field_d.
+
+**Steps:**
+1. Set field_a=x, field_b=y (left branch true) → field_d should show.
+2. Set field_a=x, field_b=other, field_c=filled (right branch true via OR connector) → field_d should show.
+3. Set field_a=x, field_b=other, field_c empty (neither branch true) → field_d should stay hidden.
+
+**Expected:** Behavior matches the three cases above on both the frontend runtime and a server-side submission test.  
+**Failure indicator:** Evaluation ignores the per-item connector and falls back to the group's single `operator`, producing wrong show/hide results.  
+**Automated coverage:** `tests/test-conditional-logic-runtime.js` T14.1–T14.3, T15.1–T15.3; `tests/test-conditional-logic-sanitizer.php` T7b.1–T7b.5.
+
+---
+
+## Test Group 10 — Numeric Operators: gte, lte, between, not_between (Task 5.1)
+
+### 10.1 — New operators appear only for number fields
+
+**Steps:**
+1. Open the conditional logic builder, add a rule, select a **number** field as the condition field.
+2. Open the operator dropdown.
+
+**Expected:** Dropdown includes "greater than or equal to", "less than or equal to", "between", "not between" alongside the existing operators.  
+**Failure indicator:** New operators missing from the list.
+
+**Steps (continued):**
+3. Change the condition field to a **text** field.
+
+**Expected:** The numeric-only operators (`gte`, `lte`, `between`, `not_between`) disappear from the dropdown; only text operators (`contains`, `starts_with`, etc.) remain.  
+**Failure indicator:** Numeric operators still listed for a text field.
+
+---
+
+### 10.2 — "between" / "not between" render a Min/Max range input
+
+**Steps:**
+1. With a number field selected, choose operator "between".
+
+**Expected:** The single value input is replaced by two number inputs side by side (Min / Max) with a separator between them.  
+**Failure indicator:** A single text input shown instead; no second input.
+
+---
+
+### 10.3 — Range value saves and reloads correctly
+
+**Steps:**
+1. Set operator to "between", Min = 5, Max = 10. Set an action (e.g. show a field). Save the rule, save the form.
+2. Reload the page and reopen the rule.
+
+**Expected:** Min still shows 5, Max still shows 10.  
+**Failure indicator:** Values reset, swapped, or merged incorrectly.
+
+---
+
+### 10.4 — Range evaluation on the published form
+
+**Setup:** Rule: IF Price `between` 5,10 → show Field B.
+
+**Steps:**
+1. Enter 7 in Price → Field B should show (inside range, including both boundaries 5 and 10).
+2. Enter 20 in Price → Field B should hide (outside range).
+3. Switch the rule to "not between" → repeat: 7 should now hide Field B, 20 should show it.
+
+**Expected:** Behavior matches in both directions.  
+**Failure indicator:** Boundary values (exactly 5 or exactly 10) behave inconsistently, or the field never reacts.
+
+---
+
+### 10.5 — Incomplete range is rejected on save
+
+**Steps:**
+1. Set operator to "between", fill only Min (leave Max blank).
+2. Try to save/apply the rule.
+
+**Expected:** A validation warning appears ("Complete all condition and action fields…") and the rule is not saved.  
+**Failure indicator:** Rule saves anyway with a malformed value (e.g. `"5,"`).
+
+**Automated coverage:** `tests/test-conditional-logic-builder-ui.js` (all 20 tests); `tests/test-conditional-logic-runtime.js` T16.1–T16.14 (including NaN/empty edge cases); `tests/test-conditional-logic-sanitizer.php` GROUP 4b.
+
+---
+
 ## Regression Tests
 
 ### R1 — Regular form save/load still works
@@ -435,4 +569,9 @@ POST to AJAX endpoint with:
 [ ] clear_value clears field DOM and sendBack
 [ ] jump_to_step navigates correctly
 [ ] Form templates load with translated (i18n) strings
+[ ] Nested condition group can be added/removed in builder and survives reload
+[ ] Per-item AND/OR connector is preserved independently per item (not one operator per group)
+[ ] Number field shows gte/lte/between/not_between in operator dropdown; text field does not
+[ ] "between"/"not between" render Min/Max inputs and evaluate boundaries correctly
+[ ] Incomplete range (only Min or only Max) blocks save with a validation warning
 ```

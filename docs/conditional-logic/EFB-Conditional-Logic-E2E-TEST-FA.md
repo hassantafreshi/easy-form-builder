@@ -22,19 +22,27 @@
 ```powershell
 C:\xampp\php\php.exe tests\test-conditional-logic-sanitizer.php
 C:\xampp\php\php.exe tests\test-conditional-logic-submission.php
+C:\xampp\php\php.exe tests\test-conditional-logic-validator.php
+C:\xampp\php\php.exe tests\test-conditional-logic-final-guard.php
 node tests\test-conditional-logic-runtime.js
+node tests\test-conditional-logic-builder-ui.js
+node tests\test-conditional-logic-validate-step.js
 ```
 
-نتیجه مورد انتظار:
+نتیجه مورد انتظار (آخرین اجرا: 2026-06-26، جمعاً 188 تست):
 
 ```text
-Sanitizer: all tests passed
-Submission: all tests passed
-Runtime: all tests passed
+Sanitizer: 49/49 passed
+Submission: 15/15 passed
+Validator (PHP addon واقعی): 24/24 passed
+Final-save guard: 8/8 passed
+Runtime: 65/65 passed
+Builder UI: 20/20 passed
+Validate-step (H13 + H14): 7/7 passed
 ```
 
 - [ ] تمام تست‌های PHP پاس شدند.
-- [ ] تمام تست‌های JavaScript پاس شدند.
+- [ ] تمام تست‌های JavaScript پاس شدند (شامل تست جدید `test-conditional-logic-builder-ui.js`).
 - [ ] هیچ warning یا fatal جدیدی ثبت نشد.
 
 ## 3. ساخت Fixture اصلی
@@ -90,6 +98,9 @@ Ruleها را دقیقاً با priority زیر ایجاد کنید.
 | R12 | 5 | `logic_command is stop` | `hide_field` روی `conflict_target` و `stop_processing=true` |
 | R13 | 30 | `logic_command is stop` | `show_field` روی `conflict_target` |
 | R14 | 40 | `logic_command is jump` | `jump_to_step` روی Step 3 |
+| R15 | 50 | گروه تو در تو: `(customer_type is Company AND budget gte 1000)` با connector **OR** نسبت به `logic_command is vip` | `show_message` روی `budget` |
+
+برای R15 از دکمه «+ Add Group» داخل ادیتور rule استفاده کنید تا یک گروه تو در تو بسازید؛ کاندیشن سوم (`logic_command is vip`) را به‌صورت یک آیتم هم‌سطح با connector جداگانه **OR** به گروه اول وصل کنید (نه AND پیش‌فرض گروه).
 
 ذخیره کنید، builder را ببندید و دوباره باز کنید.
 
@@ -97,16 +108,18 @@ Ruleها را دقیقاً با priority زیر ایجاد کنید.
 - [ ] priorityها بدون تغییر ذخیره شده‌اند.
 - [ ] `stop_processing` برای R12 فعال مانده است.
 - [ ] actionهای `set_value` و `show_message` مقدار خود را حفظ کرده‌اند.
+- [ ] گروه تو در تو در R15 بعد از reload باز هم به‌صورت یک گروه (نه flatten‌شده) نمایش داده می‌شود.
+- [ ] connector بین گروه و کاندیشن سوم در R15 همچنان **OR** است (نه AND پیش‌فرض).
 - [ ] Console هنگام ذخیره و بازگشایی خطا ندارد.
 
 ## 5. سناریوی A — فرم عادی
 
 یک فرم ساده بدون `logic_rules` بسازید و submit کنید.
 
-- [ ] required validation عادی همچنان کار می‌کند.
-- [ ] فرم با داده معتبر submit می‌شود.
-- [ ] فایل `conditional-logic-efb.js` برای این فرم enqueue نمی‌شود.
-- [ ] داده فرم عادی توسط runtime شرطی تغییر نمی‌کند.
+- [X] required validation عادی همچنان کار می‌کند.
+- [X] فرم با داده معتبر submit می‌شود.
+- [X] فایل `conditional-logic-efb.js` برای این فرم enqueue نمی‌شود.
+- [X] داده فرم عادی توسط runtime شرطی تغییر نمی‌کند.
 
 ## 6. سناریوی B — Step مخفی و Server Validation
 
@@ -118,11 +131,11 @@ Ruleها را دقیقاً با priority زیر ایجاد کنید.
 
 نتیجه مورد انتظار:
 
-- [ ] Step 2 در navigation رد می‌شود.
-- [ ] `company_name` و `company_email` با وجود required بودن خطا نمی‌دهند.
-- [ ] `budget` مخفی و optional است.
-- [ ] submit سمت سرور موفق است.
-- [ ] داده ذخیره‌شده شامل فیلدهای Step 2 و `budget` نیست.
+- [X] Step 2 در navigation رد می‌شود.
+- [X] `company_name` و `company_email` با وجود required بودن خطا نمی‌دهند.
+- [X] `budget` مخفی و optional است.
+- [X] submit سمت سرور موفق است.
+- [X] داده ذخیره‌شده شامل فیلدهای Step 2 و `budget` نیست.
 
 ## 7. سناریوی C — Required پویا و Message
 
@@ -134,14 +147,14 @@ Ruleها را دقیقاً با priority زیر ایجاد کنید.
 
 نتیجه مورد انتظار:
 
-- [ ] Step 2 قابل مشاهده است.
-- [ ] `budget` نمایش داده شده و required است.
-- [ ] با budget خالی، validation frontend مانع ادامه می‌شود.
-- [ ] با مقدار `1500` پیام inline مربوط به R7 نمایش داده می‌شود.
-- [ ] `internal_code` برابر `COMPANY` است.
-- [ ] `internal_code` disabled است.
-- [ ] submit با تکمیل فیلدهای قابل مشاهده موفق است.
-- [ ] server مقدار قدیمی یا دستکاری‌شده فیلد disabled را قبول نمی‌کند.
+- [X] Step 2 قابل مشاهده است.
+- [X] `budget` نمایش داده شده و required است.
+- [X] با budget خالی، validation frontend مانع ادامه می‌شود.
+- [X] با مقدار `1500` پیام inline مربوط به R7 نمایش داده می‌شود.
+- [X] `internal_code` برابر `COMPANY` است.
+- [X] `internal_code` disabled است.
+- [X] submit با تکمیل فیلدهای قابل مشاهده موفق است.
+- [X] server مقدار قدیمی یا دستکاری‌شده فیلد disabled را قبول نمی‌کند.
 
 ## 8. سناریوی D — پاک‌شدن مقدار قبلی
 
@@ -151,10 +164,10 @@ Ruleها را دقیقاً با priority زیر ایجاد کنید.
 
 نتیجه مورد انتظار:
 
-- [ ] `budget` مخفی می‌شود.
-- [ ] مقدار DOM آن پاک می‌شود.
-- [ ] row مربوط به `budget` از `sendBack_emsFormBuilder_pub` حذف می‌شود.
-- [ ] submit شامل budget قبلی نیست.
+- [X] `budget` مخفی می‌شود.
+- [X] مقدار DOM آن پاک می‌شود.
+- [X] row مربوط به `budget` از `sendBack_emsFormBuilder_pub` حذف می‌شود.
+- [X] submit شامل budget قبلی نیست.
 
 برای بررسی Console:
 
@@ -171,8 +184,8 @@ sendBack_emsFormBuilder_pub.filter(row => row && row.id_ === 'budget')
 1. در `logic_command` مقدار `conflict` را وارد کنید.
 2. R10 ابتدا target را hide و R11 بعداً آن را show می‌کند.
 
-- [ ] `conflict_target` در پایان نمایش داده می‌شود.
-- [ ] rule ناموفق یا evaluation بعدی نتیجه R11 را پاک نمی‌کند.
+- [X] `conflict_target` در پایان نمایش داده می‌شود.
+- [X] rule ناموفق یا evaluation بعدی نتیجه R11 را پاک نمی‌کند.
 
 ### Stop processing
 
@@ -182,6 +195,12 @@ sendBack_emsFormBuilder_pub.filter(row => row && row.id_ === 'budget')
 - [ ] `conflict_target` مخفی می‌ماند.
 - [ ] R13 اجرا نمی‌شود.
 - [ ] نتیجه frontend و server یکسان است.
+- [ ] (2026-06-26) اگر همین rule هم‌زمان `jump_to_step` دارد: بعد از تایپ `stop` و کلیک Next، دکمه Previous **نباید** ناخواسته مخفی شود (باگ H12 — رفع شد در `public/assets/js/core-efb.js`؛ علت: کلیک Next مقدار step را قبل از validation کش می‌کرد و jump رخ‌داده در حین validation را نادیده می‌گرفت، در نتیجه step را دوبار جلو می‌برد و فرم را زودهنگام «تمام‌شده» در نظر می‌گرفت).
+- [ ] فرم بعد از jump دقیقاً روی step مقصد بماند (نه یک step جلوتر/عقب‌تر)، و progress bar/عنوان step درست باشد.
+- [ ] (2026-06-26 — H13) اگر مقصد jump یک step با فیلد required خالی باشد، کلیک Next/Submit باید واقعاً block شود (نه اینکه submit ناقص انجام شود). این ریشه‌ی عمیق‌تر همان باگ Previous بود: تابع `validate()` در `public/assets/js/conditional-logic-efb.js` step قدیمی (قبل از jump) را چک می‌کرد، نه step واقعی بعد از jump — یعنی required-fieldهای step واقعی اصلاً دیده نمی‌شدند. رفع شد؛ تست خودکار: `tests/test-conditional-logic-validate-step.js`.
+- [ ] (2026-06-26 — H14، علت سوم) حتی اگر jump بدون هیچ کلیکی رخ دهد (مثلاً فقط با تایپ یک مقدار، بدون زدن Next)، دکمه Previous باید بر اساس step مقصد به‌درستی نمایش/مخفی شود. علت این بود که `jumpToStep()` در runtime عمومی هیچ‌وقت `#prev_efb` را مدیریت نمی‌کرد — فقط کلیک دستی Next/Previous این کار را می‌کرد. رفع شد: حالا `jumpToStep()` خودش این دکمه را مدیریت می‌کند، مستقل از این‌که jump از کجا trigger شده باشد.
+- [ ] (2026-06-26 — H15، علت چهارم) روی کلیک دکمه Previous (مخصوصاً در صفحه خطای نهایی validation، مثل وقتی فیلد required خالی مانده) هیچ خطایی در Console نباید باشد و واقعاً باید به step قبلی برگردد. علت قبلی: `onclick="logic_fun_prev_send(form_id)"` به تابعی اشاره می‌کرد که در هیچ‌جای کدبیس تعریف نشده بود (`Uncaught ReferenceError`) — فقط روی فرم‌های conditional رخ می‌داد، فرم‌های عادی از قبل درست بودند. رفع شد در `public/assets/js/core-efb.js` (هر سه محل، با استفاده یکدست از `fun_prev_send`).
+- [ ] (2026-06-26 — H16، علت پنجم) دقیقاً همان صفحه خطا (مثلاً وقتی سرور می‌گوید «Please enter valid value for the Customer type field») را تست کنید: کلیک Previous باید **بدون خطای جدید در Console** کار کند و کاربر را دقیقاً به step فیلد «Customer type» برگرداند (نه صرفاً یک step عقب‌تر از جایی نامعلوم). علت: `fun_prev_send()` فرض می‌کند `dataset.currentstep` همیشه یک step واقعی است، اما درست قبل از ارسال submit نهایی، این مقدار به `max_step + 1` تنظیم می‌شود (یک step که اصلاً وجود ندارد) — این باگ **هم روی فرم عادی و هم conditional** بود. رفع شد با تابع امن جدید `efb_go_to_step_direct()` که از `field_id` پاسخ سرور برای رفتن دقیق به step درست استفاده می‌کند.
 
 ## 10. سناریوی F — Jump
 
@@ -242,7 +261,51 @@ sendBack_emsFormBuilder_pub.filter(row => row && row.id_ === 'budget')
 - [ ] submit server با وضعیت نمایش frontend هماهنگ است.
 - [ ] ذخیره مجدد فرم داده legacy را خراب نمی‌کند.
 
-## 15. بررسی نهایی فنی
+## 15. سناریوی K — Nested Condition Groups و Connector ترکیبی AND/OR
+
+این سناریو رول R15 ساخته‌شده در بخش 4 را تست می‌کند: `(customer_type is Company AND budget gte 1000) OR (logic_command is vip)` → `show_message` روی `budget`.
+
+1. صفحه فرم را refresh کنید.
+2. `customer_type = Company` و `budget = 1500` را تنظیم کنید (شاخه اول گروه باید true باشد).
+3. بررسی کنید پیام inline مربوط به R15 روی `budget` نمایش داده می‌شود.
+4. `budget` را به `500` تغییر دهید (شاخه اول false می‌شود) و `logic_command` را خالی نگه دارید.
+5. بررسی کنید پیام دیگر نمایش داده نمی‌شود.
+6. `logic_command = vip` را وارد کنید (شاخه دوم، متصل با connector **OR**، باید true شود) درحالی‌که `budget` همچنان `500` است.
+7. بررسی کنید پیام دوباره نمایش داده می‌شود — یعنی connector مستقل OR باعث true شدن کل گروه شده، نه عملگر AND پیش‌فرض گروه داخلی.
+
+نتیجه مورد انتظار:
+
+- [ ] حالت 2 (هر دو شرط گروه AND برقرار) → پیام نمایش داده می‌شود.
+- [ ] حالت 4 (یکی از شروط گروه AND نادرست) و logic_command خالی → پیام نمایش داده نمی‌شود.
+- [ ] حالت 6 (شرط مستقل با connector OR برقرار، گروه AND نادرست) → پیام دوباره نمایش داده می‌شود.
+- [ ] رفتار frontend (runtime) و نتیجه ذخیره‌شده پس از submit با هم هماهنگ‌اند.
+- [ ] هیچ خطای Console در حین تغییر مقادیر دیده نمی‌شود.
+
+## 16. سناریوی L — Operators عددی (gte, lte, between, not_between)
+
+1. در builder، یک rule جدید با شرط روی فیلد `budget` بسازید.
+2. عملگر را روی `between` بگذارید و بررسی کنید دو ورودی Min/Max به‌جای یک ورودی ساده نمایش داده می‌شود.
+3. Min = `500`، Max = `2000` وارد کنید؛ Action: `show_field` روی `conflict_target`.
+4. فیلد را به `text` (مثلاً `logic_command`) تغییر دهید و بررسی کنید عملگرهای عددی (`gte`, `lte`, `between`, `not_between`) از لیست عملگرها حذف می‌شوند؛ سپس دوباره فیلد را به `budget` برگردانید.
+5. ذخیره کنید و فرم منتشرشده را باز کنید.
+
+نتیجه مورد انتظار (ارزیابی `between` روی فرم منتشرشده):
+
+- [ ] `budget = 1000` (داخل بازه) → `conflict_target` نمایش داده می‌شود.
+- [ ] `budget = 500` یا `budget = 2000` (روی مرز بازه) → `conflict_target` نمایش داده می‌شود (شامل مرزها).
+- [ ] `budget = 3000` (خارج از بازه) → `conflict_target` مخفی است.
+- [ ] `budget` خالی یا غیرعددی → شرط هرگز true نمی‌شود.
+
+سپس عملگر را به `not_between` تغییر دهید و دوباره تست کنید:
+
+- [ ] `budget = 1000` (داخل بازه قبلی) → اکنون `conflict_target` مخفی است.
+- [ ] `budget = 3000` (خارج از بازه) → اکنون `conflict_target` نمایش داده می‌شود.
+
+در پایان، یک بار سعی کنید rule را با Min پر و Max خالی ذخیره کنید:
+
+- [ ] پیام هشدار اعتبارسنجی نمایش داده می‌شود و rule ذخیره نمی‌شود.
+
+## 17. بررسی نهایی فنی
 
 در پایان همه سناریوها:
 
@@ -254,7 +317,7 @@ sendBack_emsFormBuilder_pub.filter(row => row && row.id_ === 'budget')
 - [ ] form templates و فرم‌های معمولی regression ندارند.
 - [ ] RTL و mobile layout قابل استفاده است.
 
-## 16. گزارش نتیجه
+## 18. گزارش نتیجه
 
 | بخش | نتیجه | توضیح |
 |---|---|---|
@@ -267,7 +330,8 @@ sendBack_emsFormBuilder_pub.filter(row => row && row.id_ === 'budget')
 | Addon gating | ⬜ Pass / ⬜ Fail | |
 | Payment | ⬜ Pass / ⬜ Fail | |
 | Legacy forms | ⬜ Pass / ⬜ Fail | |
+| Nested groups / connector (Scenario K) | ⬜ Pass / ⬜ Fail | |
+| Numeric operators gte/lte/between (Scenario L) | ⬜ Pass / ⬜ Fail | |
 | Regression | ⬜ Pass / ⬜ Fail | |
 
 **معیار تأیید نهایی:** تمام ردیف‌ها Pass باشند و هیچ خطای Critical/High باز باقی نماند.
-
