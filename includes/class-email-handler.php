@@ -248,6 +248,12 @@ class EmsfbEmailHandler {
             return false;
         }
 
+        $fallback_blocker = self::get_php_mail_fallback_blocker();
+        if ($fallback_blocker !== '') {
+            self::log_email_failure($to, $subject, self::create_mail_error('php_mail_unavailable', $fallback_blocker));
+            return false;
+        }
+
         $mail_error = null;
         set_error_handler(function($severity, $message) use (&$mail_error) {
             $mail_error = $message;
@@ -265,6 +271,36 @@ class EmsfbEmailHandler {
         }
 
         return (bool) $sent;
+    }
+
+    private static function get_php_mail_fallback_blocker() {
+        if (DIRECTORY_SEPARATOR !== '\\') {
+            return '';
+        }
+
+        $smtp_host = trim((string) ini_get('SMTP'));
+        $smtp_port = (int) ini_get('smtp_port');
+        if ($smtp_host === '') {
+            return 'PHP mail fallback skipped: no SMTP host is configured in php.ini.';
+        }
+
+        if ($smtp_port <= 0) {
+            $smtp_port = 25;
+        }
+
+        $errno = 0;
+        $errstr = '';
+        $connection = @fsockopen($smtp_host, $smtp_port, $errno, $errstr, 0.5);
+        if (is_resource($connection)) {
+            fclose($connection);
+            return '';
+        }
+
+        return sprintf(
+            'PHP mail fallback skipped: no SMTP server is available at %1$s:%2$d. Please configure WordPress SMTP or php.ini mail settings.',
+            $smtp_host,
+            $smtp_port
+        );
     }
 
     private static function create_mail_error($code, $message) {
