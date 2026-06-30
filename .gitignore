@@ -46,3 +46,4 @@ includes/functions.php.backup_20251222_221754
 .vscode/settings.json
 .editorconfig
 vendor.rar
+.claude/settings.local.json
