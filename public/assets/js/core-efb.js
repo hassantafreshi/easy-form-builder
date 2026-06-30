@@ -3120,7 +3120,7 @@ async function fun_validation_efb_v4(form_id) {
   let state = true;
   let idi = "null";
   let name_field = "";
-  if(Number(form_id)!=Number(form_ID_emsFormBuilder)) {valj_efb = get_structure_by_form_id_efb(form_id);}
+  let valj_efb = get_structure_by_form_id_efb(form_id);
   let id_noti_message = valj_efb.steps > 1 ?  `step-${current_s_efb}-efb-msg` : 'alert_efb';
   for (let row in valj_efb) {
     let s =  get_row_sendback_by_id_efb_v4(valj_efb[row].id_,form_id);
