@@ -754,6 +754,10 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         } else {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
+      } else if (typeof c.type == "string" && c.type.indexOf("video/") === 0) {
+        value = `</br><div class="efb px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" controls></video></div><p class="efb text-center"><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>`;
+      } else if (typeof c.type == "string" && c.type.indexOf("audio/") === 0) {
+        value = `<div><audio controls><source src="${c.url}" type="${c.type}"></audio></div>`;
       } else {
         value = c.url.length > 1 ? `<a class="efb-reply-btn" href="${c.url}" target="_blank" >${c.url.split('/').pop()}</a>` : `<span class="efb  fs-5">💤</span>`
       }

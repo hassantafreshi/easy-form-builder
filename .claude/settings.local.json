@@ -1,7 +1,31 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:whitestudio.team)"
+      "WebFetch(domain:whitestudio.team)",
+      "Bash(mkdir -p \"/c/Users/KIANCO~1/AppData/Local/Temp/claude/c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder/a4f7e6fc-6f39-487c-82de-0307024df385/scratchpad/gstest\")",
+      "Bash(cp \"/c/xampp/htdocs/wp/wp-content/plugins/easy-form-builder/public/assets/js/jquery.js\" \"/c/Users/KIANCO~1/AppData/Local/Temp/claude/c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder/a4f7e6fc-6f39-487c-82de-0307024df385/scratchpad/gstest/jquery.js\" && cp \"/c/xampp/htdocs/wp/wp-content/plugins/easy-form-builder/vendor/googlesheet/assets/js/googlesheet-efb.js\" \"/c/Users/KIANCO~1/AppData/Local/Temp/claude/c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder/a4f7e6fc-6f39-487c-82de-0307024df385/scratchpad/gstest/googlesheet-efb.js\" && ls \"/c/Users/KIANCO~1/AppData/Local/Temp/claude/c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder/a4f7e6fc-6f39-487c-82de-0307024df385/scratchpad/gstest/\")",
+      "Bash(cp \"/c/xampp/htdocs/wp/wp-content/plugins/easy-form-builder/vendor/arabicdatepicker/assets/js/jquery341.min.js\" \"/c/Users/KIANCO~1/AppData/Local/Temp/claude/c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder/a4f7e6fc-6f39-487c-82de-0307024df385/scratchpad/gstest/jquery.js\")",
+      "Bash(rm -f \"/c/Users/KIANCO~1/AppData/Local/Temp/claude/c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder/a4f7e6fc-6f39-487c-82de-0307024df385/scratchpad/gstest/run2.js\")",
+      "Bash(grep -rn \"_\\\\`\\)\\\\.files\\\\|_'\\\\`\\).files\\\\|id_}_\\\\`\\).files\\\\|}_\\\\`\\)\\\\.files\" public/assets/js includes/admin/assets/js)",
+      "Bash(grep -n \"id='\\\\${rndm}'\\\\|id=\\\\\"\\\\${rndm}\\\\\"\\\\|id=\\\\\\\\\\\\\\\\\\\\\"\\\\${rndm}\\\\\\\\\\\\\\\\\\\\\"\" includes/admin/assets/js/admin-efb.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost/wp/\")",
+      "Read(//c/xampp/htdocs/wp/wp-content/**)",
+      "Bash(grep -n 'id_ . '\\\\''\"\\\\|id=\\\\\\\\\"'\\\\'' . $element_Id\\\\|$element_Id . '\\\\''\"'\\\\''\\\\|return $ui\\\\|return sprintf' includes/class-Emsfb-formbuilder.php)",
+      "Bash(awk 'NR==2283,0' includes/class-Emsfb-formbuilder.php)",
+      "Bash(awk '/^\\\\tpublic function addNewElement_efb/{f=1} f{print NR+2282\": \"$0} f && /^\\\\t}/{c++; if\\(c==1\\) exit}')",
+      "Bash(curl -s \"http://127.0.0.1/wp/2026/06/07/141/\" -o \"C:/Users/Kian Co/.claude/projects/c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder/scratch_page.html\" -w \"%{http_code}\\\\n\")",
+      "Bash(grep -o 'var valj_efb[^;]*;' \"C:/Users/Kian Co/.claude/projects/c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder/scratch_page.html\" | head -c 3000)",
+      "Read(//c/Users/Kian Co/.claude/projects/c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder/**)",
+      "Bash(grep -n \"valj_efb\" \"C:/Users/Kian Co/.claude/projects/c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder/scratch_page.html\" | head -20)",
+      "Bash(node -e ' *)",
+      "Bash(node --check \"c:/xampp/htdocs/wp/wp-content/plugins/easy-form-builder/public/assets/js/core-efb.js\")",
+      "Bash(\"/c/xampp/php/php.exe\" -l vendor/logic/class-Emsfb-logic-validator.php)",
+      "Bash(node --check public/assets/js/conditional-logic-efb.js)",
+      "Bash(node --check includes/admin/assets/js/conditional-logic-efb.js)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\KIANCO~1\\AppData\\Local\\Temp\\claude\\c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder\\a4f7e6fc-6f39-487c-82de-0307024df385\\scratchpad",
+      "C:\\Users\\KIANCO~1\\AppData\\Local\\Temp\\claude\\c--xampp-htdocs-wp-wp-content-plugins-easy-form-builder\\a4f7e6fc-6f39-487c-82de-0307024df385\\scratchpad\\gstest"
     ]
   }
 }

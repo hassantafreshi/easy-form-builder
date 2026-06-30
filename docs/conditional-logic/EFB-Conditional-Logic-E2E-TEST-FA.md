@@ -32,13 +32,14 @@ C:\xampp\php\php.exe tests\test-conditional-logic-sanitizer.php
 C:\xampp\php\php.exe tests\test-conditional-logic-submission.php
 C:\xampp\php\php.exe tests\test-conditional-logic-validator.php
 C:\xampp\php\php.exe tests\test-conditional-logic-final-guard.php
+C:\xampp\php\php.exe tests\test-conditional-logic-webhook.php
 node tests\test-conditional-logic-runtime.js
 node tests\test-conditional-logic-builder-ui.js
 node tests\test-conditional-logic-validate-step.js
 node tests\test-core-multiform-validation-scope.js
 ```
 
-نتیجه مورد انتظار (آخرین اجرای دستی کامل: 2026-06-28):
+نتیجه مورد انتظار (آخرین اجرای دستی کامل: 2026-06-29):
 
 ```text
 PHP syntax: includes/functions.php OK
@@ -49,8 +50,9 @@ Sanitizer: 49/49 passed
 Submission: 15/15 passed
 Validator (PHP addon واقعی): 24/24 passed
 Final-save guard: 8/8 passed
+Conditional webhook: 15/15 passed
 Runtime: 65/65 passed
-Builder UI: 20/20 passed
+Builder UI: 30/30 passed
 Validate-step (H13 + H14): 7/7 passed
 Core multi-form validation scope: 17/17 passed
 ```
@@ -209,6 +211,52 @@ assert_true('no matching confirmation returns null', $confirm->invoke($obj, $for
 [PASS] higher-priority matching confirmation returns redirect
 [PASS] fallback matching confirmation returns sanitized message
 [PASS] no matching confirmation returns null
+```
+
+### 2.2 تست خودکار هدفمند Phase 4
+
+این تست ارسال Conditional Webhook را بدون تماس شبکه واقعی بررسی می‌کند. `wp_remote_post` و `wp_remote_get` در تست stub شده‌اند تا فقط payload، header، شرط‌ها و hookهای before/after بررسی شوند.
+
+```powershell
+C:\xampp\php\php.exe tests\test-conditional-logic-webhook.php
+```
+
+نتیجه مورد انتظار:
+
+```text
+[PASS] T1.1 only one matching webhook is sent
+[PASS] T1.2 matching webhook URL is used
+[PASS] T1.3 sent metadata records matching rule
+[PASS] T1.4 payload includes track code
+[PASS] T1.5 payload includes values map
+[PASS] T1.6 payload includes webhook id header
+[PASS] T1.7 before/after hooks fired
+[PASS] T2.1 GET webhook does not use POST transport
+[PASS] T2.2 GET webhook is sent once
+[PASS] T2.3 GET webhook URL includes track_code and event_type
+[PASS] T2.4 GET webhook metadata records GET method
+[PASS] T3.1 non-matching value sends no webhook
+[PASS] T3.2 non-matching result is empty
+[PASS] T4.1 form with no webhook_rules keeps old behavior and sends nothing
+[PASS] T4.2 form with no webhook_rules returns empty result
+```
+
+### 2.3 تست خودکار هدفمند Phase 6
+
+این تست داخل `test-conditional-logic-builder-ui.js` اجرا می‌شود و Test Mode در builder را بررسی می‌کند: باز شدن پنل، اجرای ruleها با مقدار تست، نمایش Matched / Not matched، نمایش Skipped برای rule غیرفعال، و عدم تغییر تعداد ruleها.
+
+```powershell
+node tests\test-conditional-logic-builder-ui.js
+```
+
+نتیجه‌های مرتبط با Phase 6:
+
+```text
+[PASS] T8.1 test mode panel rendered
+[PASS] T8.2 price=7 shows a matched rule
+[PASS] T8.3 price=7 shows a not matched rule
+[PASS] T8.4 disabled rule appears as skipped in Test Mode
+[PASS] T8.5 Test Mode does not create or remove field rules
 ```
 
 ## 3. ساخت Fixture اصلی

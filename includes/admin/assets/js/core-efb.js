@@ -99,6 +99,14 @@ function fun_render_view_core_emsFormBuilder(check) {
         el = ` <div class="efb row emsFormBuilder ${drog == true ? `inputDnD` : ``}" id="${id}-row"> <label for="${id}" class="efb emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="efb ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}' ,'msg','')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog == true ? ` data-title="${efb_var.text.DragAndDropA} ${typeFile} ${efb_var.text.orClickHere}"` : ``}>`
         exportView_emsFormBuilder.push({ id_: v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount: v.amount })
         break;
+      case 'audio_recorder':
+      case 'video_recorder':
+      case 'screen_recorder':
+        id = v.id ? v.id : v.id_;
+        req = v.required ? v.required : false;
+        el = `<div class="efb row emsFormBuilder" id="${id}-row"> <label for="${id}" class="efb emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label>${typeof efbRecorderWidgetHtml == "function" ? efbRecorderWidgetHtml(id, v, 0) : ''}</div>`;
+        exportView_emsFormBuilder.push({ id_: v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount: v.amount })
+        break;
       case 'textarea':
         id = v.id ? v.id : v.id_;
         req = v.required ? v.required : false;
@@ -614,15 +622,17 @@ function valid_file_emsFormBuilder(id) {
   let rtrn = true;
 
   let file = ''
+  const f = valueJson_ws.find(x => x.id_ === id);
   if (true) {
-    const f = valueJson_ws.find(x => x.id_ === id);
     file = f.file && f.file.length > 3 ? f.file : 'Zip';
     file = file.toLocaleLowerCase();
   }
   let check = 0;
 
   let fileName = ''
-  const i = `${id}_`;
+  const recorderTypes_efb = ["audio_recorder", "video_recorder", "screen_recorder"];
+  const isRecorderField_efb = f && recorderTypes_efb.indexOf(f.type) !== -1;
+  const i = isRecorderField_efb ? `${id}_file` : `${id}_`;
   let message = "";
   let file_size = 8*1024*1024;
   const indx = valj_efb.findIndex(x => x.id_ === id);
@@ -641,10 +651,12 @@ function valid_file_emsFormBuilder(id) {
   }
   if (check > 0) {
     msgEl.innerHTML = "";
+    if (!isRecorderField_efb) {
       const idB =id+'-prB';
       const elf = document.getElementById(idB);
-      document.getElementById(id+'-prA').classList.remove('d-none');
-      if(elf==null) return;
+      const prA = document.getElementById(id+'-prA');
+      if (prA) prA.classList.remove('d-none');
+      if(elf==null) { rtrn = true; return; }
       let pp =0;
       elf.style.width = pp+'%';
       elf.textContent = pp+'% = ' + efb_var.text.preview;
@@ -654,13 +666,15 @@ function valid_file_emsFormBuilder(id) {
         elf.textContent = pp+'% = ' + efb_var.text.preview;
         if(pp>=100){
           clearInterval(x);
-          document.getElementById(id+'-prA').classList.add('d-none');
+          if (prA) prA.classList.add('d-none');
         }
       }, 300);
+    }
 
     rtrn = true;
   } else {
-    document.getElementById(id+'-prA').classList.add('d-none');
+    const prA = document.getElementById(id+'-prA');
+    if (prA) prA.classList.add('d-none');
     const f_s_l = val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0 ? val_in.max_fsize : 8;
     const m =efb_var.text.pleaseUploadA.replace('NN', efb_var.text[val_in.file]);
     const size_m = efb_var.text.fileSizeIsTooLarge.replace('NN', f_s_l);

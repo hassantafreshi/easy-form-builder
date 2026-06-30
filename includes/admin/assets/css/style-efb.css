@@ -665,11 +665,9 @@ input[type=range].efb {	border: transparent !important;
 }
 .h-xxxl-efb.efb-rounded {	border-radius: 60px !important;
 }
-label.yesno-efb.h-d-efb {	padding-top: 1% !important;
-}
-
-label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label.yesno-efb.h-xxxl-efb {	padding-top: 2% !important;
-}
+/* Vertical centering for the Yes/No button label is handled by the flex rule
+   on .yesno-efb below (kit-proof, height-independent); these legacy
+   padding-top nudges are no longer needed and would fight the flex centering. */
 .h-d-efb::-webkit-input-placeholder {	font-size: 17px !important;
    font-weight: 400 !important;
 }
@@ -740,13 +738,47 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
 }
 .yesno-efb.disabled {	opacity: 1 !important;
 }
-.yesno-efb.active {	box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, .2);
+/* Kit-proof layout: flex centering wins over any height/padding/line-height a
+   template kit sets, so the label content is always centered on the Y axis
+   regardless of corner/height variant or future kit CSS. */
+.efb-yesno-group .yesno-efb,label.yesno-efb {	display: flex !important;
+   align-items: center !important;
+   justify-content: center !important;
+   line-height: normal !important;
+   transition: box-shadow .15s ease-in-out, transform .1s ease-in-out;
+}
+.yesno-efb.active,.yesno-efb.btn-set {	box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, .2);
+}
+/* The check icon's space is reserved at all times (opacity-only toggle) so
+   selecting a button never changes its width/size. */
+.yesno-efb::before {	content: "\F633";
+   font-family: bootstrap-icons !important;
+   margin-right: 6px;
+   opacity: 0;
+   transition: opacity .15s ease-in-out;
+}
+.yesno-efb.active::before,.yesno-efb.btn-set::before {	opacity: 1;
+}
+[dir="rtl"] .yesno-efb::before {	margin-right: 0;
+   margin-left: 6px;
+}
+.yesno-efb:not(.disabled):hover {	box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, .08);
+}
+.yesno-efb:not(.disabled):active {	transform: scale(0.98);
+}
+#emsFormBuilder .yesno-efb input[type="radio"]:focus-visible ~ span,.yesno-efb:focus-visible {	outline: 2px solid #2684FF !important;
+   outline-offset: 2px;
 }
 .yesno-efb.efb-rounded.left-efb {	border-top-right-radius: 0 !important;
    border-bottom-right-radius: 0 !important;
 }
 .yesno-efb.efb-rounded.right-efb {	border-top-left-radius: 0 !important;
    border-bottom-left-radius: 0 !important;
+}
+.efb-yesno-group.border-danger,.efb-yesno-group.border-success {	border-style: solid !important;
+   border-width: 1px !important;
+   border-radius: 4px;
+   padding: 2px;
 }
 .txt-left.efb {	text-align: left;
 }
@@ -1116,6 +1148,10 @@ span#chargeEfb.one {	width: fit-content!important;
    margin: 1px 5px !important;
 }
 .efb.btn-primary:before,.efb.btn:before {	background: inherit !important;
+}
+
+.efb-yesno-group .efb.btn-primary:before,
+.efb-yesno-group .efb.btn:before {	background: transparent!important;
 }
 
 a.efb.btn {	text-decoration: none;

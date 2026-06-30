@@ -929,7 +929,7 @@
 
 		$ui = sprintf(
 			'<div class="efb %1$s ' . $this->mobile_pos[3] . ' %2$s efb1 %3$s" data-css="%4$s" id="%4$s-f" data-formid="%5$s" %6$s>
-				<div class="efb btn-group btn-group-toggle w-100 col-md-12 col-sm-12 %7$s" data-toggle="buttons" data-id="%4$s-id" id="%4$s_yn">
+				<div class="efb efb-yesno-group btn-group btn-group-toggle w-100 col-md-12 col-sm-12 border border-0 %7$s" data-toggle="buttons" data-id="%4$s-id" id="%4$s_yn" role="group" data-yesno-kit="default" aria-required="%16$s">
 					<label for="%4$s_1" data-lid="%4$s" data-value="%8$s" onclick="yesNoGetEFB(\'%8$s\', \'%4$s\', \'%4$s_b_1\', \'%5$s\')" class="efb btn %9$s %10$s %11$s %12$s yesno-efb left-efb %13$s %14$s" id="%4$s_b_1">
 						<input type="radio" name="%4$s" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid="%4$s" data-id="%4$s-id" id="%4$s_1" value="%8$s" data-formid="%5$s"><span id="%4$s_1_lab">%8$s</span>
 					</label>
@@ -953,7 +953,8 @@
 			$corner,
 			$disabled,
 			$previewState != true ? 'disabled' : '',
-			$button2Text
+			$button2Text,
+			$required ? 'true' : 'false'
 		);
 
 		return $ui;
@@ -1382,6 +1383,77 @@
 			$form_id
 		);
 	}
+
+	public function ui_recorder_efb($vj, $form_id, $texts, $disabled) {
+		$kind = $vj->type;
+		$kindMeta = [
+			'audio_recorder' => ['icon' => 'bi-mic', 'accept' => 'audio/*', 'class' => 'efb-recorder-audio'],
+			'video_recorder' => ['icon' => 'bi-camera-video', 'accept' => 'video/*', 'class' => 'efb-recorder-video-kind'],
+			'screen_recorder' => ['icon' => 'bi-display', 'accept' => 'video/*', 'class' => 'efb-recorder-screen-kind'],
+		];
+		$meta = isset($kindMeta[$kind]) ? $kindMeta[$kind] : $kindMeta['audio_recorder'];
+		$quality = property_exists($vj, 'record_quality') && $vj->record_quality ? $vj->record_quality : ($kind == 'audio_recorder' ? 'standard' : '720p');
+		$maxDuration = property_exists($vj, 'max_duration') && $vj->max_duration ? intval($vj->max_duration) : 90;
+		$requiredClass = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
+		$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
+		$readonlyAttr = $disabled == 'disabled' ? 'disabled' : '';
+		$domain = wp_parse_url(home_url(), PHP_URL_HOST);
+
+		$mediaPreview = $kind == 'audio_recorder'
+			? sprintf('<canvas class="efb efb-recorder-meter d-none" id="%1$s-meter" width="300" height="64"></canvas>', $vj->id_)
+			: sprintf(
+				'<video class="efb efb-recorder-video d-none" id="%1$s-preview" playsinline muted></video>
+				<div class="efb efb-recorder-watermark" id="%1$s-watermark"><span>%2$s</span><span class="efb efb-recorder-domain">%3$s</span></div>',
+				$vj->id_,
+				esc_html($texts['recWatermark']),
+				esc_html($domain)
+			);
+
+		return sprintf(
+			'<div class="efb efb-recorder-shell %1$s" id="%2$s_" data-id="%2$s" data-kind="%3$s" data-quality="%4$s" data-duration="%5$s" data-formid="%6$s" data-state="idle">
+				<div class="efb efb-recorder-frame" id="%2$s-frame">
+					%7$s
+					<div class="efb efb-recorder-idle-hint" id="%2$s-idle"><i class="efb bi %8$s"></i><span>%9$s</span></div>
+					<div class="efb efb-recorder-timer d-none" id="%2$s-timer">00:00</div>
+					<div class="efb efb-recorder-action-row" id="%2$s-controls">
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="pause" data-id="%2$s" title="%10$s" %11$s><i class="efb bi-pause-fill"></i></button>
+						<button type="button" class="efb efb-recorder-primary-btn" data-action="start" data-id="%2$s" title="%12$s" %11$s><i class="efb bi %8$s"></i></button>
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="resume" data-id="%2$s" title="%13$s" %11$s><i class="efb bi-record-circle"></i></button>
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="redo" data-id="%2$s" title="%14$s" %11$s><i class="efb bi-arrow-counterclockwise"></i></button>
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="play" data-id="%2$s" title="%15$s"><i class="efb bi-play-fill"></i></button>
+					</div>
+					<div class="efb efb-recorder-progress-track"><div class="efb efb-recorder-progress-bar" id="%2$s-progress"></div></div>
+				</div>
+				<div class="efb efb-recorder-status-row">
+					<span class="efb efb-recorder-status" id="%2$s-status"><span class="efb efb-recorder-status-dot"></span>%16$s</span>
+					<span class="efb efb-recorder-badge">%21$s</span>
+				</div>
+				<input type="file" hidden accept="%17$s" data-type="%3$s" data-vid="%2$s" data-id="%2$s" class="efb emsFormBuilder_v %18$s %19$s" id="%2$s_file" data-formid="%6$s" onchange="valid_file_emsFormBuilder(\'%2$s\',\'msg\',\'\',%6$s)" %20$s %11$s>
+			</div>',
+			$meta['class'],
+			$vj->id_,
+			$kind,
+			$quality,
+			$maxDuration,
+			$form_id,
+			$mediaPreview,
+			$meta['icon'],
+			esc_html($texts['recTapToStart']),
+			esc_html($texts['recPause']),
+			$readonlyAttr,
+			esc_html($texts['recStart']),
+			esc_html($texts['recResume']),
+			esc_html($texts['recRedo']),
+			esc_html($texts['recPlay']),
+			esc_html($texts['recReady']),
+			$meta['accept'],
+			$kind,
+			$requiredClass,
+			$requiredAttr,
+			esc_html(isset($texts[$kind]) ? $texts[$kind] : $kind)
+		);
+	}
+
 	public function dadfile_el_pro_efb($previewSate, $rndm, $vj, $form_id, $texts) {
 		$corner = property_exists($vj, 'corner') ? $vj->corner : 'efb-square';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
@@ -2458,6 +2530,26 @@
 						$desc,
 						$ttip,
 						$el
+					);
+					$dataTag = $elementId;
+				break;
+				case 'audio_recorder':
+				case 'video_recorder':
+				case 'screen_recorder':
+					$el = $this->ui_recorder_efb($vj, $form_id, $texts, $disabled);
+					$ui = sprintf('
+						%1$s
+						<div class="efb %2$s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%3$s-f">
+							%4$s
+							%5$s
+						</div>
+						%6$s',
+						$label,
+						$pos[3],
+						$element_Id,
+						$ttip,
+						$el,
+						$desc
 					);
 					$dataTag = $elementId;
 				break;

@@ -2277,6 +2277,14 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].hasOwnProperty('max_fsize')==false ? Object.assign(valj_efb[indx],{'max_fsize':el.value}) : valj_efb[indx].max_fsize = el.value;
 
         break;
+      case 'recorderQualityEl':
+        valj_efb[indx].hasOwnProperty('record_quality')==false ? Object.assign(valj_efb[indx],{'record_quality':el.value}) : valj_efb[indx].record_quality = el.value;
+        if (document.getElementById(`${valj_efb[indx].id_}-recorder`)) document.getElementById(`${valj_efb[indx].id_}-recorder`).dataset.quality = el.value;
+        break;
+      case 'recorderDurationEl':
+        valj_efb[indx].hasOwnProperty('max_duration')==false ? Object.assign(valj_efb[indx],{'max_duration':el.value}) : valj_efb[indx].max_duration = el.value;
+        if (document.getElementById(`${valj_efb[indx].id_}-recorder`)) document.getElementById(`${valj_efb[indx].id_}-recorder`).dataset.duration = el.value;
+        break;
       case'fileCustomizeTypleEl':
         c= el.value.trim();
         if(c.slice(-1)==',') c=c.slice(0,-1);
@@ -3459,7 +3467,8 @@ let sampleElpush_efb = (rndm, elementId) => {
     || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" || elementId == "payMultiselect" || elementId == "cityList"
     || elementId == "paySelect" || elementId == "payRadio" || elementId == "payCheckbox" || elementId == "heading" || elementId == "link" || elementId == "stripe" || elementId == "persiaPay" || elementId == "trmCheckbox") { pro = true }
 
-  if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link") {
+  if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link"
+    && elementId != "audio_recorder" && elementId != "video_recorder" && elementId != "screen_recorder") {
 
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: type, elementId: elementId, placeholder: efb_var.text[elementId], value: '', size: size, message: "",
@@ -3555,6 +3564,13 @@ let sampleElpush_efb = (rndm, elementId) => {
       const indx =(valj_efb.length) - 1;
       valj_efb[indx].value = 'zip';
       valj_efb[indx].file = 'zip';
+    }else if(elementId == "audio_recorder" || elementId == "video_recorder" || elementId == "screen_recorder"){
+      const indx =(valj_efb.length) - 1;
+      valj_efb[indx].value = 'media';
+      valj_efb[indx].file = 'media';
+      valj_efb[indx].record_quality = elementId == "audio_recorder" ? 'standard' : '720p';
+      valj_efb[indx].max_duration = 90;
+      valj_efb[indx].max_fsize = '20';
     }
 
   }
@@ -5738,6 +5754,17 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           ${desc}`
       dataTag = elementId;
       break;
+    case 'audio_recorder':
+    case 'video_recorder':
+    case 'screen_recorder':
+      ui = `
+       ${label}
+        <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
+          ${ttip}
+          ${typeof efbRecorderWidgetHtml =="function" ? efbRecorderWidgetHtml(rndm, valj_efb[iVJ], 0) : ''}
+          ${desc}`
+      dataTag = elementId;
+      break;
     case "textarea":
       minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;
       minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
@@ -6701,7 +6728,7 @@ async function fun_validation_efb() {
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
       let el =document.getElementById(`${valj_efb[row].id_}_-message`);
-      if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile'){
+      if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile' || valj_efb[row].type=='audio_recorder' || valj_efb[row].type=='video_recorder' || valj_efb[row].type=='screen_recorder'){
         let r=files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_);
         s = files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state)==0 || r==-1 ? -1 :1;
       }
@@ -7821,12 +7848,11 @@ function previewFormEfb(state) {
   const t = valj_efb[0].steps == 1 ? 0 : 1;
   if (state == 'pc') {
     document.getElementById('dropZoneEFB').innerHTML = '';
-    content = `<!-- find xxxx -->` + content;
+    content = efb_builder_wrap_preview_logic_body_efb(`<!-- find xxxx -->` + content, add_buttons_zone_efb(t, 'preview'));
     show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
-    add_buttons_zone_efb(t, 'settingModalEfb-body')
   } else if (state == 'pre') {
+    content = efb_builder_wrap_preview_logic_body_efb(content, add_buttons_zone_efb(t, 'preview'));
     show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
-    add_buttons_zone_efb(t, 'settingModalEfb-body')
   } else if (state == "mobile") {
     const frame = `
         <div class="efb smartphone-efb">
@@ -8004,7 +8030,14 @@ function previewFormEfb(state) {
     })
   } catch {
   }
-  if (state != 'run') (valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true) ? logic_handle_navbtn_efb(valj_efb[0].steps, 'pc'):  handle_navbtn_efb(valj_efb[0].steps, 'pc')
+  if (state != 'run') {
+    if (valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true && typeof logic_handle_navbtn_efb === 'function') {
+      logic_handle_navbtn_efb(valj_efb[0].steps, 'pc');
+    } else {
+      handle_navbtn_efb(valj_efb[0].steps, 'pc');
+    }
+    efb_builder_init_logic_preview_efb();
+  }
   if (state == 'run') {
     sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';
     createStepsOfPublic()
@@ -8039,4 +8072,43 @@ function previewFormEfb(state) {
     }, 1000);
   }
   }
+}
+
+function efb_builder_preview_form_id_efb() {
+  const id = Number(form_ID_emsFormBuilder);
+  return Number.isFinite(id) && id > 0 ? id : 0;
+}
+
+function efb_builder_prepare_logic_preview_efb() {
+  if (!Array.isArray(valj_efb) || !valj_efb[0]) return;
+  const formId = efb_builder_preview_form_id_efb();
+  window.valj_efb_new = [{
+    id: formId,
+    type: valj_efb[0].type || form_type_emsFormBuilder || 'form',
+    form_structer: valj_efb
+  }];
+  window.form_ID_emsFormBuilder = formId;
+}
+
+function efb_builder_wrap_preview_logic_body_efb(content, buttons) {
+  const formId = efb_builder_preview_form_id_efb();
+  efb_builder_prepare_logic_preview_efb();
+  return `
+    <div class="efb mx-0 px-0" id="body_efb_${formId}" data-formid="${formId}" data-currentstep="1" data-steps="${valj_efb[0].steps}">
+      <form id="efbform" class="mx-0 px-0 efb">${content}${buttons || ''}</form>
+    </div>
+  `;
+}
+
+function efb_builder_init_logic_preview_efb() {
+  if (!Array.isArray(valj_efb) || !valj_efb[0]) return;
+  const hasRules = Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0;
+  const hasLegacyLogic = valj_efb[0].logic == true || valj_efb[0].logic == 1 || valj_efb[0].logic == '1';
+  if (!hasRules && !hasLegacyLogic) return;
+  const runtime = window.efb_logic_runtime || window.EFBConditionalLogic;
+  if (!runtime) return;
+  const formId = efb_builder_preview_form_id_efb();
+  efb_builder_prepare_logic_preview_efb();
+  if (typeof runtime.init === 'function') runtime.init(formId);
+  if (typeof runtime.evaluate === 'function') runtime.evaluate(formId);
 }

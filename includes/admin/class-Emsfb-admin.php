@@ -2116,7 +2116,7 @@ class Admin {
 		}
 
 		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
-		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
+		 'audio/wav','audio/ogg','audio/webm','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
 		 'text/plain' ,
 		 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
 		 'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',

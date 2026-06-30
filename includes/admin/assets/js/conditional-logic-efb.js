@@ -69,7 +69,8 @@
     paySelect: 'choice', payMultiselect: 'choice', payRadio: 'choice', payCheckbox: 'choice',
     imgRadio: 'choice', chlRadio: 'choice', chlCheckBox: 'choice',
     yesNo: 'bool',
-    file: 'file', signature: 'file',
+    file: 'file', signature: 'file', dadfile: 'file',
+    audio_recorder: 'file', video_recorder: 'file', screen_recorder: 'file',
     stripe: 'payment', paypal: 'payment',
     maps: 'text', heading: 'text', pointr10: 'number', table_matrix: 'text'
   };
@@ -100,8 +101,10 @@
      ──────────────────────────────────────────── */
   let rules = [];
   let currentRuleId = null;
-  let view = 'list'; // 'list' | 'editor'
-  let activeTab = 'field'; // 'field' | 'notification' | 'confirmation'
+  let view = 'list'; // 'list' | 'editor' | 'test'
+  let activeTab = 'field'; // 'field' | 'notification' | 'confirmation' | 'webhook'
+  let testValues = {};
+  let testResults = [];
 
   /* ────────────────────────────────────────────
      FIELD HELPERS
@@ -158,6 +161,24 @@
     return cat === 'choice' || cat === 'bool';
   }
 
+  function getFieldById(fieldId) {
+    return typeof valj_efb !== 'undefined' ? valj_efb.find(x => x && x.id_ === fieldId) : null;
+  }
+
+  function getFieldName(fieldId) {
+    const f = getFieldById(fieldId);
+    return f ? _esc(f.name || f.type || fieldId) : _esc(fieldId || '');
+  }
+
+  function getOptionLabel(fieldId, value) {
+    if (!value) return '';
+    if (getFieldById(fieldId) && getFieldById(fieldId).type === 'yesNo') {
+      return value === 'yes' ? 'Yes' : (value === 'no' ? 'No' : _esc(value));
+    }
+    const option = getFieldOptions(fieldId).find(o => o.id_ === value || o.value === value);
+    return option ? _esc(option.value) : _esc(value);
+  }
+
   /* Target list depending on action type */
   function getTargetsForAction(actionType) {
     if (actionType === 'show_step' || actionType === 'hide_step' || actionType === 'jump_to_step') {
@@ -202,17 +223,24 @@
   function getActiveRulesKey() {
     if (activeTab === 'notification') return 'notification_rules';
     if (activeTab === 'confirmation') return 'confirmation_rules';
+    if (activeTab === 'webhook') return 'webhook_rules';
     return 'logic_rules';
   }
 
   function getTabLabel(tab) {
     if (tab === 'notification') return _tf('notifications', 'Notifications');
     if (tab === 'confirmation') return _tf('confirmation', 'Confirmation');
+    if (tab === 'webhook') return _tf('webhook', 'Webhook');
     return _tf('fields', 'Fields');
   }
 
   function isValidEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
+  }
+
+  function isValidWebhookUrl(value) {
+    const text = String(value || '').trim();
+    return /^https?:\/\/[^\s<>"']{4,}$/i.test(text);
   }
 
   function isGroupItem(item) {
@@ -309,6 +337,98 @@
     return group.items.some(item => isGroupItem(item) ? hasConfiguredCondition(item) : (item && item.field_id && item.field_id !== ''));
   }
 
+  function normalizeTestValue(fieldId, value) {
+    const field = getFieldById(fieldId);
+    const type = field ? String(field.type || '').toLowerCase() : '';
+    if (type === 'yesno') {
+      const raw = String(value == null ? '' : value).toLowerCase();
+      if (raw === String(fieldId).toLowerCase() + '_1' || raw === '1' || raw === 'yes') return 'yes';
+      if (raw === String(fieldId).toLowerCase() + '_2' || raw === '0' || raw === 'no') return 'no';
+      return '';
+    }
+    if (type.indexOf('checkbox') !== -1 || type.indexOf('multiselect') !== -1) {
+      if (Array.isArray(value)) return value.filter(v => v !== '' && v != null);
+      return String(value || '').split(/\s*,\s*/).filter(Boolean);
+    }
+    return value == null ? '' : value;
+  }
+
+  function getTestValuesMap() {
+    const values = {};
+    getAllFields().forEach(field => {
+      values[field.id_] = normalizeTestValue(field.id_, testValues[field.id_] || '');
+    });
+    return values;
+  }
+
+  function compareScalar(value, expected, compare) {
+    const scalar = String(value == null ? '' : value).trim();
+    const expectedScalar = Array.isArray(expected) ? expected.join(',') : String(expected == null ? '' : expected).trim();
+    const left = scalar.toLowerCase();
+    const right = expectedScalar.toLowerCase();
+    switch (compare) {
+      case 'is': return left === right;
+      case 'is_not': return left !== right;
+      case 'contains': return left.indexOf(right) !== -1;
+      case 'not_contains': return left.indexOf(right) === -1;
+      case 'starts_with': return left.indexOf(right) === 0;
+      case 'ends_with': return right.length === 0 || left.slice(-right.length) === right;
+      case 'gt':
+      case 'amount_gt': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) > Number(expectedScalar);
+      case 'gte': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) >= Number(expectedScalar);
+      case 'lt':
+      case 'amount_lt': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) < Number(expectedScalar);
+      case 'lte': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) <= Number(expectedScalar);
+      case 'amount_eq': return isFinite(scalar) && isFinite(expectedScalar) && Math.abs(Number(scalar) - Number(expectedScalar)) < 0.00001;
+      case 'between':
+      case 'not_between': {
+        const range = Array.isArray(expected) ? expected : expectedScalar.split(/\s*,\s*/);
+        const inside = range.length >= 2 && isFinite(scalar) && isFinite(range[0]) && isFinite(range[1])
+          && Number(scalar) >= Number(range[0]) && Number(scalar) <= Number(range[1]);
+        return compare === 'between' ? inside : !inside;
+      }
+      case 'is_empty': return scalar === '';
+      case 'is_not_empty': return scalar !== '';
+      case 'is_paid': return scalar !== '' && scalar !== '0';
+      case 'is_not_paid': return scalar === '' || scalar === '0';
+      default: return false;
+    }
+  }
+
+  function evaluateConditionWithValues(condition, values) {
+    if (!condition || !condition.field_id) return false;
+    const fieldId = String(condition.field_id);
+    const compare = String(condition.compare || 'is');
+    const expected = condition.value != null ? condition.value : '';
+    const current = Object.prototype.hasOwnProperty.call(values, fieldId) ? values[fieldId] : '';
+    if (Array.isArray(current)) {
+      const expectedScalar = Array.isArray(expected) ? expected.join(',') : String(expected);
+      if (compare === 'is') return current.includes(expectedScalar);
+      if (compare === 'is_not') return !current.includes(expectedScalar);
+      if (compare === 'is_empty') return current.length === 0;
+      if (compare === 'is_not_empty') return current.length > 0;
+      return compareScalar(current.join(' '), expected, compare);
+    }
+    return compareScalar(current, expected, compare);
+  }
+
+  function evaluateConditionGroupWithValues(group, values) {
+    const items = group && Array.isArray(group.items) ? group.items : [];
+    if (!items.length) return false;
+    let result = false;
+    items.forEach((item, index) => {
+      const matched = isGroupItem(item)
+        ? evaluateConditionGroupWithValues(item, values)
+        : evaluateConditionWithValues(item, values);
+      if (index === 0) {
+        result = matched;
+        return;
+      }
+      result = getItemConnector(group, item) === 'OR' ? (result || matched) : (result && matched);
+    });
+    return result;
+  }
+
   function isRuleValid(rule, tab = activeTab) {
     if (!rule || !rule.conditions || !Array.isArray(rule.conditions.items) || !rule.conditions.items.length) return false;
     const conditionsValid = isConditionGroupValid(rule.conditions);
@@ -320,6 +440,9 @@
       const action = rule.action === 'redirect' ? 'redirect' : 'message';
       if (action === 'redirect') return String(rule.url || '').trim().length > 5;
       return String(rule.message || '').trim().length > 0;
+    }
+    if (tab === 'webhook') {
+      return isValidWebhookUrl(rule.url);
     }
     if (!Array.isArray(rule.actions) || !rule.actions.length) return false;
     const actionsValid = rule.actions.every(action => {
@@ -405,6 +528,11 @@
       return condText ? condText + ' -> ' + actionText : actionText;
     }
 
+    if (activeTab === 'webhook') {
+      const actionText = `${_tf('webhook', 'Webhook')} -> ${_esc(rule.url || '')}`;
+      return condText ? condText + ' -> ' + actionText : actionText;
+    }
+
     const acts = (rule.actions || [])
       .filter(a => a.type && a.target && a.target !== '')
       .map(a => {
@@ -421,6 +549,25 @@
     return condText + ' ⟹ ' + acts.join(', ');
   }
 
+  function buildTestActionSummary(rule) {
+    if (activeTab === 'notification') {
+      return rule.recipient ? `${_tf('email', 'Email')} -> ${_esc(rule.recipient)}` : _tf('emailNotifications', 'Email notification');
+    }
+    if (activeTab === 'confirmation') {
+      return rule.action === 'redirect'
+        ? `${_tf('redirect', 'Redirect')} -> ${_esc(rule.url || '')}`
+        : _tf('message', 'Message');
+    }
+    if (activeTab === 'webhook') {
+      return `${_tf('webhook', 'Webhook')} ${String(rule.method || 'POST').toUpperCase()} -> ${_esc(rule.url || '')}`;
+    }
+    return (rule.actions || []).map(action => {
+      const actionType = ACTION_TYPES.find(item => item.value === action.type);
+      const label = actionType ? actionType.label() : action.type;
+      return action.target ? `${_esc(label)} -> ${getFieldName(action.target)}` : _esc(label);
+    }).filter(Boolean).join(', ');
+  }
+
   /* ────────────────────────────────────────────
      RENDER — RULES LIST
      ──────────────────────────────────────────── */
@@ -432,6 +579,9 @@
     if (rules.length === 0) {
       return `
         <div class="efb-logic-list">
+          <div class="efb-logic-list-header">
+            <button type="button" class="efb-logic-test-btn" onclick="EFB_Logic.openTestMode()"><i class="efb bi-play-circle"></i> ${_tf('testMode', 'Test Mode')}</button>
+          </div>
           <div class="efb-logic-empty">
             <div class="efb-logic-empty-icon"><i class="efb bi-diagram-3 ${mx}"></i></div>
             <p>Add your first rule to start building smart forms.</p>
@@ -466,9 +616,79 @@
     return `
       <div class="efb-logic-list">
         <div class="efb-logic-list-header">
+          <button type="button" class="efb-logic-test-btn" onclick="EFB_Logic.openTestMode()"><i class="efb bi-play-circle"></i> ${_tf('testMode', 'Test Mode')}</button>
           <button type="button" class="efb-logic-add-btn" onclick="EFB_Logic.addRule()"><i class="efb bi-plus-lg"></i> ${_t('add')}</button>
         </div>
         ${cards}
+      </div>`;
+  }
+
+  function renderTestField(field) {
+    const current = testValues[field.id_] || '';
+    const cat = getFieldCategory(field.type);
+    let input = '';
+    if (cat === 'choice') {
+      let options = `<option value="">${_t('select')}</option>`;
+      getFieldOptions(field.id_).forEach(option => {
+        const label = getOptionLabel(field.id_, option.id_);
+        options += `<option value="${_esc(option.id_)}" ${current === option.id_ ? 'selected' : ''}>${label}</option>`;
+      });
+      input = `<select class="efb-logic-test-input" onchange="EFB_Logic.updateTestValue('${_esc(field.id_)}',this.value)">${options}</select>`;
+    } else if (cat === 'bool') {
+      input = `<select class="efb-logic-test-input" onchange="EFB_Logic.updateTestValue('${_esc(field.id_)}',this.value)">
+        <option value="">${_t('select')}</option>
+        <option value="yes" ${current === 'yes' ? 'selected' : ''}>Yes</option>
+        <option value="no" ${current === 'no' ? 'selected' : ''}>No</option>
+      </select>`;
+    } else {
+      const type = cat === 'number' || cat === 'payment' ? 'number' : (cat === 'date' ? 'date' : 'text');
+      input = `<input type="${type}" class="efb-logic-test-input" value="${_esc(current)}" onchange="EFB_Logic.updateTestValue('${_esc(field.id_)}',this.value)">`;
+    }
+    return `
+      <label class="efb-logic-test-field">
+        <span>${_esc(field.name)}</span>
+        ${input}
+      </label>`;
+  }
+
+  function renderTestResults() {
+    if (!testResults.length) return '';
+    return `
+      <div class="efb-logic-test-results">
+        ${testResults.map(result => `
+          <div class="efb-logic-test-result ${result.status}">
+            <div class="efb-logic-test-result-main">
+              <i class="efb ${result.status === 'matched' ? 'bi-check-circle' : (result.status === 'skipped' ? 'bi-dash-circle' : 'bi-x-circle')}"></i>
+              <strong>${_esc(result.name)}</strong>
+              <span>${_esc(result.label)}</span>
+            </div>
+            ${result.actionText ? `<p>${result.actionText}</p>` : ''}
+          </div>
+        `).join('')}
+      </div>`;
+  }
+
+  function renderTestMode() {
+    view = 'test';
+    currentRuleId = null;
+    const fields = getAllFields();
+    return `
+      <div class="efb-logic-test-panel">
+        <div class="efb-logic-editor-header">
+          <button type="button" class="efb-logic-back-btn" onclick="EFB_Logic.backToList()"><i class="efb bi-arrow-left"></i></button>
+          <div class="efb-logic-editor-title">
+            <h5>${_tf('testMode', 'Test Mode')}</h5>
+          </div>
+        </div>
+        <div class="efb-logic-test-body">
+          <div class="efb-logic-test-fields">
+            ${fields.length ? fields.map(renderTestField).join('') : `<div class="efb-logic-group-empty">${_tf('noFields', 'No fields found.')}</div>`}
+          </div>
+          <div class="efb-logic-test-runbar">
+            <button type="button" class="efb-logic-apply-btn" onclick="EFB_Logic.runTest()"><i class="efb bi-play-circle"></i> ${_tf('runTest', 'Run Test')}</button>
+          </div>
+          ${renderTestResults()}
+        </div>
       </div>`;
   }
 
@@ -495,8 +715,10 @@
       });
     } else if (activeTab === 'notification') {
       actionRows = renderNotificationSettings(rule);
-    } else {
+    } else if (activeTab === 'confirmation') {
       actionRows = renderConfirmationSettings(rule);
+    } else {
+      actionRows = renderWebhookSettings(rule);
     }
     const actionAddButton = activeTab === 'field' ? `
               <div class="efb-logic-group-actions">
@@ -796,11 +1018,36 @@
       </div>`;
   }
 
+  function renderWebhookSettings(rule) {
+    const method = String(rule.method || 'POST').toUpperCase() === 'GET' ? 'GET' : 'POST';
+    return `
+      <div class="efb-logic-action-row efb-logic-settings-row">
+        <label class="efb-logic-setting-field">
+          <span>${_tf('method', 'Method')}</span>
+          <select class="efb-logic-value-select" onchange="EFB_Logic.updateWebhook('method',this.value)">
+            <option value="POST" ${method === 'POST' ? 'selected' : ''}>POST</option>
+            <option value="GET" ${method === 'GET' ? 'selected' : ''}>GET</option>
+          </select>
+        </label>
+        <label class="efb-logic-setting-field">
+          <span>${_tf('webhook', 'Webhook')} ID</span>
+          <input type="text" class="efb-logic-value-input" value="${_esc(rule.webhook_id || '')}" placeholder="crm_hot_lead"
+                 onchange="EFB_Logic.updateWebhook('webhook_id',this.value)">
+        </label>
+        <label class="efb-logic-setting-field efb-logic-setting-field-wide">
+          <span>URL</span>
+          <input type="url" class="efb-logic-value-input" value="${_esc(rule.url || '')}" placeholder="https://example.com/webhook"
+                 onchange="EFB_Logic.updateWebhook('url',this.value)">
+        </label>
+      </div>`;
+  }
+
   function renderTabs() {
     const tabs = [
       { id: 'field', icon: 'bi-layout-text-sidebar', label: getTabLabel('field') },
       { id: 'notification', icon: 'bi-envelope', label: getTabLabel('notification') },
-      { id: 'confirmation', icon: 'bi-check-circle', label: getTabLabel('confirmation') }
+      { id: 'confirmation', icon: 'bi-check-circle', label: getTabLabel('confirmation') },
+      { id: 'webhook', icon: 'bi-hdd-network', label: getTabLabel('webhook') }
     ];
     return `
       <div class="efb-logic-tabs">
@@ -814,7 +1061,9 @@
   }
 
   function renderShell() {
-    const content = (view === 'editor' && currentRuleId)
+    const content = view === 'test'
+      ? renderTestMode()
+      : (view === 'editor' && currentRuleId)
       ? renderEditor(rules.find(r => r.id === currentRuleId))
       : renderList();
     return renderTabs() + content;
@@ -869,11 +1118,43 @@
     open: openModal,
 
     switchTab(tab) {
-      if (!['field', 'notification', 'confirmation'].includes(tab)) return;
+      if (!['field', 'notification', 'confirmation', 'webhook'].includes(tab)) return;
       activeTab = tab;
       view = 'list';
       currentRuleId = null;
+      testResults = [];
       loadRules();
+      refreshView();
+    },
+
+    openTestMode() {
+      view = 'test';
+      currentRuleId = null;
+      testResults = [];
+      refreshView();
+    },
+
+    updateTestValue(fieldId, value) {
+      testValues[fieldId] = value;
+    },
+
+    runTest() {
+      const values = getTestValuesMap();
+      const sorted = rules.map((rule, position) => ({ ...rule, _position: position }))
+        .sort((a, b) => (Number(a.priority || 10) - Number(b.priority || 10)) || (a._position - b._position));
+      testResults = sorted.map((rule, index) => {
+        const name = rule.name || (_t('conlog') + ' ' + (index + 1));
+        if (rule.enabled === false || rule.enabled === 0 || rule.enabled === '0') {
+          return { name, status: 'skipped', label: _tf('skipped', 'Skipped'), actionText: '' };
+        }
+        const matched = evaluateConditionGroupWithValues(rule.conditions, values);
+        return {
+          name,
+          status: matched ? 'matched' : 'not-matched',
+          label: matched ? _tf('matched', 'Matched') : _tf('notMatched', 'Not matched'),
+          actionText: matched ? buildTestActionSummary(rule) : ''
+        };
+      });
       refreshView();
     },
 
@@ -887,7 +1168,7 @@
     /* Add a new blank rule */
     addRule() {
       const baseRule = {
-        id: _id(activeTab === 'notification' ? 'nr' : (activeTab === 'confirmation' ? 'cr' : 'rule')),
+        id: _id(activeTab === 'notification' ? 'nr' : (activeTab === 'confirmation' ? 'cr' : (activeTab === 'webhook' ? 'wr' : 'rule'))),
         name: '',
         scope: activeTab,
         enabled: true,
@@ -910,6 +1191,11 @@
         action: 'message',
         url: '',
         message: ''
+      } : activeTab === 'webhook' ? {
+        ...baseRule,
+        webhook_id: '',
+        url: '',
+        method: 'POST'
       } : {
         ...baseRule,
         stop_processing: false,
@@ -979,6 +1265,22 @@
       }
       if (prop === 'url' || prop === 'message') {
         rule[prop] = value;
+      }
+    },
+
+    updateWebhook(prop, value) {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (!rule) return;
+      if (prop === 'method') {
+        rule.method = String(value || 'POST').toUpperCase() === 'GET' ? 'GET' : 'POST';
+        return;
+      }
+      if (prop === 'webhook_id') {
+        rule.webhook_id = (typeof sanitize_text_efb === 'function') ? sanitize_text_efb(value) : value;
+        return;
+      }
+      if (prop === 'url') {
+        rule.url = value;
       }
     },
 

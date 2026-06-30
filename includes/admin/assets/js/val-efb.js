@@ -24,6 +24,9 @@ const fields_efb = [
   { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
+ // { name: efb_var.text.audio_recorder, icon: 'bi-mic', id: 'audio_recorder', pro: false, tag:'advance all' },
+ // { name: efb_var.text.video_recorder, icon: 'bi-camera-video', id: 'video_recorder', pro: false, tag:'advance all' },
+ // { name: efb_var.text.screen_recorder, icon: 'bi-display', id: 'screen_recorder', pro: false, tag:'advance all' },
   { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: true, tag:'advance all' },
 
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
@@ -1132,6 +1135,33 @@ function show_setting_window_efb(idset) {
       </div>
       `}
 
+    const recorderQualityEls = () => {
+      const kind = valj_efb[indx].type;
+      const isAudio = kind === 'audio_recorder';
+      const quality = valj_efb[indx].hasOwnProperty('record_quality') ? valj_efb[indx].record_quality : (isAudio ? 'standard' : '720p');
+      const options = isAudio
+        ? [['low', efb_var.text.recQualityLow], ['standard', efb_var.text.recQualityStandard], ['high', efb_var.text.recQualityHigh]]
+        : [['480p', efb_var.text.recQuality480], ['720p', efb_var.text.recQuality720], ['1080p', efb_var.text.recQuality1080]];
+      let opts = '';
+      for (const o of options) {
+        opts += `<option value="${o[0]}" ${quality === o[0] ? 'selected' : ''}>${o[1]}</option>`;
+      }
+      return `
+      <label for="recorderQualityEl" class="efb  mt-3"><i class="efb bi-sliders fs-7 ${iconMarginGlobal}"></i>${efb_var.text.recQuality}</label>
+      <select  data-id="${idset}" class="efb  elEdit form-select border-d rounded-4"  id="recorderQualityEl" data-tag="${valj_efb[indx].type}">
+      ${opts}
+      </select>`;
+    }
+    const recorderDurationEls = () => {
+      const duration = valj_efb[indx].hasOwnProperty('max_duration') ? valj_efb[indx].max_duration : 90;
+      return `
+      <div class="efb  mt-3">
+      <label for="recorderDurationEl" class="efb  mt-3"><i class="efb bi-stopwatch fs-7 ${iconMarginGlobal}"></i>${efb_var.text.recDuration}</label>
+      <input type="number" min="5" max="1800" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" id="recorderDurationEl" required value="${duration}">
+      </div>
+      `
+    }
+
     const fileTypeEls = `
           <label for="fileTypeEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.fileType}</label>
           <select  data-id="${idset}" class="efb  elEdit form-select border-d rounded-4"  id="fileTypeEl" data-tag="${valj_efb[indx].type}">
@@ -1512,6 +1542,49 @@ function show_setting_window_efb(idset) {
                 ${disabledEls}
                 ${hiddenEls}
                 <!-- select type of file -->
+                </div>
+            </div>
+        </div><div class="efb  clearfix"></div>
+        `
+        break;
+      case "audio_recorder":
+      case "video_recorder":
+      case "screen_recorder":
+
+        body = `
+        <div class="efb  mb-3">
+        <!--  not   advanced-->
+        ${Nadvanced}
+        ${recorderQualityEls()}
+        ${recorderDurationEls()}
+        ${fileSizeMaxEls()}
+        <!--  not   advanced-->
+        <div class="efb  d-grid gap-2">
+          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+          </button>
+        </div>
+        <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+                <div class="efb  mb-3 px-3 row">
+
+                ${labelFontSizeEls}
+    ${mobileLabelFontSizeEls}
+                ${selectColorEls('label','text')}
+                ${selectColorEls('description','text')}
+                ${selectBorderColorEls('element',indx,idset)}
+                ${labelPostionEls}
+    ${mobileLabelPostionEls}
+                ${ElementAlignEls('label',indx,idset)}
+    ${MobileElementAlignEls('label',indx,idset)}
+                ${ElementAlignEls('description',indx,idset)}
+    ${MobileElementAlignEls('description',indx,idset)}
+                ${widthEls}
+                ${mobileWidthEls}
+                ${selectHeightEls(idset,indx)}
+                ${cornerEls("",indx,idset)}
+                ${classesEls}
+                ${disabledEls}
+                ${hiddenEls}
                 </div>
             </div>
         </div><div class="efb  clearfix"></div>
@@ -2058,7 +2131,7 @@ function creator_form_builder_Efb() {
   const st = document.getElementById('navbarSupportedContent') ? 1 :0;
   for (let ob in navs) {
     if( typeof navs[ob] == 'object') {
-      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb btn text-capitalize nav-link ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink text-pink'}  " ${navs[ob].fun.length > 2 ? `onclick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
+      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb btn text-capitalize nav-link ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink text-pink'}  " ${navs[ob].fun.length > 2 ? `onclick="${navs[ob].fun}"` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
     }
   }
 

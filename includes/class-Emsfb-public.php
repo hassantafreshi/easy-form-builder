@@ -651,9 +651,11 @@ public function check_nonce_permission_efb($request) {
 			"enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue",
 			"name","latitude","longitude","previous","next","invalidEmail","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork",
 			"aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","createdBy","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation',
-			'snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc','fillrequiredfields'];
+			'snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc','fillrequiredfields',
+			'audio_recorder','video_recorder','screen_recorder','recStart','recStop','recPause','recResume','recRedo','recPlay','recReady','recRecording','recPaused','recReadyToSubmit',
+			'recQuality','recDuration','recQualityLow','recQualityStandard','recQualityHigh','recQuality480','recQuality720','recQuality1080','recPermissionDenied','recNotSupported','recMaxDurationReached','recWatermark','recTapToStart'];
 
-			$this->public_scripts_and_css_head('');
+			$this->public_scripts_and_css_head('', isset($value_form_data->form_structer) ? $value_form_data->form_structer : null);
 
 			$state="";
 
@@ -1033,7 +1035,7 @@ public function check_nonce_permission_efb($request) {
 					$img['logo']= EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg';
 					$img['head']= EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png';
 
-					if(in_array($valj_efb[$i]->type, ["file","dadfile"],true)){
+					if(in_array($valj_efb[$i]->type, ["file","dadfile","audio_recorder","video_recorder","screen_recorder"],true)){
 						$is_file_element_exist = true;
 					}
 
@@ -1393,12 +1395,12 @@ public function check_nonce_permission_efb($request) {
 		$location = '';
 
 		$sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
-		$sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : 'null';
+		$sc = isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : 'null';
 
 		$get_track ='';
 		$captcha_exist = false;
 		if(isset($_GET['track'])){
-			$get_track = sanitize_text_field($_GET['track']);
+			$get_track = sanitize_text_field(wp_unslash($_GET['track']));
 		}
 			$script_call_captcha = '';
 			if (isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true ){
@@ -1411,7 +1413,7 @@ public function check_nonce_permission_efb($request) {
 							loadCaptcha_efb(20);
 						});
 						</script>' ,
-								$valstng->siteKey
+								esc_attr($valstng->siteKey)
 				);
 				$captcha_exist = true;
 			}
@@ -1437,14 +1439,14 @@ public function check_nonce_permission_efb($request) {
 			</div>
 			<div id="alert_efb" class="efb mx-5"></div>',
 			is_rtl() ? 'rtl-text' : '',
-			$text['pleaseEnterTheTracking'],
-			$text['trackingCode'],
-			$text['entrTrkngNo'],
-			$get_track,
+			esc_html($text['pleaseEnterTheTracking']),
+			esc_html($text['trackingCode']),
+			esc_attr($text['entrTrkngNo']),
+			esc_attr($get_track),
 			$script_call_captcha,
-			$text['search']
+			esc_html($text['search'])
 		);
-		 $val = $pro==true ? '<!--efb.app-->' : '<div class="efb d-none"><a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a></div>';
+		 $val = $pro==true ? '<!--efb.app-->' : '<div class="efb d-none"><a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.esc_html($text['easyFormBuilder']).'<p></a></div>';
 
 		$ps = $pl[1] ?? [];
 		$overrides_track = $this->efb_build_inline_style_overrides($ps);
@@ -1458,7 +1460,7 @@ public function check_nonce_permission_efb($request) {
 		return  ['content'=>$content, 'captcha'=>$captcha_exist];
 		return $content;
 	}
-	function public_scripts_and_css_head($state=''){
+	function public_scripts_and_css_head($state='', $form_structure_json = null){
 
 		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-style-css');
@@ -1473,12 +1475,29 @@ public function check_nonce_permission_efb($request) {
 
 		if($state=='css') return;
 
+		// Only the forms that actually contain a recorder field need the recorder JS/CSS bundle.
+		$has_recorder_field = is_string($form_structure_json) && (
+			strpos($form_structure_json, 'audio_recorder') !== false ||
+			strpos($form_structure_json, 'video_recorder') !== false ||
+			strpos($form_structure_json, 'screen_recorder') !== false
+		);
+		$core_deps = array('jquery', 'efb-main-js', 'efb-response-viewer-js');
+		$main_deps = array('jquery');
+		if ($has_recorder_field) {
+			wp_register_script('efb-recorder-js', plugins_url('../public/assets/js/recorder-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
+			wp_enqueue_script('efb-recorder-js');
+			wp_register_style('efb-recorder-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/recorder-efb.css', array(), EMSFB_PLUGIN_VERSION);
+			wp_enqueue_style('efb-recorder-css');
+			$core_deps[] = 'efb-recorder-js';
+			$main_deps[] = 'efb-recorder-js';
+		}
+
 		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-response-viewer-css');
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', $main_deps, EMSFB_PLUGIN_VERSION, true);
 		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-response-viewer-js');
-		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery', 'efb-main-js', 'efb-response-viewer-js'), EMSFB_PLUGIN_VERSION, true);
+		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), $core_deps, EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('Emsfb-core_js');
 
 		$ar_core = array(
@@ -2192,6 +2211,9 @@ public function check_nonce_permission_efb($request) {
 									break;
 								case 'file':
 								case 'dadfile':
+								case 'audio_recorder':
+								case 'video_recorder':
+								case 'screen_recorder':
 									$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									if (isset($item['url']) && strlen($item['url']) > 5) {
@@ -3248,7 +3270,8 @@ public function check_nonce_permission_efb($request) {
             $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
 				if(gettype($vl)=="string"){
-					$temp = (strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false) ? true : false;
+					$temp = (strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false
+						|| strpos($vl , '\"type\":\"audio_recorder\"') !== false || strpos($vl , '\"type\":\"video_recorder\"') !== false || strpos($vl , '\"type\":\"screen_recorder\"') !== false) ? true : false;
 				}
 
                 if($temp==false){
@@ -3263,7 +3286,7 @@ public function check_nonce_permission_efb($request) {
 					foreach($vl as $key=>$val){
 						if(isset($val->id_) && $val->id_==$id && isset($val->value) && isset($val->type)){
 							$have_validate=  $val->value == "customize" ? 1 : 0;
-							$temp = $val->type == "dadfile" || $val->type == "file"   ? 1 : 0;
+							$temp = in_array($val->type, ["dadfile", "file", "audio_recorder", "video_recorder", "screen_recorder"], true) ? 1 : 0;
 							break;
 						}
 					}
@@ -3281,7 +3304,7 @@ public function check_nonce_permission_efb($request) {
 			$this->lanText= $this->efbFunction->text_efb($this->text_);
 			if($have_validate!=1){
 				$arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
-				'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
+				'audio/wav','audio/ogg','audio/webm','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
 				'text/plain' ,
 				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
 				'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
@@ -3303,7 +3326,7 @@ public function check_nonce_permission_efb($request) {
 
 			foreach($vl as $key=>$val){
 
-				if($key>1 && ($val->type=="dadfile" || $val->type=="file") && $val->id_==$_POST['id']){
+				if($key>1 && in_array($val->type, ["dadfile", "file", "audio_recorder", "video_recorder", "screen_recorder"], true) && $val->id_==$_POST['id']){
 
 					$val->file_ctype = strtolower($val->file_ctype);
 
@@ -3865,6 +3888,59 @@ public function check_nonce_permission_efb($request) {
 			if ($subject === '') $subject = 'null';
 			$this->send_email_Emsfb_([$recipient, ''], $track_code, $is_pro, ['newMessage', 'newMessage', $type], $url, $content, $subject);
 		}
+	}
+
+	private function process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context = array()) {
+		if (empty($form_fields_array[0]['webhook_rules']) || !is_array($form_fields_array[0]['webhook_rules'])) return array();
+		$values = $this->efb_conditional_values_map($form_fields_array, $submitted_values);
+		$sent = array();
+
+		foreach ($this->efb_conditional_sorted_rules($form_fields_array[0]['webhook_rules']) as $rule) {
+			if (isset($rule['enabled']) && !$rule['enabled']) continue;
+			$url = isset($rule['url']) ? esc_url_raw($rule['url']) : '';
+			if ($url === '') continue;
+			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? array(), $values)) continue;
+
+			$method = isset($rule['method']) && strtoupper((string)$rule['method']) === 'GET' ? 'GET' : 'POST';
+			$payload = array(
+				'webhook_id' => isset($rule['webhook_id']) ? sanitize_text_field($rule['webhook_id']) : '',
+				'rule_id' => isset($rule['id']) ? sanitize_text_field($rule['id']) : '',
+				'rule_name' => isset($rule['name']) ? sanitize_text_field($rule['name']) : '',
+				'track_code' => $track_code,
+				'form_id' => intval($this->id),
+				'event_type' => $event_type,
+				'page_url' => isset($context['page_url']) ? esc_url_raw($context['page_url']) : '',
+				'values' => $values,
+				'submitted_values' => $submitted_values,
+			);
+
+			$args = array(
+				'timeout' => 8,
+				'redirection' => 3,
+				'headers' => array(
+					'Content-Type' => 'application/json; charset=utf-8',
+					'X-EFB-Webhook-Id' => $payload['webhook_id'],
+					'X-EFB-Rule-Id' => $payload['rule_id'],
+					'X-EFB-Track-Code' => (string)$track_code,
+				),
+				'body' => wp_json_encode($payload),
+			);
+
+			do_action('efb_conditional_webhook_before_send', $payload, $rule, $context);
+			$response = $method === 'GET'
+				? wp_remote_get(add_query_arg(array('track_code' => $track_code, 'event_type' => $event_type), $url), array('timeout' => 8, 'redirection' => 3))
+				: wp_remote_post($url, $args);
+			do_action('efb_conditional_webhook_after_send', $response, $payload, $rule, $context);
+
+			$sent[] = array(
+				'rule_id' => $payload['rule_id'],
+				'webhook_id' => $payload['webhook_id'],
+				'url' => $url,
+				'method' => $method,
+			);
+		}
+
+		return $sent;
 	}
 
 	public function send_email_Emsfb_($to, $track, $pro, $state, $link, $content = 'null', $sub = 'null') {
@@ -5074,7 +5150,7 @@ public function check_nonce_permission_efb($request) {
 		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld'];
 		static $checkbox_types = ['checkbox', 'paycheckbox', 'chlcheckbox'];
 		static $radio_types = ['radio', 'payradio', 'imgradio', 'chlradio'];
-		static $file_types = ['file', 'dadfile', 'esign'];
+		static $file_types = ['file', 'dadfile', 'esign', 'audio_recorder', 'video_recorder', 'screen_recorder'];
 
 		$submitted_ids = [];
 		foreach ((array) $submitted_values as $row) {
@@ -5120,6 +5196,7 @@ public function check_nonce_permission_efb($request) {
 			'persiapay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
 			'payment' => ['amount' => true], 'file' => ['url' => true], 'address_line'=>true,
 			'dadfile' => ['url' => true], 'esign' => true, 'maps' => true,
+			'audio_recorder' => ['url' => true], 'video_recorder' => ['url' => true], 'screen_recorder' => ['url' => true],
 			'color' => true, 'range' => true, 'number' => true, 'prcfld' => true,
 			'checkbox' => true, 'table_matrix' => true, 'trmCheckbox' => true,
 			'ttlprc' => true, 'smartcr' => true, 'pointr5' => true,'tel'=>true,
@@ -6407,6 +6484,7 @@ public function check_nonce_permission_efb($request) {
 			'submitted_values' => $submitted_values,
 			'form_fields'      => $form_fields_array,
 		];
+		$context['conditional_webhooks'] = $this->process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context);
 
 		do_action('efb_3rd_party_telegram_notify', $context);
 

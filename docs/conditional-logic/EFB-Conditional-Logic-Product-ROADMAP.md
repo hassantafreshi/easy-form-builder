@@ -2,7 +2,7 @@
 
 > [فهرست مستندات](README.md) · [نقشه پیاده‌سازی](EFB-Conditional-Logic-Implementation-ROADMAP.md) · [برنامه تست](EFB-Conditional-Logic-TEST-PLAN.md)
 
-> **وضعیت کنونی:** هسته، Hardening، و Phase 5 (Nested Groups + Operators عددی) 100% انجام شده؛ کل Roadmap توسعه محصول ~60%
+> **وضعیت کنونی:** هسته، Hardening، Phase 3، Phase 4، Phase 5 و Phase 6 انجام شده؛ کل Roadmap توسعه محصول ~75%
 > **هدف:** تکمیل ویژگی Conditional Logic به عنوان یک Addon کامل و قابل فروش
 > **کلید Addon:** `AdnSMF`
 > **ساختار:** addon مشابه Telegram (`vendor/logic/`) + UI در admin builder
@@ -16,10 +16,10 @@
 | Phase 0 | رفع باگ‌های بحرانی موجود | ✅ کامل و تست‌شده | Critical |
 | Phase 1 | تکمیل Actions در Runtime | ✅ کامل و تست‌شده | Critical |
 | Phase 2 | تکمیل ساختار Addon (AdnSMF) | ✅ کامل و تست‌شده | High |
-| Phase 3 | Conditional Notification & Confirmation | 🔴 نشده | High |
-| Phase 4 | Conditional Webhook | 🔴 نشده | High |
+| Phase 3 | Conditional Notification & Confirmation | ✅ کامل و تست‌شده | High |
+| Phase 4 | Conditional Webhook | ✅ کامل و تست‌شده | High |
 | Phase 5 | Operators عددی کامل + Nested Groups | ✅ کامل و تست‌شده | Medium |
-| Phase 6 | Preview / Test Mode | 🔴 نشده | Medium |
+| Phase 6 | Preview / Test Mode | ✅ کامل و تست‌شده | Medium |
 | Phase 7 | Debugger / Inspector | 🔴 نشده | Medium |
 | Phase 8 | Basic Calculations | 🔴 نشده | Medium |
 | Phase 9 | Priority & Conflict System | 🟡 priority و stop_processing کامل؛ هشدار UI باقی است | Low |
@@ -1403,17 +1403,17 @@ Phase 2 — Addon Structure
   [x] 2.4 — تست یکپارچگی addon و normal-form isolation
 
 Phase 3 — Notifications & Confirmations
-  [ ] 3.1 — داده‌مدل notification_rules و confirmation_rules
-  [ ] 3.2 — sanitize PHP
-  [ ] 3.3 — UI Tab در builder
-  [ ] 3.4 — server-side notification
-  [ ] 3.5 — server-side confirmation
-  [ ] 3.6 — تست end-to-end
+  [x] 3.1 — داده‌مدل notification_rules و confirmation_rules
+  [x] 3.2 — sanitize PHP
+  [x] 3.3 — UI Tab در builder
+  [x] 3.4 — server-side notification
+  [x] 3.5 — server-side confirmation
+  [x] 3.6 — تست end-to-end
 
 Phase 4 — Conditional Webhook
-  [ ] 4.1 — بررسی ساختار webhook موجود
-  [ ] 4.2 — webhook_rules داده‌مدل
-  [ ] 4.3 — should_fire_webhook فیلتر
+  [x] 4.1 — بررسی ساختار webhook موجود
+  [x] 4.2 — webhook_rules داده‌مدل
+  [x] 4.3 — فیلتر و ارسال server-side webhook بر اساس شرط‌ها
 
 Phase 5 — Advanced Operators + Nested Groups ✅ کامل
   [x] 5.1 — gte, lte, between, not_between (کامل: engine، sanitizer، builder UI با ورودی Min/Max)
@@ -1421,8 +1421,8 @@ Phase 5 — Advanced Operators + Nested Groups ✅ کامل
   [x] 5.3 — تست (132 تست خودکار سبز؛ جزئیات در Test Plan، Test Group 9 و 10)
 
 Phase 6 — Preview / Test Mode
-  [ ] 6.1 — UI test panel
-  [ ] 6.2 — test runner logic
+  [x] 6.1 — UI test panel
+  [x] 6.2 — test runner logic
 
 Phase 7 — Debugger
   [ ] 7.1 — debug mode در runtime

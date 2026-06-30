@@ -781,6 +781,21 @@ function yesNoGetEFB(v, id, idl, form_id=0) {
   };
   if (Number(form_id) > 0) o.form_id = form_id;
   fun_sendBack_emsFormBuilder(o);
+
+  /* Re-evaluate conditional logic AFTER sendBack has been updated — yesNo clicks
+   * don't go through handle_change_event_efb_v4, so this call was missing here,
+   * causing rules depending on this field to only fire on a later, unrelated change. */
+  const yn_form_id = Number(form_id) > 0 ? Number(form_id) : (typeof form_ID_emsFormBuilder !== 'undefined' ? form_ID_emsFormBuilder : 0);
+  const yn_logicStructure = get_structure_by_form_id_efb(yn_form_id);
+  if (yn_logicStructure && yn_logicStructure[0] &&
+      ((yn_logicStructure[0].hasOwnProperty('logic') && yn_logicStructure[0].logic) ||
+       (yn_logicStructure[0].hasOwnProperty('logic_rules') && Array.isArray(yn_logicStructure[0].logic_rules) && yn_logicStructure[0].logic_rules.length > 0))) {
+    if (typeof window.efb_logic_runtime !== 'undefined') {
+      window.efb_logic_runtime.evaluate(yn_form_id);
+    } else if (typeof fun_statement_logic_efb === 'function') {
+      fun_statement_logic_efb(id, 'yesNo', yn_form_id);
+    }
+  }
 }
 
 function alarm_emsFormBuilder(val) {
@@ -1091,7 +1106,8 @@ function valid_file_emsFormBuilder(id,tp,filed,form_id) {
   let check = 0;
   let rtrn = false;
   let fileName = ''
-  const i = `${id}_`;
+  const recorderTypes_efb = ["audio_recorder", "video_recorder", "screen_recorder"];
+  const i = recorderTypes_efb.indexOf(valj_efb.find(x => x.id_ === id)?.type) !== -1 ? `${id}_file` : `${id}_`;
   let message = "";
   let file_size = 8*1024*1024;
   const indx = valj_efb.findIndex(x => x.id_ === id);
@@ -1169,10 +1185,13 @@ async function validation_before_send_efb(form_id) {
   let fill = 0;
   let require = 0;
   const id_body = form_id == 0 ? 'body_efb' : `body_efb_${form_id}`;
+  const fileLikeTypes_efb = ["file", "audio_recorder", "video_recorder", "screen_recorder"];
+  const recorderTypes_efb_v4 = ["audio_recorder", "video_recorder", "screen_recorder"];
   for (const v of valj_efb) {
-    require += v.required == true && v.type !== "file" ? 1 : 0;
-    if (v.type == "file") {
-      if (document.getElementById(`${v.id_}_`).files[0] == undefined && v.required == true) {
+    require += v.required == true && fileLikeTypes_efb.indexOf(v.type) === -1 ? 1 : 0;
+    if (fileLikeTypes_efb.indexOf(v.type) !== -1) {
+      const fileInputId_efb = recorderTypes_efb_v4.indexOf(v.type) !== -1 ? `${v.id_}_file` : `${v.id_}_`;
+      if (document.getElementById(fileInputId_efb).files[0] == undefined && v.required == true) {
         fill -= 1;
       }
     }
@@ -3109,7 +3128,7 @@ async function fun_validation_efb_v4(form_id) {
     const _wrapper_v = efb_get_by_id_in_form_efb(form_id, valj_efb[row].id_);
     if (_wrapper_v && _wrapper_v.classList.contains('d-none')) continue;
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
-      const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
+      const id = valj_efb[row].type == "yesNo" ? `${valj_efb[row].id_}_yn` : (fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`);
       let el = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_-message`);
       let inputEl = efb_get_by_id_in_form_efb(form_id, id);
 

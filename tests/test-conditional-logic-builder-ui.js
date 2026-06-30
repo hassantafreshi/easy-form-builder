@@ -126,6 +126,41 @@ EFB_Logic.applyRule();
 test('T6.1 incomplete range: rule count unchanged (save blocked)', valj_efb[0].logic_rules.length, 2);
 testTrue('T6.2 incomplete range: validation alert was shown', lastAlert !== null);
 
+// Test 7: webhook tab saves only complete conditional webhook rules.
+EFB_Logic.switchTab('webhook');
+EFB_Logic.addRule();
+EFB_Logic.updateCondition('0', 'field_id', 'price');
+EFB_Logic.updateCondition('0', 'compare', 'gte');
+EFB_Logic.updateCondition('0', 'value', '70');
+EFB_Logic.updateWebhook('webhook_id', 'crm_hot_lead');
+EFB_Logic.updateWebhook('method', 'POST');
+lastAlert = null;
+EFB_Logic.applyRule();
+testTrue('T7.1 webhook without URL blocks save', !Array.isArray(valj_efb[0].webhook_rules));
+testTrue('T7.2 webhook invalid save shows validation alert', lastAlert !== null);
+EFB_Logic.updateWebhook('url', 'https://example.com/hook');
+EFB_Logic.applyRule();
+test('T7.3 one webhook rule saved', Array.isArray(valj_efb[0].webhook_rules) ? valj_efb[0].webhook_rules.length : -1, 1);
+test('T7.4 webhook URL saved', valj_efb[0].webhook_rules[0].url, 'https://example.com/hook');
+test('T7.5 field logic rules preserved after webhook save', valj_efb[0].logic_rules.length, 2);
+
+// Test 8: Test Mode evaluates active-tab rules with entered values.
+EFB_Logic.switchTab('field');
+EFB_Logic.openTestMode();
+testTrue('T8.1 test mode panel rendered', bodyHtml().includes('efb-logic-test-panel'));
+EFB_Logic.updateTestValue('price', '7');
+EFB_Logic.runTest();
+const testHtmlPrice7 = bodyHtml();
+testTrue('T8.2 price=7 shows a matched rule', testHtmlPrice7.includes('Matched'));
+testTrue('T8.3 price=7 shows a not matched rule', testHtmlPrice7.includes('Not matched'));
+EFB_Logic.backToList();
+EFB_Logic.toggleRule(valj_efb[0].logic_rules[1].id);
+EFB_Logic.openTestMode();
+EFB_Logic.updateTestValue('price', '120');
+EFB_Logic.runTest();
+testTrue('T8.4 disabled rule appears as skipped in Test Mode', bodyHtml().includes('Skipped'));
+testTrue('T8.5 Test Mode does not create or remove field rules', valj_efb[0].logic_rules.length === 2);
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);

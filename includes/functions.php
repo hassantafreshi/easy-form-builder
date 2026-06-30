@@ -344,6 +344,9 @@ class efbFunction {
 			"clickToCheckEmailServer" => $state ? $ac->text->clickToCheckEmailServer : esc_html__('Check Email Server','easy-form-builder'),
 			/* translators: D&D means Drag and Drop */
 			"dadfile" => $state ? $ac->text->dadfile : esc_html__('D&D File Upload','easy-form-builder'),
+			"audio_recorder" => $state && isset($ac->text->audio_recorder) ? $ac->text->audio_recorder : esc_html__('Audio Recorder','easy-form-builder'),
+			"video_recorder" => $state && isset($ac->text->video_recorder) ? $ac->text->video_recorder : esc_html__('Video Recorder','easy-form-builder'),
+			"screen_recorder" => $state && isset($ac->text->screen_recorder) ? $ac->text->screen_recorder : esc_html__('Screen Recorder','easy-form-builder'),
 			"field" => $state ? $ac->text->field : esc_html__('Field','easy-form-builder'),
 			"advanced" => $state ? $ac->text->advanced : esc_html__('Advanced','easy-form-builder'),
 			"switch" => $state ? $ac->text->switch : esc_html__('Switch','easy-form-builder'),
@@ -1025,6 +1028,12 @@ class efbFunction {
 			"condATAddon" => $state  &&  isset($ac->text->condATAddon) ? $ac->text->condATAddon : esc_html__('Conditional logic Addon','easy-form-builder'),
 			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : esc_html__('The Conditional Logic Addon enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users’ unique needs.','easy-form-builder'),
 			"stopProcessing" => $state  &&  isset($ac->text->stopProcessing) ? $ac->text->stopProcessing : esc_html__('Stop after this rule matches','easy-form-builder'),
+			"testMode" => $state  &&  isset($ac->text->testMode) ? $ac->text->testMode : esc_html__('Test Mode','easy-form-builder'),
+			"runTest" => $state  &&  isset($ac->text->runTest) ? $ac->text->runTest : esc_html__('Run Test','easy-form-builder'),
+			"matched" => $state  &&  isset($ac->text->matched) ? $ac->text->matched : esc_html__('Matched','easy-form-builder'),
+			"notMatched" => $state  &&  isset($ac->text->notMatched) ? $ac->text->notMatched : esc_html__('Not matched','easy-form-builder'),
+			"skipped" => $state  &&  isset($ac->text->skipped) ? $ac->text->skipped : esc_html__('Skipped','easy-form-builder'),
+			"noFields" => $state  &&  isset($ac->text->noFields) ? $ac->text->noFields : esc_html__('No fields found.','easy-form-builder'),
 
 			"condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : esc_html__('Enable Conditional','easy-form-builder'),
 			"enableCon" => $state  &&  isset($ac->text->enableCon) ? $ac->text->enableCon : esc_html__('Enable Conditional','easy-form-builder'),
@@ -1105,6 +1114,30 @@ class efbFunction {
 			"file_cstm" => $state  &&  isset($ac->text->file_cstm) ? $ac->text->file_cstm : esc_html__('Acceptable file types','easy-form-builder'),
 			"cstm_rd" => $state  &&  isset($ac->text->cstm_rd) ? $ac->text->cstm_rd : esc_html__('Customized Ordering','easy-form-builder'),
 			"maxfs" => $state  &&  isset($ac->text->maxfs) ? $ac->text->maxfs : esc_html__('Max File Size','easy-form-builder'),
+			"recStart" => $state && isset($ac->text->recStart) ? $ac->text->recStart : esc_html__('Start Recording','easy-form-builder'),
+			"recStop" => $state && isset($ac->text->recStop) ? $ac->text->recStop : esc_html__('Stop','easy-form-builder'),
+			"recPause" => $state && isset($ac->text->recPause) ? $ac->text->recPause : esc_html__('Pause','easy-form-builder'),
+			"recResume" => $state && isset($ac->text->recResume) ? $ac->text->recResume : esc_html__('Resume','easy-form-builder'),
+			"recRedo" => $state && isset($ac->text->recRedo) ? $ac->text->recRedo : esc_html__('Re-record','easy-form-builder'),
+			"recPlay" => $state && isset($ac->text->recPlay) ? $ac->text->recPlay : esc_html__('Play','easy-form-builder'),
+			"recReady" => $state && isset($ac->text->recReady) ? $ac->text->recReady : esc_html__('Ready to record','easy-form-builder'),
+			"recRecording" => $state && isset($ac->text->recRecording) ? $ac->text->recRecording : esc_html__('Recording...','easy-form-builder'),
+			"recPaused" => $state && isset($ac->text->recPaused) ? $ac->text->recPaused : esc_html__('Paused','easy-form-builder'),
+			"recReadyToSubmit" => $state && isset($ac->text->recReadyToSubmit) ? $ac->text->recReadyToSubmit : esc_html__('Recording ready.','easy-form-builder'),
+			"recQuality" => $state && isset($ac->text->recQuality) ? $ac->text->recQuality : esc_html__('Recording Quality','easy-form-builder'),
+			"recDuration" => $state && isset($ac->text->recDuration) ? $ac->text->recDuration : esc_html__('Max Duration (seconds)','easy-form-builder'),
+			"recQualityLow" => $state && isset($ac->text->recQualityLow) ? $ac->text->recQualityLow : esc_html__('Low','easy-form-builder'),
+			"recQualityStandard" => $state && isset($ac->text->recQualityStandard) ? $ac->text->recQualityStandard : esc_html__('Standard','easy-form-builder'),
+			"recQualityHigh" => $state && isset($ac->text->recQualityHigh) ? $ac->text->recQualityHigh : esc_html__('High','easy-form-builder'),
+			"recQuality480" => $state && isset($ac->text->recQuality480) ? $ac->text->recQuality480 : esc_html__('480p','easy-form-builder'),
+			"recQuality720" => $state && isset($ac->text->recQuality720) ? $ac->text->recQuality720 : esc_html__('720p (HD)','easy-form-builder'),
+			"recQuality1080" => $state && isset($ac->text->recQuality1080) ? $ac->text->recQuality1080 : esc_html__('1080p (Full HD)','easy-form-builder'),
+			"recPermissionDenied" => $state && isset($ac->text->recPermissionDenied) ? $ac->text->recPermissionDenied : esc_html__('Permission to access your microphone/camera/screen was denied.','easy-form-builder'),
+			"recNotSupported" => $state && isset($ac->text->recNotSupported) ? $ac->text->recNotSupported : esc_html__('Your browser does not support this recording feature.','easy-form-builder'),
+			"recMaxDurationReached" => $state && isset($ac->text->recMaxDurationReached) ? $ac->text->recMaxDurationReached : esc_html__('Maximum recording duration reached.','easy-form-builder'),
+			/* translators: Watermark label shown over the video/screen recorder preview frame */
+			"recWatermark" => $state && isset($ac->text->recWatermark) ? $ac->text->recWatermark : esc_html__('Made by Easy Form Builder','easy-form-builder'),
+			"recTapToStart" => $state && isset($ac->text->recTapToStart) ? $ac->text->recTapToStart : esc_html__('Tap to start recording','easy-form-builder'),
 			"cityList" => $state  &&  isset($ac->text->cityList) ? $ac->text->cityList : esc_html__('Cities Drop-Down','easy-form-builder'),
 			"elan" => $state  &&  isset($ac->text->elan) ? $ac->text->elan : esc_html__('English language','easy-form-builder'),
 			"nlan" => $state  &&  isset($ac->text->nlan) ? $ac->text->nlan : esc_html__('National language','easy-form-builder'),
@@ -2091,6 +2124,9 @@ class efbFunction {
 					case 'confirmation_rules':
 						$valp[$key][$k] = is_array($v) ? $this->sanitize_confirmation_rules($v, $valp) : array();
 					break;
+					case 'webhook_rules':
+						$valp[$key][$k] = is_array($v) ? $this->sanitize_webhook_rules($v, $valp) : array();
+					break;
 					default:
 					$k =sanitize_text_field($k);
 					$valp[$key][$k]=sanitize_text_field($v);
@@ -2231,6 +2267,34 @@ class efbFunction {
 				'action' => $action,
 				'url' => isset($rule['url']) ? esc_url_raw($rule['url']) : '',
 				'message' => isset($rule['message']) ? wp_kses_post($rule['message']) : '',
+			);
+		}
+
+		return $clean;
+	}
+
+	private function sanitize_webhook_rules($rules, $form_structure = array()) {
+		if (!is_array($rules)) return array();
+		$valid_fields = $this->get_logic_valid_fields_from_structure($form_structure);
+		$clean = array();
+
+		foreach ($rules as $rule) {
+			if (!is_array($rule)) continue;
+			$url = isset($rule['url']) ? esc_url_raw($rule['url']) : '';
+			if ($url === '') continue;
+			$method = isset($rule['method']) ? strtoupper(sanitize_text_field($rule['method'])) : 'POST';
+			if (!in_array($method, array('POST', 'GET'), true)) $method = 'POST';
+
+			$clean[] = array(
+				'id' => isset($rule['id']) ? sanitize_text_field($rule['id']) : '',
+				'enabled' => isset($rule['enabled']) ? (bool) $rule['enabled'] : true,
+				'name' => isset($rule['name']) ? sanitize_text_field($rule['name']) : '',
+				'scope' => 'webhook',
+				'priority' => isset($rule['priority']) ? max(0, min(100000, intval($rule['priority']))) : 10,
+				'conditions' => $this->sanitize_logic_condition_group($rule['conditions'] ?? array(), $valid_fields),
+				'webhook_id' => isset($rule['webhook_id']) ? sanitize_text_field($rule['webhook_id']) : '',
+				'url' => $url,
+				'method' => $method,
 			);
 		}
 

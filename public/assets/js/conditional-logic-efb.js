@@ -877,7 +877,7 @@
     if (CHECKBOX_TYPES.indexOf(type) !== -1 || RADIO_TYPES.indexOf(type) !== -1 || type === 'yesno') {
       return fieldRows.some(function (row) { return row.id_ob != null && row.id_ob !== ''; });
     }
-    if (['file', 'dadfile', 'esign'].indexOf(type) !== -1) {
+    if (['file', 'dadfile', 'esign', 'audio_recorder', 'video_recorder', 'screen_recorder'].indexOf(type) !== -1) {
       return fieldRows.some(function (row) { return row.value || row.url; });
     }
     return fieldRows.some(function (row) {
