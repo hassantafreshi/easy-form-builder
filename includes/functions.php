@@ -752,7 +752,7 @@ class efbFunction {
 			"welcome" => $state ? $ac->text->welcome : esc_html__('Welcome','easy-form-builder'),
 			"thankSubscribing" => $state ? $ac->text->thankSubscribing : esc_html__('You have successfully subscribed. Thank you!','easy-form-builder'),
 			"thankDonePoll" => $state ? $ac->text->thankDonePoll : esc_html__('Thank You for taking the time to complete this survey.','easy-form-builder'),
-			"goToEFBAddEmailM" => $state ? $ac->text->goToEFBAddEmailM : esc_html__('Please navigate to the Easy Form Builder panel, then select < Setting >, followed by < Email Settings >. Next, click on the button that reads < Click To Check Email Server >, and then click < Save >.','easy-form-builder'),
+			"goToEFBAddEmailM" => $state ? $ac->text->goToEFBAddEmailM : esc_html__('Please navigate to the Easy Form Builder panel, then select < Setting >, followed by < Email Settings >. Next, click on the button that reads < Check Email Server >, and then click < Save >.','easy-form-builder'),
 			"errorCheckInputs" => $state ? $ac->text->errorCheckInputs : esc_html__('Uh oh, looks like there is a problem with the form. Please make sure all of the input is correct.','easy-form-builder'),
 			"formNcreated" => $state ? $ac->text->formNcreated : esc_html__('The form was not created','easy-form-builder'),
 			"NAllowedscriptTag" => $state ? $ac->text->NAllowedscriptTag : esc_html__('Scripts tags are not allowed.','easy-form-builder'),
@@ -1301,7 +1301,7 @@ class efbFunction {
 			'activationCode' => $state  &&  isset($ac->text->activationCode) ? $ac->text->activationCode : esc_html__('Activation Code','easy-form-builder'),
 
 			/* translators: Message indicating a feature is available in Free Plus or Pro versions */
-			'thisFeatureAvailableFreePlusPro' => $state && isset($ac->text->thisFeatureAvailableFreePlusPro) ? $ac->text->thisFeatureAvailableFreePlusPro : esc_html__('Want to use this feature? It is available in the Free Plus, and Pro plans.','easy-form-builder'),
+			'thisFeatureAvailableFreePlusPro' => $state && isset($ac->text->thisFeatureAvailableFreePlusPro) ? $ac->text->thisFeatureAvailableFreePlusPro : esc_html__('Want to use this feature? It is included in Free Plus and Pro plans.','easy-form-builder'),
 
 			/* translators: Button text for Free Plus Guide  (link to https://easyformbuilder.com/document/easy-form-builder-free-plus-activation-guide/) */
 			'freePlusActivation' => $state && isset($ac->text->freePlusActivation) ? $ac->text->freePlusActivation : esc_html__('Free Plus Guide','easy-form-builder'),
@@ -1584,6 +1584,12 @@ class efbFunction {
 			"cacheWarnPlugin" => $state && isset($ac->text->cacheWarnPlugin) ? $ac->text->cacheWarnPlugin : esc_html__('Plugin','easy-form-builder'),
 			"cacheWarnVersion" => $state && isset($ac->text->cacheWarnVersion) ? $ac->text->cacheWarnVersion : esc_html__('Version','easy-form-builder'),
 			"cacheWarnDoc" => $state && isset($ac->text->cacheWarnDoc) ? $ac->text->cacheWarnDoc : esc_html__('Read more about cache compatibility','easy-form-builder'),
+			/* translators: Security warning messages shown to admin when security plugins detected */
+			"securityWarnTitle" => $state && isset($ac->text->securityWarnTitle) ? $ac->text->securityWarnTitle : esc_html__('Security Plugin Detected','easy-form-builder'),
+			"securityWarnMsg" => $state && isset($ac->text->securityWarnMsg) ? $ac->text->securityWarnMsg : esc_html__('The following security plugin may block form submissions with 403 errors. It may block the REST API, remove the X-WP-Nonce header, or apply firewall rules to form requests.','easy-form-builder'),
+			"securityWarnPlugin" => $state && isset($ac->text->securityWarnPlugin) ? $ac->text->securityWarnPlugin : esc_html__('Plugin','easy-form-builder'),
+			"securityWarnVersion" => $state && isset($ac->text->securityWarnVersion) ? $ac->text->securityWarnVersion : esc_html__('Version','easy-form-builder'),
+			"securityWarnDoc" => $state && isset($ac->text->securityWarnDoc) ? $ac->text->securityWarnDoc : esc_html__('Read more about security plugin compatibility','easy-form-builder'),
 
 			"TAdnAtF" => $state  &&  isset($ac->text->TAdnAtF) ? $ac->text->TAdnAtF : esc_html__('Auto-Populate Addon','easy-form-builder'),
 			"DAdnAtF" => $state  &&  isset($ac->text->DAdnAtF) ? $ac->text->DAdnAtF : esc_html__('The Auto-Populate addon enables you to automatically populate form fields from datasets, previously submitted forms, or external APIs.','easy-form-builder'),
@@ -1981,11 +1987,14 @@ public function addon_add_efb($value) {
         $vwp = get_bloginfo('version');
 		$vwp = substr($vwp,0,3);
 		$vefb = EMSFB_PLUGIN_VERSION;
-		$domain =  get_option('emsfb_dev_mode', '0') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
+		$admin_test = get_option('EMSFB_team_test', '0') === '1';
+		$domain =  $admin_test ? 'demo.whitestudio.team' : 'whitestudio.team';
         $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
+        $fallback_u = '';
         $name_space = 'emsfb_addon_' . $value;
-        if (get_locale() == 'fa_IR' && false) {
+        if (get_locale() == 'fa_IR' ) {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
+            $fallback_u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
         }
 		delete_option($name_space);
 
@@ -1996,12 +2005,18 @@ public function addon_add_efb($value) {
 		$error_messag = sprintf($error_message, $domain, 'not_success');
 
         while ($attempt < $max_attempts && !$success) {
-            $request = wp_remote_get($u);
+            $request = wp_remote_get($u, ['timeout' => 15]);
 
             if (is_wp_error($request)) {
                 $attempt++;
                 $error_message = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
 
+                if ($attempt >= $max_attempts && !empty($fallback_u) && $u !== $fallback_u) {
+                    $u = $fallback_u;
+                    $fallback_u = '';
+                    $attempt = 0;
+                    continue;
+                }
                 if ($attempt >= $max_attempts) {
                     return array('status' => false, 'message' => $error_message);
                 }
@@ -2035,6 +2050,7 @@ public function addon_add_efb($value) {
                 continue;
             }
 			if($data==null){
+				$attempt++;
 
 				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
 				$error_message = sprintf($error_message, 'whitestudio.team', 'invalid_data');
@@ -2042,6 +2058,7 @@ public function addon_add_efb($value) {
 				if ($attempt >= $max_attempts) {
 					return array('status' => false, 'message' => $error_message);
 				}
+				continue;
 			}
 
             if ($data->status == false) {
@@ -2137,10 +2154,9 @@ public function addon_add_efb($value) {
 			$moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
 		}
 		if(!$moved){
-			if (file_exists($r) && !@unlink($r)) {
-				error_log('[EFB-ADDON] cleanup temp failed after move failure | file=' . $r);
+			if (file_exists($r)) {
+				@unlink($r);
 			}
-			error_log('[EFB-ADDON] move failed | url=' . $url);
 			return new WP_Error('move_failed',
 				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file', 'easy-form-builder')
 			);
@@ -2149,17 +2165,15 @@ public function addon_add_efb($value) {
 			WP_Filesystem();
 		}
 		$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
-		if (file_exists(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip') && !@unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip')) {
-			error_log('[EFB-ADDON] cleanup temp.zip failed after unzip');
+		if (file_exists(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip')) {
+			@unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
 		}
 		if(is_wp_error($r)){
-			error_log('[EFB-ADDON] unzip failed | error=' . $r->get_error_message());
 			return new WP_Error('unzip_failed',
 				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder')
 				. ' (' . $r->get_error_message() . ')'
 			);
 		}
-		error_log('[EFB-ADDON] fun_addon_new success | url=' . $url);
 		return true;
 	}
 
@@ -2194,7 +2208,6 @@ public function addon_add_efb($value) {
 				$r =$this->addon_add_efb($key);
 				if(!is_array($r) || !isset($r['status'])){
 					$state=false;
-					error_log("Unexpected response format when downloading add-on $key: " . print_r($r, true));
 					continue;
 				}
 				if($r['status']==false){
@@ -2208,19 +2221,34 @@ public function addon_add_efb($value) {
 			$to = isset($settings->emailSupporter) ? $settings->emailSupporter : null;
 			if($to==null){$to = get_option('admin_email');}
 
-			if($to==null || $to=="null" || $to=="") return false;
+			if($to==null || $to=="null" || $to=="") {
+				return false;
+			}
 			$sub = esc_html__('Report problem','easy-form-builder') .' ['. esc_html__('Easy Form Builder','easy-form-builder').']';
 			$m =  '<div><p>'. $error_messag.
 				'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.esc_html__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
 				'</a></p><p>'. esc_html__('Easy Form Builder','easy-form-builder') . '</p>
 					<p><a href="'.home_url().'" target="_blank">'.esc_html__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
 
-			if(isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
+			if(isset($settings->smtp) && (bool)$settings->smtp ) {
+				$this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
+			}
 			return false;
 		}
 
             return true;
 
+	}
+
+	public function flush_addon_wait_message_efb(){
+		if (function_exists('wp_ob_end_flush_all')) {
+			wp_ob_end_flush_all();
+		} else {
+			while (ob_get_level() > 0) {
+				ob_end_flush();
+			}
+		}
+		flush();
 	}
 
 	public function update_message_admin_side_efb(){
@@ -2387,14 +2415,16 @@ public function addon_add_efb($value) {
     public function efb_code_validate_update($sid ,$status ,$tc ) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
-        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
-		$active =0;
+		$active = 0;
 		$read_date = wp_date('Y-m-d H:i:s');
 		if($status=="rsp" || $status=="ppay")  $active =1;
 
-	   $sql = "UPDATE $table_name SET status='{$status}', active={$active}, read_date='{$read_date}', tc='{$tc}' WHERE sid='{$sid}' AND active=1";
+		$sql = $wpdb->prepare(
+			"UPDATE `{$table_name}` SET status = %s, active = %d, read_date = %s, tc = %s WHERE sid = %s AND active = 1",
+			$status, $active, $read_date, $tc, $sid
+		);
 		$stmt = $wpdb->query($sql);
-	   return $stmt > 0;
+		return $stmt > 0;
     }
 
     public function efb_code_validate_select($sid ,$fid) {
@@ -2565,15 +2595,14 @@ public function addon_add_efb($value) {
 		}
 		$st->efb_version=EMSFB_PLUGIN_VERSION;
 
-		$st_ = json_encode($st,JSON_UNESCAPED_UNICODE);
-
-        $setting = str_replace('"', '\"', $st_);
-		$this->set_setting_Emsfb($setting,$st->emailSupporter);
+		$this->set_setting_Emsfb($st, isset($st->emailSupporter) ? $st->emailSupporter : '');
 
 		if($pro == true || $pro ==1){
 
 			$is_pro = (int) get_option('emsfb_pro' ,2);
-			if($is_pro==3){ return true; }
+			if($is_pro==3){
+				return true;
+			}
 
 			$this->download_all_addons_efb();
 
@@ -2766,43 +2795,18 @@ public function addon_add_efb($value) {
 	}
 
 	public function update_pro_status_efb($code) {
+		$activeCode = explode('@', $code)[0];
+		if (!$this->validated_pro_efb($activeCode)) {
+			delete_option('emsfb_pro');
+			delete_option('emsfb_pro_ac_date');
+			delete_option('emsfb_pro_activeCode');
+			return false;
+		}
+
 		update_option('emsfb_pro', 1);
 		update_option('emsfb_pro_activeCode', $code);
-		$json = $this->make_post_request_efb($code);
-
-		$r = isset($json->r) ? $json->r : false;
-		if($r===false) {
-			delete_option('emsfb_pro');
-			delete_option('emsfb_pro_ac_date');
-			delete_option('emsfb_pro_activeCode');
-			return false;
-		}
 		update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
-		$state = isset($json->state) ? $json->state : '';
-		if($state=="new") {
-			$activeCode = $json->key;
-			update_option('emsfb_pro_activeCode', $activeCode);
-			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
-			update_option('emsfb_pro', 1);
-			$st = get_setting_Emsfb();
-			if(!is_object($st)){ $st = new \stdClass(); }
-			$st->activeCode = $activeCode;
-			$this->setting_version_efb_update($st,1);
-			return true;
-		}elseif($state=="active") {
-			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
-			return true;
-		}elseif ($state=="deactive") {
-			update_option('emsfb_pro' , 0);
-			delete_option('emsfb_pro_ac_date');
-			update_option('emsfb_pro_activeCode' ,$code);
-			return false;
-		}elseif ($state=="notExists") {
-			delete_option('emsfb_pro');
-			delete_option('emsfb_pro_ac_date');
-			delete_option('emsfb_pro_activeCode');
-			return false;
-		}
+		return true;
 	}
 
 	public function weekly_check_pro_efb($activeCode) {
@@ -3395,8 +3399,28 @@ public function addon_add_efb($value) {
 
         $json = '';
         if(is_object($newSettings) || is_array($newSettings)){
-
-            $json = json_encode($newSettings, JSON_UNESCAPED_UNICODE);
+            if (is_array($newSettings) && isset($newSettings[0]) && in_array($newSettings[0], ['{', '['], true) && count($newSettings) > 20) {
+                $keys = array_keys($newSettings);
+                $is_char_map = true;
+                $expected = 0;
+                foreach ($keys as $key) {
+                    if (!is_int($key) || $key !== $expected || !is_string($newSettings[$key]) || strlen($newSettings[$key]) > 8) {
+                        $is_char_map = false;
+                        break;
+                    }
+                    $expected++;
+                }
+                if ($is_char_map) {
+                    $candidate = implode('', $newSettings);
+                    $candidate_decoded = json_decode($candidate);
+                    if (is_object($candidate_decoded) || is_array($candidate_decoded)) {
+                        $json = $candidate;
+                    }
+                }
+            }
+            if ($json === '') {
+                $json = json_encode($newSettings, JSON_UNESCAPED_UNICODE);
+            }
         }else{
 
             $json = $newSettings;

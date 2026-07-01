@@ -1,10 +1,10 @@
 === Easy Form Builder by WhiteStudio — Drag & Drop Form Builder ===
-Contributors: hassantafreshi, mostafas1990, mrlast, aminkhadivar, presskopp
+Contributors: hassantafreshi, mostafas1990, 6arshid, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, survey form, payment form
 Requires at least: 5.0
-Tested up to: 6.9
-Stable tag: 4.0.5
+Tested up to: 7.0
+Stable tag: 4.0.13
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -317,6 +317,62 @@ For more information, visit the official website:
 
 == Upgrade Notice ==
 
+
+= 4.0.0 =
+Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official addons will be update to their latest versions.
+**Backup your site before updating. Not backward-compatible with v3.x addons.**
+
+
+== Changelog ==
+
+= 4.0.13 =
+
+* Fixed an important security issue.
+
+= 4.0.11 =
+
+* Improved the UI of cache plugin notification messages.
+
+* Fixed issues related to the Pro version add-ons.
+
+
+= 4.0.10 =
+
+* Improved add-on installation reliability across different site languages.
+
+* Optimized settings storage and recovery to prevent potential issues with malformed saved settings.
+
+= 4.0.9 =
+
+* Improved add-on installation reliability across different site languages.
+
+= 4.0.7 =
+
+* Enhanced Security Features in the Easy Form Builder WordPress Plugin
+
+= 4.0.6 =
+
+* Fixed issues
+
+= 4.0.5 =
+
+* Introduced Dashboard Widget for tracking form submission statistics.
+
+* Added download dropdown menu in response viewer for easier file access.
+
+* Added security plugin compatibility notice and improved plugin deactivation handling.
+
+* Improved email template button accessibility and cross-client link styling.
+
+* Enhanced form recovery UI with dynamic color, corner, and height styling.
+
+* Updated CDN links and improved error handling across multiple components.
+
+* Improved localization for multi-step, drag & drop, and no-coding badge labels.
+
+* Fixed settings display issue in Easy Form Builder panel.
+
+
 = 4.0.4 =
 
 * Improved UX of Easy Form Builder
@@ -337,8 +393,6 @@ For more information, visit the official website:
 Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official addons will be update to their latest versions.
 **Backup your site before updating. Not backward-compatible with v3.x addons.**
 
-
-== Changelog ==
 = 3.8.22 =
 
 * Enhanced Security Features in the Easy Form Builder WordPress Plugin

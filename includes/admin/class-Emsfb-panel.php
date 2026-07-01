@@ -126,6 +126,7 @@ class Panel_edit  {
 
 				if($download_addons==true){
 					print $efbFunction->update_message_admin_side_efb();
+					$efbFunction->flush_addon_wait_message_efb();
 					$efbFunction->download_all_addons_efb();
 				 	return;
 

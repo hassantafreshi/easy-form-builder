@@ -126,7 +126,56 @@ function check_body_efb_timer (){
                 + (_t.cacheWarnDoc || 'Read more about cache compatibility') + ':\n' + _docUrl;
 
               if (typeof EFB_ERROR_PANEL !== 'undefined' && typeof EFB_ERROR_PANEL.log === 'function') {
-                EFB_ERROR_PANEL.log(_msg, { source: 'cache-warning', type: 'notice', name: 'Easy Form Builder', captureStack: false });
+                EFB_ERROR_PANEL.log(_msg, {
+                  source: 'cache-warning',
+                  type: 'notice',
+                  name: 'Easy Form Builder',
+                  captureStack: false,
+                  format: {
+                    links: [{ url: _docUrl }],
+                    boldTexts: [p.name]
+                  }
+                });
+              } else {
+              }
+            });
+          }
+        } catch (_e) {
+        }
+      }
+
+      if (ajax_object_efm.security_plugins && ajax_object_efm.security_plugins !== '0') {
+        try {
+          const _securityList = typeof ajax_object_efm.security_plugins === 'string'
+            ? JSON.parse(ajax_object_efm.security_plugins)
+            : ajax_object_efm.security_plugins;
+
+          if (Array.isArray(_securityList) && _securityList.length > 0) {
+            const _t = ajax_object_efm.text;
+            const _docUrl = 'https://whitestudio.team/document/security-plugin-compatibility/';
+
+            _securityList.forEach(function(p) {
+              let _line = (_t.securityWarnPlugin || _t.cacheWarnPlugin || 'Plugin') + ': ' + (p.name || '');
+              if (p.version) {
+                _line += '  |  ' + (_t.securityWarnVersion || _t.cacheWarnVersion || 'Version') + ': ' + p.version;
+              }
+
+              const _msg = '⚠️ ' + (_t.securityWarnTitle || 'Security Plugin Detected') + '\n'
+                + (_t.securityWarnMsg || 'The following security plugin may block form submissions with 403 errors. It may block the REST API, remove the X-WP-Nonce header, or apply firewall rules to form requests.') + '\n\n'
+                + _line + '\n\n'
+                + (_t.securityWarnDoc || 'Read more about security plugin compatibility') + ':\n' + _docUrl;
+
+              if (typeof EFB_ERROR_PANEL !== 'undefined' && typeof EFB_ERROR_PANEL.log === 'function') {
+                EFB_ERROR_PANEL.log(_msg, {
+                  source: 'security-warning',
+                  type: 'notice',
+                  name: 'Easy Form Builder',
+                  captureStack: false,
+                  format: {
+                    links: [{ url: _docUrl }],
+                    boldTexts: [p.name]
+                  }
+                });
               } else {
               }
             });
@@ -649,17 +698,18 @@ async function actionSendData_emsFormBuilder(form_id=0) {
           page_id: ajax_object_efm.page_id
         };
       } else if (valj_efb[0].getway=="paypal"){
+        const paypalPayId = efb_var.payId || localStorage.getItem('PayId') || '';
         data = {
           action: "get_form_Emsfb",
           value: JSON.stringify(sendback),
           name: formNameEfb,
           id: form_id,
-          payid: efb_var.payId,
-          valid: recaptcha_emsFormBuilder,
-          type: form_type_emsFormBuilder,
+          payid: paypalPayId,
+          valid: recaptcha_emsFormBuilder_row,
+          type: vj.type,
           payment: 'paypal',
           url:location.href.split('?')[0],
-          sid:efb_var.sid,
+          sid:vj.sid ,
           page_id: ajax_object_efm.page_id
         };
       }
@@ -992,8 +1042,79 @@ function Show_recovery_pass_efb() {
     })
   }
 }
+function efb_get_error_panel_efb() {
+  return window.EFB_ERROR_PANEL || (typeof EFB_ERROR_PANEL !== 'undefined' ? EFB_ERROR_PANEL : null);
+}
+function efb_show_submit_ajax_badge_efb(form_id) {
+  const panel = efb_get_error_panel_efb();
+  if (panel && typeof panel.showInlineBadge === 'function') {
+    panel.showInlineBadge(form_id);
+  }
+}
+function efb_hide_submit_ajax_badge_efb(form_id) {
+  const panel = efb_get_error_panel_efb();
+  if (panel && typeof panel.clearSubmissionBadge === 'function') {
+    panel.clearSubmissionBadge(form_id);
+  }
+}
+function efb_log_cache_plugin_notice_efb(form_id) {
+  if (!ajax_object_efm || !ajax_object_efm.cache_plugins_public) return;
+  const panel = efb_get_error_panel_efb();
+  if (!panel || typeof panel.log !== 'function') return;
+  try {
+    const list = typeof ajax_object_efm.cache_plugins_public === 'string'
+      ? JSON.parse(ajax_object_efm.cache_plugins_public)
+      : ajax_object_efm.cache_plugins_public;
+    if (!Array.isArray(list) || list.length === 0) return;
+    const t = ajax_object_efm.text;
+    const names = list.map(p => p && p.name).filter(Boolean).join(', ');
+    if (!names) return;
+    const docUrl = 'https://whitestudio.team/document/exclude-easy-form-builder-froms-cache/';
+    const message = (t.cacheWarnMsg || 'The following cache plugins may interfere with form functionality.')
+      + ' ' + names + '\n' + (t.cacheWarnDoc || 'Read more about cache compatibility') + ': ' + docUrl;
+
+    panel.log(message, {
+      source: 'cache-warning-submit',
+      type: 'notice',
+      name: ajax_object_efm.text.easyformbuilder || 'Easy Form Builder',
+      captureStack: false,
+      showBadge: true,
+      formId: form_id,
+      format: {
+        links: [{ url: docUrl, label: t.cacheWarnDoc || 'Read more about cache compatibility' }],
+        boldTexts: [names]
+      }
+    });
+  } catch (_e) {
+  }
+}
+function efb_report_submit_ajax_error_efb(error, details = {}) {
+  const panel = efb_get_error_panel_efb();
+  if (!panel || typeof panel.log !== 'function') return;
+
+  const statusLabel = details.status ? `HTTP ${details.status}` : 'Network/response error';
+  const message = [
+    ajax_object_efm?.text?.eJQ500 || 'The form could not be submitted because of a request error.',
+    `Submit AJAX error: ${statusLabel}`,
+    error && error.message ? error.message : ''
+  ].filter(Boolean).join('\n');
+
+  panel.log(message, {
+    source: details.url || window.location.href,
+    type: 'plugin',
+    name: 'Easy Form Builder',
+    captureStack: true,
+    showBadge: true,
+    context: 'submissionAjax',
+    formId: details.formId || details.form_id || null,
+    format: {
+      boldTexts: ['Submit AJAX error', statusLabel]
+    }
+  });
+}
 async function response_fill_form_efb(res ,form_id=0) {
   form_id = Number(form_id);
+  const isSubmitAjaxError = res.data && res.data.efb_ajax_submission_error === true;
   let btn_prev ='';
   const t = valj_efb_new.find(x => x.id == form_id);
   const valj_efb = t.form_structer;
@@ -1003,6 +1124,7 @@ async function response_fill_form_efb(res ,form_id=0) {
   const efb_final_step = body_efb.querySelector('#efb-final-step');
   if(valj_efb.length>1) btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? `logic_fun_prev_send(${form_id})`:`fun_prev_send(${form_id})`;
   if (res.data.success == true) {
+    efb_hide_submit_ajax_badge_efb(form_id);
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' && res.data.m.includes('@efb@') ){
       efb_final_step.innerHTML = `
       <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
@@ -1131,8 +1253,11 @@ async function response_fill_form_efb(res ,form_id=0) {
       if(stps>1 ){smoothy_scroll_postion_efb(id_body)}
   } else {
     if(efb_final_step){efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder text-center'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3  text-center"></i></h1><h3 class="efb  text-center fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
-    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onclick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+    ${isSubmitAjaxError ? `<div class="efb efb-submit-error-badge-slot my-2 d-flex justify-content-center" id="efb-submit-error-badge-slot-${form_id}"></div>` : ``}
+    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onclick="efb_hide_submit_ajax_badge_efb(${form_id}); ${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+      if (isSubmitAjaxError) { efb_show_submit_ajax_badge_efb(form_id); efb_log_cache_plugin_notice_efb(form_id); }
     }else{
+      if (isSubmitAjaxError) efb_log_cache_plugin_notice_efb(form_id);
       alert_message_efb(res.data.m,'',14,'warning');
     }
   }
@@ -1333,12 +1458,13 @@ efb_refresh_nonce=async()=>{
   return false;
 }
  post_api_forms_efb=async(data,form_id)=>{
+  const test_efb_set = false; // Set to true for testing purposes, false for production
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
     const headers = new Headers({
       'Content-Type': 'application/json',
-      'X-WP-Nonce': efb_var.nonce,
+      'X-WP-Nonce': test_efb_set ? 'test_nonce' : efb_var.nonce,
       'form-id': form_id ? form_id : 0,
-      'sid':data.sid ? data.sid : '',
+      'sid': test_efb_set ? 'test_sid' : data.sid ? data.sid : '',
     });
 
     const jsonData = JSON.stringify(data);
@@ -1353,12 +1479,13 @@ efb_refresh_nonce=async()=>{
     let response = await fetch(url, requestOptions);
     if (response.status === 403) {
       const refreshed = await efb_refresh_nonce();
+
       if (refreshed) {
         const retryHeaders = new Headers({
           'Content-Type': 'application/json',
-          'X-WP-Nonce': efb_var.nonce,
+          'X-WP-Nonce': test_efb_set ?  'test_nonce' :efb_var.nonce,
           'form-id': form_id ? form_id : 0,
-          'sid': data.sid ? data.sid : '',
+          'sid': test_efb_set ? 'test_sid' :data.sid ? data.sid : '',
         });
         response = await fetch(url, { method: 'POST', headers: retryHeaders, body: jsonData });
       }
@@ -1366,17 +1493,19 @@ efb_refresh_nonce=async()=>{
     if (!response.ok) {
       if (response.status === 403) {
         const msg403 = (ajax_object_efm && ajax_object_efm.text && ajax_object_efm.text.nonceExpired) ? ajax_object_efm.text.nonceExpired : 'Your session has expired. Please refresh the page and try again.';
-        await response_fill_form_efb({ success: false, data: { success: false, m: msg403 } }, form_id);
+        efb_report_submit_ajax_error_efb(new Error(msg403), { status: response.status, url, formId: form_id });
+        await response_fill_form_efb({ success: false, data: { success: false, m: msg403, efb_ajax_submission_error: true } }, form_id);
         return;
       }
-      throw new Error('Network response was not ok');
+      throw new Error(`Network response was not ok (HTTP ${response.status})`);
     }
     const responseData = await response.json();
 
     await response_fill_form_efb(responseData, form_id);
     if (localStorage.getItem('sendback')) localStorage.removeItem('sendback');
   } catch (error) {
-    await response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } }, form_id);
+    efb_report_submit_ajax_error_efb(error, { url, formId: form_id });
+    await response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500, efb_ajax_submission_error: true } }, form_id);
   }
   bdy = document.getElementById('body_efb_'+form_id);
   if(bdy){
@@ -1937,6 +2066,7 @@ get_row_sendback_by_id_efb_v4=(id_,form_id=0)=>{
  }
 
 fun_prev_send =(form_id =0) =>{
+  efb_hide_submit_ajax_badge_efb(form_id);
   let valj_efb = get_structure_by_form_id_efb(form_id);
   var stp = Number(valj_efb[0].steps) + 1;
   const id_body = 'body_efb_'+form_id;
@@ -2180,7 +2310,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         if(indx!=-1) {
           slice_sback(indx)
           if(ob.type=="payCheckbox") fun_total_pay_efb(form_id);
-          if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
+          if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.id ,el.type);
           return ;
         }
        }
@@ -2195,7 +2325,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         document.getElementById(id).disabled=true;
         document.getElementById(id).value ="";
        }
-       if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
+       if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.id ,el.type);
       break;
     case "select-one":
     case "select":
@@ -2209,7 +2339,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         if (typeof v.price == "string") price_efb = v.price;
       }
 
-      if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.dataset.vid , el.type);
+      if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.dataset.vid , el.type);
       if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
         let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
            await fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp,el.dataset.formid);
@@ -2355,7 +2485,18 @@ async function fun_validation_efb_v4(form_id) {
       let fieldFailed = false;
       if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile'){
         let r = files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_);
-        fieldFailed = r == -1 || (files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state)==0);
+        if (r !== -1) {
+          fieldFailed = files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state) == 0;
+        } else {
+          // Upload completed — entry removed from files_emsFormBuilder; check sendback for uploaded URL
+          const sbIndx = sendBack_emsFormBuilder_pub.findIndex(x =>
+            x.id_ === valj_efb[row].id_ &&
+            x.value === '@file@' &&
+            typeof x.url === 'string' &&
+            x.url.length > 0
+          );
+          fieldFailed = sbIndx === -1;
+        }
       } else {
         fieldFailed = s == -1 || !is_required_value_filled_efb(sendBack_emsFormBuilder_pub[s], valj_efb[row].type);
       }

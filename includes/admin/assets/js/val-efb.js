@@ -3475,7 +3475,6 @@ function redirectToProUpgrade_efb($proUrl) {
 }
 
 function sendPlanSelectionToServer_efb(selectionData) {
-    console.log('Sending plan selection to server:', selectionData);
     const user_selected = selectionData.selected_plan || 'unknown';
     if(user_selected === 'pro') {
       sessionStorage.setItem('efb_license_selected', '1');

@@ -1146,7 +1146,7 @@ function fun_show_setting__emsFormBuilder() {
     showIp = f('showIp') =='null' ? false :f('showIp');
     dsupfile = f('dsupfile') =='null' ? true :f('dsupfile');
     phoneNumbers = f('phnNo');
-    adminSN  = f('adminSN') =='null' ? true :f('adminSN');
+    adminSN  = f('adminSN') =='null' ? false :f('adminSN');
     sessionDuration = f('sessionDuration') == 'null' ? 1 : parseInt(f('sessionDuration'));
     trackCodeStyle = f('trackCodeStyle') == 'null' ? 'date_en_mix' : f('trackCodeStyle');
     const shieldSilentCaptchaSetting = f('shield_silent_captcha');
@@ -1202,7 +1202,7 @@ function fun_show_setting__emsFormBuilder() {
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
   let msg_email = efb_var.text.mlntip.replace('%1$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="EmailSpam" >`).replace('%2$s', '</a>').replace('%3$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="support" >`).replace('%4$s', '</a>');
   const is_pro = efb_var.pro == true || efb_var.pro == "true" ? true : false;
-  const proChckEvent =is_pro ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
+  const proChckEvent = !is_pro ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` : '';
   const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.stripe);
   const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
@@ -2693,6 +2693,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   let rows = Array.from(Array(value.length + 1), () => Array(100).fill('null@EFB'));
 
   rows[0][0] = 'id';
+  rows[0][1] = efb_var.text.createDate;
 
   let i_count = -1;
   add_multi = (c, content, value_col_index, v) => {
@@ -2717,6 +2718,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     const content = JSON.parse(replaceContentMessageEfb(v.content))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
+    rows[i_count][1] = v.date;
 
     for (let c in content) {
       let value_col_index;

@@ -172,7 +172,7 @@ class EmsfbEmailHandler {
                 $result = wp_mail($to, $sub, $message, $headers);
                 if (!$result) {
                     self::log_email_failure($to, $sub, $last_mail_error);
-                    $alt_result = mail($to, $sub, $message, implode("\r\n", $headers));
+                    $alt_result = @mail($to, $sub, $message, implode("\r\n", $headers));
                     if ($alt_result) {
                         self::log_email_success($to, $sub);
                     }

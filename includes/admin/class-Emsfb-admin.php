@@ -367,10 +367,13 @@ class Admin {
         $vwp = get_bloginfo('version');
         $vwp = substr($vwp,0,3);
         $vefb = EMSFB_PLUGIN_VERSION;
-        $domain =  get_option('emsfb_dev_mode', '0') === '1' ? 'demo.whitestudio.team' : 'whitestudio.team';
+        $admin_test = get_option('EMSFB_team_test', '0') === '1';
+		$domain =  $admin_test ? 'demo.whitestudio.team' : 'whitestudio.team';
         $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
-        if (get_locale() == 'fa_IR' && false) {
+        $fallback_u = '';
+        if (get_locale() == 'fa_IR')  {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+            $fallback_u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
         }
 
         $max_attempts = 2;
@@ -380,11 +383,17 @@ class Admin {
         $error_message = sprintf($error_message, $domain, 'not_success');
 
         while ($attempt < $max_attempts && !$success) {
-            $request = wp_remote_get($u);
+            $request = wp_remote_get($u, ['timeout' => 15]);
 
             if (is_wp_error($request)) {
                 $attempt++;
                 $error_message = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server', 'easy-form-builder');
+                if ($attempt >= $max_attempts && !empty($fallback_u) && $u !== $fallback_u) {
+                    $u = $fallback_u;
+                    $fallback_u = '';
+                    $attempt = 0;
+                    continue;
+                }
                 if ($attempt >= $max_attempts) {
                     $response = ['success' => false, 'm' => $error_message];
                     wp_send_json_error($response, 200);
@@ -1223,7 +1232,9 @@ class Admin {
                 $moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
             }
             if(!$moved){
-                @unlink($r);
+                if (file_exists($r)) {
+                    @unlink($r);
+                }
                 return new \WP_Error('move_failed',
                     esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file', 'easy-form-builder')
                 );
@@ -1232,7 +1243,9 @@ class Admin {
                 WP_Filesystem();
             }
             $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
-            @unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
+            if (file_exists(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip')) {
+                @unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
+            }
             if(is_wp_error($r)){
                 return new \WP_Error('unzip_failed',
                     esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder')
@@ -1449,19 +1462,23 @@ class Admin {
         }
         if($state =='msg'){
             $table_name = $this->db->prefix . "emsfb_msg_";
-            $msg_ids ='';
+            $msg_id_list = [];
             foreach ($val as $key => $value) {
                 if(isset($value['msg_id'])){
-                    $msg_ids !='' ? $msg_ids .=','.$value['msg_id'] : $msg_ids .= $value['msg_id'];
+                    $clean_id = intval($value['msg_id']);
+                    if ($clean_id > 0) {
+                        $msg_id_list[] = $clean_id;
+                    }
                 }
             }
             $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
-            if($msg_ids !=''){
-                $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+            if(!empty($msg_id_list)){
+                $placeholders = implode(',', array_fill(0, count($msg_id_list), '%d'));
+                $sql = $this->db->prepare("DELETE FROM `$table_name` WHERE msg_id IN ($placeholders)", ...$msg_id_list);
                 $r = $this->db->query($sql);
                 if($r>0){
                     $table_name = $this->db->prefix . "emsfb_rsp_";
-                    $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+                    $sql = $this->db->prepare("DELETE FROM `$table_name` WHERE msg_id IN ($placeholders)", ...$msg_id_list);
                     $r = $this->db->query($sql);
                 }
                 $response = ['success' => true, "m" =>$lang['delete']];
@@ -1494,20 +1511,24 @@ class Admin {
         }
         if($state =='msg'){
             $table_name = $this->db->prefix . "emsfb_msg_";
-            $msg_ids ='';
+            $msg_id_list = [];
             foreach ($val as $key => $value) {
                 if(isset($value['msg_id'])){
-                    $msg_ids !='' ? $msg_ids .=','.$value['msg_id'] : $msg_ids .= $value['msg_id'];
+                    $clean_id = intval($value['msg_id']);
+                    if ($clean_id > 0) {
+                        $msg_id_list[] = $clean_id;
+                    }
                 }
             }
             $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
             $user_id = get_current_user_id();
-            if($msg_ids !='' ){
-                $sql = "UPDATE $table_name SET read_ = 1 WHERE msg_id IN ($msg_ids)";
+            if(!empty($msg_id_list)){
+                $placeholders = implode(',', array_fill(0, count($msg_id_list), '%d'));
+                $sql = $this->db->prepare("UPDATE `$table_name` SET read_ = 1 WHERE msg_id IN ($placeholders)", ...$msg_id_list);
                 $r = $this->db->query($sql);
                 if($r>0){
                     $table_name = $this->db->prefix . "emsfb_rsp_";
-                    $sql = "UPDATE $table_name SET read_ = 1 WHERE msg_id IN ($msg_ids)";
+                    $sql = $this->db->prepare("UPDATE `$table_name` SET read_ = 1 WHERE msg_id IN ($placeholders)", ...$msg_id_list);
                     $r = $this->db->query($sql);
                 }
 

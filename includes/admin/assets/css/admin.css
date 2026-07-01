@@ -1,0 +1,318 @@
+
+.bg-color {	background-color: #eee;
+}
+.efb-color {	color: #633a82;
+}
+#emsFormBuilder-form {	background-color: #2b232d12 !important;
+	margin:           0 auto;
+	font-family:      revert;
+	padding:          40px;
+	border-radius:    0 10px}
+#emsFormBuilder-form-view {	background-color: #f8f8f8e3 !important;
+	margin:           0 auto;
+	font-family:      revert;
+	padding:          40px;
+	border-radius:    0 10px}
+#emsFormBuilder-form-title,#emsFormBuilder-form-title-view {	color: #633a82}
+h1 {	text-align: center}
+input[type=text].emsFormBuilder, input[type=number].emsFormBuilder, select.insertInput {	padding:            10px;
+	width:              100%;
+	height:             revert;
+	font-size:          17px;
+	font-family:        revert;
+	border:             1px solid #633a82;
+	border-radius:      10px;
+	-webkit-appearance: none}
+input[type=text].insertInput {    width: inherit!important;
+}
+.tab input:focus {	border:  1px solid #633a82 !important;
+	outline: none}
+input.invalid,label.invalid {	border:     1px solid #e03a0666 !important;
+	background: antiquewhite;
+}
+input[type="color"].emsFormBuilder {	-webkit-appearance: none;
+	padding:            5px 5px 5px 5px !important;
+	border:             none !important;
+	width:              64px !important;
+	height:             64px !important;
+	border-radius:      0 !important;
+}
+input[type="color"]::-webkit-color-swatch-wrapper {	padding: 0;
+}
+input[type="color"]::-webkit-color-swatch {	border: none;
+}
+.tab,.emsFormBuilder-tab-view {	display: none}
+button.emsFormBuilder {	background-color: #25012eb5!important;
+	color:            #f1fcfc;
+	border:           none;
+	clip-path:        circle(50%);
+	height:           3em;
+	width:            3em;
+	font-size:        17px;
+	padding:		  5%;
+	font-family:      Raleway, Arial, sans-serif;
+	cursor:           pointer}
+button:hover {	opacity: 0.8}
+button:focus {	outline: none !important}
+#prevBtn {	background-color: #633a82;
+}
+.all-steps,.emsFormBuilder-all-steps-view {	text-align:      center;
+	margin-top:      30px;
+	margin-bottom:   30px;
+	width:           100%;
+	display:         inline-flex;
+	justify-content: center}
+.step,.emsFormBuilder-step-view {	height:           40px;
+	width:            40px;
+	margin:           0 2px;
+	background-color: #d7cae2db;
+	border:           none;
+	border-radius:    50%;
+	display:          flex;
+	justify-content:  center;
+	align-items:      center;
+	font-size:        15px;
+	color:            #633a82;
+	opacity:          0.5}
+.step.active,.emsFormBuilder-step-view.active {	opacity: 1}
+.step.finish,.emsFormBuilder-step-view.finish {	color:      #f1fcfc;
+	background: #633a82;
+	opacity:    1}
+.thanks-message {	display: none}
+.addStep,.emsFormBuilder-addStep-view {	display: inline-flex;
+}
+.border-light {	width:            100%;
+	margin:           0.5rem;
+	background-color: #eee;
+	display:          inline-block;
+	border-style:     dotted;
+	border-color:     #e0e0e0 !important}
+.section {	background-color: #faf8ff;
+
+	border-color:     #abbac5 !important}
+#tabList {	margin-bottom: 5%;
+}
+select.insertInput {	font-weight: 900;
+	font-family: "FontAwesome", "Second Font name"}
+option {	font-family: "FontAwesome", "Open Sans"}
+div.el i.fa {	display:        block;
+	letter-spacing: 3px;
+	font-weight:    400;
+}
+.form-group.row {	margin-bottom: auto;
+}
+#loading_emsFormBuilder {	position:         fixed;
+	width:            100%;
+	height:           100%;
+	text-align:       center;
+	top:              0;
+	left:             0;
+	right:            0;
+	bottom:           0;
+	background-color: rgba(0, 0, 0, 0.863);
+	z-index:          2;
+	cursor:           pointer;
+	pointer-events:   none;
+}
+.wait {	cursor: wait;
+}
+.bttn {	position:  absolute;
+	font-size: x-large;
+	padding:   0 10px 10px 0;
+}
+.btn {	text-transform: capitalize;
+}
+.btn-type{	background-color: #25012eb5!important;
+    color: #eee !important;
+;
+  }
+h5 {	margin:  inherit;
+	padding: 7px 7px 0 7px;
+}
+h5::last-letter {	color: #00f;
+}
+.display-btn {	margin: 3%;
+}
+.black_box {	background:     #eee;
+	float:          left;
+	border:         2px solid #eee;
+	outline:        2px dashed #6c757d61;
+	outline-offset: -10px;
+}
+div.section {	margin-top: 4% !important;
+}
+.mat-shadow, .mat-shadow-dz {	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+	transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+}
+.mat-shadow:hover, .dropZoneEFB:-moz-drag-over {	box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+}
+.emsFormBuilder-form,.emsFormBuilder-form-view {	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+.emsFormBuilder-step-name-view,.step-name {	TEXT-ALIGN:    initial;
+	padding:       px 0px 0px 0px;
+	border-bottom: 4px groove #f1e6fa;
+	margin:        initial;
+}
+.all-steps,.emsFormBuilder-all-steps-view {	text-align:    center;
+	margin-top:    5px;
+	margin-bottom: 13px;
+}
+@keyframes fadeIn {	0% {		transform: scale(1);
+}
+40% {		transform: scale(0.5);
+}
+80% {		transform: scale(1.2);
+}
+100% {		transform: scale(1);
+}
+}
+.fadeIn {	animation:         fadein 2s;
+	-moz-animation:    fadein 2s;
+ 	-webkit-animation: fadein 2s;
+ 	-o-animation:      fadein 2s;
+ }
+@keyframes fadein {	from {		opacity: 0;
+	}
+	to {		opacity: 1;
+	}
+}
+@-moz-keyframes fadein { 	from {		opacity: 0;
+	}
+	to {		opacity: 1;
+	}
+}
+@-webkit-keyframes fadein { 	from {		opacity: 0;
+	}
+	to {		opacity: 1;
+	}
+}
+@-o-keyframes fadein { 	from {		opacity: 0;
+	}
+	to {		opacity: 1;
+	}
+}
+label.emsFormBuilder {	margin:      0 3px;
+	font-weight: 500;
+}
+label.form-check-label {	margin: -3% 4% 0 4%;
+}
+input.emsFormBuilder,option.emsFormBuilder,select.emsFormBuilder,textarea.emsFormBuilder {	margin-bottom: 3px;
+	padding:       10px;
+	width:         100%;
+	height:        auto;
+	border:        1px solid #633a82;
+	border-radius: 10px;
+}
+label.emsFormBuilder-title {	margin:      10px 10px 10px 5px;
+	font-size:   x-large;
+	font-weight: 400;
+}
+.row.emsFormBuilder {	margin: 5px 5px;
+}
+input[type=radio].emsFormBuilder,input[type=checkbox].emsFormBuilder {	width:  13px !important;
+	height: 13px !important;
+}
+select option.emsFormBuilder {	border: 1px solid #a39ea9}
+.choices {	width: -webkit-fill-available;
+}
+.overpage {	position:         absolute !important;
+ 	width:            100%;
+ 	height:           100%;
+ 	top:              0;
+	left:             0;
+	right:            0;
+	bottom:           0;
+	background-color: rgba(0, 0, 0, 0.5) !important;
+ 	z-index:          10000 !important;
+ 	cursor:           pointer;
+ }
+.overpage-chart {	position:         absolute !important;
+ 	width:            100%;
+ 	height:           100%;
+ 	top:              0;
+	left:             0;
+	right:            0;
+	bottom:           0;
+	z-index:          10000 !important;
+ 	}
+.overpage-mbox {	margin:     10%;
+	background: #fff;
+}
+.dropdown-menu {	padding: 5px 10px !important;
+}
+.inputDnD .form-control-file {	position:         relative;
+	width:            100%;
+	height:           100%;
+	min-height:       7em;
+	outline:          none;
+	visibility:       hidden;
+	cursor:           pointer;
+	background-color: #c61c23;
+	box-shadow:       0 0 5px solid currentColor;
+}
+.inputDnD .form-control-file:before {	content:            attr(data-title);
+	position:           absolute;
+	top:                0.5em;
+	left:               0;
+	width:              100%;
+	min-height:         6em;
+	line-height:        2em;
+	padding-top:        1.5em;
+	opacity:            1;
+	visibility:         visible;
+	text-align:         center;
+	border:             0.10em dashed currentColor;
+	-webkit-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+	transition:         all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+	overflow:           hidden;
+}
+.inputDnD .form-control-file:hover:before {	border-style: solid;
+	box-shadow:   0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+hr.solid {	margin-top: 0rem;
+	position: relative;
+	  border: none;
+	  height: 1px;
+	  background: #999;
+  }
+  .text-small{	  font-size: small;
+  }
+     .preview-overpage {	position: absolute !important;
+}
+.emsFormBuilder-tr {	cursor: pointer}
+a.emsFormBuilder {    background-color: #633a82;
+    color: #f1fcfc;
+    border: none;
+    font-size: 17px;
+    font-family: Raleway;
+    cursor: pointer;
+}
+.emsFormBuilder-form-card {    background-color: #4c454e12!important;
+    margin: 0px auto;
+    font-family: revert;
+    border-radius: 0px 5px;
+    color: #4b3547;
+}
+.overlay-emsFormBuilder {      position: absolute;
+    color: #fff;
+    padding: 10% 0%;
+    font-size: xx-large;
+    font-weight: 700;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.7;
+    background: #1a0f22;
+    text-align: center;
+}
+
+.efblist.inplist{
+	padding-top: 10px!important;
+ }
+  
+
+
+ 
+
+

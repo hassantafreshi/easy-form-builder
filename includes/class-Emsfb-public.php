@@ -545,97 +545,72 @@ public function check_nonce_permission_efb($request) {
 			if (isset($sc_setting->adminSN)) $adminSN_enabled = (bool) $sc_setting->adminSN;
 
 
-			// If user=admin without valid sc → must be logged in as admin
+			// Admin access control (single unified block covering ALL link types and adminSN states)
 			$is_legacy_admin_link = ($admin_form && ($admin_sc === null || !$admin_verified));
-			if ($admin_form && !$admin_verified) {
+			if ($admin_form) {
 				if (is_user_logged_in() && current_user_can('administrator')) {
+					// Logged-in WP admin: always grant access regardless of adminSN setting
 					$admin_verified = true;
 				} else if (!is_user_logged_in()) {
-				$overrides = $this->efb_build_inline_style_overrides();
-				$pl_warn = get_setting_Emsfb('pub');
-				$ps_warn = $pl_warn[1] ?? [];
+					if ($adminSN_enabled) {
+						// adminSN=true: login required — block ALL link types (email sc AND SMS legacy)
+						$admin_verified = false;
+						$admin_form    = false;
 
-				$warn_text_color  = !empty($ps_warn['respText'])       ? $ps_warn['respText']       : '#1a1a2e';
-				$warn_bg_color    = !empty($ps_warn['respBgCard'])     ? $ps_warn['respBgCard']     : '#ffffff';
-				$warn_primary     = !empty($ps_warn['respPrimary'])    ? $ps_warn['respPrimary']    : '#3644d2';
-				$warn_muted       = !empty($ps_warn['respTextMuted'])  ? $ps_warn['respTextMuted']  : '#657096';
-				$warn_font_family = !empty($ps_warn['respFontFamily']) ? $ps_warn['respFontFamily'] : 'inherit';
-				$warn_font_size   = !empty($ps_warn['respFontSize'])  ? $ps_warn['respFontSize']   : '0.9rem';
+						$overrides = $this->efb_build_inline_style_overrides();
+						$pl_warn = get_setting_Emsfb('pub');
+						$ps_warn = $pl_warn[1] ?? [];
 
-				$legacy_notice = '';
-				if ($is_legacy_admin_link) {
-					$legacy_notice = "
-					<div style='margin-top:16px; padding:10px 18px; border-radius:8px;
-					            background-color: rgba(54,68,210,0.07);
-					            display:inline-flex; align-items:center; gap:8px;'>
-						<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='" . esc_attr($warn_muted) . "' viewBox='0 0 16 16' style='flex-shrink:0;'>
-							<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.399l-.502 0 .07-.332C7.005 6.584 7.912 6.196 8.454 6h.37l-.82 4.588zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z'/>
-						</svg>
-						<span style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
-						             font-size: calc(" . esc_attr($warn_font_size) . " * 0.93);'>"
-						. esc_html__('This link uses an older format. For improved security, new email notifications include updated links.', 'easy-form-builder') .
-						"</span>
-					</div>";
-				}
+						$warn_text_color  = !empty($ps_warn['respText'])       ? $ps_warn['respText']       : '#1a1a2e';
+						$warn_bg_color    = !empty($ps_warn['respBgCard'])     ? $ps_warn['respBgCard']     : '#ffffff';
+						$warn_primary     = !empty($ps_warn['respPrimary'])    ? $ps_warn['respPrimary']    : '#3644d2';
+						$warn_muted       = !empty($ps_warn['respTextMuted'])  ? $ps_warn['respTextMuted']  : '#657096';
+						$warn_font_family = !empty($ps_warn['respFontFamily']) ? $ps_warn['respFontFamily'] : 'inherit';
+						$warn_font_size   = !empty($ps_warn['respFontSize'])  ? $ps_warn['respFontSize']   : '0.9rem';
 
-				return $overrides['font_link'] . $overrides['inline_style'] . "
-				<div id='body_efb' class='efb card-public efb'
-				     style='display:flex; flex-direction:column; align-items:center; justify-content:center;
-				            color:" . esc_attr($warn_text_color) . "; background-color:" . esc_attr($warn_bg_color) . ";
-				            font-family:" . esc_attr($warn_font_family) . "; font-size:" . esc_attr($warn_font_size) . ";
-				            padding: 40px 20px; border-radius: 12px;
-				            box-shadow: 0 2px 16px rgba(0,0,0,0.07); text-align:center;'>
-					<div style='margin-bottom:18px; text-align:center;'>
-						<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' fill='" . esc_attr($warn_primary) . "' viewBox='0 0 16 16' style='display:inline-block;'>
-							<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM8 4a.905.905 0 0 1 .9.995l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/>
-						</svg>
-					</div>
-					<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
-					           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
-					           margin:0 0 10px 0; text-align:center;'>"
-					    . esc_html__('It seems that you are the admin of this form. Please log in and try again.', 'easy-form-builder') .
-					"</h3>" . $legacy_notice . "
-				</div>";
+						$legacy_notice = '';
+						if ($is_legacy_admin_link) {
+							$legacy_notice = "
+							<div style='margin-top:16px; padding:10px 18px; border-radius:8px;
+							            background-color: rgba(54,68,210,0.07);
+							            display:inline-flex; align-items:center; gap:8px;'>
+								<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='" . esc_attr($warn_muted) . "' viewBox='0 0 16 16' style='flex-shrink:0;'>
+									<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.399l-.502 0 .07-.332C7.005 6.584 7.912 6.196 8.454 6h.37l-.82 4.588zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z'/>
+								</svg>
+								<span style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
+								             font-size: calc(" . esc_attr($warn_font_size) . " * 0.93);'>"
+								. esc_html__('This link uses an older format. For improved security, new email notifications include updated links.', 'easy-form-builder') .
+								"</span>
+							</div>";
+						}
+
+						return $overrides['font_link'] . $overrides['inline_style'] . "
+						<div id='body_efb' class='efb card-public efb'
+						     style='display:flex; flex-direction:column; align-items:center; justify-content:center;
+						            color:" . esc_attr($warn_text_color) . "; background-color:" . esc_attr($warn_bg_color) . ";
+						            font-family:" . esc_attr($warn_font_family) . "; font-size:" . esc_attr($warn_font_size) . ";
+						            padding: 40px 20px; border-radius: 12px;
+						            box-shadow: 0 2px 16px rgba(0,0,0,0.07); text-align:center;'>
+							<div style='margin-bottom:18px; text-align:center;'>
+								<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' fill='" . esc_attr($warn_primary) . "' viewBox='0 0 16 16' style='display:inline-block;'>
+									<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM8 4a.905.905 0 0 1 .9.995l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/>
+								</svg>
+							</div>
+							<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
+							           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
+							           margin:0 0 10px 0; text-align:center;'>"
+							    . esc_html__('It seems that you are the admin of this form. Please log in and try again.', 'easy-form-builder') .
+							"</h3>" . $legacy_notice . "
+						</div>";
+					} else {
+						// adminSN=false: allow without login (SMS link or email sc link)
+						$admin_verified = true;
+					}
 				} else {
-					$admin_form = false;
+					// Logged in but not a WP administrator
+					$admin_form    = false;
+					$admin_verified = false;
 				}
-			}
-
-			// If adminSN is enabled and admin verified via sc but not logged in → require login
-			if ($adminSN_enabled && $admin_verified && !is_user_logged_in()) {
-				$admin_verified = false;
-				$admin_form = false;
-
-				$overrides = $this->efb_build_inline_style_overrides();
-				$pl_warn = get_setting_Emsfb('pub');
-				$ps_warn = $pl_warn[1] ?? [];
-				$warn_text_color  = !empty($ps_warn['respText'])       ? $ps_warn['respText']       : '#1a1a2e';
-				$warn_bg_color    = !empty($ps_warn['respBgCard'])     ? $ps_warn['respBgCard']     : '#ffffff';
-				$warn_primary     = !empty($ps_warn['respPrimary'])    ? $ps_warn['respPrimary']    : '#3644d2';
-				$warn_muted       = !empty($ps_warn['respTextMuted'])  ? $ps_warn['respTextMuted']  : '#657096';
-				$warn_font_family = !empty($ps_warn['respFontFamily']) ? $ps_warn['respFontFamily'] : 'inherit';
-				$warn_font_size   = !empty($ps_warn['respFontSize'])  ? $ps_warn['respFontSize']   : '0.9rem';
-
-				return $overrides['font_link'] . $overrides['inline_style'] . "
-				<div id='body_efb' class='efb card-public efb'
-				     style='display:flex; flex-direction:column; align-items:center; justify-content:center;
-				            color:" . esc_attr($warn_text_color) . "; background-color:" . esc_attr($warn_bg_color) . ";
-				            font-family:" . esc_attr($warn_font_family) . "; font-size:" . esc_attr($warn_font_size) . ";
-				            padding: 40px 20px; border-radius: 12px;
-				            box-shadow: 0 2px 16px rgba(0,0,0,0.07); text-align:center;'>
-					<div style='margin-bottom:18px; text-align:center;'>
-						<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' fill='" . esc_attr($warn_primary) . "' viewBox='0 0 16 16' style='display:inline-block;'>
-							<path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM8 4a.905.905 0 0 1 .9.995l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/>
-						</svg>
-					</div>
-					<h3 style='color:" . esc_attr($warn_text_color) . "; font-family:" . esc_attr($warn_font_family) . ";
-					           font-size: calc(" . esc_attr($warn_font_size) . " * 1.35); font-weight:600;
-					           margin:0 0 10px 0; text-align:center;'>"
-					    . esc_html__('It seems that you are the admin of this form. Please log in and try again', 'easy-form-builder') .
-					"</h3>
-					<p style='color:" . esc_attr($warn_muted) . "; font-family:" . esc_attr($warn_font_family) . ";
-					          font-size:" . esc_attr($warn_font_size) . "; margin:0; text-align:center;'></p>
-				</div>";
 			}
 
 			if(empty($this->db)){
@@ -744,7 +719,7 @@ public function check_nonce_permission_efb($request) {
 				$iconsd = array_merge($icons_[0] , $icons[0]);
 
 				$icons_ = array_unique($iconsd);
-				$value = preg_replace('/\\\"email\\\":\\\"(.*?)\\\"/', '\"email\":\"\"', $value);
+
 
 					foreach($iconsd as $icon){
 						$iconst_html_preload .= "<i class='bi $icon'></i>";
@@ -804,7 +779,7 @@ public function check_nonce_permission_efb($request) {
 						$smssendefb = new smssendefb() ;
 					}
 
-					$setting;
+					$setting = null;
 					if($typeOfForm=="payment"){
 						$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
 						$r = $this->setting;
@@ -812,6 +787,14 @@ public function check_nonce_permission_efb($request) {
 							$setting =str_replace('\\', '', $r);
 							$setting =json_decode($setting);
 
+						} elseif ( is_object( $r ) ) {
+							$setting = $r;
+						} elseif ( is_array( $r ) ) {
+							$setting = (object) $r;
+						}
+						if ( ! is_object( $setting ) ) {
+							$raw_setting = get_setting_Emsfb('raw');
+							$setting = is_string( $raw_setting ) ? json_decode( str_replace( '\\', '', $raw_setting ) ) : null;
 						}
 						$ar_core = array_merge($ar_core , array(
 							'paymentGateway' =>$paymentType,
@@ -840,6 +823,7 @@ public function check_nonce_permission_efb($request) {
 			if ($is_track==null){
 
 					$fs =str_replace('\\', '', $value_form_data->form_structer);
+					$fs = preg_replace('/"email":"[^"]*"/', '"email":""', $fs);
 					$formObj= json_decode($fs,true);
 					$valj_efb = json_decode($fs, false, 512, JSON_UNESCAPED_UNICODE);
 					if(($valj_efb[0]->stateForm==true || $valj_efb[0]->stateForm==1) &&  is_user_logged_in()==false ){
@@ -1098,11 +1082,38 @@ public function check_nonce_permission_efb($request) {
 							}
 							if($valj_efb[$i]->type =='paypal'){
 								$paymentType="paypal";
-								$paymentKey=isset($setting->paypalPKey)  ? $setting->paypalPKey:'null';
+								$paypal_public_key = ( isset( $setting ) && is_object( $setting ) && isset( $setting->paypalPKey ) ) ? trim( (string) $setting->paypalPKey ) : '';
+								if ( strlen( $paypal_public_key ) <= 5 ) {
+									$decoded_settings = get_setting_Emsfb( 'decoded' );
+									if ( is_object( $decoded_settings ) && isset( $decoded_settings->paypalPKey ) ) {
+										$paypal_public_key = trim( (string) $decoded_settings->paypalPKey );
+									}
+								}
+								if ( strlen( $paypal_public_key ) <= 5 ) {
+									$option_settings = get_option( 'emsfb_settings', '' );
+									$option_settings = is_string( $option_settings ) ? json_decode( str_replace( '\\', '', $option_settings ) ) : null;
+									if ( is_object( $option_settings ) && isset( $option_settings->paypalPKey ) ) {
+										$paypal_public_key = trim( (string) $option_settings->paypalPKey );
+									}
+								}
+								if ( strlen( $paypal_public_key ) <= 5 ) {
+									if ( empty( $this->db ) ) {
+										global $wpdb;
+										$this->db = $wpdb;
+									}
+									$table_name = $this->db->prefix . 'emsfb_setting';
+									$latest_raw = $this->db->get_var( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );
+									$latest_settings = is_string( $latest_raw ) ? json_decode( str_replace( '\\', '', $latest_raw ) ) : null;
+									if ( is_object( $latest_settings ) && isset( $latest_settings->paypalPKey ) ) {
+										$paypal_public_key = trim( (string) $latest_settings->paypalPKey );
+									}
+								}
+								$paymentKey = strlen( $paypal_public_key ) > 5 ? $paypal_public_key : 'null';
+								error_log('[EFB][PayPal][PUBLIC] Localizing client id: form_id=' . $form_id . ', setting_type=' . gettype( $setting ?? null ) . ', client_id_length=' . strlen( $paypal_public_key ) . ', sent=' . ( $paymentKey === 'null' ? 'null' : 'set' ));
 								$currency ='USD';
 
 								!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal") ? $this->efbFunction->download_all_addons_efb() : '';
-								wp_register_script('paypalefb-js', EMSFB_PLUGIN_URL . 'vendor/paypal/assets/js/paypal_efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
+								wp_register_script('paypalefb-js', EMSFB_PLUGIN_URL . 'vendor/paypal/assets/js/paypal_efb.js',array('jquery', 'Emsfb-core_js'), filemtime(EMSFB_PLUGIN_DIRECTORY . 'vendor/paypal/assets/js/paypal_efb.js'), true);
 								wp_enqueue_script('paypalefb-js');
 								$ar_core = array_merge($ar_core , array(
 									'paymentGateway' =>'paypal',
@@ -1191,10 +1202,8 @@ public function check_nonce_permission_efb($request) {
 			$jss = $jss.'</script>';
 
 			$script = '';
-			if (current_user_can('manage_options')) {
-				$console_checker = $efbFormBuilder->check_error_console_efb();
-				$script = '<script>'.$console_checker.'</script>';
-			}
+			$console_checker = $efbFormBuilder->check_error_console_efb();
+			$script = '<script>'.$console_checker.'</script>';
 
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
@@ -1377,12 +1386,12 @@ public function check_nonce_permission_efb($request) {
 		$location = '';
 
 		$sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
-		$sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : 'null';
+		$sc = isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : 'null';
 
 		$get_track ='';
 		$captcha_exist = false;
 		if(isset($_GET['track'])){
-			$get_track = sanitize_text_field($_GET['track']);
+			$get_track = sanitize_text_field(wp_unslash($_GET['track']));
 		}
 			$script_call_captcha = '';
 			if (isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true ){
@@ -1395,7 +1404,7 @@ public function check_nonce_permission_efb($request) {
 							loadCaptcha_efb(20);
 						});
 						</script>' ,
-								$valstng->siteKey
+								esc_attr($valstng->siteKey)
 				);
 				$captcha_exist = true;
 			}
@@ -1421,12 +1430,12 @@ public function check_nonce_permission_efb($request) {
 			</div>
 			<div id="alert_efb" class="efb mx-5"></div>',
 			is_rtl() ? 'rtl-text' : '',
-			$text['pleaseEnterTheTracking'],
-			$text['trackingCode'],
-			$text['entrTrkngNo'],
-			$get_track,
+			esc_html($text['pleaseEnterTheTracking']),
+			esc_html($text['trackingCode']),
+			esc_attr($text['entrTrkngNo']),
+			esc_attr($get_track),
 			$script_call_captcha,
-			$text['search']
+			esc_html($text['search'])
 		);
 		 $val = $pro==true ? '<!--efb.app-->' : '<div class="efb d-none"><a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a></div>';
 
@@ -2469,7 +2478,7 @@ public function check_nonce_permission_efb($request) {
 								$saved_payment_content = json_decode(str_replace('\\', '', $value[0]->content), true);
 								$submitted_values = $submitted_values;
 								$filtered = array_filter($submitted_values, function ($item) use ($saved_payment_content) {
-									return strpos($item['type'], 'pay') === false;
+									return !isset($item['type']) || strpos($item['type'], 'pay') === false;
 								});
 								$amount = array_reduce($saved_payment_content, function ($carry, $item) {
 									return $carry + ($item['price'] ?? 0);
@@ -2878,7 +2887,7 @@ public function check_nonce_permission_efb($request) {
 			}
 
 	  }
-	public function insert_message_db($read,$uniqid,$style_trackingCode){
+	public function insert_message_db($read, $uniqid, $style_trackingCode = 'date_en_mix'){
 		if(isset($read)==false) $read=0;
 
 		if($uniqid==false){
@@ -3571,7 +3580,7 @@ public function check_nonce_permission_efb($request) {
 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
 		if ($s_sid !=1 || $sid==null){
-			$this->efbFunction->send_email_noti_sid_plugins_efb;('replyMessageAction');
+			$this->efbFunction->send_email_noti_sid_plugins_efb('replyMessageAction');
 			$m = $this->lanText['sxnlex'];
 			$response = array( 'success' => false  , 'm'=>$m );
 			wp_send_json_success($response,200);
@@ -4825,7 +4834,6 @@ public function check_nonce_permission_efb($request) {
 	public function fun_present_others_action_efb($state, $username, $sid,$fid){
 
 		$this->efbFunction = get_efbFunction();
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
 		$texts =['sxnlex','uraatn'];
 		$lan =$this->efbFunction->text_efb($texts);
 		function Js_() {
@@ -4964,14 +4972,14 @@ public function check_nonce_permission_efb($request) {
 			}
 			return '<p text-align: center;">'.$lan['uraatn'].'</p>' . Js_();
 		}
-		if ($s_sid !=1 || $sid==null){
-			$this->efbFunction->send_email_noti_sid_plugins_efb('userActionEvent');
-			return '<p style="color:#ff4b93;text-align: center;">'.$lan['sxnlex'].'</p>'.Js_();
-		}
 		if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
         }
+		if (empty($sid) || strlen($sid) < 32) {
+			$this->efbFunction->send_email_noti_sid_plugins_efb('userActionEvent');
+			return '<p style="color:#ff4b93;text-align: center;">'.$lan['sxnlex'].'</p>'.Js_();
+		}
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
 		$sql = $this->db->prepare("SELECT * FROM $table_name WHERE code = %s", $sid);
 		$row = $this->db->get_row($sql);
@@ -4983,6 +4991,7 @@ public function check_nonce_permission_efb($request) {
 				$st = $state == 1 ? 'register' : 'recovery';
 				if($state==1){
 					$this->efbFunction->efb_code_validate_update($sid, $st, 0);
+					$this->db->delete($table_name, ['id' => (int) $row->id], ['%d']);
 					return register_( $lan,$username);
 				}else if($state==0){
 					$this->public_scripts_and_css_head('css');
@@ -4995,6 +5004,22 @@ public function check_nonce_permission_efb($request) {
 			$m= esc_html__('error', 'easy-form-builder') . ': R404';
 			return '<p style="color:#ff4b93;text-align: center;">'.$m.'</p>';
 
+	}
+
+	private function generate_temp_link_token_efb($table_name) {
+		do {
+			if (function_exists('wp_generate_password')) {
+				$token = wp_generate_password(32, false, false);
+			} else {
+				$token = bin2hex(random_bytes(16));
+			}
+			$exists = $this->db->get_var($this->db->prepare(
+				"SELECT id FROM $table_name WHERE code = %s LIMIT 1",
+				$token
+			));
+		} while ($exists);
+
+		return $token;
 	}
 
 
@@ -5021,7 +5046,7 @@ public function check_nonce_permission_efb($request) {
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
 		$ip = !empty($this->ip) ? $this->ip : $this->get_ip_address();
 
-		$sid = $this->efbFunction->efb_code_validate_create($this->id, 0, $type_, 0);
+		$sid = $this->generate_temp_link_token_efb($table_name);
 		$status_ = ($type_ === 'register') ? 1 : 0;
 
 		$data = [
@@ -5051,19 +5076,24 @@ public function check_nonce_permission_efb($request) {
 	public function set_password_efb_api(){
 
 		$data = json_decode(file_get_contents('php://input'), true);
+		if (!is_array($data)) {
+			return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder')), 400);
+		}
 
-		$st = sanitize_text_field($data['st']);
-		$fid = sanitize_text_field($data['fid']);
+		$st = sanitize_text_field($data['st'] ?? '');
+		$fid = sanitize_text_field($data['fid'] ?? '');
 		$this->efbFunction = get_efbFunction();
-		 $s_sid = $this->efbFunction->efb_code_validate_select($st, $fid);
 
-		$password = sanitize_text_field($data['password']);
+		$password = sanitize_text_field($data['password'] ?? '');
+		if ($st === '' || strlen($st) < 32 || $fid === '' || $password === '') {
+			return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder')), 400);
+		}
 		if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;
         }
 		$table_name = $this->db->prefix . 'emsfb_temp_links';
-		$sql = $this->db->prepare("SELECT * FROM $table_name WHERE code = %s", $st);
+		$sql = $this->db->prepare("SELECT * FROM $table_name WHERE code = %s AND status_ = %d", $st, 0);
 		$row = $this->db->get_row($sql);
 		if ($row) {
 			$created_at = strtotime($row->created_at);
@@ -5074,6 +5104,7 @@ public function check_nonce_permission_efb($request) {
 				if ($user) {
 					wp_set_password($password, $user->ID);
 					$this->efbFunction->efb_code_validate_update($st, 'recovery', 1);
+					$this->db->delete($table_name, ['id' => (int) $row->id], ['%d']);
 					return new WP_REST_Response(array('success' => true, 'data' => esc_html__('Password has been changed successfully!', 'easy-form-builder')));
 				}
 			}
@@ -5128,6 +5159,7 @@ public function check_nonce_permission_efb($request) {
 		$page_id = get_the_ID();
 		$json_settings= get_setting_Emsfb('pub')[0];
 		$pub_settings = get_setting_Emsfb('pub')[1];
+		$values =  preg_replace('/"email":"[^"]*"/', '"email":""', $values);
 		$ar_core = array_merge($ar_core , array(
 			'ajax_value_forms' =>$this->value_forms,
 			'ajax_value' =>$values,
@@ -5176,9 +5208,26 @@ public function check_nonce_permission_efb($request) {
 			'respCustomFont' => $pub_settings['respCustomFont'] ?? '',
 		) );
 
-		$cache_plugins = get_option('emsfb_cache_plugins','0');
-		if ( current_user_can('manage_options') && $cache_plugins !== '0' && !empty($cache_plugins)) {
-			$ar_core['cache_plugins'] = $cache_plugins;
+		$cache_plugins_public = get_option('emsfb_cache_plugins','0');
+		if ($cache_plugins_public !== '0' && !empty($cache_plugins_public)) {
+			$cache_plugins_public_list = json_decode($cache_plugins_public, true);
+			if (is_array($cache_plugins_public_list) && !empty($cache_plugins_public_list)) {
+				$ar_core['cache_plugins_public'] = wp_json_encode(array_map(function($p) {
+					return array('name' => $p['name'] ?? '');
+				}, $cache_plugins_public_list));
+			}
+		}
+
+		if (is_user_logged_in() && current_user_can('manage_options')) {
+			$cache_plugins = get_option('emsfb_cache_plugins','0');
+			if ($cache_plugins !== '0' && !empty($cache_plugins)) {
+				$ar_core['cache_plugins'] = $cache_plugins;
+			}
+
+			$security_plugins = get_option('emsfb_security_plugins','0');
+			if ($security_plugins !== '0' && !empty($security_plugins)) {
+				$ar_core['security_plugins'] = $security_plugins;
+			}
 		}
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
 	}

@@ -2146,9 +2146,10 @@
 		$corner = property_exists($valj_efb[0], 'corner') ? $valj_efb[0]->corner : 'efb-square';
 		$btns_align = property_exists($valj_efb[0], 'btns_align') ? $valj_efb[0]->btns_align . ' mx-3' : 'justify-content-center';
 		$icon_spacing_class = is_rtl() ? 'ms-2' : 'me-2';
+		$icon_spacing_next_class = is_rtl() ? 'me-2' : 'ms-2';
 
 		$prev_icon = strlen($valj_efb[0]->button_Previous_icon) > 3 && $valj_efb[0]->button_Previous_icon != 'bi-undefined' &&  $valj_efb[0]->button_Previous_icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Previous_icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
-		$next_icon = strlen($valj_efb[0]->button_Next_text) > 3 && $valj_efb[0]->button_Next_text != 'bi-undefined' && $valj_efb[0]->button_Next_text!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
+		$next_icon = strlen($valj_efb[0]->button_Next_text) > 3 && $valj_efb[0]->button_Next_text != 'bi-undefined' && $valj_efb[0]->button_Next_text!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $icon_spacing_next_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
 		$class_disabled = '';
 
 		$s = sprintf(
@@ -2862,9 +2863,9 @@
 					}
 					$sub = $texts['onetime'];
 					$cl = 'one';
-					if ($this->valj_efb[0]->paymentmethod != 'charge') {
+					if (isset($this->valj_efb[0]->paymentmethod) && $this->valj_efb[0]->paymentmethod != 'charge') {
 						$n = $this->valj_efb[0]->paymentmethod.'ly';
-						$sub = $texts[$n];
+						$sub = isset($texts[$n]) ? $texts[$n] : $texts['onetime'];
 						$cl = $this->valj_efb[0]->paymentmethod;
 					}
 
@@ -2880,9 +2881,9 @@
 					}
 					$sub = $texts['onetime'];
 					$cl = 'one';
-						if ($this->valj_efb[0]->paymentmethod != 'charge') {
+					if (isset($this->valj_efb[0]->paymentmethod) && $this->valj_efb[0]->paymentmethod != 'charge') {
 						$n = $this->valj_efb[0]->paymentmethod.'ly';
-						$sub = $texts[$n];
+						$sub = isset($texts[$n]) ? $texts[$n] : $texts['onetime'];
 						$cl = $this->valj_efb[0]->paymentmethod;
 					}
 
@@ -3292,7 +3293,10 @@ public function check_error_console_efb(){
 		'notice'      => esc_html__('Notice', 'easy-form-builder'),
 		'line'        => esc_html__('Line', 'easy-form-builder'),
 		'file'        => esc_html__('File', 'easy-form-builder'),
-		'clear'       => esc_html__('Clear All', 'easy-form-builder'),
+		'dismiss'     => esc_html__('Dismiss', 'easy-form-builder'),
+		'dismissAll'  => esc_html__('Dismiss All', 'easy-form-builder'),
+		/* translators: %s: item label */
+		'dismissItem' => esc_html__('Dismiss %s', 'easy-form-builder'),
 		'noErrors'    => esc_html__('No errors detected', 'easy-form-builder'),
 		'warning'     => esc_html__('These errors may interfere with forms built using Easy Form Builder.', 'easy-form-builder'),
 		'adminOnly'   => esc_html__('This panel is only visible to site administrators.', 'easy-form-builder'),
@@ -3309,11 +3313,33 @@ public function check_error_console_efb(){
 		const EFB_ERROR_PANEL = {
 			errors: [],
 			errorKeys: new Set(),
+			visibleErrorKeys: new Set(),
 			isOpen: false,
 			panel: null,
 			badge: null,
+			inlineTargetFormId: null,
+			storageKey: "efb_error_panel_dismissed_v1",
+			dismissedKeys: new Set(),
 
 			t: ' . wp_json_encode($t) . ',
+
+			loadDismissedKeys() {
+				try {
+					const raw = window.localStorage.getItem(this.storageKey);
+					if (!raw) return;
+					const parsed = JSON.parse(raw);
+					const keys = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.keys) ? parsed.keys : []);
+					this.dismissedKeys = new Set(keys.filter(Boolean));
+				} catch(e) {
+					this.dismissedKeys = new Set();
+				}
+			},
+
+			saveDismissedKeys() {
+				try {
+					window.localStorage.setItem(this.storageKey, JSON.stringify({ keys: Array.from(this.dismissedKeys) }));
+				} catch(e) {}
+			},
 
 			parseSource(source) {
 				if (!source) return { type: "unknown", name: this.t.unknown, file: "", fullPath: "" };
@@ -3384,17 +3410,20 @@ public function check_error_console_efb(){
 						<line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
 					</svg>
 					<span class="efb-error-label">${this.t.warningBadge}</span>
-					<span class="efb-badge-tooltip">${this.t.adminOnly}</span>
+					<svg class="efb-badge-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+						<path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
+					</svg>
+					<!-- <span class="efb-badge-tooltip">${this.t.adminOnly}</span>-->
 				`;
 				const isRtl = document.documentElement.dir === "rtl" || document.body.dir === "rtl" || getComputedStyle(document.documentElement).direction === "rtl";
 				this.isRtl = isRtl;
 				this.badge.style.cssText = `
 					all: initial !important;
-					position: fixed !important; top: 35px !important; ${isRtl ? "right" : "left"}: 30px !important;
-					z-index: 999999 !important;
+					position: relative !important;
+					z-index: auto !important;
 					background: #dc3545 !important;
 					color: #fff !important; padding: 12px 18px !important; border-radius: 50px !important;
-					cursor: pointer !important; display: flex !important; align-items: center !important; gap: 10px !important;
+					cursor: pointer !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 10px !important;
 					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 					font-size: 13px !important; font-weight: 600 !important;
 					box-shadow: 0 4px 15px rgba(220,53,69,0.4) !important;
@@ -3407,6 +3436,8 @@ public function check_error_console_efb(){
 					min-width: 0 !important; height: auto !important; width: auto !important;
 					overflow: visible !important;
 				`;
+				this.badge.setAttribute("role", "status");
+				this.badge.setAttribute("aria-live", "polite");
 				this.badge.onclick = () => this.togglePanel();
 				document.body.appendChild(this.badge);
 
@@ -3418,7 +3449,7 @@ public function check_error_console_efb(){
 							<span>${this.t.easyformbuilder} - ${this.t.title}</span>
 						</div>
 						<div class="efb-panel-actions">
-							<button class="efb-btn-clear" onclick="EFB_ERROR_PANEL.clearErrors()">${this.t.clear}</button>
+							<button class="efb-btn-clear" onclick="EFB_ERROR_PANEL.dismissAll()">${this.t.dismissAll}</button>
 							<button class="efb-btn-close" onclick="EFB_ERROR_PANEL.togglePanel()">×</button>
 						</div>
 					</div>
@@ -3427,7 +3458,7 @@ public function check_error_console_efb(){
 						<span>${this.t.warning}</span>
 					</div>
 					<div class="efb-admin-notice">
-						<span>${this.t.adminOnly}</span>
+						<!-- <span>${this.t.adminOnly}</span> -->
 						<span class="efb-admin-badge">ADMIN</span>
 					</div>
 					<div class="efb-panel-body" id="efb-error-list">
@@ -3437,7 +3468,7 @@ public function check_error_console_efb(){
 						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
 						</svg>
-						<span>${this.t.adminOnly}</span>
+						<!-- <span>${this.t.adminOnly}</span> -->
 					</div>
 				`;
 				this.panel.style.cssText = `
@@ -3491,6 +3522,14 @@ public function check_error_console_efb(){
 						font-size: 13px !important; font-weight: 600 !important;
 						color: #fff !important;
 					}
+					#efb-error-badge .efb-badge-chevron {
+						width: 16px !important; height: 16px !important;
+						color: #fff !important; opacity: 0.9 !important;
+						transition: transform 0.2s ease, opacity 0.2s ease !important;
+						flex-shrink: 0 !important;
+					}
+					#efb-error-badge:hover .efb-badge-chevron { opacity: 1 !important; transform: translateY(1px) !important; }
+					#efb-error-badge.is-open .efb-badge-chevron { transform: rotate(180deg) !important; }
 					#efb-error-badge::before,
 					#efb-error-badge::after {
 						content: "" !important; position: absolute !important; inset: -2px !important;
@@ -3505,6 +3544,7 @@ public function check_error_console_efb(){
 					}
 					#efb-error-badge .efb-badge-tooltip {
 						all: initial !important;
+						display: none !important;
 						position: absolute !important; top: 50% !important; ${isRtl ? "right" : "left"}: calc(100% + 12px) !important;
 						transform: translateY(-50%) translateX(${isRtl ? "8px" : "-8px"}) !important;
 						white-space: nowrap !important;
@@ -3516,7 +3556,7 @@ public function check_error_console_efb(){
 						opacity: 0 !important; pointer-events: none !important;
 						transition: opacity 0.25s ease, transform 0.25s ease !important;
 						box-sizing: border-box !important; line-height: normal !important;
-						display: block !important; z-index: 1000000 !important;
+						display: none !important; z-index: 1000000 !important;
 					}
 					#efb-error-badge .efb-badge-tooltip::before {
 						content: "" !important; position: absolute !important; top: 50% !important; ${isRtl ? "left" : "right"}: 100% !important;
@@ -3674,6 +3714,16 @@ public function check_error_console_efb(){
 						display: flex !important; align-items: center !important; gap: 8px !important;
 						font-weight: 600 !important; font-size: 14px !important; margin-bottom: 8px !important;
 					}
+					#efb-error-panel .efb-error-source-name { flex: 1 !important; min-width: 0 !important; display: inline-block !important; }
+					#efb-error-panel .efb-btn-dismiss {
+						background: #fff !important; border: 1px solid #dee2e6 !important; color: #495057 !important;
+						padding: 4px 9px !important; border-radius: 6px !important; cursor: pointer !important;
+						font-size: 11px !important; font-weight: 600 !important; line-height: 1.2 !important;
+						margin-${isRtl ? "right" : "left"}: auto !important; display: inline-block !important;
+					}
+					#efb-error-panel .efb-btn-dismiss:hover {
+						background: #f1f3f5 !important; color: #212529 !important; border-color: #ced4da !important;
+					}
 					#efb-error-panel .efb-error-source .type-badge {
 						font-size: 9px !important; padding: 3px 8px !important; border-radius: 4px !important;
 						text-transform: uppercase !important; font-weight: 700 !important; letter-spacing: 0.5px !important;
@@ -3686,6 +3736,8 @@ public function check_error_console_efb(){
 					#efb-error-panel .efb-error-source .type-unknown { background: #f5c6cb !important; color: #721c24 !important; }
 					#efb-error-panel .efb-error-source .type-notice { background: #fff3cd !important; color: #664d03 !important; border: 1px solid #ffecb5 !important; }
 					#efb-error-panel .efb-error-msg { color: #333 !important; font-size: 13px !important; line-height: 1.5 !important; word-break: break-word !important; margin-bottom: 8px !important; }
+					#efb-error-panel .efb-error-msg a { color: #0d6efd !important; text-decoration: underline !important; font-weight: 600 !important; }
+					#efb-error-panel .efb-error-msg strong { font-weight: 700 !important; color: #1f2937 !important; }
 					#efb-error-panel .efb-error-msg img { max-width: 100% !important; height: auto !important; max-height: 14px !important; display: inline-block !important; object-fit: contain !important; }
 					#efb-error-panel .efb-error-file {
 						background: #1e1e2e !important; padding: 8px 12px !important; border-radius: 6px !important;
@@ -3739,6 +3791,7 @@ public function check_error_console_efb(){
 			togglePanel() {
 				this.isOpen = !this.isOpen;
 				if (this.isOpen) {
+					if (this.badge) this.badge.classList.add("is-open");
 					this.panel.style.setProperty("display", "block", "important");
 					this.overlay.style.display = "block";
 					setTimeout(() => {
@@ -3747,6 +3800,7 @@ public function check_error_console_efb(){
 						this.overlay.style.opacity = "1";
 					}, 10);
 				} else {
+					if (this.badge) this.badge.classList.remove("is-open");
 					this.panel.style.setProperty("opacity", "0", "important");
 					this.panel.style.setProperty("transform", "translate(-50%, -50%) scale(0.9)", "important");
 					this.overlay.style.opacity = "0";
@@ -3755,6 +3809,32 @@ public function check_error_console_efb(){
 						this.overlay.style.display = "none";
 					}, 300);
 				}
+			},
+
+			getInlineTarget(formId) {
+				const id = formId !== null && formId !== undefined ? String(formId) : "";
+				if (id !== "") {
+					return document.getElementById("efb-submit-error-badge-slot-" + id)
+						|| document.querySelector("#body_efb_" + id + " #efb-final-step")
+						|| document.querySelector("#body_efb_" + id + " .view-efb");
+				}
+				return document.querySelector(".efb-submit-error-badge-slot")
+					|| document.querySelector(".view-efb #efb-final-step")
+					|| document.querySelector(".view-efb");
+			},
+
+			showInlineBadge(formId = null) {
+				if (!this.badge) return;
+				if (formId !== null && formId !== undefined) {
+					this.inlineTargetFormId = formId;
+				}
+				const target = this.getInlineTarget(this.inlineTargetFormId);
+				if (target && this.badge.parentNode !== target) {
+					target.appendChild(this.badge);
+				} else if (!this.badge.isConnected) {
+					document.body.appendChild(this.badge);
+				}
+				this.showBadge();
 			},
 
 			showBadge() {
@@ -3771,13 +3851,31 @@ public function check_error_console_efb(){
 				this.badge.style.setProperty("visibility", "hidden", "important");
 			},
 
+			clearSubmissionBadge(formId = null) {
+				this.hideBadge();
+				if (formId === null || formId === undefined || String(formId) === String(this.inlineTargetFormId)) {
+					this.inlineTargetFormId = null;
+					this.visibleErrorKeys.clear();
+				}
+				this.closePanelIfOpen();
+			},
+
 			updateCount() {},
 
 
 			addError(errorData) {
-				const { message, source, lineno, stack = [], typeOverride = null, nameOverride = null } = errorData;
+				errorData = errorData || {};
+				const { message, source, lineno, stack = [], typeOverride = null, nameOverride = null, formatOptions = {}, showBadge = false, context = "", formId = null } = errorData;
+				const shouldShowBadge = showBadge === true || context === "submissionAjax";
 				const errorKey = (message || "") + "|" + (source || "") + "|" + (lineno || "");
-				if (this.errorKeys.has(errorKey)) return;
+				if (this.dismissedKeys.has(errorKey)) return;
+				if (this.errorKeys.has(errorKey)) {
+					if (shouldShowBadge) {
+						this.visibleErrorKeys.add(errorKey);
+						this.showInlineBadge(formId);
+					}
+					return;
+				}
 				this.errorKeys.add(errorKey);
 
 				const parsed = this.parseSource(source);
@@ -3788,10 +3886,15 @@ public function check_error_console_efb(){
 				const realSource = stack.length > 0 ? stack[0].parsed : parsed;
 				const realPath = stack.length > 0 ? stack[0].parsed.fullPath + ":" + stack[0].line : (parsed.fullPath + (lineno ? ":" + lineno : ""));
 
-				this.errors.push({ message, source, lineno, parsed, stack, time });
+				this.errors.push({ key: errorKey, message, source, lineno, parsed, stack, time, showBadge: shouldShowBadge });
 
-				this.showBadge();
+				if (shouldShowBadge) {
+					this.visibleErrorKeys.add(errorKey);
+					this.showInlineBadge(formId);
+				}
 				this.updateCount();
+
+				if (context === "submissionAjax") return;
 
 				const list = document.getElementById("efb-error-list");
 				if (!list) return;
@@ -3831,12 +3934,14 @@ public function check_error_console_efb(){
 
 				const item = document.createElement("div");
 				item.className = "efb-error-item " + typeClass;
+				const messageHtml = context === "submissionAjax" ? "" : `<div class="efb-error-msg">${this.formatMessage(message, formatOptions)}</div>`;
 				item.innerHTML = `
 					<div class="efb-error-source">
 						<span class="type-badge type-${realSource.type}">${this.t[realSource.type] || realSource.type}</span>
-						<span>${realSource.name}</span>
+						<span class="efb-error-source-name">${realSource.name}</span>
+						<button type="button" class="efb-btn-dismiss" aria-label="${this.getDismissLabel(realSource.name)}">${this.t.dismiss}</button>
 					</div>
-					<div class="efb-error-msg">${this.escapeHtml(message)}</div>
+					${messageHtml}
 					<div class="efb-error-file">
 						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
@@ -3846,22 +3951,109 @@ public function check_error_console_efb(){
 					${stackHtml}
 					<div class="efb-error-meta">${time}</div>
 				`;
+				item.dataset.errorKey = errorKey;
+				const dismissBtn = item.querySelector(".efb-btn-dismiss");
+				if (dismissBtn) {
+					dismissBtn.addEventListener("click", () => this.dismissError(errorKey));
+				}
 				list.insertBefore(item, list.firstChild);
 			},
 
-			clearErrors() {
+			getDismissLabel(label) {
+				const template = this.t.dismissItem || "Dismiss %s";
+				return this.escapeHtml(template.replace("%s", label || ""));
+			},
+
+			showEmptyState() {
+				const list = document.getElementById("efb-error-list");
+				if (list) {
+					list.innerHTML = "<div class=\"efb-no-errors\">âœ“ " + this.t.noErrors + "</div>";
+				}
+			},
+
+			closePanelIfOpen() {
+				if (this.isOpen) {
+					this.togglePanel();
+				}
+			},
+
+			dismissAll() {
+				this.errors.forEach(error => {
+					if (error.key) {
+						this.dismissedKeys.add(error.key);
+					}
+				});
+				this.saveDismissedKeys();
 				this.errors = [];
 				this.errorKeys.clear();
+				this.visibleErrorKeys.clear();
 				this.updateCount();
 				const list = document.getElementById("efb-error-list");
 				list.innerHTML = "<div class=\"efb-no-errors\">✓ " + this.t.noErrors + "</div>";
 				this.hideBadge();
+				this.closePanelIfOpen();
+			},
+
+			dismissError(errorKey) {
+				if (!errorKey) return;
+				this.dismissedKeys.add(errorKey);
+				this.saveDismissedKeys();
+				this.errors = this.errors.filter(error => error.key !== errorKey);
+				this.errorKeys.delete(errorKey);
+				this.visibleErrorKeys.delete(errorKey);
+				const list = document.getElementById("efb-error-list");
+				if (list) {
+					Array.from(list.querySelectorAll(".efb-error-item")).forEach(item => {
+						if (item.dataset.errorKey === errorKey) {
+							item.remove();
+						}
+					});
+				}
+				this.updateCount();
+				if (this.errors.length === 0) {
+					this.showEmptyState();
+				}
+				if (this.visibleErrorKeys.size === 0) {
+					this.hideBadge();
+					this.closePanelIfOpen();
+				}
+			},
+
+			clearErrors() {
+				this.dismissAll();
 			},
 
 			escapeHtml(text) {
 				const div = document.createElement("div");
 				div.textContent = text;
 				return div.innerHTML;
+			},
+
+			escapeRegExp(text) {
+				const backslash = String.fromCharCode(92);
+				const specials = backslash + "^$.*+?()[]{}|";
+				return String(text).split("").map(ch => specials.indexOf(ch) !== -1 ? backslash + ch : ch).join("");
+			},
+
+			formatMessage(message, options = {}) {
+				let html = this.escapeHtml(message).replace(/\n/g, "<br>");
+				const boldTexts = Array.isArray(options.boldTexts) ? options.boldTexts : [];
+				boldTexts.filter(Boolean).forEach(text => {
+					const safeText = this.escapeHtml(text);
+					html = html.replace(new RegExp(this.escapeRegExp(safeText), "g"), "<strong>" + safeText + "</strong>");
+				});
+
+				const links = Array.isArray(options.links) ? options.links : [];
+				links.filter(Boolean).forEach(link => {
+					const rawUrl = typeof link === "string" ? link : link.url;
+					const rawLabel = typeof link === "string" ? link : (link.label || link.url);
+					if (!rawUrl) return;
+					const safeUrl = this.escapeHtml(rawUrl);
+					const safeLabel = this.escapeHtml(rawLabel || rawUrl);
+					html = html.replace(new RegExp(this.escapeRegExp(safeUrl), "g"), "<a href=\"" + safeUrl + "\" target=\"_blank\" rel=\"noopener noreferrer\">" + safeLabel + "</a>");
+				});
+
+				return html;
 			},
 
 			parseStack(stackString) {
@@ -3929,12 +4121,17 @@ public function check_error_console_efb(){
 
 				const typeOverride = options.type || null;
 				const nameOverride = options.name || null;
-				this.addError({ message, source, lineno, stack, typeOverride, nameOverride });
+				const formatOptions = options.format || {};
+				const showBadge = options.showBadge === true;
+				const context = options.context || "";
+				const formId = options.formId || options.form_id || null;
+				this.addError({ message, source, lineno, stack, typeOverride, nameOverride, formatOptions, showBadge, context, formId });
 				console.info("%c[EFB Debug Panel]%c Logged: " + message, "color:#ff4b93;font-weight:bold", "color:inherit");
 			},
 
 			init() {
 				const self = this;
+				this.loadDismissedKeys();
 
 				if (document.readyState === "loading") {
 					document.addEventListener("DOMContentLoaded", () => self.createUI());

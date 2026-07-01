@@ -31,8 +31,41 @@
     bindTabs();
     bindEmailFailCard();
     bindErrorsClose();
+    bindLabelTooltip();
     loadStats('week');
   });
+
+  /* ── Label tooltip (fixed-position, unclipped by overflow) ── */
+  function bindLabelTooltip() {
+    var $tip = $('<div class="efb-dw-label-tip"></div>').appendTo('body');
+    $(document)
+      .on('mouseenter', '.efb-dw-card-label[data-efb-full]', function (e) {
+        $tip.text($(this).attr('data-efb-full'));
+        $tip.show();
+        moveTip(e, $tip);
+      })
+      .on('mousemove', '.efb-dw-card-label[data-efb-full]', function (e) {
+        moveTip(e, $tip);
+      })
+      .on('mouseleave', '.efb-dw-card-label[data-efb-full]', function () {
+        $tip.hide();
+      });
+  }
+
+  function moveTip(e, $tip) {
+    var tw = $tip.outerWidth();
+    var left = e.clientX - tw / 2;
+    if (left < 4) left = 4;
+    if (left + tw > window.innerWidth - 4) left = window.innerWidth - tw - 4;
+    $tip.css({ top: e.clientY - 34, left: left });
+  }
+
+  function applyLabelEllipsis($el) {
+    var full = $el.text();
+    if (full.length > 7) {
+      $el.attr('data-efb-full', full).text(full.slice(0, 7) + '\u2026');
+    }
+  }
 
   function setTabLabels() {
     $('.efb-dw-tab').each(function () {
@@ -47,6 +80,7 @@
     $('#efb-dw-submissions-label').text(t.dwSubmissions || 'Submissions');
     $('#efb-dw-email-ok-label').text(fmt(t.dwEmailsSent, emailWord) || emailWord + ' Sent');
     $('#efb-dw-email-fail-label').text(fmt(t.dwEmailFailures, errorWord) || errorWord + ' Log');
+    $('.efb-dw-card-label').each(function () { applyLabelEllipsis($(this)); });
   }
 
   function bindTabs() {
@@ -165,13 +199,12 @@
     var allVals = visits.concat(sends);
     var maxVal = Math.max.apply(null, allVals);
     if (maxVal === 0) maxVal = 1;
-    // Nice ceil
-    var niceMax = niceNum(maxVal);
+    var gridSteps = 4;
+    var niceMax = computeYMax(maxVal, gridSteps);
 
     ctx.clearRect(0, 0, W, H);
 
     // Grid lines
-    var gridSteps = 4;
     ctx.strokeStyle = '#e8e8e8';
     ctx.lineWidth = 1;
     ctx.fillStyle = '#999';
@@ -183,7 +216,7 @@
       ctx.moveTo(pad.left, gy);
       ctx.lineTo(W - pad.right, gy);
       ctx.stroke();
-      var gv = Math.round(niceMax * g / gridSteps);
+      var gv = (niceMax / gridSteps) * g;
       ctx.fillText(gv, pad.left - 4, gy + 3);
     }
 
@@ -248,15 +281,25 @@
   }
 
   /* ── Helpers ─────────────────────────────────────────────── */
-  function niceNum(val) {
-    var exp = Math.floor(Math.log10(val));
-    var frac = val / Math.pow(10, exp);
-    var nice;
-    if (frac <= 1)      nice = 1;
-    else if (frac <= 2)  nice = 2;
-    else if (frac <= 5)  nice = 5;
-    else                 nice = 10;
-    return nice * Math.pow(10, exp);
+  /**
+   * Compute a Y-axis maximum that is always evenly divisible by `steps`,
+   * so every gridline label is an exact integer aligned with its position.
+   */
+  function computeYMax(maxVal, steps) {
+    if (maxVal <= 0) return steps;
+    var roughTick = maxVal / steps;
+    var tick;
+    if (roughTick <= 1) {
+      tick = 1;
+    } else {
+      var mag = Math.pow(10, Math.floor(Math.log10(roughTick)));
+      var norm = roughTick / mag;
+      if      (norm <= 2) tick = 2  * mag;
+      else if (norm <= 5) tick = 5  * mag;
+      else                tick = 10 * mag;
+      tick = Math.max(1, tick);
+    }
+    return tick * steps;
   }
 
   function animateNumber(sel, target) {
