@@ -5038,6 +5038,14 @@ public function check_nonce_permission_efb($request) {
 		if (  check_ajax_referer('wp_rest', 'nonce') != 1) {
 			die();
 		}
+
+		// Form preview is a builder-only action (it creates/overwrites a draft
+		// page). Gate it with the same custom capability used by the rest of the
+		// form builder (see class-Emsfb-create.php), so a low-privileged logged-in
+		// user holding a valid wp_rest nonce cannot create/overwrite pages.
+		if ( ! current_user_can('Emsfb') ) {
+			wp_send_json_error( array( 'm' => esc_html__( 'You are not allowed to do this.', 'easy-form-builder' ) ), 403 );
+		}
 		$new_page_id = 0;
 
 		$current_user = get_current_user_id();
