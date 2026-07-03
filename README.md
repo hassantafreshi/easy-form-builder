@@ -308,7 +308,16 @@ Notification System for Form Submissions.
 
 ### Smart Forms
 - ✔️ Auto-Fills
-- Conditional logic (Coming soon)
+- ✔️ Conditional Logic
+  - ✔️ Field Show/Hide, Enable/Disable, Required/Optional
+  - ✔️ Step Skip & Jump Logic
+  - ✔️ Nested AND/OR Condition Groups
+  - ✔️ Conditional Email Notifications
+  - ✔️ Conditional Confirmation & Redirect
+  - ✔️ Conditional Webhook
+  - ✔️ Preview / Test Mode
+  - Debugger / Inspector (Coming soon)
+  - Calculations & Pricing (Coming soon)
 
 ### SMS OTP Form Login (Coming soon)
 
@@ -319,7 +328,10 @@ Notification System for Form Submissions.
 
 ### Webhook (Coming soon)
 
-### Google Sheet Export (Coming soon)
+### Google Sheet Export
+- ✔️ Service Account Connection & Existing/New Spreadsheet Binding
+- ✔️ Sync Logs
+- Field Mapping & Retry Queue (Coming soon)
 
 ### Shield Security
 - ✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration

@@ -318,13 +318,13 @@ Ruleها را دقیقاً با priority زیر ایجاد کنید.
 
 ذخیره کنید، builder را ببندید و دوباره باز کنید.
 
-- [ ] تمام ruleها باقی مانده‌اند.
-- [ ] priorityها بدون تغییر ذخیره شده‌اند.
-- [ ] `stop_processing` برای R12 فعال مانده است.
-- [ ] actionهای `set_value` و `show_message` مقدار خود را حفظ کرده‌اند.
-- [ ] گروه تو در تو در R15 بعد از reload باز هم به‌صورت یک گروه (نه flatten‌شده) نمایش داده می‌شود.
-- [ ] connector بین گروه و کاندیشن سوم در R15 همچنان **OR** است (نه AND پیش‌فرض).
-- [ ] Console هنگام ذخیره و بازگشایی خطا ندارد.
+- [X] تمام ruleها باقی مانده‌اند.
+- [X] priorityها بدون تغییر ذخیره شده‌اند.
+- [X] `stop_processing` برای R12 فعال مانده است.
+- [X] actionهای `set_value` و `show_message` مقدار خود را حفظ کرده‌اند.
+- [X] گروه تو در تو در R15 بعد از reload باز هم به‌صورت یک گروه (نه flatten‌شده) نمایش داده می‌شود.
+- [X] connector بین گروه و کاندیشن سوم در R15 همچنان **OR** است (نه AND پیش‌فرض).
+- [X] Console هنگام ذخیره و بازگشایی خطا ندارد.
 
 ## 5. سناریوی A — فرم عادی
 
@@ -422,20 +422,20 @@ sendBack_emsFormBuilder_pub.filter(row => row && row.id_ === 'budget')
 1. فرم را در Step 1 باز کنید.
 2. در `logic_command` مقدار `jump` را وارد کنید.
 
-- [ ] فرم فقط یک بار به Step 3 می‌رود.
-- [ ] progress bar و عنوان step به‌روز می‌شوند.
-- [ ] jump باعث loop یا چند بار navigation نمی‌شود.
-- [ ] دکمه‌های Previous/Next/Submit وضعیت درست دارند.
+- [X] فرم فقط یک بار به Step 3 می‌رود.
+- [X] progress bar و عنوان step به‌روز می‌شوند.
+- [X] jump باعث loop یا چند بار navigation نمی‌شود.
+- [X] دکمه‌های Previous/Next/Submit وضعیت درست دارند.
 
 ## 11. سناریوی G — چند فرم در یک صفحه
 
 1. دو فرم conditional متفاوت را در یک صفحه قرار دهید.
 2. در فرم اول condition مربوط به hide/show را فعال کنید.
 
-- [ ] فقط target فرم اول تغییر می‌کند.
-- [ ] state، message، step و sendBack فرم دوم دست‌نخورده می‌مانند.
-- [ ] submit هر فرم فقط rowهای `form_id` خودش را ارسال می‌کند.
-- [ ] Console خطای duplicate ID یا global state ندارد.
+- [X] فقط target فرم اول تغییر می‌کند.
+- [X] state، message، step و sendBack فرم دوم دست‌نخورده می‌مانند.
+- [X] submit هر فرم فقط rowهای `form_id` خودش را ارسال می‌کند.
+- [X] Console خطای duplicate ID یا global state ندارد.
 
 ## 12. سناریوی H — Addon Gating
 

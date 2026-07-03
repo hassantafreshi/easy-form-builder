@@ -559,6 +559,15 @@ function fun_test(t){
  }
 
 }
+function open_conditional_logic_efb() {
+  if (typeof EFB_Logic !== 'undefined' && typeof EFB_Logic.open === 'function') {
+    EFB_Logic.open();
+  } else {
+    console.error('EFB_Logic not loaded');
+    alert_message_efb(efb_var.text.iaddon, efb_var.text.logicLoadError, 20, 'danger');
+  }
+}
+
 function show_setting_window_efb(idset) {
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
@@ -1854,7 +1863,7 @@ function show_setting_window_efb(idset) {
           ${(efb_var.addons && efb_var.addons.hasOwnProperty('AdnSMF') && Number(efb_var.addons.AdnSMF) >= 1) ? `
           <!-- conditional logic section -->
           <div class="efb d-grid gap-2" id="efb-conlog-btn-wrap">
-            <button class="efb btn btn-outline-light mt-3" type="button" onclick="if(typeof EFB_Logic!=='undefined'){EFB_Logic.open()}else{console.error('EFB_Logic not loaded')}">
+            <button class="efb btn btn-outline-light mt-3" type="button" onclick="open_conditional_logic_efb()">
               <i class="efb bi-diagram-3"></i>${efb_var.text.conlog || 'Conditional Logic'}
               ${(valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) ? '<span class="efb badge bg-primary ms-2">' + valj_efb[0].logic_rules.length + '</span>' : ''}
             </button>
