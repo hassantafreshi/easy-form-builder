@@ -2153,7 +2153,7 @@ class Admin {
 
             $name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
 
-            $blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg');
+            $blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg','html','htm','xhtml','xht','shtm','svgz');
             $file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
             if (in_array($file_ext, $blocked_ext)) {
                 $response = array( 'success' => false, 'error' => 'File type not allowed');
