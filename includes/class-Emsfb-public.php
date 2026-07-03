@@ -2930,12 +2930,83 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success($response, 200);
 		}
 	  }
+	/**
+	 * Per-IP throttle for tracking-code lookups.
+	 *
+	 * Tracking codes are the only secret protecting a submission's data, so an
+	 * unthrottled lookup endpoint allows enumeration. Two windows are enforced:
+	 *   - a short burst cap on total lookups, and
+	 *   - a stricter cap on "code not found" results, which is what enumeration
+	 *     produces almost exclusively (legitimate users use a real code, so they
+	 *     virtually never hit the failure cap).
+	 * Returns false when the current request must be rejected.
+	 */
+	private function efb_track_lookup_allowed() {
+		$ip = $this->get_ip_address();
+		if ( empty( $ip ) ) {
+			return true; // never lock out when the IP cannot be determined
+		}
+		$hash = md5( $ip );
+
+		// 1) Hard block if this IP recently produced too many not-found lookups.
+		//    This is the primary enumeration defense; legitimate users use a real
+		//    code and virtually never reach it.
+		$fail_max = (int) apply_filters( 'efb_track_fail_max', 25 );
+		if ( ( (int) get_transient( 'efb_trk_f_' . $hash ) ) >= $fail_max ) {
+			return false;
+		}
+
+		// 2) DoS backstop: a fixed-window cap on total lookups (incl. successes).
+		//    Deliberately kept ABOVE the failure cap so it never pre-empts (and
+		//    thus never starves) the failure counter above, and generous enough
+		//    that a human re-checking their conversation is never throttled. A
+		//    per-window time bucket gives a clean fixed window (no sliding TTL).
+		$burst_max    = (int) apply_filters( 'efb_track_burst_max', 40 );
+		$burst_window = (int) apply_filters( 'efb_track_burst_window', 30 );
+		$burst_window = $burst_window > 0 ? $burst_window : 30;
+		$bucket       = (int) floor( time() / $burst_window );
+		$burst_key    = 'efb_trk_b_' . $hash . '_' . $bucket;
+		$burst        = (int) get_transient( $burst_key );
+		if ( $burst >= $burst_max ) {
+			return false;
+		}
+		set_transient( $burst_key, $burst + 1, $burst_window + 5 );
+		return true;
+	}
+
+	/**
+	 * Records a not-found tracking-code lookup for the current IP. Uses a sliding
+	 * window so an actively-enumerating IP stays blocked as long as it keeps
+	 * probing. Successful lookups never call this, so legitimate users are unaffected.
+	 */
+	private function efb_track_register_failure() {
+		$ip = $this->get_ip_address();
+		if ( empty( $ip ) ) {
+			return;
+		}
+		$hash        = md5( $ip );
+		$fail_window = (int) apply_filters( 'efb_track_fail_window', 15 * MINUTE_IN_SECONDS );
+		$fails       = (int) get_transient( 'efb_trk_f_' . $hash );
+		set_transient( 'efb_trk_f_' . $hash, $fails + 1, $fail_window );
+	}
+
 	  public function get_track_public_api($data_POST_) {
 
 		$data_POST = $data_POST_->get_json_params();
 		$this->efbFunction = get_efbFunction();
 		$text_ = ['spprt','sxnlex','error403','errorMRobot','enterVValue','guest','cCodeNFound'];
 		$lanText= $this->efbFunction->text_efb($text_);
+
+		// Throttle tracking-code lookups per IP to make enumeration of
+		// submission tracking codes impractical (security review, item 1).
+		if ( ! $this->efb_track_lookup_allowed() ) {
+			$response = array(
+				'success' => false,
+				'm'       => esc_html__( 'Too many attempts. Please wait a few minutes and try again.', 'easy-form-builder' ),
+			);
+			wp_send_json_success( $response, 200 );
+			return;
+		}
 
 		$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
 		$captcha_success =[];
@@ -3018,6 +3089,8 @@ public function check_nonce_permission_efb($request) {
 				}
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code , 'id'=>$this->id);
 			}else{
+				// Count this miss toward the per-IP enumeration throttle.
+				$this->efb_track_register_failure();
 				$response = array( 'success' => false  , "m" =>$lanText['cCodeNFound']);
 			}
 			wp_send_json_success($response, 200);
