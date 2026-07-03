@@ -2,6 +2,8 @@
 const EfbResponseViewer = (function () {
   'use strict';
 
+  let _respUploadSeq = 0;
+
   function _t(key) {
     if (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) return efb_var.text[key];
     if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text && ajax_object_efm.text[key]) return ajax_object_efm.text[key];
@@ -311,7 +313,7 @@ const chatHistory = document.getElementById('resp_efb');
               title="${titleupload}" data-id="${msgId}">
         <i class="bi bi-paperclip"></i>
       </button>
-      <input type="file" class="efb-upload-input" id="resp_file_efb_" name="file" data-id="${msgId}">`;
+      <input type="file" class="efb-upload-input" id="resp_file_efb_" name="file" data-id="${msgId}" multiple>`;
   }
 
   function buildFileUploadArea(msgId, isPanel) {
@@ -334,13 +336,7 @@ const chatHistory = document.getElementById('resp_efb');
 
     return `
     <div class="efb efb-upload-zone d-none" id="efb_upload_zone">
-      <div class="efb efb-upload-file-info d-none p-1 px-2 my-1" id="efb_upload_file_info">
-        <i class="bi bi-file-earmark"></i>
-        <span class="efb-upload-file-name" id="efb_upload_file_name"></span>
-        <button type="button" class="efb-upload-file-remove" id="efb_upload_file_remove" title="${_t('delete') || 'Remove'}">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
+      <div class="efb efb-upload-file-list d-none" id="efb_upload_file_list"></div>
       <div class="efb efb-upload-progress d-none" id="resp_file_efb-prG">
         <div class=" efb efb-upload-progress-bar d-none" id="resp_file_efb-prA">
           <div class="efb-upload-progress-fill" id="resp_file_efb-prB" role="progressbar" style="width:0%">0%</div>
@@ -354,9 +350,7 @@ const chatHistory = document.getElementById('resp_efb');
     const attachBtn = document.getElementById('efb_attach_btn');
     const fileInput = document.getElementById('resp_file_efb_');
     const uploadZone = document.getElementById('efb_upload_zone');
-    const fileInfo = document.getElementById('efb_upload_file_info');
-    const fileName = document.getElementById('efb_upload_file_name');
-    const removeBtn = document.getElementById('efb_upload_file_remove');
+    const fileList = document.getElementById('efb_upload_file_list');
 
     if (!attachBtn || !fileInput) return;
 
@@ -370,8 +364,11 @@ const chatHistory = document.getElementById('resp_efb');
     });
 
     fileInput.addEventListener('change', function () {
-      if (this.files && this.files[0]) {
-        _handleFileSelected(this.files[0], msgId, uploadZone, fileInfo, fileName, attachBtn);
+      if (this.files && this.files.length) {
+        Array.prototype.forEach.call(this.files, function (file) {
+          _handleFileSelected(file, msgId, uploadZone, attachBtn);
+        });
+        this.value = '';
       }
     });
 
@@ -387,21 +384,103 @@ const chatHistory = document.getElementById('resp_efb');
       editor.addEventListener('drop', function (e) {
         e.preventDefault();
         editor.classList.remove('efb-editor-dragover');
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-          fileInput.files = e.dataTransfer.files;
-          _handleFileSelected(e.dataTransfer.files[0], msgId, uploadZone, fileInfo, fileName, attachBtn);
+        if (e.dataTransfer.files && e.dataTransfer.files.length) {
+          Array.prototype.forEach.call(e.dataTransfer.files, function (file) {
+            _handleFileSelected(file, msgId, uploadZone, attachBtn);
+          });
         }
       });
     }
 
-    if (removeBtn) {
-      removeBtn.addEventListener('click', function () {
-        _handleFileRemoved(uploadZone, fileInfo, fileInput, attachBtn);
+    if (fileList) {
+      fileList.addEventListener('click', function (e) {
+        const removeBtn = e.target.closest('.efb-upload-file-remove');
+        if (!removeBtn) return;
+        e.preventDefault();
+        _handleFileRemoved(uploadZone, null, fileInput, attachBtn, removeBtn.dataset.uploadId);
       });
     }
   }
 
-  function _handleFileSelected(file, msgId, uploadZone, fileInfo, fileNameEl, attachBtn) {
+  function _createResponseUploadId() {
+    _respUploadSeq++;
+    return 'resp_file_efb_' + Date.now() + '_' + _respUploadSeq;
+  }
+
+  function _formatUploadFileName(name) {
+    return name.length > 30 ? name.slice(0, 27) + '...' : name;
+  }
+
+  function _renderUploadFileInfo(file, uploadId, uploadZone, attachBtn) {
+    const fileList = document.getElementById('efb_upload_file_list');
+    if (!fileList) return;
+
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'efb efb-upload-file-info p-1 px-2 my-1 d-block';
+    fileInfo.id = 'efb_upload_file_info_' + uploadId;
+    fileInfo.dataset.uploadId = uploadId;
+
+    const icon = document.createElement('i');
+    icon.className = 'bi bi-file-earmark';
+
+    const fileName = document.createElement('span');
+    fileName.className = 'efb-upload-file-name';
+    fileName.title = file.name;
+    fileName.textContent = _formatUploadFileName(file.name);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'efb-upload-file-remove';
+    removeBtn.title = _t('delete') || 'delete';
+    removeBtn.dataset.uploadId = uploadId;
+
+    const removeIcon = document.createElement('i');
+    removeIcon.className = 'bi bi-x-lg';
+    removeBtn.appendChild(removeIcon);
+
+    const progress = document.createElement('div');
+    progress.className = 'efb efb-upload-progress';
+    progress.id = uploadId + '-prG';
+
+    const progressBar = document.createElement('div');
+    progressBar.className = 'efb efb-upload-progress-bar d-block';
+    progressBar.id = uploadId + '-prA';
+
+    const progressFill = document.createElement('div');
+    progressFill.className = 'efb-upload-progress-fill';
+    progressFill.id = uploadId + '-prB';
+    progressFill.setAttribute('role', 'progressbar');
+    progressFill.style.width = '0%';
+    progressFill.textContent = '0%';
+
+    progressBar.appendChild(progressFill);
+    progress.appendChild(progressBar);
+
+    fileInfo.appendChild(icon);
+    fileInfo.appendChild(fileName);
+    fileInfo.appendChild(removeBtn);
+    fileList.appendChild(fileInfo);
+    fileList.appendChild(progress);
+
+    fileList.classList.remove('d-none');
+    if (uploadZone) uploadZone.classList.remove('d-none');
+    if (attachBtn) attachBtn.classList.add('efb-attach-active');
+  }
+
+  function _isResponseUploadId(id) {
+    return typeof id === 'string' && (id === 'resp_file_efb' || id.indexOf('resp_file_efb_') === 0);
+  }
+
+  function _updateUploadZoneState(uploadZone, attachBtn) {
+    const fileList = document.getElementById('efb_upload_file_list');
+    const hasFiles = !!(fileList && fileList.querySelector('.efb-upload-file-info'));
+
+    if (fileList) fileList.classList.toggle('d-none', !hasFiles);
+    if (uploadZone) uploadZone.classList.toggle('d-none', !hasFiles);
+    if (attachBtn) attachBtn.classList.toggle('efb-attach-active', hasFiles);
+  }
+
+  function _handleFileSelected(file, msgId, uploadZone, attachBtn) {
     if (typeof validExtensions_efb_fun === 'function') {
       if (!validExtensions_efb_fun('allformat', file.type, 0)) {
         const m = _t('pleaseUploadA') || 'Please upload a valid file';
@@ -412,20 +491,14 @@ const chatHistory = document.getElementById('resp_efb');
       }
     }
 
-    if (uploadZone) uploadZone.classList.remove('d-none');
-
-    if (attachBtn) attachBtn.classList.add('efb-attach-active');
-
-    const prG = document.getElementById('resp_file_efb-prG');
-    const prA = document.getElementById('resp_file_efb-prA');
-    if (prG) prG.classList.remove('d-none');
-    if (prA) { prA.classList.remove('d-none'); prA.classList.add('d-block'); }
+    const uploadId = _createResponseUploadId();
+    _renderUploadFileInfo(file, uploadId, uploadZone, attachBtn);
 
     if (typeof window !== 'undefined') window.fileEfb = file;
 
     if (typeof files_emsFormBuilder !== 'undefined' && typeof sessionPub_emsFormBuilder !== 'undefined') {
       files_emsFormBuilder.push({
-        id_: 'resp_file_efb',
+        id_: uploadId,
         value: '@file@',
         state: 0,
         url: '',
@@ -437,90 +510,68 @@ const chatHistory = document.getElementById('resp_efb');
 
       const reader = new FileReader();
       reader.onload = function () {
-        const idx = files_emsFormBuilder.findIndex(function (x) { return x.id_ === 'resp_file_efb'; });
+        const idx = files_emsFormBuilder.findIndex(function (x) { return x.id_ === uploadId; });
         if (idx !== -1) files_emsFormBuilder[idx].url = reader.result;
       };
       reader.readAsDataURL(file);
 
       if (typeof fun_upload_file_api_emsFormBuilder === 'function') {
-        fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat', 'resp', file);
-        _watchUploadProgress();
+        fun_upload_file_api_emsFormBuilder(uploadId, 'allformat', 'resp', file);
       }
     }
   }
 
-  function _watchUploadProgress() {
-    const prB = document.getElementById('resp_file_efb-prB');
-    const prA = document.getElementById('resp_file_efb-prA');
-    const prG = document.getElementById('resp_file_efb-prG');
-    const fileInfo = document.getElementById('efb_upload_file_info');
-    const fileNameEl = document.getElementById('efb_upload_file_name');
-    const fileInput = document.getElementById('resp_file_efb_');
-    if (!prB || !prA) return;
+  function _handleFileRemoved(uploadZone, fileInfo, fileInput, attachBtn, uploadId) {
+    const idsToRemove = [];
+    const fileList = document.getElementById('efb_upload_file_list');
 
-    let checks = 0;
-    const maxChecks = 600;
-    const interval = setInterval(function () {
-      checks++;
-      const width = parseFloat(prB.style.width);
-      if (width >= 100 || checks >= maxChecks) {
-        clearInterval(interval);
-        setTimeout(function () {
-          prA.classList.remove('d-block');
-          prA.classList.add('d-none');
-          if (prG) prG.classList.add('d-none');
-          prB.style.width = '0%';
-          prB.textContent = '0%';
+    if (uploadId) {
+      idsToRemove.push(uploadId);
+    } else if (fileList) {
+      fileList.querySelectorAll('.efb-upload-file-info[data-upload-id]').forEach(function (item) {
+        idsToRemove.push(item.dataset.uploadId);
+      });
+    } else {
+      idsToRemove.push('resp_file_efb');
+    }
 
-          if (fileInfo && fileInput && fileInput.files && fileInput.files[0]) {
-            const name = fileInput.files[0].name;
-            if (fileNameEl) {
-              fileNameEl.textContent = name.length > 30 ? name.slice(0, 27) + '...' : name;
-              fileNameEl.title = name;
-            }
-            fileInfo.classList.remove('d-none');
-            fileInfo.classList.add('d-block');
-          }
-        }, 2000);
-      }
-    }, 100);
-  }
-
-  function _handleFileRemoved(uploadZone, fileInfo, fileInput, attachBtn) {
-    if (fileInfo) { fileInfo.classList.remove('d-block'); fileInfo.classList.add('d-none'); }
-
-    const fileNameEl = document.getElementById('efb_upload_file_name');
-    if (fileNameEl) { fileNameEl.textContent = ''; fileNameEl.title = ''; }
+    idsToRemove.forEach(function (id) {
+      const item = document.getElementById('efb_upload_file_info_' + id);
+      if (item) item.remove();
+      const progress = document.getElementById(id + '-prG');
+      if (progress) progress.remove();
+    });
 
     if (fileInput) fileInput.value = '';
 
-    if (uploadZone) uploadZone.classList.add('d-none');
-
-    if (attachBtn) attachBtn.classList.remove('efb-attach-active');
-
-    const prG = document.getElementById('resp_file_efb-prG');
-    const prA = document.getElementById('resp_file_efb-prA');
-    const prB = document.getElementById('resp_file_efb-prB');
-    if (prG) prG.classList.add('d-none');
-    if (prA) { prA.classList.remove('d-block'); prA.classList.add('d-none'); }
-    if (prB) { prB.style.width = '0%'; prB.textContent = '0%'; }
-
     if (typeof files_emsFormBuilder !== 'undefined') {
-      const idx = files_emsFormBuilder.findIndex(function (x) { return x.id_ === 'resp_file_efb'; });
-      if (idx !== -1) {
-        files_emsFormBuilder.splice(idx, 1);
+      for (let i = files_emsFormBuilder.length - 1; i >= 0; i--) {
+        if (idsToRemove.indexOf(files_emsFormBuilder[i].id_) !== -1) {
+          files_emsFormBuilder.splice(i, 1);
+        }
       }
     }
 
     if (typeof sendBack_emsFormBuilder_pub !== 'undefined') {
       for (let i = sendBack_emsFormBuilder_pub.length - 1; i >= 0; i--) {
-        if (sendBack_emsFormBuilder_pub[i].name === 'file') {
+        if (sendBack_emsFormBuilder_pub[i] &&
+          idsToRemove.indexOf(sendBack_emsFormBuilder_pub[i].id_) !== -1) {
           sendBack_emsFormBuilder_pub.splice(i, 1);
         }
       }
     }
 
-    if (typeof window !== 'undefined') window.fileEfb = null;
+    _updateUploadZoneState(uploadZone, attachBtn);
+
+    if (!fileList || !fileList.querySelector('.efb-upload-file-info')) {
+      const prG = document.getElementById('resp_file_efb-prG');
+      const prA = document.getElementById('resp_file_efb-prA');
+      const prB = document.getElementById('resp_file_efb-prB');
+      if (prG) prG.classList.add('d-none');
+      if (prA) { prA.classList.remove('d-block'); prA.classList.add('d-none'); }
+      if (prB) { prB.style.width = '0%'; prB.textContent = '0%'; }
+      if (typeof window !== 'undefined') window.fileEfb = null;
+    }
   }
 
   return {
@@ -536,6 +587,7 @@ const chatHistory = document.getElementById('resp_efb');
     shortcodeToHtml: shortcodeToHtml,
     htmlToShortcode: htmlToShortcode,
     formatMessageForDisplay: formatMessageForDisplay,
+    isResponseUploadId: _isResponseUploadId,
     _handleFileRemoved: _handleFileRemoved
   };
 
@@ -1641,9 +1693,11 @@ function fun_send_replayMessage_emsFormBuilder(id) {
       return;
     } else {
       if(setting_emsFormBuilder.hasOwnProperty('dsupfile')==true && setting_emsFormBuilder.dsupfile !=true) {
-        for(const s in sendBack_emsFormBuilder_pub ){ if(sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)  }
+        for(let s = sendBack_emsFormBuilder_pub.length - 1; s >= 0; s-- ){
+          if(sendBack_emsFormBuilder_pub[s] && sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)
+        }
       }
-      let messages = sendBack_emsFormBuilder_pub.filter(x=>(Number(x.form_id)==-1 || x.id_=='resp_file_efb') && x.id_!='captcha_v2');
+      let messages = sendBack_emsFormBuilder_pub.filter(x=>x && (Number(x.form_id)==-1 || EfbResponseViewer.isResponseUploadId(x.id_)) && x.id_!='captcha_v2');
       fun_send_replayMessage_reast_emsFormBuilder(messages);
     }
   }, 100);
