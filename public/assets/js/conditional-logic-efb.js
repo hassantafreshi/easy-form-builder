@@ -16,6 +16,64 @@
 
   var contexts = {};
   var debounceTimers = {};
+
+  /* ── Show/hide animation layer ─────────────────────────────────────────────
+   * applyVisualState() re-applies d-none declaratively on every evaluation, so
+   * animation is done by reconciliation: only wrappers whose visibility really
+   * changed get a fade/slide effect. Disabled automatically outside a real
+   * browser (Node regression tests build a minimal fake DOM without head/rAF)
+   * and on the very first paint of a form (initial page-load state). */
+  var ANIM_MS = 280;
+
+  function animSupported() {
+    return !!(root && root.document && root.document.head && typeof root.requestAnimationFrame === 'function');
+  }
+
+  function injectAnimStyles() {
+    if (!animSupported() || root.document.getElementById('efb-logic-anim-css')) return;
+    var st = root.document.createElement('style');
+    st.id = 'efb-logic-anim-css';
+    st.textContent =
+      '.efb-anim-show{animation:efbLogicFieldIn .28s ease-out both;}' +
+      '.efb-anim-hide{animation:efbLogicFieldOut .28s ease-in both;pointer-events:none;}' +
+      '@keyframes efbLogicFieldIn{from{opacity:0;transform:translateY(-10px) scale(.98);}to{opacity:1;transform:none;}}' +
+      '@keyframes efbLogicFieldOut{from{opacity:1;transform:none;}to{opacity:0;transform:translateY(-10px) scale(.98);}}' +
+      '@media (prefers-reduced-motion:reduce){.efb-anim-show{animation:none;}.efb-anim-hide{animation:none;display:none!important;}}';
+    root.document.head.appendChild(st);
+  }
+
+  /* Reconcile a wrapper's visibility with the evaluation result, animating
+   * real transitions. A wrapper mid fade-out (efb-anim-hide, d-none deferred
+   * until the animation ends) counts as hidden so repeated evaluations do not
+   * cut the effect short. */
+  function applyWrapperVisibility(context, wrapper, hide) {
+    wrapper.setAttribute('aria-hidden', hide ? 'true' : 'false');
+    var hiddenNow = wrapper.classList.contains('d-none') || wrapper.classList.contains('efb-anim-hide');
+    if (hide === hiddenNow) return;
+    if (!context.animReady || !animSupported()) {
+      wrapper.classList.toggle('d-none', hide);
+      return;
+    }
+    injectAnimStyles();
+    if (wrapper._efbAnimTimer) { clearTimeout(wrapper._efbAnimTimer); wrapper._efbAnimTimer = null; }
+    if (hide) {
+      /* keep the element visible for the fade-out; d-none lands when it ends */
+      wrapper.classList.remove('d-none', 'efb-anim-show');
+      wrapper.classList.add('efb-anim-hide');
+      wrapper._efbAnimTimer = setTimeout(function () {
+        wrapper.classList.remove('efb-anim-hide');
+        wrapper.classList.add('d-none');
+        wrapper._efbAnimTimer = null;
+      }, ANIM_MS + 40);
+    } else {
+      wrapper.classList.remove('d-none', 'efb-anim-hide');
+      wrapper.classList.add('efb-anim-show');
+      wrapper._efbAnimTimer = setTimeout(function () {
+        wrapper.classList.remove('efb-anim-show');
+        wrapper._efbAnimTimer = null;
+      }, ANIM_MS + 40);
+    }
+  }
   var STRUCTURAL = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav'];
   var SELECT_TYPES = ['select', 'payselect', 'conturylist', 'stateprovince', 'statepro', 'country', 'city', 'citylist'];
   var RADIO_TYPES = ['radio', 'payradio', 'imgradio', 'chlradio'];
@@ -525,6 +583,7 @@
       definition: clone(record.form_structer),
       lastJumpKeys: {},
       evaluating: false,
+      animReady: false, /* first applyVisualState paints instantly; later ones animate */
       state: emptyResult()
     };
     evaluate(formId);
@@ -734,8 +793,7 @@
     Object.keys(index.fields).forEach(function (fieldId) {
       var wrapper = elementInForm(context, fieldId);
       if (wrapper) {
-        wrapper.classList.toggle('d-none', !!hidden[fieldId]);
-        wrapper.setAttribute('aria-hidden', hidden[fieldId] ? 'true' : 'false');
+        applyWrapperVisibility(context, wrapper, !!hidden[fieldId]);
       }
 
       var isRequired = ignored[fieldId]
@@ -794,6 +852,7 @@
 
     applyJumps(context, result.jumps);
     if (typeof root.updateStepButtonState_efb === 'function') root.updateStepButtonState_efb(context.formId);
+    context.animReady = true;
   }
 
   function applyJumps(context, jumps) {

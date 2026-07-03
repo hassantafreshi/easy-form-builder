@@ -3124,9 +3124,10 @@ async function fun_validation_efb_v4(form_id) {
   let id_noti_message = valj_efb.steps > 1 ?  `step-${current_s_efb}-efb-msg` : 'alert_efb';
   for (let row in valj_efb) {
     let s =  get_row_sendback_by_id_efb_v4(valj_efb[row].id_,form_id);
-    /* Skip validation for fields hidden by conditional logic (wrapper has d-none class) */
+    /* Skip validation for fields hidden by conditional logic (wrapper has d-none class,
+     * or efb-anim-hide while the hide animation is still playing) */
     const _wrapper_v = efb_get_by_id_in_form_efb(form_id, valj_efb[row].id_);
-    if (_wrapper_v && _wrapper_v.classList.contains('d-none')) continue;
+    if (_wrapper_v && (_wrapper_v.classList.contains('d-none') || _wrapper_v.classList.contains('efb-anim-hide'))) continue;
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = valj_efb[row].type == "yesNo" ? `${valj_efb[row].id_}_yn` : (fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`);
       let el = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_-message`);
@@ -3181,7 +3182,7 @@ async function fun_validation_efb_v4(form_id) {
           if (state == true) { state = false; idi = valj_efb[row].id_ }
         }
       }
-    }else if (row > 1 && valj_efb[row].type == "chlCheckBox" && current_s_efb == valj_efb[row].step && !(_wrapper_v && _wrapper_v.classList.contains('d-none'))){
+    }else if (row > 1 && valj_efb[row].type == "chlCheckBox" && current_s_efb == valj_efb[row].step && !(_wrapper_v && (_wrapper_v.classList.contains('d-none') || _wrapper_v.classList.contains('efb-anim-hide')))){
       name_field = valj_efb[row].name;
       idi = valj_efb[row].id_;
       fun_noti_chlcheckbox = (idi,name_field,id_noti_message,form_id) => {
@@ -3309,8 +3310,21 @@ const speed_test_efb=()=>{
 
 const check_form_payment_filled_efb = (form_id=0) =>{
   const payment_method =['paypal','stripe','persiapay' ,'zarinpal'];
-  let valj_efb = get_structure_by_form_id_efb(form_id);
+  let valj_efb;
+  try { valj_efb = get_structure_by_form_id_efb(form_id); }
+  catch (e) { valj_efb = window.valj_efb; }
+  if(!Array.isArray(valj_efb) || !valj_efb[0]) return false;
   if(valj_efb[0].type != 'payment') return true;
+
+  // Conditional-logic forms must stay on the page after payment: the payment
+  // rules (is_paid / amount_*) may reveal or require fields the user still has
+  // to fill, so the form is never auto-submitted — only re-evaluated.
+  if (typeof EFBConditionalLogic !== 'undefined' && EFBConditionalLogic &&
+      typeof EFBConditionalLogic.hasActiveRules === 'function' &&
+      EFBConditionalLogic.hasActiveRules(valj_efb)) {
+    if (typeof EFBConditionalLogic.evaluate === 'function') EFBConditionalLogic.evaluate(form_id);
+    return false;
+  }
   let necessary_fields_filed = [];
   let is_getway_last_filed = false;
   last_row_index = valj_efb.length - 1;
