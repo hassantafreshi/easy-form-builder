@@ -2479,7 +2479,13 @@ public function check_nonce_permission_efb($request) {
 				if (is_array($form_fields_array) && isset($form_fields_array[0]['type'], $form_fields_array[0]['captcha'])  && intval($form_fields_array[0]['captcha']) == 1 && $form_fields_array[0]['type'] != 'payment' && strlen($response) > 5) {
 
 					if ($recaptcha_secret_key) {
-						$verify = wp_remote_get("https://www.google.com/recaptcha/api/siteverify?secret={$recaptcha_secret_key}&response={$response}");
+						// Build the query with add_query_arg so both values are URL-encoded;
+						// prevents a crafted "response" value from injecting extra query
+						// parameters into the siteverify request.
+						$verify = wp_remote_get( add_query_arg( array(
+							'secret'   => $recaptcha_secret_key,
+							'response' => $response,
+						), 'https://www.google.com/recaptcha/api/siteverify' ) );
 						$captcha_verification_result = json_decode($verify['body']);
 					} else {
 						$response = ['success' => false, 'm' => $this->lanText['errorSiteKeyM']];
