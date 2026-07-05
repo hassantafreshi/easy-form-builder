@@ -72,9 +72,7 @@ class _Public {
 
 			register_rest_route('Emsfb/v1','nonce/refresh', [
 				'methods' => 'GET',
-				'callback' => function() {
-					return new \WP_REST_Response(['nonce' => wp_create_nonce('wp_rest')], 200);
-				},
+				'callback' => [$this, 'efb_nonce_refresh_api'],
 				'permission_callback' => '__return_true',
 			]);
 
@@ -154,6 +152,46 @@ public function check_nonce_permission_efb($request) {
 
 	return true;
 }
+
+	/**
+	 * REST callback for Emsfb/v1/nonce/refresh.
+	 *
+	 * A form left open past the wp_rest nonce lifetime (12-24h) would otherwise
+	 * fail to submit; the frontend transparently fetches a fresh nonce here and
+	 * retries. To avoid handing a valid CSRF token to any anonymous requester,
+	 * this requires proof of a live form session:
+	 *   - a logged-in user (for whom the nonce is only a CSRF token), OR
+	 *   - a valid, non-expired session id (sid) matching an active emsfb_stts_ row.
+	 * On success the session is "touched" (sliding extension, absolutely capped)
+	 * so a genuinely open form keeps working without repeated 403s.
+	 */
+	public function efb_nonce_refresh_api() {
+
+		if ( is_user_logged_in() ) {
+			return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+		}
+
+		$sid = isset( $_SERVER['HTTP_SID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SID'] ) ) : '';
+		$fid = isset( $_SERVER['HTTP_FORM_ID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_FORM_ID'] ) ) : '';
+
+		if ( $sid === '' ) {
+			return new \WP_Error( 'rest_forbidden', __( 'Invalid or expired session', 'easy-form-builder' ), array( 'status' => 403 ) );
+		}
+
+		if ( ! $this->efbFunction ) {
+			$this->efbFunction = get_efbFunction();
+		}
+
+		if ( ! $this->efbFunction->efb_code_validate_select( $sid, $fid ) ) {
+			return new \WP_Error( 'rest_forbidden', __( 'Invalid or expired session', 'easy-form-builder' ), array( 'status' => 403 ) );
+		}
+
+		if ( method_exists( $this->efbFunction, 'efb_code_touch_session' ) ) {
+			$this->efbFunction->efb_code_touch_session( $sid, $fid );
+		}
+
+		return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+	}
 
 	public function init_elementor_compatibility() {
 

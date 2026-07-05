@@ -2901,6 +2901,38 @@ public function addon_add_efb($value) {
         return !empty($result);
     }
 
+	/**
+	 * Slides a form session's expiry forward so a legitimately open form keeps a
+	 * valid sid (used by the sid-fallback auth path and by nonce/refresh) instead
+	 * of failing once the original session window elapses. Bounded by an absolute
+	 * cap measured from the row's creation date, so an abandoned session can never
+	 * live forever. Only ever extends an already-active, not-yet-capped row.
+	 */
+	public function efb_code_touch_session( $sid, $fid = 0 ) {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'emsfb_stts_';
+
+		$settings        = get_setting_Emsfb();
+		$sessionDuration = isset( $settings->sessionDuration ) && is_numeric( $settings->sessionDuration ) ? intval( $settings->sessionDuration ) : 1;
+		if ( $sessionDuration < 1 ) {
+			$sessionDuration = 1;
+		}
+		$new_read = wp_date( 'Y-m-d H:i:s', strtotime( "+{$sessionDuration} days" ) );
+
+		$max_days = (int) apply_filters( 'efb_session_absolute_max_days', 7 );
+		if ( $max_days < 1 ) {
+			$max_days = 1;
+		}
+		$cap_cutoff = wp_date( 'Y-m-d H:i:s', strtotime( "-{$max_days} days" ) );
+
+		return $wpdb->query( $wpdb->prepare(
+			"UPDATE `{$table_name}` SET read_date = %s WHERE sid = %s AND active = 1 AND `date` > %s",
+			$new_read,
+			$sid,
+			$cap_cutoff
+		) );
+	}
+
 	public function getVisitorOS() {
 
 		$_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : null;

@@ -1453,12 +1453,14 @@ async function response_fill_form_efb(res ,form_id=0) {
     btn_prev = `efb_go_to_step_direct(${form_id}, ${_backStep})`;
   }
   if (res.data.success == true) {
-    if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' && res.data.m.includes('@efb@') ){
+    if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' ){
       efb_final_step.innerHTML = `
       <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
-      <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
+      <h3 class="efb  text-center">${efb_var.text.pWRedirect} <br><a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
       `
-      // window.location.href = res.data.m;
+      setTimeout(function() {
+        window.location.href = res.data.m;
+      }, 3700);
       return ;
     }
     switch (t.type) {
@@ -1783,9 +1785,15 @@ window.addEventListener("popstate",e=>{
     }
   return  r;
  }
-efb_refresh_nonce=async()=>{
+efb_refresh_nonce=async(sid, fid)=>{
   try {
-    const r = await fetch(efb_var.rest_url+'Emsfb/v1/nonce/refresh',{method:'GET',credentials:'same-origin'});
+    // Prove a live form session so the server won't hand a fresh CSRF token to
+    // arbitrary anonymous requesters. sid falls back to the page-level session.
+    const session_id = sid || (typeof efb_var !== 'undefined' && efb_var.sid) || '';
+    const headers = {};
+    if (session_id) headers['sid'] = session_id;
+    if (fid) headers['form-id'] = fid;
+    const r = await fetch(efb_var.rest_url+'Emsfb/v1/nonce/refresh',{method:'GET',credentials:'same-origin',headers:headers});
     if(r.ok){
       const d = await r.json();
       if(d && d.nonce){ efb_var.nonce = d.nonce; return true; }
@@ -1838,7 +1846,7 @@ function efb_report_submit_ajax_error_efb(error, details = {}) {
   try {
     let response = await fetch(url, requestOptions);
     if (response.status === 403) {
-      const refreshed = await efb_refresh_nonce();
+      const refreshed = await efb_refresh_nonce(data && data.sid ? data.sid : '', form_id);
 
       if (refreshed) {
         const retryHeaders = new Headers({
