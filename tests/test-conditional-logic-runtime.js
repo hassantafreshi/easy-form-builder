@@ -352,6 +352,11 @@ testFalse('T16.11 not_between: 7 inside [5,10] → false', fires('not_between', 
 testFalse('T16.12 gte: non-numeric field value never satisfies', fires('gte', '10', 'abc'));
 testFalse('T16.13 between: non-numeric field value never inside range', fires('between', '5,10', 'abc'));
 testFalse('T16.14 gte: empty field value never satisfies', fires('gte', '10', ''));
+testFalse('T16.15 not_between: empty field value never satisfies', fires('not_between', '5,10', ''));
+testFalse('T16.16 not_between: non-numeric field value never satisfies', fires('not_between', '5,10', 'abc'));
+testFalse('T16.17 between: empty value is not coerced to 0 in a zero-spanning range', fires('between', '-5,5', ''));
+testTrue('T16.18 between: literal 0 is inside a zero-spanning range', fires('between', '-5,5', '0'));
+testFalse('T16.19 gte: empty value is not coerced to 0 against a negative bound', fires('gte', '-5', ''));
 
 // ── Test 17: stop_processing must NOT block rules on unrelated fields ────────
 // Regression for a real bug report: "customer_type is Company" (priority 10,

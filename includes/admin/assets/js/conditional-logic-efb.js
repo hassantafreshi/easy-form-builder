@@ -361,6 +361,14 @@
     return values;
   }
 
+  /* Mirrors PHP is_numeric(): empty/whitespace-only strings are NOT numeric
+   * (isFinite('') is true because '' coerces to 0, which diverges from the
+   * server-side evaluator). Numeric operators must never match them. */
+  function isNumericScalar(value) {
+    const s = String(value == null ? '' : value).trim();
+    return s !== '' && isFinite(s);
+  }
+
   function compareScalar(value, expected, compare) {
     const scalar = String(value == null ? '' : value).trim();
     const expectedScalar = Array.isArray(expected) ? expected.join(',') : String(expected == null ? '' : expected).trim();
@@ -374,17 +382,17 @@
       case 'starts_with': return left.indexOf(right) === 0;
       case 'ends_with': return right.length === 0 || left.slice(-right.length) === right;
       case 'gt':
-      case 'amount_gt': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) > Number(expectedScalar);
-      case 'gte': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) >= Number(expectedScalar);
+      case 'amount_gt': return isNumericScalar(scalar) && isNumericScalar(expectedScalar) && Number(scalar) > Number(expectedScalar);
+      case 'gte': return isNumericScalar(scalar) && isNumericScalar(expectedScalar) && Number(scalar) >= Number(expectedScalar);
       case 'lt':
-      case 'amount_lt': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) < Number(expectedScalar);
-      case 'lte': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) <= Number(expectedScalar);
-      case 'amount_eq': return isFinite(scalar) && isFinite(expectedScalar) && Math.abs(Number(scalar) - Number(expectedScalar)) < 0.00001;
+      case 'amount_lt': return isNumericScalar(scalar) && isNumericScalar(expectedScalar) && Number(scalar) < Number(expectedScalar);
+      case 'lte': return isNumericScalar(scalar) && isNumericScalar(expectedScalar) && Number(scalar) <= Number(expectedScalar);
+      case 'amount_eq': return isNumericScalar(scalar) && isNumericScalar(expectedScalar) && Math.abs(Number(scalar) - Number(expectedScalar)) < 0.00001;
       case 'between':
       case 'not_between': {
         const range = Array.isArray(expected) ? expected : expectedScalar.split(/\s*,\s*/);
-        const inside = range.length >= 2 && isFinite(scalar) && isFinite(range[0]) && isFinite(range[1])
-          && Number(scalar) >= Number(range[0]) && Number(scalar) <= Number(range[1]);
+        if (range.length < 2 || !isNumericScalar(scalar) || !isNumericScalar(range[0]) || !isNumericScalar(range[1])) return false;
+        const inside = Number(scalar) >= Number(range[0]) && Number(scalar) <= Number(range[1]);
         return compare === 'between' ? inside : !inside;
       }
       case 'is_empty': return scalar === '';
@@ -994,6 +1002,27 @@
       </div>`;
   }
 
+  /* Curated bootstrap-icons choices for the confirmation done screen. */
+  const CONFIRMATION_ICONS = [
+    'bi-hand-thumbs-up', 'bi-check-circle', 'bi-check2-circle', 'bi-patch-check',
+    'bi-trophy', 'bi-star', 'bi-heart', 'bi-emoji-smile', 'bi-envelope-check', 'bi-gift'
+  ];
+
+  function renderConfirmationColorField(labelKey, labelFallback, prop, value) {
+    const hex = /^#[0-9a-fA-F]{6}$/.test(String(value || '')) ? value : '';
+    return `
+        <label class="efb-logic-setting-field">
+          <span>${_tf(labelKey, labelFallback)}</span>
+          <span class="efb-logic-color-wrap" style="display:flex;align-items:center;gap:4px;">
+            <input type="color" class="efb-logic-value-input efb-logic-color-input" value="${hex || '#212529'}"
+                   title="${_tf(labelKey, labelFallback)}"
+                   onchange="EFB_Logic.updateConfirmation('${prop}',this.value)">
+            <button type="button" class="efb-logic-icon-btn" title="${_tf('defaultOpt', 'Default')}" ${hex ? '' : 'disabled'}
+                    onclick="EFB_Logic.updateConfirmation('${prop}','')">&times;</button>
+          </span>
+        </label>`;
+  }
+
   function renderConfirmationSettings(rule) {
     const action = rule.action === 'redirect' ? 'redirect' : 'message';
     const actionInput = action === 'redirect'
@@ -1001,6 +1030,39 @@
                 onchange="EFB_Logic.updateConfirmation('url',this.value)">`
       : `<textarea class="efb-logic-value-input efb-logic-message-input" placeholder="${_tf('thankYou', 'Thank you')}"
                    onchange="EFB_Logic.updateConfirmation('message',this.value)">${_esc(rule.message || '')}</textarea>`;
+
+    let messageExtras = '';
+    if (action === 'message') {
+      const icon = CONFIRMATION_ICONS.includes(rule.icon) ? rule.icon : '';
+      const iconOptions = [`<option value="">${_tf('defaultOpt', 'Default')}</option>`]
+        .concat(CONFIRMATION_ICONS.map(ic =>
+          `<option value="${ic}" ${ic === icon ? 'selected' : ''}>${ic.replace(/^bi-/, '').replace(/-/g, ' ')}</option>`))
+        .join('');
+      messageExtras = `
+      <div class="efb-logic-action-row efb-logic-settings-row">
+        <label class="efb-logic-setting-field">
+          <span>${_tf('doneTitle', 'Done title')}</span>
+          <input type="text" class="efb-logic-value-input" value="${_esc(rule.done || '')}" placeholder="${_tf('done', 'Done')}"
+                 onchange="EFB_Logic.updateConfirmation('done',this.value)">
+        </label>
+        <label class="efb-logic-setting-field">
+          <span>${_tf('doneIcon', 'Icon')} <i class="efb ${icon || 'bi-hand-thumbs-up'}"></i></span>
+          <select class="efb-logic-value-select" onchange="EFB_Logic.updateConfirmation('icon',this.value)">
+            ${iconOptions}
+          </select>
+        </label>
+        <label class="efb-logic-setting-field">
+          <span>${_tf('trackingCodeLabel', 'Tracking code label')}</span>
+          <input type="text" class="efb-logic-value-input" value="${_esc(rule.tracking_label || '')}" placeholder="${_tf('trackingCode', 'Tracking code')}"
+                 onchange="EFB_Logic.updateConfirmation('tracking_label',this.value)">
+        </label>
+      </div>
+      <div class="efb-logic-action-row efb-logic-settings-row">
+        ${renderConfirmationColorField('iconColor', 'Icon color', 'icon_color', rule.icon_color)}
+        ${renderConfirmationColorField('titleColor', 'Title color', 'title_color', rule.title_color)}
+        ${renderConfirmationColorField('messageColor', 'Message color', 'message_color', rule.message_color)}
+      </div>`;
+    }
 
     return `
       <div class="efb-logic-action-row efb-logic-settings-row">
@@ -1015,7 +1077,7 @@
           <span>${action === 'redirect' ? _tf('url', 'URL') : _tf('message', 'Message')}</span>
           ${actionInput}
         </label>
-      </div>`;
+      </div>${messageExtras}`;
   }
 
   function renderWebhookSettings(rule) {
@@ -1190,7 +1252,13 @@
         ...baseRule,
         action: 'message',
         url: '',
-        message: ''
+        message: '',
+        done: '',
+        icon: '',
+        tracking_label: '',
+        icon_color: '',
+        title_color: '',
+        message_color: ''
       } : activeTab === 'webhook' ? {
         ...baseRule,
         webhook_id: '',
@@ -1265,6 +1333,20 @@
       }
       if (prop === 'url' || prop === 'message') {
         rule[prop] = value;
+        return;
+      }
+      if (prop === 'done' || prop === 'tracking_label') {
+        rule[prop] = (typeof sanitize_text_efb === 'function') ? sanitize_text_efb(value) : value;
+        return;
+      }
+      if (prop === 'icon') {
+        rule.icon = /^bi-[a-z0-9-]+$/.test(String(value)) ? String(value) : '';
+        refreshView(); /* update the icon preview next to the select */
+        return;
+      }
+      if (prop === 'icon_color' || prop === 'title_color' || prop === 'message_color') {
+        rule[prop] = /^#[0-9a-fA-F]{6}$/.test(String(value)) ? String(value).toLowerCase() : '';
+        if (rule[prop] === '') refreshView(); /* reset button: restore default swatch state */
       }
     },
 

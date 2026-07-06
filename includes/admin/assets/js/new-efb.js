@@ -576,29 +576,43 @@ async function fun_offline_Efb() {
   }
 }
 
-function funTnxEfb(val, title, message) {
+function funTnxEfb(val, title, message, ov) {
+  /* ov = optional per-rule confirmation display overrides from the server
+     (conditional_confirmation). Every value is re-validated/escaped here so a
+     tampered AJAX response cannot inject markup; when ov is absent or a field
+     is empty, the form's own thank_you_message settings win and the normal
+     form output stays identical. */
+  const escTnx = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const safeHexTnx = (c) => (typeof c === 'string' && /^#[0-9a-fA-F]{6}$/.test(c)) ? c : '';
+  const safeIconTnx = (i) => (typeof i === 'string' && /^bi-[a-z0-9-]+$/.test(i)) ? i : '';
+  ov = (ov && typeof ov === 'object') ? ov : {};
   const done = valj_efb[0].thank_you_message.done || efb_var.text.yad
   const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
   const thankYou = valj_efb[0].thank_you_message.thankYou || efb_var.text.thanksFillingOutform
-  const t = title ? title : done;
+  const t = title ? title : (ov.done ? escTnx(ov.done) : done);
   const m = message ? message : thankYou;
   const clr_doneMessageEfb=valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"doneMessageEfb" ;
   const clr_doneTitleEfb =valj_efb[0].hasOwnProperty("clrdoneTitleEfb") ? valj_efb[0].clrdoneTitleEfb :"doneTitleEfb" ;
   const clr_doniconEfb =valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"doneTitleEfb" ;
   const doneTrackEfb=clr_doneTitleEfb ;
+  const iconTnx = safeIconTnx(ov.icon) || (valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon : 'bi-hand-thumbs-up');
+  const iconStyleTnx = safeHexTnx(ov.icon_color) ? ` style="color:${safeHexTnx(ov.icon_color)}"` : '';
+  const titleStyleTnx = safeHexTnx(ov.title_color) ? ` style="color:${safeHexTnx(ov.title_color)}"` : '';
+  const messageStyleTnx = safeHexTnx(ov.message_color) ? ` style="color:${safeHexTnx(ov.message_color)}"` : '';
+  const trackLabelTnx = ov.tracking_label ? escTnx(ov.tracking_label) : (valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode);
   const show_track = valj_efb[0].trackingCode == true && valj_efb[0].type != "survey" ? true : false;
   const trckCd = `
-  <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
+  <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${trackLabelTnx}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb d-none " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
            <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color}  ${show_track ? 'd-block mx-auto' : 'd-none mx-auto'} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb' ,'trackingCodeEfb2')">
                    <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i><span id="trackingCodeEfb2">${efb_var.text.copy}</span>
                </button></div>`
   return `
-                    <h4 class="efb  my-1 fs-2 ${doneTrackEfb} text-center" id="doneTitleEfb">
-                        <i class="efb ${valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon : 'bi-hand-thumbs-up'}  title-icon mx-2 fs-2 ${clr_doniconEfb}" id="DoneIconEfb"></i>${t}
+                    <h4 class="efb  my-1 fs-2 ${doneTrackEfb} text-center" id="doneTitleEfb"${titleStyleTnx}>
+                        <i class="efb ${iconTnx}  title-icon mx-2 fs-2 ${clr_doniconEfb}" id="DoneIconEfb"${iconStyleTnx}></i>${t}
                     </h4>
-                    <h3 class="efb fs-4 ${clr_doneMessageEfb} text-center" id="doneMessageEfb">${m}</h3>
+                    <h3 class="efb fs-4 ${clr_doneMessageEfb} text-center" id="doneMessageEfb"${messageStyleTnx}>${m}</h3>
                   <span class="efb text-center" ${show_track ? trckCd : ''}</span>
   `
 }

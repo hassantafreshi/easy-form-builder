@@ -200,6 +200,42 @@ $result3b = $validator->evaluate($struct3, $rows3b);
 testTrue('T3.7 OR-branch via connector still matches the stopping rule', in_array('r_nested_stop', $result3b['matched_rules'], true));
 testTrue('T3.8 fd hidden via the OR branch', in_array('fd', $result3b['hidden_fields'], true));
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP 4: numeric operators (gte/lte/between/not_between) — parity with the
+// JS runtime T16 cases. Numeric operators must never match a non-numeric or
+// empty value: an empty budget is neither inside nor outside a range, so
+// not_between must not fire either (Scenario L edge cases).
+// ─────────────────────────────────────────────────────────────────────────────
+function numericRuleFires($validator, $compare, $expected, $priceValue) {
+    $struct = [
+        ['logic_rules' => [
+            makeRule([
+                'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('price', $compare, $expected)]],
+                'actions' => [['type' => 'show_field', 'target' => 'flag']],
+            ]),
+        ]],
+        ['id_' => 'price', 'type' => 'number'],
+        ['id_' => 'flag', 'type' => 'text'],
+    ];
+    $rows = [['id_' => 'price', 'value' => $priceValue, 'type' => 'number']];
+    $result = $validator->evaluate($struct, $rows);
+    return in_array('r1', $result['matched_rules'], true);
+}
+testTrue('N1.1 gte: 10 >= 10', numericRuleFires($validator, 'gte', '10', '10'));
+testFalse('N1.2 gte: 5 >= 10 is false', numericRuleFires($validator, 'gte', '10', '5'));
+testTrue('N1.3 lte: 5 <= 10', numericRuleFires($validator, 'lte', '10', '5'));
+testTrue('N1.4 between: 7 in [5,10]', numericRuleFires($validator, 'between', '5,10', '7'));
+testTrue('N1.5 between: boundary 5 in [5,10]', numericRuleFires($validator, 'between', '5,10', '5'));
+testFalse('N1.6 between: 12 not in [5,10]', numericRuleFires($validator, 'between', '5,10', '12'));
+testTrue('N1.7 not_between: 12 outside [5,10]', numericRuleFires($validator, 'not_between', '5,10', '12'));
+testFalse('N1.8 not_between: 7 inside [5,10]', numericRuleFires($validator, 'not_between', '5,10', '7'));
+testFalse('N2.1 between: empty value never matches', numericRuleFires($validator, 'between', '5,10', ''));
+testFalse('N2.2 not_between: empty value never matches', numericRuleFires($validator, 'not_between', '5,10', ''));
+testFalse('N2.3 not_between: non-numeric value never matches', numericRuleFires($validator, 'not_between', '5,10', 'abc'));
+testFalse('N2.4 between: empty value is not coerced to 0 in a zero-spanning range', numericRuleFires($validator, 'between', '-5,5', ''));
+testTrue('N2.5 between: literal 0 is inside a zero-spanning range', numericRuleFires($validator, 'between', '-5,5', '0'));
+testFalse('N2.6 gte: empty value is not coerced to 0 against a negative bound', numericRuleFires($validator, 'gte', '-5', ''));
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 echo "\n========================================\n";
 echo "RESULTS: $pass passed, $fail failed\n";

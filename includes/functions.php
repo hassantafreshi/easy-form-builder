@@ -1063,6 +1063,13 @@ class efbFunction {
 			"logicCondition" => $state  &&  isset($ac->text->logicCondition) ? $ac->text->logicCondition : esc_html__('Condition','easy-form-builder'),
 			"logicGroup" => $state  &&  isset($ac->text->logicGroup) ? $ac->text->logicGroup : esc_html__('Group','easy-form-builder'),
 			"logicGroupEmpty" => $state  &&  isset($ac->text->logicGroupEmpty) ? $ac->text->logicGroupEmpty : esc_html__('Add a condition or a group.','easy-form-builder'),
+			"doneTitle" => $state  &&  isset($ac->text->doneTitle) ? $ac->text->doneTitle : esc_html__('Done title','easy-form-builder'),
+			"doneIcon" => $state  &&  isset($ac->text->doneIcon) ? $ac->text->doneIcon : esc_html__('Icon','easy-form-builder'),
+			"trackingCodeLabel" => $state  &&  isset($ac->text->trackingCodeLabel) ? $ac->text->trackingCodeLabel : esc_html__('Tracking code label','easy-form-builder'),
+			"iconColor" => $state  &&  isset($ac->text->iconColor) ? $ac->text->iconColor : esc_html__('Icon color','easy-form-builder'),
+			"titleColor" => $state  &&  isset($ac->text->titleColor) ? $ac->text->titleColor : esc_html__('Title color','easy-form-builder'),
+			"messageColor" => $state  &&  isset($ac->text->messageColor) ? $ac->text->messageColor : esc_html__('Message color','easy-form-builder'),
+			"defaultOpt" => $state  &&  isset($ac->text->defaultOpt) ? $ac->text->defaultOpt : esc_html__('Default','easy-form-builder'),
 
 			"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : esc_html__('Add your forms','easy-form-builder'),
 
@@ -2268,10 +2275,28 @@ class efbFunction {
 				'action' => $action,
 				'url' => isset($rule['url']) ? esc_url_raw($rule['url']) : '',
 				'message' => isset($rule['message']) ? wp_kses_post($rule['message']) : '',
+				'done' => isset($rule['done']) ? sanitize_text_field($rule['done']) : '',
+				'icon' => $this->sanitize_logic_bi_icon($rule['icon'] ?? ''),
+				'tracking_label' => isset($rule['tracking_label']) ? sanitize_text_field($rule['tracking_label']) : '',
+				'icon_color' => $this->sanitize_logic_hex_color($rule['icon_color'] ?? ''),
+				'title_color' => $this->sanitize_logic_hex_color($rule['title_color'] ?? ''),
+				'message_color' => $this->sanitize_logic_hex_color($rule['message_color'] ?? ''),
 			);
 		}
 
 		return $clean;
+	}
+
+	/* Confirmation display overrides: only a bootstrap-icons class name is a valid icon. */
+	private function sanitize_logic_bi_icon($icon) {
+		$icon = is_string($icon) ? trim($icon) : '';
+		return preg_match('/^bi-[a-z0-9-]+$/', $icon) ? $icon : '';
+	}
+
+	/* Confirmation display overrides: only a full 6-digit hex color is accepted. */
+	private function sanitize_logic_hex_color($color) {
+		$color = is_string($color) ? trim($color) : '';
+		return preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? strtolower($color) : '';
 	}
 
 	private function sanitize_webhook_rules($rules, $form_structure = array()) {
@@ -2434,10 +2459,12 @@ public function addon_add_efb($value) {
 		$vefb = EMSFB_PLUGIN_VERSION;
         $admin_test = get_option('EMSFB_team_test', '0') === '1';
 		$domain =  $admin_test ? 'demo.whitestudio.team' : 'whitestudio.team';
-        $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+		error_log($domain);
+		error_log($value);
+        $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
 		$fallback_u = '';
         if (get_locale() == 'fa_IR') {
-            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
 			$fallback_u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
         }
 		$name_space = 'emsfb_addon_' . $value;

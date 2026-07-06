@@ -259,6 +259,32 @@
   min-height: 88px;
   resize: vertical;
 }
+.efb-logic-color-input {
+  padding: 2px;
+  height: 34px;
+  min-width: 56px;
+  flex: 0 0 56px;
+  cursor: pointer;
+}
+.efb-logic-icon-btn {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #64748b;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  line-height: 1;
+  font-size: 15px;
+  cursor: pointer;
+}
+.efb-logic-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.efb-logic-icon-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #334155;
+}
 
 /* ── Scope Badge ── */
 .efb-logic-scope-badge {

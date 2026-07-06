@@ -204,8 +204,8 @@ class EmsfbEmailHandler {
         if (is_string($sub)) {
             $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
 
-            // DEBUG LOG: Email content for all states
-            // $this->log_email_debug($state, $to, $sub, $message, $link, $email_content_type);
+            // DEBUG LOG: final composed email (gated on EMSFB_EMAIL_DEBUG)
+            $this->log_email_debug($state, $to, $sub, $message, $link, $email_content_type);
 
             if (in_array($state, ["reportProblem", "testMailServer", "addonsDlProblem"])) {
 
@@ -220,8 +220,8 @@ class EmsfbEmailHandler {
                 if (!empty($to[$i]) && $to[$i] != "null") {
                     $message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $email_content_type, $st);
 
-                    // DEBUG LOG: Email content for array states
-                    // $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $email_content_type);
+                    // DEBUG LOG: final composed email (gated on EMSFB_EMAIL_DEBUG)
+                    $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $email_content_type);
 
                     if ($state != "reportProblem") {
                         $mailResult = $sendMail($to[$i], $sub[$i], $message, $headers);
@@ -929,9 +929,19 @@ class EmsfbEmailHandler {
      * @param string $link Link included in email
      * @param string $email_content_type Content type
      */
+    /**
+     * Dedicated switch for the email debug trace (doc section 17.11).
+     * Deliberately NOT tied to WP_DEBUG: these logs contain recipients and
+     * full message HTML, so they must be an explicit opt-in via
+     * define('EMSFB_EMAIL_DEBUG', true) in wp-config.php.
+     */
+    public static function email_debug_enabled() {
+        return defined('EMSFB_EMAIL_DEBUG') && EMSFB_EMAIL_DEBUG;
+    }
+
     private function log_email_debug($state, $to, $subject, $message, $link, $email_content_type) {
-        if (!defined('WP_DEBUG') || !WP_DEBUG) {
-            return; // Only log when WP_DEBUG is enabled
+        if (!self::email_debug_enabled()) {
+            return;
         }
 
         $log_file = WP_CONTENT_DIR . '/efb-email-debug.log';
@@ -1927,6 +1937,15 @@ table { border-collapse: collapse !important; }
             $error_message = $wp_error->get_error_message();
         }
 
+        if (self::email_debug_enabled()) {
+            error_log('[EFB Email Debug][result] ' . json_encode([
+                'success' => false,
+                'to' => is_array($to) ? implode(', ', $to) : $to,
+                'subject' => mb_substr((string)$subject, 0, 120),
+                'error' => $error_message,
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        }
+
         $logs[] = [
             'to'      => is_array($to) ? implode(', ', $to) : $to,
             'subject' => mb_substr($subject, 0, 100),
@@ -1949,6 +1968,14 @@ table { border-collapse: collapse !important; }
     public static function log_email_success($to, $subject) {
         $logs = get_option('efb_email_log', []);
         if (!is_array($logs)) { $logs = []; }
+
+        if (self::email_debug_enabled()) {
+            error_log('[EFB Email Debug][result] ' . json_encode([
+                'success' => true,
+                'to' => is_array($to) ? implode(', ', $to) : $to,
+                'subject' => mb_substr((string)$subject, 0, 120),
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        }
 
         $logs[] = [
             'to'      => is_array($to) ? implode(', ', $to) : $to,

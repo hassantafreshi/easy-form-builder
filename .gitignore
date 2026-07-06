@@ -51,3 +51,6 @@ vendor.rar
 /tests
 /node_modules
 /node_modules/*
+docs/ai-form-generation/efb-ai-form-generation-model.json
+docs/ai-form-generation/*
+docs/conditional-logic/EFB-Conditional-Logic-E2E-TEST-FA.md

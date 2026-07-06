@@ -1474,7 +1474,7 @@ async function response_fill_form_efb(res ,form_id=0) {
           window.location.href = res.data.m;
           break;
         }
-        efb_final_step.innerHTML = funTnxEfb(res.data.track, '', res.data.conditional_message || '')
+        efb_final_step.innerHTML = funTnxEfb(res.data.track, '', res.data.conditional_message || '', res.data.conditional_confirmation || null)
         break;
       case 'survey':
         if(valj_efb[0].hasOwnProperty('thank_you') && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string'  ){

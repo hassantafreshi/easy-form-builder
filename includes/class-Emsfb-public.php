@@ -1009,7 +1009,7 @@ public function check_nonce_permission_efb($request) {
 						if($key === 'switch_off_color' && !empty($value)){
 							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
 						}
-					}else{
+					}else if(is_array($value) || is_object($value)){
 						foreach ($value as $key2 => $value2) {
 							if(is_string($value2)){
 								if(strpos($value2, 'colorDEfb') !== false){
@@ -2592,6 +2592,9 @@ public function check_nonce_permission_efb($request) {
 								} elseif ($conditional_confirmation['action'] === 'message' && !empty($conditional_confirmation['message'])) {
 									$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'ip' => $ip, 'nonce' => $nonce_token];
 									$response['conditional_message'] = $conditional_confirmation['message'];
+									/* Full display payload (message + optional done/icon/color overrides)
+									   for the done screen; conditional_message stays for back-compat. */
+									$response['conditional_confirmation'] = $conditional_confirmation;
 								}
 							}
 
@@ -2610,7 +2613,23 @@ public function check_nonce_permission_efb($request) {
 							}
 							if ($should_send_email) {
 
-								$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
+								// Active email notification rules replace the standard admin
+								// notification: admin recipients are dropped so only rule
+								// recipients get notified; the user email (index 1) still goes out.
+								$has_active_email_rules = isset($form_fields_array[0]['notification_rules'])
+									&& is_array($form_fields_array[0]['notification_rules'])
+									&& count($this->efb_conditional_sorted_rules($form_fields_array[0]['notification_rules'])) > 0;
+
+								if ($has_active_email_rules) {
+									$email_recipients[0] = [];
+									$this->efb_email_debug_log('admin-email-suppressed', [
+										'track' => $track_code,
+										'form_id' => intval($this->id),
+										'reason' => 'active_notification_rules',
+									]);
+								} else {
+									$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
+								}
 								$state_email_user = $has_tracking_code == 1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 								$msg_content = 'null';
 								if (isset($form_fields_array[0]['email_noti_type']) && $form_fields_array[0]['email_noti_type'] == 'msg') {
@@ -3965,7 +3984,10 @@ public function check_nonce_permission_efb($request) {
 			case 'between':
 			case 'not_between':
 				$range = is_array($expected) ? $expected : preg_split('/\s*,\s*/', $expected_scalar);
-				$inside = count($range) >= 2 && is_numeric($value) && is_numeric($range[0]) && is_numeric($range[1]) && (float)$value >= (float)$range[0] && (float)$value <= (float)$range[1];
+				/* Numeric operators never match a non-numeric value: an empty budget is
+				 * neither inside nor outside the range, so not_between must not fire. */
+				if (count($range) < 2 || !is_numeric($value) || !is_numeric($range[0]) || !is_numeric($range[1])) return false;
+				$inside = (float)$value >= (float)$range[0] && (float)$value <= (float)$range[1];
 				return $compare === 'between' ? $inside : !$inside;
 			case 'is_empty': return $value === '';
 			case 'is_not_empty': return $value !== '';
@@ -3981,13 +4003,44 @@ public function check_nonce_permission_efb($request) {
 		foreach ($this->efb_conditional_sorted_rules($form_fields_array[0]['confirmation_rules']) as $rule) {
 			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? [], $values)) continue;
 			$action = ($rule['action'] ?? 'message') === 'redirect' ? 'redirect' : 'message';
+			if ($action === 'redirect') {
+				return [
+					'action' => 'redirect',
+					'url' => esc_url($rule['url'] ?? ''),
+					'message' => '',
+				];
+			}
+			$icon = isset($rule['icon']) && is_string($rule['icon']) ? trim($rule['icon']) : '';
 			return [
-				'action' => $action,
-				'url' => $action === 'redirect' ? esc_url($rule['url'] ?? '') : '',
-				'message' => $action === 'message' ? wp_kses_post($rule['message'] ?? '') : '',
+				'action' => 'message',
+				'url' => '',
+				'message' => wp_kses_post($rule['message'] ?? ''),
+				/* Optional done-screen display overrides (empty string = keep form default) */
+				'done' => sanitize_text_field($rule['done'] ?? ''),
+				'icon' => preg_match('/^bi-[a-z0-9-]+$/', $icon) ? $icon : '',
+				'tracking_label' => sanitize_text_field($rule['tracking_label'] ?? ''),
+				'icon_color' => $this->efb_confirmation_hex_color($rule['icon_color'] ?? ''),
+				'title_color' => $this->efb_confirmation_hex_color($rule['title_color'] ?? ''),
+				'message_color' => $this->efb_confirmation_hex_color($rule['message_color'] ?? ''),
 			];
 		}
 		return null;
+	}
+
+	private function efb_confirmation_hex_color($color) {
+		$color = is_string($color) ? trim($color) : '';
+		return preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? strtolower($color) : '';
+	}
+
+	/**
+	 * Email debug trace for E2E testing (doc section 17.11). Off by default;
+	 * enable with define('EMSFB_EMAIL_DEBUG', true) in wp-config.php. Kept
+	 * behind its own switch (not WP_DEBUG) because the lines contain
+	 * recipients and message previews.
+	 */
+	private function efb_email_debug_log($event, array $data) {
+		if (!defined('EMSFB_EMAIL_DEBUG') || !EMSFB_EMAIL_DEBUG) return;
+		error_log('[EFB Email Debug][' . $event . '] ' . json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 	}
 
 	private function process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email) {
@@ -3995,14 +4048,45 @@ public function check_nonce_permission_efb($request) {
 		$values = $this->efb_conditional_values_map($form_fields_array, $submitted_values);
 		$content = isset($status_email['content']) ? $status_email['content'] : 'null';
 		$type = isset($status_email['type']) ? $status_email['type'] : 'traking_link';
+		$rules = $this->efb_conditional_sorted_rules($form_fields_array[0]['notification_rules']);
+		$this->efb_email_debug_log('notification-rules', [
+			'track' => $track_code,
+			'form_id' => intval($this->id),
+			'active_rules' => count($rules),
+			'values' => $values,
+		]);
 
-		foreach ($this->efb_conditional_sorted_rules($form_fields_array[0]['notification_rules']) as $rule) {
+		foreach ($rules as $rule) {
+			$rule_id = isset($rule['id']) ? (string)$rule['id'] : '';
 			$recipient = sanitize_email($rule['recipient'] ?? '');
-			if ($recipient === '' || !is_email($recipient)) continue;
-			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? [], $values)) continue;
+			if ($recipient === '' || !is_email($recipient)) {
+				$this->efb_email_debug_log('rule-skipped', [
+					'track' => $track_code,
+					'rule' => $rule_id,
+					'reason' => 'invalid_recipient',
+					'recipient_raw' => (string)($rule['recipient'] ?? ''),
+				]);
+				continue;
+			}
+			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? [], $values)) {
+				$this->efb_email_debug_log('rule-not-matched', [
+					'track' => $track_code,
+					'rule' => $rule_id,
+					'recipient' => $recipient,
+				]);
+				continue;
+			}
 
 			$subject = isset($rule['subject']) && trim((string)$rule['subject']) !== '' ? sanitize_text_field($rule['subject']) : ($status_email['subject'] ?? 'null');
 			if ($subject === '') $subject = 'null';
+			$this->efb_email_debug_log('rule-matched-send', [
+				'track' => $track_code,
+				'rule' => $rule_id,
+				'priority' => isset($rule['priority']) ? intval($rule['priority']) : 10,
+				'recipient' => $recipient,
+				'subject' => $subject,
+				'content_preview' => $content === 'null' ? '(default template)' : mb_substr(trim(strip_tags((string)$content)), 0, 200),
+			]);
 			$this->send_email_Emsfb_([$recipient, ''], $track_code, $is_pro, ['newMessage', 'newMessage', $type], $url, $content, $subject);
 		}
 	}
@@ -4181,6 +4265,14 @@ public function check_nonce_permission_efb($request) {
     }
 
 
+    $this->efb_email_debug_log('dispatch', [
+        'track' => $track,
+        'to' => is_array($to) ? array_values(array_filter($to, function ($v) { return $v !== '' && $v !== 'null'; })) : $to,
+        'state' => $state,
+        'subject' => $subject,
+        'has_custom_content' => $content !== 'null',
+        'content_preview' => $content === 'null' ? '(state template)' : mb_substr(trim(strip_tags((string)$content)), 0, 200),
+    ]);
     $check = $this->efbFunction->send_email_state_new($to, $subject, $cont, $pro, $state, $link_w, $this->setting);
 
 	}
@@ -5211,10 +5303,9 @@ public function check_nonce_permission_efb($request) {
 		delete_option($id);
 	}
 	function genrate_sacure_code_admin_email($track){
-		function g($track , $key){
-			return md5($track.$key);
-		}
-
+		/* No nested named function here: this method runs once per outgoing
+		 * email, and a second declaration in the same request is a fatal
+		 * "Cannot redeclare" (admin email + conditional department email). */
 		if(isset($this->setting->email_key)){
 		}else{
 
@@ -5241,7 +5332,7 @@ public function check_nonce_permission_efb($request) {
 			set_transient('emsfb_settings_transient', $setting, 1440);
 			update_option('emsfb_settings', $setting);
 		}
-		return g($track , $this->setting->email_key);
+		return md5($track . $this->setting->email_key);
 	}
 
 	private function sanitize_value_efb($value, $key) {
@@ -5349,12 +5440,18 @@ public function check_nonce_permission_efb($request) {
 		$this->efbFunction = get_efbFunction();
 		$texts =['sxnlex','uraatn'];
 		$lan =$this->efbFunction->text_efb($texts);
+		/* Nested named helpers must not be redeclared if this method runs
+		 * twice in one request — same fatal class as the old Emsfb\g() in
+		 * the email path (Cannot redeclare). */
+		if (!function_exists('Emsfb\\Js_')) {
 		function Js_() {
 			return "<script>if (window.location.href.indexOf('?') !== -1) {
 			var newUrl = window.location.href.split('?')[0];
 			window.history.pushState({}, document.title, newUrl);
 		    }</script>";
 		}
+		}
+		if (!function_exists('Emsfb\\Js_setpassword')) {
 		function Js_setpassword(){
 			return "<script>
 			const efb_url = '".get_rest_url(null)."Emsfb/v1/forms/recovery/efb_set_password';
@@ -5430,6 +5527,8 @@ public function check_nonce_permission_efb($request) {
 			});
 			</script>";
 		}
+		}
+		if (!function_exists('Emsfb\\create_content_setpassword')) {
 		function create_content_setpassword($st,$fid){
 			$html = '<div class="efb card efb my-3 efb p-4" id="body_efb_rpass" style="max-width: 400px; margin: 0 auto;">
 
@@ -5471,10 +5570,14 @@ public function check_nonce_permission_efb($request) {
 				return $html;
 
 		}
+		}
+		if (!function_exists('Emsfb\\recovery_')) {
 		function recovery_($lan,$username,$st,$fid){
 			return create_content_setpassword($st,$fid);
 		}
+		}
 
+		if (!function_exists('Emsfb\\register_')) {
 		function register_( $lan,$username){
 			$user = get_user_by('login', $username);
 
@@ -5484,6 +5587,7 @@ public function check_nonce_permission_efb($request) {
 				$user->set_role('subscriber');
 			}
 			return '<p text-align: center;">'.$lan['uraatn'].'</p>' . Js_();
+		}
 		}
 		if(empty($this->db)){
             global $wpdb;

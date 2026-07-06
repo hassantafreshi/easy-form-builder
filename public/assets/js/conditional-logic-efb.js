@@ -293,6 +293,14 @@
     return value;
   }
 
+  /* Mirrors PHP is_numeric(): empty/whitespace-only strings are NOT numeric
+   * (isFinite('') is true because '' coerces to 0, which diverges from the
+   * server-side evaluator). Numeric operators must never match them. */
+  function isNumericScalar(value) {
+    var s = String(value == null ? '' : value).trim();
+    return s !== '' && isFinite(s);
+  }
+
   function compareScalar(value, expected, operator) {
     var scalar = String(value == null ? '' : value).trim();
     var expectedScalar = Array.isArray(expected) ? expected.join(',') : String(expected == null ? '' : expected).trim();
@@ -308,15 +316,15 @@
       case 'not_contains': return left.indexOf(right) === -1;
       case 'starts_with': return left.indexOf(right) === 0;
       case 'ends_with': return right.length === 0 || left.slice(-right.length) === right;
-      case 'gt': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) > Number(expectedScalar);
-      case 'gte': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) >= Number(expectedScalar);
-      case 'lt': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) < Number(expectedScalar);
-      case 'lte': return isFinite(scalar) && isFinite(expectedScalar) && Number(scalar) <= Number(expectedScalar);
+      case 'gt': return isNumericScalar(scalar) && isNumericScalar(expectedScalar) && Number(scalar) > Number(expectedScalar);
+      case 'gte': return isNumericScalar(scalar) && isNumericScalar(expectedScalar) && Number(scalar) >= Number(expectedScalar);
+      case 'lt': return isNumericScalar(scalar) && isNumericScalar(expectedScalar) && Number(scalar) < Number(expectedScalar);
+      case 'lte': return isNumericScalar(scalar) && isNumericScalar(expectedScalar) && Number(scalar) <= Number(expectedScalar);
       case 'between':
       case 'not_between':
         range = Array.isArray(expected) ? expected : expectedScalar.split(/\s*,\s*/);
-        inside = range.length >= 2 && isFinite(scalar) && isFinite(range[0]) && isFinite(range[1]) &&
-          Number(scalar) >= Number(range[0]) && Number(scalar) <= Number(range[1]);
+        if (range.length < 2 || !isNumericScalar(scalar) || !isNumericScalar(range[0]) || !isNumericScalar(range[1])) return false;
+        inside = Number(scalar) >= Number(range[0]) && Number(scalar) <= Number(range[1]);
         return operator === 'between' ? inside : !inside;
       case 'is_empty': return scalar === '';
       case 'is_not_empty': return scalar !== '';
@@ -337,10 +345,10 @@
       });
       if (row.paymentIntent || row.transaction_id || row.refId || row.authority) paid = true;
       ['amount', 'total', 'price', 'paid_amount'].forEach(function (key) {
-        if (row[key] != null && isFinite(row[key])) amount = Number(row[key]);
+        if (isNumericScalar(row[key])) amount = Number(row[key]);
       });
     });
-    if (amount == null && values[fieldId] != null && isFinite(values[fieldId])) amount = Number(values[fieldId]);
+    if (amount == null && isNumericScalar(values[fieldId])) amount = Number(values[fieldId]);
     return { paid: paid, amount: amount };
   }
 
@@ -354,7 +362,7 @@
       var payment = paymentState(fieldId, rows, values);
       if (operator === 'is_paid') return payment.paid;
       if (operator === 'is_not_paid') return !payment.paid;
-      if (payment.amount == null || !isFinite(expected)) return false;
+      if (payment.amount == null || !isNumericScalar(expected)) return false;
       if (operator === 'amount_eq') return Math.abs(payment.amount - Number(expected)) < 0.00001;
       if (operator === 'amount_gt') return payment.amount > Number(expected);
       return payment.amount < Number(expected);

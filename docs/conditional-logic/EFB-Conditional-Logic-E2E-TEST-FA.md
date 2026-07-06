@@ -33,13 +33,15 @@ C:\xampp\php\php.exe tests\test-conditional-logic-submission.php
 C:\xampp\php\php.exe tests\test-conditional-logic-validator.php
 C:\xampp\php\php.exe tests\test-conditional-logic-final-guard.php
 C:\xampp\php\php.exe tests\test-conditional-logic-webhook.php
+C:\xampp\php\php.exe tests\test-conditional-logic-notification-confirmation.php
 node tests\test-conditional-logic-runtime.js
 node tests\test-conditional-logic-builder-ui.js
 node tests\test-conditional-logic-validate-step.js
 node tests\test-core-multiform-validation-scope.js
+node tests\test-thankyou-overrides.js
 ```
 
-نتیجه مورد انتظار (آخرین اجرای دستی کامل: 2026-06-29):
+نتیجه مورد انتظار (آخرین اجرای دستی کامل: 2026-07-05):
 
 ```text
 PHP syntax: includes/functions.php OK
@@ -48,13 +50,15 @@ JS syntax: includes/admin/assets/js/conditional-logic-efb.js OK
 JS syntax: public/assets/js/core-efb.js OK
 Sanitizer: 49/49 passed
 Submission: 15/15 passed
-Validator (PHP addon واقعی): 24/24 passed
+Validator (PHP addon واقعی): 38/38 passed
 Final-save guard: 8/8 passed
 Conditional webhook: 15/15 passed
-Runtime: 65/65 passed
-Builder UI: 30/30 passed
+Notification/Confirmation (سناریوی M + لاگ ایمیل 17.11): 71/71 passed
+Runtime: 70/70 passed
+Builder UI: 46/46 passed
 Validate-step (H13 + H14): 7/7 passed
 Core multi-form validation scope: 17/17 passed
+Thank-you overrides (funTnxEfb): 24/24 passed
 ```
 
 - [ ] تمام تست‌های PHP پاس شدند.
@@ -463,10 +467,10 @@ sendBack_emsFormBuilder_pub.filter(row => row && row.id_ === 'budget')
 - `amount_gt`
 - `amount_lt`
 
-- [ ] operatorها بعد از save/reload باقی می‌مانند.
-- [ ] نتیجه موفق/ناموفق پرداخت درست تشخیص داده می‌شود.
-- [ ] مقایسه amount با مقدار واقعی پرداخت انجام می‌شود.
-- [ ] تغییر داده در مرورگر نمی‌تواند server result را دور بزند.
+- [X] operatorها بعد از save/reload باقی می‌مانند.
+- [X] نتیجه موفق/ناموفق پرداخت درست تشخیص داده می‌شود.
+- [X] مقایسه amount با مقدار واقعی پرداخت انجام می‌شود.
+- [X] تغییر داده در مرورگر نمی‌تواند server result را دور بزند.
 
 ## 14. سناریوی J — Legacy Compatibility
 
@@ -490,11 +494,11 @@ sendBack_emsFormBuilder_pub.filter(row => row && row.id_ === 'budget')
 
 نتیجه مورد انتظار:
 
-- [ ] حالت 2 (هر دو شرط گروه AND برقرار) → پیام نمایش داده می‌شود.
-- [ ] حالت 4 (یکی از شروط گروه AND نادرست) و logic_command خالی → پیام نمایش داده نمی‌شود.
-- [ ] حالت 6 (شرط مستقل با connector OR برقرار، گروه AND نادرست) → پیام دوباره نمایش داده می‌شود.
-- [ ] رفتار frontend (runtime) و نتیجه ذخیره‌شده پس از submit با هم هماهنگ‌اند.
-- [ ] هیچ خطای Console در حین تغییر مقادیر دیده نمی‌شود.
+- [X] حالت 2 (هر دو شرط گروه AND برقرار) → پیام نمایش داده می‌شود.
+- [X] حالت 4 (یکی از شروط گروه AND نادرست) و logic_command خالی → پیام نمایش داده نمی‌شود.
+- [X] حالت 6 (شرط مستقل با connector OR برقرار، گروه AND نادرست) → پیام دوباره نمایش داده می‌شود.
+- [X] رفتار frontend (runtime) و نتیجه ذخیره‌شده پس از submit با هم هماهنگ‌اند.
+- [X] هیچ خطای Console در حین تغییر مقادیر دیده نمی‌شود.
 
 ## 16. سناریوی L — Operators عددی (gte, lte, between, not_between)
 
@@ -515,6 +519,7 @@ sendBack_emsFormBuilder_pub.filter(row => row && row.id_ === 'budget')
 
 - [ ] `budget = 1000` (داخل بازه قبلی) → اکنون `conflict_target` مخفی است.
 - [ ] `budget = 3000` (خارج از بازه) → اکنون `conflict_target` نمایش داده می‌شود.
+- [ ] `budget` خالی یا غیرعددی → شرط `not_between` هم true نمی‌شود و `conflict_target` مخفی می‌ماند (عملگرهای عددی روی مقدار غیرعددی هرگز match نمی‌شوند).
 
 در پایان، یک بار سعی کنید rule را با Min پر و Max خالی ذخیره کنید:
 
@@ -546,6 +551,12 @@ Default form notification [confirmation_code]
 - [ ] فرم بدون rule شرطی هم می‌تواند ایمیل معمولی به `admin@example.com` بفرستد.
 - [ ] mail log قبل از تست اصلی خالی است.
 - [ ] هیچ rule شرطی هنوز ساخته نشده یا اگر ساخته شده، برای این سناریو قابل تشخیص است.
+
+> **Fixture آماده:** به جای ساخت دستی می‌توانید فرم اختصاصی این سناریو را با اسکریپت زیر بسازید که NR1-NR3 و CR1-CR3 (همراه گزینه‌های استایل 17.3.1) را از قبل دارد، ایمیل پیش‌فرض ادمین فرم فعال است و صفحه منتشرشده هم ساخته می‌شود:
+>
+> ```powershell
+> C:\xampp\php\php.exe tests/seed-scenario-m-form.php
+> ```
 
 ### 17.2 ساخت Notification Rules در Builder
 
@@ -584,6 +595,29 @@ Default form notification [confirmation_code]
 | CR1 | 5 | `has_budget is yes AND budget gt 1000` | Redirect | `https://example.com/vip-thanks` |
 | CR2 | 20 | `logic_command is support` | Message | `درخواست پشتیبانی شما ثبت شد.` |
 | CR3 | 30 | `customer_type is Individual` | Message | `فرم شخص حقیقی با موفقیت ثبت شد.` |
+
+#### 17.3.1 گزینه‌های استایل صفحه Done برای هر Confirmation
+
+وقتی action یک rule برابر `Message` باشد، در ادیتور همان rule این گزینه‌های اختیاری هم نمایش داده می‌شوند (برای `Redirect` مخفی هستند). هر گزینه که خالی بماند، همان تنظیمات پیش‌فرض thank-you فرم (`thank_you_message` و رنگ‌های `clrdon*Efb`) اعمال می‌شود:
+
+| گزینه | معادل فرم عادی | نوع ورودی |
+|---|---|---|
+| Done title | `thankYouMessageDoneEl` | متن |
+| Icon | `DoneIconEfb` | select از آیکون‌های `bi-*` |
+| Tracking code label | `thankYouMessageConfirmationCodeEl` | متن |
+| Icon color | `clrdoniconEfb` | color picker + دکمه بازگشت به پیش‌فرض |
+| Title color | `clrdoneTitleEfb` | color picker + دکمه بازگشت به پیش‌فرض |
+| Message color | `clrdoneMessageEfb` | color picker + دکمه بازگشت به پیش‌فرض |
+
+برای CR2 مقادیر زیر را تنظیم کنید: Done title = `پشتیبانی`، Icon = `bi-envelope-check`، Tracking label = `کد پیگیری پشتیبانی`، Icon/Title color = `#0d6efd`، Message color = `#334155`.
+برای CR3: Done title = `ثبت شد`، Icon = `bi-patch-check`، Icon/Title color = `#198754` و بقیه پیش‌فرض.
+
+نتیجه مورد انتظار:
+
+- [ ] گزینه‌های استایل فقط برای action=Message نمایش داده می‌شوند و با تغییر به Redirect مخفی می‌شوند.
+- [ ] رنگ نامعتبر (مثلاً متن دستی `red`) ذخیره نمی‌شود و مقدار خالی می‌ماند.
+- [ ] آیکون خارج از الگوی `bi-*` ذخیره نمی‌شود.
+- [ ] بعد از save/reload مقادیر استایل حفظ می‌شوند و field logic دست نمی‌خورد.
 
 تست اعتبارسنجی UI:
 
@@ -700,6 +734,7 @@ Submit کنید.
 - [ ] Step 2 مخفی/رد می‌شود و requiredهای Step 2 مانع submit نمی‌شوند.
 - [ ] فرم submit موفق دارد.
 - [ ] پیام CR2 نمایش داده می‌شود: `درخواست پشتیبانی شما ثبت شد.`
+- [ ] صفحه Done استایل CR2 را دارد: عنوان `پشتیبانی`، آیکون `bi-envelope-check`، رنگ آبی عنوان/آیکون و برچسب کد پیگیری `کد پیگیری پشتیبانی`.
 - [ ] redirect انجام نمی‌شود.
 - [ ] ایمیل معمولی فرم به `admin@example.com` ارسال می‌شود.
 - [ ] NR3 به `support@example.com` ارسال می‌شود.
@@ -722,6 +757,7 @@ Submit کنید.
 نتیجه مورد انتظار:
 
 - [ ] پیام CR3 نمایش داده می‌شود: `فرم شخص حقیقی با موفقیت ثبت شد.`
+- [ ] صفحه Done استایل CR3 را دارد: عنوان `ثبت شد`، آیکون `bi-patch-check` و رنگ سبز عنوان/آیکون؛ رنگ پیام همان پیش‌فرض فرم است.
 - [ ] ایمیل معمولی فرم به `admin@example.com` ارسال می‌شود.
 - [ ] هیچ ایمیل شرطی به `sales@example.com`، `vip@example.com` یا `support@example.com` ارسال نمی‌شود.
 - [ ] داده‌های Step 2 و `budget` در submission ذخیره‌شده وجود ندارند.
@@ -771,6 +807,117 @@ Submit کنید.
 - [ ] script از message حذف می‌شود اما HTML مجاز مثل `<strong>` باقی می‌ماند.
 - [ ] در frontend هیچ script تزریق‌شده‌ای اجرا نمی‌شود.
 - [ ] در `debug.log` خطای جدید وجود ندارد.
+
+### 17.11 سناریوی مسیریابی دپارتمان و ممیزی لاگ ایمیل
+
+هدف: بدون نیاز به SMTP واقعی یا افزونه mail log، کل مسیر ایمیل — تصمیم هر rule، ارسال (dispatch)، نتیجه `wp_mail` و محتوای نهایی HTML — برای هر دپارتمان از روی لاگ قابل ممیزی باشد.
+
+سوییچ لاگ ایمیل عمداً از `WP_DEBUG` جداست چون خطوط لاگ شامل گیرنده و پیش‌نمایش محتوا هستند؛ فقط با ثابت اختصاصی فعال می‌شود.
+
+#### آماده‌سازی
+
+1. در `wp-config.php`:
+
+```php
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+define('EMSFB_EMAIL_DEBUG', true);
+```
+
+2. لاگ‌ها را خالی کنید:
+
+```powershell
+Remove-Item C:\xampp\htdocs\wp\wp-content\debug.log -ErrorAction SilentlyContinue
+Remove-Item C:\xampp\htdocs\wp\wp-content\efb-email-debug.log -ErrorAction SilentlyContinue
+```
+
+3. فرم سناریوی M را (در صورت نبود) با `C:\xampp\php\php.exe tests/seed-scenario-m-form.php` بسازید و صفحه تست آن را باز کنید.
+
+#### مسیرهای دپارتمان
+
+| # | `customer_type` | `has_budget` | `budget` | `logic_command` | دپارتمان(های) مقصد | ایمیل ادمین پیش‌فرض |
+|---|---|---|---|---|---|---|
+| L1 | Company | yes | 1500 | خالی | `sales@` + `vip@` | ارسال می‌شود |
+| L2 | Company | yes | 500 | خالی | فقط `sales@` | ارسال می‌شود |
+| L3 | Individual | no | خالی | `support` | فقط `support@` | ارسال می‌شود |
+| L4 | Individual | no | خالی | خالی | هیچ دپارتمانی | ارسال می‌شود |
+
+بعد از هر submit، خطوط لاگ را بررسی کنید:
+
+```powershell
+Select-String -Path C:\xampp\htdocs\wp\wp-content\debug.log -Pattern "\[EFB Email Debug\]" | Select-Object -Last 20
+Get-Content C:\xampp\htdocs\wp\wp-content\efb-email-debug.log -Tail 120
+```
+
+#### رویدادهای لاگ (debug.log)
+
+- `[EFB Email Debug][notification-rules]` — شروع ارزیابی: track، تعداد رول‌های فعال و values map.
+- `[EFB Email Debug][rule-matched-send]` — رول match شده: rule id، priority، گیرنده، subject و `content_preview`.
+- `[EFB Email Debug][rule-not-matched]` / `[rule-skipped]` — رول‌های رد شده با دلیل (مثلاً `invalid_recipient`).
+- `[EFB Email Debug][dispatch]` — هر ارسال از مسیر `send_email_Emsfb_` (شامل ایمیل پیش‌فرض ادمین و ایمیل کاربر): to، state، subject نهایی و پیش‌نمایش محتوا.
+- `[EFB Email Debug]` (خلاصه handler) — به ازای هر ایمیل compose شده؛ HTML کامل در `wp-content/efb-email-debug.log`.
+- `[EFB Email Debug][result]` — نتیجه `wp_mail` به ازای هر گیرنده (`success=true/false` + متن خطا در صورت شکست).
+
+مثلاً برای L1 باید ببینید: `notification-rules` با `active_rules=3`، دو `rule-matched-send` برای `nr1_sales` و `nr2_vip`، یک `rule-not-matched` برای `nr3_support`، `dispatch` برای ایمیل ادمین و دو ایمیل دپارتمان، و `result` موفق برای هر گیرنده.
+
+#### نتیجه مورد انتظار
+
+- [ ] در هر مسیر L1 تا L4، `rule-matched-send` فقط برای دپارتمان(های) درست همان مسیر ثبت شده است.
+- [ ] `dispatch` ایمیل پیش‌فرض ادمین در هر چهار مسیر ثبت شده (رول‌های شرطی مسیر قدیمی را حذف نمی‌کنند).
+- [ ] مقدار `track` در همه رویدادهای یک submit یکسان است و subject همان الگوی `[confirmation_code]` قابل تشخیص را دارد.
+- [ ] `content_preview` داده‌های submit شده را نشان می‌دهد (وقتی محتوای ایمیل روی «content فرم» تنظیم است).
+- [ ] `wp-content/efb-email-debug.log` HTML کامل ایمیل را دارد و مقدار فیلدها و کد پیگیری در آن قابل بررسی است.
+- [ ] `result` برای هر گیرنده ثبت شده؛ در صورت `success=false`، فیلد `error` دلیل شکست (مثلاً SMTP) را نشان می‌دهد.
+- [ ] با حذف `EMSFB_EMAIL_DEBUG` از wp-config، هیچ خط `[EFB Email Debug]` جدیدی ثبت نمی‌شود (لاگ opt-in است).
+
+### 17.12 فرم تست ایمیل دپارتمان + وب‌هوک لاگ‌گیر
+
+یک فرم اختصاصی برای تست هم‌زمان ارسال ایمیل و تحویل webhook، به‌همراه یک endpoint لاگ‌گیر مستقل در مسیر جدا که فقط دریافتی‌ها را ثبت و نمایش می‌دهد (بدون نیاز به هیچ سرویس خارجی).
+
+#### ساخت fixture
+
+```powershell
+C:\xampp\php\php.exe tests/seed-email-webhook-log-form.php
+```
+
+- صفحه فرم: `http://127.0.0.1/wp/efb-email-webhook-log-test/`
+- صفحه وب‌هوک لاگ‌گیر (endpoint + viewer): `http://127.0.0.1/wp/wp-content/plugins/easy-form-builder/tests/webhook-catcher.php`
+- فایل لاگ وب‌هوک: `wp-content/efb-webhook-catcher.log` (دکمه Clear log در خود صفحه هست؛ دسترسی فقط از localhost مجاز است)
+
+پیکربندی فرم:
+
+| بخش | rule | شرط | مقصد |
+|---|---|---|---|
+| Email | `nr_dep_sales` | `department is Sales` | `sales@example.com` |
+| Email | `nr_dep_support` | `department is Support` | `support@example.com` |
+| Email | `nr_dep_billing` | `department is Billing` | `billing@example.com` |
+| Webhook | `wr_log_all` | `department is_not_empty` (هر submit) | POST به catcher با `webhook_id=log_catcher_post` |
+| Webhook | `wr_log_big_amount` | `amount gt 100` | GET به catcher با `webhook_id=log_catcher_get` |
+
+ایمیل پیش‌فرض ادمین فعال است و `email_noti_type=msg` است، یعنی محتوای ایمیل شامل داده‌های submit شده می‌شود (در `content_preview` و `efb-email-debug.log` قابل بررسی).
+
+#### مراحل تست
+
+1. صفحه catcher را باز کنید و با Clear log خالی‌اش کنید؛ لاگ‌های ایمیل را هم مثل 17.11 خالی کنید.
+2. این سه submit را انجام دهید:
+
+| # | department | amount | note | انتظار ایمیل | انتظار webhook |
+|---|---|---|---|---|---|
+| W1 | Sales | 150 | دلخواه | ادمین + `sales@` | POST + GET (هر دو) |
+| W2 | Support | 50 | دلخواه | ادمین + `support@` | فقط POST |
+| W3 | Billing | خالی | دلخواه | ادمین + `billing@` | فقط POST |
+
+3. صفحه catcher را refresh کنید و برای هر تحویل بررسی کنید: متد (POST/GET)، `webhook_id`، هدرهای `X-EFB-Rule-Id` و `X-EFB-Track-Code`، و در body مقادیر `values` / `submitted_values` / `page_url`.
+4. خطوط `[EFB Email Debug]` را مثل 17.11 بررسی کنید و track هر submit را با `x-efb-track-code` همان تحویل webhook تطبیق دهید.
+
+#### نتیجه مورد انتظار
+
+- [ ] W1 دو تحویل دارد (POST با payload کامل JSON + GET با `track_code` و `event_type` در query)؛ W2 و W3 فقط POST دارند.
+- [ ] `webhook_id` و `rule_id` هر تحویل با جدول بالا مطابق است و `track_code` آن با track ایمیل‌های همان submit یکی است.
+- [ ] body تحویل POST مقدار فیلدهای submit شده (department/amount/note) را دارد.
+- [ ] در هر سه submit ایمیل دپارتمان درست + ایمیل پیش‌فرض ادمین در لاگ ایمیل ثبت شده است.
+- [ ] هیچ ایمیل دپارتمانی برای دپارتمان انتخاب‌نشده ارسال/لاگ نشده است.
+- [ ] دسترسی به catcher از IP غیر localhost با 403 رد می‌شود.
 
 ## 18. بررسی نهایی فنی
 
