@@ -480,6 +480,48 @@ const result18b = runtime.evaluateDefinition(struct18, rows18b);
 testTrue('T18.7 OR-branch via connector still matches the stopping rule', result18b.matched_rules.includes('r_nested_stop'));
 testTrue('T18.8 fd hidden via the OR branch', result18b.hidden_fields.includes('fd'));
 
+// Test 19: basic calculations.
+const struct19 = makeStructure([
+  { id_: 'price', type: 'number' },
+  { id_: 'qty', type: 'number' },
+  { id_: 'tax', type: 'number' },
+  { id_: 'total', type: 'number' },
+  { id_: 'flag', type: 'text' },
+]);
+struct19[0].logic_rules = [
+  makeRule({
+    id: 'r_calc', priority: 1,
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('price', 'is_not_empty')] },
+    actions: [{ type: 'calculate', target: 'total', value: '({price} * {qty}) + {tax}', decimals: 2 }],
+  }),
+  makeRule({
+    id: 'r_total_flag', priority: 2,
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('total', 'gte', '25')] },
+    actions: [{ type: 'show_field', target: 'flag' }],
+  }),
+];
+const rows19 = [
+  { id_: 'price', value: '10', type: 'number' },
+  { id_: 'qty', value: '2', type: 'number' },
+  { id_: 'tax', value: '5.5', type: 'number' },
+];
+const result19 = runtime.evaluateDefinition(struct19, rows19);
+test('T19.1 calculate action writes rounded total', result19.set_values.total, '25.50');
+testTrue('T19.2 calculated value is available to later conditions', result19.matched_rules.includes('r_total_flag'));
+testTrue('T19.3 later rule effect fired from calculated value', result19.shown_fields.includes('flag'));
+
+const struct19b = makeStructure([
+  { id_: 'price', type: 'number' },
+  { id_: 'total', type: 'number' },
+]);
+struct19b[0].logic_rules = [makeRule({
+  id: 'r_bad_calc',
+  conditions: { type: 'group', operator: 'AND', items: [makeCondition('price', 'is_not_empty')] },
+  actions: [{ type: 'calculate', target: 'total', value: '{price} / 0', decimals: 2 }],
+})];
+const result19b = runtime.evaluateDefinition(struct19b, [{ id_: 'price', value: '10', type: 'number' }]);
+testFalse('T19.4 invalid formula does not set target value', Object.prototype.hasOwnProperty.call(result19b.set_values, 'total'));
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);

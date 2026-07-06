@@ -27,7 +27,7 @@ class efbFunction_TestDouble {
             }
         }
 
-        $allowed_action_types = array('show_field','hide_field','set_required','set_optional','enable_field','disable_field','show_step','hide_step','jump_to_step','set_value','clear_value','show_message');
+        $allowed_action_types = array('show_field','hide_field','set_required','set_optional','enable_field','disable_field','show_step','hide_step','jump_to_step','set_value','calculate','clear_value','show_message');
         $allowed_scopes = array('field','step','notification','confirmation','webhook','pricing');
 
         foreach ($rules as $rule) {
@@ -68,6 +68,9 @@ class efbFunction_TestDouble {
                         $a['value_type'] = isset($act['value_type']) && $act['value_type'] === 'autofill_key'
                             ? 'autofill_key'
                             : 'static';
+                    }
+                    if ($a['type'] === 'calculate' && isset($act['decimals'])) {
+                        $a['decimals'] = max(0, min(6, intval($act['decimals'])));
                     }
                     $r['actions'][] = $a;
                 }
@@ -375,6 +378,13 @@ test('T6 action_type=show_message preserved', !empty($result) && $result[0]['act
 $rules[0]['actions'][0] = ['type' => 'clear_value', 'target' => 'field_b'];
 $result = $efb->sanitize_logic_rules($rules, $form_structure);
 test('T6 action_type=clear_value preserved', !empty($result) && $result[0]['actions'][0]['type'] === 'clear_value', true);
+
+// calculate
+$rules[0]['actions'][0] = ['type' => 'calculate', 'target' => 'field_b', 'value' => '{field_a} * 2', 'decimals' => 9];
+$result = $efb->sanitize_logic_rules($rules, $form_structure);
+test('T6 action_type=calculate preserved', !empty($result) && $result[0]['actions'][0]['type'] === 'calculate', true);
+test('T6 calculate formula preserved', !empty($result) && $result[0]['actions'][0]['value'] === '{field_a} * 2', true);
+test('T6 calculate decimals capped at 6', !empty($result) && $result[0]['actions'][0]['decimals'] === 6, true);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GROUP 7: Nested condition groups (Task 5)

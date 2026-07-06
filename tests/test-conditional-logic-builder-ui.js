@@ -40,6 +40,9 @@ global.efb_var = { text: {}, rtl: 0, addons: { AdnSMF: 1 } };
 global.valj_efb = [
   { id_: 'form', type: 'form' },
   { id_: 'price', type: 'number', name: 'Price' },
+  { id_: 'qty', type: 'number', name: 'Quantity' },
+  { id_: 'tax', type: 'number', name: 'Tax' },
+  { id_: 'total', type: 'number', name: 'Total' },
   { id_: 'discountFlag', type: 'text', name: 'Discount Flag' },
 ];
 
@@ -208,6 +211,45 @@ EFB_Logic.updateConfirmation('action', 'redirect');
 testFalse('T9.16 redirect action hides styled fields', bodyHtml().includes("updateConfirmation('done'"));
 EFB_Logic.updateConfirmation('action', 'message');
 EFB_Logic.backToList();
+
+// Test 10: calculation action UI, save model, and Inspector output.
+EFB_Logic.switchTab('field');
+EFB_Logic.addRule();
+EFB_Logic.updateCondition('0', 'field_id', 'price');
+EFB_Logic.updateCondition('0', 'compare', 'is_not_empty');
+EFB_Logic.updateAction(0, 'type', 'calculate');
+EFB_Logic.updateAction(0, 'target', 'total');
+EFB_Logic.updateAction(0, 'value', '({price} * {qty}) + {tax}');
+EFB_Logic.updateAction(0, 'decimals', '2');
+const calcEditorHtml = bodyHtml();
+testTrue('T10.1 calculate formula input rendered', calcEditorHtml.includes('efb-logic-formula-input'));
+testTrue('T10.2 calculate decimals input rendered', calcEditorHtml.includes('efb-logic-decimals-input'));
+testTrue('T10.3 calculate field-token select rendered', calcEditorHtml.includes('efb-logic-calc-token-select'));
+EFB_Logic.applyRule();
+const calcRule = valj_efb[0].logic_rules.find(rule => (rule.actions || []).some(action => action.type === 'calculate'));
+testTrue('T10.4 calculate rule saved', !!calcRule);
+test('T10.5 calculate formula saved', calcRule.actions[0].value, '({price} * {qty}) + {tax}');
+test('T10.6 calculate decimals saved', Number(calcRule.actions[0].decimals), 2);
+EFB_Logic.openTestMode();
+EFB_Logic.updateTestValue('price', '10');
+EFB_Logic.updateTestValue('qty', '2');
+EFB_Logic.updateTestValue('tax', '5.5');
+EFB_Logic.runTest();
+const inspectorHtml = bodyHtml();
+testTrue('T10.7 Inspector panel rendered', inspectorHtml.includes('efb-logic-inspector'));
+testTrue('T10.8 Inspector shows calculated value', inspectorHtml.includes('25.50'));
+
+// Test 11: priority/conflict UI warning for same target opposite visibility actions.
+EFB_Logic.backToList();
+EFB_Logic.addRule();
+EFB_Logic.updateCondition('0', 'field_id', 'price');
+EFB_Logic.updateCondition('0', 'compare', 'is_not_empty');
+EFB_Logic.updateAction(0, 'type', 'hide_field');
+EFB_Logic.updateAction(0, 'target', 'discountFlag');
+EFB_Logic.applyRule();
+testTrue('T11.1 same-target conflict warning rendered in list', bodyHtml().includes('efb-logic-conflict-warning'));
+EFB_Logic.openTestMode();
+testTrue('T11.2 same-target conflict warning rendered in Inspector mode', bodyHtml().includes('efb-logic-conflict-warning'));
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 console.log('\n========================================');

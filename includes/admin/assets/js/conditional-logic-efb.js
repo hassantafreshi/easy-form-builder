@@ -21,6 +21,109 @@
     return d.innerHTML;
   };
 
+  /* ────────────────────────────────────────────
+     PLAN GATING (Free / Free Plus / Pro)
+     ──────────────────────────────────────────── */
+  /* Free Plus builder limits; Pro is unlimited. */
+  const FREE_PLUS_LIMITS = {
+    fieldRules: 3,
+    notificationRules: 2,
+    fieldConditionsPerGroup: 2
+  };
+  /* Tabs that only the Pro plan can configure. */
+  const PRO_ONLY_TABS = ['confirmation', 'webhook'];
+
+  /* 'pro' | 'freeplus' | 'free'.
+   * efb_var.pro is 1 for BOTH Pro and Free Plus (is_efb_pro), so
+   * setting.package_type (1=Pro, 3=Free Plus) tells them apart.
+   * When efb_var.pro is absent (tests/legacy contexts) stay permissive. */
+  function getPlanTier() {
+    if (typeof efb_var === 'undefined' || efb_var.pro === undefined || efb_var.pro === null) return 'pro';
+    const proFlag = efb_var.pro == '1' || efb_var.pro == 1 || efb_var.pro === true;
+    if (!proFlag) return 'free';
+    const packageType = efb_var.setting ? Number(efb_var.setting.package_type) : NaN;
+    return packageType === 3 ? 'freeplus' : 'pro';
+  }
+
+  function isProPlan() { return getPlanTier() === 'pro'; }
+  function isFreePlusPlan() { return getPlanTier() === 'freeplus'; }
+
+  function isTabProLocked(tab) {
+    return PRO_ONLY_TABS.includes(tab) && !isProPlan();
+  }
+
+  /* Max rules per tab for the current plan. */
+  function getRuleLimit(tab) {
+    if (!isFreePlusPlan()) return Infinity;
+    if (tab === 'field') return FREE_PLUS_LIMITS.fieldRules;
+    if (tab === 'notification') return FREE_PLUS_LIMITS.notificationRules;
+    return Infinity;
+  }
+
+  /* Max conditions per group for the current plan (fields tab only). */
+  function getConditionLimit() {
+    return isFreePlusPlan() && activeTab === 'field' ? FREE_PLUS_LIMITS.fieldConditionsPerGroup : Infinity;
+  }
+
+  function countGroupConditions(group) {
+    if (!group || !Array.isArray(group.items)) return 0;
+    return group.items.filter(item => !isGroupItem(item)).length;
+  }
+
+  function proOnlyMessage() {
+    return _tf('fieldAvailableInProversion', 'This feature is only available in the Pro version of Easy Form Builder.');
+  }
+
+  function limitMessage(max, label) {
+    return _tf('planLimitReached', 'You can create up to %1$s %2$s on your current plan. Upgrade to Pro for unlimited access.')
+      .replace('%1$s', String(max))
+      .replace('%2$s', label);
+  }
+
+  function showBuilderNotice(message) {
+    if (typeof alert_message_efb === 'function') {
+      alert_message_efb(_tf('proVersion', 'Pro Version'), message, 8, 'warning');
+    }
+  }
+
+  function showProOnlyNotice() { showBuilderNotice(proOnlyMessage()); }
+
+  function showFreePlanNotice() {
+    showBuilderNotice(_tf('thisFeatureAvailableFreePlusPro', 'Want to use this feature? It is included in Free Plus and Pro plans.'));
+  }
+
+  function showLimitNotice(max, label) { showBuilderNotice(limitMessage(max, label)); }
+
+  /* Locked panel shown in place of a Pro-only tab's content. */
+  function renderProLockedPanel() {
+    return `
+      <div class="efb-logic-list">
+        <div class="efb-logic-empty efb-logic-pro-panel">
+          <div class="efb-logic-empty-icon efb-logic-pro-icon"><i class="efb bi-gem"></i></div>
+          <h6>${_tf('proVersion', 'Pro Version')}</h6>
+          <p>${_esc(proOnlyMessage())}</p>
+          <button type="button" class="efb-logic-add-btn efb-logic-add-btn-center" onclick="EFB_Logic.openProUpgrade()">
+            <i class="efb bi-gem"></i> ${_tf('upgradeToPro', 'Upgrade to Pro')}
+          </button>
+        </div>
+      </div>`;
+  }
+
+  /* Locked panel shown to Free-plan users instead of the whole builder. */
+  function renderFreeLockedPanel() {
+    return `
+      <div class="efb-logic-list">
+        <div class="efb-logic-empty efb-logic-pro-panel">
+          <div class="efb-logic-empty-icon efb-logic-pro-icon"><i class="efb bi-gem"></i></div>
+          <h6>${_tf('proVersion', 'Pro Version')}</h6>
+          <p>${_esc(_tf('thisFeatureAvailableFreePlusPro', 'Want to use this feature? It is included in Free Plus and Pro plans.'))}</p>
+          <button type="button" class="efb-logic-add-btn efb-logic-add-btn-center" onclick="EFB_Logic.openProUpgrade()">
+            <i class="efb bi-gem"></i> ${_tf('upgradeToPro', 'Upgrade to Pro')}
+          </button>
+        </div>
+      </div>`;
+  }
+
   /* operator definitions keyed by field category */
   const OPERATORS_BY_CATEGORY = {
     choice: ['is', 'is_not', 'is_empty', 'is_not_empty'],
@@ -85,13 +188,14 @@
     { value: 'show_field',    label: () => _t('show') + ' ' + _t('field') },
     { value: 'hide_field',    label: () => _t('hide') + ' ' + _t('field') },
     { value: 'set_required',  label: () => _t('required') },
-    { value: 'set_optional',  label: () => 'Optional' },
-    { value: 'enable_field',  label: () => 'Enable' },
-    { value: 'disable_field', label: () => 'Disable' },
+    { value: 'set_optional',  label: () => _tf('optional', 'Optional') },
+    { value: 'enable_field',  label: () => _tf('enable', 'Enable') },
+    { value: 'disable_field', label: () => _tf('disable', 'Disable') },
     { value: 'show_step',     label: () => _t('show') + ' ' + _t('step') },
     { value: 'hide_step',     label: () => _t('hide') + ' ' + _t('step') },
     { value: 'jump_to_step',  label: () => efb_var.text.jumpStep  || 'Jump to Step' },
     { value: 'set_value',     label: () => efb_var.text.setValue  || 'Set Value' },
+    { value: 'calculate',     label: () => _tf('calculate', 'Calculate') },
     { value: 'clear_value',   label: () => efb_var.text.clearValue || 'Clear Value' },
     { value: 'show_message',  label: () => efb_var.text.showMessage || 'Show Message' }
   ];
@@ -105,6 +209,7 @@
   let activeTab = 'field'; // 'field' | 'notification' | 'confirmation' | 'webhook'
   let testValues = {};
   let testResults = [];
+  let testInspector = null;
 
   /* ────────────────────────────────────────────
      FIELD HELPERS
@@ -168,6 +273,20 @@
   function getFieldName(fieldId) {
     const f = getFieldById(fieldId);
     return f ? _esc(f.name || f.type || fieldId) : _esc(fieldId || '');
+  }
+
+  function getRawFieldName(fieldId) {
+    const f = getFieldById(fieldId);
+    return f ? String(f.name || f.type || fieldId) : String(fieldId || '');
+  }
+
+  function getRawStepName(stepId) {
+    const step = getAllSteps().find(s => String(s.id_) === String(stepId));
+    return step ? String(step.name || step.id_) : String(stepId || '');
+  }
+
+  function getRawTargetName(target, isStep) {
+    return isStep ? getRawStepName(target) : getRawFieldName(target);
   }
 
   function getOptionLabel(fieldId, value) {
@@ -437,6 +556,409 @@
     return result;
   }
 
+  function clonePlain(value) {
+    return JSON.parse(JSON.stringify(value || {}));
+  }
+
+  function numberFromCalculationValue(value) {
+    if (Array.isArray(value)) {
+      let total = 0;
+      for (let i = 0; i < value.length; i++) {
+        if (value[i] === '' || value[i] == null) continue;
+        if (!isNumericScalar(value[i])) return { valid: false, value: 0 };
+        total += Number(value[i]);
+      }
+      return { valid: true, value: total };
+    }
+    if (value === '' || value == null) return { valid: true, value: 0 };
+    if (!isNumericScalar(value)) return { valid: false, value: 0 };
+    return { valid: true, value: Number(value) };
+  }
+
+  function tokenizeCalculationFormula(formula) {
+    const text = String(formula == null ? '' : formula).slice(0, 500);
+    const tokens = [];
+    let i = 0;
+    while (i < text.length) {
+      const ch = text.charAt(i);
+      if (/\s/.test(ch)) { i++; continue; }
+      if (ch === '{' || ch === '[') {
+        const close = ch === '{' ? '}' : ']';
+        const end = text.indexOf(close, i + 1);
+        if (end === -1) return null;
+        const ref = text.slice(i + 1, end).trim();
+        if (!ref) return null;
+        tokens.push({ type: 'ref', value: ref });
+        i = end + 1;
+        continue;
+      }
+      if (/[0-9.]/.test(ch)) {
+        const start = i;
+        let dots = 0;
+        while (i < text.length && /[0-9.]/.test(text.charAt(i))) {
+          if (text.charAt(i) === '.') dots++;
+          i++;
+        }
+        const literal = text.slice(start, i);
+        if (literal === '.' || dots > 1 || !isFinite(literal)) return null;
+        tokens.push({ type: 'number', value: Number(literal) });
+        continue;
+      }
+      if (/[A-Za-z_]/.test(ch)) {
+        const start = i;
+        while (i < text.length && /[A-Za-z0-9_-]/.test(text.charAt(i))) i++;
+        tokens.push({ type: 'ref', value: text.slice(start, i) });
+        continue;
+      }
+      if ('+-*/()'.indexOf(ch) !== -1) {
+        tokens.push({ type: ch === '(' || ch === ')' ? 'paren' : 'op', value: ch });
+        i++;
+        continue;
+      }
+      return null;
+    }
+    return tokens;
+  }
+
+  function evaluateCalculationFormula(formula, values) {
+    const tokens = tokenizeCalculationFormula(formula);
+    if (!tokens || !tokens.length) return null;
+    let pos = 0;
+    const invalid = () => ({ valid: false, value: 0 });
+    const fieldNumber = (fieldId) => {
+      fieldId = String(fieldId || '');
+      if (!getFieldById(fieldId)) return invalid();
+      return numberFromCalculationValue(Object.prototype.hasOwnProperty.call(values, fieldId) ? values[fieldId] : '');
+    };
+    const parseExpression = () => {
+      let left = parseTerm();
+      while (left.valid && pos < tokens.length && tokens[pos].type === 'op' && (tokens[pos].value === '+' || tokens[pos].value === '-')) {
+        const op = tokens[pos++].value;
+        const right = parseTerm();
+        if (!right.valid) return right;
+        left.value = op === '+' ? left.value + right.value : left.value - right.value;
+      }
+      return left;
+    };
+    const parseTerm = () => {
+      let left = parseFactor();
+      while (left.valid && pos < tokens.length && tokens[pos].type === 'op' && (tokens[pos].value === '*' || tokens[pos].value === '/')) {
+        const op = tokens[pos++].value;
+        const right = parseFactor();
+        if (!right.valid) return right;
+        if (op === '/' && Math.abs(right.value) < 0.000000000001) return invalid();
+        left.value = op === '*' ? left.value * right.value : left.value / right.value;
+      }
+      return left;
+    };
+    const parseFactor = () => {
+      if (pos >= tokens.length) return invalid();
+      const token = tokens[pos];
+      if (token.type === 'op' && (token.value === '+' || token.value === '-')) {
+        pos++;
+        const unary = parseFactor();
+        if (!unary.valid) return unary;
+        return { valid: true, value: token.value === '-' ? -unary.value : unary.value };
+      }
+      if (token.type === 'number') {
+        pos++;
+        return { valid: true, value: token.value };
+      }
+      if (token.type === 'ref') {
+        pos++;
+        return fieldNumber(token.value);
+      }
+      if (token.type === 'paren' && token.value === '(') {
+        pos++;
+        const nested = parseExpression();
+        if (!nested.valid || pos >= tokens.length || tokens[pos].type !== 'paren' || tokens[pos].value !== ')') return invalid();
+        pos++;
+        return nested;
+      }
+      return invalid();
+    };
+    const result = parseExpression();
+    if (!result.valid || pos !== tokens.length || !isFinite(result.value)) return null;
+    return result.value;
+  }
+
+  function formatCalculationResult(value, decimals) {
+    const hasDecimals = decimals !== undefined && decimals !== null && decimals !== '';
+    if (hasDecimals) {
+      const places = Math.max(0, Math.min(6, Number.parseInt(decimals, 10) || 0));
+      return Number(value).toFixed(places);
+    }
+    return String(parseFloat(Number(value).toFixed(10)));
+  }
+
+  function resolveCalculationValueForTest(action, values) {
+    const formula = String(action && action.value != null ? action.value : '').trim();
+    if (!formula) return null;
+    const value = evaluateCalculationFormula(formula, values);
+    if (value === null) return null;
+    return formatCalculationResult(value, action.decimals);
+  }
+
+  function isStepActionType(type) {
+    return type === 'show_step' || type === 'hide_step' || type === 'jump_to_step';
+  }
+
+  function actionConflictFamily(type) {
+    if (type === 'show_field' || type === 'hide_field') return 'visibility';
+    if (type === 'set_required' || type === 'set_optional') return 'requirement';
+    if (type === 'enable_field' || type === 'disable_field') return 'availability';
+    if (type === 'show_step' || type === 'hide_step') return 'step_visibility';
+    if (type === 'set_value' || type === 'calculate' || type === 'clear_value') return 'value';
+    return '';
+  }
+
+  function isRuleEnabled(rule) {
+    return !(rule && (rule.enabled === false || rule.enabled === 0 || rule.enabled === '0'));
+  }
+
+  function analyzeConflicts() {
+    if (activeTab !== 'field') return [];
+    const buckets = {};
+    rules.forEach((rule, position) => {
+      if (!isRuleEnabled(rule) || !Array.isArray(rule.actions)) return;
+      rule.actions.forEach(action => {
+        if (!action || !action.type || !action.target) return;
+        const family = actionConflictFamily(action.type);
+        if (!family) return;
+        const key = `${family}:${action.target}`;
+        if (!buckets[key]) buckets[key] = [];
+        buckets[key].push({ rule, action, position });
+      });
+    });
+
+    return Object.keys(buckets).map(key => {
+      const entries = buckets[key];
+      const family = key.split(':')[0];
+      const target = entries[0] && entries[0].action ? entries[0].action.target : '';
+      const uniqueTypes = Array.from(new Set(entries.map(entry => entry.action.type)));
+      const conflicts = family === 'value'
+        ? entries.length > 1
+        : uniqueTypes.length > 1;
+      if (!conflicts) return null;
+      const isStep = isStepActionType(entries[0].action.type);
+      const targetName = getRawTargetName(target, isStep);
+      const names = entries.map(entry => {
+        const fallback = _t('conlog') + ' ' + (entry.position + 1);
+        return `${entry.rule.name || fallback} (#${Number(entry.rule.priority || 10)})`;
+      }).join(', ');
+      return {
+        target,
+        targetName,
+        family,
+        entries,
+        message: `${targetName}: ${names}`
+      };
+    }).filter(Boolean);
+  }
+
+  function describeAppliedAction(action, resultValue) {
+    const actionType = ACTION_TYPES.find(item => item.value === action.type);
+    const label = actionType ? actionType.label() : action.type;
+    const targetName = getRawTargetName(action.target, isStepActionType(action.type));
+    if (action.type === 'calculate' && resultValue != null) return `${label} -> ${targetName} = ${resultValue}`;
+    if (action.type === 'set_value' && action.value != null) return `${label} -> ${targetName} = ${action.value}`;
+    return targetName ? `${label} -> ${targetName}` : label;
+  }
+
+  function emptyInspectorResult(values) {
+    return {
+      stabilized: true,
+      trace: [],
+      matched_rules: [],
+      hidden_fields: [],
+      shown_fields: [],
+      required_fields: [],
+      optional_fields: [],
+      disabled_fields: [],
+      enabled_fields: [],
+      hidden_steps: [],
+      shown_steps: [],
+      ignored_fields: [],
+      values_map: clonePlain(values),
+      set_values: {},
+      cleared_fields: [],
+      messages: [],
+      jumps: [],
+      errors: [],
+      conflicts: analyzeConflicts()
+    };
+  }
+
+  function evaluateInspectorPass(values, sorted) {
+    const hidden = {};
+    const shown = {};
+    const required = {};
+    const optional = {};
+    const disabled = {};
+    const enabled = {};
+    const hiddenSteps = {};
+    const shownSteps = {};
+    const stoppedFieldTargets = {};
+    const stoppedStepTargets = {};
+    const nextValues = clonePlain(values);
+    const result = emptyInspectorResult(nextValues);
+
+    getAllFields().forEach(field => {
+      const source = getFieldById(field.id_) || {};
+      if (source.hidden === true || source.hidden === 1 || source.hidden === '1') hidden[field.id_] = true;
+      if (source.disabled === true || source.disabled === 1 || source.disabled === '1') disabled[field.id_] = true;
+    });
+    getAllSteps().forEach(step => {
+      const source = typeof valj_efb !== 'undefined' ? valj_efb.find(item => item && item.id_ === step.id_) : {};
+      if (source && (source.hidden === true || source.hidden === 1 || source.hidden === '1')) hiddenSteps[step.id_] = true;
+    });
+    if (activeTab === 'field') {
+      sorted.forEach(rule => {
+        (rule.actions || []).forEach(action => {
+          if (action.type === 'show_field' && action.target) hidden[action.target] = true;
+          if (action.type === 'show_step' && action.target) hiddenSteps[action.target] = true;
+        });
+      });
+    }
+
+    sorted.forEach((rule, index) => {
+      const name = rule.name || (_t('conlog') + ' ' + (index + 1));
+      const ruleActions = Array.isArray(rule.actions) ? rule.actions : [];
+      if (!isRuleEnabled(rule)) {
+        result.trace.push({ rule, name, status: 'skipped', label: _tf('skipped', 'Skipped'), actions: [] });
+        return;
+      }
+      const blockedByStop = activeTab === 'field' && ruleActions.length > 0 && ruleActions.every(action => {
+        if (!action.target) return false;
+        return isStepActionType(action.type)
+          ? Object.prototype.hasOwnProperty.call(stoppedStepTargets, action.target)
+          : Object.prototype.hasOwnProperty.call(stoppedFieldTargets, action.target);
+      });
+      if (blockedByStop) {
+        result.trace.push({ rule, name, status: 'blocked', label: _tf('blockedByStop', 'Blocked by stop processing'), actions: [] });
+        return;
+      }
+      const matched = evaluateConditionGroupWithValues(rule.conditions, nextValues);
+      if (!matched) {
+        result.trace.push({ rule, name, status: 'not-matched', label: _tf('notMatched', 'Not matched'), actions: [] });
+        return;
+      }
+
+      const ruleId = String(rule.id || ('rule_' + index));
+      const applied = [];
+      result.matched_rules.push(ruleId);
+      if (activeTab !== 'field') {
+        applied.push(buildTestActionSummary(rule));
+      } else {
+        ruleActions.forEach((action, actionIndex) => {
+          const target = action.target;
+          if (!target) return;
+          let calculatedValue = null;
+          switch (action.type) {
+            case 'show_field': delete hidden[target]; shown[target] = true; break;
+            case 'hide_field': hidden[target] = true; delete shown[target]; break;
+            case 'set_required': required[target] = true; delete optional[target]; break;
+            case 'set_optional': optional[target] = true; delete required[target]; break;
+            case 'enable_field': delete disabled[target]; enabled[target] = true; break;
+            case 'disable_field': disabled[target] = true; delete enabled[target]; break;
+            case 'show_step': delete hiddenSteps[target]; shownSteps[target] = true; break;
+            case 'hide_step': hiddenSteps[target] = true; delete shownSteps[target]; break;
+            case 'set_value':
+              nextValues[target] = action.value != null ? action.value : '';
+              break;
+            case 'calculate':
+              calculatedValue = resolveCalculationValueForTest(action, nextValues);
+              if (calculatedValue == null) {
+                result.errors.push({ rule: ruleId, action: actionIndex, message: _tf('formulaInvalid', 'Formula could not be calculated. Check field tokens and division by zero.') });
+                return;
+              }
+              nextValues[target] = calculatedValue;
+              break;
+            case 'clear_value':
+              nextValues[target] = '';
+              break;
+            case 'show_message':
+              result.messages.push({ key: ruleId + ':' + actionIndex, target, value: String(action.value || '') });
+              break;
+            case 'jump_to_step':
+              result.jumps.push({ key: ruleId + ':' + actionIndex, target });
+              break;
+          }
+          applied.push(describeAppliedAction(action, calculatedValue));
+        });
+      }
+      result.trace.push({ rule, name, status: 'matched', label: _tf('matched', 'Matched'), actions: applied });
+
+      if (activeTab === 'field' && rule.stop_processing) {
+        ruleActions.forEach(action => {
+          if (!action.target) return;
+          if (isStepActionType(action.type)) stoppedStepTargets[action.target] = true;
+          else stoppedFieldTargets[action.target] = true;
+        });
+      }
+    });
+
+    const ignored = { ...hidden, ...disabled };
+    getAllFields().forEach(field => {
+      const source = getFieldById(field.id_) || {};
+      const fieldStep = String(source.step || field.step || '');
+      Object.keys(hiddenSteps).forEach(stepId => {
+        const step = getAllSteps().find(item => String(item.id_) === String(stepId));
+        const stepNumber = String(step && step.step != null ? step.step : stepId);
+        if (fieldStep && (fieldStep === String(stepId) || fieldStep === stepNumber)) ignored[field.id_] = true;
+      });
+    });
+
+    result.hidden_fields = Object.keys(hidden);
+    result.shown_fields = Object.keys(shown);
+    result.required_fields = Object.keys(required);
+    result.optional_fields = Object.keys(optional);
+    result.disabled_fields = Object.keys(disabled);
+    result.enabled_fields = Object.keys(enabled);
+    result.hidden_steps = Object.keys(hiddenSteps);
+    result.shown_steps = Object.keys(shownSteps);
+    result.ignored_fields = Object.keys(ignored);
+    result.values_map = nextValues;
+    return result;
+  }
+
+  function evaluateRulesForInspector(initialValues) {
+    const original = clonePlain(initialValues);
+    const sorted = rules.map((rule, position) => ({ ...rule, _position: position }))
+      .sort((a, b) => (Number(a.priority || 10) - Number(b.priority || 10)) || (a._position - b._position));
+    let values = clonePlain(initialValues);
+    let result = emptyInspectorResult(values);
+    const seen = {};
+
+    for (let pass = 0; pass < 10; pass++) {
+      const signature = JSON.stringify(values);
+      if (seen[signature]) {
+        result.stabilized = false;
+        break;
+      }
+      seen[signature] = true;
+      result = evaluateInspectorPass(values, sorted);
+      const nextSignature = JSON.stringify(result.values_map);
+      if (nextSignature === signature) {
+        result.stabilized = true;
+        break;
+      }
+      values = clonePlain(result.values_map);
+    }
+
+    result.set_values = {};
+    result.cleared_fields = [];
+    Object.keys({ ...original, ...result.values_map }).forEach(fieldId => {
+      const before = Object.prototype.hasOwnProperty.call(original, fieldId) ? original[fieldId] : '';
+      const after = Object.prototype.hasOwnProperty.call(result.values_map, fieldId) ? result.values_map[fieldId] : '';
+      if (JSON.stringify(before) === JSON.stringify(after)) return;
+      if (after == null || after === '' || (Array.isArray(after) && after.length === 0)) result.cleared_fields.push(fieldId);
+      else result.set_values[fieldId] = after;
+    });
+    result.conflicts = analyzeConflicts();
+    return result;
+  }
+
   function isRuleValid(rule, tab = activeTab) {
     if (!rule || !rule.conditions || !Array.isArray(rule.conditions.items) || !rule.conditions.items.length) return false;
     const conditionsValid = isConditionGroupValid(rule.conditions);
@@ -457,6 +979,7 @@
       if (!action || !action.type || !action.target) return false;
       if (action.type === 'show_message') return String(action.value || '').trim().length > 0;
       if (action.type === 'set_value') return String(action.value || '').length > 0;
+      if (action.type === 'calculate') return String(action.value || '').trim().length > 0;
       return true;
     });
     return actionsValid;
@@ -576,6 +1099,94 @@
     }).filter(Boolean).join(', ');
   }
 
+  function renderConflictWarnings(conflicts = analyzeConflicts()) {
+    if (!conflicts.length) return '';
+    return `
+      <div class="efb-logic-conflict-warning">
+        <div class="efb-logic-conflict-title">
+          <i class="efb bi-exclamation-triangle"></i>
+          <strong>${_tf('conflicts', 'Conflicts')}</strong>
+        </div>
+        <div class="efb-logic-conflict-list">
+          ${conflicts.map(conflict => `
+            <div class="efb-logic-conflict-item">
+              <span>${_esc(conflict.message)}</span>
+              <small>${_tf('priority', 'Priority')} / ${_tf('stopProcessing', 'Stop after this rule matches')}</small>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  function formatInspectorValue(value) {
+    if (Array.isArray(value)) return value.join(', ');
+    if (value === undefined || value === null || value === '') return '-';
+    return String(value);
+  }
+
+  function renderInspectorValues(inspector) {
+    const rows = getAllFields()
+      .filter(field => Object.prototype.hasOwnProperty.call(inspector.values_map || {}, field.id_))
+      .map(field => `
+        <div class="efb-logic-inspector-kv">
+          <span>${_esc(field.name)}</span>
+          <code>${_esc(formatInspectorValue(inspector.values_map[field.id_]))}</code>
+        </div>`);
+    return rows.length ? rows.join('') : `<div class="efb-logic-inspector-empty">${_tf('noFields', 'No fields found.')}</div>`;
+  }
+
+  function renderInspectorEffects(inspector) {
+    const items = [
+      ['shown_fields', _tf('shown', 'Shown')],
+      ['hidden_fields', _tf('hidden', 'Hidden')],
+      ['required_fields', _tf('required', 'Required')],
+      ['optional_fields', _tf('optional', 'Optional')],
+      ['disabled_fields', _tf('disabled', 'Disabled')],
+      ['enabled_fields', _tf('enabled', 'Enabled')],
+      ['set_values', _tf('setValue', 'Set Value')],
+      ['cleared_fields', _tf('clearValue', 'Clear Value')]
+    ];
+    const rows = items.map(([key, label]) => {
+      const value = key === 'set_values' ? Object.keys(inspector.set_values || {}) : (inspector[key] || []);
+      if (!value.length) return '';
+      return `
+        <div class="efb-logic-inspector-effect">
+          <span>${_esc(label)}</span>
+          <strong>${_esc(value.map(id => getRawFieldName(id)).join(', '))}</strong>
+        </div>`;
+    }).filter(Boolean);
+    if (inspector.errors && inspector.errors.length) {
+      rows.push(inspector.errors.map(error => `
+        <div class="efb-logic-inspector-effect efb-logic-inspector-error">
+          <span>${_tf('warning', 'warning')}</span>
+          <strong>${_esc(error.message)}</strong>
+        </div>`).join(''));
+    }
+    return rows.length ? rows.join('') : `<div class="efb-logic-inspector-empty">-</div>`;
+  }
+
+  function renderInspectorPanel(inspector) {
+    if (!inspector) return '';
+    return `
+      <div class="efb-logic-inspector">
+        <div class="efb-logic-inspector-head">
+          <h6><i class="efb bi-search"></i> ${_tf('inspector', 'Inspector')}</h6>
+          <span>${inspector.stabilized ? _tf('stable', 'Stable') : _tf('loopWarning', 'Rules did not stabilize (possible loop)')}</span>
+        </div>
+        <div class="efb-logic-inspector-grid">
+          <section>
+            <h6>${_tf('finalValues', 'Final values')}</h6>
+            ${renderInspectorValues(inspector)}
+          </section>
+          <section>
+            <h6>${_tf('effects', 'Effects')}</h6>
+            ${renderInspectorEffects(inspector)}
+          </section>
+        </div>
+        ${renderConflictWarnings(inspector.conflicts || [])}
+      </div>`;
+  }
+
   /* ────────────────────────────────────────────
      RENDER — RULES LIST
      ──────────────────────────────────────────── */
@@ -584,15 +1195,17 @@
     currentRuleId = null;
     // const mx = Number(efb_var.rtl) == 1 ? 'ms-2' : 'me-2';
     const mx ="";
+    const conflicts = analyzeConflicts();
     if (rules.length === 0) {
       return `
         <div class="efb-logic-list">
           <div class="efb-logic-list-header">
             <button type="button" class="efb-logic-test-btn" onclick="EFB_Logic.openTestMode()"><i class="efb bi-play-circle"></i> ${_tf('testMode', 'Test Mode')}</button>
           </div>
+          ${renderConflictWarnings(conflicts)}
           <div class="efb-logic-empty">
             <div class="efb-logic-empty-icon"><i class="efb bi-diagram-3 ${mx}"></i></div>
-            <p>Add your first rule to start building smart forms.</p>
+            <p>${_tf('addFirstRule', 'Add your first rule to start building smart forms.')}</p>
             <button type="button" class="efb-logic-add-btn efb-logic-add-btn-center" onclick="EFB_Logic.addRule()"><i class="efb bi-plus-lg"></i> ${_t('add')}</button>
           </div>
         </div>`;
@@ -621,12 +1234,18 @@
         </div>`;
     });
 
+    const ruleLimit = getRuleLimit(activeTab);
+    const atRuleLimit = rules.length >= ruleLimit;
+    const addLockAttr = atRuleLimit
+      ? ` title="${_esc(limitMessage(ruleLimit, getTabLabel(activeTab)))}"`
+      : '';
     return `
       <div class="efb-logic-list">
         <div class="efb-logic-list-header">
           <button type="button" class="efb-logic-test-btn" onclick="EFB_Logic.openTestMode()"><i class="efb bi-play-circle"></i> ${_tf('testMode', 'Test Mode')}</button>
-          <button type="button" class="efb-logic-add-btn" onclick="EFB_Logic.addRule()"><i class="efb bi-plus-lg"></i> ${_t('add')}</button>
+          <button type="button" class="efb-logic-add-btn${atRuleLimit ? ' efb-logic-btn-locked' : ''}"${addLockAttr} onclick="EFB_Logic.addRule()"><i class="efb ${atRuleLimit ? 'bi-gem' : 'bi-plus-lg'}"></i> ${_t('add')}</button>
         </div>
+        ${renderConflictWarnings(conflicts)}
         ${cards}
       </div>`;
   }
@@ -660,20 +1279,21 @@
   }
 
   function renderTestResults() {
-    if (!testResults.length) return '';
+    if (!testResults.length && !testInspector) return '';
     return `
       <div class="efb-logic-test-results">
         ${testResults.map(result => `
           <div class="efb-logic-test-result ${result.status}">
             <div class="efb-logic-test-result-main">
-              <i class="efb ${result.status === 'matched' ? 'bi-check-circle' : (result.status === 'skipped' ? 'bi-dash-circle' : 'bi-x-circle')}"></i>
+              <i class="efb ${result.status === 'matched' ? 'bi-check-circle' : (result.status === 'skipped' || result.status === 'blocked' ? 'bi-dash-circle' : 'bi-x-circle')}"></i>
               <strong>${_esc(result.name)}</strong>
               <span>${_esc(result.label)}</span>
             </div>
             ${result.actionText ? `<p>${result.actionText}</p>` : ''}
           </div>
         `).join('')}
-      </div>`;
+      </div>
+      ${renderInspectorPanel(testInspector)}`;
   }
 
   function renderTestMode() {
@@ -689,6 +1309,7 @@
           </div>
         </div>
         <div class="efb-logic-test-body">
+          ${renderConflictWarnings(analyzeConflicts())}
           <div class="efb-logic-test-fields">
             ${fields.length ? fields.map(renderTestField).join('') : `<div class="efb-logic-group-empty">${_tf('noFields', 'No fields found.')}</div>`}
           </div>
@@ -734,15 +1355,22 @@
                   <i class="efb bi-plus"></i>${_t('add')}
                 </button>
               </div>` : '';
+    /* Priority + stop_processing are Pro-only controls */
+    const proPlan = isProPlan();
+    const proLockAttr = proPlan ? '' : ` title="${_esc(proOnlyMessage())}" onclick="EFB_Logic.notifyProFeature()"`;
+    const proGem = proPlan ? '' : ' <i class="efb bi-gem efb-logic-pro-gem"></i>';
+    const currentConflicts = analyzeConflicts().filter(conflict =>
+      conflict.entries.some(entry => entry.rule && entry.rule.id === rule.id)
+    );
     const stopProcessingField = activeTab === 'field' ? `
-            <label class="efb-logic-stop-field">
+            <label class="efb-logic-stop-field${proPlan ? '' : ' efb-logic-pro-locked'}"${proLockAttr}>
               <span class="efb-logic-toggle efb-logic-stop-toggle">
-                <input type="checkbox" ${rule.stop_processing ? 'checked' : ''}
+                <input type="checkbox" ${rule.stop_processing ? 'checked' : ''} ${proPlan ? '' : 'disabled'}
                        onchange="EFB_Logic.setStopProcessing(this.checked)">
                 <span class="efb-logic-toggle-track"></span>
                 <span class="efb-logic-toggle-thumb"></span>
               </span>
-              <span class="efb-logic-stop-label">${efb_var.text.stopProcessing || 'Stop after this rule matches'}</span>
+              <span class="efb-logic-stop-label">${efb_var.text.stopProcessing || 'Stop after this rule matches'}${proGem}</span>
             </label>` : '';
 
     return `
@@ -755,6 +1383,7 @@
           </div>
         </div>
         <div class="efb-logic-editor-body">
+          ${renderConflictWarnings(currentConflicts)}
           <!-- IF section -->
           <div class="efb-logic-section">
             <span class="efb-logic-section-label efb-if-label">IF</span>
@@ -785,9 +1414,9 @@
         </div>
         <div class="efb-logic-editor-footer">
           <div class="efb-logic-footer-options">
-            <label class="efb-logic-priority-field">
-              <span class="efb-logic-priority-label">${_t('priority') || 'Priority'}</span>
-              <input type="number" class="efb-logic-priority-input" min="0" step="1" value="${Number(rule.priority || 10)}"
+            <label class="efb-logic-priority-field${proPlan ? '' : ' efb-logic-pro-locked'}"${proLockAttr}>
+              <span class="efb-logic-priority-label">${_t('priority') || 'Priority'}${proGem}</span>
+              <input type="number" class="efb-logic-priority-input" min="0" step="1" value="${Number(rule.priority || 10)}" ${proPlan ? '' : 'disabled'}
                      onchange="EFB_Logic.setPriority(this.value)">
             </label>
             ${stopProcessingField}
@@ -803,6 +1432,9 @@
     group.operator = String(group.operator || 'AND').toUpperCase() === 'OR' ? 'OR' : 'AND';
     if (!Array.isArray(group.items)) group.items = [];
 
+    const conditionLimit = getConditionLimit();
+    const conditionAtLimit = countGroupConditions(group) >= conditionLimit;
+    const groupProLocked = !isProPlan();
     const pathAttr = _esc(path || '');
     const title = isRoot ? _tf('logicConditions', 'Conditions') : _tf('logicGroup', 'Group');
     const removeBtn = isRoot ? '' : `
@@ -845,11 +1477,11 @@
           ${itemHtml}
         </div>
         <div class="efb-logic-group-actions">
-          <button type="button" class="efb-logic-add-row-btn" onclick="EFB_Logic.addCondition('${pathAttr}')">
-            <i class="efb bi-plus"></i>${_t('add')} ${_tf('logicCondition', 'Condition')}
+          <button type="button" class="efb-logic-add-row-btn${conditionAtLimit ? ' efb-logic-btn-locked' : ''}"${conditionAtLimit ? ` title="${_esc(limitMessage(conditionLimit, _tf('logicConditions', 'Conditions')))}"` : ''} onclick="EFB_Logic.addCondition('${pathAttr}')">
+            <i class="efb ${conditionAtLimit ? 'bi-gem' : 'bi-plus'}"></i>${_t('add')} ${_tf('logicCondition', 'Condition')}
           </button>
-          <button type="button" class="efb-logic-add-row-btn efb-logic-add-group-btn" onclick="EFB_Logic.addGroup('${pathAttr}')">
-            <i class="efb bi-diagram-3"></i>${_t('add')} ${_tf('logicGroup', 'Group')}
+          <button type="button" class="efb-logic-add-row-btn efb-logic-add-group-btn${groupProLocked ? ' efb-logic-btn-locked' : ''}"${groupProLocked ? ` title="${_esc(proOnlyMessage())}"` : ''} onclick="EFB_Logic.addGroup('${pathAttr}')">
+            <i class="efb ${groupProLocked ? 'bi-gem' : 'bi-diagram-3'}"></i>${_t('add')} ${_tf('logicGroup', 'Group')}
           </button>
         </div>
       </div>`;
@@ -946,7 +1578,7 @@
       const phStatic = _t('enterTheValueThisField') || 'Value...';
       if (afActive) {
         /* Source-type selector: Static | Dataset column */
-        let vtOpts = `<option value="static" ${vType === 'static' ? 'selected' : ''}>${efb_var.text.setValue || 'Static'}</option>`;
+        let vtOpts = `<option value="static" ${vType === 'static' ? 'selected' : ''}>${_tf('staticValue', 'Static')}</option>`;
         if (afKeys.length > 0) {
           vtOpts += `<option value="autofill_key" ${vType === 'autofill_key' ? 'selected' : ''}>⛛ ${efb_var.text.datas || 'Dataset'}</option>`;
         }
@@ -965,6 +1597,17 @@
         /* Autofill not active — plain static input */
         valueHtml = `<input type="text" class="efb-logic-value-input" value="${_esc(action.value || '')}" placeholder="${phStatic}" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'value',this.value)">` ;
       }
+    }
+    if (action.type === 'calculate') {
+      let tokenOptions = `<option value="">${_tf('insertField', 'Insert field')}</option>`;
+      getAllFields().forEach(field => {
+        tokenOptions += `<option value="${_esc(field.id_)}">${_esc(field.name)}</option>`;
+      });
+      const decimals = action.decimals !== undefined && action.decimals !== null && action.decimals !== '' ? Number(action.decimals) : '';
+      valueHtml = `
+        <input type="text" class="efb-logic-value-input efb-logic-formula-input" value="${_esc(action.value || '')}" placeholder="{price} * {qty}" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'value',this.value)">
+        <input type="number" class="efb-logic-decimals-input" min="0" max="6" step="1" value="${_esc(String(decimals))}" placeholder="${_tf('decimals', 'Decimals')}" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'decimals',this.value)">
+        <select class="efb-logic-calc-token-select" data-ai="${idx}" onchange="EFB_Logic.insertCalculationToken(${idx},this.value);this.value=''">${tokenOptions}</select>`;
     }
 
     return `
@@ -1113,16 +1756,21 @@
     ];
     return `
       <div class="efb-logic-tabs">
-        ${tabs.map(tab => `
-          <button type="button" class="${activeTab === tab.id ? 'active' : ''}" onclick="EFB_Logic.switchTab('${tab.id}')">
+        ${tabs.map(tab => {
+          const locked = isTabProLocked(tab.id);
+          return `
+          <button type="button" class="${activeTab === tab.id ? 'active' : ''}${locked ? ' efb-logic-tab-locked' : ''}"${locked ? ` title="${_esc(proOnlyMessage())}"` : ''} onclick="EFB_Logic.switchTab('${tab.id}')">
             <i class="efb ${tab.icon}"></i>
-            <span>${_esc(tab.label)}</span>
-          </button>
-        `).join('')}
+            <span>${_esc(tab.label)}</span>${locked ? '<i class="efb bi-gem efb-logic-tab-gem"></i>' : ''}
+          </button>`;
+        }).join('')}
       </div>`;
   }
 
   function renderShell() {
+    if (isTabProLocked(activeTab)) {
+      return renderTabs() + renderProLockedPanel();
+    }
     const content = view === 'test'
       ? renderTestMode()
       : (view === 'editor' && currentRuleId)
@@ -1132,9 +1780,28 @@
   }
 
   function openModal() {
+    /* Conditional logic is a Free Plus / Pro feature: Free plan users get the
+     * standard upgrade dialog instead of the builder. */
+    if (getPlanTier() === 'free') {
+      if (typeof pro_show_efb === 'function') {
+        pro_show_efb(3);
+        return;
+      }
+      const freeBody = document.getElementById('settingModalEfb-body');
+      if (freeBody) {
+        freeBody.classList.remove('row');
+        freeBody.innerHTML = renderFreeLockedPanel();
+      }
+      const freeTitle = document.getElementById('settingModalEfb-title');
+      if (freeTitle) freeTitle.textContent = _t('conlog');
+      if (typeof state_modal_show_efb === 'function') state_modal_show_efb(1);
+      return;
+    }
     loadRules();
     view = 'list';
     currentRuleId = null;
+    testResults = [];
+    testInspector = null;
     const mx = Number(efb_var.rtl) == 1 ? 'ms-2' : 'me-2';
     const modal = document.getElementById('settingModalEfb');
     if (!modal) return;
@@ -1185,6 +1852,7 @@
       view = 'list';
       currentRuleId = null;
       testResults = [];
+      testInspector = null;
       loadRules();
       refreshView();
     },
@@ -1193,6 +1861,7 @@
       view = 'test';
       currentRuleId = null;
       testResults = [];
+      testInspector = null;
       refreshView();
     },
 
@@ -1202,19 +1871,13 @@
 
     runTest() {
       const values = getTestValuesMap();
-      const sorted = rules.map((rule, position) => ({ ...rule, _position: position }))
-        .sort((a, b) => (Number(a.priority || 10) - Number(b.priority || 10)) || (a._position - b._position));
-      testResults = sorted.map((rule, index) => {
-        const name = rule.name || (_t('conlog') + ' ' + (index + 1));
-        if (rule.enabled === false || rule.enabled === 0 || rule.enabled === '0') {
-          return { name, status: 'skipped', label: _tf('skipped', 'Skipped'), actionText: '' };
-        }
-        const matched = evaluateConditionGroupWithValues(rule.conditions, values);
+      testInspector = evaluateRulesForInspector(values);
+      testResults = (testInspector.trace || []).map(item => {
         return {
-          name,
-          status: matched ? 'matched' : 'not-matched',
-          label: matched ? _tf('matched', 'Matched') : _tf('notMatched', 'Not matched'),
-          actionText: matched ? buildTestActionSummary(rule) : ''
+          name: item.name,
+          status: item.status,
+          label: item.label,
+          actionText: item.actions && item.actions.length ? item.actions.map(_esc).join('<br>') : ''
         };
       });
       refreshView();
@@ -1224,11 +1887,19 @@
     backToList() {
       view = 'list';
       currentRuleId = null;
+      testInspector = null;
       refreshView();
     },
 
     /* Add a new blank rule */
     addRule() {
+      if (getPlanTier() === 'free') { showFreePlanNotice(); return; }
+      if (isTabProLocked(activeTab)) { showProOnlyNotice(); return; }
+      const ruleLimit = getRuleLimit(activeTab);
+      if (rules.length >= ruleLimit) {
+        showLimitNotice(ruleLimit, getTabLabel(activeTab));
+        return;
+      }
       const baseRule = {
         id: _id(activeTab === 'notification' ? 'nr' : (activeTab === 'confirmation' ? 'cr' : (activeTab === 'webhook' ? 'wr' : 'rule'))),
         name: '',
@@ -1306,13 +1977,26 @@
     },
 
     setPriority(value) {
+      if (!isProPlan()) { showProOnlyNotice(); refreshView(); return; }
       const rule = rules.find(r => r.id === currentRuleId);
       if (rule) rule.priority = Math.max(0, Number.parseInt(value, 10) || 0);
     },
 
     setStopProcessing(value) {
+      if (!isProPlan()) { showProOnlyNotice(); refreshView(); return; }
       const rule = rules.find(r => r.id === currentRuleId);
       if (rule) rule.stop_processing = Boolean(value);
+    },
+
+    /* Toast used by Pro-locked controls (priority, stop_processing, ...) */
+    notifyProFeature() {
+      showProOnlyNotice();
+    },
+
+    /* Open the Pro upgrade page / plan picker */
+    openProUpgrade() {
+      if (typeof open_whiteStudio_efb === 'function') { open_whiteStudio_efb('pro'); return; }
+      if (typeof showSetupAsOverlayPage === 'function') showSetupAsOverlayPage();
     },
 
     updateNotification(prop, value) {
@@ -1393,6 +2077,11 @@
       if (!rule) return;
       const group = getGroupByPath(rule, path);
       if (!group) return;
+      const conditionLimit = getConditionLimit();
+      if (countGroupConditions(group) >= conditionLimit) {
+        showLimitNotice(conditionLimit, _tf('logicConditions', 'Conditions'));
+        return;
+      }
       const item = newBlankCondition();
       if (group.items.length > 0) item.connector = 'AND';
       group.items.push(item);
@@ -1400,6 +2089,7 @@
     },
 
     addGroup(path = '') {
+      if (!isProPlan()) { showProOnlyNotice(); return; }
       const rule = rules.find(r => r.id === currentRuleId);
       if (!rule) return;
       const group = getGroupByPath(rule, path);
@@ -1489,13 +2179,27 @@
         rule.actions[idx].target = '';
         delete rule.actions[idx].value_type;
         delete rule.actions[idx].value;
+        delete rule.actions[idx].decimals;
         refreshView();
       }
       /* When value_type changes (static ↔ autofill_key), clear the current value */
+      if (prop === 'decimals') {
+        if (value === '') delete rule.actions[idx].decimals;
+        else rule.actions[idx].decimals = Math.max(0, Math.min(6, Number.parseInt(value, 10) || 0));
+        refreshView();
+      }
       if (prop === 'value_type') {
         rule.actions[idx].value = '';
         refreshView();
       }
+    },
+
+    insertCalculationToken(idx, fieldId) {
+      const rule = rules.find(r => r.id === currentRuleId);
+      if (!rule || !rule.actions[idx] || !fieldId) return;
+      const current = String(rule.actions[idx].value || '').trim();
+      rule.actions[idx].value = current ? `${current} {${fieldId}}` : `{${fieldId}}`;
+      refreshView();
     },
 
     /* Apply (save & close editor) */

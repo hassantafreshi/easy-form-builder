@@ -236,6 +236,56 @@ testFalse('N2.4 between: empty value is not coerced to 0 in a zero-spanning rang
 testTrue('N2.5 between: literal 0 is inside a zero-spanning range', numericRuleFires($validator, 'between', '-5,5', '0'));
 testFalse('N2.6 gte: empty value is not coerced to 0 against a negative bound', numericRuleFires($validator, 'gte', '-5', ''));
 
+// GROUP 5: Basic calculations.
+$structCalc = [
+    ['logic_rules' => [
+        makeRule([
+            'id' => 'r_calc',
+            'priority' => 1,
+            'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('price', 'is_not_empty')]],
+            'actions' => [['type' => 'calculate', 'target' => 'total', 'value' => '({price} * {qty}) + {tax}', 'decimals' => 2]],
+        ]),
+        makeRule([
+            'id' => 'r_total_flag',
+            'priority' => 2,
+            'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('total', 'gte', '25')]],
+            'actions' => [['type' => 'show_field', 'target' => 'flag']],
+        ]),
+    ]],
+    ['id_' => 'price', 'type' => 'number'],
+    ['id_' => 'qty', 'type' => 'number'],
+    ['id_' => 'tax', 'type' => 'number'],
+    ['id_' => 'total', 'type' => 'number'],
+    ['id_' => 'flag', 'type' => 'text'],
+];
+$rowsCalc = [
+    ['id_' => 'price', 'value' => '10', 'type' => 'number'],
+    ['id_' => 'qty', 'value' => '2', 'type' => 'number'],
+    ['id_' => 'tax', 'value' => '5.5', 'type' => 'number'],
+];
+$resultCalc = $validator->evaluate($structCalc, $rowsCalc);
+test('C1.1 calculate action writes rounded total', $resultCalc['set_values']['total'] ?? null, '25.50');
+testTrue('C1.2 calculated value is available to later conditions', in_array('r_total_flag', $resultCalc['matched_rules'], true));
+testTrue('C1.3 later rule effect fired from calculated value', in_array('flag', $resultCalc['shown_fields'], true));
+
+$preparedCalc = $validator->prepare_submission($structCalc, $rowsCalc);
+$preparedValues = $validator->build_values_map($structCalc, $preparedCalc['submitted_values']);
+test('C1.4 prepare_submission includes calculated total', $preparedValues['total'] ?? null, '25.50');
+
+$structBadCalc = [
+    ['logic_rules' => [
+        makeRule([
+            'id' => 'r_bad_calc',
+            'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('price', 'is_not_empty')]],
+            'actions' => [['type' => 'calculate', 'target' => 'total', 'value' => '{price} / 0', 'decimals' => 2]],
+        ]),
+    ]],
+    ['id_' => 'price', 'type' => 'number'],
+    ['id_' => 'total', 'type' => 'number'],
+];
+$badCalcResult = $validator->evaluate($structBadCalc, [['id_' => 'price', 'value' => '10', 'type' => 'number']]);
+testFalse('C2.1 invalid formula does not set target value', array_key_exists('total', $badCalcResult['set_values']));
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 echo "\n========================================\n";
 echo "RESULTS: $pass passed, $fail failed\n";

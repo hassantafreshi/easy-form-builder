@@ -635,7 +635,8 @@
   margin-bottom: 8px;
   flex-wrap: wrap;
 }
-.efb-logic-action-row select {
+.efb-logic-action-row select,
+.efb-logic-action-row input {
   height: 38px;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
@@ -646,7 +647,8 @@
   transition: border-color 0.15s ease;
   outline: none;
 }
-.efb-logic-action-row select:focus {
+.efb-logic-action-row select:focus,
+.efb-logic-action-row input:focus {
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
 }
@@ -657,6 +659,14 @@
 .efb-logic-action-target-select {
   flex: 2;
   min-width: 140px;
+}
+.efb-logic-decimals-input {
+  flex: 0 0 92px;
+  min-width: 92px;
+}
+.efb-logic-calc-token-select {
+  flex: 1;
+  min-width: 130px;
 }
 
 /* ── Footer / Apply ── */
@@ -822,6 +832,133 @@
 .efb-logic-test-result.skipped {
   opacity: 0.72;
 }
+.efb-logic-test-result.blocked {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+.efb-logic-test-result.blocked i {
+  color: #d97706;
+}
+
+/* Inspector / conflict warnings */
+.efb-logic-conflict-warning {
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #92400e;
+  padding: 10px 12px;
+  margin: 0 0 14px;
+}
+.efb-logic-conflict-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.efb-logic-conflict-list {
+  display: grid;
+  gap: 6px;
+}
+.efb-logic-conflict-item {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+}
+.efb-logic-conflict-item small {
+  color: #b45309;
+}
+.efb-logic-inspector {
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #f8fbff;
+  padding: 12px;
+  margin-top: 14px;
+}
+.efb-logic-inspector-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.efb-logic-inspector-head h6 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 700;
+}
+.efb-logic-inspector-head span {
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+}
+.efb-logic-inspector-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.efb-logic-inspector-grid section {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px;
+}
+.efb-logic-inspector-grid h6 {
+  margin: 0 0 8px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+.efb-logic-inspector-kv,
+.efb-logic-inspector-effect {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 28px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+.efb-logic-inspector-kv:first-of-type,
+.efb-logic-inspector-effect:first-of-type {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+.efb-logic-inspector-kv span,
+.efb-logic-inspector-effect span {
+  color: #64748b;
+  min-width: 0;
+}
+.efb-logic-inspector-kv code {
+  background: #f1f5f9;
+  border-radius: 6px;
+  color: #334155;
+  padding: 2px 6px;
+  white-space: normal;
+  word-break: break-word;
+}
+.efb-logic-inspector-effect strong {
+  color: #334155;
+  font-size: 12px;
+  text-align: end;
+}
+.efb-logic-inspector-error strong {
+  color: #b91c1c;
+}
+.efb-logic-inspector-empty {
+  color: #94a3b8;
+  font-size: 12px;
+}
 
 /* ── Toggle Switch (small) ── */
 .efb-logic-toggle {
@@ -897,11 +1034,15 @@
   }
   .efb-logic-condition-row select,
   .efb-logic-condition-row input,
-  .efb-logic-action-row select {
+  .efb-logic-action-row select,
+  .efb-logic-action-row input {
     width: 100%;
   }
   .efb-logic-value-range {
     width: 100%;
+  }
+  .efb-logic-inspector-grid {
+    grid-template-columns: 1fr;
   }
   .efb-logic-value-range .efb-logic-value-input {
     width: auto;
@@ -909,4 +1050,35 @@
   .efb-logic-remove-btn {
     align-self: flex-end;
   }
+}
+
+/* ── Plan Gating (Free / Free Plus / Pro) ── */
+.efb-logic-btn-locked {
+  opacity: 0.55;
+}
+.efb-logic-btn-locked:hover {
+  opacity: 0.8;
+  transform: none;
+}
+.efb-logic-tab-locked {
+  opacity: 0.75;
+}
+.efb-logic-tab-gem,
+.efb-logic-pro-gem {
+  color: #f59e0b;
+  font-size: 11px;
+}
+.efb-logic-pro-locked {
+  opacity: 0.6;
+  cursor: pointer;
+}
+.efb-logic-pro-locked input {
+  cursor: not-allowed;
+}
+.efb-logic-pro-panel .efb-logic-empty-icon,
+.efb-logic-pro-icon {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+}
+.efb-logic-pro-panel .efb-logic-empty-icon i {
+  color: #f59e0b;
 }

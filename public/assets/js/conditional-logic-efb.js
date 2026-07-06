@@ -414,6 +414,155 @@
     return null;
   }
 
+  function numberFromCalculationValue(value) {
+    if (Array.isArray(value)) {
+      var total = 0;
+      for (var i = 0; i < value.length; i++) {
+        if (value[i] === '' || value[i] == null) continue;
+        if (!isNumericScalar(value[i])) return { valid: false, value: 0 };
+        total += Number(value[i]);
+      }
+      return { valid: true, value: total };
+    }
+    if (value === '' || value == null) return { valid: true, value: 0 };
+    if (!isNumericScalar(value)) return { valid: false, value: 0 };
+    return { valid: true, value: Number(value) };
+  }
+
+  function tokenizeCalculationFormula(formula) {
+    var text = String(formula == null ? '' : formula).slice(0, 500);
+    var tokens = [];
+    var i = 0;
+    while (i < text.length) {
+      var ch = text.charAt(i);
+      if (/\s/.test(ch)) {
+        i++;
+        continue;
+      }
+      if (ch === '{' || ch === '[') {
+        var close = ch === '{' ? '}' : ']';
+        var end = text.indexOf(close, i + 1);
+        if (end === -1) return null;
+        var ref = text.slice(i + 1, end).trim();
+        if (!ref) return null;
+        tokens.push({ type: 'ref', value: ref });
+        i = end + 1;
+        continue;
+      }
+      if (/[0-9.]/.test(ch)) {
+        var start = i;
+        var dots = 0;
+        while (i < text.length && /[0-9.]/.test(text.charAt(i))) {
+          if (text.charAt(i) === '.') dots++;
+          i++;
+        }
+        var literal = text.slice(start, i);
+        if (literal === '.' || dots > 1 || !isFinite(literal)) return null;
+        tokens.push({ type: 'number', value: Number(literal) });
+        continue;
+      }
+      if (/[A-Za-z_]/.test(ch)) {
+        var refStart = i;
+        while (i < text.length && /[A-Za-z0-9_-]/.test(text.charAt(i))) i++;
+        tokens.push({ type: 'ref', value: text.slice(refStart, i) });
+        continue;
+      }
+      if ('+-*/()'.indexOf(ch) !== -1) {
+        tokens.push({ type: ch === '(' || ch === ')' ? 'paren' : 'op', value: ch });
+        i++;
+        continue;
+      }
+      return null;
+    }
+    return tokens;
+  }
+
+  function evaluateCalculationFormula(formula, structure, values) {
+    var tokens = tokenizeCalculationFormula(formula);
+    if (!tokens || !tokens.length) return null;
+    var index = indexStructure(structure);
+    var pos = 0;
+
+    function invalid() { return { valid: false, value: 0 }; }
+
+    function fieldNumber(fieldId) {
+      fieldId = String(fieldId || '');
+      if (!Object.prototype.hasOwnProperty.call(index.fields, fieldId)) return invalid();
+      return numberFromCalculationValue(Object.prototype.hasOwnProperty.call(values, fieldId) ? values[fieldId] : '');
+    }
+
+    function parseExpression() {
+      var left = parseTerm();
+      while (left.valid && pos < tokens.length && tokens[pos].type === 'op' && (tokens[pos].value === '+' || tokens[pos].value === '-')) {
+        var op = tokens[pos++].value;
+        var right = parseTerm();
+        if (!right.valid) return right;
+        left.value = op === '+' ? left.value + right.value : left.value - right.value;
+      }
+      return left;
+    }
+
+    function parseTerm() {
+      var left = parseFactor();
+      while (left.valid && pos < tokens.length && tokens[pos].type === 'op' && (tokens[pos].value === '*' || tokens[pos].value === '/')) {
+        var op = tokens[pos++].value;
+        var right = parseFactor();
+        if (!right.valid) return right;
+        if (op === '/' && Math.abs(right.value) < 0.000000000001) return invalid();
+        left.value = op === '*' ? left.value * right.value : left.value / right.value;
+      }
+      return left;
+    }
+
+    function parseFactor() {
+      if (pos >= tokens.length) return invalid();
+      var token = tokens[pos];
+      if (token.type === 'op' && (token.value === '+' || token.value === '-')) {
+        pos++;
+        var unary = parseFactor();
+        if (!unary.valid) return unary;
+        return { valid: true, value: token.value === '-' ? -unary.value : unary.value };
+      }
+      if (token.type === 'number') {
+        pos++;
+        return { valid: true, value: token.value };
+      }
+      if (token.type === 'ref') {
+        pos++;
+        return fieldNumber(token.value);
+      }
+      if (token.type === 'paren' && token.value === '(') {
+        pos++;
+        var nested = parseExpression();
+        if (!nested.valid || pos >= tokens.length || tokens[pos].type !== 'paren' || tokens[pos].value !== ')') return invalid();
+        pos++;
+        return nested;
+      }
+      return invalid();
+    }
+
+    var result = parseExpression();
+    if (!result.valid || pos !== tokens.length || !isFinite(result.value)) return null;
+    return result.value;
+  }
+
+  function formatCalculationResult(value, decimals) {
+    var hasDecimals = decimals !== undefined && decimals !== null && decimals !== '';
+    if (hasDecimals) {
+      var places = Math.max(0, Math.min(6, parseInt(decimals, 10) || 0));
+      return Number(value).toFixed(places);
+    }
+    return String(parseFloat(Number(value).toFixed(10)));
+  }
+
+  function resolveCalculationValue(action, structure, values) {
+    var formula = String(action && action.value != null ? action.value : '').trim();
+    if (!formula) return null;
+    var value = evaluateCalculationFormula(formula, structure, values);
+    if (value === null) return null;
+    return formatCalculationResult(value, action.decimals);
+  }
+
   function evaluatePass(structure, rows, rules, initialValues) {
     var index = indexStructure(structure);
     var values = clone(initialValues);
@@ -485,6 +634,10 @@
           case 'set_value':
             var setValue = resolveActionValue(action, structure, values);
             if (setValue != null) values[target] = normalizeValue(structure, target, setValue);
+            break;
+          case 'calculate':
+            var calculatedValue = resolveCalculationValue(action, structure, values);
+            if (calculatedValue != null) values[target] = normalizeValue(structure, target, calculatedValue);
             break;
           case 'clear_value': values[target] = ''; break;
           case 'show_message':
