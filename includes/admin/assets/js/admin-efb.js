@@ -471,7 +471,7 @@ function show_message_result_form_set_EFB(state, m) {
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`;
 }
 
-async function  actionSendData_emsFormBuilder() {
+async function  actionSendData_emsFormBuilder(saveMode) {
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
     return;
@@ -520,7 +520,7 @@ async function  actionSendData_emsFormBuilder() {
 
           show_message_result_form_set_EFB(1, res.data.value);
           if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
-          localStorage.setItem('efb_auto_save', 0);
+          if (saveMode === 1) clear_auto_save_efb();
           fun_pr(1);
         } else {
           alert(res, "error")
@@ -530,6 +530,7 @@ async function  actionSendData_emsFormBuilder() {
       } else if (res.data.r == "update" || res.data.r == "updated" && res.data.success == true) {
         show_message_result_form_set_EFB(2, res.data.value);
         if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
+        if (saveMode === 1) clear_auto_save_efb();
 
         sessionStorage.setItem('formId_efb', res.data.value);
         fun_pr(1);
@@ -1310,13 +1311,13 @@ function sideMenuEfb(s) {
   if (s == 0) {
     side_hide(el)
        setTimeout(() => {
-      saveFormEfb(-1);
+      store_form_efb();
     }, 2000);
   } else if( s == 1) {
    side_show(el)
   } else if (s == 2) {
-    setTimeout(() => {
-      saveFormEfb(-1);
+   setTimeout(() => {
+      store_form_efb();
     }, 2000);
     const lenV = valj_efb.length
     const timeout = lenV < 100 ? 800 : lenV<500 ? 3000 : 5000;
@@ -3205,10 +3206,9 @@ async function create_form_efb() {
 const saveFormEfb = async (stated) => {
 
   const isAutoSave = stated === -1;
-  const modalElement = document.getElementById('settingModalEfb');
-  const isModalOpen = modalElement && modalElement.classList.contains('show');
-  if (isAutoSave && isModalOpen) {
-    return Promise.resolve(false);
+  if (isAutoSave) {
+    store_form_efb();
+    return Promise.resolve(true);
   }
 
   return new Promise((resolve, reject) => {
@@ -3289,7 +3289,7 @@ const saveFormEfb = async (stated) => {
           returnn =true;
 
           _efb_autosave_in_progress = isAutoSave;
-          actionSendData_emsFormBuilder();
+          actionSendData_emsFormBuilder(stated);
         } else if (proState == false) {
           btnText = efb_var.text.activateProVersion;
           btnFun = `open_whiteStudio_efb('pro')`;
@@ -4996,6 +4996,12 @@ store_form_efb =()=>{
           localStorage.setItem('efb_auto_save_form_id', form_ID_emsFormBuilder);
           localStorage.setItem('efb_auto_save_valj_efb', JSON.stringify(valj_efb));
 }
+
+clear_auto_save_efb =()=>{
+  localStorage.setItem('efb_auto_save', 0);
+  localStorage.removeItem('efb_auto_save_form_id');
+  localStorage.removeItem('efb_auto_save_valj_efb');
+}
 async function heartbeat_Emsfb() {
 
 call_beat = async () => {
@@ -5052,7 +5058,7 @@ call_beat = async () => {
           heartbeat_efb_active = false;
           return;
         }else{
-            await saveFormEfb(-1);
+            store_form_efb();
             heartbeat_efb_active = false;
             return;
         }
