@@ -1066,6 +1066,36 @@ class efbFunction {
 			"hidden" => $state  &&  isset($ac->text->hidden) ? $ac->text->hidden : esc_html__('Hidden','easy-form-builder'),
 			"enterText" => $state  &&  isset($ac->text->enterText) ? $ac->text->enterText : esc_html__('Message...','easy-form-builder'),
 			"stable" => $state  &&  isset($ac->text->stable) ? $ac->text->stable : esc_html__('Stable','easy-form-builder'),
+			"copyValue" => $state  &&  isset($ac->text->copyValue) ? $ac->text->copyValue : esc_html__('Copy value from field','easy-form-builder'),
+			"setPlaceholder" => $state  &&  isset($ac->text->setPlaceholder) ? $ac->text->setPlaceholder : esc_html__('Set placeholder','easy-form-builder'),
+			"setHelp" => $state  &&  isset($ac->text->setHelp) ? $ac->text->setHelp : esc_html__('Set help text','easy-form-builder'),
+			"setLabel" => $state  &&  isset($ac->text->setLabel) ? $ac->text->setLabel : esc_html__('Set label','easy-form-builder'),
+			"focusField" => $state  &&  isset($ac->text->focusField) ? $ac->text->focusField : esc_html__('Focus field','easy-form-builder'),
+			"scrollToField" => $state  &&  isset($ac->text->scrollToField) ? $ac->text->scrollToField : esc_html__('Scroll to field','easy-form-builder'),
+			"blockSubmit" => $state  &&  isset($ac->text->blockSubmit) ? $ac->text->blockSubmit : esc_html__('Block submit','easy-form-builder'),
+			"endForm" => $state  &&  isset($ac->text->endForm) ? $ac->text->endForm : esc_html__('End form with message','easy-form-builder'),
+			"urlParam" => $state  &&  isset($ac->text->urlParam) ? $ac->text->urlParam : esc_html__('URL parameter','easy-form-builder'),
+			"userSource" => $state  &&  isset($ac->text->userSource) ? $ac->text->userSource : esc_html__('User','easy-form-builder'),
+			"currentStep" => $state  &&  isset($ac->text->currentStep) ? $ac->text->currentStep : esc_html__('Current step','easy-form-builder'),
+			"loggedIn" => $state  &&  isset($ac->text->loggedIn) ? $ac->text->loggedIn : esc_html__('Logged in','easy-form-builder'),
+			"loggedOut" => $state  &&  isset($ac->text->loggedOut) ? $ac->text->loggedOut : esc_html__('Logged out','easy-form-builder'),
+			"userRole" => $state  &&  isset($ac->text->userRole) ? $ac->text->userRole : esc_html__('Role','easy-form-builder'),
+			"dateBefore" => $state  &&  isset($ac->text->dateBefore) ? $ac->text->dateBefore : esc_html__('before','easy-form-builder'),
+			"dateAfter" => $state  &&  isset($ac->text->dateAfter) ? $ac->text->dateAfter : esc_html__('after','easy-form-builder'),
+			"dateBetween" => $state  &&  isset($ac->text->dateBetween) ? $ac->text->dateBetween : esc_html__('between dates','easy-form-builder'),
+			"notOperator" => $state  &&  isset($ac->text->notOperator) ? $ac->text->notOperator : esc_html__('NOT','easy-form-builder'),
+			"negateGroup" => $state  &&  isset($ac->text->negateGroup) ? $ac->text->negateGroup : esc_html__('NOT — invert this group (NAND/NOR)','easy-form-builder'),
+			"exportRules" => $state  &&  isset($ac->text->exportRules) ? $ac->text->exportRules : esc_html__('Export','easy-form-builder'),
+			"importRules" => $state  &&  isset($ac->text->importRules) ? $ac->text->importRules : esc_html__('Import','easy-form-builder'),
+			"importDone" => $state  &&  isset($ac->text->importDone) ? $ac->text->importDone : esc_html__('Rules imported. Review and save the form.','easy-form-builder'),
+			"importInvalid" => $state  &&  isset($ac->text->importInvalid) ? $ac->text->importInvalid : esc_html__('This file is not a valid EFB logic-rules export.','easy-form-builder'),
+			"duplicate" => $state  &&  isset($ac->text->duplicate) ? $ac->text->duplicate : esc_html__('Duplicate','easy-form-builder'),
+			"payloadFields" => $state  &&  isset($ac->text->payloadFields) ? $ac->text->payloadFields : esc_html__('Payload fields (empty = all)','easy-form-builder'),
+			"triggerWebhook" => $state  &&  isset($ac->text->triggerWebhook) ? $ac->text->triggerWebhook : esc_html__('Trigger webhook','easy-form-builder'),
+			"stopWebhook" => $state  &&  isset($ac->text->stopWebhook) ? $ac->text->stopWebhook : esc_html__('Stop webhook','easy-form-builder'),
+			"stopWebhookHint" => $state  &&  isset($ac->text->stopWebhookHint) ? $ac->text->stopWebhookHint : esc_html__('empty = stop all','easy-form-builder'),
+			"submitBlocked" => $state  &&  isset($ac->text->submitBlocked) ? $ac->text->submitBlocked : esc_html__('Submission is not allowed for the current answers.','easy-form-builder'),
+			"formEnded" => $state  &&  isset($ac->text->formEnded) ? $ac->text->formEnded : esc_html__('This form is closed for your answers.','easy-form-builder'),
 			"loopWarning" => $state  &&  isset($ac->text->loopWarning) ? $ac->text->loopWarning : esc_html__('Rules did not stabilize (possible loop)','easy-form-builder'),
 			"addFirstRule" => $state  &&  isset($ac->text->addFirstRule) ? $ac->text->addFirstRule : esc_html__('Add your first rule to start building smart forms.','easy-form-builder'),
 
@@ -2198,7 +2228,8 @@ class efbFunction {
 			}
 		}
 
-		$allowed_action_types = array('show_field','hide_field','set_required','set_optional','enable_field','disable_field','show_step','hide_step','jump_to_step','set_value','calculate','clear_value','show_message');
+		$allowed_action_types = array('show_field','hide_field','set_required','set_optional','enable_field','disable_field','show_step','hide_step','jump_to_step','set_value','copy_value','calculate','clear_value','show_message','set_placeholder','set_help','set_label','focus_field','scroll_to_field','block_submit','end_form');
+		$targetless_action_types = array('block_submit','end_form');
 		$allowed_scopes = array('field','step','notification','confirmation','webhook','pricing');
 
 		foreach ($rules as $rule) {
@@ -2227,8 +2258,13 @@ class efbFunction {
 					if ($a['type'] === '') continue;
 
 					$is_step_action = in_array($a['type'], array('show_step', 'hide_step', 'jump_to_step'), true);
+					$is_targetless = in_array($a['type'], $targetless_action_types, true);
 					$valid_targets = $is_step_action ? $valid_steps : $valid_fields;
-					if ($a['target'] === '' || !isset($valid_targets[$a['target']])) continue;
+					if ($is_targetless) {
+						$a['target'] = '';
+					} elseif ($a['target'] === '' || !isset($valid_targets[$a['target']])) {
+						continue;
+					}
 
 					if (isset($act['value'])) {
 						$a['value'] = is_array($act['value'])
@@ -2239,6 +2275,10 @@ class efbFunction {
 						$a['value_type'] = isset($act['value_type']) && $act['value_type'] === 'autofill_key'
 							? 'autofill_key'
 							: 'static';
+					}
+					if ($a['type'] === 'copy_value') {
+						/* value must reference a real form field to copy from */
+						if (!isset($a['value']) || !is_string($a['value']) || !isset($valid_fields[$a['value']])) continue;
 					}
 					if ($a['type'] === 'calculate' && isset($act['decimals'])) {
 						$a['decimals'] = max(0, min(6, intval($act['decimals'])));
@@ -2283,6 +2323,8 @@ class efbFunction {
 				'priority' => isset($rule['priority']) ? max(0, min(100000, intval($rule['priority']))) : 10,
 				'conditions' => $this->sanitize_logic_condition_group($rule['conditions'] ?? array(), $valid_fields),
 				'recipient' => $recipient,
+				'cc' => $this->sanitize_logic_email_list($rule['cc'] ?? ''),
+				'bcc' => $this->sanitize_logic_email_list($rule['bcc'] ?? ''),
 				'subject' => isset($rule['subject']) ? sanitize_text_field($rule['subject']) : '',
 				'template' => isset($rule['template']) ? sanitize_text_field($rule['template']) : 'default',
 			);
@@ -2323,6 +2365,17 @@ class efbFunction {
 		return $clean;
 	}
 
+	/* CC/BCC lists: comma-separated string or array in, array of valid emails out. */
+	private function sanitize_logic_email_list($value) {
+		$items = is_array($value) ? $value : explode(',', (string) $value);
+		$clean = array();
+		foreach ($items as $item) {
+			$email = sanitize_email(trim((string) $item));
+			if ($email !== '' && is_email($email) && !in_array($email, $clean, true)) $clean[] = $email;
+		}
+		return $clean;
+	}
+
 	/* Confirmation display overrides: only a bootstrap-icons class name is a valid icon. */
 	private function sanitize_logic_bi_icon($icon) {
 		$icon = is_string($icon) ? trim($icon) : '';
@@ -2342,10 +2395,21 @@ class efbFunction {
 
 		foreach ($rules as $rule) {
 			if (!is_array($rule)) continue;
+			$rule_action = isset($rule['action']) && $rule['action'] === 'stop' ? 'stop' : 'trigger';
 			$url = isset($rule['url']) ? esc_url_raw($rule['url']) : '';
-			if ($url === '') continue;
+			/* stop rules cancel other webhooks; they never call a URL themselves */
+			if ($url === '' && $rule_action !== 'stop') continue;
 			$method = isset($rule['method']) ? strtoupper(sanitize_text_field($rule['method'])) : 'POST';
 			if (!in_array($method, array('POST', 'GET'), true)) $method = 'POST';
+
+			$payload_fields = array();
+			$payload_raw = isset($rule['payload_fields']) ? $rule['payload_fields'] : '';
+			foreach ((is_array($payload_raw) ? $payload_raw : explode(',', (string) $payload_raw)) as $payload_field) {
+				$payload_field = sanitize_text_field(trim((string) $payload_field));
+				if ($payload_field !== '' && isset($valid_fields[$payload_field]) && !in_array($payload_field, $payload_fields, true)) {
+					$payload_fields[] = $payload_field;
+				}
+			}
 
 			$clean[] = array(
 				'id' => isset($rule['id']) ? sanitize_text_field($rule['id']) : '',
@@ -2357,6 +2421,8 @@ class efbFunction {
 				'webhook_id' => isset($rule['webhook_id']) ? sanitize_text_field($rule['webhook_id']) : '',
 				'url' => $url,
 				'method' => $method,
+				'action' => $rule_action,
+				'payload_fields' => $payload_fields,
 			);
 		}
 
@@ -2371,8 +2437,10 @@ class efbFunction {
 			'is', 'is_not', 'contains', 'not_contains', 'starts_with', 'ends_with',
 			'gt', 'gte', 'lt', 'lte', 'between', 'not_between',
 			'is_empty', 'is_not_empty',
-			'is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt'
+			'is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt',
+			'date_before', 'date_after', 'date_between'
 		);
+		$allowed_sources = array('field', 'query_param', 'user', 'current_step');
 		$clean = array(
 			'type' => 'group',
 			'operator' => 'AND',
@@ -2382,6 +2450,7 @@ class efbFunction {
 		if (!is_array($group)) return $clean;
 		$operator = strtoupper(sanitize_text_field($group['operator'] ?? 'AND'));
 		$clean['operator'] = in_array($operator, array('AND', 'OR'), true) ? $operator : 'AND';
+		if (!empty($group['negate'])) $clean['negate'] = true;
 
 		foreach (($group['items'] ?? array()) as $item) {
 			if (!is_array($item)) continue;
@@ -2396,8 +2465,21 @@ class efbFunction {
 				continue;
 			}
 
+			$source = sanitize_text_field($item['source'] ?? 'field');
+			if (!in_array($source, $allowed_sources, true)) $source = 'field';
+
 			$field_id = sanitize_text_field($item['field_id'] ?? '');
-			if ($field_id === '' || !isset($valid_fields[$field_id])) continue;
+			if ($source === 'field') {
+				if ($field_id === '' || !isset($valid_fields[$field_id])) continue;
+			} elseif ($source === 'query_param') {
+				/* field_id carries the query-string key; only URL-safe chars */
+				$field_id = preg_replace('/[^A-Za-z0-9_\-\[\]]/', '', (string)($item['param'] ?? $field_id));
+				if ($field_id === '') continue;
+			} elseif ($source === 'user') {
+				if (!in_array($field_id, array('logged_in', 'role'), true)) continue;
+			} else { /* current_step */
+				$field_id = 'current_step';
+			}
 
 			$compare = sanitize_text_field($item['compare'] ?? 'is');
 			if (!in_array($compare, $allowed_compares, true)) $compare = 'is';
@@ -2410,11 +2492,12 @@ class efbFunction {
 
 			$condition = array(
 				'type' => 'condition',
-				'source' => 'field',
+				'source' => $source,
 				'field_id' => $field_id,
 				'compare' => $compare,
 				'value' => $value,
 			);
+			if ($source === 'query_param') $condition['param'] = $field_id;
 			if ($connector !== '' && !empty($clean['items'])) $condition['connector'] = $connector;
 			$clean['items'][] = $condition;
 		}

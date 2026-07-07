@@ -14,8 +14,32 @@
  * Run: php tests/test-conditional-logic-validator.php
  */
 
+/* Minimal hook registry so the validator's developer hooks (PRD §15) are
+ * exercised for real instead of being skipped by function_exists guards. */
+$GLOBALS['efb_test_filters'] = [];
 if (!function_exists('add_filter')) {
-    function add_filter($hook, $cb, $priority = 10, $args = 1) { return true; }
+    function add_filter($hook, $cb, $priority = 10, $args = 1) {
+        $GLOBALS['efb_test_filters'][$hook][] = $cb;
+        return true;
+    }
+}
+if (!function_exists('apply_filters')) {
+    function apply_filters($hook, $value, ...$args) {
+        foreach ($GLOBALS['efb_test_filters'][$hook] ?? [] as $cb) {
+            $value = call_user_func($cb, $value, ...$args);
+        }
+        return $value;
+    }
+}
+if (!function_exists('do_action')) {
+    function do_action($hook, ...$args) {
+        foreach ($GLOBALS['efb_test_filters'][$hook] ?? [] as $cb) {
+            call_user_func($cb, ...$args);
+        }
+    }
+}
+if (!function_exists('remove_all_filters')) {
+    function remove_all_filters($hook) { unset($GLOBALS['efb_test_filters'][$hook]); }
 }
 
 require_once __DIR__ . '/../vendor/logic/class-Emsfb-logic-validator.php';
@@ -285,6 +309,220 @@ $structBadCalc = [
 ];
 $badCalcResult = $validator->evaluate($structBadCalc, [['id_' => 'price', 'value' => '10', 'type' => 'number']]);
 testFalse('C2.1 invalid formula does not set target value', array_key_exists('total', $badCalcResult['set_values']));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP D: date operators (date_before / date_after / date_between)
+// ─────────────────────────────────────────────────────────────────────────────
+function makeDateStruct($compare, $value) {
+    return [
+        ['logic_rules' => [
+            makeRule([
+                'id' => 'r_date',
+                'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('when', $compare, $value)]],
+                'actions' => [['type' => 'show_field', 'target' => 'fx']],
+            ]),
+        ]],
+        ['id_' => 'when', 'type' => 'date'],
+        ['id_' => 'fx', 'type' => 'text'],
+    ];
+}
+$r = $validator->evaluate(makeDateStruct('date_before', '2026-06-15'), [['id_' => 'when', 'value' => '2026-06-01', 'type' => 'date']]);
+testTrue('D1.1 date_before matches an earlier date', in_array('fx', $r['shown_fields'], true));
+$r = $validator->evaluate(makeDateStruct('date_before', '2026-06-15'), [['id_' => 'when', 'value' => '2026-07-01', 'type' => 'date']]);
+testFalse('D1.2 date_before does not match a later date', in_array('fx', $r['shown_fields'], true));
+$r = $validator->evaluate(makeDateStruct('date_before', '2026-06-15'), [['id_' => 'when', 'value' => 'not-a-date', 'type' => 'date']]);
+testFalse('D1.3 invalid date never matches', in_array('fx', $r['shown_fields'], true));
+$r = $validator->evaluate(makeDateStruct('date_after', '2026-06-15'), [['id_' => 'when', 'value' => '2026-07-01', 'type' => 'date']]);
+testTrue('D1.4 date_after matches a later date', in_array('fx', $r['shown_fields'], true));
+$r = $validator->evaluate(makeDateStruct('date_between', '2026-06-01,2026-06-30'), [['id_' => 'when', 'value' => '2026-06-30', 'type' => 'date']]);
+testTrue('D1.5 date_between matches inside range (inclusive)', in_array('fx', $r['shown_fields'], true));
+$r = $validator->evaluate(makeDateStruct('date_between', '2026-06-01,2026-06-30'), [['id_' => 'when', 'value' => '2026-07-01', 'type' => 'date']]);
+testFalse('D1.6 date_between does not match outside range', in_array('fx', $r['shown_fields'], true));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP E: non-field sources via set_environment (query_param / user / step)
+// ─────────────────────────────────────────────────────────────────────────────
+function makeEnvStruct($condition) {
+    return [
+        ['logic_rules' => [
+            makeRule([
+                'id' => 'r_env',
+                'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [$condition]],
+                'actions' => [['type' => 'show_field', 'target' => 'fx']],
+            ]),
+        ]],
+        ['id_' => 'fx', 'type' => 'text'],
+    ];
+}
+$queryCondition = ['type' => 'condition', 'source' => 'query_param', 'field_id' => 'utm_source', 'param' => 'utm_source', 'compare' => 'is', 'value' => 'google'];
+$validator->set_environment(['query' => ['utm_source' => 'google']]);
+$r = $validator->evaluate(makeEnvStruct($queryCondition), []);
+testTrue('E1.1 query_param matches from injected environment', in_array('fx', $r['shown_fields'], true));
+$validator->set_environment(['query' => ['utm_source' => 'bing']]);
+$r = $validator->evaluate(makeEnvStruct($queryCondition), []);
+testFalse('E1.2 query_param does not match a different value', in_array('fx', $r['shown_fields'], true));
+
+$loggedInCondition = ['type' => 'condition', 'source' => 'user', 'field_id' => 'logged_in', 'compare' => 'is', 'value' => 'yes'];
+$validator->set_environment(['user' => ['logged_in' => true, 'roles' => []]]);
+$r = $validator->evaluate(makeEnvStruct($loggedInCondition), []);
+testTrue('E1.3 user logged_in matches', in_array('fx', $r['shown_fields'], true));
+$validator->set_environment(['user' => ['logged_in' => false, 'roles' => []]]);
+$r = $validator->evaluate(makeEnvStruct($loggedInCondition), []);
+testFalse('E1.4 guest does not match logged_in=yes', in_array('fx', $r['shown_fields'], true));
+
+$roleCondition = ['type' => 'condition', 'source' => 'user', 'field_id' => 'role', 'compare' => 'is', 'value' => 'Editor'];
+$validator->set_environment(['user' => ['logged_in' => true, 'roles' => ['editor']]]);
+$r = $validator->evaluate(makeEnvStruct($roleCondition), []);
+testTrue('E1.5 role matches case-insensitively', in_array('fx', $r['shown_fields'], true));
+$validator->set_environment(['user' => ['logged_in' => true, 'roles' => ['subscriber']]]);
+$r = $validator->evaluate(makeEnvStruct($roleCondition), []);
+testFalse('E1.6 missing role does not match', in_array('fx', $r['shown_fields'], true));
+
+$stepCondition = ['type' => 'condition', 'source' => 'current_step', 'field_id' => 'current_step', 'compare' => 'gte', 'value' => '2'];
+$validator->set_environment(['current_step' => 2]);
+$r = $validator->evaluate(makeEnvStruct($stepCondition), []);
+testTrue('E1.7 current_step gte matches', in_array('fx', $r['shown_fields'], true));
+$validator->set_environment(['current_step' => 1]);
+$r = $validator->evaluate(makeEnvStruct($stepCondition), []);
+testFalse('E1.8 current_step below threshold does not match', in_array('fx', $r['shown_fields'], true));
+$validator->set_environment(null);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP F: negate on groups (NOT / NAND / NOR)
+// ─────────────────────────────────────────────────────────────────────────────
+$structNot = [
+    ['logic_rules' => [
+        makeRule([
+            'id' => 'r_not',
+            'conditions' => ['type' => 'group', 'operator' => 'AND', 'negate' => true, 'items' => [makeCondition('fa', 'is', 'x')]],
+            'actions' => [['type' => 'show_field', 'target' => 'fx']],
+        ]),
+    ]],
+    ['id_' => 'fa', 'type' => 'text'],
+    ['id_' => 'fx', 'type' => 'text'],
+];
+$r = $validator->evaluate($structNot, [['id_' => 'fa', 'value' => 'other', 'type' => 'text']]);
+testTrue('F1.1 NOT matches when the inner condition fails', in_array('fx', $r['shown_fields'], true));
+$r = $validator->evaluate($structNot, [['id_' => 'fa', 'value' => 'x', 'type' => 'text']]);
+testFalse('F1.2 NOT fails when the inner condition holds', in_array('fx', $r['shown_fields'], true));
+
+$structNand = $structNot;
+$structNand[0]['logic_rules'][0]['conditions'] = [
+    'type' => 'group', 'operator' => 'AND', 'negate' => true,
+    'items' => [makeCondition('fa', 'is', 'x'), makeCondition('fx', 'is', 'y')],
+];
+$r = $validator->evaluate($structNand, [['id_' => 'fa', 'value' => 'x', 'type' => 'text'], ['id_' => 'fx', 'value' => 'nope', 'type' => 'text']]);
+testTrue('F1.3 NAND matches when only one condition holds', in_array('fx', $r['shown_fields'], true));
+$r = $validator->evaluate($structNand, [['id_' => 'fa', 'value' => 'x', 'type' => 'text'], ['id_' => 'fx', 'value' => 'y', 'type' => 'text']]);
+testFalse('F1.4 NAND fails when both conditions hold', in_array('fx', $r['shown_fields'], true));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP G: copy_value / block_submit / end_form / UI actions / trace
+// ─────────────────────────────────────────────────────────────────────────────
+$structCopy = [
+    ['logic_rules' => [
+        makeRule([
+            'id' => 'r_copy',
+            'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('trigger', 'is', 'go')]],
+            'actions' => [['type' => 'copy_value', 'target' => 'dst', 'value' => 'src']],
+        ]),
+    ]],
+    ['id_' => 'trigger', 'type' => 'text'],
+    ['id_' => 'src', 'type' => 'text'],
+    ['id_' => 'dst', 'type' => 'text'],
+];
+$r = $validator->evaluate($structCopy, [
+    ['id_' => 'trigger', 'value' => 'go', 'type' => 'text'],
+    ['id_' => 'src', 'value' => 'hello copy', 'type' => 'text'],
+]);
+test('G1.1 copy_value copies source value to target', $r['set_values']['dst'] ?? null, 'hello copy');
+$structCopy[0]['logic_rules'][0]['actions'][0]['value'] = 'ghost';
+$r = $validator->evaluate($structCopy, [
+    ['id_' => 'trigger', 'value' => 'go', 'type' => 'text'],
+    ['id_' => 'src', 'value' => 'hello copy', 'type' => 'text'],
+]);
+testFalse('G1.2 copy from unknown field is a no-op', array_key_exists('dst', $r['set_values']));
+
+$structBlock = [
+    ['logic_rules' => [
+        makeRule([
+            'id' => 'r_block',
+            'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('score', 'lt', '10')]],
+            'actions' => [['type' => 'block_submit', 'target' => '', 'value' => 'Score too low']],
+        ]),
+    ]],
+    ['id_' => 'score', 'type' => 'number'],
+];
+$r = $validator->evaluate($structBlock, [['id_' => 'score', 'value' => '5', 'type' => 'number']]);
+testTrue('G2.1 block_submit sets submit_blocked', $r['submit_blocked']);
+test('G2.2 block message recorded', $r['block_messages'][0]['value'] ?? null, 'Score too low');
+$r = $validator->evaluate($structBlock, [['id_' => 'score', 'value' => '50', 'type' => 'number']]);
+testFalse('G2.3 submit allowed when the rule does not match', $r['submit_blocked']);
+
+$structBlock[0]['logic_rules'][0]['actions'] = [['type' => 'end_form', 'target' => '', 'value' => 'You do not qualify.']];
+$r = $validator->evaluate($structBlock, [['id_' => 'score', 'value' => '5', 'type' => 'number']]);
+testTrue('G2.4 end_form sets submit_blocked', $r['submit_blocked']);
+test('G2.5 end_form message recorded', $r['end_form']['message'] ?? null, 'You do not qualify.');
+
+$structUi = [
+    ['logic_rules' => [
+        makeRule([
+            'id' => 'r_ui',
+            'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('fa', 'is', 'x')]],
+            'actions' => [
+                ['type' => 'set_placeholder', 'target' => 'fb', 'value' => 'Type here'],
+                ['type' => 'focus_field', 'target' => 'fb'],
+            ],
+        ]),
+    ]],
+    ['id_' => 'fa', 'type' => 'text'],
+    ['id_' => 'fb', 'type' => 'text'],
+];
+$r = $validator->evaluate($structUi, [['id_' => 'fa', 'value' => 'x', 'type' => 'text']]);
+test('G3.1 ui_changes recorded with prop', $r['ui_changes'][0]['prop'] ?? null, 'placeholder');
+test('G3.2 focus request recorded', count($r['focus_fields']), 1);
+test('G3.3 trace records the matched rule', $r['trace'][0]['status'] ?? null, 'matched');
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP H: developer hooks (PRD §15)
+// ─────────────────────────────────────────────────────────────────────────────
+$structHooks = [
+    ['logic_rules' => [
+        makeRule([
+            'id' => 'r_hooked',
+            'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [makeCondition('fa', 'is', 'x')]],
+            'actions' => [['type' => 'show_field', 'target' => 'fx']],
+        ]),
+    ]],
+    ['id_' => 'fa', 'type' => 'text'],
+    ['id_' => 'fx', 'type' => 'text'],
+];
+$hookedRows = [['id_' => 'fa', 'value' => 'x', 'type' => 'text']];
+
+// efb_logic_after_evaluate_rule can veto a matched rule
+add_filter('efb_logic_after_evaluate_rule', function ($matched, $rule) {
+    return ($rule['id'] ?? '') === 'r_hooked' ? false : $matched;
+});
+$r = $validator->evaluate($structHooks, $hookedRows);
+testFalse('H1.1 after_evaluate_rule veto prevents the actions', in_array('fx', $r['shown_fields'], true));
+remove_all_filters('efb_logic_after_evaluate_rule');
+
+// efb_logic_modify_result can adjust the final result
+add_filter('efb_logic_modify_result', function ($result) {
+    $result['required_fields'][] = 'fx';
+    return $result;
+});
+$r = $validator->evaluate($structHooks, $hookedRows);
+testTrue('H1.2 modify_result filter changes the final result', in_array('fx', $r['required_fields'], true));
+remove_all_filters('efb_logic_modify_result');
+
+// efb_logic_before_actions fires for a matched rule
+$GLOBALS['efb_hook_seen'] = false;
+add_filter('efb_logic_before_actions', function () { $GLOBALS['efb_hook_seen'] = true; });
+$r = $validator->evaluate($structHooks, $hookedRows);
+testTrue('H1.3 before_actions action hook fired', $GLOBALS['efb_hook_seen']);
+remove_all_filters('efb_logic_before_actions');
+testTrue('H1.4 without the veto the rule applies again', in_array('fx', $r['shown_fields'], true));
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 echo "\n========================================\n";

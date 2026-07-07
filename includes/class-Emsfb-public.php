@@ -1541,6 +1541,12 @@ public function check_nonce_permission_efb($request) {
 		$ar_core = array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'nonce' => wp_create_nonce('wp_rest'),
+			/* Conditional-logic runtime env: user-state conditions (source: 'user').
+			 * Roles are public-safe slugs; no capabilities or IDs are exposed. */
+			'user_state' => array(
+				'logged_in' => is_user_logged_in(),
+				'roles' => is_user_logged_in() ? array_values((array) wp_get_current_user()->roles) : array(),
+			),
 		);
 		wp_localize_script( 'Emsfb-core_js', 'efb_var', $ar_core);
 	  }
@@ -1803,6 +1809,23 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 				unset( $_f );
+
+				// block_submit / end_form: the server is authoritative — a matched
+				// veto rule rejects the submission even if the frontend was bypassed.
+				if ( ! empty( $efb_logic_result['submit_blocked'] ) ) {
+					$_block_msg = '';
+					if ( ! empty( $efb_logic_result['end_form']['message'] ) ) {
+						$_block_msg = (string) $efb_logic_result['end_form']['message'];
+					} elseif ( ! empty( $efb_logic_result['block_messages'][0]['value'] ) ) {
+						$_block_msg = (string) $efb_logic_result['block_messages'][0]['value'];
+					}
+					if ( $_block_msg === '' ) {
+						$_block_msg = isset( $this->lanText['submitBlocked'] )
+							? $this->lanText['submitBlocked']
+							: 'Submission is not allowed for the current answers.';
+					}
+					wp_send_json_success( [ 'success' => false, 'm' => esc_html( $_block_msg ) ], 200 );
+				}
 			}
 
 			$has_multiple_emails = isset($form_fields_array[0]["email_send_type"]) ? $form_fields_array[0]["email_send_type"] : false;
@@ -3893,7 +3916,19 @@ public function check_nonce_permission_efb($request) {
 		return $clean;
 	}
 
+	/* Highest step number of the current form; a submission always arrives from
+	 * the last step, so source:'current_step' conditions compare against it. */
+	private $efb_conditional_max_step = 1;
+
 	private function efb_conditional_values_map($form_fields_array, $submitted_values) {
+		$max_step = 0;
+		foreach ((array) $form_fields_array as $item) {
+			if (is_array($item) && strtolower((string)($item['type'] ?? '')) === 'step' && isset($item['step']) && is_numeric($item['step'])) {
+				$max_step = max($max_step, (int) $item['step']);
+			}
+		}
+		$this->efb_conditional_max_step = $max_step > 0 ? $max_step : 1;
+
 		if (class_exists('Emsfb\\Emsfb_Logic_Validator')) {
 			$validator = new \Emsfb\Emsfb_Logic_Validator();
 			return $validator->build_values_map($form_fields_array, $submitted_values);
@@ -3943,7 +3978,27 @@ public function check_nonce_permission_efb($request) {
 			$connector = strtoupper((string)($item['connector'] ?? ($group['operator'] ?? 'AND'))) === 'OR' ? 'OR' : 'AND';
 			$result = $connector === 'OR' ? ($result || $matched) : ($result && $matched);
 		}
-		return $result;
+		/* negate turns AND into NAND, OR into NOR, and a single item into NOT. */
+		return !empty($group['negate']) ? !$result : $result;
+	}
+
+	/**
+	 * Request environment for non-field condition sources in notification /
+	 * confirmation / webhook rules: query params from the page the form was
+	 * submitted from, plus the real WordPress user state.
+	 */
+	private function efb_conditional_environment() {
+		$env = ['query' => [], 'user' => ['logged_in' => false, 'roles' => []]];
+		$referer = function_exists('wp_get_referer') ? wp_get_referer() : '';
+		if (is_string($referer) && $referer !== '') {
+			$query_string = (string) parse_url($referer, PHP_URL_QUERY);
+			if ($query_string !== '') parse_str($query_string, $env['query']);
+		}
+		if (function_exists('is_user_logged_in') && is_user_logged_in()) {
+			$env['user']['logged_in'] = true;
+			$env['user']['roles'] = array_values((array) wp_get_current_user()->roles);
+		}
+		return $env;
 	}
 
 	private function efb_evaluate_conditional_condition($condition, $values) {
@@ -3951,7 +4006,34 @@ public function check_nonce_permission_efb($request) {
 		$field_id = (string) $condition['field_id'];
 		$compare = (string)($condition['compare'] ?? 'is');
 		$expected = $condition['value'] ?? '';
-		$value = array_key_exists($field_id, $values) ? $values[$field_id] : '';
+		$source = (string)($condition['source'] ?? 'field');
+
+		if ($source === 'query_param' || $source === 'user' || $source === 'current_step') {
+			$env = $this->efb_conditional_environment();
+			if ($source === 'query_param') {
+				$param = (string)($condition['param'] ?? $field_id);
+				$query_value = isset($env['query'][$param]) ? $env['query'][$param] : '';
+				$value = is_array($query_value) ? implode(',', $query_value) : $query_value;
+			} elseif ($source === 'user') {
+				if ($field_id === 'role') {
+					$roles = array_map('strtolower', array_map('strval', $env['user']['roles']));
+					$expected_role = strtolower(trim((string)(is_array($expected) ? implode(',', $expected) : $expected)));
+					$has_role = in_array($expected_role, $roles, true);
+					if ($compare === 'is') return $has_role;
+					if ($compare === 'is_not') return !$has_role;
+					if ($compare === 'is_empty') return count($roles) === 0;
+					if ($compare === 'is_not_empty') return count($roles) > 0;
+					$value = implode(' ', $roles);
+				} else {
+					$value = !empty($env['user']['logged_in']) ? 'yes' : 'no';
+				}
+			} else {
+				/* current_step: a submission always arrives from the last step */
+				$value = (string) $this->efb_conditional_max_step;
+			}
+		} else {
+			$value = array_key_exists($field_id, $values) ? $values[$field_id] : '';
+		}
 
 		if (is_array($value)) {
 			$expected_scalar = is_array($expected) ? implode(',', $expected) : (string)$expected;
@@ -3993,8 +4075,44 @@ public function check_nonce_permission_efb($request) {
 			case 'is_not_empty': return $value !== '';
 			case 'is_paid': return $value !== '' && $value !== '0';
 			case 'is_not_paid': return $value === '' || $value === '0';
+			case 'date_before':
+			case 'date_after':
+				$value_ts = $this->efb_conditional_date_ts($value);
+				$expected_ts = $this->efb_conditional_date_ts($expected_scalar);
+				if ($value_ts === null || $expected_ts === null) return false;
+				return $compare === 'date_before' ? $value_ts < $expected_ts : $value_ts > $expected_ts;
+			case 'date_between':
+				$date_range = is_array($expected) ? $expected : preg_split('/\s*,\s*/', $expected_scalar);
+				if (count($date_range) < 2) return false;
+				$ts = $this->efb_conditional_date_ts($value);
+				$from_ts = $this->efb_conditional_date_ts($date_range[0]);
+				$to_ts = $this->efb_conditional_date_ts($date_range[1]);
+				if ($ts === null || $from_ts === null || $to_ts === null) return false;
+				return $ts >= $from_ts && $ts <= $to_ts;
 			default: return false;
 		}
+	}
+
+	/* Timestamp for a date string, or null when unparseable (never matches). */
+	private function efb_conditional_date_ts($value) {
+		$text = trim((string) $value);
+		if ($text === '') return null;
+		$parsed = strtotime(strlen($text) === 10 ? $text . ' 00:00:00' : $text);
+		return $parsed === false ? null : $parsed;
+	}
+
+	/**
+	 * Replace {field_id} tokens with the submitted value of that field.
+	 * Used for dynamic notification subjects and redirect URLs (PRD C4/C5).
+	 * Unknown tokens are removed; array values are joined with a comma.
+	 */
+	private function efb_replace_field_tokens($text, $values, $url_encode = false) {
+		return preg_replace_callback('/\{([A-Za-z0-9_-]+)\}/', function ($match) use ($values, $url_encode) {
+			$value = array_key_exists($match[1], $values) ? $values[$match[1]] : '';
+			if (is_array($value)) $value = implode(',', array_map('strval', $value));
+			$value = sanitize_text_field((string) $value);
+			return $url_encode ? rawurlencode($value) : $value;
+		}, (string) $text);
 	}
 
 	private function get_conditional_confirmation_result($form_fields_array, $submitted_values) {
@@ -4006,7 +4124,9 @@ public function check_nonce_permission_efb($request) {
 			if ($action === 'redirect') {
 				return [
 					'action' => 'redirect',
-					'url' => esc_url($rule['url'] ?? ''),
+					/* {field_id} tokens make personalized redirects possible:
+					 * https://example.com/thanks?plan={plan}&mail={email} */
+					'url' => esc_url($this->efb_replace_field_tokens($rule['url'] ?? '', $values, true)),
 					'message' => '',
 				];
 			}
@@ -4078,16 +4198,36 @@ public function check_nonce_permission_efb($request) {
 			}
 
 			$subject = isset($rule['subject']) && trim((string)$rule['subject']) !== '' ? sanitize_text_field($rule['subject']) : ($status_email['subject'] ?? 'null');
+			/* {field_id} tokens personalize the subject per submission (PRD C4) */
+			if ($subject !== '' && $subject !== 'null') $subject = $this->efb_replace_field_tokens($subject, $values);
 			if ($subject === '') $subject = 'null';
+
+			/* Conditional CC/BCC (PRD C4): every extra recipient gets its own copy.
+			 * send_email_Emsfb_ has no header channel, so copies are separate sends. */
+			$copy_recipients = [];
+			foreach (['cc', 'bcc'] as $copy_key) {
+				$copy_list = isset($rule[$copy_key]) && is_array($rule[$copy_key]) ? $rule[$copy_key] : [];
+				foreach ($copy_list as $copy_email) {
+					$copy_email = sanitize_email((string) $copy_email);
+					if ($copy_email !== '' && is_email($copy_email) && $copy_email !== $recipient && !in_array($copy_email, $copy_recipients, true)) {
+						$copy_recipients[] = $copy_email;
+					}
+				}
+			}
+
 			$this->efb_email_debug_log('rule-matched-send', [
 				'track' => $track_code,
 				'rule' => $rule_id,
 				'priority' => isset($rule['priority']) ? intval($rule['priority']) : 10,
 				'recipient' => $recipient,
+				'cc_bcc' => $copy_recipients,
 				'subject' => $subject,
 				'content_preview' => $content === 'null' ? '(default template)' : mb_substr(trim(strip_tags((string)$content)), 0, 200),
 			]);
 			$this->send_email_Emsfb_([$recipient, ''], $track_code, $is_pro, ['newMessage', 'newMessage', $type], $url, $content, $subject);
+			foreach ($copy_recipients as $copy_email) {
+				$this->send_email_Emsfb_([$copy_email, ''], $track_code, $is_pro, ['newMessage', 'newMessage', $type], $url, $content, $subject);
+			}
 		}
 	}
 
@@ -4095,24 +4235,53 @@ public function check_nonce_permission_efb($request) {
 		if (empty($form_fields_array[0]['webhook_rules']) || !is_array($form_fields_array[0]['webhook_rules'])) return array();
 		$values = $this->efb_conditional_values_map($form_fields_array, $submitted_values);
 		$sent = array();
+		$sorted_rules = $this->efb_conditional_sorted_rules($form_fields_array[0]['webhook_rules']);
 
-		foreach ($this->efb_conditional_sorted_rules($form_fields_array[0]['webhook_rules']) as $rule) {
+		/* Stop rules (PRD C6 "Stop webhook") run first: a matched stop rule
+		 * cancels trigger rules with the same webhook_id — or every trigger
+		 * rule when its webhook_id is empty. */
+		$stop_all = false;
+		$stopped_ids = array();
+		foreach ($sorted_rules as $rule) {
+			if ((isset($rule['enabled']) && !$rule['enabled']) || ($rule['action'] ?? 'trigger') !== 'stop') continue;
+			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? array(), $values)) continue;
+			$stop_id = isset($rule['webhook_id']) ? sanitize_text_field($rule['webhook_id']) : '';
+			if ($stop_id === '') $stop_all = true;
+			else $stopped_ids[$stop_id] = true;
+		}
+
+		foreach ($sorted_rules as $rule) {
 			if (isset($rule['enabled']) && !$rule['enabled']) continue;
+			if (($rule['action'] ?? 'trigger') === 'stop') continue;
 			$url = isset($rule['url']) ? esc_url_raw($rule['url']) : '';
 			if ($url === '') continue;
+			$rule_webhook_id = isset($rule['webhook_id']) ? sanitize_text_field($rule['webhook_id']) : '';
+			if ($stop_all || ($rule_webhook_id !== '' && isset($stopped_ids[$rule_webhook_id]))) continue;
 			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? array(), $values)) continue;
+
+			/* payload_fields (PRD C6 "Modify webhook payload"): when set, only
+			 * the whitelisted field ids are sent to the webhook endpoint. */
+			$payload_values = $values;
+			$payload_submitted = $submitted_values;
+			if (!empty($rule['payload_fields']) && is_array($rule['payload_fields'])) {
+				$allowed_payload = array_flip(array_map('strval', $rule['payload_fields']));
+				$payload_values = array_intersect_key($values, $allowed_payload);
+				$payload_submitted = array_values(array_filter((array) $submitted_values, function ($row) use ($allowed_payload) {
+					return is_array($row) && isset($row['id_']) && isset($allowed_payload[(string) $row['id_']]);
+				}));
+			}
 
 			$method = isset($rule['method']) && strtoupper((string)$rule['method']) === 'GET' ? 'GET' : 'POST';
 			$payload = array(
-				'webhook_id' => isset($rule['webhook_id']) ? sanitize_text_field($rule['webhook_id']) : '',
+				'webhook_id' => $rule_webhook_id,
 				'rule_id' => isset($rule['id']) ? sanitize_text_field($rule['id']) : '',
 				'rule_name' => isset($rule['name']) ? sanitize_text_field($rule['name']) : '',
 				'track_code' => $track_code,
 				'form_id' => intval($this->id),
 				'event_type' => $event_type,
 				'page_url' => isset($context['page_url']) ? esc_url_raw($context['page_url']) : '',
-				'values' => $values,
-				'submitted_values' => $submitted_values,
+				'values' => $payload_values,
+				'submitted_values' => $payload_submitted,
 			);
 
 			$args = array(

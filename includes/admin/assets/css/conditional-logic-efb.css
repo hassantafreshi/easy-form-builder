@@ -849,6 +849,77 @@
   padding: 10px 12px;
   margin: 0 0 14px;
 }
+/* submit blocked banner in Test Mode (block_submit / end_form) */
+.efb-logic-submit-blocked {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+  margin-top: 14px;
+}
+
+/* condition source select + query-param key input */
+.efb-logic-source-select {
+  flex: 0 0 128px;
+  min-width: 110px;
+}
+.efb-logic-param-input {
+  flex: 1;
+  min-width: 110px;
+}
+
+/* NOT (negate) toggle on condition groups — NAND/NOR */
+.efb-logic-negate-btn {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.efb-logic-negate-btn:hover {
+  border-color: #6366f1;
+  color: #4f46e5;
+}
+.efb-logic-negate-btn.active {
+  border-color: #ef4444;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* rule card badges: scope / priority / stop_processing */
+.efb-logic-rule-badge {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  vertical-align: middle;
+  line-height: 1.6;
+}
+.efb-logic-badge-scope {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+.efb-logic-badge-priority {
+  background: #f1f5f9;
+  color: #475569;
+}
+.efb-logic-badge-stop {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* small inline hint next to setting labels ({field_id} tokens, stop-all) */
+.efb-logic-hint {
+  color: #94a3b8;
+  font-weight: 400;
+  font-size: 10px;
+}
 .efb-logic-conflict-title {
   display: flex;
   align-items: center;

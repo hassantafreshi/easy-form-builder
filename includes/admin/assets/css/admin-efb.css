@@ -2142,6 +2142,7 @@ div#attach_efb {	position: relative;
 
 .efb-hidden {
   position: absolute;
+  right: 0;
   padding: 10px;
   background: #0c1037b0;
   width: fit-content!important;
@@ -2149,6 +2150,10 @@ div#attach_efb {	position: relative;
   font-style: normal;
   font-weight: bolder!important;
   border-radius: 0px 0px 5px 5px!important;
+}
+[dir="rtl"] .efb-hidden {
+  right: auto;
+  left: 0;
 }
 setion.hidden {
   background: #cccccc63;

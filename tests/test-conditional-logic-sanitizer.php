@@ -27,7 +27,8 @@ class efbFunction_TestDouble {
             }
         }
 
-        $allowed_action_types = array('show_field','hide_field','set_required','set_optional','enable_field','disable_field','show_step','hide_step','jump_to_step','set_value','calculate','clear_value','show_message');
+        $allowed_action_types = array('show_field','hide_field','set_required','set_optional','enable_field','disable_field','show_step','hide_step','jump_to_step','set_value','copy_value','calculate','clear_value','show_message','set_placeholder','set_help','set_label','focus_field','scroll_to_field','block_submit','end_form');
+        $targetless_action_types = array('block_submit','end_form');
         $allowed_scopes = array('field','step','notification','confirmation','webhook','pricing');
 
         foreach ($rules as $rule) {
@@ -56,8 +57,13 @@ class efbFunction_TestDouble {
                     if ($a['type'] === '') continue;
 
                     $is_step_action = in_array($a['type'], array('show_step', 'hide_step', 'jump_to_step'), true);
+                    $is_targetless = in_array($a['type'], $targetless_action_types, true);
                     $valid_targets = $is_step_action ? $valid_steps : $valid_fields;
-                    if ($a['target'] === '' || !isset($valid_targets[$a['target']])) continue;
+                    if ($is_targetless) {
+                        $a['target'] = '';
+                    } elseif ($a['target'] === '' || !isset($valid_targets[$a['target']])) {
+                        continue;
+                    }
 
                     if (isset($act['value'])) {
                         $a['value'] = is_array($act['value'])
@@ -68,6 +74,10 @@ class efbFunction_TestDouble {
                         $a['value_type'] = isset($act['value_type']) && $act['value_type'] === 'autofill_key'
                             ? 'autofill_key'
                             : 'static';
+                    }
+                    if ($a['type'] === 'copy_value') {
+                        /* value must reference a real form field to copy from */
+                        if (!isset($a['value']) || !is_string($a['value']) || !isset($valid_fields[$a['value']])) continue;
                     }
                     if ($a['type'] === 'calculate' && isset($act['decimals'])) {
                         $a['decimals'] = max(0, min(6, intval($act['decimals'])));
@@ -88,8 +98,10 @@ class efbFunction_TestDouble {
             'is', 'is_not', 'contains', 'not_contains', 'starts_with', 'ends_with',
             'gt', 'gte', 'lt', 'lte', 'between', 'not_between',
             'is_empty', 'is_not_empty',
-            'is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt'
+            'is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt',
+            'date_before', 'date_after', 'date_between'
         );
+        $allowed_sources = array('field', 'query_param', 'user', 'current_step');
         $clean = array(
             'type' => 'group',
             'operator' => 'AND',
@@ -99,6 +111,7 @@ class efbFunction_TestDouble {
         if (!is_array($group)) return $clean;
         $operator = strtoupper(sanitize_text_field($group['operator'] ?? 'AND'));
         $clean['operator'] = in_array($operator, array('AND', 'OR'), true) ? $operator : 'AND';
+        if (!empty($group['negate'])) $clean['negate'] = true;
 
         foreach (($group['items'] ?? array()) as $item) {
             if (!is_array($item)) continue;
@@ -113,8 +126,21 @@ class efbFunction_TestDouble {
                 continue;
             }
 
+            $source = sanitize_text_field($item['source'] ?? 'field');
+            if (!in_array($source, $allowed_sources, true)) $source = 'field';
+
             $field_id = sanitize_text_field($item['field_id'] ?? '');
-            if ($field_id === '' || !isset($valid_fields[$field_id])) continue;
+            if ($source === 'field') {
+                if ($field_id === '' || !isset($valid_fields[$field_id])) continue;
+            } elseif ($source === 'query_param') {
+                /* field_id carries the query-string key; only URL-safe chars */
+                $field_id = preg_replace('/[^A-Za-z0-9_\-\[\]]/', '', (string)($item['param'] ?? $field_id));
+                if ($field_id === '') continue;
+            } elseif ($source === 'user') {
+                if (!in_array($field_id, array('logged_in', 'role'), true)) continue;
+            } else { /* current_step */
+                $field_id = 'current_step';
+            }
 
             $compare = sanitize_text_field($item['compare'] ?? 'is');
             if (!in_array($compare, $allowed_compares, true)) $compare = 'is';
@@ -127,11 +153,12 @@ class efbFunction_TestDouble {
 
             $condition = array(
                 'type' => 'condition',
-                'source' => 'field',
+                'source' => $source,
                 'field_id' => $field_id,
                 'compare' => $compare,
                 'value' => $value,
             );
+            if ($source === 'query_param') $condition['param'] = $field_id;
             if ($connector !== '' && !empty($clean['items'])) $condition['connector'] = $connector;
             $clean['items'][] = $condition;
         }
@@ -488,6 +515,97 @@ if (!empty($result)) {
 // ─────────────────────────────────────────────────────────────────────────────
 $result = $efb->sanitize_logic_rules([], []);
 test('T9.1 empty rules with empty structure returns []', $result, []);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP 10: new action types (copy_value / UI actions / block_submit / end_form)
+// ─────────────────────────────────────────────────────────────────────────────
+$structure10 = [
+    ['id_' => 'form', 'type' => 'form'],
+    ['id_' => 'fa', 'type' => 'text'],
+    ['id_' => 'fb', 'type' => 'text'],
+];
+$rules10 = [[
+    'id' => 'r1', 'enabled' => true,
+    'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [
+        ['type' => 'condition', 'source' => 'field', 'field_id' => 'fa', 'compare' => 'is', 'value' => 'x'],
+    ]],
+    'actions' => [
+        ['type' => 'copy_value', 'target' => 'fb', 'value' => 'fa'],
+        ['type' => 'set_placeholder', 'target' => 'fb', 'value' => 'hint'],
+        ['type' => 'set_help', 'target' => 'fb', 'value' => 'help'],
+        ['type' => 'set_label', 'target' => 'fb', 'value' => 'label'],
+        ['type' => 'focus_field', 'target' => 'fb'],
+        ['type' => 'scroll_to_field', 'target' => 'fb'],
+        ['type' => 'block_submit', 'target' => '', 'value' => 'no way'],
+        ['type' => 'end_form', 'target' => 'ignored_target', 'value' => 'closed'],
+    ],
+]];
+$result = $efb->sanitize_logic_rules($rules10, $structure10);
+test('T10.1 all 8 new actions preserved', count($result[0]['actions']), 8);
+test('T10.2 copy_value keeps valid source field', $result[0]['actions'][0]['value'], 'fa');
+test('T10.3 block_submit allowed without target', $result[0]['actions'][6]['target'], '');
+test('T10.4 end_form target normalized to empty', $result[0]['actions'][7]['target'], '');
+
+$rules10b = [[
+    'id' => 'r1', 'enabled' => true,
+    'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [
+        ['type' => 'condition', 'source' => 'field', 'field_id' => 'fa', 'compare' => 'is', 'value' => 'x'],
+    ]],
+    'actions' => [
+        ['type' => 'copy_value', 'target' => 'fb', 'value' => 'ghost_field'],
+        ['type' => 'show_field', 'target' => 'fb'],
+    ],
+]];
+$result = $efb->sanitize_logic_rules($rules10b, $structure10);
+test('T10.5 copy_value from unknown field is dropped', count($result[0]['actions']), 1);
+test('T10.6 remaining action untouched', $result[0]['actions'][0]['type'], 'show_field');
+
+$rules10c = [[
+    'id' => 'r1', 'enabled' => true,
+    'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [
+        ['type' => 'condition', 'source' => 'field', 'field_id' => 'fa', 'compare' => 'is', 'value' => 'x'],
+    ]],
+    'actions' => [['type' => 'evil_action', 'target' => 'fb'], ['type' => 'block_submit', 'value' => '<script>alert(1)</script>hi']],
+]];
+$result = $efb->sanitize_logic_rules($rules10c, $structure10);
+test('T10.7 unknown action type dropped', count($result[0]['actions']), 1);
+test('T10.8 block message sanitized', $result[0]['actions'][0]['value'], 'alert(1)hi');
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP 11: non-field sources + negate + date operators
+// ─────────────────────────────────────────────────────────────────────────────
+$rules11 = [[
+    'id' => 'r1', 'enabled' => true,
+    'conditions' => ['type' => 'group', 'operator' => 'AND', 'negate' => 1, 'items' => [
+        ['type' => 'condition', 'source' => 'query_param', 'param' => 'utm_source<x>!', 'compare' => 'is', 'value' => 'google'],
+        ['type' => 'condition', 'source' => 'user', 'field_id' => 'logged_in', 'compare' => 'is', 'value' => 'yes', 'connector' => 'OR'],
+        ['type' => 'condition', 'source' => 'user', 'field_id' => 'hacker', 'compare' => 'is', 'value' => 'x'],
+        ['type' => 'condition', 'source' => 'current_step', 'field_id' => 'whatever', 'compare' => 'gte', 'value' => '2'],
+        ['type' => 'condition', 'source' => 'teleport', 'field_id' => 'fa', 'compare' => 'is', 'value' => 'x'],
+    ]],
+    'actions' => [['type' => 'show_field', 'target' => 'fb']],
+]];
+$result = $efb->sanitize_logic_rules($rules11, $structure10);
+$items11 = $result[0]['conditions']['items'];
+test('T11.1 negate flag preserved', !empty($result[0]['conditions']['negate']), true);
+test('T11.2 invalid user subject dropped (4 of 5 kept)', count($items11), 4);
+test('T11.3 query param key stripped to URL-safe chars', $items11[0]['param'], 'utm_sourcex');
+test('T11.4 query_param mirrors param into field_id', $items11[0]['field_id'], 'utm_sourcex');
+test('T11.5 user logged_in kept', $items11[1]['field_id'], 'logged_in');
+test('T11.6 current_step field_id normalized', $items11[2]['field_id'], 'current_step');
+test('T11.7 unknown source falls back to field (valid field id)', $items11[3]['source'], 'field');
+
+$rules11b = [[
+    'id' => 'r1', 'enabled' => true,
+    'conditions' => ['type' => 'group', 'operator' => 'AND', 'items' => [
+        ['type' => 'condition', 'source' => 'field', 'field_id' => 'fa', 'compare' => 'date_between', 'value' => '2026-06-01,2026-06-30'],
+        ['type' => 'condition', 'source' => 'field', 'field_id' => 'fa', 'compare' => 'date_before', 'value' => '2026-06-15'],
+    ]],
+    'actions' => [['type' => 'show_field', 'target' => 'fb']],
+]];
+$result = $efb->sanitize_logic_rules($rules11b, $structure10);
+test('T11.8 date_between compare allowed', $result[0]['conditions']['items'][0]['compare'], 'date_between');
+test('T11.9 date_before compare allowed', $result[0]['conditions']['items'][1]['compare'], 'date_before');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Summary

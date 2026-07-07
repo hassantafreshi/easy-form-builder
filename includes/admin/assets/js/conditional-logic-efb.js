@@ -129,7 +129,7 @@
     choice: ['is', 'is_not', 'is_empty', 'is_not_empty'],
     text: ['is', 'is_not', 'contains', 'not_contains', 'starts_with', 'ends_with', 'is_empty', 'is_not_empty'],
     number: ['is', 'is_not', 'gt', 'gte', 'lt', 'lte', 'between', 'not_between', 'is_empty', 'is_not_empty'],
-    date: ['is', 'is_not', 'gt', 'lt', 'is_empty', 'is_not_empty'],
+    date: ['is', 'is_not', 'date_before', 'date_after', 'date_between', 'is_empty', 'is_not_empty'],
     bool: ['is'],
     file: ['is_empty', 'is_not_empty'],
     payment: ['is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt']
@@ -154,11 +154,29 @@
     is_not_paid: 'pay_failed',
     amount_eq: 'ise',
     amount_gt: 'gthan',
-    amount_lt: 'lthan'
+    amount_lt: 'lthan',
+    date_before: 'dateBefore',
+    date_after: 'dateAfter',
+    date_between: 'dateBetween'
   };
 
   const NO_VALUE_OPERATORS = new Set(['is_empty', 'is_not_empty', 'is_paid', 'is_not_paid']);
   const RANGE_OPERATORS = new Set(['between', 'not_between']);
+  const DATE_RANGE_OPERATORS = new Set(['date_between']);
+
+  /* Non-field condition sources (PRD §B: query params, user state, step) */
+  const CONDITION_SOURCES = [
+    { value: 'field',        label: () => _tf('field', 'Field') },
+    { value: 'query_param',  label: () => _tf('urlParam', 'URL parameter') },
+    { value: 'user',         label: () => _tf('userSource', 'User') },
+    { value: 'current_step', label: () => _tf('currentStep', 'Current step') }
+  ];
+  const SOURCE_OPERATORS = {
+    query_param: ['is', 'is_not', 'contains', 'not_contains', 'starts_with', 'ends_with', 'is_empty', 'is_not_empty'],
+    user_logged_in: ['is'],
+    user_role: ['is', 'is_not', 'is_empty', 'is_not_empty'],
+    current_step: ['is', 'is_not', 'gt', 'gte', 'lt', 'lte']
+  };
 
   /* field type → category mapping */
   const FIELD_CATEGORY = {
@@ -195,10 +213,25 @@
     { value: 'hide_step',     label: () => _t('hide') + ' ' + _t('step') },
     { value: 'jump_to_step',  label: () => efb_var.text.jumpStep  || 'Jump to Step' },
     { value: 'set_value',     label: () => efb_var.text.setValue  || 'Set Value' },
+    { value: 'copy_value',    label: () => _tf('copyValue', 'Copy value from field') },
     { value: 'calculate',     label: () => _tf('calculate', 'Calculate') },
     { value: 'clear_value',   label: () => efb_var.text.clearValue || 'Clear Value' },
-    { value: 'show_message',  label: () => efb_var.text.showMessage || 'Show Message' }
+    { value: 'show_message',  label: () => efb_var.text.showMessage || 'Show Message' },
+    { value: 'set_placeholder', label: () => _tf('setPlaceholder', 'Set placeholder') },
+    { value: 'set_help',      label: () => _tf('setHelp', 'Set help text') },
+    { value: 'set_label',     label: () => _tf('setLabel', 'Set label') },
+    { value: 'focus_field',   label: () => _tf('focusField', 'Focus field') },
+    { value: 'scroll_to_field', label: () => _tf('scrollToField', 'Scroll to field') },
+    { value: 'block_submit',  label: () => _tf('blockSubmit', 'Block submit') },
+    { value: 'end_form',      label: () => _tf('endForm', 'End form with message') }
   ];
+
+  /* Form-level actions with no field/step target */
+  const TARGETLESS_ACTIONS = new Set(['block_submit', 'end_form']);
+  /* Actions whose value input is required text */
+  const TEXT_VALUE_ACTIONS = new Set(['set_placeholder', 'set_help', 'set_label']);
+  /* PRD §17: pricing logic (calculate) is a Pro-only capability */
+  const PRO_ONLY_ACTIONS = new Set(['calculate']);
 
   /* ────────────────────────────────────────────
      STATE
@@ -438,8 +471,10 @@
 
   function isConditionValid(cond) {
     if (!cond || !cond.field_id || !cond.compare) return false;
+    const source = String(cond.source || 'field');
+    if (source === 'query_param' && !String(cond.param || cond.field_id || '').trim()) return false;
     if (NO_VALUE_OPERATORS.has(cond.compare)) return true;
-    if (RANGE_OPERATORS.has(cond.compare)) {
+    if (RANGE_OPERATORS.has(cond.compare) || DATE_RANGE_OPERATORS.has(cond.compare)) {
       const parts = String(cond.value || '').split(',');
       return parts.length === 2 && parts[0].trim() !== '' && parts[1].trim() !== '';
     }
@@ -518,15 +553,69 @@
       case 'is_not_empty': return scalar !== '';
       case 'is_paid': return scalar !== '' && scalar !== '0';
       case 'is_not_paid': return scalar === '' || scalar === '0';
+      case 'date_before':
+      case 'date_after': {
+        const valueTs = dateTimestamp(scalar);
+        const expectedTs = dateTimestamp(right);
+        if (valueTs === null || expectedTs === null) return false;
+        return compare === 'date_before' ? valueTs < expectedTs : valueTs > expectedTs;
+      }
+      case 'date_between': {
+        const dateRange = Array.isArray(expected) ? expected : expectedScalar.split(/\s*,\s*/);
+        if (dateRange.length < 2) return false;
+        const ts = dateTimestamp(scalar);
+        const fromTs = dateTimestamp(dateRange[0]);
+        const toTs = dateTimestamp(dateRange[1]);
+        if (ts === null || fromTs === null || toTs === null) return false;
+        return ts >= fromTs && ts <= toTs;
+      }
       default: return false;
     }
   }
+
+  /* Millisecond timestamp for a date string, null when unparseable — mirrors
+   * the public runtime so Test Mode predicts the frontend exactly. */
+  function dateTimestamp(value) {
+    const text = String(value == null ? '' : value).trim();
+    if (text === '') return null;
+    const parsed = Date.parse(text.length === 10 ? text + 'T00:00:00' : text);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  /* Environment used by Test Mode for non-field sources; filled from the
+   * dedicated test inputs (query params, user state, current step). */
+  let testEnv = { query: {}, user: { logged_in: false, roles: [] }, current_step: null };
 
   function evaluateConditionWithValues(condition, values) {
     if (!condition || !condition.field_id) return false;
     const fieldId = String(condition.field_id);
     const compare = String(condition.compare || 'is');
     const expected = condition.value != null ? condition.value : '';
+    const source = String(condition.source || 'field');
+
+    if (source === 'query_param') {
+      const param = String(condition.param || condition.field_id || '');
+      const queryValue = Object.prototype.hasOwnProperty.call(testEnv.query, param) ? testEnv.query[param] : '';
+      return compareScalar(queryValue, expected, compare);
+    }
+    if (source === 'user') {
+      if (fieldId === 'logged_in') return compareScalar(testEnv.user.logged_in ? 'yes' : 'no', expected, compare);
+      if (fieldId === 'role') {
+        const roles = testEnv.user.roles.map(role => String(role).toLowerCase());
+        const expectedRole = String(Array.isArray(expected) ? expected.join(',') : expected).toLowerCase().trim();
+        const hasRole = roles.includes(expectedRole);
+        if (compare === 'is') return hasRole;
+        if (compare === 'is_not') return !hasRole;
+        if (compare === 'is_empty') return roles.length === 0;
+        if (compare === 'is_not_empty') return roles.length > 0;
+        return compareScalar(roles.join(' '), expected, compare);
+      }
+      return false;
+    }
+    if (source === 'current_step') {
+      return compareScalar(testEnv.current_step == null ? '' : String(testEnv.current_step), expected, compare);
+    }
+
     const current = Object.prototype.hasOwnProperty.call(values, fieldId) ? values[fieldId] : '';
     if (Array.isArray(current)) {
       const expectedScalar = Array.isArray(expected) ? expected.join(',') : String(expected);
@@ -553,7 +642,8 @@
       }
       result = getItemConnector(group, item) === 'OR' ? (result || matched) : (result && matched);
     });
-    return result;
+    /* negate turns AND into NAND, OR into NOR, and a single item into NOT. */
+    return group && (group.negate === true || group.negate === 1 || group.negate === '1') ? !result : result;
   }
 
   function clonePlain(value) {
@@ -708,8 +798,44 @@
     if (type === 'set_required' || type === 'set_optional') return 'requirement';
     if (type === 'enable_field' || type === 'disable_field') return 'availability';
     if (type === 'show_step' || type === 'hide_step') return 'step_visibility';
-    if (type === 'set_value' || type === 'calculate' || type === 'clear_value') return 'value';
+    if (type === 'set_value' || type === 'copy_value' || type === 'calculate' || type === 'clear_value') return 'value';
     return '';
+  }
+
+  /* Which non-field sources do the current rules actually use? Drives the
+   * extra Test Mode inputs (query params, user state, current step). */
+  function collectTestEnvNeeds() {
+    const needs = { query: [], user: false, step: false };
+    const seen = new Set();
+    const walk = (group) => {
+      if (!group || !Array.isArray(group.items)) return;
+      group.items.forEach(item => {
+        if (isGroupItem(item)) { walk(item); return; }
+        const source = String((item && item.source) || 'field');
+        if (source === 'query_param') {
+          const param = String(item.param || item.field_id || '').trim();
+          if (param && !seen.has(param)) { seen.add(param); needs.query.push(param); }
+        }
+        if (source === 'user') needs.user = true;
+        if (source === 'current_step') needs.step = true;
+      });
+    };
+    rules.forEach(rule => walk(rule && rule.conditions));
+    return needs;
+  }
+
+  function buildTestEnv() {
+    const env = { query: {}, user: { logged_in: false, roles: [] }, current_step: null };
+    Object.keys(testValues).forEach(key => {
+      if (key.indexOf('__query__') === 0) env.query[key.slice(9)] = testValues[key];
+    });
+    env.user.logged_in = testValues.__user_logged_in === 'yes';
+    const role = String(testValues.__user_role || '').trim();
+    if (role) env.user.roles = [role];
+    if (testValues.__current_step !== undefined && testValues.__current_step !== '' && isFinite(testValues.__current_step)) {
+      env.current_step = Number(testValues.__current_step);
+    }
+    return env;
   }
 
   function isRuleEnabled(rule) {
@@ -759,9 +885,14 @@
   function describeAppliedAction(action, resultValue) {
     const actionType = ACTION_TYPES.find(item => item.value === action.type);
     const label = actionType ? actionType.label() : action.type;
+    if (TARGETLESS_ACTIONS.has(action.type)) {
+      return action.value ? `${label} — "${action.value}"` : label;
+    }
     const targetName = getRawTargetName(action.target, isStepActionType(action.type));
     if (action.type === 'calculate' && resultValue != null) return `${label} -> ${targetName} = ${resultValue}`;
     if (action.type === 'set_value' && action.value != null) return `${label} -> ${targetName} = ${action.value}`;
+    if (action.type === 'copy_value' && action.value) return `${label} -> ${targetName} = {${getRawFieldName(action.value)}}`;
+    if (TEXT_VALUE_ACTIONS.has(action.type) && action.value) return `${label} -> ${targetName} = "${action.value}"`;
     return targetName ? `${label} -> ${targetName}` : label;
   }
 
@@ -785,6 +916,9 @@
       messages: [],
       jumps: [],
       errors: [],
+      submit_blocked: false,
+      block_messages: [],
+      end_form: null,
       conflicts: analyzeConflicts()
     };
   }
@@ -852,6 +986,18 @@
       } else {
         ruleActions.forEach((action, actionIndex) => {
           const target = action.target;
+          /* form-level actions with no target */
+          if (TARGETLESS_ACTIONS.has(action.type)) {
+            result.submit_blocked = true;
+            if (action.type === 'end_form' && !result.end_form) {
+              result.end_form = { key: ruleId + ':' + actionIndex, message: String(action.value || '') };
+            }
+            if (action.type === 'block_submit' && action.value) {
+              result.block_messages.push({ key: ruleId + ':' + actionIndex, value: String(action.value) });
+            }
+            applied.push(describeAppliedAction(action, null));
+            return;
+          }
           if (!target) return;
           let calculatedValue = null;
           switch (action.type) {
@@ -866,6 +1012,13 @@
             case 'set_value':
               nextValues[target] = action.value != null ? action.value : '';
               break;
+            case 'copy_value': {
+              const sourceId = String(action.value || '');
+              if (getFieldById(sourceId)) {
+                nextValues[target] = Object.prototype.hasOwnProperty.call(nextValues, sourceId) ? nextValues[sourceId] : '';
+              }
+              break;
+            }
             case 'calculate':
               calculatedValue = resolveCalculationValueForTest(action, nextValues);
               if (calculatedValue == null) {
@@ -876,6 +1029,13 @@
               break;
             case 'clear_value':
               nextValues[target] = '';
+              break;
+            case 'set_placeholder':
+            case 'set_help':
+            case 'set_label':
+            case 'focus_field':
+            case 'scroll_to_field':
+              /* UI-only actions: shown in the trace, no state to track here */
               break;
             case 'show_message':
               result.messages.push({ key: ruleId + ':' + actionIndex, target, value: String(action.value || '') });
@@ -972,14 +1132,19 @@
       return String(rule.message || '').trim().length > 0;
     }
     if (tab === 'webhook') {
+      if (rule.action === 'stop') return true; /* stop rules never call a URL */
       return isValidWebhookUrl(rule.url);
     }
     if (!Array.isArray(rule.actions) || !rule.actions.length) return false;
     const actionsValid = rule.actions.every(action => {
-      if (!action || !action.type || !action.target) return false;
+      if (!action || !action.type) return false;
+      if (TARGETLESS_ACTIONS.has(action.type)) return true; /* message optional */
+      if (!action.target) return false;
       if (action.type === 'show_message') return String(action.value || '').trim().length > 0;
       if (action.type === 'set_value') return String(action.value || '').length > 0;
       if (action.type === 'calculate') return String(action.value || '').trim().length > 0;
+      if (action.type === 'copy_value') return String(action.value || '').length > 0;
+      if (TEXT_VALUE_ACTIONS.has(action.type)) return String(action.value || '').trim().length > 0;
       return true;
     });
     return actionsValid;
@@ -1214,6 +1379,11 @@
     let cards = '';
     rules.forEach((rule, idx) => {
       const summary = buildSummary(rule);
+      /* PRD §9.2: rule card shows a scope badge and the rule priority */
+      const badges = `
+              <span class="efb-logic-rule-badge efb-logic-badge-scope">${_esc(getTabLabel(activeTab))}</span>
+              <span class="efb-logic-rule-badge efb-logic-badge-priority" title="${_tf('priority', 'Priority')}">#${Number(rule.priority || 10)}</span>
+              ${rule.stop_processing ? `<span class="efb-logic-rule-badge efb-logic-badge-stop" title="${_tf('stopProcessing', 'Stop after this rule matches')}"><i class="efb bi-sign-stop"></i></span>` : ''}`;
       cards += `
         <div class="efb-logic-rule-card ${rule.enabled ? '' : 'disabled'}" data-rule-id="${_esc(rule.id)}">
           <div class="efb-logic-rule-top">
@@ -1223,10 +1393,11 @@
               <span class="efb-logic-toggle-thumb"></span>
             </label>
             <div class="efb-logic-rule-info" onclick="EFB_Logic.editRule('${_esc(rule.id)}')">
-              <p class="efb-logic-rule-name">${_esc(rule.name || (_t('conlog') + ' ' + (idx + 1)))}</p>
+              <p class="efb-logic-rule-name">${_esc(rule.name || (_t('conlog') + ' ' + (idx + 1)))}${badges}</p>
               <p class="efb-logic-rule-summary">${summary || '<span class="efb-logic-not-configured">⚙ Not configured — click edit</span>'}</p>
             </div>
             <div class="efb-logic-rule-actions">
+              <button type="button" title="${_tf('duplicate', 'Duplicate')}" onclick="EFB_Logic.duplicateRule('${_esc(rule.id)}')"><i class="efb bi-copy"></i></button>
               <button type="button" title="Edit" onclick="EFB_Logic.editRule('${_esc(rule.id)}')"><i class="efb bi-pencil"></i></button>
               <button type="button" class="efb-logic-delete-btn" title="${_t('delete')}" onclick="EFB_Logic.deleteRule('${_esc(rule.id)}')"><i class="efb bi-trash"></i></button>
             </div>
@@ -1243,11 +1414,22 @@
       <div class="efb-logic-list">
         <div class="efb-logic-list-header">
           <button type="button" class="efb-logic-test-btn" onclick="EFB_Logic.openTestMode()"><i class="efb bi-play-circle"></i> ${_tf('testMode', 'Test Mode')}</button>
+          ${renderExportImportButtons()}
           <button type="button" class="efb-logic-add-btn${atRuleLimit ? ' efb-logic-btn-locked' : ''}"${addLockAttr} onclick="EFB_Logic.addRule()"><i class="efb ${atRuleLimit ? 'bi-gem' : 'bi-plus-lg'}"></i> ${_t('add')}</button>
         </div>
         ${renderConflictWarnings(conflicts)}
         ${cards}
       </div>`;
+  }
+
+  /* Export/Import all rule sets as a portable JSON file (Pro, PRD §17) */
+  function renderExportImportButtons() {
+    const locked = !isProPlan();
+    const lockAttr = locked ? ` title="${_esc(proOnlyMessage())}"` : '';
+    return `
+          <button type="button" class="efb-logic-test-btn${locked ? ' efb-logic-btn-locked' : ''}"${lockAttr} onclick="EFB_Logic.exportRules()"><i class="efb ${locked ? 'bi-gem' : 'bi-download'}"></i> ${_tf('exportRules', 'Export')}</button>
+          <button type="button" class="efb-logic-test-btn${locked ? ' efb-logic-btn-locked' : ''}"${lockAttr} onclick="EFB_Logic.importRules()"><i class="efb ${locked ? 'bi-gem' : 'bi-upload'}"></i> ${_tf('importRules', 'Import')}</button>
+          <input type="file" id="efb-logic-import-file" accept="application/json,.json" class="d-none" style="display:none" onchange="EFB_Logic.importRulesFile(this)">`;
   }
 
   function renderTestField(field) {
@@ -1280,6 +1462,26 @@
 
   function renderTestResults() {
     if (!testResults.length && !testInspector) return '';
+    const blockedBanner = testInspector && testInspector.submit_blocked ? `
+      <div class="efb-logic-conflict-warning efb-logic-submit-blocked">
+        <div class="efb-logic-conflict-title">
+          <i class="efb bi-sign-stop"></i>
+          <strong>${_tf('submitBlocked', 'Submission is not allowed for the current answers.')}</strong>
+        </div>
+        ${(testInspector.end_form && testInspector.end_form.message) ? `<div class="efb-logic-conflict-item"><span>${_esc(testInspector.end_form.message)}</span></div>` : ''}
+        ${(testInspector.block_messages || []).map(message => `<div class="efb-logic-conflict-item"><span>${_esc(message.value)}</span></div>`).join('')}
+      </div>` : '';
+    /* PRD §17: the Inspector (debugger) is Pro-only; Free Plus keeps the
+     * simple matched/not-matched preview list. */
+    const inspectorHtml = isProPlan()
+      ? renderInspectorPanel(testInspector)
+      : (testInspector ? `
+      <div class="efb-logic-inspector efb-logic-pro-panel">
+        <div class="efb-logic-inspector-head">
+          <h6><i class="efb bi-search"></i> ${_tf('inspector', 'Inspector')} <i class="efb bi-gem efb-logic-pro-gem"></i></h6>
+          <span>${_tf('proVersion', 'Pro Version')}</span>
+        </div>
+      </div>` : '');
     return `
       <div class="efb-logic-test-results">
         ${testResults.map(result => `
@@ -1293,7 +1495,44 @@
           </div>
         `).join('')}
       </div>
-      ${renderInspectorPanel(testInspector)}`;
+      ${blockedBanner}
+      ${inspectorHtml}`;
+  }
+
+  /* Extra Test Mode inputs for non-field sources the rules reference */
+  function renderTestEnvFields() {
+    const needs = collectTestEnvNeeds();
+    let html = '';
+    needs.query.forEach(param => {
+      const key = '__query__' + param;
+      html += `
+      <label class="efb-logic-test-field">
+        <span>${_tf('urlParam', 'URL parameter')}: ${_esc(param)}</span>
+        <input type="text" class="efb-logic-test-input" value="${_esc(testValues[key] || '')}" onchange="EFB_Logic.updateTestValue('${_esc(key)}',this.value)">
+      </label>`;
+    });
+    if (needs.user) {
+      html += `
+      <label class="efb-logic-test-field">
+        <span>${_tf('userSource', 'User')}: ${_tf('loggedIn', 'Logged in')}</span>
+        <select class="efb-logic-test-input" onchange="EFB_Logic.updateTestValue('__user_logged_in',this.value)">
+          <option value="no" ${testValues.__user_logged_in !== 'yes' ? 'selected' : ''}>${_tf('loggedOut', 'Logged out')}</option>
+          <option value="yes" ${testValues.__user_logged_in === 'yes' ? 'selected' : ''}>${_tf('loggedIn', 'Logged in')}</option>
+        </select>
+      </label>
+      <label class="efb-logic-test-field">
+        <span>${_tf('userSource', 'User')}: ${_tf('userRole', 'Role')}</span>
+        <input type="text" class="efb-logic-test-input" value="${_esc(testValues.__user_role || '')}" placeholder="subscriber" onchange="EFB_Logic.updateTestValue('__user_role',this.value)">
+      </label>`;
+    }
+    if (needs.step) {
+      html += `
+      <label class="efb-logic-test-field">
+        <span>${_tf('currentStep', 'Current step')}</span>
+        <input type="number" min="1" step="1" class="efb-logic-test-input" value="${_esc(testValues.__current_step || '')}" placeholder="1" onchange="EFB_Logic.updateTestValue('__current_step',this.value)">
+      </label>`;
+    }
+    return html;
   }
 
   function renderTestMode() {
@@ -1312,6 +1551,7 @@
           ${renderConflictWarnings(analyzeConflicts())}
           <div class="efb-logic-test-fields">
             ${fields.length ? fields.map(renderTestField).join('') : `<div class="efb-logic-group-empty">${_tf('noFields', 'No fields found.')}</div>`}
+            ${renderTestEnvFields()}
           </div>
           <div class="efb-logic-test-runbar">
             <button type="button" class="efb-logic-apply-btn" onclick="EFB_Logic.runTest()"><i class="efb bi-play-circle"></i> ${_tf('runTest', 'Run Test')}</button>
@@ -1469,6 +1709,9 @@
             <span>${title}</span>
           </div>
           <div class="efb-logic-group-controls">
+            <button type="button" class="efb-logic-negate-btn${group.negate ? ' active' : ''}${isProPlan() ? '' : ' efb-logic-btn-locked'}"
+                    title="${isProPlan() ? _tf('negateGroup', 'NOT — invert this group (NAND/NOR)') : _esc(proOnlyMessage())}"
+                    onclick="EFB_Logic.toggleGroupNegate('${pathAttr}')">${_tf('notOperator', 'NOT')}${isProPlan() ? '' : ' <i class="efb bi-gem efb-logic-pro-gem"></i>'}</button>
             ${removeBtn}
           </div>
         </div>
@@ -1487,23 +1730,53 @@
       </div>`;
   }
 
+  /* Operators available for a condition, source-aware */
+  function getOperatorsForCondition(cond) {
+    const source = String(cond.source || 'field');
+    if (source === 'query_param') return SOURCE_OPERATORS.query_param;
+    if (source === 'user') return cond.field_id === 'role' ? SOURCE_OPERATORS.user_role : SOURCE_OPERATORS.user_logged_in;
+    if (source === 'current_step') return SOURCE_OPERATORS.current_step;
+    return cond.field_id ? getOperatorsForField(cond.field_id) : OPERATORS_BY_CATEGORY.text;
+  }
+
   function renderConditionRow(cond, idx, fields) {
     if (!fields) fields = getAllFields();
     const pathAttr = _esc(String(idx));
-    const ops = cond.field_id ? getOperatorsForField(cond.field_id) : OPERATORS_BY_CATEGORY.text;
+    const source = String(cond.source || 'field');
+    const ops = getOperatorsForCondition(cond);
     const needsValue = !NO_VALUE_OPERATORS.has(cond.compare);
-    const hasOpts = cond.field_id && fieldHasOptions(cond.field_id);
+    const hasOpts = source === 'field' && cond.field_id && fieldHasOptions(cond.field_id);
 
     /* detect payment amount operator (needs number input) */
-    const fObj = typeof valj_efb !== 'undefined' ? valj_efb.find(x => x.id_ === cond.field_id) : null;
+    const fObj = source === 'field' && typeof valj_efb !== 'undefined' ? valj_efb.find(x => x.id_ === cond.field_id) : null;
     const isPaymentAmountOp = fObj && getFieldCategory(fObj.type) === 'payment' &&
       (cond.compare === 'amount_eq' || cond.compare === 'amount_gt' || cond.compare === 'amount_lt');
 
-    /* field select */
-    let fieldOpts = `<option value="">${_t('select')} ${_t('field')}</option>`;
-    fields.forEach(f => {
-      fieldOpts += `<option value="${_esc(f.id_)}" ${f.id_ === cond.field_id ? 'selected' : ''}>${_esc(f.name)}</option>`;
+    /* source select (Field / URL parameter / User / Current step) */
+    let sourceOpts = '';
+    CONDITION_SOURCES.forEach(item => {
+      sourceOpts += `<option value="${item.value}" ${item.value === source ? 'selected' : ''}>${_esc(item.label())}</option>`;
     });
+    const sourceSelect = `<select class="efb-logic-source-select" data-ci="${pathAttr}" onchange="EFB_Logic.updateCondition('${pathAttr}','source',this.value)">${sourceOpts}</select>`;
+
+    /* subject select/input depending on source */
+    let subjectHtml = '';
+    if (source === 'query_param') {
+      subjectHtml = `<input type="text" class="efb-logic-value-input efb-logic-param-input" value="${_esc(cond.param || cond.field_id || '')}" placeholder="utm_source" data-ci="${pathAttr}" onchange="EFB_Logic.updateCondition('${pathAttr}','param',this.value)">`;
+    } else if (source === 'user') {
+      subjectHtml = `<select class="efb-logic-field-select" data-ci="${pathAttr}" onchange="EFB_Logic.updateCondition('${pathAttr}','field_id',this.value)">
+        <option value="logged_in" ${cond.field_id === 'logged_in' ? 'selected' : ''}>${_tf('loggedIn', 'Logged in')}</option>
+        <option value="role" ${cond.field_id === 'role' ? 'selected' : ''}>${_tf('userRole', 'Role')}</option>
+      </select>`;
+    } else if (source === 'current_step') {
+      subjectHtml = '';
+    } else {
+      let fieldOpts = `<option value="">${_t('select')} ${_t('field')}</option>`;
+      fields.forEach(f => {
+        fieldOpts += `<option value="${_esc(f.id_)}" ${f.id_ === cond.field_id ? 'selected' : ''}>${_esc(f.name)}</option>`;
+      });
+      subjectHtml = `<select class="efb-logic-field-select" data-ci="${pathAttr}" onchange="EFB_Logic.updateCondition('${pathAttr}','field_id',this.value)">${fieldOpts}</select>`;
+    }
 
     /* operator select */
     let opOpts = '';
@@ -1514,7 +1787,26 @@
     /* value input */
     let valueHtml = '';
     if (needsValue) {
-      if (RANGE_OPERATORS.has(cond.compare)) {
+      if (source === 'user' && cond.field_id !== 'role') {
+        valueHtml = `<select class="efb-logic-value-select" data-ci="${pathAttr}" onchange="EFB_Logic.updateCondition('${pathAttr}','value',this.value)">
+          <option value="">${_t('select')}</option>
+          <option value="yes" ${cond.value === 'yes' ? 'selected' : ''}>${_tf('loggedIn', 'Logged in')}</option>
+          <option value="no" ${cond.value === 'no' ? 'selected' : ''}>${_tf('loggedOut', 'Logged out')}</option>
+        </select>`;
+      } else if (source === 'current_step') {
+        valueHtml = `<input type="number" min="1" step="1" class="efb-logic-value-input" value="${_esc(cond.value || '')}" placeholder="1" data-ci="${pathAttr}" onchange="EFB_Logic.updateCondition('${pathAttr}','value',this.value)">`;
+      } else if (DATE_RANGE_OPERATORS.has(cond.compare)) {
+        const dateParts = String(cond.value || '').split(',');
+        const fromVal = _esc((dateParts[0] || '').trim());
+        const toVal = _esc((dateParts[1] || '').trim());
+        valueHtml = `<div class="efb-logic-value-range">
+          <input type="date" class="efb-logic-value-input efb-logic-value-range-min" value="${fromVal}" data-ci="${pathAttr}" onchange="EFB_Logic.updateCondition('${pathAttr}','value',this.value+','+this.parentElement.querySelector('.efb-logic-value-range-max').value)">
+          <span class="efb-logic-value-range-sep">–</span>
+          <input type="date" class="efb-logic-value-input efb-logic-value-range-max" value="${toVal}" data-ci="${pathAttr}" onchange="EFB_Logic.updateCondition('${pathAttr}','value',this.parentElement.querySelector('.efb-logic-value-range-min').value+','+this.value)">
+        </div>`;
+      } else if (cond.compare === 'date_before' || cond.compare === 'date_after') {
+        valueHtml = `<input type="date" class="efb-logic-value-input" value="${_esc(cond.value || '')}" data-ci="${pathAttr}" onchange="EFB_Logic.updateCondition('${pathAttr}','value',this.value)">`;
+      } else if (RANGE_OPERATORS.has(cond.compare)) {
         const rangeParts = String(cond.value || '').split(',');
         const minVal = _esc((rangeParts[0] || '').trim());
         const maxVal = _esc((rangeParts[1] || '').trim());
@@ -1545,7 +1837,8 @@
 
     return `
       <div class="efb-logic-condition-row" data-ci="${pathAttr}">
-        <select class="efb-logic-field-select" data-ci="${pathAttr}" onchange="EFB_Logic.updateCondition('${pathAttr}','field_id',this.value)">${fieldOpts}</select>
+        ${sourceSelect}
+        ${subjectHtml}
         <select class="efb-logic-operator-select" data-ci="${pathAttr}" onchange="EFB_Logic.updateCondition('${pathAttr}','compare',this.value)">${opOpts}</select>
         ${valueHtml}
         <button type="button" class="efb-logic-remove-btn" onclick="EFB_Logic.removeCondition('${pathAttr}')" title="${_t('delete')}"><i class="efb bi-x-lg"></i></button>
@@ -1553,23 +1846,41 @@
   }
 
   function renderActionRow(action, idx) {
-    /* action type select */
+    /* action type select — Pro-only actions are visible but disabled with a gem */
+    const proPlanRow = isProPlan();
     let atOpts = `<option value="">${_t('select')}</option>`;
     ACTION_TYPES.forEach(at => {
-      atOpts += `<option value="${at.value}" ${at.value === action.type ? 'selected' : ''}>${at.label()}</option>`;
+      const locked = PRO_ONLY_ACTIONS.has(at.value) && !proPlanRow;
+      atOpts += `<option value="${at.value}" ${at.value === action.type ? 'selected' : ''} ${locked ? 'disabled' : ''}>${at.label()}${locked ? ' 💎' : ''}</option>`;
     });
 
-    /* target select */
-    const targets = action.type ? getTargetsForAction(action.type) : getAllFields();
-    let tOpts = `<option value="">${_t('select')}</option>`;
-    targets.forEach(t => {
-      tOpts += `<option value="${_esc(t.id_)}" ${t.id_ === action.target ? 'selected' : ''}>${_esc(t.name)}</option>`;
-    });
+    /* target select — hidden for form-level actions (block_submit / end_form) */
+    const isTargetless = TARGETLESS_ACTIONS.has(action.type);
+    let targetHtml = '';
+    if (!isTargetless) {
+      const targets = action.type ? getTargetsForAction(action.type) : getAllFields();
+      let tOpts = `<option value="">${_t('select')}</option>`;
+      targets.forEach(t => {
+        tOpts += `<option value="${_esc(t.id_)}" ${t.id_ === action.target ? 'selected' : ''}>${_esc(t.name)}</option>`;
+      });
+      targetHtml = `<select class="efb-logic-action-target-select" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'target',this.value)">${tOpts}</select>`;
+    }
 
     /* value input for set_value / show_message actions */
     let valueHtml = '';
-    if (action.type === 'show_message') {
+    if (action.type === 'show_message' || isTargetless) {
       valueHtml = `<input type="text" class="efb-logic-value-input" value="${_esc(action.value || '')}" placeholder="${_t('enterText') || 'Message...'}" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'value',this.value)">` ;
+    }
+    if (TEXT_VALUE_ACTIONS.has(action.type)) {
+      valueHtml = `<input type="text" class="efb-logic-value-input" value="${_esc(action.value || '')}" placeholder="${_t('enterTheValueThisField') || 'Value...'}" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'value',this.value)">` ;
+    }
+    if (action.type === 'copy_value') {
+      let sOpts = `<option value="">${_t('select')} ${_t('field')}</option>`;
+      getAllFields().forEach(f => {
+        if (f.id_ === action.target) return; /* copying a field onto itself is a no-op */
+        sOpts += `<option value="${_esc(f.id_)}" ${f.id_ === action.value ? 'selected' : ''}>${_esc(f.name)}</option>`;
+      });
+      valueHtml = `<select class="efb-logic-value-select" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'value',this.value)">${sOpts}</select>`;
     }
     if (action.type === 'set_value') {
       const afActive = isAutofillActive();
@@ -1613,7 +1924,7 @@
     return `
       <div class="efb-logic-action-row" data-ai="${idx}">
         <select class="efb-logic-action-type-select" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'type',this.value)">${atOpts}</select>
-        <select class="efb-logic-action-target-select" data-ai="${idx}" onchange="EFB_Logic.updateAction(${idx},'target',this.value)">${tOpts}</select>
+        ${targetHtml}
         ${valueHtml}
         <button type="button" class="efb-logic-remove-btn" onclick="EFB_Logic.removeAction(${idx})" title="${_t('delete')}"><i class="efb bi-x-lg"></i></button>
       </div>`;
@@ -1624,6 +1935,8 @@
      ──────────────────────────────────────────── */
   function renderNotificationSettings(rule) {
     const template = rule.template || 'default';
+    const ccText = Array.isArray(rule.cc) ? rule.cc.join(', ') : String(rule.cc || '');
+    const bccText = Array.isArray(rule.bcc) ? rule.bcc.join(', ') : String(rule.bcc || '');
     return `
       <div class="efb-logic-action-row efb-logic-settings-row">
         <label class="efb-logic-setting-field">
@@ -1632,7 +1945,7 @@
                  onchange="EFB_Logic.updateNotification('recipient',this.value)">
         </label>
         <label class="efb-logic-setting-field">
-          <span>${_tf('subject', 'Subject')}</span>
+          <span>${_tf('subject', 'Subject')} <small class="efb-logic-hint">{field_id}</small></span>
           <input type="text" class="efb-logic-value-input" value="${_esc(rule.subject || '')}" placeholder="${_tf('emailNotifications', 'Email notification')}"
                  onchange="EFB_Logic.updateNotification('subject',this.value)">
         </label>
@@ -1641,6 +1954,18 @@
           <select class="efb-logic-value-select" onchange="EFB_Logic.updateNotification('template',this.value)">
             <option value="default" ${template === 'default' ? 'selected' : ''}>${_tf('default', 'Default')}</option>
           </select>
+        </label>
+      </div>
+      <div class="efb-logic-action-row efb-logic-settings-row">
+        <label class="efb-logic-setting-field">
+          <span>CC</span>
+          <input type="text" class="efb-logic-value-input" value="${_esc(ccText)}" placeholder="a@example.com, b@example.com"
+                 onchange="EFB_Logic.updateNotification('cc',this.value)">
+        </label>
+        <label class="efb-logic-setting-field">
+          <span>BCC</span>
+          <input type="text" class="efb-logic-value-input" value="${_esc(bccText)}" placeholder="c@example.com"
+                 onchange="EFB_Logic.updateNotification('bcc',this.value)">
         </label>
       </div>`;
   }
@@ -1725,8 +2050,9 @@
 
   function renderWebhookSettings(rule) {
     const method = String(rule.method || 'POST').toUpperCase() === 'GET' ? 'GET' : 'POST';
-    return `
-      <div class="efb-logic-action-row efb-logic-settings-row">
+    const webhookAction = rule.action === 'stop' ? 'stop' : 'trigger';
+    const payloadText = Array.isArray(rule.payload_fields) ? rule.payload_fields.join(', ') : String(rule.payload_fields || '');
+    const triggerOnly = webhookAction === 'trigger' ? `
         <label class="efb-logic-setting-field">
           <span>${_tf('method', 'Method')}</span>
           <select class="efb-logic-value-select" onchange="EFB_Logic.updateWebhook('method',this.value)">
@@ -1734,17 +2060,35 @@
             <option value="GET" ${method === 'GET' ? 'selected' : ''}>GET</option>
           </select>
         </label>
-        <label class="efb-logic-setting-field">
-          <span>${_tf('webhook', 'Webhook')} ID</span>
-          <input type="text" class="efb-logic-value-input" value="${_esc(rule.webhook_id || '')}" placeholder="crm_hot_lead"
-                 onchange="EFB_Logic.updateWebhook('webhook_id',this.value)">
-        </label>
         <label class="efb-logic-setting-field efb-logic-setting-field-wide">
           <span>URL</span>
           <input type="url" class="efb-logic-value-input" value="${_esc(rule.url || '')}" placeholder="https://example.com/webhook"
                  onchange="EFB_Logic.updateWebhook('url',this.value)">
+        </label>` : '';
+    const payloadRow = webhookAction === 'trigger' ? `
+      <div class="efb-logic-action-row efb-logic-settings-row">
+        <label class="efb-logic-setting-field efb-logic-setting-field-wide">
+          <span>${_tf('payloadFields', 'Payload fields (empty = all)')}</span>
+          <input type="text" class="efb-logic-value-input" value="${_esc(payloadText)}" placeholder="field_a, field_b"
+                 onchange="EFB_Logic.updateWebhook('payload_fields',this.value)">
         </label>
-      </div>`;
+      </div>` : '';
+    return `
+      <div class="efb-logic-action-row efb-logic-settings-row">
+        <label class="efb-logic-setting-field">
+          <span>${_tf('action', 'Action')}</span>
+          <select class="efb-logic-value-select" onchange="EFB_Logic.updateWebhook('action',this.value)">
+            <option value="trigger" ${webhookAction === 'trigger' ? 'selected' : ''}>${_tf('triggerWebhook', 'Trigger webhook')}</option>
+            <option value="stop" ${webhookAction === 'stop' ? 'selected' : ''}>${_tf('stopWebhook', 'Stop webhook')}</option>
+          </select>
+        </label>
+        <label class="efb-logic-setting-field">
+          <span>${_tf('webhook', 'Webhook')} ID${webhookAction === 'stop' ? ` <small class="efb-logic-hint">${_tf('stopWebhookHint', 'empty = stop all')}</small>` : ''}</span>
+          <input type="text" class="efb-logic-value-input" value="${_esc(rule.webhook_id || '')}" placeholder="crm_hot_lead"
+                 onchange="EFB_Logic.updateWebhook('webhook_id',this.value)">
+        </label>
+        ${triggerOnly}
+      </div>${payloadRow}`;
   }
 
   function renderTabs() {
@@ -1871,6 +2215,7 @@
 
     runTest() {
       const values = getTestValuesMap();
+      testEnv = buildTestEnv();
       testInspector = evaluateRulesForInspector(values);
       testResults = (testInspector.trace || []).map(item => {
         return {
@@ -1934,7 +2279,9 @@
         ...baseRule,
         webhook_id: '',
         url: '',
-        method: 'POST'
+        method: 'POST',
+        action: 'trigger',
+        payload_fields: []
       } : {
         ...baseRule,
         stop_processing: false,
@@ -1953,6 +2300,83 @@
       currentRuleId = id;
       view = 'editor';
       refreshView();
+    },
+
+    /* Duplicate a rule inside the same form (PRD Phase 2 "reusable rule groups") */
+    duplicateRule(id) {
+      const rule = rules.find(r => r.id === id);
+      if (!rule) return;
+      const ruleLimit = getRuleLimit(activeTab);
+      if (rules.length >= ruleLimit) {
+        showLimitNotice(ruleLimit, getTabLabel(activeTab));
+        return;
+      }
+      const copy = JSON.parse(JSON.stringify(rule));
+      copy.id = _id(activeTab === 'notification' ? 'nr' : (activeTab === 'confirmation' ? 'cr' : (activeTab === 'webhook' ? 'wr' : 'rule')));
+      copy.name = (rule.name || '') + ' (copy)';
+      rules.splice(rules.indexOf(rule) + 1, 0, copy);
+      saveRules();
+      refreshView();
+    },
+
+    /* Export every rule set of this form as a portable JSON file (Pro) */
+    exportRules() {
+      if (!isProPlan()) { showProOnlyNotice(); return; }
+      if (typeof valj_efb === 'undefined' || !valj_efb[0]) return;
+      const payload = {
+        format: 'efb-logic-rules',
+        version: 1,
+        exported_at: new Date().toISOString(),
+        logic_rules: Array.isArray(valj_efb[0].logic_rules) ? valj_efb[0].logic_rules : [],
+        notification_rules: Array.isArray(valj_efb[0].notification_rules) ? valj_efb[0].notification_rules : [],
+        confirmation_rules: Array.isArray(valj_efb[0].confirmation_rules) ? valj_efb[0].confirmation_rules : [],
+        webhook_rules: Array.isArray(valj_efb[0].webhook_rules) ? valj_efb[0].webhook_rules : []
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'efb-logic-rules.json';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    },
+
+    /* Import rules from a previously exported JSON file (Pro).
+     * Only the four known rule-set arrays are read; everything is re-sanitized
+     * server-side on save, so a hand-crafted file cannot inject anything. */
+    importRules() {
+      if (!isProPlan()) { showProOnlyNotice(); return; }
+      const input = document.getElementById('efb-logic-import-file');
+      if (input) input.click();
+    },
+
+    importRulesFile(input) {
+      if (!isProPlan() || !input || !input.files || !input.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(String(reader.result || ''));
+          if (!data || data.format !== 'efb-logic-rules') throw new Error('format');
+          ['logic_rules', 'notification_rules', 'confirmation_rules', 'webhook_rules'].forEach(key => {
+            if (Array.isArray(data[key])) valj_efb[0][key] = JSON.parse(JSON.stringify(data[key]));
+          });
+          loadRules();
+          saveRules();
+          view = 'list';
+          currentRuleId = null;
+          refreshView();
+          if (typeof alert_message_efb === 'function') {
+            alert_message_efb(_tf('importRules', 'Import'), _tf('importDone', 'Rules imported. Review and save the form.'), 6, 'success');
+          }
+        } catch (error) {
+          if (typeof alert_message_efb === 'function') {
+            alert_message_efb(_tf('importRules', 'Import'), _tf('importInvalid', 'This file is not a valid EFB logic-rules export.'), 6, 'warning');
+          }
+        }
+        input.value = '';
+      };
+      reader.readAsText(input.files[0]);
     },
 
     /* Delete a rule */
@@ -2005,6 +2429,9 @@
       if (prop === 'recipient' || prop === 'subject' || prop === 'template') {
         rule[prop] = (typeof sanitize_text_efb === 'function') ? sanitize_text_efb(value) : value;
       }
+      if (prop === 'cc' || prop === 'bcc') {
+        rule[prop] = String(value || '').split(',').map(item => item.trim()).filter(item => isValidEmail(item));
+      }
     },
 
     updateConfirmation(prop, value) {
@@ -2045,6 +2472,15 @@
         rule.webhook_id = (typeof sanitize_text_efb === 'function') ? sanitize_text_efb(value) : value;
         return;
       }
+      if (prop === 'action') {
+        rule.action = value === 'stop' ? 'stop' : 'trigger';
+        refreshView();
+        return;
+      }
+      if (prop === 'payload_fields') {
+        rule.payload_fields = String(value || '').split(',').map(item => item.trim()).filter(Boolean);
+        return;
+      }
       if (prop === 'url') {
         rule.url = value;
       }
@@ -2068,6 +2504,17 @@
       if (!rule || parts.length === 0 || parts[parts.length - 1] === 0) return;
       const item = getItemByPath(rule, parts);
       if (item) item.connector = normalizeConnector(op);
+      refreshView();
+    },
+
+    /* NOT toggle on a group — NAND/NOR semantics (Pro-only, PRD §17) */
+    toggleGroupNegate(path = '') {
+      if (!isProPlan()) { showProOnlyNotice(); return; }
+      const rule = rules.find(r => r.id === currentRuleId);
+      const group = rule ? getGroupByPath(rule, path) : null;
+      if (!group) return;
+      if (group.negate) delete group.negate;
+      else group.negate = true;
       refreshView();
     },
 
@@ -2137,11 +2584,32 @@
       const rule = rules.find(r => r.id === currentRuleId);
       const cond = rule ? getConditionByPath(rule, path) : null;
       if (!cond) return;
+
+      /* Switching the source resets the whole condition to a sensible default */
+      if (prop === 'source') {
+        cond.source = CONDITION_SOURCES.some(item => item.value === value) ? value : 'field';
+        delete cond.param;
+        cond.value = '';
+        if (cond.source === 'user') cond.field_id = 'logged_in';
+        else if (cond.source === 'current_step') cond.field_id = 'current_step';
+        else cond.field_id = '';
+        cond.compare = getOperatorsForCondition(cond)[0] || 'is';
+        refreshView();
+        return;
+      }
+      /* Query-param key: keep field_id mirrored for validity + summaries */
+      if (prop === 'param') {
+        const cleanParam = String(value || '').replace(/[^A-Za-z0-9_\-\[\]]/g, '');
+        cond.param = cleanParam;
+        cond.field_id = cleanParam;
+        refreshView();
+        return;
+      }
       cond[prop] = value;
 
       /* When field changes, reset operator & value */
       if (prop === 'field_id') {
-        const ops = getOperatorsForField(value);
+        const ops = getOperatorsForCondition(cond);
         if (!ops.includes(cond.compare)) cond.compare = ops[0] || 'is';
         cond.value = '';
         refreshView();
@@ -2173,6 +2641,12 @@
     updateAction(idx, prop, value) {
       const rule = rules.find(r => r.id === currentRuleId);
       if (!rule || !rule.actions[idx]) return;
+      /* PRD §17: pricing logic (calculate) is Pro-only */
+      if (prop === 'type' && PRO_ONLY_ACTIONS.has(value) && !isProPlan()) {
+        showProOnlyNotice();
+        refreshView();
+        return;
+      }
       rule.actions[idx][prop] = value;
       /* When type changes, reset target and value fields */
       if (prop === 'type') {

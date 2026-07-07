@@ -522,6 +522,203 @@ struct19b[0].logic_rules = [makeRule({
 const result19b = runtime.evaluateDefinition(struct19b, [{ id_: 'price', value: '10', type: 'number' }]);
 testFalse('T19.4 invalid formula does not set target value', Object.prototype.hasOwnProperty.call(result19b.set_values, 'total'));
 
+// ── Test 20: date operators (date_before / date_after / date_between) ────────
+const struct20 = makeStructure([
+  { id_: 'when', type: 'date' },
+  { id_: 'fx', type: 'text' },
+]);
+struct20[0].logic_rules = [makeRule({
+  id: 'r_date',
+  conditions: { type: 'group', operator: 'AND', items: [makeCondition('when', 'date_before', '2026-06-15')] },
+  actions: [{ type: 'show_field', target: 'fx' }],
+})];
+testTrue('T20.1 date_before matches an earlier date',
+  runtime.evaluateDefinition(struct20, [{ id_: 'when', value: '2026-06-01', type: 'date' }]).shown_fields.includes('fx'));
+testFalse('T20.2 date_before does not match a later date',
+  runtime.evaluateDefinition(struct20, [{ id_: 'when', value: '2026-07-01', type: 'date' }]).shown_fields.includes('fx'));
+testFalse('T20.3 date_before never matches an invalid date',
+  runtime.evaluateDefinition(struct20, [{ id_: 'when', value: 'not-a-date', type: 'date' }]).shown_fields.includes('fx'));
+
+struct20[0].logic_rules[0].conditions.items[0] = makeCondition('when', 'date_after', '2026-06-15');
+testTrue('T20.4 date_after matches a later date',
+  runtime.evaluateDefinition(struct20, [{ id_: 'when', value: '2026-07-01', type: 'date' }]).shown_fields.includes('fx'));
+
+struct20[0].logic_rules[0].conditions.items[0] = makeCondition('when', 'date_between', '2026-06-01,2026-06-30');
+testTrue('T20.5 date_between matches inside range (inclusive)',
+  runtime.evaluateDefinition(struct20, [{ id_: 'when', value: '2026-06-30', type: 'date' }]).shown_fields.includes('fx'));
+testFalse('T20.6 date_between does not match outside range',
+  runtime.evaluateDefinition(struct20, [{ id_: 'when', value: '2026-07-01', type: 'date' }]).shown_fields.includes('fx'));
+
+// ── Test 21: non-field condition sources (query_param / user / current_step) ──
+function envWith(overrides) {
+  return Object.assign({ query: {}, user: { logged_in: false, roles: [] }, current_step: null }, overrides);
+}
+const struct21 = makeStructure([{ id_: 'fx', type: 'text' }]);
+struct21[0].logic_rules = [makeRule({
+  id: 'r_env',
+  conditions: { type: 'group', operator: 'AND', items: [
+    { type: 'condition', source: 'query_param', field_id: 'utm_source', param: 'utm_source', compare: 'is', value: 'google' },
+  ] },
+  actions: [{ type: 'show_field', target: 'fx' }],
+})];
+testTrue('T21.1 query_param matches when env has the value',
+  runtime.evaluateDefinition(struct21, [], envWith({ query: { utm_source: 'google' } })).shown_fields.includes('fx'));
+testFalse('T21.2 query_param does not match a different value',
+  runtime.evaluateDefinition(struct21, [], envWith({ query: { utm_source: 'bing' } })).shown_fields.includes('fx'));
+testFalse('T21.3 missing query_param never matches "is"',
+  runtime.evaluateDefinition(struct21, [], envWith({})).shown_fields.includes('fx'));
+
+struct21[0].logic_rules[0].conditions.items[0] = { type: 'condition', source: 'user', field_id: 'logged_in', compare: 'is', value: 'yes' };
+testTrue('T21.4 user logged_in matches',
+  runtime.evaluateDefinition(struct21, [], envWith({ user: { logged_in: true, roles: [] } })).shown_fields.includes('fx'));
+testFalse('T21.5 user logged_in does not match a guest',
+  runtime.evaluateDefinition(struct21, [], envWith({})).shown_fields.includes('fx'));
+
+struct21[0].logic_rules[0].conditions.items[0] = { type: 'condition', source: 'user', field_id: 'role', compare: 'is', value: 'Editor' };
+testTrue('T21.6 user role matches case-insensitively',
+  runtime.evaluateDefinition(struct21, [], envWith({ user: { logged_in: true, roles: ['editor'] } })).shown_fields.includes('fx'));
+testFalse('T21.7 user role does not match a missing role',
+  runtime.evaluateDefinition(struct21, [], envWith({ user: { logged_in: true, roles: ['subscriber'] } })).shown_fields.includes('fx'));
+
+struct21[0].logic_rules[0].conditions.items[0] = { type: 'condition', source: 'current_step', field_id: 'current_step', compare: 'gte', value: '2' };
+testTrue('T21.8 current_step gte matches',
+  runtime.evaluateDefinition(struct21, [], envWith({ current_step: 2 })).shown_fields.includes('fx'));
+testFalse('T21.9 current_step gte does not match step 1',
+  runtime.evaluateDefinition(struct21, [], envWith({ current_step: 1 })).shown_fields.includes('fx'));
+
+// ── Test 22: negate on groups (NOT / NAND / NOR) ─────────────────────────────
+const struct22 = makeStructure([
+  { id_: 'fa', type: 'text' },
+  { id_: 'fb', type: 'text' },
+  { id_: 'fx', type: 'text' },
+]);
+struct22[0].logic_rules = [makeRule({
+  id: 'r_not',
+  conditions: { type: 'group', operator: 'AND', negate: true, items: [makeCondition('fa', 'is', 'x')] },
+  actions: [{ type: 'show_field', target: 'fx' }],
+})];
+testTrue('T22.1 NOT: negated single condition matches when the condition fails',
+  runtime.evaluateDefinition(struct22, [{ id_: 'fa', value: 'other', type: 'text' }]).shown_fields.includes('fx'));
+testFalse('T22.2 NOT: negated single condition fails when the condition holds',
+  runtime.evaluateDefinition(struct22, [{ id_: 'fa', value: 'x', type: 'text' }]).shown_fields.includes('fx'));
+
+struct22[0].logic_rules[0].conditions = {
+  type: 'group', operator: 'AND', negate: true,
+  items: [makeCondition('fa', 'is', 'x'), makeCondition('fb', 'is', 'y')],
+};
+testTrue('T22.3 NAND: matches when only one of two conditions holds',
+  runtime.evaluateDefinition(struct22, [{ id_: 'fa', value: 'x', type: 'text' }, { id_: 'fb', value: 'other', type: 'text' }]).shown_fields.includes('fx'));
+testFalse('T22.4 NAND: fails when both conditions hold',
+  runtime.evaluateDefinition(struct22, [{ id_: 'fa', value: 'x', type: 'text' }, { id_: 'fb', value: 'y', type: 'text' }]).shown_fields.includes('fx'));
+
+struct22[0].logic_rules[0].conditions = {
+  type: 'group', operator: 'OR', negate: true,
+  items: [makeCondition('fa', 'is', 'x'), Object.assign(makeCondition('fb', 'is', 'y'), { connector: 'OR' })],
+};
+testTrue('T22.5 NOR: matches when neither condition holds',
+  runtime.evaluateDefinition(struct22, [{ id_: 'fa', value: 'a', type: 'text' }, { id_: 'fb', value: 'b', type: 'text' }]).shown_fields.includes('fx'));
+testFalse('T22.6 NOR: fails when one condition holds',
+  runtime.evaluateDefinition(struct22, [{ id_: 'fa', value: 'x', type: 'text' }, { id_: 'fb', value: 'b', type: 'text' }]).shown_fields.includes('fx'));
+
+// ── Test 23: copy_value action ───────────────────────────────────────────────
+const struct23 = makeStructure([
+  { id_: 'src', type: 'text' },
+  { id_: 'dst', type: 'text' },
+  { id_: 'trigger', type: 'text' },
+]);
+struct23[0].logic_rules = [makeRule({
+  id: 'r_copy',
+  conditions: { type: 'group', operator: 'AND', items: [makeCondition('trigger', 'is', 'go')] },
+  actions: [{ type: 'copy_value', target: 'dst', value: 'src' }],
+})];
+const result23 = runtime.evaluateDefinition(struct23, [
+  { id_: 'trigger', value: 'go', type: 'text' },
+  { id_: 'src', value: 'hello copy', type: 'text' },
+]);
+test('T23.1 copy_value copies source field value to target', result23.set_values.dst, 'hello copy');
+struct23[0].logic_rules[0].actions[0].value = 'ghost';
+const result23c = runtime.evaluateDefinition(struct23, [
+  { id_: 'trigger', value: 'go', type: 'text' },
+  { id_: 'src', value: 'hello copy', type: 'text' },
+]);
+testFalse('T23.2 copy from unknown field is a no-op',
+  Object.prototype.hasOwnProperty.call(result23c.set_values, 'dst'));
+
+// ── Test 24: block_submit / end_form ─────────────────────────────────────────
+const struct24 = makeStructure([{ id_: 'score', type: 'number' }]);
+struct24[0].logic_rules = [makeRule({
+  id: 'r_block',
+  conditions: { type: 'group', operator: 'AND', items: [makeCondition('score', 'lt', '10')] },
+  actions: [{ type: 'block_submit', target: '', value: 'Score too low' }],
+})];
+const result24 = runtime.evaluateDefinition(struct24, [{ id_: 'score', value: '5', type: 'number' }]);
+testTrue('T24.1 block_submit sets submit_blocked', result24.submit_blocked);
+test('T24.2 block message recorded', result24.block_messages[0].value, 'Score too low');
+const result24b = runtime.evaluateDefinition(struct24, [{ id_: 'score', value: '50', type: 'number' }]);
+testFalse('T24.3 submit not blocked when the rule does not match', result24b.submit_blocked);
+
+struct24[0].logic_rules = [makeRule({
+  id: 'r_end',
+  conditions: { type: 'group', operator: 'AND', items: [makeCondition('score', 'lt', '10')] },
+  actions: [{ type: 'end_form', target: '', value: 'Thanks, you do not qualify.' }],
+})];
+const result24c = runtime.evaluateDefinition(struct24, [{ id_: 'score', value: '5', type: 'number' }]);
+testTrue('T24.4 end_form sets submit_blocked', result24c.submit_blocked);
+test('T24.5 end_form message recorded', result24c.end_form.message, 'Thanks, you do not qualify.');
+
+// ── Test 25: UI actions (set_placeholder / set_help / set_label / focus / scroll)
+const struct25 = makeStructure([
+  { id_: 'fa', type: 'text' },
+  { id_: 'fb', type: 'text' },
+]);
+struct25[0].logic_rules = [makeRule({
+  id: 'r_ui',
+  conditions: { type: 'group', operator: 'AND', items: [makeCondition('fa', 'is', 'x')] },
+  actions: [
+    { type: 'set_placeholder', target: 'fb', value: 'Type here…' },
+    { type: 'set_label', target: 'fb', value: 'New label' },
+    { type: 'set_help', target: 'fb', value: 'Helpful hint' },
+    { type: 'focus_field', target: 'fb' },
+    { type: 'scroll_to_field', target: 'fb' },
+  ],
+})];
+const result25 = runtime.evaluateDefinition(struct25, [{ id_: 'fa', value: 'x', type: 'text' }]);
+test('T25.1 three ui_changes recorded', result25.ui_changes.length, 3);
+test('T25.2 placeholder change prop', result25.ui_changes[0].prop, 'placeholder');
+test('T25.3 label change value', result25.ui_changes[1].value, 'New label');
+test('T25.4 help change prop', result25.ui_changes[2].prop, 'help');
+test('T25.5 focus request recorded', result25.focus_fields.length, 1);
+test('T25.6 scroll request recorded', result25.scroll_fields.length, 1);
+const result25b = runtime.evaluateDefinition(struct25, [{ id_: 'fa', value: 'no', type: 'text' }]);
+test('T25.7 no ui_changes when rule does not match', result25b.ui_changes.length, 0);
+
+// ── Test 26: trace shows matched / blocked / not_matched ─────────────────────
+const struct26 = makeStructure([
+  { id_: 'fa', type: 'text' },
+  { id_: 'fx', type: 'text' },
+]);
+struct26[0].logic_rules = [
+  makeRule({
+    id: 'r_first', stop_processing: true,
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('fa', 'is', 'x')] },
+    actions: [{ type: 'hide_field', target: 'fx' }],
+  }),
+  makeRule({
+    id: 'r_second',
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('fa', 'is', 'x')] },
+    actions: [{ type: 'show_field', target: 'fx' }],
+  }),
+  makeRule({
+    id: 'r_third',
+    conditions: { type: 'group', operator: 'AND', items: [makeCondition('fa', 'is', 'zzz')] },
+    actions: [{ type: 'hide_field', target: 'fa' }],
+  }),
+];
+const result26 = runtime.evaluateDefinition(struct26, [{ id_: 'fa', value: 'x', type: 'text' }]);
+test('T26.1 trace: first rule matched', result26.trace[0], { id: 'r_first', status: 'matched' });
+test('T26.2 trace: second rule blocked by stop_processing', result26.trace[1], { id: 'r_second', status: 'blocked' });
+test('T26.3 trace: third rule not matched', result26.trace[2], { id: 'r_third', status: 'not_matched' });
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);

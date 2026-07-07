@@ -3115,7 +3115,11 @@ async function fun_validation_efb_v4(form_id) {
       typeof window.efb_logic_runtime.validate === 'function') {
     const logicValidation = window.efb_logic_runtime.validate(form_id, current_s_efb);
     if (!logicValidation.valid) {
-      alert_message_efb(efb_var.text.fillrequiredfields, '', 6, 'warning');
+      /* block_submit / end_form carry their own message in missing_name */
+      const logicAlertMsg = logicValidation.submit_blocked && logicValidation.missing_name
+        ? logicValidation.missing_name
+        : efb_var.text.fillrequiredfields;
+      alert_message_efb(logicAlertMsg, '', 6, 'warning');
       if (logicValidation.missing_field && typeof smoothy_scroll_postion_efb === 'function') {
         smoothy_scroll_postion_efb(logicValidation.missing_field, form_id);
       }

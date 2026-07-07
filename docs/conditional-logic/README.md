@@ -15,7 +15,11 @@
    test caseهای تفصیلی و نتایج تست‌های خودکار/مرورگر.
 5. [تست پذیرش جامع فارسی](EFB-Conditional-Logic-E2E-TEST-FA.md)  
    سناریوی نهایی قبل از رفتن به مرحله بعد.
-6. [AI Roadmap](EFB-AI-Conditional-Logic-ROADMAP.md)  
+6. [دستورالعمل تست دستی فازهای 7-10](EFB-Conditional-Logic-MANUAL-TEST-GUIDE.fa.md)  
+   تست Inspector، Calculations، Conflict warnings، Plan gating و موارد Release.
+7. [تحلیل شکاف PRD](EFB-4x-Conditional-Logic-PRD-GAP-ANALYSIS.fa.md)  
+   فهرست دقیق موارد ساخته‌نشده PRD با اولویت پیشنهادی موج بعد.
+8. [AI Roadmap](EFB-AI-Conditional-Logic-ROADMAP.md)  
    برنامه آینده AI Logic Copilot.
 
 ## مسیرهای فنی
@@ -47,14 +51,26 @@ node tests\browser-test.js
 
 ### آخرین اجرای محلی
 
-در تاریخ `2026-06-07`:
+در تاریخ `2026-07-07`:
 
 | Suite | نتیجه |
 |---|---:|
-| PHP sanitizer | 36/36 Pass |
+| JS runtime | 112/112 Pass |
+| JS builder UI | 96/96 Pass |
+| JS plan gating | 53/53 Pass |
+| JS validate-step | 7/7 Pass |
+| JS thankyou overrides | 24/24 Pass |
+| JS payment autosubmit gate | 11/11 Pass |
+| JS multiform validation scope | 17/17 Pass |
+| PHP sanitizer | 69/69 Pass |
+| PHP validator (واقعی addon) | 75/75 Pass |
 | PHP submission | 15/15 Pass |
-| JavaScript runtime | 28/28 Pass |
-| مجموع | **79/79 Pass** |
+| PHP final guard | 8/8 Pass |
+| PHP notification/confirmation | 80/80 Pass |
+| PHP payment | 42/42 Pass |
+| PHP webhook | 23/23 Pass |
+| PHP addon settings | 12/12 Pass |
+| مجموع | **644/644 Pass** |
 
 تست مرورگر در این نوبت اجرا نشده است و باید بعد از ساخت fixture توضیح‌داده‌شده در
 [تست پذیرش جامع فارسی](EFB-Conditional-Logic-E2E-TEST-FA.md) اجرا شود.

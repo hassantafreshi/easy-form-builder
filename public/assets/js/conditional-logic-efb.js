@@ -129,8 +129,36 @@
       cleared_fields: [],
       values_map: {},
       messages: [],
-      jumps: []
+      jumps: [],
+      trace: [],
+      ui_changes: [],
+      focus_fields: [],
+      scroll_fields: [],
+      submit_blocked: false,
+      block_messages: [],
+      end_form: null
     };
+  }
+
+  /* Environment for non-field condition sources (query params, user state,
+   * current step). Node tests pass it explicitly; the browser builds it from
+   * location/efb_var/DOM right before each evaluation. */
+  function emptyEnv() {
+    return { query: {}, user: { logged_in: false, roles: [] }, current_step: null };
+  }
+
+  function normalizeEnv(env) {
+    var normalized = emptyEnv();
+    if (!env || typeof env !== 'object') return normalized;
+    if (env.query && typeof env.query === 'object') normalized.query = env.query;
+    if (env.user && typeof env.user === 'object') {
+      normalized.user.logged_in = bool(env.user.logged_in);
+      normalized.user.roles = Array.isArray(env.user.roles) ? env.user.roles.map(String) : [];
+    }
+    if (env.current_step != null && env.current_step !== '' && isFinite(env.current_step)) {
+      normalized.current_step = Number(env.current_step);
+    }
+    return normalized;
   }
 
   function indexStructure(structure) {
@@ -328,8 +356,34 @@
         return operator === 'between' ? inside : !inside;
       case 'is_empty': return scalar === '';
       case 'is_not_empty': return scalar !== '';
+      case 'date_before':
+      case 'date_after': {
+        var valueTs = dateTimestamp(scalar);
+        var expectedTs = dateTimestamp(expectedScalar);
+        if (valueTs === null || expectedTs === null) return false;
+        return operator === 'date_before' ? valueTs < expectedTs : valueTs > expectedTs;
+      }
+      case 'date_between': {
+        var dateRange = Array.isArray(expected) ? expected : expectedScalar.split(/\s*,\s*/);
+        if (dateRange.length < 2) return false;
+        var ts = dateTimestamp(scalar);
+        var fromTs = dateTimestamp(dateRange[0]);
+        var toTs = dateTimestamp(dateRange[1]);
+        if (ts === null || fromTs === null || toTs === null) return false;
+        return ts >= fromTs && ts <= toTs;
+      }
       default: return false;
     }
+  }
+
+  /* Millisecond timestamp for a date string, or null when unparseable.
+   * "YYYY-MM-DD" (the date field format) parses consistently in every engine;
+   * an invalid or empty date never matches, mirroring the numeric operators. */
+  function dateTimestamp(value) {
+    var text = String(value == null ? '' : value).trim();
+    if (text === '') return null;
+    var parsed = Date.parse(text.length === 10 ? text + 'T00:00:00' : text);
+    return isFinite(parsed) ? parsed : null;
   }
 
   function paymentState(fieldId, rows, values) {
@@ -352,11 +406,40 @@
     return { paid: paid, amount: amount };
   }
 
-  function evaluateCondition(condition, values, structure, rows) {
+  function evaluateCondition(condition, values, structure, rows, env) {
     if (!condition || !condition.field_id) return false;
     var fieldId = String(condition.field_id);
     var operator = String(condition.compare || 'is');
     var expected = condition.value != null ? condition.value : '';
+    var source = String(condition.source || 'field');
+    var environment = normalizeEnv(env);
+
+    /* Non-field sources read from the page environment, not submitted rows. */
+    if (source === 'query_param') {
+      var param = String(condition.param || condition.field_id || '');
+      var queryValue = Object.prototype.hasOwnProperty.call(environment.query, param) ? environment.query[param] : '';
+      return compareScalar(queryValue, expected, operator);
+    }
+    if (source === 'user') {
+      if (fieldId === 'logged_in') {
+        return compareScalar(environment.user.logged_in ? 'yes' : 'no', expected, operator);
+      }
+      if (fieldId === 'role') {
+        var roles = environment.user.roles;
+        var expectedRole = String(Array.isArray(expected) ? expected.join(',') : expected).toLowerCase().trim();
+        var hasRole = roles.some(function (role) { return String(role).toLowerCase() === expectedRole; });
+        if (operator === 'is') return hasRole;
+        if (operator === 'is_not') return !hasRole;
+        if (operator === 'is_empty') return roles.length === 0;
+        if (operator === 'is_not_empty') return roles.length > 0;
+        return compareScalar(roles.join(' '), expected, operator);
+      }
+      return false;
+    }
+    if (source === 'current_step') {
+      var step = environment.current_step;
+      return compareScalar(step == null ? '' : String(step), expected, operator);
+    }
 
     if (['is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt'].indexOf(operator) !== -1) {
       var payment = paymentState(fieldId, rows, values);
@@ -380,7 +463,7 @@
     return compareScalar(current, expected, operator);
   }
 
-  function evaluateGroup(group, values, structure, rows) {
+  function evaluateGroup(group, values, structure, rows, env) {
     var items = group && Array.isArray(group.items) ? group.items : [];
     if (!items.length) return false;
     var result = false;
@@ -388,8 +471,8 @@
       var item = items[i] || {};
       var isGroup = item.type === 'group' || Array.isArray(item.items);
       var matched = isGroup
-        ? evaluateGroup(item, values, structure, rows)
-        : evaluateCondition(item, values, structure, rows);
+        ? evaluateGroup(item, values, structure, rows, env)
+        : evaluateCondition(item, values, structure, rows, env);
       if (i === 0) {
         result = matched;
         continue;
@@ -397,7 +480,8 @@
       var connector = String(item.connector || group.operator || 'AND').toUpperCase() === 'OR' ? 'OR' : 'AND';
       result = connector === 'OR' ? (result || matched) : (result && matched);
     }
-    return result;
+    /* negate turns AND into NAND, OR into NOR, and a single item into NOT. */
+    return group && bool(group.negate) ? !result : result;
   }
 
   function resolveActionValue(action, structure, values) {
@@ -563,7 +647,7 @@
     return formatCalculationResult(value, action.decimals);
   }
 
-  function evaluatePass(structure, rows, rules, initialValues) {
+  function evaluatePass(structure, rows, rules, initialValues, env) {
     var index = indexStructure(structure);
     var values = clone(initialValues);
     var hidden = {};
@@ -577,6 +661,13 @@
     var matchedRules = [];
     var messages = [];
     var jumps = [];
+    var trace = [];
+    var uiChanges = [];
+    var focusFields = [];
+    var scrollFields = [];
+    var submitBlocked = false;
+    var blockMessages = [];
+    var endForm = null;
 
     Object.keys(index.fields).forEach(function (id) {
       if (bool(index.fields[id].hidden)) hidden[id] = true;
@@ -613,14 +704,33 @@
           ? Object.prototype.hasOwnProperty.call(stoppedStepTargets, action.target)
           : Object.prototype.hasOwnProperty.call(stoppedFieldTargets, action.target);
       });
-      if (blockedByStop) continue;
+      if (blockedByStop) {
+        trace.push({ id: String(rule.id || ('rule_' + r)), status: 'blocked' });
+        continue;
+      }
 
-      if (!evaluateGroup(rule.conditions, values, structure, rows)) continue;
+      if (!evaluateGroup(rule.conditions, values, structure, rows, env)) {
+        trace.push({ id: String(rule.id || ('rule_' + r)), status: 'not_matched' });
+        continue;
+      }
       var ruleId = String(rule.id || ('rule_' + r));
       matchedRules.push(ruleId);
+      trace.push({ id: ruleId, status: 'matched' });
 
       ruleActions.forEach(function (action, actionIndex) {
         var target = action.target;
+        var actionKey = ruleId + ':' + actionIndex;
+        /* block_submit / end_form are form-level actions with no target */
+        if (action.type === 'block_submit') {
+          submitBlocked = true;
+          if (action.value) blockMessages.push({ key: actionKey, value: String(action.value) });
+          return;
+        }
+        if (action.type === 'end_form') {
+          submitBlocked = true;
+          if (!endForm) endForm = { key: actionKey, message: String(action.value || '') };
+          return;
+        }
         if (!target) return;
         switch (action.type) {
           case 'show_field': delete hidden[target]; shown[target] = true; break;
@@ -635,16 +745,34 @@
             var setValue = resolveActionValue(action, structure, values);
             if (setValue != null) values[target] = normalizeValue(structure, target, setValue);
             break;
+          case 'copy_value':
+            var sourceId = String(action.value || '');
+            if (Object.prototype.hasOwnProperty.call(index.fields, sourceId)) {
+              var copied = Object.prototype.hasOwnProperty.call(values, sourceId) ? values[sourceId] : '';
+              values[target] = normalizeValue(structure, target, copied);
+            }
+            break;
           case 'calculate':
             var calculatedValue = resolveCalculationValue(action, structure, values);
             if (calculatedValue != null) values[target] = normalizeValue(structure, target, calculatedValue);
             break;
           case 'clear_value': values[target] = ''; break;
+          case 'set_placeholder':
+          case 'set_help':
+          case 'set_label':
+            uiChanges.push({ key: actionKey, target: target, prop: action.type.slice(4), value: String(action.value || '') });
+            break;
+          case 'focus_field':
+            focusFields.push({ key: actionKey, target: target });
+            break;
+          case 'scroll_to_field':
+            scrollFields.push({ key: actionKey, target: target });
+            break;
           case 'show_message':
-            messages.push({ key: ruleId + ':' + actionIndex, target: target, value: String(action.value || '') });
+            messages.push({ key: actionKey, target: target, value: String(action.value || '') });
             break;
           case 'jump_to_step':
-            jumps.push({ key: ruleId + ':' + actionIndex, target: target });
+            jumps.push({ key: actionKey, target: target });
             break;
         }
       });
@@ -684,11 +812,18 @@
       cleared_fields: [],
       values_map: values,
       messages: messages,
-      jumps: jumps
+      jumps: jumps,
+      trace: trace,
+      ui_changes: uiChanges,
+      focus_fields: focusFields,
+      scroll_fields: scrollFields,
+      submit_blocked: submitBlocked,
+      block_messages: blockMessages,
+      end_form: endForm
     };
   }
 
-  function evaluateDefinition(structure, rows) {
+  function evaluateDefinition(structure, rows, env) {
     var result = emptyResult();
     var rules = sortedRules(structure);
     if (!rules.length) return result;
@@ -705,7 +840,7 @@
         break;
       }
       seen[signature] = true;
-      result = evaluatePass(structure, rows, rules, values);
+      result = evaluatePass(structure, rows, rules, values, env);
       var nextSignature = JSON.stringify(result.values_map);
       if (nextSignature === signature) {
         result.stabilized = true;
@@ -731,6 +866,33 @@
     return globalForms().find(function (form) {
       return form && Number(form.id) === Number(formId);
     }) || null;
+  }
+
+  /* Environment sources for the live page: URL query string, user state
+   * printed by the server (efb_var.user_state), and the visible step. */
+  function buildBrowserEnv(context) {
+    var env = emptyEnv();
+    if (!root) return env;
+    if (root.location && root.location.search) {
+      var pairs = String(root.location.search).replace(/^\?/, '').split('&');
+      for (var i = 0; i < pairs.length; i++) {
+        if (!pairs[i]) continue;
+        var eq = pairs[i].indexOf('=');
+        var key = decodeURIComponent((eq === -1 ? pairs[i] : pairs[i].slice(0, eq)).replace(/\+/g, ' '));
+        var value = eq === -1 ? '' : decodeURIComponent(pairs[i].slice(eq + 1).replace(/\+/g, ' '));
+        if (key) env.query[key] = value;
+      }
+    }
+    var userState = root.efb_var && root.efb_var.user_state ? root.efb_var.user_state : null;
+    if (userState) {
+      env.user.logged_in = bool(userState.logged_in);
+      env.user.roles = Array.isArray(userState.roles) ? userState.roles.map(String) : [];
+    }
+    var body = context ? bodyFor(context) : null;
+    if (body && body.dataset && body.dataset.currentstep) {
+      env.current_step = Number(body.dataset.currentstep);
+    }
+    return env;
   }
 
   function init(formId) {
@@ -1011,9 +1173,161 @@
       wrapper.appendChild(element);
     });
 
+    applyUiChanges(context, result.ui_changes);
+    applyFocusScroll(context, result);
+    applyEndFormState(context, result);
     applyJumps(context, result.jumps);
     if (typeof root.updateStepButtonState_efb === 'function') root.updateStepButtonState_efb(context.formId);
     context.animReady = true;
+  }
+
+  /* set_placeholder / set_help / set_label — declarative: every evaluation
+   * re-applies the current winners and restores the captured original for any
+   * property no rule writes anymore. */
+  function applyUiChanges(context, uiChanges) {
+    var winners = {};
+    (uiChanges || []).forEach(function (change) {
+      winners[change.target + ':' + change.prop] = change.value;
+    });
+    if (!context.uiOriginals) context.uiOriginals = {};
+
+    function inputsFor(fieldId) {
+      var wrapper = elementInForm(context, fieldId);
+      if (!wrapper) return [];
+      return Array.prototype.filter.call(
+        wrapper.querySelectorAll('input, textarea'),
+        function (input) { return input.type !== 'checkbox' && input.type !== 'radio' && input.type !== 'file'; }
+      );
+    }
+
+    function applyProp(fieldId, prop, value) {
+      var key = fieldId + ':' + prop;
+      var hasValue = Object.prototype.hasOwnProperty.call(winners, key);
+      if (prop === 'placeholder') {
+        inputsFor(fieldId).forEach(function (input) {
+          if (!Object.prototype.hasOwnProperty.call(context.uiOriginals, key)) {
+            context.uiOriginals[key] = input.getAttribute('placeholder') || '';
+          }
+          input.setAttribute('placeholder', hasValue ? value : context.uiOriginals[key]);
+        });
+        return;
+      }
+      if (prop === 'label') {
+        var label = elementInForm(context, fieldId + '_lab');
+        if (!label) return;
+        if (!Object.prototype.hasOwnProperty.call(context.uiOriginals, key)) {
+          context.uiOriginals[key] = label.textContent;
+        }
+        label.textContent = hasValue ? value : context.uiOriginals[key];
+        return;
+      }
+      if (prop === 'help') {
+        var help = elementInForm(context, fieldId + '-des');
+        if (!help) {
+          var wrapper = elementInForm(context, fieldId);
+          if (!wrapper) return;
+          if (!hasValue) return;
+          help = root.document.createElement('small');
+          help.id = fieldId + '-des';
+          help.className = 'efb form-text d-block';
+          wrapper.appendChild(help);
+        }
+        if (!Object.prototype.hasOwnProperty.call(context.uiOriginals, key)) {
+          context.uiOriginals[key] = help.textContent;
+        }
+        help.textContent = hasValue ? value : context.uiOriginals[key];
+      }
+    }
+
+    /* Union of currently-written keys and previously-touched keys so removals restore. */
+    var touched = {};
+    Object.keys(winners).forEach(function (key) { touched[key] = true; });
+    Object.keys(context.uiOriginals).forEach(function (key) { touched[key] = true; });
+    Object.keys(touched).forEach(function (key) {
+      var split = key.lastIndexOf(':');
+      applyProp(key.slice(0, split), key.slice(split + 1), winners[key]);
+    });
+  }
+
+  /* focus_field / scroll_to_field fire once per rule match (dedup by action
+   * key, same pattern as jump_to_step) so re-evaluations do not steal focus. */
+  function applyFocusScroll(context, result) {
+    if (!context.lastFocusKeys) context.lastFocusKeys = {};
+    var nextKeys = {};
+    (result.focus_fields || []).concat(result.scroll_fields || []).forEach(function (request) {
+      nextKeys[request.key] = true;
+    });
+    (result.scroll_fields || []).forEach(function (request) {
+      if (context.lastFocusKeys[request.key]) return;
+      var wrapper = elementInForm(context, request.target);
+      if (wrapper && typeof wrapper.scrollIntoView === 'function') {
+        wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+    (result.focus_fields || []).forEach(function (request) {
+      if (context.lastFocusKeys[request.key]) return;
+      var wrapper = elementInForm(context, request.target);
+      if (!wrapper) return;
+      var input = wrapper.querySelector('input, textarea, select');
+      if (input && typeof input.focus === 'function') input.focus();
+    });
+    context.lastFocusKeys = nextKeys;
+  }
+
+  /* end_form hides every fieldset and navigation control and shows the rule's
+   * message; block_submit shows its warnings above the submit button. Both
+   * are declarative and reversible when the rule stops matching. */
+  function applyEndFormState(context, result) {
+    var body = bodyFor(context);
+    if (!body) return;
+
+    body.querySelectorAll('.efb-logic-block-msg').forEach(function (message) { message.remove(); });
+    var notice = body.querySelector('.efb-logic-endform-msg');
+
+    if (result.end_form) {
+      body.querySelectorAll('fieldset').forEach(function (fieldset) { fieldset.classList.add('d-none'); });
+      ['#next_efb', '#btn_send_efb', '#prev_efb'].forEach(function (selector) {
+        var button = body.querySelector(selector);
+        if (button) button.classList.add('d-none');
+      });
+      if (!notice) {
+        notice = root.document.createElement('div');
+        notice.className = 'efb efb-logic-endform-msg alert alert-info my-3';
+        body.appendChild(notice);
+      }
+      notice.textContent = result.end_form.message ||
+        (root.efb_var && root.efb_var.text && root.efb_var.text.formEnded) || 'This form is closed for your answers.';
+      context.endFormActive = true;
+      return;
+    }
+
+    if (context.endFormActive) {
+      /* end_form no longer matches: restore the current step's fieldset/buttons */
+      if (notice) notice.remove();
+      var current = Number(body.dataset.currentstep || 1);
+      var fieldset = body.querySelector('[data-step="step-' + current + '-efb"]');
+      if (fieldset) fieldset.classList.remove('d-none');
+      var next = body.querySelector('#next_efb');
+      var send = body.querySelector('#btn_send_efb');
+      if (next) next.classList.remove('d-none');
+      if (send) send.classList.remove('d-none');
+      var prev = body.querySelector('#prev_efb');
+      if (prev) prev.classList.toggle('d-none', current <= 1);
+      context.endFormActive = false;
+    }
+
+    if (result.submit_blocked && result.block_messages.length) {
+      var anchor = body.querySelector('#btn_send_efb') || body.querySelector('#next_efb');
+      result.block_messages.forEach(function (message) {
+        if (!message.value) return;
+        var element = root.document.createElement('div');
+        element.className = 'efb efb-logic-block-msg alert alert-warning my-2 small';
+        element.dataset.logicMsg = message.key;
+        element.textContent = message.value;
+        if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(element, anchor);
+        else body.appendChild(element);
+      });
+    }
   }
 
   function applyJumps(context, jumps) {
@@ -1063,21 +1377,46 @@
     if (typeof root.smoothy_scroll_postion_efb === 'function') root.smoothy_scroll_postion_efb('body_efb_' + context.formId);
   }
 
+  var debugEnabled = false;
+
+  function isDebugEnabled() {
+    if (debugEnabled) return true;
+    if (root && root.location && /[?&]efb_logic_debug=1/.test(String(root.location.search))) return true;
+    return false;
+  }
+
+  function debugLog(formId, result) {
+    if (!isDebugEnabled() || typeof console === 'undefined') return;
+    console.groupCollapsed('[EFB Logic] form ' + formId + ' — ' +
+      result.matched_rules.length + ' matched, submit ' + (result.submit_blocked ? 'BLOCKED' : 'allowed'));
+    (result.trace || []).forEach(function (entry) {
+      console.log((entry.status === 'matched' ? '✅' : entry.status === 'blocked' ? '⛔' : '❌') +
+        ' ' + entry.id + ' → ' + entry.status);
+    });
+    console.log('values:', result.values_map);
+    console.log('hidden:', result.hidden_fields, 'required:', result.required_fields,
+      'ignored:', result.ignored_fields, 'hidden steps:', result.hidden_steps);
+    if (result.end_form) console.log('end_form:', result.end_form);
+    console.groupEnd();
+  }
+
   function evaluate(formId) {
     var context = getContext(formId);
     if (!context || context.evaluating) return context ? context.state : emptyResult();
     context.evaluating = true;
     try {
+      var env = buildBrowserEnv(context);
       var result = emptyResult();
       for (var pass = 0; pass < 5; pass++) {
         var before = JSON.stringify(getRows(context.formId));
-        result = evaluateDefinition(context.definition, getRows(context.formId));
+        result = evaluateDefinition(context.definition, getRows(context.formId), env);
         syncResultData(context, result);
         var after = JSON.stringify(getRows(context.formId));
         if (before === after) break;
       }
       context.state = result;
       applyVisualState(context, result);
+      debugLog(formId, result);
       return result;
     } finally {
       context.evaluating = false;
@@ -1124,6 +1463,15 @@
       stepNumber = Number(body.dataset.currentstep);
     }
 
+    /* block_submit / end_form veto the submission regardless of field state. */
+    if (result.submit_blocked) {
+      var blockText = (result.end_form && result.end_form.message) ||
+        (result.block_messages.length ? result.block_messages[0].value : '') ||
+        (root && root.efb_var && root.efb_var.text && root.efb_var.text.submitBlocked) ||
+        'Submission is not allowed for the current answers.';
+      return { valid: false, missing_field: null, missing_name: blockText, submit_blocked: true };
+    }
+
     var ignored = {};
     var required = {};
     var optional = {};
@@ -1167,7 +1515,9 @@
     getState: getState,
     evaluateDefinition: evaluateDefinition,
     buildValuesMap: buildValuesMap,
-    hasActiveRules: hasActiveRules
+    hasActiveRules: hasActiveRules,
+    enableDebug: function () { debugEnabled = true; if (typeof console !== 'undefined') console.log('[EFB Logic] Debug mode enabled'); },
+    disableDebug: function () { debugEnabled = false; }
   };
 
   if (root) {

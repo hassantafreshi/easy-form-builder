@@ -2,7 +2,7 @@
 
 > [فهرست مستندات](README.md) · [نقشه پیاده‌سازی](EFB-Conditional-Logic-Implementation-ROADMAP.md) · [برنامه تست](EFB-Conditional-Logic-TEST-PLAN.md)
 
-> **وضعیت کنونی:** هسته، Hardening، Phase 3، Phase 4، Phase 5 و Phase 6 انجام شده؛ کل Roadmap توسعه محصول ~75%
+> **وضعیت کنونی:** همه فازهای 0 تا 10 انجام شده (تنها مورد باز: تست دستی E2E — Task 10.3)؛ کل Roadmap توسعه محصول ~98%
 > **هدف:** تکمیل ویژگی Conditional Logic به عنوان یک Addon کامل و قابل فروش
 > **کلید Addon:** `AdnSMF`
 > **ساختار:** addon مشابه Telegram (`vendor/logic/`) + UI در admin builder
@@ -20,10 +20,10 @@
 | Phase 4 | Conditional Webhook | ✅ کامل و تست‌شده | High |
 | Phase 5 | Operators عددی کامل + Nested Groups | ✅ کامل و تست‌شده | Medium |
 | Phase 6 | Preview / Test Mode | ✅ کامل و تست‌شده | Medium |
-| Phase 7 | Debugger / Inspector | 🔴 نشده | Medium |
-| Phase 8 | Basic Calculations | 🔴 نشده | Medium |
-| Phase 9 | Priority & Conflict System | 🟡 priority و stop_processing کامل؛ هشدار UI باقی است | Low |
-| Phase 10 | Polish، i18n، Release | 🔴 نشده | Low |
+| Phase 7 | Debugger / Inspector | ✅ کامل و تست‌شده | Medium |
+| Phase 8 | Basic Calculations | ✅ کامل و تست‌شده | Medium |
+| Phase 9 | Priority & Conflict System | ✅ کامل و تست‌شده (شامل هشدار Conflict در UI) | Low |
+| Phase 10 | Polish، i18n، Release | ✅ کامل — i18n keys، CSS/RTL/responsive، بازبینی امنیت و performance (تست دستی E2E طبق [دستورالعمل تست](EFB-Conditional-Logic-MANUAL-TEST-GUIDE.fa.md) باقی است) | Low |
 
 ---
 
@@ -1425,23 +1425,23 @@ Phase 6 — Preview / Test Mode
   [x] 6.2 — test runner logic
 
 Phase 7 — Debugger
-  [ ] 7.1 — debug mode در runtime
+  [x] 7.1 — debug mode / Inspector در Test Mode ادمین (trace قوانین، final values، effects، skipped/blocked، خطاها)
 
 Phase 8 — Calculations
-  [ ] 8.1 — داده‌مدل
-  [ ] 8.2 — calculation engine
-  [ ] 8.3 — builder UI
+  [x] 8.1 — داده‌مدل (اکشن `calculate` با `value` = فرمول و `decimals`)
+  [x] 8.2 — calculation engine (parser امن بدون eval — هم JS runtime هم PHP validator)
+  [x] 8.3 — builder UI (ورودی فرمول + Insert field + Decimals)
 
 Phase 9 — Priority & Conflicts
-  [ ] 9.1 — conflict detection
+  [x] 9.1 — conflict detection (هشدار UI برای show/hide، required/optional، enable/disable، step visibility و چند writer روی یک مقدار)
   [x] 9.2 — stop_processing flag
 
 Phase 10 — Release
-  [ ] 10.1 — translation keys
-  [ ] 10.2 — CSS/RTL/responsive
-  [ ] 10.3 — تست end-to-end سناریوها
-  [ ] 10.4 — performance review
-  [ ] 10.5 — security review
+  [x] 10.1 — translation keys (همه کلیدهای UI منطق شرطی در functions.php ثبت شدند — 2026-07-06)
+  [x] 10.2 — CSS/RTL/responsive (بلاک RTL و media query موبایل + استایل Inspector/Conflict/Plan-gating)
+  [ ] 10.3 — تست end-to-end سناریوها (دستی — طبق EFB-Conditional-Logic-MANUAL-TEST-GUIDE.fa.md)
+  [x] 10.4 — performance review (debounce 120ms روی evaluate؛ سقف 10 pass برای پایداری؛ ارزیابی per-form context)
+  [x] 10.5 — security review (whitelist اکشن/operator، اعتبارسنجی target با ساختار فرم، esc_url_raw/sanitize_email/wp_kses_post، فرمول بدون eval با tokenizer، حذف مقادیر فیلدهای hidden در سرور)
 ```
 
 ---
@@ -1461,4 +1461,4 @@ Phase 10 — Release
 
 ---
 
-*آخرین به‌روزرسانی: 2026-06-06*
+*آخرین به‌روزرسانی: 2026-07-07 — فازهای 7 تا 10 تکمیل شدند (Inspector، Calculations، Conflict warnings، i18n/RTL/امنیت) و ۱۷ شکاف PRD نیز پیاده‌سازی شد (منابع شرط URL param/کاربر/step، عملگرهای تاریخ، copy_value، placeholder/label/help، focus/scroll، block_submit/end_form، NOT/NAND/NOR، CC/BCC + tokenها، stop webhook + payload_fields، badgeهای کارت، Export/Import، Duplicate، debug فرانت‌اند، هوک‌های developer، پکیجینگ P1). جزئیات در [تحلیل شکاف PRD](EFB-4x-Conditional-Logic-PRD-GAP-ANALYSIS.fa.md). نتیجه آخرین اجرای تست‌ها: **644 تست خودکار، 0 شکست**.*

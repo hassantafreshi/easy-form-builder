@@ -251,6 +251,146 @@ testTrue('T11.1 same-target conflict warning rendered in list', bodyHtml().inclu
 EFB_Logic.openTestMode();
 testTrue('T11.2 same-target conflict warning rendered in Inspector mode', bodyHtml().includes('efb-logic-conflict-warning'));
 
+// ── Test 12: condition source select (field / query_param / user / current_step)
+valj_efb[0].logic_rules = [];
+valj_efb.push({ id_: 'birth', type: 'date', name: 'Birth date' });
+EFB_Logic.switchTab('field');
+EFB_Logic.addRule();
+const srcHtml = bodyHtml();
+testTrue('T12.1 source select rendered', srcHtml.includes('efb-logic-source-select'));
+testTrue('T12.2 query_param source option present', srcHtml.includes('value="query_param"'));
+testTrue('T12.3 user source option present', srcHtml.includes('value="user"'));
+testTrue('T12.4 current_step source option present', srcHtml.includes('value="current_step"'));
+
+EFB_Logic.updateCondition('0', 'source', 'query_param');
+const qpHtml = bodyHtml();
+testTrue('T12.5 query_param renders key input', qpHtml.includes('efb-logic-param-input'));
+testTrue('T12.6 query_param offers text operators', qpHtml.includes('value="contains"'));
+EFB_Logic.updateCondition('0', 'param', 'utm_source<bad>!');
+EFB_Logic.updateCondition('0', 'value', 'google');
+EFB_Logic.updateAction(0, 'target', 'discountFlag');
+EFB_Logic.applyRule();
+const qpRule = valj_efb[0].logic_rules[0];
+test('T12.7 query param key stripped to URL-safe chars', qpRule.conditions.items[0].param, 'utm_sourcebad');
+test('T12.8 query_param source saved', qpRule.conditions.items[0].source, 'query_param');
+
+// user source
+EFB_Logic.addRule();
+EFB_Logic.updateCondition('0', 'source', 'user');
+const userHtml = bodyHtml();
+testTrue('T12.9 user source renders logged_in/role select', userHtml.includes('value="logged_in"') && userHtml.includes('value="role"'));
+EFB_Logic.updateCondition('0', 'value', 'yes');
+EFB_Logic.updateAction(0, 'target', 'discountFlag');
+EFB_Logic.applyRule();
+test('T12.10 user condition saved with field_id=logged_in', valj_efb[0].logic_rules[1].conditions.items[0].field_id, 'logged_in');
+
+// current_step source
+EFB_Logic.addRule();
+EFB_Logic.updateCondition('0', 'source', 'current_step');
+testTrue('T12.11 current_step offers numeric operators', bodyHtml().includes('value="gte"'));
+EFB_Logic.updateCondition('0', 'compare', 'gte');
+EFB_Logic.updateCondition('0', 'value', '2');
+EFB_Logic.updateAction(0, 'target', 'discountFlag');
+EFB_Logic.applyRule();
+test('T12.12 current_step condition saved', valj_efb[0].logic_rules[2].conditions.items[0].source, 'current_step');
+
+// ── Test 13: date operators for date fields ──────────────────────────────────
+EFB_Logic.addRule();
+EFB_Logic.updateCondition('0', 'field_id', 'birth');
+const dateHtml = bodyHtml();
+testTrue('T13.1 date field offers date_before', dateHtml.includes('value="date_before"'));
+testTrue('T13.2 date field offers date_between', dateHtml.includes('value="date_between"'));
+EFB_Logic.updateCondition('0', 'compare', 'date_between');
+testTrue('T13.3 date_between renders date inputs', bodyHtml().includes('type="date"'));
+EFB_Logic.updateCondition('0', 'value', '2026-06-01,2026-06-30');
+EFB_Logic.updateAction(0, 'target', 'discountFlag');
+EFB_Logic.applyRule();
+test('T13.4 date_between rule saved', valj_efb[0].logic_rules[3].conditions.items[0].compare, 'date_between');
+
+// ── Test 14: NOT toggle on the root group (NAND/NOR) ─────────────────────────
+EFB_Logic.addRule();
+EFB_Logic.updateCondition('0', 'field_id', 'price');
+EFB_Logic.updateCondition('0', 'compare', 'is_not_empty');
+testTrue('T14.1 NOT toggle rendered', bodyHtml().includes('efb-logic-negate-btn'));
+EFB_Logic.toggleGroupNegate('');
+testTrue('T14.2 NOT toggle active after click', bodyHtml().includes('efb-logic-negate-btn active'));
+EFB_Logic.updateAction(0, 'target', 'discountFlag');
+EFB_Logic.applyRule();
+testTrue('T14.3 negate saved on the rule conditions', valj_efb[0].logic_rules[4].conditions.negate === true);
+
+// ── Test 15: copy_value action UI + validity ─────────────────────────────────
+EFB_Logic.addRule();
+EFB_Logic.updateCondition('0', 'field_id', 'price');
+EFB_Logic.updateCondition('0', 'compare', 'is_not_empty');
+EFB_Logic.updateAction(0, 'type', 'copy_value');
+EFB_Logic.updateAction(0, 'target', 'total');
+const beforeCopySave = valj_efb[0].logic_rules.length;
+EFB_Logic.applyRule(); // no source picked yet → invalid, must NOT save
+test('T15.1 copy_value without source does not save', valj_efb[0].logic_rules.length, beforeCopySave);
+EFB_Logic.updateAction(0, 'value', 'price');
+EFB_Logic.applyRule();
+test('T15.2 copy_value rule saved with source field', valj_efb[0].logic_rules[5].actions[0].value, 'price');
+
+// ── Test 16: block_submit / end_form (targetless actions) ────────────────────
+EFB_Logic.addRule();
+EFB_Logic.updateCondition('0', 'field_id', 'price');
+EFB_Logic.updateCondition('0', 'compare', 'lt');
+EFB_Logic.updateCondition('0', 'value', '10');
+EFB_Logic.updateAction(0, 'type', 'block_submit');
+EFB_Logic.updateAction(0, 'value', 'Too cheap!');
+EFB_Logic.applyRule();
+const blockRule = valj_efb[0].logic_rules[6];
+test('T16.1 block_submit saved without target', blockRule.actions[0].target, '');
+test('T16.2 block message saved', blockRule.actions[0].value, 'Too cheap!');
+
+// Test Mode shows the submit-blocked banner when it matches
+EFB_Logic.openTestMode();
+EFB_Logic.updateTestValue('price', '5');
+EFB_Logic.runTest();
+testTrue('T16.3 submit-blocked banner rendered in Test Mode', bodyHtml().includes('efb-logic-submit-blocked'));
+EFB_Logic.updateTestValue('price', '100');
+EFB_Logic.runTest();
+testFalse('T16.4 banner gone when submit is allowed', bodyHtml().includes('efb-logic-submit-blocked'));
+EFB_Logic.backToList();
+
+// ── Test 17: rule card badges + export/import + duplicate ────────────────────
+const listHtml = bodyHtml();
+testTrue('T17.1 priority badge on rule card', listHtml.includes('efb-logic-badge-priority'));
+testTrue('T17.2 scope badge on rule card', listHtml.includes('efb-logic-badge-scope'));
+testTrue('T17.3 export button rendered', listHtml.includes('EFB_Logic.exportRules()'));
+testTrue('T17.4 import button rendered', listHtml.includes('EFB_Logic.importRules()'));
+const beforeDuplicate = valj_efb[0].logic_rules.length;
+EFB_Logic.duplicateRule(valj_efb[0].logic_rules[0].id);
+test('T17.5 duplicate adds one rule', valj_efb[0].logic_rules.length, beforeDuplicate + 1);
+test('T17.6 duplicate keeps the condition', valj_efb[0].logic_rules[1].conditions.items[0].source, 'query_param');
+testTrue('T17.7 duplicate gets a new id', valj_efb[0].logic_rules[1].id !== valj_efb[0].logic_rules[0].id);
+
+// ── Test 18: Test Mode env inputs (query param / user / step) ────────────────
+EFB_Logic.openTestMode();
+const testEnvHtml = bodyHtml();
+testTrue('T18.1 query param test input rendered', testEnvHtml.includes('__query__utm_sourcebad'));
+testTrue('T18.2 user logged-in test input rendered', testEnvHtml.includes('__user_logged_in'));
+testTrue('T18.3 current step test input rendered', testEnvHtml.includes('__current_step'));
+EFB_Logic.updateTestValue('price', '100');
+EFB_Logic.updateTestValue('__query__utm_sourcebad', 'google');
+EFB_Logic.runTest();
+testTrue('T18.4 query_param rule matched with env value', bodyHtml().includes('matched'));
+EFB_Logic.backToList();
+
+// ── Test 19: webhook stop rule UI + payload fields ───────────────────────────
+EFB_Logic.switchTab('webhook');
+EFB_Logic.addRule();
+EFB_Logic.updateCondition('0', 'field_id', 'price');
+EFB_Logic.updateCondition('0', 'compare', 'is_not_empty');
+testTrue('T19.1 webhook action select rendered', bodyHtml().includes("updateWebhook('action'"));
+testTrue('T19.2 payload fields input rendered for trigger', bodyHtml().includes("updateWebhook('payload_fields'"));
+EFB_Logic.updateWebhook('action', 'stop');
+testFalse('T19.3 stop rule hides URL input', bodyHtml().includes('https://example.com/webhook'));
+EFB_Logic.updateWebhook('webhook_id', 'crm_hook');
+EFB_Logic.applyRule(); // stop rule valid without URL
+test('T19.4 stop rule saved without URL', valj_efb[0].webhook_rules.filter(r => r.action === 'stop').length, 1);
+EFB_Logic.switchTab('field');
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);

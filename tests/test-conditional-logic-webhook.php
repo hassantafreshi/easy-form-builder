@@ -175,6 +175,92 @@ $sent_no_rules = $method->invoke($public, array(array('type' => 'form')), $submi
 test('T4.1 form with no webhook_rules keeps old behavior and sends nothing', count($GLOBALS['efb_webhook_posts']), 0);
 test('T4.2 form with no webhook_rules returns empty result', count($sent_no_rules), 0);
 
+// ─────────────────────────────────────────────────────────────────────────────
+// T5: stop rules (PRD C6 "Stop webhook") + payload_fields whitelist
+// ─────────────────────────────────────────────────────────────────────────────
+function make_stop_form($stop_webhook_id, $stop_condition_value) {
+    return array(
+        array(
+            'type' => 'form',
+            'webhook_rules' => array(
+                array(
+                    'id' => 'wr_stop',
+                    'enabled' => true,
+                    'priority' => 1,
+                    'action' => 'stop',
+                    'webhook_id' => $stop_webhook_id,
+                    'url' => '',
+                    'conditions' => array('type' => 'group', 'operator' => 'AND', 'items' => array(
+                        array('type' => 'condition', 'field_id' => 'vip', 'compare' => 'is', 'value' => $stop_condition_value),
+                    )),
+                ),
+                array(
+                    'id' => 'wr_a',
+                    'enabled' => true,
+                    'priority' => 5,
+                    'action' => 'trigger',
+                    'webhook_id' => 'crm_hot_lead',
+                    'url' => 'https://crm.example.test/hook-a',
+                    'method' => 'POST',
+                    'conditions' => array('type' => 'group', 'operator' => 'AND', 'items' => array(
+                        array('type' => 'condition', 'field_id' => 'lead_score', 'compare' => 'gt', 'value' => '70'),
+                    )),
+                ),
+                array(
+                    'id' => 'wr_b',
+                    'enabled' => true,
+                    'priority' => 6,
+                    'action' => 'trigger',
+                    'webhook_id' => 'other_hook',
+                    'url' => 'https://crm.example.test/hook-b',
+                    'method' => 'POST',
+                    'conditions' => array('type' => 'group', 'operator' => 'AND', 'items' => array(
+                        array('type' => 'condition', 'field_id' => 'lead_score', 'compare' => 'gt', 'value' => '70'),
+                    )),
+                ),
+            ),
+        ),
+        array('id_' => 'lead_score', 'type' => 'number', 'name' => 'Lead score'),
+        array('id_' => 'vip', 'type' => 'text', 'name' => 'VIP'),
+        array('id_' => 'secret_note', 'type' => 'text', 'name' => 'Secret note'),
+    );
+}
+$submitted_stop = array(
+    array('id_' => 'lead_score', 'type' => 'number', 'value' => '90'),
+    array('id_' => 'vip', 'type' => 'text', 'value' => 'yes'),
+    array('id_' => 'secret_note', 'type' => 'text', 'value' => 'internal'),
+);
+
+// matched stop rule with a webhook_id cancels ONLY that trigger rule
+$GLOBALS['efb_webhook_posts'] = array();
+$sent_stop_one = $method->invoke($public, make_stop_form('crm_hot_lead', 'yes'), $submitted_stop, 'TRK200', 'form_submit', array());
+test('T5.1 stop with webhook_id cancels the matching trigger only', count($sent_stop_one), 1);
+test('T5.2 the surviving webhook is the other id', $sent_stop_one[0]['webhook_id'], 'other_hook');
+
+// matched stop rule WITHOUT webhook_id cancels all trigger rules
+$GLOBALS['efb_webhook_posts'] = array();
+$sent_stop_all = $method->invoke($public, make_stop_form('', 'yes'), $submitted_stop, 'TRK201', 'form_submit', array());
+test('T5.3 stop without webhook_id cancels every webhook', count($sent_stop_all), 0);
+test('T5.4 nothing was posted', count($GLOBALS['efb_webhook_posts']), 0);
+
+// unmatched stop rule cancels nothing
+$GLOBALS['efb_webhook_posts'] = array();
+$sent_stop_none = $method->invoke($public, make_stop_form('', 'no-match'), $submitted_stop, 'TRK202', 'form_submit', array());
+test('T5.5 unmatched stop rule fires both webhooks', count($sent_stop_none), 2);
+
+// payload_fields whitelist trims values + submitted rows
+$form_payload = make_stop_form('', 'no-match');
+$form_payload[0]['webhook_rules'][1]['payload_fields'] = array('lead_score');
+$GLOBALS['efb_webhook_posts'] = array();
+$method->invoke($public, $form_payload, $submitted_stop, 'TRK203', 'form_submit', array());
+$payload_a = json_decode($GLOBALS['efb_webhook_posts'][0]['args']['body'], true);
+test_true('T5.6 payload values whitelist keeps only lead_score',
+    array_keys($payload_a['values']) === array('lead_score'));
+test('T5.7 payload submitted_values filtered to whitelist', count($payload_a['submitted_values']), 1);
+$payload_b = json_decode($GLOBALS['efb_webhook_posts'][1]['args']['body'], true);
+test_true('T5.8 rule without payload_fields still gets full payload',
+    isset($payload_b['values']['secret_note']));
+
 echo "\n========================================\n";
 echo "RESULTS: $pass passed, $fail failed\n";
 echo "========================================\n";
