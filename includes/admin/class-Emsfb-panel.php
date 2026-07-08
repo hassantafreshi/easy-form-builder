@@ -299,9 +299,9 @@ class Panel_edit  {
 			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 
 			if ( isset( $addons['AdnSMF'] ) && (int) $addons['AdnSMF'] >= 1 ) {
-				wp_enqueue_style('efb-conditional-logic-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/conditional-logic-efb.css', array(), EMSFB_PLUGIN_VERSION);
-				wp_enqueue_script('efb-conditional-logic-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/conditional-logic-efb.js', array('Emsfb-admin-js'), EMSFB_PLUGIN_VERSION, true);
-				wp_enqueue_script('efb-conditional-logic-preview-js', EMSFB_PLUGIN_URL . 'public/assets/js/conditional-logic-efb.js', array('Emsfb-core-js'), EMSFB_PLUGIN_VERSION, true);
+				wp_enqueue_style('efb-conditional-logic-css', EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/admin/css/conditional-logic-efb.css', array(), EMSFB_PLUGIN_VERSION);
+				wp_enqueue_script('efb-conditional-logic-js', EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/admin/js/conditional-logic-efb.js', array('Emsfb-admin-js'), EMSFB_PLUGIN_VERSION, true);
+				wp_enqueue_script('efb-conditional-logic-preview-js', EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/public/js/conditional-logic-efb.js', array('Emsfb-core-js'), EMSFB_PLUGIN_VERSION, true);
 			}
 
 				wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);

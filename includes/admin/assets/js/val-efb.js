@@ -564,7 +564,13 @@ function open_conditional_logic_efb() {
     EFB_Logic.open();
   } else {
     console.error('EFB_Logic not loaded');
-    alert_message_efb(efb_var.text.iaddon, efb_var.text.logicLoadError, 20, 'danger');
+    const title = (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text.iaddon) ? efb_var.text.iaddon : 'Addon';
+    const message = (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text.logicLoadError) ? efb_var.text.logicLoadError : 'The Conditional Logic module failed to load.';
+    if (typeof alert_message_efb === 'function') {
+      alert_message_efb(title, message, 20, 'danger');
+    } else if (typeof window !== 'undefined' && typeof window.alert === 'function') {
+      window.alert(message);
+    }
   }
 }
 

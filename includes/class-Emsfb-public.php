@@ -848,7 +848,7 @@ public function check_nonce_permission_efb($request) {
 					if ( $_efb_logic_addon_active && $_efb_form_has_logic ) {
 						wp_register_script(
 							'efb-conditional-logic-public',
-							EMSFB_PLUGIN_URL . 'public/assets/js/conditional-logic-efb.js',
+							EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/public/js/conditional-logic-efb.js',
 							array( 'Emsfb-core_js' ),
 							EMSFB_PLUGIN_VERSION,
 							true

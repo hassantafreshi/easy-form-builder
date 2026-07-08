@@ -52,8 +52,6 @@ includes/functions.php.backup_20251222_221754
 .editorconfig
 vendor.rar
 .claude/settings.local.json
-/tests/*
-/tests
 /node_modules
 /node_modules/*
 docs/ai-form-generation/efb-ai-form-generation-model.json

@@ -6,10 +6,20 @@ let sessionPub_emsFormBuilder = "reciveFromClient"
  * Conditional logic adapter. The addon-owned public runtime is the only engine
  * allowed to execute saved rules.
  */
+function efb_get_logic_runtime_efb() {
+  if (typeof window === 'undefined') return null;
+  const runtime = window.efb_logic_runtime || window.EFBConditionalLogic;
+  return runtime && typeof runtime.evaluate === 'function' ? runtime : null;
+}
+
 function fun_statement_logic_efb(triggeredId, triggeredType, formId) {
-  if (typeof window.efb_logic_runtime !== 'undefined') {
-    return window.efb_logic_runtime.evaluate(formId || infer_form_id_by_field_efb(triggeredId));
+  const runtime = efb_get_logic_runtime_efb();
+  if (!runtime) return;
+  let resolvedFormId = formId;
+  if ((resolvedFormId === undefined || resolvedFormId === null) && typeof infer_form_id_by_field_efb === 'function') {
+    resolvedFormId = infer_form_id_by_field_efb(triggeredId);
   }
+  return runtime.evaluate(resolvedFormId || 0);
 }
 
 /* Retained only for legacy reference; no public call path invokes this engine. */
@@ -790,8 +800,9 @@ function yesNoGetEFB(v, id, idl, form_id=0) {
   if (yn_logicStructure && yn_logicStructure[0] &&
       ((yn_logicStructure[0].hasOwnProperty('logic') && yn_logicStructure[0].logic) ||
        (yn_logicStructure[0].hasOwnProperty('logic_rules') && Array.isArray(yn_logicStructure[0].logic_rules) && yn_logicStructure[0].logic_rules.length > 0))) {
-    if (typeof window.efb_logic_runtime !== 'undefined') {
-      window.efb_logic_runtime.evaluate(yn_form_id);
+    const logicRuntime = efb_get_logic_runtime_efb();
+    if (logicRuntime) {
+      logicRuntime.evaluate(yn_form_id);
     } else if (typeof fun_statement_logic_efb === 'function') {
       fun_statement_logic_efb(id, 'yesNo', yn_form_id);
     }
@@ -2941,8 +2952,9 @@ async function handle_change_event_efb_v4(el ,form_id=0){
           slice_sback(indx)
           if(ob.type=="payCheckbox") fun_total_pay_efb(form_id);
           /* sendBack already updated via slice_sback — safe to evaluate logic now */
-          if (typeof window.efb_logic_runtime !== 'undefined') {
-            window.efb_logic_runtime.evaluate(form_id);
+          const logicRuntime = efb_get_logic_runtime_efb();
+          if (logicRuntime) {
+            logicRuntime.evaluate(form_id);
           } else if (typeof fun_statement_logic_efb === 'function') {
             fun_statement_logic_efb(el.id, el.type, form_id);
           }
@@ -3098,8 +3110,9 @@ async function handle_change_event_efb_v4(el ,form_id=0){
   if (logicStructure && logicStructure[0] &&
       ((logicStructure[0].hasOwnProperty('logic') && logicStructure[0].logic) ||
        (logicStructure[0].hasOwnProperty('logic_rules') && Array.isArray(logicStructure[0].logic_rules) && logicStructure[0].logic_rules.length > 0))) {
-    if (typeof window.efb_logic_runtime !== 'undefined') {
-      window.efb_logic_runtime.evaluate(form_id);
+    const logicRuntime = efb_get_logic_runtime_efb();
+    if (logicRuntime) {
+      logicRuntime.evaluate(form_id);
     } else if (typeof fun_statement_logic_efb === 'function') {
       fun_statement_logic_efb(el.id, el.type, form_id);
     }
@@ -3334,7 +3347,8 @@ const check_form_payment_filled_efb = (form_id=0) =>{
   if (typeof EFBConditionalLogic !== 'undefined' && EFBConditionalLogic &&
       typeof EFBConditionalLogic.hasActiveRules === 'function' &&
       EFBConditionalLogic.hasActiveRules(valj_efb)) {
-    if (typeof EFBConditionalLogic.evaluate === 'function') EFBConditionalLogic.evaluate(form_id);
+    const logicRuntime = efb_get_logic_runtime_efb();
+    if (logicRuntime) logicRuntime.evaluate(form_id);
     return false;
   }
   let necessary_fields_filed = [];
