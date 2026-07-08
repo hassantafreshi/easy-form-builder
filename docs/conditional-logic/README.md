@@ -58,7 +58,7 @@ node tests\browser-test.js
 | JS runtime | 112/112 Pass |
 | JS builder UI | 96/96 Pass |
 | JS plan gating | 53/53 Pass |
-| JS validate-step | 7/7 Pass |
+| JS validate-step | 10/10 Pass |
 | JS thankyou overrides | 24/24 Pass |
 | JS payment autosubmit gate | 11/11 Pass |
 | JS multiform validation scope | 17/17 Pass |
@@ -70,7 +70,7 @@ node tests\browser-test.js
 | PHP payment | 42/42 Pass |
 | PHP webhook | 23/23 Pass |
 | PHP addon settings | 12/12 Pass |
-| مجموع | **644/644 Pass** |
+| مجموع | **647/647 Pass** |
 
 تست مرورگر در این نوبت اجرا نشده است و باید بعد از ساخت fixture توضیح‌داده‌شده در
 [تست پذیرش جامع فارسی](EFB-Conditional-Logic-E2E-TEST-FA.md) اجرا شود.

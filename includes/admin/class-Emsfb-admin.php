@@ -366,9 +366,8 @@ class Admin {
         $vwp = get_bloginfo('version');
         $vwp = substr($vwp,0,3);
         $vefb = EMSFB_PLUGIN_VERSION;
-        $admin_test = get_option('EMSFB_team_test', '0') === '1';
-		$domain =  $admin_test ? 'demo.whitestudio.team' : 'whitestudio.team';
-        $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+		$domain =  EMSFB_SERVER_URL ;
+        $u =  $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
         if (get_locale() == 'fa_IR') {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
         }
@@ -1935,11 +1934,6 @@ class Admin {
     }
 
 	private function email_tester_endpoint_efb($path, $use_www = false) {
-		if (defined('EMSFB_EMAIL_TESTER_URL') && EMSFB_EMAIL_TESTER_URL) {
-			$base_url = untrailingslashit((string) EMSFB_EMAIL_TESTER_URL);
-			return $base_url . '/wp-json/ws-email-tester/v1' . $path;
-		}
-
 		$host = $use_www ? 'www.whitestudio.team' : 'whitestudio.team';
 		return 'https://' . $host . '/wp-json/ws-email-tester/v1' . $path;
 	}

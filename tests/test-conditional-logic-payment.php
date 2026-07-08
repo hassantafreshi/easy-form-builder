@@ -23,6 +23,8 @@
  * Run: php tests/test-conditional-logic-payment.php
  */
 
+if (!defined('ABSPATH')) { define('ABSPATH', __DIR__ . '/'); }
+
 if (!function_exists('add_filter')) {
     function add_filter($hook, $cb, $priority = 10, $args = 1) { return true; }
 }

@@ -108,6 +108,7 @@ function fun_default_addons_efb_admin() {
     {id:9, name:'AdnATF', title:'TAdnAtF', desc:'DAdnAtF', icon:'bi-database-add', link:'', download:true, pro:true, state:true, tag:'data form', version:0.1, v_required:4.0, package:1},
     {id:8, name:'AdnPAP', title:'payPalTAddon', desc:'payPalDAddon', icon:'bi-paypal', link:'', download:true, pro:true, state:true, tag:'form pay payment', version:0.1, v_required:4.0, package:1},
     {id:8, name:'AdnTLG', title:'tlgmAddon', desc:'tlgmDAddon', icon:'bi-telegram', link:'', download:true, pro:true, state:true, tag:'form social notification integrate', version:0.1, v_required:4.0, package:1},
+    {id:10, name:'AdnSMF', title:'condATAddon', desc:'condADAddon', icon:'bi-diagram-3', link:'', download:true, pro:true, state:true, tag:'form logic conditional smart', version:0.1, v_required:4.0, package:1},
   ];
 }
 
@@ -817,24 +818,90 @@ function add_dasboard_emsFormBuilder() {
   }
 
 }
+/**
+ * Wrap every occurrence of `term` inside `text` with a highlight <mark>.
+ * The term is regex-escaped so special characters are matched literally.
+ * Self-contained here because list_form-efb.js (which owns a similar helper)
+ * is not enqueued on the add-ons page.
+ */
+function efb_highlight_match_efb(text, term) {
+  if (text == null || !term || String(term).trim() === '') return text;
+  const safe = String(term).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${safe})`, 'gi');
+  return String(text).replace(regex, '<mark class="efb search-highlight">$1</mark>');
+}
+
+/**
+ * Resolve an add-on list item into a display object with translated
+ * title/desc. Mirrors the resolution used on first render so that searching
+ * works against the visible text, not the raw translation keys.
+ */
+function efb_resolve_addon_display_efb(i) {
+  let title = i.title;
+  let desc = i.desc;
+  if (title.trim().split(/\s+/).length === 1) {
+    title = efb_var.text[title];
+    desc = efb_var.text[desc];
+  }
+  return { 'name': i.name, 'id': i.id, 'tag': i.tag, 'icon': i.icon,
+           'title': title, 'desc': desc, 'v_required': i.v_required, 'pro': i.pro };
+}
+
+/**
+ * Build the add-on cards HTML, optionally filtered by a search term.
+ * When a term is given, the matching words in the title/description are
+ * highlighted. Returns { html, count }.
+ */
+function efb_build_addon_cards_efb(searchTerm) {
+  const term = (searchTerm || '').trim().toLowerCase();
+  let value = `<!-- boxs -->`;
+  let count = 0;
+
+  for (let i of fun_get_addons_efb_admin()) {
+    if (i.state != true) continue;
+    if (!((efb_var.language != 'fa_IR' && i.name != 'AdnPPF') || efb_var.language == 'fa_IR')) continue;
+
+    const v = efb_resolve_addon_display_efb(i);
+
+    if (term !== '') {
+      const haystack = `${v.title} ${v.desc} ${v.tag}`.toLowerCase();
+      if (haystack.indexOf(term) === -1) continue;
+
+      v.title = efb_highlight_match_efb(v.title, searchTerm.trim());
+      v.desc = efb_highlight_match_efb(v.desc, searchTerm.trim());
+    }
+
+    count++;
+    value += createCardAddoneEfb(v);
+  }
+
+  return { html: value, count: count };
+}
+
+/**
+ * (Re)attach click handlers for cards rendered inside the add-ons page.
+ */
+function efb_attach_addon_card_events_efb() {
+  let newform_ = document.getElementsByClassName("efbCreateNewForm");
+  for (const n of newform_) {
+    n.addEventListener("click", (e) => {
+      form_type_emsFormBuilder = n.id;
+      create_form_by_type_emsfb(n.id, 'npreview');
+    });
+  }
+  newform_ = document.getElementsByClassName("efbPreviewForm");
+  for (const n of newform_) {
+    n.addEventListener("click", (e) => {
+      form_type_emsFormBuilder = n.id;
+      create_form_by_type_emsfb(n.id, 'preview');
+    });
+  }
+}
+
 function add_addons_emsFormBuilder() {
 
-  let value = `<!-- boxs -->`;
-  const addonsList = fun_get_addons_efb_admin();
-  for (let i of addonsList) {
-    let title = i.title;
-    let desc = i.desc;
-    if(title.trim().split(/\s+/).length === 1) {
-      title =efb_var.text[title] ;
-      desc =efb_var.text[desc];
-    }
+  const built = efb_build_addon_cards_efb('');
 
-   if(i.state==true) {
-      const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
-                 'title':title,'desc':desc,'v_required':i.v_required , 'pro':i.pro}
-     if((efb_var.language!='fa_IR' && (i.name!='AdnPPF') ) || efb_var.language=='fa_IR' ) value += createCardAddoneEfb(v)
-    }
-  }
   let cardtitles = `<!-- card titles -->`;
 
  cardtitles = `
@@ -849,25 +916,21 @@ function add_addons_emsFormBuilder() {
           <section id="content-efb">
           ${!mobile_view_efb ? `<h4 class="efb  mb-0 title-holder fs-4 efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon fs-4 mx-1"></i>${efb_var.text.addons}</h4>` : ''}
 
+          <div class="efb d-flex justify-content-center align-items-center flex-wrap my-3 gap-2" id="addonSearchWrapEFB">
+            <input type="text" placeholder="${efb_var.text.search} ..." id="findCardAddonEFB" autocomplete="off" aria-label="${efb_var.text.search}"
+              class="efb fs-6 search-form-control rounded-4 efb addon-search-input-efb mx-2"
+              oninput="FunfindCardAddonEFB()" onkeydown="if(event.key==='Enter'){event.preventDefault();FunfindCardAddonEFB();}">
+            <a class="efb btn efb btn-outline-pink mx-1" role="button" onclick="FunfindCardAddonEFB()"><i class="efb bi-search mx-1"></i>${efb_var.text.search}</a>
+            <a class="efb btn efb btn-sm addon-search-clear-efb mx-1" id="addonSearchClearEFB" role="button" style="display:none;" onclick="efb_clear_addon_search_efb()"><i class="efb bi-x-lg mx-1"></i></a>
+            <span id="addonSearchCountEFB" class="search-results-badge mx-1" style="display:none;"></span>
+          </div>
+
             <div class="efb row">
             ${cardtitles}
-            <div class="efb  row row-cols-1 mt-0 row-cols-md-3 g-4" id="listFormCardsEFB">${value}</div></div>
+            <div class="efb  row row-cols-1 mt-0 row-cols-md-3 g-4" id="listFormCardsEFB">${built.html}</div></div>
             </section>`
 
-  let newform_ = document.getElementsByClassName("efbCreateNewForm")
-  for (const n of newform_) {
-    n.addEventListener("click", (e) => {
-      form_type_emsFormBuilder = n.id;
-      create_form_by_type_emsfb(n.id, 'npreview');
-    })
-  }
-  newform_ = document.getElementsByClassName("efbPreviewForm")
-  for (const n of newform_) {
-    n.addEventListener("click", (e) => {
-      form_type_emsFormBuilder = n.id;
-      create_form_by_type_emsfb(n.id, 'preview');
-    })
-  }
+  efb_attach_addon_card_events_efb();
 
 }
 
@@ -892,26 +955,49 @@ function FunfindCardFormEFB() {
   }
 }
 function FunfindCardAddonEFB() {
-  let cards = [];
-  const v = document.getElementById('findCardFormEFB').value.toLowerCase();
-  document.getElementById('listFormCardsEFB').innerHTML = ''
+  const input = document.getElementById('findCardAddonEFB');
+  const term = input ? input.value.trim() : '';
 
-  for (let row of fun_get_addons_efb_admin()) {
+  const built = efb_build_addon_cards_efb(term);
+  const list = document.getElementById('listFormCardsEFB');
+  if (!list) return;
 
-    if (row["title"].toLowerCase().includes(v) == true || row["desc"].toLowerCase().includes(v) == true) { cards.push(row); }
+  if (built.count === 0) {
+    const safeTerm = term.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const label = term !== '' ? ` "${safeTerm}"` : '';
+    const notFoundText = efb_var.text.noResultsFound || efb_var.text.notFound || 'No results found';
+    list.innerHTML = `
+      <div class="efb col-12 text-center text-darkb efb my-5" id="addonNoResultEFB">
+        <div class="efb bi-emoji-frown" style="font-size:2.6rem;color:#b9b9c9;"></div>
+        <p class="efb fs-5 mt-2 mb-0">${notFoundText}${label}</p>
+      </div>`;
+  } else {
+    list.innerHTML = built.html;
   }
-  let result = '<!--Search-->'
-  for (let c of cards) {result += createCardAddoneEfb(c); }
-  if (result == "'<!--Search-->'") result = "NotingFound";
-  document.getElementById("listFormCardsEFB").innerHTML = result;
 
-  let newform_ = document.getElementsByClassName("efbCreateNewForm")
-  for (const n of newform_) {
-    n.addEventListener("click", (e) => {
-      form_type_emsFormBuilder = n.id;
-      create_form_by_type_emsfb(n.id, 'npreview');
-    })
+  const badge = document.getElementById('addonSearchCountEFB');
+  if (badge) {
+    if (term === '') {
+      badge.style.display = 'none';
+      badge.textContent = '';
+    } else {
+      const unit = built.count === 1 ? (efb_var.text.result || 'result') : (efb_var.text.results || 'results');
+      badge.style.display = 'inline-block';
+      badge.textContent = `${built.count} ${unit}`;
+    }
   }
+
+  const clearBtn = document.getElementById('addonSearchClearEFB');
+  if (clearBtn) clearBtn.style.display = term === '' ? 'none' : 'inline-block';
+
+  efb_attach_addon_card_events_efb();
+}
+
+function efb_clear_addon_search_efb() {
+  const input = document.getElementById('findCardAddonEFB');
+  if (input) input.value = '';
+  FunfindCardAddonEFB();
+  if (input) input.focus();
 }
 
 function create_form_by_type_emsfb(id, s) {

@@ -2206,6 +2206,36 @@ div#Listefb-150 {
    opacity: 0.8 !important;
 }
 
+.efb.addon-search-input-efb {
+   min-width: 280px;
+   max-width: 460px;
+   height: 44px;
+   padding: 8px 18px !important;
+   border: 2px solid #e6e6f2 !important;
+   background-color: #fff !important;
+   color: #333 !important;
+   outline: none;
+   transition: border-color .2s ease, box-shadow .2s ease;
+}
+@media (max-width: 575.98px) {
+   .efb.addon-search-input-efb {
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+   }
+}
+.addon-search-clear-efb.efb {
+   color: #ff4b93 !important;
+   border: 2px solid transparent !important;
+   padding: 6px 10px !important;
+   transition: 0.3s;
+}
+.addon-search-clear-efb.efb:hover {
+   color: #fff !important;
+   background-color: #ff4b93 !important;
+   border-radius: 100px !important;
+}
+
 .search-results-badge {
    display: inline-block;
    padding: 0.25rem 0.5rem;

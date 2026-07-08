@@ -14,6 +14,8 @@
  * Run: php tests/test-conditional-logic-validator.php
  */
 
+if (!defined('ABSPATH')) { define('ABSPATH', __DIR__ . '/'); }
+
 /* Minimal hook registry so the validator's developer hooks (PRD §15) are
  * exercised for real instead of being skipped by function_exists guards. */
 $GLOBALS['efb_test_filters'] = [];

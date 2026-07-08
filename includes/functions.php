@@ -2576,15 +2576,12 @@ public function addon_add_efb($value) {
         $vwp = get_bloginfo('version');
 		$vwp = substr($vwp,0,3);
 		$vefb = EMSFB_PLUGIN_VERSION;
-        $admin_test = get_option('EMSFB_team_test', '0') === '1';
-		$domain =  $admin_test ? 'demo.whitestudio.team' : 'whitestudio.team';
-		error_log($domain);
-		error_log($value);
-        $u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
+		$domain = untrailingslashit( EMSFB_SERVER_URL );
+        $u =   $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
 		$fallback_u = '';
         if (get_locale() == 'fa_IR') {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
-			$fallback_u = 'https://' . $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
+			$fallback_u =  $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
         }
 		$name_space = 'emsfb_addon_' . $value;
 		delete_option($name_space);
@@ -3585,7 +3582,7 @@ public function addon_add_efb($value) {
 	}
 
 	public function noti_expire_efb() {
-		$url = 'https://demo.whitestudio.team/register-costumer?renew=';
+
 		$url = EMSFB_SERVER_URL . '/register-costumer?renew=';
 
 		$msg = esc_html__('Your Easy Form Builder Pro subscription has expired. To continue enjoying all Pro features and keep your forms running, %1$sRenew your subscription now.%2$s', 'easy-form-builder');

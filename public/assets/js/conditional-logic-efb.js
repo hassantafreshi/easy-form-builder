@@ -1407,13 +1407,28 @@
     try {
       var env = buildBrowserEnv(context);
       var result = emptyResult();
+      /* set_values / cleared_fields are DIFFS against the submitted rows. Pass
+       * 1 writes a calculated/set value into sendBack, so pass 2 already sees
+       * it as the "original" value and reports an empty diff — but the DOM is
+       * painted ONCE, with the final pass's result. Without accumulating the
+       * writes across passes, a calculated Total is submitted correctly yet
+       * never appears in the visible input. null marks a cleared field. */
+      var domWrites = {};
       for (var pass = 0; pass < 5; pass++) {
         var before = JSON.stringify(getRows(context.formId));
         result = evaluateDefinition(context.definition, getRows(context.formId), env);
+        result.cleared_fields.forEach(function (fieldId) { domWrites[fieldId] = null; });
+        Object.keys(result.set_values).forEach(function (fieldId) { domWrites[fieldId] = result.set_values[fieldId]; });
         syncResultData(context, result);
         var after = JSON.stringify(getRows(context.formId));
         if (before === after) break;
       }
+      result.set_values = {};
+      result.cleared_fields = [];
+      Object.keys(domWrites).forEach(function (fieldId) {
+        if (domWrites[fieldId] === null) result.cleared_fields.push(fieldId);
+        else result.set_values[fieldId] = domWrites[fieldId];
+      });
       context.state = result;
       applyVisualState(context, result);
       debugLog(formId, result);

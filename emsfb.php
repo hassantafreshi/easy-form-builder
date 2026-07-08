@@ -3,7 +3,7 @@
  * Plugin Name:         Easy Form Builder
  * Plugin URI:          https://whitestudio.team
  * Description:         Easily create multi-step forms with a unique Confirmation Code feature and notification emails, all without any coding knowledge required, using the easy-to-use drag and drop form wizard of Easy Form Builder. This is the free version and provides an intuitive interface and functionality to create professional forms in minutes. With the unique Confirmation Code feature, you can easily associate each submission with a specific request or user.
- * Version:             4.0.10
+ * Version:             4.0.15
  * Author:              WhiteStudio
  * Author URI:          https://whitestudio.team
  * Text Domain:         easy-form-builder
@@ -24,7 +24,7 @@ if (!defined("EMSFB_PLUGIN_DIRECTORY")) {
     define("EMSFB_PLUGIN_DIRECTORY", plugin_dir_path(__FILE__));
 }
 if (!defined("EMSFB_PLUGIN_VERSION")) {
-    define("EMSFB_PLUGIN_VERSION", "4.0.100");
+    define("EMSFB_PLUGIN_VERSION", "4.0.150");
 }
 if (!defined("EMSFB_DB_VERSION")) {
     define("EMSFB_DB_VERSION", 1.1);
@@ -52,12 +52,14 @@ update_option('EMSFB_team_test',0);
 
 if (!defined("EMSFB_SERVER_URL")) {
     if (EMSFB_DEV_MODE) {
-        define("EMSFB_SERVER_URL", "https://demo.whitestudio.team");
+       // define("EMSFB_SERVER_URL", "https://demo.whitestudio.team");
+        define("EMSFB_SERVER_URL", "http://127.0.0.1/ws");
     } else {
         define("EMSFB_SERVER_URL", "https://whitestudio.team");
     }
 }
-
+error_log("EMSFB_SERVER_URL: " . EMSFB_SERVER_URL);
+error_log("EMSFB_DEV_MODE: " . (EMSFB_DEV_MODE ? 'true' : 'false'));
 if (!defined("EMSFB_IS_FARSI")) {
     if (get_locale() == 'fa_IR') {
         //THIS LINE COMMENTED TO AVOID PROBLEMS WITH CDN IN FARSI LANGUAGE BECUSE OF SHUTDOWN IRAN NETWORK!!

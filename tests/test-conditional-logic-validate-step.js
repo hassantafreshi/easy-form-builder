@@ -221,6 +221,75 @@ runtime.evaluate(FORM_ID);
 test('T3.1 jump_to_step moved the DOM back to step 1', Number(body.dataset.currentstep), 1);
 testTrue('T3.2 prev_efb is hidden again on step 1', prevBtn.classList.contains('d-none'));
 
+// ── T4: calculated / logic-written values must reach the VISIBLE input ──────
+// Regression: evaluate() paints the DOM once, with the FINAL pass's result —
+// but pass 1 writes the calculated total into sendBack, so pass 2 reports an
+// empty set_values diff. The submission carried the right total while the
+// visible input stayed empty (manual-test finding on the Phase 7 form).
+const FORM_ID2 = 502;
+const body2 = makeEl('div', { id: 'body_efb_' + FORM_ID2 });
+body2.dataset.currentstep = '1';
+body2.dataset.steps = '1';
+const step1FS2 = makeEl('div', { id: 'calcStep1FS' });
+step1FS2.dataset.step = 'step-1-efb';
+body2.appendChild(step1FS2);
+
+function addCalcField(id) {
+  const wrapper = makeEl('div', { id });
+  const input = makeEl('input', { id: id + '_' });
+  input.type = 'number';
+  wrapper.appendChild(input);
+  step1FS2.appendChild(wrapper);
+  return input;
+}
+const priceInput = addCalcField('price');
+const qtyInput = addCalcField('qty');
+const totalInput = addCalcField('total');
+
+const calcStructure = [
+  { id_: 'form', type: 'form' },
+  { id_: 'cs1', type: 'step', step: '1' },
+  { id_: 'price', type: 'number', step: '1' },
+  { id_: 'qty', type: 'number', step: '1' },
+  { id_: 'total', type: 'number', step: '1' },
+];
+calcStructure[0].logic_rules = [
+  {
+    id: 'r_calc', enabled: true, priority: 10, stop_processing: false,
+    conditions: { type: 'group', operator: 'AND', items: [{ type: 'condition', source: 'field', field_id: 'price', compare: 'is_not_empty', value: '' }] },
+    actions: [{ type: 'calculate', target: 'total', value: '{price} * {qty}', decimals: 2 }],
+  },
+  {
+    id: 'r_clear', enabled: true, priority: 20, stop_processing: false,
+    conditions: { type: 'group', operator: 'AND', items: [{ type: 'condition', source: 'field', field_id: 'price', compare: 'is', value: '0' }] },
+    actions: [{ type: 'clear_value', target: 'qty' }],
+  },
+];
+global.valj_efb_new.push({ id: FORM_ID2, form_structer: calcStructure });
+global.sendBack_emsFormBuilder_pub.push(
+  { id_: 'price', value: '100', type: 'number', form_id: FORM_ID2 },
+  { id_: 'qty', value: '3', type: 'number', form_id: FORM_ID2 },
+);
+priceInput.value = '100';
+qtyInput.value = '3';
+
+runtime.init(FORM_ID2);
+test('T4.1 calculated total is written into the visible input', totalInput.value, '300.00');
+
+// recalculation after a user edit must update the visible value too
+const priceRow = global.sendBack_emsFormBuilder_pub.find((r) => r.id_ === 'price' && r.form_id === FORM_ID2);
+priceRow.value = '50';
+priceInput.value = '50';
+runtime.evaluate(FORM_ID2);
+test('T4.2 recalculated total updates the visible input', totalInput.value, '150.00');
+
+// clear_value must clear the visible input as well (same final-pass diff issue)
+qtyInput.value = '3';
+priceRow.value = '0';
+priceInput.value = '0';
+runtime.evaluate(FORM_ID2);
+test('T4.3 clear_value empties the visible qty input', qtyInput.value, '');
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);

@@ -23,7 +23,7 @@
 node tests\test-conditional-logic-runtime.js          # 112 passed, 0 failed
 node tests\test-conditional-logic-builder-ui.js       # 96 passed, 0 failed
 node tests\test-conditional-logic-plan-gating.js      # 53 passed, 0 failed
-node tests\test-conditional-logic-validate-step.js    # 7 passed, 0 failed
+node tests\test-conditional-logic-validate-step.js    # 10 passed, 0 failed
 node tests\test-thankyou-overrides.js                 # 24 passed, 0 failed
 node tests\test-payment-autosubmit-logic-gate.js      # 11 passed, 0 failed
 node tests\test-core-multiform-validation-scope.js    # 17 passed, 0 failed
@@ -37,7 +37,7 @@ C:\xampp\php\php.exe tests\test-conditional-logic-webhook.php                   
 C:\xampp\php\php.exe tests\test-addon-settings.php                                # 12 passed
 ```
 
-**مجموع مورد انتظار: 644 تست، 0 شکست.** اگر عددی کمتر بود یا failed داشتید، ادامه ندهید و اول همان را بررسی کنید.
+**مجموع مورد انتظار: 647 تست، 0 شکست.** اگر عددی کمتر بود یا failed داشتید، ادامه ندهید و اول همان را بررسی کنید.
 
 ---
 
@@ -224,6 +224,6 @@ C:\xampp\php\php.exe tests\test-addon-settings.php                              
 
 ## 18. معیار قبولی
 
-- همه ردیف‌های بالا سبز؛ **644 تست خودکار بدون شکست**.
+- همه ردیف‌های بالا سبز؛ **647 تست خودکار بدون شکست**.
 - هیچ خطای Console در هیچ سناریو.
 - هیچ تغییری در رفتار فرم‌های **بدون** قانون منطق شرطی (فرم عادی را هم یک بار submit کنید).

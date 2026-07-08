@@ -319,10 +319,6 @@ class Panel_edit  {
 			wp_enqueue_script('intlTelInput-js');
 			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_style('intlTelInput-css');
-			if( false){
-				wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);
-				wp_enqueue_script('logic-efb');
-			}
 			$value = $efbFunction->efb_list_form();
 			$table_name = $this->db->prefix . "emsfb_setting";
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );

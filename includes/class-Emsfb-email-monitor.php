@@ -486,9 +486,7 @@ class Email_Monitor {
     }
 
 	private static function remote_request($method, $path, $args) {
-		$base_url = defined('EMSFB_EMAIL_TESTER_URL') && EMSFB_EMAIL_TESTER_URL
-			? untrailingslashit((string) EMSFB_EMAIL_TESTER_URL)
-			: (defined('EMSFB_SERVER_URL') ? untrailingslashit(EMSFB_SERVER_URL) : 'https://whitestudio.team');
+		$base_url = 'https://whitestudio.team';
 		$endpoint = $base_url . '/wp-json/ws-email-tester/v1' . $path;
 		$response = strtoupper($method) === 'POST'
 			? wp_remote_post($endpoint, $args)
