@@ -275,7 +275,7 @@ async function shot(page, name) {
 
   // ── STEP 9: public/assets/js/conditional-logic-efb.js syntax ─────────────
   // Verify the file exists and is loadable
-  const condLogicPath = path.join(__dirname, '../public/assets/js/conditional-logic-efb.js');
+  const condLogicPath = path.join(__dirname, '../vendor/logic/logic/assets/public/js/conditional-logic-efb.js');
   if (fs.existsSync(condLogicPath)) {
     ok('public conditional-logic-efb.js file exists');
     try {
