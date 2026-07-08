@@ -19,6 +19,11 @@ vendor/stripe/stripe-php/.editorconfig
 vendor/stripe/stripe-php/.coveralls.github-actions.yml
 easy-form-builder.zip
 vendor/logic/*
+!vendor/logic/
+!vendor/logic/logic/
+vendor/logic/logic/*
+!vendor/logic/logic/assets/
+!vendor/logic/logic/assets/**
 temp/*
 vendor-backup/*
 vendor/*.git
@@ -54,3 +59,5 @@ vendor.rar
 docs/ai-form-generation/efb-ai-form-generation-model.json
 docs/ai-form-generation/*
 docs/conditional-logic/EFB-Conditional-Logic-E2E-TEST-FA.md
+tests/test-conditional-logic-builder-ui.js
+vendor/logic/*
