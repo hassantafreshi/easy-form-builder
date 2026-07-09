@@ -378,7 +378,7 @@ class Admin {
         $vefb = EMSFB_PLUGIN_VERSION;
 		$domain =  EMSFB_SERVER_URL ;
         $u =  $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
-        if (get_locale() == 'fa_IR') {
+        if (get_locale() == 'fa_IR' && EFB_Path_IR) {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
         }
 
@@ -443,6 +443,16 @@ class Admin {
             }
 
             if ($data->status == false) {
+                if (isset($data->reason) && $data->reason == 'expired') {
+                    update_option('emsfb_addons_renew_required', time());
+                    set_transient('emsfb_addons_renew_backoff', 1, DAY_IN_SECONDS);
+                    $renew_url = isset($data->renew) ? esc_url($data->renew) : esc_url(EMSFB_SERVER_URL . '/register-costumer?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', '')));
+                    $m = esc_html__('Your Easy Form Builder Pro subscription has expired, so this add-on cannot be downloaded.', 'easy-form-builder')
+                        . ' <a href="' . $renew_url . '" target="_blank">' . esc_html__('Renew Subscription', 'easy-form-builder') . '</a>';
+                    $response = ['success' => false, 'm' => $m];
+                    wp_send_json_error($response, 200);
+                    return;
+                }
                 $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
                 $error_message = sprintf($error_message, $domain, 'invalid_status');
                 $response = ['success' => false, 'm' => $error_message];
@@ -472,6 +482,15 @@ class Admin {
                 }
                 update_option($name_space, 1);
                 $success = true;
+            } else {
+                $attempt++;
+                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
+                $error_message = sprintf($error_message, $domain, 'download_unavailable');
+                if ($attempt >= $max_attempts) {
+                    $response = ['success' => false, 'm' => $error_message];
+                    wp_send_json_error($response, 200);
+                    return;
+                }
             }
         }
 

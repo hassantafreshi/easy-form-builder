@@ -48,12 +48,12 @@ if (!defined("EMSFB_DEV_MODE")) {
         define("EMSFB_DEV_MODE", $dev_mode === '1' || $dev_mode === true ? true : false);
     }
 }
-update_option('EMSFB_team_test',0);
+
 
 if (!defined("EMSFB_SERVER_URL")) {
     if (EMSFB_DEV_MODE) {
-       // define("EMSFB_SERVER_URL", "https://demo.whitestudio.team");
-        define("EMSFB_SERVER_URL", "http://127.0.0.1/ws");
+       define("EMSFB_SERVER_URL", "https://demo.whitestudio.team");
+
     } else {
         define("EMSFB_SERVER_URL", "https://whitestudio.team");
     }
@@ -63,8 +63,25 @@ error_log("EMSFB_DEV_MODE: " . (EMSFB_DEV_MODE ? 'true' : 'false'));
 if (!defined("EMSFB_IS_FARSI")) {
     if (get_locale() == 'fa_IR') {
         //THIS LINE COMMENTED TO AVOID PROBLEMS WITH CDN IN FARSI LANGUAGE BECUSE OF SHUTDOWN IRAN NETWORK!!
-        define("CDN_ZONE_AREA", "https://cdn.easyformbuilder.ir/gh/Json-List-of-countries-states-and-cities-in-the-world/");
+        $url_path =  "https://cdn.easyformbuilder.ir/gh/Json-List-of-countries-states-and-cities-in-the-world/";
        // define("CDN_ZONE_AREA", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
+
+        if (!defined("EFB_Path_IR")) {
+            // Cached in a transient so the remote check does not run on every page load
+            $emsfb_ir_cdn_status = get_transient('emsfb_ir_cdn_status');
+            if (false === $emsfb_ir_cdn_status) {
+                $emsfb_ir_cdn_response = wp_remote_head($url_path . 'js/wp/countries.js', array('timeout' => 5));
+                $emsfb_ir_cdn_status = (!is_wp_error($emsfb_ir_cdn_response) && wp_remote_retrieve_response_code($emsfb_ir_cdn_response) < 400) ? 'up' : 'down';
+                set_transient('emsfb_ir_cdn_status', $emsfb_ir_cdn_status, 'up' === $emsfb_ir_cdn_status ? 6 * HOUR_IN_SECONDS : HOUR_IN_SECONDS);
+            }
+            define("EFB_Path_IR", 'up' === $emsfb_ir_cdn_status);
+
+            if (EFB_Path_IR) {
+                define("CDN_ZONE_AREA", $url_path);
+            } else {
+                define("CDN_ZONE_AREA", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
+            }
+        }
     } else {
         define("CDN_ZONE_AREA", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
     }

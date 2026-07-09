@@ -1267,6 +1267,9 @@ function head_introduce_efb(state) {
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
   const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/pricing' : 'https://whitestudio.team/#pricing';
   let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="${domain}" target="_blank" class="efb fw-bold">`).replace('%5$s','</a>');
+  if(efb_var.language =='fa_IR'){
+    msgpro = efb_var.text.yFreeVEnPro.replace('%2$s',  '1,300,000<small>تومان</small>').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="https://easyformbuilder.ir/pricing'" target="_blank" class="efb fw-bold">`).replace('%5$s','</a>');
+  }
   let cont = ``;
   let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti ec-efb" data-eventform="links" data-linkname="price">
   <i class="efb bi-diamond text-pinkEfb mx-1"></i>

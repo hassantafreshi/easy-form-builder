@@ -2552,8 +2552,31 @@ class efbFunction {
 
 	public function addon_adds_cron_efb(){
 
+	if ( get_option('emsfb_addons_renew_required') && get_transient('emsfb_addons_renew_backoff') ) {
+		return;
+	}
+
+	if ( (int) get_option('emsfb_addons_dl_failures', 0) >= 3 && get_transient('emsfb_addons_dl_backoff') ) {
+		return;
+	}
+
 	if ( ! wp_next_scheduled( 'emsfb_download_addons_cron' ) ) {
 		wp_schedule_single_event( time() + 5, 'emsfb_download_addons_cron' );
+		}
+
+	}
+
+	public function resume_addon_downloads_efb(){
+
+		if ( ! get_option('emsfb_addons_renew_required') ) {
+			return;
+		}
+		delete_option('emsfb_addons_renew_required');
+		delete_transient('emsfb_addons_renew_backoff');
+		delete_option('emsfb_addons_dl_failures');
+		delete_transient('emsfb_addons_dl_backoff');
+		if ( ! wp_next_scheduled( 'emsfb_download_addons_cron' ) ) {
+			wp_schedule_single_event( time() + 5, 'emsfb_download_addons_cron' );
 		}
 
 	}
@@ -2579,7 +2602,7 @@ public function addon_add_efb($value) {
 		$domain = untrailingslashit( EMSFB_SERVER_URL );
         $u =   $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
 		$fallback_u = '';
-        if (get_locale() == 'fa_IR') {
+        if (get_locale() == 'fa_IR' && EFB_Path_IR) {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
 			$fallback_u =  $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
         }
@@ -2649,6 +2672,13 @@ public function addon_add_efb($value) {
 			}
 
             if ($data->status == false) {
+				if (isset($data->reason) && $data->reason == 'expired') {
+					update_option('emsfb_addons_renew_required', time());
+					set_transient('emsfb_addons_renew_backoff', 1, DAY_IN_SECONDS);
+					$renew_url = isset($data->renew) ? esc_url_raw($data->renew) : EMSFB_SERVER_URL . '/register-costumer?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', ''));
+					$error_message = esc_html__('Your Easy Form Builder Pro subscription has expired, so the Pro add-ons could not be downloaded. The plugin keeps working without them. Renew your subscription to restore all Pro features:', 'easy-form-builder') . ' ' . $renew_url;
+					return array('status' => false, 'message' => $error_message, 'expired' => true);
+				}
 				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
 				$error_message = sprintf($error_message, 'whitestudio.team', 'invalid_status');
                 return array('status' => false, 'message' => $error_message);
@@ -2672,6 +2702,13 @@ public function addon_add_efb($value) {
                 }
 				update_option($name_space, 1);
                 $success = true;
+            } else {
+                $attempt++;
+                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
+                $error_message = sprintf($error_message, 'whitestudio.team', 'download_unavailable');
+                if ($attempt >= $max_attempts) {
+                    return array('status' => false, 'message' => $error_message);
+                }
             }
         }
 
@@ -2783,8 +2820,10 @@ public function addon_add_efb($value) {
 		$addons['AdnGoS']	=	isset($settings->AdnGoS)	? $settings->AdnGoS	:0;
 		$addons['AdnPAP']	=	isset($settings->AdnPAP)	? $settings->AdnPAP	:0;
 		$addons['AdnOF']	=	isset($settings->AdnOF)		? $settings->AdnOF	:0;
+		$addons['AdnSMF']	=	isset($settings->AdnSMF)	? $settings->AdnSMF	:0;
 
 		$error_messag ='';
+		$renew_required = false;
 		foreach ($addons as $key => $value) {
 
 			if($value ==1){
@@ -2803,9 +2842,25 @@ public function addon_add_efb($value) {
 				}
 				if($r['status']==false){
 					$state=false;
+					if(!empty($r['expired'])){
+						// keep looping: free add-ons later in the list must still be restored
+						$renew_required = true;
+						continue;
+					}
 					$error_messag .= $r['message']."<br>";
 				}
 			}
+		}
+
+		if($renew_required){
+			// Subscription expired: the whitestudio.team server refuses the downloads and
+			// notifies the customer by email itself, so no report email is needed here.
+			return false;
+		}
+
+		if($state==false){
+			update_option('emsfb_addons_dl_failures', (int) get_option('emsfb_addons_dl_failures', 0) + 1);
+			set_transient('emsfb_addons_dl_backoff', 1, DAY_IN_SECONDS);
 		}
 
 		if($state==false){
@@ -2824,6 +2879,11 @@ public function addon_add_efb($value) {
 			}
 			return false;
 		}
+
+			delete_option('emsfb_addons_renew_required');
+			delete_transient('emsfb_addons_renew_backoff');
+			delete_option('emsfb_addons_dl_failures');
+			delete_transient('emsfb_addons_dl_backoff');
 
             return true;
 
@@ -3436,9 +3496,11 @@ public function addon_add_efb($value) {
 			if(!is_object($st)){ $st = new \stdClass(); }
 			$st->activeCode = $activeCode;
 			$this->setting_version_efb_update($st,1);
+			$this->resume_addon_downloads_efb();
 			return true;
 		}elseif($state=="active") {
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
+			$this->resume_addon_downloads_efb();
 			return true;
 		}elseif ($state=="deactive") {
 			update_option('emsfb_pro' , 0);

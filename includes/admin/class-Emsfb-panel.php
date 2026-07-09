@@ -124,10 +124,14 @@ class Panel_edit  {
 					}
 			}
 
-				if($download_addons==true){
+				if($download_addons==true && (int) get_option('emsfb_addons_renew_required', 0) === 0 && (int) get_option('emsfb_addons_dl_failures', 0) < 3){
 					print $efbFunction->update_message_admin_side_efb();
 					$efbFunction->flush_addon_wait_message_efb();
-					$efbFunction->download_all_addons_efb();
+					$downloaded = $efbFunction->download_all_addons_efb();
+					if ($downloaded || get_option('emsfb_addons_renew_required')) {
+						print '<script>window.location.reload();</script>';
+						$efbFunction->flush_addon_wait_message_efb();
+					}
 				 	return;
 
 				}
