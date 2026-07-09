@@ -350,6 +350,16 @@ class Admin {
             return;
         }
 
+        $package_type = (is_object($ac) && isset($ac->package_type)) ? intval($ac->package_type) : intval(get_option('emsfb_pro', 2));
+        if ('AdnSMF' === $post_value && !in_array($package_type, [1, 3], true)) {
+            $response = [
+                'success' => false,
+                'm'       => esc_html__('Want to use this feature? It is included in Free Plus and Pro plans.', 'easy-form-builder'),
+            ];
+            wp_send_json_error($response, 200);
+            return;
+        }
+
         if (!emsfb_is_addon_install_ready_efb()) {
             $status = emsfb_get_file_access_status_efb();
             $m = $status ? ($status['error_message'] ?? $status['current_message']) : esc_html__('File access status not checked yet. Please wait.', 'easy-form-builder');

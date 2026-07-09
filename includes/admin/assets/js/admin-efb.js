@@ -5,7 +5,7 @@ let exportJson_ws = [];
 let pro_ws_efb = false;
 let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
-const efb_version = 4;
+const efb_version = 4.1;
 let wpbakery_emsFormBuilder =false;
 let pro_price_efb =27;
 let heartbeat_efb_active =false;
@@ -108,7 +108,7 @@ function fun_default_addons_efb_admin() {
     {id:9, name:'AdnATF', title:'TAdnAtF', desc:'DAdnAtF', icon:'bi-database-add', link:'', download:true, pro:true, state:true, tag:'data form', version:0.1, v_required:4.0, package:1},
     {id:8, name:'AdnPAP', title:'payPalTAddon', desc:'payPalDAddon', icon:'bi-paypal', link:'', download:true, pro:true, state:true, tag:'form pay payment', version:0.1, v_required:4.0, package:1},
     {id:8, name:'AdnTLG', title:'tlgmAddon', desc:'tlgmDAddon', icon:'bi-telegram', link:'', download:true, pro:true, state:true, tag:'form social notification integrate', version:0.1, v_required:4.0, package:1},
-    {id:10, name:'AdnSMF', title:'condATAddon', desc:'condADAddon', icon:'bi-diagram-3', link:'', download:true, pro:true, state:true, tag:'form logic conditional smart', version:0.1, v_required:4.0, package:1},
+    {id:10, name:'AdnSMF', title:'condATAddon', desc:'condADAddon', icon:'bi-diagram-3', link:'', download:true, pro:false, state:true, tag:'form logic conditional smart', version:0.1, v_required:4.0, package:3},
   ];
 }
 
@@ -700,26 +700,33 @@ createCardAddoneEfb = (i) => {
 
   tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);;
 
+  const packageType = setting_emsFormBuilder.package_type != undefined ? Number(setting_emsFormBuilder.package_type) : 2;
+  const isInstalled = efb_var.setting[i.name] == 1;
+  const canInstallAddon = i.name === 'AdnOF'
+    || (i.name === 'AdnSMF' && [1, 3].includes(packageType))
+    || (i.name !== 'AdnSMF' && i.pro != true)
+    || (i.pro == true && packageType === 1);
+  const isLockedAddon = !isInstalled && !canInstallAddon;
+
   let funNtn =   `funBTNAddOnsEFB('${i.name}','${i.v_required}')`;
   let nameNtn = efb_var.text.install;
   let iconNtn = 'bi-download';
   let colorNtn = 'btn-primary';
-
-  if ((i.pro == true &&   Number(setting_emsFormBuilder.package_type) === 2) || Number(setting_emsFormBuilder.package_type) === 3) {
-    funNtn=`pro_show_efb(1)`;
-    nameNtn = efb_var.text.pro;
-    iconNtn ='bi-gem';
-    colorNtn = 'btn-warning';
-  }else if (efb_var.setting[i.name]== 1 ){
+  if (isInstalled){
     funNtn=`funBTNAddOnsUnEFB('${i.name}')`;
     nameNtn = efb_var.text.remove;
     iconNtn ='';
     colorNtn = 'btn-secondary';
+  }else if (isLockedAddon) {
+    funNtn=`pro_show_efb(${i.name === 'AdnSMF' ? 3 : 1})`;
+    nameNtn = efb_var.text.pro;
+    iconNtn ='bi-gem';
+    colorNtn = 'btn-warning';
   }
 
   return `
   <div class="efb tag mt-0 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
-  ${i.pro == true && efb_var.pro != true ? funProEfb() : ''}
+  ${isLockedAddon ? funProEfb() : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
   <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
@@ -4343,7 +4350,7 @@ funBTNAddOnsEFB=(val,v_required)=>{
     }
     return true;
   }
-
+  console.log('efb_version', efb_version, 'v_required', v_required);
  if(efb_version>=v_required){
   if(check_ar_pr(val)==true){
     addons_btn_state_efb(val);
@@ -4356,9 +4363,9 @@ funBTNAddOnsEFB=(val,v_required)=>{
  }else{
 
   alert_message_efb(efb_var.text.error, efb_var.text.upDMsg,30,'warning');
-  setTimeout(() => {
+/*   setTimeout(() => {
     location.reload();
-  }, 3000);
+  }, 3000); */
  }
 }
 
