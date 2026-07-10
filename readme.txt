@@ -123,7 +123,7 @@ Login and registration forms integrate with WordPress user management and allow 
 
  Easy Form Builder provides a wide collection of advanced form fields, including:
 
-- Drag and drop file upload fields
+- Drag-and-drop file upload fields
 - Signature (e-signature) fields
 - Location picker fields (OpenStreetMap and LeafletJS)
 - Country, state/province, and city dropdown fields
@@ -168,7 +168,7 @@ These fields allow you to build complex, region-aware, and structured forms with
  [Easy Form Builder is available in multiple versions](https://whitestudio.team/document/easy-form-builder-free-plus-activation-guide/) to support different usage needs. Each version is designed to provide a clear and predictable set of features.
 
 = Free Version =
-The Free version provides essential form-building tools. It is suitable for users who need reliable form creation with email notifications, confirmation codes, entry management, file uploads, and basic surveys fields.
+The Free version provides essential form-building tools. It is suitable for users who need reliable form creation with email notifications, confirmation codes, entry management, file uploads, and basic survey fields.
 
 This version is suitable for personal websites, blogs, and small business sites.
 
@@ -191,9 +191,9 @@ As of this release, we have partnered with the following WordPress plugins:
 == Frequently Asked Questions ==
 
 = What is Easy Form Builder used for? =
-It is a WordPress form plugin used to create contact forms, survey forms, payment forms,subscription forms and login or registration forms using a drag-and-drop form builder.
+It is a WordPress form plugin used to create contact forms, survey forms, payment forms,subscription forms, and login or registration forms using a drag-and-drop form builder.
 
-= Is Easy Form Builder WCAG(ADA) compliant? =
+= Is Easy Form Builder WCAG (ADA) compliant? =
 Form Builder has tried to add necessary standards to the forms, making them accessible to individuals with disabilities during form display.
 
  = Is my form data sent to external services? =
@@ -250,7 +250,7 @@ If you notice any missing entries, incorrect names, or data issues related to co
 No personal or form submission data is sent to this external source. The CDN is used only to retrieve static geographic lists required for form fields.
 
 = Where can I find documentation and support? =
-For full setup instructions, and guides visit [ Easy Form Builder Documentation](https://whitestudio.team/documents)
+For full setup instructions and guides, visit [ Easy Form Builder Documentation](https://whitestudio.team/documents)
 
 = What are the different confirmation code styles and how do I customize confirmation code (or tracking code) in my WordPress form submissions? =
 Easy Form Builder WordPress plugin includes seven confirmation code (or tracking code) styles with locale-aware character support for submitted forms. Each tracking ID style can use characters from 55+ languages including Chinese, Japanese, Korean, Russian, Hebrew, Hindi, Persian, Arabic, Bengali, Gujarati, Punjabi, Tamil, Telugu, Kannada, Malayalam, Greek, Thai, Khmer, Lao, Myanmar, Georgian, Armenian, and more.
@@ -274,11 +274,11 @@ If your theme uses Bootstrap, go to “Easy Form Builder” → “Settings” a
 
 1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
 2. Navigate to Dashboard → “Plugins” → “Add New” → “Upload Plugin” → select *Easy Form Builder* zip file then “Activate”.
-3. In the menu bar, navigate to “Easy Form Builder” → “Settings'' → “Add Google reCAPTCHA keys”
+3. In the menu bar, navigate to “Easy Form Builder” → “Settings” → “Add Google reCAPTCHA keys”
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
 
 
-= Development Google captcha Keys for LOCALHOST =
+= Development Google reCAPTCHA keys for localhost =
 
 **Site key:** `6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI`
 **Secret key:** `6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe`
@@ -302,10 +302,10 @@ For more information, visit the official website:
 4. Panel of Easy Form Builder
 5. List of responses
 6. Setting of Easy Form Builder
-7. Present chart of poll
-8. Form submitted and Confirmation Code (tracking pixels)
+7. Display poll chart
+8. Form submitted and Confirmation Code (tracking code)
 9. Create a contact us form
-10. Localization Easy Form Builder to your language
+10. Translate Easy Form Builder into your language
 11. Email template Editor of Easy Form Builder
 12. Order payment forms
 13. Configuration Response box of Easy Form Builder
@@ -318,7 +318,7 @@ For more information, visit the official website:
 == Upgrade Notice ==
 
 = 4.0.0 =
-Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official addons will be update to their latest versions.
+Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official add-ons will be updated to their latest versions.
 **Backup your site before updating. Not backward-compatible with v3.x addons.**
 
 
@@ -365,7 +365,7 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * Fixed issues
 
 = 4.0.0 =
-Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official addons will be update to their latest versions.
+Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official add-ons will be updated to their latest versions.
 **Backup your site before updating. Not backward-compatible with v3.x addons.**
 
 = 3.8.22 =
@@ -421,13 +421,13 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = 3.8.4 =
 
-* Fixed issues of UI Easy Form Builder
+* Fixed UI issues in Easy Form Builder
 
 = 3.8.3 =
 
 * Fixed issues
 
-* Fixed issues of UI Easy Form Builder
+* Fixed UI issues in Easy Form Builder
 
 = 3.8.2 =
 = 3.8.1 =
@@ -437,7 +437,7 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = 3.8.0 =
 
-* Improvement of the location Picker feature for the form and changing the service provider to OpenStreetMap.
+* Improvement of the location picker feature for the form and changing the service provider to OpenStreetMap.
 
 * Fixed issues
 
@@ -462,7 +462,7 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = 3.7.30 =
 * Improved Security of Easy Form Builder
-* Change the default response state by the admin to require admin login.
+* Changed the default response state to require admin login.
 
 = 3.7.29 =
 = 3.7.28 =
@@ -474,47 +474,47 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * Resolved issues related to sending email notifications for forms.
 
 = 3.7.26 =
-* Fixed issues of UI Easy Form Builder
+* Fixed UI issues in Easy Form Builder
 * Added new feature: 'terms input field' to form builder.
 
 = 3.7.25 =
-* Fixed issues of UI Easy Form Builder
+* Fixed UI issues in Easy Form Builder
 
 = 3.7.24 =
-* Fixed issues of UI Easy Form Builder
-* Resolved Google ReCaptcha loading issues in Easy Form Builder's forms.
+* Fixed UI issues in Easy Form Builder
+* Resolved Google reCAPTCHA loading issues in Easy Form Builder's forms.
 
 
 = 3.7.21 =
-* CAPTCHA Issue Present Resolved on Edit Form on Easy Form Builder Panel page
+* Resolved CAPTCHA issue present on the Edit Form page in Easy Form Builder Panel.
 * Admins Can Now Add Responses Without Logging In
 * "Select All" Checkbox Added for Messages Section on Easy Form Builder Panel
 * Delete Button Added to Message Section on Easy Form Builder Panel 
 * "Read" Button Added to Message Section on Easy Form Builder Panel 
 * Resolved issues with changing phone number in settings.
-* Fixed issues of UI Easy Form Builder
+* Fixed UI issues in Easy Form Builder
 
 
 = 3.7.20 =
-* Fixed issues of UI Easy Form Builder
+* Fixed UI issues in Easy Form Builder
 
 = 3.7.19 =
 
-* Fixed issues of UI Easy Form Builder
+* Fixed UI issues in Easy Form Builder
 
 = 3.7.18 =
 
-* Fixed issues of UI Easy Form Builder
+* Fixed UI issues in Easy Form Builder
 
 * Resolved issues related to sending email notifications for forms.
 
 = 3.7.17 =
 
-* Fixed issues of UI Easy Form Builder
+* Fixed UI issues in Easy Form Builder
 
 = 3.7.16 =
 
-* Fixed issues of UI Easy Form Builder
+* Fixed UI issues in Easy Form Builder
 
 = 3.7.15 =
 
