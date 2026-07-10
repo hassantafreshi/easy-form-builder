@@ -340,7 +340,7 @@ echo "Form ID: {$form_id}\n";
 echo "Shortcode: {$shortcode}\n";
 echo "Test page: " . get_permalink($page_id) . "\n";
 echo "Builder: " . admin_url('admin.php?page=easy-form-builder') . " -> edit form {$form_id} -> Form Settings -> Conditional Logic -> Test Mode\n";
-echo "Conditional Logic addon AdnSMF active: " . ($logic_addon_active ? 'yes' : 'no') . "\n\n";
+echo "Conditional Logic add-on AdnSMF active: " . ($logic_addon_active ? 'yes' : 'no') . "\n\n";
 echo "Guide mapping (docs/conditional-logic/EFB-Conditional-Logic-MANUAL-TEST-GUIDE.fa.md §2):\n";
 echo "  2.2 Matched:  customer_type=Business -> R1 Matched (Show/Required vat_number)\n";
 echo "  2.3 Not matched: customer_type=Personal -> R1 Not matched\n";

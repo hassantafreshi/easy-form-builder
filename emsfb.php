@@ -216,7 +216,7 @@ function emsfb_check_file_access_efb() {
 
     if ($status && file_exists($vendor_path)) {
         $test_file = $vendor_path . '/test_write_efb.txt';
-        $test_content = 'EFB addon test';
+        $test_content = 'EFB add-on test';
 
         if (@file_put_contents($test_file, $test_content) === false) {
             $status = false;
