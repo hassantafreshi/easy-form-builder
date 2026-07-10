@@ -1529,6 +1529,7 @@ div#sideBoxEfb {	height: 100vh;
 	opacity: 1;
 	transform: translateY(0);
 	pointer-events: auto;
+   z-index: auto;
 }
 a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 }

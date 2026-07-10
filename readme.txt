@@ -1,18 +1,18 @@
-=== Easy Form Builder by WhiteStudio — Drag & Drop Form Builder ===
+=== Easy Form Builder by WhiteStudio - Drag & Drop Form Builder ===
 Contributors: hassantafreshi, mostafas1990, 6arshid, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
-Tags: form builder, form plugin, multi step form, survey form, payment form
+Tags: form builder, form plugin, multi step form, email templates, payment form
 Requires at least: 5.0
-Tested up to: 6.9
+Tested up to: 7.0
 Stable tag: 4.1.0
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
-Create flexible contact forms, survey forms, payment forms, and user authentication forms using a drag-and-drop form builder plugin for WordPress.
+Create contact, survey, payment, and login forms with drag-and-drop, free email notification templates, and conditional logic.
 
 == Description ==
 
- Easy Form Builder is a comprehensive WordPress form plugin designed to help website owners create, manage, and maintain a wide variety of forms using a visual drag-and-drop form builder interface. The plugin is suitable for users who want to build professional forms without writing code, while still keeping full control over form data, submissions, and communication workflows.
+ Easy Form Builder is a comprehensive WordPress form plugin designed to help website owners create, manage, and maintain a wide variety of forms using a visual drag-and-drop form builder interface. The plugin is suitable for users who want to build professional forms without writing code, while still keeping full control over form data, submissions, and communication workflows, including free custom email notification templates with a built-in visual editor.
 
 This form builder plugin can be used to create contact forms, support request forms, survey and feedback forms, payment forms using Stripe, subscription forms and custom login or registration forms for WordPress users. All form data is stored directly on your WordPress website, ensuring transparency, data ownership, and predictable behavior.
 
@@ -35,6 +35,7 @@ With Easy Form Builder, you can use a single form plugin to build and manage mul
 - File upload forms
 - Private or restricted-access forms
 - Multi-step forms for improved usability
+- Smart forms with conditional logic that show or hide fields based on user answers
 - Electronic signature forms for contracts and agreements
 - Location picker forms for address and map selection
 - Custom email notification templates with a built-in visual editor
@@ -52,6 +53,10 @@ The plugin includes a visual drag-and-drop form builder. Fields can be added, re
 
 = Email Notification =
 Easy Form Builder supports automatic email notifications after a form is submitted. Notifications can be sent to administrators, form managers, or users. Email templates can be customized to control the message content and layout.
+
+Custom email notification templates are included for free. The built-in visual editor lets you design clear, branded WordPress form notification emails without writing HTML code. You can customize the email subject, message body, layout, and submission details so each contact form, survey form, payment form, registration form, or support form can send a professional email notification that matches your website and workflow.
+
+To help you keep WordPress form notifications reliable, Easy Form Builder includes an email delivery status check that confirms your WordPress site and the form builder can send notification emails successfully. The Easy Form Builder dashboard widget also shows useful form activity insights, including page views for pages containing forms, completed form submissions, sent email counts, failed email counts, and an **Email Error Log** button where you can review any email sending errors when needed.
 
 For detailed setup instructions, see:
 [How to set up form notification emails in Easy Form Builder](https://whitestudio.team/document/how-to-set-up-form-notification-emails-in-easy-form-builder/)
@@ -95,6 +100,24 @@ Survey-related features include:
 - Exporting survey responses to CSV format
 
 Survey forms can be used for customer feedback, research, evaluations, and internal assessments.
+
+
+== Conditional Logic - Show or Hide Fields Based on User Answers ==
+
+Easy Form Builder includes a visual conditional logic builder that turns static forms into smart forms. Conditional logic (also known as conditional fields) lets a form react to what a visitor enters, so each user only sees the fields that are relevant to them. Shorter, more personal forms reduce form abandonment and improve completion rates.
+
+With conditional logic you can:
+
+- Show or hide fields based on a user's answer
+- Show or hide entire steps in multi-step forms
+- Make fields required or optional dynamically
+- Set, copy, or clear field values automatically
+- Jump to a specific step (skip logic and conditional branching)
+- Send conditional email notifications to different recipients based on the submitted answers
+
+Conditions support text, choice, numeric, and date comparisons (is, is not, contains, greater than, less than, between, before, after) and can be combined with AND/OR groups. Rules are enforced on the server as well as in the browser, so hidden or disabled fields are validated and sanitized correctly - conditional logic is not just a front-end effect.
+
+Conditional logic is available at no cost in the Free Plus version: up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules, with an in-builder Test mode. The Pro version removes these limits and adds nested AND/OR groups, calculations, rule priority, conditional thank-you messages and redirects, conditional webhooks, rule export/import, and the logic Inspector (debugger).
 
 
 == Payment Forms with Stripe ==
@@ -143,6 +166,8 @@ These fields allow you to build complex, region-aware, and structured forms with
 
  Easy Form Builder supports optional integrations and add-ons that extend the functionality of the form plugin:
 
+- Conditional Logic add-on for building smart forms - show or hide fields and steps, send conditional email notifications, and (in Pro) trigger conditional redirects and webhooks based on user answers. Included at no cost with the Free Plus version
+
 - SMS notification add-on for sending text messages on form submission
 
 - Stripe add-on for extended payment workflows
@@ -155,12 +180,31 @@ These fields allow you to build complex, region-aware, and structured forms with
 
 - Jalali (Shamsi) date picker add-on
 
-- Autofill add-on for auto-completing form fields based on user input using internal datasets (CSV) or external API connections
+- Auto-Populate Integrations add-on (Autofill) for auto-filling form fields with real-time data from an external API - with API Key, Bearer Token, or Basic Auth authentication, response-to-field mapping, a built-in connection test, and smart caching
 
 - Telegram notification add-on for sending instant form submission alerts and admin response notifications to Telegram using a bot
 
 - Shield Security plugin silentCAPTCHA integration for invisible bot and spam protection without user interaction
 
+
+
+== Premium Features Included Free ==
+
+Many WordPress form plugins only offer these features in a paid plan. In Easy Form Builder, they are included at no cost:
+
+- Form entries stored in your own WordPress database, with a full entry management dashboard (Free)
+- Email notifications after each form submission (Free)
+- Custom email notification templates with a built-in visual editor for branded WordPress form emails (Free)
+- File upload forms (Free)
+- Confirmation code (tracking ID) for every submission (Free)
+- Multi-step forms (Free)
+- Basic survey and poll fields (Free)
+- Conditional logic to show or hide fields based on answers (Free Plus)
+- Advanced fields such as signature, location picker, matrix and table, range slider, and more (Free Plus)
+- Exporting form entries to CSV and downloading responses as PDF (Free Plus)
+- Automated weekly email deliverability test with spam score and SPF/DKIM/DMARC checks (Free Plus)
+
+The Free Plus version is completely free of charge - the only difference is a small "Powered by Easy Form Builder" link and credit, included only in the content of the page where the form is published.
 
 
 == Available Versions ==
@@ -173,14 +217,14 @@ The Free version provides essential form-building tools. It is suitable for user
 This version is suitable for personal websites, blogs, and small business sites.
 
 = Free Plus Version =
-The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder, while excluding external add-ons.
+The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder, while excluding external add-ons. It also unlocks conditional logic at no cost - up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules - plus CSV export and the weekly email deliverability report.
 
-This version is suitable for users who need advanced form layouts and surveys without add-on-based extensions. A small “Powered by Easy Form Builder” credit is displayed on the form output.
+This version is suitable for users who need advanced form layouts, smart conditional forms, and surveys without add-on-based extensions. A small "Powered by Easy Form Builder" credit is displayed on the form output.
 
 = Pro Version =
-The Pro version includes all Free Plus features and adds support for official add-ons and integrations.
+The Pro version includes all Free Plus features and adds support for official add-ons and integrations. For conditional logic, Pro removes all rule limits and adds nested AND/OR groups, calculations, rule priority, conditional thank-you messages and redirects, conditional webhooks, rule export/import, and the logic Inspector (debugger).
 
-This version is suitable for professional websites, service platforms, and projects that require extended workflows such as SMS notifications, payment forms, and advanced integrations.
+This version is suitable for professional websites, service platforms, and projects that require extended workflows such as SMS notifications, payment forms, conditional workflows, and advanced integrations.
 
 
 As of this release, we have partnered with the following WordPress plugins:
@@ -205,6 +249,12 @@ No. All forms can be created visually without writing code.
 = Does Easy Form Builder support email notifications? =
 Yes. Email notifications can be sent automatically after form submission.
 [How to set up form notification emails in Easy Form Builder](https://whitestudio.team/document/how-to-set-up-form-notification-emails-in-easy-form-builder/)
+
+= Are custom email notification templates free? =
+Yes. Easy Form Builder includes free custom email notification templates with a built-in visual editor. You can create and customize WordPress form email templates for admin notifications, user confirmations, support requests, surveys, registrations, and payment forms without coding or editing HTML manually.
+
+= Does Easy Form Builder include an email log and delivery status check? =
+Yes. Easy Form Builder includes a free email delivery status check and email activity log to help you confirm that WordPress form notification emails are being sent successfully. The email test sends a real test message, checks delivery status, gives a clear score and grade, and emails a complete report to the site admin with delivery details, spam score, SPF/DKIM/DMARC checks, and recommendations when improvements are needed. The Easy Form Builder dashboard widget also shows sent emails, failed emails, form submissions, page views for pages containing forms, and an Email Error Log for reviewing email sending errors.
 
 = What is a confirmation code in Easy Form Builder? =
 A confirmation code is a unique tracking ID generated for each form submission.
@@ -232,6 +282,30 @@ Yes. The form builder includes survey and poll fields such as rating stars and N
 = Does Easy Form Builder include ready-made form templates? =
 Yes. The plugin comes with pre-built templates for contact forms, reservation forms, job applications, event registrations, booking forms, quote requests, order forms, and more.
 
+
+= Does Easy Form Builder support conditional logic? =
+Yes. Easy Form Builder includes a visual conditional logic builder. You can show or hide fields and steps, make fields required or optional dynamically, set or clear values, jump to a specific step (skip logic), and send conditional email notifications - all without writing code. Conditional rules are also enforced on the server, so hidden fields are validated and sanitized correctly.
+
+= Is conditional logic free? =
+Yes. Conditional logic is available at no cost in the Free Plus version, which includes up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules. The Pro version removes these limits and adds nested AND/OR groups, calculations, conditional redirects and thank-you messages, conditional webhooks, and the logic Inspector.
+
+= Can I show or hide form fields based on a user's answer? =
+Yes. Conditional fields are the core of the conditional logic builder: choose a condition (for example, "Plan is Enterprise") and an action (for example, "show the Budget field"), and the form updates in real time while the visitor fills it in.
+
+= Can I send form notification emails to different recipients based on the answers? =
+Yes. Conditional email notifications let you route each submission to the right person or team - for example, sales versus support - based on what the visitor selected in the form.
+
+= Does conditional logic work with multi-step forms? =
+Yes. You can show, hide, or skip entire steps and jump directly to a specific step (conditional branching), with correct Back/Next behavior and validation for hidden or skipped steps.
+
+= Can Easy Form Builder auto-populate form fields? =
+Yes. The Auto-Populate (Autofill) add-on can fill form fields automatically instead of asking visitors to type information you already have. Fields can be dynamically populated from your own datasets (CSV) with Auto-Populate Dataset, or from an external API with Auto-Populate Integrations. Both are official add-ons available in the Pro version.
+
+= Can I populate form fields from a CSV file or my own dataset? =
+Yes. With Auto-Populate Dataset, you upload a CSV file (UTF-8 with column headers in the first row) and connect it to a form. Form elements are mapped to dataset fields as search conditions, and the matching dataset columns automatically populate the target fields. Multiple fields can auto-populate from the same dataset, dataset values can be edited inline, and changes take effect immediately for new submissions.
+
+= Can I auto-fill form fields from an external API? =
+Yes. Auto-Populate Integrations connects a form to an external API endpoint and fills fields with real-time data. It supports API Key, Bearer Token, and Basic Auth authentication, lets you map API response fields to your form fields, includes a built-in test tool to verify the connection, and offers caching and timeout settings so forms keep loading fast.
 
 = Does Easy Form Builder support recurring payments? =
 Yes. The payment fields support one-time, daily, weekly, monthly, and yearly billing options for subscription and recurring payment forms. You can create payment forms using Stripe or PayPal to accept online payments directly through your WordPress forms. Both payment gateways are available as add-ons and can be configured from the Easy Form Builder settings.
@@ -270,11 +344,11 @@ In the Easy Form Builder plugin settings, you can choose your preferred confirma
 == Installation ==
 
 **Bootstrap Notice:**
-If your theme uses Bootstrap, go to “Easy Form Builder” → “Settings” and enable the Bootstrap option.
+If your theme uses Bootstrap, go to "Easy Form Builder" → "Settings" and enable the Bootstrap option.
 
 1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
-2. Navigate to Dashboard → “Plugins” → “Add New” → “Upload Plugin” → select *Easy Form Builder* zip file then “Activate”.
-3. In the menu bar, navigate to “Easy Form Builder” → “Settings” → “Add Google reCAPTCHA keys”
+2. Navigate to Dashboard → "Plugins" → "Add New" → "Upload Plugin" → select *Easy Form Builder* zip file then "Activate".
+3. In the menu bar, navigate to "Easy Form Builder" → "Settings" → "Add Google reCAPTCHA keys"
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
 
 
@@ -292,7 +366,7 @@ For setup guides, tutorials, and feature walkthroughs, visit the official docume
 [Easy Form Builder Documentation](https://whitestudio.team/documents)
 
 For more information, visit the official website:
-[WhiteStudio – Easy Form Builder](https://whitestudio.team)
+[WhiteStudio - Easy Form Builder](https://whitestudio.team)
 
 == Screenshots ==
 
@@ -313,16 +387,48 @@ For more information, visit the official website:
 15. SMS configuration of Easy Form Builder
 16. Confirmation Code Search Field
 17. WordPress Support Ticket Conversation and Reply Form
+18. Easy Form Builder Dashboard Widget with email delivery status, form page views, completed submissions, sent and failed email counts, and Email Error Log
 
 
 == Upgrade Notice ==
 
+= 4.1.0 =
+Big update: a new no-code Conditional Logic Builder for smart forms, an AI-analyzed email deliverability monitor (spam score + SPF/DKIM/DMARC) with weekly reports, multiple file uploads, form-builder autosave, session/nonce hardening for cached pages, automatic CDN failover, and several security fixes. Tested up to WordPress 7.0
+
 = 4.0.0 =
-Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official add-ons will be updated to their latest versions.
+
+Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured - all official add-ons will be updated to their latest versions.
+
 **Backup your site before updating. Not backward-compatible with v3.x addons.**
 
 
 == Changelog ==
+
+= 4.1.0 =
+
+* New: Visual Conditional Logic Builder - build smart forms without code. Show or hide fields and steps, set/copy/clear values, jump to a step, dynamically change required/optional, run basic calculations, and combine conditions with numeric/date operators and nested AND/OR groups.
+
+* New: Conditional workflows - route submissions with conditional email notifications, show a different thank-you message or redirect, and fire webhooks only when your conditions are met. Includes an in-builder Test mode and Inspector.
+
+* New: Automated email deliverability monitor - sends a real test email through your server and verifies actual delivery (not just "sent") on activation, after each update, and weekly.
+
+* New: AI-analyzed email deliverability report - the test email is inspected on the WhiteStudio server and analyzed with AI to produce a plain-language diagnosis, including a deliverability score, spam-score analysis (SpamAssassin), SPF/DKIM/DMARC authentication checks, delivery details, likely causes, and actionable recommendations, delivered to your admin email.
+
+* New: One-click email test with live step-by-step progress and an instant deliverability score and grade, plus a weekly form activity digest (forms, page views, submissions, emails sent/failed).
+
+* New: Multiple file uploads with improved upload progress feedback.
+
+* New: Form builder autosave - never lose your work while designing a form.
+
+* Improved: Session management and nonce refresh so forms served from cached pages stay valid and submittable.
+
+* Improved: Smarter add-on management with automatic CDN failover and more resilient add-on downloads (retry, resume, and subscription handling).
+
+* Security: Per-IP throttling for tracking-code lookups, an expanded list of blocked upload file extensions, a capability check for form preview, and hardened Google reCAPTCHA verification.
+
+* Fixed: Guard against fatal errors on hosts that disable certain PHP functions.
+
+* Tested up to WordPress 7.0.2
 
 = 4.0.6 =
 
@@ -365,7 +471,9 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * Fixed issues
 
 = 4.0.0 =
-Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured — all official add-ons will be updated to their latest versions.
+
+Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured - all official add-ons will be updated to their latest versions.
+
 **Backup your site before updating. Not backward-compatible with v3.x addons.**
 
 = 3.8.22 =
