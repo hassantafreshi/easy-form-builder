@@ -3584,6 +3584,7 @@ public function check_nonce_permission_efb($request) {
 			$response = array( 'success' => false , "m"=>$this->lanText['nAllowedUseHtml']);
 			wp_send_json_success($response,200);
 		}
+		 $page_id = isset($data_POST['page_id']) ? absint($data_POST['page_id']) : 0;
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
 		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id ,$cache_plugins);
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: get_setting_Emsfb('raw');
@@ -3813,7 +3814,7 @@ public function check_nonce_permission_efb($request) {
 
 					foreach($valn as $val){
 						if($val['type']=="mobile" && isset($val['smsnoti']) && intval($val['smsnoti'])==1){
-							array_push($have_noti_id,$val->id_);
+							array_push($have_noti_id,$val['id_']);
 						}
 					}
 
@@ -3826,7 +3827,8 @@ public function check_nonce_permission_efb($request) {
 					}
 				$tt = $rsp_by=='admin' ? 'respadmin' : 'resppa';
 				if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) {
-					$smsSendResult = $efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,$setting->sms_config ,$track);
+					// Delivery always goes through WP-SMS for now; ws.team has no gateway implementation yet
+					$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,'wpsms' ,$track);
 					if($smsSendResult !== true) {
 						$m =  $this->lanText['msgSndBut'];
 						$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
@@ -4471,7 +4473,7 @@ public function check_nonce_permission_efb($request) {
 				die("secure!");
 		}
 		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {
-			 $efbFunction->download_all_addons_efb();
+			 $this->efbFunction->download_all_addons_efb();
 			 return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");

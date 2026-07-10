@@ -1,280 +1,651 @@
-# EFB Quiz Form Addon - رودمپ کامل افزودنی فرم آزمون و تستی
+# EFB Quiz Form Addon - رودمپ کامل افزودنی فرم آزمون
 
-**Keywords / کلمات کلیدی:** Easy Form Builder quiz addon, فرم آزمون وردپرس, فرم امتحانی, فرم تستی, آزمون آنلاین, نمره‌دهی خودکار, quiz scoring, exam form, timer آزمون, بانک سوال, نمره منفی, کارنامه, pass fail, گواهینامه PDF, question randomization.
+**Keywords / کلمات کلیدی:** Easy Form Builder quiz addon, فرم آزمون وردپرس, فرم امتحانی, فرم تستی, آزمون آنلاین, نمره‌دهی خودکار, quiz scoring, exam form, online exam, timer آزمون, بانک سوال, نمره منفی, کارنامه, pass fail, گواهینامه PDF, leaderboard, question randomization.
 
-> [فهرست مستندات](../README.md) · [Calculation Addon](../calculation/README.md) · [Conditional Logic](../conditional-logic/README.md)
+> [فهرست مستندات](../README.md) · [Conditional Logic](../conditional-logic/README.md) · [Calculation Addon](../calculation/README.md) · [Ticketing](../ticketing/README.md)
 
 ## خلاصه محصول
 
-افزودنی Quiz Form یک **نوع فرم جدید** به نام `quiz` به Easy Form Builder اضافه می‌کند که تمام نیازهای فرم‌های امتحانی، تستی و ارزیابی را پوشش می‌دهد: تعریف پاسخ صحیح، امتیازدهی خودکار سمت سرور، تایمر، مرتب‌سازی تصادفی سوال‌ها، محدودیت دفعات شرکت، کارنامه فوری، بازبینی پاسخ‌ها، نمره منفی، حد نصاب قبولی و گزارش تحلیلی برای ادمین.
+افزودنی Quiz یک افزودنی مستقل برای Easy Form Builder است که یک نوع فرم جدید به نام `quiz` اضافه می‌کند و فرم‌های معمولی EFB را به آزمون، تست، ارزیابی مهارت، آزمون شخصیت، آزمون استخدامی، آزمون آموزشی و آزمون پولی تبدیل می‌کند.
 
-**اصل طراحی:** این add-on باید به‌طور کامل در `vendor/quiz/` و فایل‌های مستقل خودش نوشته شود. هسته فعلی Easy Form Builder فقط در نقاط اتصال کوچکِ از-قبل-موجود لمس شود (ثبت کلید addon، بارگذاری شرطی فایل اصلی، فیلترهای موجود). اگر addon نصب یا فعال نباشد، فرم‌های فعلی، صفحه‌سازها و شورت‌کدهای موجود هیچ تغییری در رفتار نبینند.
+این افزودنی باید همه قابلیت‌های پایه فرم‌های فعلی را حفظ کند: صفحه‌سازها، شورت‌کد، قالب ایمیل، tracking code، captcha، فایل آپلود، payment، webhook، Google Sheets، Telegram/SMS/WhatsApp، Conditional Logic، multi-step، RTL، زبان‌ها، plan gating و ذخیره پاسخ‌ها در مسیر فعلی.
 
-## بررسی معماری فعلی — چرا بدون تغییر ساختار ممکن است
+اصل طراحی: Quiz باید تا حد ممکن در `vendor/quiz/` پیاده‌سازی شود. هسته فقط برای ثبت کلید افزودنی، بارگذاری شرطی، و در صورت نیاز یک یا دو hook عمومی کوچک لمس شود. اگر افزودنی غیرفعال باشد، هیچ فرم فعلی نباید تغییر رفتار، asset اضافه، جدول اضافه، endpoint اضافه یا خطای جدید داشته باشد.
 
-این بخش نتیجه بررسی دقیق کد نسخه 4.0.10 است و نشان می‌دهد زیرساخت لازم از قبل وجود دارد:
+## اهداف
 
-### 1. نوع فرم (form_type) از قبل توسعه‌پذیر است
+- افزودن نوع فرم `quiz` بدون migration اجباری روی جدول اصلی فرم‌ها.
+- امتیازدهی قابل اعتماد سمت سرور، بدون اتکا به نمره یا پاسخ صحیح در کلاینت.
+- کارنامه فوری، ایمیل نتیجه، نتیجه قابل استفاده در webhook/Google Sheets/Telegram/SMS.
+- پشتیبانی کامل از Conditional Logic برای نمایش/پرش سوال‌ها و اقدام‌های وابسته به نمره.
+- طراحی قابل رشد برای تایمر، محدودیت دفعات، بانک سوال، تصحیح دستی، آنالیتیکس، آزمون پولی، گواهینامه و leaderboard.
+- حفظ سازگاری کامل با صفحه‌سازهای Gutenberg، Elementor، WPBakery و Visual Composer از مسیر شورت‌کد موجود.
 
-- جدول `{prefix}emsfb_form` ستون `form_type varchar(15) DEFAULT 'form'` دارد (`includes/class-Emsfb-install.php:41`). نوع جدید `quiz` **بدون هیچ migration** در schema فعلی جا می‌شود.
-- نوع‌های فعلی: `form`, `payment`, `smart`, `login`, `register`, `subscribe`, `survey`. منطق نوع فرم هم در ستون DB و هم در عنصر `[0]` ساختار JSON فرم (`form_structer`) با کلید `type` نگهداری می‌شود.
-- ساختار فرم JSON آزاد است (`MEDIUMTEXT`)؛ متادیتای quiz مثل `quiz_settings` و پاسخ‌های صحیح مثل `logic_rules` افزودنی Conditional Logic، داخل همان JSON عنصر `[0]` و عناصر فیلدها ذخیره می‌شود — بدون ستون جدید.
+## غیرهدف‌ها
 
-### 2. الگوی بارگذاری افزودنی جاافتاده است
+- جایگزین کردن ساختار ذخیره‌سازی فرم یا submission در هسته.
+- تغییر رفتار فرم‌های `form`, `payment`, `login`, `register`, `subscribe`, `survey`, `smart`.
+- ارسال پاسخ صحیح به فرانت، حتی برای preview عمومی.
+- اجرای ضدتقلب سنگین یا intrusive در MVP. ضدتقلب باید مرحله‌ای و قابل خاموش‌کردن باشد.
+- ساخت LMS کامل. Quiz فقط فرم آزمون و نتیجه است، نه مدیریت دوره، درس و پیشرفت آموزشی کامل.
 
-- افزودنی‌ها در `vendor/<slug>/` قرار می‌گیرند و به‌صورت zip از سرور whitestudio.team نصب می‌شوند (صفحه Add-ons: `includes/admin/class-Emsfb-addon.php`).
-- فعال‌سازی با کلید `Adn***` در تنظیمات (`emsfb_setting`) و option مستقل `emsfb_addon_Adn***` کنترل می‌شود؛ لیست کلیدها در `Emsfb::get_addons_list_efb()` و پیش‌فرض‌ها در `Emsfb::get_default_settings_efb()` است (`includes/class-Emsfb.php`).
-- الگوی بارگذاری شرطی: `class-Emsfb.php::includes()` فقط وقتی کلید فعال است و فایل وجود دارد، فایل اصلی addon را require می‌کند (نمونه: AdnSMF → `vendor/logic/class-Emsfb-logic-validator.php`، خطوط 155–162).
+## بررسی معماری فعلی
 
-### 3. الگوی فیلترمحور برای دخالت در جریان submit وجود دارد
+### نوع فرم توسعه‌پذیر است
 
-- هسته در `class-Emsfb-public.php:1763` فیلتر `efb_logic_prepare_submission` را روی داده ارسال‌شده اعمال می‌کند و افزودنی Logic بدون تغییر هسته به آن hook می‌شود (`vendor/logic/class-Emsfb-logic-validator.php:915-925`).
-- امتیازدهی Quiz دقیقاً با همین الگو پیاده می‌شود: فیلترهای جدید addon-side روی همین نقاط موجود + فیلتر `efb_admin_localize_vars` برای تزریق تنظیمات به builder (`includes/admin/class-Emsfb-addon.php:156`).
+- جدول `{prefix}emsfb_form` ستون `form_type varchar(15) DEFAULT 'form'` دارد (`includes/class-Emsfb-install.php:36-47`). مقدار `quiz` فقط 4 کاراکتر است و بدون تغییر schema جا می‌شود.
+- ساختار فرم در ستون `form_structer MEDIUMTEXT` ذخیره می‌شود (`includes/class-Emsfb-install.php:39`). بنابراین تنظیمات آزمون و metadata سوال‌ها می‌تواند داخل JSON فعلی ذخیره شود.
+- هنگام insert فرم، مقدار `form_type` از مسیر فعلی ذخیره می‌شود (`includes/admin/class-Emsfb-addon.php:188-200`).
 
-### 4. ذخیره‌سازی نتایج بدون جدول اجباری
+### الگوی افزودنی موجود است
 
-- submission در `{prefix}emsfb_msg_` (ستون `content MEDIUMTEXT`) ذخیره می‌شود؛ نتیجه آزمون (نمره، درصد، قبولی) به‌عنوان فیلدهای محاسبه‌شده داخل همان content ذخیره می‌شود و در Response Viewer فعلی قابل نمایش است.
-- جدول اختصاصی `{prefix}emsfb_quiz_attempts` فقط برای قابلیت‌های فاز 2+ (محدودیت دفعات، leaderboard، آنالیتیکس) لازم است و **فقط هنگام فعال‌سازی addon** ساخته می‌شود، مطابق الگوی `create_temporary_links_table_Emsfb` که برای فرم‌های login/register استفاده شده است.
+- افزودنی‌ها با کلیدهای `Adn***` مدیریت می‌شوند.
+- لیست افزودنی‌های شناخته‌شده در `Emsfb::get_addons_list_efb()` است (`includes/class-Emsfb.php:678-721`).
+- پیش‌فرض تنظیمات افزودنی‌ها در `Emsfb::get_default_settings_efb()` است (`includes/class-Emsfb.php:1099-1142`).
+- helper سمت ادمین برای وضعیت افزودنی‌ها در `efbFunction::fun_get_addons_list_efb()` است (`includes/functions.php:4118-4158`).
+- بارگذاری شرطی افزودنی‌ها در `Emsfb::includes()` انجام می‌شود؛ نمونه مهم آن Conditional Logic با کلید `AdnSMF` است (`includes/class-Emsfb.php:155-165`).
 
-### نتیجه بررسی
+### submit قابل توسعه است
 
-هیچ تغییر ساختاری (schema، کلاس‌های هسته، جریان submit) لازم نیست. تنها لمس هسته، از جنس **پیکربندی طبق الگوی موجود** است: افزودن کلید `AdnQZF` به دو لیست موجود و یک بلوک بارگذاری شرطی ده‌خطی مشابه سایر addonها.
+- مسیر submit ابتدا فرم را از DB می‌خواند (`includes/class-Emsfb-public.php:1726-1737`) و payload ارسالی را decode و dedupe می‌کند (`includes/class-Emsfb-public.php:1741-1756`).
+- فیلتر `efb_logic_prepare_submission` قبل از validation و ذخیره اجرا می‌شود (`includes/class-Emsfb-public.php:1773-1782`). Quiz می‌تواند همین نقطه را برای نرمال‌سازی، حذف فیلدهای غیرفعال، و تزریق نتیجه نهایی استفاده کند.
+- بعد از پردازش فرم، integrationهای فعلی با context مشترک اجرا می‌شوند: Telegram، Google Sheets و hook عمومی `efb_after_form_integration` (`includes/class-Emsfb-public.php:6880-6897`). نتیجه Quiz باید در همین context قابل مصرف باشد.
 
-## نیازهای کاربران (تحقیق بازار)
+### ادمین قابل تزریق است
 
-جمع‌بندی پرتکرارترین درخواست‌های کاربران افزونه‌های آزمون‌ساز وردپرس (QSM، Quiz Maker، افزودنی Quiz در Forminator/WPForms/Gravity Forms) و درخواست‌های کاربران EFB:
+- اطلاعات builder از مسیر `efb_admin_localize_vars` قابل توسعه است (`includes/admin/class-Emsfb-addon.php:156-175`).
+- assetهای admin می‌توانند فقط در صفحات EFB enqueue شوند.
+- UI صفحه Add-ons از الگوی موجود و کلید `Adn***` استفاده می‌کند.
 
-| # | نیاز کاربر | اولویت |
-|---|---|---|
-| 1 | تعریف پاسخ صحیح برای سوال‌های چندگزینه‌ای و نمره‌دهی خودکار | Must |
-| 2 | نمایش نمره/درصد بلافاصله بعد از ارسال (کارنامه) | Must |
-| 3 | حد نصاب قبولی و پیام متفاوت قبول/مردود | Must |
-| 4 | امتیاز جداگانه برای هر سوال (وزن‌دهی) | Must |
-| 5 | تایمر کل آزمون با ارسال خودکار در پایان زمان | Must |
-| 6 | مرتب‌سازی تصادفی سوال‌ها و گزینه‌ها | Must |
-| 7 | بازبینی پاسخ‌ها: نمایش پاسخ صحیح/غلط بعد از آزمون (قابل خاموش‌کردن) | Must |
-| 8 | ارسال کارنامه با ایمیل به شرکت‌کننده و ادمین | Must |
-| 9 | نمره منفی برای پاسخ غلط | Should |
-| 10 | محدودیت دفعات شرکت (بر اساس کاربر/ایمیل/IP) | Should |
-| 11 | بانک سوال: انتخاب تصادفی N سوال از مخزن | Should |
-| 12 | سوال تشریحی با تصحیح دستی توسط ادمین | Should |
-| 13 | دسته‌بندی سوال‌ها و نمره به تفکیک دسته (مثلا آزمون MBTI/ارزیابی مهارت) | Should |
-| 14 | بازه‌های نمره با پیام سفارشی (grade bands: A/B/C یا تفسیر شخصیت) | Should |
-| 15 | ضد تقلب: یک سوال در هر صفحه، قفل دکمه بازگشت، جلوگیری از copy | Should |
-| 16 | آنالیتیکس ادمین: میانگین نمره، سخت‌ترین سوال، نرخ قبولی | Should |
-| 17 | آزمون پولی (پرداخت قبل از شرکت) با addonهای پرداخت موجود | Could |
-| 18 | گواهینامه PDF بعد از قبولی | Could |
-| 19 | جدول امتیازات (leaderboard) عمومی با شورت‌کد | Could |
-| 20 | ادامه آزمون نیمه‌کاره (resume) | Could |
-| 21 | سوال تصویری (انتخاب گزینه تصویری) — با فیلد `imgradio` موجود | Could |
-| 22 | تغییر مسیر (redirect) بر اساس نمره | Could |
+## نام و قرارداد افزودنی
 
-## نام و ساختار پیشنهادی Addon
+| مورد | مقدار پیشنهادی |
+|---|---|
+| نام محصول | EFB Quiz & Exam Forms Addon |
+| کلید افزودنی | `AdnQZF` |
+| نوع فرم | `quiz` |
+| مسیر | `vendor/quiz/` |
+| کلاس اصلی | `\Emsfb\QuizAddon` |
+| نسخه MVP | `1.0.0` |
+| حداقل نسخه EFB | `4.1.0` یا نسخه‌ای که hookهای لازم را دارد |
 
-**نام محصول:** EFB Quiz & Exam Forms Addon
-**کلید addon پیشنهادی:** `AdnQZF` (تداخلی با کلیدهای موجود AdnSS/AdnATF/AdnGoS/AdnTLG/AdnPAP/AdnSPF/AdnPPF/AdnOF/AdnATC/AdnCPF/AdnESZ/AdnSE/AdnWHS/AdnWSP/AdnSMF/AdnPLF/AdnMSF/AdnBEF/AdnPDP/AdnADP ندارد)
-**نوع فرم جدید:** `quiz` (در ستون `form_type` و کلید `type` عنصر `[0]` ساختار JSON)
-**مسیر اصلی:** `vendor/quiz/`
-**کلاس اصلی:** `\Emsfb\QuizAddon`
+کلید `AdnQZF` با کلیدهای فعلی مثل `AdnSS`, `AdnATF`, `AdnGoS`, `AdnTLG`, `AdnPAP`, `AdnSPF`, `AdnPPF`, `AdnWHS`, `AdnSMF`, `AdnPDP`, `AdnADP`, `AdnBEF` تداخل ندارد.
+
+## ساختار پیشنهادی فایل‌ها
 
 ```text
 vendor/quiz/
-├── class-Emsfb-quiz.php                 ← بوت‌استرپ addon، ثبت hookها
-├── class-Emsfb-quiz-install.php         ← ساخت جدول attempts هنگام فعال‌سازی
-├── class-Emsfb-quiz-scorer.php          ← موتور امتیازدهی سمت سرور
-├── class-Emsfb-quiz-attempts.php        ← محدودیت دفعات، resume، ثبت attempt
-├── class-Emsfb-quiz-results.php         ← ساخت کارنامه، grade bands، ایمیل نتیجه
-├── class-Emsfb-quiz-analytics.php       ← گزارش‌های ادمین (فاز 3)
-├── class-Emsfb-quiz-certificate.php     ← گواهینامه PDF (فاز 4)
+├── class-Emsfb-quiz.php
+├── class-Emsfb-quiz-install.php
+├── class-Emsfb-quiz-settings.php
+├── class-Emsfb-quiz-scorer.php
+├── class-Emsfb-quiz-attempts.php
+├── class-Emsfb-quiz-results.php
+├── class-Emsfb-quiz-review.php
+├── class-Emsfb-quiz-analytics.php
+├── class-Emsfb-quiz-certificate.php
+├── class-Emsfb-quiz-integrations.php
+├── class-Emsfb-quiz-rest.php
 ├── assets/
-│   ├── js/quiz-builder-efb.js           ← UI سازنده آزمون در builder ادمین
-│   ├── js/quiz-public-efb.js            ← تایمر، ناوبری، ضد تقلب، کارنامه
+│   ├── js/quiz-builder-efb.js
+│   ├── js/quiz-public-efb.js
 │   ├── css/quiz-admin-efb.css
 │   └── css/quiz-public-efb.css
-└── templates/
-    ├── result-card.php                  ← کارنامه
-    ├── review-answers.php               ← بازبینی پاسخ‌ها
-    └── leaderboard.php                  ← فاز 4
+├── templates/
+│   ├── result-card.php
+│   ├── review-answers.php
+│   ├── manual-grading.php
+│   ├── certificate.php
+│   └── leaderboard.php
+└── languages/
 ```
 
-## نقاط اتصال با افزونه اصلی
+مسئولیت کلاس‌ها:
 
-حداقل تغییرات لازم در هسته (همگی از جنس الگوی تکراری موجود):
+| کلاس | مسئولیت |
+|---|---|
+| `QuizAddon` | بوت‌استرپ، ثبت hookها، guard فعال بودن، enqueue شرطی |
+| `QuizInstall` | ساخت/ارتقای جدول attempts و schema version |
+| `QuizSettings` | خواندن، sanitize و normalize تنظیمات quiz از `form_structer` |
+| `QuizScorer` | امتیازدهی سمت سرور، grade، pass/fail، category score |
+| `QuizAttempts` | شروع attempt، تایمر، محدودیت دفعات، cooldown، resume |
+| `QuizResults` | تولید کارنامه، placeholders ایمیل، فیلدهای مجازی submission |
+| `QuizReview` | داده امن برای بازبینی پاسخ‌ها بعد از submit |
+| `QuizAnalytics` | گزارش ادمین، سختی سوال، نرخ قبولی، export |
+| `QuizCertificate` | گواهینامه PDF یا HTML قابل چاپ |
+| `QuizIntegrations` | اتصال به webhook، Google Sheets، Telegram/SMS، payment، logic |
+| `QuizRest` | endpointهای امن برای start attempt، resume، review، leaderboard |
 
-1. افزودن `AdnQZF` به آرایه `$addon_keys` در `Emsfb::get_addons_list_efb()` و `AdnQZF = '0'` به `get_default_settings_efb()` — دو خط.
-2. بلوک بارگذاری شرطی در `Emsfb::includes()`: اگر `AdnQZF >= 1` و فایل موجود بود، `vendor/quiz/class-Emsfb-quiz.php` را require کند — مشابه بلوک AdnSMF.
-3. **هیچ تغییر دیگری در هسته لازم نیست.** بقیه اتصال‌ها از سمت addon و روی hookهای موجود انجام می‌شود:
-   - `efb_admin_localize_vars` → تزریق تنظیمات و متن‌های quiz به builder.
-   - `admin_enqueue_scripts` → بارگذاری `quiz-builder-efb.js` فقط در صفحات Emsfb.
-   - `efb_logic_prepare_submission` (موجود در `class-Emsfb-public.php:1763`) → نرمال‌سازی و امتیازدهی پاسخ‌ها قبل از ذخیره؛ نتیجه به‌صورت فیلدهای مجازی (`quiz_score`, `quiz_percent`, `quiz_passed`, `quiz_grade`) به `submitted_values` اضافه می‌شود تا در همان مسیر ذخیره/ایمیل/webhook موجود جریان یابد.
-   - `wp_enqueue_scripts` سمت عمومی → فقط وقتی شورت‌کد فرم از نوع quiz در صفحه است.
-4. در صورت نیاز فاز 2 به hook بعد از ذخیره submission (برای ثبت attempt)، اضافه شدن یک `do_action('emsfb_after_submission_saved', $msg_id, $form_id, $payload, $context)` در هسته پیشنهاد می‌شود — همان hookی که رودمپ Ticketing هم درخواست کرده؛ یک بار اضافه می‌شود و چند addon از آن استفاده می‌کنند.
+## تغییرات حداقلی در هسته
 
-اصل مهم: هیچ جدول، asset یا endpoint مربوط به Quiz نباید وقتی addon غیرفعال است load شود.
+### ضروری
 
-## معماری امتیازدهی — امنیت اول
+- افزودن `AdnQZF` به `Emsfb::get_addons_list_efb()`.
+- افزودن `$defaults->AdnQZF = '0';` به `Emsfb::get_default_settings_efb()`.
+- افزودن `AdnQZF` به `efbFunction::fun_get_addons_list_efb()`.
+- افزودن بلوک بارگذاری شرطی در `Emsfb::includes()`:
 
-- **پاسخ‌های صحیح هرگز به کلاینت ارسال نمی‌شوند.** خروجی عمومی فرم (`form_structer` که به فرانت می‌رود) قبل از رندر توسط addon فیلتر می‌شود و کلیدهای `quiz_answer`, `quiz_points`, `quiz_feedback` از عناصر حذف می‌شوند.
-- امتیازدهی **فقط سمت سرور** در `class-Emsfb-quiz-scorer.php` انجام می‌شود؛ نمره‌ای که کلاینت بفرستد نادیده گرفته می‌شود.
-- تایمر سمت سرور هم validate می‌شود: زمان شروع attempt در transient/جدول attempts ثبت و هنگام submit مقایسه می‌شود (تحمل شبکه: مثلا +15 ثانیه). ارسال بعد از مهلت یا رد می‌شود یا با پرچم `late` نمره‌دهی می‌شود (قابل تنظیم).
-- ترتیب تصادفی سوال‌ها با seed ذخیره‌شده در attempt تولید می‌شود تا سرور بتواند پاسخ‌ها را به سوال درست map کند.
-- محدودیت دفعات با ترکیب user_id (کاربر لاگین)، ایمیل و IP (همان الگوی rate-limit موجود `efb_track_fail_max`) اعمال می‌شود.
+```php
+$quiz_public = isset( $ac_routes->AdnQZF ) ? (int) $ac_routes->AdnQZF : 0;
+if ( $quiz_public >= 1 ) {
+    $quiz_file = EMSFB_PLUGIN_DIRECTORY . '/vendor/quiz/class-Emsfb-quiz.php';
+    if ( file_exists( $quiz_file ) ) {
+        require_once $quiz_file;
+        if ( class_exists( '\\Emsfb\\QuizAddon' ) ) {
+            new \Emsfb\QuizAddon();
+        }
+    }
+}
+```
 
-## مدل داده
+### پیشنهادی برای رشد
 
-### داخل `form_structer` (بدون تغییر schema)
+این hookها اگر در هسته وجود نداشته باشند، بهتر است اضافه شوند چون فقط برای Quiz نیستند و Ticketing/Calculation هم از آن‌ها سود می‌برند:
 
-عنصر `[0]` فرم:
+```php
+do_action('emsfb_after_submission_saved', $msg_id, $form_id, $submitted_values, $form_fields_array, $context);
+apply_filters('emsfb_public_form_structure', $form_fields_array, $form_id, $form_type, $context);
+apply_filters('emsfb_payment_amount', $amount, $form_id, $submitted_values, $form_fields_array);
+```
+
+اگر این hookها در فاز اول اضافه نشوند، MVP هنوز با `efb_logic_prepare_submission` و `efb_after_form_integration` قابل پیاده‌سازی است؛ فقط ثبت دقیق attempt بعد از ذخیره و payment gate تمیزتر به فاز بعد می‌رود.
+
+## مدل داده در `form_structer`
+
+### تنظیمات فرم
+
+تنظیمات Quiz در عنصر اول ساختار فرم ذخیره می‌شود:
 
 ```json
 {
   "type": "quiz",
   "quiz_settings": {
+    "version": 1,
+    "mode": "exam",
     "grading": "points",
     "pass_score": 70,
-    "negative_marking": 0,
+    "pass_score_type": "percent",
     "timer_minutes": 20,
+    "timer_behavior": "auto_submit",
+    "late_submit_policy": "reject",
     "shuffle_questions": true,
     "shuffle_options": true,
-    "question_bank": { "enabled": false, "pick": 10 },
-    "max_attempts": 3,
-    "attempt_cooldown_hours": 24,
-    "show_result": "instant",
-    "show_review": "after_submit",
     "one_question_per_page": false,
     "allow_back": true,
-    "anti_copy": false,
+    "show_progress": true,
+    "show_result": "instant",
+    "show_review": "after_submit",
+    "show_correct_answers": "after_submit",
+    "question_bank": {
+      "enabled": false,
+      "pick": 10,
+      "strategy": "random_by_category"
+    },
+    "attempts": {
+      "max": 3,
+      "identity": ["user_id", "email", "ip"],
+      "cooldown_hours": 24,
+      "resume": false
+    },
+    "anti_cheat": {
+      "anti_copy": false,
+      "lock_back_button": false,
+      "track_tab_blur": false,
+      "max_tab_blur": 0
+    },
     "grade_bands": [
-      { "min": 90, "label": "A", "message": "عالی!" },
-      { "min": 70, "label": "B", "message": "قبول" },
-      { "min": 0,  "label": "F", "message": "مردود", "redirect": "" }
+      { "min": 90, "label": "A", "message": "عالی", "redirect": "" },
+      { "min": 70, "label": "B", "message": "قبول", "redirect": "" },
+      { "min": 0, "label": "F", "message": "مردود", "redirect": "" }
     ],
-    "result_email_user": true,
-    "result_email_admin": true
+    "notifications": {
+      "email_user": true,
+      "email_admin": true,
+      "telegram": true,
+      "sms": false
+    },
+    "integrations": {
+      "webhook_include_review": false,
+      "google_sheet_include_category_scores": true
+    }
   }
 }
 ```
 
-هر عنصر سوال (روی فیلدهای موجود radio/checkbox/select/imgradio/text سوار می‌شود):
+### metadata سوال
+
+Quiz نباید نوع فیلد جدید اجباری بسازد. روی فیلدهای موجود سوار می‌شود:
 
 ```json
 {
   "type": "radio",
-  "id_": "q1",
+  "id_": "q_math_1",
+  "name": "۲ + ۲ چند می‌شود؟",
   "quiz": {
     "is_question": true,
+    "question_type": "single_choice",
     "points": 2,
-    "negative_points": 0.5,
-    "answer": ["option_2"],
+    "negative_points": 0,
+    "answer": ["option_4"],
     "partial_credit": false,
     "category": "ریاضی",
-    "feedback_correct": "درست!",
-    "feedback_wrong": "پاسخ صحیح گزینه ۲ بود."
+    "difficulty": "easy",
+    "tags": ["math", "basic"],
+    "feedback_correct": "درست است.",
+    "feedback_wrong": "پاسخ صحیح ۴ است.",
+    "manual_grading": false
   }
 }
 ```
 
-### جدول اختصاصی (فقط هنگام فعال‌سازی addon — فاز 2)
+فیلدهای قابل پشتیبانی:
+
+| فیلد EFB | کاربرد در Quiz |
+|---|---|
+| `radio`, `chlRadio`, `payRadio` | تک‌گزینه‌ای |
+| `checkbox`, `chlCheckBox`, `payCheckbox` | چندگزینه‌ای |
+| `select`, `paySelect`, `payMultiselect` | انتخابی |
+| `imgRadio` | سوال تصویری |
+| `text`, `textarea` | پاسخ کوتاه/تشریحی |
+| `rating`, `pointr5`, `pointr10`, `nps` | ارزیابی، آزمون شخصیت، survey scoring |
+| `html`, `heading` | توضیح، متن سوال بدون امتیاز |
+| `dadfile`, recorder fields | پاسخ فایلی/صوتی برای تصحیح دستی |
+| `pdate`, `ardate`, `date` | آزمون‌های وابسته به تاریخ یا سن |
+
+## جدول attempts
+
+MVP می‌تواند نتیجه را در `content` جدول `{prefix}emsfb_msg_` ذخیره کند. اما برای تایمر، resume، محدودیت دفعات، analytics و leaderboard جدول اختصاصی لازم است.
 
 ```sql
 CREATE TABLE {prefix}emsfb_quiz_attempts (
-  id BIGINT UNSIGNED AUTO_INCREMENT,
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   form_id INT NOT NULL,
   msg_id INT NULL,
-  uid BIGINT NULL,
+  uid BIGINT UNSIGNED NULL,
   email VARCHAR(190) NULL,
   ip VARCHAR(45) NOT NULL,
-  seed VARCHAR(32) NOT NULL,
+  identity_hash CHAR(64) NOT NULL,
+  seed VARCHAR(64) NOT NULL,
   started_at DATETIME NOT NULL,
+  last_seen_at DATETIME NULL,
   submitted_at DATETIME NULL,
   duration_sec INT NULL,
-  score DECIMAL(8,2) NULL,
-  percent DECIMAL(5,2) NULL,
+  score DECIMAL(10,2) NULL,
+  max_score DECIMAL(10,2) NULL,
+  percent DECIMAL(6,2) NULL,
   passed TINYINT(1) NULL,
-  grade VARCHAR(20) NULL,
-  status VARCHAR(12) DEFAULT 'started',
+  grade VARCHAR(50) NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'started',
+  meta LONGTEXT NULL,
   PRIMARY KEY (id),
-  KEY form_user (form_id, uid, email(50))
+  KEY form_identity (form_id, identity_hash),
+  KEY form_status (form_id, status),
+  KEY msg_id (msg_id),
+  KEY leaderboard (form_id, percent, duration_sec)
 );
 ```
 
-## تجربه کاربری Builder
+قواعد:
 
-- در صفحه «ساخت فرم جدید»، کارت نوع `Quiz` کنار form/payment/smart نمایش داده می‌شود (تزریق از سمت addon به لیست نوع‌ها؛ اگر addon غیرفعال باشد کارت با badge «نیازمند افزودنی» یا اصلاً نمایش داده نمی‌شود — مطابق الگوی plan gating موجود در Conditional Logic).
-- با انتخاب نوع quiz، پنل تنظیمات آزمون (تایمر، نمره قبولی، تصادفی‌سازی، دفعات) به sidebar builder اضافه می‌شود.
-- روی هر فیلد گزینه‌دار، تب «آزمون» ظاهر می‌شود: علامت‌گذاری پاسخ صحیح، امتیاز، نمره منفی، بازخورد.
-- Validation در builder: آزمون بدون حتی یک سوال نمره‌دار قابل ذخیره نیست؛ هشدار برای سوال بدون پاسخ صحیح.
-- سازگاری کامل با Conditional Logic (AdnSMF): پرش/نمایش شرطی سوال‌ها روی فرم quiz هم کار کند.
+- جدول فقط هنگام فعال بودن addon ساخته یا migrate شود.
+- `identity_hash` از ترکیب امن user/email/ip ساخته شود و ایمیل خام برای queryهای لازم نگه داشته شود.
+- `meta` برای review امن، category scores، tab blur count، selected question ids و manual grading state استفاده شود.
+- حذف addon نباید جدول را drop کند؛ فقط deactivate باید load را متوقف کند.
 
-## تجربه کاربری شرکت‌کننده
+## خروجی نتیجه در submission
 
-- نوار تایمر sticky با اخطار رنگی در ۲۰٪ پایانی؛ ارسال خودکار در صفر.
-- حالت «یک سوال در هر صفحه» با استفاده از زیرساخت multi-step موجود.
-- کارنامه بعد از ارسال: نمره، درصد، وضعیت قبولی، پیام band، دکمه بازبینی پاسخ‌ها (اگر مجاز باشد)، به تفکیک دسته سوال.
-- پشتیبانی کامل RTL و اعداد فارسی/عربی با زیرساخت `get_locale_script_chars_efb()` موجود.
-- کارنامه در ایمیل با همان قالب ایمیل موجود (`class-email-handler.php`) و کد پیگیری استاندارد EFB.
+Quiz باید نتیجه را مثل فیلدهای محاسبه‌شده به submission اضافه کند تا همه امکانات فعلی آن را ببینند:
 
-## فازهای اجرایی
+```json
+[
+  { "id_": "quiz_score", "name": "Quiz Score", "value": "18", "type": "quiz_result" },
+  { "id_": "quiz_max_score", "name": "Quiz Max Score", "value": "20", "type": "quiz_result" },
+  { "id_": "quiz_percent", "name": "Quiz Percent", "value": "90", "type": "quiz_result" },
+  { "id_": "quiz_passed", "name": "Quiz Passed", "value": "1", "type": "quiz_result" },
+  { "id_": "quiz_grade", "name": "Quiz Grade", "value": "A", "type": "quiz_result" }
+]
+```
 
-### فاز 0 — زیرساخت (نسخه 0.1)
-- ثبت کلید `AdnQZF`، بلوک بارگذاری، اسکلت `vendor/quiz/`، فعال/غیرفعال از صفحه Add-ons.
-- نوع فرم `quiz` در builder + ذخیره `quiz_settings` در JSON.
-- خروجی: فرم quiz قابل ساخت و ذخیره است ولی هنوز مثل فرم عادی submit می‌شود.
+این فیلدها باید در Response Viewer، ایمیل، webhook، Google Sheets و سایر integrationها قابل استفاده باشند.
 
-### فاز 1 — MVP امتیازدهی (نسخه 1.0)
-- تب «آزمون» روی فیلدهای radio/checkbox/select: پاسخ صحیح + امتیاز.
-- موتور امتیازدهی سمت سرور + حذف پاسخ‌ها از خروجی عمومی.
-- کارنامه فوری (نمره/درصد/قبول-مردود) + grade bands + پیام سفارشی.
-- ذخیره نتیجه داخل content submission و نمایش در Response Viewer.
-- ایمیل کارنامه به کاربر و ادمین.
-- تست: unit برای scorer، تست دستی مطابق `docs/testing/`.
+## جریان امتیازدهی سمت سرور
 
-### فاز 2 — کنترل آزمون (نسخه 1.1)
-- تایمر کل آزمون با validation سمت سرور + ارسال خودکار.
-- تصادفی‌سازی سوال‌ها/گزینه‌ها با seed.
-- جدول attempts + محدودیت دفعات و cooldown.
-- نمره منفی و partial credit.
-- بازبینی پاسخ‌ها (نمایش صحیح/غلط + بازخورد هر سوال).
+1. فرم از DB خوانده می‌شود.
+2. اگر `form_type` یا `form_structer[0].type` برابر `quiz` نبود، addon هیچ کاری نمی‌کند.
+3. داده‌های ارسالی dedupe و sanitize می‌شوند.
+4. Conditional Logic، اگر فعال است، فیلدهای ignored/disabled/required را مشخص می‌کند.
+5. QuizScorer فقط سوال‌های فعال و قابل نمایش را نمره می‌دهد.
+6. پاسخ‌های صحیح از `form_structer` سمت سرور خوانده می‌شوند، نه از request.
+7. partial credit، negative marking، category score و grade band محاسبه می‌شود.
+8. فیلدهای مجازی result به `submitted_values` اضافه می‌شوند.
+9. submission طبق مسیر فعلی ذخیره و ایمیل/Integrationها اجرا می‌شوند.
+10. اگر جدول attempts فعال است، attempt با `msg_id` و نتیجه نهایی بسته می‌شود.
 
-### فاز 3 — حرفه‌ای (نسخه 1.2)
-- بانک سوال (انتخاب تصادفی N از مخزن).
-- سوال تشریحی با صف تصحیح دستی در پنل ادمین و ایمیل نمره نهایی.
-- دسته‌بندی سوال و کارنامه به تفکیک دسته.
-- آنالیتیکس: میانگین، توزیع نمره، سخت‌ترین سوال، نرخ قبولی، خروجی CSV.
-- ضد تقلب: یک سوال در صفحه، قفل بازگشت، anti-copy، تشخیص خروج از تب (اختیاری).
+قرارداد مهم با Conditional Logic: اگر سوال توسط logic مخفی/ignored شده باشد، در نمره نهایی وارد نشود مگر admin در تنظیمات Quiz گزینه «سوال مخفی = صفر» را انتخاب کند.
 
-### فاز 4 — رشد (نسخه 1.3+)
-- آزمون پولی با addonهای پرداخت موجود (AdnSPF/AdnPAP/AdnPPF).
-- گواهینامه PDF با قالب قابل شخصی‌سازی.
-- Leaderboard با شورت‌کد `[efb_quiz_leaderboard id="12"]`.
-- Resume آزمون نیمه‌کاره.
-- Redirect بر اساس نمره + webhook نتیجه (AdnWHS) + Google Sheets (AdnGoS).
+## امنیت
+
+- پاسخ صحیح نباید در HTML، JS localize، REST public response یا source صفحه وجود داشته باشد.
+- کلیدهای `quiz.answer`, `feedback_wrong` و هر metadata حساس باید قبل از خروجی عمومی حذف یا mask شود.
+- نمره، درصد، grade و passed ارسالی از کلاینت همیشه نادیده گرفته شود.
+- timer باید سمت سرور validate شود؛ auto-submit کلاینت فقط UX است.
+- seed تصادفی‌سازی باید سمت سرور ساخته شود و برای همان attempt معتبر باشد.
+- review پاسخ‌ها فقط بعد از submit و فقط طبق policy فرم نمایش داده شود.
+- تلاش برای submit بعد از سقف دفعات باید قبل از ذخیره پاسخ رد شود.
+- REST endpointها nonce، rate limit و capability/identity check داشته باشند.
+- برای leaderboard، نام کاربر باید opt-in یا anonymized باشد.
+- برای سوال تشریحی، HTML پاسخ admin و کاربر باید sanitize شود.
+- فایل‌های آپلودی آزمون از همان محدودیت MIME/size موجود EFB تبعیت کنند.
+
+## تجربه Builder
+
+### ساخت فرم
+
+- کارت `Quiz` کنار فرم‌های فعلی نمایش داده شود.
+- اگر addon غیرفعال است، کارت نمایش داده نشود یا با badge «نیازمند افزودنی Quiz» و CTA فعال‌سازی نمایش داده شود.
+- هنگام انتخاب `quiz`، عنصر `[0].type` و ستون `form_type` هر دو `quiz` شوند.
+
+### تنظیمات آزمون
+
+در sidebar یا پنل تنظیمات فرم:
+
+- حالت آزمون: `exam`, `practice`, `personality`, `survey_scored`.
+- نوع نمره‌دهی: امتیاز، درصد، دسته‌بندی شخصیت، pass/fail.
+- حد نصاب قبولی.
+- تایمر و رفتار پایان زمان.
+- تصادفی‌سازی سوال/گزینه.
+- محدودیت دفعات و cooldown.
+- نمایش کارنامه و review.
+- grade bands و redirect.
+- ایمیل نتیجه.
+- اتصال به payment و webhook.
+
+### تنظیمات سوال
+
+روی فیلدهای قابل نمره‌دهی، تب «Quiz» اضافه شود:
+
+- فعال/غیرفعال بودن به‌عنوان سوال.
+- امتیاز.
+- پاسخ صحیح.
+- نمره منفی.
+- partial credit.
+- دسته، difficulty و tag.
+- بازخورد پاسخ درست/غلط.
+- نیازمند تصحیح دستی.
+
+### validation در builder
+
+- فرم quiz بدون سوال نمره‌دار ذخیره نشود یا warning جدی بدهد.
+- سوال چندگزینه‌ای بدون پاسخ صحیح warning بدهد.
+- تایمر منفی/صفر و max attempts نامعتبر رد شود.
+- grade bands هم‌پوشانی خطرناک warning بدهند.
+- اگر `show_correct_answers` روشن است، admin بداند پاسخ‌ها بعد از submit قابل مشاهده می‌شوند.
+
+## تجربه شرکت‌کننده
+
+- تایمر sticky با وضعیت واضح و هشدار در زمان کم.
+- progress bar یا شماره سوال.
+- حالت یک سوال در هر صفحه با سازگاری multi-step.
+- auto-save/resume در فاز پیشرفته.
+- کارنامه شامل نمره، درصد، قبولی/مردودی، grade، پیام اختصاصی و زمان مصرف‌شده.
+- review پاسخ‌ها طبق policy.
+- پشتیبانی RTL و اعداد فارسی/عربی.
+- در موبایل، دکمه‌های قبل/بعد ثابت و قابل لمس باشند.
+- اگر attempt مجاز نیست، پیام روشن با زمان مجاز بعدی نمایش داده شود.
+
+## ماتریس سازگاری با افزودنی‌ها و قابلیت‌های فعلی
+
+| قابلیت/افزودنی | رفتار مورد انتظار در Quiz |
+|---|---|
+| Conditional Logic (`AdnSMF`) | نمایش/مخفی‌سازی سوال‌ها، required شرطی، action بر اساس پاسخ یا نتیجه، نمره فقط روی سوال‌های فعال |
+| Webhook (`AdnWHS`) | ارسال `quiz_score`, `quiz_percent`, `quiz_passed`, `quiz_grade`, category scores و attempt metadata مجاز |
+| Google Sheets (`AdnGoS`) | هر submission quiz به‌همراه ستون‌های نتیجه sync شود |
+| Telegram (`AdnTLG`) | اعلان خلاصه نتیجه برای ادمین یا کانال |
+| SMS (`AdnSS`) | ارسال نمره/قبولی کوتاه، بدون پاسخ صحیح مگر policy اجازه دهد |
+| WhatsApp (`AdnWSP`) | پیام نتیجه و لینک review/certificate |
+| Stripe/PayPal/PersiaPay (`AdnSPF`, `AdnPAP`, `AdnPPF`) | pay-before-start، باز کردن attempt بعد از پرداخت موفق، جلوگیری از دور زدن payment |
+| Tracking Code | نتیجه quiz با confirmation/tracking code فعلی قابل پیگیری باشد |
+| Advanced Tracking Code (`AdnATC`) | قالب tracking code برای آزمون هم اعمال شود |
+| Offline Forms (`AdnOF`) | در MVP برای آزمون timed غیرفعال یا محدود؛ برای practice بدون تایمر می‌تواند کار کند |
+| Auto-Populate (`AdnATF`) | پرکردن اطلاعات شرکت‌کننده یا سوال‌های غیرامن؛ هرگز پاسخ صحیح auto-populate نشود |
+| Persian/Hijri Date (`AdnPDP`, `AdnADP`) | سوال/فیلد تاریخ در آزمون و محاسبه سن/تاریخ پشتیبانی شود |
+| Booking (`AdnBEF`) | برای آزمون نوبت‌دار یا مصاحبه قابل ترکیب، اما خارج از MVP |
+| Captcha/SilentCaptcha | قبل از شروع یا submit آزمون فعال باشد؛ captcha نباید وسط آزمون UX را خراب کند |
+| Page Builders | shortcode فعلی فرم کافی است؛ block/widget فقط wrapper تولید کند |
+| Email Template | کارنامه با placeholderهای Quiz داخل قالب ایمیل فعلی render شود |
+| Response Viewer | ستون/فیلدهای نتیجه قابل مشاهده و export باشند |
+
+## API و hookهای پیشنهادی Quiz
+
+Actionها:
+
+```php
+do_action('efb_quiz_attempt_started', $attempt_id, $form_id, $context);
+do_action('efb_quiz_before_score', $form_id, $submitted_values, $form_fields_array);
+do_action('efb_quiz_after_score', $result, $form_id, $submitted_values, $form_fields_array);
+do_action('efb_quiz_attempt_completed', $attempt_id, $msg_id, $result, $context);
+do_action('efb_quiz_manual_grade_updated', $attempt_id, $question_id, $grade, $context);
+do_action('efb_quiz_certificate_generated', $attempt_id, $certificate_id, $context);
+```
+
+Filterها:
+
+```php
+apply_filters('efb_quiz_settings', $settings, $form_id, $form_fields_array);
+apply_filters('efb_quiz_score_question', $question_result, $question, $answer, $context);
+apply_filters('efb_quiz_result_fields', $result_fields, $result, $context);
+apply_filters('efb_quiz_review_payload', $review, $attempt_id, $viewer_context);
+apply_filters('efb_quiz_leaderboard_rows', $rows, $form_id, $args);
+apply_filters('efb_quiz_can_start_attempt', $can_start, $form_id, $identity, $context);
+```
+
+REST endpointهای پیشنهادی:
+
+```text
+POST /Emsfb/v1/quiz/{form_id}/attempt/start
+GET  /Emsfb/v1/quiz/{form_id}/attempt/current
+POST /Emsfb/v1/quiz/{form_id}/attempt/heartbeat
+GET  /Emsfb/v1/quiz/attempt/{attempt_id}/review
+GET  /Emsfb/v1/quiz/{form_id}/leaderboard
+POST /Emsfb/v1/quiz/attempt/{attempt_id}/manual-grade
+```
+
+Shortcodeهای پیشنهادی:
+
+```text
+[efb_form id="12"]
+[efb_quiz_result attempt_id="123"]
+[efb_quiz_leaderboard id="12" limit="10" order="percent"]
+[efb_quiz_certificate attempt_id="123"]
+```
 
 ## Plan Gating پیشنهادی
 
-مطابق الگوی plan gating پیاده‌شده در Conditional Logic:
-
 | قابلیت | Free | Pro |
 |---|---|---|
-| فرم quiz با امتیازدهی پایه | ۱ فرم، ۱۰ سوال | نامحدود |
-| تایمر، تصادفی‌سازی | — | ✓ |
-| محدودیت دفعات، بانک سوال، تشریحی | — | ✓ |
-| آنالیتیکس، گواهینامه، leaderboard | — | ✓ |
+| ساخت فرم quiz | 1 فرم | نامحدود |
+| تعداد سوال | 10 سوال | نامحدود |
+| امتیازدهی پایه و pass/fail | بله | بله |
+| کارنامه فوری | بله | بله |
+| ایمیل نتیجه | بله | بله |
+| تایمر | خیر | بله |
+| تصادفی‌سازی سوال/گزینه | خیر | بله |
+| محدودیت دفعات و cooldown | خیر | بله |
+| بانک سوال | خیر | بله |
+| سوال تشریحی و تصحیح دستی | خیر | بله |
+| category scoring و personality quiz | خیر | بله |
+| آنالیتیکس و export | خیر | بله |
+| payment gate | خیر | بله |
+| certificate و leaderboard | خیر | بله |
 
-## تست و پذیرش
+اگر بسته‌های فعلی EFB تفاوت 1/2/3 دارند، Quiz باید از همان `emsfb_pro` و الگوی gating موجود استفاده کند. پیام upgrade باید در builder باشد، نه در فرانت برای شرکت‌کننده.
 
-- Unit: scorer (همه حالت‌های grading، نمره منفی، partial credit، سوال بدون پاسخ).
-- E2E دستی مطابق قالب `docs/conditional-logic/EFB-Conditional-Logic-MANUAL-TEST-GUIDE.fa.md`: ساخت آزمون → شرکت → کارنامه → بازبینی → محدودیت دفعات → تایمر.
-- تست امنیتی: تلاش برای خواندن پاسخ صحیح از source صفحه/AJAX؛ ارسال نمره جعلی؛ دور زدن تایمر؛ ارسال بعد از سقف دفعات.
-- تست سازگاری: Gutenberg/Elementor/WPBakery (شورت‌کد موجود)، افزونه‌های کش (لیست `emsfb_cache_plugins`)، RTL فارسی/عربی.
-- Regression: فرم‌های عادی/payment/login با addon فعال و غیرفعال هیچ تغییر رفتاری نداشته باشند.
+## فازهای اجرایی
 
-## ریسک‌ها
+### فاز 0 - قرارداد و اسکلت
+
+- [ ] ثبت `AdnQZF` در لیست افزودنی‌ها و defaults.
+- [ ] loader شرطی `vendor/quiz/class-Emsfb-quiz.php`.
+- [ ] صفحه Add-ons بتواند Quiz را نصب/فعال/غیرفعال کند.
+- [ ] ساخت اسکلت کلاس‌ها، assets و templates.
+- [ ] اضافه کردن متن‌های پایه i18n.
+- [ ] تست: غیرفعال بودن addon هیچ asset/hook اضافه‌ای ایجاد نکند.
+
+خروجی: addon فعال می‌شود، ولی هنوز فقط فرم quiz را به‌عنوان نوع قابل ذخیره آماده می‌کند.
+
+### فاز 1 - MVP فرم quiz و امتیازدهی
+
+- [ ] کارت نوع فرم `quiz` در builder.
+- [ ] ذخیره `quiz_settings` در JSON.
+- [ ] تب Quiz روی radio/checkbox/select/imgRadio.
+- [ ] پاسخ صحیح و امتیاز برای سوال‌ها.
+- [ ] scorer سمت سرور.
+- [ ] حذف پاسخ صحیح از خروجی عمومی.
+- [ ] تزریق `quiz_score`, `quiz_percent`, `quiz_passed`, `quiz_grade` در submission.
+- [ ] کارنامه فوری ساده.
+- [ ] ایمیل نتیجه به کاربر و ادمین.
+- [ ] نمایش نتیجه در Response Viewer.
+
+معیار پذیرش: یک admin بتواند آزمون چندگزینه‌ای بسازد، کاربر شرکت کند، نتیجه درست محاسبه و ذخیره شود، و هیچ پاسخ صحیحی در source صفحه دیده نشود.
+
+### فاز 2 - کنترل آزمون
+
+- [ ] جدول attempts و migration/versioning.
+- [ ] start attempt و seed.
+- [ ] تایمر سمت کلاینت + validation سمت سرور.
+- [ ] auto-submit.
+- [ ] محدودیت دفعات شرکت بر اساس user/email/ip.
+- [ ] cooldown.
+- [ ] تصادفی‌سازی سوال‌ها و گزینه‌ها.
+- [ ] نمره منفی و partial credit.
+- [ ] review پاسخ‌ها با policy قابل تنظیم.
+
+معیار پذیرش: کاربر نتواند با refresh، دستکاری request یا submit دیرهنگام سقف آزمون و تایمر را دور بزند.
+
+### فاز 3 - سوال‌های پیشرفته و نتیجه‌های غنی
+
+- [ ] سوال تشریحی با تصحیح دستی.
+- [ ] صف manual grading در admin.
+- [ ] category scoring.
+- [ ] personality/assessment mode.
+- [ ] grade bands پیشرفته و redirect.
+- [ ] question bank و انتخاب N سوال از دسته‌ها.
+- [ ] anti-cheat اختیاری: anti-copy، tab blur، lock back.
+- [ ] export CSV نتیجه‌ها.
+
+معیار پذیرش: آزمون‌های مهارتی، شخصیت‌شناسی و تشریحی با یک مدل داده مشترک پشتیبانی شوند.
+
+### فاز 4 - integrationهای تجاری
+
+- [ ] pay-before-start با Stripe/PayPal/PersiaPay.
+- [ ] webhook payload غنی.
+- [ ] Google Sheets mapping برای نتیجه‌ها و category scores.
+- [ ] Telegram/SMS/WhatsApp templates.
+- [ ] certificate HTML/PDF.
+- [ ] leaderboard shortcode.
+- [ ] resume attempt.
+
+معیار پذیرش: آزمون پولی و آزمون دارای certificate بدون تغییر مسیر اصلی فرم‌ها قابل استفاده باشد.
+
+### فاز 5 - آنالیتیکس و بلوغ محصول
+
+- [ ] داشبورد analytics برای هر quiz.
+- [ ] میانگین نمره، نرخ قبولی، توزیع نمره.
+- [ ] سخت‌ترین سوال‌ها و distractor analysis.
+- [ ] مقایسه attemptها.
+- [ ] retention و پاک‌سازی داده.
+- [ ] audit log برای manual grading و certificate.
+- [ ] تست performance روی آزمون‌های بزرگ.
+
+معیار پذیرش: admin بتواند کیفیت آزمون را تحلیل کند و داده‌ها قابل export/retention باشند.
+
+## تست‌ها
+
+### Unit
+
+- scorer تک‌گزینه‌ای، چندگزینه‌ای، پاسخ ناقص، پاسخ اضافه.
+- negative marking و partial credit.
+- grade band و pass/fail.
+- category score.
+- sanitize تنظیمات Quiz.
+- identity hash و max attempts.
+
+### Integration
+
+- submit فرم عادی با addon فعال و غیرفعال.
+- submit فرم quiz با Conditional Logic فعال و غیرفعال.
+- sync نتیجه با Google Sheets و webhook.
+- ایمیل نتیجه به user/admin.
+- payment gate و submit بعد از پرداخت.
+- captcha و nonce refresh در آزمون طولانی.
+- tracking code و Response Viewer.
+
+### Security
+
+- نبودن پاسخ صحیح در HTML/JS/REST.
+- ارسال نمره جعلی از کلاینت.
+- تغییر `attempt_id` یا seed.
+- دور زدن timer و max attempts.
+- brute force endpoint start/review.
+- XSS در بازخورد سوال و پاسخ تشریحی.
+- SQL injection در leaderboard/filter.
+- cache leak در review و result.
+
+### Browser / UX
+
+- desktop و mobile.
+- RTL فارسی و عربی.
+- Gutenberg، Elementor، WPBakery، Visual Composer.
+- افزونه‌های cache شناخته‌شده در EFB.
+- آزمون بزرگ با 100 سوال.
+- reload صفحه وسط آزمون.
+
+## معیار پذیرش MVP
+
+- `AdnQZF` فعال/غیرفعال می‌شود.
+- فرم `quiz` قابل ساخت و ذخیره است.
+- حداقل radio/checkbox/select به‌عنوان سوال نمره‌دار کار می‌کنند.
+- نمره فقط سمت سرور محاسبه می‌شود.
+- پاسخ صحیح در فرانت لو نمی‌رود.
+- نتیجه داخل submission ذخیره و در ایمیل/Response Viewer دیده می‌شود.
+- Conditional Logic روی سوال‌ها باعث نمره‌دهی اشتباه نمی‌شود.
+- فرم‌های غیر Quiz هیچ regression رفتاری ندارند.
+- addon غیرفعال هیچ asset یا endpoint اضافی load نمی‌کند.
+
+## ریسک‌ها و کاهش ریسک
 
 | ریسک | کاهش |
 |---|---|
-| لو رفتن پاسخ صحیح از JSON عمومی | فیلتر اجباری خروجی + تست امنیتی خودکار در CI |
-| تداخل با Conditional Logic روی همان فرم | ترتیب اجرای فیلترها مشخص شود: اول logic (نرمال‌سازی) بعد scorer |
-| فرم‌های quiz با addon غیرفعال‌شده | fallback: فرم مثل فرم عادی submit شود + اخطار در builder |
-| ستون `form_type varchar(15)` | مقدار `quiz` فقط ۴ کاراکتر است — بدون مشکل |
-| کش شدن ترتیب تصادفی توسط افزونه‌های کش | تصادفی‌سازی سمت کلاینت با seed دریافتی از AJAX، نه در HTML کش‌شده |
+| لو رفتن پاسخ صحیح در JSON عمومی | فیلتر خروجی عمومی + تست امنیتی خودکار |
+| تداخل با Conditional Logic | قرارداد روشن: logic ابتدا visibility را تعیین کند، scorer بعدا سوال‌های فعال را نمره دهد |
+| دور زدن timer با دستکاری JS | ثبت start time سمت سرور و validate هنگام submit |
+| کش شدن ترتیب تصادفی | seed و ordering در attempt/REST، نه HTML cache شده |
+| نمره اشتباه در checkbox چندپاسخه | تست‌های دقیق exact match، partial credit و extra answer |
+| فشار DB روی leaderboard | index مناسب، cache کوتاه‌مدت، limit اجباری |
+| تجربه بد در آزمون طولانی با nonce منقضی | استفاده از endpoint nonce refresh فعلی |
+| آزمون پولی قابل دور زدن | attempt فقط بعد از تایید پرداخت server-side شروع شود |
+| پیام‌های upgrade در فرانت | gating فقط در builder/admin، شرکت‌کننده پیام محصولی نبیند |
+
+## تصمیم‌های باز
+
+- آیا `quiz` فقط نوع فرم مستقل باشد یا هر فرم بتواند با toggle به quiz تبدیل شود؟
+- در حالت logic-hidden، سوال مخفی از max score حذف شود یا نمره صفر بگیرد؟ پیشنهاد: حذف از max score.
+- review پاسخ صحیح به‌صورت پیش‌فرض روشن باشد یا خاموش؟ پیشنهاد: روشن برای practice، خاموش برای exam.
+- تایمر late submit را reject کند یا با flag ذخیره کند؟ پیشنهاد: قابل تنظیم، پیش‌فرض reject.
+- سوال تشریحی در MVP باشد یا فاز 3؟ پیشنهاد: فاز 3.
+- certificate PDF با کتابخانه داخلی پیاده شود یا HTML printable برای شروع؟ پیشنهاد: HTML printable، PDF در فاز بعد.
+- Offline Forms برای آزمون timed پشتیبانی شود یا نه؟ پیشنهاد: در timed quiz غیرفعال.
+
+## ترتیب پیشنهادی اجرا
+
+1. ثبت addon و loader، بدون تغییر رفتاری.
+2. ساخت نوع فرم `quiz` و UI تنظیمات پایه.
+3. ساخت scorer سمت سرور و result fields.
+4. حذف metadata حساس از خروجی عمومی.
+5. کارنامه و ایمیل نتیجه.
+6. تست regression فرم‌های فعلی.
+7. attempts/timer/randomization.
+8. integrationهای payment/webhook/Google Sheets.
+9. analytics/certificate/leaderboard.
+
+این ترتیب سریع‌ترین مسیر رسیدن به یک MVP قابل فروش است، در حالی که معماری برای قابلیت‌های بزرگ‌تر بسته نمی‌شود.

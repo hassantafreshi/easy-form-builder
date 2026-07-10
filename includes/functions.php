@@ -2000,6 +2000,8 @@ class efbFunction {
 		$user_res = json_decode($response_msg,true);
 		$lst = end($user_res);
 		$link_w = $lst['type']=="w_link" ? $lst['value'].'?track='.$trackingCode : 'null';
+		// sms_ready_for_send_efb appends ?track= itself, so it must get the bare page URL
+		$link_sms = $lst['type']=="w_link" ? $lst['value'] : 'null';
 
 		$table_name =  $wpdb->prefix . "emsfb_form";
 		$data =  $wpdb->get_results( $wpdb->prepare( "SELECT form_structer FROM `{$table_name}` WHERE form_id = %s ORDER BY form_id DESC LIMIT 1", $form_id ) );
@@ -2031,9 +2033,9 @@ class efbFunction {
 						$rtrn =$this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
 					}
 				}
-				return $rtrn;
 			}
-			return false;
+			// No early return here: email and SMS notifications are independent,
+			// the SMS block below must still run for forms that also send email.
 		}
 
 		if(isset($data[0]['smsnoti']) && intval($data[0]['smsnoti'])==1){
@@ -2062,7 +2064,7 @@ class efbFunction {
 			}
 
 			$smsSendResult =true;
-			if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $smsSendResult = $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,'respp' ,'wpsms' ,$trackingCode);
+			if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $smsSendResult = $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_sms,'respp' ,'wpsms' ,$trackingCode);
 		}
 
 		return 0;
@@ -3217,30 +3219,35 @@ public function addon_add_efb($value) {
 		$recived_your_message = str_replace($rp[0],$rp[1],$recived_your_message);
 		$new_message = str_replace($rp[0],$rp[1],$new_message);
 		$news_response = str_replace($rp[0],$rp[1],$news_response);
-		$resukt_send_message = false;
+		$sent_any = false;
 		if($state=="fform"){
-			if(!empty($numbers[1]) && $new_message){
-				$smssendefb->send_sms_efb($numbers[1],$recived_your_message,$form_id,$severType);
+			if(!empty($numbers[1]) && $recived_your_message){
+				$resukt_send_message = $smssendefb->send_sms_efb($numbers[1],$recived_your_message,$form_id,$severType);
+				if($resukt_send_message != false) $sent_any = true;
 			}
 			if(!empty($numbers[0]) && $new_message){
 				$new_message = str_replace($page_url."?track=".$tracking_code,$page_url."?track=".$tracking_code.'&user=admin',$new_message);
 				$resukt_send_message = $smssendefb->send_sms_efb($numbers[0],$new_message,$form_id,$severType);
+				if($resukt_send_message != false) $sent_any = true;
 			}
-			return $resukt_send_message==false ? false : true;
+			return $sent_any;
 		}else if($state=="resppa"){
 			if(!empty($numbers[1]) && $recived_your_message){
 				$resukt_send_message =  $smssendefb->send_sms_efb($numbers[1],$recived_your_message,$form_id,$severType);
+				if($resukt_send_message != false) $sent_any = true;
 			}
 			if(!empty($numbers[0]) && $news_response){
-				$news_response = str_replace($page_url, $page_url."?track=".$tracking_code.'&user=admin',$news_response);
+				$news_response = str_replace($page_url."?track=".$tracking_code, $page_url."?track=".$tracking_code.'&user=admin',$news_response);
 				$resukt_send_message =  $smssendefb->send_sms_efb($numbers[0],$news_response,$form_id,$severType);
+				if($resukt_send_message != false) $sent_any = true;
 			}
-			return $resukt_send_message==false ? false : true;
+			return $sent_any;
 		}else if ($state=="respp" || $state=="respadmin"){
 			if(!empty($numbers[1]) && $news_response){
 				$resukt_send_message = $smssendefb->send_sms_efb($numbers[1],$news_response,$form_id,$severType);
+				if($resukt_send_message != false) $sent_any = true;
 			}
-			return $resukt_send_message==false ? false : true;
+			return $sent_any;
 		}
 	}
 

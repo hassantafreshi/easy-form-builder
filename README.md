@@ -42,7 +42,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
 
 **Version Numbers**
 
-* Easy Form Builder 1.30.0 – 1.33.X is deprecated and will no longer be supported.
+* Easy Form Builder 1.30.0 - 1.33.X is deprecated and will no longer be supported.
 * [Easy Form Builder 2.3.X](https://github.com/hassantafreshi/easy-form-builder/tree/v2) is deprecated and will no longer be supported.
 * [Easy Form Builder 3.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v3) is deprecated.
 * [Easy Form Builder 4.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v4) is under active development. (recommended)
@@ -50,7 +50,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
 
 ## Features 💡
 
-You don’t need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
+You don't need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
 
 Features:
 
@@ -69,7 +69,7 @@ Features:
 #### Form Responses & Management
 - **Form Entry & Message Management Dashboard** - Centralized dashboard to manage all submissions
 - **Email Notifications** - Automatic email alerts when forms are submitted
-- **Custom Email Templates** - Drag-and-drop email template editor for branded notifications
+- **Custom Email Templates** - Free built-in visual editor for branded WordPress form email notifications
 - **Confirmation Code (Tracking ID)** - Unique identifiers for each submission
 - **Confirmation Code Style** - Choose from 7 code styles with locale-aware characters supporting 55+ languages and scripts (Arabic, Persian, Hindi, Chinese, Japanese, Korean, Cyrillic, and more)
 - **CSV & PDF Export** - Download form responses in CSV or PDF formats
@@ -127,7 +127,7 @@ Features:
 
 #### Email & Communication
 - **Email Notification System** - Automatic emails triggered on form submission
-- **Custom Email Templates** - Professional email template editor
+- **Custom Email Templates** - Free custom email notification templates with a built-in visual editor
 - **Customizable Messages** - Full control over email content and layout
 - **User & Admin Notifications** - Send emails to users, admins, or custom recipients
 - **Instant Reply System** - Direct messaging from the WordPress dashboard
@@ -302,12 +302,14 @@ Notification System for Form Submissions.
 ### PayPal Add-ons for Payment Forms
 - ✔️ PayPal Integration for Secure Payments
 
-### Interactive Quiz Forms (Coming soon)
+### Interactive Quiz Forms
 - Quiz Forms
-- Calculation
+- ✔️ Calculation
 
 ### Smart Forms
-- ✔️ Auto-Fills
+- ✔️ Auto-Fills (Auto-Populate)
+  - ✔️ Auto-Populate Dataset
+  - ✔️ Auto-Populate Integrations
 - ✔️ Conditional Logic
   - ✔️ Field Show/Hide, Enable/Disable, Required/Optional
   - ✔️ Step Skip & Jump Logic
@@ -316,21 +318,22 @@ Notification System for Form Submissions.
   - ✔️ Conditional Confirmation & Redirect
   - ✔️ Conditional Webhook
   - ✔️ Preview / Test Mode
-  - Debugger / Inspector (Coming soon)
-  - Calculations & Pricing (Coming soon)
+  - ✔️ Debugger / Inspector
+  - ✔️ Calculations
 
 ### SMS OTP Form Login (Coming soon)
 
 ### Booking and Calendar Forms (Coming soon)
 
 ### Email Template Editor
-- ✔️ Customize email notifications with drag-and-drop template builder for better email design and branding
+- ✔️ Free custom email notification templates with a built-in visual editor for branded WordPress form emails
 
-### Webhook (Coming soon)
+### Webhook
+- ✔️ Conditional Webhook
 
 ### Google Sheet Export
-- ✔️ Service Account Connection & Existing/New Spreadsheet Binding
-- ✔️ Sync Logs
+- Service Account Connection & Existing/New Spreadsheet Binding
+- Sync Logs
 - Field Mapping & Retry Queue (Coming soon)
 
 ### Shield Security
