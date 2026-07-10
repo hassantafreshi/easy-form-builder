@@ -288,6 +288,10 @@ class EmsfbEmailHandler {
             $smtp_port = 25;
         }
 
+        if (!function_exists('fsockopen')) {
+            return 'PHP mail fallback skipped: fsockopen is disabled on this server.';
+        }
+
         $errno = 0;
         $errstr = '';
         $connection = @fsockopen($smtp_host, $smtp_port, $errno, $errstr, 0.5);

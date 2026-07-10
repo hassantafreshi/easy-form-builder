@@ -1556,7 +1556,11 @@ public function check_nonce_permission_efb($request) {
 		@ini_set('zlib.output_compression', 0);
 		@ini_set('implicit_flush', 1);
 		ignore_user_abort(true);
-		set_time_limit(300);
+		// set_time_limit can be disabled via disable_functions on hardened hosts;
+		// calling a disabled function throws a fatal Error, so guard it.
+		if (function_exists('set_time_limit')) {
+			@set_time_limit(300);
+		}
 
 		$environment_method = 'Unknown';
 		$start_time = microtime(true);

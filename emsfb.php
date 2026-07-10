@@ -106,6 +106,40 @@ function emsfb_perform_file_access_check_efb() {
 
 }
 
+/**
+ * Safely read the free disk space for a directory.
+ *
+ * Returns the number of free bytes, or false when it cannot be determined
+ * (function disabled via disable_functions, restricted by open_basedir, or
+ * an error occurred). Guards against hosts where disk_free_space is disabled,
+ * which would otherwise throw a fatal Error.
+ *
+ * @param string $directory
+ * @return float|false
+ */
+function emsfb_get_free_disk_space_efb($directory) {
+    if (!function_exists('disk_free_space')) {
+        return false;
+    }
+
+    $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
+    if (in_array('disk_free_space', $disabled, true)) {
+        return false;
+    }
+
+    try {
+        $free = @disk_free_space($directory);
+    } catch (\Throwable $e) {
+        return false;
+    }
+
+    if ($free === false || $free === null) {
+        return false;
+    }
+
+    return $free;
+}
+
 function emsfb_check_file_access_efb() {
     $vendor_path = EMSFB_PLUGIN_DIRECTORY . 'vendor';
     $temp_path = EMSFB_PLUGIN_DIRECTORY . 'temp';
@@ -167,8 +201,12 @@ function emsfb_check_file_access_efb() {
         $details['wp_filesystem'] = true;
     }
 
-    $free_bytes = disk_free_space(EMSFB_PLUGIN_DIRECTORY);
-    if (!$free_bytes || $free_bytes < (10 * 1024 * 1024)) {
+    $free_bytes = emsfb_get_free_disk_space_efb(EMSFB_PLUGIN_DIRECTORY);
+    if ($free_bytes === false) {
+        // Cannot determine free space (disk_free_space disabled or restricted).
+        // Do not block installation for a check we are unable to perform.
+        $details['free_space_check'] = 'unavailable';
+    } elseif ($free_bytes < (10 * 1024 * 1024)) {
         $status = false;
         $error_codes[] = 'INSUFFICIENT_DISK_SPACE';
     } else {
@@ -194,7 +232,7 @@ function emsfb_check_file_access_efb() {
         }
     }
 
-    $success_message = esc_html__('Addon directory is ready for file operations', 'easy-form-builder');
+    $success_message = esc_html__('Add-on directory is ready for file operations', 'easy-form-builder');
     $error_message = sprintf(
         esc_html__('Cannot install addons: %s', 'easy-form-builder'),
         implode(', ', $error_codes)
