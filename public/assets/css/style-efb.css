@@ -477,6 +477,53 @@ progress.efb {
   flex: 1 0 0%
 }
 
+/* xs tier col-1..col-9: required by the per-field mobile width feature
+   (mobile_size -> col-*); col-10/11/12 already existed below. */
+.efb.col-1 {
+  flex: 0 0 auto;
+  width: 8.3333333333%
+}
+
+.efb.col-2 {
+  flex: 0 0 auto;
+  width: 16.6666666667%
+}
+
+.efb.col-3 {
+  flex: 0 0 auto;
+  width: 25%
+}
+
+.efb.col-4 {
+  flex: 0 0 auto;
+  width: 33.3333333333%
+}
+
+.efb.col-5 {
+  flex: 0 0 auto;
+  width: 41.6666666667%
+}
+
+.efb.col-6 {
+  flex: 0 0 auto;
+  width: 50%
+}
+
+.efb.col-7 {
+  flex: 0 0 auto;
+  width: 58.3333333333%
+}
+
+.efb.col-8 {
+  flex: 0 0 auto;
+  width: 66.6666666667%
+}
+
+.efb.col-9 {
+  flex: 0 0 auto;
+  width: 75%
+}
+
 .efb.col-10 {
   flex: 0 0 auto;
   width: 83.3333333333%

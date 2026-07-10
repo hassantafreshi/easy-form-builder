@@ -5,7 +5,7 @@
        private $pro_efb = false;
 	   public $pub_bg_button_color_efb='btn-primary';
 	   public $package_type_efb = 0;
-    private $mobile_pos = ['', 'col-sm-12', 'col-sm-12', 'col-sm-12'];
+    private $mobile_pos = ['', 'col-12', 'col-12', 'col-12'];
         public function __construct( $valj_efb, $pro_efb ) {
             $this->valj_efb =  $valj_efb;
             $this->pro_efb = $pro_efb;
@@ -36,7 +36,7 @@
 			'pt-2',
 			'pb-1',
 			$pos[2],
-			($mobile_pos !== null ? $mobile_pos[2] : 'col-sm-12'),
+			($mobile_pos !== null ? $mobile_pos[2] : 'col-12'),
 			'col-form-label',
 			(isset($vj->hflabel) && $vj->hflabel == 1 ? 'd-none' : ''),
 			$label_color,
@@ -54,7 +54,7 @@
 	}
 
 	private function generateDivFId_efb($rndm, $pos, $mobile_pos = null) {
-		return '<div class="efb ' . $pos[3] . ' ' . ($mobile_pos !== null ? $mobile_pos[3] : 'col-sm-12') . ' px-0 mx-0 ttEfb show" id="' . $rndm . '-f">';
+		return '<div class="efb ' . $pos[3] . ' ' . ($mobile_pos !== null ? $mobile_pos[3] : 'col-12') . ' px-0 mx-0 ttEfb show" id="' . $rndm . '-f">';
 	}
 
 	private function generateElementSpecificFields_efb($elementId, $rndm, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id,$texts) {
@@ -322,16 +322,13 @@
                                 }
                         }
 
-                        if (isset($vj->mobile_label_position)) {
-                                if ($vj->mobile_label_position === 'up') {
-                                        $css .= '#' . $id . ' { flex-direction: column !important; }' . "\n";
-                                        $css .= '#' . $id . '_labG { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; }' . "\n";
-                                        $css .= '#' . $id . '-f { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; }' . "\n";
-                                } else if ($vj->mobile_label_position === 'beside') {
-                                        $css .= '#' . $id . ' { flex-direction: row !important; flex-wrap: wrap !important; }' . "\n";
-                                        $css .= '#' . $id . '_labG { width: 33.33% !important; max-width: 33.33% !important; flex: 0 0 33.33% !important; }' . "\n";
-                                        $css .= '#' . $id . '-f { width: 66.67% !important; max-width: 66.67% !important; flex: 0 0 66.67% !important; }' . "\n";
-                                }
+                        // Note: mobile_size and mobile_label_position are handled with
+                        // col-* (xs) classes by get_position_col_mobile_el(), not here.
+
+                        if (isset($vj->mobile_op_style) && in_array((string) $vj->mobile_op_style, array('2', '3'), true)) {
+                                $op_width = (string) $vj->mobile_op_style === '2' ? '50%' : '33.3333%';
+                                $css .= '#' . $id . '_options { display: flex !important; flex-wrap: wrap !important; }' . "\n";
+                                $css .= '#' . $id . '_options > .form-check { flex: 0 0 ' . $op_width . ' !important; width: ' . $op_width . ' !important; max-width: ' . $op_width . ' !important; }' . "\n";
                         }
                 }
 
@@ -369,30 +366,35 @@
         }
 
 	private function get_position_col_mobile_el($val) {
-		$parent_col = 'col-sm-12';
-		$label_col = 'col-sm-12';
-		$input_col = 'col-sm-12';
+		// Mobile tier uses plain col-* (xs) classes: they apply from 0px up and are
+		// overridden by the desktop col-md-* tier at >=768px. col-sm-* must not be
+		// used here, it does not exist below 576px (real phones).
+		$parent_col = 'col-12';
+		$label_col = 'col-12';
+		$input_col = 'col-12';
 		$parent_row = '';
 		$mobile_size = isset($val->mobile_size) ? (int) $val->mobile_size : 100;
 		switch ($mobile_size) {
-			case 100: $parent_col = 'col-sm-12'; break;
-			case 92:  $parent_col = 'col-sm-11'; break;
+			case 100: $parent_col = 'col-12'; break;
+			case 92:  $parent_col = 'col-11'; break;
 			case 83:
-			case 80:  $parent_col = 'col-sm-10'; break;
-			case 75:  $parent_col = 'col-sm-9';  break;
-			case 67:  $parent_col = 'col-sm-8';  break;
-			case 58:  $parent_col = 'col-sm-7';  break;
-			case 50:  $parent_col = 'col-sm-6';  break;
-			case 42:  $parent_col = 'col-sm-5';  break;
-			case 33:  $parent_col = 'col-sm-4';  break;
-			case 25:  $parent_col = 'col-sm-3';  break;
-			case 17:  $parent_col = 'col-sm-2';  break;
-			case 8:   $parent_col = 'col-sm-1';  break;
+			case 80:  $parent_col = 'col-10'; break;
+			case 75:  $parent_col = 'col-9';  break;
+			case 67:  $parent_col = 'col-8';  break;
+			case 58:  $parent_col = 'col-7';  break;
+			case 50:  $parent_col = 'col-6';  break;
+			case 42:  $parent_col = 'col-5';  break;
+			case 33:  $parent_col = 'col-4';  break;
+			case 25:  $parent_col = 'col-3';  break;
+			case 17:  $parent_col = 'col-2';  break;
+			case 8:   $parent_col = 'col-1';  break;
 		}
-		$label_col = 'col-sm-12';
-		$input_col = 'col-sm-12';
-		if (isset($val->label_position) && $val->label_position != "up") {
+		// Mobile label position defaults to 'up' (stacked) regardless of the desktop
+		// label_position; that is the plugin's historical behaviour below 768px.
+		if (isset($val->mobile_label_position) && $val->mobile_label_position == 'beside') {
 			$parent_row = 'row';
+			$label_col = 'col-4';
+			$input_col = 'col-8';
 		}
 		return array($parent_row, $parent_col, $label_col, $input_col);
 	}
@@ -2298,6 +2300,11 @@
 		}
 		  $mobile_pos = $this->get_position_col_mobile_el($vj);
             $this->mobile_pos = $mobile_pos;
+		// The wrapper needs .row when either view puts the label beside the input;
+		// with label-up both tiers are col-*-12 so .row keeps them stacked anyway.
+		if ($pos[0] !== 'row' && $mobile_pos[0] === 'row') {
+			$pos[0] = 'row';
+		}
 		$optn = '<!-- options -->';
 		$pay = 'payefb';
 		$iVJ = $indexVJ;

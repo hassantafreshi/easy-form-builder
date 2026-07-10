@@ -1941,6 +1941,7 @@ post_api_r_message_efb=(data,message)=>{
     'X-WP-Nonce': efb_var.nonce,
     'form-id': 0,
     'sid':data.sid ? data.sid : '',
+    'page-id': efb_var.page_id ? efb_var.page_id : '',
   });
   const jsonData = JSON.stringify(data);
   const requestOptions = {

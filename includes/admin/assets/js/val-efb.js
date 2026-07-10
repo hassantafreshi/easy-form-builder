@@ -824,13 +824,23 @@ function show_setting_window_efb(idset) {
                             <option value="fs-4" ${ valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
                             <option value="fs-3" ${ valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
                         </select></div>`;
-    const optnsStyleEls = `
+    const optnsStyleEls = `<div class="efb efb-desktop-settings-efb ${deskHideEfb}">
       <label for="optnsStyleEl" class="efb mt-3 efb"><i class="efb bi-layout-split fs-7 ${iconMarginGlobal}"></i>${efb_var.text.cols}</label>
                         <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="optnsStyleEl"  data-tag="${valj_efb[indx].type}">
                             <option value="1" ${ !valj_efb[indx].hasOwnProperty('op_style') || valj_efb[indx].op_style == '1' ? `selected` : ''}>${efb_var.text.default}</option>
                             <option value="2" ${ valj_efb[indx].op_style == '2' ? `selected` : ''}>${efb_var.text.col} 2</option>
                             <option value="3" ${ valj_efb[indx].op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>
-                        </select>`;
+                        </select></div>`;
+
+    // Mobile option columns default to 1 column (stacked) - the published
+    // frontend has always stacked options below 768px unless overridden.
+    const mobileOptnsStyleEls = `<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
+      <label for="mobileOptnsStyleEl" class="efb mt-3 efb"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.cols}</label>
+                        <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="mobileOptnsStyleEl"  data-tag="${valj_efb[indx].type}">
+                            <option value="1" ${ !valj_efb[indx].hasOwnProperty('mobile_op_style') || valj_efb[indx].mobile_op_style == '1' ? `selected` : ''}>${efb_var.text.default}</option>
+                            <option value="2" ${ valj_efb[indx].mobile_op_style == '2' ? `selected` : ''}>${efb_var.text.col} 2</option>
+                            <option value="3" ${ valj_efb[indx].mobile_op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>
+                        </select></div>`;
 
     // Checked color picker for radio/checkbox elements (PRO feature)
     const selectCheckedColorEls = () => {
@@ -979,14 +989,16 @@ function show_setting_window_efb(idset) {
         </label>
     </div></div></div>`;
 
+    // Mobile label size inherits the desktop value until the user overrides it.
+    const mobileLabelFontSizeVal = valj_efb[indx].hasOwnProperty('mobile_label_text_size') ? valj_efb[indx].mobile_label_text_size : (valj_efb[indx].label_text_size && valj_efb[indx].label_text_size != 'default' ? valj_efb[indx].label_text_size : 'fs-6');
     const mobileLabelFontSizeEls = `<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
       <label for="mobileLabelFontSizeEl" class="efb mt-3 efb"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelSize.replace('%s', efb_var.text.mobile) || 'Mobile Label size'}</label>
       <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="mobileLabelFontSizeEl"  data-tag="${valj_efb[indx].type}">
-          <option value="fs-6" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-6' ? `selected` : (!valj_efb[indx].hasOwnProperty('mobile_label_text_size') ? `selected` : '')}>${efb_var.text.default}</option>
-          <option value="fs-7" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
-          <option value="fs-5" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>
-          <option value="fs-4" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
-          <option value="fs-3" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
+          <option value="fs-6" ${ mobileLabelFontSizeVal == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
+          <option value="fs-7" ${ mobileLabelFontSizeVal == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
+          <option value="fs-5" ${ mobileLabelFontSizeVal == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>
+          <option value="fs-4" ${ mobileLabelFontSizeVal == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
+          <option value="fs-3" ${ mobileLabelFontSizeVal == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
       </select></div>`;
 
     const MobileElementAlignEls = (side, indx, idset) => {
@@ -1428,6 +1440,7 @@ function show_setting_window_efb(idset) {
                         <div class="efb  mb-3 px-3 row">
 
                         ${o_c ? optnsStyleEls :''}
+    ${o_c ? mobileOptnsStyleEls : ''}
                         ${o_c ? selectCheckedColorEls() :''}
                         ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
@@ -2182,7 +2195,7 @@ function creator_form_builder_Efb() {
             </ul>
           <div class="efb row">${els}</div></div>
          <div class="efb  col-md-8 body-dpz-efb">
-         <div class="efb d-flex justify-content-center mb-2 d-none" id="viewToggleEfb">
+         <div class="efb d-flex justify-content-center mb-2" id="viewToggleEfb">
            <div class="efb btn-group" role="group" aria-label="View toggle">
              <button type="button" class="efb btn btn-sm btn-outline-primary active" id="desktopViewBtnEfb" onclick="switchViewEfb('desktop')">
                <i class="efb bi-display me-1"></i>${efb_var.text.desktop || 'Desktop'}
@@ -2212,6 +2225,10 @@ function creator_form_builder_Efb() {
   </div></div>
 
   `
+
+  // The page is rebuilt in desktop layout; keep the view engine in sync so a
+  // later switch to mobile re-renders instead of assuming it is already there.
+  if (typeof currentViewEfb !== 'undefined') currentViewEfb = 'desktop';
 
   create_dargAndDrop_el();
   items_dd_efb();

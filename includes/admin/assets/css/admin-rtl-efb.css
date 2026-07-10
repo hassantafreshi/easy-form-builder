@@ -202,3 +202,17 @@ body.rtl .efb input.intlPhone::placeholder,
     margin-right: -2px;
     width: 98.5%;
 }
+
+/* View toggle (desktop/mobile) in the form builder.
+   Bootstrap's btn-group collapses shared borders with margin-left:-1px and
+   spaces the icon with me-1 (margin-right) — both physical, both wrong once
+   .efb flips to direction:rtl. ID selector needed because bootstrap.min-efb.css
+   is enqueued after this file. */
+#viewToggleEfb .btn-group .btn:not(:first-child) {
+    margin-left: 0;
+    margin-right: -1px;
+}
+#viewToggleEfb .btn-group .btn .me-1 {
+    margin-right: 0 !important;
+    margin-left: .25rem !important;
+}

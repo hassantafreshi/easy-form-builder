@@ -2127,15 +2127,12 @@ let change_el_edit_Efb = (el) => {
         if (valj_efb[indx].hasOwnProperty('size')) Object.assign(valj_efb[indx],{size:100});
         const op = el.options[el.selectedIndex].value;
         valj_efb[indx].size = op;
-        get_position_col_el(valj_efb[indx].dataId, true);
+        if (typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile') {
+          get_position_col_el(valj_efb[indx].dataId, true);
+        }
         break;
       case "mobileSizeEl":
-        if (!valj_efb[indx].hasOwnProperty('mobile_size')) Object.assign(valj_efb[indx],{mobile_size:100});
-        clss = el.options[el.selectedIndex].value;
-        valj_efb[indx].mobile_size = clss;
-        if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') {
-          get_position_col_mobile_el(valj_efb[indx].dataId, true);
-        }
+        efbSetViewPropEfb(valj_efb[indx].dataId, 'size', el.options[el.selectedIndex].value, 'mobile');
         break;
       case "cornerEl":
 
@@ -2159,21 +2156,18 @@ let change_el_edit_Efb = (el) => {
         break;
       case "labelFontSizeEl":
         valj_efb[indx].label_text_size = el.options[el.selectedIndex].value;
+        if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') break;
         let fontleb = document.getElementById(`${valj_efb[indx].id_}_lab`);
         const sizef = el.options[el.selectedIndex].value
         fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
         if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); }
         break;
       case "mobileLabelFontSizeEl":
-        if (!valj_efb[indx].hasOwnProperty('mobile_label_text_size')) Object.assign(valj_efb[indx],{mobile_label_text_size:'fs-6'});
-        valj_efb[indx].mobile_label_text_size = el.options[el.selectedIndex].value;
-        if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') {
-          let mFontLeb = document.getElementById(`${valj_efb[indx].id_}_lab`);
-          if (mFontLeb) mFontLeb.className = fontSizeChangerEfb(mFontLeb.className, el.options[el.selectedIndex].value);
-        }
+        efbSetViewPropEfb(valj_efb[indx].dataId, 'label_text_size', el.options[el.selectedIndex].value, 'mobile');
         break;
       case "optnsStyleEl":
         valj_efb[indx].op_style = el.options[el.selectedIndex].value;
+        if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') break;
         c =document.getElementById(`${valj_efb[indx].id_}_options`);
         if(valj_efb[indx].op_style!="1"){
           if(!c.classList.contains('row')) c.className += ' row col-md-12';
@@ -2194,6 +2188,9 @@ let change_el_edit_Efb = (el) => {
             }
             }
         }
+        break;
+      case "mobileOptnsStyleEl":
+        efbSetViewPropEfb(valj_efb[indx].dataId, 'op_style', el.options[el.selectedIndex].value, 'mobile');
         break;
       case "thankYouTypeEl":
         valj_efb[0].thank_you = el.options[el.selectedIndex].value;
@@ -3500,6 +3497,13 @@ let editFormEfb =async () => {
     }
 
     fub_shwBtns_efb()
+
+    // editFormEfb also runs while the mobile frame is open (duplicate field,
+    // undo, closing the preview modal, ...). The markup above is always
+    // desktop-channel, so re-project the mobile values afterwards - otherwise
+    // every field snaps back to full width (col-md-12) inside the phone frame.
+    efbProjectMobileViewEfb();
+
     setTimeout(() => {
       efb_builder_maybe_warn_email_delivery();
     }, 250);
@@ -3870,6 +3874,9 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
     el.addEventListener("change", (e) => { change_el_edit_Efb(el); })
   }
 
+  // The option markup above carries the desktop op_style column class;
+  // re-project when the mobile frame is open so the new option matches.
+  efbProjectMobileViewEfb();
 }
 
 const sort_obj_el_efb_ = () => {
@@ -4270,6 +4277,11 @@ fun_efb_add_el = (t, insertAfterEl) => {
   }
 
   fub_shwBtns_efb();
+
+  // Mobile view on screen: project the mobile values onto the freshly added
+  // field(s). Idempotent over all fields, so multi-field drops (name/address)
+  // are covered too.
+  efbProjectMobileViewEfb();
 
   if (t == 'maps') {
     const indx = valj_efb.findIndex(x => x.id_ == rndm);
@@ -6568,9 +6580,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
     const tagId = elementId == "firstName" || elementId == "lastName" || elementId == "address" || elementId == "address_line" || elementId == "postalcode" ? 'text' : elementId;
     const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'
-    const mobileColCls = getMobileColClass(valj_efb[iVJ]);
+    // Edit mode: no mobile col class in the markup - the view engine projects the
+    // active view onto the col-md-* channel (efbApplyFieldViewEfb). Preview mode:
+    // mirror the published frontend, which pairs col-md-* with a col-* xs class.
+    const mobileColCls = previewSate == true ? getMobileColClass(valj_efb[iVJ]) : '';
     newElement += `
-    ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row ${mobileColCls} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
+    ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
     <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]} ${mobileColCls}` : ` row`} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
@@ -6632,21 +6647,28 @@ const funSetPosElEfb = (dataId, position) => {
   if (indx != -1) {
     valj_efb[indx].label_position = position
   }
+  // Desktop-channel DOM change: skip while the mobile view is on screen,
+  // the value is stored above and re-projected on the next view switch.
+  if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') return;
   if (valj_efb[indx].type != "stripe"  && valj_efb[indx].type != "html") get_position_col_el(dataId, true)
 }
 
 const funSetAlignElEfb = (dataId, align, element) => {
   const indx = dataId!='button_group_' && dataId!='Next_' ? valj_efb.findIndex(x => x.dataId == dataId) :0;
   if (indx == -1) { return }
+  // While the mobile view is on screen a field may show an inherited mobile
+  // value; only store the desktop value, the canvas is re-projected on switch.
+  const deskDomEfb = typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile';
   switch (element) {
     case 'label':
-      document.getElementById(`${valj_efb[indx].id_}_labG`).className = alignChangerEfb(document.getElementById(`${valj_efb[indx].id_}_labG`).className, align)
       valj_efb[indx].label_align = align
+      if (deskDomEfb) document.getElementById(`${valj_efb[indx].id_}_labG`).className = alignChangerEfb(document.getElementById(`${valj_efb[indx].id_}_labG`).className, align)
       break;
     case 'description':
+      valj_efb[indx].message_align = align
+      if (!deskDomEfb) break;
       const elm = document.getElementById(`${valj_efb[indx].id_}-des`)
       elm.className = alignChangerElEfb(elm.className, align)
-      valj_efb[indx].message_align = align
       if (align != 'justify-content-start' && elm.classList.contains('mx-4') == true) { elm.classList.remove('mx-4') }
       else if (align == 'justify-content-start' && elm.classList.contains('mx-4') == false) {
         elm.classList.add('mx-4')
@@ -6664,36 +6686,11 @@ const funSetAlignElEfb = (dataId, align, element) => {
 }
 
 const funSetMobilePosElEfb = (dataId, position) => {
-  const indx = valj_efb.findIndex(x => x.dataId == dataId);
-  if (indx != -1) {
-    valj_efb[indx].mobile_label_position = position;
-  }
-  if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') {
-    applyMobileLabelPositionEfb(valj_efb[indx]);
-  }
+  efbSetViewPropEfb(dataId, 'label_position', position, 'mobile');
 }
 
 const funSetMobileAlignElEfb = (dataId, align, element) => {
-  const indx = dataId != 'button_group_' && dataId != 'Next_' ? valj_efb.findIndex(x => x.dataId == dataId) : 0;
-  if (indx == -1) { return }
-  const propName = element == 'label' ? 'mobile_label_align' : 'mobile_message_align';
-  valj_efb[indx][propName] = align;
-  if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') {
-    switch (element) {
-      case 'label':
-        let labEl = document.getElementById(`${valj_efb[indx].id_}_labG`);
-        if (labEl) labEl.className = alignChangerEfb(labEl.className, align);
-        break;
-      case 'description':
-        let desEl = document.getElementById(`${valj_efb[indx].id_}-des`);
-        if (desEl) {
-          desEl.className = alignChangerElEfb(desEl.className, align);
-          if (align != 'justify-content-start' && desEl.classList.contains('mx-4')) { desEl.classList.remove('mx-4'); }
-          else if (align == 'justify-content-start' && !desEl.classList.contains('mx-4')) { desEl.classList.add('mx-4'); }
-        }
-        break;
-    }
-  }
+  efbSetViewPropEfb(dataId, element == 'label' ? 'label_align' : 'message_align', align, 'mobile');
 }
 
 const loadingShow_efb = (title) => {
@@ -7412,48 +7409,199 @@ function get_position_col_el(dataId, state) {
   return [parent_row, parent_col, label_col, input_col]
 }
 
-function applyMobileLabelPositionEfb(item) {
-  if (!item || !item.id_) return;
-  const pos = item.hasOwnProperty('mobile_label_position') ? item.mobile_label_position : (item.hasOwnProperty('label_position') ? item.label_position : 'up');
-  const parentEl = document.getElementById(item.id_);
-  const labelEl = document.getElementById(`${item.id_}_labG`);
-  const inputEl = document.getElementById(`${item.id_}-f`);
-  if (pos === 'up') {
-    if (parentEl && parentEl.classList.contains('row')) parentEl.classList.remove('row');
-    if (labelEl) { labelEl.className = colMdChangerEfb(labelEl.className, 'col-md-12'); }
-    if (inputEl) { inputEl.className = colMdChangerEfb(inputEl.className, 'col-md-12'); }
-  } else {
-    if (parentEl && !parentEl.classList.contains('row')) parentEl.classList.add('row');
-    if (labelEl) { labelEl.className = colMdChangerEfb(labelEl.className, 'col-md-4'); }
-    if (inputEl) { inputEl.className = colMdChangerEfb(inputEl.className, 'col-md-8'); }
+/* ============================================================================
+ * Responsive view engine (Desktop / Mobile builder preview)
+ * ----------------------------------------------------------------------------
+ * See docs/responsive-mobile-view.md for the full contract.
+ *
+ * The canvas is always rendered through the col-md-* class channel (the admin
+ * viewport is wide, so those rules are active even inside the narrow phone
+ * frame). switchViewEfb() re-renders every field and then *projects* the
+ * active view's values onto that channel via efbApplyFieldViewEfb().
+ *
+ * All programmatic changes to a responsive property - the settings UI today,
+ * AI prompt commands tomorrow - must go through efbSetViewPropEfb().
+ * ==========================================================================*/
+
+// Logical responsive property -> storage key on valj_efb items, per view.
+const efbViewPropMapEfb = {
+  desktop: {
+    size: 'size',
+    label_position: 'label_position',
+    label_text_size: 'label_text_size',
+    label_align: 'label_align',
+    message_align: 'message_align',
+    op_style: 'op_style'
+  },
+  mobile: {
+    size: 'mobile_size',
+    label_position: 'mobile_label_position',
+    label_text_size: 'mobile_label_text_size',
+    label_align: 'mobile_label_align',
+    message_align: 'mobile_message_align',
+    op_style: 'mobile_op_style'
+  }
+};
+
+// Fallbacks when a mobile_* key is absent. 'inherit' = use the desktop value;
+// fixed values mirror what the published frontend does below 768px.
+const efbMobilePropDefaultsEfb = {
+  size: 100,
+  label_position: 'up',
+  label_text_size: 'inherit',
+  label_align: 'inherit',
+  message_align: 'inherit',
+  op_style: '1'
+};
+
+// Effective value of a responsive property for a view (fallbacks included).
+function efbGetViewPropEfb(item, propKey, view) {
+  view = view === 'mobile' ? 'mobile' : 'desktop';
+  if (!item || !efbViewPropMapEfb[view].hasOwnProperty(propKey)) return undefined;
+  const storeKey = efbViewPropMapEfb[view][propKey];
+  if (item.hasOwnProperty(storeKey) && item[storeKey] !== '' && item[storeKey] !== undefined && item[storeKey] !== null) {
+    return item[storeKey];
+  }
+  if (view === 'mobile') {
+    const dflt = efbMobilePropDefaultsEfb[propKey];
+    return dflt === 'inherit' ? item[efbViewPropMapEfb.desktop[propKey]] : dflt;
+  }
+  return undefined;
+}
+
+// size percentage -> builder col-md-* class (canvas channel).
+function efbColFromSizeEfb(size) {
+  switch (Number(size)) {
+    case 8:  return 'col-md-1';
+    case 17: return 'col-md-2';
+    case 25: return 'col-md-3';
+    case 33: return 'col-md-4';
+    case 42: return 'col-md-5';
+    case 50: return 'col-md-6';
+    case 58: return 'col-md-7';
+    case 67: return 'col-md-8';
+    case 75: return 'col-md-9';
+    case 80:
+    case 83: return 'col-md-10';
+    case 92: return 'col-md-11';
+    case 100:
+    default: return 'col-md-12';
   }
 }
 
-function applyDesktopLabelPositionEfb(item) {
-  if (!item || !item.id_) return;
-  const parentEl = document.getElementById(item.id_);
-  const labelEl = document.getElementById(`${item.id_}_labG`);
-  const inputEl = document.getElementById(`${item.id_}-f`);
-  const pos = item.hasOwnProperty('label_position') ? item.label_position : 'up';
-  if (pos === 'up') {
-    if (parentEl && parentEl.classList.contains('row')) parentEl.classList.remove('row');
+// Option columns (radio/checkbox family): mirrors the "optnsStyleEl" handler.
+// Only runs when the item actually owns an op_style prop, so option-less
+// containers (e.g. select dropdown internals) are never touched.
+function efbApplyOpStyleViewEfb(item, view) {
+  if (!item || (!item.hasOwnProperty('op_style') && !item.hasOwnProperty('mobile_op_style'))) return;
+  const cont = document.getElementById(`${item.id_}_options`);
+  if (!cont) return;
+  const style = String(efbGetViewPropEfb(item, 'op_style', view) || '1');
+  const checks = document.querySelectorAll(`[data-parent='${item.id_}'].form-check`);
+  if (style != '1') {
+    if (!cont.classList.contains('row')) { cont.className += ' row col-md-12'; }
+    const cls = style == '2' ? 'col-md-6' : 'col-md-4';
+    for (let v of checks) {
+      v.className = colMdRemoveEfb(v.className);
+      v.classList.add(cls);
+    }
   } else {
-    if (parentEl && !parentEl.classList.contains('row')) parentEl.classList.add('row');
+    if (cont.classList.contains('row')) {
+      cont.classList.remove('row');
+      cont.classList.remove('col-md-12');
+    }
+    for (let v of checks) { v.className = colMdRemoveEfb(v.className); }
   }
-  if (labelEl) { labelEl.className = colSmChangerEfb(labelEl.className, 'col-sm-12'); }
-  if (inputEl) { inputEl.className = colSmChangerEfb(inputEl.className, 'col-sm-12'); }
-  if (item.type != "stripe" && item.type != "html") get_position_col_el(item.dataId, true);
 }
 
+// Projects every responsive property of one field onto the live canvas DOM.
+// Desktop width/label-position reuse get_position_col_el (variable label/input
+// split per size); mobile uses a fixed 4/8 split like the published frontend.
+function efbApplyFieldViewEfb(item, view) {
+  if (!item || !item.id_) return;
+  view = view === 'mobile' ? 'mobile' : 'desktop';
+
+  const parentEl = document.querySelector(`setion[id="${item.id_}"]`) || document.getElementById(item.id_);
+  const labelEl = document.getElementById(`${item.id_}_labG`);
+  const inputEl = document.getElementById(`${item.id_}-f`);
+  if (!parentEl) return;
+
+  if (view === 'desktop') {
+    if (item.type != 'stripe' && item.type != 'html') get_position_col_el(item.dataId, true);
+  } else {
+    parentEl.className = colMdChangerEfb(parentEl.className, efbColFromSizeEfb(efbGetViewPropEfb(item, 'size', 'mobile')));
+    const mpos = efbGetViewPropEfb(item, 'label_position', 'mobile');
+    if (labelEl) labelEl.className = colMdChangerEfb(labelEl.className, mpos === 'beside' ? 'col-md-4' : 'col-md-12');
+    if (inputEl) inputEl.className = colMdChangerEfb(inputEl.className, mpos === 'beside' ? 'col-md-8' : 'col-md-12');
+  }
+
+  const fSize = efbGetViewPropEfb(item, 'label_text_size', view);
+  if (fSize) {
+    const labSpan = document.getElementById(`${item.id_}_lab`);
+    if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, fSize);
+  }
+
+  const lAlign = efbGetViewPropEfb(item, 'label_align', view);
+  if (lAlign && labelEl) labelEl.className = alignChangerEfb(labelEl.className, lAlign);
+
+  const mAlign = efbGetViewPropEfb(item, 'message_align', view);
+  const desEl = document.getElementById(`${item.id_}-des`);
+  if (mAlign && desEl) {
+    desEl.className = alignChangerElEfb(desEl.className, mAlign);
+    if (mAlign != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
+    else if (mAlign == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
+  }
+
+  efbApplyOpStyleViewEfb(item, view);
+}
+
+// Single entry point for changing a responsive property (UI handlers and
+// future AI commands). Updates valj_efb and refreshes the canvas only when
+// the change belongs to the view currently on screen.
+function efbSetViewPropEfb(dataId, propKey, value, view) {
+  view = view === 'mobile' ? 'mobile' : 'desktop';
+  if (!efbViewPropMapEfb[view].hasOwnProperty(propKey)) return false;
+  const indx = valj_efb.findIndex(x => x.dataId == dataId);
+  if (indx === -1) return false;
+  valj_efb[indx][efbViewPropMapEfb[view][propKey]] = value;
+  if (typeof currentViewEfb !== 'undefined' && currentViewEfb === view) {
+    efbApplyFieldViewEfb(valj_efb[indx], view);
+  }
+  return true;
+}
+
+// Types that never take part in the per-field layout projection.
+// NOTE: step items have type 'step' (singular) in valj_efb.
+function efbIsLayoutFieldEfb(item) {
+  if (!item || !item.hasOwnProperty('type')) return false;
+  return ['form', 'step', 'option', 'r_matrix', 'html', 'register', 'login', 'subscribe', 'survey', 'payment', 'smartForm'].indexOf(item.type) === -1;
+}
+
+// Re-projects the mobile values onto every field on the canvas. No-op in
+// desktop view. EVERY flow that (re)builds #dropZoneEFB markup - editFormEfb,
+// switchViewEfb, fun_efb_add_el, duplicate/undo paths - must call this after
+// rendering, because the markup itself is always desktop-channel.
+function efbProjectMobileViewEfb() {
+  if (typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile') return;
+  for (let i = 1; i < valj_efb.length; i++) {
+    if (efbIsLayoutFieldEfb(valj_efb[i]) && valj_efb[i].type != 'stripe') {
+      try { efbApplyFieldViewEfb(valj_efb[i], 'mobile'); } catch (error) {}
+    }
+  }
+}
+
+// Destructive re-render of #dropZoneEFB with the requested view.
+// The render loop is an exact mirror of editFormEfb(); keep them in sync.
 function switchViewEfb(view) {
-  currentViewEfb = view;
+  view = view === 'mobile' ? 'mobile' : 'desktop';
   const dragBox = document.getElementById('dragBoxWrapperEfb');
   const dropZoneEFB = document.getElementById('dropZoneEFB');
   const desktopBtn = document.getElementById('desktopViewBtnEfb');
   const mobileBtn = document.getElementById('mobileViewBtnEfb');
   if (!dragBox || !dropZoneEFB || !desktopBtn || !mobileBtn) return;
+  const previousView = currentViewEfb;
+  currentViewEfb = view;
 
-  // Update button active state
   if (view === 'mobile') {
     dragBox.classList.add('efb-mobile-view-efb');
     desktopBtn.classList.remove('active');
@@ -7464,7 +7612,12 @@ function switchViewEfb(view) {
     desktopBtn.classList.add('active');
   }
 
-  // Show loading, then re-render all fields
+  updateSideBoxViewEfb(view);
+
+  // Nothing dropped yet: keep the drag&drop placeholder, no re-render needed.
+  if (valj_efb.length < 2) return;
+  if (previousView === view) return;
+
   dropZoneEFB.innerHTML = efbLoadingCard('', 4);
   let p = calPLenEfb(valj_efb.length);
   const len = (valj_efb.length) * p || 10;
@@ -7491,57 +7644,10 @@ function switchViewEfb(view) {
 
     fub_shwBtns_efb();
 
-    // Apply view-specific layout after fields are rendered
-    if (view === 'mobile') {
-      for (let i = 1; i < valj_efb.length; i++) {
-        if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
-          get_position_col_mobile_el(valj_efb[i].dataId, true);
-          const mLabelTextSize = valj_efb[i].hasOwnProperty('mobile_label_text_size') ? valj_efb[i].mobile_label_text_size : valj_efb[i].label_text_size;
-          if (mLabelTextSize) {
-            let labSpan = document.getElementById(`${valj_efb[i].id_}_lab`);
-            if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, mLabelTextSize);
-          }
-          const mLabelAlign = valj_efb[i].hasOwnProperty('mobile_label_align') ? valj_efb[i].mobile_label_align : valj_efb[i].label_align;
-          if (mLabelAlign) {
-            let labG = document.getElementById(`${valj_efb[i].id_}_labG`);
-            if (labG) labG.className = alignChangerEfb(labG.className, mLabelAlign);
-          }
-          const mMsgAlign = valj_efb[i].hasOwnProperty('mobile_message_align') ? valj_efb[i].mobile_message_align : valj_efb[i].message_align;
-          if (mMsgAlign) {
-            let desEl = document.getElementById(`${valj_efb[i].id_}-des`);
-            if (desEl) {
-              desEl.className = alignChangerElEfb(desEl.className, mMsgAlign);
-              if (mMsgAlign != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
-              else if (mMsgAlign == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
-            }
-          }
-          applyMobileLabelPositionEfb(valj_efb[i]);
-        }
-      }
-    } else {
-      for (let i = 1; i < valj_efb.length; i++) {
-        if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
-          if (valj_efb[i].hasOwnProperty('label_text_size')) {
-            let labSpan = document.getElementById(`${valj_efb[i].id_}_lab`);
-            if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, valj_efb[i].label_text_size);
-          }
-          if (valj_efb[i].hasOwnProperty('label_align')) {
-            let labG = document.getElementById(`${valj_efb[i].id_}_labG`);
-            if (labG) labG.className = alignChangerEfb(labG.className, valj_efb[i].label_align);
-          }
-          if (valj_efb[i].hasOwnProperty('message_align')) {
-            let desEl = document.getElementById(`${valj_efb[i].id_}-des`);
-            if (desEl) {
-              desEl.className = alignChangerElEfb(desEl.className, valj_efb[i].message_align);
-              if (valj_efb[i].message_align != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
-              else if (valj_efb[i].message_align == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
-            }
-          }
-        }
-      }
-    }
-
-    updateSideBoxViewEfb(view);
+    // Projection pass AFTER the loop: `innerHTML +=` re-serialises earlier
+    // nodes, so per-field class changes are only safe once the loop is done.
+    // (funSetPosElEfb above survives it because class attributes serialise.)
+    efbProjectMobileViewEfb();
   }, len);
 }
 
@@ -7557,59 +7663,26 @@ function updateSideBoxViewEfb(view) {
   }
 }
 
+// Frontend-mirror xs class (col-*) used only in the builder's preview markup
+// (previewSate == true) so the admin preview behaves like the published form.
+// Mobile width defaults to 100 - it intentionally does NOT inherit `size`.
 function getMobileColClass(item) {
-  const ms = item && item.hasOwnProperty('mobile_size') ? Number(item.mobile_size) : (item && item.hasOwnProperty('size') ? Number(item.size) : 100);
-  switch(ms) {
-    case 8:  return 'col-sm-1';
-    case 17: return 'col-sm-2';
-    case 25: return 'col-sm-3';
-    case 33: return 'col-sm-4';
-    case 42: return 'col-sm-5';
-    case 50: return 'col-sm-6';
-    case 58: return 'col-sm-7';
-    case 67: return 'col-sm-8';
-    case 75: return 'col-sm-9';
-    case 83: return 'col-sm-10';
-    case 92: return 'col-sm-11';
-    case 100: default: return 'col-sm-12';
-  }
+  const ms = item && item.hasOwnProperty('mobile_size') ? Number(item.mobile_size) : 100;
+  return efbColFromSizeEfb(ms).replace('col-md-', 'col-');
 }
 
+// Back-compat wrapper (older handlers call this): projects the mobile width /
+// label position of one field onto the canvas. Returns builder-channel classes.
 function get_position_col_mobile_el(dataId, state) {
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   if (indx === -1) return ['', 'col-md-12', 'col-md-12', 'col-md-12'];
-  let el_parent = document.querySelector(`setion[id="${valj_efb[indx].id_}"]`) || document.getElementById(valj_efb[indx].id_) || "null";
-  let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`) ?? "null";
-  let el_input = document.getElementById(`${valj_efb[indx].id_}-f`) ?? "null";
-  let parent_col = 'col-md-12';
-  let label_col = 'col-md-12';
-  let input_col = 'col-md-12';
-  let parent_row = '';
-  const msize = valj_efb[indx].hasOwnProperty("mobile_size") ? Number(valj_efb[indx].mobile_size) : (valj_efb[indx].hasOwnProperty("size") ? Number(valj_efb[indx].size) : 100);
-  switch (msize) {
-    case 100: parent_col = 'col-md-12'; break;
-    case 92:  parent_col = 'col-md-11'; break;
-    case 83:  parent_col = 'col-md-10'; break;
-    case 75:  parent_col = 'col-md-9';  break;
-    case 67:  parent_col = 'col-md-8';  break;
-    case 58:  parent_col = 'col-md-7';  break;
-    case 50:  parent_col = 'col-md-6';  break;
-    case 42:  parent_col = 'col-md-5';  break;
-    case 33:  parent_col = 'col-md-4';  break;
-    case 25:  parent_col = 'col-md-3';  break;
-    case 17:  parent_col = 'col-md-2';  break;
-    case 8:   parent_col = 'col-md-1';  break;
-  }
-  const mpos = valj_efb[indx].hasOwnProperty('mobile_label_position') ? valj_efb[indx].mobile_label_position : valj_efb[indx].label_position;
-  if (mpos != "up") {
-    parent_row = 'row';
-  }
-  if (state == true) {
-    el_parent.className = colMdChangerEfb(el_parent.className, parent_col);
-    if (el_input != "null") el_input.className = colMdChangerEfb(el_input.className, input_col);
-    if (el_label != "null") el_label.className = colMdChangerEfb(el_label.className, label_col);
-  }
-  return [parent_row, parent_col, label_col, input_col];
+  const item = valj_efb[indx];
+  const parent_col = efbColFromSizeEfb(efbGetViewPropEfb(item, 'size', 'mobile'));
+  const mpos = efbGetViewPropEfb(item, 'label_position', 'mobile');
+  const label_col = mpos === 'beside' ? 'col-md-4' : 'col-md-12';
+  const input_col = mpos === 'beside' ? 'col-md-8' : 'col-md-12';
+  if (state == true) efbApplyFieldViewEfb(item, 'mobile');
+  return [mpos === 'beside' ? 'row' : '', parent_col, label_col, input_col];
 }
 
 fun_captcha_load_efb = ()=>{
