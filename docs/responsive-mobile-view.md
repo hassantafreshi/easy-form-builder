@@ -58,8 +58,11 @@ is wide, so `col-md` rules are active). Switching views does a full re-render an
     and silently killed every width — do not reintroduce it.
 - `currentViewEfb` (global, admin-efb.js) holds the active view. It is reset to
   `'desktop'` by `creator_form_builder_Efb()` whenever the builder page is (re)built.
-- New fields dropped while in mobile view get `efbApplyFieldViewEfb(item,'mobile')`
-  at the end of `fun_efb_add_el()`.
+- **Every flow that (re)builds `#dropZoneEFB` markup must end with
+  `efbProjectMobileViewEfb()`** (no-op in desktop view). The markup itself is always
+  desktop-channel, so without this call every field snaps to full width inside the
+  phone frame. Already wired into: `editFormEfb()` (covers duplicate-field, undo and
+  preview-modal-close re-renders), `switchViewEfb()`, `fun_efb_add_el()`.
 
 ### The registry / AI entry point
 

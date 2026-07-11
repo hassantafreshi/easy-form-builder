@@ -1209,6 +1209,30 @@ class efbFunction {
 			/* translators: Watermark label shown over the video/screen recorder preview frame */
 			"recWatermark" => $state && isset($ac->text->recWatermark) ? $ac->text->recWatermark : esc_html__('Made by Easy Form Builder','easy-form-builder'),
 			"recTapToStart" => $state && isset($ac->text->recTapToStart) ? $ac->text->recTapToStart : esc_html__('Tap to start recording','easy-form-builder'),
+			/* translators: Button title: download a local copy of the recording */
+			"recDownload" => $state && isset($ac->text->recDownload) ? $ac->text->recDownload : esc_html__('Download recording','easy-form-builder'),
+			/* translators: Shown when the page is served over plain HTTP so browsers block mic/camera/screen APIs */
+			"recNeedsHttps" => $state && isset($ac->text->recNeedsHttps) ? $ac->text->recNeedsHttps : esc_html__('Recording requires a secure (HTTPS) connection. Please ask the site administrator to enable HTTPS on this host.','easy-form-builder'),
+			/* translators: Shown for the screen recorder on browsers without getDisplayMedia (practically all mobile browsers) */
+			"recScreenNotSupported" => $state && isset($ac->text->recScreenNotSupported) ? $ac->text->recScreenNotSupported : esc_html__('Screen recording is not supported on this device or browser (most mobile browsers do not allow it). Please open the form in a desktop browser such as Chrome, Edge or Firefox.','easy-form-builder'),
+			/* translators: Setting label: get-ready countdown shown before recording starts */
+			"recCountdown" => $state && isset($ac->text->recCountdown) ? $ac->text->recCountdown : esc_html__('Countdown before recording','easy-form-builder'),
+			/* translators: Setting label: which phone camera the video recorder opens with */
+			"recFacing" => $state && isset($ac->text->recFacing) ? $ac->text->recFacing : esc_html__('Default camera (mobile)','easy-form-builder'),
+			"recFacingFront" => $state && isset($ac->text->recFacingFront) ? $ac->text->recFacingFront : esc_html__('Front (selfie)','easy-form-builder'),
+			"recFacingBack" => $state && isset($ac->text->recFacingBack) ? $ac->text->recFacingBack : esc_html__('Back (environment)','easy-form-builder'),
+			/* translators: Setting label: mirror the live camera preview (recorded file stays unmirrored) */
+			"recMirror" => $state && isset($ac->text->recMirror) ? $ac->text->recMirror : esc_html__('Mirror the live preview','easy-form-builder'),
+			/* translators: Setting label: microphone noise suppression / echo cancellation */
+			"recNoise" => $state && isset($ac->text->recNoise) ? $ac->text->recNoise : esc_html__('Noise suppression & echo cancellation','easy-form-builder'),
+			/* translators: Setting label: show the watermark overlay on the recorder preview */
+			"recShowWatermark" => $state && isset($ac->text->recShowWatermark) ? $ac->text->recShowWatermark : esc_html__('Show watermark on the preview','easy-form-builder'),
+			/* translators: Setting label: let the visitor download a copy of their recording */
+			"recAllowDownload" => $state && isset($ac->text->recAllowDownload) ? $ac->text->recAllowDownload : esc_html__('Let the user download a copy of the recording','easy-form-builder'),
+			/* translators: %s = megabytes. Hint under the max file size setting showing the hosting upload limit */
+			"hostUploadLimit" => $state && isset($ac->text->hostUploadLimit) ? $ac->text->hostUploadLimit : esc_html__('Your hosting accepts uploads up to %s MB.','easy-form-builder'),
+			/* translators: %s = megabytes. Warning when the configured size exceeds the hosting upload limit */
+			"hostUploadLimitOver" => $state && isset($ac->text->hostUploadLimitOver) ? $ac->text->hostUploadLimitOver : esc_html__('This is larger than the hosting upload limit (%s MB); uploads will fail.','easy-form-builder'),
 			"cityList" => $state  &&  isset($ac->text->cityList) ? $ac->text->cityList : esc_html__('Cities Drop-Down','easy-form-builder'),
 			"elan" => $state  &&  isset($ac->text->elan) ? $ac->text->elan : esc_html__('English language','easy-form-builder'),
 			"nlan" => $state  &&  isset($ac->text->nlan) ? $ac->text->nlan : esc_html__('National language','easy-form-builder'),

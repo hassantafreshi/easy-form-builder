@@ -301,3 +301,78 @@
 	background: rgba(111,66,193,.12);
 	color: #6f42c1;
 }
+
+/* ---- UX extras (docs/recorder-fields.md) ---------------------------------- */
+
+/* Get-ready countdown overlay (rec_countdown) */
+.efb-recorder-countdown {
+	position: absolute;
+	inset: 0;
+	z-index: 4;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 4.5rem;
+	font-weight: 700;
+	color: #fff;
+	background: rgba(10, 12, 20, .55);
+	text-shadow: 0 4px 18px rgba(0,0,0,.6);
+	pointer-events: none;
+	animation: efb-rec-count-pop 1s infinite;
+	user-select: none;
+}
+
+@keyframes efb-rec-count-pop {
+	0% { letter-spacing: 0; opacity: .4; }
+	15% { opacity: 1; }
+	100% { letter-spacing: 2px; opacity: .85; }
+}
+
+.efb-recorder-shell[data-state="countdown"] .efb-recorder-idle-hint {
+	display: none;
+}
+
+/* Mirrored LIVE selfie preview (rec_mirror); playback is never mirrored */
+.efb-recorder-mirrored .efb-recorder-video {
+	transform: scaleX(-1);
+}
+
+/* Inline playback for a finished audio recording */
+.efb-recorder-audio-playback {
+	position: relative;
+	z-index: 1;
+	width: 85%;
+	max-width: 420px;
+	height: 40px;
+}
+
+/* Unsupported environment (no HTTPS / old browser / screen capture on mobile):
+   the reason replaces the idle hint and the start button is disabled */
+.efb-recorder-unsupported .efb-recorder-frame {
+	border-style: dashed;
+	border-color: #b02a37;
+}
+
+.efb-recorder-unsupported .efb-recorder-idle-hint {
+	color: #ffd7db;
+}
+
+.efb-recorder-unsupported .efb-recorder-idle-hint i {
+	color: #ff8b95;
+	opacity: 1;
+}
+
+.efb-recorder-unsupported-msg {
+	font-size: 12px;
+	line-height: 1.5;
+	max-width: 420px;
+}
+
+.efb-recorder-unsupported .efb-recorder-primary-btn,
+.efb-recorder-primary-btn:disabled {
+	background: #6c7280;
+	box-shadow: none;
+	cursor: not-allowed;
+	opacity: .55;
+	transform: none;
+}

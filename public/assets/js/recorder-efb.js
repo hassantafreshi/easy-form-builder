@@ -41,14 +41,23 @@ function efbRecorderWidgetHtml(rndm, vj, formId) {
 	var requiredClass = required ? 'required' : '';
 	var requiredAttr = required ? 'required' : '';
 	var domain = (typeof window !== 'undefined' && window.location) ? window.location.hostname : '';
+	// UX extras (see docs/recorder-fields.md §2); ui_recorder_efb (PHP) mirrors these
+	var countdown = vj.hasOwnProperty('rec_countdown') ? Number(vj.rec_countdown) || 0 : 3;
+	var download = vj.hasOwnProperty('rec_download') ? (Number(vj.rec_download) ? 1 : 0) : 1;
+	var noise = vj.hasOwnProperty('rec_noise') ? (Number(vj.rec_noise) ? 1 : 0) : 1;
+	var facing = vj.rec_facing === 'environment' ? 'environment' : 'user';
+	var mirror = vj.hasOwnProperty('rec_mirror') ? (Number(vj.rec_mirror) ? 1 : 0) : 1;
+	var watermark = vj.hasOwnProperty('rec_watermark') ? (Number(vj.rec_watermark) ? 1 : 0) : 1;
 
+	// Watermark stays in the markup (class-hidden when off) so the builder's
+	// live toggle works without a canvas re-render.
 	var mediaPreview = kind === 'audio_recorder'
 		? '<canvas class="efb efb-recorder-meter d-none" id="' + rndm + '-meter" width="300" height="64"></canvas>'
 		: '<video class="efb efb-recorder-video d-none" id="' + rndm + '-preview" playsinline muted></video>' +
-			'<div class="efb efb-recorder-watermark" id="' + rndm + '-watermark"><span>' + efbRecText('recWatermark', 'Made by Easy Form Builder') + '</span><span class="efb efb-recorder-domain">' + domain + '</span></div>';
+			'<div class="efb efb-recorder-watermark ' + (watermark ? '' : 'd-none') + '" id="' + rndm + '-watermark"><span>' + efbRecText('recWatermark', 'Made by Easy Form Builder') + '</span><span class="efb efb-recorder-domain">' + domain + '</span></div>';
 
 	return '' +
-		'<div class="efb efb-recorder-shell ' + classMap[kind] + '" id="' + rndm + '_" data-id="' + rndm + '" data-kind="' + kind + '" data-quality="' + quality + '" data-duration="' + duration + '" data-formid="' + (formId || 0) + '" data-state="idle">' +
+		'<div class="efb efb-recorder-shell ' + classMap[kind] + '" id="' + rndm + '_" data-id="' + rndm + '" data-kind="' + kind + '" data-quality="' + quality + '" data-duration="' + duration + '" data-countdown="' + countdown + '" data-download="' + download + '" data-noise="' + noise + '" data-facing="' + facing + '" data-mirror="' + mirror + '" data-formid="' + (formId || 0) + '" data-state="idle">' +
 			'<div class="efb efb-recorder-frame" id="' + rndm + '-frame">' +
 				mediaPreview +
 				'<div class="efb efb-recorder-idle-hint" id="' + rndm + '-idle"><i class="efb bi ' + iconMap[kind] + '"></i><span>' + efbRecText('recTapToStart', 'Tap to start recording') + '</span></div>' +
@@ -59,6 +68,7 @@ function efbRecorderWidgetHtml(rndm, vj, formId) {
 					'<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="resume" data-id="' + rndm + '" title="' + efbRecText('recResume', 'Resume') + '"><i class="efb bi-record-circle"></i></button>' +
 					'<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="redo" data-id="' + rndm + '" title="' + efbRecText('recRedo', 'Re-record') + '"><i class="efb bi-arrow-counterclockwise"></i></button>' +
 					'<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="play" data-id="' + rndm + '" title="' + efbRecText('recPlay', 'Play') + '"><i class="efb bi-play-fill"></i></button>' +
+					'<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="download" data-id="' + rndm + '" title="' + efbRecText('recDownload', 'Download recording') + '"><i class="efb bi-download"></i></button>' +
 				'</div>' +
 				'<div class="efb efb-recorder-progress-track"><div class="efb efb-recorder-progress-bar" id="' + rndm + '-progress"></div></div>' +
 			'</div>' +
@@ -70,11 +80,81 @@ function efbRecorderWidgetHtml(rndm, vj, formId) {
 		'</div>';
 }
 
-function efbRecQualityConstraints(kind, quality) {
+/* ---- Capability detection (host & browser awareness) ----------------------
+ * Classifies why recording cannot work here so the user sees the REASON, not
+ * a dead button: 'https' (page not on a secure origin - hosts without SSL),
+ * 'screen' (getDisplayMedia missing - practically every mobile browser),
+ * 'nosupport' (no MediaRecorder/getUserMedia - old browsers, some webviews). */
+function efbRecSupportInfo(kind) {
+	if (typeof window !== 'undefined' && window.isSecureContext === false) {
+		return { ok: false, reason: 'https', msg: efbRecText('recNeedsHttps', 'Recording requires a secure (HTTPS) connection. Please ask the site administrator to enable HTTPS on this host.') };
+	}
+	if (typeof MediaRecorder === 'undefined' || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+		return { ok: false, reason: 'nosupport', msg: efbRecText('recNotSupported', 'Your browser does not support this recording feature.') };
+	}
+	if (kind === 'screen_recorder' && !navigator.mediaDevices.getDisplayMedia) {
+		return { ok: false, reason: 'screen', msg: efbRecText('recScreenNotSupported', 'Screen recording is not supported on this device or browser (most mobile browsers do not allow it). Please open the form in a desktop browser such as Chrome, Edge or Firefox.') };
+	}
+	return { ok: true, reason: '', msg: '' };
+}
+
+/* Stamps an unsupported shell once: warning inside the frame + disabled start. */
+function efbRecApplySupportNotice(shell) {
+	if (!shell || shell.dataset.supportChecked === '1') return;
+	shell.dataset.supportChecked = '1';
+	var info = efbRecSupportInfo(shell.dataset.kind);
+	if (info.ok) return;
+	shell.classList.add('efb-recorder-unsupported');
+	var idle = efbRecEl(shell.dataset.id, '-idle');
+	if (idle) {
+		idle.innerHTML = '<i class="efb bi-exclamation-triangle-fill"></i><span class="efb efb-recorder-unsupported-msg">' + info.msg + '</span>';
+	}
+	var controls = efbRecEl(shell.dataset.id, '-controls');
+	var primary = controls ? controls.querySelector('.efb-recorder-primary-btn') : null;
+	if (primary) {
+		primary.disabled = true;
+		primary.title = info.msg;
+	}
+	efbRecSetStatus(shell.dataset.id, info.msg);
+}
+
+function efbRecScanSupport(root) {
+	var scope = root && root.querySelectorAll ? root : document;
+	scope.querySelectorAll('.efb-recorder-shell').forEach(function (shell) {
+		efbRecApplySupportNotice(shell);
+	});
+}
+
+if (typeof document !== 'undefined') {
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', function () { efbRecScanSupport(document); });
+	} else {
+		efbRecScanSupport(document);
+	}
+	/* Widgets are also injected dynamically (builder canvas re-renders, popup and
+	 * multi-step forms); watch for them instead of expecting every render path
+	 * to remember to call the scan. */
+	if (typeof MutationObserver !== 'undefined' && document.body) {
+		new MutationObserver(function () { efbRecScanSupport(document); }).observe(document.body, { childList: true, subtree: true });
+	} else if (typeof MutationObserver !== 'undefined') {
+		document.addEventListener('DOMContentLoaded', function () {
+			new MutationObserver(function () { efbRecScanSupport(document); }).observe(document.body, { childList: true, subtree: true });
+		});
+	}
+}
+
+function efbRecQualityConstraints(kind, quality, opts) {
+	opts = opts || {};
 	if (kind === 'audio_recorder') {
 		var audioBitsMap = { low: 32000, standard: 96000, high: 192000 };
+		var audio = { channelCount: quality === 'low' ? 1 : 2 };
+		// Browsers that don't implement these constraints simply ignore them.
+		if (opts.noise !== undefined) {
+			audio.noiseSuppression = !!opts.noise;
+			audio.echoCancellation = !!opts.noise;
+		}
 		return {
-			audio: { channelCount: quality === 'low' ? 1 : 2 },
+			audio: audio,
 			audioBitsPerSecond: audioBitsMap[quality] || audioBitsMap.standard
 		};
 	}
@@ -84,22 +164,39 @@ function efbRecQualityConstraints(kind, quality) {
 		'1080p': { width: 1920, height: 1080, bitrate: 4500000 }
 	};
 	var v = videoMap[quality] || videoMap['720p'];
+	var video = { width: { ideal: v.width }, height: { ideal: v.height } };
+	// `ideal` keeps desktops (single camera) working while phones pick front/back.
+	if (kind === 'video_recorder' && opts.facing) {
+		video.facingMode = { ideal: opts.facing };
+	}
 	return {
-		video: { width: { ideal: v.width }, height: { ideal: v.height } },
+		video: video,
 		videoBitsPerSecond: v.bitrate
 	};
 }
 
 function efbRecMimeType(kind) {
+	/* webm covers Chrome/Edge/Firefox/Android; mp4 covers Safari (macOS/iOS),
+	 * which records AAC/H.264 and rejects every webm flavour. */
 	var candidates = kind === 'audio_recorder'
-		? ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']
-		: ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+		? ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus']
+		: ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4'];
 	for (var i = 0; i < candidates.length; i++) {
 		if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(candidates[i])) {
 			return candidates[i];
 		}
 	}
 	return kind === 'audio_recorder' ? 'audio/webm' : 'video/webm';
+}
+
+/* File extension for the container the browser ACTUALLY produced (never assume
+ * webm - Safari records mp4). */
+function efbRecFileExt(mime) {
+	if (!mime) return '.webm';
+	if (mime.indexOf('mp4') !== -1) return kindOf(mime) === 'audio' ? '.m4a' : '.mp4';
+	if (mime.indexOf('ogg') !== -1) return '.ogg';
+	return '.webm';
+	function kindOf(m) { return m.indexOf('audio') === 0 ? 'audio' : 'video'; }
 }
 
 function efbRecFormatTime(sec) {
@@ -129,11 +226,13 @@ function efbRecApplyState(id, state) {
 	if (!controls) return;
 	var map = {
 		idle: [],
+		countdown: [],
 		recording: ['pause'],
 		paused: ['resume'],
 		stopped: ['redo', 'play']
 	};
 	var shown = map[state] || [];
+	if (state === 'stopped' && shell.dataset.download === '1') shown = shown.concat(['download']);
 	controls.querySelectorAll('.efb-recorder-secondary-btn').forEach(function (btn) {
 		btn.classList.toggle('d-none', shown.indexOf(btn.dataset.action) === -1);
 	});
@@ -146,7 +245,7 @@ function efbRecApplyState(id, state) {
 			primary.dataset.action = 'start';
 			primary.title = efbRecText('recStart', 'Start Recording');
 			primary.innerHTML = '<i class="efb bi ' + iconMap[kind] + '"></i>';
-		} else if (state === 'recording' || state === 'paused') {
+		} else if (state === 'recording' || state === 'paused' || state === 'countdown') {
 			primary.dataset.action = 'stop';
 			primary.title = efbRecText('recStop', 'Stop');
 			primary.innerHTML = '<i class="efb bi-stop-fill"></i>';
@@ -229,6 +328,61 @@ function efbRecDrawMeter(id, state) {
 	draw();
 }
 
+/* Aborts a live session that never produced a recording (countdown cancelled,
+ * screen-share ended from the browser UI, ...): releases hardware + resets UI. */
+function efbRecAbortLive(id, state) {
+	efbRecClearTimer(state);
+	efbRecStopStream(state);
+	state.recorder = null;
+	state.chunks = [];
+	state.elapsedMs = 0;
+	var shell = efbRecShell(id);
+	if (shell) shell.classList.remove('efb-recorder-mirrored');
+	var cd = efbRecEl(id, '-countdown');
+	if (cd) cd.remove();
+	var video = efbRecEl(id, '-preview');
+	if (video) {
+		video.srcObject = null;
+		video.classList.add('d-none');
+	}
+	var meter = efbRecEl(id, '-meter');
+	if (meter) meter.classList.add('d-none');
+	efbRecApplyState(id, 'idle');
+	efbRecSetStatus(id, efbRecText('recReady', 'Ready to record'));
+}
+
+/* Big get-ready overlay (3..2..1) shown AFTER permission is granted, over the
+ * already-live preview. Resolves false when the user hits stop meanwhile. */
+function efbRecCountdown(id, seconds, state) {
+	return new Promise(function (resolve) {
+		var frame = efbRecEl(id, '-frame');
+		if (!frame) { resolve(true); return; }
+		var overlay = document.createElement('div');
+		overlay.className = 'efb efb-recorder-countdown';
+		overlay.id = id + '-countdown';
+		overlay.textContent = seconds;
+		frame.appendChild(overlay);
+		state.countdownCancelled = false;
+		var n = seconds;
+		state.countdownTimer = setInterval(function () {
+			if (state.countdownCancelled) {
+				clearInterval(state.countdownTimer);
+				if (overlay.parentNode) overlay.remove();
+				resolve(false);
+				return;
+			}
+			n -= 1;
+			if (n <= 0) {
+				clearInterval(state.countdownTimer);
+				if (overlay.parentNode) overlay.remove();
+				resolve(true);
+			} else {
+				overlay.textContent = n;
+			}
+		}, 1000);
+	});
+}
+
 async function efbRecStart(id) {
 	var shell = efbRecShell(id);
 	if (!shell) return;
@@ -236,8 +390,13 @@ async function efbRecStart(id) {
 	var quality = shell.dataset.quality || (kind === 'audio_recorder' ? 'standard' : '720p');
 	var maxDuration = Number(shell.dataset.duration) || 0;
 
-	if (typeof MediaRecorder === 'undefined' || !navigator.mediaDevices) {
-		efbRecAlert(efbRecText('recNotSupported', 'Your browser does not support this recording feature.'));
+	// Ignore double-activation while already live (touch devices fire fast).
+	if (shell.dataset.state !== 'idle' && shell.dataset.state !== 'stopped') return;
+
+	var support = efbRecSupportInfo(kind);
+	if (!support.ok) {
+		efbRecApplySupportNotice(shell);
+		efbRecAlert(support.msg);
 		return;
 	}
 
@@ -248,7 +407,10 @@ async function efbRecStart(id) {
 	state.chunks = [];
 
 	try {
-		var constraints = efbRecQualityConstraints(kind, quality);
+		var constraints = efbRecQualityConstraints(kind, quality, {
+			noise: shell.dataset.noise !== '0',
+			facing: shell.dataset.facing || 'user'
+		});
 		if (kind === 'audio_recorder') {
 			state.stream = await navigator.mediaDevices.getUserMedia({ audio: constraints.audio });
 		} else if (kind === 'video_recorder') {
@@ -264,6 +426,8 @@ async function efbRecStart(id) {
 	if (kind === 'audio_recorder') {
 		var meter = efbRecEl(id, '-meter');
 		if (meter) meter.classList.remove('d-none');
+		var playback = efbRecEl(id, '-audio-playback');
+		if (playback) playback.classList.add('d-none');
 		state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 		var source = state.audioCtx.createMediaStreamSource(state.stream);
 		state.analyser = state.audioCtx.createAnalyser();
@@ -274,9 +438,34 @@ async function efbRecStart(id) {
 		var video = efbRecEl(id, '-preview');
 		if (video) {
 			video.classList.remove('d-none');
+			video.controls = false;
 			video.srcObject = state.stream;
 			video.muted = true;
 			video.play().catch(function () {});
+		}
+		// Mirror only the LIVE selfie preview; the recorded file stays unmirrored.
+		if (kind === 'video_recorder' && shell.dataset.mirror === '1') {
+			shell.classList.add('efb-recorder-mirrored');
+		}
+		// Screen share can be ended from the browser's own UI - treat it as stop.
+		var vTrack = state.stream.getVideoTracks()[0];
+		if (vTrack) {
+			vTrack.onended = function () {
+				if (state.recorder && state.recorder.state !== 'inactive') efbRecStop(id);
+				else if (shell.dataset.state === 'countdown') { state.countdownCancelled = true; }
+			};
+		}
+	}
+
+	// Optional get-ready countdown (configured per field, data-countdown).
+	var countdownSecs = Number(shell.dataset.countdown) || 0;
+	if (countdownSecs > 0) {
+		efbRecApplyState(id, 'countdown');
+		efbRecSetStatus(id, efbRecText('recReady', 'Ready to record'));
+		var proceed = await efbRecCountdown(id, countdownSecs, state);
+		if (!proceed || !state.stream) {
+			efbRecAbortLive(id, state);
+			return;
 		}
 	}
 
@@ -323,7 +512,13 @@ function efbRecPauseResume(id) {
 
 function efbRecStop(id) {
 	var state = EFB_REC_STATE[id];
-	if (!state || !state.recorder) return;
+	if (!state) return;
+	// Stop during the countdown = cancel before anything was recorded.
+	if (state.countdownTimer && (!state.recorder || state.recorder.state === 'inactive')) {
+		state.countdownCancelled = true;
+		return;
+	}
+	if (!state.recorder) return;
 	if (state.recorder.state !== 'inactive') state.recorder.stop();
 	efbRecClearTimer(state);
 }
@@ -331,12 +526,17 @@ function efbRecStop(id) {
 function efbRecFinish(id, state) {
 	efbRecStopStream(state);
 
+	// Container/extension from what the browser ACTUALLY produced: Chrome/Firefox
+	// deliver webm, Safari (macOS/iOS) delivers mp4 - never assume .webm.
+	var actualMime = state.recorder && state.recorder.mimeType ? state.recorder.mimeType.split(';')[0] : state.mimeType;
+	if (actualMime) state.mimeType = actualMime;
 	var blob = new Blob(state.chunks, { type: state.mimeType });
-	var fileName = id + '-' + Date.now() + '.webm';
+	var fileName = id + '-' + Date.now() + efbRecFileExt(state.mimeType);
 	var file = new File([blob], fileName, { type: state.mimeType });
 
 	var shell = efbRecShell(id);
 	var formId = shell ? Number(shell.dataset.formid) || 0 : 0;
+	if (shell) shell.classList.remove('efb-recorder-mirrored');
 
 	var input = document.getElementById(id + '_file');
 	if (input) {
@@ -347,11 +547,17 @@ function efbRecFinish(id, state) {
 		} catch (e) {}
 	}
 
+	if (state.lastUrl) {
+		try { URL.revokeObjectURL(state.lastUrl); } catch (e) {}
+	}
+	state.lastUrl = URL.createObjectURL(blob);
+	state.lastFileName = fileName;
+
 	if (state.kind !== 'audio_recorder') {
 		var video = efbRecEl(id, '-preview');
 		if (video) {
 			video.srcObject = null;
-			video.src = URL.createObjectURL(blob);
+			video.src = state.lastUrl;
 			video.muted = false;
 			video.controls = true;
 			video.pause();
@@ -359,6 +565,19 @@ function efbRecFinish(id, state) {
 	} else {
 		var meter = efbRecEl(id, '-meter');
 		if (meter) meter.classList.add('d-none');
+		// Inline playback for the recorded audio (the Play button drives it too).
+		var playback = efbRecEl(id, '-audio-playback');
+		if (!playback) {
+			playback = document.createElement('audio');
+			playback.id = id + '-audio-playback';
+			playback.className = 'efb efb-recorder-audio-playback';
+			playback.controls = true;
+			var frame = efbRecEl(id, '-frame');
+			var controlsRow = efbRecEl(id, '-controls');
+			if (frame) frame.insertBefore(playback, controlsRow || null);
+		}
+		playback.src = state.lastUrl;
+		playback.classList.remove('d-none');
 	}
 
 	efbRecApplyState(id, 'stopped');
@@ -386,12 +605,26 @@ function efbRecRedo(id) {
 
 	var video = efbRecEl(id, '-preview');
 	if (video) {
-		if (video.src) URL.revokeObjectURL(video.src);
 		video.removeAttribute('src');
 		video.srcObject = null;
 		video.classList.add('d-none');
 		video.controls = false;
 	}
+	var playback = efbRecEl(id, '-audio-playback');
+	if (playback) {
+		playback.pause();
+		playback.removeAttribute('src');
+		playback.classList.add('d-none');
+	}
+	if (state.lastUrl) {
+		try { URL.revokeObjectURL(state.lastUrl); } catch (e) {}
+		state.lastUrl = null;
+	}
+
+	var shell = efbRecShell(id);
+	if (shell) shell.classList.remove('efb-recorder-mirrored');
+	var cd = efbRecEl(id, '-countdown');
+	if (cd) cd.remove();
 
 	var timerEl = efbRecEl(id, '-timer');
 	if (timerEl) {
@@ -412,7 +645,19 @@ function efbRecPlay(id) {
 		return;
 	}
 	var audioPlayback = efbRecEl(id, '-audio-playback');
-	if (audioPlayback) audioPlayback.play().catch(function () {});
+	if (audioPlayback && audioPlayback.src) audioPlayback.play().catch(function () {});
+}
+
+/* Hands the visitor a local copy of what they just recorded (rec_download). */
+function efbRecDownload(id) {
+	var state = EFB_REC_STATE[id];
+	if (!state || !state.lastUrl) return;
+	var a = document.createElement('a');
+	a.href = state.lastUrl;
+	a.download = state.lastFileName || (id + efbRecFileExt(state.mimeType));
+	document.body.appendChild(a);
+	a.click();
+	a.remove();
 }
 
 document.addEventListener('click', function (e) {
@@ -427,4 +672,5 @@ document.addEventListener('click', function (e) {
 	else if (action === 'pause' || action === 'resume') efbRecPauseResume(id);
 	else if (action === 'redo') efbRecRedo(id);
 	else if (action === 'play') efbRecPlay(id);
+	else if (action === 'download') efbRecDownload(id);
 });

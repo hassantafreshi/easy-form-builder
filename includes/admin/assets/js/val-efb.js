@@ -1154,11 +1154,17 @@ function show_setting_window_efb(idset) {
 
     const fileSizeMaxEls =()=>{
       const file_size = valj_efb[indx].hasOwnProperty('max_fsize') ? valj_efb[indx].max_fsize : 8;
+      // Host awareness: the real ceiling is the hosting's upload_max_filesize -
+      // configuring a larger value here silently breaks uploads for visitors.
+      const hostMax = Number(efb_var.upload_max) || 0;
+      const overHost = hostMax > 0 && Number(file_size) > hostMax;
       return`
       <div class="efb  mt-3">
       <label for="fileSizeMaxEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.maxfs} <small>(MB)</small> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('file_size')"> </i></label>
 
       <input type="number" min="1" max="300" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" placeholder=""${efb_var.text.exDot} 8" id="fileSizeMaxEl" required value="${file_size}">
+      ${hostMax > 0 ? `<small class="efb text-muted fs-8 mx-2 d-block">${(efb_var.text.hostUploadLimit || 'Your hosting accepts uploads up to %s MB.').replace('%s', hostMax)}</small>` : ''}
+      ${hostMax > 0 ? `<small class="efb text-danger fs-8 mx-2 d-block ${overHost ? '' : 'd-none'}" id="fileSizeMaxWarnEfb"><i class="efb bi-exclamation-triangle-fill ${iconMarginGlobal}"></i>${(efb_var.text.hostUploadLimitOver || 'This is larger than the hosting limit (%s MB); uploads will fail.').replace('%s', hostMax)}</small>` : ''}
       </div>
       `}
 
@@ -1187,6 +1193,38 @@ function show_setting_window_efb(idset) {
       <input type="number" min="5" max="1800" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" id="recorderDurationEl" required value="${duration}">
       </div>
       `
+    }
+
+    // ---- Recorder UX extras (docs/recorder-fields.md §3 settings registry) ----
+    const recorderCountdownEls = () => {
+      const val = valj_efb[indx].hasOwnProperty('rec_countdown') ? String(valj_efb[indx].rec_countdown) : '3';
+      const opts = [['0', efb_var.text.off], ['3', '3s'], ['5', '5s'], ['10', '10s']];
+      let o = '';
+      for (const op of opts) { o += `<option value="${op[0]}" ${val === op[0] ? 'selected' : ''}>${op[1]}</option>`; }
+      return `
+      <label for="recorderCountdownEl" class="efb  mt-3"><i class="efb bi-hourglass-split fs-7 ${iconMarginGlobal}"></i>${efb_var.text.recCountdown}</label>
+      <select data-id="${idset}" class="efb  elEdit form-select border-d rounded-4" id="recorderCountdownEl" data-tag="${valj_efb[indx].type}">${o}</select>`;
+    }
+
+    const recorderFacingEls = () => {
+      const val = valj_efb[indx].rec_facing === 'environment' ? 'environment' : 'user';
+      return `
+      <label for="recorderFacingEl" class="efb  mt-3"><i class="efb bi-phone-flip fs-7 ${iconMarginGlobal}"></i>${efb_var.text.recFacing}</label>
+      <select data-id="${idset}" class="efb  elEdit form-select border-d rounded-4" id="recorderFacingEl" data-tag="${valj_efb[indx].type}">
+        <option value="user" ${val === 'user' ? 'selected' : ''}>${efb_var.text.recFacingFront}</option>
+        <option value="environment" ${val === 'environment' ? 'selected' : ''}>${efb_var.text.recFacingBack}</option>
+      </select>`;
+    }
+
+    // Shared markup for the recorder on/off switches (same pattern as requiredEls).
+    const recorderToggleEls = (elId, prop, dflt, labelTxt) => {
+      const active = valj_efb[indx].hasOwnProperty(prop) ? Number(valj_efb[indx][prop]) === 1 : dflt === 1;
+      return `<div class="efb mx-1 my-3 efb">
+      <button type="button" id="${elId}" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${active ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
+      <div class="efb handle"></div>
+      </button>
+      <label class="efb form-check-label pt-1" for="${elId}">${labelTxt}</label>
+      </div>`;
     }
 
     const fileTypeEls = `
@@ -1585,6 +1623,12 @@ function show_setting_window_efb(idset) {
         ${Nadvanced}
         ${recorderQualityEls()}
         ${recorderDurationEls()}
+        ${recorderCountdownEls()}
+        ${el.dataset.tag == 'video_recorder' ? recorderFacingEls() : ''}
+        ${el.dataset.tag == 'video_recorder' ? recorderToggleEls('recorderMirrorEl', 'rec_mirror', 1, efb_var.text.recMirror) : ''}
+        ${el.dataset.tag == 'audio_recorder' ? recorderToggleEls('recorderNoiseEl', 'rec_noise', 1, efb_var.text.recNoise) : ''}
+        ${el.dataset.tag != 'audio_recorder' ? recorderToggleEls('recorderWatermarkEl', 'rec_watermark', 1, efb_var.text.recShowWatermark) : ''}
+        ${recorderToggleEls('recorderDownloadEl', 'rec_download', 1, efb_var.text.recAllowDownload)}
         ${fileSizeMaxEls()}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">

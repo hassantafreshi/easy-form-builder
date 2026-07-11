@@ -1400,19 +1400,28 @@
 		$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$readonlyAttr = $disabled == 'disabled' ? 'disabled' : '';
 		$domain = wp_parse_url(home_url(), PHP_URL_HOST);
+		// UX extras - MUST stay in sync with efbRecorderWidgetHtml() in
+		// public/assets/js/recorder-efb.js (see docs/recorder-fields.md §2).
+		$countdown = property_exists($vj, 'rec_countdown') ? intval($vj->rec_countdown) : 3;
+		$download = property_exists($vj, 'rec_download') ? (intval($vj->rec_download) ? 1 : 0) : 1;
+		$noise = property_exists($vj, 'rec_noise') ? (intval($vj->rec_noise) ? 1 : 0) : 1;
+		$facing = property_exists($vj, 'rec_facing') && $vj->rec_facing === 'environment' ? 'environment' : 'user';
+		$mirror = property_exists($vj, 'rec_mirror') ? (intval($vj->rec_mirror) ? 1 : 0) : 1;
+		$watermark = property_exists($vj, 'rec_watermark') ? (intval($vj->rec_watermark) ? 1 : 0) : 1;
 
 		$mediaPreview = $kind == 'audio_recorder'
 			? sprintf('<canvas class="efb efb-recorder-meter d-none" id="%1$s-meter" width="300" height="64"></canvas>', $vj->id_)
 			: sprintf(
 				'<video class="efb efb-recorder-video d-none" id="%1$s-preview" playsinline muted></video>
-				<div class="efb efb-recorder-watermark" id="%1$s-watermark"><span>%2$s</span><span class="efb efb-recorder-domain">%3$s</span></div>',
+				<div class="efb efb-recorder-watermark %4$s" id="%1$s-watermark"><span>%2$s</span><span class="efb efb-recorder-domain">%3$s</span></div>',
 				$vj->id_,
 				esc_html($texts['recWatermark']),
-				esc_html($domain)
+				esc_html($domain),
+				$watermark ? '' : 'd-none'
 			);
 
 		return sprintf(
-			'<div class="efb efb-recorder-shell %1$s" id="%2$s_" data-id="%2$s" data-kind="%3$s" data-quality="%4$s" data-duration="%5$s" data-formid="%6$s" data-state="idle">
+			'<div class="efb efb-recorder-shell %1$s" id="%2$s_" data-id="%2$s" data-kind="%3$s" data-quality="%4$s" data-duration="%5$s" data-countdown="%22$s" data-download="%23$s" data-noise="%24$s" data-facing="%25$s" data-mirror="%26$s" data-formid="%6$s" data-state="idle">
 				<div class="efb efb-recorder-frame" id="%2$s-frame">
 					%7$s
 					<div class="efb efb-recorder-idle-hint" id="%2$s-idle"><i class="efb bi %8$s"></i><span>%9$s</span></div>
@@ -1423,6 +1432,7 @@
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="resume" data-id="%2$s" title="%13$s" %11$s><i class="efb bi-record-circle"></i></button>
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="redo" data-id="%2$s" title="%14$s" %11$s><i class="efb bi-arrow-counterclockwise"></i></button>
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="play" data-id="%2$s" title="%15$s"><i class="efb bi-play-fill"></i></button>
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="download" data-id="%2$s" title="%27$s"><i class="efb bi-download"></i></button>
 					</div>
 					<div class="efb efb-recorder-progress-track"><div class="efb efb-recorder-progress-bar" id="%2$s-progress"></div></div>
 				</div>
@@ -1452,7 +1462,13 @@
 			$kind,
 			$requiredClass,
 			$requiredAttr,
-			esc_html(isset($texts[$kind]) ? $texts[$kind] : $kind)
+			esc_html(isset($texts[$kind]) ? $texts[$kind] : $kind),
+			$countdown,
+			$download,
+			$noise,
+			$facing,
+			$mirror,
+			esc_html(isset($texts['recDownload']) ? $texts['recDownload'] : 'Download recording')
 		);
 	}
 

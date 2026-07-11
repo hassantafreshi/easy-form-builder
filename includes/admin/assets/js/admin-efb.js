@@ -2369,15 +2369,50 @@ let change_el_edit_Efb = (el) => {
         break;
       case 'fileSizeMaxEl':
         valj_efb[indx].hasOwnProperty('max_fsize')==false ? Object.assign(valj_efb[indx],{'max_fsize':el.value}) : valj_efb[indx].max_fsize = el.value;
-
+        // Host awareness: warn live when the field limit exceeds the hosting's
+        // upload_max_filesize (efb_var.upload_max, MB) - uploads would fail.
+        if (document.getElementById('fileSizeMaxWarnEfb')) {
+          const hostMaxEfb = Number(efb_var.upload_max) || 0;
+          document.getElementById('fileSizeMaxWarnEfb').classList.toggle('d-none', !(hostMaxEfb > 0 && Number(el.value) > hostMaxEfb));
+        }
         break;
+      // Recorder settings live-update the widget shell (id `X_`), so the builder
+      // preview behaves with the new values immediately. docs/recorder-fields.md §3.
       case 'recorderQualityEl':
         valj_efb[indx].hasOwnProperty('record_quality')==false ? Object.assign(valj_efb[indx],{'record_quality':el.value}) : valj_efb[indx].record_quality = el.value;
-        if (document.getElementById(`${valj_efb[indx].id_}-recorder`)) document.getElementById(`${valj_efb[indx].id_}-recorder`).dataset.quality = el.value;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.quality = el.value;
         break;
       case 'recorderDurationEl':
         valj_efb[indx].hasOwnProperty('max_duration')==false ? Object.assign(valj_efb[indx],{'max_duration':el.value}) : valj_efb[indx].max_duration = el.value;
-        if (document.getElementById(`${valj_efb[indx].id_}-recorder`)) document.getElementById(`${valj_efb[indx].id_}-recorder`).dataset.duration = el.value;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.duration = el.value;
+        break;
+      case 'recorderCountdownEl':
+        valj_efb[indx].rec_countdown = el.value;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.countdown = el.value;
+        break;
+      case 'recorderFacingEl':
+        valj_efb[indx].rec_facing = el.value === 'environment' ? 'environment' : 'user';
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.facing = valj_efb[indx].rec_facing;
+        break;
+      case 'recorderMirrorEl':
+        valj_efb[indx].rec_mirror = el.classList.contains('active') ? 1 : 0;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.mirror = valj_efb[indx].rec_mirror;
+        break;
+      case 'recorderNoiseEl':
+        valj_efb[indx].rec_noise = el.classList.contains('active') ? 1 : 0;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.noise = valj_efb[indx].rec_noise;
+        break;
+      case 'recorderDownloadEl':
+        valj_efb[indx].rec_download = el.classList.contains('active') ? 1 : 0;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.download = valj_efb[indx].rec_download;
+        break;
+      case 'recorderWatermarkEl':
+        valj_efb[indx].rec_watermark = el.classList.contains('active') ? 1 : 0;
+        // The watermark is markup-conditional on the frontend; in the builder
+        // preview just show/hide the existing overlay if it was rendered.
+        if (document.getElementById(`${valj_efb[indx].id_}-watermark`)) {
+          document.getElementById(`${valj_efb[indx].id_}-watermark`).classList.toggle('d-none', valj_efb[indx].rec_watermark !== 1);
+        }
         break;
       case'fileCustomizeTypleEl':
         c= el.value.trim();
@@ -3671,6 +3706,12 @@ let sampleElpush_efb = (rndm, elementId) => {
       valj_efb[indx].record_quality = elementId == "audio_recorder" ? 'standard' : '720p';
       valj_efb[indx].max_duration = 90;
       valj_efb[indx].max_fsize = '20';
+      // UX extras - see docs/recorder-fields.md for the full settings registry
+      valj_efb[indx].rec_countdown = '3';
+      valj_efb[indx].rec_download = 1;
+      if (elementId == "audio_recorder") valj_efb[indx].rec_noise = 1;
+      if (elementId == "video_recorder") { valj_efb[indx].rec_facing = 'user'; valj_efb[indx].rec_mirror = 1; }
+      if (elementId != "audio_recorder") valj_efb[indx].rec_watermark = 1;
     }
 
   }

@@ -289,7 +289,10 @@ class Create {
 			'colors'=>$colors,
 			'zone_area'=>CDN_ZONE_AREA,
 			'plugins'=>$plugins,
-			'emailHealth'=>$email_health
+			'emailHealth'=>$email_health,
+			// Hosting upload ceiling in MB - the builder warns when a field's
+			// max file size is configured above it (uploads would fail).
+			'upload_max'=>(int) floor(wp_max_upload_size() / MB_IN_BYTES)
 		), 'create');
 		wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
 		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
