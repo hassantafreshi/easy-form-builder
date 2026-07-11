@@ -1550,11 +1550,13 @@ align-items: center;}
 	padding-left: 2.5em}
  .efb.form-switch .efb.form-check-input {
 	width: 2em;
- 	margin-left: -2.5em;
  	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
  	background-position: left center;
  	border-radius: 2em;
  	transition: background-position .15s ease-in-out}
+[dir=ltr] .efb.form-switch .efb.form-check-input {
+	 	margin-left: -2.5em;
+}
  @media (prefers-reduced-motion:reduce) {
 	.efb.form-switch .efb.form-check-input {
 		transition: none }

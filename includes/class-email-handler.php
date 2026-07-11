@@ -201,6 +201,24 @@ class EmsfbEmailHandler {
             }
         };
 
+        // Human Shield (or any other guard) may veto submit-driven notification
+        // emails. Admin diagnostics (test mail, problem reports) are never gated.
+        $efb_shield_internal_states = array("reportProblem", "testMailServer", "addonsDlProblem");
+        if (!(is_string($state) && in_array($state, $efb_shield_internal_states, true))) {
+            $efb_shield_email_context = array(
+                'channel'    => 'email',
+                'event'      => is_string($state) ? $state : 'form_email',
+                'form_id'    => 0,
+                'recipients' => $to,
+                'source'     => 'send_email_state_new',
+            );
+            if (!apply_filters('efb_shield_allow_side_effect', true, $efb_shield_email_context)) {
+                remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
+                remove_action('wp_mail_failed', $mail_failed_listener);
+                return $mailResult;
+            }
+        }
+
         if (is_string($sub)) {
             $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
 

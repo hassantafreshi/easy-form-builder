@@ -1747,6 +1747,8 @@ class efbFunction {
 
 			"TAdnAtF" => $state  &&  isset($ac->text->TAdnAtF) ? $ac->text->TAdnAtF : esc_html__('Auto-Populate Add-on','easy-form-builder'),
 			"DAdnAtF" => $state  &&  isset($ac->text->DAdnAtF) ? $ac->text->DAdnAtF : esc_html__('The Auto-Populate add-on enables you to automatically populate form fields from datasets, previously submitted forms, or external APIs.','easy-form-builder'),
+			"TAdnHSH" => $state  &&  isset($ac->text->TAdnHSH) ? $ac->text->TAdnHSH : esc_html__('Form Security & Spam Protection','easy-form-builder'),
+			"DAdnHSH" => $state  &&  isset($ac->text->DAdnHSH) ? $ac->text->DAdnHSH : esc_html__('Behavior-based anti-spam and API abuse protection with rate limits and a stop-loss for paid notifications such as SMS, Telegram, email and webhooks.','easy-form-builder'),
 			"TAdnGoS" => $state  &&  isset($ac->text->TAdnGoS) ? $ac->text->TAdnGoS : esc_html__('Google Sheet Add-on','easy-form-builder'),
 			"DAdnGoS" => $state  &&  isset($ac->text->DAdnGoS) ? $ac->text->DAdnGoS : esc_html__('Sync form submissions with Google Sheets in real-time via webhook integration.','easy-form-builder'),
 			"fillrequiredfields" => $state && isset($ac->text->fillrequiredfields) ? $ac->text->fillrequiredfields : esc_html__('Please fill in all required fields', 'easy-form-builder'),
@@ -2625,32 +2627,42 @@ public function addon_add_efb($value) {
 		$domain = untrailingslashit( EMSFB_SERVER_URL );
         $u =   $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
 		$fallback_u = '';
+		$use_iran_url = false;
+		$request_timeout = 15;
+
         if (get_locale() == 'fa_IR' && EFB_Path_IR) {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
-			$fallback_u =  $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
+			$fallback_u =   'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
+			$use_iran_url = true;
+			// Use shorter timeout for Iranian URL (known connectivity issues from some hosts)
+			$request_timeout = 5;
         }
 		$name_space = 'emsfb_addon_' . $value;
 		delete_option($name_space);
 
-        $max_attempts = 2;
+        $max_attempts = 1;
         $attempt = 0;
         $success = false;
         $error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
 		$error_messag = sprintf($error_message, $domain, 'not_success');
 
         while ($attempt < $max_attempts && !$success) {
-            $request = wp_remote_get($u, ['timeout' => 15]);
+            $request = wp_remote_get($u, ['timeout' => $request_timeout]);
 
             if (is_wp_error($request)) {
                 $attempt++;
                 $error_message = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
 
-                if ($attempt >= $max_attempts && !empty($fallback_u) && $u !== $fallback_u) {
+                // For Iranian URLs, switch to fallback immediately on error
+                if ($use_iran_url && !empty($fallback_u) && $u !== $fallback_u) {
+					error_log('[EFB-ADDON] Switching to fallback URL due to connection error: ' . $request->get_error_message());
                     $u = $fallback_u;
                     $fallback_u = '';
                     $attempt = 0;
+                    $request_timeout = 15; // Reset timeout for fallback
                     continue;
                 }
+
                 if ($attempt >= $max_attempts) {
                     return array('status' => false, 'message' => $error_message);
                 }
@@ -2844,6 +2856,7 @@ public function addon_add_efb($value) {
 		$addons['AdnPAP']	=	isset($settings->AdnPAP)	? $settings->AdnPAP	:0;
 		$addons['AdnOF']	=	isset($settings->AdnOF)		? $settings->AdnOF	:0;
 		$addons['AdnSMF']	=	isset($settings->AdnSMF)	? $settings->AdnSMF	:0;
+		$addons['AdnHSH']	=	isset($settings->AdnHSH)	? $settings->AdnHSH	:0;
 
 		$error_messag ='';
 		$renew_required = false;
@@ -2856,6 +2869,14 @@ public function addon_add_efb($value) {
 						update_option('emsfb_addon_AdnGoS', 2);
 						continue;
 					}
+				}
+				if ($key === 'AdnHSH') {
+					// Ships inside the plugin; never downloaded from the remote server.
+					$local_hsh = EMSFB_PLUGIN_DIRECTORY . '/vendor/human-shield/human-shield-efb.php';
+					if (file_exists($local_hsh)) {
+						update_option('emsfb_addon_AdnHSH', 2);
+					}
+					continue;
 				}
 				$r =$this->addon_add_efb($key);
 				if(!is_array($r) || !isset($r['status'])){
@@ -3243,6 +3264,20 @@ public function addon_add_efb($value) {
 		$recived_your_message = str_replace($rp[0],$rp[1],$recived_your_message);
 		$new_message = str_replace($rp[0],$rp[1],$new_message);
 		$news_response = str_replace($rp[0],$rp[1],$news_response);
+
+		// Human Shield (or any other guard) may veto paid side effects here.
+		$efb_shield_sms_context = array(
+			'channel'       => 'sms',
+			'event'         => $state,
+			'form_id'       => $form_id,
+			'tracking_code' => $tracking_code,
+			'recipients'    => $numbers,
+			'source'        => 'sms_ready_for_send_efb',
+		);
+		if ( ! apply_filters( 'efb_shield_allow_side_effect', true, $efb_shield_sms_context ) ) {
+			return false;
+		}
+
 		$sent_any = false;
 		if($state=="fform"){
 			if(!empty($numbers[1]) && $recived_your_message){
@@ -4162,6 +4197,7 @@ public function addon_add_efb($value) {
 			'AdnPLF' => 0,
 			'AdnMSF' => 0,
 			'AdnBEF' => 0,
+			'AdnHSH' => 0,
 		];
 
 		if ( is_object( $ac ) ) {

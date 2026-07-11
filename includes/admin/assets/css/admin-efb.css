@@ -654,11 +654,20 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
       padding: 6px 0 !important;
       border: none !important;
       border-bottom: 1px solid #f1f5f9 !important;
-      text-align: left !important;
+
       width: 100% !important;
       max-width: 100% !important;
       background: transparent !important;
    }
+   [dir=ltr] #emsFormBuilder-list tbody tr > td,
+   #emsFormBuilder-list tbody tr > th {
+      text-align: left !important;
+   }
+   [dir=rtl] #emsFormBuilder-list tbody tr > td,
+      #emsFormBuilder-list tbody tr > th {
+      text-align: right !important;
+   }
+
    #emsFormBuilder-list tbody tr > td:last-child,
    #emsFormBuilder-list tbody tr > th:last-child {
       border-bottom: none !important;
@@ -687,6 +696,7 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
       right: auto;
       left: 12px;
    }
+
    #emsFormBuilder-list .efb-content-cell {
       max-width: 100% !important;
       min-width: 0 !important;

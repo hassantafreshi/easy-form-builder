@@ -109,6 +109,7 @@ function fun_default_addons_efb_admin() {
     {id:8, name:'AdnPAP', title:'payPalTAddon', desc:'payPalDAddon', icon:'bi-paypal', link:'', download:true, pro:true, state:true, tag:'form pay payment', version:0.1, v_required:4.0, package:1},
     {id:8, name:'AdnTLG', title:'tlgmAddon', desc:'tlgmDAddon', icon:'bi-telegram', link:'', download:true, pro:true, state:true, tag:'form social notification integrate', version:0.1, v_required:4.0, package:1},
     {id:10, name:'AdnSMF', title:'condATAddon', desc:'condADAddon', icon:'bi-diagram-3', link:'', download:true, pro:false, state:true, tag:'form logic conditional smart', version:0.1, v_required:4.0, package:3},
+    {id:11, name:'AdnHSH', title:'TAdnHSH', desc:'DAdnHSH', icon:'bi-shield-check', link:'', download:false, pro:false, state:true, tag:'form security spam protection rate limit', version:0.1, v_required:4.1, package:0},
   ];
 }
 

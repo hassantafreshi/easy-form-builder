@@ -192,6 +192,22 @@ class Emsfb {
 			new Emsfb_Shield_SilentCaptcha_Integration();
 		}
 
+		// Form Security & Spam Protection (Human Shield): security-on-by-default,
+		// so a missing AdnHSH key counts as enabled; the Add-ons toggle can turn
+		// it off. Safe to ship even when the vendor folder is missing or
+		// partially uploaded — the bootstrap validates its own files and only
+		// warns in wp-admin.
+		$human_shield_enabled = true;
+		if ( is_object( $ac_routes ) && property_exists( $ac_routes, 'AdnHSH' ) ) {
+			$human_shield_enabled = (int) $ac_routes->AdnHSH >= 1;
+		}
+		if ( $human_shield_enabled ) {
+			$human_shield_file = $this->plugin_path . 'vendor/human-shield/human-shield-efb.php';
+			if ( file_exists( $human_shield_file ) ) {
+				require_once $human_shield_file;
+			}
+		}
+
 		require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
 
        $this->load_page_builder_integrations();
@@ -698,6 +714,7 @@ class Emsfb {
             'AdnBEF' => 'Booking',
             'AdnPDP' => 'Persian Date Picker',
             'AdnADP' => 'َArabic Date Picker',
+            'AdnHSH' => 'Form Security & Spam Protection',
         ];
 
         foreach ( $addon_keys as $key => $name ) {

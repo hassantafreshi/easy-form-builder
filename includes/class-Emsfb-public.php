@@ -2787,7 +2787,28 @@ public function check_nonce_permission_efb($request) {
 							}
 
 							$this->efb_send_json_and_continue($response, 200);
-							$this->efb_intgrate_with_3rd_party_services_efb($payment_track_id, $submitted_values, $form_fields_array, 'payment');
+							// $this->id was reassigned to the payment track code for update_message_db(),
+							// so the integration context must be rebuilt from the real form id — otherwise
+							// intval(track) produces a bogus form_id and every 3rd-party sync (Google Sheet,
+							// Telegram, webhooks) silently skips the submission. Pass compatible values and stored payment
+							// data separately so integrations can opt into gateway, amount, and intent details.
+							$this->id = $form_id;
+							$compatible_submitted_values = array_values(array_unique(array_filter($validated_items, function ($item) {
+								if (!is_array($item)) return false;
+								$type = isset($item['type']) ? (string) $item['type'] : '';
+								$id_ = isset($item['id_']) ? (string) $item['id_'] : '';
+								$id = isset($item['id']) ? (string) $item['id'] : '';
+								return $type !== 'payment' && $id_ !== 'payment' && $id !== 'payment' && $type !== 'w_link' && $id_ !== 'w_link' && $id !== 'w_link';
+							}), SORT_REGULAR));
+							$this->efb_intgrate_with_3rd_party_services_efb(
+								$payment_track_id,
+								$compatible_submitted_values,
+								$form_fields_array,
+								'payment',
+								[
+									'enriched_submitted_values' => array_values($filtered),
+								]
+							);
 
 							if ($should_send_email) {
 								$state_email_user = $has_tracking_code==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
@@ -4240,7 +4261,10 @@ public function check_nonce_permission_efb($request) {
 
 	private function process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context = array()) {
 		if (empty($form_fields_array[0]['webhook_rules']) || !is_array($form_fields_array[0]['webhook_rules'])) return array();
-		$values = $this->efb_conditional_values_map($form_fields_array, $submitted_values);
+		$webhook_submitted_values = isset($context['integration_values']) && is_array($context['integration_values'])
+			? $context['integration_values']
+			: $submitted_values;
+		$values = $this->efb_conditional_values_map($form_fields_array, $webhook_submitted_values);
 		$sent = array();
 		$sorted_rules = $this->efb_conditional_sorted_rules($form_fields_array[0]['webhook_rules']);
 
@@ -4269,11 +4293,11 @@ public function check_nonce_permission_efb($request) {
 			/* payload_fields (PRD C6 "Modify webhook payload"): when set, only
 			 * the whitelisted field ids are sent to the webhook endpoint. */
 			$payload_values = $values;
-			$payload_submitted = $submitted_values;
+			$payload_submitted = $webhook_submitted_values;
 			if (!empty($rule['payload_fields']) && is_array($rule['payload_fields'])) {
 				$allowed_payload = array_flip(array_map('strval', $rule['payload_fields']));
 				$payload_values = array_intersect_key($values, $allowed_payload);
-				$payload_submitted = array_values(array_filter((array) $submitted_values, function ($row) use ($allowed_payload) {
+				$payload_submitted = array_values(array_filter((array) $webhook_submitted_values, function ($row) use ($allowed_payload) {
 					return is_array($row) && isset($row['id_']) && isset($allowed_payload[(string) $row['id_']]);
 				}));
 			}
@@ -6879,7 +6903,9 @@ public function check_nonce_permission_efb($request) {
 		return $results;
 	}
 
-	private function efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, $event_type = 'form_submit') {
+	private function efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, $event_type = 'form_submit', $integration_args = []) {
+
+		$integration_args = is_array($integration_args) ? $integration_args : [];
 
 		$context = [
 			'track_code'       => $track_code,
@@ -6889,13 +6915,38 @@ public function check_nonce_permission_efb($request) {
 			'submitted_values' => $submitted_values,
 			'form_fields'      => $form_fields_array,
 		];
-		$context['conditional_webhooks'] = $this->process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context);
+		if (isset($integration_args['enriched_submitted_values']) && is_array($integration_args['enriched_submitted_values'])) {
+			$context['enriched_submitted_values'] = array_values($integration_args['enriched_submitted_values']);
+			$context['submitted_values_raw'] = $context['submitted_values'];
+			$context['integration_values'] = $context['enriched_submitted_values'];
+			$context['integration_value_map'] = $this->efb_conditional_values_map($form_fields_array, $context['integration_values']);
+		}
+		// Human Shield (or any other guard) may veto costly side effects per
+		// channel. Telegram is gated inside telegram_ready_for_send_efb() so it
+		// is intentionally not gated again here.
+		$shield_context = array(
+			'event'         => $event_type,
+			'form_id'       => intval($this->id),
+			'tracking_code' => $track_code,
+			'recipients'    => array(),
+			'source'        => 'efb_intgrate_with_3rd_party_services_efb',
+		);
+
+		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'webhook' ) ) ) ) {
+			$context['conditional_webhooks'] = $this->process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context);
+		} else {
+			$context['conditional_webhooks'] = array();
+		}
 
 		do_action('efb_3rd_party_telegram_notify', $context);
 
-		do_action('efb_3rd_party_google_sheet_sync', $context);
+		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'googlesheet' ) ) ) ) {
+			do_action('efb_3rd_party_google_sheet_sync', $context);
+		}
 
-		do_action('efb_after_form_integration', $context);
+		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'webhook', 'source' => 'efb_after_form_integration' ) ) ) ) {
+			do_action('efb_after_form_integration', $context);
+		}
 
 	}
 

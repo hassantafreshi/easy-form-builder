@@ -583,6 +583,8 @@ min_seconds = max(3, min(45, visible_required_fields * 1.2 + text_fields * 2.0))
 
 ## وضعیت پیاده سازی مستقل
 
+توجه: از تاریخ 2026-07-11 این افزودنی دیگر «مستقل و متصل نشده» نیست؛ به core متصل شده و به صورت پیش فرض در حالت `monitor` اجرا می شود. جزئیات در بخش «اتصال به core - انجام شده» در انتهای سند.
+
 در مرحله مستقل، فایل های زیر بدون دستکاری core ساخته شده اند:
 
 ```text
@@ -630,7 +632,7 @@ openssl_random_pseudo_bytes
 
 ## کدهای پیشنهادی برای اتصال به پروژه اصلی در مرحله بعد
 
-این بخش فقط برای مرحله بعد است و فعلا در فایل های اصلی اعمال نشده است.
+به روزرسانی 2026-07-11: این اتصال ها انجام شده اند. این بخش به عنوان مرجع طراحی نگه داشته شده و وضعیت واقعی هر مورد در بخش «اتصال به core - انجام شده» آمده است.
 
 ### 1. لود کردن افزودنی از core
 
@@ -824,3 +826,125 @@ X-EFB-Shield-Client-Error
 4. تغییر به mode=soft_block
 5. فقط برای فرم های حساس mode=strict
 ```
+
+## اتصال به core - انجام شده - 2026-07-11
+
+این افزودنی از حالت «کد آماده ولی متصل نشده» خارج شد و اکنون یک محصول واقعی فعال است. تغییرات اعمال شده:
+
+### 1. لود شدن از core
+
+در `includes/class-Emsfb.php` داخل `includes()`، قبل از `class-Emsfb-public.php`، فایل `vendor/human-shield/human-shield-efb.php` با گارد `file_exists` لود می شود. اگر پوشه addon حذف یا ناقص آپلود شده باشد هیچ fatal ای رخ نمی دهد؛ bootstrap کلاس های ناقص را تشخیص می دهد و فقط notice ادمین نشان می دهد.
+
+mode پیش فرض از `soft_block` به `monitor` تغییر کرد تا اتصال اولیه روی سایت های واقعی هیچ فرمی را block نکند و اول log جمع شود (مطابق rollout پیشنهادی همین سند).
+
+### 2. گیت side-effect در همه کانال های پولی
+
+فیلتر `efb_shield_allow_side_effect` در این نقاط اعمال شد:
+
+- SMS: در `sms_ready_for_send_efb()` در `includes/functions.php` بعد از آماده شدن templateها و قبل از هر `send_sms_efb()`.
+- Telegram: در `telegram_ready_for_send_efb()` در `vendor/telegram/telegram-new-efb.php` بعد از آماده شدن templateها و قبل از ارسال. همه مسیرهای ارسال تلگرام از همین تابع می گذرند، بنابراین فقط همین یک نقطه گیت شده تا شمارنده stop-loss دوبار مصرف نشود.
+- Email: در `send_email_state_new()` در `includes/class-email-handler.php`. ایمیل های تشخیصی ادمین (`reportProblem`, `testMailServer`, `addonsDlProblem`) عمدا گیت نمی شوند.
+- Webhook شرطی: در `efb_intgrate_with_3rd_party_services_efb()` در `includes/class-Emsfb-public.php` قبل از `process_conditional_webhook_rules()`.
+- Google Sheet: قبل از `do_action('efb_3rd_party_google_sheet_sync')` با channel مستقل `googlesheet` (در بودجه webhook حساب می شود).
+- Integrationهای عمومی: قبل از `do_action('efb_after_form_integration')` با channel `webhook`.
+
+### 3. Suppress اعلان پولی بر اساس score
+
+REST guard بعد از تایید token، ارزیابی request را روی instance اصلی shield ذخیره می کند (`set_request_assessment`). اگر score از `min_score_paid_notification` کمتر باشد، entry ذخیره می شود ولی notification gate در همان request همه کانال های پولی را رد می کند و event با reason `paid_suppressed_low_score` ثبت می شود. در mode `monitor` هیچ چیز قطع نمی شود و فقط log ساخته می شود.
+
+### 4. رفتار پاسخ ها بر اساس mode
+
+- `monitor`: هیچ request ی block نمی شود؛ همه تصمیم ها فقط log می شوند.
+- `soft_block`: پاسخ block با HTTP 200 و بدنه `{success:false, data:{success:false, m, code}}` برمی گردد. این دقیقا shape ای است که `response_fill_form_efb()` در فرانت EFB نمایش می دهد، بنابراین کاربر پیام واقعی و قابل ترجمه می بیند نه خطای شبکه عمومی.
+- `strict`: پاسخ block با HTTP 403 و rate limit با 429 و header `Retry-After` برمی گردد تا برای WAF/CDN قابل مشاهده باشد.
+- در هیچ پاسخی `reasons` یا `score` به بازدیدکننده نشت نمی کند؛ فقط در log ادمین ثبت می شود.
+
+### 5. پیام های قابل ترجمه بر اساس علت
+
+همه پیام های کاربر با `__()` و text domain `easy-form-builder` ترجمه پذیر شدند:
+
+- rate limit: `Too many requests. Please try again shortly.`
+- مشکل token (نبود/انقضا/replay): `The form was open for too long or could not be verified. Please refresh the page and submit again.`
+- سایر blockها: `Your request looked too fast or unusual. Please try again in a few minutes.`
+- quarantine: `Your request looked unusual. Please wait a moment and try again.`
+- نبود پیش نیاز سرور: `The security service is not available right now. Your form still works.`
+
+### 6. Degradation در نبود توابع PHP یا JS
+
+- اگر یکی از توابع الزامی PHP غیرفعال باشد: endpointهای challenge/attest پیام عمومی با code `requirements_missing` می دهند (بدون نشت PHP version یا لیست توابع به بازدیدکننده)، JS عمومی اصلا enqueue نمی شود، guard به صورت fail-open با log عبور می دهد مگر `fail_closed_on_missing_requirements` روشن باشد که در آن صورت 503 با پیام کنترل شده برمی گردد. جزئیات کامل فقط در تب System پنل ادمین دیده می شود.
+- اگر browser تابع لازم JS را نداشته باشد (`fetch`, `Promise`, `URL`, `Set`, `JSON`): shield سمت client خودش را خاموش می کند، `window.EFBHumanShieldStatus` را با علت پر می کند، هشدار console می دهد و فرم بدون token ارسال می شود؛ تصمیم نهایی با server است و پیام قابل نمایش برمی گردد.
+- اگر attest به هر دلیل (timeout، پاسخ HTML از cache plugin، خطای شبکه) شکست بخورد: یک بار با challenge تازه retry می شود و در صورت شکست، request اصلی با header `X-EFB-Shield-Client-Error` ادامه پیدا می کند.
+- اگر config پنل ادمین لود نشود یا render خطا بدهد: به جای اسپینر بی نهایت، پیام خطای خوانا نمایش داده می شود. برای مرورگر بدون JS هم `<noscript>` توضیح می دهد که محافظت سمت سرور همچنان فعال است.
+
+### 7. رفع باگ challenge تک مصرفه در ارسال دوم
+
+قبلا JS عمومی challenge را cache می کرد؛ بعد از اولین submit موفق، token دوم از همان challenge مصرف شده ساخته می شد و server آن را به عنوان replay رد می کرد (ارسال دوم فرم یا ثبت پاسخ بعد از submit می شکست). اکنون:
+
+- سرور در attest چک `challenge_used` دارد و با code مشخص جواب می دهد.
+- کلاینت برای هر request محافظت شده challenge تازه می گیرد و cache ای وجود ندارد.
+
+### 8. هم ترازی استخراج form_id بین client و server
+
+هر دو طرف با یک ترتیب واحد form_id را تعیین می کنند: کلیدهای body (`id`, `form_id`, `fid`) و بعد header استاندارد `form-id` که فرانت EFB روی همه REST callها می فرستد. fallbackهای قبلی سمت client (متغیر global و activeElement) حذف شدند چون server آن ها را نمی بیند و باعث `token_form_mismatch` می شدند.
+
+### 9. تست های انجام شده روی محیط واقعی (XAMPP)
+
+```text
+1. challenge -> attest با متریک انسانی -> score=93 و token صادر شد. [OK]
+2. submit با token در monitor -> از shield عبور کرد و به nonce check هسته رسید. [OK]
+3. attest دوباره با همان challenge بعد از مصرف token -> code=challenge_used. [OK]
+4. soft_block بدون token -> HTTP 200 با پیام قابل نمایش refresh. [OK]
+5. عبور از submit_ip_per_minute -> پیام rate limit جدا از پیام token. [OK]
+6. strict بدون token -> HTTP 403 بدون نشت reasons/score. [OK]
+7. replay همان token -> block شد. [OK]
+8. گیت SMS با score بالا -> اجازه داد؛ با score پایین -> رد کرد. [OK]
+9. sms_daily_stop_loss=2 -> ارسال سوم رد شد و event با reason ثبت شد. [OK]
+10. لینت PHP همه فایل های تغییر یافته و node --check هر دو JS. [OK]
+```
+
+### 10. موارد باقی مانده برای فازهای بعد
+
+به روزرسانی 2026-07-11 (نوبت دوم): همه موارد این فهرست به جز reputation بلندمدت انجام شد. جزئیات در بخش بعدی.
+
+- reputation بلندمدت IP/session با decay در فاز 3 باقی می ماند.
+- integration اختیاری Turnstile/hCaptcha برای حالت challenge در فاز 3 باقی می ماند.
+
+## تبدیل به محصول و تکمیل فاز 2 - 2026-07-11
+
+### تغییر نام محصول
+
+نام محصول به `Form Security & Spam Protection` و نام منوی ادمین به `Security & Spam Protection` تغییر کرد. فقط رشته های نمایشی عوض شده اند؛ همه شناسه های فنی (`vendor/human-shield`, option های `emsfb_human_shield_*`, route های `EmsfbShield/v1`, capability, slug صفحه) دست نخورده ماندند تا نصب های موجود و cache/security allowlistها نشکنند.
+
+### toggle واقعی AdnHSH در پنل Add-ons
+
+- کارت افزودنی در کاتالوگ Add-ons با نام `Form Security & Spam Protection` اضافه شد (`admin-efb.js`، متن ها با کلیدهای `TAdnHSH`/`DAdnHSH` قابل ترجمه).
+- `AdnHSH` به فهرست مجاز `add_addons_Emsfb()` اضافه شد و چون فایل های افزودنی داخل خود پلاگین است، مسیر نصب محلی بدون هیچ دانلود remote پیاده شد (مانند الگوی AdnGoS). حذف از پنل فقط flag را صفر می کند و فایلی پاک نمی شود.
+- `download_all_addons_efb()` هم `AdnHSH` را remote دانلود نمی کند.
+- منطق لود در core: پیش فرض روشن است (security-on-by-default)؛ اگر کلید `AdnHSH` در تنظیمات موجود و صفر باشد افزودنی لود نمی شود.
+
+### سناریوهای کامل نبود توابع PHP (php.ini disable_functions)
+
+- `is_function_available()` علاوه بر `function_exists` و `disable_functions`، فیلتر `efb_shield_disabled_functions` را هم می خواند؛ با این فیلتر می توان سرور سخت گیرانه را بدون دست زدن به php.ini شبیه سازی و تست کرد.
+- `ini_get` خودش هم گارد شد (اگر غیرفعال باشد فقط فهرست disable_functions خوانده نمی شود، کرش نمی کند).
+- زنجیره hash برای log/rate-key ها: `hash_hmac` → `hash` → `sha1` → `md5` → `crc32` → رشته خالی. امضای token همچنان فقط با `hash_hmac` انجام می شود و بدون آن صادر نمی شود (بدون fallback ضعیف امنیتی).
+- `filter_var` (اکستنشن filter) گارد شد و fallback مبتنی بر regex برای اعتبارسنجی IPv4/IPv6 اضافه شد؛ `random_bytes` → `openssl_random_pseudo_bytes` → `wp_generate_password` → `str_shuffle`.
+- فهرست System شامل `filter_var` و `ini_get` (recommended) هم شد و خروجی `requirements()` نام دقیق توابع غایب را در `missing_functions` برمی گرداند.
+- در فرانت صفحه افزودنی، بنر همیشه نمایان بالای همه تب ها دقیقا نام توابع غیرفعال را نشان می دهد و می گوید از هاست بخواهید آن ها را از `disable_functions` خارج کند و تا آن زمان فرم ها بدون محافظت اما سالم کار می کنند. نبود جدول دیتابیس و نبود REST API هم پیام مخصوص خود را دارند.
+- رفتار runtime بدون توابع الزامی: endpointهای challenge/attest پیام عمومی با code `requirements_missing` می دهند، JS عمومی enqueue نمی شود، guard به صورت fail-open با log عبور می دهد (مگر fail-closed روشن باشد که 503 کنترل شده می دهد) و blocklist دستی چون به crypto نیاز ندارد همچنان کار می کند.
+
+### stop-loss سراسری، سقف recipient و لیست های دستی
+
+- stop-loss روزانه هر channel اکنون یک bucket سراسری (`global`) دارد؛ recipientهای متفاوت نمی توانند از سقف کل عبور کنند.
+- سقف جدید `recipient_daily_cap` (پیش فرض 50، صفر=خاموش) هر گیرنده منفرد را جدا محدود می کند.
+- `ip_allowlist` و `ip_blocklist` دستی اضافه شد: هر خط یک IP دقیق یا prefix ستاره دار مثل `203.0.113.*`. allowlist کل shield را برای آن IP رد می کند (log با reason `ip_allowlisted`)، blocklist در همه modeها حتی monitor و حتی وقتی requirements ناقص است block می کند (تصمیم صریح ادمین). endpointهای challenge/attest هم blocklist را چک می کنند.
+
+### min fill time داینامیک per-form
+
+- JS عمومی اکنون فیلدهای همان فرم (`#body_efb_{id}` یا `[data-formid]`) را جدا می شمارد و به عنوان `formFieldCount` می فرستد؛ شمارش کل صفحه فقط سیگنال قدیمی `fieldCount` باقی ماند.
+- سرور کف زمان پر کردن را داینامیک می کند: `max(min_fill_time_seconds, min(45, ceil(fields*1.2)))` برای 1 تا 60 فیلد. بات دروغگو فقط کف را به حداقل ثابت برمی گرداند؛ کنترل های سخت (rate limit، token، honeypot) به این متریک وابسته نیستند.
+
+### export CSV و نمودار
+
+- دکمه `Export CSV` در تب Logs تا 5000 رخداد آخر را با هدر ضد فرمول (CSV injection) و BOM مناسب Excel دانلود می کند (`wp_ajax_efb_human_shield_export_logs` با همان nonce/capability پنل).
+- نمودار ستونی انباشته «تصمیم ها در 24 ساعت گذشته» با پالت status اعتبارسنجی شده (allow سبز #2e7d32، block قرمز #c62828، quarantine کهربایی #b26a00، monitor آبی #3f6fd1؛ CVD ΔE=14.2، کنتراست ≥3:1)، فاصله 2px بین segmentها، legend و tooltip per-column. داده از `hourly_stats()` می آید که همه 24 ساعت را حتی خالی برمی گرداند.
+- ناسازگاری timezone در آمار رفع شد: cutoffها اکنون مثل خود log بر پایه زمان محلی سایت اند.

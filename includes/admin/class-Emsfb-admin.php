@@ -335,7 +335,7 @@ class Admin {
 
         $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
-                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP","AdnATF","AdnTLG","AdnGoS"];
+                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP","AdnATF","AdnTLG","AdnGoS","AdnHSH"];
         $dd =gettype(array_search($post_value, $allw));
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can || $dd !='integer') {
@@ -360,6 +360,32 @@ class Admin {
             return;
         }
 
+        // Form Security & Spam Protection ships inside the plugin — no remote
+        // download, so file-access checks and the download loop are skipped.
+        if ('AdnHSH' === $post_value) {
+            $local_hsh = EMSFB_PLUGIN_DIRECTORY . '/vendor/human-shield/human-shield-efb.php';
+            if (!file_exists($local_hsh)) {
+                $response = ['success' => false, 'm' => esc_html__('The Form Security & Spam Protection add-on files are missing. Please reinstall Easy Form Builder.', 'easy-form-builder')];
+                wp_send_json_error($response, 200);
+                return;
+            }
+            if (isset($ac->AdnSPF) == false) {
+                $ac->AdnSPF = 0;
+            }
+            $ac->AdnHSH = 1;
+            $ac->efb_version = EMSFB_PLUGIN_VERSION;
+            if (empty($this->db)) {
+                global $wpdb;
+                $this->db = $wpdb;
+            }
+            $efbFunction->set_setting_Emsfb($ac, isset($ac->emailSupporter) ? $ac->emailSupporter : '');
+            $newAc = json_encode($ac, JSON_UNESCAPED_UNICODE);
+            update_option('emsfb_addon_AdnHSH', 2);
+            $response = ['success' => true, 'r' => "done", 'value' => "add_addons_Emsfb", 'new' => $newAc];
+            wp_send_json_success($response, 200);
+            return;
+        }
+
         if (!emsfb_is_addon_install_ready_efb()) {
             $status = emsfb_get_file_access_status_efb();
             $m = $status ? ($status['error_message'] ?? $status['current_message']) : esc_html__('File access status not checked yet. Please wait.', 'easy-form-builder');
@@ -381,7 +407,7 @@ class Admin {
         if (get_locale() == 'fa_IR' && EFB_Path_IR) {
             $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
         }
-
+        error_log($u);
         $max_attempts = 2;
         $attempt = 0;
         $success = false;
