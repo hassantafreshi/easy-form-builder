@@ -2192,6 +2192,11 @@ div#Listefb-150 {
 .showBtns input[type][readonly],.showBtns select[readonly],.showBtns label {
    pointer-events: none;
 }
+#sideMenuConEfb .efb.btn-primary.active{
+    color: #fff;
+    background-color: #4636f1 !important;
+    background-image: linear-gradient(65deg, #263b8e94 0, #6030b8 100%) !important;
+}
 
 .efb.search-highlight {
    background-color: #fff3cd !important;
@@ -2345,3 +2350,13 @@ div#Listefb-150 {
     font-size: 15px !important;
    }
 }
+.efb-mobile-pro-control { position: relative; width: 100%; }
+.efb-mobile-pro-control.is-locked { cursor: pointer; opacity: .72; }
+.efb-mobile-pro-control.is-locked select,
+.efb-mobile-pro-control.is-locked .btn-group-toggle,
+.efb-mobile-pro-control.is-locked .btn-toggle { pointer-events: none; }
+.efb-mobile-pro-control .efb-mobile-pro-gem.pro-version-efb { position: absolute; top: .4rem; right: auto; left: auto; inset-inline-end: .4rem; width: 28px; height: 28px; margin: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 2px 6px rgba(15, 23, 42, .18); z-index: 2; }
+.efb-mobile-pro-control .efb-mobile-pro-gem.pro-version-efb:hover,
+.efb-mobile-pro-control .efb-mobile-pro-gem.pro-version-efb:focus { transform: scale(1.06); opacity: 1; }
+.efb-mobile-visibility-hidden { display: none !important; }
+.btn-group-toggle .ntb.active { box-shadow: inset 0 0 0 2px currentColor, 0 2px 8px rgba(15, 23, 42, .2); font-weight: 700; }

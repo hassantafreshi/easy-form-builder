@@ -2577,11 +2577,17 @@ class efbFunction {
 
 	public function addon_adds_cron_efb(){
 
-	if ( get_option('emsfb_addons_renew_required') && get_transient('emsfb_addons_renew_backoff') ) {
+	$is_persian_locale = get_locale() === 'fa_IR';
+	if ($is_persian_locale) {
+		delete_option('emsfb_addons_renew_required');
+		delete_transient('emsfb_addons_renew_backoff');
+	}
+
+	if ( !$is_persian_locale && get_option('emsfb_addons_renew_required') && get_transient('emsfb_addons_renew_backoff') ) {
 		return;
 	}
 
-	if ( (int) get_option('emsfb_addons_dl_failures', 0) >= 3 && get_transient('emsfb_addons_dl_backoff') ) {
+	if ( !$is_persian_locale && (int) get_option('emsfb_addons_dl_failures', 0) >= 3 && get_transient('emsfb_addons_dl_backoff') ) {
 		return;
 	}
 
@@ -2624,46 +2630,53 @@ public function addon_add_efb($value) {
         $vwp = get_bloginfo('version');
 		$vwp = substr($vwp,0,3);
 		$vefb = EMSFB_PLUGIN_VERSION;
-		$domain = untrailingslashit( EMSFB_SERVER_URL );
-        $u =   $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
-		$fallback_u = '';
-		$use_iran_url = false;
+        $is_persian_locale = get_locale() === 'fa_IR';
+        $build_addon_url = function($base_domain) use ($server_name, $value, $vwp, $vefb) {
+            return untrailingslashit($base_domain) . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
+        };
+		$domain = $is_persian_locale ? 'https://easyformbuilder.ir' : untrailingslashit( EMSFB_SERVER_URL );
+        $fallback_domain = $is_persian_locale ? untrailingslashit(EMSFB_SERVER_URL) : '';
+        $server_label = wp_parse_url($domain, PHP_URL_HOST);
+        $u = $build_addon_url($domain);
 		$request_timeout = 15;
-
-        if (get_locale() == 'fa_IR' && EFB_Path_IR) {
-            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
-			$fallback_u =   'https://whitestudio.team/wp-json/wl/v1/addons-link/' . $server_name . '/' . $value . '/' . $vwp . '/' . $vefb . '/';
-			$use_iran_url = true;
-			// Use shorter timeout for Iranian URL (known connectivity issues from some hosts)
-			$request_timeout = 5;
-        }
 		$name_space = 'emsfb_addon_' . $value;
 		delete_option($name_space);
 
-        $max_attempts = 1;
+        $max_attempts = $is_persian_locale ? 3 : 1;
+        $fallback_max_attempts = 1;
         $attempt = 0;
         $success = false;
         $error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
 		$error_messag = sprintf($error_message, $domain, 'not_success');
+        $switch_to_fallback = function($reason) use (&$domain, &$u, &$attempt, &$max_attempts, &$fallback_domain, &$server_label, $fallback_max_attempts, $build_addon_url, $value) {
+            if (empty($fallback_domain) || untrailingslashit($domain) === untrailingslashit($fallback_domain)) {
+                return false;
+            }
+            $previous_domain = $domain;
+            $domain = untrailingslashit($fallback_domain);
+            $u = $build_addon_url($domain);
+            $server_label = wp_parse_url($domain, PHP_URL_HOST);
+            $attempt = 0;
+            $max_attempts = $fallback_max_attempts;
+            $fallback_domain = '';
+            error_log('[EFB-ADDON] Switching addon endpoint to fallback after failed attempts | addon=' . $value . ' | reason=' . $reason . ' | from=' . $previous_domain . ' | to=' . $domain);
+            return true;
+        };
 
         while ($attempt < $max_attempts && !$success) {
             $request = wp_remote_get($u, ['timeout' => $request_timeout]);
 
             if (is_wp_error($request)) {
                 $attempt++;
-                $error_message = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
-
-                // For Iranian URLs, switch to fallback immediately on error
-                if ($use_iran_url && !empty($fallback_u) && $u !== $fallback_u) {
-					error_log('[EFB-ADDON] Switching to fallback URL due to connection error: ' . $request->get_error_message());
-                    $u = $fallback_u;
-                    $fallback_u = '';
-                    $attempt = 0;
-                    $request_timeout = 15; // Reset timeout for fallback
-                    continue;
-                }
+                $error_message = sprintf(
+                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server','easy-form-builder'),
+                    $server_label
+                );
 
                 if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('remote_request_wp_error')) {
+                        continue;
+                    }
                     return array('status' => false, 'message' => $error_message);
                 }
                 continue;
@@ -2674,9 +2687,12 @@ public function addon_add_efb($value) {
             if ($response_code != 200) {
                 $attempt++;
                 $error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
-				$error_message = sprintf($error_message, 'whitestudio.team', $response_code);
+				$error_message = sprintf($error_message, $server_label, $response_code);
 
                 if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('remote_response_invalid_code')) {
+                        continue;
+                    }
                     return array('status' => false, 'message' => $error_message);
                 }
                 continue;
@@ -2688,9 +2704,12 @@ public function addon_add_efb($value) {
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $attempt++;
 				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
-				$error_message = sprintf($error_message, 'whitestudio.team', 'invalid_json');
+				$error_message = sprintf($error_message, $server_label, 'invalid_json');
 
                 if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('remote_response_invalid_json')) {
+                        continue;
+                    }
                     return array('status' => false, 'message' => $error_message);
                 }
                 continue;
@@ -2698,24 +2717,37 @@ public function addon_add_efb($value) {
 			if($data==null){
 				$attempt++;
 				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
-				$error_message = sprintf($error_message, 'whitestudio.team', 'invalid_data');
+				$error_message = sprintf($error_message, $server_label, 'invalid_data');
 
 				if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('remote_response_empty_data')) {
+                        continue;
+                    }
 					return array('status' => false, 'message' => $error_message);
 				}
 				continue;
 			}
 
             if ($data->status == false) {
-				if (isset($data->reason) && $data->reason == 'expired') {
+				if (!$is_persian_locale && isset($data->reason) && $data->reason == 'expired') {
 					update_option('emsfb_addons_renew_required', time());
 					set_transient('emsfb_addons_renew_backoff', 1, DAY_IN_SECONDS);
-					$renew_url = isset($data->renew) ? esc_url_raw($data->renew) : EMSFB_SERVER_URL . '/register-costumer?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', ''));
+					$renew_url = isset($data->renew) ? esc_url_raw($data->renew) : $domain . '/register-costumer?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', ''));
 					$error_message = esc_html__('Your Easy Form Builder Pro subscription has expired, so the Pro add-ons could not be downloaded. The plugin keeps working without them. Renew your subscription to restore all Pro features:', 'easy-form-builder') . ' ' . $renew_url;
 					return array('status' => false, 'message' => $error_message, 'expired' => true);
 				}
 				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
-				$error_message = sprintf($error_message, 'whitestudio.team', 'invalid_status');
+				$error_message = sprintf($error_message, $server_label, 'invalid_status');
+                if ($is_persian_locale) {
+                    $attempt++;
+                    if ($attempt >= $max_attempts) {
+                        if ($switch_to_fallback('remote_response_status_false')) {
+                            continue;
+                        }
+                        return array('status' => false, 'message' => $error_message);
+                    }
+                    continue;
+                }
                 return array('status' => false, 'message' => $error_message);
             }
 
@@ -2732,6 +2764,17 @@ public function addon_add_efb($value) {
                 if (!file_exists($directory)) {
                     $result = $this->fun_addon_new($url);
                     if (is_wp_error($result)) {
+                        if ($is_persian_locale) {
+                            $attempt++;
+                            $error_message = $result->get_error_message();
+                            if ($attempt >= $max_attempts) {
+                                if ($switch_to_fallback('download_helper_failed')) {
+                                    continue;
+                                }
+                                return array('status' => false, 'message' => $error_message);
+                            }
+                            continue;
+                        }
                         return array('status' => false, 'message' => $result->get_error_message());
                     }
                 }
@@ -2740,8 +2783,11 @@ public function addon_add_efb($value) {
             } else {
                 $attempt++;
                 $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ','easy-form-builder');
-                $error_message = sprintf($error_message, 'whitestudio.team', 'download_unavailable');
+                $error_message = sprintf($error_message, $server_label, 'download_unavailable');
                 if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('download_flag_false')) {
+                        continue;
+                    }
                     return array('status' => false, 'message' => $error_message);
                 }
             }

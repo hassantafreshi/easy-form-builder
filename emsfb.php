@@ -58,8 +58,6 @@ if (!defined("EMSFB_SERVER_URL")) {
         define("EMSFB_SERVER_URL", "https://whitestudio.team");
     }
 }
-error_log("EMSFB_SERVER_URL: " . EMSFB_SERVER_URL);
-error_log("EMSFB_DEV_MODE: " . (EMSFB_DEV_MODE ? 'true' : 'false'));
 if (!defined("EMSFB_IS_FARSI")) {
     if (get_locale() == 'fa_IR') {
         //THIS LINE COMMENTED TO AVOID PROBLEMS WITH CDN IN FARSI LANGUAGE BECUSE OF SHUTDOWN IRAN NETWORK!!

@@ -46,8 +46,7 @@ class Addon {
 	}
 	public function render_settings() {
 		$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
-		$domain = untrailingslashit( EMSFB_SERVER_URL );
-		error_log(EMSFB_SERVER_URL);
+		$domain = get_locale() === 'fa_IR' ? 'https://easyformbuilder.ir' : untrailingslashit( EMSFB_SERVER_URL );
 		wp_register_script('whiteStudioAddone', $domain . '/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
 
         wp_enqueue_script('whiteStudioAddone');

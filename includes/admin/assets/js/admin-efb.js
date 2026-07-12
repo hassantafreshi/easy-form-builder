@@ -108,6 +108,7 @@ function fun_default_addons_efb_admin() {
     {id:9, name:'AdnATF', title:'TAdnAtF', desc:'DAdnAtF', icon:'bi-database-add', link:'', download:true, pro:true, state:true, tag:'data form', version:0.1, v_required:4.0, package:1},
     {id:8, name:'AdnPAP', title:'payPalTAddon', desc:'payPalDAddon', icon:'bi-paypal', link:'', download:true, pro:true, state:true, tag:'form pay payment', version:0.1, v_required:4.0, package:1},
     {id:8, name:'AdnTLG', title:'tlgmAddon', desc:'tlgmDAddon', icon:'bi-telegram', link:'', download:true, pro:true, state:true, tag:'form social notification integrate', version:0.1, v_required:4.0, package:1},
+    {id:12, name:'AdnGoS', title:'TAdnGoS', desc:'DAdnGoS', icon:'bi-file-earmark-spreadsheet', link:'', download:true, pro:true, state:true, tag:'form integration google sheet spreadsheet data export sync', version:0.1, v_required:4.1, package:1},
     {id:10, name:'AdnSMF', title:'condATAddon', desc:'condADAddon', icon:'bi-diagram-3', link:'', download:true, pro:false, state:true, tag:'form logic conditional smart', version:0.1, v_required:4.0, package:3},
     {id:11, name:'AdnHSH', title:'TAdnHSH', desc:'DAdnHSH', icon:'bi-shield-check', link:'', download:false, pro:false, state:true, tag:'form security spam protection rate limit', version:0.1, v_required:4.1, package:0},
   ];
@@ -1059,7 +1060,7 @@ function create_form_by_type_emsfb(id, s) {
     form_type_emsFormBuilder = "register";
     json = [{ "type": "register", "steps": 1, "formName": efb_var.text.register, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.register, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-d-efb", "email_to": "emailRegisterEFB", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message":textThankUEFB('register'), "email_temp": "", "stateForm": false },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.registerForm, "icon": "bi-box-arrow-in-right", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
-    { "id_": "usernameRegisterEFB", "dataId": "usernameRegisterEFB-id", "type": "text", "placeholder": efb_var.text.username, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.username, "required": true, "amount": 3, "step": 1,  "label_text_size": "fs-6", "label_position": "besie",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "usernameRegisterEFB", "dataId": "usernameRegisterEFB-id", "type": "text", "placeholder": efb_var.text.username, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.username, "required": true, "amount": 3, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "passwordRegisterEFB", "dataId": "passwordRegisterEFB-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "emailRegisterEFB", "dataId": "emailRegisterEFB-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 9, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false , "noti":1 }]
     valj_efb = json;
@@ -1434,6 +1435,7 @@ const funSetCornerElEfb = (dataId, co) => {
 
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   let el = document.querySelector(`[data-id='${dataId}-set']`)
+  if (indx === -1 || !el) return;
   if (el.dataset.side == "undefined" || el.dataset.side == "") {
     valj_efb[indx].corner = co;
     postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `null`
@@ -1465,6 +1467,20 @@ const funSetCornerElEfb = (dataId, co) => {
     document.getElementById('next_efb').className = cornerChangerEfb(document.getElementById('next_efb').className, co)
     document.getElementById('prev_efb').className = cornerChangerEfb(document.getElementById('prev_efb').className, co)
   }
+  efbSyncCornerGroupEfb(dataId, co);
+}
+
+function efbSyncCornerGroupEfb(dataId, selectedCorner) {
+  const group = document.querySelector(`[data-id='${dataId}-set']`);
+  if (!group) return;
+  group.querySelectorAll('label').forEach(label => {
+    const input = label.querySelector('input[type="radio"]');
+    if (!input) return;
+    const active = input.value === selectedCorner;
+    label.classList.toggle('active', active);
+    input.checked = active;
+    label.setAttribute('aria-checked', active ? 'true' : 'false');
+  });
 }
 
 let change_el_edit_Efb = (el) => {
@@ -1735,6 +1751,20 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(`${valj_efb[indx].id_}_labG`).classList.remove('d-none');
         }
 
+        break;
+      case "mobileHideLabelEl":
+      case "mobileHideDescriptionEl":
+        if (!efbRequireMobileProEfb()) return;
+        const mobileVisibilityKey = el.id === 'mobileHideLabelEl' ? 'mobile_hflabel' : 'mobile_hfdescription';
+        valj_efb[indx][mobileVisibilityKey] = el.classList.contains('active') ? 1 : 0;
+        el.setAttribute('aria-pressed', el.classList.contains('active') ? 'true' : 'false');
+        efbApplyFieldViewEfb(valj_efb[indx], currentViewEfb);
+        break;
+      case "globalMobileHideLabelEl":
+        if (!efbRequireMobileProEfb()) return;
+        valj_efb[0].global_mobile_hflabel = el.classList.contains('active') ? 1 : 0;
+        el.setAttribute('aria-pressed', el.classList.contains('active') ? 'true' : 'false');
+        efbProjectCurrentViewEfb();
         break;
         case "hiddenEl":
           valj_efb[indx].hidden= el.classList.contains('active')==true ? 1 :0;
@@ -4723,6 +4753,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }, false);
 
 function fun_switch_form_efb(el){
+  if (['mobileHideLabelEl', 'mobileHideDescriptionEl', 'globalMobileHideLabelEl'].includes(el.id) && !efbRequireMobileProEfb()) return false;
   r= el.id=="hiddenEl" ||  el.id=="disabledEl" ? efb_check_el_pro(el) :true;
 
   if(r==true) change_el_edit_Efb(el) ;
@@ -4827,6 +4858,37 @@ function efb_check_el_pro(el){
     }
   }
   return true;
+}
+
+function efbHasMobileProAccessEfb() {
+  const package_type = setting_emsFormBuilder.package_type != undefined ? Number(setting_emsFormBuilder.package_type) : 0;
+  return (efb_var.pro === true || efb_var.pro === 1 || efb_var.pro === '1') && package_type==1;
+}
+
+function efbRequireMobileProEfb(event) {
+  if (efbHasMobileProAccessEfb()) return true;
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  pro_show_efb(efb_var.text.youUseProElements || 1);
+  return false;
+}
+
+function efbToggleMobileVisibilityEfb(el, key) {
+  if (!efbRequireMobileProEfb()) return false;
+  const isGlobal = key === 'global_mobile_hflabel';
+  const index = isGlobal ? 0 : valj_efb.findIndex(item => item.dataId == el.dataset.id);
+  if (index === -1 || !valj_efb[index]) return false;
+
+  const enabled = !el.classList.contains('active');
+  el.classList.toggle('active', enabled);
+  el.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+  valj_efb[index][key] = enabled ? 1 : 0;
+
+  if (isGlobal) efbProjectCurrentViewEfb();
+  else efbApplyFieldViewEfb(valj_efb[index], typeof currentViewEfb === 'undefined' ? 'desktop' : currentViewEfb);
+  return false;
 }
 
 function colors_template_picker_efb(el){
@@ -6685,6 +6747,7 @@ const show_pro_message_for_elm = (i) =>{
 }
 
 const funSetPosElEfb = (dataId, position) => {
+  position = position === 'besie' ? 'beside' : position;
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   if (indx != -1) {
     valj_efb[indx].label_position = position
@@ -6693,6 +6756,7 @@ const funSetPosElEfb = (dataId, position) => {
   // the value is stored above and re-projected on the next view switch.
   if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') return;
   if (valj_efb[indx].type != "stripe"  && valj_efb[indx].type != "html") get_position_col_el(dataId, true)
+  efbSyncResponsiveButtonGroupsEfb(dataId);
 }
 
 const funSetAlignElEfb = (dataId, align, element) => {
@@ -6725,14 +6789,19 @@ const funSetAlignElEfb = (dataId, align, element) => {
       default:
         break;
   }
+  if (dataId != 'button_group_' && dataId != 'Next_') efbSyncResponsiveButtonGroupsEfb(dataId);
 }
 
 const funSetMobilePosElEfb = (dataId, position) => {
+  if (!efbRequireMobileProEfb()) return;
   efbSetViewPropEfb(dataId, 'label_position', position, 'mobile');
+  efbSyncResponsiveButtonGroupsEfb(dataId);
 }
 
 const funSetMobileAlignElEfb = (dataId, align, element) => {
+  if (!efbRequireMobileProEfb()) return;
   efbSetViewPropEfb(dataId, element == 'label' ? 'label_align' : 'message_align', align, 'mobile');
+  efbSyncResponsiveButtonGroupsEfb(dataId);
 }
 
 const loadingShow_efb = (title) => {
@@ -7501,7 +7570,7 @@ function efbGetViewPropEfb(item, propKey, view) {
   view = view === 'mobile' ? 'mobile' : 'desktop';
   if (!item || !efbViewPropMapEfb[view].hasOwnProperty(propKey)) return undefined;
   const storeKey = efbViewPropMapEfb[view][propKey];
-  if (item.hasOwnProperty(storeKey) && item[storeKey] !== '' && item[storeKey] !== undefined && item[storeKey] !== null) {
+  if ((view !== 'mobile' || efbHasMobileProAccessEfb()) && item.hasOwnProperty(storeKey) && item[storeKey] !== '' && item[storeKey] !== undefined && item[storeKey] !== null) {
     return item[storeKey];
   }
   if (view === 'mobile') {
@@ -7594,6 +7663,12 @@ function efbApplyFieldViewEfb(item, view) {
     else if (mAlign == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
   }
 
+  const mobileView = view === 'mobile';
+  const mobilePro = efbHasMobileProAccessEfb();
+  const globalHideLabel = mobilePro && valj_efb[0] && Number(valj_efb[0].global_mobile_hflabel || 0) === 1;
+  if (labelEl) labelEl.classList.toggle('efb-mobile-visibility-hidden', mobileView && mobilePro && (globalHideLabel || Number(item.mobile_hflabel || 0) === 1));
+  if (desEl) desEl.classList.toggle('efb-mobile-visibility-hidden', mobileView && mobilePro && Number(item.mobile_hfdescription || 0) === 1);
+
   efbApplyOpStyleViewEfb(item, view);
 }
 
@@ -7602,6 +7677,7 @@ function efbApplyFieldViewEfb(item, view) {
 // the change belongs to the view currently on screen.
 function efbSetViewPropEfb(dataId, propKey, value, view) {
   view = view === 'mobile' ? 'mobile' : 'desktop';
+  if (view === 'mobile' && !efbHasMobileProAccessEfb()) return false;
   if (!efbViewPropMapEfb[view].hasOwnProperty(propKey)) return false;
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   if (indx === -1) return false;
@@ -7630,6 +7706,35 @@ function efbProjectMobileViewEfb() {
       try { efbApplyFieldViewEfb(valj_efb[i], 'mobile'); } catch (error) {}
     }
   }
+}
+
+function efbProjectCurrentViewEfb() {
+  const view = typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile' ? 'mobile' : 'desktop';
+  for (let i = 1; i < valj_efb.length; i++) {
+    if (efbIsLayoutFieldEfb(valj_efb[i])) efbApplyFieldViewEfb(valj_efb[i], view);
+  }
+}
+
+function efbSyncResponsiveButtonGroupsEfb(dataId) {
+  const item = valj_efb.find(x => x.dataId == dataId);
+  if (!item) return;
+  document.querySelectorAll(`.btn-group-toggle[data-id="${dataId}"]`).forEach(group => {
+    let selected = null;
+    if (group.id === 'mobileLabelPostionEl') selected = item.mobile_label_position || 'up';
+    else if (group.id === 'labelPostionEl') selected = (item.label_position === 'besie' ? 'beside' : item.label_position) || 'up';
+    else if (group.id === 'MobileElementAlignEl') selected = group.dataset.side === 'label' ? (item.mobile_label_align || item.label_align) : (item.mobile_message_align || item.message_align);
+    else if (group.id === 'ElementAlignEl') selected = group.dataset.side === 'label' ? item.label_align : item.message_align;
+    group.querySelectorAll('label').forEach(label => {
+      const input = label.querySelector('input[type="radio"]');
+      if (!input) return;
+      const alignMap = group.dataset.side === 'label' ? {left:'txt-left', center:'txt-center', right:'txt-right'} : {left:'justify-content-start', center:'justify-content-center', right:'justify-content-end'};
+      const value = group.id.indexOf('Align') !== -1 ? alignMap[input.value] : input.value;
+      const active = value === selected;
+      label.classList.toggle('active', active);
+      input.checked = active;
+      input.setAttribute('aria-checked', active ? 'true' : 'false');
+    });
+  });
 }
 
 // Destructive re-render of #dropZoneEFB with the requested view.
@@ -7696,13 +7801,17 @@ function switchViewEfb(view) {
 function updateSideBoxViewEfb(view) {
   const deskEls = document.querySelectorAll('.efb-desktop-settings-efb');
   const mobEls = document.querySelectorAll('.efb-mobile-settings-efb');
+  const mobileShells = document.querySelectorAll('.efb-mobile-pro-control--field');
   if (view === 'mobile') {
     deskEls.forEach(el => el.classList.add('d-none'));
     mobEls.forEach(el => el.classList.remove('d-none'));
+    mobileShells.forEach(el => el.classList.remove('d-none'));
   } else {
     deskEls.forEach(el => el.classList.remove('d-none'));
     mobEls.forEach(el => el.classList.add('d-none'));
+    mobileShells.forEach(el => el.classList.add('d-none'));
   }
+  document.querySelectorAll('.btn-group-toggle[data-id]').forEach(group => efbSyncResponsiveButtonGroupsEfb(group.dataset.id));
 }
 
 // Frontend-mirror xs class (col-*) used only in the builder's preview markup

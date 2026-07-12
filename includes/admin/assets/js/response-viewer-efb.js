@@ -758,7 +758,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     <div class="efb efb-msg-header">
      ${bySection}
      <div class="efb-msg-header-actions">
-       ${efb_var.hasOwnProperty('setting') || (typeof setting_emsFormBuilder !== 'undefined' && (setting_emsFormBuilder.activeDlBtn == true || setting_emsFormBuilder.activeDlBtn == '1' || setting_emsFormBuilder.activeDlBtn === 1)) ? `<div class="efb efb-msg-download"><button type="button" class="efb-msg-dl-btn" onclick="toggleDlDropdown_EFB(this)" aria-expanded="false" title="${efb_var.text.download}"><i class="bi bi-download"></i></button></div>` : ''}
+       ${efb_var.hasOwnProperty('setting') || (typeof setting_emsFormBuilder !== 'undefined' && (setting_emsFormBuilder.activeDlBtn == true || setting_emsFormBuilder.activeDlBtn == '1' || setting_emsFormBuilder.activeDlBtn === 1)) ? `<div class="efb efb-msg-download efb-msg-dl-wrap"><button type="button" class="efb-msg-dl-btn" onclick="toggleDlDropdown_EFB(this)" aria-expanded="false" aria-haspopup="menu" aria-label="${efb_var.text.download}" title="${efb_var.text.download}"><i class="bi bi-download" aria-hidden="true"></i></button></div>` : ''}
      </div>
     </div>
     <div class="efb-msg-meta-bar">
@@ -1377,6 +1377,9 @@ function toggleDlDropdown_EFB(btn) {
   _efbDlPosition(btn, menu);
 
   btn.setAttribute('aria-expanded', 'true');
+  btn.classList.add('is-open');
+  var firstItem = menu.querySelector('.efb-dl-item');
+  if (firstItem) firstItem.focus();
 }
 
 function _efbDlPosition(btn, menu) {
@@ -1393,8 +1396,9 @@ function _efbDlPosition(btn, menu) {
     top = Math.max(4, rect.top - gap - menuH);
   }
 
-  // Horizontal: right-align menu with button; shift left if it bleeds off screen
-  var left = rect.right - menuW;
+  // Keep the menu aligned with the action edge in both LTR and RTL.
+  var rtl = document.documentElement.dir === 'rtl' || (btn.closest('[dir="rtl"], .rtl-text') !== null);
+  var left = rtl ? rect.left : rect.right - menuW;
   if (left < 4) left = 4;
   if (left + menuW > window.innerWidth - 4) left = window.innerWidth - menuW - 4;
 
@@ -1410,6 +1414,7 @@ function closeDlDropdown_EFB() {
   }
   if (_efbDlOwner) {
     _efbDlOwner.setAttribute('aria-expanded', 'false');
+    _efbDlOwner.classList.remove('is-open');
     _efbDlOwner = null;
   }
 }
@@ -1431,7 +1436,11 @@ document.addEventListener('click', function(e) {
 
 // Close on Escape
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeDlDropdown_EFB();
+  if (e.key === 'Escape' && _efbDlOwner) {
+    var owner = _efbDlOwner;
+    closeDlDropdown_EFB();
+    owner.focus();
+  }
 });
 /* ---------------------------------------------------------------------------- */
 

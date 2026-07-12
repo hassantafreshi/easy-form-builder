@@ -14,15 +14,18 @@
 
 	private function generateDescription_efb($rndm, $vj, $pos) {
 
+		$mobile_hide_description = $this->pro_efb && isset($vj->mobile_hfdescription) && (int) $vj->mobile_hfdescription === 1;
 		$mx = $pos[1] == 'col-md-4' || (isset($vj->message_align) && $vj->message_align != "justify-content-start") ? '' : 'mx-4';
 		$msg_align = isset($vj->message_align) ? $vj->message_align : '';
 		$msg_txt_color = isset($vj->message_text_color) ? $vj->message_text_color : '';
 		$msg = isset($vj->message) ? $vj->message : '';
-		return '<small id="' . $rndm . '-des" class="efb form-text d-flex fs-7 col-sm-12 efb ' . $mx . ' ' . $msg_align . ' ' . $msg_txt_color . ' ' . (isset($vj->message_text_size) ? $vj->message_text_size : '') . ' ">' . $msg . '</small>';
+		return '<small id="' . $rndm . '-des" class="efb form-text d-flex fs-7 col-sm-12 efb ' . ($mobile_hide_description ? 'd-none d-md-flex' : '') . ' ' . $mx . ' ' . $msg_align . ' ' . $msg_txt_color . ' ' . (isset($vj->message_text_size) ? $vj->message_text_size : '') . ' ">' . $msg . '</small>';
 	}
 
 	private function generateLabel_efb($rndm, $vj, $pos, $mobile_pos = null) {
 
+		$global_mobile_hide_label = isset($this->valj_efb[0]->global_mobile_hflabel) && (int) $this->valj_efb[0]->global_mobile_hflabel === 1;
+		$mobile_hide_label = $this->pro_efb && ($global_mobile_hide_label || (isset($vj->mobile_hflabel) && (int) $vj->mobile_hflabel === 1));
 		$label_align = isset($vj->label_align) ? $vj->label_align : '';
 		$label_text_size = isset($vj->label_text_size) && $vj->label_text_size != "default" ? $vj->label_text_size : '';
 		$required  ='<span class="efb mx-1 text-danger" id="' . $rndm . '_req" role="none">';
@@ -39,6 +42,7 @@
 			($mobile_pos !== null ? $mobile_pos[2] : 'col-12'),
 			'col-form-label',
 			(isset($vj->hflabel) && $vj->hflabel == 1 ? 'd-none' : ''),
+			($mobile_hide_label ? 'd-none d-md-block' : ''),
 			$label_color,
 			$label_align,
 			$label_text_size
@@ -301,11 +305,19 @@
 	}
 
         public function generate_mobile_css_efb() {
+                if (!$this->pro_efb) return '';
                 $css = '';
                 foreach ($this->valj_efb as $i => $vj) {
                         if ($i === 0) continue;
                         if (!isset($vj->id_)) continue;
                         $id = $vj->id_;
+
+                        if ((isset($this->valj_efb[0]->global_mobile_hflabel) && (int) $this->valj_efb[0]->global_mobile_hflabel === 1) || (isset($vj->mobile_hflabel) && (int) $vj->mobile_hflabel === 1)) {
+                                $css .= '#' . $id . '_labG { display: none !important; }' . "\n";
+                        }
+                        if (isset($vj->mobile_hfdescription) && (int) $vj->mobile_hfdescription === 1) {
+                                $css .= '#' . $id . '-des { display: none !important; }' . "\n";
+                        }
 
                         if (isset($vj->mobile_label_align) && $vj->mobile_label_align !== '') {
                                 $css .= '#' . $id . '_labG { ' . $this->get_align_css($vj->mobile_label_align) . ' }' . "\n";
@@ -373,7 +385,7 @@
 		$label_col = 'col-12';
 		$input_col = 'col-12';
 		$parent_row = '';
-		$mobile_size = isset($val->mobile_size) ? (int) $val->mobile_size : 100;
+		$mobile_size = $this->pro_efb && isset($val->mobile_size) ? (int) $val->mobile_size : 100;
 		switch ($mobile_size) {
 			case 100: $parent_col = 'col-12'; break;
 			case 92:  $parent_col = 'col-11'; break;
@@ -391,7 +403,7 @@
 		}
 		// Mobile label position defaults to 'up' (stacked) regardless of the desktop
 		// label_position; that is the plugin's historical behaviour below 768px.
-		if (isset($val->mobile_label_position) && $val->mobile_label_position == 'beside') {
+		if ($this->pro_efb && isset($val->mobile_label_position) && $val->mobile_label_position == 'beside') {
 			$parent_row = 'row';
 			$label_col = 'col-4';
 			$input_col = 'col-8';
