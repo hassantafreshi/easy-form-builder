@@ -45,6 +45,11 @@ class Emsfb {
 
         add_action('upgrader_process_complete', [$this, 'plugin_update_completed_efb'], 10, 2);
 
+        // Register recovery before admin-ajax dispatch. efbFunction instances
+        // are lazy, so registering this there can leave the Recover button with
+        // WordPress's opaque "0" response on a fresh AJAX request.
+        add_action('wp_ajax_emsfb_recover_addons', [$this, 'ajax_recover_addons_efb']);
+
         add_action('plugins_loaded', [$this, 'check_version_and_upgrade_efb']);
     }
 
@@ -179,6 +184,8 @@ class Emsfb {
 			}
 
 			if ( ! empty( $ac_routes->AdnPPF ) ) {
+				$this->load_persiapay_addon();
+
 				$f = $this->plugin_path . 'vendor/persiapay/routes-efb.php';
 				if ( file_exists( $f ) ) {
 					require_once $f;
@@ -192,16 +199,23 @@ class Emsfb {
 			new Emsfb_Shield_SilentCaptcha_Integration();
 		}
 
-		// Form Security & Spam Protection (Human Shield): security-on-by-default,
-		// so a missing AdnHSH key counts as enabled; the Add-ons toggle can turn
-		// it off. Safe to ship even when the vendor folder is missing or
-		// partially uploaded — the bootstrap validates its own files and only
-		// warns in wp-admin.
-		$human_shield_enabled = true;
-		if ( is_object( $ac_routes ) && property_exists( $ac_routes, 'AdnHSH' ) ) {
-			$human_shield_enabled = (int) $ac_routes->AdnHSH >= 1;
-		}
-		if ( $human_shield_enabled ) {
+		// Form Security & Spam Protection (Human Shield) ships inside the plugin.
+		// The protection *runtime* only activates when the add-on is switched on
+		// (AdnHSH >= 1); it stays off by default so form/submission behaviour does
+		// not change until the user opts in. The *admin settings page* is always
+		// registered in wp-admin (whenever the files exist) so it is reachable from
+		// the menu even while protection is off — the add-on's constructor wires
+		// the runtime and the admin page independently based on the constant below.
+		$human_shield_runtime = is_object( $ac_routes )
+			&& property_exists( $ac_routes, 'AdnHSH' )
+			&& (int) $ac_routes->AdnHSH >= 1;
+
+		// Load in admin so the settings page shows, or on the front-end only when
+		// the runtime is active (no needless work on public requests when off).
+		if ( $human_shield_runtime || is_admin() ) {
+			if ( ! defined( 'EFB_HUMAN_SHIELD_RUNTIME' ) ) {
+				define( 'EFB_HUMAN_SHIELD_RUNTIME', $human_shield_runtime ? 1 : 0 );
+			}
 			$human_shield_file = $this->plugin_path . 'vendor/human-shield/human-shield-efb.php';
 			if ( file_exists( $human_shield_file ) ) {
 				require_once $human_shield_file;
@@ -212,6 +226,26 @@ class Emsfb {
 
        $this->load_page_builder_integrations();
 
+    }
+
+    /**
+     * Load the PersiaPay script bootstrap once the add-on is enabled.
+     *
+     * @return void
+     */
+    private function load_persiapay_addon(): void {
+        // PersiaPay registers its editor/front-end script through this bootstrap
+        // class. Loading only its REST route leaves the add-on installed but
+        // without the hook that exposes its payment UI.
+        $persia_bootstrap = $this->plugin_path . 'vendor/persiapay/persiapayefb.php';
+        if ( ! file_exists( $persia_bootstrap ) ) {
+            return;
+        }
+
+        require_once $persia_bootstrap;
+        if ( class_exists( '\\Emsfb\\persiapayEFB', false ) ) {
+            new \Emsfb\persiapayEFB();
+        }
     }
 
     private function load_page_builder_integrations(): void {
@@ -975,6 +1009,12 @@ class Emsfb {
         global $wpdb;
         $table_setting = $wpdb->prefix . 'emsfb_setting';
 
+        // A plugin update can wipe downloaded add-on files. Flag that add-ons may
+        // need reinstalling; Create/Panel/Add-ons block on this until a local
+        // health check confirms every enabled add-on is present again (the flag
+        // clears itself at that point via addon_recovery_state_efb()).
+        update_option('emsfb_addons_reinstall_required', time());
+
         if (function_exists('wp_cache_flush')) {
             wp_cache_flush();
         }
@@ -1157,6 +1197,8 @@ class Emsfb {
         $defaults->AdnADP            = '0';
         $defaults->AdnGoS            = '0';
         $defaults->AdnTLG            = '0';
+        $defaults->AdnATF            = '0';
+        $defaults->AdnHSH            = '0';
         $defaults->phnNo             = '';
         $defaults->femail            = '';
         $defaults->email_key         = '';
@@ -1350,6 +1392,15 @@ class Emsfb {
                 }
             }
         }
+    }
+
+    /**
+     * Stable AJAX entry point for the add-on recovery card.
+     *
+     * @return void
+     */
+    public function ajax_recover_addons_efb(): void {
+        self::get_efbFunction()->ajax_recover_addons_efb();
     }
 
 }

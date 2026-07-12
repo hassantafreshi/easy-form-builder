@@ -58,12 +58,31 @@ class Admin {
 
         }
     }
+    /**
+     * Capabilities granted to the built-in Administrator role.
+     *
+     * @return array
+     */
+    public static function get_administrator_capabilities_efb() {
+        return array(
+            'Emsfb',
+            'Emsfb_create',
+            'Emsfb_panel',
+            'Emsfb_addon',
+            'Emsfb_autofill_efb',
+            'Emsfb_autofill_api_efb',
+            'Emsfb_human_shield_efb',
+        );
+    }
+
     public function add_cap() {
         $role = get_role('administrator');
-        $role->add_cap('Emsfb');
-        $role->add_cap('Emsfb_create');
-        $role->add_cap('Emsfb_panel');
-        $role->add_cap('Emsfb_addon');
+        if (!$role) {
+            return;
+        }
+        foreach (self::get_administrator_capabilities_efb() as $capability) {
+            $role->add_cap($capability);
+        }
         if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
             $role->add_cap('Emsfb_sms_efb');
         }
@@ -386,8 +405,7 @@ class Admin {
         // Collect request and environment details up front so we can compare
         // successful installs with failures on fa_IR / RTL websites.
         $post_value = isset($_POST['value']) ? sanitize_text_field(wp_unslash($_POST['value'])) : '';
-        $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
-                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP","AdnATF","AdnTLG","AdnGoS","AdnHSH"];
+        $allw = $efbFunction->get_all_addon_keys_efb();
         $addon_index = array_search($post_value, $allw, true);
         $dd = gettype($addon_index);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -2786,11 +2804,11 @@ class Admin {
     }
     public function check_and_enqueue_font_roboto_Emsfb() {
         $font_url = 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap';
-        $response = wp_remote_head($font_url);
-        if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
-            wp_register_style('Font_Roboto', $font_url);
-            wp_enqueue_style('Font_Roboto');
-        }
+        // Do not block an admin response on a server-side Google Fonts probe.
+        // The browser fetches this stylesheet independently and gracefully
+        // falls back to the local font stack if it is unavailable.
+        wp_register_style('Font_Roboto', $font_url);
+        wp_enqueue_style('Font_Roboto');
     }
     public function heartbeat_Emsfb(){
         $efbFunction = get_efbFunction();

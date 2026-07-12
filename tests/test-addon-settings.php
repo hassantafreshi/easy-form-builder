@@ -128,6 +128,17 @@ $admin_keys = [
 $missing_admin_keys = array_values( array_diff( $admin_keys, array_keys( $admin_addons ) ) );
 efb_addon_test( 'A12 admin and vendor add-on keys are preserved', $missing_admin_keys, [] );
 
+$defaults = Emsfb::get_default_settings_efb();
+efb_addon_test( 'A13 Auto-Populate has an explicit default state', property_exists( $defaults, 'AdnATF' ), true );
+efb_addon_test( 'A14 Auto-Populate default is inactive', $defaults->AdnATF, '0' );
+
+$test_options = [
+	'emsfb_addon_AdnATF' => 2,
+];
+$normalized_settings = $helper->normalize_addon_settings_efb( (object) [] );
+efb_addon_test( 'A15 legacy Auto-Populate activation survives settings migration', $normalized_settings->AdnATF, 1 );
+efb_addon_test( 'A16 missing inactive add-ons are initialized as inactive', $normalized_settings->AdnPPF, 0 );
+
 echo "\n========================================\n";
 echo "RESULTS: {$passed} passed, {$failed} failed\n";
 echo "========================================\n";

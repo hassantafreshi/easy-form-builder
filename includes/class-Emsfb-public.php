@@ -20,6 +20,7 @@ class _Public {
 	public $efb_uid  ;
 	public $value_forms =[];
 	private $form_cache = [];
+	private $addon_recovery_transition_rendered = false;
 
 	public function __construct() {
 		global $wpdb;
@@ -549,6 +550,23 @@ public function check_nonce_permission_efb($request) {
 			$state="form";
 			$rgister_captcha_url = false;
 			$this->efbFunction = get_efbFunction();
+			$addon_recovery = $this->efbFunction->recover_missing_addons_efb( null, 'public_form' );
+			if ( ! empty( $addon_recovery['recovered'] ) ) {
+				if ( $this->addon_recovery_transition_rendered ) {
+					return '';
+				}
+				$this->addon_recovery_transition_rendered = true;
+				return $this->efbFunction->render_addon_recovery_reload_ui_efb( true );
+			}
+			if ( empty( $addon_recovery['success'] ) ) {
+				// Do not render a partly functional form. The administrator gets the
+				// precise diagnostics in the recovery UI; visitors get a safe message.
+				if ( $this->addon_recovery_transition_rendered ) {
+					return '';
+				}
+				$this->addon_recovery_transition_rendered = true;
+				return $this->efbFunction->render_addon_recovery_public_error_ui_efb();
+			}
 			if(isset($_GET['track'])){
 				$state_form =  sanitize_text_field(wp_unslash($_GET['track']) );
 				$state="track";
@@ -5442,6 +5460,7 @@ public function check_nonce_permission_efb($request) {
 			$efbFunction->setting_version_efb_update('null' ,$this->pro_efb );
 		}
 	}
+
 	public function form_preview_efb(){
 
 		if (  check_ajax_referer('wp_rest', 'nonce') != 1) {

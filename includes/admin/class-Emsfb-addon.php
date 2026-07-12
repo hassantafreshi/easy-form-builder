@@ -45,6 +45,20 @@ class Addon {
 		}
 	}
 	public function render_settings() {
+		// After a plugin update, block the Add-ons page until missing add-on files
+		// are reinstalled. The Recover button on the blocking screen performs the
+		// reinstall, then offers an Activate (reload) button.
+		$efb_recovery_fn = get_efbFunction();
+		$addon_recovery = $efb_recovery_fn->recover_missing_addons_efb( null, 'addons' );
+		if ( ! empty( $addon_recovery['recovered'] ) ) {
+			echo $efb_recovery_fn->render_addon_recovery_reload_ui_efb(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			return;
+		}
+		$addon_recovery_state = $efb_recovery_fn->addon_recovery_state_efb();
+		if ( 'block' === $addon_recovery_state ) {
+			echo $efb_recovery_fn->render_addon_recovery_ui_efb( 'block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			return;
+		}
 		$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
 		$domain = get_locale() === 'fa_IR' ? 'https://easyformbuilder.ir' : untrailingslashit( EMSFB_SERVER_URL );
 		wp_register_script('whiteStudioAddone', $domain . '/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
@@ -99,6 +113,10 @@ class Addon {
 	<!-- End Addon Directory Status Check -->
 
 	<div id="alert_efb" class="efb mx-5"></div>
+
+	<?php if ( 'inline' === $addon_recovery_state ) : ?>
+		<?php echo $efb_recovery_fn->render_addon_recovery_ui_efb( 'inline' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+	<?php endif; ?>
 
 	<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >

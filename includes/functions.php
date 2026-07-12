@@ -103,11 +103,24 @@ class efbFunction {
 		$this->db = $wpdb;
 
 		register_activation_hook( __FILE__, [$this ,'download_all_addons_efb'] );
-		add_action( 'load-index.php', [$this ,'addon_adds_cron_efb'] );
-
-		add_action( 'emsfb_download_addons_cron', [$this, 'download_all_addons_efb'] );
-
+		$this->clear_legacy_addon_recovery_cron_efb();
     }
+
+	/**
+	 * Remove events left behind by the former background recovery flow. This runs
+	 * once per plugin version and prevents a stale WP-Cron event from unexpectedly
+	 * downloading add-ons after recovery became request-driven.
+	 */
+	public function clear_legacy_addon_recovery_cron_efb() {
+		if ( get_option( 'emsfb_addon_recovery_cron_cleanup', '' ) === EMSFB_PLUGIN_VERSION ) {
+			return;
+		}
+
+		if ( function_exists( 'wp_clear_scheduled_hook' ) ) {
+			wp_clear_scheduled_hook( 'emsfb_download_addons_cron' );
+		}
+		update_option( 'emsfb_addon_recovery_cron_cleanup', EMSFB_PLUGIN_VERSION, false );
+	}
 
 	public function text_efb($inp,$page_request = 'default') {
 
@@ -2581,25 +2594,10 @@ class efbFunction {
     }
 
 	public function addon_adds_cron_efb(){
-
-	$is_persian_locale = get_locale() === 'fa_IR';
-	if ($is_persian_locale) {
-		delete_option('emsfb_addons_renew_required');
-		delete_transient('emsfb_addons_renew_backoff');
-	}
-
-	if ( !$is_persian_locale && get_option('emsfb_addons_renew_required') && get_transient('emsfb_addons_renew_backoff') ) {
-		return;
-	}
-
-	if ( !$is_persian_locale && (int) get_option('emsfb_addons_dl_failures', 0) >= 3 && get_transient('emsfb_addons_dl_backoff') ) {
-		return;
-	}
-
-	if ( ! wp_next_scheduled( 'emsfb_download_addons_cron' ) ) {
-		wp_schedule_single_event( time() + 5, 'emsfb_download_addons_cron' );
-		}
-
+		// Kept as a no-op for backward compatibility with sites that have an old
+		// scheduled event. Add-on recovery is request-driven and never relies on
+		// WP-Cron, so a visitor is never left waiting for a cron worker.
+		return false;
 	}
 
 	public function resume_addon_downloads_efb(){
@@ -2611,13 +2609,483 @@ class efbFunction {
 		delete_transient('emsfb_addons_renew_backoff');
 		delete_option('emsfb_addons_dl_failures');
 		delete_transient('emsfb_addons_dl_backoff');
-		if ( ! wp_next_scheduled( 'emsfb_download_addons_cron' ) ) {
-			wp_schedule_single_event( time() + 5, 'emsfb_download_addons_cron' );
+		// The next relevant admin/form request performs recovery directly.
+	}
+
+	/**
+	 * Canonical list of every add-on flag key.
+	 *
+	 * Single source of truth for the add-on identifiers used across the plugin.
+	 * When bundling a new add-on, add its key here once (and, if it ships files,
+	 * to get_addon_required_files_efb()); every consumer that only needs the
+	 * full set of keys reads it from here instead of hard-coding its own copy.
+	 *
+	 * @return array<int, string>
+	 */
+	public function get_all_addon_keys_efb(){
+		return array(
+			'AdnSPF', // Stripe payment gateway
+			'AdnOF',  // Offline Forms
+			'AdnPPF', // Persia Payment
+			'AdnATC', // Advanced Tracking Code
+			'AdnSS',  // SMS notifications
+			'AdnCPF', // AdnCPF add-on (reserved)
+			'AdnESZ', // AdnESZ add-on (reserved)
+			'AdnSE',  // Search Entry
+			'AdnWHS', // Webhook
+			'AdnPAP', // PayPal payment gateway
+			'AdnWSP', // AdnWSP add-on (reserved)
+			'AdnSMF', // Conditional Logic (smart form)
+			'AdnPLF', // AdnPLF add-on (reserved)
+			'AdnMSF', // AdnMSF add-on (reserved)
+			'AdnBEF', // Booking
+			'AdnPDP', // Persian (Jalali) Date Picker
+			'AdnADP', // Arabic (Hijri) Date Picker
+			'AdnATF', // Auto-Populate / Autofill
+			'AdnTLG', // Telegram notifications
+			'AdnGoS', // Google Sheet integration
+			'AdnHSH', // Human Shield (form security & spam protection)
+		);
+	}
+
+	/**
+	 * Return the files that prove a bundled add-on is usable locally.
+	 *
+	 * This intentionally performs no HTTP request. Admin pages call this on
+	 * every load, while a missing add-on is recovered later by WP-Cron.
+	 *
+	 * @return array<string, array<int, string>>
+	 */
+	public function get_addon_required_files_efb(){
+		return array(
+			'AdnSPF' => array( 'vendor/stripe/class-Emsfb-stripe-payment.php' ),
+			'AdnOF'  => array( 'vendor/offline/json/countries.js' ),
+			'AdnPPF' => array( 'vendor/persiapay/zarinpal.php' ),
+			'AdnSS'  => array( 'vendor/smssended/smsefb.php' ),
+			'AdnPDP' => array( 'vendor/persiadatepicker/persiandate.php' ),
+			'AdnADP' => array( 'vendor/arabicdatepicker/arabicdate.php' ),
+			'AdnPAP' => array( 'vendor/paypal/paypalefb.php' ),
+			'AdnTLG' => array( 'vendor/telegram/telegram-new-efb.php' ),
+			'AdnATF' => array( 'vendor/autofill/autofillefb.php' ),
+			'AdnGoS' => array( 'vendor/googlesheet/class-Emsfb-googlesheet.php' ),
+			'AdnSMF' => array( 'vendor/logic/logic/class-Emsfb-logic-validator.php' ),
+			'AdnHSH' => array( 'vendor/human-shield/human-shield-efb.php' ),
+		);
+	}
+
+	/**
+	 * Check enabled add-ons from disk only. This is deliberately cheap enough
+	 * to run for every Create and Panel page request.
+	 *
+	 * @param object|null $settings Decoded EFB settings.
+	 * @return array{missing: array<string, array<int, string>>, checked: array<int, string>}
+	 */
+	public function get_addon_local_health_efb( $settings = null ){
+		if ( ! is_object( $settings ) ) {
+			$settings = get_setting_Emsfb( 'decoded' );
 		}
 
+		$missing = array();
+		$checked = array();
+		foreach ( $this->get_addon_required_files_efb() as $addon_key => $required_files ) {
+			if ( ! is_object( $settings ) || empty( $settings->{$addon_key} ) ) {
+				continue;
+			}
+
+			$checked[] = $addon_key;
+			$missing_files = array();
+			foreach ( $required_files as $relative_file ) {
+				if ( ! file_exists( EMSFB_PLUGIN_DIRECTORY . $relative_file ) ) {
+					$missing_files[] = $relative_file;
+				}
+			}
+
+			if ( ! empty( $missing_files ) ) {
+				$missing[ $addon_key ] = $missing_files;
+			}
+		}
+
+		return array(
+			'missing' => $missing,
+			'checked' => $checked,
+		);
+	}
+
+	/**
+	 * Determine whether an add-on that has a local manifest is already usable.
+	 * Unknown legacy add-ons deliberately return false so their manual recovery
+	 * path remains available.
+	 */
+	public function is_addon_installed_locally_efb( $addon_key ){
+		$requirements = $this->get_addon_required_files_efb();
+		if ( ! isset( $requirements[ $addon_key ] ) ) {
+			return false;
+		}
+
+		foreach ( $requirements[ $addon_key ] as $relative_file ) {
+			if ( ! file_exists( EMSFB_PLUGIN_DIRECTORY . $relative_file ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Queue a recovery only when a local health check finds missing files.
+	 * The scheduler prevents network work from delaying the current request.
+	 */
+	public function schedule_missing_addon_recovery_efb( $settings = null ){
+		$health = $this->get_addon_local_health_efb( $settings );
+		// Deprecated compatibility wrapper. Recovery is performed immediately by
+		// recover_missing_addons_efb() at the relevant admin/form entry point;
+		// nothing is queued to WP-Cron.
+		return ! empty( $health['missing'] );
+	}
+
+	/**
+	 * User-facing names for recovery diagnostics.
+	 *
+	 * @param string $addon_key Add-on setting key.
+	 * @return string
+	 */
+	public function get_addon_recovery_label_efb( $addon_key ) {
+		$labels = array(
+			'AdnSPF' => esc_html__( 'Stripe', 'easy-form-builder' ),
+			'AdnOF'  => esc_html__( 'Offline Forms', 'easy-form-builder' ),
+			'AdnPPF' => esc_html__( 'Persia Payment', 'easy-form-builder' ),
+			'AdnSS'  => esc_html__( 'SMS Notifications', 'easy-form-builder' ),
+			'AdnPDP' => esc_html__( 'Persian Date Picker', 'easy-form-builder' ),
+			'AdnADP' => esc_html__( 'Arabic Date Picker', 'easy-form-builder' ),
+			'AdnPAP' => esc_html__( 'PayPal', 'easy-form-builder' ),
+			'AdnTLG' => esc_html__( 'Telegram', 'easy-form-builder' ),
+			'AdnATF' => esc_html__( 'Auto-Populate', 'easy-form-builder' ),
+			'AdnGoS' => esc_html__( 'Google Sheets', 'easy-form-builder' ),
+			'AdnSMF' => esc_html__( 'Conditional Logic', 'easy-form-builder' ),
+			'AdnHSH' => esc_html__( 'Form Security & Spam Protection', 'easy-form-builder' ),
+		);
+
+		return isset( $labels[ $addon_key ] ) ? $labels[ $addon_key ] : sanitize_text_field( $addon_key );
+	}
+
+	/**
+	 * Recover missing enabled add-ons in the current request.
+	 *
+	 * Normal requests only do local file checks. A network request happens here
+	 * only when a file is actually missing, which means recovery does not depend
+	 * on WP-Cron and a form/admin screen cannot continue with partial add-ons.
+	 *
+	 * @param object|null $settings Decoded EFB settings.
+	 * @param string      $source   Recovery initiator, used for diagnostics.
+	 * @return array<string, mixed>
+	 */
+	public function recover_missing_addons_efb( $settings = null, $source = 'automatic' ) {
+		static $request_result = null;
+		if ( null !== $request_result ) {
+			return $request_result;
+		}
+
+		$health = $this->get_addon_local_health_efb( $settings );
+		$initial_missing = array_keys( $health['missing'] );
+		if ( empty( $initial_missing ) ) {
+			if ( false !== get_option( 'emsfb_addons_reinstall_required', false ) ) {
+				delete_option( 'emsfb_addons_reinstall_required' );
+			}
+			if ( false !== get_option( 'emsfb_addon_recovery_result', false ) ) {
+				delete_option( 'emsfb_addon_recovery_result' );
+			}
+			return $request_result = array(
+				'success'         => true,
+				'needed'          => false,
+				'recovered'       => false,
+				'initial_missing' => array(),
+				'missing'         => array(),
+				'errors'          => array(),
+				'renew_required'  => false,
+			);
+		}
+
+		$download = $this->download_all_addons_efb( true );
+		$health_after = $this->get_addon_local_health_efb( $settings );
+		$success = empty( $health_after['missing'] );
+		$result = array(
+			'success'         => $success,
+			'needed'          => true,
+			'recovered'       => $success,
+			'initial_missing' => $initial_missing,
+			'missing'         => array_keys( $health_after['missing'] ),
+			'errors'          => isset( $download['errors'] ) ? $download['errors'] : array(),
+			'renew_required'  => ! empty( $download['renew_required'] ),
+			'source'          => sanitize_key( $source ),
+			'attempted_at'    => current_time( 'mysql' ),
+		);
+
+		if ( $success ) {
+			delete_option( 'emsfb_addons_reinstall_required' );
+			if ( false !== get_option( 'emsfb_addon_recovery_result', false ) ) {
+				delete_option( 'emsfb_addon_recovery_result' );
+			}
+			delete_option( 'emsfb_addons_dl_failures' );
+			delete_transient( 'emsfb_addons_dl_backoff' );
+		} else {
+			update_option( 'emsfb_addon_recovery_result', $result, false );
+		}
+
+		return $request_result = $result;
+	}
+
+	/**
+	 * Turn the latest recovery result into a short, actionable summary.
+	 *
+	 * @param array<string, mixed> $result Recovery result.
+	 * @return string
+	 */
+	public function get_addon_recovery_message_efb( $result ) {
+		if ( ! empty( $result['renew_required'] ) ) {
+			return esc_html__( 'Your subscription needs renewing before the missing add-ons can be restored.', 'easy-form-builder' );
+		}
+
+		if ( ! empty( $result['errors'] ) && is_array( $result['errors'] ) ) {
+			$messages = array();
+			foreach ( $result['errors'] as $addon_key => $message ) {
+				$messages[] = $this->get_addon_recovery_label_efb( $addon_key ) . ': ' . wp_strip_all_tags( (string) $message );
+			}
+			return implode( ' ', $messages );
+		}
+
+		return esc_html__( 'The missing add-on files could not be restored. Check the server connection and file permissions, then try again.', 'easy-form-builder' );
+	}
+
+	/**
+	 * Decide how the admin add-on recovery UI should behave for this request.
+	 *
+	 * Returns one of:
+	 *  - 'block'  : a plugin update ran and required add-on files are still
+	 *               missing; Create/Panel/Add-ons must not render their normal
+	 *               contents until recovery completes.
+	 *  - 'inline' : files are missing without a pending update; show a recovery
+	 *               banner but let the page load.
+	 *  - 'none'   : every enabled add-on is present on disk.
+	 *
+	 * The post-update flag is cleared automatically once nothing is missing, so
+	 * the block clears itself the moment recovery (or a manual reinstall) lands.
+	 *
+	 * @param object|null $settings Decoded EFB settings.
+	 * @return string
+	 */
+	public function addon_recovery_state_efb( $settings = null ) {
+		$health      = $this->get_addon_local_health_efb( $settings );
+		$missing     = ! empty( $health['missing'] );
+		$post_update = (bool) get_option( 'emsfb_addons_reinstall_required' );
+
+		if ( ! $missing ) {
+			if ( $post_update ) {
+				delete_option( 'emsfb_addons_reinstall_required' );
+			}
+			if ( false !== get_option( 'emsfb_addon_recovery_result', false ) ) {
+				delete_option( 'emsfb_addon_recovery_result' );
+			}
+			return 'none';
+		}
+
+		return $post_update ? 'block' : 'inline';
+	}
+
+	/**
+	 * Install every missing add-on on demand (the Recover button). Runs the same
+	 * routine as the background cron, but reports the outcome to the browser so
+	 * the user can activate immediately afterwards.
+	 */
+	public function ajax_recover_addons_efb() {
+		if ( ! check_ajax_referer( 'wp_rest', 'nonce', false ) || ! $this->user_permission_efb_admin_dashboard() ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to do this.', 'easy-form-builder' ) ), 403 );
+		}
+
+		// A manual recovery must never be skipped by an earlier automatic back-off.
+		delete_option( 'emsfb_addons_dl_failures' );
+		delete_transient( 'emsfb_addons_dl_backoff' );
+
+		$result = $this->recover_missing_addons_efb( null, 'manual' );
+		if ( ! empty( $result['success'] ) ) {
+			wp_send_json_success( array( 'done' => true, 'message' => esc_html__( 'All required add-ons were restored.', 'easy-form-builder' ) ) );
+		}
+
+		wp_send_json_error( array(
+			'message' => $this->get_addon_recovery_message_efb( $result ),
+			'missing' => isset( $result['missing'] ) ? $result['missing'] : array(),
+			'errors'  => isset( $result['errors'] ) ? $result['errors'] : array(),
+		) );
+	}
+
+	/**
+	 * Recovery UI shared by Create, Panel and the Add-ons page.
+	 *
+	 * The card asks the user to reinstall missing add-ons, installs them over
+	 * admin-ajax, then swaps in an "Activate" button that reloads the page so the
+	 * freshly restored add-on files are loaded by PHP.
+	 *
+	 * @param string $mode 'block' for the full-screen post-update gate, otherwise
+	 *                     an inline banner.
+	 * @return string
+	 */
+	public function render_addon_recovery_ui_efb( $mode = 'inline' ) {
+		$is_block = ( 'block' === $mode );
+		$ajax     = admin_url( 'admin-ajax.php' );
+		$nonce    = wp_create_nonce( 'wp_rest' );
+		$health   = $this->get_addon_local_health_efb();
+		$last_result = get_option( 'emsfb_addon_recovery_result', array() );
+		$has_error = is_array( $last_result ) && ! empty( $last_result['errors'] );
+		$missing_labels = array();
+		foreach ( array_keys( $health['missing'] ) as $addon_key ) {
+			$missing_labels[] = $this->get_addon_recovery_label_efb( $addon_key );
+		}
+
+		$title = $is_block
+			? esc_html__( 'Finish updating Easy Form Builder', 'easy-form-builder' )
+			: esc_html__( 'Some add-on files are missing', 'easy-form-builder' );
+		$intro = $is_block
+			? esc_html__( 'The plugin was updated, so its add-ons must be reinstalled before this page can load. Click the button below to install them.', 'easy-form-builder' )
+			: esc_html__( 'One or more add-on files are missing. Click the button below to reinstall them.', 'easy-form-builder' );
+		if ( $has_error ) {
+			$intro = esc_html__( 'Automatic recovery was attempted but did not finish. Review the reason below, fix it if necessary, then try again.', 'easy-form-builder' );
+		}
+
+		$t = array(
+			'recover'   => esc_html__( 'Recover add-ons', 'easy-form-builder' ),
+			'installing'=> esc_html__( 'Installing add-ons…', 'easy-form-builder' ),
+			'doneTitle' => esc_html__( 'Installation complete.', 'easy-form-builder' ),
+			'doneBody'  => esc_html__( 'Click to activate the add-ons.', 'easy-form-builder' ),
+			'activate'  => esc_html__( 'Activate add-ons', 'easy-form-builder' ),
+			'error'     => esc_html__( 'Installation failed. Please try again.', 'easy-form-builder' ),
+		);
+
+		$outer_style = $is_block
+			? 'max-width:640px;margin:60px auto;'
+			: 'max-width:960px;margin:16px auto;';
+
+		ob_start();
+		?>
+		<div class="efb efb-addon-recovery" id="efb-addon-recovery" style="<?php echo esc_attr( $outer_style ); ?>">
+			<div style="border:1px solid #e0c200;background:#fff9db;border-radius:14px;padding:28px 26px;text-align:center;box-shadow:0 4px 18px rgba(0,0,0,0.06);">
+				<div style="margin-bottom:12px;font-size:34px;line-height:1;color:#b58900;"><i class="efb bi-shield-exclamation"></i></div>
+				<h3 class="efb" style="margin:0 0 10px;font-size:1.4em;color:#5a4b00;"><?php echo $title; // phpcs:ignore ?></h3>
+				<p class="efb" style="margin:0 0 18px;color:#6b5d16;font-size:1.02em;line-height:1.7;"><?php echo $intro; // phpcs:ignore ?></p>
+				<?php if ( ! empty( $missing_labels ) ) : ?>
+					<p class="efb" style="margin:0 0 14px;color:#5a4b00;"><strong><?php echo esc_html__( 'Missing add-ons:', 'easy-form-builder' ); ?></strong> <?php echo esc_html( implode( ', ', $missing_labels ) ); ?></p>
+				<?php endif; ?>
+				<?php if ( $has_error ) : ?>
+					<details class="efb" open style="margin:0 0 16px;text-align:left;background:#fff;border:1px solid #eadc98;border-radius:8px;padding:10px 14px;color:#4a3d09;">
+						<summary style="cursor:pointer;font-weight:600;"><?php echo esc_html__( 'Why the recovery failed', 'easy-form-builder' ); ?></summary>
+						<ul style="margin:10px 0 0;padding-inline-start:20px;">
+							<?php foreach ( $last_result['errors'] as $addon_key => $message ) : ?>
+								<li><strong><?php echo esc_html( $this->get_addon_recovery_label_efb( $addon_key ) ); ?>:</strong> <?php echo esc_html( wp_strip_all_tags( (string) $message ) ); ?></li>
+							<?php endforeach; ?>
+						</ul>
+					</details>
+				<?php endif; ?>
+				<div id="efb-recover-actions">
+					<button type="button" id="efb-recover-btn" class="efb btn btn-warning btn-lg" onclick="efbRecoverAddons_efb(this)" style="border:none;border-radius:9px;padding:10px 26px;font-size:1em;cursor:pointer;background:#e0b100;color:#3a2f00;font-weight:600;">
+						<i class="efb bi-arrow-repeat" style="margin-inline-end:6px;"></i><?php echo $t['recover']; // phpcs:ignore ?>
+					</button>
+				</div>
+				<div id="efb-recover-status" class="efb" style="margin-top:14px;font-size:0.95em;color:#6b5d16;min-height:1.2em;" aria-live="polite"></div>
+			</div>
+		</div>
+		<script>
+		if (typeof window.efbRecoverAddons_efb !== 'function') {
+			window.efbRecoverAddonsCfg_efb = {
+				ajax: <?php echo wp_json_encode( $ajax ); ?>,
+				nonce: <?php echo wp_json_encode( $nonce ); ?>,
+				t: <?php echo wp_json_encode( $t ); ?>
+			};
+			window.efbRecoverAddons_efb = function (btn) {
+				var cfg = window.efbRecoverAddonsCfg_efb;
+				var status = document.getElementById('efb-recover-status');
+				var actions = document.getElementById('efb-recover-actions');
+				if (btn) { btn.disabled = true; }
+				if (status) { status.textContent = cfg.t.installing; }
+				var body = new FormData();
+				body.append('action', 'emsfb_recover_addons');
+				body.append('nonce', cfg.nonce);
+				fetch(cfg.ajax, { method: 'POST', credentials: 'same-origin', body: body })
+					.then(function (r) { return r.json(); })
+					.then(function (res) {
+						if (res && res.success) {
+							if (actions) {
+								actions.innerHTML = '<button type="button" class="efb btn btn-success btn-lg" onclick="location.reload()" style="border:none;border-radius:9px;padding:10px 26px;font-size:1em;cursor:pointer;background:#1a9d55;color:#fff;font-weight:600;"><i class="efb bi-check2-circle" style="margin-inline-end:6px;"></i>' + cfg.t.activate + '</button>';
+							}
+							if (status) { status.innerHTML = '<strong>' + cfg.t.doneTitle + '</strong> ' + cfg.t.doneBody; }
+						} else {
+							if (btn) { btn.disabled = false; }
+							if (status) { status.textContent = (res && res.data && res.data.message) ? res.data.message : cfg.t.error; }
+						}
+					})
+					.catch(function () {
+						if (btn) { btn.disabled = false; }
+						if (status) { status.textContent = cfg.t.error; }
+					});
+			};
+		}
+		</script>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Show a brief transition after a synchronous repair. Reloading is required
+	 * because the add-on classes were not available when PHP started this request.
+	 *
+	 * @param bool $public Whether this is rendered for a public form page.
+	 * @return string
+	 */
+	public function render_addon_recovery_reload_ui_efb( $public = false ) {
+		$title = $public
+			? esc_html__( 'Preparing your form', 'easy-form-builder' )
+			: esc_html__( 'Add-ons restored successfully', 'easy-form-builder' );
+		$body = $public
+			? esc_html__( 'The form is being prepared. This page will reload automatically.', 'easy-form-builder' )
+			: esc_html__( 'The page will reload automatically so the restored add-ons can be activated.', 'easy-form-builder' );
+		$reload = esc_html__( 'Reload now', 'easy-form-builder' );
+
+		ob_start();
+		?>
+		<div class="efb efb-addon-recovery" style="max-width:640px;margin:60px auto;text-align:center;">
+			<div style="border:1px solid #9bd7b5;background:#f1fff6;border-radius:14px;padding:28px 26px;color:#155d32;">
+				<div style="font-size:34px;line-height:1;margin-bottom:12px;"><i class="efb bi-check2-circle"></i></div>
+				<h3 class="efb" style="margin:0 0 10px;"><?php echo esc_html( $title ); ?></h3>
+				<p class="efb" style="margin:0 0 14px;"><?php echo esc_html( $body ); ?></p>
+				<p class="efb" style="margin:0;"><a href="" onclick="location.reload();return false;" style="color:#155d32;font-weight:600;"><?php echo esc_html( $reload ); ?></a></p>
+			</div>
+		</div>
+		<script>window.setTimeout(function(){ window.location.reload(); }, 100);</script>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Safe front-end fallback when automatic recovery cannot finish. Detailed
+	 * diagnostics are retained for wp-admin; visitors only see an actionable,
+	 * non-sensitive availability message.
+	 *
+	 * @return string
+	 */
+	public function render_addon_recovery_public_error_ui_efb() {
+		return '<div class="efb" role="alert" style="margin:18px 0;padding:20px;border:1px solid #e3b7b7;border-radius:10px;background:#fff7f7;color:#7a2020;text-align:center;">'
+			. '<strong>' . esc_html__( 'This form is temporarily unavailable.', 'easy-form-builder' ) . '</strong><br>'
+			. esc_html__( 'We could not restore a required form component automatically. Please try again shortly; the site administrator can view the exact recovery error in Easy Form Builder.', 'easy-form-builder' )
+			. '</div>';
 	}
 
 public function addon_add_efb($value) {
+
+		// A local health check has already proved this add-on is ready. Never
+		// contact the licensing/download endpoint just to rediscover that fact.
+		if ( $this->is_addon_installed_locally_efb( $value ) ) {
+			return array(
+				'status'  => true,
+				'message' => esc_html__( 'The add-on is already installed.', 'easy-form-builder' ),
+			);
+		}
 
         if (!emsfb_is_addon_install_ready_efb()) {
             $status = emsfb_get_file_access_status_efb();
@@ -2766,8 +3234,12 @@ public function addon_add_efb($value) {
                 $directory_name = substr($url, strrpos($url, "/") + 1, -4);
                 $directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/' . $directory_name;
 
-                if (!file_exists($directory)) {
-                    $result = $this->fun_addon_new($url);
+				// A directory alone is not a valid installation: updates or partial
+				// copies can leave the folder present while its required bootstrap file
+				// is gone. Re-extract in that case so automatic recovery truly repairs
+				// missing files instead of reporting a false success.
+				if (!file_exists($directory) || ! $this->is_addon_installed_locally_efb( $value )) {
+					$result = $this->fun_addon_new($url);
                     if (is_wp_error($result)) {
                         if ($is_persian_locale) {
                             $attempt++;
@@ -2801,6 +3273,7 @@ public function addon_add_efb($value) {
         if ($success) {
 			update_option($name_space, 1);
 			$ac = get_setting_Emsfb('decoded');
+
 			if(isset($ac->AdnSPF)==false){
 				$ac->AdnSPF=0;
 				$ac->AdnOF=0;
@@ -2818,6 +3291,9 @@ public function addon_add_efb($value) {
 				$ac->AdnMSF=0;
 				$ac->AdnBEF=0;
 				$ac->AdnGoS=0;
+				$ac->AdnHSH=0;
+				$ac->AdnPDP=0;
+				$ac->AdnADP=0;
 			}
 			$ac->{$value}=1;
 			$ac->efb_version=EMSFB_PLUGIN_VERSION;
@@ -2890,8 +3366,17 @@ public function addon_add_efb($value) {
 		return true;
 	}
 
-	public function download_all_addons_efb(){
+	public function download_all_addons_efb( $return_details = false ){
 		$state=true;
+		$details = array(
+			'success'         => false,
+			'attempted'       => array(),
+			'installed'       => array(),
+			'already_present' => array(),
+			'errors'          => array(),
+			'missing'         => array(),
+			'renew_required'  => false,
+		);
 		$settings=get_setting_Emsfb();
 		$addons['AdnSPF']	=	isset($settings->AdnSPF)	? $settings->AdnSPF	:0;
 		$addons['AdnATC']	=	isset($settings->AdnATC)	? $settings->AdnATC	:0;
@@ -2914,6 +3399,14 @@ public function addon_add_efb($value) {
 		foreach ($addons as $key => $value) {
 
 			if($value ==1){
+				// Do not make an external request for add-ons whose required local
+				// files are already present. This guard protects automatic recovery,
+				// the manual recovery button, and every legacy caller.
+				if ( $this->is_addon_installed_locally_efb( $key ) ) {
+					$details['already_present'][] = $key;
+					continue;
+				}
+
 				if ($key === 'AdnGoS') {
 					$local_gs = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
 					if (file_exists($local_gs)) {
@@ -2926,31 +3419,48 @@ public function addon_add_efb($value) {
 					$local_hsh = EMSFB_PLUGIN_DIRECTORY . '/vendor/human-shield/human-shield-efb.php';
 					if (file_exists($local_hsh)) {
 						update_option('emsfb_addon_AdnHSH', 2);
+						$details['already_present'][] = $key;
+					} else {
+						$state = false;
+						$details['errors'][ $key ] = esc_html__( 'This bundled add-on is missing from the plugin files. Please reinstall the Easy Form Builder plugin itself.', 'easy-form-builder' );
 					}
 					continue;
 				}
+				$details['attempted'][] = $key;
 				$r =$this->addon_add_efb($key);
 				if(!is_array($r) || !isset($r['status'])){
 					$state=false;
+					$details['errors'][ $key ] = esc_html__( 'The add-on server returned an unexpected response.', 'easy-form-builder' );
 					error_log("Unexpected response format when downloading add-on $key: " . print_r($r, true));
 					continue;
 				}
 				if($r['status']==false){
 					$state=false;
+					$details['errors'][ $key ] = isset( $r['message'] ) ? wp_strip_all_tags( (string) $r['message'] ) : esc_html__( 'The add-on could not be installed.', 'easy-form-builder' );
 					if(!empty($r['expired'])){
 						// keep looping: free add-ons later in the list must still be restored
 						$renew_required = true;
 						continue;
 					}
 					$error_messag .= $r['message']."<br>";
+				} else {
+					$details['installed'][] = $key;
 				}
 			}
+		}
+
+		$details['renew_required'] = $renew_required;
+		$health_after = $this->get_addon_local_health_efb( $settings );
+		$details['missing'] = array_keys( $health_after['missing'] );
+		if ( ! empty( $details['missing'] ) ) {
+			$state = false;
 		}
 
 		if($renew_required){
 			// Subscription expired: the whitestudio.team server refuses the downloads and
 			// notifies the customer by email itself, so no report email is needed here.
-			return false;
+			$details['success'] = false;
+			return $return_details ? $details : false;
 		}
 
 		if($state==false){
@@ -2962,7 +3472,7 @@ public function addon_add_efb($value) {
 			$to = isset($settings->emailSupporter) ? $settings->emailSupporter : null;
 			if($to==null){$to = get_option('admin_email');}
 
-			if($to==null || $to=="null" || $to=="") return false;
+			if($to==null || $to=="null" || $to=="") return $return_details ? $details : false;
 			$sub = esc_html__('Report problem','easy-form-builder') .' ['. esc_html__('Easy Form Builder','easy-form-builder').']';
 			$m =  '<div><p>'. $error_messag.
 				'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.esc_html__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
@@ -2972,7 +3482,7 @@ public function addon_add_efb($value) {
 			if(isset($settings->smtp) && (bool)$settings->smtp ) {
 				$this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
 			}
-			return false;
+			return $return_details ? $details : false;
 		}
 
 			delete_option('emsfb_addons_renew_required');
@@ -3379,25 +3889,54 @@ public function addon_add_efb($value) {
 		return 0;
 	}
 
+	/**
+	 * Add missing add-on flags to legacy settings without losing their option
+	 * based activation state.
+	 *
+	 * @param mixed $settings Add-on settings object from an older plugin version.
+	 * @return \stdClass
+	 */
+	public function normalize_addon_settings_efb($settings) {
+		if (!is_object($settings)) {
+			$settings = new \stdClass();
+		}
+
+		// Older settings rows do not contain every later add-on flag.  Keep the
+		// persisted state shape in sync after an update so a bundled add-on is not
+		// installed successfully but omitted from the editor/menu state.
+		foreach ( $this->get_all_addon_keys_efb() as $addon_key ) {
+			if ( ! property_exists( $settings, $addon_key ) ) {
+				$legacy_value = get_option( 'emsfb_addon_' . $addon_key, false );
+				$settings->{$addon_key} = $legacy_value !== false && absint( $legacy_value ) >= 1 ? 1 : 0;
+			}
+		}
+
+		return $settings;
+	}
+
 	public function setting_version_efb_update($st ,$pro, $skip_redirect = false){
 		global $wpdb;
 
 		if($st=='null' || !is_object($st)){
 			$st=get_setting_Emsfb();
 		}
-		if(!is_object($st)){
-			$st = new \stdClass();
-		}
+		$previous_settings = is_object( $st ) ? wp_json_encode( $st ) : '';
+		$st = $this->normalize_addon_settings_efb($st);
 		$st->efb_version=EMSFB_PLUGIN_VERSION;
 
-		$this->set_setting_Emsfb($st, isset($st->emailSupporter) ? $st->emailSupporter : '');
+		// Create used to write the settings option on every page load. Only write
+		// when migration/version data actually changed.
+		if ( $previous_settings !== wp_json_encode( $st ) ) {
+			$this->set_setting_Emsfb($st, isset($st->emailSupporter) ? $st->emailSupporter : '');
+		}
 
 		if($pro == true || $pro ==1){
 
 			$is_pro = (int) get_option('emsfb_pro' ,2);
 			if($is_pro==3){ return true; }
 
-			$this->download_all_addons_efb();
+			// Recovery is deliberately not scheduled here. The specific admin/form
+			// entry point performs it synchronously only when files are missing.
 
 			if($skip_redirect === true) {
 				return true;
@@ -3450,7 +3989,8 @@ public function addon_add_efb($value) {
         if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
             wp_register_script('recaptcha', $url, array() , '2.0', true);
             wp_enqueue_script('recaptcha');
-			return true;
+		$details['success'] = true;
+		return $return_details ? $details : true;
         } else {
 			return false;
         }
@@ -4227,29 +4767,7 @@ public function addon_add_efb($value) {
 
 	function fun_get_addons_list_efb($ac = null){
 
-		$addons = [
-			'AdnSPF' => 0,
-			'AdnOF' => 0,
-			'AdnPPF' => 0,
-			'AdnATC' => 0,
-			'AdnSS' => 0,
-			'AdnCPF' => 0,
-			'AdnESZ' => 0,
-			'AdnSE' => 0,
-			'AdnPDP' => 0,
-			'AdnADP' => 0,
-			'AdnPAP' => 0,
-			'AdnTLG' => 0,
-			'AdnATF' => 0,
-			'AdnGoS' => 0,
-			'AdnWHS' => 0,
-			'AdnWSP' => 0,
-			'AdnSMF' => 0,
-			'AdnPLF' => 0,
-			'AdnMSF' => 0,
-			'AdnBEF' => 0,
-			'AdnHSH' => 0,
-		];
+		$addons = array_fill_keys( $this->get_all_addon_keys_efb(), 0 );
 
 		if ( is_object( $ac ) ) {
 			foreach ( $addons as $addon_key => $default_value ) {

@@ -63,7 +63,22 @@ class Panel_edit  {
 			if ( strlen( $lng ) > 0 ) {
 				$lng = explode( '_', $lng )[0];
 				}
-			$download_addons = null;
+			$addon_recovery = $efbFunction->recover_missing_addons_efb( $ac, 'panel' );
+			if ( ! empty( $addon_recovery['recovered'] ) ) {
+				echo $efbFunction->render_addon_recovery_reload_ui_efb(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				return;
+			}
+			$addon_health = $efbFunction->get_addon_local_health_efb( $ac );
+			$download_addons = ! empty( $addon_health['missing'] );
+
+			// After a plugin update, block the panel until missing add-on files are
+			// reinstalled; show the recovery screen instead of the panel contents.
+			$addon_recovery_state = $efbFunction->addon_recovery_state_efb( $ac );
+			if ( 'block' === $addon_recovery_state ) {
+				echo $efbFunction->render_addon_recovery_ui_efb( 'block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				return;
+			}
+
 			if(isset($ac->AdnPAP) && $ac->AdnPAP==1){
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
 						$download_addons = true;
@@ -127,18 +142,8 @@ class Panel_edit  {
 				$is_persian_locale = get_locale() === 'fa_IR';
 				$renew_required = !$is_persian_locale && (int) get_option('emsfb_addons_renew_required', 0) !== 0;
 				$download_backoff = !$is_persian_locale && (int) get_option('emsfb_addons_dl_failures', 0) >= 3;
-				if($download_addons==true && !$renew_required && !$download_backoff){
-					print $efbFunction->update_message_admin_side_efb();
-					$efbFunction->flush_addon_wait_message_efb();
-					$downloaded = $efbFunction->download_all_addons_efb();
-					$renew_required_after_download = !$is_persian_locale && get_option('emsfb_addons_renew_required');
-					if ($downloaded || $renew_required_after_download) {
-						print '<script>window.location.reload();</script>';
-						$efbFunction->flush_addon_wait_message_efb();
-					}
-				 	return;
-
-				}
+				// Missing files were already recovered before any panel content was
+				// rendered. A failed recovery is explained by the inline/block UI.
 
 				?>
 				<style>
@@ -198,6 +203,9 @@ class Panel_edit  {
 						</div>
 					</nav>
 					<div id="alert_efb" class="efb mx-5"></div>
+					<?php if ( 'inline' === $addon_recovery_state ) : ?>
+						<?php echo $efbFunction->render_addon_recovery_ui_efb( 'inline' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php endif; ?>
 					<!-- end  new nav  -->
 						<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 							<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
