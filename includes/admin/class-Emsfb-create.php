@@ -131,11 +131,15 @@ class Create {
 			}
 		}
 
-		if($download_addons === true && (int) get_option('emsfb_addons_renew_required', 0) === 0 && (int) get_option('emsfb_addons_dl_failures', 0) < 3){
+		$is_persian_locale = get_locale() === 'fa_IR';
+		$renew_required = !$is_persian_locale && (int) get_option('emsfb_addons_renew_required', 0) !== 0;
+		$download_backoff = !$is_persian_locale && (int) get_option('emsfb_addons_dl_failures', 0) >= 3;
+		if($download_addons === true && !$renew_required && !$download_backoff){
 			 print $efbFunction->update_message_admin_side_efb();
 			 $efbFunction->flush_addon_wait_message_efb();
 			 $downloaded = $efbFunction->download_all_addons_efb();
-			 if ($downloaded || get_option('emsfb_addons_renew_required')) {
+			 $renew_required_after_download = !$is_persian_locale && get_option('emsfb_addons_renew_required');
+			 if ($downloaded || $renew_required_after_download) {
 				 print '<script>window.location.reload();</script>';
 				 $efbFunction->flush_addon_wait_message_efb();
 			 }
