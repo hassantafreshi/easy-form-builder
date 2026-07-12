@@ -945,6 +945,9 @@ class efbFunction {
 			"mxlmn" => $state  &&  isset($ac->text->mxlmn) ? $ac->text->mxlmn : esc_html__('Minimum entry must be lower than the maximum entry','easy-form-builder'),
 			"disabled" => $state  &&  isset($ac->text->disabled) ? $ac->text->disabled : esc_html__('Disabled','easy-form-builder'),
 			"hflabel" => $state  &&  isset($ac->text->hflabel) ? $ac->text->hflabel : esc_html__('Hide the label','easy-form-builder'),
+			"mobileHideLabel" => $state && isset($ac->text->mobileHideLabel) ? $ac->text->mobileHideLabel : esc_html__('Hide label on mobile','easy-form-builder'),
+			"mobileHideDescription" => $state && isset($ac->text->mobileHideDescription) ? $ac->text->mobileHideDescription : esc_html__('Hide description on mobile','easy-form-builder'),
+			"globalMobileHideLabel" => $state && isset($ac->text->globalMobileHideLabel) ? $ac->text->globalMobileHideLabel : esc_html__('Hide all labels on mobile','easy-form-builder'),
 			/* translators: Response/ticket = form submission that can be closed/opened like a support ticket */
 			"resop" => $state  &&  isset($ac->text->resop) ? $ac->text->resop : esc_html__('The response(ticket) closed','easy-form-builder'),
 			/* translators: Response/ticket = form submission that can be closed/opened like a support ticket */
@@ -1749,8 +1752,10 @@ class efbFunction {
 			"DAdnAtF" => $state  &&  isset($ac->text->DAdnAtF) ? $ac->text->DAdnAtF : esc_html__('The Auto-Populate add-on enables you to automatically populate form fields from datasets, previously submitted forms, or external APIs.','easy-form-builder'),
 			"TAdnHSH" => $state  &&  isset($ac->text->TAdnHSH) ? $ac->text->TAdnHSH : esc_html__('Form Security & Spam Protection','easy-form-builder'),
 			"DAdnHSH" => $state  &&  isset($ac->text->DAdnHSH) ? $ac->text->DAdnHSH : esc_html__('Behavior-based anti-spam and API abuse protection with rate limits and a stop-loss for paid notifications such as SMS, Telegram, email and webhooks.','easy-form-builder'),
+			/* translators: Google Sheet add-on card title on the Add-ons page */
 			"TAdnGoS" => $state  &&  isset($ac->text->TAdnGoS) ? $ac->text->TAdnGoS : esc_html__('Google Sheet Add-on','easy-form-builder'),
-			"DAdnGoS" => $state  &&  isset($ac->text->DAdnGoS) ? $ac->text->DAdnGoS : esc_html__('Sync form submissions with Google Sheets in real-time via webhook integration.','easy-form-builder'),
+			/* translators: Google Sheet add-on card description on the Add-ons page */
+			"DAdnGoS" => $state  &&  isset($ac->text->DAdnGoS) ? $ac->text->DAdnGoS : esc_html__('Automatically send form submissions to your Google Sheets in real time. Connect a service account, map fields to columns, and keep a live, styled spreadsheet of every response — no webhook or browser login required.','easy-form-builder'),
 			"fillrequiredfields" => $state && isset($ac->text->fillrequiredfields) ? $ac->text->fillrequiredfields : esc_html__('Please fill in all required fields', 'easy-form-builder'),
 
 			/* translators: Email server test section title */

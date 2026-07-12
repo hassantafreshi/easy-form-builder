@@ -327,31 +327,122 @@ class Admin {
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
         wp_send_json_success($response, 200);
     }
+    /**
+     * Write verbose add-on install diagnostics to the PHP error log.
+     *
+     * These logs are intentionally detailed because we are debugging install
+     * issues that appear on some Persian-language sites and hosts.
+     *
+     * @param string $event   Short event label.
+     * @param array  $context Structured context that helps trace the failing step.
+     * @return void
+     */
+    private function addon_install_log_efb($event, $context = []) {
+        $safe_context = $this->addon_install_sanitize_log_context_efb($context);
+        error_log('[EFB Addon Installer] ' . $event . ' ' . wp_json_encode($safe_context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * Keep add-on install logs readable and avoid dumping unsafe values.
+     *
+     * @param mixed $value Raw value that is about to be logged.
+     * @return mixed
+     */
+    private function addon_install_sanitize_log_context_efb($value) {
+        if (is_array($value)) {
+            $safe = [];
+            foreach ($value as $key => $item) {
+                $safe_key = is_string($key) ? $key : (string) $key;
+                if (in_array($safe_key, ['license_key', 'password', 'secret', 'nonce'], true)) {
+                    $safe[$safe_key] = '[redacted]';
+                    continue;
+                }
+                $safe[$safe_key] = $this->addon_install_sanitize_log_context_efb($item);
+            }
+            return $safe;
+        }
+        if (is_object($value)) {
+            if ($value instanceof \WP_Error) {
+                return [
+                    'code' => $value->get_error_code(),
+                    'message' => $value->get_error_message(),
+                    'data' => $this->addon_install_sanitize_log_context_efb($value->get_error_data()),
+                ];
+            }
+            return $this->addon_install_sanitize_log_context_efb((array) $value);
+        }
+        if (is_string($value)) {
+            return strlen($value) > 2000 ? substr($value, 0, 2000) . '...[truncated]' : $value;
+        }
+        return $value;
+    }
+
     public function add_addons_Emsfb() {
         $efbFunction = get_efbFunction();
         $text = ["error403","done","invalidRequire","upDMsg"];
-        $lang= $efbFunction->text_efb($text);
-        $ac= get_setting_Emsfb('decoded');
+        $lang = $efbFunction->text_efb($text);
+        $ac = get_setting_Emsfb('decoded');
 
-        $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
+        // Collect request and environment details up front so we can compare
+        // successful installs with failures on fa_IR / RTL websites.
+        $post_value = isset($_POST['value']) ? sanitize_text_field(wp_unslash($_POST['value'])) : '';
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
                  "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP","AdnATF","AdnTLG","AdnGoS","AdnHSH"];
-        $dd =gettype(array_search($post_value, $allw));
+        $addon_index = array_search($post_value, $allw, true);
+        $dd = gettype($addon_index);
         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
-        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can || $dd !='integer') {
+        $nonce_valid = check_ajax_referer('wp_rest', 'nonce', false);
+        $locale = get_locale();
+        $is_persian_locale = 'fa_IR' === $locale;
+        $iran_cdn_available = defined('EFB_Path_IR') ? (bool) EFB_Path_IR : false;
+
+        $this->addon_install_log_efb('request_received', [
+            'requested_addon' => $post_value,
+            'allowed_addon_match' => $addon_index,
+            'allowed_addon_match_type' => $dd,
+            'current_user_can' => (bool) $currrent_user_can,
+            'nonce_valid' => (bool) $nonce_valid,
+            'locale' => $locale,
+            'is_rtl' => is_rtl(),
+            'persian_addon_endpoint' => $is_persian_locale,
+            'iran_cdn_available' => $iran_cdn_available,
+            'http_host' => isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : 'localhost',
+            'settings_type' => gettype($ac),
+        ]);
+
+        // Reject invalid/forged requests early and log the exact reason instead
+        // of treating every failure as a remote server problem.
+        if (!$nonce_valid || !$currrent_user_can || $dd != 'integer') {
+            $this->addon_install_log_efb('request_rejected', [
+                'requested_addon' => $post_value,
+                'current_user_can' => (bool) $currrent_user_can,
+                'nonce_valid' => (bool) $nonce_valid,
+                'allowed_addon_match_type' => $dd,
+            ]);
             $m = $lang['error403'];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, 200);
         }
+
+        // Block script injection attempts and make it visible in the logs.
         if ($this->isScript($post_value)) {
+            $this->addon_install_log_efb('request_blocked_script_value', [
+                'requested_addon' => $post_value,
+            ]);
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_error($response, 200);
             return;
         }
 
+        // Some add-ons are plan-gated, so we log the resolved package type to
+        // separate licensing problems from Persian-host connectivity issues.
         $package_type = (is_object($ac) && isset($ac->package_type)) ? intval($ac->package_type) : intval(get_option('emsfb_pro', 2));
         if ('AdnSMF' === $post_value && !in_array($package_type, [1, 3], true)) {
+            $this->addon_install_log_efb('request_blocked_plan_limit', [
+                'requested_addon' => $post_value,
+                'package_type' => $package_type,
+            ]);
             $response = [
                 'success' => false,
                 'm'       => esc_html__('Want to use this feature? It is included in Free Plus and Pro plans.', 'easy-form-builder'),
@@ -364,7 +455,17 @@ class Admin {
         // download, so file-access checks and the download loop are skipped.
         if ('AdnHSH' === $post_value) {
             $local_hsh = EMSFB_PLUGIN_DIRECTORY . '/vendor/human-shield/human-shield-efb.php';
-            if (!file_exists($local_hsh)) {
+            $local_hsh_exists = file_exists($local_hsh);
+            $this->addon_install_log_efb('local_addon_branch', [
+                'requested_addon' => $post_value,
+                'local_file' => $local_hsh,
+                'local_file_exists' => $local_hsh_exists,
+            ]);
+            if (!$local_hsh_exists) {
+                $this->addon_install_log_efb('local_addon_missing_files', [
+                    'requested_addon' => $post_value,
+                    'local_file' => $local_hsh,
+                ]);
                 $response = ['success' => false, 'm' => esc_html__('The Form Security & Spam Protection add-on files are missing. Please reinstall Easy Form Builder.', 'easy-form-builder')];
                 wp_send_json_error($response, 200);
                 return;
@@ -381,14 +482,32 @@ class Admin {
             $efbFunction->set_setting_Emsfb($ac, isset($ac->emailSupporter) ? $ac->emailSupporter : '');
             $newAc = json_encode($ac, JSON_UNESCAPED_UNICODE);
             update_option('emsfb_addon_AdnHSH', 2);
+            $this->addon_install_log_efb('local_addon_completed', [
+                'requested_addon' => $post_value,
+                'option_name' => 'emsfb_addon_AdnHSH',
+                'saved_settings_length' => strlen((string) $newAc),
+            ]);
             $response = ['success' => true, 'r' => "done", 'value' => "add_addons_Emsfb", 'new' => $newAc];
             wp_send_json_success($response, 200);
             return;
         }
 
-        if (!emsfb_is_addon_install_ready_efb()) {
-            $status = emsfb_get_file_access_status_efb();
+        // File access problems are common on shared hosts, so log the full
+        // preflight status before any network requests are attempted.
+        $status = emsfb_get_file_access_status_efb();
+        $install_ready = emsfb_is_addon_install_ready_efb();
+        $this->addon_install_log_efb('file_access_checked', [
+            'requested_addon' => $post_value,
+            'install_ready' => $install_ready,
+            'status' => $status,
+        ]);
+
+        if (!$install_ready) {
             $m = $status ? ($status['error_message'] ?? $status['current_message']) : esc_html__('File access status not checked yet. Please wait.', 'easy-form-builder');
+            $this->addon_install_log_efb('file_access_blocked_install', [
+                'requested_addon' => $post_value,
+                'message' => $m,
+            ]);
             $response = ['success' => false, 'm' => $m];
             wp_send_json_error($response, 200);
             return;
@@ -396,31 +515,105 @@ class Admin {
 
         $name_space = 'emsfb_addon_' . $post_value;
 
-        $_server_name = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : 'localhost';
+        // Build the remote endpoint carefully and record whether the fa_IR
+        // branch selected the Iranian mirror or the default global domain.
+        $_server_name = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : 'localhost';
         $server_name = str_replace("www.", "", $_server_name);
         delete_option($name_space);
         $vwp = get_bloginfo('version');
-        $vwp = substr($vwp,0,3);
+        $vwp = substr($vwp, 0, 3);
         $vefb = EMSFB_PLUGIN_VERSION;
-		$domain =  EMSFB_SERVER_URL ;
-        $u =  $domain . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
-        if (get_locale() == 'fa_IR' && EFB_Path_IR) {
-            $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
-        }
-        error_log($u);
-        $max_attempts = 2;
+        $build_addon_url = function($base_domain) use ($server_name, $post_value, $vwp, $vefb) {
+            return untrailingslashit($base_domain) . '/wp-json/wl/v1/addons-link/' . $server_name . '/' . $post_value . '/' . $vwp . '/' . $vefb . '/';
+        };
+        $domain = $is_persian_locale ? 'https://easyformbuilder.ir' : EMSFB_SERVER_URL;
+        $fallback_domain = $is_persian_locale ? untrailingslashit(EMSFB_SERVER_URL) : '';
+        $u = $build_addon_url($domain);
+        $using_iran_url = $is_persian_locale;
+
+        $this->addon_install_log_efb('remote_request_prepared', [
+            'requested_addon' => $post_value,
+            'http_host' => $_server_name,
+            'normalized_host' => $server_name,
+            'wordpress_version' => $vwp,
+            'plugin_version' => $vefb,
+            'base_domain' => $domain,
+            'request_url' => $u,
+            'locale' => $locale,
+            'using_iran_url' => $using_iran_url,
+        ]);
+
+        $max_attempts = $is_persian_locale ? 3 : 2;
+        $fallback_max_attempts = 2;
         $attempt = 0;
         $success = false;
         $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
         $error_message = sprintf($error_message, $domain, 'not_success');
+        $switch_to_fallback = function($reason, $context = []) use (&$domain, &$u, &$attempt, &$max_attempts, &$fallback_domain, &$using_iran_url, $fallback_max_attempts, $build_addon_url, $post_value) {
+            if (empty($fallback_domain) || untrailingslashit($domain) === untrailingslashit($fallback_domain)) {
+                return false;
+            }
+
+            $previous_domain = $domain;
+            $domain = untrailingslashit($fallback_domain);
+            $u = $build_addon_url($domain);
+            $attempt = 0;
+            $max_attempts = $fallback_max_attempts;
+            $fallback_domain = '';
+            $using_iran_url = false;
+
+            $this->addon_install_log_efb('switching_to_fallback_endpoint', array_merge([
+                'requested_addon' => $post_value,
+                'reason' => $reason,
+                'previous_domain' => $previous_domain,
+                'fallback_domain' => $domain,
+                'next_request_url' => $u,
+            ], $context));
+
+            return true;
+        };
 
         while ($attempt < $max_attempts && !$success) {
-            $request = wp_remote_get($u);
+            $current_attempt = $attempt + 1;
+            $request_started_at = microtime(true);
 
+            $this->addon_install_log_efb('remote_request_started', [
+                'requested_addon' => $post_value,
+                'attempt' => $current_attempt,
+                'max_attempts' => $max_attempts,
+                'request_url' => $u,
+            ]);
+
+            $request = wp_remote_get($u);
+            $request_duration = round(microtime(true) - $request_started_at, 3);
+
+            // A WP_Error here usually points to DNS, cURL, firewall, SSL, or
+            // host-level blocking, so we log the full error object.
             if (is_wp_error($request)) {
                 $attempt++;
-                $error_message = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server', 'easy-form-builder');
+                $error_message = sprintf(
+                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server', 'easy-form-builder'),
+                    wp_parse_url($domain, PHP_URL_HOST)
+                );
+                $this->addon_install_log_efb('remote_request_wp_error', [
+                    'requested_addon' => $post_value,
+                    'attempt' => $current_attempt,
+                    'duration_seconds' => $request_duration,
+                    'request_url' => $u,
+                    'error' => $request,
+                ]);
                 if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('remote_request_wp_error', [
+                        'last_attempt' => $current_attempt,
+                        'last_error' => $request,
+                    ])) {
+                        continue;
+                    }
+                    $this->addon_install_log_efb('remote_request_failed_final', [
+                        'requested_addon' => $post_value,
+                        'attempt' => $current_attempt,
+                        'message' => $error_message,
+                    ]);
                     $response = ['success' => false, 'm' => $error_message];
                     wp_send_json_error($response, 200);
                     return;
@@ -429,11 +622,42 @@ class Admin {
             }
 
             $response_code = wp_remote_retrieve_response_code($request);
+            $body = wp_remote_retrieve_body($request);
+            $body_preview = strlen($body) > 1000 ? substr($body, 0, 1000) . '...[truncated]' : $body;
+
+            $this->addon_install_log_efb('remote_response_received', [
+                'requested_addon' => $post_value,
+                'attempt' => $current_attempt,
+                'duration_seconds' => $request_duration,
+                'response_code' => $response_code,
+                'body_length' => strlen($body),
+                'body_preview' => $body_preview,
+            ]);
+
+            // Non-200 responses often expose edge caches, WAFs, or region-based
+            // blocking, which is exactly what we want to catch on Persian hosts.
             if ($response_code != 200) {
                 $attempt++;
                 $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
                 $error_message = sprintf($error_message, $domain, $response_code);
+                $this->addon_install_log_efb('remote_response_invalid_code', [
+                    'requested_addon' => $post_value,
+                    'attempt' => $current_attempt,
+                    'response_code' => $response_code,
+                    'request_url' => $u,
+                ]);
                 if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('remote_response_invalid_code', [
+                        'last_attempt' => $current_attempt,
+                        'response_code' => $response_code,
+                    ])) {
+                        continue;
+                    }
+                    $this->addon_install_log_efb('remote_response_invalid_code_final', [
+                        'requested_addon' => $post_value,
+                        'attempt' => $current_attempt,
+                        'message' => $error_message,
+                    ]);
                     $response = ['success' => false, 'm' => $error_message];
                     wp_send_json_error($response, 200);
                     return;
@@ -441,14 +665,31 @@ class Admin {
                 continue;
             }
 
-            $body = wp_remote_retrieve_body($request);
+            // Decode the JSON payload and log enough of the raw body to spot
+            // HTML error pages, BOM issues, or bad encoding from remote servers.
             $data = json_decode($body);
-
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $attempt++;
                 $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
                 $error_message = sprintf($error_message, $domain, 'invalid_json');
+                $this->addon_install_log_efb('remote_response_invalid_json', [
+                    'requested_addon' => $post_value,
+                    'attempt' => $current_attempt,
+                    'json_error' => json_last_error_msg(),
+                    'body_preview' => $body_preview,
+                ]);
                 if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('remote_response_invalid_json', [
+                        'last_attempt' => $current_attempt,
+                        'json_error' => json_last_error_msg(),
+                    ])) {
+                        continue;
+                    }
+                    $this->addon_install_log_efb('remote_response_invalid_json_final', [
+                        'requested_addon' => $post_value,
+                        'attempt' => $current_attempt,
+                        'message' => $error_message,
+                    ]);
                     $response = ['success' => false, 'm' => $error_message];
                     wp_send_json_error($response, 200);
                     return;
@@ -460,7 +701,22 @@ class Admin {
                 $attempt++;
                 $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
                 $error_message = sprintf($error_message, $domain, 'invalid_data');
+                $this->addon_install_log_efb('remote_response_empty_data', [
+                    'requested_addon' => $post_value,
+                    'attempt' => $current_attempt,
+                    'body_preview' => $body_preview,
+                ]);
                 if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('remote_response_empty_data', [
+                        'last_attempt' => $current_attempt,
+                    ])) {
+                        continue;
+                    }
+                    $this->addon_install_log_efb('remote_response_empty_data_final', [
+                        'requested_addon' => $post_value,
+                        'attempt' => $current_attempt,
+                        'message' => $error_message,
+                    ]);
                     $response = ['success' => false, 'm' => $error_message];
                     wp_send_json_error($response, 200);
                     return;
@@ -468,11 +724,22 @@ class Admin {
                 continue;
             }
 
+            // If the licensing server rejects the request, keep the full payload
+            // in logs so we can separate expiry, plan, and endpoint issues.
             if ($data->status == false) {
-                if (isset($data->reason) && $data->reason == 'expired') {
+                $this->addon_install_log_efb('remote_response_status_false', [
+                    'requested_addon' => $post_value,
+                    'attempt' => $current_attempt,
+                    'response_data' => $data,
+                ]);
+                if (!$is_persian_locale && isset($data->reason) && $data->reason == 'expired') {
                     update_option('emsfb_addons_renew_required', time());
                     set_transient('emsfb_addons_renew_backoff', 1, DAY_IN_SECONDS);
-                    $renew_url = isset($data->renew) ? esc_url($data->renew) : esc_url(EMSFB_SERVER_URL . '/register-costumer?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', '')));
+                    $renew_url = isset($data->renew) ? esc_url($data->renew) : esc_url($domain . '/register-costumer?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', '')));
+                    $this->addon_install_log_efb('remote_response_subscription_expired', [
+                        'requested_addon' => $post_value,
+                        'renew_url' => $renew_url,
+                    ]);
                     $m = esc_html__('Your Easy Form Builder Pro subscription has expired, so this add-on cannot be downloaded.', 'easy-form-builder')
                         . ' <a href="' . $renew_url . '" target="_blank">' . esc_html__('Renew Subscription', 'easy-form-builder') . '</a>';
                     $response = ['success' => false, 'm' => $m];
@@ -481,38 +748,121 @@ class Admin {
                 }
                 $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
                 $error_message = sprintf($error_message, $domain, 'invalid_status');
+                if ($is_persian_locale) {
+                    $attempt++;
+                    if ($attempt >= $max_attempts && $switch_to_fallback('remote_response_status_false', [
+                        'last_attempt' => $current_attempt,
+                        'response_data' => $data,
+                    ])) {
+                        continue;
+                    }
+                    if ($attempt < $max_attempts) {
+                        continue;
+                    }
+                }
                 $response = ['success' => false, 'm' => $error_message];
                 wp_send_json_error($response, 200);
                 return;
             }
 
+            // Remote metadata includes the minimum compatible plugin version.
             if (version_compare(EMSFB_PLUGIN_VERSION, $data->v) == -1) {
+                $this->addon_install_log_efb('remote_response_version_mismatch', [
+                    'requested_addon' => $post_value,
+                    'local_plugin_version' => EMSFB_PLUGIN_VERSION,
+                    'remote_required_version' => isset($data->v) ? $data->v : '',
+                ]);
                 $m = $lang['upDMsg'];
                 $response = ['success' => false, 'm' => $m];
                 wp_send_json_error($response, 200);
                 return;
             }
 
+            // Download/install the add-on package only when the remote payload
+            // explicitly marks it as downloadable.
             if ($data->download == true) {
                 $url = $data->link;
                 $directory_name = substr($url, strrpos($url, "/") + 1, -4);
                 $directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/' . $directory_name;
+                $directory_exists = file_exists($directory);
 
-                if (!file_exists($directory)) {
+                $this->addon_install_log_efb('download_payload_ready', [
+                    'requested_addon' => $post_value,
+                    'download_url' => $url,
+                    'directory_name' => $directory_name,
+                    'target_directory' => $directory,
+                    'target_exists_before_install' => $directory_exists,
+                ]);
+
+                if (!$directory_exists) {
+                    $this->addon_install_log_efb('download_helper_started', [
+                        'requested_addon' => $post_value,
+                        'download_url' => $url,
+                        'target_directory' => $directory,
+                    ]);
                     $result = $this->fun_addon_new($url);
                     if (is_wp_error($result)) {
+                        $attempt++;
+                        $this->addon_install_log_efb('download_helper_failed', [
+                            'requested_addon' => $post_value,
+                            'attempt' => $current_attempt,
+                            'download_url' => $url,
+                            'target_directory' => $directory,
+                            'error' => $result,
+                        ]);
+                        if ($attempt >= $max_attempts) {
+                            if ($switch_to_fallback('download_helper_failed', [
+                                'last_attempt' => $current_attempt,
+                                'download_url' => $url,
+                                'error' => $result,
+                            ])) {
+                                continue;
+                            }
+                        } else {
+                            continue;
+                        }
                         $response = ['success' => false, 'm' => $result->get_error_message()];
                         wp_send_json_error($response, 200);
                         return;
                     }
+                    $this->addon_install_log_efb('download_helper_completed', [
+                        'requested_addon' => $post_value,
+                        'download_url' => $url,
+                        'target_directory' => $directory,
+                    ]);
+                } else {
+                    $this->addon_install_log_efb('download_skipped_existing_directory', [
+                        'requested_addon' => $post_value,
+                        'target_directory' => $directory,
+                    ]);
                 }
                 update_option($name_space, 1);
                 $success = true;
+                $this->addon_install_log_efb('download_marked_success', [
+                    'requested_addon' => $post_value,
+                    'option_name' => $name_space,
+                ]);
             } else {
                 $attempt++;
                 $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
                 $error_message = sprintf($error_message, $domain, 'download_unavailable');
+                $this->addon_install_log_efb('download_flag_false', [
+                    'requested_addon' => $post_value,
+                    'attempt' => $current_attempt,
+                    'response_data' => $data,
+                ]);
                 if ($attempt >= $max_attempts) {
+                    if ($switch_to_fallback('download_flag_false', [
+                        'last_attempt' => $current_attempt,
+                        'response_data' => $data,
+                    ])) {
+                        continue;
+                    }
+                    $this->addon_install_log_efb('download_flag_false_final', [
+                        'requested_addon' => $post_value,
+                        'attempt' => $current_attempt,
+                        'message' => $error_message,
+                    ]);
                     $response = ['success' => false, 'm' => $error_message];
                     wp_send_json_error($response, 200);
                     return;
@@ -520,40 +870,60 @@ class Admin {
             }
         }
 
+        // Guard against the loop finishing without a successful install marker.
         if (!$success) {
+            $this->addon_install_log_efb('install_failed_after_loop', [
+                'requested_addon' => $post_value,
+                'message' => $error_message,
+            ]);
             $response = ['success' => false, 'm' => $error_message];
             wp_send_json_error($response, 200);
             return;
         }
 
-        if(isset($ac->AdnSPF)==false){
-            $ac->AdnSPF=0;
-            $ac->AdnOF=0;
-            $ac->AdnPPF=0;
-            $ac->AdnATC=0;
-            $ac->AdnSS=0;
-            $ac->AdnCPF=0;
-            $ac->AdnESZ=0;
-            $ac->AdnSE=0;
-            $ac->AdnWHS=0;
-            $ac->AdnPAP=0;
-            $ac->AdnWSP=0;
-            $ac->AdnSMF=0;
-            $ac->AdnPLF=0;
-            $ac->AdnMSF=0;
-            $ac->AdnBEF=0;
-            $ac->AdnGoS=0;
+        // Normalise the saved add-on flags so the admin UI can immediately show
+        // the freshly installed add-on as active.
+        if (isset($ac->AdnSPF) == false) {
+            $ac->AdnSPF = 0;
+            $ac->AdnOF = 0;
+            $ac->AdnPPF = 0;
+            $ac->AdnATC = 0;
+            $ac->AdnSS = 0;
+            $ac->AdnCPF = 0;
+            $ac->AdnESZ = 0;
+            $ac->AdnSE = 0;
+            $ac->AdnWHS = 0;
+            $ac->AdnPAP = 0;
+            $ac->AdnWSP = 0;
+            $ac->AdnSMF = 0;
+            $ac->AdnPLF = 0;
+            $ac->AdnMSF = 0;
+            $ac->AdnBEF = 0;
+            $ac->AdnGoS = 0;
         }
-        $ac->{$post_value}=1;
-        $ac->efb_version=EMSFB_PLUGIN_VERSION;
-        if(empty($this->db)){
+        $ac->{$post_value} = 1;
+        $ac->efb_version = EMSFB_PLUGIN_VERSION;
+        if (empty($this->db)) {
             global $wpdb;
             $this->db = $wpdb;
         }
-        $efbFunction->set_setting_Emsfb( $ac, $ac->emailSupporter );
-        $newAc = json_encode( $ac, JSON_UNESCAPED_UNICODE );
+
+        $this->addon_install_log_efb('settings_update_started', [
+            'requested_addon' => $post_value,
+            'has_email_supporter' => is_object($ac) && isset($ac->emailSupporter) && !empty($ac->emailSupporter),
+        ]);
+
+        $efbFunction->set_setting_Emsfb($ac, $ac->emailSupporter);
+        $newAc = json_encode($ac, JSON_UNESCAPED_UNICODE);
         update_option($name_space, 1);
-        $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
+
+        $this->addon_install_log_efb('request_completed', [
+            'requested_addon' => $post_value,
+            'option_name' => $name_space,
+            'saved_settings_length' => strlen((string) $newAc),
+        ]);
+
+        $response = ['success' => true, 'r' => "done", 'value' => "add_addons_Emsfb", 'new' => $newAc];
         wp_send_json_success($response, 200);
     }
     public function remove_addons_Emsfb() {
