@@ -61,5 +61,5 @@ tests/test-conditional-logic-builder-ui.js
 vendor/logic/*
 test-addon-url.php
 .claude/_settings.local
-!vendor/human-shield/
-!vendor/human-shield/**
+vendor/human-shield/
+vendor/human-shield/**
