@@ -127,11 +127,11 @@ body.rtl .efb input.intlPhone::placeholder,
     background: linear-gradient(225deg, #eef4ff 0%, #f0e6ff 50%, #fff0f6 100%);
 }
 .efb-header-brand {
-    flex-direction: row-reverse;
-    justify-content: flex-end;
+    flex-direction: row;
+    justify-content: flex-start;
 }
 .efb-header-brand-text {
-    align-items: flex-end;
+    align-items: flex-start;
     text-align: right;
 }
 .efb-header-title.efb {
@@ -147,23 +147,23 @@ body.rtl .efb input.intlPhone::placeholder,
     margin-right: 0;
 }
 .efb-header-features {
-    flex-direction: row-reverse;
+    flex-direction: row;
     justify-content: flex-start;
 }
 .efb-feature-badge.efb {
-    flex-direction: row-reverse;
+    flex-direction: row;
 }
 .efb-feature-badge.efb i.efb {
-    margin-left: 4px !important;
-    margin-right: 0 !important;
+    margin-right: 4px !important;
+    margin-left: 0 !important;
 }
 .efb-header-actions {
-    flex-direction: row-reverse;
+    flex-direction: row;
     justify-content: flex-start;
 }
 .efb-cta-btn.efb i.efb {
-    margin-left: 6px !important;
-    margin-right: 0 !important;
+    margin-right: 6px !important;
+    margin-left: 0 !important;
 }
 .efb-header-img-wrap {
     text-align: center;
