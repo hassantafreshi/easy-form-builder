@@ -1348,6 +1348,70 @@ div#sideBoxEfb {	height: 100vh;
 .efb.buy-noti {	background-color: #fefefeb5!important;
    z-index: 100;
 }
+.efb.buy-noti.efb-pro-notice {
+	background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%) !important;
+	border: 1px solid #e3e7f3;
+	border-inline-start: 3px solid #7674d8;
+	border-radius: 12px;
+	box-shadow: 0 3px 12px rgba(33, 42, 78, 0.06);
+	padding: 14px 16px;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.efb.buy-noti.efb-pro-notice:hover {
+	border-color: #c9cef0;
+	box-shadow: 0 6px 18px rgba(33, 42, 78, 0.1);
+	transform: translateY(-1px);
+}
+.efb-pro-notice__heading {
+	gap: 9px;
+}
+.efb-pro-notice__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 8px;
+	background: #efeffc;
+	color: #5d5bb8;
+	font-size: 0.9rem;
+}
+.efb-pro-notice__title {
+	color: #29324f;
+	font-size: 0.88rem;
+	font-weight: 650;
+}
+.efb-pro-notice__body {
+	margin-inline-start: 37px;
+	margin-top: 6px;
+	color: #667085;
+	font-size: 0.8rem;
+	line-height: 1.55;
+}
+.efb-pro-notice .text-pinkEfb {
+	color: #b63b78 !important;
+}
+.efb-pro-notice__link.efb {
+	display: inline-flex;
+	align-items: center;
+	margin-top: 9px;
+	padding: 5px 10px;
+	border: 1px solid #d9dcf3;
+	border-radius: 7px;
+	background: #f5f5ff;
+	color: #4e4ca3;
+	font-size: 0.78rem;
+	text-decoration: none;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.efb-pro-notice__link.efb:hover {
+	border-color: #bcbfe8;
+	background: #ececff;
+	color: #383686;
+}
+.mobile .efb.buy-noti.efb-pro-notice {
+	margin-inline: 0;
+}
 .col-md-6 .efb.btn-edit-holder {	float: right;
    margin-top: -34px !important;
    margin-left: 31%;
