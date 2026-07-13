@@ -909,7 +909,7 @@ class efbFunction {
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : esc_html__('Please wait, you will be redirected shortly.','easy-form-builder'),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : esc_html__('Persia payment','easy-form-builder'),
 			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : esc_html__('Unlock Pro Features Today','easy-form-builder'),
-			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : esc_html__('You are using the free version. Upgrade to Pro for just %1$s%2$s%3$s/year and unlock advanced features to improve your experience and productivity.%4$sView Pro Features%5$s','easy-form-builder'),
+			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : esc_html__('Upgrade to Pro for just %1$s%2$s%3$s/year and get access to powerful features, including advanced form fields, payment integrations, conditional logic, multi-step forms, file uploads, Security & Spam Protection, and priority support.%4$sView Pro Features%5$s','easy-form-builder'),
 			/* translators: %1$s is the name of the addon */
 			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : esc_html__('Add-on','easy-form-builder'),
 			"addons" => $state  &&  isset($ac->text->addons) ? $ac->text->addons : esc_html__('Add-ons','easy-form-builder'),
@@ -3333,6 +3333,12 @@ public function addon_add_efb($value) {
 			}
 			$moved = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', true);
 		} else {
+			if ( ! emsfb_is_php_function_available_efb( 'mkdir' ) || ! emsfb_is_php_function_available_efb( 'rename' ) ) {
+				return new WP_Error(
+					'filesystem_functions_unavailable',
+					esc_html__( 'Cannot install add-ons because this server has disabled the PHP filesystem functions needed to prepare the download. Please ask your hosting provider to enable mkdir and rename, or configure the WordPress filesystem.', 'easy-form-builder' )
+				);
+			}
 			$directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
 			if (!file_exists($directory)) {
 				mkdir($directory, 0755, true);
@@ -3341,7 +3347,9 @@ public function addon_add_efb($value) {
 		}
 		if(!$moved){
 			if (file_exists($r)) {
-				@unlink($r);
+				if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
+					@unlink($r);
+				}
 			}
 			error_log('[EFB-ADDON] move failed | url=' . $url);
 			return new WP_Error('move_failed',
@@ -3353,7 +3361,9 @@ public function addon_add_efb($value) {
 		}
 		$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
 		if (file_exists(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip')) {
-			@unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
+			if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
+				@unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
+			}
 		}
 		if(is_wp_error($r)){
 			error_log('[EFB-ADDON] unzip failed | error=' . $r->get_error_message());
@@ -3622,7 +3632,10 @@ public function addon_add_efb($value) {
 		$sessionDuration = isset($settings->sessionDuration) && is_numeric($settings->sessionDuration) ? intval($settings->sessionDuration) : 1;
 		$date_limit = wp_date('Y-m-d H:i:s', strtotime("+{$sessionDuration} days"));
 
-		$sid = wp_date("ymdHis") . substr(bin2hex(openssl_random_pseudo_bytes(5)), 0, 9);
+		// Some hardened hosts disable OpenSSL. Generate the tracking suffix via
+		// the shared capability-aware helper so confirmation-code creation keeps
+		// working without invoking a disabled PHP function.
+		$sid = wp_date("ymdHis") . emsfb_generate_token_efb(9);
 		$uid = get_current_user_id() ?? 0;
 		$os = $this->getVisitorOS();
 		$browser = $this->getVisitorBrowser();

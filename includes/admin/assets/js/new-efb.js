@@ -70,6 +70,67 @@ const efb_build_confirm_body = (variant = 'danger', iconCls = 'bi-trash', title 
   </div>`;
 };
 
+/**
+ * Reusable confirmation dialog for admin add-ons. It uses the shared EFB
+ * modal instead of the browser's blocking confirm()/alert() interface.
+ */
+window.efb_confirm_efb = (options = {}) => new Promise((resolve) => {
+  const modal = document.getElementById('settingModalEfb');
+  const dialog = document.getElementById('settingModalEfb_');
+  if (!modal || !dialog || typeof show_modal_efb !== 'function' || typeof state_modal_show_efb !== 'function') {
+    resolve(false);
+    return;
+  }
+
+  const escapeHtml = (value) => {
+    const el = document.createElement('div');
+    el.textContent = String(value == null ? '' : value);
+    return el.innerHTML;
+  };
+  const variant = options.variant === 'info' ? 'info' : (options.variant === 'warning' ? 'warning' : 'danger');
+  const title = options.title || (typeof efb_var !== 'undefined' && efb_var.text ? efb_var.text.warning : 'Confirm');
+  const message = options.message || '';
+  const label = options.label || '';
+  const type = variant === 'info' ? 'duplicateBox' : 'deleteBox';
+  const icon = options.icon || (variant === 'info' ? 'bi-info-circle' : 'bi-exclamation-triangle');
+  let settled = false;
+
+  const finish = (value) => {
+    if (settled) return;
+    settled = true;
+    document.removeEventListener('keydown', onKeydown);
+    resolve(value);
+  };
+  const onKeydown = (event) => {
+    if (event.key === 'Escape') {
+      finish(false);
+      state_modal_show_efb(0);
+    }
+  };
+
+  show_modal_efb(
+    efb_build_confirm_body(variant, icon, escapeHtml(title), escapeHtml(message), escapeHtml(label)),
+    escapeHtml(title),
+    'efb ' + icon + ' mx-2',
+    type
+  );
+  state_modal_show_efb(1);
+
+  const confirmButton = document.getElementById('modalConfirmBtnEfb');
+  const cancelButton = document.querySelector('#modal-footer-efb .efb-btn-cancel');
+  const backdrop = document.querySelector('.efb-modal-backdrop');
+  if (confirmButton) confirmButton.addEventListener('click', () => {
+    finish(true);
+    state_modal_show_efb(0);
+  }, { once: true });
+  if (cancelButton) cancelButton.addEventListener('click', () => finish(false), { once: true });
+  if (backdrop) backdrop.onclick = () => {
+    finish(false);
+    state_modal_show_efb(0);
+  };
+  document.addEventListener('keydown', onKeydown);
+});
+
 let last_show_modal_efb = '';
 const show_modal_efb = (body, title, icon, type) => {
   last_show_modal_efb =type;
@@ -357,7 +418,7 @@ function alert_message_efb(title, message, sec, alertType) {
     }, sec);
 
   } catch (error) {
-    alert(message);
+    console.warn('[Easy Form Builder]', message, error);
   }
 }
 

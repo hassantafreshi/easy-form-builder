@@ -557,6 +557,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
 }
 function actionSendAddons_efb(val) {
   if (!navigator.onLine) {
+    addons_btn_reset_efb(val);
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
     return;
   }
@@ -572,26 +573,33 @@ function actionSendAddons_efb(val) {
       };
 
     $.post(ajaxurl, data, function (res) {
-      if (res.data.r == "done") {
-        if (res.data.value && res.data.success == true) {
+      const payload = res && res.data ? res.data : {};
+      if (payload.r == "done") {
+        if (payload.value && payload.success == true) {
           let m = efb_var.text.tshbc;
           m =m.replace('%s', `<b>${efb_var.text.installation}</b>`);
           alert_message_efb(m,'', 40,'info');
           location.reload();
         } else {
-          alert(res, "error")
+          addons_btn_reset_efb(snd);
           alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
 
         }
       } else {
-        if (res.data.m == null || res.data.m.length > 1) {
+        addons_btn_reset_efb(snd);
+        if (payload.code === 'addon_plan_required') {
+          pro_show_efb(Number(payload.required_package) === 3 ? 3 : 1);
+          return;
+        }
+        if (payload.m == null || payload.m.length > 1) {
 
-         alert_message_efb(efb_var.text.error, res.data.m, 30, "danger");
+         alert_message_efb(efb_var.text.error, payload.m, 30, "danger");
         } else {
           alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-2`, 30, "danger");
         }
       }
     }).fail(function(xhr) {
+      addons_btn_reset_efb(snd);
       alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:${xhr.status || 'NET'}`, 30, 'danger');
     })
     return true;
@@ -720,14 +728,16 @@ createCardAddoneEfb = (i) => {
     iconNtn ='';
     colorNtn = 'btn-secondary';
   }else if (isLockedAddon) {
-    funNtn=`pro_show_efb(${i.name === 'AdnSMF' ? 3 : 1})`;
-    nameNtn = efb_var.text.pro;
-    iconNtn ='bi-gem';
+    // The licensing server is the source of truth for package access. Its
+    // response determines which upgrade message is shown after the request.
+    funNtn=`funBTNAddOnsEFB('${i.name}','${i.v_required}')`;
+    nameNtn = efb_var.text.install;
+    iconNtn ='bi-download';
     colorNtn = 'btn-warning';
   }
 
   return `
-  <div class="efb tag mt-0 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
+  <div class="efb tag mt-0 mb-2 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
   ${isLockedAddon ? funProEfb() : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
@@ -4621,12 +4631,27 @@ fun_remove_condition_efb = (no , step_id)=>{
 }
 
 addons_btn_state_efb=(id)=>{
+    const button = document.getElementById(id);
+    if (!button) return;
 
+    if (!button.dataset.efbAddonButtonHtml) {
+      button.dataset.efbAddonButtonHtml = button.innerHTML;
+    }
     for (const el of document.querySelectorAll(".addons")) {
       el.classList.add('disabled')
     }
-    document.getElementById(id).innerHTML = `<i class="efb bi-hourglass-split mx-1"></i>`
+    button.innerHTML = `<i class="efb bi-hourglass-split mx-1"></i>`
+}
 
+addons_btn_reset_efb=(id)=>{
+    for (const el of document.querySelectorAll(".addons")) {
+      el.classList.remove('disabled')
+    }
+    const button = document.getElementById(id);
+    if (button && button.dataset.efbAddonButtonHtml) {
+      button.innerHTML = button.dataset.efbAddonButtonHtml;
+      delete button.dataset.efbAddonButtonHtml;
+    }
 }
 
 funRefreshPricesEfb=()=>{

@@ -60,6 +60,11 @@ class Emsfb_Human_Shield_Admin {
 	}
 
 	public function enqueue_assets() {
+		$admin_css_path = EFB_HUMAN_SHIELD_PATH . 'assets/css/human-shield-admin-efb.css';
+		$admin_js_path  = EFB_HUMAN_SHIELD_PATH . 'assets/js/human-shield-admin-efb.js';
+		$admin_css_ver  = file_exists( $admin_css_path ) ? (string) filemtime( $admin_css_path ) : EFB_HUMAN_SHIELD_VERSION;
+		$admin_js_ver   = file_exists( $admin_js_path ) ? (string) filemtime( $admin_js_path ) : EFB_HUMAN_SHIELD_VERSION;
+
 		if ( defined( 'EMSFB_PLUGIN_URL' ) ) {
 			wp_enqueue_style(
 				'efb-human-shield-bootstrap-icons',
@@ -73,16 +78,21 @@ class Emsfb_Human_Shield_Admin {
 			'efb-human-shield-admin',
 			EFB_HUMAN_SHIELD_URL . 'assets/css/human-shield-admin-efb.css',
 			array(),
-			EFB_HUMAN_SHIELD_VERSION
+			$admin_css_ver
 		);
 
 		wp_enqueue_script(
 			'efb-human-shield-admin',
 			EFB_HUMAN_SHIELD_URL . 'assets/js/human-shield-admin-efb.js',
 			array(),
-			EFB_HUMAN_SHIELD_VERSION,
+			$admin_js_ver,
 			true
 		);
+
+		// Reflect the live EFB master toggle (AdnHSH) so the Enabled switch shows
+		// the real activation state, not just the add-on's stored default.
+		$settings_for_js            = $this->shield->get_settings();
+		$settings_for_js['enabled'] = Emsfb_Human_Shield::addon_toggle_on_efb() ? 1 : 0;
 
 		wp_localize_script(
 			'efb-human-shield-admin',
@@ -91,7 +101,7 @@ class Emsfb_Human_Shield_Admin {
 				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
 				'nonce'        => wp_create_nonce( 'efb_human_shield_admin' ),
 				'rtl'          => is_rtl() ? 1 : 0,
-				'settings'     => $this->shield->get_settings(),
+				'settings'     => $settings_for_js,
 				'requirements' => $this->shield->requirements(),
 				'stats'        => $this->shield->stats(),
 				'hourly'       => $this->shield->hourly_stats(),
@@ -152,13 +162,20 @@ class Emsfb_Human_Shield_Admin {
 		$this->assert_ajax_access();
 
 		$raw = isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : '';
-		$settings = $this->shield->json_decode_assoc( $raw );
-		$settings = $this->shield->update_settings( $settings );
+		$decoded  = $this->shield->json_decode_assoc( $raw );
+		$settings = $this->shield->update_settings( $decoded );
+
+		// Drive the shared EFB master toggle from the Enabled switch so this page
+		// can turn protection on/off just like the Add-ons page.
+		$enabled = is_array( $decoded ) && ! empty( $decoded['enabled'] );
+		$this->shield->sync_efb_addon_toggle( $enabled );
+		$settings['enabled'] = $enabled ? 1 : 0;
 
 		wp_send_json_success(
 			array(
-				'settings' => $settings,
-				'stats'    => $this->shield->stats(),
+				'settings'  => $settings,
+				'stats'     => $this->shield->stats(),
+				'reloadEfb' => true,
 			)
 		);
 	}
@@ -179,6 +196,25 @@ class Emsfb_Human_Shield_Admin {
 	 */
 	public function ajax_export_logs() {
 		$this->assert_ajax_access();
+		$export_functions = array( 'fopen', 'fwrite', 'fputcsv', 'fclose' );
+		$missing_functions = array();
+		foreach ( $export_functions as $export_function ) {
+			if ( ! emsfb_is_php_function_available_efb( $export_function ) ) {
+				$missing_functions[] = $export_function;
+			}
+		}
+		if ( ! empty( $missing_functions ) ) {
+			wp_send_json_error(
+				array(
+					'message' => sprintf(
+						esc_html__( 'Security log export is unavailable because this server has disabled required PHP function(s): %s. Ask your hosting provider to enable them.', 'easy-form-builder' ),
+						implode( ', ', $missing_functions )
+					),
+				),
+				503
+			);
+			return;
+		}
 
 		$rows = array();
 		if ( $this->shield->tables_ready() ) {

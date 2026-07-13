@@ -60,6 +60,19 @@ class Emsfb_Human_Shield {
 		global $wpdb;
 		$this->db = $wpdb;
 
+		// The settings page is always available in wp-admin so users can reach it
+		// from the menu and turn protection on/off, independent of the runtime.
+		if ( is_admin() ) {
+			$this->admin = new Emsfb_Human_Shield_Admin( $this );
+		}
+
+		// Protection runtime (REST guard, rate limiting, detector, notification
+		// gate, table creation, public assets) only wires up when the add-on is
+		// switched on. When off, nothing here runs and form behaviour is unchanged.
+		if ( ! self::runtime_enabled() ) {
+			return;
+		}
+
 		add_action( 'init', array( $this, 'maybe_create_tables' ), 5 );
 		add_action( 'init', array( $this, 'cleanup_old_records' ), 20 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_public_assets' ), 25 );
@@ -68,9 +81,67 @@ class Emsfb_Human_Shield {
 		$this->detector         = new Emsfb_Human_Shield_Detector( $this );
 		$this->rest             = new Emsfb_Human_Shield_Rest( $this );
 		$this->notification_gate = new Emsfb_Human_Shield_Notification_Gate( $this );
+	}
 
-		if ( is_admin() ) {
-			$this->admin = new Emsfb_Human_Shield_Admin( $this );
+	/**
+	 * Whether the protection runtime should be active for this request.
+	 *
+	 * Driven by the EFB add-on toggle (AdnHSH). The core sets the
+	 * EFB_HUMAN_SHIELD_RUNTIME constant before loading this bootstrap; the
+	 * settings fallback keeps the check correct if the file is loaded directly.
+	 *
+	 * @return bool
+	 */
+	public static function runtime_enabled() {
+		if ( defined( 'EFB_HUMAN_SHIELD_RUNTIME' ) ) {
+			return (bool) EFB_HUMAN_SHIELD_RUNTIME;
+		}
+
+		return self::addon_toggle_on_efb();
+	}
+
+	/**
+	 * Live master toggle state read straight from EFB settings (AdnHSH).
+	 *
+	 * Unlike runtime_enabled(), this ignores the request-scoped constant so the
+	 * admin page reflects the value that was just saved.
+	 *
+	 * @return bool
+	 */
+	public static function addon_toggle_on_efb() {
+		if ( ! function_exists( 'get_setting_Emsfb' ) ) {
+			return false;
+		}
+		$ac = get_setting_Emsfb( 'decoded' );
+		return is_object( $ac ) && isset( $ac->AdnHSH ) && (int) $ac->AdnHSH >= 1;
+	}
+
+	/**
+	 * Mirror the on/off state onto the EFB add-on master toggle (AdnHSH) so the
+	 * Add-ons page and this add-on's own settings page share one source of truth.
+	 * Protection activates on the next request once the toggle is on.
+	 *
+	 * @param bool $enabled
+	 * @return void
+	 */
+	public function sync_efb_addon_toggle( $enabled ) {
+		if ( ! function_exists( 'get_setting_Emsfb' ) || ! class_exists( '\\efbFunction' ) ) {
+			return;
+		}
+		$ac = get_setting_Emsfb( 'decoded' );
+		if ( ! is_object( $ac ) ) {
+			return;
+		}
+		$new_value = $enabled ? 1 : 0;
+		if ( isset( $ac->AdnHSH ) && (int) $ac->AdnHSH === $new_value ) {
+			return;
+		}
+		$ac->AdnHSH = $new_value;
+		\efbFunction::set_setting_Emsfb( $ac, isset( $ac->emailSupporter ) ? $ac->emailSupporter : '' );
+		if ( $enabled ) {
+			update_option( 'emsfb_addon_AdnHSH', 2 );
+		} else {
+			delete_option( 'emsfb_addon_AdnHSH' );
 		}
 	}
 
@@ -249,43 +320,31 @@ class Emsfb_Human_Shield {
 	public function random_string( $length = 32 ) {
 		$length = max( 16, absint( $length ) );
 
-		if ( self::is_function_available( 'random_bytes' ) ) {
-			try {
-				return bin2hex( random_bytes( (int) ceil( $length / 2 ) ) );
-			} catch ( \Throwable $e ) {
-				// Fall through to the next generator.
-			}
+		if ( function_exists( 'emsfb_generate_token_efb' ) ) {
+			return emsfb_generate_token_efb( $length );
 		}
 
-		if ( self::is_function_available( 'openssl_random_pseudo_bytes' ) && self::is_function_available( 'bin2hex' ) ) {
-			try {
-				$bytes = openssl_random_pseudo_bytes( (int) ceil( $length / 2 ) );
-				if ( is_string( $bytes ) && '' !== $bytes ) {
-					return bin2hex( $bytes );
-				}
-			} catch ( \Throwable $e ) {
-				// Fall through to WordPress generation.
-			}
-		}
-
-		if ( function_exists( 'wp_generate_password' ) ) {
-			return wp_generate_password( $length, true, true );
-		}
-
-		return substr( str_shuffle( str_repeat( 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 4 ) ), 0, $length );
+		// The bootstrap normally loads the shared helper. This final fallback
+		// preserves the no-fatal guarantee for a third party that loads this
+		// class in isolation.
+		return function_exists( 'wp_generate_password' )
+			? wp_generate_password( $length, true, true )
+			: str_repeat( '0', $length );
 	}
 
 	public static function is_function_available( $function_name ) {
-		// PHP 8+: disabled functions already fail function_exists(). On PHP 7
-		// they pass it but crash when called, hence the disable_functions scan.
-		if ( ! function_exists( $function_name ) ) {
+		// Reuse EFB's shared checker so PHP 7 hosts that keep disabled functions
+		// visible to function_exists() do not reach the restricted call.
+		if ( function_exists( 'emsfb_is_php_function_available_efb' ) ) {
+			$available = emsfb_is_php_function_available_efb( $function_name );
+		} else {
+			$available = function_exists( $function_name );
+		}
+		if ( ! $available ) {
 			return false;
 		}
 
-		$disabled = function_exists( 'ini_get' ) ? ini_get( 'disable_functions' ) : '';
-		$disabled_functions = is_string( $disabled ) && '' !== trim( $disabled )
-			? array_map( 'trim', explode( ',', strtolower( $disabled ) ) )
-			: array();
+		$disabled_functions = array();
 
 		// Lets hosts/tests declare extra unavailable functions (e.g. to
 		// simulate a locked-down php.ini) without editing the server config.
@@ -317,7 +376,7 @@ class Emsfb_Human_Shield {
 		$missing_required    = array();
 		$missing_recommended = array();
 		foreach ( $items as $name => $item ) {
-			$items[ $name ]['available'] = self::is_function_available( $name );
+			$items[ $name ]['available'] = emsfb_is_php_function_available_efb( $name );
 			if ( ! $items[ $name ]['available'] ) {
 				if ( $item['required'] ) {
 					$missing_required[] = $name;
@@ -348,7 +407,7 @@ class Emsfb_Human_Shield {
 		$known = (string) $known;
 		$user  = (string) $user;
 
-		if ( self::is_function_available( 'hash_equals' ) ) {
+		if ( emsfb_is_php_function_available_efb( 'hash_equals' ) ) {
 			return hash_equals( $known, $user );
 		}
 
@@ -369,7 +428,7 @@ class Emsfb_Human_Shield {
 			return wp_json_encode( $value );
 		}
 
-		if ( self::is_function_available( 'json_encode' ) ) {
+		if ( emsfb_is_php_function_available_efb( 'json_encode' ) ) {
 			return json_encode( $value );
 		}
 
@@ -377,7 +436,7 @@ class Emsfb_Human_Shield {
 	}
 
 	public function json_decode_assoc( $value ) {
-		if ( ! self::is_function_available( 'json_decode' ) ) {
+		if ( ! emsfb_is_php_function_available_efb( 'json_decode' ) ) {
 			return array();
 		}
 
@@ -389,26 +448,26 @@ class Emsfb_Human_Shield {
 		$value  = (string) $value;
 		$secret = $this->get_secret();
 
-		if ( self::is_function_available( 'hash_hmac' ) ) {
+		if ( emsfb_is_php_function_available_efb( 'hash_hmac' ) ) {
 			return hash_hmac( 'sha256', $purpose . '|' . $value, $secret );
 		}
 
-		if ( self::is_function_available( 'hash' ) ) {
+		if ( emsfb_is_php_function_available_efb( 'hash' ) ) {
 			return hash( 'sha256', $purpose . '|' . $value . '|' . $secret );
 		}
 
 		// Degraded fallbacks so logging/rate keys keep working while the
 		// System page tells the admin to re-enable the hash functions.
 		// Token signing itself refuses to run without hash_hmac.
-		if ( self::is_function_available( 'sha1' ) ) {
+		if ( emsfb_is_php_function_available_efb( 'sha1' ) ) {
 			return sha1( $purpose . '|' . $value . '|' . $secret );
 		}
 
-		if ( self::is_function_available( 'md5' ) ) {
+		if ( emsfb_is_php_function_available_efb( 'md5' ) ) {
 			return md5( $purpose . '|' . $value . '|' . $secret );
 		}
 
-		if ( self::is_function_available( 'crc32' ) ) {
+		if ( emsfb_is_php_function_available_efb( 'crc32' ) ) {
 			return sprintf( '%u', crc32( $purpose . '|' . $value . '|' . $secret ) );
 		}
 
@@ -444,7 +503,7 @@ class Emsfb_Human_Shield {
 	 * compile out or disable; these regex fallbacks keep IP handling alive.
 	 */
 	public static function validate_ip( $ip, $flag = null ) {
-		if ( self::is_function_available( 'filter_var' ) ) {
+		if ( emsfb_is_php_function_available_efb( 'filter_var' ) ) {
 			return null === $flag ? (bool) filter_var( $ip, FILTER_VALIDATE_IP ) : (bool) filter_var( $ip, FILTER_VALIDATE_IP, $flag );
 		}
 

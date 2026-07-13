@@ -486,7 +486,7 @@ class Emsfb_Human_Shield_Rest {
 
 	private function sign_payload( $payload ) {
 		$json = $this->shield->json_encode( $payload );
-		if ( false === $json || ! Emsfb_Human_Shield::is_function_available( 'base64_encode' ) || ! Emsfb_Human_Shield::is_function_available( 'hash_hmac' ) ) {
+		if ( false === $json || ! emsfb_is_php_function_available_efb( 'base64_encode' ) || ! emsfb_is_php_function_available_efb( 'hash_hmac' ) ) {
 			return false;
 		}
 
@@ -501,11 +501,11 @@ class Emsfb_Human_Shield_Rest {
 		}
 
 		list( $body, $sig ) = explode( '.', $token, 2 );
-		if ( ! Emsfb_Human_Shield::is_function_available( 'hash_hmac' ) || ! $this->shield->hash_equals_safe( hash_hmac( 'sha256', $body, $this->shield->get_secret() ), $sig ) ) {
+		if ( ! emsfb_is_php_function_available_efb( 'hash_hmac' ) || ! $this->shield->hash_equals_safe( hash_hmac( 'sha256', $body, $this->shield->get_secret() ), $sig ) ) {
 			return array( 'valid' => false, 'reason' => 'token_bad_signature' );
 		}
 
-		if ( ! Emsfb_Human_Shield::is_function_available( 'base64_decode' ) ) {
+		if ( ! emsfb_is_php_function_available_efb( 'base64_decode' ) ) {
 			return array( 'valid' => false, 'reason' => 'base64_missing' );
 		}
 

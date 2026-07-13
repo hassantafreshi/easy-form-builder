@@ -56,6 +56,7 @@ class Emsfb {
     public function includes(): void {
         require_once $this->plugin_path . 'includes/class-Emsfb-install.php';
         require_once $this->plugin_path . 'includes/class-Emsfb-email-monitor.php';
+        require_once $this->plugin_path . 'includes/class-Emsfb-addon-compatibility.php';
 
         if (is_admin()) {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
@@ -66,7 +67,7 @@ class Emsfb {
             $ac = self::get_setting_Emsfb('decoded');
 
             $payment_exists = isset($ac->AdnPAP) ? (int) $ac->AdnPAP : 0;
-            if ($payment_exists === 1) {
+            if ($payment_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnPAP' )) {
                 $payment_file_path = $this->plugin_path . 'vendor/paypal/class-Emsfb-paypal-payment.php';
                 if (file_exists($payment_file_path)) {
                     require_once $payment_file_path;
@@ -75,7 +76,7 @@ class Emsfb {
             }
 
             $stripe_exists = isset($ac->AdnSPF) ? (int) $ac->AdnSPF : 0;
-            if ($stripe_exists === 1) {
+            if ($stripe_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnSPF' )) {
                 $stripe_file_path = $this->plugin_path . 'vendor/stripe/class-Emsfb-stripe-payment.php';
                 if (file_exists($stripe_file_path)) {
                     require_once $stripe_file_path;
@@ -84,7 +85,7 @@ class Emsfb {
             }
 
             $sms_exists = isset($ac->AdnSS) ? (int) $ac->AdnSS : 0;
-            if ($sms_exists === 1) {
+            if ($sms_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnSS' )) {
                 $sms_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/class-Emsfb-sms.php';
                 if (file_exists($sms_file_path)) {
                     require_once $sms_file_path;
@@ -92,14 +93,14 @@ class Emsfb {
             }
             $auto_fill_exists = isset($ac->AdnATF) ? (int) $ac->AdnATF : 0;
 
-            if ($auto_fill_exists === 1) {
+            if ($auto_fill_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnATF' )) {
                 $auto_fill_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/autofill/class-Emsfb-autofill.php';
                 if (file_exists($auto_fill_file_path)) {
                     require_once $auto_fill_file_path;
                 }
             }
             $google_sheet_exists = isset($ac->AdnGoS) ? (int) $ac->AdnGoS : 0;
-            if ($google_sheet_exists >= 1) {
+            if ($google_sheet_exists >= 1 && emsfb_is_addon_compatible_efb( 'AdnGoS' )) {
                 $google_sheet_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
                 if (file_exists($google_sheet_file_path)) {
                     require_once $google_sheet_file_path;
@@ -109,7 +110,7 @@ class Emsfb {
                 }
             }
             $telegram_exists = isset($ac->AdnTLG) ? (int) $ac->AdnTLG : 0;
-              if ($telegram_exists >= 1) {
+              if ($telegram_exists >= 1 && emsfb_is_addon_compatible_efb( 'AdnTLG' )) {
                   $telegram_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/class-Emsfb-telegram.php';
                   if (file_exists($telegram_file_path)) {
                       require_once $telegram_file_path;
@@ -130,7 +131,7 @@ class Emsfb {
         if (is_object($ac_routes)) {
 
             $telegram_public = isset($ac_routes->AdnTLG) ? (int) $ac_routes->AdnTLG : 0;
-            if ($telegram_public >= 1) {
+            if ($telegram_public >= 1 && emsfb_is_addon_compatible_efb( 'AdnTLG' )) {
 
                 $telegram_send_path_public = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php';
                 if (file_exists($telegram_send_path_public)) {
@@ -139,7 +140,7 @@ class Emsfb {
             }
 
             $sms_public = isset($ac_routes->AdnSS) ? (int) $ac_routes->AdnSS : 0;
-            if ($sms_public === 1) {
+            if ($sms_public === 1 && emsfb_is_addon_compatible_efb( 'AdnSS' )) {
                 $sms_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/class-Emsfb-sms.php';
                 if (file_exists($sms_file_path)) {
                     require_once $sms_file_path;
@@ -147,7 +148,7 @@ class Emsfb {
             }
 
             $google_sheet_public = isset($ac_routes->AdnGoS) ? (int) $ac_routes->AdnGoS : 0;
-            if ($google_sheet_public >= 1) {
+            if ($google_sheet_public >= 1 && emsfb_is_addon_compatible_efb( 'AdnGoS' )) {
                 $google_sheet_file_path_public = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
                 if (file_exists($google_sheet_file_path_public)) {
                     require_once $google_sheet_file_path_public;
@@ -159,7 +160,7 @@ class Emsfb {
 
 			// AdnSMF — Conditional Logic addon: load validator and register filters
 			$logic_public = isset( $ac_routes->AdnSMF ) ? (int) $ac_routes->AdnSMF : 0;
-			if ( $logic_public >= 1 ) {
+			if ( $logic_public >= 1 && emsfb_is_addon_compatible_efb( 'AdnSMF' ) ) {
 				$logic_validator_file = EMSFB_PLUGIN_DIRECTORY . '/vendor/logic/logic/class-Emsfb-logic-validator.php';
 				if ( ! file_exists( $logic_validator_file ) ) {
 					$logic_validator_file = EMSFB_PLUGIN_DIRECTORY . '/vendor/logic/class-Emsfb-logic-validator.php';
@@ -169,21 +170,21 @@ class Emsfb {
 				}
 			}
 
-			if ( ! empty( $ac_routes->AdnPAP ) ) {
+			if ( ! empty( $ac_routes->AdnPAP ) && emsfb_is_addon_compatible_efb( 'AdnPAP' ) ) {
 				$f = $this->plugin_path . 'vendor/paypal/routes-efb.php';
 				if ( file_exists( $f ) ) {
 					require_once $f;
 				}
 			}
 
-			if ( ! empty( $ac_routes->AdnSPF ) ) {
+			if ( ! empty( $ac_routes->AdnSPF ) && emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
 				$f = $this->plugin_path . 'vendor/stripe/routes-efb.php';
 				if ( file_exists( $f ) ) {
 					require_once $f;
 				}
 			}
 
-			if ( ! empty( $ac_routes->AdnPPF ) ) {
+			if ( ! empty( $ac_routes->AdnPPF ) && emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
 				$this->load_persiapay_addon();
 
 				$f = $this->plugin_path . 'vendor/persiapay/routes-efb.php';
@@ -208,11 +209,12 @@ class Emsfb {
 		// the runtime and the admin page independently based on the constant below.
 		$human_shield_runtime = is_object( $ac_routes )
 			&& property_exists( $ac_routes, 'AdnHSH' )
-			&& (int) $ac_routes->AdnHSH >= 1;
+			&& (int) $ac_routes->AdnHSH >= 1
+			&& emsfb_is_addon_compatible_efb( 'AdnHSH' );
 
 		// Load in admin so the settings page shows, or on the front-end only when
 		// the runtime is active (no needless work on public requests when off).
-		if ( $human_shield_runtime || is_admin() ) {
+		if ( $human_shield_runtime || ( is_admin() && emsfb_is_addon_compatible_efb( 'AdnHSH' ) ) ) {
 			if ( ! defined( 'EFB_HUMAN_SHIELD_RUNTIME' ) ) {
 				define( 'EFB_HUMAN_SHIELD_RUNTIME', $human_shield_runtime ? 1 : 0 );
 			}
@@ -223,6 +225,12 @@ class Emsfb {
 		}
 
 		require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
+
+		// The toolbar control is loaded outside wp-admin as well, so authorized
+		// users can see and change the current sandbox state wherever the
+		// WordPress admin bar is displayed.
+		require_once $this->plugin_path . 'includes/class-Emsfb-admin-bar.php';
+		new \Emsfb\Admin_Bar_Development_Mode();
 
        $this->load_page_builder_integrations();
 
@@ -237,6 +245,10 @@ class Emsfb {
         // PersiaPay registers its editor/front-end script through this bootstrap
         // class. Loading only its REST route leaves the add-on installed but
         // without the hook that exposes its payment UI.
+        if ( ! emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
+            return;
+        }
+
         $persia_bootstrap = $this->plugin_path . 'vendor/persiapay/persiapayefb.php';
         if ( ! file_exists( $persia_bootstrap ) ) {
             return;

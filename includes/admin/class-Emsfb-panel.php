@@ -461,7 +461,7 @@ class Panel_edit  {
         foreach($it as $path) {
 			if (preg_match("/\bbootstrap+.+.css+/i", $path))
             {
-                $f = file_get_contents($path);
+                $f = emsfb_read_file_efb($path);
                 if(preg_match("/col-md-12/i", $f)){
                     $s= true;
                     break;

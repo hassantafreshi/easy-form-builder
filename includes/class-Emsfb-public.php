@@ -1572,12 +1572,16 @@ public function check_nonce_permission_efb($request) {
 
 	private function efb_send_json_and_continue($response, $status_code = 200) {
 
-		@ini_set('zlib.output_compression', 0);
-		@ini_set('implicit_flush', 1);
-		ignore_user_abort(true);
+		if ( emsfb_is_php_function_available_efb( 'ini_set' ) ) {
+			@ini_set('zlib.output_compression', 0);
+			@ini_set('implicit_flush', 1);
+		}
+		if ( emsfb_is_php_function_available_efb( 'ignore_user_abort' ) ) {
+			ignore_user_abort(true);
+		}
 		// set_time_limit can be disabled via disable_functions on hardened hosts;
 		// calling a disabled function throws a fatal Error, so guard it.
-		if (function_exists('set_time_limit')) {
+		if (emsfb_is_php_function_available_efb('set_time_limit')) {
 			@set_time_limit(300);
 		}
 
@@ -1627,18 +1631,18 @@ public function check_nonce_permission_efb($request) {
 		@ob_flush();
 		flush();
 
-		if (function_exists('fastcgi_finish_request')) {
+		if (emsfb_is_php_function_available_efb('fastcgi_finish_request')) {
 			$environment_method = 'PHP-FPM (fastcgi_finish_request)';
 			fastcgi_finish_request();
 			$this->log_background_method($environment_method, $start_time);
 			return true;
 		}
 
-		if (function_exists('apache_setenv')) {
+		if (emsfb_is_php_function_available_efb('apache_setenv')) {
 			@apache_setenv('no-gzip', '1');
 		}
 
-		if (function_exists('litespeed_finish_request')) {
+		if (emsfb_is_php_function_available_efb('litespeed_finish_request')) {
 			$environment_method = 'LiteSpeed (litespeed_finish_request)';
 			litespeed_finish_request();
 			$this->log_background_method($environment_method, $start_time);
@@ -1656,7 +1660,7 @@ public function check_nonce_permission_efb($request) {
 		}
 		flush();
 
-		if (function_exists('apache_setenv')) {
+		if (emsfb_is_php_function_available_efb('apache_setenv')) {
 			$environment_method = 'Apache (fallback with padding)';
 		} else {
 			$environment_method = 'Generic (padding fallback)';
@@ -2724,13 +2728,19 @@ public function check_nonce_permission_efb($request) {
 									return $carry + ($item['price'] ?? 0);
 								}, 0);
 								if ($payment_gateway == "persiaPay") {
+									if ( ! emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
+										$response = array( 'success' => false, 'm' => emsfb_get_addon_unavailable_message_efb( 'AdnPPF' ) );
+										wp_send_json_success( $response, 503 );
+										return;
+									}
+
 									$payment_merchant_id = $plugin_settings['payToken'] ?? null;
 									$data = array("merchant_id" => $payment_merchant_id, "authority" => sanitize_text_field($request_data['auth']), "amount" => $amount);
 									$jsonData = json_encode($data);
 									if (!is_dir(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/")) {
 										$msg = " خطای تنظیمات : با مدیر وبسایت تماس بگیرید . نیاز به نصب مجدد درگاه می باشد";
 									} else {
-										include(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php");
+										require_once(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php");
 										$persiaPay = new zarinPalEFB();
 										$result = $persiaPay->validate_payment_zarinPal($jsonData);
 										$msg = $result['errors']['message'] ?? "ok";
@@ -3392,7 +3402,7 @@ public function check_nonce_permission_efb($request) {
 				wp_send_json_success($response, 200);
 			}
 
-			$file_contents = file_get_contents($file_tmp);
+			$file_contents = emsfb_read_file_efb($file_tmp);
 			if ($file_contents === false) {
 				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
 				wp_send_json_success($response, 200);
@@ -3583,7 +3593,7 @@ public function check_nonce_permission_efb($request) {
 				wp_send_json_success($response,200);
 			}
 
-			$file_contents = file_get_contents($async_file_tmp);
+			$file_contents = emsfb_read_file_efb($async_file_tmp);
 			if ($file_contents === false) {
 				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
 				wp_send_json_success($response,200);
@@ -4496,6 +4506,14 @@ public function check_nonce_permission_efb($request) {
 	}
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
 	public function pay_stripe_sub_Emsfb_api($data_POST_) {
+		if ( ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
+			wp_send_json_success( array(
+				'success' => false,
+				'm'       => emsfb_get_addon_unavailable_message_efb( 'AdnSPF' ),
+			), 503 );
+			return;
+		}
+
 		$data_POST = $data_POST_->get_json_params();
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
@@ -4680,6 +4698,14 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	public function pay_stripe_confirm_Emsfb_api( $request ) {
+		if ( ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
+			wp_send_json_success( array(
+				'success' => false,
+				'm'       => emsfb_get_addon_unavailable_message_efb( 'AdnSPF' ),
+			), 503 );
+			return;
+		}
+
 		$data_POST       = $request->get_json_params();
 		$payment_intent  = sanitize_text_field( $data_POST['paymentIntentId'] ?? '' );
 		$trackid         = sanitize_text_field( $data_POST['trackid'] ?? '' );
@@ -4745,6 +4771,13 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	public function pay_persia_sub_Emsfb_api($data_POST_){
+		if ( ! emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
+			wp_send_json_success( array(
+				'success' => false,
+				'm'       => emsfb_get_addon_unavailable_message_efb( 'AdnPPF' ),
+			), 503 );
+			return;
+		}
 
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
 		$persiapay = new zarinPalEFB() ;
@@ -5911,7 +5944,8 @@ public function check_nonce_permission_efb($request) {
 
 	public function set_password_efb_api(){
 
-		$data = json_decode(file_get_contents('php://input'), true);
+		$raw_input = emsfb_read_file_efb('php://input');
+		$data = is_string($raw_input) ? json_decode($raw_input, true) : null;
 		if (!is_array($data)) {
 			return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder')), 400);
 		}

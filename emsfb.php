@@ -116,12 +116,7 @@ function emsfb_perform_file_access_check_efb() {
  * @return float|false
  */
 function emsfb_get_free_disk_space_efb($directory) {
-    if (!function_exists('disk_free_space')) {
-        return false;
-    }
-
-    $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
-    if (in_array('disk_free_space', $disabled, true)) {
+    if (!emsfb_is_php_function_available_efb('disk_free_space')) {
         return false;
     }
 
@@ -216,17 +211,22 @@ function emsfb_check_file_access_efb() {
         $test_file = $vendor_path . '/test_write_efb.txt';
         $test_content = 'EFB add-on test';
 
-        if (@file_put_contents($test_file, $test_content) === false) {
+        if (!emsfb_is_php_function_available_efb('file_put_contents')) {
+            $status = false;
+            $error_codes[] = 'PHP_FUNCTION_UNAVAILABLE:file_put_contents';
+        } elseif (@file_put_contents($test_file, $test_content) === false) {
             $status = false;
             $error_codes[] = 'WRITE_TEST_FAILED';
         } else {
-            if (@file_get_contents($test_file) !== $test_content) {
+            if (emsfb_read_file_efb($test_file) !== $test_content) {
                 $status = false;
                 $error_codes[] = 'READ_TEST_FAILED';
             } else {
                 $details['write_test'] = true;
             }
-            @unlink($test_file);
+            if (emsfb_is_php_function_available_efb('unlink')) {
+                @unlink($test_file); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+            }
         }
     }
 

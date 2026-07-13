@@ -1858,3 +1858,45 @@ div#gRecaptcha {
 #efb-final-step h2,p {
    border: 0;
 }
+
+/* --- Form / Add-on card polish (scoped to the cards grid) --- */
+#listFormCardsEFB .efb.card {
+   height: 100%;
+   transition: transform .22s ease, box-shadow .22s ease !important;
+}
+#listFormCardsEFB .efb.card:hover {
+   transform: translateY(-6px);
+   box-shadow: 0px 12px 38px rgba(84, 131, 207, 0.28) !important;
+}
+/* contain the floated action buttons so equal-height cards keep their shape */
+#listFormCardsEFB .efb.card-body::after {
+   content: "";
+   display: table;
+   clear: both;
+}
+/* softer, more consistent description spacing */
+#listFormCardsEFB .card-text.efb {
+   line-height: 1.7;
+}
+/* subtle tinted chip behind the card icon */
+#listFormCardsEFB .card-title.efb {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   margin-bottom: 14px;
+}
+#listFormCardsEFB .card-title.efb i {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   flex: 0 0 auto;
+   width: 46px;
+   height: 46px;
+   border-radius: 14px;
+   background: rgba(255, 75, 147, 0.10);
+   font-size: 24px !important;
+   transition: background .22s ease;
+}
+#listFormCardsEFB .efb.card:hover .card-title.efb i {
+   background: rgba(255, 75, 147, 0.18);
+}

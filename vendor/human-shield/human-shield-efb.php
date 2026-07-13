@@ -15,6 +15,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Keep this bundled add-on safe even when another integration loads its
+// bootstrap directly instead of going through class-Emsfb.php.
+if ( ! function_exists( 'emsfb_is_php_function_available_efb' ) ) {
+	$efb_compatibility_file = defined( 'EMSFB_PLUGIN_DIRECTORY' )
+		? EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-addon-compatibility.php'
+		: dirname( __DIR__, 2 ) . '/includes/class-Emsfb-addon-compatibility.php';
+	if ( is_readable( $efb_compatibility_file ) ) {
+		require_once $efb_compatibility_file;
+	}
+}
+
+if ( ! function_exists( 'emsfb_is_php_function_available_efb' ) ) {
+	if ( is_admin() ) {
+		add_action(
+			'admin_notices',
+			function () {
+				?>
+				<div class="notice notice-error"><p><?php echo esc_html__( 'Form Security & Spam Protection could not load because its PHP compatibility helper is unavailable. Please reinstall Easy Form Builder.', 'easy-form-builder' ); ?></p></div>
+				<?php
+			}
+		);
+	}
+	return;
+}
+
 if ( defined( 'EFB_HUMAN_SHIELD_LOADED' ) ) {
 	return;
 }

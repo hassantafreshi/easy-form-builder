@@ -28,6 +28,7 @@
   let logs = Array.isArray(cfg.logs) ? cfg.logs : [];
   let stats = cfg.stats || {};
   let hourly = Array.isArray(cfg.hourly) ? cfg.hourly : [];
+  let persistedEnabled = Number(settings.enabled) === 1;
 
   /* Status palette, validated (lightness band, chroma floor, CVD >= 12,
    * contrast >= 3:1 on the panel surface). Identity is never color-alone:
@@ -84,22 +85,22 @@
 
   function render() {
     app.innerHTML = `
-      <section class="efb-hs-header">
+      <section class="efb-hs-header m-2 m-md-0 p-3 p-md-4">
         <div class="efb-hs-header-main">
           <div class="efb-hs-logo"><i class="efb bi-shield-lock"></i></div>
           <div>
             <h1>${esc(text.title || 'Human Shield')}</h1>
-            <p>${esc(text.subtitle || 'Behavior-based anti-spam and cost protection')}</p>
-            <div class="efb-hs-badges">
+            <p class="d-none d-md-block">${esc(text.subtitle || 'Behavior-based anti-spam and cost protection')}</p>
+            <div class="efb-hs-badges d-none d-md-flex">
               <span><i class="efb bi-activity ${sideClass}-1"></i>Behavior scoring</span>
               <span><i class="efb bi-speedometer2 ${sideClass}-1"></i>Rate limits</span>
               <span><i class="efb bi-wallet2 ${sideClass}-1"></i>Cost guard</span>
             </div>
           </div>
         </div>
-        <div class="efb-hs-status">
-          ${statusPill()}
-          <small>v${esc(cfg.version || '0.1.0')}</small>
+        <div class="efb-hs-status" aria-live="polite">
+          <div id="efb-hs-status-indicator">${statusPill()}</div>
+          <small class="efb-hs-status-version">v${esc(cfg.version || '0.1.0')}</small>
         </div>
       </section>
 
@@ -144,12 +145,31 @@
     </div>`;
   }
 
-  function statusPill() {
+  function statusState() {
     const enabled = Number(settings.enabled) === 1;
     const reqOk = cfg.requirements && cfg.requirements.ok;
-    const cls = enabled && reqOk ? 'ok' : enabled ? 'warn' : 'off';
-    const label = enabled && reqOk ? 'Active' : enabled ? 'Needs attention' : 'Disabled';
-    return `<span class="efb-hs-pill ${cls}"><i class="efb bi-${enabled ? 'shield-check' : 'shield-x'} ${sideClass}-1"></i>${label}</span>`;
+    const changed = enabled !== persistedEnabled;
+    if (changed) {
+      return enabled
+        ? { cls: 'pending', icon: 'shield-plus', label: 'Ready to enable', hint: 'Save settings to start protection.' }
+        : { cls: 'pending', icon: 'shield-slash', label: 'Ready to disable', hint: 'Save settings to pause protection.' };
+    }
+    if (!enabled) return { cls: 'off', icon: 'shield-x', label: 'Disabled', hint: 'Protection is paused.' };
+    if (!reqOk) return { cls: 'warn', icon: 'shield-exclamation', label: 'Needs attention', hint: 'Fix system requirements before protection can run.' };
+    return { cls: 'ok', icon: 'shield-check', label: 'Active', hint: 'Behavior checks and rate limits are running.' };
+  }
+
+  function statusPill() {
+    const state = statusState();
+    return `<span class="efb-hs-pill ${state.cls}">
+      <i class="efb bi-${state.icon}"></i>
+      <span class="efb-hs-pill-copy"><strong>${esc(state.label)}</strong><small>${esc(state.hint)}</small></span>
+    </span>`;
+  }
+
+  function updateStatusIndicator() {
+    const indicator = document.getElementById('efb-hs-status-indicator');
+    if (indicator) indicator.innerHTML = statusPill();
   }
 
   function tabButton(id, label, icon, active) {
@@ -486,8 +506,9 @@
       if (!result || !result.success) throw new Error('save failed');
       settings = Object.assign({}, result.data.settings || settings);
       stats = result.data.stats || stats;
-      showAlert(text.saved || 'Settings saved.', 'ok');
+      persistedEnabled = Number(settings.enabled) === 1;
       render();
+      showAlert(text.saved || 'Settings saved.', 'ok');
     } catch (error) {
       showAlert(text.failed || 'Request failed.', 'danger');
     } finally {
@@ -542,6 +563,13 @@
     if (name === 'refresh-logs') refreshLogs();
     if (name === 'clear-logs') clearLogs();
     if (name === 'export-logs') exportLogs();
+  });
+
+  app.addEventListener('change', (event) => {
+    const toggle = event.target.closest('[data-setting="enabled"]');
+    if (!toggle) return;
+    settings.enabled = toggle.checked ? 1 : 0;
+    updateStatusIndicator();
   });
 
   try {

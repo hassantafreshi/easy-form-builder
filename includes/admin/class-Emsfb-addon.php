@@ -45,6 +45,13 @@ class Addon {
 		}
 	}
 	public function render_settings() {
+		// Check all bundled add-ons before rendering their remote catalogue. The
+		// result is informational for inactive add-ons; enabled incompatible
+		// add-ons are also prevented from loading by the shared compatibility
+		// guard in the plugin bootstrap.
+		$ac = get_setting_Emsfb('decoded');
+		$php_addon_issues = emsfb_get_incompatible_addons_efb( $ac );
+
 		// After a plugin update, block the Add-ons page until missing add-on files
 		// are reinstalled. The Recover button on the blocking screen performs the
 		// reinstall, then offers an Activate (reload) button.
@@ -112,6 +119,34 @@ class Addon {
 	<?php endif; ?>
 	<!-- End Addon Directory Status Check -->
 
+	<?php if ( ! empty( $php_addon_issues ) ) : ?>
+		<div class="notice notice-error efb" style="margin: 20px 0;">
+			<p><strong><?php echo esc_html__( 'Some add-ons need a PHP server change', 'easy-form-builder' ); ?></strong></p>
+			<p><?php echo esc_html__( 'Easy Form Builder has safely paused each affected active add-on, so the rest of the plugin can continue working.', 'easy-form-builder' ); ?></p>
+			<ul style="list-style: disc; margin: 0 0 0 22px;">
+				<?php foreach ( $php_addon_issues as $php_addon_issue ) : ?>
+					<li style="margin-bottom: 8px;">
+						<strong><?php echo esc_html( $php_addon_issue['name'] ); ?></strong>
+						<?php if ( ! empty( $php_addon_issue['enabled'] ) ) : ?>
+							<?php echo esc_html__( '(currently enabled and paused)', 'easy-form-builder' ); ?>
+						<?php else : ?>
+							<?php echo esc_html__( '(not enabled)', 'easy-form-builder' ); ?>
+						<?php endif; ?>
+						<?php if ( ! empty( $php_addon_issue['disabled_functions'] ) ) : ?>
+							&mdash; <?php echo esc_html__( 'disabled in php.ini:', 'easy-form-builder' ); ?>
+							<code><?php echo esc_html( implode( ', ', $php_addon_issue['disabled_functions'] ) ); ?></code>.
+						<?php endif; ?>
+						<?php if ( ! empty( $php_addon_issue['missing_extension_functions'] ) ) : ?>
+							&mdash; <?php echo esc_html__( 'not provided by PHP or its required extension:', 'easy-form-builder' ); ?>
+							<code><?php echo esc_html( implode( ', ', $php_addon_issue['missing_extension_functions'] ) ); ?></code>.
+						<?php endif; ?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<p><?php echo esc_html__( 'This usually means the needed PHP extension is not installed, or the function is listed in disable_functions in php.ini. Please ask your hosting provider to enable it, then refresh this page.', 'easy-form-builder' ); ?></p>
+		</div>
+	<?php endif; ?>
+
 	<div id="alert_efb" class="efb mx-5"></div>
 
 	<?php if ( 'inline' === $addon_recovery_state ) : ?>
@@ -139,8 +174,6 @@ class Addon {
 		$pro = intval(get_option('emsfb_pro' ,-1));
 		$pro = $pro == 1 ? true : false;
 		$maps =false;
-
-		$ac= get_setting_Emsfb('decoded');
 
 		if(is_object($ac) && (!isset($ac->efb_version) || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0)){
 			$efbFunction->setting_version_efb_update($ac ,$pro);
@@ -229,7 +262,7 @@ class Addon {
         foreach($it as $path) {
             if (preg_match("/\bbootstrap+.+.css+/i", $path))
             {
-                $f = file_get_contents($path);
+				$f = emsfb_read_file_efb($path);
                 if(preg_match("/col-md-12/i", $f)){
                     $s= true;
                     break;

@@ -398,7 +398,7 @@ class Admin {
 
     public function add_addons_Emsfb() {
         $efbFunction = get_efbFunction();
-        $text = ["error403","done","invalidRequire","upDMsg"];
+        $text = ["error403","done","invalidRequire","upDMsg","proUnlockMsg","thisFeatureAvailableFreePlusPro"];
         $lang = $efbFunction->text_efb($text);
         $ac = get_setting_Emsfb('decoded');
 
@@ -453,63 +453,9 @@ class Admin {
             return;
         }
 
-        // Some add-ons are plan-gated, so we log the resolved package type to
-        // separate licensing problems from Persian-host connectivity issues.
-        $package_type = (is_object($ac) && isset($ac->package_type)) ? intval($ac->package_type) : intval(get_option('emsfb_pro', 2));
-        if ('AdnSMF' === $post_value && !in_array($package_type, [1, 3], true)) {
-            $this->addon_install_log_efb('request_blocked_plan_limit', [
-                'requested_addon' => $post_value,
-                'package_type' => $package_type,
-            ]);
-            $response = [
-                'success' => false,
-                'm'       => esc_html__('Want to use this feature? It is included in Free Plus and Pro plans.', 'easy-form-builder'),
-            ];
-            wp_send_json_error($response, 200);
-            return;
-        }
-
-        // Form Security & Spam Protection ships inside the plugin — no remote
-        // download, so file-access checks and the download loop are skipped.
-        if ('AdnHSH' === $post_value) {
-            $local_hsh = EMSFB_PLUGIN_DIRECTORY . '/vendor/human-shield/human-shield-efb.php';
-            $local_hsh_exists = file_exists($local_hsh);
-            $this->addon_install_log_efb('local_addon_branch', [
-                'requested_addon' => $post_value,
-                'local_file' => $local_hsh,
-                'local_file_exists' => $local_hsh_exists,
-            ]);
-            if (!$local_hsh_exists) {
-                $this->addon_install_log_efb('local_addon_missing_files', [
-                    'requested_addon' => $post_value,
-                    'local_file' => $local_hsh,
-                ]);
-                $response = ['success' => false, 'm' => esc_html__('The Form Security & Spam Protection add-on files are missing. Please reinstall Easy Form Builder.', 'easy-form-builder')];
-                wp_send_json_error($response, 200);
-                return;
-            }
-            if (isset($ac->AdnSPF) == false) {
-                $ac->AdnSPF = 0;
-            }
-            $ac->AdnHSH = 1;
-            $ac->efb_version = EMSFB_PLUGIN_VERSION;
-            if (empty($this->db)) {
-                global $wpdb;
-                $this->db = $wpdb;
-            }
-            $efbFunction->set_setting_Emsfb($ac, isset($ac->emailSupporter) ? $ac->emailSupporter : '');
-            $newAc = json_encode($ac, JSON_UNESCAPED_UNICODE);
-            update_option('emsfb_addon_AdnHSH', 2);
-            $this->addon_install_log_efb('local_addon_completed', [
-                'requested_addon' => $post_value,
-                'option_name' => 'emsfb_addon_AdnHSH',
-                'saved_settings_length' => strlen((string) $newAc),
-            ]);
-            $response = ['success' => true, 'r' => "done", 'value' => "add_addons_Emsfb", 'new' => $newAc];
-            wp_send_json_success($response, 200);
-            return;
-        }
-
+        // Form Security & Spam Protection ships inside the plugin. The
+        // licensing endpoint still verifies its package before local files are
+        // enabled.
         // File access problems are common on shared hosts, so log the full
         // preflight status before any network requests are attempted.
         $status = emsfb_get_file_access_status_efb();
@@ -750,6 +696,26 @@ class Admin {
                     'attempt' => $current_attempt,
                     'response_data' => $data,
                 ]);
+                $remote_reason = isset($data->reason) ? sanitize_key($data->reason) : '';
+                if (in_array($remote_reason, ['plan_required', 'package_required', 'premium_required'], true)) {
+                    $required_package = isset($data->required_package) ? (int) $data->required_package : 1;
+                    $m = $required_package === 3
+                        ? $lang['thisFeatureAvailableFreePlusPro']
+                        : $lang['proUnlockMsg'];
+                    $this->addon_install_log_efb('remote_response_plan_required', [
+                        'requested_addon' => $post_value,
+                        'required_package' => $required_package,
+                        'current_package' => isset($data->current_package) ? $data->current_package : '',
+                    ]);
+                    $response = [
+                        'success' => false,
+                        'm' => $m,
+                        'code' => 'addon_plan_required',
+                        'required_package' => $required_package,
+                    ];
+                    wp_send_json_error($response, 200);
+                    return;
+                }
                 if (!$is_persian_locale && isset($data->reason) && $data->reason == 'expired') {
                     update_option('emsfb_addons_renew_required', time());
                     set_transient('emsfb_addons_renew_backoff', 1, DAY_IN_SECONDS);
@@ -2495,6 +2461,12 @@ class Admin {
                 }
                 $moved = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', true);
             } else {
+                if ( ! emsfb_is_php_function_available_efb( 'mkdir' ) || ! emsfb_is_php_function_available_efb( 'rename' ) ) {
+                    return new \WP_Error(
+                        'filesystem_functions_unavailable',
+                        esc_html__( 'Cannot install add-ons because this server has disabled the PHP filesystem functions needed to prepare the download. Please ask your hosting provider to enable mkdir and rename, or configure the WordPress filesystem.', 'easy-form-builder' )
+                    );
+                }
                 $directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
                 if (!file_exists($directory)) {
                     mkdir($directory, 0755, true);
@@ -2502,7 +2474,9 @@ class Admin {
                 $moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
             }
             if(!$moved){
-                @unlink($r);
+                if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
+                    @unlink($r);
+                }
                 return new \WP_Error('move_failed',
                     esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file', 'easy-form-builder')
                 );
@@ -2511,7 +2485,9 @@ class Admin {
                 WP_Filesystem();
             }
             $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
-            @unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
+            if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
+                @unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
+            }
             if(is_wp_error($r)){
                 return new \WP_Error('unzip_failed',
                     esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder')
@@ -2597,7 +2573,7 @@ class Admin {
                 wp_send_json_success($response, 200);
             }
 
-            $file_contents = file_get_contents($file_tmp);
+            $file_contents = emsfb_read_file_efb($file_tmp);
             if ($file_contents === false) {
                 $response = array( 'success' => false, 'error' => 'File read error');
                 wp_send_json_success($response, 200);

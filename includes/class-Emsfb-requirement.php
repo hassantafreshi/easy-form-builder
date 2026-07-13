@@ -26,21 +26,11 @@ class CheckRequirementEmsfb {
             'details' => [],
         ];
 
-        if (!function_exists('mail')) {
+        if (!emsfb_is_php_function_available_efb('mail')) {
             return [
                 'status' => 'error',
                 'message' => [
                     'id' => 'mail_function_missing',
-                ]
-            ];
-        }
-
-        $disabled = array_map('trim', explode(',', ini_get('disable_functions')));
-        if (in_array('mail', $disabled)) {
-            return [
-                'status' => 'error',
-                'message' => [
-                    'id' => 'mail_function_disabled',
                 ]
             ];
         }
@@ -54,8 +44,8 @@ class CheckRequirementEmsfb {
             ];
         }
 
-        $smtp = ini_get('SMTP');
-        $sendmail = ini_get('sendmail_path');
+        $smtp = emsfb_get_php_ini_value_efb('SMTP');
+        $sendmail = emsfb_get_php_ini_value_efb('sendmail_path');
         if (empty($smtp) && empty($sendmail)) {
             $results['status'] = 'warning';
             $results['message'] = [

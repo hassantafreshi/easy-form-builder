@@ -38,6 +38,16 @@
   border-radius: 8px;
 }
 
+/* Human Shield does not load Bootstrap's utility stylesheet on its own. */
+.efb-hs-header .d-none {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .efb-hs-header .d-md-block { display: block !important; }
+  .efb-hs-header .d-md-flex { display: flex !important; }
+}
+
 .efb-hs-header-main {
   display: flex;
   gap: 16px;
@@ -96,6 +106,50 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 8px;
+  min-width: 230px;
+}
+
+.efb-hs-pill {
+  min-height: 54px;
+  padding: 8px 12px 8px 8px;
+  gap: 9px;
+  border-radius: 14px;
+  text-align: start;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.05);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.efb-hs-pill > i {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 17px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.efb-hs-pill-copy {
+  display: grid;
+  gap: 1px;
+}
+
+.efb-hs-pill-copy strong {
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.efb-hs-pill-copy small {
+  color: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+  opacity: 0.85;
+}
+
+.efb-hs-status-version {
+  color: #64748b;
+  font-size: 11px;
 }
 
 .efb-hs-pill.ok {
@@ -108,6 +162,12 @@
   color: #a16207;
   border-color: #fde68a;
   background: #fffbeb;
+}
+
+.efb-hs-pill.pending {
+  color: #0e7490;
+  border-color: #a5dce8;
+  background: #ecfeff;
 }
 
 .efb-hs-pill.off {
@@ -348,6 +408,18 @@
   align-items: center;
   gap: 12px;
   padding: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.efb-hs-toggle:hover,
+.efb-hs-toggle:focus-within {
+  border-color: #67c1d4;
+  background: #f0fdff;
+}
+
+.efb-hs-toggle:focus-within {
+  box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.13);
 }
 
 .efb-hs-toggle input {
@@ -382,6 +454,11 @@
 
 .efb-hs-toggle input:checked + .efb-hs-toggle-ui::after {
   transform: translateX(18px);
+}
+
+.efb-hs-toggle:has(input:checked) {
+  border-color: #8dd4c2;
+  background: #f0fdf9;
 }
 
 .efb-hs-note,
@@ -498,8 +575,24 @@
     align-items: stretch;
   }
 
+  .efb-hs-header {
+    margin: 0;
+    padding: 16px;
+  }
+
   .efb-hs-header-main {
     align-items: flex-start;
+  }
+
+  .efb-hs-logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    font-size: 22px;
+  }
+
+  .efb-hs-header h1 {
+    font-size: 22px;
   }
 
   .efb-hs-grid-4,

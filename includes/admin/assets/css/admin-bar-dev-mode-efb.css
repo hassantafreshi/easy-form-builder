@@ -1,0 +1,121 @@
+#wpadminbar #wp-admin-bar-efb-development-mode > .ab-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+#wpadminbar .efb-admin-bar-dev-mode__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#wpadminbar .efb-admin-bar-dev-mode__logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+#wpadminbar .efb-admin-bar-dev-mode__indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a7aaad;
+  box-shadow: 0 0 0 3px rgba(167, 170, 173, 0.2);
+}
+
+#wpadminbar #wp-admin-bar-efb-development-mode.is-enabled > .ab-item {
+  color: #fff;
+  background: #b32d2e;
+}
+
+#wpadminbar #wp-admin-bar-efb-development-mode.is-enabled > .ab-item:hover,
+#wpadminbar #wp-admin-bar-efb-development-mode.is-enabled > .ab-item:focus {
+  background: #8a2424;
+  color: #fff;
+}
+
+#wpadminbar #wp-admin-bar-efb-development-mode.is-enabled .efb-admin-bar-dev-mode__indicator {
+  background: #ffeb3b;
+  box-shadow: 0 0 0 3px rgba(255, 235, 59, 0.28);
+}
+
+#wpadminbar #wp-admin-bar-efb-development-mode.is-disabled .efb-admin-bar-dev-mode__indicator {
+  background: #46b450;
+  box-shadow: 0 0 0 3px rgba(70, 180, 80, 0.22);
+}
+
+#wpadminbar #wp-admin-bar-efb-development-mode.is-busy > .ab-item {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+#efb-admin-bar-dev-mode-notice {
+  position: fixed;
+  z-index: 100001;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  top: 40px;
+  inset-inline-end: 16px;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 10px 14px;
+  border-radius: 4px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.efb-admin-bar-dev-mode-notice__message {
+  flex: 1 1 auto;
+}
+
+#efb-admin-bar-dev-mode-notice.is-success {
+  background: #1e6f31;
+}
+
+#efb-admin-bar-dev-mode-notice.is-error {
+  background: #b32d2e;
+}
+
+.efb-admin-bar-dev-mode-notice__reload {
+  padding: 3px 8px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.efb-admin-bar-dev-mode-notice__close {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.efb-admin-bar-dev-mode-notice__reload:hover,
+.efb-admin-bar-dev-mode-notice__reload:focus {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.efb-admin-bar-dev-mode-notice__close:hover,
+.efb-admin-bar-dev-mode-notice__close:focus {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+@media screen and (max-width: 782px) {
+  #efb-admin-bar-dev-mode-notice {
+    top: 54px;
+  }
+}

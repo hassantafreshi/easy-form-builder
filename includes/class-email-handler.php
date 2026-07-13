@@ -62,7 +62,7 @@ class EmsfbEmailHandler {
             'createdBy' => __('Created by', 'easy-form-builder'),
             'newMessageReceived' => __('New message received', 'easy-form-builder'),
             'goodJob' => __('Good Job', 'easy-form-builder'),
-            'yFreeVEnPro' => __('You are using the free version. Upgrade to Pro for just %1$s%2$s%3$s/year and unlock advanced features to improve your experience and productivity.%4$sView Pro Features%5$s', 'easy-form-builder'),
+            'yFreeVEnPro' => __('Upgrade to Pro for just %1$s%2$s%3$s/year and get access to powerful features, including advanced form fields, payment integrations, conditional logic, multi-step forms, file uploads, Security & Spam Protection, and priority support.%4$sView Pro Features%5$s', 'easy-form-builder'),
             'WeRecivedUrM' => __('We received your message', 'easy-form-builder'),
         ];
 
@@ -255,14 +255,8 @@ class EmsfbEmailHandler {
     }
 
     private static function send_php_mail_fallback($to, $subject, $message, $headers) {
-        if (!function_exists('mail')) {
+        if (!emsfb_is_php_function_available_efb('mail')) {
             self::log_email_failure($to, $subject, self::create_mail_error('php_mail_missing', 'The PHP mail() function is not available.'));
-            return false;
-        }
-
-        $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
-        if (in_array('mail', $disabled, true)) {
-            self::log_email_failure($to, $subject, self::create_mail_error('php_mail_disabled', 'The PHP mail() function is disabled in php.ini.'));
             return false;
         }
 
@@ -296,8 +290,8 @@ class EmsfbEmailHandler {
             return '';
         }
 
-        $smtp_host = trim((string) ini_get('SMTP'));
-        $smtp_port = (int) ini_get('smtp_port');
+        $smtp_host = trim((string) emsfb_get_php_ini_value_efb('SMTP'));
+        $smtp_port = (int) emsfb_get_php_ini_value_efb('smtp_port');
         if ($smtp_host === '') {
             return 'PHP mail fallback skipped: no SMTP host is configured in php.ini.';
         }
@@ -306,7 +300,7 @@ class EmsfbEmailHandler {
             $smtp_port = 25;
         }
 
-        if (!function_exists('fsockopen')) {
+        if (!emsfb_is_php_function_available_efb('fsockopen')) {
             return 'PHP mail fallback skipped: fsockopen is disabled on this server.';
         }
 
@@ -314,7 +308,9 @@ class EmsfbEmailHandler {
         $errstr = '';
         $connection = @fsockopen($smtp_host, $smtp_port, $errno, $errstr, 0.5);
         if (is_resource($connection)) {
-            fclose($connection);
+            if (emsfb_is_php_function_available_efb('fclose')) {
+                fclose($connection);
+            }
             return '';
         }
 
@@ -987,8 +983,11 @@ class EmsfbEmailHandler {
         $log_content .= "END OF EMAIL\n";
         $log_content .= "═══════════════════════════════════════════════════════════════════════════════\n\n";
 
-        // Write to custom log file
-        file_put_contents($log_file, $log_content, FILE_APPEND | LOCK_EX);
+        // Write to custom log file only when the host permits PHP filesystem
+        // writes. Debug logging must never interrupt email delivery.
+        if (emsfb_is_php_function_available_efb('file_put_contents')) {
+            @file_put_contents($log_file, $log_content, FILE_APPEND | LOCK_EX);
+        }
 
         // Also log summary to WordPress debug.log
         error_log("[EFB Email Debug] State: {$state} | To: " . (is_array($to) ? implode(', ', $to) : $to) . " | Subject: {$subject} | See full HTML in: {$log_file}");
