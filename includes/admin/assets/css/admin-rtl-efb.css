@@ -1,4 +1,4 @@
-.efb {direction: rtl !important;}
+.efb {direction: rtl !important; font-family: 'Roboto', sans-serif!important;}
 .wp-menu-name {text-align: initial;}
 .search-form-control.efb {    padding-right: 40px!important;padding-left:10px!important;}
 input[type=file].efb {    padding: 3px 14px;}
@@ -168,9 +168,9 @@ body.rtl .efb input.intlPhone::placeholder,
 .efb-header-img-wrap {
     text-align: center;
 }
-#header-efb .row {
+/* #header-efb .row {
     flex-direction: row-reverse;
-}
+} */
 
 .mobile .efb-header-actions {
     flex-direction: column;

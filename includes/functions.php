@@ -1279,14 +1279,14 @@ class efbFunction {
 			"wave" => $state  &&  isset($ac->text->wave) ? $ac->text->wave : esc_html__('Wave','easy-form-builder'),
 			"hourglass" => $state  &&  isset($ac->text->hourglass) ? $ac->text->hourglass : esc_html__('Hourglass','easy-form-builder'),
 
-			/* translators: Dashboard widget — card label: %s is replaced with the word 'Page' at runtime. Example: "Page Views" */
-			"dwVisits" => $state  &&  isset($ac->text->dwVisits) ? $ac->text->dwVisits : esc_html__('%s Views','easy-form-builder'),
+			/* translators: Dashboard widget — card label: %s is replaced with the word 'Page' at runtime. Example: "Page views" */
+			"dwVisits" => $state  &&  isset($ac->text->dwVisits) ? $ac->text->dwVisits : esc_html__('%s views','easy-form-builder'),
 			/* translators: Dashboard widget — card label: number of form submissions */
 			"dwSubmissions" => $state  &&  isset($ac->text->dwSubmissions) ? $ac->text->dwSubmissions : esc_html__('Submissions','easy-form-builder'),
 			/* translators: Generic noun used in labels like "%s Views". Example: "Page" */
 			"page" => $state  &&  isset($ac->text->page) ? $ac->text->page : esc_html__('Page','easy-form-builder'),
-			/* translators: Dashboard widget — card label: %s is replaced with the word 'Email' at runtime. Example: "Email Sent" */
-			"dwEmailsSent" => $state  &&  isset($ac->text->dwEmailsSent) ? $ac->text->dwEmailsSent : esc_html__('%s Sent','easy-form-builder'),
+			/* translators: Dashboard widget card label. Example: "Emails sent" */
+			"dwEmailsSent" => $state  &&  isset($ac->text->dwEmailsSent) ? $ac->text->dwEmailsSent : esc_html__('Emails sent','easy-form-builder'),
 			/* translators: Dashboard widget — card label: %s is replaced with the word 'Email' at runtime. Example: "Email Failures" */
 			"dwEmailsFailed" => $state  &&  isset($ac->text->dwEmailsFailed) ? $ac->text->dwEmailsFailed : esc_html__('%s Failures','easy-form-builder'),
 			/* translators: Dashboard widget — panel title: %s is replaced with the word 'Email' at runtime. Example: "Email Error Log" */

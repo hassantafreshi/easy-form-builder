@@ -6975,8 +6975,9 @@ public function check_nonce_permission_efb($request) {
 			$context['integration_value_map'] = $this->efb_conditional_values_map($form_fields_array, $context['integration_values']);
 		}
 		// Human Shield (or any other guard) may veto costly side effects per
-		// channel. Telegram is gated inside telegram_ready_for_send_efb() so it
-		// is intentionally not gated again here.
+		// channel before an integration receives the event. Keep Telegram here
+		// as well: its handler eventually sends a remote API request and must
+		// not bypass the shared stop-loss/low-score gate.
 		$shield_context = array(
 			'event'         => $event_type,
 			'form_id'       => intval($this->id),
@@ -6991,7 +6992,9 @@ public function check_nonce_permission_efb($request) {
 			$context['conditional_webhooks'] = array();
 		}
 
-		do_action('efb_3rd_party_telegram_notify', $context);
+		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'telegram' ) ) ) ) {
+			do_action('efb_3rd_party_telegram_notify', $context);
+		}
 
 		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'googlesheet' ) ) ) ) {
 			do_action('efb_3rd_party_google_sheet_sync', $context);
