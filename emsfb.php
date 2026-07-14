@@ -58,6 +58,12 @@ if (!defined("EMSFB_SERVER_URL")) {
         define("EMSFB_SERVER_URL", "https://whitestudio.team");
     }
 }
+
+if (!defined("EMSFB_LICENSE_SERVER_URL")) {
+    // License validation must always hit the production server; the sandbox
+    // (devMode) demo server must never decide activation state.
+    define("EMSFB_LICENSE_SERVER_URL", "https://whitestudio.team");
+}
 if (!defined("EMSFB_IS_FARSI")) {
     if (get_locale() == 'fa_IR') {
         //THIS LINE COMMENTED TO AVOID PROBLEMS WITH CDN IN FARSI LANGUAGE BECUSE OF SHUTDOWN IRAN NETWORK!!

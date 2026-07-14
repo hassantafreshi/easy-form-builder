@@ -1100,6 +1100,7 @@ function fun_show_setting__emsFormBuilder() {
   let apiKeyMap = 'null';
   let smtp = false;
   let weeklyEmailReport = true;
+  let emailStatsReport = true;
   let text = efb_var.text;
   let textList = "<!--list EFB -->";
   let bootstrap = false;
@@ -1161,6 +1162,10 @@ function fun_show_setting__emsFormBuilder() {
     weeklyEmailReport = weeklyEmailReportSetting == 'null'
       ? true
       : [true, 1, '1', 'true'].includes(weeklyEmailReportSetting);
+    const emailStatsReportSetting = f('emailStatsReport');
+    emailStatsReport = emailStatsReportSetting == 'null'
+      ? true
+      : [true, 1, '1', 'true'].includes(emailStatsReportSetting);
     bootstrap = f('bootstrap');
     osLocationPicker = f('osLocationPicker') == 'null' ? false : Boolean(f('osLocationPicker'));
     emailTemp = f('emailTemp');
@@ -1233,6 +1238,7 @@ function fun_show_setting__emsFormBuilder() {
   const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
   const weeklyEmailReportAllowed = [1, 3].includes(package_type);
+  const emailStatsReportAllowed = package_type === 1;
   const emailMonitor = efb_var.emailMonitor || {};
   const weeklyEmailStatus = emailMonitor.message
     ? `${emailMonitor.message}${emailMonitor.checked_at ? ` (${emailMonitor.checked_at})` : ''}`
@@ -1588,6 +1594,16 @@ function fun_show_setting__emsFormBuilder() {
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="weeklyEmailReport_emsFormBuilder">${efb_var.text.weeklyEmailReport}</label>
                                 </div>
                                 <p class="efb text-muted fs-7 ${mxCSize4} mb-0">${efb_var.text.weeklyEmailLastCheck.replace('%s', weeklyEmailStatus)}</p>
+                                <p class="efb mb-1 ${mxCSize4} mt-3">${efb_var.text.emailStatsReportDesc}</p>
+                                <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
+                                    <button type="button" id="emailStatsReport_emsFormBuilder" data-state="off" data-name="disabled"
+                                        class="efb mx-0 btn h-s-efb btn-toggle ${emailStatsReport ? "active" : ""}"
+                                        data-toggle="button" aria-pressed="false" autocomplete="off"
+                                        ${emailStatsReportAllowed ? '' : 'onclick="pro_show_efb(1)"'}>
+                                        <div class="efb handle"></div>
+                                    </button>
+                                    <label class="efb form-check-label fs-6 efb mx-2 my-3" for="emailStatsReport_emsFormBuilder">${efb_var.text.emailStatsReport}</label>
+                                </div>
                                 <!--End Email-->
                             </div>
                         </div>
@@ -2354,6 +2370,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
 
     smtp = f('hostSupportSmtp_emsFormBuilder');
     weeklyEmailReport = f('weeklyEmailReport_emsFormBuilder');
+    emailStatsReport = f('emailStatsReport_emsFormBuilder');
     act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
      emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ');
@@ -2420,6 +2437,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           apiKeyMap: `${apiKeyMap}`,
           smtp: smtp,
           weeklyEmailReport: weeklyEmailReport,
+          emailStatsReport: emailStatsReport,
           text: text,
           bootstrap: bootstrap,
           emailTemp: emailTemp,

@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 class Email_Monitor {
 
     const OPTION_ENABLED = 'emsfb_weekly_email_report_enabled';
+    const OPTION_EMAIL_STATS_ENABLED = 'emsfb_email_stats_enabled';
     const OPTION_PENDING = 'emsfb_email_monitor_pending_test';
     const OPTION_LAST_STATUS = 'emsfb_email_monitor_last_status';
     const OPTION_LAST_UPDATE_VERSION = 'emsfb_email_monitor_last_update_version';
@@ -110,6 +111,33 @@ class Email_Monitor {
 
         update_option(self::OPTION_ENABLED, self::normalize_bool($enabled) ? 1 : 0, false);
         self::sync_schedule();
+        return true;
+    }
+
+    /**
+     * Whether email delivery statistics are collected and reported.
+     * Enabled by default; only full Pro (package 1) can turn it off.
+     */
+    public static function is_email_stats_enabled() {
+        if (get_option(self::OPTION_EMAIL_STATS_ENABLED, null) === null) {
+            add_option(self::OPTION_EMAIL_STATS_ENABLED, 1, '', false);
+        }
+        return (bool) get_option(self::OPTION_EMAIL_STATS_ENABLED, 1);
+    }
+
+    public static function can_manage_email_stats($package_type = null) {
+        if ($package_type === null) {
+            $package_type = (int) get_option('emsfb_pro', 2);
+        }
+        return (int) $package_type === 1;
+    }
+
+    public static function update_email_stats_enabled($enabled, $package_type = null) {
+        if (!self::can_manage_email_stats($package_type)) {
+            return false;
+        }
+
+        update_option(self::OPTION_EMAIL_STATS_ENABLED, self::normalize_bool($enabled) ? 1 : 0, false);
         return true;
     }
 
@@ -373,18 +401,25 @@ class Email_Monitor {
             $since
         )) : 0;
 
-        require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
-        $email_stats = \EmsfbEmailHandler::get_email_stats('week');
-
-        return [
+        $report = [
             'forms_total' => $forms_total,
             'forms_active' => $forms_active,
             'forms_inactive' => max(0, $forms_total - $forms_active),
             'page_views' => $visits,
             'submissions' => $submissions,
-            'emails_sent' => (int) $email_stats['success'],
-            'emails_failed' => (int) $email_stats['failed'],
         ];
+
+        // Email delivery totals are optional (Pro can disable them). Omitting the
+        // keys entirely — rather than sending zeros — keeps the weekly payload
+        // small so the remote tester does not reject it for having too many fields.
+        if (self::is_email_stats_enabled()) {
+            require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
+            $email_stats = \EmsfbEmailHandler::get_email_stats('week');
+            $report['emails_sent'] = (int) $email_stats['success'];
+            $report['emails_failed'] = (int) $email_stats['failed'];
+        }
+
+        return $report;
     }
 
 	private static function request_remote_email_report($test_hash, $status, $admin_email) {

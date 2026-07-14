@@ -685,6 +685,7 @@ class Emsfb {
 
                 if (class_exists('\Emsfb\Email_Monitor')) {
                     $decoded->weeklyEmailReport = \Emsfb\Email_Monitor::is_enabled();
+                    $decoded->emailStatsReport = \Emsfb\Email_Monitor::is_email_stats_enabled();
                 }
 
                 $package_type = get_option('emsfb_pro', 10);
@@ -1174,6 +1175,7 @@ class Emsfb {
         $defaults->apiKeyMap         = '';
         $defaults->smtp              = false;
         $defaults->weeklyEmailReport = true;
+        $defaults->emailStatsReport  = true;
         $defaults->text              = '';
         $defaults->bootstrap         = '';
         $defaults->emailTemp         = '';

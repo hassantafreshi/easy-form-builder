@@ -2015,18 +2015,24 @@ table { border-collapse: collapse !important; }
 
     /**
      * Get email logs filtered by period and optionally by success state.
+     *
+     * Only the daily and weekly windows are supported; any other period falls
+     * back to the weekly window. When the admin has turned off email statistics
+     * (Pro-only setting) this returns an empty result without scanning the log.
      */
     public static function get_email_stats($period = 'week') {
+        if (class_exists('\Emsfb\Email_Monitor') && !\Emsfb\Email_Monitor::is_email_stats_enabled()) {
+            return ['success' => 0, 'failed' => 0, 'failed_logs' => []];
+        }
+
         $logs = get_option('efb_email_log', []);
         if (!is_array($logs)) { return ['success' => 0, 'failed' => 0, 'failed_logs' => []]; }
 
         $now = current_time('timestamp');
         switch ($period) {
-            case 'day':   $since = $now - DAY_IN_SECONDS; break;
-            case 'week':  $since = $now - WEEK_IN_SECONDS; break;
-            case 'month': $since = $now - MONTH_IN_SECONDS; break;
-            case 'year':  $since = $now - YEAR_IN_SECONDS; break;
-            default:      $since = $now - WEEK_IN_SECONDS;
+            case 'day':  $since = $now - DAY_IN_SECONDS; break;
+            case 'week':
+            default:     $since = $now - WEEK_IN_SECONDS; break;
         }
 
         $success = 0;

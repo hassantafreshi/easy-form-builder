@@ -874,6 +874,8 @@ class efbFunction {
 			"weeklyEmailReportDesc" => $state && isset($ac->text->weeklyEmailReportDesc) ? $ac->text->weeklyEmailReportDesc : esc_html__('Once a week, Easy Form Builder tests email delivery and asks WhiteStudio to email the main administrator a friendly report with email status and non-sensitive form activity totals.','easy-form-builder'),
 			"weeklyEmailLastCheck" => $state && isset($ac->text->weeklyEmailLastCheck) ? $ac->text->weeklyEmailLastCheck : esc_html__('Last check: %s','easy-form-builder'),
 			"weeklyEmailNotRun" => $state && isset($ac->text->weeklyEmailNotRun) ? $ac->text->weeklyEmailNotRun : esc_html__('No automated email check has run yet.','easy-form-builder'),
+			"emailStatsReport" => $state && isset($ac->text->emailStatsReport) ? $ac->text->emailStatsReport : esc_html__('Collect email delivery statistics','easy-form-builder'),
+			"emailStatsReportDesc" => $state && isset($ac->text->emailStatsReportDesc) ? $ac->text->emailStatsReportDesc : esc_html__('Count how many emails were sent or failed. These totals appear in the dashboard widget and are included in the weekly report. Only Pro users can turn this off.','easy-form-builder'),
 			"actions" => $state  &&  isset($ac->text->actions) ? $ac->text->actions : esc_html__('Actions','easy-form-builder'),
 
 			/* translators: %s is the toggle option name for email confirmation */
@@ -4172,7 +4174,7 @@ public function addon_add_efb($value) {
 	}
 
 	public function make_post_request_efb( $ac) {
-		$url = EMSFB_SERVER_URL . '/wp-json/wl/v1/pro/key';
+		$url = EMSFB_LICENSE_SERVER_URL . '/wp-json/wl/v1/pro/key';
 
 		$_http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
 		$server_name = str_replace("www.", "", $_http_host);

@@ -1377,6 +1377,13 @@ class Admin {
                 $m[$key] = class_exists('\Emsfb\Email_Monitor')
                     ? \Emsfb\Email_Monitor::is_enabled()
                     : true;
+            }else if($key == 'emailStatsReport'){
+                if (class_exists('\Emsfb\Email_Monitor') && \Emsfb\Email_Monitor::can_manage_email_stats()) {
+                    \Emsfb\Email_Monitor::update_email_stats_enabled($value);
+                }
+                $m[$key] = class_exists('\Emsfb\Email_Monitor')
+                    ? \Emsfb\Email_Monitor::is_email_stats_enabled()
+                    : true;
             }else if($key == 'smtp'){
                 if(isset($value) && in_array($value,[1,true,'true','1']) ){
 
