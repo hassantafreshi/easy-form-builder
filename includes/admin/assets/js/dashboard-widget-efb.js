@@ -21,8 +21,7 @@
 
   var periodLabels = {
     day:   t.dayly   || 'Daily',
-    week:  t.weekly  || 'Weekly',
-    month: t.monthly || 'Monthly'
+    week:  t.weekly  || 'Weekly'
   };
 
   /* ── Init ─────────────────────────────────────────────────── */

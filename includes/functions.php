@@ -3722,6 +3722,47 @@ public function addon_add_efb($value) {
         return !empty($result);
     }
 
+    /**
+     * Read-only twin of efb_code_validate_select(): reports whether the sid
+     * belongs to a live form session (or a not-yet-consumed one-shot auth
+     * session) without ever mutating it.
+     *
+     * The consuming variant flips a single-use regis/login/reset/recov/logou
+     * row to 'inact' the first time it accepts it. Guards that only need to
+     * *observe* liveness (e.g. Human Shield, which runs before core on the same
+     * request and can even run on a mere field focus) must not burn that
+     * one-shot acceptance, so they call this instead.
+     *
+     * @param string $sid Session id.
+     * @param int    $fid Form id (0 = any form for this session).
+     * @return bool
+     */
+    public function efb_code_validate_check($sid, $fid) {
+		global $wpdb;
+
+		$fid = intval($fid);
+		$table_name = $wpdb->prefix . 'emsfb_stts_';
+		$date_now = wp_date('Y-m-d H:i:s');
+
+		if(empty($fid) || $fid == 0) {
+			$query = $wpdb->prepare("SELECT status FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 ORDER BY date DESC LIMIT 1", $sid, $date_now);
+		} else {
+			$query = $wpdb->prepare("SELECT status FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $date_now, $fid);
+		}
+
+		if(!empty($wpdb->get_row($query, ARRAY_A))){
+			return true;
+		}
+
+		// Fallback: a one-shot auth session may still be pending. Mirror the
+		// acceptance rule of efb_code_validate_select() but never consume it.
+		$query = $wpdb->prepare("SELECT status FROM {$table_name} WHERE sid = %s  AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $fid);
+		$result = $wpdb->get_row($query, ARRAY_A);
+		$valid = ['regis','login','reset','recov','logou'];
+
+		return !empty($result) && in_array($result['status'], $valid, true);
+    }
+
 	/**
 	 * Slides a form session's expiry forward so a legitimately open form keeps a
 	 * valid sid (used by the sid-fallback auth path and by nonce/refresh) instead

@@ -35,6 +35,8 @@ class EfbAddonPhrases {
 
         self::register_addon('googlesheet', [__CLASS__, 'get_googlesheet_phrases']);
 
+        self::register_addon('humanshield', [__CLASS__, 'get_humanshield_phrases']);
+
     }
 
     public static function register_addon($addon_key, $callback) {
@@ -414,6 +416,57 @@ class EfbAddonPhrases {
     public static function get_stripe_phrases($ac = null, $state = false) {
         return [
 
+        ];
+    }
+
+    /**
+     * Visitor-facing messages produced by the Human Shield add-on (Form Security
+     * & Spam Protection). They are returned inside REST responses and rendered on
+     * the form, so they live here like every other add-on phrase and can be
+     * edited/translated from the Phrases page. Values are used as plain text and
+     * escaped by the consumer, so keep them unescaped (__ not esc_html__).
+     */
+    public static function get_humanshield_phrases($ac = null, $state = false) {
+        return [
+
+            /* translators: Shown when the security add-on is switched off */
+            "hsDisabled" => $state && isset($ac->text->hsDisabled) ? $ac->text->hsDisabled : __('Form Security & Spam Protection is disabled.', 'easy-form-builder'),
+
+            /* translators: Shown when the server cannot run the security checks but the form still works */
+            "hsServiceNotAvailable" => $state && isset($ac->text->hsServiceNotAvailable) ? $ac->text->hsServiceNotAvailable : __('The security service is not available right now. Your form still works.', 'easy-form-builder'),
+
+            /* translators: Ask the visitor to reload the form and submit again */
+            "hsRefreshForm" => $state && isset($ac->text->hsRefreshForm) ? $ac->text->hsRefreshForm : __('Please refresh the form and try again.', 'easy-form-builder'),
+
+            /* translators: Rate-limit message shown when too many requests arrive */
+            "hsTooManyRequests" => $state && isset($ac->text->hsTooManyRequests) ? $ac->text->hsTooManyRequests : __('Too many requests. Please try again shortly.', 'easy-form-builder'),
+
+            /* translators: The browser did not send a security challenge id */
+            "hsChallengeMissing" => $state && isset($ac->text->hsChallengeMissing) ? $ac->text->hsChallengeMissing : __('Missing challenge.', 'easy-form-builder'),
+
+            /* translators: The security challenge is no longer valid */
+            "hsChallengeExpired" => $state && isset($ac->text->hsChallengeExpired) ? $ac->text->hsChallengeExpired : __('Expired challenge.', 'easy-form-builder'),
+
+            /* translators: The security challenge was already used once */
+            "hsChallengeUsed" => $state && isset($ac->text->hsChallengeUsed) ? $ac->text->hsChallengeUsed : __('Challenge already used.', 'easy-form-builder'),
+
+            /* translators: The challenge does not belong to the submitted form */
+            "hsFormMismatch" => $state && isset($ac->text->hsFormMismatch) ? $ac->text->hsFormMismatch : __('Form mismatch.', 'easy-form-builder'),
+
+            /* translators: Temporary storage/service failure inside the security add-on */
+            "hsServiceTempUnavailable" => $state && isset($ac->text->hsServiceTempUnavailable) ? $ac->text->hsServiceTempUnavailable : __('The security service is temporarily unavailable.', 'easy-form-builder'),
+
+            /* translators: The signed security token expired or could not be verified */
+            "hsFormExpired" => $state && isset($ac->text->hsFormExpired) ? $ac->text->hsFormExpired : __('The form was open for too long or could not be verified. Please refresh the page and submit again.', 'easy-form-builder'),
+
+            /* translators: Generic block message when a request looks automated */
+            "hsLooksUnusual" => $state && isset($ac->text->hsLooksUnusual) ? $ac->text->hsLooksUnusual : __('Your request looked too fast or unusual. Please try again in a few minutes.', 'easy-form-builder'),
+
+            /* translators: Softer quarantine message asking the visitor to wait and retry */
+            "hsQuarantine" => $state && isset($ac->text->hsQuarantine) ? $ac->text->hsQuarantine : __('Your request looked unusual. Please wait a moment and try again.', 'easy-form-builder'),
+
+            /* translators: Shown when the security service is temporarily unavailable (fail-closed) */
+            "hsServiceUnavailable" => $state && isset($ac->text->hsServiceUnavailable) ? $ac->text->hsServiceUnavailable : __('The security service is temporarily unavailable. Please try again later.', 'easy-form-builder'),
         ];
     }
 

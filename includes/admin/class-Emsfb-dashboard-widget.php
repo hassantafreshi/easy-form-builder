@@ -58,7 +58,7 @@ class Dashboard_Widget {
         $efbFunction = get_efbFunction();
         $text_keys = [
             'easyFormBuilder', 'email', 'error', 'page',
-            'dayly', 'weekly', 'monthly',
+            'dayly', 'weekly',
             'close', 'subject', 'loading', 'ddate', 'total',
             'dwVisits', 'dwSubmissions', 'dwEmailsSent', 'dwEmailsFailed',
             'dwEmailErrors', 'dwRecipient', 'dwErrorDetail', 'dwNoData',
@@ -95,7 +95,6 @@ class Dashboard_Widget {
             <div class="efb-dw-period-tabs">
                 <button class="efb-dw-tab" data-period="day"></button>
                 <button class="efb-dw-tab active" data-period="week"></button>
-                <button class="efb-dw-tab" data-period="month"></button>
             </div>
             <div class="efb-dw-cards">
                 <div class="efb-dw-card efb-dw-card--visits">
@@ -150,7 +149,7 @@ class Dashboard_Widget {
         if (!current_user_can('manage_options')) { wp_send_json_error([], 403); }
 
         $period = isset($_POST['period']) ? sanitize_text_field(wp_unslash($_POST['period'])) : 'week';
-        if (!in_array($period, ['day', 'week', 'month'], true)) { $period = 'week'; }
+        if (!in_array($period, ['day', 'week'], true)) { $period = 'week'; }
 
         global $wpdb;
         $table = $wpdb->prefix . 'emsfb_stts_';
@@ -167,12 +166,6 @@ class Dashboard_Widget {
             case 'week':
                 $since  = wp_date('Y-m-d 00:00:00', strtotime('-6 days'));
                 $points = 7;
-                $group  = 'DATE(`date`)';
-                $date_format = '%m-%d';
-                break;
-            case 'month':
-                $since  = wp_date('Y-m-d 00:00:00', strtotime('-29 days'));
-                $points = 30;
                 $group  = 'DATE(`date`)';
                 $date_format = '%m-%d';
                 break;
@@ -236,14 +229,6 @@ class Dashboard_Widget {
                     $send_data[]  = $send_map[$lbl] ?? 0;
                 }
                 break;
-            case 'month':
-                for ($d = 29; $d >= 0; $d--) {
-                    $lbl = wp_date('m-d', strtotime("-{$d} days"));
-                    $labels[] = $lbl;
-                    $visit_data[] = $visit_map[$lbl] ?? 0;
-                    $send_data[]  = $send_map[$lbl] ?? 0;
-                }
-                break;
         }
 
         // Email stats from our log
@@ -271,7 +256,7 @@ class Dashboard_Widget {
         if (!current_user_can('manage_options')) { wp_send_json_error([], 403); }
 
         $period = isset($_POST['period']) ? sanitize_text_field(wp_unslash($_POST['period'])) : 'week';
-        if (!in_array($period, ['day', 'week', 'month'], true)) { $period = 'week'; }
+        if (!in_array($period, ['day', 'week'], true)) { $period = 'week'; }
 
         require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
         $email_stats = \EmsfbEmailHandler::get_email_stats($period);
