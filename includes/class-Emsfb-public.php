@@ -1096,7 +1096,7 @@ public function check_nonce_permission_efb($request) {
 						$is_file_element_exist = true;
 					}
 
-					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $form_id, $lanText);
+					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $form_id, $lanText ,$pro);
 					if($pro==true ){
 
 						if($auto_filled == false &&  isset($valj_efb[0]->autofill_id) ){

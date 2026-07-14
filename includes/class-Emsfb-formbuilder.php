@@ -7,6 +7,7 @@
 	   public $package_type_efb = 0;
     private $mobile_pos = ['', 'col-12', 'col-12', 'col-12'];
         public function __construct( $valj_efb, $pro_efb ) {
+
             $this->valj_efb =  $valj_efb;
             $this->pro_efb = $pro_efb;
 			$this->package_type_efb = (int) get_option('emsfb_pro' ,2);
@@ -2310,8 +2311,9 @@
 		return sprintf('<div class="efb footer-test p-1">%s</div>', $state == 0 ? $s : $d);
 	}
 
-	public function addNewElement_efb($i, $rndm,$form_id,$texts) {
-		$pro = $this->pro_efb == 1 || $this->pro_efb == true ? true : false;
+	public function addNewElement_efb($i, $rndm,$form_id,$texts,$pro) {
+		$this->pro_efb =$pro;
+
 		$nfield = ['html','stripe','paypal','persiapay','persiaPay','zarinPal','heading','link'];
 		$element_Id = $this->valj_efb[$i]->id_;
 		$elementId = $this->valj_efb[$i]->type;
@@ -2757,7 +2759,7 @@
 							$this->map_search_section_efb($element_Id,$vj,$form_id),
 
 						);
-						}else{
+					}else{
 						$ui .= sprintf(
 							"<script>
 								function efbCreateMap_%s() {
