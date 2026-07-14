@@ -63,3 +63,9 @@ test-addon-url.php
 .claude/_settings.local
 vendor/human-shield/
 vendor/human-shield/**
+vendor/human-shield/class-Emsfb-human-shield-admin.php
+vendor/human-shield/class-Emsfb-human-shield-rest.php
+vendor/human-shield/class-Emsfb-human-shield.php
+vendor/human-shield/assets/css/human-shield-admin-efb.css
+vendor/human-shield/assets/js/human-shield-admin-efb.js
+vendor/human-shield/assets/js/human-shield-public-efb.js
