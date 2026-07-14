@@ -5583,6 +5583,11 @@ function addClickListenerToElementListEFB(element) {
       }
 
 function restore_auto_save_efb(){
+  // Only offer the auto-save restore prompt on the Create and Panel pages.
+  // Never show it on the Add-ons page or any add-on settings page.
+  const efb_page = new URLSearchParams(window.location.search).get('page');
+  if(efb_page !== 'Emsfb' && efb_page !== 'Emsfb_create') return;
+
   const auto_save = Number(localStorage.getItem('efb_auto_save')) === 1;
   if(auto_save==false) return;
 

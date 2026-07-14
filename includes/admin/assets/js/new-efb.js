@@ -471,6 +471,9 @@ async function fun_offline_Efb() {
   for (let value of values) {
 
     sendBack_emsFormBuilder_pub.push(value);
+    /* A stored row may point at DOM from another page/form; skip that row
+       instead of letting one null element abort the whole restore. */
+    try {
     switch (value.type) {
       case 'email':
       case 'text':
@@ -631,8 +634,12 @@ async function fun_offline_Efb() {
       el=value.type;
       break;
     }
+    } catch (e) { console.error('fun_offline_Efb: skipped row', value && value.id_, e); }
   }
-  if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string"){
+  /* Only a confirmed bank return (Status=OK) may hand over to the payment
+     tail — a NOK return also carries an Authority code but must not push a
+     payment row or auto-submit. */
+  if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string" && typeof get_Status_efb =="string" && get_Status_efb=="OK"){
     fun_after_bankpay_persia_ui();
   }
 }
