@@ -40,6 +40,10 @@ let pub_el_border_color_efb='border-d';
 let pub_bg_button_color_efb='btn-primary';
 let pub_txt_button_color_efb='text-white';
 let sendBack_emsFormBuilder_pub = [];
+/* Shared with public/assets/js/core-efb.js, which declares `let sendback_efb_state`
+   and loads after this file on the frontend; a let/var here would throw a
+   redeclaration SyntaxError there, so define it as a window property instead. */
+if (typeof sendback_efb_state === 'undefined') window.sendback_efb_state = [];
 const getUrlparams_efb = new URLSearchParams(location.search)
 
 function efb_var_waitng(time) {
@@ -471,9 +475,6 @@ async function fun_offline_Efb() {
   for (let value of values) {
 
     sendBack_emsFormBuilder_pub.push(value);
-    /* A stored row may point at DOM from another page/form; skip that row
-       instead of letting one null element abort the whole restore. */
-    try {
     switch (value.type) {
       case 'email':
       case 'text':
@@ -634,12 +635,8 @@ async function fun_offline_Efb() {
       el=value.type;
       break;
     }
-    } catch (e) { console.error('fun_offline_Efb: skipped row', value && value.id_, e); }
   }
-  /* Only a confirmed bank return (Status=OK) may hand over to the payment
-     tail — a NOK return also carries an Authority code but must not push a
-     payment row or auto-submit. */
-  if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string" && typeof get_Status_efb =="string" && get_Status_efb=="OK"){
+  if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string"){
     fun_after_bankpay_persia_ui();
   }
 }

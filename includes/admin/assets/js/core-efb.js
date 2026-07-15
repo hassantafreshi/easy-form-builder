@@ -10,6 +10,7 @@ let valueJson_ws = [];
 let demo_emsFormBuilder = false;
 let validate_edit_mode_emsFormBuilder = false;
 let test_view__emsFormBuilder = true
+let sendback_efb_state= [];
 
 var _efb_core_nonce_ = '';
 

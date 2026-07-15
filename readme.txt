@@ -184,6 +184,10 @@ These fields allow you to build complex, region-aware, and structured forms with
 
 - Telegram notification add-on for sending instant form submission alerts and admin response notifications to Telegram using a bot
 
+- Google Sheets integration for sending WordPress form submissions to Google Sheets automatically - no Zapier or third-party connector required. Connect your site with a Google service account (one-time setup, no OAuth login and no expiring tokens), let the plugin create a new spreadsheet or use one you already own, and bind each form to a sheet tab with a simple wizard. You can map form fields to spreadsheet columns with custom headers and ordering, apply ready-made sheet styles, and review every sync attempt in a built-in Google Sheet log. The header row and worksheet tab are created automatically on the first submission
+
+- Security & Spam Protection add-on for blocking WordPress form spam without CAPTCHA - invisible, behavior-based bot detection with a hidden honeypot field, signed single-use security tokens, and per-IP rate limiting for form submissions, file uploads, confirmation-code lookups, public replies, and payment requests. It also protects your notification budget by stopping suspicious entries from consuming email, SMS, Telegram, webhook, or Google Sheets quota, supports an IP allowlist and blocklist, and keeps privacy-aware security logs that store hashed identifiers instead of raw IP addresses. It starts in Monitor-only mode, so you can review real traffic before turning on blocking
+
 - Shield Security plugin silentCAPTCHA integration for invisible bot and spam protection without user interaction
 
 
@@ -310,6 +314,18 @@ Yes. Auto-Populate Integrations connects a form to an external API endpoint and 
 = Does Easy Form Builder support recurring payments? =
 Yes. The payment fields support one-time, daily, weekly, monthly, and yearly billing options for subscription and recurring payment forms. You can create payment forms using Stripe or PayPal to accept online payments directly through your WordPress forms. Both payment gateways are available as add-ons and can be configured from the Easy Form Builder settings.
 [How to Create a payment form to collect online payments in Easy Form Builder](https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/)
+
+= Can I send WordPress form submissions to Google Sheets? =
+Yes. Easy Form Builder includes a Google Sheets integration that syncs form entries to a spreadsheet automatically - no Zapier or third-party connector required. You connect your site once with a Google service account, bind each form to a sheet tab with a simple wizard, and new submissions appear as rows, with the header row created automatically on the first submission. A built-in Google Sheet log shows every sync attempt.
+
+= How can I stop WordPress form spam without using CAPTCHA? =
+Use the Security & Spam Protection add-on in Easy Form Builder. It works invisibly - no puzzles or checkboxes - by scoring real browser behavior, a hidden honeypot field, signed single-use security tokens, and per-IP rate limits. Suspicious requests are logged, quarantined, or blocked depending on the mode you choose (Monitor only, Soft block, or Strict).
+
+= Does the spam protection send visitor data to an external anti-spam service? =
+No. All scoring, tokens, rate limits, and security logs are processed and stored on your own WordPress site. The logs keep hashed identifiers instead of raw IP addresses, and log retention is configurable (30 days by default).
+
+= Can spam protection stop bots from wasting my email and SMS quota? =
+Yes. Low-confidence submissions can be saved without triggering email, SMS, Telegram, webhook, or Google Sheets actions. Each channel also has a daily limit and a per-recipient cap, so bot traffic cannot burn through paid SMS credit or flood your inbox - while the entries stay available for review.
 
 = Do the country, state, and city fields load data from an external source? =
 Yes. The country, state/province, and city lists used in Easy Form Builder are automatically loaded from an external CDN-hosted JSON source maintained on GitHub.
