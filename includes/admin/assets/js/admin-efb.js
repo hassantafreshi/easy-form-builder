@@ -1447,8 +1447,10 @@ const funSetCornerElEfb = (dataId, co) => {
 
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   let el = document.querySelector(`[data-id='${dataId}-set']`)
-  if (indx === -1 || !el) return;
-  if (el.dataset.side == "undefined" || el.dataset.side == "") {
+  if (!el) return;
+  const sideCo = el.dataset.side == "undefined" ? "" : (el.dataset.side || "");
+  if (indx === -1 && sideCo != "Next") return;
+  if (sideCo == "") {
     valj_efb[indx].corner = co;
     postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `null`
     let cornEl = 'null';
@@ -1467,17 +1469,17 @@ const funSetCornerElEfb = (dataId, co) => {
     }
     cornEl.className = cornerChangerEfb(cornEl.className, co)
 
-  } else if (el.dataset.side == "yesNo") {
+  } else if (sideCo == "yesNo") {
     valj_efb[indx].corner = co;
     document.getElementById(`${valj_efb[indx].id_}_b_1`).className = cornerChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, co)
     document.getElementById(`${valj_efb[indx].id_}_b_2`).className = cornerChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, co)
   } else {
 
     valj_efb[0].corner = co;
-    postId = document.getElementById('btn_send_efb');
-    postId.className = cornerChangerEfb(postId.className, co)
-    document.getElementById('next_efb').className = cornerChangerEfb(document.getElementById('next_efb').className, co)
-    document.getElementById('prev_efb').className = cornerChangerEfb(document.getElementById('prev_efb').className, co)
+    ['btn_send_efb', 'next_efb', 'prev_efb'].forEach(id => {
+      const navBtn = document.getElementById(id);
+      if (navBtn) navBtn.className = cornerChangerEfb(navBtn.className, co)
+    });
   }
   efbSyncCornerGroupEfb(dataId, co);
 }

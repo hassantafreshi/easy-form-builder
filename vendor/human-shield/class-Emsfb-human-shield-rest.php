@@ -46,7 +46,7 @@ class Emsfb_Human_Shield_Rest {
 
 	public function challenge( \WP_REST_Request $request ) {
 		if ( ! $this->shield->is_enabled() ) {
-			return $this->json_response( array( 'success' => false, 'code' => 'shield_disabled', 'message' => esc_html__( 'Form Security & Spam Protection is disabled.', 'easy-form-builder' ) ), 200 );
+			return $this->json_response( array( 'success' => false, 'code' => 'shield_disabled', 'message' => esc_html( $this->shield->phrase( 'hsDisabled', 'Form Security & Spam Protection is disabled.' ) ) ), 200 );
 		}
 
 		if ( ! $this->shield->requirements_ok() ) {
@@ -56,7 +56,7 @@ class Emsfb_Human_Shield_Rest {
 				array(
 					'success' => false,
 					'code'    => 'requirements_missing',
-					'message' => esc_html__( 'The security service is not available right now. Your form still works.', 'easy-form-builder' ),
+					'message' => esc_html( $this->shield->phrase( 'hsServiceNotAvailable', 'The security service is not available right now. Your form still works.' ) ),
 				),
 				200
 			);
@@ -71,8 +71,16 @@ class Emsfb_Human_Shield_Rest {
 		$ua      = $this->shield->current_user_agent();
 		$settings = $this->shield->get_settings();
 
+		// Cheap, in-memory gates first; the DB-hitting session lookup runs last so
+		// a blocklisted IP or a flood cannot make us pay for it. An attestation is
+		// meaningful only for a route the shield protects — the browser metrics
+		// are a risk signal, not a credential a direct REST client can invent.
+		if ( false === $this->protected_action_for_route( $route ) ) {
+			return $this->json_response( array( 'success' => false, 'code' => 'session_invalid', 'message' => esc_html( $this->shield->phrase( 'hsRefreshForm', 'Please refresh the form and try again.' ) ) ), 200 );
+		}
+
 		if ( 'block' === $this->shield->ip_list_decision( $ip ) ) {
-			return $this->json_response( array( 'success' => false, 'code' => 'ip_blocked', 'message' => esc_html__( 'Too many requests. Please try again shortly.', 'easy-form-builder' ) ), 403 );
+			return $this->json_response( array( 'success' => false, 'code' => 'ip_blocked', 'message' => esc_html( $this->shield->phrase( 'hsTooManyRequests', 'Too many requests. Please try again shortly.' ) ) ), 403 );
 		}
 
 		$rate = $this->shield->rate_limiter->evaluate_context(
@@ -87,10 +95,14 @@ class Emsfb_Human_Shield_Rest {
 		);
 		if ( empty( $rate['allowed'] ) ) {
 			return $this->json_response(
-				array( 'success' => false, 'message' => esc_html__( 'Too many requests. Please try again shortly.', 'easy-form-builder' ), 'code' => 'rate_limited' ),
+				array( 'success' => false, 'message' => esc_html( $this->shield->phrase( 'hsTooManyRequests', 'Too many requests. Please try again shortly.' ) ), 'code' => 'rate_limited' ),
 				429,
 				array( 'Retry-After' => isset( $rate['retry_after'] ) ? (string) (int) $rate['retry_after'] : '60' )
 			);
+		}
+
+		if ( ! $this->has_live_form_session( $sid, $form_id ) ) {
+			return $this->json_response( array( 'success' => false, 'code' => 'session_invalid', 'message' => esc_html( $this->shield->phrase( 'hsRefreshForm', 'Please refresh the form and try again.' ) ) ), 200 );
 		}
 
 		$challenge_id = $this->shield->random_string( 32 );
@@ -117,7 +129,7 @@ class Emsfb_Human_Shield_Rest {
 				array( '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%d', '%d', '%s', '%s' )
 			);
 			if ( false === $inserted ) {
-				return $this->json_response( array( 'success' => false, 'code' => 'storage_failed', 'message' => esc_html__( 'The security service is temporarily unavailable.', 'easy-form-builder' ) ), 503 );
+				return $this->json_response( array( 'success' => false, 'code' => 'storage_failed', 'message' => esc_html( $this->shield->phrase( 'hsServiceTempUnavailable', 'The security service is temporarily unavailable.' ) ) ), 503 );
 			}
 		}
 
@@ -133,11 +145,11 @@ class Emsfb_Human_Shield_Rest {
 
 	public function attest( \WP_REST_Request $request ) {
 		if ( ! $this->shield->is_enabled() ) {
-			return $this->json_response( array( 'success' => false, 'code' => 'shield_disabled', 'message' => esc_html__( 'Form Security & Spam Protection is disabled.', 'easy-form-builder' ) ), 200 );
+			return $this->json_response( array( 'success' => false, 'code' => 'shield_disabled', 'message' => esc_html( $this->shield->phrase( 'hsDisabled', 'Form Security & Spam Protection is disabled.' ) ) ), 200 );
 		}
 
 		if ( ! $this->shield->requirements_ok() ) {
-			return $this->json_response( array( 'success' => false, 'code' => 'requirements_missing', 'message' => esc_html__( 'The security service is not available right now. Your form still works.', 'easy-form-builder' ) ), 200 );
+			return $this->json_response( array( 'success' => false, 'code' => 'requirements_missing', 'message' => esc_html( $this->shield->phrase( 'hsServiceNotAvailable', 'The security service is not available right now. Your form still works.' ) ) ), 200 );
 		}
 
 		$params = $request->get_json_params();
@@ -149,34 +161,56 @@ class Emsfb_Human_Shield_Rest {
 		$metrics      = isset( $params['metrics'] ) && is_array( $params['metrics'] ) ? $params['metrics'] : array();
 
 		if ( '' === $challenge_id ) {
-			return $this->json_response( array( 'success' => false, 'code' => 'challenge_missing', 'message' => esc_html__( 'Missing challenge.', 'easy-form-builder' ) ), 200 );
+			return $this->json_response( array( 'success' => false, 'code' => 'challenge_missing', 'message' => esc_html( $this->shield->phrase( 'hsChallengeMissing', 'Missing challenge.' ) ) ), 200 );
 		}
 
 		$challenge = $this->get_challenge( $challenge_id );
 		if ( ! $challenge || (int) $challenge['expires_at'] < time() ) {
-			return $this->json_response( array( 'success' => false, 'code' => 'challenge_expired', 'message' => esc_html__( 'Expired challenge.', 'easy-form-builder' ) ), 200 );
+			return $this->json_response( array( 'success' => false, 'code' => 'challenge_expired', 'message' => esc_html( $this->shield->phrase( 'hsChallengeExpired', 'Expired challenge.' ) ) ), 200 );
 		}
 
 		if ( ! empty( $challenge['used'] ) ) {
 			// A challenge whose token was already consumed can never mint a
 			// working token again; tell the client to start a fresh challenge.
-			return $this->json_response( array( 'success' => false, 'code' => 'challenge_used', 'message' => esc_html__( 'Challenge already used.', 'easy-form-builder' ) ), 200 );
+			return $this->json_response( array( 'success' => false, 'code' => 'challenge_used', 'message' => esc_html( $this->shield->phrase( 'hsChallengeUsed', 'Challenge already used.' ) ) ), 200 );
 		}
 
 		if ( ! empty( $challenge['form_id'] ) && (int) $challenge['form_id'] !== (int) $form_id ) {
-			return $this->json_response( array( 'success' => false, 'code' => 'form_mismatch', 'message' => esc_html__( 'Form mismatch.', 'easy-form-builder' ) ), 200 );
+			return $this->json_response( array( 'success' => false, 'code' => 'form_mismatch', 'message' => esc_html( $this->shield->phrase( 'hsFormMismatch', 'Form mismatch.' ) ) ), 200 );
+		}
+
+		// Resolve the client identity and its hashes once: the binding check, the
+		// scoring context, and the signed token payload must all agree on exactly
+		// the same IP/UA/sid hashes, and recomputing them (get_client_ip now also
+		// scans the trusted-proxy list) is pure waste.
+		$ip             = $this->shield->get_client_ip();
+		$ua             = $this->shield->current_user_agent();
+		$sid_hash       = $sid ? $this->shield->hash_value( $sid, 'sid' ) : '';
+		$ip_prefix_hash = $this->shield->hash_value( $this->shield->get_ip_prefix( $ip ), 'ip_prefix' );
+		$ua_hash        = $this->shield->hash_value( $ua, 'ua' );
+
+		// A challenge cannot be moved between forms, routes, sessions, IP
+		// prefixes, or user agents. Bind it before detector scoring so a
+		// client cannot mint a token from a context it did not actually open.
+		if ( (int) $challenge['form_id'] !== (int) $form_id
+			|| (string) $challenge['route'] !== (string) $route
+			|| ! $this->shield->hash_equals_safe( (string) $challenge['sid_hash'], $sid_hash )
+			|| ! $this->shield->hash_equals_safe( (string) $challenge['ip_prefix_hash'], $ip_prefix_hash )
+			|| ! $this->shield->hash_equals_safe( (string) $challenge['ua_hash'], $ua_hash )
+			|| ! $this->has_live_form_session( $sid, $form_id ) ) {
+			return $this->json_response( array( 'success' => false, 'code' => 'challenge_context_mismatch', 'message' => esc_html( $this->shield->phrase( 'hsRefreshForm', 'Please refresh the form and try again.' ) ) ), 200 );
 		}
 
 		$context = array(
 			'form_id' => $form_id,
 			'route'   => $route,
 			'sid'     => $sid,
-			'ip'      => $this->shield->get_client_ip(),
-			'ua'      => $this->shield->current_user_agent(),
+			'ip'      => $ip,
+			'ua'      => $ua,
 		);
 
 		if ( 'block' === $this->shield->ip_list_decision( $context['ip'] ) ) {
-			return $this->json_response( array( 'success' => false, 'code' => 'ip_blocked', 'message' => esc_html__( 'Too many requests. Please try again shortly.', 'easy-form-builder' ) ), 403 );
+			return $this->json_response( array( 'success' => false, 'code' => 'ip_blocked', 'message' => esc_html( $this->shield->phrase( 'hsTooManyRequests', 'Too many requests. Please try again shortly.' ) ) ), 403 );
 		}
 
 		$rate = $this->shield->rate_limiter->evaluate_context(
@@ -191,7 +225,7 @@ class Emsfb_Human_Shield_Rest {
 		);
 		if ( empty( $rate['allowed'] ) ) {
 			return $this->json_response(
-				array( 'success' => false, 'message' => esc_html__( 'Too many requests. Please try again shortly.', 'easy-form-builder' ), 'code' => 'rate_limited' ),
+				array( 'success' => false, 'message' => esc_html( $this->shield->phrase( 'hsTooManyRequests', 'Too many requests. Please try again shortly.' ) ), 'code' => 'rate_limited' ),
 				429,
 				array( 'Retry-After' => isset( $rate['retry_after'] ) ? (string) (int) $rate['retry_after'] : '60' )
 			);
@@ -207,17 +241,18 @@ class Emsfb_Human_Shield_Rest {
 			'jti' => $jti,
 			'fid' => $form_id,
 			'route' => $route,
-			'sid_hash' => $sid ? $this->shield->hash_value( $sid, 'sid' ) : '',
-			'ip_prefix_hash' => $this->shield->hash_value( $this->shield->get_ip_prefix( $context['ip'] ), 'ip_prefix' ),
-			'ua_hash' => $this->shield->hash_value( $context['ua'], 'ua' ),
+			'sid_hash' => $sid_hash,
+			'ip_prefix_hash' => $ip_prefix_hash,
+			'ua_hash' => $ua_hash,
 			'score' => (int) $result['score'],
+			'hard_fail' => ! empty( $result['hard_fail'] ),
 			'iat' => time(),
 			'exp' => $expires_at,
 		);
 
 		$token = $this->sign_payload( $payload );
 		if ( false === $token ) {
-			return $this->json_response( array( 'success' => false, 'code' => 'sign_failed', 'message' => esc_html__( 'The security service is not available right now. Your form still works.', 'easy-form-builder' ) ), 200 );
+			return $this->json_response( array( 'success' => false, 'code' => 'sign_failed', 'message' => esc_html( $this->shield->phrase( 'hsServiceNotAvailable', 'The security service is not available right now. Your form still works.' ) ) ), 200 );
 		}
 
 		if ( $this->shield->tables_ready() ) {
@@ -238,7 +273,7 @@ class Emsfb_Human_Shield_Rest {
 				array( '%s' )
 			);
 			if ( false === $updated ) {
-				return $this->json_response( array( 'success' => false, 'code' => 'storage_failed', 'message' => esc_html__( 'The security service is temporarily unavailable.', 'easy-form-builder' ) ), 503 );
+				return $this->json_response( array( 'success' => false, 'code' => 'storage_failed', 'message' => esc_html( $this->shield->phrase( 'hsServiceTempUnavailable', 'The security service is temporarily unavailable.' ) ) ), 503 );
 			}
 		}
 
@@ -279,14 +314,14 @@ class Emsfb_Human_Shield_Rest {
 		if ( 'block' === $list_decision ) {
 			$context = $this->build_context( $request, $route, $action );
 			$this->shield->log_event( $context, 'block', 0, array( 'ip_blocklisted' ) );
-			return $this->blocked_response( esc_html__( 'Your request looked too fast or unusual. Please try again in a few minutes.', 'easy-form-builder' ), 403, 0, array( 'ip_blocklisted' ) );
+			return $this->blocked_response( esc_html( $this->shield->phrase( 'hsLooksUnusual', 'Your request looked too fast or unusual. Please try again in a few minutes.' ) ), 403, 0, array( 'ip_blocklisted' ) );
 		}
 
 		if ( ! $this->shield->requirements_ok() ) {
 			$context = $this->build_context( $request, $route, $action );
 			$this->shield->log_event( $context, 'monitor', 0, array( 'requirements_missing' ) );
 			if ( ! empty( $settings['fail_closed_on_missing_requirements'] ) ) {
-				return $this->blocked_response( esc_html__( 'The security service is temporarily unavailable. Please try again later.', 'easy-form-builder' ), 503, 0, array( 'requirements_missing' ) );
+				return $this->blocked_response( esc_html( $this->shield->phrase( 'hsServiceUnavailable', 'The security service is temporarily unavailable. Please try again later.' ) ), 503, 0, array( 'requirements_missing' ) );
 			}
 			return $result;
 		}
@@ -295,6 +330,18 @@ class Emsfb_Human_Shield_Rest {
 		$rate = $this->shield->rate_limiter->evaluate_context( $context );
 		if ( empty( $rate['allowed'] ) ) {
 			return $this->decide_block( $context, 0, array( $rate['reason'] ), 'block', isset( $rate['retry_after'] ) ? (int) $rate['retry_after'] : 60 );
+		}
+
+		// The response/tracking lookup is a read-only search, not a submission.
+		// When an admin protects it, they want request-count throttling only:
+		// the behavioural attestation ("quick check") must never quarantine a
+		// visitor who is simply searching a tracking code. The rate limit above
+		// has already run, so allow the lookup through without the token/score
+		// gates. Every other protected action keeps the full attestation flow.
+		if ( 'response_get' === $action ) {
+			$decision = ( 'monitor' === $settings['mode'] ) ? 'monitor' : 'allow';
+			$this->shield->log_event( $context, $decision, 100, array( 'response_lookup_rate_only' ) );
+			return $result;
 		}
 
 		$token = $request->get_header( 'x_efb_human_token' );
@@ -309,6 +356,10 @@ class Emsfb_Human_Shield_Rest {
 
 		$score = (int) $verification['payload']['score'];
 		$context['token_jti'] = sanitize_text_field( $verification['payload']['jti'] );
+
+		if ( ! empty( $verification['payload']['hard_fail'] ) ) {
+			return $this->decide_block( $context, $score, array( 'attestation_hard_fail' ), 'block', 0 );
+		}
 
 		if ( $score < (int) $settings['block_score_below'] ) {
 			return $this->decide_block( $context, $score, array( 'score_below_block' ), 'block', 0 );
@@ -355,8 +406,46 @@ class Emsfb_Human_Shield_Rest {
 		if ( '/Emsfb/v1/forms/file/upload' === $route ) {
 			return 'file_upload';
 		}
+		if ( '/Emsfb/v1/forms/payment/stripe/pkey' === $route ) {
+			// Read-only publishable-key fallback for stale-cached pages; no
+			// side effects to protect and the key is public by design.
+			return false;
+		}
 		if ( 0 === strpos( $route, '/Emsfb/v1/forms/payment/' ) ) {
 			return 'payment';
+		}
+
+		return false;
+	}
+
+	/**
+	 * Require the same active EFB session that the protected core endpoint
+	 * accepts. This deliberately delegates to the core validator so ordinary
+	 * form, tracker, login, and recovery session semantics stay aligned.
+	 */
+	private function has_live_form_session( $sid, $form_id ) {
+		$sid = sanitize_text_field( (string) $sid );
+		if ( '' === $sid || ! function_exists( 'get_efbFunction' ) ) {
+			return false;
+		}
+
+		$helper = get_efbFunction();
+		if ( ! is_object( $helper ) ) {
+			return false;
+		}
+
+		// Use the read-only validator so the shield never consumes a single-use
+		// login/register/recovery session (the consuming variant flips it to
+		// 'inact'). The shield runs before core and may fire on a mere field
+		// focus via the client-side challenge prefetch, so consuming here would
+		// break auth submissions and let a known sid be burned by a third party.
+		if ( method_exists( $helper, 'efb_code_validate_check' ) ) {
+			return (bool) $helper->efb_code_validate_check( $sid, absint( $form_id ) );
+		}
+
+		// Fallback for older core without the read-only twin.
+		if ( method_exists( $helper, 'efb_code_validate_select' ) ) {
+			return (bool) $helper->efb_code_validate_select( $sid, absint( $form_id ) );
 		}
 
 		return false;
@@ -414,7 +503,7 @@ class Emsfb_Human_Shield_Rest {
 
 		if ( 'quarantine' === $decision && 'strict' !== $settings['mode'] ) {
 			$this->shield->log_event( $context, 'quarantine', $score, $reasons );
-			return $this->soft_fail_response( esc_html__( 'Your request looked unusual. Please wait a moment and try again.', 'easy-form-builder' ), 'efb_human_shield_quarantine' );
+			return $this->soft_fail_response( esc_html( $this->shield->phrase( 'hsQuarantine', 'Your request looked unusual. Please wait a moment and try again.' ) ), 'efb_human_shield_quarantine' );
 		}
 
 		$this->shield->log_event( $context, 'block', $score, $reasons );
@@ -438,18 +527,18 @@ class Emsfb_Human_Shield_Rest {
 
 		foreach ( $reasons as $reason ) {
 			if ( 0 === strpos( (string) $reason, 'rate_limited' ) ) {
-				return esc_html__( 'Too many requests. Please try again shortly.', 'easy-form-builder' );
+				return esc_html( $this->shield->phrase( 'hsTooManyRequests', 'Too many requests. Please try again shortly.' ) );
 			}
 		}
 
 		$token_reasons = array( 'token_missing', 'token_expired', 'token_replayed', 'token_malformed', 'token_bad_signature', 'token_payload_invalid', 'token_base64_invalid', 'base64_missing' );
 		foreach ( $reasons as $reason ) {
 			if ( in_array( (string) $reason, $token_reasons, true ) ) {
-				return esc_html__( 'The form was open for too long or could not be verified. Please refresh the page and submit again.', 'easy-form-builder' );
+				return esc_html( $this->shield->phrase( 'hsFormExpired', 'The form was open for too long or could not be verified. Please refresh the page and submit again.' ) );
 			}
 		}
 
-		return esc_html__( 'Your request looked too fast or unusual. Please try again in a few minutes.', 'easy-form-builder' );
+		return esc_html( $this->shield->phrase( 'hsLooksUnusual', 'Your request looked too fast or unusual. Please try again in a few minutes.' ) );
 	}
 
 	private function soft_fail_response( $message, $code, $retry_after = 0 ) {
@@ -540,6 +629,11 @@ class Emsfb_Human_Shield_Rest {
 		$ip_prefix_hash = $this->shield->hash_value( $this->shield->get_ip_prefix( $context['ip'] ), 'ip_prefix' );
 		if ( ! $this->shield->hash_equals_safe( (string) $payload['ip_prefix_hash'], $ip_prefix_hash ) ) {
 			return array( 'valid' => false, 'reason' => 'token_ip_mismatch' );
+		}
+
+		$ua_hash = $this->shield->hash_value( $context['ua'], 'ua' );
+		if ( empty( $payload['ua_hash'] ) || ! $this->shield->hash_equals_safe( (string) $payload['ua_hash'], $ua_hash ) ) {
+			return array( 'valid' => false, 'reason' => 'token_user_agent_mismatch' );
 		}
 
 		if ( ! $this->mark_token_used( $payload ) ) {

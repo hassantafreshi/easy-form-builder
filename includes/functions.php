@@ -417,6 +417,8 @@ class efbFunction {
 			"slabelAlign" => $state && isset($ac->text->slabelAlign) ? $ac->text->slabelAlign : esc_html__('%s Label | Align','easy-form-builder'),
 			/* translators: %s = context prefix (e.g. Mobile/Desktop). Description Align = text alignment of field description */
 			"sdescAlign" => $state && isset($ac->text->sdescAlign) ? $ac->text->sdescAlign : esc_html__('%s Description | Align','easy-form-builder'),
+			/* translators: %s = context prefix (e.g. Mobile/Desktop). Buttons Align = alignment of the form navigation/submit buttons */
+			"sbtnsAlign" => $state && isset($ac->text->sbtnsAlign) ? $ac->text->sbtnsAlign : esc_html__('%s Buttons | Align','easy-form-builder'),
 			/* translators: Desktop = computer/PC view */
 			"desktop" => $state && isset($ac->text->desktop) ? $ac->text->desktop : esc_html__('Desktop','easy-form-builder'),
 			/* translators: Mobile = mobile phone view */
@@ -4900,6 +4902,38 @@ public function addon_add_efb($value) {
 
         global $wpdb;
         $table_name = $wpdb->prefix . "emsfb_setting";
+
+        /* Wipe guard: version bumps and cache-heal paths sometimes rebuild the
+         * settings from a stale copy that silently lost fields (payment keys,
+         * SMTP, captcha...). A deliberate change always sends the property
+         * (possibly empty); a property that is entirely absent from the new
+         * payload but exists in the stored row means the caller never saw it —
+         * keep the stored value instead of dropping it. */
+        $new_decoded = json_decode($json);
+        if (is_object($new_decoded)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
+            $existing_raw = $wpdb->get_var("SELECT setting FROM `{$table_name}` ORDER BY id DESC LIMIT 1");
+            $existing = is_string($existing_raw) ? json_decode($existing_raw) : null;
+            if ($existing === null && is_string($existing_raw)) {
+                $tmp = $existing_raw;
+                for ($i = 0; $i < 5 && $existing === null; $i++) {
+                    $tmp = stripslashes($tmp);
+                    $existing = json_decode($tmp);
+                }
+            }
+            if (is_object($existing)) {
+                $merged = false;
+                foreach (get_object_vars($existing) as $k => $v) {
+                    if (!property_exists($new_decoded, $k)) {
+                        $new_decoded->$k = $v;
+                        $merged = true;
+                    }
+                }
+                if ($merged) {
+                    $json = wp_json_encode($new_decoded, JSON_UNESCAPED_UNICODE);
+                }
+            }
+        }
 
         $count = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name}");
 

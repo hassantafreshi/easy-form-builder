@@ -119,6 +119,9 @@ class Email_Monitor {
      * Enabled by default; only full Pro (package 1) can turn it off.
      */
     public static function is_email_stats_enabled() {
+        if (!self::can_manage_email_stats()) {
+            return true;
+        }
         if (get_option(self::OPTION_EMAIL_STATS_ENABLED, null) === null) {
             add_option(self::OPTION_EMAIL_STATS_ENABLED, 1, '', false);
         }
@@ -253,7 +256,7 @@ class Email_Monitor {
             'plugin' => 'easy-form-builder',
             'plugin_version' => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '',
             'wp_version' => get_bloginfo('version'),
-            'php_version' => phpversion(),
+            'php_version' => PHP_VERSION,
             'language' => get_locale(),
             'license_type' => self::get_license_type(),
             'license_key' => '',

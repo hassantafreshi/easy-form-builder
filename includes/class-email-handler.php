@@ -957,6 +957,34 @@ class EmsfbEmailHandler {
         return defined('EMSFB_EMAIL_DEBUG') && EMSFB_EMAIL_DEBUG;
     }
 
+    /**
+     * Multibyte-safe substring that never fatals when the mbstring extension is
+     * missing or mb_substr() is listed in php.ini's disable_functions. Falls back
+     * to plain substr() so email logging keeps working on hardened hosts.
+     */
+    private static function safe_substr($string, $start, $length) {
+        $string = (string) $string;
+        $has_mb = function_exists('emsfb_is_php_function_available_efb')
+            ? emsfb_is_php_function_available_efb('mb_substr')
+            : function_exists('mb_substr');
+        return $has_mb ? mb_substr($string, $start, $length) : substr($string, $start, $length);
+    }
+
+    /**
+     * error_log() wrapper that is a no-op when the function is unavailable.
+     * On PHP 7.x a disable_functions entry still passes function_exists(), so we
+     * rely on the project helper (which also inspects disable_functions) and only
+     * fall back to function_exists() when that helper is not loaded yet.
+     */
+    private static function safe_error_log($message) {
+        $available = function_exists('emsfb_is_php_function_available_efb')
+            ? emsfb_is_php_function_available_efb('error_log')
+            : function_exists('error_log');
+        if ($available) {
+            error_log($message);
+        }
+    }
+
     private function log_email_debug($state, $to, $subject, $message, $link, $email_content_type) {
         if (!self::email_debug_enabled()) {
             return;
@@ -972,8 +1000,8 @@ class EmsfbEmailHandler {
         $log_content .= "║  State: " . str_pad($state, 69) . "║\n";
         $log_content .= "║  Content Type: " . str_pad($email_content_type, 62) . "║\n";
         $log_content .= "║  To: " . str_pad(is_array($to) ? implode(', ', $to) : $to, 72) . "║\n";
-        $log_content .= "║  Subject: " . str_pad(mb_substr($subject, 0, 65), 67) . "║\n";
-        $log_content .= "║  Link: " . str_pad(mb_substr($link, 0, 68), 70) . "║\n";
+        $log_content .= "║  Subject: " . str_pad(self::safe_substr($subject, 0, 65), 67) . "║\n";
+        $log_content .= "║  Link: " . str_pad(self::safe_substr($link, 0, 68), 70) . "║\n";
         $log_content .= "╚══════════════════════════════════════════════════════════════════════════════╝\n";
         $log_content .= "\n───────────────────────────────────────────────────────────────────────────────\n";
         $log_content .= "EMAIL HTML CONTENT:\n";
@@ -990,7 +1018,7 @@ class EmsfbEmailHandler {
         }
 
         // Also log summary to WordPress debug.log
-        error_log("[EFB Email Debug] State: {$state} | To: " . (is_array($to) ? implode(', ', $to) : $to) . " | Subject: {$subject} | See full HTML in: {$log_file}");
+        self::safe_error_log("[EFB Email Debug] State: {$state} | To: " . (is_array($to) ? implode(', ', $to) : $to) . " | Subject: {$subject} | See full HTML in: {$log_file}");
     }
 
     private function generate_html_email_template($title, $message, $footer, $disclaimer, $direction, $align, $config = []) {
@@ -1889,7 +1917,7 @@ table { border-collapse: collapse !important; }
 		$str .= 'Date:'. wp_date('Y-m-d H:i:s') . '<br>';
 		$str .= '<hr>Value:'.$status . '<br>';
 		$str .= 'State:'.$status . '<br>';
-		$str .= 'PHP Version: ' . phpversion() . '<br>';
+		$str .= 'PHP Version: ' . PHP_VERSION . '<br>';
 		$str .= 'WordPress Version: ' . get_bloginfo('version') . '<br>';
 		$str .= 'Easy Form Builder Version' . EMSFB_PLUGIN_VERSION . '<br>';
 		$str .= 'Website URL: ' . get_site_url() . '<br>';
@@ -1959,17 +1987,17 @@ table { border-collapse: collapse !important; }
         }
 
         if (self::email_debug_enabled()) {
-            error_log('[EFB Email Debug][result] ' . json_encode([
+            self::safe_error_log('[EFB Email Debug][result] ' . json_encode([
                 'success' => false,
                 'to' => is_array($to) ? implode(', ', $to) : $to,
-                'subject' => mb_substr((string)$subject, 0, 120),
+                'subject' => self::safe_substr((string)$subject, 0, 120),
                 'error' => $error_message,
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         }
 
         $logs[] = [
             'to'      => is_array($to) ? implode(', ', $to) : $to,
-            'subject' => mb_substr($subject, 0, 100),
+            'subject' => self::safe_substr($subject, 0, 100),
             'error'   => $error_message,
             'date'    => wp_date('Y-m-d H:i:s'),
             'success' => false,
@@ -1991,16 +2019,16 @@ table { border-collapse: collapse !important; }
         if (!is_array($logs)) { $logs = []; }
 
         if (self::email_debug_enabled()) {
-            error_log('[EFB Email Debug][result] ' . json_encode([
+            self::safe_error_log('[EFB Email Debug][result] ' . json_encode([
                 'success' => true,
                 'to' => is_array($to) ? implode(', ', $to) : $to,
-                'subject' => mb_substr((string)$subject, 0, 120),
+                'subject' => self::safe_substr((string)$subject, 0, 120),
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         }
 
         $logs[] = [
             'to'      => is_array($to) ? implode(', ', $to) : $to,
-            'subject' => mb_substr($subject, 0, 100),
+            'subject' => self::safe_substr($subject, 0, 100),
             'error'   => '',
             'date'    => wp_date('Y-m-d H:i:s'),
             'success' => true,

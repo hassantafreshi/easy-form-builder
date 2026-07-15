@@ -41,6 +41,23 @@ class Emsfb_Human_Shield {
 	private $settings = null;
 
 	/**
+	 * Per-request memo of the add-on's visitor-facing phrases, loaded from the
+	 * shared EFB Phrases system so admins can translate them on the Phrases page.
+	 *
+	 * @var array|null
+	 */
+	private $phrases = null;
+
+	/**
+	 * Per-request memo for tables_ready(). Only a positive result is cached:
+	 * tables cannot disappear mid-request, but they can be created mid-request
+	 * (maybe_create_tables), so a negative result must stay re-checkable.
+	 *
+	 * @var bool|null
+	 */
+	private $tables_ready_memo = null;
+
+	/**
 	 * Score/decision of the current REST request, set by the REST guard so the
 	 * notification gate can suppress paid side effects later in the same request.
 	 *
@@ -174,6 +191,7 @@ class Emsfb_Human_Shield {
 			'protect_response_lookup'              => 1,
 			'fail_closed_on_missing_requirements'  => 0,
 			'trusted_proxy_headers'                => 0,
+			'trusted_proxy_ips'                    => '',
 			'store_raw_metrics'                    => 0,
 			'client_attest_timeout_ms'             => 4500,
 		);
@@ -205,7 +223,7 @@ class Emsfb_Human_Shield {
 		$settings = is_array( $settings ) ? $settings : array();
 		$out = array();
 
-		$textarea_keys = array( 'ip_blocklist', 'ip_allowlist' );
+		$textarea_keys = array( 'ip_blocklist', 'ip_allowlist', 'trusted_proxy_ips' );
 
 		foreach ( $defaults as $key => $default ) {
 			if ( ! array_key_exists( $key, $settings ) ) {
@@ -244,6 +262,44 @@ class Emsfb_Human_Shield {
 	public function is_enabled() {
 		$settings = $this->get_settings();
 		return ! empty( $settings['enabled'] );
+	}
+
+	/**
+	 * A visitor-facing message, sourced from the shared EFB Phrases system
+	 * ('humanshield' provider) so it honours any translation saved on the
+	 * Phrases page, falling back to the English default. The return value is
+	 * plain text; callers escape it at the point of output.
+	 *
+	 * @param string $key      Phrase key defined in EfbAddonPhrases::get_humanshield_phrases().
+	 * @param string $fallback English text used if the phrase system is unavailable.
+	 * @return string
+	 */
+	public function phrase( $key, $fallback ) {
+		if ( null === $this->phrases ) {
+			$this->phrases = array();
+
+			if ( ! function_exists( 'efb_get_addon_phrases' ) && defined( 'EMSFB_PLUGIN_DIRECTORY' ) ) {
+				$phrases_file = EMSFB_PLUGIN_DIRECTORY . 'includes/phrases.php';
+				if ( is_readable( $phrases_file ) ) {
+					require_once $phrases_file;
+				}
+			}
+
+			if ( function_exists( 'efb_get_addon_phrases' ) ) {
+				$ac    = function_exists( 'get_setting_Emsfb' ) ? get_setting_Emsfb() : 'null';
+				$state = ( 'null' !== $ac && isset( $ac->text ) && 'string' !== gettype( $ac->text ) );
+				$loaded = efb_get_addon_phrases( 'humanshield', $ac, $state );
+				if ( is_array( $loaded ) ) {
+					$this->phrases = $loaded;
+				}
+			}
+		}
+
+		if ( isset( $this->phrases[ $key ] ) && '' !== (string) $this->phrases[ $key ] ) {
+			return (string) $this->phrases[ $key ];
+		}
+
+		return $fallback;
 	}
 
 	public function set_request_assessment( $score, $suppress_paid, $reasons = array() ) {
@@ -295,6 +351,15 @@ class Emsfb_Human_Shield {
 				return true;
 			}
 
+			// CIDR range, e.g. 104.16.0.0/13 or 2a06:98c0::/29 — CDNs publish
+			// their egress this way, which a trailing-'*' prefix cannot express.
+			if ( false !== strpos( $entry, '/' ) ) {
+				if ( $this->ip_in_cidr( $ip, $entry ) ) {
+					return true;
+				}
+				continue;
+			}
+
 			if ( '*' === substr( $entry, -1 ) ) {
 				$prefix = substr( $entry, 0, -1 );
 				if ( '' !== $prefix && 0 === strpos( $ip, $prefix ) ) {
@@ -304,6 +369,49 @@ class Emsfb_Human_Shield {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Whether $ip falls inside the CIDR block $cidr. Handles IPv4 and IPv6 by
+	 * comparing the leading $bits of the packed addresses. Returns false on any
+	 * malformed input or when inet_pton is unavailable, so a bad entry can only
+	 * ever fail to match — never widen the list.
+	 */
+	private function ip_in_cidr( $ip, $cidr ) {
+		if ( ! emsfb_is_php_function_available_efb( 'inet_pton' ) ) {
+			return false;
+		}
+
+		$parts = explode( '/', $cidr, 2 );
+		if ( 2 !== count( $parts ) || '' === $parts[1] || ! ctype_digit( $parts[1] ) ) {
+			return false;
+		}
+
+		$subnet = @inet_pton( trim( $parts[0] ) );
+		$addr   = @inet_pton( $ip );
+		if ( false === $subnet || false === $addr || strlen( $subnet ) !== strlen( $addr ) ) {
+			// Different families (v4 vs v6) never match.
+			return false;
+		}
+
+		$bits     = (int) $parts[1];
+		$max_bits = strlen( $addr ) * 8;
+		if ( $bits < 0 || $bits > $max_bits ) {
+			return false;
+		}
+
+		$whole_bytes = intdiv( $bits, 8 );
+		if ( $whole_bytes > 0 && 0 !== substr_compare( $addr, $subnet, 0, $whole_bytes ) ) {
+			return false;
+		}
+
+		$remaining = $bits % 8;
+		if ( 0 === $remaining ) {
+			return true;
+		}
+
+		$mask = 0xff << ( 8 - $remaining ) & 0xff;
+		return ( ord( $addr[ $whole_bytes ] ) & $mask ) === ( ord( $subnet[ $whole_bytes ] ) & $mask );
 	}
 
 	public function get_secret() {
@@ -477,8 +585,13 @@ class Emsfb_Human_Shield {
 	public function get_client_ip() {
 		$settings = $this->get_settings();
 		$keys = array( 'REMOTE_ADDR' );
+		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 
-		if ( ! empty( $settings['trusted_proxy_headers'] ) ) {
+		// Forwarded client-IP headers are supplied by the requester unless the
+		// immediate peer is a proxy we explicitly trust. Enabling the toggle on
+		// its own must never make a directly reachable origin trust spoofed
+		// CF-Connecting-IP/X-Real-IP values.
+		if ( ! empty( $settings['trusted_proxy_headers'] ) && $this->ip_in_list( $remote_addr, $settings['trusted_proxy_ips'] ) ) {
 			$keys = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' );
 		}
 
@@ -673,6 +786,10 @@ class Emsfb_Human_Shield {
 	}
 
 	public function tables_ready() {
+		if ( true === $this->tables_ready_memo ) {
+			return true;
+		}
+
 		if ( empty( $this->db ) ) {
 			return false;
 		}
@@ -690,6 +807,7 @@ class Emsfb_Human_Shield {
 			}
 		}
 
+		$this->tables_ready_memo = true;
 		return true;
 	}
 

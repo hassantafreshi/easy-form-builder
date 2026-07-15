@@ -842,8 +842,7 @@ public function check_nonce_permission_efb($request) {
 						$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
 						$r = $this->setting;
 						if(gettype($r)=="string"){
-							$setting =str_replace('\\', '', $r);
-							$setting =json_decode($setting);
+							$setting = $this->decode_settings_json_efb( $r );
 
 						} elseif ( is_object( $r ) ) {
 							$setting = $r;
@@ -851,8 +850,8 @@ public function check_nonce_permission_efb($request) {
 							$setting = (object) $r;
 						}
 						if ( ! is_object( $setting ) ) {
-							$raw_setting = get_setting_Emsfb('raw');
-							$setting = is_string( $raw_setting ) ? json_decode( str_replace( '\\', '', $raw_setting ) ) : null;
+							$decoded_setting = get_setting_Emsfb('decoded');
+							$setting = is_object( $decoded_setting ) ? $decoded_setting : null;
 						}
 						$ar_core = array_merge($ar_core , array(
 							'paymentGateway' =>$paymentType,
@@ -1139,7 +1138,7 @@ public function check_nonce_permission_efb($request) {
 									!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe") ? $this->efbFunction->download_all_addons_efb() : '';
 									wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
 									wp_enqueue_script('stripe_js');
-									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
+									$paymentKey = $this->resolve_payment_key_efb( $setting, 'stripePKey' );
 									$ar_core = array_merge($ar_core , array(
 									'paymentGateway' =>'stripe',
 									'paymentKey' => $paymentKey
@@ -1147,34 +1146,8 @@ public function check_nonce_permission_efb($request) {
 							}
 							if($valj_efb[$i]->type =='paypal'){
 								$paymentType="paypal";
-								$paypal_public_key = ( isset( $setting ) && is_object( $setting ) && isset( $setting->paypalPKey ) ) ? trim( (string) $setting->paypalPKey ) : '';
-								if ( strlen( $paypal_public_key ) <= 5 ) {
-									$decoded_settings = get_setting_Emsfb( 'decoded' );
-									if ( is_object( $decoded_settings ) && isset( $decoded_settings->paypalPKey ) ) {
-										$paypal_public_key = trim( (string) $decoded_settings->paypalPKey );
-									}
-								}
-								if ( strlen( $paypal_public_key ) <= 5 ) {
-									$option_settings = get_option( 'emsfb_settings', '' );
-									$option_settings = is_string( $option_settings ) ? json_decode( str_replace( '\\', '', $option_settings ) ) : null;
-									if ( is_object( $option_settings ) && isset( $option_settings->paypalPKey ) ) {
-										$paypal_public_key = trim( (string) $option_settings->paypalPKey );
-									}
-								}
-								if ( strlen( $paypal_public_key ) <= 5 ) {
-									if ( empty( $this->db ) ) {
-										global $wpdb;
-										$this->db = $wpdb;
-									}
-									$table_name = $this->db->prefix . 'emsfb_setting';
-									$latest_raw = $this->db->get_var( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );
-									$latest_settings = is_string( $latest_raw ) ? json_decode( str_replace( '\\', '', $latest_raw ) ) : null;
-									if ( is_object( $latest_settings ) && isset( $latest_settings->paypalPKey ) ) {
-										$paypal_public_key = trim( (string) $latest_settings->paypalPKey );
-									}
-								}
-								$paymentKey = strlen( $paypal_public_key ) > 5 ? $paypal_public_key : 'null';
-								error_log('[EFB][PayPal][PUBLIC] Localizing client id: form_id=' . $form_id . ', setting_type=' . gettype( $setting ?? null ) . ', client_id_length=' . strlen( $paypal_public_key ) . ', sent=' . ( $paymentKey === 'null' ? 'null' : 'set' ));
+								$paymentKey = $this->resolve_payment_key_efb( $setting, 'paypalPKey' );
+								error_log('[EFB][PayPal][PUBLIC] Localizing client id: form_id=' . $form_id . ', setting_type=' . gettype( $setting ?? null ) . ', sent=' . ( $paymentKey === 'null' ? 'null' : 'set' ));
 								$currency ='USD';
 
 								!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal") ? $this->efbFunction->download_all_addons_efb() : '';
@@ -4505,6 +4478,12 @@ public function check_nonce_permission_efb($request) {
 
 	}
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
+	/* GET Emsfb/v1/forms/payment/stripe/pkey — fresh publishable key for pages
+	 * whose cached HTML was localized before the keys were saved. */
+	public function get_stripe_public_key_Emsfb_api() {
+		$key = $this->resolve_payment_key_efb( get_setting_Emsfb( 'decoded' ), 'stripePKey' );
+		wp_send_json_success( [ 'success' => $key !== 'null', 'key' => $key ], 200 );
+	}
 	public function pay_stripe_sub_Emsfb_api($data_POST_) {
 		if ( ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
 			wp_send_json_success( array(
@@ -4521,12 +4500,14 @@ public function check_nonce_permission_efb($request) {
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
-		$Sk ='null';
 		if(gettype($r)=="string"){
-			$setting =str_replace('\\', '', $r);
-			$setting =json_decode($setting);
-			$Sk = isset($setting->stripeSKey) && strlen($setting->stripeSKey)>5  ? $setting->stripeSKey :'null';
+			$setting = $this->decode_settings_json_efb( $r );
+		} elseif ( is_array( $r ) ) {
+			$setting = (object) $r;
+		} else {
+			$setting = $r;
 		}
+		$Sk = $this->resolve_payment_key_efb( $setting, 'stripeSKey' );
 		if ($Sk=="null"){
 				$m = esc_html__('Stripe', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 402';
 				$response = ['success' => false, 'm' => $m];
@@ -5560,31 +5541,112 @@ public function check_nonce_permission_efb($request) {
 		 * "Cannot redeclare" (admin email + conditional department email). */
 		if(isset($this->setting->email_key)){
 		}else{
-
-			$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
-
-			$this->setting->email_key = $rand;
-			$setting = json_encode($this->setting,JSON_UNESCAPED_UNICODE);
-			$setting= str_replace('"', '\"', $setting);
-			if(empty($this->db)){
-				global $wpdb;
-				$this->db = $wpdb;
+			/* $this->setting may be a partial/failed decode at this point; the old
+			 * code re-persisted it as the newest settings row, silently wiping the
+			 * saved payment keys. Reload the healed copy before touching storage. */
+			if ( ! is_object( $this->setting ) || ! isset( $this->setting->emailSupporter ) ) {
+				$healed = get_setting_Emsfb( 'decoded' );
+				if ( is_object( $healed ) ) {
+					$this->setting = $healed;
+				}
 			}
-			$table_name = $this->db->prefix . 'emsfb_setting';
-			$email =$this->setting->emailSupporter;
-			$this->db->insert(
-				$table_name,
-				[
-					'setting' => $setting,
-					'edit_by' => 0,
-					'date'    => wp_date('Y-m-d H:i:s'),
-					'email'   => $email
-				]
-			);
-			set_transient('emsfb_settings_transient', $setting, 1440);
-			update_option('emsfb_settings', $setting);
+			if ( isset( $this->setting->email_key ) ) {
+				return md5( $track . $this->setting->email_key );
+			}
+
+			/* Reuse a key issued while settings were unreadable, so codes in
+			 * already-sent emails keep verifying. */
+			$stored = get_option( 'emsfb_email_key', '' );
+			$rand = $stored !== '' ? $stored : substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
+
+			if ( is_object( $this->setting ) && isset( $this->setting->emailSupporter ) ) {
+				$this->setting->email_key = $rand;
+				$efbFunction = $this->efbFunction !== null ? $this->efbFunction : get_efbFunction();
+				$efbFunction->set_setting_Emsfb(
+					wp_json_encode( $this->setting, JSON_UNESCAPED_UNICODE ),
+					$this->setting->emailSupporter
+				);
+			} else {
+				/* Settings are unreadable: keep the key in its own option instead of
+				 * persisting a partial settings row over the real one. */
+				if ( $stored === '' ) {
+					update_option( 'emsfb_email_key', $rand );
+				}
+				if ( ! is_object( $this->setting ) ) {
+					$this->setting = new \stdClass();
+				}
+				$this->setting->email_key = $rand;
+			}
 		}
 		return md5($track . $this->setting->email_key);
+	}
+
+	/* Decode a settings JSON string without corrupting values that contain
+	 * escaped characters: plain decode first, then stripslashes passes, and
+	 * only as a last resort the legacy strip-all-backslashes transform. */
+	private function decode_settings_json_efb( $raw ) {
+		if ( ! is_string( $raw ) || $raw === '' ) {
+			return null;
+		}
+		$decoded = json_decode( $raw );
+		for ( $i = 0; $i < 5 && $decoded === null; $i++ ) {
+			$raw = stripslashes( $raw );
+			$decoded = json_decode( $raw );
+		}
+		if ( $decoded === null ) {
+			$decoded = json_decode( str_replace( '\\', '', $raw ) );
+		}
+		return is_object( $decoded ) ? $decoded : null;
+	}
+
+	/* Resolve a payment key (stripePKey/stripeSKey/paypalPKey/...) with the
+	 * same fallback chain the PayPal branch used: current $setting object →
+	 * healed decoded settings → emsfb_settings option → latest DB row. The DB
+	 * step also refreshes the option/transient so a stale cache self-heals.
+	 * Returns the key, or the string 'null' (legacy contract) when absent. */
+	private function resolve_payment_key_efb( $setting, $key ) {
+		$value = ( is_object( $setting ) && isset( $setting->$key ) ) ? trim( (string) $setting->$key ) : '';
+		if ( strlen( $value ) > 5 ) {
+			return $value;
+		}
+
+		$decoded = get_setting_Emsfb( 'decoded' );
+		if ( is_object( $decoded ) && isset( $decoded->$key ) ) {
+			$value = trim( (string) $decoded->$key );
+			if ( strlen( $value ) > 5 ) {
+				return $value;
+			}
+		}
+
+		$option_settings = $this->decode_settings_json_efb( get_option( 'emsfb_settings', '' ) );
+		if ( is_object( $option_settings ) && isset( $option_settings->$key ) ) {
+			$value = trim( (string) $option_settings->$key );
+			if ( strlen( $value ) > 5 ) {
+				return $value;
+			}
+		}
+
+		if ( empty( $this->db ) ) {
+			global $wpdb;
+			$this->db = $wpdb;
+		}
+		$table_name = $this->db->prefix . 'emsfb_setting';
+		$latest_raw = $this->db->get_var( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );
+		$latest_settings = $this->decode_settings_json_efb( $latest_raw );
+		if ( is_object( $latest_settings ) && isset( $latest_settings->$key ) ) {
+			$value = trim( (string) $latest_settings->$key );
+			if ( strlen( $value ) > 5 ) {
+				$healed_json = wp_json_encode( $latest_settings, JSON_UNESCAPED_UNICODE );
+				if ( ! empty( $healed_json ) ) {
+					update_option( 'emsfb_settings', $healed_json );
+					set_transient( 'emsfb_settings_transient', $healed_json, 1800 );
+					get_setting_Emsfb( '_clear_cache' );
+				}
+				return $value;
+			}
+		}
+
+		return 'null';
 	}
 
 	private function sanitize_value_efb($value, $key) {

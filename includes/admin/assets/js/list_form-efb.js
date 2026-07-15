@@ -1239,6 +1239,7 @@ function fun_show_setting__emsFormBuilder() {
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
   const weeklyEmailReportAllowed = [1, 3].includes(package_type);
   const emailStatsReportAllowed = package_type === 1;
+  console.log(`weeklyEmailReportAllowed: ${weeklyEmailReportAllowed} . packagetype:[${package_type}]`)
   const emailMonitor = efb_var.emailMonitor || {};
   const weeklyEmailStatus = emailMonitor.message
     ? `${emailMonitor.message}${emailMonitor.checked_at ? ` (${emailMonitor.checked_at})` : ''}`
@@ -1597,9 +1598,9 @@ function fun_show_setting__emsFormBuilder() {
                                 <p class="efb mb-1 ${mxCSize4} mt-3">${efb_var.text.emailStatsReportDesc}</p>
                                 <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
                                     <button type="button" id="emailStatsReport_emsFormBuilder" data-state="off" data-name="disabled"
-                                        class="efb mx-0 btn h-s-efb btn-toggle ${emailStatsReport ? "active" : ""}"
+                                        class="efb mx-0 btn h-s-efb btn-toggle ${(emailStatsReport || !emailStatsReportAllowed) ? "active" : ""}"
                                         data-toggle="button" aria-pressed="false" autocomplete="off"
-                                        ${emailStatsReportAllowed ? '' : 'onclick="pro_show_efb(1)"'}>
+                                        ${emailStatsReportAllowed ? '' : 'onclick="lock_email_stats_toggle_efb(this, event)"'}>
                                         <div class="efb handle"></div>
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="emailStatsReport_emsFormBuilder">${efb_var.text.emailStatsReport}</label>
@@ -3689,6 +3690,15 @@ function funNproEmailTemp() {
   <a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
   <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon-256x256.gif" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a>
  <br> <img src="${ws}img/favicon.png" style="margin: 5px"> <a class='efb subtle-link' target='_blank' href='${ws}'>White Studio Team</a></td></tr>`
+}
+
+function lock_email_stats_toggle_efb(el, event){
+  if (event) event.stopPropagation();
+  pro_show_efb(1);
+  setTimeout(() => {
+    el.classList.add('active');
+    el.setAttribute('aria-pressed', 'true');
+  }, 80);
 }
 
 function act_local_efb_event(t){

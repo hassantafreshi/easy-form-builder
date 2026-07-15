@@ -336,15 +336,17 @@ const ElementAlignEls = (side ,indx ,idset) => {
   const right = side == 'label' ? 'txt-right' : 'justify-content-end'
   const center = side == 'label' ? 'txt-center' : 'justify-content-center'
   let value = valj_efb[indx].label_align;
-  let t = efb_var.text.label
+  let labText = efb_var.text.slabelAlign.replace('%s', '');
   if (side == 'description') {
     value = valj_efb[indx].message_align;
-    t = efb_var.text.description
+    labText = efb_var.text.sdescAlign.replace('%s', '');
+  } else if (side == 'buttons') {
+    value = valj_efb[0].btns_align;
+    labText = (efb_var.text.sbtnsAlign || '%s Buttons | Align').replace('%s', '');
   }
-  const lab = efb_var.text[side] || side;
   return `<div class="efb ${_wrapClass} ${_deskHide}">
   <div class="efb  row">
-  <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>${side == 'label' ? (efb_var.text.slabelAlign.replace('%s', '') || (lab + ' | ' + efb_var.text.align)) : (efb_var.text.sdescAlign.replace('%s', '') || (lab + ' | ' + efb_var.text.align))}</label>
+  <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>${labText}</label>
     <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="ElementAlignEl">
       <label class="efb ntb btn-primary ${value == left ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${left}','${side}')"><i class="efb bi-align-start fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="labelPostionEl" value="left" >${efb_var.text.left}</label>

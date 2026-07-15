@@ -43,6 +43,7 @@
     ['protect_response_lookup', 'checkbox'],
     ['fail_closed_on_missing_requirements', 'checkbox'],
     ['trusted_proxy_headers', 'checkbox'],
+    ['trusted_proxy_ips', 'textarea'],
     ['store_raw_metrics', 'checkbox'],
     ['client_attest_timeout_ms', 'number'],
     ['mode', 'select'],
@@ -232,7 +233,7 @@
           ${numberField('response_add_ip_per_minute', 'Responses per IP/min', 'Protects public reply box.')}
           ${numberField('file_upload_ip_per_minute', 'Uploads per IP/min', 'Protects upload endpoint.')}
           ${numberField('payment_ip_per_minute', 'Payment starts per IP/min', 'Protects payment REST routes.')}
-          ${toggleField('protect_response_lookup', 'Protect response lookup', 'Require a human token for tracking-code search.')}
+          ${toggleField('protect_response_lookup', 'Protect response lookup', 'Rate-limit tracking-code searches by request count (no human-token check).')}
         </div>
       </section>
       <section class="efb-hs-panel">
@@ -361,7 +362,10 @@
         </div>
         <div class="efb-hs-form-grid">
           ${toggleField('fail_closed_on_missing_requirements', 'Fail closed when requirements are missing', 'Recommended only after you verify PHP functions and tables are ready.')}
-          ${toggleField('trusted_proxy_headers', 'Trust proxy IP headers', 'Enable only when Cloudflare/reverse proxy is configured correctly.')}
+
+          ${toggleField('trusted_proxy_headers', 'Trust proxy IP headers', 'Use forwarding headers only when the immediate peer matches the trusted proxy list below.')}
+
+          ${textareaField('trusted_proxy_ips', 'Trusted proxy IPs', 'One exact IP or wildcard prefix per line. Add only your load balancer/CDN egress addresses; keep this empty when the origin is directly reachable.')}
           ${toggleField('store_raw_metrics', 'Store raw behavior metrics', 'Keep off for privacy unless debugging a rollout.')}
           ${numberField('log_retention_days', 'Log retention days', 'How long events should be retained.')}
           ${numberField('client_attest_timeout_ms', 'Client attestation timeout', 'Milliseconds before the browser falls back to the normal request.')}
@@ -376,9 +380,11 @@
 
   function statCard(label, value, icon, kind) {
     return `<div class="efb-hs-stat ${kind}">
-      <i class="efb ${icon}"></i>
-      <span>${esc(label)}</span>
-      <strong>${esc(value)}</strong>
+      <div class="efb-hs-stat-icon"><i class="efb ${icon}"></i></div>
+      <div class="efb-hs-stat-body">
+        <strong>${esc(value)}</strong>
+        <span>${esc(label)}</span>
+      </div>
     </div>`;
   }
 

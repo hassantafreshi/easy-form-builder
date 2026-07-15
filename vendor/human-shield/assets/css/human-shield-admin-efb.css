@@ -27,6 +27,7 @@
   to { transform: rotate(360deg); }
 }
 
+
 .efb-hs-header {
   display: flex;
   justify-content: space-between;
@@ -239,25 +240,46 @@
 .efb-hs-panel {
   background: #fff;
   border: 1px solid #d7e2ea;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
 }
 
 .efb-hs-stat {
-  display: grid;
-  gap: 6px;
-  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-inline-start: 4px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.efb-hs-stat i {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 8px;
+.efb-hs-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+
+.efb-hs-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  flex-shrink: 0;
   background: #e8f7fb;
   color: #0e7490;
-  font-size: 18px;
+}
+
+.efb-hs-stat-icon i {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.efb-hs-stat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .efb-hs-stat span {
@@ -265,17 +287,25 @@
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .efb-hs-stat strong {
   color: #111827;
   font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
-.efb-hs-stat.ok i { background: #ecfdf5; color: #047857; }
-.efb-hs-stat.warn i { background: #fffbeb; color: #a16207; }
-.efb-hs-stat.danger i { background: #fef2f2; color: #b91c1c; }
-.efb-hs-stat.accent i { background: #fff7ed; color: #c2410c; }
+.efb-hs-stat.ok { border-inline-start-color: #10b981; }
+.efb-hs-stat.warn { border-inline-start-color: #f59e0b; }
+.efb-hs-stat.danger { border-inline-start-color: #ef4444; }
+.efb-hs-stat.accent { border-inline-start-color: #f97316; }
+
+.efb-hs-stat.ok .efb-hs-stat-icon { background: #ecfdf5; color: #047857; }
+.efb-hs-stat.warn .efb-hs-stat-icon { background: #fffbeb; color: #a16207; }
+.efb-hs-stat.danger .efb-hs-stat-icon { background: #fef2f2; color: #b91c1c; }
+.efb-hs-stat.accent .efb-hs-stat-icon { background: #fff7ed; color: #c2410c; }
 
 .efb-hs-panel {
   margin-bottom: 14px;

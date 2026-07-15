@@ -108,6 +108,7 @@
     state.focusCount += 1;
     const id = fieldKey(event.target);
     if (id) state.fieldsTouched.add(id);
+    maybePrefetchFor(event.target);
   }, true);
 
   document.addEventListener('input', (event) => {
@@ -178,7 +179,9 @@
     if (!path) return false;
     if (path.indexOf('/EmsfbShield/v1/') !== -1) return false;
     if (path.indexOf('/Emsfb/v1/forms/message/add') !== -1) return true;
-    if (path.indexOf('/Emsfb/v1/forms/response/get') !== -1) return true;
+    // Response/tracking lookups are throttled by request-count on the server
+    // only; they must not carry an attestation ("quick check") token, so leave
+    // them out of the client-side protected set.
     if (path.indexOf('/Emsfb/v1/forms/response/add') !== -1) return true;
     if (path.indexOf('/Emsfb/v1/forms/file/upload') !== -1) return true;
     if (path.indexOf('/Emsfb/v1/forms/payment/') !== -1) return true;
@@ -323,18 +326,76 @@
     });
   }
 
+  /* Challenges carry no behavior metrics (those travel with attest), so one
+   * can be requested ahead of time. As soon as the visitor starts interacting
+   * with an EFB form we prefetch a challenge in the background; the submit
+   * path then only pays for attest + the protected request itself. Entries
+   * are single-use and any miss falls back to a fresh challenge request. */
+  const challengePrefetch = {};
+
+  function prefetchKeyOf(route, formId, sid) {
+    return route + '|' + formId + '|' + sid;
+  }
+
+  function prefetchChallenge(route, formId, sid) {
+    if (!formId || !sid) return;
+    const key = prefetchKeyOf(route, formId, sid);
+    const existing = challengePrefetch[key];
+    const now = Math.floor(Date.now() / 1000);
+    if (existing && (existing.pending || (existing.expiresAt || 0) - 30 > now)) return;
+    const entry = { pending: true, challengeId: '', expiresAt: 0 };
+    challengePrefetch[key] = entry;
+    postJson('challenge', { route, formId, sid })
+      .then((challenge) => {
+        if (challenge && challenge.success && challenge.challengeId) {
+          entry.challengeId = challenge.challengeId;
+          entry.expiresAt = Number(challenge.expiresAt) || 0;
+          entry.pending = false;
+        } else {
+          delete challengePrefetch[key];
+        }
+      })
+      .catch(() => { delete challengePrefetch[key]; });
+  }
+
+  function takePrefetchedChallenge(route, formId, sid) {
+    const key = prefetchKeyOf(route, formId, sid);
+    const entry = challengePrefetch[key];
+    if (!entry || entry.pending || !entry.challengeId) return '';
+    delete challengePrefetch[key]; // single-use, like the challenge itself
+    const now = Math.floor(Date.now() / 1000);
+    if ((entry.expiresAt || 0) - 10 <= now) return '';
+    return entry.challengeId;
+  }
+
+  function maybePrefetchFor(target) {
+    if (!target || !target.closest) return;
+    const container = target.closest('[id^="body_efb_"], [data-formid]');
+    if (!container) return;
+    const fromData = container.dataset && container.dataset.formid ? container.dataset.formid : '';
+    const formId = parseInt(fromData || String(container.id || '').replace('body_efb_', ''), 10) || 0;
+    // Derive sid through the same helper the submit path uses, so the prefetch
+    // key can never drift from the challenge the attest step will look for.
+    const sid = inferSid(null, null);
+    if (formId && sid) prefetchChallenge('/Emsfb/v1/forms/message/add', formId, sid);
+  }
+
   /* Tokens are single-use and bound to one challenge, so every protected
    * request gets a fresh challenge + attestation. Reusing challenges is what
    * broke second submissions (server rejects a used challenge). */
   async function mintToken(route, formId, sid) {
-    const challenge = await postJson('challenge', { route, formId, sid });
-    if (!challenge || !challenge.success || !challenge.challengeId) {
-      const err = new Error('human shield challenge failed');
-      err.efbCode = challenge && challenge.code ? challenge.code : 'challenge_failed';
-      throw err;
+    let challengeId = takePrefetchedChallenge(route, formId, sid);
+    if (!challengeId) {
+      const challenge = await postJson('challenge', { route, formId, sid });
+      if (!challenge || !challenge.success || !challenge.challengeId) {
+        const err = new Error('human shield challenge failed');
+        err.efbCode = challenge && challenge.code ? challenge.code : 'challenge_failed';
+        throw err;
+      }
+      challengeId = challenge.challengeId;
     }
     const result = await postJson('attest', {
-      challengeId: challenge.challengeId,
+      challengeId,
       route,
       formId,
       sid,
