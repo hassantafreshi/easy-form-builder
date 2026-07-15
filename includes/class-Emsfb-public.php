@@ -1147,7 +1147,7 @@ public function check_nonce_permission_efb($request) {
 							if($valj_efb[$i]->type =='paypal'){
 								$paymentType="paypal";
 								$paymentKey = $this->resolve_payment_key_efb( $setting, 'paypalPKey' );
-								error_log('[EFB][PayPal][PUBLIC] Localizing client id: form_id=' . $form_id . ', setting_type=' . gettype( $setting ?? null ) . ', sent=' . ( $paymentKey === 'null' ? 'null' : 'set' ));
+								// error_log('[EFB][PayPal][PUBLIC] Localizing client id: form_id=' . $form_id . ', setting_type=' . gettype( $setting ?? null ) . ', sent=' . ( $paymentKey === 'null' ? 'null' : 'set' ));
 								$currency ='USD';
 
 								!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal") ? $this->efbFunction->download_all_addons_efb() : '';
@@ -2674,7 +2674,7 @@ public function check_nonce_permission_efb($request) {
 							$currentDateTime = date('Y-m-d H');
 							$payment_gateway = isset($request_data['payment']) ? sanitize_text_field($request_data['payment']) : 'stripe';
 							if ($payment_gateway == "paypal") {
-								error_log('[EFB][PayPal][SUBMIT] Final payment submit received: payid=' . ($id ?: '(empty)') . ', form_id=' . (isset($request_data['id']) ? sanitize_text_field($request_data['id']) : '(empty)') . ', submitted_count=' . (is_array($submitted_values) ? count($submitted_values) : 0));
+								// error_log('[EFB][PayPal][SUBMIT] Final payment submit received: payid=' . ($id ?: '(empty)') . ', form_id=' . (isset($request_data['id']) ? sanitize_text_field($request_data['id']) : '(empty)') . ', submitted_count=' . (is_array($submitted_values) ? count($submitted_values) : 0));
 							}
 							if (strlen($id) < 7 && $payment_gateway == "zarinPal") {
 								$response = array('success' => false, "m" => "خطای داده های پرداختی ، صفحه را رفرش کنید");
@@ -2689,7 +2689,7 @@ public function check_nonce_permission_efb($request) {
 							$value = $this->db->get_results($sql);
 							$payment_track_id = $id;
 							if ($payment_gateway == "paypal") {
-								error_log('[EFB][PayPal][SUBMIT] Initial payment row lookup: found=' . ($value != null ? 'yes' : 'no') . ', track=' . ($payment_track_id ?: '(empty)'));
+								// error_log('[EFB][PayPal][SUBMIT] Initial payment row lookup: found=' . ($value != null ? 'yes' : 'no') . ', track=' . ($payment_track_id ?: '(empty)'));
 							}
 							if ($value != null) {
 								$saved_payment_content = json_decode(str_replace('\\', '', $value[0]->content), true);
@@ -2765,7 +2765,7 @@ public function check_nonce_permission_efb($request) {
 									if ($payment_gateway == "persiaPay") array_push($validated_items, $result);
 								}
 								if ($payment_gateway == "paypal") {
-									error_log('[EFB][PayPal][SUBMIT] Merge data: saved_payment_count=' . (is_array($saved_payment_content) ? count($saved_payment_content) : 0) . ', filtered_submit_count=' . (is_array($filtered) ? count($filtered) : 0) . ', validated_count=' . (is_array($validated_items) ? count($validated_items) : 0));
+									// error_log('[EFB][PayPal][SUBMIT] Merge data: saved_payment_count=' . (is_array($saved_payment_content) ? count($saved_payment_content) : 0) . ', filtered_submit_count=' . (is_array($filtered) ? count($filtered) : 0) . ', validated_count=' . (is_array($validated_items) ? count($validated_items) : 0));
 								}
 								$filtered = array_unique(array_merge($validated_items, $saved_payment_content), SORT_REGULAR);
 								$filtered[] = array('type' => 'w_link', 'id_' => 'w_link', 'id' => 'w_link', 'value' => $url, 'amount' => -1);
@@ -2773,7 +2773,7 @@ public function check_nonce_permission_efb($request) {
 								$this->id = sanitize_text_field($request_data['payid']);
 								$db_update_result = $this->update_message_db();
 								if ($payment_gateway == "paypal") {
-									error_log('[EFB][PayPal][SUBMIT] update_message_db result=' . var_export($db_update_result, true) . ', track=' . $this->id . ', final_count=' . count($filtered));
+									// error_log('[EFB][PayPal][SUBMIT] update_message_db result=' . var_export($db_update_result, true) . ', track=' . $this->id . ', final_count=' . count($filtered));
 								}
 							} else {
 								$response = array('success' => false, 'm' => esc_html__('Error Code', 'easy-form-builder') . '</br>' . esc_html__('Payment Form', 'easy-form-builder'));
@@ -4189,7 +4189,7 @@ public function check_nonce_permission_efb($request) {
 	 */
 	private function efb_email_debug_log($event, array $data) {
 		if (!defined('EMSFB_EMAIL_DEBUG') || !EMSFB_EMAIL_DEBUG) return;
-		error_log('[EFB Email Debug][' . $event . '] ' . json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+		// error_log('[EFB Email Debug][' . $event . '] ' . json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 	}
 
 	private function process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email) {
@@ -4612,7 +4612,7 @@ public function check_nonce_permission_efb($request) {
 					  $val =  $amount . ' ' . $paymentIntent->currency;
 			}
 			} catch ( \Throwable $e ) {
-				error_log( '[EFB][Stripe] card/add failed for form ' . $this->id . ': ' . $e->getMessage() );
+				// error_log( '[EFB][Stripe] card/add failed for form ' . $this->id . ': ' . $e->getMessage() );
 				$response = [ 'success' => false, 'm' => 'Stripe: ' . $e->getMessage() ];
 				wp_send_json_success( $response, 200 );
 				return;
@@ -6349,46 +6349,46 @@ public function check_nonce_permission_efb($request) {
 
 	public function pay_paypal_sub_Emsfb_api($data_POST_) {
 		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
-		error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
 		if ( ! file_exists( $handler_path ) ) {
-			error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api ERROR: handler file not found.');
+			// error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api ERROR: handler file not found.');
 			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
 			return;
 		}
 		require_once $handler_path;
 		$paypal_setting = is_object( $this->setting ) ? $this->setting : get_setting_Emsfb( 'decoded' );
 		$handler = new PaypalHandler( $paypal_setting );
-		error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api: handler loaded, delegating create payment.');
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api: handler loaded, delegating create payment.');
 		$handler->handle_create_payment( $data_POST_, $this );
 	}
 
 	public function pay_paypal_capture_Emsfb_api($data_POST_) {
 		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
-		error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
 		if ( ! file_exists( $handler_path ) ) {
-			error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api ERROR: handler file not found.');
+			// error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api ERROR: handler file not found.');
 			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
 			return;
 		}
 		require_once $handler_path;
 		$paypal_setting = is_object( $this->setting ) ? $this->setting : get_setting_Emsfb( 'decoded' );
 		$handler = new PaypalHandler( $paypal_setting );
-		error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api: handler loaded, delegating capture.');
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api: handler loaded, delegating capture.');
 		$handler->handle_capture( $data_POST_ );
 	}
 
 	public function pay_paypal_subscription_activate_Emsfb_api($data_POST_) {
 		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
-		error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
 		if ( ! file_exists( $handler_path ) ) {
-			error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api ERROR: handler file not found.');
+			// error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api ERROR: handler file not found.');
 			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
 			return;
 		}
 		require_once $handler_path;
 		$paypal_setting = is_object( $this->setting ) ? $this->setting : get_setting_Emsfb( 'decoded' );
 		$handler = new PaypalHandler( $paypal_setting );
-		error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api: handler loaded, delegating subscription activate.');
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api: handler loaded, delegating subscription activate.');
 		$handler->handle_subscription_activate( $data_POST_ );
 	}
 

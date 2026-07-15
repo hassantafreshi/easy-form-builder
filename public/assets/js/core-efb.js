@@ -24,7 +24,7 @@ function fun_statement_logic_efb(triggeredId, triggeredType, formId) {
 
 /* Retained only for legacy reference; no public call path invokes this engine. */
 function legacy_statement_logic_efb(triggeredId, triggeredType) {
-  console.log('Logic engine triggered by', triggeredId, 'of type', triggeredType);
+  // console.log('Logic engine triggered by', triggeredId, 'of type', triggeredType);
   if (typeof valj_efb === 'undefined' || !valj_efb[0]) return;
 
   var rules = valj_efb[0].logic_rules;

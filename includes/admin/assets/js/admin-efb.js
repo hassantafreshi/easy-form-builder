@@ -120,7 +120,7 @@ function fun_get_addons_efb_admin() {
     return addons_efb;
   }
   if (!Array.isArray(window.addons_efb)) {
-    console.log('test fun_default_addons_efb_admin');
+    // console.log('test fun_default_addons_efb_admin');
     window.addons_efb = fun_default_addons_efb_admin();
   }
   return window.addons_efb;
@@ -4451,7 +4451,7 @@ funBTNAddOnsEFB=(val,v_required)=>{
     }
     return true;
   }
-  console.log('efb_version', efb_version, 'v_required', v_required);
+  // console.log('efb_version', efb_version, 'v_required', v_required);
  if(efb_version>=v_required){
   if(check_ar_pr(val)==true){
     addons_btn_state_efb(val);
@@ -7170,7 +7170,7 @@ function applyCheckedColorDirectEfb(parentId, color) {
         updateCheckedColorStyleEfb(input);
       });
     } catch (e) {
-      console.log('[EFB DEBUG] Selector error:', selector, e.message);
+      // console.log('[EFB DEBUG] Selector error:', selector, e.message);
     }
   });
 

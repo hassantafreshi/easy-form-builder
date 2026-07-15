@@ -358,7 +358,7 @@ class Admin {
      */
     private function addon_install_log_efb($event, $context = []) {
         $safe_context = $this->addon_install_sanitize_log_context_efb($context);
-        error_log('[EFB Addon Installer] ' . $event . ' ' . wp_json_encode($safe_context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        // error_log('[EFB Addon Installer] ' . $event . ' ' . wp_json_encode($safe_context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     }
 
     /**
@@ -2368,7 +2368,7 @@ class Admin {
             return;
         }
         $safe_context = $this->email_tester_sanitize_log_context_efb($context);
-        error_log('[EFB Email Tester] ' . $event . ' ' . wp_json_encode($safe_context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        // error_log('[EFB Email Tester] ' . $event . ' ' . wp_json_encode($safe_context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     }
 
     private function email_tester_sanitize_log_context_efb($value) {

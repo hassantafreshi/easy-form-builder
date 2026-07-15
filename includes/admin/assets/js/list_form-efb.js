@@ -1239,7 +1239,7 @@ function fun_show_setting__emsFormBuilder() {
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
   const weeklyEmailReportAllowed = [1, 3].includes(package_type);
   const emailStatsReportAllowed = package_type === 1;
-  console.log(`weeklyEmailReportAllowed: ${weeklyEmailReportAllowed} . packagetype:[${package_type}]`)
+  // console.log(`weeklyEmailReportAllowed: ${weeklyEmailReportAllowed} . packagetype:[${package_type}]`)
   const emailMonitor = efb_var.emailMonitor || {};
   const weeklyEmailStatus = emailMonitor.message
     ? `${emailMonitor.message}${emailMonitor.checked_at ? ` (${emailMonitor.checked_at})` : ''}`
@@ -1247,7 +1247,7 @@ function fun_show_setting__emsFormBuilder() {
 
   const language_not_needed_show =['fa_IR','ar_AR' ,'fr_FR','de','en_US'].includes(efb_var.language) ? false : true;
   let message_lanaguage = ''
-  console.log('language_not_needed_show', language_not_needed_show)
+  // console.log('language_not_needed_show', language_not_needed_show)
   if(language_not_needed_show){
     message_lanaguage = `<div class="efb my-3 mx-4 p-3" role="" style="border-radius:10px;border:1px solid #e0e7ff;background:linear-gradient(135deg,#f0f4ff 0%,#e8f5e9 100%);">
                                  <p class="efb mb-2" style="line-height:1.7;">
