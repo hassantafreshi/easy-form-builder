@@ -1754,6 +1754,10 @@ span,strong,p,small,div,h1,h2,h3,h4,h5 {
   cursor: default;
 }
 
+a span, a strong, a p, a small, a div, a h1, a h2, a h3, a h4, a h5, a svg, a i {
+  cursor: pointer;
+}
+
 .efb#undefined {
    display: none!important;
 }
