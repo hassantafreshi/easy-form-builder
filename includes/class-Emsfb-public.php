@@ -4518,7 +4518,17 @@ public function check_nonce_permission_efb($request) {
 			 $this->efbFunction->download_all_addons_efb();
 			 return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
-		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
+		/* Load the Stripe SDK guarded: another plugin may already have loaded a
+		 * Stripe SDK or this very composer build — re-requiring the composer
+		 * bootstrap then fatals on the ComposerAutoloaderInit class redeclare. */
+		if ( ! class_exists( '\Stripe\StripeClient' ) ) {
+			$stripe_init = EMSFB_PLUGIN_DIRECTORY . '/vendor/stripe/stripe-php/init.php';
+			if ( file_exists( $stripe_init ) ) {
+				require_once $stripe_init;
+			} else {
+				require_once( EMSFB_PLUGIN_DIRECTORY . "/vendor/autoload.php" );
+			}
+		}
 		$this->id = intval($data_POST['id']);
 		$val_ = sanitize_text_field($data_POST['value']);
 		if(empty($this->db)){
@@ -4549,8 +4559,12 @@ public function check_nonce_permission_efb($request) {
 		$price_f = $price_f*100;
 		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
 		if($price_f>0){
-			$currency= $fs_[0]['currency'] ;
+			$currency= isset($fs_[0]['currency']) && strlen((string)$fs_[0]['currency'])>2 ? $fs_[0]['currency'] : 'usd';
 
+			/* A Stripe API failure (invalid key, unsupported currency, amount below
+			 * minimum, network...) must reach the visitor as a readable message,
+			 * not as an uncaught exception / HTTP 500. */
+			try {
 			$stripe = new \Stripe\StripeClient($Sk);
 			$newPay = [
 				'amount' => $price_f,
@@ -4596,6 +4610,12 @@ public function check_nonce_permission_efb($request) {
 					  $amount = $paymentIntent->plan->amount/100;
 					  $created= date("Y-m-d-h:i:s",$paymentIntent->created);
 					  $val =  $amount . ' ' . $paymentIntent->currency;
+			}
+			} catch ( \Throwable $e ) {
+				error_log( '[EFB][Stripe] card/add failed for form ' . $this->id . ': ' . $e->getMessage() );
+				$response = [ 'success' => false, 'm' => 'Stripe: ' . $e->getMessage() ];
+				wp_send_json_success( $response, 200 );
+				return;
 			}
 			$filtered = array_filter($valobj, function($item) {
 				if(isset($item['price']))	return $item;
