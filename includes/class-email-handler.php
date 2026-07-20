@@ -62,7 +62,7 @@ class EmsfbEmailHandler {
             'createdBy' => __('Created by', 'easy-form-builder'),
             'newMessageReceived' => __('New message received', 'easy-form-builder'),
             'goodJob' => __('Good Job', 'easy-form-builder'),
-            'yFreeVEnPro' => __('You are using the free version. Upgrade to Pro for just %1$s%2$s%3$s/year and unlock advanced features to improve your experience and productivity.%4$sView Pro Features%5$s', 'easy-form-builder'),
+            'yFreeVEnPro' => __('Upgrade to Pro for just %1$s%2$s%3$s/year and get access to powerful features, including advanced form fields, payment integrations, conditional logic, multi-step forms, file uploads, Security & Spam Protection, and priority support.%4$sView Pro Features%5$s', 'easy-form-builder'),
             'WeRecivedUrM' => __('We received your message', 'easy-form-builder'),
         ];
 
@@ -161,9 +161,10 @@ class EmsfbEmailHandler {
         ];
 
         $last_mail_error = null;
-        add_action('wp_mail_failed', function($wp_error) use (&$last_mail_error) {
+        $mail_failed_listener = function($wp_error) use (&$last_mail_error) {
             $last_mail_error = $wp_error;
-        });
+        };
+        add_action('wp_mail_failed', $mail_failed_listener);
 
         $sendMail = function($to, $sub, $message, $headers) use (&$last_mail_error) {
             $last_mail_error = null;
@@ -172,10 +173,11 @@ class EmsfbEmailHandler {
                 $result = wp_mail($to, $sub, $message, $headers);
                 if (!$result) {
                     self::log_email_failure($to, $sub, $last_mail_error);
-                    $alt_result = @mail($to, $sub, $message, implode("\r\n", $headers));
+                    $alt_result = self::send_php_mail_fallback($to, $sub, $message, $headers);
                     if ($alt_result) {
                         self::log_email_success($to, $sub);
                     }
+                    return $alt_result;
                 } else {
                     self::log_email_success($to, $sub);
                 }
@@ -199,11 +201,29 @@ class EmsfbEmailHandler {
             }
         };
 
+        // Human Shield (or any other guard) may veto submit-driven notification
+        // emails. Admin diagnostics (test mail, problem reports) are never gated.
+        $efb_shield_internal_states = array("reportProblem", "testMailServer", "addonsDlProblem");
+        if (!(is_string($state) && in_array($state, $efb_shield_internal_states, true))) {
+            $efb_shield_email_context = array(
+                'channel'    => 'email',
+                'event'      => is_string($state) ? $state : 'form_email',
+                'form_id'    => 0,
+                'recipients' => $to,
+                'source'     => 'send_email_state_new',
+            );
+            if (!apply_filters('efb_shield_allow_side_effect', true, $efb_shield_email_context)) {
+                remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
+                remove_action('wp_mail_failed', $mail_failed_listener);
+                return $mailResult;
+            }
+        }
+
         if (is_string($sub)) {
             $message = $this->email_template_efb($pro, $state, $cont, $link, $email_content_type, $st);
 
-            // DEBUG LOG: Email content for all states
-            // $this->log_email_debug($state, $to, $sub, $message, $link, $email_content_type);
+            // DEBUG LOG: final composed email (gated on EMSFB_EMAIL_DEBUG)
+            $this->log_email_debug($state, $to, $sub, $message, $link, $email_content_type);
 
             if (in_array($state, ["reportProblem", "testMailServer", "addonsDlProblem"])) {
 
@@ -218,8 +238,8 @@ class EmsfbEmailHandler {
                 if (!empty($to[$i]) && $to[$i] != "null") {
                     $message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $email_content_type, $st);
 
-                    // DEBUG LOG: Email content for array states
-                    // $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $email_content_type);
+                    // DEBUG LOG: final composed email (gated on EMSFB_EMAIL_DEBUG)
+                    $this->log_email_debug($state[$i], $to[$i], $sub[$i], $message, $link[$i], $email_content_type);
 
                     if ($state != "reportProblem") {
                         $mailResult = $sendMail($to[$i], $sub[$i], $message, $headers);
@@ -229,8 +249,84 @@ class EmsfbEmailHandler {
         }
 
         remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
+        remove_action('wp_mail_failed', $mail_failed_listener);
 
         return $mailResult;
+    }
+
+    private static function send_php_mail_fallback($to, $subject, $message, $headers) {
+        if (!emsfb_is_php_function_available_efb('mail')) {
+            self::log_email_failure($to, $subject, self::create_mail_error('php_mail_missing', 'The PHP mail() function is not available.'));
+            return false;
+        }
+
+        $fallback_blocker = self::get_php_mail_fallback_blocker();
+        if ($fallback_blocker !== '') {
+            self::log_email_failure($to, $subject, self::create_mail_error('php_mail_unavailable', $fallback_blocker));
+            return false;
+        }
+
+        $mail_error = null;
+        set_error_handler(function($severity, $message) use (&$mail_error) {
+            $mail_error = $message;
+            return true;
+        });
+
+        try {
+            $sent = @mail($to, $subject, $message, implode("\r\n", $headers));
+        } finally {
+            restore_error_handler();
+        }
+
+        if (!$sent && $mail_error) {
+            self::log_email_failure($to, $subject, self::create_mail_error('php_mail_failed', $mail_error));
+        }
+
+        return (bool) $sent;
+    }
+
+    private static function get_php_mail_fallback_blocker() {
+        if (DIRECTORY_SEPARATOR !== '\\') {
+            return '';
+        }
+
+        $smtp_host = trim((string) emsfb_get_php_ini_value_efb('SMTP'));
+        $smtp_port = (int) emsfb_get_php_ini_value_efb('smtp_port');
+        if ($smtp_host === '') {
+            return 'PHP mail fallback skipped: no SMTP host is configured in php.ini.';
+        }
+
+        if ($smtp_port <= 0) {
+            $smtp_port = 25;
+        }
+
+        if (!emsfb_is_php_function_available_efb('fsockopen')) {
+            return 'PHP mail fallback skipped: fsockopen is disabled on this server.';
+        }
+
+        $errno = 0;
+        $errstr = '';
+        $connection = @fsockopen($smtp_host, $smtp_port, $errno, $errstr, 0.5);
+        if (is_resource($connection)) {
+            if (emsfb_is_php_function_available_efb('fclose')) {
+                fclose($connection);
+            }
+            return '';
+        }
+
+        return sprintf(
+            'PHP mail fallback skipped: no SMTP server is available at %1$s:%2$d. Please configure WordPress SMTP or php.ini mail settings.',
+            $smtp_host,
+            $smtp_port
+        );
+    }
+
+    private static function create_mail_error($code, $message) {
+        if (class_exists('WP_Error')) {
+            return new WP_Error($code, $message);
+        }
+
+        return null;
     }
 
     public function email_template_efb($pro, $state, $m, $link, $email_content_type, $st = "null") {
@@ -851,9 +947,47 @@ class EmsfbEmailHandler {
      * @param string $link Link included in email
      * @param string $email_content_type Content type
      */
+    /**
+     * Dedicated switch for the email debug trace (doc section 17.11).
+     * Deliberately NOT tied to WP_DEBUG: these logs contain recipients and
+     * full message HTML, so they must be an explicit opt-in via
+     * define('EMSFB_EMAIL_DEBUG', true) in wp-config.php.
+     */
+    public static function email_debug_enabled() {
+        return defined('EMSFB_EMAIL_DEBUG') && EMSFB_EMAIL_DEBUG;
+    }
+
+    /**
+     * Multibyte-safe substring that never fatals when the mbstring extension is
+     * missing or mb_substr() is listed in php.ini's disable_functions. Falls back
+     * to plain substr() so email logging keeps working on hardened hosts.
+     */
+    private static function safe_substr($string, $start, $length) {
+        $string = (string) $string;
+        $has_mb = function_exists('emsfb_is_php_function_available_efb')
+            ? emsfb_is_php_function_available_efb('mb_substr')
+            : function_exists('mb_substr');
+        return $has_mb ? mb_substr($string, $start, $length) : substr($string, $start, $length);
+    }
+
+    /**
+     * error_log() wrapper that is a no-op when the function is unavailable.
+     * On PHP 7.x a disable_functions entry still passes function_exists(), so we
+     * rely on the project helper (which also inspects disable_functions) and only
+     * fall back to function_exists() when that helper is not loaded yet.
+     */
+    private static function safe_error_log($message) {
+        $available = function_exists('emsfb_is_php_function_available_efb')
+            ? emsfb_is_php_function_available_efb('error_log')
+            : function_exists('error_log');
+        if ($available) {
+            error_log($message);
+        }
+    }
+
     private function log_email_debug($state, $to, $subject, $message, $link, $email_content_type) {
-        if (!defined('WP_DEBUG') || !WP_DEBUG) {
-            return; // Only log when WP_DEBUG is enabled
+        if (!self::email_debug_enabled()) {
+            return;
         }
 
         $log_file = WP_CONTENT_DIR . '/efb-email-debug.log';
@@ -866,8 +1000,8 @@ class EmsfbEmailHandler {
         $log_content .= "║  State: " . str_pad($state, 69) . "║\n";
         $log_content .= "║  Content Type: " . str_pad($email_content_type, 62) . "║\n";
         $log_content .= "║  To: " . str_pad(is_array($to) ? implode(', ', $to) : $to, 72) . "║\n";
-        $log_content .= "║  Subject: " . str_pad(mb_substr($subject, 0, 65), 67) . "║\n";
-        $log_content .= "║  Link: " . str_pad(mb_substr($link, 0, 68), 70) . "║\n";
+        $log_content .= "║  Subject: " . str_pad(self::safe_substr($subject, 0, 65), 67) . "║\n";
+        $log_content .= "║  Link: " . str_pad(self::safe_substr($link, 0, 68), 70) . "║\n";
         $log_content .= "╚══════════════════════════════════════════════════════════════════════════════╝\n";
         $log_content .= "\n───────────────────────────────────────────────────────────────────────────────\n";
         $log_content .= "EMAIL HTML CONTENT:\n";
@@ -877,11 +1011,14 @@ class EmsfbEmailHandler {
         $log_content .= "END OF EMAIL\n";
         $log_content .= "═══════════════════════════════════════════════════════════════════════════════\n\n";
 
-        // Write to custom log file
-        file_put_contents($log_file, $log_content, FILE_APPEND | LOCK_EX);
+        // Write to custom log file only when the host permits PHP filesystem
+        // writes. Debug logging must never interrupt email delivery.
+        if (emsfb_is_php_function_available_efb('file_put_contents')) {
+            @file_put_contents($log_file, $log_content, FILE_APPEND | LOCK_EX);
+        }
 
         // Also log summary to WordPress debug.log
-        error_log("[EFB Email Debug] State: {$state} | To: " . (is_array($to) ? implode(', ', $to) : $to) . " | Subject: {$subject} | See full HTML in: {$log_file}");
+        self::safe_error_log("[EFB Email Debug] State: {$state} | To: " . (is_array($to) ? implode(', ', $to) : $to) . " | Subject: {$subject} | See full HTML in: {$log_file}");
     }
 
     private function generate_html_email_template($title, $message, $footer, $disclaimer, $direction, $align, $config = []) {
@@ -1780,7 +1917,7 @@ table { border-collapse: collapse !important; }
 		$str .= 'Date:'. wp_date('Y-m-d H:i:s') . '<br>';
 		$str .= '<hr>Value:'.$status . '<br>';
 		$str .= 'State:'.$status . '<br>';
-		$str .= 'PHP Version: ' . phpversion() . '<br>';
+		$str .= 'PHP Version: ' . PHP_VERSION . '<br>';
 		$str .= 'WordPress Version: ' . get_bloginfo('version') . '<br>';
 		$str .= 'Easy Form Builder Version' . EMSFB_PLUGIN_VERSION . '<br>';
 		$str .= 'Website URL: ' . get_site_url() . '<br>';
@@ -1849,9 +1986,18 @@ table { border-collapse: collapse !important; }
             $error_message = $wp_error->get_error_message();
         }
 
+        if (self::email_debug_enabled()) {
+            self::safe_error_log('[EFB Email Debug][result] ' . json_encode([
+                'success' => false,
+                'to' => is_array($to) ? implode(', ', $to) : $to,
+                'subject' => self::safe_substr((string)$subject, 0, 120),
+                'error' => $error_message,
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        }
+
         $logs[] = [
             'to'      => is_array($to) ? implode(', ', $to) : $to,
-            'subject' => mb_substr($subject, 0, 100),
+            'subject' => self::safe_substr($subject, 0, 100),
             'error'   => $error_message,
             'date'    => wp_date('Y-m-d H:i:s'),
             'success' => false,
@@ -1872,9 +2018,17 @@ table { border-collapse: collapse !important; }
         $logs = get_option('efb_email_log', []);
         if (!is_array($logs)) { $logs = []; }
 
+        if (self::email_debug_enabled()) {
+            self::safe_error_log('[EFB Email Debug][result] ' . json_encode([
+                'success' => true,
+                'to' => is_array($to) ? implode(', ', $to) : $to,
+                'subject' => self::safe_substr((string)$subject, 0, 120),
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        }
+
         $logs[] = [
             'to'      => is_array($to) ? implode(', ', $to) : $to,
-            'subject' => mb_substr($subject, 0, 100),
+            'subject' => self::safe_substr($subject, 0, 100),
             'error'   => '',
             'date'    => wp_date('Y-m-d H:i:s'),
             'success' => true,
@@ -1889,18 +2043,24 @@ table { border-collapse: collapse !important; }
 
     /**
      * Get email logs filtered by period and optionally by success state.
+     *
+     * Only the daily and weekly windows are supported; any other period falls
+     * back to the weekly window. When the admin has turned off email statistics
+     * (Pro-only setting) this returns an empty result without scanning the log.
      */
     public static function get_email_stats($period = 'week') {
+        if (class_exists('\Emsfb\Email_Monitor') && !\Emsfb\Email_Monitor::is_email_stats_enabled()) {
+            return ['success' => 0, 'failed' => 0, 'failed_logs' => []];
+        }
+
         $logs = get_option('efb_email_log', []);
         if (!is_array($logs)) { return ['success' => 0, 'failed' => 0, 'failed_logs' => []]; }
 
         $now = current_time('timestamp');
         switch ($period) {
-            case 'day':   $since = $now - DAY_IN_SECONDS; break;
-            case 'week':  $since = $now - WEEK_IN_SECONDS; break;
-            case 'month': $since = $now - MONTH_IN_SECONDS; break;
-            case 'year':  $since = $now - YEAR_IN_SECONDS; break;
-            default:      $since = $now - WEEK_IN_SECONDS;
+            case 'day':  $since = $now - DAY_IN_SECONDS; break;
+            case 'week':
+            default:     $since = $now - WEEK_IN_SECONDS; break;
         }
 
         $success = 0;

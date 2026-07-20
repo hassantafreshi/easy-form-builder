@@ -1,6 +1,22 @@
 
 const iconMarginGlobal = efb_var.rtl == 1 ? 'ms-2' : 'me-2';
 
+const efbMobileProLockedEfb = () => typeof efbHasMobileProAccessEfb === 'function'
+  ? !efbHasMobileProAccessEfb()
+  : !(efb_var.pro === true || efb_var.pro === 1 || efb_var.pro === '1');
+const efbMobileProControlEfb = (html) => {
+  const mobileOnly = html.includes('efb-mobile-settings-efb');
+  const hidden = mobileOnly && (typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile') ? 'd-none' : '';
+  const proTitle = efb_var.text.fieldAvailableInProversion || 'This feature is only available in the Pro version of Easy Form Builder.';
+  const lockedAction = efbMobileProLockedEfb()
+    ? `onclick="if (!event.target.closest('.pro-version-efb')) efbRequireMobileProEfb(event)"`
+    : '';
+  const proGem = efbMobileProLockedEfb()
+    ? `<a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb efb-mobile-pro-gem" data-bs-toggle="tooltip" data-bs-placement="top" title="${proTitle}" data-original-title="${proTitle}"><i class="efb bi-gem text-light"></i></a>`
+    : '';
+  return `<div class="efb efb-mobile-pro-control ${mobileOnly ? 'efb-mobile-pro-control--field' : ''} ${hidden} ${efbMobileProLockedEfb() ? 'is-locked' : ''}" ${lockedAction}>${html}${proGem}</div>`;
+};
+
 const currency_efb = ["USD (United State dollar)","AED (United Arab Emirates dirham, درهم إماراتي)","AFN (Afghan afghani)","ALL (Albania Lek)","AMD (Armenian dram, Հայկական Դրామ)","ANG (Netherlands Antillean guilder, Antilliaanse gulden)","AOA (Angolan kwanza)","ARS (Argentine peso,Peso argentino)","AUD (Australian dollar)","AWG (Aruban florin, Arubaanse florin)","AZN (Azerbaijani manat, Azərbaycan manatı)","BAM (Bosnia and Herzegovina convertible mark, Конвертибилна марка)","BBD (Barbadian dollar)","BDT (Bangladeshi taka, টাকা)","BGN (Bulgarian lev, Български лев)","BIF (franc burundais)","BMD (Bermudian dollar)","BND (Brunei dollar, ringgit Brunei)","BOB  (Bolivian boliviano, boliviano)","BRL  (Brazilian real, Real brasileiro)","BSD (Bahamian dollar)","BWP (Botswana pula)","BYN (Belarusian ruble, беларускі рубель)","BZD (Belize dollar)","CAD (Canadian dollar, dollar canadien)","CDF (Congolese franc, franc congolais)","CHF (Swiss franc)","CLP  (Chilean peso, Peso chileno)","CNY (Renminbi, 人民币)","COP  (Colombian peso, peso colombiano)","CRC  (Costa Rican colón, colón costarricense)","CVE  (Cape Verdean escudo, escudo cabo-verdiano)","CZK (Czech koruna, koruna česká)","DJF  (Djiboutian franc, الفرنك الجيبوتي)","DKK (Danish krone, dansk krone)","DOP (Dominican peso, peso dominicano)","DZD (Algerian dinar, دينار جزائري)","EGP (Egyptian pound, جنيه مصرى)","ETB (Ethiopian birr)","EUR (Euro)","FJD (Fijian dollar)","FKP  (Falkland Islands pound)","GBP (Pound sterling)","GEL (Georgian lari,  ქართული ლარი)","GIP (Gibraltar pound)","GMD (Gambian dalasi)","GNF  (Guinean franc, franc guinéen)","GTQ  (Guatemalan quetzal,  quetzal guatemalteco)","GYD (Guyanese dollar)","HKD (Hong Kong dollar, 港元)","HNL  (Honduran lempira, lempira hondureño)","HRK (Croatian kuna, hrvatska kuna)","HTG (Haitian gourde, gourde haïtienne)","HUF (Hungarian forint, Magyar forint)","IDR (Indonesian rupiah)","ILS (Israeli new shekel, שקל חדש)","INR (Indian rupee)","ISK (Icelandic krona, króna)","JMD (Jamaican dollar)","JPY (Japanese yen, 日本円)","KES (Kenyan shilling, Kenyan shilling)","KGS (Kyrgyzstani som, Кыргыз сому)","KHR (Cambodian riel, រៀលកម្ពុជា/រៀលខ្មែរ)","KMF (Comorian franc)","KRW (South Korean won, 대한민국 원)","KYD (Cayman Islands dollar)","KZT (Kazakhstani tenge, Қазақстан теңгесі)","LAK (Lao kip,ເງີນກີບລາວ)","LBP (Lebanese pound, Livre libanaise)","LKR (Sri Lankan rupee, ශ්‍රී ලංකා රුපියල්)","LRD (Liberian dollar)","LSL (Lesotho loti)","MAD (Moroccan dirham, ⴰⴷⵔⵀⵎ ⵏ ⵍⵎⵖⵔⵉⴱ)","MDL (Moldovan leu, leu moldovenesc)","MGA (Malagasy ariary,ariary malgache)","MKD (Macedonian denar,денар)","MMK (Myanmar kyat)","MNT (Mongolian tögrög, Монгол төгрөг)","MOP (Macanese pataca)","MRO (Mauritanian ouguiya, أوقية موريتانية)","MUR (Mauritian rupee, Roupie mauricienne)","MVR (Maldivian rufiyaa)","MWK (Malawian kwacha)","MXN (Mexican peso, Peso Mexicano)","MYR (Malaysian ringgit, Ringgit Malaysia)","MZN (Mozambican metical, Metical moçambicano)","NAD (Namibian dollar)","NGN (Nigerian naira)","NIO (Nicaraguan córdoba, córdoba nicaragüense)","NOK (Norwegian krone, norsk krone)","NPR (Nepalese rupee, रुपैयाँ)","NZD (New Zealand dollar)","PAB (Panamanian balboa, Balboa panameño)","PEN (Peruvian sol, sol peruano)","PGK (Papua New Guinean kina)","PHP (Philippine peso, Piso ng Pilipinas)","PKR (Pakistani rupee)","PLN (Polish złoty, Polski złoty)","PYG (Paraguayan guaraní, Guaraní paraguayo)","QAR (Qatari riyal, ريال قطري)","RON (Romanian leu, Leu românesc)","RSD (Serbian dinar, Cрпски динар)","RUB (Russian ruble, Российский рубль)","RWF (Rwandan franc, franc rwandais)","SAR (Saudi riyalSaudi riyal, ريال سعودي)","SBD (Solomon Islands dollar)","SCR (Seychellois rupee, roupie seychelloise)","SEK (Swedish krona, svensk krona )","SGD (Singapore dollar, Dolar Singapura)","SHP (Saint Helena pound)","SLL (Sierra Leonean leone)","SOS (Somali shilling, Shilin Soomaali)","SRD (Surinamese, Surinamese )","STD (São Tomé and Príncipe dobra, dobra são-tomense)","SZL (Swazi lilangeni)","THB (Thai baht, บาทไทย)","TJS (Tajikistani somoni, Сомонӣ)","TOP (Tonga Pa'anga)","TRY (Turkish New Lira)","TTD (Trinidad/Tobago Dollar)","TWD (Taiwan Dollar)","TZS (Tanzania Shilling)","UAH (Ukraine Hryvnia)","UGX (Uganda Shilling)","UYU (Uruguay Peso)","UZS (Uzbekistani soʻm, Oʻzbek soʻmi)","VND (Vietnam Dong)","VUV (Vanuatu Vatu)","WST (Samoa Tala)","XAF (CFA Franc BEAC)","XCD (East Caribbean Dollar)","XOF (CFA Franc BCEAO)","XPF (CFP Franc)","YER (Yemen Rial)","ZAR (South Africa Rand)","ZMW (Zambian kwacha)"];
 const currency_paypal_efb = ["USD (United State dollar)","AUD (Australian dollar)","BRL  (Brazilian real, Real brasileiro)","CAD (Canadian dollar, dollar canadien)","CHF (Swiss franc)","CNY (Renminbi, 人民币)","CZK (Czech koruna, koruna česká)","DKK (Danish krone, dansk krone)","EUR (Euro)","GBP (Pound sterling)","HKD (Hong Kong dollar, 港元)","HUF (Hungarian forint, Magyar forint)","ILS (Israeli new shekel, שקל חדש)","JPY (Japanese yen, 日本円)","MXN (Mexican peso, Peso Mexicano)","MYR (Malaysian ringgit, Ringgit Malaysia)","NOK (Norwegian krone, norsk krone)","NZD (New Zealand dollar)","PHP (Philippine peso, Piso ng Pilipinas)","PLN (Polish złoty, Polski złoty)","SEK (Swedish krona, svensk krona )","SGD (Singapore dollar, Dolar Singapura)","THB (Thai baht, บาทไทย)","TWD (Taiwan Dollar)"];
 const lan_con_efb = {af:"ZA",ak:"AK",sq:"AL",hy:"AM",rup_MK:"en",as:"as",az_TR:"AZ",ba:"RU",eu:"ES",bel:"BY",bn_BD:"BD",bs_BA:"BA",my_MM:"MM",ca:"ES",bal:"ES",co:"FR",hr:"HR",dv:"MV",nl_NL:"NL",eo:"EO",fo:"FO",fr_BE:"FR",fy:"NL",fuc:"CM",gl_ES:"ES",ka_GE:"GE",gn:"BO",gu_IN:"IN",haw_US:"US",haz:"AF",is_IS:"IS",ido:"FI",jv_ID:"ID",kn:"IN",km:"KH",kin:"RW",ky_KY:"KG",ckb:"IQ",lo:"LA",li:"BE",lin:"CG",lb_LU:"LU",mk_MK:"MK",mg_MG:"MG",ml_IN:"IN",mr:"IN",xmf:"GA",mn:"MN",me_ME:"ME",ne_NP:"NP",nn_NO:"NO",ory:"IN",os:"IR",ps:"PK",fa_AF:"AF",pa_IN:"IN",rhg:"BD",ro_RO:"RO",ru_UA:"UA",rue:"SK",sah:"RU",sa_IN:"IN",srd:"IT",gd:"GB",sr_RS:"CS",sd_PK:"IN",si_LK:"LK ",sl_SI:"SI ",so_SO:"SO",azb:"IR",es_AR:"AR",es_CL:"CL",es_CO:"CO",es_MX:"MX",es_PE:"PE",es_PR:"PR ",es_ES:"ES",es_VE:"VE",su_ID:"SD",sw:"KE",sv_SE:"SE",gsw:"CH",tl:"PH",tg:"TJ ",tzm:"MA",ta_IN:"IN",ta_LK:"LK",tt_RU:"RU",te:"IN",th:"TH",bo:"CH",tir:"ET",tr_TR:"TR",tuk:"TM",ug_CN:"CN",uk:"UA",ur:"PK",uz_UZ:"UZ",vi:"VN",wa:"BE",cy:"GB ",yor:"NG",en_AU:"AU",en_CA:"CA",en_GB:"GB",en_NZ:"NZ",en_US:"US",en_ZA:"ZA",cs_CZ:"CZ",da_DK:"DK",de_AT:"AT",de_CH_informal:"CH",de_DE:"DE",ar:"SA",fa_IR:"IR",ja:"JA",zh_CN:"CN",zh_HK:"HK",zh_SG:"SG",zh_TW:"TW",pl_PL:"PL",pt_AO:"AO",pt_BR:"BR",pt_PT:"PT",ro_RO:"RO",ru_RU:"RU",sk_SK:"SK",ms_MY:"MY",nb_NO:"NO",nl_BE:"BE",ko_KR:"KR",he_IL:"IL",hi_IN:"IN",hu_HU:"HU",id_ID:"ID",it_IT:"IT",fi:"fi",fr_CA:"CA",fr_FR:"FR"};
@@ -24,6 +40,9 @@ const fields_efb = [
   { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
+ // { name: efb_var.text.audio_recorder, icon: 'bi-mic', id: 'audio_recorder', pro: false, tag:'advance all' },
+ // { name: efb_var.text.video_recorder, icon: 'bi-camera-video', id: 'video_recorder', pro: false, tag:'advance all' },
+ // { name: efb_var.text.screen_recorder, icon: 'bi-display', id: 'screen_recorder', pro: false, tag:'advance all' },
   { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: true, tag:'advance all' },
 
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
@@ -317,15 +336,17 @@ const ElementAlignEls = (side ,indx ,idset) => {
   const right = side == 'label' ? 'txt-right' : 'justify-content-end'
   const center = side == 'label' ? 'txt-center' : 'justify-content-center'
   let value = valj_efb[indx].label_align;
-  let t = efb_var.text.label
+  let labText = efb_var.text.slabelAlign.replace('%s', '');
   if (side == 'description') {
     value = valj_efb[indx].message_align;
-    t = efb_var.text.description
+    labText = efb_var.text.sdescAlign.replace('%s', '');
+  } else if (side == 'buttons') {
+    value = valj_efb[0].btns_align;
+    labText = (efb_var.text.sbtnsAlign || '%s Buttons | Align').replace('%s', '');
   }
-  const lab = efb_var.text[side] || side;
   return `<div class="efb ${_wrapClass} ${_deskHide}">
   <div class="efb  row">
-  <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>${side == 'label' ? (efb_var.text.slabelAlign.replace('%s', '') || (lab + ' | ' + efb_var.text.align)) : (efb_var.text.sdescAlign.replace('%s', '') || (lab + ' | ' + efb_var.text.align))}</label>
+  <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>${labText}</label>
     <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="ElementAlignEl">
       <label class="efb ntb btn-primary ${value == left ? `active` : ''}" onclick="funSetAlignElEfb('${idset}','${left}','${side}')"><i class="efb bi-align-start fs-7 ${iconMarginGlobal}"></i>
         <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="labelPostionEl" value="left" >${efb_var.text.left}</label>
@@ -415,26 +436,21 @@ const SingleTextEls = (side,idset,indx) => {
 }
 
 const cornerEls = (side,indx,idset) => {
-
+  const storedCorner = valj_efb[indx].corner;
+  const activeCorner = ['rounded-0', 'rounded-1', 'rounded-2', 'rounded-3', 'rounded-4', 'rounded-5'].includes(storedCorner)
+    ? storedCorner
+    : 'rounded-0';
+  const options = ['rounded-0', 'rounded-1', 'rounded-2', 'rounded-3', 'rounded-4', 'rounded-5'];
+  const controls = options.map((corner, index) => {
+    const active = corner === activeCorner;
+    return `<label class="efb ntb btn-primary ${active ? 'active' : ''}" style="flex:1 1 auto;min-width:36px;" role="radio" aria-checked="${active}" onclick="funSetCornerElEfb('${idset}','${corner}')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
+      <input type="radio" name="corner_options_${idset}" class="efb opButtonEfb" data-id="${idset}" id="cornerEl" value="${corner}" ${active ? 'checked' : ''}>${index}</label>`;
+  }).join('');
   return `
     <div class="efb  row">
     <label for="cornerEl" class="efb  mt-3 col-12"><i class="efb bi-bounding-box-circles fs-7 ${iconMarginGlobal}"></i>${efb_var.text.corners}>${efb_var.text.rounded}</label>
-    <div class="efb  btn-group col-12  btn-group-toggle" style="flex-wrap:wrap;gap:2px;" data-toggle="buttons" data-side="${side}" data-id="${idset}-set" data-tag="${valj_efb[indx].type}" id="cornerEl">
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' || valj_efb[indx].corner =="0"  ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-0')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
-        <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >0</label>
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="1" ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-1')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
-        <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >1</label>
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="2" ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-2')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
-        <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >2</label>
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="3" ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-3')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
-        <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >3</label>
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner =="4" ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-4')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
-        <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >4</label>
-      <label class="efb  ntb  btn-primary ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'rounded-4' || valj_efb[indx].corner =="5" ? `active` : ''}" style="flex:1 1 auto;min-width:36px;" onclick="funSetCornerElEfb('${idset}','rounded-5')"><i class="efb bi-app fs-7 ${iconMarginGlobal}"></i>
-        <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="rounded-4" >5</label>
-        <!-- <span class="efb  border-right border border-light "></span>
-      <label class="efb  ntb btn-primary ${!valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onclick="funSetCornerElEfb('${idset}','efb-square')"><i class="efb bi-diamond fs-7 ${iconMarginGlobal}"></i>
-        <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="cornerEl" value="efb-square"> ${efb_var.text.square}</label>-->
+    <div class="efb btn-group col-12 btn-group-toggle" style="flex-wrap:wrap;gap:2px;" data-toggle="buttons" data-side="${side}" data-id="${idset}-set" data-tag="${valj_efb[indx].type}" id="cornerEl" role="radiogroup">
+      ${controls}
     </div></div>`
 }
 
@@ -556,6 +572,21 @@ function fun_test(t){
  }
 
 }
+function open_conditional_logic_efb() {
+  if (typeof EFB_Logic !== 'undefined' && typeof EFB_Logic.open === 'function') {
+    EFB_Logic.open();
+  } else {
+    console.error('EFB_Logic not loaded');
+    const title = (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text.iaddon) ? efb_var.text.iaddon : 'Addon';
+    const message = (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text.logicLoadError) ? efb_var.text.logicLoadError : 'The Conditional Logic module failed to load.';
+    if (typeof alert_message_efb === 'function') {
+      alert_message_efb(title, message, 20, 'danger');
+    } else if (typeof window !== 'undefined' && typeof window.alert === 'function') {
+      window.alert(message);
+    }
+  }
+}
+
 function show_setting_window_efb(idset) {
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
@@ -732,6 +763,10 @@ function show_setting_window_efb(idset) {
     </button>
     <label class="efb form-check-label" for="showSIconsEl">${efb_var.text.dontShowIconsStepsName}</label>
     </div>`;
+    const globalMobileHideLabelEls = efbMobileProControlEfb(`<div class="efb mx-1 my-3 efb">
+    <button type="button" id="globalMobileHideLabelEl" class="efb mx-0 btn h-s-efb btn-toggle ${iconMarginGlobal} ${Number(valj_efb[0].global_mobile_hflabel || 0) === 1 ? 'active' : ''}" data-id="${idset}" aria-pressed="${Number(valj_efb[0].global_mobile_hflabel || 0) === 1}" autocomplete="off" onclick="return efbToggleMobileVisibilityEfb(this, 'global_mobile_hflabel')"><div class="efb handle"></div></button>
+    <label class="efb form-check-label" for="globalMobileHideLabelEl">${efb_var.text.globalMobileHideLabel || 'Hide all labels on mobile'}</label>
+    </div>`);
     const showSprosiEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="showSprosiEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('show_pro_bar') && Number(valj_efb[indx].show_pro_bar) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
@@ -806,13 +841,23 @@ function show_setting_window_efb(idset) {
                             <option value="fs-4" ${ valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
                             <option value="fs-3" ${ valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
                         </select></div>`;
-    const optnsStyleEls = `
+    const optnsStyleEls = `<div class="efb efb-desktop-settings-efb ${deskHideEfb}">
       <label for="optnsStyleEl" class="efb mt-3 efb"><i class="efb bi-layout-split fs-7 ${iconMarginGlobal}"></i>${efb_var.text.cols}</label>
                         <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="optnsStyleEl"  data-tag="${valj_efb[indx].type}">
                             <option value="1" ${ !valj_efb[indx].hasOwnProperty('op_style') || valj_efb[indx].op_style == '1' ? `selected` : ''}>${efb_var.text.default}</option>
                             <option value="2" ${ valj_efb[indx].op_style == '2' ? `selected` : ''}>${efb_var.text.col} 2</option>
                             <option value="3" ${ valj_efb[indx].op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>
-                        </select>`;
+                        </select></div>`;
+
+    // Mobile option columns default to 1 column (stacked) - the published
+    // frontend has always stacked options below 768px unless overridden.
+    const mobileOptnsStyleEls = efbMobileProControlEfb(`<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
+      <label for="mobileOptnsStyleEl" class="efb mt-3 efb"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.cols}</label>
+                        <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="mobileOptnsStyleEl"  data-tag="${valj_efb[indx].type}">
+                            <option value="1" ${ !valj_efb[indx].hasOwnProperty('mobile_op_style') || valj_efb[indx].mobile_op_style == '1' ? `selected` : ''}>${efb_var.text.default}</option>
+                            <option value="2" ${ valj_efb[indx].mobile_op_style == '2' ? `selected` : ''}>${efb_var.text.col} 2</option>
+                            <option value="3" ${ valj_efb[indx].mobile_op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>
+                        </select></div>`);
 
     // Checked color picker for radio/checkbox elements (PRO feature)
     const selectCheckedColorEls = () => {
@@ -910,7 +955,7 @@ function show_setting_window_efb(idset) {
         <label class="efb  ntb btn-primary bi-chevron-bar-down ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'up' ? `active` : ''}" onclick="funSetPosElEfb('${idset}','up')">
           <input type="radio" name="options" class="efb  opButtonEfb elEdit "   data-id="${idset}"  id="labelPostionEl" value="up" >${efb_var.text.up}</label>
         <span class="efb  border-right border border-light "></span>
-        <label class="efb  ntb btn-primary bi-chevron-bar-right ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'beside' ? `active` : ''}" onclick="funSetPosElEfb('${idset}','besie')">
+        <label class="efb  ntb btn-primary bi-chevron-bar-right ${valj_efb[indx].label_position && (valj_efb[indx].label_position == 'beside' || valj_efb[indx].label_position == 'besie') ? `active` : ''}" onclick="funSetPosElEfb('${idset}','beside')">
           <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="beside"> ${efb_var.text.beside}
         </label>
       </div></div></div>`;
@@ -932,7 +977,7 @@ function show_setting_window_efb(idset) {
           <option value="100" ${valj_efb[indx].hasOwnProperty('size')==false || valj_efb[indx].size == 100 ? `selected` : ''} >100%</option>
       </select></div>
       `
-    const mobileWidthEls = `<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
+    const mobileWidthEls = efbMobileProControlEfb(`<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
       <label for="mobileSizeEl" class="efb  mt-3"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.swidth.replace('%s' , efb_var.text.mobile) || 'Mobile Width!'}</label>
       <select  data-id="${idset}" class="efb  rounded-4 elEdit form-select"  id="mobileSizeEl" >
           <option value="8" ${valj_efb[indx].mobile_size == 8 ? `selected` : ''}>8%</option>
@@ -947,9 +992,8 @@ function show_setting_window_efb(idset) {
           <option value="83" ${valj_efb[indx].mobile_size == 83 ? `selected` : ''}>83%</option>
           <option value="92" ${valj_efb[indx].mobile_size == 92 ? `selected` : ''}>92%</option>
           <option value="100" ${!valj_efb[indx].hasOwnProperty('mobile_size') || valj_efb[indx].mobile_size == 100 ? `selected` : ''}>100%</option>
-      </select></div>
-      `
-    const mobileLabelPostionEls = `<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
+      </select></div>`);
+    const mobileLabelPostionEls = efbMobileProControlEfb(`<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
     <div class="efb row efb">
     <label for="mobileLabelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelPosition.replace('%s', efb_var.text.mobile) || 'Mobile Label Position'}</label>
     <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-id="${idset}"  id="mobileLabelPostionEl">
@@ -959,17 +1003,19 @@ function show_setting_window_efb(idset) {
         <label class="efb  ntb btn-primary bi-chevron-bar-right ${valj_efb[indx].hasOwnProperty('mobile_label_position') && valj_efb[indx].mobile_label_position == 'beside' ? `active` : ''}" onclick="funSetMobilePosElEfb('${idset}','beside')">
             <input type="radio" name="mobile_pos_options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="mobileLabelPostionEl" value="beside"> ${efb_var.text.beside}
         </label>
-    </div></div></div>`;
+    </div></div></div>`);
 
-    const mobileLabelFontSizeEls = `<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
+    // Mobile label size inherits the desktop value until the user overrides it.
+    const mobileLabelFontSizeVal = valj_efb[indx].hasOwnProperty('mobile_label_text_size') ? valj_efb[indx].mobile_label_text_size : (valj_efb[indx].label_text_size && valj_efb[indx].label_text_size != 'default' ? valj_efb[indx].label_text_size : 'fs-6');
+    const mobileLabelFontSizeEls = efbMobileProControlEfb(`<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
       <label for="mobileLabelFontSizeEl" class="efb mt-3 efb"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelSize.replace('%s', efb_var.text.mobile) || 'Mobile Label size'}</label>
       <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="mobileLabelFontSizeEl"  data-tag="${valj_efb[indx].type}">
-          <option value="fs-6" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-6' ? `selected` : (!valj_efb[indx].hasOwnProperty('mobile_label_text_size') ? `selected` : '')}>${efb_var.text.default}</option>
-          <option value="fs-7" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
-          <option value="fs-5" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>
-          <option value="fs-4" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
-          <option value="fs-3" ${ valj_efb[indx].hasOwnProperty('mobile_label_text_size') && valj_efb[indx].mobile_label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
-      </select></div>`;
+          <option value="fs-6" ${ mobileLabelFontSizeVal == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
+          <option value="fs-7" ${ mobileLabelFontSizeVal == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
+          <option value="fs-5" ${ mobileLabelFontSizeVal == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>
+          <option value="fs-4" ${ mobileLabelFontSizeVal == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
+          <option value="fs-3" ${ mobileLabelFontSizeVal == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
+      </select></div>`);
 
     const MobileElementAlignEls = (side, indx, idset) => {
       const _mobHide = typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile' ? 'd-none' : '';
@@ -979,7 +1025,10 @@ function show_setting_window_efb(idset) {
       const propName = side == 'label' ? 'mobile_label_align' : 'mobile_message_align'
       let value = valj_efb[indx].hasOwnProperty(propName) ? valj_efb[indx][propName] : (side == 'label' ? valj_efb[indx].label_align : valj_efb[indx].message_align);
       const labText = side == 'label' ? (efb_var.text.slabelAlign.replace('%s', efb_var.text.mobile) || 'Mobile Label | Align') : (efb_var.text.sdescAlign.replace('%s', efb_var.text.mobile) || 'Mobile Description | Align')
-      return `<div class="efb efb-mobile-settings-efb ${_mobHide}">
+      const visibilityToggle = side === 'label'
+        ? `<div class="efb mt-3"><button type="button" id="mobileHideLabelEl" class="efb mx-0 btn h-s-efb btn-toggle ${iconMarginGlobal} ${Number(valj_efb[indx].mobile_hflabel || 0) === 1 ? 'active' : ''}" data-id="${idset}" aria-pressed="${Number(valj_efb[indx].mobile_hflabel || 0) === 1}" autocomplete="off" onclick="return efbToggleMobileVisibilityEfb(this, 'mobile_hflabel')"><div class="efb handle"></div></button><label class="efb form-check-label" for="mobileHideLabelEl">${efb_var.text.mobileHideLabel || 'Hide label on mobile'}</label></div>`
+        : `<div class="efb mt-3"><button type="button" id="mobileHideDescriptionEl" class="efb mx-0 btn h-s-efb btn-toggle ${iconMarginGlobal} ${Number(valj_efb[indx].mobile_hfdescription || 0) === 1 ? 'active' : ''}" data-id="${idset}" aria-pressed="${Number(valj_efb[indx].mobile_hfdescription || 0) === 1}" autocomplete="off" onclick="return efbToggleMobileVisibilityEfb(this, 'mobile_hfdescription')"><div class="efb handle"></div></button><label class="efb form-check-label" for="mobileHideDescriptionEl">${efb_var.text.mobileHideDescription || 'Hide description on mobile'}</label></div>`;
+      return efbMobileProControlEfb(`<div class="efb efb-mobile-settings-efb ${_mobHide}">
       <div class="efb  row">
       <label for="MobileElementAlignEl" class="efb  mt-3 col-12"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${labText}</label>
       <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="MobileElementAlignEl">
@@ -991,7 +1040,7 @@ function show_setting_window_efb(idset) {
           <span class="efb border-right border border-light "></span>
           <label class="efb ntb btn-primary ${value == right ? `active` : ''}" onclick="funSetMobileAlignElEfb('${idset}','${right}','${side}')"><i class="efb bi-align-end fs-7 ${iconMarginGlobal}"></i>
               <input type="radio" name="mobile_align_options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="MobileElementAlignEl" value="right">${efb_var.text.right}</label>
-      </div></div></div>`;
+      </div>${visibilityToggle}</div></div>`);
     }
 
     const classesEls = `
@@ -1124,13 +1173,78 @@ function show_setting_window_efb(idset) {
 
     const fileSizeMaxEls =()=>{
       const file_size = valj_efb[indx].hasOwnProperty('max_fsize') ? valj_efb[indx].max_fsize : 8;
+      // Host awareness: the real ceiling is the hosting's upload_max_filesize -
+      // configuring a larger value here silently breaks uploads for visitors.
+      const hostMax = Number(efb_var.upload_max) || 0;
+      const overHost = hostMax > 0 && Number(file_size) > hostMax;
       return`
       <div class="efb  mt-3">
       <label for="fileSizeMaxEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.maxfs} <small>(MB)</small> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('file_size')"> </i></label>
 
       <input type="number" min="1" max="300" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" placeholder=""${efb_var.text.exDot} 8" id="fileSizeMaxEl" required value="${file_size}">
+      ${hostMax > 0 ? `<small class="efb text-muted fs-8 mx-2 d-block">${(efb_var.text.hostUploadLimit || 'Your hosting accepts uploads up to %s MB.').replace('%s', hostMax)}</small>` : ''}
+      ${hostMax > 0 ? `<small class="efb text-danger fs-8 mx-2 d-block ${overHost ? '' : 'd-none'}" id="fileSizeMaxWarnEfb"><i class="efb bi-exclamation-triangle-fill ${iconMarginGlobal}"></i>${(efb_var.text.hostUploadLimitOver || 'This is larger than the hosting limit (%s MB); uploads will fail.').replace('%s', hostMax)}</small>` : ''}
       </div>
       `}
+
+    const recorderQualityEls = () => {
+      const kind = valj_efb[indx].type;
+      const isAudio = kind === 'audio_recorder';
+      const quality = valj_efb[indx].hasOwnProperty('record_quality') ? valj_efb[indx].record_quality : (isAudio ? 'standard' : '720p');
+      const options = isAudio
+        ? [['low', efb_var.text.recQualityLow], ['standard', efb_var.text.recQualityStandard], ['high', efb_var.text.recQualityHigh]]
+        : [['480p', efb_var.text.recQuality480], ['720p', efb_var.text.recQuality720], ['1080p', efb_var.text.recQuality1080]];
+      let opts = '';
+      for (const o of options) {
+        opts += `<option value="${o[0]}" ${quality === o[0] ? 'selected' : ''}>${o[1]}</option>`;
+      }
+      return `
+      <label for="recorderQualityEl" class="efb  mt-3"><i class="efb bi-sliders fs-7 ${iconMarginGlobal}"></i>${efb_var.text.recQuality}</label>
+      <select  data-id="${idset}" class="efb  elEdit form-select border-d rounded-4"  id="recorderQualityEl" data-tag="${valj_efb[indx].type}">
+      ${opts}
+      </select>`;
+    }
+    const recorderDurationEls = () => {
+      const duration = valj_efb[indx].hasOwnProperty('max_duration') ? valj_efb[indx].max_duration : 90;
+      return `
+      <div class="efb  mt-3">
+      <label for="recorderDurationEl" class="efb  mt-3"><i class="efb bi-stopwatch fs-7 ${iconMarginGlobal}"></i>${efb_var.text.recDuration}</label>
+      <input type="number" min="5" max="1800" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" id="recorderDurationEl" required value="${duration}">
+      </div>
+      `
+    }
+
+    // ---- Recorder UX extras (docs/recorder-fields.md §3 settings registry) ----
+    const recorderCountdownEls = () => {
+      const val = valj_efb[indx].hasOwnProperty('rec_countdown') ? String(valj_efb[indx].rec_countdown) : '3';
+      const opts = [['0', efb_var.text.off], ['3', '3s'], ['5', '5s'], ['10', '10s']];
+      let o = '';
+      for (const op of opts) { o += `<option value="${op[0]}" ${val === op[0] ? 'selected' : ''}>${op[1]}</option>`; }
+      return `
+      <label for="recorderCountdownEl" class="efb  mt-3"><i class="efb bi-hourglass-split fs-7 ${iconMarginGlobal}"></i>${efb_var.text.recCountdown}</label>
+      <select data-id="${idset}" class="efb  elEdit form-select border-d rounded-4" id="recorderCountdownEl" data-tag="${valj_efb[indx].type}">${o}</select>`;
+    }
+
+    const recorderFacingEls = () => {
+      const val = valj_efb[indx].rec_facing === 'environment' ? 'environment' : 'user';
+      return `
+      <label for="recorderFacingEl" class="efb  mt-3"><i class="efb bi-phone-flip fs-7 ${iconMarginGlobal}"></i>${efb_var.text.recFacing}</label>
+      <select data-id="${idset}" class="efb  elEdit form-select border-d rounded-4" id="recorderFacingEl" data-tag="${valj_efb[indx].type}">
+        <option value="user" ${val === 'user' ? 'selected' : ''}>${efb_var.text.recFacingFront}</option>
+        <option value="environment" ${val === 'environment' ? 'selected' : ''}>${efb_var.text.recFacingBack}</option>
+      </select>`;
+    }
+
+    // Shared markup for the recorder on/off switches (same pattern as requiredEls).
+    const recorderToggleEls = (elId, prop, dflt, labelTxt) => {
+      const active = valj_efb[indx].hasOwnProperty(prop) ? Number(valj_efb[indx][prop]) === 1 : dflt === 1;
+      return `<div class="efb mx-1 my-3 efb">
+      <button type="button" id="${elId}" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${active ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
+      <div class="efb handle"></div>
+      </button>
+      <label class="efb form-check-label pt-1" for="${elId}">${labelTxt}</label>
+      </div>`;
+    }
 
     const fileTypeEls = `
           <label for="fileTypeEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.fileType}</label>
@@ -1383,6 +1497,7 @@ function show_setting_window_efb(idset) {
                         <div class="efb  mb-3 px-3 row">
 
                         ${o_c ? optnsStyleEls :''}
+    ${o_c ? mobileOptnsStyleEls : ''}
                         ${o_c ? selectCheckedColorEls() :''}
                         ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
@@ -1512,6 +1627,55 @@ function show_setting_window_efb(idset) {
                 ${disabledEls}
                 ${hiddenEls}
                 <!-- select type of file -->
+                </div>
+            </div>
+        </div><div class="efb  clearfix"></div>
+        `
+        break;
+      case "audio_recorder":
+      case "video_recorder":
+      case "screen_recorder":
+
+        body = `
+        <div class="efb  mb-3">
+        <!--  not   advanced-->
+        ${Nadvanced}
+        ${recorderQualityEls()}
+        ${recorderDurationEls()}
+        ${recorderCountdownEls()}
+        ${el.dataset.tag == 'video_recorder' ? recorderFacingEls() : ''}
+        ${el.dataset.tag == 'video_recorder' ? recorderToggleEls('recorderMirrorEl', 'rec_mirror', 1, efb_var.text.recMirror) : ''}
+        ${el.dataset.tag == 'audio_recorder' ? recorderToggleEls('recorderNoiseEl', 'rec_noise', 1, efb_var.text.recNoise) : ''}
+        ${el.dataset.tag != 'audio_recorder' ? recorderToggleEls('recorderWatermarkEl', 'rec_watermark', 1, efb_var.text.recShowWatermark) : ''}
+        ${recorderToggleEls('recorderDownloadEl', 'rec_download', 1, efb_var.text.recAllowDownload)}
+        ${fileSizeMaxEls()}
+        <!--  not   advanced-->
+        <div class="efb  d-grid gap-2">
+          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+          </button>
+        </div>
+        <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+                <div class="efb  mb-3 px-3 row">
+
+                ${labelFontSizeEls}
+    ${mobileLabelFontSizeEls}
+                ${selectColorEls('label','text')}
+                ${selectColorEls('description','text')}
+                ${selectBorderColorEls('element',indx,idset)}
+                ${labelPostionEls}
+    ${mobileLabelPostionEls}
+                ${ElementAlignEls('label',indx,idset)}
+    ${MobileElementAlignEls('label',indx,idset)}
+                ${ElementAlignEls('description',indx,idset)}
+    ${MobileElementAlignEls('description',indx,idset)}
+                ${widthEls}
+                ${mobileWidthEls}
+                ${selectHeightEls(idset,indx)}
+                ${cornerEls("",indx,idset)}
+                ${classesEls}
+                ${disabledEls}
+                ${hiddenEls}
                 </div>
             </div>
         </div><div class="efb  clearfix"></div>
@@ -1735,6 +1899,7 @@ function show_setting_window_efb(idset) {
           ${valj_efb[0].type=="payment" ? '<!--efb-->' : captchaEls}
           ${shieldSilentCaptchaEls}
           ${showSIconsEls}
+          ${globalMobileHideLabelEls}
           ${showSprosiEls}
           ${showformLoggedEls}
           ${cardEls}
@@ -1778,14 +1943,15 @@ function show_setting_window_efb(idset) {
             </div>
           </div>
         <!-- telegram section end -->` : '<!-- telegram addon not active -->'}
+          ${(efb_var.addons && efb_var.addons.hasOwnProperty('AdnSMF') && Number(efb_var.addons.AdnSMF) >= 1) ? `
           <!-- conditional logic section -->
           <div class="efb d-grid gap-2" id="efb-conlog-btn-wrap">
-            <button class="efb btn btn-outline-light mt-3 d-none" type="button" onclick="if(typeof EFB_Logic!=='undefined'){EFB_Logic.open()}else{console.error('EFB_Logic not loaded')}">
-              <i class="efb bi-diagram-3 me-1"></i>${efb_var.text.conlog || 'Conditional Logic'}
+            <button class="efb btn btn-outline-light mt-3" type="button" onclick="open_conditional_logic_efb()">
+              <i class="efb bi-diagram-3"></i>${efb_var.text.conlog || 'Conditional Logic'}
               ${(valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) ? '<span class="efb badge bg-primary ms-2">' + valj_efb[0].logic_rules.length + '</span>' : ''}
             </button>
           </div>
-          <!-- conditional logic section end -->
+          <!-- conditional logic section end -->` : '<!-- conditional logic addon not active -->'}
           <div class="efb  d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
             <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
@@ -1960,6 +2126,8 @@ function show_setting_window_efb(idset) {
     const loading = '<div  class="efb m-0 p-0 " id="loadingSideMenuConEfb">'+efbLoadingCard('',5)+'</div>';
     document.getElementById('sideMenuConEfb').innerHTML=loading;
     document.getElementById('sideMenuConEfb').innerHTML+='<div class="efb m-0 p-0 d-none" id="childsSideMenuConEfb">'+body+'</div>';
+    if (typeof updateSideBoxViewEfb === 'function') updateSideBoxViewEfb(typeof currentViewEfb === 'undefined' ? 'desktop' : currentViewEfb);
+    if (idset !== 'formSet' && typeof efbSyncResponsiveButtonGroupsEfb === 'function') efbSyncResponsiveButtonGroupsEfb(idset);
     for (const el of document.querySelectorAll(`.elEdit`)) {
       if(el.tagName!="DIV"){el.addEventListener("change", (e) => { change_el_edit_Efb(el);})}
       else{ }
@@ -2057,7 +2225,7 @@ function creator_form_builder_Efb() {
   const st = document.getElementById('navbarSupportedContent') ? 1 :0;
   for (let ob in navs) {
     if( typeof navs[ob] == 'object') {
-      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb btn text-capitalize nav-link ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink text-pink'}  " ${navs[ob].fun.length > 2 ? `onclick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
+      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb btn text-capitalize nav-link ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink text-pink'}  " ${navs[ob].fun.length > 2 ? `onclick="${navs[ob].fun}"` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
     }
   }
 
@@ -2093,7 +2261,7 @@ function creator_form_builder_Efb() {
             </ul>
           <div class="efb row">${els}</div></div>
          <div class="efb  col-md-8 body-dpz-efb">
-         <div class="efb d-flex justify-content-center mb-2 d-none" id="viewToggleEfb">
+         <div class="efb d-flex justify-content-center mb-2" id="viewToggleEfb">
            <div class="efb btn-group" role="group" aria-label="View toggle">
              <button type="button" class="efb btn btn-sm btn-outline-primary active" id="desktopViewBtnEfb" onclick="switchViewEfb('desktop')">
                <i class="efb bi-display me-1"></i>${efb_var.text.desktop || 'Desktop'}
@@ -2123,6 +2291,10 @@ function creator_form_builder_Efb() {
   </div></div>
 
   `
+
+  // The page is rebuilt in desktop layout; keep the view engine in sync so a
+  // later switch to mobile re-renders instead of assuming it is already there.
+  if (typeof currentViewEfb !== 'undefined') currentViewEfb = 'desktop';
 
   create_dargAndDrop_el();
   items_dd_efb();

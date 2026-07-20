@@ -5,8 +5,9 @@
        private $pro_efb = false;
 	   public $pub_bg_button_color_efb='btn-primary';
 	   public $package_type_efb = 0;
-    private $mobile_pos = ['', 'col-sm-12', 'col-sm-12', 'col-sm-12'];
+    private $mobile_pos = ['', 'col-12', 'col-12', 'col-12'];
         public function __construct( $valj_efb, $pro_efb ) {
+
             $this->valj_efb =  $valj_efb;
             $this->pro_efb = $pro_efb;
 			$this->package_type_efb = (int) get_option('emsfb_pro' ,2);
@@ -14,15 +15,18 @@
 
 	private function generateDescription_efb($rndm, $vj, $pos) {
 
+		$mobile_hide_description = $this->pro_efb && isset($vj->mobile_hfdescription) && (int) $vj->mobile_hfdescription === 1;
 		$mx = $pos[1] == 'col-md-4' || (isset($vj->message_align) && $vj->message_align != "justify-content-start") ? '' : 'mx-4';
 		$msg_align = isset($vj->message_align) ? $vj->message_align : '';
 		$msg_txt_color = isset($vj->message_text_color) ? $vj->message_text_color : '';
 		$msg = isset($vj->message) ? $vj->message : '';
-		return '<small id="' . $rndm . '-des" class="efb form-text d-flex fs-7 col-sm-12 efb ' . $mx . ' ' . $msg_align . ' ' . $msg_txt_color . ' ' . (isset($vj->message_text_size) ? $vj->message_text_size : '') . ' ">' . $msg . '</small>';
+		return '<small id="' . $rndm . '-des" class="efb form-text d-flex fs-7 col-sm-12 efb ' . ($mobile_hide_description ? 'd-none d-md-flex' : '') . ' ' . $mx . ' ' . $msg_align . ' ' . $msg_txt_color . ' ' . (isset($vj->message_text_size) ? $vj->message_text_size : '') . ' ">' . $msg . '</small>';
 	}
 
 	private function generateLabel_efb($rndm, $vj, $pos, $mobile_pos = null) {
 
+		$global_mobile_hide_label = isset($this->valj_efb[0]->global_mobile_hflabel) && (int) $this->valj_efb[0]->global_mobile_hflabel === 1;
+		$mobile_hide_label = $this->pro_efb && ($global_mobile_hide_label || (isset($vj->mobile_hflabel) && (int) $vj->mobile_hflabel === 1));
 		$label_align = isset($vj->label_align) ? $vj->label_align : '';
 		$label_text_size = isset($vj->label_text_size) && $vj->label_text_size != "default" ? $vj->label_text_size : '';
 		$required  ='<span class="efb mx-1 text-danger" id="' . $rndm . '_req" role="none">';
@@ -36,9 +40,10 @@
 			'pt-2',
 			'pb-1',
 			$pos[2],
-			($mobile_pos !== null ? $mobile_pos[2] : 'col-sm-12'),
+			($mobile_pos !== null ? $mobile_pos[2] : 'col-12'),
 			'col-form-label',
 			(isset($vj->hflabel) && $vj->hflabel == 1 ? 'd-none' : ''),
+			($mobile_hide_label ? 'd-none d-md-block' : ''),
 			$label_color,
 			$label_align,
 			$label_text_size
@@ -54,7 +59,7 @@
 	}
 
 	private function generateDivFId_efb($rndm, $pos, $mobile_pos = null) {
-		return '<div class="efb ' . $pos[3] . ' ' . ($mobile_pos !== null ? $mobile_pos[3] : 'col-sm-12') . ' px-0 mx-0 ttEfb show" id="' . $rndm . '-f">';
+		return '<div class="efb ' . $pos[3] . ' ' . ($mobile_pos !== null ? $mobile_pos[3] : 'col-12') . ' px-0 mx-0 ttEfb show" id="' . $rndm . '-f">';
 	}
 
 	private function generateElementSpecificFields_efb($elementId, $rndm, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id,$texts) {
@@ -301,11 +306,19 @@
 	}
 
         public function generate_mobile_css_efb() {
+                if (!$this->pro_efb) return '';
                 $css = '';
                 foreach ($this->valj_efb as $i => $vj) {
                         if ($i === 0) continue;
                         if (!isset($vj->id_)) continue;
                         $id = $vj->id_;
+
+                        if ((isset($this->valj_efb[0]->global_mobile_hflabel) && (int) $this->valj_efb[0]->global_mobile_hflabel === 1) || (isset($vj->mobile_hflabel) && (int) $vj->mobile_hflabel === 1)) {
+                                $css .= '#' . $id . '_labG { display: none !important; }' . "\n";
+                        }
+                        if (isset($vj->mobile_hfdescription) && (int) $vj->mobile_hfdescription === 1) {
+                                $css .= '#' . $id . '-des { display: none !important; }' . "\n";
+                        }
 
                         if (isset($vj->mobile_label_align) && $vj->mobile_label_align !== '') {
                                 $css .= '#' . $id . '_labG { ' . $this->get_align_css($vj->mobile_label_align) . ' }' . "\n";
@@ -322,16 +335,13 @@
                                 }
                         }
 
-                        if (isset($vj->mobile_label_position)) {
-                                if ($vj->mobile_label_position === 'up') {
-                                        $css .= '#' . $id . ' { flex-direction: column !important; }' . "\n";
-                                        $css .= '#' . $id . '_labG { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; }' . "\n";
-                                        $css .= '#' . $id . '-f { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; }' . "\n";
-                                } else if ($vj->mobile_label_position === 'beside') {
-                                        $css .= '#' . $id . ' { flex-direction: row !important; flex-wrap: wrap !important; }' . "\n";
-                                        $css .= '#' . $id . '_labG { width: 33.33% !important; max-width: 33.33% !important; flex: 0 0 33.33% !important; }' . "\n";
-                                        $css .= '#' . $id . '-f { width: 66.67% !important; max-width: 66.67% !important; flex: 0 0 66.67% !important; }' . "\n";
-                                }
+                        // Note: mobile_size and mobile_label_position are handled with
+                        // col-* (xs) classes by get_position_col_mobile_el(), not here.
+
+                        if (isset($vj->mobile_op_style) && in_array((string) $vj->mobile_op_style, array('2', '3'), true)) {
+                                $op_width = (string) $vj->mobile_op_style === '2' ? '50%' : '33.3333%';
+                                $css .= '#' . $id . '_options { display: flex !important; flex-wrap: wrap !important; }' . "\n";
+                                $css .= '#' . $id . '_options > .form-check { flex: 0 0 ' . $op_width . ' !important; width: ' . $op_width . ' !important; max-width: ' . $op_width . ' !important; }' . "\n";
                         }
                 }
 
@@ -369,30 +379,35 @@
         }
 
 	private function get_position_col_mobile_el($val) {
-		$parent_col = 'col-sm-12';
-		$label_col = 'col-sm-12';
-		$input_col = 'col-sm-12';
+		// Mobile tier uses plain col-* (xs) classes: they apply from 0px up and are
+		// overridden by the desktop col-md-* tier at >=768px. col-sm-* must not be
+		// used here, it does not exist below 576px (real phones).
+		$parent_col = 'col-12';
+		$label_col = 'col-12';
+		$input_col = 'col-12';
 		$parent_row = '';
-		$mobile_size = isset($val->mobile_size) ? (int) $val->mobile_size : 100;
+		$mobile_size = $this->pro_efb && isset($val->mobile_size) ? (int) $val->mobile_size : 100;
 		switch ($mobile_size) {
-			case 100: $parent_col = 'col-sm-12'; break;
-			case 92:  $parent_col = 'col-sm-11'; break;
+			case 100: $parent_col = 'col-12'; break;
+			case 92:  $parent_col = 'col-11'; break;
 			case 83:
-			case 80:  $parent_col = 'col-sm-10'; break;
-			case 75:  $parent_col = 'col-sm-9';  break;
-			case 67:  $parent_col = 'col-sm-8';  break;
-			case 58:  $parent_col = 'col-sm-7';  break;
-			case 50:  $parent_col = 'col-sm-6';  break;
-			case 42:  $parent_col = 'col-sm-5';  break;
-			case 33:  $parent_col = 'col-sm-4';  break;
-			case 25:  $parent_col = 'col-sm-3';  break;
-			case 17:  $parent_col = 'col-sm-2';  break;
-			case 8:   $parent_col = 'col-sm-1';  break;
+			case 80:  $parent_col = 'col-10'; break;
+			case 75:  $parent_col = 'col-9';  break;
+			case 67:  $parent_col = 'col-8';  break;
+			case 58:  $parent_col = 'col-7';  break;
+			case 50:  $parent_col = 'col-6';  break;
+			case 42:  $parent_col = 'col-5';  break;
+			case 33:  $parent_col = 'col-4';  break;
+			case 25:  $parent_col = 'col-3';  break;
+			case 17:  $parent_col = 'col-2';  break;
+			case 8:   $parent_col = 'col-1';  break;
 		}
-		$label_col = 'col-sm-12';
-		$input_col = 'col-sm-12';
-		if (isset($val->label_position) && $val->label_position != "up") {
+		// Mobile label position defaults to 'up' (stacked) regardless of the desktop
+		// label_position; that is the plugin's historical behaviour below 768px.
+		if ($this->pro_efb && isset($val->mobile_label_position) && $val->mobile_label_position == 'beside') {
 			$parent_row = 'row';
+			$label_col = 'col-4';
+			$input_col = 'col-8';
 		}
 		return array($parent_row, $parent_col, $label_col, $input_col);
 	}
@@ -929,12 +944,12 @@
 
 		$ui = sprintf(
 			'<div class="efb %1$s ' . $this->mobile_pos[3] . ' %2$s efb1 %3$s" data-css="%4$s" id="%4$s-f" data-formid="%5$s" %6$s>
-				<div class="efb btn-group btn-group-toggle w-100 col-md-12 col-sm-12 %7$s" data-toggle="buttons" data-id="%4$s-id" id="%4$s_yn">
-					<label for="%4$s_1" data-lid="%4$s" data-value="%8$s" onclick="yesNoGetEFB(\'%8$s\', \'%4$s\', \'%4$s_b_1\')" class="efb btn %9$s %10$s %11$s %12$s yesno-efb left-efb %13$s %14$s" id="%4$s_b_1">
+				<div class="efb efb-yesno-group btn-group btn-group-toggle w-100 col-md-12 col-sm-12 border border-0 %7$s" data-toggle="buttons" data-id="%4$s-id" id="%4$s_yn" role="group" data-yesno-kit="default" aria-required="%16$s">
+					<label for="%4$s_1" data-lid="%4$s" data-value="%8$s" onclick="yesNoGetEFB(\'%8$s\', \'%4$s\', \'%4$s_b_1\', \'%5$s\')" class="efb btn %9$s %10$s %11$s %12$s yesno-efb left-efb %13$s %14$s" id="%4$s_b_1">
 						<input type="radio" name="%4$s" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid="%4$s" data-id="%4$s-id" id="%4$s_1" value="%8$s" data-formid="%5$s"><span id="%4$s_1_lab">%8$s</span>
 					</label>
 					<span class="efb border-right border border-light efb"></span>
-					<label for="%4$s_2" data-lid="%4$s" data-value="%15$s" onclick="yesNoGetEFB(\'%15$s\', \'%4$s\', \'%4$s_b_2\')" class="efb btn %9$s %10$s %11$s %12$s yesno-efb right-efb %13$s %14$s" id="%4$s_b_2">
+					<label for="%4$s_2" data-lid="%4$s" data-value="%15$s" onclick="yesNoGetEFB(\'%15$s\', \'%4$s\', \'%4$s_b_2\', \'%5$s\')" class="efb btn %9$s %10$s %11$s %12$s yesno-efb right-efb %13$s %14$s" id="%4$s_b_2">
 						<input type="radio" name="%4$s" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid="%4$s" data-id="%4$s-id" id="%4$s_2" value="%15$s" data-formid="%5$s"><span id="%4$s_2_lab">%15$s</span>
 					</label>
 				</div>
@@ -953,7 +968,8 @@
 			$corner,
 			$disabled,
 			$previewState != true ? 'disabled' : '',
-			$button2Text
+			$button2Text,
+			$required ? 'true' : 'false'
 		);
 
 		return $ui;
@@ -1382,6 +1398,93 @@
 			$form_id
 		);
 	}
+
+	public function ui_recorder_efb($vj, $form_id, $texts, $disabled) {
+		$kind = $vj->type;
+		$kindMeta = [
+			'audio_recorder' => ['icon' => 'bi-mic', 'accept' => 'audio/*', 'class' => 'efb-recorder-audio'],
+			'video_recorder' => ['icon' => 'bi-camera-video', 'accept' => 'video/*', 'class' => 'efb-recorder-video-kind'],
+			'screen_recorder' => ['icon' => 'bi-display', 'accept' => 'video/*', 'class' => 'efb-recorder-screen-kind'],
+		];
+		$meta = isset($kindMeta[$kind]) ? $kindMeta[$kind] : $kindMeta['audio_recorder'];
+		$quality = property_exists($vj, 'record_quality') && $vj->record_quality ? $vj->record_quality : ($kind == 'audio_recorder' ? 'standard' : '720p');
+		$maxDuration = property_exists($vj, 'max_duration') && $vj->max_duration ? intval($vj->max_duration) : 90;
+		$requiredClass = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
+		$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
+		$readonlyAttr = $disabled == 'disabled' ? 'disabled' : '';
+		$domain = wp_parse_url(home_url(), PHP_URL_HOST);
+		// UX extras - MUST stay in sync with efbRecorderWidgetHtml() in
+		// public/assets/js/recorder-efb.js (see docs/recorder-fields.md §2).
+		$countdown = property_exists($vj, 'rec_countdown') ? intval($vj->rec_countdown) : 3;
+		$download = property_exists($vj, 'rec_download') ? (intval($vj->rec_download) ? 1 : 0) : 1;
+		$noise = property_exists($vj, 'rec_noise') ? (intval($vj->rec_noise) ? 1 : 0) : 1;
+		$facing = property_exists($vj, 'rec_facing') && $vj->rec_facing === 'environment' ? 'environment' : 'user';
+		$mirror = property_exists($vj, 'rec_mirror') ? (intval($vj->rec_mirror) ? 1 : 0) : 1;
+		$watermark = property_exists($vj, 'rec_watermark') ? (intval($vj->rec_watermark) ? 1 : 0) : 1;
+
+		$mediaPreview = $kind == 'audio_recorder'
+			? sprintf('<canvas class="efb efb-recorder-meter d-none" id="%1$s-meter" width="300" height="64"></canvas>', $vj->id_)
+			: sprintf(
+				'<video class="efb efb-recorder-video d-none" id="%1$s-preview" playsinline muted></video>
+				<div class="efb efb-recorder-watermark %4$s" id="%1$s-watermark"><span>%2$s</span><span class="efb efb-recorder-domain">%3$s</span></div>',
+				$vj->id_,
+				esc_html($texts['recWatermark']),
+				esc_html($domain),
+				$watermark ? '' : 'd-none'
+			);
+
+		return sprintf(
+			'<div class="efb efb-recorder-shell %1$s" id="%2$s_" data-id="%2$s" data-kind="%3$s" data-quality="%4$s" data-duration="%5$s" data-countdown="%22$s" data-download="%23$s" data-noise="%24$s" data-facing="%25$s" data-mirror="%26$s" data-formid="%6$s" data-state="idle">
+				<div class="efb efb-recorder-frame" id="%2$s-frame">
+					%7$s
+					<div class="efb efb-recorder-idle-hint" id="%2$s-idle"><i class="efb bi %8$s"></i><span>%9$s</span></div>
+					<div class="efb efb-recorder-timer d-none" id="%2$s-timer">00:00</div>
+					<div class="efb efb-recorder-action-row" id="%2$s-controls">
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="pause" data-id="%2$s" title="%10$s" %11$s><i class="efb bi-pause-fill"></i></button>
+						<button type="button" class="efb efb-recorder-primary-btn" data-action="start" data-id="%2$s" title="%12$s" %11$s><i class="efb bi %8$s"></i></button>
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="resume" data-id="%2$s" title="%13$s" %11$s><i class="efb bi-record-circle"></i></button>
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="redo" data-id="%2$s" title="%14$s" %11$s><i class="efb bi-arrow-counterclockwise"></i></button>
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="play" data-id="%2$s" title="%15$s"><i class="efb bi-play-fill"></i></button>
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="download" data-id="%2$s" title="%27$s"><i class="efb bi-download"></i></button>
+					</div>
+					<div class="efb efb-recorder-progress-track"><div class="efb efb-recorder-progress-bar" id="%2$s-progress"></div></div>
+				</div>
+				<div class="efb efb-recorder-status-row">
+					<span class="efb efb-recorder-status" id="%2$s-status"><span class="efb efb-recorder-status-dot"></span>%16$s</span>
+					<span class="efb efb-recorder-badge">%21$s</span>
+				</div>
+				<input type="file" hidden accept="%17$s" data-type="%3$s" data-vid="%2$s" data-id="%2$s" class="efb emsFormBuilder_v %18$s %19$s" id="%2$s_file" data-formid="%6$s" onchange="valid_file_emsFormBuilder(\'%2$s\',\'msg\',\'\',%6$s)" %20$s %11$s>
+			</div>',
+			$meta['class'],
+			$vj->id_,
+			$kind,
+			$quality,
+			$maxDuration,
+			$form_id,
+			$mediaPreview,
+			$meta['icon'],
+			esc_html($texts['recTapToStart']),
+			esc_html($texts['recPause']),
+			$readonlyAttr,
+			esc_html($texts['recStart']),
+			esc_html($texts['recResume']),
+			esc_html($texts['recRedo']),
+			esc_html($texts['recPlay']),
+			esc_html($texts['recReady']),
+			$meta['accept'],
+			$kind,
+			$requiredClass,
+			$requiredAttr,
+			esc_html(isset($texts[$kind]) ? $texts[$kind] : $kind),
+			$countdown,
+			$download,
+			$noise,
+			$facing,
+			$mirror,
+			esc_html(isset($texts['recDownload']) ? $texts['recDownload'] : 'Download recording')
+		);
+	}
+
 	public function dadfile_el_pro_efb($previewSate, $rndm, $vj, $form_id, $texts) {
 		$corner = property_exists($vj, 'corner') ? $vj->corner : 'efb-square';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
@@ -2125,8 +2228,8 @@
 			}
 			return $copyRight .'</aside></div>';
 		}else if($this->package_type_efb==2){
-
-			add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);
+			$lang = substr(get_locale(), 0, 2);
+			if($lang == 'fa' || $lang == 'ar') add_action('wp_footer',  [$this, 'efb_output_schema_free'], 20);
 		}
 		return '<!--efb-->';
 	}
@@ -2208,8 +2311,9 @@
 		return sprintf('<div class="efb footer-test p-1">%s</div>', $state == 0 ? $s : $d);
 	}
 
-	public function addNewElement_efb($i, $rndm,$form_id,$texts) {
-		$pro = $this->pro_efb == 1 || $this->pro_efb == true ? true : false;
+	public function addNewElement_efb($i, $rndm,$form_id,$texts,$pro) {
+		$this->pro_efb =$pro;
+
 		$nfield = ['html','stripe','paypal','persiapay','persiaPay','zarinPal','heading','link'];
 		$element_Id = $this->valj_efb[$i]->id_;
 		$elementId = $this->valj_efb[$i]->type;
@@ -2226,6 +2330,11 @@
 		}
 		  $mobile_pos = $this->get_position_col_mobile_el($vj);
             $this->mobile_pos = $mobile_pos;
+		// The wrapper needs .row when either view puts the label beside the input;
+		// with label-up both tiers are col-*-12 so .row keeps them stacked anyway.
+		if ($pos[0] !== 'row' && $mobile_pos[0] === 'row') {
+			$pos[0] = 'row';
+		}
 		$optn = '<!-- options -->';
 		$pay = 'payefb';
 		$iVJ = $indexVJ;
@@ -2461,6 +2570,26 @@
 					);
 					$dataTag = $elementId;
 				break;
+				case 'audio_recorder':
+				case 'video_recorder':
+				case 'screen_recorder':
+					$el = $this->ui_recorder_efb($vj, $form_id, $texts, $disabled);
+					$ui = sprintf('
+						%1$s
+						<div class="efb %2$s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%3$s-f">
+							%4$s
+							%5$s
+						</div>
+						%6$s',
+						$label,
+						$pos[3],
+						$element_Id,
+						$ttip,
+						$el,
+						$desc
+					);
+					$dataTag = $elementId;
+				break;
 				case 'checkbox':
 				case 'radio':
 				case 'payCheckbox':
@@ -2630,7 +2759,7 @@
 							$this->map_search_section_efb($element_Id,$vj,$form_id),
 
 						);
-						}else{
+					}else{
 						$ui .= sprintf(
 							"<script>
 								function efbCreateMap_%s() {

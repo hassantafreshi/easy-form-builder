@@ -56,11 +56,8 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
         if (typeof cardnoEfb != "object") return;
 
         if (ajax_object_efm.hasOwnProperty('paymentKey')) {
-          if (ajax_object_efm.paymentKey == "null") {
-            alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: Payment->Stripe`, 100, 'danger');
-            return;
-          }
-          const stripe = Stripe(ajax_object_efm.paymentKey, { locale: 'auto' })
+          const init_stripe_ui_efb = (stripePubKey) => {
+          const stripe = Stripe(stripePubKey, { locale: 'auto' })
 
           const elsStripeStyleEfb = {
             base: {
@@ -230,6 +227,32 @@ function confirm_stripe_payment_efb(paymentIntentId, trackid) {
 
               }
             });
+          };
+
+          if (ajax_object_efm.paymentKey && ajax_object_efm.paymentKey != "null") {
+            init_stripe_ui_efb(ajax_object_efm.paymentKey);
+          } else {
+            // "null" here usually means the page HTML (or the settings cache) was
+            // cached before the keys were saved — ask the server for a fresh key
+            // before giving up with an error.
+            console.warn('[EFB Stripe Debug] localized paymentKey is "null", requesting fresh key');
+            fetch(efb_var.rest_url + 'Emsfb/v1/forms/payment/stripe/pkey')
+              .then((response) => response.json())
+              .then((res) => {
+                const freshKey = res && res.data && res.data.key ? res.data.key : 'null';
+                console.log('[EFB Stripe Debug] pkey fallback response', { hasKey: !!(freshKey && freshKey != 'null') });
+                if (freshKey && freshKey != 'null') {
+                  ajax_object_efm.paymentKey = freshKey;
+                  init_stripe_ui_efb(freshKey);
+                } else {
+                  alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: Payment->Stripe`, 100, 'danger');
+                }
+              })
+              .catch((err) => {
+                console.error('[EFB Stripe Debug] pkey fallback request failed', err);
+                alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: Payment->Stripe`, 100, 'danger');
+              });
+          }
           }else{
             if (efb_var.pro==true || efb_var.pro=="true") alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`, 100, 'danger');
           }

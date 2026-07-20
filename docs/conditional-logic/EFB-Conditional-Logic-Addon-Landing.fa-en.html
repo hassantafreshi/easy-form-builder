@@ -1,0 +1,1024 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>آموزش فعال سازی و استفاده از افزونه Conditional Logic در Easy Form Builder</title>
+  <meta name="description" content="راهنمای کامل فارسی و انگلیسی فعال سازی، نصب و استفاده از افزودنی Conditional Logic در Easy Form Builder برای ساخت فرم های هوشمند، شرطی، چندمرحله ای، ایمیل شرطی، پیام تشکر، ریدایرکت و وبهوک.">
+  <meta name="keywords" content="Easy Form Builder conditional logic, افزونه شرطی فرم ساز وردپرس, کاندیشنال لاجیک فرم, conditional form builder WordPress, فرم ساز شرطی, منطق شرطی فرم, EFB Conditional Logic addon">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="author" content="White Studio Team">
+  <link rel="canonical" href="https://whitestudio.team/document/easy-form-builder-conditional-logic-addon/">
+  <link rel="alternate" hreflang="fa" href="https://whitestudio.team/document/easy-form-builder-conditional-logic-addon/">
+  <link rel="alternate" hreflang="en" href="https://whitestudio.team/document/easy-form-builder-conditional-logic-addon/#english-guide">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="آموزش کامل Conditional Logic در Easy Form Builder">
+  <meta property="og:description" content="از فعال سازی addon تا ساخت فرم های شرطی، چندمرحله ای، ایمیل و وبهوک شرطی در Easy Form Builder.">
+  <meta property="og:locale" content="fa_IR">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    :root {
+      --efb-primary: #2454d6;
+      --efb-primary-dark: #16338f;
+      --efb-accent: #00a884;
+      --efb-bg: #f6f8fb;
+      --efb-surface: #ffffff;
+      --efb-text: #172033;
+      --efb-muted: #5d6678;
+      --efb-border: #dfe5ef;
+      --efb-soft: #edf4ff;
+      --efb-warning: #fff7df;
+      --efb-shadow: 0 18px 48px rgba(18, 36, 73, .10);
+      --efb-radius: 8px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--efb-bg);
+      color: var(--efb-text);
+      font-family: Tahoma, Arial, sans-serif;
+      line-height: 1.85;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: var(--efb-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .skip-link {
+      position: absolute;
+      top: -48px;
+      right: 16px;
+      background: var(--efb-primary);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      z-index: 20;
+    }
+    .skip-link:focus { top: 12px; }
+    .container { width: min(1140px, calc(100% - 32px)); margin: 0 auto; }
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid var(--efb-border);
+      backdrop-filter: blur(10px);
+    }
+    .nav-inner {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      color: var(--efb-text);
+    }
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--efb-primary), var(--efb-accent));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 900;
+      direction: ltr;
+    }
+    .nav-links { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 14px; }
+    .hero {
+      padding: 72px 0 40px;
+      background:
+        linear-gradient(135deg, rgba(36,84,214,.12), rgba(0,168,132,.10)),
+        var(--efb-surface);
+      border-bottom: 1px solid var(--efb-border);
+    }
+    .row { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+    .col-7 { grid-column: span 7; }
+    .col-5 { grid-column: span 5; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-3 { grid-column: span 3; }
+    .col-12 { grid-column: span 12; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      color: var(--efb-primary-dark);
+      background: var(--efb-soft);
+      border: 1px solid #d2e3ff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    h1, h2, h3, h4 { line-height: 1.45; margin: 0 0 14px; }
+    h1 { font-size: clamp(30px, 5vw, 52px); letter-spacing: 0; max-width: 920px; }
+    h2 { font-size: clamp(24px, 3vw, 34px); margin-top: 0; }
+    h3 { font-size: 20px; }
+    p { margin: 0 0 14px; }
+    .lead { font-size: 18px; color: var(--efb-muted); max-width: 780px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-weight: 800;
+      min-height: 44px;
+    }
+    .btn-primary { background: var(--efb-primary); color: #fff; }
+    .btn-primary:hover { background: var(--efb-primary-dark); text-decoration: none; }
+    .btn-outline { background: #fff; color: var(--efb-primary); border-color: #bdd0ff; }
+    .btn-outline:hover { background: var(--efb-soft); text-decoration: none; }
+    .panel, .card {
+      background: var(--efb-surface);
+      border: 1px solid var(--efb-border);
+      border-radius: var(--efb-radius);
+      box-shadow: var(--efb-shadow);
+    }
+    .panel { padding: 24px; }
+    .hero-panel { position: relative; overflow: hidden; }
+    .logic-demo {
+      direction: ltr;
+      font-family: Arial, sans-serif;
+      display: grid;
+      gap: 12px;
+      color: #1d2638;
+    }
+    .logic-step {
+      border: 1px solid var(--efb-border);
+      border-radius: 8px;
+      padding: 13px;
+      background: #fff;
+    }
+    .logic-step strong { color: var(--efb-primary-dark); }
+    .logic-arrow { text-align: center; color: var(--efb-muted); font-weight: 800; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--efb-border);
+      color: var(--efb-muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    section { padding: 56px 0; }
+    section:nth-of-type(even) { background: #fff; }
+    .section-head { max-width: 840px; margin-bottom: 28px; }
+    .muted { color: var(--efb-muted); }
+    .card { padding: 20px; height: 100%; box-shadow: none; }
+    .card h3 { margin-bottom: 8px; }
+    .list-clean { padding: 0; margin: 0; list-style: none; }
+    .list-clean li {
+      padding: 10px 0;
+      border-bottom: 1px solid #edf0f6;
+    }
+    .list-clean li:last-child { border-bottom: 0; }
+    .steps { counter-reset: step; display: grid; gap: 14px; }
+    .step {
+      position: relative;
+      padding: 18px 18px 18px 64px;
+      border: 1px solid var(--efb-border);
+      background: #fff;
+      border-radius: 8px;
+    }
+    .step:before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--efb-primary);
+      color: #fff;
+      font-weight: 900;
+      direction: ltr;
+    }
+    [dir="rtl"] .step { padding: 18px 64px 18px 18px; }
+    [dir="rtl"] .step:before { right: 18px; left: auto; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--efb-border); border-radius: 8px; background: #fff; }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th, td { padding: 14px; border-bottom: 1px solid var(--efb-border); vertical-align: top; text-align: right; }
+    th { background: var(--efb-soft); color: var(--efb-primary-dark); }
+    tr:last-child td { border-bottom: 0; }
+    .ltr { direction: ltr; text-align: left; font-family: Arial, sans-serif; }
+    .highlight {
+      background: var(--efb-warning);
+      border: 1px solid #ffe3a3;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .feature-tag {
+      display: inline-block;
+      padding: 3px 8px;
+      margin: 3px 3px 3px 0;
+      border-radius: 999px;
+      background: var(--efb-soft);
+      color: var(--efb-primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    details {
+      background: #fff;
+      border: 1px solid var(--efb-border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+    }
+    summary { cursor: pointer; font-weight: 800; }
+    .cta {
+      background: linear-gradient(135deg, var(--efb-primary), #0b8d7a);
+      color: #fff;
+      border-radius: 8px;
+      padding: 34px;
+    }
+    .cta .muted { color: rgba(255,255,255,.82); }
+    .cta .btn-outline { border-color: rgba(255,255,255,.55); background: rgba(255,255,255,.10); color: #fff; }
+    footer { padding: 34px 0; color: var(--efb-muted); border-top: 1px solid var(--efb-border); background: #fff; }
+    @media (max-width: 900px) {
+      .col-7, .col-5, .col-6, .col-4, .col-3 { grid-column: span 12; }
+      .nav-inner { align-items: flex-start; flex-direction: column; padding: 14px 0; }
+      .hero { padding-top: 40px; }
+      table { min-width: 680px; }
+    }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://whitestudio.team/document/easy-form-builder-conditional-logic-addon/#webpage",
+        "url": "https://whitestudio.team/document/easy-form-builder-conditional-logic-addon/",
+        "name": "آموزش فعال سازی و استفاده از Conditional Logic در Easy Form Builder",
+        "inLanguage": ["fa", "en"],
+        "description": "راهنمای کامل فعال سازی و استفاده از افزودنی Conditional Logic برای Easy Form Builder از دید مدیر سایت وردپرسی.",
+        "dateModified": "2026-07-08",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "White Studio Team",
+          "url": "https://whitestudio.team/"
+        }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Easy Form Builder Conditional Logic Addon",
+        "applicationCategory": "WordPressPlugin",
+        "operatingSystem": "WordPress",
+        "description": "افزودنی منطق شرطی برای ساخت فرم های پویا، هوشمند، چندمرحله ای و مسیرمحور در Easy Form Builder.",
+        "offers": {
+          "@type": "Offer",
+          "category": "Pro add-on"
+        },
+        "featureList": [
+          "Show and hide fields",
+          "Conditional required and optional fields",
+          "Show, hide, and jump to steps",
+          "Conditional emails",
+          "Conditional confirmations and redirects",
+          "Conditional webhooks",
+          "AND, OR, nested groups",
+          "Test Mode and Rule Inspector",
+          "Formula calculations in Pro",
+          "Export and import rules in Pro"
+        ]
+      },
+      {
+        "@type": "HowTo",
+        "name": "روش فعال سازی Conditional Logic در Easy Form Builder",
+        "description": "مراحل فعال سازی addon و ساخت اولین قانون شرطی در فرم ساز.",
+        "step": [
+          {"@type": "HowToStep", "name": "ورود به افزونه", "text": "در پیشخوان وردپرس وارد منوی Easy Form Builder شوید."},
+          {"@type": "HowToStep", "name": "باز کردن Add-ons", "text": "صفحه Add-ons را باز کنید و کارت Conditional Logic Addon را پیدا کنید."},
+          {"@type": "HowToStep", "name": "فعال سازی addon", "text": "اگر پکیج شما اجازه می دهد، افزودنی را نصب یا فعال کنید. در صورت قفل بودن، پلن خود را ارتقا دهید."},
+          {"@type": "HowToStep", "name": "ورود به فرم ساز", "text": "یک فرم جدید بسازید یا فرم موجود را ویرایش کنید و وارد Form Settings شوید."},
+          {"@type": "HowToStep", "name": "ساخت قانون", "text": "روی Conditional Logic بزنید، در تب Fields قانون IF / THEN بسازید و با Test Mode بررسی کنید."}
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Conditional Logic در Easy Form Builder چه کاری انجام می دهد؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "این addon فرم را بر اساس پاسخ کاربر، مقدار URL، وضعیت کاربر، مرحله فعلی، پرداخت و قوانین تعریف شده تغییر می دهد. می توانید فیلدها و مراحل را نمایش دهید، مخفی کنید، اجباری کنید، ایمیل و وبهوک شرطی بفرستید و پیام تشکر یا ریدایرکت متفاوت بسازید."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "آیا برای استفاده از Conditional Logic باید کدنویسی بلد باشم؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "خیر. قوانین در محیط بصری فرم ساز با ساختار IF / THEN ساخته می شوند و مدیر سایت فقط فیلد، عملگر، مقدار و اکشن را انتخاب می کند."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What can I build with Easy Form Builder Conditional Logic?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You can build smart contact forms, quote request forms, support triage forms, event registration forms, job application forms, payment-aware forms, lead qualification forms, and multi-step forms that change based on user answers."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "Easy Form Builder", "item": "https://whitestudio.team/"},
+          {"@type": "ListItem", "position": 2, "name": "Documents", "item": "https://whitestudio.team/document/"},
+          {"@type": "ListItem", "position": 3, "name": "Conditional Logic Addon"}
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">پرش به محتوای اصلی</a>
+  <header class="navbar" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="#top" aria-label="Easy Form Builder Conditional Logic">
+        <span class="brand-mark">EFB</span>
+        <span>Conditional Logic Addon</span>
+      </a>
+      <nav class="nav-links" aria-label="راهنمای صفحه">
+        <a href="#activation">فعال سازی</a>
+        <a href="#features">ویژگی ها</a>
+        <a href="#examples">نمونه فرم ها</a>
+        <a href="#faq">سوالات</a>
+        <a href="#english-guide">English</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="top" class="hero">
+      <div class="container">
+        <div class="row">
+          <div class="col-7">
+            <span class="eyebrow">راهنمای جامع برای مدیر سایت، وب مستر و ادمین وردپرس</span>
+            <h1>آموزش کامل فعال سازی و استفاده از افزونه Conditional Logic در Easy Form Builder</h1>
+            <p class="lead">
+              افزودنی Conditional Logic فرم های معمولی را به فرم های هوشمند تبدیل می کند. بدون کدنویسی می توانید تصمیم بگیرید اگر کاربر یک پاسخ خاص داد، کدام فیلد نشان داده شود، کدام مرحله حذف شود، چه ایمیلی ارسال شود، بعد از ثبت فرم چه پیامی نمایش داده شود و چه اطلاعاتی به CRM یا سیستم بیرونی فرستاده شود.
+            </p>
+            <div class="actions">
+              <a class="btn btn-primary" href="#activation">شروع فعال سازی</a>
+              <a class="btn btn-outline" href="#first-rule">ساخت اولین قانون شرطی</a>
+            </div>
+            <div class="badge-row" aria-label="ویژگی های کلیدی">
+              <span class="badge">بدون کدنویسی</span>
+              <span class="badge">IF / THEN بصری</span>
+              <span class="badge">مناسب فرم های چندمرحله ای</span>
+              <span class="badge">ایمیل، تایید و وبهوک شرطی</span>
+              <span class="badge">Test Mode قبل از انتشار</span>
+            </div>
+          </div>
+          <div class="col-5">
+            <div class="panel hero-panel" aria-label="نمونه منطق شرطی">
+              <div class="logic-demo">
+                <div class="logic-step"><strong>IF</strong><br>Customer Type is Business</div>
+                <div class="logic-arrow">then</div>
+                <div class="logic-step"><strong>Show Field</strong><br>Company Name, VAT Number</div>
+                <div class="logic-step"><strong>Set Required</strong><br>Company Name</div>
+                <div class="logic-step"><strong>Send Notification</strong><br>sales@example.com</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="summary">
+      <div class="container">
+        <div class="section-head">
+          <h2>Conditional Logic چیست و چرا برای فروش، پشتیبانی و اتوماسیون فرم مهم است؟</h2>
+          <p class="muted">
+            منطق شرطی یعنی فرم شما بر اساس شرایط واقعی رفتار کند. در Easy Form Builder این رفتار در یک پنجره بصری ساخته می شود: بخش IF مشخص می کند چه زمانی قانون اجرا شود و بخش THEN مشخص می کند بعد از برقرار شدن شرط چه اتفاقی بیفتد.
+          </p>
+        </div>
+        <div class="row">
+          <div class="col-4">
+            <article class="card">
+              <h3>فرم کوتاه تر و هوشمندتر</h3>
+              <p>کاربر فقط سوالات مرتبط با خودش را می بیند. فیلدهای غیرضروری، مراحل اضافه و سوالات اشتباه از مسیر او حذف می شوند.</p>
+            </article>
+          </div>
+          <div class="col-4">
+            <article class="card">
+              <h3>مدیریت بهتر لید و درخواست</h3>
+              <p>درخواست فروش، پشتیبانی، استخدام، ثبت نام رویداد و سفارش می تواند بر اساس پاسخ کاربر به مسیر درست هدایت شود.</p>
+            </article>
+          </div>
+          <div class="col-4">
+            <article class="card">
+              <h3>افزایش ارزش نسخه Pro</h3>
+              <p>قابلیت های پیشرفته مثل محاسبه، NOT گروهی، Export/Import و Inspector کامل با نشان Pro به کاربر نشان می دهند ارتقا چه امکاناتی باز می کند.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="activation">
+      <div class="container">
+        <div class="section-head">
+          <h2>روش فعال سازی افزودنی Conditional Logic در Easy Form Builder</h2>
+          <p class="muted">
+            این مراحل بر اساس ساختار فعلی افزونه نوشته شده است. نام داخلی addon در افزونه <span class="ltr">AdnSMF</span> است، اما مدیر سایت آن را با عنوان Conditional Logic Addon یا Conditional logic می بیند.
+          </p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <h3>Easy Form Builder را فعال کنید</h3>
+            <p>از پیشخوان وردپرس وارد Plugins شوید و مطمئن شوید افزونه Easy Form Builder فعال است. سپس از منوی مدیریت وردپرس وارد Easy Form Builder شوید.</p>
+          </div>
+          <div class="step">
+            <h3>صفحه Add-ons را باز کنید</h3>
+            <p>در زیرمنوی Easy Form Builder روی Add-ons کلیک کنید. در این صفحه کارت افزودنی ها نمایش داده می شود. کارت Conditional Logic Addon با آیکن diagram و توضیح فرم هوشمند قابل تشخیص است.</p>
+          </div>
+          <div class="step">
+            <h3>Conditional Logic Addon را نصب یا فعال کنید</h3>
+            <p>اگر addon نصب نشده باشد، آن را دانلود یا نصب کنید. اگر نصب است اما فعال نیست، آن را فعال کنید. در نسخه Pro، افزونه می تواند addonهای رسمی را دریافت کند. اگر کارت addon قفل بود یا پیام ارتقا دیدید، پکیج فعلی شما اجازه استفاده کامل از آن قابلیت را ندارد.</p>
+          </div>
+          <div class="step">
+            <h3>یک فرم را باز کنید یا فرم جدید بسازید</h3>
+            <p>به صفحه ایجاد بروید، فرم مورد نظر بسازید یا از صفحه پنل فرم مورد نظر را ویرایش کنید. ابتدا فیلدهایی را که قرار است در شرط استفاده شوند و فیلدهایی را که باید تغییر کنند اضافه کنید.</p>
+          </div>
+          <div class="step">
+            <h3>وارد Form Settings و سپس Conditional Logic شوید</h3>
+            <p>در فرم ساز، بخش تنظیمات فرم را باز کنید و روی Conditional Logic بزنید. اگر addon فعال و پلن شما مجاز باشد، پنجره Rule Builder باز می شود. اگر پلن Free باشد، به جای ویرایشگر، پنجره ارتقا نمایش داده می شود.</p>
+          </div>
+          <div class="step">
+            <h3>اولین rule را بسازید و با Test Mode بررسی کنید</h3>
+            <p>در تب Fields روی Add کلیک کنید، نام قانون را بنویسید، شرط IF را انتخاب کنید، اکشن THEN را بسازید و Save بزنید. قبل از انتشار فرم، Test Mode را اجرا کنید تا وضعیت Matched، Not matched یا Skipped را ببینید.</p>
+          </div>
+        </div>
+        <div class="highlight" style="margin-top:18px">
+          <strong>نکته برای کاربر آماتور:</strong>
+          اگر دکمه Conditional Logic را نمی بینید، ابتدا صفحه Add-ons را بررسی کنید. اگر دکمه دیده می شود اما ویرایشگر باز نمی شود، سطح پکیج، فعال بودن addon و خالی نبودن فرم از فیلدهای قابل شرط را بررسی کنید.
+        </div>
+      </div>
+    </section>
+
+    <section id="first-rule">
+      <div class="container">
+        <div class="section-head">
+          <h2>نمونه عملی: نمایش فیلد شرکت فقط برای مشتری تجاری</h2>
+          <p class="muted">این مثال پایه، رایج ترین چیزی است که کاربران سرچ می کنند: چگونه فیلد را بر اساس پاسخ کاربر نمایش دهیم؟</p>
+        </div>
+        <div class="row">
+          <div class="col-6">
+            <article class="card">
+              <h3>قبل از ساخت قانون</h3>
+              <ul class="list-clean">
+                <li>یک فیلد انتخابی با نام Customer Type بسازید.</li>
+                <li>گزینه های Personal و Business را اضافه کنید.</li>
+                <li>فیلدهای Company Name و VAT Number را در فرم قرار دهید.</li>
+                <li>اگر فرم چندمرحله ای است، مرحله اطلاعات شرکت را هم آماده کنید.</li>
+              </ul>
+            </article>
+          </div>
+          <div class="col-6">
+            <article class="card">
+              <h3>ساخت rule در Conditional Logic</h3>
+              <ul class="list-clean">
+                <li>تب Fields را باز کنید و Add بزنید.</li>
+                <li>در IF فیلد Customer Type را انتخاب کنید.</li>
+                <li>operator را روی is بگذارید و مقدار Business را انتخاب کنید.</li>
+                <li>در THEN اکشن Show Field را برای Company Name بگذارید.</li>
+                <li>یک اکشن Set Required برای Company Name اضافه کنید.</li>
+                <li>Save کنید و با Test Mode مقدار Business و Personal را جداگانه تست کنید.</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="interface">
+      <div class="container">
+        <div class="section-head">
+          <h2>اجزای اصلی محیط Conditional Logic برای ادمین</h2>
+          <p class="muted">مدیر سایت درگیر کد، فایل یا اسکریپت نمی شود. همه چیز با کارت قانون، تب ها، dropdownها و دکمه Test Mode مدیریت می شود.</p>
+        </div>
+        <div class="row">
+          <div class="col-3">
+            <div class="card">
+              <h3>Fields</h3>
+              <p>برای نمایش، مخفی کردن، required کردن، optional کردن، فعال یا غیرفعال کردن فیلدها و کنترل مراحل فرم.</p>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="card">
+              <h3>Notifications</h3>
+              <p>برای ارسال ایمیل شرطی به تیم فروش، پشتیبانی، مالی، مدیر یا هر گیرنده مخصوص.</p>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="card">
+              <h3>Confirmation</h3>
+              <p>برای نمایش پیام تشکر متفاوت، تغییر عنوان و رنگ پیام یا ریدایرکت شرطی بعد از ارسال فرم.</p>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="card">
+              <h3>Webhook</h3>
+              <p>برای ارسال یا توقف وبهوک بر اساس پاسخ کاربر، پرداخت، نوع درخواست یا مقدارهای فرم.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-head">
+          <h2>لیست کامل ویژگی های Conditional Logic با عبارت هایی که کاربران سرچ می کنند</h2>
+          <p class="muted">این بخش برای کاربر نهایی، موتور جستجو و پاسخ های AI آماده شده است. هر ردیف هم قابلیت را توضیح می دهد و هم عبارت های جستجوی فارسی و انگلیسی را پوشش می دهد.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ویژگی</th>
+                <th>کاربرد برای مدیر سایت</th>
+                <th>عبارت های سرچ فارسی</th>
+                <th>English search intent</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Show / Hide Field</td>
+                <td>نمایش یا مخفی کردن فیلد بر اساس پاسخ کاربر، مثل نمایش نام شرکت فقط برای مشتری تجاری.</td>
+                <td>نمایش فیلد شرطی در فرم، مخفی کردن فیلد فرم، فرم هوشمند وردپرس</td>
+                <td>show field based on answer, hide form field conditionally</td>
+              </tr>
+              <tr>
+                <td>Set Required / Optional</td>
+                <td>اجباری کردن فیلد فقط در مسیرهای خاص و اختیاری کردن آن در مسیرهای دیگر.</td>
+                <td>required شرطی فرم، اجباری کردن فیلد با شرط، optional کردن فیلد</td>
+                <td>make field required conditionally, conditional required fields</td>
+              </tr>
+              <tr>
+                <td>Enable / Disable Field</td>
+                <td>قفل کردن فیلد بدون مخفی کردن آن، مناسب مقدارهای از پیش پر شده یا قیمت.</td>
+                <td>غیرفعال کردن فیلد شرطی، قفل کردن فیلد فرم</td>
+                <td>disable field conditionally, enable disabled form field</td>
+              </tr>
+              <tr>
+                <td>Show / Hide Step</td>
+                <td>نمایش یا حذف یک مرحله کامل در فرم چندمرحله ای.</td>
+                <td>فرم چند مرحله ای شرطی، مخفی کردن مرحله فرم، skip step فرم</td>
+                <td>conditional multi step form, hide step based on answer</td>
+              </tr>
+              <tr>
+                <td>Jump to Step</td>
+                <td>انتقال مستقیم کاربر به مرحله مرتبط بعد از یک پاسخ خاص.</td>
+                <td>پرش به مرحله فرم، هدایت کاربر در فرم چندمرحله ای</td>
+                <td>jump to step form logic, route user to form step</td>
+              </tr>
+              <tr>
+                <td>Show Message</td>
+                <td>نمایش راهنما، هشدار یا پیام توضیحی کنار فیلد.</td>
+                <td>پیام شرطی داخل فرم، نمایش هشدار فرم، راهنمای هوشمند فرم</td>
+                <td>show conditional message, inline form warning</td>
+              </tr>
+              <tr>
+                <td>Set Value / Clear Value</td>
+                <td>پر کردن خودکار مقدار یا پاک کردن پاسخ قدیمی وقتی مسیر کاربر تغییر می کند.</td>
+                <td>پر کردن خودکار فیلد، پاک کردن مقدار فیلد با شرط</td>
+                <td>set field value conditionally, clear value when path changes</td>
+              </tr>
+              <tr>
+                <td>Copy Value From Field</td>
+                <td>کپی کردن مقدار یک فیلد به فیلد دیگر بدون تایپ دوباره توسط کاربر.</td>
+                <td>کپی مقدار فیلد، انتقال مقدار بین فیلدهای فرم</td>
+                <td>copy value from another field, sync form fields</td>
+              </tr>
+              <tr>
+                <td>Dynamic Placeholder, Label, Help Text</td>
+                <td>تغییر متن label، placeholder یا help text بر اساس مسیر کاربر.</td>
+                <td>تغییر لیبل شرطی، placeholder شرطی فرم، متن راهنمای پویا</td>
+                <td>change field label conditionally, dynamic placeholder</td>
+              </tr>
+              <tr>
+                <td>Focus Field / Scroll to Field</td>
+                <td>بردن توجه کاربر به فیلد مهم بعد از انتخاب یک گزینه.</td>
+                <td>اسکرول به فیلد فرم، فوکوس خودکار روی فیلد</td>
+                <td>scroll to field conditionally, focus form field</td>
+              </tr>
+              <tr>
+                <td>Block Submit / End Form</td>
+                <td>جلوگیری از ارسال فرم یا پایان دادن فرم با پیام، مثل محدودیت سن یا امتیاز ناکافی.</td>
+                <td>بستن ارسال فرم با شرط، جلوگیری از submit فرم، پایان فرم با پیام</td>
+                <td>block form submit conditionally, end form with message</td>
+              </tr>
+              <tr>
+                <td>AND / OR / Groups</td>
+                <td>ساخت شرط های ترکیبی مثل کشور کانادا و مشتری تجاری، یا فروش یا همکاری.</td>
+                <td>شرط AND OR در فرم، گروه شرطی فرم، منطق پیچیده فرم</td>
+                <td>AND OR conditional logic, nested form rules</td>
+              </tr>
+              <tr>
+                <td>NOT / NAND / NOR - Pro</td>
+                <td>معکوس کردن نتیجه یک گروه شرطی برای قوانین پیشرفته تر.</td>
+                <td>شرط NOT در فرم، منطق NAND NOR فرم ساز</td>
+                <td>NOT conditional logic, NAND NOR form rules</td>
+              </tr>
+              <tr>
+                <td>URL Parameter Conditions</td>
+                <td>تغییر رفتار فرم بر اساس کمپین، UTM یا پارامتر موجود در URL.</td>
+                <td>فرم بر اساس utm، شرط URL در فرم، فرم مخصوص کمپین</td>
+                <td>URL parameter form logic, UTM conditional form</td>
+              </tr>
+              <tr>
+                <td>User and Role Conditions</td>
+                <td>نمایش مسیر متفاوت برای کاربر واردشده، مهمان یا نقش های مختلف وردپرس.</td>
+                <td>فرم شرطی برای کاربران وردپرس، نمایش فیلد برای نقش کاربری</td>
+                <td>conditional form by user role, logged in user form logic</td>
+              </tr>
+              <tr>
+                <td>Date Operators</td>
+                <td>ساخت شرط بر اساس تاریخ قبل، بعد یا بین دو تاریخ.</td>
+                <td>شرط تاریخ در فرم، فرم تاریخ تولد شرطی، date before after</td>
+                <td>date conditional logic, before after between date form</td>
+              </tr>
+              <tr>
+                <td>Payment Conditions</td>
+                <td>اجرای قانون بر اساس پرداخت موفق، پرداخت ناموفق یا مبلغ پرداخت.</td>
+                <td>فرم پرداخت شرطی، پیام بعد از پرداخت، شرط مبلغ پرداخت</td>
+                <td>payment conditional logic, paid unpaid form rule</td>
+              </tr>
+              <tr>
+                <td>Calculate - Pro</td>
+                <td>محاسبه عددی با فرمول و نمایش نتیجه در فیلد هدف.</td>
+                <td>محاسبه قیمت فرم، فرم با فرمول، calculator form WordPress</td>
+                <td>form calculations, formula field WordPress form builder</td>
+              </tr>
+              <tr>
+                <td>Conditional Notifications</td>
+                <td>ارسال ایمیل به تیم درست بر اساس نوع درخواست، بودجه، محصول یا مسیر کاربر.</td>
+                <td>ارسال ایمیل شرطی فرم، ایمیل به تیم فروش، routing فرم</td>
+                <td>conditional email notifications, route form email by answer</td>
+              </tr>
+              <tr>
+                <td>CC / BCC and Subject Tokens</td>
+                <td>افزودن CC/BCC و قرار دادن مقدار فیلدها داخل subject ایمیل.</td>
+                <td>CC BCC ایمیل فرم، subject پویا فرم، توکن فیلد در ایمیل</td>
+                <td>form email CC BCC, dynamic email subject tokens</td>
+              </tr>
+              <tr>
+                <td>Conditional Confirmation</td>
+                <td>نمایش پیام تشکر متفاوت یا تغییر عنوان، رنگ، آیکن و متن نهایی.</td>
+                <td>پیام تشکر شرطی فرم، thank you message متفاوت</td>
+                <td>conditional thank you message, custom confirmation by answer</td>
+              </tr>
+              <tr>
+                <td>Conditional Redirect</td>
+                <td>هدایت کاربر به صفحه خاص بعد از ارسال فرم بر اساس پاسخ یا پلن انتخابی.</td>
+                <td>ریدایرکت شرطی فرم، انتقال بعد از submit فرم</td>
+                <td>conditional redirect after form submit, redirect by answer</td>
+              </tr>
+              <tr>
+                <td>Redirect URL Tokens</td>
+                <td>ارسال مقدار فیلدها به URL مقصد بعد از ثبت فرم.</td>
+                <td>توکن فیلد در URL، پاس دادن مقدار فرم به صفحه تشکر</td>
+                <td>field tokens in redirect URL, pass form values to thank you page</td>
+              </tr>
+              <tr>
+                <td>Conditional Webhooks</td>
+                <td>ارسال اطلاعات فقط برای مسیرهای لازم به CRM، اتوماسیون، helpdesk یا سیستم سفارش.</td>
+                <td>وبهوک شرطی فرم، اتصال فرم به CRM، ارسال فرم به API</td>
+                <td>conditional webhook, send form data to CRM by condition</td>
+              </tr>
+              <tr>
+                <td>Webhook Stop and Payload Fields</td>
+                <td>توقف وبهوک یا محدود کردن فیلدهای ارسالی به سیستم بیرونی.</td>
+                <td>توقف وبهوک فرم، انتخاب فیلدهای وبهوک، webhook payload</td>
+                <td>stop webhook conditionally, webhook payload whitelist</td>
+              </tr>
+              <tr>
+                <td>Test Mode / Rule Inspector</td>
+                <td>بررسی رفتار قوانین قبل از انتشار فرم با وضعیت Matched، Not matched و Skipped.</td>
+                <td>تست شرط های فرم، تست منطق شرطی قبل انتشار، inspector فرم</td>
+                <td>test conditional logic before publishing, rule inspector</td>
+              </tr>
+              <tr>
+                <td>Priority and Stop Processing</td>
+                <td>کنترل ترتیب اجرای قوانین و جلوگیری از تداخل چند قانون روی یک target.</td>
+                <td>اولویت قوانین فرم، حل تداخل منطق شرطی، stop processing</td>
+                <td>conditional rule priority, stop processing form rules</td>
+              </tr>
+              <tr>
+                <td>Export / Import / Duplicate - Pro</td>
+                <td>کپی، خروجی گرفتن و انتقال قوانین بین فرم ها برای صرفه جویی در زمان.</td>
+                <td>خروجی گرفتن قوانین فرم، import conditional logic، duplicate rule</td>
+                <td>export import conditional logic rules, duplicate form rule</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="examples">
+      <div class="container">
+        <div class="section-head">
+          <h2>با این افزودنی چه فرم هایی می شود ساخت؟</h2>
+          <p class="muted">هدف Conditional Logic این است که به جای ساخت چند فرم جداگانه، یک فرم مرکزی بسازید که خودش مسیر درست را انتخاب کند.</p>
+        </div>
+        <div class="row">
+          <div class="col-4">
+            <article class="card">
+              <h3>فرم تماس هوشمند</h3>
+              <p>اگر کاربر Sales را انتخاب کرد بودجه و نام شرکت را بپرسید، اگر Support را انتخاب کرد شماره سفارش یا کد فعال سازی را اجباری کنید.</p>
+            </article>
+          </div>
+          <div class="col-4">
+            <article class="card">
+              <h3>فرم درخواست قیمت</h3>
+              <p>بودجه پایین را با پیام راهنما مدیریت کنید، بودجه متوسط را به مسیر عادی ببرید و لیدهای پرارزش را به مدیر فروش ایمیل کنید.</p>
+            </article>
+          </div>
+          <div class="col-4">
+            <article class="card">
+              <h3>فرم ثبت نام رویداد</h3>
+              <p>برای بلیت VIP فیلدهای ویژه نشان دهید، برای بلیت رایگان مرحله پرداخت را مخفی کنید و بعد از پرداخت موفق پیام مناسب نمایش دهید.</p>
+            </article>
+          </div>
+          <div class="col-4">
+            <article class="card">
+              <h3>فرم استخدام</h3>
+              <p>برای موقعیت Designer لینک نمونه کار را اجباری کنید، برای Developer مهارت فنی یا لینک GitHub را نمایش دهید و ایمیل را به تیم درست بفرستید.</p>
+            </article>
+          </div>
+          <div class="col-4">
+            <article class="card">
+              <h3>فرم پشتیبانی</h3>
+              <p>درخواست های فنی، مالی و عمومی را جدا کنید، هر کدام را به ایمیل مناسب بفرستید و پیام تشکر متناسب با همان مسیر بسازید.</p>
+            </article>
+          </div>
+          <div class="col-4">
+            <article class="card">
+              <h3>فرم پرداخت و سفارش</h3>
+              <p>بعد از پرداخت موفق وبهوک سفارش را فعال کنید، برای مبلغ های بالا ایمیل مدیریتی بفرستید و برای پرداخت ناموفق پیام راهنما نمایش دهید.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="best-practices">
+      <div class="container">
+        <div class="section-head">
+          <h2>روش درست کار کردن با Conditional Logic برای مدیر سایت</h2>
+          <p class="muted">این نکات کمک می کند فرم شرطی قابل فهم، قابل تست و قابل نگهداری بماند.</p>
+        </div>
+        <div class="row">
+          <div class="col-4">
+            <div class="card">
+              <h3>اول سناریو را بنویسید</h3>
+              <p>قبل از ساخت rule، مسیرهای اصلی را مشخص کنید: کاربر شخصی، کاربر شرکتی، فروش، پشتیبانی، پرداخت موفق، پرداخت ناموفق.</p>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <h3>نام rule را واضح انتخاب کنید</h3>
+              <p>به جای Rule 1 بنویسید Show company fields for business users یا ارسال لید فروش به تیم Sales.</p>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <h3>هر مسیر را جدا تست کنید</h3>
+              <p>فقط یک بار Run Test کافی نیست. مسیرهای اصلی را با مقدارهای واقعی تست کنید و بعد فرم را منتشر کنید.</p>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <h3>از Priority برای تداخل استفاده کنید</h3>
+              <p>اگر چند قانون روی یک فیلد اثر می گذارند، Priority و Stop after this rule matches را تنظیم کنید.</p>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <h3>فیلدهای مخفی را نگران کننده نکنید</h3>
+              <p>فیلدها و stepهای مخفی در مسیر ارسال و validation نادیده گرفته می شوند، پس مسیر کاربر با requiredهای پنهان گیر نمی کند.</p>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              <h3>مقاله و راهنما را بر اساس نیاز کاربر بنویسید</h3>
+              <p>عنوان هایی مثل چگونه فیلد شرطی بسازیم، چگونه ایمیل شرطی ارسال کنیم و چگونه فرم چندمرحله ای شرطی بسازیم بیشترین تطابق با جستجو دارند.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="seo-keywords">
+      <div class="container">
+        <div class="section-head">
+          <h2>بانک عبارت های کلیدی فارسی و انگلیسی برای SEO و GEO</h2>
+          <p class="muted">این عبارت ها را می توان در عنوان های فرعی، FAQ، alt تصویر، لینک داخلی، توضیحات محصول و مستندات استفاده کرد.</p>
+        </div>
+        <div class="row">
+          <div class="col-6">
+            <article class="card">
+              <h3>عبارت های فارسی</h3>
+              <p>
+                <span class="feature-tag">افزونه منطق شرطی فرم ساز وردپرس</span>
+                <span class="feature-tag">کاندیشنال لاجیک Easy Form Builder</span>
+                <span class="feature-tag">فرم ساز شرطی وردپرس</span>
+                <span class="feature-tag">نمایش فیلد بر اساس پاسخ کاربر</span>
+                <span class="feature-tag">ساخت فرم چندمرحله ای شرطی</span>
+                <span class="feature-tag">ارسال ایمیل شرطی فرم</span>
+                <span class="feature-tag">وبهوک شرطی فرم وردپرس</span>
+                <span class="feature-tag">پیام تشکر شرطی فرم</span>
+                <span class="feature-tag">ریدایرکت شرطی بعد از ارسال فرم</span>
+                <span class="feature-tag">محاسبه قیمت در فرم وردپرس</span>
+                <span class="feature-tag">فرم هوشمند بدون کدنویسی</span>
+              </p>
+            </article>
+          </div>
+          <div class="col-6">
+            <article class="card ltr">
+              <h3>English Keywords</h3>
+              <p>
+                <span class="feature-tag">Easy Form Builder conditional logic</span>
+                <span class="feature-tag">WordPress conditional form builder</span>
+                <span class="feature-tag">show field based on answer</span>
+                <span class="feature-tag">conditional required fields</span>
+                <span class="feature-tag">multi step conditional form</span>
+                <span class="feature-tag">conditional email notifications</span>
+                <span class="feature-tag">conditional thank you message</span>
+                <span class="feature-tag">conditional webhook form</span>
+                <span class="feature-tag">form calculation field</span>
+                <span class="feature-tag">smart form builder for WordPress</span>
+                <span class="feature-tag">conditional redirect after form submit</span>
+              </p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <div class="section-head">
+          <h2>سوالات متداول درباره Conditional Logic در Easy Form Builder</h2>
+        </div>
+        <details>
+          <summary>Conditional Logic دقیقاً چه کاری می کند؟</summary>
+          <p>فرم را بر اساس پاسخ کاربر، مقدار فیلد، پارامتر URL، وضعیت کاربر، مرحله فعلی، پرداخت و قوانین تعریف شده تغییر می دهد. نتیجه می تواند نمایش یا مخفی شدن فیلد، اجباری شدن فیلد، ارسال ایمیل، نمایش پیام تشکر، ریدایرکت یا ارسال وبهوک باشد.</p>
+        </details>
+        <details>
+          <summary>آیا برای استفاده از آن باید کدنویسی بلد باشم؟</summary>
+          <p>خیر. ادمین وردپرس قانون را در محیط بصری IF / THEN می سازد. فقط باید بداند اگر چه چیزی اتفاق افتاد، فرم چه رفتاری داشته باشد.</p>
+        </details>
+        <details>
+          <summary>چرا بعد از فعال سازی، Conditional Logic را نمی بینم؟</summary>
+          <p>ابتدا صفحه Add-ons را بررسی کنید و مطمئن شوید Conditional Logic Addon فعال است. سپس یک فرم را در فرم ساز باز کنید و وارد Form Settings شوید. اگر پلن Free باشد یا addon فعال نباشد، ممکن است به جای rule builder پنجره ارتقا یا قفل نمایش داده شود.</p>
+        </details>
+        <details>
+          <summary>آیا فیلد hidden اگر required باشد جلوی ارسال فرم را می گیرد؟</summary>
+          <p>در منطق فعلی افزونه، فیلد یا مرحله ای که با rule مخفی شده باشد در validation و submission نادیده گرفته می شود. بنابراین کاربر نباید به خاطر required بودن فیلدی که در مسیر او دیده نمی شود متوقف شود.</p>
+        </details>
+        <details>
+          <summary>برای فرم چندمرحله ای چه کارهایی می توان انجام داد؟</summary>
+          <p>می توانید step را نمایش دهید، مخفی کنید یا کاربر را مستقیم به step مشخص منتقل کنید. این برای فرم های ثبت نام، درخواست قیمت، پشتیبانی و پرداخت بسیار کاربردی است.</p>
+        </details>
+        <details>
+          <summary>آیا می توان ایمیل ها را بر اساس پاسخ کاربر به افراد مختلف فرستاد؟</summary>
+          <p>بله. در تب Notifications قانون شرطی می سازید و گیرنده، subject و template را مشخص می کنید. برای مثال Sales به تیم فروش، Billing به مالی و Technical به پشتیبانی فنی ارسال می شود.</p>
+        </details>
+        <details>
+          <summary>آیا می توان بعد از ارسال فرم کاربر را به صفحه متفاوت برد؟</summary>
+          <p>بله. در تب Confirmation می توانید بر اساس شرط، پیام اختصاصی نمایش دهید یا کاربر را به URL مشخص ریدایرکت کنید. همچنین می توانید از توکن های فیلد در URL مقصد استفاده کنید.</p>
+        </details>
+        <details>
+          <summary>Test Mode چه فایده ای دارد؟</summary>
+          <p>قبل از انتشار فرم، مقدار نمونه وارد می کنید و می بینید کدام قوانین Matched، Not matched یا Skipped می شوند. این کار خطاهای مسیرهای پیچیده را قبل از دریافت submission واقعی پیدا می کند.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="english-guide" dir="ltr" lang="en">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">English Guide</span>
+          <h2>Easy Form Builder Conditional Logic Addon: Activation and Admin Guide</h2>
+          <p class="muted">This section is written for WordPress admins, webmasters, agencies, and site owners who want to use Conditional Logic without touching code.</p>
+        </div>
+        <div class="row">
+          <div class="col-6">
+            <article class="card">
+              <h3>What It Does</h3>
+              <p>Conditional Logic lets your form react to the visitor's answers. You can show or hide fields, make fields required, skip steps, route users, send targeted emails, show different confirmations, redirect users, and trigger webhooks only when the right condition is matched.</p>
+            </article>
+          </div>
+          <div class="col-6">
+            <article class="card">
+              <h3>How to Activate It</h3>
+              <ol>
+                <li>Open the WordPress dashboard.</li>
+                <li>Go to Easy Form Builder.</li>
+                <li>Open Add-ons.</li>
+                <li>Find Conditional Logic Addon.</li>
+                <li>Install, download, or activate it if your package allows it.</li>
+                <li>Edit a form, open Form Settings, then open Conditional Logic.</li>
+              </ol>
+            </article>
+          </div>
+          <div class="col-6">
+            <article class="card">
+              <h3>How to Create a Rule</h3>
+              <ol>
+                <li>Add the fields you need in the form builder.</li>
+                <li>Open Conditional Logic.</li>
+                <li>Select the correct tab: Fields, Notifications, Confirmation, or Webhook.</li>
+                <li>Click Add.</li>
+                <li>Build the IF condition by selecting source, field, operator, and value.</li>
+                <li>Build the THEN action and choose the target.</li>
+                <li>Save the rule and test it with Test Mode.</li>
+              </ol>
+            </article>
+          </div>
+          <div class="col-6">
+            <article class="card">
+              <h3>Popular Use Cases</h3>
+              <ul>
+                <li>Show Company Name only when Customer Type is Business.</li>
+                <li>Require Order Number only for support requests.</li>
+                <li>Hide the payment step for free registrations.</li>
+                <li>Send high-value leads to a sales manager.</li>
+                <li>Redirect Pro plan users to a booking page.</li>
+                <li>Send CRM webhooks only for qualified leads.</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+        <div class="table-wrap" style="margin-top:24px">
+          <table>
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Admin Benefit</th>
+                <th>Search phrase</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Field visibility</td><td>Show or hide fields based on answers.</td><td>show field based on answer</td></tr>
+              <tr><td>Conditional required fields</td><td>Make a field required only in the correct path.</td><td>conditional required field WordPress</td></tr>
+              <tr><td>Step logic</td><td>Show, hide, or jump to steps in multi-step forms.</td><td>conditional multi step form</td></tr>
+              <tr><td>Email routing</td><td>Send the right submission to the right team.</td><td>conditional email notification form</td></tr>
+              <tr><td>Confirmation and redirect</td><td>Show a custom thank-you message or redirect by answer.</td><td>conditional redirect after form submit</td></tr>
+              <tr><td>Webhooks</td><td>Trigger CRM or automation calls only for matching submissions.</td><td>conditional webhook form builder</td></tr>
+              <tr><td>Calculations - Pro</td><td>Create formula-based numeric outputs.</td><td>form calculation field WordPress</td></tr>
+              <tr><td>Test Mode</td><td>Preview rule matching before publishing the form.</td><td>test conditional logic before publishing</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="final-cta">
+      <div class="container">
+        <div class="cta">
+          <h2>با Conditional Logic یک فرم معمولی را به مسیر فروش، پشتیبانی و اتوماسیون تبدیل کنید</h2>
+          <p class="muted">اگر کاربر فقط فرم ساده می خواهد، چند rule پایه کافی است. اگر سایت جدی، فرم فروش، پرداخت، پشتیبانی یا چند مسیر مختلف دارد، نسخه Pro ارزش واقعی خودش را با محاسبات، Inspector کامل، Export/Import و قوانین پیشرفته نشان می دهد.</p>
+          <div class="actions">
+            <a class="btn btn-outline" href="#activation">فعال سازی addon</a>
+            <a class="btn btn-outline" href="#features">دیدن همه ویژگی ها</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>آخرین بروزرسانی محتوا: 2026-07-08. این صفحه برای مستندات Easy Form Builder Conditional Logic Addon آماده شده و از دید ادمین وردپرس نوشته شده است.</p>
+    </div>
+  </footer>
+</body>
+</html>

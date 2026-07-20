@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Easy Form Builder Conditional Logic Addon: The Complete Guide to Smart WordPress Forms (2026)</title>
+  <meta name="description" content="A complete, hands-on guide to the Conditional Logic addon for Easy Form Builder. Learn how to show or hide fields based on an answer, route submissions to different emails, skip steps in multi-step forms, and redirect or send webhooks by URL parameter, user role, or payment — all with no code.">
+  <meta name="keywords" content="Easy Form Builder conditional logic, WordPress conditional form builder, show hide field based on answer, conditional email routing WordPress, send form email based on dropdown, skip step multi step form, conditional redirect after form submit, conditional logic by url parameter, conditional form by user role, make field required only if, conditional webhook form, branching form no code">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="author" content="White Studio Team">
+  <link rel="canonical" href="https://whitestudio.team/document/easy-form-builder-conditional-logic-complete-guide/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Easy Form Builder Conditional Logic Addon: The Complete Guide (2026)">
+  <meta property="og:description" content="Show or hide fields by answer, route emails, skip steps, and redirect or fire webhooks by URL, role, or payment — no code required.">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="https://whitestudio.team/document/easy-form-builder-conditional-logic-complete-guide/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Easy Form Builder Conditional Logic Addon: The Complete Guide (2026)">
+  <meta name="twitter:description" content="Build smart, no-code WordPress forms with conditional fields, steps, emails, confirmations, redirects, and webhooks.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        "@id": "https://whitestudio.team/document/easy-form-builder-conditional-logic-complete-guide/#article",
+        "headline": "Easy Form Builder Conditional Logic Addon: The Complete Guide to Smart WordPress Forms (2026)",
+        "description": "A complete, hands-on guide to activating and using the Conditional Logic addon for Easy Form Builder to build smart, no-code WordPress forms.",
+        "inLanguage": "en",
+        "datePublished": "2026-07-08",
+        "dateModified": "2026-07-08",
+        "author": { "@type": "Organization", "name": "White Studio Team", "url": "https://whitestudio.team/" },
+        "publisher": { "@type": "Organization", "name": "White Studio Team", "url": "https://whitestudio.team/" },
+        "about": { "@type": "SoftwareApplication", "name": "Easy Form Builder Conditional Logic Addon" },
+        "articleSection": ["What is conditional logic", "Activation", "Building rules", "Features", "Use cases", "Search intent", "Best practices", "FAQ"]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Easy Form Builder Conditional Logic Addon",
+        "applicationCategory": "WordPressPlugin",
+        "operatingSystem": "WordPress",
+        "description": "A conditional logic addon that turns static WordPress forms into dynamic, rule-driven forms using a visual IF/THEN builder.",
+        "offers": { "@type": "Offer", "category": "Pro add-on" },
+        "featureList": [
+          "Show and hide fields based on answers",
+          "Conditional required and optional fields",
+          "Show, hide, and jump to steps in multi-step forms",
+          "Conditional email routing to different recipients",
+          "Conditional confirmations and redirects",
+          "Conditional webhooks",
+          "AND, OR, and nested condition groups",
+          "Test Mode and Rule Inspector",
+          "Formula calculations in Pro",
+          "Export and import rules in Pro"
+        ]
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to activate and use Conditional Logic in Easy Form Builder",
+        "description": "Steps to activate the addon and build your first IF/THEN rule in the form builder.",
+        "step": [
+          {"@type": "HowToStep", "name": "Open Easy Form Builder", "text": "In the WordPress dashboard, open the Easy Form Builder menu and confirm the plugin is active."},
+          {"@type": "HowToStep", "name": "Open Add-ons", "text": "Go to the Add-ons page and find the Conditional Logic Addon card."},
+          {"@type": "HowToStep", "name": "Activate the addon", "text": "Install or activate the addon if your package allows it. If it is locked, upgrade your plan."},
+          {"@type": "HowToStep", "name": "Open a form", "text": "Create a new form or edit an existing one, then add the fields your rules will use."},
+          {"@type": "HowToStep", "name": "Build a rule", "text": "Open Form Settings, click Conditional Logic, create an IF/THEN rule, and verify it with Test Mode."}
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I show a field based on a dropdown answer in WordPress?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Open Conditional Logic in the form's settings, add a rule with IF set to your dropdown field equals a value, and a THEN action of Show Field targeting the field you want revealed. No code is required." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I route form emails to different people based on the answer?",
+            "acceptedAnswer": { "@type": "Answer", "text": "In the Notifications tab, create a conditional rule that sets the recipient, subject, and template. For example, send Sales inquiries to the sales team, Billing to finance, and Support to your help desk automatically." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I skip a step in a multi-step form based on the answer?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Use the Fields tab to Show Step, Hide Step, or Jump to Step so visitors only see the steps relevant to their answers, such as skipping the payment step for free registrations." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can the form change based on a URL parameter or user role?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Conditions can read URL parameters (such as UTM or campaign values) and the visitor's login status and WordPress role, so you can show different fields, emails, or redirects for different sources and users." }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need to know how to code to use conditional logic?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. Rules are built in a visual IF/THEN interface. You only choose a field, an operator, a value, and an action. No PHP, JavaScript, or CSS is required." }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "Easy Form Builder", "item": "https://whitestudio.team/"},
+          {"@type": "ListItem", "position": 2, "name": "Documents", "item": "https://whitestudio.team/document/"},
+          {"@type": "ListItem", "position": 3, "name": "Conditional Logic Complete Guide"}
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body style="margin:0; background:#f8f7fc; color:#1f2937; font-family:'Segoe UI', Arial, Helvetica, sans-serif; line-height:1.75; -webkit-font-smoothing:antialiased;">
+
+  <main id="top">
+
+    <!-- ============ HERO ============ -->
+    <section style="padding:60px 0 46px; background:linear-gradient(135deg, #f3e8ff 0%, #fdeef6 100%); border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <span style="display:inline-flex; align-items:center; gap:8px; padding:6px 13px; border-radius:999px; color:#6b21a8; background:#ffffff; border:1px solid #e3d9f7; font-size:13px; font-weight:700; box-shadow:0 4px 14px rgba(124,58,237,.10);">✦ Easy Form Builder · Conditional Logic Addon</span>
+
+        <h1 style="font-size:clamp(31px, 5vw, 52px); line-height:1.18; margin:18px 0 16px; max-width:920px; letter-spacing:-.6px; color:#2a1155;">Conditional Logic for WordPress Forms: Show &amp; Hide Fields, Route Emails, and Skip Steps &mdash; No Code</h1>
+
+        <p style="font-size:19px; color:#54506a; max-width:840px; margin:0 0 26px;">The Conditional Logic addon turns an ordinary Easy Form Builder form into a form that reacts to every answer. With a visual IF/THEN builder you decide which fields appear, which steps are skipped, which team gets the email, what confirmation shows, and what data flows to your CRM &mdash; based on what each visitor actually does.</p>
+
+        <div style="display:flex; flex-wrap:wrap; gap:12px;">
+          <a href="#activate" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:13px 22px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#ec4899); color:#fff; font-weight:800; text-decoration:none; min-height:48px; box-shadow:0 10px 26px rgba(124,58,237,.28);">Activate the addon &rarr;</a>
+          <a href="#first-rule" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:13px 22px; border-radius:10px; background:#fff; color:#7c3aed; border:1px solid #d8c8f5; font-weight:800; text-decoration:none; min-height:48px;">Build your first rule</a>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:24px;">
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">No code, drag-and-drop</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">Visual IF / THEN rules</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">Multi-step friendly</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">Conditional email, redirect &amp; webhook</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">Test Mode before publish</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ KEY TAKEAWAYS (GEO / answer-engine friendly) ============ -->
+    <section style="padding:38px 0 8px;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="background:#fff; border:1px solid #ece5f7; border-left:5px solid #7c3aed; border-radius:14px; padding:26px 28px; box-shadow:0 14px 38px rgba(62,31,119,.08);">
+          <h2 style="font-size:14px; letter-spacing:.7px; text-transform:uppercase; color:#7c3aed; margin:0 0 14px;">Key takeaways</h2>
+          <ul style="margin:0; padding-left:20px; color:#3d3a4f;">
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">What it is:</strong> Conditional Logic is a Pro addon for Easy Form Builder that makes a form react to answers, URL parameters, user roles, steps, and payment results.</li>
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">No code:</strong> Every rule is built visually with an IF (condition) and a THEN (action). You never touch PHP, JavaScript, or CSS.</li>
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">What it controls:</strong> Fields, multi-step navigation, email routing, confirmation messages, redirects, and webhooks.</li>
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">Safe by design:</strong> Fields and steps hidden by a rule are skipped during validation, so hidden required fields never block a submission.</li>
+            <li style="margin-bottom:0;"><strong style="color:#2a1155;">Test before publish:</strong> Test Mode and the Rule Inspector show which rules Matched, Not matched, or were Skipped before real visitors arrive.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TABLE OF CONTENTS ============ -->
+    <section style="padding:24px 0 20px;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="background:#f5f0fd; border:1px solid #e6ddf6; border-radius:14px; padding:24px 28px;">
+          <h2 style="font-size:16px; margin:0 0 14px; color:#2a1155;">On this page</h2>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:6px 24px; font-size:15px;">
+            <a href="#what-is" style="color:#7c3aed; text-decoration:none; padding:4px 0;">1. What is conditional logic?</a>
+            <a href="#why" style="color:#7c3aed; text-decoration:none; padding:4px 0;">2. Why it matters</a>
+            <a href="#activate" style="color:#7c3aed; text-decoration:none; padding:4px 0;">3. How to activate the addon</a>
+            <a href="#first-rule" style="color:#7c3aed; text-decoration:none; padding:4px 0;">4. Build your first rule</a>
+            <a href="#tabs" style="color:#7c3aed; text-decoration:none; padding:4px 0;">5. The four rule tabs</a>
+            <a href="#panel-tour" style="color:#7c3aed; text-decoration:none; padding:4px 0;">6. See it in action (screenshots)</a>
+            <a href="#features" style="color:#7c3aed; text-decoration:none; padding:4px 0;">7. Full feature reference</a>
+            <a href="#use-cases" style="color:#7c3aed; text-decoration:none; padding:4px 0;">8. Real-world use cases</a>
+            <a href="#searches" style="color:#7c3aed; text-decoration:none; padding:4px 0;">9. Questions people search</a>
+            <a href="#best-practices" style="color:#7c3aed; text-decoration:none; padding:4px 0;">10. Best practices</a>
+            <a href="#free-vs-pro" style="color:#7c3aed; text-decoration:none; padding:4px 0;">11. Free vs Pro</a>
+            <a href="#troubleshooting" style="color:#7c3aed; text-decoration:none; padding:4px 0;">12. Troubleshooting</a>
+            <a href="#faq" style="color:#7c3aed; text-decoration:none; padding:4px 0;">13. FAQ</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WHAT IS ============ -->
+    <section id="what-is" style="padding:44px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto; max-width:920px;">
+        <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">What is conditional logic in a WordPress form?</h2>
+
+        <div style="background:#f3e8ff; border:1px solid #e3d9f7; border-radius:12px; padding:16px 18px; margin:14px 0 22px;">
+          <strong style="color:#6b21a8;">Quick answer:</strong> Conditional logic is a rule engine that changes a form&rsquo;s behavior in real time. Each rule has a condition (IF) and an action (THEN). When the condition is true, the action runs &mdash; showing a field, skipping a step, sending an email to a specific team, redirecting the visitor, or firing a webhook.
+        </div>
+
+        <p style="margin:0 0 16px; color:#3d3a4f;">A traditional WordPress form is static: every visitor sees the same fields in the same order and triggers the same email. That is fine for a basic contact form, but it breaks down the moment your form has to serve more than one audience. A sales inquiry, a support ticket, and a job application each need different questions, different recipients, and different follow-ups &mdash; yet forcing everyone through one long, generic form leads to abandoned submissions and messy data.</p>
+
+        <p style="margin:0 0 16px; color:#3d3a4f;">The Conditional Logic addon solves this by letting the form <em>adapt to the person filling it out</em>. Instead of building five separate forms, you build one intelligent form that reveals the right questions, routes to the right team, and confirms with the right message &mdash; automatically. It reads signals such as the visitor&rsquo;s answers, values in the URL, whether they are logged in and their WordPress role, the current step of a multi-step form, and the outcome of a payment, then applies your rules to decide what happens next.</p>
+
+        <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:24px; margin-top:8px; box-shadow:0 12px 32px rgba(62,31,119,.06);">
+          <h3 style="font-size:18px; margin:0 0 14px; color:#6b21a8;">The anatomy of a rule</h3>
+          <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:center;">
+            <div style="background:#faf7ff; border:1px solid #e6ddf6; border-radius:12px; padding:16px;">
+              <div style="font-size:12px; font-weight:800; color:#7c3aed; letter-spacing:.5px;">IF (condition)</div>
+              <div style="margin-top:6px; font-family:Consolas, monospace; font-size:14px; color:#2a1155;">Customer Type <strong>is</strong> Business</div>
+            </div>
+            <div style="font-weight:900; color:#ec4899; font-size:22px; text-align:center;">&rarr;</div>
+            <div style="background:#fdf2f8; border:1px solid #f7d6e8; border-radius:12px; padding:16px;">
+              <div style="font-size:12px; font-weight:800; color:#db2777; letter-spacing:.5px;">THEN (action)</div>
+              <div style="margin-top:6px; font-family:Consolas, monospace; font-size:14px; color:#2a1155;">Show &ldquo;Company Name&rdquo; + Set required</div>
+            </div>
+          </div>
+          <p style="margin:16px 0 0; font-size:14px; color:#6b7280;">Read it as a sentence: <em>&ldquo;If the customer type is Business, then show the Company Name field and make it required.&rdquo;</em> That is the entire mental model &mdash; everything else is just more conditions and more actions.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WHY IT MATTERS ============ -->
+    <section id="why" style="padding:46px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">Why conditional logic matters for conversions and operations</h2>
+          <p style="margin:0; color:#6b7280;">Smart forms are not a nice-to-have. They directly affect completion rates, lead quality, and how much manual sorting your team does after every submission.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:18px;">
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#7c3aed,#a855f7); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">🎯</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">Shorter, smarter forms</h3>
+            <p style="margin:0; color:#6b7280;">Visitors only see the questions relevant to them. Irrelevant fields and unnecessary steps disappear, which reduces friction and abandonment.</p>
+          </article>
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#ec4899,#f472b6); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">🧭</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">Better lead routing</h3>
+            <p style="margin:0; color:#6b7280;">Sales, support, hiring, event, and order requests are routed to the right inbox and the right follow-up based on the visitor&rsquo;s answers.</p>
+          </article>
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#f59e0b,#fbbf24); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">🧹</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">Cleaner data</h3>
+            <p style="margin:0; color:#6b7280;">Clearing stale values and requiring fields only when relevant means fewer half-filled, contradictory submissions to clean up later.</p>
+          </article>
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#6b21a8,#7c3aed); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">⚙️</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">Lightweight automation</h3>
+            <p style="margin:0; color:#6b7280;">Fire webhooks to your CRM or automation tool only for qualified submissions &mdash; not for every message that hits the form.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ACTIVATION ============ -->
+    <section id="activate" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">How to activate the Conditional Logic addon</h2>
+          <p style="margin:0; color:#6b7280;">These steps follow the current structure of the plugin. The addon&rsquo;s internal name is <span style="direction:ltr; font-family:Consolas, monospace; background:#f0ebfa; color:#6b21a8; padding:1px 6px; border-radius:5px;">AdnSMF</span>, but you will see it labeled <strong>Conditional Logic Addon</strong> in the admin.</p>
+        </div>
+
+        <p style="margin:0 0 16px; color:#6b7280; font-size:14px;">👉 Click any step to expand it and view the matching screenshot.</p>
+        <div style="display:grid; gap:14px;">
+
+          <details open style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">1</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">Confirm Easy Form Builder is active</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">Open <strong>Plugins</strong>, confirm Easy Form Builder is active, then open the <strong>Easy Form Builder</strong> menu.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">🖼️ View screenshot</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="../../tests/screenshots/02-efb-list.png" alt="Easy Form Builder forms list open in the WordPress admin sidebar" title="Open the Easy Form Builder menu in WordPress" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">Screenshot: Easy Form Builder open in the WordPress admin — your saved forms list.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">2</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">Open the Add-ons page</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">In the Easy Form Builder submenu, click <strong>Add-ons</strong> and find the <strong>Conditional Logic Addon</strong> card.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">🖼️ View screenshot</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="../../tests/screenshots/07-addons-page.png" alt="Easy Form Builder Add-ons page showing addon cards with Install and Help buttons" title="Open the Add-ons page in Easy Form Builder" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">Screenshot: the Add-ons page where every Easy Form Builder addon can be installed or activated.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">3</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">Install or activate the addon</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">Install or activate it. A <em>locked</em> card or upgrade prompt means your plan needs an upgrade to unlock it.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">🖼️ View screenshot</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="../../tests/screenshots/07-addons-page.png" alt="Install or activate the Conditional Logic Addon from the Easy Form Builder Add-ons page" title="Install or activate the Conditional Logic Addon" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">Screenshot: use the Install button on the Conditional Logic Addon card, or activate it if it is already installed.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">4</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">Create or open a form</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">Go to <strong>Create</strong> for a new form, or edit one from the <strong>Panel</strong>, then add the fields your rules will use.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">🖼️ View screenshot</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="../../tests/screenshots/03-form-editor.png" alt="Easy Form Builder form editor with the drag-and-drop field palette on the left" title="Create or edit a form in Easy Form Builder" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">Screenshot: the form editor. Drag in the fields your conditions will read and the fields your rules will change.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">5</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">Open Form Settings &rarr; Conditional Logic</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">Open <strong>Form Settings</strong> and click <strong>Conditional logic</strong> to launch the Rule Builder.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">🖼️ View screenshot</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="../../tests/screenshots/04-form-settings.png" alt="Easy Form Builder Form Settings panel showing the Conditional logic button" title="Open Conditional Logic from Form Settings" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">Screenshot: the Conditional logic button lives at the bottom of the Form Settings panel.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#ec4899,#f472b6); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">6</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">Build a rule and verify with Test Mode</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">Add a rule, choose the IF condition and THEN action, <strong>Save</strong>, then run <strong>Test Mode</strong>.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">🖼️ View screenshot</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="../../tests/screenshots/06-rule-editor.png" alt="Conditional logic IF THEN rule builder with Select Field, operator, action, priority and Save" title="Build an IF/THEN rule and verify it with Test Mode" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">Screenshot: the IF/THEN rule builder with priority, &ldquo;Stop after this rule matches&rdquo;, and Save.</figcaption>
+            </figure>
+          </details>
+
+        </div>
+
+        <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:12px; padding:16px 18px; margin-top:20px;">
+          <strong style="color:#92400e;">Troubleshooting tip:</strong> <span style="color:#7a5b12;">If you cannot see the Conditional Logic button, check the Add-ons page first. If the button appears but the editor will not open, verify your plan level, that the addon is active, and that the form actually contains fields the rules can target.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FIRST RULE WALKTHROUGH ============ -->
+    <section id="first-rule" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">Tutorial: show a field only when a dropdown answer matches</h2>
+          <p style="margin:0; color:#6b7280;">This is the single most-searched task &mdash; <em>how do I show a field based on the visitor&rsquo;s answer?</em> Here is the complete walkthrough, using a Business vs Personal example.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:18px;">
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:24px; border-top:4px solid #7c3aed;">
+            <h3 style="font-size:18px; margin:0 0 12px; color:#6b21a8;">Step A &mdash; Prepare the fields</h3>
+            <ol style="margin:0; padding-left:20px; color:#3d3a4f;">
+              <li style="margin-bottom:8px;">Add a choice field named <strong>Customer Type</strong>.</li>
+              <li style="margin-bottom:8px;">Give it two options: <strong>Personal</strong> and <strong>Business</strong>.</li>
+              <li style="margin-bottom:8px;">Add the <strong>Company Name</strong> and <strong>VAT Number</strong> fields.</li>
+              <li style="margin-bottom:0;">If the form is multi-step, prepare the &ldquo;Company details&rdquo; step too.</li>
+            </ol>
+          </article>
+          <article style="background:#fdf2f8; border:1px solid #f7d6e8; border-radius:14px; padding:24px; border-top:4px solid #ec4899;">
+            <h3 style="font-size:18px; margin:0 0 12px; color:#db2777;">Step B &mdash; Build the rule</h3>
+            <ol style="margin:0; padding-left:20px; color:#3d3a4f;">
+              <li style="margin-bottom:8px;">Open the <strong>Fields</strong> tab and click <strong>Add</strong>.</li>
+              <li style="margin-bottom:8px;">In IF, choose the <strong>Customer Type</strong> field.</li>
+              <li style="margin-bottom:8px;">Set the operator to <strong>is</strong> and pick the value <strong>Business</strong>.</li>
+              <li style="margin-bottom:8px;">In THEN, add <strong>Show Field &rarr; Company Name</strong>.</li>
+              <li style="margin-bottom:8px;">Add a second action: <strong>Set Required &rarr; Company Name</strong>.</li>
+              <li style="margin-bottom:0;"><strong>Save</strong>, then Test Mode with both values.</li>
+            </ol>
+          </article>
+        </div>
+        <p style="margin:20px 0 0; color:#6b7280; max-width:840px;">Now the Company Name field stays hidden for personal customers and only appears &mdash; already marked as required &mdash; when someone selects Business. Because hidden fields are skipped during validation, a personal customer is never blocked by a required field they never saw.</p>
+      </div>
+    </section>
+
+    <!-- ============ THE FOUR TABS ============ -->
+    <section id="tabs" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">The four rule tabs, explained</h2>
+          <p style="margin:0; color:#6b7280;">Rules are organized into four tabs by what they control. You never edit code &mdash; each tab is a set of cards, dropdowns, and a Test Mode button.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #7c3aed;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">Fields</h3>
+            <p style="margin:0; color:#6b7280;">Show, hide, require, make optional, enable, disable, set or clear values, and control multi-step navigation.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #ec4899;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">Notifications</h3>
+            <p style="margin:0; color:#6b7280;">Route conditional emails to the right team &mdash; sales, support, billing, or a specific recipient &mdash; with dynamic subjects.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #a855f7;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">Confirmation</h3>
+            <p style="margin:0; color:#6b7280;">Show a different thank-you message, change its title, color, and icon, or redirect the visitor after submission.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #f59e0b;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">Webhook</h3>
+            <p style="margin:0; color:#6b7280;">Fire or stop a webhook based on answers, payment, or request type, and control which fields are sent in the payload.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VISUAL TOUR / SCREENSHOTS ============ -->
+    <section id="panel-tour" style="padding:48px 0; background:linear-gradient(180deg,#faf7ff,#ffffff); border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:26px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">See it in action: the Conditional Logic panel and its tabs</h2>
+          <p style="margin:0; color:#6b7280;">This is what conditional logic looks like inside Easy Form Builder. Every tab &mdash; <strong>Fields</strong>, <strong>Notifications</strong>, <strong>Confirmation</strong>, and <strong>Webhook</strong> &mdash; builds the same IF/THEN rule; only the outcome changes. Use these views to see exactly where to click when you want to show a field, route an email, redirect a visitor, or fire a webhook.</p>
+        </div>
+
+        <!-- Real screenshots: Conditional Logic panel + Fields tab -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:20px;">
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-left:8px; font-size:12px; font-weight:800; color:#6b21a8;">Conditional logic</span>
+            </div>
+            <img src="../../tests/screenshots/05-conditional-logic-panel.png" alt="Easy Form Builder Conditional Logic panel showing the Add your first rule empty state" title="The Conditional Logic panel — click Add to build your first smart-form rule" loading="lazy" style="width:100%; display:block;">
+            <figcaption style="padding:14px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">The Conditional Logic panel.</strong> Open it from Form Settings, then click <strong>Add</strong> to create your first IF/THEN rule.</figcaption>
+          </figure>
+
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-left:8px; font-size:12px; font-weight:800; color:#6b21a8;">Fields tab</span>
+            </div>
+            <img src="../../tests/screenshots/06-rule-editor.png" alt="Fields tab IF THEN rule builder showing Select Field, Is, Show Field, priority and Save" title="Fields tab — show or hide a field based on the answer" loading="lazy" style="width:100%; display:block;">
+            <figcaption style="padding:14px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">Fields tab.</strong> Build the <strong>IF</strong> condition, pick a <strong>THEN</strong> action such as Show Field or Set Required, then Save.</figcaption>
+          </figure>
+        </div>
+
+        <!-- Tab previews: Notifications, Confirmation, Webhook -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:20px;">
+
+          <!-- Notifications -->
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-left:8px; font-size:12px; font-weight:800; color:#6b21a8;">Notifications tab</span>
+            </div>
+            <div style="padding:16px;">
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e7efff; color:#2f6bd8; font-weight:800; font-size:12px;">IF</span>
+              <div style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">Department</div>
+                <div style="flex:0 0 auto; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">is</div>
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">Billing</div>
+              </div>
+              <div style="text-align:center; color:#ec4899; font-weight:900; font-size:16px; margin:2px 0;">&darr;</div>
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e5f7ee; color:#12a150; font-weight:800; font-size:12px;">THEN</span>
+              <div style="display:flex; gap:8px; margin:8px 0 12px; flex-wrap:wrap;">
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">Send notification</div>
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">finance@site.com</div>
+              </div>
+              <div style="text-align:right;"><span style="display:inline-block; padding:7px 16px; border-radius:8px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:800; font-size:12px;">Save</span></div>
+            </div>
+            <figcaption style="padding:2px 16px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">Notifications tab.</strong> Route the email to the right team &mdash; the no-code way to send form emails to different recipients by answer.</figcaption>
+          </figure>
+
+          <!-- Confirmation -->
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-left:8px; font-size:12px; font-weight:800; color:#6b21a8;">Confirmation tab</span>
+            </div>
+            <div style="padding:16px;">
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e7efff; color:#2f6bd8; font-weight:800; font-size:12px;">IF</span>
+              <div style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">Plan</div>
+                <div style="flex:0 0 auto; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">is</div>
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">Pro</div>
+              </div>
+              <div style="text-align:center; color:#ec4899; font-weight:900; font-size:16px; margin:2px 0;">&darr;</div>
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e5f7ee; color:#12a150; font-weight:800; font-size:12px;">THEN</span>
+              <div style="display:flex; gap:8px; margin:8px 0 12px; flex-wrap:wrap;">
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">Redirect to</div>
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">/book-a-call</div>
+              </div>
+              <div style="text-align:right;"><span style="display:inline-block; padding:7px 16px; border-radius:8px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:800; font-size:12px;">Save</span></div>
+            </div>
+            <figcaption style="padding:2px 16px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">Confirmation tab.</strong> Show a different thank-you message or redirect the visitor to a specific page based on the answer.</figcaption>
+          </figure>
+
+          <!-- Webhook -->
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-left:8px; font-size:12px; font-weight:800; color:#6b21a8;">Webhook tab</span>
+            </div>
+            <div style="padding:16px;">
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e7efff; color:#2f6bd8; font-weight:800; font-size:12px;">IF</span>
+              <div style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">Payment</div>
+                <div style="flex:0 0 auto; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">is</div>
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">Paid</div>
+              </div>
+              <div style="text-align:center; color:#ec4899; font-weight:900; font-size:16px; margin:2px 0;">&darr;</div>
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e5f7ee; color:#12a150; font-weight:800; font-size:12px;">THEN</span>
+              <div style="display:flex; gap:8px; margin:8px 0 12px; flex-wrap:wrap;">
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">Send webhook</div>
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">CRM · /orders</div>
+              </div>
+              <div style="text-align:right;"><span style="display:inline-block; padding:7px 16px; border-radius:8px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:800; font-size:12px;">Save</span></div>
+            </div>
+            <figcaption style="padding:2px 16px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">Webhook tab.</strong> Send data to your CRM or automation tool only when the condition matches &mdash; not on every submission.</figcaption>
+          </figure>
+
+        </div>
+
+        <p style="margin:18px 0 0; font-size:13px; color:#8b8698;">Screenshots reflect the current Easy Form Builder build; the Notifications, Confirmation, and Webhook views above illustrate each tab&rsquo;s IF/THEN rule. Your exact screen may vary by plan and installed addons.</p>
+      </div>
+    </section>
+
+    <!-- ============ FEATURE REFERENCE TABLE ============ -->
+    <section id="features" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:24px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">Full feature reference</h2>
+          <p style="margin:0; color:#6b7280;">Every action and condition type, with a plain-language benefit and the exact search phrase it answers. Items marked <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:12px; font-weight:700;">Pro</span> require a Pro plan.</p>
+        </div>
+        <div style="overflow-x:auto; border:1px solid #ece5f7; border-radius:14px; background:#fff;">
+          <table style="width:100%; border-collapse:collapse; min-width:640px; font-size:15px;">
+            <thead>
+              <tr>
+                <th style="text-align:left; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">Feature</th>
+                <th style="text-align:left; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">What it does for you</th>
+                <th style="text-align:left; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">Search phrase it answers</th>
+              </tr>
+            </thead>
+            <tbody style="color:#3d3a4f;">
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Show / Hide Field</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Reveal or hide a field based on an answer.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">show field based on dropdown answer</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Set Required / Optional</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Require a field only on the paths where it matters.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">make field required only if</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Enable / Disable Field</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Lock a field without hiding it &mdash; great for prefilled or price fields.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">disable form field conditionally</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Show / Hide Step</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Reveal or remove a whole step in a multi-step form.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">skip step in multi step form</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Jump to Step</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Send the visitor straight to the relevant step.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">jump to page conditional logic</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Show Message</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Display an inline hint or warning next to a field.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">show message when option selected</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Set / Clear Value</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Auto-fill a value or clear a stale answer when the path changes.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">clear field value when option changes</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Copy Value From Field</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Copy one field&rsquo;s value into another without retyping.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">copy value from another field</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Dynamic Label / Placeholder / Help</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Change a field&rsquo;s wording based on the path.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">change field label dynamically</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Focus / Scroll to Field</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Move attention to an important field after a choice.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">auto scroll to field after selection</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Block Submit / End Form</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Stop submission with a message (age limit, low score, etc.).</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">prevent form submission conditionally</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">AND / OR / Groups</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Combine conditions, e.g. Canada AND Business, or Sales OR Partnership.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">form field AND OR condition group</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">NOT / NAND / NOR <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">Pro</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Invert a group&rsquo;s result for advanced rules.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">show field when NOT selected</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">URL Parameter Conditions</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Adapt the form by campaign, UTM, or URL value.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">conditional logic based on url parameter</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">User &amp; Role Conditions</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Show different paths for guests, logged-in users, or roles.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">show field based on user role WordPress</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Date Operators</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Build conditions on before / after / between dates.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">conditional logic before after date</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Payment Conditions</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Act on paid, unpaid, or the amount paid.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">conditional logic based on payment amount</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Calculate <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">Pro</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Numeric formulas with the result shown in a target field.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">calculate form field value formula</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Conditional Notifications</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Email the right team by request type, budget, or product.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">send form email based on answer</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">CC / BCC &amp; Subject Tokens</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Add CC/BCC and inject field values into the subject.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">dynamic email recipient contact form</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Conditional Confirmation<span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">Pro</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Show a tailored thank-you message per path.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">different thank you message by answer</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Conditional Redirect<span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">Pro</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Redirect to a specific page by answer or selected plan.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">redirect after form submit based on answer</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Redirect URL Tokens<span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">Pro</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Pass field values to the destination URL.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">pass form values to thank you page</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Conditional Webhooks<span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">Pro</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Send data to CRM or automation only for the right paths.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">send form to CRM only if condition</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Webhook Stop &amp; Payload Fields<span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">Pro</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Stop a webhook or limit the fields sent externally.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">choose which fields to send in webhook</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Test Mode / Rule Inspector</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Preview Matched / Not matched / Skipped before publishing.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">test conditional logic before publishing</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">Priority &amp; Stop Processing<span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">Pro</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Control rule order and prevent conflicts on one target.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">conditional rule order conflict fix</td></tr>
+              <tr><td style="padding:13px 14px; font-weight:700; color:#2a1155;">Export / Import / Duplicate <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">Pro</span></td><td style="padding:13px 14px;">Copy and move rules between forms to save time.</td><td style="padding:13px 14px;">copy conditional logic between forms</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ USE CASES ============ -->
+    <section id="use-cases" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">Real-world forms you can build</h2>
+          <p style="margin:0; color:#6b7280;">The goal is one central form that chooses the right path &mdash; instead of maintaining several separate forms.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">Smart contact form</h3>
+            <p style="margin:0; color:#6b7280;">Choose Sales and you&rsquo;re asked for budget and company; choose Support and the order number or license key becomes required.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">Quote request form</h3>
+            <p style="margin:0; color:#6b7280;">Guide low budgets to a helpful message, route standard budgets normally, and email high-value leads straight to a sales manager.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">Event registration</h3>
+            <p style="margin:0; color:#6b7280;">Show VIP-only fields for premium tickets, hide the payment step for free tickets, and confirm with a message that matches the ticket.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">Job application</h3>
+            <p style="margin:0; color:#6b7280;">Require a portfolio link for Designer roles, show a GitHub link for Developer roles, and send each application to the right hiring inbox.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">Support triage</h3>
+            <p style="margin:0; color:#6b7280;">Separate technical, billing, and general requests, route each to the right email, and show a confirmation that fits the path.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">Payment &amp; order form</h3>
+            <p style="margin:0; color:#6b7280;">Fire the order webhook after a successful payment, email management for large amounts, and guide failed payments with a clear message.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SEARCHES THIS ADDON ANSWERS (keyword bank) ============ -->
+    <section id="searches" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:26px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">Questions people search &mdash; and how this addon answers them</h2>
+          <p style="margin:0; color:#6b7280;">If you are shopping for a conditional logic form plugin, these are the exact tasks people search for. Each one is a single rule in Easy Form Builder.</p>
+        </div>
+
+        <!-- Q&A grid, phrased as real search queries -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px;">
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&ldquo;Show a field only when a checkbox is checked&rdquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">IF checkbox is checked &rarr; THEN Show Field. The field stays hidden until the box is ticked, then appears instantly.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&ldquo;Send the email to a different address per department&rdquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">Conditional email routing: IF department is Billing &rarr; THEN notify finance. This is the no-code answer to dynamic recipients.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&ldquo;Skip a page in a multi-step form&rdquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">Use Hide Step or Jump to Step so free-plan visitors bypass the payment page entirely.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&ldquo;Change the form based on a UTM or URL parameter&rdquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">Read the URL in the IF condition to prefill values or show campaign-specific fields for paid traffic.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&ldquo;Different fields for logged-in users&rdquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">Conditions can read login status and WordPress role, so members and guests see different questions.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&ldquo;Redirect to a different thank-you page by answer&rdquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">Conditional redirect sends each path to its own destination URL, with field tokens if needed.</p>
+          </div>
+        </div>
+
+        <!-- Keyword chip banks -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:18px; margin-top:22px;">
+          <article style="background:#f5f0fd; border:1px solid #e6ddf6; border-radius:14px; padding:22px;">
+            <h3 style="font-size:17px; margin:0 0 12px; color:#2a1155;">Popular searches</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">conditional logic form WordPress</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">show hide fields based on answer</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">conditional form builder</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">smart forms no code</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">multi step conditional form</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">conditional email notification</span>
+            </div>
+          </article>
+          <article style="background:#fdf2f8; border:1px solid #f7d6e8; border-radius:14px; padding:22px;">
+            <h3 style="font-size:17px; margin:0 0 12px; color:#2a1155;">Specific, lower-competition searches</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">route form email based on dropdown</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">skip step for free ticket</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">make field required only if selected</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">conditional logic by url parameter</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">show field for logged in user role</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">conditional redirect by plan</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">clear value when option changes</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">send to CRM only for qualified leads</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">block submit if age under 18</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BEST PRACTICES ============ -->
+    <section id="best-practices" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">Best practices for maintainable rules</h2>
+          <p style="margin:0; color:#6b7280;">A handful of habits keeps your conditional forms readable, testable, and easy to hand over.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:16px;">
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">Map the paths first</h3>
+            <p style="margin:0; color:#6b7280;">Before building anything, list the main journeys: personal vs business, sales vs support, paid vs unpaid.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">Name rules clearly</h3>
+            <p style="margin:0; color:#6b7280;">&ldquo;Show company fields for business users&rdquo; beats &ldquo;Rule 1&rdquo; when you return six months later.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">Test every path</h3>
+            <p style="margin:0; color:#6b7280;">One Test Mode run isn&rsquo;t enough. Exercise each main path with realistic values before publishing.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">Use priority for conflicts</h3>
+            <p style="margin:0; color:#6b7280;">If several rules touch one field, set Priority and &ldquo;Stop after this rule matches&rdquo; to avoid clashes.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">Don&rsquo;t fear hidden fields</h3>
+            <p style="margin:0; color:#6b7280;">Hidden fields and steps are ignored in validation, so required rules on them never trap the visitor.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">Keep conditions minimal</h3>
+            <p style="margin:0; color:#6b7280;">Prefer a few clear rules over one giant nested group. Simpler logic is easier to test and debug.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FREE VS PRO ============ -->
+    <section id="free-vs-pro" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:24px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">Free vs Pro at a glance</h2>
+          <p style="margin:0; color:#6b7280;">Conditional Logic delivers value immediately, and Pro unlocks the advanced capabilities that serious sites, agencies, and businesses rely on.</p>
+        </div>
+        <div style="overflow-x:auto; border:1px solid #ece5f7; border-radius:14px; background:#fff;">
+          <table style="width:100%; border-collapse:collapse; min-width:520px; font-size:15px;">
+            <thead>
+              <tr>
+                <th style="text-align:left; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">Capability</th>
+                <th style="text-align:center; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">Free plans</th>
+                <th style="text-align:center; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">Pro only</th>
+              </tr>
+            </thead>
+            <tbody style="color:#3d3a4f;">
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Show / hide / require fields</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">✓</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">—</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Step logic (show, hide, jump)</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">✓</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">—</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">AND / OR  conditions</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">✓</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">—</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Test Mode </td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">✓</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">—</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Grouped conditions</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da">—</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">✓</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Conditional email, confirmation, redirect</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da">—</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">✓</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Rule Inspector</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da">—</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">✓</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">Calculate (formula fields)</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">—</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">✓</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">NOT / NAND / NOR groups</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">—</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">✓</td></tr>
+              <tr><td style="padding:13px 14px;">Export / import / duplicate rules</td><td style="padding:13px 14px; text-align:center; color:#cbd0da;">—</td><td style="padding:13px 14px; text-align:center; color:#16a34a; font-weight:800;">✓</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TROUBLESHOOTING ============ -->
+    <section id="troubleshooting" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto; max-width:920px;">
+        <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 20px; color:#2a1155;">Troubleshooting common issues</h2>
+        <div style="display:grid; gap:12px;">
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">I don&rsquo;t see the Conditional Logic button</h3>
+            <p style="margin:0; color:#6b7280;">Open the Add-ons page and confirm the Conditional Logic Addon is installed and active. On a Free plan the editor is replaced by an upgrade panel.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">The button is there but the editor won&rsquo;t open</h3>
+            <p style="margin:0; color:#6b7280;">Check your plan level, verify the addon is active, and make sure the form contains fields the rules can target &mdash; an empty form has nothing to build rules on.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">A rule isn&rsquo;t firing</h3>
+            <p style="margin:0; color:#6b7280;">Run Test Mode and read the status: Matched, Not matched, or Skipped. A mismatched operator or value is the most common cause. Check rule Priority if two rules affect the same field.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">A required field blocks submission unexpectedly</h3>
+            <p style="margin:0; color:#6b7280;">Confirm the field is actually hidden by a rule on that path. Hidden fields are skipped in validation; a field that is only disabled (not hidden) may still validate.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section id="faq" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto; max-width:920px;">
+        <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 20px; color:#2a1155;">Frequently asked questions</h2>
+
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">How do I show a field based on a dropdown answer?</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">Open Conditional Logic, add a rule with IF = your dropdown equals a value, and a THEN action of Show Field on the target. The field appears the moment the answer matches &mdash; no code involved.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">How do I route form emails to different people based on the answer?</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">In the Notifications tab, build a conditional rule that sets the recipient, subject, and template &mdash; e.g. Sales to the sales team, Billing to finance, and Technical to support. This is the no-code way to get dynamic email recipients.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">Can I skip a step or page in a multi-step form?</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">Yes. Use Show Step, Hide Step, or Jump to Step in the Fields tab so visitors only see relevant steps &mdash; for example, skipping the payment page for free registrations.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">Can the form change based on a URL parameter or user role?</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">Yes. Conditions can read URL parameters (like UTM/campaign values) and the visitor&rsquo;s login status and WordPress role, so you can show different fields, emails, or redirects for different traffic sources and users.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">Can I redirect the visitor to a different page after submitting?</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">Yes. In the Confirmation tab you can show a conditional message or redirect to a specific URL, and you can inject field tokens into the destination URL.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">Do I need to know how to code?</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">No. Every rule is built visually in an IF/THEN interface. You choose the field, operator, value, and action &mdash; no PHP, JavaScript, or CSS.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">Will a hidden required field block submission?</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">No. In the current addon logic, any field or step hidden by a rule is ignored during validation and submission, so a visitor is never stopped by a required field they cannot see on their path.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:0;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">How do I test conditional logic before publishing?</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">Run Test Mode. Enter sample values and see which rules are Matched, Not matched, or Skipped. It catches mistakes in complex paths before real submissions arrive.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section style="padding:52px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="position:relative; overflow:hidden; background:linear-gradient(135deg,#3e1f77 0%, #7c3aed 52%, #ec4899 100%); color:#fff; border-radius:20px; padding:46px 38px; text-align:center; box-shadow:0 24px 60px rgba(62,31,119,.30);">
+          <span style="display:inline-block; padding:6px 14px; border-radius:999px; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35); font-size:13px; font-weight:700; margin-bottom:16px;">Ready in minutes · No code</span>
+          <h2 style="font-size:clamp(25px,3.2vw,36px); margin:0 0 14px; color:#fff; line-height:1.25; letter-spacing:-.4px;">Start building smarter WordPress forms today</h2>
+          <p style="margin:0 auto 26px; max-width:660px; color:rgba(255,255,255,.9); font-size:18px;">Stop juggling five different forms and manually sorting submissions. Activate the Conditional Logic addon, and let one form ask the right questions, reach the right inbox, and send the right people to the right page &mdash; automatically.</p>
+          <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+            <a href="#activate" style="display:inline-flex; align-items:center; justify-content:center; padding:14px 26px; border-radius:11px; background:#fff; color:#6b21a8; font-weight:800; text-decoration:none; box-shadow:0 8px 22px rgba(0,0,0,.14);">Activate Conditional Logic</a>
+            <a href="#features" style="display:inline-flex; align-items:center; justify-content:center; padding:14px 26px; border-radius:11px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.55); color:#fff; font-weight:800; text-decoration:none;">Explore all features</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer style="padding:32px 0; color:#6b7280; border-top:1px solid #ece5f7; background:#f8f7fc; font-size:14px;">
+    <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto; display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center;">
+      <p style="margin:0;">Content last updated July 8, 2026 &middot; Easy Form Builder Conditional Logic Addon documentation.</p>
+      <p style="margin:0;"><a href="https://whitestudio.team/" style="color:#7c3aed; text-decoration:none; font-weight:700;">White Studio Team</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>

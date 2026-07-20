@@ -45,11 +45,18 @@ class Emsfb {
 
         add_action('upgrader_process_complete', [$this, 'plugin_update_completed_efb'], 10, 2);
 
+        // Register recovery before admin-ajax dispatch. efbFunction instances
+        // are lazy, so registering this there can leave the Recover button with
+        // WordPress's opaque "0" response on a fresh AJAX request.
+        add_action('wp_ajax_emsfb_recover_addons', [$this, 'ajax_recover_addons_efb']);
+
         add_action('plugins_loaded', [$this, 'check_version_and_upgrade_efb']);
     }
 
     public function includes(): void {
         require_once $this->plugin_path . 'includes/class-Emsfb-install.php';
+        require_once $this->plugin_path . 'includes/class-Emsfb-email-monitor.php';
+        require_once $this->plugin_path . 'includes/class-Emsfb-addon-compatibility.php';
 
         if (is_admin()) {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
@@ -60,7 +67,7 @@ class Emsfb {
             $ac = self::get_setting_Emsfb('decoded');
 
             $payment_exists = isset($ac->AdnPAP) ? (int) $ac->AdnPAP : 0;
-            if ($payment_exists === 1) {
+            if ($payment_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnPAP' )) {
                 $payment_file_path = $this->plugin_path . 'vendor/paypal/class-Emsfb-paypal-payment.php';
                 if (file_exists($payment_file_path)) {
                     require_once $payment_file_path;
@@ -69,7 +76,7 @@ class Emsfb {
             }
 
             $stripe_exists = isset($ac->AdnSPF) ? (int) $ac->AdnSPF : 0;
-            if ($stripe_exists === 1) {
+            if ($stripe_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnSPF' )) {
                 $stripe_file_path = $this->plugin_path . 'vendor/stripe/class-Emsfb-stripe-payment.php';
                 if (file_exists($stripe_file_path)) {
                     require_once $stripe_file_path;
@@ -78,7 +85,7 @@ class Emsfb {
             }
 
             $sms_exists = isset($ac->AdnSS) ? (int) $ac->AdnSS : 0;
-            if ($sms_exists === 1) {
+            if ($sms_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnSS' )) {
                 $sms_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/class-Emsfb-sms.php';
                 if (file_exists($sms_file_path)) {
                     require_once $sms_file_path;
@@ -86,14 +93,14 @@ class Emsfb {
             }
             $auto_fill_exists = isset($ac->AdnATF) ? (int) $ac->AdnATF : 0;
 
-            if ($auto_fill_exists === 1) {
+            if ($auto_fill_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnATF' )) {
                 $auto_fill_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/autofill/class-Emsfb-autofill.php';
                 if (file_exists($auto_fill_file_path)) {
                     require_once $auto_fill_file_path;
                 }
             }
             $google_sheet_exists = isset($ac->AdnGoS) ? (int) $ac->AdnGoS : 0;
-            if ($google_sheet_exists >= 1) {
+            if ($google_sheet_exists >= 1 && emsfb_is_addon_compatible_efb( 'AdnGoS' )) {
                 $google_sheet_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
                 if (file_exists($google_sheet_file_path)) {
                     require_once $google_sheet_file_path;
@@ -103,7 +110,7 @@ class Emsfb {
                 }
             }
             $telegram_exists = isset($ac->AdnTLG) ? (int) $ac->AdnTLG : 0;
-              if ($telegram_exists >= 1) {
+              if ($telegram_exists >= 1 && emsfb_is_addon_compatible_efb( 'AdnTLG' )) {
                   $telegram_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/class-Emsfb-telegram.php';
                   if (file_exists($telegram_file_path)) {
                       require_once $telegram_file_path;
@@ -124,7 +131,7 @@ class Emsfb {
         if (is_object($ac_routes)) {
 
             $telegram_public = isset($ac_routes->AdnTLG) ? (int) $ac_routes->AdnTLG : 0;
-            if ($telegram_public >= 1) {
+            if ($telegram_public >= 1 && emsfb_is_addon_compatible_efb( 'AdnTLG' )) {
 
                 $telegram_send_path_public = EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php';
                 if (file_exists($telegram_send_path_public)) {
@@ -133,7 +140,7 @@ class Emsfb {
             }
 
             $sms_public = isset($ac_routes->AdnSS) ? (int) $ac_routes->AdnSS : 0;
-            if ($sms_public === 1) {
+            if ($sms_public === 1 && emsfb_is_addon_compatible_efb( 'AdnSS' )) {
                 $sms_file_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/class-Emsfb-sms.php';
                 if (file_exists($sms_file_path)) {
                     require_once $sms_file_path;
@@ -141,7 +148,7 @@ class Emsfb {
             }
 
             $google_sheet_public = isset($ac_routes->AdnGoS) ? (int) $ac_routes->AdnGoS : 0;
-            if ($google_sheet_public >= 1) {
+            if ($google_sheet_public >= 1 && emsfb_is_addon_compatible_efb( 'AdnGoS' )) {
                 $google_sheet_file_path_public = EMSFB_PLUGIN_DIRECTORY . '/vendor/googlesheet/class-Emsfb-googlesheet.php';
                 if (file_exists($google_sheet_file_path_public)) {
                     require_once $google_sheet_file_path_public;
@@ -151,21 +158,35 @@ class Emsfb {
                 }
             }
 
-			if ( ! empty( $ac_routes->AdnPAP ) ) {
+			// AdnSMF — Conditional Logic addon: load validator and register filters
+			$logic_public = isset( $ac_routes->AdnSMF ) ? (int) $ac_routes->AdnSMF : 0;
+			if ( $logic_public >= 1 && emsfb_is_addon_compatible_efb( 'AdnSMF' ) ) {
+				$logic_validator_file = EMSFB_PLUGIN_DIRECTORY . '/vendor/logic/logic/class-Emsfb-logic-validator.php';
+				if ( ! file_exists( $logic_validator_file ) ) {
+					$logic_validator_file = EMSFB_PLUGIN_DIRECTORY . '/vendor/logic/class-Emsfb-logic-validator.php';
+				}
+				if ( file_exists( $logic_validator_file ) ) {
+					require_once $logic_validator_file;
+				}
+			}
+
+			if ( ! empty( $ac_routes->AdnPAP ) && emsfb_is_addon_compatible_efb( 'AdnPAP' ) ) {
 				$f = $this->plugin_path . 'vendor/paypal/routes-efb.php';
 				if ( file_exists( $f ) ) {
 					require_once $f;
 				}
 			}
 
-			if ( ! empty( $ac_routes->AdnSPF ) ) {
+			if ( ! empty( $ac_routes->AdnSPF ) && emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
 				$f = $this->plugin_path . 'vendor/stripe/routes-efb.php';
 				if ( file_exists( $f ) ) {
 					require_once $f;
 				}
 			}
 
-			if ( ! empty( $ac_routes->AdnPPF ) ) {
+			if ( ! empty( $ac_routes->AdnPPF ) && emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
+				$this->load_persiapay_addon();
+
 				$f = $this->plugin_path . 'vendor/persiapay/routes-efb.php';
 				if ( file_exists( $f ) ) {
 					require_once $f;
@@ -179,10 +200,64 @@ class Emsfb {
 			new Emsfb_Shield_SilentCaptcha_Integration();
 		}
 
+		// Form Security & Spam Protection (Human Shield) ships inside the plugin.
+		// The protection *runtime* only activates when the add-on is switched on
+		// (AdnHSH >= 1); it stays off by default so form/submission behaviour does
+		// not change until the user opts in. The *admin settings page* is always
+		// registered in wp-admin (whenever the files exist) so it is reachable from
+		// the menu even while protection is off — the add-on's constructor wires
+		// the runtime and the admin page independently based on the constant below.
+		$human_shield_runtime = is_object( $ac_routes )
+			&& property_exists( $ac_routes, 'AdnHSH' )
+			&& (int) $ac_routes->AdnHSH >= 1
+			&& emsfb_is_addon_compatible_efb( 'AdnHSH' );
+
+		// Load in admin so the settings page shows, or on the front-end only when
+		// the runtime is active (no needless work on public requests when off).
+		if ( $human_shield_runtime || ( is_admin() && emsfb_is_addon_compatible_efb( 'AdnHSH' ) ) ) {
+			if ( ! defined( 'EFB_HUMAN_SHIELD_RUNTIME' ) ) {
+				define( 'EFB_HUMAN_SHIELD_RUNTIME', $human_shield_runtime ? 1 : 0 );
+			}
+			$human_shield_file = $this->plugin_path . 'vendor/human-shield/human-shield-efb.php';
+			if ( file_exists( $human_shield_file ) ) {
+				require_once $human_shield_file;
+			}
+		}
+
 		require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
+
+		// The toolbar control is loaded outside wp-admin as well, so authorized
+		// users can see and change the current sandbox state wherever the
+		// WordPress admin bar is displayed.
+		require_once $this->plugin_path . 'includes/class-Emsfb-admin-bar.php';
+		new \Emsfb\Admin_Bar_Development_Mode();
 
        $this->load_page_builder_integrations();
 
+    }
+
+    /**
+     * Load the PersiaPay script bootstrap once the add-on is enabled.
+     *
+     * @return void
+     */
+    private function load_persiapay_addon(): void {
+        // PersiaPay registers its editor/front-end script through this bootstrap
+        // class. Loading only its REST route leaves the add-on installed but
+        // without the hook that exposes its payment UI.
+        if ( ! emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
+            return;
+        }
+
+        $persia_bootstrap = $this->plugin_path . 'vendor/persiapay/persiapayefb.php';
+        if ( ! file_exists( $persia_bootstrap ) ) {
+            return;
+        }
+
+        require_once $persia_bootstrap;
+        if ( class_exists( '\\Emsfb\\persiapayEFB', false ) ) {
+            new \Emsfb\persiapayEFB();
+        }
     }
 
     private function load_page_builder_integrations(): void {
@@ -625,6 +700,11 @@ class Emsfb {
                     }
                 }
 
+                if (class_exists('\Emsfb\Email_Monitor')) {
+                    $decoded->weeklyEmailReport = \Emsfb\Email_Monitor::is_enabled();
+                    $decoded->emailStatsReport = \Emsfb\Email_Monitor::is_email_stats_enabled();
+                }
+
                 $package_type = get_option('emsfb_pro', 10);
                 $stored_pt = isset($decoded->package_type) ? intval($decoded->package_type) : null;
 
@@ -675,11 +755,9 @@ class Emsfb {
         }
     }
 
-    private static function get_addons_list_efb($settings)
-    {
+    private static function get_addons_list_efb($settings) {
         $addons = [];
-
-        $addonKeys = [
+        $addon_keys = [
             'AdnSS' => 'SMS',
             'AdnATF' => 'Auto-Populate',
             'AdnGoS' => 'Google Sheet',
@@ -687,17 +765,36 @@ class Emsfb {
             'AdnPAP' => 'PayPal',
             'AdnSPF' => 'Stripe',
             'AdnPPF' => 'Persia Payment',
-            'AdnOF' => 'offline form',
-
+            'AdnOF'  => 'Offline Forms',
+            'AdnATC' => 'Advanced Tracking Code',
+            'AdnCPF' => 'AdnCPF addons',
+            'AdnESZ' => 'AdnESZ addons',
+            'AdnSE'  => 'Search Entry',
+            'AdnWHS' => 'Webhook',
+            'AdnWSP' => 'WhatsApp',
+            'AdnSMF' => 'Conditional Logic',
+            'AdnPLF' => 'AdnPLF addons',
+            'AdnMSF' => 'AdnMSF addons',
+            'AdnBEF' => 'Booking',
+            'AdnPDP' => 'Persian Date Picker',
+            'AdnADP' => 'َArabic Date Picker',
+            'AdnHSH' => 'Form Security & Spam Protection',
         ];
 
-        foreach ($addonKeys as $key => $name) {
-            $optionValue = get_option('emsfb_addon_' . $key, false);
-            if ($optionValue != false && $optionValue != 0) {
+        foreach ( $addon_keys as $key => $name ) {
+            $has_setting = is_object( $settings ) && property_exists( $settings, $key );
+            $setting_value = $has_setting ? absint( $settings->{$key} ) : 0;
+            $option_value = get_option( 'emsfb_addon_' . $key, false );
+            $option_active = $option_value !== false && absint( $option_value ) >= 1;
+            $is_active = 'AdnSMF' === $key
+                ? ( $has_setting ? $setting_value >= 1 : $option_active )
+                : $option_active;
+
+            if ( $is_active ) {
                 $addons[$key] = [
                     'name' => $name,
                     'active' => true,
-                    'version' => $optionValue,
+                    'version' => $option_active ? $option_value : $setting_value,
                 ];
             }
         }
@@ -707,6 +804,9 @@ class Emsfb {
 
     public static function plugin_deactivation_cleanup_efb()
     {
+        if (class_exists('\Emsfb\Email_Monitor')) {
+            \Emsfb\Email_Monitor::deactivate();
+        }
 
         delete_option('emsfb_cache_plugins');
         delete_option('emsfb_server_host_cache');
@@ -916,12 +1016,21 @@ class Emsfb {
         $installed_version = get_option('emsfb_version', '0.0.0');
         $current_version = EMSFB_PLUGIN_VERSION;
 	    if (!is_admin()) {
+            if (
+                version_compare($installed_version, $current_version, '<')
+                && class_exists('\Emsfb\Email_Monitor')
+            ) {
+                \Emsfb\Email_Monitor::plugin_updated();
+            }
 			return;
 		}
 
         if (version_compare($installed_version, $current_version, '<')) {
             $this->run_upgrade_tasks_efb($installed_version, $current_version);
             update_option('emsfb_version', $current_version);
+            if (class_exists('\Emsfb\Email_Monitor')) {
+                \Emsfb\Email_Monitor::plugin_updated();
+            }
         }
 
     }
@@ -929,6 +1038,12 @@ class Emsfb {
     private function run_upgrade_tasks_efb($old_version, $new_version) {
         global $wpdb;
         $table_setting = $wpdb->prefix . 'emsfb_setting';
+
+        // A plugin update can wipe downloaded add-on files. Flag that add-ons may
+        // need reinstalling; Create/Panel/Add-ons block on this until a local
+        // health check confirms every enabled add-on is present again (the flag
+        // clears itself at that point via addon_recovery_state_efb()).
+        update_option('emsfb_addons_reinstall_required', time());
 
         if (function_exists('wp_cache_flush')) {
             wp_cache_flush();
@@ -1097,6 +1212,8 @@ class Emsfb {
         $defaults->emailSupporter    = get_option('admin_email', '');
         $defaults->apiKeyMap         = '';
         $defaults->smtp              = false;
+        $defaults->weeklyEmailReport = true;
+        $defaults->emailStatsReport  = true;
         $defaults->text              = '';
         $defaults->bootstrap         = '';
         $defaults->emailTemp         = '';
@@ -1132,6 +1249,8 @@ class Emsfb {
         $defaults->AdnADP            = '0';
         $defaults->AdnGoS            = '0';
         $defaults->AdnTLG            = '0';
+        $defaults->AdnATF            = '0';
+        $defaults->AdnHSH            = '0';
         $defaults->phnNo             = '';
         $defaults->femail            = '';
         $defaults->email_key         = '';
@@ -1325,6 +1444,15 @@ class Emsfb {
                 }
             }
         }
+    }
+
+    /**
+     * Stable AJAX entry point for the add-on recovery card.
+     *
+     * @return void
+     */
+    public function ajax_recover_addons_efb(): void {
+        self::get_efbFunction()->ajax_recover_addons_efb();
     }
 
 }

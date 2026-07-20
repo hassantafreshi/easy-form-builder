@@ -665,11 +665,9 @@ input[type=range].efb {	border: transparent !important;
 }
 .h-xxxl-efb.efb-rounded {	border-radius: 60px !important;
 }
-label.yesno-efb.h-d-efb {	padding-top: 1% !important;
-}
-
-label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label.yesno-efb.h-xxxl-efb {	padding-top: 2% !important;
-}
+/* Vertical centering for the Yes/No button label is handled by the flex rule
+   on .yesno-efb below (kit-proof, height-independent); these legacy
+   padding-top nudges are no longer needed and would fight the flex centering. */
 .h-d-efb::-webkit-input-placeholder {	font-size: 17px !important;
    font-weight: 400 !important;
 }
@@ -740,13 +738,47 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
 }
 .yesno-efb.disabled {	opacity: 1 !important;
 }
-.yesno-efb.active {	box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, .2);
+/* Kit-proof layout: flex centering wins over any height/padding/line-height a
+   template kit sets, so the label content is always centered on the Y axis
+   regardless of corner/height variant or future kit CSS. */
+.efb-yesno-group .yesno-efb,label.yesno-efb {	display: flex !important;
+   align-items: center !important;
+   justify-content: center !important;
+   line-height: normal !important;
+   transition: box-shadow .15s ease-in-out, transform .1s ease-in-out;
+}
+.yesno-efb.active,.yesno-efb.btn-set {	box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, .2);
+}
+/* The check icon's space is reserved at all times (opacity-only toggle) so
+   selecting a button never changes its width/size. */
+.yesno-efb::before {	content: "\F633";
+   font-family: bootstrap-icons !important;
+   margin-right: 6px;
+   opacity: 0;
+   transition: opacity .15s ease-in-out;
+}
+.yesno-efb.active::before,.yesno-efb.btn-set::before {	opacity: 1;
+}
+[dir="rtl"] .yesno-efb::before {	margin-right: 0;
+   margin-left: 6px;
+}
+.yesno-efb:not(.disabled):hover {	box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, .08);
+}
+.yesno-efb:not(.disabled):active {	transform: scale(0.98);
+}
+#emsFormBuilder .yesno-efb input[type="radio"]:focus-visible ~ span,.yesno-efb:focus-visible {	outline: 2px solid #2684FF !important;
+   outline-offset: 2px;
 }
 .yesno-efb.efb-rounded.left-efb {	border-top-right-radius: 0 !important;
    border-bottom-right-radius: 0 !important;
 }
 .yesno-efb.efb-rounded.right-efb {	border-top-left-radius: 0 !important;
    border-bottom-left-radius: 0 !important;
+}
+.efb-yesno-group.border-danger,.efb-yesno-group.border-success {	border-style: solid !important;
+   border-width: 1px !important;
+   border-radius: 4px;
+   padding: 2px;
 }
 .txt-left.efb {	text-align: left;
 }
@@ -1068,6 +1100,102 @@ thead.efb.efblist,.efb.searchSection {	position: sticky;
    white-space: nowrap;
    overflow: hidden;
 }
+
+/* ---- Dropdown list panel (listContent): self-contained so WP themes cannot restyle it ---- */
+.efb.efblist.listContent {
+   box-sizing: border-box;
+   background: #ffffff !important;
+   color: #3c434a;
+   border: 1px solid #d6dbe3 !important;
+   border-radius: 0 0 10px 10px !important;
+   box-shadow: 0 10px 24px rgba(20, 30, 55, 0.18) !important;
+   font-size: 15px;
+   line-height: 1.5;
+   text-align: start;
+   padding: 0 !important;
+   scrollbar-width: thin;
+   scrollbar-color: #c9cfd8 transparent;
+}
+.efb.efblist.listContent *,
+.efb.efblist.listContent *::before,
+.efb.efblist.listContent *::after {	box-sizing: border-box;
+}
+.efb.efblist.listContent::-webkit-scrollbar {	width: 8px;
+}
+.efb.efblist.listContent::-webkit-scrollbar-thumb {	background: #c9cfd8;
+   border-radius: 4px;
+}
+.efb.efblist.listContent::-webkit-scrollbar-track {	background: transparent;
+}
+.efb.efblist.listContent table.efb.table {
+   display: table;
+   width: 100% !important;
+   margin: 0 !important;
+   border: 0 !important;
+   border-collapse: separate !important;
+   border-spacing: 0 !important;
+   background: transparent !important;
+   table-layout: auto !important;
+   float: none !important;
+}
+.efb.efblist.listContent thead.efb.efblist {	display: table-header-group;
+}
+.efb.efblist.listContent tbody.efb {	display: table-row-group;
+   background: transparent !important;
+}
+.efb.efblist.listContent th.efb.searchSection {
+   background: #ffffff !important;
+   border: 0 !important;
+   border-bottom: 1px solid #e4e8ee !important;
+   padding: 8px !important;
+   box-shadow: none !important;
+}
+.efb.efblist.listContent input.efb.searchBox {
+   -webkit-appearance: none;
+   appearance: none;
+   display: block;
+   width: 100% !important;
+   min-height: 34px;
+   margin: 0 !important;
+   padding: 6px 12px !important;
+   font-size: 15px !important;
+   line-height: 1.4 !important;
+   color: #3c434a !important;
+   background: #ffffff !important;
+   border: 1px solid #c4c4c4 !important;
+   border-radius: 8px !important;
+   box-shadow: none !important;
+   outline: none !important;
+}
+.efb.efblist.listContent input.efb.searchBox::placeholder {	color: #8a919c !important;
+   opacity: 1;
+}
+.efb.efblist.listContent input.efb.searchBox:focus {	border-color: #86a8dc !important;
+   box-shadow: 0 0 0 3px rgba(84, 131, 207, 0.2) !important;
+}
+.efb.efblist.listContent tr.efblist {
+   background: transparent !important;
+   border: 0 !important;
+   border-radius: 6px;
+   transition: background-color 0.15s ease;
+}
+.efb.efblist.listContent tr.efblist:hover {	background-color: #f0f4fa !important;
+}
+.efb.efblist.listContent tr.efblist > th,
+.efb.efblist.listContent tr.efblist > td {
+   background: transparent !important;
+   border: 0 !important;
+   padding: 7px 8px !important;
+   margin: 0 !important;
+   font-weight: normal !important;
+   text-transform: none !important;
+   letter-spacing: normal !important;
+   text-align: start !important;
+   vertical-align: middle !important;
+   color: inherit;
+   font-size: inherit !important;
+   line-height: inherit !important;
+}
 .efb.searchBox::-webkit-input-placeholder {	font-size: 15px !important;
 }
 .efb.searchBox:-ms-input-placeholder {	font-size: 15px !important;
@@ -1116,6 +1244,10 @@ span#chargeEfb.one {	width: fit-content!important;
    margin: 1px 5px !important;
 }
 .efb.btn-primary:before,.efb.btn:before {	background: inherit !important;
+}
+
+.efb-yesno-group .efb.btn-primary:before,
+.efb-yesno-group .efb.btn:before {	background: transparent!important;
 }
 
 a.efb.btn {	text-decoration: none;
@@ -1821,4 +1953,46 @@ div#gRecaptcha {
 
 #efb-final-step h2,p {
    border: 0;
+}
+
+/* --- Form / Add-on card polish (scoped to the cards grid) --- */
+#listFormCardsEFB .efb.card {
+   height: 100%;
+   transition: transform .22s ease, box-shadow .22s ease !important;
+}
+#listFormCardsEFB .efb.card:hover {
+   transform: translateY(-6px);
+   box-shadow: 0px 12px 38px rgba(84, 131, 207, 0.28) !important;
+}
+/* contain the floated action buttons so equal-height cards keep their shape */
+#listFormCardsEFB .efb.card-body::after {
+   content: "";
+   display: table;
+   clear: both;
+}
+/* softer, more consistent description spacing */
+#listFormCardsEFB .card-text.efb {
+   line-height: 1.7;
+}
+/* subtle tinted chip behind the card icon */
+#listFormCardsEFB .card-title.efb {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   margin-bottom: 14px;
+}
+#listFormCardsEFB .card-title.efb i {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   flex: 0 0 auto;
+   width: 46px;
+   height: 46px;
+   border-radius: 14px;
+   background: rgba(255, 75, 147, 0.10);
+   font-size: 24px !important;
+   transition: background .22s ease;
+}
+#listFormCardsEFB .efb.card:hover .card-title.efb i {
+   background: rgba(255, 75, 147, 0.18);
 }

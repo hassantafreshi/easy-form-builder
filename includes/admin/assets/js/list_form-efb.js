@@ -780,27 +780,48 @@ function fun_get_form_by_id(id) {
       id: id
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      if (res.success == true) {
-        try {
-          const value = efb_safe_json_parse(res.data.ajax_value);
-          const len = value.length
-          const p = calPLenEfb(len) + 1;
-          valj_efb = value;
-          setTimeout(() => {
-            formName_Efb = valj_efb[0].formName;
-            form_type_emsFormBuilder=valj_efb[0].type
-            form_ID_emsFormBuilder = id;
-            sessionStorage.setItem('valj_efb', JSON.stringify(value));
-            const edit = { id: res.data.id, edit: true };
-            sessionStorage.setItem('Edit_ws_form', JSON.stringify(edit))
-            fun_ws_show_edit_form(id);
-            state_page_efb = 'edit';
-            localStorage.setItem('efb_auto_save', 0);
-          }, len * p)
-        } catch (error) {
-        }
+      /*
+       * NOTE: res.success is the wp_send_json_success() envelope and is
+       * ALWAYS true — the actual app-level result is res.data.success.
+       * That field used to be ignored entirely here, and the PHP side used
+       * to always answer data.success=true even when the form no longer
+       * existed (deleted, stale link, wrong id) — ajax_value came back
+       * null/empty. That null then threw inside the try block below
+       * (reading .length off it), and the catch was empty, so nothing ever
+       * replaced the loading card shown by emsFormBuilder_waiting_response()
+       * — the edit screen stayed stuck loading forever with no error and
+       * no console trace. Every failure path below now explicitly reports
+       * the error and returns the user to the forms list instead of hanging.
+       */
+      const value = (res.data && res.data.success == true) ? efb_safe_json_parse(res.data.ajax_value) : null;
+      if (!res.data || res.data.success !== true || !Array.isArray(value) || value.length === 0) {
+        const msg = (res.data && res.data.m) || (efb_var.text && efb_var.text.somethingWentWrongPleaseRefresh) || 'This form could not be loaded.';
+        alert_message_efb('', msg, 17, 'danger');
+        fun_show_content_page_emsFormBuilder('forms');
+        return;
+      }
+      try {
+        const len = value.length
+        const p = calPLenEfb(len) + 1;
+        valj_efb = value;
+        setTimeout(() => {
+          formName_Efb = valj_efb[0].formName;
+          form_type_emsFormBuilder=valj_efb[0].type
+          form_ID_emsFormBuilder = id;
+          sessionStorage.setItem('valj_efb', JSON.stringify(value));
+          const edit = { id: res.data.id, edit: true };
+          sessionStorage.setItem('Edit_ws_form', JSON.stringify(edit))
+          fun_ws_show_edit_form(id);
+          state_page_efb = 'edit';
+          localStorage.setItem('efb_auto_save', 0);
+        }, len * p)
+      } catch (error) {
+        alert_message_efb('', (efb_var.text && efb_var.text.somethingWentWrongPleaseRefresh) || 'This form could not be loaded.', 17, 'danger');
+        fun_show_content_page_emsFormBuilder('forms');
       }
     }).fail(function(jqXHR, textStatus, errorThrown) {
+      alert_message_efb('', (efb_var.text && efb_var.text.somethingWentWrongPleaseRefresh) || 'This form could not be loaded.', 17, 'danger');
+      fun_show_content_page_emsFormBuilder('forms');
     });
   });
 }
@@ -1078,6 +1099,8 @@ function fun_show_setting__emsFormBuilder() {
   let trackingcode = 'null';
   let apiKeyMap = 'null';
   let smtp = false;
+  let weeklyEmailReport = true;
+  let emailStatsReport = true;
   let text = efb_var.text;
   let textList = "<!--list EFB -->";
   let bootstrap = false;
@@ -1135,6 +1158,14 @@ function fun_show_setting__emsFormBuilder() {
     paypalPKey = f(`paypalPKey`);
     paypalPKey = paypalPKey == 'null' ? '' : paypalPKey;
     smtp = f('smtp') == 'null' ? false : Boolean(f('smtp'));
+    const weeklyEmailReportSetting = f('weeklyEmailReport');
+    weeklyEmailReport = weeklyEmailReportSetting == 'null'
+      ? true
+      : [true, 1, '1', 'true'].includes(weeklyEmailReportSetting);
+    const emailStatsReportSetting = f('emailStatsReport');
+    emailStatsReport = emailStatsReportSetting == 'null'
+      ? true
+      : [true, 1, '1', 'true'].includes(emailStatsReportSetting);
     bootstrap = f('bootstrap');
     osLocationPicker = f('osLocationPicker') == 'null' ? false : Boolean(f('osLocationPicker'));
     emailTemp = f('emailTemp');
@@ -1206,10 +1237,17 @@ function fun_show_setting__emsFormBuilder() {
   const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.stripe);
   const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
+  const weeklyEmailReportAllowed = [1, 3].includes(package_type);
+  const emailStatsReportAllowed = package_type === 1;
+  // console.log(`weeklyEmailReportAllowed: ${weeklyEmailReportAllowed} . packagetype:[${package_type}]`)
+  const emailMonitor = efb_var.emailMonitor || {};
+  const weeklyEmailStatus = emailMonitor.message
+    ? `${emailMonitor.message}${emailMonitor.checked_at ? ` (${emailMonitor.checked_at})` : ''}`
+    : efb_var.text.weeklyEmailNotRun;
 
   const language_not_needed_show =['fa_IR','ar_AR' ,'fr_FR','de','en_US'].includes(efb_var.language) ? false : true;
   let message_lanaguage = ''
-  console.log('language_not_needed_show', language_not_needed_show)
+  // console.log('language_not_needed_show', language_not_needed_show)
   if(language_not_needed_show){
     message_lanaguage = `<div class="efb my-3 mx-4 p-3" role="" style="border-radius:10px;border:1px solid #e0e7ff;background:linear-gradient(135deg,#f0f4ff 0%,#e8f5e9 100%);">
                                  <p class="efb mb-2" style="line-height:1.7;">
@@ -1545,6 +1583,27 @@ function fun_show_setting__emsFormBuilder() {
                                 </button>
                                 <label class="efb form-check-label fs-6 efb mx-2 my-3" for="hostSupportSmtp_emsFormBuilder">${efb_var.text.hostSupportSmtp}</label>
 
+                                </div>
+                                <p class="efb mb-1 ${mxCSize4}">${efb_var.text.weeklyEmailReportDesc}</p>
+                                <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
+                                    <button type="button" id="weeklyEmailReport_emsFormBuilder" data-state="off" data-name="disabled"
+                                        class="efb mx-0 btn h-s-efb btn-toggle ${weeklyEmailReport ? "active" : ""}"
+                                        data-toggle="button" aria-pressed="false" autocomplete="off"
+                                        ${weeklyEmailReportAllowed ? '' : 'onclick="pro_show_efb(1)"'}>
+                                        <div class="efb handle"></div>
+                                    </button>
+                                    <label class="efb form-check-label fs-6 efb mx-2 my-3" for="weeklyEmailReport_emsFormBuilder">${efb_var.text.weeklyEmailReport}</label>
+                                </div>
+                                <p class="efb text-muted fs-7 ${mxCSize4} mb-0">${efb_var.text.weeklyEmailLastCheck.replace('%s', weeklyEmailStatus)}</p>
+                                <p class="efb mb-1 ${mxCSize4} mt-3">${efb_var.text.emailStatsReportDesc}</p>
+                                <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
+                                    <button type="button" id="emailStatsReport_emsFormBuilder" data-state="off" data-name="disabled"
+                                        class="efb mx-0 btn h-s-efb btn-toggle ${(emailStatsReport || !emailStatsReportAllowed) ? "active" : ""}"
+                                        data-toggle="button" aria-pressed="false" autocomplete="off"
+                                        ${emailStatsReportAllowed ? '' : 'onclick="lock_email_stats_toggle_efb(this, event)"'}>
+                                        <div class="efb handle"></div>
+                                    </button>
+                                    <label class="efb form-check-label fs-6 efb mx-2 my-3" for="emailStatsReport_emsFormBuilder">${efb_var.text.emailStatsReport}</label>
                                 </div>
                                 <!--End Email-->
                             </div>
@@ -2311,6 +2370,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const trackCodeStyle = f('trackCodeStyle_emsFormBuilder');
 
     smtp = f('hostSupportSmtp_emsFormBuilder');
+    weeklyEmailReport = f('weeklyEmailReport_emsFormBuilder');
+    emailStatsReport = f('emailStatsReport_emsFormBuilder');
     act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
      emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ');
@@ -2376,6 +2437,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
 
           apiKeyMap: `${apiKeyMap}`,
           smtp: smtp,
+          weeklyEmailReport: weeklyEmailReport,
+          emailStatsReport: emailStatsReport,
           text: text,
           bootstrap: bootstrap,
           emailTemp: emailTemp,
@@ -3002,46 +3065,521 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
 
 function googleCloudOffer() { return `<p>${efb_var.text.offerGoogleCloud} <a href="https://gcpsignup.page.link/8cwn" target="blank">${efb_var.text.getOfferTextlink}</a> </p> ` }
 
+let efbEmailServerTestTimer = null;
+
+function efbEmailTestText(key, fallback) {
+  return efb_var && efb_var.text && efb_var.text[key] ? efb_var.text[key] : fallback;
+}
+
+function efbEmailTestFormat(str) {
+  const args = Array.prototype.slice.call(arguments, 1);
+  let i = 0;
+  return (str || '').replace(/%s/g, function () { return i < args.length ? String(args[i++]) : '%s'; });
+}
+
+function efbEmailTestEscape(value) {
+  const text = value == null ? '' : value.toString();
+  if (typeof sanitizeXSS_efb === 'function') return sanitizeXSS_efb(text);
+  return text.replace(/[&<>"']/g, function (match) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
+  });
+}
+
+function efbEmailTestIsValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((value || '').trim());
+}
+
+function efbEmailTestStep(title, description, state, stepNumber) {
+  const isWaiting = state !== 'done' && state !== 'active' && state !== 'warning' && state !== 'error';
+  let iconHtml;
+  if (state === 'done') {
+    iconHtml = `<div class="efb rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:24px;height:24px;min-width:24px;background:#22c55e;margin-left:-13px;box-shadow:0 0 0 3px #fff,0 0 0 5px #dcfce7;"><i class="efb bi bi-check-lg text-white" style="font-size:0.68rem;"></i></div>`;
+  } else if (state === 'active') {
+    iconHtml = `<div class="efb rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:24px;height:24px;min-width:24px;background:#3b82f6;margin-left:-13px;box-shadow:0 0 0 3px #fff,0 0 0 5px #dbeafe;"><div class="efb spinner-border text-white" style="width:11px;height:11px;border-width:2px;" role="status"></div></div>`;
+  } else if (state === 'warning') {
+    iconHtml = `<div class="efb rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:24px;height:24px;min-width:24px;background:#f59e0b;margin-left:-13px;box-shadow:0 0 0 3px #fff,0 0 0 5px #fef3c7;"><i class="efb bi bi-exclamation text-white" style="font-size:0.92rem;font-weight:900;line-height:1;"></i></div>`;
+  } else if (state === 'error') {
+    iconHtml = `<div class="efb rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:24px;height:24px;min-width:24px;background:#ef4444;margin-left:-13px;box-shadow:0 0 0 3px #fff,0 0 0 5px #fee2e2;"><i class="efb bi bi-x-lg text-white" style="font-size:0.68rem;"></i></div>`;
+  } else {
+    iconHtml = `<div class="efb rounded-circle d-flex align-items-center justify-content-center fw-semibold flex-shrink-0" style="width:24px;height:24px;min-width:24px;background:#fff;border:2px solid #e2e8f0;color:#94a3b8;font-size:0.72rem;margin-left:-13px;">${stepNumber || ''}</div>`;
+  }
+  return `<div class="efb d-flex align-items-center gap-3 py-2">
+    ${iconHtml}
+    <div class="efb flex-fill" ${isWaiting ? 'style="opacity:0.55;"' : ''}>
+      <div class="efb fw-semibold" style="font-size:0.875rem;color:${isWaiting ? '#94a3b8' : '#1e293b'};">${efbEmailTestEscape(title)}</div>
+      ${!isWaiting ? `<div style="font-size:0.775rem;color:#64748b;line-height:1.4;">${efbEmailTestEscape(description)}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function efbEmailTestHumanizeCode(value) {
+  return (value || '').toString().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function efbEmailTestInlineItem(label, value) {
+  if (value === undefined || value === null || value === '') return '';
+  let valHtml;
+  if (value === 'Yes') {
+    valHtml = `<span class="efb badge rounded-pill" style="background:#dcfce7;color:#166534;font-size:0.75rem;font-weight:600;">&#10003; ${efbEmailTestEscape(value)}</span>`;
+  } else if (value === 'No') {
+    valHtml = `<span class="efb badge rounded-pill" style="background:#fee2e2;color:#991b1b;font-size:0.75rem;font-weight:600;">&#10007; ${efbEmailTestEscape(value)}</span>`;
+  } else {
+    valHtml = `<span class="efb fw-semibold text-end" style="font-size:0.8rem;color:#334155;word-break:break-all;max-width:62%;">${efbEmailTestEscape(value)}</span>`;
+  }
+  return `<div class="efb d-flex align-items-center justify-content-between gap-2 py-2" style="border-bottom:1px solid #f1f5f9;">
+    <span style="font-size:0.8rem;color:#64748b;white-space:nowrap;">${efbEmailTestEscape(label)}</span>
+    ${valHtml}
+  </div>`;
+}
+
+function efbEmailTestList(title, items) {
+  if (!Array.isArray(items) || !items.length) return '';
+  return `<div class="efb mt-3">
+    <div class="efb fw-semibold mb-2" style="font-size:0.83rem;color:#475569;text-transform:uppercase;letter-spacing:0.05em;">${efbEmailTestEscape(title)}</div>
+    <div class="efb d-flex flex-column gap-1">${items.slice(0, 5).map(function (item) {
+      return `<div class="efb d-flex align-items-start gap-2"><i class="efb bi bi-chevron-right flex-shrink-0" style="font-size:0.65rem;color:#94a3b8;margin-top:4px;"></i><span style="font-size:0.82rem;color:#475569;line-height:1.5;">${efbEmailTestEscape(efbEmailTestHumanizeCode(item))}</span></div>`;
+    }).join('')}</div>
+  </div>`;
+}
+
+function efbEmailTestDeliveryBox(result, test) {
+  const delivery = result && result.delivery ? result.delivery : {};
+  const diagnostics = result && result.diagnostics ? result.diagnostics : {};
+  const details = result && result.details ? result.details : {};
+  const expectedSubject = delivery.expected_subject || diagnostics.expected_subject || details.expected_subject || (test && test.email_subject) || '';
+  const recipient = delivery.recipient_email || diagnostics.expected_recipient || details.recipient_email || (test && test.recipient_email) || '';
+  const waited = delivery.waited_seconds != null ? `${delivery.waited_seconds}s` : '';
+  const timeout = delivery.timeout_seconds || diagnostics.timeout_seconds || '';
+  const failure = delivery.failure_reason || details.failure_reason || '';
+  const rows = [
+    efbEmailTestInlineItem(efbEmailTestText('testSentTo', 'Test sent to'), recipient),
+    efbEmailTestInlineItem(efbEmailTestText('emailSubjectLabel', 'Email subject'), expectedSubject),
+    efbEmailTestInlineItem(efbEmailTestText('senderAddress', 'Sender address'), diagnostics.expected_sender || ''),
+    efbEmailTestInlineItem(efbEmailTestText('emailReceived', 'Email received'), delivery.email_received === true ? 'Yes' : (delivery.email_received === false ? 'No' : '')),
+    efbEmailTestInlineItem(efbEmailTestText('subjectMatched', 'Subject matched'), delivery.subject_matched === true ? 'Yes' : (delivery.subject_matched === false ? 'No' : '')),
+    efbEmailTestInlineItem(efbEmailTestText('uniqueCodeVerified', 'Unique code verified'), delivery.hash_matched === true ? 'Yes' : (delivery.hash_matched === false ? 'No' : '')),
+    efbEmailTestInlineItem(efbEmailTestText('timeWaited', 'Time waited'), waited),
+    efbEmailTestInlineItem(efbEmailTestText('maxWaitTime', 'Max wait time'), timeout ? `${timeout}s` : ''),
+    efbEmailTestInlineItem(efbEmailTestText('failureReason', 'Failure reason'), efbEmailTestHumanizeCode(failure))
+  ].join('');
+  if (!rows) return '';
+  return `<div class="efb mt-3 rounded-3 overflow-hidden" style="border:1px solid #e2e8f0;">
+    <div class="efb px-3 py-2 d-flex align-items-center gap-2" style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+      <i class="efb bi bi-envelope-paper" style="color:#3b82f6;font-size:1rem;"></i>
+      <span class="efb fw-semibold" style="font-size:0.9rem;color:#1e293b;">${efbEmailTestEscape(efbEmailTestText('deliveryDetailsTitle', 'Delivery Details'))}</span>
+    </div>
+    <div class="efb px-3 pb-1" style="background:#fff;">${rows}</div>
+  </div>`;
+}
+
+function efbEmailTestDiagnosticsBox(result) {
+  const diagnostics = result && result.diagnostics ? result.diagnostics : {};
+  const causes = efbEmailTestList(efbEmailTestText('possibleCauses', 'Possible causes'), diagnostics.likely_causes || []);
+  const checks = efbEmailTestList(efbEmailTestText('whatToCheckNext', 'What to check next'), diagnostics.next_checks || []);
+  if (!causes && !checks) return '';
+  return `<div class="efb mt-3 rounded-3 overflow-hidden" style="border:1px solid #e2e8f0;">
+    <div class="efb px-3 py-2 d-flex align-items-center gap-2" style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+      <i class="efb bi bi-tools" style="color:#64748b;font-size:0.95rem;"></i>
+      <span class="efb fw-semibold" style="font-size:0.9rem;color:#1e293b;">${efbEmailTestEscape(efbEmailTestText('diagnosisTitle', 'Diagnosis & Troubleshooting'))}</span>
+    </div>
+    <div class="efb p-3" style="background:#fff;">
+      ${diagnostics.status ? `<div class="efb mb-2" style="font-size:0.8rem;color:#94a3b8;">${efbEmailTestEscape(efbEmailTestHumanizeCode(diagnostics.status))}</div>` : ''}
+      ${causes}${checks}
+    </div>
+  </div>`;
+}
+
+function efbEmailTestUpgradeBox(result) {
+  if (!result || !result.upgrade_required || !result.upgrade_url) return '';
+  return `<div class="efb mt-3 rounded-3 p-3" style="border:1px solid #fde68a;background:#fffbeb;">
+    <div class="efb d-flex align-items-center gap-2 mb-2">
+      <i class="efb bi bi-lightning-charge-fill" style="color:#d97706;font-size:1rem;"></i>
+      <span class="efb fw-semibold" style="font-size:0.9rem;color:#92400e;">${efbEmailTestEscape(result.code || 'Upgrade required')}</span>
+    </div>
+    <a class="efb btn btn-sm btn-outline-pink" target="_blank" href="${efbEmailTestEscape(result.upgrade_url)}">${efbEmailTestEscape(efbEmailTestText('upgrade', 'Upgrade'))}</a>
+  </div>`;
+}
+
+function efbEmailTestRender(state) {
+  const steps = state.steps || {};
+  const percent = Math.max(10, Math.min(100, Number(state.percent || 10)));
+  const isComplete = percent >= 100;
+  const quick = state.quick || null;
+  const result = state.result || null;
+  const test = state.test || null;
+  const adminEmail = state.adminEmail ? efbEmailTestEscape(state.adminEmail) : '';
+
+  const progressBarClass = isComplete
+    ? 'efb progress-bar ' + (quick && quick.can_send_email ? 'bg-success' : 'bg-danger')
+    : 'efb progress-bar progress-bar-striped progress-bar-animated bg-primary';
+
+  const stepsHtml = [
+    efbEmailTestStep(efbEmailTestText('stepPrepareTest', 'Prepare Test'), efbEmailTestText('stepPrepareTestDesc', 'Connecting to WhiteStudio to generate a unique test email address.'), steps.start || 'active', 1),
+    efbEmailTestStep(efbEmailTestText('stepSendEmail', 'Send Test Email'), efbEmailTestText('stepSendEmailDesc', 'WordPress is sending a real email to verify your server can deliver mail.'), steps.send || 'waiting', 2),
+    efbEmailTestStep(efbEmailTestText('stepWaitDelivery', 'Waiting for Delivery'), efbEmailTestText('stepWaitDeliveryDesc', 'Checking whether the test email arrived at our server (usually takes a few seconds).'), steps.wait || 'waiting', 3),
+    efbEmailTestStep(efbEmailTestText('stepQuickResult', 'Quick Result'), efbEmailTestText('stepQuickResultDesc', 'Showing the first delivery result — you will see right away if email is working.'), steps.quick || 'waiting', 4),
+    efbEmailTestStep(efbEmailTestText('stepFullReport', 'Full Report'), efbEmailTestText('stepFullReportDesc', 'A detailed HTML report with full diagnostics is being prepared and emailed to you.'), steps.full || 'waiting', 5),
+  ].join('');
+
+  const messageBox = state.message
+    ? `<div class="efb mt-3 d-flex align-items-center gap-2 px-3 py-2 rounded-3" style="background:#f1f5f9;font-size:0.85rem;color:#475569;"><i class="efb bi bi-arrow-right-circle-fill" style="color:#3b82f6;opacity:0.6;font-size:0.95rem;flex-shrink:0;"></i><span>${efbEmailTestEscape(state.message)}</span></div>`
+    : '';
+
+  const failedEmail = quick && quick.can_send_email === false;
+  const scoreHtml = quick && quick.score != null
+    ? `<span class="efb badge rounded-pill" style="background:#e0f2fe;color:#0369a1;font-size:0.78rem;">${efbEmailTestEscape(efbEmailTestFormat(efbEmailTestText('score', 'Score: %s'), Number(quick.score)))}</span>`
+    : '';
+  const gradeHtml = quick && (quick.grade_label || quick.grade)
+    ? `<span class="efb badge rounded-pill" style="background:${failedEmail ? '#fee2e2' : '#dcfce7'};color:${failedEmail ? '#991b1b' : '#166534'};font-size:0.78rem;">${efbEmailTestEscape(quick.grade_label || quick.grade)}</span>`
+    : '';
+  const quickBox = quick
+    ? `<div class="efb mt-3 rounded-3 p-3" style="border:1px solid ${failedEmail ? '#fbbf24' : '#a7f3d0'};background:${failedEmail ? '#fffbeb' : '#f0fdf4'};">
+      <div class="efb d-flex align-items-center justify-content-between gap-2 mb-2">
+        <div class="efb d-flex align-items-center gap-2">
+          <i class="efb bi bi-speedometer2" style="color:${failedEmail ? '#d97706' : '#16a34a'};font-size:1.1rem;"></i>
+          <span class="efb fw-semibold" style="font-size:0.9rem;color:#1e293b;">${efbEmailTestEscape(efbEmailTestText('emailServerStatus', 'Email Server Status'))}</span>
+        </div>
+        <div class="efb d-flex gap-1 flex-wrap">${scoreHtml}${gradeHtml}</div>
+      </div>
+      <div style="font-size:0.85rem;color:${failedEmail ? '#92400e' : '#166534'};line-height:1.5;">${efbEmailTestEscape(quick.message || '')}</div>
+    </div>`
+    : '';
+
+  const smtpBox = failedEmail || (result && result.status === 'expired') || steps.send === 'error'
+    ? `<div class="efb mt-3 rounded-3 p-3" style="border:1px solid #fbbf24;background:#fffbeb;">
+      <div class="efb d-flex align-items-start gap-2 mb-3">
+        <i class="efb bi bi-exclamation-triangle-fill" style="color:#d97706;font-size:1rem;margin-top:2px;flex-shrink:0;"></i>
+        <div>
+          <div class="efb fw-semibold mb-1" style="font-size:0.9rem;color:#92400e;">${efbEmailTestEscape(efbEmailTestText('emailDeliveryNotWorking', 'Email Delivery Is Not Working'))}</div>
+          <div style="font-size:0.82rem;color:#78350f;line-height:1.55;">${efbEmailTestEscape(efbEmailTestText('emailDeliveryNotWorkingDesc', 'Your WordPress site cannot send emails reliably. This is a very common hosting issue — the default PHP mail function is often blocked or ends up in spam. Installing an SMTP plugin routes your emails through a verified mail service and fixes this in minutes.'))}</div>
+        </div>
+      </div>
+      <a class="efb btn btn-sm btn-warning fw-semibold" href="https://whitestudio.team/document/send-email-using-smtp-plugin/" target="_blank" rel="noopener noreferrer"><i class="efb bi-box-arrow-up-right me-1"></i>${efbEmailTestEscape(efbEmailTestText('smtpSetupGuideBtn', 'Step-by-step SMTP setup guide'))}</a>
+    </div>`
+    : '';
+
+  const reportBox = quick && quick.can_send_email
+    ? `<div class="efb mt-3 d-flex align-items-center gap-2 px-3 py-2 rounded-3" style="background:#f0fdf4;border:1px solid #a7f3d0;font-size:0.85rem;color:#166534;">
+      <i class="efb bi bi-envelope-check-fill flex-shrink-0" style="font-size:1.1rem;"></i>
+      <span>${efbEmailTestFormat(efbEmailTestText('emailServerWorkingReport', 'Your email server is working. A detailed HTML report has been sent to %s.'), adminEmail ? `<b>${adminEmail}</b>` : efbEmailTestEscape(efbEmailTestText('yourAdminEmail', 'your admin email address')))}</span>
+    </div>`
+    : '';
+
+  const spamReportBox = quick && quick.can_send_email
+    ? `<div class="efb mt-3 p-3 rounded-3" style="background:linear-gradient(135deg,#e3f2fd 0%,#f0f8ff 100%);border-left:4px solid #1976d2;border-top:1px solid #90caf933;border-right:1px solid #90caf933;border-bottom:1px solid #90caf933;box-shadow:0 1px 4px rgba(25,118,210,0.10);">
+      <div class="efb d-flex align-items-start gap-2">
+        <i class="efb bi bi-envelope-paper flex-shrink-0" style="color:#1976d2;font-size:1.2rem;margin-top:2px;"></i>
+        <div style="line-height:1.6;">
+          <strong class="efb d-block mb-1" style="color:#0d47a1;font-size:0.92rem;">${efbEmailTestEscape(efbEmailTestText('emailSpamReportTitle', 'Spam Score Report on the Way!'))}</strong>
+          <span style="color:#37474f;font-size:0.85rem;">${efbEmailTestFormat(efbEmailTestText('emailSpamReportDesc', 'A complete email health report — including your spam score, deliverability details, and recommendations — will be sent to %s within the next few minutes.'), adminEmail ? `<b>${adminEmail}</b>` : efbEmailTestEscape(efbEmailTestText('yourAdminEmail', 'your admin email address')))}</span>
+        </div>
+      </div>
+    </div>`
+    : '';
+
+  const delayedBox = result && result.status === 'delayed'
+    ? `<div class="efb mt-3 rounded-3 p-3" style="border:1px solid #fbbf24;background:#fffbeb;">
+      <div class="efb d-flex align-items-center gap-2 mb-1">
+        <i class="efb bi bi-clock-history" style="color:#d97706;font-size:1rem;"></i>
+        <span class="efb fw-semibold" style="font-size:0.9rem;color:#92400e;">${efbEmailTestEscape(efbEmailTestText('deliveryDelayedTitle', 'Delivery is taking longer than expected'))}</span>
+      </div>
+      <div style="font-size:0.82rem;color:#78350f;line-height:1.5;">${efbEmailTestEscape(efbEmailTestText('deliveryDelayedDesc', 'WordPress sent the test email, but our server has not received it yet. This may be a temporary delay. Check the diagnostics below to troubleshoot.'))}</div>
+    </div>`
+    : '';
+
+  const recommendations = result && Array.isArray(result.recommendations) && result.recommendations.length
+    ? `<div class="efb mt-3 rounded-3 overflow-hidden" style="border:1px solid #e2e8f0;">
+      <div class="efb px-3 py-2 d-flex align-items-center gap-2" style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+        <i class="efb bi bi-lightbulb" style="color:#f59e0b;font-size:0.95rem;"></i>
+        <span class="efb fw-semibold" style="font-size:0.9rem;color:#1e293b;">${efbEmailTestEscape(efbEmailTestText('recommendations', 'Recommendations'))}</span>
+      </div>
+      <div class="efb p-3 d-flex flex-column gap-2" style="background:#fff;">${result.recommendations.slice(0, 5).map(function (item, idx) {
+        return `<div class="efb d-flex align-items-start gap-2"><span class="efb d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle fw-bold" style="width:20px;height:20px;min-width:20px;background:#e0f2fe;color:#0369a1;font-size:0.68rem;">${idx + 1}</span><span style="font-size:0.82rem;color:#475569;line-height:1.55;">${efbEmailTestEscape(item)}</span></div>`;
+      }).join('')}</div>
+    </div>`
+    : '';
+
+  const deliveryBox = result ? efbEmailTestDeliveryBox(result, test) : (test ? efbEmailTestDeliveryBox({}, test) : '');
+  const diagnosticsBox = result ? efbEmailTestDiagnosticsBox(result) : '';
+  const upgradeBox = efbEmailTestUpgradeBox(result);
+
+  return `<div class="efb px-2 pb-1" id="efbEmailServerTestModal">
+    <div class="efb progress mb-4 rounded-pill" style="height:5px;"><div class="${progressBarClass}" style="width:${percent}%;transition:width 0.6s ease;"></div></div>
+    <div class="efb" style="border-left:2px dashed #e2e8f0;margin-left:12px;padding-left:13px;">
+      ${stepsHtml}
+    </div>
+    ${messageBox}
+    ${quickBox}
+    ${smtpBox}
+    ${delayedBox}
+    ${reportBox}
+    ${spamReportBox}
+    ${deliveryBox}
+    ${diagnosticsBox}
+    ${upgradeBox}
+    ${recommendations}
+  </div>`;
+}
+
+function efbEmailTestShow(state) {
+  const title = efbEmailTestText('emailServer', 'Email Server');
+  const body = efbEmailTestRender(state);
+  if (document.getElementById('settingModalEfb-body') && document.getElementById('settingModalEfb-body').offsetWidth > 0) {
+    document.getElementById('settingModalEfb-body').innerHTML = body;
+    document.getElementById('settingModalEfb-title').innerHTML = title;
+    document.getElementById('settingModalEfb-icon').className = 'efb bi-envelope-check mx-2';
+  } else {
+    show_modal_efb(body, title, 'efb bi-envelope-check mx-2', 'saveBox');
+    state_modal_show_efb(1);
+  }
+}
+
+function efbEmailTestFinishButton(button, html) {
+  if (button) {
+    button.innerHTML = html;
+    button.classList.remove('disabled');
+  }
+}
+
+function efbEmailTestSetSmtpState(state) {
+  const el = document.getElementById("hostSupportSmtp_emsFormBuilder");
+  const input = document.getElementById("smtp_emsFormBuilder");
+  if (el) {
+    if (state && el.classList.contains('active') == false) el.classList.add('active');
+    if (!state) el.classList.remove('active');
+  }
+  if (input) input.value = state ? 'true' : 'false';
+}
+
+function efbEmailTestNextPendingDelay(uiState, result) {
+  const schedule = [4, 5, 7];
+  uiState.pollAttempt = Number(uiState.pollAttempt || 0) + 1;
+  const requestedDelay = schedule[Math.min(uiState.pollAttempt - 1, schedule.length - 1)];
+  const apiDelay = Number(result && result.retry_after_seconds ? result.retry_after_seconds : 0);
+  return Math.max(requestedDelay, apiDelay, 2);
+}
+
+function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
+  const maxDuration = Math.max(30, Number(test.expires_in_seconds || 600));
+  const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+  if (elapsed > maxDuration) {
+    uiState.steps.wait = 'error';
+    uiState.message = efbEmailTestText('emailTestTimedOut', 'The test timed out. Please try again — your server may be slow or blocking outgoing mail.');
+    uiState.percent = 100;
+    efbEmailTestShow(uiState);
+    efbEmailTestFinishButton(button, buttonHtml);
+    return;
+  }
+
+  jQuery(function ($) {
+    $.ajax({
+      url: ajax_object_efm.ajax_url,
+      method: 'POST',
+      dataType: 'json',
+      timeout: 35000,
+      data: {
+        action: "check_email_server_efb",
+        nonce: _efb_core_nonce_,
+        mode: 'result',
+        run_id: uiState.runId || '',
+        test_hash: test.test_hash,
+        admin_email: uiState.adminEmail || ''
+      }
+    }).done(function (res) {
+      const payload = res && res.data ? res.data : {};
+      const result = payload.result || {};
+      const status = result.status || '';
+      const stage = result.analysis_stage || '';
+
+      if (!payload.success && status != 'pending' && status != 'delayed' && status != 'expired') {
+        uiState.steps.wait = 'error';
+        uiState.message = payload.m || result.message || efbEmailTestText('error', 'Error');
+        uiState.result = result;
+        uiState.percent = 100;
+        efbEmailTestShow(uiState);
+        efbEmailTestFinishButton(button, buttonHtml);
+        return;
+      }
+
+      if (status == 'pending' || stage == 'pending') {
+        uiState.steps.wait = 'active';
+        uiState.message = result.message || efbEmailTestText('waitingForEmail', 'Waiting for the test email to arrive...');
+        uiState.percent = Math.min(75, 35 + Math.floor((elapsed / maxDuration) * 40));
+        efbEmailTestShow(uiState);
+        const nextDelay = efbEmailTestNextPendingDelay(uiState, result);
+        efbEmailServerTestTimer = setTimeout(function () {
+          efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt);
+        }, nextDelay * 1000);
+        return;
+      }
+
+      if (status == 'delayed' || stage == 'delivery_wait') {
+        uiState.steps.wait = 'warning';
+        uiState.steps.quick = 'warning';
+        uiState.steps.full = 'waiting';
+        uiState.quick = result;
+        uiState.result = result;
+        uiState.message = result.message || efbEmailTestText('emailOnItsWay', 'Email is on its way — still waiting for delivery confirmation.');
+        uiState.percent = 100;
+        efbEmailTestShow(uiState);
+        efbEmailTestFinishButton(button, buttonHtml);
+        return;
+      }
+
+      if (status == 'expired') {
+        uiState.steps.wait = 'error';
+        uiState.steps.quick = 'error';
+        uiState.message = result.message || efbEmailTestText('emailNeverArrived', 'No email arrived during the test window. Your server may not be able to send emails.');
+        uiState.result = result;
+        uiState.percent = 100;
+        efbEmailTestShow(uiState);
+        efbEmailTestFinishButton(button, buttonHtml);
+        return;
+      }
+
+      if (status == 'analyzed' && stage == 'quick') {
+        uiState.steps.wait = 'done';
+        uiState.steps.quick = result.can_send_email ? 'done' : 'error';
+        uiState.steps.full = result.full_report_pending ? 'active' : 'done';
+        uiState.quick = result;
+        uiState.result = result;
+        uiState.message = result.message || '';
+        uiState.percent = 88;
+        if (result.can_send_email) efbEmailTestSetSmtpState(true);
+        efbEmailTestShow(uiState);
+        if (result.full_report_pending) {
+          efbEmailServerTestTimer = setTimeout(function () {
+            efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt);
+          }, Math.max(10, Number(result.retry_after_seconds || 15)) * 1000);
+        } else {
+          efbEmailTestFinishButton(button, buttonHtml);
+        }
+        return;
+      }
+
+      if (status == 'analyzed' && stage == 'full') {
+        uiState.steps.wait = 'done';
+        uiState.steps.quick = result.can_send_email ? 'done' : 'error';
+        uiState.steps.full = 'done';
+        uiState.quick = uiState.quick || result;
+        uiState.result = result;
+        uiState.message = result.message || '';
+        uiState.percent = 100;
+        if (result.can_send_email) efbEmailTestSetSmtpState(true);
+        efbEmailTestShow(uiState);
+        efbEmailTestFinishButton(button, buttonHtml);
+        return;
+      }
+
+      uiState.message = result.message || payload.m || efbEmailTestText('stillChecking', 'Still checking — please wait a moment...');
+      efbEmailTestShow(uiState);
+      efbEmailServerTestTimer = setTimeout(function () {
+        efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt);
+      }, 10000);
+    }).fail(function (xhr, textStatus) {
+      uiState.steps.wait = 'error';
+      const code = textStatus === 'parsererror' ? 'BAD_JSON' : (xhr.status || textStatus || 'NET');
+      uiState.message = efbEmailTestFormat(efbEmailTestText('connectionErrorCode', 'Connection error. Please refresh the page and try again. (Code: %s)'), code);
+      uiState.percent = 100;
+      efbEmailTestShow(uiState);
+      efbEmailTestFinishButton(button, buttonHtml);
+    });
+  });
+}
+
 function clickToCheckEmailServer() {
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
     return;
   }
-  document.getElementById('clickToCheckEmailServer').classList.add('disabled')
-  const nnrhtml = document.getElementById('clickToCheckEmailServer').innerHTML;
-  document.getElementById('clickToCheckEmailServer').innerHTML = `<i class="efb bi bi-hourglass-split"></i>`;
-  const email = document.getElementById('email_emsFormBuilder').value;
-  if (email.length > 5) {
-    jQuery(function ($) {
-      data = {
-        action: "check_email_server_efb",
-        nonce: _efb_core_nonce_,
-        value: 'testMailServer',
-        email: email
-      };
+  const button = document.getElementById('clickToCheckEmailServer');
+  if (!button || button.classList.contains('disabled')) return;
+  const buttonHtml = button.innerHTML;
+  const emailEl = document.getElementById('email_emsFormBuilder');
+  const senderEl = document.getElementById('femail_emsFormBuilder');
+  const email = emailEl ? emailEl.value.trim() : '';
+  const senderEmail = senderEl ? senderEl.value.trim() : '';
+  const runId = `efb-email-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-      $.post(ajax_object_efm.ajax_url, data, function (res) {
-        const el= document.getElementById("hostSupportSmtp_emsFormBuilder");
-        if (res.data.success == true) {
-          alert_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 5);
-         if(el.classList.contains('active')==false) el.classList.add('active') ;
-        } else {
-          const label = '<b>'+efb_var.text.hostSupportSmtp+'</b>';
-          const massage = efb_var.text.PleaseMTPNotWork.replace('%s', label);
-          alert_message_efb(efb_var.text.alert, massage, 60, 'warning');
-          el.classList.remove('active') ;
-        }
-        document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
-        document.getElementById('clickToCheckEmailServer').classList.remove('disabled')
-      })
-    });
-
-  } else {
+  if (!efbEmailTestIsValidEmail(email)) {
     alert_message_efb(efb_var.text.error, efb_var.text.enterAdminEmail, 10, 'warning');
-    document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
-    document.getElementById('clickToCheckEmailServer').classList.remove('disabled')
+    return;
   }
 
+  if (efbEmailServerTestTimer) {
+    clearTimeout(efbEmailServerTestTimer);
+    efbEmailServerTestTimer = null;
+  }
+
+  button.classList.add('disabled')
+  button.innerHTML = `<i class="efb bi bi-hourglass-split"></i>`;
+
+  const uiState = {
+    steps: { start: 'active', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' },
+    percent: 12,
+    adminEmail: email,
+    runId: runId,
+    message: efbEmailTestText('startingEmailTest', 'Starting email delivery test...')
+  };
+  efbEmailTestShow(uiState);
+
+  jQuery(function ($) {
+    $.ajax({
+      url: ajax_object_efm.ajax_url,
+      method: 'POST',
+      dataType: 'json',
+      timeout: 35000,
+      data: {
+        action: "check_email_server_efb",
+        nonce: _efb_core_nonce_,
+        mode: 'start',
+        value: 'testMailServer',
+        run_id: runId,
+        email: email,
+        sender_email: senderEmail
+      }
+    }).done(function (res) {
+      const payload = res && res.data ? res.data : {};
+      const test = payload.test || {};
+      if (payload.success == true && test.test_hash) {
+        uiState.steps.start = 'done';
+        uiState.steps.send = 'done';
+        uiState.steps.wait = 'active';
+        uiState.percent = 35;
+        uiState.message = payload.m || efbEmailTestText('testEmailSent', 'Test email sent! Waiting for delivery confirmation...');
+        uiState.test = test;
+        uiState.result = {
+          delivery: {
+            recipient_email: test.recipient_email || '',
+            expected_subject: test.email_subject || ''
+          },
+          admin_email: test.admin_email || email
+        };
+        uiState.pollAttempt = 0;
+        efbEmailTestShow(uiState);
+        efbEmailServerTestTimer = setTimeout(function () {
+          efbEmailTestPoll(test, uiState, button, buttonHtml, Date.now());
+        }, 4000);
+      } else {
+        uiState.steps.start = payload.stage == 'start' || payload.stage == 'validation' ? 'error' : 'done';
+        uiState.steps.send = payload.stage == 'send' ? 'error' : 'waiting';
+        uiState.message = payload.m || efbEmailTestText('error', 'Error');
+        uiState.result = payload.test || payload.result || {};
+        uiState.test = payload.test || null;
+        uiState.percent = 100;
+        efbEmailTestShow(uiState);
+        efbEmailTestFinishButton(button, buttonHtml);
+      }
+    }).fail(function (xhr, textStatus) {
+      uiState.steps.start = 'error';
+      const code = textStatus === 'parsererror' ? 'BAD_JSON' : (xhr.status || textStatus || 'NET');
+      uiState.message = efbEmailTestFormat(efbEmailTestText('connectionErrorCode', 'Connection error. Please refresh the page and try again. (Code: %s)'), code);
+      uiState.percent = 100;
+      efbEmailTestShow(uiState);
+      alert_message_efb(efb_var.text.error, uiState.message, 30, 'danger');
+      efbEmailTestFinishButton(button, buttonHtml);
+    });
+  });
 }
 
 function email_template_efb(s) {
@@ -3152,6 +3690,15 @@ function funNproEmailTemp() {
   <a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
   <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon-256x256.gif" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a>
  <br> <img src="${ws}img/favicon.png" style="margin: 5px"> <a class='efb subtle-link' target='_blank' href='${ws}'>White Studio Team</a></td></tr>`
+}
+
+function lock_email_stats_toggle_efb(el, event){
+  if (event) event.stopPropagation();
+  pro_show_efb(1);
+  setTimeout(() => {
+    el.classList.add('active');
+    el.setAttribute('aria-pressed', 'true');
+  }, 80);
 }
 
 function act_local_efb_event(t){

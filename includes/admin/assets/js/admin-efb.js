@@ -5,18 +5,86 @@ let exportJson_ws = [];
 let pro_ws_efb = false;
 let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
-const efb_version = 4;
+const efb_version = 4.1;
 let wpbakery_emsFormBuilder =false;
 let pro_price_efb =27;
 let heartbeat_efb_active =false;
 let _efb_autosave_in_progress = false;
 let state_page_efb='';
+let efb_builder_last_email_warning_signature = '';
 var _efb_nonce_ = (typeof efb_var !== 'undefined' && efb_var.nonce) ? efb_var.nonce : '';
 
 if (typeof pro_efb === 'undefined') { var pro_efb = (typeof efb_var !== 'undefined' && (efb_var.pro == "1" || efb_var.pro == 1)) ? true : false; }
 
 if (sessionStorage.getItem("valueJson_ws_p")) sessionStorage.removeItem('valueJson_ws_p');
 if(sessionStorage.getItem("formId_efb")) sessionStorage.removeItem('formId_efb');
+
+function efb_builder_value_is_true(value) {
+  return value === true || value === 1 || value === '1' || value === 'true';
+}
+
+function efb_builder_form_has_email_field() {
+  return Array.isArray(valj_efb) && valj_efb.some((field) => field && field.type === 'email');
+}
+
+function efb_builder_email_setting_smtp_disabled() {
+  const toggle = document.getElementById('hostSupportSmtp_emsFormBuilder');
+  if (toggle) {
+    return !toggle.classList.contains('active');
+  }
+
+  const setting = (typeof valueJson_ws_setting !== 'undefined' && valueJson_ws_setting && typeof valueJson_ws_setting === 'object' && Object.prototype.hasOwnProperty.call(valueJson_ws_setting, 'smtp'))
+    ? valueJson_ws_setting
+    : ((typeof efb_var !== 'undefined' && efb_var.setting)
+      ? efb_var.setting
+      : (typeof setting_emsFormBuilder !== 'undefined' ? setting_emsFormBuilder : null));
+  return !setting || !efb_builder_value_is_true(setting.smtp);
+}
+
+function efb_builder_latest_email_spam_score() {
+  const health = (typeof efb_var !== 'undefined' && efb_var.emailHealth) ? efb_var.emailHealth : {};
+  const score = health && health.score !== null && health.score !== undefined ? Number(health.score) : NaN;
+  return Number.isFinite(score) ? score : null;
+}
+
+function efb_builder_email_warning_signature() {
+  const first = Array.isArray(valj_efb) && valj_efb[0] ? valj_efb[0] : {};
+  return [
+    form_ID_emsFormBuilder || 0,
+    first.formName || first.type || '',
+    Array.isArray(valj_efb) ? valj_efb.length : 0,
+    efb_builder_latest_email_spam_score()
+  ].join('|');
+}
+
+function efb_builder_maybe_warn_email_delivery() {
+  const score = efb_builder_latest_email_spam_score();
+  const health = (typeof efb_var !== 'undefined' && efb_var.emailHealth) ? efb_var.emailHealth : {};
+  const threshold = health && Number(health.threshold) ? Number(health.threshold) : 75;
+
+  if (!efb_builder_form_has_email_field() || !efb_builder_email_setting_smtp_disabled() || (score !== null && score >= threshold)) {
+    return;
+  }
+
+  const signature = efb_builder_email_warning_signature();
+  if (efb_builder_last_email_warning_signature === signature) {
+    return;
+  }
+  efb_builder_last_email_warning_signature = signature;
+
+  const title = efb_var.text.emailNotificationRiskTitle || 'Email notifications may not be delivered';
+  const template = score === null
+    ? (efb_var.text.emailNotificationRiskDescNoScore || 'This form includes an email field, but email delivery is not enabled in settings and no recent spam score is available. Form admin notification emails may not arrive until SMTP/email delivery is tested and fixed.')
+    : (efb_var.text.emailNotificationRiskDesc || 'This form includes an email field, but email delivery is not enabled in settings and the latest spam score is %s/100. The form was saved, but admin notification emails may not reach the form admin until SMTP/email delivery is fixed.');
+  const helpText = efb_var.text.clcdetls || efb_var.text.smtpSetupGuideBtn || efb_var.text.clickHere || 'Click here for more details';
+  const helpLink = `<br><a class="efb alert-link text-dark fw-semibold pointer-efb" onclick="Link_emsFormBuilder('EmailSpam')">${helpText}</a>`;
+  const message = (score === null ? template : template.replace('%s', `<b>${score}</b>`)) + helpLink;
+  alert_message_efb(title, message, 30, 'warning');
+}
+
+function efb_builder_maybe_warn_email_delivery_after_save() {
+  efb_builder_maybe_warn_email_delivery();
+}
 
 function deepFreeze_efb_admin(obj) {
   if (typeof obj !== "object" || obj === null) return obj;
@@ -40,6 +108,9 @@ function fun_default_addons_efb_admin() {
     {id:9, name:'AdnATF', title:'TAdnAtF', desc:'DAdnAtF', icon:'bi-database-add', link:'', download:true, pro:true, state:true, tag:'data form', version:0.1, v_required:4.0, package:1},
     {id:8, name:'AdnPAP', title:'payPalTAddon', desc:'payPalDAddon', icon:'bi-paypal', link:'', download:true, pro:true, state:true, tag:'form pay payment', version:0.1, v_required:4.0, package:1},
     {id:8, name:'AdnTLG', title:'tlgmAddon', desc:'tlgmDAddon', icon:'bi-telegram', link:'', download:true, pro:true, state:true, tag:'form social notification integrate', version:0.1, v_required:4.0, package:1},
+    {id:12, name:'AdnGoS', title:'TAdnGoS', desc:'DAdnGoS', icon:'bi-file-earmark-spreadsheet', link:'', download:true, pro:true, state:true, tag:'form integration google sheet spreadsheet data export sync', version:0.1, v_required:4.1, package:4},
+    {id:10, name:'AdnSMF', title:'condATAddon', desc:'condADAddon', icon:'bi-diagram-3', link:'', download:true, pro:false, state:true, tag:'form logic conditional smart', version:0.1, v_required:4.0, package:1},
+    {id:11, name:'AdnHSH', title:'TAdnHSH', desc:'DAdnHSH', icon:'bi-shield-check', link:'', download:true, pro:true, state:true, tag:'form security spam protection rate limit', version:0.1, v_required:4.1, package:4},
   ];
 }
 
@@ -49,7 +120,7 @@ function fun_get_addons_efb_admin() {
     return addons_efb;
   }
   if (!Array.isArray(window.addons_efb)) {
-    console.log('test fun_default_addons_efb_admin');
+    // console.log('test fun_default_addons_efb_admin');
     window.addons_efb = fun_default_addons_efb_admin();
   }
   return window.addons_efb;
@@ -372,7 +443,8 @@ function show_message_result_form_set_EFB(state, m) {
   const e_s = cet();
   let e_m ='<div id="alert"></div>';
   if((efb_var.smtp==false || efb_var.smtp==0 || efb_var.smtp==-1) && (e_s==true || e_s==1)) {
-    msg = `<br> <p>${efb_var.text.clickToCheckEmailServer }</p> <p>${efb_var.text.goToEFBAddEmailM }</p> <br>
+    msg = `<p class="efb mb-1"><strong>${efb_var.text.emailNotificationRiskTitle}</strong></p>
+    <p class="efb mb-2">${efb_var.text.goToEFBAddEmailM}</p>
     <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block ec-efb" data-eventform="links" data-linkname="EmailNoti"><i class="efb bi bi-patch-question  mx-1"></i>${efb_var.text.howActivateAlertEmail}</a>
     `
     e_m = alarm_emsFormBuilder(msg)
@@ -402,7 +474,7 @@ function show_message_result_form_set_EFB(state, m) {
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`;
 }
 
-async function  actionSendData_emsFormBuilder() {
+async function  actionSendData_emsFormBuilder(saveMode) {
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
     return;
@@ -450,7 +522,8 @@ async function  actionSendData_emsFormBuilder() {
           form_ID_emsFormBuilder = parseInt(res.data.id)
 
           show_message_result_form_set_EFB(1, res.data.value);
-          localStorage.setItem('efb_auto_save', 0);
+          if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
+          if (saveMode === 1) clear_auto_save_efb();
           fun_pr(1);
         } else {
           alert(res, "error")
@@ -459,6 +532,8 @@ async function  actionSendData_emsFormBuilder() {
         }
       } else if (res.data.r == "update" || res.data.r == "updated" && res.data.success == true) {
         show_message_result_form_set_EFB(2, res.data.value);
+        if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
+        if (saveMode === 1) clear_auto_save_efb();
 
         sessionStorage.setItem('formId_efb', res.data.value);
         fun_pr(1);
@@ -482,6 +557,7 @@ async function  actionSendData_emsFormBuilder() {
 }
 function actionSendAddons_efb(val) {
   if (!navigator.onLine) {
+    addons_btn_reset_efb(val);
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
     return;
   }
@@ -497,26 +573,33 @@ function actionSendAddons_efb(val) {
       };
 
     $.post(ajaxurl, data, function (res) {
-      if (res.data.r == "done") {
-        if (res.data.value && res.data.success == true) {
+      const payload = res && res.data ? res.data : {};
+      if (payload.r == "done") {
+        if (payload.value && payload.success == true) {
           let m = efb_var.text.tshbc;
           m =m.replace('%s', `<b>${efb_var.text.installation}</b>`);
           alert_message_efb(m,'', 40,'info');
           location.reload();
         } else {
-          alert(res, "error")
+          addons_btn_reset_efb(snd);
           alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
 
         }
       } else {
-        if (res.data.m == null || res.data.m.length > 1) {
+        addons_btn_reset_efb(snd);
+        if (payload.code === 'addon_plan_required') {
+          pro_show_efb(Number(payload.required_package) === 3 ? 3 : 1);
+          return;
+        }
+        if (payload.m == null || payload.m.length > 1) {
 
-         alert_message_efb(efb_var.text.error, res.data.m, 30, "danger");
+         alert_message_efb(efb_var.text.error, payload.m, 30, "danger");
         } else {
           alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-2`, 30, "danger");
         }
       }
     }).fail(function(xhr) {
+      addons_btn_reset_efb(snd);
       alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:${xhr.status || 'NET'}`, 30, 'danger');
     })
     return true;
@@ -627,25 +710,35 @@ createCardAddoneEfb = (i) => {
 
   tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);;
 
+  const packageType = setting_emsFormBuilder.package_type != undefined ? Number(setting_emsFormBuilder.package_type) : 2;
+  const isInstalled = efb_var.setting[i.name] == 1;
+  const canInstallAddon = i.name === 'AdnOF'
+    || (i.name === 'AdnSMF' && [1, 3].includes(packageType))
+    || (i.name !== 'AdnSMF' && i.pro != true)
+    || (i.pro == true && packageType === 1);
+  const isLockedAddon = !isInstalled && !canInstallAddon;
+
   let funNtn =   `funBTNAddOnsEFB('${i.name}','${i.v_required}')`;
   let nameNtn = efb_var.text.install;
   let iconNtn = 'bi-download';
   let colorNtn = 'btn-primary';
-  if ((i.pro == true &&   Number(setting_emsFormBuilder.package_type) === 2) || Number(setting_emsFormBuilder.package_type) === 3) {
-    funNtn=`pro_show_efb(1)`;
-    nameNtn = efb_var.text.pro;
-    iconNtn ='bi-gem';
-    colorNtn = 'btn-warning';
-  }else if (efb_var.setting[i.name]== 1 ){
+  if (isInstalled){
     funNtn=`funBTNAddOnsUnEFB('${i.name}')`;
     nameNtn = efb_var.text.remove;
     iconNtn ='';
     colorNtn = 'btn-secondary';
+  }else if (isLockedAddon) {
+    // The licensing server is the source of truth for package access. Its
+    // response determines which upgrade message is shown after the request.
+    funNtn=`funBTNAddOnsEFB('${i.name}','${i.v_required}')`;
+    nameNtn = efb_var.text.install;
+    iconNtn ='bi-download';
+    colorNtn = 'btn-warning';
   }
 
   return `
-  <div class="efb tag mt-0 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
-  ${i.pro == true && efb_var.pro != true ? funProEfb() : ''}
+  <div class="efb tag mt-0 mb-2 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
+  ${isLockedAddon ? funProEfb() : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
   <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
@@ -744,24 +837,90 @@ function add_dasboard_emsFormBuilder() {
   }
 
 }
+/**
+ * Wrap every occurrence of `term` inside `text` with a highlight <mark>.
+ * The term is regex-escaped so special characters are matched literally.
+ * Self-contained here because list_form-efb.js (which owns a similar helper)
+ * is not enqueued on the add-ons page.
+ */
+function efb_highlight_match_efb(text, term) {
+  if (text == null || !term || String(term).trim() === '') return text;
+  const safe = String(term).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${safe})`, 'gi');
+  return String(text).replace(regex, '<mark class="efb search-highlight">$1</mark>');
+}
+
+/**
+ * Resolve an add-on list item into a display object with translated
+ * title/desc. Mirrors the resolution used on first render so that searching
+ * works against the visible text, not the raw translation keys.
+ */
+function efb_resolve_addon_display_efb(i) {
+  let title = i.title;
+  let desc = i.desc;
+  if (title.trim().split(/\s+/).length === 1) {
+    title = efb_var.text[title];
+    desc = efb_var.text[desc];
+  }
+  return { 'name': i.name, 'id': i.id, 'tag': i.tag, 'icon': i.icon,
+           'title': title, 'desc': desc, 'v_required': i.v_required, 'pro': i.pro };
+}
+
+/**
+ * Build the add-on cards HTML, optionally filtered by a search term.
+ * When a term is given, the matching words in the title/description are
+ * highlighted. Returns { html, count }.
+ */
+function efb_build_addon_cards_efb(searchTerm) {
+  const term = (searchTerm || '').trim().toLowerCase();
+  let value = `<!-- boxs -->`;
+  let count = 0;
+
+  for (let i of fun_get_addons_efb_admin()) {
+    if (i.state != true) continue;
+    if (!((efb_var.language != 'fa_IR' && i.name != 'AdnPPF') || efb_var.language == 'fa_IR')) continue;
+
+    const v = efb_resolve_addon_display_efb(i);
+
+    if (term !== '') {
+      const haystack = `${v.title} ${v.desc} ${v.tag}`.toLowerCase();
+      if (haystack.indexOf(term) === -1) continue;
+
+      v.title = efb_highlight_match_efb(v.title, searchTerm.trim());
+      v.desc = efb_highlight_match_efb(v.desc, searchTerm.trim());
+    }
+
+    count++;
+    value += createCardAddoneEfb(v);
+  }
+
+  return { html: value, count: count };
+}
+
+/**
+ * (Re)attach click handlers for cards rendered inside the add-ons page.
+ */
+function efb_attach_addon_card_events_efb() {
+  let newform_ = document.getElementsByClassName("efbCreateNewForm");
+  for (const n of newform_) {
+    n.addEventListener("click", (e) => {
+      form_type_emsFormBuilder = n.id;
+      create_form_by_type_emsfb(n.id, 'npreview');
+    });
+  }
+  newform_ = document.getElementsByClassName("efbPreviewForm");
+  for (const n of newform_) {
+    n.addEventListener("click", (e) => {
+      form_type_emsFormBuilder = n.id;
+      create_form_by_type_emsfb(n.id, 'preview');
+    });
+  }
+}
+
 function add_addons_emsFormBuilder() {
 
-  let value = `<!-- boxs -->`;
-  const addonsList = fun_get_addons_efb_admin();
-  for (let i of addonsList) {
-    let title = i.title;
-    let desc = i.desc;
-    if(title.trim().split(/\s+/).length === 1) {
-      title =efb_var.text[title] ;
-      desc =efb_var.text[desc];
-    }
+  const built = efb_build_addon_cards_efb('');
 
-   if(i.state==true) {
-      const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
-                 'title':title,'desc':desc,'v_required':i.v_required , 'pro':i.pro}
-     if((efb_var.language!='fa_IR' && (i.name!='AdnPPF') ) || efb_var.language=='fa_IR' ) value += createCardAddoneEfb(v)
-    }
-  }
   let cardtitles = `<!-- card titles -->`;
 
  cardtitles = `
@@ -776,25 +935,21 @@ function add_addons_emsFormBuilder() {
           <section id="content-efb">
           ${!mobile_view_efb ? `<h4 class="efb  mb-0 title-holder fs-4 efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon fs-4 mx-1"></i>${efb_var.text.addons}</h4>` : ''}
 
+          <div class="efb d-flex justify-content-center align-items-center flex-wrap my-3 gap-2" id="addonSearchWrapEFB">
+            <input type="text" placeholder="${efb_var.text.search} ..." id="findCardAddonEFB" autocomplete="off" aria-label="${efb_var.text.search}"
+              class="efb fs-6 search-form-control rounded-4 efb addon-search-input-efb mx-2"
+              oninput="FunfindCardAddonEFB()" onkeydown="if(event.key==='Enter'){event.preventDefault();FunfindCardAddonEFB();}">
+            <a class="efb btn efb btn-outline-pink mx-1" role="button" onclick="FunfindCardAddonEFB()"><i class="efb bi-search mx-1"></i>${efb_var.text.search}</a>
+            <a class="efb btn efb btn-sm addon-search-clear-efb mx-1" id="addonSearchClearEFB" role="button" style="display:none;" onclick="efb_clear_addon_search_efb()"><i class="efb bi-x-lg mx-1"></i></a>
+            <span id="addonSearchCountEFB" class="search-results-badge mx-1" style="display:none;"></span>
+          </div>
+
             <div class="efb row">
             ${cardtitles}
-            <div class="efb  row row-cols-1 mt-0 row-cols-md-3 g-4" id="listFormCardsEFB">${value}</div></div>
+            <div class="efb  row row-cols-1 mt-0 row-cols-md-3 g-4" id="listFormCardsEFB">${built.html}</div></div>
             </section>`
 
-  let newform_ = document.getElementsByClassName("efbCreateNewForm")
-  for (const n of newform_) {
-    n.addEventListener("click", (e) => {
-      form_type_emsFormBuilder = n.id;
-      create_form_by_type_emsfb(n.id, 'npreview');
-    })
-  }
-  newform_ = document.getElementsByClassName("efbPreviewForm")
-  for (const n of newform_) {
-    n.addEventListener("click", (e) => {
-      form_type_emsFormBuilder = n.id;
-      create_form_by_type_emsfb(n.id, 'preview');
-    })
-  }
+  efb_attach_addon_card_events_efb();
 
 }
 
@@ -819,26 +974,49 @@ function FunfindCardFormEFB() {
   }
 }
 function FunfindCardAddonEFB() {
-  let cards = [];
-  const v = document.getElementById('findCardFormEFB').value.toLowerCase();
-  document.getElementById('listFormCardsEFB').innerHTML = ''
+  const input = document.getElementById('findCardAddonEFB');
+  const term = input ? input.value.trim() : '';
 
-  for (let row of fun_get_addons_efb_admin()) {
+  const built = efb_build_addon_cards_efb(term);
+  const list = document.getElementById('listFormCardsEFB');
+  if (!list) return;
 
-    if (row["title"].toLowerCase().includes(v) == true || row["desc"].toLowerCase().includes(v) == true) { cards.push(row); }
+  if (built.count === 0) {
+    const safeTerm = term.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const label = term !== '' ? ` "${safeTerm}"` : '';
+    const notFoundText = efb_var.text.noResultsFound || efb_var.text.notFound || 'No results found';
+    list.innerHTML = `
+      <div class="efb col-12 text-center text-darkb efb my-5" id="addonNoResultEFB">
+        <div class="efb bi-emoji-frown" style="font-size:2.6rem;color:#b9b9c9;"></div>
+        <p class="efb fs-5 mt-2 mb-0">${notFoundText}${label}</p>
+      </div>`;
+  } else {
+    list.innerHTML = built.html;
   }
-  let result = '<!--Search-->'
-  for (let c of cards) {result += createCardAddoneEfb(c); }
-  if (result == "'<!--Search-->'") result = "NotingFound";
-  document.getElementById("listFormCardsEFB").innerHTML = result;
 
-  let newform_ = document.getElementsByClassName("efbCreateNewForm")
-  for (const n of newform_) {
-    n.addEventListener("click", (e) => {
-      form_type_emsFormBuilder = n.id;
-      create_form_by_type_emsfb(n.id, 'npreview');
-    })
+  const badge = document.getElementById('addonSearchCountEFB');
+  if (badge) {
+    if (term === '') {
+      badge.style.display = 'none';
+      badge.textContent = '';
+    } else {
+      const unit = built.count === 1 ? (efb_var.text.result || 'result') : (efb_var.text.results || 'results');
+      badge.style.display = 'inline-block';
+      badge.textContent = `${built.count} ${unit}`;
+    }
   }
+
+  const clearBtn = document.getElementById('addonSearchClearEFB');
+  if (clearBtn) clearBtn.style.display = term === '' ? 'none' : 'inline-block';
+
+  efb_attach_addon_card_events_efb();
+}
+
+function efb_clear_addon_search_efb() {
+  const input = document.getElementById('findCardAddonEFB');
+  if (input) input.value = '';
+  FunfindCardAddonEFB();
+  if (input) input.focus();
 }
 
 function create_form_by_type_emsfb(id, s) {
@@ -892,7 +1070,7 @@ function create_form_by_type_emsfb(id, s) {
     form_type_emsFormBuilder = "register";
     json = [{ "type": "register", "steps": 1, "formName": efb_var.text.register, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.register, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-d-efb", "email_to": "emailRegisterEFB", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message":textThankUEFB('register'), "email_temp": "", "stateForm": false },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.registerForm, "icon": "bi-box-arrow-in-right", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
-    { "id_": "usernameRegisterEFB", "dataId": "usernameRegisterEFB-id", "type": "text", "placeholder": efb_var.text.username, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.username, "required": true, "amount": 3, "step": 1,  "label_text_size": "fs-6", "label_position": "besie",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "usernameRegisterEFB", "dataId": "usernameRegisterEFB-id", "type": "text", "placeholder": efb_var.text.username, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.username, "required": true, "amount": 3, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "passwordRegisterEFB", "dataId": "passwordRegisterEFB-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "emailRegisterEFB", "dataId": "emailRegisterEFB-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 9, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false , "noti":1 }]
     valj_efb = json;
@@ -909,11 +1087,11 @@ function create_form_by_type_emsfb(id, s) {
   } else if (id === "support") {
     form_type_emsFormBuilder = "form";
     const json = [{ "type": "form", "steps": 1, "formName": efb_var.text.support, "email":adminEmail, 'sendEmail': smail, "trackingCode": true, "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "qas87uoct", "show_icon": true, "show_pro_bar": true, "captcha": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "stateForm": false, "dShowBg": true },
-    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "Support", "icon": "bi-ui-checks-grid", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-dark", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
-    { "id_": "rhglopgi8", "dataId": "rhglopgi8-id", "type": "select", "placeholder": "Select", "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": "How can we help you?", "required": true, "amount": 2, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "b2xssuo2w", "dataId": "b2xssuo2w-id", "parent": "rhglopgi8", "type": "option", "value": "Accounting & Sell question", "id_op": "n470h48lg", "step": "1", "amount": 3 },
-    { "id_": "b2xssuo2w", "dataId": "b2xssuo2w-id", "parent": "rhglopgi8", "type": "option", "value": "Technical & support question", "id_op": "zu7f5aeob", "step": "1", "amount": 4 },
-    { "id_": "jv1l79ir1", "dataId": "jv1l79ir1-id", "parent": "rhglopgi8", "type": "option", "value": "General question", "id_op": "jv1l79ir1", "step": "1", "amount": 5 },
+    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.support, "icon": "bi-ui-checks-grid", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-dark", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
+    { "id_": "rhglopgi8", "dataId": "rhglopgi8-id", "type": "select", "placeholder": efb_var.text.select, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.howCanWeHelpYou, "required": true, "amount": 2, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "b2xssuo2w", "dataId": "b2xssuo2w-id", "parent": "rhglopgi8", "type": "option", "value": efb_var.text.accountingQuestion, "id_op": "n470h48lg", "step": "1", "amount": 3 },
+    { "id_": "b2xssuo2w", "dataId": "b2xssuo2w-id", "parent": "rhglopgi8", "type": "option", "value": efb_var.text.technicalQuestion, "id_op": "zu7f5aeob", "step": "1", "amount": 4 },
+    { "id_": "jv1l79ir1", "dataId": "jv1l79ir1-id", "parent": "rhglopgi8", "type": "option", "value": efb_var.text.optionGeneralQuestion, "id_op": "jv1l79ir1", "step": "1", "amount": 5 },
     { "id_": "59c0hfpyo", "dataId": "59c0hfpyo-id", "type": "text", "placeholder": efb_var.text.subject, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.subject, "required": 0, "amount": 6, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "qas87uoct", "dataId": "qas87uoct-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 10, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false, "noti":1 },
     { "id_": "cqwh8eobv", "dataId": "cqwh8eobv-id", "type": "textarea", "placeholder": efb_var.text.message, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.message, "required": true, "amount": 8, "step": 2,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": pro_efb }]
@@ -946,15 +1124,15 @@ function create_form_by_type_emsfb(id, s) {
   } else if (id == "survey") {
     form_type_emsFormBuilder = "survey";
     const json = [{ "type": "survey", "steps": 1, "formName": efb_var.text.survey, "email":'', 'sendEmail': smail, "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB('"survey"'), "email_temp": "", "stateForm": false },
-    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "Survey form", "icon": "bi-clipboard-data", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
-    { "id_": "6af03cgwb", "dataId": "6af03cgwb-id", "type": "select", "placeholder": "Select", "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": "what is your favorite food ?", "required": true, "amount": 2, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "wxgt1tvri", "dataId": "wxgt1tvri-id", "parent": "6af03cgwb", "type": "option", "value": "Pasta", "id_op": "n9r68xhl1", "step": "1", "amount": 3 },
-    { "id_": "wxgt1tvri", "dataId": "wxgt1tvri-id", "parent": "6af03cgwb", "type": "option", "value": "Pizza", "id_op": "khp0a798x", "step": "1", "amount": 4 },
-    { "id_": "6x1lv1ufx", "dataId": "6x1lv1ufx-id", "parent": "6af03cgwb", "type": "option", "value": "Fish and seafood", "id_op": "6x1lv1ufx", "step": "1", "amount": 5 },
-    { "id_": "yythlx4tt", "dataId": "yythlx4tt-id", "parent": "6af03cgwb", "type": "option", "value": "Vegetables", "id_op": "yythlx4tt", "step": "1", "amount": 6 },
-    { "id_": "fe4q562zo", "dataId": "fe4q562zo-id", "type": "checkbox", "placeholder": "Check Box", "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": "Language", "required": 0, "amount": 7, "step": "1",  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "khd2i7ubz", "dataId": "khd2i7ubz-id", "parent": "fe4q562zo", "type": "option", "value": "English", "id_op": "khd2i7ubz", "step": "1", "amount": 8 }, { "id_": "93hao0zca", "dataId": "93hao0zca-id", "parent": "fe4q562zo", "type": "option", "value": "French", "id_op": "93hao0zca", "step": "1", "amount": 9 }, { "id_": "75bcbj6s1", "dataId": "75bcbj6s1-id", "parent": "fe4q562zo", "type": "option", "value": "German", "id_op": "75bcbj6s1", "step": "1", "amount": 10 }, { "id_": "lh1csq8mw", "dataId": "lh1csq8mw-id", "parent": "fe4q562zo", "type": "option", "value": "Russian", "id_op": "lh1csq8mw", "step": "1", "amount": 11 },
-    { "id_": "5gopt8r6b", "dataId": "5gopt8r6b-id", "parent": "fe4q562zo", "type": "option", "value": "Portuguese", "id_op": "5gopt8r6b", "step": "1", "amount": 12 }, { "id_": "v57zhziyi", "dataId": "v57zhziyi-id", "parent": "fe4q562zo", "type": "option", "value": "Hindi", "id_op": "v57zhziyi", "step": "1", "amount": 13 }, { "id_": "16suwyx5m", "dataId": "16suwyx5m-id", "type": "radio", "placeholder": "Radio Button", "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": "Gender", "required": 0, "amount": 14, "step": "1",  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }, { "id_": "ha0sfnwbp", "dataId": "ha0sfnwbp-id", "parent": "16suwyx5m", "type": "option", "value": "Male", "id_op": "ha0sfnwbp", "step": "1", "amount": 15 }, { "id_": "w3jpyg24h", "dataId": "w3jpyg24h-id", "parent": "16suwyx5m", "type": "option", "value": "Female", "id_op": "w3jpyg24h", "step": "1", "amount": 16 }, { "id_": "in4xa2y0f", "dataId": "in4xa2y0f-id", "parent": "16suwyx5m", "type": "option", "value": "Non-binary", "id_op": "in4xa2y0f", "step": "1", "amount": 17 }, { "id_": "1028hto5a", "dataId": "1028hto5a-id", "parent": "16suwyx5m", "type": "option", "value": "Transgender", "id_op": "1028hto5a", "step": "1", "amount": 18 }, { "id_": "rz3vkawya", "dataId": "rz3vkawya-id", "parent": "16suwyx5m", "type": "option", "value": "Intersex", "id_op": "rz3vkawya", "step": "1", "amount": 19 }, { "id_": "2oezrrpny", "dataId": "2oezrrpny-id", "parent": "16suwyx5m", "type": "option", "value": "I prefer not to say", "id_op": "2oezrrpny", "step": "1", "amount": 20 }];
+    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.survey, "icon": "bi-clipboard-data", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
+    { "id_": "6af03cgwb", "dataId": "6af03cgwb-id", "type": "select", "placeholder": efb_var.text.select, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": "what is your favorite food ?", "required": true, "amount": 2, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "wxgt1tvri", "dataId": "wxgt1tvri-id", "parent": "6af03cgwb", "type": "option", "value": efb_var.text.optionPasta, "id_op": "n9r68xhl1", "step": "1", "amount": 3 },
+    { "id_": "wxgt1tvri", "dataId": "wxgt1tvri-id", "parent": "6af03cgwb", "type": "option", "value": efb_var.text.optionPizza, "id_op": "khp0a798x", "step": "1", "amount": 4 },
+    { "id_": "6x1lv1ufx", "dataId": "6x1lv1ufx-id", "parent": "6af03cgwb", "type": "option", "value": efb_var.text.optionFishSeafood, "id_op": "6x1lv1ufx", "step": "1", "amount": 5 },
+    { "id_": "yythlx4tt", "dataId": "yythlx4tt-id", "parent": "6af03cgwb", "type": "option", "value": efb_var.text.optionVegetables, "id_op": "yythlx4tt", "step": "1", "amount": 6 },
+    { "id_": "fe4q562zo", "dataId": "fe4q562zo-id", "type": "checkbox", "placeholder": efb_var.text.checkbox, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": "Language", "required": 0, "amount": 7, "step": "1",  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "khd2i7ubz", "dataId": "khd2i7ubz-id", "parent": "fe4q562zo", "type": "option", "value": efb_var.text.optionEnglish, "id_op": "khd2i7ubz", "step": "1", "amount": 8 }, { "id_": "93hao0zca", "dataId": "93hao0zca-id", "parent": "fe4q562zo", "type": "option", "value": efb_var.text.optionFrench, "id_op": "93hao0zca", "step": "1", "amount": 9 }, { "id_": "75bcbj6s1", "dataId": "75bcbj6s1-id", "parent": "fe4q562zo", "type": "option", "value": efb_var.text.optionGerman, "id_op": "75bcbj6s1", "step": "1", "amount": 10 }, { "id_": "lh1csq8mw", "dataId": "lh1csq8mw-id", "parent": "fe4q562zo", "type": "option", "value": efb_var.text.optionRussian, "id_op": "lh1csq8mw", "step": "1", "amount": 11 },
+    { "id_": "5gopt8r6b", "dataId": "5gopt8r6b-id", "parent": "fe4q562zo", "type": "option", "value": efb_var.text.optionPortuguese, "id_op": "5gopt8r6b", "step": "1", "amount": 12 }, { "id_": "v57zhziyi", "dataId": "v57zhziyi-id", "parent": "fe4q562zo", "type": "option", "value": efb_var.text.optionHindi, "id_op": "v57zhziyi", "step": "1", "amount": 13 }, { "id_": "16suwyx5m", "dataId": "16suwyx5m-id", "type": "radio", "placeholder": efb_var.text.radiobutton, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": "Gender", "required": 0, "amount": 14, "step": "1",  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }, { "id_": "ha0sfnwbp", "dataId": "ha0sfnwbp-id", "parent": "16suwyx5m", "type": "option", "value": efb_var.text.optionMale, "id_op": "ha0sfnwbp", "step": "1", "amount": 15 }, { "id_": "w3jpyg24h", "dataId": "w3jpyg24h-id", "parent": "16suwyx5m", "type": "option", "value": efb_var.text.optionFemale, "id_op": "w3jpyg24h", "step": "1", "amount": 16 }];
     valueJson_ws_p = json;
     valj_efb = json;
 
@@ -1099,13 +1277,18 @@ function head_introduce_efb(state) {
   const link = state == "create" ? '#form' : 'admin.php?page=Emsfb_create'
   let text = `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
-  const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/pricing' : 'https://whitestudio.team/#pricing';
-  let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="${domain}" target="_blank" class="efb fw-bold">`).replace('%5$s','</a>');
+  const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/price' : 'https://whitestudio.team/#price';
+  let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="${domain}" target="_blank" rel="noopener noreferrer" class="efb fw-bold efb-pro-notice__link">`).replace('%5$s','</a>');
+  if(efb_var.language =='fa_IR'){
+    msgpro = efb_var.text.yFreeVEnPro.replace('%2$s',  '1,300,000<small>تومان</small>').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="https://easyformbuilder.ir/pricing" target="_blank" rel="noopener noreferrer" class="efb fw-bold efb-pro-notice__link">`).replace('%5$s','</a>');
+  }
   let cont = ``;
-  let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti ec-efb" data-eventform="links" data-linkname="price">
-  <i class="efb bi-diamond text-pinkEfb mx-1"></i>
-  <span class="efb text-dark fs-7">${efb_var.text.getPro}</span><br>
-  <div class="efb ms-3 fs-7">${msgpro}</div>
+  let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti efb-pro-notice ec-efb" data-eventform="links" data-linkname="price">
+  <div class="efb d-flex align-items-center efb-pro-notice__heading">
+    <span class="efb efb-pro-notice__icon"><i class="efb bi-diamond"></i></span>
+    <span class="efb efb-pro-notice__title">${efb_var.text.getPro}</span>
+  </div>
+  <div class="efb efb-pro-notice__body">${msgpro}</div>
   </div>`;
   if(noti_exp_efb!='' && noti_exp_efb!='null'){vType='<div class="efb col-lg-4">'+noti_exp_efb+'</div>';}
   if (state != "create") {
@@ -1238,13 +1421,13 @@ function sideMenuEfb(s) {
   if (s == 0) {
     side_hide(el)
        setTimeout(() => {
-      saveFormEfb(-1);
+      store_form_efb();
     }, 2000);
   } else if( s == 1) {
    side_show(el)
   } else if (s == 2) {
-    setTimeout(() => {
-      saveFormEfb(-1);
+   setTimeout(() => {
+      store_form_efb();
     }, 2000);
     const lenV = valj_efb.length
     const timeout = lenV < 100 ? 800 : lenV<500 ? 3000 : 5000;
@@ -1264,7 +1447,10 @@ const funSetCornerElEfb = (dataId, co) => {
 
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   let el = document.querySelector(`[data-id='${dataId}-set']`)
-  if (el.dataset.side == "undefined" || el.dataset.side == "") {
+  if (!el) return;
+  const sideCo = el.dataset.side == "undefined" ? "" : (el.dataset.side || "");
+  if (indx === -1 && sideCo != "Next") return;
+  if (sideCo == "") {
     valj_efb[indx].corner = co;
     postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `null`
     let cornEl = 'null';
@@ -1283,18 +1469,32 @@ const funSetCornerElEfb = (dataId, co) => {
     }
     cornEl.className = cornerChangerEfb(cornEl.className, co)
 
-  } else if (el.dataset.side == "yesNo") {
+  } else if (sideCo == "yesNo") {
     valj_efb[indx].corner = co;
     document.getElementById(`${valj_efb[indx].id_}_b_1`).className = cornerChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, co)
     document.getElementById(`${valj_efb[indx].id_}_b_2`).className = cornerChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, co)
   } else {
 
     valj_efb[0].corner = co;
-    postId = document.getElementById('btn_send_efb');
-    postId.className = cornerChangerEfb(postId.className, co)
-    document.getElementById('next_efb').className = cornerChangerEfb(document.getElementById('next_efb').className, co)
-    document.getElementById('prev_efb').className = cornerChangerEfb(document.getElementById('prev_efb').className, co)
+    ['btn_send_efb', 'next_efb', 'prev_efb'].forEach(id => {
+      const navBtn = document.getElementById(id);
+      if (navBtn) navBtn.className = cornerChangerEfb(navBtn.className, co)
+    });
   }
+  efbSyncCornerGroupEfb(dataId, co);
+}
+
+function efbSyncCornerGroupEfb(dataId, selectedCorner) {
+  const group = document.querySelector(`[data-id='${dataId}-set']`);
+  if (!group) return;
+  group.querySelectorAll('label').forEach(label => {
+    const input = label.querySelector('input[type="radio"]');
+    if (!input) return;
+    const active = input.value === selectedCorner;
+    label.classList.toggle('active', active);
+    input.checked = active;
+    label.setAttribute('aria-checked', active ? 'true' : 'false');
+  });
 }
 
 let change_el_edit_Efb = (el) => {
@@ -1565,6 +1765,20 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(`${valj_efb[indx].id_}_labG`).classList.remove('d-none');
         }
 
+        break;
+      case "mobileHideLabelEl":
+      case "mobileHideDescriptionEl":
+        if (!efbRequireMobileProEfb()) return;
+        const mobileVisibilityKey = el.id === 'mobileHideLabelEl' ? 'mobile_hflabel' : 'mobile_hfdescription';
+        valj_efb[indx][mobileVisibilityKey] = el.classList.contains('active') ? 1 : 0;
+        el.setAttribute('aria-pressed', el.classList.contains('active') ? 'true' : 'false');
+        efbApplyFieldViewEfb(valj_efb[indx], currentViewEfb);
+        break;
+      case "globalMobileHideLabelEl":
+        if (!efbRequireMobileProEfb()) return;
+        valj_efb[0].global_mobile_hflabel = el.classList.contains('active') ? 1 : 0;
+        el.setAttribute('aria-pressed', el.classList.contains('active') ? 'true' : 'false');
+        efbProjectCurrentViewEfb();
         break;
         case "hiddenEl":
           valj_efb[indx].hidden= el.classList.contains('active')==true ? 1 :0;
@@ -1958,15 +2172,12 @@ let change_el_edit_Efb = (el) => {
         if (valj_efb[indx].hasOwnProperty('size')) Object.assign(valj_efb[indx],{size:100});
         const op = el.options[el.selectedIndex].value;
         valj_efb[indx].size = op;
-        get_position_col_el(valj_efb[indx].dataId, true);
+        if (typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile') {
+          get_position_col_el(valj_efb[indx].dataId, true);
+        }
         break;
       case "mobileSizeEl":
-        if (!valj_efb[indx].hasOwnProperty('mobile_size')) Object.assign(valj_efb[indx],{mobile_size:100});
-        clss = el.options[el.selectedIndex].value;
-        valj_efb[indx].mobile_size = clss;
-        if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') {
-          get_position_col_mobile_el(valj_efb[indx].dataId, true);
-        }
+        efbSetViewPropEfb(valj_efb[indx].dataId, 'size', el.options[el.selectedIndex].value, 'mobile');
         break;
       case "cornerEl":
 
@@ -1990,21 +2201,18 @@ let change_el_edit_Efb = (el) => {
         break;
       case "labelFontSizeEl":
         valj_efb[indx].label_text_size = el.options[el.selectedIndex].value;
+        if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') break;
         let fontleb = document.getElementById(`${valj_efb[indx].id_}_lab`);
         const sizef = el.options[el.selectedIndex].value
         fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
         if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); }
         break;
       case "mobileLabelFontSizeEl":
-        if (!valj_efb[indx].hasOwnProperty('mobile_label_text_size')) Object.assign(valj_efb[indx],{mobile_label_text_size:'fs-6'});
-        valj_efb[indx].mobile_label_text_size = el.options[el.selectedIndex].value;
-        if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') {
-          let mFontLeb = document.getElementById(`${valj_efb[indx].id_}_lab`);
-          if (mFontLeb) mFontLeb.className = fontSizeChangerEfb(mFontLeb.className, el.options[el.selectedIndex].value);
-        }
+        efbSetViewPropEfb(valj_efb[indx].dataId, 'label_text_size', el.options[el.selectedIndex].value, 'mobile');
         break;
       case "optnsStyleEl":
         valj_efb[indx].op_style = el.options[el.selectedIndex].value;
+        if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') break;
         c =document.getElementById(`${valj_efb[indx].id_}_options`);
         if(valj_efb[indx].op_style!="1"){
           if(!c.classList.contains('row')) c.className += ' row col-md-12';
@@ -2025,6 +2233,9 @@ let change_el_edit_Efb = (el) => {
             }
             }
         }
+        break;
+      case "mobileOptnsStyleEl":
+        efbSetViewPropEfb(valj_efb[indx].dataId, 'op_style', el.options[el.selectedIndex].value, 'mobile');
         break;
       case "thankYouTypeEl":
         valj_efb[0].thank_you = el.options[el.selectedIndex].value;
@@ -2203,7 +2414,50 @@ let change_el_edit_Efb = (el) => {
         break;
       case 'fileSizeMaxEl':
         valj_efb[indx].hasOwnProperty('max_fsize')==false ? Object.assign(valj_efb[indx],{'max_fsize':el.value}) : valj_efb[indx].max_fsize = el.value;
-
+        // Host awareness: warn live when the field limit exceeds the hosting's
+        // upload_max_filesize (efb_var.upload_max, MB) - uploads would fail.
+        if (document.getElementById('fileSizeMaxWarnEfb')) {
+          const hostMaxEfb = Number(efb_var.upload_max) || 0;
+          document.getElementById('fileSizeMaxWarnEfb').classList.toggle('d-none', !(hostMaxEfb > 0 && Number(el.value) > hostMaxEfb));
+        }
+        break;
+      // Recorder settings live-update the widget shell (id `X_`), so the builder
+      // preview behaves with the new values immediately. docs/recorder-fields.md §3.
+      case 'recorderQualityEl':
+        valj_efb[indx].hasOwnProperty('record_quality')==false ? Object.assign(valj_efb[indx],{'record_quality':el.value}) : valj_efb[indx].record_quality = el.value;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.quality = el.value;
+        break;
+      case 'recorderDurationEl':
+        valj_efb[indx].hasOwnProperty('max_duration')==false ? Object.assign(valj_efb[indx],{'max_duration':el.value}) : valj_efb[indx].max_duration = el.value;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.duration = el.value;
+        break;
+      case 'recorderCountdownEl':
+        valj_efb[indx].rec_countdown = el.value;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.countdown = el.value;
+        break;
+      case 'recorderFacingEl':
+        valj_efb[indx].rec_facing = el.value === 'environment' ? 'environment' : 'user';
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.facing = valj_efb[indx].rec_facing;
+        break;
+      case 'recorderMirrorEl':
+        valj_efb[indx].rec_mirror = el.classList.contains('active') ? 1 : 0;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.mirror = valj_efb[indx].rec_mirror;
+        break;
+      case 'recorderNoiseEl':
+        valj_efb[indx].rec_noise = el.classList.contains('active') ? 1 : 0;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.noise = valj_efb[indx].rec_noise;
+        break;
+      case 'recorderDownloadEl':
+        valj_efb[indx].rec_download = el.classList.contains('active') ? 1 : 0;
+        if (document.getElementById(`${valj_efb[indx].id_}_`)) document.getElementById(`${valj_efb[indx].id_}_`).dataset.download = valj_efb[indx].rec_download;
+        break;
+      case 'recorderWatermarkEl':
+        valj_efb[indx].rec_watermark = el.classList.contains('active') ? 1 : 0;
+        // The watermark is markup-conditional on the frontend; in the builder
+        // preview just show/hide the existing overlay if it was rendered.
+        if (document.getElementById(`${valj_efb[indx].id_}-watermark`)) {
+          document.getElementById(`${valj_efb[indx].id_}-watermark`).classList.toggle('d-none', valj_efb[indx].rec_watermark !== 1);
+        }
         break;
       case'fileCustomizeTypleEl':
         c= el.value.trim();
@@ -3125,10 +3379,9 @@ async function create_form_efb() {
 const saveFormEfb = async (stated) => {
 
   const isAutoSave = stated === -1;
-  const modalElement = document.getElementById('settingModalEfb');
-  const isModalOpen = modalElement && modalElement.classList.contains('show');
-  if (isAutoSave && isModalOpen) {
-    return Promise.resolve(false);
+  if (isAutoSave) {
+    store_form_efb();
+    return Promise.resolve(true);
   }
 
   return new Promise((resolve, reject) => {
@@ -3209,7 +3462,7 @@ const saveFormEfb = async (stated) => {
           returnn =true;
 
           _efb_autosave_in_progress = isAutoSave;
-          actionSendData_emsFormBuilder();
+          actionSendData_emsFormBuilder(stated);
         } else if (proState == false) {
           btnText = efb_var.text.activateProVersion;
           btnFun = `open_whiteStudio_efb('pro')`;
@@ -3324,6 +3577,16 @@ let editFormEfb =async () => {
     }
 
     fub_shwBtns_efb()
+
+    // editFormEfb also runs while the mobile frame is open (duplicate field,
+    // undo, closing the preview modal, ...). The markup above is always
+    // desktop-channel, so re-project the mobile values afterwards - otherwise
+    // every field snaps back to full width (col-md-12) inside the phone frame.
+    efbProjectMobileViewEfb();
+
+    setTimeout(() => {
+      efb_builder_maybe_warn_email_delivery();
+    }, 250);
   }, len);
 
 }
@@ -3384,7 +3647,8 @@ let sampleElpush_efb = (rndm, elementId) => {
     || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" || elementId == "payMultiselect" || elementId == "cityList"
     || elementId == "paySelect" || elementId == "payRadio" || elementId == "payCheckbox" || elementId == "heading" || elementId == "link" || elementId == "stripe" || elementId == "persiaPay" || elementId == "trmCheckbox") { pro = true }
 
-  if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link") {
+  if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link"
+    && elementId != "audio_recorder" && elementId != "video_recorder" && elementId != "screen_recorder") {
 
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: type, elementId: elementId, placeholder: efb_var.text[elementId], value: '', size: size, message: "",
@@ -3480,8 +3744,27 @@ let sampleElpush_efb = (rndm, elementId) => {
       const indx =(valj_efb.length) - 1;
       valj_efb[indx].value = 'zip';
       valj_efb[indx].file = 'zip';
+    }else if(elementId == "audio_recorder" || elementId == "video_recorder" || elementId == "screen_recorder"){
+      const indx =(valj_efb.length) - 1;
+      valj_efb[indx].value = 'media';
+      valj_efb[indx].file = 'media';
+      valj_efb[indx].record_quality = elementId == "audio_recorder" ? 'standard' : '720p';
+      valj_efb[indx].max_duration = 90;
+      valj_efb[indx].max_fsize = '20';
+      // UX extras - see docs/recorder-fields.md for the full settings registry
+      valj_efb[indx].rec_countdown = '3';
+      valj_efb[indx].rec_download = 1;
+      if (elementId == "audio_recorder") valj_efb[indx].rec_noise = 1;
+      if (elementId == "video_recorder") { valj_efb[indx].rec_facing = 'user'; valj_efb[indx].rec_mirror = 1; }
+      if (elementId != "audio_recorder") valj_efb[indx].rec_watermark = 1;
     }
 
+  }
+
+  if (elementId == "email") {
+    setTimeout(() => {
+      efb_builder_maybe_warn_email_delivery();
+    }, 250);
   }
 
 }
@@ -3677,6 +3960,9 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
     el.addEventListener("change", (e) => { change_el_edit_Efb(el); })
   }
 
+  // The option markup above carries the desktop op_style column class;
+  // re-project when the mobile frame is open so the new option matches.
+  efbProjectMobileViewEfb();
 }
 
 const sort_obj_el_efb_ = () => {
@@ -4078,6 +4364,11 @@ fun_efb_add_el = (t, insertAfterEl) => {
 
   fub_shwBtns_efb();
 
+  // Mobile view on screen: project the mobile values onto the freshly added
+  // field(s). Idempotent over all fields, so multi-field drops (name/address)
+  // are covered too.
+  efbProjectMobileViewEfb();
+
   if (t == 'maps') {
     const indx = valj_efb.findIndex(x => x.id_ == rndm);
       setTimeout(() => {
@@ -4160,7 +4451,7 @@ funBTNAddOnsEFB=(val,v_required)=>{
     }
     return true;
   }
-
+  // console.log('efb_version', efb_version, 'v_required', v_required);
  if(efb_version>=v_required){
   if(check_ar_pr(val)==true){
     addons_btn_state_efb(val);
@@ -4173,9 +4464,9 @@ funBTNAddOnsEFB=(val,v_required)=>{
  }else{
 
   alert_message_efb(efb_var.text.error, efb_var.text.upDMsg,30,'warning');
-  setTimeout(() => {
+/*   setTimeout(() => {
     location.reload();
-  }, 3000);
+  }, 3000); */
  }
 }
 
@@ -4344,12 +4635,27 @@ fun_remove_condition_efb = (no , step_id)=>{
 }
 
 addons_btn_state_efb=(id)=>{
+    const button = document.getElementById(id);
+    if (!button) return;
 
+    if (!button.dataset.efbAddonButtonHtml) {
+      button.dataset.efbAddonButtonHtml = button.innerHTML;
+    }
     for (const el of document.querySelectorAll(".addons")) {
       el.classList.add('disabled')
     }
-    document.getElementById(id).innerHTML = `<i class="efb bi-hourglass-split mx-1"></i>`
+    button.innerHTML = `<i class="efb bi-hourglass-split mx-1"></i>`
+}
 
+addons_btn_reset_efb=(id)=>{
+    for (const el of document.querySelectorAll(".addons")) {
+      el.classList.remove('disabled')
+    }
+    const button = document.getElementById(id);
+    if (button && button.dataset.efbAddonButtonHtml) {
+      button.innerHTML = button.dataset.efbAddonButtonHtml;
+      delete button.dataset.efbAddonButtonHtml;
+    }
 }
 
 funRefreshPricesEfb=()=>{
@@ -4476,6 +4782,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }, false);
 
 function fun_switch_form_efb(el){
+  if (['mobileHideLabelEl', 'mobileHideDescriptionEl', 'globalMobileHideLabelEl'].includes(el.id) && !efbRequireMobileProEfb()) return false;
   r= el.id=="hiddenEl" ||  el.id=="disabledEl" ? efb_check_el_pro(el) :true;
 
   if(r==true) change_el_edit_Efb(el) ;
@@ -4580,6 +4887,37 @@ function efb_check_el_pro(el){
     }
   }
   return true;
+}
+
+function efbHasMobileProAccessEfb() {
+  const package_type = setting_emsFormBuilder.package_type != undefined ? Number(setting_emsFormBuilder.package_type) : 0;
+  return (efb_var.pro === true || efb_var.pro === 1 || efb_var.pro === '1') && package_type==1;
+}
+
+function efbRequireMobileProEfb(event) {
+  if (efbHasMobileProAccessEfb()) return true;
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  pro_show_efb(efb_var.text.youUseProElements || 1);
+  return false;
+}
+
+function efbToggleMobileVisibilityEfb(el, key) {
+  if (!efbRequireMobileProEfb()) return false;
+  const isGlobal = key === 'global_mobile_hflabel';
+  const index = isGlobal ? 0 : valj_efb.findIndex(item => item.dataId == el.dataset.id);
+  if (index === -1 || !valj_efb[index]) return false;
+
+  const enabled = !el.classList.contains('active');
+  el.classList.toggle('active', enabled);
+  el.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+  valj_efb[index][key] = enabled ? 1 : 0;
+
+  if (isGlobal) efbProjectCurrentViewEfb();
+  else efbApplyFieldViewEfb(valj_efb[index], typeof currentViewEfb === 'undefined' ? 'desktop' : currentViewEfb);
+  return false;
 }
 
 function colors_template_picker_efb(el){
@@ -4899,6 +5237,12 @@ store_form_efb =()=>{
           localStorage.setItem('efb_auto_save_form_id', form_ID_emsFormBuilder);
           localStorage.setItem('efb_auto_save_valj_efb', JSON.stringify(valj_efb));
 }
+
+clear_auto_save_efb =()=>{
+  localStorage.setItem('efb_auto_save', 0);
+  localStorage.removeItem('efb_auto_save_form_id');
+  localStorage.removeItem('efb_auto_save_valj_efb');
+}
 async function heartbeat_Emsfb() {
 
 call_beat = async () => {
@@ -4955,7 +5299,7 @@ call_beat = async () => {
           heartbeat_efb_active = false;
           return;
         }else{
-            await saveFormEfb(-1);
+            store_form_efb();
             heartbeat_efb_active = false;
             return;
         }
@@ -5241,6 +5585,11 @@ function addClickListenerToElementListEFB(element) {
       }
 
 function restore_auto_save_efb(){
+  // Only offer the auto-save restore prompt on the Create and Panel pages.
+  // Never show it on the Add-ons page or any add-on settings page.
+  const efb_page = new URLSearchParams(window.location.search).get('page');
+  if(efb_page !== 'Emsfb' && efb_page !== 'Emsfb_create') return;
+
   const auto_save = Number(localStorage.getItem('efb_auto_save')) === 1;
   if(auto_save==false) return;
 
@@ -5654,6 +6003,17 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
           ${ttip}
           <input type="${elementId}" class="efb  input-efb px-2 py-1 emsFormBuilder_v w-100  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_"  aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
+          ${desc}`
+      dataTag = elementId;
+      break;
+    case 'audio_recorder':
+    case 'video_recorder':
+    case 'screen_recorder':
+      ui = `
+       ${label}
+        <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
+          ${ttip}
+          ${typeof efbRecorderWidgetHtml =="function" ? efbRecorderWidgetHtml(rndm, valj_efb[iVJ], 0) : ''}
           ${desc}`
       dataTag = elementId;
       break;
@@ -6358,9 +6718,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
     const tagId = elementId == "firstName" || elementId == "lastName" || elementId == "address" || elementId == "address_line" || elementId == "postalcode" ? 'text' : elementId;
     const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'
-    const mobileColCls = getMobileColClass(valj_efb[iVJ]);
+    // Edit mode: no mobile col class in the markup - the view engine projects the
+    // active view onto the col-md-* channel (efbApplyFieldViewEfb). Preview mode:
+    // mirror the published frontend, which pairs col-md-* with a col-* xs class.
+    const mobileColCls = previewSate == true ? getMobileColClass(valj_efb[iVJ]) : '';
     newElement += `
-    ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row ${mobileColCls} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
+    ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
     <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]} ${mobileColCls}` : ` row`} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
@@ -6418,25 +6781,34 @@ const show_pro_message_for_elm = (i) =>{
 }
 
 const funSetPosElEfb = (dataId, position) => {
+  position = position === 'besie' ? 'beside' : position;
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   if (indx != -1) {
     valj_efb[indx].label_position = position
   }
+  // Desktop-channel DOM change: skip while the mobile view is on screen,
+  // the value is stored above and re-projected on the next view switch.
+  if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') return;
   if (valj_efb[indx].type != "stripe"  && valj_efb[indx].type != "html") get_position_col_el(dataId, true)
+  efbSyncResponsiveButtonGroupsEfb(dataId);
 }
 
 const funSetAlignElEfb = (dataId, align, element) => {
   const indx = dataId!='button_group_' && dataId!='Next_' ? valj_efb.findIndex(x => x.dataId == dataId) :0;
   if (indx == -1) { return }
+  // While the mobile view is on screen a field may show an inherited mobile
+  // value; only store the desktop value, the canvas is re-projected on switch.
+  const deskDomEfb = typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile';
   switch (element) {
     case 'label':
-      document.getElementById(`${valj_efb[indx].id_}_labG`).className = alignChangerEfb(document.getElementById(`${valj_efb[indx].id_}_labG`).className, align)
       valj_efb[indx].label_align = align
+      if (deskDomEfb) document.getElementById(`${valj_efb[indx].id_}_labG`).className = alignChangerEfb(document.getElementById(`${valj_efb[indx].id_}_labG`).className, align)
       break;
     case 'description':
+      valj_efb[indx].message_align = align
+      if (!deskDomEfb) break;
       const elm = document.getElementById(`${valj_efb[indx].id_}-des`)
       elm.className = alignChangerElEfb(elm.className, align)
-      valj_efb[indx].message_align = align
       if (align != 'justify-content-start' && elm.classList.contains('mx-4') == true) { elm.classList.remove('mx-4') }
       else if (align == 'justify-content-start' && elm.classList.contains('mx-4') == false) {
         elm.classList.add('mx-4')
@@ -6451,39 +6823,19 @@ const funSetAlignElEfb = (dataId, align, element) => {
       default:
         break;
   }
+  if (dataId != 'button_group_' && dataId != 'Next_') efbSyncResponsiveButtonGroupsEfb(dataId);
 }
 
 const funSetMobilePosElEfb = (dataId, position) => {
-  const indx = valj_efb.findIndex(x => x.dataId == dataId);
-  if (indx != -1) {
-    valj_efb[indx].mobile_label_position = position;
-  }
-  if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') {
-    applyMobileLabelPositionEfb(valj_efb[indx]);
-  }
+  if (!efbRequireMobileProEfb()) return;
+  efbSetViewPropEfb(dataId, 'label_position', position, 'mobile');
+  efbSyncResponsiveButtonGroupsEfb(dataId);
 }
 
 const funSetMobileAlignElEfb = (dataId, align, element) => {
-  const indx = dataId != 'button_group_' && dataId != 'Next_' ? valj_efb.findIndex(x => x.dataId == dataId) : 0;
-  if (indx == -1) { return }
-  const propName = element == 'label' ? 'mobile_label_align' : 'mobile_message_align';
-  valj_efb[indx][propName] = align;
-  if (typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile') {
-    switch (element) {
-      case 'label':
-        let labEl = document.getElementById(`${valj_efb[indx].id_}_labG`);
-        if (labEl) labEl.className = alignChangerEfb(labEl.className, align);
-        break;
-      case 'description':
-        let desEl = document.getElementById(`${valj_efb[indx].id_}-des`);
-        if (desEl) {
-          desEl.className = alignChangerElEfb(desEl.className, align);
-          if (align != 'justify-content-start' && desEl.classList.contains('mx-4')) { desEl.classList.remove('mx-4'); }
-          else if (align == 'justify-content-start' && !desEl.classList.contains('mx-4')) { desEl.classList.add('mx-4'); }
-        }
-        break;
-    }
-  }
+  if (!efbRequireMobileProEfb()) return;
+  efbSetViewPropEfb(dataId, element == 'label' ? 'label_align' : 'message_align', align, 'mobile');
+  efbSyncResponsiveButtonGroupsEfb(dataId);
 }
 
 const loadingShow_efb = (title) => {
@@ -6620,7 +6972,7 @@ async function fun_validation_efb() {
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
       let el =document.getElementById(`${valj_efb[row].id_}_-message`);
-      if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile'){
+      if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile' || valj_efb[row].type=='audio_recorder' || valj_efb[row].type=='video_recorder' || valj_efb[row].type=='screen_recorder'){
         let r=files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_);
         s = files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state)==0 || r==-1 ? -1 :1;
       }
@@ -6818,7 +7170,7 @@ function applyCheckedColorDirectEfb(parentId, color) {
         updateCheckedColorStyleEfb(input);
       });
     } catch (e) {
-      console.log('[EFB DEBUG] Selector error:', selector, e.message);
+      // console.log('[EFB DEBUG] Selector error:', selector, e.message);
     }
   });
 
@@ -7202,48 +7554,235 @@ function get_position_col_el(dataId, state) {
   return [parent_row, parent_col, label_col, input_col]
 }
 
-function applyMobileLabelPositionEfb(item) {
-  if (!item || !item.id_) return;
-  const pos = item.hasOwnProperty('mobile_label_position') ? item.mobile_label_position : (item.hasOwnProperty('label_position') ? item.label_position : 'up');
-  const parentEl = document.getElementById(item.id_);
-  const labelEl = document.getElementById(`${item.id_}_labG`);
-  const inputEl = document.getElementById(`${item.id_}-f`);
-  if (pos === 'up') {
-    if (parentEl && parentEl.classList.contains('row')) parentEl.classList.remove('row');
-    if (labelEl) { labelEl.className = colMdChangerEfb(labelEl.className, 'col-md-12'); }
-    if (inputEl) { inputEl.className = colMdChangerEfb(inputEl.className, 'col-md-12'); }
-  } else {
-    if (parentEl && !parentEl.classList.contains('row')) parentEl.classList.add('row');
-    if (labelEl) { labelEl.className = colMdChangerEfb(labelEl.className, 'col-md-4'); }
-    if (inputEl) { inputEl.className = colMdChangerEfb(inputEl.className, 'col-md-8'); }
+/* ============================================================================
+ * Responsive view engine (Desktop / Mobile builder preview)
+ * ----------------------------------------------------------------------------
+ * See docs/responsive-mobile-view.md for the full contract.
+ *
+ * The canvas is always rendered through the col-md-* class channel (the admin
+ * viewport is wide, so those rules are active even inside the narrow phone
+ * frame). switchViewEfb() re-renders every field and then *projects* the
+ * active view's values onto that channel via efbApplyFieldViewEfb().
+ *
+ * All programmatic changes to a responsive property - the settings UI today,
+ * AI prompt commands tomorrow - must go through efbSetViewPropEfb().
+ * ==========================================================================*/
+
+// Logical responsive property -> storage key on valj_efb items, per view.
+const efbViewPropMapEfb = {
+  desktop: {
+    size: 'size',
+    label_position: 'label_position',
+    label_text_size: 'label_text_size',
+    label_align: 'label_align',
+    message_align: 'message_align',
+    op_style: 'op_style'
+  },
+  mobile: {
+    size: 'mobile_size',
+    label_position: 'mobile_label_position',
+    label_text_size: 'mobile_label_text_size',
+    label_align: 'mobile_label_align',
+    message_align: 'mobile_message_align',
+    op_style: 'mobile_op_style'
+  }
+};
+
+// Fallbacks when a mobile_* key is absent. 'inherit' = use the desktop value;
+// fixed values mirror what the published frontend does below 768px.
+const efbMobilePropDefaultsEfb = {
+  size: 100,
+  label_position: 'up',
+  label_text_size: 'inherit',
+  label_align: 'inherit',
+  message_align: 'inherit',
+  op_style: '1'
+};
+
+// Effective value of a responsive property for a view (fallbacks included).
+function efbGetViewPropEfb(item, propKey, view) {
+  view = view === 'mobile' ? 'mobile' : 'desktop';
+  if (!item || !efbViewPropMapEfb[view].hasOwnProperty(propKey)) return undefined;
+  const storeKey = efbViewPropMapEfb[view][propKey];
+  if ((view !== 'mobile' || efbHasMobileProAccessEfb()) && item.hasOwnProperty(storeKey) && item[storeKey] !== '' && item[storeKey] !== undefined && item[storeKey] !== null) {
+    return item[storeKey];
+  }
+  if (view === 'mobile') {
+    const dflt = efbMobilePropDefaultsEfb[propKey];
+    return dflt === 'inherit' ? item[efbViewPropMapEfb.desktop[propKey]] : dflt;
+  }
+  return undefined;
+}
+
+// size percentage -> builder col-md-* class (canvas channel).
+function efbColFromSizeEfb(size) {
+  switch (Number(size)) {
+    case 8:  return 'col-md-1';
+    case 17: return 'col-md-2';
+    case 25: return 'col-md-3';
+    case 33: return 'col-md-4';
+    case 42: return 'col-md-5';
+    case 50: return 'col-md-6';
+    case 58: return 'col-md-7';
+    case 67: return 'col-md-8';
+    case 75: return 'col-md-9';
+    case 80:
+    case 83: return 'col-md-10';
+    case 92: return 'col-md-11';
+    case 100:
+    default: return 'col-md-12';
   }
 }
 
-function applyDesktopLabelPositionEfb(item) {
-  if (!item || !item.id_) return;
-  const parentEl = document.getElementById(item.id_);
-  const labelEl = document.getElementById(`${item.id_}_labG`);
-  const inputEl = document.getElementById(`${item.id_}-f`);
-  const pos = item.hasOwnProperty('label_position') ? item.label_position : 'up';
-  if (pos === 'up') {
-    if (parentEl && parentEl.classList.contains('row')) parentEl.classList.remove('row');
+// Option columns (radio/checkbox family): mirrors the "optnsStyleEl" handler.
+// Only runs when the item actually owns an op_style prop, so option-less
+// containers (e.g. select dropdown internals) are never touched.
+function efbApplyOpStyleViewEfb(item, view) {
+  if (!item || (!item.hasOwnProperty('op_style') && !item.hasOwnProperty('mobile_op_style'))) return;
+  const cont = document.getElementById(`${item.id_}_options`);
+  if (!cont) return;
+  const style = String(efbGetViewPropEfb(item, 'op_style', view) || '1');
+  const checks = document.querySelectorAll(`[data-parent='${item.id_}'].form-check`);
+  if (style != '1') {
+    if (!cont.classList.contains('row')) { cont.className += ' row col-md-12'; }
+    const cls = style == '2' ? 'col-md-6' : 'col-md-4';
+    for (let v of checks) {
+      v.className = colMdRemoveEfb(v.className);
+      v.classList.add(cls);
+    }
   } else {
-    if (parentEl && !parentEl.classList.contains('row')) parentEl.classList.add('row');
+    if (cont.classList.contains('row')) {
+      cont.classList.remove('row');
+      cont.classList.remove('col-md-12');
+    }
+    for (let v of checks) { v.className = colMdRemoveEfb(v.className); }
   }
-  if (labelEl) { labelEl.className = colSmChangerEfb(labelEl.className, 'col-sm-12'); }
-  if (inputEl) { inputEl.className = colSmChangerEfb(inputEl.className, 'col-sm-12'); }
-  if (item.type != "stripe" && item.type != "html") get_position_col_el(item.dataId, true);
 }
 
+// Projects every responsive property of one field onto the live canvas DOM.
+// Desktop width/label-position reuse get_position_col_el (variable label/input
+// split per size); mobile uses a fixed 4/8 split like the published frontend.
+function efbApplyFieldViewEfb(item, view) {
+  if (!item || !item.id_) return;
+  view = view === 'mobile' ? 'mobile' : 'desktop';
+
+  const parentEl = document.querySelector(`setion[id="${item.id_}"]`) || document.getElementById(item.id_);
+  const labelEl = document.getElementById(`${item.id_}_labG`);
+  const inputEl = document.getElementById(`${item.id_}-f`);
+  if (!parentEl) return;
+
+  if (view === 'desktop') {
+    if (item.type != 'stripe' && item.type != 'html') get_position_col_el(item.dataId, true);
+  } else {
+    parentEl.className = colMdChangerEfb(parentEl.className, efbColFromSizeEfb(efbGetViewPropEfb(item, 'size', 'mobile')));
+    const mpos = efbGetViewPropEfb(item, 'label_position', 'mobile');
+    if (labelEl) labelEl.className = colMdChangerEfb(labelEl.className, mpos === 'beside' ? 'col-md-4' : 'col-md-12');
+    if (inputEl) inputEl.className = colMdChangerEfb(inputEl.className, mpos === 'beside' ? 'col-md-8' : 'col-md-12');
+  }
+
+  const fSize = efbGetViewPropEfb(item, 'label_text_size', view);
+  if (fSize) {
+    const labSpan = document.getElementById(`${item.id_}_lab`);
+    if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, fSize);
+  }
+
+  const lAlign = efbGetViewPropEfb(item, 'label_align', view);
+  if (lAlign && labelEl) labelEl.className = alignChangerEfb(labelEl.className, lAlign);
+
+  const mAlign = efbGetViewPropEfb(item, 'message_align', view);
+  const desEl = document.getElementById(`${item.id_}-des`);
+  if (mAlign && desEl) {
+    desEl.className = alignChangerElEfb(desEl.className, mAlign);
+    if (mAlign != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
+    else if (mAlign == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
+  }
+
+  const mobileView = view === 'mobile';
+  const mobilePro = efbHasMobileProAccessEfb();
+  const globalHideLabel = mobilePro && valj_efb[0] && Number(valj_efb[0].global_mobile_hflabel || 0) === 1;
+  if (labelEl) labelEl.classList.toggle('efb-mobile-visibility-hidden', mobileView && mobilePro && (globalHideLabel || Number(item.mobile_hflabel || 0) === 1));
+  if (desEl) desEl.classList.toggle('efb-mobile-visibility-hidden', mobileView && mobilePro && Number(item.mobile_hfdescription || 0) === 1);
+
+  efbApplyOpStyleViewEfb(item, view);
+}
+
+// Single entry point for changing a responsive property (UI handlers and
+// future AI commands). Updates valj_efb and refreshes the canvas only when
+// the change belongs to the view currently on screen.
+function efbSetViewPropEfb(dataId, propKey, value, view) {
+  view = view === 'mobile' ? 'mobile' : 'desktop';
+  if (view === 'mobile' && !efbHasMobileProAccessEfb()) return false;
+  if (!efbViewPropMapEfb[view].hasOwnProperty(propKey)) return false;
+  const indx = valj_efb.findIndex(x => x.dataId == dataId);
+  if (indx === -1) return false;
+  valj_efb[indx][efbViewPropMapEfb[view][propKey]] = value;
+  if (typeof currentViewEfb !== 'undefined' && currentViewEfb === view) {
+    efbApplyFieldViewEfb(valj_efb[indx], view);
+  }
+  return true;
+}
+
+// Types that never take part in the per-field layout projection.
+// NOTE: step items have type 'step' (singular) in valj_efb.
+function efbIsLayoutFieldEfb(item) {
+  if (!item || !item.hasOwnProperty('type')) return false;
+  return ['form', 'step', 'option', 'r_matrix', 'html', 'register', 'login', 'subscribe', 'survey', 'payment', 'smartForm'].indexOf(item.type) === -1;
+}
+
+// Re-projects the mobile values onto every field on the canvas. No-op in
+// desktop view. EVERY flow that (re)builds #dropZoneEFB markup - editFormEfb,
+// switchViewEfb, fun_efb_add_el, duplicate/undo paths - must call this after
+// rendering, because the markup itself is always desktop-channel.
+function efbProjectMobileViewEfb() {
+  if (typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile') return;
+  for (let i = 1; i < valj_efb.length; i++) {
+    if (efbIsLayoutFieldEfb(valj_efb[i]) && valj_efb[i].type != 'stripe') {
+      try { efbApplyFieldViewEfb(valj_efb[i], 'mobile'); } catch (error) {}
+    }
+  }
+}
+
+function efbProjectCurrentViewEfb() {
+  const view = typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile' ? 'mobile' : 'desktop';
+  for (let i = 1; i < valj_efb.length; i++) {
+    if (efbIsLayoutFieldEfb(valj_efb[i])) efbApplyFieldViewEfb(valj_efb[i], view);
+  }
+}
+
+function efbSyncResponsiveButtonGroupsEfb(dataId) {
+  const item = valj_efb.find(x => x.dataId == dataId);
+  if (!item) return;
+  document.querySelectorAll(`.btn-group-toggle[data-id="${dataId}"]`).forEach(group => {
+    let selected = null;
+    if (group.id === 'mobileLabelPostionEl') selected = item.mobile_label_position || 'up';
+    else if (group.id === 'labelPostionEl') selected = (item.label_position === 'besie' ? 'beside' : item.label_position) || 'up';
+    else if (group.id === 'MobileElementAlignEl') selected = group.dataset.side === 'label' ? (item.mobile_label_align || item.label_align) : (item.mobile_message_align || item.message_align);
+    else if (group.id === 'ElementAlignEl') selected = group.dataset.side === 'label' ? item.label_align : item.message_align;
+    group.querySelectorAll('label').forEach(label => {
+      const input = label.querySelector('input[type="radio"]');
+      if (!input) return;
+      const alignMap = group.dataset.side === 'label' ? {left:'txt-left', center:'txt-center', right:'txt-right'} : {left:'justify-content-start', center:'justify-content-center', right:'justify-content-end'};
+      const value = group.id.indexOf('Align') !== -1 ? alignMap[input.value] : input.value;
+      const active = value === selected;
+      label.classList.toggle('active', active);
+      input.checked = active;
+      input.setAttribute('aria-checked', active ? 'true' : 'false');
+    });
+  });
+}
+
+// Destructive re-render of #dropZoneEFB with the requested view.
+// The render loop is an exact mirror of editFormEfb(); keep them in sync.
 function switchViewEfb(view) {
-  currentViewEfb = view;
+  view = view === 'mobile' ? 'mobile' : 'desktop';
   const dragBox = document.getElementById('dragBoxWrapperEfb');
   const dropZoneEFB = document.getElementById('dropZoneEFB');
   const desktopBtn = document.getElementById('desktopViewBtnEfb');
   const mobileBtn = document.getElementById('mobileViewBtnEfb');
   if (!dragBox || !dropZoneEFB || !desktopBtn || !mobileBtn) return;
+  const previousView = currentViewEfb;
+  currentViewEfb = view;
 
-  // Update button active state
   if (view === 'mobile') {
     dragBox.classList.add('efb-mobile-view-efb');
     desktopBtn.classList.remove('active');
@@ -7254,7 +7793,12 @@ function switchViewEfb(view) {
     desktopBtn.classList.add('active');
   }
 
-  // Show loading, then re-render all fields
+  updateSideBoxViewEfb(view);
+
+  // Nothing dropped yet: keep the drag&drop placeholder, no re-render needed.
+  if (valj_efb.length < 2) return;
+  if (previousView === view) return;
+
   dropZoneEFB.innerHTML = efbLoadingCard('', 4);
   let p = calPLenEfb(valj_efb.length);
   const len = (valj_efb.length) * p || 10;
@@ -7281,125 +7825,49 @@ function switchViewEfb(view) {
 
     fub_shwBtns_efb();
 
-    // Apply view-specific layout after fields are rendered
-    if (view === 'mobile') {
-      for (let i = 1; i < valj_efb.length; i++) {
-        if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
-          get_position_col_mobile_el(valj_efb[i].dataId, true);
-          const mLabelTextSize = valj_efb[i].hasOwnProperty('mobile_label_text_size') ? valj_efb[i].mobile_label_text_size : valj_efb[i].label_text_size;
-          if (mLabelTextSize) {
-            let labSpan = document.getElementById(`${valj_efb[i].id_}_lab`);
-            if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, mLabelTextSize);
-          }
-          const mLabelAlign = valj_efb[i].hasOwnProperty('mobile_label_align') ? valj_efb[i].mobile_label_align : valj_efb[i].label_align;
-          if (mLabelAlign) {
-            let labG = document.getElementById(`${valj_efb[i].id_}_labG`);
-            if (labG) labG.className = alignChangerEfb(labG.className, mLabelAlign);
-          }
-          const mMsgAlign = valj_efb[i].hasOwnProperty('mobile_message_align') ? valj_efb[i].mobile_message_align : valj_efb[i].message_align;
-          if (mMsgAlign) {
-            let desEl = document.getElementById(`${valj_efb[i].id_}-des`);
-            if (desEl) {
-              desEl.className = alignChangerElEfb(desEl.className, mMsgAlign);
-              if (mMsgAlign != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
-              else if (mMsgAlign == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
-            }
-          }
-          applyMobileLabelPositionEfb(valj_efb[i]);
-        }
-      }
-    } else {
-      for (let i = 1; i < valj_efb.length; i++) {
-        if (valj_efb[i].type !== 'form' && valj_efb[i].type !== 'option' && valj_efb[i].type !== 'steps') {
-          if (valj_efb[i].hasOwnProperty('label_text_size')) {
-            let labSpan = document.getElementById(`${valj_efb[i].id_}_lab`);
-            if (labSpan) labSpan.className = fontSizeChangerEfb(labSpan.className, valj_efb[i].label_text_size);
-          }
-          if (valj_efb[i].hasOwnProperty('label_align')) {
-            let labG = document.getElementById(`${valj_efb[i].id_}_labG`);
-            if (labG) labG.className = alignChangerEfb(labG.className, valj_efb[i].label_align);
-          }
-          if (valj_efb[i].hasOwnProperty('message_align')) {
-            let desEl = document.getElementById(`${valj_efb[i].id_}-des`);
-            if (desEl) {
-              desEl.className = alignChangerElEfb(desEl.className, valj_efb[i].message_align);
-              if (valj_efb[i].message_align != 'justify-content-start' && desEl.classList.contains('mx-4')) desEl.classList.remove('mx-4');
-              else if (valj_efb[i].message_align == 'justify-content-start' && !desEl.classList.contains('mx-4')) desEl.classList.add('mx-4');
-            }
-          }
-        }
-      }
-    }
-
-    updateSideBoxViewEfb(view);
+    // Projection pass AFTER the loop: `innerHTML +=` re-serialises earlier
+    // nodes, so per-field class changes are only safe once the loop is done.
+    // (funSetPosElEfb above survives it because class attributes serialise.)
+    efbProjectMobileViewEfb();
   }, len);
 }
 
 function updateSideBoxViewEfb(view) {
   const deskEls = document.querySelectorAll('.efb-desktop-settings-efb');
   const mobEls = document.querySelectorAll('.efb-mobile-settings-efb');
+  const mobileShells = document.querySelectorAll('.efb-mobile-pro-control--field');
   if (view === 'mobile') {
     deskEls.forEach(el => el.classList.add('d-none'));
     mobEls.forEach(el => el.classList.remove('d-none'));
+    mobileShells.forEach(el => el.classList.remove('d-none'));
   } else {
     deskEls.forEach(el => el.classList.remove('d-none'));
     mobEls.forEach(el => el.classList.add('d-none'));
+    mobileShells.forEach(el => el.classList.add('d-none'));
   }
+  document.querySelectorAll('.btn-group-toggle[data-id]').forEach(group => efbSyncResponsiveButtonGroupsEfb(group.dataset.id));
 }
 
+// Frontend-mirror xs class (col-*) used only in the builder's preview markup
+// (previewSate == true) so the admin preview behaves like the published form.
+// Mobile width defaults to 100 - it intentionally does NOT inherit `size`.
 function getMobileColClass(item) {
-  const ms = item && item.hasOwnProperty('mobile_size') ? Number(item.mobile_size) : (item && item.hasOwnProperty('size') ? Number(item.size) : 100);
-  switch(ms) {
-    case 8:  return 'col-sm-1';
-    case 17: return 'col-sm-2';
-    case 25: return 'col-sm-3';
-    case 33: return 'col-sm-4';
-    case 42: return 'col-sm-5';
-    case 50: return 'col-sm-6';
-    case 58: return 'col-sm-7';
-    case 67: return 'col-sm-8';
-    case 75: return 'col-sm-9';
-    case 83: return 'col-sm-10';
-    case 92: return 'col-sm-11';
-    case 100: default: return 'col-sm-12';
-  }
+  const ms = item && item.hasOwnProperty('mobile_size') ? Number(item.mobile_size) : 100;
+  return efbColFromSizeEfb(ms).replace('col-md-', 'col-');
 }
 
+// Back-compat wrapper (older handlers call this): projects the mobile width /
+// label position of one field onto the canvas. Returns builder-channel classes.
 function get_position_col_mobile_el(dataId, state) {
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   if (indx === -1) return ['', 'col-md-12', 'col-md-12', 'col-md-12'];
-  let el_parent = document.querySelector(`setion[id="${valj_efb[indx].id_}"]`) || document.getElementById(valj_efb[indx].id_) || "null";
-  let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`) ?? "null";
-  let el_input = document.getElementById(`${valj_efb[indx].id_}-f`) ?? "null";
-  let parent_col = 'col-md-12';
-  let label_col = 'col-md-12';
-  let input_col = 'col-md-12';
-  let parent_row = '';
-  const msize = valj_efb[indx].hasOwnProperty("mobile_size") ? Number(valj_efb[indx].mobile_size) : (valj_efb[indx].hasOwnProperty("size") ? Number(valj_efb[indx].size) : 100);
-  switch (msize) {
-    case 100: parent_col = 'col-md-12'; break;
-    case 92:  parent_col = 'col-md-11'; break;
-    case 83:  parent_col = 'col-md-10'; break;
-    case 75:  parent_col = 'col-md-9';  break;
-    case 67:  parent_col = 'col-md-8';  break;
-    case 58:  parent_col = 'col-md-7';  break;
-    case 50:  parent_col = 'col-md-6';  break;
-    case 42:  parent_col = 'col-md-5';  break;
-    case 33:  parent_col = 'col-md-4';  break;
-    case 25:  parent_col = 'col-md-3';  break;
-    case 17:  parent_col = 'col-md-2';  break;
-    case 8:   parent_col = 'col-md-1';  break;
-  }
-  const mpos = valj_efb[indx].hasOwnProperty('mobile_label_position') ? valj_efb[indx].mobile_label_position : valj_efb[indx].label_position;
-  if (mpos != "up") {
-    parent_row = 'row';
-  }
-  if (state == true) {
-    el_parent.className = colMdChangerEfb(el_parent.className, parent_col);
-    if (el_input != "null") el_input.className = colMdChangerEfb(el_input.className, input_col);
-    if (el_label != "null") el_label.className = colMdChangerEfb(el_label.className, label_col);
-  }
-  return [parent_row, parent_col, label_col, input_col];
+  const item = valj_efb[indx];
+  const parent_col = efbColFromSizeEfb(efbGetViewPropEfb(item, 'size', 'mobile'));
+  const mpos = efbGetViewPropEfb(item, 'label_position', 'mobile');
+  const label_col = mpos === 'beside' ? 'col-md-4' : 'col-md-12';
+  const input_col = mpos === 'beside' ? 'col-md-8' : 'col-md-12';
+  if (state == true) efbApplyFieldViewEfb(item, 'mobile');
+  return [mpos === 'beside' ? 'row' : '', parent_col, label_col, input_col];
 }
 
 fun_captcha_load_efb = ()=>{
@@ -7740,12 +8208,11 @@ function previewFormEfb(state) {
   const t = valj_efb[0].steps == 1 ? 0 : 1;
   if (state == 'pc') {
     document.getElementById('dropZoneEFB').innerHTML = '';
-    content = `<!-- find xxxx -->` + content;
+    content = efb_builder_wrap_preview_logic_body_efb(`<!-- find xxxx -->` + content, add_buttons_zone_efb(t, 'preview'));
     show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
-    add_buttons_zone_efb(t, 'settingModalEfb-body')
   } else if (state == 'pre') {
+    content = efb_builder_wrap_preview_logic_body_efb(content, add_buttons_zone_efb(t, 'preview'));
     show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
-    add_buttons_zone_efb(t, 'settingModalEfb-body')
   } else if (state == "mobile") {
     const frame = `
         <div class="efb smartphone-efb">
@@ -7923,7 +8390,14 @@ function previewFormEfb(state) {
     })
   } catch {
   }
-  if (state != 'run') (valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true) ? logic_handle_navbtn_efb(valj_efb[0].steps, 'pc'):  handle_navbtn_efb(valj_efb[0].steps, 'pc')
+  if (state != 'run') {
+    if (valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true && typeof logic_handle_navbtn_efb === 'function') {
+      logic_handle_navbtn_efb(valj_efb[0].steps, 'pc');
+    } else {
+      handle_navbtn_efb(valj_efb[0].steps, 'pc');
+    }
+    efb_builder_init_logic_preview_efb();
+  }
   if (state == 'run') {
     sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';
     createStepsOfPublic()
@@ -7958,4 +8432,43 @@ function previewFormEfb(state) {
     }, 1000);
   }
   }
+}
+
+function efb_builder_preview_form_id_efb() {
+  const id = Number(form_ID_emsFormBuilder);
+  return Number.isFinite(id) && id > 0 ? id : 0;
+}
+
+function efb_builder_prepare_logic_preview_efb() {
+  if (!Array.isArray(valj_efb) || !valj_efb[0]) return;
+  const formId = efb_builder_preview_form_id_efb();
+  window.valj_efb_new = [{
+    id: formId,
+    type: valj_efb[0].type || form_type_emsFormBuilder || 'form',
+    form_structer: valj_efb
+  }];
+  window.form_ID_emsFormBuilder = formId;
+}
+
+function efb_builder_wrap_preview_logic_body_efb(content, buttons) {
+  const formId = efb_builder_preview_form_id_efb();
+  efb_builder_prepare_logic_preview_efb();
+  return `
+    <div class="efb mx-0 px-0" id="body_efb_${formId}" data-formid="${formId}" data-currentstep="1" data-steps="${valj_efb[0].steps}">
+      <form id="efbform" class="mx-0 px-0 efb">${content}${buttons || ''}</form>
+    </div>
+  `;
+}
+
+function efb_builder_init_logic_preview_efb() {
+  if (!Array.isArray(valj_efb) || !valj_efb[0]) return;
+  const hasRules = Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0;
+  const hasLegacyLogic = valj_efb[0].logic == true || valj_efb[0].logic == 1 || valj_efb[0].logic == '1';
+  if (!hasRules && !hasLegacyLogic) return;
+  const runtime = window.efb_logic_runtime || window.EFBConditionalLogic;
+  if (!runtime) return;
+  const formId = efb_builder_preview_form_id_efb();
+  efb_builder_prepare_logic_preview_efb();
+  if (typeof runtime.init === 'function') runtime.init(formId);
+  if (typeof runtime.evaluate === 'function') runtime.evaluate(formId);
 }

@@ -70,7 +70,22 @@ class Create {
 
 		$pro = $efbFunction->is_efb_pro(1);
 		$efbFunction->setting_version_efb_update($settings, $pro, true);
-		$download_addons = null;
+		$addon_recovery = $efbFunction->recover_missing_addons_efb( $settings, 'create' );
+		if ( ! empty( $addon_recovery['recovered'] ) ) {
+			echo $efbFunction->render_addon_recovery_reload_ui_efb(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			return;
+		}
+		$addon_health = $efbFunction->get_addon_local_health_efb( $settings );
+		$download_addons = ! empty( $addon_health['missing'] );
+
+		// After a plugin update, do not load the builder until missing add-on
+		// files have been reinstalled — show a blocking recovery screen instead.
+		$addon_recovery_state = $efbFunction->addon_recovery_state_efb( $settings );
+		if ( 'block' === $addon_recovery_state ) {
+			echo $efbFunction->render_addon_recovery_ui_efb( 'block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			return;
+		}
+
 		if(isset($settings->AdnPAP) && $settings->AdnPAP==1){
 			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
 				$download_addons = true;
@@ -131,12 +146,11 @@ class Create {
 			}
 		}
 
-		if($download_addons === true){
-			 print $efbFunction->update_message_admin_side_efb();
-			 $efbFunction->flush_addon_wait_message_efb();
-			 $efbFunction->download_all_addons_efb();
-			return;
-		}
+		$is_persian_locale = get_locale() === 'fa_IR';
+		$renew_required = !$is_persian_locale && (int) get_option('emsfb_addons_renew_required', 0) !== 0;
+		$download_backoff = !$is_persian_locale && (int) get_option('emsfb_addons_dl_failures', 0) >= 3;
+		// Missing files have already been recovered above in this request. If that
+		// failed, the recovery UI below shows the exact cause and a retry button.
 	?>
 	<!-- new code ddd -->
 	<style>
@@ -161,6 +175,9 @@ class Create {
 				</script>
 				<?php echo $noti_pro; ?>
 			<div id="alert_efb" class="efb mx-5"></div>
+			<?php if ( 'inline' === $addon_recovery_state ) : ?>
+				<?php echo $efbFunction->render_addon_recovery_ui_efb( 'inline' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php endif; ?>
 			<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 							<div class="efb modal-content efb " id="settingModalEfb-sections">
@@ -222,10 +239,6 @@ class Create {
 		wp_enqueue_script('intlTelInput-js');
 		wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('intlTelInput-css');
-		if( false){
-			wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);
-			wp_enqueue_script('logic-efb');
-		}
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 		"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
@@ -258,7 +271,12 @@ class Create {
 			}
 		$plugins['cache'] =$efbFunction->check_for_active_plugins_cache();
 		$location ='';
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+		wp_register_script('efb-recorder-js', EMSFB_PLUGIN_URL . 'public/assets/js/recorder-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+		wp_enqueue_script('efb-recorder-js');
+		wp_register_style('efb-recorder-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/recorder-efb.css', array(), EMSFB_PLUGIN_VERSION);
+		wp_enqueue_style('efb-recorder-css');
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js', array('jquery','efb-recorder-js'), EMSFB_PLUGIN_VERSION, true);
+		$email_health = $this->get_email_health_status_for_builder();
 		$efb_var_data = apply_filters('efb_admin_localize_vars', array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'nonce'=> wp_create_nonce("wp_rest"),
@@ -283,21 +301,63 @@ class Create {
 			'setting'=>$settings,
 			'colors'=>$colors,
 			'zone_area'=>CDN_ZONE_AREA,
-			'plugins'=>$plugins
+			'plugins'=>$plugins,
+			'emailHealth'=>$email_health,
+			// Hosting upload ceiling in MB - the builder warns when a field's
+			// max file size is configured above it (uploads would fail).
+			'upload_max'=>(int) floor(wp_max_upload_size() / MB_IN_BYTES)
 		), 'create');
 		wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
 		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', array('jquery','efb-recorder-js'), EMSFB_PLUGIN_VERSION, true);
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("wp_rest"),
 			'check' => 1		));
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 
-		wp_enqueue_style('efb-conditional-logic-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/conditional-logic-efb.css', array(), EMSFB_PLUGIN_VERSION);
-		wp_enqueue_script('efb-conditional-logic-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/conditional-logic-efb.js', array('Emsfb-admin-js'), EMSFB_PLUGIN_VERSION, true);
+		if ( isset( $addons['AdnSMF'] ) && (int) $addons['AdnSMF'] >= 1 ) {
+			wp_enqueue_style('efb-conditional-logic-css', EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/admin/css/conditional-logic-efb.css', array(), EMSFB_PLUGIN_VERSION);
+			wp_enqueue_script('efb-conditional-logic-js', EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/admin/js/conditional-logic-efb.js', array('Emsfb-admin-js'), EMSFB_PLUGIN_VERSION, true);
+			wp_enqueue_script('efb-conditional-logic-preview-js', EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/public/js/conditional-logic-efb.js', array('Emsfb-core-js'), EMSFB_PLUGIN_VERSION, true);
+		}
+	}
+	private function get_email_health_status_for_builder() {
+		$status = get_option('emsfb_email_status', false);
+		$score = null;
+
+		if (is_array($status)) {
+			$score = $this->extract_email_score_from_status($status);
+		}
+
+		return array(
+			'score' => $score,
+			'threshold' => 75,
+		);
+	}
+	private function extract_email_score_from_status($value) {
+		if (!is_array($value)) {
+			return null;
+		}
+
+		foreach (array('score', 'spam_score', 'spamScore') as $key) {
+			if (isset($value[$key]) && is_numeric($value[$key])) {
+				return (float) $value[$key];
+			}
+		}
+
+		foreach ($value as $item) {
+			if (is_array($item)) {
+				$score = $this->extract_email_score_from_status($item);
+				if ($score !== null) {
+					return $score;
+				}
+			}
+		}
+
+		return null;
 	}
 	public function fun_Emsfb_creator()
 	{
@@ -403,7 +463,7 @@ class Create {
         foreach($it as $path) {
             if (preg_match("/\bbootstrap+.+.css+/i", $path))
             {
-                $f = file_get_contents($path);
+                $f = emsfb_read_file_efb($path);
                 if(preg_match("/col-md-12/i", $f)){
                     $s= true;
                     break;

@@ -42,7 +42,7 @@ function onInputEventEFB(e) {
 function filterTable_efb(row) {
     var text = row.textContent.toLowerCase();
     var val = inputSearch_efb.value.toLowerCase();
-    row.style.display = text.indexOf(val) === -1 ? 'none' : 'table-row';
+    row.style.display = text.indexOf(val) === -1 ? 'none' : '';
 }
 
 function FunSearchTableEfb(dataSetId) {

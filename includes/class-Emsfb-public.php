@@ -20,6 +20,7 @@ class _Public {
 	public $efb_uid  ;
 	public $value_forms =[];
 	private $form_cache = [];
+	private $addon_recovery_transition_rendered = false;
 
 	public function __construct() {
 		global $wpdb;
@@ -72,9 +73,7 @@ class _Public {
 
 			register_rest_route('Emsfb/v1','nonce/refresh', [
 				'methods' => 'GET',
-				'callback' => function() {
-					return new \WP_REST_Response(['nonce' => wp_create_nonce('wp_rest')], 200);
-				},
+				'callback' => [$this, 'efb_nonce_refresh_api'],
 				'permission_callback' => '__return_true',
 			]);
 
@@ -154,6 +153,46 @@ public function check_nonce_permission_efb($request) {
 
 	return true;
 }
+
+	/**
+	 * REST callback for Emsfb/v1/nonce/refresh.
+	 *
+	 * A form left open past the wp_rest nonce lifetime (12-24h) would otherwise
+	 * fail to submit; the frontend transparently fetches a fresh nonce here and
+	 * retries. To avoid handing a valid CSRF token to any anonymous requester,
+	 * this requires proof of a live form session:
+	 *   - a logged-in user (for whom the nonce is only a CSRF token), OR
+	 *   - a valid, non-expired session id (sid) matching an active emsfb_stts_ row.
+	 * On success the session is "touched" (sliding extension, absolutely capped)
+	 * so a genuinely open form keeps working without repeated 403s.
+	 */
+	public function efb_nonce_refresh_api() {
+
+		if ( is_user_logged_in() ) {
+			return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+		}
+
+		$sid = isset( $_SERVER['HTTP_SID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SID'] ) ) : '';
+		$fid = isset( $_SERVER['HTTP_FORM_ID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_FORM_ID'] ) ) : '';
+
+		if ( $sid === '' ) {
+			return new \WP_Error( 'rest_forbidden', __( 'Invalid or expired session', 'easy-form-builder' ), array( 'status' => 403 ) );
+		}
+
+		if ( ! $this->efbFunction ) {
+			$this->efbFunction = get_efbFunction();
+		}
+
+		if ( ! $this->efbFunction->efb_code_validate_select( $sid, $fid ) ) {
+			return new \WP_Error( 'rest_forbidden', __( 'Invalid or expired session', 'easy-form-builder' ), array( 'status' => 403 ) );
+		}
+
+		if ( method_exists( $this->efbFunction, 'efb_code_touch_session' ) ) {
+			$this->efbFunction->efb_code_touch_session( $sid, $fid );
+		}
+
+		return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+	}
 
 	public function init_elementor_compatibility() {
 
@@ -511,6 +550,23 @@ public function check_nonce_permission_efb($request) {
 			$state="form";
 			$rgister_captcha_url = false;
 			$this->efbFunction = get_efbFunction();
+			$addon_recovery = $this->efbFunction->recover_missing_addons_efb( null, 'public_form' );
+			if ( ! empty( $addon_recovery['recovered'] ) ) {
+				if ( $this->addon_recovery_transition_rendered ) {
+					return '';
+				}
+				$this->addon_recovery_transition_rendered = true;
+				return $this->efbFunction->render_addon_recovery_reload_ui_efb( true );
+			}
+			if ( empty( $addon_recovery['success'] ) ) {
+				// Do not render a partly functional form. The administrator gets the
+				// precise diagnostics in the recovery UI; visitors get a safe message.
+				if ( $this->addon_recovery_transition_rendered ) {
+					return '';
+				}
+				$this->addon_recovery_transition_rendered = true;
+				return $this->efbFunction->render_addon_recovery_public_error_ui_efb();
+			}
 			if(isset($_GET['track'])){
 				$state_form =  sanitize_text_field(wp_unslash($_GET['track']) );
 				$state="track";
@@ -651,9 +707,12 @@ public function check_nonce_permission_efb($request) {
 			"enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue",
 			"name","latitude","longitude","previous","next","invalidEmail","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork",
 			"aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","createdBy","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation',
-			'snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc','fillrequiredfields'];
+			'snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc','fillrequiredfields',
+			'audio_recorder','video_recorder','screen_recorder','recStart','recStop','recPause','recResume','recRedo','recPlay','recReady','recRecording','recPaused','recReadyToSubmit',
+			'recQuality','recDuration','recQualityLow','recQualityStandard','recQualityHigh','recQuality480','recQuality720','recQuality1080','recPermissionDenied','recNotSupported','recMaxDurationReached','recWatermark','recTapToStart',
+			'recDownload','recNeedsHttps','recScreenNotSupported'];
 
-			$this->public_scripts_and_css_head('');
+			$this->public_scripts_and_css_head('', isset($value_form_data->form_structer) ? $value_form_data->form_structer : null);
 
 			$state="";
 
@@ -720,7 +779,6 @@ public function check_nonce_permission_efb($request) {
 
 				$icons_ = array_unique($iconsd);
 
-
 					foreach($iconsd as $icon){
 						$iconst_html_preload .= "<i class='bi $icon'></i>";
 					}
@@ -784,8 +842,7 @@ public function check_nonce_permission_efb($request) {
 						$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
 						$r = $this->setting;
 						if(gettype($r)=="string"){
-							$setting =str_replace('\\', '', $r);
-							$setting =json_decode($setting);
+							$setting = $this->decode_settings_json_efb( $r );
 
 						} elseif ( is_object( $r ) ) {
 							$setting = $r;
@@ -793,8 +850,8 @@ public function check_nonce_permission_efb($request) {
 							$setting = (object) $r;
 						}
 						if ( ! is_object( $setting ) ) {
-							$raw_setting = get_setting_Emsfb('raw');
-							$setting = is_string( $raw_setting ) ? json_decode( str_replace( '\\', '', $raw_setting ) ) : null;
+							$decoded_setting = get_setting_Emsfb('decoded');
+							$setting = is_object( $decoded_setting ) ? $decoded_setting : null;
 						}
 						$ar_core = array_merge($ar_core , array(
 							'paymentGateway' =>$paymentType,
@@ -802,12 +859,19 @@ public function check_nonce_permission_efb($request) {
 						));
 					}
 				}
-
-					if(strpos($value , '\"logic\":\"1\"') !== false || strpos($value , '"logic":"1"') !== false || strpos($value , '"logic_rules"') !== false){
-						wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', array(), EMSFB_PLUGIN_VERSION, true);
-						wp_enqueue_script('logic-efb');
-						wp_register_script('logic-runtime-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic-runtime-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
-						wp_enqueue_script('logic-runtime-efb');
+					$_efb_logic_addon_active = emsfb_is_addon_active_efb( $rp[1] ?? [], 'AdnSMF' );
+					$_efb_form_has_logic = strpos($value , '\"logic\":\"1\"') !== false
+						|| strpos($value , '"logic":"1"') !== false
+						|| strpos($value , '"logic_rules"') !== false;
+					if ( $_efb_logic_addon_active && $_efb_form_has_logic ) {
+						wp_register_script(
+							'efb-conditional-logic-public',
+							EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/public/js/conditional-logic-efb.js',
+							array( 'Emsfb-core_js' ),
+							EMSFB_PLUGIN_VERSION,
+							true
+						);
+						wp_enqueue_script( 'efb-conditional-logic-public' );
 					}
 
 				$send=array();
@@ -906,7 +970,7 @@ public function check_nonce_permission_efb($request) {
 
 			);
 
-			$style ='<style>#teststyleefb{display:none;}';
+			$style ='<style>.efb.d-none{display:none!important;} #teststyleefb{display:none;}';
 			$jss ='<script> //efbJs';
 			$icons_els =[];
 			$pro_element_exists = false;
@@ -963,7 +1027,7 @@ public function check_nonce_permission_efb($request) {
 						if($key === 'switch_off_color' && !empty($value)){
 							$style .= ' '.$efbFormBuilder->fun_addStyle_customize_efb($value, $key, $valj_efb[$i]);
 						}
-					}else{
+					}else if(is_array($value) || is_object($value)){
 						foreach ($value as $key2 => $value2) {
 							if(is_string($value2)){
 								if(strpos($value2, 'colorDEfb') !== false){
@@ -1027,11 +1091,11 @@ public function check_nonce_permission_efb($request) {
 					$img['logo']= EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg';
 					$img['head']= EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png';
 
-					if(in_array($valj_efb[$i]->type, ["file","dadfile"],true)){
+					if(in_array($valj_efb[$i]->type, ["file","dadfile","audio_recorder","video_recorder","screen_recorder"],true)){
 						$is_file_element_exist = true;
 					}
 
-					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $form_id, $lanText);
+					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $form_id, $lanText ,$pro);
 					if($pro==true ){
 
 						if($auto_filled == false &&  isset($valj_efb[0]->autofill_id) ){
@@ -1074,7 +1138,7 @@ public function check_nonce_permission_efb($request) {
 									!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe") ? $this->efbFunction->download_all_addons_efb() : '';
 									wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
 									wp_enqueue_script('stripe_js');
-									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
+									$paymentKey = $this->resolve_payment_key_efb( $setting, 'stripePKey' );
 									$ar_core = array_merge($ar_core , array(
 									'paymentGateway' =>'stripe',
 									'paymentKey' => $paymentKey
@@ -1082,34 +1146,8 @@ public function check_nonce_permission_efb($request) {
 							}
 							if($valj_efb[$i]->type =='paypal'){
 								$paymentType="paypal";
-								$paypal_public_key = ( isset( $setting ) && is_object( $setting ) && isset( $setting->paypalPKey ) ) ? trim( (string) $setting->paypalPKey ) : '';
-								if ( strlen( $paypal_public_key ) <= 5 ) {
-									$decoded_settings = get_setting_Emsfb( 'decoded' );
-									if ( is_object( $decoded_settings ) && isset( $decoded_settings->paypalPKey ) ) {
-										$paypal_public_key = trim( (string) $decoded_settings->paypalPKey );
-									}
-								}
-								if ( strlen( $paypal_public_key ) <= 5 ) {
-									$option_settings = get_option( 'emsfb_settings', '' );
-									$option_settings = is_string( $option_settings ) ? json_decode( str_replace( '\\', '', $option_settings ) ) : null;
-									if ( is_object( $option_settings ) && isset( $option_settings->paypalPKey ) ) {
-										$paypal_public_key = trim( (string) $option_settings->paypalPKey );
-									}
-								}
-								if ( strlen( $paypal_public_key ) <= 5 ) {
-									if ( empty( $this->db ) ) {
-										global $wpdb;
-										$this->db = $wpdb;
-									}
-									$table_name = $this->db->prefix . 'emsfb_setting';
-									$latest_raw = $this->db->get_var( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );
-									$latest_settings = is_string( $latest_raw ) ? json_decode( str_replace( '\\', '', $latest_raw ) ) : null;
-									if ( is_object( $latest_settings ) && isset( $latest_settings->paypalPKey ) ) {
-										$paypal_public_key = trim( (string) $latest_settings->paypalPKey );
-									}
-								}
-								$paymentKey = strlen( $paypal_public_key ) > 5 ? $paypal_public_key : 'null';
-								error_log('[EFB][PayPal][PUBLIC] Localizing client id: form_id=' . $form_id . ', setting_type=' . gettype( $setting ?? null ) . ', client_id_length=' . strlen( $paypal_public_key ) . ', sent=' . ( $paymentKey === 'null' ? 'null' : 'set' ));
+								$paymentKey = $this->resolve_payment_key_efb( $setting, 'paypalPKey' );
+								// error_log('[EFB][PayPal][PUBLIC] Localizing client id: form_id=' . $form_id . ', setting_type=' . gettype( $setting ?? null ) . ', sent=' . ( $paymentKey === 'null' ? 'null' : 'set' ));
 								$currency ='USD';
 
 								!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal") ? $this->efbFunction->download_all_addons_efb() : '';
@@ -1204,6 +1242,7 @@ public function check_nonce_permission_efb($request) {
 			$script = '';
 			$console_checker = $efbFormBuilder->check_error_console_efb();
 			$script = '<script>'.$console_checker.'</script>';
+
 
 			$stps_state = $step_no>1 ? 1 : 0;
 			$navButton = $efbFormBuilder->add_buttons_zone_efb($stps_state, $this->id, $valj_efb, $lanText, $this->id);
@@ -1437,7 +1476,7 @@ public function check_nonce_permission_efb($request) {
 			$script_call_captcha,
 			esc_html($text['search'])
 		);
-		 $val = $pro==true ? '<!--efb.app-->' : '<div class="efb d-none"><a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a></div>';
+		 $val = $pro==true ? '<!--efb.app-->' : '<div class="efb d-none"><a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.esc_html($text['easyFormBuilder']).'<p></a></div>';
 
 		$ps = $pl[1] ?? [];
 		$overrides_track = $this->efb_build_inline_style_overrides($ps);
@@ -1451,7 +1490,7 @@ public function check_nonce_permission_efb($request) {
 		return  ['content'=>$content, 'captcha'=>$captcha_exist];
 		return $content;
 	}
-	function public_scripts_and_css_head($state=''){
+	function public_scripts_and_css_head($state='', $form_structure_json = null){
 
 		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-style-css');
@@ -1466,27 +1505,58 @@ public function check_nonce_permission_efb($request) {
 
 		if($state=='css') return;
 
+		// Only the forms that actually contain a recorder field need the recorder JS/CSS bundle.
+		$has_recorder_field = is_string($form_structure_json) && (
+			strpos($form_structure_json, 'audio_recorder') !== false ||
+			strpos($form_structure_json, 'video_recorder') !== false ||
+			strpos($form_structure_json, 'screen_recorder') !== false
+		);
+		$core_deps = array('jquery', 'efb-main-js', 'efb-response-viewer-js');
+		$main_deps = array('jquery');
+		if ($has_recorder_field) {
+			wp_register_script('efb-recorder-js', plugins_url('../public/assets/js/recorder-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
+			wp_enqueue_script('efb-recorder-js');
+			wp_register_style('efb-recorder-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/recorder-efb.css', array(), EMSFB_PLUGIN_VERSION);
+			wp_enqueue_style('efb-recorder-css');
+			$core_deps[] = 'efb-recorder-js';
+			$main_deps[] = 'efb-recorder-js';
+		}
+
 		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-response-viewer-css');
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', $main_deps, EMSFB_PLUGIN_VERSION, true);
 		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-response-viewer-js');
-		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery', 'efb-main-js', 'efb-response-viewer-js'), EMSFB_PLUGIN_VERSION, true);
+		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), $core_deps, EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('Emsfb-core_js');
 
 		$ar_core = array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'nonce' => wp_create_nonce('wp_rest'),
+			/* Conditional-logic runtime env: user-state conditions (source: 'user').
+			 * Roles are public-safe slugs; no capabilities or IDs are exposed. */
+			'user_state' => array(
+				'logged_in' => is_user_logged_in(),
+				'roles' => is_user_logged_in() ? array_values((array) wp_get_current_user()->roles) : array(),
+			),
 		);
 		wp_localize_script( 'Emsfb-core_js', 'efb_var', $ar_core);
 	  }
 
 	private function efb_send_json_and_continue($response, $status_code = 200) {
 
-		@ini_set('zlib.output_compression', 0);
-		@ini_set('implicit_flush', 1);
-		ignore_user_abort(true);
-		set_time_limit(300);
+		if ( emsfb_is_php_function_available_efb( 'ini_set' ) ) {
+			@ini_set('zlib.output_compression', 0);
+			@ini_set('implicit_flush', 1);
+		}
+		if ( emsfb_is_php_function_available_efb( 'ignore_user_abort' ) ) {
+			ignore_user_abort(true);
+		}
+		// set_time_limit can be disabled via disable_functions on hardened hosts;
+		// calling a disabled function throws a fatal Error, so guard it.
+		if (emsfb_is_php_function_available_efb('set_time_limit')) {
+			@set_time_limit(300);
+		}
 
 		$environment_method = 'Unknown';
 		$start_time = microtime(true);
@@ -1534,18 +1604,18 @@ public function check_nonce_permission_efb($request) {
 		@ob_flush();
 		flush();
 
-		if (function_exists('fastcgi_finish_request')) {
+		if (emsfb_is_php_function_available_efb('fastcgi_finish_request')) {
 			$environment_method = 'PHP-FPM (fastcgi_finish_request)';
 			fastcgi_finish_request();
 			$this->log_background_method($environment_method, $start_time);
 			return true;
 		}
 
-		if (function_exists('apache_setenv')) {
+		if (emsfb_is_php_function_available_efb('apache_setenv')) {
 			@apache_setenv('no-gzip', '1');
 		}
 
-		if (function_exists('litespeed_finish_request')) {
+		if (emsfb_is_php_function_available_efb('litespeed_finish_request')) {
 			$environment_method = 'LiteSpeed (litespeed_finish_request)';
 			litespeed_finish_request();
 			$this->log_background_method($environment_method, $start_time);
@@ -1563,7 +1633,7 @@ public function check_nonce_permission_efb($request) {
 		}
 		flush();
 
-		if (function_exists('apache_setenv')) {
+		if (emsfb_is_php_function_available_efb('apache_setenv')) {
 			$environment_method = 'Apache (fallback with padding)';
 		} else {
 			$environment_method = 'Generic (padding fallback)';
@@ -1693,10 +1763,93 @@ public function check_nonce_permission_efb($request) {
 		if ($form_structure_json != '') {
 			$form_fields_array = json_decode($form_structure_json, true);
 			$form_structure_json = null;
+
+			// Conditional forms have an independent normalization/required-validation
+			// phase. The default result keeps ordinary forms on the legacy path.
+			$_efb_logic_prepared = apply_filters(
+				'efb_logic_prepare_submission',
+				[
+					'is_conditional' => false,
+					'submitted_values' => $submitted_values,
+					'logic_result' => [],
+				],
+				$form_fields_array,
+				$submitted_values
+			);
+
+			$_efb_is_conditional_logic_active = false;
+			if ( ! empty( $_efb_logic_prepared['is_conditional'] ) ) {
+				$_efb_is_conditional_logic_active = true;
+				$submitted_values = isset( $_efb_logic_prepared['submitted_values'] ) && is_array( $_efb_logic_prepared['submitted_values'] )
+					? array_values( $_efb_logic_prepared['submitted_values'] )
+					: [];
+				$efb_logic_result = isset( $_efb_logic_prepared['logic_result'] ) && is_array( $_efb_logic_prepared['logic_result'] )
+					? $_efb_logic_prepared['logic_result']
+					: [];
+
+				$_ignored_set = array_flip( $efb_logic_result['ignored_fields'] ?? [] );
+				$_optional_set = array_flip( $efb_logic_result['optional_fields'] ?? [] );
+				$_required_set = array_flip( $efb_logic_result['required_fields'] ?? [] );
+				$_disabled_set = array_flip( $efb_logic_result['disabled_fields'] ?? [] );
+				$_enabled_set = array_flip( $efb_logic_result['enabled_fields'] ?? [] );
+
+				foreach ( $form_fields_array as &$_f ) {
+					if ( ! isset( $_f['id_'] ) ) continue;
+					$_fid = $_f['id_'];
+					if ( isset( $_enabled_set[ $_fid ] ) ) $_f['disabled'] = 0;
+					if ( isset( $_disabled_set[ $_fid ] ) ) $_f['disabled'] = 1;
+					if ( isset( $_ignored_set[ $_fid ] ) ) {
+						$_f['required'] = false;
+						continue;
+					}
+					if ( isset( $_required_set[ $_fid ] ) ) {
+						$_f['required'] = true;
+					} elseif ( isset( $_optional_set[ $_fid ] ) ) {
+						$_f['required'] = false;
+					}
+				}
+				unset( $_f );
+
+				// block_submit / end_form: the server is authoritative — a matched
+				// veto rule rejects the submission even if the frontend was bypassed.
+				if ( ! empty( $efb_logic_result['submit_blocked'] ) ) {
+					$_block_msg = '';
+					if ( ! empty( $efb_logic_result['end_form']['message'] ) ) {
+						$_block_msg = (string) $efb_logic_result['end_form']['message'];
+					} elseif ( ! empty( $efb_logic_result['block_messages'][0]['value'] ) ) {
+						$_block_msg = (string) $efb_logic_result['block_messages'][0]['value'];
+					}
+					if ( $_block_msg === '' ) {
+						$_block_msg = isset( $this->lanText['submitBlocked'] )
+							? $this->lanText['submitBlocked']
+							: 'Submission is not allowed for the current answers.';
+					}
+					wp_send_json_success( [ 'success' => false, 'm' => esc_html( $_block_msg ) ], 200 );
+				}
+			}
+
 			$has_multiple_emails = isset($form_fields_array[0]["email_send_type"]) ? $form_fields_array[0]["email_send_type"] : false;
 
 			$form_type = $form_fields_array[0]['type'] ?? 'form';
 			if (!isset($submitted_values['logout']) && !isset($submitted_values['recovery']) && $form_type!='register' && $form_type!='login') {
+				// Required-field presence check — runs for every ordinary submission,
+				// with or without the conditional-logic addon, because the legacy
+				// per-field validation loop below only checks the FORMAT of values
+				// that were submitted; it never notices a required field that is
+				// missing entirely from $submitted_values.
+				$_req_check = $this->validate_required_fields_present_efb( $form_fields_array, $submitted_values );
+				if ( empty( $_req_check['valid'] ) ) {
+					$_missing_name = $_req_check['missing_name'] ?? '';
+					$_req_msg = isset( $this->lanText['pleaseMakeSureAllFields'] )
+						? $this->lanText['pleaseMakeSureAllFields']
+						: 'Please fill in all required fields.';
+					if ( $_missing_name !== '' && isset( $this->lanText['mnvvXXX_'] ) ) {
+						$_req_msg = str_replace( '%s', '<b>' . esc_html( $_missing_name ) . '</b>', $this->lanText['mnvvXXX_'] );
+					}
+					$response = [ 'success' => false, 'm' => $_req_msg, 'field_id' => $_req_check['missing_field'] ?? '' ];
+					wp_send_json_success( $response, 200 );
+				}
+
 				if(isset($plugin_settings['smtp']) && (bool)$plugin_settings['smtp'] ){
 						$should_send_email = true;
 				}
@@ -1734,6 +1887,7 @@ public function check_nonce_permission_efb($request) {
 					wp_send_json_success($response, 200);
 				}
 				$error_message = '';
+				$error_field_id = '';
 				$is_valid = 1;
 				$form_condition = '';
 				if (isset($form_fields_array[0]['booking']) && $form_fields_array[0]['booking'] == 1) $form_condition = 'booking';
@@ -1745,7 +1899,7 @@ public function check_nonce_permission_efb($request) {
 					$still_processing = true;
 					if ($key < 2 && !isset($f['id_'])){ continue;}
 					if ($is_valid == 0) {break;}
-					$it = array_filter($submitted_values, function ($item) use ($f, $key, &$is_valid, &$email_recipients, &$validated_item, &$form_fields_array, &$still_processing, &$error_message, $form_condition, &$sms_notification_enabled, &$phone_numbers) {
+					$it = array_filter($submitted_values, function ($item) use ($f, $key, &$is_valid, &$email_recipients, &$validated_item, &$form_fields_array, &$still_processing, &$error_message, &$error_field_id, $form_condition, &$sms_notification_enabled, &$phone_numbers) {
 						if ($still_processing == false) {
 							return;
 						}
@@ -1768,6 +1922,7 @@ public function check_nonce_permission_efb($request) {
 							if (isset($f['name'])) {
 								$error_message = $this->lanText['mnvvXXX_'];
 								$error_message = str_replace('%s', "<b>" . $f['name'] . "</b>", $error_message);
+								$error_field_id = isset($f['id_']) ? $f['id_'] : '';
 							}
 							switch ($f['type']) {
 								case 'email':
@@ -2117,6 +2272,9 @@ public function check_nonce_permission_efb($request) {
 									break;
 								case 'file':
 								case 'dadfile':
+								case 'audio_recorder':
+								case 'video_recorder':
+								case 'screen_recorder':
 									$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 									if (isset($item['url']) && strlen($item['url']) > 5) {
@@ -2241,6 +2399,24 @@ public function check_nonce_permission_efb($request) {
 					};
 				}
 
+				/*
+				 * Redundant server-side guard (Conditional Logic addon only):
+				 * even if a disabled/hidden field's value slipped through the
+				 * normalization pass above (stale client data, race condition,
+				 * tampered request), never let it reach the saved submission
+				 * record. ignored_fields already covers hidden, disabled, and
+				 * hidden-step fields, so this single check is the structural
+				 * source of truth for "should this value ever be persisted".
+				 * Scoped strictly to conditional forms (AdnSMF active AND form
+				 * has active logic_rules) — plain forms are untouched.
+				 */
+				if ( $_efb_is_conditional_logic_active && ! empty( $_ignored_set ) ) {
+					$validated_items = array_values( array_filter( $validated_items, function ( $vi ) use ( $_ignored_set ) {
+						$vid = is_array( $vi ) && isset( $vi['id_'] ) ? $vi['id_'] : null;
+						return $vid === null || ! isset( $_ignored_set[ $vid ] );
+					} ) );
+				}
+
 				$count = count($validated_items);
 				if ($count == 0) {
 					$is_valid = 0;
@@ -2259,7 +2435,7 @@ public function check_nonce_permission_efb($request) {
 				$this->id = $submission_type == "payment" ? sanitize_text_field($request_data['payid']) : $this->id;
 				$skip_captcha = $submission_type != "payment" ? $form_fields_array[0]['captcha'] : "";
 				if ($is_valid == 0) {
-					$response = ['success' => false, 'm' => $error_message];
+					$response = ['success' => false, 'm' => $error_message, 'field_id' => $error_field_id];
 					wp_send_json_success($response, 200);
 				}
 				$this->value = json_encode($validated_items, JSON_UNESCAPED_UNICODE);
@@ -2364,7 +2540,13 @@ public function check_nonce_permission_efb($request) {
 				if (is_array($form_fields_array) && isset($form_fields_array[0]['type'], $form_fields_array[0]['captcha'])  && intval($form_fields_array[0]['captcha']) == 1 && $form_fields_array[0]['type'] != 'payment' && strlen($response) > 5) {
 
 					if ($recaptcha_secret_key) {
-						$verify = wp_remote_get("https://www.google.com/recaptcha/api/siteverify?secret={$recaptcha_secret_key}&response={$response}");
+						// Build the query with add_query_arg so both values are URL-encoded;
+						// prevents a crafted "response" value from injecting extra query
+						// parameters into the siteverify request.
+						$verify = wp_remote_get( add_query_arg( array(
+							'secret'   => $recaptcha_secret_key,
+							'response' => $response,
+						), 'https://www.google.com/recaptcha/api/siteverify' ) );
 						$captcha_verification_result = json_decode($verify['body']);
 					} else {
 						$response = ['success' => false, 'm' => $this->lanText['errorSiteKeyM']];
@@ -2426,6 +2608,18 @@ public function check_nonce_permission_efb($request) {
 							if ($redirect_url != "null") {
 								$response = ['success' => true, 'm' => $redirect_url];
 							}
+							$conditional_confirmation = $this->get_conditional_confirmation_result($form_fields_array, $submitted_values);
+							if (is_array($conditional_confirmation)) {
+								if ($conditional_confirmation['action'] === 'redirect' && !empty($conditional_confirmation['url'])) {
+									$response = ['success' => true, 'm' => $conditional_confirmation['url'], 'conditional_redirect' => true];
+								} elseif ($conditional_confirmation['action'] === 'message' && !empty($conditional_confirmation['message'])) {
+									$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'ip' => $ip, 'nonce' => $nonce_token];
+									$response['conditional_message'] = $conditional_confirmation['message'];
+									/* Full display payload (message + optional done/icon/color overrides)
+									   for the done screen; conditional_message stays for back-compat. */
+									$response['conditional_confirmation'] = $conditional_confirmation;
+								}
+							}
 
 							$this->efb_send_json_and_continue($response, 200);
 							$this->efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array);
@@ -2442,7 +2636,23 @@ public function check_nonce_permission_efb($request) {
 							}
 							if ($should_send_email) {
 
-								$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
+								// Active email notification rules replace the standard admin
+								// notification: admin recipients are dropped so only rule
+								// recipients get notified; the user email (index 1) still goes out.
+								$has_active_email_rules = isset($form_fields_array[0]['notification_rules'])
+									&& is_array($form_fields_array[0]['notification_rules'])
+									&& count($this->efb_conditional_sorted_rules($form_fields_array[0]['notification_rules'])) > 0;
+
+								if ($has_active_email_rules) {
+									$email_recipients[0] = [];
+									$this->efb_email_debug_log('admin-email-suppressed', [
+										'track' => $track_code,
+										'form_id' => intval($this->id),
+										'reason' => 'active_notification_rules',
+									]);
+								} else {
+									$this->email_list_efb($email_recipients, 0, $form_admin_email, true);
+								}
 								$state_email_user = $has_tracking_code == 1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 								$msg_content = 'null';
 								if (isset($form_fields_array[0]['email_noti_type']) && $form_fields_array[0]['email_noti_type'] == 'msg') {
@@ -2452,6 +2662,7 @@ public function check_nonce_permission_efb($request) {
 								$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
 								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
 								$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
+								$this->process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email);
 
 							}
 
@@ -2462,6 +2673,9 @@ public function check_nonce_permission_efb($request) {
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
 							$payment_gateway = isset($request_data['payment']) ? sanitize_text_field($request_data['payment']) : 'stripe';
+							if ($payment_gateway == "paypal") {
+								// error_log('[EFB][PayPal][SUBMIT] Final payment submit received: payid=' . ($id ?: '(empty)') . ', form_id=' . (isset($request_data['id']) ? sanitize_text_field($request_data['id']) : '(empty)') . ', submitted_count=' . (is_array($submitted_values) ? count($submitted_values) : 0));
+							}
 							if (strlen($id) < 7 && $payment_gateway == "zarinPal") {
 								$response = array('success' => false, "m" => "خطای داده های پرداختی ، صفحه را رفرش کنید");
 								wp_send_json_success($response, 200);
@@ -2474,6 +2688,9 @@ public function check_nonce_permission_efb($request) {
 
 							$value = $this->db->get_results($sql);
 							$payment_track_id = $id;
+							if ($payment_gateway == "paypal") {
+								// error_log('[EFB][PayPal][SUBMIT] Initial payment row lookup: found=' . ($value != null ? 'yes' : 'no') . ', track=' . ($payment_track_id ?: '(empty)'));
+							}
 							if ($value != null) {
 								$saved_payment_content = json_decode(str_replace('\\', '', $value[0]->content), true);
 								$submitted_values = $submitted_values;
@@ -2484,13 +2701,19 @@ public function check_nonce_permission_efb($request) {
 									return $carry + ($item['price'] ?? 0);
 								}, 0);
 								if ($payment_gateway == "persiaPay") {
+									if ( ! emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
+										$response = array( 'success' => false, 'm' => emsfb_get_addon_unavailable_message_efb( 'AdnPPF' ) );
+										wp_send_json_success( $response, 503 );
+										return;
+									}
+
 									$payment_merchant_id = $plugin_settings['payToken'] ?? null;
 									$data = array("merchant_id" => $payment_merchant_id, "authority" => sanitize_text_field($request_data['auth']), "amount" => $amount);
 									$jsonData = json_encode($data);
 									if (!is_dir(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/")) {
 										$msg = " خطای تنظیمات : با مدیر وبسایت تماس بگیرید . نیاز به نصب مجدد درگاه می باشد";
 									} else {
-										include(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php");
+										require_once(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php");
 										$persiaPay = new zarinPalEFB();
 										$result = $persiaPay->validate_payment_zarinPal($jsonData);
 										$msg = $result['errors']['message'] ?? "ok";
@@ -2541,11 +2764,17 @@ public function check_nonce_permission_efb($request) {
 									$validated_items = empty($validated_items) ? $it : array_merge($validated_items, $it);
 									if ($payment_gateway == "persiaPay") array_push($validated_items, $result);
 								}
+								if ($payment_gateway == "paypal") {
+									// error_log('[EFB][PayPal][SUBMIT] Merge data: saved_payment_count=' . (is_array($saved_payment_content) ? count($saved_payment_content) : 0) . ', filtered_submit_count=' . (is_array($filtered) ? count($filtered) : 0) . ', validated_count=' . (is_array($validated_items) ? count($validated_items) : 0));
+								}
 								$filtered = array_unique(array_merge($validated_items, $saved_payment_content), SORT_REGULAR);
 								$filtered[] = array('type' => 'w_link', 'id_' => 'w_link', 'id' => 'w_link', 'value' => $url, 'amount' => -1);
 								$this->value = sanitize_text_field(json_encode($filtered, JSON_UNESCAPED_UNICODE));
 								$this->id = sanitize_text_field($request_data['payid']);
 								$db_update_result = $this->update_message_db();
+								if ($payment_gateway == "paypal") {
+									// error_log('[EFB][PayPal][SUBMIT] update_message_db result=' . var_export($db_update_result, true) . ', track=' . $this->id . ', final_count=' . count($filtered));
+								}
 							} else {
 								$response = array('success' => false, 'm' => esc_html__('Error Code', 'easy-form-builder') . '</br>' . esc_html__('Payment Form', 'easy-form-builder'));
 								wp_send_json_success($response, 200);
@@ -2559,7 +2788,28 @@ public function check_nonce_permission_efb($request) {
 							}
 
 							$this->efb_send_json_and_continue($response, 200);
-							$this->efb_intgrate_with_3rd_party_services_efb($payment_track_id, $submitted_values, $form_fields_array, 'payment');
+							// $this->id was reassigned to the payment track code for update_message_db(),
+							// so the integration context must be rebuilt from the real form id — otherwise
+							// intval(track) produces a bogus form_id and every 3rd-party sync (Google Sheet,
+							// Telegram, webhooks) silently skips the submission. Pass compatible values and stored payment
+							// data separately so integrations can opt into gateway, amount, and intent details.
+							$this->id = $form_id;
+							$compatible_submitted_values = array_values(array_unique(array_filter($validated_items, function ($item) {
+								if (!is_array($item)) return false;
+								$type = isset($item['type']) ? (string) $item['type'] : '';
+								$id_ = isset($item['id_']) ? (string) $item['id_'] : '';
+								$id = isset($item['id']) ? (string) $item['id'] : '';
+								return $type !== 'payment' && $id_ !== 'payment' && $id !== 'payment' && $type !== 'w_link' && $id_ !== 'w_link' && $id !== 'w_link';
+							}), SORT_REGULAR));
+							$this->efb_intgrate_with_3rd_party_services_efb(
+								$payment_track_id,
+								$compatible_submitted_values,
+								$form_fields_array,
+								'payment',
+								[
+									'enriched_submitted_values' => array_values($filtered),
+								]
+							);
 
 							if ($should_send_email) {
 								$state_email_user = $has_tracking_code==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
@@ -2793,12 +3043,83 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success($response, 200);
 		}
 	  }
+	/**
+	 * Per-IP throttle for tracking-code lookups.
+	 *
+	 * Tracking codes are the only secret protecting a submission's data, so an
+	 * unthrottled lookup endpoint allows enumeration. Two windows are enforced:
+	 *   - a short burst cap on total lookups, and
+	 *   - a stricter cap on "code not found" results, which is what enumeration
+	 *     produces almost exclusively (legitimate users use a real code, so they
+	 *     virtually never hit the failure cap).
+	 * Returns false when the current request must be rejected.
+	 */
+	private function efb_track_lookup_allowed() {
+		$ip = $this->get_ip_address();
+		if ( empty( $ip ) ) {
+			return true; // never lock out when the IP cannot be determined
+		}
+		$hash = md5( $ip );
+
+		// 1) Hard block if this IP recently produced too many not-found lookups.
+		//    This is the primary enumeration defense; legitimate users use a real
+		//    code and virtually never reach it.
+		$fail_max = (int) apply_filters( 'efb_track_fail_max', 25 );
+		if ( ( (int) get_transient( 'efb_trk_f_' . $hash ) ) >= $fail_max ) {
+			return false;
+		}
+
+		// 2) DoS backstop: a fixed-window cap on total lookups (incl. successes).
+		//    Deliberately kept ABOVE the failure cap so it never pre-empts (and
+		//    thus never starves) the failure counter above, and generous enough
+		//    that a human re-checking their conversation is never throttled. A
+		//    per-window time bucket gives a clean fixed window (no sliding TTL).
+		$burst_max    = (int) apply_filters( 'efb_track_burst_max', 40 );
+		$burst_window = (int) apply_filters( 'efb_track_burst_window', 30 );
+		$burst_window = $burst_window > 0 ? $burst_window : 30;
+		$bucket       = (int) floor( time() / $burst_window );
+		$burst_key    = 'efb_trk_b_' . $hash . '_' . $bucket;
+		$burst        = (int) get_transient( $burst_key );
+		if ( $burst >= $burst_max ) {
+			return false;
+		}
+		set_transient( $burst_key, $burst + 1, $burst_window + 5 );
+		return true;
+	}
+
+	/**
+	 * Records a not-found tracking-code lookup for the current IP. Uses a sliding
+	 * window so an actively-enumerating IP stays blocked as long as it keeps
+	 * probing. Successful lookups never call this, so legitimate users are unaffected.
+	 */
+	private function efb_track_register_failure() {
+		$ip = $this->get_ip_address();
+		if ( empty( $ip ) ) {
+			return;
+		}
+		$hash        = md5( $ip );
+		$fail_window = (int) apply_filters( 'efb_track_fail_window', 15 * MINUTE_IN_SECONDS );
+		$fails       = (int) get_transient( 'efb_trk_f_' . $hash );
+		set_transient( 'efb_trk_f_' . $hash, $fails + 1, $fail_window );
+	}
+
 	  public function get_track_public_api($data_POST_) {
 
 		$data_POST = $data_POST_->get_json_params();
 		$this->efbFunction = get_efbFunction();
 		$text_ = ['spprt','sxnlex','error403','errorMRobot','enterVValue','guest','cCodeNFound'];
 		$lanText= $this->efbFunction->text_efb($text_);
+
+		// Throttle tracking-code lookups per IP to make enumeration of
+		// submission tracking codes impractical (security review, item 1).
+		if ( ! $this->efb_track_lookup_allowed() ) {
+			$response = array(
+				'success' => false,
+				'm'       => esc_html__( 'Too many attempts. Please wait a few minutes and try again.', 'easy-form-builder' ),
+			);
+			wp_send_json_success( $response, 200 );
+			return;
+		}
 
 		$response = isset($data_POST['valid']) ? sanitize_text_field($data_POST['valid']) : '';
 		$captcha_success =[];
@@ -2881,13 +3202,15 @@ public function check_nonce_permission_efb($request) {
 				}
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code , 'id'=>$this->id);
 			}else{
+				// Count this miss toward the per-IP enumeration throttle.
+				$this->efb_track_register_failure();
 				$response = array( 'success' => false  , "m" =>$lanText['cCodeNFound']);
 			}
 			wp_send_json_success($response, 200);
 			}
 
 	  }
-	public function insert_message_db($read, $uniqid, $style_trackingCode = 'date_en_mix'){
+	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
 		if(isset($read)==false) $read=0;
 
 		if($uniqid==false){
@@ -3014,7 +3337,7 @@ public function check_nonce_permission_efb($request) {
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
-		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
+		 'audio/wav','audio/ogg','audio/webm','audio/mp4','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
 		 'text/plain' ,
 		 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
 		 'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
@@ -3045,14 +3368,14 @@ public function check_nonce_permission_efb($request) {
 
 			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
 
-			$blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg');
+			$blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg','html','htm','xhtml','xht','shtm','svgz');
 			$file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
 			if (in_array($file_ext, $blocked_ext)) {
 				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
 				wp_send_json_success($response, 200);
 			}
 
-			$file_contents = file_get_contents($file_tmp);
+			$file_contents = emsfb_read_file_efb($file_tmp);
 			if ($file_contents === false) {
 				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
 				wp_send_json_success($response, 200);
@@ -3133,7 +3456,8 @@ public function check_nonce_permission_efb($request) {
             $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
             if($vl!=null){
 				if(gettype($vl)=="string"){
-					$temp = (strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false) ? true : false;
+					$temp = (strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false
+						|| strpos($vl , '\"type\":\"audio_recorder\"') !== false || strpos($vl , '\"type\":\"video_recorder\"') !== false || strpos($vl , '\"type\":\"screen_recorder\"') !== false) ? true : false;
 				}
 
                 if($temp==false){
@@ -3148,7 +3472,7 @@ public function check_nonce_permission_efb($request) {
 					foreach($vl as $key=>$val){
 						if(isset($val->id_) && $val->id_==$id && isset($val->value) && isset($val->type)){
 							$have_validate=  $val->value == "customize" ? 1 : 0;
-							$temp = $val->type == "dadfile" || $val->type == "file"   ? 1 : 0;
+							$temp = in_array($val->type, ["dadfile", "file", "audio_recorder", "video_recorder", "screen_recorder"], true) ? 1 : 0;
 							break;
 						}
 					}
@@ -3166,7 +3490,7 @@ public function check_nonce_permission_efb($request) {
 			$this->lanText= $this->efbFunction->text_efb($this->text_);
 			if($have_validate!=1){
 				$arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
-				'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
+				'audio/wav','audio/ogg','audio/webm','audio/mp4','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
 				'text/plain' ,
 				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
 				'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
@@ -3188,7 +3512,7 @@ public function check_nonce_permission_efb($request) {
 
 			foreach($vl as $key=>$val){
 
-				if($key>1 && ($val->type=="dadfile" || $val->type=="file") && $val->id_==$_POST['id']){
+				if($key>1 && in_array($val->type, ["dadfile", "file", "audio_recorder", "video_recorder", "screen_recorder"], true) && $val->id_==$_POST['id']){
 
 					$val->file_ctype = strtolower($val->file_ctype);
 
@@ -3235,14 +3559,14 @@ public function check_nonce_permission_efb($request) {
 
 			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;
 
-			$blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg');
+			$blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg','html','htm','xhtml','xht','shtm','svgz');
 			$file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
 			if (in_array($file_ext, $blocked_ext)) {
 				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
 				wp_send_json_success($response,200);
 			}
 
-			$file_contents = file_get_contents($async_file_tmp);
+			$file_contents = emsfb_read_file_efb($async_file_tmp);
 			if ($file_contents === false) {
 				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
 				wp_send_json_success($response,200);
@@ -3283,6 +3607,7 @@ public function check_nonce_permission_efb($request) {
 			$response = array( 'success' => false , "m"=>$this->lanText['nAllowedUseHtml']);
 			wp_send_json_success($response,200);
 		}
+		 $page_id = isset($data_POST['page_id']) ? absint($data_POST['page_id']) : 0;
 		$cache_plugins = get_option('emsfb_cache_plugins','0');
 		if($cache_plugins!='0')$this->cache_cleaner_Efb($page_id ,$cache_plugins);
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: get_setting_Emsfb('raw');
@@ -3512,7 +3837,7 @@ public function check_nonce_permission_efb($request) {
 
 					foreach($valn as $val){
 						if($val['type']=="mobile" && isset($val['smsnoti']) && intval($val['smsnoti'])==1){
-							array_push($have_noti_id,$val->id_);
+							array_push($have_noti_id,$val['id_']);
 						}
 					}
 
@@ -3525,7 +3850,8 @@ public function check_nonce_permission_efb($request) {
 					}
 				$tt = $rsp_by=='admin' ? 'respadmin' : 'resppa';
 				if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) {
-					$smsSendResult = $efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,$setting->sms_config ,$track);
+					// Delivery always goes through WP-SMS for now; ws.team has no gateway implementation yet
+					$smsSendResult = $this->efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,'wpsms' ,$track);
 					if($smsSendResult !== true) {
 						$m =  $this->lanText['msgSndBut'];
 						$m = sprintf($m,  '<b>'.$this->lanText['smsWPN'] .'<b>' , '' );
@@ -3580,7 +3906,7 @@ public function check_nonce_permission_efb($request) {
 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid, $fid);
 		if ($s_sid !=1 || $sid==null){
-			$this->efbFunction->send_email_noti_sid_plugins_efb('replyMessageAction');
+			$this->efbFunction->send_email_noti_sid_plugins_efb;('replyMessageAction');
 			$m = $this->lanText['sxnlex'];
 			$response = array( 'success' => false  , 'm'=>$m );
 			wp_send_json_success($response,200);
@@ -3602,6 +3928,423 @@ public function check_nonce_permission_efb($request) {
 
 		$autofill->get_autofill_api_efb($data_POST);
 	}
+	private function efb_conditional_sorted_rules($rules) {
+		if (!is_array($rules)) return [];
+		$clean = [];
+		foreach ($rules as $position => $rule) {
+			if (!is_array($rule) || (isset($rule['enabled']) && !$rule['enabled'])) continue;
+			if (empty($rule['conditions']['items']) || !is_array($rule['conditions']['items'])) continue;
+			$rule['_position'] = $position;
+			$rule['priority'] = isset($rule['priority']) ? intval($rule['priority']) : 10;
+			$clean[] = $rule;
+		}
+		usort($clean, function($a, $b) {
+			if ($a['priority'] === $b['priority']) return $a['_position'] - $b['_position'];
+			return $a['priority'] - $b['priority'];
+		});
+		return $clean;
+	}
+
+	/* Highest step number of the current form; a submission always arrives from
+	 * the last step, so source:'current_step' conditions compare against it. */
+	private $efb_conditional_max_step = 1;
+
+	private function efb_conditional_values_map($form_fields_array, $submitted_values) {
+		$max_step = 0;
+		foreach ((array) $form_fields_array as $item) {
+			if (is_array($item) && strtolower((string)($item['type'] ?? '')) === 'step' && isset($item['step']) && is_numeric($item['step'])) {
+				$max_step = max($max_step, (int) $item['step']);
+			}
+		}
+		$this->efb_conditional_max_step = $max_step > 0 ? $max_step : 1;
+
+		if (class_exists('Emsfb\\Emsfb_Logic_Validator')) {
+			$validator = new \Emsfb\Emsfb_Logic_Validator();
+			return $validator->build_values_map($form_fields_array, $submitted_values);
+		}
+
+		$values = [];
+		foreach ($submitted_values as $row) {
+			if (!is_array($row) || empty($row['id_'])) continue;
+			$field_id = (string) $row['id_'];
+			$type = strtolower((string)($row['type'] ?? ''));
+			if (strpos($type, 'checkbox') !== false) {
+				if (!isset($values[$field_id]) || !is_array($values[$field_id])) $values[$field_id] = [];
+				$option = $row['id_ob'] ?? ($row['value'] ?? '');
+				if ($option !== '' && !in_array($option, $values[$field_id], true)) $values[$field_id][] = $option;
+				continue;
+			}
+			if ($type === 'yesno') {
+				$value = (string)($row['id_ob'] ?? ($row['value'] ?? ''));
+				$values[$field_id] = ($value === $field_id . '_1' || strtolower($value) === 'yes' || $value === '1') ? 'yes' : (($value === $field_id . '_2' || strtolower($value) === 'no' || $value === '0') ? 'no' : '');
+				continue;
+			}
+			if (strpos($type, 'radio') !== false) {
+				$values[$field_id] = $row['id_ob'] ?? ($row['value'] ?? '');
+				continue;
+			}
+			if (strpos($type, 'multiselect') !== false) {
+				$raw = $row['value'] ?? '';
+				$values[$field_id] = is_array($raw) ? array_values(array_filter($raw)) : array_values(array_filter(array_map('trim', explode('@efb!', (string)$raw))));
+				continue;
+			}
+			$values[$field_id] = $row['value'] ?? '';
+		}
+		return $values;
+	}
+
+	private function efb_evaluate_conditional_group($group, $values) {
+		$items = isset($group['items']) && is_array($group['items']) ? $group['items'] : [];
+		if (empty($items)) return false;
+		$result = false;
+		foreach ($items as $index => $item) {
+			$is_group = is_array($item) && (($item['type'] ?? '') === 'group' || isset($item['items']));
+			$matched = $is_group ? $this->efb_evaluate_conditional_group($item, $values) : $this->efb_evaluate_conditional_condition($item, $values);
+			if ($index === 0) {
+				$result = $matched;
+				continue;
+			}
+			$connector = strtoupper((string)($item['connector'] ?? ($group['operator'] ?? 'AND'))) === 'OR' ? 'OR' : 'AND';
+			$result = $connector === 'OR' ? ($result || $matched) : ($result && $matched);
+		}
+		/* negate turns AND into NAND, OR into NOR, and a single item into NOT. */
+		return !empty($group['negate']) ? !$result : $result;
+	}
+
+	/**
+	 * Request environment for non-field condition sources in notification /
+	 * confirmation / webhook rules: query params from the page the form was
+	 * submitted from, plus the real WordPress user state.
+	 */
+	private function efb_conditional_environment() {
+		$env = ['query' => [], 'user' => ['logged_in' => false, 'roles' => []]];
+		$referer = function_exists('wp_get_referer') ? wp_get_referer() : '';
+		if (is_string($referer) && $referer !== '') {
+			$query_string = (string) parse_url($referer, PHP_URL_QUERY);
+			if ($query_string !== '') parse_str($query_string, $env['query']);
+		}
+		if (function_exists('is_user_logged_in') && is_user_logged_in()) {
+			$env['user']['logged_in'] = true;
+			$env['user']['roles'] = array_values((array) wp_get_current_user()->roles);
+		}
+		return $env;
+	}
+
+	private function efb_evaluate_conditional_condition($condition, $values) {
+		if (!is_array($condition) || empty($condition['field_id'])) return false;
+		$field_id = (string) $condition['field_id'];
+		$compare = (string)($condition['compare'] ?? 'is');
+		$expected = $condition['value'] ?? '';
+		$source = (string)($condition['source'] ?? 'field');
+
+		if ($source === 'query_param' || $source === 'user' || $source === 'current_step') {
+			$env = $this->efb_conditional_environment();
+			if ($source === 'query_param') {
+				$param = (string)($condition['param'] ?? $field_id);
+				$query_value = isset($env['query'][$param]) ? $env['query'][$param] : '';
+				$value = is_array($query_value) ? implode(',', $query_value) : $query_value;
+			} elseif ($source === 'user') {
+				if ($field_id === 'role') {
+					$roles = array_map('strtolower', array_map('strval', $env['user']['roles']));
+					$expected_role = strtolower(trim((string)(is_array($expected) ? implode(',', $expected) : $expected)));
+					$has_role = in_array($expected_role, $roles, true);
+					if ($compare === 'is') return $has_role;
+					if ($compare === 'is_not') return !$has_role;
+					if ($compare === 'is_empty') return count($roles) === 0;
+					if ($compare === 'is_not_empty') return count($roles) > 0;
+					$value = implode(' ', $roles);
+				} else {
+					$value = !empty($env['user']['logged_in']) ? 'yes' : 'no';
+				}
+			} else {
+				/* current_step: a submission always arrives from the last step */
+				$value = (string) $this->efb_conditional_max_step;
+			}
+		} else {
+			$value = array_key_exists($field_id, $values) ? $values[$field_id] : '';
+		}
+
+		if (is_array($value)) {
+			$expected_scalar = is_array($expected) ? implode(',', $expected) : (string)$expected;
+			if ($compare === 'is') return in_array($expected_scalar, $value, true);
+			if ($compare === 'is_not') return !in_array($expected_scalar, $value, true);
+			if ($compare === 'is_empty') return count($value) === 0;
+			if ($compare === 'is_not_empty') return count($value) > 0;
+			$value = implode(' ', array_map('strval', $value));
+		}
+
+		$value = trim((string)$value);
+		$expected_scalar = is_array($expected) ? implode(',', $expected) : trim((string)$expected);
+		$value_lower = strtolower($value);
+		$expected_lower = strtolower($expected_scalar);
+
+		switch ($compare) {
+			case 'is': return $value_lower === $expected_lower;
+			case 'is_not': return $value_lower !== $expected_lower;
+			case 'contains': return strpos($value_lower, $expected_lower) !== false;
+			case 'not_contains': return strpos($value_lower, $expected_lower) === false;
+			case 'starts_with': return strpos($value_lower, $expected_lower) === 0;
+			case 'ends_with':
+				$length = strlen($expected_lower);
+				return $length === 0 || substr($value_lower, -$length) === $expected_lower;
+			case 'gt': case 'amount_gt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value > (float)$expected_scalar;
+			case 'gte': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value >= (float)$expected_scalar;
+			case 'lt': case 'amount_lt': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value < (float)$expected_scalar;
+			case 'lte': return is_numeric($value) && is_numeric($expected_scalar) && (float)$value <= (float)$expected_scalar;
+			case 'amount_eq': return is_numeric($value) && is_numeric($expected_scalar) && abs((float)$value - (float)$expected_scalar) < 0.00001;
+			case 'between':
+			case 'not_between':
+				$range = is_array($expected) ? $expected : preg_split('/\s*,\s*/', $expected_scalar);
+				/* Numeric operators never match a non-numeric value: an empty budget is
+				 * neither inside nor outside the range, so not_between must not fire. */
+				if (count($range) < 2 || !is_numeric($value) || !is_numeric($range[0]) || !is_numeric($range[1])) return false;
+				$inside = (float)$value >= (float)$range[0] && (float)$value <= (float)$range[1];
+				return $compare === 'between' ? $inside : !$inside;
+			case 'is_empty': return $value === '';
+			case 'is_not_empty': return $value !== '';
+			case 'is_paid': return $value !== '' && $value !== '0';
+			case 'is_not_paid': return $value === '' || $value === '0';
+			case 'date_before':
+			case 'date_after':
+				$value_ts = $this->efb_conditional_date_ts($value);
+				$expected_ts = $this->efb_conditional_date_ts($expected_scalar);
+				if ($value_ts === null || $expected_ts === null) return false;
+				return $compare === 'date_before' ? $value_ts < $expected_ts : $value_ts > $expected_ts;
+			case 'date_between':
+				$date_range = is_array($expected) ? $expected : preg_split('/\s*,\s*/', $expected_scalar);
+				if (count($date_range) < 2) return false;
+				$ts = $this->efb_conditional_date_ts($value);
+				$from_ts = $this->efb_conditional_date_ts($date_range[0]);
+				$to_ts = $this->efb_conditional_date_ts($date_range[1]);
+				if ($ts === null || $from_ts === null || $to_ts === null) return false;
+				return $ts >= $from_ts && $ts <= $to_ts;
+			default: return false;
+		}
+	}
+
+	/* Timestamp for a date string, or null when unparseable (never matches). */
+	private function efb_conditional_date_ts($value) {
+		$text = trim((string) $value);
+		if ($text === '') return null;
+		$parsed = strtotime(strlen($text) === 10 ? $text . ' 00:00:00' : $text);
+		return $parsed === false ? null : $parsed;
+	}
+
+	/**
+	 * Replace {field_id} tokens with the submitted value of that field.
+	 * Used for dynamic notification subjects and redirect URLs (PRD C4/C5).
+	 * Unknown tokens are removed; array values are joined with a comma.
+	 */
+	private function efb_replace_field_tokens($text, $values, $url_encode = false) {
+		return preg_replace_callback('/\{([A-Za-z0-9_-]+)\}/', function ($match) use ($values, $url_encode) {
+			$value = array_key_exists($match[1], $values) ? $values[$match[1]] : '';
+			if (is_array($value)) $value = implode(',', array_map('strval', $value));
+			$value = sanitize_text_field((string) $value);
+			return $url_encode ? rawurlencode($value) : $value;
+		}, (string) $text);
+	}
+
+	private function get_conditional_confirmation_result($form_fields_array, $submitted_values) {
+		if (empty($form_fields_array[0]['confirmation_rules']) || !is_array($form_fields_array[0]['confirmation_rules'])) return null;
+		$values = $this->efb_conditional_values_map($form_fields_array, $submitted_values);
+		foreach ($this->efb_conditional_sorted_rules($form_fields_array[0]['confirmation_rules']) as $rule) {
+			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? [], $values)) continue;
+			$action = ($rule['action'] ?? 'message') === 'redirect' ? 'redirect' : 'message';
+			if ($action === 'redirect') {
+				return [
+					'action' => 'redirect',
+					/* {field_id} tokens make personalized redirects possible:
+					 * https://example.com/thanks?plan={plan}&mail={email} */
+					'url' => esc_url($this->efb_replace_field_tokens($rule['url'] ?? '', $values, true)),
+					'message' => '',
+				];
+			}
+			$icon = isset($rule['icon']) && is_string($rule['icon']) ? trim($rule['icon']) : '';
+			return [
+				'action' => 'message',
+				'url' => '',
+				'message' => wp_kses_post($rule['message'] ?? ''),
+				/* Optional done-screen display overrides (empty string = keep form default) */
+				'done' => sanitize_text_field($rule['done'] ?? ''),
+				'icon' => preg_match('/^bi-[a-z0-9-]+$/', $icon) ? $icon : '',
+				'tracking_label' => sanitize_text_field($rule['tracking_label'] ?? ''),
+				'icon_color' => $this->efb_confirmation_hex_color($rule['icon_color'] ?? ''),
+				'title_color' => $this->efb_confirmation_hex_color($rule['title_color'] ?? ''),
+				'message_color' => $this->efb_confirmation_hex_color($rule['message_color'] ?? ''),
+			];
+		}
+		return null;
+	}
+
+	private function efb_confirmation_hex_color($color) {
+		$color = is_string($color) ? trim($color) : '';
+		return preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? strtolower($color) : '';
+	}
+
+	/**
+	 * Email debug trace for E2E testing (doc section 17.11). Off by default;
+	 * enable with define('EMSFB_EMAIL_DEBUG', true) in wp-config.php. Kept
+	 * behind its own switch (not WP_DEBUG) because the lines contain
+	 * recipients and message previews.
+	 */
+	private function efb_email_debug_log($event, array $data) {
+		if (!defined('EMSFB_EMAIL_DEBUG') || !EMSFB_EMAIL_DEBUG) return;
+		// error_log('[EFB Email Debug][' . $event . '] ' . json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+	}
+
+	private function process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email) {
+		if (empty($form_fields_array[0]['notification_rules']) || !is_array($form_fields_array[0]['notification_rules'])) return;
+		$values = $this->efb_conditional_values_map($form_fields_array, $submitted_values);
+		$content = isset($status_email['content']) ? $status_email['content'] : 'null';
+		$type = isset($status_email['type']) ? $status_email['type'] : 'traking_link';
+		$rules = $this->efb_conditional_sorted_rules($form_fields_array[0]['notification_rules']);
+		$this->efb_email_debug_log('notification-rules', [
+			'track' => $track_code,
+			'form_id' => intval($this->id),
+			'active_rules' => count($rules),
+			'values' => $values,
+		]);
+
+		foreach ($rules as $rule) {
+			$rule_id = isset($rule['id']) ? (string)$rule['id'] : '';
+			$recipient = sanitize_email($rule['recipient'] ?? '');
+			if ($recipient === '' || !is_email($recipient)) {
+				$this->efb_email_debug_log('rule-skipped', [
+					'track' => $track_code,
+					'rule' => $rule_id,
+					'reason' => 'invalid_recipient',
+					'recipient_raw' => (string)($rule['recipient'] ?? ''),
+				]);
+				continue;
+			}
+			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? [], $values)) {
+				$this->efb_email_debug_log('rule-not-matched', [
+					'track' => $track_code,
+					'rule' => $rule_id,
+					'recipient' => $recipient,
+				]);
+				continue;
+			}
+
+			$subject = isset($rule['subject']) && trim((string)$rule['subject']) !== '' ? sanitize_text_field($rule['subject']) : ($status_email['subject'] ?? 'null');
+			/* {field_id} tokens personalize the subject per submission (PRD C4) */
+			if ($subject !== '' && $subject !== 'null') $subject = $this->efb_replace_field_tokens($subject, $values);
+			if ($subject === '') $subject = 'null';
+
+			/* Conditional CC/BCC (PRD C4): every extra recipient gets its own copy.
+			 * send_email_Emsfb_ has no header channel, so copies are separate sends. */
+			$copy_recipients = [];
+			foreach (['cc', 'bcc'] as $copy_key) {
+				$copy_list = isset($rule[$copy_key]) && is_array($rule[$copy_key]) ? $rule[$copy_key] : [];
+				foreach ($copy_list as $copy_email) {
+					$copy_email = sanitize_email((string) $copy_email);
+					if ($copy_email !== '' && is_email($copy_email) && $copy_email !== $recipient && !in_array($copy_email, $copy_recipients, true)) {
+						$copy_recipients[] = $copy_email;
+					}
+				}
+			}
+
+			$this->efb_email_debug_log('rule-matched-send', [
+				'track' => $track_code,
+				'rule' => $rule_id,
+				'priority' => isset($rule['priority']) ? intval($rule['priority']) : 10,
+				'recipient' => $recipient,
+				'cc_bcc' => $copy_recipients,
+				'subject' => $subject,
+				'content_preview' => $content === 'null' ? '(default template)' : mb_substr(trim(strip_tags((string)$content)), 0, 200),
+			]);
+			$this->send_email_Emsfb_([$recipient, ''], $track_code, $is_pro, ['newMessage', 'newMessage', $type], $url, $content, $subject);
+			foreach ($copy_recipients as $copy_email) {
+				$this->send_email_Emsfb_([$copy_email, ''], $track_code, $is_pro, ['newMessage', 'newMessage', $type], $url, $content, $subject);
+			}
+		}
+	}
+
+	private function process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context = array()) {
+		if (empty($form_fields_array[0]['webhook_rules']) || !is_array($form_fields_array[0]['webhook_rules'])) return array();
+		$webhook_submitted_values = isset($context['integration_values']) && is_array($context['integration_values'])
+			? $context['integration_values']
+			: $submitted_values;
+		$values = $this->efb_conditional_values_map($form_fields_array, $webhook_submitted_values);
+		$sent = array();
+		$sorted_rules = $this->efb_conditional_sorted_rules($form_fields_array[0]['webhook_rules']);
+
+		/* Stop rules (PRD C6 "Stop webhook") run first: a matched stop rule
+		 * cancels trigger rules with the same webhook_id — or every trigger
+		 * rule when its webhook_id is empty. */
+		$stop_all = false;
+		$stopped_ids = array();
+		foreach ($sorted_rules as $rule) {
+			if ((isset($rule['enabled']) && !$rule['enabled']) || ($rule['action'] ?? 'trigger') !== 'stop') continue;
+			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? array(), $values)) continue;
+			$stop_id = isset($rule['webhook_id']) ? sanitize_text_field($rule['webhook_id']) : '';
+			if ($stop_id === '') $stop_all = true;
+			else $stopped_ids[$stop_id] = true;
+		}
+
+		foreach ($sorted_rules as $rule) {
+			if (isset($rule['enabled']) && !$rule['enabled']) continue;
+			if (($rule['action'] ?? 'trigger') === 'stop') continue;
+			$url = isset($rule['url']) ? esc_url_raw($rule['url']) : '';
+			if ($url === '') continue;
+			$rule_webhook_id = isset($rule['webhook_id']) ? sanitize_text_field($rule['webhook_id']) : '';
+			if ($stop_all || ($rule_webhook_id !== '' && isset($stopped_ids[$rule_webhook_id]))) continue;
+			if (!$this->efb_evaluate_conditional_group($rule['conditions'] ?? array(), $values)) continue;
+
+			/* payload_fields (PRD C6 "Modify webhook payload"): when set, only
+			 * the whitelisted field ids are sent to the webhook endpoint. */
+			$payload_values = $values;
+			$payload_submitted = $webhook_submitted_values;
+			if (!empty($rule['payload_fields']) && is_array($rule['payload_fields'])) {
+				$allowed_payload = array_flip(array_map('strval', $rule['payload_fields']));
+				$payload_values = array_intersect_key($values, $allowed_payload);
+				$payload_submitted = array_values(array_filter((array) $webhook_submitted_values, function ($row) use ($allowed_payload) {
+					return is_array($row) && isset($row['id_']) && isset($allowed_payload[(string) $row['id_']]);
+				}));
+			}
+
+			$method = isset($rule['method']) && strtoupper((string)$rule['method']) === 'GET' ? 'GET' : 'POST';
+			$payload = array(
+				'webhook_id' => $rule_webhook_id,
+				'rule_id' => isset($rule['id']) ? sanitize_text_field($rule['id']) : '',
+				'rule_name' => isset($rule['name']) ? sanitize_text_field($rule['name']) : '',
+				'track_code' => $track_code,
+				'form_id' => intval($this->id),
+				'event_type' => $event_type,
+				'page_url' => isset($context['page_url']) ? esc_url_raw($context['page_url']) : '',
+				'values' => $payload_values,
+				'submitted_values' => $payload_submitted,
+			);
+
+			$args = array(
+				'timeout' => 8,
+				'redirection' => 3,
+				'headers' => array(
+					'Content-Type' => 'application/json; charset=utf-8',
+					'X-EFB-Webhook-Id' => $payload['webhook_id'],
+					'X-EFB-Rule-Id' => $payload['rule_id'],
+					'X-EFB-Track-Code' => (string)$track_code,
+				),
+				'body' => wp_json_encode($payload),
+			);
+
+			do_action('efb_conditional_webhook_before_send', $payload, $rule, $context);
+			$response = $method === 'GET'
+				? wp_remote_get(add_query_arg(array('track_code' => $track_code, 'event_type' => $event_type), $url), array('timeout' => 8, 'redirection' => 3))
+				: wp_remote_post($url, $args);
+			do_action('efb_conditional_webhook_after_send', $response, $payload, $rule, $context);
+
+			$sent[] = array(
+				'rule_id' => $payload['rule_id'],
+				'webhook_id' => $payload['webhook_id'],
+				'url' => $url,
+				'method' => $method,
+			);
+		}
+
+		return $sent;
+	}
+
 	public function send_email_Emsfb_($to, $track, $pro, $state, $link, $content = 'null', $sub = 'null') {
 		$homeUrl = home_url();
 		$blogName = get_bloginfo('name');
@@ -3723,11 +4466,33 @@ public function check_nonce_permission_efb($request) {
     }
 
 
+    $this->efb_email_debug_log('dispatch', [
+        'track' => $track,
+        'to' => is_array($to) ? array_values(array_filter($to, function ($v) { return $v !== '' && $v !== 'null'; })) : $to,
+        'state' => $state,
+        'subject' => $subject,
+        'has_custom_content' => $content !== 'null',
+        'content_preview' => $content === 'null' ? '(state template)' : mb_substr(trim(strip_tags((string)$content)), 0, 200),
+    ]);
     $check = $this->efbFunction->send_email_state_new($to, $subject, $cont, $pro, $state, $link_w, $this->setting);
 
 	}
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
+	/* GET Emsfb/v1/forms/payment/stripe/pkey — fresh publishable key for pages
+	 * whose cached HTML was localized before the keys were saved. */
+	public function get_stripe_public_key_Emsfb_api() {
+		$key = $this->resolve_payment_key_efb( get_setting_Emsfb( 'decoded' ), 'stripePKey' );
+		wp_send_json_success( [ 'success' => $key !== 'null', 'key' => $key ], 200 );
+	}
 	public function pay_stripe_sub_Emsfb_api($data_POST_) {
+		if ( ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
+			wp_send_json_success( array(
+				'success' => false,
+				'm'       => emsfb_get_addon_unavailable_message_efb( 'AdnSPF' ),
+			), 503 );
+			return;
+		}
+
 		$data_POST = $data_POST_->get_json_params();
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
@@ -3735,12 +4500,14 @@ public function check_nonce_permission_efb($request) {
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
-		$Sk ='null';
 		if(gettype($r)=="string"){
-			$setting =str_replace('\\', '', $r);
-			$setting =json_decode($setting);
-			$Sk = isset($setting->stripeSKey) && strlen($setting->stripeSKey)>5  ? $setting->stripeSKey :'null';
+			$setting = $this->decode_settings_json_efb( $r );
+		} elseif ( is_array( $r ) ) {
+			$setting = (object) $r;
+		} else {
+			$setting = $r;
 		}
+		$Sk = $this->resolve_payment_key_efb( $setting, 'stripeSKey' );
 		if ($Sk=="null"){
 				$m = esc_html__('Stripe', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 402';
 				$response = ['success' => false, 'm' => $m];
@@ -3748,10 +4515,20 @@ public function check_nonce_permission_efb($request) {
 				die("secure!");
 		}
 		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {
-			 $efbFunction->download_all_addons_efb();
+			 $this->efbFunction->download_all_addons_efb();
 			 return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
-		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
+		/* Load the Stripe SDK guarded: another plugin may already have loaded a
+		 * Stripe SDK or this very composer build — re-requiring the composer
+		 * bootstrap then fatals on the ComposerAutoloaderInit class redeclare. */
+		if ( ! class_exists( '\Stripe\StripeClient' ) ) {
+			$stripe_init = EMSFB_PLUGIN_DIRECTORY . '/vendor/stripe/stripe-php/init.php';
+			if ( file_exists( $stripe_init ) ) {
+				require_once $stripe_init;
+			} else {
+				require_once( EMSFB_PLUGIN_DIRECTORY . "/vendor/autoload.php" );
+			}
+		}
 		$this->id = intval($data_POST['id']);
 		$val_ = sanitize_text_field($data_POST['value']);
 		if(empty($this->db)){
@@ -3782,8 +4559,12 @@ public function check_nonce_permission_efb($request) {
 		$price_f = $price_f*100;
 		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
 		if($price_f>0){
-			$currency= $fs_[0]['currency'] ;
+			$currency= isset($fs_[0]['currency']) && strlen((string)$fs_[0]['currency'])>2 ? $fs_[0]['currency'] : 'usd';
 
+			/* A Stripe API failure (invalid key, unsupported currency, amount below
+			 * minimum, network...) must reach the visitor as a readable message,
+			 * not as an uncaught exception / HTTP 500. */
+			try {
 			$stripe = new \Stripe\StripeClient($Sk);
 			$newPay = [
 				'amount' => $price_f,
@@ -3829,6 +4610,12 @@ public function check_nonce_permission_efb($request) {
 					  $amount = $paymentIntent->plan->amount/100;
 					  $created= date("Y-m-d-h:i:s",$paymentIntent->created);
 					  $val =  $amount . ' ' . $paymentIntent->currency;
+			}
+			} catch ( \Throwable $e ) {
+				// error_log( '[EFB][Stripe] card/add failed for form ' . $this->id . ': ' . $e->getMessage() );
+				$response = [ 'success' => false, 'm' => 'Stripe: ' . $e->getMessage() ];
+				wp_send_json_success( $response, 200 );
+				return;
 			}
 			$filtered = array_filter($valobj, function($item) {
 				if(isset($item['price']))	return $item;
@@ -3912,6 +4699,14 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	public function pay_stripe_confirm_Emsfb_api( $request ) {
+		if ( ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
+			wp_send_json_success( array(
+				'success' => false,
+				'm'       => emsfb_get_addon_unavailable_message_efb( 'AdnSPF' ),
+			), 503 );
+			return;
+		}
+
 		$data_POST       = $request->get_json_params();
 		$payment_intent  = sanitize_text_field( $data_POST['paymentIntentId'] ?? '' );
 		$trackid         = sanitize_text_field( $data_POST['trackid'] ?? '' );
@@ -3977,6 +4772,13 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	public function pay_persia_sub_Emsfb_api($data_POST_){
+		if ( ! emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
+			wp_send_json_success( array(
+				'success' => false,
+				'm'       => emsfb_get_addon_unavailable_message_efb( 'AdnPPF' ),
+			), 503 );
+			return;
+		}
 
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
 		$persiapay = new zarinPalEFB() ;
@@ -4692,10 +5494,19 @@ public function check_nonce_permission_efb($request) {
 			$efbFunction->setting_version_efb_update('null' ,$this->pro_efb );
 		}
 	}
+
 	public function form_preview_efb(){
 
 		if (  check_ajax_referer('wp_rest', 'nonce') != 1) {
 			die();
+		}
+
+		// Form preview is a builder-only action (it creates/overwrites a draft
+		// page). Gate it with the same custom capability used by the rest of the
+		// form builder (see class-Emsfb-create.php), so a low-privileged logged-in
+		// user holding a valid wp_rest nonce cannot create/overwrite pages.
+		if ( ! current_user_can('Emsfb') ) {
+			wp_send_json_error( array( 'm' => esc_html__( 'You are not allowed to do this.', 'easy-form-builder' ) ), 403 );
 		}
 		$new_page_id = 0;
 
@@ -4745,37 +5556,117 @@ public function check_nonce_permission_efb($request) {
 		delete_option($id);
 	}
 	function genrate_sacure_code_admin_email($track){
-		function g($track , $key){
-			return md5($track.$key);
-		}
-
+		/* No nested named function here: this method runs once per outgoing
+		 * email, and a second declaration in the same request is a fatal
+		 * "Cannot redeclare" (admin email + conditional department email). */
 		if(isset($this->setting->email_key)){
 		}else{
-
-			$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
-
-			$this->setting->email_key = $rand;
-			$setting = json_encode($this->setting,JSON_UNESCAPED_UNICODE);
-			$setting= str_replace('"', '\"', $setting);
-			if(empty($this->db)){
-				global $wpdb;
-				$this->db = $wpdb;
+			/* $this->setting may be a partial/failed decode at this point; the old
+			 * code re-persisted it as the newest settings row, silently wiping the
+			 * saved payment keys. Reload the healed copy before touching storage. */
+			if ( ! is_object( $this->setting ) || ! isset( $this->setting->emailSupporter ) ) {
+				$healed = get_setting_Emsfb( 'decoded' );
+				if ( is_object( $healed ) ) {
+					$this->setting = $healed;
+				}
 			}
-			$table_name = $this->db->prefix . 'emsfb_setting';
-			$email =$this->setting->emailSupporter;
-			$this->db->insert(
-				$table_name,
-				[
-					'setting' => $setting,
-					'edit_by' => 0,
-					'date'    => wp_date('Y-m-d H:i:s'),
-					'email'   => $email
-				]
-			);
-			set_transient('emsfb_settings_transient', $setting, 1440);
-			update_option('emsfb_settings', $setting);
+			if ( isset( $this->setting->email_key ) ) {
+				return md5( $track . $this->setting->email_key );
+			}
+
+			/* Reuse a key issued while settings were unreadable, so codes in
+			 * already-sent emails keep verifying. */
+			$stored = get_option( 'emsfb_email_key', '' );
+			$rand = $stored !== '' ? $stored : substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
+
+			if ( is_object( $this->setting ) && isset( $this->setting->emailSupporter ) ) {
+				$this->setting->email_key = $rand;
+				$efbFunction = $this->efbFunction !== null ? $this->efbFunction : get_efbFunction();
+				$efbFunction->set_setting_Emsfb(
+					wp_json_encode( $this->setting, JSON_UNESCAPED_UNICODE ),
+					$this->setting->emailSupporter
+				);
+			} else {
+				/* Settings are unreadable: keep the key in its own option instead of
+				 * persisting a partial settings row over the real one. */
+				if ( $stored === '' ) {
+					update_option( 'emsfb_email_key', $rand );
+				}
+				if ( ! is_object( $this->setting ) ) {
+					$this->setting = new \stdClass();
+				}
+				$this->setting->email_key = $rand;
+			}
 		}
-		return g($track , $this->setting->email_key);
+		return md5($track . $this->setting->email_key);
+	}
+
+	/* Decode a settings JSON string without corrupting values that contain
+	 * escaped characters: plain decode first, then stripslashes passes, and
+	 * only as a last resort the legacy strip-all-backslashes transform. */
+	private function decode_settings_json_efb( $raw ) {
+		if ( ! is_string( $raw ) || $raw === '' ) {
+			return null;
+		}
+		$decoded = json_decode( $raw );
+		for ( $i = 0; $i < 5 && $decoded === null; $i++ ) {
+			$raw = stripslashes( $raw );
+			$decoded = json_decode( $raw );
+		}
+		if ( $decoded === null ) {
+			$decoded = json_decode( str_replace( '\\', '', $raw ) );
+		}
+		return is_object( $decoded ) ? $decoded : null;
+	}
+
+	/* Resolve a payment key (stripePKey/stripeSKey/paypalPKey/...) with the
+	 * same fallback chain the PayPal branch used: current $setting object →
+	 * healed decoded settings → emsfb_settings option → latest DB row. The DB
+	 * step also refreshes the option/transient so a stale cache self-heals.
+	 * Returns the key, or the string 'null' (legacy contract) when absent. */
+	private function resolve_payment_key_efb( $setting, $key ) {
+		$value = ( is_object( $setting ) && isset( $setting->$key ) ) ? trim( (string) $setting->$key ) : '';
+		if ( strlen( $value ) > 5 ) {
+			return $value;
+		}
+
+		$decoded = get_setting_Emsfb( 'decoded' );
+		if ( is_object( $decoded ) && isset( $decoded->$key ) ) {
+			$value = trim( (string) $decoded->$key );
+			if ( strlen( $value ) > 5 ) {
+				return $value;
+			}
+		}
+
+		$option_settings = $this->decode_settings_json_efb( get_option( 'emsfb_settings', '' ) );
+		if ( is_object( $option_settings ) && isset( $option_settings->$key ) ) {
+			$value = trim( (string) $option_settings->$key );
+			if ( strlen( $value ) > 5 ) {
+				return $value;
+			}
+		}
+
+		if ( empty( $this->db ) ) {
+			global $wpdb;
+			$this->db = $wpdb;
+		}
+		$table_name = $this->db->prefix . 'emsfb_setting';
+		$latest_raw = $this->db->get_var( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );
+		$latest_settings = $this->decode_settings_json_efb( $latest_raw );
+		if ( is_object( $latest_settings ) && isset( $latest_settings->$key ) ) {
+			$value = trim( (string) $latest_settings->$key );
+			if ( strlen( $value ) > 5 ) {
+				$healed_json = wp_json_encode( $latest_settings, JSON_UNESCAPED_UNICODE );
+				if ( ! empty( $healed_json ) ) {
+					update_option( 'emsfb_settings', $healed_json );
+					set_transient( 'emsfb_settings_transient', $healed_json, 1800 );
+					get_setting_Emsfb( '_clear_cache' );
+				}
+				return $value;
+			}
+		}
+
+		return 'null';
 	}
 
 	private function sanitize_value_efb($value, $key) {
@@ -4795,6 +5686,52 @@ public function check_nonce_permission_efb($request) {
 		}, ARRAY_FILTER_USE_KEY);
 	}
 
+	/**
+	 * Confirms every required field has a value in $submitted_values.
+	 *
+	 * The per-field loop in get_form_public_efb() only validates the FORMAT of
+	 * values that arrived in the request — if a required field is absent from
+	 * $submitted_values entirely (e.g. JS validation was bypassed), that loop
+	 * never iterates for it and the missing field passes silently. This runs
+	 * before that loop for every ordinary submission so the existing
+	 * "fill required fields" message is actually enforced server-side.
+	 */
+	private function validate_required_fields_present_efb($form_fields_array, $submitted_values) {
+		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld'];
+		static $checkbox_types = ['checkbox', 'paycheckbox', 'chlcheckbox'];
+		static $radio_types = ['radio', 'payradio', 'imgradio', 'chlradio'];
+		static $file_types = ['file', 'dadfile', 'esign', 'audio_recorder', 'video_recorder', 'screen_recorder'];
+
+		$submitted_ids = [];
+		foreach ((array) $submitted_values as $row) {
+			if (!is_array($row) || empty($row['id_'])) continue;
+			$type = strtolower((string) ($row['type'] ?? ''));
+			$value = $row['value'] ?? '';
+			if (in_array($type, $checkbox_types, true) && !empty($row['id_ob'])) {
+				$submitted_ids[$row['id_']] = true;
+			} elseif ((in_array($type, $radio_types, true) || $type === 'yesno') && !empty($row['id_ob'])) {
+				$submitted_ids[$row['id_']] = true;
+			} elseif (in_array($type, $file_types, true) && ($value !== '' || !empty($row['url']))) {
+				$submitted_ids[$row['id_']] = true;
+			} elseif (is_array($value) ? !empty($value) : ($value !== '' && $value !== null)) {
+				$submitted_ids[$row['id_']] = true;
+			}
+		}
+
+		foreach ($form_fields_array as $position => $field) {
+			if ($position < 1 || !is_array($field) || empty($field['id_'])) continue;
+			$type = strtolower((string) ($field['type'] ?? ''));
+			if (in_array($type, $structural_types, true)) continue;
+			$required = $field['required'] ?? false;
+			$is_required = $required === true || $required === 1 || $required === '1' || $required === 'true';
+			if ($is_required && !isset($submitted_ids[$field['id_']])) {
+				return ['valid' => false, 'missing_field' => $field['id_'], 'missing_name' => $field['name'] ?? $field['id_']];
+			}
+		}
+
+		return ['valid' => true, 'missing_field' => null, 'missing_name' => null];
+	}
+
 	private function filter_attributes_by_type_efb($data,$type) {
 		static $allowed_attributes_efb = ['id_' => true, 'name' => true, 'id_ob' => true, 'amount' => true, 'type' => true, 'value' => true, 'session' => true ,'form_id'=>true];
 		static $attribute_map_efb = [
@@ -4809,6 +5746,7 @@ public function check_nonce_permission_efb($request) {
 			'persiapay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
 			'payment' => ['amount' => true], 'file' => ['url' => true], 'address_line'=>true,
 			'dadfile' => ['url' => true], 'esign' => true, 'maps' => true,
+			'audio_recorder' => ['url' => true], 'video_recorder' => ['url' => true], 'screen_recorder' => ['url' => true],
 			'color' => true, 'range' => true, 'number' => true, 'prcfld' => true,
 			'checkbox' => true, 'table_matrix' => true, 'trmCheckbox' => true,
 			'ttlprc' => true, 'smartcr' => true, 'pointr5' => true,'tel'=>true,
@@ -4836,12 +5774,18 @@ public function check_nonce_permission_efb($request) {
 		$this->efbFunction = get_efbFunction();
 		$texts =['sxnlex','uraatn'];
 		$lan =$this->efbFunction->text_efb($texts);
+		/* Nested named helpers must not be redeclared if this method runs
+		 * twice in one request — same fatal class as the old Emsfb\g() in
+		 * the email path (Cannot redeclare). */
+		if (!function_exists('Emsfb\\Js_')) {
 		function Js_() {
 			return "<script>if (window.location.href.indexOf('?') !== -1) {
 			var newUrl = window.location.href.split('?')[0];
 			window.history.pushState({}, document.title, newUrl);
 		    }</script>";
 		}
+		}
+		if (!function_exists('Emsfb\\Js_setpassword')) {
 		function Js_setpassword(){
 			return "<script>
 			const efb_url = '".get_rest_url(null)."Emsfb/v1/forms/recovery/efb_set_password';
@@ -4917,6 +5861,8 @@ public function check_nonce_permission_efb($request) {
 			});
 			</script>";
 		}
+		}
+		if (!function_exists('Emsfb\\create_content_setpassword')) {
 		function create_content_setpassword($st,$fid){
 			$html = '<div class="efb card efb my-3 efb p-4" id="body_efb_rpass" style="max-width: 400px; margin: 0 auto;">
 
@@ -4958,10 +5904,14 @@ public function check_nonce_permission_efb($request) {
 				return $html;
 
 		}
+		}
+		if (!function_exists('Emsfb\\recovery_')) {
 		function recovery_($lan,$username,$st,$fid){
 			return create_content_setpassword($st,$fid);
 		}
+		}
 
+		if (!function_exists('Emsfb\\register_')) {
 		function register_( $lan,$username){
 			$user = get_user_by('login', $username);
 
@@ -4971,6 +5921,7 @@ public function check_nonce_permission_efb($request) {
 				$user->set_role('subscriber');
 			}
 			return '<p text-align: center;">'.$lan['uraatn'].'</p>' . Js_();
+		}
 		}
 		if(empty($this->db)){
             global $wpdb;
@@ -5075,7 +6026,8 @@ public function check_nonce_permission_efb($request) {
 
 	public function set_password_efb_api(){
 
-		$data = json_decode(file_get_contents('php://input'), true);
+		$raw_input = emsfb_read_file_efb('php://input');
+		$data = is_string($raw_input) ? json_decode($raw_input, true) : null;
 		if (!is_array($data)) {
 			return new WP_REST_Response(array('success' => false, 'data' => esc_html__('Error! Please try again later.', 'easy-form-builder')), 400);
 		}
@@ -5397,34 +6349,46 @@ public function check_nonce_permission_efb($request) {
 
 	public function pay_paypal_sub_Emsfb_api($data_POST_) {
 		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
 		if ( ! file_exists( $handler_path ) ) {
+			// error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api ERROR: handler file not found.');
 			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
 			return;
 		}
 		require_once $handler_path;
-		$handler = new PaypalHandler();
+		$paypal_setting = is_object( $this->setting ) ? $this->setting : get_setting_Emsfb( 'decoded' );
+		$handler = new PaypalHandler( $paypal_setting );
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api: handler loaded, delegating create payment.');
 		$handler->handle_create_payment( $data_POST_, $this );
 	}
 
 	public function pay_paypal_capture_Emsfb_api($data_POST_) {
 		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
 		if ( ! file_exists( $handler_path ) ) {
+			// error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api ERROR: handler file not found.');
 			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
 			return;
 		}
 		require_once $handler_path;
-		$handler = new PaypalHandler();
+		$paypal_setting = is_object( $this->setting ) ? $this->setting : get_setting_Emsfb( 'decoded' );
+		$handler = new PaypalHandler( $paypal_setting );
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api: handler loaded, delegating capture.');
 		$handler->handle_capture( $data_POST_ );
 	}
 
 	public function pay_paypal_subscription_activate_Emsfb_api($data_POST_) {
 		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
 		if ( ! file_exists( $handler_path ) ) {
+			// error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api ERROR: handler file not found.');
 			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
 			return;
 		}
 		require_once $handler_path;
-		$handler = new PaypalHandler();
+		$paypal_setting = is_object( $this->setting ) ? $this->setting : get_setting_Emsfb( 'decoded' );
+		$handler = new PaypalHandler( $paypal_setting );
+		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api: handler loaded, delegating subscription activate.');
 		$handler->handle_subscription_activate( $data_POST_ );
 	}
 
@@ -6074,7 +7038,9 @@ public function check_nonce_permission_efb($request) {
 		return $results;
 	}
 
-	private function efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, $event_type = 'form_submit') {
+	private function efb_intgrate_with_3rd_party_services_efb($track_code, $submitted_values, $form_fields_array, $event_type = 'form_submit', $integration_args = []) {
+
+		$integration_args = is_array($integration_args) ? $integration_args : [];
 
 		$context = [
 			'track_code'       => $track_code,
@@ -6084,122 +7050,42 @@ public function check_nonce_permission_efb($request) {
 			'submitted_values' => $submitted_values,
 			'form_fields'      => $form_fields_array,
 		];
-
-		do_action('efb_3rd_party_telegram_notify', $context);
-
-		do_action('efb_3rd_party_google_sheet_sync', $context);
-
-		do_action('efb_after_form_integration', $context);
-
-	}
-
-	/**
-	 * Server-side conditional logic evaluation
-	 * Determines which fields should be visible/required based on submitted values and logic_rules
-	 */
-	public function evaluate_logic_rules($form_fields_array, $submitted_values) {
-		if (!isset($form_fields_array[0]['logic_rules']) || !is_array($form_fields_array[0]['logic_rules'])) {
-			return array('hidden_fields' => array(), 'required_fields' => array(), 'optional_fields' => array());
+		if (isset($integration_args['enriched_submitted_values']) && is_array($integration_args['enriched_submitted_values'])) {
+			$context['enriched_submitted_values'] = array_values($integration_args['enriched_submitted_values']);
+			$context['submitted_values_raw'] = $context['submitted_values'];
+			$context['integration_values'] = $context['enriched_submitted_values'];
+			$context['integration_value_map'] = $this->efb_conditional_values_map($form_fields_array, $context['integration_values']);
 		}
-
-		$rules = $form_fields_array[0]['logic_rules'];
-		$hidden_fields = array();
-		$required_fields = array();
-		$optional_fields = array();
-
-		/* Build a map of submitted values by field id */
-		$values_map = array();
-		foreach ($submitted_values as $sv) {
-			if (isset($sv['id_'])) {
-				$values_map[$sv['id_']] = isset($sv['value']) ? $sv['value'] : '';
-			}
-			if (isset($sv['id_ob'])) {
-				if (!isset($values_map[$sv['id_ob']])) $values_map[$sv['id_ob']] = array();
-				if (is_array($values_map[$sv['id_ob']])) {
-					$values_map[$sv['id_ob']][] = isset($sv['id_']) ? $sv['id_'] : '';
-				}
-			}
-		}
-
-		/* Sort rules by priority */
-		usort($rules, function($a, $b) {
-			return (isset($a['priority']) ? intval($a['priority']) : 10) - (isset($b['priority']) ? intval($b['priority']) : 10);
-		});
-
-		foreach ($rules as $rule) {
-			if (!isset($rule['enabled']) || !$rule['enabled']) continue;
-			if (!isset($rule['conditions']) || !isset($rule['conditions']['items'])) continue;
-
-			$matched = $this->evaluate_condition_group($rule['conditions'], $values_map);
-
-			if (isset($rule['actions']) && is_array($rule['actions'])) {
-				foreach ($rule['actions'] as $action) {
-					if (!isset($action['target']) || empty($action['target'])) continue;
-					$target = $action['target'];
-					$type = isset($action['type']) ? $action['type'] : '';
-
-					if ($type === 'hide_field' && $matched) $hidden_fields[$target] = true;
-					if ($type === 'show_field' && !$matched) $hidden_fields[$target] = true;
-					if ($type === 'set_required' && $matched) $required_fields[$target] = true;
-					if ($type === 'set_optional' && $matched) $optional_fields[$target] = true;
-				}
-			}
-		}
-
-		return array(
-			'hidden_fields' => array_keys($hidden_fields),
-			'required_fields' => array_keys($required_fields),
-			'optional_fields' => array_keys($optional_fields)
+		// Human Shield (or any other guard) may veto costly side effects per
+		// channel before an integration receives the event. Keep Telegram here
+		// as well: its handler eventually sends a remote API request and must
+		// not bypass the shared stop-loss/low-score gate.
+		$shield_context = array(
+			'event'         => $event_type,
+			'form_id'       => intval($this->id),
+			'tracking_code' => $track_code,
+			'recipients'    => array(),
+			'source'        => 'efb_intgrate_with_3rd_party_services_efb',
 		);
-	}
 
-	private function evaluate_condition_group($group, $values_map) {
-		if (!isset($group['items']) || !is_array($group['items']) || count($group['items']) === 0) return true;
-		$operator = isset($group['operator']) ? $group['operator'] : 'AND';
-
-		foreach ($group['items'] as $item) {
-			$result = $this->evaluate_single_condition($item, $values_map);
-			if ($operator === 'OR' && $result) return true;
-			if ($operator === 'AND' && !$result) return false;
+		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'webhook' ) ) ) ) {
+			$context['conditional_webhooks'] = $this->process_conditional_webhook_rules($form_fields_array, $submitted_values, $track_code, $event_type, $context);
+		} else {
+			$context['conditional_webhooks'] = array();
 		}
 
-		return ($operator === 'AND');
-	}
-
-	private function evaluate_single_condition($cond, $values_map) {
-		$field_id = isset($cond['field_id']) ? $cond['field_id'] : '';
-		$compare = isset($cond['compare']) ? $cond['compare'] : 'is';
-		$expected = isset($cond['value']) ? $cond['value'] : '';
-
-		$val = isset($values_map[$field_id]) ? $values_map[$field_id] : '';
-
-		/* Handle array values (checkbox/multiselect) */
-		if (is_array($val)) {
-			switch ($compare) {
-				case 'is': return in_array($expected, $val, true);
-				case 'is_not': return !in_array($expected, $val, true);
-				case 'is_empty': return count($val) === 0;
-				case 'is_not_empty': return count($val) > 0;
-				case 'contains': return count(array_filter($val, function($v) use ($expected) { return stripos($v, $expected) !== false; })) > 0;
-				case 'not_contains': return count(array_filter($val, function($v) use ($expected) { return stripos($v, $expected) !== false; })) === 0;
-				default: return false;
-			}
+		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'telegram' ) ) ) ) {
+			do_action('efb_3rd_party_telegram_notify', $context);
 		}
 
-		$str_val = trim(strval($val));
-		switch ($compare) {
-			case 'is': return $str_val === $expected;
-			case 'is_not': return $str_val !== $expected;
-			case 'contains': return stripos($str_val, $expected) !== false;
-			case 'not_contains': return stripos($str_val, $expected) === false;
-			case 'starts_with': return stripos($str_val, $expected) === 0;
-			case 'ends_with': return substr(strtolower($str_val), -strlen($expected)) === strtolower($expected);
-			case 'gt': return floatval($str_val) > floatval($expected);
-			case 'lt': return floatval($str_val) < floatval($expected);
-			case 'is_empty': return $str_val === '';
-			case 'is_not_empty': return $str_val !== '';
-			default: return false;
+		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'googlesheet' ) ) ) ) {
+			do_action('efb_3rd_party_google_sheet_sync', $context);
 		}
+
+		if ( apply_filters( 'efb_shield_allow_side_effect', true, array_merge( $shield_context, array( 'channel' => 'webhook', 'source' => 'efb_after_form_integration' ) ) ) ) {
+			do_action('efb_after_form_integration', $context);
+		}
+
 	}
 
 }

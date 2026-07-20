@@ -171,12 +171,13 @@
   gap: 4px;
   flex-shrink: 0;
 }
+.efb-resp-viewer .efb-msg-dl-wrap { position: relative; margin-inline-start: auto; }
 .efb-resp-viewer .efb-msg-download {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 8px;
 }
 .efb-resp-viewer .efb-msg-download i {
@@ -189,8 +190,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   background: transparent;
   border: none;
@@ -208,6 +209,16 @@
   color: var(--efb-resp-primary, #4361ee);
   transform: translateY(-1px);
   box-shadow: none;
+}
+.efb-resp-viewer .efb-msg-dl-btn:focus-visible { outline: 2px solid var(--efb-resp-primary, #4361ee); outline-offset: 2px; }
+.efb-resp-viewer.rtl-text .efb-msg-header-actions,
+.efb-resp-viewer .rtl-text .efb-msg-header-actions { margin-inline-start: 0; margin-inline-end: auto; }
+
+@media (max-width: 575.98px) {
+  .efb-resp-viewer .efb-msg-header { align-items: flex-start; gap: 8px; }
+  .efb-resp-viewer .efb-msg-header-actions { flex: 0 0 auto; }
+  .efb-resp-viewer .efb-msg-dl-btn { width: 44px; height: 44px; }
+  .efb-resp-viewer .efb-msg-download { width: 44px; height: 44px; }
 }
 
 /* ---- Floating dropdown menu (appended directly to <body>) ---- */

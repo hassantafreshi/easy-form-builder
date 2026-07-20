@@ -234,7 +234,7 @@ yesNi_el_pro_efb = (previewSate,pos, rndm,iVJ)=>{
   const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square';
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
     return `<div class="efb ${pos[3]} col-sm-12 efb  ${disabled} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}"  id='${rndm}-f'  ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""}>
-    <div class="efb  btn-group  btn-group-toggle w-100  col-md-12 col-sm-12  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" data-toggle="buttons" data-id="${rndm}-id" id="${rndm}_yn">
+    <div class="efb  efb-yesno-group btn-group  btn-group-toggle w-100  col-md-12 col-sm-12 border border-0 ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" data-toggle="buttons" data-id="${rndm}-id" id="${rndm}_yn" role="group" data-yesno-kit="default" aria-required="${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'true' : 'false'}">
     <label for="${rndm}_1" data-lid="${rndm}" data-value="${valj_efb[iVJ].button_1_text}" onclick="yesNoGetEFB('${valj_efb[iVJ].button_1_text}', '${rndm}' ,'${rndm}_b_1')" class="efb  btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${corner} yesno-efb left-efb  ${disabled} ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_1">
       <input type="radio" name="${rndm}" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_1" value="${valj_efb[iVJ].button_1_text}"><span id="${rndm}_1_lab">${valj_efb[iVJ].button_1_text}</span></label>
     <span class="efb border-right border border-light efb"></span>
@@ -509,17 +509,25 @@ function fun_clear_esign_efb(id) {
       x: touchEvent.touches[0].clientX - rct.left
     }
   }
-  function yesNoGetEFB(v, id,idl) {
-    if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
-      let iv = idl.slice(0,-4)
-       iv = idl.slice(-4)=='_b_2' ? `${iv}_b_1` :`${iv}_b_2`;
-       document.getElementById(iv).classList.remove('btn-set');
-       iv = document.getElementById(idl)
-       if(!iv.classList.contains('btn-set')) iv.classList.add('btn-set');
-       const indx = valj_efb.findIndex(x => x.id_ == id)
-       const o = [{ id_: id, name: valj_efb[indx].name, amount: valj_efb[indx].amount, type: "yesNo", value: v, session: sessionPub_emsFormBuilder }];
-       fun_sendBack_emsFormBuilder(o[0])
-    }
+  /* Guarded: public/assets/js/core-efb.js defines the multi-form-aware yesNoGetEFB
+     used on live forms. When both scripts load on the same page (a yesNo field
+     marks the form as needing pro_els-efb.js), this must not clobber that version
+     with the simpler builder-preview fallback below. */
+  if (typeof window.yesNoGetEFB !== 'function') {
+    window.yesNoGetEFB = function yesNoGetEFB(v, id, idl) {
+      if (typeof (sendBack_emsFormBuilder_pub) == "undefined") return;
+      const otherId = idl.slice(-4) == '_b_2' ? `${id}_b_1` : `${id}_b_2`;
+      const otherBtn = document.getElementById(otherId);
+      if (otherBtn) otherBtn.classList.remove('btn-set');
+      const clickedBtn = document.getElementById(idl);
+      if (clickedBtn && !clickedBtn.classList.contains('btn-set')) clickedBtn.classList.add('btn-set');
+
+      const indx = valj_efb.findIndex(x => x.id_ == id);
+      if (indx === -1) return;
+
+      const o = { id_: id, name: valj_efb[indx].name, amount: valj_efb[indx].amount, type: "yesNo", value: v, session: sessionPub_emsFormBuilder };
+      fun_sendBack_emsFormBuilder(o);
+    };
   }
   async function fun_get_rating_efb(v, no,form_id=0) {
     document.getElementById(`${v}-stared`).value = no;

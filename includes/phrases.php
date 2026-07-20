@@ -33,6 +33,10 @@ class EfbAddonPhrases {
 
         self::register_addon('sms', [__CLASS__, 'get_sms_phrases']);
 
+        self::register_addon('googlesheet', [__CLASS__, 'get_googlesheet_phrases']);
+
+        self::register_addon('humanshield', [__CLASS__, 'get_humanshield_phrases']);
+
     }
 
     public static function register_addon($addon_key, $callback) {
@@ -412,6 +416,57 @@ class EfbAddonPhrases {
     public static function get_stripe_phrases($ac = null, $state = false) {
         return [
 
+        ];
+    }
+
+    /**
+     * Visitor-facing messages produced by the Human Shield add-on (Form Security
+     * & Spam Protection). They are returned inside REST responses and rendered on
+     * the form, so they live here like every other add-on phrase and can be
+     * edited/translated from the Phrases page. Values are used as plain text and
+     * escaped by the consumer, so keep them unescaped (__ not esc_html__).
+     */
+    public static function get_humanshield_phrases($ac = null, $state = false) {
+        return [
+
+            /* translators: Shown when the security add-on is switched off */
+            "hsDisabled" => $state && isset($ac->text->hsDisabled) ? $ac->text->hsDisabled : __('Form Security & Spam Protection is disabled.', 'easy-form-builder'),
+
+            /* translators: Shown when the server cannot run the security checks but the form still works */
+            "hsServiceNotAvailable" => $state && isset($ac->text->hsServiceNotAvailable) ? $ac->text->hsServiceNotAvailable : __('The security service is not available right now. Your form still works.', 'easy-form-builder'),
+
+            /* translators: Ask the visitor to reload the form and submit again */
+            "hsRefreshForm" => $state && isset($ac->text->hsRefreshForm) ? $ac->text->hsRefreshForm : __('Please refresh the form and try again.', 'easy-form-builder'),
+
+            /* translators: Rate-limit message shown when too many requests arrive */
+            "hsTooManyRequests" => $state && isset($ac->text->hsTooManyRequests) ? $ac->text->hsTooManyRequests : __('Too many requests. Please try again shortly.', 'easy-form-builder'),
+
+            /* translators: The browser did not send a security challenge id */
+            "hsChallengeMissing" => $state && isset($ac->text->hsChallengeMissing) ? $ac->text->hsChallengeMissing : __('Missing challenge.', 'easy-form-builder'),
+
+            /* translators: The security challenge is no longer valid */
+            "hsChallengeExpired" => $state && isset($ac->text->hsChallengeExpired) ? $ac->text->hsChallengeExpired : __('Expired challenge.', 'easy-form-builder'),
+
+            /* translators: The security challenge was already used once */
+            "hsChallengeUsed" => $state && isset($ac->text->hsChallengeUsed) ? $ac->text->hsChallengeUsed : __('Challenge already used.', 'easy-form-builder'),
+
+            /* translators: The challenge does not belong to the submitted form */
+            "hsFormMismatch" => $state && isset($ac->text->hsFormMismatch) ? $ac->text->hsFormMismatch : __('Form mismatch.', 'easy-form-builder'),
+
+            /* translators: Temporary storage/service failure inside the security add-on */
+            "hsServiceTempUnavailable" => $state && isset($ac->text->hsServiceTempUnavailable) ? $ac->text->hsServiceTempUnavailable : __('The security service is temporarily unavailable.', 'easy-form-builder'),
+
+            /* translators: The signed security token expired or could not be verified */
+            "hsFormExpired" => $state && isset($ac->text->hsFormExpired) ? $ac->text->hsFormExpired : __('The form was open for too long or could not be verified. Please refresh the page and submit again.', 'easy-form-builder'),
+
+            /* translators: Generic block message when a request looks automated */
+            "hsLooksUnusual" => $state && isset($ac->text->hsLooksUnusual) ? $ac->text->hsLooksUnusual : __('Your request looked too fast or unusual. Please try again in a few minutes.', 'easy-form-builder'),
+
+            /* translators: Softer quarantine message asking the visitor to wait and retry */
+            "hsQuarantine" => $state && isset($ac->text->hsQuarantine) ? $ac->text->hsQuarantine : __('Your request looked unusual. Please wait a moment and try again.', 'easy-form-builder'),
+
+            /* translators: Shown when the security service is temporarily unavailable (fail-closed) */
+            "hsServiceUnavailable" => $state && isset($ac->text->hsServiceUnavailable) ? $ac->text->hsServiceUnavailable : __('The security service is temporarily unavailable. Please try again later.', 'easy-form-builder'),
         ];
     }
 
@@ -903,7 +958,7 @@ class EfbAddonPhrases {
             "enableConnection" => $state && isset($ac->text->enable_connection) ? $ac->text->enable_connection : esc_html__('Enable this connection', 'easy-form-builder'),
             "previous" => $state && isset($ac->text->previous) ? $ac->text->previous : esc_html__('Previous', 'easy-form-builder'),
             "next" => $state && isset($ac->text->next) ? $ac->text->next : esc_html__('Next', 'easy-form-builder'),
-            "save" => $state && isset($ac->text->save) ? $ac->text->save : esc_html__('Save Connection', 'easy-form-builder'),
+            "save" => $state && isset($ac->text->save) ? $ac->text->save : esc_html__('Save', 'easy-form-builder'),
             "back" => $state && isset($ac->text->back) ? $ac->text->back : esc_html__('Back', 'easy-form-builder'),
             "edit" => $state && isset($ac->text->edit) ? $ac->text->edit : esc_html__('Edit', 'easy-form-builder'),
             "test" => $state && isset($ac->text->test) ? $ac->text->test : esc_html__('Test', 'easy-form-builder'),
@@ -929,6 +984,7 @@ class EfbAddonPhrases {
             "atfllApiActive" => $state && isset($ac->text->atfll_api_active) ? $ac->text->atfll_api_active : esc_html__('API Auto-Populate Integration is Active', 'easy-form-builder'),
             "atfllApiActiveDesc" => $state && isset($ac->text->atfll_api_active_desc) ? $ac->text->atfll_api_active_desc : esc_html__('This form uses External API Auto-Populate. To configure settings, go to', 'easy-form-builder'),
             "atfllApiLink" => $state && isset($ac->text->atfll_api_link) ? $ac->text->atfll_api_link : esc_html__('Auto-Populate Integrations', 'easy-form-builder'),
+            "atfllApiFieldBadge" => $state && isset($ac->text->atfll_api_field_badge) ? $ac->text->atfll_api_field_badge : esc_html__('Auto-filled via External API', 'easy-form-builder'),
 
             "status" => $state && isset($ac->text->status) ? $ac->text->status : esc_html__('Status', 'easy-form-builder'),
             "actions" => $state && isset($ac->text->actions) ? $ac->text->actions : esc_html__('Actions', 'easy-form-builder'),
@@ -1176,6 +1232,496 @@ class EfbAddonPhrases {
     public static function get_webhook_phrases($ac = null, $state = false) {
         return [
 
+        ];
+    }
+
+    /**
+     * Google Sheet add-on phrases. Consumed by the Google Sheet admin pages
+     * (settings + logs) and localized into the wizard JS as `efb_google_sheet.text`.
+     * Every visible string in vendor/googlesheet lives here so it can be translated
+     * from the central phrase editor. Strings with %s/%d are format templates the
+     * JS fills in with String.replace().
+     */
+    public static function get_googlesheet_phrases($ac = null, $state = false) {
+        return [
+
+            /* ===== Header (settings page) ===== */
+            /* translators: Google Sheet page main title (brand) */
+            "gs_title" => $state && isset($ac->text->gs_title) ? $ac->text->gs_title : esc_html__('Google Sheet', 'easy-form-builder'),
+            /* translators: Google Sheet page subtitle */
+            "gs_subtitle" => $state && isset($ac->text->gs_subtitle) ? $ac->text->gs_subtitle : esc_html__('Sync Form Responses to Google Sheets', 'easy-form-builder'),
+            /* translators: Google Sheet page intro description */
+            "gs_headerDesc" => $state && isset($ac->text->gs_headerDesc) ? $ac->text->gs_headerDesc : esc_html__('Automatically send form submissions to your Google Sheets. Connect one or more service accounts, link a sheet to each form, and let data flow in real time — no webhook or browser login required.', 'easy-form-builder'),
+            /* translators: Connection status badge — connected */
+            "gs_connected" => $state && isset($ac->text->gs_connected) ? $ac->text->gs_connected : esc_html__('Connected', 'easy-form-builder'),
+            /* translators: Connection status badge — not connected */
+            "gs_notConnected" => $state && isset($ac->text->gs_notConnected) ? $ac->text->gs_notConnected : esc_html__('Not Connected', 'easy-form-builder'),
+            /* translators: Feature badge — automatic sync */
+            "gs_autoSync" => $state && isset($ac->text->gs_autoSync) ? $ac->text->gs_autoSync : esc_html__('Auto Sync', 'easy-form-builder'),
+            /* translators: Feature badge — automatic header row */
+            "gs_autoHeader" => $state && isset($ac->text->gs_autoHeader) ? $ac->text->gs_autoHeader : esc_html__('Auto Header', 'easy-form-builder'),
+            /* translators: Navigation chip linking to the sync logs page */
+            "gs_syncLogsChip" => $state && isset($ac->text->gs_syncLogsChip) ? $ac->text->gs_syncLogsChip : esc_html__('Sync Logs', 'easy-form-builder'),
+            /* translators: Navigation chip linking back to the settings page */
+            "gs_settingsChip" => $state && isset($ac->text->gs_settingsChip) ? $ac->text->gs_settingsChip : esc_html__('Google Sheet Settings', 'easy-form-builder'),
+            /* translators: Header status card label */
+            "gs_activeBindings" => $state && isset($ac->text->gs_activeBindings) ? $ac->text->gs_activeBindings : esc_html__('Active Bindings', 'easy-form-builder'),
+            /* translators: Header status value — singular form count */
+            "gs_formSingular" => $state && isset($ac->text->gs_formSingular) ? $ac->text->gs_formSingular : esc_html__('Form', 'easy-form-builder'),
+            /* translators: Header status value — plural form count */
+            "gs_formPlural" => $state && isset($ac->text->gs_formPlural) ? $ac->text->gs_formPlural : esc_html__('Forms', 'easy-form-builder'),
+            /* translators: %d = number of connected service accounts (singular) */
+            "gs_saConnected" => $state && isset($ac->text->gs_saConnected) ? $ac->text->gs_saConnected : esc_html__('%d service account connected', 'easy-form-builder'),
+            /* translators: %d = number of connected service accounts (plural) */
+            "gs_saConnectedPlural" => $state && isset($ac->text->gs_saConnectedPlural) ? $ac->text->gs_saConnectedPlural : esc_html__('%d service accounts connected', 'easy-form-builder'),
+            /* translators: Header hint when no service account is connected */
+            "gs_noSaYet" => $state && isset($ac->text->gs_noSaYet) ? $ac->text->gs_noSaYet : esc_html__('No service account connected yet', 'easy-form-builder'),
+
+            /* ===== Tabs ===== */
+            /* translators: Tab title — service account connections */
+            "gs_tabConnections" => $state && isset($ac->text->gs_tabConnections) ? $ac->text->gs_tabConnections : esc_html__('Connections', 'easy-form-builder'),
+            /* translators: Tab title — form-to-sheet bindings */
+            "gs_tabBindings" => $state && isset($ac->text->gs_tabBindings) ? $ac->text->gs_tabBindings : esc_html__('Form Bindings', 'easy-form-builder'),
+            /* translators: Tab title — help and guide */
+            "gs_tabHelp" => $state && isset($ac->text->gs_tabHelp) ? $ac->text->gs_tabHelp : esc_html__('Help & Guide', 'easy-form-builder'),
+
+            /* ===== Common actions / status ===== */
+            /* translators: Generic error message */
+            "gs_error" => $state && isset($ac->text->gs_error) ? $ac->text->gs_error : esc_html__('Something went wrong.', 'easy-form-builder'),
+            /* translators: Saved success message */
+            "gs_saved" => $state && isset($ac->text->gs_saved) ? $ac->text->gs_saved : esc_html__('Saved successfully.', 'easy-form-builder'),
+            /* translators: Save button */
+            "gs_save" => $state && isset($ac->text->gs_save) ? $ac->text->gs_save : esc_html__('Save', 'easy-form-builder'),
+            /* translators: Saved short label */
+            "gs_savedShort" => $state && isset($ac->text->gs_savedShort) ? $ac->text->gs_savedShort : esc_html__('Saved', 'easy-form-builder'),
+            /* translators: Cancel button */
+            "gs_cancel" => $state && isset($ac->text->gs_cancel) ? $ac->text->gs_cancel : esc_html__('Cancel', 'easy-form-builder'),
+            /* translators: Edit button */
+            "gs_edit" => $state && isset($ac->text->gs_edit) ? $ac->text->gs_edit : esc_html__('Edit', 'easy-form-builder'),
+            /* translators: Delete button */
+            "gs_delete" => $state && isset($ac->text->gs_delete) ? $ac->text->gs_delete : esc_html__('Delete', 'easy-form-builder'),
+            /* translators: Remove button */
+            "gs_remove" => $state && isset($ac->text->gs_remove) ? $ac->text->gs_remove : esc_html__('Remove', 'easy-form-builder'),
+            /* translators: Back button */
+            "gs_back" => $state && isset($ac->text->gs_back) ? $ac->text->gs_back : esc_html__('Back', 'easy-form-builder'),
+            /* translators: Next button */
+            "gs_next" => $state && isset($ac->text->gs_next) ? $ac->text->gs_next : esc_html__('Next', 'easy-form-builder'),
+            /* translators: Open link label */
+            "gs_open" => $state && isset($ac->text->gs_open) ? $ac->text->gs_open : esc_html__('Open', 'easy-form-builder'),
+            /* translators: Open in Google Sheets link label */
+            "gs_openInSheets" => $state && isset($ac->text->gs_openInSheets) ? $ac->text->gs_openInSheets : esc_html__('Open in Google Sheets', 'easy-form-builder'),
+            /* translators: Test Connection button */
+            "gs_testConnection" => $state && isset($ac->text->gs_testConnection) ? $ac->text->gs_testConnection : esc_html__('Test Connection', 'easy-form-builder'),
+
+            /* ===== Connections tab ===== */
+            /* translators: Section card title — service accounts */
+            "gs_serviceAccounts" => $state && isset($ac->text->gs_serviceAccounts) ? $ac->text->gs_serviceAccounts : esc_html__('Service Accounts', 'easy-form-builder'),
+            /* translators: Section card subtitle — service accounts */
+            "gs_serviceAccountsSub" => $state && isset($ac->text->gs_serviceAccountsSub) ? $ac->text->gs_serviceAccountsSub : esc_html__('Connect one or more Google service accounts — no browser login required', 'easy-form-builder'),
+            /* translators: OpenSSL missing banner — bold lead */
+            "gs_opensslMissingLead" => $state && isset($ac->text->gs_opensslMissingLead) ? $ac->text->gs_opensslMissingLead : esc_html__('Your server is missing the PHP OpenSSL extension.', 'easy-form-builder'),
+            /* translators: OpenSSL missing banner — body. %s = the literal "openssl" code tag */
+            "gs_opensslMissingBody" => $state && isset($ac->text->gs_opensslMissingBody) ? $ac->text->gs_opensslMissingBody : esc_html__('Google Sheet sync cannot work until it is enabled. Please ask your host to enable the %s PHP extension, then reload this page.', 'easy-form-builder'),
+            /* translators: Connection test status — not tested */
+            "gs_notTested" => $state && isset($ac->text->gs_notTested) ? $ac->text->gs_notTested : esc_html__('Not tested', 'easy-form-builder'),
+            /* translators: Connection test status — failed */
+            "gs_failed" => $state && isset($ac->text->gs_failed) ? $ac->text->gs_failed : esc_html__('Failed', 'easy-form-builder'),
+            /* translators: Default service account pill */
+            "gs_default" => $state && isset($ac->text->gs_default) ? $ac->text->gs_default : esc_html__('Default', 'easy-form-builder'),
+            /* translators: Copy-email button tooltip */
+            "gs_copyThisEmail" => $state && isset($ac->text->gs_copyThisEmail) ? $ac->text->gs_copyThisEmail : esc_html__('Copy this email', 'easy-form-builder'),
+            /* translators: Copy-email button tooltip (short) */
+            "gs_copyEmail" => $state && isset($ac->text->gs_copyEmail) ? $ac->text->gs_copyEmail : esc_html__('Copy email', 'easy-form-builder'),
+            /* translators: Per-connection sharing instructions (HTML allowed) */
+            "gs_connShareHint" => $state && isset($ac->text->gs_connShareHint) ? $ac->text->gs_connShareHint : esc_html__('To sync an <strong>existing</strong> sheet: open it in Google Sheets &rarr; <strong>Share</strong> &rarr; paste the email above &rarr; set role to <strong>Editor</strong>. To create a <strong>new</strong> sheet, just use Form Bindings — no sharing needed.', 'easy-form-builder'),
+            /* translators: Set default service account button */
+            "gs_setDefault" => $state && isset($ac->text->gs_setDefault) ? $ac->text->gs_setDefault : esc_html__('Set Default', 'easy-form-builder'),
+            /* translators: Retest connection button */
+            "gs_retest" => $state && isset($ac->text->gs_retest) ? $ac->text->gs_retest : esc_html__('Retest', 'easy-form-builder'),
+            /* translators: Onboarding title (first run) */
+            "gs_onboardTitle" => $state && isset($ac->text->gs_onboardTitle) ? $ac->text->gs_onboardTitle : esc_html__('Let’s connect Google Sheets — about 3 minutes, one time', 'easy-form-builder'),
+            /* translators: Onboarding description (first run) */
+            "gs_onboardDesc" => $state && isset($ac->text->gs_onboardDesc) ? $ac->text->gs_onboardDesc : esc_html__('Follow the numbered steps on the right to download a free service account key from Google, then drop the file below. You only do this once. After that, creating a sheet for any form is a couple of clicks.', 'easy-form-builder'),
+            /* translators: Your Google email field label */
+            "gs_yourGoogleEmail" => $state && isset($ac->text->gs_yourGoogleEmail) ? $ac->text->gs_yourGoogleEmail : esc_html__('Your Google email', 'easy-form-builder'),
+            /* translators: Optional field marker */
+            "gs_recommended" => $state && isset($ac->text->gs_recommended) ? $ac->text->gs_recommended : esc_html__('(recommended)', 'easy-form-builder'),
+            /* translators: Your Google email field hint (HTML allowed) */
+            "gs_yourGoogleEmailHint" => $state && isset($ac->text->gs_yourGoogleEmailHint) ? $ac->text->gs_yourGoogleEmailHint : esc_html__('Any sheet the plugin <strong>creates</strong> is automatically shared to this address, so it appears in your own Google Drive under “Shared with me.” Without it, new sheets stay hidden inside the service account.', 'easy-form-builder'),
+            /* translators: Enable integration toggle title */
+            "gs_enableIntegration" => $state && isset($ac->text->gs_enableIntegration) ? $ac->text->gs_enableIntegration : esc_html__('Enable Google Sheet Integration', 'easy-form-builder'),
+            /* translators: Enable integration toggle subtitle */
+            "gs_enableIntegrationSub" => $state && isset($ac->text->gs_enableIntegrationSub) ? $ac->text->gs_enableIntegrationSub : esc_html__('Sync form submissions to your spreadsheets automatically', 'easy-form-builder'),
+            /* translators: Dropzone title */
+            "gs_dropzoneTitle" => $state && isset($ac->text->gs_dropzoneTitle) ? $ac->text->gs_dropzoneTitle : esc_html__('Drag & drop service account JSON file(s) here', 'easy-form-builder'),
+            /* translators: Dropzone subtitle */
+            "gs_dropzoneSub" => $state && isset($ac->text->gs_dropzoneSub) ? $ac->text->gs_dropzoneSub : esc_html__('or click to browse — you can add multiple service accounts at once', 'easy-form-builder'),
+            /* translators: Connected accounts list title */
+            "gs_connectedAccounts" => $state && isset($ac->text->gs_connectedAccounts) ? $ac->text->gs_connectedAccounts : esc_html__('Connected service accounts', 'easy-form-builder'),
+            /* translators: Tips card title */
+            "gs_setupTitle" => $state && isset($ac->text->gs_setupTitle) ? $ac->text->gs_setupTitle : esc_html__('One-time setup (≈3 min)', 'easy-form-builder'),
+            /* translators: Setup tip 1 (HTML allowed) */
+            "gs_tip1" => $state && isset($ac->text->gs_tip1) ? $ac->text->gs_tip1 : esc_html__('Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">console.cloud.google.com</a> &rarr; Project dropdown (top-left) &rarr; New Project &rarr; name it &rarr; Create', 'easy-form-builder'),
+            /* translators: Setup tip 2 (HTML allowed) */
+            "gs_tip2" => $state && isset($ac->text->gs_tip2) ? $ac->text->gs_tip2 : esc_html__('APIs &amp; Services &rarr; Library &rarr; enable <strong>Google Sheets API</strong> <em>and</em> <strong>Google Drive API</strong>', 'easy-form-builder'),
+            /* translators: Setup tip 3 (HTML allowed) */
+            "gs_tip3" => $state && isset($ac->text->gs_tip3) ? $ac->text->gs_tip3 : esc_html__('APIs &amp; Services &rarr; Credentials &rarr; Create Credentials &rarr; Service Account &rarr; name it &rarr; Done', 'easy-form-builder'),
+            /* translators: Setup tip 4 (HTML allowed) */
+            "gs_tip4" => $state && isset($ac->text->gs_tip4) ? $ac->text->gs_tip4 : esc_html__('Open the service account &rarr; Keys tab &rarr; Add Key &rarr; Create New Key &rarr; JSON (downloads automatically)', 'easy-form-builder'),
+            /* translators: Setup tip 5 */
+            "gs_tip5" => $state && isset($ac->text->gs_tip5) ? $ac->text->gs_tip5 : esc_html__('Drag that downloaded file into the box on the left — it is tested automatically', 'easy-form-builder'),
+            /* translators: Setup tip 6 (HTML allowed) */
+            "gs_tip6" => $state && isset($ac->text->gs_tip6) ? $ac->text->gs_tip6 : esc_html__('Add <strong>Your Google email</strong> above so created sheets land in your Drive', 'easy-form-builder'),
+            /* translators: Invalid JSON file alert */
+            "gs_chooseValidJson" => $state && isset($ac->text->gs_chooseValidJson) ? $ac->text->gs_chooseValidJson : esc_html__('Please choose a valid .json key file.', 'easy-form-builder'),
+            /* translators: File read error alert. %s = file name */
+            "gs_couldNotReadFile" => $state && isset($ac->text->gs_couldNotReadFile) ? $ac->text->gs_couldNotReadFile : esc_html__('Could not read file: %s', 'easy-form-builder'),
+            /* translators: Connecting service account status */
+            "gs_connectingAccount" => $state && isset($ac->text->gs_connectingAccount) ? $ac->text->gs_connectingAccount : esc_html__('Connecting service account…', 'easy-form-builder'),
+            /* translators: Service account added fallback message */
+            "gs_accountAdded" => $state && isset($ac->text->gs_accountAdded) ? $ac->text->gs_accountAdded : esc_html__('Service account added.', 'easy-form-builder'),
+            /* translators: My-email saved message. %s = email address */
+            "gs_emailSaved" => $state && isset($ac->text->gs_emailSaved) ? $ac->text->gs_emailSaved : esc_html__('Saved. New sheets created by the plugin will be shared to %s automatically.', 'easy-form-builder'),
+            /* translators: My-email cleared message */
+            "gs_emailCleared" => $state && isset($ac->text->gs_emailCleared) ? $ac->text->gs_emailCleared : esc_html__('Email cleared. New sheets will stay inside the service account until you share them.', 'easy-form-builder'),
+            /* translators: Confirm remove service account */
+            "gs_confirmRemoveAccount" => $state && isset($ac->text->gs_confirmRemoveAccount) ? $ac->text->gs_confirmRemoveAccount : esc_html__('Remove this service account?', 'easy-form-builder'),
+            /* translators: Testing connection status */
+            "gs_testingConnection" => $state && isset($ac->text->gs_testingConnection) ? $ac->text->gs_testingConnection : esc_html__('Testing connection…', 'easy-form-builder'),
+
+            /* ===== Bindings tab ===== */
+            /* translators: Section card subtitle — bindings */
+            "gs_bindingsSub" => $state && isset($ac->text->gs_bindingsSub) ? $ac->text->gs_bindingsSub : esc_html__('Connect each form to a specific Google Sheet tab', 'easy-form-builder'),
+            /* translators: Section card subtitle — bindings (with steps) */
+            "gs_bindingsSubSteps" => $state && isset($ac->text->gs_bindingsSubSteps) ? $ac->text->gs_bindingsSubSteps : esc_html__('Connect each form to a specific Google Sheet tab — step by step', 'easy-form-builder'),
+            /* translators: No service account warning — bold lead */
+            "gs_noAccountLead" => $state && isset($ac->text->gs_noAccountLead) ? $ac->text->gs_noAccountLead : esc_html__('No service account connected.', 'easy-form-builder'),
+            /* translators: No service account warning — body */
+            "gs_noAccountBody" => $state && isset($ac->text->gs_noAccountBody) ? $ac->text->gs_noAccountBody : esc_html__('Go to the Connections tab and drop a service account JSON key first.', 'easy-form-builder'),
+            /* translators: Binding status — active */
+            "gs_active" => $state && isset($ac->text->gs_active) ? $ac->text->gs_active : esc_html__('Active', 'easy-form-builder'),
+            /* translators: Binding status — paused */
+            "gs_paused" => $state && isset($ac->text->gs_paused) ? $ac->text->gs_paused : esc_html__('Paused', 'easy-form-builder'),
+            /* translators: Last sync succeeded badge */
+            "gs_lastSyncOk" => $state && isset($ac->text->gs_lastSyncOk) ? $ac->text->gs_lastSyncOk : esc_html__('Last sync OK', 'easy-form-builder'),
+            /* translators: Last sync failed badge */
+            "gs_lastSyncFailed" => $state && isset($ac->text->gs_lastSyncFailed) ? $ac->text->gs_lastSyncFailed : esc_html__('Last sync failed', 'easy-form-builder'),
+            /* translators: Inline delete confirm text */
+            "gs_removeSyncSafe" => $state && isset($ac->text->gs_removeSyncSafe) ? $ac->text->gs_removeSyncSafe : esc_html__('Remove sync? The sheet stays safe.', 'easy-form-builder'),
+            /* translators: Inline delete confirm — yes */
+            "gs_yesRemove" => $state && isset($ac->text->gs_yesRemove) ? $ac->text->gs_yesRemove : esc_html__('Yes, remove', 'easy-form-builder'),
+            /* translators: Delete-binding row button tooltip */
+            "gs_deleteRowTitle" => $state && isset($ac->text->gs_deleteRowTitle) ? $ac->text->gs_deleteRowTitle : esc_html__('Remove this sync (your Google Sheet is not deleted)', 'easy-form-builder'),
+            /* translators: Existing bindings list title */
+            "gs_existingBindings" => $state && isset($ac->text->gs_existingBindings) ? $ac->text->gs_existingBindings : esc_html__('Existing Bindings', 'easy-form-builder'),
+            /* translators: Delete all bindings button */
+            "gs_deleteAll" => $state && isset($ac->text->gs_deleteAll) ? $ac->text->gs_deleteAll : esc_html__('Delete All', 'easy-form-builder'),
+            /* translators: New binding button */
+            "gs_newBinding" => $state && isset($ac->text->gs_newBinding) ? $ac->text->gs_newBinding : esc_html__('New Binding', 'easy-form-builder'),
+            /* translators: Bindings table column — form */
+            "gs_colForm" => $state && isset($ac->text->gs_colForm) ? $ac->text->gs_colForm : esc_html__('Form', 'easy-form-builder'),
+            /* translators: Bindings table column — spreadsheet id */
+            "gs_colSpreadsheetId" => $state && isset($ac->text->gs_colSpreadsheetId) ? $ac->text->gs_colSpreadsheetId : esc_html__('Spreadsheet ID', 'easy-form-builder'),
+            /* translators: Bindings table column — tab */
+            "gs_colTab" => $state && isset($ac->text->gs_colTab) ? $ac->text->gs_colTab : esc_html__('Tab', 'easy-form-builder'),
+            /* translators: Bindings table column — status */
+            "gs_colStatus" => $state && isset($ac->text->gs_colStatus) ? $ac->text->gs_colStatus : esc_html__('Status', 'easy-form-builder'),
+
+            /* ===== Wizard stepper ===== */
+            /* translators: Wizard step 1 label */
+            "gs_stepSelectForm" => $state && isset($ac->text->gs_stepSelectForm) ? $ac->text->gs_stepSelectForm : esc_html__('Select Form', 'easy-form-builder'),
+            /* translators: Wizard step 2 label */
+            "gs_stepChooseSheet" => $state && isset($ac->text->gs_stepChooseSheet) ? $ac->text->gs_stepChooseSheet : esc_html__('Choose Sheet', 'easy-form-builder'),
+            /* translators: Wizard step 3 label */
+            "gs_stepColumns" => $state && isset($ac->text->gs_stepColumns) ? $ac->text->gs_stepColumns : esc_html__('Columns & Fields', 'easy-form-builder'),
+            /* translators: Wizard step 4 label */
+            "gs_stepStyle" => $state && isset($ac->text->gs_stepStyle) ? $ac->text->gs_stepStyle : esc_html__('Style & Save', 'easy-form-builder'),
+
+            /* ===== Wizard step 1 (form) ===== */
+            /* translators: Form select placeholder */
+            "gs_selectAForm" => $state && isset($ac->text->gs_selectAForm) ? $ac->text->gs_selectAForm : esc_html__('— Select a Form —', 'easy-form-builder'),
+            /* translators: Form select question label */
+            "gs_whichForm" => $state && isset($ac->text->gs_whichForm) ? $ac->text->gs_whichForm : esc_html__('Which form should send data to Google Sheets?', 'easy-form-builder'),
+            /* translators: Alert — select a form first */
+            "gs_selectFormFirst" => $state && isset($ac->text->gs_selectFormFirst) ? $ac->text->gs_selectFormFirst : esc_html__('Please select a form first.', 'easy-form-builder'),
+
+            /* ===== Wizard step 2 (sheet) ===== */
+            /* translators: Service account select label */
+            "gs_serviceAccount" => $state && isset($ac->text->gs_serviceAccount) ? $ac->text->gs_serviceAccount : esc_html__('Service Account', 'easy-form-builder'),
+            /* translators: Loading spreadsheets status */
+            "gs_loadingSheets" => $state && isset($ac->text->gs_loadingSheets) ? $ac->text->gs_loadingSheets : esc_html__('Loading your spreadsheets…', 'easy-form-builder'),
+            /* translators: Browse/create hint (HTML allowed) */
+            "gs_browseOrCreateHint" => $state && isset($ac->text->gs_browseOrCreateHint) ? $ac->text->gs_browseOrCreateHint : esc_html__('Click <strong>“Browse My Sheets”</strong> to list spreadsheets this service account can already access, or <strong>“Create New Sheet”</strong> to make a fresh one.', 'easy-form-builder'),
+            /* translators: No accessible sheets message — lead (HTML allowed) */
+            "gs_noSheetsLead" => $state && isset($ac->text->gs_noSheetsLead) ? $ac->text->gs_noSheetsLead : esc_html__('<strong>No spreadsheets are accessible to this service account yet.</strong> You have two options:', 'easy-form-builder'),
+            /* translators: No accessible sheets — easiest option (HTML allowed) */
+            "gs_noSheetsEasiest" => $state && isset($ac->text->gs_noSheetsEasiest) ? $ac->text->gs_noSheetsEasiest : esc_html__('<strong>Easiest:</strong> click <em>“Create New Sheet”</em> above — it is made for you and shared to your email automatically.', 'easy-form-builder'),
+            /* translators: No accessible sheets — existing option prefix (HTML allowed) */
+            "gs_noSheetsExisting" => $state && isset($ac->text->gs_noSheetsExisting) ? $ac->text->gs_noSheetsExisting : esc_html__('<strong>Use an existing sheet:</strong> open it in Google Sheets &rarr; Share &rarr; paste ', 'easy-form-builder'),
+            /* translators: No accessible sheets — existing option suffix (HTML allowed) */
+            "gs_noSheetsExistingSuffix" => $state && isset($ac->text->gs_noSheetsExistingSuffix) ? $ac->text->gs_noSheetsExistingSuffix : esc_html__(' &rarr; Editor, then click <em>Browse My Sheets</em> again.', 'easy-form-builder'),
+            /* translators: Fallback when service account email is unknown */
+            "gs_theServiceAccountEmail" => $state && isset($ac->text->gs_theServiceAccountEmail) ? $ac->text->gs_theServiceAccountEmail : esc_html__('the service account email', 'easy-form-builder'),
+            /* translators: Create new spreadsheet field title */
+            "gs_createNewSpreadsheet" => $state && isset($ac->text->gs_createNewSpreadsheet) ? $ac->text->gs_createNewSpreadsheet : esc_html__('Create a new spreadsheet', 'easy-form-builder'),
+            /* translators: New sheet title placeholder */
+            "gs_newSheetTitlePh" => $state && isset($ac->text->gs_newSheetTitlePh) ? $ac->text->gs_newSheetTitlePh : esc_html__('New spreadsheet title (e.g. Contact form responses)', 'easy-form-builder'),
+            /* translators: New sheet email placeholder */
+            "gs_newSheetEmailPh" => $state && isset($ac->text->gs_newSheetEmailPh) ? $ac->text->gs_newSheetEmailPh : esc_html__('Your Google email — the sheet is shared here so you can open it', 'easy-form-builder'),
+            /* translators: New sheet email hint — prefix when prefilled */
+            "gs_prefilledEmail" => $state && isset($ac->text->gs_prefilledEmail) ? $ac->text->gs_prefilledEmail : esc_html__('Pre-filled from your saved email. ', 'easy-form-builder'),
+            /* translators: New sheet email hint */
+            "gs_leaveEmptyHint" => $state && isset($ac->text->gs_leaveEmptyHint) ? $ac->text->gs_leaveEmptyHint : esc_html__('Leave empty only if you don’t need to open the sheet yourself.', 'easy-form-builder'),
+            /* translators: Create sheet button */
+            "gs_createSheet" => $state && isset($ac->text->gs_createSheet) ? $ac->text->gs_createSheet : esc_html__('Create Sheet', 'easy-form-builder'),
+            /* translators: Creating sheet status */
+            "gs_creating" => $state && isset($ac->text->gs_creating) ? $ac->text->gs_creating : esc_html__('Creating…', 'easy-form-builder'),
+            /* translators: Creating spreadsheet status */
+            "gs_creatingSpreadsheet" => $state && isset($ac->text->gs_creatingSpreadsheet) ? $ac->text->gs_creatingSpreadsheet : esc_html__('Creating spreadsheet...', 'easy-form-builder'),
+            /* translators: Sheet created + shared message. %s = email */
+            "gs_sheetCreatedShared" => $state && isset($ac->text->gs_sheetCreatedShared) ? $ac->text->gs_sheetCreatedShared : esc_html__('Sheet created and shared with %s. It’s selected below — click Next to finish.', 'easy-form-builder'),
+            /* translators: Fallback for "your email" in the shared message */
+            "gs_yourEmail" => $state && isset($ac->text->gs_yourEmail) ? $ac->text->gs_yourEmail : esc_html__('your email', 'easy-form-builder'),
+            /* translators: Sheet created (not shared) message */
+            "gs_sheetCreatedNotShared" => $state && isset($ac->text->gs_sheetCreatedNotShared) ? $ac->text->gs_sheetCreatedNotShared : esc_html__('Sheet created. Tip: add “Your Google email” on the Connections tab so new sheets are shared to you automatically.', 'easy-form-builder'),
+            /* translators: Open the new sheet link label */
+            "gs_openNewSheet" => $state && isset($ac->text->gs_openNewSheet) ? $ac->text->gs_openNewSheet : esc_html__('Open the new sheet', 'easy-form-builder'),
+            /* translators: Selected sheet banner prefix */
+            "gs_selected" => $state && isset($ac->text->gs_selected) ? $ac->text->gs_selected : esc_html__('Selected:', 'easy-form-builder'),
+            /* translators: Loading worksheet tabs status */
+            "gs_loadingTabs" => $state && isset($ac->text->gs_loadingTabs) ? $ac->text->gs_loadingTabs : esc_html__('Loading worksheet tabs…', 'easy-form-builder'),
+            /* translators: Worksheet tab field label */
+            "gs_worksheetTab" => $state && isset($ac->text->gs_worksheetTab) ? $ac->text->gs_worksheetTab : esc_html__('Worksheet Tab', 'easy-form-builder'),
+            /* translators: New tab name placeholder */
+            "gs_newTabPh" => $state && isset($ac->text->gs_newTabPh) ? $ac->text->gs_newTabPh : esc_html__('Or type a new tab name (created automatically)', 'easy-form-builder'),
+            /* translators: Browse my sheets button */
+            "gs_browseMySheets" => $state && isset($ac->text->gs_browseMySheets) ? $ac->text->gs_browseMySheets : esc_html__('Browse My Sheets', 'easy-form-builder'),
+            /* translators: Loading short status */
+            "gs_loadingShort" => $state && isset($ac->text->gs_loadingShort) ? $ac->text->gs_loadingShort : esc_html__('Loading…', 'easy-form-builder'),
+            /* translators: Create new sheet button */
+            "gs_createNewSheet" => $state && isset($ac->text->gs_createNewSheet) ? $ac->text->gs_createNewSheet : esc_html__('Create New Sheet', 'easy-form-builder'),
+            /* translators: Next button disabled tooltip */
+            "gs_chooseSheetFirst" => $state && isset($ac->text->gs_chooseSheetFirst) ? $ac->text->gs_chooseSheetFirst : esc_html__('Choose or create a spreadsheet first', 'easy-form-builder'),
+            /* translators: Alert — select a service account */
+            "gs_selectAccount" => $state && isset($ac->text->gs_selectAccount) ? $ac->text->gs_selectAccount : esc_html__('Please select a service account.', 'easy-form-builder'),
+            /* translators: Alert — choose or create a spreadsheet first */
+            "gs_chooseCreateFirst" => $state && isset($ac->text->gs_chooseCreateFirst) ? $ac->text->gs_chooseCreateFirst : esc_html__('Please choose or create a spreadsheet first.', 'easy-form-builder'),
+
+            /* ===== Wizard step 3 (columns) ===== */
+            /* translators: Enable sync toggle title (per form) */
+            "gs_enableSyncForm" => $state && isset($ac->text->gs_enableSyncForm) ? $ac->text->gs_enableSyncForm : esc_html__('Enable Sync for this Form', 'easy-form-builder'),
+            /* translators: Enable sync toggle subtitle */
+            "gs_enableSyncFormSub" => $state && isset($ac->text->gs_enableSyncFormSub) ? $ac->text->gs_enableSyncFormSub : esc_html__('Disable to pause without deleting the binding', 'easy-form-builder'),
+            /* translators: Reading form fields status */
+            "gs_readingFields" => $state && isset($ac->text->gs_readingFields) ? $ac->text->gs_readingFields : esc_html__('Reading this form’s fields…', 'easy-form-builder'),
+            /* translators: Fields unreadable message (HTML allowed) */
+            "gs_fieldsUnreadable" => $state && isset($ac->text->gs_fieldsUnreadable) ? $ac->text->gs_fieldsUnreadable : esc_html__('We couldn’t read this form’s fields automatically, so column mapping isn’t available. Don’t worry — <strong>every submitted field will still be synced automatically</strong>, each in its own column, in submission order. The header row is created and kept up to date for you.', 'easy-form-builder'),
+            /* translators: Try again button */
+            "gs_tryAgain" => $state && isset($ac->text->gs_tryAgain) ? $ac->text->gs_tryAgain : esc_html__('Try again', 'easy-form-builder'),
+            /* translators: Column mapping intro (HTML allowed) */
+            "gs_mapIntro" => $state && isset($ac->text->gs_mapIntro) ? $ac->text->gs_mapIntro : esc_html__('Drag rows (or use ▲▼) to set the <strong>column order</strong>. Rename any <strong>header</strong>. Turn a field off to skip its column. The letter (A, B, C…) shows where each field lands.', 'easy-form-builder'),
+            /* translators: Column map header — column letter */
+            "gs_mapColHead" => $state && isset($ac->text->gs_mapColHead) ? $ac->text->gs_mapColHead : esc_html__('Col', 'easy-form-builder'),
+            /* translators: Column map header — form field */
+            "gs_mapFieldHead" => $state && isset($ac->text->gs_mapFieldHead) ? $ac->text->gs_mapFieldHead : esc_html__('Form field', 'easy-form-builder'),
+            /* translators: Column map header — spreadsheet header */
+            "gs_mapHeaderHead" => $state && isset($ac->text->gs_mapHeaderHead) ? $ac->text->gs_mapHeaderHead : esc_html__('Spreadsheet header', 'easy-form-builder'),
+            /* translators: Column map header — order/on */
+            "gs_mapActionsHead" => $state && isset($ac->text->gs_mapActionsHead) ? $ac->text->gs_mapActionsHead : esc_html__('Order / On', 'easy-form-builder'),
+            /* translators: Refresh fields button */
+            "gs_refreshFields" => $state && isset($ac->text->gs_refreshFields) ? $ac->text->gs_refreshFields : esc_html__('Refresh fields from form', 'easy-form-builder'),
+            /* translators: Columns & field mapping card title */
+            "gs_columnsMapping" => $state && isset($ac->text->gs_columnsMapping) ? $ac->text->gs_columnsMapping : esc_html__('Columns & Field Mapping', 'easy-form-builder'),
+            /* translators: Built-in timestamp field name */
+            "gs_submittedTime" => $state && isset($ac->text->gs_submittedTime) ? $ac->text->gs_submittedTime : esc_html__('Submitted time', 'easy-form-builder'),
+            /* translators: Built-in field marker */
+            "gs_builtin" => $state && isset($ac->text->gs_builtin) ? $ac->text->gs_builtin : esc_html__('built-in', 'easy-form-builder'),
+            /* translators: Default timestamp header value */
+            "gs_submittedAt" => $state && isset($ac->text->gs_submittedAt) ? $ac->text->gs_submittedAt : esc_html__('Submitted At', 'easy-form-builder'),
+            /* translators: Column header input placeholder */
+            "gs_columnHeaderPh" => $state && isset($ac->text->gs_columnHeaderPh) ? $ac->text->gs_columnHeaderPh : esc_html__('Column header', 'easy-form-builder'),
+            /* translators: Drag-to-reorder tooltip */
+            "gs_dragReorder" => $state && isset($ac->text->gs_dragReorder) ? $ac->text->gs_dragReorder : esc_html__('Drag to reorder', 'easy-form-builder'),
+            /* translators: Move up tooltip */
+            "gs_moveUp" => $state && isset($ac->text->gs_moveUp) ? $ac->text->gs_moveUp : esc_html__('Move up', 'easy-form-builder'),
+            /* translators: Move down tooltip */
+            "gs_moveDown" => $state && isset($ac->text->gs_moveDown) ? $ac->text->gs_moveDown : esc_html__('Move down', 'easy-form-builder'),
+            /* translators: Include this field tooltip */
+            "gs_includeField" => $state && isset($ac->text->gs_includeField) ? $ac->text->gs_includeField : esc_html__('Include this field', 'easy-form-builder'),
+            /* translators: Columns count — singular. %d = count */
+            "gs_columnsWritten" => $state && isset($ac->text->gs_columnsWritten) ? $ac->text->gs_columnsWritten : esc_html__('%d column will be written to the sheet.', 'easy-form-builder'),
+            /* translators: Columns count — plural. %d = count */
+            "gs_columnsWrittenPlural" => $state && isset($ac->text->gs_columnsWrittenPlural) ? $ac->text->gs_columnsWrittenPlural : esc_html__('%d columns will be written to the sheet.', 'easy-form-builder'),
+
+            /* ===== Wizard step 4 (style) ===== */
+            /* translators: Sheet style field label */
+            "gs_sheetStyle" => $state && isset($ac->text->gs_sheetStyle) ? $ac->text->gs_sheetStyle : esc_html__('Sheet Style', 'easy-form-builder'),
+            /* translators: Sheet style — google theme marker */
+            "gs_googleTheme" => $state && isset($ac->text->gs_googleTheme) ? $ac->text->gs_googleTheme : esc_html__('(Google theme)', 'easy-form-builder'),
+            /* translators: Sheet style hint */
+            "gs_styleHint" => $state && isset($ac->text->gs_styleHint) ? $ac->text->gs_styleHint : esc_html__('Pick a look for the sheet — colored header, frozen top row and alternating row colors (Google Sheets’ own styling). It’s applied automatically on the first sync, or apply it now.', 'easy-form-builder'),
+            /* translators: Apply style now button */
+            "gs_applyStyleNow" => $state && isset($ac->text->gs_applyStyleNow) ? $ac->text->gs_applyStyleNow : esc_html__('Apply style now', 'easy-form-builder'),
+            /* translators: Applying style status */
+            "gs_applying" => $state && isset($ac->text->gs_applying) ? $ac->text->gs_applying : esc_html__('Applying…', 'easy-form-builder'),
+            /* translators: Apply style optional note */
+            "gs_applyStyleOptional" => $state && isset($ac->text->gs_applyStyleOptional) ? $ac->text->gs_applyStyleOptional : esc_html__('Optional — it also applies on the first submission.', 'easy-form-builder'),
+            /* translators: Summary — spreadsheet */
+            "gs_summarySpreadsheet" => $state && isset($ac->text->gs_summarySpreadsheet) ? $ac->text->gs_summarySpreadsheet : esc_html__('Spreadsheet:', 'easy-form-builder'),
+            /* translators: Summary — tab */
+            "gs_summaryTab" => $state && isset($ac->text->gs_summaryTab) ? $ac->text->gs_summaryTab : esc_html__('Tab:', 'easy-form-builder'),
+            /* translators: Summary — columns */
+            "gs_summaryColumns" => $state && isset($ac->text->gs_summaryColumns) ? $ac->text->gs_summaryColumns : esc_html__('Columns:', 'easy-form-builder'),
+            /* translators: Summary — columns mapped suffix. %d = count */
+            "gs_summaryMapped" => $state && isset($ac->text->gs_summaryMapped) ? $ac->text->gs_summaryMapped : esc_html__('%d mapped', 'easy-form-builder'),
+            /* translators: Summary — all submitted fields (auto) */
+            "gs_summaryAllFields" => $state && isset($ac->text->gs_summaryAllFields) ? $ac->text->gs_summaryAllFields : esc_html__('all submitted fields (auto)', 'easy-form-builder'),
+            /* translators: Summary — style */
+            "gs_summaryStyle" => $state && isset($ac->text->gs_summaryStyle) ? $ac->text->gs_summaryStyle : esc_html__('Style:', 'easy-form-builder'),
+            /* translators: Summary hint */
+            "gs_summaryHint" => $state && isset($ac->text->gs_summaryHint) ? $ac->text->gs_summaryHint : esc_html__('After saving, submit the form once to create the header row and confirm the first sync.', 'easy-form-builder'),
+            /* translators: Save binding button */
+            "gs_saveBinding" => $state && isset($ac->text->gs_saveBinding) ? $ac->text->gs_saveBinding : esc_html__('Save Binding', 'easy-form-builder'),
+            /* translators: Style name — none */
+            "gs_styleNone" => $state && isset($ac->text->gs_styleNone) ? $ac->text->gs_styleNone : esc_html__('None', 'easy-form-builder'),
+            /* translators: Alert — choose a spreadsheet first */
+            "gs_chooseSpreadsheetFirst" => $state && isset($ac->text->gs_chooseSpreadsheetFirst) ? $ac->text->gs_chooseSpreadsheetFirst : esc_html__('Please choose a spreadsheet first.', 'easy-form-builder'),
+            /* translators: Alert — pick a style first */
+            "gs_pickStyleFirst" => $state && isset($ac->text->gs_pickStyleFirst) ? $ac->text->gs_pickStyleFirst : esc_html__('Pick a style first — “None” leaves the sheet unstyled.', 'easy-form-builder'),
+            /* translators: Style applied success */
+            "gs_styleApplied" => $state && isset($ac->text->gs_styleApplied) ? $ac->text->gs_styleApplied : esc_html__('Style applied.', 'easy-form-builder'),
+
+            /* ===== Save / delete binding ===== */
+            /* translators: Alert — select a form */
+            "gs_selectForm" => $state && isset($ac->text->gs_selectForm) ? $ac->text->gs_selectForm : esc_html__('Please select a form.', 'easy-form-builder'),
+            /* translators: Alert — choose a spreadsheet */
+            "gs_chooseSpreadsheet" => $state && isset($ac->text->gs_chooseSpreadsheet) ? $ac->text->gs_chooseSpreadsheet : esc_html__('Please choose a spreadsheet.', 'easy-form-builder'),
+            /* translators: Binding saved message */
+            "gs_bindingSaved" => $state && isset($ac->text->gs_bindingSaved) ? $ac->text->gs_bindingSaved : esc_html__('Binding saved.', 'easy-form-builder'),
+            /* translators: Confirm remove single binding */
+            "gs_confirmRemoveBinding" => $state && isset($ac->text->gs_confirmRemoveBinding) ? $ac->text->gs_confirmRemoveBinding : esc_html__('Remove this binding? Syncing stops for this form. Your Google Sheet and its data are not deleted.', 'easy-form-builder'),
+            /* translators: Binding removed message */
+            "gs_syncRemoved" => $state && isset($ac->text->gs_syncRemoved) ? $ac->text->gs_syncRemoved : esc_html__('Sync removed — your Google Sheet and its data are untouched.', 'easy-form-builder'),
+            /* translators: Confirm remove all bindings — singular. %d = count */
+            "gs_confirmRemoveAll" => $state && isset($ac->text->gs_confirmRemoveAll) ? $ac->text->gs_confirmRemoveAll : esc_html__('Remove ALL %d binding? Syncing stops for every form. Your Google Sheets are not deleted.', 'easy-form-builder'),
+            /* translators: Confirm remove all bindings — plural. %d = count */
+            "gs_confirmRemoveAllPlural" => $state && isset($ac->text->gs_confirmRemoveAllPlural) ? $ac->text->gs_confirmRemoveAllPlural : esc_html__('Remove ALL %d bindings? Syncing stops for every form. Your Google Sheets are not deleted.', 'easy-form-builder'),
+            /* translators: All bindings removed message */
+            "gs_allBindingsRemoved" => $state && isset($ac->text->gs_allBindingsRemoved) ? $ac->text->gs_allBindingsRemoved : esc_html__('All bindings removed. Your Google Sheets are untouched.', 'easy-form-builder'),
+            /* translators: Connection successful message */
+            "gs_connectionSuccessful" => $state && isset($ac->text->gs_connectionSuccessful) ? $ac->text->gs_connectionSuccessful : esc_html__('Connection successful!', 'easy-form-builder'),
+
+            /* ===== Help tab ===== */
+            /* translators: Help section card title */
+            "gs_helpTitle" => $state && isset($ac->text->gs_helpTitle) ? $ac->text->gs_helpTitle : esc_html__('Help & Setup Guide', 'easy-form-builder'),
+            /* translators: Help section card subtitle */
+            "gs_helpSubtitle" => $state && isset($ac->text->gs_helpSubtitle) ? $ac->text->gs_helpSubtitle : esc_html__('Everything you need to connect forms to Google Sheets', 'easy-form-builder'),
+            /* translators: Help — step-by-step setup title */
+            "gs_stepByStep" => $state && isset($ac->text->gs_stepByStep) ? $ac->text->gs_stepByStep : esc_html__('Step-by-Step Setup', 'easy-form-builder'),
+            /* translators: Guide step 1 title */
+            "gs_guide1Title" => $state && isset($ac->text->gs_guide1Title) ? $ac->text->gs_guide1Title : esc_html__('Create or Select a Project', 'easy-form-builder'),
+            /* translators: Guide step 1 description (HTML allowed) */
+            "gs_guide1Desc" => $state && isset($ac->text->gs_guide1Desc) ? $ac->text->gs_guide1Desc : esc_html__('Open console.cloud.google.com and log in &rarr; click the Project dropdown (top-left) &rarr; New Project (or pick an existing one) &rarr; enter a name &rarr; Create', 'easy-form-builder'),
+            /* translators: Guide step 2 title */
+            "gs_guide2Title" => $state && isset($ac->text->gs_guide2Title) ? $ac->text->gs_guide2Title : esc_html__('Enable both Google APIs', 'easy-form-builder'),
+            /* translators: Guide step 2 description (HTML allowed) */
+            "gs_guide2Desc" => $state && isset($ac->text->gs_guide2Desc) ? $ac->text->gs_guide2Desc : esc_html__('APIs &amp; Services &rarr; Library &rarr; enable <strong>Google Sheets API</strong> and <strong>Google Drive API</strong> (both are required — Drive lists and creates the files)', 'easy-form-builder'),
+            /* translators: Guide step 3 title */
+            "gs_guide3Title" => $state && isset($ac->text->gs_guide3Title) ? $ac->text->gs_guide3Title : esc_html__('Create a Service Account', 'easy-form-builder'),
+            /* translators: Guide step 3 description (HTML allowed) */
+            "gs_guide3Desc" => $state && isset($ac->text->gs_guide3Desc) ? $ac->text->gs_guide3Desc : esc_html__('APIs &amp; Services &rarr; Credentials &rarr; Create Credentials &rarr; Service Account &rarr; enter a name &rarr; Done', 'easy-form-builder'),
+            /* translators: Guide step 4 title */
+            "gs_guide4Title" => $state && isset($ac->text->gs_guide4Title) ? $ac->text->gs_guide4Title : esc_html__('Create a JSON Key', 'easy-form-builder'),
+            /* translators: Guide step 4 description (HTML allowed) */
+            "gs_guide4Desc" => $state && isset($ac->text->gs_guide4Desc) ? $ac->text->gs_guide4Desc : esc_html__('Open the service account &rarr; Keys tab &rarr; Add Key &rarr; Create New Key &rarr; choose JSON (file downloads automatically)', 'easy-form-builder'),
+            /* translators: Guide step 5 title */
+            "gs_guide5Title" => $state && isset($ac->text->gs_guide5Title) ? $ac->text->gs_guide5Title : esc_html__('Drop the Key File', 'easy-form-builder'),
+            /* translators: Guide step 5 description */
+            "gs_guide5Desc" => $state && isset($ac->text->gs_guide5Desc) ? $ac->text->gs_guide5Desc : esc_html__('Drag the downloaded file into the Connections tab — it is verified automatically and you’ll see a green “Connected” badge', 'easy-form-builder'),
+            /* translators: Guide step 6 title */
+            "gs_guide6Title" => $state && isset($ac->text->gs_guide6Title) ? $ac->text->gs_guide6Title : esc_html__('Add Your Google Email', 'easy-form-builder'),
+            /* translators: Guide step 6 description */
+            "gs_guide6Desc" => $state && isset($ac->text->gs_guide6Desc) ? $ac->text->gs_guide6Desc : esc_html__('On the Connections tab, fill in “Your Google email” and Save — sheets the plugin creates are then shared to you so they appear in your own Drive', 'easy-form-builder'),
+            /* translators: Guide step 7 title */
+            "gs_guide7Title" => $state && isset($ac->text->gs_guide7Title) ? $ac->text->gs_guide7Title : esc_html__('Bind a Form (create a sheet)', 'easy-form-builder'),
+            /* translators: Guide step 7 description (HTML allowed) */
+            "gs_guide7Desc" => $state && isset($ac->text->gs_guide7Desc) ? $ac->text->gs_guide7Desc : esc_html__('Form Bindings &rarr; pick a form &rarr; <strong>Create New Sheet</strong> &rarr; Save. No manual sharing needed — this is the easiest path', 'easy-form-builder'),
+            /* translators: Guide step 8 title */
+            "gs_guide8Title" => $state && isset($ac->text->gs_guide8Title) ? $ac->text->gs_guide8Title : esc_html__('…or use an existing sheet', 'easy-form-builder'),
+            /* translators: Guide step 8 description */
+            "gs_guide8Desc" => $state && isset($ac->text->gs_guide8Desc) ? $ac->text->gs_guide8Desc : esc_html__('Prefer your own sheet? Open it &rarr; Share &rarr; paste the service account email (copy button on its card) &rarr; Editor &rarr; then Browse My Sheets in the wizard', 'easy-form-builder'),
+            /* translators: FAQ section title */
+            "gs_faq" => $state && isset($ac->text->gs_faq) ? $ac->text->gs_faq : esc_html__('FAQ', 'easy-form-builder'),
+            /* translators: FAQ 1 question */
+            "gs_faq1Q" => $state && isset($ac->text->gs_faq1Q) ? $ac->text->gs_faq1Q : esc_html__('I created a sheet — where did it go?', 'easy-form-builder'),
+            /* translators: FAQ 1 answer */
+            "gs_faq1A" => $state && isset($ac->text->gs_faq1A) ? $ac->text->gs_faq1A : esc_html__('Service accounts create files in their own hidden Drive. Add “Your Google email” on the Connections tab and the plugin shares every new sheet to you automatically — it then appears under “Shared with me” in your Google Drive. Each sheet also has an “Open” link right in this dashboard.', 'easy-form-builder'),
+            /* translators: FAQ 2 question */
+            "gs_faq2Q" => $state && isset($ac->text->gs_faq2Q) ? $ac->text->gs_faq2Q : esc_html__('Why don’t I see my existing sheet in the picker?', 'easy-form-builder'),
+            /* translators: FAQ 2 answer */
+            "gs_faq2A" => $state && isset($ac->text->gs_faq2A) ? $ac->text->gs_faq2A : esc_html__('It must be shared with the service account’s email first: open the sheet &rarr; Share &rarr; paste the email (use the copy button on the connection card) &rarr; set Editor &rarr; Share. Then click “Browse My Sheets” again.', 'easy-form-builder'),
+            /* translators: FAQ 3 question */
+            "gs_faq3Q" => $state && isset($ac->text->gs_faq3Q) ? $ac->text->gs_faq3Q : esc_html__('The test says a Google API is not enabled.', 'easy-form-builder'),
+            /* translators: FAQ 3 answer */
+            "gs_faq3A" => $state && isset($ac->text->gs_faq3A) ? $ac->text->gs_faq3A : esc_html__('Open Google Cloud Console for the same project &rarr; APIs &amp; Services &rarr; Library, and enable BOTH “Google Sheets API” and “Google Drive API”. Wait a minute, then Retest.', 'easy-form-builder'),
+            /* translators: FAQ 4 question */
+            "gs_faq4Q" => $state && isset($ac->text->gs_faq4Q) ? $ac->text->gs_faq4Q : esc_html__('The test says access denied / permission.', 'easy-form-builder'),
+            /* translators: FAQ 4 answer */
+            "gs_faq4A" => $state && isset($ac->text->gs_faq4A) ? $ac->text->gs_faq4A : esc_html__('The service account can authenticate but can’t reach that specific spreadsheet. Re-share the sheet with the service account email as Editor, or create a new sheet instead.', 'easy-form-builder'),
+            /* translators: FAQ 5 question */
+            "gs_faq5Q" => $state && isset($ac->text->gs_faq5Q) ? $ac->text->gs_faq5Q : esc_html__('It says OpenSSL is required.', 'easy-form-builder'),
+            /* translators: FAQ 5 answer */
+            "gs_faq5A" => $state && isset($ac->text->gs_faq5A) ? $ac->text->gs_faq5A : esc_html__('The server is missing the PHP OpenSSL extension used to sign the secure Google request. Ask your host to enable it — no plugin setting can replace it.', 'easy-form-builder'),
+            /* translators: FAQ 6 question */
+            "gs_faq6Q" => $state && isset($ac->text->gs_faq6Q) ? $ac->text->gs_faq6Q : esc_html__('Can I connect more than one service account?', 'easy-form-builder'),
+            /* translators: FAQ 6 answer */
+            "gs_faq6A" => $state && isset($ac->text->gs_faq6A) ? $ac->text->gs_faq6A : esc_html__('Yes — drop as many JSON keys as you like in the Connections tab and pick which one each form binding should use.', 'easy-form-builder'),
+            /* translators: FAQ 7 question */
+            "gs_faq7Q" => $state && isset($ac->text->gs_faq7Q) ? $ac->text->gs_faq7Q : esc_html__('Does the connection expire?', 'easy-form-builder'),
+            /* translators: FAQ 7 answer */
+            "gs_faq7A" => $state && isset($ac->text->gs_faq7A) ? $ac->text->gs_faq7A : esc_html__('No. The integration runs entirely on the server using your JSON key — there’s no browser session or login to expire.', 'easy-form-builder'),
+            /* translators: FAQ 8 question */
+            "gs_faq8Q" => $state && isset($ac->text->gs_faq8Q) ? $ac->text->gs_faq8Q : esc_html__('Can I choose which field goes to which column?', 'easy-form-builder'),
+            /* translators: FAQ 8 answer (HTML allowed) */
+            "gs_faq8A" => $state && isset($ac->text->gs_faq8A) ? $ac->text->gs_faq8A : esc_html__('Yes. In the binding wizard’s <strong>Columns &amp; Fields</strong> step, drag rows (or use ▲▼) to set the order, rename each column header, and toggle any field off to skip it. The A/B/C badge shows exactly where each field lands.', 'easy-form-builder'),
+            /* translators: FAQ 9 question */
+            "gs_faq9Q" => $state && isset($ac->text->gs_faq9Q) ? $ac->text->gs_faq9Q : esc_html__('Can I style the sheet automatically?', 'easy-form-builder'),
+            /* translators: FAQ 9 answer (HTML allowed) */
+            "gs_faq9A" => $state && isset($ac->text->gs_faq9A) ? $ac->text->gs_faq9A : esc_html__('Yes. The <strong>Style &amp; Save</strong> step offers Google-Sheets themes (colored header, frozen top row, alternating row colors). Pick one and it’s applied on the first sync, or click “Apply style now”.', 'easy-form-builder'),
+            /* translators: FAQ 10 question */
+            "gs_faq10Q" => $state && isset($ac->text->gs_faq10Q) ? $ac->text->gs_faq10Q : esc_html__('What if my form fields change later?', 'easy-form-builder'),
+            /* translators: FAQ 10 answer */
+            "gs_faq10A" => $state && isset($ac->text->gs_faq10A) ? $ac->text->gs_faq10A : esc_html__('New fields are added automatically. In mapped mode, open the Columns step and click “Refresh fields from form” to pull them into the mapping; in “All Form Fields” mode they appear as new columns on the next submission.', 'easy-form-builder'),
+            /* translators: FAQ 11 question */
+            "gs_faq11Q" => $state && isset($ac->text->gs_faq11Q) ? $ac->text->gs_faq11Q : esc_html__('What if the tab doesn’t exist yet?', 'easy-form-builder'),
+            /* translators: FAQ 11 answer */
+            "gs_faq11A" => $state && isset($ac->text->gs_faq11A) ? $ac->text->gs_faq11A : esc_html__('It is created automatically the first time a submission is synced.', 'easy-form-builder'),
+
+            /* ===== Logs page ===== */
+            /* translators: Logs page title */
+            "gs_logsTitle" => $state && isset($ac->text->gs_logsTitle) ? $ac->text->gs_logsTitle : esc_html__('Google Sheet Sync Logs', 'easy-form-builder'),
+            /* translators: Logs page subtitle */
+            "gs_logsSubtitle" => $state && isset($ac->text->gs_logsSubtitle) ? $ac->text->gs_logsSubtitle : esc_html__('Latest submissions sent to Google Sheets, success or failure', 'easy-form-builder'),
+            /* translators: Logs — cleared message */
+            "gs_logCleared" => $state && isset($ac->text->gs_logCleared) ? $ac->text->gs_logCleared : esc_html__('Log cleared.', 'easy-form-builder'),
+            /* translators: Logs — clear button */
+            "gs_clearLog" => $state && isset($ac->text->gs_clearLog) ? $ac->text->gs_clearLog : esc_html__('Clear Log', 'easy-form-builder'),
+            /* translators: Logs — clear confirm */
+            "gs_clearAllLogs" => $state && isset($ac->text->gs_clearAllLogs) ? $ac->text->gs_clearAllLogs : esc_html__('Clear all logs?', 'easy-form-builder'),
+            /* translators: Logs — empty state */
+            "gs_noSyncYet" => $state && isset($ac->text->gs_noSyncYet) ? $ac->text->gs_noSyncYet : esc_html__('No sync activity yet.', 'easy-form-builder'),
+            /* translators: Logs table — time column */
+            "gs_logTime" => $state && isset($ac->text->gs_logTime) ? $ac->text->gs_logTime : esc_html__('Time', 'easy-form-builder'),
+            /* translators: Logs table — event column */
+            "gs_logEvent" => $state && isset($ac->text->gs_logEvent) ? $ac->text->gs_logEvent : esc_html__('Event', 'easy-form-builder'),
+            /* translators: Logs table — spreadsheet column */
+            "gs_logSpreadsheet" => $state && isset($ac->text->gs_logSpreadsheet) ? $ac->text->gs_logSpreadsheet : esc_html__('Spreadsheet', 'easy-form-builder'),
+            /* translators: Logs table — detail column */
+            "gs_logDetail" => $state && isset($ac->text->gs_logDetail) ? $ac->text->gs_logDetail : esc_html__('Detail', 'easy-form-builder'),
+            /* translators: Logs status — synced */
+            "gs_synced" => $state && isset($ac->text->gs_synced) ? $ac->text->gs_synced : esc_html__('Synced', 'easy-form-builder'),
+            /* translators: Access denied (page + ajax guard) */
+            "gs_accessDenied" => $state && isset($ac->text->gs_accessDenied) ? $ac->text->gs_accessDenied : esc_html__('Access denied', 'easy-form-builder'),
         ];
     }
 }

@@ -1,6 +1,231 @@
 let exportView_emsFormBuilder = [];
 let stepsCount;
 let sessionPub_emsFormBuilder = "reciveFromClient"
+
+/**
+ * Conditional logic adapter. The addon-owned public runtime is the only engine
+ * allowed to execute saved rules.
+ */
+function efb_get_logic_runtime_efb() {
+  if (typeof window === 'undefined') return null;
+  const runtime = window.efb_logic_runtime || window.EFBConditionalLogic;
+  return runtime && typeof runtime.evaluate === 'function' ? runtime : null;
+}
+
+function fun_statement_logic_efb(triggeredId, triggeredType, formId) {
+  const runtime = efb_get_logic_runtime_efb();
+  if (!runtime) return;
+  let resolvedFormId = formId;
+  if ((resolvedFormId === undefined || resolvedFormId === null) && typeof infer_form_id_by_field_efb === 'function') {
+    resolvedFormId = infer_form_id_by_field_efb(triggeredId);
+  }
+  return runtime.evaluate(resolvedFormId || 0);
+}
+
+/* Retained only for legacy reference; no public call path invokes this engine. */
+function legacy_statement_logic_efb(triggeredId, triggeredType) {
+  // console.log('Logic engine triggered by', triggeredId, 'of type', triggeredType);
+  if (typeof valj_efb === 'undefined' || !valj_efb[0]) return;
+
+  var rules = valj_efb[0].logic_rules;
+  if (!Array.isArray(rules) || rules.length === 0) {
+    /* Legacy fallback: no-op (handled by logic-runtime-efb.js if loaded) */
+    return;
+  }
+
+  /* ── Read current value from sendBack_emsFormBuilder_pub ── */
+  function _getFieldValue(fieldId) {
+    if (typeof sendBack_emsFormBuilder_pub === 'undefined') return '';
+    var fObj = valj_efb.find(function(x) { return x.id_ === fieldId; });
+    if (!fObj) return '';
+    var type = fObj.type;
+
+    /* Checkbox types: multiple entries, one per checked option */
+    if (type === 'checkbox' || type === 'payCheckbox' || type === 'chlCheckBox') {
+      return sendBack_emsFormBuilder_pub
+        .filter(function(x) { return x && x.id_ === fieldId; })
+        .map(function(x) { return x.id_ob || x.value || ''; });
+    }
+
+    var row = sendBack_emsFormBuilder_pub.find(function(x) { return x && x.id_ === fieldId; });
+    if (!row) return '';
+
+    /* Multiselect: value joined by '@efb!' */
+    if (type === 'multiselect' || type === 'payMultiselect') {
+      var v = row.value;
+      if (!v || typeof v !== 'string') return [];
+      return v.split('@efb!').map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+    }
+
+    /* YesNo: id_ob is '{fieldId}_1' (yes) or '{fieldId}_2' (no) */
+    if (type === 'yesNo') {
+      if (!row.id_ob) return '';
+      return row.id_ob === fieldId + '_1' ? 'yes' : row.id_ob === fieldId + '_2' ? 'no' : '';
+    }
+
+    /* Radio types: id_ob = checked option's id_ */
+    if (type === 'radio' || type === 'payRadio' || type === 'imgRadio' || type === 'chlRadio') {
+      return row.id_ob || '';
+    }
+
+    return row.value != null ? String(row.value) : '';
+  }
+
+  /* ── Resolve option id_ → display text ── */
+  function _optionText(optId) {
+    if (!optId) return '';
+    var o = valj_efb.find(function(x) { return x.id_ === optId; });
+    return o ? (o.value || o.name || '') : '';
+  }
+
+  /* ── Evaluate one condition ── */
+  function _evalCondition(cond) {
+    var val = _getFieldValue(cond.field_id);
+    var op  = cond.compare || 'is';
+    var exp = cond.value   || '';
+
+    /* For select/country/state/city: cond.value = option id_, row.value = display text */
+    var fObj = valj_efb.find(function(x) { return x.id_ === cond.field_id; });
+    var selectTypes = ['select','paySelect','conturyList','stateProvince','statePro','country','city','cityList'];
+    var effectiveExp = exp;
+    if (fObj && selectTypes.indexOf(fObj.type) !== -1 && exp) {
+      effectiveExp = _optionText(exp) || exp;
+    }
+
+    /* Array (checkbox / multiselect) */
+    if (Array.isArray(val)) {
+      var isMulti = fObj && (fObj.type === 'multiselect' || fObj.type === 'payMultiselect');
+      var arrExp  = isMulti ? (_optionText(exp) || exp) : exp;
+      switch (op) {
+        case 'is':           return val.indexOf(arrExp) !== -1;
+        case 'is_not':       return val.indexOf(arrExp) === -1;
+        case 'contains':     return val.some(function(v) { return String(v).toLowerCase().indexOf(arrExp.toLowerCase()) !== -1; });
+        case 'not_contains': return !val.some(function(v) { return String(v).toLowerCase().indexOf(arrExp.toLowerCase()) !== -1; });
+        case 'is_empty':     return val.length === 0;
+        case 'is_not_empty': return val.length > 0;
+        default:             return false;
+      }
+    }
+
+    /* Scalar */
+    var sv = String(val).trim();
+    switch (op) {
+      case 'is':           return sv === effectiveExp || sv === exp;
+      case 'is_not':       return sv !== effectiveExp && sv !== exp;
+      case 'contains':     return sv.toLowerCase().indexOf(effectiveExp.toLowerCase()) !== -1;
+      case 'not_contains': return sv.toLowerCase().indexOf(effectiveExp.toLowerCase()) === -1;
+      case 'starts_with':  return sv.toLowerCase().indexOf(effectiveExp.toLowerCase()) === 0;
+      case 'ends_with':    return sv.toLowerCase().lastIndexOf(effectiveExp.toLowerCase()) === sv.length - effectiveExp.length && sv.length >= effectiveExp.length;
+      case 'gt':           return parseFloat(sv) > parseFloat(effectiveExp);
+      case 'lt':           return parseFloat(sv) < parseFloat(effectiveExp);
+      case 'is_empty':     return sv === '';
+      case 'is_not_empty': return sv !== '';
+      default:             return false;
+    }
+  }
+
+  /* ── Evaluate condition group (AND / OR) ── */
+  function _evalGroup(group) {
+    if (!group || !group.items || group.items.length === 0) return false;
+    var result = false;
+    var evalItem = function(c) {
+      if (c && (c.type === 'group' || Array.isArray(c.items))) return _evalGroup(c);
+      return _evalCondition(c);
+    };
+    group.items.forEach(function(c, index) {
+      var matched = evalItem(c);
+      if (index === 0) {
+        result = matched;
+        return;
+      }
+      var connector = String((c && c.connector) || group.operator || 'AND').toUpperCase() === 'OR' ? 'OR' : 'AND';
+      result = connector === 'OR' ? (result || matched) : (result && matched);
+    });
+    return result;
+  }
+
+  /* ── Capture original state of all rule target fields (runs once) ── */
+  if (!fun_statement_logic_efb._states) {
+    fun_statement_logic_efb._states = {};
+    rules.forEach(function(rule) {
+      (rule.actions || []).forEach(function(action) {
+        if (!action.target || fun_statement_logic_efb._states.hasOwnProperty(action.target)) return;
+        var wrapper = document.getElementById(action.target);
+        var fObj    = valj_efb.find(function(x) { return x.id_ === action.target; });
+        var inp     = document.getElementById(action.target + '_');
+        var sel     = document.querySelector('select[data-vid="' + action.target + '"]');
+        fun_statement_logic_efb._states[action.target] = {
+          hidden:   wrapper ? wrapper.classList.contains('d-none') : false,
+          required: fObj ? (fObj.required == 1 || fObj.required === true) : false,
+          disabled: inp ? inp.disabled : (sel ? sel.disabled : false)
+        };
+      });
+    });
+  }
+
+  /* ── Reset all targets to original state before applying current rules ── */
+  var states = fun_statement_logic_efb._states;
+  Object.keys(states).forEach(function(fieldId) {
+    var s = states[fieldId];
+    var wrapper = document.getElementById(fieldId);
+    if (wrapper) {
+      s.hidden ? wrapper.classList.add('d-none') : wrapper.classList.remove('d-none');
+      wrapper.setAttribute('aria-hidden', String(s.hidden));
+    }
+    var idx = valj_efb.findIndex(function(x) { return x.id_ === fieldId; });
+    if (idx !== -1) valj_efb[idx].required = s.required;
+    var reqSpan = document.getElementById(fieldId + '_req');
+    if (reqSpan) reqSpan.style.display = s.required ? '' : 'none';
+    var inp = document.getElementById(fieldId + '_');
+    if (inp) inp.disabled = s.disabled;
+    var sel = document.querySelector('select[data-vid="' + fieldId + '"]');
+    if (sel) sel.disabled = s.disabled;
+    var ms = document.querySelector('.efblist[data-vid="' + fieldId + '"]');
+    if (ms) { ms.style.pointerEvents = ''; ms.style.opacity = ''; }
+  });
+
+  /* ── Execute one action — only when matched; reversal handled by reset above ── */
+  function _execAction(action, matched) {
+    if (!action.target || !matched) return;
+    var t = action.type;
+    var wrapper = document.getElementById(action.target);
+    if (t === 'show_field' && wrapper) { wrapper.classList.remove('d-none'); wrapper.setAttribute('aria-hidden', 'false'); }
+    if (t === 'hide_field' && wrapper) { wrapper.classList.add('d-none');    wrapper.setAttribute('aria-hidden', 'true');  }
+    if (t === 'set_required' || t === 'set_optional') {
+      var req = (t === 'set_required');
+      var idx = valj_efb.findIndex(function(x) { return x.id_ === action.target; });
+      if (idx !== -1) valj_efb[idx].required = req;
+      var reqSpan = document.getElementById(action.target + '_req');
+      if (reqSpan) reqSpan.style.display = req ? '' : 'none';
+    }
+    if (t === 'enable_field' || t === 'disable_field') {
+      var en = (t === 'enable_field');
+      var el = document.getElementById(action.target + '_');
+      if (el) el.disabled = !en;
+      var sel = document.querySelector('select[data-vid="' + action.target + '"]');
+      if (sel) sel.disabled = !en;
+      var ms = document.querySelector('.efblist[data-vid="' + action.target + '"]');
+      if (ms) { ms.style.pointerEvents = en ? '' : 'none'; ms.style.opacity = en ? '' : '0.5'; }
+    }
+    if (t === 'show_step' || t === 'hide_step') {
+      var showStep = (t === 'show_step');
+      var stepObj = valj_efb.find(function(x) { return x.id_ === action.target && x.type === 'step'; });
+      if (stepObj) {
+        var fs = document.querySelector('fieldset[data-step="step-' + stepObj.step + '-efb"]');
+        if (fs) fs.dataset.logicHidden = showStep ? '0' : '1';
+      }
+    }
+  }
+
+  /* ── Run all enabled rules in priority order ── */
+  var sorted = rules.slice().sort(function(a, b) { return (a.priority || 10) - (b.priority || 10); });
+  sorted.forEach(function(rule) {
+    if (!rule.enabled) return;
+    var matched = _evalGroup(rule.conditions);
+    (rule.actions || []).forEach(function(action) { _execAction(action, matched); });
+  });
+}
+
 let stepNames_emsFormBuilder = [`t`, ``, ``];
 let currentTab_emsFormBuilder = 0;
 let multiSelectElemnets_emsFormBuilder = [];
@@ -160,7 +385,7 @@ function check_body_efb_timer (){
                 _line += '  |  ' + (_t.securityWarnVersion || _t.cacheWarnVersion || 'Version') + ': ' + p.version;
               }
 
-              const _msg = '⚠️ ' + (_t.securityWarnTitle || 'Security Plugin Detected') + '\n'
+              const _msg = '\u26A0\uFE0F ' + (_t.securityWarnTitle || 'Security Plugin Detected') + '\n'
                 + (_t.securityWarnMsg || 'The following security plugin may block form submissions with 403 errors. It may block the REST API, remove the X-WP-Nonce header, or apply firewall rules to form requests.') + '\n\n'
                 + _line + '\n\n'
                 + (_t.securityWarnDoc || 'Read more about security plugin compatibility') + ':\n' + _docUrl;
@@ -491,13 +716,12 @@ async function fun_sendBack_emsFormBuilder(ob) {
       } else {
         if (typeof ob.price != "string") {
           sendBack_emsFormBuilder_pub[indx].value = ob.value;
+          /* Always sync id_ob so radio/yesNo/imgRadio changes are reflected correctly */
+          if (ob.id_ob) sendBack_emsFormBuilder_pub[indx].id_ob = ob.id_ob;
         } else {
           sendBack_emsFormBuilder_pub[indx].value = ob.value;
           sendBack_emsFormBuilder_pub[indx].price = ob.price;
-          if(ob.type == "payRadio"){
-            sendBack_emsFormBuilder_pub[indx].id_ob = ob.id_ob;
-          }
-
+          sendBack_emsFormBuilder_pub[indx].id_ob = ob.id_ob;
         }
       }
     }
@@ -514,6 +738,77 @@ async function fun_sendBack_emsFormBuilder(ob) {
   localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
   localStorage.setItem('formId', efb_var.id)
 }
+
+function yesNoGetEFB(v, id, idl, form_id=0) {
+  if (typeof sendBack_emsFormBuilder_pub === 'undefined') return;
+
+  var clickedBtn = null;
+  if (Number(form_id) > 0 && typeof efb_get_by_id_in_form_efb === 'function') {
+    clickedBtn = efb_get_by_id_in_form_efb(form_id, idl);
+  }
+  if (!clickedBtn && typeof event !== 'undefined' && event && event.currentTarget && event.currentTarget.id === idl) {
+    clickedBtn = event.currentTarget;
+  }
+  if (!clickedBtn) clickedBtn = document.getElementById(idl);
+
+  if (!(Number(form_id) > 0) && clickedBtn && typeof efb_form_id_from_dom_node_efb === 'function') {
+    form_id = efb_form_id_from_dom_node_efb(clickedBtn);
+  }
+  if (!(Number(form_id) > 0) && typeof efb_unique_dom_form_id_for_id_efb === 'function') {
+    form_id = efb_unique_dom_form_id_for_id_efb(idl);
+  }
+  form_id = Number(form_id) > 0 ? Number(form_id) : 0;
+
+  const getLocalEl = (targetId)=>{
+    if (Number(form_id) > 0 && typeof efb_get_by_id_in_form_efb === 'function') {
+      return efb_get_by_id_in_form_efb(form_id, targetId);
+    }
+    return document.getElementById(targetId);
+  }
+
+  const otherId = idl.slice(-4) === '_b_2' ? `${id}_b_1` : `${id}_b_2`;
+  const otherBtn = getLocalEl(otherId);
+  if (otherBtn) otherBtn.classList.remove('btn-set');
+  if (clickedBtn && !clickedBtn.classList.contains('btn-set')) clickedBtn.classList.add('btn-set');
+
+  const inputId = idl.slice(-4) === '_b_2' ? `${id}_2` : `${id}_1`;
+  const inputEl = getLocalEl(inputId);
+  if (inputEl) inputEl.checked = true;
+
+  const structure = Number(form_id) > 0 ? get_structure_by_form_id_efb(form_id) : valj_efb;
+  const indx = Array.isArray(structure) ? structure.findIndex(x => x && x.id_ == id) : -1;
+  if (indx === -1) return;
+
+  const row = structure[indx];
+  const o = {
+    id_: id,
+    name: row.name,
+    id_ob: inputId,
+    amount: row.amount,
+    type: "yesNo",
+    value: v,
+    session: sessionPub_emsFormBuilder
+  };
+  if (Number(form_id) > 0) o.form_id = form_id;
+  fun_sendBack_emsFormBuilder(o);
+
+  /* Re-evaluate conditional logic AFTER sendBack has been updated — yesNo clicks
+   * don't go through handle_change_event_efb_v4, so this call was missing here,
+   * causing rules depending on this field to only fire on a later, unrelated change. */
+  const yn_form_id = Number(form_id) > 0 ? Number(form_id) : (typeof form_ID_emsFormBuilder !== 'undefined' ? form_ID_emsFormBuilder : 0);
+  const yn_logicStructure = get_structure_by_form_id_efb(yn_form_id);
+  if (yn_logicStructure && yn_logicStructure[0] &&
+      ((yn_logicStructure[0].hasOwnProperty('logic') && yn_logicStructure[0].logic) ||
+       (yn_logicStructure[0].hasOwnProperty('logic_rules') && Array.isArray(yn_logicStructure[0].logic_rules) && yn_logicStructure[0].logic_rules.length > 0))) {
+    const logicRuntime = efb_get_logic_runtime_efb();
+    if (logicRuntime) {
+      logicRuntime.evaluate(yn_form_id);
+    } else if (typeof fun_statement_logic_efb === 'function') {
+      fun_statement_logic_efb(id, 'yesNo', yn_form_id);
+    }
+  }
+}
+
 function alarm_emsFormBuilder(val) {
   return `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
       <div><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></div>
@@ -546,7 +841,12 @@ function alarm_emsFormBuilder(val) {
 
   }
   let counter = 0;
-  const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? `logic_fun_prev_send(${form_id})`:`fun_prev_send(${form_id})`;
+  /* current_step is the last real step the user was on when they hit
+   * Submit — by the time these error screens render, dataset.currentstep
+   * has already been advanced past it (to current_step + 1), so
+   * fun_prev_send() would try to hide a fieldset that doesn't exist and
+   * throw. Go back to current_step directly instead. */
+  const btn_prev = `efb_go_to_step_direct(${form_id}, ${current_step})`;
   const stepMax = current_step + 1;
   let notfilled = []
   for (let i = 1; i <= stepMax; i++) {
@@ -641,7 +941,9 @@ async function actionSendData_emsFormBuilder(form_id=0) {
      if(form_type_emsFormBuilder =='recovery'){
       vj.type ='recovery';
      }
-     sendBack_emsFormBuilder_pub = [];
+     /* Do NOT wipe sendBack_emsFormBuilder_pub here — the submission may still fail
+        validation server-side. Clearing happens in response_fill_form_efb once the
+        final result (success, or a specific field error) is known. */
   }
   if( vj.captcah){
     const indx = sendback.findIndex(x => x.id_ == 'captcha_v2');
@@ -815,7 +1117,8 @@ function valid_file_emsFormBuilder(id,tp,filed,form_id) {
   let check = 0;
   let rtrn = false;
   let fileName = ''
-  const i = `${id}_`;
+  const recorderTypes_efb = ["audio_recorder", "video_recorder", "screen_recorder"];
+  const i = recorderTypes_efb.indexOf(valj_efb.find(x => x.id_ === id)?.type) !== -1 ? `${id}_file` : `${id}_`;
   let message = "";
   let file_size = 8*1024*1024;
   const indx = valj_efb.findIndex(x => x.id_ === id);
@@ -883,15 +1186,23 @@ async function validation_before_send_efb(form_id) {
   }else{
     valj_efb = valj_efb;
   }
-  const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? `logic_fun_prev_send(${form_id})`:`fun_prev_send(${form_id})`;
+  /* This validation runs right after a final-submit attempt, so
+   * dataset.currentstep may already be past the last real step (see
+   * efb_go_to_step_direct's doc comment) — fall back to the last real
+   * step instead of fun_prev_send(), which assumes a currently-visible
+   * fieldset exists at dataset.currentstep. */
+  const btn_prev = `efb_go_to_step_direct(${form_id}, ${Number(valj_efb[0].steps) || 1})`;
   const count = [0, 0]
   let fill = 0;
   let require = 0;
   const id_body = form_id == 0 ? 'body_efb' : `body_efb_${form_id}`;
+  const fileLikeTypes_efb = ["file", "audio_recorder", "video_recorder", "screen_recorder"];
+  const recorderTypes_efb_v4 = ["audio_recorder", "video_recorder", "screen_recorder"];
   for (const v of valj_efb) {
-    require += v.required == true && v.type !== "file" ? 1 : 0;
-    if (v.type == "file") {
-      if (document.getElementById(`${v.id_}_`).files[0] == undefined && v.required == true) {
+    require += v.required == true && fileLikeTypes_efb.indexOf(v.type) === -1 ? 1 : 0;
+    if (fileLikeTypes_efb.indexOf(v.type) !== -1) {
+      const fileInputId_efb = recorderTypes_efb_v4.indexOf(v.type) !== -1 ? `${v.id_}_file` : `${v.id_}_`;
+      if (document.getElementById(fileInputId_efb).files[0] == undefined && v.required == true) {
         fill -= 1;
       }
     }
@@ -1042,6 +1353,32 @@ function Show_recovery_pass_efb() {
     })
   }
 }
+/* Remove only the sendBack_emsFormBuilder_pub rows that belong to a single field.
+   Most field types keep one row per id_, but checkbox/multiselect/chlCheckBox-style
+   fields can keep several rows for the same field (one per selected option, matched
+   either by id_ or, for chlCheckBox, by id_ob referencing the parent field's id_) —
+   so every matching row for that field must be removed, not just the first. */
+function remove_sendback_rows_by_field_id_efb(field_id, form_id) {
+  if (!field_id) return;
+  let changed = false;
+  for (let i = sendBack_emsFormBuilder_pub.length - 1; i >= 0; i--) {
+    const row = sendBack_emsFormBuilder_pub[i];
+    if (!row) continue;
+    if (Number(row.form_id) !== Number(form_id)) continue;
+    if (row.id_ === field_id || row.id_ob === field_id) {
+      sendBack_emsFormBuilder_pub.splice(i, 1);
+      changed = true;
+    }
+  }
+  if (changed) localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+}
+/* Remove every sendBack_emsFormBuilder_pub row that belongs to the submitted form,
+   leaving rows for any other forms on the page untouched. */
+function clear_sendback_rows_by_form_id_efb(form_id) {
+  const before = sendBack_emsFormBuilder_pub.length;
+  sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(row => row && Number(row.form_id) !== Number(form_id));
+  if (sendBack_emsFormBuilder_pub.length !== before) localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+}
 function efb_get_error_panel_efb() {
   return window.EFB_ERROR_PANEL || (typeof EFB_ERROR_PANEL !== 'undefined' ? EFB_ERROR_PANEL : null);
 }
@@ -1088,33 +1425,23 @@ function efb_log_cache_plugin_notice_efb(form_id) {
   } catch (_e) {
   }
 }
-function efb_report_submit_ajax_error_efb(error, details = {}) {
-  const panel = efb_get_error_panel_efb();
-  if (!panel || typeof panel.log !== 'function') return;
-
-  const statusLabel = details.status ? `HTTP ${details.status}` : 'Network/response error';
-  const message = [
-    ajax_object_efm?.text?.eJQ500 || 'The form could not be submitted because of a request error.',
-    `Submit AJAX error: ${statusLabel}`,
-    error && error.message ? error.message : ''
-  ].filter(Boolean).join('\n');
-
-  panel.log(message, {
-    source: details.url || window.location.href,
-    type: 'plugin',
-    name: 'Easy Form Builder',
-    captureStack: true,
-    showBadge: true,
-    context: 'submissionAjax',
-    formId: details.formId || details.form_id || null,
-    format: {
-      boldTexts: ['Submit AJAX error', statusLabel]
-    }
-  });
-}
 async function response_fill_form_efb(res ,form_id=0) {
   form_id = Number(form_id);
-  const isSubmitAjaxError = res.data && res.data.efb_ajax_submission_error === true;
+  /* Some flows (e.g. password recovery) temporarily replace sendBack_emsFormBuilder_pub
+     with a plain object before submitting — restore array form so the helpers below
+     (and any later array operations) keep working. */
+  if (!Array.isArray(sendBack_emsFormBuilder_pub)) sendBack_emsFormBuilder_pub = [];
+  if (res.data.success == true) {
+    efb_hide_submit_ajax_badge_efb(form_id);
+    /* Final submit succeeded — now it is safe to drop this form's stored values.
+       Other forms on the same page keep their data untouched. */
+    clear_sendback_rows_by_form_id_efb(form_id);
+  } else if (res.data && res.data.field_id) {
+    /* Validation failed for one specific field — remove only that field's rows
+       (by id_, or by id_ob for chlCheckBox-style fields) so the rest of the
+       already-filled-in form data survives and doesn't have to be re-entered. */
+    remove_sendback_rows_by_field_id_efb(res.data.field_id, form_id);
+  }
   let btn_prev ='';
   const t = valj_efb_new.find(x => x.id == form_id);
   const valj_efb = t.form_structer;
@@ -1122,21 +1449,43 @@ async function response_fill_form_efb(res ,form_id=0) {
   const id_body = 'body_efb_'+form_id;
   const body_efb = document.getElementById(id_body);
   const efb_final_step = body_efb.querySelector('#efb-final-step');
-  if(valj_efb.length>1) btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? `logic_fun_prev_send(${form_id})`:`fun_prev_send(${form_id})`;
+  const isSubmitAjaxError = res.data && res.data.efb_ajax_submission_error === true;
+  if (valj_efb.length > 1) {
+    /* If the server rejected one specific field, send Previous straight back
+     * to THAT field's step — not "one step back from dataset.currentstep",
+     * which by this point may already be past the last real step (the
+     * step-advance code sets it before the AJAX call even runs) and would
+     * make fun_prev_send() throw trying to hide a fieldset that doesn't
+     * exist. */
+    const _erroredField = (res.data && res.data.field_id)
+      ? valj_efb.find((f) => f && f.id_ === res.data.field_id)
+      : null;
+    const _backStep = (_erroredField && _erroredField.step != null) ? Number(_erroredField.step) : (Number(stps) || 1);
+    btn_prev = `efb_go_to_step_direct(${form_id}, ${_backStep})`;
+  }
   if (res.data.success == true) {
-    efb_hide_submit_ajax_badge_efb(form_id);
-    if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' && res.data.m.includes('@efb@') ){
+    if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' ){
       efb_final_step.innerHTML = `
       <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
-      <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
+      <h3 class="efb  text-center">${efb_var.text.pWRedirect} <br><a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
       `
-      // window.location.href = res.data.m;
+      setTimeout(function() {
+        window.location.href = res.data.m;
+      }, 3700);
       return ;
     }
     switch (t.type) {
       case 'form':
       case 'payment':
-        efb_final_step.innerHTML = funTnxEfb(res.data.track)
+        if (res.data.conditional_redirect === true && typeof res.data.m === 'string') {
+          efb_final_step.innerHTML = `
+          <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
+          <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
+          `
+          window.location.href = res.data.m;
+          break;
+        }
+        efb_final_step.innerHTML = funTnxEfb(res.data.track, '', res.data.conditional_message || '', res.data.conditional_confirmation || null)
         break;
       case 'survey':
         if(valj_efb[0].hasOwnProperty('thank_you') && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string'  ){
@@ -1447,9 +1796,15 @@ window.addEventListener("popstate",e=>{
     }
   return  r;
  }
-efb_refresh_nonce=async()=>{
+efb_refresh_nonce=async(sid, fid)=>{
   try {
-    const r = await fetch(efb_var.rest_url+'Emsfb/v1/nonce/refresh',{method:'GET',credentials:'same-origin'});
+    // Prove a live form session so the server won't hand a fresh CSRF token to
+    // arbitrary anonymous requesters. sid falls back to the page-level session.
+    const session_id = sid || (typeof efb_var !== 'undefined' && efb_var.sid) || '';
+    const headers = {};
+    if (session_id) headers['sid'] = session_id;
+    if (fid) headers['form-id'] = fid;
+    const r = await fetch(efb_var.rest_url+'Emsfb/v1/nonce/refresh',{method:'GET',credentials:'same-origin',headers:headers});
     if(r.ok){
       const d = await r.json();
       if(d && d.nonce){ efb_var.nonce = d.nonce; return true; }
@@ -1457,14 +1812,38 @@ efb_refresh_nonce=async()=>{
   } catch(e){}
   return false;
 }
+function efb_report_submit_ajax_error_efb(error, details = {}) {
+  const panel = efb_get_error_panel_efb();
+  if (!panel || typeof panel.log !== 'function') return;
+
+  const statusLabel = details.status ? `HTTP ${details.status}` : 'Network/response error';
+  const message = [
+    ajax_object_efm?.text?.eJQ500 || 'The form could not be submitted because of a request error.',
+    `Submit AJAX error: ${statusLabel}`,
+    error && error.message ? error.message : ''
+  ].filter(Boolean).join('\n');
+
+  panel.log(message, {
+    source: details.url || window.location.href,
+    type: 'plugin',
+    name: 'Easy Form Builder',
+    captureStack: true,
+    showBadge: true,
+    context: 'submissionAjax',
+    formId: details.formId || details.form_id || null,
+    format: {
+      boldTexts: ['Submit AJAX error', statusLabel]
+    }
+  });
+}
  post_api_forms_efb=async(data,form_id)=>{
-  const test_efb_set = false; // Set to true for testing purposes, false for production
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
+    const efbForce403Test = false; // Set to true to force a 403 response for testing nonce refresh flow
     const headers = new Headers({
-      'Content-Type': 'application/json',
-      'X-WP-Nonce': test_efb_set ? 'test_nonce' : efb_var.nonce,
-      'form-id': form_id ? form_id : 0,
-      'sid': test_efb_set ? 'test_sid' : data.sid ? data.sid : '',
+     'Content-Type': 'application/json',
+     'X-WP-Nonce': efbForce403Test ? 'efb-force-403-test' : efb_var.nonce,
+     'form-id': form_id ? form_id : 0,
+     'sid': efbForce403Test ? 'efb-force-403-test' : (data.sid ? data.sid : ''),
     });
 
     const jsonData = JSON.stringify(data);
@@ -1478,14 +1857,14 @@ efb_refresh_nonce=async()=>{
   try {
     let response = await fetch(url, requestOptions);
     if (response.status === 403) {
-      const refreshed = await efb_refresh_nonce();
+      const refreshed = await efb_refresh_nonce(data && data.sid ? data.sid : '', form_id);
 
       if (refreshed) {
         const retryHeaders = new Headers({
           'Content-Type': 'application/json',
-          'X-WP-Nonce': test_efb_set ?  'test_nonce' :efb_var.nonce,
+          'X-WP-Nonce': efbForce403Test ? 'efb-force-403-test' : efb_var.nonce,
           'form-id': form_id ? form_id : 0,
-          'sid': test_efb_set ? 'test_sid' :data.sid ? data.sid : '',
+          'sid': efbForce403Test ? 'efb-force-403-test' : (data.sid ? data.sid : ''),
         });
         response = await fetch(url, { method: 'POST', headers: retryHeaders, body: jsonData });
       }
@@ -1562,6 +1941,7 @@ post_api_r_message_efb=(data,message)=>{
     'X-WP-Nonce': efb_var.nonce,
     'form-id': 0,
     'sid':data.sid ? data.sid : '',
+    'page-id': efb_var.page_id ? efb_var.page_id : '',
   });
   const jsonData = JSON.stringify(data);
   const requestOptions = {
@@ -1629,6 +2009,10 @@ document.addEventListener("DOMContentLoaded",async function() {
   }
 
   await createStepsOfPublic();
+  if (typeof window.efb_logic_runtime !== 'undefined' &&
+      typeof window.efb_logic_runtime.initAll === 'function') {
+    window.efb_logic_runtime.initAll();
+  }
   fun_wait_form_load_efb(false,'nfast');
   let captcha = false ;
   valj_efb_new.forEach((valj_efb) => {
@@ -1676,18 +2060,139 @@ function updateStepButtonState_efb(form_id) {
       nextTextEl.textContent = currentStep === maxStep ? submitText : nextTextEl.dataset.defaultText;
     }
 
-    // Backfill missing form_id on legacy rows (commonly multiselect) so required checks can find them.
+    // Backfill missing form_id on legacy rows only when the owner can be inferred confidently.
     for (var bi = 0; bi < sendBack_emsFormBuilder_pub.length; bi++) {
-      normalize_sendback_row_form_id_efb(sendBack_emsFormBuilder_pub[bi], form_id);
+      normalize_sendback_row_form_id_efb(sendBack_emsFormBuilder_pub[bi], -1);
     }
   } catch (e) {
     console.error('[updateStepButtonState_efb] ERROR:', e);
   }
 }
 
-smoothy_scroll_postion_efb=(id)=>{
+function efb_css_escape_efb(value) {
+  var text = String(value || '');
+  if (typeof CSS !== 'undefined' && CSS && typeof CSS.escape === 'function') {
+    return CSS.escape(text);
+  }
+  return text.replace(/([ #;?%&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
+}
 
-  const element = document.getElementById(id);
+function efb_form_body_efb(form_id) {
+  return document.getElementById('body_efb_' + form_id) ||
+    (Number(form_id) === 0 ? document.getElementById('body_efb') : null);
+}
+
+function efb_query_in_form_efb(form_id, selector) {
+  var body = efb_form_body_efb(form_id);
+  if (body && typeof body.querySelector === 'function') {
+    try {
+      return body.querySelector(selector);
+    } catch (e) {}
+  }
+  try {
+    return document.querySelector(selector);
+  } catch (e) {
+    return null;
+  }
+}
+
+function efb_get_by_id_in_form_efb(form_id, id) {
+  if (id === null || id === undefined || String(id).length === 0) return null;
+  var body = efb_form_body_efb(form_id);
+  var selector = '#' + efb_css_escape_efb(id);
+  if (body && typeof body.querySelector === 'function') {
+    try {
+      var local = body.querySelector(selector);
+      if (local) return local;
+    } catch (e) {}
+  }
+  var globalEl = document.getElementById(String(id));
+  if (!body) return globalEl;
+  return globalEl && body.contains(globalEl) ? globalEl : null;
+}
+
+function efb_structure_for_form_efb(form_id) {
+  if (!Array.isArray(valj_efb_new)) return null;
+  var form = valj_efb_new.find(function(item) { return item && Number(item.id) === Number(form_id); });
+  return form && Array.isArray(form.form_structer) ? form.form_structer : null;
+}
+
+function efb_field_owner_count_efb(field_id) {
+  if (!Array.isArray(valj_efb_new) || field_id === null || field_id === undefined) return 0;
+  var count = 0;
+  for (var i = 0; i < valj_efb_new.length; i++) {
+    var structure = valj_efb_new[i] && valj_efb_new[i].form_structer;
+    if (!Array.isArray(structure)) continue;
+    if (structure.some(function(field) { return field && String(field.id_) === String(field_id); })) count++;
+  }
+  return count;
+}
+
+function efb_field_exists_in_form_efb(field_id, form_id) {
+  var structure = efb_structure_for_form_efb(form_id);
+  if (!structure) return false;
+  return structure.some(function(field) { return field && String(field.id_) === String(field_id); });
+}
+
+function efb_has_form_id_efb(row) {
+  if (!row || typeof row !== 'object') return false;
+  if (!row.hasOwnProperty('form_id')) return false;
+  if (row.form_id === '' || row.form_id === null || row.form_id === undefined) return false;
+  var parsedFormId = Number(row.form_id);
+  return Number.isNaN(parsedFormId) === false && parsedFormId > 0;
+}
+
+function efb_form_id_from_dom_node_efb(node) {
+  var cursor = node;
+  while (cursor) {
+    if (cursor.dataset && cursor.dataset.formid !== undefined && cursor.dataset.formid !== '') {
+      var dataFormId = Number(cursor.dataset.formid);
+      if (Number.isNaN(dataFormId) === false) return dataFormId;
+    }
+    if (cursor.id && /^body_efb_\d+$/.test(String(cursor.id))) {
+      return Number(String(cursor.id).replace('body_efb_', ''));
+    }
+    cursor = cursor.parentElement || cursor.parentNode || cursor.parent || null;
+  }
+  return -1;
+}
+
+function efb_unique_dom_form_id_for_id_efb(id) {
+  if (!id || typeof document !== 'object') return -1;
+  var nodes = [];
+  if (typeof document.querySelectorAll === 'function') {
+    var safeAttr = String(id).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    try {
+      nodes = Array.prototype.slice.call(document.querySelectorAll('[id="' + safeAttr + '"]'));
+    } catch (e) {}
+  }
+  if (nodes.length === 0 && document.getElementById) {
+    var el = document.getElementById(String(id));
+    if (el) nodes = [el];
+  }
+  var found = [];
+  for (var i = 0; i < nodes.length; i++) {
+    var formId = efb_form_id_from_dom_node_efb(nodes[i]);
+    if (formId !== -1 && found.indexOf(formId) === -1) found.push(formId);
+  }
+  return found.length === 1 ? found[0] : -1;
+}
+
+function efb_row_belongs_to_form_efb(row, form_id) {
+  if (Number(form_id) === 0) return true;
+  if (!row || typeof row !== 'object') return false;
+  if (efb_has_form_id_efb(row)) return Number(row.form_id) === Number(form_id);
+  var inferred = infer_form_id_by_field_efb(row);
+  if (inferred !== -1) return Number(inferred) === Number(form_id);
+  var rowId = row.id_ || row.id || '';
+  return rowId && efb_field_owner_count_efb(rowId) === 1 && efb_field_exists_in_form_efb(rowId, form_id);
+}
+
+smoothy_scroll_postion_efb=(id, form_id=0)=>{
+
+  const element = Number(form_id) > 0 && typeof efb_get_by_id_in_form_efb === 'function'
+    ? efb_get_by_id_in_form_efb(form_id, id)
+    : document.getElementById(id);
   if (element) {
     const elementRect = element.getBoundingClientRect();
     const elementTop = elementRect.top + window.scrollY;
@@ -1821,22 +2326,45 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
 
   if(btn_state=='next_efb'){
         let prev_btn = parent_body.querySelector('#prev_efb');
-        if(no_step<2){
-          if(prev_btn)prev_btn.classList.remove('d-none');
-        }
-        no_step = Number(no_step)+1;
+        const _liveStepAfterValidation = Number(parent_body.dataset.currentstep);
+        const _jumpedDuringValidation = _liveStepAfterValidation !== no_step;
 
-        await fun_handle_header_efb(no_step,'forward');
-        current_fieldset.classList.add('d-none');
-        const next_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
-        if (next_fieldset) next_fieldset.classList.remove('d-none');
+        if (_jumpedDuringValidation) {
+          /* A conditional-logic jump_to_step action ran as a side effect of
+           * the validation/evaluate() call above (e.g. a rule on the field
+           * the user is leaving) and already moved the visible step —
+           * fieldset visibility, progress bar, and title/description are
+           * already correct. Adopt that destination instead of ALSO
+           * advancing by one more step below, which would double-count the
+           * jump and could overshoot past the real (or even the last) step. */
+          no_step = _liveStepAfterValidation;
+          if (prev_btn) prev_btn.classList.toggle('d-none', no_step <= 1);
+        } else {
+          if(no_step<2){
+            if(prev_btn)prev_btn.classList.remove('d-none');
+          }
+          no_step = Number(no_step)+1;
+
+          /* Skip logic-hidden steps forward — if all remaining steps are hidden,
+           * no_step will exceed max_step and the form will proceed to submission. */
+          while (no_step <= max_step) {
+            const _cs = parent_body.querySelector('[data-step="step-' + no_step + '-efb"]');
+            if (!_cs || _cs.dataset.logicHidden !== '1') break;
+            no_step++;
+          }
+
+          await fun_handle_header_efb(no_step,'forward');
+          current_fieldset.classList.add('d-none');
+          const next_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
+          if (next_fieldset) next_fieldset.classList.remove('d-none');
+        }
 
        parent_body.dataset.currentstep = no_step;
        if(progessbar)fun_progessbar(no_step,max_step);
 
        if(no_step>max_step){
          el.classList.add('d-none');
-         prev_btn.classList.add('d-none');
+         if(prev_btn) prev_btn.classList.add('d-none');
          endMessage_emsFormBuilder_view(max_step,form_id);
        }else if(no_step==max_step){
         updateStepButtonState_efb(form_id);
@@ -1847,12 +2375,21 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
        }
 
   }else if (btn_state=='prev_efb'){
-    if(no_step==2){
-      let prev_btn = parent_body.querySelector('#prev_efb');
-      if(prev_btn)prev_btn.classList.add('d-none');
+    no_step = Number(no_step)-1;
+
+    /* Skip logic-hidden steps backward */
+    while (no_step > 1) {
+      const _cs = parent_body.querySelector('[data-step="step-' + no_step + '-efb"]');
+      if (!_cs || _cs.dataset.logicHidden !== '1') break;
+      no_step--;
     }
 
-    no_step = Number(no_step)-1;
+    if (no_step <= 1) {
+      no_step = 1;
+      let prev_btn = parent_body.querySelector('#prev_efb');
+      if(prev_btn) prev_btn.classList.add('d-none');
+    }
+
     parent_body.dataset.currentstep =  no_step;
     const prev_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
     current_fieldset.classList.add('d-none');
@@ -1890,11 +2427,21 @@ infer_form_id_by_field_efb=(field_id)=>{
   // Fast path via cached map (field_id -> form_id), rebuilt when form schema changes.
   const get_map_efb =()=>{
     if (!Array.isArray(valj_efb_new)) return null;
-    const cacheKey = `len:${valj_efb_new.length}|ids:${valj_efb_new.map(f => Number(f && f.id || -1)).join(',')}`;
+    const cacheKey = `len:${valj_efb_new.length}|ids:${valj_efb_new.map(f => Number(f && f.id || -1)).join(',')}|rows:${valj_efb_new.map(f => Array.isArray(f && f.form_structer) ? f.form_structer.length : 0).join(',')}`;
     if (window.__efb_field_form_map_cache && window.__efb_field_form_map_cache.key === cacheKey) {
       return window.__efb_field_form_map_cache.map;
     }
     const mp = new Map();
+    const put_efb = (key, fId)=>{
+      if (key === null || key === undefined || String(key).length === 0) return;
+      const normalizedKey = String(key);
+      const existing = mp.get(normalizedKey);
+      if (existing === undefined) {
+        mp.set(normalizedKey, fId);
+      } else if (existing !== null && Number(existing) !== Number(fId)) {
+        mp.set(normalizedKey, null);
+      }
+    }
     for (let i = 0; i < valj_efb_new.length; i++) {
       const form = valj_efb_new[i];
       if (!form || !Array.isArray(form.form_structer)) continue;
@@ -1903,13 +2450,13 @@ infer_form_id_by_field_efb=(field_id)=>{
         const row = form.form_structer[j];
         if (!row || typeof row !== 'object') continue;
         if (row.hasOwnProperty('id_') && String(row.id_).length > 0) {
-          mp.set(String(row.id_), fId);
+          put_efb(String(row.id_), fId);
         }
         if (row.hasOwnProperty('id_ob') && String(row.id_ob).length > 0) {
-          mp.set(`id_ob:${String(row.id_ob)}`, fId);
+          put_efb(`id_ob:${String(row.id_ob)}`, fId);
         }
         if (row.hasOwnProperty('name') && String(row.name).length > 0) {
-          mp.set(`name:${String(row.name).toLowerCase()}`, fId);
+          put_efb(`name:${String(row.name).toLowerCase()}`, fId);
         }
       }
     }
@@ -1920,41 +2467,51 @@ infer_form_id_by_field_efb=(field_id)=>{
   if (!Array.isArray(valj_efb_new) || valj_efb_new.length === 0) return -1;
 
   const isObjectInput = field_id && typeof field_id === 'object';
+  if (isObjectInput && efb_has_form_id_efb(field_id)) {
+    const explicitFormId = Number(field_id.form_id);
+    if (Number.isNaN(explicitFormId) === false) return explicitFormId;
+  }
+
   const candidateId = isObjectInput
     ? (field_id.id_ || field_id.id || '')
     : field_id;
 
   const map = get_map_efb();
   if (!map) return -1;
+  const read_hit_efb = (key)=>{
+    const hit = map.get(key);
+    if (hit === undefined || hit === null) return -1;
+    return Number(hit);
+  }
 
   if (candidateId !== null && candidateId !== undefined && String(candidateId).length > 0) {
-    const hit = map.get(String(candidateId));
-    if (hit !== undefined) return Number(hit);
+    const hit = read_hit_efb(String(candidateId));
+    if (hit !== -1) return hit;
   }
 
   // Fallback for objects that may not have id_ (legacy/special rows).
   if (isObjectInput) {
     if (field_id.hasOwnProperty('id_ob') && String(field_id.id_ob).length > 0) {
-      const byOb = map.get(`id_ob:${String(field_id.id_ob)}`);
-      if (byOb !== undefined) return Number(byOb);
+      const byOb = read_hit_efb(`id_ob:${String(field_id.id_ob)}`);
+      if (byOb !== -1) return byOb;
     }
     if (field_id.hasOwnProperty('name') && String(field_id.name).length > 0) {
-      const byName = map.get(`name:${String(field_id.name).toLowerCase()}`);
-      if (byName !== undefined) return Number(byName);
+      const byName = read_hit_efb(`name:${String(field_id.name).toLowerCase()}`);
+      if (byName !== -1) return byName;
     }
     // DOM fallback: if this row belongs to an input/select/textarea element, use dataset formid.
     const domId = field_id.id_ob || field_id.id_ || field_id.id || '';
-    if (domId && typeof document === 'object' && document.getElementById) {
-      const el = document.getElementById(String(domId)) || document.getElementById(`${domId}_`);
-      if (el && el.dataset && el.dataset.formid !== undefined) {
-        const domFormId = Number(el.dataset.formid);
-        if (Number.isNaN(domFormId) === false) return domFormId;
-      }
+    if (domId && typeof document === 'object') {
+      const domFormId = efb_unique_dom_form_id_for_id_efb(String(domId));
+      if (domFormId !== -1) return domFormId;
+      const domInputFormId = efb_unique_dom_form_id_for_id_efb(`${domId}_`);
+      if (domInputFormId !== -1) return domInputFormId;
     }
   }
 
-  // Last fallback: active form context if available.
-  if (form_ID_emsFormBuilder !== undefined && form_ID_emsFormBuilder !== null) {
+  // Last fallback only when there is a single form on the page. With multiple
+  // forms, guessing from active global context can validate the wrong form.
+  if (Array.isArray(valj_efb_new) && valj_efb_new.length === 1 && form_ID_emsFormBuilder !== undefined && form_ID_emsFormBuilder !== null) {
     const activeFormId = Number(form_ID_emsFormBuilder);
     if (Number.isNaN(activeFormId) === false && activeFormId >= 0) return activeFormId;
   }
@@ -2026,10 +2583,15 @@ is_required_value_filled_efb=(row, fieldType='')=>{
 
 normalize_sendback_row_form_id_efb=(row, fallback_form_id=-1)=>{
   if (!row || typeof row !== 'object') return row;
-  const hasFormId = row.hasOwnProperty('form_id') && row.form_id !== '' && row.form_id !== null && row.form_id !== undefined;
-  if (hasFormId) return row;
+  if (efb_has_form_id_efb(row)) return row;
   const inferred = infer_form_id_by_field_efb(row);
-  row.form_id = inferred !== -1 ? inferred : fallback_form_id;
+  if (inferred !== -1) {
+    row.form_id = inferred;
+    return row;
+  }
+  if (Number(fallback_form_id) > 0 && row.id_ && efb_field_owner_count_efb(row.id_) === 1 && efb_field_exists_in_form_efb(row.id_, fallback_form_id)) {
+    row.form_id = fallback_form_id;
+  }
   return row;
 }
 
@@ -2061,7 +2623,7 @@ get_row_sendback_by_id_efb_v4=(id_,form_id=0)=>{
     return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)
 
   }else{
-    return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_ && Number((x.hasOwnProperty('form_id') ? x.form_id : infer_form_id_by_field_efb(x.id_)))==Number(form_id))
+    return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_ && efb_row_belongs_to_form_efb(x, form_id))
   }
  }
 
@@ -2076,7 +2638,15 @@ fun_prev_send =(form_id =0) =>{
   finalStepEl.innerHTML = loading_messge_efb();
   let id = `step-${current_s_efb}-efb`;
   var current_s = body_efb.querySelector(`[data-step="${id}"]`);
-  id = `step-${current_s_efb-1}-efb`;
+
+  /* Find last visible (non-logic-hidden) step to return to */
+  let _prevTarget = Number(current_s_efb) - 1;
+  while (_prevTarget > 1) {
+    const _pc = body_efb.querySelector('[data-step="step-' + _prevTarget + '-efb"]');
+    if (!_pc || _pc.dataset.logicHidden !== '1') break;
+    _prevTarget--;
+  }
+  id = `step-${_prevTarget}-efb`;
   const prev_s_efb = body_efb.querySelector(`[data-step="${id}"]`);
 
   fun_progessbar = (current_step,max_step)=>{
@@ -2100,7 +2670,7 @@ fun_prev_send =(form_id =0) =>{
     const next_efb = body_efb.querySelector('#next_efb');
     next_efb.classList.remove('d-none');
   }
-  var s = "" + (current_s_efb - 1) + "";
+  var s = "" + _prevTarget + "";
   var val = valj_efb.find(x => x.step == s);
   if(Number(valj_efb[0].show_icon)!=1){
     const title_efb = body_efb.querySelector("#title_efb");
@@ -2118,11 +2688,83 @@ fun_prev_send =(form_id =0) =>{
   if(prev_efb)prev_efb.classList.toggle("d-none");
   current_s.classList.add('d-none');
   prev_s_efb.classList.remove('d-none');
-  current_s_efb -= 1;
+  current_s_efb = _prevTarget;
   body_efb.dataset.currentstep = current_s_efb;
   fun_progessbar(current_s_efb,stp);
   smoothy_scroll_postion_efb(id_body);
 
+}
+
+/**
+ * Show a specific step directly, regardless of whatever value
+ * dataset.currentstep currently holds. fun_prev_send() always assumes
+ * dataset.currentstep points at a real, currently-visible fieldset and just
+ * decrements it — which throws (querySelector(...).classList on null) right
+ * after a final-submit attempt, because the step-advance code in
+ * btn_navigate_handle_efb already sets dataset.currentstep to max_step + 1
+ * before the AJAX call even runs, and no fieldset exists for that step.
+ * Used for the "Previous" button rendered on synthetic error screens
+ * (#efb-final-step) after a failed submit/validation, where we cannot rely
+ * on dataset.currentstep being a real, displayed step.
+ */
+function efb_go_to_step_direct(form_id, targetStep) {
+  const body_efb = document.getElementById('body_efb_' + form_id);
+  if (!body_efb) return false;
+  const valj_efb = get_structure_by_form_id_efb(form_id);
+  const maxStep = Number(valj_efb[0].steps) || 1;
+  targetStep = Math.max(1, Math.min(Number(targetStep) || 1, maxStep));
+
+  if (typeof efb_hide_submit_ajax_badge_efb === 'function') efb_hide_submit_ajax_badge_efb(form_id);
+
+  body_efb.querySelectorAll('[data-step^="step-"][data-step$="-efb"]').forEach((fieldset) => {
+    fieldset.classList.add('d-none');
+  });
+  const targetFieldset = body_efb.querySelector('[data-step="step-' + targetStep + '-efb"]');
+  if (targetFieldset) targetFieldset.classList.remove('d-none');
+
+  body_efb.dataset.currentstep = targetStep;
+  current_s_efb = targetStep;
+
+  const progressBar = body_efb.querySelector('.progress-bar-efb');
+  if (progressBar) progressBar.style.width = (targetStep / (maxStep + 1)) * 100 + '%';
+
+  /* #next_efb is the SAME element whether it currently reads "Next" or
+   * "Submit" — only its inner text is swapped by updateStepButtonState_efb()
+   * (also used by jumpToStep() for the same reason). But the overshoot path
+   * in btn_navigate_handle_efb hides the clicked button itself
+   * (`el.classList.add('d-none')`) when treating the form as finished, and
+   * that `el` is #next_efb — so it must be explicitly shown again here,
+   * since we are by definition NOT finished if we're displaying a real step. */
+  const nextBtn = body_efb.querySelector('#next_efb');
+  if (nextBtn) nextBtn.classList.remove('d-none');
+  /* #btn_send_efb is the equivalent single-step-form submit button (mutually
+   * exclusive with #next_efb/#prev_efb) and gets hidden the same way on its
+   * own overshoot path in btn_navigate_handle_efb — restore it too. */
+  const sendBtn = body_efb.querySelector('#btn_send_efb');
+  if (sendBtn) sendBtn.classList.remove('d-none');
+  if (typeof updateStepButtonState_efb === 'function') updateStepButtonState_efb(form_id);
+
+  const prevBtn = body_efb.querySelector('#prev_efb');
+  if (prevBtn) prevBtn.classList.toggle('d-none', targetStep <= 1);
+
+  if (Number(valj_efb[0].show_icon) !== 1) {
+    const titleEl = body_efb.querySelector('#title_efb');
+    const descEl = body_efb.querySelector('#desc_efb');
+    const stepData = valj_efb.find((x) => String(x.step) === String(targetStep));
+    if (stepData && titleEl && descEl) {
+      titleEl.className = colorTextChangerEfb(titleEl.className, stepData['label_text_color']);
+      descEl.className = colorTextChangerEfb(descEl.className, stepData['message_text_color']);
+      titleEl.textContent = stepData['name'];
+      descEl.textContent = stepData['message'];
+    }
+    for (let i = 1; i <= maxStep; i++) {
+      const icon = document.getElementById(i + '-f-step-efb-' + form_id);
+      if (icon) icon.classList.toggle('active', i === targetStep);
+    }
+  }
+
+  if (typeof smoothy_scroll_postion_efb === 'function') smoothy_scroll_postion_efb('body_efb_' + form_id);
+  return true;
 }
 
 async function handle_change_event_efb_v4(el ,form_id=0){
@@ -2310,7 +2952,13 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         if(indx!=-1) {
           slice_sback(indx)
           if(ob.type=="payCheckbox") fun_total_pay_efb(form_id);
-          if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.id ,el.type);
+          /* sendBack already updated via slice_sback — safe to evaluate logic now */
+          const logicRuntime = efb_get_logic_runtime_efb();
+          if (logicRuntime) {
+            logicRuntime.evaluate(form_id);
+          } else if (typeof fun_statement_logic_efb === 'function') {
+            fun_statement_logic_efb(el.id, el.type, form_id);
+          }
           return ;
         }
        }
@@ -2325,7 +2973,6 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         document.getElementById(id).disabled=true;
         document.getElementById(id).value ="";
        }
-       if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.id ,el.type);
       break;
     case "select-one":
     case "select":
@@ -2338,8 +2985,6 @@ async function handle_change_event_efb_v4(el ,form_id=0){
         v = valueJson_ws.find(x => x.id_ == v && x.value == el.value);
         if (typeof v.price == "string") price_efb = v.price;
       }
-
-      if((valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) || (valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0)) fun_statement_logic_efb(el.dataset.vid , el.type);
       if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
         let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
            await fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp,el.dataset.formid);
@@ -2461,6 +3106,18 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     }
   }
   updateStepButtonState_efb(form_id);
+  /* Re-evaluate conditional logic AFTER sendBack has been updated — covers all field types */
+  const logicStructure = get_structure_by_form_id_efb(form_id);
+  if (logicStructure && logicStructure[0] &&
+      ((logicStructure[0].hasOwnProperty('logic') && logicStructure[0].logic) ||
+       (logicStructure[0].hasOwnProperty('logic_rules') && Array.isArray(logicStructure[0].logic_rules) && logicStructure[0].logic_rules.length > 0))) {
+    const logicRuntime = efb_get_logic_runtime_efb();
+    if (logicRuntime) {
+      logicRuntime.evaluate(form_id);
+    } else if (typeof fun_statement_logic_efb === 'function') {
+      fun_statement_logic_efb(el.id, el.type, form_id);
+    }
+  }
 }
 
 async function fun_validation_efb_v4(form_id) {
@@ -2468,29 +3125,50 @@ async function fun_validation_efb_v4(form_id) {
   if (body_efb_v) {
     current_s_efb = Number(body_efb_v.dataset.currentstep) || 1;
   }
+  if (typeof window.efb_logic_runtime !== 'undefined' &&
+      typeof window.efb_logic_runtime.validate === 'function') {
+    const logicValidation = window.efb_logic_runtime.validate(form_id, current_s_efb);
+    if (!logicValidation.valid) {
+      /* block_submit / end_form carry their own message in missing_name */
+      const logicAlertMsg = logicValidation.submit_blocked && logicValidation.missing_name
+        ? logicValidation.missing_name
+        : efb_var.text.fillrequiredfields;
+      alert_message_efb(logicAlertMsg, '', 6, 'warning');
+      if (logicValidation.missing_field && typeof smoothy_scroll_postion_efb === 'function') {
+        smoothy_scroll_postion_efb(logicValidation.missing_field, form_id);
+      }
+      return false;
+    }
+  }
 
   let offsetw = offset_view_efb();
   const defaultMsg = efb_var.text.enterTheValueThisField;
   let state = true;
   let idi = "null";
   let name_field = "";
-  if(Number(form_id)!=Number(form_ID_emsFormBuilder)) {valj_efb = get_structure_by_form_id_efb(form_id);}
+  let valj_efb = get_structure_by_form_id_efb(form_id);
   let id_noti_message = valj_efb.steps > 1 ?  `step-${current_s_efb}-efb-msg` : 'alert_efb';
   for (let row in valj_efb) {
     let s =  get_row_sendback_by_id_efb_v4(valj_efb[row].id_,form_id);
+    /* Skip validation for fields hidden by conditional logic (wrapper has d-none class,
+     * or efb-anim-hide while the hide animation is still playing) */
+    const _wrapper_v = efb_get_by_id_in_form_efb(form_id, valj_efb[row].id_);
+    if (_wrapper_v && (_wrapper_v.classList.contains('d-none') || _wrapper_v.classList.contains('efb-anim-hide'))) continue;
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
-      const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
-      let el = document.getElementById(`${valj_efb[row].id_}_-message`);
+      const id = valj_efb[row].type == "yesNo" ? `${valj_efb[row].id_}_yn` : (fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`);
+      let el = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_-message`);
+      let inputEl = efb_get_by_id_in_form_efb(form_id, id);
 
       let fieldFailed = false;
       if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile'){
-        let r = files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_);
+        let r = files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_ && efb_row_belongs_to_form_efb(x, form_id));
         if (r !== -1) {
           fieldFailed = files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state) == 0;
         } else {
           // Upload completed — entry removed from files_emsFormBuilder; check sendback for uploaded URL
           const sbIndx = sendBack_emsFormBuilder_pub.findIndex(x =>
             x.id_ === valj_efb[row].id_ &&
+            efb_row_belongs_to_form_efb(x, form_id) &&
             x.value === '@file@' &&
             typeof x.url === 'string' &&
             x.url.length > 0
@@ -2503,30 +3181,34 @@ async function fun_validation_efb_v4(form_id) {
 
       if (fieldFailed) {
         if (state == true) { state = false; idi = valj_efb[row].id_ , name_field = valj_efb[row].name }
-        if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+        if(el && Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
           el.classList.add('unpx');
         }
         // Use custom required message if set, otherwise use default
         const fieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
         const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${fieldMsg}','',10,'danger')"></div>` : fieldMsg;
-        el.innerHTML = msg;
-        show_msg_efb(el);
-        if (type_validate_efb(valj_efb[row].type) == true) {
-          document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");}
+        if (el) {
+          el.innerHTML = msg;
+          show_msg_efb(el);
+        }
+        if (inputEl && type_validate_efb(valj_efb[row].type) == true) {
+          inputEl.className = colorBorderChangerEfb(inputEl.className, "border-danger");}
       } else {
         idi = valj_efb[row].id_;
-        hide_msg_efb(el);
-        if (type_validate_efb(valj_efb[row].type) == true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-success");
+        if (el) hide_msg_efb(el);
+        if (inputEl && type_validate_efb(valj_efb[row].type) == true) inputEl.className = colorBorderChangerEfb(inputEl.className, "border-success");
         const v = sendBack_emsFormBuilder_pub.length>0 && valj_efb[row].type == "multiselect" && sendBack_emsFormBuilder_pub[s].hasOwnProperty('value') ? sendBack_emsFormBuilder_pub[s].value.split("@efb!") :"";
         if ((valj_efb[row].type == "multiselect" || valj_efb[row].type == "payMultiselect") && (v.length - 1) < valj_efb[row].minSelect) {
           name_field = valj_efb[row].name
-          document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");
-          el.innerHTML = efb_var.text.minSelect + " " + valj_efb[row].minSelect
-          show_msg_efb(el);
+          if (inputEl) inputEl.className = colorBorderChangerEfb(inputEl.className, "border-danger");
+          if (el) {
+            el.innerHTML = efb_var.text.minSelect + " " + valj_efb[row].minSelect
+            show_msg_efb(el);
+          }
           if (state == true) { state = false; idi = valj_efb[row].id_ }
         }
       }
-    }else if (row > 1 && valj_efb[row].type == "chlCheckBox" && current_s_efb == valj_efb[row].step){
+    }else if (row > 1 && valj_efb[row].type == "chlCheckBox" && current_s_efb == valj_efb[row].step && !(_wrapper_v && (_wrapper_v.classList.contains('d-none') || _wrapper_v.classList.contains('efb-anim-hide')))){
       name_field = valj_efb[row].name;
       idi = valj_efb[row].id_;
       fun_noti_chlcheckbox = (idi,name_field,id_noti_message,form_id) => {
@@ -2538,22 +3220,26 @@ async function fun_validation_efb_v4(form_id) {
 
       }
         let state_of_ch = true;;
-        const em = sendBack_emsFormBuilder_pub.find(x => x.id_ob == idi);
+        const msgEl = efb_get_by_id_in_form_efb(form_id, idi+'_-message');
+        const wrapperEl = efb_get_by_id_in_form_efb(form_id, idi);
+        const em = sendBack_emsFormBuilder_pub.find(x => x.id_ob == idi && efb_row_belongs_to_form_efb(x, form_id));
         if(em==undefined || em==null ){
             // Use custom required message if set, otherwise use default
             const chlFieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
             const chlMsg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${chlFieldMsg}','',10,'danger')"></div>` : chlFieldMsg;
-            document.getElementById(idi+'_-message').innerHTML = chlMsg;
-            show_msg_efb(document.getElementById(idi+'_-message'));
+            if (msgEl) {
+              msgEl.innerHTML = chlMsg;
+              show_msg_efb(msgEl);
+            }
 
-            document.getElementById(idi).classList.add('bg-warning');
+            if (wrapperEl) wrapperEl.classList.add('bg-warning');
 
-        }else if(em.id_ob =idi && em.hasOwnProperty('qty')==false && em.qty == "" && em.value.length == 0 ) {
+        }else if(em.id_ob == idi && em.hasOwnProperty('qty')==false && em.qty == "" && em.value.length == 0 ) {
           fun_noti_chlcheckbox(idi,name_field,id_noti_message,form_id);
 
         }else{
-            hide_msg_efb(document.getElementById(idi+'_-message'));
-             document.getElementById(idi).classList.remove('bg-warning');
+            if (msgEl) hide_msg_efb(msgEl);
+            if (wrapperEl) wrapperEl.classList.remove('bg-warning');
         }
 
     }
@@ -2577,9 +3263,10 @@ async function fun_validation_efb_v4(form_id) {
     alert_message_efb(efb_var.text.fillrequiredfields, '', 6, 'warning');
     if (idi != "null") {
       if(typeof smoothy_scroll_postion_efb === 'function'){
-        smoothy_scroll_postion_efb(idi)
+        smoothy_scroll_postion_efb(idi, form_id)
       }else{
-        document.getElementById(idi).scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+        const scrollTarget = efb_get_by_id_in_form_efb(form_id, idi);
+        if (scrollTarget) scrollTarget.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
       }
     }
     return false;
@@ -2649,8 +3336,22 @@ const speed_test_efb=()=>{
 
 const check_form_payment_filled_efb = (form_id=0) =>{
   const payment_method =['paypal','stripe','persiapay' ,'zarinpal'];
-  let valj_efb = get_structure_by_form_id_efb(form_id);
+  let valj_efb;
+  try { valj_efb = get_structure_by_form_id_efb(form_id); }
+  catch (e) { valj_efb = window.valj_efb; }
+  if(!Array.isArray(valj_efb) || !valj_efb[0]) return false;
   if(valj_efb[0].type != 'payment') return true;
+
+  // Conditional-logic forms must stay on the page after payment: the payment
+  // rules (is_paid / amount_*) may reveal or require fields the user still has
+  // to fill, so the form is never auto-submitted — only re-evaluated.
+  if (typeof EFBConditionalLogic !== 'undefined' && EFBConditionalLogic &&
+      typeof EFBConditionalLogic.hasActiveRules === 'function' &&
+      EFBConditionalLogic.hasActiveRules(valj_efb)) {
+    const logicRuntime = efb_get_logic_runtime_efb();
+    if (logicRuntime) logicRuntime.evaluate(form_id);
+    return false;
+  }
   let necessary_fields_filed = [];
   let is_getway_last_filed = false;
   last_row_index = valj_efb.length - 1;

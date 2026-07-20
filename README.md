@@ -42,7 +42,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
 
 **Version Numbers**
 
-* Easy Form Builder 1.30.0 – 1.33.X is deprecated and will no longer be supported.
+* Easy Form Builder 1.30.0 - 1.33.X is deprecated and will no longer be supported.
 * [Easy Form Builder 2.3.X](https://github.com/hassantafreshi/easy-form-builder/tree/v2) is deprecated and will no longer be supported.
 * [Easy Form Builder 3.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v3) is deprecated.
 * [Easy Form Builder 4.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v4) is under active development. (recommended)
@@ -50,7 +50,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
 
 ## Features 💡
 
-You don’t need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
+You don't need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
 
 Features:
 
@@ -69,7 +69,7 @@ Features:
 #### Form Responses & Management
 - **Form Entry & Message Management Dashboard** - Centralized dashboard to manage all submissions
 - **Email Notifications** - Automatic email alerts when forms are submitted
-- **Custom Email Templates** - Drag-and-drop email template editor for branded notifications
+- **Custom Email Templates** - Free built-in visual editor for branded WordPress form email notifications
 - **Confirmation Code (Tracking ID)** - Unique identifiers for each submission
 - **Confirmation Code Style** - Choose from 7 code styles with locale-aware characters supporting 55+ languages and scripts (Arabic, Persian, Hindi, Chinese, Japanese, Korean, Cyrillic, and more)
 - **CSV & PDF Export** - Download form responses in CSV or PDF formats
@@ -127,7 +127,7 @@ Features:
 
 #### Email & Communication
 - **Email Notification System** - Automatic emails triggered on form submission
-- **Custom Email Templates** - Professional email template editor
+- **Custom Email Templates** - Free custom email notification templates with a built-in visual editor
 - **Customizable Messages** - Full control over email content and layout
 - **User & Admin Notifications** - Send emails to users, admins, or custom recipients
 - **Instant Reply System** - Direct messaging from the WordPress dashboard
@@ -185,6 +185,8 @@ The most recent documentation for Easy Form Builder can be found at:
 
 [مستندات فرم ساز آسان به زبان فارسی](https://easyformbuilder.ir/documents)
 
+[Developer and internal project documentation](docs/README.md)
+
 
 [Version History and Technical Logs](https://github.com/hassantafreshi/easy-form-builder/wiki/Version-History-with-Technical-Changes)
 
@@ -211,7 +213,7 @@ Thanks goes to these wonderful people
         💡 <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Answering Questions" href="#question">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> <a title="Translation" href="#translation">🌍</a> <a title="Talks" href="#talks">📢</a> <a href="#maintenance" title="Maintenance">🚧</a>
       </td>
       <td align="center">
-        <a href="https://github.com/01mrlast" target="_blank"><img src="https://avatars.githubusercontent.com/u/51836304?v=4" alt="Samson" width="100px;" /><br /><sub><strong>Samson</strong></sub></a><br />
+        <a href="https://github.com/6arshid/" target="_blank"><img src="https://avatars.githubusercontent.com/u/51836304?v=4" alt="Farshid Mahmoudi" width="100px;" /><br /><sub><strong>Farshid</strong></sub></a><br />
         💡 <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Translation" href="#translation">🌍</a> 🐛
       </td>
       <td align="center">
@@ -227,11 +229,11 @@ Thanks goes to these wonderful people
         <a title="Translation" href="#translation">🌍</a> <a title="Code" href="https://github.com/Presskopp/easy-form-builder">💻</a>
       </td>
       <td align="center">
-        <a href="https://github.com/psmits1567" target="_blank"><img src="https://avatars.githubusercontent.com/u/28138634?v=4" alt="Peter" width="100px;" /><br /><sub><strong>Peter</strong></sub></a><br />
-        <a title="Translation" href="#translation">🌍</a>
+        <a href="https://github.com/FakhriAz" target="_blank"><img src="https://avatars.githubusercontent.com/u/26854454?v=4" alt="Presskopp" width="100px;" /><br /><sub><strong>FakhriAz</strong></sub></a><br />
+        <a title="Translation" href="#translation">🌍</a> <a title="Documentation Specialist" href="https://github.com/hassantafreshi/easy-form-builder">📝</a>
       </td>
       <td align="center">
-        <a href="https://github.com/fierevere" target="_blank"><img src="https://avatars.githubusercontent.com/u/43382763?v=4" alt="Yui" width="100px;" /><br /><sub><strong>Yui ★ღツ ゆい</strong></sub></a><br />
+        <a href="https://github.com/psmits1567" target="_blank"><img src="https://avatars.githubusercontent.com/u/28138634?v=4" alt="Peter" width="100px;" /><br /><sub><strong>Peter</strong></sub></a><br />
         <a title="Translation" href="#translation">🌍</a>
       </td>
     </tr>
@@ -270,7 +272,10 @@ Thanks goes to these wonderful people
         <a href="https://github.com/soroushsamadi86" target="_blank"><img src="https://avatars.githubusercontent.com/u/58665580?v=4" alt="Soroush" width="100px;" /><br /><sub><strong>Soroush</strong></sub></a><br />
         <a title="Reviewed contents" href="https://github.com/hassantafreshi/easy-form-builder">📝</a>
       </td>
-      <td></td>
+      <td align="center">
+        <a href="https://github.com/fierevere" target="_blank"><img src="https://avatars.githubusercontent.com/u/43382763?v=4" alt="Yui" width="100px;" /><br /><sub><strong>Yui ★ღツ ゆい</strong></sub></a><br />
+        <a title="Translation" href="#translation">🌍</a>
+      </td>
       <td></td>
       <td></td>
       <td></td>
@@ -297,24 +302,39 @@ Notification System for Form Submissions.
 ### PayPal Add-ons for Payment Forms
 - ✔️ PayPal Integration for Secure Payments
 
-### Interactive Quiz Forms (Coming soon)
+### Interactive Quiz Forms
 - Quiz Forms
-- Calculation
+- ✔️ Calculation
 
 ### Smart Forms
-- ✔️ Auto-Fills
-- Conditional logic (Coming soon)
+- ✔️ Auto-Fills (Auto-Populate)
+  - ✔️ Auto-Populate Dataset
+  - ✔️ Auto-Populate Integrations
+- ✔️ Conditional Logic
+  - ✔️ Field Show/Hide, Enable/Disable, Required/Optional
+  - ✔️ Step Skip & Jump Logic
+  - ✔️ Nested AND/OR Condition Groups
+  - ✔️ Conditional Email Notifications
+  - ✔️ Conditional Confirmation & Redirect
+  - ✔️ Conditional Webhook
+  - ✔️ Preview / Test Mode
+  - ✔️ Debugger / Inspector
+  - ✔️ Calculations
 
 ### SMS OTP Form Login (Coming soon)
 
 ### Booking and Calendar Forms (Coming soon)
 
 ### Email Template Editor
-- ✔️ Customize email notifications with drag-and-drop template builder for better email design and branding
+- ✔️ Free custom email notification templates with a built-in visual editor for branded WordPress form emails
 
-### Webhook (Coming soon)
+### Webhook
+- ✔️ Conditional Webhook
 
-### Google Sheet Export (Coming soon)
+### Google Sheet Export
+- Service Account Connection & Existing/New Spreadsheet Binding
+- Sync Logs
+- Field Mapping & Retry Queue (Coming soon)
 
 ### Shield Security
 - ✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration

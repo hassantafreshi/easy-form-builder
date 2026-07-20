@@ -10,6 +10,7 @@
   var t   = efb_dw.text || {};
   var currentPeriod = 'week';
   var chartData = null;
+  var statsRequestId = 0;
 
   /* ── Translation helpers ───────────────────────────────────── */
 
@@ -20,9 +21,7 @@
 
   var periodLabels = {
     day:   t.dayly   || 'Daily',
-    week:  t.weekly  || 'Weekly',
-    month: t.monthly || 'Monthly',
-    year:  t.yearly  || 'Yearly'
+    week:  t.weekly  || 'Weekly'
   };
 
   /* ── Init ─────────────────────────────────────────────────── */
@@ -31,41 +30,8 @@
     bindTabs();
     bindEmailFailCard();
     bindErrorsClose();
-    bindLabelTooltip();
     loadStats('week');
   });
-
-  /* ── Label tooltip (fixed-position, unclipped by overflow) ── */
-  function bindLabelTooltip() {
-    var $tip = $('<div class="efb-dw-label-tip"></div>').appendTo('body');
-    $(document)
-      .on('mouseenter', '.efb-dw-card-label[data-efb-full]', function (e) {
-        $tip.text($(this).attr('data-efb-full'));
-        $tip.show();
-        moveTip(e, $tip);
-      })
-      .on('mousemove', '.efb-dw-card-label[data-efb-full]', function (e) {
-        moveTip(e, $tip);
-      })
-      .on('mouseleave', '.efb-dw-card-label[data-efb-full]', function () {
-        $tip.hide();
-      });
-  }
-
-  function moveTip(e, $tip) {
-    var tw = $tip.outerWidth();
-    var left = e.clientX - tw / 2;
-    if (left < 4) left = 4;
-    if (left + tw > window.innerWidth - 4) left = window.innerWidth - tw - 4;
-    $tip.css({ top: e.clientY - 34, left: left });
-  }
-
-  function applyLabelEllipsis($el) {
-    var full = $el.text();
-    if (full.length > 7) {
-      $el.attr('data-efb-full', full).text(full.slice(0, 7) + '\u2026');
-    }
-  }
 
   function setTabLabels() {
     $('.efb-dw-tab').each(function () {
@@ -76,11 +42,10 @@
     var pageWord = t.page || 'Page';
     var emailWord = t.email || 'Email';
     var errorWord = t.error || 'Error';
-    $('#efb-dw-visits-label').text(fmt(t.dwVisits, pageWord) || pageWord + ' Views');
+    $('#efb-dw-visits-label').text(fmt(t.dwVisits, pageWord) || pageWord + ' views');
     $('#efb-dw-submissions-label').text(t.dwSubmissions || 'Submissions');
-    $('#efb-dw-email-ok-label').text(fmt(t.dwEmailsSent, emailWord) || emailWord + ' Sent');
+    $('#efb-dw-email-ok-label').text(fmt(t.dwEmailsSent, emailWord) || 'Emails sent');
     $('#efb-dw-email-fail-label').text(fmt(t.dwEmailFailures, errorWord) || errorWord + ' Log');
-    $('.efb-dw-card-label').each(function () { applyLabelEllipsis($(this)); });
   }
 
   function bindTabs() {
@@ -112,12 +77,14 @@
 
   /* ── Data loading ────────────────────────────────────────── */
   function loadStats(period) {
+    var requestId = ++statsRequestId;
     showLoading(true);
     $.post(efb_dw.ajax_url, {
       action: 'efb_dashboard_stats',
       nonce:  efb_dw.nonce,
       period: period
     }, function (res) {
+      if (requestId !== statsRequestId) return;
       showLoading(false);
       if (!res || !res.success) return;
       var d = res.data;
@@ -128,6 +95,7 @@
       chartData = d.chart;
       drawChart();
     }).fail(function () {
+      if (requestId !== statsRequestId) return;
       showLoading(false);
     });
   }
@@ -178,12 +146,14 @@
     var rect = canvas.parentElement.getBoundingClientRect();
     var W = rect.width;
     var H = 200;
+    var isRTL = parseInt(efb_dw.rtl, 10) === 1;
 
     canvas.width  = W * dpr;
     canvas.height = H * dpr;
     canvas.style.width  = W + 'px';
     canvas.style.height = H + 'px';
     ctx.scale(dpr, dpr);
+    ctx.direction = isRTL ? 'rtl' : 'ltr';
 
     var labels = chartData.labels || [];
     var visits = chartData.visits || [];
@@ -191,7 +161,12 @@
     var n = labels.length;
     if (n === 0) return;
 
-    var pad = { top: 20, right: 12, bottom: 34, left: 38 };
+    var pad = {
+      top: 20,
+      right: isRTL ? 38 : 12,
+      bottom: 34,
+      left: isRTL ? 12 : 38
+    };
     var cW = W - pad.left - pad.right;
     var cH = H - pad.top  - pad.bottom;
 
@@ -209,7 +184,7 @@
     ctx.lineWidth = 1;
     ctx.fillStyle = '#999';
     ctx.font = '10px -apple-system, sans-serif';
-    ctx.textAlign = efb_dw.rtl ? 'left' : 'right';
+    ctx.textAlign = isRTL ? 'left' : 'right';
     for (var g = 0; g <= gridSteps; g++) {
       var gy = pad.top + cH - (cH * g / gridSteps);
       ctx.beginPath();
@@ -217,16 +192,17 @@
       ctx.lineTo(W - pad.right, gy);
       ctx.stroke();
       var gv = (niceMax / gridSteps) * g;
-      ctx.fillText(gv, pad.left - 4, gy + 3);
+      ctx.fillText(gv, isRTL ? W - pad.right + 4 : pad.left - 4, gy + 3);
     }
 
     var barWidth = Math.max(4, (cW / n - 6) / 2);
     if (barWidth > 18) barWidth = 18;
     var gap = 2;
+    var xLabelIndexes = getXAxisLabelIndexes(ctx, labels, cW);
 
     // Draw bars
     for (var i = 0; i < n; i++) {
-      var cx = pad.left + (i + 0.5) * (cW / n);
+      var cx = getXPosition(i, n, pad, cW, isRTL);
 
       // Visit bar
       var vh = (visits[i] / niceMax) * cH;
@@ -237,31 +213,13 @@
       var sh = (sends[i] / niceMax) * cH;
       if (sends[i] > 0 && sh < 2) sh = 2;
       drawRoundedBar(ctx, cx + gap / 2, pad.top + cH - sh, barWidth, sh, 2, '#00a32a');
-
-      // X-axis label (skip some if crowded)
-      if (n <= 12 || i % Math.ceil(n / 10) === 0) {
-        ctx.fillStyle = '#888';
-        ctx.font = '9px -apple-system, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(labels[i], cx, H - pad.bottom + 14);
-      }
     }
 
-    // Legend
-    var legendY = 8;
-    var legendX = pad.left;
-    ctx.font = '10px -apple-system, sans-serif';
+    // Choose labels from the available space. The selected period's start and
+    // end labels are always shown.
+    drawXAxisLabels(ctx, labels, xLabelIndexes, pad, cW, H, isRTL);
 
-    ctx.fillStyle = '#2271b1';
-    ctx.fillRect(legendX, legendY, 10, 10);
-    ctx.fillStyle = '#555';
-    ctx.textAlign = 'start';
-    ctx.fillText(t.form || 'Visit', legendX + 14, legendY + 9);
-
-    ctx.fillStyle = '#00a32a';
-    ctx.fillRect(legendX + 60, legendY, 10, 10);
-    ctx.fillStyle = '#555';
-    ctx.fillText(t.dwSubmissions || 'Submissions', legendX + 74, legendY + 9);
+    drawLegend(ctx, W, pad, isRTL);
   }
 
   function drawRoundedBar(ctx, x, y, w, h, r, color) {
@@ -278,6 +236,96 @@
     ctx.quadraticCurveTo(x, y, x + r, y);
     ctx.closePath();
     ctx.fill();
+  }
+
+  /**
+   * Return evenly distributed X-axis label indexes that fit in the chart.
+   * This keeps dates legible in narrow dashboard columns and after resizing.
+   */
+  function getXAxisLabelIndexes(ctx, labels, chartWidth) {
+    var n = labels.length;
+    if (n < 2) return n ? [0] : [];
+
+    ctx.save();
+    ctx.font = '9px -apple-system, sans-serif';
+    var widestLabel = 0;
+    for (var i = 0; i < n; i++) {
+      widestLabel = Math.max(widestLabel, ctx.measureText(labels[i]).width);
+    }
+    ctx.restore();
+
+    // Leave a small visual gap so adjacent dates never touch.
+    var maxLabels = Math.max(2, Math.floor(chartWidth / (widestLabel + 16)));
+    if (n <= maxLabels) {
+      return labels.map(function (_, index) { return index; });
+    }
+
+    var step = Math.ceil((n - 1) / (maxLabels - 1));
+    var indexes = [];
+    for (var j = 0; j < n; j += step) {
+      indexes.push(j);
+    }
+    if (indexes[indexes.length - 1] !== n - 1) {
+      indexes.push(n - 1);
+    }
+    return indexes;
+  }
+
+  function getXPosition(index, count, pad, chartWidth, isRTL) {
+    var visualIndex = isRTL ? count - index - 1 : index;
+    return pad.left + (visualIndex + 0.5) * (chartWidth / count);
+  }
+
+  function drawXAxisLabels(ctx, labels, indexes, pad, chartWidth, chartHeight, isRTL) {
+    var lastIndex = labels.length - 1;
+    ctx.fillStyle = '#888';
+    ctx.font = '9px -apple-system, sans-serif';
+
+    indexes.forEach(function (index) {
+      var x = getXPosition(index, labels.length, pad, chartWidth, isRTL);
+
+      // Align the edge labels inward, keeping them inside the visible canvas.
+      if (index === 0) {
+        ctx.textAlign = isRTL ? 'right' : 'left';
+      } else if (index === lastIndex) {
+        ctx.textAlign = isRTL ? 'left' : 'right';
+      } else {
+        ctx.textAlign = 'center';
+      }
+
+      ctx.fillText(labels[index], x, chartHeight - pad.bottom + 14);
+    });
+  }
+
+  function drawLegend(ctx, chartWidth, pad, isRTL) {
+    var legendY = 8;
+    var itemGap = 20;
+    var items = [
+      { color: '#2271b1', label: t.form || 'Visit' },
+      { color: '#00a32a', label: t.dwSubmissions || 'Submissions' }
+    ];
+    var x = isRTL ? chartWidth - pad.right : pad.left;
+
+    ctx.font = '10px -apple-system, sans-serif';
+
+    items.forEach(function (item) {
+      var textWidth = ctx.measureText(item.label).width;
+      ctx.fillStyle = item.color;
+
+      if (isRTL) {
+        ctx.fillRect(x - 10, legendY, 10, 10);
+        ctx.fillStyle = '#555';
+        ctx.textAlign = 'right';
+        ctx.fillText(item.label, x - 14, legendY + 9);
+        x -= textWidth + 14 + itemGap;
+      } else {
+        ctx.fillRect(x, legendY, 10, 10);
+        ctx.fillStyle = '#555';
+        ctx.textAlign = 'left';
+        ctx.fillText(item.label, x + 14, legendY + 9);
+        x += textWidth + 14 + itemGap;
+      }
+    });
   }
 
   /* ── Helpers ─────────────────────────────────────────────── */

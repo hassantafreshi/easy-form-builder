@@ -654,11 +654,20 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
       padding: 6px 0 !important;
       border: none !important;
       border-bottom: 1px solid #f1f5f9 !important;
-      text-align: left !important;
+
       width: 100% !important;
       max-width: 100% !important;
       background: transparent !important;
    }
+   [dir=ltr] #emsFormBuilder-list tbody tr > td,
+   #emsFormBuilder-list tbody tr > th {
+      text-align: left !important;
+   }
+   [dir=rtl] #emsFormBuilder-list tbody tr > td,
+      #emsFormBuilder-list tbody tr > th {
+      text-align: right !important;
+   }
+
    #emsFormBuilder-list tbody tr > td:last-child,
    #emsFormBuilder-list tbody tr > th:last-child {
       border-bottom: none !important;
@@ -687,6 +696,7 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
       right: auto;
       left: 12px;
    }
+
    #emsFormBuilder-list .efb-content-cell {
       max-width: 100% !important;
       min-width: 0 !important;
@@ -1338,6 +1348,70 @@ div#sideBoxEfb {	height: 100vh;
 .efb.buy-noti {	background-color: #fefefeb5!important;
    z-index: 100;
 }
+.efb.buy-noti.efb-pro-notice {
+	background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%) !important;
+	border: 1px solid #e3e7f3;
+	border-inline-start: 3px solid #7674d8;
+	border-radius: 12px;
+	box-shadow: 0 3px 12px rgba(33, 42, 78, 0.06);
+	padding: 14px 16px;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.efb.buy-noti.efb-pro-notice:hover {
+	border-color: #c9cef0;
+	box-shadow: 0 6px 18px rgba(33, 42, 78, 0.1);
+	transform: translateY(-1px);
+}
+.efb-pro-notice__heading {
+	gap: 9px;
+}
+.efb-pro-notice__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 8px;
+	background: #efeffc;
+	color: #5d5bb8;
+	font-size: 0.9rem;
+}
+.efb-pro-notice__title {
+	color: #29324f;
+	font-size: 0.88rem;
+	font-weight: 650;
+}
+.efb-pro-notice__body {
+	margin-inline-start: 37px;
+	margin-top: 6px;
+	color: #667085;
+	font-size: 0.8rem;
+	line-height: 1.55;
+}
+.efb-pro-notice .text-pinkEfb {
+	color: #b63b78 !important;
+}
+.efb-pro-notice__link.efb {
+	display: inline-flex;
+	align-items: center;
+	margin-top: 9px;
+	padding: 5px 10px;
+	border: 1px solid #d9dcf3;
+	border-radius: 7px;
+	background: #f5f5ff;
+	color: #4e4ca3;
+	font-size: 0.78rem;
+	text-decoration: none;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.efb-pro-notice__link.efb:hover {
+	border-color: #bcbfe8;
+	background: #ececff;
+	color: #383686;
+}
+.mobile .efb.buy-noti.efb-pro-notice {
+	margin-inline: 0;
+}
 .col-md-6 .efb.btn-edit-holder {	float: right;
    margin-top: -34px !important;
    margin-left: 31%;
@@ -1529,6 +1603,7 @@ div#sideBoxEfb {	height: 100vh;
 	opacity: 1;
 	transform: translateY(0);
 	pointer-events: auto;
+   z-index: auto;
 }
 a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 }
@@ -1677,6 +1752,10 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 
 span,strong,p,small,div,h1,h2,h3,h4,h5 {
   cursor: default;
+}
+
+a span, a strong, a p, a small, a div, a h1, a h2, a h3, a h4, a h5, a svg, a i {
+  cursor: pointer;
 }
 
 .efb#undefined {
@@ -2142,6 +2221,7 @@ div#attach_efb {	position: relative;
 
 .efb-hidden {
   position: absolute;
+  right: 0;
   padding: 10px;
   background: #0c1037b0;
   width: fit-content!important;
@@ -2149,6 +2229,10 @@ div#attach_efb {	position: relative;
   font-style: normal;
   font-weight: bolder!important;
   border-radius: 0px 0px 5px 5px!important;
+}
+[dir="rtl"] .efb-hidden {
+  right: auto;
+  left: 0;
 }
 setion.hidden {
   background: #cccccc63;
@@ -2176,6 +2260,11 @@ div#Listefb-150 {
 .showBtns input[type][readonly],.showBtns select[readonly],.showBtns label {
    pointer-events: none;
 }
+#sideMenuConEfb .efb.btn-primary.active{
+    color: #fff;
+    background-color: #4636f1 !important;
+    background-image: linear-gradient(65deg, #263b8e94 0, #6030b8 100%) !important;
+}
 
 .efb.search-highlight {
    background-color: #fff3cd !important;
@@ -2199,6 +2288,36 @@ div#Listefb-150 {
 .efb.search-form-control::placeholder {
    color: #6c757d !important;
    opacity: 0.8 !important;
+}
+
+.efb.addon-search-input-efb {
+   min-width: 280px;
+   max-width: 460px;
+   height: 44px;
+   padding: 8px 18px !important;
+   border: 2px solid #e6e6f2 !important;
+   background-color: #fff !important;
+   color: #333 !important;
+   outline: none;
+   transition: border-color .2s ease, box-shadow .2s ease;
+}
+@media (max-width: 575.98px) {
+   .efb.addon-search-input-efb {
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+   }
+}
+.addon-search-clear-efb.efb {
+   color: #ff4b93 !important;
+   border: 2px solid transparent !important;
+   padding: 6px 10px !important;
+   transition: 0.3s;
+}
+.addon-search-clear-efb.efb:hover {
+   color: #fff !important;
+   background-color: #ff4b93 !important;
+   border-radius: 100px !important;
 }
 
 .search-results-badge {
@@ -2236,11 +2355,19 @@ div#Listefb-150 {
 	border-color: #263b8e;
         color: #263b8e;
 }
+/* Logical corner properties so the pill shape follows the text direction
+   (physical `20px 0 0 20px` puts the rounded ends in the middle under RTL). */
 #viewToggleEfb .btn-group .btn:first-child {
-	border-radius: 20px 0 0 20px !important;
+	border-start-start-radius: 20px !important;
+	border-end-start-radius: 20px !important;
+	border-start-end-radius: 0 !important;
+	border-end-end-radius: 0 !important;
 }
 #viewToggleEfb .btn-group .btn:last-child {
-	border-radius: 0 20px 20px 0 !important;
+	border-start-start-radius: 0 !important;
+	border-end-start-radius: 0 !important;
+	border-start-end-radius: 20px !important;
+	border-end-end-radius: 20px !important;
 }
 #viewToggleEfb .btn-group .btn.active {
 	background-color: #263b8e;
@@ -2275,11 +2402,10 @@ div#Listefb-150 {
 	left: 50%;
 	transform: translateX(-50%);
 }
-.efb-mobile-view-efb [class*="col-md-"] {
-  flex: unset !important;
-  width: unset !important;
-  max-width: unset !important;
-}
+/* NOTE: do NOT neutralise col-md-* inside the mobile frame.
+   The builder projects the active view's values onto the col-md-* channel
+   (see switchViewEfb / efbApplyFieldViewEfb in admin-efb.js), so the grid
+   classes must keep working inside the 388px frame. */
 
 
 @media screen and (max-width: 782px) {
@@ -2292,3 +2418,13 @@ div#Listefb-150 {
     font-size: 15px !important;
    }
 }
+.efb-mobile-pro-control { position: relative; width: 100%; }
+.efb-mobile-pro-control.is-locked { cursor: pointer; opacity: .72; }
+.efb-mobile-pro-control.is-locked select,
+.efb-mobile-pro-control.is-locked .btn-group-toggle,
+.efb-mobile-pro-control.is-locked .btn-toggle { pointer-events: none; }
+.efb-mobile-pro-control .efb-mobile-pro-gem.pro-version-efb { position: absolute; top: .4rem; right: auto; left: auto; inset-inline-end: .4rem; width: 28px; height: 28px; margin: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 2px 6px rgba(15, 23, 42, .18); z-index: 2; }
+.efb-mobile-pro-control .efb-mobile-pro-gem.pro-version-efb:hover,
+.efb-mobile-pro-control .efb-mobile-pro-gem.pro-version-efb:focus { transform: scale(1.06); opacity: 1; }
+.efb-mobile-visibility-hidden { display: none !important; }
+.btn-group-toggle .ntb.active { box-shadow: inset 0 0 0 2px currentColor, 0 2px 8px rgba(15, 23, 42, .2); font-weight: 700; }

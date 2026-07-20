@@ -58,7 +58,7 @@ class Dashboard_Widget {
         $efbFunction = get_efbFunction();
         $text_keys = [
             'easyFormBuilder', 'email', 'error', 'page',
-            'dayly', 'weekly', 'monthly', 'yearly',
+            'dayly', 'weekly',
             'close', 'subject', 'loading', 'ddate', 'total',
             'dwVisits', 'dwSubmissions', 'dwEmailsSent', 'dwEmailsFailed',
             'dwEmailErrors', 'dwRecipient', 'dwErrorDetail', 'dwNoData',
@@ -93,39 +93,37 @@ class Dashboard_Widget {
         ?>
         <div id="efb-dw-root" class="efb-dw">
             <div class="efb-dw-period-tabs">
-                <button class="efb-dw-tab active" data-period="day"></button>
-                <button class="efb-dw-tab" data-period="week"></button>
-                <button class="efb-dw-tab" data-period="month"></button>
-                <button class="efb-dw-tab" data-period="year"></button>
+                <button class="efb-dw-tab" data-period="day"></button>
+                <button class="efb-dw-tab active" data-period="week"></button>
             </div>
             <div class="efb-dw-cards">
                 <div class="efb-dw-card efb-dw-card--visits">
-                    <div class="efb-dw-card-icon"><span class="dashicons dashicons-visibility"></span></div>
-                    <div class="efb-dw-card-body">
+                    <div class="efb-dw-card-top">
+                        <div class="efb-dw-card-icon"><span class="dashicons dashicons-visibility"></span></div>
                         <span class="efb-dw-card-value" id="efb-dw-visits">—</span>
-                        <span class="efb-dw-card-label" id="efb-dw-visits-label"></span>
                     </div>
+                    <span class="efb-dw-card-label" id="efb-dw-visits-label"></span>
                 </div>
                 <div class="efb-dw-card efb-dw-card--submissions">
-                    <div class="efb-dw-card-icon"><span class="dashicons dashicons-forms"></span></div>
-                    <div class="efb-dw-card-body">
+                    <div class="efb-dw-card-top">
+                        <div class="efb-dw-card-icon"><span class="dashicons dashicons-forms"></span></div>
                         <span class="efb-dw-card-value" id="efb-dw-submissions">—</span>
-                        <span class="efb-dw-card-label" id="efb-dw-submissions-label"></span>
                     </div>
+                    <span class="efb-dw-card-label" id="efb-dw-submissions-label"></span>
                 </div>
                 <div class="efb-dw-card efb-dw-card--email-ok">
-                    <div class="efb-dw-card-icon"><span class="dashicons dashicons-email"></span></div>
-                    <div class="efb-dw-card-body">
+                    <div class="efb-dw-card-top">
+                        <div class="efb-dw-card-icon"><span class="dashicons dashicons-email"></span></div>
                         <span class="efb-dw-card-value" id="efb-dw-email-ok">—</span>
-                        <span class="efb-dw-card-label" id="efb-dw-email-ok-label"></span>
                     </div>
+                    <span class="efb-dw-card-label" id="efb-dw-email-ok-label"></span>
                 </div>
                 <div class="efb-dw-card efb-dw-card--email-fail" id="efb-dw-email-fail-card" role="button" tabindex="0" title="">
-                    <div class="efb-dw-card-icon"><span class="dashicons dashicons-warning"></span></div>
-                    <div class="efb-dw-card-body">
+                    <div class="efb-dw-card-top">
+                        <div class="efb-dw-card-icon"><span class="dashicons dashicons-warning"></span></div>
                         <span class="efb-dw-card-value" id="efb-dw-email-fail">—</span>
-                        <span class="efb-dw-card-label" id="efb-dw-email-fail-label"></span>
                     </div>
+                    <span class="efb-dw-card-label" id="efb-dw-email-fail-label"></span>
                 </div>
             </div>
             <div class="efb-dw-chart-wrap">
@@ -151,7 +149,7 @@ class Dashboard_Widget {
         if (!current_user_can('manage_options')) { wp_send_json_error([], 403); }
 
         $period = isset($_POST['period']) ? sanitize_text_field(wp_unslash($_POST['period'])) : 'week';
-        if (!in_array($period, ['day', 'week', 'month', 'year'], true)) { $period = 'week'; }
+        if (!in_array($period, ['day', 'week'], true)) { $period = 'week'; }
 
         global $wpdb;
         $table = $wpdb->prefix . 'emsfb_stts_';
@@ -170,18 +168,6 @@ class Dashboard_Widget {
                 $points = 7;
                 $group  = 'DATE(`date`)';
                 $date_format = '%m-%d';
-                break;
-            case 'month':
-                $since  = wp_date('Y-m-d 00:00:00', strtotime('-29 days'));
-                $points = 30;
-                $group  = 'DATE(`date`)';
-                $date_format = '%m-%d';
-                break;
-            case 'year':
-                $since  = wp_date('Y-m-d 00:00:00', strtotime('-11 months', strtotime(wp_date('Y-m-01'))));
-                $points = 12;
-                $group  = "DATE_FORMAT(`date`, '%%Y-%%m')";
-                $date_format = '%Y-%m';
                 break;
         }
 
@@ -243,22 +229,6 @@ class Dashboard_Widget {
                     $send_data[]  = $send_map[$lbl] ?? 0;
                 }
                 break;
-            case 'month':
-                for ($d = 29; $d >= 0; $d--) {
-                    $lbl = wp_date('m-d', strtotime("-{$d} days"));
-                    $labels[] = $lbl;
-                    $visit_data[] = $visit_map[$lbl] ?? 0;
-                    $send_data[]  = $send_map[$lbl] ?? 0;
-                }
-                break;
-            case 'year':
-                for ($m = 11; $m >= 0; $m--) {
-                    $lbl = wp_date('Y-m', strtotime("-{$m} months", strtotime(wp_date('Y-m-01'))));
-                    $labels[] = $lbl;
-                    $visit_data[] = $visit_map[$lbl] ?? 0;
-                    $send_data[]  = $send_map[$lbl] ?? 0;
-                }
-                break;
         }
 
         // Email stats from our log
@@ -286,7 +256,7 @@ class Dashboard_Widget {
         if (!current_user_can('manage_options')) { wp_send_json_error([], 403); }
 
         $period = isset($_POST['period']) ? sanitize_text_field(wp_unslash($_POST['period'])) : 'week';
-        if (!in_array($period, ['day', 'week', 'month', 'year'], true)) { $period = 'week'; }
+        if (!in_array($period, ['day', 'week'], true)) { $period = 'week'; }
 
         require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
         $email_stats = \EmsfbEmailHandler::get_email_stats($period);

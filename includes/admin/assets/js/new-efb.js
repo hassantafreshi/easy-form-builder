@@ -40,6 +40,10 @@ let pub_el_border_color_efb='border-d';
 let pub_bg_button_color_efb='btn-primary';
 let pub_txt_button_color_efb='text-white';
 let sendBack_emsFormBuilder_pub = [];
+/* Shared with public/assets/js/core-efb.js, which declares `let sendback_efb_state`
+   and loads after this file on the frontend; a let/var here would throw a
+   redeclaration SyntaxError there, so define it as a window property instead. */
+if (typeof sendback_efb_state === 'undefined') window.sendback_efb_state = [];
 const getUrlparams_efb = new URLSearchParams(location.search)
 
 function efb_var_waitng(time) {
@@ -69,6 +73,67 @@ const efb_build_confirm_body = (variant = 'danger', iconCls = 'bi-trash', title 
     <div class="efb-confirm-message">${message}${labelHtml ? '<br>' + labelHtml : ''}</div>
   </div>`;
 };
+
+/**
+ * Reusable confirmation dialog for admin add-ons. It uses the shared EFB
+ * modal instead of the browser's blocking confirm()/alert() interface.
+ */
+window.efb_confirm_efb = (options = {}) => new Promise((resolve) => {
+  const modal = document.getElementById('settingModalEfb');
+  const dialog = document.getElementById('settingModalEfb_');
+  if (!modal || !dialog || typeof show_modal_efb !== 'function' || typeof state_modal_show_efb !== 'function') {
+    resolve(false);
+    return;
+  }
+
+  const escapeHtml = (value) => {
+    const el = document.createElement('div');
+    el.textContent = String(value == null ? '' : value);
+    return el.innerHTML;
+  };
+  const variant = options.variant === 'info' ? 'info' : (options.variant === 'warning' ? 'warning' : 'danger');
+  const title = options.title || (typeof efb_var !== 'undefined' && efb_var.text ? efb_var.text.warning : 'Confirm');
+  const message = options.message || '';
+  const label = options.label || '';
+  const type = variant === 'info' ? 'duplicateBox' : 'deleteBox';
+  const icon = options.icon || (variant === 'info' ? 'bi-info-circle' : 'bi-exclamation-triangle');
+  let settled = false;
+
+  const finish = (value) => {
+    if (settled) return;
+    settled = true;
+    document.removeEventListener('keydown', onKeydown);
+    resolve(value);
+  };
+  const onKeydown = (event) => {
+    if (event.key === 'Escape') {
+      finish(false);
+      state_modal_show_efb(0);
+    }
+  };
+
+  show_modal_efb(
+    efb_build_confirm_body(variant, icon, escapeHtml(title), escapeHtml(message), escapeHtml(label)),
+    escapeHtml(title),
+    'efb ' + icon + ' mx-2',
+    type
+  );
+  state_modal_show_efb(1);
+
+  const confirmButton = document.getElementById('modalConfirmBtnEfb');
+  const cancelButton = document.querySelector('#modal-footer-efb .efb-btn-cancel');
+  const backdrop = document.querySelector('.efb-modal-backdrop');
+  if (confirmButton) confirmButton.addEventListener('click', () => {
+    finish(true);
+    state_modal_show_efb(0);
+  }, { once: true });
+  if (cancelButton) cancelButton.addEventListener('click', () => finish(false), { once: true });
+  if (backdrop) backdrop.onclick = () => {
+    finish(false);
+    state_modal_show_efb(0);
+  };
+  document.addEventListener('keydown', onKeydown);
+});
 
 let last_show_modal_efb = '';
 const show_modal_efb = (body, title, icon, type) => {
@@ -229,7 +294,7 @@ function validExtensions_efb_fun(type, fileType,indx) {
   type= type.toLowerCase();
   const tt = valj_efb.length>1 && valj_efb[indx].hasOwnProperty('file_ctype') ? valj_efb[indx].file_ctype.replaceAll(',',' , ') : '';
   filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif, image/heic',
-  'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
+  'media':'audio/mpeg, audio/wav, audio/ogg, audio/webm, audio/mp4, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
   'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
   'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar',
   'allformat':'image/png, image/jpeg, image/jpg, image/gif, image/heic, audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg, video/mpg, audio/mpg, video/mov, video/quicktime, .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text, .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, video/mov, .mov, video/quicktime',
@@ -325,7 +390,7 @@ function alert_message_efb(title, message, sec, alertType) {
       container = document.createElement('div');
       container.id = 'alert_container_efb';
       container.className = 'efb';
-      container.style.cssText = `position:fixed; top:80px; ${isRtl ? 'right' : 'left'}:${width}px; z-index:99999; width:${isMobile ? 'calc(100vw - 40px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
+      container.style.cssText = `position:fixed; top:80px; ${isRtl ? 'right' : 'left'}:${width}px; z-index:9999999; width:${isMobile ? 'calc(100vw - 40px)' : '33%'}; min-width:280px; max-width:450px; display:flex; flex-direction:column; gap:10px; pointer-events:none;`;
       document.body.appendChild(container);
     }
 
@@ -357,7 +422,7 @@ function alert_message_efb(title, message, sec, alertType) {
     }, sec);
 
   } catch (error) {
-    alert(message);
+    console.warn('[Easy Form Builder]', message, error);
   }
 }
 
@@ -391,7 +456,7 @@ function fun_el_check_radio_in_efb(el) {
   }
 
 function type_validate_efb(type) {
-  return type == "select" || type == "multiselect" || type == "text" || type == "password" || type == "email" || type == "conturyList" || type == "stateProvince" || type == "file" || type == "url" || type == "color" || type == "date" || type == "textarea" || type == "tel" || type == "number" ? true : false;
+  return type == "select" || type == "multiselect" || type == "text" || type == "password" || type == "email" || type == "conturyList" || type == "stateProvince" || type == "file" || type == "url" || type == "color" || type == "date" || type == "textarea" || type == "tel" || type == "number" || type == "yesNo" ? true : false;
 }
 
 async function fun_offline_Efb() {
@@ -576,29 +641,43 @@ async function fun_offline_Efb() {
   }
 }
 
-function funTnxEfb(val, title, message) {
+function funTnxEfb(val, title, message, ov) {
+  /* ov = optional per-rule confirmation display overrides from the server
+     (conditional_confirmation). Every value is re-validated/escaped here so a
+     tampered AJAX response cannot inject markup; when ov is absent or a field
+     is empty, the form's own thank_you_message settings win and the normal
+     form output stays identical. */
+  const escTnx = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const safeHexTnx = (c) => (typeof c === 'string' && /^#[0-9a-fA-F]{6}$/.test(c)) ? c : '';
+  const safeIconTnx = (i) => (typeof i === 'string' && /^bi-[a-z0-9-]+$/.test(i)) ? i : '';
+  ov = (ov && typeof ov === 'object') ? ov : {};
   const done = valj_efb[0].thank_you_message.done || efb_var.text.yad
   const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
   const thankYou = valj_efb[0].thank_you_message.thankYou || efb_var.text.thanksFillingOutform
-  const t = title ? title : done;
+  const t = title ? title : (ov.done ? escTnx(ov.done) : done);
   const m = message ? message : thankYou;
   const clr_doneMessageEfb=valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"doneMessageEfb" ;
   const clr_doneTitleEfb =valj_efb[0].hasOwnProperty("clrdoneTitleEfb") ? valj_efb[0].clrdoneTitleEfb :"doneTitleEfb" ;
   const clr_doniconEfb =valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"doneTitleEfb" ;
   const doneTrackEfb=clr_doneTitleEfb ;
+  const iconTnx = safeIconTnx(ov.icon) || (valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon : 'bi-hand-thumbs-up');
+  const iconStyleTnx = safeHexTnx(ov.icon_color) ? ` style="color:${safeHexTnx(ov.icon_color)}"` : '';
+  const titleStyleTnx = safeHexTnx(ov.title_color) ? ` style="color:${safeHexTnx(ov.title_color)}"` : '';
+  const messageStyleTnx = safeHexTnx(ov.message_color) ? ` style="color:${safeHexTnx(ov.message_color)}"` : '';
+  const trackLabelTnx = ov.tracking_label ? escTnx(ov.tracking_label) : (valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode);
   const show_track = valj_efb[0].trackingCode == true && valj_efb[0].type != "survey" ? true : false;
   const trckCd = `
-  <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
+  <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${trackLabelTnx}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb d-none " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
            <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color}  ${show_track ? 'd-block mx-auto' : 'd-none mx-auto'} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb' ,'trackingCodeEfb2')">
                    <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i><span id="trackingCodeEfb2">${efb_var.text.copy}</span>
                </button></div>`
   return `
-                    <h4 class="efb  my-1 fs-2 ${doneTrackEfb} text-center" id="doneTitleEfb">
-                        <i class="efb ${valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon : 'bi-hand-thumbs-up'}  title-icon mx-2 fs-2 ${clr_doniconEfb}" id="DoneIconEfb"></i>${t}
+                    <h4 class="efb  my-1 fs-2 ${doneTrackEfb} text-center" id="doneTitleEfb"${titleStyleTnx}>
+                        <i class="efb ${iconTnx}  title-icon mx-2 fs-2 ${clr_doniconEfb}" id="DoneIconEfb"${iconStyleTnx}></i>${t}
                     </h4>
-                    <h3 class="efb fs-4 ${clr_doneMessageEfb} text-center" id="doneMessageEfb">${m}</h3>
+                    <h3 class="efb fs-4 ${clr_doneMessageEfb} text-center" id="doneMessageEfb"${messageStyleTnx}>${m}</h3>
                   <span class="efb text-center" ${show_track ? trckCd : ''}</span>
   `
 }
@@ -1176,7 +1255,7 @@ function handle_change_event_efb(el){
           if(indx!=-1) {
             slice_sback(indx)
             if(ob.type=="payCheckbox") fun_total_pay_efb();
-            if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
+            if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.id ,el.type);
             return ;
           }
          }
@@ -1191,7 +1270,7 @@ function handle_change_event_efb(el){
           document.getElementById(id).disabled=true;
           document.getElementById(id).value ="";
          }
-         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
+         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.id ,el.type);
         break;
       case "select-one":
       case "select":
@@ -1205,7 +1284,7 @@ function handle_change_event_efb(el){
           v = valueJson_ws.find(x => x.id_ == v && x.value == el.value);
           if (typeof v.price == "string") price_efb = v.price;
         }
-        if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.dataset.vid , el.type);
+        if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.dataset.vid , el.type);
         if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
           let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
               fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp,form_id)

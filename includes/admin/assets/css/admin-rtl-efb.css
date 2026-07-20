@@ -1,4 +1,4 @@
-.efb {direction: rtl !important;}
+.efb {direction: rtl !important; font-family: 'Roboto', sans-serif!important;}
 .wp-menu-name {text-align: initial;}
 .search-form-control.efb {    padding-right: 40px!important;padding-left:10px!important;}
 input[type=file].efb {    padding: 3px 14px;}
@@ -127,11 +127,11 @@ body.rtl .efb input.intlPhone::placeholder,
     background: linear-gradient(225deg, #eef4ff 0%, #f0e6ff 50%, #fff0f6 100%);
 }
 .efb-header-brand {
-    flex-direction: row-reverse;
-    justify-content: flex-end;
+    flex-direction: row;
+    justify-content: flex-start;
 }
 .efb-header-brand-text {
-    align-items: flex-end;
+    align-items: flex-start;
     text-align: right;
 }
 .efb-header-title.efb {
@@ -147,30 +147,30 @@ body.rtl .efb input.intlPhone::placeholder,
     margin-right: 0;
 }
 .efb-header-features {
-    flex-direction: row-reverse;
+    flex-direction: row;
     justify-content: flex-start;
 }
 .efb-feature-badge.efb {
-    flex-direction: row-reverse;
+    flex-direction: row;
 }
 .efb-feature-badge.efb i.efb {
-    margin-left: 4px !important;
-    margin-right: 0 !important;
+    margin-right: 4px !important;
+    margin-left: 0 !important;
 }
 .efb-header-actions {
-    flex-direction: row-reverse;
+    flex-direction: row;
     justify-content: flex-start;
 }
 .efb-cta-btn.efb i.efb {
-    margin-left: 6px !important;
-    margin-right: 0 !important;
+    margin-right: 6px !important;
+    margin-left: 0 !important;
 }
 .efb-header-img-wrap {
     text-align: center;
 }
-#header-efb .row {
+/* #header-efb .row {
     flex-direction: row-reverse;
-}
+} */
 
 .mobile .efb-header-actions {
     flex-direction: column;
@@ -201,4 +201,18 @@ body.rtl .efb input.intlPhone::placeholder,
     margin-left: 0px!important;
     margin-right: -2px;
     width: 98.5%;
+}
+
+/* View toggle (desktop/mobile) in the form builder.
+   Bootstrap's btn-group collapses shared borders with margin-left:-1px and
+   spaces the icon with me-1 (margin-right) — both physical, both wrong once
+   .efb flips to direction:rtl. ID selector needed because bootstrap.min-efb.css
+   is enqueued after this file. */
+#viewToggleEfb .btn-group .btn:not(:first-child) {
+    margin-left: 0;
+    margin-right: -1px;
+}
+#viewToggleEfb .btn-group .btn .me-1 {
+    margin-right: 0 !important;
+    margin-left: .25rem !important;
 }
