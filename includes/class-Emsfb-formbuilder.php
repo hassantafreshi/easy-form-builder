@@ -79,14 +79,19 @@
 			case 'postalcode':
 			case 'address_line':
 				$textElements = ['firstName', 'lastName', 'postalcode', 'address_line','datetime-local'];
-				$placeholderElements = ['color', 'range', 'password', 'date'];
+				// The HTML placeholder attribute is supported for password inputs.
+				// Keep it disabled only for native controls where browsers do not
+				// consistently render it.
+				$placeholderElements = ['color', 'range', 'date'];
 
 				$isTextType = in_array($elementId, $textElements);
 				$isPlaceholderType = !in_array($elementId, $placeholderElements);
 
 				$type = $isTextType ? 'text' : $elementId;
 				$autocomplete = $this->generateAutocomplete_efb($elementId);
-				$placeholder = $isPlaceholderType ? sprintf('placeholder="%s"', $vj->placeholder) : '';
+				$placeholder = $isPlaceholderType && isset($vj->placeholder)
+					? sprintf('placeholder="%s"', esc_attr($vj->placeholder))
+					: '';
 				$telPattern = ($elementId === 'tel') ? 'pattern="^\+?(?:[0-9]|\s|\.|\(|\)|-){7,25}$"' : '';
 				$lenAttributes = $this->generateLengthAttributes_efb($elementId, $vj);
 				$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
@@ -1409,6 +1414,7 @@
 		$meta = isset($kindMeta[$kind]) ? $kindMeta[$kind] : $kindMeta['audio_recorder'];
 		$quality = property_exists($vj, 'record_quality') && $vj->record_quality ? $vj->record_quality : ($kind == 'audio_recorder' ? 'standard' : '720p');
 		$maxDuration = property_exists($vj, 'max_duration') && $vj->max_duration ? intval($vj->max_duration) : 90;
+		$maxFileSize = property_exists($vj, 'max_fsize') && is_numeric($vj->max_fsize) && floatval($vj->max_fsize) > 0 ? floatval($vj->max_fsize) : 20;
 		$requiredClass = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$readonlyAttr = $disabled == 'disabled' ? 'disabled' : '';
@@ -1434,24 +1440,25 @@
 			);
 
 		return sprintf(
-			'<div class="efb efb-recorder-shell %1$s" id="%2$s_" data-id="%2$s" data-kind="%3$s" data-quality="%4$s" data-duration="%5$s" data-countdown="%22$s" data-download="%23$s" data-noise="%24$s" data-facing="%25$s" data-mirror="%26$s" data-formid="%6$s" data-state="idle">
+			'<div class="efb efb-recorder-shell %1$s" id="%2$s_" data-id="%2$s" data-kind="%3$s" data-quality="%4$s" data-duration="%5$s" data-max-size="%28$s" data-countdown="%22$s" data-download="%23$s" data-noise="%24$s" data-facing="%25$s" data-mirror="%26$s" data-formid="%6$s" data-state="idle">
 				<div class="efb efb-recorder-frame" id="%2$s-frame">
 					%7$s
 					<div class="efb efb-recorder-idle-hint" id="%2$s-idle"><i class="efb bi %8$s"></i><span>%9$s</span></div>
 					<div class="efb efb-recorder-timer d-none" id="%2$s-timer">00:00</div>
 					<div class="efb efb-recorder-action-row" id="%2$s-controls">
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="pause" data-id="%2$s" title="%10$s" %11$s><i class="efb bi-pause-fill"></i></button>
-						<button type="button" class="efb efb-recorder-primary-btn" data-action="start" data-id="%2$s" title="%12$s" %11$s><i class="efb bi %8$s"></i></button>
+						<button type="button" class="efb efb-recorder-primary-btn" data-action="start" data-id="%2$s" data-start-icon="%8$s" data-stop-icon="bi-stop-fill" title="%12$s" %11$s><i class="efb bi %8$s"></i></button>
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="resume" data-id="%2$s" title="%13$s" %11$s><i class="efb bi-record-circle"></i></button>
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="redo" data-id="%2$s" title="%14$s" %11$s><i class="efb bi-arrow-counterclockwise"></i></button>
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="play" data-id="%2$s" title="%15$s"><i class="efb bi-play-fill"></i></button>
 						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="download" data-id="%2$s" title="%27$s"><i class="efb bi-download"></i></button>
+						<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="upload" data-id="%2$s" id="%2$s-upload" title="%29$s" aria-label="%29$s" %11$s><i class="efb bi-cloud-arrow-up-fill" aria-hidden="true"></i></button>
 					</div>
 					<div class="efb efb-recorder-progress-track"><div class="efb efb-recorder-progress-bar" id="%2$s-progress"></div></div>
 				</div>
 				<div class="efb efb-recorder-status-row">
 					<span class="efb efb-recorder-status" id="%2$s-status"><span class="efb efb-recorder-status-dot"></span>%16$s</span>
-					<span class="efb efb-recorder-badge">%21$s</span>
+					<span class="efb efb-recorder-badge"><i class="efb bi %8$s" aria-hidden="true"></i><span>%21$s</span></span>
 				</div>
 				<input type="file" hidden accept="%17$s" data-type="%3$s" data-vid="%2$s" data-id="%2$s" class="efb emsFormBuilder_v %18$s %19$s" id="%2$s_file" data-formid="%6$s" onchange="valid_file_emsFormBuilder(\'%2$s\',\'msg\',\'\',%6$s)" %20$s %11$s>
 			</div>',
@@ -1481,7 +1488,9 @@
 			$noise,
 			$facing,
 			$mirror,
-			esc_html(isset($texts['recDownload']) ? $texts['recDownload'] : 'Download recording')
+			esc_html(isset($texts['recDownload']) ? $texts['recDownload'] : 'Download recording'),
+			$maxFileSize,
+			esc_html(isset($texts['recUpload']) ? $texts['recUpload'] : 'Upload')
 		);
 	}
 
@@ -4279,9 +4288,8 @@ public function check_error_console_efb(){
 							nameOverride: self.t.jqueryMissing
 						});
 					}
-					if (typeof $ === "undefined" && typeof jQuery !== "undefined") {
-						console.warn("[EFB] $ is undefined. If using jQuery in noConflict mode, use jQuery instead of $");
-					}
+					/* WordPress deliberately runs jQuery in noConflict mode, so a missing
+					 * global `$` is normal and must not be reported as an application error. */
 				}, 500);
 
 				window.addEventListener("error", function(event) {

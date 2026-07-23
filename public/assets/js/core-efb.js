@@ -815,6 +815,44 @@ function alarm_emsFormBuilder(val) {
       <strong>${ajax_object_efm.text.alert} </strong>${val}
     </div>`
 }
+
+/* The final/confirmation fieldset and navigation controls are siblings of the
+ * form body in the public renderer, not always descendants of #body_efb_ID.
+ * Resolve them through the owning form first so one-step forms cannot dereference
+ * null while their submit flow switches to the final screen. */
+function efb_get_form_scope_efb(form_id, scope) {
+  const safeId = String(form_id == null ? '' : form_id).replace(/[^0-9_-]/g, '');
+  const nearestForm = scope && scope.closest ? scope.closest('form') : null;
+  if (nearestForm) return nearestForm;
+  if (safeId) {
+    const form = document.querySelector('form[data-formid="' + safeId + '"]');
+    if (form) return form;
+  }
+  return document.getElementById('efbform');
+}
+
+function efb_find_in_form_efb(form_id, selector, scope) {
+  const local = scope && scope.querySelector ? scope.querySelector(selector) : null;
+  if (local) return local;
+  const form = efb_get_form_scope_efb(form_id, scope);
+  const formMatch = form && form.querySelector ? form.querySelector(selector) : null;
+  if (formMatch) return formMatch;
+  /* The legacy public renderer can place navigation controls next to (rather
+   * than inside) #efbform. Prefer its own data-formid before the global ID. */
+  const safeId = String(form_id == null ? '' : form_id).replace(/[^0-9_-]/g, '');
+  if (safeId) {
+    const byFormId = document.querySelector(selector + '[data-formid="' + safeId + '"]');
+    if (byFormId) return byFormId;
+  }
+  return document.querySelector(selector);
+}
+
+function efb_get_final_step_efb(form_id, scope) {
+  const safeId = String(form_id == null ? '' : form_id).replace(/[^0-9_-]/g, '');
+  const selector = safeId ? '#efb-final-step[data-formid="' + safeId + '"]' : '#efb-final-step';
+  return efb_find_in_form_efb(form_id, selector, scope) || document.getElementById('efb-final-step');
+}
+
  async function endMessage_emsFormBuilder_view(current_step,form_id) {
   let valj_efb = get_structure_by_form_id_efb(form_id);
 
@@ -864,7 +902,18 @@ function alarm_emsFormBuilder(val) {
   }
   const id_body ='body_efb_'+form_id
   const body_efb = document.getElementById(id_body);
-  const efb_final_step =body_efb.querySelector('#efb-final-step');
+  const efb_final_step = efb_get_final_step_efb(form_id, body_efb);
+  if (!body_efb || !efb_final_step) {
+    console.error('[EFB] The final form step could not be found for form ' + form_id + '.');
+    return false;
+  }
+  /* A completed recorder now stays local until the visitor selects Upload.
+   * If they go straight to Submit, upload any ready recordings first and wait
+   * for each one in sequence before the legacy file/submission checks run. */
+  if (typeof efbRecUploadPendingForForm === 'function') {
+    const recorderUpload = await efbRecUploadPendingForForm(form_id);
+    if (!recorderUpload || !recorderUpload.success) return;
+  }
   if (countRequired != valueExistsRequired && sendBack_emsFormBuilder_pub.length < 1) {
     let str = ""
     currentTab_emsFormBuilder = 0;
@@ -1258,8 +1307,8 @@ async function validation_before_send_efb(form_id) {
   require = require > fill ? 1 : 0;
   if (((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) && ( (valj_efb[0].hasOwnProperty("logic")== true || valj_efb[0].hasOwnProperty("logic")==false) && valj_efb[0].logic==false )) {
     const body_efb = document.getElementById(id_body);
-    const efb_final_step = body_efb.getElementsByClassName('efb-final-step');
-    efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center fs-2 efb"></i></h1><h3 class="efb fs-3 efb text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 fs-5 efb text-muted"> ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
+    const efb_final_step = efb_get_final_step_efb(form_id, body_efb);
+    if (efb_final_step) efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center fs-2 efb"></i></h1><h3 class="efb fs-3 efb text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 fs-5 efb text-muted"> ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
      <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner:'efb-square'}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onclick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
     smoothy_scroll_postion_efb(id_body)
     for (const v of valj_efb) {
@@ -1448,7 +1497,11 @@ async function response_fill_form_efb(res ,form_id=0) {
   const stps = t.form_structer && t.form_structer.hasOwnProperty('steps')  ? Number(valj_efb[0].steps) : -123;
   const id_body = 'body_efb_'+form_id;
   const body_efb = document.getElementById(id_body);
-  const efb_final_step = body_efb.querySelector('#efb-final-step');
+  const efb_final_step = efb_get_final_step_efb(form_id, body_efb);
+  if (!body_efb || !efb_final_step) {
+    console.error('[EFB] The final form step could not be found for form ' + form_id + '.');
+    return;
+  }
   const isSubmitAjaxError = res.data && res.data.efb_ajax_submission_error === true;
   if (valj_efb.length > 1) {
     /* If the server rejected one specific field, send Previous straight back
@@ -2363,7 +2416,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
        if(progessbar)fun_progessbar(no_step,max_step);
 
        if(no_step>max_step){
-         el.classList.add('d-none');
+         if(el) el.classList.add('d-none');
          if(prev_btn) prev_btn.classList.add('d-none');
          endMessage_emsFormBuilder_view(max_step,form_id);
        }else if(no_step==max_step){
@@ -2371,7 +2424,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
        }
        smoothy_scroll_postion_efb(id_body);
        if(no_step==step_payment_exists){
-         el.classList.add('disabled');
+         if(el) el.classList.add('disabled');
        }
 
   }else if (btn_state=='prev_efb'){
@@ -2403,15 +2456,18 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     no_step = Number(no_step)+1;
 
     parent_body.dataset.currentstep = no_step;
-    const next_fieldset = parent_body.querySelector(`[data-step="step-${no_step}-efb"]`);
-    endMessage_emsFormBuilder_view(current_s_efb,form_id);
-    current_fieldset.classList.add('d-none');
-    next_fieldset.classList.remove('d-none');
+    /* The confirmation fieldset lives beside the form body. Looking only in
+     * parent_body made next_fieldset null on one-step forms and aborted Submit. */
+    const next_fieldset = efb_get_final_step_efb(form_id, parent_body);
+    const submitFlow = endMessage_emsFormBuilder_view(Number(no_step) - 1, form_id);
+    if (current_fieldset) current_fieldset.classList.add('d-none');
+    if (next_fieldset) next_fieldset.classList.remove('d-none');
     if(progessbar)fun_progessbar(no_step,max_step);
     smoothy_scroll_postion_efb(id_body);
     await fun_handle_header_efb(no_step,'forward');
 
-    el.classList.add('d-none');
+    if(el) el.classList.add('d-none');
+    await submitFlow;
   }
 
 }
@@ -2630,14 +2686,16 @@ get_row_sendback_by_id_efb_v4=(id_,form_id=0)=>{
 fun_prev_send =(form_id =0) =>{
   efb_hide_submit_ajax_badge_efb(form_id);
   let valj_efb = get_structure_by_form_id_efb(form_id);
+  if (!Array.isArray(valj_efb) || !valj_efb.length) return false;
   var stp = Number(valj_efb[0].steps) + 1;
   const id_body = 'body_efb_'+form_id;
   const body_efb = document.getElementById(id_body);
+  if (!body_efb) return false;
   current_s_efb = body_efb.dataset.currentstep;
-  const finalStepEl = body_efb.querySelector('#efb-final-step');
-  finalStepEl.innerHTML = loading_messge_efb();
+  const finalStepEl = efb_get_final_step_efb(form_id, body_efb);
+  if (finalStepEl) finalStepEl.innerHTML = loading_messge_efb();
   let id = `step-${current_s_efb}-efb`;
-  var current_s = body_efb.querySelector(`[data-step="${id}"]`);
+  var current_s = body_efb.querySelector(`[data-step="${id}"]`) || finalStepEl;
 
   /* Find last visible (non-logic-hidden) step to return to */
   let _prevTarget = Number(current_s_efb) - 1;
@@ -2657,37 +2715,42 @@ fun_prev_send =(form_id =0) =>{
     progessbar.style.width = percent_progess;
   }
 
-  if(Number(valj_efb[0].show_icon)!=1)  body_efb.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
-  body_efb.querySelector('[data-step="step-' + current_s_efb + '-efb"]').classList.toggle("d-none");
+  if(Number(valj_efb[0].show_icon)!=1) {
+    const currentIcon = document.getElementById(current_s_efb + '-f-step-efb-' + form_id);
+    if (currentIcon) currentIcon.classList.remove("active");
+  }
+  if (current_s) current_s.classList.add("d-none");
   if (stp == 2) {
-       const btn_send_efb = body_efb.querySelector('#btn_send_efb');
-       btn_send_efb.classList.remove('d-none');
-       const gRecaptcha = body_efb.querySelector('#gRecaptcha');
+       const btn_send_efb = efb_find_in_form_efb(form_id, '#btn_send_efb', body_efb);
+       if (btn_send_efb) btn_send_efb.classList.remove('d-none');
+       const gRecaptcha = efb_find_in_form_efb(form_id, '#gRecaptcha', body_efb);
     if(gRecaptcha) {
       gRecaptcha.classList.remove('d-none');
       }
   } else {
-    const next_efb = body_efb.querySelector('#next_efb');
-    next_efb.classList.remove('d-none');
+    const next_efb = efb_find_in_form_efb(form_id, '#next_efb', body_efb);
+    if (next_efb) next_efb.classList.remove('d-none');
   }
   var s = "" + _prevTarget + "";
   var val = valj_efb.find(x => x.step == s);
   if(Number(valj_efb[0].show_icon)!=1){
     const title_efb = body_efb.querySelector("#title_efb");
     const desc_efb = body_efb.querySelector("#desc_efb");
-    title_efb.className = colorTextChangerEfb(title_efb.className,val['label_text_color']);
-    desc_efb.className = colorTextChangerEfb(desc_efb.className,val['message_text_color']);
-    title_efb.textContent = val['name'];
-    desc_efb.textContent = val['message'];
+    if (val && title_efb && desc_efb) {
+      title_efb.className = colorTextChangerEfb(title_efb.className,val['label_text_color']);
+      desc_efb.className = colorTextChangerEfb(desc_efb.className,val['message_text_color']);
+      title_efb.textContent = val['name'];
+      desc_efb.textContent = val['message'];
+    }
 
     let id_active_icon = `${s}-f-step-efb-${form_id}`;
     const next_active_step_icon = document.getElementById(id_active_icon);
-    next_active_step_icon.classList.add('active');
+    if (next_active_step_icon) next_active_step_icon.classList.add('active');
   }
-  const prev_efb = body_efb.querySelector('#prev_efb');
+  const prev_efb = efb_find_in_form_efb(form_id, '#prev_efb', body_efb);
   if(prev_efb)prev_efb.classList.toggle("d-none");
-  current_s.classList.add('d-none');
-  prev_s_efb.classList.remove('d-none');
+  if(current_s) current_s.classList.add('d-none');
+  if(prev_s_efb) prev_s_efb.classList.remove('d-none');
   current_s_efb = _prevTarget;
   body_efb.dataset.currentstep = current_s_efb;
   fun_progessbar(current_s_efb,stp);
@@ -2719,6 +2782,8 @@ function efb_go_to_step_direct(form_id, targetStep) {
   body_efb.querySelectorAll('[data-step^="step-"][data-step$="-efb"]').forEach((fieldset) => {
     fieldset.classList.add('d-none');
   });
+  const finalStep = efb_get_final_step_efb(form_id, body_efb);
+  if (finalStep) finalStep.classList.add('d-none');
   const targetFieldset = body_efb.querySelector('[data-step="step-' + targetStep + '-efb"]');
   if (targetFieldset) targetFieldset.classList.remove('d-none');
 
@@ -2735,16 +2800,16 @@ function efb_go_to_step_direct(form_id, targetStep) {
    * (`el.classList.add('d-none')`) when treating the form as finished, and
    * that `el` is #next_efb — so it must be explicitly shown again here,
    * since we are by definition NOT finished if we're displaying a real step. */
-  const nextBtn = body_efb.querySelector('#next_efb');
+  const nextBtn = efb_find_in_form_efb(form_id, '#next_efb', body_efb);
   if (nextBtn) nextBtn.classList.remove('d-none');
   /* #btn_send_efb is the equivalent single-step-form submit button (mutually
    * exclusive with #next_efb/#prev_efb) and gets hidden the same way on its
    * own overshoot path in btn_navigate_handle_efb — restore it too. */
-  const sendBtn = body_efb.querySelector('#btn_send_efb');
+  const sendBtn = efb_find_in_form_efb(form_id, '#btn_send_efb', body_efb);
   if (sendBtn) sendBtn.classList.remove('d-none');
   if (typeof updateStepButtonState_efb === 'function') updateStepButtonState_efb(form_id);
 
-  const prevBtn = body_efb.querySelector('#prev_efb');
+  const prevBtn = efb_find_in_form_efb(form_id, '#prev_efb', body_efb);
   if (prevBtn) prevBtn.classList.toggle('d-none', targetStep <= 1);
 
   if (Number(valj_efb[0].show_icon) !== 1) {

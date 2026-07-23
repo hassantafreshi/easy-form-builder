@@ -9,11 +9,21 @@ class Emsfb {
 
     public $plugin_url = "";
 
+    private $missing_core_files = [];
+
+    private $core_files_ok = true;
+
     public function __construct() {
         $this->plugin_path = EMSFB_PLUGIN_DIRECTORY;
         $this->plugin_url  = EMSFB_PLUGIN_URL;
 
         $this->includes();
+        if (!$this->core_files_ok) {
+            // Incomplete installation (e.g. a plugin update that did not copy
+            // every file): stay inert instead of fataling the whole site. The
+            // admin notice added by require_plugin_file_efb() asks for a reinstall.
+            return;
+        }
         $this->init_hooks();
         if(is_admin()==false){ $this->webhooks();
         }else{
@@ -54,15 +64,28 @@ class Emsfb {
     }
 
     public function includes(): void {
-        require_once $this->plugin_path . 'includes/class-Emsfb-install.php';
-        require_once $this->plugin_path . 'includes/class-Emsfb-email-monitor.php';
-        require_once $this->plugin_path . 'includes/class-Emsfb-addon-compatibility.php';
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-install.php');
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-email-monitor.php') && $core_ok;
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-addon-compatibility.php') && $core_ok;
+
+        // No-ops when class-Emsfb-addon-compatibility.php loaded above; keeps
+        // the helper functions callable when that file is missing on disk.
+        $this->define_compatibility_fallbacks_efb();
+
+        if (!$core_ok) {
+            $this->core_files_ok = false;
+            return;
+        }
 
         if (is_admin()) {
-            require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
-            require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
-            require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
-            require_once $this->plugin_path . 'includes/admin/class-Emsfb-dashboard-widget.php';
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-admin.php');
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-create.php') && $admin_ok;
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-addon.php') && $admin_ok;
+            $admin_ok = $this->require_plugin_file_efb('includes/admin/class-Emsfb-dashboard-widget.php') && $admin_ok;
+            if (!$admin_ok) {
+                $this->core_files_ok = false;
+                return;
+            }
             new \Emsfb\Dashboard_Widget();
             $ac = self::get_setting_Emsfb('decoded');
 
@@ -224,16 +247,140 @@ class Emsfb {
 			}
 		}
 
-		require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
+		if (!$this->require_plugin_file_efb('includes/class-Emsfb-public.php')) {
+			$this->core_files_ok = false;
+			return;
+		}
 
 		// The toolbar control is loaded outside wp-admin as well, so authorized
 		// users can see and change the current sandbox state wherever the
 		// WordPress admin bar is displayed.
-		require_once $this->plugin_path . 'includes/class-Emsfb-admin-bar.php';
-		new \Emsfb\Admin_Bar_Development_Mode();
+		if ($this->require_plugin_file_efb('includes/class-Emsfb-admin-bar.php')) {
+			new \Emsfb\Admin_Bar_Development_Mode();
+		}
 
        $this->load_page_builder_integrations();
 
+    }
+
+    /**
+     * Require one of the plugin's own PHP files only when it exists on disk.
+     *
+     * A file can legitimately be absent after an incomplete update or deploy;
+     * requiring it blindly turns that into a fatal error that takes the whole
+     * site down. Missing files are collected and reported once through an
+     * admin notice that asks for a plugin reinstall.
+     *
+     * @param string $relative_path Path relative to the plugin root.
+     * @return bool True when the file was loaded.
+     */
+    private function require_plugin_file_efb(string $relative_path): bool {
+        $absolute_path = $this->plugin_path . $relative_path;
+
+        if (file_exists($absolute_path)) {
+            require_once $absolute_path;
+            return true;
+        }
+
+        if (empty($this->missing_core_files)) {
+            add_action('admin_notices', [$this, 'missing_core_files_notice_efb']);
+        }
+        $this->missing_core_files[] = $relative_path;
+
+        if (function_exists('error_log')) {
+            error_log('Easy Form Builder: required plugin file is missing: ' . $absolute_path);
+        }
+
+        return false;
+    }
+
+    /**
+     * Admin notice listing the plugin files that were missing on disk.
+     *
+     * @return void
+     */
+    public function missing_core_files_notice_efb(): void {
+        if (!current_user_can('activate_plugins')) {
+            return;
+        }
+
+        $files = array_map('esc_html', array_unique($this->missing_core_files));
+        echo '<div class="notice notice-error"><p><b>Easy Form Builder:</b> '
+            . esc_html__('Some plugin files are missing, so the plugin stopped loading to keep your site running. Please reinstall Easy Form Builder from the Plugins page — your forms, messages, and settings are kept.', 'easy-form-builder')
+            . '</p><p>' . esc_html__('Missing files:', 'easy-form-builder') . ' <code>'
+            . implode('</code>, <code>', $files)
+            . '</code></p></div>';
+    }
+
+    /**
+     * Minimal stand-ins for the class-Emsfb-addon-compatibility.php helpers.
+     *
+     * emsfb.php and scheduled hooks call these helpers even when includes()
+     * bails out early, so they must exist in a degraded install too. Every
+     * definition is skipped when the real implementation is already loaded.
+     *
+     * @return void
+     */
+    private function define_compatibility_fallbacks_efb(): void {
+        if (!function_exists('emsfb_is_addon_compatible_efb')) {
+            function emsfb_is_addon_compatible_efb($addon_key) {
+                return true;
+            }
+        }
+        if (!function_exists('emsfb_is_php_function_available_efb')) {
+            function emsfb_is_php_function_available_efb($function_name) {
+                return function_exists($function_name) && is_callable($function_name);
+            }
+        }
+        if (!function_exists('emsfb_is_php_function_disabled_efb')) {
+            function emsfb_is_php_function_disabled_efb($function_name) {
+                return !emsfb_is_php_function_available_efb($function_name);
+            }
+        }
+        if (!function_exists('emsfb_get_missing_addon_functions_efb')) {
+            function emsfb_get_missing_addon_functions_efb($addon_key) {
+                return [];
+            }
+        }
+        if (!function_exists('emsfb_get_incompatible_addons_efb')) {
+            function emsfb_get_incompatible_addons_efb($settings = null) {
+                return [];
+            }
+        }
+        if (!function_exists('emsfb_get_addon_unavailable_message_efb')) {
+            function emsfb_get_addon_unavailable_message_efb($addon_key) {
+                return '';
+            }
+        }
+        if (!function_exists('emsfb_read_file_efb')) {
+            function emsfb_read_file_efb($path) {
+                if (!emsfb_is_php_function_available_efb('file_get_contents')) {
+                    return false;
+                }
+                return @file_get_contents($path);
+            }
+        }
+        if (!function_exists('emsfb_get_php_ini_value_efb')) {
+            function emsfb_get_php_ini_value_efb($name, $default = '') {
+                if (!emsfb_is_php_function_available_efb('ini_get')) {
+                    return $default;
+                }
+                $value = @ini_get($name);
+                return false === $value ? $default : $value;
+            }
+        }
+        if (!function_exists('emsfb_generate_token_efb')) {
+            function emsfb_generate_token_efb($length = 16) {
+                if (function_exists('wp_generate_password')) {
+                    return wp_generate_password($length, false, false);
+                }
+                return substr(md5(uniqid((string) wp_rand(), true)), 0, $length);
+            }
+        }
+        if (!function_exists('emsfb_reset_php_compatibility_cache_efb')) {
+            function emsfb_reset_php_compatibility_cache_efb() {
+            }
+        }
     }
 
     /**
@@ -262,40 +409,42 @@ class Emsfb {
 
     private function load_page_builder_integrations(): void {
 
-        require_once $this->plugin_path . 'includes/class-Emsfb-widgets-helper.php';
+        if (!$this->require_plugin_file_efb('includes/class-Emsfb-widgets-helper.php')) {
+            return;
+        }
 
         if (function_exists('register_block_type')) {
-            require_once $this->plugin_path . 'includes/page-builders/gutenberg/class-Emsfb-gutenberg-block.php';
+            $this->require_plugin_file_efb('includes/page-builders/gutenberg/class-Emsfb-gutenberg-block.php');
         }
 
         if (did_action('elementor/loaded') || class_exists('\Elementor\Plugin')) {
-            require_once $this->plugin_path . 'includes/page-builders/elementor/class-Emsfb-elementor.php';
+            $this->require_plugin_file_efb('includes/page-builders/elementor/class-Emsfb-elementor.php');
         } else {
 
             add_action('elementor/loaded', function() {
                 if (!class_exists('Emsfb_Elementor_Integration')) {
-                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/elementor/class-Emsfb-elementor.php';
+                    $this->require_plugin_file_efb('includes/page-builders/elementor/class-Emsfb-elementor.php');
                 }
             });
         }
 
         if (defined('WPB_VC_VERSION') || class_exists('Vc_Manager')) {
-            require_once $this->plugin_path . 'includes/page-builders/wpbakery/class-Emsfb-wpbakery.php';
+            $this->require_plugin_file_efb('includes/page-builders/wpbakery/class-Emsfb-wpbakery.php');
         } else {
 
             add_action('vc_before_init', function() {
                 if (!class_exists('Emsfb_WPBakery_Integration')) {
-                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/wpbakery/class-Emsfb-wpbakery.php';
+                    $this->require_plugin_file_efb('includes/page-builders/wpbakery/class-Emsfb-wpbakery.php');
                 }
             }, 5);
         }
 
         if (defined('VCV_VERSION')) {
-            require_once $this->plugin_path . 'includes/page-builders/visual-composer/class-Emsfb-visual-composer.php';
+            $this->require_plugin_file_efb('includes/page-builders/visual-composer/class-Emsfb-visual-composer.php');
         } else {
             add_action('vcv:api', function() {
                 if (!class_exists('Emsfb_Visual_Composer_Integration')) {
-                    require_once EMSFB_PLUGIN_DIRECTORY . 'includes/page-builders/visual-composer/class-Emsfb-visual-composer.php';
+                    $this->require_plugin_file_efb('includes/page-builders/visual-composer/class-Emsfb-visual-composer.php');
                 }
             }, 5);
         }

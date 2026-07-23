@@ -254,6 +254,39 @@
 	gap: 8px;
 }
 
+/* Upload belongs to the finished-recording action group next to Download.
+   Its state is conveyed by the icon and the existing status row, not a second
+   full-width control that competes with recording controls. */
+.efb-recorder-secondary-btn[data-action="upload"] {
+	background: rgba(13,110,253,.9);
+	box-shadow: 0 3px 10px rgba(13,110,253,.28);
+}
+
+.efb-recorder-secondary-btn[data-action="upload"]:hover:not(:disabled) {
+	background: #0d6efd;
+}
+
+.efb-recorder-secondary-btn.efb-recorder-uploading {
+	background: #6f42c1;
+	cursor: wait;
+}
+
+.efb-recorder-secondary-btn.efb-recorder-uploading i { animation: efb-rec-upload-spin 1s linear infinite; }
+
+.efb-recorder-secondary-btn.efb-recorder-uploaded {
+	background: #198754;
+	cursor: default;
+}
+
+.efb-recorder-secondary-btn.efb-recorder-upload-error {
+	background: #b02a37;
+}
+
+@keyframes efb-rec-upload-spin {
+	from { transform: rotate(0); }
+	to { transform: rotate(360deg); }
+}
+
 .efb-recorder-status {
 	font-size: 12.5px;
 	color: #6c7280;
@@ -279,6 +312,9 @@
 }
 
 .efb-recorder-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
 	font-size: 11px;
 	font-weight: 600;
 	padding: 2px 9px;

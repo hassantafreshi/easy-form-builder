@@ -48,3 +48,4 @@ test-addon-url.php
 .claude/_settings.local
 vendor/human-shield/
 vendor/human-shield/*
+debug-helper.js

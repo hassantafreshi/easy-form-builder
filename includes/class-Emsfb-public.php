@@ -116,7 +116,7 @@ public function check_nonce_permission_efb($request) {
 
 	header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 	header('Access-Control-Allow-Credentials: true');
-	header('Access-Control-Allow-Headers: Content-Type, X-WP-Nonce, Authorization, sid, form_id');
+		header('Access-Control-Allow-Headers: Content-Type, X-WP-Nonce, Authorization, sid, X-EFB-Form-Id, form_id');
 	header('Access-Control-Max-Age: 86400');
 
 	if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -133,7 +133,7 @@ public function check_nonce_permission_efb($request) {
 	if (!$verify) {
 
 		$sid = sanitize_text_field( wp_unslash($_SERVER['HTTP_SID'] ?? ''));
-		$fid = sanitize_text_field( wp_unslash($_SERVER['HTTP_FORM_ID'] ?? ''));
+			$fid = sanitize_text_field( wp_unslash($_SERVER['HTTP_X_EFB_FORM_ID'] ?? $_SERVER['HTTP_FORM_ID'] ?? ''));
 
 		if (!empty($sid) && $fid !== '') {
 			if (!$this->efbFunction) {
@@ -173,7 +173,7 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$sid = isset( $_SERVER['HTTP_SID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SID'] ) ) : '';
-		$fid = isset( $_SERVER['HTTP_FORM_ID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_FORM_ID'] ) ) : '';
+		$fid = isset( $_SERVER['HTTP_X_EFB_FORM_ID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_EFB_FORM_ID'] ) ) : (isset( $_SERVER['HTTP_FORM_ID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_FORM_ID'] ) ) : '');
 
 		if ( $sid === '' ) {
 			return new \WP_Error( 'rest_forbidden', __( 'Invalid or expired session', 'easy-form-builder' ), array( 'status' => 403 ) );
@@ -708,7 +708,7 @@ public function check_nonce_permission_efb($request) {
 			"name","latitude","longitude","previous","next","invalidEmail","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork",
 			"aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","createdBy","rnfn","fil",'stf','total','fetf','search','jqinl','eln' ,'servpss','slocation',
 			'snotfound','sfmcfop','notFound','file','copied','nonceExpired','fileUploadNetworkError','id','updated','methodPayment','ttlprc','fillrequiredfields',
-			'audio_recorder','video_recorder','screen_recorder','recStart','recStop','recPause','recResume','recRedo','recPlay','recReady','recRecording','recPaused','recReadyToSubmit',
+			'audio_recorder','video_recorder','screen_recorder','recStart','recStop','recPause','recResume','recRedo','recPlay','recReady','recRecording','recPaused','recReadyToSubmit','recUpload','recUploading','recUploaded','recUploadFailed','recUploadOffline','recUploadUnavailable','recNoFile','recFileTooLarge','recInvalidFile','recDurationExceeded',
 			'recQuality','recDuration','recQualityLow','recQualityStandard','recQualityHigh','recQuality480','recQuality720','recQuality1080','recPermissionDenied','recNotSupported','recMaxDurationReached','recWatermark','recTapToStart',
 			'recDownload','recNeedsHttps','recScreenNotSupported'];
 
@@ -1511,28 +1511,44 @@ public function check_nonce_permission_efb($request) {
 			strpos($form_structure_json, 'video_recorder') !== false ||
 			strpos($form_structure_json, 'screen_recorder') !== false
 		);
+		/* The recorder submit flow spans three assets. Version them from the file
+		 * timestamp so a browser/CDN cannot combine a new widget with an older
+		 * uploader or submit gate after a plugin update. */
+		$asset_version = function($relative_path) {
+			$path = EMSFB_PLUGIN_DIRECTORY . ltrim($relative_path, '/');
+			return is_readable($path) ? (string) filemtime($path) : EMSFB_PLUGIN_VERSION;
+		};
+		$main_js_version = $asset_version('includes/admin/assets/js/new-efb.js');
+		$core_js_version = $asset_version('public/assets/js/core-efb.js');
 		$core_deps = array('jquery', 'efb-main-js', 'efb-response-viewer-js');
 		$main_deps = array('jquery');
 		if ($has_recorder_field) {
-			wp_register_script('efb-recorder-js', plugins_url('../public/assets/js/recorder-efb.js',__FILE__), array('jquery'), EMSFB_PLUGIN_VERSION, true);
+			wp_register_script('efb-recorder-js', plugins_url('../public/assets/js/recorder-efb.js',__FILE__), array('jquery'), $asset_version('public/assets/js/recorder-efb.js'), true);
 			wp_enqueue_script('efb-recorder-js');
-			wp_register_style('efb-recorder-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/recorder-efb.css', array(), EMSFB_PLUGIN_VERSION);
+			wp_register_style('efb-recorder-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/recorder-efb.css', array(), $asset_version('includes/admin/assets/css/recorder-efb.css'));
 			wp_enqueue_style('efb-recorder-css');
+			// Recorder controls use icons that are created client-side (pause, stop,
+			// play and re-record), so they are not present in the saved form JSON.
+			// Load the icon definitions on public recorder forms instead of relying on
+			// the JSON-driven inline subset of Bootstrap Icons.
+			wp_register_style('efb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons-efb.css', array(), EMSFB_PLUGIN_VERSION);
+			wp_enqueue_style('efb-bootstrap-icons-css');
 			$core_deps[] = 'efb-recorder-js';
 			$main_deps[] = 'efb-recorder-js';
 		}
 
 		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('Emsfb-response-viewer-css');
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', $main_deps, EMSFB_PLUGIN_VERSION, true);
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', $main_deps, $main_js_version, true);
 		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-response-viewer-js');
-		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), $core_deps, EMSFB_PLUGIN_VERSION, true);
+		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), $core_deps, $core_js_version, true);
 		wp_enqueue_script('Emsfb-core_js');
 
 		$ar_core = array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'nonce' => wp_create_nonce('wp_rest'),
+			'upload_max' => function_exists('wp_max_upload_size') ? (int) floor(wp_max_upload_size() / MB_IN_BYTES) : 0,
 			/* Conditional-logic runtime env: user-state conditions (source: 'user').
 			 * Roles are public-safe slugs; no capabilities or IDs are exposed. */
 			'user_state' => array(
@@ -2277,6 +2293,9 @@ public function check_nonce_permission_efb($request) {
 								case 'screen_recorder':
 									$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
 									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+									/* The server determines the kind from the saved form. Do not
+									 * retain a browser-supplied MIME/type in the response row. */
+									$item['type'] = $f['type'];
 									if (isset($item['url']) && strlen($item['url']) > 5) {
 										$is_valid = 0;
 										$ar = ['http://wwww.' . $d, 'https://wwww.' . $d, 'http://' . $d, 'https://' . $d];
@@ -2287,7 +2306,7 @@ public function check_nonce_permission_efb($request) {
 												$s = 1;
 											}
 										}
-										if ($s == 1) {
+										if ($s == 1 && $this->is_valid_recorder_upload_url_efb($item['url'], $f['type'])) {
 											$item['url'] = sanitize_url($item['url']);
 											$validated_item = $item;
 											$is_valid = 1;
@@ -3432,14 +3451,327 @@ public function check_nonce_permission_efb($request) {
 		return $result[0];
 	}
 
+	/**
+	 * Return the published definition for one recorder field. Uploads must be
+	 * checked against this server-side source of truth, never against the field
+	 * type, size or duration supplied by the browser.
+	 */
+	private function get_recorder_field_definition_efb($form_id, $field_id) {
+		if ($form_id < 1 || !is_string($field_id) || $field_id === '') return null;
+		$form_data = $this->get_form_data_efb($form_id, array('form_structer'));
+		$raw = isset($form_data->form_structer) ? $form_data->form_structer : '';
+		if (!is_string($raw) || $raw === '') return null;
+
+		$candidates = array($raw, stripslashes($raw));
+		foreach (array_unique($candidates) as $candidate) {
+			$fields = json_decode($candidate, true);
+			if (is_string($fields)) $fields = json_decode($fields, true);
+			if (!is_array($fields)) continue;
+			foreach ($fields as $field) {
+				if (!is_array($field)) continue;
+				if (!isset($field['id_'], $field['type'])) continue;
+				if ((string) $field['id_'] !== $field_id) continue;
+				if (in_array($field['type'], array('audio_recorder', 'video_recorder', 'screen_recorder'), true)) return $field;
+			}
+		}
+		return null;
+	}
+
+	private function recorder_upload_error_response_efb($message) {
+		return array('success' => false, 'error' => $message);
+	}
+
+	/* Read a WebM element header without trusting its declared size. This is only
+	 * used on the first 16 MB of an already size-limited temporary upload. */
+	private function read_webm_element_header_efb($data, &$offset, $limit) {
+		if ($offset >= $limit) return null;
+		$id_first = ord($data[$offset]);
+		$id_length = 0;
+		for ($i = 1; $i <= 4; $i++) {
+			if ($id_first & (0x80 >> ($i - 1))) { $id_length = $i; break; }
+		}
+		if ($id_length === 0 || $offset + $id_length >= $limit) return null;
+		$id = strtolower(bin2hex(substr($data, $offset, $id_length)));
+		$offset += $id_length;
+
+		$size_first = ord($data[$offset]);
+		$size_length = 0;
+		for ($i = 1; $i <= 8; $i++) {
+			if ($size_first & (0x80 >> ($i - 1))) { $size_length = $i; break; }
+		}
+		if ($size_length === 0 || $offset + $size_length > $limit) return null;
+		$marker = 0x80 >> ($size_length - 1);
+		$unknown = (($size_first & ($marker - 1)) === ($marker - 1));
+		$size = $size_first & ($marker - 1);
+		for ($i = 1; $i < $size_length; $i++) {
+			$byte = ord($data[$offset + $i]);
+			$size = ($size * 256) + $byte;
+			if ($byte !== 255) $unknown = false;
+		}
+		$offset += $size_length;
+		return array('id' => $id, 'size' => $size, 'unknown' => $unknown, 'body_start' => $offset);
+	}
+
+	private function webm_unsigned_value_efb($bytes) {
+		$value = 0;
+		$length = strlen($bytes);
+		if ($length < 1 || $length > 8) return 0;
+		for ($i = 0; $i < $length; $i++) $value = ($value * 256) + ord($bytes[$i]);
+		return $value;
+	}
+
+	private function webm_float_value_efb($bytes) {
+		$length = strlen($bytes);
+		if ($length === 4) {
+			$unpacked = unpack('Gvalue', $bytes);
+			return isset($unpacked['value']) ? floatval($unpacked['value']) : 0;
+		}
+		if ($length === 8) {
+			$unpacked = unpack('Evalue', $bytes);
+			return isset($unpacked['value']) ? floatval($unpacked['value']) : 0;
+		}
+		return 0;
+	}
+
+	private function scan_webm_info_efb($data, $offset, $end, &$timecode_scale, &$duration) {
+		while ($offset < $end) {
+			$header = $this->read_webm_element_header_efb($data, $offset, $end);
+			if ($header === null || $header['unknown'] || $header['size'] > ($end - $header['body_start'])) break;
+			$body_end = $header['body_start'] + $header['size'];
+			$body = substr($data, $header['body_start'], $header['size']);
+			if ($header['id'] === '2ad7b1') $timecode_scale = $this->webm_unsigned_value_efb($body);
+			if ($header['id'] === '4489') $duration = $this->webm_float_value_efb($body);
+			$offset = $body_end;
+		}
+	}
+
+	/* Return the byte offset where the next Cluster starts. SimpleBlock contains
+	 * the signed relative timecode, which provides a safe fallback when the
+	 * browser omitted the optional Info/Duration element. */
+	private function scan_webm_cluster_efb($data, $offset, $end, &$max_timecode) {
+		$cluster_timecode = 0;
+		while ($offset < $end) {
+			$element_start = $offset;
+			$header = $this->read_webm_element_header_efb($data, $offset, $end);
+			if ($header === null) break;
+			if ($header['id'] === '1f43b675') return $element_start;
+			if ($header['unknown'] || $header['size'] > ($end - $header['body_start'])) break;
+			$body_end = $header['body_start'] + $header['size'];
+			if ($header['id'] === 'e7') {
+				$cluster_timecode = $this->webm_unsigned_value_efb(substr($data, $header['body_start'], $header['size']));
+				$max_timecode = max($max_timecode, $cluster_timecode);
+			} elseif ($header['id'] === 'a3' && $header['size'] >= 4) {
+				$first = ord($data[$header['body_start']]);
+				$track_length = 0;
+				for ($i = 1; $i <= 8; $i++) {
+					if ($first & (0x80 >> ($i - 1))) { $track_length = $i; break; }
+				}
+				if ($track_length > 0 && $header['size'] >= $track_length + 3) {
+					$relative = unpack('nvalue', substr($data, $header['body_start'] + $track_length, 2));
+					$relative = isset($relative['value']) ? intval($relative['value']) : 0;
+					if ($relative >= 32768) $relative -= 65536;
+					$max_timecode = max($max_timecode, $cluster_timecode + $relative);
+				}
+			}
+			$offset = $body_end;
+		}
+		return $offset;
+	}
+
+	/* Browser MediaRecorder output is WebM on Chromium/Firefox. getID3 can crash
+	 * some local Windows PHP builds while parsing a live MediaRecorder WebM, so
+	 * use a bounded, container-level duration reader for that format instead. */
+	private function get_webm_duration_efb($path) {
+		$file_size = @filesize($path);
+		if (!$file_size || $file_size < 1) return 0;
+		$read_size = min(intval($file_size), 16 * MB_IN_BYTES);
+		$data = @file_get_contents($path, false, null, 0, $read_size);
+		if (!is_string($data) || $data === '') return 0;
+		$limit = strlen($data);
+		$offset = 0;
+		$timecode_scale = 1000000; // WebM default: one millisecond.
+		$duration = 0;
+		$max_timecode = 0;
+		while ($offset < $limit) {
+			$header = $this->read_webm_element_header_efb($data, $offset, $limit);
+			if ($header === null) break;
+			if ($header['id'] !== '18538067') {
+				if ($header['unknown'] || $header['size'] > ($limit - $header['body_start'])) break;
+				$offset = $header['body_start'] + $header['size'];
+				continue;
+			}
+			$segment_end = $header['unknown'] || $header['size'] > ($limit - $header['body_start']) ? $limit : $header['body_start'] + $header['size'];
+			$offset = $header['body_start'];
+			while ($offset < $segment_end) {
+				$element_start = $offset;
+				$child = $this->read_webm_element_header_efb($data, $offset, $segment_end);
+				if ($child === null) break;
+				$child_end = $child['unknown'] || $child['size'] > ($segment_end - $child['body_start']) ? $segment_end : $child['body_start'] + $child['size'];
+				if ($child['id'] === '1549a966') {
+					$this->scan_webm_info_efb($data, $child['body_start'], $child_end, $timecode_scale, $duration);
+					if ($duration > 0) return ($duration * $timecode_scale) / 1000000000;
+				} elseif ($child['id'] === '1f43b675') {
+					$next_offset = $this->scan_webm_cluster_efb($data, $child['body_start'], $child_end, $max_timecode);
+					$offset = $child['unknown'] ? $next_offset : $child_end;
+					if ($offset <= $element_start) break;
+					continue;
+				}
+				if ($child['unknown']) break;
+				$offset = $child_end;
+			}
+			break;
+		}
+		return $max_timecode > 0 ? ($max_timecode * $timecode_scale) / 1000000000 : 0;
+	}
+
+	/** Strict, recorder-only upload validation. Generic file fields retain their
+	 * existing pipeline; recordings use the persisted field definition, actual
+	 * MIME sniffing, a real uploaded-file check and media metadata duration. */
+	private function process_recorder_upload_efb($field, $uploaded_file, $declared_duration) {
+		$verification_error = esc_html__('The recording upload could not be verified. Please record it again and retry.','easy-form-builder');
+		if (!is_array($uploaded_file) || !isset($uploaded_file['error']) || intval($uploaded_file['error']) !== UPLOAD_ERR_OK) {
+			return $this->recorder_upload_error_response_efb($verification_error);
+		}
+		$tmp_name = isset($uploaded_file['tmp_name']) ? $uploaded_file['tmp_name'] : '';
+		if ($tmp_name === '' || !is_uploaded_file($tmp_name) || !is_readable($tmp_name)) {
+			return $this->recorder_upload_error_response_efb($verification_error);
+		}
+
+		$type = $field['type'];
+		$mime_rules = $type === 'audio_recorder'
+			? array(
+				/* libmagic commonly reports an audio-only WebM as video/webm because
+				 * WebM is a shared container. The extension, WebM container sniff and
+				 * subsequent media-duration verification still remain mandatory. */
+				'webm' => array('audio/webm', 'video/webm'),
+				'm4a'  => array('audio/mp4'),
+				'mp4'  => array('audio/mp4'),
+				'ogg'  => array('audio/ogg', 'application/ogg'),
+				'oga'  => array('audio/ogg', 'application/ogg'),
+			)
+			: array(
+				'webm' => array('video/webm'),
+				'mp4'  => array('video/mp4'),
+			);
+		$original_name = isset($uploaded_file['name']) ? sanitize_file_name(wp_unslash($uploaded_file['name'])) : '';
+		$extension = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
+		if ($extension === '' || !isset($mime_rules[$extension])) {
+			return $this->recorder_upload_error_response_efb(esc_html__('This recording format is not supported. Please record it again.','easy-form-builder'));
+		}
+
+		$size = isset($uploaded_file['size']) ? intval($uploaded_file['size']) : 0;
+		$configured_mb = isset($field['max_fsize']) && is_numeric($field['max_fsize']) && floatval($field['max_fsize']) > 0 ? floatval($field['max_fsize']) : 20;
+		$max_bytes = min($configured_mb * 1024 * 1024, 1024 * 1024 * 1024); // never allow a corrupted form setting to remove the cap.
+		$host_limit = function_exists('wp_max_upload_size') ? intval(wp_max_upload_size()) : 0;
+		if ($host_limit > 0) $max_bytes = min($max_bytes, $host_limit);
+		if ($size < 1 || $size > $max_bytes) {
+			return $this->recorder_upload_error_response_efb(esc_html__('The recording is larger than the allowed file size.','easy-form-builder'));
+		}
+
+		if (!function_exists('finfo_open')) {
+			return $this->recorder_upload_error_response_efb(esc_html__('The server could not verify the recording format. Please contact the site administrator.','easy-form-builder'));
+		}
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$detected_mime = $finfo ? finfo_file($finfo, $tmp_name) : false;
+		if ($finfo) finfo_close($finfo);
+		if (!$detected_mime || !in_array($detected_mime, $mime_rules[$extension], true)) {
+			return $this->recorder_upload_error_response_efb(esc_html__('The recording format could not be verified. Please record it again.','easy-form-builder'));
+		}
+
+		$max_duration = isset($field['max_duration']) && is_numeric($field['max_duration']) ? intval($field['max_duration']) : 90;
+		$max_duration = max(5, min(1800, $max_duration));
+		if (!is_numeric($declared_duration) || floatval($declared_duration) < 0 || floatval($declared_duration) > ($max_duration + 2)) {
+			return $this->recorder_upload_error_response_efb(esc_html__('The recording is longer than the allowed duration.','easy-form-builder'));
+		}
+
+		$actual_duration = $extension === 'webm' ? $this->get_webm_duration_efb($tmp_name) : 0;
+		/* Safari can produce MP4/M4A and some browsers offer Ogg. Keep WordPress'
+		 * established metadata reader for those containers; WebM takes the safe
+		 * bounded parser above because it is the normal MediaRecorder output. */
+		if ($actual_duration <= 0 && $extension !== 'webm') {
+			if (!function_exists('wp_read_audio_metadata') || !function_exists('wp_read_video_metadata')) {
+				require_once ABSPATH . 'wp-admin/includes/media.php';
+			}
+			$metadata = $type === 'audio_recorder' && function_exists('wp_read_audio_metadata')
+				? @wp_read_audio_metadata($tmp_name)
+				: (function_exists('wp_read_video_metadata') ? @wp_read_video_metadata($tmp_name) : false);
+			$actual_duration = is_array($metadata) && isset($metadata['length']) ? floatval($metadata['length']) : 0;
+			if ($actual_duration <= 0 && function_exists('wp_read_video_metadata')) {
+				$alternate_metadata = @wp_read_video_metadata($tmp_name);
+				$actual_duration = is_array($alternate_metadata) && isset($alternate_metadata['length']) ? floatval($alternate_metadata['length']) : 0;
+			}
+		}
+		if ($actual_duration <= 0) {
+			return $this->recorder_upload_error_response_efb(esc_html__('The server could not verify the recording duration. Please record it again and try uploading.','easy-form-builder'));
+		}
+		if ($actual_duration > ($max_duration + 2)) {
+			return $this->recorder_upload_error_response_efb(esc_html__('The recording is longer than the allowed duration.','easy-form-builder'));
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		$stored_file = $uploaded_file;
+		$stored_file['name'] = 'efb-rec-' . wp_date('ymd') . '-' . wp_generate_password(12, false, false) . '.' . $extension;
+		$mimes = array();
+		foreach ($mime_rules as $ext => $mimes_for_extension) $mimes[$ext] = $mimes_for_extension[0];
+		/* WordPress performs its own filetype lookup during wp_handle_upload().
+		 * For an audio-only WebM, libmagic may correctly identify the shared
+		 * container as video/webm; use the already allow-listed detected value so
+		 * that the second server-side check does not reject that same file. */
+		$mimes[$extension] = $detected_mime;
+		$upload = wp_handle_upload($stored_file, array('test_form' => false, 'mimes' => $mimes));
+		if (!is_array($upload) || !empty($upload['error']) || empty($upload['url'])) {
+			return $this->recorder_upload_error_response_efb(esc_html__('The server could not store the recording. Please try again or contact the site administrator.','easy-form-builder'));
+		}
+		if (is_ssl()) $upload['url'] = str_replace('http://', 'https://', $upload['url']);
+		return array('success' => true, 'ID' => 'id', 'file' => $upload, 'name' => $stored_file['name'], 'type' => $detected_mime, 'duration' => $actual_duration);
+	}
+
+	/* Final form submission is a separate request from file upload. Re-check that
+	 * the submitted recorder URL resolves to a real file inside this WordPress
+	 * upload directory and that its extension still matches the field kind. */
+	private function is_valid_recorder_upload_url_efb($url, $field_type) {
+		if (!is_string($url) || $url === '' || !function_exists('wp_upload_dir')) return false;
+		$uploads = wp_upload_dir();
+		$base_url = rtrim(isset($uploads['baseurl']) ? $uploads['baseurl'] : '', '/');
+		$base_dir = isset($uploads['basedir']) ? $uploads['basedir'] : '';
+		if ($base_url === '' || $base_dir === '' || strpos($url, $base_url . '/') !== 0) return false;
+		$relative = rawurldecode(substr($url, strlen($base_url) + 1));
+		if ($relative === '' || strpos($relative, '..') !== false || strpos($relative, "\0") !== false) return false;
+		$path = wp_normalize_path(trailingslashit($base_dir) . ltrim($relative, '/'));
+		$base_path = wp_normalize_path(realpath($base_dir));
+		$real_path = realpath($path);
+		if ($base_path === false || $real_path === false || strpos(wp_normalize_path($real_path), trailingslashit($base_path)) !== 0 || !is_file($real_path)) return false;
+		$extension = strtolower(pathinfo($real_path, PATHINFO_EXTENSION));
+		$allowed = $field_type === 'audio_recorder' ? array('webm', 'm4a', 'mp4', 'ogg', 'oga') : array('webm', 'mp4');
+		return in_array($extension, $allowed, true);
+	}
+
 	public function file_upload_api(){
 
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
-		$_POST['id']= isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+		$_POST['id']= isset($_POST['id']) ? sanitize_text_field( wp_unslash( $_POST['id'] ) ) : '';
         $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field(wp_unslash($_POST['pl'])) : '';
         $fid= isset($_POST['fid']) ? intval( wp_unslash( $_POST['fid'] ) ) : 0;
 		$sid = '';
 		$page_id = isset($_POST['page_id']) ? sanitize_text_field(wp_unslash($_POST['page_id'])) : '';
+		$this->text_ = empty($this->text_) == false ? $this->text_ : array('error403', 'errorMRobot', 'errorFilePer');
+		$this->lanText = $this->efbFunction->text_efb($this->text_);
+		if (!preg_match('/^[A-Za-z0-9_-]{1,80}$/', $_POST['id'])) {
+			wp_send_json_success($this->recorder_upload_error_response_efb(esc_html__('The recording request could not be verified. Please retry.','easy-form-builder')), 200);
+		}
+
+		/* Recorder uploads are bound to the form/session header as well as the
+		 * published field definition. This blocks field-id swapping between forms. */
+		$recorder_field = $fid > 0 ? $this->get_recorder_field_definition_efb($fid, $_POST['id']) : null;
+		if ($recorder_field !== null) {
+		$header_form_id = isset($_SERVER['HTTP_X_EFB_FORM_ID']) ? intval(wp_unslash($_SERVER['HTTP_X_EFB_FORM_ID'])) : (isset($_SERVER['HTTP_FORM_ID']) ? intval(wp_unslash($_SERVER['HTTP_FORM_ID'])) : 0);
+			if ($_POST['pl'] !== 'msg' || $header_form_id !== $fid || !isset($_FILES['async-upload'])) {
+				wp_send_json_success($this->recorder_upload_error_response_efb(esc_html__('The recording request could not be verified. Please retry.','easy-form-builder')), 200);
+			}
+			$duration = isset($_POST['recording_duration']) ? sanitize_text_field(wp_unslash($_POST['recording_duration'])) : '';
+			$response = $this->process_recorder_upload_efb($recorder_field, $_FILES['async-upload'], $duration);
+			wp_send_json_success($response, 200);
+		}
 
 		$this->cache_cleaner_Efb($page_id);
 
@@ -3450,7 +3782,7 @@ public function check_nonce_permission_efb($request) {
             $vl ='efb'. $_POST['id'];
         }else{
 
-            $id = isset($_POST['id']) ? intval( wp_unslash( $_POST['id'] ) ) : 0;
+			$id = isset($_POST['id']) ? sanitize_text_field( wp_unslash( $_POST['id'] ) ) : '';
             $fid = intval($fid);
             $vl_data = $this->get_form_data_efb($fid, array('form_structer'));
             $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
@@ -3486,8 +3818,6 @@ public function check_nonce_permission_efb($request) {
 		$valid=false;
 		$_FILES['async-upload']['name'] = sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) );
 
-			$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
-			$this->lanText= $this->efbFunction->text_efb($this->text_);
 			if($have_validate!=1){
 				$arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
 				'audio/wav','audio/ogg','audio/webm','audio/mp4','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
@@ -4918,7 +5248,12 @@ public function check_nonce_permission_efb($request) {
 
 					$list[] = $url;
 
-					if ($t==='image') {
+					if (in_array($t, array('audio_recorder', 'video_recorder', 'screen_recorder'), true)) {
+						$kind_label = $t === 'audio_recorder' ? esc_html__('Audio recording','easy-form-builder') : ($t === 'video_recorder' ? esc_html__('Video recording','easy-form-builder') : esc_html__('Screen recording','easy-form-builder'));
+						$duration = isset($c['recording_duration']) && is_numeric($c['recording_duration']) ? max(0, intval($c['recording_duration'])) : 0;
+						$duration_label = $duration > 0 ? ' (' . esc_html($duration . 's') . ')' : '';
+						$q = '<a href="'.esc_url($url).'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">'.esc_html($kind_label . $duration_label . ' — ' . __('Download','easy-form-builder')).'</a>';
+					} elseif ($t==='image') {
 						$q = '<img src="'.$url.'" alt="'.htmlspecialchars($nm).'" style="display:block;max-width:100%;height:auto;border:0;">';
 					} elseif ($t==='document' || $t==='allformat') {
 						$q = '<a href="'.$url.'" target="_blank" style="text-decoration:none;">'.$nm.'</a>';
@@ -5746,7 +6081,7 @@ public function check_nonce_permission_efb($request) {
 			'persiapay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
 			'payment' => ['amount' => true], 'file' => ['url' => true], 'address_line'=>true,
 			'dadfile' => ['url' => true], 'esign' => true, 'maps' => true,
-			'audio_recorder' => ['url' => true], 'video_recorder' => ['url' => true], 'screen_recorder' => ['url' => true],
+			'audio_recorder' => ['url' => true, 'recording_duration' => true], 'video_recorder' => ['url' => true, 'recording_duration' => true], 'screen_recorder' => ['url' => true, 'recording_duration' => true],
 			'color' => true, 'range' => true, 'number' => true, 'prcfld' => true,
 			'checkbox' => true, 'table_matrix' => true, 'trmCheckbox' => true,
 			'ttlprc' => true, 'smartcr' => true, 'pointr5' => true,'tel'=>true,
@@ -6141,6 +6476,7 @@ public function check_nonce_permission_efb($request) {
 			'user_name' => $username,
 			'admin_sc' => isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : '',
 			'nonce' => wp_create_nonce('wp_rest'),
+			'upload_max' => function_exists('wp_max_upload_size') ? (int) floor(wp_max_upload_size() / MB_IN_BYTES) : 0,
 
 			'respPrimary' => $pub_settings['respPrimary'] ?? '#3644d2',
 			'respPrimaryDark' => $pub_settings['respPrimaryDark'] ?? '#202a8d',

@@ -1814,7 +1814,7 @@ function efb_open_color_modal() {
     { value: "Tahoma, Geneva, sans-serif", label: 'Tahoma' },
     { value: "Georgia, 'Times New Roman', serif", label: 'Georgia (Serif)' },
     { value: "'Courier New', Courier, monospace", label: 'Courier (Mono)' },
-    { value: '__custom__', label: '✦ ' + (efb_var.text.respCustomFont || 'Custom Font') + '...' },
+    { value: '__custom__', label: '✦ ' + (efb_var.text.respCustomFont || 'Custom Font') + '&hellip;' },
   );
 
   const fontCssMap = {
@@ -1900,7 +1900,7 @@ function efb_open_color_modal() {
       <!-- Editor preview -->
       <div class="efb-preview-editor-wrap" style="margin-top:10px;border:1px solid var(--efb-resp-border);border-radius:8px;overflow:hidden">
         <div class="efb-preview-editor-area" style="padding:8px 10px;min-height:32px;background:var(--efb-resp-bg-editor);color:var(--efb-resp-editor-text);font-size:var(--efb-resp-font-size);font-family:var(--efb-resp-font-family)">
-          <span class="efb-preview-editor-ph" style="color:var(--efb-resp-editor-ph);opacity:0.8">${efb_var.text.replyMsg || 'Type your reply...'}</span>
+          <span class="efb-preview-editor-ph" style="color:var(--efb-resp-editor-ph);opacity:0.8">${efb_var.text.replyMsg || 'Type your reply&hellip;'}</span>
         </div>
       </div>
       <button class="efb-preview-btn" disabled style="color:var(--efb-resp-btn-text)"><i class="bi bi-reply me-1"></i>${efb_var.text.reply || 'Reply'}</button>
@@ -3403,7 +3403,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
 
       if (status == 'pending' || stage == 'pending') {
         uiState.steps.wait = 'active';
-        uiState.message = result.message || efbEmailTestText('waitingForEmail', 'Waiting for the test email to arrive...');
+        uiState.message = result.message || efbEmailTestText('waitingForEmail', 'Waiting for the test email to arrive…');
         uiState.percent = Math.min(75, 35 + Math.floor((elapsed / maxDuration) * 40));
         efbEmailTestShow(uiState);
         const nextDelay = efbEmailTestNextPendingDelay(uiState, result);
@@ -3471,7 +3471,7 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
         return;
       }
 
-      uiState.message = result.message || payload.m || efbEmailTestText('stillChecking', 'Still checking — please wait a moment...');
+      uiState.message = result.message || payload.m || efbEmailTestText('stillChecking', 'Still checking — please wait a moment…');
       efbEmailTestShow(uiState);
       efbEmailServerTestTimer = setTimeout(function () {
         efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt);
@@ -3519,7 +3519,7 @@ function clickToCheckEmailServer() {
     percent: 12,
     adminEmail: email,
     runId: runId,
-    message: efbEmailTestText('startingEmailTest', 'Starting email delivery test...')
+    message: efbEmailTestText('startingEmailTest', 'Starting email delivery test…')
   };
   efbEmailTestShow(uiState);
 
@@ -3546,7 +3546,7 @@ function clickToCheckEmailServer() {
         uiState.steps.send = 'done';
         uiState.steps.wait = 'active';
         uiState.percent = 35;
-        uiState.message = payload.m || efbEmailTestText('testEmailSent', 'Test email sent! Waiting for delivery confirmation...');
+        uiState.message = payload.m || efbEmailTestText('testEmailSent', 'Test email sent! Waiting for delivery confirmation…');
         uiState.test = test;
         uiState.result = {
           delivery: {

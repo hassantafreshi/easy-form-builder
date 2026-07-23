@@ -4,7 +4,7 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, email templates, payment form
 Requires at least: 5.0
 Tested up to: 7.0
-Stable tag: 4.1.1
+Stable tag: 4.1.2
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -409,6 +409,10 @@ For more information, visit the official website:
 
 == Upgrade Notice ==
 
+= 4.1.2 =
+
+Reliability update: the plugin now detects missing or incomplete plugin files after an update and shows a reinstall notice instead of crashing the site. Recommended for all users.
+
 = 4.1.1 =
 
 * Fixed issues
@@ -424,6 +428,15 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 
 == Changelog ==
+
+= 4.1.2 =
+
+* Improved: Safe plugin loading - if any plugin file is missing after an update or an incomplete deploy, the plugin now stays inactive for that request and shows an admin notice asking for a reinstall, instead of causing a fatal error on the whole site.
+* Fixed: Removed leftover development and legacy files from the release package.
+
+= 4.1.1 =
+
+* Fixed: Restored plugin files that were missing from the 4.1.0 release package on wordpress.org, which caused a fatal error after updating.
 
 = 4.1.0 =
 

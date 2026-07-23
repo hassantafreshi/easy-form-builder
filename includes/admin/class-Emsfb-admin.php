@@ -391,7 +391,7 @@ class Admin {
             return $this->addon_install_sanitize_log_context_efb((array) $value);
         }
         if (is_string($value)) {
-            return strlen($value) > 2000 ? substr($value, 0, 2000) . '...[truncated]' : $value;
+            return strlen($value) > 2000 ? substr($value, 0, 2000) . '…[truncated]' : $value;
         }
         return $value;
     }
@@ -587,7 +587,7 @@ class Admin {
 
             $response_code = wp_remote_retrieve_response_code($request);
             $body = wp_remote_retrieve_body($request);
-            $body_preview = strlen($body) > 1000 ? substr($body, 0, 1000) . '...[truncated]' : $body;
+            $body_preview = strlen($body) > 1000 ? substr($body, 0, 1000) . '…[truncated]' : $body;
 
             $this->addon_install_log_efb('remote_response_received', [
                 'requested_addon' => $post_value,
@@ -2398,9 +2398,9 @@ class Admin {
                 return $this->email_tester_mask_email_efb($value);
             }
             if (preg_match('/^[a-f0-9]{64}$/i', $value)) {
-                return substr($value, 0, 12) . '...' . substr($value, -8);
+                return substr($value, 0, 12) . '…' . substr($value, -8);
             }
-            return strlen($value) > 2000 ? substr($value, 0, 2000) . '...[truncated]' : $value;
+            return strlen($value) > 2000 ? substr($value, 0, 2000) . '…[truncated]' : $value;
         }
         return $value;
     }

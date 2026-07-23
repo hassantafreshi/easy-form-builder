@@ -936,7 +936,7 @@ function add_addons_emsFormBuilder() {
           ${!mobile_view_efb ? `<h4 class="efb  mb-0 title-holder fs-4 efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon fs-4 mx-1"></i>${efb_var.text.addons}</h4>` : ''}
 
           <div class="efb d-flex justify-content-center align-items-center flex-wrap my-3 gap-2" id="addonSearchWrapEFB">
-            <input type="text" placeholder="${efb_var.text.search} ..." id="findCardAddonEFB" autocomplete="off" aria-label="${efb_var.text.search}"
+            <input type="text" placeholder="${efb_var.text.search} &hellip;" id="findCardAddonEFB" autocomplete="off" aria-label="${efb_var.text.search}"
               class="efb fs-6 search-form-control rounded-4 efb addon-search-input-efb mx-2"
               oninput="FunfindCardAddonEFB()" onkeydown="if(event.key==='Enter'){event.preventDefault();FunfindCardAddonEFB();}">
             <a class="efb btn efb btn-outline-pink mx-1" role="button" onclick="FunfindCardAddonEFB()"><i class="efb bi-search mx-1"></i>${efb_var.text.search}</a>
@@ -5654,8 +5654,14 @@ function restore_auto_save_efb(){
 function fub_shwBtns_efb() {
   for (const el of document.querySelectorAll(".showBtns")) {
 
+    // A field is selectable by tapping it, but its action buttons must keep their
+    // native click event. Calling preventDefault() on the field's touchend event
+    // cancels the synthetic click that mobile browsers dispatch for a button.
+    const isFieldAction = (target) => target.closest('.btn-edit-holder') !== null;
+
     if (!el._efbClickBound) {
       el.addEventListener("click", (e) => {
+        if (isFieldAction(e.target)) return;
         active_element_efb(el);
       });
       el._efbClickBound = true;
@@ -5686,9 +5692,9 @@ function fub_shwBtns_efb() {
 
     if (!el._efbTouchBound) {
       el.addEventListener("touchend", (e) => {
-        if (e.cancelable) e.preventDefault();
+        if (isFieldAction(e.target)) return;
         active_element_efb(el);
-      }, { passive: false });
+      }, { passive: true });
       el._efbTouchBound = true;
     }
   }
@@ -5917,7 +5923,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'address_line':
       const type = elementId == "firstName" || elementId == "lastName" || elementId == "postalcode" || elementId == "address_line" ? 'text' : elementId;
       const autocomplete = elementId == "email" ? 'email' : elementId == "tel" ? 'tel' : elementId == "url" ? 'url' : elementId == "password" ? 'current-password' : elementId == "firstName" ? 'given-name' : elementId == "lastName" ? 'family-name' : elementId == "postalcode" ? 'postal-code' : elementId == "address_line" ? 'street-address' : 'off';
-      const placeholder =  elementId != 'color'  && elementId != 'range' &&  elementId != 'password' &&  elementId != 'date' ? `placeholder="${valj_efb[iVJ].placeholder}"` : '';
+      const placeholder =  elementId != 'color'  && elementId != 'range' &&  elementId != 'date' ? `placeholder="${valj_efb[iVJ].placeholder}"` : '';
 
       if(elementId != 'date'){
         maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;

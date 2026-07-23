@@ -705,22 +705,32 @@ function replaceContentMessageEfb(value){
    value = value.replaceAll("@efb@nq#",`<br>`);
   return value;
 }
-function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
+function fun_upload_file_api_emsFormBuilder(id, type,tp,file,options) {
+  options = options || {};
   if (!navigator.onLine) {
 	const msg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
-	alert_message_efb('', msg, 17, 'danger');
-    return;
+	if (!options.silent) alert_message_efb('', msg, 17, 'danger');
+    return Promise.resolve({ success: false, error: msg });
   }
-  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
+  const requestedFormId = options.hasOwnProperty('form_id') ? Number(options.form_id) || 0 : null;
+  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id && (requestedFormId === null || Number(x.form_id || 0) === requestedFormId));
   if (indx === -1) {
-    const ob = typeof valueJson_ws !== 'undefined' ? valueJson_ws.find(x => x.id_ === id) : null;
-    const fid = ob && ob.hasOwnProperty('step') ? (document.getElementById(id + '_') ? document.getElementById(id + '_').dataset.formid || 0 : 0) : 0;
-    files_emsFormBuilder.push({ id_: id, value: "@file@", state: 0, url: "", type: "file", name: ob ? ob.name : '', session: sessionPub_emsFormBuilder, form_id: fid });
+    let ob = typeof valueJson_ws !== 'undefined' ? valueJson_ws.find(x => x.id_ === id) : null;
+    const shell = document.getElementById(id + '_');
+    const fid = requestedFormId === null ? (ob && ob.hasOwnProperty('step') ? (shell ? Number(shell.dataset.formid) || 0 : 0) : 0) : requestedFormId;
+    if (!ob && fid && typeof get_structure_by_form_id_efb === 'function') {
+      const structure = get_structure_by_form_id_efb(fid) || [];
+      ob = structure.find(x => x.id_ === id) || null;
+    }
+    files_emsFormBuilder.push({ id_: id, value: "@file@", state: 0, url: "", type: options.recorder_type || "file", name: ob ? ob.name : '', session: sessionPub_emsFormBuilder, form_id: fid });
     indx = files_emsFormBuilder.length - 1;
   }
   files_emsFormBuilder[indx].state = 1;
-  files_emsFormBuilder[indx].type = type;
-  let r = ""
+  files_emsFormBuilder[indx].type = options.recorder_type || type;
+  if (options.recorder_type) {
+    files_emsFormBuilder[indx].recorder_type = options.recorder_type;
+    files_emsFormBuilder[indx].recording_duration = Number(options.recording_duration) || 0;
+  }
   const form_id = files_emsFormBuilder[indx].hasOwnProperty('form_id') ? files_emsFormBuilder[indx].form_id : 0;
   let nonce_msg =''
   let sid =''
@@ -731,22 +741,23 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
 
     sid = vj.sid;
   }
-    nonce_msg = efb_var.nonce ?? '';
+  nonce_msg = efb_var.nonce ?? '';
   const page_id = efb_var.page_id ;
-    const fd = new FormData();
-    const idn =  id + '_';
+  const idn =  id + '_';
+  const delay = options.hasOwnProperty('delay') ? Math.max(0, Number(options.delay) || 0) : 500;
+  return new Promise((resolve) => {
     setTimeout(() => {
-      uploadFile_api(file, id, tp, nonce_msg ,indx ,idn,page_id,form_id,sid);
-      return true;
-    }, 500);
+      uploadFile_api(file, id, tp, nonce_msg ,indx ,idn,page_id,form_id,sid,options).then(resolve);
+    }, delay);
+  });
 }
-function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
-  const progressBar = document.querySelector('#progress-bar');
+function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid,options) {
+  options = options || {};
   const idB =id+'-prB';
-      fetch_uploadFile(file, id, pl, nonce_msg,page_id,fid,sid).then((data) => {
+  return fetch_uploadFile(file, id, pl, nonce_msg,page_id,fid,sid,options).then((data) => {
 
-        var currentIndx = files_emsFormBuilder.findIndex(function(x) { return x.id_ === id; });
-        if (currentIndx === -1) return;
+        var currentIndx = files_emsFormBuilder.findIndex(function(x) { return x.id_ === id && Number(x.form_id || 0) === Number(fid || 0); });
+        if (currentIndx === -1) return { success: false, error: 'Upload was cancelled.' };
 
         var responseData = data;
         if (data.hasOwnProperty('data')) {
@@ -758,11 +769,15 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
           files_emsFormBuilder[currentIndx].state = 2;
           files_emsFormBuilder[currentIndx].id = idn;
           const form_id = files_emsFormBuilder[currentIndx].hasOwnProperty('form_id') ? files_emsFormBuilder[currentIndx].form_id : 0;
-          const ob = valueJson_ws.find(x => x.id_ === id) || 0;
+          let ob = typeof valueJson_ws !== 'undefined' ? valueJson_ws.find(x => x.id_ === id) : null;
+          if (!ob && form_id && typeof get_structure_by_form_id_efb === 'function') {
+            const structure = get_structure_by_form_id_efb(form_id) || [];
+            ob = structure.find(x => x.id_ === id) || null;
+          }
           const o = [{
             id_: files_emsFormBuilder[currentIndx].id_,
             name: files_emsFormBuilder[currentIndx].name,
-            amount: ob.amount,
+            amount: ob && ob.amount ? ob.amount : 0,
             type: files_emsFormBuilder[currentIndx].type,
             value: '@file@',
             url: files_emsFormBuilder[currentIndx].url,
@@ -770,6 +785,9 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
             page_id: page_id,
             form_id: form_id,
           }];
+          if (files_emsFormBuilder[currentIndx].recorder_type) {
+            o[0].recording_duration = files_emsFormBuilder[currentIndx].recording_duration || 0;
+          }
           fun_sendBack_emsFormBuilder(o[0]);
           files_emsFormBuilder.splice(currentIndx, 1);
           const el = document.getElementById(idB)
@@ -778,6 +796,8 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
             el.textContent = '100% = ' + file.name;
           }
           if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
+          if (typeof options.onSuccess === 'function') options.onSuccess(responseData);
+          return { success: true, data: responseData };
         } else {
           var errorMessage = 'Upload failed';
           if (responseData.hasOwnProperty('file') && responseData.file.hasOwnProperty('error')) {
@@ -793,14 +813,16 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
           const el = document.getElementById(idB);
 		  const baseMsg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
 		  const fullMsg = errorMessage ? `${baseMsg}<br>${errorMessage}` : baseMsg;
-		  alert_message_efb('', fullMsg, 300, 'danger');
-          if(el==null) return;
-          el.style.width = '0%';
-          el.textContent = '0% = ' + file.name;
+		  if (!options.silent) alert_message_efb('', fullMsg, 300, 'danger');
+          if(el){
+            el.style.width = '0%';
+            el.textContent = '0% = ' + file.name;
+          }
 
           var errIndx = files_emsFormBuilder.findIndex(function(x) { return x.id_ === id; });
           if (errIndx !== -1) files_emsFormBuilder[errIndx].state = 3;
-          return;
+          if (typeof options.onError === 'function') options.onError(errorMessage);
+          return { success: false, error: errorMessage };
         }
       })
       .catch((error) => {
@@ -815,7 +837,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
 
         const baseMsg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
         const fullMsg = errorMessage ? `${baseMsg}<br>${errorMessage}` : baseMsg;
-        alert_message_efb('', fullMsg, 30, 'danger');
+		if (!options.silent) alert_message_efb('', fullMsg, 30, 'danger');
 
         if(el) {
           el.style.width = '0%';
@@ -824,9 +846,12 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid) {
 
         var catchIndx = files_emsFormBuilder.findIndex(function(x) { return x.id_ === id; });
         if (catchIndx !== -1) files_emsFormBuilder[catchIndx].state = 0;
+        if (typeof options.onError === 'function') options.onError(errorMessage);
+        return { success: false, error: errorMessage };
       });
 }
-function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
+function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
+  options = options || {};
   var idB =id+'-prB';
   return new Promise((resolve, reject) => {
     const formData = new FormData();
@@ -837,16 +862,19 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
     formData.append('sid', sid);
     formData.append('fid', fid);
     formData.append('page_id', efb_var.page_id);
+    if (options.recorder_type) formData.append('recorder_type', options.recorder_type);
+    if (options.hasOwnProperty('recording_duration')) formData.append('recording_duration', String(options.recording_duration));
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
     const xhr = new XMLHttpRequest();
     xhr.upload.addEventListener('progress', (event) => {
     if (event.lengthComputable) {
       const percent = Math.round((event.loaded / event.total) * 100);
       const el = document.getElementById(idB)
-      if(el){
-        el.style.width = percent + '%';
-        el.textContent = percent + '% = ' + file.name;
-      }
+       if(el){
+         el.style.width = percent + '%';
+         el.textContent = percent + '% = ' + file.name;
+       }
+       if (typeof options.onProgress === 'function') options.onProgress(percent);
     }
     });
     xhr.addEventListener('load', () => {
@@ -870,7 +898,16 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
         reject('Invalid JSON response from server. Check console for details.');
       }
     } else {
-      reject(xhr.statusText);
+      /* Security plugins may deliberately return 403/429 with a useful JSON
+       * message. Keep that message for the recorder's inline retry UI instead
+       * of collapsing it into the generic "network" warning. */
+      let errorMessage = xhr.statusText || 'Upload failed';
+      try {
+        const response = JSON.parse(xhr.responseText || '{}');
+        const payload = response && response.data ? response.data : response;
+        errorMessage = (payload && (payload.m || payload.error || payload.message)) || errorMessage;
+      } catch (e) {}
+      reject(errorMessage);
     }
     });
     xhr.addEventListener('error', () => {
@@ -879,7 +916,9 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid) {
     xhr.open('POST', url, true);
     xhr.setRequestHeader('X-WP-Nonce', nonce_msg);
     if (sid) xhr.setRequestHeader('sid', sid);
-    if (fid) xhr.setRequestHeader('form_id', fid);
+    /* Apache/PHP installations commonly discard or do not expose headers with
+       underscores. Use a conventional hyphenated header for the form binding. */
+    if (fid) xhr.setRequestHeader('X-EFB-Form-Id', fid);
     xhr.send(formData);
   });
 }

@@ -37,6 +37,7 @@ function efbRecorderWidgetHtml(rndm, vj, formId) {
 	var classMap = { audio_recorder: 'efb-recorder-audio', video_recorder: 'efb-recorder-video-kind', screen_recorder: 'efb-recorder-screen-kind' };
 	var quality = vj.record_quality || (kind === 'audio_recorder' ? 'standard' : '720p');
 	var duration = vj.max_duration || 90;
+	var maxSize = Number(vj.max_fsize) > 0 ? Number(vj.max_fsize) : 20;
 	var required = vj.required == 1 || vj.required == true;
 	var requiredClass = required ? 'required' : '';
 	var requiredAttr = required ? 'required' : '';
@@ -57,24 +58,25 @@ function efbRecorderWidgetHtml(rndm, vj, formId) {
 			'<div class="efb efb-recorder-watermark ' + (watermark ? '' : 'd-none') + '" id="' + rndm + '-watermark"><span>' + efbRecText('recWatermark', 'Made by Easy Form Builder') + '</span><span class="efb efb-recorder-domain">' + domain + '</span></div>';
 
 	return '' +
-		'<div class="efb efb-recorder-shell ' + classMap[kind] + '" id="' + rndm + '_" data-id="' + rndm + '" data-kind="' + kind + '" data-quality="' + quality + '" data-duration="' + duration + '" data-countdown="' + countdown + '" data-download="' + download + '" data-noise="' + noise + '" data-facing="' + facing + '" data-mirror="' + mirror + '" data-formid="' + (formId || 0) + '" data-state="idle">' +
+		'<div class="efb efb-recorder-shell ' + classMap[kind] + '" id="' + rndm + '_" data-id="' + rndm + '" data-kind="' + kind + '" data-quality="' + quality + '" data-duration="' + duration + '" data-max-size="' + maxSize + '" data-countdown="' + countdown + '" data-download="' + download + '" data-noise="' + noise + '" data-facing="' + facing + '" data-mirror="' + mirror + '" data-formid="' + (formId || 0) + '" data-state="idle">' +
 			'<div class="efb efb-recorder-frame" id="' + rndm + '-frame">' +
 				mediaPreview +
 				'<div class="efb efb-recorder-idle-hint" id="' + rndm + '-idle"><i class="efb bi ' + iconMap[kind] + '"></i><span>' + efbRecText('recTapToStart', 'Tap to start recording') + '</span></div>' +
 				'<div class="efb efb-recorder-timer d-none" id="' + rndm + '-timer">00:00</div>' +
 				'<div class="efb efb-recorder-action-row" id="' + rndm + '-controls">' +
 					'<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="pause" data-id="' + rndm + '" title="' + efbRecText('recPause', 'Pause') + '"><i class="efb bi-pause-fill"></i></button>' +
-					'<button type="button" class="efb efb-recorder-primary-btn" data-action="start" data-id="' + rndm + '" title="' + efbRecText('recStart', 'Start Recording') + '"><i class="efb bi ' + iconMap[kind] + '"></i></button>' +
+					'<button type="button" class="efb efb-recorder-primary-btn" data-action="start" data-id="' + rndm + '" data-start-icon="' + iconMap[kind] + '" data-stop-icon="bi-stop-fill" title="' + efbRecText('recStart', 'Start Recording') + '"><i class="efb bi ' + iconMap[kind] + '"></i></button>' +
 					'<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="resume" data-id="' + rndm + '" title="' + efbRecText('recResume', 'Resume') + '"><i class="efb bi-record-circle"></i></button>' +
 					'<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="redo" data-id="' + rndm + '" title="' + efbRecText('recRedo', 'Re-record') + '"><i class="efb bi-arrow-counterclockwise"></i></button>' +
 					'<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="play" data-id="' + rndm + '" title="' + efbRecText('recPlay', 'Play') + '"><i class="efb bi-play-fill"></i></button>' +
 					'<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="download" data-id="' + rndm + '" title="' + efbRecText('recDownload', 'Download recording') + '"><i class="efb bi-download"></i></button>' +
+					'<button type="button" class="efb efb-recorder-secondary-btn d-none" data-action="upload" data-id="' + rndm + '" id="' + rndm + '-upload" title="' + efbRecText('recUpload', 'Upload') + '" aria-label="' + efbRecText('recUpload', 'Upload') + '"><i class="efb bi-cloud-arrow-up-fill" aria-hidden="true"></i></button>' +
 				'</div>' +
 				'<div class="efb efb-recorder-progress-track"><div class="efb efb-recorder-progress-bar" id="' + rndm + '-progress"></div></div>' +
 			'</div>' +
 			'<div class="efb efb-recorder-status-row">' +
 				'<span class="efb efb-recorder-status" id="' + rndm + '-status"><span class="efb efb-recorder-status-dot"></span>' + efbRecText('recReady', 'Ready to record') + '</span>' +
-				'<span class="efb efb-recorder-badge">' + efbRecText(kind, kind) + '</span>' +
+				'<span class="efb efb-recorder-badge"><i class="efb bi ' + iconMap[kind] + '" aria-hidden="true"></i><span>' + efbRecText(kind, kind) + '</span></span>' +
 			'</div>' +
 			'<input type="file" hidden accept="' + acceptMap[kind] + '" data-type="' + kind + '" data-vid="' + rndm + '" data-id="' + rndm + '" class="efb emsFormBuilder_v ' + kind + ' ' + requiredClass + '" id="' + rndm + '_file" data-formid="' + (formId || 0) + '" onchange="valid_file_emsFormBuilder(\'' + rndm + '\',\'msg\',\'\',' + (formId || 0) + ')" ' + requiredAttr + '>' +
 		'</div>';
@@ -229,10 +231,11 @@ function efbRecApplyState(id, state) {
 		countdown: [],
 		recording: ['pause'],
 		paused: ['resume'],
-		stopped: ['redo', 'play']
+		stopped: ['redo', 'play', 'upload']
 	};
 	var shown = map[state] || [];
 	if (state === 'stopped' && shell.dataset.download === '1') shown = shown.concat(['download']);
+	if (state === 'stopped' && Number(shell.dataset.formid || 0) < 1) shown = shown.filter(function (action) { return action !== 'upload'; });
 	controls.querySelectorAll('.efb-recorder-secondary-btn').forEach(function (btn) {
 		btn.classList.toggle('d-none', shown.indexOf(btn.dataset.action) === -1);
 	});
@@ -241,14 +244,16 @@ function efbRecApplyState(id, state) {
 	if (primary) {
 		var kind = shell.dataset.kind;
 		var iconMap = { audio_recorder: 'bi-mic', video_recorder: 'bi-camera-video', screen_recorder: 'bi-display' };
+		var startIcon = primary.dataset.startIcon || iconMap[kind];
+		var stopIcon = primary.dataset.stopIcon || 'bi-stop-fill';
 		if (state === 'idle') {
 			primary.dataset.action = 'start';
 			primary.title = efbRecText('recStart', 'Start Recording');
-			primary.innerHTML = '<i class="efb bi ' + iconMap[kind] + '"></i>';
+			primary.innerHTML = '<i class="efb bi ' + startIcon + '"></i>';
 		} else if (state === 'recording' || state === 'paused' || state === 'countdown') {
 			primary.dataset.action = 'stop';
 			primary.title = efbRecText('recStop', 'Stop');
-			primary.innerHTML = '<i class="efb bi-stop-fill"></i>';
+			primary.innerHTML = '<i class="efb ' + stopIcon + '"></i>';
 		}
 	}
 }
@@ -261,6 +266,73 @@ function efbRecSetStatus(id, text) {
 	if (dot) statusEl.appendChild(dot);
 	else statusEl.innerHTML = '<span class="efb efb-recorder-status-dot"></span>';
 	statusEl.appendChild(document.createTextNode(text));
+}
+
+function efbRecUploadEls(id) {
+	return {
+		button: efbRecEl(id, '-upload')
+	};
+}
+
+/* Upload feedback stays in the existing status row and turns the neighbouring
+ * Download-style icon into a spinner/check. This avoids a separate action row. */
+function efbRecSetUploadUi(id, mode, percent, message) {
+	var ui = efbRecUploadEls(id);
+	if (!ui.button) return;
+	var isUploading = mode === 'uploading';
+	var isUploaded = mode === 'uploaded';
+	ui.button.disabled = isUploading || isUploaded || mode === 'invalid';
+	ui.button.classList.toggle('efb-recorder-uploading', isUploading);
+	ui.button.classList.toggle('efb-recorder-uploaded', isUploaded);
+	ui.button.classList.toggle('efb-recorder-upload-error', mode === 'failed' || mode === 'invalid');
+	var label = mode === 'uploaded' ? efbRecText('recUploaded', 'Recording uploaded.') :
+		(mode === 'uploading' ? efbRecText('recUploading', 'Uploading recording…') : efbRecText('recUpload', 'Upload'));
+	ui.button.title = label;
+	ui.button.setAttribute('aria-label', label);
+	ui.button.innerHTML = '<i class="efb bi-' + (isUploaded ? 'check-lg' : (isUploading ? 'arrow-repeat' : 'cloud-arrow-up-fill')) + '" aria-hidden="true"></i>';
+	var safePercent = Math.max(0, Math.min(100, Number(percent) || 0));
+	if (isUploading) efbRecSetStatus(id, label + ' ' + safePercent + '%');
+}
+
+function efbRecAllowedMimes(kind) {
+	return kind === 'audio_recorder'
+		? ['audio/webm', 'audio/mp4', 'audio/ogg']
+		: ['video/webm', 'video/mp4'];
+}
+
+function efbRecValidateFile(id) {
+	var shell = efbRecShell(id);
+	var state = EFB_REC_STATE[id];
+	if (!shell || !state || !state.file) return { ok: false, message: efbRecText('recNoFile', 'No recording is ready to upload.') };
+	var maxSizeMb = Number(shell.dataset.maxSize);
+	if (!isFinite(maxSizeMb) || maxSizeMb <= 0) maxSizeMb = 20;
+	/* A field can never exceed the actual PHP/WordPress upload ceiling. Public
+	 * forms receive this hint from the server; server validation remains final. */
+	var hostMaxMb = typeof efb_var !== 'undefined' && efb_var ? Number(efb_var.upload_max) : 0;
+	if (isFinite(hostMaxMb) && hostMaxMb > 0) maxSizeMb = Math.min(maxSizeMb, hostMaxMb);
+	var maxBytes = maxSizeMb * 1024 * 1024;
+	if (!state.file.size || state.file.size > maxBytes) {
+		return { ok: false, message: efbRecText('recFileTooLarge', 'The recording is larger than the allowed file size.') + ' (' + maxSizeMb + ' MB)' };
+	}
+	var mime = String(state.file.type || state.mimeType || '').split(';')[0].toLowerCase();
+	if (efbRecAllowedMimes(shell.dataset.kind).indexOf(mime) === -1) {
+		return { ok: false, message: efbRecText('recInvalidFile', 'This recording format is not allowed.') };
+	}
+	var maxDuration = Number(shell.dataset.duration) || 90;
+	if (Number(state.elapsedMs) > (maxDuration * 1000) + 1500) {
+		return { ok: false, message: efbRecText('recDurationExceeded', 'The recording is longer than the allowed duration.') };
+	}
+	return { ok: true, mime: mime, duration: Math.max(0, Math.ceil(Number(state.elapsedMs || 0) / 1000)) };
+}
+
+function efbRecShowUploadError(id, message, isInvalid) {
+	efbRecSetStatus(id, message);
+	efbRecSetUploadUi(id, isInvalid ? 'invalid' : 'failed', 0, message);
+	var msgEl = document.getElementById(id + '_-message');
+	if (msgEl && typeof show_msg_efb === 'function') {
+		msgEl.textContent = message;
+		show_msg_efb(msgEl);
+	}
 }
 
 function efbRecClearTimer(state) {
@@ -490,7 +562,7 @@ async function efbRecStart(id) {
 
 	state.recorder.start();
 	efbRecApplyState(id, 'recording');
-	efbRecSetStatus(id, efbRecText('recRecording', 'Recording...'));
+	efbRecSetStatus(id, efbRecText('recRecording', 'Recording…'));
 	efbRecStartTimer(id, state);
 }
 
@@ -506,7 +578,7 @@ function efbRecPauseResume(id) {
 		state.recorder.resume();
 		efbRecStartTimer(id, state);
 		efbRecApplyState(id, 'recording');
-		efbRecSetStatus(id, efbRecText('recRecording', 'Recording...'));
+		efbRecSetStatus(id, efbRecText('recRecording', 'Recording…'));
 	}
 }
 
@@ -552,6 +624,9 @@ function efbRecFinish(id, state) {
 	}
 	state.lastUrl = URL.createObjectURL(blob);
 	state.lastFileName = fileName;
+	state.file = file;
+	state.uploadState = 'ready';
+	state.uploadPromise = null;
 
 	if (state.kind !== 'audio_recorder') {
 		var video = efbRecEl(id, '-preview');
@@ -581,11 +656,100 @@ function efbRecFinish(id, state) {
 	}
 
 	efbRecApplyState(id, 'stopped');
-	efbRecSetStatus(id, efbRecText('recReadyToSubmit', 'Recording ready.'));
-
-	if (typeof valid_file_emsFormBuilder === 'function' && input) {
-		valid_file_emsFormBuilder(id, 'msg', '', formId);
+	var validation = efbRecValidateFile(id);
+	if (!validation.ok) {
+		state.uploadState = 'invalid';
+		efbRecShowUploadError(id, validation.message, true);
+		return;
 	}
+	var msgEl = document.getElementById(id + '_-message');
+	if (msgEl && typeof hide_msg_efb === 'function') hide_msg_efb(msgEl);
+	efbRecSetStatus(id, efbRecText('recReadyToSubmit', 'Recording ready.'));
+	/* Builder previews have no real form/session to submit. Keep recording and
+	 * playback useful there, but do not offer an upload that cannot succeed. */
+	if (formId > 0) efbRecSetUploadUi(id, 'ready', 0, '');
+}
+
+function efbRecUpload(id) {
+	var shell = efbRecShell(id);
+	var state = EFB_REC_STATE[id];
+	if (!shell || !state) return Promise.resolve({ success: false });
+	if (state.uploadState === 'uploaded') return Promise.resolve({ success: true });
+	if (state.uploadState === 'uploading' && state.uploadPromise) return state.uploadPromise;
+
+	var validation = efbRecValidateFile(id);
+	if (!validation.ok) {
+		state.uploadState = 'invalid';
+		efbRecShowUploadError(id, validation.message, true);
+		return Promise.resolve({ success: false, error: validation.message });
+	}
+	if (!navigator.onLine) {
+		var offlineMessage = efbRecText('recUploadOffline', 'You are offline. Please reconnect and upload the recording again.');
+		state.uploadState = 'failed';
+		efbRecShowUploadError(id, offlineMessage);
+		return Promise.resolve({ success: false, error: offlineMessage });
+	}
+	if (typeof fun_upload_file_api_emsFormBuilder !== 'function') {
+		var unavailableMessage = efbRecText('recUploadUnavailable', 'Uploading is not available right now. Please try again.');
+		state.uploadState = 'failed';
+		efbRecShowUploadError(id, unavailableMessage);
+		return Promise.resolve({ success: false, error: unavailableMessage });
+	}
+
+	state.uploadState = 'uploading';
+	efbRecSetStatus(id, efbRecText('recUploading', 'Uploading recording…'));
+	efbRecSetUploadUi(id, 'uploading', 0, '0%');
+	state.uploadPromise = fun_upload_file_api_emsFormBuilder(id, validation.mime, 'msg', state.file, {
+		form_id: Number(shell.dataset.formid) || 0,
+		recorder_type: shell.dataset.kind,
+		recording_duration: validation.duration,
+		silent: true,
+		delay: 0,
+		onProgress: function (percent) {
+			efbRecSetUploadUi(id, 'uploading', percent, percent + '%');
+		},
+		onSuccess: function () {
+			state.uploadState = 'uploaded';
+			efbRecSetStatus(id, efbRecText('recUploaded', 'Recording uploaded.'));
+			efbRecSetUploadUi(id, 'uploaded', 100, '100%');
+		},
+		onError: function (message) {
+			state.uploadState = 'failed';
+			efbRecShowUploadError(id, message || efbRecText('recUploadFailed', 'The recording could not be uploaded. Please try again.'));
+		}
+	}).then(function (result) {
+		if (!result || !result.success) {
+			state.uploadState = 'failed';
+			var message = (result && result.error) || efbRecText('recUploadFailed', 'The recording could not be uploaded. Please try again.');
+			efbRecShowUploadError(id, message);
+		}
+		return result || { success: false };
+	}).finally(function () {
+		state.uploadPromise = null;
+	});
+	return state.uploadPromise;
+}
+
+/* Called by the final-submit flow. It uploads only recordings that are ready,
+ * in sequence, then lets the normal form submit pipeline run. Sequencing avoids
+ * the burst of concurrent requests that can trip rate-limits/Human Shield. */
+async function efbRecUploadPendingForForm(formId) {
+	var pending = [];
+	Object.keys(EFB_REC_STATE).forEach(function (id) {
+		var state = EFB_REC_STATE[id];
+		var shell = efbRecShell(id);
+		if (!shell || Number(shell.dataset.formid || 0) !== Number(formId || 0) || !state || !state.file) return;
+		if (state.uploadState !== 'uploaded') pending.push(id);
+	});
+	for (var i = 0; i < pending.length; i++) {
+		var state = EFB_REC_STATE[pending[i]];
+		if (state.uploadState === 'failed' || state.uploadState === 'invalid') {
+			return { success: false, error: efbRecText('recUploadFailed', 'Please upload the recording before submitting the form.') };
+		}
+		var result = await efbRecUpload(pending[i]);
+		if (!result || !result.success) return result || { success: false };
+	}
+	return { success: true };
 }
 
 function efbRecRedo(id) {
@@ -593,6 +757,16 @@ function efbRecRedo(id) {
 	efbRecStopStream(state);
 	state.chunks = [];
 	state.elapsedMs = 0;
+	state.file = null;
+	state.uploadState = 'idle';
+	state.uploadPromise = null;
+	/* A re-record replaces an already uploaded URL. Remove the old send-back row
+	 * so the final form never submits the previous recording by mistake. */
+	if (typeof sendBack_emsFormBuilder_pub !== 'undefined') {
+		for (var s = sendBack_emsFormBuilder_pub.length - 1; s >= 0; s--) {
+			if (sendBack_emsFormBuilder_pub[s] && sendBack_emsFormBuilder_pub[s].id_ === id) sendBack_emsFormBuilder_pub.splice(s, 1);
+		}
+	}
 
 	var input = document.getElementById(id + '_file');
 	if (input) {
@@ -636,6 +810,7 @@ function efbRecRedo(id) {
 
 	efbRecApplyState(id, 'idle');
 	efbRecSetStatus(id, efbRecText('recReady', 'Ready to record'));
+	efbRecSetUploadUi(id, 'hidden', 0, '');
 }
 
 function efbRecPlay(id) {
@@ -673,4 +848,5 @@ document.addEventListener('click', function (e) {
 	else if (action === 'redo') efbRecRedo(id);
 	else if (action === 'play') efbRecPlay(id);
 	else if (action === 'download') efbRecDownload(id);
+	else if (action === 'upload') efbRecUpload(id);
 });

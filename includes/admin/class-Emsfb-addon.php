@@ -129,7 +129,7 @@ class Addon {
 		<?php endif; ?>
 	<?php elseif ($noti_pro !== 0 && !$addon_status): ?>
 		<div class="notice notice-info efb" style="margin: 20px 0;">
-			<p><?php echo esc_html__('Checking add-on installation capabilities...', 'easy-form-builder'); ?></p>
+			<p><?php echo esc_html__('Checking add-on installation capabilities&hellip;', 'easy-form-builder'); ?></p>
 			<p><em><?php echo esc_html__('This check runs once after plugin activation. Please refresh the page in a few moments.', 'easy-form-builder'); ?></em></p>
 		</div>
 	<?php endif; ?>

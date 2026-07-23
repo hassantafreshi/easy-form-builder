@@ -65,7 +65,7 @@ const EfbResponseViewer = (function () {
   }
 
   function buildRichEditor(msgId, savedValue) {
-    const placeholderText = _t('enterYourMessage') || 'Type your reply...';
+    const placeholderText = _t('enterYourMessage') || 'Type your reply&hellip;';
     const initialHtml = savedValue ? shortcodeToHtml(savedValue.replace(/@efb@nq#/g, '<br>')) : '';
 
     return `
@@ -408,7 +408,7 @@ const chatHistory = document.getElementById('resp_efb');
   }
 
   function _formatUploadFileName(name) {
-    return name.length > 30 ? name.slice(0, 27) + '...' : name;
+    return name.length > 30 ? name.slice(0, 27) + '…' : name;
   }
 
   function _renderUploadFileInfo(file, uploadId, uploadZone, attachBtn) {
