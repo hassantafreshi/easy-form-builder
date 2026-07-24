@@ -1427,6 +1427,12 @@
 		$facing = property_exists($vj, 'rec_facing') && $vj->rec_facing === 'environment' ? 'environment' : 'user';
 		$mirror = property_exists($vj, 'rec_mirror') ? (intval($vj->rec_mirror) ? 1 : 0) : 1;
 		$watermark = property_exists($vj, 'rec_watermark') ? (intval($vj->rec_watermark) ? 1 : 0) : 1;
+		// Generic style settings live on the shell, same class list the JS factory emits;
+		// recorder-efb.css translates them onto the inner frame.
+		$elHeight = property_exists($vj, 'el_height') && $vj->el_height ? $vj->el_height : 'h-d-efb';
+		$corner = property_exists($vj, 'corner') && $vj->corner ? $vj->corner : 'efb-square';
+		$borderColor = property_exists($vj, 'el_border_color') && $vj->el_border_color ? $vj->el_border_color : 'border-d';
+		$extraClasses = property_exists($vj, 'classes') && $vj->classes ? trim(str_replace(',', ' ', $vj->classes)) : '';
 
 		$mediaPreview = $kind == 'audio_recorder'
 			? sprintf('<canvas class="efb efb-recorder-meter d-none" id="%1$s-meter" width="300" height="64"></canvas>', $vj->id_)
@@ -1440,7 +1446,7 @@
 			);
 
 		return sprintf(
-			'<div class="efb efb-recorder-shell %1$s" id="%2$s_" data-id="%2$s" data-kind="%3$s" data-quality="%4$s" data-duration="%5$s" data-max-size="%28$s" data-countdown="%22$s" data-download="%23$s" data-noise="%24$s" data-facing="%25$s" data-mirror="%26$s" data-formid="%6$s" data-state="idle">
+			'<div class="efb efb-recorder-shell %1$s %30$s %31$s %32$s efb1 %33$s" data-css="%2$s" id="%2$s_" data-id="%2$s" data-kind="%3$s" data-quality="%4$s" data-duration="%5$s" data-max-size="%28$s" data-countdown="%22$s" data-download="%23$s" data-noise="%24$s" data-facing="%25$s" data-mirror="%26$s" data-formid="%6$s" data-state="idle">
 				<div class="efb efb-recorder-frame" id="%2$s-frame">
 					%7$s
 					<div class="efb efb-recorder-idle-hint" id="%2$s-idle"><i class="efb bi %8$s"></i><span>%9$s</span></div>
@@ -1490,7 +1496,11 @@
 			$mirror,
 			esc_html(isset($texts['recDownload']) ? $texts['recDownload'] : 'Download recording'),
 			$maxFileSize,
-			esc_html(isset($texts['recUpload']) ? $texts['recUpload'] : 'Upload')
+			esc_html(isset($texts['recUpload']) ? $texts['recUpload'] : 'Upload'),
+			esc_attr($elHeight),
+			esc_attr($corner),
+			esc_attr($borderColor),
+			esc_attr($extraClasses)
 		);
 	}
 
@@ -3073,7 +3083,7 @@
 				$newElement .= $ui;
 			}
 
-			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc'])) {
+			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc','audio_recorder','video_recorder','screen_recorder'])) {
 				$newElement .= '<!--test2--></div></div>';
 			} else {
 				$newElement .= '<!--test--></div>';

@@ -1165,6 +1165,9 @@ public function check_nonce_permission_efb($request) {
 
 						wp_register_script('poll-chart-efb-js', EMSFB_PLUGIN_URL . 'public/assets/js/poll-chart-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
 						wp_enqueue_script('poll-chart-efb-js');
+						wp_localize_script('poll-chart-efb-js', 'efbPollChart', array(
+							'text' => $this->efbFunction->text_efb(array('pcResponses','pcAverage','pcMin','pcMax','pcAvgLength')),
+						));
 
 					}
 					$content .= $r[0];
@@ -3742,8 +3745,18 @@ public function check_nonce_permission_efb($request) {
 		$real_path = realpath($path);
 		if ($base_path === false || $real_path === false || strpos(wp_normalize_path($real_path), trailingslashit($base_path)) !== 0 || !is_file($real_path)) return false;
 		$extension = strtolower(pathinfo($real_path, PATHINFO_EXTENSION));
-		$allowed = $field_type === 'audio_recorder' ? array('webm', 'm4a', 'mp4', 'ogg', 'oga') : array('webm', 'mp4');
-		return in_array($extension, $allowed, true);
+		if ($field_type === 'audio_recorder') {
+			return in_array($extension, array('webm', 'm4a', 'mp4', 'ogg', 'oga'), true);
+		}
+		if ($field_type === 'video_recorder' || $field_type === 'screen_recorder') {
+			return in_array($extension, array('webm', 'mp4'), true);
+		}
+		/* file / dadfile fields accept many document kinds, including custom
+		 * per-field extension lists, so the uploads-dir containment check above is
+		 * the real guard here; only refuse executable/server-side extensions
+		 * (same block list as file_upload_api). */
+		$blocked = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg','html','htm','xhtml','xht','shtm','svgz');
+		return $extension !== '' && !in_array($extension, $blocked, true);
 	}
 
 	public function file_upload_api(){

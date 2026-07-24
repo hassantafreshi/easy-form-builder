@@ -75,17 +75,17 @@ const EfbResponseViewer = (function () {
       </div>
       <!-- Toolbar -->
       <div class="efb-editor-toolbar" id="efb_editor_toolbar">
-        <button type="button" class="efb-editor-btn" data-cmd="bold" title="Bold (Ctrl+B)">
+        <button type="button" class="efb-editor-btn" data-cmd="bold" title="${ajax_object_efm.text.rtBold} (Ctrl+B)">
           <i class="bi bi-type-bold"></i>
         </button>
-        <button type="button" class="efb-editor-btn" data-cmd="italic" title="Italic (Ctrl+I)">
+        <button type="button" class="efb-editor-btn" data-cmd="italic" title="${ajax_object_efm.text.rtItalic} (Ctrl+I)">
           <i class="bi bi-type-italic"></i>
         </button>
-        <button type="button" class="efb-editor-btn" data-cmd="underline" title="Underline (Ctrl+U)">
+        <button type="button" class="efb-editor-btn" data-cmd="underline" title="${ajax_object_efm.text.rtUnderline} (Ctrl+U)">
           <i class="bi bi-type-underline"></i>
         </button>
         <span class="efb-editor-toolbar-sep"></span>
-        <button type="button" class="efb-editor-btn" data-cmd="removeFormat" title="Clear formatting">
+        <button type="button" class="efb-editor-btn" data-cmd="removeFormat" title="${ajax_object_efm.text.clearFormatting}">
           <i class="bi bi-eraser"></i>
         </button>
         ${_buildAttachToolbarBtn(msgId)}

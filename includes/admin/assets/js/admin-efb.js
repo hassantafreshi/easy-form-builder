@@ -1722,7 +1722,8 @@ let change_el_edit_Efb = (el) => {
         const aId = {
           email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", color: "_", range: "_", number: "_", file: "_",
           textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
-          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn"
+          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn",
+          audio_recorder: "_file", video_recorder: "_file", screen_recorder: "_file"
         }
         postId = aId[valj_efb[indx].type]
         id = valj_efb[indx].id_
@@ -3011,7 +3012,7 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(idhtml).classList.add('sign-efb')
           document.getElementById(idhtml).innerHTML = `
             <div class="efb  noCode-efb m-5 text-center" id="${el.dataset.id}_noCode">
-            ${efb_var.text.noCodeAddedYet}  <button type="button" class="efb  btn btn-edit btn-sm" id="settingElEFb" data-id="${el.dataset.id}-id" data-bs-toggle="tooltip" title="Edit" onclick="show_setting_window_efb('${el.dataset.id}-id')">
+            ${efb_var.text.noCodeAddedYet}  <button type="button" class="efb  btn btn-edit btn-sm" id="settingElEFb" data-id="${el.dataset.id}-id" data-bs-toggle="tooltip" title="${efb_var.text.edit}" onclick="show_setting_window_efb('${el.dataset.id}-id')">
             <div class="icon-container efb"><i class="efb bi-gear-wide-connected text-success ${efb_var.rtl == 1 ? 'ms-2' : 'me-2'} fs-7" id="efbSetting" ></i></div></button> ${efb_var.text.andAddingHtmlCode}
             </div>`
           valj_efb[postId].value = '';
@@ -5034,7 +5035,7 @@ add_new_logic_efb = (newId , step_id) =>{
       const twos = optionSmartforOptionsEls(newId,step_id , 0);
       const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
       const del_btn =`
-      <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete('${newId}','condlogic' ,'${step_id}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
+      <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete('${newId}','condlogic' ,'${step_id}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
       `
   document.getElementById("list-logics").innerHTML += `
   <div class="efb mx-0 col-sm-12 row opt" id="${newId}-logics-gs">

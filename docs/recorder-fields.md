@@ -57,6 +57,28 @@ from `recorder.mimeType`, NOT assumed webm — Safari records mp4) → written i
 Generic field props (label/desc/colors/width/`mobile_*`/required/hidden/...) behave
 exactly like every other field — see `docs/responsive-mobile-view.md`.
 
+### Generic props that live on the SHELL (el_height / corner / el_border_color / classes)
+
+Four generic style settings target a field's **main element**, which for a recorder is
+the shell `X_`. Both markup factories must therefore stamp them onto the shell class list
+(and give it `data-css="X"` so the CSS-Classes handler's `[data-css]` query finds it), or
+the builder's live class-swap handlers (`selectHeightEl` → `inputHeightChangerEfb`,
+`funSetCornerElEfb` → `cornerChangerEfb`, `selectBorderColorEl` → `colorBorderChangerEfb`,
+`classesEl` → `[data-css]`) mutate a class that was never rendered and nothing shows — and
+the published form (`ui_recorder_efb`) misses them too:
+
+| Setting | Prop | Class token on shell | How it becomes visible |
+|---|---|---|---|
+| Height | `el_height` | `h-d/l/xl/xxl/xxxl-efb` | audio: `.efb-recorder-audio.h-*-efb .efb-recorder-frame { min-height }`. video/screen frames lock to `aspect-ratio: 16/9`, so min-height is ignored — the sized rules there set `aspect-ratio: auto` + explicit `height`. The shared `.h-*-efb` fixed height is neutralised on the shell. |
+| Corners > Rounded | `corner` | `rounded-0..5` / `efb-square` | CSS maps `.efb-recorder-shell.rounded-N .efb-recorder-frame { border-radius }`; `efb-square`/none keeps the 16px default |
+| Border Color | `el_border_color` | `border-d` / `border-colorDEfb-*` | shell has no border-width, so the color utility only sets `border-color`; the frame does `border-color: inherit` (kept below the `data-state` recording/unsupported borders via `:where()`) |
+| CSS Classes | `classes` | user tokens (+`efb1`) | plain extra classes on the shell |
+
+Defaults if the prop is absent (legacy saved forms): `h-d-efb` / `efb-square` / `border-d`
+/ empty. The builder-side **Required** toggle (`requiredEl` case in `admin-efb.js`) must map
+the three recorder types to the `_file` input suffix (that hidden input is the validated
+element), otherwise toggling Required throws on a missing `X_` element.
+
 ## 3. Settings registry (sideBox)
 
 | Control id | Prop | Control type | Shown for |
