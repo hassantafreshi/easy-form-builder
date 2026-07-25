@@ -6,11 +6,7 @@ includes/vendor.zip
 vendor/*
 easy-form-builder.zip
 vendor/logic/*
-!vendor/logic/
-!vendor/logic/logic/
 vendor/logic/logic/*
-!vendor/logic/logic/assets/
-!vendor/logic/logic/assets/**
 temp/*
 vendor-backup/*
 vendor/*.git

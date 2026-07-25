@@ -2365,7 +2365,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
       }
     }else{
       step_payment_exists = -1;
-      alert('The form(form id:'+form_id+') cannot be submitted because it requires a payment method, which is currently missing. If you are the Admin, please add a payment method to the form or change the form type to "Form" or "Survey".');
+      alert(efb_var.text.paymentMethodMissing);
       return false;
     }
   }

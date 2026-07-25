@@ -141,7 +141,7 @@
 					$desc
 				);
 
-				$fields['ui']  = $this->pro_efb ? $ui : $this->public_pro_message_efb($texts['tfnapca']);
+				$fields['ui']  = $this->pro_efb ? $ui : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 				$fields['dataTag'] = $elementId;
 
 				break;
@@ -427,9 +427,21 @@
 		return $newClasses;
 	}
 
-	private function public_pro_message_efb($text){
+	/**
+	 * Notice shown in place of a field that needs the Free Plus / Pro version.
+	 *
+	 * A privileged viewer (someone who can edit content — the form builder /
+	 * editor / admin) gets the actionable $admin_text ("activate Free Plus or
+	 * Pro"), because they can actually do something about it. A normal visitor
+	 * gets the neutral $text notice. When $admin_text is empty every viewer gets
+	 * $text (backward compatible with the existing callers).
+	 */
+	private function public_pro_message_efb($text, $admin_text = ''){
+		if ($admin_text !== '' && function_exists('current_user_can') && current_user_can('edit_posts')) {
+			$text = $admin_text;
+		}
 		$r = sprintf(
-			'<div class="efb text-white fs-6 bg-danger px-1 rounded px-2">%s</div>',
+			'<div class="efb text-white fs-6 bg-danger px-1 rounded px-2 py-1">%s</div>',
 			$text
 		);
 
@@ -2420,7 +2432,7 @@
 					);
 
 					$dataTag = $elementId;
-					$ui = $pro ? $ui : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro ? $ui : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 
 					if($isPdate){
 						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
@@ -2549,7 +2561,7 @@
 						 $js_s .= $temp[1];
 						 $optn= $temp[0];
 					}else{
-						$optn=$this->public_pro_message_efb($texts['tfnapca']);
+						$optn=$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					}
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
 					wp_enqueue_script('intlTelInput-js');
@@ -2573,7 +2585,7 @@
 				break;
 				case 'dadfile':
 
-					$el =$pro ? $this->dadfile_el_pro_efb(true, $element_Id, $vj,$form_id,$texts) : $this->public_pro_message_efb($texts['tfnapca']);
+					$el =$pro ? $this->dadfile_el_pro_efb(true, $element_Id, $vj,$form_id,$texts) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$ui = sprintf('
 						%1$s
 						<div class="efb %2$s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%3$s-f">
@@ -2607,6 +2619,7 @@
 						$el,
 						$desc
 					);
+					$ui = $pro == true ? $ui : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
 				case 'checkbox':
@@ -2712,7 +2725,7 @@
 					$ui = '
 					' . $label . '
 					' . $ttip . '
-					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : $this->public_pro_message_efb($texts['tfnapca']));
+					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : ''));
 
 					$ui.= sprintf(
 						"<script>
@@ -2816,7 +2829,7 @@
 					if($efbFunction === null)$efbFunction = get_efbFunction();
 					$efbFunction->openstreet_map_required_efb(0);
 					if ($pro!==true &&  $pro!==1) {
-						$ui = $this->public_pro_message_efb($texts['tfnapca']);
+						$ui = $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					}
 
 					$style = $this->field_maps_style_efb();
@@ -2826,7 +2839,7 @@
 
 				case 'rating':
 
-					$ui = $pro == true ? $this->rating_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->rating_el_pro_efb(true, $pos, $rndm, $vj, $desc, $form_id, $label, $ttip, $aire_describedby, $texts) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
                 case 'select':
@@ -2838,18 +2851,18 @@
 				case 'conturyList':
 				case 'country':
 
-					$ui =$pro == true ? $this->generate_country_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby): $this->public_pro_message_efb($texts['tfnapca']);
+					$ui =$pro == true ? $this->generate_country_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby): $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 
 					$dataTag = $elementId;
 				break;
 				case 'stateProvince':
 				case 'statePro':
-					$ui = $pro == true ? $this->generate_state_province_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->generate_state_province_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
 				case 'city':
 				case 'cityList':
-					$ui = $pro == true ? $this->generate_city_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->generate_city_list_efb($rndm, $vj, $pos, $form_id, $texts ,$desc,$label,$ttip,$aire_describedby) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
 				case 'multiselect':
@@ -2861,23 +2874,23 @@
 
 				case 'html':
 
-					$ui = $pro == true ? $this->generate_html_code_efb($rndm, $vj, $pos, $form_id, $texts, true) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->generate_html_code_efb($rndm, $vj, $pos, $form_id, $texts, true) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
 				case 'heading':
 
-					$ui = $pro == true ? $this->generate_heading_efb($rndm, $pos, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->generate_heading_efb($rndm, $pos, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 
 				break;
 				case 'link':
 
-					$ui = $pro == true ? $this->generate_link_efb(true, $pos, $rndm, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = $pro == true ? $this->generate_link_efb(true, $pos, $rndm, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 					$dataTag = $elementId;
 				break;
 				case 'yesNo':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 
@@ -2888,7 +2901,7 @@
 				break;
 				case 'pointr5':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 
@@ -2900,7 +2913,7 @@
 				case 'pointr10':
 
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 					$r  = $this->pointer10_el_pro_efb(true, $vj, $form_id);
@@ -2909,7 +2922,7 @@
 				break;
 				case 'smartcr':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 					$r  = $this->smartcr_el_pro_efb(true, $vj, $form_id);
@@ -2918,7 +2931,7 @@
 				break;
 				case 'table_matrix':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 
@@ -2928,7 +2941,7 @@
 				break;
 				case 'prcfld':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 					$maxlen = (property_exists($vj, 'mlen') && $vj->mlen > 0) ? 'maxlength="' . $vj->mlen . '"' : '';
@@ -2986,7 +2999,7 @@
 				break;
 				case 'ttlprc':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 
@@ -3006,7 +3019,7 @@
 				break;
 				case 'stripe':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 					$sub = $texts['onetime'];
@@ -3024,7 +3037,7 @@
 				break;
 				case 'paypal':
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 					$sub = $texts['onetime'];
@@ -3042,7 +3055,7 @@
 				case "zarinPal":
 
 					if($pro!==true && $pro!==1){
-						$ui =$this->public_pro_message_efb($texts['tfnapca']);
+						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
 

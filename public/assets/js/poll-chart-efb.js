@@ -3,6 +3,7 @@ function renderSurveyResultsChart(data, container, formId) {
   if (!data.survey_results || data.survey_results.length === 0) return;
 
   const defaultChartType = data.survey_chart_type;
+  const efbPCT = (typeof efbPollChart !== 'undefined' && efbPollChart.text) ? efbPollChart.text : {};
   const results = data.survey_results;
   const labels = data.survey_labels || { title: 'Survey Results', responses: 'Responses' };
 
@@ -99,7 +100,7 @@ function renderStatsCard(result) {
     <div class="efb stats-grid d-flex flex-wrap justify-content-center gap-3">
       <div class="efb stat-item text-center p-2 bg-white rounded">
         <div class="efb fs-4 text-primary fw-bold">${result.count}</div>
-        <div class="efb fs-7 text-muted">Responses</div>
+        <div class="efb fs-7 text-muted">${efbPCT.pcResponses || 'Responses'}</div>
       </div>
   `;
 
@@ -107,22 +108,22 @@ function renderStatsCard(result) {
     statsHtml += `
       <div class="efb stat-item text-center p-2 bg-white rounded">
         <div class="efb fs-4 text-success fw-bold">${result.average}</div>
-        <div class="efb fs-7 text-muted">Average</div>
+        <div class="efb fs-7 text-muted">${efbPCT.pcAverage || 'Average'}</div>
       </div>
       <div class="efb stat-item text-center p-2 bg-white rounded">
         <div class="efb fs-4 text-info fw-bold">${result.min}</div>
-        <div class="efb fs-7 text-muted">Min</div>
+        <div class="efb fs-7 text-muted">${efbPCT.pcMin || 'Min'}</div>
       </div>
       <div class="efb stat-item text-center p-2 bg-white rounded">
         <div class="efb fs-4 text-warning fw-bold">${result.max}</div>
-        <div class="efb fs-7 text-muted">Max</div>
+        <div class="efb fs-7 text-muted">${efbPCT.pcMax || 'Max'}</div>
       </div>
     `;
   } else {
     statsHtml += `
       <div class="efb stat-item text-center p-2 bg-white rounded">
         <div class="efb fs-4 text-info fw-bold">${result.avg_length || 0}</div>
-        <div class="efb fs-7 text-muted">Avg Length</div>
+        <div class="efb fs-7 text-muted">${efbPCT.pcAvgLength || 'Avg Length'}</div>
       </div>
     `;
   }

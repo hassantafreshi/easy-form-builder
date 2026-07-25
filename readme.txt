@@ -33,6 +33,9 @@ With Easy Form Builder, you can use a single form plugin to build and manage mul
 - Login (sign-in) forms for WordPress users
 - Registration (sign-up) forms for new users
 - File upload forms
+- Audio recording forms for collecting voice messages and voice feedback
+- Video recording forms for video testimonials and webcam responses
+- Screen recording forms for bug reports and support requests
 - Private or restricted-access forms
 - Multi-step forms for improved usability
 - Smart forms with conditional logic that show or hide fields based on user answers
@@ -147,6 +150,9 @@ Login and registration forms integrate with WordPress user management and allow 
  Easy Form Builder provides a wide collection of advanced form fields, including:
 
 - Drag-and-drop file upload fields
+- Audio recorder field for recording voice messages from the microphone
+- Video recorder field for recording video from the webcam
+- Screen recorder field for capturing on-screen recordings
 - Signature (e-signature) fields
 - Location picker fields (OpenStreetMap and LeafletJS)
 - Country, state/province, and city dropdown fields
@@ -160,6 +166,21 @@ Login and registration forms integrate with WordPress user management and allow 
 - Matrix and table fields for structured data collection
 
 These fields allow you to build complex, region-aware, and structured forms without custom development.
+
+
+== Audio, Video, and Screen Recording Form Fields ==
+
+Easy Form Builder lets you add audio recording, video recording, and screen recording fields to any WordPress form, so visitors can record and submit media right from the browser - no extra apps, plugins, or third-party recording services. Every recording is uploaded to your own WordPress site, so your form data stays under your control.
+
+These recording form fields turn a standard WordPress form into an interactive media collection tool:
+
+- Audio recorder field - let visitors record a voice message from their microphone. Great for voice feedback forms, audio testimonial forms, voice message and voicemail forms, language and pronunciation practice, and podcast or audio submission forms.
+- Video recorder field - let visitors record video from their webcam. Perfect for video testimonial forms, job application video introductions, customer video feedback, and video question-and-answer forms.
+- Screen recorder field - let visitors record their screen (with optional microphone audio). Ideal for bug report forms, technical support request forms, product feedback, and tutorial or demo submission forms.
+
+Each recorder field works in modern desktop and mobile browsers, shows live recording status and upload progress, and produces standard WebM or MP4 files that work across Chrome, Firefox, Edge, and Safari. You can set a maximum recording length, and every recording is validated on the server before it is stored. Recorded audio, video, and screen files appear alongside your other submissions in the Form Entry & Message Management Dashboard, where they can be played back, downloaded, or exported like any other WordPress form response.
+
+The audio recorder, video recorder, and screen recorder form fields are available in both the Free Plus and Pro versions of Easy Form Builder.
 
 
 == Integrations and Add-ons ==
@@ -229,11 +250,6 @@ This version is suitable for users who need advanced form layouts, smart conditi
 The Pro version includes all Free Plus features and adds support for official add-ons and integrations. For conditional logic, Pro removes all rule limits and adds nested AND/OR groups, calculations, rule priority, conditional thank-you messages and redirects, conditional webhooks, rule export/import, and the logic Inspector (debugger).
 
 This version is suitable for professional websites, service platforms, and projects that require extended workflows such as SMS notifications, payment forms, conditional workflows, and advanced integrations.
-
-
-As of this release, we have partnered with the following WordPress plugins:
-
-- [Shield security](https://wordpress.org/plugins/wp-simple-firewall/)
 
 
 == Frequently Asked Questions ==
@@ -411,7 +427,8 @@ For more information, visit the official website:
 
 = 4.1.2 =
 
-Reliability update: the plugin now detects missing or incomplete plugin files after an update and shows a reinstall notice instead of crashing the site. Recommended for all users.
+* Reliability update: fixes file uploads and audio/video/screen recordings being rejected on submit, resolves forms with uploads or recorders being wrongly blocked by Form Security & Spam Protection, and stops real visitors being blocked when their browser auto-fills a hidden field. Also adds safer plugin loading after updates. Recommended for all users.
+
 
 = 4.1.1 =
 
@@ -431,8 +448,18 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = 4.1.2 =
 
+* Fixed: Forms with file upload or recorder fields no longer get wrongly blocked by Form Security & Spam Protection in WordPress Form Builder.
+
+* Fixed: Genuine visitors are no longer blocked when their browser or password manager auto-fills a hidden field.
+
+* New: Audio, video, and screen recording fields released for WordPress Form Builder.
+
+* Improved: Smarter spam scoring in Form Builder for recorder and file-upload forms, so real visitors aren't mistaken for bots.
+
+* Fixed: Password field placeholder now displays correctly.
+
 * Improved: Safe plugin loading - if any plugin file is missing after an update or an incomplete deploy, the plugin now stays inactive for that request and shows an admin notice asking for a reinstall, instead of causing a fatal error on the whole site.
-* Fixed: Removed leftover development and legacy files from the release package.
+
 
 = 4.1.1 =
 

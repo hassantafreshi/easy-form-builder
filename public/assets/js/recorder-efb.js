@@ -49,6 +49,13 @@ function efbRecorderWidgetHtml(rndm, vj, formId) {
 	var facing = vj.rec_facing === 'environment' ? 'environment' : 'user';
 	var mirror = vj.hasOwnProperty('rec_mirror') ? (Number(vj.rec_mirror) ? 1 : 0) : 1;
 	var watermark = vj.hasOwnProperty('rec_watermark') ? (Number(vj.rec_watermark) ? 1 : 0) : 1;
+	// Generic style settings live on the shell (the settings handlers swap these class
+	// tokens in place, so the defaults must be present in the markup). recorder-efb.css
+	// translates them onto the inner frame.
+	var elHeight = vj.el_height || 'h-d-efb';
+	var corner = vj.corner || 'efb-square';
+	var borderColor = vj.el_border_color || 'border-d';
+	var extraClasses = (vj.classes || '').split(',').join(' ').trim();
 
 	// Watermark stays in the markup (class-hidden when off) so the builder's
 	// live toggle works without a canvas re-render.
@@ -58,7 +65,7 @@ function efbRecorderWidgetHtml(rndm, vj, formId) {
 			'<div class="efb efb-recorder-watermark ' + (watermark ? '' : 'd-none') + '" id="' + rndm + '-watermark"><span>' + efbRecText('recWatermark', 'Made by Easy Form Builder') + '</span><span class="efb efb-recorder-domain">' + domain + '</span></div>';
 
 	return '' +
-		'<div class="efb efb-recorder-shell ' + classMap[kind] + '" id="' + rndm + '_" data-id="' + rndm + '" data-kind="' + kind + '" data-quality="' + quality + '" data-duration="' + duration + '" data-max-size="' + maxSize + '" data-countdown="' + countdown + '" data-download="' + download + '" data-noise="' + noise + '" data-facing="' + facing + '" data-mirror="' + mirror + '" data-formid="' + (formId || 0) + '" data-state="idle">' +
+		'<div class="efb efb-recorder-shell ' + classMap[kind] + ' ' + elHeight + ' ' + corner + ' ' + borderColor + ' efb1 ' + extraClasses + '" data-css="' + rndm + '" id="' + rndm + '_" data-id="' + rndm + '" data-kind="' + kind + '" data-quality="' + quality + '" data-duration="' + duration + '" data-max-size="' + maxSize + '" data-countdown="' + countdown + '" data-download="' + download + '" data-noise="' + noise + '" data-facing="' + facing + '" data-mirror="' + mirror + '" data-formid="' + (formId || 0) + '" data-state="idle">' +
 			'<div class="efb efb-recorder-frame" id="' + rndm + '-frame">' +
 				mediaPreview +
 				'<div class="efb efb-recorder-idle-hint" id="' + rndm + '-idle"><i class="efb bi ' + iconMap[kind] + '"></i><span>' + efbRecText('recTapToStart', 'Tap to start recording') + '</span></div>' +

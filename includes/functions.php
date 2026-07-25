@@ -1030,7 +1030,7 @@ class efbFunction {
 			"AdnADP" => $state  &&  isset($ac->text->AdnADP) ? $ac->text->AdnADP : esc_html__('Hijri Date Add-on','easy-form-builder'),
 			"AdnPPF" => $state  &&  isset($ac->text->AdnPPF) ? $ac->text->AdnPPF : esc_html__('Persia Payment Add-on','easy-form-builder'),
 			"AdnSS" => $state  &&  isset($ac->text->AdnSS) ? $ac->text->AdnSS : esc_html__('SMS Service Add-on','easy-form-builder'),
-			"tfnapca" => $state  &&  isset($ac->text->tfnapca) ? $ac->text->tfnapca : esc_html__('Please contact the administrator as the field is currently unavailable.','easy-form-builder'),
+			"tfnapca" => $state  &&  isset($ac->text->tfnapca) ? $ac->text->tfnapca : esc_html__('This field is currently unavailable. Please contact the site administrator.','easy-form-builder'),
 			"wylpfucat" => $state  &&  isset($ac->text->wylpfucat) ? $ac->text->wylpfucat : esc_html__('Would you like to customize the form using the colors of the active template?','easy-form-builder'),
 			"efbmsgctm" => $state  &&  isset($ac->text->efbmsgctm) ? $ac->text->efbmsgctm : esc_html__('Easy Form Builder has utilized the colors of the active template. Please choose a color for each option below to customize the form you are creating based on the colors of your template. By selecting a color for each option below, the color of all form fields associated with that feature will change accordingly.','easy-form-builder'),
 			"btntcs" => $state  &&  isset($ac->text->btntcs) ? $ac->text->btntcs : esc_html__('Buttons text colors','easy-form-builder'),
@@ -1863,6 +1863,91 @@ class efbFunction {
 			"ebSCRequired" => $state && isset($ac->text->ebSCRequired) ? $ac->text->ebSCRequired : esc_html__('Required','easy-form-builder'),
 			"ebViewWebsite" => $state && isset($ac->text->ebViewWebsite) ? $ac->text->ebViewWebsite : esc_html__('View Website','easy-form-builder'),
 			"ebDisclaimerText" => $state && isset($ac->text->ebDisclaimerText) ? $ac->text->ebDisclaimerText : esc_html__('This email was sent automatically. Please do not reply directly.','easy-form-builder'),
+
+			/* translators: Label and image alt text for the Logo block in the email template builder */
+			"ebLogo" => $state && isset($ac->text->ebLogo) ? $ac->text->ebLogo : esc_html__('Logo','easy-form-builder'),
+			/* translators: Aria-label suffix ("Block 1", "Block 2"...) on each block wrapper in the email template builder */
+			"ebBlock" => $state && isset($ac->text->ebBlock) ? $ac->text->ebBlock : esc_html__('Block','easy-form-builder'),
+			/* translators: Aria-label for a block's move/duplicate/delete toolbar in the email template builder */
+			"ebBlockActions" => $state && isset($ac->text->ebBlockActions) ? $ac->text->ebBlockActions : esc_html__('Block actions','easy-form-builder'),
+			/* translators: Aria-label for the block canvas list in the email template builder */
+			"ebEmailBlocks" => $state && isset($ac->text->ebEmailBlocks) ? $ac->text->ebEmailBlocks : esc_html__('Email template blocks','easy-form-builder'),
+			/* translators: Property panel label for the font-family selector in the email template builder */
+			"ebFontFamily" => $state && isset($ac->text->ebFontFamily) ? $ac->text->ebFontFamily : esc_html__('Font','easy-form-builder'),
+			/* translators: Property panel label for the "Default Font" field in the email template builder */
+			"ebDefaultFont" => $state && isset($ac->text->ebDefaultFont) ? $ac->text->ebDefaultFont : esc_html__('Default Font','easy-form-builder'),
+			/* translators: Placeholder option meaning "use the default font" (shown as a dash between em-dashes) */
+			"ebDefaultOption" => $state && isset($ac->text->ebDefaultOption) ? $ac->text->ebDefaultOption : esc_html__('— Default —','easy-form-builder'),
+			/* translators: Property panel label for a button block's background color */
+			"ebBtnBgColor" => $state && isset($ac->text->ebBtnBgColor) ? $ac->text->ebBtnBgColor : esc_html__('Button Background','easy-form-builder'),
+			/* translators: Property panel label for a button block's text color */
+			"ebBtnTextColor" => $state && isset($ac->text->ebBtnTextColor) ? $ac->text->ebBtnTextColor : esc_html__('Button Text Color','easy-form-builder'),
+			/* translators: Field label for the icon picker on a social-link block */
+			"ebIcon" => $state && isset($ac->text->ebIcon) ? $ac->text->ebIcon : esc_html__('Icon','easy-form-builder'),
+			/* translators: Property panel label for a social icon's color */
+			"ebIconColor" => $state && isset($ac->text->ebIconColor) ? $ac->text->ebIconColor : esc_html__('Icon Color','easy-form-builder'),
+			/* translators: Property panel label for a social icon's size (px) range slider */
+			"ebIconSize" => $state && isset($ac->text->ebIconSize) ? $ac->text->ebIconSize : esc_html__('Icon Size (px)','easy-form-builder'),
+			/* translators: Button title for choosing a custom SVG icon on a social-link block */
+			"ebCustomSVG" => $state && isset($ac->text->ebCustomSVG) ? $ac->text->ebCustomSVG : esc_html__('Custom SVG','easy-form-builder'),
+			/* translators: Label for the custom SVG markup textarea on a social-link block */
+			"ebCustomSVGCode" => $state && isset($ac->text->ebCustomSVGCode) ? $ac->text->ebCustomSVGCode : esc_html__('Custom SVG Code','easy-form-builder'),
+			/* translators: Default name given to a newly added social link */
+			"ebLink" => $state && isset($ac->text->ebLink) ? $ac->text->ebLink : esc_html__('Link','easy-form-builder'),
+			/* translators: Fallback label shown for a social link with no preset name */
+			"ebCustom" => $state && isset($ac->text->ebCustom) ? $ac->text->ebCustom : esc_html__('Custom','easy-form-builder'),
+			/* translators: Name of the built-in "Website" social icon preset */
+			"ebWebsite" => $state && isset($ac->text->ebWebsite) ? $ac->text->ebWebsite : esc_html__('Website','easy-form-builder'),
+			/* translators: Tooltip on the padding editor button that links all four sides together */
+			"ebLinkAllSides" => $state && isset($ac->text->ebLinkAllSides) ? $ac->text->ebLinkAllSides : esc_html__('Link all sides','easy-form-builder'),
+			/* translators: Default heading shown in the email builder when the form has no title */
+			"ebFormTitle" => $state && isset($ac->text->ebFormTitle) ? $ac->text->ebFormTitle : esc_html__('Form Title','easy-form-builder'),
+
+			/* translators: Default placeholder text inserted into a newly-added Text block */
+			"ebTextDefault" => $state && isset($ac->text->ebTextDefault) ? $ac->text->ebTextDefault : esc_html__('Your text here…','easy-form-builder'),
+			/* translators: Default button label inserted into a newly-added Button block */
+			"ebVisitWebsite" => $state && isset($ac->text->ebVisitWebsite) ? $ac->text->ebVisitWebsite : esc_html__('Visit Website','easy-form-builder'),
+			/* translators: Default placeholder text for the left column of a newly-added two-column block */
+			"ebLeftColContent" => $state && isset($ac->text->ebLeftColContent) ? $ac->text->ebLeftColContent : esc_html__('Left column content','easy-form-builder'),
+			/* translators: Default placeholder text for the right column of a newly-added two-column block */
+			"ebRightColContent" => $state && isset($ac->text->ebRightColContent) ? $ac->text->ebRightColContent : esc_html__('Right column content','easy-form-builder'),
+			/* translators: Default footer text — keep the literal token "shortcode_website_name", it is replaced at runtime with the site name */
+			"ebFooterDefault" => $state && isset($ac->text->ebFooterDefault) ? $ac->text->ebFooterDefault : esc_html__('Sent by shortcode_website_name','easy-form-builder'),
+			/* translators: Default placeholder content inserted into a newly-added custom HTML block */
+			"ebCustomHTMLContent" => $state && isset($ac->text->ebCustomHTMLContent) ? $ac->text->ebCustomHTMLContent : esc_html__('Custom HTML content','easy-form-builder'),
+
+			/* translators: Sample name shown in place of the shortcode_message merge tag when previewing an email template */
+			"ebSampleName" => $state && isset($ac->text->ebSampleName) ? $ac->text->ebSampleName : esc_html__('John Doe','easy-form-builder'),
+			/* translators: Sample message text shown in place of the shortcode_message merge tag when previewing an email template */
+			"ebSampleSubmission" => $state && isset($ac->text->ebSampleSubmission) ? $ac->text->ebSampleSubmission : esc_html__('This is a sample form submission.','easy-form-builder'),
+			/* translators: Sample site name shown in place of the shortcode_website_name merge tag when previewing an email template */
+			"ebSampleWebsite" => $state && isset($ac->text->ebSampleWebsite) ? $ac->text->ebSampleWebsite : esc_html__('My Website','easy-form-builder'),
+
+			/* translators: Tooltip on the Bold button in the response-viewer rich-text editor toolbar */
+			"rtBold" => $state && isset($ac->text->rtBold) ? $ac->text->rtBold : esc_html__('Bold','easy-form-builder'),
+			/* translators: Tooltip on the Italic button in the response-viewer rich-text editor toolbar */
+			"rtItalic" => $state && isset($ac->text->rtItalic) ? $ac->text->rtItalic : esc_html__('Italic','easy-form-builder'),
+			/* translators: Tooltip on the Underline button in the response-viewer rich-text editor toolbar */
+			"rtUnderline" => $state && isset($ac->text->rtUnderline) ? $ac->text->rtUnderline : esc_html__('Underline','easy-form-builder'),
+			/* translators: Tooltip on the "Clear formatting" button in the response-viewer rich-text editor toolbar */
+			"clearFormatting" => $state && isset($ac->text->clearFormatting) ? $ac->text->clearFormatting : esc_html__('Clear formatting','easy-form-builder'),
+			/* translators: Aria-label for the collapsible navbar toggle button in the form-builder element panel */
+			"toggleNavigation" => $state && isset($ac->text->toggleNavigation) ? $ac->text->toggleNavigation : esc_html__('Toggle navigation','easy-form-builder'),
+			/* translators: Aria-label for the desktop/mobile preview view-toggle button group in the form builder */
+			"viewToggle" => $state && isset($ac->text->viewToggle) ? $ac->text->viewToggle : esc_html__('View toggle','easy-form-builder'),
+			/* translators: Title attribute on the "Locate Me" button of the map field */
+			"locateMe" => $state && isset($ac->text->locateMe) ? $ac->text->locateMe : esc_html__('Locate Me','easy-form-builder'),
+			/* translators: Error message prefix shown when reverse-geocoding the map field's location fails */
+			"errorFetchingAddress" => $state && isset($ac->text->errorFetchingAddress) ? $ac->text->errorFetchingAddress : esc_html__('Error fetching address','easy-form-builder'),
+			/* translators: Alert shown when the browser does not support the Geolocation API, on the map field's "Locate Me" button */
+			"geolocationNotSupported" => $state && isset($ac->text->geolocationNotSupported) ? $ac->text->geolocationNotSupported : esc_html__('Geolocation is not supported by this browser.','easy-form-builder'),
+			/* translators: Placeholder on the phone verification code input */
+			"verify" => $state && isset($ac->text->verify) ? $ac->text->verify : esc_html__('verify','easy-form-builder'),
+			/* translators: Title shown when a required-field validation step fails */
+			"failed" => $state && isset($ac->text->failed) ? $ac->text->failed : esc_html__('Failed','easy-form-builder'),
+			/* translators: Alert shown when a payment-type form has no payment method configured */
+			"paymentMethodMissing" => $state && isset($ac->text->paymentMethodMissing) ? $ac->text->paymentMethodMissing : esc_html__('The form cannot be submitted because it requires a payment method, which is currently missing. If you are the Admin, please add a payment method to the form or change the form type to "Form" or "Survey".','easy-form-builder'),
+
 			'payments' => $state && isset($ac->text->payments) ? $ac->text->payments : esc_html__('Payments','easy-form-builder'),
 			/* translators: Cache warning messages shown to admin when cache plugins detected */
 			"cacheWarnTitle" => $state && isset($ac->text->cacheWarnTitle) ? $ac->text->cacheWarnTitle : esc_html__('Cache Plugin Detected','easy-form-builder'),
@@ -2099,6 +2184,13 @@ class efbFunction {
 			"optionDessert" => $state && isset($ac->text->optionDessert) ? $ac->text->optionDessert : esc_html__('Dessert','easy-form-builder'),
 			"optionDrinks" => $state && isset($ac->text->optionDrinks) ? $ac->text->optionDrinks : esc_html__('Drinks','easy-form-builder'),
 			"optionSidesAppetizers" => $state && isset($ac->text->optionSidesAppetizers) ? $ac->text->optionSidesAppetizers : esc_html__('Sides/Appetizers','easy-form-builder'),
+
+			/* translators: Statistic labels shown under public survey/poll result charts */
+			"pcResponses" => $state && isset($ac->text->pcResponses) ? $ac->text->pcResponses : esc_html__('Responses','easy-form-builder'),
+			"pcAverage" => $state && isset($ac->text->pcAverage) ? $ac->text->pcAverage : esc_html__('Average','easy-form-builder'),
+			"pcMin" => $state && isset($ac->text->pcMin) ? $ac->text->pcMin : esc_html__('Min','easy-form-builder'),
+			"pcMax" => $state && isset($ac->text->pcMax) ? $ac->text->pcMax : esc_html__('Max','easy-form-builder'),
+			"pcAvgLength" => $state && isset($ac->text->pcAvgLength) ? $ac->text->pcAvgLength : esc_html__('Avg Length','easy-form-builder'),
 
 		];
 

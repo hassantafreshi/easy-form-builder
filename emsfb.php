@@ -30,6 +30,13 @@ if (!defined("EMSFB_DB_VERSION")) {
     define("EMSFB_DB_VERSION", 1.1);
 }
 
+if (!defined("EFB_DEBUG")) {
+    // Single global switch for Easy Form Builder's own diagnostic logging
+    // (Human Shield, Telegram, the email tester, …). Defaults to true; override
+    // in wp-config.php with define('EFB_DEBUG', false); to turn EFB logging off.
+    define("EFB_DEBUG", true);
+}
+
 if (!defined("EMSFB_PLUGIN_URL")) {
     define("EMSFB_PLUGIN_URL", plugin_dir_url(__FILE__));
 }

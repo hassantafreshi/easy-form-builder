@@ -40,9 +40,9 @@ const fields_efb = [
   { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
-  { name: efb_var.text.audio_recorder, icon: 'bi-mic', id: 'audio_recorder', pro: false, tag:'advance all' },
-  { name: efb_var.text.video_recorder, icon: 'bi-camera-video', id: 'video_recorder', pro: false, tag:'advance all' },
-  { name: efb_var.text.screen_recorder, icon: 'bi-display', id: 'screen_recorder', pro: false, tag:'advance all' },
+  { name: efb_var.text.audio_recorder, icon: 'bi-mic', id: 'audio_recorder', pro: true, tag:'advance all' },
+  { name: efb_var.text.video_recorder, icon: 'bi-camera-video', id: 'video_recorder', pro: true, tag:'advance all' },
+  { name: efb_var.text.screen_recorder, icon: 'bi-display', id: 'screen_recorder', pro: true, tag:'advance all' },
   { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: true, tag:'advance all' },
 
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },

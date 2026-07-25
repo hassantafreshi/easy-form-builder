@@ -2363,7 +2363,7 @@ class Admin {
     }
 
     private function email_tester_log_efb($event, $context = []) {
-        $debug_enabled = (defined('WP_DEBUG') && WP_DEBUG) || (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG);
+        $debug_enabled = defined('EFB_DEBUG') ? EFB_DEBUG : ((defined('WP_DEBUG') && WP_DEBUG) || (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG));
         if (!$debug_enabled) {
             return;
         }
