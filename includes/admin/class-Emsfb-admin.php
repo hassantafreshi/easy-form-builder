@@ -2535,68 +2535,63 @@ class Admin {
 			die();
 		}
 
-		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
-		 'audio/wav','audio/ogg','audio/webm','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
-		 'text/plain' ,
-		 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
-		 'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
-		 'application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation',
-		 'application/vnd.ms-powerpoint.presentation.macroEnabled.12','application/vnd.openxmlformats-officedocument.wordprocessingml.template',
-		 'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
-		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip','application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip',"zip","rar","tar","gz","gzip","application/x-rar-compressed","application/x-tar","application/x-gzip","application/gzip","multipart/x-compressed","multipart/x-rar-compressed"
-		);
-
+		/* Legacy endpoint: nothing in the shipped JavaScript calls it any more,
+		 * but it stays registered for older cached bundles and third-party
+		 * integrations. It shares the same policy as the REST handler so the
+		 * two cannot drift apart the way they had before. */
 		if (isset($_FILES['file']['name'])) {
 			$_FILES['file']['name'] = sanitize_file_name($_FILES['file']['name']);
 		}
 
-		if (isset($_FILES['file']['type']) && in_array($_FILES['file']['type'], $arr_ext)) {
-
-            $file_name = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
-            $file_tmp = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
-            $file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
-
-            if (empty($file_tmp) || !is_uploaded_file($file_tmp) || !is_readable($file_tmp)) {
-                $response = array( 'success' => false, 'error' => esc_html__('There seems to be an error with the file permissions.','easy-form-builder') . ' ( File not readable)' );
-                wp_send_json_success($response, 200);
-            }
-
-            if (function_exists('finfo_open')) {
-                $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                $real_mime = finfo_file($finfo, $file_tmp);
-                finfo_close($finfo);
-                if (!in_array($real_mime, $arr_ext)) {
-                    $response = array( 'success' => false, 'error' => esc_html__('There seems to be an error with the file permissions.','easy-form-builder') . ' (MIME type)' );
-                    wp_send_json_success($response, 200);
-                }
-            }
-
-            $name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
-
-            $blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg','html','htm','xhtml','xht','shtm','svgz');
-            $file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-            if (in_array($file_ext, $blocked_ext)) {
-                $response = array( 'success' => false, 'error' => 'File type not allowed');
-                wp_send_json_success($response, 200);
-            }
-
-            $file_contents = emsfb_read_file_efb($file_tmp);
-            if ($file_contents === false) {
-                $response = array( 'success' => false, 'error' => 'File read error');
-                wp_send_json_success($response, 200);
-            }
-
-            $upload = wp_upload_bits($name, null, $file_contents);
-			if(is_ssl()==true){
-				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
-			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=> $file_type);
-			  wp_send_json_success($response,200);
-		}else{
-			$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : 'unknown';
-			$response = array( 'success' => false  ,'error'=>'File Type Error');
-			wp_send_json_success($response,200);
+		if (!isset($_FILES['file'])) {
+			$response = array( 'success' => false, 'error' => esc_html__('No file was received. Please choose a file and try again.','easy-form-builder') );
+			wp_send_json_success($response, 200);
 		}
+
+		$upload_context = array(
+			'source'  => 'admin',
+			'form_id' => isset($_POST['id']) ? absint( wp_unslash( $_POST['id'] ) ) : 0,
+			'nonce'   => isset($_POST['nonce']) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '',
+			'sid'     => '',
+			'ip'      => '',
+		);
+
+		$validation = \Emsfb\Upload_Guard::validate_file($_FILES['file'], $upload_context);
+		if ($validation !== true) {
+			$response = array( 'success' => false, 'error' => $validation, 'efb_user_message' => true );
+			wp_send_json_success($response, 200);
+		}
+
+		$file_name = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
+		$file_tmp  = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
+		$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
+
+		$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
+
+		if (\Emsfb\Upload_Guard::is_blocked_extension(\Emsfb\Upload_Guard::extension_of($name))) {
+			$response = array( 'success' => false, 'error' => \Emsfb\Upload_Guard::type_message(), 'efb_user_message' => true );
+			wp_send_json_success($response, 200);
+		}
+
+		$file_contents = emsfb_read_file_efb($file_tmp);
+		if ($file_contents === false) {
+			$response = array( 'success' => false, 'error' => esc_html__('The file could not be read. Please try attaching it again.','easy-form-builder') );
+			wp_send_json_success($response, 200);
+		}
+
+		$upload = wp_upload_bits($name, null, $file_contents);
+		if (!is_array($upload) || !empty($upload['error']) || empty($upload['url'])) {
+			$response = array( 'success' => false, 'error' => \Emsfb\Upload_Guard::type_message(), 'efb_user_message' => true );
+			wp_send_json_success($response, 200);
+		}
+		if(is_ssl()==true){
+			$upload['url'] = str_replace('http://', 'https://', $upload['url']);
+		}
+		if (!empty($upload['file'])) {
+			\Emsfb\Upload_Guard::track_pending_upload($upload['file']);
+		}
+		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=> $file_type);
+		wp_send_json_success($response,200);
 
 	}
     public function custom_ui_plugins(){

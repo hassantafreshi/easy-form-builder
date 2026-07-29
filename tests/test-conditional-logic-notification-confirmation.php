@@ -360,6 +360,17 @@ define('WP_CONTENT_DIR', sys_get_temp_dir() . '/efb-email-debug-content-' . getm
 @mkdir(WP_CONTENT_DIR);
 @unlink(WP_CONTENT_DIR . '/efb-email-debug.log');
 function wp_date($format) { return date($format); }
+/*
+ * The email handler guards optional PHP functions against php.ini's
+ * disable_functions through this helper. It normally arrives with
+ * includes/class-Emsfb-addon-compatibility.php, which this harness does not
+ * load, so stand in for it with the same semantics.
+ */
+if (!function_exists('emsfb_is_php_function_available_efb')) {
+    function emsfb_is_php_function_available_efb($function_name) {
+        return function_exists($function_name) && is_callable($function_name);
+    }
+}
 require dirname(__DIR__) . '/includes/class-email-handler.php';
 testTrue('D2.1 email_debug_enabled() reflects the constant', EmsfbEmailHandler::email_debug_enabled());
 

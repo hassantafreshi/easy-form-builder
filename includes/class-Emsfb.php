@@ -78,6 +78,15 @@ class Emsfb {
             \Emsfb\Email_Trace::register();
         }
 
+        // Shared upload policy (size, type, per-visitor quota, orphan sweeper).
+        // Must load before the public and admin classes below, which call it
+        // from their upload handlers, and it uses the compatibility helpers
+        // required above for the finfo availability check.
+        $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-upload-guard.php') && $core_ok;
+        if (class_exists('\\Emsfb\\Upload_Guard')) {
+            \Emsfb\Upload_Guard::register();
+        }
+
         if (!$core_ok) {
             $this->core_files_ok = false;
             return;
@@ -942,6 +951,13 @@ class Emsfb {
     {
         if (class_exists('\Emsfb\Email_Monitor')) {
             \Emsfb\Email_Monitor::deactivate();
+        }
+
+        // Leave the pending-upload ledger in place: the files it points at are
+        // still on disk, and a deactivate/reactivate cycle should not turn them
+        // into permanently untracked orphans. Only the schedule is dropped.
+        if (class_exists('\Emsfb\Upload_Guard')) {
+            \Emsfb\Upload_Guard::unregister();
         }
 
         delete_option('emsfb_cache_plugins');

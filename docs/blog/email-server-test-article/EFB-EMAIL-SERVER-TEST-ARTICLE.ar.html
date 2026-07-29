@@ -1,0 +1,335 @@
+<!-- SEO TITLE: افضل اضافة اختبار البريد الإلكتروني ووردبريس: لماذا لا يرسل نموذج الاتصال بريدًا إلكترونيًا (دليل منشئ النموذج السهل) -->
+<!-- META DESCRIPTION: باستخدام اختبار البريد الإلكتروني المدمج في منشئ النموذج السهل (بدعم من WhiteStudio) اكتشف لماذا لا يرسل نموذج الاتصال في ووردبريس بريدًا إلكترونيًا؛ درجة القابلية للتسليم، فحص SPF/DKIM/DMARC، وحل المشكلة عبر WP Mail SMTP. -->
+<!-- الصق كل ما بعد هذا السطر داخل محرر الأكواد في محرر ووردبريس للكتل (قائمة ⋮ ← "محرر الأكواد"). يفترض أن Bootstrap 5 (يُفضّل نسخة bootstrap.rtl.min.css) مُحمّل مسبقًا في القالب. -->
+
+<!-- wp:group {"className":"efb-article-ar"} -->
+<div class="wp-block-group efb-article-ar" dir="rtl" lang="ar">
+
+<!-- wp:html -->
+<div class="p-5 mb-5 rounded-4 text-white" style="background:linear-gradient(135deg,#0b4f47,#0f6e63 130%);">
+  <span class="badge text-bg-light text-uppercase small mb-3">منشئ النموذج السهل × WhiteStudio</span>
+  <h1 class="display-5 fw-bold mt-2">افضل اضافة اختبار البريد الإلكتروني ووردبريس: لماذا لا يرسل نموذج الاتصال بريدًا إلكترونيًا</h1>
+  <p class="lead mb-0" style="max-width:60ch;">دليل كامل لاختبار خادم البريد الإلكتروني المدمج في منشئ النموذج السهل — إرسال حقيقي، درجة قابلية تسليم، وتقرير مُحلَّل بالذكاء الاصطناعي.</p>
+  <div class="mt-4 d-flex flex-wrap gap-2">
+    <span class="badge rounded-pill text-bg-light">اضافة اختبار البريد الإلكتروني ووردبريس</span>
+    <span class="badge rounded-pill text-bg-light">نموذج الاتصال في ووردبريس لا يعمل</span>
+    <span class="badge rounded-pill text-bg-light">٩ دقائق قراءة</span>
+  </div>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>من يبحث عن "<strong>نموذج الاتصال في ووردبريس لا يعمل</strong>" نادرًا ما يجد النقطة الحقيقية: في أغلب الحالات، يقوم النموذج تمامًا بما يجب أن يفعله. يستقبل بيانات الزائر، يحفظها في قاعدة البيانات، ويحاول إرسال بريد إلكتروني للتنبيه. المشكلة تحدث في الخطوة التالية، حيث لا ينتبه أغلب أصحاب المواقع: هل استقبل خادم الاستضافة فعليًا هذا البريد الإلكتروني أم لا.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>لهذا السبب، تغيير إعدادات النموذج نادرًا ما يحل المشكلة. ما يساعد فعليًا هو <strong>اضافة اختبار البريد الإلكتروني ووردبريس</strong> ترسل بريدًا إلكترونيًا حقيقيًا وتتحقق من وصوله فعليًا — بدلًا من التخمين. يمتلك منشئ النموذج السهل هذه الأداة بالضبط، مدمجة داخل إعداداته الخاصة، دون الحاجة لتثبيت إضافة منفصلة.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">لماذا لا يرسل نموذج الاتصال في ووردبريس بريدًا إلكترونيًا؟</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>يستخدم ووردبريس افتراضيًا دالة <code>mail()</code> الخاصة بـ PHP لإرسال البريد الإلكتروني، وليس خدمة إرسال موثوقة ومُصادَق عليها. على معظم الاستضافات المشتركة، يعني هذا:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li>مزوّد الاستضافة يحظر أو يقيّد دالة <code>mail()</code>.</li>
+<li>يُرسَل البريد الإلكتروني، لكن لغياب المصادقة، يذهب مباشرة إلى الرسائل غير المرغوب فيها أو يُرفض.</li>
+<li>سجل <strong>SPF</strong> الخاص بالنطاق مفقود أو غير صحيح.</li>
+<li><strong>DKIM</strong> غير مُهيّأ، لذا لا يستطيع الخادم المستقبِل التحقق من هوية المرسل.</li>
+<li>لا توجد سياسة <strong>DMARC</strong>.</li>
+<li><strong>عنوان المُرسِل</strong> المُعرَّف في منشئ النماذج لا يطابق عنوان المرسل المُهيَّأ في إضافة SMTP.</li>
+<li>فلاتر Greylisting أو الرسائل غير المرغوب فيها على الخادم المستقبِل تحتجز الرسالة مؤقتًا.</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>لا شيء من هذا مرئي من داخل لوحة تحكم ووردبريس؛ عادة ما يُبلغ ووردبريس أن البريد "تم إرساله" حتى عندما لا يصل مطلقًا. الطريقة الموثوقة الوحيدة هي إرسال بريد إلكتروني حقيقي والتأكد من وصوله الفعلي من خادم مستقل — وهذا بالضبط ما يفعله اختبار البريد الإلكتروني في منشئ النموذج السهل.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">اختبار خادم البريد الإلكتروني المدمج في منشئ النموذج السهل</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>يضم منشئ النموذج السهل أداة <strong>"تحقق من خادم البريد الإلكتروني"</strong> مدمجة مباشرة داخل إعداداته. ترسل هذه الأداة بريدًا إلكترونيًا حقيقيًا عبر إعدادات الخادم الحالية للموقع، وبمساعدة الخدمة الشريكة <strong>WhiteStudio</strong>، تتحقق من وصوله فعليًا. تظهر النتيجة مباشرةً، خطوة بخطوة، داخل نفس اللوحة — مع درجة قابلية للتسليم وتقرير كامل يُرسَل إلى البريد الإلكتروني للمدير.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="alert alert-warning d-flex" role="alert">
+  <div class="me-2">⚠️</div>
+  <div><strong>قبل البدء:</strong> يجب أن يطابق <strong>عنوان المُرسِل</strong> في إعدادات منشئ النموذج السهل تمامًا عنوان المرسل المُهيَّأ في إضافة SMTP. إذا لم يتطابقا، لن يصل البريد الإلكتروني حتى مع إعداد SMTP بشكل صحيح. القيمة الافتراضية هي <code>admin@example.com</code> — يجب تغييرها إلى بريد حقيقي على نطاق الموقع قبل الاختبار.</div>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">كيفية تشغيل الاختبار</h3>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<ol class="list-group list-group-numbered mb-4">
+  <li class="list-group-item">تسجيل الدخول إلى لوحة تحكم ووردبريس.</li>
+  <li class="list-group-item">من القائمة الجانبية، فتح <strong>منشئ النموذج السهل</strong>.</li>
+  <li class="list-group-item">النقر على <strong>اللوحة</strong> لفتح اللوحة الرئيسية.</li>
+  <li class="list-group-item">من القائمة العلوية، فتح <strong>الإعدادات</strong>.</li>
+  <li class="list-group-item">فتح تبويب <strong>إعدادات البريد الإلكتروني</strong>.</li>
+  <li class="list-group-item">التأكد من أن حقل <strong>البريد الإلكتروني للمدير</strong> يحتوي على عنوان صالح — إليه يُرسَل التقرير الكامل.</li>
+  <li class="list-group-item">النقر على زر <strong>"تحقق من خادم البريد الإلكتروني"</strong>.</li>
+</ol>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">خطوات الاختبار الخمس، من الاتصال إلى التقرير النهائي</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<div class="mb-4 d-flex flex-wrap gap-2">
+  <span class="badge text-bg-light border">⏳ قيد التشغيل</span>
+  <span class="badge text-bg-success">✅ نجاح</span>
+  <span class="badge text-bg-warning text-dark">⚠️ تحذير</span>
+  <span class="badge text-bg-danger">❌ فشل</span>
+</div>
+
+<ol class="list-group list-group-numbered mb-4">
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto">
+      <div class="fw-bold">تجهيز الاختبار</div>
+      الاتصال بخادم WhiteStudio واستلام عنوان بريد إلكتروني تجريبي لمرة واحدة.
+    </div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto">
+      <div class="fw-bold">إرسال البريد التجريبي</div>
+      يرسل ووردبريس بريدًا إلكترونيًا حقيقيًا باستخدام إعدادات الخادم الحالية — وليس محاكاة.
+    </div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto">
+      <div class="fw-bold">انتظار التسليم</div>
+      ينتظر النظام وصول البريد إلى WhiteStudio — عادة بين ٥ و١٥ ثانية على معظم الخوادم.
+    </div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto">
+      <div class="fw-bold">النتيجة السريعة</div>
+      تظهر النتيجة الأولى فورًا: مربع حالة خادم البريد الإلكتروني مع درجة وشارة تقييم.
+    </div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto">
+      <div class="fw-bold">التقرير الكامل</div>
+      يُجهَّز تقرير HTML مفصّل ويُرسَل إلى البريد الإلكتروني للمدير.
+    </div>
+  </li>
+</ol>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">درجة القابلية للتسليم، التقييم، والتقرير المُحلَّل بالذكاء الاصطناعي</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<div class="card mb-4 shadow-sm" style="max-width:520px;">
+  <div class="card-body d-flex align-items-center gap-3">
+    <div class="rounded-circle border border-success border-3 d-flex flex-column align-items-center justify-content-center" style="width:84px;height:84px;flex:none;">
+      <span class="fw-bold fs-4">٨٤</span>
+      <small class="text-muted" style="font-size:10px;">من ١٠٠</small>
+    </div>
+    <div>
+      <div class="fw-bold">مثال على نتيجة ناجحة <span class="badge text-bg-success">تعمل</span></div>
+      <small class="text-muted">درجة أعلى من ٧٠ تعني أن بنية إرسال البريد الإلكتروني للموقع تعمل بشكل صحيح. الدرجة الأقل من ٧٠ تعني أن البريد يصل لكنه قد يُصنَّف كرسالة غير مرغوب فيها.</small>
+    </div>
+  </div>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>يُحلَّل التقرير الكامل من الخطوة الخامسة على خادم WhiteStudio بالذكاء الاصطناعي، ويتضمن:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li>درجة القابلية للتسليم والتقييم</li>
+<li>تحليل درجة الرسائل غير المرغوب فيها بواسطة محرك <strong>SpamAssassin</strong></li>
+<li>فحص المصادقة <strong>SPF / DKIM / DMARC</strong></li>
+<li>تفاصيل التسليم</li>
+<li>الأسباب المحتملة وما الذي يجب التحقق منه لاحقًا</li>
+<li>توصيات عملية لتحسين الدرجة</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p><em>يُبنى هذا التقرير على الاستجابة الفعلية لخادم الموقع نفسه — وليس على قائمة عامة ثابتة.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">فهم لوحة تفاصيل التسليم</h3>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<div class="table-responsive mb-4">
+<table class="table table-bordered table-striped align-middle">
+  <thead class="table-light"><tr><th>الحقل</th><th>المعنى</th></tr></thead>
+  <tbody>
+    <tr><td>أُرسل الاختبار إلى</td><td>عنوان WhiteStudio المؤقت الذي أُرسل إليه البريد التجريبي</td></tr>
+    <tr><td>موضوع البريد الإلكتروني</td><td>عنوان الموضوع المستخدم في البريد التجريبي</td></tr>
+    <tr><td>عنوان المرسل</td><td>عنوان "From" الذي استخدمه الموقع</td></tr>
+    <tr><td>تم استلام البريد الإلكتروني</td><td>هل وصل البريد التجريبي فعليًا — نعم أو لا</td></tr>
+    <tr><td>تطابق الموضوع</td><td>هل بقي عنوان الموضوع دون تغيير أثناء التسليم</td></tr>
+    <tr><td>تم التحقق من الكود الفريد</td><td>هل وصل الرمز المميز داخل نص البريد سليمًا دون تعديل</td></tr>
+    <tr><td>مدة الانتظار</td><td>عدد الثواني التي انتظرها النظام حتى وصول البريد</td></tr>
+    <tr><td>أقصى وقت انتظار</td><td>الحد الأقصى لوقت الانتظار قبل انتهاء صلاحية الاختبار</td></tr>
+    <tr><td>سبب الفشل</td><td>السبب التقني الدقيق لفشل التسليم، إن وُجد</td></tr>
+  </tbody>
+</table>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>إذا وجد الاختبار مشكلة، يظهر أسفله مربع <strong>"التشخيص واستكشاف الأخطاء وإصلاحها"</strong> ويعرض <strong>"الأسباب المحتملة"</strong> و<strong>"ما الذي يجب التحقق منه لاحقًا"</strong> — وهي مبنية على الاستجابة الفعلية لخادم الموقع، وليست نصائح عامة.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">قراءة النتائج: مرجع سريع</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<div class="table-responsive mb-4">
+<table class="table table-bordered align-middle">
+  <thead class="table-light"><tr><th>نتيجة الاختبار</th><th>ما يجب فعله</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge text-bg-success">✅ درجة أعلى من ٧٠</span></td><td>كل شيء يعمل بشكل صحيح؛ راجع توصيات تقرير HTML لمزيد من التحسين.</td></tr>
+    <tr><td><span class="badge text-bg-warning text-dark">⚠️ درجة أقل من ٧٠</span></td><td>البريد يعمل لكنه قد يُصنَّف كرسالة غير مرغوب فيها؛ اتبع التوصيات وقم بإعداد SMTP.</td></tr>
+    <tr><td><span class="badge text-bg-danger">❌ تسليم البريد الإلكتروني لا يعمل</span></td><td>تثبيت وتهيئة WP Mail SMTP.</td></tr>
+    <tr><td><span class="badge text-bg-warning text-dark">⚠️ التسليم يستغرق وقتًا أطول من المتوقع</span></td><td>انتظر ٢-٣ دقائق وأعد تشغيل الاختبار؛ إذا تكرر الأمر، أعدّ SMTP.</td></tr>
+    <tr><td><span class="badge text-bg-danger">⏰ انتهت مهلة الاختبار</span></td><td>الاستضافة على الأرجح تحظر البريد الصادر؛ الحل هو SMTP عبر خدمة تعتمد على API.</td></tr>
+    <tr><td><span class="badge text-bg-danger">❌ لم يصل أي بريد</span></td><td>مثل انتهاء المهلة تمامًا — SMTP مطلوب.</td></tr>
+    <tr><td><span class="badge text-bg-warning text-dark">🔌 خطأ في الاتصال</span></td><td>خطأ مؤقت في الخادم — أعد تحميل الصفحة وحاول مرة أخرى.</td></tr>
+  </tbody>
+</table>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">المراقبة الأسبوعية التلقائية للبريد الإلكتروني <span class="badge text-bg-success">Free Plus+</span></h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>إلى جانب الاختبار اليدوي بنقرة واحدة، يشغّل منشئ النموذج السهل أيضًا اختبار قابلية تسليم تلقائيًا دون أي إجراء منك:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li>فور <strong>تفعيل الإضافة</strong></li>
+<li>بعد <strong>كل تحديث</strong></li>
+<li>و<strong>أسبوعيًا</strong></li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>تصل النتيجة في رسالة أسبوعية واحدة إلى البريد الإلكتروني للمدير، مكوّنة من قسمين مستقلين:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list">
+<li><strong>حالة تسليم البريد الإلكتروني</strong> — الدرجة، التقييم، حالة SPF/DKIM/DMARC، وعدد الرسائل الناجحة والفاشلة خلال الأسبوع</li>
+<li><strong>نشاط النماذج</strong> — إجمالي عدد النماذج، النماذج النشطة وغير النشطة، مشاهدات صفحات النماذج، وعدد الإرسالات خلال الأسبوع</li>
+</ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>لكل قسم مفتاح تفعيل/تعطيل مستقل في الإعدادات. يُرسَل هذا التقرير من الموقع نفسه وبعنوان المدير الخاص به — وليس من WhiteStudio — بحيث تصل رسالة واحدة فقط.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">الحل: تثبيت WP Mail SMTP</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>إذا فشل الاختبار أو كانت الدرجة أقل من ٧٠، فالحل الأكثر موثوقية هو تثبيت <strong>WP Mail SMTP</strong>. تستبدل هذه الإضافة دالة <code>mail()</code> الافتراضية في ووردبريس باتصال SMTP مُصادَق عليه يمكن للخوادم المستقبِلة التحقق منه والوثوق به.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<ol class="list-group list-group-numbered mb-4">
+  <li class="list-group-item">الذهاب إلى <strong>الإضافات ← أضف جديدًا</strong>.</li>
+  <li class="list-group-item">البحث عن <strong>WP Mail SMTP</strong>.</li>
+  <li class="list-group-item">النقر على <strong>تثبيت الآن</strong> ثم <strong>تفعيل</strong>.</li>
+  <li class="list-group-item">اتباع معالج الإعداد خطوة بخطوة.</li>
+</ol>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>إذا لم يوفّر مزوّد الاستضافة وصول SMTP مخصصًا، استخدم خدمة إرسال بريد إلكتروني مخصصة — SendGrid أو Mailgun أو Gmail/Google Workspace أو Amazon SES أو Brevo أو Postmark، وجميعها تعمل مع WP Mail SMTP.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="alert alert-warning d-flex" role="alert">
+  <div class="me-2">⚠️</div>
+  <div><strong>تذكير مهم:</strong> بعد تهيئة WP Mail SMTP، عد إلى منشئ النموذج السهل ← اللوحة ← الإعدادات ← إعدادات البريد الإلكتروني وتأكد من تطابق عنوان المُرسِل مع مرسل SMTP. ثم انقر مرة أخرى على "تحقق من خادم البريد الإلكتروني".</div>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">الأسئلة الشائعة</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<div class="accordion mb-4" id="efbFaqAr">
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqAr1">إذا كانت الدرجة أعلى من ٧٠ بالفعل، هل ما زلت بحاجة لإعداد SMTP؟</button></h3>
+    <div id="efbFaqAr1" class="accordion-collapse collapse" data-bs-parent="#efbFaqAr">
+      <div class="accordion-body">لا حاجة لذلك. الدرجة الأعلى من ٧٠ تعني أن الخادم يرسل البريد الإلكتروني بشكل صحيح. مع ذلك، يُنصح بإعداد SMTP لتحسين الدرجة أكثر وضمان موثوقية طويلة الأمد.</div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqAr2">درجتي أعلى من ٧٠ لكن الرسائل ما زالت تذهب إلى الرسائل غير المرغوب فيها، لماذا؟</button></h3>
+    <div id="efbFaqAr2" class="accordion-collapse collapse" data-bs-parent="#efbFaqAr">
+      <div class="accordion-body">الدرجة الجيدة تعني أن الخادم قادر على إرسال البريد الإلكتروني. تصنيف الرسائل كغير مرغوب فيها مسألة منفصلة، غالبًا بسبب محتوى البريد أو سجلات DNS الناقصة. افتح التقرير الكامل بصيغة HTML المُرسَل إلى البريد الإلكتروني للمدير — يحتوي على توصيات محددة.</div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqAr3">هل يؤثر WP Mail SMTP على جميع رسائل ووردبريس؟</button></h3>
+    <div id="efbFaqAr3" class="accordion-collapse collapse" data-bs-parent="#efbFaqAr">
+      <div class="accordion-body">نعم. بعد التهيئة، تمر جميع رسائل ووردبريس — إعادة تعيين كلمة المرور، طلبات ووكومرس، تسجيل المستخدمين، وتنبيهات منشئ النموذج السهل — عبر نفس اتصال SMTP.</div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqAr4">عنوان المُرسِل متطابق في كلا المكانين، لكن البريد ما زال يفشل. ماذا الآن؟</button></h3>
+    <div id="efbFaqAr4" class="accordion-collapse collapse" data-bs-parent="#efbFaqAr">
+      <div class="accordion-body">تحقق من لوحة تفاصيل التسليم وانظر إلى حقل سبب الفشل. ثم اقرأ قائمة الأسباب المحتملة في التشخيص واستكشاف الأخطاء وإصلاحها — وهي مبنية على الاستجابة الفعلية لخادم الموقع.</div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqAr5">هل يجب أن أشترك في خدمة SMTP مدفوعة؟</button></h3>
+    <div id="efbFaqAr5" class="accordion-collapse collapse" data-bs-parent="#efbFaqAr">
+      <div class="accordion-body">لا. خدمة SMTP المدمجة في الاستضافة غالبًا مجانية. لحجم أكبر أو موثوقية أفضل، توفر خدمات مثل SendGrid وBrevo باقات مجانية تكفي معظم المواقع الصغيرة والمتوسطة.</div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqAr6">هل يمكنني تشغيل الاختبار أكثر من مرة؟</button></h3>
+    <div id="efbFaqAr6" class="accordion-collapse collapse" data-bs-parent="#efbFaqAr">
+      <div class="accordion-body">نعم. أعد تشغيله بعد أي تغيير في إعدادات البريد الإلكتروني أو SMTP للتأكد من نجاح الحل.</div>
+    </div>
+  </div>
+
+</div>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<div class="alert alert-success">
+  <h2 class="h4">الخلاصة</h2>
+  <p class="mb-0">معظم حالات "نموذج الاتصال في ووردبريس لا يعمل" هي في الواقع مشكلة في تسليم البريد الإلكتروني، وليست مشكلة في النموذج نفسه. بدلًا من التخمين، يشغّل منشئ النموذج السهل اختبار بريد إلكتروني حقيقي — بمساعدة WhiteStudio كشريك للتحقق من التسليم — مباشرة داخل لوحة تحكم ووردبريس: إرسال حقيقي، تأكيد تسليم فعلي، درجة قابلية للتسليم، فحص SPF/DKIM/DMARC، وتقرير كامل مُحلَّل بالذكاء الاصطناعي. يعمل هذا الاختبار نفسه تلقائيًا أيضًا في الخلفية — عند التفعيل، بعد كل تحديث، وأسبوعيًا.</p>
+</div>
+<!-- /wp:html -->
+
+</div>
+<!-- /wp:group -->

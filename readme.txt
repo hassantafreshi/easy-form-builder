@@ -289,6 +289,39 @@ Yes. Form entries and responses can be downloaded in PDF and CSV formats.
 = Does the form plugin support file uploads? =
 Yes. Users can upload files through forms, and administrators can attach files in replies.
 
+= How many files can one visitor upload to my form? =
+Easy Form Builder works this out from your own form, so there is nothing to configure. Each visitor may upload three files for every file field on the form. A form with one attachment field allows three uploads, a form with four attachment fields allows twelve, and the reply box on a confirmation-code conversation allows three. The count resets one hour later.
+
+The extra room is deliberate: someone who picks the wrong file, removes it, and uploads the right one should never be stopped. What it does prevent is the same visitor uploading files over and over in a loop.
+
+= Why does my visitor see "You can attach up to 3 files here"? =
+That message appears when someone has used up their upload allowance for the form they are on. It tells them how many files are allowed and roughly how long to wait, and it goes away by itself once the hour is up. If genuine visitors are seeing it on a form where they legitimately need more attachments, raise the allowance on the Security & Spam Protection page as described below.
+
+= Can I change how many files a visitor may upload? =
+Yes, on the Security & Spam Protection page, in the "File upload budget" section. Every box there starts at 0, which means "keep the automatic behaviour", so nothing changes until you decide to change it.
+
+* Uploads allowed per file field - the default is 3. Set it to 5 and a two-field form then allows ten uploads.
+* Total uploads per visitor - a flat number that ignores how many fields the form has. Use it when you want one simple limit for the whole site.
+* Budget resets after - how long before a visitor's allowance is refreshed. The default is 3600 seconds (one hour).
+* Maximum file size - a site-wide ceiling in MB. It can only make a limit stricter, never looser, so a field you set to 2 MB stays at 2 MB.
+
+= Is there an upload limit if I don't install the Security & Spam Protection add-on? =
+Yes. The upload limit is part of the main plugin and is always active. The add-on does not add the protection; it only lets you replace the automatic numbers with your own and gives you the security log to review.
+A visitor may attach a file and then close the page without submitting the form. Those files used to stay on the server forever. Easy Form Builder now keeps track of them and removes any file that has not been attached to a real submission after 24 hours. Files belonging to a submitted form or a saved reply are never touched.
+
+= How large a file can visitors upload? =
+Each file upload field has its own "Maximum file size" setting in the form builder, and that setting is now enforced on the server as well as in the browser, so it applies no matter how the file is sent. Fields with no size set use 20 MB. Your hosting's own PHP limit still applies on top and can only lower the figure, never raise it.
+
+= Why was a file rejected even though the file type looked correct? =
+Easy Form Builder checks the actual contents of the file, not just its name. If a file is named report.pdf but its contents are not really a PDF, it is refused. This is what stops a harmful file from being disguised with a harmless-looking name. A genuine PDF, image, document, archive, audio, or video file passes normally. If you restricted a field to particular extensions, only those are accepted, and executable or script file types are never accepted on any field.
+
+= Does the "Acceptable file types" setting actually block other file types? =
+Yes. The Image, Media, Document, and Zip options are now enforced on the server as well as in the browser, so a field set to Document accepts only documents and no longer stores an image that was sent directly. Previously only the Customize option was checked on the server. Choose All formats if you want the field to keep accepting everything.
+
+= Can visitors attach any file type in the reply box? =
+The reply box on a confirmation-code conversation accepts the same broad range as an All formats field: images, documents, archives, audio, and video. It has no per-field type setting of its own, because it is not part of a form. Executable and script file types are refused there exactly as they are everywhere else, and the same three-file limit applies. If you want the reply box restricted to specific extensions, a developer can do so with the emsfb_upload_response_box_extensions filter.
+
+
 = Can I create payment forms with Stripe? =
 Yes. Stripe payment fields are supported.
 [How to Create a payment form to collect online payments in Easy Form Builder](https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/)
@@ -445,6 +478,26 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 
 == Changelog ==
+
+= 4.1.3 =
+
+* New: Built-in file upload limit. Each visitor may now upload three files per file upload field on a form, and three in the confirmation-code reply box, resetting after an hour. This works in the main plugin with no add-on required, and visitors who reach the limit see a clear message explaining what to do instead of a generic error.
+
+* New: The "File upload budget" section on the Security & Spam Protection page lets you set the upload allowance, the reset window, and a site-wide maximum file size yourself. Every box starts at 0, meaning the automatic behaviour is kept, so existing sites are unaffected until you change something.
+
+* Fixed: The "Maximum file size" setting on a file upload field is now enforced on the server, not only in the browser. Fields with no size set use a 20 MB default instead of relying on the hosting's PHP limit.
+
+* Fixed: The "Acceptable file types" setting is now enforced on the server for the Image, Media, Document, and Zip options too, not only for Customize. A field set to Document no longer stores an image that was sent directly to the server. The reply box keeps accepting the same broad range as before, and All formats is unchanged.
+
+* Fixed: Forms with several file upload fields could have an upload rejected by the Security & Spam Protection per-minute limit when the visitor picked their files quickly. The per-minute limit now takes the number of upload fields on the form into account, so a four-attachment form always has room for four files.
+
+* Improved: File type checking now matches the file's real contents against its extension, instead of trusting the file type reported by the browser. A file disguised with a harmless-looking name is refused.
+
+* Improved: Widened the list of never-allowed file extensions and moved it to one shared place, so all upload paths in the plugin apply exactly the same rules.
+
+* New: Files that a visitor uploads but never submits are now removed automatically after 24 hours. Files attached to a real submission or reply are never removed.
+
+* Improved: Upload errors now show the actual reason - file too large, file type not accepted, upload limit reached - instead of prefixing every failure with a connection warning.
 
 = 4.1.2 =
 

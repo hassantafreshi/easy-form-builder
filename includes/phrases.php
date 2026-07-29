@@ -639,6 +639,26 @@ class EfbAddonPhrases {
             "hsFieldPaymentIpMinLabel" => $state && isset($ac->text->hsFieldPaymentIpMinLabel) ? $ac->text->hsFieldPaymentIpMinLabel : __('Payment starts per IP/min', 'easy-form-builder'),
             /* translators: Hint for the payment-start rate limit field */
             "hsFieldPaymentIpMinHint" => $state && isset($ac->text->hsFieldPaymentIpMinHint) ? $ac->text->hsFieldPaymentIpMinHint : __('Protects payment REST routes.', 'easy-form-builder'),
+            /* translators: Section title for the settings that control how many files one visitor may upload */
+            "hsUploadBudgetTitle" => $state && isset($ac->text->hsUploadBudgetTitle) ? $ac->text->hsUploadBudgetTitle : __('File upload budget', 'easy-form-builder'),
+            /* translators: Description of the upload budget section. Explains that the plugin already limits uploads by itself and these boxes only override it. */
+            "hsUploadBudgetDesc" => $state && isset($ac->text->hsUploadBudgetDesc) ? $ac->text->hsUploadBudgetDesc : __('Easy Form Builder already limits uploads on its own: each visitor may upload three files per file field on the form, and the response box allows three. Leave a box at 0 to keep that automatic behaviour, or enter a number to set it yourself.', 'easy-form-builder'),
+            /* translators: Field label - how many uploads are allowed for each file field on a form */
+            "hsFieldUploadRetryLabel" => $state && isset($ac->text->hsFieldUploadRetryLabel) ? $ac->text->hsFieldUploadRetryLabel : __('Uploads allowed per file field', 'easy-form-builder'),
+            /* translators: Hint for the per-file-field upload allowance; "0" refers to the field's own value */
+            "hsFieldUploadRetryHint" => $state && isset($ac->text->hsFieldUploadRetryHint) ? $ac->text->hsFieldUploadRetryHint : __('Default 3, so a two-field form allows six uploads. 0 keeps the default.', 'easy-form-builder'),
+            /* translators: Field label - a fixed total number of uploads allowed per visitor */
+            "hsFieldUploadQuotaLabel" => $state && isset($ac->text->hsFieldUploadQuotaLabel) ? $ac->text->hsFieldUploadQuotaLabel : __('Total uploads per visitor', 'easy-form-builder'),
+            /* translators: Hint for the fixed total upload limit; "0" refers to the field's own value */
+            "hsFieldUploadQuotaHint" => $state && isset($ac->text->hsFieldUploadQuotaHint) ? $ac->text->hsFieldUploadQuotaHint : __('A fixed total that ignores how many fields the form has. 0 keeps the automatic per-field calculation.', 'easy-form-builder'),
+            /* translators: Field label - how long before a visitor's upload allowance resets */
+            "hsFieldUploadWindowLabel" => $state && isset($ac->text->hsFieldUploadWindowLabel) ? $ac->text->hsFieldUploadWindowLabel : __('Budget resets after (seconds)', 'easy-form-builder'),
+            /* translators: Hint for the upload budget reset window; "0" refers to the field's own value */
+            "hsFieldUploadWindowHint" => $state && isset($ac->text->hsFieldUploadWindowHint) ? $ac->text->hsFieldUploadWindowHint : __('Default 3600 (one hour). 0 keeps the default.', 'easy-form-builder'),
+            /* translators: Field label - a site-wide maximum upload size in megabytes */
+            "hsFieldUploadMaxMbLabel" => $state && isset($ac->text->hsFieldUploadMaxMbLabel) ? $ac->text->hsFieldUploadMaxMbLabel : __('Maximum file size (MB)', 'easy-form-builder'),
+            /* translators: Hint for the site-wide maximum upload size; "0" refers to the field's own value */
+            "hsFieldUploadMaxMbHint" => $state && isset($ac->text->hsFieldUploadMaxMbHint) ? $ac->text->hsFieldUploadMaxMbHint : __('A site-wide ceiling. It can only tighten a per-field limit, never widen it. 0 keeps the field setting.', 'easy-form-builder'),
             /* translators: Toggle label - rate-limit tracking-code lookups without requiring a human token */
             "hsFieldProtectLookupLabel" => $state && isset($ac->text->hsFieldProtectLookupLabel) ? $ac->text->hsFieldProtectLookupLabel : __('Protect response lookup', 'easy-form-builder'),
             /* translators: Hint for the response-lookup protection toggle */
@@ -1079,9 +1099,6 @@ class EfbAddonPhrases {
 
             /* translators: Content = column header for message content preview */
             "content" => $state && isset($ac->text->content) ? $ac->text->content : esc_html__('Content', 'easy-form-builder'),
-
-            /* translators: Description shown when there are no responses yet */
-            "noResponseDesc" => $state && isset($ac->text->noResponseDesc) ? $ac->text->noResponseDesc : esc_html__('Submitted responses will appear here.', 'easy-form-builder'),
 
             /* translators: Saving message */
             "saving" => $state && isset($ac->text->saving) ? $ac->text->saving : esc_html__('Saving&hellip;', 'easy-form-builder'),

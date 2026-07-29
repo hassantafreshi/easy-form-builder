@@ -1,0 +1,335 @@
+<!-- SEO TITLE: WordPress E-Mail Test Plugin: Warum das Kontaktformular keine E-Mails sendet (Easy Form Builder Anleitung) -->
+<!-- META DESCRIPTION: Mit dem integrierten E-Mail-Test in Easy Form Builder (powered by WhiteStudio) herausfinden, warum das WordPress-Kontaktformular keine E-Mail sendet — Zustellbarkeits-Bewertung, SPF/DKIM/DMARC-Prüfung und die WP-Mail-SMTP-Lösung. -->
+<!-- Alles unterhalb dieser Zeile in den Code-Editor des WordPress-Block-Editors einfügen (⋮-Menü → "Code-Editor"). Setzt voraus, dass Bootstrap 5 CSS/JS auf der Website bereits eingebunden ist. -->
+
+<!-- wp:group {"className":"efb-article-de"} -->
+<div class="wp-block-group efb-article-de" lang="de">
+
+<!-- wp:html -->
+<div class="p-5 mb-5 rounded-4 text-white" style="background:linear-gradient(135deg,#0b4f47,#0f6e63 130%);">
+  <span class="badge text-bg-light text-uppercase small mb-3" style="letter-spacing:.08em;">Easy Form Builder × WhiteStudio</span>
+  <h1 class="display-5 fw-bold mt-2">WordPress E-Mail Test Plugin: Warum das Kontaktformular keine E-Mails sendet</h1>
+  <p class="lead mb-0" style="max-width:60ch;">Die vollständige Anleitung zum integrierten E-Mail-Server-Test in Easy Form Builder — echter Versand, eine Zustellbarkeits-Bewertung und ein KI-analysierter Bericht.</p>
+  <div class="mt-4 d-flex flex-wrap gap-2">
+    <span class="badge rounded-pill text-bg-light">WordPress E-Mail Test Plugin</span>
+    <span class="badge rounded-pill text-bg-light">WordPress Kontaktformular funktioniert nicht</span>
+    <span class="badge rounded-pill text-bg-light">9 Min. Lesezeit</span>
+  </div>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>Wer nach "<strong>WordPress Kontaktformular funktioniert nicht</strong>" sucht, findet selten den entscheidenden Hinweis: In den meisten Fällen macht das Formular genau das, was es soll. Es nimmt die Eingabe entgegen, speichert sie in der Datenbank und versucht, eine Benachrichtigungs-E-Mail zu senden. Das Problem entsteht einen Schritt später — dort, wo die wenigsten Website-Betreiber hinschauen: ob der Hosting-Server die E-Mail tatsächlich zugestellt hat.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Deshalb hilft es selten, nur die Formular-Einstellungen zu ändern. Was tatsächlich weiterhilft, ist ein <strong>WordPress E-Mail Test Plugin</strong>, das eine echte E-Mail versendet und prüft, ob sie angekommen ist — statt zu raten. Easy Form Builder hat genau dieses Werkzeug direkt in den eigenen Einstellungen, ohne zusätzliches Plugin.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Warum WordPress-Kontaktformulare keine E-Mails versenden</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>WordPress nutzt standardmäßig die <code>mail()</code>-Funktion von PHP, keinen authentifizierten Zustelldienst. Auf Shared Hosting bedeutet das häufig:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li>Der Hoster blockiert oder drosselt die <code>mail()</code>-Funktion von PHP.</li>
+<li>Die E-Mail wird versendet, landet aber mangels Authentifizierung direkt im Spam oder wird abgelehnt.</li>
+<li>Der <strong>SPF</strong>-Eintrag der Domain fehlt oder ist falsch.</li>
+<li><strong>DKIM</strong> ist nicht konfiguriert, sodass der Empfänger den Absender nicht verifizieren kann.</li>
+<li>Es existiert keine <strong>DMARC</strong>-Richtlinie.</li>
+<li>Die im Formular-Builder hinterlegte <strong>Absenderadresse</strong> stimmt nicht mit dem im SMTP-Plugin konfigurierten Absender überein.</li>
+<li>Greylisting oder Spamfilter auf dem Zielserver halten die Nachricht vorübergehend zurück.</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Nichts davon ist im wp-admin sichtbar — WordPress meldet die E-Mail meist als "gesendet", selbst wenn sie nie ankommt. Der einzige zuverlässige Weg ist, eine echte E-Mail zu senden und die tatsächliche Zustellung von einem unabhängigen Server bestätigen zu lassen — genau das macht der E-Mail-Test von Easy Form Builder.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Der integrierte E-Mail-Server-Test in Easy Form Builder</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Easy Form Builder bringt die Funktion <strong>"E-Mail-Server prüfen"</strong> direkt in den Einstellungen mit. Sie sendet eine echte E-Mail über die aktuelle Serverkonfiguration der Website und bestätigt mithilfe des Partnerdienstes <strong>WhiteStudio</strong>, ob sie tatsächlich angekommen ist. Das Ergebnis erscheint live, Schritt für Schritt, im selben Bedienfeld — samt Bewertung und einem vollständigen Bericht per E-Mail an die Administrator-E-Mail.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="alert alert-warning d-flex" role="alert">
+  <div class="me-2">⚠️</div>
+  <div><strong>Vor dem Start:</strong> Die <strong>Absenderadresse</strong> in den Einstellungen von Easy Form Builder muss exakt mit dem im SMTP-Plugin konfigurierten Absender übereinstimmen. Stimmen beide nicht überein, wird die E-Mail selbst bei korrekt eingerichtetem SMTP nicht zugestellt. Der Standardwert ist <code>admin@example.com</code> — vor dem Test durch eine echte Adresse auf der eigenen Domain ersetzen.</div>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">So wird der Test gestartet</h3>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<ol class="list-group list-group-numbered mb-4">
+  <li class="list-group-item">Im WordPress-Dashboard anmelden.</li>
+  <li class="list-group-item">In der Seitenleiste <strong>Easy Form Builder</strong> öffnen.</li>
+  <li class="list-group-item">Auf <strong>Bedienfeld</strong> klicken, um das Hauptpanel zu öffnen.</li>
+  <li class="list-group-item">Im oberen Menü <strong>Einstellungen</strong> öffnen.</li>
+  <li class="list-group-item">Den Tab <strong>E-Mail-Einstellungen</strong> öffnen.</li>
+  <li class="list-group-item">Sicherstellen, dass <strong>Administrator-E-Mail</strong> eine gültige Adresse enthält — dorthin geht der vollständige Bericht.</li>
+  <li class="list-group-item">Auf <strong>"E-Mail-Server prüfen"</strong> klicken.</li>
+</ol>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Die 5 Schritte des Tests, von der Verbindung bis zum Abschlussbericht</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<div class="mb-4 d-flex flex-wrap gap-2">
+  <span class="badge text-bg-light border">⏳ Läuft</span>
+  <span class="badge text-bg-success">✅ Erfolg</span>
+  <span class="badge text-bg-warning text-dark">⚠️ Warnung</span>
+  <span class="badge text-bg-danger">❌ Fehlgeschlagen</span>
+</div>
+
+<ol class="list-group list-group-numbered mb-4">
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto">
+      <div class="fw-bold">Test vorbereiten</div>
+      Verbindung zum WhiteStudio-Server, eine einmalige Test-E-Mail-Adresse wird empfangen.
+    </div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto">
+      <div class="fw-bold">Test-E-Mail senden</div>
+      WordPress sendet eine echte E-Mail über die aktuelle Serverkonfiguration — keine Simulation.
+    </div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto">
+      <div class="fw-bold">Warten auf Zustellung</div>
+      Das System wartet, bis die E-Mail bei WhiteStudio ankommt — bei den meisten Servern 5–15 Sekunden.
+    </div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto">
+      <div class="fw-bold">Schnelles Ergebnis</div>
+      Das erste Ergebnis erscheint sofort: eine Statusanzeige (Status des E-Mail-Servers) mit Bewertung und Grade-Badge.
+    </div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto">
+      <div class="fw-bold">Vollständiger Bericht</div>
+      Ein detaillierter HTML-Bericht wird erstellt und an die Administrator-E-Mail gesendet.
+    </div>
+  </li>
+</ol>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Zustellbarkeits-Bewertung, Grade und der KI-analysierte Bericht</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<div class="card mb-4 shadow-sm" style="max-width:520px;">
+  <div class="card-body d-flex align-items-center gap-3">
+    <div class="rounded-circle border border-success border-3 d-flex flex-column align-items-center justify-content-center" style="width:84px;height:84px;flex:none;">
+      <span class="fw-bold fs-4">84</span>
+      <small class="text-muted" style="font-size:10px;">/ 100</small>
+    </div>
+    <div>
+      <div class="fw-bold">Beispiel für ein erfolgreiches Ergebnis <span class="badge text-bg-success">Funktioniert</span></div>
+      <small class="text-muted">Eine Bewertung über 70 bedeutet, dass die E-Mail-Infrastruktur korrekt funktioniert. Unter 70 wird die E-Mail zwar zugestellt, landet aber wahrscheinlich im Spam.</small>
+    </div>
+  </div>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>Der vollständige Bericht aus Schritt 5 wird auf dem WhiteStudio-Server mit KI analysiert und enthält:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li>Zustellbarkeits-Bewertung und Grade</li>
+<li>Spam-Score-Analyse mit der <strong>SpamAssassin</strong>-Engine</li>
+<li>Authentifizierungsprüfung für <strong>SPF / DKIM / DMARC</strong></li>
+<li>Auslieferungsdetails</li>
+<li>Mögliche Ursachen und was als Nächstes zu prüfen ist</li>
+<li>Konkrete Empfehlungen zur Verbesserung der Bewertung</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p><em>Dieser Bericht basiert auf der tatsächlichen Antwort des eigenen Servers — nicht auf einer allgemeinen Checkliste.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Das Feld "Auslieferungsdetails" verstehen</h3>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<div class="table-responsive mb-4">
+<table class="table table-bordered table-striped align-middle">
+  <thead class="table-light"><tr><th>Feld</th><th>Bedeutung</th></tr></thead>
+  <tbody>
+    <tr><td>Test gesendet an</td><td>Die einmalige WhiteStudio-Adresse, an die die Test-E-Mail gesendet wurde</td></tr>
+    <tr><td>E-Mail-Betreff</td><td>Die in der Test-E-Mail verwendete Betreffzeile</td></tr>
+    <tr><td>Absender</td><td>Die "Von"-Adresse, die die Website verwendet hat</td></tr>
+    <tr><td>E-Mail erhalten</td><td>Ob die Test-E-Mail tatsächlich angekommen ist — Ja oder Nein</td></tr>
+    <tr><td>Betreff stimmt überein</td><td>Ob die Betreffzeile bei der Zustellung unverändert blieb</td></tr>
+    <tr><td>Eindeutiger Code stimmt überein</td><td>Ob der Test-Hash im E-Mail-Text unverändert ankam</td></tr>
+    <tr><td>Wartezeit</td><td>Wie viele Sekunden das System auf die Zustellung gewartet hat</td></tr>
+    <tr><td>Maximale Wartezeit</td><td>Die maximale Wartezeit, bevor der Test abläuft</td></tr>
+    <tr><td>Fehlerursache</td><td>Der genaue technische Grund für die fehlgeschlagene Zustellung, falls zutreffend</td></tr>
+  </tbody>
+</table>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>Wurde ein Problem gefunden, erscheint darunter das Feld <strong>"Diagnose und Problembehandlung"</strong> mit <strong>"Mögliche Ursachen"</strong> und <strong>"Was als nächstes zu prüfen ist"</strong> — erzeugt aus der tatsächlichen Antwort des eigenen Servers, nicht aus allgemeinen Ratschlägen.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Ergebnisse verstehen: Kurzübersicht</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<div class="table-responsive mb-4">
+<table class="table table-bordered align-middle">
+  <thead class="table-light"><tr><th>Ergebnis</th><th>Was zu tun ist</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge text-bg-success">✅ Bewertung über 70</span></td><td>Alles funktioniert. Empfehlungen im HTML-Bericht für weitere Verbesserungen prüfen.</td></tr>
+    <tr><td><span class="badge text-bg-warning text-dark">⚠️ Bewertung unter 70</span></td><td>E-Mail funktioniert, landet aber eventuell im Spam. Empfehlungen befolgen und SMTP einrichten.</td></tr>
+    <tr><td><span class="badge text-bg-danger">❌ Die Auslieferung von E-Mails funktioniert nicht</span></td><td>WP Mail SMTP installieren und konfigurieren.</td></tr>
+    <tr><td><span class="badge text-bg-warning text-dark">⚠️ Die Auslieferung dauert länger als erwartet</span></td><td>2–3 Minuten warten und den Test erneut ausführen; bei wiederholtem Auftreten SMTP einrichten.</td></tr>
+    <tr><td><span class="badge text-bg-danger">⏰ Test abgelaufen (Timeout)</span></td><td>Der Hoster blockiert vermutlich ausgehende E-Mails; SMTP mit einem API-basierten Dienst ist die Lösung.</td></tr>
+    <tr><td><span class="badge text-bg-danger">❌ Keine E-Mail angekommen</span></td><td>Wie beim Timeout — SMTP ist erforderlich.</td></tr>
+    <tr><td><span class="badge text-bg-warning text-dark">🔌 Verbindungsfehler</span></td><td>Ein vorübergehender Serverfehler — Seite neu laden und erneut versuchen.</td></tr>
+  </tbody>
+</table>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Automatisches wöchentliches E-Mail-Monitoring <span class="badge text-bg-success">Free Plus+</span></h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Zusätzlich zum manuellen Test führt Easy Form Builder auch einen automatischen Zustellbarkeitstest aus, ganz ohne Zutun:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li>Direkt nach der <strong>Plugin-Aktivierung</strong></li>
+<li>Nach <strong>jedem Update</strong></li>
+<li>Und <strong>wöchentlich</strong></li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Das Ergebnis landet in einer wöchentlichen E-Mail an die Administrator-E-Mail, bestehend aus zwei unabhängigen Abschnitten:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list">
+<li><strong>Status der E-Mail-Zustellung</strong> — Bewertung, Grade, Status von SPF/DKIM/DMARC sowie erfolgreiche und fehlgeschlagene E-Mails dieser Woche</li>
+<li><strong>Formularaktivität</strong> — Gesamtzahl der Formulare, aktive/inaktive Formulare, Seitenaufrufe und Formularübermittlungen dieser Woche</li>
+</ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Jeder Abschnitt lässt sich einzeln in den Einstellungen ein- oder ausschalten. Der Bericht wird von der eigenen Website mit der eigenen Administrator-Adresse versendet — nicht von WhiteStudio —, sodass nur eine einzige E-Mail ankommt.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Die Lösung: WP Mail SMTP installieren</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Ist der Test fehlgeschlagen oder liegt die Bewertung unter 70, ist die zuverlässigste Lösung die Installation von <strong>WP Mail SMTP</strong>. Das Plugin ersetzt die Standard-<code>mail()</code>-Funktion von WordPress durch eine authentifizierte SMTP-Verbindung, die empfangende Server verifizieren und als vertrauenswürdig einstufen können.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<ol class="list-group list-group-numbered mb-4">
+  <li class="list-group-item">Zu <strong>Plugins → Installieren</strong> gehen.</li>
+  <li class="list-group-item">Nach <strong>WP Mail SMTP</strong> suchen.</li>
+  <li class="list-group-item">Auf <strong>Jetzt installieren</strong> und dann <strong>Aktivieren</strong> klicken.</li>
+  <li class="list-group-item">Dem Einrichtungsassistenten Schritt für Schritt folgen.</li>
+</ol>
+<!-- /wp:html -->
+
+<!-- wp:paragraph -->
+<p>Bietet der Hoster keinen eigenen SMTP-Zugang, hilft ein dedizierter E-Mail-Versanddienst — SendGrid, Mailgun, Gmail/Google Workspace, Amazon SES, Brevo oder Postmark funktionieren alle mit WP Mail SMTP.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:html -->
+<div class="alert alert-warning d-flex" role="alert">
+  <div class="me-2">⚠️</div>
+  <div><strong>Wichtig:</strong> Nach der Konfiguration von WP Mail SMTP zurück zu Easy Form Builder → Bedienfeld → Einstellungen → E-Mail-Einstellungen gehen und sicherstellen, dass die Absenderadresse mit dem SMTP-Absender übereinstimmt. Danach erneut auf "E-Mail-Server prüfen" klicken.</div>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Häufig gestellte Fragen</h2>
+<!-- /wp:heading -->
+
+<!-- wp:html -->
+<div class="accordion mb-4" id="efbFaqDe">
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqDe1">Brauche ich SMTP, wenn die Bewertung bereits über 70 liegt?</button></h3>
+    <div id="efbFaqDe1" class="accordion-collapse collapse" data-bs-parent="#efbFaqDe">
+      <div class="accordion-body">Nein. Eine Bewertung über 70 bedeutet, dass der Server E-Mails korrekt versendet. SMTP wird trotzdem empfohlen, um die Bewertung weiter zu verbessern und die Zustellung langfristig zuverlässig zu halten.</div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqDe2">Die Bewertung liegt über 70, aber E-Mails landen trotzdem im Spam. Warum?</button></h3>
+    <div id="efbFaqDe2" class="accordion-collapse collapse" data-bs-parent="#efbFaqDe">
+      <div class="accordion-body">Eine gute Bewertung bedeutet, dass der Server E-Mails senden kann. Die Spam-Einstufung ist ein separates Thema, meist bedingt durch den E-Mail-Inhalt oder fehlende DNS-Einträge. Den vollständigen HTML-Bericht öffnen, der an die Administrator-E-Mail gesendet wurde — er listet konkrete Empfehlungen auf.</div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqDe3">Betrifft WP Mail SMTP alle WordPress-E-Mails?</button></h3>
+    <div id="efbFaqDe3" class="accordion-collapse collapse" data-bs-parent="#efbFaqDe">
+      <div class="accordion-body">Ja. Nach der Konfiguration laufen alle WordPress-E-Mails — Passwort-Zurücksetzungen, WooCommerce-Bestellungen, Benutzerregistrierungen und Benachrichtigungen von Easy Form Builder — über dieselbe SMTP-Verbindung.</div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqDe4">Die Absenderadresse stimmt an beiden Stellen überein, aber E-Mails schlagen trotzdem fehl. Was jetzt?</button></h3>
+    <div id="efbFaqDe4" class="accordion-collapse collapse" data-bs-parent="#efbFaqDe">
+      <div class="accordion-body">Das Feld Auslieferungsdetails prüfen und auf die Fehlerursache achten. Anschließend die Liste Mögliche Ursachen unter Diagnose und Problembehandlung lesen — sie basiert auf der tatsächlichen Antwort des eigenen Servers.</div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqDe5">Muss ich einen kostenpflichtigen SMTP-Dienst kaufen?</button></h3>
+    <div id="efbFaqDe5" class="accordion-collapse collapse" data-bs-parent="#efbFaqDe">
+      <div class="accordion-body">Nein. Der eingebaute SMTP-Dienst des Hosters ist meist kostenlos. Für höheres Volumen oder bessere Zustellbarkeit bieten Dienste wie SendGrid und Brevo kostenlose Kontingente, die für die meisten kleinen und mittleren Websites ausreichen.</div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#efbFaqDe6">Kann der Test mehrfach ausgeführt werden?</button></h3>
+    <div id="efbFaqDe6" class="accordion-collapse collapse" data-bs-parent="#efbFaqDe">
+      <div class="accordion-body">Ja. Nach jeder Änderung an den E-Mail- oder SMTP-Einstellungen erneut ausführen, um sicherzugehen, dass die Lösung funktioniert hat.</div>
+    </div>
+  </div>
+
+</div>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<div class="alert alert-success">
+  <h2 class="h4">Fazit</h2>
+  <p class="mb-0">Die meisten Fälle von "WordPress Kontaktformular funktioniert nicht" sind tatsächlich ein Problem der E-Mail-Zustellung, nicht ein Problem des Formulars selbst. Statt zu raten, führt Easy Form Builder einen echten E-Mail-Test durch — mit WhiteStudio als Partner für die Zustellungsprüfung — direkt im WordPress-Dashboard: echter Versand, echte Zustellungsbestätigung, eine Zustellbarkeits-Bewertung, SPF/DKIM/DMARC-Prüfung und ein vollständiger, KI-analysierter Bericht. Derselbe Test läuft außerdem automatisch im Hintergrund — bei der Aktivierung, nach jedem Update und wöchentlich.</p>
+</div>
+<!-- /wp:html -->
+
+</div>
+<!-- /wp:group -->

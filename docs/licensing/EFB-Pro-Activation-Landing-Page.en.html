@@ -1,0 +1,916 @@
+<!--
+============================================================================
+ EFB PRO ACTIVATION — LANDING PAGE (Gutenberg block markup, English)
+============================================================================
+ HOW TO USE:
+ 1. Create/edit the WordPress page, switch the block editor to
+    "Code editor" (⋮ menu → Code editor), select all, paste this entire
+    file's content (everything below this comment block, starting at
+    "<!-- wp:html -->"), switch back to Visual editor, publish.
+ 2. This uses Bootstrap grid/utility classes (container, row, col-*,
+    d-flex, gap-*, btn) for layout, plus a small scoped <style> block
+    (prefixed .efb-pro-landing, won't leak onto other pages) for the
+    brand gradients/colors Bootstrap doesn't provide out of the box.
+ 3. All product facts (button labels, field names, messages, plan
+    limits) are copied verbatim from the plugin's own code/translation
+    files — the same source used for docs/licensing/
+    EFB-Pro-Activation-Complete-Guide.en.md. Keep the two in sync if you
+    edit either one.
+ 4. Sections on this page, in order: sticky quick-nav, hero, quick facts,
+    3-plan cards, full feature-by-feature comparison table
+    (#efb-compare-table), the 6-category feature overview — Form types/
+    Fields/Notifications/Entries/Integrations/Security (#efb-everything),
+    the complete 42-field chip grid tagged Free / Free Plus / Add-on
+    (#efb-all-fields), the real 2-step activation flow — each step shown
+    as an image-showcase row (real screenshot + numbered badge on one
+    side, copy on the other, alternating sides) with a compact "prefer to
+    watch?" card linking out to the real YouTube walkthrough — "what
+    happens afterward" cards, FAQ, final CTA. The field/feature counts
+    and category copy come from the site's own features/pricing page
+    content, not from this plugin's source code — update them from that
+    page if it changes.
+ 5. The step screenshots and the video thumbnail hotlink the existing
+    images already hosted on whitestudio.team (from the previous
+    activation article) and the existing YouTube video's thumbnail
+    (img.youtube.com). That works as-is since it's the same site, but if
+    you'd rather this page not depend on another article's media,
+    re-upload those 4 images to this page's own block/media library and
+    swap the `src` attributes. The video is a link-out card by design
+    (not an embedded iframe) so it doesn't compete visually with the
+    steps — click it to open the video in a new tab.
+ 6. The 3 plan cards use the exact badge/tagline/feature-list wording
+    from the real in-product "Change Plan" overlay (includes/admin/
+    assets/js/val-efb.js, ~lines 2638-2763, backed by the text keys in
+    includes/functions.php ~lines 498-557) — including the Free Plus
+    card's "Lightweight 'Powered by Easy Form Builder' credit & link"
+    info line, shown exactly like the real UI (an info icon, not a
+    checkmark, since it's a trade-off rather than a feature). The ✓ / 🔒
+    / ℹ characters are plain Unicode so the page doesn't depend on an
+    icon font; if Bootstrap Icons is loaded on your site already (the
+    plugin's own admin UI uses it), you can swap them for
+    `<i class="bi bi-check-circle-fill">`, `bi-lock-fill`, and
+    `bi-info-circle-fill` to match the real overlay pixel-for-pixel.
+ 7. Jalali Date and Hijri Date are tagged Pro (not Free Plus) per the
+    site owner's correction — they ship as separate add-on files but are
+    priced/gated at the Pro tier, grouped with the other official add-ons
+    (SMS, Telegram, Auto-Populate, Google Sheets) in the "Add-ons —
+    require Pro" group under #efb-all-fields.
+ 8. The 4 step screenshots (class `efb-zoomable`) open in a lightbox on
+    click — plain vanilla JS (no Bootstrap JS / Popper dependency, so it
+    works even if only Bootstrap's CSS is loaded on this site), self-
+    contained in the last `wp:html` block just before the JSON-LD block.
+    Click the backdrop, the × button, or press Escape to close. Add the
+    `efb-zoomable` class to any other image on this page if you want the
+    same click-to-enlarge behavior.
+
+ SEO / GEO checklist (set these in Yoast/RankMath, NOT in this content):
+ - Title tag:        How to Activate Easy Form Builder Pro (Code, Plans & Renewal)
+ - Meta description: Paste your Easy Form Builder activation code into
+                      Settings → General and save — see what Free Plus
+                      already unlocks for free, and how to fix a wrong
+                      code or an expired license.
+ - Slug:             /easy-form-builder-pro-activation/
+ - Focus keyphrase:  activate Easy Form Builder Pro
+ - Canonical / OG:   set OG title = title tag, OG image = a screenshot of
+                      the real Settings → General → Activation Code field
+                      (alt text: "Activation Code field in the Easy Form
+                      Builder Settings screen").
+ - H1 appears once (hero headline below). H2 opens each major section.
+   Don't add another H1 anywhere else on this page.
+ - Internal links included: pricing section, full activation guide
+   (docs/licensing/EFB-Pro-Activation-Complete-Guide.en.md), Auto-Populate
+   guide. Add your own links to the Conditional Logic and Google Sheet
+   docs where relevant to your site's URL structure.
+ - FAQPage JSON-LD is included at the bottom of this file already wired
+   to the visible FAQ text above it — remove it only if your SEO plugin
+   already auto-generates FAQ schema from this content.
+ - GEO note: the hero + "quick facts" strip are written to be the part an
+   AI assistant or answer engine quotes verbatim. Keep that combination
+   as the first thing on the page if you revise copy later.
+============================================================================
+-->
+
+<!-- wp:html -->
+<style>
+
+.article-content ul li::before {
+    visibility: hidden!important;
+}
+.efb-pro-landing{
+  --efb-ink:#14162e; --efb-muted:#5b5d78; --efb-bg:#f7f7fb; --efb-surface:#ffffff;
+  --efb-surface-2:#f0eff9; --efb-border:#e4e3f1;
+  --efb-navy:#202a8d; --efb-navy-soft:#4757e7; --efb-pink:#ff4b93; --efb-pink-deep:#ce0051;
+  --efb-purple:#633a82; --efb-indigo:#3f51b5; --efb-blue:#2196f3; --efb-amber:#e8a800;
+  color:var(--efb-ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--efb-bg);
+}
+.efb-pro-landing .container{max-width:1080px;}
+.efb-pro-landing .efb-section-head{max-width:640px;}
+.efb-pro-landing .efb-section-head::before{
+  content:"";display:block;width:44px;height:4px;border-radius:99px;margin-bottom:16px;
+  background:linear-gradient(90deg, var(--efb-pink), var(--efb-purple));
+}
+.efb-pro-landing .efb-quicknav{position:sticky;top:0;z-index:30;background:var(--efb-surface);border-bottom:1px solid var(--efb-border);}
+.efb-pro-landing .efb-quicknav .container{display:flex;gap:4px;overflow-x:auto;padding:10px 24px;scrollbar-width:thin;}
+.efb-pro-landing .efb-quicknav a{
+  flex-shrink:0;padding:7px 14px;border-radius:999px;font-size:.82rem;font-weight:650;
+  color:var(--efb-muted);text-decoration:none;white-space:nowrap;transition:background .15s ease,color .15s ease;
+}
+.efb-pro-landing .efb-quicknav a:hover{background:var(--efb-surface-2);color:var(--efb-navy);}
+.efb-pro-landing .efb-plan{transition:transform .18s ease, box-shadow .18s ease;}
+.efb-pro-landing .efb-plan:hover{transform:translateY(-4px);box-shadow:0 20px 40px -16px rgba(32,42,141,.28);}
+.efb-pro-landing .efb-cat-card{transition:transform .18s ease, box-shadow .18s ease;}
+.efb-pro-landing .efb-cat-card:hover{transform:translateY(-3px);box-shadow:0 16px 32px -18px rgba(32,42,141,.25);}
+.efb-pro-landing .efb-rcard{transition:transform .18s ease, box-shadow .18s ease;}
+.efb-pro-landing .efb-rcard:hover{transform:translateY(-3px);box-shadow:0 16px 32px -18px rgba(32,42,141,.22);}
+.efb-pro-landing .efb-video-inline{
+  display:flex;align-items:center;gap:16px;background:var(--efb-surface);
+  border:1px solid var(--efb-border);border-radius:14px;padding:12px 18px;
+  margin-bottom:40px;box-shadow:0 1px 2px rgba(20,22,46,.04),0 8px 24px -12px rgba(32,42,141,.18);
+  text-decoration:none;color:var(--efb-ink);transition:transform .15s ease, box-shadow .15s ease;max-width:560px;
+}
+.efb-pro-landing .efb-video-inline:hover{transform:translateY(-2px);box-shadow:0 16px 32px -16px rgba(32,42,141,.28);}
+.efb-pro-landing .efb-video-inline .efb-thumb{width:100px;height:64px;border-radius:9px;overflow:hidden;position:relative;flex-shrink:0;background:#0c0d20;}
+.efb-pro-landing .efb-video-inline .efb-thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.85;}
+.efb-pro-landing .efb-video-inline .efb-dot{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(20,22,46,.35);}
+.efb-pro-landing .efb-video-inline .efb-dot span{width:30px;height:30px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,.3);}
+.efb-pro-landing .efb-video-inline .efb-txt{display:flex;flex-direction:column;gap:2px;}
+.efb-pro-landing .efb-video-inline .efb-txt strong{font-size:.94rem;}
+.efb-pro-landing .efb-video-inline .efb-txt span{font-size:.8rem;color:var(--efb-muted);}
+.efb-pro-landing .efb-video-inline .efb-arrow{margin-left:auto;color:var(--efb-pink);font-weight:700;font-size:1.1rem;flex-shrink:0;}
+.efb-pro-landing .efb-step-row{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;padding:40px 0;border-top:1px solid var(--efb-border);}
+.efb-pro-landing .efb-step-row:last-child{border-bottom:1px solid var(--efb-border);}
+.efb-pro-landing .efb-step-row.efb-reverse .efb-step-media{order:2;}
+.efb-pro-landing .efb-step-media{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(20,22,46,.04),0 8px 24px -12px rgba(32,42,141,.18);}
+.efb-pro-landing .efb-step-media img{width:100%;display:block;}
+.efb-pro-landing .efb-zoomable{cursor:zoom-in;transition:opacity .15s ease;}
+.efb-pro-landing .efb-zoomable:hover{opacity:.92;}
+.efb-pro-landing .efb-step-badge{
+  position:absolute;top:16px;left:16px;width:42px;height:42px;border-radius:50%;
+  background:linear-gradient(135deg,var(--efb-pink-deep),var(--efb-pink));color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.05rem;
+  box-shadow:0 8px 18px rgba(206,0,81,.45);
+}
+.efb-pro-landing .efb-step-copy h3{margin:0 0 10px;font-size:1.25rem;}
+.efb-pro-landing .efb-step-copy p{margin:0 0 12px;color:var(--efb-muted);}
+.efb-pro-landing .efb-step-thumbs{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;}
+.efb-pro-landing .efb-step-thumbs figure{margin:0;display:flex;align-items:center;gap:9px;}
+.efb-pro-landing .efb-step-thumbs img{width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid var(--efb-border);flex-shrink:0;}
+.efb-pro-landing .efb-step-thumbs figcaption{font-size:.76rem;color:var(--efb-muted);max-width:118px;line-height:1.25;}
+@media (max-width:760px){
+  .efb-pro-landing .efb-step-row,.efb-pro-landing .efb-step-row.efb-reverse{grid-template-columns:1fr;gap:20px;}
+  .efb-pro-landing .efb-step-row.efb-reverse .efb-step-media{order:0;}
+}
+.efb-pro-landing .efb-display{font-family:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;}
+.efb-pro-landing .efb-mono{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;}
+.efb-pro-landing .efb-eyebrow{
+  font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--efb-pink);font-weight:600;
+}
+.efb-pro-landing .efb-crumbs{font-size:.82rem;color:var(--efb-muted);}
+.efb-pro-landing .efb-crumbs .current{color:var(--efb-ink);}
+.efb-pro-landing .efb-topbar{border-bottom:1px solid var(--efb-border);padding:14px 0;background:var(--efb-surface);}
+.efb-pro-landing .efb-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:.95rem;}
+.efb-pro-landing .efb-brand .efb-mark{
+  width:26px;height:26px;border-radius:8px;color:#fff;font-size:.8rem;font-weight:800;
+  font-family:Georgia,serif;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--efb-navy),var(--efb-purple));
+}
+.efb-pro-landing .efb-hero{
+  color:#fff;padding:64px 0 72px;
+  background:radial-gradient(1100px 480px at 12% -10%, rgba(255,75,147,.16), transparent 60%),
+             linear-gradient(65deg, var(--efb-navy-soft) 0%, var(--efb-navy) 100%);
+}
+.efb-pro-landing .efb-hero h1{font-size:clamp(2rem,1.35rem + 2.6vw,3.15rem);line-height:1.06;color:#fff;text-wrap:balance;}
+.efb-pro-landing .efb-hero h1 em{
+  font-style:normal;background:linear-gradient(100deg,#fff,#ffd7e8);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.efb-pro-landing .efb-hero p.efb-lede{font-size:1.08rem;color:rgba(255,255,255,.88);max-width:46ch;}
+.efb-pro-landing .efb-hero .efb-eyebrow{color:#ffd7e8;}
+.efb-pro-landing .efb-btn{
+  display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;
+  font-weight:650;font-size:.95rem;text-decoration:none;border:1px solid transparent;
+}
+.efb-pro-landing .efb-btn-primary{background:linear-gradient(65deg,var(--efb-pink-deep),var(--efb-pink));color:#fff;box-shadow:0 10px 24px -10px rgba(206,0,81,.55);}
+.efb-pro-landing .efb-btn-ghost{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.4);color:#fff;}
+.efb-pro-landing .efb-btn-outline{background:transparent;border-color:var(--efb-border);color:var(--efb-ink);}
+.efb-pro-landing .efb-mock{background:var(--efb-surface);color:var(--efb-ink);border-radius:16px;box-shadow:0 30px 60px -20px rgba(8,10,40,.5);overflow:hidden;border:1px solid rgba(255,255,255,.12);}
+.efb-pro-landing .efb-mock-bar{display:flex;gap:6px;padding:12px 16px;background:var(--efb-surface-2);border-bottom:1px solid var(--efb-border);}
+.efb-pro-landing .efb-mock-bar span{width:9px;height:9px;border-radius:50%;background:var(--efb-border);display:inline-block;}
+.efb-pro-landing .efb-mock-body{padding:22px 22px 24px;}
+.efb-pro-landing .efb-mock-label{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.92rem;margin-bottom:10px;}
+.efb-pro-landing .efb-mock-label .efb-gem{color:var(--efb-purple);}
+.efb-pro-landing .efb-mock-input{width:100%;padding:11px 13px;border-radius:9px;border:1.5px solid var(--efb-border);font-family:ui-monospace,monospace;font-size:.85rem;color:var(--efb-muted);background:var(--efb-bg);}
+.efb-pro-landing .efb-mock-confirm{margin-top:10px;font-size:.78rem;color:#1d8a4c;}
+.efb-pro-landing .efb-mock-save{margin-top:18px;display:flex;justify-content:flex-end;}
+.efb-pro-landing .efb-mock-save button{padding:9px 20px;border-radius:9px;border:0;background:linear-gradient(65deg,var(--efb-navy-soft),var(--efb-navy));color:#fff;font-weight:650;font-size:.85rem;}
+.efb-pro-landing .efb-mock-caption{text-align:center;font-size:.78rem;color:rgba(255,255,255,.7);margin-top:14px;}
+.efb-pro-landing .efb-facts{background:var(--efb-surface);border-bottom:1px solid var(--efb-border);}
+.efb-pro-landing .efb-fact{padding:28px 20px;border-right:1px solid var(--efb-border);}
+.efb-pro-landing .efb-fact .efb-num{font-family:Georgia,serif;font-size:1.7rem;font-weight:700;color:var(--efb-navy);}
+.efb-pro-landing .efb-fact .efb-flabel{font-size:.83rem;color:var(--efb-muted);margin-top:4px;}
+.efb-pro-landing section.efb-section{padding:76px 0;}
+.efb-pro-landing .efb-section-head{max-width:640px;margin:0 0 44px;}
+.efb-pro-landing .efb-section-head .efb-eyebrow{color:var(--efb-purple);}
+.efb-pro-landing .efb-section-head h2{font-size:clamp(1.6rem,1.3rem + 1vw,2.15rem);margin:10px 0 12px;}
+.efb-pro-landing .efb-section-head p{color:var(--efb-muted);font-size:1.02rem;}
+.efb-pro-landing .efb-plan{position:relative;background:var(--efb-surface);border:1.5px solid var(--efb-border);border-radius:14px;padding:28px 24px 26px;height:100%;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(20,22,46,.04),0 8px 24px -12px rgba(32,42,141,.18);}
+.efb-pro-landing .efb-plan .efb-ribbon{position:absolute;top:-13px;left:24px;font-size:.7rem;font-weight:700;letter-spacing:.04em;padding:5px 12px;border-radius:999px;color:#fff;}
+.efb-pro-landing .efb-plan.efb-plus{border-color:var(--efb-purple);}
+.efb-pro-landing .efb-plan.efb-plus .efb-ribbon{background:linear-gradient(135deg,var(--efb-navy),var(--efb-purple));}
+.efb-pro-landing .efb-plan.efb-pro{border-color:var(--efb-amber);box-shadow:0 0 0 1px var(--efb-amber),0 8px 24px -12px rgba(32,42,141,.18);}
+.efb-pro-landing .efb-plan.efb-pro .efb-ribbon{background:linear-gradient(135deg,var(--efb-indigo),var(--efb-blue));}
+.efb-pro-landing .efb-plan-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 2px;flex-wrap:wrap;}
+.efb-pro-landing .efb-plan h3{font-family:Georgia,serif;font-size:1.3rem;margin:0;}
+.efb-pro-landing .efb-plan-badge{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 9px;border-radius:999px;background:var(--efb-surface-2);color:var(--efb-muted);}
+.efb-pro-landing .efb-plan.efb-pro .efb-plan-badge{background:rgba(206,0,81,.11);color:var(--efb-pink-deep);}
+.efb-pro-landing .efb-plan .efb-tagline{font-size:.85rem;color:var(--efb-muted);margin:0 0 16px;min-height:2.6em;}
+.efb-pro-landing .efb-plan ul{list-style:none;margin:0 0 22px;padding:0;display:flex;flex-direction:column;gap:9px;flex:1;}
+.efb-pro-landing .efb-plan li{font-size:.87rem;display:flex;gap:9px;align-items:flex-start;}
+.efb-pro-landing .efb-plan li .efb-ico{flex-shrink:0;margin-top:1px;font-size:.85rem;}
+.efb-pro-landing .efb-plan li.efb-included{color:var(--efb-ink);}
+.efb-pro-landing .efb-plan li.efb-included .efb-ico{color:var(--efb-pink);}
+.efb-pro-landing .efb-plan li.efb-locked{color:var(--efb-muted);}
+.efb-pro-landing .efb-plan li.efb-locked .efb-ico{color:var(--efb-border);}
+.efb-pro-landing .efb-plan li.efb-info{color:var(--efb-muted);font-size:.78rem;background:var(--efb-surface-2);padding:7px 10px;border-radius:8px;line-height:1.35;}
+.efb-pro-landing .efb-plan li.efb-info .efb-ico{color:var(--efb-purple);}
+.efb-pro-landing .efb-plan .efb-btn{width:100%;justify-content:center;}
+.efb-pro-landing .efb-plan.efb-free .efb-btn{background:var(--efb-surface-2);color:var(--efb-ink);border:1.5px solid var(--efb-border);}
+.efb-pro-landing .efb-plan.efb-plus .efb-btn{background:linear-gradient(65deg,var(--efb-navy-soft),var(--efb-navy));color:#fff;}
+.efb-pro-landing .efb-plan.efb-pro .efb-btn{background:linear-gradient(65deg,var(--efb-pink-deep),var(--efb-pink));color:#fff;}
+.efb-pro-landing .efb-compare-wrap{overflow-x:auto;border-radius:14px;box-shadow:0 1px 2px rgba(20,22,46,.04),0 8px 24px -12px rgba(32,42,141,.18);border:1px solid var(--efb-border);}
+.efb-pro-landing table.efb-compare{width:100%;min-width:680px;border-collapse:separate;border-spacing:0;font-size:.9rem;background:var(--efb-surface);}
+.efb-pro-landing table.efb-compare thead th{padding:16px 16px;text-align:left;font-weight:700;font-family:Georgia,serif;font-size:1.02rem;background:var(--efb-surface);color:var(--efb-ink);border-bottom:1px solid var(--efb-border);}
+.efb-pro-landing table.efb-compare thead th span{display:block;font-family:-apple-system,sans-serif;font-weight:600;font-size:.72rem;margin-top:3px;text-transform:none;letter-spacing:0;opacity:.85;}
+.efb-pro-landing table.efb-compare thead th.efb-col-plus{background:var(--efb-purple);color:#fff;}
+.efb-pro-landing table.efb-compare thead th.efb-col-pro{background:linear-gradient(100deg,var(--efb-navy),var(--efb-pink-deep));color:#fff;}
+.efb-pro-landing table.efb-compare td,.efb-pro-landing table.efb-compare th{border-bottom:1px solid var(--efb-border);}
+.efb-pro-landing table.efb-compare td{padding:12px 16px;vertical-align:middle;}
+.efb-pro-landing table.efb-compare td:first-child{width:38%;font-weight:600;color:var(--efb-ink);}
+.efb-pro-landing table.efb-compare td.efb-col-plus,.efb-pro-landing table.efb-compare td.efb-col-pro{border-left:1px solid var(--efb-border);}
+.efb-pro-landing tr.efb-cat td{background:var(--efb-surface-2);font-weight:700;font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;color:var(--efb-purple);padding:10px 16px;border-bottom:1px solid var(--efb-border);}
+.efb-pro-landing .efb-yes{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--efb-pink);color:#fff;font-size:.7rem;font-weight:700;}
+.efb-pro-landing .efb-no{color:var(--efb-border);font-weight:700;}
+.efb-pro-landing .efb-limit{font-size:.8rem;color:var(--efb-muted);}
+.efb-pro-landing .efb-compare-note{font-size:.85rem;color:var(--efb-muted);margin-top:16px;}
+.efb-pro-landing .efb-cat-card{border:1px solid var(--efb-border);border-radius:14px;background:var(--efb-surface);padding:22px 22px 8px;height:100%;}
+.efb-pro-landing .efb-cat-card .efb-count{font-family:Georgia,serif;font-size:2.05rem;font-weight:700;color:var(--efb-navy);line-height:1;}
+.efb-pro-landing .efb-cat-card .efb-count span{font-size:.68rem;font-weight:700;color:var(--efb-muted);text-transform:uppercase;letter-spacing:.06em;margin-left:6px;}
+.efb-pro-landing .efb-cat-card h4{margin:8px 0 8px;font-size:1.05rem;}
+.efb-pro-landing .efb-cat-card p.efb-desc{color:var(--efb-muted);font-size:.87rem;margin:0 0 6px;}
+.efb-pro-landing .efb-cat-card details summary{font-size:.82rem;font-weight:700;color:var(--efb-pink);cursor:pointer;list-style:none;padding:12px 0;border-top:1px solid var(--efb-border);margin-top:10px;}
+.efb-pro-landing .efb-cat-card details summary::-webkit-details-marker{display:none;}
+.efb-pro-landing .efb-cat-card details summary::after{content:" — see all →";}
+.efb-pro-landing .efb-cat-card details[open] summary::after{content:" — hide ↑";}
+.efb-pro-landing .efb-cat-card details ul{margin:0 0 16px;padding-left:18px;font-size:.85rem;color:var(--efb-ink);display:flex;flex-direction:column;gap:7px;}
+.efb-pro-landing .efb-field-group-label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--efb-purple);margin:28px 0 14px;}
+.efb-pro-landing .efb-field-group-label:first-child{margin-top:0;}
+.efb-pro-landing .efb-field-chips{display:flex;flex-wrap:wrap;gap:9px;}
+.efb-pro-landing .efb-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 8px 8px 14px;border-radius:999px;border:1px solid var(--efb-border);background:var(--efb-surface);font-size:.85rem;}
+.efb-pro-landing .efb-chip .efb-tag{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:3px 9px;border-radius:999px;}
+.efb-pro-landing .efb-chip .efb-tag-free{background:var(--efb-surface-2);color:var(--efb-muted);}
+.efb-pro-landing .efb-chip .efb-tag-plus{background:rgba(99,58,130,.13);color:var(--efb-purple);}
+.efb-pro-landing .efb-chip .efb-tag-pro{background:rgba(206,0,81,.11);color:var(--efb-pink-deep);}
+.efb-pro-landing .efb-steps-wrap{background:var(--efb-surface);}
+.efb-pro-landing .efb-note{font-size:.85rem;background:var(--efb-surface-2);border-radius:9px;padding:10px 14px;color:var(--efb-ink);border-left:3px solid var(--efb-pink);}
+.efb-pro-landing .efb-rcard{background:var(--efb-surface);border:1px solid var(--efb-border);border-radius:14px;padding:20px 18px;height:100%;}
+.efb-pro-landing .efb-rcard h4{margin:0 0 8px;font-size:.95rem;}
+.efb-pro-landing .efb-rcard p{margin:0;font-size:.85rem;color:var(--efb-muted);}
+.efb-pro-landing .efb-faq-wrap{background:var(--efb-surface);}
+.efb-pro-landing details{border-bottom:1px solid var(--efb-border);padding:18px 0;}
+.efb-pro-landing details summary{cursor:pointer;font-weight:650;font-size:1rem;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+.efb-pro-landing details summary::-webkit-details-marker{display:none;}
+.efb-pro-landing details summary::after{content:"+";font-size:1.3rem;color:var(--efb-pink);font-weight:400;flex-shrink:0;}
+.efb-pro-landing details[open] summary::after{content:"–";}
+.efb-pro-landing details p{color:var(--efb-muted);margin:12px 0 2px;font-size:.94rem;max-width:70ch;}
+.efb-pro-landing .efb-final{background:linear-gradient(65deg,var(--efb-navy-soft),var(--efb-navy) 60%,var(--efb-purple));color:#fff;text-align:center;padding:70px 0;}
+.efb-pro-landing .efb-final h2{font-family:Georgia,serif;font-size:clamp(1.5rem,1.2rem+1.2vw,2.3rem);margin:0 0 14px;}
+.efb-pro-landing .efb-final p{color:rgba(255,255,255,.85);margin:0 0 26px;}
+@media (max-width:900px){
+  .efb-pro-landing .efb-fact{border-right:1px solid var(--efb-border);}
+}
+.efb-pro-landing .efb-lightbox{
+  position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;
+  background:rgba(12,13,32,.86);padding:32px;
+}
+.efb-pro-landing .efb-lightbox.efb-open{display:flex;}
+.efb-pro-landing .efb-lightbox img{
+  max-width:min(92vw,900px);max-height:88vh;border-radius:10px;
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.6);display:block;
+}
+.efb-pro-landing .efb-lightbox-close{
+  position:absolute;top:22px;right:28px;width:42px;height:42px;border-radius:50%;
+  background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);
+  font-size:1.3rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.efb-pro-landing .efb-lightbox-close:hover{background:rgba(255,255,255,.22);}
+</style>
+<div class="efb-pro-landing">
+
+  <div class="efb-topbar">
+    <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div class="efb-brand"><span class="efb-mark">E</span> Easy Form Builder</div>
+      <nav class="efb-crumbs d-flex gap-2 flex-wrap" aria-label="Breadcrumb">
+      </nav>
+    </div>
+  </div>
+
+  <nav class="efb-quicknav" aria-label="On this page">
+    <div class="container">
+      <a href="#efb-plans">Plans</a>
+      <a href="#efb-compare-table">Compare</a>
+      <a href="#efb-everything">Features</a>
+      <a href="#efb-all-fields">Fields</a>
+      <a href="#efb-steps">Activate</a>
+      <a href="#efb-faq">FAQ</a>
+    </div>
+  </nav>
+
+  <header class="efb-hero">
+    <div class="container">
+      <div class="row align-items-center gy-5">
+        <div class="col-lg-7">
+          <p class="efb-eyebrow mb-2">Licensing · Pro Activation</p>
+          <h1 class="efb-display mb-3">Activating Pro takes <em>one field</em> and one click.</h1>
+          <p class="efb-lede mb-4">No wizard. No separate "Activate" button. Paste your code into Settings → General, press Save, and every Pro feature is live immediately.</p>
+          <div class="d-flex gap-2 flex-wrap">
+            <a class="efb-btn efb-btn-primary" href="#efb-plans">Get your activation code</a>
+            <a class="efb-btn efb-btn-ghost" href="#efb-steps">Already have a code? Skip to Step 2</a>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="efb-mock" aria-hidden="true">
+            <div class="efb-mock-bar"><span></span><span></span><span></span></div>
+            <div class="efb-mock-body">
+              <div class="efb-mock-label"><span class="efb-gem">◆</span> Activation Code</div>
+              <input class="efb-mock-input" value="EFB-PRO-••••-••••-7K2M" readonly>
+              <div class="efb-mock-confirm">✓ Your activation code has been verified. Enjoy all Pro features of Easy Form Builder.</div>
+              <div class="efb-mock-save"><button type="button">Save</button></div>
+            </div>
+          </div>
+          <p class="efb-mock-caption">This is the real Settings → General screen.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="efb-facts">
+    <div class="container">
+      <div class="row row-cols-2 row-cols-md-4 g-0">
+        <div class="col efb-fact"><div class="efb-num efb-mono">1</div><div class="efb-flabel">field — labeled Activation Code, under Settings → General</div></div>
+        <div class="col efb-fact"><div class="efb-num efb-mono">1</div><div class="efb-flabel">domain per license — bound the moment it's issued</div></div>
+        <div class="col efb-fact"><div class="efb-num efb-mono">7d</div><div class="efb-flabel">how often Pro quietly re-checks your license</div></div>
+        <div class="col efb-fact" style="border-right:none;"><div class="efb-num efb-mono">$0</div><div class="efb-flabel">Free Plus already unlocks advanced fields — no code needed</div></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="efb-section" id="efb-plans">
+    <div class="container">
+      <div class="efb-section-head">
+        <p class="efb-eyebrow mb-2">Three tiers, not two</p>
+        <h2 class="efb-display">Free Plus already unlocks more than you'd expect.</h2>
+        <p>Easy Form Builder isn't "free vs. paid." There's a genuinely free middle tier — no activation code required — and then Pro, which removes every remaining limit.</p>
+      </div>
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="col">
+          <div class="efb-plan efb-free">
+            <div class="efb-plan-head"><h3>Free</h3><span class="efb-plan-badge">Essential Features</span></div>
+            <p class="efb-tagline">Perfect for getting started with simple forms.</p>
+            <ul>
+              <li class="efb-included"><span class="efb-ico">✓</span> Core form fields</li>
+              <li class="efb-included"><span class="efb-ico">✓</span> Email notifications</li>
+              <li class="efb-locked"><span class="efb-ico">🔒</span> Advanced form fields</li>
+              <li class="efb-locked"><span class="efb-ico">🔒</span> Built-in advanced features</li>
+              <li class="efb-locked"><span class="efb-ico">🔒</span> Add-ons &amp; extensions</li>
+            </ul>
+            <a class="efb-btn" href="https://whitestudio.team/#price">Start with Free</a>
+          </div>
+        </div>
+        <div class="col">
+          <div class="efb-plan efb-plus">
+            <span class="efb-ribbon">Recommended</span>
+            <div class="efb-plan-head"><h3>Free Plus</h3></div>
+            <p class="efb-tagline">Unlock advanced features — supported by a credit line.</p>
+            <ul>
+              <li class="efb-included"><span class="efb-ico">✓</span> Core &amp; advanced form fields</li>
+              <li class="efb-included"><span class="efb-ico">✓</span> Email notifications</li>
+              <li class="efb-included"><span class="efb-ico">✓</span> Built-in advanced features</li>
+              <li class="efb-locked"><span class="efb-ico">🔒</span> Add-ons &amp; extensions</li>
+              <li class="efb-info"><span class="efb-ico">ℹ</span> Lightweight "Powered by Easy Form Builder" credit &amp; link</li>
+            </ul>
+            <a class="efb-btn" href="#"> Free Plus</a>
+          </div>
+        </div>
+        <div class="col">
+          <div class="efb-plan efb-pro">
+            <span class="efb-ribbon">Most Popular</span>
+            <div class="efb-plan-head"><h3>Pro</h3><span class="efb-plan-badge">Advanced</span></div>
+            <p class="efb-tagline">For professionals who want the complete, clean experience.</p>
+            <ul>
+              <li class="efb-included"><span class="efb-ico">✓</span> Everything in Free Plus</li>
+              <li class="efb-included"><span class="efb-ico">✓</span> Advanced integrations</li>
+              <li class="efb-included"><span class="efb-ico">✓</span> Add-ons included</li>
+              <li class="efb-included"><span class="efb-ico">✓</span> No credits or promotional messages</li>
+              <li class="efb-included"><span class="efb-ico">✓</span> A premium experience</li>
+            </ul>
+            <a class="efb-btn" href="https://whitestudio.team/#price">Upgrade to Pro</a>
+          </div>
+        </div>
+      </div>
+      <p class="text-center mt-4 d-flex gap-4 justify-content-center flex-wrap">
+        <a href="#efb-compare-table" style="color:var(--efb-navy);font-weight:650;text-decoration:none;border-bottom:1.5px solid var(--efb-pink);padding-bottom:2px;">See the full feature-by-feature comparison ↓</a>
+        <a href="#efb-all-fields" style="color:var(--efb-navy);font-weight:650;text-decoration:none;border-bottom:1.5px solid var(--efb-pink);padding-bottom:2px;">Browse every field by name ↓</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="efb-section" id="efb-compare-table">
+    <div class="container">
+      <div class="efb-section-head">
+        <p class="efb-eyebrow mb-2">Feature by feature</p>
+        <h2 class="efb-display">Compare every feature across all three plans.</h2>
+        <p>The card summaries above cover the headline differences. Here's the complete breakdown, straight from the plugin's own feature list — nothing rounded up or guessed.</p>
+      </div>
+      <div class="efb-compare-wrap">
+        <table class="table efb-compare">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Free</th>
+              <th class="efb-col-plus">Free Plus<span>no code needed</span></th>
+              <th class="efb-col-pro">Pro<span>activation code</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="efb-cat"><td colspan="4">Form building</td></tr>
+            <tr><td>Drag-and-drop form builder</td><td><span class="efb-yes">✓</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Entries stored in your WordPress database + entry dashboard</td><td><span class="efb-yes">✓</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Email notifications + visual email template editor</td><td><span class="efb-yes">✓</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>File upload fields</td><td><span class="efb-yes">✓</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Multi-step forms</td><td><span class="efb-yes">✓</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Basic survey &amp; poll fields</td><td><span class="efb-yes">✓</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+
+            <tr class="efb-cat"><td colspan="4">Advanced fields &amp; conditional logic</td></tr>
+            <tr><td>Advanced fields — signature, location picker, matrix/table, range slider</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Audio, video &amp; screen recorder fields</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Conditional logic — show/hide fields &amp; steps, conditional email rules</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-limit">Up to 3 rules/form, 2 conditions/rule, 2 email rules</span></td><td class="efb-col-pro"><span class="efb-limit">Unlimited, nested AND/OR groups</span></td></tr>
+            <tr><td>Calculations, rule priority, conditional thank-you &amp; redirects, conditional webhooks</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-no">–</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Rule export/import &amp; the logic Inspector (debugger)</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-no">–</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+
+            <tr class="efb-cat"><td colspan="4">Data &amp; reporting</td></tr>
+            <tr><td>Export entries to CSV &amp; download responses as PDF</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Automated weekly email-deliverability report (spam score, SPF/DKIM/DMARC)</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+
+            <tr class="efb-cat"><td colspan="4">Payments, notifications &amp; automation add-ons</td></tr>
+            <tr><td>Stripe &amp; PayPal payment fields</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-no">–</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>SMS &amp; Telegram notifications</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-no">–</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Auto-Populate — Dataset, previous submissions &amp; external API autofill</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-no">–</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Google Sheets sync</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-no">–</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+
+            <tr class="efb-cat"><td colspan="4">Ready-made form types</td></tr>
+            <tr><td>Login (sign-in) form</td><td><span class="efb-yes">✓</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Registration (sign-up) form</td><td><span class="efb-yes">✓</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Survey / poll form</td><td><span class="efb-yes">✓</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Payment form (Stripe / PayPal checkout)</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-no">–</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+
+            <tr class="efb-cat"><td colspan="4">Submission experience &amp; design</td></tr>
+            <tr><td>Mobile-optimized builder view</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Thank-you page customization</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Redirect after submission</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+            <tr><td>Loading / submit animation</td><td><span class="efb-no">–</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+
+            <tr class="efb-cat"><td colspan="4">Testing &amp; developer tools</td></tr>
+            <tr><td>Development Mode (Sandbox) — test integrations without real transactions</td><td><span class="efb-yes">✓</span></td><td class="efb-col-plus"><span class="efb-yes">✓</span></td><td class="efb-col-pro"><span class="efb-yes">✓</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="efb-compare-note">Free Plus shows a small "Powered by Easy Form Builder" credit on the published form's page — the one trade-off for its no-cost advanced features.</p>
+    </div>
+  </section>
+
+  <section class="efb-section" id="efb-everything">
+    <div class="container">
+      <div class="efb-section-head">
+        <p class="efb-eyebrow mb-2">The complete picture</p>
+        <h2 class="efb-display">Everything you can build with Easy Form Builder.</h2>
+        <p>Six areas, one plugin. Open any card for the full list — this is what you're actually unlocking, not a marketing summary of it.</p>
+      </div>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+
+        <div class="col"><div class="efb-cat-card">
+          <div class="efb-count">19<span>form types</span></div>
+          <h4>Form types you can build</h4>
+          <p class="efb-desc">Every form-based workflow on a WordPress site, so you don't need a separate contact, survey, or payment plugin.</p>
+          <details>
+            <summary>19 form types</summary>
+            <ul>
+              <li>Contact forms for general inquiries</li>
+              <li>Support and feedback forms with message tracking</li>
+              <li>Survey and poll forms with structured results</li>
+              <li>Stripe payment forms</li>
+              <li>PayPal payment forms</li>
+              <li>Login (sign-in) forms for WordPress users</li>
+              <li>Registration (sign-up) forms for new users</li>
+              <li>File upload forms</li>
+              <li>Audio recording forms for voice messages and feedback</li>
+              <li>Video recording forms for testimonials and webcam responses</li>
+              <li>Screen recording forms for bug reports and support requests</li>
+              <li>Private or restricted-access forms</li>
+              <li>Multi-step forms for improved usability</li>
+              <li>Smart forms with conditional logic</li>
+              <li>Electronic signature forms for contracts and agreements</li>
+              <li>Location picker forms for address and map selection</li>
+              <li>Job application forms for hiring and recruitment</li>
+              <li>Event registration forms for conferences and workshops</li>
+              <li>Order forms with recurring and subscription billing</li>
+            </ul>
+          </details>
+        </div></div>
+
+        <div class="col"><div class="efb-cat-card">
+          <div class="efb-count">13<span>field types</span></div>
+          <h4>Fields in the drag-and-drop builder</h4>
+          <p class="efb-desc">Beyond the usual text, email, number, and choice inputs — advanced, region-aware fields you'd normally pay a developer to build.</p>
+          <details>
+            <summary>13 advanced fields</summary>
+            <ul>
+              <li>Drag-and-drop file upload fields</li>
+              <li>Audio recorder field (microphone)</li>
+              <li>Video recorder field (webcam)</li>
+              <li>Screen recorder field, with optional mic audio</li>
+              <li>Signature (e-signature) fields</li>
+              <li>Location picker fields (OpenStreetMap + Leaflet)</li>
+              <li>Country, state/province, and city dropdowns</li>
+              <li>Multiple-select dropdowns and range sliders</li>
+              <li>Rating stars, 5-point scale, NPS, and yes/no questions</li>
+              <li>Switch and toggle fields</li>
+              <li>Date pickers: Gregorian, Hijri (Qamari), and Jalali (Shamsi)</li>
+              <li>Telephone, mobile, and color picker fields</li>
+              <li>Matrix and table fields for structured data</li>
+            </ul>
+          </details>
+        </div></div>
+
+        <div class="col"><div class="efb-cat-card">
+          <div class="efb-count">8<span>delivery features</span></div>
+          <h4>Notifications &amp; email delivery</h4>
+          <p class="efb-desc">Branded notification emails, plus the tooling to prove they actually reach the inbox instead of the spam folder.</p>
+          <details>
+            <summary>8 delivery features</summary>
+            <ul>
+              <li>Automatic email notifications to admins, managers, or the submitter</li>
+              <li>Custom email templates built in a visual editor — no HTML needed</li>
+              <li>Conditional notifications that pick recipients by submitted answers</li>
+              <li>One-click "Check Email Server" test with a full Email Server Status report before you rely on notifications</li>
+              <li>Email error log for reviewing failed sends</li>
+              <li>Dashboard widget: page views, completed submissions, sent and failed emails</li>
+              <li>Weekly deliverability report with spam score and SPF/DKIM/DMARC checks</li>
+              <li>SMS and Telegram bot alerts on new submissions</li>
+            </ul>
+          </details>
+        </div></div>
+
+        <div class="col"><div class="efb-cat-card">
+          <div class="efb-count">8<span>entry tools</span></div>
+          <h4>Entries, replies &amp; exports</h4>
+          <p class="efb-desc">Every submission lands in a full message desk inside wp-admin, so conversations don't get lost in a shared inbox.</p>
+          <details>
+            <summary>8 entry tools</summary>
+            <ul>
+              <li>Form Entry &amp; Message Management Dashboard inside wp-admin</li>
+              <li>Read and reply to submissions, with file attachments on replies</li>
+              <li>Open/Closed status per message, plus edit and delete</li>
+              <li>Search submissions by form or confirmation code</li>
+              <li>Unique confirmation code (tracking ID) on every submission</li>
+              <li>Notifications when a new message arrives</li>
+              <li>Download responses as PDF or export to CSV</li>
+              <li>Visual charts for survey and poll results</li>
+            </ul>
+          </details>
+        </div></div>
+
+        <div class="col"><div class="efb-cat-card">
+          <div class="efb-count">10<span>integrations</span></div>
+          <h4>Integrations &amp; add-ons</h4>
+          <p class="efb-desc">Connect the tools you already use — or run the plugin entirely self-contained, with no external service in the loop.</p>
+          <details>
+            <summary>10 integrations</summary>
+            <ul>
+              <li>Conditional Logic — free in the Free Plus version</li>
+              <li>Google Sheets sync via a service account, no Zapier or OAuth expiry</li>
+              <li>Stripe and PayPal payment workflows</li>
+              <li>Telegram bot and SMS notifications</li>
+              <li>Auto-Populate (Autofill) from an external API — API key, Bearer, or Basic auth</li>
+              <li>Offline forms that collect data without an internet connection</li>
+              <li>Hijri (Qamari) and Jalali (Shamsi) date picker add-ons</li>
+              <li>Shield Security silentCAPTCHA integration</li>
+              <li>Shortcode for Elementor, Divi, WPBakery, plus a native Gutenberg block</li>
+              <li>Development Mode (Sandbox) — test payments and integrations without real transactions, free on every plan</li>
+            </ul>
+          </details>
+        </div></div>
+
+        <div class="col"><div class="efb-cat-card">
+          <div class="efb-count">9<span>safeguards</span></div>
+          <h4>Security &amp; data handling</h4>
+          <p class="efb-desc">Form data is personal data. Here's exactly where submissions are stored and how they're protected from bots and abuse.</p>
+          <details>
+            <summary>9 safeguards</summary>
+            <ul>
+              <li>Submissions stored in your own WordPress database by default</li>
+              <li>No external form service and no third-party submission servers</li>
+              <li>Client-side and server-side validation on every submission</li>
+              <li>Google reCAPTCHA v2 for classic spam protection</li>
+              <li>CAPTCHA-free bot detection: honeypot, signed single-use tokens, rate limiting</li>
+              <li>Rate limits on uploads, code lookups, public replies, and payment requests</li>
+              <li>Stops suspicious entries from burning email, SMS, Telegram, or Sheets quota</li>
+              <li>IP allowlist and blocklist, with hashed identifiers in security logs</li>
+              <li>Monitor-only mode so you can review real traffic before blocking</li>
+            </ul>
+          </details>
+        </div></div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="efb-section" id="efb-all-fields">
+    <div class="container">
+      <div class="efb-section-head">
+        <p class="efb-eyebrow mb-2">Field by field</p>
+        <h2 class="efb-display">Every field, and exactly which plan unlocks it.</h2>
+        <p>The exact field palette you see in the builder — nothing renamed for marketing. Each tag below is the plan that unlocks that field.</p>
+      </div>
+
+      <p class="efb-field-group-label">Basic fields — included in Free</p>
+      <div class="efb-field-chips">
+        <span class="efb-chip">Text <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Name <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Password <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Email <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Number <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Longer Text <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Check Box <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Radio Button <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Select <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Tel <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Range <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Date <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">File upload <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">URL <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Color Picker <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+      </div>
+
+      <p class="efb-field-group-label">Advanced fields — unlocked by Free Plus, at no cost</p>
+      <div class="efb-field-chips">
+        <span class="efb-chip">Step <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Multiple Select <span class="efb-tag efb-tag-free">Free</span></span>
+        <span class="efb-chip">Mobile <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">D&amp;D File Upload <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Audio Recorder <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Video Recorder <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Screen Recorder <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Address <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Location Picker <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Countries Drop-down <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">State/Prov Drop-down <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Cities Drop-down <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Signature <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Switch <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Box Checklist <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Heading <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Rating <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Yes/No <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Link <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">HTML Code <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">5-Point Scale <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Net Promoter Score <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Image Picker <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">Terms <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+        <span class="efb-chip">NPS Table Matrix <span class="efb-tag efb-tag-plus">Free Plus</span></span>
+      </div>
+
+      <p class="efb-field-group-label">Payment fields — require Pro</p>
+      <div class="efb-field-chips">
+        <span class="efb-chip">Payment Multi Choose <span class="efb-tag efb-tag-pro">Pro</span></span>
+        <span class="efb-chip">Payment Single Choose <span class="efb-tag efb-tag-pro">Pro</span></span>
+        <span class="efb-chip">Price Field <span class="efb-tag efb-tag-pro">Pro</span></span>
+        <span class="efb-chip">Total Price <span class="efb-tag efb-tag-pro">Pro</span></span>
+        <span class="efb-chip">Stripe <span class="efb-tag efb-tag-pro">Pro</span></span>
+        <span class="efb-chip">PayPal <span class="efb-tag efb-tag-pro">Pro</span></span>
+      </div>
+
+      <p class="efb-field-group-label">Add-ons — require Pro</p>
+      <div class="efb-field-chips">
+        <span class="efb-chip">Jalali Date <span class="efb-tag efb-tag-pro">Pro</span></span>
+        <span class="efb-chip">Hijri Date <span class="efb-tag efb-tag-pro">Pro</span></span>
+        <span class="efb-chip">SMS Notification <span class="efb-tag efb-tag-pro">Pro</span></span>
+        <span class="efb-chip">Telegram <span class="efb-tag efb-tag-pro">Pro</span></span>
+        <span class="efb-chip">Auto-Populate <span class="efb-tag efb-tag-pro">Pro</span></span>
+        <span class="efb-chip">Google Sheets Sync <span class="efb-tag efb-tag-pro">Pro</span></span>
+      </div>
+      <p class="efb-compare-note">46 drag-and-drop fields shown here, straight from the builder's own field picker, plus the official Pro add-ons above that extend the plugin beyond fields. Jalali and Hijri date pickers ship as separate add-on files, gated the same way as the other official Pro add-ons.</p>
+    </div>
+  </section>
+
+  <section class="efb-section efb-steps-wrap" id="efb-steps">
+    <div class="container">
+      <div class="efb-section-head">
+        <p class="efb-eyebrow mb-2">The actual flow</p>
+        <h2 class="efb-display">Two steps. Nothing hidden in between.</h2>
+        <p>This is the complete path from checkout to a working license — verified against the plugin's own code, not guessed from screenshots.</p>
+      </div>
+
+      <a class="efb-video-inline" href="https://www.youtube.com/watch?v=4CPk_m3Fdi0" target="_blank" rel="noopener" aria-label="Watch: How to Activate the Pro Version of Easy Form Builder in WordPress – Step-by-Step Guide">
+        <span class="efb-thumb"><img src="https://img.youtube.com/vi/4CPk_m3Fdi0/hqdefault.jpg" alt="" loading="lazy"><span class="efb-dot"><span>▶</span></span></span>
+        <span class="efb-txt"><strong>Prefer to watch?</strong><span>Full step-by-step video walkthrough on YouTube</span></span>
+        <span class="efb-arrow">↗</span>
+      </a>
+
+      <div class="efb-step-row">
+        <div class="efb-step-media">
+          <span class="efb-step-badge efb-mono">01</span>
+          <img class="efb-zoomable" src="https://whitestudio.team/wp-content/uploads/2023/12/rgister-pro-easy-form-builder-1-768x381.png" alt="Easy Form Builder Pro registration and payment form" loading="lazy">
+        </div>
+        <div class="efb-step-copy">
+          <h3>Get your code</h3>
+          <p>Open the <a href="https://whitestudio.team/#price">pricing page</a>, choose Pro, and enter your site's <strong>exact domain</strong> — no <code class="efb-mono">www</code>, no <code class="efb-mono">http://</code>. Pay via Stripe, agree to the terms, and register.</p>
+          <div class="efb-note">A typo in the domain is the single most common activation failure — the code is cryptographically bound to that exact string.</div>
+          <div class="efb-step-thumbs">
+            <figure><img class="efb-zoomable" src="https://whitestudio.team/wp-content/uploads/2023/12/register-complate-easy-form-builder-768x482.png" alt="Easy Form Builder success payment confirmation page" loading="lazy"><figcaption>Success — payment confirmed</figcaption></figure>
+            <figure><img class="efb-zoomable" src="https://whitestudio.team/wp-content/uploads/2026/07/payment-efb-4-scaled.png" alt="Payment Receipt and Activation Code email from Easy Form Builder" loading="lazy"><figcaption>Receipt email titled "Payment Receipt and Activation Code" — your code is inside</figcaption></figure>
+          </div>
+        </div>
+      </div>
+
+      <div class="efb-step-row efb-reverse">
+        <div class="efb-step-media">
+          <span class="efb-step-badge efb-mono">02</span>
+          <img class="efb-zoomable" src="https://whitestudio.team/wp-content/uploads/2026/07/add-activation-code-easy-form-builder.png" alt="Entering the activation code in the Easy Form Builder Settings screen" loading="lazy">
+        </div>
+        <div class="efb-step-copy">
+          <h3>Paste it into WordPress</h3>
+          <p>Go to <strong>Easy Form Builder → Settings → General</strong>, paste the code into the <strong>Activation Code</strong> field, and click the page's single <strong>Save</strong> button — the same one that saves every other setting on that tab.</p>
+          <div class="efb-note">On success the page reloads and the field turns green. On a wrong code, nothing reloads — a message appears right under the field so you can fix it and try again.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="efb-section">
+    <div class="container">
+      <div class="efb-section-head">
+        <p class="efb-eyebrow mb-2">What to expect afterward</p>
+        <h2 class="efb-display">A license that quietly takes care of itself.</h2>
+      </div>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        <div class="col"><div class="efb-rcard"><h4>Bound to one domain</h4><p>Each subdomain is billed and licensed separately. Moving sites? Re-issue the code for the new domain.</p></div></div>
+        <div class="col"><div class="efb-rcard"><h4>Re-checked weekly</h4><p>Pro silently re-verifies with the license server roughly every 7 days — invisible unless something changed.</p></div></div>
+        <div class="col"><div class="efb-rcard"><h4>Renews in one click</h4><p>An expired license shows a banner with your code pre-filled — renewing is payment, not a new code request.</p></div></div>
+        <div class="col"><div class="efb-rcard"><h4>Works offline for fa_IR</h4><p>Sites running WordPress in Farsi validate locally and never contact the remote server at all.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="efb-section efb-faq-wrap" id="efb-faq">
+    <div class="container">
+      <div class="efb-section-head">
+        <p class="efb-eyebrow mb-2">Before you write in</p>
+        <h2 class="efb-display">Frequently asked questions</h2>
+      </div>
+      <div>
+        <details open>
+          <summary>Is there a separate "Activate" button?</summary>
+          <p>No. The activation code saves together with every other setting on the General tab — paste it in, then click the page's single Save button.</p>
+        </details>
+        <details>
+          <summary>How many sites can one license cover?</summary>
+          <p>Exactly one domain. The code is bound to that domain, and every subdomain is billed and licensed on its own.</p>
+        </details>
+        <details>
+          <summary>What's the real difference between Free Plus and Pro?</summary>
+          <p>Free Plus is free and already unlocks advanced fields, capped conditional logic, CSV export, and the weekly deliverability report. Pro removes those caps and adds every official add-on — Stripe, PayPal, SMS, Telegram, Auto-Populate, Google Sheets.</p>
+        </details>
+        <details>
+          <summary>My code worked before — why does it show Free now?</summary>
+          <p>Almost always a domain change since the code was issued: a migration, a protocol change, or a move from staging to a live URL. The license is bound to the exact original domain string.</p>
+        </details>
+        <details>
+          <summary>Will Pro stop working if the license server is unreachable?</summary>
+          <p>No — the plugin falls back to validating your code against the domain hash embedded in it, so an already-active license keeps working.</p>
+        </details>
+      </div>
+      <p class="mt-4"><a href="EFB-Pro-Activation-Complete-Guide.en.md">Read the full activation guide</a> for the complete errors table, renewal details, and every "Pro required" message the plugin shows.</p>
+    </div>
+  </section>
+
+  <div class="efb-final">
+    <div class="container">
+      <h2>Your code is one field away.</h2>
+      <p>Pick a plan, paste your code, click Save. That's the entire flow.</p>
+      <div class="d-flex gap-2 flex-wrap justify-content-center">
+        <a class="efb-btn efb-btn-primary" href="#efb-plans">See pricing &amp; get your code</a>
+        <a class="efb-btn efb-btn-outline" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.5);color:#fff;" href="EFB-Pro-Activation-Complete-Guide.en.md">Read the full activation guide</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="efb-lightbox" id="efbLightbox" aria-hidden="true">
+    <button type="button" class="efb-lightbox-close" id="efbLightboxClose" aria-label="Close image">&times;</button>
+    <img src="" alt="" id="efbLightboxImg">
+  </div>
+
+</div>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<script>
+(function(){
+  var lb = document.getElementById('efbLightbox');
+  var lbImg = document.getElementById('efbLightboxImg');
+  if (!lb || !lbImg) { return; }
+
+  function openLightbox(src, alt){
+    lbImg.src = src;
+    lbImg.alt = alt || '';
+    lb.classList.add('efb-open');
+    lb.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox(){
+    lb.classList.remove('efb-open');
+    lb.setAttribute('aria-hidden', 'true');
+    lbImg.src = '';
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.efb-pro-landing .efb-zoomable').forEach(function(img){
+    img.addEventListener('click', function(){
+      openLightbox(img.getAttribute('src'), img.getAttribute('alt'));
+    });
+  });
+
+  document.getElementById('efbLightboxClose').addEventListener('click', closeLightbox);
+  lb.addEventListener('click', function(e){
+    if (e.target === lb) { closeLightbox(); }
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && lb.classList.contains('efb-open')) { closeLightbox(); }
+  });
+})();
+</script>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is there a separate Activate button, or does the activation code save with everything else?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The activation code saves together with every other setting. Paste it into the Activation Code field under Settings, General tab, then click the single page-wide Save button. There is no dedicated Activate action."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many sites can I use one Easy Form Builder license on?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "One license works on exactly one domain. The activation code is bound to that domain, and each subdomain is licensed and billed separately."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between Free Plus and Pro in Easy Form Builder?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Free Plus is free of charge and unlocks advanced fields, conditional logic capped at 3 rules per form, CSV export, and a weekly deliverability report. Pro removes those caps and adds every official add-on, including Stripe, PayPal, SMS, Telegram, Auto-Populate, and Google Sheets."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does a previously working activation code suddenly show the Free plan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This usually happens when the site's domain has changed since the code was issued, for example during a migration or a move from a staging domain to the live domain. The license is bound to the exact original domain."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will Pro features stop working if the license server cannot be reached?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. If the remote license server is temporarily unreachable, Easy Form Builder falls back to validating the code against the domain hash embedded in it, so an already active license keeps working."
+      }
+    }
+  ]
+}
+</script>
+<!-- /wp:html -->

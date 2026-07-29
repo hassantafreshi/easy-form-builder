@@ -45,3 +45,6 @@ test-addon-url.php
 vendor/human-shield/
 vendor/human-shield/*
 debug-helper.js
+languages/ar.json
+languages/de.json
+languages/fa.json

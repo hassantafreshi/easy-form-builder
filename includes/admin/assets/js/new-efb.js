@@ -811,8 +811,16 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid,option
           }
 
           const el = document.getElementById(idB);
+		  /* The server marks messages it wrote for the visitor - "this file is
+		     too large", "you can attach up to 3 files" - with efb_user_message.
+		     Those already say everything, so prefixing them with the generic
+		     connection warning would only make the real reason harder to find.
+		     The prefix stays for failures we have no server explanation for. */
+		  const isUserMessage = responseData.efb_user_message === true || data.efb_user_message === true;
 		  const baseMsg = efb_var.text.fileUploadNetworkError || efb_var.text.offlineSend;
-		  const fullMsg = errorMessage ? `${baseMsg}<br>${errorMessage}` : baseMsg;
+		  const fullMsg = isUserMessage && errorMessage
+		    ? errorMessage
+		    : (errorMessage ? `${baseMsg}<br>${errorMessage}` : baseMsg);
 		  if (!options.silent) alert_message_efb('', fullMsg, 300, 'danger');
           if(el){
             el.style.width = '0%';

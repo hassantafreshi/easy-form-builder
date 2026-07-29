@@ -3318,6 +3318,29 @@ public function check_nonce_permission_efb($request) {
 			}
 
 	  }
+	/**
+	 * Mark the files referenced by a stored submission as claimed.
+	 *
+	 * An upload and the submission that uses it are two separate requests. The
+	 * upload handler notes each stored file as "pending"; this is the other
+	 * half, telling the daily sweeper that these files now belong to a real
+	 * submission and must never be removed.
+	 *
+	 * @param string $content Saved submission or reply content.
+	 * @return void
+	 */
+	private function claim_uploaded_files_efb($content) {
+		if (!is_string($content) || $content === '' || !class_exists('\\Emsfb\\Upload_Guard')) {
+			return;
+		}
+
+		if (!preg_match_all('/efb-(?:PLG|rec)-[0-9]{6}-[A-Za-z0-9]+\.[A-Za-z0-9]{1,10}/', $content, $matches)) {
+			return;
+		}
+
+		\Emsfb\Upload_Guard::release_pending_uploads(array_unique($matches[0]));
+	}
+
 	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
 		if(isset($read)==false) $read=0;
 
@@ -3338,6 +3361,7 @@ public function check_nonce_permission_efb($request) {
 			'read_' => $read,
 			'date'=>wp_date('Y-m-d H:i:s')
 		));
+		$this->claim_uploaded_files_efb($this->value);
 		return $uniqid;
 	}
 
@@ -3399,7 +3423,9 @@ public function check_nonce_permission_efb($request) {
             $this->db = $wpdb;
         }
 		$table_name = $this->db->prefix . "emsfb_msg_";
-		return $this->db->update( $table_name, array( 'content' => $this->value , 'read_' =>0,  'ip'=>$this->ip , 'read_date'=>wp_date('Y-m-d H:i:s') ), array( 'track' => $this->id ) );
+		$updated = $this->db->update( $table_name, array( 'content' => $this->value , 'read_' =>0,  'ip'=>$this->ip , 'read_date'=>wp_date('Y-m-d H:i:s') ), array( 'track' => $this->id ) );
+		$this->claim_uploaded_files_efb($this->value);
+		return $updated;
 
 	}
 	public function get_ip_address() {
@@ -3444,61 +3470,66 @@ public function check_nonce_permission_efb($request) {
 		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
-		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
-		 'audio/wav','audio/ogg','audio/webm','audio/mp4','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
-		 'text/plain' ,
-		 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
-		 'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
-		 'application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation',
-		 'application/vnd.ms-powerpoint.presentation.macroEnabled.12','application/vnd.openxmlformats-officedocument.wordprocessingml.template',
-		 'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
-		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
-		);
-		$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
-		if (in_array($file_type, $arr_ext)) {
-			$file_name_raw = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
-			$file_tmp = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
 
-			if (empty($file_tmp) || !is_uploaded_file($file_tmp) || !is_readable($file_tmp)) {
-				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
-				wp_send_json_success($response, 200);
-			}
-
-			if (function_exists('finfo_open')) {
-				$finfo = finfo_open(FILEINFO_MIME_TYPE);
-				$real_mime = finfo_file($finfo, $file_tmp);
-				finfo_close($finfo);
-				if (!in_array($real_mime, $arr_ext)) {
-					$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
-					wp_send_json_success($response, 200);
-				}
-			}
-
-			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
-
-			$blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg','html','htm','xhtml','xht','shtm','svgz');
-			$file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-			if (in_array($file_ext, $blocked_ext)) {
-				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
-				wp_send_json_success($response, 200);
-			}
-
-			$file_contents = emsfb_read_file_efb($file_tmp);
-			if ($file_contents === false) {
-				$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
-				wp_send_json_success($response, 200);
-			}
-			$upload = wp_upload_bits($name, null, $file_contents);
-			if(is_ssl()==true){
-				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
-			}
-			 $response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$file_type);
-			  wp_send_json_success($response, 200);
-		}else{
-			$response = array( 'success' => false  ,'error'=>$this->lanText['errorFilePer']);
+		/* Legacy endpoint kept for older cached bundles; shares the REST
+		 * handler's policy so the two cannot drift apart. */
+		if (!isset($_FILES['file'])) {
+			$response = array( 'success' => false, 'error' => esc_html__('No file was received. Please choose a file and try again.','easy-form-builder'));
 			wp_send_json_success($response, 200);
-			die('invalid file '.$file_type);
 		}
+
+		$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
+
+		$upload_context = array(
+			'source'  => 'form',
+			'form_id' => isset($_POST['id']) ? absint( wp_unslash( $_POST['id'] ) ) : 0,
+			'fields'  => 1,
+			'nonce'   => isset($_POST['nonce_msg']) ? sanitize_text_field( wp_unslash( $_POST['nonce_msg'] ) ) : '',
+			'sid'     => '',
+			'ip'      => $this->get_ip_Emsfb(),
+		);
+
+		if (!\Emsfb\Upload_Guard::quota_allows($upload_context)) {
+			wp_send_json_success(
+				$this->upload_rejected_response_efb(\Emsfb\Upload_Guard::quota_message($upload_context)),
+				200
+			);
+		}
+
+		$validation = \Emsfb\Upload_Guard::validate_file($_FILES['file'], $upload_context);
+		if ($validation !== true) {
+			wp_send_json_success($this->upload_rejected_response_efb($validation), 200);
+		}
+
+		$file_name_raw = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
+		$file_tmp = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
+
+		$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
+
+		if (\Emsfb\Upload_Guard::is_blocked_extension(\Emsfb\Upload_Guard::extension_of($name))) {
+			wp_send_json_success($this->upload_rejected_response_efb(\Emsfb\Upload_Guard::type_message()), 200);
+		}
+
+		$file_contents = emsfb_read_file_efb($file_tmp);
+		if ($file_contents === false) {
+			$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
+			wp_send_json_success($response, 200);
+		}
+		$upload = wp_upload_bits($name, null, $file_contents);
+		if (!is_array($upload) || !empty($upload['error']) || empty($upload['url'])) {
+			wp_send_json_success($this->upload_rejected_response_efb(\Emsfb\Upload_Guard::type_message()), 200);
+		}
+		if(is_ssl()==true){
+			$upload['url'] = str_replace('http://', 'https://', $upload['url']);
+		}
+
+		\Emsfb\Upload_Guard::quota_consume($upload_context);
+		if (!empty($upload['file'])) {
+			\Emsfb\Upload_Guard::track_pending_upload($upload['file']);
+		}
+
+		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$file_type);
+		wp_send_json_success($response, 200);
 	}
 
 	private function get_form_data_efb($form_id, $fields = array('form_structer', 'form_type')) {
@@ -3845,6 +3876,58 @@ public function check_nonce_permission_efb($request) {
 		return $extension !== '' && !in_array($extension, $blocked, true);
 	}
 
+	/**
+	 * Describe "who is uploading, into what" for the shared upload policy.
+	 *
+	 * Both the size/type layers and the per-visitor quota need the same facts,
+	 * and the quota has to know the form's shape before any file is examined,
+	 * so this is built once at the top of every upload handler.
+	 *
+	 * @param string $source 'form' for a form field, 'response' for the reply box.
+	 * @param int    $fid    Form id, 0 for the response box.
+	 * @param string $field_id Field id being uploaded into, when known.
+	 * @return array Context array consumed by \Emsfb\Upload_Guard.
+	 */
+	private function build_upload_context_efb($source, $fid = 0, $field_id = '') {
+		$fid = intval($fid);
+
+		/* The response box is a single attachment slot on an existing ticket:
+		 * there is no form structure to measure, so its budget is fixed.
+		 * Counted through Upload_Guard so this and the Human Shield rate
+		 * limiter always agree on how wide a given form is. */
+		$fields = $source === 'form' && $fid > 0
+			? \Emsfb\Upload_Guard::upload_field_count_for_form($fid)
+			: 0;
+
+		return array(
+			'source'   => $source,
+			'form_id'  => $fid,
+			'field_id' => (string) $field_id,
+			'fields'   => $fields,
+			'nonce'    => isset($_SERVER['HTTP_X_WP_NONCE']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ) : '',
+			'sid'      => isset($_SERVER['HTTP_SID']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SID'] ) ) : '',
+			'ip'       => $this->get_ip_Emsfb(),
+		);
+	}
+
+	/**
+	 * Uniform "we refused this upload, and here is why" response.
+	 *
+	 * efb_user_message marks the text as written for the visitor, so the
+	 * frontend shows it on its own instead of prefixing the generic
+	 * "connection problem" warning it uses for transport failures.
+	 *
+	 * @param string $message Ready-to-display sentence.
+	 * @return array
+	 */
+	private function upload_rejected_response_efb($message) {
+		return array(
+			'success'          => false,
+			'error'            => $message,
+			'efb_user_message' => true,
+		);
+	}
+
 	public function file_upload_api(){
 
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
@@ -3859,6 +3942,23 @@ public function check_nonce_permission_efb($request) {
 			wp_send_json_success($this->recorder_upload_error_response_efb(esc_html__('The recording request could not be verified. Please retry.','easy-form-builder')), 200);
 		}
 
+		/* How many files this visitor may still push through. Checked before the
+		 * file is looked at, so a flood costs nothing but a transient read, and
+		 * charged only after a file is actually stored, so a rejected upload
+		 * never eats part of a legitimate visitor's allowance. */
+		$upload_context = $this->build_upload_context_efb(
+			$_POST['pl'] === 'msg' ? 'form' : 'response',
+			$fid,
+			$_POST['id']
+		);
+
+		if (!\Emsfb\Upload_Guard::quota_allows($upload_context)) {
+			wp_send_json_success(
+				$this->upload_rejected_response_efb(\Emsfb\Upload_Guard::quota_message($upload_context)),
+				200
+			);
+		}
+
 		/* Recorder uploads are bound to the form/session header as well as the
 		 * published field definition. This blocks field-id swapping between forms. */
 		$recorder_field = $fid > 0 ? $this->get_recorder_field_definition_efb($fid, $_POST['id']) : null;
@@ -3869,6 +3969,10 @@ public function check_nonce_permission_efb($request) {
 			}
 			$duration = isset($_POST['recording_duration']) ? sanitize_text_field(wp_unslash($_POST['recording_duration'])) : '';
 			$response = $this->process_recorder_upload_efb($recorder_field, $_FILES['async-upload'], $duration);
+			if (!empty($response['success']) && !empty($response['file']['file'])) {
+				\Emsfb\Upload_Guard::quota_consume($upload_context);
+				\Emsfb\Upload_Guard::track_pending_upload($response['file']['file']);
+			}
 			wp_send_json_success($response, 200);
 		}
 
@@ -3914,103 +4018,89 @@ public function check_nonce_permission_efb($request) {
 
             }
         }
-		$valid=false;
 		$_FILES['async-upload']['name'] = sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) );
 
-			if($have_validate!=1){
-				$arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
-				'audio/wav','audio/ogg','audio/webm','audio/mp4','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
-				'text/plain' ,
-				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
-				'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
-				'application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation',
-				'application/vnd.ms-powerpoint.presentation.macroEnabled.12','application/vnd.openxmlformats-officedocument.wordprocessingml.template',
-				'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
-				'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip', 'rar', 'zip', 'tar', 'gzip', 'gz', '7z', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mp3', 'wav', 'gif', 'png', 'jpg', 'jpeg', 'rar',
-			     'gz', 'tgz', 'tar.gz', 'tar.gzip', 'tar.z', 'tar.Z', 'tar.bz2', 'tar.bz', 'tar.bzip2', 'tar.bzip', 'tbz2', 'tbz', 'bz2', 'bz', 'bzip2', 'bzip', 'tz2', 'tz', 'z', 'war', 'jar', 'ear', 'sar'
+		/* Read the field's own rules straight off the published structure: the
+		 * size ceiling the form owner typed into the builder, and the accepted
+		 * file types behind whichever "Acceptable file types" option they chose.
+		 * Both used to be enforced in the browser only, which made a direct
+		 * POST ignore them entirely.
+		 *
+		 * The reply box takes neither: it has no field definition, so it keeps
+		 * the global allow-list, matching the "allformat" check its own client
+		 * runs. Upload_Guard::field_extensions() owns that decision. */
+		$field_max_mb     = null;
+		$field_definition = null;
 
-				);
-				$async_file_type = isset($_FILES['async-upload']['type']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['type'] ) ) : '';
-				$valid = in_array($async_file_type, $arr_ext);
-			}
-
-		if($have_validate==1){
+		if($_POST['pl']=="msg" && $vl!=null){
 			if(gettype($vl)=="string"){
-				$val_ = str_replace('\\', '', $vl);
-				$vl = json_decode($val_);}
+				$vl = json_decode(str_replace('\\', '', $vl));
+			}
+			if(is_array($vl)){
+				foreach($vl as $val){
+					if(!is_object($val) || !isset($val->type) || !isset($val->id_)) continue;
+					if($val->id_!=$_POST['id']) continue;
+					if(!in_array($val->type, ["dadfile", "file", "audio_recorder", "video_recorder", "screen_recorder"], true)) continue;
 
-			foreach($vl as $key=>$val){
-
-				if($key>1 && in_array($val->type, ["dadfile", "file", "audio_recorder", "video_recorder", "screen_recorder"], true) && $val->id_==$_POST['id']){
-
-					$val->file_ctype = strtolower($val->file_ctype);
-
-					$valid_types = explode(',', str_replace(' ', '', $val->file_ctype));
-
-					$file_name = isset($_FILES['async-upload']['name']) ? sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) ) : '';
-
-					$ext = strtolower(substr($file_name, strrpos($file_name, '.') + 1));
-
-					foreach($valid_types as $val){
-
-						if($val==$ext){
-							$valid=true;
-							break;
-						}
+					$field_definition = $val;
+					if(isset($val->max_fsize) && is_numeric($val->max_fsize) && floatval($val->max_fsize)>0){
+						$field_max_mb = floatval($val->max_fsize);
 					}
-
 					break;
 				}
 			}
-
 		}
 
-		if ($valid) {
-			$async_file_name = isset($_FILES['async-upload']['name']) ? sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) ) : '';
+		$field_extensions = \Emsfb\Upload_Guard::field_extensions(
+			$field_definition,
+			$upload_context['source']
+		);
 
-			$async_file_tmp = isset($_FILES['async-upload']['tmp_name']) ? $_FILES['async-upload']['tmp_name'] : '';
+		$upload_context['max_mb']           = $field_max_mb;
+		$upload_context['field_extensions'] = $field_extensions;
 
-			if (empty($async_file_tmp) || !is_uploaded_file($async_file_tmp) || !is_readable($async_file_tmp)) {
-				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
-				wp_send_json_success($response,200);
-			}
+		/* Size, then extension allow-list, then the real sniffed MIME. Replaces
+		 * the old gate that trusted the client-declared Content-Type. */
+		$validation = \Emsfb\Upload_Guard::validate_file($_FILES['async-upload'], $upload_context);
+		if ($validation !== true) {
+			wp_send_json_success($this->upload_rejected_response_efb($validation), 200);
+		}
 
-			if (function_exists('finfo_open')) {
-				$finfo = finfo_open(FILEINFO_MIME_TYPE);
-				$real_mime = finfo_file($finfo, $async_file_tmp);
-				finfo_close($finfo);
-				$allowed_mimes = array('image/png','image/jpeg','image/jpg','image/gif','application/pdf','audio/mpeg','image/heic','audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi','video/mpeg','video/mpg','audio/mpg','video/mov','video/quicktime','text/plain','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation','application/zip','application/octet-stream','application/x-zip-compressed','multipart/x-zip');
-				if (!in_array($real_mime, $allowed_mimes)) {
-					$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
-					wp_send_json_success($response,200);
-				}
-			}
+		$async_file_name = isset($_FILES['async-upload']['name']) ? sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) ) : '';
+		$async_file_tmp  = isset($_FILES['async-upload']['tmp_name']) ? $_FILES['async-upload']['tmp_name'] : '';
+		$async_file_type = isset($_FILES['async-upload']['type']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['type'] ) ) : '';
 
-			$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;
+		$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;
 
-			$blocked_ext = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg','html','htm','xhtml','xht','shtm','svgz');
-			$file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-			if (in_array($file_ext, $blocked_ext)) {
-				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
-				wp_send_json_success($response,200);
-			}
+		/* Redundant with the allow-list above, kept as a second net so that a
+		 * future allow-list entry cannot quietly re-admit an executable. */
+		if (\Emsfb\Upload_Guard::is_blocked_extension(\Emsfb\Upload_Guard::extension_of($name))) {
+			wp_send_json_success($this->upload_rejected_response_efb(\Emsfb\Upload_Guard::type_message()), 200);
+		}
 
-			$file_contents = emsfb_read_file_efb($async_file_tmp);
-			if ($file_contents === false) {
-				$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
-				wp_send_json_success($response,200);
-			}
-			$upload = wp_upload_bits($name, null, $file_contents);
-			if(is_ssl()==true){
-				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
-			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$async_file_type);
-			  wp_send_json_success($response,200);
-		}else{
-			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]);
+		$file_contents = emsfb_read_file_efb($async_file_tmp);
+		if ($file_contents === false) {
+			$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
 			wp_send_json_success($response,200);
-			die('invalid file ' . esc_html( $async_file_type ) );
 		}
+		$upload = wp_upload_bits($name, null, $file_contents);
+		if (!is_array($upload) || !empty($upload['error']) || empty($upload['url'])) {
+			wp_send_json_success($this->upload_rejected_response_efb(\Emsfb\Upload_Guard::type_message()), 200);
+		}
+		if(is_ssl()==true){
+			$upload['url'] = str_replace('http://', 'https://', $upload['url']);
+		}
+
+		/* Charged only now, so nothing above spends a visitor's allowance. The
+		 * ledger entry lets the daily sweeper remove this file if the form is
+		 * never actually submitted. */
+		\Emsfb\Upload_Guard::quota_consume($upload_context);
+		if (!empty($upload['file'])) {
+			\Emsfb\Upload_Guard::track_pending_upload($upload['file']);
+		}
+
+		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$async_file_type);
+		wp_send_json_success($response,200);
 	}
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
@@ -4203,6 +4293,8 @@ public function check_nonce_permission_efb($request) {
 					'read_' => $read_s,
 					'date'=>wp_date('Y-m-d H:i:s'),
 				));
+
+				$this->claim_uploaded_files_efb($m);
 
 				$track = isset($value[0]->track) ? $value[0]->track : null;
 				if (empty($track)) {

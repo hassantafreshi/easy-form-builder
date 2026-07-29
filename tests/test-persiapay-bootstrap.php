@@ -13,6 +13,18 @@ function add_action( $hook, $callback ) {
 	$registered_actions[ $hook ][] = $callback;
 }
 
+/*
+ * load_persiapay_addon() is invoked directly below rather than through
+ * Emsfb::includes(), so the add-on compatibility helper that includes() would
+ * normally have loaded is not defined. Stand in for it here; the real
+ * implementation lives in includes/class-Emsfb-addon-compatibility.php.
+ */
+if ( ! function_exists( 'emsfb_is_addon_compatible_efb' ) ) {
+	function emsfb_is_addon_compatible_efb( $addon_key ) {
+		return true;
+	}
+}
+
 require_once dirname( __DIR__ ) . '/includes/class-Emsfb.php';
 
 $reflection = new ReflectionClass( 'Emsfb' );

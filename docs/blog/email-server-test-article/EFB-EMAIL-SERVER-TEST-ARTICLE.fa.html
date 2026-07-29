@@ -1,0 +1,517 @@
+<title>تست ایمیل وردپرس در Easy Form Builder</title>
+<meta name="description" content="با ابزار داخلی تست سرور ایمیل در Easy Form Builder (به همراه WhiteStudio) بفهمید چرا فرم تماس وردپرس ایمیل نمی‌فرستد؛ امتیاز تحویل‌پذیری، SPF/DKIM/DMARC و رفع مشکل با WP Mail SMTP.">
+<style>
+  :root{
+    --bg:#F6F5F1; --surface:#FFFFFF; --surface-2:#EFEEE8; --border:#DCDAD2;
+    --text:#1C2321; --text-muted:#5C6560;
+    --accent:#0F6E63; --accent-strong:#0B4F47; --accent-tint:#E3F1EE;
+    --good:#1B8A5A; --good-tint:#E7F5EC;
+    --warn:#B7791F; --warn-tint:#FBF1DE;
+    --danger:#C1442D; --danger-tint:#FBE9E5;
+    --shadow: 0 1px 2px rgba(20,30,28,.06), 0 8px 24px -12px rgba(20,30,28,.18);
+  }
+  :root[data-theme="dark"]{
+    --bg:#12181A; --surface:#182023; --surface-2:#1F292C; --border:#2B3639;
+    --text:#E8EDEC; --text-muted:#9AA7A5;
+    --accent:#4FBFAE; --accent-strong:#7ED4C4; --accent-tint:#1A2C2A;
+    --good:#4ADE80; --good-tint:#16261C;
+    --warn:#FBBF24; --warn-tint:#2A2312;
+    --danger:#F87171; --danger-tint:#2B1917;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12181A; --surface:#182023; --surface-2:#1F292C; --border:#2B3639;
+      --text:#E8EDEC; --text-muted:#9AA7A5;
+      --accent:#4FBFAE; --accent-strong:#7ED4C4; --accent-tint:#1A2C2A;
+      --good:#4ADE80; --good-tint:#16261C;
+      --warn:#FBBF24; --warn-tint:#2A2312;
+      --danger:#F87171; --danger-tint:#2B1917;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Vazirmatn','Segoe UI',Tahoma,'IRANSansX',system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.9;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  [dir="rtl"]{direction:rtl;}
+
+  .eyebrow{
+    font-family:ui-monospace,'Cascadia Code',Consolas,monospace;
+    font-size:11.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent-tint);
+    opacity:.85;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    direction:ltr;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px;height:7px;border-radius:999px;
+    background:currentColor;
+    display:inline-block;
+  }
+
+  header.hero{
+    background:linear-gradient(160deg, var(--accent-strong), var(--accent) 130%);
+    color:#F3FBF9;
+    padding:56px 24px 44px;
+  }
+  .hero-inner{max-width:760px;margin:0 auto;}
+  .hero h1{
+    font-family:'Vazirmatn','Segoe UI',Tahoma,sans-serif;
+    font-weight:800;
+    font-size:clamp(26px,4.2vw,38px);
+    line-height:1.5;
+    margin:18px 0 14px;
+    text-wrap:balance;
+    color:#FFFFFF;
+  }
+  .hero p.lede{
+    font-size:17px;
+    line-height:1.85;
+    color:#DFF3EF;
+    max-width:60ch;
+    margin:0;
+  }
+  .hero-meta{
+    display:flex; flex-wrap:wrap; gap:10px;
+    margin-top:26px;
+  }
+  .chip{
+    font-size:12.5px;
+    padding:6px 14px;
+    border-radius:999px;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.22);
+    color:#EAF7F4;
+  }
+
+  main{max-width:760px;margin:0 auto;padding:48px 24px 96px;}
+
+  .lead-block{
+    font-size:18px;
+    line-height:1.95;
+    color:var(--text);
+    margin-bottom:28px;
+  }
+  .lead-block strong{color:var(--accent-strong);}
+
+  h2{
+    font-family:'Vazirmatn','Segoe UI',Tahoma,sans-serif;
+    font-weight:700;
+    font-size:24px;
+    line-height:1.6;
+    margin:52px 0 18px;
+    padding-inline-start:14px;
+    border-inline-start:4px solid var(--accent);
+    text-wrap:balance;
+  }
+  h3{
+    font-size:18px;
+    font-weight:700;
+    margin:30px 0 12px;
+    color:var(--accent-strong);
+  }
+  p{margin:0 0 16px;color:var(--text);}
+  p.muted{color:var(--text-muted); font-size:14.5px;}
+  a{color:var(--accent-strong);}
+  :root[data-theme="dark"] a, :root:not([data-theme="light"]) a{color:var(--accent-strong);}
+
+  ul, ol{margin:0 0 18px; padding-inline-start:22px;}
+  li{margin-bottom:8px;}
+
+  blockquote.callout{
+    background:var(--warn-tint);
+    border-inline-start:4px solid var(--warn);
+    padding:16px 18px;
+    border-radius:8px;
+    margin:22px 0;
+    font-size:15px;
+  }
+  blockquote.callout strong{color:var(--warn);}
+
+  /* step timeline */
+  .timeline{
+    list-style:none; margin:28px 0; padding:0;
+    display:flex; flex-direction:column; gap:0;
+    border-inline-start:2px solid var(--border);
+    padding-inline-start:26px;
+  }
+  .timeline li{
+    position:relative;
+    padding:4px 0 26px;
+    margin:0;
+  }
+  .timeline li:last-child{padding-bottom:2px;}
+  .timeline .num{
+    position:absolute;
+    inset-inline-start:-38px;
+    top:0;
+    width:26px;height:26px;
+    border-radius:999px;
+    background:var(--accent);
+    color:#fff;
+    font-family:ui-monospace,Consolas,monospace;
+    font-size:12.5px;
+    font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .timeline .step-title{font-weight:700; margin-bottom:4px; font-size:15.5px;}
+  .timeline .step-quote{
+    color:var(--text-muted);
+    font-size:14px;
+    font-style:italic;
+  }
+
+  /* status icon legend */
+  .legend{display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 28px;}
+  .legend span{
+    font-size:13px;
+    padding:6px 12px;
+    border-radius:999px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+  }
+
+  /* scorecard */
+  .scorecard{
+    display:flex; align-items:center; gap:20px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px;
+    margin:26px 0;
+    box-shadow:var(--shadow);
+  }
+  .ring{
+    flex:none;
+    width:84px;height:84px;
+    border-radius:999px;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column;
+    font-family:ui-monospace,Consolas,monospace;
+    border:6px solid var(--good);
+    background:var(--good-tint);
+  }
+  .ring b{font-size:20px; color:var(--good); font-variant-numeric:tabular-nums; line-height:1;}
+  .ring small{font-size:10px; color:var(--text-muted); letter-spacing:.05em;}
+  .scorecard .desc b{display:block; font-size:15.5px; margin-bottom:4px;}
+  .scorecard .desc span{color:var(--text-muted); font-size:14px;}
+
+  .badge{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:600;
+    padding:3px 10px; border-radius:999px;
+  }
+  .badge.good{background:var(--good-tint); color:var(--good);}
+  .badge.warn{background:var(--warn-tint); color:var(--warn);}
+  .badge.danger{background:var(--danger-tint); color:var(--danger);}
+
+  /* how-to steps */
+  .howto{counter-reset:step; list-style:none; margin:20px 0; padding:0;}
+  .howto li{
+    counter-increment:step;
+    position:relative;
+    padding-inline-start:40px;
+    margin-bottom:12px;
+    min-height:26px;
+  }
+  .howto li::before{
+    content:counter(step);
+    position:absolute; inset-inline-start:0; top:0;
+    width:26px;height:26px;border-radius:8px;
+    background:var(--accent-tint);
+    color:var(--accent-strong);
+    font-family:ui-monospace,Consolas,monospace;
+    font-weight:700; font-size:13px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* tables */
+  .table-wrap{overflow-x:auto; margin:20px 0 28px; border:1px solid var(--border); border-radius:10px;}
+  table{border-collapse:collapse; width:100%; font-size:14.5px; min-width:480px;}
+  thead th{
+    background:var(--surface-2);
+    text-align:start;
+    padding:11px 14px;
+    font-weight:700;
+    font-size:13px;
+    color:var(--text-muted);
+    letter-spacing:.01em;
+    border-bottom:1px solid var(--border);
+  }
+  td{padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:top;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:nth-child(even){background:var(--surface);}
+  tbody tr:nth-child(odd){background:transparent;}
+
+  /* faq */
+  details.faq{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 18px;
+    margin-bottom:10px;
+    background:var(--surface);
+  }
+  details.faq summary{
+    cursor:pointer;
+    font-weight:700;
+    font-size:15.5px;
+    list-style:none;
+    display:flex; justify-content:space-between; align-items:center;
+    gap:12px;
+  }
+  details.faq summary::-webkit-details-marker{display:none;}
+  details.faq summary::after{
+    content:"+";
+    font-family:ui-monospace,Consolas,monospace;
+    color:var(--accent);
+    font-size:18px;
+    flex:none;
+  }
+  details.faq[open] summary::after{content:"–";}
+  details.faq p{margin-top:12px; color:var(--text-muted); font-size:14.5px;}
+
+  .closing{
+    margin-top:56px;
+    padding:26px;
+    border-radius:14px;
+    background:var(--accent-tint);
+    border:1px solid var(--border);
+  }
+  .closing h2{margin-top:0; border-inline-start:none; padding-inline-start:0;}
+  .closing p{color:var(--text);}
+
+  footer.meta-footer{
+    max-width:760px;margin:0 auto; padding:0 24px 60px;
+    color:var(--text-muted); font-size:13px;
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    .ring, .badge{transition:transform .2s ease;}
+  }
+</style>
+
+<article dir="rtl" lang="fa">
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">EASY FORM BUILDER × WHITESTUDIO</span>
+    <h1>تست ایمیل وردپرس: چرا فرم تماس شما ایمیل نمی‌فرستد و چطور با یک کلیک بررسی‌اش کنید</h1>
+    <p class="lede">راهنمای کامل قابلیت تست سرور ایمیل در Easy Form Builder — ارسال واقعی، تأیید تحویل واقعی، امتیاز تحویل‌پذیری و گزارش تحلیل‌شده با هوش مصنوعی.</p>
+    <div class="hero-meta">
+      <span class="chip">مدت مطالعه: ۹ دقیقه</span>
+      <span class="chip">افزونه تست ایمیل وردپرس</span>
+      <span class="chip">فرم تماس وردپرس کار نمی‌کند</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <p class="lead-block">یکی از رایج‌ترین جمله‌هایی که در جست‌وجوی مشکلات وردپرس دیده می‌شود این است: <strong>«فرم تماس وردپرس کار نمی‌کند»</strong> (WordPress contact form not working). خبر خوب و بد همزمان این است: در اکثر این موارد، فرم دقیقاً همان کاری را می‌کند که باید — ورودی کاربر را می‌گیرد، در دیتابیس ذخیره می‌کند و سعی می‌کند ایمیل اطلاع‌رسانی بفرستد. مشکل جایی اتفاق می‌افتد که خیلی از صاحبان سایت اصلاً نمی‌بینندش: مرحله‌ی ارسال واقعی ایمیل از سمت سرور هاست.</p>
+
+  <p>به همین دلیل صرفاً نگاه‌کردن به تنظیمات فرم کمکی نمی‌کند. چیزی که واقعاً لازم است یک <strong>افزونه تست ایمیل وردپرس</strong> (WordPress email test plugin) است که به‌جای حدس‌زدن، یک ایمیل واقعی بفرستد و تأیید کند که آیا واقعاً به مقصد رسیده یا نه. Easy Form Builder دقیقاً همین ابزار را — بدون نیاز به نصب افزونه‌ی جداگانه — مستقیم داخل پنل مدیریت خودش دارد.</p>
+
+  <h2>چرا فرم تماس وردپرس ایمیل ارسال نمی‌کند؟</h2>
+
+  <p>وردپرس به‌صورت پیش‌فرض از تابع <code>mail()</code> خود PHP برای ارسال ایمیل استفاده می‌کند، نه یک سرویس ارسال معتبر و احرازهویت‌شده. روی بسیاری از هاست‌های اشتراکی این یعنی:</p>
+
+  <ul>
+    <li>تابع <code>mail()</code> توسط هاست بلاک یا محدود شده است.</li>
+    <li>ایمیل ارسال می‌شود اما چون احراز هویتی ندارد، مستقیم در اسپم می‌نشیند یا رد می‌شود.</li>
+    <li>رکورد <strong>SPF</strong> روی دامنه تنظیم نشده یا اشتباه است.</li>
+    <li><strong>DKIM</strong> پیکربندی نشده، پس گیرنده نمی‌تواند صحت فرستنده را تأیید کند.</li>
+    <li>سیاست <strong>DMARC</strong> وجود ندارد.</li>
+    <li>آدرس «From» تنظیم‌شده در فرم‌ساز با فرستنده‌ی واقعیِ افزونه‌ی SMTP یکی نیست.</li>
+    <li>فیلترهای گری‌لیستینگ یا اسپم روی سرور مقصد، ایمیل را موقتاً نگه می‌دارند.</li>
+  </ul>
+
+  <p>هیچ‌کدام از این‌ها از داخل پنل وردپرس «قابل دیدن» نیستند؛ وردپرس معمولاً می‌گوید ایمیل «ارسال شد»، حتی وقتی هرگز به مقصد نمی‌رسد. تنها راه مطمئن این است که یک ایمیل واقعی بفرستید و تحویل واقعی آن را از یک سرور مستقل تأیید کنید.</p>
+
+  <h2>قابلیت تست سرور ایمیل در Easy Form Builder</h2>
+
+  <p>Easy Form Builder یک ابزار <strong>بررسی سرور ایمیل (Check Email Server)</strong> به‌صورت توکار در تنظیمات خودش دارد. این ابزار یک ایمیل واقعی از طریق پیکربندی فعلی سرور شما ارسال می‌کند و با کمک سرویس شریک آن، <strong>WhiteStudio</strong>، تأیید می‌کند تحویل واقعاً اتفاق افتاده یا نه. نتیجه به‌صورت زنده و مرحله‌به‌مرحله در پنل نمایش داده می‌شود، همراه با یک امتیاز و یک گزارش کامل که به ایمیل مدیر سایت ارسال می‌شود.</p>
+
+  <blockquote class="callout"><strong>پیش از شروع:</strong> آدرس <strong>From Address</strong> در تنظیمات Easy Form Builder باید دقیقاً با آدرس فرستنده‌ی تنظیم‌شده در افزونه‌ی SMTP یکی باشد؛ در غیر این‌صورت ایمیل‌ها حتی با تنظیمات درست SMTP هم تحویل داده نمی‌شوند. مقدار پیش‌فرض <code>admin@example.com</code> است و باید پیش از تست به یک ایمیل واقعی روی دامنه‌ی شما تغییر کند.</blockquote>
+
+  <h3>چطور تست را اجرا کنیم</h3>
+  <ol class="howto">
+    <li>وارد داشبورد وردپرس شوید.</li>
+    <li>از منوی سمت راست، وارد <strong>Easy Form Builder</strong> شوید.</li>
+    <li>روی <strong>Panel</strong> کلیک کنید تا پنل اصلی باز شود.</li>
+    <li>از منوی بالا، وارد تب <strong>Settings</strong> شوید.</li>
+    <li>تب <strong>Email Settings</strong> را باز کنید.</li>
+    <li>مطمئن شوید فیلد <strong>Admin Email</strong> یک ایمیل معتبر دارد — گزارش کامل تست به همین آدرس می‌رود.</li>
+    <li>روی دکمه‌ی <strong>«Check Email Server»</strong> کلیک کنید.</li>
+  </ol>
+
+  <h2>۵ مرحله‌ی تست، از اتصال تا گزارش نهایی</h2>
+
+  <div class="legend">
+    <span>⏳ در حال اجرا</span>
+    <span>✅ موفق</span>
+    <span>⚠️ هشدار</span>
+    <span>❌ ناموفق</span>
+  </div>
+
+  <ul class="timeline">
+    <li><span class="num">۱</span>
+      <div class="step-title">آماده‌سازی تست</div>
+      <div class="step-quote">اتصال به سرور WhiteStudio و دریافت یک آدرس ایمیل تستیِ یک‌بارمصرف.</div>
+    </li>
+    <li><span class="num">۲</span>
+      <div class="step-title">ارسال ایمیل تست</div>
+      <div class="step-quote">وردپرس با همان پیکربندی فعلی سرورتان یک ایمیل واقعی ارسال می‌کند — نه یک شبیه‌سازی.</div>
+    </li>
+    <li><span class="num">۳</span>
+      <div class="step-title">انتظار برای تحویل</div>
+      <div class="step-quote">روی اغلب سرورها بین ۵ تا ۱۵ ثانیه طول می‌کشد تا ایمیل به WhiteStudio برسد.</div>
+    </li>
+    <li><span class="num">۴</span>
+      <div class="step-title">نتیجه‌ی سریع</div>
+      <div class="step-quote">وضعیت سرور ایمیل به همراه یک امتیاز و نشان درجه بلافاصله نمایش داده می‌شود.</div>
+    </li>
+    <li><span class="num">۵</span>
+      <div class="step-title">گزارش کامل</div>
+      <div class="step-quote">یک گزارش HTML کامل با جزئیات تشخیصی آماده و به ایمیل مدیر سایت ارسال می‌شود.</div>
+    </li>
+  </ul>
+
+  <h2>امتیاز تحویل‌پذیری، درجه و تحلیل هوش مصنوعی</h2>
+
+  <div class="scorecard">
+    <div class="ring"><b>۸۴</b><small>از ۱۰۰</small></div>
+    <div class="desc">
+      <b>نمونه‌ی یک نتیجه‌ی موفق <span class="badge good">Working</span></b>
+      <span>امتیاز بالای ۷۰ یعنی زیرساخت ارسال ایمیل سایت درست کار می‌کند. امتیاز زیر ۷۰ یعنی ایمیل تحویل داده می‌شود اما احتمال زیادی دارد در اسپم گیرنده بیفتد.</span>
+    </div>
+  </div>
+
+  <p>گزارش کامل مرحله‌ی پنجم روی سرور WhiteStudio با هوش مصنوعی تحلیل می‌شود و شامل این موارد است:</p>
+  <ul>
+    <li>امتیاز تحویل‌پذیری و درجه</li>
+    <li>تحلیل امتیاز اسپم با موتور <strong>SpamAssassin</strong></li>
+    <li>بررسی احراز هویت <strong>SPF / DKIM / DMARC</strong></li>
+    <li>جزئیات تحویل (Delivery Details)</li>
+    <li>علل احتمالی و مواردی که باید بررسی شوند</li>
+    <li>توصیه‌های عملی برای بهبود امتیاز</li>
+  </ul>
+  <p class="muted">این گزارش بر اساس پاسخ واقعی سرور خودِ شما تولید می‌شود — نه یک چک‌لیست ثابت و عمومی.</p>
+
+  <h3>پنل جزئیات تحویل (Delivery Details)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>فیلد</th><th>معنی</th></tr></thead>
+      <tbody>
+        <tr><td>Test sent to</td><td>آدرس یک‌بارمصرف WhiteStudio که ایمیل تست به آن ارسال شد</td></tr>
+        <tr><td>Email subject</td><td>موضوع ایمیل تست</td></tr>
+        <tr><td>Sender address</td><td>آدرس «From» که سایت شما استفاده کرد</td></tr>
+        <tr><td>Email received</td><td>آیا ایمیل فیزیکاً دریافت شد — بله یا خیر</td></tr>
+        <tr><td>Subject matched</td><td>آیا موضوع ایمیل در مسیر تحویل تغییر نکرده</td></tr>
+        <tr><td>Unique code verified</td><td>آیا کد یکتای داخل بدنه‌ی ایمیل دست‌نخورده رسیده</td></tr>
+        <tr><td>Time waited</td><td>چند ثانیه سیستم منتظر رسیدن ایمیل ماند</td></tr>
+        <tr><td>Max wait time</td><td>حداکثر زمان انتظار پیش از انقضای تست</td></tr>
+        <tr><td>Failure reason</td><td>دلیل فنی دقیق شکست تحویل، در صورت وجود</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>تفسیر نتایج تست — جدول مرجع سریع</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>نتیجه‌ی تست</th><th>چه باید کرد</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge good">✅ &gt; ۷۰</span></td><td>همه‌چیز درست کار می‌کند؛ توصیه‌های گزارش HTML را برای بهبود بیشتر بررسی کنید.</td></tr>
+        <tr><td><span class="badge warn">⚠️ &lt; ۷۰</span></td><td>ایمیل ارسال می‌شود اما ممکن است در اسپم بیفتد؛ SMTP راه‌اندازی کنید.</td></tr>
+        <tr><td><span class="badge danger">❌ Not Working</span></td><td>افزونه‌ی WP Mail SMTP را نصب و پیکربندی کنید.</td></tr>
+        <tr><td><span class="badge warn">⚠️ تأخیر</span></td><td>چند دقیقه صبر کنید و دوباره تست را اجرا کنید.</td></tr>
+        <tr><td><span class="badge danger">⏰ Timeout</span></td><td>هاست شما احتمالاً mail() را بلاک می‌کند؛ SMTP با سرویس API‌محور راه‌حل است.</td></tr>
+        <tr><td><span class="badge danger">❌ No Email</span></td><td>مشابه بالا؛ SMTP الزامی است.</td></tr>
+        <tr><td><span class="badge warn">🔌 Connection Error</span></td><td>خطای موقت شبکه؛ صفحه را رفرش کرده و دوباره تلاش کنید.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>مانیتورینگ خودکار هفتگی ایمیل <span class="badge good" style="font-size:12px;">Free Plus+</span></h2>
+
+  <p>علاوه بر تست دستیِ یک‌کلیکی، Easy Form Builder یک تست خودکار تحویل‌پذیری ایمیل هم دارد که بدون هیچ اقدامی از سمت شما اجرا می‌شود:</p>
+  <ul>
+    <li>بلافاصله پس از <strong>فعال‌سازی افزونه</strong></li>
+    <li>پس از <strong>هر بروزرسانی</strong></li>
+    <li>و به‌صورت <strong>هفتگی</strong></li>
+  </ul>
+
+  <p>نتیجه در یک ایمیل هفتگی به آدرس مدیر سایت ارسال می‌شود که از دو بخش مستقل تشکیل شده:</p>
+  <ol>
+    <li><strong>وضعیت تحویل ایمیل</strong> — امتیاز، درجه، وضعیت SPF/DKIM/DMARC و تعداد ایمیل‌های موفق و ناموفق آن هفته</li>
+    <li><strong>فعالیت فرم‌ها</strong> — تعداد کل فرم‌ها، فرم‌های فعال و غیرفعال، بازدید صفحات فرم و تعداد ثبت‌فرم‌های آن هفته</li>
+  </ol>
+  <p>هر بخش با یک کلید جداگانه در تنظیمات قابل خاموش/روشن‌کردن است. این گزارش از خود سایت شما و با آدرس ادمین شما ارسال می‌شود — نه از سرور WhiteStudio — تا فقط یک ایمیل واحد دریافت کنید.</p>
+
+  <h2>رفع مشکل: وقتی امتیاز پایین است یا ایمیل نمی‌رسد</h2>
+
+  <p>اگر تست شکست خورد یا امتیاز زیر ۷۰ بود، مطمئن‌ترین راه‌حل نصب <strong>WP Mail SMTP</strong> است. این افزونه تابع پیش‌فرض <code>mail()</code> وردپرس را با یک اتصال SMTP معتبر و احرازهویت‌شده جایگزین می‌کند.</p>
+
+  <ol class="howto">
+    <li>به داشبورد وردپرس ← افزونه‌ها ← افزودن افزونه‌ی جدید بروید.</li>
+    <li>عبارت <strong>WP Mail SMTP</strong> را جست‌وجو کنید.</li>
+    <li>روی <strong>Install Now</strong> و سپس <strong>Activate</strong> کلیک کنید.</li>
+    <li>ویزارد نصب، پیکربندی را مرحله‌به‌مرحله راهنمایی می‌کند.</li>
+  </ol>
+
+  <p>اگر هاست شما SMTP اختصاصی ندارد، از یک سرویس ارسال ایمیل اختصاصی استفاده کنید — مثل SendGrid، Mailgun، Gmail/Google Workspace، Amazon SES، Brevo یا Postmark.</p>
+
+  <blockquote class="callout"><strong>یادآوری مهم:</strong> بعد از پیکربندی WP Mail SMTP، دوباره به Easy Form Builder ← Panel ← Settings ← Email Settings برگردید و مطمئن شوید آدرس From Address با فرستنده‌ی تنظیم‌شده در SMTP یکی است. سپس دوباره روی «Check Email Server» کلیک کنید.</blockquote>
+
+  <h2>سوالات متداول</h2>
+
+  <details class="faq">
+    <summary>اگر امتیاز بالای ۷۰ باشد، آیا باز هم باید SMTP راه‌اندازی کنم؟</summary>
+    <p>لازم نیست. امتیاز بالای ۷۰ یعنی سرور شما ایمیل را درست ارسال می‌کند. با این حال SMTP برای بهبود بیشتر امتیاز و پایداری بلندمدت توصیه می‌شود.</p>
+  </details>
+  <details class="faq">
+    <summary>امتیازم بالای ۷۰ است ولی ایمیل‌ها هنوز در اسپم می‌افتند، چرا؟</summary>
+    <p>امتیاز خوب یعنی سرور شما توانایی ارسال ایمیل را دارد. قرارگیری در اسپم مسئله‌ی جداگانه‌ای است که معمولاً به محتوای ایمیل یا رکوردهای DNS ناقص برمی‌گردد. گزارش کامل HTML ارسال‌شده به ایمیل ادمین را باز کنید.</p>
+  </details>
+  <details class="faq">
+    <summary>آیا WP Mail SMTP روی همه‌ی ایمیل‌های وردپرس اثر می‌گذارد؟</summary>
+    <p>بله. پس از پیکربندی، تمام ایمیل‌های وردپرس — بازیابی رمز عبور، سفارش‌های ووکامرس، ثبت‌نام کاربران و اطلاع‌رسانی‌های Easy Form Builder — از همان اتصال SMTP عبور می‌کنند.</p>
+  </details>
+  <details class="faq">
+    <summary>آدرس From در تنظیمات و SMTP یکی است، ولی باز هم ایمیل نمی‌رسد؛ حالا چه؟</summary>
+    <p>پنل Delivery Details را بررسی کنید و به فیلد Failure reason نگاه کنید. سپس فهرست Possible causes در بخش Diagnosis &amp; Troubleshooting را بخوانید — بر اساس پاسخ واقعی سرور شما تولید شده است.</p>
+  </details>
+  <details class="faq">
+    <summary>آیا حتماً باید یک سرویس SMTP پولی بخرم؟</summary>
+    <p>نه. سرویس SMTP داخلی هاست معمولاً رایگان است. برای حجم بیشتر، سرویس‌هایی مثل SendGrid و Brevo پلن رایگانی دارند که برای اکثر سایت‌های کوچک و متوسط کافی است.</p>
+  </details>
+  <details class="faq">
+    <summary>آیا می‌توانم تست را چندبار اجرا کنم؟</summary>
+    <p>بله. بعد از هر تغییر در تنظیمات ایمیل یا SMTP، دوباره تست را اجرا کنید تا از رفع مشکل مطمئن شوید.</p>
+  </details>
+
+  <div class="closing">
+    <h2>جمع‌بندی</h2>
+    <p>بیشتر مواردی که به‌عنوان «فرم تماس وردپرس کار نمی‌کند» گزارش می‌شوند، در واقع مشکل ارسال ایمیل هستند، نه مشکل خود فرم. Easy Form Builder به‌جای این‌که شما را به حدس‌وگمان وادار کند، یک تست ایمیل واقعی — با کمک سرور شریک WhiteStudio — مستقیم داخل پنل وردپرس ارائه می‌دهد: ارسال واقعی، تأیید تحویل واقعی، امتیاز تحویل‌پذیری، بررسی SPF/DKIM/DMARC و یک گزارش کامل تحلیل‌شده با هوش مصنوعی. همین ابزار به‌صورت خودکار هم در پس‌زمینه — هنگام فعال‌سازی، بعد از هر بروزرسانی و هر هفته — اجرا می‌شود.</p>
+  </div>
+
+</main>
+
+<footer class="meta-footer">
+  منبع فنی: راهنمای رسمی تست سرور ایمیل Easy Form Builder و گزارش تغییرات افزونه · قدرت‌گرفته از WhiteStudio
+</footer>
+
+</article>
