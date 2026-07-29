@@ -56,7 +56,9 @@ class Emsfb_Gutenberg_Block {
             true
         );
 
-        wp_localize_script('efb-gutenberg-editor', 'efbBlockData', [
+        // 'strings' is nested, so core leaves its entities untouched, and the
+        // editor renders these as React text nodes rather than as HTML.
+        wp_localize_script('efb-gutenberg-editor', 'efbBlockData', emsfb_decode_typographic_entities_efb([
             'forms' => $this->get_forms_for_js(),
             'pluginUrl' => EMSFB_PLUGIN_URL,
             'logoUrl' => Emsfb_Widgets_Helper::get_logo_url(),
@@ -66,10 +68,10 @@ class Emsfb_Gutenberg_Block {
                 'selectFormHelp' => __('Select a form to display from the dropdown below.', 'easy-form-builder'),
                 'selectedForm' => __('Selected Form:', 'easy-form-builder'),
                 'formPreviewText' => __('Form will be displayed here on the frontend.', 'easy-form-builder'),
-                'loadingForms' => __('Loading forms...', 'easy-form-builder'),
+                'loadingForms' => __('Loading forms&hellip;', 'easy-form-builder'),
                 'trackingForm' => __('📍 Confirmation Code Finder (Tracking Form)', 'easy-form-builder')
             ]
-        ]);
+        ]));
 
         wp_enqueue_script('efb-gutenberg-editor');
 

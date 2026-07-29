@@ -47,39 +47,62 @@ function efb_builder_latest_email_spam_score() {
   return Number.isFinite(score) ? score : null;
 }
 
-function efb_builder_email_warning_signature() {
-  const first = Array.isArray(valj_efb) && valj_efb[0] ? valj_efb[0] : {};
+function efb_builder_email_warning_signature(kind) {
   return [
+    kind,
     form_ID_emsFormBuilder || 0,
-    first.formName || first.type || '',
-    Array.isArray(valj_efb) ? valj_efb.length : 0,
     efb_builder_latest_email_spam_score()
   ].join('|');
 }
 
+/* One-click route to the switch that actually enables notification emails.
+   Relative on purpose: the builder already runs under /wp-admin/. */
+function efb_builder_email_settings_url() {
+  return 'admin.php?page=Emsfb&state=setting&tab=email';
+}
+
+function efb_builder_email_settings_button() {
+  const label = efb_var.text.emailSendingOffCta || 'Enable email sending';
+  return `<br><a class="efb btn btn-sm btn-warning fw-semibold mt-2 text-dark" href="${efb_builder_email_settings_url()}"><i class="efb bi-toggle-on mx-1"></i>${label}</a>`;
+}
+
+/* Two different problems, two different messages:
+   - the switch is off  -> NO notification email goes out at all. This is the
+     default on a fresh install, so the admin gets a direct "turn it on" route.
+   - the switch is on but the last spam score is poor -> emails are sent but may
+     be filtered, which stays a delivery-quality warning. */
 function efb_builder_maybe_warn_email_delivery() {
   const score = efb_builder_latest_email_spam_score();
   const health = (typeof efb_var !== 'undefined' && efb_var.emailHealth) ? efb_var.emailHealth : {};
   const threshold = health && Number(health.threshold) ? Number(health.threshold) : 75;
 
-  if (!efb_builder_form_has_email_field() || !efb_builder_email_setting_smtp_disabled() || (score !== null && score >= threshold)) {
+  let kind = '';
+  if (efb_builder_email_setting_smtp_disabled()) {
+    kind = 'off';
+  } else if (efb_builder_form_has_email_field() && score !== null && score < threshold) {
+    kind = 'score';
+  } else {
     return;
   }
 
-  const signature = efb_builder_email_warning_signature();
+  const signature = efb_builder_email_warning_signature(kind);
   if (efb_builder_last_email_warning_signature === signature) {
     return;
   }
   efb_builder_last_email_warning_signature = signature;
 
+  if (kind === 'off') {
+    const offTitle = efb_var.text.emailSendingOffTitle || 'Notification emails are turned off';
+    const offDesc = efb_var.text.emailSendingOffDesc || 'Easy Form Builder will not send any email - neither to you nor to the person who submits this form - until "This site can send emails" is enabled in Email Settings.';
+    alert_message_efb(offTitle, offDesc + efb_builder_email_settings_button(), 30, 'warning');
+    return;
+  }
+
   const title = efb_var.text.emailNotificationRiskTitle || 'Email notifications may not be delivered';
-  const template = score === null
-    ? (efb_var.text.emailNotificationRiskDescNoScore || 'This form includes an email field, but email delivery is not enabled in settings and no recent spam score is available. Form admin notification emails may not arrive until SMTP/email delivery is tested and fixed.')
-    : (efb_var.text.emailNotificationRiskDesc || 'This form includes an email field, but email delivery is not enabled in settings and the latest spam score is %s/100. The form was saved, but admin notification emails may not reach the form admin until SMTP/email delivery is fixed.');
+  const template = efb_var.text.emailNotificationRiskDesc || 'This form\'s email notification feature is enabled, but email delivery has not been verified and the latest spam score is %s/100. The form was saved, but admin notification emails may not reach you until SMTP/email delivery is fixed.';
   const helpText = efb_var.text.clcdetls || efb_var.text.smtpSetupGuideBtn || efb_var.text.clickHere || 'Click here for more details';
   const helpLink = `<br><a class="efb alert-link text-dark fw-semibold pointer-efb" onclick="Link_emsFormBuilder('EmailSpam')">${helpText}</a>`;
-  const message = (score === null ? template : template.replace('%s', `<b>${score}</b>`)) + helpLink;
-  alert_message_efb(title, message, 30, 'warning');
+  alert_message_efb(title, template.replace('%s', `<b>${score}</b>`) + helpLink, 30, 'warning');
 }
 
 function efb_builder_maybe_warn_email_delivery_after_save() {
@@ -428,10 +451,6 @@ function show_message_result_form_set_EFB(state, m) {
     return;
   }
 
-  const cet = () => {
-    const emailItem = valj_efb.find(item => item.type === 'email');
-    return emailItem!=undefined && emailItem.hasOwnProperty('noti')  ? emailItem.noti  : false;
-};
   const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger ec-efb" data-eventform="links" data-linkname="wpbakery">${efb_var.text.wwpb}</a></p>`
   const title = `
   <h4 class="efb title-holder efb">
@@ -440,12 +459,14 @@ function show_message_result_form_set_EFB(state, m) {
   </h4>
 
   `;
-  const e_s = cet();
   let e_m ='<div id="alert"></div>';
-  if((efb_var.smtp==false || efb_var.smtp==0 || efb_var.smtp==-1) && (e_s==true || e_s==1)) {
-    msg = `<p class="efb mb-1"><strong>${efb_var.text.emailNotificationRiskTitle}</strong></p>
-    <p class="efb mb-2">${efb_var.text.goToEFBAddEmailM}</p>
-    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block ec-efb" data-eventform="links" data-linkname="EmailNoti"><i class="efb bi bi-patch-question  mx-1"></i>${efb_var.text.howActivateAlertEmail}</a>
+  /* The form is saved either way - this only tells the admin that the global
+     "This site can send emails" switch is still off, so neither the admin nor
+     the visitor will receive anything, and links straight to that switch. */
+  if(efb_builder_email_setting_smtp_disabled()) {
+    const msg = `<p class="efb mb-1"><strong>${efb_var.text.emailSendingOffTitle || 'Notification emails are turned off'}</strong></p>
+    <p class="efb mb-2">${efb_var.text.emailSendingOffDesc || efb_var.text.goToEFBAddEmailM}</p>
+    <a class="efb btn btn-sm efb btn-warning text-dark btn-r d-block" href="${efb_builder_email_settings_url()}"><i class="efb bi bi-toggle-on mx-1"></i>${efb_var.text.emailSendingOffCta || efb_var.text.howActivateAlertEmail}</a>
     `
     e_m = alarm_emsFormBuilder(msg)
   }

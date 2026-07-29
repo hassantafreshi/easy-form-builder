@@ -19,6 +19,7 @@ class efbFunction {
         wp_cache_delete('settings:decoded', 'emsfb');
         wp_cache_delete('settings:pub', 'emsfb');
         wp_cache_delete('settings:raw', 'emsfb');
+        wp_cache_delete('emsfb_settings', 'emsfb');
         delete_transient('emsfb_settings_transient');
         if (function_exists('get_setting_Emsfb')) {
             get_setting_Emsfb('_clear_cache');
@@ -143,7 +144,18 @@ class efbFunction {
             $efb_subset = 'with-extra';
         }
 
-        $efb_ck_final = "langfinal:$efb_lang:$efb_ver:$efb_subset:$page_request";
+        // NOTE: the cache group here is 'efb', not the plugin's usual 'emsfb'.
+        // It is only paired with the matching wp_cache_set() at the end of this
+        // method; both must be changed together or the cache silently misses on
+        // every request and the whole array is rebuilt each time.
+        // Cache key for the fully-built language array. Invalidation is by
+        // versioning the key ($efb_ver changes when the text settings change),
+        // which is why no wp_cache_delete() exists for this entry. The plugin
+        // version is part of the key as well: the defaults below ship with the
+        // code, so without it an update would keep serving the previous
+        // release's phrases from a persistent object cache until the entry
+        // expired on its own.
+        $efb_ck_final = "langfinal:" . EMSFB_PLUGIN_VERSION . ":$efb_lang:$efb_ver:$efb_subset:$page_request";
 
         if (isset(self::$req_cache[$efb_ck_final])) {
             return self::$req_cache[$efb_ck_final];
@@ -186,6 +198,8 @@ class efbFunction {
 			"youCantUseHTMLTagOrBlank" => $state ? $ac->text->youCantUseHTMLTagOrBlank : esc_html__('Please avoid using HTML tags and ensure that your message is not blank.','easy-form-builder'),
 			/* translators: Reply = label for replying to a message */
 			"reply" => $state ? $ac->text->reply : esc_html__('Reply','easy-form-builder'),
+			/* translators: Placeholder shown inside the empty reply editor in the responses panel */
+			"replyMsg" => $state && isset($ac->text->replyMsg) ? $ac->text->replyMsg : esc_html__('Type your reply&hellip;','easy-form-builder'),
 			/* translators: Messages = plural of message, multiple communications */
 			"messages" => $state ? $ac->text->messages : esc_html__('Messages','easy-form-builder'),
 			"pleaseWaiting" => $state ? $ac->text->pleaseWaiting : esc_html__('Please Wait','easy-form-builder'),
@@ -344,6 +358,8 @@ class efbFunction {
 			"youNeedAPIgMaps" => $state ? $ac->text->youNeedAPIgMaps : esc_html__('Your form needs an API key for Google Maps to work properly.','easy-form-builder'),
 			"copiedClipboard" => $state ? $ac->text->copiedClipboard : esc_html__('Copied to Clipboard','easy-form-builder'),
 			"noResponse" => $state ? $ac->text->noResponse : esc_html__('No Response','easy-form-builder'),
+			/* translators: Description shown under the "No Response" empty state in the responses panel */
+			"noResponseDesc" => $state && isset($ac->text->noResponseDesc) ? $ac->text->noResponseDesc : esc_html__('Submitted responses will appear here.','easy-form-builder'),
 			"offerGoogleCloud" => $state ? $ac->text->offerGoogleCloud : esc_html__('To use reCAPTCHA and location picker (Maps), sign up for the Google Cloud service and receive $350 worth of credits exclusively for our users','easy-form-builder'),
 			"getOfferTextlink" => $state ? $ac->text->getOfferTextlink : esc_html__('Get credits by clicking here.','easy-form-builder'),
 			"clickHere" => $state ? $ac->text->clickHere : esc_html__('Click here','easy-form-builder'),
@@ -873,11 +889,11 @@ class efbFunction {
 			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : esc_html__('Easy Form Builder could not confirm if your service is able to send emails. Please check your email inbox (or spam folder) to see if you have received an email with the subject line: Email server [Easy Form Builder]. If you have received the email, please select the option < This site can send emails > and save the changes.','easy-form-builder'),
 			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : esc_html__('This site can send emails','easy-form-builder'),
 			"weeklyEmailReport" => $state && isset($ac->text->weeklyEmailReport) ? $ac->text->weeklyEmailReport : esc_html__('Weekly email health and form activity report','easy-form-builder'),
-			"weeklyEmailReportDesc" => $state && isset($ac->text->weeklyEmailReportDesc) ? $ac->text->weeklyEmailReportDesc : esc_html__('Once a week, Easy Form Builder tests email delivery and asks WhiteStudio to email the main administrator a friendly report with email status and non-sensitive form activity totals.','easy-form-builder'),
+			"weeklyEmailReportDesc" => $state && isset($ac->text->weeklyEmailReportDesc) ? $ac->text->weeklyEmailReportDesc : esc_html__('Adds your form activity totals &ndash; forms, views and submissions &ndash; to the weekly email your site sends the main administrator. These totals are read on your own site and are never sent to WhiteStudio.','easy-form-builder'),
 			"weeklyEmailLastCheck" => $state && isset($ac->text->weeklyEmailLastCheck) ? $ac->text->weeklyEmailLastCheck : esc_html__('Last check: %s','easy-form-builder'),
 			"weeklyEmailNotRun" => $state && isset($ac->text->weeklyEmailNotRun) ? $ac->text->weeklyEmailNotRun : esc_html__('No automated email check has run yet.','easy-form-builder'),
 			"emailStatsReport" => $state && isset($ac->text->emailStatsReport) ? $ac->text->emailStatsReport : esc_html__('Collect email delivery statistics','easy-form-builder'),
-			"emailStatsReportDesc" => $state && isset($ac->text->emailStatsReportDesc) ? $ac->text->emailStatsReportDesc : esc_html__('Count how many emails were sent or failed. These totals appear in the dashboard widget and are included in the weekly report. Only Pro users can turn this off.','easy-form-builder'),
+			"emailStatsReportDesc" => $state && isset($ac->text->emailStatsReportDesc) ? $ac->text->emailStatsReportDesc : esc_html__('Counts how many emails were sent or failed, shows them in the dashboard widget, and adds the email delivery status section to the weekly email. Once a week your site runs a delivery test and reports the result. Only Pro users can turn this off.','easy-form-builder'),
 			"actions" => $state  &&  isset($ac->text->actions) ? $ac->text->actions : esc_html__('Actions','easy-form-builder'),
 
 			/* translators: %s is the toggle option name for email confirmation */
@@ -1712,6 +1728,9 @@ class efbFunction {
 			/* translators: Font Family = label for font family selector */
 			"respFontFamily" => $state && isset($ac->text->respFontFamily) ? $ac->text->respFontFamily : esc_html__('Font Family','easy-form-builder'),
 
+			/* translators: Inherit = keep the font the surrounding theme already uses. First option of the font family selector */
+			"respFontDefault" => $state && isset($ac->text->respFontDefault) ? $ac->text->respFontDefault : esc_html__('Default (Inherit)','easy-form-builder'),
+
 			/* translators: Font Size = label for font size selector */
 			"respFontSize" => $state && isset($ac->text->respFontSize) ? $ac->text->respFontSize : esc_html__('Font Size','easy-form-builder'),
 
@@ -1999,6 +2018,14 @@ class efbFunction {
 			"emailNotificationRiskDesc" => $state && isset($ac->text->emailNotificationRiskDesc) ? $ac->text->emailNotificationRiskDesc : esc_html__('This form\'s email notification feature is enabled, but email delivery has not been verified and the latest spam score is %s/100. The form was saved, but admin notification emails may not reach you until SMTP/email delivery is fixed.','easy-form-builder'),
 			/* translators: Shown when the form has an email field but no email delivery test has been run yet */
 			"emailNotificationRiskDescNoScore" => $state && isset($ac->text->emailNotificationRiskDescNoScore) ? $ac->text->emailNotificationRiskDescNoScore : esc_html__('This form includes an email field, but email delivery is not enabled in settings and no recent spam score is available. Form admin notification emails may not arrive until SMTP/email delivery is tested and fixed.','easy-form-builder'),
+			/* translators: Title shown in the form builder when the "This site can send emails" switch is off */
+			"emailSendingOffTitle" => $state && isset($ac->text->emailSendingOffTitle) ? $ac->text->emailSendingOffTitle : esc_html__('Notification emails are turned off','easy-form-builder'),
+			/* translators: Explains that no email at all is sent while the switch is off */
+			"emailSendingOffDesc" => $state && isset($ac->text->emailSendingOffDesc) ? $ac->text->emailSendingOffDesc : esc_html__('Easy Form Builder will not send any email — neither to you nor to the person who submits this form — until "This site can send emails" is enabled in Email Settings.','easy-form-builder'),
+			/* translators: Button label that opens Email Settings on the switch */
+			"emailSendingOffCta" => $state && isset($ac->text->emailSendingOffCta) ? $ac->text->emailSendingOffCta : esc_html__('Enable email sending','easy-form-builder'),
+			/* translators: Step-by-step hint shown next to the switch in Email Settings */
+			"emailSendingOffHowTo" => $state && isset($ac->text->emailSendingOffHowTo) ? $ac->text->emailSendingOffHowTo : esc_html__('Click "Check Email Server" to test delivery, turn this switch on, then press Save.','easy-form-builder'),
 			/* translators: Title of the delayed delivery warning box */
 			"deliveryDelayedTitle" => $state && isset($ac->text->deliveryDelayedTitle) ? $ac->text->deliveryDelayedTitle : esc_html__('Delivery is taking longer than expected','easy-form-builder'),
 			/* translators: Description shown when email delivery is delayed */
@@ -2221,6 +2248,18 @@ class efbFunction {
 			}
 		}
 
+		// The phrases spell punctuation as an entity (&hellip;, &mdash;) the way
+		// WordPress core writes translatable strings. That renders on its own in
+		// markup, but this array is also handed to wp_localize_script() under the
+		// nested 'text' key, and core only decodes the top level - so anything
+		// JavaScript assigns to textContent or to a placeholder property would
+		// show the raw entity. Resolving it once here covers every consumer,
+		// including the add-ons that localize their own copy of efb_var.
+		$rtrn = emsfb_decode_typographic_entities_efb($rtrn);
+
+		// Group 'efb' must stay identical to the wp_cache_get() near the top of
+		// this method (where $efb_ck_final is built); changing only one of the
+		// two turns every lookup into a miss without raising any error.
 		wp_cache_set($efb_ck_final, $rtrn, 'efb', 7200);
 		self::$req_cache[$efb_ck_final] = $rtrn;
 		return $rtrn;
@@ -2281,7 +2320,7 @@ class efbFunction {
 			}
 
 			$settings = get_setting_Emsfb();
-			$smtp = (is_object($settings) && isset($settings->smtp) && (bool)$settings->smtp ) ? true : false;
+			$smtp = emsfb_is_email_sending_enabled_efb($settings);
 			if($smtp) {
 
 				$rtrn = false;
@@ -3705,7 +3744,7 @@ public function addon_add_efb($value) {
 				'</a></p><p>'. esc_html__('Easy Form Builder','easy-form-builder') . '</p>
 					<p><a href="'.home_url().'" target="_blank">'.esc_html__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
 
-			if(isset($settings->smtp) && (bool)$settings->smtp ) {
+			if(emsfb_is_email_sending_enabled_efb($settings)) {
 				$this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
 			}
 			return $return_details ? $details : false;
@@ -4286,7 +4325,7 @@ public function addon_add_efb($value) {
 			$str .= 'Version: ' . $plugin_data['Version'] . '<br><br>';
 		}
 		$settings = get_setting_Emsfb('decoded');
-		if(is_object($settings) && isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
+		if(emsfb_is_email_sending_enabled_efb($settings)) $this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
 		return true;
 	}
 
@@ -4350,7 +4389,7 @@ public function addon_add_efb($value) {
 		$message .= esc_html__('URL','easy-form-builder') . ': ' . get_site_url() . '<br>';
 		$message .= esc_html__('Date','easy-form-builder') . ': ' . date('Y-m-d H:i:s') . '<br>';
 
-		if(is_object($settings) && isset($settings->smtp) && (bool)$settings->smtp ) $this->send_email_state_new($to ,$subject ,$message,0,"cache_plugins_noti",'null','null');
+		if(emsfb_is_email_sending_enabled_efb($settings)) $this->send_email_state_new($to ,$subject ,$message,0,"cache_plugins_noti",'null','null');
 
 		return true;
 	}
@@ -5197,6 +5236,11 @@ public function addon_add_efb($value) {
         wp_cache_delete('settings:decoded', 'emsfb');
         wp_cache_delete('settings:pub', 'emsfb');
         wp_cache_delete('settings:raw', 'emsfb');
+        /* The public submit handler caches the settings under its own key with
+         * no expiry. Leaving it behind meant that on sites with a persistent
+         * object cache, turning "This site can send emails" on never reached
+         * form submissions - they kept reading the pre-save copy. */
+        wp_cache_delete('emsfb_settings', 'emsfb');
 
         get_setting_Emsfb('_clear_cache');
 

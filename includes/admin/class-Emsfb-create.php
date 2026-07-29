@@ -254,7 +254,10 @@ class Create {
 		$stng_pdate = true;
 		if(gettype($settings)!="string"){
 			if( isset($settings->siteKey)&& strlen($settings->siteKey)>5){$captcha="true";}
-			if(isset($settings->smtp) && (bool)$settings->smtp){$smtp=1;}else if(isset($settings->smtp) && (bool)$settings->smtp==false){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
+			/* 0 (not -1) when the switch is off, including the fresh-install case
+			 * where the key is missing - the builder must be able to tell "off"
+			 * apart from "settings unreadable" to show the setup hint. */
+			if(emsfb_is_email_sending_enabled_efb($settings)){$smtp=1;}else{$smtp=0;$smtp_m =$lang['sMTPNotWork'];}
 		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		if("fa_IR"==get_locale()){
 			do_action('efb_enqueue_persia');

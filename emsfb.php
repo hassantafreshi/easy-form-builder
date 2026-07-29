@@ -34,7 +34,7 @@ if (!defined("EFB_DEBUG")) {
     // Single global switch for Easy Form Builder's own diagnostic logging
     // (Human Shield, Telegram, the email tester, …). Defaults to true; override
     // in wp-config.php with define('EFB_DEBUG', false); to turn EFB logging off.
-    define("EFB_DEBUG", true);
+    define("EFB_DEBUG", false);
 }
 
 if (!defined("EMSFB_PLUGIN_URL")) {
@@ -333,5 +333,17 @@ if (!function_exists('get_efbFunction')) {
 if (!function_exists('get_locale_script_chars_efb')) {
     function get_locale_script_chars_efb() {
         return Emsfb::get_locale_script_chars_efb();
+    }
+}
+
+if (!function_exists('emsfb_is_email_sending_enabled_efb')) {
+    /**
+     * Whether "This site can send emails" is on. Gates every notification email.
+     *
+     * @param object|array|null $settings Decoded settings object or array.
+     * @return bool
+     */
+    function emsfb_is_email_sending_enabled_efb($settings) {
+        return Emsfb::is_email_sending_enabled_efb($settings);
     }
 }

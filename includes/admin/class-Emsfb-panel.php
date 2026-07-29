@@ -47,7 +47,7 @@ class Panel_edit  {
 				$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
 
 				if(isset($ac->siteKey)){$captcha="true";}
-				if(isset($ac->smtp) && (bool)$ac->smtp){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
+				if(emsfb_is_email_sending_enabled_efb($ac)){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
 
 				$lng = get_locale();
 			$k ="";

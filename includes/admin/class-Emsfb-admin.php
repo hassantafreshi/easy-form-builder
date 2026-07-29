@@ -2858,12 +2858,11 @@ function admin_notices_efb () {
                     if($email_status === 'ok_set_smtp') {
                         return;
                     }else if ($email_status === 'ok' ) {
-                        if (isset($settings->smtp) && !in_array($settings->smtp, ['1', 'true', true,1], true)) {
-                            $settings->smtp = true;
-                            $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
-                            $efbFunction->set_setting_Emsfb($settings, $email);
-                        }
-
+                        /* 'ok' is written by the automated (background) delivery
+                         * test. It is a diagnostic only - it must not switch
+                         * "This site can send emails" on by itself, otherwise a
+                         * fresh install shows the switch already enabled without
+                         * the admin ever confirming it. */
                         return;
                     }
                     $msg_id = isset($check['message']['id']) ? $check['message']['id'] : '';

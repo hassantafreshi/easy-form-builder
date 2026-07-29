@@ -72,6 +72,12 @@ class Emsfb {
         // the helper functions callable when that file is missing on disk.
         $this->define_compatibility_fallbacks_efb();
 
+        // Loaded after the compatibility helpers it uses, and before anything
+        // can send mail, so the wp_mail hooks are in place for every request.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-email-trace.php')) {
+            \Emsfb\Email_Trace::register();
+        }
+
         if (!$core_ok) {
             $this->core_files_ok = false;
             return;
@@ -381,6 +387,13 @@ class Emsfb {
             function emsfb_reset_php_compatibility_cache_efb() {
             }
         }
+        // Degraded stand-in only: entities stay as written, which still reads
+        // correctly everywhere the string reaches markup.
+        if (!function_exists('emsfb_decode_typographic_entities_efb')) {
+            function emsfb_decode_typographic_entities_efb($data) {
+                return $data;
+            }
+        }
     }
 
     /**
@@ -454,66 +467,6 @@ class Emsfb {
 
     }
 
-    public function checkDbchangeEFB(){
-        global $wpdb;
-        $test_tabale = $wpdb->prefix . "Emsfb_form";
-		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $test_tabale ) );
-		$check_test_table = $wpdb->get_var( $query );
-        $table_name = $wpdb->prefix . "emsfb_form";
-
-        if(strlen($check_test_table)>0){
-			if ( strcmp($table_name,$check_test_table)!=0) {
-                $message =  esc_html__('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually. Notice: Please do this act immediately so forms of your site will be available again.','easy-form-builder');
-                ?>
-                    <div class="notice notice-warning is-dismissible">
-                        <p> <?php echo '<b>'.esc_html__('Warning').':</b> '. wp_kses_post($message); ?> </p>
-                    </div>
-                <?php
-            $this->email_send_efb();
-            }
-        }
-    }
-
-    public static function email_send_efb() {
-        $message = esc_html__( 'The Easy Form Builder had Important update and require to deactivate and activate the plugin manually. Notice: Please do this act immediately so forms of your site will be available again.', 'easy-form-builder' );
-
-        $super_admins = get_super_admins();
-
-        if ( empty( $super_admins ) ) {
-            return;
-        }
-
-        $recipients = array();
-
-        foreach ( $super_admins as $admin_login ) {
-            $user = get_user_by( 'login', $admin_login );
-
-            if ( $user && is_email( $user->user_email ) ) {
-                $recipients[] = sanitize_email( $user->user_email );
-            }
-        }
-
-        if ( empty( $recipients ) ) {
-            return;
-        }
-
-        $server_name = apply_filters('emsfb_get_server_host', 'yourdomain.com');
-        $from_email  = 'no-reply@' . $server_name;
-        $from_name   = get_bloginfo( 'name' );
-
-        $headers = array(
-            'Content-Type: text/html; charset=UTF-8',
-            sprintf( 'From: %s <%s>', $from_name, $from_email ),
-        );
-
-        $subject = sprintf(
-            /* translators: %s: Site name */
-            esc_html__( 'Important Warning from %s', 'easy-form-builder' ),
-            get_bloginfo( 'name' )
-        );
-
-        wp_mail( $recipients, $subject, wp_kses_post( $message ), $headers );
-    }
 
     public function handle_new_plugin_activation_efb($plugin, $network_wide = false) {
 
@@ -871,6 +824,40 @@ class Emsfb {
         wp_cache_set($cacheKey, $result, 'emsfb', 3600);
 
         return $result;
+    }
+
+    /**
+     * Whether the admin turned "This site can send emails" on
+     * (hostSupportSmtp_emsFormBuilder in the UI, settings->smtp in storage).
+     *
+     * This single switch gates every notification email the plugin sends. The
+     * settings row has held the value as a bool, an int and a string over the
+     * years, so normalise here instead of relying on a plain (bool) cast:
+     * (bool)"false" and (bool)"0" are both true in PHP and would silently send
+     * mail from a site whose switch reads "off".
+     *
+     * Called through the emsfb_is_email_sending_enabled_efb() wrapper in
+     * emsfb.php, next to get_setting_Emsfb() and get_efbFunction().
+     *
+     * @param object|array|null $settings Decoded settings object or array.
+     * @return bool
+     */
+    public static function is_email_sending_enabled_efb($settings) {
+        $value = null;
+        if (is_array($settings) && array_key_exists('smtp', $settings)) {
+            $value = $settings['smtp'];
+        } elseif (is_object($settings) && isset($settings->smtp)) {
+            $value = $settings->smtp;
+        }
+
+        if (null === $value) {
+            return false;
+        }
+        if (is_string($value)) {
+            $value = strtolower(trim($value));
+        }
+
+        return in_array($value, [true, 1, '1', 'true', 'on', 'yes'], true);
     }
 
     public static function get_efbFunction(): efbFunction {
@@ -1294,6 +1281,7 @@ class Emsfb {
             wp_cache_delete('settings:decoded', 'emsfb');
             wp_cache_delete('settings:pub', 'emsfb');
             wp_cache_delete('settings:raw', 'emsfb');
+            wp_cache_delete('emsfb_settings', 'emsfb');
             self::get_setting_Emsfb('_clear_cache');
         }
 

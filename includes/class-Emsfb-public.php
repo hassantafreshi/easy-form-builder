@@ -1702,14 +1702,27 @@ public function check_nonce_permission_efb($request) {
 		$user_id = 1;
 		$admin_email_list = [];
 
+		$settings_source = 'object-cache';
 		if (false === ($plugin_settings = wp_cache_get('emsfb_settings' , 'emsfb'))) {
+			$settings_source = ($this->setting != NULL && !empty($this->setting)) ? 'instance' : 'storage';
 			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
 			$plugin_settings = is_string($r) ? json_decode(str_replace("\\", "", $r), true) : $r;
-			wp_cache_set('emsfb_settings', $plugin_settings , 'emsfb');
+			// Same TTL as the settings:* keys - set_setting_Emsfb() invalidates this
+			// key too, and the expiry keeps a missed invalidation self-healing.
+			wp_cache_set('emsfb_settings', $plugin_settings , 'emsfb', 3600);
 		} else {
 
 			$r = $this->setting != NULL && !empty($this->setting) ? $this->setting : get_setting_Emsfb('raw');
 		}
+
+		$this->efb_trace('submit.settings', [
+			'form_id'         => intval($this->id),
+			'source'          => $settings_source,
+			'settings_type'   => gettype($plugin_settings),
+			'smtp_raw'        => is_array($plugin_settings) && array_key_exists('smtp', $plugin_settings) ? $plugin_settings['smtp'] : '(key missing)',
+			'sending_enabled' => emsfb_is_email_sending_enabled_efb($plugin_settings),
+			'emailSupporter'  => is_array($plugin_settings) && isset($plugin_settings['emailSupporter']) ? $plugin_settings['emailSupporter'] : null,
+		]);
 
 		if (is_string($r)) {
 			$r = str_replace('\\', '', $r);
@@ -1723,7 +1736,7 @@ public function check_nonce_permission_efb($request) {
 		if (isset($plugin_settings['emailSupporter'])) {
 			array_push($admin_email_list, $plugin_settings['emailSupporter']);
 		}
-		if(isset($plugin_settings['smtp']) && (bool)$plugin_settings['smtp'] ){
+		if(emsfb_is_email_sending_enabled_efb($plugin_settings)){
 
 						$should_send_email = true;
 		}
@@ -1869,7 +1882,7 @@ public function check_nonce_permission_efb($request) {
 					wp_send_json_success( $response, 200 );
 				}
 
-				if(isset($plugin_settings['smtp']) && (bool)$plugin_settings['smtp'] ){
+				if(emsfb_is_email_sending_enabled_efb($plugin_settings)){
 						$should_send_email = true;
 				}
 				$form_admin_email = $form_fields_array[0]['email'];
@@ -2539,7 +2552,7 @@ public function check_nonce_permission_efb($request) {
 				$captcha_verification_result = "null";
 				$form_admin_email = $plugin_settings['emailSupporter'] ?? null;
 
-					if(isset($plugin_settings['smtp']) && (bool)$plugin_settings['smtp'] ){
+					if(emsfb_is_email_sending_enabled_efb($plugin_settings)){
 
 						$should_send_email = true;
 					}
@@ -2551,6 +2564,17 @@ public function check_nonce_permission_efb($request) {
 					if(isset($setttting['femail']) && is_email($plugin_settings['femail'])){
 						$email_recipients[2] = $plugin_settings->femail ;
 					}
+
+					$this->efb_trace('submit.gate', [
+						'form_id'            => intval($this->id),
+						'submission_type'    => $submission_type,
+						'should_send_email'  => $should_send_email,
+						'reason'             => $should_send_email
+							? 'switch on'
+							: 'settings->smtp is off - no notification email will be sent',
+						'form_admin_email'   => $form_admin_email,
+						'recipients_so_far'  => $email_recipients,
+					]);
 
 				$recaptcha_secret_key = isset($plugin_settings['secretKey']) && strlen($plugin_settings['secretKey']) > 5 ? $plugin_settings['secretKey'] : null;
 				$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
@@ -2571,6 +2595,11 @@ public function check_nonce_permission_efb($request) {
 						), 'https://www.google.com/recaptcha/api/siteverify' ) );
 						$captcha_verification_result = json_decode($verify['body']);
 					} else {
+						$this->efb_trace('submit.blocked', [
+							'form_id' => intval($this->id),
+							'gate'    => 'recaptcha_secret_key_missing',
+							'reason'  => 'The form has captcha on but settings->secretKey is empty; the submission is rejected before anything is saved or sent.',
+						]);
 						$response = ['success' => false, 'm' => $this->lanText['errorSiteKeyM']];
 						wp_send_json_success($response, 200);
 						return;
@@ -2583,6 +2612,12 @@ public function check_nonce_permission_efb($request) {
 					'efbFunction' => $this->efbFunction,
 				]);
 				if ($shield_should_block === true) {
+					$this->efb_trace('submit.blocked', [
+						'form_id' => intval($this->id),
+						'gate'    => 'human_shield',
+						'reason'  => 'efb_submit_bot_decision vetoed the submission; nothing is saved and no email is sent.',
+						'ip'      => $this->get_ip_address(),
+					]);
 					$response = ['success' => false, 'm' => $this->lanText['errorMRobot']];
 					wp_send_json_success($response, 200);
 					return;
@@ -2594,11 +2629,25 @@ public function check_nonce_permission_efb($request) {
 				}
 				if ( ($submission_type != "logout" && $submission_type != "recovery") && $skip_captcha && ($captcha_verification_result == "null" || $captcha_verification_result->success != true)) {
 
+					$this->efb_trace('submit.blocked', [
+						'form_id' => intval($this->id),
+						'gate'    => 'recaptcha_verification',
+						'reason'  => 'Google siteverify did not return success; the submission stops here, so no email is ever attempted.',
+						'siteverify_result' => $captcha_verification_result,
+					]);
 					$response = ['success' => false, 'm' => $this->lanText['errorCaptcha']];
 					wp_send_json_success($response, 200);
 					die();
 				} else if (!$skip_captcha || ($skip_captcha &&  isset($captcha_verification_result->success) && $captcha_verification_result->success == true)) {
 					if (empty($request_data['value']) || empty($request_data['name']) || empty($request_data['id'])) {
+						$this->efb_trace('submit.blocked', [
+							'form_id' => intval($this->id),
+							'gate'    => 'incomplete_payload',
+							'reason'  => 'One of value/name/id is empty in the request body; the submission is rejected before saving or sending.',
+							'has_value' => !empty($request_data['value']),
+							'has_name'  => !empty($request_data['name']),
+							'has_id'    => !empty($request_data['id']),
+						]);
 						$response = ['success' => false, "m" => $this->lanText['pleaseEnterVaildValue']];
 						wp_send_json_success($response, 200);
 						die();
@@ -2614,6 +2663,23 @@ public function check_nonce_permission_efb($request) {
 						});
 
 						$this->email_list_efb($email_recipients, 1, $user_email_address, true);
+
+						/* index 0 = admin recipients, index 1 = the person who filled
+						   the form. An empty index 1 almost always means the form's
+						   "email_to" points at a field id that is not in the payload. */
+						$this->efb_trace('submit.recipients', [
+							'form_id'         => intval($this->id),
+							'email_to_field'  => $form_fields_array[0]['email_to'] ?? null,
+							'user_email'      => $user_email_address,
+							'admin_recipients'=> $email_recipients[0] ?? [],
+							'user_recipients' => $email_recipients[1] ?? [],
+							'from_override'   => $email_recipients[2] ?? null,
+						]);
+					} else {
+						$this->efb_trace('submit.skipped', [
+							'form_id' => intval($this->id),
+							'reason'  => 'should_send_email is false at dispatch time',
+						]);
 					}
 					$ip = $this->ip = $this->get_ip_address();
 					$style_trackingCode = "date_en_mix";
@@ -2683,9 +2749,29 @@ public function check_nonce_permission_efb($request) {
 								}
 								$status_email = $this->email_status_efb($form_fields_array,$submitted_values,$track_code);
 								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
+
+								/* Last checkpoint before the mailer runs. If the trace shows
+								   this line but no wp_mail.args after it, the send was stopped
+								   inside send_email_Emsfb_ (empty recipient slot, or an
+								   email_key/template guard) rather than by the transport. */
+								$this->efb_trace('submit.dispatch', [
+									'form_id'          => intval($this->id),
+									'track'            => $track_code,
+									'admin_recipients' => $email_recipients[0] ?? [],
+									'user_recipients'  => $email_recipients[1] ?? [],
+									'from_override'    => $email_recipients[2] ?? null,
+									'states'           => $state_of_email,
+									'has_active_email_rules' => $has_active_email_rules,
+								]);
+
 								$this->send_email_Emsfb_( $email_recipients,$track_code ,$is_pro,$state_of_email,$url,$status_email['content'], $status_email['subject'] );
 								$this->process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email);
 
+								$this->efb_trace('submit.dispatch-done', [
+									'form_id' => intval($this->id),
+									'track'   => $track_code,
+									'note'    => 'send_email_Emsfb_ returned. Check the wp_mail.args / phpmailer.init / wp_mail.failed lines above for the transport result.',
+								]);
 							}
 
 						exit;
@@ -3960,7 +4046,7 @@ public function check_nonce_permission_efb($request) {
 			$setting =json_decode($r);
 			$this->setting = $setting;
 
-			if(isset($setting->smtp) && (bool)$setting->smtp )  $email_actived = true;
+			if(emsfb_is_email_sending_enabled_efb($setting))  $email_actived = true;
 			$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
 			$email = isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
 			$pro = intval(get_option('emsfb_pro'));
@@ -4224,7 +4310,7 @@ public function check_nonce_permission_efb($request) {
 					$email_status[1]= "respRecivedMessage";
 					$email_status[0] ='newMessage';
 				}
-				if(isset($setting->smtp) && (bool)$setting->smtp ) $this->send_email_Emsfb_($user_eamil,$track,$pro,$email_status,$links ,'null','null');
+				if(emsfb_is_email_sending_enabled_efb($setting)) $this->send_email_Emsfb_($user_eamil,$track,$pro,$email_status,$links ,'null','null');
 
 				$reply_event_type = ($rsp_by == 'admin') ? 'admin_reply' : 'received_reply';
 				$this->id = $form_id;
@@ -4531,8 +4617,22 @@ public function check_nonce_permission_efb($request) {
 	 * recipients and message previews.
 	 */
 	private function efb_email_debug_log($event, array $data) {
-		if (!defined('EMSFB_EMAIL_DEBUG') || !EMSFB_EMAIL_DEBUG) return;
-		// error_log('[EFB Email Debug][' . $event . '] ' . json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+		$this->efb_trace('email.' . $event, $data);
+	}
+
+	/**
+	 * Record one step of the notification-email path.
+	 *
+	 * Thin wrapper over Emsfb\Email_Trace so a missing trace file (degraded
+	 * install) can never fatal a form submission - delivering the form always
+	 * outranks logging it.
+	 *
+	 * @param string $stage Dot-separated step id, e.g. "submit.gate".
+	 * @param array  $data  Context for that step.
+	 */
+	private function efb_trace($stage, array $data = []) {
+		if (!class_exists('\Emsfb\Email_Trace')) return;
+		\Emsfb\Email_Trace::log($stage, $data);
 	}
 
 	private function process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email) {

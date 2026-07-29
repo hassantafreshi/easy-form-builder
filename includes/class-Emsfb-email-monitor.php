@@ -13,6 +13,8 @@ class Email_Monitor {
     const OPTION_LAST_UPDATE_VERSION = 'emsfb_email_monitor_last_update_version';
     const OPTION_ACTIVATION_MARKER = 'emsfb_email_monitor_activation_marker';
 
+    const TRANSIENT_WEEKLY_REPORT_LOCK = 'emsfb_weekly_admin_report_lock';
+
     const WEEKLY_HOOK = 'emsfb_email_monitor_weekly';
     const LIFECYCLE_HOOK = 'emsfb_email_monitor_lifecycle';
     const POLL_HOOK = 'emsfb_email_monitor_poll';
@@ -83,13 +85,26 @@ class Email_Monitor {
 
     public static function sync_schedule() {
         $scheduled = wp_next_scheduled(self::WEEKLY_HOOK);
-        if (self::is_enabled()) {
+        if (self::is_weekly_run_enabled()) {
             if (!$scheduled) {
                 wp_schedule_event(time() + HOUR_IN_SECONDS, 'emsfb_weekly', self::WEEKLY_HOOK);
             }
         } elseif ($scheduled) {
             self::unschedule_hook(self::WEEKLY_HOOK);
         }
+    }
+
+    /**
+     * Whether the weekly run should happen at all.
+     *
+     * The weekly email carries two independent sections and each toggle owns
+     * one of them: emailStatsReport owns the email delivery status section and
+     * weeklyEmailReport owns the form activity section. Either one on its own
+     * is still worth a weekly delivery test, so the run is scheduled whenever
+     * at least one is enabled, and skipped entirely when both are off.
+     */
+    public static function is_weekly_run_enabled() {
+        return self::is_enabled() || self::is_email_stats_enabled();
     }
 
     public static function is_enabled() {
@@ -141,6 +156,7 @@ class Email_Monitor {
         }
 
         update_option(self::OPTION_EMAIL_STATS_ENABLED, self::normalize_bool($enabled) ? 1 : 0, false);
+        self::sync_schedule();
         return true;
     }
 
@@ -165,7 +181,7 @@ class Email_Monitor {
     }
 
     public static function run_weekly_test() {
-        if (!self::is_enabled()) {
+        if (!self::is_weekly_run_enabled()) {
             self::sync_schedule();
             return;
         }
@@ -226,9 +242,9 @@ class Email_Monitor {
         self::save_status($can_send ? 'success' : 'failed', $message, $pending['context'], $result);
 		if ($can_send) {
 			self::mark_email_ready();
-		} else {
-			self::request_remote_email_report($test_hash, $status, $pending['admin_email']);
 		}
+
+        self::send_weekly_admin_report($pending['context'], $can_send, $message, $result);
 
         delete_option(self::OPTION_PENDING);
     }
@@ -247,10 +263,16 @@ class Email_Monitor {
 
         $settings = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
         $sender_email = self::get_sender_email($settings);
-        $activity_report = [];
+
+        // Every key here must exist in the tester service's /start allow-list.
+        // The service rejects the whole request when an unknown key is present
+        // or when the field count exceeds that list, so nothing site-specific
+        // (form counts, submission totals, trigger names) may travel with it.
+        // admin_report=client tells the service to stay silent: this plugin
+        // reads the finished report from /result and emails the administrator
+        // itself, so the site owner gets one email from their own site.
         $start_payload = [
             'site_url' => home_url(),
-            'site_name' => get_bloginfo('name'),
             'sender_email' => $sender_email,
             'admin_email' => $admin_email,
             'plugin' => 'easy-form-builder',
@@ -260,14 +282,8 @@ class Email_Monitor {
             'language' => get_locale(),
             'license_type' => self::get_license_type(),
             'license_key' => '',
-            'trigger' => $context,
-            'generated_at' => current_time('mysql', true),
+            'admin_report' => 'client',
         ];
-        if ($context === 'weekly' && self::is_enabled()) {
-            $activity_report = self::get_weekly_stats();
-            $start_payload['report_frequency'] = 'weekly';
-            $start_payload['activity_report'] = $activity_report;
-        }
 
         $start = self::remote_request('POST', '/start', [
             'timeout' => 20,
@@ -309,23 +325,15 @@ class Email_Monitor {
         if ($context === 'weekly') {
             $headers[] = 'X-EFB-Report-Type: weekly';
         }
+        // This message is delivered to the tester service mailbox, not to the
+        // site owner, so it stays a bare delivery probe. Form activity totals
+        // belong in the administrator email this plugin composes locally.
         $message = sprintf(
             '<p>Easy Form Builder automated email delivery test.</p><p>Site: %s</p><p>Trigger: %s</p><p>Test hash: %s</p>',
             esc_html(home_url()),
             esc_html($context),
             esc_html($test_hash)
         );
-        if ($context === 'weekly' && !empty($activity_report)) {
-            $message .= '<h2>Weekly form activity totals</h2><ul>';
-            foreach ($activity_report as $label => $value) {
-                $message .= sprintf(
-                    '<li><strong>%s:</strong> %d</li>',
-                    esc_html(str_replace('_', ' ', ucwords($label, '_'))),
-                    (int) $value
-                );
-            }
-            $message .= '</ul>';
-        }
         $sent = wp_mail($recipient, $subject, $message, $headers);
 
         require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
@@ -342,14 +350,6 @@ class Email_Monitor {
             'started_at' => time(),
             'attempts' => 0,
         ], false);
-        if ($context === 'weekly') {
-            update_option('emsfb_email_monitor_last_remote_report', [
-                'accepted_at' => current_time('mysql', true),
-                'success' => true,
-                'http_code' => $code,
-            ], false);
-        }
-
         self::save_status(
             $sent ? 'pending' : 'failed',
             $sent
@@ -368,9 +368,7 @@ class Email_Monitor {
 				? sanitize_text_field($message)
 				: __('The email delivery test timed out before confirmation was received.', 'easy-form-builder');
 			self::save_status('failed', $final_message, $pending['context']);
-			if (in_array($state, ['delayed', 'expired'], true)) {
-				self::request_remote_email_report($pending['test_hash'], $state, $pending['admin_email']);
-			}
+			self::send_weekly_admin_report($pending['context'], false, $final_message, ['status' => $state]);
 			delete_option(self::OPTION_PENDING);
 			return;
 		}
@@ -381,9 +379,16 @@ class Email_Monitor {
 
     private static function finish_without_test($context, $state, $message) {
         self::save_status('failed', $message, $context, ['status' => $state, 'can_send_email' => false]);
+        self::send_weekly_admin_report($context, false, $message, ['status' => $state]);
     }
 
-    private static function get_weekly_stats() {
+    /**
+     * Weekly form activity totals for the administrator email.
+     *
+     * These never leave the site: they are read here and rendered straight into
+     * the administrator's own email.
+     */
+    public static function get_form_activity_stats() {
         global $wpdb;
 
         $forms_table = $wpdb->prefix . 'emsfb_form';
@@ -404,52 +409,214 @@ class Email_Monitor {
             $since
         )) : 0;
 
-        $report = [
+        return [
             'forms_total' => $forms_total,
             'forms_active' => $forms_active,
             'forms_inactive' => max(0, $forms_total - $forms_active),
             'page_views' => $visits,
             'submissions' => $submissions,
         ];
+    }
 
-        // Email delivery totals are optional (Pro can disable them). Omitting the
-        // keys entirely — rather than sending zeros — keeps the weekly payload
-        // small so the remote tester does not reject it for having too many fields.
-        if (self::is_email_stats_enabled()) {
-            require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
-            $email_stats = \EmsfbEmailHandler::get_email_stats('week');
-            $report['emails_sent'] = (int) $email_stats['success'];
-            $report['emails_failed'] = (int) $email_stats['failed'];
+    /**
+     * Which sections the weekly administrator email should carry.
+     *
+     * Each toggle owns exactly one section, so all four combinations are
+     * meaningful: both on sends one email with both sections, one on sends
+     * that section alone, and both off sends nothing at all.
+     *
+     * @return array{delivery:bool,activity:bool}
+     */
+    public static function get_weekly_report_sections() {
+        return [
+            'delivery' => self::is_email_stats_enabled(),
+            'activity' => self::is_enabled(),
+        ];
+    }
+
+    /**
+     * Email the site administrator the weekly report this plugin composed itself.
+     *
+     * The tester service is started with admin_report=client precisely so it
+     * stays silent, which lets both sections arrive together in one message
+     * sent from the site's own address instead of two from two senders.
+     *
+     * @param string $context  Trigger context; only 'weekly' produces a report.
+     * @param bool   $can_send Whether the delivery test confirmed sending works.
+     * @param string $message  Human-readable delivery test outcome.
+     * @param array  $result   Raw report payload from the tester service.
+     * @return bool Whether an email was sent.
+     */
+    private static function send_weekly_admin_report($context, $can_send, $message, $result = []) {
+        if (sanitize_key($context) !== 'weekly') {
+            return false;
         }
 
-        return $report;
+        $sections = self::get_weekly_report_sections();
+        if (!$sections['delivery'] && !$sections['activity']) {
+            return false;
+        }
+
+        $admin_email = sanitize_email(get_option('admin_email', ''));
+        if (!is_email($admin_email)) {
+            return false;
+        }
+
+        // WP-Cron can run the same event twice when two requests spawn it at
+        // once, and every terminal path of a run ends here. The service used to
+        // absorb that with its own lock; now that this side sends the mail, a
+        // duplicate would land in the administrator's inbox. A whole run
+        // finishes within ~12 minutes and the next weekly run is a week away
+        // (an hour away at worst, when the toggles are switched off and on), so
+        // a short lock separates duplicates from a genuine next run.
+        if (get_transient(self::TRANSIENT_WEEKLY_REPORT_LOCK)) {
+            return false;
+        }
+        set_transient(self::TRANSIENT_WEEKLY_REPORT_LOCK, 1, 30 * MINUTE_IN_SECONDS);
+
+        $body = self::build_weekly_report_html($sections, (bool) $can_send, (string) $message, is_array($result) ? $result : []);
+        $subject = sprintf(
+            /* translators: %s: site name. */
+            __('Weekly Easy Form Builder report for %s', 'easy-form-builder'),
+            wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES)
+        );
+
+        $sent = wp_mail($admin_email, $subject, $body, ['Content-Type: text/html; charset=UTF-8']);
+        if (!$sent) {
+            // Nothing reached the administrator, so let the next attempt through.
+            delete_transient(self::TRANSIENT_WEEKLY_REPORT_LOCK);
+        }
+
+        update_option('emsfb_email_monitor_last_remote_report', [
+            'sent' => (bool) $sent,
+            'sent_at' => current_time('mysql', true),
+            'sections' => array_keys(array_filter($sections)),
+            'can_send_email' => (bool) $can_send,
+        ], false);
+
+        return (bool) $sent;
     }
 
-	private static function request_remote_email_report($test_hash, $status, $admin_email) {
-		if (!self::is_valid_hash($test_hash)) {
-			return;
-		}
+    /**
+     * Render the weekly administrator email.
+     *
+     * @param array  $sections Which sections to include.
+     * @param bool   $can_send Whether the delivery test confirmed sending works.
+     * @param string $message  Human-readable delivery test outcome.
+     * @param array  $result   Raw report payload from the tester service.
+     * @return string
+     */
+    private static function build_weekly_report_html($sections, $can_send, $message, $result) {
+        $site_name = wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES);
+        $html = '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Helvetica,Arial,sans-serif;font-size:14px;line-height:22px;color:#1f2937;">';
+        $html .= '<h1 style="font-size:18px;margin:0 0 4px 0;">' . esc_html__('Weekly Easy Form Builder report', 'easy-form-builder') . '</h1>';
+        $html .= '<p style="margin:0 0 20px 0;color:#6b7280;">' . esc_html($site_name) . ' &middot; ' . esc_html(home_url()) . '</p>';
 
-		$status = sanitize_key($status);
-		if (!in_array($status, ['delayed', 'expired'], true)) {
-			return;
-		}
+        if (!empty($sections['delivery'])) {
+            $status_label = $can_send
+                ? __('Working', 'easy-form-builder')
+                : __('Needs attention', 'easy-form-builder');
+            $status_color = $can_send ? '#047857' : '#b91c1c';
 
-		self::remote_request('POST', '/result/' . rawurlencode($test_hash) . '/email-report', [
-            'timeout' => 20,
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ],
-            'body' => wp_json_encode([
-                'trigger_status' => sanitize_key($status),
-                'language' => get_locale(),
-                'reason' => 'automated_email_monitor',
-                'admin_email' => sanitize_email($admin_email),
-            ]),
-        ]);
+            $html .= '<h2 style="font-size:16px;margin:0 0 8px 0;">' . esc_html__('Email delivery status', 'easy-form-builder') . '</h2>';
+            $html .= '<p style="margin:0 0 8px 0;"><strong style="color:' . esc_attr($status_color) . ';">' . esc_html($status_label) . '</strong></p>';
+            if ($message !== '') {
+                $html .= '<p style="margin:0 0 12px 0;">' . esc_html($message) . '</p>';
+            }
+
+            // $result is whatever the remote service returned, so each value is
+            // checked for the shape it is about to be cast to rather than
+            // assumed. A field arriving as an array must be skipped, not
+            // stringified into "Array".
+            $rows = [];
+            if (isset($result['score']) && is_scalar($result['score'])) {
+                $rows[__('Deliverability score', 'easy-form-builder')] = (string) (int) $result['score'];
+            }
+            if (!empty($result['grade']) && is_scalar($result['grade'])) {
+                $rows[__('Grade', 'easy-form-builder')] = (string) $result['grade'];
+            }
+            $authentication = isset($result['authentication']) && is_array($result['authentication'])
+                ? $result['authentication']
+                : [];
+            foreach (['spf' => 'SPF', 'dkim' => 'DKIM', 'dmarc' => 'DMARC'] as $key => $label) {
+                if (!empty($authentication[$key]) && is_scalar($authentication[$key])) {
+                    $rows[$label] = (string) $authentication[$key];
+                }
+            }
+
+            require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
+            $email_stats = \EmsfbEmailHandler::get_email_stats('week');
+            $rows[__('Emails sent this week', 'easy-form-builder')] = (string) (int) $email_stats['success'];
+            $rows[__('Emails failed this week', 'easy-form-builder')] = (string) (int) $email_stats['failed'];
+
+            $html .= self::build_report_table($rows);
+
+            if (!empty($result['recommendations']) && is_array($result['recommendations'])) {
+                $html .= '<p style="margin:12px 0 6px 0;"><strong>' . esc_html__('Recommendations', 'easy-form-builder') . '</strong></p><ul style="margin:0 0 16px 18px;padding:0;">';
+                foreach (array_slice($result['recommendations'], 0, 5) as $recommendation) {
+                    if (is_scalar($recommendation)) {
+                        $html .= '<li style="margin:0 0 6px 0;">' . esc_html((string) $recommendation) . '</li>';
+                    }
+                }
+                $html .= '</ul>';
+            }
+        }
+
+        if (!empty($sections['activity'])) {
+            $activity = self::get_form_activity_stats();
+            $labels = [
+                'forms_total' => __('Total forms', 'easy-form-builder'),
+                'forms_active' => __('Active forms', 'easy-form-builder'),
+                'forms_inactive' => __('Inactive forms', 'easy-form-builder'),
+                'page_views' => __('Form views this week', 'easy-form-builder'),
+                'submissions' => __('Submissions this week', 'easy-form-builder'),
+            ];
+
+            $rows = [];
+            foreach ($labels as $key => $label) {
+                $rows[$label] = (string) (int) $activity[$key];
+            }
+
+            $html .= '<h2 style="font-size:16px;margin:24px 0 8px 0;">' . esc_html__('Form activity', 'easy-form-builder') . '</h2>';
+            $html .= self::build_report_table($rows);
+        }
+
+        $html .= '<p style="margin:24px 0 0 0;color:#6b7280;font-size:12px;">' . esc_html__('You can turn these reports off in Easy Form Builder settings.', 'easy-form-builder') . '</p>';
+        $html .= '</div>';
+
+        return $html;
     }
 
+    /**
+     * @param array<string,string> $rows Label => value.
+     * @return string
+     */
+    private static function build_report_table($rows) {
+        if (empty($rows)) {
+            return '';
+        }
+
+        $html = '<table style="border-collapse:collapse;width:100%;max-width:480px;">';
+        foreach ($rows as $label => $value) {
+            $html .= '<tr>'
+                . '<td style="padding:6px 12px 6px 0;border-bottom:1px solid #e5e7eb;color:#4b5563;">' . esc_html($label) . '</td>'
+                . '<td style="padding:6px 0;border-bottom:1px solid #e5e7eb;font-weight:600;">' . esc_html($value) . '</td>'
+                . '</tr>';
+        }
+
+        return $html . '</table>';
+    }
+
+    /**
+     * Record that the automated delivery test succeeded.
+     *
+     * This only stores the diagnostic status. The "This site can send emails"
+     * switch (settings->smtp) is what actually enables notification emails, and
+     * it stays under the admin's control: a background test running minutes
+     * after activation used to flip it on by itself, so a brand-new site showed
+     * the switch already enabled while nobody had verified real delivery.
+     * Enabling it is now always an explicit admin action.
+     */
     private static function mark_email_ready() {
         update_option('emsfb_email_status', [
             'status' => 'ok',
@@ -463,17 +630,6 @@ class Email_Monitor {
                 'test_timestamp' => current_time('mysql', true),
             ],
         ], false);
-
-        if (!function_exists('get_setting_Emsfb') || !function_exists('get_efbFunction')) {
-            return;
-        }
-        $settings = get_setting_Emsfb('decoded');
-        if (!is_object($settings) || !empty($settings->smtp)) {
-            return;
-        }
-        $settings->smtp = true;
-        $email = isset($settings->emailSupporter) ? sanitize_email($settings->emailSupporter) : '';
-        get_efbFunction()->set_setting_Emsfb($settings, $email);
     }
 
     private static function save_status($state, $message, $context, $result = []) {

@@ -422,6 +422,71 @@ if ( ! function_exists( 'emsfb_read_file_efb' ) ) {
 }
 
 /**
+ * Resolve the typographic entities used in translatable strings.
+ *
+ * Translatable strings spell punctuation as an entity (&hellip;, &mdash;, …)
+ * the way WordPress core does, which renders correctly as long as the string
+ * ends up in markup. WP_Scripts::localize() decodes entities only for scalar
+ * values sitting at the top level of the $l10n array, so a string inside a
+ * nested array - efb_var['text'], the admin-bar labels, the block editor
+ * strings - reaches JavaScript raw and is printed literally wherever it is
+ * assigned to textContent or to a DOM property instead of being parsed as
+ * HTML. Walking the whole structure here keeps the entity in the source
+ * string while the browser still receives the character.
+ *
+ * Only punctuation entities are resolved. &amp;, &lt; and &gt; are left alone
+ * so a decoded string can never gain a tag or an attribute boundary it did
+ * not already have, which matters because several of these values are later
+ * written with innerHTML.
+ *
+ * @param mixed $data String, or an arbitrarily nested array of them.
+ * @return mixed Same shape as $data.
+ */
+if ( ! function_exists( 'emsfb_decode_typographic_entities_efb' ) ) {
+	function emsfb_decode_typographic_entities_efb( $data ) {
+		if ( is_array( $data ) ) {
+			foreach ( $data as $key => $value ) {
+				$data[ $key ] = emsfb_decode_typographic_entities_efb( $value );
+			}
+
+			return $data;
+		}
+
+		if ( ! is_string( $data ) || false === strpos( $data, '&' ) ) {
+			return $data;
+		}
+
+		static $map = array(
+			'&hellip;'  => '…',
+			'&#8230;'   => '…',
+			'&#x2026;'  => '…',
+			'&mdash;'   => '—',
+			'&#8212;'   => '—',
+			'&ndash;'   => '–',
+			'&#8211;'   => '–',
+			'&nbsp;'    => "\xc2\xa0",
+			'&#160;'    => "\xc2\xa0",
+			'&lsquo;'   => '‘',
+			'&rsquo;'   => '’',
+			'&#8217;'   => '’',
+			'&ldquo;'   => '“',
+			'&rdquo;'   => '”',
+			'&laquo;'   => '«',
+			'&raquo;'   => '»',
+			'&bull;'    => '•',
+			'&middot;'  => '·',
+			'&times;'   => '×',
+			'&deg;'     => '°',
+			'&trade;'   => '™',
+			'&copy;'    => '©',
+			'&reg;'     => '®',
+		);
+
+		return strtr( $data, $map );
+	}
+}
+
+/**
  * @param string $name    php.ini key.
  * @param mixed  $default Value used when unavailable.
  * @return mixed

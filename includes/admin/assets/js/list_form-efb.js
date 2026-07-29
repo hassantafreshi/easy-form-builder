@@ -987,7 +987,11 @@ function fun_show_content_page_emsFormBuilder(state) {
     history.pushState("setting",null,'?page=Emsfb');
     window.location.reload();
   } else if (state == "setting" || state == "reload-setting") {
-    history.pushState("setting",null,'?page=Emsfb&state=setting');
+    /* Keep ?tab= in the pushed URL: this runs before the settings markup is
+       rendered, and dropping it here would break the deep link that lands on
+       the Email Settings tab. */
+    const deepTab = sanitize_text_efb(new URLSearchParams(location.search).get('tab') || '');
+    history.pushState("setting",null,`?page=Emsfb&state=setting${deepTab ? '&tab=' + encodeURIComponent(deepTab) : ''}`);
     fun_show_setting__emsFormBuilder();
     fun_backButton_efb(0);
     state = 2
@@ -1576,15 +1580,15 @@ function fun_show_setting__emsFormBuilder() {
                                     </button>
                                    <input type="hidden" id="smtp_emsFormBuilder" value="${smtp == "null" ? 'false' : smtp}">
                                 </div>
-                                <div class="efb card-body mx-0 py-1 mx-4">
+                                <div class="efb card-body mx-0 py-1 mx-4" id="hostSupportSmtp_box_efb">
 
                                 <button type="button" id="hostSupportSmtp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${smtp == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >
                                 <div class="efb handle"></div>
                                 </button>
                                 <label class="efb form-check-label fs-6 efb mx-2 my-3" for="hostSupportSmtp_emsFormBuilder">${efb_var.text.hostSupportSmtp}</label>
-
+                                <p class="efb text-muted fs-7 ${mxCSize4}">${efb_var.text.emailSendingOffHowTo || 'Click "Check Email Server" to test delivery, turn this switch on, then press Save.'}</p>
+                                <p class="efb mb-1 mt-2 ${mxCSize4}">${efb_var.text.weeklyEmailReportDesc}</p>
                                 </div>
-                                <p class="efb mb-1 ${mxCSize4}">${efb_var.text.weeklyEmailReportDesc}</p>
                                 <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
                                     <button type="button" id="weeklyEmailReport_emsFormBuilder" data-state="off" data-name="disabled"
                                         class="efb mx-0 btn h-s-efb btn-toggle ${weeklyEmailReport ? "active" : ""}"
@@ -1593,9 +1597,9 @@ function fun_show_setting__emsFormBuilder() {
                                         <div class="efb handle"></div>
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="weeklyEmailReport_emsFormBuilder">${efb_var.text.weeklyEmailReport}</label>
+                                    <p class="efb text-muted fs-7 ${mxCSize4} mb-0">${efb_var.text.weeklyEmailLastCheck.replace('%s', weeklyEmailStatus)}</p>
+                                    <p class="efb mb-1 ${mxCSize4} mt-2">${efb_var.text.emailStatsReportDesc}</p>
                                 </div>
-                                <p class="efb text-muted fs-7 ${mxCSize4} mb-0">${efb_var.text.weeklyEmailLastCheck.replace('%s', weeklyEmailStatus)}</p>
-                                <p class="efb mb-1 ${mxCSize4} mt-3">${efb_var.text.emailStatsReportDesc}</p>
                                 <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
                                     <button type="button" id="emailStatsReport_emsFormBuilder" data-state="off" data-name="disabled"
                                         class="efb mx-0 btn h-s-efb btn-toggle ${(emailStatsReport || !emailStatsReportAllowed) ? "active" : ""}"
@@ -1743,6 +1747,55 @@ function fun_show_setting__emsFormBuilder() {
     })
   }
 
+  efb_apply_setting_deeplink();
+
+}
+
+/* ?page=Emsfb&state=setting&tab=email lands straight on the Email Settings tab.
+ * The form builder links here when notification emails are still switched off,
+ * so the admin never has to hunt for the switch across the tab bar. */
+function efb_open_setting_tab_efb(target) {
+  const btn = document.querySelector(`#nav-tab [data-bs-target="${target}"]`);
+  const pane = document.querySelector(target);
+  if (!btn || !pane) return false;
+
+  for (const b of document.querySelectorAll('#nav-tab .nav-link')) {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  }
+  for (const p of document.querySelectorAll('#nav-tabContent .tab-pane')) {
+    p.classList.remove('show', 'active');
+  }
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+  pane.classList.add('show', 'active');
+  return true;
+}
+
+function efb_apply_setting_deeplink() {
+  const params = new URLSearchParams(window.location.search);
+  const tab = sanitize_text_efb(params.get('tab') || '');
+  if (tab !== 'email') return;
+
+  if (!efb_open_setting_tab_efb('#nav-email')) return;
+
+  const toggle = document.getElementById('hostSupportSmtp_emsFormBuilder');
+  if (!toggle) return;
+
+  const box = document.getElementById('hostSupportSmtp_box_efb') || toggle.parentElement;
+  toggle.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (box) {
+    box.classList.add('efb-highlight-setting');
+    setTimeout(() => box.classList.remove('efb-highlight-setting'), 6000);
+  }
+  if (toggle.classList.contains('active') == false) {
+    alert_message_efb(
+      efb_var.text.emailSendingOffTitle || 'Notification emails are turned off',
+      efb_var.text.emailSendingOffHowTo || 'Click "Check Email Server" to test delivery, turn this switch on, then press Save.',
+      20,
+      'warning'
+    );
+  }
 }
 
 function efb_open_color_modal() {
@@ -1777,19 +1830,19 @@ function efb_open_color_modal() {
   const _efbIsRtlLang = _efbIsPersian || _efbIsArabic;
 
   const fontFamilies = [
-    { value: 'inherit', label: 'Default (Inherit)' },
+    { value: 'inherit', label: efb_var.text.respFontDefault || 'Default (Inherit)' },
   ];
 
   if (_efbIsPersian) {
     fontFamilies.push(
-      { value: "Vazirmatn, Tahoma, sans-serif", label: 'Vazirmatn (فارسی)' },
-      { value: "Vazir, Tahoma, sans-serif", label: 'Vazir (فارسی)' },
-      { value: "Sahel, Tahoma, sans-serif", label: 'Sahel (فارسی)' },
-      { value: "Samim, Tahoma, sans-serif", label: 'Samim (فارسی)' },
-      { value: "'Shabnam', Tahoma, sans-serif", label: 'Shabnam (فارسی)' },
-      { value: "Parastoo, Tahoma, sans-serif", label: 'Parastoo (فارسی)' },
-      { value: "Gandom, Tahoma, sans-serif", label: 'Gandom (فارسی)' },
-      { value: "Lalezar, Tahoma, sans-serif", label: 'Lalezar (فارسی)' },
+      { value: "Vazirmatn, Tahoma, sans-serif", label: 'Vazirmatn (وزیرمتن)' },
+      { value: "Vazir, Tahoma, sans-serif", label: 'Vazir (وزیر)' },
+      { value: "Sahel, Tahoma, sans-serif", label: 'Sahel (ساحل)' },
+      { value: "Samim, Tahoma, sans-serif", label: 'Samim (صمیم)' },
+      { value: "'Shabnam', Tahoma, sans-serif", label: 'Shabnam (شبنم)' },
+      { value: "Parastoo, Tahoma, sans-serif", label: 'Parastoo (پرستو)' },
+      { value: "Gandom, Tahoma, sans-serif", label: 'Gandom (گندم)' },
+      { value: "Lalezar, Tahoma, sans-serif", label: 'Lalezar (لاله‌زار)' },
     );
   }
 
