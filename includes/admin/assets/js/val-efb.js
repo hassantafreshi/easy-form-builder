@@ -2182,7 +2182,7 @@ function creator_form_builder_Efb() {
       dragab = false;
     }else if(ob.id=="persiaPay" && efb_var.addons.AdnPPF !=1){
 
-      disable = `onclick="alert_message_efb('${efb_var.text.iaddons}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
+      disable = `onclick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
       dragab = false;
     }else if (ob.id=="pdate" && (efb_var.addons.hasOwnProperty('AdnPDP')==false || efb_var.addons.AdnPDP !=1)){
 

@@ -379,7 +379,7 @@ function alert_message_efb(title, message, sec, alertType) {
     sec = sec * 1000;
     const alertId = `alert_item_efb_${++alertCounter_efb}`;
     const style = alertStyles_efb[alertType] || alertStyles_efb.info;
-    const isRtl = efb_var.text.rtl == 1;
+    const isRtl = efb_var.rtl == 1;
     const rtl = isRtl ? 'rtl-text' : '';
     const isMobile = window.innerWidth < 768;
 
@@ -429,7 +429,7 @@ function alert_message_efb(title, message, sec, alertType) {
 function close_msg_efb(alertId) {
   const el = alertId ? document.getElementById(alertId) : document.querySelector('.alert_item_efb');
   if (el) {
-    const isRtl = efb_var.text.rtl == 1;
+    const isRtl = efb_var.rtl == 1;
     el.style.opacity = '0';
     el.style.transform = `translateX(${isRtl ? '' : '-'}20px)`;
     setTimeout(() => el.remove(), 200);
