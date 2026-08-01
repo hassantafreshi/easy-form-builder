@@ -3502,67 +3502,78 @@ function show_setting_up_easy_form_builder_Efb() {
 
 }
 
-function handle_setup_modal_action(plan) {
+function efb_plan_downgrade_copy_efb(currentPlan, targetPlan, removesActivationCode) {
+    const isFarsi = typeof efb_var !== 'undefined' && efb_var.language === 'fa_IR';
+    const isProToFreePlus = currentPlan === 'pro' && targetPlan === 'free_plus';
+    const isFreePlusToFree = currentPlan === 'free_plus' && targetPlan === 'free';
 
-    plan = (typeof plan === 'string') ? plan.replace(/[^A-Za-z_]/g, '') : '';
-    try {
-        switch(plan) {
-            case 'free':
-                savePlanSelection_efb('free', {
-                    plan_name: 'Free Plan',
-                    features: ['core_form_fields', 'email_notifications'],
-                    selected_at: Date.now()
-                });
-                setupFreePlan_efb();
-                show_success_notification_efb(efb_var.text.startWithFree + ' ' + efb_var.text.selected);
-                closeSetupOverlay_efb();
-                break;
-
-            case 'free_plus':
-                savePlanSelection_efb('free_plus', {
-                    plan_name: 'Free Plus Plan',
-                    features: ['core_form_fields', 'advanced_form_fields', 'email_notifications', 'built_in_features'],
-                    show_credit: true,
-                    selected_at: Date.now()
-                });
-                enable_advanced_features_with_credit_efb();
-                show_success_notification_efb(efb_var.text.freePlus + ' ' + efb_var.text.selected);
-                closeSetupOverlay_efb();
-                break;
-
-            case 'pro':
-                savePlanSelection_efb('pro', {
-                    plan_name: 'Pro Plan',
-                    features: ['all_features', 'no_credit', 'premium_support'],
-                    selected_at: Date.now()
-                });
-
-            case 'later':
-                localStorage.setItem('efb_setup_reminder', JSON.stringify({
-                    remind_at: Date.now() + (7 * 24 * 60 * 60 * 1000),
-                    skipped_at: Date.now()
-                }));
-                show_info_notification_efb(efb_var.text.setupReminder || 'You can access setup from plugin settings anytime.');
-                closeSetupOverlay_efb();
-                break;
-
-            default:
-                break;
-        }
-
-        update_ui_based_on_plan_efb(plan);
-
-        if (typeof gtag !== 'undefined') {
-            gtag('event', 'plan_selected', {
-                'event_category': 'easy_form_builder',
-                'event_label': plan,
-                'value': 1
-            });
-        }
-
-    } catch (error) {
-        show_error_notification_efb('An error occurred. Please try again.');
+    if (isFarsi) {
+        if (isProToFreePlus) return { title: 'تغییر پلن به Free Plus؟', body: 'با ادامه، کد فعال‌سازی Pro از این سایت حذف می‌شود. افزونه‌های Pro تا زمانی که دوباره به Pro ارتقا دهید در دسترس نخواهند بود. فرم‌ها، پاسخ‌ها و تنظیمات شما حذف نمی‌شوند.', cancel: 'انصراف', confirm: 'تغییر به Free Plus' };
+        if (isFreePlusToFree) return { title: 'تغییر پلن به Free؟', body: (removesActivationCode ? 'کد فعال‌سازی ذخیره‌شده از این سایت حذف می‌شود. ' : '') + 'قابلیت‌های پیشرفته، فیلدهای Pro و افزونه‌های فعال دیگر در دسترس نخواهند بود. فرم‌ها، پاسخ‌ها و تنظیمات شما حذف نمی‌شوند و با ارتقای دوباره قابل استفاده خواهند بود.', cancel: 'انصراف', confirm: 'تغییر به Free' };
+        return { title: 'تغییر پلن به Free؟', body: 'با ادامه، کد فعال‌سازی Pro از این سایت حذف می‌شود. قابلیت‌های پیشرفته، فیلدهای Pro و افزونه‌ها تا زمانی که دوباره ارتقا دهید در دسترس نخواهند بود. فرم‌ها، پاسخ‌ها و تنظیمات شما حذف نمی‌شوند.', cancel: 'انصراف', confirm: 'تغییر به Free' };
     }
+    if (isProToFreePlus) return { title: 'Switch to Free Plus?', body: 'Your Pro activation code will be removed from this site. Pro add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.', cancel: 'Keep Pro', confirm: 'Switch to Free Plus' };
+    if (isFreePlusToFree) return { title: 'Switch to Free?', body: (removesActivationCode ? 'The stored activation code will be removed from this site. ' : '') + 'Advanced features, Pro fields and active add-ons will no longer be available. Your forms, entries and settings will not be deleted, and will be available again if you upgrade.', cancel: 'Keep Free Plus', confirm: 'Switch to Free' };
+    return { title: 'Switch to Free?', body: 'Your Pro activation code will be removed from this site. Advanced features, Pro fields and add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.', cancel: 'Keep Pro', confirm: 'Switch to Free' };
+}
+
+function show_plan_downgrade_confirmation_efb(copy, onConfirm) {
+    const existing = document.getElementById('efb-plan-downgrade-confirmation');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'efb-plan-downgrade-confirmation';
+    modal.className = 'efb-plan-downgrade-confirmation';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'efb-plan-downgrade-title');
+    modal.innerHTML = '<style>#efb-plan-downgrade-confirmation{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.62);backdrop-filter:blur(3px)}#efb-plan-downgrade-confirmation .efb-plan-downgrade-dialog{width:min(100%,540px);padding:30px;border-radius:18px;background:#fff;box-shadow:0 24px 64px rgba(15,23,42,.28);text-align:start}#efb-plan-downgrade-confirmation .efb-plan-downgrade-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;border-radius:50%;background:#fff4e5;color:#c2410c;font-size:22px}#efb-plan-downgrade-confirmation h3{margin:0 0 10px;color:#172554;font-size:20px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-message{margin:0;color:#475569;line-height:1.75}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}#efb-plan-downgrade-confirmation .efb-btn-danger{border:1px solid #b91c1c;background:#b91c1c;color:#fff}#efb-plan-downgrade-confirmation .efb-btn-danger:hover{background:#991b1b}@media(max-width:480px){#efb-plan-downgrade-confirmation{padding:12px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-dialog{padding:24px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions{flex-direction:column-reverse}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions button{width:100%}}</style><div class="efb-plan-downgrade-dialog" role="document"><div class="efb-plan-downgrade-icon"><i class="bi bi-exclamation-triangle-fill"></i></div><h3 id="efb-plan-downgrade-title"></h3><p class="efb-plan-downgrade-message"></p><div class="efb-plan-downgrade-actions"><button type="button" class="efb-btn efb-btn-outline efb-plan-downgrade-cancel"></button><button type="button" class="efb-btn efb-btn-danger efb-plan-downgrade-confirm"></button></div></div>';
+
+    modal.querySelector('#efb-plan-downgrade-title').textContent = copy.title;
+    modal.querySelector('.efb-plan-downgrade-message').textContent = copy.body;
+    const cancel = modal.querySelector('.efb-plan-downgrade-cancel');
+    const confirm = modal.querySelector('.efb-plan-downgrade-confirm');
+    cancel.textContent = copy.cancel;
+    confirm.textContent = copy.confirm;
+
+    const dismiss = () => {
+        document.removeEventListener('keydown', onKeydown);
+        modal.remove();
+    };
+    const onKeydown = (event) => { if (event.key === 'Escape') dismiss(); };
+    cancel.addEventListener('click', dismiss);
+    modal.addEventListener('click', (event) => { if (event.target === modal) dismiss(); });
+    confirm.addEventListener('click', () => { dismiss(); onConfirm(); });
+    document.body.appendChild(modal);
+    document.addEventListener('keydown', onKeydown);
+    cancel.focus();
+}
+
+function efb_plan_has_activation_code_efb() {
+    const input = document.getElementById('activeCode_emsFormBuilder');
+    if (input && input.value.trim() !== '') return true;
+    return typeof valueJson_ws_setting === 'object' && valueJson_ws_setting !== null
+        && typeof valueJson_ws_setting.activeCode === 'string' && valueJson_ws_setting.activeCode.trim() !== '';
+}
+
+function handle_setup_modal_action(plan) {
+    plan = (typeof plan === 'string') ? plan.replace(/[^A-Za-z_]/g, '') : '';
+    if (plan === 'later') {
+        localStorage.setItem('efb_setup_reminder', JSON.stringify({ remind_at: Date.now() + (7 * 24 * 60 * 60 * 1000), skipped_at: Date.now() }));
+        show_info_notification_efb(efb_var.text.setupReminder || 'You can access setup from plugin settings anytime.');
+        closeSetupOverlay_efb();
+        return;
+    }
+    if (!['free', 'free_plus', 'pro'].includes(plan)) return;
+
+    const currentPlan = getSelectedPlan_efb().selected_plan;
+    const isDowngrade = (currentPlan === 'pro' && ['free', 'free_plus'].includes(plan)) || (currentPlan === 'free_plus' && plan === 'free');
+    const removesActivationCode = plan !== 'pro' && efb_plan_has_activation_code_efb();
+    if (isDowngrade || removesActivationCode) {
+        show_plan_downgrade_confirmation_efb(efb_plan_downgrade_copy_efb(currentPlan, plan, removesActivationCode), () => savePlanSelection_efb(plan, true));
+        return;
+    }
+    savePlanSelection_efb(plan, false);
 }
 
 function enable_advanced_features_with_credit_efb() {
@@ -3573,22 +3584,22 @@ function enable_advanced_features_with_credit_efb() {
     }
 }
 
-function savePlanSelection_efb(plan, planData) {
+function savePlanSelection_efb(plan, downgradeConfirmed) {
     try {
+        const plans = {
+            free: { plan_name: 'Free Plan', features: ['core_form_fields', 'email_notifications'] },
+            free_plus: { plan_name: 'Free Plus Plan', features: ['core_form_fields', 'advanced_form_fields', 'email_notifications', 'built_in_features'], show_credit: true },
+            pro: { plan_name: 'Pro Plan', features: ['all_features', 'no_credit', 'premium_support'] }
+        };
         const selectionData = {
             selected_plan: plan,
-            plan_data: planData,
-            timestamp: Date.now()
+            plan_data: plans[plan] || {},
+            timestamp: Date.now(),
+            downgrade_confirmed: downgradeConfirmed === true
         };
-
-        if (plan ==='pro' || plan ==='null' || plan ==='free') {
-          efb_var.setting.package_type = 2;
-        }else if (plan ==='free_plus') {
-          efb_var.setting.package_type = 3;
-        }
         sendPlanSelectionToServer_efb(selectionData);
-
     } catch (error) {
+        alert_message_efb('', 'An error occurred. Please try again.', 10, 'danger');
     }
 }
 
@@ -3647,15 +3658,6 @@ function redirectToProUpgrade_efb($proUrl) {
 }
 
 function sendPlanSelectionToServer_efb(selectionData) {
-    const user_selected = selectionData.selected_plan || 'unknown';
-    if(user_selected === 'pro') {
-      sessionStorage.setItem('efb_license_selected', '1');
-    }else if(user_selected === 'free_plus') {
-      sessionStorage.setItem('efb_license_selected', '3');
-    }else if(user_selected === 'free') {
-      sessionStorage.setItem('efb_license_selected', '2');
-    }
-
     jQuery.ajax({
         url: efb_var.ajax_url,
         type: 'POST',
@@ -3667,19 +3669,46 @@ function sendPlanSelectionToServer_efb(selectionData) {
         },
         success: function(response) {
             if (response.success && response.data) {
-
                 if (response.data.redirect_url) {
                     window.open(response.data.redirect_url, '_blank');
                 }
-
-                if (response.data.action) {
-                    updatePlanBadge_efb();
+                const packageType = Number(response.data.package_type);
+                if ([0, 1, 2, 3].includes(packageType)) {
+                    sessionStorage.setItem('efb_license_selected', String(packageType));
+                    efb_var.setting.package_type = packageType;
+                    efb_var.pro = packageType === 1 || packageType === 3;
+                    if (typeof valueJson_ws_setting === 'object' && valueJson_ws_setting !== null) {
+                        valueJson_ws_setting.package_type = packageType;
+                    }
                 }
-
-            } else if (response.success === false && response.data) {
+                if (response.data.activation_code_removed) {
+                    const input = document.getElementById('activeCode_emsFormBuilder');
+                    if (input) input.value = '';
+                    efb_var.setting.activeCode = '';
+                    if (typeof valueJson_ws_setting === 'object' && valueJson_ws_setting !== null) valueJson_ws_setting.activeCode = '';
+                }
+                if (selectionData.selected_plan === 'free') setupFreePlan_efb();
+                if (selectionData.selected_plan === 'free_plus') enable_advanced_features_with_credit_efb();
+                update_ui_based_on_plan_efb(selectionData.selected_plan);
+                updatePlanBadge_efb();
+                show_success_notification_efb(response.data.action || 'Plan updated.');
+                closeSetupOverlay_efb();
+                if (typeof gtag !== 'undefined') gtag('event', 'plan_selected', { event_category: 'easy_form_builder', event_label: selectionData.selected_plan, value: 1 });
+            } else if (response.data && response.data.message) {
+                alert_message_efb('', response.data.message, 10, 'danger');
             }
         },
         error: function(xhr, status, error) {
+            const responseData = xhr.responseJSON && xhr.responseJSON.data ? xhr.responseJSON.data : null;
+            if (responseData && responseData.code === 'downgrade_confirmation_required' && selectionData.downgrade_confirmed !== true) {
+                show_plan_downgrade_confirmation_efb(
+                    efb_plan_downgrade_copy_efb(getSelectedPlan_efb().selected_plan, selectionData.selected_plan, responseData.activation_code_present === true),
+                    () => savePlanSelection_efb(selectionData.selected_plan, true)
+                );
+                return;
+            }
+            const message = responseData && responseData.message ? responseData.message : 'Unable to change the plan. Please try again.';
+            alert_message_efb('', message, 10, 'danger');
         }
     });
 
@@ -4129,7 +4158,9 @@ function closeSetupOverlay_efb() {
 sessionStorage.setItem('efb_license_selected', efb_var.setting.package_type);
 function getCurrentPlanBadge_efb() {
   const crntPlnLabel = (efb_var.text && efb_var.text.crntPln) || 'Current Plan';
-  const pro_type = (Number(efb_var.pro) === 1 && valueJson_ws_setting.activeCode!='') ? 1 : (sessionStorage.getItem('efb_license_selected') ? Number(sessionStorage.getItem('efb_license_selected')) : Number(efb_var.pro));
+  const pro_type = sessionStorage.getItem('efb_license_selected')
+    ? Number(sessionStorage.getItem('efb_license_selected'))
+    : Number(efb_var.setting.package_type ?? efb_var.pro);
   let badgeClass = 'bg-secondary';
   let planName = (efb_var.text && efb_var.text.free) || 'Free';
   let icon_mx = 'me-2';

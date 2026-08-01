@@ -48,3 +48,15 @@ debug-helper.js
 languages/ar.json
 languages/de.json
 languages/fa.json
+docs/audits/2026-07-29-weekly-qa-checklist.md
+tests/test-autofill-api-handler.php
+tests/test-autofill-api-public.js
+tests/test-decline-root-cause-regressions.php
+tests/test-license-suspension-notice.php
+tests/test-nonce-refresh-session-gating.php
+tests/test-nonce-refresh-session-gating.php
+tests/test-nonce-refresh-session-gating.php
+docs/audits/2026-07-30-sales-and-installs-decline-root-cause.md
+docs/audits/2026-07-31-bugs-and-failure-scenarios.md
+docs/README.md
+docs/README.md

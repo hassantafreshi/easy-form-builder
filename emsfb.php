@@ -27,7 +27,9 @@ if (!defined("EMSFB_PLUGIN_VERSION")) {
     define("EMSFB_PLUGIN_VERSION", "4.1.2");
 }
 if (!defined("EMSFB_DB_VERSION")) {
-    define("EMSFB_DB_VERSION", 1.1);
+    // 1.2 adds the emsfb_stts_ indexes (sid, lookup, date). Bumping this is what
+    // triggers Install::upgrade_schema() on sites that already have the tables.
+    define("EMSFB_DB_VERSION", 1.2);
 }
 
 if (!defined("EFB_DEBUG")) {
@@ -71,31 +73,45 @@ if (!defined("EMSFB_LICENSE_SERVER_URL")) {
     // (devMode) demo server must never decide activation state.
     define("EMSFB_LICENSE_SERVER_URL", "https://whitestudio.team");
 }
-if (!defined("EMSFB_IS_FARSI")) {
+define("EMSFB_IR_CDN_URL", "https://cdn.easyformbuilder.ir/gh/Json-List-of-countries-states-and-cities-in-the-world/");
+define("EMSFB_JSDELIVR_CDN_URL", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
+
+if (!defined("CDN_ZONE_AREA")) {
     if (get_locale() == 'fa_IR') {
-        //THIS LINE COMMENTED TO AVOID PROBLEMS WITH CDN IN FARSI LANGUAGE BECUSE OF SHUTDOWN IRAN NETWORK!!
-        $url_path =  "https://cdn.easyformbuilder.ir/gh/Json-List-of-countries-states-and-cities-in-the-world/";
-       // define("CDN_ZONE_AREA", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
+        // This block runs at plugin-load time, so it is on the critical path of
+        // every request including the frontend. It used to perform a
+        // wp_remote_head() with a 5s timeout whenever the transient was cold,
+        // and cached a failure for only an hour - so on the exact market this
+        // serves, a real visitor paid up to five seconds once an hour, and every
+        // page load if the object cache was not persistent.
+        //
+        // Nothing is probed here any more: we read the cached verdict, fall back
+        // to the global CDN when it is missing, and let the hourly
+        // emsfb_refresh_ir_cdn_status cron event do the network work.
+        $emsfb_ir_cdn_status = get_transient('emsfb_ir_cdn_status');
 
-        if (!defined("EFB_Path_IR")) {
-            // Cached in a transient so the remote check does not run on every page load
-            $emsfb_ir_cdn_status = get_transient('emsfb_ir_cdn_status');
-            if (false === $emsfb_ir_cdn_status) {
-                $emsfb_ir_cdn_response = wp_remote_head($url_path . 'js/wp/countries.js', array('timeout' => 5));
-                $emsfb_ir_cdn_status = (!is_wp_error($emsfb_ir_cdn_response) && wp_remote_retrieve_response_code($emsfb_ir_cdn_response) < 400) ? 'up' : 'down';
-                set_transient('emsfb_ir_cdn_status', $emsfb_ir_cdn_status, 'up' === $emsfb_ir_cdn_status ? 6 * HOUR_IN_SECONDS : HOUR_IN_SECONDS);
-            }
-            define("EFB_Path_IR", 'up' === $emsfb_ir_cdn_status);
-
-            if (EFB_Path_IR) {
-                define("CDN_ZONE_AREA", $url_path);
-            } else {
-                define("CDN_ZONE_AREA", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
-            }
-        }
+        define("EFB_Path_IR", 'up' === $emsfb_ir_cdn_status);
+        define("CDN_ZONE_AREA", EFB_Path_IR ? EMSFB_IR_CDN_URL : EMSFB_JSDELIVR_CDN_URL);
     } else {
-        define("CDN_ZONE_AREA", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
+        define("CDN_ZONE_AREA", EMSFB_JSDELIVR_CDN_URL);
     }
+}
+
+/**
+ * Probe the Iran CDN and cache the verdict. Scheduled work only - never call
+ * this from a path that renders a page for a visitor.
+ *
+ * @return string 'up' or 'down'
+ */
+function emsfb_probe_ir_cdn_status_efb() {
+    $response = wp_remote_head(EMSFB_IR_CDN_URL . 'js/wp/countries.js', array('timeout' => 5));
+    $status   = (!is_wp_error($response) && wp_remote_retrieve_response_code($response) < 400) ? 'up' : 'down';
+
+    // Both outcomes are cached for the same span; the cron event refreshes it
+    // hourly, so a short failure TTL no longer buys anything except more probes.
+    set_transient('emsfb_ir_cdn_status', $status, 6 * HOUR_IN_SECONDS);
+
+    return $status;
 }
 
 require 'includes/class-Emsfb.php';

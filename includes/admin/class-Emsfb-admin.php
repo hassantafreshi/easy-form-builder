@@ -1264,6 +1264,7 @@ class Admin {
     public function set_settings_Emsfb() {
         $efbFunction = get_efbFunction();
         $ac= get_setting_Emsfb('decoded');
+        $stored_active_code = is_object($ac) && isset($ac->activeCode) ? trim((string) $ac->activeCode) : '';
         $text = ["pleaseDoNotAddJsCode","emailTemplate","addSCEmailM","messageSent","activationNcorrect","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","PEnterMessage"];
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1298,6 +1299,7 @@ class Admin {
             wp_send_json_success($response, 200);
         }
         $active_code_is_valid = false;
+        $active_code_was_removed = false;
         foreach ($m as $key => $value) {
              if (in_array($key ,['emailSupporter','femail'])) {
                 $value = sanitize_text_field($value);
@@ -1305,8 +1307,24 @@ class Admin {
                 $email =  $value;
             }else if ($key == "activeCode" ) {
                 if(strlen($value)<1){
-                    if(get_option('emsfb_pro',false)==1){
+                    /*
+                     * A deliberately cleared field is a licence removal, but
+                     * an already-empty Free/Free Plus field is not.  The
+                     * distinction prevents an ordinary Free Plus settings save
+                     * from being changed to Free while still removing every
+                     * copy of a Pro key when an administrator explicitly
+                     * clears it.
+                     */
+                    if ($stored_active_code !== '') {
+                        $active_code_was_removed = true;
+                        $m['activeCode'] = '';
+                        $m['package_type'] = 2;
                         update_option('emsfb_pro', 2);
+                        delete_option('emsfb_pro_activeCode');
+                        delete_option('emsfb_pro_ac_date');
+                        delete_option('emsfb_license_failed_since');
+                        delete_option('emsfb_license_fail_reason');
+                        delete_option('emsfb_license_suspend_notified');
                     }
                     continue;
                 }
@@ -1327,6 +1345,10 @@ class Admin {
                 // Keep the validated Pro package even if payload contains stale package_type.
                 if ($active_code_is_valid) {
                     $m[$key] = 1;
+                    continue;
+                }
+                if ($active_code_was_removed) {
+                    $m[$key] = 2;
                     continue;
                 }
                 $package_type = intval(sanitize_text_field($value));
@@ -1414,6 +1436,8 @@ class Admin {
 
         if ($active_code_is_valid) {
             $m['package_type'] = 1;
+        } elseif ($active_code_was_removed) {
+            $m['package_type'] = 2;
         }
 
         $setting = json_encode($m, JSON_UNESCAPED_UNICODE);
@@ -3086,31 +3110,59 @@ function admin_notices_efb () {
         $package_type_efb = 2;
 
         $settings = get_setting_Emsfb('decoded');
-        $has_active_code = isset($settings->activeCode) && !empty($settings->activeCode);
+        if (!is_object($settings)) {
+            $settings = new \stdClass();
+        }
+
+        /*
+         * The licence key historically lived in two places.  A plan change must
+         * treat either copy as a real licence, otherwise the screen can say
+         * "Free Plus" while the Pro key is still retained in wp_options.
+         */
+        $settings_active_code = isset($settings->activeCode) ? trim((string) $settings->activeCode) : '';
+        $option_active_code = trim((string) get_option('emsfb_pro_activeCode', ''));
+        $has_active_code = $settings_active_code !== '' || $option_active_code !== '';
+        $current_package_type = (int) get_option('emsfb_pro', 2);
+        if (!in_array($current_package_type, [0, 1, 2, 3], true)) {
+            $current_package_type = 2;
+        }
+        $target_package_type = $selected_plan === 'free_plus' ? 3 : ($selected_plan === 'free' ? 2 : 1);
+        $is_downgrade = ($current_package_type === 1 && in_array($target_package_type, [2, 3], true))
+            || ($current_package_type === 3 && $target_package_type === 2);
+        $removes_activation_code = $has_active_code && in_array($target_package_type, [2, 3], true);
+        $downgrade_confirmed = isset($plan_data['downgrade_confirmed'])
+            && in_array($plan_data['downgrade_confirmed'], [true, 1, '1', 'true'], true);
+
+        // Never allow an AJAX caller to silently revoke a plan or discard a key.
+        if (($is_downgrade || $removes_activation_code) && !$downgrade_confirmed) {
+            wp_send_json_error(array(
+                'code' => 'downgrade_confirmation_required',
+                'message' => __('Please confirm this plan downgrade before continuing.', 'easy-form-builder'),
+                'activation_code_present' => $has_active_code,
+            ), 409);
+            return;
+        }
 
         switch($selected_plan) {
             case 'free':
                 update_option('emsfb_pro', 2);
                 $package_type_efb = 2;
                 $action_performed = __('Free plan activated - no additional features.', 'easy-form-builder');
-                if ($has_active_code) {
-                    $settings->activeCode = '';
-                }
                 break;
 
             case 'free_plus':
                 update_option('emsfb_pro', 3);
                 $package_type_efb = 3;
                 $action_performed = __('Free Plus plan activated with enhanced features.', 'easy-form-builder');
-                if ($has_active_code) {
-                    $settings->activeCode = '';
-                }
                 break;
 
             case 'pro':
                 if ($has_active_code) {
                     $package_type_efb = 1;
                     update_option('emsfb_pro', 1);
+                    if ($settings_active_code === '' && $option_active_code !== '') {
+                        $settings->activeCode = $option_active_code;
+                    }
                     $action_performed = __('Pro plan activated with existing activation code.', 'easy-form-builder');
                 } else {
                     $package_type_efb = 0;
@@ -3122,6 +3174,38 @@ function admin_notices_efb () {
                     $action_performed = __('Redirecting to Pro plan purchase page.', 'easy-form-builder');
                 }
                 break;
+        }
+
+        if ($removes_activation_code) {
+            $settings->activeCode = '';
+            delete_option('emsfb_pro_activeCode');
+            delete_option('emsfb_pro_ac_date');
+            delete_option('emsfb_license_failed_since');
+            delete_option('emsfb_license_fail_reason');
+            delete_option('emsfb_license_suspend_notified');
+        }
+
+        /*
+         * Downgrading must disable the runtime flags as well as changing the
+         * package badge.  Keeping a Pro add-on marked active meant that some
+         * of its public hooks could still load after the user had downgraded.
+         * Files and their configuration are kept, so upgrading later does not
+         * require a reinstall or re-entry of credentials.
+         */
+        $disabled_addons = array();
+        if ($is_downgrade) {
+            $addon_keys = $efbFunction->get_all_addon_keys_efb();
+            if ($package_type_efb === 3) {
+                // Offline Forms and Conditional Logic are available in Free Plus.
+                $addon_keys = array_diff($addon_keys, array('AdnOF', 'AdnSMF'));
+            }
+            foreach ($addon_keys as $addon_key) {
+                if (isset($settings->{$addon_key}) && (int) $settings->{$addon_key} !== 0) {
+                    $disabled_addons[] = $addon_key;
+                }
+                $settings->{$addon_key} = 0;
+                update_option('emsfb_addon_' . $addon_key, 0);
+            }
         }
 
         $settings->package_type = $package_type_efb;
@@ -3136,7 +3220,9 @@ function admin_notices_efb () {
             'redirect_url' => $redirect_url,
             'timestamp' => $timestamp,
             'saved_at' => current_time('mysql'),
-            'package_type' => $package_type_efb
+            'package_type' => $package_type_efb,
+            'activation_code_removed' => $removes_activation_code,
+            'disabled_addons' => $disabled_addons,
         );
 
         wp_send_json_success($response_data);

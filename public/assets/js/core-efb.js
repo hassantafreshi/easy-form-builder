@@ -1851,16 +1851,24 @@ window.addEventListener("popstate",e=>{
  }
 efb_refresh_nonce=async(sid, fid)=>{
   try {
-    // Prove a live form session so the server won't hand a fresh CSRF token to
-    // arbitrary anonymous requesters. sid falls back to the page-level session.
+    // The sid is sent so the server can slide a still-open session forward, but
+    // it is no longer required: on a page-cached site the sid is frozen into the
+    // stored HTML together with the nonce and has expired by the time a refresh
+    // is needed, which is exactly when this has to work.
     const session_id = sid || (typeof efb_var !== 'undefined' && efb_var.sid) || '';
     const headers = {};
     if (session_id) headers['sid'] = session_id;
     if (fid) headers['form-id'] = fid;
-    const r = await fetch(efb_var.rest_url+'Emsfb/v1/nonce/refresh',{method:'GET',credentials:'same-origin',headers:headers});
+    const r = await fetch(efb_var.rest_url+'Emsfb/v1/nonce/refresh',{method:'GET',credentials:'same-origin',cache:'no-store',headers:headers});
     if(r.ok){
       const d = await r.json();
-      if(d && d.nonce){ efb_var.nonce = d.nonce; return true; }
+      if(d && d.nonce){
+        efb_var.nonce = d.nonce;
+        // Share the fresh token with the Human Shield client, which reads its
+        // own copy and would otherwise keep replaying the dead one.
+        try { if (window.EFBHumanShield) window.EFBHumanShield.wpRestNonce = d.nonce; } catch(e){}
+        return true;
+      }
     }
   } catch(e){}
   return false;

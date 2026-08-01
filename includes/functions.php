@@ -3917,25 +3917,19 @@ public function addon_add_efb($value) {
 			'read_date' => $date_limit
 		);
 
-		$existing = $wpdb->get_var($wpdb->prepare(
-			"SELECT sid FROM {$table_name} WHERE fid = %d AND uid = %d AND ip = %s AND active = 1",
-			$fid, $uid, $ip
-		));
-
-		if ($existing) {
-
-			$wpdb->query($wpdb->prepare(
-				"UPDATE {$table_name} SET `type_` = %d, `status` = %s, `date` = %s, `read_date` = %s WHERE fid = %d AND uid = %d AND ip = %s AND active = 1",
-				$type, $status, $date_now, $date_limit, $fid, $uid, $ip
-			));
-			return $existing;
-		} else {
-			$sql = $wpdb->prepare(
-				"INSERT INTO {$table_name} (`sid`, `fid`, `type_`, `status`, `ip`, `os`, `browser`, `uid`, `tc`, `active`, `date`, `read_date`)
-				VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %d, %s, %s)",
-				$sid, $fid, $type, $status, $ip, $os, $browser, $uid, $tc, 1, $date_now, $date_limit
-			);
-		}
+		// Sessions are per visitor, never per IP. Reusing an existing row keyed on
+		// (fid, uid, ip, active) collapsed every visitor sharing one resolved
+		// address - corporate/mobile NAT, or any reverse proxy that leaves
+		// REMOTE_ADDR as the proxy - onto a single session row, so the first
+		// person to submit flipped active=0 and locked out everyone behind that
+		// address. v3 always inserted a fresh row; this restores that. Volume is
+		// handled by the sid/lookup indexes and the daily prune, not by
+		// conflating unrelated visitors.
+		$sql = $wpdb->prepare(
+			"INSERT INTO {$table_name} (`sid`, `fid`, `type_`, `status`, `ip`, `os`, `browser`, `uid`, `tc`, `active`, `date`, `read_date`)
+			VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %d, %s, %s)",
+			$sid, $fid, $type, $status, $ip, $os, $browser, $uid, $tc, 1, $date_now, $date_limit
+		);
 
 		$state = $wpdb->query($sql);
 		return $sid;
@@ -3972,6 +3966,17 @@ public function addon_add_efb($value) {
         $result = $wpdb->get_row($query, ARRAY_A);
 
 		if(empty($result)){
+			// A caching plugin serves the sid that was minted when the page copy
+			// was generated, so on a cached page this row is routinely past
+			// read_date (sessionDuration defaults to a single day) while the
+			// form itself is perfectly legitimate. Rejecting it here is what
+			// made every later visitor unsubmittable. Accept a plain 'visit'
+			// row that is still inside the absolute cap and slide its window
+			// forward, exactly as efb_code_touch_session() would.
+			if ($this->efb_revive_visit_session($sid, $fid)) {
+				return true;
+			}
+
 			$query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE sid = %s  AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $fid);
 			$result = $wpdb->get_row($query, ARRAY_A);
 			$valid = ['regis','login','reset','recov','logou'];
@@ -3983,6 +3988,67 @@ public function addon_add_efb($value) {
 
         return !empty($result);
     }
+
+	/**
+	 * Re-open an expired but still-recent 'visit' session.
+	 *
+	 * Only ever touches rows whose status is 'visit' - the single-use auth
+	 * statuses (regis/login/reset/recov/logou) keep their one-shot semantics and
+	 * are handled by the caller. Bounded by efb_session_absolute_max_days so an
+	 * abandoned session cannot be revived indefinitely.
+	 *
+	 * @param string $sid Session id.
+	 * @param int    $fid Form id (0 = any form).
+	 * @return bool True when a session was revived.
+	 */
+	private function efb_revive_visit_session($sid, $fid) {
+		global $wpdb;
+
+		if ('' === (string) $sid) {
+			return false;
+		}
+
+		$table_name = $wpdb->prefix . 'emsfb_stts_';
+		$fid        = intval($fid);
+
+		$max_days = (int) apply_filters('efb_session_absolute_max_days', 7);
+		if ($max_days < 1) {
+			$max_days = 1;
+		}
+		$cap_cutoff = wp_date('Y-m-d H:i:s', strtotime("-{$max_days} days"));
+
+		if (empty($fid)) {
+			$row = $wpdb->get_row($wpdb->prepare(
+				"SELECT id FROM {$table_name} WHERE sid = %s AND status = %s AND active = 1 AND `date` > %s ORDER BY `date` DESC LIMIT 1",
+				$sid, 'visit', $cap_cutoff
+			), ARRAY_A);
+		} else {
+			$row = $wpdb->get_row($wpdb->prepare(
+				"SELECT id FROM {$table_name} WHERE sid = %s AND fid = %d AND status = %s AND active = 1 AND `date` > %s ORDER BY `date` DESC LIMIT 1",
+				$sid, $fid, 'visit', $cap_cutoff
+			), ARRAY_A);
+		}
+
+		if (empty($row)) {
+			return false;
+		}
+
+		$settings        = get_setting_Emsfb();
+		$sessionDuration = isset($settings->sessionDuration) && is_numeric($settings->sessionDuration) ? intval($settings->sessionDuration) : 1;
+		if ($sessionDuration < 1) {
+			$sessionDuration = 1;
+		}
+
+		$wpdb->update(
+			$table_name,
+			array('read_date' => wp_date('Y-m-d H:i:s', strtotime("+{$sessionDuration} days"))),
+			array('id' => (int) $row['id']),
+			array('%s'),
+			array('%d')
+		);
+
+		return true;
+	}
 
     /**
      * Read-only twin of efb_code_validate_select(): reports whether the sid
@@ -4457,10 +4523,14 @@ public function addon_add_efb($value) {
 
 		$connected = wp_remote_post('https://www.whitestudio.team', array('timeout' => 2));
 		if (is_wp_error($connected)) {
-			$s = explode('@', $ac)[0];
-			$r= isset($s) && md5($server_name) == $s ? (object)['r' => true , 'state' => 'active','pakcage'=>1]   : (object)['r' => false , 'state' => 'notExists' ];
-			return $r;
-
+			// The server was never reached, so nothing here is authoritative. If
+			// the activation code still matches this domain we keep running;
+			// otherwise we report a transport error rather than inventing a
+			// "notExists" verdict that would revoke a valid licence.
+			if ($this->activation_code_matches_domain_efb($ac)) {
+				return (object)['r' => true, 'state' => 'active', 'pakcage' => 1];
+			}
+			return (object)['transport_error' => true, 'reason' => 'probe_failed'];
 		}
 		$get_list_plugins_active = json_encode(get_option('active_plugins'));
 		$info = array(
@@ -4485,12 +4555,85 @@ public function addon_add_efb($value) {
 		);
 		$response = wp_remote_post($url, $options);
 		if (is_wp_error($response)) {
-			return false;
+			return (object)['transport_error' => true, 'reason' => 'request_failed'];
 		}
+
+		$code = (int) wp_remote_retrieve_response_code($response);
+		if ($code < 200 || $code >= 300) {
+			// 500/502, a maintenance page, a WAF challenge - the licence server
+			// did not answer the question, so it must not be read as a "no".
+			return (object)['transport_error' => true, 'reason' => 'http_' . $code];
+		}
+
 		$body = wp_remote_retrieve_body($response);
 		$data = json_decode($body);
 
+		if (!is_object($data) || !isset($data->state)) {
+			return (object)['transport_error' => true, 'reason' => 'unparsable_response'];
+		}
+
 		return $data;
+	}
+
+	/**
+	 * Whether an activation code was minted for this site.
+	 *
+	 * The code embeds md5 of the bare domain. The host is taken from the stored
+	 * site URL first: $_SERVER['HTTP_HOST'] is absent under WP-CLI and WP-Cron
+	 * (making the comparison fail against md5 of an empty string, which used to
+	 * switch Pro off during automated updates) and it is attacker-controlled on
+	 * many stacks. HTTP_HOST is still accepted as a fallback so codes minted
+	 * under a different host spelling keep validating.
+	 *
+	 * @param string $ac Activation code.
+	 * @return bool
+	 */
+	public function activation_code_matches_domain_efb($ac) {
+		$expected = explode('@', (string) $ac)[0];
+		if ('' === $expected) {
+			return false;
+		}
+
+		foreach ($this->license_domain_candidates_efb() as $host) {
+			if (md5($host) === $expected) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Every spelling of this site's domain an activation code may have been
+	 * minted against.
+	 *
+	 * @return array<int, string>
+	 */
+	public function license_domain_candidates_efb() {
+		$hosts = array();
+
+		foreach (array('siteurl', 'home') as $option) {
+			$host = wp_parse_url((string) get_option($option), PHP_URL_HOST);
+			if (is_string($host) && '' !== $host) {
+				$hosts[] = $host;
+			}
+		}
+
+		if (!empty($_SERVER['HTTP_HOST'])) {
+			$hosts[] = sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST']));
+		}
+
+		$candidates = array();
+		foreach ($hosts as $host) {
+			$host = strtolower(trim($host));
+			if ('' === $host) {
+				continue;
+			}
+			$candidates[] = $host;
+			$candidates[] = str_replace('www.', '', $host);
+		}
+
+		return array_values(array_unique(array_filter($candidates)));
 	}
 
 	public function update_pro_status_efb($code) {
@@ -4498,15 +4641,26 @@ public function addon_add_efb($value) {
 		update_option('emsfb_pro_activeCode', $code);
 		$json = $this->make_post_request_efb($code);
 
+		// A response that never arrived, or one we could not parse, is not a
+		// verdict. Treating it as "invalid" used to revoke Pro and erase the
+		// customer's activation key on any 500, timeout, WAF challenge or
+		// truncated body - permanently, from a single bad round-trip, on a check
+		// that runs every week.
+		if (isset($json->transport_error) && $json->transport_error) {
+			return $this->handle_license_transport_failure_efb($code, isset($json->reason) ? $json->reason : 'unknown');
+		}
+
+		// Reaching the server clears any accumulated failure streak, including
+		// the "suspension email already sent" marker, so a future outage is
+		// announced again instead of passing silently.
+		delete_option('emsfb_license_failed_since');
+		delete_option('emsfb_license_fail_reason');
+		delete_option('emsfb_license_suspend_notified');
+
 		$r = isset($json->r) ? $json->r : false;
-		if($r===false) {
-			if ($this->is_farsi_offline_license_efb()) {
-				$this->emsfb_pro_log('update_pro_status_efb: DEACTIVATED - local activation code does not match this domain (state=' . (isset($json->state) ? $json->state : 'n/a') . ')');
-			}
-			delete_option('emsfb_pro');
-			delete_option('emsfb_pro_ac_date');
-			delete_option('emsfb_pro_activeCode');
-			return false;
+		if($r===false && !isset($json->state)) {
+			// Shape we do not recognise - still not a verdict.
+			return $this->handle_license_transport_failure_efb($code, 'missing_state');
 		}
 		update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
 		$state = isset($json->state) ? $json->state : '';
@@ -4531,11 +4685,282 @@ public function addon_add_efb($value) {
 			update_option('emsfb_pro_activeCode' ,$code);
 			return false;
 		}elseif ($state=="notExists") {
-			delete_option('emsfb_pro');
+			update_option('emsfb_pro', 0);
 			delete_option('emsfb_pro_ac_date');
-			delete_option('emsfb_pro_activeCode');
+			// The key is kept even here so the customer can still see it and
+			// re-activate; only the server's verdict on it is recorded.
+			update_option('emsfb_pro_activeCode', $code);
 			return false;
 		}
+
+		// Unknown state string: do not act on it.
+		return $this->handle_license_transport_failure_efb($code, 'unknown_state');
+	}
+
+	/**
+	 * Decide what to do when the licence server could not give a verdict.
+	 *
+	 * Keeps the site licensed through outages, and never discards the stored
+	 * activation code. Only after a continuous failure streak longer than the
+	 * grace period does Pro switch off, and even then the key is preserved so a
+	 * single successful check restores everything.
+	 *
+	 * @param string $code   Activation code.
+	 * @param string $reason Diagnostic reason.
+	 * @return bool Effective Pro state.
+	 */
+	private function handle_license_transport_failure_efb($code, $reason) {
+		$since = (int) get_option('emsfb_license_failed_since', 0);
+		if (!$since) {
+			$since = time();
+			update_option('emsfb_license_failed_since', $since, false);
+		}
+		update_option('emsfb_license_fail_reason', (string) $reason, false);
+
+		$grace_days = (int) apply_filters('efb_license_grace_days', 21);
+		if ($grace_days < 1) {
+			$grace_days = 1;
+		}
+
+		$within_grace = (time() - $since) < ($grace_days * DAY_IN_SECONDS);
+
+		$this->emsfb_pro_log(sprintf(
+			'update_pro_status_efb: licence server gave no verdict (%s). %s',
+			$reason,
+			$within_grace ? 'Keeping Pro active within grace period.' : 'Grace period exhausted; Pro suspended (key retained).'
+		));
+
+		// The key is never deleted on a non-authoritative outcome.
+		update_option('emsfb_pro_activeCode', $code);
+
+		if ($within_grace) {
+			update_option('emsfb_pro', 1);
+			// Push the next check out a little so a hard outage is not retried
+			// on every single request.
+			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s', time() - (5 * DAY_IN_SECONDS)));
+			return true;
+		}
+
+		// Until now the only sign an administrator got was Pro features quietly
+		// disappearing, with nothing in the panel explaining why. Tell both
+		// administrators what happened and how to get Pro back.
+		$this->notify_license_suspended_efb($code, $reason, $since, $grace_days);
+
+		update_option('emsfb_pro', 0);
+		return false;
+	}
+
+	/**
+	 * Email the site administrators once when a licence outage suspends Pro.
+	 *
+	 * Keyed to the failure streak that caused the suspension: one email per
+	 * streak, so a licence check that keeps failing every few hours cannot fill
+	 * the inbox. update_pro_status_efb() drops the marker the moment the licence
+	 * server answers again, which re-arms the notice for the next real outage.
+	 *
+	 * @param string $code       Activation code (masked before it is shown).
+	 * @param string $reason     Diagnostic reason of the last failed check.
+	 * @param int    $since      Timestamp of the first failed check in this streak.
+	 * @param int    $grace_days Grace period that has just run out.
+	 * @return bool Whether the message was handed to the mailer.
+	 */
+	public function notify_license_suspended_efb($code, $reason, $since, $grace_days) {
+		$since = (int) $since;
+		if ($since > 0 && (int) get_option('emsfb_license_suspend_notified', 0) === $since) {
+			return false;
+		}
+
+		$settings = get_setting_Emsfb('decoded');
+		if (!emsfb_is_email_sending_enabled_efb($settings)) {
+			// The site is configured as unable to send email, so nothing would
+			// arrive. The marker stays unset: the notice is still owed and goes
+			// out on the next failed check once sending is switched on.
+			return false;
+		}
+
+		$to = array();
+		$admin_email = get_option('admin_email');
+		if (is_email($admin_email)) {
+			$to[] = $admin_email;
+		}
+		if (is_object($settings) && isset($settings->emailSupporter) && is_email($settings->emailSupporter)) {
+			$to[] = $settings->emailSupporter;
+		}
+		// Both addresses are usually the same one; a duplicate would deliver the
+		// same warning twice. Kept to two entries at most because
+		// send_email_state_new() reads index 2 of the list as the From address.
+		$to = array_values(array_unique($to));
+		if (empty($to)) {
+			return false;
+		}
+
+		update_option('emsfb_license_suspend_notified', $since, false);
+
+		$subject = sprintf(
+			/* translators: %s: site name. */
+			esc_html__('Action needed: Easy Form Builder Pro is paused on %s', 'easy-form-builder'),
+			wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES)
+		);
+
+		$this->emsfb_pro_log('notify_license_suspended_efb: emailing ' . implode(', ', $to) . ' (reason: ' . $reason . ')');
+
+		return (bool) $this->send_email_state_new(
+			$to,
+			$subject,
+			$this->license_suspended_email_body_efb($code, $reason, $since, $grace_days),
+			0,
+			'licenseSuspended',
+			admin_url('admin.php?page=Emsfb&state=setting'),
+			'null'
+		);
+	}
+
+	/**
+	 * Body of the "Pro features are paused" email.
+	 *
+	 * Written for an administrator who has never seen a licence error: what
+	 * happened, what is still safe, and the three steps that bring Pro back.
+	 * The support diagnostics sit at the bottom, and the activation code is
+	 * masked so a forwarded copy cannot leak it.
+	 *
+	 * @param string $code       Activation code.
+	 * @param string $reason     Diagnostic reason of the last failed check.
+	 * @param int    $since      Timestamp of the first failed check in this streak.
+	 * @param int    $grace_days Grace period that has just run out.
+	 * @return string HTML fragment for the plugin's email template.
+	 */
+	private function license_suspended_email_body_efb($code, $reason, $since, $grace_days) {
+		$align   = is_rtl() ? 'right' : 'left';
+		$brand   = get_locale() === 'fa_IR' ? 'https://easyformbuilder.ir' : untrailingslashit(EMSFB_SERVER_URL);
+		$days    = max(1, (int) floor((time() - (int) $since) / DAY_IN_SECONDS));
+		$support = $brand . '/support/';
+		$renew   = $brand . '/register-costumer?renew=' . rawurlencode((string) $code);
+
+		$intro = sprintf(
+			/* translators: 1: number of days, 2: site name. */
+			esc_html__('Easy Form Builder could not confirm your Pro licence for %1$s days in a row, so the Pro features on %2$s are paused for now.', 'easy-form-builder'),
+			'<strong>' . esc_html(number_format_i18n($days)) . '</strong>',
+			'<strong>' . esc_html(wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES)) . '</strong>'
+		);
+
+		$safe_note = esc_html__('Your forms, entries and settings are untouched, every free feature keeps working, and your activation code is still stored &mdash; nothing was deleted.', 'easy-form-builder');
+
+		$steps = array(
+			sprintf(
+				/* translators: 1: opening bold tag, 2: closing bold tag. */
+				esc_html__('Open %1$sEasy Form Builder &rarr; Settings%2$s and press %1$sSave%2$s. That checks the licence again straight away; if the connection is back, Pro switches on within a minute.', 'easy-form-builder'),
+				'<strong>',
+				'</strong>'
+			),
+			sprintf(
+				/* translators: %s: licence server address. */
+				esc_html__('Still paused? Ask your hosting provider to allow outgoing HTTPS connections to %s &mdash; a firewall, proxy or regional block is the usual cause &mdash; then repeat step 1.', 'easy-form-builder'),
+				'<strong>whitestudio.team</strong>'
+			),
+			sprintf(
+				/* translators: 1: opening link tag, 2: closing link tag. */
+				esc_html__('If your subscription has expired, or you moved this website to a new domain, %1$srenew or re-activate your licence%2$s and paste the new code into Settings.', 'easy-form-builder'),
+				'<a href="' . esc_url($renew) . '" target="_blank" style="color:#202a8d;">',
+				'</a>'
+			),
+		);
+
+		$rows = array(
+			esc_html__('Website', 'easy-form-builder')            => esc_html(home_url()),
+			esc_html__('Reason', 'easy-form-builder')             => $this->license_failure_reason_text_efb($reason),
+			esc_html__('First failed check', 'easy-form-builder') => esc_html(wp_date(get_option('date_format', 'Y-m-d'), (int) $since)),
+			esc_html__('Grace period', 'easy-form-builder')       => sprintf(
+				/* translators: %s: number of days. */
+				esc_html__('%s days', 'easy-form-builder'),
+				esc_html(number_format_i18n((int) $grace_days))
+			),
+			esc_html__('Activation code', 'easy-form-builder')    => esc_html($this->mask_license_code_efb($code)),
+			esc_html__('Error code', 'easy-form-builder')         => esc_html((string) $reason) . ' &middot; ' . esc_html('v' . EMSFB_PLUGIN_VERSION),
+		);
+
+		$html = '<div style="text-align:' . $align . ';font-size:15px;line-height:1.9;color:#333333;">';
+		$html .= '<p style="margin:0 0 14px 0;">' . $intro . '</p>';
+		$html .= '<p style="margin:0 0 18px 0;padding:12px 16px;background-color:#f1f5f9;border-radius:8px;color:#334155;">' . $safe_note . '</p>';
+		$html .= '<p style="margin:0 0 6px 0;font-weight:700;">' . esc_html__('How to bring Pro back', 'easy-form-builder') . '</p>';
+		$html .= '<ol style="margin:0;padding-' . $align . ':20px;">';
+		foreach ($steps as $step) {
+			$html .= '<li style="margin:0 0 8px 0;">' . $step . '</li>';
+		}
+		$html .= '</ol>';
+
+		$html .= '<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:24px auto;">
+			<tr>
+				<td align="center" style="background-color:#202a8d;border-radius:8px;padding:14px 28px;">
+					<a href="' . esc_url(admin_url('admin.php?page=Emsfb&state=setting')) . '" target="_blank" style="color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;">'
+						. esc_html__('Check my licence now', 'easy-form-builder') .
+					'</a>
+				</td>
+			</tr>
+		</table>';
+
+		$html .= '<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-collapse:collapse;font-size:13px;color:#4b5563;">';
+		foreach ($rows as $label => $value) {
+			$html .= '<tr>'
+				. '<td style="padding:6px 10px 6px 0;border-bottom:1px solid #e5e7eb;text-align:' . $align . ';white-space:nowrap;">' . $label . '</td>'
+				. '<td style="padding:6px 0;border-bottom:1px solid #e5e7eb;text-align:' . $align . ';">' . $value . '</td>'
+				. '</tr>';
+		}
+		$html .= '</table>';
+
+		$html .= '<p style="margin:16px 0 0 0;font-size:13px;color:#6b7280;">' . sprintf(
+			/* translators: 1: opening link tag, 2: closing link tag. */
+			esc_html__('Still stuck? Send the details above to %1$sour support team%2$s and we will take it from there.', 'easy-form-builder'),
+			'<a href="' . esc_url($support) . '" target="_blank" style="color:#202a8d;">',
+			'</a>'
+		) . '</p>';
+		$html .= '</div>';
+
+		return $html;
+	}
+
+	/**
+	 * Turn a licence failure code into a sentence an administrator can act on.
+	 *
+	 * Every reason here means "no verdict was received", never "your licence is
+	 * invalid", so the wording must not make a customer think they were
+	 * rejected.
+	 *
+	 * @param string $reason Diagnostic reason recorded by the failed check.
+	 * @return string
+	 */
+	private function license_failure_reason_text_efb($reason) {
+		$reason = (string) $reason;
+
+		if (strpos($reason, 'http_') === 0) {
+			return esc_html__('The licence server answered with an error and could not confirm your licence.', 'easy-form-builder');
+		}
+
+		switch ($reason) {
+			case 'request_failed':
+			case 'probe_failed':
+				return esc_html__('Your website could not reach the licence server &mdash; almost always a network, firewall or DNS restriction on the hosting side.', 'easy-form-builder');
+			case 'unparsable_response':
+			case 'missing_state':
+			case 'unknown_state':
+				return esc_html__('The licence server&rsquo;s answer arrived damaged, usually because a security plugin, proxy or CDN changed it on the way.', 'easy-form-builder');
+		}
+
+		return esc_html__('The licence check could not be completed.', 'easy-form-builder');
+	}
+
+	/**
+	 * Show enough of the activation code to identify it, never the whole key.
+	 *
+	 * @param string $code Activation code.
+	 * @return string
+	 */
+	private function mask_license_code_efb($code) {
+		$code = (string) $code;
+		if (strlen($code) <= 12) {
+			return $code === '' ? '&mdash;' : str_repeat('*', strlen($code));
+		}
+
+		return substr($code, 0, 6) . str_repeat('*', 6) . substr($code, -4);
 	}
 
 	public function weekly_check_pro_efb($activeCode) {
@@ -4545,24 +4970,28 @@ public function addon_add_efb($value) {
 		$diff = ($now - $ac_date) / (60 * 60 * 24);
 		if ($diff > 7) {
 
-			$r = $this->update_pro_status_efb($activeCode);
-			if ($r==1) {
-				update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
-				$this->delete_old_rows_emsfb_stts_();
-				return true;
-			} else {
-				update_option('emsfb_pro' , 0);
-				delete_option('emsfb_pro_ac_date');
-				update_option('emsfb_pro_activeCode', $activeCode);
-				return false;
-			}
+			// update_pro_status_efb() is now the single place that decides what a
+			// given outcome means, including the grace period for outages, so its
+			// verdict is taken as-is rather than being overridden here.
+			return (bool) $this->update_pro_status_efb($activeCode);
 		}
 		return true;
 	}
 	private function validated_pro_efb($s) {
-		$_http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
-		$server_name = str_replace("www.", "", $_http_host);
-		return isset($s) && md5($server_name) == $s ? true : false;
+		if (!isset($s) || '' === (string) $s) {
+			return false;
+		}
+
+		// Resolved from the stored site URL, with HTTP_HOST only as a fallback:
+		// under WP-CLI and WP-Cron there is no HTTP_HOST, so this used to compare
+		// against md5('') and fail, switching Pro off during automated updates.
+		foreach ($this->license_domain_candidates_efb() as $host) {
+			if (md5($host) === $s) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 	public function is_efb_pro($s=1) {
 
@@ -4603,9 +5032,17 @@ public function addon_add_efb($value) {
 					// wp-content/debug.log after the update (throttled to 12h).
 					$this->emsfb_pro_log('is_efb_pro: farsi site - local activation code valid, license active (offline mode)', 'farsi_is_pro_ok');
 				}
-				return $this->weekly_check_pro_efb($activeCode);
+				// Answer from local state only. This runs during public form
+				// rendering, and it used to fire the weekly licence round-trip
+				// inline - making a real visitor wait for a 2s connectivity probe
+				// plus a full API call, and letting that page view revoke the
+				// licence. Revalidation now happens on the emsfb_revalidate_license
+				// cron event; see cron_check_pro_efb().
+				return true;
 			}
-			delete_option('emsfb_pro');
+			// Local code does not match this domain: stop granting Pro, but keep
+			// the key so the customer can re-activate.
+			update_option('emsfb_pro', 0);
 			if ($this->is_farsi_offline_license_efb()) {
 				$this->emsfb_pro_log('is_efb_pro: farsi site - local activation code INVALID for current domain, pro disabled');
 			}
@@ -4615,17 +5052,41 @@ public function addon_add_efb($value) {
 			if ($this->validated_pro_efb($activeCode)) {
 				return $this->update_pro_status_efb($s);
 			}
-			delete_option('emsfb_pro');
+			update_option('emsfb_pro', 0);
 			delete_option('emsfb_pro_ac_date');
-			delete_option('emsfb_pro_activeCode');
 		}
 		return false;
+	}
+
+	/**
+	 * Scheduled licence revalidation (emsfb_revalidate_license).
+	 *
+	 * Runs the remote check that is::efb_pro() used to run inline, so no visitor
+	 * ever waits for the licence server and no page view can revoke a licence.
+	 *
+	 * @return bool|null Effective Pro state, or null when there is nothing to check.
+	 */
+	public function cron_check_pro_efb() {
+		$is_pro = (int) get_option('emsfb_pro', 2);
+		if (3 === $is_pro) {
+			return true;
+		}
+
+		$activeCode = (string) get_option('emsfb_pro_activeCode', '');
+		if (strlen($activeCode) < 5) {
+			return null;
+		}
+
+		return $this->weekly_check_pro_efb($activeCode);
 	}
 
 	public function render_pro_gate_efb( $addon_name = '' ) {
 		$pro_status = (int) get_option( 'emsfb_pro', -1 );
 
-		if ( $pro_status === 1 || $pro_status === 3 ) {
+		// Free Plus has its own built-in features, but Pro add-ons require an
+		// active Pro package. Treating package 3 as Pro here made an installed
+		// paid add-on reachable after a confirmed Pro -> Free Plus downgrade.
+		if ( $pro_status === 1 ) {
 			return false;
 		}
 

@@ -175,23 +175,68 @@ public function check_nonce_permission_efb($request) {
 		$sid = isset( $_SERVER['HTTP_SID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SID'] ) ) : '';
 		$fid = isset( $_SERVER['HTTP_X_EFB_FORM_ID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_EFB_FORM_ID'] ) ) : (isset( $_SERVER['HTTP_FORM_ID'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_FORM_ID'] ) ) : '');
 
-		if ( $sid === '' ) {
-			return new \WP_Error( 'rest_forbidden', __( 'Invalid or expired session', 'easy-form-builder' ), array( 'status' => 403 ) );
-		}
-
 		if ( ! $this->efbFunction ) {
 			$this->efbFunction = get_efbFunction();
 		}
 
-		if ( ! $this->efbFunction->efb_code_validate_select( $sid, $fid ) ) {
-			return new \WP_Error( 'rest_forbidden', __( 'Invalid or expired session', 'easy-form-builder' ), array( 'status' => 403 ) );
+		// Requiring a live sid here is what made this endpoint useless in the one
+		// situation it exists for. On a page-cached site the sid is frozen into
+		// the stored HTML alongside the nonce, so by the time a visitor needs a
+		// refresh that sid has expired too and the refresh 403s - leaving the
+		// form permanently unsubmittable until someone purges the cache.
+		//
+		// Withholding the token protects nothing: for a logged-out visitor
+		// wp_create_nonce('wp_rest') is computed from user id 0 and an empty
+		// session token, so every anonymous visitor shares the same value and
+		// anyone can obtain one by loading any page containing a form. We
+		// therefore issue it, and rate-limit per IP so this cannot be used to
+		// hammer the site.
+		if ( ! $this->efb_nonce_refresh_allowed_efb() ) {
+			return new \WP_Error(
+				'rest_too_many_requests',
+				__( 'Too many requests. Please try again shortly.', 'easy-form-builder' ),
+				array( 'status' => 429 )
+			);
 		}
 
-		if ( method_exists( $this->efbFunction, 'efb_code_touch_session' ) ) {
+		// A still-valid session is extended so a genuinely open form keeps
+		// working; an expired or absent one no longer blocks the refresh.
+		if ( '' !== $sid && method_exists( $this->efbFunction, 'efb_code_touch_session' ) ) {
 			$this->efbFunction->efb_code_touch_session( $sid, $fid );
 		}
 
 		return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+	}
+
+	/**
+	 * Per-IP throttle for the anonymous nonce refresh above.
+	 *
+	 * @return bool True when the caller may receive a fresh nonce.
+	 */
+	private function efb_nonce_refresh_allowed_efb() {
+		if ( ! $this->efbFunction ) {
+			$this->efbFunction = get_efbFunction();
+		}
+
+		$ip = method_exists( $this->efbFunction, 'get_ip_address' ) ? $this->efbFunction->get_ip_address() : '';
+		if ( '' === $ip ) {
+			return true;
+		}
+
+		$limit = (int) apply_filters( 'efb_nonce_refresh_per_minute', 30 );
+		if ( $limit <= 0 ) {
+			return true;
+		}
+
+		$key   = 'efb_nrl_' . md5( $ip . '|' . gmdate( 'YmdHi' ) );
+		$count = (int) get_transient( $key );
+		if ( $count >= $limit ) {
+			return false;
+		}
+
+		set_transient( $key, $count + 1, 2 * MINUTE_IN_SECONDS );
+
+		return true;
 	}
 
 	public function init_elementor_compatibility() {
@@ -1113,7 +1158,9 @@ public function check_nonce_permission_efb($request) {
 								$autofill_api = isset($valj_efb[0]->autofill_api) ? $valj_efb[0]->autofill_api : false;
 								$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
 								if($autofill_api && !empty($autofill_api_id)){
-									wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+									$autofill_api_public_path = EMSFB_PLUGIN_DIRECTORY . 'vendor/autofill/assets/js/autofill-api-public-efb.js';
+									$autofill_api_public_version = is_readable($autofill_api_public_path) ? (string) filemtime($autofill_api_public_path) : EMSFB_PLUGIN_VERSION;
+									wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js', array('jquery'), $autofill_api_public_version);
 								}
 							}
 						}
@@ -1124,7 +1171,9 @@ public function check_nonce_permission_efb($request) {
 							}
 							$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
 							if(!empty($autofill_api_id)){
-								wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+								$autofill_api_public_path = EMSFB_PLUGIN_DIRECTORY . 'vendor/autofill/assets/js/autofill-api-public-efb.js';
+								$autofill_api_public_version = is_readable($autofill_api_public_path) ? (string) filemtime($autofill_api_public_path) : EMSFB_PLUGIN_VERSION;
+								wp_enqueue_script('efb-autofill-api', EMSFB_PLUGIN_URL . 'vendor/autofill/assets/js/autofill-api-public-efb.js', array('jquery'), $autofill_api_public_version);
 							}
 						}
 

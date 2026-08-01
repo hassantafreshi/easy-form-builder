@@ -332,12 +332,20 @@ Notification System for Form Submissions.
 - ✔️ Conditional Webhook
 
 ### Google Sheet Export
-- Service Account Connection & Existing/New Spreadsheet Binding
-- Sync Logs
+- ✔️ Service Account Connection & Existing/New Spreadsheet Binding
+- ✔️ Sync Logs
 - Field Mapping & Retry Queue (Coming soon)
 
-### Shield Security
+### Shield Security Plugin Integration
 - ✔️ [Shield Security](https://wordpress.org/plugins/wp-simple-firewall/) silentCAPTCHA Integration
+
+### Security & Spam Protection
+- ✔️ blocking WordPress form spam without CAPTCHA - invisible, behavior-based bot detection with a hidden honeypot field, signed single-use security tokens, and per-IP rate limiting for form submissions, file uploads, confirmation-code lookups, public replies, and payment requests. It also protects your notification budget by stopping suspicious entries from consuming email, SMS, Telegram, webhook, or Google Sheets quota, supports an IP allowlist and blocklist, and keeps privacy-aware security logs that store hashed identifiers instead of raw IP addresses. It starts in Monitor-only mode, so you can review real traffic before turning on blocking
+
+### AI Integration
+
+
+
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->

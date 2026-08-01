@@ -225,8 +225,9 @@ class EmsfbEmailHandler {
         };
 
         // Human Shield (or any other guard) may veto submit-driven notification
-        // emails. Admin diagnostics (test mail, problem reports) are never gated.
-        $efb_shield_internal_states = array("reportProblem", "testMailServer", "addonsDlProblem");
+        // emails. Admin diagnostics (test mail, problem reports, the licence
+        // suspension warning) are never gated.
+        $efb_shield_internal_states = array("reportProblem", "testMailServer", "addonsDlProblem", "licenseSuspended");
         if (!(is_string($state) && in_array($state, $efb_shield_internal_states, true))) {
             $efb_shield_email_context = array(
                 'channel'    => 'email',
@@ -486,9 +487,14 @@ class EmsfbEmailHandler {
 
         $isRegistrationState = in_array($state, ['newUser', 'register']);
         $isRecoveryState = $state === 'recovery';
+        // Administrator notice that already carries its own call to action. The
+        // generic "View Messages" button belongs to form traffic and would point
+        // nowhere useful here, so this state renders the message exactly as the
+        // caller composed it.
+        $isAdminNoticeState = $state === 'licenseSuspended';
 
         $tracking_section = "";
-        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState) {
+        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState && !$isAdminNoticeState) {
             $safe_link = esc_url($link);
             $tracking_section = "
             <div style='text-align:center; margin: 30px 0;'>
@@ -521,9 +527,15 @@ class EmsfbEmailHandler {
             $title = __('Password Reset', 'easy-form-builder');
         }
 
+        if ($isAdminNoticeState) {
+            $title = __('Pro features are paused', 'easy-form-builder');
+        }
+
         if ($state == "testMailServer") {
             $title = $lang['serverEmailAble'];
             $message = $this->generate_test_server_message($lang, $l, $wp_lan);
+        } else if ($isAdminNoticeState) {
+            $message = is_string($m) ? $m : '';
         } else if ($isRecoveryState) {
             // Recovery email - m contains username, link contains the full recovery URL
             $message = $this->generate_recovery_content($m, $lang, $link, $btnBgColor, $btnTextColor, $btnFontFamily);
