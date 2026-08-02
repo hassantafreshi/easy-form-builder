@@ -141,7 +141,10 @@ class Install {
 
 				$user_id = get_current_user_id();
 				$usr =get_user_by('id',$user_id);
-				$eml=$usr->user_email;
+				// Activation may run without a current user (ID 0). Do not read a
+				// property from false here: PHP emits that warning as plugin output,
+				// which makes WordPress report an "unexpected output" activation error.
+				$eml = $usr ? $usr->user_email : '';
 				if($eml==NULL || $eml=='') {
 					$usr =get_user_by('id',1);
 					$eml = $usr ? $usr->user_email :'';
@@ -166,6 +169,21 @@ class Install {
 				$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id()
 				, 'date'=>current_time('mysql') , 'email'=>'' ));
 
+			}
+
+			// Only a genuinely new settings row should start the first-run guide.
+			// Updates and existing installations never set this flag again.
+			if ($v === NULL && $s) {
+				/*
+				 * This option can survive a plugin reset while the plugin tables are
+				 * removed. add_option() silently leaves a previous completed value (0)
+				 * untouched, which made a new settings row look like an existing site
+				 * and skipped the email step. A newly-created settings row is the one
+				 * authoritative first-run signal, so explicitly reset the guide here.
+				 */
+				update_option('emsfb_onboarding_pending', 1, false);
+				update_option('emsfb_onboarding_initial_install', 1, false);
+				delete_option('emsfb_onboarding_completed_at');
 			}
 
 		// update_option(), not add_option(): add_option() leaves an existing value

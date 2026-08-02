@@ -2780,14 +2780,22 @@ function show_setting_up_easy_form_builder_Efb() {
     </div>
     <style>
       .efb-setup-container {
-        padding: 30px;
+        box-sizing: border-box;
+        padding: clamp(16px, 3vh, 30px);
         max-width: 100%;
         margin: 0 auto;
+        overflow: hidden;
+      }
+
+      .efb-onboarding-test-button,
+      .efb-onboarding-test-button span,
+      .efb-onboarding-test-button i {
+        color: #fff !important;
       }
 
       .efb-setup-header {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: clamp(18px, 3vh, 40px);
       }
 
       .efb-header-content {
@@ -2821,8 +2829,8 @@ function show_setting_up_easy_form_builder_Efb() {
       .efb-plans-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 25px;
-        margin-bottom: 40px;
+        gap: clamp(14px, 2vw, 25px);
+        margin-bottom: clamp(18px, 3vh, 40px);
         align-items: stretch;
       }
 
@@ -2897,11 +2905,23 @@ function show_setting_up_easy_form_builder_Efb() {
       }
 
       .efb-card-content {
-        padding: 30px 25px;
+        padding: clamp(18px, 2.6vh, 30px) clamp(18px, 2vw, 25px);
         height: 100%;
         display: flex;
         flex-direction: column;
-        min-height: 450px;
+        min-height: 380px;
+      }
+
+      @media (max-height: 780px) and (min-width: 769px) {
+        .efb-main-title { font-size: 1.7rem; margin-bottom: 7px; }
+        .efb-main-title i { font-size: 1.55rem; }
+        .efb-subtitle { font-size: .95rem; }
+        .efb-card-content { min-height: 320px; padding: 17px 18px; }
+        .efb-plan-description { margin-bottom: 14px; font-size: .85rem; }
+        .efb-feature-item { margin-bottom: 7px; font-size: .8rem; }
+        .efb-plan-header { margin-bottom: 8px; }
+        .efb-plan-action .efb-btn { min-height: 34px; padding: 7px 12px; }
+        .efb-setup-footer { padding-top: 0; }
       }
 
       .efb-recommended-badge {
@@ -3503,21 +3523,19 @@ function show_setting_up_easy_form_builder_Efb() {
 }
 
 function efb_plan_downgrade_copy_efb(currentPlan, targetPlan, removesActivationCode) {
-    const isFarsi = typeof efb_var !== 'undefined' && efb_var.language === 'fa_IR';
     const isProToFreePlus = currentPlan === 'pro' && targetPlan === 'free_plus';
     const isFreePlusToFree = currentPlan === 'free_plus' && targetPlan === 'free';
+    const text = (key, fallback) => (efb_var && efb_var.text && efb_var.text[key]) || fallback;
 
-    if (isFarsi) {
-        if (isProToFreePlus) return { title: 'تغییر پلن به Free Plus؟', body: 'با ادامه، کد فعال‌سازی Pro از این سایت حذف می‌شود. افزونه‌های Pro تا زمانی که دوباره به Pro ارتقا دهید در دسترس نخواهند بود. فرم‌ها، پاسخ‌ها و تنظیمات شما حذف نمی‌شوند.', cancel: 'انصراف', confirm: 'تغییر به Free Plus' };
-        if (isFreePlusToFree) return { title: 'تغییر پلن به Free؟', body: (removesActivationCode ? 'کد فعال‌سازی ذخیره‌شده از این سایت حذف می‌شود. ' : '') + 'قابلیت‌های پیشرفته، فیلدهای Pro و افزونه‌های فعال دیگر در دسترس نخواهند بود. فرم‌ها، پاسخ‌ها و تنظیمات شما حذف نمی‌شوند و با ارتقای دوباره قابل استفاده خواهند بود.', cancel: 'انصراف', confirm: 'تغییر به Free' };
-        return { title: 'تغییر پلن به Free؟', body: 'با ادامه، کد فعال‌سازی Pro از این سایت حذف می‌شود. قابلیت‌های پیشرفته، فیلدهای Pro و افزونه‌ها تا زمانی که دوباره ارتقا دهید در دسترس نخواهند بود. فرم‌ها، پاسخ‌ها و تنظیمات شما حذف نمی‌شوند.', cancel: 'انصراف', confirm: 'تغییر به Free' };
-    }
-    if (isProToFreePlus) return { title: 'Switch to Free Plus?', body: 'Your Pro activation code will be removed from this site. Pro add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.', cancel: 'Keep Pro', confirm: 'Switch to Free Plus' };
-    if (isFreePlusToFree) return { title: 'Switch to Free?', body: (removesActivationCode ? 'The stored activation code will be removed from this site. ' : '') + 'Advanced features, Pro fields and active add-ons will no longer be available. Your forms, entries and settings will not be deleted, and will be available again if you upgrade.', cancel: 'Keep Free Plus', confirm: 'Switch to Free' };
-    return { title: 'Switch to Free?', body: 'Your Pro activation code will be removed from this site. Advanced features, Pro fields and add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.', cancel: 'Keep Pro', confirm: 'Switch to Free' };
+    // Free Plus never promises Pro add-ons. Its downgrade warning should only
+    // describe the capabilities that Free Plus actually adds over Free.
+    if (isFreePlusToFree) return { title: text('downgradeFreePlusToFreeTitle', 'Switch to Free?'), body: text('downgradeFreePlusToFreeAdvancedBody', 'Advanced features and advanced fields used in your forms will be disabled. Your forms, entries and settings will not be deleted, and will be available again if you upgrade.'), cancel: text('keepFreePlus', 'Keep Free Plus'), confirm: text('switchToFree', 'Switch to Free') };
+
+    if (isProToFreePlus) return { title: text('downgradeProToFreePlusTitle', 'Switch to Free Plus?'), body: text('downgradeProToFreePlusBody', 'Your Pro activation code will be removed from this site. Pro add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.'), cancel: text('keepPro', 'Keep Pro'), confirm: text('switchToFreePlus', 'Switch to Free Plus') };
+    return { title: text('downgradeFreePlusToFreeTitle', 'Switch to Free?'), body: text('downgradeProToFreeBody', 'Your Pro activation code will be removed from this site. Advanced features, Pro fields and add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.'), cancel: text('keepPro', 'Keep Pro'), confirm: text('switchToFree', 'Switch to Free') };
 }
 
-function show_plan_downgrade_confirmation_efb(copy, onConfirm) {
+function show_plan_downgrade_confirmation_efb(copy, onConfirm, onCancel) {
     const existing = document.getElementById('efb-plan-downgrade-confirmation');
     if (existing) existing.remove();
 
@@ -3527,7 +3545,7 @@ function show_plan_downgrade_confirmation_efb(copy, onConfirm) {
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     modal.setAttribute('aria-labelledby', 'efb-plan-downgrade-title');
-    modal.innerHTML = '<style>#efb-plan-downgrade-confirmation{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.62);backdrop-filter:blur(3px)}#efb-plan-downgrade-confirmation .efb-plan-downgrade-dialog{width:min(100%,540px);padding:30px;border-radius:18px;background:#fff;box-shadow:0 24px 64px rgba(15,23,42,.28);text-align:start}#efb-plan-downgrade-confirmation .efb-plan-downgrade-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;border-radius:50%;background:#fff4e5;color:#c2410c;font-size:22px}#efb-plan-downgrade-confirmation h3{margin:0 0 10px;color:#172554;font-size:20px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-message{margin:0;color:#475569;line-height:1.75}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}#efb-plan-downgrade-confirmation .efb-btn-danger{border:1px solid #b91c1c;background:#b91c1c;color:#fff}#efb-plan-downgrade-confirmation .efb-btn-danger:hover{background:#991b1b}@media(max-width:480px){#efb-plan-downgrade-confirmation{padding:12px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-dialog{padding:24px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions{flex-direction:column-reverse}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions button{width:100%}}</style><div class="efb-plan-downgrade-dialog" role="document"><div class="efb-plan-downgrade-icon"><i class="bi bi-exclamation-triangle-fill"></i></div><h3 id="efb-plan-downgrade-title"></h3><p class="efb-plan-downgrade-message"></p><div class="efb-plan-downgrade-actions"><button type="button" class="efb-btn efb-btn-outline efb-plan-downgrade-cancel"></button><button type="button" class="efb-btn efb-btn-danger efb-plan-downgrade-confirm"></button></div></div>';
+    modal.innerHTML = '<style>#efb-plan-downgrade-confirmation{position:fixed;inset:0;z-index:1000002;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.62);backdrop-filter:blur(4px);animation:efbDowngradeBackdropIn .2s ease-out}#efb-plan-downgrade-confirmation .efb-plan-downgrade-dialog{width:min(100%,540px);padding:30px;border-radius:18px;background:#fff;box-shadow:0 24px 64px rgba(15,23,42,.28);text-align:start;animation:efbDowngradeDialogIn .28s cubic-bezier(.2,.8,.2,1)}#efb-plan-downgrade-confirmation .efb-plan-downgrade-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;border-radius:50%;background:#fff4e5;color:#c2410c;font-size:22px}#efb-plan-downgrade-confirmation h3{margin:0 0 10px;color:#172554;font-size:20px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-message{margin:0;color:#475569;line-height:1.75}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}#efb-plan-downgrade-confirmation .efb-btn-danger{border:1px solid #b91c1c;background:#b91c1c;color:#fff}#efb-plan-downgrade-confirmation .efb-btn-danger:hover{background:#991b1b;transform:translateY(-1px)}@keyframes efbDowngradeBackdropIn{from{opacity:0}to{opacity:1}}@keyframes efbDowngradeDialogIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}@media(max-width:480px){#efb-plan-downgrade-confirmation{padding:12px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-dialog{padding:24px}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions{flex-direction:column-reverse}#efb-plan-downgrade-confirmation .efb-plan-downgrade-actions button{width:100%}}</style><div class="efb-plan-downgrade-dialog" role="document"><div class="efb-plan-downgrade-icon"><i class="bi bi-exclamation-triangle-fill"></i></div><h3 id="efb-plan-downgrade-title"></h3><p class="efb-plan-downgrade-message"></p><div class="efb-plan-downgrade-actions"><button type="button" class="efb-btn efb-btn-outline efb-plan-downgrade-cancel rounded p-2"></button><button type="button" class="efb-btn efb-btn-danger efb-plan-downgrade-confirm efb rounded-2 p-2"></button></div></div>';
 
     modal.querySelector('#efb-plan-downgrade-title').textContent = copy.title;
     modal.querySelector('.efb-plan-downgrade-message').textContent = copy.body;
@@ -3536,17 +3554,266 @@ function show_plan_downgrade_confirmation_efb(copy, onConfirm) {
     cancel.textContent = copy.cancel;
     confirm.textContent = copy.confirm;
 
-    const dismiss = () => {
+    const dismiss = (cancelled) => {
         document.removeEventListener('keydown', onKeydown);
         modal.remove();
+        if (cancelled && typeof onCancel === 'function') onCancel();
     };
-    const onKeydown = (event) => { if (event.key === 'Escape') dismiss(); };
-    cancel.addEventListener('click', dismiss);
-    modal.addEventListener('click', (event) => { if (event.target === modal) dismiss(); });
-    confirm.addEventListener('click', () => { dismiss(); onConfirm(); });
+    const onKeydown = (event) => { if (event.key === 'Escape') dismiss(true); };
+    cancel.addEventListener('click', () => dismiss(true));
+    modal.addEventListener('click', (event) => { if (event.target === modal) dismiss(true); });
+    confirm.addEventListener('click', () => { dismiss(false); onConfirm(); });
     document.body.appendChild(modal);
     document.addEventListener('keydown', onKeydown);
     cancel.focus();
+}
+
+function efb_show_downgrade_after_setup_efb(copy, onConfirm) {
+    const wasOnboarding = efb_setup_overlay_is_onboarding_efb === true;
+    const reopenPlanPicker = function() {
+        showSetupAsOverlayPage({ onboarding: wasOnboarding });
+    };
+    const openConfirmation = function() {
+        show_plan_downgrade_confirmation_efb(copy, onConfirm, reopenPlanPicker);
+    };
+    if (document.getElementById('efb-setup-overlay')) {
+        closeSetupOverlay_efb(openConfirmation);
+    } else {
+        openConfirmation();
+    }
+}
+
+function efb_onboarding_text_efb(key, fallback) {
+    return (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) || fallback;
+}
+
+function efb_onboarding_escape_efb(value) {
+    const el = document.createElement('div');
+    el.textContent = value || '';
+    return el.innerHTML;
+}
+
+let efb_onboarding_email_test_state_efb = null;
+
+function efb_onboarding_live_text_efb(key, fallback) {
+    return efb_onboarding_text_efb(key, fallback);
+}
+
+function efb_onboarding_live_step_efb(label, state) {
+    const icon = state === 'done' ? 'bi-check-lg' : state === 'error' ? 'bi-x-lg' : state === 'warning' ? 'bi-exclamation-lg' : state === 'active' ? 'bi-arrow-repeat' : 'bi-dot';
+    return '<span class="efb-onboarding-live-step is-' + state + '"><i class="bi ' + icon + '"></i><span>' + efb_onboarding_escape_efb(label) + '</span></span>';
+}
+
+function efb_onboarding_render_live_report_efb() {
+    const report = document.getElementById('efb-onboarding-email-report');
+    const state = efb_onboarding_email_test_state_efb;
+    if (!report || !state) return;
+    const steps = state.steps || {};
+    const test = state.test || {};
+    const result = state.result || {};
+    const delivery = result.delivery || {};
+    const facts = [];
+    if (test.recipient_email || delivery.recipient_email) facts.push(efb_onboarding_escape_efb(test.recipient_email || delivery.recipient_email));
+    if (result.grade_label || result.grade) facts.push(efb_onboarding_escape_efb(result.grade_label || result.grade));
+    if (result.score !== undefined && result.score !== null) facts.push(efb_onboarding_escape_efb(efb_onboarding_live_text_efb('score', 'Score: %s').replace('%s', result.score)));
+    if (delivery.waited_seconds !== undefined) facts.push(efb_onboarding_escape_efb(efb_onboarding_live_text_efb('timeWaited', 'Waited: %s').replace('%s', delivery.waited_seconds + 's')));
+    const percent = Math.max(8, Math.min(100, Number(state.percent || 8)));
+    report.className = 'efb-onboarding-report efb-onboarding-live-report is-' + (state.type || 'checking');
+    report.innerHTML = '<div class="efb-onboarding-live-head"><span>' + efb_onboarding_escape_efb(efb_onboarding_live_text_efb('emailServer', 'Email delivery check')) + '</span><strong>' + percent + '%</strong></div><div class="efb-onboarding-live-progress"><span style="width:' + percent + '%"></span></div><div class="efb-onboarding-live-steps">' + [
+        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepPrepareTest', 'Prepare'), steps.start || 'waiting'),
+        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepSendEmail', 'Send'), steps.send || 'waiting'),
+        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepWaitDelivery', 'Delivery'), steps.wait || 'waiting'),
+        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepQuickResult', 'Result'), steps.quick || 'waiting'),
+        efb_onboarding_live_step_efb(efb_onboarding_live_text_efb('stepFullReport', 'Report'), steps.full || 'waiting')
+    ].join('') + '</div><p class="efb-onboarding-live-message">' + efb_onboarding_escape_efb(state.message || '') + '</p>' + (facts.length ? '<div class="efb-onboarding-live-facts">' + facts.map(function(fact) { return '<span>' + fact + '</span>'; }).join('') + '</div>' : '');
+}
+
+function efb_onboarding_live_update_efb(next) {
+    efb_onboarding_email_test_state_efb = Object.assign(efb_onboarding_email_test_state_efb || {}, next || {});
+    efb_onboarding_render_live_report_efb();
+}
+
+function efb_onboarding_status_efb(type, message) {
+    efb_onboarding_live_update_efb({ type: type, message: message });
+}
+
+function efb_onboarding_set_finish_efb(enabled) {
+    const button = document.getElementById('efb-onboarding-finish');
+    if (button) button.disabled = !enabled;
+}
+
+function efb_onboarding_save_email_efb(email) {
+    return jQuery.ajax({
+        url: efb_var.ajax_url,
+        type: 'POST',
+        dataType: 'json',
+        data: { action: 'efb_save_onboarding_email', nonce: efb_var.nonce, email: email }
+    });
+}
+
+function efb_onboarding_finish_efb() {
+    const button = document.getElementById('efb-onboarding-finish');
+    if (!button || button.disabled) return;
+    button.disabled = true;
+    jQuery.ajax({
+        url: efb_var.ajax_url,
+        type: 'POST',
+        dataType: 'json',
+        data: { action: 'efb_complete_onboarding', nonce: efb_var.nonce }
+    }).done(function(response) {
+        if (response && response.success) {
+            efb_var.onboarding_pending = false;
+            closeSetupOverlay_efb();
+            show_success_notification_efb(efb_onboarding_text_efb('onboardingFinish', 'Finish setup'));
+            return;
+        }
+        button.disabled = false;
+    }).fail(function() { button.disabled = false; });
+}
+
+function efb_onboarding_poll_email_efb(test, email, attempt) {
+    const maxAttempts = 5;
+    jQuery.ajax({
+        url: efb_var.ajax_url,
+        type: 'POST',
+        dataType: 'json',
+        timeout: 35000,
+        data: { action: 'check_email_server_efb', nonce: efb_var.nonce, mode: 'result', test_hash: test.test_hash, admin_email: email }
+    }).done(function(response) {
+        const payload = response && response.data ? response.data : {};
+        const result = payload.result || {};
+        const status = result.status || '';
+        const pending = status === 'pending' || result.analysis_stage === 'pending';
+        const fullReportPending = status === 'analyzed' && result.analysis_stage === 'quick' && result.full_report_pending === true;
+        if (pending && attempt < maxAttempts) {
+            efb_onboarding_live_update_efb({
+                steps: { start: 'done', send: 'done', wait: 'active', quick: 'waiting', full: 'waiting' },
+                percent: Math.min(72, 35 + (attempt * 7)),
+                result: result
+            });
+            efb_onboarding_status_efb('checking', result.message || efb_onboarding_text_efb('onboardingTesting', 'Checking email delivery…'));
+            window.setTimeout(function() { efb_onboarding_poll_email_efb(test, email, attempt + 1); }, Math.max(4, Number(result.retry_after_seconds || 4)) * 1000);
+            return;
+        }
+        if (fullReportPending && attempt < 8) {
+            efb_onboarding_live_update_efb({
+                steps: { start: 'done', send: 'done', wait: 'done', quick: result.can_send_email ? 'done' : 'error', full: 'active' },
+                percent: 88,
+                result: result
+            });
+            efb_onboarding_status_efb('checking', result.message || efb_onboarding_live_text_efb('stepFullReportDesc', 'Preparing the detailed delivery report…'));
+            window.setTimeout(function() { efb_onboarding_poll_email_efb(test, email, attempt + 1); }, Math.max(10, Number(result.retry_after_seconds || 15)) * 1000);
+            return;
+        }
+        if (result.can_send_email === true) {
+            if (efb_var.setting) efb_var.setting.smtp = true;
+            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'done', quick: 'done', full: 'done' }, percent: 100, result: result });
+            efb_onboarding_status_efb('success', result.message || efb_onboarding_text_efb('onboardingTestPassed', 'Email delivery is ready. Form notifications can be sent.'));
+        } else if (pending || status === 'delayed') {
+            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'warning', quick: 'warning', full: 'waiting' }, percent: 100, result: result });
+            // The remote service's short "waiting" message is technically
+            // correct but does not tell an admin what to do next. Keep the
+            // report compact and give an actionable explanation instead.
+            efb_onboarding_status_efb('warning', efb_onboarding_text_efb('onboardingTestPendingGuidance', 'Your test email was sent, but delivery is not confirmed yet. Check the inbox or spam folder for the address below; you can finish setup and try again later from General Settings.'));
+        } else {
+            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'error', quick: 'error', full: 'waiting' }, percent: 100, result: result });
+            efb_onboarding_status_efb('error', result.message || payload.m || efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+        }
+        efb_onboarding_set_finish_efb(true);
+    }).fail(function() {
+        efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'error', quick: 'error', full: 'waiting' }, percent: 100 });
+        efb_onboarding_status_efb('error', efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+        efb_onboarding_set_finish_efb(true);
+    });
+}
+
+function efb_onboarding_start_email_test_efb() {
+    const input = document.getElementById('efb-onboarding-admin-email');
+    const button = document.getElementById('efb-onboarding-test-email');
+    const email = input ? input.value.trim() : '';
+    if (!input || !/^\S+@\S+\.\S+$/.test(email)) {
+        efb_onboarding_status_efb('error', efb_onboarding_text_efb('enterAdminEmail', 'Enter the admin email address to receive email notifications.'));
+        return;
+    }
+    button.disabled = true;
+    button.classList.add('is-loading');
+    efb_onboarding_set_finish_efb(false);
+    efb_onboarding_live_update_efb({
+        type: 'checking',
+        message: efb_onboarding_text_efb('onboardingTesting', 'Checking email delivery…'),
+        percent: 12,
+        test: null,
+        result: null,
+        steps: { start: 'active', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }
+    });
+    efb_onboarding_status_efb('checking', efb_onboarding_text_efb('onboardingTesting', 'Checking email delivery…'));
+    efb_onboarding_save_email_efb(email).done(function(saved) {
+        if (!saved || !saved.success) {
+            efb_onboarding_live_update_efb({ steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }, percent: 100 });
+            efb_onboarding_status_efb('error', (saved && saved.data && saved.data.message) || efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+            button.disabled = false;
+            button.classList.remove('is-loading');
+            return;
+        }
+        if (efb_var.setting) efb_var.setting.emailSupporter = email;
+        jQuery.ajax({
+            url: efb_var.ajax_url,
+            type: 'POST',
+            dataType: 'json',
+            timeout: 35000,
+            data: { action: 'check_email_server_efb', nonce: efb_var.nonce, mode: 'start', email: email }
+        }).done(function(response) {
+            const payload = response && response.data ? response.data : {};
+            const test = payload.test || {};
+            if (payload.success && test.test_hash) {
+                efb_onboarding_live_update_efb({
+                    steps: { start: 'done', send: 'done', wait: 'active', quick: 'waiting', full: 'waiting' },
+                    percent: 35,
+                    test: test,
+                    result: { delivery: { recipient_email: test.recipient_email || '' } }
+                });
+                efb_onboarding_status_efb('checking', payload.m || efb_onboarding_text_efb('onboardingTestStarted', 'A test email was sent. Waiting for delivery confirmation…'));
+                window.setTimeout(function() { efb_onboarding_poll_email_efb(test, email, 1); }, 4000);
+            } else {
+                efb_onboarding_live_update_efb({ steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }, percent: 100 });
+                efb_onboarding_status_efb('error', payload.m || efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+                efb_onboarding_set_finish_efb(true);
+            }
+        }).fail(function() {
+            efb_onboarding_live_update_efb({ steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }, percent: 100 });
+            efb_onboarding_status_efb('error', efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+            efb_onboarding_set_finish_efb(true);
+        }).always(function() {
+            button.disabled = false;
+            button.classList.remove('is-loading');
+        });
+    }).fail(function() {
+        button.disabled = false;
+        button.classList.remove('is-loading');
+        efb_onboarding_live_update_efb({ steps: { start: 'error', send: 'waiting', wait: 'waiting', quick: 'waiting', full: 'waiting' }, percent: 100 });
+        efb_onboarding_status_efb('error', efb_onboarding_text_efb('onboardingTestFailed', 'We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.'));
+    });
+}
+
+function showOnboardingEmailStep_efb() {
+    if (!document.getElementById('efb-setup-overlay')) showSetupAsOverlayPage({ onboarding: true });
+    const overlay = document.getElementById('efb-setup-overlay');
+    const content = overlay && overlay.querySelector('.efb-overlay-content');
+    if (!content) return;
+    const configuredEmail = efb_var.setting && efb_var.setting.emailSupporter ? efb_var.setting.emailSupporter : (efb_var.adminEmail || '');
+    const sender = efb_var.setting && /^\S+@\S+\.\S+$/.test(efb_var.setting.femail || '')
+        ? efb_var.setting.femail
+        : 'no-reply@' + (window.location.hostname || 'your-site.com');
+    overlay.querySelector('.efb-overlay-container').classList.add('efb-onboarding-container');
+    content.innerHTML = '<div class="efb-onboarding-card"><div class="efb-onboarding-steps"><span class="is-done"><i class="bi bi-check-circle-fill"></i> ' + efb_onboarding_text_efb('onboardingPlanSelected', 'Plan selected') + '</span><span class="is-current"><b>2</b> ' + efb_onboarding_text_efb('onboardingEmailTitle', 'Set up form notifications') + '</span></div><div class="efb-onboarding-hero"><div class="efb-onboarding-icon"><i class="bi bi-envelope-check-fill"></i></div><h2>' + efb_onboarding_text_efb('onboardingEmailTitle', 'Set up form notifications') + '</h2><p>' + efb_onboarding_text_efb('onboardingEmailDescription', 'Choose where form notifications should be sent, then we will check whether your server can deliver them.') + '</p></div><label class="efb-onboarding-label" for="efb-onboarding-admin-email">' + efb_onboarding_text_efb('onboardingAdminEmail', 'Form notification email') + '</label><input id="efb-onboarding-admin-email" type="email" value="' + efb_onboarding_escape_efb(configuredEmail) + '" autocomplete="email"><p class="efb-onboarding-hint">' + efb_onboarding_text_efb('onboardingAdminEmailHint', 'This is saved in General Settings and can be changed later.') + '</p><div class="efb-onboarding-defaults"><h3>' + efb_onboarding_text_efb('onboardingDefaults', 'Your default settings') + '</h3><p><i class="bi bi-bell"></i> ' + efb_onboarding_text_efb('onboardingNotifications', 'Notifications stay off until delivery is verified') + '</p><p><i class="bi bi-send"></i> ' + efb_onboarding_text_efb('onboardingSender', 'Sender') + ': <strong>' + efb_onboarding_escape_efb(sender) + '</strong></p><p><i class="bi bi-check2-circle"></i> ' + efb_onboarding_text_efb('onboardingFormsReady', 'Your forms and submissions are ready to use') + '</p></div><div id="efb-onboarding-email-report" class="efb-onboarding-report" aria-live="polite"></div><div class="efb-onboarding-actions" role="group" aria-label="Setup actions"><button type="button" id="efb-onboarding-test-email" class="efb-btn efb-btn-primary efb-onboarding-test-button"><i class="bi bi-send-check-fill" aria-hidden="true"></i><span>' + efb_onboarding_text_efb('onboardingTestEmail', 'Save and test email delivery') + '</span></button><button type="button" id="efb-onboarding-finish" class="efb-btn efb-btn-outline efb-onboarding-finish-button" disabled><i class="bi bi-check2-circle" aria-hidden="true"></i><span>' + efb_onboarding_text_efb('onboardingFinish', 'Finish setup') + '</span></button></div></div><style>.efb-onboarding-container{max-width:680px!important;overflow:hidden!important}.efb-onboarding-card{box-sizing:border-box;padding:clamp(22px,4vh,42px);max-width:620px;margin:auto;color:#172554;overflow:hidden}.efb-onboarding-steps{display:flex;gap:12px;align-items:center;font-size:13px;margin-bottom:clamp(16px,3vh,34px)}.efb-onboarding-steps span{padding:7px 11px;border-radius:999px;background:#eef2ff}.efb-onboarding-steps .is-done{color:#166534;background:#ecfdf5}.efb-onboarding-steps .is-current{color:#3730a3;font-weight:700}.efb-onboarding-steps b{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;background:#4338ca;color:#fff}.efb-onboarding-hero{text-align:center}.efb-onboarding-icon{display:inline-flex;width:clamp(42px,7vh,58px);height:clamp(42px,7vh,58px);align-items:center;justify-content:center;border-radius:18px;background:linear-gradient(135deg,#312e81,#7c3aed);color:white;font-size:clamp(20px,3vh,26px);box-shadow:0 12px 30px rgba(79,70,229,.25)}.efb-onboarding-hero h2{margin:clamp(10px,2vh,16px) 0 8px;font-size:clamp(21px,3.3vh,27px)}.efb-onboarding-hero p{margin:0 auto clamp(16px,3vh,30px);max-width:520px;color:#64748b;line-height:1.55}.efb-onboarding-label{display:block;font-weight:700;margin-bottom:8px}.efb-onboarding-card input{box-sizing:border-box;width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px}.efb-onboarding-card input:focus{outline:3px solid rgba(99,102,241,.16);border-color:#6366f1}.efb-onboarding-hint{margin:7px 0 16px;color:#64748b;font-size:13px}.efb-onboarding-defaults{padding:14px 16px;border:1px solid #e0e7ff;border-radius:14px;background:#f8faff}.efb-onboarding-defaults h3{margin:0 0 8px;font-size:15px}.efb-onboarding-defaults p{margin:6px 0;color:#475569;font-size:13px}.efb-onboarding-defaults i{color:#4f46e5}.efb-onboarding-report{display:none;margin-top:14px;padding:11px 13px;border-radius:10px;line-height:1.45;font-size:14px}.efb-onboarding-report:not(:empty){display:block}.efb-onboarding-report.is-checking{color:#1d4ed8;background:#eff6ff}.efb-onboarding-report.is-success{color:#166534;background:#ecfdf5}.efb-onboarding-report.is-warning{color:#92400e;background:#fffbeb}.efb-onboarding-report.is-error{color:#b91c1c;background:#fef2f2}.efb-onboarding-actions{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px;margin-top:20px}.efb-onboarding-actions button{min-height:52px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:12px;font-weight:700;line-height:1.2;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}.efb-onboarding-test-button{border:0!important;background:linear-gradient(135deg,#312e81,#5b21b6)!important;box-shadow:0 9px 20px rgba(79,70,229,.26)}.efb-onboarding-test-button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 13px 24px rgba(79,70,229,.32)}.efb-onboarding-finish-button{border:1px solid #c7d2fe!important;background:#fff!important;color:#3730a3!important}.efb-onboarding-finish-button:hover:not(:disabled){background:#eef2ff!important;transform:translateY(-2px)}.efb-onboarding-actions button:disabled{opacity:.52;cursor:not-allowed;box-shadow:none}.efb-onboarding-actions .is-loading:after{content:"";display:inline-block;width:12px;height:12px;margin-left:2px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:efbOnboardingSpin .7s linear infinite}@keyframes efbOnboardingSpin{to{transform:rotate(360deg)}}@media(max-height:680px) and (min-width:601px){.efb-onboarding-card{padding:18px 28px}.efb-onboarding-defaults{padding:10px 14px}.efb-onboarding-defaults p{margin:4px 0}.efb-onboarding-steps{margin-bottom:10px}.efb-onboarding-hero p{margin-bottom:12px}.efb-onboarding-hint{margin-bottom:10px}.efb-onboarding-actions{margin-top:12px}.efb-onboarding-actions button{min-height:44px}}@media(max-width:600px){.efb-onboarding-card{padding:24px 20px}.efb-onboarding-actions{grid-template-columns:1fr}.efb-onboarding-actions button{width:100%}.efb-onboarding-steps{align-items:flex-start;flex-direction:column;gap:7px}}</style>';
+    document.getElementById('efb-onboarding-test-email').addEventListener('click', efb_onboarding_start_email_test_efb);
+    document.getElementById('efb-onboarding-finish').addEventListener('click', efb_onboarding_finish_efb);
+    document.getElementById('efb-onboarding-admin-email').addEventListener('input', function() {
+        efb_onboarding_set_finish_efb(false);
+        efb_onboarding_email_test_state_efb = null;
+        const report = document.getElementById('efb-onboarding-email-report');
+        if (report) { report.className = 'efb-onboarding-report'; report.textContent = ''; }
+    });
 }
 
 function efb_plan_has_activation_code_efb() {
@@ -3567,10 +3834,15 @@ function handle_setup_modal_action(plan) {
     if (!['free', 'free_plus', 'pro'].includes(plan)) return;
 
     const currentPlan = getSelectedPlan_efb().selected_plan;
+    // Selecting the plan already in use is intentionally silent. It should
+    // not trigger a save, a confirmation dialog, or a success notification.
+    if (currentPlan === plan) {
+        return;
+    }
     const isDowngrade = (currentPlan === 'pro' && ['free', 'free_plus'].includes(plan)) || (currentPlan === 'free_plus' && plan === 'free');
     const removesActivationCode = plan !== 'pro' && efb_plan_has_activation_code_efb();
     if (isDowngrade || removesActivationCode) {
-        show_plan_downgrade_confirmation_efb(efb_plan_downgrade_copy_efb(currentPlan, plan, removesActivationCode), () => savePlanSelection_efb(plan, true));
+        efb_show_downgrade_after_setup_efb(efb_plan_downgrade_copy_efb(currentPlan, plan, removesActivationCode), () => savePlanSelection_efb(plan, true));
         return;
     }
     savePlanSelection_efb(plan, false);
@@ -3599,7 +3871,7 @@ function savePlanSelection_efb(plan, downgradeConfirmed) {
         };
         sendPlanSelectionToServer_efb(selectionData);
     } catch (error) {
-        alert_message_efb('', 'An error occurred. Please try again.', 10, 'danger');
+        alert_message_efb('', efb_onboarding_text_efb('planSelectionTryAgain', 'An error occurred. Please try again.'), 10, 'danger');
     }
 }
 
@@ -3672,11 +3944,26 @@ function sendPlanSelectionToServer_efb(selectionData) {
                 if (response.data.redirect_url) {
                     window.open(response.data.redirect_url, '_blank');
                 }
+                // The purchase link must never overwrite the user's current
+                // package. The server explicitly marks this as a redirect-only
+                // response until a valid activation code is supplied.
+                if (response.data.plan_changed === false) {
+                    // During first-run setup we still collect and verify the
+                    // notification email. Opening a purchase page must not
+                    // abandon the rest of onboarding; the normal Change Plan
+                    // path remains plan-only.
+                    if (efb_is_onboarding_overlay_efb()) {
+                        showOnboardingEmailStep_efb();
+                    } else {
+                        closeSetupOverlay_efb();
+                    }
+                    return;
+                }
                 const packageType = Number(response.data.package_type);
                 if ([0, 1, 2, 3].includes(packageType)) {
                     sessionStorage.setItem('efb_license_selected', String(packageType));
                     efb_var.setting.package_type = packageType;
-                    efb_var.pro = packageType === 1 || packageType === 3;
+                    efb_var.pro = packageType === 1;
                     if (typeof valueJson_ws_setting === 'object' && valueJson_ws_setting !== null) {
                         valueJson_ws_setting.package_type = packageType;
                     }
@@ -3692,7 +3979,12 @@ function sendPlanSelectionToServer_efb(selectionData) {
                 update_ui_based_on_plan_efb(selectionData.selected_plan);
                 updatePlanBadge_efb();
                 show_success_notification_efb(response.data.action || 'Plan updated.');
-                closeSetupOverlay_efb();
+                if (efb_is_onboarding_overlay_efb()) {
+                    efb_var.onboarding_pending = true;
+                    showOnboardingEmailStep_efb();
+                } else {
+                    closeSetupOverlay_efb();
+                }
                 if (typeof gtag !== 'undefined') gtag('event', 'plan_selected', { event_category: 'easy_form_builder', event_label: selectionData.selected_plan, value: 1 });
             } else if (response.data && response.data.message) {
                 alert_message_efb('', response.data.message, 10, 'danger');
@@ -3701,13 +3993,13 @@ function sendPlanSelectionToServer_efb(selectionData) {
         error: function(xhr, status, error) {
             const responseData = xhr.responseJSON && xhr.responseJSON.data ? xhr.responseJSON.data : null;
             if (responseData && responseData.code === 'downgrade_confirmation_required' && selectionData.downgrade_confirmed !== true) {
-                show_plan_downgrade_confirmation_efb(
+                efb_show_downgrade_after_setup_efb(
                     efb_plan_downgrade_copy_efb(getSelectedPlan_efb().selected_plan, selectionData.selected_plan, responseData.activation_code_present === true),
                     () => savePlanSelection_efb(selectionData.selected_plan, true)
                 );
                 return;
             }
-            const message = responseData && responseData.message ? responseData.message : 'Unable to change the plan. Please try again.';
+            const message = responseData && responseData.message ? responseData.message : efb_onboarding_text_efb('planSelectionFailed', 'Unable to change the plan. Please try again.');
             alert_message_efb('', message, 10, 'danger');
         }
     });
@@ -3752,12 +4044,33 @@ function show_info_notification_efb(message) {
 function show_error_notification_efb(message) {
 }
 
-function showSetupAsOverlayPage() {
+let efb_setup_overlay_is_onboarding_efb = false;
+
+// WordPress normally localizes this as a boolean. Accept the equivalent
+// serialized values too, so a cache/minifier or an older localized payload
+// cannot silently skip the first-run email step.
+function efb_onboarding_is_pending_efb(value) {
+    return value === true || value === 1 || value === '1' || value === 'true';
+}
+
+function efb_is_onboarding_overlay_efb() {
+    const overlay = document.getElementById('efb-setup-overlay');
+    return efb_setup_overlay_is_onboarding_efb === true
+        || !!(overlay && overlay.dataset && overlay.dataset.efbSetupMode === 'onboarding');
+}
+
+function showSetupAsOverlayPage(options) {
+    const existingOverlay = document.getElementById('efb-setup-overlay');
+    if (existingOverlay) return;
+    efb_setup_overlay_is_onboarding_efb = !!(options && options.onboarding === true);
     const setupContent = show_setting_up_easy_form_builder_Efb();
 
     const overlayPage = document.createElement('div');
     overlayPage.id = 'efb-setup-overlay';
     overlayPage.className = 'efb-setup-overlay';
+    // Keep the purpose of this overlay on the element itself. The global can
+    // be reset while one modal transitions into another.
+    overlayPage.dataset.efbSetupMode = efb_setup_overlay_is_onboarding_efb ? 'onboarding' : 'plan';
 
     overlayPage.innerHTML = `
         <div class="efb-overlay-container packages">
@@ -3793,14 +4106,13 @@ function showSetupAsOverlayPage() {
             box-shadow: 0 25px 80px rgba(32, 42, 141, 0.25);
             max-width: 1200px;
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
+            max-height: calc(100vh - 40px);
+            overflow: hidden;
             overflow-x: hidden;
             position: relative;
             border: 2px solid rgba(32, 42, 141, 0.1);
             animation: overlaySlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            scrollbar-width: thin;
-            scrollbar-color: #b4c0e0 transparent;
+            scrollbar-width: none;
         }
 
         .efb-overlay-container::-webkit-scrollbar {
@@ -3854,6 +4166,54 @@ function showSetupAsOverlayPage() {
             width: 100%;
             overflow-x: hidden;
         }
+
+        /* Fixed-height live email report: it updates in place without moving
+           the onboarding actions or changing the modal's dimensions. */
+        #efb-setup-overlay .efb-onboarding-live-report {
+            display: block !important;
+            box-sizing: border-box;
+            height: 178px;
+            margin-top: 14px;
+            padding: 12px 14px;
+            overflow: hidden;
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            background: #f8fbff;
+            color: #334155;
+        }
+
+        #efb-setup-overlay .efb-onboarding-test-button,
+        #efb-setup-overlay .efb-onboarding-test-button span,
+        #efb-setup-overlay .efb-onboarding-test-button i {
+            color: #fff !important;
+        }
+
+        .efb-onboarding-live-report.is-success { border-color: #bbf7d0 !important; background: #f0fdf4 !important; }
+        .efb-onboarding-live-report.is-warning { border-color: #fde68a !important; background: #fffbeb !important; }
+        .efb-onboarding-live-report.is-error { border-color: #fecaca !important; background: #fff7f7 !important; }
+        .efb-onboarding-live-head { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; font-weight: 700; }
+        .efb-onboarding-live-head strong { color: #4f46e5; }
+        .efb-onboarding-live-progress { height: 5px; margin: 7px 0 10px; overflow: hidden; border-radius: 99px; background: #e0e7ff; }
+        .efb-onboarding-live-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #4f46e5, #8b5cf6); transition: width .45s ease; }
+        .efb-onboarding-live-report.is-success .efb-onboarding-live-progress span { background: #16a34a; }
+        .efb-onboarding-live-report.is-warning .efb-onboarding-live-progress span { background: #d97706; }
+        .efb-onboarding-live-report.is-error .efb-onboarding-live-progress span { background: #dc2626; }
+        .efb-onboarding-live-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+        .efb-onboarding-live-step { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 3px; color: #94a3b8; font-size: 10px; line-height: 1.1; text-align: center; }
+        .efb-onboarding-live-step i { display: inline-flex; width: 19px; height: 19px; align-items: center; justify-content: center; border: 1px solid #cbd5e1; border-radius: 50%; background: #fff; font-size: 10px; }
+        .efb-onboarding-live-step span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .efb-onboarding-live-step.is-done { color: #15803d; }
+        .efb-onboarding-live-step.is-done i { border-color: #22c55e; background: #22c55e; color: #fff; }
+        .efb-onboarding-live-step.is-active { color: #4338ca; font-weight: 700; }
+        .efb-onboarding-live-step.is-active i { border-color: #6366f1; color: #4f46e5; animation: efbOnboardingLiveSpin 1s linear infinite; }
+        .efb-onboarding-live-step.is-warning { color: #b45309; }
+        .efb-onboarding-live-step.is-warning i { border-color: #f59e0b; background: #fef3c7; color: #b45309; }
+        .efb-onboarding-live-step.is-error { color: #b91c1c; }
+        .efb-onboarding-live-step.is-error i { border-color: #ef4444; background: #ef4444; color: #fff; }
+        .efb-onboarding-live-message { display: -webkit-box; min-height: 34px; margin: 9px 0 5px; overflow: hidden; color: #475569; font-size: 12px; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+        .efb-onboarding-live-facts { display: flex; gap: 5px; overflow: hidden; white-space: nowrap; }
+        .efb-onboarding-live-facts span { overflow: hidden; max-width: 48%; padding: 3px 6px; border-radius: 99px; background: rgba(255,255,255,.8); color: #64748b; font-size: 10px; text-overflow: ellipsis; }
+        @keyframes efbOnboardingLiveSpin { to { transform: rotate(360deg); } }
 
         @media (max-width: 1024px) {
             .efb-overlay-container {
@@ -3947,6 +4307,8 @@ function showSetupAsOverlayPage() {
             .efb-overlay-content .modal-body {
                 padding: 15px !important;
             }
+
+            #efb-setup-overlay .efb-onboarding-live-report { height: 174px; }
         }
 
         @media (max-width: 576px) {
@@ -4073,9 +4435,18 @@ function showSetupAsOverlayPage() {
 
         @media (max-height: 600px) and (orientation: landscape) {
             .efb-overlay-container {
-                max-height: 95vh;
-                overflow-y: auto;
+                max-height: calc(100vh - 20px);
+                overflow: hidden;
             }
+
+            .efb-setup-container { padding: 10px 18px; }
+            .efb-setup-header { margin-bottom: 10px; }
+            .efb-main-title { font-size: 1.45rem; margin-bottom: 4px; }
+            .efb-subtitle { font-size: .82rem; }
+            .efb-card-content { min-height: 260px; padding: 12px 15px; }
+            .efb-feature-item { margin-bottom: 4px; font-size: .75rem; }
+            .efb-plan-description { margin-bottom: 8px; font-size: .78rem; }
+            .efb-setup-footer { margin-top: 8px; }
 
             .efb-overlay-content .modal-header {
                 padding: 10px 15px !important;
@@ -4141,7 +4512,7 @@ function showSetupAsOverlayPage() {
     document.addEventListener('keydown', handleOverlayEscape_efb);
 }
 
-function closeSetupOverlay_efb() {
+function closeSetupOverlay_efb(afterClose) {
     const overlay = document.getElementById('efb-setup-overlay');
     if (overlay) {
         overlay.style.animation = 'overlayFadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
@@ -4150,8 +4521,12 @@ function closeSetupOverlay_efb() {
             overlay.remove();
             document.body.style.overflow = '';
             document.removeEventListener('keydown', handleOverlayEscape_efb);
+            efb_setup_overlay_is_onboarding_efb = false;
             updatePlanBadge_efb();
+            if (typeof afterClose === 'function') afterClose();
         }, 300);
+    } else if (typeof afterClose === 'function') {
+        afterClose();
     }
 }
 
@@ -4203,10 +4578,18 @@ function handleOverlayEscape_efb(event) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const getPlan = getSelectedPlan_efb();
-    if (getPlan && getPlan.selected_plan === 'null') {
+    const onboardingPending = typeof efb_var !== 'undefined' && efb_onboarding_is_pending_efb(efb_var.onboarding_pending);
+    if (onboardingPending && getPlan && getPlan.selected_plan !== 'null') {
       setTimeout(() => {
         try {
-          showSetupAsOverlayPage();
+          showOnboardingEmailStep_efb();
+        } catch (error) {
+        }
+      }, 500);
+    } else if (getPlan && getPlan.selected_plan === 'null') {
+      setTimeout(() => {
+        try {
+          showSetupAsOverlayPage({ onboarding: onboardingPending });
         } catch (error) {
         }
       }, 500);

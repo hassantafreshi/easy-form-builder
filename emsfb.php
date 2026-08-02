@@ -3,7 +3,7 @@
  * Plugin Name:         Easy Form Builder
  * Plugin URI:          https://whitestudio.team
  * Description:         Create multi-step WordPress forms with drag and drop, confirmation codes, notification emails, and free custom email notification templates with a built-in visual editor. Build professional contact, survey, payment, login, and registration forms without coding.
- * Version:             4.1.2
+ * Version:             4.1.3
  * Author:              WhiteStudio
  * Author URI:          https://whitestudio.team
  * Text Domain:         easy-form-builder
@@ -24,7 +24,7 @@ if (!defined("EMSFB_PLUGIN_DIRECTORY")) {
     define("EMSFB_PLUGIN_DIRECTORY", plugin_dir_path(__FILE__));
 }
 if (!defined("EMSFB_PLUGIN_VERSION")) {
-    define("EMSFB_PLUGIN_VERSION", "4.1.2");
+    define("EMSFB_PLUGIN_VERSION", "4.1.30");
 }
 if (!defined("EMSFB_DB_VERSION")) {
     // 1.2 adds the emsfb_stts_ indexes (sid, lookup, date). Bumping this is what

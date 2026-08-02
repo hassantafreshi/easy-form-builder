@@ -40,6 +40,8 @@ class Admin {
             add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);
             add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);
             add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);
+            add_action('wp_ajax_efb_save_onboarding_email', [$this, 'efb_save_onboarding_email']);
+            add_action('wp_ajax_efb_complete_onboarding', [$this, 'efb_complete_onboarding']);
             add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);
             add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);
             add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));
@@ -1593,6 +1595,44 @@ class Admin {
         wp_send_json_success($response, 200);
     }
 
+    /**
+     * Persist the recipient selected during the first-run setup before the
+     * delivery test starts.  The email test must not be the only way to save
+     * this value: a failed host check should never discard the admin's choice.
+     */
+    public function efb_save_onboarding_email() {
+        $efbFunction = get_efbFunction();
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_admin_dashboard()) {
+            wp_send_json_error(array('message' => esc_html__('You do not have permission to update these settings.', 'easy-form-builder')), 403);
+        }
+
+        $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
+        if (!is_email($email)) {
+            wp_send_json_error(array('message' => esc_html__('Please enter a valid admin email address.', 'easy-form-builder')), 422);
+        }
+
+        $settings = get_setting_Emsfb('decoded');
+        if (!is_object($settings)) {
+            $settings = new \stdClass();
+        }
+        $settings->emailSupporter = $email;
+        $efbFunction->set_setting_Emsfb($settings, $email);
+
+        wp_send_json_success(array('email' => $email));
+    }
+
+    /** Mark the guided setup as seen without changing any plan or mail state. */
+    public function efb_complete_onboarding() {
+        $efbFunction = get_efbFunction();
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_admin_dashboard()) {
+            wp_send_json_error(array('message' => esc_html__('You do not have permission to complete setup.', 'easy-form-builder')), 403);
+        }
+
+        update_option('emsfb_onboarding_pending', 0, false);
+        update_option('emsfb_onboarding_completed_at', current_time('mysql'), false);
+        wp_send_json_success(array('completed' => true));
+    }
+
     private function start_email_tester_efb($efbFunction, $ac) {
         $admin_email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
         if (!is_email($admin_email)) {
@@ -3107,6 +3147,7 @@ function admin_notices_efb () {
 
         $redirect_url = null;
         $action_performed = null;
+        $plan_changed = true;
         $package_type_efb = 2;
 
         $settings = get_setting_Emsfb('decoded');
@@ -3126,7 +3167,18 @@ function admin_notices_efb () {
         if (!in_array($current_package_type, [0, 1, 2, 3], true)) {
             $current_package_type = 2;
         }
+        $onboarding_pending = emsfb_onboarding_pending_efb();
         $target_package_type = $selected_plan === 'free_plus' ? 3 : ($selected_plan === 'free' ? 2 : 1);
+        if ($target_package_type === $current_package_type) {
+            wp_send_json_success(array(
+                'success' => true,
+                'plan' => $selected_plan,
+                'package_type' => $current_package_type,
+                'plan_changed' => false,
+                'unchanged' => true,
+                'onboarding_pending' => $onboarding_pending,
+            ));
+        }
         $is_downgrade = ($current_package_type === 1 && in_array($target_package_type, [2, 3], true))
             || ($current_package_type === 3 && $target_package_type === 2);
         $removes_activation_code = $has_active_code && in_array($target_package_type, [2, 3], true);
@@ -3165,8 +3217,11 @@ function admin_notices_efb () {
                     }
                     $action_performed = __('Pro plan activated with existing activation code.', 'easy-form-builder');
                 } else {
-                    $package_type_efb = 0;
-                    update_option('emsfb_pro', 0);
+                    // Opening the purchase page is not a plan change.  In
+                    // particular, a Free Plus user must remain Free Plus until
+                    // a valid Pro code is actually activated.
+                    $package_type_efb = $current_package_type;
+                    $plan_changed = false;
                     $redirect_url = 'https://whitestudio.team/#price';
                     if (get_locale() == 'fa_IR') {
                         $redirect_url = 'https://easyformbuilder.ir/#price';
@@ -3208,9 +3263,19 @@ function admin_notices_efb () {
             }
         }
 
-        $settings->package_type = $package_type_efb;
-        $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
-        $efbFunction->set_setting_Emsfb($settings, $email);
+        if ($plan_changed) {
+            $settings->package_type = $package_type_efb;
+            $email = isset($settings->emailSupporter) ? $settings->emailSupporter : '';
+            $efbFunction->set_setting_Emsfb($settings, $email);
+        }
+
+        // The email card is shown immediately in the existing first-run
+        // overlay. Clear the automatic-launch flag once a plan is selected so
+        // a refresh cannot reopen onboarding on every admin page load.
+        if ($onboarding_pending && $current_package_type === 0) {
+            update_option('emsfb_onboarding_pending', 0, false);
+            $onboarding_pending = false;
+        }
 
         $response_data = array(
             'success' => true,
@@ -3221,8 +3286,10 @@ function admin_notices_efb () {
             'timestamp' => $timestamp,
             'saved_at' => current_time('mysql'),
             'package_type' => $package_type_efb,
+            'plan_changed' => $plan_changed,
             'activation_code_removed' => $removes_activation_code,
             'disabled_addons' => $disabled_addons,
+            'onboarding_pending' => $onboarding_pending,
         );
 
         wp_send_json_success($response_data);

@@ -292,10 +292,13 @@ class Panel_edit  {
 				'wsteam'=> $wsteam_domain,
 				'emailHealth'=>$email_health,
 				'emailMonitor' => class_exists('\Emsfb\Email_Monitor') ? \Emsfb\Email_Monitor::get_public_status() : array(),
+				'onboarding_pending' => emsfb_onboarding_pending_efb(),
 				'upload_max'=>(int) floor(wp_max_upload_size() / MB_IN_BYTES),
 			), 'panel');
 			wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);
-			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
+			$efb_val_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/val-efb.js';
+			$efb_val_js_version = is_readable($efb_val_js_path) ? (string) filemtime($efb_val_js_path) : EMSFB_PLUGIN_VERSION;
+			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery'), $efb_val_js_version);
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 			$lng_ = get_locale();
 			if ( strlen( $lng_ ) > 0 ) {

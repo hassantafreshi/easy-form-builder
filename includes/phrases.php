@@ -676,10 +676,7 @@ class EfbAddonPhrases {
             /* translators: Hint for the IP blocklist field */
             "hsFieldBlocklistHint" => $state && isset($ac->text->hsFieldBlocklistHint) ? $ac->text->hsFieldBlocklistHint : __('IPs that are always blocked on protected form routes.', 'easy-form-builder'),
 
-            /* translators: Paid Limits tab card title */
-            "hsPaidStopLossTitle" => $state && isset($ac->text->hsPaidStopLossTitle) ? $ac->text->hsPaidStopLossTitle : __('Paid service stop-loss', 'easy-form-builder'),
-            /* translators: Paid Limits tab card subtitle */
-            "hsPaidStopLossDesc" => $state && isset($ac->text->hsPaidStopLossDesc) ? $ac->text->hsPaidStopLossDesc : __('Limits used by the future side-effect filter before SMS, Telegram, email and webhooks.', 'easy-form-builder'),
+
             /* translators: Field label - minimum score required to send a paid notification */
             "hsFieldMinPaidScoreLabel" => $state && isset($ac->text->hsFieldMinPaidScoreLabel) ? $ac->text->hsFieldMinPaidScoreLabel : __('Minimum paid notification score', 'easy-form-builder'),
             /* translators: Hint for the minimum paid-notification score field */
@@ -760,8 +757,6 @@ class EfbAddonPhrases {
             "hsTablesReady" => $state && isset($ac->text->hsTablesReady) ? $ac->text->hsTablesReady : __('ready', 'easy-form-builder'),
             /* translators: Database tables status value - the add-on's tables have not been created yet */
             "hsTablesNotReady" => $state && isset($ac->text->hsTablesNotReady) ? $ac->text->hsTablesNotReady : __('not ready yet', 'easy-form-builder'),
-            /* translators: Toggle label - stop enforcing security rules when server requirements are not met */
-            "hsFieldFailClosedLabel" => $state && isset($ac->text->hsFieldFailClosedLabel) ? $ac->text->hsFieldFailClosedLabel : __('Fail closed when requirements are missing', 'easy-form-builder'),
             /* translators: Hint for the fail-closed toggle */
             "hsFieldFailClosedHint" => $state && isset($ac->text->hsFieldFailClosedHint) ? $ac->text->hsFieldFailClosedHint : __('Recommended only after you verify PHP functions and tables are ready.', 'easy-form-builder'),
             /* translators: Toggle label - trust reverse-proxy headers for the visitor's real IP address */

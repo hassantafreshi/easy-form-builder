@@ -4,6 +4,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Return whether a genuinely new installation should show first-run setup.
+ *
+ * The installation marker is intentionally required. An unselected package
+ * alone is not enough: existing sites and plugin updates can also use package
+ * type 0 and must never be shown the first-run email guide.
+ */
+if ( ! function_exists( 'emsfb_onboarding_pending_efb' ) ) {
+	function emsfb_onboarding_pending_efb() {
+		return (bool) get_option( 'emsfb_onboarding_initial_install', false )
+			&& (bool) get_option( 'emsfb_onboarding_pending', false );
+	}
+}
+
 class efbFunction {
 
     protected static $req_cache = [];
@@ -362,7 +376,6 @@ class efbFunction {
 			"noResponse" => $state ? $ac->text->noResponse : esc_html__('No Response','easy-form-builder'),
 			/* translators: Description shown under the "No Response" empty state in the responses panel */
 			"noResponseDesc" => $state && isset($ac->text->noResponseDesc) ? $ac->text->noResponseDesc : esc_html__('Submitted responses will appear here.','easy-form-builder'),
-			"offerGoogleCloud" => $state ? $ac->text->offerGoogleCloud : esc_html__('To use reCAPTCHA and location picker (Maps), sign up for the Google Cloud service and receive $350 worth of credits exclusively for our users','easy-form-builder'),
 			"getOfferTextlink" => $state ? $ac->text->getOfferTextlink : esc_html__('Get credits by clicking here.','easy-form-builder'),
 			"clickHere" => $state ? $ac->text->clickHere : esc_html__('Click here','easy-form-builder'),
 			"SpecialOffer" => $state ? $ac->text->SpecialOffer : esc_html__('Special offer','easy-form-builder'),
@@ -557,6 +570,43 @@ class efbFunction {
 			"maybeLater" => $state && isset($ac->text->maybeLater) ? $ac->text->maybeLater : esc_html__('Maybe later','easy-form-builder'),
 			/* translators: Build professional forms message */
 			"buildProfessionalForms" => $state && isset($ac->text->buildProfessionalForms) ? $ac->text->buildProfessionalForms : esc_html__('Build professional WordPress forms in minutes. Choose how you\'d like to get started.','easy-form-builder'),
+
+			/* translators: Confirmation shown before replacing a Pro licence with Free Plus. */
+			"downgradeProToFreePlusTitle" => $state && isset($ac->text->downgradeProToFreePlusTitle) ? $ac->text->downgradeProToFreePlusTitle : esc_html__('Switch to Free Plus?','easy-form-builder'),
+			"downgradeProToFreePlusBody" => $state && isset($ac->text->downgradeProToFreePlusBody) ? $ac->text->downgradeProToFreePlusBody : esc_html__('Your Pro activation code will be removed from this site. Pro add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.','easy-form-builder'),
+			"downgradeFreePlusToFreeTitle" => $state && isset($ac->text->downgradeFreePlusToFreeTitle) ? $ac->text->downgradeFreePlusToFreeTitle : esc_html__('Switch to Free?','easy-form-builder'),
+			"downgradeFreePlusToFreeBody" => $state && isset($ac->text->downgradeFreePlusToFreeBody) ? $ac->text->downgradeFreePlusToFreeBody : esc_html__('Advanced features and advanced fields used in your forms will be disabled. Your forms, entries and settings will not be deleted, and will be available again if you upgrade.','easy-form-builder'),
+			/* translators: Confirmation text for changing from Free Plus to Free. */
+			"downgradeFreePlusToFreeAdvancedBody" => $state && isset($ac->text->downgradeFreePlusToFreeAdvancedBody) ? $ac->text->downgradeFreePlusToFreeAdvancedBody : esc_html__('Advanced features and advanced fields used in your forms will be disabled. Your forms, entries and settings will not be deleted, and will be available again if you upgrade.','easy-form-builder'),
+			"downgradeProToFreeBody" => $state && isset($ac->text->downgradeProToFreeBody) ? $ac->text->downgradeProToFreeBody : esc_html__('Your Pro activation code will be removed from this site. Advanced features, Pro fields and add-ons will be unavailable until you upgrade again. Your forms, entries and settings will not be deleted.','easy-form-builder'),
+			"activationCodeWillBeRemoved" => $state && isset($ac->text->activationCodeWillBeRemoved) ? $ac->text->activationCodeWillBeRemoved : esc_html__('The stored activation code will be removed from this site. ','easy-form-builder'),
+			"keepPro" => $state && isset($ac->text->keepPro) ? $ac->text->keepPro : esc_html__('Keep Pro','easy-form-builder'),
+			"keepFreePlus" => $state && isset($ac->text->keepFreePlus) ? $ac->text->keepFreePlus : esc_html__('Keep Free Plus','easy-form-builder'),
+			"switchToFreePlus" => $state && isset($ac->text->switchToFreePlus) ? $ac->text->switchToFreePlus : esc_html__('Switch to Free Plus','easy-form-builder'),
+			"switchToFree" => $state && isset($ac->text->switchToFree) ? $ac->text->switchToFree : esc_html__('Switch to Free','easy-form-builder'),
+			"planSelectionTryAgain" => $state && isset($ac->text->planSelectionTryAgain) ? $ac->text->planSelectionTryAgain : esc_html__('An error occurred. Please try again.','easy-form-builder'),
+			"planSelectionFailed" => $state && isset($ac->text->planSelectionFailed) ? $ac->text->planSelectionFailed : esc_html__('Unable to change the plan. Please try again.','easy-form-builder'),
+
+			/* translators: First-run setup screen. */
+			"onboardingPlanSelected" => $state && isset($ac->text->onboardingPlanSelected) ? $ac->text->onboardingPlanSelected : esc_html__('Plan selected','easy-form-builder'),
+			"onboardingEmailTitle" => $state && isset($ac->text->onboardingEmailTitle) ? $ac->text->onboardingEmailTitle : esc_html__('Set up form notifications','easy-form-builder'),
+			/* translators: Description for the notification setup step. It explains that the email test confirms the selected address can receive form notifications. */
+			"onboardingEmailDescription" => $state && isset($ac->text->onboardingEmailDescription) ? $ac->text->onboardingEmailDescription : esc_html__('Check whether your server can send emails, so you know you will receive form notifications.','easy-form-builder'),
+			"onboardingAdminEmail" => $state && isset($ac->text->onboardingAdminEmail) ? $ac->text->onboardingAdminEmail : esc_html__('Form notification email','easy-form-builder'),
+			"onboardingAdminEmailHint" => $state && isset($ac->text->onboardingAdminEmailHint) ? $ac->text->onboardingAdminEmailHint : esc_html__('This is saved in General Settings and can be changed later.','easy-form-builder'),
+			"onboardingDefaults" => $state && isset($ac->text->onboardingDefaults) ? $ac->text->onboardingDefaults : esc_html__('Your default settings','easy-form-builder'),
+			"onboardingNotifications" => $state && isset($ac->text->onboardingNotifications) ? $ac->text->onboardingNotifications : esc_html__('Notifications stay off until delivery is verified','easy-form-builder'),
+			"onboardingSender" => $state && isset($ac->text->onboardingSender) ? $ac->text->onboardingSender : esc_html__('Sender','easy-form-builder'),
+			"onboardingFormsReady" => $state && isset($ac->text->onboardingFormsReady) ? $ac->text->onboardingFormsReady : esc_html__('Your forms and submissions are ready to use','easy-form-builder'),
+			"onboardingTestEmail" => $state && isset($ac->text->onboardingTestEmail) ? $ac->text->onboardingTestEmail : esc_html__('Save and test email delivery','easy-form-builder'),
+			"onboardingTesting" => $state && isset($ac->text->onboardingTesting) ? $ac->text->onboardingTesting : esc_html__('Checking email delivery…','easy-form-builder'),
+			"onboardingTestStarted" => $state && isset($ac->text->onboardingTestStarted) ? $ac->text->onboardingTestStarted : esc_html__('A test email was sent. Waiting for delivery confirmation…','easy-form-builder'),
+			"onboardingTestPassed" => $state && isset($ac->text->onboardingTestPassed) ? $ac->text->onboardingTestPassed : esc_html__('Email delivery is ready. Form notifications can be sent.','easy-form-builder'),
+			"onboardingTestPending" => $state && isset($ac->text->onboardingTestPending) ? $ac->text->onboardingTestPending : esc_html__('The email is still on its way. You can finish setup and check again later from General Settings.','easy-form-builder'),
+			/* translators: Shown when the test message was sent but the delivery service has not confirmed receipt yet. */
+			"onboardingTestPendingGuidance" => $state && isset($ac->text->onboardingTestPendingGuidance) ? $ac->text->onboardingTestPendingGuidance : esc_html__('Your test email was sent, but delivery is not confirmed yet. Check the inbox or spam folder for the address below; you can finish setup and try again later from General Settings.','easy-form-builder'),
+			"onboardingTestFailed" => $state && isset($ac->text->onboardingTestFailed) ? $ac->text->onboardingTestFailed : esc_html__('We could not verify delivery. Your email address was saved; please check your mail configuration in General Settings.','easy-form-builder'),
+			"onboardingFinish" => $state && isset($ac->text->onboardingFinish) ? $ac->text->onboardingFinish : esc_html__('Finish setup','easy-form-builder'),
 
 			/* translators: Selected = indicates something has been chosen */
 			"selected" => $state && isset($ac->text->selected) ? $ac->text->selected : esc_html__('selected','easy-form-builder'),

@@ -1311,7 +1311,7 @@ function fun_show_setting__emsFormBuilder() {
                                     ${planBadgeHtml}
                                 </div>
                                 <div class="efb card-body text-center py-1">
-                                    <button type="button" class="efb btn efb btn-outline-primary btn-lg" onclick="showSetupAsOverlayPage()" id="changePlanBtn">
+                                    <button type="button" class="efb btn efb btn-outline-primary btn-lg" onclick="showSetupAsOverlayPage({ planOnly: true })" id="changePlanBtn">
                                         <i class="efb  bi-gear mx-1 efb mobile-text"></i>${efb_var.text.chngPln}
                                     </button>
                                     <p class="efb text-muted fs-7 mt-2">${efb_var.text.plnMngSw}</p>
@@ -1509,7 +1509,7 @@ function fun_show_setting__emsFormBuilder() {
 
                              <!--Google-->
 
-                             ${apiKeyMap == 'null' ? `<div class="efb m-3 p-3 efb alert-info" role=""><h5 class="efb alert-heading">🎉 ${efb_var.text.SpecialOffer} </h5> <div>${googleCloudOffer()} </div></div>` : ``}
+
                              <h5 class="efb  card-title mt-3 mobile-title">
                                 <i class="efb  bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
                             </h5>
@@ -3116,7 +3116,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
 
 }
 
-function googleCloudOffer() { return `<p>${efb_var.text.offerGoogleCloud} <a href="https://gcpsignup.page.link/8cwn" target="blank">${efb_var.text.getOfferTextlink}</a> </p> ` }
+
 
 let efbEmailServerTestTimer = null;
 
