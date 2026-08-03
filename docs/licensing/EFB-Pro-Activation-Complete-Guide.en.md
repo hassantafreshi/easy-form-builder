@@ -65,7 +65,7 @@ Easy Form Builder has three tiers, not two. It's easy to assume "Free" is the on
 
 | Plan | Cost | What you get |
 |---|---|---|
-| **Free** | $0 | Core form builder and standard fields. |
+| **Free** | $0 | Plugin form builder and standard fields. |
 | **Free Plus** | $0 — no purchase required | Advanced fields (signature, location picker, matrix/table, range slider, and more), conditional logic capped at 3 rules / 2 conditions per rule / 2 conditional email rules per form, CSV export, PDF response downloads, and the automated weekly email-deliverability report. The only trade-off is a small "Powered by Easy Form Builder" credit on the published form's page. |
 | **Pro** | Paid, activation code required | Everything in Free Plus with no caps, plus every official add-on: Stripe, PayPal, SMS, Telegram, Auto-Populate, Google Sheets, and more. |
 

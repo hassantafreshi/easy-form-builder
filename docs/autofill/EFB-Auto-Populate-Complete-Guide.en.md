@@ -80,7 +80,7 @@ Each form uses only one of these three modes at a time; the mode is chosen in th
 ## What are the prerequisites?
 
 - An active, valid **Pro** license for Easy Form Builder. Without an active or unexpired Pro license, both Auto-Populate settings pages show a "Pro Version Required" message (or an expiration warning) and will not open.
-- The plugin core must be **version 4.0 or later**.
+- The plugin must be **version 4.0 or later**.
 - For the Dataset method: a **UTF-8 encoded** CSV file with column headers in the first row.
 - For the API method: a real endpoint URL that returns JSON, plus its authentication details if required.
 
@@ -94,7 +94,7 @@ Like Easy Form Builder's other add-ons, Auto-Populate ships **disabled by defaul
 4. Once active, the same button turns into "Remove"; click it again to deactivate the add-on.
 
 <blockquote>
-<strong>Note:</strong> If your Easy Form Builder core is older than this add-on's minimum required version, clicking "Install" shows a plugin-update message instead of activating it. Depending on your Pro plan tier, activating this add-on may also require an upgraded plan — in that case, the licensing server returns the appropriate upgrade message after the install attempt.
+<strong>Note:</strong> If your Easy Form Builder Plugin is older than this add-on's minimum required version, clicking "Install" shows a plugin-update message instead of activating it. Depending on your Pro plan tier, activating this add-on may also require an upgraded plan — in that case, the licensing server returns the appropriate upgrade message after the install attempt.
 </blockquote>
 
 ## How do I create and manage a Dataset (CSV file)?
@@ -200,7 +200,7 @@ In **external API** mode, if Cache Duration is set above zero, the response is c
 | Error | Likely cause | Fix |
 |---|---|---|
 | "Pro Version Required" when opening Auto-Populate pages | Pro license isn't active or has expired | Activate or renew your Pro license |
-| The Install button only shows an update message | Easy Form Builder core is older than this add-on's minimum required version | Update the plugin core to the latest version |
+| The Install button only shows an update message | Easy Form Builder Plugin is older than this add-on's minimum required version | Update the plugin to the latest version |
 | Fields don't fill in; a "no data found" message appears | The entered value doesn't match any Dataset row, previous submission, or API response | Check the test value and the search condition; for Dataset mode, double-check the selected column name |
 | Connection error (500 or network error) in API mode | The endpoint URL is invalid or the server is unreachable | Check the URL and re-test with the Test Connection button |
 | HTTP status code 400 or above from the API | The external service itself returned an error (e.g., 404 or 401) | Review the endpoint, parameters, and authentication details |
