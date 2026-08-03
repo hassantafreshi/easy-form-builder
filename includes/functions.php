@@ -2897,7 +2897,10 @@ class efbFunction {
 		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip =
 			sanitize_text_field(wp_unslash($_SERVER['HTTP_CLIENT_IP']));
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = sanitize_text_field(wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']));
-        } else {$ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));}
+        // REMOTE_ADDR is absent under WP-CLI and WP-Cron, where this is reached
+        // through the scheduled jobs. Reading it unguarded logged a warning on
+        // every such run, and PHP 8.1+ then passed null on into strtolower().
+        } elseif (!empty($_SERVER['REMOTE_ADDR'])) { $ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));}
         $ip = strval($ip);
         $check =strpos($ip,',');
         if($check !== false){$ip = substr($ip,0,$check);}
@@ -4175,7 +4178,9 @@ public function addon_add_efb($value) {
 
 	public function getVisitorOS() {
 
-		$_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : null;
+		// Defaults to '' rather than null: there is no user agent under WP-CLI or
+		// WP-Cron, and PHP 8.1+ deprecates passing null to strtolower().
+		$_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
 		$ua = strtolower($_HTTP_USER_AGENT);
 		$os = "Unknown";
 
@@ -4198,7 +4203,8 @@ public function addon_add_efb($value) {
 
 	public function getVisitorBrowser() {
 
-	    $_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : null;
+	    // See getVisitorOS(): '' rather than null, for WP-CLI and WP-Cron.
+	    $_HTTP_USER_AGENT = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
 	    $ua = strtolower($_HTTP_USER_AGENT);
 	    $b = "Unknown";
 
