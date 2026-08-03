@@ -3307,7 +3307,7 @@ function efbEmailTestRender(state) {
           <div style="font-size:0.82rem;color:#78350f;line-height:1.55;">${efbEmailTestEscape(efbEmailTestText('emailDeliveryNotWorkingDesc', 'Your WordPress site cannot send emails reliably. This is a very common hosting issue — the default PHP mail function is often blocked or ends up in spam. Installing an SMTP plugin routes your emails through a verified mail service and fixes this in minutes.'))}</div>
         </div>
       </div>
-      <a class="efb btn btn-sm btn-warning fw-semibold" href="https://whitestudio.team/document/send-email-using-smtp-plugin/" target="_blank" rel="noopener noreferrer"><i class="efb bi-box-arrow-up-right me-1"></i>${efbEmailTestEscape(efbEmailTestText('smtpSetupGuideBtn', 'Step-by-step SMTP setup guide'))}</a>
+      <a class="efb btn btn-sm btn-warning fw-semibold" href="${Link_emsFormBuilder('EmailSpam')}" target="_blank" rel="noopener noreferrer"><i class="efb bi-box-arrow-up-right me-1"></i>${efbEmailTestEscape(efbEmailTestText('smtpSetupGuideBtn', 'Step-by-step SMTP setup guide'))}</a>
     </div>`
     : '';
 

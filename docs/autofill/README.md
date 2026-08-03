@@ -6,7 +6,7 @@ Stop making visitors retype information you already have. **Auto-Populate** is t
 
 - Persian (فارسی) — [آموزش کامل فعال‌سازی، نصب و استفاده از Auto-Populate در فرم ساز آسان](EFB-Auto-Populate-Complete-Guide.fa.md)
 - English — [Easy Form Builder Auto-Populate: Complete Guide to Activation, Setup, and Use](EFB-Auto-Populate-Complete-Guide.en.md)
-- Arabic (العربية) — [الدليل الكامل لتفعيل وتثبيت واستخدام Auto-Populate في منشئ النموذج السهل](EFB-Auto-Populate-Complete-Guide.ar.md)
+- Arabic (العربية) — [الدليل الكامل لتفعيل وتثبيت واستخدام Auto-Populate في مُنشيء النماذج السهل](EFB-Auto-Populate-Complete-Guide.ar.md)
 - German (Deutsch) — [Der komplette Leitfaden zur Aktivierung, Einrichtung und Nutzung von Auto-Populate in Easy Form Builder](EFB-Auto-Populate-Complete-Guide.de.md)
 
 Each guide covers the same ground in full: how the three fill modes differ (Dataset / previous submissions / external API), the real one-click **Install** activation flow from the Add-ons page, Dataset upload and inline editing, the 4-step API connection wizard (authentication, field mapping, caching, testing), a common-errors table, a pre-launch checklist, an FAQ section, ready-to-publish `FAQPage` JSON-LD structured data for SEO, and editorial notes for publishing the article on a website.

@@ -53,7 +53,7 @@
 
 ### Tasks
 - [ ] Decide minimum WordPress version for AI features: **7.0+ only** vs. a fallback adapter for 6.x. Recommendation given this plugin's stated compatibility (`readme.txt`: "Requires at least 5.0, Tested up to 7.0"): ship AI as 7.0+-only in v1, since a hand-rolled fallback adapter duplicates provider-integration work WordPress core is explicitly building — but this is a product call, confirm with the plugin owner before committing.
-- [ ] Decide product tier: Free, Pro, standalone add-on, or core feature. Recommendation: **new addon key** (e.g. `AdnAI`) following the exact existing addon pattern in the knowledge base §6 — this gets you the existing addon-toggle, addon-recovery, and Free/Pro-gating machinery for free instead of inventing new infrastructure.
+- [ ] Decide product tier: Free, Pro, standalone add-on, or Plugin feature. Recommendation: **new addon key** (e.g. `AdnAI`) following the exact existing addon pattern in the knowledge base §6 — this gets you the existing addon-toggle, addon-recovery, and Free/Pro-gating machinery for free instead of inventing new infrastructure.
 - [ ] Finalize MVP use cases (recommended order, matching the competitive research's phase priority): (1) generate a form from a prompt, (2) import existing questions without rewriting them, (3) improve label/help/options on an existing field, (4) generate conditional logic from natural language, (5) analyze responses. Ship in that order — do not build (4) before (1)-(3) are solid, since (4) depends on Phase -1 being complete and (1)-(3) being trustworthy first per the "AI never publishes directly" principle.
 - [ ] Decide MVP languages: at minimum Persian + English (this plugin's primary markets, per the CDN-failover/date-picker evidence in the knowledge base).
 - [ ] Write the privacy policy: exactly what form/field/submission data may ever be sent to AI, and what must never be sent (see Phase -1's sibling, Phase 1's masking requirement below).
@@ -387,7 +387,7 @@
 ## Risks and decisions to close early (carried over, still valid)
 
 - Requiring WordPress 7.0 may slow adoption; a 6.x fallback adapter raises long-term maintenance cost — decide once in Phase 0, don't revisit per-phase.
-- The AI Client's JavaScript-side API may not be fully stable in WordPress Core yet — staying server-side for the MVP (Guiding Principle 7) sidesteps this.
+- The AI Client's JavaScript-side API may not be fully stable in WordPress Plugin yet — staying server-side for the MVP (Guiding Principle 7) sidesteps this.
 - Model JSON output is never 100% reliable — the Phase 2 validator plus a corrective-retry prompt strategy (ask the model to fix its own invalid output once before failing) should be budgeted for from the start.
 - Models may rewrite question text against instructions — the Phase 5 "Preserve exact text" mode is the structural fix, not a stronger instruction.
 - Models may fabricate links/prices/products — Phase 12's allowlist/source-map is the structural fix, not a stronger instruction.

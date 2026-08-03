@@ -443,7 +443,13 @@ class EmsfbEmailHandler {
 
         $temp = isset($st->emailTemp) && strlen($st->emailTemp) > 10 ? $st->emailTemp : "0";
 
-        $title = $lang['newMessage'];
+        // The weekly monitor supplies its own content, but it still uses this
+        // shared template so custom header/title blocks must receive a useful
+        // report-specific shortcode_title value.
+        $isWeeklyReportState = $state === 'weeklyAdminReport';
+        $title = $isWeeklyReportState
+            ? __('Weekly Easy Form Builder report', 'easy-form-builder')
+            : $lang['newMessage'];
         $message = is_string($m) ? "<h3>$m</h3>" : "<h3>{$m[0]}</h3>";
         $blogName = get_bloginfo('name');
         $user = function_exists("get_user_by") ? get_user_by('id', 1) : false;

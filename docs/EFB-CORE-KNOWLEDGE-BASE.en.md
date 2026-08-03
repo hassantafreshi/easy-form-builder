@@ -1,4 +1,4 @@
-# EFB Core Knowledge Base (Internal Reference)
+# EFB Plugin Knowledge Base (Internal Reference)
 
 > Purpose: this is a ground-truth technical reference for **Easy Form Builder (EFB)**, built from a full read-through of the codebase (not from marketing docs). It exists so that any future request — "add X", "change behavior of Y", "wire up Z" — can be executed correctly on the first try, using real file paths, real data-model keys, and real conventions instead of guesses.
 >
@@ -54,7 +54,7 @@ A message's `content` column is a JSON object of submitted values, generally str
 
 ---
 
-## 3. Core PHP classes and what each owns
+## 3. Plugin PHP classes and what each owns
 
 | File | Class | Owns |
 |---|---|---|
@@ -63,7 +63,7 @@ A message's `content` column is a JSON object of submitted values, generally str
 | `includes/class-Emsfb-install.php` | `Emsfb_Install` (name approximate) | Activation: table creation via `dbDelta`, default options, default capabilities. |
 | `includes/class-Emsfb-formbuilder.php` | `Emsfb\Formbuilder` (or similar; large file) | The `form_structer` **rendering** engine — turns the flat field-object array into actual front-end HTML for every field type, including date pickers, payment fields, recorders, matrices. This is the file to extend when adding a genuinely new field *type*. |
 | `includes/class-Emsfb-public.php` | `Emsfb\Public` (huge file, ~7000+ lines) | Front-end submission handling: REST route registration (`Emsfb/v1/...`), validation, saving messages, notification dispatch, webhook/Telegram/Google-Sheet 3rd-party fan-out actions, the **duplicate** conditional-logic evaluator for notification/confirmation/webhook rules (see §7.4 — important known issue), tracking-code generation, file uploads, password reset. |
-| `includes/admin/class-Emsfb-admin.php` | `Emsfb\Admin` | Top-level admin menu bootstrap + most core `wp_ajax_*` handlers (form/message CRUD, settings save, addon enable/disable, duplication). |
+| `includes/admin/class-Emsfb-admin.php` | `Emsfb\Admin` | Top-level admin menu bootstrap + most Plugin `wp_ajax_*` handlers (form/message CRUD, settings save, addon enable/disable, duplication). |
 | `includes/admin/class-Emsfb-panel.php` | `Emsfb\Panel_edit` | "Forms list" / dashboard admin page — the authenticated app shell (nav, forms list, message inbox, modal/side-panel containers). |
 | `includes/admin/class-Emsfb-create.php` | `Emsfb\Create` | "Create/Edit form" admin page — the actual drag-and-drop builder shell; owns the **insert** path (`add_form_Emsfb` → `add_form_structure()`). |
 | `includes/admin/class-Emsfb-addon.php` | `Emsfb\Addon` | Add-ons marketplace page (remote catalogue fetch + PHP-compatibility warnings + add-on file recovery UI). |
@@ -86,9 +86,9 @@ A message's `content` column is a JSON object of submitted values, generally str
 - **Key JS files** (`includes/admin/assets/js/`):
   - `admin-efb.js` (~8,500 lines) — the builder engine: drag/drop canvas, field property panels, modal/side-panel controllers (`state_modal_show_efb()`, `sideMenuEfb()`), save-to-server calls.
   - `val-efb.js` (~4,200 lines) — field-type renderers/validators + settings-panel generation.
-  - `new-efb.js` — core builder state helpers; almost everything else depends on it (`efb-main-js` handle).
+  - `new-efb.js` — Plugin builder state helpers; almost everything else depends on it (`efb-main-js` handle).
   - `list_form-efb.js` — Forms list/dashboard page logic.
-  - `core-efb.js` — shared runtime reused between admin preview and the public front end.
+  - `Plugin-efb.js` — shared runtime reused between admin preview and the public front end.
   - `email-template-builder-efb.js` — visual email-template drag/drop builder.
   - `response-viewer-efb.js` — submission detail viewer (IIFE module, one of only two files not polluting global scope).
   - `pro_els-efb.js` — Pro-gated field elements + generic helpers like `fetch_json_from_url_efb`.
@@ -125,7 +125,7 @@ A message's `content` column is a JSON object of submitted values, generally str
 - Gutenberg block editor has its own tiny surface: `efb/v1/forms` (list forms for the inserter), `efb/v1/preview/{id}` (live preview), both gated by `check_edit_permission`.
 
 ### AJAX actions worth knowing (admin-only, `admin-ajax.php`)
-Core: `add_form_Emsfb`, `update_form_Emsfb`, `get_form_id_Emsfb`, `remove_id_Emsfb`, `remove_message_id_Emsfb`, `get_messages_id_Emsfb`, `get_all_response_id_Emsfb`, `update_message_state_Emsfb`, `set_replyMessage_id_Emsfb`, `set_settings_Emsfb`, `get_track_id_Emsfb`, `clear_garbeg_Emsfb`, `check_email_server_efb`, `add_addons_Emsfb`, `remove_addons_Emsfb`, `update_file_Emsfb`, `send_sms_pnl_efb`, `dup_efb`, `remove_messages_Emsfb`, `read_list_Emsfb`, `heartbeat_Emsfb`, `report_problem_Emsfb`, `efb_save_plan_selection`, `emsfb_recover_addons`, `efb_dashboard_stats`, `efb_dashboard_email_errors`, `efb_toggle_development_mode`.
+Plugin: `add_form_Emsfb`, `update_form_Emsfb`, `get_form_id_Emsfb`, `remove_id_Emsfb`, `remove_message_id_Emsfb`, `get_messages_id_Emsfb`, `get_all_response_id_Emsfb`, `update_message_state_Emsfb`, `set_replyMessage_id_Emsfb`, `set_settings_Emsfb`, `get_track_id_Emsfb`, `clear_garbeg_Emsfb`, `check_email_server_efb`, `add_addons_Emsfb`, `remove_addons_Emsfb`, `update_file_Emsfb`, `send_sms_pnl_efb`, `dup_efb`, `remove_messages_Emsfb`, `read_list_Emsfb`, `heartbeat_Emsfb`, `report_problem_Emsfb`, `efb_save_plan_selection`, `emsfb_recover_addons`, `efb_dashboard_stats`, `efb_dashboard_email_errors`, `efb_toggle_development_mode`.
 Addon-owned: Telegram (`test_telegram_connection_efb`, `send_telegram_test_efb`, `save_telegram_settings_efb`, `load_telegram_activity_efb`, `clear_telegram_activity_efb`, `send_telegram_admin_efb`, `verify_telegram_bot_efb`, `telegram_activate_efb`, `send_business_telegram_efb`, `telegram_check_status_efb`), Autofill (`handle_dataset_autofilled_efb`, `efb_save_api_connection`, `efb_test_api_connection`, `efb_delete_api_connection`, `efb_get_api_connections`, `efb_toggle_api_connection`, `efb_get_forms_with_fields`, `efb_get_autofill_list`), Human Shield (`efb_human_shield_save_settings`, `efb_human_shield_load_logs`, `efb_human_shield_clear_logs`, `efb_human_shield_export_logs`), Google Sheet (15 `efb_gs_*` actions covering global settings, connections, sheets/tabs, bindings, templates, logs), Stripe (`efb_stripe_get_payments`, `_get_payment_detail`, `_refund_payment`, `_cancel_subscription`), PayPal (`efb_paypal_get_payments`, `_get_payment_detail`, `_refund_payment`, `_cancel_subscription`, `_suspend_subscription`, `_reactivate_subscription`, `_get_subscription_detail`).
 
 **Convention to follow for anything new**: nonce = `check_ajax_referer('wp_rest', 'nonce')` for AJAX / `check_nonce_permission_efb` for REST; add a real `current_user_can()` capability check for admin actions (note: `form_preview_efb` is a documented example of this being *missed* — don't repeat that mistake); localize new JS constants/nonces via the existing `efb_var` object rather than inventing a second localization object.
@@ -231,7 +231,7 @@ Building an AI rule generator on top of this foundation **inherits all of the ab
 
 Cross-cutting **3rd-party dispatch point**: `do_action('efb_3rd_party_telegram_notify', $context)` and `do_action('efb_3rd_party_google_sheet_sync', $context)` both fire from the same place in `class-Emsfb-public.php` right after a submission is processed — **this is the right hook to add any new "on submission, notify an external system" integration to**, rather than inventing a new dispatch point.
 
-Core (non-addon) field types worth knowing: `audio_recorder`/`video_recorder`/`screen_recorder` (documented in `docs/recorder-fields.md`, built entirely in core, not a vendor addon) and the Desktop/Mobile responsive-property system (`mobile_*` key pairs on field objects, `docs/responsive-mobile-view.md` / `MOBILE-PRO-FEATURES-IMPLEMENTATION.md`).
+Plugin (non-addon) field types worth knowing: `audio_recorder`/`video_recorder`/`screen_recorder` (documented in `docs/recorder-fields.md`, built entirely in Plugin, not a vendor addon) and the Desktop/Mobile responsive-property system (`mobile_*` key pairs on field objects, `docs/responsive-mobile-view.md` / `MOBILE-PRO-FEATURES-IMPLEMENTATION.md`).
 
 ---
 

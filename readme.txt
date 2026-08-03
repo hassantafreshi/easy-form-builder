@@ -4,7 +4,7 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, email templates, payment form
 Requires at least: 5.0
 Tested up to: 7.0
-Stable tag: 4.1.2
+Stable tag: 4.1.3
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -172,15 +172,10 @@ These fields allow you to build complex, region-aware, and structured forms with
 
 Easy Form Builder lets you add audio recording, video recording, and screen recording fields to any WordPress form, so visitors can record and submit media right from the browser - no extra apps, plugins, or third-party recording services. Every recording is uploaded to your own WordPress site, so your form data stays under your control.
 
-These recording form fields turn a standard WordPress form into an interactive media collection tool:
-
 - Audio recorder field - let visitors record a voice message from their microphone. Great for voice feedback forms, audio testimonial forms, voice message and voicemail forms, language and pronunciation practice, and podcast or audio submission forms.
 - Video recorder field - let visitors record video from their webcam. Perfect for video testimonial forms, job application video introductions, customer video feedback, and video question-and-answer forms.
 - Screen recorder field - let visitors record their screen (with optional microphone audio). Ideal for bug report forms, technical support request forms, product feedback, and tutorial or demo submission forms.
 
-Each recorder field works in modern desktop and mobile browsers, shows live recording status and upload progress, and produces standard WebM or MP4 files that work across Chrome, Firefox, Edge, and Safari. You can set a maximum recording length, and every recording is validated on the server before it is stored. Recorded audio, video, and screen files appear alongside your other submissions in the Form Entry & Message Management Dashboard, where they can be played back, downloaded, or exported like any other WordPress form response.
-
-The audio recorder, video recorder, and screen recorder form fields are available in both the Free Plus and Pro versions of Easy Form Builder.
 
 
 == Integrations and Add-ons ==
@@ -589,188 +584,6 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured - all official add-ons will be updated to their latest versions.
 
 **Backup your site before updating. Not backward-compatible with v3.x addons.**
-
-= 3.8.22 =
-
-* Enhanced Security Features in the Easy Form Builder WordPress Plugin
-
-= 3.8.19 =
-
-* Improved UX of Easy Form Builder
-
-=3.8.18=
-
-* Fixed issues
-
-= 3.8.17 =
-
-* Fixed issues
-
-* Enhanced Security Features in the Easy Form Builder WordPress Plugin
-
-= 3.8.14 =
-
-* Improved Email notification configuration in Easy Form Builder.
-
-* Improved UX of Easy Form Builder
-
-=3.8.13=
-
-* Improved Email notification configuration in Easy Form Builder.
-
-=3.8.11=
-
-* Improved UX of Easy Form Builder
-
-= 3.8.10 =
-
-* Fixed issues
-
-
-= 3.8.9 =
-
-* Enhanced Security Features in the Easy Form Builder WordPress Plugin
-
-= 3.8.7 =
-
-* Fixed issues
-
-= 3.8.6 =
-* Enhanced Security Features in the Easy Form Builder WordPress Plugin
-
-= 3.8.5 =
-* Easy Form Builder Plugin is compatible with WordPress version 6.7
-
-= 3.8.4 =
-
-* Fixed UI issues in Easy Form Builder
-
-= 3.8.3 =
-
-* Fixed issues
-
-* Fixed UI issues in Easy Form Builder
-
-= 3.8.2 =
-= 3.8.1 =
-
-* Fixed issues
-
-
-= 3.8.0 =
-
-* Improvement of the location picker feature for the form and changing the service provider to OpenStreetMap.
-
-* Fixed issues
-
-= 3.7.35 =
-
-* Fixed issues of loading time of Easy Form Builder
-
-* Fixed issues
-
-
-
-= 3.7.34 =
-* Fixed issues of loading time of Easy Form Builder
-* Fixed issues
-= 3.7.33 =
-
-* Fixed issues
-
-= 3.7.31 =
-
-* Resolved issues related to sending email notifications for forms.
-
-= 3.7.30 =
-* Improved Security of Easy Form Builder
-* Changed the default response state to require admin login.
-
-= 3.7.29 =
-= 3.7.28 =
-
-* Resolved issues related to sending email notifications for forms.
-
-= 3.7.27 =
-
-* Resolved issues related to sending email notifications for forms.
-
-= 3.7.26 =
-* Fixed UI issues in Easy Form Builder
-* Added new feature: 'terms input field' to form builder.
-
-= 3.7.25 =
-* Fixed UI issues in Easy Form Builder
-
-= 3.7.24 =
-* Fixed UI issues in Easy Form Builder
-* Resolved Google reCAPTCHA loading issues in Easy Form Builder's forms.
-
-
-= 3.7.21 =
-* Resolved CAPTCHA issue present on the Edit Form page in Easy Form Builder Panel.
-* Admins Can Now Add Responses Without Logging In
-* "Select All" Checkbox Added for Messages Section on Easy Form Builder Panel
-* Delete Button Added to Message Section on Easy Form Builder Panel 
-* "Read" Button Added to Message Section on Easy Form Builder Panel 
-* Resolved issues with changing phone number in settings.
-* Fixed UI issues in Easy Form Builder
-
-
-= 3.7.20 =
-* Fixed UI issues in Easy Form Builder
-
-= 3.7.19 =
-
-* Fixed UI issues in Easy Form Builder
-
-= 3.7.18 =
-
-* Fixed UI issues in Easy Form Builder
-
-* Resolved issues related to sending email notifications for forms.
-
-= 3.7.17 =
-
-* Fixed UI issues in Easy Form Builder
-
-= 3.7.16 =
-
-* Fixed UI issues in Easy Form Builder
-
-= 3.7.15 =
-
-* Improved Email notification configuration in Easy Form Builder.
-
-* Added total price and input price fields for building payment forms.
-
-* Updated readme.
-
-= 3.7.14 =
-= 3.7.13 =
-
-* Resolved issues related to sending email notifications for forms.
-
-* Fixed issues of performance conflicts with popular cache plugins.
-
-= 3.7.11 =
-
-* Fixed issues
-
-= 3.7.10 =
-
-* The link to documents in German and Arabic has been added to the Easy Form Builder.
-
-* Fixed issues
-
-= 3.7.9 =
-
-* Fixed issues of performance conflicts with popular cache plugins.
-
-* Enhance the user interface for loading forms.
-
-* Fixed issues
-
 
 
 == Upgrade Notice ==

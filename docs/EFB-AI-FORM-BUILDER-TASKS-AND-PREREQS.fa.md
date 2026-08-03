@@ -2,9 +2,9 @@
 
 **Keywords/کلمات کلیدی:** WordPress AI Client، wp_ai_client_prompt، AI form generation، AI conditional logic، Easy Form Builder AI، فرم‌ساز هوشمند، پیش‌نیاز پیاده‌سازی AI
 
-> وضعیت: Implementation planning draft  
-> تاریخ: 2026-07-06  
-> محصول: Easy Form Builder 4.x به بعد  
+> وضعیت: Implementation planning draft
+> تاریخ: 2026-07-06
+> محصول: Easy Form Builder 4.x به بعد
 > فرض اصلی: استفاده از قابلیت AI رسمی WordPress، مخصوصاً AI Client در WordPress 7.0+.
 
 ## خلاصه تصمیم فنی
@@ -23,7 +23,7 @@
 ### 1. تصمیم‌های محصولی
 
 - تعیین نسخه هدف: آیا AI فقط برای WordPress 7.0+ است یا fallback برای 6.x هم لازم داریم؟
-- تعیین سطح محصول: Free، Pro، Add-on مستقل، یا feature داخل core plugin.
+- تعیین سطح محصول: Free، Pro، Add-on مستقل، یا feature داخل  plugin.
 - تعیین use caseهای نسخه اول:
   - ساخت فرم از prompt.
   - import سؤال‌های موجود بدون بازنویسی.
