@@ -4,6 +4,12 @@
 
 ## دسته‌ها
 
+### Article Writing Playbook
+
+[دستورالعمل نگارش مقاله‌ها](EFB-ARTICLE-WRITING-PLAYBOOK.en.md)
+
+- دستورالعمل ثابت و همیشگی برای نوشتن هر مقاله/راهنمای کاربری: ساختار مقاله و frontmatter، قواعد اصطلاحات (ممنوعیت واژه core و معادل‌های آن)، ترتیب منبع‌گیری واژه‌ها از `languages/*.json` و گلاسوری وردپرس، و قواعد اختصاصی آلمانی (لحن غیررسمی du)، عربی (مُنشيء النماذج السهل) و فارسی (فرم ساز آسان)
+
 ### Conditional Logic
 
 [فهرست Conditional Logic](conditional-logic/README.md)
