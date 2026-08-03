@@ -1,14 +1,31 @@
 <?php
 /**
- * Standalone regression test for the nonce/refresh session gating + sliding
- * session extension. Mirrors the logic now shipped in:
+ * Standalone model test for the nonce/refresh policy + sliding session
+ * extension. Mirrors the logic shipped in:
  *   - includes/class-Emsfb-public.php  efb_nonce_refresh_api()
  *   - includes/functions.php           efb_code_touch_session()
  *
- * Goal: prove that a fresh CSRF nonce is only issued to a proven live session
- * (logged-in OR valid sid), that a genuinely open form keeps working via the
- * sliding window, that an abandoned session cannot be kept alive past the
- * absolute cap, and that the normal submit flow is untouched.
+ * POLICY CHANGE (2026-07-30). This file previously asserted that a fresh nonce
+ * is issued only to a "proven live session" (logged-in OR valid sid), and
+ * assumed that an anonymous visitor without one would simply reload and
+ * self-heal. That assumption was wrong and it hid a serious defect: on a site
+ * with full-page caching the sid is frozen into the stored HTML alongside the
+ * nonce, so by the time a refresh is needed the sid has expired too. The
+ * refresh then 403s, and reloading re-serves the very same cached HTML with the
+ * very same dead nonce - the form stays unsubmittable until someone purges the
+ * cache. See docs/audits/2026-07-30-sales-and-installs-decline-root-cause.md.
+ *
+ * The sid requirement also protected nothing. For a logged-out visitor
+ * wp_create_nonce('wp_rest') is derived from user id 0 and an empty session
+ * token, so every anonymous visitor shares one value and anyone can mint one by
+ * loading any page containing a form.
+ *
+ * Current policy: logged-in -> nonce; anonymous -> nonce, per-IP rate limited;
+ * the sid is still used, but only to slide a live session forward.
+ *
+ * NOTE: this file models the policy. The real endpoint is exercised over HTTP
+ * in tests/test-decline-root-cause-regressions.php (checks A2.1 / A2.2), which
+ * is what stops the model and the shipped code drifting apart again.
  *
  * Run: php tests/test-nonce-refresh-session-gating.php
  */
@@ -71,36 +88,39 @@ class SessionTable {
 }
 
 /*
- * Faithful port of efb_nonce_refresh_api(): returns 'nonce' when a fresh token
- * would be issued, or 'forbidden' (403) otherwise. Side effect: touches the
- * session on the successful anonymous path, exactly like the real code.
+ * Port of efb_nonce_refresh_api(): returns 'nonce' when a fresh token would be
+ * issued, or 'throttled' (429) when the per-IP limit is hit. The sid never gates
+ * the token any more; it is only used to slide a live session forward.
  */
-function nonce_refresh_gate(SessionTable $t, $is_logged_in, $sid, $fid = 0) {
+function nonce_refresh_gate(SessionTable $t, $is_logged_in, $sid, $fid = 0, $rate_ok = true) {
     if ($is_logged_in) return 'nonce';
-    if ($sid === '') return 'forbidden';
-    if (!$t->validate_select($sid, $fid)) return 'forbidden';
-    $t->touch_session($sid);
+    if (!$rate_ok) return 'throttled';
+    if ($sid !== '' && $t->validate_select($sid, $fid)) {
+        $t->touch_session($sid);
+    }
     return 'nonce';
 }
 
 // ---------------------------------------------------------------------------
-echo "--- GATE: only a proven live session gets a fresh nonce ---\n";
+echo "--- POLICY: an anonymous visitor can always recover a nonce ---\n";
 $t = new SessionTable();
 $t->create('SID_VALID');
 test('logged-in user (no sid) -> nonce', nonce_refresh_gate($t, true, ''), 'nonce');
-test('anonymous, no sid -> forbidden', nonce_refresh_gate($t, false, ''), 'forbidden');
-test('anonymous, unknown sid -> forbidden', nonce_refresh_gate($t, false, 'SID_FAKE'), 'forbidden');
+test('anonymous, no sid -> nonce (cached page, sid long gone)', nonce_refresh_gate($t, false, ''), 'nonce');
+test('anonymous, unknown sid -> nonce', nonce_refresh_gate($t, false, 'SID_FAKE'), 'nonce');
 test('anonymous, valid active sid -> nonce', nonce_refresh_gate($t, false, 'SID_VALID'), 'nonce');
+test('anonymous over the per-IP limit -> throttled', nonce_refresh_gate($t, false, '', 0, false), 'throttled');
 
-echo "\n--- GATE: an inactive/expired session is rejected ---\n";
+echo "\n--- POLICY: an expired/inactive session no longer blocks recovery ---\n";
 $t = new SessionTable();
 $t->create('SID_EXPIRED', 1);
 $t->advance_days(2); // read_date was now+1d; now +2d => expired
-test('anonymous, expired sid -> forbidden', nonce_refresh_gate($t, false, 'SID_EXPIRED'), 'forbidden');
+test('anonymous, expired sid -> nonce (was the cached-page dead end)', nonce_refresh_gate($t, false, 'SID_EXPIRED'), 'nonce');
 $t2 = new SessionTable();
 $t2->create('SID_INACTIVE');
 $t2->rows['SID_INACTIVE']['active'] = 0;
-test('anonymous, inactive sid -> forbidden', nonce_refresh_gate($t2, false, 'SID_INACTIVE'), 'forbidden');
+test('anonymous, inactive sid -> nonce', nonce_refresh_gate($t2, false, 'SID_INACTIVE'), 'nonce');
+test('an inactive session is still not slid forward', $t2->touch_session('SID_INACTIVE'), 0);
 
 echo "\n--- SLIDING WINDOW: a long-open form keeps refreshing while active ---\n";
 $t = new SessionTable();
@@ -139,13 +159,16 @@ function submit_flow($nonce_valid) {
 test('valid nonce -> submitted without touching refresh', submit_flow(true), 'submitted');
 test('expired nonce -> enters refresh/retry path', submit_flow(false), 'refresh_then_retry');
 
-echo "\n--- TRANSITION SAFETY: worst case on the 403 path is graceful ---\n";
-// Anonymous, valid session, new JS sends sid -> nonce issued -> retry succeeds.
-$t = new SessionTable(); $t->create('SID_TX');
-test('403 + valid sid + new JS -> nonce (retry will pass)', nonce_refresh_gate($t, false, 'SID_TX'), 'nonce');
-// Anonymous, old cached JS sends no sid -> forbidden -> user sees "refresh page"
-// (same as the pre-feature behavior; self-heals on reload).
-test('403 + old JS (no sid) -> forbidden (graceful, self-healing)', nonce_refresh_gate($t, false, ''), 'forbidden');
+echo "\n--- CACHED PAGE: the scenario that used to be a dead end ---\n";
+// A caching plugin stored the page days ago. Both the nonce and the sid baked
+// into that HTML are stale, so the submit 403s and the sid cannot vouch for
+// anything. Reloading is no escape: the same cached bytes come back.
+$t = new SessionTable();
+$t->create('SID_CACHED', 1, -3 * SessionTable::DAY); // minted 3 days ago
+test('cached-page sid is expired', $t->validate_select('SID_CACHED'), false);
+test('...but the visitor still gets a nonce and can submit', nonce_refresh_gate($t, false, 'SID_CACHED'), 'nonce');
+// And an even older cached copy, where no sid is sent at all, must also work.
+test('cached page with no sid at all -> nonce', nonce_refresh_gate($t, false, ''), 'nonce');
 
 echo "\n========================================\n";
 echo "RESULTS: $pass passed, $fail failed\n";

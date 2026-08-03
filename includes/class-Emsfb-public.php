@@ -1815,8 +1815,35 @@ public function check_nonce_permission_efb($request) {
 		$skip_captcha = $form_fields_array = $has_tracking_code  = $track_code = "";
 		$should_send_email=false;
 		$email_recipients = [];
-		$this->value = str_replace('\\', '', $request_data['value']);
-		$submitted_values = json_decode($this->value, true);
+		// The form client always posts `value` as a JSON string, but nothing
+		// enforces that on the wire. A request carrying an array (a bot, a
+		// mangled proxy, a hand-built call) used to reach json_decode() with a
+		// non-string and throw a TypeError - an uncaught fatal, so the endpoint
+		// answered HTTP 500 and wrote a stack trace to the error log for every
+		// such request. Form Security & Spam Protection happens to absorb these
+		// first, but it is off by default, so on a stock install this was
+		// reachable by anyone.
+		$raw_value = isset($request_data['value']) ? $request_data['value'] : '';
+
+		if (is_array($raw_value)) {
+			$submitted_values = $raw_value;
+			$encoded = wp_json_encode($raw_value);
+			$this->value = is_string($encoded) ? $encoded : '';
+		} elseif (is_scalar($raw_value)) {
+			$this->value = str_replace('\\', '', (string) $raw_value);
+			$submitted_values = json_decode($this->value, true);
+		} else {
+			$this->value = '';
+			$submitted_values = null;
+		}
+
+		// Everything downstream walks this as a list of field objects. A bare
+		// scalar is still valid JSON ("12345" decodes to an int), so the decode
+		// succeeding is not enough - it has to be the right shape, or the empty
+		// check below is skipped and the field loop fatals instead.
+		if (!is_array($submitted_values)) {
+			$submitted_values = [];
+		}
 
 		if ( empty($submitted_values)) {
 
