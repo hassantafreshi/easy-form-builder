@@ -1,0 +1,870 @@
+<!doctype html>
+<!--
+  یادداشت ناشر / PUBLISHER NOTE
+  آدرس‌های canonical و hreflang زیر بر اساس الگوی حدسی
+  https://easyformbuilder.ir/document/<slug>/ نوشته شده‌اند و تأیید نشده‌اند.
+  پیش از انتشار، ساختار واقعی آدرس‌های چندزبانه سایت را بررسی و این آدرس‌ها را
+  اصلاح کنید و برچسب‌های hreflang متقابل را به نسخه انگلیسی هم اضافه کنید.
+
+  اصطلاحات: تمام برچسب‌های رابط کاربری عیناً از languages/fa.json
+  (تاریخ ۱۴۰۵/۰۵/۱۳ برابر با 2026-08-04) استخراج شده‌اند. برچسب‌هایی که هنوز
+  ترجمه نشده‌اند («Priority»، «Action») در متن مشخص شده‌اند.
+  نام برند در متن: فرم ساز آسان
+-->
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>منطق شرطی در فرم‌های وردپرس: راهنمای کامل افزودنی منطق شرطی (۲۰۲۶)</title>
+  <meta name="description" content="راهنمای کاربردی و کامل افزودنی منطق شرطی برای فرم ساز آسان: نمایش یا مخفی‌کردن فیلدها براساس پاسخ، مسیردهی ایمیل به تیم مناسب، رد شدن از یک گام در فرم‌های چندمرحله‌ای، و تغییر مسیر یا اجرای وب‌هوک براساس پارامتر URL، نقش کاربر یا پرداخت — بدون نوشتن حتی یک خط کد.">
+  <meta name="keywords" content="منطق شرطی فرم وردپرس, افزودنی منطق شرطی, نمایش و مخفی‌کردن فیلد براساس پاسخ, نمایش فیلد براساس منوی کشویی, مسیردهی ایمیل براساس پاسخ, رد شدن از گام در فرم چندمرحله‌ای, تغییر مسیر پس از ارسال فرم, منطق شرطی براساس پارامتر URL, فرم براساس نقش کاربر, الزامی کردن فیلد به‌شرط, وب‌هوک شرطی, فرم هوشمند بدون کد">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="author" content="White Studio Team">
+  <link rel="canonical" href="https://easyformbuilder.ir/document/easy-form-builder-conditional-logic-complete-guide/">
+  <link rel="alternate" hreflang="en" href="https://whitestudio.team/document/easy-form-builder-conditional-logic-complete-guide/">
+  <link rel="alternate" hreflang="de" href="https://whitestudio.team/de/document/easy-form-builder-conditional-logic-complete-guide/">
+  <link rel="alternate" hreflang="ar" href="https://whitestudio.team/ar/document/easy-form-builder-conditional-logic-complete-guide/">
+  <link rel="alternate" hreflang="fa" href="https://easyformbuilder.ir/document/easy-form-builder-conditional-logic-complete-guide/">
+  <link rel="alternate" hreflang="x-default" href="https://whitestudio.team/document/easy-form-builder-conditional-logic-complete-guide/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="منطق شرطی در فرم‌های وردپرس: راهنمای کامل (۲۰۲۶)">
+  <meta property="og:description" content="فیلدها را براساس پاسخ نمایش دهید یا مخفی کنید، ایمیل‌ها را مسیردهی کنید، از گام‌ها رد شوید، و تغییر مسیر یا وب‌هوک را براساس آدرس، نقش یا پرداخت اجرا کنید — بدون کد.">
+  <meta property="og:locale" content="fa_IR">
+  <meta property="og:url" content="https://easyformbuilder.ir/document/easy-form-builder-conditional-logic-complete-guide/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="منطق شرطی در فرم‌های وردپرس: راهنمای کامل (۲۰۲۶)">
+  <meta name="twitter:description" content="فرم‌های هوشمند وردپرس بسازید بدون کد: فیلد، گام، ایمیل، تأیید، تغییر مسیر و وب‌هوک، همگی شرطی.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        "@id": "https://easyformbuilder.ir/document/easy-form-builder-conditional-logic-complete-guide/#article",
+        "headline": "منطق شرطی در فرم‌های وردپرس: راهنمای کامل افزودنی منطق شرطی (۲۰۲۶)",
+        "description": "راهنمای کاربردی کامل برای فعال‌سازی و استفاده از افزودنی منطق شرطی در فرم ساز آسان، برای ساخت فرم‌های هوشمند وردپرس بدون کد.",
+        "inLanguage": "fa",
+        "datePublished": "2026-07-08",
+        "dateModified": "2026-08-04",
+        "author": { "@type": "Organization", "name": "White Studio Team", "url": "https://whitestudio.team/" },
+        "publisher": { "@type": "Organization", "name": "White Studio Team", "url": "https://whitestudio.team/" },
+        "about": { "@type": "SoftwareApplication", "name": "Easy Form Builder Conditional Logic Add-on" },
+        "articleSection": ["منطق شرطی چیست", "فعال‌سازی", "ساخت قانون", "امکانات", "کاربردها", "جست‌وجوهای رایج", "بهترین شیوه‌ها", "پرسش‌های متداول"]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Easy Form Builder Conditional Logic Add-on",
+        "applicationCategory": "WordPressPlugin",
+        "operatingSystem": "WordPress",
+        "description": "افزودنی منطق شرطی که فرم‌های ایستای وردپرس را با یک ویرایشگر تصویری اگر/آنگاه به فرم‌های پویا و قانون‌محور تبدیل می‌کند.",
+        "offers": { "@type": "Offer", "category": "افزودنی ویژه" },
+        "featureList": [
+          "نمایش و مخفی‌کردن فیلدها براساس پاسخ‌ها",
+          "الزامی یا اختیاری کردن فیلدها به‌شرط",
+          "نمایش، مخفی‌کردن و پرش به گام‌ها در فرم‌های چندمرحله‌ای",
+          "مسیردهی شرطی ایمیل به گیرندگان مختلف",
+          "تأیید و تغییر مسیر شرطی",
+          "وب‌هوک شرطی",
+          "گروه‌های شرط با AND، OR و شروط تودرتو",
+          "حالت آزمایش و بازرس",
+          "محاسبات فرمولی در نسخه ویژه",
+          "برون‌بری و درون‌ریزی قوانین در نسخه ویژه"
+        ]
+      },
+      {
+        "@type": "HowTo",
+        "name": "چگونه منطق شرطی را در فرم ساز آسان فعال و استفاده کنیم",
+        "description": "مراحل فعال‌سازی افزودنی و ساخت نخستین قانون اگر/آنگاه در فرم‌ساز.",
+        "step": [
+          {"@type": "HowToStep", "name": "فرم ساز آسان را باز کنید", "text": "در پیشخوان وردپرس، منوی فرم ساز آسان را باز کنید و مطمئن شوید افزونه فعال است."},
+          {"@type": "HowToStep", "name": "افزودنی‌ها را باز کنید", "text": "به صفحه افزودنی‌ها بروید و کارت افزودنی منطق شرطی را پیدا کنید."},
+          {"@type": "HowToStep", "name": "افزودنی را فعال کنید", "text": "اگر پلن شما اجازه می‌دهد، افزودنی را نصب یا فعال کنید. اگر قفل است، باید ارتقا دهید."},
+          {"@type": "HowToStep", "name": "یک فرم باز کنید", "text": "یک فرم جدید بسازید یا فرم موجود را ویرایش کنید و فیلدهایی که قوانین از آن‌ها استفاده می‌کنند را اضافه کنید."},
+          {"@type": "HowToStep", "name": "یک قانون بسازید", "text": "تنظیمات فرم را باز کنید، روی منطق شرطی کلیک کنید، یک قانون اگر/آنگاه بسازید و آن را با حالت آزمایش بررسی کنید."}
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "چگونه فیلدی را براساس پاسخ منوی کشویی نمایش دهم؟",
+            "acceptedAnswer": { "@type": "Answer", "text": "منطق شرطی را از تنظیمات فرم باز کنید و قانونی بسازید که در آن شرط برابر بودن فیلد منوی کشویی با یک مقدار باشد و اقدام آن نمایش‌دادن فیلد هدف باشد. به‌محض تطابق پاسخ، فیلد ظاهر می‌شود؛ بدون هیچ کدی." }
+          },
+          {
+            "@type": "Question",
+            "name": "چگونه ایمیل فرم را براساس پاسخ به افراد مختلف مسیردهی کنم؟",
+            "acceptedAnswer": { "@type": "Answer", "text": "در تب آگاه‌سازی‌ها، یک قانون شرطی بسازید که گیرنده، موضوع و قالب را تعیین کند. مثلاً درخواست‌های فروش به تیم فروش، صورتحساب به حسابداری و پشتیبانی فنی به تیم پشتیبانی به‌صورت خودکار ارسال شود." }
+          },
+          {
+            "@type": "Question",
+            "name": "آیا می‌توانم در فرم چندمرحله‌ای از یک گام رد شوم؟",
+            "acceptedAnswer": { "@type": "Answer", "text": "بله. از تب فیلدها اقدام‌های نمایش گام، مخفی‌کردن گام یا رفتن به گام را استفاده کنید تا بازدیدکننده فقط گام‌های مربوط به خودش را ببیند؛ مثلاً رد شدن از گام پرداخت برای ثبت‌نام رایگان." }
+          },
+          {
+            "@type": "Question",
+            "name": "آیا فرم می‌تواند براساس پارامتر URL یا نقش کاربر تغییر کند؟",
+            "acceptedAnswer": { "@type": "Answer", "text": "بله. شرط‌ها می‌توانند پارامترهای URL (مانند مقادیر UTM یا کمپین) و همچنین وضعیت ورود کاربر و نقش او در وردپرس را بخوانند، به‌این‌ترتیب می‌توانید برای منابع ترافیک و گروه‌های مختلف کاربر، فیلد، ایمیل یا تغییر مسیر متفاوتی نمایش دهید." }
+          },
+          {
+            "@type": "Question",
+            "name": "آیا برای استفاده از منطق شرطی به دانش برنامه‌نویسی نیاز دارم؟",
+            "acceptedAnswer": { "@type": "Answer", "text": "خیر. هر قانون به‌صورت تصویری در یک رابط اگر/آنگاه ساخته می‌شود. شما فقط فیلد، عملگر، مقدار و اقدام را انتخاب می‌کنید؛ بدون PHP، بدون JavaScript، بدون CSS." }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "Easy Form Builder", "item": "https://whitestudio.team/"},
+          {"@type": "ListItem", "position": 2, "name": "مستندات", "item": "https://easyformbuilder.ir/document/"},
+          {"@type": "ListItem", "position": 3, "name": "منطق شرطی — راهنمای کامل"}
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body style="margin:0; background:#f8f7fc; color:#1f2937; font-family:'Vazirmatn', 'Segoe UI', Tahoma, Arial, sans-serif; line-height:2; -webkit-font-smoothing:antialiased;">
+
+  <main id="top">
+
+    <!-- ============ معرفی ============ -->
+    <section style="padding:60px 0 46px; background:linear-gradient(135deg, #f3e8ff 0%, #fdeef6 100%); border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <span style="display:inline-flex; align-items:center; gap:8px; padding:6px 13px; border-radius:999px; color:#6b21a8; background:#ffffff; border:1px solid #e3d9f7; font-size:13px; font-weight:700; box-shadow:0 4px 14px rgba(124,58,237,.10);">&#10022; فرم ساز آسان &middot; افزودنی منطق شرطی</span>
+
+        <h1 style="font-size:clamp(28px, 5vw, 48px); line-height:1.5; margin:18px 0 16px; max-width:920px; color:#2a1155;">منطق شرطی برای فرم‌های وردپرس: نمایش و مخفی‌کردن فیلد، مسیردهی ایمیل، رد شدن از گام‌ها &mdash; بدون کد</h1>
+
+        <p style="font-size:19px; color:#54506a; max-width:840px; margin:0 0 26px;">افزودنی منطق شرطی یک فرم معمولی در فرم ساز آسان را به فرمی تبدیل می‌کند که به هر پاسخ واکنش نشان می‌دهد. با یک ویرایشگر تصویری اگر/آنگاه، شما تصمیم می‌گیرید کدام فیلدها ظاهر شوند، کدام گام‌ها رد شوند، کدام تیم ایمیل را دریافت کند، کدام پیام تأیید نمایش داده شود و چه داده‌ای به سامانه مدیریت مشتریان شما برسد &mdash; همه براساس کاری که هر بازدیدکننده واقعاً انجام می‌دهد.</p>
+
+        <div style="display:flex; flex-wrap:wrap; gap:12px;">
+          <a href="#activate" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:13px 22px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#ec4899); color:#fff; font-weight:800; text-decoration:none; min-height:48px; box-shadow:0 10px 26px rgba(124,58,237,.28);">افزودنی را فعال کنید &larr;</a>
+          <a href="#first-rule" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:13px 22px; border-radius:10px; background:#fff; color:#7c3aed; border:1px solid #d8c8f5; font-weight:800; text-decoration:none; min-height:48px;">نخستین قانون را بسازید</a>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:24px;">
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">بدون کد، با کشیدن‌و‌رهاکردن</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">قوانین تصویری اگر / آنگاه</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">مناسب فرم‌های چندمرحله‌ای</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">ایمیل، تغییر مسیر و وب‌هوک شرطی</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">حالت آزمایش پیش از انتشار</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ نکات کلیدی ============ -->
+    <section style="padding:38px 0 8px;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="background:#fff; border:1px solid #ece5f7; border-inline-start:5px solid #7c3aed; border-radius:14px; padding:26px 28px; box-shadow:0 14px 38px rgba(62,31,119,.08);">
+          <h2 style="font-size:15px; color:#7c3aed; margin:0 0 14px;">نکات کلیدی، به‌اختصار</h2>
+          <ul style="margin:0; padding-inline-start:20px; color:#3d3a4f;">
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">چیست:</strong> منطق شرطی یک افزودنی ویژه برای فرم ساز آسان است که فرم را وادار می‌کند به پاسخ‌ها، پارامترهای URL، نقش‌های کاربری، گام‌ها و نتیجه پرداخت واکنش نشان دهد.</li>
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">بدون کد:</strong> هر قانون به‌صورت تصویری از یک شرط (اگر) و یک اقدام (آنگاه) ساخته می‌شود. شما هرگز به PHP، JavaScript یا CSS دست نمی‌زنید.</li>
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">چه چیزی را کنترل می‌کند:</strong> فیلدها، پیمایش در فرم‌های چندمرحله‌ای، مسیردهی ایمیل، پیام‌های تأیید، تغییر مسیر و وب‌هوک.</li>
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">امن به‌طور ذاتی:</strong> فیلدها و گام‌هایی که یک قانون مخفی می‌کند، هنگام اعتبارسنجی نادیده گرفته می‌شوند، بنابراین یک فیلد الزامی مخفی هرگز مانع ارسال نمی‌شود.</li>
+            <li style="margin-bottom:0;"><strong style="color:#2a1155;">پیش از انتشار آزمایش کنید:</strong> حالت آزمایش و بازرس پیش از رسیدن بازدیدکنندگان واقعی نشان می‌دهند کدام قوانین <strong>مطابقت دارد</strong>، <strong>مطابقت ندارد</strong> یا <strong>رد شد</strong>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ فهرست مطالب ============ -->
+    <section style="padding:24px 0 20px;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="background:#f5f0fd; border:1px solid #e6ddf6; border-radius:14px; padding:24px 28px;">
+          <h2 style="font-size:16px; margin:0 0 14px; color:#2a1155;">در این صفحه</h2>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:6px 24px; font-size:15px;">
+            <a href="#what-is" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۱. منطق شرطی چیست؟</a>
+            <a href="#why" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۲. چرا اهمیت دارد</a>
+            <a href="#activate" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۳. فعال‌سازی افزودنی</a>
+            <a href="#first-rule" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۴. نخستین قانون شما</a>
+            <a href="#tabs" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۵. چهار تب قوانین</a>
+            <a href="#panel-tour" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۶. آن را ببینید (تصاویر)</a>
+            <a href="#features" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۷. مرجع کامل امکانات</a>
+            <a href="#use-cases" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۸. کاربردهای واقعی</a>
+            <a href="#searches" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۹. جست‌وجوهای رایج</a>
+            <a href="#best-practices" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۱۰. بهترین شیوه‌ها</a>
+            <a href="#free-vs-pro" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۱۱. رایگان در برابر ویژه</a>
+            <a href="#troubleshooting" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۱۲. رفع مشکلات</a>
+            <a href="#faq" style="color:#7c3aed; text-decoration:none; padding:4px 0;">۱۳. پرسش‌های متداول</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ منطق شرطی چیست ============ -->
+    <section id="what-is" style="padding:44px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto; max-width:920px;">
+        <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 8px; color:#2a1155;">منطق شرطی در فرم وردپرس چیست؟</h2>
+
+        <div style="background:#f3e8ff; border:1px solid #e3d9f7; border-radius:12px; padding:16px 18px; margin:14px 0 22px;">
+          <strong style="color:#6b21a8;">پاسخ کوتاه:</strong> منطق شرطی یک موتور قانون است که رفتار فرم را در لحظه تغییر می‌دهد. هر قانون از یک شرط (اگر) و یک اقدام (آنگاه) تشکیل شده است. وقتی شرط برقرار باشد، اقدام اجرا می‌شود &mdash; نمایش فیلد، رد شدن از گام، ارسال ایمیل به تیمی مشخص، تغییر مسیر بازدیدکننده یا اجرای وب‌هوک.
+        </div>
+
+        <p style="margin:0 0 16px; color:#3d3a4f;">یک فرم معمولی وردپرس ایستاست: همه بازدیدکنندگان همان فیلدها را به همان ترتیب می‌بینند و همان ایمیل را فعال می‌کنند. این برای یک فرم تماس ساده کافی است، اما به‌محض اینکه فرم شما باید به بیش از یک مخاطب خدمت کند، این مدل از کار می‌افتد. درخواست فروش، تیکت پشتیبانی و درخواست استخدام هرکدام به پرسش‌ها، گیرندگان و پیگیری‌های متفاوتی نیاز دارند &mdash; و واداشتن همه به عبور از یک فرم طولانی و کلی، به رهاشدن فرم و داده‌های شلوغ می‌انجامد.</p>
+
+        <p style="margin:0 0 16px; color:#3d3a4f;">افزودنی منطق شرطی این مشکل را با اجازه‌دادن به فرم برای <em>هماهنگ‌شدن با کسی که آن را پر می‌کند</em> حل می‌کند. به‌جای ساختن پنج فرم جداگانه، شما یک فرم هوشمند می‌سازید که پرسش‌های درست را نشان می‌دهد، به تیم درست مسیردهی می‌کند و با پیام درست تأیید می‌کند &mdash; همه به‌صورت خودکار. این افزودنی سیگنال‌هایی مانند پاسخ‌های بازدیدکننده، مقادیر موجود در آدرس، وضعیت ورود او و نقشش در وردپرس، گام فعلی در یک فرم چندمرحله‌ای و نتیجه پرداخت را می‌خواند، سپس قوانین شما را اعمال می‌کند تا تصمیم بگیرد چه اتفاقی بعد رخ دهد.</p>
+
+        <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:24px; margin-top:8px; box-shadow:0 12px 32px rgba(62,31,119,.06);">
+          <h3 style="font-size:18px; margin:0 0 14px; color:#6b21a8;">ساختار یک قانون</h3>
+          <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:center;">
+            <div style="background:#faf7ff; border:1px solid #e6ddf6; border-radius:12px; padding:16px;">
+              <div style="font-size:12px; font-weight:800; color:#7c3aed;">اگر (شرط)</div>
+              <div style="margin-top:6px; font-size:14px; color:#2a1155;">نوع مشتری <strong>هست</strong> شرکتی</div>
+            </div>
+            <div style="font-weight:900; color:#ec4899; font-size:22px; text-align:center;">&larr;</div>
+            <div style="background:#fdf2f8; border:1px solid #f7d6e8; border-radius:12px; padding:16px;">
+              <div style="font-size:12px; font-weight:800; color:#db2777;">آنگاه (اقدام)</div>
+              <div style="margin-top:6px; font-size:14px; color:#2a1155;">نمایش‌دادن «نام شرکت» + الزامی</div>
+            </div>
+          </div>
+          <p style="margin:16px 0 0; font-size:14px; color:#6b7280;">آن را به‌صورت یک جمله کامل بخوانید: <em>«اگر نوع مشتری شرکتی است، آنگاه فیلد نام شرکت را نمایش بده و آن را الزامی کن.»</em> کل مدل ذهنی همین است &mdash; باقی همه چیز فقط شرط‌های بیشتر و اقدام‌های بیشتر است.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ چرا اهمیت دارد ============ -->
+    <section id="why" style="padding:46px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 8px; color:#2a1155;">چرا منطق شرطی برای نرخ تبدیل و سازمان‌دهی کار اهمیت دارد؟</h2>
+          <p style="margin:0; color:#6b7280;">فرم‌های هوشمند یک امکان لوکس نیستند. آن‌ها مستقیماً روی نرخ تکمیل فرم، کیفیت سرنخ‌ها و میزان دسته‌بندی دستی‌ای که تیم شما پس از هر ارسال انجام می‌دهد اثر می‌گذارند.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:18px;">
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#7c3aed,#a855f7); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">&#127919;</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">فرم‌های کوتاه‌تر و هوشمندتر</h3>
+            <p style="margin:0; color:#6b7280;">بازدیدکننده فقط پرسش‌های مربوط به خودش را می‌بیند. فیلدهای بی‌ربط و گام‌های غیرضروری ناپدید می‌شوند، در نتیجه مانع و نرخ رهاسازی کاهش می‌یابد.</p>
+          </article>
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#ec4899,#f472b6); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">&#129517;</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">مسیردهی بهتر سرنخ‌ها</h3>
+            <p style="margin:0; color:#6b7280;">درخواست‌های فروش، پشتیبانی، استخدام، رویداد و سفارش، براساس پاسخ‌های بازدیدکننده به صندوق ورودی درست و پیگیری درست می‌رسند.</p>
+          </article>
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#f59e0b,#fbbf24); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">&#129529;</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">داده‌های پاک‌تر</h3>
+            <p style="margin:0; color:#6b7280;">پاک‌کردن مقادیر قدیمی و الزامی‌کردن فیلدها فقط زمانی که واقعاً موضوعیت دارند، یعنی ارسال‌های ناقص و متناقض کمتری برای پاک‌سازی در آینده.</p>
+          </article>
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#6b21a8,#7c3aed); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">&#9881;&#65039;</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">اتوماسیون سبک</h3>
+            <p style="margin:0; color:#6b7280;">وب‌هوک را به سامانه مدیریت مشتریان یا ابزار اتوماسیون خود، فقط برای ارسال‌های واجدشرایط اجرا کنید &mdash; نه برای هر پیامی که به فرم می‌رسد.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ فعال‌سازی ============ -->
+    <section id="activate" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 8px; color:#2a1155;">چگونه افزودنی منطق شرطی را فعال کنیم</h2>
+          <p style="margin:0; color:#6b7280;">این مراحل با ساختار فعلی افزونه مطابقت دارد. نام داخلی افزودنی <span dir="ltr" style="display:inline-block; unicode-bidi:isolate; font-family:Consolas, monospace; background:#f0ebfa; color:#6b21a8; padding:1px 6px; border-radius:5px;">AdnSMF</span> است، اما در پیشخوان با نام <strong>افزودنی منطق شرطی</strong> می‌بینید آن را.</p>
+        </div>
+
+        <p style="margin:0 0 16px; color:#6b7280; font-size:14px;">&#128073; روی هر گام کلیک کنید تا باز شود و تصویر مربوطه را ببینید.</p>
+        <div style="display:grid; gap:14px;">
+
+          <details open style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">۱</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">مطمئن شوید فرم ساز آسان فعال است</span>
+                <span style="display:block; color:#6b7280; font-size:15px;"><strong>افزونه‌ها</strong> را باز کنید، مطمئن شوید فرم ساز آسان فعال است، سپس منوی <strong>فرم ساز آسان</strong> را باز کنید.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; مشاهده تصویر</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/install-easy-form-builder-v4.png" alt="فهرست فرم‌های فرم ساز آسان باز در نوار کناری پیشخوان وردپرس" title="منوی فرم ساز آسان را در وردپرس باز کنید" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">تصویر: فرم ساز آسان باز در پیشخوان وردپرس &mdash; فهرست فرم‌های ذخیره‌شده شما.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">۲</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">صفحه افزودنی‌ها را باز کنید</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">در زیرمنوی فرم ساز آسان روی <strong>افزودنی‌ها</strong> کلیک کنید و کارت <strong>افزودنی منطق شرطی</strong> را پیدا کنید.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; مشاهده تصویر</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/addons-easy-form-builder.png" alt="صفحه افزودنی‌های فرم ساز آسان با کارت‌های افزودنی و دکمه‌های نصب" title="صفحه افزودنی‌ها را در فرم ساز آسان باز کنید" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">تصویر: صفحه افزودنی‌ها که هر افزودنی فرم ساز آسان از آنجا نصب یا فعال می‌شود.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">۳</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">افزودنی را نصب یا فعال کنید</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">آن را نصب یا فعال کنید. کارت <em>قفل‌شده</em> یا پیام ارتقا یعنی پلن شما به ارتقا نیاز دارد.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; مشاهده تصویر</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/install-conditional-logic-addons.png" alt="نصب یا فعال‌سازی افزودنی منطق شرطی از صفحه افزودنی‌های فرم ساز آسان" title="افزودنی منطق شرطی را نصب یا فعال کنید" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">تصویر: از دکمه <strong>نصب</strong> روی کارت افزودنی منطق شرطی استفاده کنید، یا اگر پیش‌تر نصب شده، آن را فعال کنید.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">۴</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">یک فرم بسازید یا باز کنید</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">برای فرم جدید به <strong>ایجاد</strong> بروید یا فرمی را از <strong>پنل</strong> ویرایش کنید، سپس فیلدهایی که قوانین شما استفاده می‌کنند را اضافه کنید.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; مشاهده تصویر</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/create-new-form-easy-form-builder.png" alt="فرم‌ساز فرم ساز آسان با پالت فیلدهای کشیدنی در سمت چپ" title="یک فرم را در فرم ساز آسان بسازید یا ویرایش کنید" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">تصویر: فرم‌ساز. فیلدهایی که شرط‌هایتان می‌خوانند و فیلدهایی که قوانین‌تان تغییر می‌دهند را به آن بکشید.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">۵</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">تنظیمات فرم &larr; منطق شرطی را باز کنید</span>
+                <span style="display:block; color:#6b7280; font-size:15px;"><strong>تنظیمات فرم</strong> را باز کنید و روی <strong>منطق شرطی</strong> کلیک کنید تا پنل قوانین اجرا شود.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; مشاهده تصویر</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/open-Conditional-Logic-settings-form.gif" alt="پنل تنظیمات فرم در فرم ساز آسان با دکمه منطق شرطی" title="منطق شرطی را از تنظیمات فرم باز کنید" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">تصویر: دکمه <strong>منطق شرطی</strong> در پایین پنل تنظیمات فرم قرار دارد.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#ec4899,#f472b6); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">۶</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">یک قانون بسازید و با حالت آزمایش بررسی کنید</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">یک قانون اضافه کنید، شرط اگر و اقدام آنگاه را انتخاب کنید، روی <strong>ذخیره</strong> کلیک کنید، سپس <strong>حالت آزمایش</strong> را اجرا کنید.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; مشاهده تصویر</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/build-rule-Conditional-Logic-form.gif" alt="ویرایشگر قانون اگر آنگاه در منطق شرطی با انتخاب فیلد، عملگر، اقدام، اولویت و دکمه ذخیره" title="یک قانون اگر/آنگاه بسازید و با حالت آزمایش بررسی کنید" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">تصویر: ویرایشگر قانون اگر/آنگاه همراه با «Priority»، «پس از مطابقت این قانون، پردازش متوقف شود» و دکمه ذخیره.</figcaption>
+            </figure>
+          </details>
+
+        </div>
+
+        <div style="background:#eef6ff; border:1px solid #bcd9f7; border-radius:12px; padding:16px 18px; margin-top:20px;">
+          <strong style="color:#0b4a8f;">نکته زبانی:</strong> <span style="color:#20507f;">دو برچسب در ویرایشگر قانون هنوز ترجمه نشده‌اند و حتی در پیشخوان فارسی به انگلیسی نمایش داده می‌شوند: <strong dir="ltr" style="unicode-bidi:isolate;">Priority</strong> (ترتیب ارزیابی قوانین) و <strong dir="ltr" style="unicode-bidi:isolate;">Action</strong> (انتخاب اقدام آنگاه). باقی برچسب‌های این راهنما مطابق ترجمه فارسی همراه افزونه هستند.</span>
+        </div>
+
+        <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:12px; padding:16px 18px; margin-top:14px;">
+          <strong style="color:#92400e;">نکته رفع مشکل:</strong> <span style="color:#7a5b12;">اگر دکمه منطق شرطی را نمی‌بینید، ابتدا صفحه افزودنی‌ها را بررسی کنید. اگر دکمه هست ولی ویرایشگر باز نمی‌شود، سطح پلن، فعال‌بودن افزودنی، و اینکه فرم واقعاً فیلدهایی برای هدف‌گیری دارد را بررسی کنید.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ نخستین قانون ============ -->
+    <section id="first-rule" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 8px; color:#2a1155;">آموزش: نمایش فیلد فقط با تطابق پاسخ منوی کشویی</h2>
+          <p style="margin:0; color:#6b7280;">این پرجست‌وجوترین کار است &mdash; <em>چگونه فیلدی را براساس پاسخ بازدیدکننده نمایش دهم؟</em> در ادامه آموزش کامل با مثال شرکتی در برابر شخصی.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:18px;">
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:24px; border-top:4px solid #7c3aed;">
+            <h3 style="font-size:18px; margin:0 0 12px; color:#6b21a8;">گام الف &mdash; آماده‌سازی فیلدها</h3>
+            <ol style="margin:0; padding-inline-start:20px; color:#3d3a4f;">
+              <li style="margin-bottom:8px;">یک فیلد چندگزینه‌ای با نام <strong>نوع مشتری</strong> اضافه کنید.</li>
+              <li style="margin-bottom:8px;">دو گزینه به آن بدهید: <strong>شخصی</strong> و <strong>شرکتی</strong>.</li>
+              <li style="margin-bottom:8px;">فیلدهای <strong>نام شرکت</strong> و <strong>شناسه مالیاتی</strong> را اضافه کنید.</li>
+              <li style="margin-bottom:0;">اگر فرم چندمرحله‌ای است، گام «اطلاعات شرکت» را هم آماده کنید.</li>
+            </ol>
+          </article>
+          <article style="background:#fdf2f8; border:1px solid #f7d6e8; border-radius:14px; padding:24px; border-top:4px solid #ec4899;">
+            <h3 style="font-size:18px; margin:0 0 12px; color:#db2777;">گام ب &mdash; ساخت قانون</h3>
+            <ol style="margin:0; padding-inline-start:20px; color:#3d3a4f;">
+              <li style="margin-bottom:8px;">تب <strong>فیلدها</strong> را باز کنید و روی <strong>افزودن</strong> کلیک کنید.</li>
+              <li style="margin-bottom:8px;">در بخش اگر، فیلد <strong>نوع مشتری</strong> را انتخاب کنید.</li>
+              <li style="margin-bottom:8px;">عملگر را روی <strong>هست</strong> بگذارید و مقدار <strong>شرکتی</strong> را انتخاب کنید.</li>
+              <li style="margin-bottom:8px;">در بخش آنگاه، <strong>نمایش فیلد &larr; نام شرکت</strong> را اضافه کنید.</li>
+              <li style="margin-bottom:8px;">اقدام دومی اضافه کنید: <strong>الزامی &larr; نام شرکت</strong>.</li>
+              <li style="margin-bottom:0;"><strong>ذخیره</strong> کنید، سپس هر دو مقدار را در حالت آزمایش امتحان کنید.</li>
+            </ol>
+          </article>
+        </div>
+        <p style="margin:20px 0 0; color:#6b7280; max-width:840px;">اکنون فیلد نام شرکت برای مشتریان شخصی مخفی می‌ماند و فقط زمانی ظاهر می‌شود &mdash; از پیش الزامی مشخص‌شده &mdash; که کسی گزینه شرکتی را انتخاب کند. از آنجا که فیلدهای مخفی هنگام اعتبارسنجی نادیده گرفته می‌شوند، مشتری شخصی هرگز با فیلدی الزامی که اصلاً ندیده، متوقف نمی‌شود.</p>
+      </div>
+    </section>
+
+    <!-- ============ چهار تب ============ -->
+    <section id="tabs" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 8px; color:#2a1155;">چهار تب قوانین، به‌طور کامل</h2>
+          <p style="margin:0; color:#6b7280;">قوانین براساس چیزی که کنترل می‌کنند، در چهار تب دسته‌بندی شده‌اند. شما هرگز کدی ویرایش نمی‌کنید &mdash; هر تب مجموعه‌ای از کارت‌ها، منوهای کشویی و یک دکمه حالت آزمایش است.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #7c3aed;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">فیلدها</h3>
+            <p style="margin:0; color:#6b7280;">نمایش، مخفی‌کردن، الزامی یا اختیاری کردن، فعال‌سازی، غیرفعال‌سازی، تنظیم یا پاک‌کردن مقدار، و کنترل پیمایش در فرم‌های چندمرحله‌ای.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #ec4899;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">آگاه‌سازی‌ها</h3>
+            <p style="margin:0; color:#6b7280;">مسیردهی ایمیل‌های شرطی به تیم مناسب &mdash; فروش، پشتیبانی، حسابداری یا یک گیرنده مشخص &mdash; همراه با موضوع پویا.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #a855f7;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">تأیید</h3>
+            <p style="margin:0; color:#6b7280;">نمایش پیام تشکر متفاوت، تغییر عنوان و رنگ و آیکون آن، یا تغییر مسیر بازدیدکننده پس از ارسال.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #f59e0b;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">وب‌هوک</h3>
+            <p style="margin:0; color:#6b7280;">اجرا یا توقف وب‌هوک براساس پاسخ‌ها، پرداخت یا نوع درخواست، و کنترل اینکه کدام فیلدها در بار داده ارسال شوند.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ تور تصویری ============ -->
+    <section id="panel-tour" style="padding:48px 0; background:linear-gradient(180deg,#faf7ff,#ffffff); border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:26px;">
+          <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 8px; color:#2a1155;">آن را ببینید: پنل منطق شرطی و تب‌های آن</h2>
+          <p style="margin:0; color:#6b7280;">این ظاهر منطق شرطی در فرم ساز آسان است. هر تب &mdash; <strong>فیلدها</strong>، <strong>آگاه‌سازی‌ها</strong>، <strong>تأیید</strong> و <strong>وب‌هوک</strong> &mdash; همان قانون اگر/آنگاه را می‌سازد؛ فقط نتیجه متفاوت است. از این تصاویر استفاده کنید تا دقیقاً بدانید کجا کلیک کنید وقتی می‌خواهید فیلدی نمایش دهید، ایمیلی مسیردهی کنید، بازدیدکننده‌ای را تغییر مسیر دهید یا وب‌هوکی اجرا کنید.</p>
+        </div>
+
+        <!-- تصاویر واقعی -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:20px;">
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-inline-start:8px; font-size:12px; font-weight:800; color:#6b21a8;">منطق شرطی</span>
+            </div>
+            <img src="https://whitestudio.team/wp-content/uploads/2026/08/Fields-tab-conditional-logic-addons.png" alt="پنل منطق شرطی در فرم ساز آسان در حالت خالی" title="پنل منطق شرطی &mdash; روی افزودن کلیک کنید تا نخستین قانون را بسازید" loading="lazy" style="width:100%; display:block;">
+            <figcaption style="padding:14px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">پنل منطق شرطی.</strong> آن را از تنظیمات فرم باز کنید، سپس روی <strong>افزودن</strong> کلیک کنید تا نخستین قانون اگر/آنگاه خود را بسازید. در حالت خالی می‌خوانید: «برای شروع ساخت فرم هوشمند، نخستین قانون خود را اضافه کنید.»</figcaption>
+          </figure>
+
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-inline-start:8px; font-size:12px; font-weight:800; color:#6b21a8;">تب فیلدها</span>
+            </div>
+            <img src="https://whitestudio.team/wp-content/uploads/2026/08/open-conditional-logic-addons.png" alt="ویرایشگر قانون اگر آنگاه در تب فیلدها با انتخاب فیلد، هست، نمایش فیلد و دکمه ذخیره" title="تب فیلدها &mdash; نمایش یا مخفی‌کردن فیلد براساس پاسخ" loading="lazy" style="width:100%; display:block;">
+            <figcaption style="padding:14px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">تب فیلدها.</strong> شرط <strong>اگر</strong> را بسازید، اقدام <strong>آنگاه</strong>ای مانند نمایش فیلد یا الزامی را انتخاب کنید، سپس ذخیره کنید.</figcaption>
+          </figure>
+        </div>
+
+        <!-- پیش‌نمایش تب‌ها -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:20px;">
+
+          <!-- آگاه‌سازی‌ها -->
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-inline-start:8px; font-size:12px; font-weight:800; color:#6b21a8;">تب آگاه‌سازی‌ها</span>
+            </div>
+            <div style="padding:16px;">
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e7efff; color:#2f6bd8; font-weight:800; font-size:12px;">اگر</span>
+              <div style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">بخش</div>
+                <div style="flex:0 0 auto; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">هست</div>
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">حسابداری</div>
+              </div>
+              <div style="text-align:center; color:#ec4899; font-weight:900; font-size:16px; margin:2px 0;">&darr;</div>
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e5f7ee; color:#12a150; font-weight:800; font-size:12px;">آنگاه</span>
+              <div style="display:flex; gap:8px; margin:8px 0 12px; flex-wrap:wrap;">
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">ارسال آگاه‌سازی</div>
+                <div dir="ltr" style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a; unicode-bidi:isolate;">finance@site.com</div>
+              </div>
+              <div style="text-align:end;"><span style="display:inline-block; padding:7px 16px; border-radius:8px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:800; font-size:12px;">ذخیره</span></div>
+            </div>
+            <figcaption style="padding:2px 16px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">تب آگاه‌سازی‌ها.</strong> ایمیل را به تیم درست مسیردهی کنید &mdash; راه بدون کد برای ارسال ایمیل فرم به گیرندگان مختلف براساس پاسخ.</figcaption>
+          </figure>
+
+          <!-- تأیید -->
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-inline-start:8px; font-size:12px; font-weight:800; color:#6b21a8;">تب تأیید</span>
+            </div>
+            <div style="padding:16px;">
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e7efff; color:#2f6bd8; font-weight:800; font-size:12px;">اگر</span>
+              <div style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">پلن</div>
+                <div style="flex:0 0 auto; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">هست</div>
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">ویژه</div>
+              </div>
+              <div style="text-align:center; color:#ec4899; font-weight:900; font-size:16px; margin:2px 0;">&darr;</div>
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e5f7ee; color:#12a150; font-weight:800; font-size:12px;">آنگاه</span>
+              <div style="display:flex; gap:8px; margin:8px 0 12px; flex-wrap:wrap;">
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">تغییر مسیر به</div>
+                <div dir="ltr" style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a; unicode-bidi:isolate;">/book-a-call</div>
+              </div>
+              <div style="text-align:end;"><span style="display:inline-block; padding:7px 16px; border-radius:8px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:800; font-size:12px;">ذخیره</span></div>
+            </div>
+            <figcaption style="padding:2px 16px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">تب تأیید.</strong> پیام تشکر متفاوتی نشان دهید یا بازدیدکننده را براساس پاسخ به صفحه‌ای مشخص تغییر مسیر دهید.</figcaption>
+          </figure>
+
+          <!-- وب‌هوک -->
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-inline-start:8px; font-size:12px; font-weight:800; color:#6b21a8;">تب وب‌هوک</span>
+            </div>
+            <div style="padding:16px;">
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e7efff; color:#2f6bd8; font-weight:800; font-size:12px;">اگر</span>
+              <div style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">پرداخت</div>
+                <div style="flex:0 0 auto; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">هست</div>
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">موفق</div>
+              </div>
+              <div style="text-align:center; color:#ec4899; font-weight:900; font-size:16px; margin:2px 0;">&darr;</div>
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e5f7ee; color:#12a150; font-weight:800; font-size:12px;">آنگاه</span>
+              <div style="display:flex; gap:8px; margin:8px 0 12px; flex-wrap:wrap;">
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">اجرای وب‌هوک</div>
+                <div dir="ltr" style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a; unicode-bidi:isolate;">CRM &middot; /orders</div>
+              </div>
+              <div style="text-align:end;"><span style="display:inline-block; padding:7px 16px; border-radius:8px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:800; font-size:12px;">ذخیره</span></div>
+            </div>
+            <figcaption style="padding:2px 16px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">تب وب‌هوک.</strong> داده را فقط زمانی که شرط برقرار است به سامانه مدیریت مشتریان یا ابزار اتوماسیون خود بفرستید &mdash; نه با هر ارسال.</figcaption>
+          </figure>
+
+        </div>
+
+        <p style="margin:18px 0 0; font-size:13px; color:#8b8698;">این تصاویر وضعیت فعلی فرم ساز آسان را نشان می‌دهند؛ نماهای آگاه‌سازی‌ها، تأیید و وب‌هوک بالا، قانون اگر/آنگاه هر تب را نشان می‌دهند. صفحه دقیق شما ممکن است بسته به پلن و افزودنی‌های نصب‌شده متفاوت باشد.</p>
+      </div>
+    </section>
+
+    <!-- ============ مرجع امکانات ============ -->
+    <section id="features" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:24px;">
+          <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 8px; color:#2a1155;">مرجع کامل امکانات</h2>
+          <p style="margin:0; color:#6b7280;">تمام اقدام‌ها و انواع شرط، همراه با فایده روشن هرکدام و عبارت جست‌وجویی که به آن پاسخ می‌دهند. مواردی که با <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:12px; font-weight:700;">ویژه</span> علامت‌گذاری شده‌اند به پلن ویژه نیاز دارند.</p>
+        </div>
+        <div style="overflow-x:auto; border:1px solid #ece5f7; border-radius:14px; background:#fff;">
+          <table style="width:100%; border-collapse:collapse; min-width:640px; font-size:15px;">
+            <thead>
+              <tr>
+                <th style="text-align:start; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">امکان</th>
+                <th style="text-align:start; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">چه کمکی می‌کند</th>
+                <th style="text-align:start; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">جست‌وجویی که پاسخ می‌دهد</th>
+              </tr>
+            </thead>
+            <tbody style="color:#3d3a4f;">
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">نمایش فیلد / مخفی‌کردن فیلد</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نمایش یا مخفی‌کردن فیلد براساس پاسخ.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نمایش فیلد براساس پاسخ منوی کشویی</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">الزامی / اختیاری</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">الزامی‌کردن فیلد فقط در مسیرهایی که واقعاً موضوعیت دارد.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">الزامی کردن فیلد فقط به‌شرط</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">فعال‌سازی / غیرفعال‌سازی فیلد</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">قفل فیلد بدون مخفی‌کردن آن &mdash; مناسب برای فیلدهای از‌پیش‌پرشده یا قیمت.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">غیرفعال کردن فیلد فرم به‌شرط</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">نمایش گام / مخفی‌کردن گام</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نمایش یا حذف یک گام کامل در فرم چندمرحله‌ای.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">رد شدن از گام در فرم چندمرحله‌ای</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">رفتن به گام</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">فرستادن بازدیدکننده مستقیم به گام مربوطه.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">پرش به صفحه با منطق شرطی</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">نمایش پیام</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نمایش راهنما یا هشدار درست کنار فیلد.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نمایش پیام هنگام انتخاب گزینه</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">تنظیم مقدار / پاک کردن مقدار</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">پرکردن خودکار یک مقدار یا پاک‌کردن پاسخ قدیمی هنگام تغییر مسیر.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">پاک‌کردن مقدار فیلد هنگام تغییر گزینه</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">کپی مقدار از فیلد</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">کپی مقدار یک فیلد به فیلد دیگر بدون تایپ دوباره.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">کپی مقدار از فیلد دیگر</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">تنظیم برچسب، متن نگهدارنده مکان و متن راهنما</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تغییر متن فیلد براساس مسیر.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تغییر پویای برچسب فیلد</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">قرار دادن نشانگر روی فیلد / پیمایش به فیلد</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">جلب توجه به فیلدی مهم پس از انتخاب.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">پیمایش خودکار به فیلد پس از انتخاب</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">جلوگیری از ارسال فرم / پیام سفارشی ارسال</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">توقف ارسال با پیام (محدودیت سن، امتیاز پایین و غیره).</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">جلوگیری از ارسال فرم به‌شرط</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">AND / OR / گروه‌ها</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">ترکیب شرط‌ها، مثلاً ایران و شرکتی، یا فروش یا همکاری.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">گروه شرط AND OR در فرم</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">NOT / NAND / NOR <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">ویژه</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">معکوس‌کردن نتیجه یک گروه برای قوانین پیشرفته.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نمایش فیلد وقتی انتخاب نشده</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">شرط‌های پارامتر URL</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تطبیق فرم با کمپین، UTM یا مقدار موجود در آدرس.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">منطق شرطی براساس پارامتر URL</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">شرط‌های کاربر و نقش</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نمایش مسیرهای متفاوت برای مهمان، کاربر واردشده یا نقش‌های مختلف.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نمایش فیلد براساس نقش کاربر وردپرس</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">عملگرهای تاریخ</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">ساخت شرط روی قبل از / بعد از / بین دو تاریخ.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">منطق شرطی قبل و بعد از تاریخ</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">شرط‌های پرداخت <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">ویژه</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">اقدام براساس پرداخت‌شده، پرداخت‌نشده یا مبلغ پرداختی.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">منطق شرطی براساس مبلغ پرداخت</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">محاسبه <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">ویژه</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">فرمول‌های عددی که نتیجه‌شان در یک فیلد هدف نمایش داده می‌شود.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">محاسبه مقدار فیلد فرم با فرمول</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">آگاه‌سازی‌های شرطی</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">آگاه‌سازی تیم درست با ایمیل براساس نوع درخواست، بودجه یا محصول.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">ارسال ایمیل فرم براساس پاسخ</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">رونوشت و رونوشت مخفی و توکن موضوع</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">افزودن CC/BCC و درج مقادیر فیلد در موضوع.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">گیرنده ایمیل پویا در فرم تماس</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">تأیید شرطی <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">ویژه</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نمایش پیام تشکر متناسب برای هر مسیر.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">پیام تشکر متفاوت براساس پاسخ</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">تغییر مسیر شرطی <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">ویژه</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تغییر مسیر به صفحه‌ای مشخص براساس پاسخ یا پلن انتخابی.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تغییر مسیر پس از ارسال فرم براساس پاسخ</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">توکن‌ها در آدرس مقصد <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">ویژه</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">انتقال مقادیر فیلد به آدرس مقصد.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">انتقال مقادیر فرم به صفحه تشکر</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">وب‌هوک شرطی <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">ویژه</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">ارسال داده به سامانه مدیریت مشتریان یا اتوماسیون فقط برای مسیرهای درست.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">ارسال فرم به CRM فقط به‌شرط</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">توقف وب‌هوک و فیلدهای بار داده <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">ویژه</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">توقف یک وب‌هوک یا محدودکردن فیلدهایی که به بیرون ارسال می‌شوند.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">انتخاب فیلدها برای ارسال در وب‌هوک</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">حالت آزمایش / بازرس</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">پیش‌نمایش مطابقت دارد / مطابقت ندارد / رد شد پیش از انتشار.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">آزمایش منطق شرطی پیش از انتشار</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">«Priority» و پس از مطابقت این قانون پردازش متوقف شود <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">ویژه</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">کنترل ترتیب قوانین و جلوگیری از تداخل روی یک هدف.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">رفع تداخل ترتیب قانون شرطی</td></tr>
+              <tr><td style="padding:13px 14px; font-weight:700; color:#2a1155;">برون‌بری / درون‌ریزی / تکثیر <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">ویژه</span></td><td style="padding:13px 14px;">کپی و انتقال قوانین بین فرم‌ها برای صرفه‌جویی در زمان.</td><td style="padding:13px 14px;">کپی منطق شرطی بین فرم‌ها</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ کاربردهای واقعی ============ -->
+    <section id="use-cases" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 8px; color:#2a1155;">فرم‌های واقعی که می‌توانید بسازید</h2>
+          <p style="margin:0; color:#6b7280;">هدف داشتن یک فرم مرکزی است که مسیر درست را انتخاب می‌کند &mdash; به‌جای نگه‌داری چند فرم جداگانه.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">فرم تماس هوشمند</h3>
+            <p style="margin:0; color:#6b7280;">انتخاب فروش، بودجه و شرکت را می‌پرسد؛ انتخاب پشتیبانی، شماره سفارش یا کلید مجوز را الزامی می‌کند.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">فرم درخواست قیمت</h3>
+            <p style="margin:0; color:#6b7280;">بودجه‌های کم را به پیام کمکی هدایت کنید، بودجه‌های استاندارد را عادی مسیردهی کنید، و سرنخ‌های باارزش را مستقیم به مدیر فروش ایمیل بزنید.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">ثبت‌نام رویداد</h3>
+            <p style="margin:0; color:#6b7280;">فیلدهای مخصوص بلیت ویژه را فقط برای بلیت پرمیوم نمایش دهید، گام پرداخت را برای بلیت رایگان مخفی کنید، و با پیامی متناسب با نوع بلیت تأیید کنید.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">درخواست استخدام</h3>
+            <p style="margin:0; color:#6b7280;">لینک نمونه‌کار را برای نقش طراحی الزامی کنید، لینک گیت‌هاب را برای نقش برنامه‌نویسی نمایش دهید، و هر درخواست را به صندوق استخدام مربوطه بفرستید.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">دسته‌بندی درخواست‌های پشتیبانی</h3>
+            <p style="margin:0; color:#6b7280;">درخواست‌های فنی، مالی و عمومی را جدا کنید، هرکدام را به ایمیل درست مسیردهی کنید، و تأییدیه‌ای متناسب با مسیر نمایش دهید.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">فرم پرداخت و سفارش</h3>
+            <p style="margin:0; color:#6b7280;">وب‌هوک سفارش را فقط پس از پرداخت موفق اجرا کنید، برای مبالغ بزرگ به مدیریت ایمیل بزنید، و پرداخت‌های ناموفق را با پیامی روشن هدایت کنید.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ جست‌وجوهای رایج ============ -->
+    <section id="searches" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:26px;">
+          <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 8px; color:#2a1155;">پرسش‌هایی که مردم جست‌وجو می‌کنند &mdash; و این افزودنی چگونه پاسخ می‌دهد</h2>
+          <p style="margin:0; color:#6b7280;">اگر دنبال افزونه فرم با منطق شرطی می‌گردید، این‌ها همان کارهایی هستند که مردم واقعاً جست‌وجو می‌کنند. هرکدام در فرم ساز آسان فقط یک قانون است.</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px;">
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">«نمایش فیلد فقط وقتی چک‌باکس تیک خورده»</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">اگر چک‌باکس تیک‌خورده باشد &larr; آنگاه نمایش فیلد. فیلد تا زدن تیک مخفی می‌ماند و بلافاصله ظاهر می‌شود.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">«ارسال ایمیل به آدرس متفاوت برای هر بخش»</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">مسیردهی شرطی ایمیل: اگر بخش برابر حسابداری باشد &larr; آنگاه به مالی آگاه‌سازی شود. این پاسخ بدون کد برای گیرنده پویا است.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">«رد شدن از یک صفحه در فرم چندمرحله‌ای»</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">از مخفی‌کردن گام یا رفتن به گام استفاده کنید تا بازدیدکنندگان پلن رایگان به‌طور کامل از صفحه پرداخت رد شوند.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">«تغییر فرم براساس UTM یا پارامتر URL»</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">آدرس را در شرط اگر بخوانید تا مقادیر را از پیش پر کنید یا فیلدهای مخصوص کمپین را برای ترافیک تبلیغاتی نمایش دهید.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">«فیلدهای متفاوت برای کاربران واردشده»</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">شرط‌ها می‌توانند وضعیت ورود و نقش کاربر در وردپرس را بخوانند، بنابراین اعضا و مهمانان پرسش‌های متفاوتی می‌بینند.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">«تغییر مسیر به صفحه تشکر متفاوت براساس پاسخ»</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">تغییر مسیر شرطی هر مسیر را به آدرس مقصد خودش می‌فرستد، همراه با توکن فیلد در صورت نیاز.</p>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:18px; margin-top:22px;">
+          <article style="background:#f5f0fd; border:1px solid #e6ddf6; border-radius:14px; padding:22px;">
+            <h3 style="font-size:17px; margin:0 0 12px; color:#2a1155;">جست‌وجوهای پرتکرار</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">منطق شرطی فرم وردپرس</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">نمایش و مخفی‌کردن فیلد براساس پاسخ</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">فرم‌ساز با قانون شرطی</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">فرم هوشمند بدون کد</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">فرم چندمرحله‌ای شرطی</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">آگاه‌سازی ایمیل شرطی</span>
+            </div>
+          </article>
+          <article style="background:#fdf2f8; border:1px solid #f7d6e8; border-radius:14px; padding:22px;">
+            <h3 style="font-size:17px; margin:0 0 12px; color:#2a1155;">جست‌وجوهای دقیق‌تر و کم‌رقابت‌تر</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">مسیردهی ایمیل فرم براساس منوی کشویی</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">رد شدن از گام برای بلیت رایگان</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">الزامی کردن فیلد فقط هنگام انتخاب</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">منطق شرطی براساس پارامتر URL</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">نمایش فیلد برای نقش کاربر واردشده</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">تغییر مسیر شرطی براساس پلن</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">پاک‌کردن مقدار هنگام تغییر گزینه</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">ارسال فقط سرنخ‌های واجدشرایط به CRM</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">جلوگیری از ارسال اگر سن زیر ۱۸ باشد</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ بهترین شیوه‌ها ============ -->
+    <section id="best-practices" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 8px; color:#2a1155;">بهترین شیوه‌ها برای قوانین قابل‌نگه‌داری</h2>
+          <p style="margin:0; color:#6b7280;">چند عادت ساده فرم‌های شرطی شما را خوانا، قابل‌آزمایش و آسان برای تحویل به دیگران نگه می‌دارد.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:16px;">
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">ابتدا مسیرها را نقشه‌برداری کنید</h3>
+            <p style="margin:0; color:#6b7280;">پیش از ساختن هر چیزی، مسیرهای اصلی را فهرست کنید: شخصی در برابر شرکتی، فروش در برابر پشتیبانی، پرداخت‌شده در برابر پرداخت‌نشده.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">قوانین را با نام روشن بسازید</h3>
+            <p style="margin:0; color:#6b7280;">«نمایش فیلدهای شرکتی برای کاربران تجاری» شش ماه بعد بسیار بهتر از «قانون ۱» است.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">هر مسیر را آزمایش کنید</h3>
+            <p style="margin:0; color:#6b7280;">یک اجرای حالت آزمایش کافی نیست. هر مسیر اصلی را با مقادیر واقعی پیش از انتشار امتحان کنید.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">از «Priority» برای رفع تداخل استفاده کنید</h3>
+            <p style="margin:0; color:#6b7280;">اگر چند قانون یک فیلد را لمس می‌کنند، «Priority» و «پس از مطابقت این قانون، پردازش متوقف شود» را تنظیم کنید تا از برخورد جلوگیری شود.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">از فیلدهای مخفی نترسید</h3>
+            <p style="margin:0; color:#6b7280;">فیلدها و گام‌های مخفی هنگام اعتبارسنجی نادیده گرفته می‌شوند، پس قانون الزامی روی آن‌ها هرگز بازدیدکننده را گیر نمی‌اندازد.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">شرط‌ها را ساده نگه دارید</h3>
+            <p style="margin:0; color:#6b7280;">چند قانون واضح بهتر از یک گروه بزرگ و تودرتوست. منطق ساده‌تر آزمایش و رفع اشکالش راحت‌تر است.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ رایگان در برابر ویژه ============ -->
+    <section id="free-vs-pro" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:24px;">
+          <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 8px; color:#2a1155;">رایگان در برابر ویژه، در یک نگاه</h2>
+          <p style="margin:0; color:#6b7280;">منطق شرطی از همین ابتدا ارزش می‌دهد، و نسخه ویژه امکانات پیشرفته‌ای را باز می‌کند که سایت‌های جدی، آژانس‌ها و کسب‌وکارها به آن تکیه می‌کنند.</p>
+        </div>
+        <div style="overflow-x:auto; border:1px solid #ece5f7; border-radius:14px; background:#fff;">
+          <table style="width:100%; border-collapse:collapse; min-width:520px; font-size:15px;">
+            <thead>
+              <tr>
+                <th style="text-align:start; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">امکان</th>
+                <th style="text-align:center; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">پلن‌های رایگان</th>
+                <th style="text-align:center; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">فقط ویژه</th>
+              </tr>
+            </thead>
+            <tbody style="color:#3d3a4f;">
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نمایش / مخفی‌کردن / الزامی‌کردن فیلد</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">منطق گام (نمایش، مخفی‌کردن، پرش)</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">شرط‌های AND / OR</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">حالت آزمایش</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">شرط‌های گروه‌بندی‌شده</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">ایمیل، تأیید و تغییر مسیر شرطی</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">بازرس</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">محاسبه (فیلدهای فرمولی)</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">گروه‌های NOT / NAND / NOR</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+              <tr><td style="padding:13px 14px;">برون‌بری / درون‌ریزی / تکثیر قوانین</td><td style="padding:13px 14px; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin:14px 0 0; font-size:14px; color:#6b7280;">اگر در ویرایشگر به یک امکان قفل‌شده برخوردید، افزونه یکی از دو پیام را نشان می‌دهد: «این قابلیت فقط در نسخه ویژه فرم‌ساز آسان در دسترس است.» یا «می‌خواهید از این قابلیت استفاده کنید؟ این قابلیت در پلن‌های رایگان پلاس و ویژه موجود است.»</p>
+      </div>
+    </section>
+
+    <!-- ============ رفع مشکلات ============ -->
+    <section id="troubleshooting" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto; max-width:920px;">
+        <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 20px; color:#2a1155;">رفع مشکلات رایج</h2>
+        <div style="display:grid; gap:12px;">
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">دکمه منطق شرطی را نمی‌بینم</h3>
+            <p style="margin:0; color:#6b7280;">صفحه افزودنی‌ها را باز کنید و مطمئن شوید افزودنی منطق شرطی نصب و فعال است. در پلن رایگان، به‌جای ویرایشگر یک پنل ارتقا نمایش داده می‌شود.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">دکمه هست ولی ویرایشگر باز نمی‌شود</h3>
+            <p style="margin:0; color:#6b7280;">سطح پلن، فعال‌بودن افزودنی، و اینکه فرم واقعاً فیلدهایی برای هدف‌گیری قوانین دارد را بررسی کنید &mdash; یک فرم خالی هدفی برای قوانین فراهم نمی‌کند.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">یک قانون اجرا نمی‌شود</h3>
+            <p style="margin:0; color:#6b7280;">حالت آزمایش را اجرا کنید و وضعیت را بخوانید: <strong>مطابقت دارد</strong>، <strong>مطابقت ندارد</strong> یا <strong>رد شد</strong>. رایج‌ترین علت، عملگر یا مقدار نامنطبق است. اگر دو قانون روی یک فیلد اثر می‌گذارند، «Priority» را بررسی کنید.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">فیلد الزامی به‌طور غیرمنتظره مانع ارسال می‌شود</h3>
+            <p style="margin:0; color:#6b7280;">مطمئن شوید فیلد واقعاً با یک قانون در آن مسیر مخفی شده است. فیلدهای مخفی هنگام اعتبارسنجی نادیده گرفته می‌شوند؛ فیلدی که فقط غیرفعال است (نه مخفی) ممکن است همچنان اعتبارسنجی شود.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">حالت آزمایش می‌گوید قوانین به وضعیت پایدار نرسیده‌اند</h3>
+            <p style="margin:0; color:#6b7280;">پیام «قوانین به وضعیت پایدار نرسیدند؛ احتمال وجود حلقه» یعنی قوانین شما پیوسته یکدیگر را فعال می‌کنند. حلقه را با ادغام قوانین یا فعال‌کردن «پس از مطابقت این قانون، پردازش متوقف شود» برطرف کنید.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ پرسش‌های متداول ============ -->
+    <section id="faq" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto; max-width:920px;">
+        <h2 style="font-size:clamp(22px,3vw,30px); margin:0 0 20px; color:#2a1155;">پرسش‌های متداول</h2>
+
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">چگونه فیلدی را براساس پاسخ منوی کشویی نمایش دهم؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">منطق شرطی را از تنظیمات فرم باز کنید و قانونی بسازید که در آن شرط برابر بودن فیلد منوی کشویی با یک مقدار باشد و اقدام آن نمایش‌دادن فیلد هدف باشد. به‌محض تطابق پاسخ، فیلد ظاهر می‌شود؛ بدون هیچ کدی.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">چگونه ایمیل فرم را براساس پاسخ به افراد مختلف مسیردهی کنم؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">در تب آگاه‌سازی‌ها، یک قانون شرطی بسازید که گیرنده، موضوع و قالب را تعیین کند؛ مثلاً درخواست فروش به تیم فروش، صورتحساب به حسابداری و پشتیبانی فنی به تیم پشتیبانی به‌صورت خودکار.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">آیا می‌توانم در فرم چندمرحله‌ای از یک گام یا صفحه رد شوم؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">بله. در تب فیلدها از نمایش گام، مخفی‌کردن گام یا رفتن به گام استفاده کنید تا بازدیدکننده فقط گام‌های مربوطه را ببیند؛ مثلاً رد شدن از صفحه پرداخت برای ثبت‌نام رایگان.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">آیا فرم می‌تواند براساس پارامتر URL یا نقش کاربر تغییر کند؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">بله. شرط‌ها می‌توانند پارامترهای URL (مانند مقادیر UTM یا کمپین) و وضعیت ورود و نقش کاربر در وردپرس را بخوانند، بنابراین می‌توانید برای منابع ترافیک و گروه‌های مختلف کاربر، فیلد، ایمیل یا تغییر مسیر متفاوتی نمایش دهید.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">آیا می‌توانم بازدیدکننده را پس از ارسال به صفحه دیگری تغییر مسیر دهم؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">بله. در تب تأیید می‌توانید یک پیام شرطی نمایش دهید یا به آدرسی مشخص تغییر مسیر دهید، و می‌توانید توکن فیلد را در آدرس مقصد درج کنید.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">آیا برای استفاده از منطق شرطی به دانش برنامه‌نویسی نیاز دارم؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">خیر. هر قانون به‌صورت تصویری در یک رابط اگر/آنگاه ساخته می‌شود. شما فقط فیلد، عملگر، مقدار و اقدام را انتخاب می‌کنید؛ بدون PHP، بدون JavaScript، بدون CSS.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">آیا فیلد الزامیِ مخفی مانع ارسال می‌شود؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">خیر. در منطق فعلی افزودنی، هر فیلد یا گامی که با یک قانون مخفی شود، در اعتبارسنجی و ارسال نادیده گرفته می‌شود؛ بنابراین بازدیدکننده هرگز با فیلدی الزامی که در مسیر خود نمی‌بیند متوقف نمی‌شود.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:0;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">چگونه منطق شرطی را پیش از انتشار آزمایش کنم؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">حالت آزمایش را اجرا کنید. مقادیر نمونه وارد کنید و ببینید کدام قوانین <strong>مطابقت دارد</strong>، <strong>مطابقت ندارد</strong> یا <strong>رد شد</strong> هستند. این کار خطاهای مسیرهای پیچیده را پیش از رسیدن ارسال‌های واقعی نشان می‌دهد.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ============ فراخوان اقدام ============ -->
+    <section style="padding:52px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="position:relative; overflow:hidden; background:linear-gradient(135deg,#3e1f77 0%, #7c3aed 52%, #ec4899 100%); color:#fff; border-radius:20px; padding:46px 38px; text-align:center; box-shadow:0 24px 60px rgba(62,31,119,.30);">
+          <span style="display:inline-block; padding:6px 14px; border-radius:999px; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35); font-size:13px; font-weight:700; margin-bottom:16px;">آماده در چند دقیقه &middot; بدون کد</span>
+          <h2 style="font-size:clamp(23px,3.2vw,32px); margin:0 0 14px; color:#fff; line-height:1.5;">همین امروز ساخت فرم‌های هوشمندتر وردپرس را شروع کنید</h2>
+          <p style="margin:0 auto 26px; max-width:660px; color:rgba(255,255,255,.9); font-size:18px;">دیگر لازم نیست بین پنج فرم مختلف جابه‌جا شوید و ارسال‌ها را دستی دسته‌بندی کنید. افزودنی منطق شرطی را فعال کنید و بگذارید یک فرم پرسش‌های درست را بپرسد، به صندوق درست برسد، و افراد مناسب را به صفحه مناسب بفرستد &mdash; همه به‌صورت خودکار.</p>
+          <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+            <a href="#activate" style="display:inline-flex; align-items:center; justify-content:center; padding:14px 26px; border-radius:11px; background:#fff; color:#6b21a8; font-weight:800; text-decoration:none; box-shadow:0 8px 22px rgba(0,0,0,.14);">منطق شرطی را فعال کنید</a>
+            <a href="#features" style="display:inline-flex; align-items:center; justify-content:center; padding:14px 26px; border-radius:11px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.55); color:#fff; font-weight:800; text-decoration:none;">همه امکانات را ببینید</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ پابرگ ============ -->
+  <footer style="padding:32px 0; color:#6b7280; border-top:1px solid #ece5f7; background:#f8f7fc; font-size:14px;">
+    <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto; display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center;">
+      <p style="margin:0;">آخرین به‌روزرسانی محتوا: ۱۴ مرداد ۱۴۰۵ (۴ اوت ۲۰۲۶) &middot; مستندات افزودنی منطق شرطی فرم ساز آسان.</p>
+      <p style="margin:0;"><a href="https://whitestudio.team/" style="color:#7c3aed; text-decoration:none; font-weight:700;">White Studio Team</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>

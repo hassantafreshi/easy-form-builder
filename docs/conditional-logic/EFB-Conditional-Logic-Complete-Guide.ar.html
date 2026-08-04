@@ -1,0 +1,864 @@
+<!doctype html>
+<!--
+  PUBLISHER NOTE
+  The canonical/hreflang URLs below follow the placeholder pattern
+  https://whitestudio.team/<lang>/document/<slug>/ and were NOT verified.
+  Confirm the site's real multilingual URL structure before publishing, and add
+  the reciprocal hreflang tags to the English version too.
+
+  Terminology: every UI label is taken verbatim from languages/ar.json
+  (as of 2026-08-04). Labels that ship untranslated ("Priority", "Action")
+  are flagged as such in the body.
+  Brand name in prose: مُنشيء النماذج السهل
+-->
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>المنطق الشرطي في نماذج ووردبريس: الدليل الكامل لملحق المنطق الشرطي (2026)</title>
+  <meta name="description" content="دليل عملي كامل لملحق المنطق الشرطي في مُنشيء النماذج السهل: إظهار الحقول وإخفاؤها حسب الإجابة، توجيه البريد الإلكتروني إلى الفريق المناسب، تخطي خطوة في النماذج متعددة الخطوات، وإعادة التوجيه أو تشغيل الويب هوك حسب مُعامل الرابط أو دور المستخدم أو الدفع — بدون أي كود.">
+  <meta name="keywords" content="المنطق الشرطي في نماذج ووردبريس, ملحق المنطق الشرطي, إظهار وإخفاء الحقول حسب الإجابة, إظهار حقل حسب القائمة المنسدلة, توجيه البريد الإلكتروني حسب الإجابة, تخطي خطوة في النموذج متعدد الخطوات, إعادة توجيه بعد إرسال النموذج, المنطق الشرطي حسب مُعامل الرابط, نموذج حسب دور المستخدم, جعل الحقل مطلوبًا بشرط, ويب هوك شرطي, نماذج ذكية بدون كود">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="author" content="White Studio Team">
+  <link rel="canonical" href="https://whitestudio.team/ar/document/easy-form-builder-conditional-logic-complete-guide/">
+  <link rel="alternate" hreflang="en" href="https://whitestudio.team/document/easy-form-builder-conditional-logic-complete-guide/">
+  <link rel="alternate" hreflang="de" href="https://whitestudio.team/de/document/easy-form-builder-conditional-logic-complete-guide/">
+  <link rel="alternate" hreflang="ar" href="https://whitestudio.team/ar/document/easy-form-builder-conditional-logic-complete-guide/">
+  <link rel="alternate" hreflang="fa" href="https://easyformbuilder.ir/document/easy-form-builder-conditional-logic-complete-guide/">
+  <link rel="alternate" hreflang="x-default" href="https://whitestudio.team/document/easy-form-builder-conditional-logic-complete-guide/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="المنطق الشرطي في نماذج ووردبريس: الدليل الكامل (2026)">
+  <meta property="og:description" content="أظهر الحقول وأخفها حسب الإجابة، وجّه رسائل البريد الإلكتروني، تخطَّ الخطوات، وأعد التوجيه أو شغّل الويب هوك حسب الرابط أو الدور أو الدفع — بدون كود.">
+  <meta property="og:locale" content="ar_AR">
+  <meta property="og:url" content="https://whitestudio.team/ar/document/easy-form-builder-conditional-logic-complete-guide/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="المنطق الشرطي في نماذج ووردبريس: الدليل الكامل (2026)">
+  <meta name="twitter:description" content="ابنِ نماذج ووردبريس ذكية بدون كود: حقول وخطوات ورسائل بريد وتأكيدات وإعادة توجيه وويب هوك — كلها شرطية.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        "@id": "https://whitestudio.team/ar/document/easy-form-builder-conditional-logic-complete-guide/#article",
+        "headline": "المنطق الشرطي في نماذج ووردبريس: الدليل الكامل لملحق المنطق الشرطي (2026)",
+        "description": "دليل عملي كامل لتفعيل واستخدام ملحق المنطق الشرطي في مُنشيء النماذج السهل لبناء نماذج ووردبريس ذكية بدون كود.",
+        "inLanguage": "ar",
+        "datePublished": "2026-07-08",
+        "dateModified": "2026-08-04",
+        "author": { "@type": "Organization", "name": "White Studio Team", "url": "https://whitestudio.team/" },
+        "publisher": { "@type": "Organization", "name": "White Studio Team", "url": "https://whitestudio.team/" },
+        "about": { "@type": "SoftwareApplication", "name": "Easy Form Builder Conditional Logic Add-on" },
+        "articleSection": ["ما هو المنطق الشرطي", "التفعيل", "بناء القواعد", "الميزات", "حالات الاستخدام", "عمليات البحث", "أفضل الممارسات", "الأسئلة الشائعة"]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Easy Form Builder Conditional Logic Add-on",
+        "applicationCategory": "WordPressPlugin",
+        "operatingSystem": "WordPress",
+        "description": "ملحق للمنطق الشرطي يحوّل نماذج ووردبريس الثابتة إلى نماذج ديناميكية تعمل بالقواعد عبر محرر مرئي بصيغة إذا/إذن.",
+        "offers": { "@type": "Offer", "category": "ملحق احترافي" },
+        "featureList": [
+          "إظهار الحقول وإخفاؤها حسب الإجابات",
+          "جعل الحقول مطلوبة أو اختيارية بشرط",
+          "إظهار الخطوات وإخفاؤها والانتقال إليها في النماذج متعددة الخطوات",
+          "توجيه البريد الإلكتروني الشرطي إلى مستلمين مختلفين",
+          "تأكيدات وإعادة توجيه شرطية",
+          "ويب هوك شرطي",
+          "مجموعات شروط بصيغة و/أو ومجموعات متداخلة",
+          "وضع الاختبار والفاحص",
+          "حسابات بالصيغ في النسخة الاحترافية",
+          "تصدير القواعد واستيرادها في النسخة الاحترافية"
+        ]
+      },
+      {
+        "@type": "HowTo",
+        "name": "كيفية تفعيل المنطق الشرطي واستخدامه في مُنشيء النماذج السهل",
+        "description": "خطوات تفعيل الملحق وبناء أول قاعدة إذا/إذن داخل محرر النماذج.",
+        "step": [
+          {"@type": "HowToStep", "name": "افتح مُنشيء النماذج السهل", "text": "من لوحة تحكم ووردبريس، افتح قائمة مُنشيء النماذج السهل وتأكد من أن الإضافة مفعّلة."},
+          {"@type": "HowToStep", "name": "افتح صفحة الملحقات", "text": "انتقل إلى صفحة ملحقات وابحث عن بطاقة ملحق المنطق الشرطي."},
+          {"@type": "HowToStep", "name": "فعّل الملحق", "text": "ثبّت الملحق أو فعّله إذا كانت باقتك تسمح بذلك. وإذا ظهر مقفلًا فأنت بحاجة إلى ترقية."},
+          {"@type": "HowToStep", "name": "افتح نموذجًا", "text": "أنشئ نموذجًا جديدًا أو حرّر نموذجًا قائمًا، ثم أضف الحقول التي ستستخدمها القواعد."},
+          {"@type": "HowToStep", "name": "ابنِ قاعدة", "text": "افتح إعدادات النموذج، انقر على المنطق الشرطي، أنشئ قاعدة إذا/إذن، ثم تحقق منها عبر وضع الاختبار."}
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "كيف أُظهر حقلًا بناءً على إجابة في قائمة منسدلة؟",
+            "acceptedAnswer": { "@type": "Answer", "text": "افتح المنطق الشرطي من إعدادات النموذج، وأضف قاعدة يكون فيها الشرط: حقل القائمة المنسدلة يساوي قيمة معينة، والإجراء: اظهار حقل على الحقل المستهدف. يظهر الحقل فور تطابق الإجابة، وبدون أي كود." }
+          },
+          {
+            "@type": "Question",
+            "name": "كيف أوجّه رسائل النموذج إلى أشخاص مختلفين حسب الإجابة؟",
+            "acceptedAnswer": { "@type": "Answer", "text": "من تبويب إشعارات، أنشئ قاعدة شرطية تحدد المستلم والموضوع والقالب. مثلًا: طلبات المبيعات إلى فريق المبيعات، والفواتير إلى المحاسبة، والدعم إلى فريق المساندة تلقائيًا." }
+          },
+          {
+            "@type": "Question",
+            "name": "هل يمكنني تخطي خطوة في نموذج متعدد الخطوات؟",
+            "acceptedAnswer": { "@type": "Answer", "text": "نعم. استخدم من تبويب حقول الإجراءات: اظهار خطوة أو إخفاء خطوة أو الانتقال إلى الخطوة، حتى لا يرى الزائر سوى الخطوات التي تخصه — مثل تخطي خطوة الدفع في التسجيل المجاني." }
+          },
+          {
+            "@type": "Question",
+            "name": "هل يمكن أن يتغير النموذج حسب مُعامل الرابط أو دور المستخدم؟",
+            "acceptedAnswer": { "@type": "Answer", "text": "نعم. تستطيع الشروط قراءة مُعاملات الرابط (مثل قيم UTM أو الحملة) وحالة تسجيل الدخول ودور المستخدم في ووردبريس، فتعرض حقولًا أو رسائل أو إعادة توجيه مختلفة لكل مصدر زيارات ولكل فئة مستخدمين." }
+          },
+          {
+            "@type": "Question",
+            "name": "هل أحتاج إلى معرفة البرمجة لاستخدام المنطق الشرطي؟",
+            "acceptedAnswer": { "@type": "Answer", "text": "لا. تُبنى كل قاعدة بصريًا في واجهة إذا/إذن. أنت تختار الحقل والمُعامل والقيمة والإجراء فقط — بدون PHP أو JavaScript أو CSS." }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "Easy Form Builder", "item": "https://whitestudio.team/"},
+          {"@type": "ListItem", "position": 2, "name": "المستندات", "item": "https://whitestudio.team/document/"},
+          {"@type": "ListItem", "position": 3, "name": "المنطق الشرطي — الدليل الكامل"}
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body style="margin:0; background:#f8f7fc; color:#1f2937; font-family:'Segoe UI', Tahoma, 'Noto Naskh Arabic', 'Traditional Arabic', Arial, sans-serif; line-height:1.95; -webkit-font-smoothing:antialiased;">
+
+  <main id="top">
+
+    <!-- ============ الواجهة ============ -->
+    <section style="padding:60px 0 46px; background:linear-gradient(135deg, #f3e8ff 0%, #fdeef6 100%); border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <span style="display:inline-flex; align-items:center; gap:8px; padding:6px 13px; border-radius:999px; color:#6b21a8; background:#ffffff; border:1px solid #e3d9f7; font-size:13px; font-weight:700; box-shadow:0 4px 14px rgba(124,58,237,.10);">&#10022; مُنشيء النماذج السهل &middot; ملحق المنطق الشرطي</span>
+
+        <h1 style="font-size:clamp(31px, 5vw, 52px); line-height:1.35; margin:18px 0 16px; max-width:920px; color:#2a1155;">المنطق الشرطي لنماذج ووردبريس: أظهِر الحقول وأخفِها، ووجّه الرسائل، وتخطَّ الخطوات &mdash; بدون كود</h1>
+
+        <p style="font-size:19px; color:#54506a; max-width:840px; margin:0 0 26px;">يحوّل ملحق المنطق الشرطي أي نموذج عادي في مُنشيء النماذج السهل إلى نموذج يتفاعل مع كل إجابة. ومن خلال محرر مرئي بصيغة إذا/إذن تقرر أنت أي الحقول تظهر، وأي الخطوات تُتخطى، وأي فريق يستلم الرسالة، وأي تأكيد يُعرَض، وأي بيانات تصل إلى نظام إدارة العملاء لديك &mdash; بناءً على ما يفعله كل زائر فعليًا.</p>
+
+        <div style="display:flex; flex-wrap:wrap; gap:12px;">
+          <a href="#activate" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:13px 22px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#ec4899); color:#fff; font-weight:800; text-decoration:none; min-height:48px; box-shadow:0 10px 26px rgba(124,58,237,.28);">فعّل الملحق &larr;</a>
+          <a href="#first-rule" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:13px 22px; border-radius:10px; background:#fff; color:#7c3aed; border:1px solid #d8c8f5; font-weight:800; text-decoration:none; min-height:48px;">ابنِ أول قاعدة</a>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:24px;">
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">بدون كود، بالسحب والإفلات</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">قواعد إذا / إذن مرئية</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">مناسب للنماذج متعددة الخطوات</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">بريد إلكتروني وإعادة توجيه وويب هوك شرطية</span>
+          <span style="display:inline-flex; align-items:center; min-height:30px; padding:5px 12px; border-radius:999px; background:#ffffff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:700;">وضع الاختبار قبل النشر</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ الخلاصة ============ -->
+    <section style="padding:38px 0 8px;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="background:#fff; border:1px solid #ece5f7; border-inline-start:5px solid #7c3aed; border-radius:14px; padding:26px 28px; box-shadow:0 14px 38px rgba(62,31,119,.08);">
+          <h2 style="font-size:15px; letter-spacing:0; color:#7c3aed; margin:0 0 14px;">أهم النقاط باختصار</h2>
+          <ul style="margin:0; padding-inline-start:20px; color:#3d3a4f;">
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">ما هو:</strong> المنطق الشرطي ملحق احترافي لمُنشيء النماذج السهل يجعل النموذج يتفاعل مع الإجابات ومُعاملات الرابط وأدوار المستخدمين والخطوات ونتائج الدفع.</li>
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">بدون كود:</strong> تُبنى كل قاعدة بصريًا من شرط (إذا) وإجراء (إذن). لن تلمس PHP ولا JavaScript ولا CSS.</li>
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">ما الذي يتحكم فيه:</strong> الحقول، والتنقل في النماذج متعددة الخطوات، وتوجيه البريد الإلكتروني، ورسائل التأكيد، وإعادة التوجيه، والويب هوك.</li>
+            <li style="margin-bottom:9px;"><strong style="color:#2a1155;">آمن بالتصميم:</strong> الحقول والخطوات التي تخفيها قاعدة يتم تخطيها أثناء التحقق، فلا يمنع حقل مطلوب مخفي عملية الإرسال أبدًا.</li>
+            <li style="margin-bottom:0;"><strong style="color:#2a1155;">اختبِر قبل النشر:</strong> يعرض وضع الاختبار والفاحص أي القواعد <strong>مطابق</strong> أو <strong>غير مطابق</strong> أو <strong>تم التخطي</strong> قبل وصول الزوار الحقيقيين.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ المحتويات ============ -->
+    <section style="padding:24px 0 20px;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="background:#f5f0fd; border:1px solid #e6ddf6; border-radius:14px; padding:24px 28px;">
+          <h2 style="font-size:16px; margin:0 0 14px; color:#2a1155;">محتويات هذه الصفحة</h2>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:6px 24px; font-size:15px;">
+            <a href="#what-is" style="color:#7c3aed; text-decoration:none; padding:4px 0;">1. ما هو المنطق الشرطي؟</a>
+            <a href="#why" style="color:#7c3aed; text-decoration:none; padding:4px 0;">2. لماذا يهم؟</a>
+            <a href="#activate" style="color:#7c3aed; text-decoration:none; padding:4px 0;">3. كيفية تفعيل الملحق</a>
+            <a href="#first-rule" style="color:#7c3aed; text-decoration:none; padding:4px 0;">4. ابنِ أول قاعدة</a>
+            <a href="#tabs" style="color:#7c3aed; text-decoration:none; padding:4px 0;">5. تبويبات القواعد الأربعة</a>
+            <a href="#panel-tour" style="color:#7c3aed; text-decoration:none; padding:4px 0;">6. شاهده عمليًا (لقطات الشاشة)</a>
+            <a href="#features" style="color:#7c3aed; text-decoration:none; padding:4px 0;">7. مرجع الميزات الكامل</a>
+            <a href="#use-cases" style="color:#7c3aed; text-decoration:none; padding:4px 0;">8. حالات استخدام واقعية</a>
+            <a href="#searches" style="color:#7c3aed; text-decoration:none; padding:4px 0;">9. أسئلة يبحث عنها الناس</a>
+            <a href="#best-practices" style="color:#7c3aed; text-decoration:none; padding:4px 0;">10. أفضل الممارسات</a>
+            <a href="#free-vs-pro" style="color:#7c3aed; text-decoration:none; padding:4px 0;">11. المجاني مقابل الاحترافي</a>
+            <a href="#troubleshooting" style="color:#7c3aed; text-decoration:none; padding:4px 0;">12. حل المشكلات</a>
+            <a href="#faq" style="color:#7c3aed; text-decoration:none; padding:4px 0;">13. الأسئلة الشائعة</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ما هو ============ -->
+    <section id="what-is" style="padding:44px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto; max-width:920px;">
+        <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">ما هو المنطق الشرطي في نموذج ووردبريس؟</h2>
+
+        <div style="background:#f3e8ff; border:1px solid #e3d9f7; border-radius:12px; padding:16px 18px; margin:14px 0 22px;">
+          <strong style="color:#6b21a8;">إجابة سريعة:</strong> المنطق الشرطي محرك قواعد يغيّر سلوك النموذج في الوقت الفعلي. تتكوّن كل قاعدة من شرط (إذا) وإجراء (إذن). فإذا تحقق الشرط، نُفِّذ الإجراء &mdash; بإظهار حقل، أو تخطي خطوة، أو إرسال بريد إلكتروني إلى فريق بعينه، أو إعادة توجيه الزائر، أو تشغيل ويب هوك.
+        </div>
+
+        <p style="margin:0 0 16px; color:#3d3a4f;">نموذج ووردبريس التقليدي ثابت: يرى جميع الزوار الحقول نفسها بالترتيب نفسه، ويشغّلون رسالة البريد الإلكتروني نفسها. هذا مقبول في نموذج اتصال بسيط، لكنه ينهار فور احتياج نموذجك إلى خدمة أكثر من جمهور واحد. فطلب المبيعات وتذكرة الدعم وطلب التوظيف يحتاج كلٌّ منها إلى أسئلة مختلفة ومستلمين مختلفين ومتابعة مختلفة &mdash; وإجبار الجميع على المرور عبر نموذج واحد طويل وعام يقود إلى ترك النموذج وإلى بيانات غير منظمة.</p>
+
+        <p style="margin:0 0 16px; color:#3d3a4f;">يحل ملحق المنطق الشرطي هذه المشكلة بجعل النموذج <em>يتكيّف مع الشخص الذي يملؤه</em>. فبدلًا من بناء خمسة نماذج منفصلة، تبني نموذجًا واحدًا ذكيًا يطرح الأسئلة الصحيحة، ويوجّه إلى الفريق الصحيح، ويؤكد بالرسالة الصحيحة &mdash; تلقائيًا. وهو يقرأ إشارات مثل إجابات الزائر، والقيم الموجودة في الرابط، وحالة تسجيل دخوله ودوره في ووردبريس، والخطوة الحالية في النموذج متعدد الخطوات، ونتيجة الدفع، ثم يطبّق قواعدك ليقرر ما يحدث بعد ذلك.</p>
+
+        <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:24px; margin-top:8px; box-shadow:0 12px 32px rgba(62,31,119,.06);">
+          <h3 style="font-size:18px; margin:0 0 14px; color:#6b21a8;">تشريح القاعدة</h3>
+          <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:center;">
+            <div style="background:#faf7ff; border:1px solid #e6ddf6; border-radius:12px; padding:16px;">
+              <div style="font-size:12px; font-weight:800; color:#7c3aed;">إذا (الشرط)</div>
+              <div style="margin-top:6px; font-size:14px; color:#2a1155;">نوع العميل <strong>يساوي</strong> شركة</div>
+            </div>
+            <div style="font-weight:900; color:#ec4899; font-size:22px; text-align:center;">&larr;</div>
+            <div style="background:#fdf2f8; border:1px solid #f7d6e8; border-radius:12px; padding:16px;">
+              <div style="font-size:12px; font-weight:800; color:#db2777;">إذن (الإجراء)</div>
+              <div style="margin-top:6px; font-size:14px; color:#2a1155;">اظهار حقل &laquo;اسم الشركة&raquo; + مطلوب</div>
+            </div>
+          </div>
+          <p style="margin:16px 0 0; font-size:14px; color:#6b7280;">اقرأها كجملة كاملة: <em>&laquo;إذا كان نوع العميل شركة، فأظهِر حقل اسم الشركة واجعله مطلوبًا.&raquo;</em> هذا هو النموذج الذهني كله &mdash; وكل ما عداه ليس سوى شروط أكثر وإجراءات أكثر.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ لماذا يهم ============ -->
+    <section id="why" style="padding:46px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">لماذا يهم المنطق الشرطي لمعدلات التحويل ولسير العمل؟</h2>
+          <p style="margin:0; color:#6b7280;">النماذج الذكية ليست رفاهية. فهي تؤثر مباشرة في معدلات إكمال النموذج، وفي جودة العملاء المحتملين، وفي حجم الفرز اليدوي الذي يقوم به فريقك بعد كل إرسال.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:18px;">
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#7c3aed,#a855f7); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">&#127919;</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">نماذج أقصر وأذكى</h3>
+            <p style="margin:0; color:#6b7280;">لا يرى الزائر سوى الأسئلة التي تخصه. تختفي الحقول غير ذات الصلة والخطوات غير الضرورية، فتقل العقبات ويقل ترك النموذج.</p>
+          </article>
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#ec4899,#f472b6); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">&#129517;</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">توجيه أفضل للطلبات</h3>
+            <p style="margin:0; color:#6b7280;">تصل طلبات المبيعات والدعم والتوظيف والفعاليات والطلبات الشرائية إلى البريد الصحيح وإلى المتابعة الصحيحة استنادًا إلى إجابات الزائر.</p>
+          </article>
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#f59e0b,#fbbf24); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">&#129529;</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">بيانات أنظف</h3>
+            <p style="margin:0; color:#6b7280;">مسح القيم القديمة وطلب الحقول عند الحاجة فقط يعني عددًا أقل من الإرساليات الناقصة أو المتناقضة التي تحتاج إلى تنظيف لاحقًا.</p>
+          </article>
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <div style="width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,#6b21a8,#7c3aed); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:12px;">&#9881;&#65039;</div>
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">أتمتة خفيفة</h3>
+            <p style="margin:0; color:#6b7280;">شغّل الويب هوك نحو نظام إدارة العملاء أو أداة الأتمتة للإرساليات المؤهلة فقط &mdash; لا لكل رسالة تصل إلى النموذج.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ التفعيل ============ -->
+    <section id="activate" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">كيفية تفعيل ملحق المنطق الشرطي</h2>
+          <p style="margin:0; color:#6b7280;">تتبع هذه الخطوات البنية الحالية للإضافة. الاسم الداخلي للملحق هو <span dir="ltr" style="display:inline-block; unicode-bidi:isolate; font-family:Consolas, monospace; background:#f0ebfa; color:#6b21a8; padding:1px 6px; border-radius:5px;">AdnSMF</span>، لكنك ستراه في لوحة التحكم باسم <strong>ملحق المنطق الشرطي</strong>.</p>
+        </div>
+
+        <p style="margin:0 0 16px; color:#6b7280; font-size:14px;">&#128073; انقر على أي خطوة لتوسيعها ومشاهدة لقطة الشاشة المرافقة.</p>
+        <div style="display:grid; gap:14px;">
+
+          <details open style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">1</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">تأكد من أن مُنشيء النماذج السهل مفعّل</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">افتح صفحة <strong>الإضافات</strong>، وتأكد من أن مُنشيء النماذج السهل مفعّل، ثم افتح قائمة <strong>Easy Form Builder</strong>.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; عرض اللقطة</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/install-easy-form-builder-v4.png" alt="قائمة النماذج في مُنشيء النماذج السهل داخل لوحة تحكم ووردبريس" title="افتح قائمة مُنشيء النماذج السهل في ووردبريس" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">لقطة شاشة: مُنشيء النماذج السهل مفتوحًا في لوحة تحكم ووردبريس &mdash; قائمة نماذجك المحفوظة.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">2</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">افتح صفحة ملحقات</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">من القائمة الفرعية لمُنشيء النماذج السهل، انقر على <strong>ملحقات</strong> وابحث عن بطاقة <strong>ملحق المنطق الشرطي</strong>.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; عرض اللقطة</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/addons-easy-form-builder.png" alt="صفحة ملحقات في مُنشيء النماذج السهل تعرض بطاقات الملحقات مع أزرار التنصيب" title="افتح صفحة ملحقات في مُنشيء النماذج السهل" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">لقطة شاشة: صفحة ملحقات حيث يمكن تنصيب أو تفعيل أي ملحق من ملحقات مُنشيء النماذج السهل.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">3</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">ثبّت الملحق أو فعّله</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">قم بتنصيبه أو تفعيله. أما البطاقة <em>المقفلة</em> أو رسالة الترقية فتعني أن باقتك تحتاج إلى ترقية لفتحه.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; عرض اللقطة</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/install-conditional-logic-addons.png" alt="تنصيب أو تفعيل ملحق المنطق الشرطي من صفحة ملحقات في مُنشيء النماذج السهل" title="ثبّت ملحق المنطق الشرطي أو فعّله" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">لقطة شاشة: استخدم زر <strong>تنصيب</strong> على بطاقة ملحق المنطق الشرطي، أو فعّله إذا كان مُنصَّبًا مسبقًا.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">4</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">أنشئ نموذجًا أو افتح نموذجًا قائمًا</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">انتقل إلى <strong>إنشاء</strong> لنموذج جديد، أو حرّر نموذجًا من <strong>اللوحة</strong>، ثم أضف الحقول التي ستستخدمها قواعدك.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; عرض اللقطة</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/create-new-form-easy-form-builder.png" alt="محرر النماذج في مُنشيء النماذج السهل مع لوحة الحقول بالسحب والإفلات" title="أنشئ نموذجًا أو حرّره في مُنشيء النماذج السهل" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">لقطة شاشة: محرر النماذج. اسحب إليه الحقول التي ستقرؤها شروطك والحقول التي ستغيّرها قواعدك.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">5</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">افتح إعدادات النموذج &larr; المنطق الشرطي</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">افتح <strong>إعدادات النموذج</strong> وانقر على <strong>المنطق الشرطي</strong> لتشغيل لوحة القواعد.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; عرض اللقطة</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/open-Conditional-Logic-settings-form.gif" alt="لوحة إعدادات النموذج في مُنشيء النماذج السهل مع زر المنطق الشرطي" title="افتح المنطق الشرطي من إعدادات النموذج" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">لقطة شاشة: زر <strong>المنطق الشرطي</strong> موجود أسفل لوحة إعدادات النموذج.</figcaption>
+            </figure>
+          </details>
+
+          <details style="background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden;">
+            <summary style="display:flex; align-items:center; gap:16px; padding:18px 20px; cursor:pointer; list-style:none;">
+              <span style="flex:0 0 auto; width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#ec4899,#f472b6); color:#fff; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">6</span>
+              <span style="flex:1 1 auto;">
+                <span style="display:block; font-size:18px; font-weight:800; color:#2a1155;">ابنِ قاعدة وتحقق منها بوضع الاختبار</span>
+                <span style="display:block; color:#6b7280; font-size:15px;">أضف قاعدة، واختر شرط إذا وإجراء إذن، ثم اضغط <strong>حفظ</strong>، وبعدها شغّل <strong>وضع الاختبار</strong>.</span>
+              </span>
+              <span style="flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; color:#7c3aed; font-size:13px; font-weight:700; white-space:nowrap;">&#128444;&#65039; عرض اللقطة</span>
+            </summary>
+            <figure style="margin:0; padding:0 20px 20px;">
+              <img src="https://whitestudio.team/wp-content/uploads/2026/08/build-rule-Conditional-Logic-form.gif" alt="محرر قواعد إذا/إذن في المنطق الشرطي مع تحديد الحقل والمُعامل والإجراء والأولوية وزر حفظ" title="ابنِ قاعدة إذا/إذن وتحقق منها بوضع الاختبار" loading="lazy" style="width:100%; display:block; border:1px solid #ece5f7; border-radius:10px;">
+              <figcaption style="margin-top:8px; font-size:13px; color:#8b8698;">لقطة شاشة: محرر قواعد إذا/إذن مع خانة &laquo;Priority&raquo; و&laquo;توقف بعد تطابق هذه القاعدة&raquo; وزر حفظ.</figcaption>
+            </figure>
+          </details>
+
+        </div>
+
+        <div style="background:#eef6ff; border:1px solid #bcd9f7; border-radius:12px; padding:16px 18px; margin-top:20px;">
+          <strong style="color:#0b4a8f;">ملاحظة لغوية:</strong> <span style="color:#20507f;">هناك خانتان في محرر القواعد لم تُترجَما بعد وتظهران بالإنجليزية حتى على لوحة تحكم عربية: <strong dir="ltr" style="unicode-bidi:isolate;">Priority</strong> (ترتيب تقييم القواعد) و<strong dir="ltr" style="unicode-bidi:isolate;">Action</strong> (اختيار إجراء إذن). أما بقية التسميات الواردة في هذا الدليل فمطابقة للترجمة العربية المرفقة مع الإضافة.</span>
+        </div>
+
+        <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:12px; padding:16px 18px; margin-top:14px;">
+          <strong style="color:#92400e;">نصيحة لحل المشكلات:</strong> <span style="color:#7a5b12;">إذا لم تجد زر المنطق الشرطي، فافحص صفحة ملحقات أولًا. وإذا ظهر الزر ولم يفتح المحرر، فتحقق من مستوى باقتك، ومن أن الملحق مفعّل، ومن أن النموذج يحتوي فعلًا على حقول تستطيع القواعد استهدافها.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ أول قاعدة ============ -->
+    <section id="first-rule" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">شرح عملي: إظهار حقل عند تطابق إجابة القائمة المنسدلة فقط</h2>
+          <p style="margin:0; color:#6b7280;">هذه أكثر مهمة يجري البحث عنها &mdash; <em>كيف أُظهر حقلًا بناءً على إجابة الزائر؟</em> وإليك الشرح الكامل بمثال شركة مقابل فرد.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:18px;">
+          <article style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:24px; border-top:4px solid #7c3aed;">
+            <h3 style="font-size:18px; margin:0 0 12px; color:#6b21a8;">الخطوة أ &mdash; جهّز الحقول</h3>
+            <ol style="margin:0; padding-inline-start:20px; color:#3d3a4f;">
+              <li style="margin-bottom:8px;">أضف حقل اختيار باسم <strong>نوع العميل</strong>.</li>
+              <li style="margin-bottom:8px;">امنحه خيارين: <strong>فرد</strong> و<strong>شركة</strong>.</li>
+              <li style="margin-bottom:8px;">أضف حقلي <strong>اسم الشركة</strong> و<strong>الرقم الضريبي</strong>.</li>
+              <li style="margin-bottom:0;">إذا كان النموذج متعدد الخطوات، فجهّز خطوة &laquo;بيانات الشركة&raquo; أيضًا.</li>
+            </ol>
+          </article>
+          <article style="background:#fdf2f8; border:1px solid #f7d6e8; border-radius:14px; padding:24px; border-top:4px solid #ec4899;">
+            <h3 style="font-size:18px; margin:0 0 12px; color:#db2777;">الخطوة ب &mdash; ابنِ القاعدة</h3>
+            <ol style="margin:0; padding-inline-start:20px; color:#3d3a4f;">
+              <li style="margin-bottom:8px;">افتح تبويب <strong>حقول</strong> وانقر على <strong>إضافة</strong>.</li>
+              <li style="margin-bottom:8px;">في جزء إذا، اختر حقل <strong>نوع العميل</strong>.</li>
+              <li style="margin-bottom:8px;">اضبط المُعامل على <strong>يساوي</strong> واختر القيمة <strong>شركة</strong>.</li>
+              <li style="margin-bottom:8px;">في جزء إذن، أضف <strong>اظهار حقل &larr; اسم الشركة</strong>.</li>
+              <li style="margin-bottom:8px;">أضف إجراءً ثانيًا: <strong>مطلوب &larr; اسم الشركة</strong>.</li>
+              <li style="margin-bottom:0;">اضغط <strong>حفظ</strong>، ثم جرّب القيمتين في وضع الاختبار.</li>
+            </ol>
+          </article>
+        </div>
+        <p style="margin:20px 0 0; color:#6b7280; max-width:840px;">الآن يبقى حقل اسم الشركة مخفيًا أمام العملاء الأفراد، ولا يظهر &mdash; مُعلَّمًا مسبقًا بأنه مطلوب &mdash; إلا عندما يختار أحدهم شركة. ولأن الحقول المخفية يتم تخطيها أثناء التحقق، فلن يُمنَع العميل الفرد أبدًا بسبب حقل مطلوب لم يره أصلًا.</p>
+      </div>
+    </section>
+
+    <!-- ============ التبويبات الأربعة ============ -->
+    <section id="tabs" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">تبويبات القواعد الأربعة بالتفصيل</h2>
+          <p style="margin:0; color:#6b7280;">تُنظَّم القواعد في أربعة تبويبات حسب ما تتحكم فيه. ولن تحرّر أي كود &mdash; فكل تبويب مجموعة من البطاقات والقوائم المنسدلة وزر وضع الاختبار.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #7c3aed;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">حقول</h3>
+            <p style="margin:0; color:#6b7280;">إظهار، إخفاء، جعل الحقل مطلوبًا أو اختياريًا، تفعيل، تعطيل، تعيين القيمة أو مسحها، والتحكم في التنقل بين الخطوات.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #ec4899;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">إشعارات</h3>
+            <p style="margin:0; color:#6b7280;">توجيه رسائل البريد الإلكتروني الشرطية إلى الفريق المناسب &mdash; المبيعات أو الدعم أو المحاسبة أو مستلم بعينه &mdash; مع موضوع ديناميكي.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #a855f7;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">تأكيد</h3>
+            <p style="margin:0; color:#6b7280;">عرض رسالة شكر مختلفة، وتغيير عنوانها ولونها وأيقونتها، أو إعادة توجيه الزائر بعد الإرسال.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px; border-top:4px solid #f59e0b;">
+            <h3 style="font-size:18px; margin:0 0 8px; color:#2a1155;">الويب هوك</h3>
+            <p style="margin:0; color:#6b7280;">تشغيل الويب هوك أو إيقافه حسب الإجابات أو الدفع أو نوع الطلب، والتحكم في الحقول المرسَلة ضمن الحمولة.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ جولة مرئية ============ -->
+    <section id="panel-tour" style="padding:48px 0; background:linear-gradient(180deg,#faf7ff,#ffffff); border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:26px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">شاهده عمليًا: لوحة المنطق الشرطي وتبويباتها</h2>
+          <p style="margin:0; color:#6b7280;">هكذا يبدو المنطق الشرطي داخل مُنشيء النماذج السهل. كل تبويب &mdash; <strong>حقول</strong> و<strong>إشعارات</strong> و<strong>تأكيد</strong> و<strong>الويب هوك</strong> &mdash; يبني القاعدة نفسها بصيغة إذا/إذن؛ وإنما تختلف النتيجة فقط. استعن بهذه المشاهد لتعرف بالضبط أين تنقر عندما تريد إظهار حقل، أو توجيه رسالة، أو إعادة توجيه زائر، أو تشغيل ويب هوك.</p>
+        </div>
+
+        <!-- لقطات حقيقية -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:20px;">
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-inline-start:8px; font-size:12px; font-weight:800; color:#6b21a8;">المنطق الشرطي</span>
+            </div>
+            <img src="https://whitestudio.team/wp-content/uploads/2026/08/Fields-tab-conditional-logic-addons.png" alt="لوحة المنطق الشرطي في مُنشيء النماذج السهل في حالتها الفارغة" title="لوحة المنطق الشرطي &mdash; انقر على إضافة لبناء أول قاعدة" loading="lazy" style="width:100%; display:block;">
+            <figcaption style="padding:14px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">لوحة المنطق الشرطي.</strong> افتحها من إعدادات النموذج، ثم انقر على <strong>إضافة</strong> لإنشاء أول قاعدة إذا/إذن. وفي الحالة الفارغة تقرأ فيها: &laquo;أضف أول قاعدة لبدء بناء نماذج ذكية.&raquo;</figcaption>
+          </figure>
+
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-inline-start:8px; font-size:12px; font-weight:800; color:#6b21a8;">تبويب حقول</span>
+            </div>
+            <img src="https://whitestudio.team/wp-content/uploads/2026/08/open-conditional-logic-addons.png" alt="محرر قواعد إذا/إذن في تبويب حقول مع تحديد الحقل ويساوي واظهار حقل وزر حفظ" title="تبويب حقول &mdash; إظهار حقل أو إخفاؤه حسب الإجابة" loading="lazy" style="width:100%; display:block;">
+            <figcaption style="padding:14px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">تبويب حقول.</strong> ابنِ شرط <strong>إذا</strong>، ثم اختر إجراء <strong>إذن</strong> مثل اظهار حقل أو مطلوب، ثم اضغط حفظ.</figcaption>
+          </figure>
+        </div>
+
+        <!-- معاينات التبويبات -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:20px;">
+
+          <!-- إشعارات -->
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-inline-start:8px; font-size:12px; font-weight:800; color:#6b21a8;">تبويب إشعارات</span>
+            </div>
+            <div style="padding:16px;">
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e7efff; color:#2f6bd8; font-weight:800; font-size:12px;">إذا</span>
+              <div style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">القسم</div>
+                <div style="flex:0 0 auto; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">يساوي</div>
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">المحاسبة</div>
+              </div>
+              <div style="text-align:center; color:#ec4899; font-weight:900; font-size:16px; margin:2px 0;">&darr;</div>
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e5f7ee; color:#12a150; font-weight:800; font-size:12px;">إذن</span>
+              <div style="display:flex; gap:8px; margin:8px 0 12px; flex-wrap:wrap;">
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">إرسال إشعار</div>
+                <div dir="ltr" style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a; unicode-bidi:isolate;">finance@site.com</div>
+              </div>
+              <div style="text-align:end;"><span style="display:inline-block; padding:7px 16px; border-radius:8px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:800; font-size:12px;">حفظ</span></div>
+            </div>
+            <figcaption style="padding:2px 16px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">تبويب إشعارات.</strong> وجّه الرسالة إلى الفريق المناسب &mdash; وهي الطريقة بدون كود لإرسال رسائل النموذج إلى مستلمين مختلفين حسب الإجابة.</figcaption>
+          </figure>
+
+          <!-- تأكيد -->
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-inline-start:8px; font-size:12px; font-weight:800; color:#6b21a8;">تبويب تأكيد</span>
+            </div>
+            <div style="padding:16px;">
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e7efff; color:#2f6bd8; font-weight:800; font-size:12px;">إذا</span>
+              <div style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">الباقة</div>
+                <div style="flex:0 0 auto; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">يساوي</div>
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">احترافي</div>
+              </div>
+              <div style="text-align:center; color:#ec4899; font-weight:900; font-size:16px; margin:2px 0;">&darr;</div>
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e5f7ee; color:#12a150; font-weight:800; font-size:12px;">إذن</span>
+              <div style="display:flex; gap:8px; margin:8px 0 12px; flex-wrap:wrap;">
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">إعادة توجيه إلى</div>
+                <div dir="ltr" style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a; unicode-bidi:isolate;">/book-a-call</div>
+              </div>
+              <div style="text-align:end;"><span style="display:inline-block; padding:7px 16px; border-radius:8px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:800; font-size:12px;">حفظ</span></div>
+            </div>
+            <figcaption style="padding:2px 16px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">تبويب تأكيد.</strong> اعرض رسالة شكر مختلفة أو أعد توجيه الزائر إلى صفحة بعينها بحسب الإجابة.</figcaption>
+          </figure>
+
+          <!-- الويب هوك -->
+          <figure style="margin:0; background:#fff; border:1px solid #ece5f7; border-radius:14px; overflow:hidden; box-shadow:0 12px 30px rgba(62,31,119,.07);">
+            <div style="display:flex; align-items:center; gap:6px; padding:10px 14px; background:#f5f0fd; border-bottom:1px solid #ece5f7;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="margin-inline-start:8px; font-size:12px; font-weight:800; color:#6b21a8;">تبويب الويب هوك</span>
+            </div>
+            <div style="padding:16px;">
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e7efff; color:#2f6bd8; font-weight:800; font-size:12px;">إذا</span>
+              <div style="display:flex; gap:8px; margin:8px 0 6px; flex-wrap:wrap;">
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">الدفع</div>
+                <div style="flex:0 0 auto; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">يساوي</div>
+                <div style="flex:1 1 90px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">نجاح</div>
+              </div>
+              <div style="text-align:center; color:#ec4899; font-weight:900; font-size:16px; margin:2px 0;">&darr;</div>
+              <span style="display:inline-block; padding:3px 12px; border-radius:8px; background:#e5f7ee; color:#12a150; font-weight:800; font-size:12px;">إذن</span>
+              <div style="display:flex; gap:8px; margin:8px 0 12px; flex-wrap:wrap;">
+                <div style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a;">تشغيل الويب هوك</div>
+                <div dir="ltr" style="flex:1 1 110px; padding:8px 10px; border:1px solid #e6ddf6; border-radius:8px; background:#faf9fe; font-size:12px; color:#54506a; unicode-bidi:isolate;">CRM &middot; /orders</div>
+              </div>
+              <div style="text-align:end;"><span style="display:inline-block; padding:7px 16px; border-radius:8px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-weight:800; font-size:12px;">حفظ</span></div>
+            </div>
+            <figcaption style="padding:2px 16px 16px; font-size:14px; color:#54506a;"><strong style="color:#2a1155;">تبويب الويب هوك.</strong> أرسل البيانات إلى نظام إدارة العملاء أو أداة الأتمتة عند تحقق الشرط فقط &mdash; لا مع كل إرسال.</figcaption>
+          </figure>
+
+        </div>
+
+        <p style="margin:18px 0 0; font-size:13px; color:#8b8698;">تعكس اللقطات الإصدار الحالي من مُنشيء النماذج السهل؛ أما مشاهد إشعارات وتأكيد والويب هوك أعلاه فتوضّح قاعدة إذا/إذن الخاصة بكل تبويب. وقد تختلف شاشتك تبعًا للباقة والملحقات المُنصَّبة.</p>
+      </div>
+    </section>
+
+    <!-- ============ مرجع الميزات ============ -->
+    <section id="features" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:24px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">مرجع الميزات الكامل</h2>
+          <p style="margin:0; color:#6b7280;">كل الإجراءات وأنواع الشروط، مع فائدتها بلغة واضحة وعبارة البحث التي تجيب عنها. العناصر المُعلَّمة بـ<span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:12px; font-weight:700;">احترافي</span> تتطلب باقة احترافية.</p>
+        </div>
+        <div style="overflow-x:auto; border:1px solid #ece5f7; border-radius:14px; background:#fff;">
+          <table style="width:100%; border-collapse:collapse; min-width:640px; font-size:15px;">
+            <thead>
+              <tr>
+                <th style="text-align:start; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">الميزة</th>
+                <th style="text-align:start; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">ماذا تقدّم لك</th>
+                <th style="text-align:start; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">عبارة البحث التي تجيب عنها</th>
+              </tr>
+            </thead>
+            <tbody style="color:#3d3a4f;">
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">اظهار حقل / إخفاء حقل</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">كشف حقل أو إخفاؤه بناءً على إجابة.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إظهار حقل حسب القائمة المنسدلة</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">مطلوب / اختياري</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">اشتراط الحقل في المسارات التي يهم فيها فقط.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">جعل الحقل مطلوبًا بشرط</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">تفعيل / تعطيل الحقل</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">قفل حقل دون إخفائه &mdash; مثالي للحقول المعبّأة مسبقًا أو حقول السعر.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تعطيل حقل في النموذج بشرط</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">اظهار خطوة / إخفاء خطوة</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">كشف خطوة كاملة أو إزالتها في نموذج متعدد الخطوات.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تخطي خطوة في النموذج متعدد الخطوات</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">الانتقال إلى الخطوة</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إرسال الزائر مباشرة إلى الخطوة المناسبة له.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">الانتقال إلى صفحة بالمنطق الشرطي</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">إظهار رسالة</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">عرض تلميح أو تحذير بجانب الحقل مباشرة.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إظهار رسالة عند اختيار خيار</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">تعيين القيمة / مسح القيمة</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تعبئة قيمة تلقائيًا أو مسح إجابة قديمة عند تغير المسار.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">مسح قيمة الحقل عند تغيير الخيار</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">نسخ القيمة من حقل</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نقل قيمة حقل إلى حقل آخر دون إعادة كتابتها.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نسخ قيمة من حقل آخر</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">تعيين التسمية والعنصر النائب ونص المساعدة</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تغيير صياغة الحقل بحسب المسار.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تغيير تسمية الحقل ديناميكيًا</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">تركيز الحقل / التمرير إلى الحقل</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">نقل الانتباه إلى حقل مهم بعد الاختيار.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">التمرير تلقائيًا إلى الحقل بعد الاختيار</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">منع الإرسال / رسالة إرسال مخصصة</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إيقاف الإرسال مع رسالة (حد العمر، درجة منخفضة، وغيرها).</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">منع إرسال النموذج بشرط</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">و / أو / مجموعات</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">دمج الشروط، مثل السعودية و شركة، أو مبيعات أو شراكة.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">مجموعة شروط و أو في النموذج</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">ليس / NAND / NOR <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">احترافي</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">عكس نتيجة مجموعة للقواعد المتقدمة.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إظهار حقل عند عدم الاختيار</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">شروط مُعامل الرابط</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تكييف النموذج حسب الحملة أو UTM أو قيمة في الرابط.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">المنطق الشرطي حسب مُعامل الرابط</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">شروط المستخدم والدور</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">عرض مسارات مختلفة للزوار أو المستخدمين المسجّلين أو الأدوار.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إظهار حقل حسب دور المستخدم في ووردبريس</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">مُعاملات التاريخ</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">بناء شروط على قبل / بعد / بين تاريخين.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">المنطق الشرطي قبل وبعد تاريخ</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">شروط الدفع <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">احترافي</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">التصرف حسب الدفع الناجح أو غير المكتمل أو حسب المبلغ.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">المنطق الشرطي حسب مبلغ الدفع</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">احسب <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">احترافي</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">صيغ رقمية تظهر نتيجتها في حقل مستهدف.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">حساب قيمة حقل في النموذج بصيغة</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">إشعارات شرطية</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">مراسلة الفريق المناسب حسب نوع الطلب أو الميزانية أو المنتج.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إرسال بريد النموذج حسب الإجابة</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">نسخة كربونية ومخفية ورموز الموضوع</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إضافة CC/BCC وإدراج قيم الحقول داخل الموضوع.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">مستلم بريد ديناميكي لنموذج الاتصال</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">تأكيد شرطي <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">احترافي</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">عرض رسالة شكر مخصصة لكل مسار.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">رسالة شكر مختلفة حسب الإجابة</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">إعادة توجيه شرطية <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">احترافي</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إعادة التوجيه إلى صفحة بعينها حسب الإجابة أو الباقة المختارة.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إعادة توجيه بعد إرسال النموذج حسب الإجابة</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">رموز في رابط الوجهة <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">احترافي</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تمرير قيم الحقول إلى رابط الوجهة.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">تمرير قيم النموذج إلى صفحة الشكر</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">ويب هوك شرطي <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">احترافي</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إرسال البيانات إلى نظام إدارة العملاء أو الأتمتة للمسارات المناسبة فقط.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إرسال النموذج إلى CRM بشرط</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">إيقاف الويب هوك وحقول الحمولة <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">احترافي</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إيقاف ويب هوك أو تحديد الحقول المرسَلة إلى الخارج.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">اختيار الحقول المرسَلة في الويب هوك</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">وضع الاختبار / الفاحص</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">معاينة مطابق أو غير مطابق أو تم التخطي قبل النشر.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">اختبار المنطق الشرطي قبل النشر</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; font-weight:700; color:#2a1155;">&laquo;Priority&raquo; وتوقف بعد تطابق هذه القاعدة <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">احترافي</span></td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">التحكم في ترتيب القواعد ومنع التعارض على الهدف الواحد.</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">حل تعارض ترتيب القواعد الشرطية</td></tr>
+              <tr><td style="padding:13px 14px; font-weight:700; color:#2a1155;">تصدير / استيراد / تكرار <span style="display:inline-block; padding:1px 8px; border-radius:999px; background:#f3e8ff; color:#6b21a8; font-size:11px; font-weight:700;">احترافي</span></td><td style="padding:13px 14px;">نسخ القواعد ونقلها بين النماذج لتوفير الوقت.</td><td style="padding:13px 14px;">نسخ المنطق الشرطي بين النماذج</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ حالات الاستخدام ============ -->
+    <section id="use-cases" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">نماذج واقعية يمكنك بناؤها</h2>
+          <p style="margin:0; color:#6b7280;">الهدف نموذج مركزي واحد يختار المسار الصحيح &mdash; بدلًا من صيانة عدة نماذج منفصلة.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">نموذج اتصال ذكي</h3>
+            <p style="margin:0; color:#6b7280;">من يختار المبيعات يُسأل عن الميزانية والشركة، ومن يختار الدعم يصبح رقم الطلب أو مفتاح الترخيص مطلوبًا لديه.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">نموذج طلب عرض سعر</h3>
+            <p style="margin:0; color:#6b7280;">وجّه الميزانيات الصغيرة إلى رسالة مفيدة، وعامل الميزانيات المتوسطة بشكل عادي، وأرسل العملاء المحتملين ذوي القيمة العالية مباشرة إلى مدير المبيعات.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">التسجيل في فعالية</h3>
+            <p style="margin:0; color:#6b7280;">أظهِر حقول كبار الشخصيات لتذاكر البريميوم فقط، وأخفِ خطوة الدفع للتذاكر المجانية، وأكّد برسالة تناسب نوع التذكرة.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">طلب التوظيف</h3>
+            <p style="margin:0; color:#6b7280;">اشترط رابط معرض الأعمال لوظائف التصميم، وأظهِر حقل GitHub لوظائف البرمجة، وأرسل كل طلب إلى بريد التوظيف المناسب.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">فرز طلبات الدعم</h3>
+            <p style="margin:0; color:#6b7280;">افصل بين الطلبات التقنية والمالية والعامة، ووجّه كل نوع إلى البريد الصحيح، واعرض تأكيدًا يناسب المسار.</p>
+          </article>
+          <article style="background:#fff; border:1px solid #ece5f7; border-radius:14px; padding:22px;">
+            <h3 style="font-size:19px; margin:0 0 8px; color:#2a1155;">نموذج الدفع والطلبات</h3>
+            <p style="margin:0; color:#6b7280;">شغّل ويب هوك الطلب بعد نجاح الدفع، وراسل الإدارة عند المبالغ الكبيرة، ووجّه حالات الدفع الفاشل برسالة واضحة.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ عمليات البحث ============ -->
+    <section id="searches" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:26px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">أسئلة يبحث عنها الناس &mdash; وكيف يجيب عنها هذا الملحق</h2>
+          <p style="margin:0; color:#6b7280;">إذا كنت تبحث عن إضافة نماذج بمنطق شرطي، فهذه هي المهام التي يبحث عنها الناس فعلًا. وكل واحدة منها قاعدة واحدة في مُنشيء النماذج السهل.</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px;">
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&laquo;إظهار حقل عند تحديد مربع اختيار فقط&raquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">إذا كان مربع الاختيار محددًا &larr; إذن اظهار حقل. يبقى الحقل مخفيًا حتى يُحدَّد المربع، ثم يظهر فورًا.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&laquo;إرسال البريد إلى عنوان مختلف لكل قسم&raquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">توجيه بريد شرطي: إذا كان القسم يساوي المحاسبة &larr; إذن أشعِر المالية. هذه هي الإجابة بدون كود عن المستلمين الديناميكيين.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&laquo;تخطي صفحة في نموذج متعدد الخطوات&raquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">استخدم إخفاء خطوة أو الانتقال إلى الخطوة حتى يتجاوز زوار الباقة المجانية صفحة الدفع بالكامل.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&laquo;تغيير النموذج حسب UTM أو مُعامل الرابط&raquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">اقرأ الرابط داخل شرط إذا لتعبئة القيم مسبقًا أو لإظهار حقول خاصة بالحملة أمام الزيارات المدفوعة.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&laquo;حقول مختلفة للمستخدمين المسجّلين&raquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">تستطيع الشروط قراءة حالة تسجيل الدخول ودور المستخدم في ووردبريس، فيرى الأعضاء والزوار أسئلة مختلفة.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:20px;">
+            <h3 style="font-size:16px; margin:0 0 6px; color:#6b21a8;">&laquo;إعادة التوجيه إلى صفحة شكر مختلفة حسب الإجابة&raquo;</h3>
+            <p style="margin:0; color:#6b7280; font-size:15px;">ترسل إعادة التوجيه الشرطية كل مسار إلى رابط وجهته الخاص، مع رموز الحقول عند الحاجة.</p>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:18px; margin-top:22px;">
+          <article style="background:#f5f0fd; border:1px solid #e6ddf6; border-radius:14px; padding:22px;">
+            <h3 style="font-size:17px; margin:0 0 12px; color:#2a1155;">عمليات بحث شائعة</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">المنطق الشرطي لنماذج ووردبريس</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">إظهار وإخفاء الحقول حسب الإجابة</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">منشئ نماذج بشروط</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">نماذج ذكية بدون كود</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">نموذج متعدد الخطوات بشروط</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #e3d9f7; color:#6b21a8; font-size:13px; font-weight:600;">إشعار بريد إلكتروني شرطي</span>
+            </div>
+          </article>
+          <article style="background:#fdf2f8; border:1px solid #f7d6e8; border-radius:14px; padding:22px;">
+            <h3 style="font-size:17px; margin:0 0 12px; color:#2a1155;">عمليات بحث دقيقة وأقل منافسة</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">توجيه بريد النموذج حسب القائمة المنسدلة</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">تخطي خطوة للتذكرة المجانية</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">جعل الحقل مطلوبًا عند الاختيار فقط</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">المنطق الشرطي حسب مُعامل الرابط</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">إظهار حقل حسب دور المستخدم المسجّل</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">إعادة توجيه شرطية حسب الباقة</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">مسح القيمة عند تغيير الخيار</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">إرسال العملاء المؤهلين فقط إلى CRM</span>
+              <span style="display:inline-block; padding:5px 11px; border-radius:999px; background:#fff; border:1px solid #f7d6e8; color:#be185d; font-size:13px; font-weight:600;">منع الإرسال إذا كان العمر أقل من 18</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ أفضل الممارسات ============ -->
+    <section id="best-practices" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:28px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">أفضل الممارسات لقواعد قابلة للصيانة</h2>
+          <p style="margin:0; color:#6b7280;">عادات قليلة تُبقي نماذجك الشرطية واضحة وقابلة للاختبار وسهلة التسليم لغيرك.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:16px;">
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">ارسم المسارات أولًا</h3>
+            <p style="margin:0; color:#6b7280;">قبل أن تبني أي شيء، اكتب المسارات الرئيسية: فرد مقابل شركة، مبيعات مقابل دعم، مدفوع مقابل غير مدفوع.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">سمِّ القواعد بوضوح</h3>
+            <p style="margin:0; color:#6b7280;">&laquo;إظهار حقول الشركة لعملاء الشركات&raquo; أفضل بكثير من &laquo;قاعدة 1&raquo; حين تعود إليها بعد ستة أشهر.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">اختبر كل مسار</h3>
+            <p style="margin:0; color:#6b7280;">تشغيل واحد لوضع الاختبار لا يكفي. جرّب كل مسار رئيسي بقيم واقعية قبل النشر.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">استعمل الترتيب لحل التعارض</h3>
+            <p style="margin:0; color:#6b7280;">إذا لمست عدة قواعد الحقل نفسه، فاضبط خانة &laquo;Priority&raquo; و&laquo;توقف بعد تطابق هذه القاعدة&raquo; لتفادي الاصطدام.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">لا تخف من الحقول المخفية</h3>
+            <p style="margin:0; color:#6b7280;">تُتجاهَل الحقول والخطوات المخفية أثناء التحقق، فلن تحبس قاعدة &laquo;مطلوب&raquo; عليها الزائر أبدًا.</p>
+          </div>
+          <div style="background:#faf7ff; border:1px solid #ece5f7; border-radius:14px; padding:20px;">
+            <h3 style="font-size:18px; margin:0 0 6px; color:#2a1155;">أبقِ الشروط بسيطة</h3>
+            <p style="margin:0; color:#6b7280;">عدة قواعد واضحة أفضل من مجموعة واحدة ضخمة متداخلة. فالمنطق البسيط أسهل في الاختبار والتصحيح.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ المجاني مقابل الاحترافي ============ -->
+    <section id="free-vs-pro" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="max-width:840px; margin-bottom:24px;">
+          <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 8px; color:#2a1155;">المجاني مقابل الاحترافي في لمحة</h2>
+          <p style="margin:0; color:#6b7280;">يقدّم المنطق الشرطي قيمة فورية، وتفتح النسخة الاحترافية الإمكانات المتقدمة التي تعتمد عليها المواقع الجادة والوكالات والشركات.</p>
+        </div>
+        <div style="overflow-x:auto; border:1px solid #ece5f7; border-radius:14px; background:#fff;">
+          <table style="width:100%; border-collapse:collapse; min-width:520px; font-size:15px;">
+            <thead>
+              <tr>
+                <th style="text-align:start; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">الإمكانية</th>
+                <th style="text-align:center; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">الباقات المجانية</th>
+                <th style="text-align:center; padding:14px; background:#f5f0fd; color:#6b21a8; border-bottom:1px solid #ece5f7;">الاحترافية فقط</th>
+              </tr>
+            </thead>
+            <tbody style="color:#3d3a4f;">
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">إظهار الحقول / إخفاؤها / جعلها مطلوبة</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">منطق الخطوات (إظهار، إخفاء، انتقال)</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">شروط و / أو</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">وضع الاختبار</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">الشروط المجمَّعة</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">بريد إلكتروني وتأكيد وإعادة توجيه شرطية</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">الفاحص</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">احسب (حقول بالصيغ)</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+              <tr><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7;">مجموعات ليس / NAND / NOR</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; border-bottom:1px solid #f0ecf7; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+              <tr><td style="padding:13px 14px;">تصدير / استيراد / تكرار القواعد</td><td style="padding:13px 14px; text-align:center; color:#cbd0da;">&mdash;</td><td style="padding:13px 14px; text-align:center; color:#16a34a; font-weight:800;">&#10003;</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin:14px 0 0; font-size:14px; color:#6b7280;">عندما تصادف ميزة مقفلة داخل المحرر، تعرض الإضافة إحدى رسالتين: &laquo;هذه الميزة متاحة فقط في النسخة الاحترافية (Pro) من مُنشيء النماذج السهل.&raquo; أو &laquo;هل تريد استخدام هذه الميزة؟ إنها مضمنة في خطط مجاني بلس و احترافي.&raquo;</p>
+      </div>
+    </section>
+
+    <!-- ============ حل المشكلات ============ -->
+    <section id="troubleshooting" style="padding:48px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto; max-width:920px;">
+        <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 20px; color:#2a1155;">حل المشكلات الشائعة</h2>
+        <div style="display:grid; gap:12px;">
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">لا أرى زر المنطق الشرطي</h3>
+            <p style="margin:0; color:#6b7280;">افتح صفحة ملحقات وتأكد من أن ملحق المنطق الشرطي مُنصَّب ومفعّل. وفي الباقة المجانية يُستبدَل المحرر بلوحة ترقية.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">الزر موجود لكن المحرر لا يُفتح</h3>
+            <p style="margin:0; color:#6b7280;">تحقق من مستوى باقتك، وتأكد من أن الملحق مفعّل، واحرص على أن يحتوي النموذج على حقول تستطيع القواعد استهدافها &mdash; فالنموذج الفارغ لا يوفّر أهدافًا للقواعد.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">قاعدة لا تعمل</h3>
+            <p style="margin:0; color:#6b7280;">شغّل وضع الاختبار واقرأ الحالة: <strong>مطابق</strong> أو <strong>غير مطابق</strong> أو <strong>تم التخطي</strong>. والسبب الأكثر شيوعًا هو مُعامل أو قيمة غير مطابقة. وإذا كانت قاعدتان تؤثران في الحقل نفسه فافحص خانة &laquo;Priority&raquo;.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">حقل مطلوب يمنع الإرسال بشكل غير متوقع</h3>
+            <p style="margin:0; color:#6b7280;">تأكد من أن الحقل مخفي فعلًا بقاعدة على هذا المسار. فالحقول المخفية يتم تخطيها في التحقق، أما الحقل المعطَّل فقط (وغير المخفي) فقد يظل خاضعًا للتحقق.</p>
+          </div>
+          <div style="background:#fff; border:1px solid #ece5f7; border-radius:12px; padding:18px 20px;">
+            <h3 style="font-size:17px; margin:0 0 6px; color:#2a1155;">وضع الاختبار يقول إن القواعد لم تستقر</h3>
+            <p style="margin:0; color:#6b7280;">رسالة &laquo;لم تستقر القواعد (حلقة محتملة)&raquo; تعني أن قواعدك تُشغّل بعضها بعضًا بلا توقف. فُكّ الحلقة بدمج القواعد أو بتفعيل &laquo;توقف بعد تطابق هذه القاعدة&raquo;.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ الأسئلة الشائعة ============ -->
+    <section id="faq" style="padding:48px 0; background:#fff; border-top:1px solid #ece5f7; border-bottom:1px solid #ece5f7;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto; max-width:920px;">
+        <h2 style="font-size:clamp(24px,3vw,33px); margin:0 0 20px; color:#2a1155;">الأسئلة الشائعة</h2>
+
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">كيف أُظهر حقلًا بناءً على إجابة في قائمة منسدلة؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">افتح المنطق الشرطي من إعدادات النموذج، وأضف قاعدة يكون فيها الشرط: حقل القائمة المنسدلة يساوي قيمة معينة، والإجراء: اظهار حقل على الحقل المستهدف. يظهر الحقل فور تطابق الإجابة، وبدون أي كود.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">كيف أوجّه رسائل النموذج إلى أشخاص مختلفين حسب الإجابة؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">من تبويب إشعارات، أنشئ قاعدة شرطية تحدد المستلم والموضوع والقالب. مثلًا: طلبات المبيعات إلى فريق المبيعات، والفواتير إلى المحاسبة، والدعم إلى فريق المساندة تلقائيًا.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">هل يمكنني تخطي خطوة في نموذج متعدد الخطوات؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">نعم. استخدم من تبويب حقول الإجراءات: اظهار خطوة أو إخفاء خطوة أو الانتقال إلى الخطوة، حتى لا يرى الزائر سوى الخطوات التي تخصه &mdash; مثل تخطي خطوة الدفع في التسجيل المجاني.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">هل يمكن أن يتغير النموذج حسب مُعامل الرابط أو دور المستخدم؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">نعم. تستطيع الشروط قراءة مُعاملات الرابط (مثل قيم UTM أو الحملة) وحالة تسجيل الدخول ودور المستخدم في ووردبريس، فتعرض حقولًا أو رسائل أو إعادة توجيه مختلفة لكل مصدر زيارات ولكل فئة مستخدمين.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">هل يمكنني إعادة توجيه الزائر إلى صفحة أخرى بعد الإرسال؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">نعم. من تبويب تأكيد تستطيع عرض رسالة شرطية أو إعادة التوجيه إلى رابط محدد، كما يمكنك إدراج رموز الحقول داخل رابط الوجهة.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">هل أحتاج إلى معرفة البرمجة لاستخدام المنطق الشرطي؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">لا. تُبنى كل قاعدة بصريًا في واجهة إذا/إذن. أنت تختار الحقل والمُعامل والقيمة والإجراء فقط &mdash; بدون PHP أو JavaScript أو CSS.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:12px;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">هل يمنع حقل مطلوب مخفي عملية الإرسال؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">لا. في المنطق الحالي للملحق، يتم تجاهل أي حقل أو خطوة تخفيها قاعدة أثناء التحقق والإرسال، فلا يُوقَف الزائر أبدًا بسبب حقل مطلوب لا يراه في مساره.</p>
+        </details>
+        <details style="background:#faf7ff; border:1px solid #ece5f7; border-radius:12px; padding:16px 18px; margin-bottom:0;">
+          <summary style="cursor:pointer; font-weight:800; color:#2a1155;">كيف أختبر المنطق الشرطي قبل النشر؟</summary>
+          <p style="margin:12px 0 0; color:#6b7280;">شغّل وضع الاختبار. أدخِل قيمًا تجريبية وشاهد أي القواعد <strong>مطابق</strong> أو <strong>غير مطابق</strong> أو <strong>تم التخطي</strong>. فهو يكشف الأخطاء في المسارات المعقدة قبل وصول الإرساليات الحقيقية.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ============ دعوة لاتخاذ إجراء ============ -->
+    <section style="padding:52px 0;">
+      <div style="width:min(1080px, calc(100% - 32px)); margin:0 auto;">
+        <div style="position:relative; overflow:hidden; background:linear-gradient(135deg,#3e1f77 0%, #7c3aed 52%, #ec4899 100%); color:#fff; border-radius:20px; padding:46px 38px; text-align:center; box-shadow:0 24px 60px rgba(62,31,119,.30);">
+          <span style="display:inline-block; padding:6px 14px; border-radius:999px; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35); font-size:13px; font-weight:700; margin-bottom:16px;">جاهز خلال دقائق &middot; بدون كود</span>
+          <h2 style="font-size:clamp(25px,3.2vw,36px); margin:0 0 14px; color:#fff; line-height:1.35;">ابدأ اليوم ببناء نماذج ووردبريس أذكى</h2>
+          <p style="margin:0 auto 26px; max-width:660px; color:rgba(255,255,255,.9); font-size:18px;">كفى تنقّلًا بين خمسة نماذج مختلفة وفرزًا يدويًا للإرساليات. فعّل ملحق المنطق الشرطي، ودع نموذجًا واحدًا يطرح الأسئلة الصحيحة، ويصل إلى البريد الصحيح، ويرسل الأشخاص المناسبين إلى الصفحة المناسبة &mdash; تلقائيًا.</p>
+          <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+            <a href="#activate" style="display:inline-flex; align-items:center; justify-content:center; padding:14px 26px; border-radius:11px; background:#fff; color:#6b21a8; font-weight:800; text-decoration:none; box-shadow:0 8px 22px rgba(0,0,0,.14);">فعّل المنطق الشرطي</a>
+            <a href="#features" style="display:inline-flex; align-items:center; justify-content:center; padding:14px 26px; border-radius:11px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.55); color:#fff; font-weight:800; text-decoration:none;">استعرض كل الميزات</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+
+</body>
+</html>

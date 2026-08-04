@@ -72,11 +72,11 @@ class Email_Monitor {
             return;
         }
 
-        $panel_url = admin_url('admin.php?page=Emsfb-setting');
+        $panel_url = admin_url('admin.php?page=Emsfb&state=setting');
         $guide_url = self::get_smtp_guide_url();
         $logo_url  = EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.png';
         ?>
-        <div class="notice notice-error is-dismissible efb-delivery-notice" data-efb-fingerprint="<?php echo esc_attr($fingerprint); ?>" style="display:flex;align-items:flex-start;gap:14px;padding:14px 18px;">
+        <div class="efb notice notice-error is-dismissible efb-delivery-notice" data-efb-fingerprint="<?php echo esc_attr($fingerprint); ?>" style="display:flex;align-items:flex-start;gap:14px;padding:14px 18px;">
             <img src="<?php echo esc_url($logo_url); ?>" alt="" style="width:42px;height:auto;margin-top:2px;flex-shrink:0;" />
             <div style="flex:1;min-width:0;">
                 <p style="margin:0 0 6px;font-size:14px;">

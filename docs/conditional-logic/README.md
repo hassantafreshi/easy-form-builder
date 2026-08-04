@@ -3,6 +3,29 @@
 این پوشه مرجع واحد مستندات Conditional Logic است. اسناد پراکنده ریشه پروژه و
 `temp/logic` به این مسیر منتقل شده‌اند.
 
+## راهنمای کامل کاربر (چندزبانه)
+
+مقاله SEO/راهنمای کاربر نهایی برای افزودنی منطق شرطی، به چهار زبان — هر نسخه اصطلاحات
+رابط کاربری خودش را عیناً از `languages/{en,de,ar,fa}` می‌کشد (نه ترجمه آزاد):
+
+- [English](EFB-Conditional-Logic-Complete-Guide.en.html)
+- [Deutsch](EFB-Conditional-Logic-Complete-Guide.de.html) — خطاب غیررسمی (du) در سراسر متن
+- [العربية](EFB-Conditional-Logic-Complete-Guide.ar.html) — راست‌به‌چپ، ارقام لاتین در مقادیر و کد
+- [فارسی](EFB-Conditional-Logic-Complete-Guide.fa.html) — راست‌به‌چپ، ارقام فارسی در متن روان و ارقام لاتین در کد/مقادیر
+
+نکات مهم برای نگه‌داری این چهار فایل:
+
+- برچسب‌های `Priority` و `Action` در ویرایشگر قوانین هنوز در هیچ‌کدام از سه زبان de/ar/fa
+  ترجمه نشده‌اند (رجوع کنید به `languages/{de,ar,fa}.json`) و در هر سه نسخه به‌صراحت
+  به‌عنوان متن انگلیسیِ باقی‌مانده علامت‌گذاری شده‌اند؛ اگر بعداً ترجمه شدند، این یادداشت‌ها را حذف کنید.
+  همچنین در نسخه آلمانی رشته `Rules did not stabilize (possible loop)` در ترجمه فعلی
+  اشتباهاً «Rollen» (نقش‌ها) به‌جای «Regeln» (قوانین) نوشته شده؛ در راهنمای de این نکته توضیح داده شده است.
+- آدرس‌های `canonical` و `hreflang` در هر سه فایل ترجمه‌شده حدسی هستند (الگوی
+  `https://whitestudio.team/<lang>/document/...` برای de/ar و دامنه `easyformbuilder.ir` برای fa)
+  و باید پیش از انتشار واقعی با ساختار چندزبانه سایت تطبیق داده شوند.
+- اسکرین‌شات‌های تعبیه‌شده (`https://whitestudio.team/wp-content/uploads/2026/08/*`) بین هر چهار
+  زبان مشترک‌اند؛ فقط متن `alt`/`title`/کپشن ترجمه شده است.
+
 ## ترتیب مطالعه
 
 1. [Product Requirements](EFB-4x-Conditional-Logic-PRD.md)  
