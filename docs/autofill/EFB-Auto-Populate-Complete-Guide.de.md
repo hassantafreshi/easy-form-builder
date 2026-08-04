@@ -53,8 +53,6 @@ Wenn Ihre WordPress-Formulare Besucher dazu zwingen, jedes Mal Informationen ein
 
 ## Was ist Auto-Populate und wer sollte es nutzen?
 
-Laut der offiziellen Beschreibung des Add-ons auf der Add-ons-Seite des Plugins:
-
 > „Mit dem Add-on zum automatischen Ausfüllen können Sie Formularfelder automatisch aus Datensätzen, früher übermittelten Formularen oder externen APIs befüllen lassen."
 
 Statt einen Besucher Informationen erneut eintippen zu lassen, die Sie bereits besitzen — in einer CSV-Datei, in der Datenbank des Formulars selbst oder in einem externen System wie einem CRM —, muss er nur einen einzigen identifizierenden Wert eingeben (Personalausweisnummer, Kundencode, Bestellnummer oder E-Mail-Adresse); die übrigen Felder werden automatisch ausgefüllt.
@@ -77,7 +75,7 @@ Jedes Formular verwendet jeweils nur einen dieser drei Modi; der Modus wird in d
 
 ## Was sind die Voraussetzungen?
 
-- Eine aktive, gültige **Pro**-Lizenz für Easy Form Builder. Ohne aktive oder nicht abgelaufene Pro-Lizenz zeigen beide Einstellungsseiten zum automatischen Ausfüllen die Meldung „Pro-Version erforderlich" (bzw. einen Ablaufhinweis) an und lassen sich nicht öffnen.
+- Eine aktive, gültige **Pro**-Lizenz für Easy Form Builder. Ohne aktive oder nicht abgelaufene Pro-Lizenz zeigen beide Einstellungsseiten zum automatischen Ausfüllen die Meldung „Pro Version Required" (bzw. einen Ablaufhinweis) an und lassen sich nicht öffnen.
 - Die Plugin-Version muss **Version 4.0 oder höher** sein.
 - Für die Datensatz-Methode: eine **UTF-8-kodierte** CSV-Datei mit Spaltenüberschriften in der ersten Zeile.
 - Für die API-Methode: eine echte Endpunkt-URL, die JSON zurückgibt, sowie bei Bedarf die zugehörigen Authentifizierungsdaten.
@@ -92,7 +90,7 @@ Wie andere Add-ons von Easy Form Builder ist das automatische Ausfüllen **stand
 4. Nach der Aktivierung wird aus demselben Button „**Entfernen!**"; klicken Sie erneut darauf, um das Add-on zu deaktivieren.
 
 <blockquote>
-<strong>Hinweis:</strong> Ist Ihr Easy-Form-Builder-Kern älter als die für dieses Add-on erforderliche Mindestversion, zeigt ein Klick auf „Installieren" statt der Aktivierung eine Plugin-Update-Meldung an. Je nach Ihrem Pro-Tarif kann die Aktivierung dieses Add-ons zudem ein Upgrade des Tarifs erfordern; in diesem Fall zeigt der Lizenzserver nach dem Installationsversuch die entsprechende Meldung an.
+<strong>Hinweis:</strong> Ist Ihre Easy-Form-Builder-Version älter als die für dieses Add-on erforderliche Mindestversion, zeigt ein Klick auf „Installieren" statt der Aktivierung eine Plugin-Update-Meldung an. Je nach Ihrem Pro-Tarif kann die Aktivierung dieses Add-ons zudem ein Upgrade des Tarifs erfordern; in diesem Fall zeigt der Lizenzserver nach dem Installationsversuch die entsprechende Meldung an.
 </blockquote>
 
 ## Wie erstelle und verwalte ich einen Datensatz (CSV-Datei)?
@@ -197,8 +195,8 @@ Im Modus **externe API** wird die Antwort, sofern die Cache-Dauer größer als n
 
 | Fehler | Wahrscheinliche Ursache | Lösung |
 |---|---|---|
-| „Pro-Version erforderlich" beim Öffnen der Seiten zum automatischen Ausfüllen | Pro-Lizenz ist nicht aktiv oder abgelaufen | Aktivieren oder verlängern Sie die Pro-Lizenz |
-| Der Button „Installieren“ zeigt nur eine Update-Meldung | Der Easy-Form-Builder-Kern ist älter als die für dieses Add-on erforderliche Mindestversion | Aktualisieren Sie den Plugin-Kern auf die neueste Version |
+| „Pro Version Required" beim Öffnen der Seiten zum automatischen Ausfüllen | Pro-Lizenz ist nicht aktiv oder abgelaufen | Aktivieren oder verlängern Sie die Pro-Lizenz |
+| Die Schaltfläche Installieren zeigt nur eine Update-Meldung | Die Easy-Form-Builder-Version ist älter als die für dieses Add-on erforderliche Mindestversion | Aktualisieren Sie das Plugin auf die neueste Version |
 | Felder werden nicht ausgefüllt, Meldung „keine Daten gefunden" erscheint | Der eingegebene Wert stimmt mit keiner Datensatz-Zeile, früheren Einreichung oder API-Antwort überein | Prüfen Sie Testwert und Suchbedingung; kontrollieren Sie im Datensatz-Modus erneut den ausgewählten Spaltennamen |
 | Verbindungsfehler (Code 500 oder Netzwerkfehler) im API-Modus | Die Endpunkt-URL ist ungültig, oder der Server ist nicht erreichbar | Prüfen Sie die URL und testen Sie erneut über den Button „Verbindung prüfen“ |
 | HTTP-Statuscode 400 oder höher von der API | Der externe Dienst selbst hat einen Fehler zurückgegeben (z. B. 404 oder 401) | Überprüfen Sie Endpunkt, Parameter und Authentifizierungsdaten |
