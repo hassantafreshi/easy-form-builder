@@ -29,9 +29,9 @@ Wenn Ihre WordPress-Formulare Besucher dazu zwingen, jedes Mal Informationen ein
 
 - Auto-Populate ist ein **reines Pro-Add-on** für Easy Form Builder, das Formularfelder automatisch ausfüllt.
 - Es unterstützt drei Datenquellen: einen **Datensatz** (hochgeladene CSV-Datei), die **eigenen früheren Einreichungen des Formulars** und eine **externe REST-API**.
-- Aktiviert wird es unter **Easy Form Builder → Add-ons** mit einem einzigen Klick auf die Schaltfläche **Installieren** — ein separater "Speichern"-Schritt ist nicht nötig.
+- Aktiviert wird es unter **Easy Form Builder → Add-ons** mit einem einzigen Klick auf den Button „**Installieren**“ — ein separater „Speichern“-Schritt ist nicht nötig.
 - Nach der Aktivierung erscheinen zwei neue Einstellungsseiten: **Datensatz automatisch füllen** und **Integrationen automatisch ausfüllen**.
-- Für den externen API-Modus erfolgt die Aktivierung auf einem bestimmten Formular vollständig im Assistenten „Integrationen automatisch ausfüllen" (Auswahl des Zielformulars in Schritt 3 + Speichern) — es gibt keinen separaten Schalter dafür im Formularbuilder selbst.
+- Für den externen API-Modus erfolgt die Aktivierung auf einem bestimmten Formular vollständig im Assistenten „Integrationen automatisch ausfüllen" (Auswahl des Zielformulars in Schritt 3 + Speichern) – es gibt keinen separaten Schalter dafür im Formularbuilder selbst.
 - Die Funktion setzt eine aktive **Pro**-Lizenz voraus; ohne sie bleiben die Einstellungsseiten gesperrt.
 
 ## Inhaltsverzeichnis
@@ -86,8 +86,8 @@ Wie andere Add-ons von Easy Form Builder ist das automatische Ausfüllen **stand
 
 1. Gehen Sie im WordPress-Menü zu **Easy Form Builder → Add-ons**.
 2. Suchen Sie die Karte „**Add-on zum automatischen Ausfüllen**" (ihre Beschreibung entspricht genau der oben genannten: automatisches Ausfüllen aus Datensätzen, früheren Einreichungen oder externen APIs).
-3. **Klicken Sie auf die Schaltfläche Installieren.** Dadurch werden die benötigten Add-on-Dateien heruntergeladen und gleichzeitig aktiviert — ein separater Schritt „Einstellungen speichern" ist nicht erforderlich.
-4. Nach der Aktivierung wird aus derselben Schaltfläche „**Entfernen!**"; klicken Sie erneut darauf, um das Add-on zu deaktivieren.
+3. **Klicken Sie auf den Button „Installieren“.** Dadurch werden die benötigten Add-on-Dateien heruntergeladen und gleichzeitig aktiviert — ein separater Schritt „Einstellungen speichern" ist nicht erforderlich.
+4. Nach der Aktivierung wird aus demselben Button „**Entfernen!**"; klicken Sie erneut darauf, um das Add-on zu deaktivieren.
 
 <blockquote>
 <strong>Hinweis:</strong> Ist Ihre Easy-Form-Builder-Version älter als die für dieses Add-on erforderliche Mindestversion, zeigt ein Klick auf „Installieren" statt der Aktivierung eine Plugin-Update-Meldung an. Je nach Ihrem Pro-Tarif kann die Aktivierung dieses Add-ons zudem ein Upgrade des Tarifs erfordern; in diesem Fall zeigt der Lizenzserver nach dem Installationsversuch die entsprechende Meldung an.
@@ -96,7 +96,7 @@ Wie andere Add-ons von Easy Form Builder ist das automatische Ausfüllen **stand
 ## Wie erstelle und verwalte ich einen Datensatz (CSV-Datei)?
 
 1. Gehen Sie zu **Easy Form Builder → Datensatz automatisch füllen**.
-2. Wählen Sie über die Schaltfläche **CSV-Datei hochladen** eine CSV-Datei aus (UTF-8, mit Spaltenüberschriften in der ersten Zeile) und laden Sie sie hoch.
+2. Wählen Sie über den Button „**CSV-Datei hochladen**“ eine CSV-Datei aus (UTF-8, mit Spaltenüberschriften in der ersten Zeile) und laden Sie sie hoch.
 3. Der neu erstellte Datensatz erscheint in der Tabelle „**Datensätze**".
 
 Jeden Datensatz können Sie auf derselben Seite verwalten:
@@ -116,7 +116,7 @@ Jeden Datensatz können Sie auf derselben Seite verwalten:
 4. Nach Auswahl eines Datensatzes erscheint ein Bereich zur Definition der Suchbedingung:
    - Wählen Sie ein Formularfeld als „Suchfeld" aus (z. B. ein Feld, in das der Besucher eine Mitarbeiter- oder Ausweisnummer einträgt). Auswählbar sind nur die Feldtypen Text, Datum, E-Mail, Zahl, Telefon, URL, Passwort, Auswählen (Select), Checkbox und Optionsfeld (Radio) sowie Mobilnummer.
    - Wählen Sie daneben die Datensatz-Spalte aus, mit der der eingegebene Wert abgeglichen werden soll.
-   - Über die Schaltfläche „+" können Sie mehr als eine Suchbedingung hinzufügen (z. B. gleichzeitiger Abgleich von Ausweisnummer und Geburtsdatum).
+   - Über den Button „+" können Sie mehr als eine Suchbedingung hinzufügen (z. B. gleichzeitiger Abgleich von Ausweisnummer und Geburtsdatum).
 5. Öffnen Sie für jedes Feld, das automatisch ausgefüllt werden soll, dessen Feldeinstellungen, aktivieren Sie „**Automatisches Ausfüllen aktivieren, um dieses Feld automatisch auszufüllen**", und wählen Sie die zugehörige Datensatz-Spalte aus.
 6. Speichern Sie das Formular.
 
@@ -198,7 +198,7 @@ Im Modus **externe API** wird die Antwort, sofern die Cache-Dauer größer als n
 | „Pro Version Required" beim Öffnen der Seiten zum automatischen Ausfüllen | Pro-Lizenz ist nicht aktiv oder abgelaufen | Aktivieren oder verlängern Sie die Pro-Lizenz |
 | Die Schaltfläche Installieren zeigt nur eine Update-Meldung | Die Easy-Form-Builder-Version ist älter als die für dieses Add-on erforderliche Mindestversion | Aktualisieren Sie das Plugin auf die neueste Version |
 | Felder werden nicht ausgefüllt, Meldung „keine Daten gefunden" erscheint | Der eingegebene Wert stimmt mit keiner Datensatz-Zeile, früheren Einreichung oder API-Antwort überein | Prüfen Sie Testwert und Suchbedingung; kontrollieren Sie im Datensatz-Modus erneut den ausgewählten Spaltennamen |
-| Verbindungsfehler (Code 500 oder Netzwerkfehler) im API-Modus | Die Endpunkt-URL ist ungültig, oder der Server ist nicht erreichbar | Prüfen Sie die URL und testen Sie erneut über die Schaltfläche Verbindung prüfen |
+| Verbindungsfehler (Code 500 oder Netzwerkfehler) im API-Modus | Die Endpunkt-URL ist ungültig, oder der Server ist nicht erreichbar | Prüfen Sie die URL und testen Sie erneut über den Button „Verbindung prüfen“ |
 | HTTP-Statuscode 400 oder höher von der API | Der externe Dienst selbst hat einen Fehler zurückgegeben (z. B. 404 oder 401) | Überprüfen Sie Endpunkt, Parameter und Authentifizierungsdaten |
 | Parse-Fehler (ungültige Antwort) | Die API hat eine Nicht-JSON-Antwort zurückgegeben (z. B. HTML) | Stellen Sie sicher, dass der Endpunkt tatsächlich JSON zurückgibt |
 | API-Aufruf erfolgreich, aber zugeordnete Felder bleiben leer | Antwortdatenpfad ist falsch eingestellt, oder Feldzuordnungen stimmen nicht mit den tatsächlichen Antwortschlüsseln überein | Vergleichen Sie den Antwortpfad und die genauen Feldzuordnungs-Schlüssel mit der Rohantwort der API |
@@ -222,7 +222,7 @@ Nein. Dieses Add-on ist nur in der Pro-Version verfügbar; ohne aktive Pro-Lizen
 
 ### Kann ich auf einem Formular gleichzeitig einen Datensatz und eine externe API verwenden?
 
-Nein. Die Einstellung zum automatischen Ausfüllen auf Formularebene kennt nur einen Modus gleichzeitig (Datensatz/frühere Einreichungen oder externe API); für jedes Formular muss einer dieser Modi gewählt werden.
+Nein. Die Einstellung zum automatischen Ausfüllen auf Formularebene kennt nur einen Modus zu einer Zeit (Datensatz/frühere Einreichungen oder externe API); für jedes Formular muss einer dieser Modi gewählt werden.
 
 ### Erfordert das Ändern von Datensatz-Werten einen erneuten CSV-Upload?
 
@@ -232,7 +232,7 @@ Nein; Sie können die Werte direkt in der Tabelle „Datensätze" bearbeiten, un
 
 Die Feldtypen Text, E-Mail, Datum, Zahl, Telefon, URL, Passwort, Auswählen (Select), Checkbox und Optionsfeld (Radio) sowie Mobilnummer.
 
-### Unterstützen Integrationen automatisch ausfüllen Authentifizierung?
+### Unterstützen Integrationen zum automatischen ausfüllen eine Authentifizierung?
 
 Ja; API Key, Bearer Token, Basic Auth und individuelle Header werden alle unterstützt.
 
@@ -242,9 +242,9 @@ Vollständig innerhalb des Assistenten „Integrationen automatisch ausfüllen" 
 
 ### Wie wird das Add-on selbst aktiviert — gibt es einen Ein-/Ausschalter?
 
-Nein. Dieses Add-on wird durch einen einzigen Klick auf die Schaltfläche **Installieren** auf seiner Karte unter Easy Form Builder → Add-ons aktiviert. Installation und Aktivierung erfolgen gleichzeitig, ein separater „Speichern"-Schritt ist nicht nötig.
+Nein. Dieses Add-on wird durch einen einzigen Klick auf den Button „**Installieren**“ auf seiner Karte unter Easy Form Builder → Add-ons aktiviert. Installation und Aktivierung erfolgen gleichzeitig, ein separater „Speichern"-Schritt ist nicht nötig.
 
-## Suggested FAQ structured data for publication
+## Vorgeschlagene FAQ-strukturierte-Daten für die Veröffentlichung
 
 Verwenden Sie diesen Block nur, wenn das SEO-Plugin Ihrer Website nicht bereits ein vergleichbares FAQ-Schema erzeugt. Die Fragen und Antworten müssen auf der veröffentlichten Seite sichtbar bleiben (entsprechend dem Abschnitt „Häufig gestellte Fragen" oben).
 
@@ -307,7 +307,7 @@ Verwenden Sie diesen Block nur, wenn das SEO-Plugin Ihrer Website nicht bereits 
       "name": "Wie wird das Auto-Populate-Add-on in Easy Form Builder aktiviert?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Klicken Sie unter Easy Form Builder, Add-ons, auf die Schaltfläche Installieren auf der Karte des Add-ons zum automatischen Ausfüllen. Installation und Aktivierung erfolgen gleichzeitig, ein separater Speicherschritt ist nicht erforderlich."
+        "text": "Klicken Sie unter Easy Form Builder, Add-ons, auf den Button „Installieren“ auf der Karte des Add-ons zum automatischen Ausfüllen. Installation und Aktivierung erfolgen gleichzeitig, ein separater Speicherschritt ist nicht erforderlich."
       }
     }
   ]
