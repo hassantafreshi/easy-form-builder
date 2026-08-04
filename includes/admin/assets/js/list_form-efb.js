@@ -988,10 +988,12 @@ function fun_show_content_page_emsFormBuilder(state) {
     window.location.reload();
   } else if (state == "setting" || state == "reload-setting") {
     /* Keep ?tab= in the pushed URL: this runs before the settings markup is
-       rendered, and dropping it here would break the deep link that lands on
-       the Email Settings tab. */
-    const deepTab = sanitize_text_efb(new URLSearchParams(location.search).get('tab') || '');
-    history.pushState("setting",null,`?page=Emsfb&state=setting${deepTab ? '&tab=' + encodeURIComponent(deepTab) : ''}`);
+       rendered, and dropping it here would break every deep link into a tab.
+       Replace instead of push when the URL already reads that way, otherwise a
+       direct visit leaves a twin entry that makes the first Back do nothing. */
+    const deepUrl = efb_setting_tab_url_efb(efb_setting_tab_slug_efb(new URLSearchParams(location.search).get('tab') || ''));
+    if (location.search === deepUrl) history.replaceState("setting",null,deepUrl);
+    else history.pushState("setting",null,deepUrl);
     fun_show_setting__emsFormBuilder();
     fun_backButton_efb(0);
     state = 2
@@ -1020,9 +1022,12 @@ function fun_show_content_page_emsFormBuilder(state) {
 
 }
 
+/* Highlights the top bar entry (1 Forms, 2 Settings, 4 Help). Scoped to that
+   navbar on purpose: an unscoped .nav-link sweep also cleared the settings tab
+   bar, which renders before this runs, leaving every tab unhighlighted. */
 function fun_hande_active_page_emsFormBuilder(no) {
   let count = 0;
-  for (const el of document.querySelectorAll(`.nav-link`)) {
+  for (const el of document.querySelectorAll(`#navbarSupportedContent .navbar-nav .nav-link`)) {
     count += 1;
     if (el.classList.contains('active')) el.classList.remove('active');
     if (count == no) el.classList.add('active');
@@ -1277,18 +1282,18 @@ function fun_show_setting__emsFormBuilder() {
                 <div class="efb card-body">
                         <nav>
                             <div class="efb nav nav-tabs" id="nav-tab" role="tablist">
-                            <button class="efb  nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i class="efb  bi bi-gear mx-2"></i>${efb_var.text.general}</button>
-                            <button class="efb  nav-link " id="nav-response-tab" data-bs-toggle="tab" data-bs-target="#nav-response" type="button" role="tab" aria-controls="nav-respons" aria-selected="true"><i class="efb  bi bi-chat-left-text mx-2"></i>${efb_var.text.rspcon}</button>
-                            <button class="efb  nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><i class="efb  bi bi-robot mx-2"></i>${efb_var.text.captchas}</button>
-                            <button class="efb  nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><i class="efb  bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
-                            <button class="efb  nav-link" id="nav-contact-tab " data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb  bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button>
-                            <button class="efb  nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb  bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
-                            <button class="efb  nav-link" id="nav-stripe-tab" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb  bi bi-credit-card mx-2"></i>${efb_var.text.payments}</button>
-                            <button class="efb  nav-link" id="nav-smsconfig-tab" data-bs-toggle="tab" data-bs-target="#nav-smsconfig" type="button" role="tab" aria-controls="nav-smsconfig" aria-selected="false"><i class="efb  bi bi-chat-left-dots mx-2"></i>${efb_var.text.sms_config}</button>
+                            <button class="efb nav-link active" id="nav-general-tab" data-efb-tab="general" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-general" aria-selected="true"><i class="efb  bi bi-gear mx-2"></i>${efb_var.text.general}</button>
+                            <button class="efb nav-link" id="nav-response-tab" data-efb-tab="responses" data-bs-toggle="tab" data-bs-target="#nav-response" type="button" role="tab" aria-controls="nav-response" aria-selected="false"><i class="efb  bi bi-chat-left-text mx-2"></i>${efb_var.text.rspcon}</button>
+                            <button class="efb nav-link" id="nav-captchas-tab" data-efb-tab="captchas" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-google" aria-selected="false"><i class="efb  bi bi-robot mx-2"></i>${efb_var.text.captchas}</button>
+                            <button class="efb nav-link" id="nav-email-tab" data-efb-tab="email" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-email" aria-selected="false"><i class="efb  bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
+                            <button class="efb nav-link" id="nav-emailtemplate-tab" data-efb-tab="email-template" data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb  bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button>
+                            <button class="efb nav-link" id="nav-text-tab" data-efb-tab="localization" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb  bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
+                            <button class="efb nav-link" id="nav-stripe-tab" data-efb-tab="payments" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb  bi bi-credit-card mx-2"></i>${efb_var.text.payments}</button>
+                            <button class="efb nav-link" id="nav-smsconfig-tab" data-efb-tab="sms" data-bs-toggle="tab" data-bs-target="#nav-smsconfig" type="button" role="tab" aria-controls="nav-smsconfig" aria-selected="false"><i class="efb  bi bi-chat-left-dots mx-2"></i>${efb_var.text.sms_config}</button>
                         </div>
                         </nav>
                         <div class="efb tab-content" id="nav-tabContent">
-                          <div class="efb tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-home-tab">
+                          <div class="efb tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
                             <!--General-->
                             <div class="efb m-3">
                                 <h5 class="efb  card-title mt-3 mobile-title">
@@ -1503,7 +1508,7 @@ function fun_show_setting__emsFormBuilder() {
                             <!--End Response Customize window-->
                             </div>
                         </div>
-                        <div class="efb tab-pane fade" id="nav-google" role="tabpanel" aria-labelledby="nav-profile-tab">
+                        <div class="efb tab-pane fade" id="nav-google" role="tabpanel" aria-labelledby="nav-captchas-tab">
                             <div class="efb m-3">
                                 <div id="message-google-efb"></div>
 
@@ -1550,7 +1555,7 @@ function fun_show_setting__emsFormBuilder() {
                               <!--End Google-->
                             </div>
                         </div>
-                        <div class="efb tab-pane fade" id="nav-email" role="tabpanel" aria-labelledby="nav-contact-tab">
+                        <div class="efb tab-pane fade" id="nav-email" role="tabpanel" aria-labelledby="nav-email-tab">
                             <div class="efb mx-3 ">
                                 <!--Email-->
                                 <h5 class="efb  card-title mt-3 mobile-title">
@@ -1671,7 +1676,7 @@ function fun_show_setting__emsFormBuilder() {
                             </div>
                         </div>
 
-                        <div class="efb tab-pane fade" id="nav-emailtemplate" role="tabpanel" aria-labelledby="nav-contact-tab">
+                        <div class="efb tab-pane fade" id="nav-emailtemplate" role="tabpanel" aria-labelledby="nav-emailtemplate-tab">
                         <div class="efb my-2 mx-1">
                           <!-- Drag & Drop Email Template Builder -->
                           <div id="efb-email-builder"></div>
@@ -1751,12 +1756,57 @@ function fun_show_setting__emsFormBuilder() {
 
 }
 
-/* ?page=Emsfb&state=setting&tab=email lands straight on the Email Settings tab.
- * The form builder links here when notification emails are still switched off,
- * so the admin never has to hunt for the switch across the tab bar. */
-function efb_open_setting_tab_efb(target) {
-  const btn = document.querySelector(`#nav-tab [data-bs-target="${target}"]`);
-  const pane = document.querySelector(target);
+/* Every settings tab owns a URL: ?page=Emsfb&state=setting&tab=<slug>.
+ * The slug lives on the button itself (data-efb-tab) so the markup stays the
+ * single source of truth; these are public URLs admins bookmark and the form
+ * builder links to 'email' directly, so slugs must not be renamed. */
+const EFB_SETTING_TABS_EFB = ['general', 'responses', 'captchas', 'email', 'email-template', 'localization', 'payments', 'sms'];
+
+const EFB_SETTING_TAB_ALIASES_EFB = {
+  'response': 'responses',
+  'confirmation': 'responses',
+  'captcha': 'captchas',
+  'google': 'captchas',
+  'emailsetting': 'email',
+  'emailtemplate': 'email-template',
+  'template': 'email-template',
+  'text': 'localization',
+  'stripe': 'payments',
+  'payment': 'payments',
+  'smsconfig': 'sms',
+  'sms_config': 'sms',
+};
+
+/* Alias-resolved slug, or '' for anything not on the list. Pure string work, so
+ * it can vet ?tab= before the settings markup exists — which is what keeps a
+ * hand-typed value from riding along in the address bar. */
+function efb_setting_tab_slug_efb(slug) {
+  slug = String(sanitize_text_efb(slug) || '').toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  if (slug === '') return '';
+  slug = EFB_SETTING_TAB_ALIASES_EFB[slug] || slug;
+  return EFB_SETTING_TABS_EFB.includes(slug) ? slug : '';
+}
+
+/* '' when the tab does not exist, so a hand-typed ?tab= never blanks the
+ * screen: the caller just leaves General active. */
+function efb_normalize_setting_tab_efb(slug) {
+  slug = efb_setting_tab_slug_efb(slug);
+  return slug && document.querySelector(`#nav-tab [data-efb-tab="${slug}"]`) ? slug : '';
+}
+
+function efb_setting_tab_url_efb(slug) {
+  return `?page=Emsfb&state=setting${slug ? '&tab=' + encodeURIComponent(slug) : ''}`;
+}
+
+/* The tab currently painted as active, '' before the settings markup exists. */
+function efb_current_setting_tab_efb() {
+  const btn = document.querySelector('#nav-tab .nav-link.active[data-efb-tab]');
+  return btn ? btn.dataset.efbTab : '';
+}
+
+function efb_open_setting_tab_efb(slug) {
+  const btn = document.querySelector(`#nav-tab [data-efb-tab="${slug}"]`);
+  const pane = btn ? document.querySelector(btn.getAttribute('data-bs-target')) : null;
   if (!btn || !pane) return false;
 
   for (const b of document.querySelectorAll('#nav-tab .nav-link')) {
@@ -1772,12 +1822,48 @@ function efb_open_setting_tab_efb(target) {
   return true;
 }
 
-function efb_apply_setting_deeplink() {
-  const params = new URLSearchParams(window.location.search);
-  const tab = sanitize_text_efb(params.get('tab') || '');
-  if (tab !== 'email') return;
+/* Bootstrap already does the visual switching through data-bs-toggle; this only
+ * mirrors the click into the address bar so the tab is linkable and Back works.
+ * A distinct 'setting-tab' history token keeps popstate from re-rendering the
+ * whole settings screen (which would throw away unsaved edits). */
+function efb_bind_setting_tabs_efb() {
+  const bar = document.getElementById('nav-tab');
+  if (!bar || bar.dataset.efbTabLinks === '1') return;
+  bar.dataset.efbTabLinks = '1';
 
-  if (!efb_open_setting_tab_efb('#nav-email')) return;
+  bar.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-efb-tab]');
+    if (!btn || !bar.contains(btn)) return;
+    const url = efb_setting_tab_url_efb(btn.dataset.efbTab);
+    if (location.search === url) return;
+    history.pushState('setting-tab', null, url);
+  });
+}
+
+/* Back/forward between tabs: repaint the tab bar only. If the settings screen
+ * has been replaced in the meantime (help, panel, a form), rebuild it — the
+ * render path re-reads ?tab= on its own. */
+function efb_restore_setting_tab_efb() {
+  if (!document.getElementById('nav-tab')) {
+    if (typeof fun_show_setting__emsFormBuilder !== 'function') return;
+    fun_show_setting__emsFormBuilder();
+    fun_backButton_efb(0);
+    fun_hande_active_page_emsFormBuilder(2);
+    return;
+  }
+  const slug = efb_normalize_setting_tab_efb(new URLSearchParams(location.search).get('tab') || '');
+  efb_open_setting_tab_efb(slug || 'general');
+}
+
+/* Runs once per settings render: opens the tab named in the URL and, for
+ * ?tab=email, nudges the notification switch the form builder linked here for. */
+function efb_apply_setting_deeplink() {
+  efb_bind_setting_tabs_efb();
+
+  const params = new URLSearchParams(window.location.search);
+  const slug = efb_normalize_setting_tab_efb(params.get('tab') || '');
+  if (slug === '' || !efb_open_setting_tab_efb(slug)) return;
+  if (slug !== 'email') return;
 
   const toggle = document.getElementById('hostSupportSmtp_emsFormBuilder');
   if (!toggle) return;
@@ -2675,7 +2761,10 @@ function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
       }
       if(state_auto==1){return}
       if(res.data.success == true){
-        history.replaceState("panel",null,'?page=Emsfb&state=reload-setting&save=ok');
+        /* Saving reloads the page; carry the open tab over so the admin lands
+           back where they were instead of on General. */
+        const openTab = efb_current_setting_tab_efb();
+        history.replaceState("panel",null,`?page=Emsfb&state=reload-setting&save=ok${openTab ? '&tab=' + encodeURIComponent(openTab) : ''}`);
         window.location=location.search;
 
       }else{

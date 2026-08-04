@@ -5207,7 +5207,7 @@ public function addon_add_efb($value) {
 	public function delete_old_rows_emsfb_stts_() {
 		global $wpdb;
 
-		$date_limit = date('Y-m-d', strtotime('-40 days'));
+		$date_limit = date('Y-m-d', strtotime('-8 days'));
 
 		$table_name_stts =  $wpdb->prefix . 'emsfb_stts_';
 		 $wpdb->query(

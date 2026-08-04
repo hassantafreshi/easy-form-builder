@@ -72,7 +72,7 @@ class Email_Monitor {
             return;
         }
 
-        $panel_url = admin_url('admin.php?page=Emsfb&state=setting');
+        $panel_url = admin_url('admin.php?page=Emsfb&state=setting&tab=email');
         $guide_url = self::get_smtp_guide_url();
         $logo_url  = EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.png';
         ?>

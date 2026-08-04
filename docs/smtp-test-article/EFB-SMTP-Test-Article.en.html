@@ -1,0 +1,581 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://whitestudio.team/document/send-email-using-smtp-plugin/"
+  },
+  "headline": "How to Test WordPress Email Delivery in Easy Form Builder",
+  "description": "Run Easy Form Builder’s built-in WordPress email server test, understand the delivery score, diagnose failures, and fix email problems with SMTP.",
+  "image": [
+    "REPLACE_WITH_FEATURED_IMAGE_URL"
+  ],
+  "datePublished": "2024-03-30",
+  "dateModified": "2026-07-26",
+  "author": {
+    "@type": "Organization",
+    "name": "WhiteStudio Team",
+    "url": "https://whitestudio.team/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "WhiteStudio Team",
+    "url": "https://whitestudio.team/"
+  },
+  "about": [
+    "Easy Form Builder",
+    "WordPress email delivery",
+    "SMTP",
+    "WP Mail SMTP"
+  ]
+}
+</script>
+
+<!-- wp:paragraph -->
+<p>WordPress can report that an email was sent even when the message never reaches its destination. Easy Form Builder includes a built-in test that sends a real email, checks whether it arrives, and provides a delivery score and diagnostic report.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Quick answer</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>To test your website’s email delivery:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true,"start":1} -->
+<ol start="1" class="wp-block-list"><!-- wp:list-item -->
+<li>Open <strong>Easy Form Builder → Panel → Settings</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Select <strong>Email Settings</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Check the <strong>Admin Email</strong> and <strong>From Address</strong> fields.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Click <strong>Check Email Server</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Review the delivery status, score, and report.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><!-- wp:paragraph -->
+<p><strong>Important:</strong> The <strong>From Address</strong> in Easy Form Builder should match the sender address approved in your SMTP plugin or email provider.</p>
+<!-- /wp:paragraph --></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Before running the test</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Confirm these two settings:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Admin Email:</strong> A valid inbox where the detailed report can be received.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>From Address:</strong> A real sender address connected to your domain or mail service.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Do not leave the default <code>admin@example.com</code> address in place. A missing or unauthorized sender can cause rejected messages, spam placement, or authentication errors.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Run the email server test</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list {"ordered":true,"start":1} -->
+<ol start="1" class="wp-block-list"><!-- wp:list-item -->
+<li>Sign in to your WordPress dashboard.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Open <strong>Easy Form Builder</strong> and select <strong>Panel</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Click <strong>Settings</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Open the <strong>Email Settings</strong> tab.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Verify the Admin Email and From Address.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Click <strong>Check Email Server</strong>.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:image {"id":2052,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://whitestudio.team/wp-content/uploads/2024/03/check-wordpress-server-email-ability-efb-1024x789.png" alt="" class="wp-image-2052"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Easy Form Builder then runs five checks:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true,"start":1} -->
+<ol start="1" class="wp-block-list"><!-- wp:list-item -->
+<li>Creates a unique test address.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Sends a real email through WordPress.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Waits for delivery confirmation.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Displays the first result and score.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Sends a detailed HTML report to the Admin Email.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:image {"id":2054,"sizeSlug":"full","linkDestination":"none"} -->
+<figure class="wp-block-image size-full"><img src="https://whitestudio.team/wp-content/uploads/2024/03/email-tester-wordpress-easy-form-builder.png" alt="" class="wp-image-2054"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Understand the result</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Email is working</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>If the message arrives and the steps complete successfully, your website can send email through its current configuration.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A score above <strong>70 out of 100</strong> generally indicates a healthy setup. Review the report for any remaining recommendations.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Score below 70</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The message arrived, but the configuration may still have authentication or reputation problems.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Check the report for:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>SPF issues;</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>missing DKIM;</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>missing or unsuitable DMARC;</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>a sender-domain mismatch;</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>inconsistent email headers.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:image {"id":2053,"sizeSlug":"medium","linkDestination":"none"} -->
+<figure class="wp-block-image size-medium"><img src="https://whitestudio.team/wp-content/uploads/2024/03/report-email-status-wordpress-139x300.png" alt="" class="wp-image-2053"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Delivery is delayed</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The message was sent but did not arrive within the expected time. This can happen because of a slow mail queue, temporary filtering, or a delayed SMTP provider.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Wait a few minutes and run the test again. Repeated delays should be investigated with your hosting company or email provider.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Test timed out or no email arrived</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>WordPress attempted to send the message, but the test server did not receive it.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Common causes include:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>the hosting server blocking outgoing mail;</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>incorrect SMTP credentials;</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>a disabled PHP mail function;</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>blocked mail ports;</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>firewall or security rules;</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>an unauthorized From Address.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Check the failure reason shown by Easy Form Builder before changing your settings.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Connection error</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A connection or HTTP 500 error usually points to a WordPress, hosting, firewall, or plugin problem.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Refresh the page and retry. If the error continues, review the WordPress and server error logs.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Delivery Details</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The <strong>Delivery Details</strong> panel helps identify where the process failed.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table -->
+<figure class="wp-block-table"><table class="has-fixed-layout"><tbody><tr><td>Field</td><td>What it shows</td></tr><tr><td><strong>Test sent to</strong></td><td>The unique address used for the test</td></tr><tr><td><strong>Sender address</strong></td><td>The From Address used by WordPress</td></tr><tr><td><strong>Email received</strong></td><td>Whether the message reached the test server</td></tr><tr><td><strong>Subject matched</strong></td><td>Whether the subject arrived unchanged</td></tr><tr><td><strong>Unique code verified</strong></td><td>Whether the correct test message was received</td></tr><tr><td><strong>Time waited</strong></td><td>How long delivery took</td></tr><tr><td><strong>Failure reason</strong></td><td>The detected cause of a failed test</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p>Use the reported failure reason as your first troubleshooting step.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><!-- wp:paragraph -->
+<p><strong>Important:</strong> A successful test confirms that the test message was delivered to the test server. It cannot guarantee inbox placement with every email provider because spam filtering also depends on message content, recipient behavior, domain reputation, and provider-specific rules.</p>
+<!-- /wp:paragraph --></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Fix failed WordPress emails with SMTP</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Many WordPress sites rely on the server’s default mail function. An SMTP plugin instead sends email through an authenticated mail server or email API.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>You can use <strong>WP Mail SMTP</strong> or another reliable SMTP plugin.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In this video, you can watch a visual tutorial on configuring SMTP settings:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:embed {"url":"https://www.youtube.com/watch?v=QSExxlk2_70","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} -->
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
+https://www.youtube.com/watch?v=QSExxlk2_70
+</div></figure>
+<!-- /wp:embed -->
+
+<!-- wp:paragraph -->
+<p>Below is a list of email server settings for some of the most popular hosting or services:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>A2hosting</strong> - <a href="https://wpmailsmtp.com/wordpress-smtp-a2-hosting/" data-type="link" data-id="https://wpmailsmtp.com/wordpress-smtp-a2-hosting/" rel="nofollow">How To Use WordPress SMTP with A2 Hosting [2 Ways]</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>BigScoots</strong> - <a href="https://help.bigscoots.com/en/articles/6292975-configuring-your-wordpress-site-to-use-an-smtp-plugin">Configuring your WordPress site to use an SMTP plugin</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Bluehost </strong>-  <a href="https://www.bluehost.com/help/article/the-wordpress-email-problem-and-its-resolution" data-type="link" data-id="https://www.bluehost.com/help/article/the-wordpress-email-problem-and-its-resolution">How to Fix WordPress Not Sending Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Cloudways</strong> - <a href="https://support.cloudways.com/en/articles/5133495-how-to-configure-wp-mail-smtp-plugin-to-send-emails">How to Configure WP Mail SMTP Plugin to Send Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>ِِDigitalOcean</strong> - <a href="https://www.digitalocean.com/community/tutorials/how-to-get-wordpress-email-notifications-on-a-digitalocean-droplet" data-type="link" data-id="https://www.digitalocean.com/community/tutorials/how-to-get-wordpress-email-notifications-on-a-digitalocean-droplet" rel="nofollow">How to Get WordPress Email Notifications on a DigitalOcean Droplet</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>DreamHost </strong>- <a href="https://help.dreamhost.com/hc/en-us/articles/215526937-Configuring-the-WP-Mail-SMTP-plugin" data-type="link" data-id="https://help.dreamhost.com/hc/en-us/articles/215526937-Configuring-the-WP-Mail-SMTP-plugin">Configuring the 'WP Mail SMTP' plugin</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Flywheel </strong>- <a href="https://getflywheel.com/wordpress-support/smtp-and-flywheel/">SMTP and Flywheel</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>GoDaddy</strong> - <a href="https://ca.godaddy.com/help/send-form-mail-using-an-smtp-relay-server-953" data-type="link" data-id="https://ca.godaddy.com/help/send-form-mail-using-an-smtp-relay-server-953" rel="nofollow">Send form mail using an SMTP relay server</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>GreenGeeks</strong>&nbsp;- <a href="https://www.greengeeks.com/tutorials/how-to-fix-wordpress-email-when-its-not-working/" rel="nofollow">How to Fix WordPress Email When It’s Not Working</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Hetzner</strong> - <a href="https://docs.hetzner.com/konsoleh/account-management/email/setting-up-an-email-account/" data-type="link" data-id="https://docs.hetzner.com/konsoleh/account-management/email/setting-up-an-email-account/" rel="nofollow">Setting up an email account</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>HostGator</strong> - <a href="https://www.hostgator.com/help/article/email-connection-settings" data-type="link" data-id="https://www.hostgator.com/help/article/email-connection-settings" rel="nofollow">Email Connection Settings</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Hostinger</strong> - <a href="https://support.titan.email/hc/en-us/articles/900001846283-Send-email-using-WP-Mail-SMTP-plugin" data-type="link" data-id="https://support.titan.email/hc/en-us/articles/900001846283-Send-email-using-WP-Mail-SMTP-plugin" rel="nofollow">Setting up email server configuration for service Titan with WP Mail SMTP plugin.</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>InMotion Hosting</strong> -  <a href="https://www.inmotionhosting.com/support/edu/wordpress/plugins/wp-mail-smtp/" rel="nofollow">How to Install and Use the WP Mail SMTP Plugin</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Kinsta </strong>- <a href="https://kinsta.com/blog/free-smtp-server/" data-type="link" data-id="https://kinsta.com/blog/free-smtp-server/">How to Use a Free SMTP Server for WordPress Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Liquidweb</strong> - <a href="https://www.liquidweb.com/kb/setting-up-an-email-client/" rel="nofollow">How to Set Up Any Email Client</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Nexcess</strong> - <a href="https://www.nexcess.net/blog/woocommerce-emails-smtp/" data-type="link" data-id="https://www.nexcess.net/blog/woocommerce-emails-smtp/">WooCommerce email SMTP tips for growing stores</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Pagely</strong>&nbsp;- <a href="https://support.pagely.com/hc/en-us/articles/203657540-Email-Deliverability-Options-for-WordPress" rel="nofollow">Email Deliverability Options for WordPress</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Pressable</strong> - <a href="https://pressable.com/knowledgebase/email-delivery-troubleshooting-and-smtp-plugins/" data-type="link" data-id="https://pressable.com/knowledgebase/email-delivery-troubleshooting-and-smtp-plugins/" rel="nofollow"> Email Delivery Troubleshooting and SMTP Plugins</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Rackspace</strong> - <a href="https://kinsta.com/blog/rackspace-email-settings/#rackspace-smtp-settings" data-type="link" data-id="https://kinsta.com/blog/rackspace-email-settings/#rackspace-smtp-settings" rel="nofollow">Rackspace SMTP Settings</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Siteground </strong>- <a href="https://world.siteground.com/tutorials/wordpress/use-smtp/" rel="nofollow">How to Configure WordPress to Use SMTP For Sending Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>WP Engine</strong> - <a href="https://wpengine.com/support/using-3rd-party-email-provider-send-mail-wordpress/" data-type="link" data-id="https://wpengine.com/support/using-3rd-party-email-provider-send-mail-wordpress/" rel="nofollow">Sending Email on WP Engine</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>WPX Hosting</strong> - <a href="https://kb.wpx.net/how-can-i-install-and-configure-an-smtp-plugin/" rel="nofollow">How can I install and configure an SMTP plugin?</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>one.com</strong> - <a href="https://help.one.com/hc/en-us/articles/6949620532113-How-to-send-emails-in-WordPress-using-the-WP-SMTP-Mail-plugin" data-type="link" data-id="https://help.one.com/hc/en-us/articles/6949620532113-How-to-send-emails-in-WordPress-using-the-WP-SMTP-Mail-plugin" rel="nofollow">How to send emails in WordPress using the WP SMTP Mail plugin</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>If you are using a different hosting service, contact your hosting provider's support and request the following SMTP settings:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>SMTP Host</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Encryption</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>SMTP Port</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Authentication</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>SMTP Username</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>SMTP Password</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Alternatively, you can utilize email server services supported by the WP Mail SMTP plugin. Below is a list of these supported email server services, as depicted in the image:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":1236,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://whitestudio.team/wp-content/uploads/2024/03/image-4-1024x605.png" alt="" class="wp-image-1236"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>For further information, refer to the <a href="https://wpmailsmtp.com/blog/" data-type="link" data-id="https://wpmailsmtp.com/blog/" rel="nofollow">WP Mail SMTP plugin documentation</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Frequently asked questions</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Why is WordPress not sending form notification emails?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The host may block or poorly configure the default mail function, the SMTP credentials may be wrong, or the From Address may not be authorized. Run the Easy Form Builder email server test and review the failure reason.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Must the Easy Form Builder From Address match WP Mail SMTP?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Yes. Use the same approved sender address unless your email provider explicitly supports a different aligned From Address. A mismatch can cause rejection, rewriting, or spam placement.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Does a score above 70 guarantee that emails will never go to spam?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>No. It means the tested message was delivered and the setup is generally healthy. Inbox placement also depends on message content, sending reputation, recipient engagement, and the receiving provider’s filters.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Do I need a paid SMTP service?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Not always. Some hosting plans include SMTP, and some transactional email providers offer limited plans. Features, quotas, and prices change, so confirm the current terms with the provider.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Will an SMTP plugin affect all WordPress emails?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Usually, yes. Once configured, the plugin can route emails generated by WordPress core and other plugins through the selected mailer. Test password resets, form notifications, and ecommerce emails after setup.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Can I run the Easy Form Builder test more than once?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Yes. Run it after changing the From Address, SMTP credentials, mailer, DNS records, hosting configuration, or security settings.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">What should I do when the test shows HTTP 500?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Retry once, then check the WordPress debug log, PHP error log, security-plugin rules, REST or AJAX restrictions, and hosting firewall. An HTTP 500 error is a server error and does not automatically mean the SMTP password is wrong.</p>
+<!-- /wp:paragraph -->
+
+<div class="ai-data">
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">AI and support-bot summary</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>This section provides a concise, visible summary of the same instructions on this page.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Product:</strong> Easy Form Builder for WordPress</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Feature:</strong> Built-in email server delivery test</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Dashboard path:</strong> Easy Form Builder → Panel → Settings → Email Settings</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Action:</strong> Click <strong>Check Email Server</strong></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>What the test does:</strong> Sends a real WordPress email, verifies arrival, displays five live stages, calculates a score, and sends an HTML diagnostic report</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Successful result:</strong> All stages complete and the test message is received; a score above 7 is generally healthy</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Most important configuration rule:</strong> The Easy Form Builder <strong>From Address</strong> must match an approved sender in the SMTP plugin or email provider</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Common fix:</strong> Install and configure an authenticated SMTP or API mailer, then repeat the test</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Common low-score causes:</strong> SPF, DKIM, DMARC, sender alignment, or reputation problems</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Important limitation:</strong> A successful test does not guarantee inbox placement with every recipient</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+</div>

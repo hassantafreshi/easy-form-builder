@@ -1,0 +1,581 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://easyformbuilder.ir/document/send-email-using-smtp-plugin/"
+  },
+  "headline": "چگونه تحویل ایمیل وردپرس را در فرم ساز آسان آزمایش کنیم",
+  "description": "تست داخلی سرور ایمیل وردپرس در فرم ساز آسان را اجرا کنید، امتیاز تحویل را بفهمید، دلیل ناموفق بودن را تشخیص دهید و مشکلات ایمیل را با SMTP رفع کنید.",
+  "image": [
+    "REPLACE_WITH_FEATURED_IMAGE_URL"
+  ],
+  "datePublished": "2024-03-30",
+  "dateModified": "2026-07-26",
+  "author": {
+    "@type": "Organization",
+    "name": "WhiteStudio Team",
+    "url": "https://whitestudio.team/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "WhiteStudio Team",
+    "url": "https://whitestudio.team/"
+  },
+  "about": [
+    "Easy Form Builder",
+    "تحویل ایمیل در وردپرس",
+    "SMTP",
+    "WP Mail SMTP"
+  ]
+}
+</script>
+
+<!-- wp:paragraph -->
+<p dir="rtl">ممکن است وردپرس گزارش دهد که ایمیلی ارسال شده، درحالی‌که آن پیام هرگز به مقصد نمی‌رسد. فرم ساز آسان یک تست داخلی دارد که یک ایمیل واقعی ارسال می‌کند، بررسی می‌کند آیا می‌رسد یا نه، و یک امتیاز تحویل به‌همراه گزارش تشخیصی ارائه می‌دهد.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">پاسخ کوتاه</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">برای آزمایش تحویل ایمیل وب‌سایت خود:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true,"start":1} -->
+<ol start="1" class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li><strong>فرم ساز آسان ← پنل ← تنظیمات</strong> را باز کنید.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>تنظیمات ایمیل</strong> را انتخاب کنید.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>فیلدهای <strong>ایمیل مدیر</strong> و <strong>نشانی فرستنده</strong> را بررسی کنید.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>روی <strong>بررسی سرور ایمیل</strong> کلیک کنید.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>وضعیت تحویل، امتیاز و گزارش را بررسی کنید.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote" dir="rtl"><!-- wp:paragraph -->
+<p><strong>مهم:</strong> <strong>نشانی فرستنده</strong> در فرم ساز آسان باید با نشانی فرستنده تأییدشده در افزونه SMTP یا سرویس ایمیل شما یکسان باشد.</p>
+<!-- /wp:paragraph --></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">پیش از اجرای آزمایش</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">این دو تنظیم را بررسی کنید:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li><strong>ایمیل مدیر:</strong> یک صندوق ورودی معتبر که گزارش تفصیلی بتواند در آن دریافت شود.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>نشانی فرستنده:</strong> یک نشانی فرستندهٔ واقعی که به دامنه یا سرویس ایمیل شما متصل است.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">نشانی پیش‌فرض <code>admin@example.com</code> را همان‌طور باقی نگذارید. فرستندهٔ گم‌شده یا تأییدنشده می‌تواند باعث رد شدن پیام‌ها، قرارگرفتن در پوشهٔ اسپم، یا خطاهای احراز هویت شود.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">اجرای آزمایش سرور ایمیل</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list {"ordered":true,"start":1} -->
+<ol start="1" class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li>به پیشخوان وردپرس خود وارد شوید.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>فرم ساز آسان</strong> را باز کنید و <strong>پنل</strong> را انتخاب کنید.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>روی <strong>تنظیمات</strong> کلیک کنید.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>تب <strong>تنظیمات ایمیل</strong> را باز کنید.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>ایمیل مدیر و نشانی فرستنده را بررسی کنید.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>روی <strong>بررسی سرور ایمیل</strong> کلیک کنید.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:image {"id":2052,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://whitestudio.team/wp-content/uploads/2024/03/check-wordpress-server-email-ability-efb-1024x789.png" alt="" class="wp-image-2052"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">سپس فرم ساز آسان پنج بررسی انجام می‌دهد:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true,"start":1} -->
+<ol start="1" class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li>یک نشانی یکتا برای آزمایش می‌سازد.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>یک ایمیل واقعی از طریق وردپرس ارسال می‌کند.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>منتظر تأیید تحویل می‌ماند.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>نخستین نتیجه و امتیاز را نمایش می‌دهد.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>یک گزارش تفصیلی به‌صورت HTML به ایمیل مدیر ارسال می‌کند.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:image {"id":2054,"sizeSlug":"full","linkDestination":"none"} -->
+<figure class="wp-block-image size-full"><img src="https://whitestudio.team/wp-content/uploads/2024/03/email-tester-wordpress-easy-form-builder.png" alt="" class="wp-image-2054"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">فهم نتیجه</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">ایمیل کار می‌کند</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">اگر پیام برسد و مراحل با موفقیت کامل شوند، وب‌سایت شما می‌تواند با پیکربندی فعلی ایمیل ارسال کند.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">امتیازی بالاتر از <strong>۷۰ از ۱۰۰</strong> معمولاً نشانهٔ یک راه‌اندازی سالم است. برای هر توصیهٔ باقی‌مانده، گزارش را بررسی کنید.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">امتیاز کمتر از ۷۰</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">پیام رسیده، اما پیکربندی ممکن است هنوز مشکلاتی در احراز هویت یا اعتبار داشته باشد.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">گزارش را برای این موارد بررسی کنید:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li>مشکلات SPF؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>نبود DKIM؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>نبود یا نامناسب‌بودن DMARC؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>عدم تطابق فرستنده و دامنه؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>سربرگ‌های (headers) ایمیل ناسازگار.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:image {"id":2053,"sizeSlug":"medium","linkDestination":"none"} -->
+<figure class="wp-block-image size-medium"><img src="https://whitestudio.team/wp-content/uploads/2024/03/report-email-status-wordpress-139x300.png" alt="" class="wp-image-2053"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">تحویل به‌تأخیر افتاده است</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">پیام ارسال شده اما در زمان مورد انتظار نرسیده است. این می‌تواند به‌دلیل کندی صف ایمیل، فیلترشدن موقت، یا تأخیر سرویس‌دهندهٔ SMTP باشد.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">چند دقیقه صبر کنید و دوباره آزمایش را اجرا کنید. تأخیرهای تکرارشونده باید با شرکت میزبانی یا سرویس‌دهندهٔ ایمیل شما پیگیری شود.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">آزمایش با اتمام مهلت مواجه شد یا هیچ ایمیلی نرسید</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">وردپرس تلاش کرد پیام را ارسال کند، اما سرور آزمایش آن را دریافت نکرد.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">دلایل رایج عبارت‌اند از:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li>مسدودکردن ایمیل‌های خروجی توسط سرور میزبانی؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>اطلاعات ورود SMTP نادرست؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>غیرفعال‌بودن تابع mail در PHP؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>مسدودشدن پورت‌های ایمیل؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>قوانین فایروال یا امنیتی؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>نشانی فرستندهٔ تأییدنشده.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">پیش از تغییر تنظیمات خود، دلیل ناموفق‌بودنی که فرم ساز آسان نمایش می‌دهد را بررسی کنید.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">خطای اتصال</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">خطای اتصال یا خطای HTTP 500 معمولاً نشان‌دهندهٔ مشکلی در وردپرس، میزبانی، فایروال یا یک افزونه است.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">صفحه را بازخوانی کنید و دوباره تلاش کنید. اگر خطا ادامه یافت، گزارش خطاهای وردپرس و سرور را بررسی کنید.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">جزئیات تحویل</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">پنل <strong>جزئیات تحویل</strong> کمک می‌کند مشخص شود فرآیند کجا شکست خورده است.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table -->
+<figure class="wp-block-table" dir="rtl"><table class="has-fixed-layout"><tbody><tr><td>فیلد</td><td>چه چیزی را نشان می‌دهد</td></tr><tr><td><strong>ایمیل آزمایشی ارسال شد به</strong></td><td>نشانی یکتای استفاده‌شده برای آزمایش</td></tr><tr><td><strong>نشانی فرستنده</strong></td><td>نشانی فرستنده‌ای که وردپرس استفاده کرده است</td></tr><tr><td><strong>ایمیل دریافت شد</strong></td><td>اینکه آیا پیام به سرور آزمایش رسیده است</td></tr><tr><td><strong>موضوع ایمیل مطابقت دارد</strong></td><td>اینکه آیا موضوع بدون تغییر رسیده است</td></tr><tr><td><strong>کد یکتا تأیید شد</strong></td><td>اینکه آیا پیام آزمایشی صحیح دریافت شده است</td></tr><tr><td><strong>زمان سپری‌شده</strong></td><td>تحویل چقدر طول کشیده است</td></tr><tr><td><strong>دلیل ناموفق بودن</strong></td><td>علت شناسایی‌شدهٔ ناموفق‌بودن آزمایش</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">دلیل ناموفق‌بودن گزارش‌شده را به‌عنوان نخستین گام عیب‌یابی خود استفاده کنید.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote" dir="rtl"><!-- wp:paragraph -->
+<p><strong>مهم:</strong> آزمایش موفق تأیید می‌کند که پیام آزمایشی به سرور آزمایش تحویل داده شده است. این نمی‌تواند رسیدن به صندوق ورودی نزد هر سرویس‌دهندهٔ ایمیل را تضمین کند، زیرا فیلتر اسپم به محتوای پیام، رفتار گیرنده، اعتبار دامنه و قوانین خاص هر سرویس‌دهنده هم بستگی دارد.</p>
+<!-- /wp:paragraph --></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">رفع ناموفق‌بودن ایمیل‌های وردپرس با SMTP</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">بسیاری از سایت‌های وردپرسی به تابع پیش‌فرض ارسال ایمیل سرور متکی هستند. در مقابل، یک افزونهٔ SMTP ایمیل را از طریق یک سرور ایمیل احراز‌هویت‌شده یا یک API ایمیل ارسال می‌کند.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">می‌توانید از <strong>WP Mail SMTP</strong> یا افزونهٔ SMTP قابل‌اعتماد دیگری استفاده کنید.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">در این ویدئو می‌توانید یک آموزش تصویری برای پیکربندی تنظیمات SMTP ببینید:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:embed {"url":"https://www.youtube.com/watch?v=QSExxlk2_70","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} -->
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
+https://www.youtube.com/watch?v=QSExxlk2_70
+</div></figure>
+<!-- /wp:embed -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">در ادامه فهرستی از تنظیمات سرور ایمیل برای برخی از محبوب‌ترین سرویس‌های میزبانی آمده است:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>A2hosting</strong> - <a href="https://wpmailsmtp.com/wordpress-smtp-a2-hosting/" data-type="link" data-id="https://wpmailsmtp.com/wordpress-smtp-a2-hosting/" rel="nofollow">How To Use WordPress SMTP with A2 Hosting [2 Ways]</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>BigScoots</strong> - <a href="https://help.bigscoots.com/en/articles/6292975-configuring-your-wordpress-site-to-use-an-smtp-plugin">Configuring your WordPress site to use an SMTP plugin</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Bluehost </strong>-  <a href="https://www.bluehost.com/help/article/the-wordpress-email-problem-and-its-resolution" data-type="link" data-id="https://www.bluehost.com/help/article/the-wordpress-email-problem-and-its-resolution">How to Fix WordPress Not Sending Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Cloudways</strong> - <a href="https://support.cloudways.com/en/articles/5133495-how-to-configure-wp-mail-smtp-plugin-to-send-emails">How to Configure WP Mail SMTP Plugin to Send Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>ِِDigitalOcean</strong> - <a href="https://www.digitalocean.com/community/tutorials/how-to-get-wordpress-email-notifications-on-a-digitalocean-droplet" data-type="link" data-id="https://www.digitalocean.com/community/tutorials/how-to-get-wordpress-email-notifications-on-a-digitalocean-droplet" rel="nofollow">How to Get WordPress Email Notifications on a DigitalOcean Droplet</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>DreamHost </strong>- <a href="https://help.dreamhost.com/hc/en-us/articles/215526937-Configuring-the-WP-Mail-SMTP-plugin" data-type="link" data-id="https://help.dreamhost.com/hc/en-us/articles/215526937-Configuring-the-WP-Mail-SMTP-plugin">Configuring the 'WP Mail SMTP' plugin</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Flywheel </strong>- <a href="https://getflywheel.com/wordpress-support/smtp-and-flywheel/">SMTP and Flywheel</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>GoDaddy</strong> - <a href="https://ca.godaddy.com/help/send-form-mail-using-an-smtp-relay-server-953" data-type="link" data-id="https://ca.godaddy.com/help/send-form-mail-using-an-smtp-relay-server-953" rel="nofollow">Send form mail using an SMTP relay server</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>GreenGeeks</strong>&nbsp;- <a href="https://www.greengeeks.com/tutorials/how-to-fix-wordpress-email-when-its-not-working/" rel="nofollow">How to Fix WordPress Email When It’s Not Working</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Hetzner</strong> - <a href="https://docs.hetzner.com/konsoleh/account-management/email/setting-up-an-email-account/" data-type="link" data-id="https://docs.hetzner.com/konsoleh/account-management/email/setting-up-an-email-account/" rel="nofollow">Setting up an email account</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>HostGator</strong> - <a href="https://www.hostgator.com/help/article/email-connection-settings" data-type="link" data-id="https://www.hostgator.com/help/article/email-connection-settings" rel="nofollow">Email Connection Settings</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Hostinger</strong> - <a href="https://support.titan.email/hc/en-us/articles/900001846283-Send-email-using-WP-Mail-SMTP-plugin" data-type="link" data-id="https://support.titan.email/hc/en-us/articles/900001846283-Send-email-using-WP-Mail-SMTP-plugin" rel="nofollow">Setting up email server configuration for service Titan with WP Mail SMTP plugin.</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>InMotion Hosting</strong> -  <a href="https://www.inmotionhosting.com/support/edu/wordpress/plugins/wp-mail-smtp/" rel="nofollow">How to Install and Use the WP Mail SMTP Plugin</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Kinsta </strong>- <a href="https://kinsta.com/blog/free-smtp-server/" data-type="link" data-id="https://kinsta.com/blog/free-smtp-server/">How to Use a Free SMTP Server for WordPress Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Liquidweb</strong> - <a href="https://www.liquidweb.com/kb/setting-up-an-email-client/" rel="nofollow">How to Set Up Any Email Client</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Nexcess</strong> - <a href="https://www.nexcess.net/blog/woocommerce-emails-smtp/" data-type="link" data-id="https://www.nexcess.net/blog/woocommerce-emails-smtp/">WooCommerce email SMTP tips for growing stores</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Pagely</strong>&nbsp;- <a href="https://support.pagely.com/hc/en-us/articles/203657540-Email-Deliverability-Options-for-WordPress" rel="nofollow">Email Deliverability Options for WordPress</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Pressable</strong> - <a href="https://pressable.com/knowledgebase/email-delivery-troubleshooting-and-smtp-plugins/" data-type="link" data-id="https://pressable.com/knowledgebase/email-delivery-troubleshooting-and-smtp-plugins/" rel="nofollow"> Email Delivery Troubleshooting and SMTP Plugins</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Rackspace</strong> - <a href="https://kinsta.com/blog/rackspace-email-settings/#rackspace-smtp-settings" data-type="link" data-id="https://kinsta.com/blog/rackspace-email-settings/#rackspace-smtp-settings" rel="nofollow">Rackspace SMTP Settings</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Siteground </strong>- <a href="https://world.siteground.com/tutorials/wordpress/use-smtp/" rel="nofollow">How to Configure WordPress to Use SMTP For Sending Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>WP Engine</strong> - <a href="https://wpengine.com/support/using-3rd-party-email-provider-send-mail-wordpress/" data-type="link" data-id="https://wpengine.com/support/using-3rd-party-email-provider-send-mail-wordpress/" rel="nofollow">Sending Email on WP Engine</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>WPX Hosting</strong> - <a href="https://kb.wpx.net/how-can-i-install-and-configure-an-smtp-plugin/" rel="nofollow">How can I install and configure an SMTP plugin?</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>one.com</strong> - <a href="https://help.one.com/hc/en-us/articles/6949620532113-How-to-send-emails-in-WordPress-using-the-WP-SMTP-Mail-plugin" data-type="link" data-id="https://help.one.com/hc/en-us/articles/6949620532113-How-to-send-emails-in-WordPress-using-the-WP-SMTP-Mail-plugin" rel="nofollow">How to send emails in WordPress using the WP SMTP Mail plugin</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">اگر از سرویس میزبانی دیگری استفاده می‌کنید، با پشتیبانی سرویس‌دهندهٔ میزبانی خود تماس بگیرید و تنظیمات SMTP زیر را درخواست کنید:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li>میزبان SMTP (SMTP Host)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>رمزگذاری (Encryption)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>پورت SMTP (SMTP Port)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>احراز هویت (Authentication)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>نام کاربری SMTP</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>گذرواژهٔ SMTP</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">به‌جای آن، می‌توانید از سرویس‌های سرور ایمیلی که افزونهٔ WP Mail SMTP پشتیبانی می‌کند استفاده کنید. در ادامه فهرستی از این سرویس‌های پشتیبانی‌شده، همان‌طور که در تصویر نشان داده شده، آمده است:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":1236,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://whitestudio.team/wp-content/uploads/2024/03/image-4-1024x605.png" alt="" class="wp-image-1236"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">برای اطلاعات بیشتر، به <a href="https://wpmailsmtp.com/blog/" data-type="link" data-id="https://wpmailsmtp.com/blog/" rel="nofollow">مستندات افزونهٔ WP Mail SMTP</a> مراجعه کنید.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">پرسش‌های متداول</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">چرا وردپرس ایمیل‌های آگاه‌سازی فرم را ارسال نمی‌کند؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">ممکن است سرور میزبانی تابع پیش‌فرض ارسال ایمیل را مسدود کند یا به‌درستی پیکربندی نکند، اطلاعات ورود SMTP نادرست باشد، یا نشانی فرستنده تأییدنشده باشد. آزمایش سرور ایمیل فرم ساز آسان را اجرا کنید و دلیل ناموفق‌بودن را بررسی کنید.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">آیا نشانی فرستندهٔ فرم ساز آسان باید با WP Mail SMTP یکسان باشد؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">بله. همان نشانی فرستندهٔ تأییدشده را استفاده کنید، مگر اینکه سرویس‌دهندهٔ ایمیل شما صراحتاً از نشانی فرستندهٔ متفاوت اما هم‌راستا پشتیبانی کند. عدم تطابق می‌تواند به رد شدن، بازنویسی، یا قرارگرفتن در پوشهٔ اسپم بینجامد.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">آیا امتیاز بالاتر از ۷۰ تضمین می‌کند ایمیل‌ها هرگز به اسپم نروند؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">خیر. این فقط یعنی پیام آزمایشی تحویل داده شده و راه‌اندازی به‌طور کلی سالم است. رسیدن به صندوق ورودی به محتوای پیام، اعتبار ارسال، تعامل گیرنده و فیلترهای سرویس‌دهندهٔ دریافت‌کننده هم بستگی دارد.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">آیا به یک سرویس SMTP پولی نیاز دارم؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">همیشه نه. برخی از پلن‌های میزبانی شامل SMTP هستند، و برخی سرویس‌دهندگان ایمیل تراکنشی پلن‌های محدود ارائه می‌دهند. امکانات، سهمیه‌ها و قیمت‌ها تغییر می‌کنند، بنابراین شرایط فعلی را با سرویس‌دهنده تأیید کنید.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">آیا افزونهٔ SMTP روی همهٔ ایمیل‌های وردپرس اثر می‌گذارد؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">معمولاً بله. پس از پیکربندی، افزونه می‌تواند ایمیل‌هایی که توسط خودِ وردپرس و سایر افزونه‌ها ساخته می‌شوند را از طریق سرویس ارسال انتخاب‌شده مسیردهی کند. پس از راه‌اندازی، بازنشانی گذرواژه، آگاه‌سازی‌های فرم و ایمیل‌های فروشگاهی را آزمایش کنید.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">آیا می‌توانم آزمایش فرم ساز آسان را بیش از یک‌بار اجرا کنم؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">بله. پس از هرگونه تغییر در نشانی فرستنده، اطلاعات ورود SMTP، سرویس ارسال، رکوردهای DNS، پیکربندی میزبانی یا تنظیمات امنیتی، آن را اجرا کنید.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">وقتی آزمایش خطای HTTP 500 نشان می‌دهد چه کاری انجام دهم؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">یک‌بار دوباره تلاش کنید، سپس گزارش اشکال‌زدایی وردپرس، گزارش خطای PHP، قوانین افزونهٔ امنیتی، محدودیت‌های REST یا AJAX، و فایروال میزبانی را بررسی کنید. خطای HTTP 500 یک خطای سرور است و به‌طور خودکار به این معنا نیست که گذرواژهٔ SMTP اشتباه است.</p>
+<!-- /wp:paragraph -->
+
+<div class="ai-data" dir="rtl">
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">خلاصه برای هوش مصنوعی و ربات‌های پشتیبانی</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">این بخش خلاصه‌ای فشرده و قابل‌مشاهده از همان دستورالعمل‌های این صفحه ارائه می‌دهد.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li><strong>محصول:</strong> فرم ساز آسان برای وردپرس</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>ویژگی:</strong> آزمایش داخلی تحویل سرور ایمیل</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>مسیر پیشخوان:</strong> فرم ساز آسان ← پنل ← تنظیمات ← تنظیمات ایمیل</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>اقدام:</strong> روی <strong>بررسی سرور ایمیل</strong> کلیک کنید</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>این آزمایش چه می‌کند:</strong> یک ایمیل واقعی وردپرسی ارسال می‌کند، رسیدن آن را تأیید می‌کند، پنج مرحلهٔ زنده را نمایش می‌دهد، یک امتیاز محاسبه می‌کند، و یک گزارش تشخیصی HTML ارسال می‌کند</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>نتیجهٔ موفق:</strong> همهٔ مراحل کامل می‌شوند و پیام آزمایشی دریافت می‌شود؛ امتیاز بالاتر از ۷ معمولاً سالم است</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>مهم‌ترین قانون پیکربندی:</strong> <strong>نشانی فرستنده</strong> در فرم ساز آسان باید با یک فرستندهٔ تأییدشده در افزونهٔ SMTP یا سرویس‌دهندهٔ ایمیل یکسان باشد</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>رفع رایج:</strong> نصب و پیکربندی یک سرویس ارسال احرازهویت‌شده از طریق SMTP یا API، سپس تکرار آزمایش</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>دلایل رایج امتیاز پایین:</strong> مشکلات SPF، DKIM، DMARC، هم‌راستایی فرستنده، یا اعتبار</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>محدودیت مهم:</strong> آزمایش موفق، رسیدن به صندوق ورودی نزد هر گیرنده را تضمین نمی‌کند</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+</div>

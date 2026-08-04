@@ -1,0 +1,581 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://whitestudio.team/ar/document/send-email-using-smtp-plugin/"
+  },
+  "headline": "كيفية اختبار تسليم البريد الإلكتروني في ووردبريس عبر مُنشيء النماذج السهل",
+  "description": "شغّل اختبار خادم البريد الإلكتروني المدمج في مُنشيء النماذج السهل، وافهم درجة التسليم، وشخّص أسباب الفشل، وأصلح مشكلات البريد الإلكتروني عبر SMTP.",
+  "image": [
+    "REPLACE_WITH_FEATURED_IMAGE_URL"
+  ],
+  "datePublished": "2024-03-30",
+  "dateModified": "2026-07-26",
+  "author": {
+    "@type": "Organization",
+    "name": "WhiteStudio Team",
+    "url": "https://whitestudio.team/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "WhiteStudio Team",
+    "url": "https://whitestudio.team/"
+  },
+  "about": [
+    "Easy Form Builder",
+    "تسليم البريد الإلكتروني في ووردبريس",
+    "SMTP",
+    "WP Mail SMTP"
+  ]
+}
+</script>
+
+<!-- wp:paragraph -->
+<p dir="rtl">قد يُبلغ ووردبريس بأن رسالة بريد إلكتروني قد أُرسلت حتى عندما لا تصل الرسالة أبدًا إلى وجهتها. يتضمّن مُنشيء النماذج السهل اختبارًا مدمجًا يرسل بريدًا إلكترونيًا حقيقيًا، ويتحقق من وصوله، ويوفّر درجة تسليم وتقرير تشخيصي.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">إجابة سريعة</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">لاختبار تسليم البريد الإلكتروني في موقعك:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true,"start":1} -->
+<ol start="1" class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li>افتح <strong>مُنشيء النماذج السهل ← اللوحة ← الإعدادات</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>اختر <strong>إعدادات البريد الإلكتروني</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>تحقق من حقلي <strong>البريد الإلكتروني للمدير</strong> و<strong>عنوان المرسل</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>انقر على <strong>تحقق من خادم البريد الإلكتروني</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>راجع حالة التسليم والدرجة والتقرير.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote" dir="rtl"><!-- wp:paragraph -->
+<p><strong>مهم:</strong> ينبغي أن يطابق <strong>عنوان المرسل</strong> في مُنشيء النماذج السهل عنوان المرسل المعتمد في ملحق SMTP أو مزوّد البريد الإلكتروني لديك.</p>
+<!-- /wp:paragraph --></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">قبل تشغيل الاختبار</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">تأكد من هذين الإعدادين:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li><strong>البريد الإلكتروني للمدير:</strong> صندوق بريد صالح يمكن استلام التقرير التفصيلي فيه.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>عنوان المرسل:</strong> عنوان مرسل حقيقي مرتبط بنطاقك أو خدمة البريد لديك.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">لا تترك عنوان <code>admin@example.com</code> الافتراضي كما هو. فالمرسل المفقود أو غير المعتمد قد يتسبب في رفض الرسائل، أو تصنيفها كبريد مزعج، أو أخطاء في المصادقة.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">شغّل اختبار خادم البريد الإلكتروني</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list {"ordered":true,"start":1} -->
+<ol start="1" class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li>سجّل الدخول إلى لوحة تحكم ووردبريس الخاصة بك.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>افتح <strong>مُنشيء النماذج السهل</strong> واختر <strong>اللوحة</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>انقر على <strong>الإعدادات</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>افتح تبويب <strong>إعدادات البريد الإلكتروني</strong>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>تحقق من البريد الإلكتروني للمدير وعنوان المرسل.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>انقر على <strong>تحقق من خادم البريد الإلكتروني</strong>.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:image {"id":2052,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://whitestudio.team/wp-content/uploads/2024/03/check-wordpress-server-email-ability-efb-1024x789.png" alt="" class="wp-image-2052"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">يُجري مُنشيء النماذج السهل بعد ذلك خمسة فحوصات:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true,"start":1} -->
+<ol start="1" class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li>ينشئ عنوانًا فريدًا للاختبار.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>يرسل بريدًا إلكترونيًا حقيقيًا عبر ووردبريس.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>ينتظر تأكيد التسليم.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>يعرض النتيجة الأولى والدرجة.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>يرسل تقريرًا تفصيليًا بصيغة HTML إلى البريد الإلكتروني للمدير.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:image {"id":2054,"sizeSlug":"full","linkDestination":"none"} -->
+<figure class="wp-block-image size-full"><img src="https://whitestudio.team/wp-content/uploads/2024/03/email-tester-wordpress-easy-form-builder.png" alt="" class="wp-image-2054"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">فهم النتيجة</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">البريد الإلكتروني يعمل</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">إذا وصلت الرسالة واكتملت الخطوات بنجاح، فإن موقعك قادر على إرسال البريد الإلكتروني بالإعداد الحالي.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">تشير الدرجة الأعلى من <strong>70 من أصل 100</strong> عمومًا إلى إعداد سليم. راجع التقرير بحثًا عن أي توصيات متبقية.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">الدرجة أقل من 70</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">وصلت الرسالة، لكن الإعداد قد لا يزال يعاني من مشكلات في المصادقة أو السمعة.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">تحقق في التقرير من:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li>مشكلات SPF؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>غياب DKIM؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>غياب أو عدم ملاءمة DMARC؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>عدم تطابق بين المرسل والنطاق؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>ترويسات بريد إلكتروني غير متسقة.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:image {"id":2053,"sizeSlug":"medium","linkDestination":"none"} -->
+<figure class="wp-block-image size-medium"><img src="https://whitestudio.team/wp-content/uploads/2024/03/report-email-status-wordpress-139x300.png" alt="" class="wp-image-2053"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">التسليم متأخر</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">أُرسلت الرسالة لكنها لم تصل خلال الوقت المتوقع. قد يحدث هذا بسبب بطء قائمة انتظار البريد، أو تصفية مؤقتة، أو تأخّر مزوّد SMTP.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">انتظر بضع دقائق ثم أعد تشغيل الاختبار. التأخيرات المتكررة ينبغي التحقيق فيها مع شركة الاستضافة أو مزوّد البريد الإلكتروني لديك.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">انتهت مهلة الاختبار أو لم يصل أي بريد إلكتروني</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">حاول ووردبريس إرسال الرسالة، لكن خادم الاختبار لم يستلمها.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">من الأسباب الشائعة:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li>حظر خادم الاستضافة للبريد الصادر؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>بيانات اعتماد SMTP غير صحيحة؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>تعطيل دالة البريد في PHP؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>حظر منافذ البريد؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>قواعد جدار الحماية أو الأمان؛</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>عنوان مرسل غير معتمد.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">تحقق من سبب الفشل الذي يعرضه مُنشيء النماذج السهل قبل تغيير إعداداتك.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">خطأ في الاتصال</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">عادةً ما يشير خطأ الاتصال أو خطأ HTTP 500 إلى مشكلة في ووردبريس أو الاستضافة أو جدار الحماية أو أحد الإضافات.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">أعد تحميل الصفحة وحاول مجددًا. إذا استمر الخطأ، راجع سجلات أخطاء ووردبريس والخادم.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">تفاصيل التسليم</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">تساعد لوحة <strong>تفاصيل التسليم</strong> في تحديد أين فشلت العملية.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table -->
+<figure class="wp-block-table" dir="rtl"><table class="has-fixed-layout"><tbody><tr><td>الحقل</td><td>ما الذي يعرضه</td></tr><tr><td><strong>أُرسل الاختبار إلى</strong></td><td>العنوان الفريد المستخدم في الاختبار</td></tr><tr><td><strong>عنوان المرسل</strong></td><td>عنوان المرسل الذي استخدمه ووردبريس</td></tr><tr><td><strong>تم استلام البريد الإلكتروني</strong></td><td>ما إذا كانت الرسالة قد وصلت إلى خادم الاختبار</td></tr><tr><td><strong>تطابق الموضوع</strong></td><td>ما إذا كان الموضوع قد وصل دون تغيير</td></tr><tr><td><strong>تم التحقق من الكود الفريد</strong></td><td>ما إذا كانت رسالة الاختبار الصحيحة قد استُلمت</td></tr><tr><td><strong>مدة الانتظار</strong></td><td>المدة التي استغرقها التسليم</td></tr><tr><td><strong>سبب الفشل</strong></td><td>السبب المكتشَف لفشل الاختبار</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">استخدم سبب الفشل المُبلَّغ عنه كخطوة أولى لحل المشكلة.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote" dir="rtl"><!-- wp:paragraph -->
+<p><strong>مهم:</strong> نجاح الاختبار يؤكد أن رسالة الاختبار وصلت إلى خادم الاختبار. لا يمكنه ضمان وصول الرسالة إلى صندوق الوارد لدى كل مزوّد بريد إلكتروني، لأن تصفية البريد المزعج تعتمد أيضًا على محتوى الرسالة، وسلوك المستلم، وسمعة النطاق، وقواعد كل مزوّد على حدة.</p>
+<!-- /wp:paragraph --></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">إصلاح رسائل ووردبريس الفاشلة باستخدام SMTP</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">تعتمد مواقع ووردبريس كثيرة على دالة البريد الافتراضية للخادم. أما ملحق SMTP فيرسل البريد الإلكتروني بدلًا من ذلك عبر خادم بريد معتمَد أو واجهة برمجة تطبيقات بريدية.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">يمكنك استخدام <strong>WP Mail SMTP</strong> أو أي ملحق SMTP موثوق آخر.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">في هذا الفيديو يمكنك مشاهدة شرح مرئي لضبط إعدادات SMTP:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:embed {"url":"https://www.youtube.com/watch?v=QSExxlk2_70","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} -->
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
+https://www.youtube.com/watch?v=QSExxlk2_70
+</div></figure>
+<!-- /wp:embed -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">فيما يلي قائمة بإعدادات خادم البريد الإلكتروني لبعض أشهر خدمات الاستضافة:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>A2hosting</strong> - <a href="https://wpmailsmtp.com/wordpress-smtp-a2-hosting/" data-type="link" data-id="https://wpmailsmtp.com/wordpress-smtp-a2-hosting/" rel="nofollow">How To Use WordPress SMTP with A2 Hosting [2 Ways]</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>BigScoots</strong> - <a href="https://help.bigscoots.com/en/articles/6292975-configuring-your-wordpress-site-to-use-an-smtp-plugin">Configuring your WordPress site to use an SMTP plugin</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Bluehost </strong>-  <a href="https://www.bluehost.com/help/article/the-wordpress-email-problem-and-its-resolution" data-type="link" data-id="https://www.bluehost.com/help/article/the-wordpress-email-problem-and-its-resolution">How to Fix WordPress Not Sending Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Cloudways</strong> - <a href="https://support.cloudways.com/en/articles/5133495-how-to-configure-wp-mail-smtp-plugin-to-send-emails">How to Configure WP Mail SMTP Plugin to Send Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>ِِDigitalOcean</strong> - <a href="https://www.digitalocean.com/community/tutorials/how-to-get-wordpress-email-notifications-on-a-digitalocean-droplet" data-type="link" data-id="https://www.digitalocean.com/community/tutorials/how-to-get-wordpress-email-notifications-on-a-digitalocean-droplet" rel="nofollow">How to Get WordPress Email Notifications on a DigitalOcean Droplet</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>DreamHost </strong>- <a href="https://help.dreamhost.com/hc/en-us/articles/215526937-Configuring-the-WP-Mail-SMTP-plugin" data-type="link" data-id="https://help.dreamhost.com/hc/en-us/articles/215526937-Configuring-the-WP-Mail-SMTP-plugin">Configuring the 'WP Mail SMTP' plugin</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Flywheel </strong>- <a href="https://getflywheel.com/wordpress-support/smtp-and-flywheel/">SMTP and Flywheel</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>GoDaddy</strong> - <a href="https://ca.godaddy.com/help/send-form-mail-using-an-smtp-relay-server-953" data-type="link" data-id="https://ca.godaddy.com/help/send-form-mail-using-an-smtp-relay-server-953" rel="nofollow">Send form mail using an SMTP relay server</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>GreenGeeks</strong>&nbsp;- <a href="https://www.greengeeks.com/tutorials/how-to-fix-wordpress-email-when-its-not-working/" rel="nofollow">How to Fix WordPress Email When It’s Not Working</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Hetzner</strong> - <a href="https://docs.hetzner.com/konsoleh/account-management/email/setting-up-an-email-account/" data-type="link" data-id="https://docs.hetzner.com/konsoleh/account-management/email/setting-up-an-email-account/" rel="nofollow">Setting up an email account</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>HostGator</strong> - <a href="https://www.hostgator.com/help/article/email-connection-settings" data-type="link" data-id="https://www.hostgator.com/help/article/email-connection-settings" rel="nofollow">Email Connection Settings</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Hostinger</strong> - <a href="https://support.titan.email/hc/en-us/articles/900001846283-Send-email-using-WP-Mail-SMTP-plugin" data-type="link" data-id="https://support.titan.email/hc/en-us/articles/900001846283-Send-email-using-WP-Mail-SMTP-plugin" rel="nofollow">Setting up email server configuration for service Titan with WP Mail SMTP plugin.</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>InMotion Hosting</strong> -  <a href="https://www.inmotionhosting.com/support/edu/wordpress/plugins/wp-mail-smtp/" rel="nofollow">How to Install and Use the WP Mail SMTP Plugin</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Kinsta </strong>- <a href="https://kinsta.com/blog/free-smtp-server/" data-type="link" data-id="https://kinsta.com/blog/free-smtp-server/">How to Use a Free SMTP Server for WordPress Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Liquidweb</strong> - <a href="https://www.liquidweb.com/kb/setting-up-an-email-client/" rel="nofollow">How to Set Up Any Email Client</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Nexcess</strong> - <a href="https://www.nexcess.net/blog/woocommerce-emails-smtp/" data-type="link" data-id="https://www.nexcess.net/blog/woocommerce-emails-smtp/">WooCommerce email SMTP tips for growing stores</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Pagely</strong>&nbsp;- <a href="https://support.pagely.com/hc/en-us/articles/203657540-Email-Deliverability-Options-for-WordPress" rel="nofollow">Email Deliverability Options for WordPress</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Pressable</strong> - <a href="https://pressable.com/knowledgebase/email-delivery-troubleshooting-and-smtp-plugins/" data-type="link" data-id="https://pressable.com/knowledgebase/email-delivery-troubleshooting-and-smtp-plugins/" rel="nofollow"> Email Delivery Troubleshooting and SMTP Plugins</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Rackspace</strong> - <a href="https://kinsta.com/blog/rackspace-email-settings/#rackspace-smtp-settings" data-type="link" data-id="https://kinsta.com/blog/rackspace-email-settings/#rackspace-smtp-settings" rel="nofollow">Rackspace SMTP Settings</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Siteground </strong>- <a href="https://world.siteground.com/tutorials/wordpress/use-smtp/" rel="nofollow">How to Configure WordPress to Use SMTP For Sending Emails</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>WP Engine</strong> - <a href="https://wpengine.com/support/using-3rd-party-email-provider-send-mail-wordpress/" data-type="link" data-id="https://wpengine.com/support/using-3rd-party-email-provider-send-mail-wordpress/" rel="nofollow">Sending Email on WP Engine</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>WPX Hosting</strong> - <a href="https://kb.wpx.net/how-can-i-install-and-configure-an-smtp-plugin/" rel="nofollow">How can I install and configure an SMTP plugin?</a></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>one.com</strong> - <a href="https://help.one.com/hc/en-us/articles/6949620532113-How-to-send-emails-in-WordPress-using-the-WP-SMTP-Mail-plugin" data-type="link" data-id="https://help.one.com/hc/en-us/articles/6949620532113-How-to-send-emails-in-WordPress-using-the-WP-SMTP-Mail-plugin" rel="nofollow">How to send emails in WordPress using the WP SMTP Mail plugin</a></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">إذا كنت تستخدم خدمة استضافة مختلفة، تواصل مع دعم مزوّد الاستضافة لديك واطلب إعدادات SMTP التالية:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li>مضيف SMTP (SMTP Host)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>التشفير (Encryption)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>منفذ SMTP (SMTP Port)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>المصادقة (Authentication)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>اسم مستخدم SMTP</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>كلمة مرور SMTP</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">بدلًا من ذلك، يمكنك استخدام خدمات خادم البريد الإلكتروني المدعومة من ملحق WP Mail SMTP. فيما يلي قائمة بهذه الخدمات المدعومة، كما هو موضح في الصورة:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":1236,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://whitestudio.team/wp-content/uploads/2024/03/image-4-1024x605.png" alt="" class="wp-image-1236"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">لمزيد من المعلومات، راجع <a href="https://wpmailsmtp.com/blog/" data-type="link" data-id="https://wpmailsmtp.com/blog/" rel="nofollow">توثيق ملحق WP Mail SMTP</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">الأسئلة الشائعة</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">لماذا لا يرسل ووردبريس رسائل إشعار النموذج؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">قد يحظر الخادم المضيف دالة البريد الافتراضية أو يُعدّها بشكل سيئ، أو قد تكون بيانات اعتماد SMTP خاطئة، أو قد يكون عنوان المرسل غير معتمَد. شغّل اختبار خادم البريد الإلكتروني في مُنشيء النماذج السهل وراجع سبب الفشل.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">هل يجب أن يطابق عنوان المرسل في مُنشيء النماذج السهل إعداد WP Mail SMTP؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">نعم. استخدم عنوان المرسل المعتمد نفسه، إلا إذا كان مزوّد بريدك الإلكتروني يدعم صراحةً عنوان مرسل مختلفًا ومتوافقًا. عدم التطابق قد يتسبب في رفض الرسالة أو إعادة كتابتها أو تصنيفها كبريد مزعج.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">هل تضمن الدرجة الأعلى من 70 عدم وصول الرسائل إلى البريد المزعج أبدًا؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">لا. فهي تعني أن الرسالة المُختبَرة قد سُلِّمت وأن الإعداد سليم بشكل عام. وصول الرسالة إلى صندوق الوارد يعتمد أيضًا على محتوى الرسالة، وسمعة الإرسال، وتفاعل المستلم، وفلاتر مزوّد البريد المستقبِل.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">هل أحتاج إلى خدمة SMTP مدفوعة؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">ليس دائمًا. تتضمن بعض باقات الاستضافة خدمة SMTP، وتقدّم بعض مزوّدي البريد الإلكتروني للمعاملات باقات محدودة. تتغير الميزات والحصص والأسعار، لذا تحقق من الشروط الحالية مع المزوّد.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">هل يؤثر ملحق SMTP على جميع رسائل ووردبريس؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">غالبًا نعم. بمجرد إعداده، يمكن للملحق توجيه الرسائل الصادرة من ووردبريس نفسه والإضافات الأخرى عبر خدمة الإرسال المختارة. اختبر بعد الإعداد إعادة تعيين كلمة المرور وإشعارات النماذج ورسائل التجارة الإلكترونية.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">هل يمكنني تشغيل اختبار مُنشيء النماذج السهل أكثر من مرة؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">نعم. شغّله بعد تغيير عنوان المرسل، أو بيانات اعتماد SMTP، أو خدمة الإرسال، أو سجلات DNS، أو إعدادات الاستضافة، أو إعدادات الأمان.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading" dir="rtl">ماذا أفعل عندما يظهر الاختبار خطأ HTTP 500؟</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">أعد المحاولة مرة واحدة، ثم راجع سجل تصحيح أخطاء ووردبريس، وسجل أخطاء PHP، وقواعد ملحقات الأمان، وقيود REST أو AJAX، وجدار حماية الاستضافة. خطأ HTTP 500 هو خطأ في الخادم ولا يعني تلقائيًا أن كلمة مرور SMTP خاطئة.</p>
+<!-- /wp:paragraph -->
+
+<div class="ai-data" dir="rtl">
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading" dir="rtl">ملخص للذكاء الاصطناعي وروبوتات الدعم</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p dir="rtl">يقدّم هذا القسم ملخصًا مختصرًا ومرئيًا لنفس التعليمات الواردة في هذه الصفحة.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list" dir="rtl"><!-- wp:list-item -->
+<li><strong>المنتج:</strong> مُنشيء النماذج السهل لووردبريس</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>الميزة:</strong> اختبار مدمج لتسليم خادم البريد الإلكتروني</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>مسار لوحة التحكم:</strong> مُنشيء النماذج السهل ← اللوحة ← الإعدادات ← إعدادات البريد الإلكتروني</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>الإجراء:</strong> انقر على <strong>تحقق من خادم البريد الإلكتروني</strong></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>ما يفعله الاختبار:</strong> يرسل بريدًا إلكترونيًا حقيقيًا عبر ووردبريس، ويتحقق من وصوله، ويعرض خمس مراحل حية، ويحسب درجة، ويرسل تقريرًا تشخيصيًا بصيغة HTML</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>النتيجة الناجحة:</strong> اكتمال جميع المراحل واستلام رسالة الاختبار؛ الدرجة الأعلى من 7 تُعدّ سليمة عمومًا</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>أهم قاعدة إعداد:</strong> يجب أن يطابق <strong>عنوان المرسل</strong> في مُنشيء النماذج السهل مرسلًا معتمَدًا في ملحق SMTP أو مزوّد البريد الإلكتروني</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>الحل الشائع:</strong> تثبيت وإعداد خدمة إرسال معتمَدة عبر SMTP أو API، ثم إعادة الاختبار</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>الأسباب الشائعة لانخفاض الدرجة:</strong> مشكلات SPF أو DKIM أو DMARC أو توافق المرسل أو السمعة</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>قيد مهم:</strong> نجاح الاختبار لا يضمن وصول الرسالة إلى صندوق الوارد لدى كل مستلم</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+</div>
