@@ -2024,6 +2024,7 @@ function efb_open_color_modal() {
   }).join('');
   const fontSizeOpts = fontSizes.map(fs =>
     `<option value="${fs.value}" ${fs.value === curFontSize ? 'selected' : ''}>${fs.label}</option>`).join('');
+    console.log(efb_var.text.replyMsg);
 
   const previewHtml = `
     <div class="efb-color-modal-preview" id="efbColorPreviewBox">
