@@ -820,7 +820,7 @@ class Email_Monitor {
         $locale = get_locale();
 
         if ($locale === 'fa_IR') {
-            return 'https://easyformbuilder.ir/Ø¯Ø§Ú©ÛŒÙˆÙ…Ù†Øª/Ø§Ø±Ø³Ø§Ù„-Ø§ÛŒÙ…ÛŒÙ„-Ø¨ÙˆØ³ÛŒÙ„Ù‡-Ø§ÙØ²ÙˆÙ†Ù‡-smtp/';
+            return 'https://easyformbuilder.ir/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/';
         }
         if (strpos($locale, 'ar') === 0) {
             return 'https://ar.whitestudio.team/document/send-email-using-smtp-plugin/';

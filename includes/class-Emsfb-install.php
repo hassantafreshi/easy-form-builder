@@ -186,6 +186,17 @@ class Install {
 				delete_option('emsfb_onboarding_completed_at');
 			}
 
+		// Activation runs on every activate, not only the first one, and
+		// create_table_if_absent() above skips a table that already exists - so a
+		// site that was activated again (staging clone, host migration, WP-CLI)
+		// reaches here with the old schema still in place. Writing the version
+		// without migrating would mark the migration as done and make
+		// maybe_upgrade_schema_efb() skip it forever, which is exactly the
+		// situation the stored version is supposed to protect against.
+		self::upgrade_schema();
+
+		// upgrade_schema() records the version itself, but it returns early when
+		// the table is absent, so this stays as the unconditional writer.
 		// update_option(), not add_option(): add_option() leaves an existing value
 		// untouched, so the stored schema version could never move past whatever
 		// an old install first wrote, making every version-guarded migration a

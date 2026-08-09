@@ -70,6 +70,10 @@ class Emsfb {
         add_action('emsfb_daily_maintenance', [$this, 'run_daily_maintenance_efb']);
         add_action('emsfb_revalidate_license', [$this, 'run_license_revalidation_efb']);
         add_action('emsfb_refresh_ir_cdn_status', [$this, 'refresh_ir_cdn_status_efb']);
+        // Bound here, not in efbFunction's constructor: efbFunction is created
+        // lazily, and a wp-cron.php request never touches the admin or form code
+        // that would create it. The listener has to exist before the event fires.
+        add_action('emsfb_addon_recovery_event', [$this, 'run_addon_recovery_efb'], 10, 1);
         add_action('init', [$this, 'schedule_background_jobs_efb']);
     }
 
@@ -223,6 +227,19 @@ class Emsfb {
         $fn = self::get_efbFunction();
         if ($fn && method_exists($fn, 'cron_check_pro_efb')) {
             $fn->cron_check_pro_efb();
+        }
+    }
+
+    /**
+     * Reinstall missing add-on files away from a visitor's page load.
+     *
+     * @param array $context Diagnostic context handed over by the scheduler.
+     * @return void
+     */
+    public function run_addon_recovery_efb($context = []): void {
+        $fn = self::get_efbFunction();
+        if ($fn && method_exists($fn, 'run_addon_recovery_event_efb')) {
+            $fn->run_addon_recovery_event_efb(is_array($context) ? $context : []);
         }
     }
 

@@ -476,23 +476,27 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = 4.1.3 =
 
-* New: Built-in file upload limit. Each visitor may now upload three files per file upload field on a form, and three in the confirmation-code reply box, resetting after an hour. This works in the main plugin with no add-on required, and visitors who reach the limit see a clear message explaining what to do instead of a generic error.
+* New: Built-in file upload limit in Easy Form Builder - three files per upload field on a WordPress form, no add-on needed.
 
-* New: The "File upload budget" section on the Security & Spam Protection page lets you set the upload allowance, the reset window, and a site-wide maximum file size yourself. Every box starts at 0, meaning the automatic behaviour is kept, so existing sites are unaffected until you change something.
+* New: "File upload budget" settings to set your own upload allowance, reset window and maximum file size.
 
-* Fixed: The "Maximum file size" setting on a file upload field is now enforced on the server, not only in the browser. Fields with no size set use a 20 MB default instead of relying on the hosting's PHP limit.
+* New: Setup guide for new installs of this WordPress form builder, plus direct links to each settings tab.
 
-* Fixed: The "Acceptable file types" setting is now enforced on the server for the Image, Media, Document, and Zip options too, not only for Customize. A field set to Document no longer stores an image that was sent directly to the server. The reply box keeps accepting the same broad range as before, and All formats is unchanged.
+* New: Weekly email delivery report for your WordPress forms.
 
-* Fixed: Forms with several file upload fields could have an upload rejected by the Security & Spam Protection per-minute limit when the visitor picked their files quickly. The per-minute limit now takes the number of upload fields on the form into account, so a four-attachment form always has room for four files.
+* Fixed: File uploads and audio, video and screen recordings now work on every form builder field.
 
-* Improved: File type checking now matches the file's real contents against its extension, instead of trusting the file type reported by the browser. A file disguised with a harmless-looking name is refused.
+* Fixed: Payment form notification emails could fail to send in Easy Form Builder.
 
-* Improved: Widened the list of never-allowed file extensions and moved it to one shared place, so all upload paths in the plugin apply exactly the same rules.
+* Fixed: Maximum file size and Acceptable file types are now enforced on the server, not only in the browser.
 
-* New: Files that a visitor uploads but never submits are now removed automatically after 24 hours. Files attached to a real submission or reply are never removed.
+* Fixed: WordPress forms keep working on cached pages instead of showing a security error.
 
-* Improved: Upload errors now show the actual reason - file too large, file type not accepted, upload limit reached - instead of prefixing every failure with a connection warning.
+* Improved: Faster page loads - the form builder no longer waits on a remote check while rendering a form.
+
+* Improved: Real file type is checked, disguised files are refused, and abandoned uploads are removed after 24 hours.
+
+* Improved: Upload errors show the real reason instead of a generic connection warning.
 
 = 4.1.2 =
 

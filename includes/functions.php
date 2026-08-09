@@ -108,11 +108,26 @@ class efbFunction {
 
 	protected $db;
 
+	/**
+	 * Set by the background recovery runner while it still has retries left, so
+	 * the site owner receives one precise report after the final attempt rather
+	 * than one email per attempt.
+	 *
+	 * @var bool
+	 */
+	public $suppress_addon_report_efb = false;
+
 	public function __construct() {
 
 		if (function_exists('add_action')) {
 			add_action('update_option_emsfb_settings', [ $this, 'invalidate_settings_cache' ], 10, 3);
 		}
+
+		/* The ADDON_RECOVERY_EVENT_EFB listener is deliberately NOT bound here.
+		 * This class is instantiated lazily, so on a wp-cron.php request nothing
+		 * would have created it and the scheduled event would fire with no
+		 * listener at all. Emsfb::__construct() binds it instead, next to the
+		 * plugin's other cron handlers, and delegates back to this class. */
 
 		global $wpdb;
 		$this->db = $wpdb;
@@ -3149,6 +3164,81 @@ class efbFunction {
 	}
 
 	/**
+	 * Health gate for public form rendering.
+	 *
+	 * Deliberately does no network work. recover_missing_addons_efb() downloads
+	 * inline, which is right in wp-admin where an administrator is waiting for
+	 * the result, but on a visitor request it blocks page rendering for as long
+	 * as the add-on server takes to answer. Here the repair is handed to the
+	 * background runner and the caller is told immediately that the form cannot
+	 * be rendered yet.
+	 *
+	 * Returns the same shape as recover_missing_addons_efb() so callers keep
+	 * their existing branches.
+	 *
+	 * @param  object|null $settings Optional settings object.
+	 * @return array
+	 */
+	public function check_addons_for_public_request_efb( $settings = null ) {
+		/* No result cache here on purpose: the health check is a handful of
+		 * file_exists() calls, and both expensive branches below are already
+		 * once-per-request — recover_missing_addons_efb() keeps its own guard and
+		 * queue_addon_recovery_efb() is rate limited by a transient lock. */
+		$health  = $this->get_addon_local_health_efb( $settings );
+		$missing = array_keys( $health['missing'] );
+
+		if ( empty( $missing ) ) {
+			return array(
+				'success'         => true,
+				'needed'          => false,
+				'recovered'       => false,
+				'initial_missing' => array(),
+				'missing'         => array(),
+				'errors'          => array(),
+				'renew_required'  => false,
+				'source'          => 'public_form',
+				'deferred'        => false,
+			);
+		}
+
+		/* No usable scheduler: deferring would leave the form showing the update
+		 * notice forever, so repair here and now. The wait is capped by
+		 * addon_inline_mode_efb, and on success recover_missing_addons_efb()
+		 * reports recovered = true, which makes the caller render the reload UI
+		 * and the visitor lands on a working form. */
+		if ( ! $this->is_cron_available_efb() ) {
+			$this->addon_inline_mode_efb = true;
+			try {
+				$inline = $this->recover_missing_addons_efb( $settings, 'public_inline' );
+			} finally {
+				$this->addon_inline_mode_efb = false;
+			}
+			$inline['deferred'] = false;
+			$inline['inline']   = true;
+			return $inline;
+		}
+
+		$queue = $this->queue_addon_recovery_efb( array(
+			'addon'  => reset( $missing ),
+			'source' => 'public_form',
+		) );
+
+		return array(
+			'success'         => false,
+			'needed'          => true,
+			'recovered'       => false,
+			'initial_missing' => $missing,
+			'missing'         => $missing,
+			'errors'          => array(),
+			'renew_required'  => false,
+			'source'          => 'public_form',
+			'deferred'        => true,
+			'queued'          => ! empty( $queue['queued'] ),
+			'queue_reason'    => isset( $queue['reason'] ) ? $queue['reason'] : '',
+		);
+	}
+
+	/**
 	 * Turn the latest recovery result into a short, actionable summary.
 	 *
 	 * @param array<string, mixed> $result Recovery result.
@@ -3383,11 +3473,41 @@ class efbFunction {
 	 *
 	 * @return string
 	 */
-	public function render_addon_recovery_public_error_ui_efb() {
+	/**
+	 * Safe front-end fallback when the form cannot be rendered yet.
+	 *
+	 * @param int $retry_after_seconds Reload the page after this many seconds.
+	 *                                 Pass 0 when a reload cannot help, so the
+	 *                                 visitor is not put in a refresh loop.
+	 * @return string
+	 */
+	public function render_addon_recovery_public_error_ui_efb( $retry_after_seconds = 0 ) {
 		return '<div class="efb" role="alert" style="margin:18px 0;padding:20px;border:1px solid #e3b7b7;border-radius:10px;background:#fff7f7;color:#7a2020;text-align:center;">'
 			. '<strong>' . esc_html__( 'This form is temporarily unavailable.', 'easy-form-builder' ) . '</strong><br>'
 			. esc_html__( 'We could not restore a required form component automatically. Please try again shortly; the site administrator can view the exact recovery error in Easy Form Builder.', 'easy-form-builder' )
+			. $this->addon_reload_script_efb( $retry_after_seconds )
 			. '</div>';
+	}
+
+	/**
+	 * One-shot auto-reload for the "please wait" notices.
+	 *
+	 * The repair runs in a scheduled event, so the page that shows the notice
+	 * has to come back on its own for the visitor to see the working form.
+	 * Guarded so several notices on one page schedule a single reload.
+	 *
+	 * @param  int $seconds Delay before reloading; 0 disables the reload.
+	 * @return string       Inline script, or an empty string.
+	 */
+	public function addon_reload_script_efb( $seconds = 0 ) {
+		$seconds = (int) $seconds;
+		if ( $seconds <= 0 ) {
+			return '';
+		}
+
+		return '<script>(function(){if(window.efbAddonReloadScheduled){return;}'
+			. 'window.efbAddonReloadScheduled=true;'
+			. 'window.setTimeout(function(){window.location.reload();},' . ( $seconds * 1000 ) . ');})();</script>';
 	}
 
 public function addon_add_efb($value) {
@@ -3425,11 +3545,15 @@ public function addon_add_efb($value) {
         $fallback_domain = $is_persian_locale ? untrailingslashit(EMSFB_SERVER_URL) : '';
         $server_label = wp_parse_url($domain, PHP_URL_HOST);
         $u = $build_addon_url($domain);
-		$request_timeout = 15;
+		/* Inline repair runs inside a visitor's page load, so the wait is capped
+		 * hard: one short attempt instead of the retry ladder used when nobody
+		 * is waiting on the other end. */
+		$request_plan    = $this->addon_request_plan_efb($is_persian_locale);
+		$request_timeout = $request_plan['timeout'];
 		$name_space = 'emsfb_addon_' . $value;
 		delete_option($name_space);
 
-        $max_attempts = $is_persian_locale ? 3 : 1;
+        $max_attempts = $request_plan['attempts'];
         $fallback_max_attempts = 1;
         $attempt = 0;
         $success = false;
@@ -3793,15 +3917,19 @@ public function addon_add_efb($value) {
 		}
 
 		if($state==false){
+			/* The background recovery runner suppresses this report while it still
+			 * has retries left, so the site owner gets one precise email after the
+			 * last attempt instead of one per attempt. */
+			if($this->suppress_addon_report_efb){
+				return $return_details ? $details : false;
+			}
+
 			$to = isset($settings->emailSupporter) ? $settings->emailSupporter : null;
 			if($to==null){$to = get_option('admin_email');}
 
 			if($to==null || $to=="null" || $to=="") return $return_details ? $details : false;
 			$sub = esc_html__('Report problem','easy-form-builder') .' ['. esc_html__('Easy Form Builder','easy-form-builder').']';
-			$m =  '<div><p>'. $error_messag.
-				'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.esc_html__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
-				'</a></p><p>'. esc_html__('Easy Form Builder','easy-form-builder') . '</p>
-					<p><a href="'.home_url().'" target="_blank">'.esc_html__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
+			$m = $this->build_addon_recovery_report_efb($details, $error_messag);
 
 			if(emsfb_is_email_sending_enabled_efb($settings)) {
 				$this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
@@ -3816,6 +3944,343 @@ public function addon_add_efb($value) {
 
             return true;
 
+	}
+
+	/* ================================================================
+	 * Background add-on recovery
+	 *
+	 * A visitor request must never wait on the add-on server. The public
+	 * runtime only *queues* a recovery here; the work itself happens in a
+	 * WP-Cron event, which core spawns through a non-blocking loopback so
+	 * the page that queued it is not delayed.
+	 * ============================================================= */
+
+	/** Cron hook name for the background recovery runner. */
+	const ADDON_RECOVERY_EVENT_EFB = 'emsfb_addon_recovery_event';
+
+	/** Minutes to wait before each attempt: immediate, then backs off. */
+	const ADDON_RECOVERY_DELAYS_EFB = array(0, 15, 120);
+
+	/**
+	 * Can a scheduled event actually be relied on to run?
+	 *
+	 * Without WP-Cron the background runner may never fire, which would leave a
+	 * form showing the update notice forever. WP-Cron spawning on page loads is
+	 * the normal case; when it is switched off, a real server cron may still be
+	 * calling wp-cron.php, so this observes whether our own event has run
+	 * recently rather than assuming either way.
+	 *
+	 * @return bool
+	 */
+	public function is_cron_available_efb(){
+		if(!$this->wp_cron_disabled_efb()){
+			return true; // Core spawns pending events on ordinary requests.
+		}
+
+		// WP-Cron is off: only trust it if a server cron proved it works.
+		$last = (int) get_option('emsfb_cron_last_run', 0);
+		return $last > 0 && (time() - $last) < DAY_IN_SECONDS;
+	}
+
+	/**
+	 * Whether WP-Cron spawning is switched off on this site.
+	 *
+	 * Split out from is_cron_available_efb() so the decision above can be
+	 * exercised in both states: DISABLE_WP_CRON is a constant and cannot be
+	 * changed once the process has started.
+	 *
+	 * @return bool
+	 */
+	protected function wp_cron_disabled_efb(){
+		return defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
+	}
+
+	/**
+	 * Timeout and attempt budget for one add-on download.
+	 *
+	 * Isolated because it is the arithmetic that decides how long a visitor can
+	 * be held: inline repairs get one short attempt, background repairs get the
+	 * full retry ladder.
+	 *
+	 * @param  bool $is_persian_locale Persian sites retry against a fallback domain.
+	 * @return array{timeout:int, attempts:int}
+	 */
+	public function addon_request_plan_efb($is_persian_locale = false){
+		if($this->addon_inline_mode_efb){
+			return array(
+				'timeout'  => min(8, max(3, (int) $this->addon_request_timeout_efb)),
+				'attempts' => 1,
+			);
+		}
+
+		return array(
+			'timeout'  => max(3, (int) $this->addon_request_timeout_efb),
+			'attempts' => $is_persian_locale ? 3 : 1,
+		);
+	}
+
+	/**
+	 * Timeout, in seconds, for one add-on download request.
+	 * Lowered while repairing inline so a visitor is never held for long.
+	 *
+	 * @var int
+	 */
+	public $addon_request_timeout_efb = 15;
+
+	/**
+	 * Repairing inside a visitor request: one attempt per add-on, no retries.
+	 *
+	 * @var bool
+	 */
+	public $addon_inline_mode_efb = false;
+
+	/**
+	 * Queue a background add-on recovery.
+	 *
+	 * Safe to call from a public request: it performs no network, filesystem
+	 * or mail work, and is rate limited so a burst of concurrent visitors
+	 * schedules a single job.
+	 *
+	 * @param  array $context Diagnostic context (form_id, addon, source).
+	 * @return array          ['queued' => bool, 'reason' => string]
+	 */
+	public function queue_addon_recovery_efb($context = array()){
+		// A previous run already exhausted its attempts; wait out the backoff
+		// instead of hammering the server on every page view. This transient
+		// was written before but never read, so recovery retried endlessly.
+		if(get_transient('emsfb_addons_dl_backoff')){
+			return array('queued' => false, 'reason' => 'backoff');
+		}
+
+		if(get_transient('emsfb_addons_renew_backoff')){
+			return array('queued' => false, 'reason' => 'renew_backoff');
+		}
+
+		/* The counter is a ceiling *within* the backoff window, not a permanent
+		 * give-up. Once the day-long backoff above has expired, a site whose host
+		 * or network has since been fixed gets a fresh set of attempts instead of
+		 * staying broken until an administrator happens to log in. */
+		if((int) get_option('emsfb_addons_dl_failures', 0) >= 3){
+			delete_option('emsfb_addons_dl_failures');
+		}
+
+		// One job per 5 minutes, however many visitors hit the form.
+		if(get_transient('emsfb_addon_recovery_lock')){
+			return array('queued' => false, 'reason' => 'already_queued');
+		}
+
+		if(!function_exists('wp_schedule_single_event')){
+			return array('queued' => false, 'reason' => 'cron_unavailable');
+		}
+
+		// Scheduling an event nothing will ever execute would leave the caller
+		// promising a repair that cannot happen, and any auto-reload built on
+		// that promise would loop the visitor forever.
+		if(!$this->is_cron_available_efb()){
+			return array('queued' => false, 'reason' => 'cron_unavailable');
+		}
+
+		set_transient('emsfb_addon_recovery_lock', 1, 5 * MINUTE_IN_SECONDS);
+
+		$context = is_array($context) ? $context : array();
+		$context['attempt']    = 0;
+		$context['queued_at']  = time();
+		$context['cron_disabled'] = defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
+		$context['queued_url'] = isset($_SERVER['REQUEST_URI'])
+			? esc_url_raw(home_url(sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI']))))
+			: home_url();
+
+		// The rich context lives in the option, not in the cron arguments: WP-Cron
+		// detects duplicate events by hook + arguments, and a timestamp or URL in
+		// there would make every event unique and defeat that protection.
+		update_option('emsfb_addon_recovery_pending', $context, false);
+		wp_schedule_single_event(time() + 5, self::ADDON_RECOVERY_EVENT_EFB, array(array('attempt' => 0)));
+
+		return array('queued' => true, 'reason' => 'scheduled');
+	}
+
+	/**
+	 * Cron callback: try to repair the installation, then escalate.
+	 *
+	 * Retries on its own schedule and only reports to the site owner once
+	 * every attempt has been used, so a transient network problem is fixed
+	 * silently and a real problem is explained precisely.
+	 *
+	 * @param array $context Context handed over by queue_addon_recovery_efb().
+	 */
+	public function run_addon_recovery_event_efb($context = array()){
+		/* Proof that scheduled events really execute on this site. is_cron_available_efb()
+		 * reads it to decide whether deferring is safe when WP-Cron is switched off. */
+		update_option('emsfb_cron_last_run', time(), false);
+
+		$context = is_array($context) ? $context : array();
+		$attempt = isset($context['attempt']) ? (int) $context['attempt'] : 0;
+		$last    = $attempt >= (count(self::ADDON_RECOVERY_DELAYS_EFB) - 1);
+
+		// Nothing to do: the files came back by other means (a manual recovery
+		// or a re-install) while this job was waiting in the queue.
+		$health = $this->get_addon_local_health_efb();
+		if(empty($health['missing'])){
+			$this->clear_addon_recovery_state_efb();
+			return;
+		}
+
+		// Suppress the report until the final attempt. Reset in finally so a fatal
+		// inside the downloader cannot leave reporting muted for later runs.
+		$this->suppress_addon_report_efb = !$last;
+		try {
+			$details = $this->download_all_addons_efb(true);
+		} finally {
+			$this->suppress_addon_report_efb = false;
+		}
+
+		$missing_after = $this->get_addon_local_health_efb();
+		if(empty($missing_after['missing'])){
+			$this->clear_addon_recovery_state_efb();
+			return;
+		}
+
+		if($last){
+			// download_all_addons_efb() has already emailed the detailed report.
+			delete_transient('emsfb_addon_recovery_lock');
+			update_option('emsfb_addon_recovery_result', is_array($details) ? $details : array(), false);
+			return;
+		}
+
+		$next = $attempt + 1;
+		$delay = self::ADDON_RECOVERY_DELAYS_EFB[$next] * MINUTE_IN_SECONDS;
+
+		$pending = get_option('emsfb_addon_recovery_pending', array());
+		$pending = is_array($pending) ? $pending : array();
+		$pending['attempt'] = $next;
+
+		// Keep the lock alive across the wait so page views do not queue a
+		// duplicate job while this one is still retrying.
+		set_transient('emsfb_addon_recovery_lock', 1, $delay + (5 * MINUTE_IN_SECONDS));
+		update_option('emsfb_addon_recovery_pending', $pending, false);
+		wp_schedule_single_event(time() + $delay, self::ADDON_RECOVERY_EVENT_EFB, array(array('attempt' => $next)));
+	}
+
+	/** Clear every flag the recovery cycle sets once the files are healthy. */
+	public function clear_addon_recovery_state_efb(){
+		delete_transient('emsfb_addon_recovery_lock');
+		delete_transient('emsfb_addons_dl_backoff');
+		delete_option('emsfb_addons_dl_failures');
+		delete_option('emsfb_addon_recovery_pending');
+	}
+
+	/**
+	 * Build the diagnostic report emailed to the site owner.
+	 *
+	 * Says what is missing, what was tried, what the server or host answered,
+	 * and what to do next — a generic "report problem" line leaves the owner
+	 * with no way to act.
+	 *
+	 * @param  array  $details  Result array from download_all_addons_efb(true).
+	 * @param  string $fallback Last error message seen during the run.
+	 * @return string           HTML email body.
+	 */
+	public function build_addon_recovery_report_efb($details, $fallback = ''){
+		$details = is_array($details) ? $details : array();
+		$missing = isset($details['missing']) && is_array($details['missing']) ? $details['missing'] : array();
+		$errors  = isset($details['errors'])  && is_array($details['errors'])  ? $details['errors']  : array();
+
+		$rows = '';
+		foreach($missing as $key){
+			$name   = $this->get_addon_recovery_label_efb($key);
+			$reason = isset($errors[$key]) ? $errors[$key] : $fallback;
+			if($reason === '' || $reason === null){
+				$reason = esc_html__('No response was recorded for this add-on.', 'easy-form-builder');
+			}
+			$rows .= '<tr><td style="padding:6px 10px;border:1px solid #ddd;"><strong>' . esc_html($name) . '</strong><br><small>' . esc_html($key) . '</small></td>'
+				. '<td style="padding:6px 10px;border:1px solid #ddd;">' . esc_html(wp_strip_all_tags((string) $reason)) . '</td></tr>';
+		}
+
+		if($rows === ''){
+			$rows = '<tr><td colspan="2" style="padding:6px 10px;border:1px solid #ddd;">'
+				. esc_html(wp_strip_all_tags((string) $fallback)) . '</td></tr>';
+		}
+
+		$access  = function_exists('emsfb_get_file_access_status_efb') ? emsfb_get_file_access_status_efb() : null;
+		$fs_ok   = is_array($access) && !empty($access['status']);
+		$fs_note = $fs_ok
+			? esc_html__('Writable', 'easy-form-builder')
+			: esc_html__('Not writable — the add-on folder cannot be created or extracted into.', 'easy-form-builder');
+
+		$blocked = (defined('WP_HTTP_BLOCK_EXTERNAL') && WP_HTTP_BLOCK_EXTERNAL)
+			? esc_html__('Blocked by WP_HTTP_BLOCK_EXTERNAL — outgoing requests are disabled on this site.', 'easy-form-builder')
+			: esc_html__('Allowed', 'easy-form-builder');
+
+		$pending = get_option('emsfb_addon_recovery_pending', array());
+		$origin  = is_array($pending) && !empty($pending['queued_url']) ? $pending['queued_url'] : home_url();
+		$form_id = is_array($pending) && !empty($pending['form_id']) ? (int) $pending['form_id'] : 0;
+
+		/* With WP-Cron switched off, the background retries only run if a real
+		 * server cron calls wp-cron.php. Saying so turns "it never recovered"
+		 * into something the site owner can actually check. */
+		$cron_note = (is_array($pending) && !empty($pending['cron_disabled']))
+			? esc_html__('DISABLE_WP_CRON is on — background retries only run if a server cron task calls wp-cron.php.', 'easy-form-builder')
+			: esc_html__('Enabled', 'easy-form-builder');
+
+		$facts = array(
+			esc_html__('Site', 'easy-form-builder')            => get_bloginfo('name') . ' — ' . home_url(),
+			esc_html__('Page that needed it', 'easy-form-builder') => $origin,
+			esc_html__('Form', 'easy-form-builder')            => $form_id > 0 ? '#' . $form_id : '—',
+			esc_html__('Plugin version', 'easy-form-builder')  => defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '—',
+			esc_html__('WordPress', 'easy-form-builder')       => get_bloginfo('version'),
+			'PHP'                                              => PHP_VERSION,
+			esc_html__('Add-on folder', 'easy-form-builder')   => $fs_note,
+			esc_html__('Outgoing requests', 'easy-form-builder') => $blocked,
+			esc_html__('WP-Cron', 'easy-form-builder')         => $cron_note,
+			esc_html__('Attempts made', 'easy-form-builder')   => (string) count(self::ADDON_RECOVERY_DELAYS_EFB),
+		);
+
+		$fact_rows = '';
+		foreach($facts as $label => $value){
+			$fact_rows .= '<tr><td style="padding:4px 10px;border:1px solid #ddd;width:38%;">' . esc_html($label) . '</td>'
+				. '<td style="padding:4px 10px;border:1px solid #ddd;">' . esc_html(wp_strip_all_tags((string) $value)) . '</td></tr>';
+		}
+
+		$admin_url = admin_url('admin.php?page=Emsfb');
+
+		return '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.7;">'
+			. '<p>' . esc_html__('Easy Form Builder could not reinstall its add-on files automatically. Forms that rely on those add-ons are showing a temporary message to visitors until this is resolved.', 'easy-form-builder') . '</p>'
+
+			. '<h3 style="margin:18px 0 6px;">' . esc_html__('What is missing', 'easy-form-builder') . '</h3>'
+			. '<table style="border-collapse:collapse;width:100%;">' . $rows . '</table>'
+
+			. '<h3 style="margin:18px 0 6px;">' . esc_html__('Diagnostics', 'easy-form-builder') . '</h3>'
+			. '<table style="border-collapse:collapse;width:100%;">' . $fact_rows . '</table>'
+
+			. '<h3 style="margin:18px 0 6px;">' . esc_html__('What to do next', 'easy-form-builder') . '</h3>'
+			. '<ol>'
+			. '<li>' . esc_html__('Open Easy Form Builder in your dashboard and use the Recover add-ons button.', 'easy-form-builder') . ' <a href="' . esc_url($admin_url) . '">' . esc_html($admin_url) . '</a></li>'
+			. '<li>' . esc_html__('If the add-on folder is not writable, ask your host to allow writing to the plugin folder.', 'easy-form-builder') . '</li>'
+			. '<li>' . esc_html__('If outgoing requests are blocked, ask your host to allow connections to the Easy Form Builder update server.', 'easy-form-builder') . '</li>'
+			. '<li>' . esc_html__('If your Pro subscription has expired, renew it to restore the Pro add-ons.', 'easy-form-builder') . '</li>'
+			. '</ol>'
+
+			. '<p><a href="https://whitestudio.team/support/" target="_blank">' . esc_html__('Please kindly report the following issue to the Easy Form Builder team.', 'easy-form-builder') . '</a></p>'
+			. '<p>' . esc_html__('Easy Form Builder', 'easy-form-builder') . '</p>'
+			. '<p><a href="' . esc_url(home_url()) . '" target="_blank">' . esc_html__('Sent by:', 'easy-form-builder') . ' ' . esc_html(get_bloginfo('name')) . '</a></p>'
+			. '</div>';
+	}
+
+	/**
+	 * Public "we are updating" placeholder shown in place of a form whose
+	 * add-on files are missing. Reuses the existing wait-message string so no
+	 * new translatable phrase is introduced.
+	 *
+	 * @return string HTML.
+	 */
+	public function addon_wait_message_public_efb($retry_after_seconds = 25){
+		return "<div id='body_efb' class='efb card-public row pb-3 efb px-2' style='color: #9F6000; background-color: #FEEFB3; padding: 5px 10px;'>"
+			. "<div class='efb text-center my-5'><h2 style='text-align: center;'></h2>"
+			. "<h3 class='efb warning text-center text-darkb fs-4'>"
+			. esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')
+			. "</h3><p class='efb fs-5 text-center my-1 text-pinkEfb' style='text-align: center;'><p>"
+			. $this->addon_reload_script_efb($retry_after_seconds)
+			. "</div></div>";
 	}
 
 	public function flush_addon_wait_message_efb(){
@@ -4559,17 +5024,22 @@ public function addon_add_efb($value) {
 		$url = EMSFB_LICENSE_SERVER_URL . '/wp-json/wl/v1/pro/key';
 
 		$_http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
-		$server_name = str_replace("www.", "", $_http_host);
 
 		// Farsi (Iran) sites: never contact the remote licensing server. The
 		// Iran network restrictions make it unreliable and a failed/negative
 		// response would wrongly deactivate a legitimately licensed site, so
 		// we validate the activation code locally instead (it embeds md5(domain)).
 		if ($this->is_farsi_offline_license_efb()) {
-			$s = explode('@', $ac)[0];
-			$valid = isset($s) && md5($server_name) === $s;
+			// Matched through the shared helper rather than against
+			// $_SERVER['HTTP_HOST'] directly: that header is absent under WP-CLI
+			// and WP-Cron, where md5('') matches nothing and a valid code is
+			// declared notExists. Revalidation now runs from the
+			// emsfb_revalidate_license cron event, so on a site driven by a real
+			// server cron this path is precisely where the check happens - and it
+			// would have suspended Pro every week on a perfectly good licence.
+			$valid = $this->activation_code_matches_domain_efb($ac);
 			$this->emsfb_pro_log(
-				'make_post_request_efb: farsi offline mode - local activation-code check ' . ($valid ? 'PASSED' : 'FAILED') . ' for host "' . $server_name . '"',
+				'make_post_request_efb: farsi offline mode - local activation-code check ' . ($valid ? 'PASSED' : 'FAILED') . ' for host(s) "' . implode(', ', $this->license_domain_candidates_efb()) . '"',
 				$valid ? 'farsi_local_ok' : ''
 			);
 			return $valid

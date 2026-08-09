@@ -1578,7 +1578,7 @@
 
 	public function add_ui_stripe_efb($rndm , $cl, $sub,$form_id,$texts) {
 		$currency = $this->valj_efb[0]->currency;
-		$amount =$this->formatPrice_efb(0, $currency);
+		$amount =self::formatPrice_efb(0, $currency);
 		return  '
 		<!-- stripe -->
 		<div class="efb  ' . $this->mobile_pos[3] . ' stripe emsFormBuilder_v"  id="'.$rndm.'-f" data-formid="'.$form_id.'">
@@ -1621,7 +1621,7 @@
 	public function add_ui_paypal_efb($rndm, $form_id, $texts, $currency = 'USD', $charge_class = '', $sub = '') {
 
 		$currency = $this->valj_efb[0]->currency;
-		$amount =$this->formatPrice_efb(0, $currency);
+		$amount =self::formatPrice_efb(0, $currency);
 
 		return '
 		<div class="efb card w-100 ' . $this->mobile_pos[3] . ' m-0 p-0" id="'.$rndm.'-f" data-formid="'.$form_id.'">
@@ -1681,8 +1681,8 @@
 		$amount = 0;
 		$lan_name_emsFormBuilder = 'en-US';
 		$currency = $currency ? $currency : 'USD';
-		$currency_details = $this->get_currency_details_efb($currency);
-		$amount =$this->formatPrice_efb($amount, $currency);
+		$currency_details = self::get_currency_details_efb($currency);
+		$amount =self::formatPrice_efb($amount, $currency);
 
 		return sprintf(
 			'<label class="efb totalpayEfb %s %s %s mt-1"   data-id="%s-el" id="%s_" data-formid="%s">
@@ -1698,9 +1698,34 @@
 		);
 	 }
 
-	public function formatPrice_efb($amount, $currency) {
+	/**
+	 * Render an amount with its currency symbol, in the reader's direction.
+	 *
+	 * Static because it reads nothing from the instance: the notification-email
+	 * builder in _Public needs the same formatting and has no Formbuilder to
+	 * construct (it holds submitted values, not a form structure). Keeping one
+	 * implementation here is what stops a second, drifting copy from appearing.
+	 *
+	 * $amount must be a raw number. Passing an already grouped string such as
+	 * "1,234" makes number_format_i18n() cast it to 1 and silently print the
+	 * wrong price.
+	 *
+	 * @param int|float|string $amount   Raw, ungrouped amount.
+	 * @param string           $currency ISO currency code.
+	 * @return string
+	 */
+	public static function formatPrice_efb($amount, $currency) {
 
-		$currency_details = $this->get_currency_details_efb($currency);
+		/* Both arguments can reach here from stored submission content, which is
+		 * whatever the visitor's browser posted. number_format_i18n() raises a
+		 * TypeError on a non-numeric string and strtoupper() on a non-string, so
+		 * a single odd value in one field would otherwise take down the whole
+		 * notification email. Coerced once, here, because this is the only place
+		 * that owns the rule. */
+		$amount   = is_numeric($amount) ? $amount + 0 : 0;
+		$currency = is_string($currency) ? $currency : '';
+
+		$currency_details = self::get_currency_details_efb($currency);
     	$formatted_amount = number_format_i18n($amount, $currency_details['d']);
 		if (is_rtl()) {
 			return $formatted_amount . ' ' . $currency_details['s'];
@@ -1710,7 +1735,14 @@
 
     }
 
-	public function get_currency_details_efb($currency) {
+	/**
+	 * Symbol and decimal count for an ISO currency code. Pure lookup, so it is
+	 * static for the same reason formatPrice_efb() above is.
+	 *
+	 * @param string $currency ISO currency code.
+	 * @return array{s:string,d:int}
+	 */
+	public static function get_currency_details_efb($currency) {
 		$currency = strtoupper($currency);
 		$symbols = array(
 			'USD' => array('s' => '$', 'd' => 2),
@@ -2437,8 +2469,9 @@
 					if($isPdate){
 						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
 							if($efbFunction === null)$efbFunction = get_efbFunction();
-							$efbFunction->download_all_addons_efb();
-							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+							/* Queued, not downloaded: this renderer also runs for visitors. */
+							$queued = $efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnPDP', 'source' => 'public_field_render'));
+							return $efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
 						}else{
 							require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
 							$persianDatePicker = new persianDatePickerEFB() ;
@@ -2446,8 +2479,8 @@
 					}else{
 						if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
 							if($efbFunction === null)$efbFunction = get_efbFunction();
-							$efbFunction->download_all_addons_efb();
-							return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+							$queued = $efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnADP', 'source' => 'public_field_render'));
+							return $efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
 						}else{
 							require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
 							$arabicDatePicker = new arabicDatePickerEfb() ;
@@ -2655,7 +2688,7 @@
 
 							$imageRadio = $elementId == "imgRadio" ? $this->fun_imgRadio_efb($i->id_, $i->src, $i,true, $texts) : '';
 							$prc = isset($i->price) ? intval($i->price) : 0;
-							if($pay!='') $prc = $this->formatPrice_efb($prc, $currency );
+							if($pay!='') $prc = self::formatPrice_efb($prc, $currency );
 							$optn .= sprintf(
 								'<div class="efb form-check %s %s %s efb1 %s mt-1" data-css="%s" data-parent="%s" data-id="%s" data-formid="%s" id="%s-v">
 									<input class="efb form-check-input emsFormBuilder_v %s %s" data-tag="%s" data-type="%s" data-vid="%s" type="%s" name="%s" value="%s" id="%s" data-id="%s-id" data-formid="%s" data-op="%s" %s %s %s>
@@ -2950,7 +2983,7 @@
 
 					$dataTag = (!property_exists($this->valj_efb[0], 'currency')) ? 'usd' : $this->valj_efb[0]->currency;
 
-					$classes = $this->get_currency_details_efb($dataTag);
+					$classes = self::get_currency_details_efb($dataTag);
 
 					$dataTagHtml = '<span class="efb input-group-text crrncy-clss">' . $classes['s'] . '</span>';
 

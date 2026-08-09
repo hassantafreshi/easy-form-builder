@@ -595,7 +595,10 @@ public function check_nonce_permission_efb($request) {
 			$state="form";
 			$rgister_captcha_url = false;
 			$this->efbFunction = get_efbFunction();
-			$addon_recovery = $this->efbFunction->recover_missing_addons_efb( null, 'public_form' );
+			/* Health check only — the repair runs in the background. Downloading
+			 * here made every visitor wait on the add-on server, and a slow or
+			 * unreachable server took the form down with it. */
+			$addon_recovery = $this->efbFunction->check_addons_for_public_request_efb();
 			if ( ! empty( $addon_recovery['recovered'] ) ) {
 				if ( $this->addon_recovery_transition_rendered ) {
 					return '';
@@ -610,7 +613,11 @@ public function check_nonce_permission_efb($request) {
 					return '';
 				}
 				$this->addon_recovery_transition_rendered = true;
-				return $this->efbFunction->render_addon_recovery_public_error_ui_efb();
+				/* Reload only when a background repair is actually pending. After an
+				 * inline attempt has already failed there is nothing to come back
+				 * to, and refreshing would just loop the visitor. */
+				$retry_after = ! empty( $addon_recovery['deferred'] ) ? 25 : 0;
+				return $this->efbFunction->render_addon_recovery_public_error_ui_efb( $retry_after );
 			}
 			if(isset($_GET['track'])){
 				$state_form =  sanitize_text_field(wp_unslash($_GET['track']) );
@@ -1147,8 +1154,12 @@ public function check_nonce_permission_efb($request) {
 							$autofill_id = intval($valj_efb[0]->autofill_id);
 
 							if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
-								$this->efbFunction->download_all_addons_efb();
-								return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.','easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+								/* Recovery is queued, never performed here: a visitor request
+								 * must not wait on the add-on server. The notice only reloads
+								 * itself when a repair is really pending, so a site without a
+								 * working cron is not put in a refresh loop. */
+								$queued = $this->efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnATF', 'source' => 'public_form'));
+								return $this->efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
 							}
 
 							if($autofill_id >0){
@@ -1167,7 +1178,8 @@ public function check_nonce_permission_efb($request) {
 
 						else if($auto_filled == false && !isset($valj_efb[0]->autofill_id) && isset($valj_efb[0]->autofill_api) && $valj_efb[0]->autofill_api){
 							if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
-								$this->efbFunction->download_all_addons_efb();
+								$queued = $this->efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnATF', 'source' => 'public_form'));
+								return $this->efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
 							}
 							$autofill_api_id = isset($valj_efb[0]->autofill_api_id) ? $valj_efb[0]->autofill_api_id : '';
 							if(!empty($autofill_api_id)){
@@ -1181,10 +1193,18 @@ public function check_nonce_permission_efb($request) {
 
 							if ($valj_efb[$i]->type =='stripe' ){
 
+									/* The Stripe PHP SDK lives in vendor/stripe and is required when the
+									 * payment is confirmed server-side. Rendering the card form without it
+									 * would take the visitor's card details and then fail at charge time,
+									 * so the form is replaced by the update notice instead. */
+									if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {
+										$queued = $this->efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnSPF', 'source' => 'public_payment_form'));
+										return $this->efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
+									}
+
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);
 									wp_enqueue_script('stripe-js');
 
-									!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe") ? $this->efbFunction->download_all_addons_efb() : '';
 									wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION,true);
 									wp_enqueue_script('stripe_js');
 									$paymentKey = $this->resolve_payment_key_efb( $setting, 'stripePKey' );
@@ -1199,7 +1219,13 @@ public function check_nonce_permission_efb($request) {
 								// error_log('[EFB][PayPal][PUBLIC] Localizing client id: form_id=' . $form_id . ', setting_type=' . gettype( $setting ?? null ) . ', sent=' . ( $paymentKey === 'null' ? 'null' : 'set' ));
 								$currency ='USD';
 
-								!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal") ? $this->efbFunction->download_all_addons_efb() : '';
+								/* Without the add-on the script URL below 404s and filemtime() warns on a
+								 * missing file, leaving a dead pay button on the page. */
+								if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
+									$queued = $this->efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnPAP', 'source' => 'public_payment_form'));
+									return $this->efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
+								}
+
 								wp_register_script('paypalefb-js', EMSFB_PLUGIN_URL . 'vendor/paypal/assets/js/paypal_efb.js',array('jquery', 'Emsfb-core_js'), filemtime(EMSFB_PLUGIN_DIRECTORY . 'vendor/paypal/assets/js/paypal_efb.js'), true);
 								wp_enqueue_script('paypalefb-js');
 								$ar_core = array_merge($ar_core , array(
@@ -3562,7 +3588,7 @@ public function check_nonce_permission_efb($request) {
 			'fields'  => 1,
 			'nonce'   => isset($_POST['nonce_msg']) ? sanitize_text_field( wp_unslash( $_POST['nonce_msg'] ) ) : '',
 			'sid'     => '',
-			'ip'      => $this->get_ip_Emsfb(),
+			'ip'      => $this->get_ip_address(),
 		);
 
 		if (!\Emsfb\Upload_Guard::quota_allows($upload_context)) {
@@ -3982,7 +4008,7 @@ public function check_nonce_permission_efb($request) {
 			'fields'   => $fields,
 			'nonce'    => isset($_SERVER['HTTP_X_WP_NONCE']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ) : '',
 			'sid'      => isset($_SERVER['HTTP_SID']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SID'] ) ) : '',
-			'ip'       => $this->get_ip_Emsfb(),
+			'ip'       => $this->get_ip_address(),
 		);
 	}
 
@@ -5126,8 +5152,19 @@ public function check_nonce_permission_efb($request) {
 				die("secure!");
 		}
 		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {
-			 $this->efbFunction->download_all_addons_efb();
-			 return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+			/* REST endpoint: the caller is the payment JS, so answer in the shape it
+			 * understands instead of returning markup it will never render. Recovery
+			 * is queued rather than run so the request returns immediately. */
+			$this->efbFunction->queue_addon_recovery_efb(array(
+				'form_id' => isset($data_POST['id']) ? intval($data_POST['id']) : 0,
+				'addon'   => 'AdnSPF',
+				'source'  => 'public_payment_rest',
+			));
+			wp_send_json_success(array(
+				'success' => false,
+				'm'       => esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder'),
+			), 200);
+			return;
 		}
 		/* Load the Stripe SDK guarded: another plugin may already have loaded a
 		 * Stripe SDK or this very composer build — re-requiring the composer
@@ -5456,6 +5493,32 @@ public function check_nonce_permission_efb($request) {
 		$value = str_replace('@efb@nq#', "<br>", $value);
 		return $value;
 	}
+	/**
+	 * Format a price for the notification email.
+	 *
+	 * Delegates to Formbuilder, which owns the only currency table in the
+	 * plugin - this class must not grow a second copy of it. The file is
+	 * required here rather than at the top of email_get_content_efb() so a form
+	 * without any priced field never pays to load it.
+	 *
+	 * @param int|float $amount   Raw amount, not pre-grouped.
+	 * @param string    $currency ISO currency code.
+	 * @return string
+	 */
+	private function email_format_price_efb($amount, $currency) {
+		if (!class_exists('\Emsfb\Formbuilder')) {
+			require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-formbuilder.php';
+		}
+
+		if (!class_exists('\Emsfb\Formbuilder')) {
+			// Degraded install: the email still has to go out, so fall back to a
+			// plain grouped number rather than losing the whole notification.
+			return number_format((float) $amount, 0, '.', ',');
+		}
+
+		return Formbuilder::formatPrice_efb($amount, $currency);
+	}
+
 	public function email_get_content_efb($content, $track){
 		$m  = '<table border="0" cellpadding="0" cellspacing="0" width="100%" class="container containerEmailEfb" >';
 
@@ -5586,14 +5649,14 @@ public function check_nonce_permission_efb($request) {
 				if (isset($c['type']) && ($c['type']==='payCheckbox' || $c['type']==='payRadio')){
 					$price = intval($c['price'] ?? 0);
 					$total_amount += $price;
-					$numberformat = $this->formatPrice_efb(number_format($price,0,'.',','), $currency);
+					$numberformat = $this->email_format_price_efb($price, $currency);
 					$addPair($c['name'] ?? 'Item', '<b>'.$numberformat.'</b>');
 					$checboxs[] = $c['id_'] ?? '';
 					continue;
 				}
 
 				if (isset($c['type']) && $c['type']==='prcfld'){
-					$numberformat = $this->formatPrice_efb(number_format(intval($c['price'] ?? 0),0,'.',','), $currency);
+					$numberformat = $this->email_format_price_efb(intval($c['price'] ?? 0), $currency);
 					$addPair($c['name'] ?? 'Price', '<b>'.$numberformat.'</b>');
 					continue;
 				}
@@ -5612,7 +5675,7 @@ public function check_nonce_permission_efb($request) {
 
 				if (isset($c['type']) && $c['type']==='payment'){
 					if (($c['paymentGateway'] ?? '')==='stripe'){
-						$numberformat = $this->formatPrice_efb(number_format(intval($c['paymentAmount'] ?? 0),0,'.',','), ($c['paymentcurrency'] ?? $currency));
+						$numberformat = $this->email_format_price_efb(intval($c['paymentAmount'] ?? 0), ($c['paymentcurrency'] ?? $currency));
 						$addPair($lanText['payment'].' '.$lanText['id'], '<span>'.($c['paymentIntent'] ?? '').'</span>');
 						$addPair($lanText['methodPayment'], '<span>'.($c['paymentmethod'] ?? '').'</span>');
 						if (($c['paymentmethod'] ?? '')!=='charge'){

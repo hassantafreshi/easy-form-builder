@@ -24,7 +24,7 @@ if (!defined("EMSFB_PLUGIN_DIRECTORY")) {
     define("EMSFB_PLUGIN_DIRECTORY", plugin_dir_path(__FILE__));
 }
 if (!defined("EMSFB_PLUGIN_VERSION")) {
-    define("EMSFB_PLUGIN_VERSION", "4.1.30");
+    define("EMSFB_PLUGIN_VERSION", "4.1.3");
 }
 if (!defined("EMSFB_DB_VERSION")) {
     // 1.2 adds the emsfb_stts_ indexes (sid, lookup, date). Bumping this is what
