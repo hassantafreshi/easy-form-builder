@@ -1858,7 +1858,6 @@ function efb_restore_setting_tab_efb() {
 
 /* Runs once per settings render: opens the tab named in the URL and, for
  * ?tab=email, nudges the notification switch the form builder linked here for. */
-efb_apply_setting_deeplink();
 function efb_apply_setting_deeplink() {
   efb_bind_setting_tabs_efb();
 
