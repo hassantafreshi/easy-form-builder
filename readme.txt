@@ -588,12 +588,3 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured - all official add-ons will be updated to their latest versions.
 
 **Backup your site before updating. Not backward-compatible with v3.x addons.**
-
-
-== Upgrade Notice ==
-
-= 3.7.13 =
-Starting from version 3.7.13, if you are using the Pro package of Easy Form Builder, all addons will be downloaded automatically. For free users of Easy Form Builder, all updates will be provided by wordpress.org.
-
-= 1.29 =
-This is the first release of Easy Form Builder. Download it to make building forms a breeze!

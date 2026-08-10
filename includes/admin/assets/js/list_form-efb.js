@@ -1578,21 +1578,21 @@ function fun_show_setting__emsFormBuilder() {
                                 <h5 class="efb card-title mt-3col-12 efb ">
                                     <i class="efb  bi-envelope m-3"></i>${efb_var.text.emailServer}
                                 </h5>
-                                <p class="efb ${mxCSize}">${efb_var.text.beforeUsingYourEmailServers}</p>
-                                <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                    <button type="button" class="efb btn  efb btn-outline-pink btn-lg "onclick="clickToCheckEmailServer()" id="clickToCheckEmailServer">
-                                        <i class="efb  bi-chevron-double-up mx-1 text-center"></i>${efb_var.text.clickToCheckEmailServer}
+                                <div class="efb m-0 p-0" id="emailServerBox_efb">
+                                  <p class="efb ${mxCSize}">${efb_var.text.beforeUsingYourEmailServers}</p>
+                                  <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                                      <button type="button" class="efb btn  efb btn-outline-pink btn-lg "onclick="clickToCheckEmailServer()" id="clickToCheckEmailServer">
+                                          <i class="efb  bi-chevron-double-up mx-1 text-center"></i>${efb_var.text.clickToCheckEmailServer}
+                                      </button>
+                                    <input type="hidden" id="smtp_emsFormBuilder" value="${smtp == "null" ? 'false' : smtp}">
+                                  </div>
+                                  <div class="efb card-body mx-0 py-1 mx-4" id="hostSupportSmtp_box_efb">
+                                    <button type="button" id="hostSupportSmtp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${smtp == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >
+                                    <div class="efb handle"></div>
                                     </button>
-                                   <input type="hidden" id="smtp_emsFormBuilder" value="${smtp == "null" ? 'false' : smtp}">
-                                </div>
-                                <div class="efb card-body mx-0 py-1 mx-4" id="hostSupportSmtp_box_efb">
-
-                                <button type="button" id="hostSupportSmtp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${smtp == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >
-                                <div class="efb handle"></div>
-                                </button>
-                                <label class="efb form-check-label fs-6 efb mx-2 my-3" for="hostSupportSmtp_emsFormBuilder">${efb_var.text.hostSupportSmtp}</label>
-                                <p class="efb text-muted fs-7 ${mxCSize4}">${efb_var.text.emailSendingOffHowTo || 'Click "Check Email Server" to test delivery, turn this switch on, then press Save.'}</p>
-                                <p class="efb mb-1 mt-2 ${mxCSize4}">${efb_var.text.weeklyEmailReportDesc}</p>
+                                    <label class="efb form-check-label fs-6 efb mx-2 my-3" for="hostSupportSmtp_emsFormBuilder">${efb_var.text.hostSupportSmtp}</label>
+                                    <p class="efb text-muted fs-7 ${mxCSize4}">${efb_var.text.emailSendingOffHowTo || 'Click "Check Email Server" to test delivery, turn this switch on, then press Save.'}</p>
+                                  </div>
                                 </div>
                                 <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
                                     <button type="button" id="weeklyEmailReport_emsFormBuilder" data-state="off" data-name="disabled"
@@ -1613,6 +1613,7 @@ function fun_show_setting__emsFormBuilder() {
                                         <div class="efb handle"></div>
                                     </button>
                                     <label class="efb form-check-label fs-6 efb mx-2 my-3" for="emailStatsReport_emsFormBuilder">${efb_var.text.emailStatsReport}</label>
+                                    <p class="efb mb-1 mt-2 ${mxCSize4}">${efb_var.text.weeklyEmailReportDesc}</p>
                                 </div>
                                 <!--End Email-->
                             </div>
@@ -1857,6 +1858,7 @@ function efb_restore_setting_tab_efb() {
 
 /* Runs once per settings render: opens the tab named in the URL and, for
  * ?tab=email, nudges the notification switch the form builder linked here for. */
+efb_apply_setting_deeplink();
 function efb_apply_setting_deeplink() {
   efb_bind_setting_tabs_efb();
 
@@ -1868,7 +1870,7 @@ function efb_apply_setting_deeplink() {
   const toggle = document.getElementById('hostSupportSmtp_emsFormBuilder');
   if (!toggle) return;
 
-  const box = document.getElementById('hostSupportSmtp_box_efb') || toggle.parentElement;
+  const box = document.getElementById('emailServerBox_efb') || toggle.parentElement;
   toggle.scrollIntoView({ behavior: 'smooth', block: 'center' });
   if (box) {
     box.classList.add('efb-highlight-setting');
