@@ -3628,6 +3628,22 @@ function efb_onboarding_render_live_report_efb() {
     ].join('') + '</div><p class="efb-onboarding-live-message">' + efb_onboarding_escape_efb(state.message || '') + '</p>' + (facts.length ? '<div class="efb-onboarding-live-facts">' + facts.map(function(fact) { return '<span>' + fact + '</span>'; }).join('') + '</div>' : '');
 }
 
+/**
+ * The score under which delivery counts as broken. Comes from
+ * Email_Monitor::MIN_DELIVERY_SCORE so the panel and the server never disagree.
+ */
+function efb_onboarding_min_score_efb() {
+    const value = Number(efb_var && efb_var.emailMonitor ? efb_var.emailMonitor.min_delivery_score : 0);
+    return value > 0 ? value : 40;
+}
+
+function efb_onboarding_score_too_low_efb(result) {
+    const score = result ? Number(result.score) : NaN;
+    // A report without a score cannot disprove anything: only a measured score
+    // under the threshold counts as a failure.
+    return isFinite(score) && result.score !== null && result.score !== undefined && score < efb_onboarding_min_score_efb();
+}
+
 function efb_onboarding_live_update_efb(next) {
     efb_onboarding_email_test_state_efb = Object.assign(efb_onboarding_email_test_state_efb || {}, next || {});
     efb_onboarding_render_live_report_efb();
@@ -3705,7 +3721,16 @@ function efb_onboarding_poll_email_efb(test, email, attempt) {
             window.setTimeout(function() { efb_onboarding_poll_email_efb(test, email, attempt + 1); }, Math.max(10, Number(result.retry_after_seconds || 15)) * 1000);
             return;
         }
-        if (result.can_send_email === true) {
+        if (result.can_send_email === true && efb_onboarding_score_too_low_efb(result)) {
+            // The probe arrived, so the service reports success, but a score
+            // this low means real form emails would be filtered as spam. The
+            // server refuses to enable the sending switch for it, so the panel
+            // must not claim delivery is ready either.
+            efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'done', quick: 'done', full: 'warning' }, percent: 100, result: result });
+            efb_onboarding_status_efb('warning', efb_onboarding_text_efb('emailDeliveryLowScore', 'Your test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s). The emails your forms send will most likely be filtered as spam. Set up SMTP and run the check again.')
+                .replace('%1$s', result.score)
+                .replace('%2$s', efb_onboarding_min_score_efb()));
+        } else if (result.can_send_email === true) {
             if (efb_var.setting) efb_var.setting.smtp = true;
             efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'done', quick: 'done', full: 'done' }, percent: 100, result: result });
             efb_onboarding_status_efb('success', result.message || efb_onboarding_text_efb('onboardingTestPassed', 'Email delivery is ready. Form notifications can be sent.'));

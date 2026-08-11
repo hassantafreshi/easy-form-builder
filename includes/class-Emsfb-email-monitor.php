@@ -65,6 +65,17 @@ class Email_Monitor {
             return;
         }
 
+        // Sites installed before 4.1.2 predate this monitor entirely: the only
+        // record they carry that sending works is the settings switch, which
+        // those versions stored as the number 1. Telling such an administrator
+        // that "your form emails are not being delivered" - on the strength of
+        // a monitor run that only arrived with an update, and may have failed
+        // for a reason of its own such as the free daily test limit -
+        // contradicts a setup they already verified. Stay quiet for them.
+        if (self::has_legacy_sending_confirmation()) {
+            return;
+        }
+
         // Dismissal is tied to the run it was dismissed for, so a later failure
         // speaks up again instead of staying silent forever.
         $fingerprint = md5((string) ($status['checked_at'] ?? '') . '|' . $state);
@@ -111,6 +122,51 @@ class Email_Monitor {
         })();
         </script>
         <?php
+    }
+
+    /**
+     * Whether the site confirmed sending under the pre-monitor scheme.
+     *
+     * Up to 4.1.2 there was no delivery monitor: settings->smtp was the whole
+     * story, and those versions wrote it as the number 1. Everything since
+     * writes a real boolean - Install seeds "smtp":false and the panel saves
+     * true / "true" - so the numeric form identifies an installation that was
+     * set up before any of this existed and never re-saved its settings since.
+     *
+     * The check is deliberately not a truthiness test. A current site with the
+     * switch on has genuine monitor results behind it, and a failing run there
+     * is exactly what the notice exists to report; only the legacy shape
+     * silences it.
+     *
+     * @param object|array|null $settings Decoded settings; read when omitted.
+     * @return bool
+     */
+    public static function has_legacy_sending_confirmation($settings = null) {
+        if (null === $settings) {
+            $settings = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
+        }
+
+        $value = null;
+        if (is_array($settings) && array_key_exists('smtp', $settings)) {
+            $value = $settings['smtp'];
+        } elseif (is_object($settings) && isset($settings->smtp)) {
+            $value = $settings->smtp;
+        }
+
+        if (is_bool($value) || null === $value) {
+            return false;
+        }
+        if (is_string($value)) {
+            $value = trim($value);
+            // "true" is the panel's own string form, not a legacy value.
+            if (!preg_match('/^\d+$/', $value)) {
+                return false;
+            }
+        } elseif (!is_int($value) && !is_float($value)) {
+            return false;
+        }
+
+        return 1 === (int) $value;
     }
 
     /**
@@ -320,6 +376,9 @@ class Email_Monitor {
             'message' => isset($status['message']) ? sanitize_text_field($status['message']) : '',
             'checked_at' => isset($status['checked_at']) ? sanitize_text_field($status['checked_at']) : '',
             'next_run' => wp_next_scheduled(self::WEEKLY_HOOK) ?: 0,
+            // The panel scores a live test in the browser, so it needs the same
+            // threshold the server applies. One constant, one meaning.
+            'min_delivery_score' => self::MIN_DELIVERY_SCORE,
         ];
     }
 
@@ -374,8 +433,11 @@ class Email_Monitor {
 			return;
 		}
 
-        $can_send = !empty($result['can_send_email']) || !empty($result['success']);
+        $can_send = self::is_delivery_confirmed($result);
         $message = isset($result['message']) ? sanitize_text_field($result['message']) : '';
+        if (self::is_delivery_score_too_low($result)) {
+            $message = self::get_low_score_message(self::get_report_score($result));
+        }
         if ($message === '') {
             $message = $can_send
                 ? __('The weekly email delivery test completed successfully.', 'easy-form-builder')
@@ -787,6 +849,101 @@ class Email_Monitor {
      * email and the panel never disagree.
      */
     const HEALTHY_SCORE = 70;
+
+    /**
+     * Score below which delivery counts as broken, not merely imperfect.
+     *
+     * The tester service answers can_send_email on arrival alone: the probe
+     * reached the mailbox, so the flag is true even when it landed in spam with
+     * a score of 12. Between this threshold and HEALTHY_SCORE the site is asked
+     * to improve; underneath it, real form emails will not reach anybody, so the
+     * run is recorded as a failure and the administrator gets the dashboard
+     * warning instead of a silent pass.
+     */
+    const MIN_DELIVERY_SCORE = 20;
+
+    /**
+     * The deliverability score of a finished report, when it carries one.
+     *
+     * Only the report's own top-level score is read. Nested numbers (a
+     * SpamAssassin score, for instance, where low is good) are on other scales
+     * and must never be mistaken for this one.
+     *
+     * @param array $result Report payload from the tester service.
+     * @return float|null Null when the report carries no score.
+     */
+    public static function get_report_score($result) {
+        if (!is_array($result) || !isset($result['score']) || !is_numeric($result['score'])) {
+            return null;
+        }
+
+        return (float) $result['score'];
+    }
+
+    /**
+     * Whether the report's score is good enough to call delivery working.
+     *
+     * A report without a score cannot disprove anything, so it passes; only a
+     * measured score under the threshold fails.
+     *
+     * @param array $result Report payload from the tester service.
+     * @return bool
+     */
+    public static function is_delivery_score_acceptable($result) {
+        $score = self::get_report_score($result);
+
+        return null === $score || $score >= self::MIN_DELIVERY_SCORE;
+    }
+
+    /**
+     * Whether a finished report may be treated as "this site can send email".
+     *
+     * @param array $result Report payload from the tester service.
+     * @return bool
+     */
+    public static function is_delivery_confirmed($result) {
+        if (!is_array($result)) {
+            return false;
+        }
+        if (empty($result['can_send_email']) && empty($result['success'])) {
+            return false;
+        }
+
+        return self::is_delivery_score_acceptable($result);
+    }
+
+    /**
+     * Whether the probe arrived but scored too low to call delivery working.
+     *
+     * @param array $result Report payload from the tester service.
+     * @return bool
+     */
+    public static function is_delivery_score_too_low($result) {
+        $score = self::get_report_score($result);
+
+        return null !== $score
+            && $score < self::MIN_DELIVERY_SCORE
+            && (!empty($result['can_send_email']) || !empty($result['success']));
+    }
+
+    /**
+     * The sentence shown when a delivered probe scored below the minimum.
+     *
+     * The service's own message describes a delivered email ("good news, your
+     * site could send the test"), which reads as success next to a failure
+     * warning. This says what actually happened instead.
+     *
+     * @param float $score
+     * @return string
+     */
+    public static function get_low_score_message($score) {
+        return sprintf(
+            /* translators: 1: measured deliverability score, 2: minimum acceptable score. */
+            __('The test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s), so the emails your forms send are very likely to be rejected or filtered as spam.', 'easy-form-builder'),
+            number_format_i18n((float) $score),
+            number_format_i18n(self::MIN_DELIVERY_SCORE)
+        );
+    }
 
     /**
      * Table declarations every email client needs.
@@ -1310,7 +1467,10 @@ class Email_Monitor {
             'message' => sanitize_text_field($message),
             'context' => sanitize_key($context),
             'checked_at' => current_time('mysql'),
-            'can_send_email' => !empty($result['can_send_email']) || !empty($result['success']),
+            // One rule decides this everywhere: a delivered probe that scored
+            // below MIN_DELIVERY_SCORE is not a working mail setup, so the
+            // dashboard notice speaks up for it as well.
+            'can_send_email' => self::is_delivery_confirmed($result),
         ], false);
     }
 

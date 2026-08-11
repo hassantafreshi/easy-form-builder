@@ -3215,6 +3215,37 @@ function efbEmailTestText(key, fallback) {
   return efb_var && efb_var.text && efb_var.text[key] ? efb_var.text[key] : fallback;
 }
 
+/**
+ * The score under which delivery counts as broken. Comes from
+ * Email_Monitor::MIN_DELIVERY_SCORE so this panel, the setup wizard and the
+ * server all draw the line in the same place.
+ */
+function efbEmailTestMinScore() {
+  const value = Number(efb_var && efb_var.emailMonitor ? efb_var.emailMonitor.min_delivery_score : 0);
+  return value > 0 ? value : 40;
+}
+
+/**
+ * The service answers can_send_email on arrival alone, so a message that landed
+ * in spam with a score of 12 still comes back as a success. A report without a
+ * score cannot disprove anything; only a measured score under the threshold does.
+ */
+function efbEmailTestScoreTooLow(result) {
+  if (!result || result.score === null || result.score === undefined) return false;
+  const score = Number(result.score);
+  return isFinite(score) && score < efbEmailTestMinScore();
+}
+
+function efbEmailTestDeliveryConfirmed(result) {
+  return !!(result && result.can_send_email && !efbEmailTestScoreTooLow(result));
+}
+
+function efbEmailTestLowScoreMessage(result) {
+  return efbEmailTestText('emailDeliveryLowScore', 'Your test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s). The emails your forms send will most likely be filtered as spam. Set up SMTP and run the check again.')
+    .replace('%1$s', Number(result.score))
+    .replace('%2$s', efbEmailTestMinScore());
+}
+
 function efbEmailTestFormat(str) {
   const args = Array.prototype.slice.call(arguments, 1);
   let i = 0;
@@ -3353,8 +3384,11 @@ function efbEmailTestRender(state) {
   const test = state.test || null;
   const adminEmail = state.adminEmail ? efbEmailTestEscape(state.adminEmail) : '';
 
+  const deliveryConfirmed = efbEmailTestDeliveryConfirmed(quick);
+  const scoreTooLow = quick && quick.can_send_email && efbEmailTestScoreTooLow(quick);
+
   const progressBarClass = isComplete
-    ? 'efb progress-bar ' + (quick && quick.can_send_email ? 'bg-success' : 'bg-danger')
+    ? 'efb progress-bar ' + (deliveryConfirmed ? 'bg-success' : 'bg-danger')
     : 'efb progress-bar progress-bar-striped progress-bar-animated bg-primary';
 
   const stepsHtml = [
@@ -3369,7 +3403,10 @@ function efbEmailTestRender(state) {
     ? `<div class="efb mt-3 d-flex align-items-center gap-2 px-3 py-2 rounded-3" style="background:#f1f5f9;font-size:0.85rem;color:#475569;"><i class="efb bi bi-arrow-right-circle-fill" style="color:#3b82f6;opacity:0.6;font-size:0.95rem;flex-shrink:0;"></i><span>${efbEmailTestEscape(state.message)}</span></div>`
     : '';
 
-  const failedEmail = quick && quick.can_send_email === false;
+  // A score under the threshold is treated exactly like a delivery failure:
+  // the amber "delivery is not working" block and the SMTP guide belong there
+  // just as much, because form emails from this site will not be read.
+  const failedEmail = quick && (quick.can_send_email === false || scoreTooLow);
   const scoreHtml = quick && quick.score != null
     ? `<span class="efb badge rounded-pill" style="background:#e0f2fe;color:#0369a1;font-size:0.78rem;">${efbEmailTestEscape(efbEmailTestFormat(efbEmailTestText('score', 'Score: %s'), Number(quick.score)))}</span>`
     : '';
@@ -3385,7 +3422,7 @@ function efbEmailTestRender(state) {
         </div>
         <div class="efb d-flex gap-1 flex-wrap">${scoreHtml}${gradeHtml}</div>
       </div>
-      <div style="font-size:0.85rem;color:${failedEmail ? '#92400e' : '#166534'};line-height:1.5;">${efbEmailTestEscape(quick.message || '')}</div>
+      <div style="font-size:0.85rem;color:${failedEmail ? '#92400e' : '#166534'};line-height:1.5;">${efbEmailTestEscape(scoreTooLow ? efbEmailTestLowScoreMessage(quick) : (quick.message || ''))}</div>
     </div>`
     : '';
 
@@ -3402,7 +3439,7 @@ function efbEmailTestRender(state) {
     </div>`
     : '';
 
-  const reportBox = quick && quick.can_send_email
+  const reportBox = deliveryConfirmed
     ? `<div class="efb mt-3 d-flex align-items-center gap-2 px-3 py-2 rounded-3" style="background:#f0fdf4;border:1px solid #a7f3d0;font-size:0.85rem;color:#166534;">
       <i class="efb bi bi-envelope-check-fill flex-shrink-0" style="font-size:1.1rem;"></i>
       <span>${efbEmailTestFormat(efbEmailTestText('emailServerWorkingReport', 'Your email server is working. A detailed HTML report has been sent to %s.'), adminEmail ? `<b>${adminEmail}</b>` : efbEmailTestEscape(efbEmailTestText('yourAdminEmail', 'your admin email address')))}</span>
@@ -3583,13 +3620,15 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
 
       if (status == 'analyzed' && stage == 'quick') {
         uiState.steps.wait = 'done';
-        uiState.steps.quick = result.can_send_email ? 'done' : 'error';
+        uiState.steps.quick = efbEmailTestDeliveryConfirmed(result) ? 'done' : 'error';
         uiState.steps.full = result.full_report_pending ? 'active' : 'done';
         uiState.quick = result;
         uiState.result = result;
         uiState.message = result.message || '';
         uiState.percent = 88;
-        if (result.can_send_email) efbEmailTestSetSmtpState(true);
+        // A delivered but badly scored email must not switch sending on: the
+        // server refuses to save that state, so the toggle would lie.
+        if (efbEmailTestDeliveryConfirmed(result)) efbEmailTestSetSmtpState(true);
         efbEmailTestShow(uiState);
         if (result.full_report_pending) {
           efbEmailServerTestTimer = setTimeout(function () {
@@ -3603,13 +3642,15 @@ function efbEmailTestPoll(test, uiState, button, buttonHtml, startedAt) {
 
       if (status == 'analyzed' && stage == 'full') {
         uiState.steps.wait = 'done';
-        uiState.steps.quick = result.can_send_email ? 'done' : 'error';
+        uiState.steps.quick = efbEmailTestDeliveryConfirmed(result) ? 'done' : 'error';
         uiState.steps.full = 'done';
         uiState.quick = uiState.quick || result;
         uiState.result = result;
         uiState.message = result.message || '';
         uiState.percent = 100;
-        if (result.can_send_email) efbEmailTestSetSmtpState(true);
+        // A delivered but badly scored email must not switch sending on: the
+        // server refuses to save that state, so the toggle would lie.
+        if (efbEmailTestDeliveryConfirmed(result)) efbEmailTestSetSmtpState(true);
         efbEmailTestShow(uiState);
         efbEmailTestFinishButton(button, buttonHtml);
         return;

@@ -887,8 +887,21 @@ class Emsfb {
         if ($transient === false || empty($transient)) {
             global $wpdb;
             $table_name = $wpdb->prefix . "emsfb_setting";
+
+            // WordPress loads this plugin through plugin_sandbox_scrape() while
+            // activating it, which happens before the activation hook creates
+            // the settings table. On a brand new install the read below
+            // therefore runs against a table that does not exist yet - an
+            // expected miss, not a failure, and the plugin already falls back
+            // to empty settings for it. Left unsuppressed, wpdb reports it:
+            // the SQLite integration used by WordPress Playground prints the
+            // query and a full backtrace into the log for every call, so a
+            // clean activation looked like a crash. Suppression is restored
+            // immediately afterwards so genuine query errors are still reported.
+            $suppress_errors = $wpdb->suppress_errors(true);
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
             $raw = $wpdb->get_var( "SELECT setting FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
+            $wpdb->suppress_errors($suppress_errors);
 
             if (empty($raw)) {
                 if ($mode === 'pub') return [0, []];

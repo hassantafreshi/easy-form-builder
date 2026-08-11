@@ -2107,7 +2107,7 @@ class Admin {
             $data['email_report'] = $email_report;
         }
 
-        if (!empty($data['can_send_email'])) {
+        if ($this->is_email_delivery_confirmed_efb($data)) {
             $this->mark_email_server_as_ready_efb($efbFunction, $ac, isset($data['admin_email']) ? sanitize_email($data['admin_email']) : '', false);
         }
 
@@ -2124,6 +2124,16 @@ class Admin {
             return;
         }
 
+        // A delivered probe with a very low deliverability score is not a
+        // working mail setup: the message arrived at the tester mailbox, but
+        // real form emails would be filtered as spam. Email_Monitor owns that
+        // threshold so the panel, the dashboard notice and the weekly report
+        // never disagree about what "can send email" means.
+        $delivery_confirmed = $this->is_email_delivery_confirmed_efb($test_result);
+        $score_too_low = !$delivery_confirmed
+            && class_exists('\Emsfb\Email_Monitor')
+            && \Emsfb\Email_Monitor::is_delivery_score_too_low($test_result);
+
         $status_data = [
             'status' => 'error',
             'message' => [
@@ -2133,17 +2143,23 @@ class Admin {
             ],
             'details' => [
                 'test_timestamp' => current_time('mysql', true),
-                'can_send_email' => !empty($test_result['can_send_email']),
+                'can_send_email' => $delivery_confirmed,
                 'success' => !empty($test_result['success']),
             ]
         ];
 
-        if (!empty($test_result['can_send_email'])) {
+        if ($delivery_confirmed) {
             $status_data['status'] = 'ok_set_smtp';
             $status_data['message'] = [
                 'title' => esc_html__('Email capability verified', 'easy-form-builder'),
                 'description' => esc_html__('Server confirmed ability to send emails.', 'easy-form-builder'),
                 'id' => 'email_settings_configured'
+            ];
+        } else if ($score_too_low) {
+            $status_data['message'] = [
+                'title' => esc_html__('Your emails are being delivered to spam', 'easy-form-builder'),
+                'description' => \Emsfb\Email_Monitor::get_low_score_message(\Emsfb\Email_Monitor::get_report_score($test_result)),
+                'id' => 'email_test_low_score'
             ];
         } else if (isset($test_result['status']) && in_array($test_result['status'], ['pending', 'delayed'], true)) {
             $status_data['status'] = 'warning';
@@ -2191,10 +2207,30 @@ class Admin {
 
         update_option('emsfb_email_status', $status_data);
 
-        if (!empty($test_result['can_send_email']) && is_object($ac) && isset($ac->smtp) && $ac->smtp != true) {
+        if ($delivery_confirmed && is_object($ac) && isset($ac->smtp) && $ac->smtp != true) {
             $ac->smtp = true;
             $efbFunction->set_setting_Emsfb($ac);
         }
+    }
+
+    /**
+     * Whether a tester report proves this site can actually deliver email.
+     *
+     * Falls back to the service's own flag if the monitor class is unavailable,
+     * so a partial installation still behaves as it did before.
+     *
+     * @param array $test_result Report payload from the tester service.
+     * @return bool
+     */
+    private function is_email_delivery_confirmed_efb($test_result) {
+        if (!is_array($test_result) || empty($test_result['can_send_email'])) {
+            return false;
+        }
+        if (class_exists('\Emsfb\Email_Monitor')) {
+            return \Emsfb\Email_Monitor::is_delivery_score_acceptable($test_result);
+        }
+
+        return true;
     }
 
     private function extract_email_test_score_efb($value) {
