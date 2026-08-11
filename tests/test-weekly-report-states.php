@@ -189,6 +189,11 @@ t( 'D1 notice callback is registered',
 	'priority: ' . var_export( has_action( 'admin_notices', [ 'Emsfb\Email_Monitor', 'render_delivery_failure_notice' ] ), true ) );
 
 $snapshot = get_option( 'emsfb_email_monitor_last_status', null );
+// The notice weighs the monitor's run against the last check run from the
+// panel. Park that second record for the duration, or whatever this site
+// happens to have stored would decide these cases instead of the fixtures.
+$panel_snapshot = get_option( 'emsfb_email_status', null );
+delete_option( 'emsfb_email_status' );
 
 $capture = function () {
 	ob_start();
@@ -201,6 +206,9 @@ wp_set_current_user( (int) ( get_users( [ 'role' => 'administrator', 'number' =>
 update_option( 'emsfb_email_monitor_last_status', [
 	'state' => 'failed', 'message' => 'x', 'context' => 'weekly',
 	'checked_at' => current_time( 'mysql' ), 'can_send_email' => false,
+	// reason is what separates a run that measured a failure from one that
+	// never got to send anything; without it the notice stays quiet on purpose.
+	'delivered' => false, 'score' => null, 'reason' => 'expired',
 ], false );
 delete_user_meta( get_current_user_id(), 'emsfb_delivery_notice_dismissed' );
 $shown = $capture();
@@ -219,8 +227,32 @@ update_option( 'emsfb_email_monitor_last_status', [
 ], false );
 t( 'D5 stays silent while a test is still running', '' === trim( $capture() ) );
 
+// Delivered, but into the spam folder: a different problem, so a different
+// message - and never the "go and run a check" line, which is what an
+// administrator who had just run one used to be shown.
+update_option( 'emsfb_email_monitor_last_status', [
+	'state' => 'success', 'message' => 'x', 'context' => 'weekly',
+	'checked_at' => current_time( 'mysql' ), 'can_send_email' => true,
+	'delivered' => true, 'score' => 25, 'reason' => 'analyzed',
+], false );
+$spam = $capture();
+t( 'D6 a low score warns about spam, not about a missing check',
+	false !== strpos( $spam, 'spam folder' )
+		&& false === strpos( $spam, 'so you can be sure the messages your forms send' ) );
+
+// A run the tester service refused (the free daily quota) never measured this
+// site's delivery, so it must not be reported as a delivery failure.
+update_option( 'emsfb_email_monitor_last_status', [
+	'state' => 'failed', 'message' => 'You have reached the free email test limit for this domain.',
+	'context' => 'activation', 'checked_at' => current_time( 'mysql' ), 'can_send_email' => false,
+	'delivered' => false, 'score' => null, 'reason' => 'service_start_error',
+], false );
+t( 'D7 stays silent when the check itself could not run', '' === trim( $capture() ) );
+
 if ( null === $snapshot ) { delete_option( 'emsfb_email_monitor_last_status' ); }
 else { update_option( 'emsfb_email_monitor_last_status', $snapshot, false ); }
+if ( null === $panel_snapshot ) { delete_option( 'emsfb_email_status' ); }
+else { update_option( 'emsfb_email_status', $panel_snapshot, false ); }
 delete_user_meta( get_current_user_id(), 'emsfb_delivery_notice_dismissed' );
 
 echo "\n========================================\n";

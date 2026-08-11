@@ -50,18 +50,12 @@ class Email_Monitor {
             return;
         }
 
-        $status = get_option(self::OPTION_LAST_STATUS, []);
-        if (!is_array($status) || empty($status)) {
-            return;
-        }
-
-        // Only speak up once a test has actually concluded that nothing got
-        // through. A pending or in-progress run says nothing yet.
-        $state = isset($status['state']) ? (string) $status['state'] : '';
-        if (in_array($state, ['pending', 'running', 'queued', 'delayed'], true)) {
-            return;
-        }
-        if (!empty($status['can_send_email'])) {
+        // What the site actually knows, from whichever check measured it last.
+        // Anything other than a measured problem stays silent: a healthy result
+        // needs no notice, and a run that never got to send anything (an
+        // unreachable service, the used-up free test quota) has nothing to say.
+        $verdict = self::get_delivery_verdict();
+        if (!in_array($verdict['outcome'], ['spam', 'undelivered'], true)) {
             return;
         }
 
@@ -78,11 +72,12 @@ class Email_Monitor {
 
         // Dismissal is tied to the run it was dismissed for, so a later failure
         // speaks up again instead of staying silent forever.
-        $fingerprint = md5((string) ($status['checked_at'] ?? '') . '|' . $state);
+        $fingerprint = md5((string) $verdict['checked_at'] . '|' . $verdict['outcome']);
         if (get_user_meta(get_current_user_id(), 'emsfb_delivery_notice_dismissed', true) === $fingerprint) {
             return;
         }
 
+        $copy      = self::get_notice_copy($verdict);
         $panel_url = admin_url('admin.php?page=Emsfb&state=setting&tab=email');
         $guide_url = self::get_smtp_guide_url();
         $logo_url  = EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.png';
@@ -93,10 +88,10 @@ class Email_Monitor {
                 <p style="margin:0 0 6px;font-size:14px;">
                     <strong><?php esc_html_e('Easy Form Builder', 'easy-form-builder'); ?></strong>
                     &mdash;
-                    <?php esc_html_e('Your form emails are not being delivered', 'easy-form-builder'); ?>
+                    <?php echo esc_html($copy['title']); ?>
                 </p>
                 <p style="margin:0 0 10px;color:#555;max-width:820px;">
-                    <?php echo esc_html(self::get_delivery_check_message()); ?>
+                    <?php echo esc_html($copy['body']); ?>
                 </p>
                 <p style="margin:0;">
                     <a href="<?php echo esc_url($panel_url); ?>" class="button button-primary"><?php esc_html_e('Run the email check', 'easy-form-builder'); ?></a>
@@ -122,6 +117,226 @@ class Email_Monitor {
         })();
         </script>
         <?php
+    }
+
+    /**
+     * What this site currently knows about its email delivery.
+     *
+     * Two records can hold an answer: this monitor's own automated run, and the
+     * check an administrator started from the panel or the setup wizard. Only
+     * the monitor's record used to be consulted, which is how an administrator
+     * who had just run a check scoring 25 was told to "run the email check" -
+     * the monitor's own run had failed for a reason of its own (the free daily
+     * test quota) and knew nothing about delivery at all.
+     *
+     * So: a run that never got as far as sending anything proves nothing and is
+     * discarded, and of what remains the most recent measurement wins.
+     *
+     * @return array{outcome:string,score:float|null,delivered:bool,message:string,checked_at:string,source:string}
+     */
+    public static function get_delivery_verdict() {
+        $records = [];
+        foreach ([self::read_monitor_record(), self::read_panel_record()] as $record) {
+            if (is_array($record) && !empty($record['conclusive'])) {
+                $records[] = $record;
+            }
+        }
+
+        if (empty($records)) {
+            return [
+                'outcome'    => 'unknown',
+                'score'      => null,
+                'delivered'  => false,
+                'message'    => '',
+                'checked_at' => '',
+                'source'     => '',
+            ];
+        }
+
+        usort($records, function ($a, $b) {
+            return $b['time'] <=> $a['time'];
+        });
+        $record = $records[0];
+
+        return [
+            'outcome'    => self::classify_delivery_record($record),
+            'score'      => $record['score'],
+            'delivered'  => $record['delivered'],
+            'message'    => $record['message'],
+            'checked_at' => $record['checked_at'],
+            'source'     => $record['source'],
+        ];
+    }
+
+    /**
+     * Turn one measurement into the outcome the administrator is told about.
+     *
+     * From MIN_DELIVERY_SCORE upwards the mail does leave the site and reach
+     * the far end - it simply lands in the spam folder, which is a different
+     * problem with different advice. Below it, nothing usable arrives at all.
+     *
+     * @param array $record
+     * @return string One of healthy, spam, undelivered.
+     */
+    private static function classify_delivery_record($record) {
+        $score = $record['score'];
+
+        if (null === $score) {
+            return $record['delivered'] ? 'healthy' : 'undelivered';
+        }
+        if (!$record['delivered'] || $score < self::MIN_DELIVERY_SCORE) {
+            return 'undelivered';
+        }
+
+        return $score >= self::HEALTHY_SCORE ? 'healthy' : 'spam';
+    }
+
+    /**
+     * The automated monitor's last finished run, or null when it has nothing.
+     *
+     * @return array|null
+     */
+    private static function read_monitor_record() {
+        $status = get_option(self::OPTION_LAST_STATUS, []);
+        if (!is_array($status) || empty($status)) {
+            return null;
+        }
+
+        $state = isset($status['state']) ? sanitize_key($status['state']) : '';
+        if (in_array($state, ['pending', 'running', 'queued', 'delayed'], true)) {
+            // Nothing has concluded yet.
+            return null;
+        }
+
+        $reason = isset($status['reason']) ? sanitize_key($status['reason']) : '';
+        $score  = (isset($status['score']) && is_numeric($status['score'])) ? (float) $status['score'] : null;
+        $delivered = array_key_exists('delivered', $status)
+            ? (bool) $status['delivered']
+            : !empty($status['can_send_email']);
+
+        // A record written before this plugin started storing why a run ended
+        // carries no reason at all, so there is no way to tell a real delivery
+        // failure from a run that never started. Do not guess: the next run,
+        // which every update and every week schedules, writes a full record.
+        $conclusive = (null !== $score || $delivered)
+            || ($reason !== '' && !in_array($reason, self::inconclusive_reasons(), true));
+
+        $checked_at = isset($status['checked_at']) ? (string) $status['checked_at'] : '';
+
+        return [
+            'conclusive' => $conclusive,
+            'time'       => $checked_at !== '' ? (int) strtotime(get_gmt_from_date($checked_at)) : 0,
+            'score'      => $score,
+            'delivered'  => $delivered,
+            'message'    => isset($status['message']) ? (string) $status['message'] : '',
+            'checked_at' => $checked_at,
+            'source'     => 'monitor',
+        ];
+    }
+
+    /**
+     * The last check an administrator ran from the panel or the setup wizard.
+     *
+     * @return array|null
+     */
+    private static function read_panel_record() {
+        $status = get_option('emsfb_email_status', []);
+        if (!is_array($status) || empty($status)) {
+            return null;
+        }
+
+        $details = (isset($status['details']) && is_array($status['details'])) ? $status['details'] : [];
+        $id      = isset($status['message']['id']) ? sanitize_key($status['message']['id']) : '';
+
+        if ('email_test_pending' === $id) {
+            return null;
+        }
+
+        // delivery_score is written from the report's own top-level score. The
+        // neighbouring "score" key comes from a recursive search that can pick
+        // up a SpamAssassin figure, which runs on a different scale entirely.
+        $score = (isset($details['delivery_score']) && is_numeric($details['delivery_score']))
+            ? (float) $details['delivery_score']
+            : null;
+
+        // Records that assert email works without measuring a score: the
+        // automated test that passed, and the switch the administrator turned
+        // on themselves.
+        $working_ids = ['email_settings_configured', 'automated_email_test_ok'];
+        // Records that establish a failure without a score behind it.
+        $failure_ids = ['email_test_failed', 'mail_function_failed', 'email_test_low_score'];
+
+        $delivered = array_key_exists('delivered', $details)
+            ? (bool) $details['delivered']
+            : (!empty($details['can_send_email']) || in_array($id, $working_ids, true));
+
+        $conclusive = !in_array($id, self::inconclusive_reasons(), true)
+            && (null !== $score || $delivered || in_array($id, $failure_ids, true));
+
+        $timestamp = isset($details['test_timestamp']) ? (string) $details['test_timestamp'] : '';
+
+        return [
+            'conclusive' => $conclusive,
+            // Written with current_time('mysql', true), so it is already UTC.
+            'time'       => $timestamp !== '' ? (int) strtotime($timestamp . ' +00:00') : 0,
+            'score'      => $score,
+            'delivered'  => $delivered,
+            'message'    => isset($status['message']['description']) ? (string) $status['message']['description'] : '',
+            'checked_at' => $timestamp,
+            'source'     => 'panel',
+        ];
+    }
+
+    /**
+     * Endings that say something went wrong with the check itself, not with
+     * this site's email: an unreachable service, a used-up free test quota, a
+     * response that could not be read. None of them is evidence of anything.
+     *
+     * @return string[]
+     */
+    private static function inconclusive_reasons() {
+        return [
+            'service_start_error',
+            'service_request_error',
+            'service_http_error',
+            'invalid_service_response',
+            'invalid_json_response',
+            'invalid_admin_email',
+            'upgrade_required',
+            'quota_exceeded',
+        ];
+    }
+
+    /**
+     * The two sentences the dashboard notice shows.
+     *
+     * Which problem the administrator has decides the wording. Being told to
+     * "run the email check" after having just run one - the old, only text -
+     * is what made the notice look broken.
+     *
+     * @param array $verdict
+     * @return array{title:string,body:string}
+     */
+    private static function get_notice_copy($verdict) {
+        if ('spam' === $verdict['outcome']) {
+            $body = null !== $verdict['score']
+                ? sprintf(
+                    /* translators: %s: deliverability score out of 100. */
+                    __('The last delivery check scored %s out of 100. Your messages do leave the site, but most mailboxes will file them as spam, so the people filling in your forms will not see them. Sending through an SMTP service, and adding SPF and DKIM records for your domain, is what fixes this.', 'easy-form-builder'),
+                    number_format_i18n($verdict['score'])
+                )
+                : __('The last delivery check found that your messages do leave the site, but mailboxes file them as spam. Sending through an SMTP service, and adding SPF and DKIM records for your domain, is what fixes this.', 'easy-form-builder');
+
+            return [
+                'title' => __('Your form emails are going to the spam folder', 'easy-form-builder'),
+                'body'  => $body,
+            ];
+        }
+
+        return [
+            'title' => __('Your form emails are not being delivered', 'easy-form-builder'),
+            'body'  => __('The last delivery check could not get a message through, so nothing your forms send is reaching anybody. A hosting server usually sends mail without a trusted signature; sending through an SMTP service is the standard fix.', 'easy-form-builder'),
+        ];
     }
 
     /**
@@ -444,7 +659,15 @@ class Email_Monitor {
                 : __('The weekly email delivery test found an email delivery problem.', 'easy-form-builder');
         }
 
-        self::save_status($can_send ? 'success' : 'failed', $message, $pending['context'], $result);
+        self::save_status(
+            $can_send ? 'success' : 'failed',
+            $message,
+            $pending['context'],
+            $result,
+            // The service answered about this site's delivery, so whatever it
+            // says is a real measurement rather than a broken check.
+            $status ?: 'analyzed'
+        );
 		if ($can_send) {
 			self::mark_email_ready();
 		}
@@ -560,7 +783,11 @@ class Email_Monitor {
             $sent
                 ? __('The automated email test was sent and is waiting for delivery confirmation.', 'easy-form-builder')
                 : __('WordPress could not send the automated email test.', 'easy-form-builder'),
-            $context
+            $context,
+            [],
+            // wp_mail() refusing outright is this site's own failure, and the
+            // most conclusive evidence there is: nothing even left the server.
+            $sent ? 'sent' : 'wp_mail_failed'
         );
 
         wp_schedule_single_event(time() + 30, self::POLL_HOOK, [$test_hash]);
@@ -572,7 +799,11 @@ class Email_Monitor {
 			$final_message = $message !== ''
 				? sanitize_text_field($message)
 				: __('The email delivery test timed out before confirmation was received.', 'easy-form-builder');
-			self::save_status('failed', $final_message, $pending['context']);
+			// Out of attempts without the service ever confirming arrival: the
+			// email never turned up. That is a real delivery failure, unless
+			// the service itself was what could not be reached - which the
+			// state carries, and which the notice knows to disregard.
+			self::save_status('failed', $final_message, $pending['context'], [], $state ?: 'expired');
 			self::send_weekly_admin_report($pending['context'], false, $final_message, ['status' => $state]);
 			delete_option(self::OPTION_PENDING);
 			return;
@@ -583,7 +814,10 @@ class Email_Monitor {
     }
 
     private static function finish_without_test($context, $state, $message) {
-        self::save_status('failed', $message, $context, ['status' => $state, 'can_send_email' => false]);
+        // $state names what stopped the run before anything was sent - an
+        // unreachable service, an unusable response, the free test quota. The
+        // notice reads it and stays quiet: nothing was learned about delivery.
+        self::save_status('failed', $message, $context, ['status' => $state, 'can_send_email' => false], $state);
         self::send_weekly_admin_report($context, false, $message, ['status' => $state]);
     }
 
@@ -851,14 +1085,14 @@ class Email_Monitor {
     const HEALTHY_SCORE = 70;
 
     /**
-     * Score below which delivery counts as broken, not merely imperfect.
+     * The line between "nothing arrives" and "it arrives in the spam folder".
      *
-     * The tester service answers can_send_email on arrival alone: the probe
-     * reached the mailbox, so the flag is true even when it landed in spam with
-     * a score of 12. Between this threshold and HEALTHY_SCORE the site is asked
-     * to improve; underneath it, real form emails will not reach anybody, so the
-     * run is recorded as a failure and the administrator gets the dashboard
-     * warning instead of a silent pass.
+     * The tester service answers can_send_email on arrival alone, so the flag
+     * is true even for a message that scored 12 and was quarantined. From this
+     * score upwards the site really can send: the mail leaves, reaches the far
+     * end, and the problem to report is spam filtering (see HEALTHY_SCORE).
+     * Below it nothing usable gets through, so the run is recorded as a failure
+     * and the sending switch is not enabled off the back of it.
      */
     const MIN_DELIVERY_SCORE = 20;
 
@@ -1457,11 +1691,24 @@ class Email_Monitor {
             'details' => [
                 'stage' => 'automated',
                 'test_timestamp' => current_time('mysql', true),
+                // Read back by get_delivery_verdict() as evidence that mail
+                // really did arrive somewhere.
+                'delivered' => true,
             ],
         ], false);
     }
 
-    private static function save_status($state, $message, $context, $result = []) {
+    /**
+     * @param string $state   Run state: pending, success or failed.
+     * @param string $message Human-readable outcome.
+     * @param string $context Trigger: activation, update or weekly.
+     * @param array  $result  Report payload from the tester service.
+     * @param string $reason  Why the run ended this way. The dashboard notice
+     *                        needs it to tell a real delivery failure from a
+     *                        run that never got to send anything, such as one
+     *                        the free daily test quota refused.
+     */
+    private static function save_status($state, $message, $context, $result = [], $reason = '') {
         update_option(self::OPTION_LAST_STATUS, [
             'state' => sanitize_key($state),
             'message' => sanitize_text_field($message),
@@ -1471,6 +1718,12 @@ class Email_Monitor {
             // below MIN_DELIVERY_SCORE is not a working mail setup, so the
             // dashboard notice speaks up for it as well.
             'can_send_email' => self::is_delivery_confirmed($result),
+            // Kept separate from can_send_email, which is already judged
+            // against the score: this is the raw fact of arrival, and the two
+            // together are what separate "went to spam" from "never arrived".
+            'delivered' => is_array($result) && (!empty($result['can_send_email']) || !empty($result['success'])),
+            'score' => self::get_report_score($result),
+            'reason' => sanitize_key($reason),
         ], false);
     }
 

@@ -2145,6 +2145,16 @@ class Admin {
                 'test_timestamp' => current_time('mysql', true),
                 'can_send_email' => $delivery_confirmed,
                 'success' => !empty($test_result['success']),
+                // The raw arrival flag and the report's own top-level score,
+                // kept apart from the judged can_send_email above. The
+                // dashboard notice reads these to tell "went to spam" from
+                // "never arrived", and the neighbouring "score" key below comes
+                // from a recursive search that can return a figure on another
+                // scale entirely.
+                'delivered' => !empty($test_result['can_send_email']),
+                'delivery_score' => class_exists('\Emsfb\Email_Monitor')
+                    ? \Emsfb\Email_Monitor::get_report_score($test_result)
+                    : null,
             ]
         ];
 

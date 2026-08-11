@@ -44,9 +44,16 @@ efb_delivery_score_test(
 	\Emsfb\Email_Monitor::is_delivery_confirmed(['can_send_email' => true, 'score' => 60]) === true
 );
 
+// Above the minimum the site really can send - the mail simply lands in spam,
+// which the dashboard notice reports separately (see the scenario suite).
+efb_delivery_score_test(
+	'a low but sending score still counts as sending',
+	\Emsfb\Email_Monitor::is_delivery_confirmed(['can_send_email' => true, 'score' => 25]) === true
+);
+
 efb_delivery_score_test(
 	'a delivered probe scoring below the minimum is not confirmed',
-	\Emsfb\Email_Monitor::is_delivery_confirmed(['can_send_email' => true, 'score' => 30]) === false
+	\Emsfb\Email_Monitor::is_delivery_confirmed(['can_send_email' => true, 'score' => 12]) === false
 );
 
 efb_delivery_score_test(
@@ -87,18 +94,36 @@ $original_status = get_option($option, null);
 $save_status = new ReflectionMethod('\Emsfb\Email_Monitor', 'save_status');
 $save_status->setAccessible(true);
 
-$save_status->invoke(null, 'success', 'delivered', 'weekly', ['can_send_email' => true, 'score' => 30]);
+$save_status->invoke(null, 'success', 'delivered', 'weekly', ['can_send_email' => true, 'score' => 12], 'analyzed');
 $stored_low = get_option($option, []);
 efb_delivery_score_test(
-	'a low score is stored as "cannot send", which is what raises the admin notice',
+	'a score below the minimum is stored as "cannot send"',
 	isset($stored_low['can_send_email']) && $stored_low['can_send_email'] === false
 );
 
-$save_status->invoke(null, 'success', 'delivered', 'weekly', ['can_send_email' => true, 'score' => 75]);
+$save_status->invoke(null, 'success', 'delivered', 'weekly', ['can_send_email' => true, 'score' => 75], 'analyzed');
 $stored_ok = get_option($option, []);
 efb_delivery_score_test(
 	'a healthy score is still stored as "can send"',
 	isset($stored_ok['can_send_email']) && $stored_ok['can_send_email'] === true
+);
+
+// The stored run has to carry enough for the notice to tell a delivery failure
+// from a check that never ran, and spam filtering from nothing arriving.
+efb_delivery_score_test(
+	'a stored run records the raw arrival, the score and why it ended',
+	$stored_ok['delivered'] === true
+		&& (float) $stored_ok['score'] === 75.0
+		&& $stored_ok['reason'] === 'analyzed'
+);
+
+$save_status->invoke(null, 'failed', 'quota', 'activation', ['can_send_email' => false], 'service_start_error');
+$stored_quota = get_option($option, []);
+efb_delivery_score_test(
+	'a run the service refused is recorded as such, and proves nothing',
+	$stored_quota['reason'] === 'service_start_error'
+		&& $stored_quota['delivered'] === false
+		&& $stored_quota['score'] === null
 );
 
 if ($original_status === null) {
