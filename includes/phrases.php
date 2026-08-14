@@ -160,7 +160,11 @@ class EfbAddonPhrases {
             /* translators: Tip 5 = fifth tip, contains %s placeholder for Chat ID finder link */
             "tip_5" => $state && isset($ac->text->tip_5) ? $ac->text->tip_5 : esc_html__('Find your Chat ID using %s', 'easy-form-builder'),
 
+            /* translators: @BotFather = clickable link text (not translatable) */
+            "botfather_link" => '@BotFather',
 
+            /* translators: @WSYourIDBot = clickable link text (not translatable) */
+            "chatid_finder_link" => '@WSYourIDBot',
 
             /* translators: Enter your test message here = placeholder */
             "enter_test_message" => $state && isset($ac->text->enter_test_message) ? $ac->text->enter_test_message : esc_html__('Enter your test message here&hellip;', 'easy-form-builder'),
@@ -1467,8 +1471,6 @@ class EfbAddonPhrases {
             /* translators: Failed = payment status */
             "pay_failed" => $state && isset($ac->text->pay_failed) ? $ac->text->pay_failed : esc_html__('Failed', 'easy-form-builder'),
 
-            /* translators: Suspended = subscription status */
-            "pay_suspended" => $state && isset($ac->text->pay_suspended) ? $ac->text->pay_suspended : esc_html__('Suspended', 'easy-form-builder'),
 
             /* translators: No payments found = empty table message */
             "pay_noPayments" => $state && isset($ac->text->pay_noPayments) ? $ac->text->pay_noPayments : esc_html__('No payments found.', 'easy-form-builder'),
