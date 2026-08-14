@@ -18,6 +18,132 @@ if ( ! function_exists( 'emsfb_onboarding_pending_efb' ) ) {
 	}
 }
 
+/**
+ * Return markup that wpautop() cannot damage.
+ *
+ * WordPress runs wpautop() on the_content at priority 10 and do_shortcode() at
+ * 11, so shortcode output normally escapes it. A fair number of themes and page
+ * builders break that order: they re-register wpautop after priority 11, or
+ * they call wpautop( do_shortcode( $text ) ) themselves on module content. When
+ * that happens every blank line in the form markup turns into a paragraph and
+ * every remaining newline into a <br>, which is why a form that looks right in
+ * the admin preview - where the_content filters never run - comes apart on the
+ * frontend, with stray paragraphs sitting between the fields.
+ *
+ * Rather than fight each theme for filter position, the markup is made
+ * uninteresting to wpautop: with no newline left for it to act on there is
+ * nothing to convert. Newlines between tags mean nothing to the browser, so the
+ * rendered result is unchanged on sites that were never affected.
+ */
+if ( ! function_exists( 'emsfb_autop_safe_markup_efb' ) ) {
+	function emsfb_autop_safe_markup_efb( $html ) {
+		if ( ! is_string( $html ) || '' === trim( $html ) ) {
+			return $html;
+		}
+
+		/* Four elements whose content is not ordinary markup, held aside under a
+		 * token so none of the passes below can reach into them, and each given
+		 * only the treatment its own content can take. */
+		$protected = array();
+		$stashed   = preg_replace_callback(
+			// The lookbehind makes the wrapping below safe to run twice: a block
+			// already carrying its hidden parent is left as it is.
+			'#(?<!<div class="efb d-none">)<(script|style|pre|textarea)\b([^>]*)>(.*?)</\1\s*>#is',
+			static function ( $match ) use ( &$protected ) {
+				$tag  = strtolower( $match[1] );
+				$body = $match[3];
+
+				if ( 'textarea' === $tag ) {
+					/* Rendered verbatim, so its line breaks have to survive as
+					 * line breaks. A character reference reads back as one when
+					 * the browser parses the control's value and gives wpautop
+					 * nothing to act on. Only the content is rewritten - doing
+					 * this to the open tag would glue its attributes together. */
+					$body = str_replace( array( "\r\n", "\r", "\n" ), '&#10;', $body );
+				} elseif ( 'pre' !== $tag ) {
+					/* Blank lines are the only thing wpautop reacts to, and in
+					 * CSS or JavaScript they carry no meaning. A single newline
+					 * stays: dropping the break after a // comment would comment
+					 * out the rest of the block. <pre> is excluded because its
+					 * whitespace is content, and wpautop protects it already. */
+					$collapsed = preg_replace( '/(?:\r\n|\r|\n)[ \t]*(?:(?:\r\n|\r|\n)[ \t]*)+/', "\n", $body );
+					if ( null !== $collapsed ) {
+						$body = $collapsed;
+					}
+				}
+
+				if ( 'script' === $tag ) {
+					/* wpautop reads the whole document as text, script bodies
+					 * included, so a </div> inside a template literal is a place
+					 * it will cut - which is how paragraph tags ended up spliced
+					 * into the middle of the panel markup this JS builds. In
+					 * JavaScript "<\/div>" and "</div>" are the same string, and
+					 * the escaped form is invisible to that search. */
+					$body = str_replace( '</', '<\\/', $body );
+				}
+
+				$block = '<' . $match[1] . $match[2] . '>' . $body . '</' . $match[1] . '>';
+
+				if ( 'script' === $tag ) {
+					/* wpautop does not count script as a block tag, so a piece of
+					 * content starting with one keeps the paragraph wrapped
+					 * around it - an empty paragraph with a margin, on the page.
+					 * A hidden block-level parent gives that piece a block tag to
+					 * start with. d-none draws no box at all, so it cannot reach
+					 * the layout, and the rule ships in bootstrap.min-efb.css. */
+					$block = '<div class="efb d-none">' . $block . '</div>';
+				}
+
+				$token = '<!--emsfb-autop-' . count( $protected ) . '-->';
+
+				$protected[ $token ] = $block;
+
+				return $token;
+			},
+			$html
+		);
+		if ( null === $stashed ) {
+			// PCRE gave up (backtrack limit on a very large form). Untouched
+			// markup is still the markup that worked before this guard existed.
+			return $html;
+		}
+
+		/* A hidden input renders nothing at all, whatever the stylesheet says,
+		 * so a block-level parent around one cannot move anything on the page -
+		 * and it gives wpautop the block tag it needs to leave the piece of
+		 * content alone. Two guards: [^<>] keeps the match from running past a
+		 * malformed input into the next element, and the lookbehind leaves an
+		 * input that already has its parent alone. */
+		$stashed = preg_replace(
+			'#(?<!<div class="efb d-none">)(<input\b[^<>]*\btype=(["\'])hidden\2[^<>]*>)#i',
+			'<div class="efb d-none">$1</div>',
+			$stashed
+		);
+		if ( null === $stashed ) {
+			return $html;
+		}
+
+		/* The build markers - <!--startTag file-->, <!-- end body_efb--> and the
+		 * rest - are read by nobody, and they are what wpautop trips over worst:
+		 * a chunk that opens with a comment instead of a block tag keeps the
+		 * paragraph wpautop puts around it, and the browser closing that
+		 * paragraph before the field's own <div> is the empty <p></p> that
+		 * shows up between the fields. Held-aside script and style blocks are
+		 * already tokens by now, so their contents are out of reach. */
+		$uncommented = preg_replace( '/<!--(?!emsfb-autop-)(?:(?!-->).)*-->/s', '', $stashed );
+		if ( null === $uncommented ) {
+			$uncommented = $stashed;
+		}
+
+		$flattened = preg_replace( '/[ \t]*(?:\r\n|\r|\n)+[ \t]*/', ' ', $uncommented );
+		if ( null === $flattened ) {
+			return $html;
+		}
+
+		return trim( $protected ? strtr( $flattened, $protected ) : $flattened );
+	}
+}
+
 class efbFunction {
 
     protected static $req_cache = [];

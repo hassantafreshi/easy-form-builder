@@ -123,6 +123,23 @@ async function measure(page) {
       visibleFieldsets: [...document.querySelectorAll('fieldset.steps-efb')]
         .filter(el => !el.classList.contains('d-none'))
         .map(el => ({ id: el.id, box: box(el) })),
+      /* The elements the guard puts a wrapper around, found by their own
+       * identity so the same selector works before and after. Their box is the
+       * proof the wrapper changed nothing: float-end and w-100 both resolve
+       * against the containing block, which is what a wrapper would replace. */
+      wrapped: [...document.querySelectorAll('#btnStripeEfb, #paypalEfb, #persiaPayEfb, span.efb.fs-7.my-1')]
+        .map(el => {
+          const s = getComputedStyle(el);
+          return {
+            key: el.id || 'or-separator',
+            box: box(el),
+            display: s.display,
+            float: s.float,
+            width: s.width,
+            parentDisplay: el.parentElement ? getComputedStyle(el.parentElement).display : null
+          };
+        })
+        .sort((a, b) => a.key.localeCompare(b.key)),
       fields,
       gaps,
       descriptions,
@@ -143,6 +160,52 @@ function compare(label, before, after) {
   if (before.error || after.error) { bad(`${label}: ${before.error || after.error}`); return; }
 
   const near = (a, b) => Math.abs(a - b) <= TOLERANCE;
+
+  /* The validation tooltips are a list, not a form measurement. Every property
+   * matters: where the box is, how big it is, what it says, and that it is
+   * still taken out of the flow. */
+  if (Array.isArray(before)) {
+    if (!before.length) { bad(`${label}: nothing was measured - validation never fired`); return; }
+    if (before.length !== after.length) {
+      bad(`${label}: ${before.length} visible tooltip(s) -> ${after.length}`);
+      return;
+    }
+
+    let changed = 0;
+    for (let i = 0; i < before.length; i++) {
+      const a = before[i], b = after[i];
+      if (a.id !== b.id) { bad(`tooltip ${a.id} -> ${b.id}`); changed++; continue; }
+      if (!near(a.x, b.x) || !near(a.y, b.y) || !near(a.w, b.w) || !near(a.h, b.h)) {
+        bad(`tooltip ${a.id} moved`, `${a.x},${a.y} ${a.w}x${a.h} -> ${b.x},${b.y} ${b.w}x${b.h}`);
+        changed++;
+      }
+      if (a.fontSize !== b.fontSize) { bad(`tooltip ${a.id} font-size`, `${a.fontSize} -> ${b.fontSize}`); changed++; }
+      if (a.position !== b.position) { bad(`tooltip ${a.id} position`, `${a.position} -> ${b.position}`); changed++; }
+      if (a.text !== b.text) { bad(`tooltip ${a.id} text`, `"${a.text}" -> "${b.text}"`); changed++; }
+    }
+    if (!changed) ok(`${after.length} validation tooltip(s) keep box, font-size, position and text`);
+    return;
+  }
+
+  /* The wrapped inline elements. A wrapper that drew a box of its own would
+   * show up here first - as a moved anchor, a lost float or a changed width. */
+  const wrappedBefore = Object.fromEntries((before.wrapped || []).map(w => [w.key, w]));
+  let wrappedChanged = 0;
+  for (const w of (after.wrapped || [])) {
+    const was = wrappedBefore[w.key];
+    if (!was) { bad(`wrapped element ${w.key} appeared`); wrappedChanged++; continue; }
+    if (!near(was.box.x, w.box.x) || !near(was.box.y, w.box.y) || !near(was.box.w, w.box.w) || !near(was.box.h, w.box.h)) {
+      bad(`${w.key} moved`, `${was.box.x},${was.box.y} ${was.box.w}x${was.box.h} -> ${w.box.x},${w.box.y} ${w.box.w}x${w.box.h}`);
+      wrappedChanged++;
+    }
+    if (was.display !== w.display) { bad(`${w.key} display`, `${was.display} -> ${w.display}`); wrappedChanged++; }
+    if (was.float !== w.float)     { bad(`${w.key} float`, `${was.float} -> ${w.float}`); wrappedChanged++; }
+    if (was.width !== w.width)     { bad(`${w.key} width`, `${was.width} -> ${w.width}`); wrappedChanged++; }
+  }
+  if ((after.wrapped || []).length && !wrappedChanged) {
+    ok(`${after.wrapped.length} wrapped element(s) keep box, display, float and width`,
+       after.wrapped.map(w => `${w.key} in parent display:${w.parentDisplay}`).join('; '));
+  }
 
   // Field boxes: position and size of every field.
   const byId = Object.fromEntries(before.fields.map(f => [f.id, f]));
@@ -233,12 +296,51 @@ function compare(label, before, after) {
   for (const [name, target] of Object.entries(targets)) {
     if (!target.url) continue;
 
-    await page.goto(target.url, { waitUntil: 'networkidle' });
-    await page.waitForSelector('.body_efb', { timeout: 15000 });
-    await page.waitForTimeout(1200); // the form reveals itself after its own init
+    /* Not networkidle: the payment page loads the gateway's own script, which
+     * keeps talking long enough that the page never goes quiet. Waiting for the
+     * form container and then letting it settle measures the same thing without
+     * depending on a third party falling silent. */
+    await page.goto(target.url, { waitUntil: 'domcontentloaded', timeout: 90000 });
+    await page.waitForSelector('.body_efb', { timeout: 30000 });
+    await page.waitForLoadState('load', { timeout: 60000 }).catch(() => {});
+    await page.waitForTimeout(2500); // the form reveals itself after its own init
 
     current[name] = await measure(page);
     await page.screenshot({ path: path.join(SHOTS, `${name}-step1.png`), fullPage: true });
+
+    /* The validation tooltip only exists on the page once something fails, so
+     * it has to be provoked before it can be measured. It is positioned
+     * absolutely and shown by a class, and it now sits inside a wrapper - all
+     * three are reasons its box could move without anything else moving. */
+    if (name === 'single') {
+      const submit = await page.$('#btn_send_efb');
+      if (!submit) {
+        bad('single: no submit button to provoke validation');
+      } else {
+        await submit.click();
+        await page.waitForTimeout(1200);
+
+        current['single-tooltips'] = await page.evaluate(() => {
+          const r = n => Math.round(n * 10) / 10;
+          return [...document.querySelectorAll('.ttiptext')]
+            .filter(t => getComputedStyle(t).display !== 'none')
+            .map(t => {
+              const b = t.getBoundingClientRect();
+              const s = getComputedStyle(t);
+              return {
+                id: t.id,
+                x: r(b.x), y: r(b.y + window.scrollY), w: r(b.width), h: r(b.height),
+                fontSize: s.fontSize,
+                position: s.position,
+                text: (t.textContent || '').trim().slice(0, 40),
+              };
+            })
+            .sort((a, b) => a.id.localeCompare(b.id));
+        });
+
+        await page.screenshot({ path: path.join(SHOTS, 'single-validation.png'), fullPage: true });
+      }
+    }
 
     // Walk a multi-step form to its second step and measure that too.
     if (name === 'multi') {
@@ -274,6 +376,7 @@ function compare(label, before, after) {
     fs.writeFileSync(file, JSON.stringify(current, null, 1));
     console.log(`\nsaved ${file}`);
     for (const [name, m] of Object.entries(current)) {
+      if (Array.isArray(m)) { console.log(`  ${name}: ${m.length} visible tooltip(s)`); continue; }
       if (m.error) { console.log(`  ${name}: ${m.error}`); continue; }
       console.log(`  ${name}: ${m.fields.length} fields, height ${m.documentHeight}px, stray <p> ${m.strayParagraphs.length}`);
     }

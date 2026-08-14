@@ -21,6 +21,8 @@ class _Public {
 	public $value_forms =[];
 	private $form_cache = [];
 	private $addon_recovery_transition_rendered = false;
+	private $deferred_form_markup = [];
+	private $deferred_form_key = '';
 
 	public function __construct() {
 		global $wpdb;
@@ -79,10 +81,24 @@ class _Public {
 
 		});
 
-		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EFB_Form_Builder' ) );
+		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'render_form_shortcode_efb' ) );
 
-		add_shortcode( 'EMS_Form_Builder',  array( $this, 'EFB_Form_Builder' ) );
-		add_shortcode( 'ems_form_builder',  array( $this, 'EFB_Form_Builder' ) );
+		add_shortcode( 'EMS_Form_Builder',  array( $this, 'render_form_shortcode_efb' ) );
+		add_shortcode( 'ems_form_builder',  array( $this, 'render_form_shortcode_efb' ) );
+
+		/* Priority 10, but registered after core put wpautop there: the
+		 * shortcode has to be lifted out of the paragraph wpautop wrapped it in
+		 * while it is still a shortcode, which leaves exactly one window - after
+		 * priority 10, before do_shortcode at 11. */
+		add_filter( 'the_content', array( $this, 'unwrap_shortcode_from_paragraph_efb' ), 10 );
+		add_filter( 'widget_text', array( $this, 'unwrap_shortcode_from_paragraph_efb' ), 10 );
+
+		/* Last word on the content, so every filter in between - wpautop
+		 * included, wherever a theme has moved it - works on the placeholder
+		 * and never on the form markup itself. */
+		foreach ( array( 'the_content', 'widget_text_content', 'widget_block_content' ) as $content_filter ) {
+			add_filter( $content_filter, array( $this, 'restore_deferred_form_markup_efb' ), PHP_INT_MAX );
+		}
 		add_action('init',  array($this, 'hide_toolmenu'));
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
@@ -474,6 +490,153 @@ public function check_nonce_permission_efb($request) {
 			<?php
 		}
 	}
+	/**
+	 * Shortcode entry point for every form.
+	 *
+	 * The rendering itself stays in EFB_Form_Builder(). What this adds is the
+	 * guarantee that no content filter gets to rewrite the result.
+	 *
+	 * wpautop() is the one that does the damage. It splits content after every
+	 * closing block tag and wraps each piece that does not begin with a block
+	 * tag in a paragraph, so a marker comment or a bare input between two
+	 * fields comes back as <p><!--startTag file--><div ...>, an opening <p> the
+	 * browser has to close on its own - the stray empty paragraphs users see
+	 * between the fields. Core runs wpautop before do_shortcode and block
+	 * content skips it entirely, which is why the same form is intact on most
+	 * sites and torn apart on a theme that moved the filter.
+	 *
+	 * Chasing filter order theme by theme is not winnable, so the markup simply
+	 * is not there while the filters run: the shortcode leaves a placeholder
+	 * comment behind, and restore_deferred_form_markup_efb() puts the real
+	 * markup back once every other filter has had its turn. Outside a content
+	 * filter - a theme template calling do_shortcode(), or a page builder
+	 * widget - nothing would swap the placeholder back, so the markup is
+	 * returned directly and the wpautop-proofing on it has to stand on its own.
+	 */
+	public function render_form_shortcode_efb( $atts = array(), $content = null, $tag = '' ) {
+		$markup = emsfb_autop_safe_markup_efb( $this->EFB_Form_Builder( $atts ) );
+
+		if ( ! is_string( $markup ) || '' === $markup || ! $this->content_filter_is_running_efb() ) {
+			return $markup;
+		}
+
+		if ( '' === $this->deferred_form_key ) {
+			// New every request, so nothing saved in a post can pose as a placeholder.
+			$this->deferred_form_key = strtolower( wp_generate_password( 12, false, false ) );
+		}
+
+		$placeholder = '<!--emsfb-form-' . count( $this->deferred_form_markup ) . '-' . $this->deferred_form_key . '-->';
+
+		$this->deferred_form_markup[ $placeholder ] = $markup;
+
+		return $placeholder;
+	}
+
+	/**
+	 * Whether a content filter that ends in restore_deferred_form_markup_efb()
+	 * is currently running - the one condition under which handing back a
+	 * placeholder instead of the form is safe.
+	 */
+	private function content_filter_is_running_efb() {
+		foreach ( array( 'the_content', 'widget_text_content', 'widget_block_content' ) as $content_filter ) {
+			if ( doing_filter( $content_filter ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Put the form markup back in place of its placeholder.
+	 */
+	public function restore_deferred_form_markup_efb( $content ) {
+		if ( ! is_string( $content ) || empty( $this->deferred_form_markup ) || false === strpos( $content, '<!--emsfb-form-' ) ) {
+			return $content;
+		}
+
+		/* The markup stays in the registry after it is used: a theme that runs
+		 * the content filters twice over the same post has to get a form both
+		 * times, and a consumed placeholder would leave the second pass with an
+		 * invisible comment where the form should be. */
+		foreach ( $this->deferred_form_markup as $placeholder => $markup ) {
+			if ( false === strpos( $content, $placeholder ) ) {
+				continue;
+			}
+
+			// wpautop may have wrapped the placeholder while it stood in for the form.
+			$content = $this->lift_out_of_paragraph_efb( $content, '#(' . preg_quote( $placeholder, '#' ) . ')#' );
+			$content = str_replace( $placeholder, $markup, $content );
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Lift the form shortcode out of a paragraph wpautop wrapped it in.
+	 *
+	 * Core's shortcode_unautop() only rescues a shortcode that sits alone in
+	 * its paragraph. Written next to other text - "Contact us: [EMS_Form_Builder
+	 * id=1]" - the shortcode stays inside the <p>, and once it expands to a
+	 * <div> the browser closes that paragraph early and leaves the orphaned
+	 * </p> behind as an empty paragraph beside the form.
+	 */
+	public function unwrap_shortcode_from_paragraph_efb( $content ) {
+		if ( ! is_string( $content ) || false === strpos( $content, '[' ) || false === stripos( $content, '<p' ) ) {
+			return $content;
+		}
+
+		return $this->lift_out_of_paragraph_efb(
+			$content,
+			'#(\[(?:EMS_Form_Builder|ems_form_builder|Easy_Form_Builder_confirmation_code_finder)(?![\w-])[^\]]*\])#i'
+		);
+	}
+
+	/**
+	 * Split every paragraph that contains $needle so the match ends up beside
+	 * the paragraph instead of inside it. Text around it keeps its paragraph;
+	 * a paragraph left holding nothing else is dropped.
+	 *
+	 * $needle must hold exactly one capturing group - the part to lift out.
+	 */
+	private function lift_out_of_paragraph_efb( $content, $needle ) {
+		if ( ! preg_match( $needle, $content ) ) {
+			return $content;
+		}
+
+		$unwrapped = preg_replace_callback(
+			'#<p(\s[^>]*)?>(.*?)</p>#is',
+			static function ( $paragraph ) use ( $needle ) {
+				if ( ! preg_match( $needle, $paragraph[2] ) ) {
+					return $paragraph[0];
+				}
+
+				$pieces = preg_split( $needle, $paragraph[2], -1, PREG_SPLIT_DELIM_CAPTURE );
+
+				if ( ! is_array( $pieces ) ) {
+					return $paragraph[0];
+				}
+
+				$attributes = isset( $paragraph[1] ) ? $paragraph[1] : '';
+				$rebuilt    = '';
+
+				foreach ( $pieces as $index => $piece ) {
+					if ( $index % 2 ) {
+						// The match itself, now a sibling of the paragraph rather than its child.
+						$rebuilt .= $piece;
+					} elseif ( '' !== trim( $piece ) ) {
+						$rebuilt .= '<p' . $attributes . '>' . $piece . '</p>';
+					}
+				}
+
+				return $rebuilt;
+			},
+			$content
+		);
+
+		return ( null === $unwrapped ) ? $content : $unwrapped;
+	}
+
 	public function EFB_Form_Builder($id){
 
 			$page_builder="";
@@ -1298,12 +1461,16 @@ public function check_nonce_permission_efb($request) {
 				$percent = (1 / ($step_no)) * 100;
 				$percent = round($percent, 2);
 				$head = (intval($valj_efb[0]->show_icon) != 1 ? '<ul id="steps-efb" class="efb mb-2 px-2" data-formid="'.$form_id.'">' . $head . $head_final_step.'</ul>' : '') .
+						/* The gap under the bar is a margin rather than the <br> that
+						 * used to sit here: a bare <br> between two blocks is one of
+						 * the pieces wpautop wraps in a paragraph of its own. The
+						 * class carries the same 32px the line break produced. */
 						(intval($valj_efb[0]->show_pro_bar)!= 1 ?
-							'<div class="efb d-flex justify-content-center" id="f-progress-efb">
+							'<div class="efb d-flex justify-content-center efb-progress-gap" id="f-progress-efb">
 								<div class="efb progress mx-3 w-100 ' . $bgc . '">
 									<div class="efb progress-bar-efb progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100"  style="width: '.$percent.'%;" data-formid="'.$this->id.'"></div>
 								</div>
-							</div><br>' : '');
+							</div>' : '');
 
 				$step_no--;
 			}

@@ -227,7 +227,9 @@ function efb_seed_page( $slug, $title, $form_id ) {
 
 $single = array( efb_seed_settings( 'EFB Layout QA single', 1 ) );
 $single[] = efb_seed_step( 1, 'Your details' );
-$single[] = efb_seed_field( 'qafullname', 'text', 'Full name', 'As it appears on your ID card.', 1, 2 );
+// Required, so submitting the form empty raises the validation tooltip - the
+// element the guard wraps, and the one whose position has to stay put.
+$single[] = efb_seed_field( 'qafullname', 'text', 'Full name', 'As it appears on your ID card.', 1, 2, array( 'required' => '1' ) );
 $single[] = efb_seed_field( 'qaemail', 'email', 'Email', 'We only use this to reply to you.', 1, 3 );
 $single[] = efb_seed_field( 'qamessage', 'textarea', 'Message', 'Tell us what you need in a few lines.', 1, 4 );
 $single[] = efb_seed_file_field( 'qaresume', 'Attachment', 'Accepted files up to 8 MB.', 1, 5 );
@@ -317,11 +319,23 @@ $survey = efb_seed_borrowed_page(
 	array( $media['form_id'] )
 );
 
+/* The payment gateways draw the "Pay now" anchors - inline elements sitting
+ * where wpautop wants to open a paragraph, and the ones carrying float-end and
+ * w-100, so any wrapper around them is exactly where a layout change would
+ * show. None of the seeded forms has a gateway; a form on the site does. */
+$payment = efb_seed_borrowed_page(
+	$candidates,
+	'payment|stripe|paypal|zarinpal',
+	'efb-layout-qa-payment',
+	'EFB Layout QA payment'
+);
+
 echo wp_json_encode(
 	array(
-		'single' => array( 'form_id' => $single_id, 'url' => $single_url ),
-		'multi'  => array( 'form_id' => $multi_id, 'url' => $multi_url ),
-		'media'  => $media,
-		'survey' => $survey,
+		'single'  => array( 'form_id' => $single_id, 'url' => $single_url ),
+		'multi'   => array( 'form_id' => $multi_id, 'url' => $multi_url ),
+		'media'   => $media,
+		'survey'  => $survey,
+		'payment' => $payment,
 	)
 ) . "\n";

@@ -19,7 +19,7 @@ last_reviewed: "2026-07-29"
 
 **Keywords:** WordPress form email template, design form notification email, Easy Form Builder email shortcode, build HTML email template WordPress, Easy Form Builder email blocks, WordPress registration confirmation email template.
 
-**Path:** Easy Form Builder Documentation › Email Template Builder › Complete Guide · Languages: [فارسی](EFB-Email-Template-Builder-Complete-Guide.fa.md) | English
+**Path:** Easy Form Builder Documentation › Email Template Builder › Complete Guide · Languages: [فارسی](EFB-Email-Template-Builder-Complete-Guide.fa.md) | English | [العربية](EFB-Email-Template-Builder-Complete-Guide.ar.md) | [Deutsch](EFB-Email-Template-Builder-Complete-Guide.de.md)
 
 Every email Easy Form Builder sends — a new-message notification, a registration welcome, a password reset — passes through one shared template. The **Email Template Builder** is where you design what that shared template looks like, by dragging and dropping blocks, without writing a line of code.
 

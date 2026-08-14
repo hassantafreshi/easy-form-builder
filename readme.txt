@@ -453,6 +453,11 @@ For more information, visit the official website:
 
 == Upgrade Notice ==
 
+= 4.1.3 =
+
+* Reliability update: fixes stray empty paragraphs breaking form layout on some themes/page builders, resolves file upload and recorder submission failures, and enforces file size/type limits on the server. Also adds a weekly email deliverability report. Recommended for all users.
+
+
 = 4.1.2 =
 
 * Reliability update: fixes file uploads and audio/video/screen recordings being rejected on submit, resolves forms with uploads or recorders being wrongly blocked by Form Security & Spam Protection, and stops real visitors being blocked when their browser auto-fills a hidden field. Also adds safer plugin loading after updates. Recommended for all users.
@@ -476,27 +481,19 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = 4.1.3 =
 
-* New: Built-in file upload limit in Easy Form Builder - three files per upload field on a WordPress form, no add-on needed.
+* New: File upload form fields now have a built-in limit (3 files per field, no add-on needed), your own budget/size settings, server-side file-type enforcement, and fixed audio/video/screen recording uploads with clearer error messages.
 
-* New: "File upload budget" settings to set your own upload allowance, reset window and maximum file size.
+* New: Setup guide for new installs, with direct links to each settings tab.
 
-* New: Setup guide for new installs of this WordPress form builder, plus direct links to each settings tab.
+* New: Weekly email delivery report for your forms.
 
-* New: Weekly email delivery report for your WordPress forms.
+* Fixed: Stray empty paragraphs no longer appear between fields on themes/page builders that run wpautop after shortcodes.
 
-* Fixed: File uploads and audio, video and screen recordings now work on every form builder field.
+* Fixed: Payment form notification emails could fail to send.
 
-* Fixed: Payment form notification emails could fail to send in Easy Form Builder.
+* Fixed: Forms keep working on cached pages instead of showing a security error.
 
-* Fixed: Maximum file size and Acceptable file types are now enforced on the server, not only in the browser.
-
-* Fixed: WordPress forms keep working on cached pages instead of showing a security error.
-
-* Improved: Faster page loads - the form builder no longer waits on a remote check while rendering a form.
-
-* Improved: Real file type is checked, disguised files are refused, and abandoned uploads are removed after 24 hours.
-
-* Improved: Upload errors show the real reason instead of a generic connection warning.
+* Improved: Faster page loads - forms no longer wait on a remote check to render.
 
 = 4.1.2 =
 

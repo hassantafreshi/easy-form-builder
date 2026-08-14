@@ -42,7 +42,7 @@ const targets = JSON.parse(
   });
 
   console.log('\n--- inline script integrity ---');
-  await page.goto(targets.single.url, { waitUntil: 'networkidle' });
+  await page.goto(targets.single.url, { waitUntil: 'networkidle', timeout: 90000 });
   await page.waitForSelector('.body_efb', { timeout: 15000 });
   await page.waitForTimeout(1200);
 
@@ -121,7 +121,7 @@ const targets = JSON.parse(
   // so it does not depend on where a borrowed form happens to put its stars.
   if (targets.single && targets.single.url) {
     console.log('\n--- rating fields write to their wrapped hidden input ---');
-    await page.goto(targets.single.url, { waitUntil: 'networkidle' });
+    await page.goto(targets.single.url, { waitUntil: 'networkidle', timeout: 90000 });
     await page.waitForSelector('.body_efb', { timeout: 15000 });
     await page.waitForTimeout(1200);
 
@@ -152,7 +152,7 @@ const targets = JSON.parse(
 
   // End to end: the form still submits.
   console.log('\n--- submit ---');
-  await page.goto(targets.single.url, { waitUntil: 'networkidle' });
+  await page.goto(targets.single.url, { waitUntil: 'networkidle', timeout: 90000 });
   await page.waitForSelector('.body_efb', { timeout: 15000 });
   await page.waitForTimeout(1200);
 

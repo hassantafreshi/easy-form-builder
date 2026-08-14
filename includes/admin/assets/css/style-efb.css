@@ -868,6 +868,28 @@ input[type=range].efb {	border: transparent !important;
 }
 .progress.efb {	height: 16px;
 }
+/* The progress bar used to be followed by a bare <br>. wpautop gives a piece of
+   content that starts with a non-block tag a paragraph of its own, so that line
+   break was one of the sources of the stray paragraphs reported between fields.
+   2rem is what the line break measured: its 24px line box collapsed against the
+   8px top margin of the block after it, and a 2rem margin collapses to the same
+   32px. Written with the id so a theme's own div rules cannot outweigh it -
+   style-efb.css is enqueued before bootstrap.min-efb.css. */
+#f-progress-efb.efb.efb-progress-gap {	margin-bottom: 2rem;
+}
+/* A wrapper that exists for wpautop and for nothing else. wpautop keeps a
+   paragraph around any piece of content that does not open with a block tag,
+   which is what put stray paragraphs next to the validation tooltip, the "or"
+   in the upload field and the payment buttons - all of them inline elements
+   that cannot simply be turned into blocks without moving on the page.
+   display:contents makes the browser skip the wrapper and lay the child out as
+   a child of the parent, so an inline element stays inline, a float stays a
+   float and an absolutely positioned tooltip keeps its containing block, while
+   wpautop - which reads the source, not the boxes - sees a block tag and leaves
+   the piece alone. A browser without display:contents falls back to an empty
+   block, which is the same markup the wrapper would have produced anyway. */
+.efb.efb-slot {	display: contents;
+}
 @keyframes nmsgefb {	0% { color: #d63384;
 }
    50% { color: #6aa4fb;
