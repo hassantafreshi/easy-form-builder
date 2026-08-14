@@ -372,6 +372,16 @@ const alertStyles_efb = {
   info: { bg: 'linear-gradient(135deg, #202a8d 0%, #667eea 100%)', icon: 'bi-info-lg', color: '#fff' }
 };
 
+// Bootstrap Icons paths, inlined so alerts render instantly instead of waiting on the icon font to load.
+const alertIconPaths_efb = {
+  'bi-ban': 'M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0',
+  'bi-exclamation-triangle-fill': 'M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2',
+  'bi-check-lg': 'M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z',
+  'bi-info-lg': 'm9.708 6.075-3.024.379-.108.502.595.108c.387.093.464.232.38.619l-.975 4.577c-.255 1.183.14 1.74 1.067 1.74.72 0 1.554-.332 1.933-.789l.116-.549c-.263.232-.65.325-.905.325-.363 0-.494-.255-.402-.704zm.091-2.755a1.32 1.32 0 1 1-2.64 0 1.32 1.32 0 0 1 2.64 0'
+};
+const alertCloseIconPath_efb = 'M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z';
+const alertIconSvg_efb = (path, sizeRem) => `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="width:${sizeRem}rem; height:${sizeRem}rem; display:block;"><path d="${path}"/></svg>`;
+
 let alertCounter_efb = 0;
 
 function alert_message_efb(title, message, sec, alertType) {
@@ -397,15 +407,15 @@ function alert_message_efb(title, message, sec, alertType) {
     const alertHtml = `
       <div id="${alertId}" class="efb alert_item_efb ${rtl}" style="background:${style.bg}; border-radius:12px; padding:14px 16px; box-shadow:0 4px 20px rgb(0 0 0 / 49%); animation:slideIn_efb .3s ease; transition:all .3s ease; pointer-events:auto;">
         <div class="efb d-flex align-items-center">
-          <div class="efb" style="border-radius:50%; padding:8px; margin-${isRtl ? 'left' : 'right'}:12px; flex-shrink:0;">
-            <i class="efb bi ${style.icon}" style="font-size:1.2rem; color:${style.color};"></i>
+          <div class="efb" style="display:flex; align-items:center; justify-content:center; border-radius:50%; padding:8px; margin-${isRtl ? 'left' : 'right'}:12px; flex-shrink:0; color:${style.color};">
+            ${alertIconSvg_efb(alertIconPaths_efb[style.icon], 1.2)}
           </div>
           <div class="efb flex-grow-1" style="min-width:0;">
             ${title ? `<h6 class="efb mb-0" style="color:${style.color}; font-weight:600; font-size:0.9rem;">${title}</h6>` : ''}
             ${message ? `<p class="efb mb-0" style="color:${style.color}; opacity:0.95; font-size:0.8rem; line-height:1.4;">${message}</p>` : ''}
           </div>
-          <button type="button" class="efb p-0" onclick="close_msg_efb('${alertId}')" style="background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px;">
-            <i class="efb bi bi-x" style="color:${style.color}; font-size:1rem;"></i>
+          <button type="button" class="efb p-0" onclick="close_msg_efb('${alertId}')" style="display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:26px; height:26px; cursor:pointer; flex-shrink:0; margin-${isRtl ? 'right' : 'left'}:8px; color:${style.color};">
+            ${alertIconSvg_efb(alertCloseIconPath_efb, 1)}
           </button>
         </div>
       </div>`;
