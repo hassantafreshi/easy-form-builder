@@ -160,11 +160,7 @@ class EfbAddonPhrases {
             /* translators: Tip 5 = fifth tip, contains %s placeholder for Chat ID finder link */
             "tip_5" => $state && isset($ac->text->tip_5) ? $ac->text->tip_5 : esc_html__('Find your Chat ID using %s', 'easy-form-builder'),
 
-            /* translators: @BotFather = clickable link text (not translatable) */
-            "botfather_link" => '@BotFather',
 
-            /* translators: @WSYourIDBot = clickable link text (not translatable) */
-            "chatid_finder_link" => '@WSYourIDBot',
 
             /* translators: Enter your test message here = placeholder */
             "enter_test_message" => $state && isset($ac->text->enter_test_message) ? $ac->text->enter_test_message : esc_html__('Enter your test message here&hellip;', 'easy-form-builder'),
@@ -378,20 +374,10 @@ class EfbAddonPhrases {
             /* translators: Learn how to use the SMS feature = help subtitle */
             "smsHelpDesc" => $state && isset($ac->text->smsHelpDesc) ? $ac->text->smsHelpDesc : esc_html__('Learn how to use the SMS feature', 'easy-form-builder'),
 
-            /* translators: Quick Start Guide = help section title */
-            "smsHelpQuickStart" => $state && isset($ac->text->smsHelpQuickStart) ? $ac->text->smsHelpQuickStart : esc_html__('Quick Start Guide', 'easy-form-builder'),
 
-            /* translators: Step 1 of SMS quick start guide */
-            "smsHelpStep1" => $state && isset($ac->text->smsHelpStep1) ? $ac->text->smsHelpStep1 : esc_html__('Go to EFB Settings and configure your SMS provider (e.g. WP SMS Pro)', 'easy-form-builder'),
 
-            /* translators: Step 2 of SMS quick start guide */
-            "smsHelpStep2" => $state && isset($ac->text->smsHelpStep2) ? $ac->text->smsHelpStep2 : esc_html__('Navigate to the "Send Message" tab', 'easy-form-builder'),
 
-            /* translators: Step 3 of SMS quick start guide */
-            "smsHelpStep3" => $state && isset($ac->text->smsHelpStep3) ? $ac->text->smsHelpStep3 : esc_html__('Type your message and enter the phone number with country code', 'easy-form-builder'),
 
-            /* translators: Step 4 of SMS quick start guide */
-            "smsHelpStep4" => $state && isset($ac->text->smsHelpStep4) ? $ac->text->smsHelpStep4 : esc_html__('Click "Send" — the message will appear in Message History', 'easy-form-builder'),
 
             /* translators: Important Notes = help section title */
             "smsHelpNotes" => $state && isset($ac->text->smsHelpNotes) ? $ac->text->smsHelpNotes : esc_html__('Important Notes', 'easy-form-builder'),
@@ -801,8 +787,6 @@ class EfbAddonPhrases {
             /* translators: Auto-Populate Dataset = menu title for dataset management */
             "autofill_dataset" => $state && isset($ac->text->autofill_dataset) ? $ac->text->autofill_dataset : esc_html__('Auto-Populate Dataset', 'easy-form-builder'),
 
-            /* translators: Auto-Populate Integrations = menu title for API integrations */
-            "autofill_integrations" => $state && isset($ac->text->autofill_integrations) ? $ac->text->autofill_integrations : esc_html__('Auto-Populate Integrations', 'easy-form-builder'),
 
             /* translators: Dataset page header subtitle */
             "datasetSubtitle" => $state && isset($ac->text->datasetSubtitle) ? $ac->text->datasetSubtitle : esc_html__('Manage & Upload Datasets', 'easy-form-builder'),
@@ -1258,10 +1242,6 @@ class EfbAddonPhrases {
             /* translators: camelCase alias of saving */
             "saving" => $state && isset($ac->text->saving) ? $ac->text->saving : esc_html__('Saving&hellip;', 'easy-form-builder'),
 
-            /* translators: Intro title on the API Integrations empty state */
-            "apiIntroTitle" => $state && isset($ac->text->api_intro_title) ? $ac->text->api_intro_title : esc_html__('Connect Your Forms to External APIs', 'easy-form-builder'),
-            /* translators: Intro description on the API Integrations empty state */
-            "apiIntroDesc" => $state && isset($ac->text->api_intro_desc) ? $ac->text->api_intro_desc : esc_html__('Easily auto-populate your form fields with data from any API. Just add your API endpoint and map the fields!', 'easy-form-builder'),
             /* translators: Prompt shown when no API connections exist yet */
             "clickToAdd" => $state && isset($ac->text->click_to_add) ? $ac->text->click_to_add : esc_html__('Click the button above to create your first API connection', 'easy-form-builder'),
 
@@ -1756,8 +1736,6 @@ class EfbAddonPhrases {
             "gs_saved" => $state && isset($ac->text->gs_saved) ? $ac->text->gs_saved : esc_html__('Saved successfully.', 'easy-form-builder'),
             /* translators: Save button */
             "gs_save" => $state && isset($ac->text->gs_save) ? $ac->text->gs_save : esc_html__('Save', 'easy-form-builder'),
-            /* translators: Saved short label */
-            "gs_savedShort" => $state && isset($ac->text->gs_savedShort) ? $ac->text->gs_savedShort : esc_html__('Saved', 'easy-form-builder'),
             /* translators: Cancel button */
             "gs_cancel" => $state && isset($ac->text->gs_cancel) ? $ac->text->gs_cancel : esc_html__('Cancel', 'easy-form-builder'),
             /* translators: Edit button */
@@ -2182,8 +2160,6 @@ class EfbAddonPhrases {
             "gs_logDetail" => $state && isset($ac->text->gs_logDetail) ? $ac->text->gs_logDetail : esc_html__('Detail', 'easy-form-builder'),
             /* translators: Logs status — synced */
             "gs_synced" => $state && isset($ac->text->gs_synced) ? $ac->text->gs_synced : esc_html__('Synced', 'easy-form-builder'),
-            /* translators: Access denied (page + ajax guard) */
-            "gs_accessDenied" => $state && isset($ac->text->gs_accessDenied) ? $ac->text->gs_accessDenied : esc_html__('Access denied', 'easy-form-builder'),
 
             /* ===== Sheet style preset gallery (Style & Save step / templates list) ===== */
             /* translators: Style preset name - no colors or formatting applied */
