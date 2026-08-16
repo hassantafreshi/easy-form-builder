@@ -157,18 +157,35 @@ class Install {
 			// smtp (the "This site can send emails" switch) always starts OFF on a new
 			// install: no notification email is sent until the admin verifies delivery
 			// and turns it on. See Email_Monitor::mark_email_ready().
-			if($v===NULL && $s){
-				$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":false,\"bootstrap\":true,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
+			if ($v === NULL) {
+				$settings = (object) array(
+					'activeCode' => '',
+					'siteKey' => '',
+					'secretKey' => '',
+					'emailSupporter' => $eml,
+					'apiKeyMap' => '',
+					'smtp' => false,
+					'bootstrap' => false,
+					'emailTemp' => \Emsfb::get_default_email_template_efb(),
+					'email_key' => $rand,
+				);
+				$setting = wp_json_encode($settings, JSON_UNESCAPED_UNICODE);
 
 				$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id()
 				, 'date'=>current_time('mysql') , 'email'=>'' ));
 
-			}else if ($v === NULL && !$s) {
-				$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":false,\"bootstrap\":false,\"emailTemp\":\"\",\"email_key\":\"'.$rand.'\"}';
-
-				$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id()
-				, 'date'=>current_time('mysql') , 'email'=>'' ));
-
+				if ($s) {
+					// The database row is canonical, but the option/transient are read
+					// by the admin page and public handlers before their next DB lookup.
+					// Seed all three stores together on a first installation.
+					update_option('emsfb_settings', $setting);
+					set_transient('emsfb_settings_transient', $setting, 1800);
+					wp_cache_delete('settings:decoded', 'emsfb');
+					wp_cache_delete('settings:pub', 'emsfb');
+					wp_cache_delete('settings:raw', 'emsfb');
+					wp_cache_delete('emsfb_settings', 'emsfb');
+					\Emsfb::get_setting_Emsfb('_clear_cache');
+				}
 			}
 
 			// Only a genuinely new settings row should start the first-run guide.

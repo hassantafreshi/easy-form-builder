@@ -1585,6 +1585,144 @@ class Emsfb {
         return $raw;
     }
 
+    /**
+     * Return the sample template used for a brand-new installation.
+     *
+     * The email builder can generate this template in the browser, but a
+     * settings save must also be valid before an administrator opens that tab.
+     * Keep the builder data with the HTML fallback so both the editor and the
+     * server-side email renderer use the same Professional template.
+     *
+     * @return string
+     */
+    public static function get_default_email_template_efb() {
+        $direction = function_exists('is_rtl') && is_rtl() ? 'rtl' : 'ltr';
+        $message_align = $direction === 'rtl' ? 'right' : 'left';
+        $logo_url = defined('EMSFB_PLUGIN_URL')
+            ? EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png'
+            : '';
+        $disclaimer = function_exists('__')
+            ? __('This email was sent automatically. Please do not reply directly.', 'easy-form-builder')
+            : 'This email was sent automatically. Please do not reply directly.';
+
+        $builder_data = [
+            'blocks' => [
+                [
+                    'id' => 'efb-default-header',
+                    'type' => 'header',
+                    'data' => [
+                        'bgColor' => '#667eea',
+                        'padding' => '40px 30px 30px 30px',
+                        'align' => 'center',
+                    ],
+                    'children' => [
+                        [
+                            'id' => 'efb-default-logo',
+                            'type' => 'logo',
+                            'data' => [
+                                'src' => $logo_url,
+                                'alt' => 'Easy Form Builder',
+                                'width' => '120',
+                                'align' => 'center',
+                            ],
+                        ],
+                        [
+                            'id' => 'efb-default-title',
+                            'type' => 'title',
+                            'data' => [
+                                'text' => 'shortcode_title',
+                                'color' => '#ffffff',
+                                'fontSize' => '28',
+                                'fontWeight' => '600',
+                                'align' => 'center',
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-message',
+                    'type' => 'message',
+                    'data' => [
+                        'padding' => '40px 30px',
+                        'bgColor' => '#ffffff',
+                        'color' => '#333333',
+                        'fontSize' => '16',
+                        'align' => $message_align,
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-spacer',
+                    'type' => 'spacer',
+                    'data' => [
+                        'height' => '20',
+                        'bgColor' => '#ffffff',
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-footer',
+                    'type' => 'footer',
+                    'data' => [
+                        'text' => 'shortcode_website_name | shortcode_admin_email',
+                        'color' => '#6b7280',
+                        'fontSize' => '14',
+                        'align' => 'center',
+                        'bgColor' => '#f8f9fa',
+                        'padding' => '30px',
+                    ],
+                ],
+                [
+                    'id' => 'efb-default-disclaimer',
+                    'type' => 'text',
+                    'data' => [
+                        'text' => $disclaimer,
+                        'color' => '#64748b',
+                        'fontSize' => '12',
+                        'align' => 'center',
+                        'padding' => '15px 25px',
+                    ],
+                ],
+            ],
+            'globalSettings' => [
+                'bgColor' => '#f8f9fa',
+                'contentBgColor' => '#ffffff',
+                'contentWidth' => '600',
+                'borderRadius' => '8',
+                'fontFamily' => "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif",
+                'direction' => $direction,
+                'btnBgColor' => '#202a8d',
+                'btnTextColor' => '#ffffff',
+            ],
+        ];
+
+        $builder_json = function_exists('wp_json_encode')
+            ? wp_json_encode($builder_data, JSON_UNESCAPED_UNICODE)
+            : json_encode($builder_data, JSON_UNESCAPED_UNICODE);
+        if (!is_string($builder_json) || $builder_json === '') {
+            $builder_json = '{"blocks":[{"type":"message","data":{}}]}';
+        }
+
+        $safe_logo_url = function_exists('esc_url') ? esc_url($logo_url) : $logo_url;
+        $safe_disclaimer = function_exists('esc_html')
+            ? esc_html($disclaimer)
+            : htmlspecialchars($disclaimer, ENT_QUOTES, 'UTF-8');
+
+        $html = '<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" dir="' . $direction . '"><head>'
+            . '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1.0" />'
+            . '</head><body style="margin:0;padding:0;background-color:#f8f9fa;">'
+            . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" style="padding:20px 0;">'
+            . '<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;background:#ffffff;border-radius:8px;overflow:hidden;">'
+            . '<tr><td align="center" style="padding:40px 30px 30px;background:#667eea;">'
+            . '<img src="' . $safe_logo_url . '" alt="Easy Form Builder" width="120" style="display:block;width:120px;height:auto;margin:0 auto 20px;border:0;" />'
+            . '<h1 style="margin:0;color:#ffffff;font:600 28px/1.3 Arial,sans-serif;text-align:center;">shortcode_title</h1>'
+            . '</td></tr><tr><td style="padding:40px 30px;color:#333333;font:16px/1.6 Arial,sans-serif;text-align:' . $message_align . ';">shortcode_message</td></tr>'
+            . '<tr><td style="padding:30px;background:#f8f9fa;color:#6b7280;font:14px/1.5 Arial,sans-serif;text-align:center;">shortcode_website_name | shortcode_admin_email</td></tr>'
+            . '<tr><td style="padding:15px 25px;color:#64748b;font:12px/1.6 Arial,sans-serif;text-align:center;">' . $safe_disclaimer . '</td></tr>'
+            . '</table></td></tr></table></body></html>';
+
+        return $html . "\n<!-- EFBDATA:" . rawurlencode($builder_json) . ' -->';
+    }
+
     public static function get_default_settings_efb() {
         $defaults = new \stdClass();
         $defaults->activeCode        = '';
@@ -1597,7 +1735,7 @@ class Emsfb {
         $defaults->emailStatsReport  = true;
         $defaults->text              = '';
         $defaults->bootstrap         = '';
-        $defaults->emailTemp         = '';
+        $defaults->emailTemp         = self::get_default_email_template_efb();
         $defaults->emailBtnBgColor   = '#202a8d';
         $defaults->emailBtnTextColor = '#ffffff';
         $defaults->paypalPKey        = '';
