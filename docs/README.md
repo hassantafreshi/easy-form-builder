@@ -61,6 +61,7 @@ This path is the single reference index for Easy Form Builder's internal and dev
 [File upload index](uploads/README.md)
 
 - Complete end-user guide for limiting the number of uploaded files in 2 languages (automatic quota based on number of file fields, server-side size cap, content-based file type checking, cleanup of orphaned files), along with a filter reference and test list
+- Security guide for upload fields (English): the permanent extension blocklist, content-vs-extension checking, random renaming, URL re-validation at submit, Response Box attachment rules, and the per-IP rate limiting added by the Form Security & Spam Protection add-on
 
 ### Response Box
 

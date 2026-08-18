@@ -341,7 +341,7 @@ function viewfileEfb(id, indx ,filed,form_id) {
       fileEfb = [];
     }
   }
-function viewfileReplyEfb(id, indx) {
+function viewfileReplyEfb(id, indx, responseMessageId) {
     let fileType = fileEfb.type;
     const filename = fileEfb.name;
     if (validExtensions_efb_fun('allformat',fileType,indx)) {
@@ -353,7 +353,15 @@ function viewfileReplyEfb(id, indx) {
       }
       fileReader.readAsDataURL(fileEfb);
       files_emsFormBuilder.push({ id_: 'resp_file_efb', value: "@file@", state: 0, url: fileURL, type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 });
-      fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp',fileEfb);
+      const responseId = Number(responseMessageId) || Number(efb_var.msg_id) || 0;
+      let responseTrack = sessionStorage.getItem('track') || '';
+      if (!responseTrack && typeof valueJson_ws_messages !== 'undefined') {
+        const current = valueJson_ws_messages.find(x => Number(x.msg_id) === responseId);
+        responseTrack = current && current.track ? current.track : '';
+      }
+      const responseOptions = { response_id: responseId, response_track: responseTrack };
+      if (efb_var.response_upload_token) responseOptions.response_token = efb_var.response_upload_token;
+      fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp',fileEfb, responseOptions);
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
       const m  = efb_var.text.pleaseUploadA.replace('NN', `${efb_var.text['media']} , ${efb_var.text['document']} ${efb_var.text['or']} ${efb_var.text['zip']}`);
@@ -460,7 +468,7 @@ set_dadfile_fun_efb = (id, indx,form_id=0) => {
           if(pro_efb==true && dragInptEfb){
           dragInptEfb.addEventListener("change", function () {
             fileEfb = this.files[0];
-            viewfileReplyEfb('resp_file_efb_', indx);
+            viewfileReplyEfb('resp_file_efb_', indx, id);
           });
         }
         }, lenV);

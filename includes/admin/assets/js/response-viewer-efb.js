@@ -3,6 +3,31 @@ const EfbResponseViewer = (function () {
   'use strict';
 
   let _respUploadSeq = 0;
+  const _responseUploadContexts = {};
+
+  function _rememberResponseUploadContext(msgId, track, isPanel) {
+    _responseUploadContexts[String(msgId)] = {
+      response_id: Number(msgId) || 0,
+      response_track: String(track || ''),
+      is_panel: !!isPanel
+    };
+  }
+
+  function _responseUploadOptions(msgId) {
+    const context = _responseUploadContexts[String(msgId)] || {};
+    const options = {
+      response_id: context.response_id || Number(msgId) || 0,
+      response_track: context.response_track || ''
+    };
+
+    /* A visitor receives this short-lived token only after the tracking code
+       has opened the matching conversation. Dashboard uploads are authorised
+       by the logged-in capability and therefore do not need it. */
+    if (!context.is_panel && typeof efb_var !== 'undefined' && efb_var.response_upload_token) {
+      options.response_token = efb_var.response_upload_token;
+    }
+    return options;
+  }
 
   function _t(key) {
     if (typeof efb_var !== 'undefined' && efb_var.text && efb_var.text[key]) return efb_var.text[key];
@@ -184,8 +209,8 @@ const EfbResponseViewer = (function () {
     });
   }
 
-  function buildReplyActions(msgId, isPanel) {
-    const uploadHtml = buildFileUploadArea(msgId, isPanel);
+  function buildReplyActions(msgId, isPanel, track) {
+    const uploadHtml = buildFileUploadArea(msgId, isPanel, track);
     return `
     <div class="efb-reply-actions efb pb-2">
       <button type="submit" class="efb-reply-btn" id="replayB_emsFormBuilder"
@@ -214,7 +239,7 @@ const EfbResponseViewer = (function () {
     let replySection = '';
     if (formType !== 'subscribe' && formType !== 'register' && formType !== 'survey') {
       const savedValue = localStorage.getItem('replayM_emsFormBuilder_' + msg_id) || '';
-      replySection = buildRichEditor(msg_id, savedValue) + buildReplyActions(msg_id, true);
+      replySection = buildRichEditor(msg_id, savedValue) + buildReplyActions(msg_id, true, track);
     }
 
     const body = `
@@ -239,7 +264,7 @@ const EfbResponseViewer = (function () {
     }
 
     const savedValue = '';
-    const uploadHtml = buildFileUploadArea(msg_id, false);
+    const uploadHtml = buildFileUploadArea(msg_id, false, track);
     const replySection = buildRichEditor(msg_id, savedValue) + `
     <div class="efb-reply-actions">
       <button type="submit" class="efb-reply-btn" id="replayB_emsFormBuilder"
@@ -316,7 +341,9 @@ const chatHistory = document.getElementById('resp_efb');
       <input type="file" class="efb-upload-input" id="resp_file_efb_" name="file" data-id="${msgId}" multiple>`;
   }
 
-  function buildFileUploadArea(msgId, isPanel) {
+  function buildFileUploadArea(msgId, isPanel, track) {
+
+    _rememberResponseUploadContext(msgId, track, isPanel);
     if (typeof setting_emsFormBuilder !== 'undefined' &&
       setting_emsFormBuilder.hasOwnProperty('dsupfile') &&
       setting_emsFormBuilder.dsupfile == false &&
@@ -516,7 +543,7 @@ const chatHistory = document.getElementById('resp_efb');
       reader.readAsDataURL(file);
 
       if (typeof fun_upload_file_api_emsFormBuilder === 'function') {
-        fun_upload_file_api_emsFormBuilder(uploadId, 'allformat', 'resp', file);
+        fun_upload_file_api_emsFormBuilder(uploadId, 'allformat', 'resp', file, _responseUploadOptions(msgId));
       }
     }
   }

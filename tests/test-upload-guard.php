@@ -55,6 +55,7 @@ function add_action($hook, $callback, $priority = 10, $args = 1) {}
 function esc_html__($text, $domain = '') { return $text; }
 function _n($single, $plural, $number, $domain = '') { return $number === 1 ? $single : $plural; }
 function wp_basename($path) { return basename(str_replace('\\', '/', $path)); }
+function absint($value) { return abs((int) $value); }
 function wp_normalize_path($path) { return str_replace('\\', '/', $path); }
 function trailingslashit($path) { return rtrim($path, '/\\') . '/'; }
 function size_format($bytes, $decimals = 0) { return round($bytes / 1048576, $decimals) . ' MB'; }
@@ -64,6 +65,10 @@ function get_transient($key) {
 }
 function set_transient($key, $value, $ttl = 0) {
     $GLOBALS['efb_transients'][$key] = $value;
+    return true;
+}
+function delete_transient($key) {
+    unset($GLOBALS['efb_transients'][$key]);
     return true;
 }
 function get_option($key, $default = false) {
@@ -174,6 +179,11 @@ test('hostile field setting is capped at 1 GB', Upload_Guard::max_bytes(999999),
 $GLOBALS['efb_host_limit'] = 2 * 1024 * 1024; // Tight host.
 test('host limit 2 MB lowers a field set to 8 MB', Upload_Guard::max_bytes(8), 2 * 1024 * 1024);
 $GLOBALS['efb_host_limit'] = 64 * 1024 * 1024;
+test(
+    'PHP-level oversized request reports the field cap',
+    Upload_Guard::validate_file(array('error' => UPLOAD_ERR_INI_SIZE), array('max_mb' => 2)),
+    Upload_Guard::size_message(2 * 1024 * 1024)
+);
 
 /* ---------------------------------------------------------------------------
  * 4. Counting upload fields (drives the quota budget).
@@ -286,9 +296,45 @@ $size_msg = Upload_Guard::size_message(8 * 1024 * 1024);
 test('size message names the ceiling', strpos($size_msg, '8 MB') !== false, true);
 
 /* ---------------------------------------------------------------------------
- * 8. Pending ledger bookkeeping.
+ * 8. Stored files: final form submission must re-check the bytes on disk.
  * ------------------------------------------------------------------------ */
-echo "\n--- 8. LEDGER: track and release ---\n";
+echo "\n--- 8. STORED FILES: final submission cannot bypass field rules ---\n";
+$stored_pdf = sys_get_temp_dir() . '/efb-upload-guard-real.pdf';
+$stored_php_as_pdf = sys_get_temp_dir() . '/efb-upload-guard-report.pdf';
+$stored_svg = sys_get_temp_dir() . '/efb-upload-guard-logo.svg';
+$stored_big = sys_get_temp_dir() . '/efb-upload-guard-big.txt';
+file_put_contents($stored_pdf, "%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n");
+file_put_contents($stored_php_as_pdf, "<?php echo 'not a PDF';\n");
+file_put_contents($stored_svg, '<svg xmlns="http://www.w3.org/2000/svg"></svg>');
+file_put_contents($stored_big, str_repeat('x', 1024 * 1024 + 1));
+
+test(
+    'a real PDF is accepted from disk',
+    Upload_Guard::validate_stored_file($stored_pdf, 'report.pdf', array('field_extensions' => array('pdf'))),
+    true
+);
+test(
+    'PHP renamed to .pdf is refused from disk',
+    Upload_Guard::validate_stored_file($stored_php_as_pdf, 'report.pdf', array('field_extensions' => array('pdf'))) === Upload_Guard::type_message(),
+    true
+);
+test(
+    '.svg is refused from disk even for all formats',
+    Upload_Guard::validate_stored_file($stored_svg, 'logo.svg') === Upload_Guard::type_message(),
+    true
+);
+$stored_size_error = Upload_Guard::validate_stored_file($stored_big, 'big.txt', array('max_mb' => 1));
+test('stored file over the field cap is refused', $stored_size_error === Upload_Guard::size_message(1024 * 1024), true);
+
+@unlink($stored_pdf);
+@unlink($stored_php_as_pdf);
+@unlink($stored_svg);
+@unlink($stored_big);
+
+/* ---------------------------------------------------------------------------
+ * 9. Pending ledger bookkeeping.
+ * ------------------------------------------------------------------------ */
+echo "\n--- 9. LEDGER: track and release ---\n";
 $GLOBALS['efb_options'] = array();
 $tmp_file = sys_get_temp_dir() . '/efb-PLG-260728-TESTAAAA.pdf';
 file_put_contents($tmp_file, 'x');
@@ -304,6 +350,26 @@ test('a submitted file is released from the ledger', isset($ledger['efb-PLG-2607
 Upload_Guard::track_pending_upload('/nowhere/does-not-exist.pdf');
 $ledger = get_option(\Emsfb\Upload_Guard::PENDING_OPTION, array());
 test('a non-existent path is not tracked', isset($ledger['does-not-exist.pdf']), false);
+
+/* ---------------------------------------------------------------------------
+ * 10. Response-box reservations - broad safe format, ticket-bound delivery.
+ * ------------------------------------------------------------------------ */
+echo "\n--- 10. RESPONSE BOX: attachment is bound to its ticket ---\n";
+$response_file = 'efb-PLG-260728-RESPTEST.pdf';
+$response_url = 'https://example.com/wp-content/uploads/' . $response_file;
+$response_payload = array(
+    (object) array('id_' => 'message', 'type' => 'text', 'value' => 'Reply'),
+    (object) array('id_' => 'resp_file_efb_1', 'type' => 'allformat', 'url' => $response_url),
+);
+
+test('response attachment reservation is created', Upload_Guard::reserve_response_attachment($response_file, 42, 'TRACK-42'), true);
+test('same ticket may save its attachment', Upload_Guard::response_attachment_is_reserved($response_url, 42, 'TRACK-42'), true);
+test('different ticket cannot reuse its attachment', Upload_Guard::response_attachment_is_reserved($response_url, 43, 'TRACK-43'), false);
+test('different tracking code cannot reuse its attachment', Upload_Guard::response_attachment_is_reserved($response_url, 42, 'OTHER-TRACK'), false);
+test('response reply finds its safe attachment URL', Upload_Guard::response_attachment_urls($response_payload), array($response_url));
+test('malformed response attachment is rejected', Upload_Guard::response_attachment_urls(array((object) array('type' => 'allformat'))), false);
+Upload_Guard::release_response_attachment_reservations($response_url);
+test('reservation is consumed only after a reply is saved', Upload_Guard::response_attachment_is_reserved($response_url, 42, 'TRACK-42'), false);
 
 echo "\n========================================\n";
 echo "RESULTS: $pass passed, $fail failed\n";

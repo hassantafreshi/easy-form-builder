@@ -12,7 +12,7 @@ secondary_keyphrases:
 search_intent: "instructional and configuration guide"
 audience: "WordPress site owners and administrators using Easy Form Builder"
 product_version: "Easy Form Builder 4.1.2 and later"
-last_reviewed: "2026-07-29"
+last_reviewed: "2026-08-16"
 ---
 
 # How to Use the Email Template Builder in Easy Form Builder
@@ -36,7 +36,7 @@ This guide describes exactly what is implemented in the plugin's code: what opti
 - **5 dynamic shortcodes**; only `shortcode_message` is required.
 - No image upload — the Image and Logo blocks take a **URL** only.
 - Save limit: **50,000 characters** maximum, and `shortcode_message` must be present.
-- If you never open this tab, your site's emails use the plugin's original built-in design — not a blank template.
+- On a new installation, the Professional template is saved and active immediately. Existing sites with an intentionally empty template continue to use the plugin's original built-in design.
 - Your design only shows up in **actual outgoing email**; the "Check Email Server" tool on the Email Settings tab does not use your template.
 
 ## Table of contents
@@ -61,7 +61,7 @@ Path: **Panel → top menu of the panel, Settings → Email Template tab**.
 
 The full order of the eight settings tabs, so you can find it faster: General · Responses & Confirmation · Captchas · Email Settings · **Email Template** · Localization · Payments · SMS Configuration.
 
-The first time you open this tab, the canvas is not empty — the builder automatically loads the **Professional** template into it so you are not staring at a blank page. But that is only a starting point inside the editor, **not an autosave**; the [If you never open this tab](#if-you-never-open-this-tab) section below explains why that distinction matters.
+On a new installation, the **Professional** template is already stored and opens as the active design. On an older site with no saved template, the builder loads Professional as an editor-only starting point so you are not staring at a blank page.
 
 Like every other settings tab, the **Save** button at the bottom of the page is shared across all tabs; changes on this tab are not permanent until you press it.
 
@@ -206,9 +206,9 @@ For the last two, what lands inside the message area is no longer "form data" �
 
 ## If you never open this tab
 
-If you have never saved anything on this tab, your site's emails run entirely on the plugin's **built-in default design**: a navy gradient header with the Easy Form Builder logo and a title, the message body, and a "Sent by [site name]" footer. This built-in design has nothing to do with the builder's blocks — it is defined entirely in the plugin's own PHP code.
+On a new installation, the **Professional** template is stored during activation, so it is used for outgoing emails even if you never open this tab. It includes the required `shortcode_message` block and can be edited immediately in the builder.
 
-A subtlety worth knowing: opening the Email Template tab for the first time loads the "Professional" template into the canvas so the page isn't blank — but that is only a preview inside the editor. Nothing about your site's actual outgoing email changes until you press the settings page's **Save** button; until then, the built-in default design stays active.
+Existing sites whose template is intentionally empty keep the plugin's **built-in default design** until a template is saved. Opening this tab on those sites still loads Professional as an editor-only starting point; press **Save** to make it active.
 
 ## Security: what gets stripped
 
@@ -253,7 +253,7 @@ Global. You design it once and it applies to the emails of every form on the sit
 No. The email template builder itself — all 13 blocks, all 6 ready-made templates, the global settings, and the shortcodes — is fully available in the free version.
 
 **Why do I see a ready-made design when I open the tab, even though I've never saved anything?**
-The builder loads the "Professional" template into the editor as a convenient starting point. Until you save, your site's actual email still uses the plugin's built-in default design, not this starting point.
+On a new installation, Professional is already the saved active template. On an older site with an empty template, it is loaded as a convenient editor starting point and becomes active after you save.
 
 **Can I build a fully custom Custom HTML block?**
 Yes, as long as it contains no `<script>` tag and fits within the template's overall 50,000-character limit. Other dangerous code (on* event handlers, javascript: URLs, and similar) is stripped automatically.

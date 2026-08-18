@@ -1163,6 +1163,34 @@ class Admin {
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id];
         wp_send_json_success($response, 200);
     }
+    /**
+     * Dashboard replies use the same reservation that protects public
+     * Response Boxes. The dashboard capability authorises the upload; this
+     * check keeps an uploaded URL bound to the ticket currently being replied
+     * to instead of accepting an arbitrary URL from the browser.
+     *
+     * @return string[]|false Attachment URLs, or false when not authorised.
+     */
+    private function dashboard_response_attachments_are_reserved_efb($message, $message_id) {
+        if (!class_exists('\\Emsfb\\Upload_Guard')) return array();
+
+        $table_name = $this->db->prefix . 'emsfb_msg_';
+        $track = (string) $this->db->get_var(
+            $this->db->prepare("SELECT track FROM `$table_name` WHERE msg_id = %d LIMIT 1", absint($message_id))
+        );
+        if ($track === '') return false;
+
+        $urls = \Emsfb\Upload_Guard::response_attachment_urls($message);
+        if ($urls === false) return false;
+        foreach ($urls as $url) {
+            if (!\Emsfb\Upload_Guard::response_attachment_is_reserved($url, $message_id, $track)) {
+                return false;
+            }
+        }
+
+        return $urls;
+    }
+
     public function set_replyMessage_id_Emsfb() {
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
         $efbFunction = get_efbFunction();
@@ -1229,6 +1257,13 @@ class Admin {
 							wp_send_json_success($response, 200);
 						}
 				}
+				$response_attachment_urls = $this->dashboard_response_attachments_are_reserved_efb($message, $id);
+				if ($response_attachment_urls === false) {
+					wp_send_json_success(array(
+						'success' => false,
+						'm' => esc_html__('The response attachment could not be verified. Please attach the file again.', 'easy-form-builder'),
+					), 200);
+				}
                 $m = json_encode($message,JSON_UNESCAPED_UNICODE);
 				$m = str_replace('"', '\\"', $m);
                 if(empty($this->db)){
@@ -1243,7 +1278,7 @@ class Admin {
         }
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $ip = $this->ip;
-        $this->db->insert(
+        $reply_inserted = $this->db->insert(
             $table_name,
             [
                 'ip'      => $ip,
@@ -1254,6 +1289,13 @@ class Admin {
                 'date'    => wp_date('Y-m-d H:i:s')
             ]
         );
+        if ($reply_inserted === false) {
+            wp_send_json_success(['success' => false, 'm' => $lang['somethingWentWrongPleaseRefresh']], 200);
+        }
+        if (!empty($response_attachment_urls)) {
+            \Emsfb\Upload_Guard::release_pending_uploads($response_attachment_urls);
+            \Emsfb\Upload_Guard::release_response_attachment_reservations($response_attachment_urls);
+        }
         $table_name = $this->db->prefix . "emsfb_msg_";
         $this->db->update($table_name,array('read_'=>1), array('msg_id' => $id) );
         $m        = $lang['messageSent'];

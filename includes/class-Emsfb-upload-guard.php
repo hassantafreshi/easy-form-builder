@@ -57,6 +57,17 @@ class Upload_Guard {
     /** Option holding files written but not yet attached to a submission. */
     const PENDING_OPTION = 'emsfb_pending_uploads';
 
+    /**
+     * A short-lived reservation for an attachment uploaded into a Response
+     * Box.  Unlike the pending-upload ledger this is intentionally per-file:
+     * it proves that the stored file belongs to one particular support ticket
+     * when the reply is finally saved.
+     */
+    const RESPONSE_ATTACHMENT_PREFIX = 'emsfb_response_attachment_';
+
+    /** Response-box attachments may be submitted for up to thirty minutes. */
+    const RESPONSE_ATTACHMENT_TTL = 1800;
+
     /** Cron hook that sweeps abandoned uploads. */
     const CLEANUP_HOOK = 'emsfb_cleanup_orphan_uploads';
 
@@ -743,6 +754,22 @@ class Upload_Guard {
         $name = isset($file['name']) ? (string) $file['name'] : '';
         $tmp  = isset($file['tmp_name']) ? (string) $file['tmp_name'] : '';
         $size = isset($file['size']) ? (int) $file['size'] : 0;
+		$error = isset($file['error']) ? (int) $file['error'] : UPLOAD_ERR_OK;
+
+		$max_bytes = self::max_bytes(
+			isset($context['max_mb']) ? $context['max_mb'] : null,
+			$context
+		);
+
+		/* PHP may reject an oversized multipart body before it creates a temp
+		 * file. Translate that transport-level failure into the same useful,
+		 * field-specific size message as a file we were able to inspect. */
+		if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
+			return self::size_message($max_bytes);
+		}
+		if ($error !== UPLOAD_ERR_OK) {
+			return esc_html__('The file could not be read. Please try attaching it again.', 'easy-form-builder');
+		}
 
         if ($tmp === '' || !is_uploaded_file($tmp) || !is_readable($tmp)) {
             return esc_html__('The file could not be read. Please try attaching it again.', 'easy-form-builder');
@@ -753,11 +780,6 @@ class Upload_Guard {
         if (is_int($actual) && $actual > 0) {
             $size = $actual;
         }
-
-        $max_bytes = self::max_bytes(
-            isset($context['max_mb']) ? $context['max_mb'] : null,
-            $context
-        );
 
         if ($size < 1) {
             return esc_html__('This file appears to be empty. Please choose a different file.', 'easy-form-builder');
@@ -776,6 +798,176 @@ class Upload_Guard {
         }
 
         return true;
+    }
+
+    /**
+     * Re-validate a file that was already written by a previous upload
+     * request. Final form submission is a separate request, so it must not
+     * trust that the URL supplied by the browser was uploaded through the
+     * intended form field.
+     *
+     * This deliberately mirrors validate_file(), apart from the
+     * is_uploaded_file() assertion: a completed upload is no longer a PHP
+     * temporary upload by the time the form is submitted.
+     *
+     * @param string $path     Absolute path to a stored upload.
+     * @param string $filename Name whose extension is being validated.
+     * @param array  $context  See validate_file().
+     * @return true|string true when acceptable, otherwise a visitor-safe message.
+     */
+    public static function validate_stored_file($path, $filename = '', $context = array()) {
+        $path = (string) $path;
+        if ($path === '' || !is_file($path) || !is_readable($path)) {
+            return esc_html__('The uploaded file could not be verified. Please attach it again.', 'easy-form-builder');
+        }
+
+        $filename = $filename !== '' ? (string) $filename : basename($path);
+        $size     = @filesize($path);
+        if (!is_int($size) || $size < 1) {
+            return esc_html__('This file appears to be empty. Please choose a different file.', 'easy-form-builder');
+        }
+
+        $max_bytes = self::max_bytes(
+            isset($context['max_mb']) ? $context['max_mb'] : null,
+            $context
+        );
+
+        if ($size > $max_bytes) {
+            return self::size_message($max_bytes);
+        }
+
+        $extension = self::extension_of($filename);
+        $real_mime = self::sniff_mime($path);
+        $field_ext = isset($context['field_extensions']) ? (array) $context['field_extensions'] : array();
+
+        if (!self::is_allowed_type($extension, $real_mime, $field_ext)) {
+            return self::type_message();
+        }
+
+        return true;
+    }
+
+    /* ---------------------------------------------------------------------
+     * Response-box attachment reservations
+     * ------------------------------------------------------------------ */
+
+    /**
+     * Keep a response attachment tied to the ticket it was uploaded for.
+     *
+     * Uploading and sending a reply are separate HTTP requests.  A pending
+     * ledger alone only tells us that the file exists; it cannot distinguish
+     * an attachment uploaded for ticket A from one later pasted into ticket B.
+     * This small, expiring reservation provides that missing binding.
+     *
+     * @param string $path       Stored path (or a generated file name).
+     * @param int    $message_id Support message id.
+     * @param string $track      Ticket tracking code.
+     * @return bool
+     */
+    public static function reserve_response_attachment($path, $message_id, $track) {
+        $basename   = wp_basename((string) $path);
+        $message_id = absint($message_id);
+        $track      = (string) $track;
+
+        if ($basename === '' || $message_id < 1 || $track === '') {
+            return false;
+        }
+
+        $record = array(
+            'message_id' => $message_id,
+            /* Never store a tracking code in a transient in clear text. */
+            'track_hash' => hash('sha256', $track),
+        );
+
+        return (bool) set_transient(
+            self::response_attachment_key($basename),
+            $record,
+            self::RESPONSE_ATTACHMENT_TTL
+        );
+    }
+
+    /**
+     * Check whether an attachment was uploaded for this exact ticket.
+     *
+     * @param string $name_or_url File name or URL.
+     * @param int    $message_id  Support message id.
+     * @param string $track       Ticket tracking code.
+     * @return bool
+     */
+    public static function response_attachment_is_reserved($name_or_url, $message_id, $track) {
+        $basename   = wp_basename((string) $name_or_url);
+        $message_id = absint($message_id);
+        $track      = (string) $track;
+        if ($basename === '' || $message_id < 1 || $track === '') {
+            return false;
+        }
+
+        $record = get_transient(self::response_attachment_key($basename));
+        if (!is_array($record) || !isset($record['message_id'], $record['track_hash'])) {
+            return false;
+        }
+
+        return (int) $record['message_id'] === $message_id
+            && hash_equals((string) $record['track_hash'], hash('sha256', $track));
+    }
+
+    /**
+     * Read attachment URLs from a decoded reply payload.
+     *
+     * Response Box files are the only `allformat` items in a reply.  Returning
+     * false for a malformed item keeps both REST and dashboard save handlers
+     * from accidentally accepting a hand-crafted attachment object.
+     *
+     * @param array|object $message Decoded reply payload.
+     * @return string[]|false URLs, or false when an attachment is malformed.
+     */
+    public static function response_attachment_urls($message) {
+        if (!is_array($message)) {
+            return false;
+        }
+
+        $urls = array();
+        foreach ($message as $item) {
+            $type = is_object($item) && isset($item->type)
+                ? (string) $item->type
+                : (is_array($item) && isset($item['type']) ? (string) $item['type'] : '');
+            if ($type !== 'allformat') {
+                continue;
+            }
+
+            $url = is_object($item) && isset($item->url)
+                ? $item->url
+                : (is_array($item) && isset($item['url']) ? $item['url'] : '');
+            if (!is_string($url) || $url === '') {
+                return false;
+            }
+            $urls[] = $url;
+        }
+
+        return array_values(array_unique($urls));
+    }
+
+    /**
+     * Remove reservations after their reply was successfully saved.
+     *
+     * @param string|string[] $names File names or URLs.
+     * @return void
+     */
+    public static function release_response_attachment_reservations($names) {
+        foreach ((array) $names as $name) {
+            $basename = wp_basename((string) $name);
+            if ($basename !== '') {
+                delete_transient(self::response_attachment_key($basename));
+            }
+        }
+    }
+
+    /**
+     * @param string $basename Plugin-generated filename.
+     * @return string Transient key, independent of the original filename.
+     */
+    private static function response_attachment_key($basename) {
+        return self::RESPONSE_ATTACHMENT_PREFIX . hash('sha256', wp_basename((string) $basename));
     }
 
     /* ---------------------------------------------------------------------

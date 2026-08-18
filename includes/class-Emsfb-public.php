@@ -151,17 +151,22 @@ public function check_nonce_permission_efb($request) {
 		$sid = sanitize_text_field( wp_unslash($_SERVER['HTTP_SID'] ?? ''));
 			$fid = sanitize_text_field( wp_unslash($_SERVER['HTTP_X_EFB_FORM_ID'] ?? $_SERVER['HTTP_FORM_ID'] ?? ''));
 
-		if (!empty($sid) && $fid !== '') {
+		/* A Response Box attachment belongs to a ticket, not to a form, so it
+		 * legitimately carries no form id. efb_code_validate_select() already
+		 * has a branch for that (fid 0), but demanding a non-empty $fid here
+		 * meant this fallback could never run for those uploads: one stale
+		 * nonce and the attachment died on a bare 403 with no way to recover.
+		 * A live session is proof enough on its own - the response box still
+		 * has to clear its own ticket check in resolve_response_upload_scope_efb. */
+		if (!empty($sid)) {
 			if (!$this->efbFunction) {
 				$this->efbFunction = get_efbFunction();
 			}
 
-			$sid_valid = $this->efbFunction->efb_code_validate_select($sid, $fid);
+			$sid_valid = $this->efbFunction->efb_code_validate_select($sid, $fid === '' ? 0 : $fid);
 			if ($sid_valid) {
 					return true;
 			}
-		} else {
-			return new \WP_Error('rest_forbidden', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
 		}
 
 		return new \WP_Error('rest_forbidden', __('Invalid or expired nonce', 'easy-form-builder'), array('status' => 403));
@@ -183,6 +188,21 @@ public function check_nonce_permission_efb($request) {
 	 * so a genuinely open form keeps working without repeated 403s.
 	 */
 	public function efb_nonce_refresh_api() {
+
+		/* Core's rest_cookie_check_errors() drops the current user to 0 for any
+		 * REST request that carries no nonce - which is precisely how this
+		 * endpoint is called. Minting the replacement in that state handed a
+		 * logged-in browser a logged-out nonce, so the retry that followed
+		 * failed the cookie check just like the request it was meant to rescue
+		 * and the caller stayed stuck on 403. Restore the identity the auth
+		 * cookie already proves (it is HMAC-verified, so this asserts nothing
+		 * the cookie does not) before creating the token. */
+		if ( ! is_user_logged_in() && defined( 'LOGGED_IN_COOKIE' ) && ! empty( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
+			$cookie_user_id = wp_validate_auth_cookie( wp_unslash( $_COOKIE[ LOGGED_IN_COOKIE ] ), 'logged_in' );
+			if ( $cookie_user_id ) {
+				wp_set_current_user( $cookie_user_id );
+			}
+		}
 
 		if ( is_user_logged_in() ) {
 			return new \WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
@@ -1919,7 +1939,7 @@ public function check_nonce_permission_efb($request) {
 		$request_data = $data_POST_->get_json_params();
 
 		$translation_keys = [
-			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
+			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
 			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
 			'surveyResults', 'responses'
@@ -2038,11 +2058,23 @@ public function check_nonce_permission_efb($request) {
 			$submitted_values = [];
 		}
 
+		// The client seeds one placeholder row per upload field at render time and
+		// posts it whether or not anything was ever attached, so a submission is
+		// never literally empty on a form that has a file field. Drop those rows
+		// before anything reads $submitted_values: they are not the visitor's
+		// data, and treating them as data is what made an untouched optional
+		// upload field answer "Please enter valid value for the ... field." and
+		// hid the fact that the whole form had been left blank.
+		$submitted_values = $this->strip_untouched_upload_rows_efb($submitted_values);
+
 		if ( empty($submitted_values)) {
 
-			$msg = 'Form data not found.';
-			if (isset($this->lanText) && isset($this->lanText['snotfound']) && isset($this->lanText['fform'])) {
-				$msg = sprintf($this->lanText['snotfound'], ucfirst($this->lanText['fform']));
+			/* Same phrase core-efb.js already shows when it catches a blank form
+			 * locally (validation_before_send_efb), so the visitor sees one
+			 * message for one condition whichever side notices it first. */
+			$msg = 'Please complete the form.';
+			if (isset($this->lanText['PleaseFillForm'])) {
+				$msg = $this->lanText['PleaseFillForm'];
 			}
 
 			$response = ['success' => false, 'm' =>$msg];
@@ -2591,7 +2623,8 @@ public function check_nonce_permission_efb($request) {
 												$s = 1;
 											}
 										}
-										if ($s == 1 && $this->is_valid_recorder_upload_url_efb($item['url'], $f['type'])) {
+									$upload_validation = $s == 1 ? $this->validate_submitted_upload_url_efb($item['url'], $f) : false;
+									if ($upload_validation === true) {
 											$item['url'] = sanitize_url($item['url']);
 											$validated_item = $item;
 											$is_valid = 1;
@@ -2599,7 +2632,30 @@ public function check_nonce_permission_efb($request) {
 											$item = null;
 											$validated_item = null;
 											$is_valid = 0;
+											/* Name the field holding the rejected file. The
+											 * attribution recorded before this switch belongs to
+											 * whichever field matched last, so leaving it in place
+											 * reported the problem against a neighbouring field. */
+											$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+											$error_message = is_string($upload_validation) && $upload_validation !== ''
+												? $upload_validation
+												: \Emsfb\Upload_Guard::type_message();
 										}
+									} else {
+										/* The row names this upload field and carries something other
+										 * than the seeded default, but no usable URL - the upload never
+										 * completed. Leaving $is_valid untouched here let it inherit the
+										 * previous field's success, so the file was dropped without
+										 * a word and whichever field failed next took the blame.
+										 * Untouched placeholders never reach this branch: they are
+										 * removed by strip_untouched_upload_rows_efb() up front. */
+										$item = null;
+										$validated_item = null;
+										$is_valid = 0;
+										$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+										$error_message = isset($this->lanText['mnvvXXX_']) && isset($f['name'])
+											? str_replace('%s', '<b>' . $f['name'] . '</b>', $this->lanText['mnvvXXX_'])
+											: \Emsfb\Upload_Guard::type_message();
 									}
 									$still_processing = false;
 									break;
@@ -2698,6 +2754,15 @@ public function check_nonce_permission_efb($request) {
 							}
 						}
 					});
+					/* This field came through clean, so drop the provisional error
+					 * text recorded while it was being checked. It was only ever a
+					 * placeholder, and keeping it meant a later failure that sets no
+					 * message of its own - an empty submission, most of all - was
+					 * reported against this field instead of the real one. */
+					if ($is_valid == 1) {
+						$error_message  = '';
+						$error_field_id = '';
+					}
 					if (isset($validated_item)) {
 						array_push($validated_items, $validated_item);
 					};
@@ -3480,6 +3545,87 @@ public function check_nonce_permission_efb($request) {
 		set_transient( 'efb_trk_f_' . $hash, $fails + 1, $fail_window );
 	}
 
+	/*
+	 * A Response Box is not a form field.  It deliberately accepts every safe
+	 * file type, but only while the caller is working on an existing ticket.
+	 * The helpers below establish that ticket scope once and reuse it for the
+	 * upload and the final reply save.
+	 */
+	private function response_upload_token_key_efb($token) {
+		return 'emsfb_response_upload_' . hash('sha256', (string) $token);
+	}
+
+	private function issue_response_upload_token_efb($message_id, $track) {
+		$token = wp_generate_password(48, false, false);
+		$record = array(
+			'message_id' => absint($message_id),
+			'track_hash' => hash('sha256', (string) $track),
+			'ip_hash'    => hash('sha256', $this->get_ip_address()),
+		);
+		set_transient($this->response_upload_token_key_efb($token), $record, 30 * MINUTE_IN_SECONDS);
+		return $token;
+	}
+
+	private function user_can_manage_response_box_efb() {
+		return is_user_logged_in()
+			&& (current_user_can('manage_options') || current_user_can('Emsfb'));
+	}
+
+	private function response_ticket_track_efb($message_id) {
+		$message_id = absint($message_id);
+		if ($message_id < 1) return '';
+		if (empty($this->db)) {
+			global $wpdb;
+			$this->db = $wpdb;
+		}
+		$table_name = $this->db->prefix . 'emsfb_msg_';
+		return (string) $this->db->get_var(
+			$this->db->prepare("SELECT track FROM `$table_name` WHERE msg_id = %d LIMIT 1", $message_id)
+		);
+	}
+
+	/**
+	 * Resolve a response-box upload to a real message. Dashboard users are
+	 * authorised by their WordPress capability; public users must present the
+	 * short-lived token issued only after looking up this exact tracking code.
+	 *
+	 * @return array|false Message id and canonical track, or false when denied.
+	 */
+	private function resolve_response_upload_scope_efb($message_id, $track, $token = '') {
+		$message_id = absint($message_id);
+		$track = sanitize_text_field((string) $track);
+		if ($message_id < 1 || $track === '') return false;
+
+		$stored_track = $this->response_ticket_track_efb($message_id);
+		if ($stored_track === '' || !hash_equals($stored_track, $track)) return false;
+
+		if (!$this->user_can_manage_response_box_efb()) {
+			$token = (string) $token;
+			$record = $token === '' ? false : get_transient($this->response_upload_token_key_efb($token));
+			if (!is_array($record)
+				|| !isset($record['message_id'], $record['track_hash'], $record['ip_hash'])
+				|| (int) $record['message_id'] !== $message_id
+				|| !hash_equals((string) $record['track_hash'], hash('sha256', $stored_track))
+				|| !hash_equals((string) $record['ip_hash'], hash('sha256', $this->get_ip_address()))) {
+				return false;
+			}
+		}
+
+		return array('message_id' => $message_id, 'track' => $stored_track);
+	}
+
+	private function response_attachments_are_reserved_efb($message, $message_id, $track) {
+		if (!class_exists('\\Emsfb\\Upload_Guard')) return array();
+		$urls = \Emsfb\Upload_Guard::response_attachment_urls($message);
+		if ($urls === false) return false;
+		foreach ($urls as $url) {
+			if (!\Emsfb\Upload_Guard::response_attachment_is_reserved($url, $message_id, $track)) {
+				return false;
+			}
+		}
+		return $urls;
+	}
+
 	  public function get_track_public_api($data_POST_) {
 
 		$data_POST = $data_POST_->get_json_params();
@@ -3577,7 +3723,8 @@ public function check_nonce_permission_efb($request) {
 						}
 					}
 				}
-				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code , 'id'=>$this->id);
+				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code , 'id'=>$this->id,
+					'response_upload_token' => $this->issue_response_upload_token_efb($this->id, $value[0]->track));
 			}else{
 				// Count this miss toward the per-IP enumeration throttle.
 				$this->efb_track_register_failure();
@@ -3845,25 +3992,37 @@ public function check_nonce_permission_efb($request) {
 	 * checked against this server-side source of truth, never against the field
 	 * type, size or duration supplied by the browser.
 	 */
-	private function get_recorder_field_definition_efb($form_id, $field_id) {
+	private function get_upload_field_definition_efb($form_id, $field_id) {
 		if ($form_id < 1 || !is_string($field_id) || $field_id === '') return null;
 		$form_data = $this->get_form_data_efb($form_id, array('form_structer'));
 		$raw = isset($form_data->form_structer) ? $form_data->form_structer : '';
 		if (!is_string($raw) || $raw === '') return null;
 
-		$candidates = array($raw, stripslashes($raw));
+		/* Older records contain escaped JSON while newer records may contain
+		 * ordinary JSON. Try both representations, without trusting anything
+		 * supplied by the browser. */
+		$candidates = array($raw, stripslashes($raw), str_replace('\\', '', $raw));
 		foreach (array_unique($candidates) as $candidate) {
 			$fields = json_decode($candidate, true);
 			if (is_string($fields)) $fields = json_decode($fields, true);
 			if (!is_array($fields)) continue;
 			foreach ($fields as $field) {
-				if (!is_array($field)) continue;
-				if (!isset($field['id_'], $field['type'])) continue;
+				if (!is_array($field) || !isset($field['id_'], $field['type'])) continue;
 				if ((string) $field['id_'] !== $field_id) continue;
-				if (in_array($field['type'], array('audio_recorder', 'video_recorder', 'screen_recorder'), true)) return $field;
+				if (in_array($field['type'], array('dadfile', 'file', 'audio_recorder', 'video_recorder', 'screen_recorder'), true)) {
+					return $field;
+				}
 			}
 		}
+
 		return null;
+	}
+
+	private function get_recorder_field_definition_efb($form_id, $field_id) {
+		$field = $this->get_upload_field_definition_efb($form_id, $field_id);
+		return is_array($field) && in_array($field['type'], array('audio_recorder', 'video_recorder', 'screen_recorder'), true)
+			? $field
+			: null;
 	}
 
 	private function recorder_upload_error_response_efb($message) {
@@ -4115,11 +4274,12 @@ public function check_nonce_permission_efb($request) {
 		return array('success' => true, 'ID' => 'id', 'file' => $upload, 'name' => $stored_file['name'], 'type' => $detected_mime, 'duration' => $actual_duration);
 	}
 
-	/* Final form submission is a separate request from file upload. Re-check that
-	 * the submitted recorder URL resolves to a real file inside this WordPress
-	 * upload directory and that its extension still matches the field kind. */
-	private function is_valid_recorder_upload_url_efb($url, $field_type) {
+	/* Final form submission is separate from the upload request. Re-check every
+	 * submitted file against the saved field, so changing pl/fid in a direct
+	 * request cannot turn a restricted field into an unrestricted attachment. */
+	private function validate_submitted_upload_url_efb($url, $field) {
 		if (!is_string($url) || $url === '' || !function_exists('wp_upload_dir')) return false;
+		if (!is_array($field) || empty($field['type'])) return false;
 		$uploads = wp_upload_dir();
 		$base_url = rtrim(isset($uploads['baseurl']) ? $uploads['baseurl'] : '', '/');
 		$base_dir = isset($uploads['basedir']) ? $uploads['basedir'] : '';
@@ -4130,19 +4290,33 @@ public function check_nonce_permission_efb($request) {
 		$base_path = wp_normalize_path(realpath($base_dir));
 		$real_path = realpath($path);
 		if ($base_path === false || $real_path === false || strpos(wp_normalize_path($real_path), trailingslashit($base_path)) !== 0 || !is_file($real_path)) return false;
+		$field_max_mb = isset($field['max_fsize']) && is_numeric($field['max_fsize']) && floatval($field['max_fsize']) > 0
+			? floatval($field['max_fsize'])
+			: null;
+		$upload_context = array(
+			'source'           => 'form',
+			'form_id'          => isset($this->id) ? absint($this->id) : 0,
+			'field_id'         => isset($field['id_']) ? (string) $field['id_'] : '',
+			'max_mb'           => $field_max_mb,
+			'field_extensions' => \Emsfb\Upload_Guard::field_extensions($field, 'form'),
+		);
+		$validation = \Emsfb\Upload_Guard::validate_stored_file($real_path, basename($real_path), $upload_context);
+		if ($validation !== true) return $validation;
+
 		$extension = strtolower(pathinfo($real_path, PATHINFO_EXTENSION));
+		$field_type = (string) $field['type'];
 		if ($field_type === 'audio_recorder') {
-			return in_array($extension, array('webm', 'm4a', 'mp4', 'ogg', 'oga'), true);
+			return in_array($extension, array('webm', 'm4a', 'mp4', 'ogg', 'oga'), true)
+				? true
+				: \Emsfb\Upload_Guard::type_message();
 		}
 		if ($field_type === 'video_recorder' || $field_type === 'screen_recorder') {
-			return in_array($extension, array('webm', 'mp4'), true);
+			return in_array($extension, array('webm', 'mp4'), true)
+				? true
+				: \Emsfb\Upload_Guard::type_message();
 		}
-		/* file / dadfile fields accept many document kinds, including custom
-		 * per-field extension lists, so the uploads-dir containment check above is
-		 * the real guard here; only refuse executable/server-side extensions
-		 * (same block list as file_upload_api). */
-		$blocked = array('php','php3','php4','php5','php7','php8','phtml','phar','cgi','pl','py','asp','aspx','jsp','sh','bash','bat','cmd','com','exe','dll','msi','shtml','htaccess','svg','html','htm','xhtml','xht','shtm','svgz');
-		return $extension !== '' && !in_array($extension, $blocked, true);
+
+		return true;
 	}
 
 	/**
@@ -4168,14 +4342,30 @@ public function check_nonce_permission_efb($request) {
 			? \Emsfb\Upload_Guard::upload_field_count_for_form($fid)
 			: 0;
 
+		$ip        = $this->get_ip_address();
+		$raw_nonce = isset($_SERVER['HTTP_X_WP_NONCE']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ) : '';
+
+		/* The quota buckets on this value, so it must not be something the
+		 * caller gets to choose. Passing the header through verbatim meant a
+		 * different string per request minted a different bucket, and the
+		 * per-session cap could be walked straight past with no cost at all.
+		 *
+		 * Only a nonce that actually verifies identifies a session. Anything
+		 * else is metered against the IP rather than a shared constant, so an
+		 * abuser stays inside their own budget instead of being able to
+		 * exhaust the one every other visitor on a cached page is sharing. */
+		$quota_nonce = ($raw_nonce !== '' && wp_verify_nonce($raw_nonce, 'wp_rest'))
+			? $raw_nonce
+			: 'ip:' . $ip;
+
 		return array(
 			'source'   => $source,
 			'form_id'  => $fid,
 			'field_id' => (string) $field_id,
 			'fields'   => $fields,
-			'nonce'    => isset($_SERVER['HTTP_X_WP_NONCE']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ) : '',
+			'nonce'    => $quota_nonce,
 			'sid'      => isset($_SERVER['HTTP_SID']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SID'] ) ) : '',
-			'ip'       => $this->get_ip_address(),
+			'ip'       => $ip,
 		);
 	}
 
@@ -4210,13 +4400,62 @@ public function check_nonce_permission_efb($request) {
 		if (!preg_match('/^[A-Za-z0-9_-]{1,80}$/', $_POST['id'])) {
 			wp_send_json_success($this->recorder_upload_error_response_efb(esc_html__('The recording request could not be verified. Please retry.','easy-form-builder')), 200);
 		}
+		if (!in_array($_POST['pl'], array('msg', 'resp'), true)) {
+			wp_send_json_success($this->upload_rejected_response_efb(esc_html__('The upload request could not be verified. Please try again.','easy-form-builder')), 200);
+		}
+
+		$is_form_upload = $_POST['pl'] === 'msg';
+		$field_definition = null;
+		$response_scope = null;
+		if ($is_form_upload) {
+			/* Never turn a missing/tampered fid into an "all formats, 20 MB"
+			 * upload. That fallback is valid only for the response box, which has
+			 * no form-field definition of its own. */
+			if ($fid < 1) {
+				wp_send_json_success($this->upload_rejected_response_efb(esc_html__('The upload field could not be verified. Please refresh the form and try again.','easy-form-builder')), 200);
+			}
+
+			$field_definition = $this->get_upload_field_definition_efb($fid, $_POST['id']);
+			if ($field_definition === null) {
+				wp_send_json_success($this->upload_rejected_response_efb(esc_html__('The upload field could not be verified. Please refresh the form and try again.','easy-form-builder')), 200);
+			}
+		} else {
+			/* `pl=resp` only selects the policy.  It is not an authority on its
+			 * own: the request must also name a real ticket and carry either the
+			 * public ticket token or a dashboard capability. */
+			$response_id = isset($_POST['response_id']) ? absint(wp_unslash($_POST['response_id'])) : 0;
+			$response_track = isset($_POST['response_track']) ? sanitize_text_field(wp_unslash($_POST['response_track'])) : '';
+			$response_token = isset($_POST['response_token']) ? sanitize_text_field(wp_unslash($_POST['response_token'])) : '';
+			$response_scope = $this->resolve_response_upload_scope_efb($response_id, $response_track, $response_token);
+			if ($response_scope === false) {
+				wp_send_json_success($this->upload_rejected_response_efb(esc_html__('The response box could not be verified. Reopen the conversation and try again.','easy-form-builder')), 200);
+			}
+			/* Response attachments are never part of a form quota/budget. */
+			$fid = 0;
+		}
+		if (!isset($_FILES['async-upload'])) {
+			$field_max_mb = is_array($field_definition) && isset($field_definition['max_fsize'])
+				&& is_numeric($field_definition['max_fsize']) && floatval($field_definition['max_fsize']) > 0
+				? floatval($field_definition['max_fsize'])
+				: null;
+			$max_bytes = \Emsfb\Upload_Guard::max_bytes($field_max_mb, array(
+				'source' => $is_form_upload ? 'form' : 'response',
+				'form_id' => $fid,
+				'field_id' => $_POST['id'],
+			));
+			$content_length = isset($_SERVER['CONTENT_LENGTH']) ? (int) $_SERVER['CONTENT_LENGTH'] : 0;
+			$message = $content_length > $max_bytes
+				? \Emsfb\Upload_Guard::size_message($max_bytes)
+				: esc_html__('No file was received. Please choose a file and try again.','easy-form-builder');
+			wp_send_json_success($this->upload_rejected_response_efb($message), 200);
+		}
 
 		/* How many files this visitor may still push through. Checked before the
 		 * file is looked at, so a flood costs nothing but a transient read, and
 		 * charged only after a file is actually stored, so a rejected upload
 		 * never eats part of a legitimate visitor's allowance. */
 		$upload_context = $this->build_upload_context_efb(
-			$_POST['pl'] === 'msg' ? 'form' : 'response',
+			$is_form_upload ? 'form' : 'response',
 			$fid,
 			$_POST['id']
 		);
@@ -4230,7 +4469,10 @@ public function check_nonce_permission_efb($request) {
 
 		/* Recorder uploads are bound to the form/session header as well as the
 		 * published field definition. This blocks field-id swapping between forms. */
-		$recorder_field = $fid > 0 ? $this->get_recorder_field_definition_efb($fid, $_POST['id']) : null;
+		$recorder_field = $is_form_upload && is_array($field_definition)
+			&& in_array($field_definition['type'], array('audio_recorder', 'video_recorder', 'screen_recorder'), true)
+			? $field_definition
+			: null;
 		if ($recorder_field !== null) {
 		$header_form_id = isset($_SERVER['HTTP_X_EFB_FORM_ID']) ? intval(wp_unslash($_SERVER['HTTP_X_EFB_FORM_ID'])) : (isset($_SERVER['HTTP_FORM_ID']) ? intval(wp_unslash($_SERVER['HTTP_FORM_ID'])) : 0);
 			if ($_POST['pl'] !== 'msg' || $header_form_id !== $fid || !isset($_FILES['async-upload'])) {
@@ -4246,47 +4488,6 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$this->cache_cleaner_Efb($page_id);
-
-        $vl=null;
-		$have_validate =0;
-		$temp=0;
-        if($_POST['pl']!="msg"){
-            $vl ='efb'. $_POST['id'];
-        }else{
-
-			$id = isset($_POST['id']) ? sanitize_text_field( wp_unslash( $_POST['id'] ) ) : '';
-            $fid = intval($fid);
-            $vl_data = $this->get_form_data_efb($fid, array('form_structer'));
-            $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
-            if($vl!=null){
-				if(gettype($vl)=="string"){
-					$temp = (strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false
-						|| strpos($vl , '\"type\":\"audio_recorder\"') !== false || strpos($vl , '\"type\":\"video_recorder\"') !== false || strpos($vl , '\"type\":\"screen_recorder\"') !== false) ? true : false;
-				}
-
-                if($temp==false){
-
-                    $response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . ": 601");
-					wp_send_json_success($response,200);
-                }
-
-				if(strpos($vl , '\"value\":\"customize\"')!==false){
-					$val_ = str_replace('\\', '', $vl);
-					$vl = json_decode($val_);
-					foreach($vl as $key=>$val){
-						if(isset($val->id_) && $val->id_==$id && isset($val->value) && isset($val->type)){
-							$have_validate=  $val->value == "customize" ? 1 : 0;
-							$temp = in_array($val->type, ["dadfile", "file", "audio_recorder", "video_recorder", "screen_recorder"], true) ? 1 : 0;
-							break;
-						}
-					}
-
-				}else{
-					$have_validate=0;
-				}
-
-            }
-        }
 		$_FILES['async-upload']['name'] = sanitize_file_name( wp_unslash( $_FILES['async-upload']['name'] ) );
 
 		/* Read the field's own rules straight off the published structure: the
@@ -4298,27 +4499,10 @@ public function check_nonce_permission_efb($request) {
 		 * The reply box takes neither: it has no field definition, so it keeps
 		 * the global allow-list, matching the "allformat" check its own client
 		 * runs. Upload_Guard::field_extensions() owns that decision. */
-		$field_max_mb     = null;
-		$field_definition = null;
-
-		if($_POST['pl']=="msg" && $vl!=null){
-			if(gettype($vl)=="string"){
-				$vl = json_decode(str_replace('\\', '', $vl));
-			}
-			if(is_array($vl)){
-				foreach($vl as $val){
-					if(!is_object($val) || !isset($val->type) || !isset($val->id_)) continue;
-					if($val->id_!=$_POST['id']) continue;
-					if(!in_array($val->type, ["dadfile", "file", "audio_recorder", "video_recorder", "screen_recorder"], true)) continue;
-
-					$field_definition = $val;
-					if(isset($val->max_fsize) && is_numeric($val->max_fsize) && floatval($val->max_fsize)>0){
-						$field_max_mb = floatval($val->max_fsize);
-					}
-					break;
-				}
-			}
-		}
+		$field_max_mb = is_array($field_definition) && isset($field_definition['max_fsize'])
+			&& is_numeric($field_definition['max_fsize']) && floatval($field_definition['max_fsize']) > 0
+			? floatval($field_definition['max_fsize'])
+			: null;
 
 		$field_extensions = \Emsfb\Upload_Guard::field_extensions(
 			$field_definition,
@@ -4363,10 +4547,17 @@ public function check_nonce_permission_efb($request) {
 		/* Charged only now, so nothing above spends a visitor's allowance. The
 		 * ledger entry lets the daily sweeper remove this file if the form is
 		 * never actually submitted. */
-		\Emsfb\Upload_Guard::quota_consume($upload_context);
 		if (!empty($upload['file'])) {
+			if (!$is_form_upload && !\Emsfb\Upload_Guard::reserve_response_attachment($upload['file'], $response_scope['message_id'], $response_scope['track'])) {
+				/* A response file without a ticket reservation must never be
+				 * returned to the browser: otherwise it could be attached to a
+				 * different conversation during the reservation outage. */
+				if (function_exists('wp_delete_file')) wp_delete_file($upload['file']);
+				wp_send_json_success($this->upload_rejected_response_efb(esc_html__('The response attachment could not be secured. Please try again.','easy-form-builder')), 200);
+			}
 			\Emsfb\Upload_Guard::track_pending_upload($upload['file']);
 		}
+		\Emsfb\Upload_Guard::quota_consume($upload_context);
 
 		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$async_file_type);
 		wp_send_json_success($response,200);
@@ -4546,6 +4737,13 @@ public function check_nonce_permission_efb($request) {
 						200
 					);
 				}
+				$response_attachment_urls = $this->response_attachments_are_reserved_efb($message, $id, $track);
+				if ($response_attachment_urls === false) {
+					wp_send_json_success(array(
+						'success' => false,
+						'm' => esc_html__('The response attachment could not be verified. Please attach the file again.', 'easy-form-builder'),
+					), 200);
+				}
 				if($read_s==1){
 					if($this->efb_uid > 0) {
 						$by = get_user_by('id',$this->efb_uid);
@@ -4554,7 +4752,7 @@ public function check_nonce_permission_efb($request) {
 						$by = $this->lanText['spprt'];
 					}
 				}
-				$this->db->insert($table_name, array(
+				$reply_inserted = $this->db->insert($table_name, array(
 					'ip' => $ip,
 					'content' => $m,
 					'msg_id' => $id,
@@ -4562,8 +4760,14 @@ public function check_nonce_permission_efb($request) {
 					'read_' => $read_s,
 					'date'=>wp_date('Y-m-d H:i:s'),
 				));
+				if ($reply_inserted === false) {
+					wp_send_json_success(array('success' => false, 'm' => $this->lanText['errorSomthingWrong']), 200);
+				}
 
 				$this->claim_uploaded_files_efb($m);
+				if (!empty($response_attachment_urls)) {
+					\Emsfb\Upload_Guard::release_response_attachment_reservations($response_attachment_urls);
+				}
 
 				$track = isset($value[0]->track) ? $value[0]->track : null;
 				if (empty($track)) {
@@ -6533,6 +6737,69 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/**
+	 * Upload-style field types whose row can exist without the visitor having
+	 * supplied anything. Kept in one place because both the placeholder filter
+	 * and the required-field check have to agree on the list.
+	 */
+	private static function upload_row_types_efb() {
+		return ['file', 'dadfile', 'esign', 'audio_recorder', 'video_recorder', 'screen_recorder', 'image', 'document', 'media', 'allformat', 'zip'];
+	}
+
+	/**
+	 * True when a row is the untouched placeholder the form client seeds for an
+	 * upload field, rather than something the visitor actually attached.
+	 *
+	 * core-efb.js pushes { value: "@file@", url: "", state: 0 } for every file /
+	 * drag-and-drop / recorder / signature field as soon as the form renders, and
+	 * endMessage_emsFormBuilder_view() posts whatever is left in that list at
+	 * submit time. A completed upload replaces the row with one carrying a real
+	 * url (and no state), so "no usable url and still the seeded value" is what
+	 * separates the default from the visitor's data - the same rule
+	 * is_required_value_filled_efb() already applies on the client.
+	 */
+	private function is_untouched_upload_row_efb($row) {
+		if (!is_array($row)) return false;
+		$value = $row['value'] ?? '';
+		if (!is_string($value)) return false;
+		$type = strtolower((string) ($row['type'] ?? ''));
+		if (!in_array($type, self::upload_row_types_efb(), true) && $value !== '@file@') return false;
+		// An in-flight (1) or rejected (3) upload is a real user action; only the
+		// seeded default (0, or a row that never carried the flag) is ignorable.
+		if (isset($row['state']) && (int) $row['state'] !== 0) return false;
+		// Any url at all means something was attempted for this field. A bogus one
+		// still has to be reported rather than quietly dropped, so only a blank
+		// url - what the client seeds - qualifies as untouched.
+		$url = isset($row['url']) && is_string($row['url']) ? trim($row['url']) : '';
+		if ($url !== '') return false;
+
+		return $value === '' || $value === '@file@';
+	}
+
+	/**
+	 * Removes every seeded upload placeholder from a submission.
+	 *
+	 * @see is_untouched_upload_row_efb()
+	 */
+	private function strip_untouched_upload_rows_efb($submitted_values) {
+		if (!is_array($submitted_values) || empty($submitted_values)) return $submitted_values;
+
+		$kept = [];
+		$removed = false;
+		foreach ($submitted_values as $key => $row) {
+			if ($this->is_untouched_upload_row_efb($row)) { $removed = true; continue; }
+			$kept[$key] = $row;
+		}
+		if (!$removed) return $submitted_values;
+
+		/* Only a plain list gets renumbered. get_form_public_efb() reads
+		 * $submitted_values['logout'] and ['recovery'] by name, so a keyed
+		 * payload has to keep its keys or those branches stop matching. */
+		$is_list = array_keys($submitted_values) === range(0, count($submitted_values) - 1);
+
+		return $is_list ? array_values($kept) : $kept;
+	}
+
+	/**
 	 * Confirms every required field has a value in $submitted_values.
 	 *
 	 * The per-field loop in get_form_public_efb() only validates the FORMAT of
@@ -6546,7 +6813,7 @@ public function check_nonce_permission_efb($request) {
 		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld'];
 		static $checkbox_types = ['checkbox', 'paycheckbox', 'chlcheckbox'];
 		static $radio_types = ['radio', 'payradio', 'imgradio', 'chlradio'];
-		static $file_types = ['file', 'dadfile', 'esign', 'audio_recorder', 'video_recorder', 'screen_recorder'];
+		$file_types = self::upload_row_types_efb();
 
 		$submitted_ids = [];
 		foreach ((array) $submitted_values as $row) {
@@ -6557,8 +6824,13 @@ public function check_nonce_permission_efb($request) {
 				$submitted_ids[$row['id_']] = true;
 			} elseif ((in_array($type, $radio_types, true) || $type === 'yesno') && !empty($row['id_ob'])) {
 				$submitted_ids[$row['id_']] = true;
-			} elseif (in_array($type, $file_types, true) && ($value !== '' || !empty($row['url']))) {
-				$submitted_ids[$row['id_']] = true;
+			} elseif (in_array($type, $file_types, true)) {
+				/* "@file@" is the client's placeholder for "this is an upload
+				 * field", not evidence that a file arrived - only a usable url
+				 * or a real value (an esign data URI, say) counts as filled. */
+				$has_url = isset($row['url']) && is_string($row['url']) && strlen(trim($row['url'])) > 5;
+				$has_value = is_string($value) ? ($value !== '' && $value !== '@file@') : !empty($value);
+				if ($has_url || $has_value) $submitted_ids[$row['id_']] = true;
 			} elseif (is_array($value) ? !empty($value) : ($value !== '' && $value !== null)) {
 				$submitted_ids[$row['id_']] = true;
 			}

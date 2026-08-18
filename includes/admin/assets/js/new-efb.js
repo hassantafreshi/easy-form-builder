@@ -868,18 +868,60 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid,option
         return { success: false, error: errorMessage };
       });
 }
+/* Mint a replacement wp_rest nonce for a page whose own nonce has died.
+   Resolves to '' when that is not possible, so the caller can fall back to
+   reporting the original failure rather than retrying blindly. */
+function efb_fetch_fresh_nonce_efb() {
+  try {
+    const base = (typeof efb_var !== 'undefined' && efb_var.rest_url) ? efb_var.rest_url : '';
+    if (!base) return Promise.resolve('');
+    const headers = {};
+    if (typeof efb_var !== 'undefined' && efb_var.sid) headers['sid'] = efb_var.sid;
+    return fetch(base + 'Emsfb/v1/nonce/refresh', {
+      method: 'GET', credentials: 'same-origin', cache: 'no-store', headers: headers
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const fresh = d && d.nonce ? d.nonce : '';
+        if (fresh) {
+          /* efb_var is deep-frozen in the admin panel, so this is a best-effort
+             share with the rest of the page; the retry uses the returned value
+             directly and does not depend on the assignment landing. */
+          try { efb_var.nonce = fresh; } catch (e) {}
+          try { if (window.EFBHumanShield) window.EFBHumanShield.wpRestNonce = fresh; } catch (e) {}
+        }
+        return fresh;
+      })
+      .catch(() => '');
+  } catch (e) {
+    return Promise.resolve('');
+  }
+}
 function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
   options = options || {};
   var idB =id+'-prB';
   return new Promise((resolve, reject) => {
+    /* An upload may be sent twice. A 403 means the nonce baked into the page
+       has expired - a cached page, a re-login, or a form simply left open past
+       the nonce window. The submit path already refreshes and replays on 403;
+       this one did not, so the attachment died on a bare "Forbidden" with no
+       way back. Response Box uploads felt it worst: they carry no form id, so
+       the server's session fallback could not rescue them either. */
+    const send = (activeNonce, isRetry) => {
     const formData = new FormData();
     formData.append('async-upload', file);
     formData.append('id', id);
     formData.append('pl', pl);
-    formData.append('nonce_msg', nonce_msg);
+    formData.append('nonce_msg', activeNonce);
     formData.append('sid', sid);
     formData.append('fid', fid);
     formData.append('page_id', efb_var.page_id);
+    /* Response Box uploads have no form field to bind to. Send the ticket
+       scope explicitly so the server can grant its broad safe-file policy
+       only to the conversation that is actually open. */
+    if (options.response_id) formData.append('response_id', String(options.response_id));
+    if (options.response_track) formData.append('response_track', String(options.response_track));
+    if (options.response_token) formData.append('response_token', String(options.response_token));
     if (options.recorder_type) formData.append('recorder_type', options.recorder_type);
     if (options.hasOwnProperty('recording_duration')) formData.append('recording_duration', String(options.recording_duration));
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
@@ -925,6 +967,13 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
         const payload = response && response.data ? response.data : response;
         errorMessage = (payload && (payload.m || payload.error || payload.message)) || errorMessage;
       } catch (e) {}
+      if (xhr.status === 403 && !isRetry) {
+        efb_fetch_fresh_nonce_efb().then((fresh) => {
+          if (fresh && fresh !== activeNonce) send(fresh, true);
+          else reject(errorMessage);
+        });
+        return;
+      }
       reject(errorMessage);
     }
     });
@@ -932,12 +981,14 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
     reject(xhr.statusText);
     });
     xhr.open('POST', url, true);
-    xhr.setRequestHeader('X-WP-Nonce', nonce_msg);
+    xhr.setRequestHeader('X-WP-Nonce', activeNonce);
     if (sid) xhr.setRequestHeader('sid', sid);
     /* Apache/PHP installations commonly discard or do not expose headers with
        underscores. Use a conventional hyphenated header for the form binding. */
     if (fid) xhr.setRequestHeader('X-EFB-Form-Id', fid);
     xhr.send(formData);
+    };
+    send(nonce_msg, false);
   });
 }
 if (!Array.prototype.findIndex) {

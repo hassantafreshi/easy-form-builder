@@ -72,9 +72,33 @@ efb_email_monitor_test(
 );
 
 \Emsfb\Email_Monitor::sync_schedule();
+$next_run = wp_next_scheduled(\Emsfb\Email_Monitor::WEEKLY_HOOK);
 efb_email_monitor_test(
 	'weekly monitor event is scheduled',
-	(bool) wp_next_scheduled(\Emsfb\Email_Monitor::WEEKLY_HOOK)
+	(bool) $next_run
+);
+
+// The report day is a deliberate choice, not an accident of when the plugin
+// happened to be activated, so pin it. sync_schedule() rewrites any event that
+// no longer lands on these constants, which is also how a changed report day
+// reaches installations that were already scheduled on the previous one.
+$scheduled_local = (new DateTimeImmutable('@' . (int) $next_run))->setTimezone(wp_timezone());
+efb_email_monitor_test(
+	sprintf(
+		'weekly report runs on weekday %d at %02d:00 site time (got %s %s)',
+		\Emsfb\Email_Monitor::WEEKLY_REPORT_WEEKDAY,
+		\Emsfb\Email_Monitor::WEEKLY_REPORT_HOUR,
+		$scheduled_local->format('D'),
+		$scheduled_local->format('H:i')
+	),
+	(int) $scheduled_local->format('w') === \Emsfb\Email_Monitor::WEEKLY_REPORT_WEEKDAY
+		&& (int) $scheduled_local->format('G') === \Emsfb\Email_Monitor::WEEKLY_REPORT_HOUR
+		&& (int) $scheduled_local->format('i') === 0
+);
+
+efb_email_monitor_test(
+	'the scheduled run is in the future',
+	(int) $next_run > time()
 );
 
 $status = \Emsfb\Email_Monitor::get_public_status();

@@ -19,9 +19,11 @@ class Email_Monitor {
     const LIFECYCLE_HOOK = 'emsfb_email_monitor_lifecycle';
     const POLL_HOOK = 'emsfb_email_monitor_poll';
 
-    // WordPress numbers Sunday as 0, so Friday is 5. The timestamp is built
-    // in the site's configured timezone, not the server's timezone.
-    const WEEKLY_REPORT_WEEKDAY = 5;
+    // WordPress numbers Sunday as 0. The timestamp is built in the site's
+    // configured timezone, not the server's timezone. Changing either value
+    // re-points existing installations on their next load: sync_schedule()
+    // treats a schedule that no longer matches these constants as stale.
+    const WEEKLY_REPORT_WEEKDAY = 0;
     const WEEKLY_REPORT_HOUR = 11;
 
     public static function register() {
@@ -463,9 +465,10 @@ class Email_Monitor {
     public static function sync_schedule() {
         $scheduled = wp_next_scheduled(self::WEEKLY_HOOK);
         if (self::is_weekly_run_enabled()) {
-            // Move installations that were scheduled under the old
-            // "one hour from now" behaviour onto Friday as well. Only this
-            // plugin's hook is replaced; no other cron event is touched.
+            // Also moves installations still sitting on a previous schedule —
+            // the original "one hour from now" behaviour, or an earlier
+            // weekday/hour — onto the current one. Only this plugin's hook is
+            // replaced; no other cron event is touched.
             if (!$scheduled || !self::is_weekly_report_schedule($scheduled)) {
                 if ($scheduled) {
                     self::unschedule_hook(self::WEEKLY_HOOK);
@@ -478,24 +481,26 @@ class Email_Monitor {
     }
 
     /**
-     * Next Friday at 09:00 in the WordPress site timezone.
+     * The next WEEKLY_REPORT_WEEKDAY at WEEKLY_REPORT_HOUR:00 in the WordPress
+     * site timezone. Today only counts if that hour has not passed yet.
      *
      * @return int Unix timestamp, as required by WP-Cron.
      */
     private static function get_next_weekly_report_timestamp() {
         $now = new \DateTimeImmutable('now', wp_timezone());
         $next = $now->setTime(self::WEEKLY_REPORT_HOUR, 0, 0);
-        $days_until_friday = (self::WEEKLY_REPORT_WEEKDAY - (int) $next->format('w') + 7) % 7;
+        $days_ahead = (self::WEEKLY_REPORT_WEEKDAY - (int) $next->format('w') + 7) % 7;
 
-        if ($days_until_friday === 0 && $next <= $now) {
-            $days_until_friday = 7;
+        if ($days_ahead === 0 && $next <= $now) {
+            $days_ahead = 7;
         }
 
-        return $next->modify('+' . $days_until_friday . ' days')->getTimestamp();
+        return $next->modify('+' . $days_ahead . ' days')->getTimestamp();
     }
 
     /**
-     * Whether an existing timestamp already matches Friday at 09:00 locally.
+     * Whether an existing timestamp already lands on the configured weekday and
+     * hour in the site timezone. Anything else is treated as a stale schedule.
      */
     private static function is_weekly_report_schedule($timestamp) {
         if (!is_numeric($timestamp) || (int) $timestamp <= 0) {
