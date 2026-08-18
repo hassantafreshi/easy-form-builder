@@ -3209,8 +3209,27 @@ public function check_nonce_permission_efb($request) {
 								if ($payment_gateway == "paypal") {
 									// error_log('[EFB][PayPal][SUBMIT] Merge data: saved_payment_count=' . (is_array($saved_payment_content) ? count($saved_payment_content) : 0) . ', filtered_submit_count=' . (is_array($filtered) ? count($filtered) : 0) . ', validated_count=' . (is_array($validated_items) ? count($validated_items) : 0));
 								}
+								$this->efb_trace('payment.merge', [
+									'form_id'                => intval($form_id),
+									'track'                  => $payment_track_id,
+									'gateway'                => $payment_gateway,
+									'submitted_rows'         => $this->efb_trace_rows($submitted_values),
+									'non_pay_rows'           => $this->efb_trace_rows($filtered),
+									'saved_payment_rows'     => $this->efb_trace_rows($saved_payment_content),
+									'validated_rows'         => $this->efb_trace_rows($validated_items),
+								]);
 								$filtered = array_unique(array_merge($validated_items, $saved_payment_content), SORT_REGULAR);
 								$filtered[] = array('type' => 'w_link', 'id_' => 'w_link', 'id' => 'w_link', 'value' => $url, 'amount' => -1);
+								/* What the notification email must describe is the record that
+								 * was just stored, not the leftovers of the final request.
+								 * $validated_items holds only the non-payment fields the
+								 * visitor re-sent at submit time - every payment row (chosen
+								 * options, amount, gateway, transaction id, date) lives in
+								 * $saved_payment_content and is merged in here. Passing
+								 * $validated_items instead left the "message content" modes
+								 * with no payment details at all, and with nothing whatsoever
+								 * on a form built only from payment fields. */
+								$email_content_rows = array_values($filtered);
 								$this->value = sanitize_text_field(json_encode($filtered, JSON_UNESCAPED_UNICODE));
 								$this->id = sanitize_text_field($request_data['payid']);
 								$db_update_result = $this->update_message_db();
@@ -3255,8 +3274,19 @@ public function check_nonce_permission_efb($request) {
 
 							if ($should_send_email) {
 								$state_email_user = $has_tracking_code==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
-								$status_email = $this->email_status_efb($form_fields_array,$validated_items,$payment_track_id);
+								$status_email = $this->email_status_efb($form_fields_array,$email_content_rows,$payment_track_id);
 								$state_of_email = ['newMessage',$state_email_user,$status_email['type']];
+								$this->efb_trace('payment.email', [
+									'form_id'          => intval($form_id),
+									'track'            => $payment_track_id,
+									'noti_type'        => $form_fields_array[0]['email_noti_type'] ?? null,
+									'content_rows'     => $this->efb_trace_rows($email_content_rows),
+									'states'           => $state_of_email,
+									'admin_recipients' => $email_recipients[0] ?? [],
+									'user_recipients'  => $email_recipients[1] ?? [],
+									'content_len'      => is_string($status_email['content']) ? strlen($status_email['content']) : gettype($status_email['content']),
+									'content_preview'  => is_string($status_email['content']) ? mb_substr(trim(strip_tags($status_email['content'])), 0, 300) : '',
+								]);
 								$this->send_email_Emsfb_( $email_recipients,$payment_track_id ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 							}
 
@@ -5204,6 +5234,33 @@ public function check_nonce_permission_efb($request) {
 		\Emsfb\Email_Trace::log($stage, $data);
 	}
 
+	/**
+	 * Compact one-line-per-row view of a submission array for the trace.
+	 *
+	 * Only the keys that decide whether a row reaches the notification email:
+	 * the identity it is matched on (id_/name), what it renders as (type/value),
+	 * and the payment marker. Full rows would blow past the trace's 600-byte
+	 * per-string clip and hide exactly what is being looked for.
+	 */
+	private function efb_trace_rows($rows) {
+		if (!is_array($rows)) return gettype($rows);
+		$out = [];
+		foreach ($rows as $row) {
+			// A long form must not turn one trace entry into a wall of text.
+			if (count($out) >= 40) { $out[] = ['note' => (count($rows) - 40) . ' more rows not listed']; break; }
+			if (!is_array($row) && !is_object($row)) { $out[] = ['raw' => gettype($row)]; continue; }
+			$r = (array) $row;
+			$out[] = [
+				'type'  => $r['type'] ?? null,
+				'id_'   => $r['id_'] ?? null,
+				'name'  => $r['name'] ?? null,
+				'value' => isset($r['value']) && is_scalar($r['value']) ? mb_substr((string) $r['value'], 0, 60) : gettype($r['value'] ?? null),
+				'price' => $r['price'] ?? null,
+			];
+		}
+		return $out;
+	}
+
 	private function process_conditional_notification_rules($form_fields_array, $submitted_values, $track_code, $is_pro, $url, $status_email) {
 		if (empty($form_fields_array[0]['notification_rules']) || !is_array($form_fields_array[0]['notification_rules'])) return;
 		$values = $this->efb_conditional_values_map($form_fields_array, $submitted_values);
@@ -5774,18 +5831,12 @@ public function check_nonce_permission_efb($request) {
 			] );
 		}
 
-		if ( ! empty( $trackid ) ) {
-			if ( empty( $this->db ) ) {
-				global $wpdb;
-				$this->db = $wpdb;
-			}
-			$table_name = $this->db->prefix . 'emsfb';
-			$this->db->update(
-				$table_name,
-				[ 'status' => 1 ],
-				[ 'tracking' => $trackid ]
-			);
-		}
+		/* No second table to touch here. emsfb_pay_.status, set just above, is
+		 * where a completed payment is recorded - the same and only place the
+		 * PayPal handler writes to. The update that used to sit here named a
+		 * table (prefix . 'emsfb') and columns ('status', 'tracking') that the
+		 * schema has never had, so every confirmed Stripe payment logged a
+		 * "table doesn't exist" database error and changed nothing. */
 
 		wp_send_json_success( [
 			'success'         => true,
@@ -6075,11 +6126,17 @@ public function check_nonce_permission_efb($request) {
 					(!isset($c['id_'])   || $c['id_']!=='payment')
 				){
 
+					/* Priced payment rows the dedicated branches above did not claim
+					 * (paySelect, payMultiselect, and the option_payment rows stored
+					 * when the payment intent was created). This is the row's final
+					 * rendering - falling through to the generic $addPair below
+					 * printed every one of them a second time. */
 					if (isset($c['type']) && strpos($c['type'],'pay')!==false && isset($c['price'])){
 						$total_amount += intval($c['price']);
 						$title = $c['value'] ?? ($title ?: 'Item');
-						$q = '<b>'.number_format(intval($c['price']),0,'.',',').' '.$currency.'</b>';
-						$addPair($title, $q);
+						$q = $this->email_format_price_efb(intval($c['price']), $currency);
+						$addPair($title, '<b>'.$q.'</b>');
+						continue;
 					}
 
 					if (isset($c['type']) && strpos($c['type'],'imgRadio')!==false){
@@ -7362,6 +7419,14 @@ public function check_nonce_permission_efb($request) {
 			if(isset($formObj[0]["email_sub"]) && $formObj[0]["email_sub"]!=''){
 				$msg_sub = $formObj[0]["email_sub"];
 			}
+			$this->efb_trace('email.status', [
+				'noti_type'   => $formObj[0]['email_noti_type'] ?? null,
+				'track'       => $check,
+				'rows_in'     => is_array($valobj) ? count($valobj) : gettype($valobj),
+				'msg_type'    => $msg_type,
+				'content_len' => is_string($msg_content) ? strlen($msg_content) : gettype($msg_content),
+				'content_text'=> is_string($msg_content) && $msg_content !== 'null' ? mb_substr(trim(strip_tags($msg_content)), 0, 300) : '',
+			]);
 			return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type];
 	}
 
@@ -7400,13 +7465,30 @@ public function check_nonce_permission_efb($request) {
 					 $iv = array_keys($filtered);
 					 $a = isset( $iv[0])? $iv[0] :-1;
 				}else if ($iv['type']=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
+					/* One priced row per id listed in `ids`, and the index has to come
+					 * from the match itself: $a is still -1 at this point, so $fs_[$a]
+					 * read a key that does not exist and every chosen option added
+					 * nothing. The visitor was shown one total and charged a smaller
+					 * one, and the gap then tripped the "invalid value" alert below.
+					 * $iv is left alone as well - it still holds this submitted row,
+					 * and overwriting it inside the loop threw away `ids` and `name`. */
 					$rows = explode( ',', $iv['ids'] );
-					foreach ($rows as $key => $value) {
+					foreach ($rows as $value) {
+						if ($value === '') continue;
 						$filtered = array_filter($fs_, function($item) use ($value) {
 							if(isset($item['id_']))return $item['id_'] == $value ;
+							return false;
 						});
-						$iv = array_keys($filtered);
-						$price_f += $fs_[$a]['price'];
+						$keys = array_keys($filtered);
+						$k = isset($keys[0]) ? $keys[0] : -1;
+						if ($k == -1 || !isset($fs_[$k]['price'])) continue;
+						$price_f += $fs_[$k]['price'];
+						/* Named and retyped the way the single-choice branches below do it,
+						 * so each chosen extra reaches the stored submission and the
+						 * notification email instead of vanishing after being charged. */
+						$fs_[$k]['name'] = $val_[$i]['name'];
+						$fs_[$k]['type'] = "option_payment";
+						array_push($valobj, $fs_[$k]);
 					}
 					$a=-1;
 				}else if($iv['type']=="prcfld" ){

@@ -558,7 +558,7 @@ class EmsfbEmailHandler {
 
                 case 'just_message':
 
-                    $message = $this->generate_just_message_content($m, $lang, $align, $msgStyles);
+                    $message = $this->generate_just_message_content($m, $lang, $align, $state, $msgStyles);
                     break;
 
                 case 'traking_link':
@@ -618,6 +618,15 @@ class EmsfbEmailHandler {
             </table>";
     }
 
+    /**
+     * Inline style for the block that wraps the submitted-values table.
+     *
+     * Emitted into a double-quoted style attribute. safe_css_value() already
+     * strips both quote characters from the font stack, so this is only a
+     * second line of defence - the single-quoted attribute that used to hold
+     * it was closed early by "'Segoe UI', Tahoma" and mail clients dropped the
+     * whole declaration.
+     */
     private function build_content_div_style($msgStyles, $fallbackAlign = 'left') {
         if ($msgStyles) {
             $align    = esc_attr($msgStyles['align'] ?? $fallbackAlign);
@@ -642,7 +651,7 @@ class EmsfbEmailHandler {
         } else {
             $link = strpos($link, "?") !== false ? $link . '&track=' . $m[0] : $link . '?track=' . $m[0];
             $divStyle = $this->build_content_div_style($msgStyles, 'center');
-            return "<div style='" . $divStyle . "'>" . $m[1] . " </div>" . $tracking_section;
+            return "<div style=\"" . $divStyle . "\">" . $m[1] . " </div>" . $tracking_section;
         }
     }
 
@@ -673,7 +682,7 @@ class EmsfbEmailHandler {
                         <tr>
                             <td style='text-align: center; padding: 20px;'>
                                 <h2>" . $lang["WeRecivedUrM"] . "</h2>
-                                <div style='" . $divStyle . "'>" . $content . " </div>
+                                <div style=\"" . $divStyle . "\">" . $content . " </div>
                                 " . $tracking_section . "
                             </td>
                         </tr>
@@ -706,7 +715,7 @@ class EmsfbEmailHandler {
                     <tr>
                         <td style='text-align: center; padding: 20px;'>
                             <h2>" . $title . "</h2>
-                            <div style='" . $divStyle . "'>
+                            <div style=\"" . $divStyle . "\">
                               <p style='text-align:center'>" . $lang["trackingCode"] . ": <strong>" . $track_id . "</strong></p>"
                              . $form_content .
                               " </div>
@@ -719,12 +728,24 @@ class EmsfbEmailHandler {
         return "";
     }
 
-    private function generate_just_message_content($m, $lang, $align, $msgStyles = null) {
+    /**
+     * "Send email with submitted form content only" - no tracking code, no
+     * "View Messages" button.
+     *
+     * $state distinguishes the two recipients this is rendered for: the site
+     * owner ("newMessage") is being told a submission arrived, the visitor is
+     * being told theirs was received. Without it the administrator's copy was
+     * headed "We have received your message.", which reads as if the site
+     * itself had filled the form.
+     */
+    private function generate_just_message_content($m, $lang, $align, $state = '', $msgStyles = null) {
+        $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
+
         if (is_string($m)) {
             if (strpos($m, '<h2>') !== false || strpos($m, '<div') !== false) {
                 return $m;
             } else {
-                return "<h2 style='text-align:center'>" . $lang["WeRecivedUrM"] . "</h2>
+                return "<h2 style='text-align:center'>" . $title . "</h2>
                 <p style='text-align:center;color:#666;'>" . __('Form submitted successfully without tracking.', 'easy-form-builder') . "</p>";
             }
         } elseif (is_array($m) && count($m) >= 2) {
@@ -735,8 +756,8 @@ class EmsfbEmailHandler {
                 <table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%' style='margin: 20px 0;'>
                     <tr>
                         <td style='text-align: center; padding: 20px;'>
-                            <h2>" . $lang["WeRecivedUrM"] . "</h2>
-                            <div style='" . $divStyle . "'>" . $form_content . "</div>
+                            <h2>" . $title . "</h2>
+                            <div style=\"" . $divStyle . "\">" . $form_content . "</div>
                         </td>
                     </tr>
                 </table>";
@@ -1290,7 +1311,13 @@ class EmsfbEmailHandler {
 
     private function safe_css_value($value) {
 
-        $value = str_replace(['"', '<', '>', '\\'], '', $value);
+        /* Both quote characters go, not just the double quote. Every style
+         * attribute these values land in is single-quoted, so a font stack that
+         * kept its own quotes ("'Segoe UI', Tahoma") closed the attribute early
+         * and mail clients discarded the entire declaration - which is how the
+         * "View Messages" button and the submitted-values block lost their
+         * styling. Unquoted family names are valid CSS. */
+        $value = str_replace(['"', "'", '<', '>', '\\'], '', $value);
 
         $value = preg_replace('/expression\s*\(/i', '', $value);
         $value = preg_replace('/javascript\s*:/i', '', $value);

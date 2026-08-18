@@ -1174,6 +1174,15 @@ function sendback_state_handler_efb(id_, state, step){
     }, 200);
   }
 }
+/* The id_ of the option a <select> is sitting on. Defined here as well as
+   in core-efb.js because this file is the one that loads on both the admin
+   and the front end; the two definitions are identical, so whichever script
+   lands last is the one that answers. */
+selected_option_id_efb = (el) => {
+  const op = el && el.options ? el.options[el.selectedIndex] : null;
+  if (!op) return "";
+  return op.id || (op.dataset ? (op.dataset.op || op.dataset.id || "") : "");
+};
 function handle_change_event_efb(el){
     slice_sback=(i)=>{
       sendBack_emsFormBuilder_pub.splice(i, 1)
@@ -1388,9 +1397,11 @@ function handle_change_event_efb(el){
         vd.innerHTML="";
         el.className = colorBorderChangerEfb(el.className, "border-success");
         if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
-          let v = el.options[el.selectedIndex].id;
+          let v = selected_option_id_efb(el);
           v = valueJson_ws.find(x => x.id_ == v && x.value == el.value);
-          if (typeof v.price == "string") price_efb = v.price;
+          /* Reset rather than leave the previous plan behind - price_efb is
+             shared, so a stale value gets spent on the next priced field. */
+          price_efb = v && typeof v.price == "string" ? v.price : "";
         }
         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic && typeof fun_statement_logic_efb !== 'undefined') fun_statement_logic_efb(el.dataset.vid , el.type);
         if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
@@ -1461,7 +1472,7 @@ function handle_change_event_efb(el){
     if(state==false && value.length > 0)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
     if (value != "" || value.length > 0) {
       const type = ob.type;
-      const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
+      const id_ob = ob.type != "paySelect" ? el.id : selected_option_id_efb(el);
       let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder,form_id:  form_id }];
       if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,true,current_s_efb);
       if (el.classList.contains('payefb')) {
@@ -1470,7 +1481,14 @@ function handle_change_event_efb(el){
         if(ob.type =='prcfld'){
           p= Object.assign(o[0], {price: el.value});
         }else{
-          p = price_efb.length > 0 ? { price: price } : { price: q.price }
+          /* `price` was never declared in this scope, so this line threw the
+             moment a paySelect reached it. Only a paySelect may spend
+             price_efb; a select has no row of its own in valueJson_ws, so q
+             is undefined there and other field types read their own row. */
+          /* typeof-guarded: price_efb is declared in the public core-efb.js,
+             which the admin builder does not load, so on that side it only
+             exists once something has assigned it. */
+          p = { price: ob.type == "paySelect" && typeof price_efb == "string" && price_efb.length > 0 ? price_efb : (q ? q.price : 0) };
         }
         Object.assign(o[0], p)
 
@@ -1542,35 +1560,45 @@ fun_currency_no_convert_efb = (currency, number) => {
 }
 fun_disabled_all_pay_efb = () => {
   let type = '';
-  if(valj_efb[0].getway!="persiaPay")document.getElementById('stripeCardSectionEfb').classList.add('d-none');
+  /* Locking the priced fields is a courtesy after the money has already moved,
+     so a node that is not on the page is skipped rather than thrown on. Any of
+     these lookups can legitimately miss: a step that has not been shown yet, a
+     field conditional logic removed, or - for select-type parents - options
+     that render as <option data-id="..."> with no id of their own. The caller
+     still has the payment id and the sendBack row to write after this returns,
+     and a throw here lost both. */
+  const lock_pay_el_efb = (ov) => {
+    if (!ov) return;
+    ov.classList.remove('payefb');
+    ov.classList.add('disabled');
+    ov.disabled = true;
+  };
+  const cardSection = document.getElementById('stripeCardSectionEfb');
+  if (valj_efb[0].getway != "persiaPay" && cardSection) cardSection.classList.add('d-none');
   for (let o of valj_efb) {
-    if (o.hasOwnProperty('price')==true || (o.hasOwnProperty('type') && o.type=='prcfld')) {
+    if (o.hasOwnProperty('price') == true || (o.hasOwnProperty('type') && o.type == 'prcfld')) {
       if (o.hasOwnProperty('parent')) {
         const p = valj_efb.findIndex(x => x.id_ == o.parent);
-        if (p==-1) continue;
-        if(valj_efb[p].hasOwnProperty('type')==false) continue;
+        if (p == -1) continue;
+        if (valj_efb[p].hasOwnProperty('type') == false) continue;
         type = valj_efb[p].type.toLowerCase();
-        if(type.includes('pay')==false) continue;
-        let ov = document.querySelector(`[data-vid="${o.parent}"]`);
-        ov.classList.remove('payefb');
-        ov.classList.add('disabled');
-        ov.disabled = true;
-        if (type != "multiselect"  && type != "payMultiselect" && type != "paySelect") {
+        if (type.includes('pay') == false) continue;
+        lock_pay_el_efb(document.querySelector(`[data-vid="${o.parent}"]`));
+        /* Compared in lower case, because `type` was lowercased just above:
+           against the camelCase literals these two tests were always true, so
+           every select-type parent fell into the per-option loop that only
+           radio and checkbox groups need. Disabling the <select> already
+           covers the options inside it. */
+        if (type != "multiselect" && type != "paymultiselect" && type != "payselect") {
           const ob = valj_efb.filter(obj => {
             return obj.parent === o.parent
           })
-          for (let o of ob) {
-            ov = document.getElementById(o.id_);
-            ov.classList.add('disabled');
-            ov.classList.remove('payefb');
-            ov.disabled = true;
+          for (let c of ob) {
+            lock_pay_el_efb(document.getElementById(c.id_));
           }
         }
-      }else{
-        let ov = document.querySelector(`[data-vid="${o.id_}"]`);
-        ov.classList.add('disabled');
-        ov.disabled = true;
-        ov.classList.remove('payefb');
+      } else {
+        lock_pay_el_efb(document.querySelector(`[data-vid="${o.id_}"]`));
       }
     }
   }

@@ -145,11 +145,17 @@ document.addEventListener("click", (evnt) => {
                 let o = [{ id_: l.dataset.vid, name: ob.name, amount: ob.amount, type: ob.type, value: v, session: sessionPub_emsFormBuilder, form_id: ms_form_id }];
                 if (ms_valj[0] && ms_valj[0].type == "payment" && l.classList.contains('payefb')) {
                     let ids = "";
+                    /* ms_valj first: valueJson_ws is only filled by the change
+                       handler in core-efb.js, which a multiselect never goes
+                       through - so if this list was the first field the visitor
+                       touched, it was still empty and the prices were all lost.
+                       ms_valj is this form's own structure, read just above. */
+                    const price_rows = (Array.isArray(ms_valj) && ms_valj.length) ? ms_valj : valueJson_ws;
                     for (let el of el_o) {
-                        const i = valueJson_ws.findIndex(x => x.id_ == `${el}`);
-                        if (i != -1) {
-                            price += parseFloat(valueJson_ws[i].price);
-                            ids += `${valueJson_ws[i].id_},`;
+                        const i = price_rows.findIndex(x => x.id_ == `${el}`);
+                        if (i != -1 && price_rows[i].price !== undefined) {
+                            price += parseFloat(price_rows[i].price);
+                            ids += `${price_rows[i].id_},`;
                         }
                     }
                     if (price > 0) {
@@ -174,7 +180,10 @@ document.addEventListener("click", (evnt) => {
                         sendBack_emsFormBuilder_pub.splice(indx, 1);
                     }
                 }
-                if (ms_valj[0] && ms_valj[0].type == "payment" && l.classList.contains('payefb')) fun_total_pay_efb();
+                /* ms_form_id, not nothing: get_structure_by_form_id_efb() looks the form up
+                   by id and reads .form_structer straight off the result, so an
+                   undefined id threw there and the running total was left stale. */
+                if (ms_valj[0] && ms_valj[0].type == "payment" && l.classList.contains('payefb')) fun_total_pay_efb(ms_form_id);
                 localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
                 if (typeof sendback_state_handler_efb_v4 === 'function') {
                     const has_value = v.trim() != efb_var.text.selectOption.trim() && l.dataset.select.length > 0;

@@ -697,7 +697,12 @@
 	}
 
 	public function generate_multiselect_efb($elementId, $rndm, $vj, $pos, $formId, $texts, $desc, $label, $ttip, $aire_describedby) {
-		$pay = $elementId == "multiselect" ? '' : '';
+		/* payMultiselect has to render exactly what the admin preview renders:
+		 * the option handler keys the price off the `payefb` class, and the
+		 * strlen($pay) > 2 tests below are what draw the price column at all.
+		 * Both branches returned '', so on a live form a paid multiselect
+		 * showed no prices and contributed nothing to the total. */
+		$pay = $elementId == "multiselect" ? '' : 'payefb';
 		$currency = property_exists($vj, 'currency') ? $vj->currency : 'USD';
 		$va = '';
 		$sl = '';
@@ -2055,7 +2060,12 @@
 
     public function generate_select_efb($elementId, $rndm, $vj, $pos, $formId, $texts, $previewSate ,$desc,$label,$ttip,$aire_describedby ) {
 
-        $pay = $elementId != "paySelect" ? '' : 'pay';
+        /* 'payefb', not 'pay': every price handler tests for `payefb`, so a
+         * paySelect rendered by the server never registered the chosen plan
+         * and the total stayed at zero however much the plan cost. The admin
+         * preview has always emitted `payefb` here - only the server side of
+         * the same markup was out of step. */
+        $pay = $elementId != "paySelect" ? '' : 'payefb';
         $options = '';
         $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
             return isset($obj->parent) && $obj->parent === $rndm;

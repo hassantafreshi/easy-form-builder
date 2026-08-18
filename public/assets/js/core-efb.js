@@ -244,6 +244,16 @@ let valueJson_ws = []
 let motus_efb = {};
 let g_timeout_efb = 100
 let price_efb ="";
+/* The id_ of the option a <select> is sitting on.
+   Only data-op carries it in every renderer: the server prints data-id and
+   data-op and no id at all, the builder prints all three, so reading .id
+   alone came back empty on every live form - which is why a paySelect never
+   matched its option row and its price never reached the total. */
+selected_option_id_efb = (el) => {
+  const op = el && el.options ? el.options[el.selectedIndex] : null;
+  if (!op) return "";
+  return op.id || (op.dataset ? (op.dataset.op || op.dataset.id || "") : "");
+};
 let sendback_efb_state= [];
 let valj_efb_new = [];
 let form_ID_emsFormBuilder = 0;
@@ -3122,9 +3132,12 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       hide_msg_efb(vd);
       el.className = colorBorderChangerEfb(el.className, "border-success");
       if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
-        let v = el.options[el.selectedIndex].id;
+        let v = selected_option_id_efb(el);
         v = valueJson_ws.find(x => x.id_ == v && x.value == el.value);
-        if (typeof v.price == "string") price_efb = v.price;
+        /* Reset rather than leave the previous plan behind: price_efb is
+           shared across the whole form, so a stale value here would be spent
+           on whichever priced field the visitor touched next. */
+        price_efb = v && typeof v.price == "string" ? v.price : "";
       }
       if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
         let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
@@ -3207,7 +3220,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
   if (value != "" || value.length > 0) {
 
     const type = ob.type;
-    const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
+    const id_ob = ob.type != "paySelect" ? el.id : selected_option_id_efb(el);
     let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder,form_id:  form_id }];
      sendback_state_handler_efb_v4(id_,true,0,form_id);
     if (el.classList.contains('payefb')) {
@@ -3216,7 +3229,12 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       if(type =='prcfld'){
         p= Object.assign(o[0], {price: el.value});
       }else{
-        p = price_efb.length > 0 ? { price: price } : { price: q.price }
+        /* `price` was never declared in this scope - the moment a paySelect
+           reached this line it threw. price_efb is the price of the option
+           just chosen and only a paySelect may spend it; a select has no row
+           of its own in valueJson_ws (only its options do), so q is undefined
+           there and every other field type has to read its own row. */
+        p = { price: type == "paySelect" && price_efb.length > 0 ? price_efb : (q ? q.price : 0) };
       }
       Object.assign(o[0], p)
 

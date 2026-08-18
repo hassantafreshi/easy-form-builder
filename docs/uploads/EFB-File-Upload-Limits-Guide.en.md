@@ -107,7 +107,7 @@ The budget is tracked per form session, so:
 
 The person filling in the form gets a plain sentence, not an error code:
 
-> You can attach up to 3 files here. Please remove a file you already added, or wait about 60 minutes before trying again.
+> You can attach up to 3 files here. wait about 60 minutes before trying again.
 
 The number of files and the number of minutes both reflect your actual settings, so if you raise the limit the message updates itself. The same applies to the other two refusals:
 
