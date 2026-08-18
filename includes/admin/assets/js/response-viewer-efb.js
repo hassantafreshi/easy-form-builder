@@ -601,6 +601,22 @@ const chatHistory = document.getElementById('resp_efb');
     }
   }
 
+  /* A sent reply owns its attachments from now on, so the composer has to go
+     back to empty: the chips, their progress rows, the pending-file
+     bookkeeping and the highlighted paperclip all belonged to the message
+     that just left. Leaving them on screen makes the next reply look like it
+     is carrying files it will never send. */
+  function _resetReplyUploads() {
+    _handleFileRemoved(
+      document.getElementById('efb_upload_zone'),
+      null,
+      document.getElementById('resp_file_efb_'),
+      document.getElementById('efb_attach_btn')
+    );
+    const legacyName = document.getElementById('name_attach_efb');
+    if (legacyName) legacyName.innerHTML = _t('file');
+  }
+
   return {
     buildAdminResponseBody: buildAdminResponseBody,
     buildPublicResponseBody: buildPublicResponseBody,
@@ -615,6 +631,7 @@ const chatHistory = document.getElementById('resp_efb');
     htmlToShortcode: htmlToShortcode,
     formatMessageForDisplay: formatMessageForDisplay,
     isResponseUploadId: _isResponseUploadId,
+    resetReplyUploads: _resetReplyUploads,
     _handleFileRemoved: _handleFileRemoved
   };
 
@@ -1779,6 +1796,25 @@ function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, tra
   document.getElementById('resp_efb').innerHTML += body
 }
 
+/* Who to credit on the card that is appended the moment a reply is accepted,
+   before any reload re-reads it from the database.
+   The server knows the signed-in name and is the only source that agrees with
+   what the reloaded list will show, so it wins. The payload carries `by` only
+   on the typed-message row, and every attachment is queued ahead of that row -
+   so reading it positionally (message[0].by) returned undefined as soon as a
+   file was attached, and the card was credited to a guest. */
+function efb_reply_sender_name_efb(res, message) {
+  const fromServer = res && res.data && res.data.by ? res.data.by : '';
+  if (fromServer) return fromServer;
+
+  if (Array.isArray(message)) {
+    const authored = message.find(x => x && x.by);
+    if (authored) return authored.by;
+  }
+  if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.user_name) return ajax_object_efm.user_name;
+  return (typeof efb_var !== 'undefined' && efb_var.text) ? efb_var.text.guest : '';
+}
+
 function response_Valid_tracker_efb(res) {
   if (res.data.success == true) {
     document.getElementById('body_efb-track').innerHTML = emsFormBuilder_show_content_message(res.data.value, res.data.content)
@@ -1803,18 +1839,16 @@ function response_rMessage_id(res, message) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;
-     if(document.getElementById('name_attach_efb')) document.getElementById('name_attach_efb').innerHTML =ajax_object_efm.text.file
-    if (typeof EfbResponseViewer !== 'undefined' && EfbResponseViewer._handleFileRemoved) {
-      var _uz = document.getElementById('efb_upload_zone');
-      var _fi = document.getElementById('efb_upload_file_info');
-      var _inp = document.getElementById('resp_file_efb_');
-      var _ab = document.getElementById('efb_attach_btn');
-      EfbResponseViewer._handleFileRemoved(_uz, _fi, _inp, _ab);
-    }
     const date = Date();
-    fun_emsFormBuilder__add_a_response_to_messages(message, res.data.by, 0, 0, date);
+    fun_emsFormBuilder__add_a_response_to_messages(message, efb_reply_sender_name_efb(res, message), 0, 0, date);
     const chatHistory = document.getElementById("resp_efb");
     chatHistory.scrollTop = chatHistory.scrollHeight;
+    /* After the card, never before: the reset splices the file rows out of
+       sendBack_emsFormBuilder_pub, and only a filtered copy of it stands
+       between that array and what was just rendered. */
+    if (typeof EfbResponseViewer !== 'undefined' && EfbResponseViewer.resetReplyUploads) {
+      EfbResponseViewer.resetReplyUploads();
+    }
   } else {
     document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger bg-warning p-2">${res.data.m}</p>`;

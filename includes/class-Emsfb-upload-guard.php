@@ -698,8 +698,8 @@ class Upload_Guard {
         $message = sprintf(
             /* translators: 1: number of files allowed, 2: number of minutes in the window. */
             _n(
-                'You can attach up to %1$d file here. Please remove a file you already added, or wait about %2$d minutes before trying again.',
-                'You can attach up to %1$d files here. Please remove a file you already added, or wait about %2$d minutes before trying again.',
+                'You can attach up to %1$d file here. Please wait about %2$d minutes before trying again.',
+                'You can attach up to %1$d files here. Please wait about %2$d minutes before trying again.',
                 $limit,
                 'easy-form-builder'
             ),

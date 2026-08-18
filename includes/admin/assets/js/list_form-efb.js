@@ -943,10 +943,20 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
           document.getElementById('replayM_emsFormBuilder').value = "";
           const richEditor = document.getElementById('efb_rich_editor');
           if (richEditor) richEditor.innerHTML = '';
-          fun_emsFormBuilder__add_a_response_to_messages(message, message[0].by, ajax_object_efm.user_ip, 0, date);
+          const replyBy = typeof efb_reply_sender_name_efb === 'function'
+            ? efb_reply_sender_name_efb(res, message)
+            : ajax_object_efm.user_name;
+          fun_emsFormBuilder__add_a_response_to_messages(message, replyBy, ajax_object_efm.user_ip, 0, date);
           const chatHistory = document.getElementById("resp_efb");
           chatHistory.scrollTop = chatHistory.scrollHeight;
+          /* Clear the queue before dropping the attachment chips: `message` is
+             the very array `sendBack_emsFormBuilder_pub` points at, and the
+             reset splices the file rows out of it - doing that first would
+             empty the card that was just rendered from it. */
           sendBack_emsFormBuilder_pub=[];
+          if (typeof EfbResponseViewer !== 'undefined' && EfbResponseViewer.resetReplyUploads) {
+            EfbResponseViewer.resetReplyUploads();
+          }
         }else{
           alert_message_efb(res.data.m,'', 7 , 'info')
         }

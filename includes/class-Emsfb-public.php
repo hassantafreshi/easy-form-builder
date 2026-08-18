@@ -4746,7 +4746,11 @@ public function check_nonce_permission_efb($request) {
 				}
 				if($read_s==1){
 					if($this->efb_uid > 0) {
-						$by = get_user_by('id',$this->efb_uid);
+						/* Answered with the display name the tracker resolves from
+						   rsp_by on the next load, so the card appended right now
+						   and the reloaded one credit the same person. */
+						$usr_rsp = get_user_by('id',$this->efb_uid);
+						$by = $usr_rsp ? $usr_rsp->display_name : $this->lanText['spprt'];
 					} else {
 						$this->efb_uid = -1;
 						$by = $this->lanText['spprt'];
@@ -4780,7 +4784,7 @@ public function check_nonce_permission_efb($request) {
 				$email_usr ="";
 				if($this->efb_uid!=0 && $this->efb_uid!==-1){
 					$usr= wp_get_current_user();
-					$by = $usr->user_nicename;
+					$by = $usr->display_name;
 					$email_usr = $usr->user_email;
 				}
 

@@ -1192,7 +1192,7 @@ class Admin {
     }
 
     public function set_replyMessage_id_Emsfb() {
-        $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
+        $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent","spprt"];
         $efbFunction = get_efbFunction();
         $lang= $efbFunction->text_efb($text);
          $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
@@ -1299,7 +1299,19 @@ class Admin {
         $table_name = $this->db->prefix . "emsfb_msg_";
         $this->db->update($table_name,array('read_'=>1), array('msg_id' => $id) );
         $m        = $lang['messageSent'];
-        $response = ['success' => true, "m" => $m];
+        /*
+         * The viewer appends the new reply straight away instead of reloading,
+         * so it needs the same name get_all_response_id_Emsfb() resolves from
+         * rsp_by. Sending it back keeps that card identical to the one the
+         * next reload renders, and stops the browser from having to guess the
+         * author out of a payload where the typed row is not always first.
+         */
+        $current_user = wp_get_current_user();
+        $response = [
+            'success' => true,
+            "m"       => $m,
+            'by'      => $current_user && $current_user->exists() ? $current_user->display_name : $lang['spprt'],
+        ];
         $pro =$efbFunction->is_efb_pro(1);
 
         $efbFunction->response_to_user_by_msd_id($id ,$pro);
