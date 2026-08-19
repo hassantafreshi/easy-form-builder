@@ -1399,7 +1399,6 @@ public function check_nonce_permission_efb($request) {
 							if($valj_efb[$i]->type =='paypal'){
 								$paymentType="paypal";
 								$paymentKey = $this->resolve_payment_key_efb( $setting, 'paypalPKey' );
-								// error_log('[EFB][PayPal][PUBLIC] Localizing client id: form_id=' . $form_id . ', setting_type=' . gettype( $setting ?? null ) . ', sent=' . ( $paymentKey === 'null' ? 'null' : 'set' ));
 								$currency ='USD';
 
 								/* Without the add-on the script URL below 404s and filemtime() warns on a
@@ -4600,6 +4599,15 @@ public function check_nonce_permission_efb($request) {
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :'guest';
 		$sc = isset($data_POST['sc']) ? sanitize_text_field($data_POST['sc']) : 'null';
+		/* `sc` only ever carries a claim to an emailed admin capability token,
+		 * and 'null' is the sole "absent" marker the guards below understand.
+		 * Since the response viewer began reading the code out of
+		 * ajax_object_efm, the browser sends the key on every reply - as an
+		 * empty string for an ordinary visitor on a plain ?track= link. Left
+		 * unnormalised, that blank claim was verified against an email_key the
+		 * site may never have been given, and every public reply came back as
+		 * E400 "security session expired". */
+		if ($sc === '') $sc = 'null';
 		$track = sanitize_text_field($data_POST['track']);
 
 		$this->id =sanitize_text_field($data_POST['id']);

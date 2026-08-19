@@ -3602,7 +3602,6 @@ public function addon_add_efb($value) {
             $attempt = 0;
             $max_attempts = $fallback_max_attempts;
             $fallback_domain = '';
-            // error_log('[EFB-ADDON] Switching addon endpoint to fallback after failed attempts | addon=' . $value . ' | reason=' . $reason . ' | from=' . $previous_domain . ' | to=' . $domain);
             return true;
         };
 
@@ -3821,7 +3820,6 @@ public function addon_add_efb($value) {
 					@unlink($r);
 				}
 			}
-			// error_log('[EFB-ADDON] move failed | url=' . $url);
 			return new WP_Error('move_failed',
 				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file', 'easy-form-builder')
 			);
@@ -3836,13 +3834,11 @@ public function addon_add_efb($value) {
 			}
 		}
 		if(is_wp_error($r)){
-			// error_log('[EFB-ADDON] unzip failed | error=' . $r->get_error_message());
 			return new WP_Error('unzip_failed',
 				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder')
 				. ' (' . $r->get_error_message() . ')'
 			);
 		}
-		// error_log('[EFB-ADDON] fun_addon_new success | url=' . $url);
 		return true;
 	}
 
@@ -3911,14 +3907,12 @@ public function addon_add_efb($value) {
 				if(!is_array($r) || !isset($r['status'])){
 					$state=false;
 					$details['errors'][ $key ] = esc_html__( 'The add-on server returned an unexpected response.', 'easy-form-builder' );
-					// error_log("Unexpected response format when downloading add-on $key: " . print_r($r, true));
 					continue;
 				}
 				if($r['status']==false){
 					$state=false;
 					$details['errors'][ $key ] = isset( $r['message'] ) ? wp_strip_all_tags( (string) $r['message'] ) : esc_html__( 'The add-on could not be installed.', 'easy-form-builder' );
 					if(!empty($r['expired'])){
-						// keep looping: free add-ons later in the list must still be restored
 						$renew_required = true;
 						continue;
 					}
@@ -5049,7 +5043,6 @@ public function addon_add_efb($value) {
 			set_transient($tk, 1, 12 * HOUR_IN_SECONDS);
 		}
 		$version = defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '?';
-		// error_log('[EFB-PRO v' . $version . '] ' . home_url() . ' | ' . $message);
 	}
 
 	public function make_post_request_efb( $ac) {

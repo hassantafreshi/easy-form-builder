@@ -231,21 +231,6 @@ The Free Plus version is completely free of charge - the only difference is a sm
 
  [Easy Form Builder is available in multiple versions](https://whitestudio.team/document/easy-form-builder-free-plus-activation-guide/) to support different usage needs. Each version is designed to provide a clear and predictable set of features.
 
-= Free Version =
-The Free version provides essential form-building tools. It is suitable for users who need reliable form creation with email notifications, confirmation codes, entry management, file uploads, and basic survey fields.
-
-This version is suitable for personal websites, blogs, and small business sites.
-
-= Free Plus Version =
-The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder, while excluding external add-ons. It also unlocks conditional logic at no cost - up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules - plus CSV export and the weekly email deliverability report.
-
-This version is suitable for users who need advanced form layouts, smart conditional forms, and surveys without add-on-based extensions. A small "Powered by Easy Form Builder" credit is displayed on the form output.
-
-= Pro Version =
-The Pro version includes all Free Plus features and adds support for official add-ons and integrations. For conditional logic, Pro removes all rule limits and adds nested AND/OR groups, calculations, rule priority, conditional thank-you messages and redirects, conditional webhooks, rule export/import, and the logic Inspector (debugger).
-
-This version is suitable for professional websites, service platforms, and projects that require extended workflows such as SMS notifications, payment forms, conditional workflows, and advanced integrations.
-
 
 == Frequently Asked Questions ==
 
@@ -303,6 +288,21 @@ Yes. Easy Form Builder includes a visual conditional logic builder. You can show
 
 = Is conditional logic free? =
 Yes. Conditional logic is available at no cost in the Free Plus version, which includes up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules. The Pro version removes these limits and adds nested AND/OR groups, calculations, conditional redirects and thank-you messages, conditional webhooks, and the logic Inspector.
+
+= What does the Free version include? =
+The Free version provides essential form-building tools. It is suitable for users who need reliable form creation with email notifications, confirmation codes, entry management, file uploads, and basic survey fields.
+
+This version is suitable for personal websites, blogs, and small business sites.
+
+= What does the Free Plus version include? =
+The Free Plus version extends the Free version by enabling advanced form fields and features available in the form builder, while excluding external add-ons. It also unlocks conditional logic at no cost - up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules - plus CSV export and the weekly email deliverability report.
+
+This version is suitable for users who need advanced form layouts, smart conditional forms, and surveys without add-on-based extensions. A small "Powered by Easy Form Builder" credit is displayed on the form output.
+
+= What does the Pro version include? =
+The Pro version includes all Free Plus features and adds support for official add-ons and integrations. For conditional logic, Pro removes all rule limits and adds nested AND/OR groups, calculations, rule priority, conditional thank-you messages and redirects, conditional webhooks, rule export/import, and the logic Inspector (debugger).
+
+This version is suitable for professional websites, service platforms, and projects that require extended workflows such as SMS notifications, payment forms, conditional workflows, and advanced integrations.
 
 = Can I show or hide form fields based on a user's answer? =
 Yes. Conditional fields are the core of the conditional logic builder: choose a condition (for example, "Plan is Enterprise") and an action (for example, "show the Budget field"), and the form updates in real time while the visitor fills it in.
@@ -423,19 +423,6 @@ For more information, visit the official website:
 = 4.1.3 =
 
 * Reliability update: fixes stray empty paragraphs breaking form layout on some themes/page builders, resolves file upload and recorder submission failures, and enforces file size/type limits on the server. Also adds a weekly email deliverability report. Recommended for all users.
-
-
-= 4.1.2 =
-
-* Reliability update: fixes file uploads and audio/video/screen recordings being rejected on submit, resolves forms with uploads or recorders being wrongly blocked by Form Security & Spam Protection, and stops real visitors being blocked when their browser auto-fills a hidden field. Also adds safer plugin loading after updates. Recommended for all users.
-
-
-= 4.1.1 =
-
-* Fixed issues
-
-= 4.1.0 =
-Big update: a new no-code Conditional Logic Builder for smart forms, an AI-analyzed email deliverability monitor (spam score + SPF/DKIM/DMARC) with weekly reports, multiple file uploads, form-builder autosave, session/nonce hardening for cached pages, automatic CDN failover, and several security fixes. Tested up to WordPress 7.0
 
 = 4.0.0 =
 
