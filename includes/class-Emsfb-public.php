@@ -7314,6 +7314,7 @@ public function check_nonce_permission_efb($request) {
 			'rtl' => is_rtl(),
 			'text' =>$lanText ,
 			'pro'=> $pro ? 1 : 0,
+			'package_type' => (int) get_option('emsfb_pro', 2),
 			'wp_lan'=>get_locale(),
 			'location'=> "",
 			'v_efb'=>EMSFB_PLUGIN_VERSION,

@@ -5300,8 +5300,8 @@ call_beat = async () => {
           store_form_efb();
         }
         alert_message_efb(
-          '<i class="efb bi-wifi-off mx-1"></i>' + efb_var.text.error,
-          `<p class="efb fs-6">${text}</p>`,
+          '<span class="efb text-white"><i class="efb bi-wifi-off mx-1"></i>' + efb_var.text.error + '</span>',
+          text,
           500,
           "danger"
         );

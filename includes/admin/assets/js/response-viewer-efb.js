@@ -1091,6 +1091,23 @@ function getFallbackFont_efb(locale) {
   return fallbackFonts[locale] || 'Arial, sans-serif';
 }
 
+/* efb_var.pro is truthy for BOTH Pro and Free Plus (is_efb_pro() counts
+   package_type 3 as pro); only package_type === 1 is real Pro. Admin pages
+   expose it at efb_var.setting.package_type, the frontend (efb_var is an
+   alias for ajax_object_efm there) exposes it at the top level. */
+function isRealPro_efb() {
+  if (typeof efb_var === 'undefined' || efb_var.pro === undefined || efb_var.pro === null) return false;
+  var proFlag = efb_var.pro == '1' || efb_var.pro == 1 || efb_var.pro === true;
+  if (!proFlag) return false;
+  var packageType = NaN;
+  if (efb_var.setting && efb_var.setting.package_type !== undefined && efb_var.setting.package_type !== null) {
+    packageType = Number(efb_var.setting.package_type);
+  } else if (efb_var.package_type !== undefined && efb_var.package_type !== null) {
+    packageType = Number(efb_var.package_type);
+  }
+  return packageType === 1;
+}
+
 function generatePDF_EFB(id)
 {
   var browserSupport = checkBrowserSupport_efb();
@@ -1301,14 +1318,17 @@ function generatePDF_EFB(id)
     var headerHtml = '<div class="efb-pdf-header">';
     headerHtml += '<h2><a href="' + websiteUrl + '" target="_blank">' + window.location.hostname + '</a></h2>';
     const efb_link = efb_var.wp_lan === 'fa_IR' ? 'https://easyformbuilder.ir' : 'https://whitestudio.team/';
-    if (efb_var.pro !== 1) {
+    const showBranding = !isRealPro_efb();
+    if (showBranding) {
       headerHtml += '<h2>' + efb_var.text.createdBy + ' <a href="' + efb_link + '" target="_blank">' + efb_var.text.easyFormBuilder + '</a></h2>';
     }
     headerHtml += '</div>';
-    var footerHtml = '<div class="efb-pdf-footer">' +
+    var footerHtml = showBranding ? (
+      '<div class="efb-pdf-footer">' +
       (efb_var.text.createdBy || 'Created by') + ' ' + (efb_var.text.easyFormBuilder || 'Easy Form Builder') +
       ' &mdash; ' + new Date().toLocaleDateString((efb_var.wp_lan || 'en').replace(/_/g, '-'), { year:'numeric', month:'long', day:'numeric' }) +
-      '</div>';
+      '</div>'
+    ) : '';
     return headMarkup +
       '<title>' + (efb_var.text.download || 'Download') + ' - ' + window.location.hostname + '</title>' +
       '<body onload="winprint()">' +

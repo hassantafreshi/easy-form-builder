@@ -1167,6 +1167,26 @@ function efbCreateMap(id ,r ,viewState) {
   efbMapContainer.offsetWidth;
 
   var efbMap = L.map(efbMapDiv).setView([efbInitialLat, efbInitialLng], efbInitialZoom);
+
+  var efbErrorMessageDiv = document.createElement('div');
+  efbErrorMessageDiv.id = `efb-error-message-${efbMap._leaflet_id}`;
+  efbErrorMessageDiv.className = 'efb error-message text-danger d-none';
+  efbErrorMessageDiv.style.cssText = 'position:absolute; top:10px; left:50%; transform:translateX(-50%); max-width:90%; font-size:15px; display:flex; align-items:center; gap:8px; white-space:nowrap; background:rgb(255 255 255 / 95%); padding:4px 10px; border-radius:4px; box-shadow:0 2px 6px rgba(0,0,0,0.15); z-index:1001;';
+
+  var efbErrorTextSpan = document.createElement('span');
+  efbErrorTextSpan.className = 'efb efb-error-message-text';
+  efbErrorTextSpan.style.cssText = 'overflow:hidden; text-overflow:ellipsis;';
+  efbErrorMessageDiv.appendChild(efbErrorTextSpan);
+
+  var efbErrorCloseBtn = document.createElement('span');
+  efbErrorCloseBtn.className = 'efb efb-error-message-close';
+  efbErrorCloseBtn.innerHTML = '&times;';
+  efbErrorCloseBtn.style.cssText = 'cursor:pointer; font-weight:bold; line-height:1; flex-shrink:0;';
+  efbErrorCloseBtn.onclick = function() { efbErrorMessageDiv.classList.add('d-none'); };
+  efbErrorMessageDiv.appendChild(efbErrorCloseBtn);
+
+  efbMapContainer.appendChild(efbErrorMessageDiv);
+
   var efbOsmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
   }).addTo(efbMap);
@@ -1219,7 +1239,7 @@ function efbCreateMap(id ,r ,viewState) {
                 title="${efb_var.text.search}"
                 style="min-width: 32px; height: 32px; padding: 0;">
                 <i class="efb bi-search d-block d-md-none" style="font-size: 14px;"></i>
-                <span class="efb d-none d-md-block" style="font-size: 11px; white-space: nowrap; padding: 0 4px;">${efb_var.text.search}</span>
+                <span class="efb d-none d-md-block" style="font-size: 12px; white-space: nowrap; padding: 0 4px;">${efb_var.text.search}</span>
               </a>
 
               <!-- Clear Markers Button -->
@@ -1228,23 +1248,14 @@ function efbCreateMap(id ,r ,viewState) {
                 title="${efb_var.text.deletemarkers}"
                 style="min-width: 32px; height: 32px; padding: 0;">
                 <i class="efb bi-trash d-block d-md-none" style="font-size: 14px;"></i>
-                <span class="efb d-none d-md-block" style="font-size: 11px; white-space: nowrap; padding: 0 4px;">${efb_var.text.deletemarkers}</span>
+                <span class="efb d-none d-md-block" style="font-size: 12px; white-space: nowrap; padding: 0 4px;">${efb_var.text.deletemarkers}</span>
               </a>
-
-              <!-- Error Message (hidden by default) -->
-              <div id="efb-error-message-${efbMap._leaflet_id}"
-                class="efb position-absolute error-message text-danger d-none"
-                style="font-size: 12px; top: 100%; left: 0; right: 0; background: rgba(248, 249, 250, 0.95); padding: 4px 8px; border-radius: 4px; margin-top: 2px; z-index: 1001;"></div>
           </div>
           `;
           efbDiv.classList.remove('d-none');
 
       } else {
-          efbDiv.innerHTML = `
-              <div id="efb-error-message-${efbMap._leaflet_id}"
-                class="efb w-100 error-message text-danger d-none"
-                style="font-size: 12px; padding: 8px;"></div>
-          `;
+          efbDiv.innerHTML = '';
           efbDiv.classList.add('d-none');
           efbDiv.classList.add('efb');
       }
@@ -1312,7 +1323,8 @@ function efbCreateMap(id ,r ,viewState) {
 function efbSearchLocation(efbMapId) {
   var efbQuery = document.getElementById(`efb-search-${efbMapId}`).value;
   var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
-  efbErrorMessageDiv.innerHTML = '';
+  efbErrorMessageDiv.classList.add('d-none');
+  efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = '';
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2)
   fetch(`https://nominatim.openstreetmap.org/search?q=${efbQuery}&format=json&accept-language=${efbLanguage}`)
       .then(response => {
@@ -1329,12 +1341,12 @@ function efbSearchLocation(efbMapId) {
               efbErrorMessageDiv.classList.remove('d-none');
               let val = efb_var.text.slocation.replace('%s', '');
               val = efb_var.text.snotfound.replace('%s', val);
-              efbErrorMessageDiv.textContent =  val;
+              efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = val;
           }
       })
       .catch(error => {
           efbErrorMessageDiv.classList.remove('d-none');
-          efbErrorMessageDiv.textContent = 'Error fetching location: ' + error.message;
+          efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = 'Error fetching location: ' + error.message;
       });
 }
 
@@ -1381,7 +1393,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r,form_id,
           })
           .catch(error => {
               efbErrorMessageDiv.classList.remove('d-none');
-              document.getElementById(`efb-error-message-${efbMapId}`).textContent = 'Error fetching address: ' + error.message;
+              efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = 'Error fetching address: ' + error.message;
           });
   } else {
       efbMarker.bindPopup(efbName);
@@ -1445,8 +1457,9 @@ function efbAddInitialMarker(efbLat, efbLng, efbMapId) {
           });
       })
       .catch(error => {
+          var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
           efbErrorMessageDiv.classList.remove('d-none');
-          document.getElementById(`efb-error-message-${efbMapId}`).textContent = 'Error fetching address: ' + error.message;
+          efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = 'Error fetching address: ' + error.message;
       });
 }
 
@@ -1501,8 +1514,9 @@ function efbLocateMe(efbMapId) {
                 });
             })
             .catch(error => {
+                var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
                 efbErrorMessageDiv.classList.remove('d-none');
-                document.getElementById(`efb-error-message-${efbMapId}`).textContent = efb_var.text.errorFetchingAddress + ': ' + error.message;
+                efbErrorMessageDiv.querySelector('.efb-error-message-text').textContent = efb_var.text.errorFetchingAddress + ': ' + error.message;
             });
     }, function(error) {
         alert(efb_var.text.error + ': ' + error.message);
