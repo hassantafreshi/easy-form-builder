@@ -3,7 +3,7 @@ Contributors: hassantafreshi, mostafas1990, 6arshid, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form plugin, multi step form, email templates, payment form
 Requires at least: 5.0
-Tested up to: 7.0
+Tested up to: 7.1
 Stable tag: 4.1.3
 Requires PHP: 7.0
 License: GPLv3 or later

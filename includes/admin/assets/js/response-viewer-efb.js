@@ -798,17 +798,21 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     <div class="efb-msg-avatar ${byIsAdmin ? 'efb-msg-avatar--admin' : ''}"><i class="bi ${byIsAdmin ? 'bi-shield-check' : 'bi-person'}"></i></div>
     <div class="efb-msg-sender-info"><span class="efb-msg-sender-role">${byIsAdmin ? 'Admin' : efb_var.text.by}:</span><span class="efb-msg-sender-name">${byName}</span></div>
   </div>` : '';
-  let m = `<div class="efb bg-response efb card-body my-2 py-2 efb-msg-card ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
-    <div class="efb efb-msg-header">
+  const dlWrapHtml = efb_var.hasOwnProperty('setting') || (typeof setting_emsFormBuilder !== 'undefined' && (setting_emsFormBuilder.activeDlBtn == true || setting_emsFormBuilder.activeDlBtn == '1' || setting_emsFormBuilder.activeDlBtn === 1)) ? `<div class="efb efb-msg-download efb-msg-dl-wrap"><button type="button" class="efb-msg-dl-btn" onclick="toggleDlDropdown_EFB(this)" aria-expanded="false" aria-haspopup="menu" aria-label="${efb_var.text.download}" title="${efb_var.text.download}"><i class="bi bi-download" aria-hidden="true"></i></button></div>` : '';
+  // Cards with no sender (the '#first' card) have nothing to pair the actions row
+  // against, so the header would collapse to a single flex item stuck at the start
+  // edge; anchor the download button to the meta bar's end edge instead.
+  const headerHtml = bySection ? `<div class="efb efb-msg-header">
      ${bySection}
-     <div class="efb-msg-header-actions">
-       ${efb_var.hasOwnProperty('setting') || (typeof setting_emsFormBuilder !== 'undefined' && (setting_emsFormBuilder.activeDlBtn == true || setting_emsFormBuilder.activeDlBtn == '1' || setting_emsFormBuilder.activeDlBtn === 1)) ? `<div class="efb efb-msg-download efb-msg-dl-wrap"><button type="button" class="efb-msg-dl-btn" onclick="toggleDlDropdown_EFB(this)" aria-expanded="false" aria-haspopup="menu" aria-label="${efb_var.text.download}" title="${efb_var.text.download}"><i class="bi bi-download" aria-hidden="true"></i></button></div>` : ''}
-     </div>
-    </div>
+     <div class="efb-msg-header-actions">${dlWrapHtml}</div>
+    </div>` : '';
+  let m = `<div class="efb bg-response efb card-body my-2 py-2 efb-msg-card ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
+    ${headerHtml}
     <div class="efb-msg-meta-bar">
       ${ipSection}
       ${track != 0 ? `<div class="efb-msg-meta-item"><i class="bi bi-hash"></i><span class="efb-msg-meta-label">${efb_var.text.trackNo}:</span><span class="efb-msg-meta-val">${track}</span></div>` : ''}
       <div class="efb-msg-meta-item"><i class="bi bi-calendar3"></i><span class="efb-msg-meta-label">${efb_var.text.ddate}:</span><span class="efb-msg-meta-val">${date}</span></div>
+      ${bySection ? '' : dlWrapHtml}
     </div>
   <div class="efb-msg-divider"></div>
   <div class="efb-msg-fields">
@@ -915,7 +919,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           q+=`<span class="efb efb-msg-price-tag">${Number(price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }else if(c.type.includes('checkbox')){
         }else if(c.type.includes('imgRadio')){
-          q = typeof fun_imgRadio_efb === 'function' ? `<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>` : `<div class="efb w-25"><img src="${c.src || ''}" class="efb img-fluid rounded" alt="${c.value || ''}"></div>`
+          q = typeof fun_imgRadio_efb === 'function' ? `<div class="efb w-100">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>` : `<div class="efb w-100"><img src="${c.src || ''}" class="efb img-fluid rounded" alt="${c.value || ''}"></div>`
         }
         m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label">${title}:</span> <span class="efb-msg-field-value">${text_nr_efb(q,1)}</span></div>`
       }

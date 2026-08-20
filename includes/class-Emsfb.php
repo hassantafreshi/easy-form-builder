@@ -1746,8 +1746,8 @@ class Emsfb {
         $defaults->act_local_efb     = '';
         $defaults->scaptcha          = '';
         $defaults->shield_silent_captcha = '';
-        $defaults->activeDlBtn       = '';
-        $defaults->dsupfile          = '1';
+        $defaults->activeDlBtn       = true;
+        $defaults->dsupfile          = true;
         $defaults->sms_config        = 'null';
         $defaults->AdnSPF            = '0';
         $defaults->AdnOF             = '0';

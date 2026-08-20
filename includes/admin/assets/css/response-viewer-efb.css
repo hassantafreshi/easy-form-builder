@@ -1070,11 +1070,11 @@
   max-width: -webkit-fill-available;
   margin: 32px auto;
   padding: 36px 28px 28px;
-  background-color: var(--efb-resp-bg-track);
+  background-color: var(--efb-resp-bg-track)!important;
   border-radius: 20px;
   box-shadow: 0 8px 32px var(--efb-resp-primary-10),
-              0 1.5px 4px rgba(0,0,0,.04);
-  color: var(--efb-resp-text);
+              0 1.5px 4px rgba(0,0,0,.04)!important;
+  color: var(--efb-resp-text)!important;
   position: relative;
   overflow: visible;
 }

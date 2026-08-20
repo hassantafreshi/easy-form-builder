@@ -58,9 +58,12 @@ if (!defined("EMSFB_DEV_MODE")) {
     }
 }
 
+// Test mode is a separate flag from devMode. It is only used to switch the server URL to the sandbox for testing,
+// and is not intended to be used by end users. It is not exposed in the admin UI, and is not stored in the database.
+define("EMSFB_PLUGIN_TEST_MODE", false);
 
 if (!defined("EMSFB_SERVER_URL")) {
-    if (EMSFB_DEV_MODE) {
+    if (EMSFB_DEV_MODE && EMSFB_PLUGIN_TEST_MODE) {
        define("EMSFB_SERVER_URL", "https://demo.whitestudio.team");
 
     } else {

@@ -3678,7 +3678,7 @@ function efb_onboarding_finish_efb() {
         data: { action: 'efb_complete_onboarding', nonce: efb_var.nonce }
     }).done(function(response) {
         if (response && response.success) {
-            efb_var.onboarding_pending = false;
+            efb_var_patch_efb({ onboarding_pending: false });
             closeSetupOverlay_efb();
             show_success_notification_efb(efb_onboarding_text_efb('onboardingFinish', 'Finish setup'));
             return;
@@ -3731,7 +3731,7 @@ function efb_onboarding_poll_email_efb(test, email, attempt) {
                 .replace('%1$s', result.score)
                 .replace('%2$s', efb_onboarding_min_score_efb()));
         } else if (result.can_send_email === true) {
-            if (efb_var.setting) efb_var.setting.smtp = true;
+            efb_var_patch_efb(null, { smtp: true });
             efb_onboarding_live_update_efb({ steps: { start: 'done', send: 'done', wait: 'done', quick: 'done', full: 'done' }, percent: 100, result: result });
             efb_onboarding_status_efb('success', result.message || efb_onboarding_text_efb('onboardingTestPassed', 'Email delivery is ready. Form notifications can be sent.'));
         } else if (pending || status === 'delayed') {
@@ -3780,7 +3780,7 @@ function efb_onboarding_start_email_test_efb() {
             button.classList.remove('is-loading');
             return;
         }
-        if (efb_var.setting) efb_var.setting.emailSupporter = email;
+        efb_var_patch_efb(null, { emailSupporter: email });
         jQuery.ajax({
             url: efb_var.ajax_url,
             type: 'POST',
@@ -3848,6 +3848,55 @@ function efb_plan_has_activation_code_efb() {
         && typeof valueJson_ws_setting.activeCode === 'string' && valueJson_ws_setting.activeCode.trim() !== '';
 }
 
+/*
+ * admin-efb.js deep-freezes efb_var on DOM ready and the setup overlay opens
+ * half a second later, so every `efb_var.x = ...` in this file was silently
+ * dropped in non-strict mode. Choosing a plan updated the database while the
+ * page kept running on the package it was loaded with. Rebuild the object
+ * instead, re-point the globals that alias it, and freeze it again so the
+ * read-only contract the rest of the admin relies on still holds.
+ */
+function efb_var_patch_efb(patch, settingPatch) {
+    if (typeof efb_var === 'undefined' || efb_var === null || typeof efb_var !== 'object') return null;
+    // A settings payload that failed to decode server-side is left untouched:
+    // replacing it with the patch alone would drop every other setting.
+    const settingReplaced = !!settingPatch && !!efb_var.setting && typeof efb_var.setting === 'object';
+    const updated = Object.assign({}, efb_var, patch || {});
+    if (settingReplaced) {
+        updated.setting = Object.assign({}, efb_var.setting, settingPatch);
+    }
+    efb_var = typeof deepFreeze_efb_admin === 'function' ? deepFreeze_efb_admin(updated) : updated;
+    // setting_emsFormBuilder is handed `efb_var.setting` once on DOM ready
+    // (admin-efb.js); a replaced setting object has to be handed to it again.
+    if (settingReplaced) {
+        try { setting_emsFormBuilder = efb_var.setting; } catch (e) {}
+    }
+    return efb_var;
+}
+
+/*
+ * Mirror a saved package type onto the page exactly as a reload would.
+ * is_efb_pro() counts Free Plus (3) as Pro just like Pro (1), and
+ * wp_localize_script prints top-level scalars as strings - so loading an admin
+ * page with emsfb_pro = 3 yields pro "1" and setting.package_type 3. Picking
+ * Free Plus in the overlay has to end in that same state without the reload,
+ * otherwise the advanced fields stay locked until the admin refreshes.
+ */
+function efb_apply_package_type_efb(packageType) {
+    packageType = Number(packageType);
+    if (![0, 1, 2, 3].includes(packageType)) return;
+    const isPro = packageType === 1 || packageType === 3;
+
+    sessionStorage.setItem('efb_license_selected', String(packageType));
+    efb_var_patch_efb({ pro: isPro ? '1' : '0' }, { package_type: packageType });
+
+    // Only the panel parses this copy of the settings; the builder does not.
+    if (typeof valueJson_ws_setting === 'object' && valueJson_ws_setting !== null) {
+        valueJson_ws_setting.package_type = packageType;
+    }
+    try { pro_efb = isPro; } catch (e) {}
+}
+
 function handle_setup_modal_action(plan) {
     plan = (typeof plan === 'string') ? plan.replace(/[^A-Za-z_]/g, '') : '';
     if (plan === 'later') {
@@ -3875,10 +3924,7 @@ function handle_setup_modal_action(plan) {
 
 function enable_advanced_features_with_credit_efb() {
 
-    if (typeof efb_var !== 'undefined') {
-        efb_var.advanced_features = true;
-        efb_var.show_credit = true;
-    }
+    efb_var_patch_efb({ advanced_features: true, show_credit: true });
 }
 
 function savePlanSelection_efb(plan, downgradeConfirmed) {
@@ -3941,11 +3987,7 @@ function highlightSelectedPlan_efb() {
 }
 
 function setupFreePlan_efb() {
-    if (typeof efb_var !== 'undefined') {
-        efb_var.current_plan = 'free';
-        efb_var.advanced_features = false;
-        efb_var.show_credit = false;
-    }
+    efb_var_patch_efb({ current_plan: 'free', advanced_features: false, show_credit: false });
 }
 
 function redirectToProUpgrade_efb($proUrl) {
@@ -3984,19 +4026,11 @@ function sendPlanSelectionToServer_efb(selectionData) {
                     }
                     return;
                 }
-                const packageType = Number(response.data.package_type);
-                if ([0, 1, 2, 3].includes(packageType)) {
-                    sessionStorage.setItem('efb_license_selected', String(packageType));
-                    efb_var.setting.package_type = packageType;
-                    efb_var.pro = packageType === 1;
-                    if (typeof valueJson_ws_setting === 'object' && valueJson_ws_setting !== null) {
-                        valueJson_ws_setting.package_type = packageType;
-                    }
-                }
+                efb_apply_package_type_efb(response.data.package_type);
                 if (response.data.activation_code_removed) {
                     const input = document.getElementById('activeCode_emsFormBuilder');
                     if (input) input.value = '';
-                    efb_var.setting.activeCode = '';
+                    efb_var_patch_efb(null, { activeCode: '' });
                     if (typeof valueJson_ws_setting === 'object' && valueJson_ws_setting !== null) valueJson_ws_setting.activeCode = '';
                 }
                 if (selectionData.selected_plan === 'free') setupFreePlan_efb();
@@ -4005,7 +4039,7 @@ function sendPlanSelectionToServer_efb(selectionData) {
                 updatePlanBadge_efb();
                 show_success_notification_efb(response.data.action || 'Plan updated.');
                 if (efb_is_onboarding_overlay_efb()) {
-                    efb_var.onboarding_pending = true;
+                    efb_var_patch_efb({ onboarding_pending: true });
                     showOnboardingEmailStep_efb();
                 } else {
                     closeSetupOverlay_efb();
